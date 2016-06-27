@@ -6,7 +6,7 @@ export class HasChild extends Component{
         parent: PropTypes.object.isRequired
     }
 
-    state={finished:{count:0}}
+   _finished=0;
 
     getChildContext(){
         return {
@@ -31,16 +31,13 @@ export class HasChild extends Component{
     }
 
     finished(){
-        let {finished}=this.state
-        finished.count++
+        this._finished++
+		return React.Children.count(this.props.children)==this._finished
     }
 }
 
 export default class Content extends HasChild{
-    constructor(){
-        super(...arguments)
-        this.state=Object.assign({composed:[]},this.state)
-    }
+   state={composed:[]}
 
     componentWillMount(){
         this.compose()
@@ -78,20 +75,14 @@ export default class Content extends HasChild{
      */
     append(line){
         super.append(line)
-        const {parent}=this.context
-        return parent.append(line)
+        return this.context.append(line)
     }
-
-    finished(){
-        super.finished()
-
-        const {children}=this.props
-        const {finished}=this.state
-
-        if(React.Children.count(children)==finished.count){
-            const {parent}=this.context
-            parent.finished()
-        }
-
-    }
+	
+	finished(){
+		if(super.finished()){
+			this.context.parent.finished()
+			return true
+		}
+		return false
+	}
 }

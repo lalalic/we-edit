@@ -12,7 +12,6 @@ export default class Section extends Any{
     render(){
         const {composed}=this.state
         const {canvas}=this.context
-        const {gap=20}=this.props
         let y=0
         return (
             <Group>
@@ -22,7 +21,7 @@ export default class Section extends Any{
                 <Group ref="composed">
                     {composed.map((page,i)=>{
                         let {width,height}=page
-                        let newPage=(<Page key={i} x={(canvas.width-width)/2} y={y+=gap} {...page}/>)
+                        let newPage=(<Group x={(canvas.width-width)/2} y={y+=canvas.pageGap} key={i}><Page {...page}/></Group>)
                         y+=height
                         return newPage
                     })}
@@ -68,21 +67,16 @@ export default class Section extends Any{
     }
 
     next(required={}){
-        const {width:minW=0,height:minH=0}=required
+        const {width:minRequiredW=0,height:minRequiredH=0}=required
         const {composed}=this.state
         let currentPage=composed[composed.length-1]
         let {columns}=currentPage
         let currentColumn=columns[columns.length-1]
         let {width,height, children}=currentColumn
-        let availableHeight=children.reduce((prev, a)=>prev-a.height,height)
+        let availableHeight=children.reduce((prev, a)=>prev-a.props.height,height)
 
         //@TODO: what if never can find min area
-        let avoidInfiniteLoop=0
-        while(availableHeight<=minH || width<minW){
-            if(avoidInfiniteLoop==2){//can't find min area, cheat with min area
-                return arguments[0]
-            }
-
+        while(availableHeight<=minRequiredH || width<minRequiredW){
             if(this.props.page.columns>columns.length){// new column
                 columns.push(currentColumn=this._newColumn(columns.length))
             }else{//new page
@@ -103,13 +97,14 @@ export default class Section extends Any{
         let {columns}=currentPage
         let currentColumn=columns[columns.length-1]
         let {width,height, children}=currentColumn
-        let availableHeight=children.reduce((prev, a)=>prev-a.height,height)
-        const {height:contentHeight}=line
-        if(contentHeight>availableHeight){
+        let availableHeight=children.reduce((prev, a)=>prev-a.props.height,height)
+		
+        const {height:contentHeight}=line.props
+        
+		if(contentHeight>availableHeight){
             if(this.props.page.columns>columns.length){// new column
                 columns.push(currentColumn=this._newColumn(columns.length))
             }else{//new page
-                avoidInfiniteLoop++
                 composed.push(currentPage=this._newPage(composed.length))
                 currentColumn=currentPage.columns[0]
             }
@@ -119,13 +114,31 @@ export default class Section extends Any{
 
             children=currentColumn.children
         }
+		
+		children.push(<Group y={height-availableHeight} height={contentHeight}>{line}</Group>)
         //@TODO: what if contentHeight still > availableHeight
-        children.push(line)
     }
 
     finished(){
-        super.finished()
-        const {composed}=this.state
-        this.setState({composed})
+        if(super.finished()){
+			const {composed}=this.state
+			const {canvas}=this.context
+			const {page:{width}}=this.props
+			this.context.parent.append({
+				width: width,
+				height:composed.reduce((prev,a)=>prev+a.height+canvas.pageGap,0)
+			})
+			return true
+		}
+		
+		return false
     }
+	
+	static defaultProps={
+		page: {
+			width: 300,
+			height: 400,
+			margin: 20
+		}
+	}
 }

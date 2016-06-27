@@ -43,7 +43,8 @@
 	"dist.watch": "watchify -v -d -r ./lib/index.js:we-edit -o dist/index.js",
 
 	"karma": "karma start",
-    "test": "http-server dist"
+    "test": "http-server dist",
+	"links": "node -p \"Object.keys(require('./package.json').devDependencies).join(' ')\""
   },
   "keywords": [],
   "repository": {

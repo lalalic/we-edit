@@ -1,5 +1,6 @@
 import React, {Component, PropTypes} from "react"
 import Any from "./any"
+import Group from "../compose/group"
 
 export default class Inline extends Any{
     render(){
@@ -7,22 +8,21 @@ export default class Inline extends Any{
     }
 
     compose(){
-        const {composed, finished}=this.state
+        const {composed}=this.state
         const {parent}=this.context
         let composer=new this.constructor.Composer(this)
-        let line=null
-        while(line=composer.next()){
-            Object.assign(line,{onClick:e=>this.onClick(e,composer,line)})
-            let content=(<text {...line}/>)
+        let text=null
+        while(text=composer.next()){
+            Object.assign(text,{onClick:e=>this.onClick(e,composer,text)})
+			let content=(<text {...text}/>)
             composed.push(content)
             parent.append(content)
         }
-        finished.count=1
-        parent.finished(this)
+        parent.finished()
     }
 
-    onClick(event, composer, line){
-        consoler.log(`clicked on "${line.children}"`)
+    onClick(event, composer, text){
+       console.log(`clicked on text`)
     }
 
     static Composer=class{
@@ -36,21 +36,31 @@ export default class Inline extends Any{
             this.text=text
             this.parent=parent
             this.tester=this.constructor.el
-            this.last=0
+            this.composed=0
         }
 
         next(){
-            if(this.last==this.text.length)
+            if(this.composed==this.text.length)
                 return null
 
             this.tester.style="margin:0;padding:0;border:0;position:absolute;left:-1000px"
             const {width:maxWidth}=this.parent.next()
-            this.tester.innerHTML=this.text
-            const {width,height}=this.tester.getBoundingClientRect()
+            let text=this.tester.innerHTML=this.text.substr(this.composed)
+
+            let {width,height}=this.tester.getBoundingClientRect()
             if(width<=maxWidth){
-                this.last=this.text.length
-                return {width,height, start:0, children:this.text, content:this.content}
-            }
+                return {width,height, end:this.composed+=text.length, children:text}
+            }else{
+				while(width>maxWidth && text.length){
+					text=this.tester.innerHTML=text.slice(0,-1);
+					({width, height}=this.tester.getBoundingClientRect())
+				}
+				if(text.length){
+					return {width:maxWidth,height, end:this.composed+=text.length, children:text}
+				}else{
+					//@TODO
+				}
+			}
         }
     }
 }
