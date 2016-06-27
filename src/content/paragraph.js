@@ -7,7 +7,7 @@ export default class Paragraph extends Any{
     compose(){
         const {composed}=this.state
         const {parent}=this.context
-        const {width,height}=parent.next()
+        const {width,height}=parent.nextAvailableSpace()
 		this.maxSize={width,height}
         composed.push(this._newLine())
     }
@@ -20,7 +20,7 @@ export default class Paragraph extends Any{
         }
 	}
 
-    next(required={}){
+    nextAvailableSpace(required={}){
         const {width:minRequiredW=0,height:minRequiredH=0}=required
         const {composed}=this.state
         let currentLine=composed[composed.length-1]
@@ -30,7 +30,7 @@ export default class Paragraph extends Any{
 			if(this.maxSize.height>minRequiredH){
 				return this.maxSize
 			}else{
-				return this.maxSize=this.context.parent.next(required)
+				return this.maxSize=this.context.parent.nextAvailableSpace(required)
 			}
         }
         return {width:availableWidth, height:this.maxSize.height}

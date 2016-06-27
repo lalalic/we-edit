@@ -18,7 +18,7 @@ export class HasChild extends Component{
      * children should call before composing line,
      * return next line rect {*width, [height]}
      */
-    next(){
+    nextAvailableSpace(){
 
     }
 
@@ -63,10 +63,10 @@ export default class Content extends HasChild{
      * children should call before composing line,
      * return next line rect {*width, [height]}
      */
-    next(){
-        super.next()
+    nextAvailableSpace(){
+        super.nextAvailableSpace()
         const {parent}=this.context
-        return parent.next()
+        return parent.nextAvailableSpace()
     }
 
     /**

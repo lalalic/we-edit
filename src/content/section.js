@@ -66,7 +66,7 @@ export default class Section extends Any{
         }
     }
 
-    next(required={}){
+    nextAvailableSpace(required={}){
         const {width:minRequiredW=0,height:minRequiredH=0}=required
         const {composed}=this.state
         let currentPage=composed[composed.length-1]

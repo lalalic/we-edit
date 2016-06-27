@@ -12,7 +12,7 @@ export default class Inline extends Any{
         const {parent}=this.context
         let composer=new this.constructor.Composer(this)
         let text=null
-        while(text=composer.next()){
+        while(text=composer.nextAvailableSpace()){
             Object.assign(text,{onClick:e=>this.onClick(e,composer,text)})
 			let content=(<text {...text}/>)
             composed.push(content)
@@ -39,12 +39,12 @@ export default class Inline extends Any{
             this.composed=0
         }
 
-        next(){
+        nextAvailableSpace(){
             if(this.composed==this.text.length)
                 return null
 
             this.tester.style="margin:0;padding:0;border:0;position:absolute;left:-1000px"
-            const {width:maxWidth}=this.parent.next()
+            const {width:maxWidth}=this.parent.nextAvailableSpace()
             let text=this.tester.innerHTML=this.text.substr(this.composed)
 
             let {width,height}=this.tester.getBoundingClientRect()
