@@ -16,6 +16,10 @@ export class HasChild extends Component{
         this.compose()
     }
 
+    componentWillUpdate(nextProps, nextState, nextContext){
+
+    }
+
     compose(){
         this._finished=0
         this.composed=[]
@@ -52,11 +56,7 @@ export class HasChild extends Component{
     }
 }
 
-export default class Content extends HasChild{
-   componentWillReceiveProps(nextProps){
-        return nextProps.children!=this.props.children
-    }
-
+export default class HasParent extends HasChild{
     static contextTypes={
         parent: PropTypes.object
     }
@@ -77,7 +77,7 @@ export default class Content extends HasChild{
      */
     appendComposed(line){
         super.appendComposed(line)
-        return this.context.appendComposed(line)
+        return this.context.parent.appendComposed(line)
     }
 
 	finished(){

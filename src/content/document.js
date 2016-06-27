@@ -15,7 +15,7 @@ export default class Document extends HasChild{
 				{this.props.children}
 				{
 					composed.map((a,i)=>{
-						let section=<Group y={y}>{a}</Group>
+						let section=<Group key={i} y={y}>{a}</Group>
 						y+=a.props.height
 						return section
 					})
