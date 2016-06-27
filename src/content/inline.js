@@ -10,41 +10,50 @@ export default class Inline extends Any{
     compose(){
         const {composed}=this.state
         const {parent}=this.context
-        let composer=new this.constructor.Composer(this)
+        let composer=new Inline.TextComposer(this)
         let text=null
-        while(text=composer.nextAvailableSpace()){
-            Object.assign(text,{onClick:e=>this.onClick(e,composer,text)})
+        while(text=composer.next(parent.nextAvailableSpace())){
+			const info=text
+			text.onClick=e=>this.onClick(e,info)
 			let content=(<text {...text}/>)
             composed.push(content)
-            parent.append(content)
+            parent.appendComposed(content)
         }
         parent.finished()
     }
 
-    onClick(event, composer, text){
-       console.log(`clicked on text`)
+    onClick(event, text){
+		const {offsetX}=event.nativeEvent
+		let composer=new Inline.TextComposer(React.cloneElement(this,{children:text.children}))
+		let loc=composer.next({width:offsetX})||{end:0}
+		let index=text.end-text.children.length+loc.end
+		const {parent}=this.context
+		parent.setState({id:0,index,append:"ABC"})
+		
+		console.log(`clicked on text`)
     }
 
-    static Composer=class{
+	/**
+	 *  a simple text composer
+	 */
+    static TextComposer=class{
         static el;
 
         constructor(content){
             if(!this.constructor.el)
                 document.body.appendChild(this.constructor.el=document.createElement('span'))
             const {children:text}=content.props
-            const {parent}=content.context
             this.text=text
-            this.parent=parent
             this.tester=this.constructor.el
             this.composed=0
         }
 
-        nextAvailableSpace(){
+        next({width:maxWidth}){
             if(this.composed==this.text.length)
                 return null
 
             this.tester.style="margin:0;padding:0;border:0;position:absolute;left:-1000px"
-            const {width:maxWidth}=this.parent.nextAvailableSpace()
+          
             let text=this.tester.innerHTML=this.text.substr(this.composed)
 
             let {width,height}=this.tester.getBoundingClientRect()

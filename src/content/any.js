@@ -26,10 +26,15 @@ export class HasChild extends Component{
      * children should call after a line composed out
      * a chance to add to self's composed
      */
-    append(line){
+    appendComposed(line){
 
     }
 
+	/**
+	 *  child calls context.parent.finished() to notify parent finished composed itself
+	 *  return
+	 *  	true: parent's children all composed, usually to notify parent's parent
+	 */
     finished(){
         this._finished++
 		return React.Children.count(this.props.children)==this._finished
@@ -73,9 +78,9 @@ export default class Content extends HasChild{
      * children should call after a line composed out
      * a chance to add to self's composed
      */
-    append(line){
-        super.append(line)
-        return this.context.append(line)
+    appendComposed(line){
+        super.appendComposed(line)
+        return this.context.appendComposed(line)
     }
 	
 	finished(){

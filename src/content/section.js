@@ -91,7 +91,7 @@ export default class Section extends Any{
         return {width, height:availableHeight}
     }
 
-    append(line){
+    appendComposed(line){
         const {composed}=this.state
         let currentPage=composed[composed.length-1]
         let {columns}=currentPage
@@ -124,7 +124,7 @@ export default class Section extends Any{
 			const {composed}=this.state
 			const {canvas}=this.context
 			const {page:{width}}=this.props
-			this.context.parent.append({
+			this.context.parent.appendComposed({
 				width: width,
 				height:composed.reduce((prev,a)=>prev+a.height+canvas.pageGap,0)
 			})

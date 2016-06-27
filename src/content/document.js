@@ -34,7 +34,7 @@ export default class Document extends HasChild{
         canvas: PropTypes.object
     },HasChild.childContextTypes)
 	
-	append(size){
+	appendComposed(size){
 		let {composed, width, height}=this.state
 		composed.push(size)
 		
