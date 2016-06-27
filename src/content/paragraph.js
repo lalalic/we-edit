@@ -4,34 +4,17 @@ import Group from "../compose/group"
 import Line from "../compose/line"
 
 export default class Paragraph extends Any{
-	render(){
-		const {id,index,append}=this.state
-		if(!append)
-			return super.render()
-			
-		const {children, ...others}=this.props
-		
-		return (
-			<Group {...others}>
-				{children.map((a,i)=>{
-					if(id==i){
-						let {children:text}=a.props
-						return React.cloneElement(a,{key:i, children: text.splice(index,0,append)})
-					}else{
-						return React.cloneElement(a,{key:i})	
-					}
-				})}
-			</Group>
-		)
-	}
+	state={}
+
     compose(){
-        const {composed}=this.state
+		super.compose()
+        const {composed}=this
         const {parent}=this.context
         const {width,height}=parent.nextAvailableSpace()
 		this.maxSize={width,height}
         composed.push(this._newLine())
     }
-	
+
 	_newLine(){
 		return {
             width: this.maxSize.width,
@@ -42,7 +25,7 @@ export default class Paragraph extends Any{
 
     nextAvailableSpace(required={}){
         const {width:minRequiredW=0,height:minRequiredH=0}=required
-        const {composed}=this.state
+        const {composed}=this
         let currentLine=composed[composed.length-1]
         let {width}=currentLine
         let availableWidth=currentLine.children.reduce((prev,a)=>prev-a.props.width,width)
@@ -57,14 +40,14 @@ export default class Paragraph extends Any{
     }
 
     appendComposed(text){
-        const {composed}=this.state
+        const {composed}=this
         const {parent}=this.context
-		
+
 		let currentLine=composed[composed.length-1]
         let availableWidth=currentLine.children.reduce((prev,a)=>prev-a.props.width,currentLine.width)
         let {width:contentWidth, height:contentHeight}=text.props
-        
-		
+
+
 		let piece=null
         if(availableWidth>=contentWidth){//not appended to parent
             piece=(<Group x={currentLine.width-availableWidth} width={contentWidth} height={contentHeight}>{text}</Group>)
@@ -83,15 +66,15 @@ export default class Paragraph extends Any{
 					//never be here
 				}
 			}else{
-				
+
 			}
 		}
     }
-	
+
 	finished(){//need append last non-full-width line to parent
-		const {composed}=this.state
+		const {composed}=this
         const {parent}=this.context
-		
+
 		let currentLine=composed[composed.length-1]
         let availableWidth=currentLine.children.reduce((prev,a)=>prev-a.props.width,currentLine.width)
 		if(availableWidth>0){
@@ -101,7 +84,7 @@ export default class Paragraph extends Any{
 			this.maxSize={width:0, height:0}
 			return true
 		}
-		
+
 		return false;
 	}
 }

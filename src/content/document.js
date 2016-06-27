@@ -1,26 +1,29 @@
 import React, {Component, PropTypes} from "react"
 import {HasChild} from "./any"
 import Group from "../compose/group"
+import Cursor from "../editor/cursor"
 
 export default class Document extends HasChild{
-	state={composed:[], width:this.props.width, height:this.props.height}
+	state={width:this.props.width, height:this.props.height}
+
     render(){
-		const {composed, width, height}=this.state
-		const {children, ...others}=this.props
+		const {composed}=this
+		const {width, height}=this.state
 		let y=0
         return (
-			<svg {...others} width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
+			<svg {...this.props} width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
+				{this.props.children}
 				{
-					React.Children.map(children, (section, i)=>{
-						let {height}=composed[i]||{}
-						let a=(<Group key={i} y={y}>{section}</Group>)
-						y+=height
-						return a
+					composed.map((a,i)=>{
+						let section=<Group y={y}>{a}</Group>
+						y+=a.props.height
+						return section
 					})
 				}
+				<Cursor/>
 			</svg>
 		)
-			
+
     }
 
     getChildContext(){
@@ -33,26 +36,27 @@ export default class Document extends HasChild{
     static childContextTypes=Object.assign({
         canvas: PropTypes.object
     },HasChild.childContextTypes)
-	
-	appendComposed(size){
-		let {composed, width, height}=this.state
-		composed.push(size)
-		
-		let minWidth=composed.reduce((prev, a)=>Math.max(prev, a.width),0)
-		let minHeight=composed.reduce((prev, a)=>prev+a.height,0)
-		
+
+	appendComposed(section){
+		const {composed}=this
+		let {width, height}=this.state
+		composed.push(section)
+
+		let minWidth=composed.reduce((prev, a)=>Math.max(prev, a.props.width),0)
+		let minHeight=composed.reduce((prev, a)=>prev+a.props.height,0)
+
 		if(minWidth>width)
 			width=minWidth
-		
+
 		if(minHeight>height)
 			height=minHeight+this.props.pageGap
-		
-		this.setState({composed, width, height})
+
+		this.setState({width, height})
 	}
-	
+
 	static defaultProps={
 		width: 600,
-		height:800,
+		height:100,
 		pageGap: 20,
 		style: {
 			background:"lightgray"

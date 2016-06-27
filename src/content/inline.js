@@ -3,12 +3,11 @@ import Any from "./any"
 import Group from "../compose/group"
 
 export default class Inline extends Any{
-    render(){
-        return <g/>
-    }
+    state={}
 
     compose(){
-        const {composed}=this.state
+        super.compose()
+        const {composed}=this
         const {parent}=this.context
         let composer=new Inline.TextComposer(this)
         let text=null
@@ -27,9 +26,8 @@ export default class Inline extends Any{
 		let composer=new Inline.TextComposer(React.cloneElement(this,{children:text.children}))
 		let loc=composer.next({width:offsetX})||{end:0}
 		let index=text.end-text.children.length+loc.end
-		const {parent}=this.context
-		parent.setState({id:0,index,append:"ABC"})
-		
+
+
 		console.log(`clicked on text`)
     }
 
@@ -53,7 +51,7 @@ export default class Inline extends Any{
                 return null
 
             this.tester.style="margin:0;padding:0;border:0;position:absolute;left:-1000px"
-          
+
             let text=this.tester.innerHTML=this.text.substr(this.composed)
 
             let {width,height}=this.tester.getBoundingClientRect()

@@ -6,12 +6,23 @@ export class HasChild extends Component{
         parent: PropTypes.object.isRequired
     }
 
-   _finished=0;
-
     getChildContext(){
         return {
             parent:this
         }
+    }
+
+    componentWillMount(){
+        this.compose()
+    }
+
+    compose(){
+        this._finished=0
+        this.composed=[]
+    }
+
+    render(){
+        return <Group {...this.props}/>
     }
 
     /**
@@ -42,22 +53,8 @@ export class HasChild extends Component{
 }
 
 export default class Content extends HasChild{
-   state={composed:[]}
-
-    componentWillMount(){
-        this.compose()
-    }
-
-    componentWillReceiveProps(nextProps){
+   componentWillReceiveProps(nextProps){
         return nextProps.children!=this.props.children
-    }
-
-    render(){
-        return <Group {...this.props}/>
-    }
-
-    compose(){
-
     }
 
     static contextTypes={
@@ -82,7 +79,7 @@ export default class Content extends HasChild{
         super.appendComposed(line)
         return this.context.appendComposed(line)
     }
-	
+
 	finished(){
 		if(super.finished()){
 			this.context.parent.finished()

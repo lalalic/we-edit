@@ -9,29 +9,9 @@ export default class Section extends Any{
         canvas: PropTypes.object
     }, Any.contextTypes)
 
-    render(){
-        const {composed}=this.state
-        const {canvas}=this.context
-        let y=0
-        return (
-            <Group>
-                <Group ref="content">
-                    {this.props.children}
-                </Group>
-                <Group ref="composed">
-                    {composed.map((page,i)=>{
-                        let {width,height}=page
-                        let newPage=(<Group x={(canvas.width-width)/2} y={y+=canvas.pageGap} key={i}><Page {...page}/></Group>)
-                        y+=height
-                        return newPage
-                    })}
-                </Group>
-            </Group>
-        )
-    }
-
     compose(){
-        const {composed}=this.state
+        super.compose()
+        const {composed}=this
         composed.push(this._newPage())
     }
 
@@ -68,7 +48,7 @@ export default class Section extends Any{
 
     nextAvailableSpace(required={}){
         const {width:minRequiredW=0,height:minRequiredH=0}=required
-        const {composed}=this.state
+        const {composed}=this
         let currentPage=composed[composed.length-1]
         let {columns}=currentPage
         let currentColumn=columns[columns.length-1]
@@ -92,15 +72,15 @@ export default class Section extends Any{
     }
 
     appendComposed(line){
-        const {composed}=this.state
+        const {composed}=this
         let currentPage=composed[composed.length-1]
         let {columns}=currentPage
         let currentColumn=columns[columns.length-1]
         let {width,height, children}=currentColumn
         let availableHeight=children.reduce((prev, a)=>prev-a.props.height,height)
-		
+
         const {height:contentHeight}=line.props
-        
+
 		if(contentHeight>availableHeight){
             if(this.props.page.columns>columns.length){// new column
                 columns.push(currentColumn=this._newColumn(columns.length))
@@ -114,26 +94,33 @@ export default class Section extends Any{
 
             children=currentColumn.children
         }
-		
+
 		children.push(<Group y={height-availableHeight} height={contentHeight}>{line}</Group>)
         //@TODO: what if contentHeight still > availableHeight
     }
 
     finished(){
         if(super.finished()){
-			const {composed}=this.state
+			const {composed}=this
 			const {canvas}=this.context
 			const {page:{width}}=this.props
-			this.context.parent.appendComposed({
-				width: width,
-				height:composed.reduce((prev,a)=>prev+a.height+canvas.pageGap,0)
-			})
+
+            let y=0
+            let pages=composed.map((page,i)=>{
+                let {width,height}=page
+                let newPage=(<Group x={(canvas.width-width)/2} y={y+=canvas.pageGap} key={i}><Page {...page}/></Group>)
+                y+=height
+                return newPage
+            })
+
+			this.context.parent.appendComposed(<Group height={y} width={width}>{pages}</Group>)
+
 			return true
 		}
-		
+
 		return false
     }
-	
+
 	static defaultProps={
 		page: {
 			width: 300,
