@@ -11,39 +11,56 @@ export class HasChild extends Component{
             parent:this
         }
     }
+	
+	render(){
+        return <Group {...this.props}/>
+    }
 
     componentWillMount(){
         this.compose()
     }
-
-    componentWillUpdate(nextProps, nextState, nextContext){
-
-    }
-
-    compose(){
-        this._finished=0
+	
+	compose(){
+		this._finished=0
         this.composed=[]
     }
-
-    render(){
-        return <Group {...this.props}/>
-    }
-
+	
     /**
      * children should call before composing line,
      * return next line rect {*width, [height]}
      */
-    nextAvailableSpace(){
+    nextAvailableSpace(required={width:0, height:0}){
 
     }
-
-    /**
+	
+	/**
      * children should call after a line composed out
      * a chance to add to self's composed
      */
     appendComposed(line){
 
     }
+	
+	
+	
+    componentDidUpdate(prevProps, prevState){
+		this.reCompose()
+	}
+
+	reCompose(){
+		
+	}
+
+	replaceAvailableSpace(reference,required={width:0, height:0}){
+
+    }
+	
+	/**
+	 * 
+	 */
+	replaceComposed(next, prev){
+		
+	}
 
 	/**
 	 *  child calls context.parent.finished() to notify parent finished composed itself
@@ -66,19 +83,20 @@ export default class HasParent extends HasChild{
      * return next line rect {*width, [height]}
      */
     nextAvailableSpace(){
-        super.nextAvailableSpace()
-        const {parent}=this.context
-        return parent.nextAvailableSpace()
+        return this.context.parent.nextAvailableSpace(...arguments)
     }
 
     /**
      * children should call after a line composed out
      * a chance to add to self's composed
      */
-    appendComposed(line){
-        super.appendComposed(line)
-        return this.context.parent.appendComposed(line)
+    appendComposed(){
+        return this.context.parent.appendComposed(...arguments)
     }
+	
+	replaceComposed(){
+		return this.context.parent.replaceComposed(...arguments)
+	}
 
 	finished(){
 		if(super.finished()){

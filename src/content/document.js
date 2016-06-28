@@ -9,10 +9,12 @@ export default class Document extends HasChild{
     render(){
 		const {composed}=this
 		const {width, height}=this.state
+	
 		let y=0
         return (
 			<svg {...this.props} width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
 				{this.props.children}
+				<Composed>
 				{
 					composed.map((a,i)=>{
 						let section=<Group key={i} y={y}>{a}</Group>
@@ -20,11 +22,16 @@ export default class Document extends HasChild{
 						return section
 					})
 				}
+				</Composed>
 				<Cursor/>
 			</svg>
 		)
 
     }
+
+    static childContextTypes=Object.assign({
+        canvas: PropTypes.object
+    },HasChild.childContextTypes)
 
     getChildContext(){
         const {width,height, pageGap}=this.props
@@ -32,10 +39,6 @@ export default class Document extends HasChild{
             canvas: {width,height, pageGap}
         })
     }
-
-    static childContextTypes=Object.assign({
-        canvas: PropTypes.object
-    },HasChild.childContextTypes)
 
 	appendComposed(section){
 		const {composed}=this
@@ -63,3 +66,5 @@ export default class Document extends HasChild{
 		}
 	}
 }
+
+class Composed extends Group{}

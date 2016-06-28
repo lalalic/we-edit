@@ -39,6 +39,22 @@ export default class Paragraph extends Any{
         return {width:availableWidth, height:this.maxSize.height}
     }
 
+	replaceAvailableSpace(reference, required={}){
+		if(!reference)
+			return this.nextAvailableSpace(required)
+		
+		const {width:minRequiredW=0,height:minRequiredH=0}=required
+        const {composed}=this
+        let {foundLine, availableWidth}=this.foundLine(reference)
+        if(availableWidth<=minRequiredW){
+			if(this.maxSize.height>minRequiredH){
+				return this.maxSize
+			}else{
+				return this.maxSize=this.context.parent.replaceAvailableSpace(foundLine,required)
+			}
+        }
+        return {width:availableWidth, height:this.maxSize.height}
+	}
     appendComposed(text){
         const {composed}=this
         const {parent}=this.context
@@ -86,5 +102,9 @@ export default class Paragraph extends Any{
 		}
 
 		return false;
+	}
+	
+	_foundLine(text){
+		
 	}
 }

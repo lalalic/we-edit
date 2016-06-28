@@ -70,6 +70,34 @@ export default class Section extends Any{
         }
         return {width, height:availableHeight}
     }
+	
+	replaceAvaibleSpace(reference, required){
+		const {width:minRequiredW=0,height:minRequiredH=0}=required
+        const {composed}=this
+        let {page:currentPage, column:currentColumn, line, occupiedHeight}=this._foundLine(reference)
+        let {columns}=currentPage
+        let {width,height, children}=currentColumn
+        let availableHeight=height-occupiedHeight
+
+        //@TODO: what if never can find min area
+        while(availableHeight<=minRequiredH || width<minRequiredW){
+            if(this.props.page.columns>columns.length){// new column
+                columns.push(currentColumn=this._newColumn(columns.length))
+            }else{//new page
+                avoidInfiniteLoop++
+                composed.push(currentPage=this._newPage(composed.length))
+                currentColumn=currentPage.columns[0]
+            }
+            width=currentColumn.width
+            height=currentColumn.height
+            availableHeight=currentColumn.height
+        }
+        return {width, height:availableHeight}
+	}
+	
+	_foundLine(line){
+		//return {page, column, line, occupiedHeight}
+	}
 
     appendComposed(line){
         const {composed}=this

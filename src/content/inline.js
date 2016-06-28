@@ -4,12 +4,16 @@ import Group from "../compose/group"
 
 export default class Inline extends Any{
     state={}
+	
+	render(){
+		return null
+	}
 
     compose(){
-        super.compose()
+		super.compose()
         const {composed}=this
         const {parent}=this.context
-        let composer=new Inline.TextComposer(this)
+        let composer=new this.constructor.TextComposer(this)
         let text=null
         while(text=composer.next(parent.nextAvailableSpace())){
 			const info=text
@@ -20,15 +24,32 @@ export default class Inline extends Any{
         }
         parent.finished()
     }
+	
+	reCompose(){
+		const {composed:prevComposed}=this
+		this._finished=0
+		this.composed=[]
+		
+		const {cursor}=this.state
+		let composer=new this.constructor.TextComposer(this)
+        let text=null, i=0
+		
+		while(text=composer.next(parent.replaceAvailableSpace(prevComposed[i]))){
+			const info=text
+			text.onClick=e=>this.onClick(e,info)
+			let content=(<text {...text}/>)
+            composed.push(content)
+            parent.appendComposed(content)
+        }
+        parent.finished()
+	}
 
     onClick(event, text){
 		const {offsetX}=event.nativeEvent
-		let composer=new Inline.TextComposer(React.cloneElement(this,{children:text.children}))
+		let composer=new this.constructor.TextComposer(React.cloneElement(this,{children:text.children}))
 		let loc=composer.next({width:offsetX})||{end:0}
 		let index=text.end-text.children.length+loc.end
-
-
-		console.log(`clicked on text`)
+		this.setState({cursor:index})
     }
 
 	/**
