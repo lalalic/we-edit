@@ -7,7 +7,6 @@ export class HasChild extends Component{
         parent: PropTypes.object.isRequired
     }
 	
-	_finished=0
 	children=[]
     composed=[]
 
@@ -51,9 +50,8 @@ export class HasChild extends Component{
 	 *  	true: parent's children all composed, usually to notify parent's parent
 	 */
     finished(child){
-        this._finished++
 		this.children.push(child)
-		return React.Children.count(this.props.children)==this._finished
+		return React.Children.count(this.props.children)==this.children.length
     }
 }
 
@@ -118,7 +116,6 @@ export default class HasParent extends HasChild{
 	_reComposeFrom(reference){//#2
 		this._removeAllFrom(...arguments)
 		this.composed.splice(0)
-		this._finished=0
 		this.children.splice(0)
 		this.compose()
 	}
@@ -126,8 +123,8 @@ export default class HasParent extends HasChild{
 	_removeAllFrom(reference){
 		if(!reference){
 			this.composed.splice(0)
-			this._finished=0
 			this.children.splice(0)
+			return
 		}
 			
 		this.context.parent._removeAllFrom(...arguments)

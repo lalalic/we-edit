@@ -57,7 +57,7 @@ export default class Paragraph extends Any{
             piece=(
 					<Group 
 						x={currentLine.width-availableWidth}
-						index={this._finished}
+						index={this.children.length}
 						width={contentWidth} 
 						height={contentHeight}>
 						{text}
@@ -86,7 +86,6 @@ export default class Paragraph extends Any{
 	_removeAllFrom(text){
 		if(!text){
 			this.composed.splice(0)
-			this._finished=0
 			this.children.splice(0)
 			return
 		}
@@ -106,13 +105,13 @@ export default class Paragraph extends Any{
 		}
 		
 		if(found!=-1){
-			this._finished=currentLine.children[found].props.index
+			let index=currentLine.children[found].props.index
 			this.children.forEach((a,i)=>{
-				if(i>this._finished){
+				if(i>index){
 					a._removeAllFrom()
 				}
 			})
-			this.children.splice(this._finished+1)
+			this.children.splice(index+1)
 			
 			this.context.parent._removeAllFrom(currentLine)
 			

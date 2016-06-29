@@ -78,7 +78,6 @@ export default class Section extends Any{
 	_removeAllFrom(line){
 		if(!line){
 			this.composed.splice(0)
-			this._finished=0
 			this.children.splice(0)
 			return
 		}
@@ -110,13 +109,13 @@ export default class Section extends Any{
 		}
 		
 		if(found!=-1){
-			this._finished=currentColumn.children[found].props.index
+			let index=currentColumn.children[found].props.index
 			this.children.forEach((a,i)=>{
-				if(i>this._finished){
+				if(i>index){
 					a._removeAllFrom()
 				}
 			})
-			this.children.splice(this._finished)
+			this.children.splice(index+1)
 			
 			currentColumn.children.splice(found)
 		}else{
@@ -148,7 +147,7 @@ export default class Section extends Any{
             children=currentColumn.children
         }
 
-		children.push(<Group y={height-availableHeight} height={contentHeight} index={this._finished}>{line}</Group>)
+		children.push(<Group y={height-availableHeight} height={contentHeight} index={this.children.length}>{line}</Group>)
         //@TODO: what if contentHeight still > availableHeight
     }
 
