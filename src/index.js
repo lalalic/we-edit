@@ -25,6 +25,7 @@ export function test(){
                     <Inline>{Array(7).fill("hello2, let's edit").join(" ")}</Inline>
                 </Paragraph>
 				
+
             </Section>
         </Document>
     ),document.querySelector('#app'))

@@ -24,12 +24,9 @@ export default class Inline extends Any{
             composed.push(content)
             parent.appendComposed(content)
         }
-		this.context.parent.finished(this)
+		this.finished(this)
     }
 	
-	finished(){
-		
-	}
 
     onClick(event, text){
 		const {offsetX}=event.nativeEvent

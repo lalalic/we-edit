@@ -4,20 +4,11 @@ import Any from "./any"
 import Page from "../compose/page"
 import Group from "../compose/group"
 
-let suuid=0
 export default class Section extends Any{
     static contextTypes=Object.assign({
         canvas: PropTypes.object
     }, Any.contextTypes)
-	
-	sectionId=suuid++
-	
-    compose(){
-        super.compose()
-        const {composed}=this
-        if(composed.length==0)
-			composed.push(this._newPage())
-    }
+	state={}
 
     /**
      * i: column no
@@ -53,6 +44,9 @@ export default class Section extends Any{
     nextAvailableSpace(required={}){
         const {width:minRequiredW=0,height:minRequiredH=0}=required
         const {composed}=this
+		if(composed.length==0){
+			composed.push(this._newPage())
+		}
         let currentPage=composed[composed.length-1]
         let {columns}=currentPage
         let currentColumn=columns[columns.length-1]
@@ -76,13 +70,10 @@ export default class Section extends Any{
     }
 	
 	_removeAllFrom(line){
-		if(!line){
-			this.composed.splice(0)
-			this.children.splice(0)
-			return
-		}
-		
 		const {composed}=this
+		if(composed.length==0)
+			return this.setState({time:new Date()})
+		
         let currentPage=composed[composed.length-1]
         let {columns}=currentPage
         let currentColumn=columns[columns.length-1]
@@ -118,7 +109,7 @@ export default class Section extends Any{
 			this.children.splice(index)
 			
 			currentColumn.children.splice(found)
-			this.forceUpdate()
+			this.setState({time: new Date()})
 		}else{
 			throw new Error("you should find the line from section, but not")
 		}
@@ -166,7 +157,7 @@ export default class Section extends Any{
                 return newPage
             })
 
-			this.context.parent.appendComposed(<Group height={y} width={width} _id={this.sectionId}>{pages}</Group>)
+			this.context.parent.appendComposed(<Group height={y} width={width} _id={this._id}>{pages}</Group>)
 
 			return true
 		}

@@ -55,11 +55,13 @@ export class HasChild extends Component{
     }
 }
 
+var uuid=0
 export default class HasParent extends HasChild{
     static contextTypes={
         parent: PropTypes.object
     }
-
+	
+	_id=uuid++
     /**
      * children should call before composing line,
      * return next line rect {*width, [height]}
@@ -110,24 +112,24 @@ export default class HasParent extends HasChild{
 	 *  	3.a: recompose this content line by line ..., much logics here
 	 */
 	reCompose(){
-		this._reComposeFrom(this.composed[0])//#2 solution
+		this.composed[0] && this._reComposeFrom(this.composed[0])//#2 solution
 	}
 	
 	_reComposeFrom(reference){//#2
-		this._removeAllFrom(...arguments)
 		this.composed.splice(0)
 		this.children.splice(0)
-		this.compose()
+		this._removeAllFrom(...arguments)
 	}
 	
 	_removeAllFrom(reference){
-		if(!reference){
-			this.composed.splice(0)
-			this.children.splice(0)
-			return
-		}
-			
-		this.context.parent._removeAllFrom(...arguments)
+		if(reference)
+			this.children.forEach(a=>a._removeAllFrom())
+		
+		this.composed.splice(0)
+		this.children.splice(0)
+		
+		if(reference)
+			this.context.parent._removeAllFrom(this)
 	}
 
 	finished(child){
