@@ -110,7 +110,7 @@ export default class HasParent extends HasChild{
 	 *  	3.a: recompose this content line by line ..., much logics here
 	 */
 	reCompose(){
-		this._reComposeFrom(this.composed[0], this)//#2 solution
+		this._reComposeFrom(this.composed[0])//#2 solution
 	}
 	
 	_reComposeFrom(reference){//#2

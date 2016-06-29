@@ -115,9 +115,10 @@ export default class Section extends Any{
 					a._removeAllFrom()
 				}
 			})
-			this.children.splice(index+1)
+			this.children.splice(index)
 			
 			currentColumn.children.splice(found)
+			this.forceUpdate()
 		}else{
 			throw new Error("you should find the line from section, but not")
 		}
