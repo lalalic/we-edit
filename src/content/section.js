@@ -8,7 +8,7 @@ export default class Section extends Any{
     static contextTypes=Object.assign({
         canvas: PropTypes.object
     }, Any.contextTypes)
-	state={}
+    displayName="section"
 
     /**
      * i: column no
@@ -68,12 +68,11 @@ export default class Section extends Any{
         }
         return {width, height:availableHeight}
     }
-	
+
 	_removeAllFrom(line){
-		const {composed}=this
-		if(composed.length==0)
-			return this.setState({time:new Date()})
-		
+        console.log(`remove all from ${this.displayName} ${line ? "" : "not"} including child, and parent`)
+
+        const {composed}=this
         let currentPage=composed[composed.length-1]
         let {columns}=currentPage
         let currentColumn=columns[columns.length-1]
@@ -98,7 +97,7 @@ export default class Section extends Any{
 				}
 			}
 		}
-		
+
 		if(found!=-1){
 			let index=currentColumn.children[found].props.index
 			this.children.forEach((a,i)=>{
@@ -107,13 +106,17 @@ export default class Section extends Any{
 				}
 			})
 			this.children.splice(index)
-			
+
 			currentColumn.children.splice(found)
-			this.setState({time: new Date()})
+			this.setState({composedTime: new Date().toLocaleString()})
 		}else{
 			throw new Error("you should find the line from section, but not")
 		}
 	}
+
+    shouldComponentUpdate(){
+        return true
+    }
 
     appendComposed(line){
         const {composed}=this

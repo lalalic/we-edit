@@ -3,8 +3,8 @@ import Any from "./any"
 import Group from "../compose/group"
 
 export default class Inline extends Any{
-    state={}
-	
+    displayName="inline"
+
 	render(){
 		return null
 	}
@@ -26,14 +26,20 @@ export default class Inline extends Any{
         }
 		this.finished(this)
     }
-	
+
 
     onClick(event, text){
 		const {offsetX}=event.nativeEvent
 		let composer=new this.constructor.TextComposer(text.children)
 		let loc=composer.next({width:offsetX})||{end:0}
 		let index=text.end-text.children.length+loc.end
-		this.setState({cursor:index, text:"Raymond changed it"})
+        this.composed.splice(0)
+        this.children.splice(0)
+        this.setState({cursor:index, text:"Raymond changed it"})
+    }
+
+    componentDidUpdate(){
+        this.reCompose()
     }
 
 	/**
@@ -49,6 +55,7 @@ export default class Inline extends Any{
 			this.style=style
             this.tester=this.constructor.el
             this.composed=0
+            console.log(`compose inline text : ${text}`)
         }
 
         next({width:maxWidth}){

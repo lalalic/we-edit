@@ -4,18 +4,21 @@ import shallowCompare from 'react-addons-shallow-compare'
 
 export class HasChild extends Component{
     static childContextTypes={
-        parent: PropTypes.object.isRequired
+        parent: PropTypes.object.isRequired,
+        composedTime: PropTypes.string.isRequired
     }
-	
+
+    state={}
 	children=[]
     composed=[]
 
     getChildContext(){
         return {
-            parent:this
+            parent:this,
+            composedTime: this.state.composedTime || this.context.composedTime
         }
     }
-	
+
 	render(){
         return <Group {...this.props}/>
     }
@@ -23,11 +26,11 @@ export class HasChild extends Component{
     componentWillMount(){
         this.compose()
     }
-	
+
 	compose(){
-		
+
     }
-	
+
     /**
      * children should call before composing line,
      * return next line rect {*width, [height]}
@@ -35,7 +38,7 @@ export class HasChild extends Component{
     nextAvailableSpace(required={width:0, height:0}){
 
     }
-	
+
 	/**
      * children should call after a line composed out
      * a chance to add to self's composed
@@ -58,9 +61,10 @@ export class HasChild extends Component{
 var uuid=0
 export default class HasParent extends HasChild{
     static contextTypes={
-        parent: PropTypes.object
+        parent: PropTypes.object,
+        composedTime: PropTypes.string
     }
-	
+
 	_id=uuid++
     /**
      * children should call before composing line,
@@ -77,17 +81,6 @@ export default class HasParent extends HasChild{
     appendComposed(){
         return this.context.parent.appendComposed(...arguments)
     }
-	
-	shouldComponentUpdate(nextProps, nextState, nextContext){
-		return this.children.length==0 || shallowCompare(this, nextProps, nextState)
-	}
-	
-	/**
-	 *  somewhere already decide to update this content, so we need re-compose this content
-	 */
-    componentDidUpdate(prevProps, prevState){
-		this.reCompose()
-	}
 
 	/**
 	 *  it's a very complicated job, so we need a very simple design, one sentence described solution. options:
@@ -95,42 +88,64 @@ export default class HasParent extends HasChild{
 	 *  	- need find a time to recompose
 	 *  	- logic is most simple
 	 *  	- performance is most bad
-	 *  
+	 *
 	 *  2. remove all composed from this content, and re-compose removals
 	 *  	- Need locate composed of this content in page
 	 *  	- Need find a time to recompose
-	 *  		> componentDidUpdate 
-	 *  			. any state update, 
+	 *  		> componentDidUpdate
+	 *  			. any state update,
 	 *  			. and carefully tuned shouldComponentUpdate(nextProps, nextState, nextContext)
 	 *  	- performance is better than #1
-	 *  
+	 *
 	 *  3. recompose this content, and check if new composed fits last composed space (hit ratio is low)
 	 *  	- Yes: just replace
 	 *  	- No: #1, or #2
 	 *  	- and then loop with all following content with the same logic
-	 *  	
+	 *
 	 *  	3.a: recompose this content line by line ..., much logics here
 	 */
 	reCompose(){
 		this.composed[0] && this._reComposeFrom(this.composed[0])//#2 solution
 	}
-	
+
 	_reComposeFrom(reference){//#2
 		this.composed.splice(0)
 		this.children.splice(0)
 		this._removeAllFrom(...arguments)
 	}
-	
+
 	_removeAllFrom(reference){
+        console.log(`remove all from ${this.displayName} ${reference ? "" : "not"} including child, and parent`)
 		if(reference)
 			this.children.forEach(a=>a._removeAllFrom())
-		
+
 		this.composed.splice(0)
 		this.children.splice(0)
-		
+
 		if(reference)
 			this.context.parent._removeAllFrom(this)
 	}
+    /**
+     * only no composed should be re-compose
+     */
+    shouldComponentUpdate(nextProps, nextState, nextContext){
+        console.log(`shouldComponentUpdate on ${this.displayName}, with ${this.composed.length==0}`)
+        if(this.composed.length==0){
+            //this.compose()
+            return true
+        }
+        return false
+    }
+
+    componentDidUpdate(){
+        this.compose()
+    }
+
+    componentWillReceiveProps(){
+        console.log(`componentWillReceiveProps on ${this.displayName}`)
+
+    }
+
 
 	finished(child){
 		if(super.finished(child)){

@@ -4,12 +4,12 @@ import Group from "../compose/group"
 import Cursor from "../editor/cursor"
 
 export default class Document extends HasChild{
-	state={width:this.props.width, height:this.props.height, composed:[]}
-
+	state={width:this.props.width, height:this.props.height, composedTime:new Date().toLocaleString()}
+	displayName="document"
     render(){
-		//const {composed}=this
-		const {width, height, composed}=this.state
-	
+		const {composed}=this
+		const {width, height}=this.state
+
 		let y=0
         return (
 			<svg {...this.props} width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
@@ -17,7 +17,7 @@ export default class Document extends HasChild{
 				<Composed>
 				{
 					composed.map((a,i)=>{
-						let section=<Group key={i} y={y}>{a}</Group>
+						let section=<Group key={new Date().toLocaleString()} y={y}>{a}</Group>
 						y+=a.props.height
 						return section
 					})
@@ -28,14 +28,14 @@ export default class Document extends HasChild{
 		)
 
     }
-	
+
     static childContextTypes=Object.assign({
         canvas: PropTypes.object
     },HasChild.childContextTypes)
 
     getChildContext(){
         const {width,height, pageGap}=this.props
-        return Object.assign(super.getChildContext(),{
+		return Object.assign(super.getChildContext(),{
             canvas: {width,height, pageGap}
         })
     }
@@ -46,7 +46,7 @@ export default class Document extends HasChild{
 	appendComposed(section){
 		const {composed}=this
 		let {width, height}=this.state
-		
+
 		let found=composed.findIndex(a=>a.props._id==section.props._id)
 		if(found==-1){
 			composed.push(section)
@@ -62,9 +62,9 @@ export default class Document extends HasChild{
 		if(minHeight>height)
 			height=minHeight+this.props.pageGap
 
-		this.setState({width, height, composed})
+		this.setState({width, height, composedTime: new Date().toLocaleString()})
 	}
-	
+
 	_removeAllFrom(section){
 		//replace mode for section
 	}

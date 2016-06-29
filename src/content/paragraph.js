@@ -4,7 +4,7 @@ import Group from "../compose/group"
 import Line from "../compose/line"
 
 export default class Paragraph extends Any{
-	state={}
+	displayName="paragraph"
 
 	_newLine(){
 		return {
@@ -49,10 +49,10 @@ export default class Paragraph extends Any{
 		let piece=null
         if(availableWidth>=contentWidth){//not appended to parent
             piece=(
-					<Group 
+					<Group
 						x={currentLine.width-availableWidth}
 						index={this.children.length}
-						width={contentWidth} 
+						width={contentWidth}
 						height={contentHeight}>
 						{text}
 					</Group>
@@ -89,7 +89,7 @@ export default class Paragraph extends Any{
 			}else if(availableWidth==0){
 				//already appended to parent in appendComposed
 			}
-			
+
 			this.maxSize={width:0, height:0}
 			return true
 		}
