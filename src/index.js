@@ -25,22 +25,6 @@ export function test(){
                     <Inline>{Array(7).fill("hello2, let's edit").join(" ")}</Inline>
                 </Paragraph>
 				
-				<Paragraph>
-                    <Inline>{Array(7).fill("hello3, let's edit").join(" ")}</Inline>
-                    <Inline>{Array(7).fill("hello4, let's edit").join(" ")}</Inline>
-                </Paragraph>
-            </Section>
-			
-			<Section page={{width:200, height:200, margin:15}}>
-                <Paragraph>
-                    <Inline>{Array(7).fill("hello5, let's edit").join(" ")}</Inline>
-                    <Inline>{Array(7).fill("hello6, let's edit").join(" ")}</Inline>
-                </Paragraph>
-				
-				<Paragraph>
-                    <Inline>{Array(7).fill("hello7, let's edit").join(" ")}</Inline>
-                    <Inline>{Array(7).fill("hello8, let's edit").join(" ")}</Inline>
-                </Paragraph>
             </Section>
         </Document>
     ),document.querySelector('#app'))

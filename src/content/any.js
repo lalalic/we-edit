@@ -1,10 +1,15 @@
 import React, {Component, PropTypes} from "react"
 import Group from "../compose/group"
+import shallowCompare from 'react-addons-shallow-compare'
 
 export class HasChild extends Component{
     static childContextTypes={
         parent: PropTypes.object.isRequired
     }
+	
+	_finished=0
+	children=[]
+    composed=[]
 
     getChildContext(){
         return {
@@ -21,8 +26,7 @@ export class HasChild extends Component{
     }
 	
 	compose(){
-		this._finished=0
-        this.composed=[]
+		
     }
 	
     /**
@@ -40,35 +44,15 @@ export class HasChild extends Component{
     appendComposed(line){
 
     }
-	
-	
-	
-    componentDidUpdate(prevProps, prevState){
-		this.reCompose()
-	}
-
-	reCompose(){
-		
-	}
-
-	replaceAvailableSpace(reference,required={width:0, height:0}){
-
-    }
-	
-	/**
-	 * 
-	 */
-	replaceComposed(next, prev){
-		
-	}
 
 	/**
 	 *  child calls context.parent.finished() to notify parent finished composed itself
 	 *  return
 	 *  	true: parent's children all composed, usually to notify parent's parent
 	 */
-    finished(){
+    finished(child){
         this._finished++
+		this.children.push(child)
 		return React.Children.count(this.props.children)==this._finished
     }
 }
@@ -94,13 +78,64 @@ export default class HasParent extends HasChild{
         return this.context.parent.appendComposed(...arguments)
     }
 	
-	replaceComposed(){
-		return this.context.parent.replaceComposed(...arguments)
+	shouldComponentUpdate(nextProps, nextState, nextContext){
+		return this.children.length==0 || shallowCompare(this, nextProps, nextState)
+	}
+	
+	/**
+	 *  somewhere already decide to update this content, so we need re-compose this content
+	 */
+    componentDidUpdate(prevProps, prevState){
+		this.reCompose()
 	}
 
-	finished(){
-		if(super.finished()){
-			this.context.parent.finished()
+	/**
+	 *  it's a very complicated job, so we need a very simple design, one sentence described solution. options:
+	 *  1. remove all composed, and re-compose all
+	 *  	- need find a time to recompose
+	 *  	- logic is most simple
+	 *  	- performance is most bad
+	 *  
+	 *  2. remove all composed from this content, and re-compose removals
+	 *  	- Need locate composed of this content in page
+	 *  	- Need find a time to recompose
+	 *  		> componentDidUpdate 
+	 *  			. any state update, 
+	 *  			. and carefully tuned shouldComponentUpdate(nextProps, nextState, nextContext)
+	 *  	- performance is better than #1
+	 *  
+	 *  3. recompose this content, and check if new composed fits last composed space (hit ratio is low)
+	 *  	- Yes: just replace
+	 *  	- No: #1, or #2
+	 *  	- and then loop with all following content with the same logic
+	 *  	
+	 *  	3.a: recompose this content line by line ..., much logics here
+	 */
+	reCompose(){
+		this._reComposeFrom(this.composed[0], this)//#2 solution
+	}
+	
+	_reComposeFrom(reference){//#2
+		this._removeAllFrom(...arguments)
+		this.composed.splice(0)
+		this._finished=0
+		this.children.splice(0)
+		this.compose()
+	}
+	
+	_removeAllFrom(reference){
+		if(!reference){
+			this.composed.splice(0)
+			this._finished=0
+			this.children.splice(0)
+		}
+			
+		this.context.parent._removeAllFrom(...arguments)
+	}
+
+	finished(child){
+		if(super.finished(child)){
+			this.context.parent.finished(this)
 			return true
 		}
 		return false

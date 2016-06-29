@@ -4,11 +4,11 @@ import Group from "../compose/group"
 import Cursor from "../editor/cursor"
 
 export default class Document extends HasChild{
-	state={width:this.props.width, height:this.props.height}
+	state={width:this.props.width, height:this.props.height, composed:[]}
 
     render(){
-		const {composed}=this
-		const {width, height}=this.state
+		//const {composed}=this
+		const {width, height, composed}=this.state
 	
 		let y=0
         return (
@@ -28,7 +28,7 @@ export default class Document extends HasChild{
 		)
 
     }
-
+	
     static childContextTypes=Object.assign({
         canvas: PropTypes.object
     },HasChild.childContextTypes)
@@ -40,11 +40,19 @@ export default class Document extends HasChild{
         })
     }
 
+	/**
+	 *  support new, and replace by _id
+	 */
 	appendComposed(section){
 		const {composed}=this
 		let {width, height}=this.state
-		composed.push(section)
-
+		
+		let found=composed.findIndex(a=>a.props._id==section.props._id)
+		if(found==-1){
+			composed.push(section)
+		}else{
+			composed.splice(found,1,section)
+		}
 		let minWidth=composed.reduce((prev, a)=>Math.max(prev, a.props.width),0)
 		let minHeight=composed.reduce((prev, a)=>prev+a.props.height,0)
 
@@ -54,7 +62,11 @@ export default class Document extends HasChild{
 		if(minHeight>height)
 			height=minHeight+this.props.pageGap
 
-		this.setState({width, height})
+		this.setState({width, height, composed})
+	}
+	
+	_removeAllFrom(section){
+		//replace mode for section
 	}
 
 	static defaultProps={

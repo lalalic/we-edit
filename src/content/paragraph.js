@@ -3,6 +3,8 @@ import Any from "./any"
 import Group from "../compose/group"
 import Line from "../compose/line"
 
+var puuid=0//the line in paragraph != the line in section page, so use id
+
 export default class Paragraph extends Any{
 	state={}
 
@@ -12,12 +14,14 @@ export default class Paragraph extends Any{
         const {parent}=this.context
         const {width,height}=parent.nextAvailableSpace()
 		this.maxSize={width,height}
-        composed.push(this._newLine())
+        if(0==composed.length)
+			composed.push(this._newLine())
     }
 
 	_newLine(){
 		return {
             width: this.maxSize.width,
+			_id:puuid++,
 			height:0,
             children:[]
         }
@@ -39,22 +43,6 @@ export default class Paragraph extends Any{
         return {width:availableWidth, height:this.maxSize.height}
     }
 
-	replaceAvailableSpace(reference, required={}){
-		if(!reference)
-			return this.nextAvailableSpace(required)
-		
-		const {width:minRequiredW=0,height:minRequiredH=0}=required
-        const {composed}=this
-        let {foundLine, availableWidth}=this.foundLine(reference)
-        if(availableWidth<=minRequiredW){
-			if(this.maxSize.height>minRequiredH){
-				return this.maxSize
-			}else{
-				return this.maxSize=this.context.parent.replaceAvailableSpace(foundLine,required)
-			}
-        }
-        return {width:availableWidth, height:this.maxSize.height}
-	}
     appendComposed(text){
         const {composed}=this
         const {parent}=this.context
@@ -66,7 +54,15 @@ export default class Paragraph extends Any{
 
 		let piece=null
         if(availableWidth>=contentWidth){//not appended to parent
-            piece=(<Group x={currentLine.width-availableWidth} width={contentWidth} height={contentHeight}>{text}</Group>)
+            piece=(
+					<Group 
+						x={currentLine.width-availableWidth}
+						index={this._finished}
+						width={contentWidth} 
+						height={contentHeight}>
+						{text}
+					</Group>
+					)
             currentLine.children.push(piece)
 			currentLine.height=Math.max(currentLine.height,contentHeight)
 			if(availableWidth==contentWidth){
@@ -86,8 +82,53 @@ export default class Paragraph extends Any{
 			}
 		}
     }
+	
+	_removeAllFrom(text){
+		if(!text){
+			this.composed.splice(0)
+			this._finished=0
+			this.children.splice(0)
+			return
+		}
+		
+		const {composed}=this
+		let currentLine=composed[composed.length-1]
+		let found=-1
+		while(-1==(found=currentLine.children.findIndex(group=>{
+			return group.props.children==text
+		}))){
+			composed.pop()
+			if(composed.length){
+				currentLine=composed[composed.length-1]
+			}else{
+				break
+			}
+		}
+		
+		if(found!=-1){
+			this._finished=currentLine.children[found].props.index
+			this.children.forEach((a,i)=>{
+				if(i>this._finished){
+					a._removeAllFrom()
+				}
+			})
+			this.children.splice(this._finished+1)
+			
+			this.context.parent._removeAllFrom(currentLine)
+			
+			currentLine.children.splice(found)
+			
+			//current line's height should be max height of all children
+			currentLine.height=currentLine.children.reduce((prev, a)=>Math.max(prev, a.props.height),0)
+			
+			
+			
+		}else{
+			throw new Error(`you should find the text from paragraph, but not`)
+		}
+	}
 
-	finished(){//need append last non-full-width line to parent
+	finished(child){//need append last non-full-width line to parent
 		const {composed}=this
         const {parent}=this.context
 
@@ -96,15 +137,11 @@ export default class Paragraph extends Any{
 		if(availableWidth>0){
 			parent.appendComposed(<Line {...currentLine}/>)
 		}
-		if(super.finished()){
+		if(super.finished(child)){
 			this.maxSize={width:0, height:0}
 			return true
 		}
 
 		return false;
-	}
-	
-	_foundLine(text){
-		
 	}
 }

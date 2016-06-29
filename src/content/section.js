@@ -4,15 +4,19 @@ import Any from "./any"
 import Page from "../compose/page"
 import Group from "../compose/group"
 
+let suuid=0
 export default class Section extends Any{
     static contextTypes=Object.assign({
         canvas: PropTypes.object
     }, Any.contextTypes)
-
+	
+	sectionId=suuid++
+	
     compose(){
         super.compose()
         const {composed}=this
-        composed.push(this._newPage())
+        if(composed.length==0)
+			composed.push(this._newPage())
     }
 
     /**
@@ -71,32 +75,53 @@ export default class Section extends Any{
         return {width, height:availableHeight}
     }
 	
-	replaceAvaibleSpace(reference, required){
-		const {width:minRequiredW=0,height:minRequiredH=0}=required
-        const {composed}=this
-        let {page:currentPage, column:currentColumn, line, occupiedHeight}=this._foundLine(reference)
+	_removeAllFrom(line){
+		if(!line){
+			this.composed.splice(0)
+			this._finished=0
+			this.children.splice(0)
+			return
+		}
+		
+		const {composed}=this
+        let currentPage=composed[composed.length-1]
         let {columns}=currentPage
-        let {width,height, children}=currentColumn
-        let availableHeight=height-occupiedHeight
-
-        //@TODO: what if never can find min area
-        while(availableHeight<=minRequiredH || width<minRequiredW){
-            if(this.props.page.columns>columns.length){// new column
-                columns.push(currentColumn=this._newColumn(columns.length))
-            }else{//new page
-                avoidInfiniteLoop++
-                composed.push(currentPage=this._newPage(composed.length))
-                currentColumn=currentPage.columns[0]
-            }
-            width=currentColumn.width
-            height=currentColumn.height
-            availableHeight=currentColumn.height
-        }
-        return {width, height:availableHeight}
-	}
-	
-	_foundLine(line){
-		//return {page, column, line, occupiedHeight}
+        let currentColumn=columns[columns.length-1]
+		let found=-1
+		while(-1==(found=currentColumn.children.findIndex(group=>{//group/Line
+			return group.props.children.props._id==line._id
+		}))){
+			columns.pop()
+			if(columns.length){
+				currentColumn=columns[columns.length-1]
+				found=-1
+			}else{
+				composed.pop()
+				if(composed.length){
+					currentPage=composed[composed.length-1]
+					({columns}=currentPage)
+					currentColumn=columns[columns.length-1]
+					found=-1
+				}else {
+					break
+					//throw new Error("you should find the line from section, but not")
+				}
+			}
+		}
+		
+		if(found!=-1){
+			this._finished=currentColumn.children[found].props.index
+			this.children.forEach((a,i)=>{
+				if(i>this._finished){
+					a._removeAllFrom()
+				}
+			})
+			this.children.splice(this._finished)
+			
+			currentColumn.children.splice(found)
+		}else{
+			throw new Error("you should find the line from section, but not")
+		}
 	}
 
     appendComposed(line){
@@ -123,12 +148,12 @@ export default class Section extends Any{
             children=currentColumn.children
         }
 
-		children.push(<Group y={height-availableHeight} height={contentHeight}>{line}</Group>)
+		children.push(<Group y={height-availableHeight} height={contentHeight} index={this._finished}>{line}</Group>)
         //@TODO: what if contentHeight still > availableHeight
     }
 
-    finished(){
-        if(super.finished()){
+    finished(child){
+        if(super.finished(child)){
 			const {composed}=this
 			const {canvas}=this.context
 			const {page:{width}}=this.props
@@ -141,7 +166,7 @@ export default class Section extends Any{
                 return newPage
             })
 
-			this.context.parent.appendComposed(<Group height={y} width={width}>{pages}</Group>)
+			this.context.parent.appendComposed(<Group height={y} width={width} _id={this.sectionId}>{pages}</Group>)
 
 			return true
 		}

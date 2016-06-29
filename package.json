@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "react": "^15.1.0",
+    "react-addons-shallow-compare": "^15.1.0",
     "react-dom": "^15.1.0"
   },
   "devDependencies": {
@@ -23,7 +24,7 @@
     "karma-browserify": "^4.4.2",
     "karma-chrome-launcher": "^0.2.1",
     "karma-jasmine": "^0.3.6",
-	"uglifyify": "^3.0.1",
+    "uglifyify": "^3.0.1",
     "watchify": "^3.4.0"
   },
   "babel": {
@@ -34,17 +35,16 @@
     "plugins": [
       "babel-plugin-add-module-exports",
       "babel-plugin-transform-object-rest-spread",
-	  "babel-plugin-transform-class-properties"
+      "babel-plugin-transform-class-properties"
     ]
   },
-  "scripts":{
-	"build": "babel src -d lib --source-maps inline",
+  "scripts": {
+    "build": "babel src -d lib --source-maps inline",
     "dist": "browserify -g uglifyify -r ./lib/index.js:we-edit -o dist/index.js",
-	"dist.watch": "watchify -v -d -r ./lib/index.js:we-edit -o dist/index.js",
-
-	"karma": "karma start",
+    "dist.watch": "watchify -v -d -r ./lib/index.js:we-edit -o dist/index.js",
+    "karma": "karma start",
     "test": "http-server dist",
-	"links": "node -p \"Object.keys(require('./package.json').devDependencies).join(' ')\""
+    "links": "node -p \"Object.keys(require('./package.json').devDependencies).join(' ')\""
   },
   "keywords": [],
   "repository": {

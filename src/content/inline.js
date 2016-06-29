@@ -13,7 +13,9 @@ export default class Inline extends Any{
 		super.compose()
         const {composed}=this
         const {parent}=this.context
-        let composer=new this.constructor.TextComposer(this)
+		const {children: rawContent}=this.props
+		const {text: modifiedContent}=this.state
+        let composer=new this.constructor.TextComposer(modifiedContent||rawContent)
         let text=null
         while(text=composer.next(parent.nextAvailableSpace())){
 			const info=text
@@ -22,34 +24,19 @@ export default class Inline extends Any{
             composed.push(content)
             parent.appendComposed(content)
         }
-        parent.finished()
+		this.context.parent.finished(this)
     }
 	
-	reCompose(){
-		const {composed:prevComposed}=this
-		this._finished=0
-		this.composed=[]
+	finished(){
 		
-		const {cursor}=this.state
-		let composer=new this.constructor.TextComposer(this)
-        let text=null, i=0
-		
-		while(text=composer.next(parent.replaceAvailableSpace(prevComposed[i]))){
-			const info=text
-			text.onClick=e=>this.onClick(e,info)
-			let content=(<text {...text}/>)
-            composed.push(content)
-            parent.appendComposed(content)
-        }
-        parent.finished()
 	}
 
     onClick(event, text){
 		const {offsetX}=event.nativeEvent
-		let composer=new this.constructor.TextComposer(React.cloneElement(this,{children:text.children}))
+		let composer=new this.constructor.TextComposer(text.children)
 		let loc=composer.next({width:offsetX})||{end:0}
 		let index=text.end-text.children.length+loc.end
-		this.setState({cursor:index})
+		this.setState({cursor:index, text:"Raymond changed it"})
     }
 
 	/**
@@ -58,11 +45,11 @@ export default class Inline extends Any{
     static TextComposer=class{
         static el;
 
-        constructor(content){
+        constructor(text, style){
             if(!this.constructor.el)
                 document.body.appendChild(this.constructor.el=document.createElement('span'))
-            const {children:text}=content.props
             this.text=text
+			this.style=style
             this.tester=this.constructor.el
             this.composed=0
         }
