@@ -24,22 +24,15 @@ export default class Inline extends Any{
             composed.push(content)
             parent.appendComposed(content)
         }
-		this.finished(this)
+		this.context.parent.on1ChildComposed(this)
     }
-
 
     onClick(event, text){
 		const {offsetX}=event.nativeEvent
 		let composer=new this.constructor.TextComposer(text.children)
 		let loc=composer.next({width:offsetX})||{end:0}
 		let index=text.end-text.children.length+loc.end
-        this.composed.splice(0)
-        this.children.splice(0)
-        this.setState({cursor:index, text:"Raymond changed it"})
-    }
-
-    componentDidUpdate(){
-        this.reCompose()
+        this.setState({cursor:index, text:"Raymond changed it"}, a=>this.reCompose())
     }
 
 	/**
@@ -55,7 +48,6 @@ export default class Inline extends Any{
 			this.style=style
             this.tester=this.constructor.el
             this.composed=0
-            console.log(`compose inline text : ${text}`)
         }
 
         next({width:maxWidth}){
@@ -76,8 +68,8 @@ export default class Inline extends Any{
 				}
 				if(text.length){
 					return {width:maxWidth,height, end:this.composed+=text.length, children:text}
-				}else{
-					//@TODO
+				}else{//@TODO: the space is too small, give a placeholder
+					return {width:maxWidth,height, end:this.composed+=text.length, children:text}
 				}
 			}
         }

@@ -27,12 +27,30 @@ export function test(){
         <Document>
             <Section>
                 <Paragraph>
-                    <Inline>{Array(2).fill("hello1, let's edit").join(" ")}</Inline>
-                    <Inline>{Array(2).fill("hello2, let's edit").join(" ")}</Inline>
+                    <Inline>{Array(27).fill("hello1, let's edit").join(" ")}</Inline>
+					<Inline>{Array(7).fill("hello1, let's edit").join(" ")}</Inline>
+					<Inline>{Array(1).fill("over").join(" ")}</Inline>
                 </Paragraph>
-
-
+				<Paragraph>
+                    <Inline>{Array(27).fill("hello1, let's edit").join(" ")}</Inline>
+					<Inline>{Array(7).fill("hello1, let's edit").join(" ")}</Inline>
+					<Inline>{Array(1).fill("over").join(" ")}</Inline>
+                </Paragraph>
             </Section>
+			
+			<Section page={{width:200, height:200, margin:10}}>
+                <Paragraph>
+                    <Inline>{Array(27).fill("hello1, let's edit").join(" ")}</Inline>
+					<Inline>{Array(7).fill("hello1, let's edit").join(" ")}</Inline>
+					<Inline>{Array(1).fill("over").join(" ")}</Inline>
+                </Paragraph>
+				<Paragraph>
+                    <Inline>{Array(27).fill("hello1, let's edit").join(" ")}</Inline>
+					<Inline>{Array(7).fill("hello1, let's edit").join(" ")}</Inline>
+					<Inline>{Array(1).fill("over").join(" ")}</Inline>
+                </Paragraph>
+            </Section>
+
         </Document>
     ),document.querySelector('#app'))
 }

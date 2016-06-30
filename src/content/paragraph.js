@@ -77,23 +77,20 @@ export default class Paragraph extends Any{
 		}
     }
 
-	finished(child){//need append last non-full-width line to parent
-		if(super.finished(child)){
-			const {composed}=this
-			const {parent}=this.context
+	onAllChildrenComposed(){//need append last non-full-width line to parent
+		const {composed}=this
+		const {parent}=this.context
 
-			let currentLine=composed[composed.length-1]
-			let availableWidth=currentLine.children.reduce((prev,a)=>prev-a.props.width,currentLine.width)
-			if(availableWidth>0){
-				parent.appendComposed(<Line {...currentLine}/>)
-			}else if(availableWidth==0){
-				//already appended to parent in appendComposed
-			}
-
-			this.maxSize={width:0, height:0}
-			return true
+		let currentLine=composed[composed.length-1]
+		let availableWidth=currentLine.children.reduce((prev,a)=>prev-a.props.width,currentLine.width)
+		if(availableWidth>0){
+			parent.appendComposed(<Line {...currentLine}/>)
+		}else if(availableWidth==0){
+			//already appended to parent in appendComposed
 		}
 
-		return false;
+		this.maxSize={width:0, height:0}
+		
+		super.onAllChildrenComposed()
 	}
 }

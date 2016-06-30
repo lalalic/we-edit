@@ -2,20 +2,20 @@ import React, {Component, PropTypes} from "react"
 import Group from "../compose/group"
 import shallowCompare from 'react-addons-shallow-compare'
 
+var uuid=0
 export class HasChild extends Component{
     static childContextTypes={
-        parent: PropTypes.object.isRequired,
-        composedTime: PropTypes.string.isRequired
+        parent: PropTypes.object.isRequired
     }
 
     state={}
 	children=[]
     composed=[]
+	_id=uuid++
 
     getChildContext(){
         return {
-            parent:this,
-            composedTime: this.state.composedTime || this.context.composedTime
+            parent:this
         }
     }
 
@@ -28,7 +28,7 @@ export class HasChild extends Component{
     }
 
 	compose(){
-
+		this._startComposeAt=Date.now()
     }
 
     /**
@@ -48,24 +48,27 @@ export class HasChild extends Component{
     }
 
 	/**
-	 *  child calls context.parent.finished() to notify parent finished composed itself
+	 *  child calls context.parent.on1ChildComposed() to notify parent 1 child composed
 	 *  return
-	 *  	true: parent's children all composed, usually to notify parent's parent
+	 *  	true: parent's all children composed
 	 */
-    finished(child){
+    on1ChildComposed(child){
+		console.info(`composed a ${child.displayName} ${child.displayName=='inline' ? `:${child.state.text||child.props.children}` : ''}`)
 		this.children.push(child)
-		return React.Children.count(this.props.children)==this.children.length
+		if(React.Children.count(this.props.children)==this.children.length){
+			this.onAllChildrenComposed()
+		}
     }
+	
+	onAllChildrenComposed(){
+		console.log(`${this.displayName}(${this._id}) composed within ${Date.now()-this._startComposeAt}ms`)
+	}
 }
 
-var uuid=0
 export default class HasParent extends HasChild{
     static contextTypes={
-        parent: PropTypes.object,
-        composedTime: PropTypes.string
+        parent: PropTypes.object
     }
-
-	_id=uuid++
     /**
      * children should call before composing line,
      * return next line rect {*width, [height]}
@@ -108,50 +111,37 @@ export default class HasParent extends HasChild{
 		this.composed[0] && this._reComposeFrom(this.composed[0])//#2 solution
 	}
 
-	_reComposeFrom(reference){//#2
-		this.composed.splice(0)
-		this.children.splice(0)
-		this._removeAllFrom(...arguments)
-	}
-
-	_removeAllFrom(reference){
-        console.log(`remove all from ${this.displayName} ${reference ? "" : "not"} including child, and parent`)
-		if(reference)
-			this.children.forEach(a=>a._removeAllFrom())
-
-		this.composed.splice(0)
-		this.children.splice(0)
-
-		if(reference)
-			this.context.parent._removeAllFrom(this)
+	/**
+	 *  if with content
+	 *  	> simply ask parent to recompose
+	 *  if without content
+	 *  	> just remove all and offspring to be ready to re-compose
+	 *  	> somewhere sometime it will be triggered to re-compose
+	 */
+	_reComposeFrom(content){
+        console.info(`remove all from ${this.displayName} ${content ? "" : "not"} including child, and parent`)
+		if(content)
+			this.context.parent._reComposeFrom(this)
+		else{
+			this.composed.splice(0)
+			this.children.forEach(a=>a._reComposeFrom())
+			this.children.splice(0)
+		}
 	}
     /**
      * only no composed should be re-compose
      */
     shouldComponentUpdate(nextProps, nextState, nextContext){
-        console.log(`shouldComponentUpdate on ${this.displayName}, with ${this.composed.length==0}`)
+        console.info(`shouldComponentUpdate on ${this.displayName}, with ${this.composed.length==0}`)
         if(this.composed.length==0){
-            //this.compose()
+            this.compose()
             return true
         }
         return false
     }
-
-    componentDidUpdate(){
-        this.compose()
-    }
-
-    componentWillReceiveProps(){
-        console.log(`componentWillReceiveProps on ${this.displayName}`)
-
-    }
-
-
-	finished(child){
-		if(super.finished(child)){
-			this.context.parent.finished(this)
-			return true
-		}
-		return false
+	
+	onAllChildrenComposed(){
+		this.context.parent.on1ChildComposed(this)
+		super.onAllChildrenComposed()
 	}
 }

@@ -4,7 +4,7 @@ import Group from "../compose/group"
 import Cursor from "../editor/cursor"
 
 export default class Document extends HasChild{
-	state={width:this.props.width, height:this.props.height, composedTime:new Date().toLocaleString()}
+	state={width:this.props.width, height:this.props.height}
 	displayName="document"
     render(){
 		const {composed}=this
@@ -14,10 +14,10 @@ export default class Document extends HasChild{
         return (
 			<svg {...this.props} width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
 				{this.props.children}
-				<Composed>
+				<Composed ref="composed">
 				{
 					composed.map((a,i)=>{
-						let section=<Group key={new Date().toLocaleString()} y={y}>{a}</Group>
+						let section=<Group ref={a.props._id} key={a.props._id} y={y}>{a}</Group>
 						y+=a.props.height
 						return section
 					})
@@ -46,8 +46,9 @@ export default class Document extends HasChild{
 	appendComposed(section){
 		const {composed}=this
 		let {width, height}=this.state
+		const {_id}=section.props
 
-		let found=composed.findIndex(a=>a.props._id==section.props._id)
+		let found=composed.findIndex(a=>a.props._id==_id)
 		if(found==-1){
 			composed.push(section)
 		}else{
@@ -61,12 +62,16 @@ export default class Document extends HasChild{
 
 		if(minHeight>height)
 			height=minHeight+this.props.pageGap
-
-		this.setState({width, height, composedTime: new Date().toLocaleString()})
+	
+		console.log(`${width}, ${height}`)
+		this.setState({width, height})
+		
+		if(this.refs[section._id])
+			this.refs[section._id].setState({composedTime:new Date().toString()})
 	}
 
-	_removeAllFrom(section){
-		//replace mode for section
+	_reComposeFrom(){
+		//never recompose from document
 	}
 
 	static defaultProps={
