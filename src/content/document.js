@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from "react"
 import {HasChild} from "./any"
-import Group from "../compose/group"
+import Group from "../composed/group"
 import Cursor from "../editor/cursor"
 
 export default class Document extends HasChild{
@@ -62,10 +62,10 @@ export default class Document extends HasChild{
 
 		if(minHeight>height)
 			height=minHeight+this.props.pageGap
-	
+
 		console.log(`${width}, ${height}`)
 		this.setState({width, height})
-		
+
 		if(this.refs[section._id])
 			this.refs[section._id].setState({composedTime:new Date().toString()})
 	}

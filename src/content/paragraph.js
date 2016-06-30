@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from "react"
 import Any from "./any"
-import Group from "../compose/group"
-import Line from "../compose/line"
+import Group from "../composed/group"
+import Line from "../composed/line"
 
 export default class Paragraph extends Any{
 	displayName="paragraph"
@@ -90,7 +90,7 @@ export default class Paragraph extends Any{
 		}
 
 		this.maxSize={width:0, height:0}
-		
+
 		super.onAllChildrenComposed()
 	}
 }

@@ -1,8 +1,8 @@
 import React, {Component, PropTypes} from "react"
 import Any from "./any"
 
-import Page from "../compose/page"
-import Group from "../compose/group"
+import Page from "../composed/page"
+import Group from "../composed/group"
 
 export default class Section extends Any{
     static contextTypes=Object.assign({
@@ -99,9 +99,9 @@ export default class Section extends Any{
 		if(found!=-1){
 			const index=currentColumn.children[found].props.index
 			currentColumn.children.splice(found)
-			
+
 			const removed=this.children.splice(index)
-			
+
 			const composedTime=new Date().toString()
 			removed.forEach((a,i)=>{
 				a._reComposeFrom()
@@ -157,7 +157,7 @@ export default class Section extends Any{
 		})
 
 		this.context.parent.appendComposed(<Group height={y} width={width} _id={this._id}>{pages}</Group>)
-		
+
 		super.onAllChildrenComposed()
     }
 
@@ -168,7 +168,7 @@ export default class Section extends Any{
 			margin: 20
 		}
 	}
-	
+
 	static propTypes={
 		page: PropTypes.shape({
 			width: PropTypes.number.isRequired,

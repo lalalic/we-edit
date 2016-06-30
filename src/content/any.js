@@ -1,5 +1,5 @@
 import React, {Component, PropTypes} from "react"
-import Group from "../compose/group"
+import Group from "../composed/group"
 import shallowCompare from 'react-addons-shallow-compare'
 
 var uuid=0
@@ -59,7 +59,7 @@ export class HasChild extends Component{
 			this.onAllChildrenComposed()
 		}
     }
-	
+
 	onAllChildrenComposed(){
 		console.log(`${this.displayName}(${this._id}) composed within ${Date.now()-this._startComposeAt}ms`)
 	}
@@ -139,7 +139,7 @@ export default class HasParent extends HasChild{
         }
         return false
     }
-	
+
 	onAllChildrenComposed(){
 		this.context.parent.on1ChildComposed(this)
 		super.onAllChildrenComposed()
