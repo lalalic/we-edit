@@ -10,9 +10,7 @@ export default class NodeWordWraper extends WordWrapper{
         return this.tester
     }
 
-    textMetrics(word, style){
-        
-
-
+    textMetrics(word){
+        return this.tester.metrics(word)
     }
 }
