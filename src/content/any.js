@@ -4,23 +4,30 @@ import shallowCompare from 'react-addons-shallow-compare'
 
 var uuid=0
 export class HasChild extends Component{
-    static childContextTypes={
-        parent: PropTypes.object.isRequired
-    }
-
-    state={}
+    state={content:React.Children.toArray(this.props.children)}
 	children=[]
     composed=[]
 	_id=uuid++
 
+    static childContextTypes={
+		parent: PropTypes.object,
+        x: PropTypes.number,
+		y: PropTypes.number,
+		width: PropTypes.number,
+		height: PropTypes.number
+    }
+
     getChildContext(){
         return {
-            parent:this
+            y: this.composed.reduce((prev, a)=>prev+a.height||a.props.height,0),
+			parent: this
         }
     }
 
 	render(){
-        return <Group {...this.props}/>
+		const {children, ...others}=this.props
+		const {content}=this.state
+        return <Group {...this.props}>{content}</Group>
     }
 
     componentWillMount(){
@@ -53,7 +60,7 @@ export class HasChild extends Component{
 	 *  	true: parent's all children composed
 	 */
     on1ChildComposed(child){
-		console.info(`composed a ${child.displayName} ${child.displayName=='inline' ? `:${child.state.text||child.props.children}` : ''}`)
+		console.info(`composed a ${child.displayName} ${child.displayName=='text' ? `:${child.state.text||child.props.children}` : ''}`)
 		this.children.push(child)
 		if(React.Children.count(this.props.children)==this.children.length){
 			this.onAllChildrenComposed()
@@ -69,6 +76,7 @@ export default class HasParent extends HasChild{
     static contextTypes={
         parent: PropTypes.object
     }
+	
     /**
      * children should call before composing line,
      * return next line rect {*width, [height]}
@@ -137,7 +145,8 @@ export default class HasParent extends HasChild{
             this.compose()
             return true
         }
-        return false
+		
+		return shallowCompare(this,nextProps, nextState)
     }
 
 	onAllChildrenComposed(){

@@ -6,9 +6,24 @@ import Group from "../composed/group"
 
 export default class Section extends Any{
     static contextTypes=Object.assign({
-        canvas: PropTypes.object
+        canvas: PropTypes.object,
+		y: PropTypes.number
     }, Any.contextTypes)
     displayName="section"
+	
+	render(){
+		const {content}=this.state
+		const {canvas}=this.context
+		const {page:{height, width}}=this.props
+		return ( 
+			<Group x={(canvas.width-width)/2} y={this.context.parent.getCurrentY()}>
+				{super.render()}
+				
+				<Composed ref="composed" pages={this.composed} 
+					gap={canvas.pageGap} pageHeight={height}/>
+			</Group>
+		)
+	}
 
     /**
      * i: column no
@@ -31,7 +46,7 @@ export default class Section extends Any{
      */
     _newPage(i){
         const {page:{width,height,margin}}=this.props
-        return {
+        let info={
             width,
             height,
             margin,
@@ -39,6 +54,9 @@ export default class Section extends Any{
             header:null,
             footer:null
         }
+		
+		this.context.parent.appendComposed(this, info)
+		return info
     }
 
     nextAvailableSpace(required={}){
@@ -143,24 +161,6 @@ export default class Section extends Any{
         //@TODO: what if contentHeight still > availableHeight
     }
 
-    onAllChildrenComposed(){
-		const {composed}=this
-		const {canvas}=this.context
-		const {page:{width}}=this.props
-
-		let y=0
-		let pages=composed.map((page,i)=>{
-			let {width,height}=page
-			let newPage=(<Group x={(canvas.width-width)/2} y={y+=canvas.pageGap} key={i}><Page {...page}/></Group>)
-			y+=height
-			return newPage
-		})
-
-		this.context.parent.appendComposed(<Group height={y} width={width} _id={this._id}>{pages}</Group>)
-
-		super.onAllChildrenComposed()
-    }
-
 	static defaultProps={
 		page: {
 			width: 300,
@@ -175,5 +175,23 @@ export default class Section extends Any{
 			height: PropTypes.number.isRequired,
 			margin: PropTypes.number.isRequired
 		})
+	}
+}
+
+class Composed extends Group{
+	render(){
+		const {pages, gap, pageHeight}=this.props
+		let y=0
+		return (
+			<Group>
+			{
+				pages.map((page,i)=>{
+					let newPage=(<Group y={y} key={i}><Page {...page}/></Group>)
+					y+=(pageHeight+gap)
+					return newPage
+				})
+			}
+			</Group>
+		)
 	}
 }

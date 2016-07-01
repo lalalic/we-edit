@@ -49,19 +49,6 @@ export function test(){
                 </Paragraph>
             </Section>
 
-			            <Section>
-                <Paragraph>
-                    <Inline><Text>{Array(27).fill("hello1, let's edit").join(" ")}</Text></Inline>
-					<Inline><Text>{Array(7).fill("hello1, let's edit").join(" ")}</Text></Inline>
-					<Inline><Text>{Array(1).fill("over").join(" ")}</Text></Inline>
-                </Paragraph>
-				<Paragraph>
-                    <Inline><Text>{Array(27).fill("hello1, let's edit").join(" ")}</Text></Inline>
-					<Inline><Text>{Array(7).fill("hello1, let's edit").join(" ")}</Text></Inline>
-					<Inline><Text>{Array(1).fill("over").join(" ")}</Text></Inline>
-                </Paragraph>
-            </Section>
-
         </Document>
     ),document.querySelector('#app'))
 }

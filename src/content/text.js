@@ -4,7 +4,12 @@ import Group from "../composed/group"
 import HtmlWordWrapper from "../wordwrap/html"
 
 export default class Text extends Any{
-    displayName="text"
+    constructor(){
+		super(...arguments)
+		Object.assign(this.state,{content:this.props.children})
+	}
+	displayName="text"
+	
 
 	render(){
 		return null
@@ -14,9 +19,8 @@ export default class Text extends Any{
 		super.compose()
         const {composed}=this
         const {parent}=this.context
-		const {children: rawContent}=this.props
-		const {text: modifiedContent}=this.state
-        let composer=new this.constructor.WordWrapper(modifiedContent||rawContent)
+		const {content}=this.state
+        let composer=new this.constructor.WordWrapper(content)
         let text=null
         while(text=composer.next(parent.nextAvailableSpace())){
 			const info=text
