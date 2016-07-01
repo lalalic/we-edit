@@ -76,7 +76,7 @@ export default class HasParent extends HasChild{
     static contextTypes={
         parent: PropTypes.object
     }
-	
+
     /**
      * children should call before composing line,
      * return next line rect {*width, [height]}
@@ -141,12 +141,9 @@ export default class HasParent extends HasChild{
      */
     shouldComponentUpdate(nextProps, nextState, nextContext){
         console.info(`shouldComponentUpdate on ${this.displayName}, with ${this.composed.length==0}`)
-        if(this.composed.length==0){
+        if(this.composed.length==0)
             this.compose()
-            return true
-        }
-		
-		return shallowCompare(this,nextProps, nextState)
+        return true
     }
 
 	onAllChildrenComposed(){

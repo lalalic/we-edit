@@ -17,10 +17,15 @@ import Paragraph from "./content/paragraph"
 import Inline from "./content/inline"
 import Text from "./content/text"
 import SVGWordWrapper from "./wordwrap/svg"
+import CanvasWordWrapper from "./wordwrap/canvas"
 
-//Text.WordWrapper=SVGWordWrapper
+import {loadFont} from "./wordwrap/fonts"
+
+//Text.WordWrapper=CanvasWordWrapper
 
 export function test(){
+    loadFont()
+
     ReactDOM.render((
         <Document>
             <Section>

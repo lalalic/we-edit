@@ -1,3 +1,5 @@
+//import wordwrap from "wordwrap"
+
 var _textComposerTime=0
 
 export default class WordWrapper{
@@ -6,6 +8,7 @@ export default class WordWrapper{
     constructor(text, style){
         this.text=text
         this.style=style
+        
         this.composed=0
     }
 
