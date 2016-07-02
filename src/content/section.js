@@ -10,16 +10,16 @@ export default class Section extends Any{
 		y: PropTypes.number
     }, Any.contextTypes)
     displayName="section"
-	
+
 	render(){
 		const {content}=this.state
 		const {canvas}=this.context
 		const {page:{height, width}}=this.props
-		return ( 
+		return (
 			<Group x={(canvas.width-width)/2} y={this.context.parent.getCurrentY()}>
 				{super.render()}
-				
-				<Composed ref="composed" pages={this.composed} 
+
+				<Composed ref="composed" pages={this.composed}
 					gap={canvas.pageGap} pageHeight={height}/>
 			</Group>
 		)
@@ -54,7 +54,8 @@ export default class Section extends Any{
             header:null,
             footer:null
         }
-		
+		if(this.composed.length)
+            this.context.parent.appendComposed(this)
 		this.context.parent.appendComposed(this, info)
 		return info
     }

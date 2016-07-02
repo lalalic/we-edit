@@ -8,7 +8,7 @@ export default class WordWrapper{
     constructor(text, style){
         this.text=text
         this.style=style
-        
+
         this.composed=0
     }
 
@@ -35,8 +35,20 @@ export default class WordWrapper{
         if(width<=maxWidth){
             info={width,height, end:this.composed+=text.length, children:text}
         }else{
-            while(width>maxWidth && text.length)
-                ({width, height}=this._textMetrics(text=text.slice(0,-1)))
+            debugger
+            text=text.substr(0,Math.floor(text.length*maxWidth/width))
+            ;({width,height}=this._textMetrics(text));
+
+            if(width==maxWidth){
+                info={width,height, end:this.composed+=text.length, children:text}
+            }else if(width<maxWidth){
+                let index=this.composed+text.length, len=this.text.length
+                while(width>maxWidth && index<len)
+                    ({width, height}=this._textMetrics(text+=this.text.charAt(index++)))
+            } else {
+                while(width>maxWidth && text.length)
+                    ({width, height}=this._textMetrics(text=text.slice(0,-1)))
+            }
 
             if(text.length){
                 info={width:maxWidth,height, end:this.composed+=text.length, children:text}

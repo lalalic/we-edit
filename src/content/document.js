@@ -10,7 +10,7 @@ export default class Document extends HasChild{
 		this.displayName="document"
 		this.currentY=this.props.pageGap
 	}
-	
+
     render(){
 		const {composed, state:{content}, props:{width, height}}=this
         return (
@@ -36,8 +36,9 @@ export default class Document extends HasChild{
 		if(!page){
 			this.children.push(section)
 			section.y=this.currentY
+			return
 		}
-		
+
 		this.currentY+=page.height+this.props.pageGap;
 		const {svg}=this.refs
 		if(svg){
@@ -45,11 +46,11 @@ export default class Document extends HasChild{
 			svg.setAttribute('viewBox',`0 0 ${this.props.width} ${this.currentY}`)
 		}
 	}
-	
+
 	getCurrentY(){
 		return this.currentY
 	}
-	
+
 	componentDidMount(){
 		const {svg}=this.refs
 		svg.setAttribute('height',this.currentY)
@@ -59,13 +60,11 @@ export default class Document extends HasChild{
 	_reComposeFrom(){
 		//never recompose from document
 	}
-	
+
 	on1ChildComposed(){
-		
-	}
-	
-	onAllChildrenComposed(){
-		
+		if(this.state.content.length==this.children.length){
+			this.onAllChildrenComposed()
+		}
 	}
 
 	static defaultProps={

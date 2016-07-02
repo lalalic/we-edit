@@ -62,7 +62,7 @@ export class HasChild extends Component{
     on1ChildComposed(child){
 		console.info(`composed a ${child.displayName} ${child.displayName=='text' ? `:${child.state.text||child.props.children}` : ''}`)
 		this.children.push(child)
-		if(React.Children.count(this.props.children)==this.children.length){
+		if(this.state.content.length==this.children.length){
 			this.onAllChildrenComposed()
 		}
     }
