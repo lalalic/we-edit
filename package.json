@@ -13,6 +13,7 @@
     "react": "^15.1.0",
     "react-addons-shallow-compare": "^15.1.0",
     "react-dom": "^15.1.0",
+    "svg-path-bounding-box": "^1.0.4",
     "word-wrapper": "^1.0.7"
   },
   "devDependencies": {

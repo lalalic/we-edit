@@ -29,7 +29,7 @@ export default function editable(Content){
 
 
         reCompose(){
-    		this.composed[0] && this._reComposeFrom(this.composed[0])//#2 solution
+    		this._reComposeFrom(this)//#2 solution
     	}
 
     	/**
@@ -41,9 +41,9 @@ export default function editable(Content){
     	 */
     	_reComposeFrom(content){
             console.info(`remove all from ${this.displayName} ${content ? "" : "not"} including child, and parent`)
-    		if(content)
+    		if(content){
     			this.context.parent._reComposeFrom(this)
-    		else{//here parent is ready for re-compose
+    		}else{//here parent is ready for re-compose
                 let lastComposed=this.composed.splice(0)
                 if(!this._isLastComposedFitIntoParent(lastComposed)){
                     if(this.children.length){

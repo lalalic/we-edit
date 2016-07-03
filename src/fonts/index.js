@@ -1,4 +1,5 @@
 import opentype from "opentype.js"
+import boundingBox from "svg-path-bounding-box"
 
 var fonts={}
 
@@ -16,6 +17,7 @@ export default {
 class Font{
     constructor(data, id){
         this.data=data
+        this.lineGap=0//@TODO
         this.id=id
     }
 
@@ -24,6 +26,15 @@ class Font{
         //this.data.stringTo
 		return {width:0, height:0, glyphs:[]}
 	}
+
+    lineHeight(size){
+        return (this.data.ascender+this.lineGap-this.data.descender)/1000*size
+    }
+
+    stringWidth(string,size){
+        let d=this.data.getPath(string,0,0,size, {kerning:true})
+        return boundingBox(d)
+    }
 }
 
 export function loadFont(){

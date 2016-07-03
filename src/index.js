@@ -11,18 +11,19 @@ export default function edit(){
 
 }
 
-import Content from "./content"
+import Content, {Text} from "./content"
 import Editor from "./editor"
 
 
 import SVGWordWrapper from "./wordwrap/svg"
 import CanvasWordWrapper from "./wordwrap/canvas"
+import NodeWordWrapper from "./wordwrap/node"
 
 import {loadFont} from "./wordwrap/fonts"
 
-//Text.WordWrapper=CanvasWordWrapper
+Text.WordWrapper=NodeWordWrapper
 
-let A=Editor
+let A=Content
 export function test(){
     loadFont()
 

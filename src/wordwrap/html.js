@@ -8,7 +8,7 @@ export default class HtmlWordWrapper extends WordWrapper{
         return tester
     }
 
-    _textMetrics(word,style){
+    _textMetrics(word){
         let tester=this.constructor.tester
         tester.innerHTML=word
         return tester.getBoundingClientRect()

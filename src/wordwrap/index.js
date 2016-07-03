@@ -8,7 +8,7 @@ export default class WordWrapper{
     constructor(text, style){
         this.text=text
         this.style=style
-
+        this.height=25
         this.composed=0
     }
 
@@ -16,7 +16,7 @@ export default class WordWrapper{
 
     }
 
-    _textMetrics(word, style){
+    _textMetrics(word){
 
     }
 
@@ -30,23 +30,23 @@ export default class WordWrapper{
         let tester=this.constructor.tester
         let startAt=Date.now()
 
-        let text=null,info=null
-        let {width,height}=this._textMetrics(text=this.text.substr(this.composed))
+        let text=null,info=null, height=this.height
+        let {width}=this._textMetrics(text=this.text.substr(this.composed))
         if(width<=maxWidth){
             info={width,height, end:this.composed+=text.length, children:text}
         }else{
             text=text.substr(0,Math.floor(text.length*maxWidth/width))
-            ;({width,height}=this._textMetrics(text));
+            ;({width}=this._textMetrics(text));
 
             if(width==maxWidth){
-                info={width,height, end:this.composed+=text.length, children:text}
+                info={width, height, end:this.composed+=text.length, children:text}
             }else if(width<maxWidth){
                 let index=this.composed+text.length, len=this.text.length
                 while(width>maxWidth && index<len)
-                    ({width, height}=this._textMetrics(text+=this.text.charAt(index++)))
+                    ({width}=this._textMetrics(text+=this.text.charAt(index++)))
             } else {
                 while(width>maxWidth && text.length)
-                    ({width, height}=this._textMetrics(text=text.slice(0,-1)))
+                    ({width}=this._textMetrics(text=text.slice(0,-1)))
             }
 
             if(text.length){

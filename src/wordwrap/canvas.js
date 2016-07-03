@@ -11,8 +11,6 @@ export default class CanvasWordWrapper extends WordWrapper{
     _textMetrics(word){
         let tester=this.constructor.tester
         let {width}=tester.measureText(word)
-        let height=25
-
-        return {width, height}
+        return {width}
     }
 }

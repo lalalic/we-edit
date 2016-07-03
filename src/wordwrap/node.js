@@ -1,16 +1,17 @@
 import WordWrapper from "."
-import Fonts from ".."
+import Fonts from "../fonts"
 
 export default class NodeWordWraper extends WordWrapper{
     constructor(text,style){
         super(...arguments)
-        this.tester=Fonts.get(style.fontFamily)
+        this.tester=Fonts.get("Verdana")//style.fontFamily)
     }
     _creatTester(){
         return this.tester
     }
 
-    textMetrics(word, style){
-        this.tester.stringWidth(word,style)
+    _textMetrics(word){
+        debugger
+        return this.tester.stringWidth(word)
     }
 }

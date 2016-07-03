@@ -20,7 +20,7 @@ export default class SVGWordWrapper extends HtmlWordWrapper{
         return container.querySelector('text')
     }
 
-    _textMetrics(word, style){
+    _textMetrics(word){
         let tester=this.constructor.tester
         tester.firstChild.data=word
         return tester.getBBox()
