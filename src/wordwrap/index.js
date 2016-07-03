@@ -35,7 +35,6 @@ export default class WordWrapper{
         if(width<=maxWidth){
             info={width,height, end:this.composed+=text.length, children:text}
         }else{
-            debugger
             text=text.substr(0,Math.floor(text.length*maxWidth/width))
             ;({width,height}=this._textMetrics(text));
 

@@ -4,23 +4,20 @@ import shallowCompare from 'react-addons-shallow-compare'
 
 var uuid=0
 export class HasChild extends Component{
-    state={content:React.Children.toArray(this.props.children)}
+    state={content:React.Children.toArray(this.props.children), style:{fontFamily:"arial"}}
 	children=[]
     composed=[]
-	_id=uuid++
+    _id=uuid++
 
     static childContextTypes={
 		parent: PropTypes.object,
-        x: PropTypes.number,
-		y: PropTypes.number,
-		width: PropTypes.number,
-		height: PropTypes.number
+        style: PropTypes.object
     }
 
     getChildContext(){
         return {
-            y: this.composed.reduce((prev, a)=>prev+a.height||a.props.height,0),
-			parent: this
+			parent: this,
+            style: this.state.style
         }
     }
 
@@ -30,12 +27,27 @@ export class HasChild extends Component{
         return <Group {...this.props}>{content}</Group>
     }
 
+    /**
+     * compose on client or server
+     */
     componentWillMount(){
         this.compose()
     }
 
+    /**
+     * usually NoChild content should be composed according to nextAvailableSpace,
+     * and then append to itself.composed[] and parent.appendComposed
+     */
 	compose(){
 		this._startComposeAt=Date.now()
+    }
+
+    /**
+     * children should call after a line composed out
+     * a chance to add to self's composed
+     */
+    appendComposed(line){
+
     }
 
     /**
@@ -47,21 +59,13 @@ export class HasChild extends Component{
     }
 
 	/**
-     * children should call after a line composed out
-     * a chance to add to self's composed
-     */
-    appendComposed(line){
-
-    }
-
-	/**
 	 *  child calls context.parent.on1ChildComposed() to notify parent 1 child composed
 	 *  return
 	 *  	true: parent's all children composed
 	 */
     on1ChildComposed(child){
-		console.info(`composed a ${child.displayName} ${child.displayName=='text' ? `:${child.state.text||child.props.children}` : ''}`)
-		this.children.push(child)
+        console.info(`composed a ${child.displayName} ${child.displayName=='text' ? `:${child.state.text||child.props.children}` : ''}`)
+        this.children.push(child)
 		if(this.state.content.length==this.children.length){
 			this.onAllChildrenComposed()
 		}
@@ -72,11 +76,11 @@ export class HasChild extends Component{
 	}
 }
 
-export default class HasParent extends HasChild{
+export default class HasParentAndChild extends HasChild{
+    displayName="content"
     static contextTypes={
         parent: PropTypes.object
     }
-
     /**
      * children should call before composing line,
      * return next line rect {*width, [height]}
@@ -93,61 +97,36 @@ export default class HasParent extends HasChild{
         return this.context.parent.appendComposed(...arguments)
     }
 
-	/**
-	 *  it's a very complicated job, so we need a very simple design, one sentence described solution. options:
-	 *  1. remove all composed, and re-compose all
-	 *  	- need find a time to recompose
-	 *  	- logic is most simple
-	 *  	- performance is most bad
-	 *
-	 *  2. remove all composed from this content, and re-compose removals
-	 *  	- Need locate composed of this content in page
-	 *  	- Need find a time to recompose
-	 *  		> componentDidUpdate
-	 *  			. any state update,
-	 *  			. and carefully tuned shouldComponentUpdate(nextProps, nextState, nextContext)
-	 *  	- performance is better than #1
-	 *
-	 *  3. recompose this content, and check if new composed fits last composed space (hit ratio is low)
-	 *  	- Yes: just replace
-	 *  	- No: #1, or #2
-	 *  	- and then loop with all following content with the same logic
-	 *
-	 *  	3.a: recompose this content line by line ..., much logics here
-	 */
-	reCompose(){
-		this.composed[0] && this._reComposeFrom(this.composed[0])//#2 solution
-	}
-
-	/**
-	 *  if with content
-	 *  	> simply ask parent to recompose
-	 *  if without content
-	 *  	> just remove all and offspring to be ready to re-compose
-	 *  	> somewhere sometime it will be triggered to re-compose
-	 */
-	_reComposeFrom(content){
-        console.info(`remove all from ${this.displayName} ${content ? "" : "not"} including child, and parent`)
-		if(content)
-			this.context.parent._reComposeFrom(this)
-		else{
-			this.composed.splice(0)
-			this.children.forEach(a=>a._reComposeFrom())
-			this.children.splice(0)
-		}
-	}
-    /**
-     * only no composed should be re-compose
-     */
-    shouldComponentUpdate(nextProps, nextState, nextContext){
-        console.info(`shouldComponentUpdate on ${this.displayName}, with ${this.composed.length==0}`)
-        if(this.composed.length==0)
-            this.compose()
-        return true
-    }
-
 	onAllChildrenComposed(){
 		this.context.parent.on1ChildComposed(this)
 		super.onAllChildrenComposed()
 	}
+}
+
+export class NoChild extends HasParentAndChild{
+    constructor(){
+		super(...arguments)
+		Object.assign(this.state,{content:this.props.children})
+        Object.freeze(this.children)//no children
+	}
+
+    render(){
+		return null
+	}
+
+    compose(){
+        let composed=this.createComposedPiece()
+
+        const {parent}=this.context
+        this.composed.push(composed)
+        parent.appendComposed(composed)
+        parent.on1ChildComposed(this)
+    }
+
+    /***
+     * after figure out props, you'd better call this to create Element
+     */
+    createComposedPiece(props){
+        return null
+    }
 }

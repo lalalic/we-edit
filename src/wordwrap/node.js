@@ -1,5 +1,5 @@
 import WordWrapper from "."
-import Fonts from "./fonts"
+import Fonts from ".."
 
 export default class NodeWordWraper extends WordWrapper{
     constructor(text,style){

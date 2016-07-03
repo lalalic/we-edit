@@ -22,4 +22,6 @@ export default class Page extends Component{
     }
 }
 
-class Column extends Group{}
+class Column extends Group{
+    
+}

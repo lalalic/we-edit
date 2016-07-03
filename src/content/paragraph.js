@@ -8,7 +8,7 @@ export default class Paragraph extends Any{
 
 	_newLine(){
 		return {
-            width: this.maxSize.width,
+            width: this.availableSpace.width,
 			_id:this._id,
 			height:0,
             children:[]
@@ -20,7 +20,7 @@ export default class Paragraph extends Any{
         const {composed}=this
 		if(0==composed.length){
 			let {width,height}=this.context.parent.nextAvailableSpace()
-			this.maxSize={width,height}
+			this.availableSpace={width,height}
 			composed.push(this._newLine())
 		}
         let currentLine=composed[composed.length-1]
@@ -28,46 +28,51 @@ export default class Paragraph extends Any{
         let {width}=currentLine
         let availableWidth=currentLine.children.reduce((prev,a)=>prev-a.props.width,width)
         if(availableWidth<=minRequiredW){
-			if(this.maxSize.height>minRequiredH){
-				return this.maxSize
+			if(this.availableSpace.height>minRequiredH){
+				return this.availableSpace
 			}else{
-				return this.maxSize=this.context.parent.nextAvailableSpace(required)
+				return this.availableSpace=this.context.parent.nextAvailableSpace(required)
 			}
         }
-        return {width:availableWidth, height:this.maxSize.height}
+        return {width:availableWidth, height:this.availableSpace.height}
     }
 
-    appendComposed(text){
+    appendComposed(content){//@TODO: need consider availableSpace
         const {composed}=this
         const {parent}=this.context
 
 		let currentLine=composed[composed.length-1]
         let availableWidth=currentLine.children.reduce((prev,a)=>prev-a.props.width,currentLine.width)
-        let {width:contentWidth, height:contentHeight}=text.props
+        let {width:contentWidth, height:contentHeight}=content.props
 
 
 		let piece=null
-        if(availableWidth>=contentWidth){//not appended to parent
+		if(availableWidth==0){
+			composed.push(this._newLine())
+			this.appendComposed(content)
+		}else if(availableWidth>=contentWidth){//not appended to parent
             piece=(
 					<Group
 						x={currentLine.width-availableWidth}
 						index={this.children.length}
 						width={contentWidth}
 						height={contentHeight}>
-						{text}
+						{content}
 					</Group>
 					)
             currentLine.children.push(piece)
 			currentLine.height=Math.max(currentLine.height,contentHeight)
 			if(availableWidth==contentWidth){
 				parent.appendComposed(<Line {...currentLine}/>)
-				this.maxSize.height-=currentLine.height
+				this.availableSpace.height-=currentLine.height
 			}
 		}else if(availableWidth<contentWidth){
-			if(this.maxSize.height>=contentHeight){
+			if(this.availableSpace.height>=currentLine.height){
+				parent.appendComposed(<Line {...currentLine}/>)
 				composed.push(this._newLine())
-				if(contentWidth<=this.maxSize.width)
-					this.appendComposed(text)
+
+				if(contentWidth<=this.availableSpace.width)
+					this.appendComposed(content)
 				else{
 					//never be here
 				}
@@ -89,7 +94,7 @@ export default class Paragraph extends Any{
 			//already appended to parent in appendComposed
 		}
 
-		this.maxSize={width:0, height:0}
+		this.availableSpace={width:0, height:0}
 
 		super.onAllChildrenComposed()
 	}

@@ -7,6 +7,8 @@
     "email": "lalalic@139.com"
   },
   "dependencies": {
+    "immutable": "^3.8.1",
+    "opentype-layout": "^1.1.0",
     "opentype.js": "^0.6.4",
     "react": "^15.1.0",
     "react-addons-shallow-compare": "^15.1.0",

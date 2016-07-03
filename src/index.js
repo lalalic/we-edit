@@ -11,11 +11,10 @@ export default function edit(){
 
 }
 
-import Document from "./content/document"
-import Section from "./content/section"
-import Paragraph from "./content/paragraph"
-import Inline from "./content/inline"
-import Text from "./content/text"
+import Content from "./content"
+import Editor from "./editor"
+
+
 import SVGWordWrapper from "./wordwrap/svg"
 import CanvasWordWrapper from "./wordwrap/canvas"
 
@@ -23,37 +22,21 @@ import {loadFont} from "./wordwrap/fonts"
 
 //Text.WordWrapper=CanvasWordWrapper
 
+let A=Editor
 export function test(){
     loadFont()
 
     ReactDOM.render((
-        <Document>
-            <Section>
-                <Paragraph>
-                    <Inline><Text>{Array(27).fill("hello1, let's edit").join(" ")}</Text></Inline>
-					<Inline><Text>{Array(7).fill("hello1, let's edit").join(" ")}</Text></Inline>
-					<Inline><Text>{Array(1).fill("over").join(" ")}</Text></Inline>
-                </Paragraph>
-				<Paragraph>
-                    <Inline><Text>{Array(27).fill("hello1, let's edit").join(" ")}</Text></Inline>
-					<Inline><Text>{Array(7).fill("hello1, let's edit").join(" ")}</Text></Inline>
-					<Inline><Text>{Array(1).fill("over").join(" ")}</Text></Inline>
-                </Paragraph>
-            </Section>
+        <A.Document>
+            <A.Section>
+                <A.Paragraph>
+                    <A.Inline><A.Text>{Array(100).fill("hello1, let's edit").join(" ")}</A.Text></A.Inline>
+                    <A.Image width={100} height={100}
+                        src="http://n.sinaimg.cn/news/transform/20160629/gbf3-fxtniax8255947.jpg"/>
 
-			<Section page={{width:200, height:200, margin:10}}>
-                <Paragraph>
-                    <Inline><Text>{Array(27).fill("hello1, let's edit").join(" ")}</Text></Inline>
-					<Inline><Text>{Array(7).fill("hello1, let's edit").join(" ")}</Text></Inline>
-					<Inline><Text>{Array(1).fill("over").join(" ")}</Text></Inline>
-                </Paragraph>
-				<Paragraph>
-                    <Inline><Text>{Array(27).fill("hello1, let's edit").join(" ")}</Text></Inline>
-					<Inline><Text>{Array(7).fill("hello1, let's edit").join(" ")}</Text></Inline>
-					<Inline><Text>{Array(1).fill("over").join(" ")}</Text></Inline>
-                </Paragraph>
-            </Section>
-
-        </Document>
+                    <A.Inline><A.Text>{Array(1).fill("over").join(" ")}</A.Text></A.Inline>
+                </A.Paragraph>
+            </A.Section>
+        </A.Document>
     ),document.querySelector('#app'))
 }
