@@ -1,56 +1,61 @@
 import React from "react"
+import Content from "../../content"
+import {Models} from "."
+
 export default class Model{
-	constructor(srcModel, targetParent){
-		let type=srcModel.type
-		this.type=type.charAt(0).toUpperCase()+type.substr(1)
-		this.wordModel=srcModel
+	constructor(wordModel, parent){
+		this.wordModel=wordModel
+		this.type=this.asContentType(wordModel)
 		this.props={}
 		this.children=[]
 	}
 
+	/**
+	 * extract information from wordModel
+	 */
 	visit(){
-		switch(this.type){
-		case 'Image':
-			let blob=this.wordModel.getImage();
-			this.props.src=URL.createObjectURL(new Blob(blob),{type:"image/*"})
-			this.props.width=200
-			this.props.height=200
-		break
-		case 'Text':
-			this.children.push(this.wordModel.getText())
-		break
-		}
+		this.visitStyle()
 	}
 
-	appendChild(srcModel){
-		switch(srcModel.type){
-		case "section":
-		case "paragraph":
-		case "inline":
-		case "text":
-		case "image":
-			let appended=new Model(srcModel, this)
+	visitStyle(){
+		let directStyle=this.wordModel.getDirectStyle()
+			,namedStyleId=this.wordModel.getStyleId()
+
+		let style=this.doc.createStyle(el||this.content,namedStyleId)
+
+		if(directStyle)
+			directStyle.parse([new this.constructor.StyleProperties(style, this)])
+
+		return style
+	}
+
+	asContentType(wordModel){
+		let type=wordModel.type
+		if(type)
+			return type.charAt(0).toUpperCase()+type.substr(1)
+		else
+			return "*"
+	}
+
+	appendChild(wordModel){
+		let type=this.asContentType(wordModel)
+		if(Content[type]){
+			let ModelType=Models[type]
+			let appended=ModelType ? new ModelType(wordModel,this) : new Model(wordModel, this)
 			this.children.push(appended)
 			return appended
-		default:
+		} else
 			return this
-		}
 	}
 
+	/**
+	 * you'd better NOT extract info from wordModel
+	 * Maybe error since parse context is released
+	 */
 	createReactElement(namespace){
-		let reactClass=namespace[this.type]
-		let props=this.props
-		switch(this.type){
-		case 'Text':
-			return React.createElement(reactClass,props,this.children[0])
-		break
-		case 'Image':
-			return React.createElement(reactClass,props)
-		break
-		default:
-			let children=this.children.map(a=>a.createReactElement(namespace))
-			return React.createElement(reactClass, props, children)
-		}
-
+		return React.createElement(
+			namespace[this.type],
+			this.props,
+			this.children.map(a=>a.createReactElement(namespace)))
 	}
 }

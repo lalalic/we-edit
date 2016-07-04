@@ -1,6 +1,5 @@
 import docx4js from "docx4js"
 import Base from "../base"
-
 import Model from "./any"
 
 export default class Docx extends Base{
@@ -18,4 +17,12 @@ export default class Docx extends Base{
 			}))
 		})
 	}
+}
+
+import Image from "./image"
+import Text from "./text"
+
+export let Models={
+	Image
+	,Text
 }
