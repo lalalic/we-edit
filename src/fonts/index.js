@@ -5,8 +5,9 @@ var fonts={}
 
 export default {
     get(name){
-		if(!fonts[name]){
-			return fonts[name]=loadFont(name)
+		name=name.toLowerCase()
+		if(fonts[name]){
+			return fonts[name]
 		}else{
             throw new Error(`${name} not exists`)
         }
@@ -32,34 +33,42 @@ class Font{
     }
 
     stringWidth(string,size){
-        let d=this.data.getPath(string,0,0,size, {kerning:true})
+        let d=this.data.getPath(string,0,0,size, {kerning:true}).toPathData()
         return boundingBox(d)
     }
 }
 
 export function loadFont(){
-    let loader=document.querySelector('#fonts')
-    loader.onchange=function(e){
-        for(let i=0, file, len=this.files.length;i<len;i++){
-            file=this.files[i]
-            {
-                let name=file.name
-                let reader=new FileReader()
-                reader.onload=e=>{
-                    let data=reader.result
-                    let font=opentype.parse(data)
-                    if(font.supported){
-                        let id=name.split(".")[0].toLowerCase()
-                        fonts[id]=new Font(font,id)
-                        console.log(`${name} font loaded`)
-                    }else{
-                        console.error(`${name} font loaded fail`)
-                    }
-                }
-                reader.readAsArrayBuffer(file)
-            }
-        }
-
-        loader.value=""
-    }
+    return new Promise((resolve, reject)=>{
+		let loader=document.querySelector('#fonts')
+		loader.onchange=function(e){
+			let loaded=[]
+			for(let i=0, file, len=this.files.length;i<len;i++){
+				file=this.files[i]
+				loaded.push(new Promise((resolve, reject)=>{
+					let name=file.name
+					let reader=new FileReader()
+					reader.onload=e=>{
+						let data=reader.result
+						let font=opentype.parse(data)
+						if(font.supported){
+							let id=name.split(".")[0].toLowerCase()
+							fonts[id]=new Font(font,id)
+							console.log(`${name} font loaded`)
+							resolve(fonts[id])
+						}else{
+							console.error(`${name} font loaded fail`)
+							resolve()
+						}
+						
+					}
+					reader.onerror=e=>reject(e)
+					
+					reader.readAsArrayBuffer(file)
+				}))
+			}
+			loader.value=""
+			Promise.all(loaded).then(resolve, reject)
+		}		
+	})
 }

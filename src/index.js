@@ -1,3 +1,5 @@
+require("babel-polyfill")
+
 import React, {Component, PropTypes} from "react"
 import ReactDOM from "react-dom"
 
@@ -19,25 +21,25 @@ import SVGWordWrapper from "./wordwrap/svg"
 import CanvasWordWrapper from "./wordwrap/canvas"
 import NodeWordWrapper from "./wordwrap/node"
 
-import {loadFont} from "./wordwrap/fonts"
+import {loadFont} from "./fonts"
 
-Text.WordWrapper=NodeWordWrapper
+//Text.WordWrapper=NodeWordWrapper
 
 let A=Content
 export function test(){
-    loadFont()
+    //loadFont().then(fonts=>
+		ReactDOM.render((
+			<A.Document>
+				<A.Section>
+					<A.Paragraph>
+						<A.Inline><A.Text>{Array(100).fill("hello1, let's edit").join(" ")}</A.Text></A.Inline>
+						<A.Image width={100} height={100}
+							src="http://n.sinaimg.cn/news/transform/20160629/gbf3-fxtniax8255947.jpg"/>
 
-    ReactDOM.render((
-        <A.Document>
-            <A.Section>
-                <A.Paragraph>
-                    <A.Inline><A.Text>{Array(100).fill("hello1, let's edit").join(" ")}</A.Text></A.Inline>
-                    <A.Image width={100} height={100}
-                        src="http://n.sinaimg.cn/news/transform/20160629/gbf3-fxtniax8255947.jpg"/>
-
-                    <A.Inline><A.Text>{Array(1).fill("over").join(" ")}</A.Text></A.Inline>
-                </A.Paragraph>
-            </A.Section>
-        </A.Document>
-    ),document.querySelector('#app'))
+						<A.Inline><A.Text>{Array(1).fill("over").join(" ")}</A.Text></A.Inline>
+					</A.Paragraph>
+				</A.Section>
+			</A.Document>
+		),document.body)
+	//)
 }

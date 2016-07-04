@@ -7,6 +7,7 @@
     "email": "lalalic@139.com"
   },
   "dependencies": {
+    "babel-polyfill": "^6.9.1",
     "immutable": "^3.8.1",
     "opentype-layout": "^1.1.0",
     "opentype.js": "^0.6.4",
