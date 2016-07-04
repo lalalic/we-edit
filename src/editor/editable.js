@@ -21,7 +21,7 @@
  *  	3.a: recompose this content line by line ..., much logics here
  */
 export default function editable(Content){
-    return class extends Content{
+    return class Editor extends Content{
         constructor(){
             super(...arguments)
             Object.assign(this.state,{composed:this.composed})//for debug

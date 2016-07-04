@@ -10,10 +10,14 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta http-equiv="Content-Security-Policy">
         <script src="index.js"></script>
+		<script>
+			
+		</script>
         <title>we-edit</title>
     </head>
-    <body onload="javascript: require('we-edit').test()" 
-		style="margin:0;padding:0;border:0;font-family:verdana">
-        <input type="file" id="fonts">
+    <body style="margin:0;padding:0;border:0;font-family:verdana;font-size:12px">
+		<div id="app" style="position:absolute"></div>
+        <input type="file" id="fonts" onchange="javascript: require('we-edit').loadFont(this.files)">
+		<input type="file" id="content" onchange="require('we-edit').edit(this.files[0], document.querySelector('#app'))">
 	</body>
 </html>

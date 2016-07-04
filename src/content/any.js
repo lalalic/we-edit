@@ -1,10 +1,9 @@
 import React, {Component, PropTypes} from "react"
 import Group from "../composed/group"
-import shallowCompare from 'react-addons-shallow-compare'
 
 var uuid=0
 export class HasChild extends Component{
-    state={content:React.Children.toArray(this.props.children), style:{fontFamily:"arial"}}
+    state={content:React.Children.toArray(this.props.children), style:this.props.style}
 	children=[]
     composed=[]
     _id=uuid++
@@ -79,7 +78,8 @@ export class HasChild extends Component{
 export default class HasParentAndChild extends HasChild{
     displayName="content"
     static contextTypes={
-        parent: PropTypes.object
+        parent: PropTypes.object,
+		style: PropTypes.object
     }
     /**
      * children should call before composing line,

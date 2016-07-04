@@ -7,14 +7,11 @@
     "email": "lalalic@139.com"
   },
   "dependencies": {
-    "babel-polyfill": "^6.9.1",
+    "docx4js": "^1.3.6",
     "immutable": "^3.8.1",
-    "opentype-layout": "^1.1.0",
-    "opentype.js": "^0.6.4",
     "react": "^15.1.0",
-    "react-addons-shallow-compare": "^15.1.0",
     "react-dom": "^15.1.0",
-    "svg-path-bounding-box": "^1.0.4",
+    "ttfjs": "^0.4.0",
     "word-wrapper": "^1.0.7"
   },
   "devDependencies": {
@@ -49,7 +46,7 @@
     "dist": "browserify -g uglifyify -r ./lib/index.js:we-edit -o dist/index.js",
     "dist.watch": "watchify -v -d -r ./lib/index.js:we-edit -o dist/index.js",
     "karma": "karma start",
-    "test": "http-server dist",
+    "test": "http-server dist -c-1",
     "links": "node -p \"Object.keys(require('./package.json').devDependencies).join(' ')\""
   },
   "keywords": [],

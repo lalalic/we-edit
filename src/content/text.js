@@ -8,9 +8,9 @@ export default class Text extends NoChild{
     compose(){
 		this._startComposeAt=Date.now()
 		const {composed}=this
-        const {parent}=this.context
+        const {parent, style}=this.context
 		const {content}=this.state
-        let composer=new this.constructor.WordWrapper(content)
+        let composer=new this.constructor.WordWrapper(content, style)
         let text=null
         while(text=composer.next(parent.nextAvailableSpace())){
 			let content=this.createComposedPiece(text)
