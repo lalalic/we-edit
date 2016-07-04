@@ -7,16 +7,15 @@ export default class Docx extends Base{
 	static support(file){
 		return true
 	}
-	
+
 	load(data){
 		return docx4js.load(data).then(docx=>{
-			let currentParent=null
 			return docx.parse(docx4js.createVisitorFactory((srcModel, targetParent)=>{
 				if(targetParent)
-					return currentParent=currentParent.appendChild(srcModel, targetParent)
+					return targetParent.appendChild(srcModel)
 				else
-					return currentParent=new Model(srcModel)
+					return new Model(srcModel)
 			}))
 		})
 	}
-} 
+}

@@ -7,12 +7,22 @@ export default class Model{
 		this.props={}
 		this.children=[]
 	}
-	
+
 	visit(){
-		
+		switch(this.type){
+		case 'Image':
+			let blob=this.wordModel.getImage();
+			this.props.src=URL.createObjectURL(new Blob(blob),{type:"image/*"})
+			this.props.width=200
+			this.props.height=200
+		break
+		case 'Text':
+			this.children.push(this.wordModel.getText())
+		break
+		}
 	}
-	
-	appendChild(srcModel, targetParent){
+
+	appendChild(srcModel){
 		switch(srcModel.type){
 		case "section":
 		case "paragraph":
@@ -26,24 +36,21 @@ export default class Model{
 			return this
 		}
 	}
-	
+
 	createReactElement(namespace){
 		let reactClass=namespace[this.type]
 		let props=this.props
 		switch(this.type){
 		case 'Text':
-			return React.createElement(reactClass, props, this.wordModel.getText())
+			return React.createElement(reactClass,props,this.children[0])
 		break
 		case 'Image':
-			let blob=this.wordModel.getImage();
-			props.src=URL.createObjectURL(blob,{type:"image/*"})
-			props.width=200
-			props.height=200
-			return React.createElement(reactClass, props)
+			return React.createElement(reactClass,props)
+		break
 		default:
 			let children=this.children.map(a=>a.createReactElement(namespace))
 			return React.createElement(reactClass, props, children)
-		break
 		}
+
 	}
 }
