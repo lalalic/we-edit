@@ -4,11 +4,12 @@ import {Models} from "."
 import Style from "./style"
 
 export default class Model{
-	constructor(wordModel, parent){
+	constructor(wordModel, doc){
 		this.wordModel=wordModel
 		this.type=this.asContentType(wordModel)
 		this.contentProps={}
 		this.children=[]
+		this.doc=doc
 	}
 
 	/**
@@ -18,10 +19,11 @@ export default class Model{
 		if(this.wordModel.getDirectStyle){
 			let style=this.wordModel.getDirectStyle()
 			if(style){
-				let visitor=new Style()
+				let visitor=new Style(this.wordModel, this.doc)
 				style.parse([visitor])
 				this.contentProps.contentStyle=visitor.style
-				visitor.style.metadata={basedOn:this.wordModel.getStyleId()}
+			}else{
+				this.contentProps.contentStyle=this.doc.getDefaultStyle(this.wordModel.type)
 			}
 		}
 	}
@@ -34,11 +36,11 @@ export default class Model{
 			return "*"
 	}
 
-	appendChild(wordModel){
+	appendChild(wordModel,doc){
 		let type=this.asContentType(wordModel)
 		if(Content[type]){
 			let ModelType=Models[type]
-			let appended=ModelType ? new ModelType(wordModel,this) : new Model(wordModel, this)
+			let appended=ModelType ? new ModelType(wordModel,doc) : new Model(wordModel, doc)
 			this.children.push(appended)
 			return appended
 		} else

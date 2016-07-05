@@ -9,13 +9,14 @@ export default class Docx extends Base{
 
 	load(data){
 		return docx4js.load(data).then(docx=>{
+			let doc
 			return docx.parse(docx4js.createVisitorFactory((wordModel, targetParent)=>{
 				if(wordModel.type && wordModel.type.substr(0,6)=='style.'){
-					return targetParent.addStyle(wordModel)
+					return targetParent.addStyle(wordModel,doc)
 				}else if(targetParent)
-					return targetParent.appendChild(wordModel)
+					return targetParent.appendChild(wordModel,doc)
 				else
-					return new Document(wordModel)
+					return doc=new Document(wordModel)
 			}))
 		})
 	}

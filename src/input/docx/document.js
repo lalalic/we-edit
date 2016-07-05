@@ -6,19 +6,29 @@ import immutable from "immutable"
 export default class extends Model{
 	constructor(){
 		super(...arguments)
-		this.documentStyles=new Map()
+		this.contentProps.documentStyles={}
 	}
-	
+
 	addStyle(wordModel){
 		let styleVisitor=new Style(wordModel, this)
-		this.documentStyles.set(wordModel.id, styleVisitor.style)
+		this.contentProps.documentStyles[wordModel.id]=styleVisitor.style
 		return styleVisitor
 	}
-	
-	cloneStyle(name){
-		let style=this.documentStyles.get(name)
+
+	cloneStyle(id){
+		let style=this.contentProps.documentStyles[id]
 		style=JSON.parse(JSON.stringify(style))
 		delete style.metadata
 		return style
+	}
+
+	getDefaultStyle(type){
+		let styles=this.contentProps.documentStyles
+		let id=Object.keys(styles).find(a=>{
+			let meta=styles[a].metadata
+			return meta.type==type && meta.isDefault
+		})
+
+		return styles[id]
 	}
 }
