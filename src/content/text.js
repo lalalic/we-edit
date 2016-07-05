@@ -8,8 +8,9 @@ export default class Text extends NoChild{
     compose(){
 		this._startComposeAt=Date.now()
 		const {composed}=this
-        const {parent, style}=this.context
+        const {parent}=this.context
 		const {content}=this.state
+		let style=parent.props.contentStyle.inline
         let composer=new this.constructor.WordWrapper(content, style)
         let text=null
         while(text=composer.next(parent.nextAvailableSpace())){
@@ -22,10 +23,6 @@ export default class Text extends NoChild{
 
 	createComposedPiece(props){
 		return <text {...props}/>
-	}
-	
-	getStyle(){
-
 	}
 
 	static WordWrapper=HtmlWordWrapper
