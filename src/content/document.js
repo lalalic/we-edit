@@ -9,8 +9,9 @@ export default class Document extends HasChild{
 
     render(){
 		const {composed, state:{content}, props:{width, height}}=this
+		const {documentStyles, ...others}=this.props
         return (
-			<svg {...this.props}
+			<svg {...others}
 				ref="svg"
 				width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
 				{super.render()}
@@ -36,7 +37,7 @@ export default class Document extends HasChild{
 			return
 		}
 
-		this.currentY+=page.height+this.props.pageGap;
+		this.currentY+=page.size.height+this.props.pageGap;
 		const {svg}=this.refs
 		if(svg){
 			svg.setAttribute('height',this.currentY)

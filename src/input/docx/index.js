@@ -1,6 +1,6 @@
 import docx4js from "docx4js"
 import Base from "../base"
-import Model from "./any"
+
 
 export default class Docx extends Base{
 	static support(file){
@@ -9,20 +9,26 @@ export default class Docx extends Base{
 
 	load(data){
 		return docx4js.load(data).then(docx=>{
-			return docx.parse(docx4js.createVisitorFactory((srcModel, targetParent)=>{
-				if(targetParent)
-					return targetParent.appendChild(srcModel)
+			return docx.parse(docx4js.createVisitorFactory((wordModel, targetParent)=>{
+				if(wordModel.type && wordModel.type.substr(0,6)=='style.'){
+					return targetParent.addStyle(wordModel)
+				}else if(targetParent)
+					return targetParent.appendChild(wordModel)
 				else
-					return new Model(srcModel)
+					return new Document(wordModel)
 			}))
 		})
 	}
 }
 
+import Document from "./document"
+import Section from "./section"
 import Image from "./image"
 import Text from "./text"
 
 export let Models={
-	Image
+	Document
+	,Section
+	,Image
 	,Text
 }

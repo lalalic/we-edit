@@ -23,6 +23,10 @@ export default class Text extends NoChild{
 	createComposedPiece(props){
 		return <text {...props}/>
 	}
+	
+	getStyle(){
+
+	}
 
 	static WordWrapper=HtmlWordWrapper
 }

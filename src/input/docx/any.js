@@ -1,12 +1,13 @@
 import React from "react"
 import Content from "../../content"
 import {Models} from "."
+import Style from "./style"
 
 export default class Model{
 	constructor(wordModel, parent){
 		this.wordModel=wordModel
 		this.type=this.asContentType(wordModel)
-		this.props={}
+		this.contentProps={}
 		this.children=[]
 	}
 
@@ -14,19 +15,15 @@ export default class Model{
 	 * extract information from wordModel
 	 */
 	visit(){
-		this.visitStyle()
-	}
-
-	visitStyle(){
-		let directStyle=this.wordModel.getDirectStyle()
-			,namedStyleId=this.wordModel.getStyleId()
-
-		let style=this.doc.createStyle(el||this.content,namedStyleId)
-
-		if(directStyle)
-			directStyle.parse([new this.constructor.StyleProperties(style, this)])
-
-		return style
+		if(this.wordModel.getDirectStyle){
+			let style=this.wordModel.getDirectStyle()
+			if(style){
+				let visitor=new Style()
+				style.parse([visitor])
+				this.contentProps.contentStyle=visitor.style
+				visitor.style.metadata={basedOn:this.wordModel.getStyleId()}
+			}
+		}
 	}
 
 	asContentType(wordModel){
@@ -55,7 +52,7 @@ export default class Model{
 	createReactElement(namespace){
 		return React.createElement(
 			namespace[this.type],
-			this.props,
+			this.contentProps,
 			this.children.map(a=>a.createReactElement(namespace)))
 	}
 }

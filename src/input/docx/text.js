@@ -4,12 +4,13 @@ import React from "react"
 export default class extends Model{
     visit(){
         this.children=this.wordModel.getText()
+		super.visit()
     }
 
     createReactElement(namespace){
         return React.createElement(
 			namespace[this.type],
-			this.props,
+			this.contentProps,
 			this.children)
     }
 }

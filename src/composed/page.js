@@ -4,12 +4,14 @@ import Line from "./line"
 
 export default class Page extends Component{
     render(){
-        const {width, height, margin, columns, header, footer}=this.props
+        const {size:{width, height}, margin:{left,top}, columns, header, footer}=this.props
         return (
             <Group>
                 <rect width={width} height={height} fill="white"/>
                 {header}
-                {columns.map((a,i)=><Column key={i} {...a}/>)}
+				<Group x={left} y={top}>
+					{columns.map((a,i)=><Column key={i} {...a}/>)}
+				</Group>
                 {footer}
             </Group>
         )
@@ -17,6 +19,8 @@ export default class Page extends Component{
 
     static propTypes={
         columns: PropTypes.arrayOf(PropTypes.object).isRequired,
+		size: PropTypes.object.isRequired,
+		margin: PropTypes.object,
         header: PropTypes.element,
         footer: PropTypes.element
     }
