@@ -33,6 +33,7 @@ export function preview(input,container){
 		.then(doc=>ReactDOM.render(doc.createReactElement(Content), container))
 }
 
+/*
 export function test(){
 	let A=Content
     //Text.WordWrapper=NodeWordWrapper
@@ -54,3 +55,4 @@ export function test(){
 		),document.querySelector('#app'))
 	)
 }
+*/

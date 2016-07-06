@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from "react"
-import Any from "./any"
+import Any, {togglable} from "./any"
 
-export default class Inline extends Any{
+export default class Inline extends togglable(Any){
     displayName="inline"
 }

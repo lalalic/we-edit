@@ -18,7 +18,7 @@ export default class Section extends Any{
 		const {canvas}=this.context
 		const {size}=this.props
 		return (
-			<Group x={(canvas.width-size.width)/2} y={this.context.parent.getCurrentY()}>
+			<Group x={(canvas.width-size.width)/2} y={0}>
 				{super.render()}
 
 				<Composed ref="composed" pages={this.composed} gap={canvas.pageGap} pageHeight={size.height}/>
@@ -70,13 +70,12 @@ export default class Section extends Any{
 		return info
     }
 
-    nextAvailableSpace(required={}){
+    nextAvailableSpace(required={}){ 
         const {width:minRequiredW=0,height:minRequiredH=0}=required
         const {composed}=this
+		if(composed.length==0)
+			this.composed.push(this._newPage())
 		const {cols:{num:allowedColumns=1}}=this.props
-		if(composed.length==0){
-			composed.push(this._newPage())
-		}
         let currentPage=composed[composed.length-1]
         let {columns}=currentPage
         let currentColumn=columns[columns.length-1]

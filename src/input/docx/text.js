@@ -13,4 +13,8 @@ export default class extends Model{
 			this.contentProps,
 			this.children)
     }
+	
+	toTag(){
+		return `<Text>${this.children}</Text>`
+	}
 }

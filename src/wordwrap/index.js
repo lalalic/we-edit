@@ -1,8 +1,10 @@
 var _textComposerTime=0
 export default class WordWrapper{
-    constructor(text, fontFamily="verdana", fontSize=12){
+    constructor(text, style){
+		const {rFonts, sz:fontSize}=style
+		this.style=style
         this.text=text
-        this.fontFamily=fontFamily
+        this.fontFamily=Object.keys(rFonts).map(a=>`'${rFonts[a]}'`).join(" ")
 		this.size=fontSize
         this.height=this.lineHeight()
         this.composed=0
@@ -17,9 +19,12 @@ export default class WordWrapper{
 	}
 	
     next({width:maxWidth}){
-        if(this.composed==this.text.length)
+        if(maxWidth==undefined)
+			throw new Error("no max width specified when composing text")
+		
+		if(this.composed==this.text.length)
             return null
-
+	
         let startAt=Date.now()
 
         let text=null,info=null

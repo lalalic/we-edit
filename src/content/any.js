@@ -39,6 +39,8 @@ export class HasChild extends Component{
      */
 	compose(){
 		this._startComposeAt=Date.now()
+		if(this.state.content.length==0)
+			this.context.parent.on1ChildComposed(this)
     }
 
     /**
@@ -86,7 +88,7 @@ export default class HasParentAndChild extends HasChild{
      * return next line rect {*width, [height]}
      */
     nextAvailableSpace(){
-        return this.context.parent.nextAvailableSpace(...arguments)
+        return this.availableSpace=this.context.parent.nextAvailableSpace(...arguments)
     }
 
     /**
@@ -129,4 +131,27 @@ export class NoChild extends HasParentAndChild{
     createComposedPiece(props){
         return null
     }
+}
+
+export function togglable(Content){
+	return class Togglable extends Content{
+		static childContextTypes=Object.assign({
+				toggleStyles: PropTypes.object	
+			},Content.childContextTypes)
+		
+		getChildContext(){
+			const {inline:mine}=this.props.contentStyle
+			const {toggleStyles:parent}=this.context
+			let toggles={
+				
+			}
+			return Object.assign({
+					toggleStyles: toggles
+				}, super.getChildContext())
+		}
+
+		static contextTypes=Object.assign({
+				toggleStyles: PropTypes.object	
+			},Content.contextTypes)
+	}
 }

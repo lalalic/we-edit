@@ -1,10 +1,20 @@
 import React, {Component, PropTypes} from "react"
-import Any from "./any"
+import Any, {togglable} from "./any"
 import Group from "../composed/group"
 import Line from "../composed/line"
 
-export default class Paragraph extends Any{
+import Inline from "./inline"
+import Text from "./text"
+
+export default class Paragraph extends togglable(Any){
 	displayName="paragraph"
+	constructor(){
+		super(...arguments)
+		const {content}=this.state
+		if(content.length==0){
+			content.push(<Inline contentStyle={this.props.contentStyle}><Text> </Text></Inline>)
+		}
+	}
 
 	_newLine(){
 		return {

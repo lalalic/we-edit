@@ -6,6 +6,8 @@ import Text from "./text"
 import Frame from "./frame"
 import Image from "./image"
 import Table from "./table"
+import Row from "./row"
+import Cell from "./cell"
 
 
 export default {
@@ -16,5 +18,7 @@ export default {
     Text,
     Frame,
     Image,
-    Table
+    Table,
+	Row,
+	Cell
 }

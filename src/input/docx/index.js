@@ -18,6 +18,9 @@ export default class Docx extends Base{
 				else
 					return doc=new Document(wordModel)
 			}))
+		}).then(doc=>{
+			console.warn(doc.toTag())
+			return doc
 		})
 	}
 }
@@ -26,10 +29,12 @@ import Document from "./document"
 import Section from "./section"
 import Image from "./image"
 import Text from "./text"
+import Table from "./table"
 
 export let Models={
 	Document
 	,Section
 	,Image
 	,Text
+	,Table
 }

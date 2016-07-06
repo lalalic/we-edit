@@ -30,10 +30,16 @@ export default class Model{
 
 	asContentType(wordModel){
 		let type=wordModel.type
-		if(type)
-			return type.charAt(0).toUpperCase()+type.substr(1)
-		else
-			return "*"
+		if(!type)
+			return '*'
+		
+		type=type.charAt(0).toUpperCase()+type.substr(1)
+		switch(type){
+		case 'Heading':
+			return 'Paragraph'
+		default:
+			return type
+		}
 	}
 
 	appendChild(wordModel,doc){
@@ -56,5 +62,9 @@ export default class Model{
 			namespace[this.type],
 			this.contentProps,
 			this.children.map(a=>a.createReactElement(namespace)))
+	}
+	
+	toTag(){
+		return `<${this.type}>${this.children.map(a=>a.toTag()).join("")}</${this.type}>`
 	}
 }

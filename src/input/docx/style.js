@@ -9,16 +9,13 @@ export default class{
 			let isDefault=wordModel.isDefault()
 			parentStyle=id ? doc.cloneStyle(basedOn) : {}
 			metadata={type,id,basedOn, isDefault}
-		}else if(type=='section'){
-			metadata={type}
-			parentStyle={}
-		}else if(type=='image'){
-			metadata={type}
-			parentStyle={}
-		}else{
+		}else if(wordModel.getStyleId){
 			let basedOn=wordModel.getStyleId()
 			parentStyle=doc.cloneStyle(basedOn)
 			metadata={type,basedOn}
+		}else{
+			metadata={type}
+			parentStyle={}
 		}
 
 		parentStyle.metadata=metadata
