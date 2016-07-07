@@ -9,28 +9,33 @@ export default class Table extends Container{
 	}
 	appendComposed(colGroups){
 		const {width, cols}=this.props
+		let height=0
 		
-		let groupsWithY=colGroups.map(lines=>{
-				let y=0
-				let grouped=lines.map(line=>{
-						let a=<Group y={y}>{line}</Group>
-						y+=line.props.height
-						return a
-					})
-				return (<Group height={y}>{grouped}</Group>)
-			})
-		
-		let height=groupsWithY.reduce((prev, group)=>Math.max(prev, group.props.height),0)
-		let x=0
-		
-		let groupsWithX=groupsWithY.map((group,i)=>{
-			let a=<Group x={x}>{group}</Group>
-			x+=cols[i]
-			return a
+		let x=0, rowNo=this.children.length
+		let groupsWithXY=colGroups.map((lines,colNo)=>{
+			let y=0
+			let grouped=lines.map(line=>{
+					let a=<Group y={y}>{line}</Group>
+					y+=line.props.height
+					return a
+				})
+			let cell=(<Group height={y} x={x}>{grouped}</Group>)
+			x+=cols[colNo]
+			height=Math.max(height,y)
+			return cell
 		})
 		
-		let line=<Group width={width} height={height}>{groupsWithX}</Group>
-		
-		this.context.parent.appendComposed(line)
+		x=0
+		let borders=groupsWithXY.map((a,colNo)=>this.borders(rowNo, colNo, cols[colNo], height,x, x+=cols[colNo]))
+
+		this.context.parent.appendComposed(<Group width={width} height={height}>{borders}{groupsWithXY}</Group>)
+	}
+	
+	borders(rowNo, colNo, width, height, x){
+		return (<Group x={x}><path 
+			strokeWidth={1} 
+			stroke="black"
+			fill="none"
+			d={`M0 0 L${width} 0 L${width} ${height} L0 ${height} L0 0`}/></Group>)
 	}
 }

@@ -6,7 +6,19 @@ import immutable from "immutable"
 export default class extends Model{
 	constructor(){
 		super(...arguments)
-		this.contentProps.documentStyles={}
+		this.contentProps.documentStyles={
+			getDefault(type){
+				let styles=this
+				let id=Object.keys(styles).find(a=>{
+					let meta=styles[a].metadata
+					if(!meta)
+						return false
+					else
+						return meta.type==type && meta.isDefault
+				})
+				return styles[id]
+			}
+		}
 	}
 
 	addStyle(wordModel){
@@ -23,12 +35,6 @@ export default class extends Model{
 	}
 
 	getDefaultStyle(type){
-		let styles=this.contentProps.documentStyles
-		let id=Object.keys(styles).find(a=>{
-			let meta=styles[a].metadata
-			return meta.type==type && meta.isDefault
-		})
-
-		return styles[id]
+		return this.contentProps.documentStyles.getDefault(type)
 	}
 }

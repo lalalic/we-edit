@@ -1,5 +1,7 @@
 import * as Models from "../content"
 import editable from "./editable"
+
+import Document from "./document"
 import Section from "./section"
 import Text from "./text"
 
@@ -14,4 +16,4 @@ const Editors={}
 })();
 
 
-export default Object.assign(Editors,{Section, Text})
+export default Object.assign(Editors,{Document, Section, Text})

@@ -4,7 +4,8 @@ import Group from "../composed/group"
 import Cursor from "../editor/cursor"
 
 export default class Document extends HasChild{
-	displayName="document"
+	static displayName="document"
+	
 	currentY=this.props.pageGap
 
     render(){
@@ -15,18 +16,24 @@ export default class Document extends HasChild{
 				ref="svg"
 				width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
 				{super.render()}
+				{this.more()}
 			</svg>
 		)
     }
 
     static childContextTypes=Object.assign({
         canvas: PropTypes.object,
+		getDefaultStyle: PropTypes.func
     },HasChild.childContextTypes)
 
     getChildContext(){
+		const documentStyles=this.props.documentStyles
         const {width, pageGap}=this.props
 		return Object.assign(super.getChildContext(),{
-            canvas: {width,pageGap}
+            canvas: {width,pageGap},
+			getDefaultStyle(type){
+				return documentStyles.getDefault(type)
+			}
         })
     }
 
@@ -59,6 +66,10 @@ export default class Document extends HasChild{
 		if(this.state.content.length==this.children.length){
 			this.onAllChildrenComposed()
 		}
+	}
+	
+	more(){
+		return null
 	}
 
 	static defaultProps={

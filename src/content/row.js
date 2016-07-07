@@ -74,28 +74,4 @@ export default class Row extends Container{
 			
 		}while(!isAllSent2Table())
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	static childContextTypes=Object.assign({
-		
-	},Container.childContextTypes)
-	
-	getChildContext(){
-		return Object.assign(super.getChildContext(),{
-			
-		})
-	}
-	
-	
-	
-	static contextTypes=Object.assign({
-		
-	},Container.contextTypes)
 }

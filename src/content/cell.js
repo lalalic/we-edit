@@ -5,8 +5,13 @@ import {togglable} from "./any"
 
 let Super=togglable(Container)
 export default class Cell extends Super{
+	nextAvailableSpace(required){
+		let {width,height}=super.nextAvailableSpace(...arguments)
+		let border={}
+		let padding={}
+		width=width-border.right-border.left-padding.right-padding-left
+		height=height-border.top-border.bottom-padding.top-padding.bottom
+		return {width,height}
+	}
 	
-	static contextTypes=Object.assign({
-		colWidth: PropTypes.number
-	},Super.contextTypes)
 }

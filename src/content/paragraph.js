@@ -6,13 +6,14 @@ import Line from "../composed/line"
 import Inline from "./inline"
 import Text from "./text"
 
-export default class Paragraph extends togglable(Any){
+let Super=togglable(Any)
+export default class Paragraph extends Super{
 	displayName="paragraph"
 	constructor(){
 		super(...arguments)
 		const {content}=this.state
 		if(content.length==0){
-			content.push(<Inline contentStyle={this.props.contentStyle}><Text> </Text></Inline>)
+			content.push(<Inline contentStyle={this.context.getDefaultStyle("inline")}><Text> </Text></Inline>)
 		}
 	}
 
@@ -108,4 +109,8 @@ export default class Paragraph extends togglable(Any){
 
 		super.onAllChildrenComposed()
 	}
+	
+	static contextTypes=Object.assign({
+		getDefaultStyle: PropTypes.func
+	},Super.contextTypes)
 }
