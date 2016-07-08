@@ -26,6 +26,11 @@ export default class extends Super{
 	
 	componentDidMount(){
 		super.componentDidMount()
-		document.addEventListener("keypress",e=>this.refs.cursor.replaceFocusedContent(e.key))
+		document.addEventListener("keypress",e=>{
+			this.refs.cursor.replaceFocusedContent(e.key)
+			if(e.key==" ")
+				e.preventDefault()
+			return false
+		})
 	}
 }

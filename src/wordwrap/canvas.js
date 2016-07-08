@@ -1,16 +1,18 @@
-import WordWrapper from "."
+import WordWrapper from "./html"
 
 let canvas=null, ctx2d=null
+let DEFAULT_STYLE="margin:0;padding:0;border:0;position:absolute;left:-1000px"
 export default class CanvasWordWrapper extends WordWrapper{
     lineHeight(){
 		if(!ctx2d){
 			canvas=document.createElement('canvas')
 			document.body.appendChild(canvas)
-			canvas.style="margin:0;padding:0;border:0;position:absolute;left:-1000px"
+			canvas.style=""
 			ctx2d=canvas.getContext('2d')
 		}
-		canvas.style=`font-family:${this.fontFamily};font-size:${this.fontSize}`
-        return ctx2d.measureText("A").height
+		ctx2d.font=`${this.size}px ${this.fontFamily}`
+
+        return super.lineHeight()
     }
 
     stringWidth(word){

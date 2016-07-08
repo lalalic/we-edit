@@ -24,8 +24,8 @@ export default class Text extends NoChild{
 		const {color}=this.getFontStyle()
 		if(color)
 			props.fill=color
-		
-		return <text {...props}/>
+		const {width, height, end, ...others}=props
+		return <Group width={width} height={height}><text {...props} style={{whiteSpace:"pre"}}/></Group>
 	}
 	
 	

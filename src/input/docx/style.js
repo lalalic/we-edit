@@ -32,6 +32,19 @@ export default class{
 				this.style[category]=categorized={}
 			}
 		}
-		categorized[name]=value
+		let oldValue=categorized[name]
+		
+		switch(typeof(oldValue)){
+		case 'object':
+			if(typeof(value)=='object'){
+				categorized[name]=Object.assign(value,oldValue)
+			}else{
+				console.warn("you'd better check it.")
+			}
+		break
+		default:
+			categorized[name]=value
+
+		}
 	}
 }

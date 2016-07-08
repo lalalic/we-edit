@@ -20,13 +20,13 @@ export default class SVGWordWrapper extends WordWrapper{
 			`
 			tester=container.querySelector('text')
 		}
-		tester.style=`font-family:${this.fontFamily};font-size:${this.fontSize}px`
+		tester.style=`font-family:${this.fontFamily};font-size:${this.size}px;white-space:pre;`
 		tester.firstChild.data="A"
-        return tester.getBBox().height
+        return tester.getBoundingClientRect().height
     }
 
     stringWidth(word){
         tester.firstChild.data=word
-        return tester.getBBox().width
+        return tester.getBoundingClientRect().width
     }
 }

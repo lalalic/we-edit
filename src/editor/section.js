@@ -38,7 +38,7 @@ export default class extends editable(Section){
 
 			const composedTime=new Date().toString()
 			removed.forEach((a,i)=>{
-				a._reComposeFrom()
+				a._clearComposed4reCompose()
 				/**
 				 *  do re-compose job
 				 */

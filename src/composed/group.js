@@ -13,6 +13,6 @@ export default class Group extends Component{
 		let {x,y, width, height, ...others}=this.props
 		if(x||y)
 			others.transform=`translate(${x||0} ${y||0})`
-		return <g  x={x} y={y} {...others}/>
+		return <g x={x} y={y} {...others}/>
     }
 }

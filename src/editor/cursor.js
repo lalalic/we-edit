@@ -3,7 +3,44 @@ import ReactDOM from "react-dom"
 
 export default class Cursor extends Component{
 	static displayName="cursor"
-	state={shape:null, target:null}
+	state={target:null, shape: null}
+	
+    render(){
+		return null
+    }
+	
+	componentDidUpdate(prevProps, prevState){
+		const {target, shape}=this.state
+		const {target:prevTarget, shape:prevShape}=prevState
+		if(target!=prevTarget && prevTarget)
+			prevTarget.blur()
+		
+		if(shape!=prevShape && prevShape)
+			prevShape.setState({show:false})
+	}
+	
+	replaceFocusedContent(content){
+		this.state.target.insert(content)
+	}
+}
+
+export class Shape extends Component{
+	state={show:true}
+	render(){
+		const {show}=this.state
+		if(!show)
+			return null
+		
+		const {width, height, style}=this.props
+		return <line 
+					x1={width} 
+					y1={0} 
+					x2={width} 
+					y2={-height} 
+					strokeWidth={1} 
+					stroke={style.color||"black"}
+					/>
+	}
 	
 	componentDidMount(){
 		let node=ReactDOM.findDOMNode(this)
@@ -11,28 +48,12 @@ export default class Cursor extends Component{
 		this.timer=setInterval(a=>{
 			node.setAttribute('transform',`translate(${show ? 0 : x},0)`)
 			show=!show
-		}, this.props.interval)
-	}
-	
-	componentDidUpdate(){
-		const {target}=this.state
-		target.blur()
+		}, 700)
 	}
 	
 	componentWillUnmount(){
 		this.timer && clearInterval(this.timer)
 	}
 	
-    render(){
-		return <g>{this.state.shape}</g>
-    }
 	
-	static defaultProps={
-		interval:700
-	}
-	
-	replaceFocusedContent(content){
-		const {target, loc}=this.state
-		target.insert(loc, content)
-	}
 }

@@ -38,19 +38,18 @@ export default function editable(Content){
     	 *  	> somewhere sometime it will be triggered to re-compose
     	 */
     	_reComposeFrom(content){
-            console.info(`remove all from ${this.displayName} ${content ? "" : "not"} including child, and parent`)
-    		if(content){
-    			this.context.parent._reComposeFrom(this)
-    		}else{//here parent is ready for re-compose
-                let lastComposed=this.composed.splice(0)
-                if(!this._isLastComposedFitIntoParent(lastComposed)){
-                    if(this.children.length){
-            			this.children.forEach(a=>a._reComposeFrom())
-            			this.children.splice(0)
-                    }
-                }
-    		}
+            this.context.parent._reComposeFrom(this)
     	}
+		
+		_clearComposed4reCompose(){
+			let lastComposed=this.composed.splice(0)
+			if(!this._isLastComposedFitIntoParent(lastComposed)){
+				if(this.children.length){
+					this.children.forEach(a=>a._clearComposed4reCompose())
+					this.children.splice(0)
+				}
+			}
+		}
 
         /**
          * is there a way to just simply re-use last composed?
