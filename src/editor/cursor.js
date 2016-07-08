@@ -3,7 +3,7 @@ import ReactDOM from "react-dom"
 
 export default class Cursor extends Component{
 	static displayName="cursor"
-	state={shape:null}
+	state={shape:null, target:null}
 	
 	componentDidMount(){
 		let node=ReactDOM.findDOMNode(this)
@@ -12,6 +12,11 @@ export default class Cursor extends Component{
 			node.setAttribute('transform',`translate(${show ? 0 : x},0)`)
 			show=!show
 		}, this.props.interval)
+	}
+	
+	componentDidUpdate(){
+		const {target}=this.state
+		target.blur()
 	}
 	
 	componentWillUnmount(){
@@ -24,5 +29,10 @@ export default class Cursor extends Component{
 	
 	static defaultProps={
 		interval:700
+	}
+	
+	replaceFocusedContent(content){
+		const {target, loc}=this.state
+		target.insert(loc, content)
 	}
 }

@@ -1,19 +1,24 @@
-import * as Models from "../content"
-import editable from "./editable"
-
 import Document from "./document"
 import Section from "./section"
+import Paragraph from "./paragraph"
+import Inline from "./inline"
 import Text from "./text"
-
-const Editors={}
-;(function(){
-    Object.keys(Models).forEach(key=>{
-        if(key!=='default'){
-            Editors[key]=editable(Models[key])
-            console.log(`making ${key} editable`)
-        }
-    })
-})();
+import Frame from "./frame"
+import Image from "./image"
+import Table from "./table"
+import Row from "./row"
+import Cell from "./cell"
 
 
-export default Object.assign(Editors,{Document, Section, Text})
+export default {
+    Document,
+    Section,
+    Paragraph,
+    Inline,
+    Text,
+    Frame,
+    Image,
+    Table,
+	Row,
+	Cell
+}

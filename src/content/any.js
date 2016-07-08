@@ -1,12 +1,10 @@
 import React, {Component, PropTypes} from "react"
 import Group from "../composed/group"
 
-var uuid=0
 export class HasChild extends Component{
     state={content:React.Children.toArray(this.props.children), style:this.props.style}
 	children=[]
     composed=[]
-    _id=uuid++
 
     static childContextTypes={
 		parent: PropTypes.object,
@@ -38,7 +36,6 @@ export class HasChild extends Component{
      * and then append to itself.composed[] and parent.appendComposed
      */
 	compose(){
-		this._startComposeAt=Date.now()
 		if(this.state.content.length==0)
 			this.context.parent.on1ChildComposed(this)
     }
@@ -65,7 +62,6 @@ export class HasChild extends Component{
 	 *  	true: parent's all children composed
 	 */
     on1ChildComposed(child){
-        console.info(`composed a ${child.displayName} ${child.displayName=='text' ? `:${child.state.text||child.props.children}` : ''}`)
         this.children.push(child)
 		if(this.state.content.length==this.children.length){
 			this.onAllChildrenComposed()
@@ -73,7 +69,7 @@ export class HasChild extends Component{
     }
 
 	onAllChildrenComposed(){
-		console.log(`${this.displayName}(${this._id}) composed within ${Date.now()-this._startComposeAt}ms`)
+		
 	}
 }
 

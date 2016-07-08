@@ -1,3 +1,4 @@
+var uuid=0
 /**
  *  it's a very complicated job, so we need a very simple design, one sentence described solution. options:
  *  1. remove all composed, and re-compose all
@@ -21,12 +22,9 @@
  *  	3.a: recompose this content line by line ..., much logics here
  */
 export default function editable(Content){
-    return class extends Content{
-        constructor(){
-            super(...arguments)
-            Object.assign(this.state,{composed:this.composed})//for debug
-        }
-
+	return class extends Content{
+		
+		_id=uuid++
 
         reCompose(){
     		this._reComposeFrom(this)//#2 solution
@@ -69,5 +67,13 @@ export default function editable(Content){
                 this.compose()
             return true
         }
+		
+		focus(){
+			
+		}
+		
+		blur(){
+			
+		}
     }
 }

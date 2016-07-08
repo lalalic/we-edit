@@ -13,14 +13,17 @@ export default class Paragraph extends Super{
 		super(...arguments)
 		const {content}=this.state
 		if(content.length==0){
-			content.push(<Inline contentStyle={this.context.getDefaultStyle("inline")}><Text> </Text></Inline>)
+			this.whatIfEmpty()
 		}
+	}
+	
+	whatIfEmpty(){
+		this.state.content.push(<Inline contentStyle={this.context.getDefaultStyle("inline")}><Text> </Text></Inline>)
 	}
 
 	_newLine(){
 		return {
             width: this.availableSpace.width,
-			_id:this._id,
 			height:0,
             children:[]
         }

@@ -23,4 +23,9 @@ export default class extends Super{
 			}
 		})
 	}
+	
+	componentDidMount(){
+		super.componentDidMount()
+		document.addEventListener("keypress",e=>this.refs.cursor.replaceFocusedContent(e.key))
+	}
 }

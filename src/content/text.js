@@ -6,7 +6,6 @@ export default class Text extends NoChild{
 	displayName="text"
 
     compose(){
-		this._startComposeAt=Date.now()
 		const {composed}=this
         const {parent}=this.context
 		const {content}=this.state
