@@ -8,7 +8,7 @@ import Text from "./text"
 
 let Super=togglable(Any)
 export default class Paragraph extends Super{
-	displayName="paragraph"
+	static displayName="paragraph"
 	constructor(){
 		super(...arguments)
 		const {content}=this.state
@@ -16,7 +16,7 @@ export default class Paragraph extends Super{
 			this.whatIfEmpty()
 		}
 	}
-	
+
 	whatIfEmpty(){
 		this.state.content.push(<Inline contentStyle={this.context.getDefaultStyle("inline")}><Text> </Text></Inline>)
 	}
@@ -112,7 +112,7 @@ export default class Paragraph extends Super{
 
 		super.onAllChildrenComposed()
 	}
-	
+
 	static contextTypes=Object.assign({
 		getDefaultStyle: PropTypes.func
 	},Super.contextTypes)

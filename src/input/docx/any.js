@@ -23,7 +23,16 @@ export default class Model{
 				style.parse([visitor])
 				this.contentProps.contentStyle=visitor.style
 			}else{
-				this.contentProps.contentStyle=this.doc.getDefaultStyle(this.wordModel.type)
+				let type=this.wordModel.type
+				switch(type){
+				case 'paragraph':
+				case 'inline':
+				case 'table':
+				case 'numbering':
+					this.contentProps.contentStyle=this.doc.cloneDefaultStyle(this.wordModel.type)
+				break
+				}
+
 			}
 		}
 	}
@@ -32,7 +41,7 @@ export default class Model{
 		let type=wordModel.type
 		if(!type)
 			return '*'
-		
+
 		type=type.charAt(0).toUpperCase()+type.substr(1)
 		switch(type){
 		case 'Heading':
@@ -63,7 +72,7 @@ export default class Model{
 			this.contentProps,
 			this.children.map(a=>a.createReactElement(namespace)))
 	}
-	
+
 	toTag(){
 		return `<${this.type}>${this.children.map(a=>a.toTag()).join("")}</${this.type}>`
 	}

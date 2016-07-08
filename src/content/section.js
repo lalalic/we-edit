@@ -5,13 +5,13 @@ import Page from "../composed/page"
 import Group from "../composed/group"
 
 export default class Section extends Any{
-    displayName="section"
-	
+    static displayName="section"
+
 	static contextTypes=Object.assign({
         canvas: PropTypes.object,
 		y: PropTypes.number
     }, Any.contextTypes)
-    
+
 
 	render(){
 		const {content}=this.state
@@ -32,12 +32,12 @@ export default class Section extends Any{
     _newColumn(i){
 		const {size:{width, height},  margin:{top, bottom, left, right}, cols:{num=1, space, data}}=this.props
 		let info={
-			y:0,  
+			y:0,
 			height:height-bottom-top,
             children:[]
 		}
 		let availableWidth=width-left-right
-        
+
 		if(num==1){
 			info.width=availableWidth
 			info.x=0
@@ -70,7 +70,7 @@ export default class Section extends Any{
 		return info
     }
 
-    nextAvailableSpace(required={}){ 
+    nextAvailableSpace(required={}){
         const {width:minRequiredW=0,height:minRequiredH=0}=required
         const {composed}=this
 		if(composed.length==0)
@@ -137,10 +137,10 @@ export default class Section extends Any{
 			right:20,
 			top:20,
 			bottom:20,
-			
+
 			header:10,
 			footer:10,
-			
+
 			gutter:0
 		}
 	}
@@ -155,10 +155,10 @@ export default class Section extends Any{
 			right: PropTypes.number,
 			top: PropTypes.number,
 			bottom: PropTypes.number,
-			
+
 			header: PropTypes.number,
 			footer: PropTypes.number,
-			
+
 			gutter: PropTypes.number,
 		}),
 		cols: PropTypes.object

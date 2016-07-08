@@ -34,7 +34,11 @@ export default class extends Model{
 		return style
 	}
 
-	getDefaultStyle(type){
-		return this.contentProps.documentStyles.getDefault(type)
+	cloneDocumentDefaultStyle(){
+		return this.cloneStyle()
+	}
+
+	cloneDefaultStyle(type){
+		return this.cloneStyle(this.contentProps.documentStyles.getDefault(type).metadata.id)
 	}
 }

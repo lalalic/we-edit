@@ -5,6 +5,7 @@ import {togglable} from "./any"
 
 let Super=togglable(Container)
 export default class Cell extends Super{
+	static displayName="cell"
 	nextAvailableSpace(required){
 		let {width,height}=super.nextAvailableSpace(...arguments)
 		//let {border, padding}=this.getBorderPadding()
@@ -12,16 +13,16 @@ export default class Cell extends Super{
 		//height=height-border.top-border.bottom-padding.top-padding.bottom
 		return {width,height}
 	}
-	
+
 	getBorderPadding(){
 		return {
 			padding:{
-				
+
 			},
 			border:{
-				
+
 			}
 		}
 	}
-	
+
 }

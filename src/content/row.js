@@ -4,33 +4,34 @@ import Container from "./container"
 import Group from "../composed/group"
 
 export default class Row extends Container{
+	static displayName="row"
 	nextAvailableSpace(){
 		const {cols}=this.context.parent.props
-		return {width:cols[this.children.length], height:Number.MAX_VALUE}	
+		return {width:cols[this.children.length], height:Number.MAX_VALUE}
 	}
-	
+
 	compose(){
 		super.compose()
 		this.composed.push([])
 	}
-	
+
 	appendComposed(line){
 		const currentCell=this.composed[this.composed.length-1]
 		currentCell.push(line)
 	}
-	
+
 	on1ChildComposed(){
 		this.composed.push([])
 		super.on1ChildComposed(...arguments)
 	}
-	
+
 	onAllChildrenComposed(){
 		console.warn("one row composed")
 		this.composed.pop()
 		const {parent}=this.context
 		let indexes=new Array(this.composed.length)
 		indexes.fill(0)
-		
+
 		let isAllSent2Table=a=>indexes.reduce((prev,index, i)=>this.composed[i].length==index && prev, true)
 
 		let counter=0
@@ -48,14 +49,14 @@ export default class Row extends Container{
 					if(height<0){
 						break
 					}else{
-						
+
 					}
 				}
 				indexes[i]=index
-				
+
 				currentGroupedLines[i]=lines.slice(start,index)
 			})
-			
+
 			if(!currentGroupedLines.find(a=>a.length>0)){
 				//availableSpace is too small, need find a min available space
 				let minHeight=indexes.reduce((p,index,i)=>{
@@ -70,8 +71,8 @@ export default class Row extends Container{
 				parent.appendComposed(currentGroupedLines)
 			//if(counter++>100)
 				//throw new Error("there should be a infinite loop during row split, please check")
-			
-			
+
+
 		}while(!isAllSent2Table())
 	}
 }

@@ -3,7 +3,7 @@ import {NoChild} from "./any"
 import HtmlWordWrapper from "../wordwrap/html"
 
 export default class Text extends NoChild{
-	displayName="text"
+	static displayName="text"
 
     compose(){
 		const {composed}=this
@@ -27,8 +27,8 @@ export default class Text extends NoChild{
 		const {width, height, end, ...others}=props
 		return <Group width={width} height={height}><text {...props} style={{whiteSpace:"pre"}}/></Group>
 	}
-	
-	
+
+
 	getFontStyle(){
 		const {parent}=this.context
 		const {inline: style}=parent.props.contentStyle
@@ -36,7 +36,7 @@ export default class Text extends NoChild{
 		//@TODO: need merge direct style and toggle style
 		return style
 	}
-	
+
 	static contextTypes=Object.assign({
 		toggleStyles: PropTypes.object
 	}, NoChild.contextTypes)

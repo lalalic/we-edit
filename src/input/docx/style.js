@@ -7,11 +7,18 @@ export default class{
 			let id=wordModel.id
 			let basedOn=(wordModel.getParentStyle()||{}).id
 			let isDefault=wordModel.isDefault()
-			parentStyle=id ? doc.cloneStyle(basedOn) : {}
+			switch(type){
+			case 'document':
+				parentStyle={}
+			break
+			default:
+				parentStyle=basedOn ? doc.cloneStyle(basedOn) : doc.cloneDocumentDefaultStyle()
+			}
+
 			metadata={type,id,basedOn, isDefault}
 		}else if(wordModel.getStyleId){
 			let basedOn=wordModel.getStyleId()
-			parentStyle=doc.cloneStyle(basedOn)
+			parentStyle=basedOn ? doc.cloneStyle(basedOn) : doc.cloneDefaultStyle(type)
 			metadata={type,basedOn}
 		}else{
 			metadata={type}
@@ -33,7 +40,7 @@ export default class{
 			}
 		}
 		let oldValue=categorized[name]
-		
+
 		switch(typeof(oldValue)){
 		case 'object':
 			if(typeof(value)=='object'){
