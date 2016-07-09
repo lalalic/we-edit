@@ -1,21 +1,22 @@
 import React, {Component, PropTypes} from "react"
 import {HasChild} from "./any"
 import Group from "../composed/group"
-import Cursor from "../editor/cursor"
+import Page from "../composed/page"
 
 export default class Document extends HasChild{
 	static displayName="document"
-	
+
 	currentY=this.props.pageGap
 
     render(){
 		const {composed, state:{content}, props:{width, height}}=this
-		const {documentStyles, ...others}=this.props
+		const {documentStyles, pageGap, ...others}=this.props
         return (
 			<svg {...others}
 				ref="svg"
 				width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
 				{super.render()}
+				<Composed ref="composed" pages={this.composed} gap={pageGap} canvas={{width}}/>
 				{this.more()}
 			</svg>
 		)
@@ -37,37 +38,30 @@ export default class Document extends HasChild{
         })
     }
 
-	appendComposed(section,page){
-		if(!page){
-			this.children.push(section)
-			section.y=this.currentY
+	appendComposed(page){
+		if(this.composed[this.composed.length-1]==page)
 			return
-		}
+		this.composed.push(page)
 
-		this.currentY+=page.size.height+this.props.pageGap;
-		const {svg}=this.refs
-		if(svg){
-			svg.setAttribute('height',this.currentY)
-			svg.setAttribute('viewBox',`0 0 ${this.props.width} ${this.currentY}`)
-		}
-	}
-
-	getCurrentY(){
-		return this.currentY
+		this.refs.composed && this.refs.composed.setState({composedTime: new Date().toString()})
 	}
 
 	componentDidMount(){
+		let {pageGap, width, height}=this.props
 		const {svg}=this.refs
-		svg.setAttribute('height',this.currentY)
-		svg.setAttribute('viewBox',`0 0 ${this.props.width} ${this.currentY}`)
+		let size=this.composed.reduce((last,a)=>({
+				height: last.height+a.size.height+pageGap,
+				width:Math.max(last.width,a.width)}),{height:pageGap, width:width})
+
+		height=	Math.max(size.height, height)
+		svg.setAttribute('height',height)
+		svg.setAttribute('viewBox',`0 0 ${width} ${height}`)
 	}
 
-	on1ChildComposed(){
-		if(this.state.content.length==this.children.length){
-			this.onAllChildrenComposed()
-		}
+	componentDidUpdate(){
+		this.componentDidMount()
 	}
-	
+
 	more(){
 		return null
 	}
@@ -79,5 +73,24 @@ export default class Document extends HasChild{
 		style: {
 			background:"lightgray"
 		}
+	}
+}
+
+
+class Composed extends Group{
+	render(){
+		const {pages, gap, canvas}=this.props
+		let y=0
+		return (
+			<Group y={gap}>
+			{
+				pages.map((page,i)=>{
+					let newPage=(<Group y={y} x={(canvas.width-page.size.width)/2} key={i}><Page {...page}/></Group>)
+					y+=(page.size.height+gap)
+					return newPage
+				})
+			}
+			</Group>
+		)
 	}
 }

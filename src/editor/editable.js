@@ -23,7 +23,7 @@ var uuid=0
  */
 export default function editable(Content){
 	return class extends Content{
-		
+
 		_id=uuid++
 
         reCompose(){
@@ -40,7 +40,7 @@ export default function editable(Content){
     	_reComposeFrom(content){
             this.context.parent._reComposeFrom(this)
     	}
-		
+
 		_clearComposed4reCompose(){
 			let lastComposed=this.composed.splice(0)
 			if(!this._isLastComposedFitIntoParent(lastComposed)){
@@ -55,7 +55,7 @@ export default function editable(Content){
          * is there a way to just simply re-use last composed?
          */
         _isLastComposedFitIntoParent(lastComposed){
-            return false
+			return false
         }
         /**
          * only no composed should be re-compose
@@ -66,13 +66,9 @@ export default function editable(Content){
                 this.compose()
             return true
         }
-		
-		focus(){
-			
-		}
-		
+
 		blur(){
-			
+
 		}
     }
 }

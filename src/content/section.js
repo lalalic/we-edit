@@ -1,7 +1,6 @@
 import React, {Component, PropTypes} from "react"
 import Any from "./any"
 
-import Page from "../composed/page"
 import Group from "../composed/group"
 
 export default class Section extends Any{
@@ -11,20 +10,6 @@ export default class Section extends Any{
         canvas: PropTypes.object,
 		y: PropTypes.number
     }, Any.contextTypes)
-
-
-	render(){
-		const {content}=this.state
-		const {canvas}=this.context
-		const {size}=this.props
-		return (
-			<Group x={(canvas.width-size.width)/2} y={0}>
-				{super.render()}
-
-				<Composed ref="composed" pages={this.composed} gap={canvas.pageGap} pageHeight={size.height}/>
-			</Group>
-		)
-	}
 
     /**
      * i: column no
@@ -64,9 +49,6 @@ export default class Section extends Any{
             header:null,
             footer:null
         }
-		if(this.composed.length)
-            this.context.parent.appendComposed(this)
-		this.context.parent.appendComposed(this, info)
 		return info
     }
 
@@ -87,6 +69,7 @@ export default class Section extends Any{
             if(allowedColumns>columns.length){// new column
                 columns.push(currentColumn=this._newColumn(columns.length))
             }else{//new page
+                this.context.parent.appendComposed(currentPage)
 				composed.push(currentPage=this._newPage(composed.length))
                 currentColumn=currentPage.columns[0]
             }
@@ -112,6 +95,7 @@ export default class Section extends Any{
             if(allowedColumns>columns.length){// new column
                 columns.push(currentColumn=this._newColumn(columns.length))
             }else{//new page
+                this.context.parent.appendChild(currentPage)
                 composed.push(currentPage=this._newPage(composed.length))
                 currentColumn=currentPage.columns[0]
             }
@@ -124,6 +108,12 @@ export default class Section extends Any{
 
 		children.push(<Group y={height-availableHeight} height={contentHeight} index={this.children.length}>{line}</Group>)
         //@TODO: what if contentHeight still > availableHeight
+    }
+
+    onAllChildrenComposed(){
+        //don't check, and document will check against last page
+        this.context.parent.appendComposed(this.composed[this.composed.length-1])
+        super.onAllChildrenComposed()
     }
 
 	static defaultProps={
@@ -162,23 +152,5 @@ export default class Section extends Any{
 			gutter: PropTypes.number,
 		}),
 		cols: PropTypes.object
-	}
-}
-
-class Composed extends Group{
-	render(){
-		const {pages, gap, pageHeight}=this.props
-		let y=0
-		return (
-			<Group>
-			{
-				pages.map((page,i)=>{
-					let newPage=(<Group y={y} key={i}><Page {...page}/></Group>)
-					y+=(pageHeight+gap)
-					return newPage
-				})
-			}
-			</Group>
-		)
 	}
 }
