@@ -8,6 +8,7 @@ export default class Table extends Container{
 		let availableSpace=this.context.parent.nextAvailableSpace(required)
 		return {width: this.props.width, height: availableSpace.height}
 	}
+	
 	appendComposed(colGroups){
 		const {width, cols}=this.props
 		let height=0

@@ -10,20 +10,22 @@ export default class extends Super{
     createComposedPiece(props){
 		const {width, height, end, children, ...others}=props
 		const {loc}=this.state
+        let style=this.getFontStyle()
+
 		let cursor=null
 		if(typeof(loc)!='undefined'){
-			if(end-children.length<loc && loc<end){
-				let style=this.getFontStyle()
+			if(end-children.length<loc && loc<=end){
 				let locText=this.state.content.substring(end-children.length, loc)
 				let composer=new this.constructor.WordWrapper(locText, style)
 				let size=composer.next({width:Number.MAX_SAFE_INTEGER})
 				cursor=<CursorShape key="cursorshape" ref={a=>this.updateCursor(a)} {...size} style={style}/>
 			}
 		}
-		return (
+
+        return (
 			<Group width={width} height={height}>
 				{cursor}
-				<text {...others} style={{whiteSpace:"pre"}} onClick={e=>this.onClick(e,props)}>{children}</text>
+				<text {...others} onClick={e=>this.onClick(e,props)}>{children}</text>
 			</Group>
 		)
     }
@@ -36,22 +38,20 @@ export default class extends Super{
         let index=text.end-text.children.length+loc.end
 		this.setState({loc:index}, ()=>this.reCompose())
     }
-	
+
 	updateCursor(ref){
 		this.context.cursor().setState({target:this, shape:ref})
 	}
-	
-	
-	
+
 	insert(str){
 		const {content, loc}=this.state
 		this.setState({content:content.splice(loc,0,str), loc:loc+str.length},e=>this.reCompose())
 	}
-	
+
 	blur(){
 		this.setState({loc:undefined})
 	}
-	
+
 	static contextTypes=Object.assign({
 		cursor: PropTypes.func
 	},Super.contextTypes)

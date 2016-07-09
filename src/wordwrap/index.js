@@ -57,12 +57,6 @@ export default class WordWrapper{
 
 		info.width=Math.ceil(info.width)
         console.info(`text composer total time: ${_textComposerTime+=(Date.now()-startAt)}`)
-        return Object.assign(info,{
-                fontFamily:this.fontFamily,
-                fontSize:`${this.size}px`,
-                fontWeight:this.style.b ? 700 : 400,
-                fontStyle:this.style.i ? "italic" : "normal",
-				height:this.height
-			})
+        return Object.assign(info,{fontFamily:this.fontFamily})
     }
 }
