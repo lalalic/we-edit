@@ -7,14 +7,12 @@ export class HasChild extends Component{
     composed=[]
 
     static childContextTypes={
-		parent: PropTypes.object,
-        style: PropTypes.object
+		parent: PropTypes.object
     }
 
     getChildContext(){
         return {
-			parent: this,
-            style: this.state.style
+			parent: this
         }
     }
 
@@ -69,15 +67,14 @@ export class HasChild extends Component{
     }
 
 	onAllChildrenComposed(){
-		
+
 	}
 }
 
 export default class HasParentAndChild extends HasChild{
     displayName="content"
     static contextTypes={
-        parent: PropTypes.object,
-		style: PropTypes.object
+        parent: PropTypes.object
     }
     /**
      * children should call before composing line,
@@ -132,22 +129,29 @@ export class NoChild extends HasParentAndChild{
 export function togglable(Content){
 	return class Togglable extends Content{
 		static childContextTypes=Object.assign({
-				toggleStyles: PropTypes.object	
+				toggles: PropTypes.object
 			},Content.childContextTypes)
-		
+
 		getChildContext(){
+            let toggles={}
+			/*
 			const {inline:mine}=this.props.contentStyle
-			const {toggleStyles:parent}=this.context
-			let toggles={
-				
-			}
+			const {inline:parent}=this.context.parent.props.contentStyle
+            if(mine.b<0){
+                if(parent.b<0){
+                    toggles.b=parent.b+mine.b
+                } else {
+                    toggles.b=parent.b
+                }
+            }*/
+
 			return Object.assign({
-					toggleStyles: toggles
+					toggles
 				}, super.getChildContext())
 		}
 
 		static contextTypes=Object.assign({
-				toggleStyles: PropTypes.object	
+				toggleStyles: PropTypes.object
 			},Content.contextTypes)
 	}
 }

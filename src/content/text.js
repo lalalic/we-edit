@@ -30,15 +30,12 @@ export default class Text extends NoChild{
 
 
 	getFontStyle(){
-		const {parent}=this.context
-		const {inline: style}=parent.props.contentStyle
-		const {toggleStyles}=this.context
-		//@TODO: need merge direct style and toggle style
+		const {style}=this.context
 		return style
 	}
 
 	static contextTypes=Object.assign({
-		toggleStyles: PropTypes.object
+		style: PropTypes.object
 	}, NoChild.contextTypes)
 
 	static WordWrapper=HtmlWordWrapper

@@ -1,4 +1,4 @@
-import WordWrapper from "."
+import WordWrapper from "./html"
 
 /**
  *
@@ -20,9 +20,13 @@ export default class SVGWordWrapper extends WordWrapper{
 			`
 			tester=container.querySelector('text')
 		}
-		tester.style=`font-family:${this.fontFamily};font-size:${this.size}px;white-space:pre;`
-		tester.firstChild.data="A"
-        return tester.getBoundingClientRect().height
+		tester.style=`white-space:pre;
+            font-family:${this.fontFamily};
+            font-size:${this.size}px;
+            font-weight:${this.style.b ? "700" : "400"};
+            font-style:${this.style.i ? "italic" : "normal"};
+            `
+        return super.lineHeight()
     }
 
     stringWidth(word){

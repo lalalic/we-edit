@@ -9,22 +9,22 @@ export default class WordWrapper{
         this.height=Math.ceil(this.lineHeight())
         this.composed=0
     }
-	
+
 	lineHeight(){
 		return 25
 	}
-	
+
 	stringWidth(string){
 		return 200
 	}
-	
+
     next({width:maxWidth}){
         if(maxWidth==undefined)
 			throw new Error("no max width specified when composing text")
-		
+
 		if(this.composed==this.text.length)
             return null
-	
+
         let startAt=Date.now()
 
         let text=null,info=null
@@ -54,12 +54,14 @@ export default class WordWrapper{
                 info={width:maxWidth, contentWidth:0, end:this.composed+=text.length, children:text}
             }
         }
-		
+
 		info.width=Math.ceil(info.width)
         console.info(`text composer total time: ${_textComposerTime+=(Date.now()-startAt)}`)
         return Object.assign(info,{
-				fontFamily:this.fontFamily,
-				fontSize:this.size+"px",
+                fontFamily:this.fontFamily,
+                fontSize:`${this.size}px`,
+                fontWeight:this.style.b ? 700 : 400,
+                fontStyle:this.style.i ? "italic" : "normal",
 				height:this.height
 			})
     }

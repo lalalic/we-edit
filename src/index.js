@@ -48,7 +48,7 @@ export function test(){
 							src="http://n.sinaimg.cn/news/transform/20160629/gbf3-fxtniax8255947.jpg"/>
 
 						<A.Inline><A.Text>{Array(100).fill("hello1, let's edit").join(" ")}</A.Text></A.Inline>
-						
+
 						<A.Inline><A.Text>{Array(1).fill("over").join(" ")}</A.Text></A.Inline>
 					</A.Paragraph>
 				</A.Section>
