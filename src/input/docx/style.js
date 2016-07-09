@@ -11,6 +11,26 @@ export default class{
 			case 'document':
 				parentStyle={}
 			break
+			case 'table':
+				let target=wordModel.getTarget()
+				if(target!='table'){
+					parentStyle=doc.contentProps.documentStyles[id]
+					basedOn=parentStyle.metadata.basedOn
+					if(basedOn){
+						let basedOnTableStyle=doc.cloneStyle(basedOn)
+						if(basedOnTableStyle[target])
+							parentStyle[target]=basedOnTableStyle[target]
+						else
+							parentStyle[target]={}
+					}else{
+						parentStyle[target]={}
+					}
+					this.target=target
+					this.style=parentStyle
+					return
+				}else{
+
+				}
 			default:
 				parentStyle=basedOn ? doc.cloneStyle(basedOn) : doc.cloneDocumentDefaultStyle()
 			}
@@ -32,11 +52,12 @@ export default class{
 	visit(value,name,category){
 		if(!name)
 			return
-		let categorized=this.style
+		let style=this.target ? this.style[this.target] :this.style
+		let categorized=style
 		if(category){
-			categorized=this.style[category]
+			categorized=style[category]
 			if(!categorized){
-				this.style[category]=categorized={}
+				style[category]=categorized={}
 			}
 		}
 		let oldValue=categorized[name]
