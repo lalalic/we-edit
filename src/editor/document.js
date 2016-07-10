@@ -9,12 +9,12 @@ export default class extends Super{
 	more(){
 		return <Cursor ref="cursor"/>
 	}
-	
-	
+
+
 	static childContextTypes=Object.assign({
 		cursor: PropTypes.func
 	},Super.childContextTypes)
-	
+
 	getChildContext(){
 		var self=this
 		return Object.assign(super.getChildContext(),{
@@ -23,7 +23,7 @@ export default class extends Super{
 			}
 		})
 	}
-	
+
 	componentDidMount(){
 		super.componentDidMount()
 		document.addEventListener("keypress",e=>{

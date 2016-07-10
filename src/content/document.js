@@ -6,9 +6,7 @@ import Page from "../composed/page"
 export default class Document extends HasChild{
 	static displayName="document"
 
-	currentY=this.props.pageGap
-
-    render(){
+	render(){
 		const {composed, state:{content}, props:{width, height}}=this
 		const {documentStyles, pageGap, ...others}=this.props
         return (
@@ -16,7 +14,12 @@ export default class Document extends HasChild{
 				ref="svg"
 				width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
 				{super.render()}
-				<Composed ref="composed" pages={this.composed} gap={pageGap} canvas={{width}}/>
+				<Composed ref="composed" gap={pageGap} canvas={{width}} sections={()=>
+					this.children.reduce((collected, section)=>{
+						collected.push(section.composed)
+						return collected
+					},[])}
+					/>
 				{this.more()}
 			</svg>
 		)
@@ -39,11 +42,8 @@ export default class Document extends HasChild{
     }
 
 	appendComposed(page){
-		if(this.composed[this.composed.length-1]==page)
-			return
-		this.composed.push(page)
-
-		this.refs.composed && this.refs.composed.setState({composedTime: new Date().toString()})
+		if(this.refs.composed)
+			this.refs.composed.setState({composedTime: new Date().toString()})
 	}
 
 	componentDidMount(){
@@ -74,20 +74,26 @@ export default class Document extends HasChild{
 			background:"lightgray"
 		}
 	}
-}
 
+
+}
 
 class Composed extends Group{
 	render(){
-		const {pages, gap, canvas}=this.props
-		let y=0
+		const {sections, gap, canvas}=this.props
+		let sectionY=gap
 		return (
 			<Group y={gap}>
 			{
-				pages.map((page,i)=>{
-					let newPage=(<Group y={y} x={(canvas.width-page.size.width)/2} key={i}><Page {...page}/></Group>)
-					y+=(page.size.height+gap)
-					return newPage
+				sections().map((pages,i,a,b,y=0)=>{
+					return <Group y={sectionY} key={i}>{
+						pages.map((page,i)=>{
+							let newPage=(<Group y={y} x={(canvas.width-page.size.width)/2} key={i}><Page {...page}/></Group>)
+							y+=(page.size.height+gap)
+							sectionY+=(page.size.height+gap)
+							return newPage
+						})
+					}</Group>
 				})
 			}
 			</Group>

@@ -4,7 +4,7 @@ export default class WordWrapper{
 		const {rFonts, sz:fontSize}=style
 		this.style=style
         this.text=text
-        this.fontFamily=Object.keys(rFonts).map(a=>`${rFonts[a]}`).filter(a=>a).join(" ")
+        this.fontFamily=Object.keys(rFonts).map(a=>`${rFonts[a]||''}`).filter(a=>a).join(" ")
 		this.size=fontSize
         this.height=Math.ceil(this.lineHeight())
         this.composed=0

@@ -126,6 +126,13 @@ export class NoChild extends HasParentAndChild{
     }
 }
 
+const TOGGLES='b,i,u'.split(',')
+function isToggle(stylePath){
+    let [inline,key]=stylePath.split('.')
+    if(inline!='inline')
+        return false
+    return TOGGLES.indexOf(key)!=-1    
+}
 export function togglable(Content){
 	return class StyleContainer extends Content{
 		static childContextTypes=Object.assign({
@@ -142,6 +149,15 @@ export function togglable(Content){
                             let v=contentStyle.get(path)
                             if(v==undefined)
                                 return containerStyle.get(path)
+                            else if(isToggleStyle(path) && v==-1){
+                                let toggles=containerStyle.get(path)
+                                if(typeof(toggles)=='number'){
+                                    if(toggles<0)
+                                        v=toggles-1
+                                    else
+                                        v=toggles
+                                }
+                            }
                             return v
                         }
                     }

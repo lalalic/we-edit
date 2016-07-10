@@ -44,7 +44,6 @@ export default class extends editable(Section){
 				 */
 				a.setState({composedTime})
 			})
-			this.refs.composed.setState({composedTime})
 		}else{
 			throw new Error("you should find the line from section, but not")
 		}
