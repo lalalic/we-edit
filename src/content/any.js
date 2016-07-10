@@ -127,31 +127,30 @@ export class NoChild extends HasParentAndChild{
 }
 
 export function togglable(Content){
-	return class Togglable extends Content{
+	return class StyleContainer extends Content{
 		static childContextTypes=Object.assign({
-				toggles: PropTypes.object
+				containerStyle: PropTypes.object
 			},Content.childContextTypes)
 
 		getChildContext(){
-            let toggles={}
-			/*
-			const {inline:mine}=this.props.contentStyle
-			const {inline:parent}=this.context.parent.props.contentStyle
-            if(mine.b<0){
-                if(parent.b<0){
-                    toggles.b=parent.b+mine.b
-                } else {
-                    toggles.b=parent.b
-                }
-            }*/
+            const {contentStyle}=this.props
+            const {containerStyle}=this.context
 
-			return Object.assign({
-					toggles
+            return Object.assign({
+					containerStyle:{
+                        get(path){
+                            let v=contentStyle.get(path)
+                            if(v==undefined)
+                                return containerStyle.get(path)
+                            return v
+                        }
+                    }
 				}, super.getChildContext())
 		}
 
 		static contextTypes=Object.assign({
-				toggleStyles: PropTypes.object
+				createStyle: PropTypes.func,
+                containerStyle: PropTypes.object
 			},Content.contextTypes)
 	}
 }

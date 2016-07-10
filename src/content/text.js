@@ -9,7 +9,7 @@ export default class Text extends NoChild{
 		const {composed}=this
         const {parent}=this.context
 		const {content}=this.state
-		let style=this.getFontStyle()
+		let style=this.getStyle()
 		let composer=new this.constructor.WordWrapper(content, style)
 		let defaultStyle={
 			whiteSpace:'pre',
@@ -32,6 +32,17 @@ export default class Text extends NoChild{
 		parent.on1ChildComposed(this)
     }
 
+	getStyle(){
+		const {containerStyle}=this.context
+		return 'rFonts,sz,color,b,i'.split(",").reduce((style, key)=>{
+            let stylePath=`inline.${key}`
+            let value=containerStyle.get(stylePath)
+            if(value!=undefined)
+                style[key]=value
+            return style
+        },{})
+	}
+
 	createComposedPiece(props){
 		const {color}=this.getFontStyle()
 		if(color)
@@ -41,14 +52,8 @@ export default class Text extends NoChild{
 		return <Group width={width} height={height}><text {...props} style={{whiteSpace:"pre"}}/></Group>
 	}
 
-
-	getFontStyle(){
-		const {style}=this.context
-		return style
-	}
-
 	static contextTypes=Object.assign({
-		style: PropTypes.object
+		containerStyle: PropTypes.object
 	}, NoChild.contextTypes)
 
 	static WordWrapper=HtmlWordWrapper

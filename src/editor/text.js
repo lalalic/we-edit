@@ -10,7 +10,7 @@ export default class extends Super{
     createComposedPiece(props){
 		const {width, height, end, children, ...others}=props
 		const {loc}=this.state
-        let style=this.getFontStyle()
+        let style=this.getStyle()
 
 		let cursor=null
 		if(typeof(loc)!='undefined'){
@@ -32,7 +32,7 @@ export default class extends Super{
 
     onClick(event, text){
 		const {nativeEvent:{offsetX, offsetY}, target}=event
-        let style=this.getFontStyle()
+        let style=this.getStyle()
         let composer=new this.constructor.WordWrapper(text.children, style)
         let loc=composer.next({width:offsetX})||{end:0}
         let index=text.end-text.children.length+loc.end

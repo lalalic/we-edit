@@ -6,11 +6,6 @@ import Group from "../composed/group"
 export default class Section extends Any{
     static displayName="section"
 
-	static contextTypes=Object.assign({
-        canvas: PropTypes.object,
-		y: PropTypes.number
-    }, Any.contextTypes)
-
     /**
      * i: column no
      */
@@ -30,7 +25,7 @@ export default class Section extends Any{
 			info.x=data.reduce((p, a, j)=>(j<i ? p+a.width+a.space : p),0)
 			info.width=data[i].width
 		}else{
-			let colWidth=(availableWidth-(num-1)*space)/2
+			let colWidth=(availableWidth-(num-1)*space)/num
 			info.x=i*(colWidth+space)
 			info.width=colWidth
 		}

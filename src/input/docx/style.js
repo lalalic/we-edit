@@ -1,52 +1,33 @@
 export default class{
 	constructor(wordModel, doc){
-		let metadata=null, parentStyle
+		let metadata=null, basedOn=null
 		let type=wordModel.type
+		this.style=doc.createStyle()
 		if(type.substr(0,6)=='style.'){
 			type=type.split(".").pop()
+			basedOn=(wordModel.getParentStyle()||{}).id
 			let id=wordModel.id
-			let basedOn=(wordModel.getParentStyle()||{}).id
 			let isDefault=wordModel.isDefault()
 			switch(type){
-			case 'document':
-				parentStyle={}
-			break
 			case 'table':
 				let target=wordModel.getTarget()
 				if(target!='table'){
-					parentStyle=doc.contentProps.documentStyles[id]
-					basedOn=parentStyle.metadata.basedOn
-					if(basedOn){
-						let basedOnTableStyle=doc.cloneStyle(basedOn)
-						if(basedOnTableStyle[target])
-							parentStyle[target]=basedOnTableStyle[target]
-						else
-							parentStyle[target]={}
-					}else{
-						parentStyle[target]={}
-					}
+					this.style=doc.contentProps.documentStyles[id]
+					this.style[target]=doc.createStyle()
 					this.target=target
-					this.style=parentStyle
-					return
-				}else{
-
+					break
 				}
 			default:
-				parentStyle=basedOn ? doc.cloneStyle(basedOn) : doc.cloneDocumentDefaultStyle()
+				this.style.metadata={type,id,basedOn, isDefault}
 			}
-
-			metadata={type,id,basedOn, isDefault}
 		}else if(wordModel.getStyleId){
-			let basedOn=wordModel.getStyleId()
-			parentStyle=basedOn ? doc.cloneStyle(basedOn) : doc.cloneDefaultStyle(type)
-			metadata={type,basedOn}
+			basedOn=wordModel.getStyleId()
+			if(!basedOn)
+				basedOn=doc.getTypeDefaultStyleId(type)
+			this.style.metadata={basedOn}
 		}else{
-			metadata={type}
-			parentStyle={}
+			this.style.metadata={}
 		}
-
-		parentStyle.metadata=metadata
-		this.style=parentStyle
 	}
 
 	visit(value,name,category){
@@ -72,7 +53,6 @@ export default class{
 		break
 		default:
 			categorized[name]=value
-
 		}
 	}
 }

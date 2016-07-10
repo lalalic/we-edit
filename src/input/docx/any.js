@@ -23,16 +23,7 @@ export default class Model{
 				style.parse([visitor])
 				this.contentProps.contentStyle=visitor.style
 			}else{
-				let type=this.wordModel.type
-				switch(type){
-				case 'paragraph':
-				case 'inline':
-				case 'table':
-				case 'numbering':
-					this.contentProps.contentStyle=this.doc.cloneDefaultStyle(this.wordModel.type)
-				break
-				}
-
+				this.contentProps.contentStyle=new Style(this.wordModel, this.doc).style
 			}
 		}
 	}

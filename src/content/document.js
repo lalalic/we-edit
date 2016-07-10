@@ -1,5 +1,5 @@
 import React, {Component, PropTypes} from "react"
-import {HasChild} from "./any"
+import {HasChild, togglable} from "./any"
 import Group from "../composed/group"
 import Page from "../composed/page"
 
@@ -23,18 +23,18 @@ export default class Document extends HasChild{
     }
 
     static childContextTypes=Object.assign({
-        canvas: PropTypes.object,
-		getDefaultStyle: PropTypes.func
+        getDefaultStyle: PropTypes.func,
+		containerStyle: PropTypes.object
     },HasChild.childContextTypes)
 
     getChildContext(){
 		const documentStyles=this.props.documentStyles
-        const {width, pageGap}=this.props
+        const {width, pageGap, contentStyle}=this.props
 		return Object.assign(super.getChildContext(),{
-            canvas: {width,pageGap},
-			getDefaultStyle(type){
+            getDefaultStyle(type){
 				return documentStyles.getDefault(type)
-			}
+			},
+			containerStyle:contentStyle
         })
     }
 
