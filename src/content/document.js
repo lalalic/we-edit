@@ -1,5 +1,5 @@
 import React, {Component, PropTypes} from "react"
-import {HasChild, togglable} from "./any"
+import {HasChild} from "./any"
 import Group from "../composed/group"
 import Page from "../composed/page"
 
@@ -48,12 +48,10 @@ export default class Document extends HasChild{
 
 	componentDidMount(){
 		let {pageGap, width, height}=this.props
-		const {svg}=this.refs
-		let size=this.composed.reduce((last,a)=>({
-				height: last.height+a.size.height+pageGap,
-				width:Math.max(last.width,a.width)}),{height:pageGap, width:width})
+		const {svg, composed}=this.refs
+		let {height:contentHeight, pages}=composed.info
 
-		height=	Math.max(size.height, height)
+		height=	Math.max(contentHeight, height)
 		svg.setAttribute('height',height)
 		svg.setAttribute('viewBox',`0 0 ${width} ${height}`)
 	}
@@ -81,16 +79,17 @@ export default class Document extends HasChild{
 class Composed extends Group{
 	render(){
 		const {sections, gap, canvas}=this.props
-		let sectionY=gap
+		const info=this._info={height:gap, pages:0}
 		return (
 			<Group y={gap}>
 			{
 				sections().map((pages,i,a,b,y=0)=>{
-					return <Group y={sectionY} key={i}>{
+					return <Group y={info.height} key={i}>{
 						pages.map((page,i)=>{
 							let newPage=(<Group y={y} x={(canvas.width-page.size.width)/2} key={i}><Page {...page}/></Group>)
 							y+=(page.size.height+gap)
-							sectionY+=(page.size.height+gap)
+							info.height+=(page.size.height+gap)
+							info.pages++
 							return newPage
 						})
 					}</Group>
@@ -98,5 +97,9 @@ class Composed extends Group{
 			}
 			</Group>
 		)
+	}
+	
+	get info(){
+		return this._info
 	}
 }

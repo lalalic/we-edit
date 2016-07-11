@@ -1,12 +1,12 @@
 import React, {Component, PropTypes} from "react"
-import Any, {togglable} from "./any"
+import Any, {styleInheritable} from "./any"
 import Group from "../composed/group"
 import Line from "../composed/line"
 
 import Inline from "./inline"
 import Text from "./text"
-
-let Super=togglable(Any)
+ 
+let Super=styleInheritable(Any)
 export default class Paragraph extends Super{
 	static displayName="paragraph"
 	constructor(){

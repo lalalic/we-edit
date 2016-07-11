@@ -36,7 +36,7 @@ export default class extends Super{
         let composer=new this.constructor.WordWrapper(text.children, style)
         let loc=composer.next({width:offsetX})||{end:0}
         let index=text.end-text.children.length+loc.end
-		this.setState({loc:index}, ()=>this.reCompose())
+		this.setState({loc:index})
     }
 
 	updateCursor(ref){

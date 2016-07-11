@@ -1,7 +1,6 @@
 import React, {Component, PropTypes} from "react"
-import Any, {togglable} from "./any"
+import Any, {styleInheritable} from "./any"
 
-let Super=togglable(Any)
-export default class Inline extends Super{
+export default class Inline extends styleInheritable(Any){
     static displayName="inline"
 }

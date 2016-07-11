@@ -1,5 +1,5 @@
 import React, {Component, PropTypes} from "react"
-import {NoChild} from "./any"
+import {NoChild, isToggleStyle} from "./any"
 import HtmlWordWrapper from "../wordwrap/html"
 
 export default class Text extends NoChild{
@@ -34,11 +34,15 @@ export default class Text extends NoChild{
 
 	getStyle(){
 		const {containerStyle}=this.context
-		return 'rFonts,sz,color,b,i'.split(",").reduce((style, key)=>{
+		return 'rFonts,sz,color,b,i,vanish'.split(",").reduce((style, key)=>{
             let stylePath=`inline.${key}`
             let value=containerStyle.get(stylePath)
-            if(value!=undefined)
-                style[key]=value
+            if(value!=undefined){
+                if(isToggleStyle(stylePath) && value<0){
+					style[key]=value%2
+				}else
+					style[key]=value
+			}
             return style
         },{})
 	}

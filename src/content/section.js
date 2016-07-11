@@ -64,7 +64,6 @@ export default class Section extends Any{
             if(allowedColumns>columns.length){// new column
                 columns.push(currentColumn=this._newColumn(columns.length))
             }else{//new page
-                this.context.parent.appendComposed(currentPage)
 				composed.push(currentPage=this._newPage(composed.length))
                 currentColumn=currentPage.columns[0]
             }
@@ -90,7 +89,7 @@ export default class Section extends Any{
             if(allowedColumns>columns.length){// new column
                 columns.push(currentColumn=this._newColumn(columns.length))
             }else{//new page
-                this.context.parent.appendChild(currentPage)
+                this.context.parent.appendComposed(currentPage)
                 composed.push(currentPage=this._newPage(composed.length))
                 currentColumn=currentPage.columns[0]
             }

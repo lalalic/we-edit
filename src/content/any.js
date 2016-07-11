@@ -126,14 +126,16 @@ export class NoChild extends HasParentAndChild{
     }
 }
 
-const TOGGLES='b,i,u'.split(',')
-function isToggle(stylePath){
-    let [inline,key]=stylePath.split('.')
-    if(inline!='inline')
-        return false
-    return TOGGLES.indexOf(key)!=-1    
+const TOGGLES='b,i,vanish'.split(',')
+
+export function isToggleStyle(stylePath){
+	let [inline,key]=stylePath.split('.')
+	if(inline!='inline')
+		return false
+	return TOGGLES.indexOf(key)!=-1    
 }
-export function togglable(Content){
+
+export function styleInheritable(Content){
 	return class StyleContainer extends Content{
 		static childContextTypes=Object.assign({
 				containerStyle: PropTypes.object

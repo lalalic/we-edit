@@ -1,9 +1,9 @@
 import React, {PropTypes} from "react"
 
 import Container from "./container"
-import {togglable} from "./any"
+import {styleInheritable} from "./any"
 
-let Super=togglable(Container)
+let Super=styleInheritable(Container)
 export default class Cell extends Super{
 	static displayName="cell"
 	nextAvailableSpace(required){
@@ -13,7 +13,7 @@ export default class Cell extends Super{
 		//height=height-border.top-border.bottom-padding.top-padding.bottom
 		return {width,height}
 	}
-
+ 
 	getBorderPadding(){
 		return {
 			padding:{
