@@ -2,6 +2,11 @@ import React, {Component, PropTypes} from "react"
 import Container from "./container"
 import Group from "../composed/group"
 
+/**
+ *  
+ *  
+ *  conditional formatting: http://officeopenxml.com/WPstyleTableStylesCond.php
+ */
 export default class Table extends Container{
 	static displayName="table"
 	nextAvailableSpace(required){
@@ -11,33 +16,53 @@ export default class Table extends Container{
 	
 	appendComposed(colGroups){
 		const {width, cols}=this.props
-		let height=0
-
-		let x=0, rowNo=this.children.length
+		let height=0, self=this
+		
+		let x=0, rowNo=this.children.length-1
 		let groupsWithXY=colGroups.map((lines,colNo)=>{
+			let {border, margin, spacing}=self.children[rowNo].children[colNo].getStyle()
 			let y=0
 			let grouped=lines.map(line=>{
 					let a=<Group y={y}>{line}</Group>
 					y+=line.props.height
 					return a
 				})
-			let cell=(<Group height={y} x={x}>{grouped}</Group>)
+			y+=(border.top.sz
+				+border.bottom.sz
+				+margin.top
+				+margin.bottom
+				+spacing)
+			let cell=(
+				<Group height={y} x={x}>
+					<Group x={spacing} y={spacing/2}>
+						<Group x={border.left ? border.left.sz : 0} y={border.left ? border.left.sz : 0}>
+							{<path strokeWidth={border.top.sz} stroke={border.top.color} d={`M0 0 L${cols[colNo]-spacing*0.5} 0`}/>}
+							{<path strokeWidth={border.bottom.sz} stroke={border.bottom.color} d={`M0 ${y-spacing*0.5} L${cols[colNo]-spacing*0.5} ${y-spacing*0.5}`}/>}
+							{<path strokeWidth={border.right.sz} stroke={border.right.color} d={`M${cols[colNo]-spacing*0.5} 0 L${cols[colNo]-spacing*0.5} ${y-spacing*0.5}`}/>}
+							{<path strokeWidth={border.left.sz} stroke={border.left.color} d={`M0 0 L0 ${y-spacing*0.5}`}/>}
+							<Group x={margin.left} y={margin.top}>
+								{grouped}
+							</Group>
+						</Group>
+					</Group>
+				</Group>	
+			);
 			x+=cols[colNo]
 			height=Math.max(height,y)
 			return cell
 		})
 
-		x=0
-		let borders=groupsWithXY.map((a,colNo)=>this.borders(rowNo, colNo, cols[colNo], height,x, x+=cols[colNo]))
-
-		this.context.parent.appendComposed(<Group width={width} height={height}>{borders}{groupsWithXY}</Group>)
+		this.context.parent.appendComposed(<Group width={width} height={height}>{groupsWithXY}</Group>)
 	}
+	
+	static childContextTypes=Object.assign({
+		tableStyle: PropTypes.object
+	}, Container.childContextTypes)
+	
+	getChildContext(){
 
-	borders(rowNo, colNo, width, height, x){
-		return (<Group x={x}><path
-			strokeWidth={1}
-			stroke="black"
-			fill="none"
-			d={`M0 0 L${width} 0 L${width} ${height} L0 ${height} L0 0`}/></Group>)
+		return Object.assign(super.getChildContext(),{
+			tableStyle: this.props.contentStyle
+		})
 	}
 }

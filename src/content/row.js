@@ -28,6 +28,7 @@ export default class Row extends Container{
 	onAllChildrenComposed(){
 		console.warn("one row composed")
 		this.composed.pop()
+		this.context.parent.children.push(this)
 		const {parent}=this.context
 		let indexes=new Array(this.composed.length)
 		indexes.fill(0)
@@ -40,7 +41,15 @@ export default class Row extends Container{
 			let availableSpace=parent.nextAvailableSpace(minSpace)
 			let currentGroupedLines=new Array(this.composed.length)
 			this.composed.forEach((lines,i)=>{
+				let {border, margin,spacing}=this.children[i].getStyle()
+				
 				let height=availableSpace.height
+					-border.top.sz
+					-border.bottom.sz
+					-margin.top
+					-margin.bottom
+					-spacing
+					
 				let index=indexes[i]
 				let start=index
 				for(let len=lines.length; index<len && height>0; index++){
@@ -60,9 +69,15 @@ export default class Row extends Container{
 			if(!currentGroupedLines.find(a=>a.length>0)){
 				//availableSpace is too small, need find a min available space
 				let minHeight=indexes.reduce((p,index,i)=>{
+					let {border, margin, spacing}=this.children[i].getStyle()
 					let line=this.composed[i][index]
 					if(line){
-						return Math.max(p, line.props.height)
+						return Math.max(p, line.props.height
+							+border.top.sz
+							+border.bottom.sz
+							+margin.top
+							+margin.bottom
+							+spacing)
 					}else
 						return p
 				},0)
@@ -73,6 +88,21 @@ export default class Row extends Container{
 				//throw new Error("there should be a infinite loop during row split, please check")
 
 
-		}while(!isAllSent2Table())
+		}while(!isAllSent2Table());
+		
+		this.context.parent.children.pop()
+		super.onAllChildrenComposed()
+	}
+	
+	static childContextTypes=Object.assign({
+		conditions: PropTypes.array,
+		rowStyle: PropTypes.object
+	}, Container.childContextTypes)
+	
+	getChildContext(){
+		return Object.assign(super.getChildContext(),{
+			conditions: this.props.contentStyle.get('row.cnfStyle')||[],
+			rowStyle: this.props.contentStyle
+		})
 	}
 }

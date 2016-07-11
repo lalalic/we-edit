@@ -20,7 +20,7 @@ export default class extends Model{
 	}
 
 	createStyle(){
-		return this.contentProps.documentStyles.createStyle()
+		return this.contentProps.documentStyles.createStyle(...arguments)
 	}
 
 	getTypeDefaultStyleId(type){
@@ -41,8 +41,15 @@ class Styles{
 		return styles[id]
 	}
 
-	createStyle(){
-		return new StyleInfo(this)
+	createStyle(type){
+		switch(type){
+		case 'style.table':
+		case 'table':
+			return new TableStyleInfo(this)
+		break
+		default:
+			return new StyleInfo(this)
+		}
 	}
 }
 
@@ -54,16 +61,44 @@ class StyleInfo{
 	get(path){
 		let value=path.split(".").reduce((p,key)=>p ? p[key] : p,this)
 		if(value==undefined){
-			const {basedOn}=this.metadata
+			const {basedOn}=this.metadata||{}
 			if(basedOn){
 				switch(typeof(basedOn)){
 				case 'string':
-					return this.styles[basedOn].get(path)
+					return this.styles[basedOn].get(...arguments)
 				case 'object':
-					return basedOn.get(path)
+					return basedOn.get(...arguments)
 				}
 			}
 		}
 		return value
+	}
+}
+/**
+ * conditional formatting: http://officeopenxml.com/WPstyleTableStylesCond.php
+ * The conditional formats are applied in the following order:
+	>Whole table/table
+	>Banded columns/band1Vert , even column banding/band2Vert 
+	>Banded rows/band1Horz , even row banding/band2Horz
+	>First row/firstRow , last row/lastRow
+	>First column/firstCol, last column/lastCol
+	>Top left/nwCell, top right/neCell, bottom left/swCell, bottom right/seCell
+ */
+class TableStyleInfo extends StyleInfo{
+	get(path, conditions=[]){
+		let conditionStyles=this.conditions
+		let value=conditions.reduce((found, condition)=>{
+			if(found!=undefined)
+				return found
+			if(conditionStyles){
+				let conditionStyle=conditionStyles[condition]
+				if(conditionStyle)
+					return conditionStyle.get(path)
+			}
+			return found
+		},undefined)
+		
+		if(value==undefined)
+			return super.get(...arguments)
 	}
 }

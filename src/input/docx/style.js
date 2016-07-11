@@ -2,7 +2,7 @@ export default class{
 	constructor(wordModel, doc){
 		let metadata=null, basedOn=null
 		let type=wordModel.type
-		this.style=doc.createStyle()
+		this.style=doc.createStyle(type)
 		if(type.substr(0,6)=='style.'){
 			type=type.split(".").pop()
 			basedOn=(wordModel.getParentStyle()||{}).id
@@ -13,9 +13,11 @@ export default class{
 				let target=wordModel.getTarget()
 				if(target!='table'){
 					this.style=doc.contentProps.documentStyles[id]
-					this.style[target]=doc.createStyle()
+					this.style.conditions[target]=doc.createStyle()
 					this.target=target
 					break
+				}else{
+					this.style.conditions={}
 				}
 			default:
 				this.style.metadata={type,id,basedOn, isDefault}
@@ -24,7 +26,8 @@ export default class{
 			basedOn=wordModel.getStyleId()
 			if(!basedOn)
 				basedOn=doc.getTypeDefaultStyleId(type)
-			this.style.metadata={basedOn}
+			
+			this.style.metadata={type, basedOn}
 		}else{
 			this.style.metadata={}
 		}
@@ -33,7 +36,18 @@ export default class{
 	visit(value,name,category){
 		if(!name)
 			return
-		let style=this.target ? this.style[this.target] :this.style
+		if(name=='tblBorders' || name=='tcBorders'){
+			name="border"
+		}else if (name=='tblCellMar' || name='tcMar'){
+			name="margin"
+		}else if(name=='tblCellSpacing')
+			name="spacing"
+		
+		if(category=='table')
+			category=null
+		
+		let style=this.target ? this.style.conditions[this.target] :this.style
+		
 		let categorized=style
 		if(category){
 			categorized=style[category]
