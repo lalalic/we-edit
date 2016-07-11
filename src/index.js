@@ -20,6 +20,7 @@ import Input from "./input/"
 
 export function edit(input,container){
 	Editor.Text.WordWrapper=CanvasWordWrapper
+    ReactDOM.unmountComponentAtNode(container)
 	return Input.load(input)
 		.then(doc=>ReactDOM.render(doc.createReactElement(Editor), container))
 }
@@ -30,6 +31,7 @@ export function compose(input){
 }
 
 export function preview(input,container){
+    ReactDOM.unmountComponentAtNode(container)
 	return Input.load(input)
 		.then(doc=>ReactDOM.render(doc.createReactElement(Content), container))
 }

@@ -26,7 +26,7 @@ export default class{
 			basedOn=wordModel.getStyleId()
 			if(!basedOn)
 				basedOn=doc.getTypeDefaultStyleId(type)
-			
+
 			this.style.metadata={type, basedOn}
 		}else{
 			this.style.metadata={}
@@ -38,16 +38,16 @@ export default class{
 			return
 		if(name=='tblBorders' || name=='tcBorders'){
 			name="border"
-		}else if (name=='tblCellMar' || name='tcMar'){
+		}else if (name=='tblCellMar' || name=='tcMar'){
 			name="margin"
 		}else if(name=='tblCellSpacing')
 			name="spacing"
-		
-		if(category=='table')
+
+		if(category=='table' || category=='cell' || category=="row")
 			category=null
-		
+
 		let style=this.target ? this.style.conditions[this.target] :this.style
-		
+
 		let categorized=style
 		if(category){
 			categorized=style[category]

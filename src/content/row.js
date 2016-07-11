@@ -42,14 +42,14 @@ export default class Row extends Container{
 			let currentGroupedLines=new Array(this.composed.length)
 			this.composed.forEach((lines,i)=>{
 				let {border, margin,spacing}=this.children[i].getStyle()
-				
+
 				let height=availableSpace.height
 					-border.top.sz
 					-border.bottom.sz
 					-margin.top
 					-margin.bottom
 					-spacing
-					
+
 				let index=indexes[i]
 				let start=index
 				for(let len=lines.length; index<len && height>0; index++){
@@ -89,19 +89,19 @@ export default class Row extends Container{
 
 
 		}while(!isAllSent2Table());
-		
+
 		this.context.parent.children.pop()
 		super.onAllChildrenComposed()
 	}
-	
+
 	static childContextTypes=Object.assign({
 		conditions: PropTypes.array,
 		rowStyle: PropTypes.object
 	}, Container.childContextTypes)
-	
+
 	getChildContext(){
 		return Object.assign(super.getChildContext(),{
-			conditions: this.props.contentStyle.get('row.cnfStyle')||[],
+			conditions: this.props.contentStyle.get('cnfStyle')||[],
 			rowStyle: this.props.contentStyle
 		})
 	}
