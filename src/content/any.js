@@ -145,7 +145,7 @@ export function styleInheritable(Content){
             const {contentStyle}=this.props
             const {containerStyle}=this.context
 
-            return Object.assign({
+            return Object.assign(super.getChildContext(),{
 					containerStyle:{
                         get(path){
                             let v=contentStyle.get(path)
@@ -163,7 +163,7 @@ export function styleInheritable(Content){
                             return v
                         }
                     }
-				}, super.getChildContext())
+				})
 		}
 
 		static contextTypes=Object.assign({

@@ -20,49 +20,131 @@ export default class Table extends Container{
 		
 		let x=0, rowNo=this.children.length-1
 		let groupsWithXY=colGroups.map((lines,colNo)=>{
-			let {border, margin, spacing}=self.children[rowNo].children[colNo].getStyle()
+			let {border, margin, spacing, background}=self.children[rowNo].children[colNo].getStyle()
 			let y=0
 			let grouped=lines.map(line=>{
 					let a=<Group y={y}>{line}</Group>
 					y+=line.props.height
 					return a
 				})
-			y+=(border.top.sz
-				+border.bottom.sz
+			y+=(spacing*.5
+				+border.top.sz
 				+margin.top
 				+margin.bottom
-				+spacing)
+				+border.bottom.sz
+				+spacing*.5)
 			let cell=(
-				<Group height={y} x={x}>
-					<Group x={spacing} y={spacing/2}>
-						<Group x={border.left ? border.left.sz : 0} y={border.left ? border.left.sz : 0}>
-							{<path strokeWidth={border.top.sz} stroke={border.top.color} d={`M0 0 L${cols[colNo]-spacing*0.5} 0`}/>}
-							{<path strokeWidth={border.bottom.sz} stroke={border.bottom.color} d={`M0 ${y-spacing*0.5} L${cols[colNo]-spacing*0.5} ${y-spacing*0.5}`}/>}
-							{<path strokeWidth={border.right.sz} stroke={border.right.color} d={`M${cols[colNo]-spacing*0.5} 0 L${cols[colNo]-spacing*0.5} ${y-spacing*0.5}`}/>}
-							{<path strokeWidth={border.left.sz} stroke={border.left.color} d={`M0 0 L0 ${y-spacing*0.5}`}/>}
-							<Group x={margin.left} y={margin.top}>
+				<Cell height={y} x={x} width={cols[colNo]} background={background}>
+					<Spacing x={spacing/2} y={spacing/2}>
+						<Border border={border} spacing={spacing}>
+							<Margin x={margin.left} y={margin.top}>
 								{grouped}
-							</Group>
-						</Group>
-					</Group>
-				</Group>	
+							</Margin>
+						</Border>
+					</Spacing>
+				</Cell>	
 			);
 			x+=cols[colNo]
 			height=Math.max(height,y)
 			return cell
 		})
+		
+		
 
-		this.context.parent.appendComposed(<Group width={width} height={height}>{groupsWithXY}</Group>)
+		this.context.parent.appendComposed(<Row width={width} height={height}>{groupsWithXY}</Row>)
 	}
 	
 	static childContextTypes=Object.assign({
-		tableStyle: PropTypes.object
+		tableStyle: PropTypes.object,
+		isFirstRow: PropTypes.func,
+		isLastRow: PropTypes.func
 	}, Container.childContextTypes)
 	
 	getChildContext(){
-
+		let children=this.children
+		let content=this.state.content
 		return Object.assign(super.getChildContext(),{
-			tableStyle: this.props.contentStyle
+			tableStyle: this.props.contentStyle,
+			isFirstRow(){
+				return children.length==0
+			},
+			
+			isLastRow(){
+				return children.length==content.length-1
+			}
 		})
+	}
+}
+
+class Spacing extends Group{}
+class Margin extends Group{}
+
+class Cell extends Group{
+	static contextTypes={
+		cellSize: PropTypes.object
+	}
+	
+	static childContextTypes={
+		cellSize:PropTypes.object
+	}
+	
+	getChildContext(){
+		return {
+			cellSize: {
+				width: this.props.width,
+				height: this.props.height
+			}
+		}
+	}
+	
+	render(){
+		const {width,height, background, children, ...others}=this.props
+		return (
+			<Group {...others}>
+				{background && (<rect width={width} height={height} fill={background}/>)}
+				{children}
+			</Group>
+		)
+	}
+	
+}
+
+class Row extends Group{
+	static childContextTypes={
+		rowSize:PropTypes.object
+	}
+	
+	getChildContext(){
+		return {
+			rowSize: {
+				width: this.props.width,
+				height: this.props.height
+			}
+		}
+	}
+}
+
+class Border extends Component{
+	static contextTypes={
+		rowSize: PropTypes.object,
+		cellSize: PropTypes.object
+	}
+	render(){
+		const {spacing,border:{left,right,bottom,top}, children, ...others}=this.props
+		let {rowSize:{height}, cellSize:{width}}=this.context
+		width-=spacing
+		height-=spacing
+		return (
+			<Group {...others}>	
+				{top.sz && <path strokeWidth={top.sz} stroke={top.color} d={`M0 0 L${width} 0`}/>}
+				{bottom.sz && <path strokeWidth={bottom.sz} stroke={bottom.color} d={`M0 ${height} L${width} ${height}`}/>}
+				{right.sz && <path strokeWidth={right.sz} stroke={right.color} d={`M${width} 0 L${width} ${height}`}/>}
+				{left.sz && <path strokeWidth={left.sz} stroke={left.color} d={`M0 0 L0 ${height}`}/>}			
+				<Group x={left.sz} y={top.sz}>
+					{children}
+				</Group>
+			</Group>
+		)
+		
 	}
 }

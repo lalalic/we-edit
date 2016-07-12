@@ -5,6 +5,11 @@ import Group from "../composed/group"
 
 export default class Row extends Container{
 	static displayName="row"
+	constructor(){
+		super(...arguments)
+		this.props.contentStyle.metadata.basedOn=this.context.tableStyle
+	}
+	
 	nextAvailableSpace(){
 		const {cols}=this.context.parent.props
 		return {width:cols[this.children.length], height:Number.MAX_VALUE}
@@ -26,7 +31,6 @@ export default class Row extends Container{
 	}
 
 	onAllChildrenComposed(){
-		console.warn("one row composed")
 		this.composed.pop()
 		this.context.parent.children.push(this)
 		const {parent}=this.context
@@ -93,16 +97,30 @@ export default class Row extends Container{
 		this.context.parent.children.pop()
 		super.onAllChildrenComposed()
 	}
+	
+	static contextTypes=Object.assign({
+		tableStyle: PropTypes.object
+	}, Container.contextTypes)
 
 	static childContextTypes=Object.assign({
 		conditions: PropTypes.array,
-		rowStyle: PropTypes.object
+		rowStyle: PropTypes.object,
+		isFirstCol: PropTypes.func,
+		isLastCol: PropTypes.func
 	}, Container.childContextTypes)
 
 	getChildContext(){
+		let children=this.children
+		let content=this.state.content
 		return Object.assign(super.getChildContext(),{
 			conditions: this.props.contentStyle.get('cnfStyle')||[],
-			rowStyle: this.props.contentStyle
+			rowStyle: this.props.contentStyle,
+			isFirstCol(){
+				return children.length==0
+			},
+			isLastCol(){
+				return children.length==content.length-1
+			}
 		})
 	}
 }

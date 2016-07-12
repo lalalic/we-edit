@@ -13,7 +13,7 @@ export default class{
 				let target=wordModel.getTarget()
 				if(target!='table'){
 					this.style=doc.contentProps.documentStyles[id]
-					this.style.conditions[target]=doc.createStyle()
+					this.style.conditions[target]=doc.createStyle(target)
 					this.target=target
 					break
 				}else{
