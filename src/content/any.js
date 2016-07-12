@@ -61,9 +61,13 @@ export class HasChild extends Component{
 	 */
     on1ChildComposed(child){
         this.children.push(child)
-		if(this.state.content.length==this.children.length){
+		if(this.isAllChildrenComposed()){
 			this.onAllChildrenComposed()
 		}
+    }
+
+    isAllChildrenComposed(){
+        return this.state.content.length==this.children.length
     }
 
 	onAllChildrenComposed(){
@@ -132,7 +136,7 @@ export function isToggleStyle(stylePath){
 	let [inline,key]=stylePath.split('.')
 	if(inline!='inline')
 		return false
-	return TOGGLES.indexOf(key)!=-1    
+	return TOGGLES.indexOf(key)!=-1
 }
 
 export function styleInheritable(Content){
@@ -167,8 +171,17 @@ export function styleInheritable(Content){
 		}
 
 		static contextTypes=Object.assign({
-				createStyle: PropTypes.func,
-                containerStyle: PropTypes.object
-			},Content.contextTypes)
+			createStyle: PropTypes.func,
+            containerStyle: PropTypes.object
+		},Content.contextTypes)
+
+        style(key){
+            const {contentStyle}=this.props
+            const {containerStyle}=this.context
+            let value=contentStyle.get(key)
+            if(value==undefined)
+                value=containerStyle.get(key)
+            return value
+        }
 	}
 }

@@ -5,7 +5,7 @@ import Line from "../composed/line"
 
 import Inline from "./inline"
 import Text from "./text"
- 
+
 let Super=styleInheritable(Any)
 export default class Paragraph extends Super{
 	static displayName="paragraph"
@@ -22,8 +22,16 @@ export default class Paragraph extends Super{
 	}
 
 	_newLine(){
-		return {
-            width: this.availableSpace.width,
+        const {indent:{left=0,right=0,firstLine=0,hanging=0}}=this.getStyle()
+        let {width}=this.availableSpace
+        width-=(left+right)
+        if(this.composed.length==0)
+            width-=firstLine
+        else
+            width-=hanging
+
+        return {
+            width,
 			height:0,
             children:[]
         }
@@ -43,7 +51,7 @@ export default class Paragraph extends Super{
         let availableWidth=currentLine.children.reduce((prev,a)=>prev-a.props.width,width)
         if(availableWidth<=minRequiredW){
 			if(this.availableSpace.height>minRequiredH){
-				return this.availableSpace
+				return {width, height:this.availableSpace.height}
 			}else{
 				return this.availableSpace=this.context.parent.nextAvailableSpace(required)
 			}
@@ -77,12 +85,12 @@ export default class Paragraph extends Super{
             currentLine.children.push(piece)
 			currentLine.height=Math.max(currentLine.height,contentHeight)
 			if(availableWidth==contentWidth){
-				parent.appendComposed(<Line {...currentLine}/>)
+				parent.appendComposed(this.createLine(currentLine))
 				this.availableSpace.height-=currentLine.height
 			}
 		}else if(availableWidth<contentWidth){
 			if(this.availableSpace.height>=currentLine.height){
-				parent.appendComposed(<Line {...currentLine}/>)
+				parent.appendComposed(this.createLine(currentLine))
 				composed.push(this._newLine())
 
 				if(contentWidth<=this.availableSpace.width)
@@ -103,7 +111,7 @@ export default class Paragraph extends Super{
 		let currentLine=composed[composed.length-1]
 		let availableWidth=currentLine.children.reduce((prev,a)=>prev-a.props.width,currentLine.width)
 		if(availableWidth>0){
-			parent.appendComposed(<Line {...currentLine}/>)
+			parent.appendComposed(this.createLine(currentLine))
 		}else if(availableWidth==0){
 			//already appended to parent in appendComposed
 		}
@@ -112,6 +120,40 @@ export default class Paragraph extends Super{
 
 		super.onAllChildrenComposed()
 	}
+
+    createLine(props){
+        let {height, width}=props
+        let {spacing:{lineHeight="100%",top=0, bottom=0}, indent:{}}=this.getStyle()
+        let contentY=0
+
+        lineHeight=typeof(lineHeight)=='string' ? Math.ceil(height*parseInt(lineHeight)/100.0): lineHeight
+
+        if(this.composed.length==0){
+            lineHeight+=top
+            contentY+=top
+        }
+
+        if(this.isAllChildrenComposed())
+            lineHeight+=bottom
+
+        return (
+            <Group height={lineHeight} width={width}>
+                <Group y={contentY}>
+                    <Line {...props}/>
+                </Group>
+            </Group>
+        )
+    }
+
+    getStyle(){
+        if(this._style)
+            return this._style
+        let spacing=this.style('paragraph.spacing')||{}
+        let indent=this.style('paragraph.ind')||{}
+        return this._style={spacing,indent}
+    }
+
+
 
 	static contextTypes=Object.assign({
 		getDefaultStyle: PropTypes.func
