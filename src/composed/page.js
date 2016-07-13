@@ -6,8 +6,8 @@ export default class Page extends Component{
     render(){
         const {size:{width, height}, margin:{left,top}, columns, header, footer}=this.props
         return (
-            <Group>
-                <rect width={width} height={height} fill="white"/>
+            <Group className="page">
+                <Paper width={width} height={height} fill="white"/>
                 {header}
 				<Group x={left} y={top}>
 					{columns.map((a,i)=><Column key={i} {...a}/>)}
@@ -26,6 +26,10 @@ export default class Page extends Component{
     }
 }
 
-class Column extends Group{
-    
+class Column extends Group{}
+
+class Paper extends Component{
+	render(){
+		return <rect {...this.props}/>
+	}
 }

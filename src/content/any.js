@@ -19,7 +19,7 @@ export class HasChild extends Component{
 	render(){
 		const {children, ...others}=this.props
 		const {content}=this.state
-        return <Group {...this.props}>{content}</Group>
+        return <div>{content}</div>
     }
 
     /**
@@ -72,6 +72,10 @@ export class HasChild extends Component{
 
 	onAllChildrenComposed(){
 
+	}
+	
+	createComposed2Parent(props){
+		
 	}
 }
 

@@ -3,20 +3,19 @@ import ReactDOM from "react-dom"
 
 export default class Cursor extends Component{
 	static displayName="cursor"
-	state={target:null, shape: null}
+	state={target:null, textpiece: null}
 	
     render(){
 		return null
     }
 	
-	componentDidUpdate(prevProps, prevState){
-		const {target, shape}=this.state
-		const {target:prevTarget, shape:prevShape}=prevState
-		if(target!=prevTarget && prevTarget)
-			prevTarget.blur()
+	shouldComponentUpdate(nextProps, nextState){
+		const {textpiece}=this.state
+		const {textpiece:nextTextpiece}=nextState
+		if(textpiece!=nextTextpiece && textpiece)
+			this.state.target.blur(textpiece)
 		
-		if(shape!=prevShape && prevShape)
-			prevShape.setState({show:false})
+		return false
 	}
 	
 	replaceFocusedContent(content){
@@ -25,12 +24,7 @@ export default class Cursor extends Component{
 }
 
 export class Shape extends Component{
-	state={show:true}
 	render(){
-		const {show}=this.state
-		if(!show)
-			return null
-		
 		const {width, height, style}=this.props
 		return <line 
 					x1={width} 
@@ -54,6 +48,4 @@ export class Shape extends Component{
 	componentWillUnmount(){
 		this.timer && clearInterval(this.timer)
 	}
-	
-	
 }

@@ -2,6 +2,8 @@ import React, {Component, PropTypes} from "react"
 import {NoChild, isToggleStyle} from "./any"
 import HtmlWordWrapper from "../wordwrap/html"
 
+import Group from "../composed/group"
+
 export default class Text extends NoChild{
 	static displayName="text"
 
@@ -25,9 +27,8 @@ export default class Text extends NoChild{
         let text=null
         while(text=composer.next(parent.nextAvailableSpace())){
 			Object.assign(text,defaultStyle)
-			let content=this.createComposedPiece(text)
-            composed.push(content)
-            parent.appendComposed(content)
+            composed.push(text)
+            parent.appendComposed(this.createComposed2Parent(text))
         }
 		parent.on1ChildComposed(this)
     }
@@ -47,8 +48,8 @@ export default class Text extends NoChild{
         },{})
 	}
 
-	createComposedPiece(props){
-		const {color}=this.getFontStyle()
+	createComposed2Parent(props){
+		const {color}=this.getStyle()
 		if(color)
 			props.fill=color
 		props.style={whiteSpace:'pre'}

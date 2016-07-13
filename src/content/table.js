@@ -51,7 +51,11 @@ export default class Table extends Container{
 		
 		
 
-		this.context.parent.appendComposed(<Row width={width} height={height}>{groupsWithXY}</Row>)
+		this.context.parent.appendComposed(this.createComposed2Parent({width,height,children:groupsWithXY}))
+	}
+	
+	createComposed2Parent(props){
+		return <Row {...props}/>
 	}
 	
 	static childContextTypes=Object.assign({

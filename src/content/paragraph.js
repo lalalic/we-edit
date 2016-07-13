@@ -22,22 +22,25 @@ export default class Paragraph extends Super{
 	}
 
 	_newLine(){
-        const {indent:{left=0,right=0,firstLine=0,hanging=0}}=this.getStyle()
+        return {
+            width: this.lineWidth(),
+			height:0,
+            children:[]
+        }
+	}
+	
+	lineWidth(){
+		const {indent:{left=0,right=0,firstLine=0,hanging=0}}=this.getStyle()
         let {width}=this.availableSpace
         width-=(left+right)
         if(this.composed.length==0)
             width-=firstLine
         else
             width-=hanging
-
-        return {
-            width,
-			height:0,
-            children:[]
-        }
+		return width
 	}
 
-    nextAvailableSpace(required={}){
+    nextAvailableSpace(required={}){//@TODO: need consider availableSpace.height
         const {width:minRequiredW=0,height:minRequiredH=0}=required
         const {composed}=this
 		if(0==composed.length){
@@ -50,16 +53,15 @@ export default class Paragraph extends Super{
         let {width}=currentLine
         let availableWidth=currentLine.children.reduce((prev,a)=>prev-a.props.width,width)
         if(availableWidth<=minRequiredW){
-			if(this.availableSpace.height>minRequiredH){
-				return {width, height:this.availableSpace.height}
-			}else{
-				return this.availableSpace=this.context.parent.nextAvailableSpace(required)
-			}
+			if(this.availableSpace.height<minRequiredH)
+				this.availableSpace=this.context.parent.nextAvailableSpace(required)
+				
+			availableWidth=this.lineWidth()
         }
         return {width:availableWidth, height:this.availableSpace.height}
     }
 
-    appendComposed(content){//@TODO: need consider availableSpace
+    appendComposed(content){//@TODO: need consider availableSpace.height
         const {composed}=this
         const {parent}=this.context
 
@@ -85,12 +87,11 @@ export default class Paragraph extends Super{
             currentLine.children.push(piece)
 			currentLine.height=Math.max(currentLine.height,contentHeight)
 			if(availableWidth==contentWidth){
-				parent.appendComposed(this.createLine(currentLine))
-				this.availableSpace.height-=currentLine.height
+				parent.appendComposed(this.createComposed2Parent(currentLine))
 			}
 		}else if(availableWidth<contentWidth){
 			if(this.availableSpace.height>=currentLine.height){
-				parent.appendComposed(this.createLine(currentLine))
+				parent.appendComposed(this.createComposed2Parent(currentLine))
 				composed.push(this._newLine())
 
 				if(contentWidth<=this.availableSpace.width)
@@ -111,7 +112,7 @@ export default class Paragraph extends Super{
 		let currentLine=composed[composed.length-1]
 		let availableWidth=currentLine.children.reduce((prev,a)=>prev-a.props.width,currentLine.width)
 		if(availableWidth>0){
-			parent.appendComposed(this.createLine(currentLine))
+			parent.appendComposed(this.createComposed2Parent(currentLine))
 		}else if(availableWidth==0){
 			//already appended to parent in appendComposed
 		}
@@ -121,24 +122,30 @@ export default class Paragraph extends Super{
 		super.onAllChildrenComposed()
 	}
 
-    createLine(props){
+    createComposed2Parent(props){
         let {height, width}=props
-        let {spacing:{lineHeight="100%",top=0, bottom=0}, indent:{}}=this.getStyle()
-        let contentY=0
+        let {spacing:{lineHeight="100%",top=0, bottom=0}, indent:{left=0,right=0,firstLine=0,hanging=0}}=this.getStyle()
+        let contentY=0, contentX=left
 
         lineHeight=typeof(lineHeight)=='string' ? Math.ceil(height*parseInt(lineHeight)/100.0): lineHeight
 
-        if(this.composed.length==0){
+        if(this.composed.length==1){//first line
             lineHeight+=top
             contentY+=top
-        }
+			contentX+=firstLine
+        }else{
+			contentX+=hanging
+		}
 
-        if(this.isAllChildrenComposed())
+        if(this.isAllChildrenComposed()){//last line
             lineHeight+=bottom
-
+		}
+		
+		this.availableSpace.height-=lineHeight
+		
         return (
             <Group height={lineHeight} width={width}>
-                <Group y={contentY}>
+                <Group x={contentX} y={contentY}>
                     <Line {...props}/>
                 </Group>
             </Group>
@@ -152,8 +159,6 @@ export default class Paragraph extends Super{
         let indent=this.style('paragraph.ind')||{}
         return this._style={spacing,indent}
     }
-
-
 
 	static contextTypes=Object.assign({
 		getDefaultStyle: PropTypes.func

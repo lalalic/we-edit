@@ -25,6 +25,10 @@ export default function editable(Content){
 	return class extends Content{
 
 		_id=uuid++
+		
+		appendLastComposed(){
+			
+		}
 
         reCompose(){
     		this._reComposeFrom(this)//#2 solution
@@ -41,13 +45,22 @@ export default function editable(Content){
             this.context.parent._reComposeFrom(this)
     	}
 
-		_clearComposed4reCompose(){
+		_clearComposed4reCompose(fullclear){
 			let lastComposed=this.composed.splice(0)
-			if(!this._isLastComposedFitIntoParent(lastComposed)){
+			
+			let clearAll=a=>{
 				if(this.children.length){
-					this.children.forEach(a=>a._clearComposed4reCompose())
+					this.children.forEach(a=>a._clearComposed4reCompose(true))
 					this.children.splice(0)
 				}
+				this.lastComposed=null
+			}
+			if(fullclear){
+				clearAll()
+			}else if(!this._isLastComposedFitIntoParent(lastComposed)){
+				clearAll()
+			}else {
+				this.lastComposed=lastComposed
 			}
 		}
 
@@ -62,8 +75,12 @@ export default function editable(Content){
          */
         shouldComponentUpdate(nextProps, nextState, nextContext){
             console.info(`shouldComponentUpdate on ${this.displayName}, with ${this.composed.length==0}`)
-            if(this.composed.length==0)
-                this.compose()
+            if(this.composed.length==0){
+				if(this.lastComposed){
+					this.appendLastComposed()
+				}else
+					this.compose()
+			}
             return true
         }
 

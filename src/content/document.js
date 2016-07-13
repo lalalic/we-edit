@@ -10,18 +10,22 @@ export default class Document extends HasChild{
 		const {composed, state:{content}, props:{width, height}}=this
 		const {documentStyles, pageGap, ...others}=this.props
         return (
-			<svg {...others}
-				ref="svg"
-				width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
-				{super.render()}
-				<Composed ref="composed" gap={pageGap} canvas={{width}} sections={()=>
-					this.children.reduce((collected, section)=>{
-						collected.push(section.composed)
-						return collected
-					},[])}
-					/>
-				{this.more()}
-			</svg>
+			<div>
+				<div id="content">
+					{super.render()}
+				</div>
+				<svg id="composed" {...others}
+					ref="svg"
+					width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
+					<Composed ref="composed" gap={pageGap} canvas={{width}} sections={()=>
+						this.children.reduce((collected, section)=>{
+							collected.push(section.composed)
+							return collected
+						},[])}
+						/>
+					{this.more()}
+				</svg>
+			</div>
 		)
     }
 
@@ -52,7 +56,7 @@ export default class Document extends HasChild{
 		let {height:contentHeight, pages}=composed.info
 
 		height=	Math.max(contentHeight, height)
-		svg.setAttribute('height',height)
+		svg.setAttribute('height',height+pageGap)
 		svg.setAttribute('viewBox',`0 0 ${width} ${height}`)
 	}
 

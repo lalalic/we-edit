@@ -7,28 +7,41 @@ import {Shape as CursorShape} from "./cursor"
 
 let Super=editable(Text)
 export default class extends Super{
-    createComposedPiece(props){
-		const {width, height, end, children, ...others}=props
-		const {loc}=this.state
-        let style=this.getStyle()
-
-		let cursor=null
-		if(typeof(loc)!='undefined'){
-			if(end-children.length<loc && loc<=end){
-				let locText=this.state.content.substring(end-children.length, loc)
-				let composer=new this.constructor.WordWrapper(locText, style)
-				let size=composer.next({width:Number.MAX_SAFE_INTEGER})
-				cursor=<CursorShape key="cursorshape" ref={a=>this.updateCursor(a)} {...size} style={style}/>
-			}
-		}
-
+	_refs=new Map()
+	
+    createComposed2Parent(props){
+		let composed=super.createComposed2Parent(...arguments)
+		let {width, height, children:text}=composed.props
+		text=React.cloneElement(text,{onClick:e=>this.onClick(e,props)})
+		
         return (
-			<Group width={width} height={height}>
-				{cursor}
-				<text {...others} onClick={e=>this.onClick(e,props)}>{children}</text>
-			</Group>
+			<CursorableText 
+				ref={a=>this._refs.set(props,a)}
+				width={width} height={height} 
+				createCursor={a=>this.createCursorElement(props)}>
+				{text}
+			</CursorableText>
 		)
     }
+	
+	createCursorElement(props){
+		const {end, children: textpiece}=props
+		const {cursorAt, content}=this.state
+        let style=this.getStyle()
+
+		if(cursorAt==undefined)
+			return null
+		
+		if(end-textpiece.length<cursorAt && cursorAt<=end){
+			let locText=content.substring(end-textpiece.length, cursorAt)
+			let composer=new this.constructor.WordWrapper(locText, style)
+			let size=composer.next({width:Number.MAX_SAFE_INTEGER})
+			size.height=composer.height
+			return <CursorShape {...size} style={style}/>
+		}
+		
+		return null
+	}
 
     onClick(event, text){
 		const {nativeEvent:{offsetX, offsetY}, target}=event
@@ -36,23 +49,49 @@ export default class extends Super{
         let composer=new this.constructor.WordWrapper(text.children, style)
         let loc=composer.next({width:offsetX})||{end:0}
         let index=text.end-text.children.length+loc.end
-		this.setState({loc:index})
+		this.setState({cursorAt:index}, a=>{
+			let cursor=this.context.cursor()
+			cursor.setState({target:this, textpiece:text}, a=>{
+				let ref=this._refs.get(text)
+				if(ref)
+					ref.setState({composedAt:new Date().toString()})
+			})
+		})
     }
 
-	updateCursor(ref){
-		this.context.cursor().setState({target:this, shape:ref})
-	}
-
 	insert(str){
-		const {content, loc}=this.state
-		this.setState({content:content.splice(loc,0,str), loc:loc+str.length},e=>this.reCompose())
+		const {content, cursorAt}=this.state
+		this.setState({
+			content:content.splice(cursorAt,0,str), 
+			cursorAt:cursorAt+str.length},e=>{
+				this.reCompose()
+			})
 	}
 
-	blur(){
-		this.setState({loc:undefined})
+	blur(text){
+		console.log(`blured ${JSON.stringify(text)}`)
+		this.setState({cursorAt:undefined}, a=>{
+			let ref=this._refs.get(text)
+			if(ref)
+				ref.setState({composedAt: new Date().toString()})
+		})
 	}
 
 	static contextTypes=Object.assign({
 		cursor: PropTypes.func
 	},Super.contextTypes)
+}
+
+class CursorableText extends Group{
+	render(){
+		const {width, height, children, createCursor}=this.props
+		
+		let cursor=createCursor()
+		return (
+			<Group width={width} height={height}>
+				{createCursor()}
+				{children}
+			</Group>
+		)
+	}
 }
