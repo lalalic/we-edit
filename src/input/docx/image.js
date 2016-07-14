@@ -2,10 +2,7 @@ import Model from "./any"
 
 export default class extends Model{
     visit(){
-        let blob=this.wordModel.getImage();
-        this.contentProps.src=URL.createObjectURL(new Blob(blob),{type:"image/*"})
-        this.contentProps.width=200
-        this.contentProps.height=200
+        this.contentProps.src=`data:image/jpg;base64,${new Buffer(this.wordModel.getImage()).toString('base64')}`
 		super.visit()
     }
 }
