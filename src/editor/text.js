@@ -1,4 +1,6 @@
 import React,{PropTypes} from "react"
+import ReactDOM from "react-dom"
+
 import {Text} from "../content"
 import editable from "./editable"
 
@@ -12,26 +14,19 @@ export default class extends Super{
 		let {width, height, children:text}=composed.props
 		text=React.cloneElement(text,{onClick:e=>this.onClick(e,props)})
 
-		let cursor=this.context.cursor()||{state:{}}
-		let {target,at: cursorAt}=cursor.state
-		if(target!=this){
-			return (
-				<Group height={height} width={width}>
-				{text}
-				</Group>
-			)
-		}
-
 		let ps={width,height}
 		const {end, children: textpiece}=props
 
-		if(end-textpiece.length<cursorAt && cursorAt<=end){
+		let cursor=this.context.cursor()||{state:{}}
+		let {target,at: cursorAt}=cursor.state
+		
+		if(target==this && end-textpiece.length<cursorAt && cursorAt<=end){
 			ps.ref=a=>{
 				let node=ReactDOM.findDOMNode(a)
 				let text=textpiece.substr(0,cursorAt-(end-textpiece.length))
+				let style=this.getStyle()
 				let composer=new this.constructor.WordWrapper(text, style)
 				let {contentWidth, fontFamily}=composer.next({width})||{end:0}
-				let style=this.getStyle()
 				cursor.setState({
 					target:this,
 					at:cursorAt,
@@ -40,12 +35,16 @@ export default class extends Super{
 					height:composer.height, style})
 			}
 	        return (
-				<Group {...ps}>
+				<CursorFocusedGroup {...ps}>
 					{text}
-				</Group>
+				</CursorFocusedGroup>
 			)
 		}else {
-			return composed
+			return (
+				<Group height={height} width={width}>
+				{text}
+				</Group>
+			)
 		}
     }
 
@@ -59,7 +58,7 @@ export default class extends Super{
 		cursor.setState({
 			target:this,
 			at: index,
-			node:event.target.parentNode,
+			node:target.parentNode,
 			width:Math.ceil(contentWidth),
 			height:composer.height,
 			style })
@@ -67,10 +66,29 @@ export default class extends Super{
 
 	splice(start, length, str){
 		const {content}=this.state
-		this.setState({content:content.splice(start,length,str)},e=>this.reCompose())
+		this.setState({content:content.splice(start,length,str)},e=>{
+			this.reCompose()	
+		})
 	}
 
 	static contextTypes=Object.assign({
 		cursor: PropTypes.func
 	},Super.contextTypes)
+}
+
+class CursorFocusedGroup extends Group{
+	render(){
+		const {onUpdate, ...others}=this.props
+		return (<Group {...others}/>)
+	}
+	componentWillUnmount(){
+		console.info("a cursor will be unmounted")
+	}
+	componentDidMount(){
+		//this.props.onUpdate(this)
+	}
+	
+	componentDidUpdate(){
+		//this.props.onUpdate(this)
+	}
 }

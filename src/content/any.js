@@ -60,7 +60,7 @@ export class HasChild extends Component{
 	 *  	true: parent's all children composed
 	 */
     on1ChildComposed(child){
-        this.children.push(child)
+		this.children.push(child)
 		if(this.isAllChildrenComposed()){
 			this.onAllChildrenComposed()
 		}

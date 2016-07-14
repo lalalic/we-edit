@@ -15,12 +15,9 @@ export default class Row extends Container{
 		return {width:cols[this.children.length], height:Number.MAX_VALUE}
 	}
 
-	compose(){
-		super.compose()
-		this.composed.push([])
-	}
-
 	appendComposed(line){
+		if(this.composed.length==0)
+			this.composed.push([])
 		const currentCell=this.composed[this.composed.length-1]
 		currentCell.push(line)
 	}
@@ -31,8 +28,8 @@ export default class Row extends Container{
 	}
 
 	onAllChildrenComposed(){
-		this.composed.pop()
-		this.context.parent.children.push(this)
+		this.composed.splice(this.children.length)//on1ChildComposed will always add 1
+		
 		const {parent}=this.context
 		let indexes=new Array(this.composed.length)
 		indexes.fill(0)
@@ -45,7 +42,8 @@ export default class Row extends Container{
 			let availableSpace=parent.nextAvailableSpace(minSpace)
 			let currentGroupedLines=new Array(this.composed.length)
 			this.composed.forEach((lines,i)=>{
-				let {border, margin,spacing}=this.children[i].getStyle()
+				let style=this.children[i].getStyle()
+				let {border, margin,spacing}=style
 
 				let height=availableSpace.height
 					-border.top.sz
@@ -68,6 +66,7 @@ export default class Row extends Container{
 				indexes[i]=index
 
 				currentGroupedLines[i]=lines.slice(start,index)
+				currentGroupedLines[i].style=style
 			})
 
 			if(!currentGroupedLines.find(a=>a.length>0)){
@@ -94,7 +93,6 @@ export default class Row extends Container{
 
 		}while(!isAllSent2Table());
 
-		this.context.parent.children.pop()
 		super.onAllChildrenComposed()
 	}
 	
@@ -122,5 +120,12 @@ export default class Row extends Container{
 				return children.length==content.length-1
 			}
 		})
+	}
+}
+
+class CellLinesWithCellStyle extends Array{
+	constructor(style,...others){
+		super(others)
+		this.style=style
 	}
 }

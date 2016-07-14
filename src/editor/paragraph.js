@@ -26,11 +26,21 @@ export default class extends editable(Paragraph){
 		return true	
 	}
 	
+	/**
+	 *  isAllChildrenComposed will affect last line height, so here we need make it right
+	 */
 	appendLastComposed(){
-		this.lastComposed.forEach(one=>{
+		let children=this.children
+		this.children=[]//make isAllChildrenComposed right
+		let len=this.lastComposed.length
+		this.lastComposed.forEach((one,i)=>{
 			this.composed.push(one)
+			if(i==len-1){//make isAllChildrenComposed right
+				this.children=children
+			}
 			this.context.parent.appendComposed(this.createComposed2Parent(one))
 		})
+		this.context.parent.on1ChildComposed(this)
 		this.lastComposed=null
 	}
 }

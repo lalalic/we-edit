@@ -19,10 +19,10 @@ export default class Table extends Container{
 		let height=0, self=this
 		
 		let x=0, rowNo=this.children.length-1
-		let groupsWithXY=colGroups.map((lines,colNo)=>{
-			let {border, margin, spacing, background}=self.children[rowNo].children[colNo].getStyle()
+		let groupsWithXY=colGroups.map((linesWithStyle,colNo)=>{
+			let {border, margin, spacing, background}=linesWithStyle.style
 			let y=0
-			let grouped=lines.map(line=>{
+			let grouped=linesWithStyle.map(line=>{
 					let a=<Group y={y}>{line}</Group>
 					y+=line.props.height
 					return a
@@ -49,8 +49,6 @@ export default class Table extends Container{
 			return cell
 		})
 		
-		
-
 		this.context.parent.appendComposed(this.createComposed2Parent({width,height,children:groupsWithXY}))
 	}
 	

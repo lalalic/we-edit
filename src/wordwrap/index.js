@@ -38,7 +38,7 @@ export default class WordWrapper{
 			}
 
             if(width==maxWidth){
-                info={width, end:this.composed+=text.length, children:text}
+                info={width, contentWidth: width, end:this.composed+=text.length, children:text}
             }else if(width<maxWidth){
                 let index=this.composed+text.length, len=this.text.length
                 while(width<maxWidth && index<len)
@@ -56,7 +56,6 @@ export default class WordWrapper{
         }
 
 		info.width=Math.ceil(info.width)
-        console.info(`text composer total time: ${_textComposerTime+=(Date.now()-startAt)}`)
         return Object.assign(info,{fontFamily:this.fontFamily})
     }
 }

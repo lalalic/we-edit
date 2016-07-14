@@ -74,7 +74,7 @@ export default function editable(Content){
          * only no composed should be re-compose
          */
         shouldComponentUpdate(nextProps, nextState, nextContext){
-            console.info(`shouldComponentUpdate on ${this.displayName}, with ${this.composed.length==0}`)
+            //console.info(`shouldComponentUpdate on ${this.displayName}, with ${this.composed.length==0}`)
             if(this.composed.length==0){
 				if(this.lastComposed){
 					this.appendLastComposed()

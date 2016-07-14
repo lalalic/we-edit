@@ -55,8 +55,8 @@ export default class Document extends HasChild{
 		const {svg, composed}=this.refs
 		let {height:contentHeight, pages}=composed.info
 
-		height=	Math.max(contentHeight, height)
-		svg.setAttribute('height',height+pageGap)
+		height=	Math.max(contentHeight, height)+1*pageGap
+		svg.setAttribute('height',height)
 		svg.setAttribute('viewBox',`0 0 ${width} ${height}`)
 	}
 

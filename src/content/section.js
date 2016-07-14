@@ -100,9 +100,16 @@ export default class Section extends Any{
             children=currentColumn.children
         }
 
-		children.push(<Group y={height-availableHeight} height={contentHeight} index={this.children.length}>{line}</Group>)
+		children.push(this.createComposed2Parent({children:line, height:contentHeight, y: height-availableHeight}))
         //@TODO: what if contentHeight still > availableHeight
     }
+	
+	/**
+	 *  section needn't append to document, but give chance for extension
+	 */
+	createComposed2Parent(props){
+		return <Group {...props}/>
+	}
 
     onAllChildrenComposed(){
         //don't check, and document will check against last page

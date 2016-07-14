@@ -33,4 +33,10 @@ export default class extends Super{
 			return false
 		})
 	}
+	
+	on1ChildComposed(child){
+		if(!this.children.includes(child))
+			super.on1ChildComposed(child)
+	}
+	
 }

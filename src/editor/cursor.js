@@ -16,6 +16,7 @@ export default class Cursor extends Component{
 		const {target, node, at}=this.state
 		if(target && node){
 			node.appendChild(ReactDOM.findDOMNode(this.refs.shape))
+			node.setAttribute('class', 'cursor')
 		}
 	}
 
@@ -41,7 +42,7 @@ export class Shape extends Component{
 
 	componentDidMount(){
 		let node=ReactDOM.findDOMNode(this)
-		let x=-1000, next=node.getAttribute('y2')
+		let x=-1000, next=0
 		this.timer=setInterval(a=>{
 			node.setAttribute('y1',next)
 			next=next ? 0: node.getAttribute('y2')
