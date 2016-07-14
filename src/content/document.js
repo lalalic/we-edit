@@ -69,8 +69,8 @@ export default class Document extends HasChild{
 	}
 
 	static defaultProps={
-		width: window.innerWidth,
-		height: window.innerHeight,
+		width: typeof(window)=='undefined' ? 10000 : window.innerWidth,
+		height: typeof(window)=='undefined' ? 10000 : window.innerHeight,
 		pageGap: 20,
 		style: {
 			background:"lightgray"

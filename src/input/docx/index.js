@@ -18,9 +18,6 @@ export default class Docx extends Base{
 				else
 					return doc=new Document(wordModel)
 			}))
-		}).then(doc=>{
-			console.warn(doc.toTag())
-			return doc
 		})
 	}
 }

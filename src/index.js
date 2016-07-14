@@ -27,7 +27,7 @@ export function edit(input,container){
 
 export function compose(input){
 	return Input.load(input)
-		.then(doc=>ReactDOMServer.renderToStaticMarkup(doc.createReactElement(Content)))
+		.then(doc=>ReactDOMServer.renderToStaticMarkup(element))
 }
 
 export function preview(input,container){
@@ -35,6 +35,8 @@ export function preview(input,container){
 	return Input.load(input)
 		.then(doc=>ReactDOM.render(doc.createReactElement(Content), container))
 }
+
+
 
 /*
 export function test(){
