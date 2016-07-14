@@ -2,7 +2,7 @@ import React, {Component, PropTypes} from "react"
 import Group from "../composed/group"
 
 export class HasChild extends Component{
-    state={content:React.Children.toArray(this.props.children), style:this.props.style}
+    state={}
 	children=[]
     composed=[]
 
@@ -17,9 +17,7 @@ export class HasChild extends Component{
     }
 
 	render(){
-		const {children, ...others}=this.props
-		const {content}=this.state
-        return <div>{content}</div>
+        return <div>{this.getContent()}</div>
     }
 
     /**
@@ -34,9 +32,21 @@ export class HasChild extends Component{
      * and then append to itself.composed[] and parent.appendComposed
      */
 	compose(){
-		if(this.state.content.length==0)
+		if(this.isEmpty())
 			this.context.parent.on1ChildComposed(this)
     }
+	
+	getContentCount(){
+		return React.Children.count(this.props.children)
+	}
+	
+	getContent(){
+		return this.props.children
+	}
+	
+	isEmpty(){
+		return this.getContentCount()==0
+	}
 
     /**
      * children should call after a line composed out
@@ -67,7 +77,7 @@ export class HasChild extends Component{
     }
 
     isAllChildrenComposed(){
-        return this.state.content.length==this.children.length
+        return this.getContentCount()==this.children.length
     }
 
 	onAllChildrenComposed(){
@@ -109,7 +119,6 @@ export default class HasParentAndChild extends HasChild{
 export class NoChild extends HasParentAndChild{
     constructor(){
 		super(...arguments)
-		Object.assign(this.state,{content:this.props.children})
         Object.freeze(this.children)//no children
 	}
 

@@ -9,6 +9,15 @@ import {Shape as CursorShape} from "./cursor"
 
 let Super=editable(Text)
 export default class extends Super{
+	constructor(){
+		super(...arguments)
+		this.state=Object.assign(super.state||{},{content:this.props.children})
+	}
+	
+	getContentCount(){
+		return 1
+	}
+	
 	createComposed2Parent(props){
 		let composed=super.createComposed2Parent(...arguments)
 		let {width, height, children:text}=composed.props
@@ -49,7 +58,7 @@ export default class extends Super{
     }
 
     onClick(event, text){
-		const {nativeEvent:{offsetX, offsetY}, target}=event
+		const {nativeEvent:{offsetX=0, offsetY=0}, target}=event
         let style=this.getStyle()
         let composer=new this.constructor.WordWrapper(text.children, style)
         let {contentWidth,end}=composer.next({width:offsetX})||{end:0,contentWidth:0}

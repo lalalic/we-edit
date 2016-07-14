@@ -20,10 +20,16 @@ export default class Cursor extends Component{
 		}
 	}
 
-	replaceFocusedContent(content){
+	insert(content){
 		const {target, at}=this.state
 		this.setState({node:null, at:at+content.length})
 		target.splice(at,0,content)
+	}
+	
+	backspace(){
+		const {target, at}=this.state
+		this.setState({node:null, at:at-1})
+		target.splice(at-1,1)
 	}
 }
 

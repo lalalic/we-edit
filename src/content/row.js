@@ -109,7 +109,7 @@ export default class Row extends Container{
 
 	getChildContext(){
 		let children=this.children
-		let content=this.state.content
+		let contentLength=this.getContentCount()
 		return Object.assign(super.getChildContext(),{
 			conditions: this.props.contentStyle.get('cnfStyle')||[],
 			rowStyle: this.props.contentStyle,
@@ -117,7 +117,7 @@ export default class Row extends Container{
 				return children.length==0
 			},
 			isLastCol(){
-				return children.length==content.length-1
+				return children.length==contentLength-1
 			}
 		})
 	}

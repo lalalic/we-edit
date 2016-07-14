@@ -1,4 +1,5 @@
 import React, {PropTypes} from "react"
+import ReactDOM from "react-dom"
 
 import {Document} from "../content"
 import editable from "./editable"
@@ -26,17 +27,36 @@ export default class extends Super{
 
 	componentDidMount(){
 		super.componentDidMount()
-		document.addEventListener("keypress",e=>{
-			this.refs.cursor.replaceFocusedContent(e.key)
-			if(e.key==" ")
+		
+		this.inputReady()
+		
+		this.focusCursor()
+	}
+	
+	inputReady(){
+		document.addEventListener("keydown",e=>{
+			switch(e.keyCode){
+			case 8:
 				e.preventDefault()
-			return false
+				this.refs.cursor.backspace()
+			break
+			case 32:
+				e.preventDefault()
+			default:
+				this.refs.cursor.insert(e.key)
+			}
 		})
+	}
+	
+	focusCursor(){
+		let firstText=ReactDOM.findDOMNode(this).querySelector('svg text')
+		let event = document.createEvent("SVGEvents")
+		event.initEvent("click",true,true)
+		firstText.dispatchEvent(event)
 	}
 	
 	on1ChildComposed(child){
 		if(!this.children.includes(child))
 			super.on1ChildComposed(child)
 	}
-	
 }

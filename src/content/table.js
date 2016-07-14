@@ -64,7 +64,7 @@ export default class Table extends Container{
 	
 	getChildContext(){
 		let children=this.children
-		let content=this.state.content
+		let contentLength=this.getContentCount()
 		return Object.assign(super.getChildContext(),{
 			tableStyle: this.props.contentStyle,
 			isFirstRow(){
@@ -72,7 +72,7 @@ export default class Table extends Container{
 			},
 			
 			isLastRow(){
-				return children.length==content.length-1
+				return children.length==contentLength-1
 			}
 		})
 	}

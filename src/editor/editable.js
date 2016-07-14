@@ -1,3 +1,4 @@
+import React from "react"
 var uuid=0
 /**
  *  it's a very complicated job, so we need a very simple design, one sentence described solution. options:
@@ -23,8 +24,16 @@ var uuid=0
  */
 export default function editable(Content){
 	return class extends Content{
-
 		_id=uuid++
+		state={content:React.Children.toArray(this.props.children)}
+		
+		getContentCount(){
+			return this.state.content.length
+		}
+		
+		getContent(){
+			return this.state.content
+		}
 		
 		appendLastComposed(){
 			

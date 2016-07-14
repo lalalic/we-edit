@@ -9,17 +9,6 @@ import Text from "./text"
 let Super=styleInheritable(Any)
 export default class Paragraph extends Super{
 	static displayName="paragraph"
-	constructor(){
-		super(...arguments)
-		const {content}=this.state
-		if(content.length==0){
-			this.whatIfEmpty()
-		}
-	}
-
-	whatIfEmpty(){
-		this.state.content.push(<Inline contentStyle={this.context.getDefaultStyle("inline")}><Text> </Text></Inline>)
-	}
 
 	_newLine(){
         return {

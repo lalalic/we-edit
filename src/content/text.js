@@ -10,7 +10,7 @@ export default class Text extends NoChild{
     compose(){
 		const {composed}=this
         const {parent}=this.context
-		const {content}=this.state
+		const content=this.getContent()
 		let style=this.getStyle()
 		let composer=new this.constructor.WordWrapper(content, style)
 		let defaultStyle={
@@ -32,7 +32,7 @@ export default class Text extends NoChild{
         }
 		parent.on1ChildComposed(this)
     }
-
+	
 	getStyle(){
 		const {containerStyle}=this.context
 		return 'rFonts,sz,color,b,i,vanish'.split(",").reduce((style, key)=>{

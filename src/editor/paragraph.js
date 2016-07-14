@@ -1,4 +1,5 @@
 import React,{PropTypes} from "react"
+import Immutable from "immutable"
 
 import Group from "../composed/group"
 
@@ -9,10 +10,11 @@ import Text from "./text"
 
 
 export default class extends editable(Paragraph){
-	whatIfEmpty(){
-		this.state.content.push(<Inline contentStyle={this.context.getDefaultStyle("inline")}><Text> </Text></Inline>)
+	constructor(){
+		super(...arguments)
+		if(this.isEmpty())
+			this.state.content=[<Inline contentStyle={this.context.getDefaultStyle("inline")}><Text> </Text></Inline>]
 	}
-	
 	createComposed2Parent(props){
 		let line=super.createComposed2Parent(...arguments)
 		let {width,height}=line.props

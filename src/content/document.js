@@ -7,14 +7,14 @@ export default class Document extends HasChild{
 	static displayName="document"
 
 	render(){
-		const {composed, state:{content}, props:{width, height}}=this
+		const {composed, props:{width, height}}=this
 		const {documentStyles, pageGap, ...others}=this.props
         return (
 			<div>
-				<div id="content">
+				<div>
 					{super.render()}
 				</div>
-				<svg id="composed" {...others}
+				<svg {...others}
 					ref="svg"
 					width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
 					<Composed ref="composed" gap={pageGap} canvas={{width}} sections={()=>
