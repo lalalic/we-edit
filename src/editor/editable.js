@@ -57,12 +57,12 @@ export default function editable(Content){
     	}
 
 		_clearComposed4reCompose(fullclear){
-			let lastComposed=this.composed.splice(0)
+			let lastComposed=this.computed.composed.splice(0)
 			
 			let clearAll=a=>{
-				if(this.children.length){
-					this.children.forEach(a=>a._clearComposed4reCompose(true))
-					this.children.splice(0)
+				if(this.computed.children.length){
+					this.computed.children.forEach(a=>a._clearComposed4reCompose(true))
+					this.computed.children.splice(0)
 				}
 				this.lastComposed=null
 			}
@@ -85,8 +85,8 @@ export default function editable(Content){
          * only no composed should be re-compose
          */
         shouldComponentUpdate(nextProps, nextState, nextContext){
-            //console.info(`shouldComponentUpdate on ${this.displayName}, with ${this.composed.length==0}`)
-            if(this.composed.length==0){
+            //console.info(`shouldComponentUpdate on ${this.displayName}, with ${this.computed.composed.length==0}`)
+            if(this.computed.composed.length==0){
 				if(this.lastComposed){
 					this.appendLastComposed()
 				}else

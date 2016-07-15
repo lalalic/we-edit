@@ -9,40 +9,40 @@ export default class Row extends Container{
 		super(...arguments)
 		this.props.contentStyle.metadata.basedOn=this.context.tableStyle
 	}
-	
+
 	nextAvailableSpace(){
 		const {cols}=this.context.parent.props
-		return {width:cols[this.children.length], height:Number.MAX_VALUE}
+		return {width:cols[this.computed.children.length], height:Number.MAX_VALUE}
 	}
 
 	appendComposed(line){
-		if(this.composed.length==0)
-			this.composed.push([])
-		const currentCell=this.composed[this.composed.length-1]
+		if(this.computed.composed.length==0)
+			this.computed.composed.push([])
+		const currentCell=this.computed.composed[this.computed.composed.length-1]
 		currentCell.push(line)
 	}
 
 	on1ChildComposed(){
-		this.composed.push([])
+		this.computed.composed.push([])
 		super.on1ChildComposed(...arguments)
 	}
 
 	onAllChildrenComposed(){
-		this.composed.splice(this.children.length)//on1ChildComposed will always add 1
-		
+		this.computed.composed.splice(this.computed.children.length)//on1ChildComposed will always add 1
+
 		const {parent}=this.context
-		let indexes=new Array(this.composed.length)
+		let indexes=new Array(this.computed.composed.length)
 		indexes.fill(0)
 
-		let isAllSent2Table=a=>indexes.reduce((prev,index, i)=>this.composed[i].length==index && prev, true)
+		let isAllSent2Table=a=>indexes.reduce((prev,index, i)=>this.computed.composed[i].length==index && prev, true)
 
 		let counter=0
 		let minSpace={}
 		do{
 			let availableSpace=parent.nextAvailableSpace(minSpace)
-			let currentGroupedLines=new Array(this.composed.length)
-			this.composed.forEach((lines,i)=>{
-				let style=this.children[i].getStyle()
+			let currentGroupedLines=new Array(this.computed.composed.length)
+			this.computed.composed.forEach((lines,i)=>{
+				let style=this.computed.children[i].getStyle()
 				let {border, margin,spacing}=style
 
 				let height=availableSpace.height
@@ -72,8 +72,8 @@ export default class Row extends Container{
 			if(!currentGroupedLines.find(a=>a.length>0)){
 				//availableSpace is too small, need find a min available space
 				let minHeight=indexes.reduce((p,index,i)=>{
-					let {border, margin, spacing}=this.children[i].getStyle()
-					let line=this.composed[i][index]
+					let {border, margin, spacing}=this.computed.children[i].getStyle()
+					let line=this.computed.composed[i][index]
 					if(line){
 						return Math.max(p, line.props.height
 							+border.top.sz
@@ -95,7 +95,7 @@ export default class Row extends Container{
 
 		super.onAllChildrenComposed()
 	}
-	
+
 	static contextTypes=Object.assign({
 		tableStyle: PropTypes.object
 	}, Container.contextTypes)
@@ -108,7 +108,7 @@ export default class Row extends Container{
 	}, Container.childContextTypes)
 
 	getChildContext(){
-		let children=this.children
+		let children=this.computed.children
 		let contentLength=this.getContentCount()
 		return Object.assign(super.getChildContext(),{
 			conditions: this.props.contentStyle.get('cnfStyle')||[],

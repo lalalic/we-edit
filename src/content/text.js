@@ -8,7 +8,7 @@ export default class Text extends NoChild{
 	static displayName="text"
 
     compose(){
-		const {composed}=this
+		const {composed}=this.computed
         const {parent}=this.context
 		const content=this.getContent()
 		let style=this.getStyle()
@@ -32,7 +32,7 @@ export default class Text extends NoChild{
         }
 		parent.on1ChildComposed(this)
     }
-	
+
 	getStyle(){
 		const {containerStyle}=this.context
 		return 'rFonts,sz,color,b,i,vanish'.split(",").reduce((style, key)=>{

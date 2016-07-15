@@ -8,7 +8,7 @@ export default class Docx extends Base{
 		return true
 	}
 
-	load1(data){
+	load(data){
 		return docx4js.load(data).then(docx=>{
 			let doc
 			return docx.parse(docx4js.createVisitorFactory((wordModel, targetParent)=>{
@@ -21,10 +21,10 @@ export default class Docx extends Base{
 			}))
 		})
 	}
-	
-	load(data){
+
+	load2(data){
 		return docx4js.load(data).then(docx=>{
-			
+
 			function createComponent(type){
 				return class Content extends Component{
 					static displayName=type
@@ -33,16 +33,14 @@ export default class Docx extends Base{
 					}
 				}
 			}
-			
-			
-			let root={name:"docx",children:[]}
-			let current=root
+
 			return new Promise((resolve, reject)=>{
-				let partName=docx.rels.officeDocument
-				let data=docx.parts[partName]
+				let root={name:"docx",children:[]}
+				let current=root
+				let data=docx.parts[docx.rels.officeDocument]
 				let stream=new PassThrough()
 				stream.end(new Buffer(data.asUint8Array()))
-				stream.pipe(require("sax").createStream(true,{xmlns:true})
+				stream.pipe(require("sax").createStream(true,{xmlns:false})
 					.on("error", e=>{
 						console.error(e)
 					}).on("opentag", node=>{
@@ -50,12 +48,11 @@ export default class Docx extends Base{
 						node.parent=current
 						current=node
 						node.children=[]
-						if(node.local=="document")
-							node.attributes=null
 					}).on("closetag",tag=>{
 						const {attributes, parent, children, local,name}=current
-						let element=React.createElement(createComponent(local||name), attributes, children)
 						let index=parent.children.indexOf(current)
+						attributes.key=index
+						let element=React.createElement(createComponent(name), attributes, children)
 						parent.children.splice(index,1,element)
 						current=parent
 					}).on("end", a=>{

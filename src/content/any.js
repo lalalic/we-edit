@@ -2,9 +2,7 @@ import React, {Component, PropTypes} from "react"
 import Group from "../composed/group"
 
 export class HasChild extends Component{
-    state={}
-	children=[]
-    composed=[]
+    computed={children:[], composed:[]}
 
     static childContextTypes={
 		parent: PropTypes.object
@@ -35,15 +33,15 @@ export class HasChild extends Component{
 		if(this.isEmpty())
 			this.context.parent.on1ChildComposed(this)
     }
-	
+
 	getContentCount(){
 		return React.Children.count(this.props.children)
 	}
-	
+
 	getContent(){
 		return this.props.children
 	}
-	
+
 	isEmpty(){
 		return this.getContentCount()==0
 	}
@@ -70,22 +68,22 @@ export class HasChild extends Component{
 	 *  	true: parent's all children composed
 	 */
     on1ChildComposed(child){
-		this.children.push(child)
+		this.computed.children.push(child)
 		if(this.isAllChildrenComposed()){
 			this.onAllChildrenComposed()
 		}
     }
 
     isAllChildrenComposed(){
-        return this.getContentCount()==this.children.length
+        return this.getContentCount()==this.computed.children.length
     }
 
 	onAllChildrenComposed(){
 
 	}
-	
+
 	createComposed2Parent(props){
-		
+
 	}
 }
 
@@ -119,7 +117,7 @@ export default class HasParentAndChild extends HasChild{
 export class NoChild extends HasParentAndChild{
     constructor(){
 		super(...arguments)
-        Object.freeze(this.children)//no children
+        Object.freeze(this.computed.children)//no children
 	}
 
     render(){
@@ -127,19 +125,12 @@ export class NoChild extends HasParentAndChild{
 	}
 
     compose(){
-        let composed=this.createComposedPiece()
+        let composed=this.createComposed2Parent()
 
         const {parent}=this.context
-        this.composed.push(composed)
+        this.computed.composed.push(composed)
         parent.appendComposed(composed)
         parent.on1ChildComposed(this)
-    }
-
-    /***
-     * after figure out props, you'd better call this to create Element
-     */
-    createComposedPiece(props){
-        return null
     }
 }
 

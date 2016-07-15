@@ -27,12 +27,12 @@ export default class extends Super{
 
 	componentDidMount(){
 		super.componentDidMount()
-		
+
 		this.inputReady()
-		
+
 		this.focusCursor()
 	}
-	
+
 	inputReady(){
 		document.addEventListener("keydown",e=>{
 			switch(e.keyCode){
@@ -43,20 +43,20 @@ export default class extends Super{
 			case 32:
 				e.preventDefault()
 			default:
-				this.refs.cursor.insert(e.key)
+				this.refs.cursor.insert(String.fromCharCode(e.keyCode))
 			}
 		})
 	}
-	
+
 	focusCursor(){
 		let firstText=ReactDOM.findDOMNode(this).querySelector('svg text')
 		let event = document.createEvent("SVGEvents")
 		event.initEvent("click",true,true)
 		firstText.dispatchEvent(event)
 	}
-	
+
 	on1ChildComposed(child){
-		if(!this.children.includes(child))
+		if(!this.computed.children.includes(child))
 			super.on1ChildComposed(child)
 	}
 }

@@ -49,9 +49,9 @@ export default class Section extends Any{
 
     nextAvailableSpace(required={}){
         const {width:minRequiredW=0,height:minRequiredH=0}=required
-        const {composed}=this
+        const {composed}=this.computed
 		if(composed.length==0)
-			this.composed.push(this._newPage())
+			this.computed.composed.push(this._newPage())
 		const {cols:{num:allowedColumns=1}}=this.props
         let currentPage=composed[composed.length-1]
         let {columns}=currentPage
@@ -75,7 +75,7 @@ export default class Section extends Any{
     }
 
     appendComposed(line){
-        const {composed}=this
+        const {composed}=this.computed
 		const {cols:{num:allowedColumns=1}}=this.props
         let currentPage=composed[composed.length-1]
         let {columns}=currentPage
@@ -103,7 +103,7 @@ export default class Section extends Any{
 		children.push(this.createComposed2Parent({children:line, height:contentHeight, y: height-availableHeight}))
         //@TODO: what if contentHeight still > availableHeight
     }
-	
+
 	/**
 	 *  section needn't append to document, but give chance for extension
 	 */
@@ -113,7 +113,7 @@ export default class Section extends Any{
 
     onAllChildrenComposed(){
         //don't check, and document will check against last page
-        this.context.parent.appendComposed(this.composed[this.composed.length-1])
+        this.context.parent.appendComposed(this.computed.composed[this.computed.composed.length-1])
         super.onAllChildrenComposed()
     }
 

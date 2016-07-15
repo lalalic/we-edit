@@ -17,12 +17,12 @@ export default class Paragraph extends Super{
             children:[]
         }
 	}
-	
+
 	lineWidth(){
 		const {indent:{left=0,right=0,firstLine=0,hanging=0}}=this.getStyle()
         let {width}=this.availableSpace
         width-=(left+right)
-        if(this.composed.length==0)
+        if(this.computed.composed.length==0)
             width-=firstLine
         else
             width-=hanging
@@ -31,7 +31,7 @@ export default class Paragraph extends Super{
 
     nextAvailableSpace(required={}){//@TODO: need consider availableSpace.height
         const {width:minRequiredW=0,height:minRequiredH=0}=required
-        const {composed}=this
+        const {composed}=this.computed
 		if(0==composed.length){
 			let {width,height}=this.context.parent.nextAvailableSpace()
 			this.availableSpace={width,height}
@@ -44,14 +44,14 @@ export default class Paragraph extends Super{
         if(availableWidth<=minRequiredW){
 			if(this.availableSpace.height<minRequiredH)
 				this.availableSpace=this.context.parent.nextAvailableSpace(required)
-				
+
 			availableWidth=this.lineWidth()
         }
         return {width:availableWidth, height:this.availableSpace.height}
     }
 
     appendComposed(content){//@TODO: need consider availableSpace.height
-        const {composed}=this
+        const {composed}=this.computed
         const {parent}=this.context
 
 		let currentLine=composed[composed.length-1]
@@ -67,7 +67,7 @@ export default class Paragraph extends Super{
             piece=(
 					<Group
 						x={currentLine.width-availableWidth}
-						index={this.children.length}
+						index={this.computed.children.length}
 						width={contentWidth}
 						height={contentHeight}>
 						{content}
@@ -95,7 +95,7 @@ export default class Paragraph extends Super{
     }
 
 	onAllChildrenComposed(){//need append last non-full-width line to parent
-		const {composed}=this
+		const {composed}=this.computed
 		const {parent}=this.context
 
 		let currentLine=composed[composed.length-1]
@@ -118,7 +118,7 @@ export default class Paragraph extends Super{
 
         lineHeight=typeof(lineHeight)=='string' ? Math.ceil(height*parseInt(lineHeight)/100.0): lineHeight
 
-        if(this.composed.length==1){//first line
+        if(this.computed.composed.length==1){//first line
             lineHeight+=top
             contentY+=top
 			contentX+=firstLine
@@ -129,9 +129,9 @@ export default class Paragraph extends Super{
         if(this.isAllChildrenComposed()){//last line
             lineHeight+=bottom
 		}
-		
+
 		this.availableSpace.height-=lineHeight
-		
+
         return (
             <Group height={lineHeight} width={width}>
                 <Group x={contentX} y={contentY}>

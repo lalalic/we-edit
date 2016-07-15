@@ -3,7 +3,7 @@ import {NoChild} from "./any"
 
 export default class Image extends NoChild{
     static displayName="image"
-    createComposedPiece(){
+    createComposed2Parent(){
         const {src, contentStyle:{extent:{width,height}}, ...others}=this.props
         let availableSpace=this.context.parent.nextAvailableSpace({width,height})
         return <image {...{

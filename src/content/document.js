@@ -7,7 +7,7 @@ export default class Document extends HasChild{
 	static displayName="document"
 
 	render(){
-		const {composed, props:{width, height}}=this
+		const {computed:{composed}, props:{width, height}}=this
 		const {documentStyles, pageGap, ...others}=this.props
         return (
 			<div>
@@ -18,8 +18,8 @@ export default class Document extends HasChild{
 					ref="svg"
 					width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
 					<Composed ref="composed" gap={pageGap} canvas={{width}} sections={()=>
-						this.children.reduce((collected, section)=>{
-							collected.push(section.composed)
+						this.computed.children.reduce((collected, section)=>{
+							collected.push(section.computed.composed)
 							return collected
 						},[])}
 						/>
@@ -102,7 +102,7 @@ class Composed extends Group{
 			</Group>
 		)
 	}
-	
+
 	get info(){
 		return this._info
 	}

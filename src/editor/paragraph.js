@@ -19,7 +19,7 @@ export default class extends editable(Paragraph){
 		let line=super.createComposed2Parent(...arguments)
 		let {width,height}=line.props
 		let ps={width,height}
-		if(this.composed.length==1)
+		if(this.computed.composed.length==1)
 			ps._id=this._id
 		return <Group {...ps}>{line}</Group>
 	}
@@ -32,13 +32,13 @@ export default class extends editable(Paragraph){
 	 *  isAllChildrenComposed will affect last line height, so here we need make it right
 	 */
 	appendLastComposed(){
-		let children=this.children
-		this.children=[]//make isAllChildrenComposed right
+		let children=this.computed.children
+		this.computed.children=[]//make isAllChildrenComposed right
 		let len=this.lastComposed.length
 		this.lastComposed.forEach((one,i)=>{
-			this.composed.push(one)
+			this.computed.composed.push(one)
 			if(i==len-1){//make isAllChildrenComposed right
-				this.children=children
+				this.computed.children=children
 			}
 			this.context.parent.appendComposed(this.createComposed2Parent(one))
 		})
