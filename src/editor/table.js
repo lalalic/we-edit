@@ -24,11 +24,11 @@ export default class extends editable(Table){
 	 */
 	appendLastComposed(){
 		let {width,height}=this.nextAvailableSpace()
-		let [{width:tableWidth}]=this.lastComposed
-		let tableHeight=this.lastComposed.reduce((prev, line)=>prev+line.height,0)
+		let [{width:tableWidth}]=this.computed.lastComposed
+		let tableHeight=this.computed.lastComposed.reduce((prev, line)=>prev+line.height,0)
 		if(tableHeight<=height && tableWidth<=width){
 			const {parent}=this.context
-			this.lastComposed.forEach(line=>parent.appendComposed(this.createComposed2Parent(line)))
+			this.computed.lastComposed.forEach(line=>parent.appendComposed(this.createComposed2Parent(line)))
 		}else{
 			let children=this.computed.children.splice(0)
 			children.forEach(row=>{
@@ -36,7 +36,7 @@ export default class extends editable(Table){
 			})
 		}
 
-		this.lastComposed=null
+		this.computed.lastComposed=null
 		super.onAllChildrenComposed()
 	}
 }

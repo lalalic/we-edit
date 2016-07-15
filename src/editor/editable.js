@@ -28,17 +28,17 @@ export default function editable(Content){
 	return class extends Content{
 		_id=uuid++
 		state={content:React.Children.toArray(this.props.children)}
-		
+
 		getContentCount(){
 			return this.state.content.length
 		}
-		
+
 		getContent(){
 			return this.state.content
 		}
-		
+
 		appendLastComposed(){
-			
+
 		}
 
         reCompose(){
@@ -58,20 +58,20 @@ export default function editable(Content){
 
 		_clearComposed4reCompose(fullclear){
 			let lastComposed=this.computed.composed.splice(0)
-			
+
 			let clearAll=a=>{
 				if(this.computed.children.length){
 					this.computed.children.forEach(a=>a._clearComposed4reCompose(true))
 					this.computed.children.splice(0)
 				}
-				this.lastComposed=null
+				this.computed.lastComposed=null
 			}
 			if(fullclear){
 				clearAll()
 			}else if(!this._isLastComposedFitIntoParent(lastComposed)){
 				clearAll()
 			}else {
-				this.lastComposed=lastComposed
+				this.computed.lastComposed=lastComposed
 			}
 		}
 
@@ -87,7 +87,7 @@ export default function editable(Content){
         shouldComponentUpdate(nextProps, nextState, nextContext){
             //console.info(`shouldComponentUpdate on ${this.displayName}, with ${this.computed.composed.length==0}`)
             if(this.computed.composed.length==0){
-				if(this.lastComposed){
+				if(this.computed.lastComposed){
 					this.appendLastComposed()
 				}else
 					this.compose()

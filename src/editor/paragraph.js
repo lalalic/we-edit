@@ -34,8 +34,8 @@ export default class extends editable(Paragraph){
 	appendLastComposed(){
 		let children=this.computed.children
 		this.computed.children=[]//make isAllChildrenComposed right
-		let len=this.lastComposed.length
-		this.lastComposed.forEach((one,i)=>{
+		let len=this.computed.lastComposed.length
+		this.computed.lastComposed.forEach((one,i)=>{
 			this.computed.composed.push(one)
 			if(i==len-1){//make isAllChildrenComposed right
 				this.computed.children=children
@@ -43,6 +43,6 @@ export default class extends editable(Paragraph){
 			this.context.parent.appendComposed(this.createComposed2Parent(one))
 		})
 		this.context.parent.on1ChildComposed(this)
-		this.lastComposed=null
+		this.computed.lastComposed=null
 	}
 }
