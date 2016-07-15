@@ -85,14 +85,16 @@ export default function editable(Content){
          * only no composed should be re-compose
          */
         shouldComponentUpdate(nextProps, nextState, nextContext){
-            //console.info(`shouldComponentUpdate on ${this.displayName}, with ${this.computed.composed.length==0}`)
             if(this.computed.composed.length==0){
 				if(this.computed.lastComposed){
 					this.appendLastComposed()
-				}else
+					return false
+				}else{
 					this.compose()
+					return true
+				}
 			}
-            return true
+            return false
         }
 
 		blur(){
