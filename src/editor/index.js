@@ -9,8 +9,11 @@ import Table from "./table"
 import Row from "./row"
 import Cell from "./cell"
 
+import Any from "../content/any"
+import editable from "./editable"
 
 export default {
+    '*': editable(Any),
     Document,
     Section,
     Paragraph,

@@ -21,19 +21,19 @@ import Input from "./input/"
 export function edit(input,container){
 	Editor.Text.WordWrapper=SVGWordWrapper
     ReactDOM.unmountComponentAtNode(container)
-	return Input.load(input)
+	return Input.load(input, Editor)
 		.then(doc=>ReactDOM.render(doc.createReactElement(Editor), container))
 }
 
 export function compose(input){
 	Content.Text.WordWrapper=NodeWordWrapper
-	return Input.load(input)
+	return Input.load(input, Content)
 		.then(doc=>ReactDOMServer.renderToStaticMarkup(doc.createReactElement(Content)))
 }
 
 export function preview(input,container){
     ReactDOM.unmountComponentAtNode(container)
-	return Input.load(input)
+	return Input.load(input, Content)
 		.then(doc=>ReactDOM.render(doc.createReactElement(Content), container))
 }
 

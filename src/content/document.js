@@ -36,7 +36,8 @@ export default class Document extends HasChild{
 
     getChildContext(){
 		const documentStyles=this.props.documentStyles
-        const {width, pageGap, contentStyle}=this.props
+        const {width, pageGap}=this.props
+		const {contentStyle}=this.computed
 		return Object.assign(super.getChildContext(),{
             getDefaultStyle(type){
 				return documentStyles.getDefault(type)

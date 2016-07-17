@@ -7,6 +7,9 @@ import Group from "../composed/group"
 export default class Text extends NoChild{
 	static displayName="text"
 
+	render(){
+		return null
+	}
     compose(){
 		const {composed}=this.computed
         const {parent}=this.context

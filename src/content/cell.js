@@ -8,7 +8,7 @@ export default class Cell extends Super{
 	static displayName="cell"
 	constructor(){
 		super(...arguments)
-		this.props.contentStyle.metadata.basedOn=this.context.rowStyle||this.context.tableStyle
+		this.computed.contentStyle.basedOn=this.context.rowStyle||this.context.tableStyle
 	}
 	nextAvailableSpace(required){
 		let {width,height}=super.nextAvailableSpace(...arguments)
@@ -34,7 +34,7 @@ export default class Cell extends Super{
 		if(this._style)
 			return this._style
 		const {tableStyle, rowStyle, conditions:rowConditions, isFirstRow, isLastRow, isFirstCol, isLastCol}=this.context
-		const {contentStyle}=this.props
+		const {contentStyle}=this.computed
 		let conditions=(contentStyle.cnfStyle||[]).concat(rowConditions)
 		if(!conditions.includes("firstRow") && isFirstRow())
 			conditions.push("firstRow")
@@ -44,14 +44,14 @@ export default class Cell extends Super{
 			conditions.push("firstCol")
 		if(!conditions.includes("lastCol") && isLastCol())
 			conditions.push("lastCol")
-		
+
 		let border=contentStyle.getBorder(conditions)
 
 		let margin={}
 		"left,right,top,bottom".split(",").forEach(a=>margin[a]=contentStyle.get(`margin.${a}`)||0)
 
 		let spacing=rowStyle.get(`spacing`)||0
-		
+
 		let background=contentStyle.get('shd',conditions)
 
 
@@ -68,12 +68,12 @@ export default class Cell extends Super{
 		isLastRow: PropTypes.func,
 		isLastCol: PropTypes.func
 	}, Super.contextTypes)
-	
+
 	getChildContext(){
-            const {contentStyle}=this.props
+            const {contentStyle}=this.computed
             const {containerStyle, conditions:rowConditions}=this.context
 			let conditions=(contentStyle.cnfStyle||[]).concat(rowConditions)
-			
+
             return Object.assign( super.getChildContext(),{
 					containerStyle:{
                         get(path){

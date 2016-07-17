@@ -2,7 +2,7 @@ import React, {Component, PropTypes} from "react"
 import Group from "../composed/group"
 
 export class HasChild extends Component{
-    computed={children:[], composed:[]}
+    computed={children:[], composed:[], contentStyle:this.props.contentStyle}
 
     static childContextTypes={
 		parent: PropTypes.object
@@ -15,7 +15,7 @@ export class HasChild extends Component{
     }
 
 	render(){
-        return <div>{this.getContent()}</div>
+        return <div style={{display:"none"}}>{this.getContent()}</div>
     }
 
     /**
@@ -88,7 +88,7 @@ export class HasChild extends Component{
 }
 
 export default class HasParentAndChild extends HasChild{
-    displayName="content"
+    displayName="*"
     static contextTypes={
         parent: PropTypes.object
     }
@@ -150,7 +150,7 @@ export function styleInheritable(Content){
 			},Content.childContextTypes)
 
 		getChildContext(){
-            const {contentStyle}=this.props
+            const {contentStyle}=this.computed
             const {containerStyle}=this.context
 
             return Object.assign(super.getChildContext(),{
@@ -180,7 +180,7 @@ export function styleInheritable(Content){
 		},Content.contextTypes)
 
         style(key){
-            const {contentStyle}=this.props
+            const {contentStyle}=this.computed
             const {containerStyle}=this.context
             let value=contentStyle.get(key)
             if(value==undefined)

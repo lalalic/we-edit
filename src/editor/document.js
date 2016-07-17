@@ -50,6 +50,7 @@ export default class extends Super{
 
 	focusCursor(){
 		let firstText=ReactDOM.findDOMNode(this).querySelector('svg text')
+		if(!firstText) return
 		let event = document.createEvent("SVGEvents")
 		event.initEvent("click",true,true)
 		firstText.dispatchEvent(event)

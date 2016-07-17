@@ -9,8 +9,11 @@ import Table from "./table"
 import Row from "./row"
 import Cell from "./cell"
 
+import Any from "./any"
+
 
 export default {
+    '*': Any,
     Document,
     Section,
     Paragraph,

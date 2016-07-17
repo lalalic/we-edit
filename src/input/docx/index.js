@@ -22,21 +22,43 @@ export default class Docx extends Base{
 		})
 	}
 
-	load2(data){
+	load2(data, domain){
 		return docx4js.load(data).then(docx=>{
 
 			function createComponent(type){
-				return class Content extends Component{
-					static displayName=type
-					render(){
-						return <div>{this.props.children}</div>
+				let [,name]=type.split(':')
+				if(name='section')
+					return domain.Section
+				else if(name=='p')
+					return domain.Paragraph
+				else if(name=='r')
+					return domain.Inline
+				else if(name=='t')
+					return domain.Text
+				else if(name=='tbl')
+					return domain.Table
+				else if(name=='tr')
+					return domain.Row
+				else if(name=='tc')
+					return domain.Cell
+				else if(name.substr(-2)=='Pr'){
+					return class extends Component{
+						static displayName=type
+						render(){
+							return null
+						}
+
 					}
+				}
+
+				return class extends domain['*']{
+					static displayName=type
 				}
 			}
 
 			return new Promise((resolve, reject)=>{
-				let root={name:"docx",children:[]}
-				let current=root
+				let doc=null
+				let current=null, section=null, sections=[]
 				let data=docx.parts[docx.rels.officeDocument]
 				let stream=new PassThrough()
 				stream.end(new Buffer(data.asUint8Array()))
@@ -44,26 +66,67 @@ export default class Docx extends Base{
 					.on("error", e=>{
 						console.error(e)
 					}).on("opentag", node=>{
-						current.children.push(node)
-						node.parent=current
-						current=node
-						node.children=[]
+						switch(node.name){
+						case 'w:body':
+							doc.attributes.body=node.attributes
+						break
+						case 'w:document':
+							doc=node
+						break
+						default:
+							if(!current){
+								if(section){
+									sections.pop()
+									sections.push(React.createElement(createComponent(section.name), section.attributes, section.children))
+								}
+								section=current={name:'w:section', children:[], attributes:{}}
+								sections.push(section)
+							}
+
+							current.children.push(node)
+							node.parent=current
+							current=node
+							node.children=[]
+						}
 					}).on("closetag",tag=>{
-						const {attributes, parent, children, local,name}=current
-						let index=parent.children.indexOf(current)
-						attributes.key=index
-						let element=React.createElement(createComponent(name), attributes, children)
-						parent.children.splice(index,1,element)
-						current=parent
+						switch(tag){
+							case 'w:body':
+							break
+							case 'w:document':
+								sections.pop()
+								sections.push(React.createElement(createComponent(section.name), section.attributes, section.children))
+								current=React.createElement(createComponent(doc.name), doc.attributes, sections)
+							break
+							case 'w:t':
+								current.children=current.children.join('')
+							default:
+								const {attributes, parent, children, local,name}=current
+								let index=parent.children.indexOf(current)
+								attributes.key=index
+
+								let element=React.createElement(createComponent(name), attributes, children)
+								parent.children.splice(index,1,element)
+								current=parent
+
+								if(name=='w:sectPr')
+									section.attributes.pr=element
+
+								if(current==section && section.attributes.pr)
+									current=null
+							break
+						}
 					}).on("end", a=>{
 						resolve({
 							createReactElement(){
-								return React.createElement(createComponent("docx"), null, root.children)
+								return React.createElement(class Docx extends Component{
+									render(){
+										return <div>{this.props.children}</div>
+									}
+								}, null, current)
 							}
 						})
 					}).on("text", text=>{
-						if(current!==root)
-							current.children.push(text)
+						current && current.children.push(text)
 					})
 				)
 			})
