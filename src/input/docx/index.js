@@ -24,6 +24,13 @@ export default class Docx extends Base{
 
 	load2(data, domain){
 		return docx4js.load(data).then(docx=>{
+			function isProperty(tag){
+				return tag.substr(-2)=="Pr"
+			}
+
+			function asStyle(element){
+				
+			}
 
 			function createComponent(type){
 				let [,name]=type.split(':')
@@ -105,13 +112,19 @@ export default class Docx extends Base{
 								attributes.key=index
 
 								let element=React.createElement(createComponent(name), attributes, children)
-								parent.children.splice(index,1,element)
+								if(isProperty(tag)){
+									if(tag=='w:sectPr')
+										section.attributes.contentStyle=asStyle(element)
+									else if(!isProperty(parent.name)
+										parent.attributes.contentStyle=asStyle(element)
+									else
+										parent.children.splice(index,1,element)
+								}else{
+									parent.children.splice(index,1,element)
+								}
 								current=parent
 
-								if(name=='w:sectPr')
-									section.attributes.pr=element
-
-								if(current==section && section.attributes.pr)
+								if(current==section && section.attributes.contentStyle)
 									current=null
 							break
 						}
