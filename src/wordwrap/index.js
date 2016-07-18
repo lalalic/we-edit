@@ -6,12 +6,14 @@ export default class WordWrapper{
         this.text=text
         this.fontFamily=Object.keys(rFonts).map(a=>`${rFonts[a]||''}`).filter(a=>a).join(" ")
 		this.size=fontSize
-        this.height=Math.ceil(this.lineHeight())
+		const {height, descent}=this.lineHeight()
+        this.height=Math.ceil(height)
+		this.descent=Math.ceil(descent)
         this.composed=0
     }
 
 	lineHeight(){
-		return 25
+		return {height:25,descent:2}
 	}
 
 	stringWidth(string){

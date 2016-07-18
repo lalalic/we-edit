@@ -18,7 +18,8 @@ export default class Text extends NoChild{
 			fontSize:`${style.sz}px`,
 			fontWeight:style.b ? 700 : 400,
 			fontStyle:style.i ? "italic" : "normal",
-			height: composer.height
+			height: composer.height,
+			y: composer.descent
 		}
 
 		if(style.color)

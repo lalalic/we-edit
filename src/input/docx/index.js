@@ -9,6 +9,7 @@ export default class Docx extends Base{
 
 	load(data){
 		return docx4js.load(data).then(docx=>{
+			debugger
 			let doc
 			return docx.parse(docx4js.createVisitorFactory((wordModel, targetParent)=>{
 				if(wordModel.type && wordModel.type.substr(0,6)=='style.'){

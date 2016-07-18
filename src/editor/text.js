@@ -41,7 +41,9 @@ export default class extends Super{
 					at:cursorAt,
 					node,
 					width:contentWidth,
-					height:composer.height, style})
+					height:composer.height, 
+					descent: composer.descent, 
+					style})
 			}
 	        return (
 				<CursorFocusedGroup {...ps}>
@@ -70,6 +72,7 @@ export default class extends Super{
 			node:target.parentNode,
 			width:Math.ceil(contentWidth),
 			height:composer.height,
+			descent: composer.descent,
 			style })
     }
 

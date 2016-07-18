@@ -3,12 +3,12 @@ import ReactDOM from "react-dom"
 
 export default class Cursor extends Component{
 	static displayName="cursor"
-	state={target:null, node: null, at: 0, width:0, height:0, style:{}}
+	state={target:null, node: null, at: 0, width:0, height:0, descent:0, style:{}}
 
     render(){
-		const {width, height, style}=this.state
+		const {width, height, descent, style}=this.state
 		return (
-			<Shape ref="shape" width={width} height={height} style={style}/>
+			<Shape ref="shape" width={width} height={height} style={style} descent={descent}/>
 		)
     }
 
@@ -35,23 +35,24 @@ export default class Cursor extends Component{
 
 export class Shape extends Component{
 	render(){
-		const {width, height, style}=this.props
+		const {width, height, descent, style}=this.props
 		return <line
 					x1={width}
-					y1={0}
+					y1={descent}
 					x2={width}
-					y2={-height}
+					y2={-height-descent}
 					strokeWidth={1}
 					stroke={style.color||"black"}
 					/>
 	}
 
 	componentDidMount(){
+		let {descent}=this.props
 		let node=ReactDOM.findDOMNode(this)
-		let x=-1000, next=0
+		let x=-1000, next=descent
 		this.timer=setInterval(a=>{
 			node.setAttribute('y1',next)
-			next=next ? 0: node.getAttribute('y2')
+			next=next!=descent ? descent: node.getAttribute('y2')
 		}, 700)
 	}
 
