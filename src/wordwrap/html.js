@@ -8,15 +8,16 @@ export default class HtmlWordWrapper extends WordWrapper{
 			tester=document.createElement('span')
 			document.body.appendChild(tester)
 		}
-		
+
 		var p=document.createElement('p')
 		document.body.appendChild(p)
 		tester.style=p.style=`${DEFAULT_STYLE};font-family:${this.fontFamily};font-size:${this.size}px`
-		p.innerHTML=`<span style="${DEFAULT_STYLE}">Ä</span>g`
-		let height=p.getBoundingClientRect().height
-		let descent=height-p.querySelector('span').getBoundingClientRect().height
+		p.style.vertialAlign="baseline"
+		p.innerHTML=`<span style="${DEFAULT_STYLE}">Ä</span><div style="display: inline-block; width: 1px; height: 0px;"></div>`
+		let {height, top}=p.getBoundingClientRect()
+		let {top:baseline}=p.querySelector('div').getBoundingClientRect()
 		document.body.removeChild(p)
-		return {height, descent}
+		return {height, descent: height-(baseline-top)}
 	}
 
     stringWidth(word){

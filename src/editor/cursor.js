@@ -25,7 +25,7 @@ export default class Cursor extends Component{
 		this.setState({node:null, at:at+content.length})
 		target.splice(at,0,content)
 	}
-	
+
 	backspace(){
 		const {target, at}=this.state
 		this.setState({node:null, at:at-1})
@@ -35,24 +35,25 @@ export default class Cursor extends Component{
 
 export class Shape extends Component{
 	render(){
-		const {width, height, descent, style}=this.props
+		let {width, height, descent, style}=this.props
+		width=Math.ceil(width)
+		height=Math.ceil(height)
+		descent=Math.ceil(descent)
 		return <line
 					x1={width}
-					y1={descent}
+					y1={2*descent}
 					x2={width}
-					y2={-height-descent}
+					y2={-height+2*descent}
 					strokeWidth={1}
 					stroke={style.color||"black"}
 					/>
 	}
 
-	componentDidMount(){
-		let {descent}=this.props
+	componentDidUpdate(){
 		let node=ReactDOM.findDOMNode(this)
-		let x=-1000, next=descent
+		let x=-1000, y1=node.getAttribute('y1'), y2=node.getAttribute('y2')
 		this.timer=setInterval(a=>{
-			node.setAttribute('y1',next)
-			next=next!=descent ? descent: node.getAttribute('y2')
+			node.setAttribute('y1',node.getAttribute('y1')==y1 ? y2 : y1)
 		}, 700)
 	}
 

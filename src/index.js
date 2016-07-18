@@ -18,8 +18,8 @@ import NodeWordWrapper from "./wordwrap/node"
 
 import Input from "./input/"
 
-export function edit(input,container){ 
-	Editor.Text.WordWrapper=SVGWordWrapper
+export function edit(input,container){
+	Editor.Text.WordWrapper=CanvasWordWrapper
     ReactDOM.unmountComponentAtNode(container)
 	return Input.load(input)
 		.then(doc=>ReactDOM.render(doc.createReactElement(Editor), container))
