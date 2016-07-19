@@ -19,7 +19,7 @@ export default class Text extends NoChild{
 			fontWeight:style.b ? 700 : 400,
 			fontStyle:style.i ? "italic" : "normal",
 			height: composer.height,
-			y: composer.descent
+			descent: composer.descent
 		}
 
 		if(style.color)
@@ -54,8 +54,8 @@ export default class Text extends NoChild{
 		if(color)
 			props.fill=color
 		props.style={whiteSpace:'pre'}
-		const {width, height, end, ...others}=props
-		return <Group width={width} height={height}><text {...props} style={{whiteSpace:"pre"}}/></Group>
+		const {width, height, descent, ...others}=props
+		return <Group width={width} height={height} descent={descent}><text {...props} style={{whiteSpace:"pre"}}/></Group>
 	}
 
 	static contextTypes=Object.assign({

@@ -20,10 +20,10 @@ export default class extends Super{
 	
 	createComposed2Parent(props){
 		let composed=super.createComposed2Parent(...arguments)
-		let {width, height, children:text}=composed.props
+		let {width, height, descent, children:text}=composed.props
 		text=React.cloneElement(text,{onClick:e=>this.onClick(e,props)})
 
-		let ps={width,height}
+		let ps={width,height,descent}
 		const {end, children: textpiece}=props
 
 		let cursor=this.context.cursor()||{state:{}}
@@ -45,18 +45,12 @@ export default class extends Super{
 					descent: composer.descent, 
 					style})
 			}
-	        return (
-				<CursorFocusedGroup {...ps}>
-					{text}
-				</CursorFocusedGroup>
-			)
-		}else {
-			return (
-				<Group height={height} width={width}>
-				{text}
-				</Group>
-			)
 		}
+		return (
+			<Group {...ps}>
+			{text}
+			</Group>
+		)
     }
 
     onClick(event, text){
@@ -86,21 +80,4 @@ export default class extends Super{
 	static contextTypes=Object.assign({
 		cursor: PropTypes.func
 	},Super.contextTypes)
-}
-
-class CursorFocusedGroup extends Group{
-	render(){
-		const {onUpdate, ...others}=this.props
-		return (<Group {...others}/>)
-	}
-	componentWillUnmount(){
-		console.info("a cursor will be unmounted")
-	}
-	componentDidMount(){
-		//this.props.onUpdate(this)
-	}
-	
-	componentDidUpdate(){
-		//this.props.onUpdate(this)
-	}
 }

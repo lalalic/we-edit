@@ -3,7 +3,7 @@ import Group from "./group"
 
 export default class Line extends Group{
 	render(){
-		const {height}=this.props
-		return <Group y={height} {...this.props}/>
+		const {height, descent}=this.props
+		return <Group y={height-descent} {...this.props}/>
 	}
 }

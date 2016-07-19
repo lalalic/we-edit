@@ -14,6 +14,7 @@ export default class Paragraph extends Super{
         return {
             width: this.lineWidth(),
 			height:0,
+			descent:0,
             children:[]
         }
 	}
@@ -56,7 +57,7 @@ export default class Paragraph extends Super{
 
 		let currentLine=composed[composed.length-1]
         let availableWidth=currentLine.children.reduce((prev,a)=>prev-a.props.width,currentLine.width)
-        let {width:contentWidth, height:contentHeight}=content.props
+        let {width:contentWidth, height:contentHeight, descent:contentDescent=0}=content.props
 
 
 		let piece=null
@@ -68,6 +69,7 @@ export default class Paragraph extends Super{
 					<Group
 						x={currentLine.width-availableWidth}
 						index={this.computed.children.length}
+						descent={contentDescent}
 						width={contentWidth}
 						height={contentHeight}>
 						{content}
@@ -75,6 +77,7 @@ export default class Paragraph extends Super{
 					)
             currentLine.children.push(piece)
 			currentLine.height=Math.max(currentLine.height,contentHeight)
+			currentLine.descent=Math.max(currentLine.descent, contentDescent)
 			if(availableWidth==contentWidth){
 				parent.appendComposed(this.createComposed2Parent(currentLine))
 			}

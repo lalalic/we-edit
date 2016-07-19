@@ -41,19 +41,19 @@ export class Shape extends Component{
 		descent=Math.ceil(descent)
 		return <line
 					x1={width}
-					y1={2*descent}
+					y1={descent}
 					x2={width}
-					y2={-height+2*descent}
+					y2={-height+descent}
 					strokeWidth={1}
 					stroke={style.color||"black"}
 					/>
 	}
 
-	componentDidUpdate(){
+	componentDidMount(){
 		let node=ReactDOM.findDOMNode(this)
-		let x=-1000, y1=node.getAttribute('y1'), y2=node.getAttribute('y2')
 		this.timer=setInterval(a=>{
-			node.setAttribute('y1',node.getAttribute('y1')==y1 ? y2 : y1)
+			let y1=node.getAttribute('y1'), y2=node.getAttribute('y2')
+			node.setAttribute('y1',y1==y2 ? this.props.descent : y2)
 		}, 700)
 	}
 
