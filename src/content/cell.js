@@ -1,9 +1,8 @@
 import React, {PropTypes} from "react"
 
-import Container from "./container"
-import {styleInheritable, isToggleStyle} from "./any"
+import Any, {styleInheritable, isToggleStyle} from "./any"
 
-let Super=styleInheritable(Container)
+let Super=styleInheritable(Any)
 export default class Cell extends Super{
 	static displayName="cell"
 	constructor(){
@@ -13,20 +12,15 @@ export default class Cell extends Super{
 	nextAvailableSpace(required){
 		let {width,height}=super.nextAvailableSpace(...arguments)
 
-		let {border, margin, spacing}=this.getStyle()
+		let {margin}=this.getStyle()
 		width=width
-			-border.right.sz
-			-border.left.sz
 			-margin.right
 			-margin.left
-			-spacing
 
 		height=height
-			-border.top.sz
-			-border.bottom.sz
 			-margin.top
 			-margin.bottom
-			-spacing
+
 		return {width,height}
 	}
 
@@ -44,14 +38,14 @@ export default class Cell extends Super{
 			conditions.push("firstCol")
 		if(!conditions.includes("lastCol") && isLastCol())
 			conditions.push("lastCol")
-		
+
 		let border=contentStyle.getBorder(conditions)
 
 		let margin={}
 		"left,right,top,bottom".split(",").forEach(a=>margin[a]=contentStyle.get(`margin.${a}`)||0)
 
 		let spacing=rowStyle.get(`spacing`)||0
-		
+
 		let background=contentStyle.get('shd',conditions)
 
 
@@ -68,12 +62,12 @@ export default class Cell extends Super{
 		isLastRow: PropTypes.func,
 		isLastCol: PropTypes.func
 	}, Super.contextTypes)
-	
+
 	getChildContext(){
             const {contentStyle}=this.props
             const {containerStyle, conditions:rowConditions}=this.context
 			let conditions=(contentStyle.cnfStyle||[]).concat(rowConditions)
-			
+
             return Object.assign( super.getChildContext(),{
 					containerStyle:{
                         get(path){

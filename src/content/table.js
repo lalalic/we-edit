@@ -1,13 +1,14 @@
 import React, {Component, PropTypes} from "react"
-import Container from "./container"
+import Any from "./any"
 import Group from "../composed/group"
 
+const Super=Any
 /**
  *
  *
  *  conditional formatting: http://officeopenxml.com/WPstyleTableStylesCond.php
  */
-export default class Table extends Container{
+export default class Table extends Super{
 	static displayName="table"
 	nextAvailableSpace(required){
 		let availableSpace=this.context.parent.nextAvailableSpace(required)
@@ -60,7 +61,7 @@ export default class Table extends Container{
 		tableStyle: PropTypes.object,
 		isFirstRow: PropTypes.func,
 		isLastRow: PropTypes.func
-	}, Container.childContextTypes)
+	}, Super.childContextTypes)
 
 	getChildContext(){
 		let children=this.computed.children

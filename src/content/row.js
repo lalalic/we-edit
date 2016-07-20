@@ -1,9 +1,10 @@
 import React, {PropTypes} from "react"
 
-import Container from "./container"
+import Any from "./any"
 import Group from "../composed/group"
 
-export default class Row extends Container{
+const Super=Any
+export default class Row extends Super{
 	static displayName="row"
 	constructor(){
 		super(...arguments)
@@ -98,14 +99,14 @@ export default class Row extends Container{
 
 	static contextTypes=Object.assign({
 		tableStyle: PropTypes.object
-	}, Container.contextTypes)
+	}, Super.contextTypes)
 
 	static childContextTypes=Object.assign({
 		conditions: PropTypes.array,
 		rowStyle: PropTypes.object,
 		isFirstCol: PropTypes.func,
 		isLastCol: PropTypes.func
-	}, Container.childContextTypes)
+	}, Super.childContextTypes)
 
 	getChildContext(){
 		let children=this.computed.children

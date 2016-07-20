@@ -42,6 +42,10 @@ export class HasChild extends Component{
 		return this.props.children
 	}
 
+    getStyle(){
+        
+    }
+
 	isEmpty(){
 		return this.getContentCount()==0
 	}
