@@ -8,7 +8,7 @@ export default class Row extends Super{
 	static displayName="row"
 	constructor(){
 		super(...arguments)
-		this.props.contentStyle.metadata.basedOn=this.context.tableStyle
+		this.props.directStyle.metadata.basedOn=this.context.tableStyle
 	}
 
 	nextAvailableSpace(){
@@ -112,8 +112,8 @@ export default class Row extends Super{
 		let children=this.computed.children
 		let contentLength=this.getContentCount()
 		return Object.assign(super.getChildContext(),{
-			conditions: this.props.contentStyle.get('cnfStyle')||[],
-			rowStyle: this.props.contentStyle,
+			conditions: this.props.directStyle.get('cnfStyle')||[],
+			rowStyle: this.props.directStyle,
 			isFirstCol(){
 				return children.length==0
 			},

@@ -7,7 +7,7 @@ export default class Cell extends Super{
 	static displayName="cell"
 	constructor(){
 		super(...arguments)
-		this.props.contentStyle.metadata.basedOn=this.context.rowStyle||this.context.tableStyle
+		this.props.directStyle.metadata.basedOn=this.context.rowStyle||this.context.tableStyle
 	}
 	nextAvailableSpace(required){
 		let {width,height}=super.nextAvailableSpace(...arguments)
@@ -28,8 +28,8 @@ export default class Cell extends Super{
 		if(this._style)
 			return this._style
 		const {tableStyle, rowStyle, conditions:rowConditions, isFirstRow, isLastRow, isFirstCol, isLastCol}=this.context
-		const {contentStyle}=this.props
-		let conditions=(contentStyle.cnfStyle||[]).concat(rowConditions)
+		const {directStyle}=this.props
+		let conditions=(directStyle.cnfStyle||[]).concat(rowConditions)
 		if(!conditions.includes("firstRow") && isFirstRow())
 			conditions.push("firstRow")
 		if(!conditions.includes("lastRow") && isLastRow())
@@ -39,14 +39,14 @@ export default class Cell extends Super{
 		if(!conditions.includes("lastCol") && isLastCol())
 			conditions.push("lastCol")
 
-		let border=contentStyle.getBorder(conditions)
+		let border=directStyle.getBorder(conditions)
 
 		let margin={}
-		"left,right,top,bottom".split(",").forEach(a=>margin[a]=contentStyle.get(`margin.${a}`)||0)
+		"left,right,top,bottom".split(",").forEach(a=>margin[a]=directStyle.get(`margin.${a}`)||0)
 
 		let spacing=rowStyle.get(`spacing`)||0
 
-		let background=contentStyle.get('shd',conditions)
+		let background=directStyle.get('shd',conditions)
 
 
 		return this._style={border, margin, spacing, background}
@@ -64,18 +64,18 @@ export default class Cell extends Super{
 	}, Super.contextTypes)
 
 	getChildContext(){
-            const {contentStyle}=this.props
-            const {containerStyle, conditions:rowConditions}=this.context
-			let conditions=(contentStyle.cnfStyle||[]).concat(rowConditions)
+            const {directStyle}=this.props
+            const {inheritedStyle, conditions:rowConditions}=this.context
+			let conditions=(directStyle.cnfStyle||[]).concat(rowConditions)
 
             return Object.assign( super.getChildContext(),{
-					containerStyle:{
+					inheritedStyle:{
                         get(path){
-                            let v=contentStyle.get(path, conditions)
+                            let v=directStyle.get(path, conditions)
                             if(v==undefined)
-                                return containerStyle.get(path, conditions)
+                                return inheritedStyle.get(path, conditions)
                             else if(isToggleStyle(path) && v==-1){
-                                let toggles=containerStyle.get(path, conditions)
+                                let toggles=inheritedStyle.get(path, conditions)
                                 if(typeof(toggles)=='number'){
                                     if(toggles<0)
                                         v=toggles-1

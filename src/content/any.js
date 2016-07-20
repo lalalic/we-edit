@@ -43,7 +43,7 @@ export class HasChild extends Component{
 	}
 
     getStyle(){
-        
+
     }
 
 	isEmpty(){
@@ -150,21 +150,21 @@ export function isToggleStyle(stylePath){
 export function styleInheritable(Content){
 	return class StyleContainer extends Content{
 		static childContextTypes=Object.assign({
-				containerStyle: PropTypes.object
+				inheritedStyle: PropTypes.object
 			},Content.childContextTypes)
 
 		getChildContext(){
-            const {contentStyle}=this.props
-            const {containerStyle}=this.context
+            const {directStyle=this.defaultStyle}=this.props
+            const {inheritedStyle}=this.context
 
             return Object.assign(super.getChildContext(),{
-					containerStyle:{
+					inheritedStyle:{
                         get(path){
-                            let v=contentStyle.get(path)
+                            let v=directStyle.get(path)
                             if(v==undefined)
-                                return containerStyle.get(path)
+                                return inheritedStyle.get(path)
                             else if(isToggleStyle(path) && v==-1){
-                                let toggles=containerStyle.get(path)
+                                let toggles=inheritedStyle.get(path)
                                 if(typeof(toggles)=='number'){
                                     if(toggles<0)
                                         v=toggles-1
@@ -179,17 +179,21 @@ export function styleInheritable(Content){
 		}
 
 		static contextTypes=Object.assign({
-			createStyle: PropTypes.func,
-            containerStyle: PropTypes.object
+			inheritedStyle: PropTypes.object,
+            getDefaultStyle: PropTypes.func
 		},Content.contextTypes)
 
         style(key){
-            const {contentStyle}=this.props
-            const {containerStyle}=this.context
-            let value=contentStyle.get(key)
+            const {directStyle=this.defaultStyle}=this.props
+            const {inheritedStyle}=this.context
+            let value=directStyle.get(key)
             if(value==undefined)
-                value=containerStyle.get(key)
+                value=inheritedStyle.get(key)
             return value
+        }
+
+        get defaultStyle(){
+            return this.context.getDefaultStyle(this.constructor.displayName)
         }
 	}
 }

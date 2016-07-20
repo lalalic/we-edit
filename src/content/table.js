@@ -67,7 +67,7 @@ export default class Table extends Super{
 		let children=this.computed.children
 		let contentLength=this.getContentCount()
 		return Object.assign(super.getChildContext(),{
-			tableStyle: this.props.contentStyle,
+			tableStyle: this.props.directStyle,
 			isFirstRow(){
 				return children.length==0
 			},

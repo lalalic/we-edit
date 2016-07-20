@@ -31,17 +31,17 @@ export default class Document extends HasChild{
 
     static childContextTypes=Object.assign({
         getDefaultStyle: PropTypes.func,
-		containerStyle: PropTypes.object
+		inheritedStyle: PropTypes.object
     },HasChild.childContextTypes)
 
     getChildContext(){
 		const documentStyles=this.props.documentStyles
-        const {width, pageGap, contentStyle}=this.props
+        const {width, pageGap, directStyle}=this.props
 		return Object.assign(super.getChildContext(),{
             getDefaultStyle(type){
 				return documentStyles.getDefault(type)
 			},
-			containerStyle:contentStyle
+			inheritedStyle:directStyle
         })
     }
 

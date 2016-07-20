@@ -21,9 +21,9 @@ export default class Model{
 			if(style){
 				let visitor=new Style(this.wordModel, this.doc)
 				style.parse([visitor])
-				this.contentProps.contentStyle=visitor.style
+				this.contentProps.directStyle=visitor.style
 			}else{
-				this.contentProps.contentStyle=new Style(this.wordModel, this.doc).style
+				this.contentProps.directStyle=new Style(this.wordModel, this.doc).style
 			}
 		}
 	}

@@ -13,7 +13,7 @@ export default class extends editable(Paragraph){
 	constructor(){
 		super(...arguments)
 		if(this.isEmpty())
-			this.state.content=[<Inline contentStyle={this.context.getDefaultStyle("inline")}><Text> </Text></Inline>]
+			this.state.content=[<Inline directStyle={this.context.getDefaultStyle("inline")}><Text> </Text></Inline>]
 	}
 	createComposed2Parent(props){
 		let line=super.createComposed2Parent(...arguments)

@@ -14,7 +14,7 @@ export default class extends Model{
 		if(wordModel.id)
 			this.contentProps.documentStyles[wordModel.id]=styleVisitor.style
 		else
-			this.contentProps.contentStyle=styleVisitor.style
+			this.contentProps.directStyle=styleVisitor.style
 
 		return styleVisitor
 	}

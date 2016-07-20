@@ -6,7 +6,7 @@ export default class Docx extends Base{
 	static support(file){
 		return true
 	}
-	
+
 	load(data){
 		return docx4js.load(data).then(docx=>{
 			let doc
@@ -18,6 +18,9 @@ export default class Docx extends Base{
 				else
 					return doc=new Document(wordModel)
 			}))
+		}).then(a=>{
+			console.log(a.toTag())
+			return a
 		})
 	}
 }
@@ -27,6 +30,7 @@ import Section from "./section"
 import Image from "./image"
 import Text from "./text"
 import Table from "./table"
+import List from "./list"
 
 export let Models={
 	Document
@@ -34,4 +38,5 @@ export let Models={
 	,Image
 	,Text
 	,Table
+	,List
 }
