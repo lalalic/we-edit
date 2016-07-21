@@ -1,3 +1,5 @@
+import editable from "./editable"
+import Any from "../content/any"
 import Document from "./document"
 import Section from "./section"
 import Paragraph from "./paragraph"
@@ -12,6 +14,7 @@ import List from "./list"
 
 
 export default {
+	Any: editable(Any),
     Document,
     Section,
     Paragraph,

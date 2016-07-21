@@ -1,3 +1,4 @@
+import Any from "./any"
 import Document from "./document"
 import Section from "./section"
 import Paragraph from "./paragraph"
@@ -12,6 +13,7 @@ import List from "./list"
 
 
 export default {
+	Any,
     Document,
     Section,
     Paragraph,

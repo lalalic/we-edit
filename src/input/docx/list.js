@@ -9,11 +9,5 @@ export default class extends Model{
 
         props.level=this.wordModel.getLevel()
         props.numId=this.wordModel.getNumberingId()
-
-        return 
-        let visitor=new Style(this.wordModel, this.doc)
-        let style=this.wordModel.getNumberingStyle()
-        style.parse([visitor])
-        props.listStyle=visitor.style
     }
 }
