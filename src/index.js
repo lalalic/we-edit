@@ -22,19 +22,19 @@ export function edit(input,container){
 	Editor.Text.WordWrapper=CanvasWordWrapper
     ReactDOM.unmountComponentAtNode(container)
 	return Input.load(input, Editor)
-		.then(doc=>ReactDOM.render(doc.createReactElement(Editor), container))
+		.then(doc=>ReactDOM.render(doc, container))
 }
 
 export function compose(input){
 	Content.Text.WordWrapper=NodeWordWrapper
-	return Input.load(input)
-		.then(doc=>ReactDOMServer.renderToStaticMarkup(doc.createReactElement(Content)))
+	return Input.load(input, Content)
+		.then(doc=>ReactDOMServer.renderToStaticMarkup(doc))
 }
 
 export function preview(input,container){
     ReactDOM.unmountComponentAtNode(container)
-	return Input.load(input)
-		.then(doc=>ReactDOM.render(doc.createReactElement(Content), container))
+	return Input.load(input, Content)
+		.then(doc=>ReactDOM.render(doc, container))
 }
 
 /*

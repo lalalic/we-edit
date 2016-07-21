@@ -8,7 +8,7 @@ export default class Docx extends Base{
 		return true
 	}
 
-	load1(data){
+	load1(data, domain){
 		return docx4js.load(data).then(docx=>{
 			let doc
 			return docx.parse(docx4js.createVisitorFactory((wordModel, targetParent)=>{
@@ -19,9 +19,9 @@ export default class Docx extends Base{
 				else
 					return doc=new Document(wordModel)
 			}))
-		}).then(a=>{
-			console.log(a.toTag())
-			return a
+		}).then(doc=>{
+			console.log(doc.toTag())
+			return doc.createReactElement(domain)
 		})
 	}
 	
@@ -56,16 +56,10 @@ export default class Docx extends Base{
 				return React.createElement(Content, attributes, children)
 			}
 		
-		}).load(data).then(docx=>{
-			return docx.parse().then(docx=>{
-				return {
-					createReactElement(){
-						console.log(docx)
-						return docx.children[0]
-					}
-				}
-			})
-		})
+		}).load(data).then(docx=>docx.parse().then(docx=>{
+			console.log(docx)
+			return docx.props.children[0]
+		}))
 	}
 }
 
