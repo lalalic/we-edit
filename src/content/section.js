@@ -10,7 +10,7 @@ export default class Section extends Any{
      * i: column no
      */
     _newColumn(i){
-		const {size:{width, height},  margin:{top, bottom, left, right}, cols:{num=1, space, data}}=this.props
+		const {pgSz:{width, height},  pgMar:{top, bottom, left, right}, cols:{num=1, space, data}}=this.props
 		let info={
 			y:0,
 			height:height-bottom-top,
@@ -36,7 +36,7 @@ export default class Section extends Any{
      * i : page No, for first, even, odd page
      */
     _newPage(i){
-        const {size,  margin}=this.props
+        const {pgSz:size,  pgMar:margin}=this.props
         let info={
             size,
             margin,
@@ -118,12 +118,11 @@ export default class Section extends Any{
     }
 
 	static defaultProps={
-		size: {
+		pgSz: {
 			width: 300,
-			height: 400,
-			margin: 20
+			height: 400
 		},
-		margin:{
+		pgMar:{
 			left:20,
 			right:20,
 			top:20,
@@ -137,11 +136,11 @@ export default class Section extends Any{
 	}
 
 	static propTypes={
-		size: PropTypes.shape({
+		pgSz: PropTypes.shape({
 			width: PropTypes.number.isRequired,
 			height: PropTypes.number.isRequired
 		}),
-		margin: PropTypes.shape({
+		pgMar: PropTypes.shape({
 			left: PropTypes.number,
 			right: PropTypes.number,
 			top: PropTypes.number,

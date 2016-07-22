@@ -21,7 +21,7 @@ import Input from "./input/"
 export function edit(input,container){
 	Editor.Text.WordWrapper=CanvasWordWrapper
     ReactDOM.unmountComponentAtNode(container)
-	return Input.load(input, Editor)
+	return Input.load(input, Content)
 		.then(doc=>ReactDOM.render(doc, container))
 }
 

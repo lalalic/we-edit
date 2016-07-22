@@ -74,15 +74,6 @@ export default class Cell extends Super{
                             let v=directStyle.get(path, conditions)
                             if(v==undefined)
                                 return inheritedStyle.get(path, conditions)
-                            else if(isToggleStyle(path) && v==-1){
-                                let toggles=inheritedStyle.get(path, conditions)
-                                if(typeof(toggles)=='number'){
-                                    if(toggles<0)
-                                        v=toggles-1
-                                    else
-                                        v=toggles
-                                }
-                            }
                             return v
                         }
                     }

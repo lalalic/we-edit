@@ -28,18 +28,32 @@ export default class Docx extends Base{
 	load(data, domain){
 		return (class extends docx4js{
 			onCreateElement(node, type){
-				let Content=domain.Any
+				let {attributes, children}=node
+				let Content=null
 				switch(type){
+				case 'docx':
+					Content=domain.Any
+				break	
 				case 'document':
 					Content=domain.Document
+				break
 				case 'section':
 					Content=domain.Section
 				break
+				case 'p':
+					Content=domain.Paragraph
+				break
 				case "r":
-					Content=domain.Inline
+					Content=class extends domain.Inline{
+						get defaultStyle(){
+							return this.context.getDefaultStyle('character')
+						}
+					}
 				break
 				case "t":
-					Content=domain.Text
+					Content=class extends domain.Text{
+						
+					}
 				break
 				case "tbl":
 					Content=domain.Table
@@ -50,15 +64,23 @@ export default class Docx extends Base{
 				case 'tc':
 					Content=domain.Cell
 				break
+				case 'list':
+					Content=domain.Cell
+				break
 				}
 				
-				const {attributes, children}=node
-				return React.createElement(Content, attributes, children)
+				if(Content){
+					return React.createElement(Content, attributes, children)
+				}else{
+					console.warn(`${type} is not identified`)
+					
+					return null
+				}
 			}
 		
 		}).load(data).then(docx=>docx.parse().then(docx=>{
 			console.log(docx)
-			return docx.props.children[0]
+			return docx
 		}))
 	}
 }

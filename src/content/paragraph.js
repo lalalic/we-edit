@@ -147,8 +147,8 @@ export default class Paragraph extends Super{
     getStyle(){
         if(this._style)
             return this._style
-        let spacing=this.style('paragraph.spacing')||{}
-        let indent=this.style('paragraph.ind')||{}
+        let spacing=this.style('pPr.spacing')||{}
+        let indent=this.style('pPr.ind')||{}
         return this._style={spacing,indent}
     }
 

@@ -163,15 +163,6 @@ export function styleInheritable(Content){
                             let v=directStyle.get(path)
                             if(v==undefined)
                                 return inheritedStyle.get(path)
-                            else if(isToggleStyle(path) && v==-1){
-                                let toggles=inheritedStyle.get(path)
-                                if(typeof(toggles)=='number'){
-                                    if(toggles<0)
-                                        v=toggles-1
-                                    else
-                                        v=toggles
-                                }
-                            }
                             return v
                         }
                     }

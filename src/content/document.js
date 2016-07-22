@@ -8,7 +8,7 @@ export default class Document extends HasChild{
 
 	render(){
 		const {computed:{composed}, props:{width, height}}=this
-		const {documentStyles, pageGap, ...others}=this.props
+		const {pageGap, ...others}=this.props
         return (
 			<div>
 				<div>
@@ -35,11 +35,11 @@ export default class Document extends HasChild{
     },HasChild.childContextTypes)
 
     getChildContext(){
-		const documentStyles=this.props.documentStyles
+		const styles=this.props.styles
         const {width, pageGap, directStyle}=this.props
 		return Object.assign(super.getChildContext(),{
             getDefaultStyle(type){
-				return documentStyles.getDefault(type)
+				return styles.getDefault(type)
 			},
 			inheritedStyle:directStyle
         })
