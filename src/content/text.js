@@ -1,5 +1,5 @@
 import React, {Component, PropTypes} from "react"
-import {NoChild, isToggleStyle} from "./any"
+import {NoChild} from "./any"
 import HtmlWordWrapper from "../wordwrap/html"
 
 import Group from "../composed/group"

@@ -1,6 +1,6 @@
 import React, {PropTypes} from "react"
 
-import Any, {styleInheritable, isToggleStyle} from "./any"
+import Any, {styleInheritable} from "./any"
 
 let Super=styleInheritable(Any)
 export default class Cell extends Super{
