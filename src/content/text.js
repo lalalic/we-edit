@@ -36,9 +36,10 @@ export default class Text extends NoChild{
 
 	getStyle(){
 		const {inheritedStyle}=this.context
+
 		return 'rFonts,sz,color,b,i,vanish'.split(",").reduce((style, key)=>{
             let stylePath=`rPr.${key}`
-            let value=inheritedStyle.get(stylePath)
+			let value=inheritedStyle.get(stylePath)
             if(value!=undefined){
                 style[key]=value
 			}

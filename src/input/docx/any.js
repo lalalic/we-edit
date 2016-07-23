@@ -1,6 +1,5 @@
 import React from "react"
 import Content from "../../content"
-import {Models} from "."
 import Style from "./style"
 
 export default class Model{
@@ -67,4 +66,21 @@ export default class Model{
 	toTag(){
 		return `<${this.type}>${this.children.map(a=>a.toTag()).join("")}</${this.type}>`
 	}
+}
+
+
+import Document from "./document"
+import Section from "./section"
+import Image from "./image"
+import Text from "./text"
+import Table from "./table"
+import List from "./list"
+
+const Models={
+	Document
+	,Section
+	,Image
+	,Text
+	,Table
+	,List
 }

@@ -30,8 +30,9 @@ export class HasChild extends Component{
      * and then append to itself.composed[] and parent.appendComposed
      */
 	compose(){
-		if(this.isEmpty())
-			this.context.parent.on1ChildComposed(this)
+		if(this.isEmpty()){
+            this.context.parent.on1ChildComposed(this)
+        }
     }
 
 	getContentCount(){
@@ -72,7 +73,9 @@ export class HasChild extends Component{
 	 *  	true: parent's all children composed
 	 */
     on1ChildComposed(child){
+        console.log(`a ${child.constructor.displayName} composed`)
 		this.computed.children.push(child)
+
 		if(this.isAllChildrenComposed()){
 			this.onAllChildrenComposed()
 		}
@@ -83,7 +86,6 @@ export class HasChild extends Component{
     }
 
 	onAllChildrenComposed(){
-
 	}
 
 	createComposed2Parent(props){
@@ -92,7 +94,7 @@ export class HasChild extends Component{
 }
 
 export default class HasParentAndChild extends HasChild{
-    displayName="content"
+    static displayName="content"
     static contextTypes={
         parent: PropTypes.object
     }
@@ -156,6 +158,10 @@ export function styleInheritable(Content){
 		getChildContext(){
             const {directStyle=this.defaultStyle}=this.props
             const {inheritedStyle}=this.context
+
+            if(!directStyle)
+				debugger;
+
 
             return Object.assign(super.getChildContext(),{
 					inheritedStyle:{

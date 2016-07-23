@@ -10,11 +10,10 @@ import Text from "./text"
 
 
 export default class extends editable(Paragraph){
-	constructor(){
-		super(...arguments)
-		if(this.isEmpty())
-			this.state.content=[<Inline directStyle={this.context.getDefaultStyle("inline")}><Text> </Text></Inline>]
+	emptyContent(){
+		return [<Inline><Text> </Text></Inline>]
 	}
+
 	createComposed2Parent(props){
 		let line=super.createComposed2Parent(...arguments)
 		let {width,height}=line.props
@@ -23,11 +22,11 @@ export default class extends editable(Paragraph){
 			ps._id=this._id
 		return <Group {...ps}>{line}</Group>
 	}
-	
+
 	_isLastComposedFitIntoParent(){
-		return true	
+		return true
 	}
-	
+
 	/**
 	 *  isAllChildrenComposed will affect last line height, so here we need make it right
 	 */

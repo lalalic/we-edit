@@ -20,20 +20,33 @@ export default class Docx extends Base{
 					return doc=new Document(wordModel)
 			}))
 		}).then(doc=>{
-			console.log(doc.toTag())
 			return doc.createReactElement(domain)
 		})
 	}
-	
+
 	load(data, domain){
+		const {Text}=domain
+		class Inline extends domain.Inline{
+			get defaultStyle(){
+				return this.context.getDefaultStyle('character')
+			}
+		}
+		class Paragraph extends domain.Paragraph{
+			emptyContent(){
+				return [<Inline><Text> </Text></Inline>]
+			}
+		}
+
 		return (class extends docx4js{
 			onCreateElement(node, type){
 				let {attributes, children}=node
+				if(Array.isArray(children))
+					children=children.filter(a=>a)
 				let Content=null
 				switch(type){
 				case 'docx':
 					Content=domain.Any
-				break	
+				break
 				case 'document':
 					Content=domain.Document
 				break
@@ -41,19 +54,13 @@ export default class Docx extends Base{
 					Content=domain.Section
 				break
 				case 'p':
-					Content=domain.Paragraph
+					Content=Paragraph
 				break
 				case "r":
-					Content=class extends domain.Inline{
-						get defaultStyle(){
-							return this.context.getDefaultStyle('character')
-						}
-					}
+					Content=Inline
 				break
 				case "t":
-					Content=class extends domain.Text{
-						
-					}
+					Content=domain.Text
 				break
 				case "tbl":
 					Content=domain.Table
@@ -68,35 +75,19 @@ export default class Docx extends Base{
 					Content=domain.Cell
 				break
 				}
-				
+
 				if(Content){
 					return React.createElement(Content, attributes, children)
 				}else{
 					console.warn(`${type} is not identified`)
-					
+
 					return null
 				}
 			}
-		
+
 		}).load(data).then(docx=>docx.parse().then(docx=>{
 			console.log(docx)
 			return docx
 		}))
 	}
-}
-
-import Document from "./document"
-import Section from "./section"
-import Image from "./image"
-import Text from "./text"
-import Table from "./table"
-import List from "./list"
-
-export let Models={
-	Document
-	,Section
-	,Image
-	,Text
-	,Table
-	,List
 }

@@ -27,8 +27,11 @@ var uuid=0
 export default function editable(Content){
 	return class extends Content{
 		_id=uuid++
-		state={content:React.Children.toArray(this.props.children)}
+		state={content:this.props.children.length==0 ? this.emptyContent() : React.Children.toArray(this.props.children)}
 
+		emptyContent(){
+			return []
+		}
 		getContentCount(){
 			return this.state.content.length
 		}
