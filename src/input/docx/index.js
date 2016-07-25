@@ -17,8 +17,11 @@ export default class Docx extends Base{
 				if(Array.isArray(children))
 					children=children.filter(a=>a)
 				let Content=Models[type]
+				let props=attributes
 				if(Content){
-					return React.createElement(Content, attributes, children)
+					if((type=="tr" || type=="tc") && !props.directStyle)
+						props.directStyle=this.officeDocument.styles.createDirectStyle({},`${type}Pr`)
+					return React.createElement(Content, props, children)
 				}else{
 					console.warn(`${type} is not identified`)
 					return null

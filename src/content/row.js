@@ -6,10 +6,6 @@ import Group from "../composed/group"
 const Super=Any
 export default class Row extends Super{
 	static displayName="row"
-	constructor(){
-		super(...arguments)
-		this.props.directStyle.metadata.basedOn=this.context.tableStyle
-	}
 
 	nextAvailableSpace(){
 		const {cols}=this.context.parent.props
@@ -102,23 +98,54 @@ export default class Row extends Super{
 	}, Super.contextTypes)
 
 	static childContextTypes=Object.assign({
-		conditions: PropTypes.array,
 		rowStyle: PropTypes.object,
 		isFirstCol: PropTypes.func,
-		isLastCol: PropTypes.func
+		isLastCol: PropTypes.func,
+		isBand1Vert: PropTypes.func,
+		isBand2Vert: PropTypes.func,
+		isSeCell: PropTypes.func,
+		isSwCell: PropTypes.func,
+		isNeCell: PropTypes.func,
+		isNwCell: PropTypes.func
 	}, Super.childContextTypes)
 
+	getHeaderColCount(){
+		const {firstColumn}=this.context.tableStyle.tblLook ||{}
+		if(firstColumn=="0")
+			return 0
+		return 1
+	}
+
 	getChildContext(){
+		let self=this
+		const {firstColumn, lastColumn, noVBand}=this.context.tableStyle.tblLook ||{}
 		let children=this.computed.children
 		let contentLength=this.getContentCount()
 		return Object.assign(super.getChildContext(),{
-			conditions: this.props.directStyle.get('cnfStyle')||[],
 			rowStyle: this.props.directStyle,
 			isFirstCol(){
-				return children.length==0
+				return firstColumn=="1" && self.computed.children.length==0
 			},
 			isLastCol(){
-				return children.length==contentLength-1
+				return lastColumn=="1" && self.computed.children.length==self.getContentCount()-1
+			},
+			isBand1Vert(){
+				return noVBand=="0" && (self.computed.children.length-self.getHeaderColCount())%2
+			},
+			isBand2Vert(){
+				return noVBand=="0" && (self.computed.children.length-self.getHeaderColCount())%2
+			},
+			isSeCell(){
+				return this.isLastRow() && this.isLastCol()
+			},
+			isSwCell(){
+				return this.isLastRow() && this.isFirstCol()
+			},
+			isNeCell(){
+				return this.isFirstRow() && this.isLastCol()
+			},
+			isNwCell(){
+				return this.isFirstRow() && this.isFirstCol()
 			}
 		})
 	}

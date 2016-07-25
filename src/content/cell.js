@@ -5,10 +5,6 @@ import Any, {styleInheritable} from "./any"
 let Super=styleInheritable(Any)
 export default class Cell extends Super{
 	static displayName="cell"
-	constructor(){
-		super(...arguments)
-		this.props.directStyle.metadata.basedOn=this.context.rowStyle||this.context.tableStyle
-	}
 	nextAvailableSpace(required){
 		let {width,height}=super.nextAvailableSpace(...arguments)
 
@@ -27,17 +23,14 @@ export default class Cell extends Super{
 	getStyle(){
 		if(this._style)
 			return this._style
-		const {tableStyle, rowStyle, conditions:rowConditions, isFirstRow, isLastRow, isFirstCol, isLastCol}=this.context
+
+		let conditions=this.conditions
+
+		const {tableStyle, rowStyle}=this.context
 		const {directStyle}=this.props
-		let conditions=(directStyle.cnfStyle||[]).concat(rowConditions)
-		if(!conditions.includes("firstRow") && isFirstRow())
-			conditions.push("firstRow")
-		if(!conditions.includes("lastRow") && isLastRow())
-			conditions.push("lastRow")
-		if(!conditions.includes("firstCol") && isFirstCol())
-			conditions.push("firstCol")
-		if(!conditions.includes("lastCol") && isLastCol())
-			conditions.push("lastCol")
+
+		directStyle.basedOn=rowStyle
+		rowStyle.basedOn=tableStyle
 
 		let border=directStyle.getBorder(conditions)
 
@@ -48,35 +41,47 @@ export default class Cell extends Super{
 
 		let background=directStyle.get('shd',conditions)
 
-
 		return this._style={border, margin, spacing, background}
 	}
 
+	get conditions(){
+		return "seCell,swCell,neCell,nwCell,lastCol,firstCol,lastRow,firstRow,band2Horz,band1Horz,band2Vert,band1Vert"
+			.split(",").filter(cond=>this.context[`is${cond.charAt(0).toUpperCase()}${cond.substr(1)}`]())
+	}
 
 	static contextTypes=Object.assign({
 		tableStyle: PropTypes.object,
-		conditions: PropTypes.array,
 		rowStyle: PropTypes.object,
 		isFirstRow: PropTypes.func,
-		isFirstCol: PropTypes.func,
 		isLastRow: PropTypes.func,
-		isLastCol: PropTypes.func
+		isBand1Horz: PropTypes.func,
+		isBand2Horz: PropTypes.func,
+		isFirstCol: PropTypes.func,
+		isLastCol: PropTypes.func,
+		isBand1Vert: PropTypes.func,
+		isBand2Vert: PropTypes.func,
+		isSeCell: PropTypes.func,
+		isSwCell: PropTypes.func,
+		isNeCell: PropTypes.func,
+		isNwCell: PropTypes.func
 	}, Super.contextTypes)
 
 	getChildContext(){
-            const {directStyle}=this.props
-            const {inheritedStyle, conditions:rowConditions}=this.context
-			let conditions=(directStyle.cnfStyle||[]).concat(rowConditions)
-
-            return Object.assign( super.getChildContext(),{
-					inheritedStyle:{
-                        get(path){
-                            let v=directStyle.get(path, conditions)
-                            if(v==undefined)
-                                return inheritedStyle.get(path, conditions)
-                            return v
-                        }
+		let self=this
+		const {tableStyle, rowStyle, inheritedStyle}=this.context
+		const {directStyle}=this.props
+        return Object.assign( super.getChildContext(),{
+				inheritedStyle:{
+                    get(path){
+						directStyle.basedOn=rowStyle
+						rowStyle.basedOn=tableStyle
+						let conditions=self.confitions
+                        let v=directStyle.get(path, conditions)
+                        if(v==undefined)
+                            return inheritedStyle.get(path, conditions)
+                        return v
                     }
-				})
-		}
+                }
+			})
+	}
 }

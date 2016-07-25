@@ -57,23 +57,46 @@ export default class Table extends Super{
 		return <Row {...props}/>
 	}
 
+	getHeaderRowCount(){
+		const {firstRow}=(this.props.directStyle||self.defaultStyle).tblLook||{}
+		if(firstRow!=="1")
+			return 0
+
+		return React.Children.toArray(this.props.children).filter(a=>{
+			let style=a.props.directStyle
+			if(style && style.tblHeader)
+				return true
+			return false
+		}).length
+	}
+
 	static childContextTypes=Object.assign({
 		tableStyle: PropTypes.object,
 		isFirstRow: PropTypes.func,
-		isLastRow: PropTypes.func
+		isLastRow: PropTypes.func,
+		isBand1Horz: PropTypes.func,
+		isBand2Horz: PropTypes.func
 	}, Super.childContextTypes)
 
 	getChildContext(){
-		let children=this.computed.children
-		let contentLength=this.getContentCount()
+		let self=this
+		const {firstRow, lastRow, noHBand}=(self.props.directStyle||self.defaultStyle).get('tblPr.tblLook')||{}
 		return Object.assign(super.getChildContext(),{
-			tableStyle: this.props.directStyle,
+			tableStyle: this.props.directStyle||this.defaultStyle,
 			isFirstRow(){
-				return children.length==0
+				return firstRow=="1" && self.computed.children.length==0
 			},
 
 			isLastRow(){
-				return children.length==contentLength-1
+				return lastRow=="1" && self.computed.children.length==self.getContentCount()-1
+			},
+
+			isBand1Horz(){
+				return noHBand=="0" && (self.getContentCount()-self.getHeaderRowCount())%2
+			},
+
+			isBand2Horz(){
+				return noHBand=="0" && (self.getContentCount()-self.getHeaderRowCount())%2
 			}
 		})
 	}

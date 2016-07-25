@@ -73,8 +73,7 @@ export class HasChild extends Component{
 	 *  	true: parent's all children composed
 	 */
     on1ChildComposed(child){
-        console.log(`a ${child.constructor.displayName} composed`)
-		this.computed.children.push(child)
+        this.computed.children.push(child)
 
 		if(this.isAllChildrenComposed()){
 			this.onAllChildrenComposed()
