@@ -83,12 +83,12 @@ export default class Table extends Super{
 		const {firstRow, lastRow, noHBand}=(self.props.directStyle||self.defaultStyle).get('tblPr.tblLook')||{}
 		return Object.assign(super.getChildContext(),{
 			tableStyle: this.props.directStyle||this.defaultStyle,
-			isFirstRow(){
-				return firstRow=="1" && self.computed.children.length==0
+			isFirstRow(isCell=false){
+				return (firstRow=="1" || isCell) && self.computed.children.length==0
 			},
 
-			isLastRow(){
-				return lastRow=="1" && self.computed.children.length==self.getContentCount()-1
+			isLastRow(isCell=false){
+				return (lastRow=="1" || isCell) && self.computed.children.length==self.getContentCount()-1
 			},
 
 			isBand1Horz(){

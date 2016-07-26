@@ -123,11 +123,11 @@ export default class Row extends Super{
 		let contentLength=this.getContentCount()
 		return Object.assign(super.getChildContext(),{
 			rowStyle: this.props.directStyle,
-			isFirstCol(){
-				return firstColumn=="1" && self.computed.children.length==0
+			isFirstCol(isCell=false){
+				return (firstColumn=="1"||isCell) && self.computed.children.length==0
 			},
-			isLastCol(){
-				return lastColumn=="1" && self.computed.children.length==self.getContentCount()-1
+			isLastCol(isCell=false){
+				return (lastColumn=="1"||isCell) && self.computed.children.length==self.getContentCount()-1
 			},
 			isBand1Vert(){
 				return noVBand=="0" && (self.computed.children.length-self.getHeaderColCount())%2
@@ -136,16 +136,16 @@ export default class Row extends Super{
 				return noVBand=="0" && (self.computed.children.length-self.getHeaderColCount())%2
 			},
 			isSeCell(){
-				return this.isLastRow() && this.isLastCol()
+				return this.isLastRow(true) && this.isLastCol(true)
 			},
 			isSwCell(){
-				return this.isLastRow() && this.isFirstCol()
+				return this.isLastRow(true) && this.isFirstCol(true)
 			},
 			isNeCell(){
-				return this.isFirstRow() && this.isLastCol()
+				return this.isFirstRow(true) && this.isLastCol(true)
 			},
 			isNwCell(){
-				return this.isFirstRow() && this.isFirstCol()
+				return this.isFirstRow(true) && this.isFirstCol(true)
 			}
 		})
 	}
