@@ -3,6 +3,7 @@ import React, {PropTypes} from "react"
 import Any, {styleInheritable} from "./any"
 
 let Super=styleInheritable(Any)
+let asIsFunc=cond=>`is${cond.charAt(0).toUpperCase()}${cond.substr(1)}`
 export default class Cell extends Super{
 	static displayName="cell"
 	nextAvailableSpace(required){
@@ -31,22 +32,26 @@ export default class Cell extends Super{
 
 		directStyle.basedOn=rowStyle
 		rowStyle.basedOn=tableStyle
+		
+		
+		let edges="lastCol,firstCol,lastRow,firstRow".split(",")
+			.filter(cond=>!conditions.includes(cond) && this.context[asIsFunc(cond)+"Absolute"]())
 
-		let border=directStyle.getBorder(conditions)
+		let border=directStyle.getBorder(conditions, edges)
 
 		let margin={}
 		"left,right,top,bottom".split(",").forEach(a=>margin[a]=directStyle.get(`margin.${a}`)||0)
 
 		let spacing=rowStyle.get(`spacing`)||0
 
-		let background=directStyle.get('shd',conditions)
+		let background=directStyle.get('tcPr.shd',conditions)
 
 		return this._style={border, margin, spacing, background}
 	}
 
 	get conditions(){
 		return "seCell,swCell,neCell,nwCell,lastCol,firstCol,lastRow,firstRow,band2Horz,band1Horz,band2Vert,band1Vert"
-			.split(",").filter(cond=>this.context[`is${cond.charAt(0).toUpperCase()}${cond.substr(1)}`]())
+			.split(",").filter(cond=>this.context[asIsFunc(cond)]())
 	}
 
 	static contextTypes=Object.assign({
@@ -63,7 +68,11 @@ export default class Cell extends Super{
 		isSeCell: PropTypes.func,
 		isSwCell: PropTypes.func,
 		isNeCell: PropTypes.func,
-		isNwCell: PropTypes.func
+		isNwCell: PropTypes.func,
+		isFirstRowAbsolute: PropTypes.func,
+		isLastRowAbsolute: PropTypes.func,
+		isFirstColAbsolute: PropTypes.func,
+		isLastColAbsolute: PropTypes.func
 	}, Super.contextTypes)
 
 	getChildContext(){

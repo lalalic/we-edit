@@ -101,6 +101,8 @@ export default class Row extends Super{
 		rowStyle: PropTypes.object,
 		isFirstCol: PropTypes.func,
 		isLastCol: PropTypes.func,
+		isFirstColAbsolute: PropTypes.func,
+		isLastColAbsolute: PropTypes.func,
 		isBand1Vert: PropTypes.func,
 		isBand2Vert: PropTypes.func,
 		isSeCell: PropTypes.func,
@@ -110,7 +112,7 @@ export default class Row extends Super{
 	}, Super.childContextTypes)
 
 	getHeaderColCount(){
-		const {firstColumn}=this.context.tableStyle.tblLook ||{}
+		const {firstColumn}=this.context.tableStyle.get('tblPr.tblLook') ||{}
 		if(firstColumn=="0")
 			return 0
 		return 1
@@ -118,34 +120,53 @@ export default class Row extends Super{
 
 	getChildContext(){
 		let self=this
-		const {firstColumn, lastColumn, noVBand}=this.context.tableStyle.tblLook ||{}
+		const {firstColumn, lastColumn, noVBand}=this.context.tableStyle.get('tblPr.tblLook')||{}
 		let children=this.computed.children
 		let contentLength=this.getContentCount()
 		return Object.assign(super.getChildContext(),{
 			rowStyle: this.props.directStyle,
-			isFirstCol(isCell=false){
-				return (firstColumn=="1"||isCell) && self.computed.children.length==0
+			isFirstCol(){
+				return firstColumn=="1" 
+					&& !this.isFirstRow() 
+					&& !this.isLastRow()
+					&& this.isFirstColAbsolute() 
+					
 			},
-			isLastCol(isCell=false){
-				return (lastColumn=="1"||isCell) && self.computed.children.length==self.getContentCount()-1
+			isFirstColAbsolute(){
+				return self.computed.children.length==0
+			},
+			isLastCol(){
+				return lastColumn=="1"
+					&& !this.isFirstRow()
+					&& !this.isLastRow()
+					&& this.isLastColAbsolute()
+			},
+			isLastColAbsolute(){
+				return self.computed.children.length==self.getContentCount()-1 
 			},
 			isBand1Vert(){
-				return noVBand=="0" && (self.computed.children.length-self.getHeaderColCount())%2
+				return noVBand=="0" 
+					&& !this.isFirstCol() 
+					&& !this.isLastCol() 
+					&& (self.computed.children.length-self.getHeaderColCount())%2==1
 			},
 			isBand2Vert(){
-				return noVBand=="0" && (self.computed.children.length-self.getHeaderColCount())%2
+				return noVBand=="0" 
+					&& !this.isFirstCol() 
+					&& !this.isLastCol() 
+					&& (self.computed.children.length-self.getHeaderColCount())%2==0
 			},
 			isSeCell(){
-				return this.isLastRow(true) && this.isLastCol(true)
+				return this.isLastRowAbsolute() && this.isLastColAbsolute()
 			},
 			isSwCell(){
-				return this.isLastRow(true) && this.isFirstCol(true)
+				return this.isLastRowAbsolute() && this.isFirstColAbsolute()
 			},
 			isNeCell(){
-				return this.isFirstRow(true) && this.isLastCol(true)
+				return this.isFirstRowAbsolute()  && this.isLastColAbsolute()
 			},
 			isNwCell(){
-				return this.isFirstRow(true) && this.isFirstCol(true)
+				return this.isFirstRowAbsolute() && this.isFirstColAbsolute()
 			}
 		})
 	}

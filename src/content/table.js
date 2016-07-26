@@ -58,7 +58,7 @@ export default class Table extends Super{
 	}
 
 	getHeaderRowCount(){
-		const {firstRow}=(this.props.directStyle||self.defaultStyle).tblLook||{}
+		const {firstRow}=(this.props.directStyle||self.defaultStyle).get('tblPr.tblLook')||{}
 		if(firstRow!=="1")
 			return 0
 
@@ -74,6 +74,8 @@ export default class Table extends Super{
 		tableStyle: PropTypes.object,
 		isFirstRow: PropTypes.func,
 		isLastRow: PropTypes.func,
+		isFirstRowAbsolute: PropTypes.func,
+		isLastRowAbsolute: PropTypes.func,
 		isBand1Horz: PropTypes.func,
 		isBand2Horz: PropTypes.func
 	}, Super.childContextTypes)
@@ -83,20 +85,27 @@ export default class Table extends Super{
 		const {firstRow, lastRow, noHBand}=(self.props.directStyle||self.defaultStyle).get('tblPr.tblLook')||{}
 		return Object.assign(super.getChildContext(),{
 			tableStyle: this.props.directStyle||this.defaultStyle,
-			isFirstRow(isCell=false){
-				return (firstRow=="1" || isCell) && self.computed.children.length==0
+			isFirstRow(){
+				return firstRow=="1" && this.isFirstRowAbsolute()
+			},
+			isFirstRowAbsolute(){
+				return self.computed.children.length==0
 			},
 
-			isLastRow(isCell=false){
-				return (lastRow=="1" || isCell) && self.computed.children.length==self.getContentCount()-1
+			isLastRow(){
+				return lastRow=="1" && this.isLastRowAbsolute()
+			},
+			
+			isLastRowAbsolute(){
+				return self.computed.children.length==self.getContentCount()-1
 			},
 
 			isBand1Horz(){
-				return noHBand=="0" && (self.getContentCount()-self.getHeaderRowCount())%2
+				return noHBand=="0" && !this.isFirstRow() && !this.isLastRow() && (self.computed.children.length-self.getHeaderRowCount())%2==1
 			},
 
 			isBand2Horz(){
-				return noHBand=="0" && (self.getContentCount()-self.getHeaderRowCount())%2
+				return noHBand=="0"&& !this.isFirstRow() && !this.isLastRow() && (self.computed.children.length-self.getHeaderRowCount())%2==0
 			}
 		})
 	}
