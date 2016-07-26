@@ -4,15 +4,20 @@ import Line from "./line"
 
 export default class Page extends Component{
     render(){
-        const {size:{width, height}, margin:{left,top}, columns, header, footer}=this.props
+        const {
+			size:{width, height}, 
+			margin:{left,top, bottom, header:headerStartAt=0}, 
+			columns, 
+			header, 
+			footer}=this.props
         return (
             <Group className="page">
                 <Paper width={width} height={height} fill="white"/>
-                {header}
-				<Group x={left} y={top}>
+                <Group x={left} y={headerStartAt}>{header}</Group>
+				<Group x={left} y={top} className="content">
 					{columns.map((a,i)=><Column key={i} {...a}/>)}
 				</Group>
-                {footer}
+                <Group x={left} y={height-bottom}>{footer}</Group>
             </Group>
         )
     }

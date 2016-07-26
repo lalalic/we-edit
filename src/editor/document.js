@@ -49,10 +49,12 @@ export default class extends Super{
 	}
 
 	focusCursor(){
-		let firstText=ReactDOM.findDOMNode(this).querySelector('svg text')
-		let event = document.createEvent("SVGEvents")
-		event.initEvent("click",true,true)
-		firstText.dispatchEvent(event)
+		let firstText=ReactDOM.findDOMNode(this).querySelector('svg .content text')
+		if(firstText){
+			let event = document.createEvent("SVGEvents")
+			event.initEvent("click",true,true)
+			firstText.dispatchEvent(event)
+		}
 	}
 
 	on1ChildComposed(child){

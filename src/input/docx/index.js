@@ -22,6 +22,8 @@ export default class Docx extends Base{
 				if(Content){
 					if((type=="tr" || type=="tc") && !props.directStyle)
 						props.directStyle=this.officeDocument.styles.createDirectStyle({},`${type}Pr`)
+					if(type=='hdr' || type=='ftr')
+						props.key=`${type}_$props.type}`
 					return React.createElement(Content, props, children)
 				}else{
 					console.warn(`${type} is not identified`)

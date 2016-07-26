@@ -5,15 +5,6 @@ import Group from "../composed/group"
 
 export default class Section extends Any{
     static displayName="section"
-	
-	render(){
-		const {header,footer}=this.props
-		return (
-			{Object.keys(header).map(a=>header[a])}
-			{super.render()}
-			{Object.keys(footer).map(a=>footer[a])}
-		)
-	}
 
     /**
      * i: column no

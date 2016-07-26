@@ -1,7 +1,7 @@
 import React from "react"
 
-import Any from "./any"
+import Header from "./header"
 
-export default class footer extends Any{
+export default class footer extends Header{
 	static displayName="footer"	
 }
