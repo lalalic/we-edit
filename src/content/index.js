@@ -10,6 +10,8 @@ import Table from "./table"
 import Row from "./row"
 import Cell from "./cell"
 import List from "./list"
+import Header from "./header"
+import Footer from "./footer"
 
 
 export default {
@@ -24,5 +26,7 @@ export default {
     Table,
 	Row,
 	Cell,
-    List
+    List,
+	Header,
+	Footer
 }

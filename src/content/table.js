@@ -16,7 +16,7 @@ export default class Table extends Super{
 	}
 
 	appendComposed(colGroups){
-		const {width, cols}=this.props
+		const {width, tblGrid:cols}=this.props
 		let height=0, self=this
 
 		let x=0, rowNo=this.computed.children.length-1

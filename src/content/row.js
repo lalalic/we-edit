@@ -8,7 +8,7 @@ export default class Row extends Super{
 	static displayName="row"
 
 	nextAvailableSpace(){
-		const {cols}=this.context.parent.props
+		const {tblGrid:cols}=this.context.parent.props
 		return {width:cols[this.computed.children.length], height:Number.MAX_VALUE}
 	}
 

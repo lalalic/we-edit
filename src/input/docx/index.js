@@ -18,6 +18,7 @@ export default class Docx extends Base{
 					children=children.filter(a=>a)
 				let Content=Models[type]
 				let props=attributes
+				delete props.isSelfClosing
 				if(Content){
 					if((type=="tr" || type=="tc") && !props.directStyle)
 						props.directStyle=this.officeDocument.styles.createDirectStyle({},`${type}Pr`)
@@ -62,7 +63,9 @@ function wordify(domain){
 		Table,
 		Row,
 		Cell,
-		List}=domain
+		List,
+		Header,
+		Footer}=domain
 	return {
 		"docx":Any,
 		"document":Document,
@@ -74,6 +77,8 @@ function wordify(domain){
 		"tr":Row,
 		"tc":Cell,
 		"list":List,
-		"image":Image
+		"image":Image,
+		"hdr":Header,
+		"ftr":Footer
 	}
 }
