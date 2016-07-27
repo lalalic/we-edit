@@ -35,6 +35,7 @@ export default class Document extends HasChild{
     },HasChild.childContextTypes)
 
     getChildContext(){
+		const self=this
 		const styles=this.props.styles
         const {width, pageGap, directStyle}=this.props
 		return Object.assign(super.getChildContext(),{

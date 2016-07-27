@@ -6,18 +6,22 @@ export default class Page extends Component{
     render(){
         const {
 			size:{width, height}, 
-			margin:{left,top, bottom, header:headerStartAt=0}, 
+			margin:{left,top, bottom, header:headerStartAt=0, footer:footerEndAt=0}, 
 			columns, 
 			header, 
 			footer}=this.props
         return (
             <Group className="page">
                 <Paper width={width} height={height} fill="white"/>
-                <Group x={left} y={headerStartAt}>{header}</Group>
+				
+				{header && (<Group x={left} y={headerStartAt} className="header">{header}</Group>)}
+				
 				<Group x={left} y={top} className="content">
 					{columns.map((a,i)=><Column key={i} {...a}/>)}
 				</Group>
-                <Group x={left} y={height-bottom}>{footer}</Group>
+				
+                {footer && (<Group x={left} y={height-footerEndAt-footer.props.height} className="footer">{footer}</Group>)}
+				
             </Group>
         )
     }

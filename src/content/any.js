@@ -5,12 +5,23 @@ export class HasChild extends Component{
     computed={children:[], composed:[]}
 
     static childContextTypes={
-		parent: PropTypes.object
+		parent: PropTypes.object,
+		prevSibling: PropTypes.func
     }
 
     getChildContext(){
+		let self=this
         return {
-			parent: this
+			parent: this,
+			prevSibling(me){
+				const {children:siblings}=self.computed
+				let found=siblings.indexOf(me)
+				if(found==-1){//not found, current should no be composed
+					return siblings[siblings.length-1]
+				}else{
+					return siblings[found-1]
+				}
+			}
         }
     }
 
@@ -95,7 +106,8 @@ export class HasChild extends Component{
 export default class HasParentAndChild extends HasChild{
     static displayName="content"
     static contextTypes={
-        parent: PropTypes.object
+        parent: PropTypes.object,
+		prevSibling: PropTypes.func
     }
     /**
      * children should call before composing line,

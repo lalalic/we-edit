@@ -2,9 +2,16 @@ import React, {Component, PropTypes} from "react"
 import Any from "./any"
 
 import Group from "../composed/group"
+import Header from "./header"
+import Footer from "./footer"
 
 export default class Section extends Any{
     static displayName="section"
+	constructor(){
+		super(...arguments)
+		this.computed.headers={}
+		this.computed.footers={}
+	}
 
     /**
      * i: column no
@@ -37,12 +44,15 @@ export default class Section extends Any{
      */
     _newPage(i){
         const {pgSz:size,  pgMar:margin}=this.props
+		const pageNo=this.computed.composed.length+1
+		let headerEl=this.getPageHeaderFooter('header',pageNo)
+		let footerEl=this.getPageHeaderFooter('footer',pageNo)
         let info={
             size,
             margin,
             columns:[this._newColumn(0)],
-            header:null,
-            footer:null
+            header: headerEl ? headerEl.createComposed2Parent() : null,
+            footer: footerEl ? footerEl.createComposed2Parent() : null
         }
 		return info
     }
@@ -109,6 +119,56 @@ export default class Section extends Any{
 	 */
 	createComposed2Parent(props){
 		return <Group {...props}/>
+	}
+	
+	//check http://officeopenxml.com/WPsectionFooterReference.php
+	getPageHeaderFooter(category, pageNo){
+		category=this.computed[`${category}s`]
+		let type=pageNo==1&&this.props.titlePg!=undefined ? 'first' : (pageNo%2==0 ? 'even' : 'default')
+		let target=category[type]
+		if(target)
+			return target
+		
+		let prev=this.context.prevSibling(this)
+		switch(type){
+		case 'first':
+			if(this.props.titlePg!=undefined){
+				if(prev){
+					return prev.getPageHeaderFooter(...arguments)
+				}else{
+					return null
+				}
+			}else{
+				return category['default']//or inherited odd
+			}
+		break
+		case 'even':
+			if(this.context.parent.props.settings.get('settings.evenAndOddHeaders')!=undefined){
+				if(prev){
+					return prev.getPageHeaderFooter(...arguments)
+				}else{
+					return null
+				}
+			}else{
+				return category['default']//or inherited odd
+			}
+		break
+		default:
+			if(prev)
+				return prev.getPageHeaderFooter(...arguments)
+			else
+				return null
+		break
+		}
+	}
+	
+	on1ChildComposed(child){
+		super.on1ChildComposed(...arguments)
+		if(child instanceof Footer){
+			this.computed.footers[child.props.type]=child
+		}else if(child instanceof Header){
+			this.computed.headers[child.props.type]=child
+		}
 	}
 
     onAllChildrenComposed(){

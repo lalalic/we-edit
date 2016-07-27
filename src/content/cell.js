@@ -84,7 +84,7 @@ export default class Cell extends Super{
                     get(path){
 						directStyle.basedOn=rowStyle
 						rowStyle.basedOn=tableStyle
-						let conditions=self.confitions
+						let conditions=self.conditions
                         let v=directStyle.get(path, conditions)
                         if(v==undefined)
                             return inheritedStyle.get(path, conditions)

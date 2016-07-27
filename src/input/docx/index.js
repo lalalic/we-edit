@@ -13,7 +13,7 @@ export default class Docx extends Base{
 
 		return (class extends docx4js{
 			onCreateElement(node, type){
-				let {attributes, children}=node
+				let {attributes, children, parent}=node
 				if(Array.isArray(children))
 					children=children.filter(a=>a)
 				let Content=Models[type]
@@ -23,7 +23,8 @@ export default class Docx extends Base{
 					if((type=="tr" || type=="tc") && !props.directStyle)
 						props.directStyle=this.officeDocument.styles.createDirectStyle({},`${type}Pr`)
 					if(type=='hdr' || type=='ftr')
-						props.key=`${type}_$props.type}`
+						props.key=`${type}_${props.type}`
+					
 					return React.createElement(Content, props, children)
 				}else{
 					console.warn(`${type} is not identified`)
