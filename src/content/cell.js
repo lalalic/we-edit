@@ -77,6 +77,7 @@ export default class Cell extends Super{
 
 	getChildContext(){
 		let self=this
+		let conditions=this.conditions
 		const {tableStyle, rowStyle, inheritedStyle}=this.context
 		const {directStyle}=this.props
         return Object.assign( super.getChildContext(),{
@@ -84,7 +85,6 @@ export default class Cell extends Super{
                     get(path){
 						directStyle.basedOn=rowStyle
 						rowStyle.basedOn=tableStyle
-						let conditions=self.conditions
                         let v=directStyle.get(path, conditions)
                         if(v==undefined)
                             return inheritedStyle.get(path, conditions)
