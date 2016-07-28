@@ -11,6 +11,19 @@ export default class WordWrapper{
         this.height=Math.ceil(height)
 		this.descent=Math.ceil(descent)
         this.composed=0
+		
+		this.defaultStyle={
+			whiteSpace:'pre',
+			fontSize:`${this.size}px`,
+			fontWeight:style.b ? 700 : 400,
+			fontStyle:style.i ? "italic" : "normal",
+			height: this.height,
+			descent: this.descent,
+			fontFamily:this.fontFamily
+		}
+		
+		if(style.color)
+			this.defaultStyle.fill=style.color
     }
 
 	lineHeight(){
@@ -59,6 +72,6 @@ export default class WordWrapper{
         }
 
 		info.width=Math.ceil(info.width)
-        return Object.assign(info,{fontFamily:this.fontFamily})
+        return Object.assign(info,this.defaultStyle)
     }
 }
