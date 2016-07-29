@@ -73,15 +73,15 @@ function wordify(domain){
 		"docx":Any,
 		"document":Document,
 		"section":Section,
-		"p":Paragraph,
-		"r":Inline,
-		"t":Text,
-		"tbl":Table,
-		"tr":Row,
-		"tc":Cell,
+		"paragraph":Paragraph,
+		"inline":Inline,
+		"text":Text,
+		"table":Table,
+		"row":Row,
+		"cell":Cell,
 		"list":List,
 		"image":Image,
-		"hdr":Header,
-		"ftr":Footer
+		"header":Header,
+		"footer":Footer
 	}
 }
