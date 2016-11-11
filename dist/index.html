@@ -15,7 +15,9 @@
     <body style="margin:0;padding:0;border:0">
 		<div id="app" style="position:absolute"></div>
 		<div style="position:absolute;top:0px;left:0px; z-index:2">
+			<!--
 			<input type="file" id="fonts" onchange="javascript: require('we-edit').loadFont(this.files)">
+			-->
 			<input type="file" id="content" onchange="require('we-edit').edit(this.files[0], document.querySelector('#app'));this.value=''">
 		</div>
 	</body>

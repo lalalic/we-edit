@@ -4,8 +4,9 @@ import React from "react"
 
 
 export default class Docx extends Base{
-	static support(file){
-		return true
+	
+	static support({type}){
+		return type=="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 	}
 
 	load(data, domain){
@@ -20,10 +21,11 @@ export default class Docx extends Base{
 				let props=attributes
 				delete props.isSelfClosing
 				if(Content){
-					if((type=="tr" || type=="tc") && !props.directStyle)
-						props.directStyle=this.officeDocument.styles.createDirectStyle({},`${type}Pr`)
-					if(type=='hdr' || type=='ftr')
-						props.key=`${type}_${props.type}`
+					let docxType=node.name.split(':')[1]
+					if((type=="row" || type=="cell") && !props.directStyle)
+						props.directStyle=this.officeDocument.styles.createDirectStyle(null,`${docxType}Pr`)
+					if(type=='header' || type=='footer')
+						props.key=`${docxType}_${props.type}`
 					
 					return React.createElement(Content, props, children)
 				}else{
