@@ -55,9 +55,19 @@ export default class extends Super{
 
     onClick(event, text){
 		const {nativeEvent:{offsetX=0, offsetY=0}, target}=event
+		let x=offsetX-(function(p){
+			let offset=0
+			while(p && p.tagName!="svg"){
+				let x=p.getAttribute("x")
+				if(x)
+					offset+=parseFloat(x)
+				p=p.parentElement
+			}
+			return offset
+		})(target.parentElement);
         let style=this.getStyle()
         let composer=new this.constructor.WordWrapper(text.children, style)
-        let {contentWidth,end}=composer.next({width:offsetX})||{end:0,contentWidth:0}
+        let {contentWidth,end}=composer.next({width:x})||{end:0,contentWidth:0}
         let index=text.end-text.children.length+end
 		let cursor=this.context.cursor()
 		cursor.setState({

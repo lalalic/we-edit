@@ -42,9 +42,13 @@ export default class extends Super{
 			break
 			case 32:
 				e.preventDefault()
-			default:
 				this.refs.cursor.insert(String.fromCharCode(e.keyCode))
+			break
 			}
+		})
+
+		document.addEventListener("keypress",e=>{
+			this.refs.cursor.insert(String.fromCharCode(e.keyCode))
 		})
 	}
 
