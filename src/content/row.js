@@ -122,7 +122,6 @@ export default class Row extends Super{
 		let self=this
 		const {firstColumn, lastColumn, noVBand}=this.context.tableStyle.get('tblPr.tblLook')||{}
 		let children=this.computed.children
-		let contentLength=this.getContentCount()
 		return Object.assign(super.getChildContext(),{
 			rowStyle: this.props.directStyle,
 			isFirstCol(){

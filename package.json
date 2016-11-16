@@ -13,6 +13,8 @@
     "immutable": "^3.8.1",
     "react": "^15.1.0",
     "react-dom": "^15.1.0",
+    "react-redux": "^4.4.6",
+    "redux": "^3.6.0",
     "sax": "^1.2.1",
     "ttfjs": "^0.4.0",
     "word-wrapper": "^1.0.7"

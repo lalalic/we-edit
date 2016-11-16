@@ -16,7 +16,7 @@ export class HasChild extends Component {
             prevSibling(me) {
                 const {children: siblings} = self.computed
                 let found = siblings.indexOf(me)
-                if (found == -1) {//not found, current should no be composed
+                if (found == -1) {//not found, current should not be composed
                     return siblings[siblings.length - 1]
                 } else {
                     return siblings[found - 1]

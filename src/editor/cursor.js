@@ -1,7 +1,8 @@
 import React, {Component, PropTypes} from "react"
 import ReactDOM from "react-dom"
+import {connect} from "react-redux"
 
-export default class Cursor extends Component{
+export class Cursor extends Component{
 	static displayName="cursor"
 	state={target:null, node: null, at: 0, width:0, height:0, descent:0, style:{}}
 
@@ -61,3 +62,29 @@ export class Shape extends Component{
 		this.timer && clearInterval(this.timer)
 	}
 }
+
+let timer
+const CursorShape=({width, height, descent})=>{
+	width=Math.ceil(width)
+	height=Math.ceil(height)
+	descent=Math.ceil(descent)
+	return (
+		<line
+			x1={width}
+			y1={descent}
+			x2={width}
+			y2={-height+descent}
+			strokeWidth={1}
+			stroke={"black"}
+			ref={node=>{
+				timer && clearInterval(timer);
+				timer=setInterval(a=>{
+					let y1=node.getAttribute('y1'), y2=node.getAttribute('y2')
+					node.setAttribute('y1',y1==y2 ? descent : y2)
+				}, 700)
+			}}
+			/>
+		)
+}
+
+export default Cursor

@@ -1,14 +1,30 @@
 import React, {PropTypes} from "react"
 import ReactDOM from "react-dom"
+import {createStore, compose, applyMiddleware, combineReducers} from "redux"
+import {Provider, connect} from "react-redux"
 
 import {Document} from "../content"
 import editable from "./editable"
 import Cursor from "./cursor"
+import * as Selection from "./selection"
 
-let Super=editable(Document)
+const Super=editable(Document)
+
+const composeEnhancers=window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
+
 export default class extends Super{
+	store=createStore(combineReducers({selection:Selection.reducer}), {}, composeEnhancers())
+	
 	more(){
 		return <Cursor ref="cursor"/>
+	}
+	
+	render(){
+		return (
+			<Provider store={this.store}>
+			{super.render()}
+			</Provider>
+		)
 	}
 
 

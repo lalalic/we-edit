@@ -1,14 +1,16 @@
 import React,{PropTypes} from "react"
 import ReactDOM from "react-dom"
+import {connect} from "react-redux"
 
 import {Text} from "../content"
 import editable from "./editable"
 
 import Group from "../composed/group"
-import {Shape as CursorShape} from "./cursor"
+import * as Selection from "./selection"
 
-let Super=editable(Text)
-export default class extends Super{
+
+const Super=editable(Text)
+export class EditableText extends Super{
 	constructor(){
 		super(...arguments)
 		this.state=Object.assign(super.state||{},{content:this.props.children})
@@ -78,6 +80,7 @@ export default class extends Super{
 			height:composer.height,
 			descent: composer.descent,
 			style })
+		this.props.dispatch(Selection.ACTION.SELECT(this._id,index))
     }
 
 	splice(start, length, str){
@@ -91,3 +94,27 @@ export default class extends Super{
 		cursor: PropTypes.func
 	},Super.contextTypes)
 }
+
+import {getContent} from "./selector"
+
+export const ACTION={
+	INSERT: text=>({type:"insert.text",payload:text})
+}
+
+export const reducer=(state, {type,payload})=>{
+	switch(type){
+	case "insert.text":
+		const {start,end}=state.selection
+		if(start==end){
+			let content=getContent(state, start.content)
+			let newText=content.children.splice(start.at,payload.length,payload)
+			
+		}else{
+			
+		}
+	break
+	}
+	return state
+}
+
+export default connect()(EditableText)
