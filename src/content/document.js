@@ -8,12 +8,10 @@ export default class Document extends HasChild{
 
 	render(){
 		const {computed:{composed}, props:{width, height}}=this
-		const {pageGap, ...others}=this.props
+		const {pageGap, ...others}=this.props 
         return (
 			<div>
-				<div>
-					{super.render()}
-				</div>
+				{super.render()}
 				<svg {...others}
 					ref="svg"
 					width={width} height={height} viewBox={`0 0 ${width} ${height}`}>

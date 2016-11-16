@@ -97,9 +97,5 @@ export default function editable(Content){
 			}
             return true
         }
-
-		blur(){
-
-		}
     }
 }
