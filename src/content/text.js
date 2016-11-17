@@ -35,8 +35,8 @@ export default class Text extends NoChild{
 
 	createComposed2Parent(props){
 		const {color}=this.getStyle()
-		const {width, height, descent, ...others}=props
-		return <Group width={width} height={height} descent={descent}><text {...props} style={{whiteSpace:"pre"}}/></Group>
+		const {width, height, descent, contentWidth, whiteSpace, ...others}=props
+		return <Group width={width} height={height} descent={descent}><text {...{width,height,descent}} {...others} style={{whiteSpace:"pre"}}/></Group>
 	}
 
 	static contextTypes=Object.assign({

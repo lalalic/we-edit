@@ -26,7 +26,7 @@ export class HasChild extends Component {
     }
 
     render() {
-        return <div>{this.getContent()}</div>
+		return <div>{this.getContent()}</div>
     }
 
     /**

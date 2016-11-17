@@ -12,8 +12,45 @@ const Super=editable(Document)
 
 const composeEnhancers=window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
 
-export default class extends Super{
-	store=createStore(combineReducers({selection:Selection.reducer}), {}, composeEnhancers())
+const ACTION={
+	SET: content=>({type:"content.set",payload:content})
+}
+
+const reducer=(state={}, {type,payload})=>{
+	switch(type){
+	case "content.set":
+		return payload	
+	}
+	return state
+}
+
+export default class EditableDocument extends Super{
+	constructor(){
+		super(...arguments)
+
+		this.store=createStore(combineReducers({
+				content:reducer
+				,selection:Selection.reducer
+			}), {
+				content:{}
+				,style:{}
+				,setting:{}
+				,selection:{
+					start:{
+						id:0
+						,at:0
+					}
+					,end:{
+						id:0
+						,at:0
+					}
+				}
+			}, composeEnhancers())
+		
+		const content=this.extractContent()
+		
+		this.store.dispatch(ACTION.SET(content))
+	}
 	
 	more(){
 		return <Cursor ref="cursor"/>
@@ -43,10 +80,24 @@ export default class extends Super{
 
 	componentDidMount(){
 		super.componentDidMount()
-
+		
 		this.inputReady()
 
 		this.focusCursor()
+	}
+	
+	extractContent(){
+		const extract=element=>{
+			const {children, ...others}=element
+			others.type=""
+			others.content=React.Children.map(children, extract)
+			return others
+		}
+		
+		const {children, ...others}=this.props
+		
+		others.content=React.Children.map(children, extract)
+		return others
 	}
 
 	inputReady(){

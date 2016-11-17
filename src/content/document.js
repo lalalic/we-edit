@@ -8,13 +8,15 @@ export default class Document extends HasChild{
 
 	render(){
 		const {computed:{composed}, props:{width, height}}=this
-		const {pageGap, ...others}=this.props
+		const {pageGap, style, ...others}=this.props
         return (
 			<div>
 				{super.render()}
-				<svg {...others}
+				<svg style={style}
 					ref="svg"
-					width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
+					width={width} 
+					height={height} 
+					viewBox={`0 0 ${width} ${height}`}>
 					<Composed ref="composed" gap={pageGap} canvas={{width}} sections={()=>
 						this.computed.children.reduce((collected, section)=>{
 							collected.push(section.computed.composed)

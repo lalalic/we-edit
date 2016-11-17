@@ -1,6 +1,9 @@
+import React from "react"
 import docx4js from "docx4js"
 import Base from "../base"
-import React from "react"
+
+import {uuid} from "../../tools/uuid"
+
 
 
 export default class Docx extends Base{
@@ -11,7 +14,6 @@ export default class Docx extends Base{
 
 	load(data, domain){
 		const Models=wordify(domain)
-
 		return (class extends docx4js{
 			onCreateElement(node, type){
 				let {attributes, children, parent}=node
@@ -19,8 +21,9 @@ export default class Docx extends Base{
 					children=children.filter(a=>a)
 				let Content=Models[type]
 				let props=attributes
-				delete props.isSelfClosing
+				
 				if(Content){
+					props.key=props.id=uuid()
 					let docxType=node.name.split(':')[1]
 					if((type=="row" || type=="cell") && !props.directStyle)
 						props.directStyle=this.officeDocument.styles.createDirectStyle(null,`${docxType}Pr`)
@@ -35,7 +38,6 @@ export default class Docx extends Base{
 			}
 
 		}).load(data).then(docx=>docx.parse().then(docx=>{
-			console.log(docx)
 			return docx
 		}))
 	}

@@ -11,7 +11,7 @@ export default class extends editable(Table){
 		let {width,height}=row.props
 		let ps={width,height}
 		if(this.computed.composed.length==1)//that's why fill this.computed.composed in appendComposed
-			ps._id=this._id
+			ps.id=this.id
 		return <Group {...ps}>{row}</Group>
 	}
 

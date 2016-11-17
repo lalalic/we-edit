@@ -1,7 +1,5 @@
 import React from "react"
 
-
-var uuid=0
 /**
  *  it's a very complicated job, so we need a very simple design, one sentence described solution. options:
  *  1. remove all composed, and re-compose all
@@ -26,9 +24,12 @@ var uuid=0
  */
 export default function editable(Content){
 	return class extends Content{
-		_id=uuid++
 		state={content:this.props.children.length==0 ? this.emptyContent() : React.Children.toArray(this.props.children)}
 
+		get id(){
+			return this.props.id
+		}
+		
 		emptyContent(){
 			return []
 		}

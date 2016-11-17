@@ -1,6 +1,7 @@
 import React,{PropTypes} from "react"
 import ReactDOM from "react-dom"
 import {connect} from "react-redux"
+import offset from "mouse-event-offset"
 
 import {Text} from "../content"
 import editable from "./editable"
@@ -55,18 +56,8 @@ export class EditableText extends Super{
 		)
     }
 
-    onClick(event, text){
-		const {nativeEvent:{offsetX=0, offsetY=0}, target}=event
-		let x=offsetX-(function(p){
-			let offset=0
-			while(p && p.tagName!="svg"){
-				let x=p.getAttribute("x")
-				if(x)
-					offset+=parseFloat(x)
-				p=p.parentElement
-			}
-			return offset
-		})(target.parentElement);
+    onClick({nativeEvent, target}, text){
+		let [x]=offset(nativeEvent, target)
         let style=this.getStyle()
         let composer=new this.constructor.WordWrapper(text.children, style)
         let {contentWidth,end}=composer.next({width:x})||{end:0,contentWidth:0}
@@ -80,7 +71,7 @@ export class EditableText extends Super{
 			height:composer.height,
 			descent: composer.descent,
 			style })
-		this.props.dispatch(Selection.ACTION.SELECT(this._id,index))
+		this.props.dispatch(Selection.ACTION.SELECT(this.id,index))
     }
 
 	splice(start, length, str){

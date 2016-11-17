@@ -12,13 +12,13 @@ export default class extends editable(Section){
 
 	_reComposeFrom(content){
         const {composed}=this.computed
-		const {_id: targetId}=content
+		const {id: targetId}=content
         let currentPage=composed[composed.length-1]
         let {columns}=currentPage
         let currentColumn=columns[columns.length-1]
 		let found=-1
 		while(-1==(found=currentColumn.children.findIndex(group=>{//group/Line
-			return group.props.children.props._id==targetId
+			return group.props.children.props.id==targetId
 		}))){
 			columns.pop()
 			if(columns.length){

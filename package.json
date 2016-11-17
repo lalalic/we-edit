@@ -11,6 +11,8 @@
     "cssstyle": "^0.2.36",
     "docx4js": "^2.0.0",
     "immutable": "^3.8.1",
+    "mouse-event-offset": "^3.0.2",
+    "normalizr": "^2.2.1",
     "react": "^15.1.0",
     "react-dom": "^15.1.0",
     "react-redux": "^4.4.6",

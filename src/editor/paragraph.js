@@ -8,10 +8,12 @@ import editable from "./editable"
 import Inline from "./inline"
 import Text from "./text"
 
+import {uuid} from "../tools/uuid"
+
 
 export default class extends editable(Paragraph){
 	emptyContent(){
-		return [<Inline><Text> </Text></Inline>]
+		return [<Inline key={uuid()}><Text key={uuid()}> </Text></Inline>]
 	}
 
 	createComposed2Parent(props){
@@ -19,7 +21,7 @@ export default class extends editable(Paragraph){
 		let {width,height}=line.props
 		let ps={width,height}
 		if(this.computed.composed.length==1)
-			ps._id=this._id
+			ps.id=this.id
 		return <Group {...ps}>{line}</Group>
 	}
 
