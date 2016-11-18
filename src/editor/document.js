@@ -28,10 +28,12 @@ export default class EditableDocument extends Super{
 	constructor(){
 		super(...arguments)
 
-		this.store=createStore(combineReducers({
-				content:reducer
-				,selection:Selection.reducer
-			}), {
+		this.store=createStore(
+			({content,selection, ...others},action)=>Object.assign(others, combineReducers({
+					content:reducer
+					,selection:Selection.reducer
+			})({content,selection},action))
+			,{
 				content:{}
 				,style:{}
 				,setting:{}
@@ -45,11 +47,8 @@ export default class EditableDocument extends Super{
 						,at:0
 					}
 				}
-			}, composeEnhancers())
-		
-		const content=this.extractContent()
-		
-		this.store.dispatch(ACTION.SET(content))
+			}
+			,composeEnhancers())
 	}
 	
 	more(){
