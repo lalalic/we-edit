@@ -25,10 +25,6 @@ import React from "react"
 export default function editable(Content){
 	return class extends Content{
 		state={content:this.props.children.length==0 ? this.emptyContent() : React.Children.toArray(this.props.children)}
-
-		get id(){
-			return this.props.id
-		}
 		
 		emptyContent(){
 			return []
@@ -43,6 +39,14 @@ export default function editable(Content){
 
 		appendLastComposed(){
 
+		}
+		
+		get id(){
+			return this.props.id
+		}
+
+		createComposed2Parent(props){
+			return super.createComposed2Parent({...props, "data-content":this.id})
 		}
 
         reCompose(){
@@ -98,9 +102,5 @@ export default function editable(Content){
 			}
             return true
         }
-
-		blur(){
-
-		}
-    }
+	}
 }

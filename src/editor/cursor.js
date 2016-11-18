@@ -1,90 +1,45 @@
 import React, {Component, PropTypes} from "react"
-import ReactDOM from "react-dom"
 import {connect} from "react-redux"
+import {WordWrapper} from "./text"
+import * as Selection from "./selection"
 
-export class Cursor extends Component{
-	static displayName="cursor"
-	state={target:null, node: null, at: 0, width:0, height:0, descent:0, style:{}}
-
-    render(){
-		const {width, height, descent, style}=this.state
-		return (
-			<Shape ref="shape" width={width} height={height} style={style} descent={descent}/>
-		)
-    }
-
-	componentDidUpdate(prevProps, prevState){
-		const {target, node, at}=this.state
-		if(target && node){
-			node.appendChild(ReactDOM.findDOMNode(this.refs.shape))
-			node.setAttribute('class', 'cursor')
-		}
-	}
-
-	insert(content){
-		const {target, at}=this.state
-		this.setState({node:null, at:at+content.length})
-		target.splice(at,0,content)
-	}
-
-	backspace(){
-		const {target, at}=this.state
-		this.setState({node:null, at:at-1})
-		target.splice(at-1,1)
+export const ACTION={
+	AT: (content:id, from, width, top, left)=>dispatch=>{
+		const content=getComponentById(id)
+		const text=content.getContent()
+		const wordwrapper=new WordWrapper(text.substr(from), content.getStyle())
+		const {end, contentWidth}=wordwrapper.next({width})||{end:0,contentWidth:0}
+		const {height, descent}=wordwrapper
+		dispatch(Selection.SELECT(id, from+end))
+		dispatch({type:'cursor',payload:{top:top+descent,left:left+contentWidth,height}})
 	}
 }
 
-export class Shape extends Component{
-	render(){
-		let {width, height, descent, style}=this.props
-		width=Math.ceil(width)
-		height=Math.ceil(height)
-		descent=Math.ceil(descent)
-		return <line
-					x1={width}
-					y1={descent}
-					x2={width}
-					y2={-height+descent}
-					strokeWidth={1}
-					stroke={style.color||"black"}
-					/>
+export const reducer=(state={top:0,left:0,height:0}, {type, payload})=>{
+	switch(type){
+	case 'cursor':
+		return payload
 	}
-
-	componentDidMount(){
-		let node=ReactDOM.findDOMNode(this)
-		this.timer=setInterval(a=>{
-			let y1=node.getAttribute('y1'), y2=node.getAttribute('y2')
-			node.setAttribute('y1',y1==y2 ? this.props.descent : y2)
-		}, 700)
-	}
-
-	componentWillUnmount(){
-		this.timer && clearInterval(this.timer)
-	}
+	return state
 }
 
 let timer
-const CursorShape=({width, height, descent})=>{
-	width=Math.ceil(width)
-	height=Math.ceil(height)
-	descent=Math.ceil(descent)
-	return (
-		<line
-			x1={width}
-			y1={descent}
-			x2={width}
-			y2={-height+descent}
-			strokeWidth={1}
-			stroke={"black"}
-			ref={node=>{
-				timer && clearInterval(timer);
-				timer=setInterval(a=>{
-					let y1=node.getAttribute('y1'), y2=node.getAttribute('y2')
-					node.setAttribute('y1',y1==y2 ? descent : y2)
-				}, 700)
-			}}
-			/>
-		)
-}
+export const Cursor=({top,left,height})=>(
+	<line
+		x1={left}
+		y1={top}
+		x2={left}
+		y2={top+height}
+		strokeWidth={1}
+		stroke={"black"}
+		ref={node=>{
+			timer && clearInterval(timer);
+			timer=setInterval(a=>{
+				let y1=node.getAttribute('y1'), y2=node.getAttribute('y2')
+				node.setAttribute('y2',y1==y2 ? top+height : top)
+			}, 700)
+		}}
+		/>
+)
 
-export default Cursor
+export default connect(state=>state.cursor)(Cursor)

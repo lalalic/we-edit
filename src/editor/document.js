@@ -5,7 +5,7 @@ import {Provider, connect} from "react-redux"
 
 import {Document} from "../content"
 import editable from "./editable"
-import Cursor from "./cursor"
+import * as Cursor from "./cursor"
 import * as Selection from "./selection"
 
 const Super=editable(Document)
@@ -29,30 +29,20 @@ export default class EditableDocument extends Super{
 		super(...arguments)
 
 		this.store=createStore(
-			({content,selection, ...others},action)=>Object.assign(others, combineReducers({
+			({content,selection, cursor, ...others},action)=>Object.assign(others, combineReducers({
 					content:reducer
 					,selection:Selection.reducer
-			})({content,selection},action))
+					,cursor: Cursor.reducer
+			})({content,selection,cursor},action))
 			,{
-				content:{}
-				,style:{}
+				style:{}
 				,setting:{}
-				,selection:{
-					start:{
-						id:0
-						,at:0
-					}
-					,end:{
-						id:0
-						,at:0
-					}
-				}
 			}
 			,composeEnhancers())
 	}
 	
 	more(){
-		return <Cursor ref="cursor"/>
+		return [<Cursor.Cursor key="cursor"/>, <Selection.Selection key="selection"/>]
 	}
 	
 	render(){
@@ -63,41 +53,14 @@ export default class EditableDocument extends Super{
 		)
 	}
 
-
-	static childContextTypes=Object.assign({
-		cursor: PropTypes.func
-	},Super.childContextTypes)
-
-	getChildContext(){
-		var self=this
-		return Object.assign(super.getChildContext(),{
-			cursor(){
-				return self.refs.cursor
-			}
-		})
-	}
-
 	componentDidMount(){
 		super.componentDidMount()
 		
 		this.inputReady()
 
-		this.focusCursor()
+		this.cursorReady()
 	}
 	
-	extractContent(){
-		const extract=element=>{
-			const {children, ...others}=element
-			others.type=""
-			others.content=React.Children.map(children, extract)
-			return others
-		}
-		
-		const {children, ...others}=this.props
-		
-		others.content=React.Children.map(children, extract)
-		return others
-	}
 
 	inputReady(){
 		document.addEventListener("keydown",e=>{
@@ -118,13 +81,25 @@ export default class EditableDocument extends Super{
 		})
 	}
 
-	focusCursor(){
-		let firstText=ReactDOM.findDOMNode(this).querySelector('svg .content text')
-		if(firstText){
-			let event = document.createEvent("SVGEvents")
-			event.initEvent("click",true,true)
-			firstText.dispatchEvent(event)
-		}
+	cursorReady(){
+		const root=this.refs.svg
+		root.addEventListener("click", e=>{
+			const target=e.target
+			switch(target.nodeName){
+			case 'text':
+				let text=target.textContent
+				let contentEndIndex=target.getAttribute("end")
+				let contentID=target.getAttribute("data-content")
+				let [x]=offset(e, target)
+				let {top, left}=getClientBoundBox(target)
+				this.store.dispatch(Cursor.ACTION.AT(contentID,contentEndIndex-text.length, x, top,left))
+			break
+			case 'image':
+			break
+			}
+		})
+		
+		
 	}
 
 	on1ChildComposed(child){

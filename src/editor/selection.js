@@ -1,18 +1,31 @@
 import React, {Component, PropTypes} from "react"
 
 export const ACTION={
-	SELECT: (id,start,end=start)=>({type:"selected", payload: {target:id,start,end}})
+	SELECT: (start, at, end=start, endAt=at)=>({
+		type:"selected"
+		,payload: {
+			start:{
+				id:start
+				,at
+			}
+			,end:{
+				id:end
+				,at:endAt
+			}
+		}
+	})	
 }
 
 export const reducer=(state={}, {type,payload})=>{
 	switch(type){
 	case "selected":
-		return Object.assign({},state,payload)
+		return ({...state, ...payload})
 	}
 	return state
 }
 
 export class Selection extends Component{
 	render(){
+		return null
 	}
 }
