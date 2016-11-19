@@ -16,7 +16,7 @@ export class EditableText extends Super{
 		super(...arguments)
 		this.state=Object.assign(super.state||{},{content:this.props.children})
 	}
-	
+
 	getContentCount(){
 		return 1
 	}
@@ -24,24 +24,32 @@ export class EditableText extends Super{
 
 import {getContent} from "./selector"
 
+const DOMAIN="text"
 export const ACTION={
-	INSERT: text=>({type:"insert.text",payload:text})
-}
-
-export const reducer=(state, {type,payload})=>{
-	switch(type){
-	case "insert.text":
-		const {start,end}=state.selection
-		if(start==end){
-			let content=getContent(state, start.content)
-			let newText=content.children.splice(start.at,payload.length,payload)
-			
+	INSERT: t=>(dispatch, getState)=>{
+		const state=getState()
+		const {start:{id,at},end}=state.selection
+		if(id==end.id){
+			let content=getContent(id)
+			let text=content.getContent()
+			let newText=text.substring(0,at)+t+text.substr(end.at)
+			content.setState({content:newText})
 		}else{
-			
+
 		}
-	break
 	}
-	return state
+	,REMOVE: n=>(dispatch, getState)=>{
+		const state=getState
+		const {start:{id,at},end}=state.selection
+		if(id==end.id){
+			let content=getContent(id)
+			let text=content.getContent()
+			let newText=text.substring(0,at)+text.substr(end.at+n)
+			content.setState({content:nexText})
+		}else{
+
+		}
+	}
 }
 
 export default EditableText

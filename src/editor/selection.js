@@ -13,10 +13,19 @@ export const ACTION={
 				,at:endAt
 			}
 		}
-	})	
+	})
 }
-
-export const reducer=(state={}, {type,payload})=>{
+const INIT_STATE={
+	start:{
+		id:0
+		,at:0
+	}
+	,end:{
+		id:0
+		,at:0
+	}
+}
+export const reducer=(state=INIT_STATE, {type,payload})=>{
 	switch(type){
 	case "selected":
 		return ({...state, ...payload})
@@ -29,3 +38,7 @@ export class Selection extends Component{
 		return null
 	}
 }
+
+export const isCursor=({start:{id,at}, end})=> id && id==end.id && at=end.at
+
+export default Selection
