@@ -53,14 +53,25 @@ export default class EditableDocument extends Super{
 
 	inputReady(){
 		document.addEventListener("keydown",e=>{
+			e.preventDefault()
 			switch(e.keyCode){
-			case 8:
-				e.preventDefault()
-				this.store.dispatch(Text_ACTION.REMOVE(-1))
+			case 8://backspace
+				this.store.dispatch(Text_ACTION.REMOVE(1))
 			break
-			case 32:
-				e.preventDefault()
+			case 32://space
 				this.store.dispatch(Text_ACTION.INSERT(String.fromCharCode(e.keyCode)))
+			break
+			case 37://ARROW LEFT
+				this.store.dispatch(Selection_ACTION.MOVE_LEFT())
+			break
+			case 38://ARROW UP
+				this.store.dispatch(Selection_ACTION.MOVE_UP())
+			break
+			case 39://ARROW RIGHT
+				this.store.dispatch(Selection_ACTION.MOVE_RIGHT())
+			break
+			case 40://ARROW DOWN
+				this.store.dispatch(Selection_ACTION.MOVE_DOWN())
 			break
 			}
 		})

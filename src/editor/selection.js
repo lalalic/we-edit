@@ -1,8 +1,9 @@
 import React, {Component, PropTypes} from "react"
 
+const DOMAIN="selection"
 export const ACTION={
 	SELECT: (start, at, end=start, endAt=at)=>({
-		type:"selected"
+		type:`${DOMAIN}/selected`
 		,payload: {
 			start:{
 				id:start
@@ -14,6 +15,11 @@ export const ACTION={
 			}
 		}
 	})
+	,MOVE_RIGHT: a=>({type:`${DOMAIN}/MOVE_RIGHT`})
+	,MOVE_LEFT: a=>({type:`${DOMAIN}/MOVE_LEFT`})
+	,MOVE_UP: a=>({type:`${DOMAIN}/MOVE_UP`})
+	,MOVE_DOWN: a=>({type:`${DOMAIN}/MOVE_DOWN`})
+
 }
 const INIT_STATE={
 	start:{
@@ -27,8 +33,20 @@ const INIT_STATE={
 }
 export const reducer=(state=INIT_STATE, {type,payload})=>{
 	switch(type){
-	case "selected":
+	case `${DOMAIN}/selected`:
 		return ({...state, ...payload})
+	case `${DOMAIN}/MOVE_DOWN`:
+	case `${DOMAIN}/MOVE_RIGHT`:{
+			let {start:{id,at},end}=state
+			at++
+			return {start:{id,at}, end:{id,at}}
+		}
+	case `${DOMAIN}/MOVE_UP`:
+	case `${DOMAIN}/MOVE_LEFT`:{
+			let {start:{id,at},end}=state
+			at--
+			return {start:{id,at}, end:{id,at}}
+		}
 	}
 	return state
 }
@@ -38,7 +56,5 @@ export class Selection extends Component{
 		return null
 	}
 }
-
-export const isCursor=({start:{id,at}, end})=> id && id==end.id && at=end.at
 
 export default Selection

@@ -33,19 +33,25 @@ export const ACTION={
 			let content=getContent(id)
 			let text=content.getContent()
 			let newText=text.substring(0,at)+t+text.substr(end.at)
-			content.setState({content:newText})
+			content.setState({content:newText}, e=>{
+				content.reCompose()
+				dispatch(Selection.ACTION.SELECT(id,at+t.length))
+			})
 		}else{
 
 		}
 	}
 	,REMOVE: n=>(dispatch, getState)=>{
-		const state=getState
+		const state=getState()
 		const {start:{id,at},end}=state.selection
 		if(id==end.id){
 			let content=getContent(id)
 			let text=content.getContent()
-			let newText=text.substring(0,at)+text.substr(end.at+n)
-			content.setState({content:nexText})
+			let newText=text.substring(0,at-n)+text.substr(end.at)
+			content.setState({content:newText}, e=>{
+				content.reCompose()
+				dispatch(Selection.ACTION.SELECT(id,at-n))
+			})
 		}else{
 
 		}

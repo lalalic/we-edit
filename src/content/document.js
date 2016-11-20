@@ -14,8 +14,8 @@ export default class Document extends HasChild{
 				{super.render()}
 				<svg style={style}
 					ref="svg"
-					width={width} 
-					height={height} 
+					width={width}
+					height={height}
 					viewBox={`0 0 ${width} ${height}`}>
 					<Composed ref="composed" gap={pageGap} canvas={{width}} sections={()=>
 						this.computed.children.reduce((collected, section)=>{
@@ -78,7 +78,9 @@ export default class Document extends HasChild{
 		}
 	}
 
-
+	get composed(){
+		return this.refs.composed
+	}
 }
 
 class Composed extends Group{

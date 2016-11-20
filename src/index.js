@@ -18,9 +18,10 @@ import NodeWordWrapper from "./wordwrap/node"
 
 import Input from "./input/"
 
+Editor.Text.WordWrapper=CanvasWordWrapper
+
 export function edit(input,container){
-	Editor.Text.WordWrapper=CanvasWordWrapper
-    ReactDOM.unmountComponentAtNode(container)
+	ReactDOM.unmountComponentAtNode(container)
 	return Input.load(input, Editor)
 		.then(doc=>ReactDOM.render(doc, container))
 }
@@ -37,26 +38,8 @@ export function preview(input,container){
 		.then(doc=>ReactDOM.render(doc, container))
 }
 
-/*
-export function test(){
-	let A=Content
-    //Text.WordWrapper=NodeWordWrapper
-	loadFont().then(fonts=>
-		ReactDOM.render((
-			<A.Document>
-				<A.Section>
-					<A.Paragraph>
-						<A.Inline><A.Text>{Array(1).fill("over").join(" ")}</A.Text></A.Inline>
-						<A.Image width={100} height={100}
-							src="http://n.sinaimg.cn/news/transform/20160629/gbf3-fxtniax8255947.jpg"/>
-
-						<A.Inline><A.Text>{Array(100).fill("hello1, let's edit").join(" ")}</A.Text></A.Inline>
-
-						<A.Inline><A.Text>{Array(1).fill("over").join(" ")}</A.Text></A.Inline>
-					</A.Paragraph>
-				</A.Section>
-			</A.Document>
-		),document.querySelector('#app'))
-	)
+export function create(container){
+    ReactDOM.unmountComponentAtNode(container)
+	return Input.create()
+        .then(doc=>ReactDOM.render(doc,container))
 }
-*/

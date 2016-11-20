@@ -12,7 +12,7 @@ export const getContentClientBoundBox=(id, at)=>{
 		let end=parseInt(a.getAttribute('end'))
 		let length=a.textContent.length
 		let start=end-length
-		if(at=>start && at<end){
+		if(start<=at && at<end){
 			found=a
 			from=start
 			break

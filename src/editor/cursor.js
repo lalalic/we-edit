@@ -21,7 +21,7 @@ export const Cursor=({id,at})=>{
 		let {top,left,from}=getContentClientBoundBox(id,at)
 		const content=getContent(id)
 		const text=content.getContent()
-		let wordwrapper=new EditableText.WordWrapper(text.substr(from,at), content.getStyle())
+		let wordwrapper=new EditableText.WordWrapper(text.substring(from,at), content.getStyle())
 		let {end, contentWidth}=wordwrapper.next({width:Number.MAX_SAFE_INTEGER})||{end:0,contentWidth:0}
 		let {height, descent}=wordwrapper
 		left+=contentWidth
