@@ -10,7 +10,7 @@ export default class CanvasWordWrapper extends WordWrapper{
 			canvas.style=""
 			ctx2d=canvas.getContext('2d')
 		}
-		ctx2d.font=`${this.size}px ${this.fontFamily}`
+		ctx2d.font=`${this.size}pt ${this.fontFamily}`
 
         return super.lineHeight()
     }

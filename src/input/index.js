@@ -10,8 +10,8 @@ export default {
 			alert(`we cannot edit this type of file`)
 		}
 	}
-
-	create(){
+	
+	,create(){
 		return new docx().create()
 	}
 }

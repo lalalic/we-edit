@@ -14,7 +14,7 @@ export default class WordWrapper{
 		
 		this.defaultStyle={
 			whiteSpace:'pre',
-			fontSize:`${this.size}px`,
+			fontSize:`${this.size}pt`, 
 			fontWeight:style.b ? 700 : 400,
 			fontStyle:style.i ? "italic" : "normal",
 			height: this.height,
@@ -65,6 +65,19 @@ export default class WordWrapper{
             }
 
             if(text.length){
+				let end=this.composed+text.length
+				if(end<this.text.length){
+					//greedy
+					while(isWhitespace(this.text.charAt(end))){
+						text+=" "
+						end++
+					}
+				}
+				
+				while(text.length && !isWhitespace(text.charAt(text.length-1))){
+					text=text.substr(0,text.length-1)
+				}
+				
                 info={width:maxWidth, contentWidth: width, end:this.composed+=text.length, children:text}
             }else{//@TODO: the space is too small, give a placeholder
                 info={width:maxWidth, contentWidth:0, end:this.composed+=text.length, children:text}
@@ -74,4 +87,11 @@ export default class WordWrapper{
 		info.width=Math.ceil(info.width)
         return Object.assign(info,this.defaultStyle)
     }
+}
+
+function isWhitespace(chr){
+	return chr===' '
+		|| chr==='\n'
+		|| chr==='\r'
+		|| chr==='\t'
 }
