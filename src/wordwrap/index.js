@@ -34,7 +34,7 @@ export default class WordWrapper{
 		return 200
 	}
 
-    next({width:maxWidth}){
+    next({width:maxWidth, greedy=a=>true, wordy=a=>true}){
         if(maxWidth==undefined)
 			throw new Error("no max width specified when composing text")
 
@@ -48,38 +48,46 @@ export default class WordWrapper{
         if(width<=maxWidth){
             info={width, contentWidth:width, end:this.composed+=text.length, children:text}
         }else{
-            let smartTypeText=text.substr(0,Math.floor(text.length*maxWidth/width))
-			if(smartTypeText.length>0){
-				width=this.stringWidth(text=smartTypeText)
-			}
+			{//how can we quickly measure
+				let smartTypeText=text.substr(0,Math.floor(text.length*maxWidth/width))
+				if(smartTypeText.length>0){
+					width=this.stringWidth(text=smartTypeText)
+				}
 
-            if(width==maxWidth){
-                info={width, contentWidth: width, end:this.composed+=text.length, children:text}
-            }else if(width<maxWidth){
-                let index=this.composed+text.length, len=this.text.length
-                while(width<maxWidth && index<len)
-                    width=this.stringWidth(text+=this.text.charAt(index++))
-            } else {
-                while(width>maxWidth && text.length)
-                    width=this.stringWidth(text=text.slice(0,-1))
-            }
-
+				if(width<maxWidth){
+					let index=this.composed+text.length, len=this.text.length
+					while(width<maxWidth && index<len)
+						width=this.stringWidth(text+=this.text.charAt(index++))
+				}
+				
+				if(width>maxWidth){
+					while(width>maxWidth && text.length)
+						width=this.stringWidth(text=text.slice(0,-1))
+				}
+			};
+			
             if(text.length){
 				let end=this.composed+text.length
-				if(end<this.text.length){
+				if(end<this.text.length && greedy(text)){
 					//greedy
-					while(isWhitespace(this.text.charAt(end))){
-						text+=" "
+					let chr
+					while(!isChar(chr=this.text.charAt(end))){
+						text+=chr
 						end++
 					}
 				}
 				
-				while(text.length && !isWhitespace(text.charAt(text.length-1))){
-					text=text.substr(0,text.length-1)
+				//wordy
+				if(wordy(text, this.composed+text.length==this.text.length)){
+					while(text.length && isChar(text.charAt(text.length-1))){
+						text=text.substr(0,text.length-1)
+					}
+					if(text.length==0)
+						width=0
 				}
 				
                 info={width:maxWidth, contentWidth: width, end:this.composed+=text.length, children:text}
-            }else{//@TODO: the space is too small, give a placeholder
+            }else{//@TODO: the space is too small
                 info={width:maxWidth, contentWidth:0, end:this.composed+=text.length, children:text}
             }
         }
@@ -89,9 +97,6 @@ export default class WordWrapper{
     }
 }
 
-function isWhitespace(chr){
-	return chr===' '
-		|| chr==='\n'
-		|| chr==='\r'
-		|| chr==='\t'
+export function isChar(chr){
+	return " \t\n\r,.".indexOf(chr)==-1
 }

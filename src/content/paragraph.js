@@ -48,7 +48,7 @@ export default class Paragraph extends Super{
 
 			availableWidth=this.lineWidth()
         }
-        return {width:availableWidth, height:this.availableSpace.height}
+        return {width:availableWidth, height:this.availableSpace.height, lineWidth:this.availableSpace.width}
     }
 
     appendComposed(content){//@TODO: need consider availableSpace.height

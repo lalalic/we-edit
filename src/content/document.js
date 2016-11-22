@@ -29,10 +29,11 @@ export default class Document extends HasChild{
 		)
     }
 
-    static childContextTypes=Object.assign({
+    static childContextTypes={
+		...HasChild.childContextTypes,
         getDefaultStyle: PropTypes.func,
 		inheritedStyle: PropTypes.object
-    },HasChild.childContextTypes)
+    }
 
     getChildContext(){
 		const self=this

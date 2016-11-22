@@ -5,8 +5,9 @@ export class HasChild extends Component {
     computed = { children: [], composed: [] }
 
     static childContextTypes = {
-        parent: PropTypes.object,
-        prevSibling: PropTypes.func
+        parent: PropTypes.object
+        ,prevSibling: PropTypes.func
+		,isComposingLastChildInParent: PropTypes.func
     }
 
     getChildContext() {
@@ -22,6 +23,9 @@ export class HasChild extends Component {
                     return siblings[found - 1]
                 }
             }
+			,isComposingLastChildInParent(){
+				return self.computed.children.length==self.getContentCount()-1
+			}
         }
     }
 
@@ -108,10 +112,11 @@ export default class HasParentAndChild extends HasChild {
     static contextTypes = {
         parent: PropTypes.object,
         prevSibling: PropTypes.func
+		,isComposingLastChildInParent: PropTypes.func
     }
     /**
      * children should call before composing line,
-     * return next line rect {*width, [height]}
+     * return next line rect {*width, [height], [greedy(text)=true], [wordy(text)=true]}
      */
     nextAvailableSpace() {
         return this.availableSpace = this.context.parent.nextAvailableSpace(...arguments)
