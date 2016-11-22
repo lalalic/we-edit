@@ -6,6 +6,8 @@ import Line from "../composed/line"
 import Inline from "./inline"
 import Text from "./text"
 
+import {isChar, isWhitespace} from "../wordwrap"
+
 let Super=styleInheritable(Any)
 export default class Paragraph extends Super{
 	static displayName="paragraph"
@@ -82,14 +84,60 @@ export default class Paragraph extends Super{
 				parent.appendComposed(this.createComposed2Parent(currentLine))
 			}
 		}else if(availableWidth<contentWidth){
+			const allWhitespace=({props:{children:{props:{children:text}}}})=>{
+				return text && typeof(text)=='string' && [...text].reduce((state,a)=>state && isWhitespace(a),true)
+			}
+
+			if(allWhitespace(content)){
+				this.appendComposed(React.cloneElement(content,{width:0}))
+				return
+			}
+
+			let poped=[]
+			const hasOnlyOneWord=({props:{children:{props:{children:text}}}})=>{
+				return text && typeof(text)=='string' && [...text].reduce((state,a)=>state && isChar(a),true)
+			}
+			if(hasOnlyOneWord(content)){
+				poped=currentLine.children.reduceRight((state,a)=>{
+					if(!state.end){
+						let {children:text}=a.props
+						if(hasOnlyOneWord(text)){
+							state.poped.push(text)
+						}else
+							state.end=true
+					}
+					return state
+				},{end:false,poped:[]}).poped
+				if(poped.length){
+					if(poped.length<currentLine.children.length){
+						currentLine.children.splice(-poped.length,poped.length)
+						Object.assign(currentLine, currentLine.children.reduce((state,{props:{height,descent}})=>{
+							state.height=Math.max(state.height,height)
+							state.descent=Math.max(state.descent,descent)
+							return state
+						},{height:0,descent:0}))
+					}else if(poped.length==currentLine.children.length){
+						return false
+					}
+				}
+			}
+
+
 			if(this.availableSpace.height>=currentLine.height){
 				parent.appendComposed(this.createComposed2Parent(currentLine))
 				composed.push(this._newLine())
+				availableWidth=this.availableSpace.width
 
-				if(contentWidth<=this.availableSpace.width)
+				if(poped.length){
+					poped.forEach(a=>this.appendComposed(a))
+					currentLine=composed[composed.length-1]
+			        availableWidth=currentLine.children.reduce((prev,a)=>prev-a.props.width,currentLine.width)
+				}
+
+				if(contentWidth<=availableWidth)
 					this.appendComposed(content)
 				else{
-					//never be here
+					return false
 				}
 			}else{
 

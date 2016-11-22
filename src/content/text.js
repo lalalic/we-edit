@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from "react"
 import {NoChild} from "./any"
 import HtmlWordWrapper from "../wordwrap/html"
-import {isChar} from "../wordwrap"
+import {isChar, isWhitespace} from "../wordwrap"
 
 import Group from "../composed/group"
 
@@ -13,29 +13,47 @@ export default class Text extends NoChild{
         const {parent}=this.context
 		const content=this.getContent()
 		const length=content.length
-		
+
 		let composer=new this.constructor.WordWrapper(content, this.getStyle())
         let text=null
 		let minWidth=0
-		
+
 		let nextAvailableSpace=parent.nextAvailableSpace()
-		
-		/*
-		const lineBegin=nextAvailableSpace.width==nextAvailableSpace.lineWidth
-		const beginWithChar=isChar(content.charAt(0))
-		const isNotFirstLineInParagraph=!this.context.isFirstLineInParagraph()
-		const lastLineEndWithChar=this.context.isLastLineEndWithChar()
-		
-		if(lineBegin && beginWithChar && isNotFirstLineInParagraph && lastLineEndWithChar){
-			let {word:firstWord}=content.reduce((state,a)=>{
-				if(state.end)
+		if(isWhitespace(content[0])){
+			//all whitespace should be appended to last line end
+			let {whitespaces}=[...content].reduce((state,a)=>{
+					if(!state.end){
+						if(isWhitespace(a))
+							state.whitespaces+=a
+						else
+							state.end=true
+					}
 					return state
-			},{word:"",end:false})
-			this.context.moveLastWordInLastLineToCurrentLineStart()
+				},{whitespaces:"",end:false})
+			text=composer.next({len:whitespaces.length})
+			composed.push(text)
+			parent.appendComposed(this.createComposed2Parent(text))
+			nextAvailableSpace=parent.nextAvailableSpace()
+		}else if(isChar(content[0])){
+			//first word should be wrapped to merge with last line's ending word
+			let {firstWord}=[...content].reduce((state,a)=>{
+					if(!state.end){
+						if(isChar(a))
+							state.firstWord+=a
+						else
+							state.end=true
+					}
+					return state
+				},{firstWord:"",end:false})
+			text=composer.next({len:firstWord.length})
+
+			if(false===parent.appendComposed(this.createComposed2Parent(text)))
+				composer.rollback(firstWord.length)
+
 			nextAvailableSpace=parent.nextAvailableSpace()
 		}
-		*/
-		
+
+
         while(text=composer.next(this.getWrapContext(nextAvailableSpace))){
 			if(text.contentWidth==0){
 				//width of available space is too small, request a bigger space
@@ -50,17 +68,17 @@ export default class Text extends NoChild{
 					let {word}=[...text.children].reduceRight((state,chr)=>{
 						if(state.end)
 							return state
-						
+
 						if(isChar(chr))
-							state.word+=chr
+							state.word=chr+state.word
 						else
 							state.end=true
-						
+
 						return state
 					},{word:"",end:false})
-					
+
 					let wordWidth=composer.stringWidth(word)
-					
+
 					let {children, contentWidth,width,end,...others}=text
 					composed.push(text={...others,
 						children:children.substr(0,children.length-word.length)
@@ -69,7 +87,7 @@ export default class Text extends NoChild{
 						,end:end-word.length
 					})
 					parent.appendComposed(this.createComposed2Parent(text))
-					
+
 					composed.push(text={...others,
 						children:word
 						,contentWidth:wordWidth
@@ -84,9 +102,9 @@ export default class Text extends NoChild{
 				if(text.end==length)
 					break;
 				minWidth=0
-				
+
 			}
-			
+
 			nextAvailableSpace=parent.nextAvailableSpace({width:minWidth})
         }
 		parent.on1ChildComposed(this)
@@ -114,11 +132,11 @@ export default class Text extends NoChild{
 			</Group>
 		)
 	}
-	
+
 	getWrapContext({width,height,lineWidth}){
 		const {isComposingLastChildInParent,parent}=this.context
 		const wholeLine=width==lineWidth
-		
+
 		return {
 			width
 			,height
@@ -127,11 +145,11 @@ export default class Text extends NoChild{
 					&& parent.context.isComposingLastChildInParent(parent)
 					&& isEnd)
 					return false
-				
+
 				const hasOnlyOneWord=[...text].reduce((state,next)=>state&&isChar(next),true)
 				if(wholeLine && hasOnlyOneWord)
 					return false
-				
+
 				return true
 			}
 		}
