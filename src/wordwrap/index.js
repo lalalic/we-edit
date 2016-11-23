@@ -91,7 +91,7 @@ export default class WordWrapper{
     						width=0
     				}
 
-                    info={width:maxWidth, contentWidth: width, end:this.composed+=text.length, children:text}
+                    info={width:width, contentWidth: width, end:this.composed+=text.length, children:text}
                 }else{//@TODO: the space is too small
                     info={width:maxWidth, contentWidth:0, end:this.composed+=text.length, children:text}
                 }

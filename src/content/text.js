@@ -134,7 +134,7 @@ export default class Text extends NoChild{
 	}
 
 	getWrapContext({width,height,lineWidth}){
-		const {isComposingLastChildInParent,parent}=this.context
+		const {parent,isComposingLastChildInParent, currentLineHasOnlyOneWord}=this.context
 		const wholeLine=width==lineWidth
 
 		return {
@@ -147,7 +147,8 @@ export default class Text extends NoChild{
 					return false
 
 				const hasOnlyOneWord=[...text].reduce((state,next)=>state&&isChar(next),true)
-				if(wholeLine && hasOnlyOneWord)
+				if((wholeLine && hasOnlyOneWord) 
+					|| (hasOnlyOneWord && currentLineHasOnlyOneWord()))
 					return false
 
 				return true
@@ -157,7 +158,8 @@ export default class Text extends NoChild{
 
 	static contextTypes={
 		...NoChild.contextTypes,
-		inheritedStyle: PropTypes.object
+		inheritedStyle: PropTypes.object,
+		currentLineHasOnlyOneWord: PropTypes.func
 	}
 
 	static WordWrapper=HtmlWordWrapper

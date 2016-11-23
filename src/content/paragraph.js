@@ -102,7 +102,7 @@ export default class Paragraph extends Super{
 					if(!state.end){
 						let {children:text}=a.props
 						if(hasOnlyOneWord(text)){
-							state.poped.push(text)
+							state.poped.unshift(text)
 						}else
 							state.end=true
 					}
@@ -200,7 +200,27 @@ export default class Paragraph extends Super{
         return this._style={spacing,indent}
     }
 
-	static contextTypes=Object.assign({
-		getDefaultStyle: PropTypes.func
-	},Super.contextTypes)
+	static contextTypes={
+		...Super.contextTypes
+		,getDefaultStyle: PropTypes.func
+	}
+	
+	static childContextTypes={
+		...Super.childContextTypes
+		,currentLineHasOnlyOneWord: PropTypes.func
+	}
+	
+	getChildContext(){
+		const {composed}=this.computed
+		return {
+			...super.getChildContext()
+			,currentLineHasOnlyOneWord(){
+				const currentLine=composed[composed.length-1]
+				const hasOnlyOneWord=({props:{children:{props:{children:text}}}})=>{
+					return text && typeof(text)=='string' && [...text].reduce((state,a)=>state && isChar(a),true)
+				}
+				return currentLine && currentLine.children.reduce((state,{props:{children:text}})=>state && hasOnlyOneWord(text),true)
+			}
+		}
+	}
 }
