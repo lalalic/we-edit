@@ -17,6 +17,7 @@ export default class HtmlWordWrapper extends WordWrapper{
 		let {height, top}=p.getBoundingClientRect()
 		let {top:baseline}=p.querySelector('div').getBoundingClientRect()
 		document.body.removeChild(p)
+		let descent=height-(baseline-top)
 		return {height, descent: height-(baseline-top)}
 	}
 

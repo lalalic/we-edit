@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from "react"
 import {NoChild} from "./any"
 import HtmlWordWrapper from "../wordwrap/html"
-import {isChar, isWhitespace} from "../wordwrap"
+import {isChar, isWhitespace, find, isWord} from "../wordwrap"
 
 import Group from "../composed/group"
 
@@ -21,30 +21,14 @@ export default class Text extends NoChild{
 		let nextAvailableSpace=parent.nextAvailableSpace()
 		if(isWhitespace(content[0])){
 			//all whitespace should be appended to last line end
-			let {whitespaces}=[...content].reduce((state,a)=>{
-					if(!state.end){
-						if(isWhitespace(a))
-							state.whitespaces+=a
-						else
-							state.end=true
-					}
-					return state
-				},{whitespaces:"",end:false})
+			let whitespaces=find(content, isWhitespace)
 			text=composer.next({len:whitespaces.length})
 			composed.push(text)
 			parent.appendComposed(this.createComposed2Parent(text))
 			nextAvailableSpace=parent.nextAvailableSpace()
 		}else if(isChar(content[0])){
 			//first word should be wrapped to merge with last line's ending word
-			let {firstWord}=[...content].reduce((state,a)=>{
-					if(!state.end){
-						if(isChar(a))
-							state.firstWord+=a
-						else
-							state.end=true
-					}
-					return state
-				},{firstWord:"",end:false})
+			let firstWord=find(content,isChar)
 			text=composer.next({len:firstWord.length})
 
 			if(false===parent.appendComposed(this.createComposed2Parent(text)))
@@ -61,7 +45,7 @@ export default class Text extends NoChild{
 			}else{
 				const isLastPiece=text.end==length
 				const endWithChar=isChar(text.children[text.children.length-1])
-				if(isLastPiece && endWithChar && ![...text.children].reduce((state,a)=>state&&isChar(a),true)){
+				if(isLastPiece && endWithChar && !isWord(text.children)){
 					/* <t>xxx he</t><t>llo</t>=>line: [<text children="xxx "/><text children="he"/>]
 					make it ready to side by side arrange splitted word text
 					*/
@@ -109,6 +93,8 @@ export default class Text extends NoChild{
         }
 		parent.on1ChildComposed(this)
     }
+	
+	compose
 
 	getStyle(){
 		const {inheritedStyle}=this.context
@@ -146,7 +132,7 @@ export default class Text extends NoChild{
 					&& isEnd)
 					return false
 
-				const hasOnlyOneWord=[...text].reduce((state,next)=>state&&isChar(next),true)
+				const hasOnlyOneWord=isWord(text)
 				if((wholeLine && hasOnlyOneWord) 
 					|| (hasOnlyOneWord && currentLineHasOnlyOneWord()))
 					return false

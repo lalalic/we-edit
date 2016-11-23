@@ -6,7 +6,7 @@ import Line from "../composed/line"
 import Inline from "./inline"
 import Text from "./text"
 
-import {isChar, isWhitespace} from "../wordwrap"
+import {isChar, isWhitespace, isWord, testAll} from "../wordwrap"
 
 let Super=styleInheritable(Any)
 export default class Paragraph extends Super{
@@ -85,7 +85,7 @@ export default class Paragraph extends Super{
 			}
 		}else if(availableWidth<contentWidth){
 			const allWhitespace=({props:{children:{props:{children:text}}}})=>{
-				return text && typeof(text)=='string' && [...text].reduce((state,a)=>state && isWhitespace(a),true)
+				return text && typeof(text)=='string' && testAll(text,isWhitespace)
 			}
 
 			if(allWhitespace(content)){
@@ -167,7 +167,7 @@ export default class Paragraph extends Super{
         let {spacing:{lineHeight="100%",top=0, bottom=0}, indent:{left=0,right=0,firstLine=0,hanging=0}}=this.getStyle()
         let contentY=0, contentX=left
 
-        lineHeight=typeof(lineHeight)=='string' ? Math.ceil(height*parseInt(lineHeight)/100.0): lineHeight
+       lineHeight=typeof(lineHeight)=='string' ? Math.ceil(height*parseInt(lineHeight)/100.0): lineHeight
 
         if(this.computed.composed.length==1){//first line
             lineHeight+=top
@@ -217,7 +217,7 @@ export default class Paragraph extends Super{
 			,currentLineHasOnlyOneWord(){
 				const currentLine=composed[composed.length-1]
 				const hasOnlyOneWord=({props:{children:{props:{children:text}}}})=>{
-					return text && typeof(text)=='string' && [...text].reduce((state,a)=>state && isChar(a),true)
+					return text && typeof(text)=='string' && isWord(text)
 				}
 				return currentLine && currentLine.children.reduce((state,{props:{children:text}})=>state && hasOnlyOneWord(text),true)
 			}
