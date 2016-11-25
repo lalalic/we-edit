@@ -3,4 +3,7 @@ import Any, {styleInheritable} from "./any"
 
 export default class Inline extends styleInheritable(Any){
     static displayName="inline"
+	render(){
+		return <span>{this.getContent()}</span>
+	}
 }

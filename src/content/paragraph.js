@@ -12,6 +12,10 @@ let Super=styleInheritable(Any)
 export default class Paragraph extends Super{
 	static displayName="paragraph"
 
+	render(){
+		return <p>{this.getContent()}</p>	
+	}
+	
 	_newLine(){
         return {
             width: this.lineWidth(),

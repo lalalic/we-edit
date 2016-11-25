@@ -5,6 +5,8 @@ import {isChar, isWhitespace, find, isWord} from "../wordwrap"
 
 import Group from "../composed/group"
 
+import {category} from "./chars"
+
 export default class Text extends NoChild{
 	static displayName="text"
 
@@ -94,7 +96,21 @@ export default class Text extends NoChild{
 		parent.on1ChildComposed(this)
     }
 	
-	compose
+	render(){
+		return <i>{this.getContent()}</i>
+	}
+	
+	_parseText(){
+		this.computed.composed=[...this.getContent()].reduce((pieces,a, offset)=>{
+			let type=category(a)
+			let [,last]=pieces
+			if(last && last.type==type){
+				last.chars.push(a)
+			}else{
+				pieces.push({type,chars:[a],offset})
+			}
+		},[])
+	}
 
 	getStyle(){
 		const {inheritedStyle}=this.context
