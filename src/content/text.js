@@ -11,6 +11,7 @@ export default class Text extends NoChild{
 	static displayName="text"
 
     compose(){
+		this._parseText()
 		const {composed}=this.computed
         const {parent}=this.context
 		const content=this.getContent()
@@ -97,19 +98,76 @@ export default class Text extends NoChild{
     }
 	
 	render(){
-		return <i>{this.getContent()}</i>
+		let composer=new this.constructor.WordWrapper(content, this.getStyle())
+		return (
+			<i>
+			{
+				this.computed.pieces.map(({type,chars,offset,width})=>{
+					
+					return React.createElement(type, {chars,offset,width,key:offset})
+				})
+			}
+			</i>
+		)
 	}
 	
 	_parseText(){
-		this.computed.composed=[...this.getContent()].reduce((pieces,a, offset)=>{
+		let composer=new this.constructor.WordWrapper(content, this.getStyle())
+		return this.computed.pieces=[...this.getContent()].reduce((pieces,a, offset)=>{
 			let type=category(a)
-			let [,last]=pieces
+			let last=pieces[pieces.length-1]
 			if(last && last.type==type){
 				last.chars.push(a)
 			}else{
+				if(last)
+					last.width=composer.stringWidth(last.chars.join(""))
 				pieces.push({type,chars:[a],offset})
 			}
+			return pieces
 		},[])
+	}
+	
+	_compose(){
+		let parent=this.context.parent
+		let composer=new this.constructor.WordWrapper(content, this.getStyle())
+		let defaultStyle=composer.defaultStyle
+		
+		const add2parent=state=>{
+			let line=this.createComposed2Parent({...defaultStyle,width,contentWidth,end,children:stack.join("")})
+			parent.appendComposed(line)
+			contentWidth=0
+			stack.splice(0,stack.length)
+			state.space=parent.nextAvailableSpace()
+		}
+		
+		let state=this._parseText().reduce((state,piece)=>{
+			let {space:{width,bFirstLine,bLineStart},stack, contentWidth,end}=state
+			if(width-contentWidth>0){
+				stack.push(piece.chars.join(""))
+				contentWidth+=piece.width
+				end+=piece.chars.length
+			}else{
+				if(piece.type.ableExceed()){
+					stack.push(piece.chars.join(""))
+					contentWidth+=piece.width
+					end+=piece.chars.length
+				}else{
+					let line=this.createComposed2Parent({...defaultStyle,width,contentWidth,end,children:stack.join("")})
+					parent.appendComposed(line)
+					contentWidth=0
+					stack.splice(0,stack.length)
+					state.space=parent.nextAvailableSpace()
+				}
+			}
+			state.contentWidth=contentWidth
+			state.end=end
+			return state
+		},{space:parent.nextAvailableSpace(),stack:[],contentWidth:0,end:0})
+		
+		let {space:{width,bFirstLine,bLineStart},stack, contentWidth,end}=state
+		let line=this.createComposed2Parent({...defaultStyle,width,contentWidth,end,children:stack.join("")})
+		parent.appendComposed(line)
+		parent.on1ChildComposed(this)
 	}
 
 	getStyle(){

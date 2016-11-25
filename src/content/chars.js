@@ -13,6 +13,10 @@ class Char extends Component{
 	static is(){
 		return false
 	}
+	
+	static ableExceed(){
+		return false
+	}
 }
 
 
@@ -33,6 +37,10 @@ const TYPES=[
 		static is(a){
 			return REG_WHITESPACE.test(a)
 		}
+		
+		static ableExceed(){
+			return true
+		}
 	}
 
 	,class Number extends Char{
@@ -47,6 +55,10 @@ const TYPES=[
 		
 		static is(a){
 			return a===',' || a==='.' || a==='!'
+		}
+		
+		static ableExceed(){
+			return true
 		}
 	}
 ].reverse()
