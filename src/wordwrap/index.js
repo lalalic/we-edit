@@ -34,69 +34,44 @@ export default class WordWrapper{
 		return 200
 	}
 
-    next({len, width:maxWidth, greedy=a=>true, wordy=a=>true}){
+    next({width:maxWidth}){
         let info=null
-        if(len){//by char length
-            let text=this.text.substr(this.composed,len)
-            let width=this.stringWidth(text)
-            info={width,children:text, contentWidth:width, end:this.composed+=len}
-        }else{//by width
-            if(maxWidth==undefined)
-    			throw new Error("no max width specified when composing text")
+		if(maxWidth==undefined)
+			throw new Error("no max width specified when composing text")
 
-    		if(this.composed==this.text.length)
-                return null
-			
-			//let {text, width}=this.measure(this.text,this.composed,maxWidth)
-			let text,width
-            width=this.stringWidth(text=this.text.substr(this.composed))
-            if(width<=maxWidth){
-                info={width, contentWidth:width, end:this.composed+=text.length, children:text}
-            }else{
-    			{//how can we quickly measure
-    				let smartTypeText=text.substr(0,Math.floor(text.length*maxWidth/width))
-    				if(smartTypeText.length>0){
-    					width=this.stringWidth(text=smartTypeText)
-    				}
+		if(this.composed==this.text.length)
+			return null
+		
+		//let {text, width}=this.measure(this.text,this.composed,maxWidth)
+		let text,width
+		width=this.stringWidth(text=this.text.substr(this.composed))
+		if(width<=maxWidth){
+			info={width, contentWidth:width, end:this.composed+=text.length, children:text}
+		}else{
+			{//how can we quickly measure
+				let smartTypeText=text.substr(0,Math.floor(text.length*maxWidth/width))
+				if(smartTypeText.length>0){
+					width=this.stringWidth(text=smartTypeText)
+				}
 
-    				if(width<maxWidth){
-    					let index=this.composed+text.length, len=this.text.length
-    					while(width<maxWidth && index<len)
-    						width=this.stringWidth(text+=this.text.charAt(index++))
-    				}
+				if(width<maxWidth){
+					let index=this.composed+text.length, len=this.text.length
+					while(width<maxWidth && index<len)
+						width=this.stringWidth(text+=this.text.charAt(index++))
+				}
 
-    				if(width>maxWidth){
-    					while(width>maxWidth && text.length)
-    						width=this.stringWidth(text=text.slice(0,-1))
-    				}
-    			};
+				if(width>maxWidth){
+					while(width>maxWidth && text.length)
+						width=this.stringWidth(text=text.slice(0,-1))
+				}
+			};
 
-                if(text.length){
-    				let end=this.composed+text.length
-    				if(end<this.text.length && greedy(text)){
-    					//greedy
-    					let chr
-    					while(!isChar(chr=this.text.charAt(end))){
-    						text+=chr
-    						end++
-    					}
-    				}
-
-    				//wordy
-    				if(wordy(text, this.composed+text.length==this.text.length)){
-    					while(text.length && isChar(text.charAt(text.length-1))){
-    						text=text.substr(0,text.length-1)
-    					}
-    					if(text.length==0)
-    						width=0
-    				}
-
-                    info={width:width, contentWidth: width, end:this.composed+=text.length, children:text}
-                }else{//@TODO: the space is too small
-                    info={width:maxWidth, contentWidth:0, end:this.composed+=text.length, children:text}
-                }
-            }
-        }
+			if(text.length){
+				info={width:width, contentWidth: width, end:this.composed+=text.length, children:text}
+			}else{//@TODO: the space is too small
+				info={width:maxWidth, contentWidth:0, end:this.composed+=text.length, children:text}
+			}
+		}
 
 		info.width=Math.ceil(info.width)
         return {...this.defaultStyle,...info}

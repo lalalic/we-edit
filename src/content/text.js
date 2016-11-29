@@ -4,107 +4,20 @@ import HtmlWordWrapper from "../wordwrap/html"
 import {isChar, isWhitespace, find, isWord} from "../wordwrap"
 
 import Group from "../composed/group"
+import ComposedText from "../composed/text"
 
 import {category} from "./chars"
 
 export default class Text extends NoChild{
 	static displayName="text"
-
-    compose(){
-		this._parseText()
-		const {composed}=this.computed
-        const {parent}=this.context
-		const content=this.getContent()
-		const length=content.length
-
-		let composer=new this.constructor.WordWrapper(content, this.getStyle())
-        let text=null
-		let minWidth=0
-
-		let nextAvailableSpace=parent.nextAvailableSpace()
-		if(isWhitespace(content[0])){
-			//all whitespace should be appended to last line end
-			let whitespaces=find(content, isWhitespace)
-			text=composer.next({len:whitespaces.length})
-			composed.push(text)
-			parent.appendComposed(this.createComposed2Parent(text))
-			nextAvailableSpace=parent.nextAvailableSpace()
-		}else if(isChar(content[0])){
-			//first word should be wrapped to merge with last line's ending word
-			let firstWord=find(content,isChar)
-			text=composer.next({len:firstWord.length})
-
-			if(false===parent.appendComposed(this.createComposed2Parent(text)))
-				composer.rollback(firstWord.length)
-
-			nextAvailableSpace=parent.nextAvailableSpace()
-		}
-
-
-        while(text=composer.next(this.getWrapContext(nextAvailableSpace))){
-			if(text.contentWidth==0){
-				//width of available space is too small, request a bigger space
-				minWidth=nextAvailableSpace.width+1
-			}else{
-				const isLastPiece=text.end==length
-				const endWithChar=isChar(text.children[text.children.length-1])
-				if(isLastPiece && endWithChar && !isWord(text.children)){
-					/* <t>xxx he</t><t>llo</t>=>line: [<text children="xxx "/><text children="he"/>]
-					make it ready to side by side arrange splitted word text
-					*/
-					let {word}=[...text.children].reduceRight((state,chr)=>{
-						if(state.end)
-							return state
-
-						if(isChar(chr))
-							state.word=chr+state.word
-						else
-							state.end=true
-
-						return state
-					},{word:"",end:false})
-
-					let wordWidth=composer.stringWidth(word)
-
-					let {children, contentWidth,width,end,...others}=text
-					composed.push(text={...others,
-						children:children.substr(0,children.length-word.length)
-						,contentWidth:contentWidth-wordWidth
-						,width:width-wordWidth
-						,end:end-word.length
-					})
-					parent.appendComposed(this.createComposed2Parent(text))
-
-					composed.push(text={...others,
-						children:word
-						,contentWidth:wordWidth
-						,width:wordWidth
-						,end
-					})
-					parent.appendComposed(this.createComposed2Parent(text))
-				}else{
-					composed.push(text)
-					parent.appendComposed(this.createComposed2Parent(text))
-				}
-				if(text.end==length)
-					break;
-				minWidth=0
-
-			}
-
-			nextAvailableSpace=parent.nextAvailableSpace({width:minWidth})
-        }
-		parent.on1ChildComposed(this)
-    }
 	
 	render(){
 		let composer=new this.constructor.WordWrapper(content, this.getStyle())
 		return (
 			<i>
 			{
-				this.computed.pieces.map(({type,chars,offset,width})=>{
-					
-					return React.createElement(type, {chars,offset,width,key:offset})
+				this.computed.pieces.map(({type,chars,end,width})=>{
+					return React.createElement(type, {chars,end,width,key:end})
 				})
 			}
 			</i>
@@ -118,58 +31,123 @@ export default class Text extends NoChild{
 			let last=pieces[pieces.length-1]
 			if(last && last.type==type){
 				last.chars.push(a)
+				last.end=offset
 			}else{
-				if(last)
-					last.width=composer.stringWidth(last.chars.join(""))
-				pieces.push({type,chars:[a],offset})
+				pieces.push({type,chars:[a],end:offset})
 			}
 			return pieces
-		},[])
+		},[]).map(a=>{
+			a.width=composer.stringWidth(a.chars.join(""))
+			return a
+		})
 	}
 	
-	_compose(){
+	compose(){
 		let parent=this.context.parent
-		let composer=new this.constructor.WordWrapper(content, this.getStyle())
+		let composer=new this.constructor.WordWrapper(this.getContent(), this.getStyle())
 		let defaultStyle=composer.defaultStyle
 		
-		const add2parent=state=>{
-			let line=this.createComposed2Parent({...defaultStyle,width,contentWidth,end,children:stack.join("")})
-			parent.appendComposed(line)
-			contentWidth=0
-			stack.splice(0,stack.length)
+		const append=state=>{
+			let {stack, contentWidth,end, space:{line}}=state
+			if(stack.length){
+				let text=this.createComposed2Parent({...defaultStyle,width:Math.floor(contentWidth),contentWidth,end,children:[...stack]})
+				parent.appendComposed(text)
+				state.contentWidth=0
+				stack.splice(0,stack.length)
+			}
 			state.space=parent.nextAvailableSpace()
 		}
 		
-		let state=this._parseText().reduce((state,piece)=>{
-			let {space:{width,bFirstLine,bLineStart},stack, contentWidth,end}=state
+		const commit=state=>{
+			let {stack, contentWidth,end, space:{line}}=state
+			if(stack.length){
+				let text=this.createComposed2Parent({...defaultStyle,width:Math.floor(contentWidth),contentWidth,end,children:[...stack]})
+				parent.appendComposed(text)
+				state.contentWidth=0
+				stack.splice(0,stack.length)
+			}
+			line.commit()
+			state.space=parent.nextAvailableSpace()
+		}
+		
+		const push=(state,piece)=>{
+			state.stack.push(piece)
+			state.contentWidth+=piece.width
+			state.end+=piece.chars.length
+			state.space.bLineStart=false
+		}
+		
+		const splitPiece=(piece,text)=>{
+			const {width, end, chars}=piece
+			let first={...piece, chars: [...text.children], width:text.width,end:end-piece.chars.length+text.children.length}
+			let second={...piece, chars: chars.splice(text.children.length), width: width-text.width}
+			return [first,second]
+		}
+		
+		let handlePiece, state=this._parseText().reduce(handlePiece=(state,piece)=>{
+			let {space:{width,bFirstLine,bLineStart,line},stack, contentWidth}=state
 			if(width-contentWidth>0){
-				stack.push(piece.chars.join(""))
-				contentWidth+=piece.width
-				end+=piece.chars.length
+				if(width-contentWidth>=piece.width){//left space is bigger enough
+					push(state,piece)
+				}else{//left space is not enough
+					append(state);
+					({space:{width,bFirstLine,bLineStart,line},stack, contentWidth}=state);
+					if(bLineStart){
+						if(bFirstLine){
+							composer.composed=state.end
+							let text=composer.next(state.space);//split
+							let splitted=splitPiece(piece,text)
+							push(state,splitted[0])
+							commit(state)
+							handlePiece(state,splitted[1])
+						}else{ 
+							if(piece.type.ableExceed()){
+								push(state,piece)
+							}else if(line.canSeperateWith(piece)){
+								commit(state);
+								handlePiece(state,piece)
+							}else{
+								line.rollback(piece);
+								state.space=parent.nextAvailableSpace()
+								handlePiece(state,piece)
+							}
+						}
+					}else{
+						if(piece.type.ableExceed()){
+							push(state,piece)
+						}else if(line.canSeperateWith(piece)){
+							commit(state)
+							handlePiece(state,piece)
+						}else if(line.allCantSeperateWith(piece)){
+							composer.composed=state.end
+							let text=composer.next(state.space);//split
+							let splitted=splitPiece(piece,text)
+							push(state,splitted[0])
+							commit(state)
+							handlePiece(state,splitted[1])
+						}else{
+							line.rollback(piece)
+							state.space=parent.nextAvailableSpace()
+							handlePiece(state,piece)
+						}
+					}
+				}
 			}else{
 				if(piece.type.ableExceed()){
-					stack.push(piece.chars.join(""))
-					contentWidth+=piece.width
-					end+=piece.chars.length
+					push(state,piece)
 				}else{
-					let line=this.createComposed2Parent({...defaultStyle,width,contentWidth,end,children:stack.join("")})
-					parent.appendComposed(line)
-					contentWidth=0
-					stack.splice(0,stack.length)
-					state.space=parent.nextAvailableSpace()
+					commit(state)
+					handlePiece(state,piece)
 				}
 			}
-			state.contentWidth=contentWidth
-			state.end=end
 			return state
 		},{space:parent.nextAvailableSpace(),stack:[],contentWidth:0,end:0})
 		
-		let {space:{width,bFirstLine,bLineStart},stack, contentWidth,end}=state
-		let line=this.createComposed2Parent({...defaultStyle,width,contentWidth,end,children:stack.join("")})
-		parent.appendComposed(line)
+		append(state)
+		
 		parent.on1ChildComposed(this)
 	}
-
+	
 	getStyle(){
 		const {inheritedStyle}=this.context
 
@@ -184,42 +162,12 @@ export default class Text extends NoChild{
 	}
 
 	createComposed2Parent(props){
-		const {color}=this.getStyle()
-		const {width, height, descent, contentWidth, whiteSpace, ...others}=props
-		return (
-			<Group width={width} height={height} descent={descent}>
-				<text {...{width,height,descent}} {...others} style={{whiteSpace:"pre"}}/>
-			</Group>
-		)
-	}
-
-	getWrapContext({width,height,lineWidth}){
-		const {parent,isComposingLastChildInParent, currentLineHasOnlyOneWord}=this.context
-		const wholeLine=width==lineWidth
-
-		return {
-			width
-			,height
-			,wordy(text, isEnd){
-				if(isComposingLastChildInParent(this)
-					&& parent.context.isComposingLastChildInParent(parent)
-					&& isEnd)
-					return false
-
-				const hasOnlyOneWord=isWord(text)
-				if((wholeLine && hasOnlyOneWord) 
-					|| (hasOnlyOneWord && currentLineHasOnlyOneWord()))
-					return false
-
-				return true
-			}
-		}
+		return <ComposedText {...props}/>
 	}
 
 	static contextTypes={
 		...NoChild.contextTypes,
-		inheritedStyle: PropTypes.object,
-		currentLineHasOnlyOneWord: PropTypes.func
+		inheritedStyle: PropTypes.object
 	}
 
 	static WordWrapper=HtmlWordWrapper

@@ -17,6 +17,10 @@ class Char extends Component{
 	static ableExceed(){
 		return false
 	}
+	
+	static canSeperateWith(type){
+		return this!==type
+	}
 }
 
 
@@ -63,7 +67,7 @@ const TYPES=[
 	}
 ].reverse()
 
-export function category(c){
+export function category(c,last){
 	return TYPES.find(a=>a.is(c))
 }
 

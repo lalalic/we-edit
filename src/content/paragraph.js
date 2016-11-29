@@ -17,12 +17,7 @@ export default class Paragraph extends Super{
 	}
 	
 	_newLine(){
-        return {
-            width: this.lineWidth(),
-			height:0,
-			descent:0,
-            children:[]
-        }
+        return new LineInfo(this.lineWidth(),this)
 	}
 
 	lineWidth(){
@@ -54,7 +49,13 @@ export default class Paragraph extends Super{
 
 			availableWidth=this.lineWidth()
         }
-        return {width:availableWidth, height:this.availableSpace.height, lineWidth:this.availableSpace.width}
+        return {
+			width:availableWidth, 
+			height:this.availableSpace.height, 
+			bFirstLine: composed.length<2,
+			bLineStart: availableWidth==this.availableSpace.width,
+			line: currentLine
+		}
     }
 
     appendComposed(content){//@TODO: need consider availableSpace.height
@@ -64,14 +65,12 @@ export default class Paragraph extends Super{
 		let currentLine=composed[composed.length-1]
         let availableWidth=currentLine.children.reduce((prev,a)=>prev-a.props.width,currentLine.width)
         let {width:contentWidth, height:contentHeight, descent:contentDescent=0}=content.props
-
-
-		let piece=null
-		if(availableWidth==0){
+		
+		if(availableWidth<=0){
 			composed.push(this._newLine())
 			this.appendComposed(content)
 		}else if(availableWidth>=contentWidth){//not appended to parent
-            piece=(
+           currentLine.children.push(
 					<Group
 						x={currentLine.width-availableWidth}
 						index={this.computed.children.length}
@@ -80,63 +79,14 @@ export default class Paragraph extends Super{
 						height={contentHeight}>
 						{content}
 					</Group>
-					)
-            currentLine.children.push(piece)
+				)
 			currentLine.height=Math.max(currentLine.height,contentHeight)
 			currentLine.descent=Math.max(currentLine.descent, contentDescent)
-			if(availableWidth==contentWidth){
-				parent.appendComposed(this.createComposed2Parent(currentLine))
-			}
 		}else if(availableWidth<contentWidth){
-			const allWhitespace=({props:{children:{props:{children:text}}}})=>{
-				return text && typeof(text)=='string' && testAll(text,isWhitespace)
-			}
-
-			if(allWhitespace(content)){
-				this.appendComposed(React.cloneElement(content,{width:0}))
-				return
-			}
-
-			let poped=[]
-			const hasOnlyOneWord=({props:{children:{props:{children:text}}}})=>{
-				return text && typeof(text)=='string' && [...text].reduce((state,a)=>state && isChar(a),true)
-			}
-			if(hasOnlyOneWord(content)){
-				poped=currentLine.children.reduceRight((state,a)=>{
-					if(!state.end){
-						let {children:text}=a.props
-						if(hasOnlyOneWord(text)){
-							state.poped.unshift(text)
-						}else
-							state.end=true
-					}
-					return state
-				},{end:false,poped:[]}).poped
-				if(poped.length){
-					if(poped.length<currentLine.children.length){
-						currentLine.children.splice(-poped.length,poped.length)
-						Object.assign(currentLine, currentLine.children.reduce((state,{props:{height,descent}})=>{
-							state.height=Math.max(state.height,height)
-							state.descent=Math.max(state.descent,descent)
-							return state
-						},{height:0,descent:0}))
-					}else if(poped.length==currentLine.children.length){
-						return false
-					}
-				}
-			}
-
-
 			if(this.availableSpace.height>=currentLine.height){
 				parent.appendComposed(this.createComposed2Parent(currentLine))
 				composed.push(this._newLine())
 				availableWidth=this.availableSpace.width
-
-				if(poped.length){
-					poped.forEach(a=>this.appendComposed(a))
-					currentLine=composed[composed.length-1]
-			        availableWidth=currentLine.children.reduce((prev,a)=>prev-a.props.width,currentLine.width)
-				}
 
 				if(contentWidth<=availableWidth)
 					this.appendComposed(content)
@@ -167,7 +117,8 @@ export default class Paragraph extends Super{
 	}
 
     createComposed2Parent(props){
-        let {height, width}=props
+		console.log("append new line to section")
+        let {height, width, paragraph, ...others}=props
         let {spacing:{lineHeight="100%",top=0, bottom=0}, indent:{left=0,right=0,firstLine=0,hanging=0}}=this.getStyle()
         let contentY=0, contentX=left
 
@@ -190,7 +141,7 @@ export default class Paragraph extends Super{
         return (
             <Group height={lineHeight} width={width}>
                 <Group x={contentX} y={contentY}>
-                    <Line {...props}/>
+                    <Line width={width} height={height} {...others}/>
                 </Group>
             </Group>
         )
@@ -208,23 +159,82 @@ export default class Paragraph extends Super{
 		...Super.contextTypes
 		,getDefaultStyle: PropTypes.func
 	}
-	
-	static childContextTypes={
-		...Super.childContextTypes
-		,currentLineHasOnlyOneWord: PropTypes.func
+}
+
+
+class LineInfo{
+	constructor(width,p){
+		this.paragraph=p
+		this.width=width
+		this.height=0
+		this.descent=0
+		this.children=[]
 	}
 	
-	getChildContext(){
-		const {composed}=this.computed
-		return {
-			...super.getChildContext()
-			,currentLineHasOnlyOneWord(){
-				const currentLine=composed[composed.length-1]
-				const hasOnlyOneWord=({props:{children:{props:{children:text}}}})=>{
-					return text && typeof(text)=='string' && isWord(text)
+	rollback({type}){
+		let removed=[]
+		for(let i=this.children.length-1;i>-1;i--){
+			let group=this.children[i]
+			let text=group.props.children
+			let {width,children:pieces}=text.props
+
+			let j=pieces.length-1 
+			for(;j>-1;j--){
+				let chars=pieces[j]
+				if(chars.type!=type){
+					break
 				}
-				return currentLine && currentLine.children.reduce((state,{props:{children:text}})=>state && hasOnlyOneWord(text),true)
+			}
+			
+			if(j==-1){
+				removed.unshift(this.children.pop().props.children)
+				continue;
+			}else if(j==pieces.length-1){
+				break
+			}else {
+				let removed=pieces.splice(j)
+				text=React.cloneElement(text,{children:pieces, width:pieces.reduce((w,{width})=>w+width,0)})
+				this.children[i]=React.cloneElement(group,{children:text,width:text.props.width})
+				
+				let width=removed.reduce((w,{width})=>w+width,0)
+				removed.unshift(React.cloneElement(text,{children:removed,width}))
+				break
 			}
 		}
+
+		this.commit()
+		
+		removed.map(a=>this.paragraph.appendComposed(a))
 	}
+	
+	commit(){
+		this.paragraph.context.parent.appendComposed(this.paragraph.createComposed2Parent(this))
+		this.paragraph.computed.composed.push(this.paragraph._newLine())
+	}
+	
+	canSeperateWith({type}){
+		if(this.children.length==0)
+			return true
+		
+		let group=this.children[this.children.length-1]
+		let text=group.props.children
+		let pieces=text.props.children
+		let lastPiece=pieces[pieces.length-1]
+		return type.canSeperateWith(lastPiece.type)
+	}
+	
+	allCantSeperateWith({type}){
+		return this.children.reduce((cantSeperate,{props:{children:text}})=>{
+			if(!cantSeperate)
+				return false
+			
+			return text.props.children.reduce((state,a)=>{
+				if(!state)
+					return false
+				return !type.canSeperateWith(a.type)
+			},true)
+			
+		},true)
+	}
+	
 }
