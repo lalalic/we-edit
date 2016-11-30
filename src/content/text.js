@@ -47,27 +47,23 @@ export default class Text extends NoChild{
 		let composer=new this.constructor.WordWrapper(this.getContent(), this.getStyle())
 		let defaultStyle=composer.defaultStyle
 		
-		const append=state=>{
+		const commit=(state,needNewLine)=>{
 			let {stack, contentWidth,end, space:{line}}=state
-			if(stack.length){
+			let changed=false
+			if(changed=stack.length){
 				let text=this.createComposed2Parent({...defaultStyle,width:Math.floor(contentWidth),contentWidth,end,children:[...stack]})
 				parent.appendComposed(text)
 				state.contentWidth=0
 				stack.splice(0,stack.length)
 			}
-			state.space=parent.nextAvailableSpace()
-		}
-		
-		const commit=state=>{
-			let {stack, contentWidth,end, space:{line}}=state
-			if(stack.length){
-				let text=this.createComposed2Parent({...defaultStyle,width:Math.floor(contentWidth),contentWidth,end,children:[...stack]})
-				parent.appendComposed(text)
-				state.contentWidth=0
-				stack.splice(0,stack.length)
-			}
-			line.commit()
-			state.space=parent.nextAvailableSpace()
+			
+			if(needNewLine)
+				line.commit(true)
+			
+			if(changed || needNewLine)
+				state.space=parent.nextAvailableSpace()
+
+			return state
 		}
 		
 		const push=(state,piece)=>{
@@ -90,21 +86,20 @@ export default class Text extends NoChild{
 				if(width-contentWidth>=piece.width){//left space is bigger enough
 					push(state,piece)
 				}else{//left space is not enough
-					append(state);
-					({space:{width,bFirstLine,bLineStart,line},stack, contentWidth}=state);
+					({space:{width,bFirstLine,bLineStart,line},stack, contentWidth}=commit(state));
 					if(bLineStart){
 						if(bFirstLine){
 							composer.composed=state.end
 							let text=composer.next(state.space);//split
 							let splitted=splitPiece(piece,text)
 							push(state,splitted[0])
-							commit(state)
+							commit(state,true)
 							handlePiece(state,splitted[1])
 						}else{ 
 							if(piece.type.ableExceed()){
 								push(state,piece)
 							}else if(line.canSeperateWith(piece)){
-								commit(state);
+								commit(state,true)
 								handlePiece(state,piece)
 							}else{
 								line.rollback(piece);
@@ -116,14 +111,14 @@ export default class Text extends NoChild{
 						if(piece.type.ableExceed()){
 							push(state,piece)
 						}else if(line.canSeperateWith(piece)){
-							commit(state)
+							commit(state,true)
 							handlePiece(state,piece)
 						}else if(line.allCantSeperateWith(piece)){
 							composer.composed=state.end
 							let text=composer.next(state.space);//split
 							let splitted=splitPiece(piece,text)
 							push(state,splitted[0])
-							commit(state)
+							commit(state,true)
 							handlePiece(state,splitted[1])
 						}else{
 							line.rollback(piece)
@@ -136,14 +131,14 @@ export default class Text extends NoChild{
 				if(piece.type.ableExceed()){
 					push(state,piece)
 				}else{
-					commit(state)
+					commit(state,true)
 					handlePiece(state,piece)
 				}
 			}
 			return state
 		},{space:parent.nextAvailableSpace(),stack:[],contentWidth:0,end:0})
 		
-		append(state)
+		commit(state)
 		
 		parent.on1ChildComposed(this)
 	}

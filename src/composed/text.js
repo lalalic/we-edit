@@ -11,4 +11,6 @@ export const Text=({children, contentWidth, whiteSpace, ...others})=>(
 	</text>
 )
 
-export default Text
+export const ableExceed=pieces=>pieces.reduce((state,a)=>state && a.type.ableExceed(),true)
+
+export default Object.assign(Text,{ableExceed})
