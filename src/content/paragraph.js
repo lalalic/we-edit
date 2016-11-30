@@ -64,20 +64,10 @@ export default class Paragraph extends Super{
 
 		let currentLine=composed[composed.length-1]
         let availableWidth=currentLine.children.reduce((prev,a)=>prev-a.props.width,currentLine.width)
-        let {width:contentWidth, height:contentHeight, descent:contentDescent=0}=content.props
+        let {width:contentWidth, height:contentHeight}=content.props
 		const push=a=>{
-			currentLine.children.push(
-					<Group
-						x={currentLine.width-availableWidth}
-						index={this.computed.children.length}
-						descent={contentDescent}
-						width={contentWidth}
-						height={contentHeight}>
-						{content}
-					</Group>
-				)
+			currentLine.children.push(content)
 			currentLine.height=Math.max(currentLine.height,contentHeight)
-			currentLine.descent=Math.max(currentLine.descent, contentDescent)
 		}
 		
 		if(availableWidth>=contentWidth){
@@ -162,15 +152,13 @@ class LineInfo{
 		this.paragraph=p
 		this.width=width
 		this.height=0
-		this.descent=0
 		this.children=[]
 	}
 	
 	rollback({type}){
 		let removed=[]
 		for(let i=this.children.length-1;i>-1;i--){
-			let group=this.children[i]
-			let text=group.props.children
+			let text=this.children[i]
 			let {width,children:pieces}=text.props
 
 			let j=pieces.length-1 
@@ -182,17 +170,14 @@ class LineInfo{
 			}
 			
 			if(j==-1){
-				removed.unshift(this.children.pop().props.children)
+				removed.unshift(this.children.pop())
 				continue;
 			}else if(j==pieces.length-1){
 				break
 			}else {
-				let removed=pieces.splice(j)
-				text=React.cloneElement(text,{children:pieces, width:pieces.reduce((w,{width})=>w+width,0)})
-				this.children[i]=React.cloneElement(group,{children:text,width:text.props.width})
-				
-				let width=removed.reduce((w,{width})=>w+width,0)
-				removed.unshift(React.cloneElement(text,{children:removed,width}))
+				let removedPieces=pieces.splice(j)
+				this.children[i]=React.cloneElement(text,{children:pieces, width:pieces.reduce((w,{width})=>w+width,0)})
+				removed.unshift(React.cloneElement(text,{children:removedPieces,width:removedPieces.reduce((w,{width})=>w+width,0)}))
 				break
 			}
 		}
@@ -210,15 +195,14 @@ class LineInfo{
 		if(this.children.length==0)
 			return true
 		
-		let group=this.children[this.children.length-1]
-		let text=group.props.children
+		let text=this.children[this.children.length-1]
 		let pieces=text.props.children
 		let lastPiece=pieces[pieces.length-1]
 		return type.canSeperateWith(lastPiece.type)
 	}
 	
 	allCantSeperateWith({type}){
-		return this.children.reduce((cantSeperate,{props:{children:text}})=>{
+		return this.children.reduce((cantSeperate,text)=>{
 			if(!cantSeperate)
 				return false
 			
