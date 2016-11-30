@@ -151,8 +151,15 @@ class LineInfo{
 	constructor(width,p){
 		this.paragraph=p
 		this.width=width
-		this.height=0
 		this.children=[]
+	}
+	
+	get height(){
+		return this.children.reduce((h,{props:{height}})=>Math.max(h,height),0)
+	}
+	
+	get contentWidth(){
+		
 	}
 	
 	rollback({type}){
