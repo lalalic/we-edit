@@ -2,11 +2,12 @@ import React, {Component, PropTypes} from "react"
 import Any, {styleInheritable} from "./any"
 import Group from "../composed/group"
 import Line from "../composed/line"
+import ComposedText from "../composed/text"
 
 import Inline from "./inline"
 import Text from "./text"
+import {isText} from "./chars"
 
-import {isChar, isWhitespace, isWord, testAll} from "../wordwrap"
 
 let Super=styleInheritable(Any)
 export default class Paragraph extends Super{
@@ -41,8 +42,7 @@ export default class Paragraph extends Super{
 		}
         let currentLine=composed[composed.length-1]
 
-        let {width}=currentLine
-        let availableWidth=currentLine.children.reduce((prev,a)=>prev-a.props.width,width)
+        let {width,availableWidth}=currentLine
         if(availableWidth<minRequiredW || this.availableSpace.height<minRequiredH){
 			if(this.availableSpace.height<minRequiredH)
 				this.availableSpace=this.context.parent.nextAvailableSpace(required)
@@ -63,18 +63,15 @@ export default class Paragraph extends Super{
         const {parent}=this.context
 
 		let currentLine=composed[composed.length-1]
-        let availableWidth=currentLine.children.reduce((prev,a)=>prev-a.props.width,currentLine.width)
-        let {width:contentWidth, height:contentHeight}=content.props
-		const push=a=>{
-			currentLine.children.push(content)
-			currentLine.height=Math.max(currentLine.height,contentHeight)
-		}
+        let availableWidth=currentLine.availableWidth
+        let {width:contentWidth}=content.props
 		
 		if(availableWidth>=contentWidth){
-           push()
+          currentLine.children.push(content)
 		}else if(availableWidth<contentWidth){
-			if(content.type.ableExceed(content.props.children)){
-				push()
+			if(content.type.ableExceed && 
+				content.type.ableExceed(content.props.children)){
+				currentLine.children.push(content)
 			}else{
 				this.commitCurrentLine(true)
 				this.appendComposed(content)
@@ -102,7 +99,6 @@ export default class Paragraph extends Super{
 	}
 
     createComposed2Parent(props){
-		console.log("append new line to section")
         let {height, width, paragraph, ...others}=props
         let {spacing:{lineHeight="100%",top=0, bottom=0}, indent:{left=0,right=0,firstLine=0,hanging=0}}=this.getStyle()
         let contentY=0, contentX=left
@@ -158,14 +154,16 @@ class LineInfo{
 		return this.children.reduce((h,{props:{height}})=>Math.max(h,height),0)
 	}
 	
-	get contentWidth(){
-		
+	get availableWidth(){
+		return this.children.reduce((w,{props:{width}})=>w-width,this.width)
 	}
 	
 	rollback({type}){
 		let removed=[]
 		for(let i=this.children.length-1;i>-1;i--){
 			let text=this.children[i]
+			if(text.type!=ComposedText)
+				break
 			let {width,children:pieces}=text.props
 
 			let j=pieces.length-1 
@@ -205,7 +203,7 @@ class LineInfo{
 		let text=this.children[this.children.length-1]
 		let pieces=text.props.children
 		let lastPiece=pieces[pieces.length-1]
-		return type.canSeperateWith(lastPiece.type)
+		return type.canSeperateWith && type.canSeperateWith(lastPiece.type)
 	}
 	
 	allCantSeperateWith({type}){
@@ -216,7 +214,7 @@ class LineInfo{
 			return text.props.children.reduce((state,a)=>{
 				if(!state)
 					return false
-				return !type.canSeperateWith(a.type)
+				return !type.canSeperateWith || !type.canSeperateWith(a.type)
 			},true)
 			
 		},true)

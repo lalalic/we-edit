@@ -7,7 +7,7 @@ class Char extends Component{
 	}
 	
 	render(){
-		return <i>{this.props.chars.join('')}</i>
+		return null
 	}
 	
 	static is(){
@@ -86,5 +86,6 @@ export function isPunctuation(a){
 export function isBeginningSymbol(a){
 	return a==='(' || a==='{' || a==='<' || a==='['
 }
+
 
 

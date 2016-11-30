@@ -12,7 +12,7 @@ export const Line=({children})=>{
 				const {pieces,x}=state
 				const {width,height}=piece.props
 				pieces.push(
-					<Group x={x}>
+					<Group x={x} key={i}>
 						{piece}
 					</Group>
 				);
