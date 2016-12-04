@@ -1,24 +1,52 @@
-import React, {PropTypes} from "react"
+import React, {Component, PropTypes} from "react"
 
 import Any, {styleInheritable} from "./any"
+import Group from "../composed/group"
 
 let Super=styleInheritable(Any)
 let asIsFunc=cond=>`is${cond.charAt(0).toUpperCase()}${cond.substr(1)}`
 export default class Cell extends Super{
 	static displayName="cell"
+
+	render(){
+		return <td>{this.getContent()}</td>
+	}
+
+	appendComposed(){
+		this.computed.composed.push(...arguments)
+	}
+
+	createComposed2Parent(){
+		let {margin,border,width}=this.getStyle()
+		let gap="right,left,top,bottom".split(",").reduce((state,a)=>{
+			state[a]=Math.max(margin[a],border[a].sz/2)
+			return state
+		},{})
+		let y=0
+		let positionedLines=this.computed.composed.map((line,i)=>{
+			const {width,height}=line.props
+			let positionedLine=(<Group y={y} width={width} height={height} key={i}>{line}</Group>)
+			y+=height
+			return positionedLine
+		})
+
+		return (
+			<ComposedCell width={width+gap.right+gap.left} height={y+gap.top+gap.bottom}>
+				<Border border={border}/>
+				<Group x={gap.left} y={gap.top}>
+					{positionedLines}
+				</Group>
+			</ComposedCell>
+		)
+	}
+
 	nextAvailableSpace(required){
-		let {width,height}=super.nextAvailableSpace(...arguments)
-
-		let {margin}=this.getStyle()
+		let {margin,border,width}=this.getStyle()
 		width=width
-			-margin.right
-			-margin.left
+			-Math.max(margin.right,border.right.sz/2)
+			-Math.max(margin.left,border.left.sz/2)
 
-		height=height
-			-margin.top
-			-margin.bottom
-
-		return {width,height}
+		return {width,height:Number.MAX_SAFE_INTEGER}
 	}
 
 	getStyle(){
@@ -32,21 +60,25 @@ export default class Cell extends Super{
 
 		directStyle.basedOn=rowStyle
 		rowStyle.basedOn=tableStyle
-		
-		
+
+
 		let edges="lastCol,firstCol,lastRow,firstRow".split(",")
 			.filter(cond=>!conditions.includes(cond) && this.context[asIsFunc(cond)+"Absolute"]())
 
 		let border=directStyle.getBorder(conditions, edges)
 
 		let margin={}
-		"left,right,top,bottom".split(",").forEach(a=>margin[a]=directStyle.get(`margin.${a}`)||0)
+		"left,right,top,bottom".split(",").forEach(a=>margin[a]=directStyle.get(`margin.${a}`)||tableStyle.get(`tblPr.tblCellMar.${a}`)||0)
 
 		let spacing=rowStyle.get(`spacing`)||0
 
 		let background=directStyle.get('tcPr.shd',conditions)
 
-		return this._style={border, margin, spacing, background}
+		let width=directStyle.get('tcPr.tcW')
+
+		let height=rowStyle.get('tcHeight')
+
+		return this._style={border, margin, spacing, background,width,height}
 	}
 
 	get conditions(){
@@ -92,5 +124,49 @@ export default class Cell extends Super{
                     }
                 }
 			})
+	}
+}
+
+class ComposedCell extends Component{
+	static childContextTypes={
+		cellSize:PropTypes.object
+	}
+
+	getChildContext(){
+		return {
+			cellSize: {
+				width: this.props.width,
+				height: this.props.height
+			}
+		}
+	}
+
+	render(){
+		const {width,height, background, children, ...others}=this.props
+		return (
+			<Group {...others}>
+				{background && (<rect width={width} height={height} fill={background}/>)}
+				{children}
+			</Group>
+		)
+	}
+}
+
+class Border extends Component{
+	static contextTypes={
+		rowSize: PropTypes.object,
+		cellSize: PropTypes.object
+	}
+	render(){
+		const {left,right,bottom,top}=this.props.border
+		const {rowSize:{height}, cellSize:{width}}=this.context
+		return (
+			<Group>
+				{top.sz && <path strokeWidth={top.sz} stroke={top.color} d={`M0 0 L${width} 0`}/>}
+				{bottom.sz && <path strokeWidth={bottom.sz} stroke={bottom.color} d={`M0 ${height} L${width} ${height}`}/>}
+				{right.sz && <path strokeWidth={right.sz} stroke={right.color} d={`M${width} 0 L${width} ${height}`}/>}
+				{left.sz && <path strokeWidth={left.sz} stroke={left.color} d={`M0 0 L0 ${height}`}/>}
+			</Group>
+		)
 	}
 }

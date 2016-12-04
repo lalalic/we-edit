@@ -6,7 +6,6 @@ import ComposedText from "../composed/text"
 
 import Inline from "./inline"
 import Text from "./text"
-import {isText} from "./chars"
 
 
 let Super=styleInheritable(Any)
@@ -14,9 +13,9 @@ export default class Paragraph extends Super{
 	static displayName="paragraph"
 
 	render(){
-		return <p>{this.getContent()}</p>	
+		return <p>{this.getContent()}</p>
 	}
-	
+
 	_newLine(){
         return new LineInfo(this.lineWidth(),this)
 	}
@@ -50,8 +49,8 @@ export default class Paragraph extends Super{
 			availableWidth=this.lineWidth()
         }
         return {
-			width:availableWidth, 
-			height:this.availableSpace.height, 
+			width:availableWidth,
+			height:this.availableSpace.height,
 			bFirstLine: composed.length<2,
 			bLineStart: availableWidth==this.availableSpace.width,
 			line: currentLine
@@ -65,11 +64,11 @@ export default class Paragraph extends Super{
 		let currentLine=composed[composed.length-1]
         let availableWidth=currentLine.availableWidth
         let {width:contentWidth}=content.props
-		
+
 		if(availableWidth>=contentWidth){
           currentLine.children.push(content)
 		}else if(availableWidth<contentWidth){
-			if(content.type.ableExceed && 
+			if(content.type.ableExceed &&
 				content.type.ableExceed(content.props.children)){
 				currentLine.children.push(content)
 			}else{
@@ -78,21 +77,21 @@ export default class Paragraph extends Super{
 			}
 		}
     }
-	
+
 	commitCurrentLine(needNewLine=false){
 		const {composed}=this.computed
 		const {parent}=this.context
 		let currentLine=composed[composed.length-1]
-		
+
 		parent.appendComposed(this.createComposed2Parent(currentLine))
-		
+
 		if(needNewLine)
 			composed.push(this._newLine())
 	}
 
 	onAllChildrenComposed(){//need append last non-full-width line to parent
 		this.commitCurrentLine()
-		
+
 		this.availableSpace={width:0, height:0}
 
 		super.onAllChildrenComposed()
@@ -149,15 +148,15 @@ class LineInfo{
 		this.width=width
 		this.children=[]
 	}
-	
+
 	get height(){
 		return this.children.reduce((h,{props:{height}})=>Math.max(h,height),0)
 	}
-	
+
 	get availableWidth(){
 		return this.children.reduce((w,{props:{width}})=>w-width,this.width)
 	}
-	
+
 	rollback({type}){
 		let removed=[]
 		for(let i=this.children.length-1;i>-1;i--){
@@ -166,14 +165,14 @@ class LineInfo{
 				break
 			let {width,children:pieces}=text.props
 
-			let j=pieces.length-1 
+			let j=pieces.length-1
 			for(;j>-1;j--){
 				let chars=pieces[j]
 				if(chars.type!=type){
 					break
 				}
 			}
-			
+
 			if(j==-1){
 				removed.unshift(this.children.pop())
 				continue;
@@ -188,36 +187,36 @@ class LineInfo{
 		}
 
 		this.paragraph.commitCurrentLine(true)
-		
+
 		removed.map(a=>this.paragraph.appendComposed(a))
 	}
-	
+
 	commit(needNewLine){
 		this.paragraph.commitCurrentLine(needNewLine)
 	}
-	
+
 	canSeperateWith({type}){
 		if(this.children.length==0)
 			return true
-		
+
 		let text=this.children[this.children.length-1]
 		let pieces=text.props.children
 		let lastPiece=pieces[pieces.length-1]
 		return type.canSeperateWith && type.canSeperateWith(lastPiece.type)
 	}
-	
+
 	allCantSeperateWith({type}){
 		return this.children.reduce((cantSeperate,text)=>{
 			if(!cantSeperate)
 				return false
-			
+
 			return text.props.children.reduce((state,a)=>{
 				if(!state)
 					return false
 				return !type.canSeperateWith || !type.canSeperateWith(a.type)
 			},true)
-			
+
 		},true)
 	}
-	
+
 }

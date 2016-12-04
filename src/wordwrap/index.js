@@ -41,7 +41,7 @@ export default class WordWrapper{
 
 		if(this.composed==this.text.length)
 			return null
-		
+
 		//let {text, width}=this.measure(this.text,this.composed,maxWidth)
 		let text,width
 		width=this.stringWidth(text=this.text.substr(this.composed))
@@ -76,7 +76,7 @@ export default class WordWrapper{
 		info.width=Math.ceil(info.width)
         return {...this.defaultStyle,...info}
     }
-	
+
 	measure(str, start, maxWidth){
 		let text=str.substr(start)
 		let width=this.stringWidth(text)
@@ -84,15 +84,15 @@ export default class WordWrapper{
 			return {text,width}
 		return this._measureByRatio(str, start, maxWidth, width)
 	}
-	
+
 	_measureByRatio(str, start, maxWidth, width){//how can we quickly measure
 		if(width==undefined)
 			width=this.stringWidth(str)
-		
+
 		let text=str.substr(0,Math.floor(str.length*maxWidth/width))
 		if(text.length>0)
 			width=this.stringWidth(text)
-		
+
 
 		if(width<maxWidth){
 			let index=start+text.length, len=str.length
@@ -102,39 +102,11 @@ export default class WordWrapper{
 
 		while(width>maxWidth && text.length)
 			width=this.stringWidth(text=text.slice(0,-1))
-		
+
 		return {text,width}
 	}
 
     rollback(len){
         this.composed-=len
     }
-}
-
-export function isChar(chr){
-	return " \t\n\r,.".indexOf(chr)==-1
-}
-
-export function isWhitespace(a){
-    return a===' '||a==='\t' || a==='\n' || a==='\r'
-}
-
-export function find(str,condition){
-	return [...str].reduce((state,a)=>{
-		if(!state.end){
-			if(condition(a))
-				state.found+=a
-			else
-				state.end=true
-		}
-		return state
-	},{found:"",end:false}).found
-}
-
-export function testAll(str, condition){
-	return [...str].reduce((state,a)=>state&&condition(a),true)
-}
-
-export function isWord(str){
-	return testAll(str,isChar)
 }
