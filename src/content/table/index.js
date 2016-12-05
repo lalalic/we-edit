@@ -13,11 +13,12 @@ export default class Table extends Super{
 	render(){
 		return <table><tbody>{this.getContent()}</tbody></table>
 	}
+
+/*
 	nextAvailableSpace(required){
 		let availableSpace=this.context.parent.nextAvailableSpace(required)
 		return {width: this.props.width, height: availableSpace.height}
 	}
-/*
 	appendComposed(colGroups){
 		if(this.computed.composed.length==0)
 			this.computed.composed.push([])
@@ -65,6 +66,7 @@ export default class Table extends Super{
 	onAllChildrenComposed(){
 		const {children:rows}=this.computed
 		const {parent}=this.context
+		const headers=this.getHeaderRowCount()
 		let y=0, width=0
 
 		let positionedRows=rows.reduce((state,row, i)=>{
@@ -81,9 +83,10 @@ export default class Table extends Super{
 				width=Math.max(width,rowWidth)
 				return positionedLineRow
 			})
+		let {margin:{left:x}, border:{top:{sz}}}=rows[0].computed.children[0].getStyle()
 
 		let table=(
-			<Group height={y} width={width}>
+			<Group height={y} width={width} x={-x} y={sz/2}>
 				{positionedRows}
 			</Group>
 		)

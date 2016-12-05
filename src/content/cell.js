@@ -17,7 +17,7 @@ export default class Cell extends Super{
 	}
 
 	createComposed2Parent(){
-		let {margin,border,width}=this.getStyle()
+		let {margin,border,width,background}=this.getStyle()
 		let gap="right,left,top,bottom".split(",").reduce((state,a)=>{
 			state[a]=Math.max(margin[a],border[a].sz/2)
 			return state
@@ -31,7 +31,7 @@ export default class Cell extends Super{
 		})
 
 		return (
-			<ComposedCell width={width+gap.right+gap.left} height={y+gap.top+gap.bottom}>
+			<ComposedCell width={width} height={y+gap.top+gap.bottom} background={background}>
 				<Border border={border}/>
 				<Group x={gap.left} y={gap.top}>
 					{positionedLines}
@@ -128,6 +128,9 @@ export default class Cell extends Super{
 }
 
 class ComposedCell extends Component{
+	static contextTypes={
+		rowSize: PropTypes.object
+	}
 	static childContextTypes={
 		cellSize:PropTypes.object
 	}
@@ -143,9 +146,10 @@ class ComposedCell extends Component{
 
 	render(){
 		const {width,height, background, children, ...others}=this.props
+		const {rowSize}=this.context
 		return (
 			<Group {...others}>
-				{background && (<rect width={width} height={height} fill={background}/>)}
+				{background ? (<rect width={width} height={rowSize.height} fill={background}/>) : null}
 				{children}
 			</Group>
 		)

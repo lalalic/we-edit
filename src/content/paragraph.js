@@ -16,6 +16,19 @@ export default class Paragraph extends Super{
 		return <p>{this.getContent()}</p>
 	}
 
+	getContent(){
+		if(React.Children.count(this.props.children)==0){
+			this.getContentCount=a=>1
+			return (<Inline><Text> </Text></Inline>)
+		}
+		return super.getContent()
+	}
+
+	isEmpty(){
+		return false
+	}
+
+
 	_newLine(){
         return new LineInfo(this.lineWidth(),this)
 	}
