@@ -7,7 +7,6 @@ export class HasChild extends Component {
     static childContextTypes = {
         parent: PropTypes.object
         ,prevSibling: PropTypes.func
-		,isComposingLastChildInParent: PropTypes.func
     }
 
     getChildContext() {
@@ -23,9 +22,6 @@ export class HasChild extends Component {
                     return siblings[found - 1]
                 }
             }
-			,isComposingLastChildInParent(){
-				return self.computed.children.length==self.getContentCount()-1
-			}
         }
     }
 
@@ -112,7 +108,6 @@ export default class HasParentAndChild extends HasChild {
     static contextTypes = {
         parent: PropTypes.object,
         prevSibling: PropTypes.func
-		,isComposingLastChildInParent: PropTypes.func
     }
     /**
      * children should call before composing line,
