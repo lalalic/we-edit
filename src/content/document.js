@@ -11,7 +11,9 @@ export default class Document extends HasChild{
 		const {pageGap, style, ...others}=this.props
         return (
 			<div>
+				<div style={{display:"none"}}>
 				{super.render()}
+				</div>
 				<svg style={style}
 					ref="svg"
 					width={width}

@@ -14,90 +14,44 @@ export default class Table extends Super{
 		return <table><tbody>{this.getContent()}</tbody></table>
 	}
 
-/*
-	nextAvailableSpace(required){
-		let availableSpace=this.context.parent.nextAvailableSpace(required)
-		return {width: this.props.width, height: availableSpace.height}
-	}
-	appendComposed(colGroups){
-		if(this.computed.composed.length==0)
-			this.computed.composed.push([])
-		const currentRow=this.computed.composed[this.computed.composed.length-1]
-		currentCell.push(line)
-
-		const {width, tblGrid:cols}=this.props
-		let height=0, self=this
-
-		let x=0, rowNo=this.computed.children.length-1
-		let groupsWithXY=colGroups.map((linesWithStyle,colNo)=>{
-			let {border, margin, spacing, background}=linesWithStyle.style
-			let y=0
-			let grouped=linesWithStyle.map(line=>{
-					let a=<Group y={y}>{line}</Group>
-					y+=line.props.height
-					return a
-				})
-			y+=(spacing*.5
-				+border.top.sz
-				+margin.top
-				+margin.bottom
-				+border.bottom.sz
-				+spacing*.5)
-			let cell=(
-				<Cell height={y} x={x} width={cols[colNo]} background={background}>
-					<Spacing x={spacing/2} y={spacing/2}>
-						<Border border={border} spacing={spacing}>
-							<Margin x={margin.left} y={margin.top}>
-								{grouped}
-							</Margin>
-						</Border>
-					</Spacing>
-				</Cell>
-			);
-			x+=cols[colNo]
-			height=Math.max(height,y)
-			return cell
-		})
-
-		this.context.parent.appendComposed(this.createComposed2Parent({width,height,children:groupsWithXY}))
-	}
-*/
-
 	onAllChildrenComposed(){
 		const {children:rows}=this.computed
 		const {parent}=this.context
 		const headers=this.getHeaderRowCount()
-		let y=0, width=0
-
-		let positionedRows=rows.reduce((state,row, i)=>{
-			let {height}=state.space
-			const lines=state.lines
+		const {margin:{left:x}, border:{top:{sz}}}=rows[0].computed.children[0].getStyle()
+		
+		const commit=(props,lines)=>parent.appendComposed(this.createComposed2Parent({...props,x:-x,y:sz/2,children:lines}))
+		
+		const {content, lines}=rows.reduce((state,row,i)=>{
+			let {space,content}=state
+			let lines=state.lines
 			let composedLine=row.createComposed2Parent(state)
-			lines.push(composedLine)
+			const {height:rowHeight, width:rowWidth}=composedLine.props
+			
+			if(space.height-content.height>=rowHeight){
+				lines.push(React.cloneElement(composedLine, {y:content.height,key:state.row}))
+				content.height+=rowHeight
+				content.width=rowWidth
+			}else{
+				commit(content, lines)
+				content.height=0
+				lines=state.lines=[]
+				state.space=parent.nextAvailableSpace({height:rowHeight})
+				lines.push(React.cloneElement(composedLine, {y:content.height,key:state.row}))
+				content.height+=rowHeight
+				content.width=rowWidth
+			}
+			state.row++
 			return state
-		},{space:parent.nextAvailableSpace(),lines:[],row:0, cell:0})
-			.lines.map((lineRow,i)=>{
-				const {height,width:rowWidth}=lineRow.props
-				let positionedLineRow=(<Group y={y} key={i}>{lineRow}</Group>)
-				y+=height
-				width=Math.max(width,rowWidth)
-				return positionedLineRow
-			})
-		let {margin:{left:x}, border:{top:{sz}}}=rows[0].computed.children[0].getStyle()
-
-		let table=(
-			<Group height={y} width={width} x={-x} y={sz/2}>
-				{positionedRows}
-			</Group>
-		)
-
-		parent.appendComposed(table)
+		},{space:parent.nextAvailableSpace(), content:{height:0,width:0}, lines:[],row:0, cell:0})
+		
+		commit(content, lines)
 
 		super.onAllChildrenComposed()
 	}
 
 	createComposed2Parent(props){
-		return <Row {...props}/>
+		return <ComposedTable {...props}/>
 	}
 
 	getHeaderRowCount(){
@@ -153,3 +107,6 @@ export default class Table extends Super{
 		})
 	}
 }
+
+class ComposedTable extends Group{
+}	
