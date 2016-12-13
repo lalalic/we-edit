@@ -1,5 +1,5 @@
 import React, {Component, PropTypes} from "react"
-import Any, {styleInheritable} from "./any"
+import Any from "./any"
 import Group from "../composed/group"
 import Line from "../composed/line"
 import ComposedText from "../composed/text"
@@ -7,9 +7,7 @@ import ComposedText from "../composed/text"
 import Inline from "./inline"
 import Text from "./text"
 
-
-let Super=styleInheritable(Any)
-export default class Paragraph extends Super{
+export default class Paragraph extends Any{
 	static displayName="paragraph"
 
 	render(){
@@ -141,17 +139,21 @@ export default class Paragraph extends Super{
     }
 
     getStyle(){
-        if(this._style)
-            return this._style
-        let spacing=this.style('pPr.spacing')||{}
-        let indent=this.style('pPr.ind')||{}
-        return this._style={spacing,indent}
+		return super.getStyle()||{
+			spacing:{
+				lineHeight:"100%"
+				,top:0
+				,bottom:0
+			}
+			,indent:{
+				left:0
+				,right:0
+				,firstLine:0
+				,hanging:0
+			}
+		}
     }
 
-	static contextTypes={
-		...Super.contextTypes
-		,getDefaultStyle: PropTypes.func
-	}
 }
 
 

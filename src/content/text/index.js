@@ -1,7 +1,6 @@
 import React, {Component, PropTypes} from "react"
 import {NoChild} from "../any"
 import HtmlWordWrapper from "../../wordwrap/html"
-import {isChar, isWhitespace, find, isWord} from "../../wordwrap"
 
 import Group from "../../composed/group"
 import ComposedText from "../../composed/text"
@@ -144,26 +143,19 @@ export default class Text extends NoChild{
 	}
 
 	getStyle(){
-		const {inheritedStyle}=this.context
-
-		return 'rFonts,sz,color,b,i,vanish'.split(",").reduce((style, key)=>{
-            let stylePath=`rPr.${key}`
-			let value=inheritedStyle.get(stylePath)
-            if(value!=undefined){
-                style[key]=value
-			}
-            return style
-        },{})
+		return super.getStyle()||{
+			rFonts:"arial"
+			,sz:"9pt"
+			,b:false
+			,i:false
+			,vanish:false
+		}
 	}
 
 	createComposed2Parent(props){
 		return <ComposedText {...props}/>
 	}
 
-	static contextTypes={
-		...NoChild.contextTypes,
-		inheritedStyle: PropTypes.object
-	}
 
 	static WordWrapper=HtmlWordWrapper
 }

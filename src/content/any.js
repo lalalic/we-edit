@@ -55,7 +55,7 @@ export class HasChild extends Component {
     }
 
     getStyle() {
-
+        return this.props.style
     }
 
     isEmpty() {
@@ -148,51 +148,5 @@ export class NoChild extends HasParentAndChild {
         this.computed.composed.push(composed)
         parent.appendComposed(composed)
         parent.on1ChildComposed(this)
-    }
-}
-
-export function styleInheritable(Content) {
-    return class StyleContainer extends Content {
-        static childContextTypes = Object.assign({
-            inheritedStyle: PropTypes.object
-        }, Content.childContextTypes)
-
-        getChildContext() {
-            const {directStyle = this.defaultStyle} = this.props
-            const {inheritedStyle} = this.context
-
-            if (!directStyle)
-                debugger;
-
-
-            return Object.assign(super.getChildContext(), {
-                inheritedStyle: {
-                    get(path) {
-                        let v = directStyle.get(path)
-                        if (v == undefined)
-                            return inheritedStyle.get(path)
-                        return v
-                    }
-                }
-            })
-        }
-
-        static contextTypes = Object.assign({
-            inheritedStyle: PropTypes.object,
-            getDefaultStyle: PropTypes.func
-        }, Content.contextTypes)
-
-        style(key) {
-            const {directStyle = this.defaultStyle} = this.props
-            const {inheritedStyle} = this.context
-            let value = directStyle.get(key)
-            if (value == undefined)
-                value = inheritedStyle.get(key)
-            return value
-        }
-
-        get defaultStyle() {
-            return this.context.getDefaultStyle(this.constructor.displayName)
-        }
     }
 }

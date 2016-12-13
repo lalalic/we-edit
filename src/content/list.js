@@ -31,24 +31,7 @@ export default class list extends Paragraph{
 		return line
 	}
 
-	getLabel(){
-		const {directStyle}=this.props
-		let label=directStyle.get("label")
-
-		const {inheritedStyle}=this.context
-
-		let style='rFonts,sz,color,b,i,vanish'.split(",").reduce((style, key)=>{
-            let stylePath=`rPr.${key}`
-			let value=directStyle.get("label."+stylePath)
-			if(value==undefined)
-				value=inheritedStyle.get(stylePath)
-
-            if(value!=undefined){
-                style[key]=value
-			}
-            return style
-        },{})
-
-		return {label,style}
-	}
+    getLabel(){
+        throw new Error("You need implement it")
+    }
 }

@@ -3,34 +3,27 @@ import docx4js from "docx4js"
 import Base from "../base"
 import Editor from "../../editor"
 
+import Document from "./document"
+import Inline from "./inline"
+import Text from "./text"
+import Paragraph from "./paragraph"
+import Cell from "./cell"
+import Row from "./row"
+import Table from "./table"
+import List from "./list"
+
 function wordify(domain){
-	class Document extends domain.Document{
-		getChildContext(){
-			const ctx=super.getChildContext()
-			let _getDefaultStyle=ctx.getDefaultStyle
-			return Object.assign(ctx,{
-				getDefaultStyle(type){
-					switch(type){
-					case 'inline':
-						type="character"
-					break
-					}
-					return _getDefaultStyle(type)
-				}
-			})
-		}
-	}
 	const {Any,
 		Section,
-		Paragraph,
-		Inline,
-		Text,
+		//Paragraph,
+		//Inline,
+		//Text,
 		Frame,
 		Image,
-		Table,
-		Row,
-		Cell,
-		List,
+		//Table,
+		//Row,
+		//Cell,
+		//List,
 		Header,
 		Footer}=domain
 	return {

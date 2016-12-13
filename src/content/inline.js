@@ -1,7 +1,7 @@
-import React, {Component, PropTypes} from "react"
-import Any, {styleInheritable} from "./any"
+import React from "react"
+import Any from "./any"
 
-export default class Inline extends styleInheritable(Any){
+export default class Inline extends Any{
     static displayName="inline"
 	render(){
 		return <span>{this.getContent()}</span>

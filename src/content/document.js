@@ -31,24 +31,6 @@ export default class Document extends HasChild{
 		)
     }
 
-    static childContextTypes={
-		...HasChild.childContextTypes,
-        getDefaultStyle: PropTypes.func,
-		inheritedStyle: PropTypes.object
-    }
-
-    getChildContext(){
-		const self=this
-		const styles=this.props.styles
-        const {width, pageGap, directStyle}=this.props
-		return Object.assign(super.getChildContext(),{
-            getDefaultStyle(type){
-				return styles.getDefault(type)
-			},
-			inheritedStyle:directStyle
-        })
-    }
-
 	appendComposed(page){
 		if(this.refs.composed)
 			this.refs.composed.setState({composedTime: new Date().toString()})
