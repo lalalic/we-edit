@@ -1,5 +1,4 @@
 import React,{PropTypes} from "react"
-import Immutable from "immutable"
 
 import Group from "../composed/group"
 
