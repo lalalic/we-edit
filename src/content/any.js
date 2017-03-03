@@ -5,8 +5,8 @@ export class HasChild extends Component {
     computed = { children: [], composed: [] }
 
     static childContextTypes = {
-        parent: PropTypes.object,
-        prevSibling: PropTypes.func
+        parent: PropTypes.object
+        ,prevSibling: PropTypes.func
     }
 
     getChildContext() {
@@ -16,7 +16,7 @@ export class HasChild extends Component {
             prevSibling(me) {
                 const {children: siblings} = self.computed
                 let found = siblings.indexOf(me)
-                if (found == -1) {//not found, current should no be composed
+                if (found == -1) {//not found, current should not be composed
                     return siblings[siblings.length - 1]
                 } else {
                     return siblings[found - 1]
@@ -26,7 +26,7 @@ export class HasChild extends Component {
     }
 
     render() {
-        return <div>{this.getContent()}</div>
+		return <div>{this.getContent()}</div>
     }
 
     /**
@@ -55,7 +55,7 @@ export class HasChild extends Component {
     }
 
     getStyle() {
-
+        return this.props.style
     }
 
     isEmpty() {
@@ -111,7 +111,7 @@ export default class HasParentAndChild extends HasChild {
     }
     /**
      * children should call before composing line,
-     * return next line rect {*width, [height]}
+     * return next line rect {*width, [height], [greedy(text)=true], [wordy(text)=true]}
      */
     nextAvailableSpace() {
         return this.availableSpace = this.context.parent.nextAvailableSpace(...arguments)
@@ -148,51 +148,5 @@ export class NoChild extends HasParentAndChild {
         this.computed.composed.push(composed)
         parent.appendComposed(composed)
         parent.on1ChildComposed(this)
-    }
-}
-
-export function styleInheritable(Content) {
-    return class StyleContainer extends Content {
-        static childContextTypes = Object.assign({
-            inheritedStyle: PropTypes.object
-        }, Content.childContextTypes)
-
-        getChildContext() {
-            const {directStyle = this.defaultStyle} = this.props
-            const {inheritedStyle} = this.context
-
-            if (!directStyle)
-                debugger;
-
-
-            return Object.assign(super.getChildContext(), {
-                inheritedStyle: {
-                    get(path) {
-                        let v = directStyle.get(path)
-                        if (v == undefined)
-                            return inheritedStyle.get(path)
-                        return v
-                    }
-                }
-            })
-        }
-
-        static contextTypes = Object.assign({
-            inheritedStyle: PropTypes.object,
-            getDefaultStyle: PropTypes.func
-        }, Content.contextTypes)
-
-        style(key) {
-            const {directStyle = this.defaultStyle} = this.props
-            const {inheritedStyle} = this.context
-            let value = directStyle.get(key)
-            if (value == undefined)
-                value = inheritedStyle.get(key)
-            return value
-        }
-
-        get defaultStyle() {
-            return this.context.getDefaultStyle(this.constructor.displayName)
-        }
     }
 }

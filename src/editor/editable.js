@@ -1,7 +1,6 @@
 import React from "react"
+import {recordContent} from "./selector"
 
-
-var uuid=0
 /**
  *  it's a very complicated job, so we need a very simple design, one sentence described solution. options:
  *  1. remove all composed, and re-compose all
@@ -26,7 +25,6 @@ var uuid=0
  */
 export default function editable(Content){
 	return class extends Content{
-		_id=uuid++
 		state={content:this.props.children.length==0 ? this.emptyContent() : React.Children.toArray(this.props.children)}
 
 		emptyContent(){
@@ -42,6 +40,20 @@ export default function editable(Content){
 
 		appendLastComposed(){
 
+		}
+
+		get id(){
+			return this.props.id
+		}
+
+		componentDidMount(){
+			recordContent(this)
+			if(super.componentDidMount)
+				super.componentDidMount(...arguments)
+		}
+
+		createComposed2Parent(props){
+			return super.createComposed2Parent({...props, "data-content":this.id})
 		}
 
         reCompose(){
@@ -97,5 +109,5 @@ export default function editable(Content){
 			}
             return true
         }
-    }
+	}
 }

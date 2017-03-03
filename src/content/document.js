@@ -8,13 +8,17 @@ export default class Document extends HasChild{
 
 	render(){
 		const {computed:{composed}, props:{width, height}}=this
-		const {pageGap, ...others}=this.props 
+		const {pageGap, style, ...others}=this.props
         return (
 			<div>
+				<div style={{display:"none"}}>
 				{super.render()}
-				<svg {...others}
+				</div>
+				<svg style={style}
 					ref="svg"
-					width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
+					width={width}
+					height={height}
+					viewBox={`0 0 ${width} ${height}`}>
 					<Composed ref="composed" gap={pageGap} canvas={{width}} sections={()=>
 						this.computed.children.reduce((collected, section)=>{
 							collected.push(section.computed.composed)
@@ -25,23 +29,6 @@ export default class Document extends HasChild{
 				</svg>
 			</div>
 		)
-    }
-
-    static childContextTypes=Object.assign({
-        getDefaultStyle: PropTypes.func,
-		inheritedStyle: PropTypes.object
-    },HasChild.childContextTypes)
-
-    getChildContext(){
-		const self=this
-		const styles=this.props.styles
-        const {width, pageGap, directStyle}=this.props
-		return Object.assign(super.getChildContext(),{
-            getDefaultStyle(type){
-				return styles.getDefault(type)
-			},
-			inheritedStyle:directStyle
-        })
     }
 
 	appendComposed(page){
@@ -76,7 +63,9 @@ export default class Document extends HasChild{
 		}
 	}
 
-
+	get composed(){
+		return this.refs.composed
+	}
 }
 
 class Composed extends Group{

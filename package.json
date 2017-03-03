@@ -1,7 +1,7 @@
 {
   "name": "we-edit",
   "description": "an text editor",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "author": {
     "name": "Raymond Li",
     "email": "lalalic@139.com"
@@ -11,8 +11,13 @@
     "cssstyle": "^0.2.36",
     "docx4js": "^2.0.0",
     "immutable": "^3.8.1",
+    "mouse-event-offset": "^3.0.2",
+    "normalizr": "^2.2.1",
     "react": "^15.1.0",
     "react-dom": "^15.1.0",
+    "react-redux": "^4.4.6",
+    "redux": "^3.6.0",
+    "redux-thunk": "^2.1.0",
     "sax": "^1.2.1",
     "ttfjs": "^0.4.0",
     "word-wrapper": "^1.0.7"

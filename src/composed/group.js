@@ -10,7 +10,7 @@ export default class Group extends Component{
 			return React.Children.only(React.Children.toArray(this.props.children)[0])
 		}
 		
-		let {x,y, width, height, ...others}=this.props
+		let {x,y, width, height, index, ...others}=this.props
 		if(x||y)
 			others.transform=`translate(${x||0} ${y||0})`
 		return <g x={x} y={y} {...others}/>

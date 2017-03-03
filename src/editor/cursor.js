@@ -1,63 +1,59 @@
 import React, {Component, PropTypes} from "react"
-import ReactDOM from "react-dom"
+import {connect} from "react-redux"
+import EditableText from "./text"
+import {ACTION as Selection_ACTION} from "./selection"
+import {getContent,getContentClientBoundBox} from "./selector"
 
-export default class Cursor extends Component{
-	static displayName="cursor"
-	state={target:null, node: null, at: 0, width:0, height:0, descent:0, style:{}}
-
-    render(){
-		const {width, height, descent, style}=this.state
-		return (
-			<Shape ref="shape" width={width} height={height} style={style} descent={descent}/>
-		)
-    }
-
-	componentDidUpdate(prevProps, prevState){
-		const {target, node, at}=this.state
-		if(target && node){
-			node.appendChild(ReactDOM.findDOMNode(this.refs.shape))
-			node.setAttribute('class', 'cursor')
-		}
-	}
-
-	insert(content){
-		const {target, at}=this.state
-		this.setState({node:null, at:at+content.length})
-		target.splice(at,0,content)
-	}
-
-	backspace(){
-		const {target, at}=this.state
-		this.setState({node:null, at:at-1})
-		target.splice(at-1,1)
+export const ACTION={
+	AT: (contentId, from, width)=>dispatch=>{
+		const content=getContent(contentId)
+		const text=content.getContent()
+		const wordwrapper=new EditableText.WordWrapper(text.substr(from), content.getStyle())
+		const {end}=wordwrapper.next({width})||{end:0,contentWidth:0}
+		dispatch(Selection_ACTION.SELECT(contentId, from+end))
 	}
 }
 
-export class Shape extends Component{
-	render(){
-		let {width, height, descent, style}=this.props
-		width=Math.ceil(width)
-		height=Math.ceil(height)
-		descent=Math.ceil(descent)
-		return <line
-					x1={width}
-					y1={descent}
-					x2={width}
-					y2={-height+descent}
-					strokeWidth={1}
-					stroke={style.color||"black"}
-					/>
+let timer
+export const Cursor=({id,at})=>{
+	let info={left:0, top:0, height:0}
+	if(id){
+		let {top,left,from}=getContentClientBoundBox(id,at)
+		const content=getContent(id)
+		const text=content.getContent()
+		let wordwrapper=new EditableText.WordWrapper(text.substring(from,at), content.getStyle())
+		let {end, contentWidth}=wordwrapper.next({width:Number.MAX_SAFE_INTEGER})||{end:0,contentWidth:0}
+		let {height, descent}=wordwrapper
+		left+=contentWidth
+		info={left, top, height}
 	}
-
-	componentDidMount(){
-		let node=ReactDOM.findDOMNode(this)
-		this.timer=setInterval(a=>{
-			let y1=node.getAttribute('y1'), y2=node.getAttribute('y2')
-			node.setAttribute('y1',y1==y2 ? this.props.descent : y2)
-		}, 700)
-	}
-
-	componentWillUnmount(){
-		this.timer && clearInterval(this.timer)
-	}
+	let {top, left, height}=info
+	return (
+		<line
+			x1={left}
+			y1={top}
+			x2={left}
+			y2={top+height}
+			strokeWidth={1}
+			stroke={"black"}
+			ref={node=>{
+				timer && clearInterval(timer);
+				timer=setInterval(a=>{
+					let y1=node.getAttribute('y1'), y2=node.getAttribute('y2')
+					node.setAttribute('y2',y1==y2 ? top+height : top)
+				}, 700)
+			}}
+			/>
+	)
 }
+
+const NO_CURSOR={}
+export default connect(state=>{
+	const {selection:{start:{id,at},end}}=state
+	if(id==0)
+		return NO_CURSOR
+	if(end.id==id && end.at==at)
+		return end
+	else
+		return NO_CURSOR
+})(Cursor)

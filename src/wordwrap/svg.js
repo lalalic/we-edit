@@ -22,7 +22,7 @@ export default class SVGWordWrapper extends WordWrapper{
 		}
 		tester.style=`white-space:pre;
             font-family:${this.fontFamily};
-            font-size:${this.size}px;
+            font-size:${this.size}pt;
             font-weight:${this.style.b ? "700" : "400"};
             font-style:${this.style.i ? "italic" : "normal"};
             `
