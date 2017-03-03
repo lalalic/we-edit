@@ -30,6 +30,10 @@ export default class Document extends HasChild{
 			</div>
 		)
     }
+	
+	compose(){
+		
+	}
 
 	appendComposed(page){
 		if(this.refs.composed)

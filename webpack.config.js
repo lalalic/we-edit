@@ -15,7 +15,7 @@ module.exports={
 			include:/(docx4js|docx-template)/
 		  },{
 			test: /.js?$/,
-			use: ['react-hot-loader','babel-loader'],
+			use: ['babel-loader'],
 			exclude: /node_modules/,
 		}]
 	},

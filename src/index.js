@@ -16,7 +16,7 @@ import SVGWordWrapper from "./wordwrap/svg"
 import CanvasWordWrapper from "./wordwrap/canvas"
 import NodeWordWrapper from "./wordwrap/node"
 
-import Input from "./input/"
+import Input from "./input"
 
 //Editor.Text.WordWrapper=CanvasWordWrapper
 
