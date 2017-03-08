@@ -145,7 +145,7 @@ export default class Text extends NoChild{
 	getStyle(){
 		return super.getStyle()||{
 			rFonts:"arial"
-			,sz:"9pt"
+			,sz:9
 			,b:false
 			,i:false
 			,vanish:false

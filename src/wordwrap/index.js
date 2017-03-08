@@ -4,7 +4,7 @@ export default class WordWrapper{
 		const {rFonts, sz:fontSize}=style
 		this.style=style
         this.text=text
-        this.fontFamily=Object.keys(rFonts).map(a=>`${typeof(rFonts[a])=='string'? rFonts[a] : ''}`)
+        this.fontFamily=typeof(rFonts)=="string" ? rFonts : Object.keys(rFonts).map(a=>`${typeof(rFonts[a])=='string'? rFonts[a] : ''}`)
             .filter(a=>a).join(" ")
 		this.size=fontSize
 		const {height, descent}=this.lineHeight()
