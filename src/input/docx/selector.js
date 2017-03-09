@@ -7,7 +7,7 @@ export default class Selector{
 	}
 	
 	document({node}){
-		return Object.assign(this.props.select(node.children.filter(a=>a.name!="w:body")),{docx:this.docx})
+		return Object.assign(this.props.select(node.children.filter(a=>a.name!="w:body")))
 	}
 	
 	section({node}){

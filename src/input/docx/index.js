@@ -4,6 +4,7 @@ import Base from "../base"
 import uuid from "../../tools/uuid"
 
 import Selector from "./selector"
+import getStyles from "./style"
 
 export default class extends Base{
 	static support({type}){
@@ -22,7 +23,10 @@ export default class extends Base{
 				let id=uuid()
 				switch(type){
 				case "document":
-					return React.createElement(domain.Document,{...selector.document(props),key:id},children)
+					return React.createElement(domain.Document,
+						{...selector.document(props),key:id,styles:getStyles(docx)},
+						children
+					)
 				case "section":
 					return React.createElement(domain.Section,{...selector.section(props),key:id},children)
 				case "tbl":

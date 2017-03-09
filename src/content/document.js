@@ -57,7 +57,26 @@ export default class Document extends HasChild{
 	more(){
 		return null
 	}
+	
+    static childContextTypes={
+		...HasChild.childContextTypes,
+        getDefaultStyle: PropTypes.func,
+		inheritedStyle: PropTypes.object
+    }
 
+    getChildContext(){
+		const self=this
+		const styles=this.props.styles
+        const {width, pageGap}=this.props
+		return {
+			...super.getChildContext(),
+            getDefaultStyle(type){
+				return styles.getDefault(type)
+			},
+			inheritedStyle:styles.getDefault("document")
+        }
+    }
+	
 	static defaultProps={
 		width: typeof(window)=='undefined' ? 10000 : window.innerWidth,
 		height: typeof(window)=='undefined' ? 10000 : window.innerHeight,
