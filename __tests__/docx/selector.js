@@ -31,24 +31,34 @@ describe("model properties selector", function(){
 	it("table", function(){
 		return select(contents.table,'table')
 		.then(props=>{
-			const {tblGrid}=props
-			expect(!!(tblGrid)).toBe(true)
+			const {tblGrid, directStyle}=props
+			expect(tblGrid).toBeDefined()
+			expect(directStyle).toBeDefined()
 		})
 	})
 	
 	it("paragraph", function(){
 		return select(contents.paragraph,'paragraph')
 		.then(props=>{
-			const {jc}=props
-			expect(!!(jc)).toBe(true)
+			const {directStyle}=props
+			expect(directStyle).toBeDefined()
 		})
 	})
 	
-	it("inline", function(){
+	fit("inline", function(){
 		return select(contents.inline,'inline')
 		.then(props=>{
-			const {b,i,strike,color,sz}=props
-			expect(!!(b&&i&&color&&sz)).toBe(true)
+			const {directStyle}=props
+			expect(directStyle).toBeDefined()
+			/*
+			const {rFonts,sz,color,b,i,vanish}=directStyle
+			expect(rFonts).toBeDefined()
+			expect(sz).toBeDefined()
+			expect(color).toBeDefined()
+			expect(b).toBeDefined()
+			expect(i).toBeDefined()
+			expect(vanish).toBeDefined()
+			*/
 		})
 	})
 	
@@ -86,8 +96,10 @@ describe("model properties selector", function(){
 		inline:`
 			<w:r>
 				<w:rPr>
+					<w:rFonts w:asciiTheme="minorHAnsi" w:eastAsiaTheme="minorEastAsia" w:hAnsiTheme="minorHAnsi" w:cstheme="minorBidi"/>
 					<w:b/>
 					<w:i/>
+					<w:vanish/>
 					<w:strike/>
 					<w:color w:val="00B050"/>
 					<w:sz w:val="24"/>

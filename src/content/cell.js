@@ -3,7 +3,7 @@ import React, {Component, PropTypes} from "react"
 import Any from "./any"
 import Group from "../composed/group"
 
-export default class Cell extends Any{
+export default class Cell extends Any.StyleInheritable{
 	static displayName="cell"
 
 	render(){

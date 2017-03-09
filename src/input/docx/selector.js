@@ -1,3 +1,4 @@
+import getTheme from "./theme"
 
 export default class Selector{
 	constructor(docx){
@@ -11,25 +12,38 @@ export default class Selector{
 	}
 	
 	section({node}){
-		return this.props.select(node.children)
+		return Object.assign(this.props.select(node.children),{node})
 	}
 	
 	table({node}){
-		return this.props.select(this.$(node).find(">w\\:tblPr>*, >w\\:tblGrid").toArray())
+		let props=this.props.select(this.$(node).find(">w\\:tblGrid").toArray())
+		let pr=node.children.find(a=>a.name=="w:tblPr")
+		if(pr)
+			props.directStyle=this.$(pr)
+		return props
 	}
 	
 	paragraph({node}){
-		return this.props.select(this.$(node).find(">w\\:pPr>*").toArray())
+		let props={}
+		let pr=node.children.find(a=>a.name=="w:pPr")
+		if(pr)
+			props.directStyle=this.$(pr)
+		return props
 	}
 	
 	inline({node}){
-		return this.props.select(this.$(node).find(">w\\:rPr>*").toArray())
+		let props={}
+		let pr=node.children.find(a=>a.name=="w:rPr")
+		if(pr)
+			props.directStyle=this.$(pr)
+		return props
 	}
 }
 
 class Props{
 	constructor(docx){
 		this.docx=docx
+		this.theme=getTheme(docx)
 	}
 	
 	select(nodes){
@@ -39,6 +53,12 @@ class Props{
 				props[name]=this[name](x)
 			return props
 		},{})
+	}
+	
+	selectValue(x){
+		let name=x.name.split(":").pop()
+		if(this[name])
+			return this[name](x)
 	}
 	
 	pgSz(x){
@@ -93,8 +113,8 @@ class Props{
 	}
 	
 	rFonts(x){
-		let ascii=x['ascii']||this.officeDocument.fontTheme.get(x['asciiTheme'])
-		let asia=x['eastAsia']||this.officeDocument.fontTheme.get(x['eastAsiaTheme'])
+		let ascii=x.attribs['w:ascii']||this.theme.font(x.attribs['w:asciiTheme'])
+		let asia=x.attribs['w:eastAsia']||this.theme.font(x.attribs['w:eastAsiaTheme'])
 
 		if(ascii || asia)
 			return {ascii, asia}
@@ -184,6 +204,13 @@ class Props{
 		},{})
 	}
 	
+	tblLook(x){
+		return Object.keys(x.attribs).reduce((props,a)=>{
+			props[a.split(":").pop()]=x.attribs[a]
+			return props
+		},{})
+	}
+	
 	tcW(x){
 		return this.dxa2Px(x.attribs['w:w'])
 	}
@@ -242,6 +269,6 @@ class Props{
 	}
 	
 	toColor(x){
-		return this.docx.asColor(x.attribs['w:color'] || this.docx.officeDocument.themeColor(x.attribs['w:themeColor']))
+		return this.docx.asColor(x.attribs['w:val']||x.attribs['w:color'] || this.theme.color(x.attribs['w:themeColor']))
 	}
 }

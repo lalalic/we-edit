@@ -143,13 +143,20 @@ export default class Text extends NoChild{
 	}
 
 	getStyle(){
-		return super.getStyle()||{
-			rFonts:"arial"
-			,sz:9
-			,b:false
-			,i:false
-			,vanish:false
-		}
+		const {inheritedStyle}=this.context
+
+		return 'rFonts,sz,color,b,i,vanish'.split(",").reduce((style, key)=>{
+			let value=inheritedStyle.key(`w\\:rPr w\\:${key}`)
+            if(value!=undefined){
+                style[key]=value
+			}
+            return style
+        },{})
+	}
+
+	static contextTypes={
+		...NoChild.contextTypes,
+		inheritedStyle: PropTypes.object
 	}
 
 	createComposed2Parent(props){

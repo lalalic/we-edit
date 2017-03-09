@@ -7,7 +7,7 @@ import ComposedText from "../composed/text"
 import Inline from "./inline"
 import Text from "./text"
 
-export default class Paragraph extends Any{
+export default class Paragraph extends Any.StyleInheritable{
 	static displayName="paragraph"
 
 	render(){

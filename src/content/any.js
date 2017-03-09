@@ -103,7 +103,7 @@ export class HasChild extends Component {
     }
 }
 
-export default class HasParentAndChild extends HasChild {
+export class HasParentAndChild extends HasChild {
     static displayName = "content"
     static contextTypes = {
         parent: PropTypes.object,
@@ -161,33 +161,31 @@ export function styleInheritable(Content) {
             const {directStyle = this.defaultStyle} = this.props
             const {inheritedStyle} = this.context
 
-            if (!directStyle)
-                debugger;
-
-
-            return Object.assign(super.getChildContext(), {
+            return {
+				...super.getChildContext(),
                 inheritedStyle: {
-                    get(path) {
-                        let v = directStyle.get(path)
+                    key(path) {
+                        let v = directStyle.key(path)
                         if (v == undefined)
-                            return inheritedStyle.get(path)
+                            return inheritedStyle.key(path)
                         return v
                     }
                 }
-            })
+            }
         }
 
-        static contextTypes = Object.assign({
+        static contextTypes = {
+			...Content.contextTypes,
             inheritedStyle: PropTypes.object,
             getDefaultStyle: PropTypes.func
-        }, Content.contextTypes)
+        }
 
         style(key) {
             const {directStyle = this.defaultStyle} = this.props
             const {inheritedStyle} = this.context
-            let value = directStyle.get(key)
+            let value = directStyle.key(key)
             if (value == undefined)
-                value = inheritedStyle.get(key)
+                value = inheritedStyle.key(key)
             return value
         }
 
@@ -196,3 +194,5 @@ export function styleInheritable(Content) {
         }
     }
 }
+
+export default Object.assign(HasParentAndChild,{StyleInheritable:styleInheritable(HasParentAndChild)})

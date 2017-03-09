@@ -18,13 +18,13 @@ export default class extends Base{
 	load(data, domain){
 		return docx4js.load(data).then(docx=>{
 			const selector=new Selector(docx)
-		
+			
 			return docx.render((type,props,children)=>{
 				let id=uuid()
 				switch(type){
 				case "document":
 					return React.createElement(domain.Document,
-						{...selector.document(props),key:id,styles:getStyles(docx)},
+						{...selector.document(props),key:id,styles:getStyles(selector)},
 						children
 					)
 				case "section":
@@ -39,7 +39,7 @@ export default class extends Base{
 					return React.createElement(domain.Text,{key:id},children[0])
 				}
 			})
-		}).then(tree=>{console.dir(tree);return tree})
+		})//.then(tree=>{console.dir(tree);return tree})
 	}
 }
 

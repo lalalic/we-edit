@@ -46,6 +46,61 @@ export default class Table extends Any{
 	createComposed2Parent(props){
 		return <ComposedTable {...props}/>
 	}
+	
+	getHeaderRowCount(){
+		const {firstRow}=(this.props.directStyle||self.defaultStyle).get('w\\:tblLook')||{}
+		if(firstRow!=="1")
+			return 0
+
+		return React.Children.toArray(this.props.children).filter(a=>{
+			let style=a.props.directStyle
+			if(style && style.find("w\\:tblHeader").length)
+				return true
+			return false
+		}).length
+	}
+	
+	static childContextTypes={
+		...Any.childContextTypes,
+		tableStyle: PropTypes.object,
+		isFirstRow: PropTypes.func,
+		isLastRow: PropTypes.func,
+		isFirstRowAbsolute: PropTypes.func,
+		isLastRowAbsolute: PropTypes.func,
+		isBand1Horz: PropTypes.func,
+		isBand2Horz: PropTypes.func
+	}
+
+	getChildContext(){
+		let self=this
+		const {firstRow, lastRow, noHBand}=(self.props.directStyle||self.defaultStyle).get('w\\:tblLook')||{}
+		return {
+			...super.getChildContext(),
+			tableStyle: this.props.directStyle||this.defaultStyle,
+			isFirstRow(){
+				return firstRow=="1" && this.isFirstRowAbsolute()
+			},
+			isFirstRowAbsolute(){
+				return self.computed.children.length==0
+			},
+
+			isLastRow(){
+				return lastRow=="1" && this.isLastRowAbsolute()
+			},
+			
+			isLastRowAbsolute(){
+				return self.computed.children.length==self.getContentCount()-1
+			},
+
+			isBand1Horz(){
+				return noHBand=="0" && !this.isFirstRow() && !this.isLastRow() && (self.computed.children.length-self.getHeaderRowCount())%2==1
+			},
+
+			isBand2Horz(){
+				return noHBand=="0"&& !this.isFirstRow() && !this.isLastRow() && (self.computed.children.length-self.getHeaderRowCount())%2==0
+			}
+		}
+	}	
 }
 
 class ComposedTable extends Group{
