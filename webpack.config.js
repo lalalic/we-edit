@@ -17,6 +17,11 @@ module.exports={
 			test: /.js?$/,
 			use: ['babel-loader'],
 			exclude: /node_modules/,
+		},{
+			test: /.js?$/,
+			use: ["transform-loader/cacheable?brfs"],
+			enforce:"post",
+			include: /(linebreak)/
 		}]
 	},
 	node:{

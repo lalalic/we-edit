@@ -7,6 +7,10 @@ import ComposedText from "../composed/text"
 import Inline from "./inline"
 import Text from "./text"
 
+import uuid from "../tools/uuid"
+
+import opportunities from "../wordwrap/line-break"
+
 export default class Paragraph extends Any.StyleInheritable{
 	static displayName="paragraph"
 
@@ -17,7 +21,8 @@ export default class Paragraph extends Any.StyleInheritable{
 	getContent(){
 		if(React.Children.count(this.props.children)==0){
 			this.getContentCount=a=>1
-			return (<Inline><Text> </Text></Inline>)
+			let [key1, key2]=[uuid(),uuid()]
+			this.props.children.push(<Inline key={key1} id={key1}><Text key={key2} id={key2}> </Text></Inline>)
 		}
 		return super.getContent()
 	}
@@ -54,6 +59,7 @@ export default class Paragraph extends Any.StyleInheritable{
 
         let {width,availableWidth}=currentLine
         if(availableWidth<minRequiredW || this.availableSpace.height<minRequiredH){
+			this.commitCurrentLine(true)
 			if(this.availableSpace.height<minRequiredH)
 				this.availableSpace=this.context.parent.nextAvailableSpace(required)
 
@@ -76,16 +82,11 @@ export default class Paragraph extends Any.StyleInheritable{
         let availableWidth=currentLine.availableWidth
         let {width:contentWidth}=content.props
 
-		if(availableWidth>=contentWidth){
+		if(availableWidth>contentWidth){
           currentLine.children.push(content)
-		}else if(availableWidth<contentWidth){
-			if(content.type.ableExceed &&
-				content.type.ableExceed(content.props.children)){
-				currentLine.children.push(content)
-			}else{
-				this.commitCurrentLine(true)
-				this.appendComposed(content)
-			}
+		}else {
+			this.commitCurrentLine(true)
+			this.appendComposed(content)
 		}
     }
 
@@ -139,21 +140,51 @@ export default class Paragraph extends Any.StyleInheritable{
     }
 
     getStyle(){
-		return super.getStyle()||{
-			spacing:{
-				lineHeight:"100%"
-				,top:0
-				,bottom:0
-			}
-			,indent:{
-				left:0
-				,right:0
-				,firstLine:0
-				,hanging:0
+        let spacing=this.style('w\\:spacing')||{}
+        let indent=this.style('w\\:ind')||{}
+        return {spacing,indent}
+    }
+	
+	getBreakOpportunities(){
+		const children=this.getContent()
+		
+		function is(Type, Base){
+			return Type==Base || Type.prototype instanceof Base
+		}
+		
+		function getText({props:{children:[text]}}){
+			return text.props.children
+		}
+		
+		function breakable({type, props:{children}}){
+			return is(type,Inline)
+				&& children && children.length==1 && is(children[0].type, Text)
+		}
+		
+		function reviver(opportunity){
+			opportunity.start.itemId=children[opportunity.start.itemIndex].props.id
+			if(opportunity.end)
+				opportunity.end.itemId=children[opportunity.end.itemIndex].props.id
+			return opportunity
+		}
+
+		return opportunities(children,getText, breakable, reviver)
+	}
+	
+	static childContextTypes={
+		...Any.StyleInheritable.childContextTypes,
+		getMyBreakOpportunities: PropTypes.func
+	}
+	
+	getChildContext(){
+		let opportunities=this.getBreakOpportunities()
+		return {
+			...super.getChildContext(),
+			getMyBreakOpportunities({props:{id}}){
+				return opportunities.filter(({start,end})=>start.itemId==id || (end && end.itemId==id))
 			}
 		}
-    }
-
+	}
 }
 
 

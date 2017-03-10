@@ -20,7 +20,10 @@ export default class extends Base{
 			const selector=new Selector(docx)
 			
 			return docx.render((type,props,children)=>{
-				let id=uuid()
+				let node=props.node
+				let id=node.attribs['id']||uuid()
+				let keyProps={id, key:id}
+				console.log(type)
 				switch(type){
 				case "document":
 					return React.createElement(domain.Document,
@@ -28,15 +31,18 @@ export default class extends Base{
 						children
 					)
 				case "section":
-					return React.createElement(domain.Section,{...selector.section(props),key:id},children)
+					return React.createElement(domain.Section,{...selector.section(props),...keyProps},children)
 				case "tbl":
-					return React.createElement(domain.table,{...selector.table(props),key:id},children)
+					return React.createElement(domain.table,{...selector.table(props),...keyProps},children)
 				case "p":
-					return React.createElement(domain.Paragraph,{...selector.paragraph(props),key:id},children)
+					return React.createElement(domain.Paragraph,{...selector.paragraph(props),...keyProps},children||[])
 				case "r":
-					return React.createElement(domain.Inline,{...selector.inline(props),key:id},children)
+					return React.createElement(domain.Inline,{...selector.inline(props),...keyProps},children)
 				case "t":
-					return React.createElement(domain.Text,{key:id},children[0])
+					return React.createElement(domain.Text,keyProps,children[0])
+				case "inline.picture":
+					debugger
+					return React.createElement(domain.Image,{...selector.image(props),...keyProps, src:props.url})
 				}
 			})
 		})//.then(tree=>{console.dir(tree);return tree})

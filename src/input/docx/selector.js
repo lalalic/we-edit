@@ -38,6 +38,10 @@ export default class Selector{
 			props.directStyle=this.$(pr)
 		return props
 	}
+	
+	image({node}){
+		return this.props.select(this.$(node).find("wp\\:extent").toArray())
+	}
 }
 
 class Props{
@@ -220,7 +224,7 @@ class Props{
 	}
 	
 	extent(x){
-		return {width:this.cm2Px(x.attribs.cx),height:this.cm2Px(x.attribs.cy)}
+		return {width:this.docx.cm2Px(x.attribs.cx),height:this.docx.cm2Px(x.attribs.cy)}
 	}
 	
 

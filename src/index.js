@@ -12,13 +12,7 @@ export {loadFont} from "./fonts"
 import Content, {Text} from "./content"
 import Editor from "./editor"
 
-import SVGWordWrapper from "./wordwrap/svg"
-import CanvasWordWrapper from "./wordwrap/canvas"
-import NodeWordWrapper from "./wordwrap/node"
-
 import Input from "./input"
-
-//Editor.Text.WordWrapper=CanvasWordWrapper
 
 export function edit(input,container){
 	ReactDOM.unmountComponentAtNode(container)
