@@ -14,11 +14,11 @@ export default class extends Base{
 	create(){
 		return docx4js.create()
 	}
-	
+
 	load(data, domain){
 		return docx4js.load(data).then(docx=>{
 			const selector=new Selector(docx)
-			
+
 			return docx.render((type,props,children)=>{
 				let node=props.node
 				let id=node.attribs['id']||uuid()
@@ -33,7 +33,11 @@ export default class extends Base{
 				case "section":
 					return React.createElement(domain.Section,{...selector.section(props),...keyProps},children)
 				case "tbl":
-					return React.createElement(domain.table,{...selector.table(props),...keyProps},children)
+					return React.createElement(domain.Table,{...selector.table(props),...keyProps},children)
+				case "tr":
+					return React.createElement(domain.Row,{...selector.row(props),...keyProps},children)
+				case "tc":
+					return React.createElement(domain.Cell,{...selector.cell(props),...keyProps},children)
 				case "p":
 					return React.createElement(domain.Paragraph,{...selector.paragraph(props),...keyProps},children||[])
 				case "r":
@@ -41,11 +45,13 @@ export default class extends Base{
 				case "t":
 					return React.createElement(domain.Text,keyProps,children[0])
 				case "inline.picture":
-					debugger
 					return React.createElement(domain.Image,{...selector.image(props),...keyProps, src:props.url})
+
+				default:
+					if(children.length==1)
+						return children[0]
 				}
 			})
 		})//.then(tree=>{console.dir(tree);return tree})
 	}
 }
-

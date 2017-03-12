@@ -1,4 +1,4 @@
-const Stylable={	
+const Stylable={
 	getDefault(type){
 		switch(type){
 		case "document":
@@ -12,11 +12,11 @@ const Stylable={
 			return this.find(`w\\:style[w\\:type=numbering][w\\:default=1]`)
 		}
 	},
-	
+
 	getStyle(id){
 		return this.find(`w\\:style[w\\:styleId=${id}]`)
 	},
-	
+
 	getParentStyle(){
 		let parentId=this.find("w\\:basedOn").attr("w:val")
 		if(parentId)
@@ -39,10 +39,10 @@ export default function makeStylable({docx, props}){
 			else
 				break
 		}
-		
+
 		if(node)
 			return props.selectValue(node)
-		
+
 		return null
 	}
 	docx.officeDocument.content.prototype.getParentStyle=function(){
@@ -51,13 +51,13 @@ export default function makeStylable({docx, props}){
 		if(styleId){
 			style=$.getStyle(styleId)
 		}else{
-			styleId={tblPr:"table",pPr:"paragraph",rPr:"character"}[this.prop("name").split(":").pop()]
+			styleId={tc:"table",tr:"table",tbl:"table",p:"paragraph",r:"character"}[this.end().prop("name").split(":").pop()]
 			style=$.getDefault(styleId)
 		}
-		
+
 		return style
 	}
-	
+
 	docx.officeDocument.content.prototype.key=function(path){
 		let current=this
 		let node=current.find(path).get(0)
@@ -68,13 +68,16 @@ export default function makeStylable({docx, props}){
 			else
 				break
 		}
-		
+
 		if(node)
 			return props.selectValue(node)
-		
+
 		return null
 	}
-	
-	
+
+
+	docx.officeDocument.content.prototype.asTableStyle=function(tblPr, trPr, tcPr){
+		tblPr && tblPr.is
+	}
 	return $
 }
