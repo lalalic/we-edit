@@ -5,6 +5,10 @@ import Group from "../composed/group"
 
 export default class Row extends Any{
 	static displayName="row"
+	
+	render(){
+		return <tr>{this.getContent()}</tr>
+	}
 
 	nextAvailableSpace(){
 		const {tblGrid:cols}=this.context.parent.props
@@ -83,10 +87,9 @@ export default class Row extends Any{
 				minSpace.height=minHeight
 			}else
 				parent.appendComposed(currentGroupedLines)
-			//if(counter++>100)
-				//throw new Error("there should be a infinite loop during row split, please check")
-
-
+			
+			if(counter++>100)
+				throw new Error("there should be a infinite loop during row split, please check")
 		}while(!isAllSent2Table());
 
 		super.onAllChildrenComposed()

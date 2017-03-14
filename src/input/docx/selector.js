@@ -17,7 +17,7 @@ export default class Selector{
 
 	table({node}){
 		let props=this.props.select(this.$(node).find(">w\\:tblGrid").toArray())
-		props.directStyle=this.$(node).find(">w\\:tblPr")
+		props.directStyle=Object.freeze(this.$(node).find(">w\\:tblPr"))
 		return props
 	}
 
@@ -123,11 +123,19 @@ class Props{
 	}
 
 	rFonts(x){
-		let ascii=x.attribs['w:ascii']||this.theme.font(x.attribs['w:asciiTheme'])
-		let asia=x.attribs['w:eastAsia']||this.theme.font(x.attribs['w:eastAsiaTheme'])
-
-		if(ascii || asia)
-			return {ascii, asia}
+		let props={}, t
+		if(t=x.attribs['w:ascii'])
+			props.ascii=t
+		else if(t=x.attribs['w:asciiTheme'])
+			props.ascii=this.theme.font(t)
+		
+		if(t=x.attribs['w:eastAsia'])
+			props.asia=t
+		else if(t=x.attribs['w:eastAsiaTheme'])
+			props.asia=this.theme.font(t)
+		
+		if(props.ascii || props.asia)
+			return props
 	}
 
 	lang(x){
@@ -210,7 +218,7 @@ class Props{
 
 	tblCellMar(x){
 		return x.children.reduce((p,a)=>{
-			p[a.name.split(":").pop()]=this.dxa2Px(a.attribs["w:w"])
+			p[a.name.split(":").pop()]=this.docx.dxa2Px(a.attribs["w:w"])
 		},{})
 	}
 
@@ -220,13 +228,17 @@ class Props{
 			return props
 		},{})
 	}
+	
+	tblInd(x){
+		return this.docx.dxa2Px(x.attribs["w:w"])
+	}
 
 	tcW(x){
 		return this.dxa2Px(x.attribs['w:w'])
 	}
 
 	shd(x){
-		return this.asColor(x.attribs["w:fill"])
+		return this.docx.asColor(x.attribs["w:fill"])
 	}
 
 	extent(x){
@@ -243,42 +255,59 @@ class Props{
 	}
 
 	toSpacing(x){
-		var r=x, o={}
+		let props={}, line, t
 
-		if(!r.beforeAutospacing && r.beforeLines)
-			o.top=this.dxa2Px((r.beforeLines))
-		else if(r.before)
-			o.top=this.dxa2Px((r.before))
+		if(!x.attribs['w:beforeAutospacing'] && (t=x.attribs['w:beforeLines']))
+			props.top=this.docx.dxa2Px(t)
+		else if(t=x.attribs['w:before'])
+			props.top=this.docx.dxa2Px(t)
 
-		if(!r.afterAutospacing && r.afterLines)
-			o.bottom=this.dxa2Px((r.afterLines))
-		else if(r.after)
-			o.bottom=this.dxa2Px((r.after))
+		if(!x.attribs['w:afterAutospacing'] && (t=x.attribs['w:afterLines']))
+			props.bottom=this.docx.dxa2Px(t)
+		else if(t=x.attribs['w:after'])
+			props.bottom=this.docx.dxa2Px(t)
 
-		if(!r.line)
-			return o
+		if(!(line=x.attribs['w:line']))
+			return props
 
-		switch(x.lineRule){
+		switch(props.lineRule=x.attribs['w:lineRule']){
 		case 'atLeast':
 		case 'exact':
-			o.lineHeight=this.dxa2Px((x.line))
+			props.lineHeight=this.docx.dxa2Px(line)
 			break
 		case 'auto':
 		default:
-			o.lineHeight=(parseInt(r.line)*100/240)+'%'
+			props.lineHeight=(parseInt(line)*100/240)+'%'
 		}
-		o.lineRule=x.lineRule
-		return o
+
+		return props
 	}
 
 	toBorder(x){
-		var border=x
-		border.sz && (border.sz=this.pt2Px(border.sz/8));
-		border.color && (border.color=this.asColor(border.color))
+		let border={}, t
+		border.val=x.attribs['w:val']
+		if(border.val=="nil"){
+			border.sz=0
+			return 
+		}
+		
+		if(t=x.attribs['w:sz'])
+			border.sz=this.docx.pt2Px(t/8)
+		
+		if(t=x.attribs['w:color'])
+			border.color=this.docx.asColor(t)
+		else if(t=x.attribs['w:themeColor'])
+			border.color=this.theme.color(t)
+		
+		
+		if(t=x.attribs['w:space'])
+			border.space=parseInt(t)
+		
+		
 		return border
 	}
 
 	toColor(x){
-		return this.docx.asColor(x.attribs['w:val']||x.attribs['w:color'] || this.theme.color(x.attribs['w:themeColor']))
+		return this.docx.asColor(x.attribs['w:val']||x.attribs['w:color']|| this.theme.color(x.attribs['w:themeColor']))
 	}
 }

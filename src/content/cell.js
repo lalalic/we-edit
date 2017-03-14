@@ -2,10 +2,26 @@ import React, {PropTypes} from "react"
 
 import Any from "./any"
 
-let asIsFunc=cond=>`is${cond.charAt(0).toUpperCase()}${cond.substr(1)}`
+const asIsFunc=cond=>`is${cond.charAt(0).toUpperCase()}${cond.substr(1)}`
+
+/**
+ * conditional formatting: http://officeopenxml.com/WPstyleTableStylesCond.php
+ * The conditional formats are applied in the following order:
+	>Whole table/table
+	>Banded columns/band1Vert , even column banding/band2Vert
+	>Banded rows/band1Horz , even row banding/band2Horz
+	>First row/firstRow , last row/lastRow
+	>First column/firstCol, last column/lastCol
+	>Top left/nwCell, top right/neCell, bottom left/swCell, bottom right/seCell
+ */
+const PRIORIZED='seCell,swCell,neCell,nwCell,lastCol,firstCol,lastRow,firstRow,band2Horz,band1Horz,band2Vert,band1Vert'.split(',')
+
 
 export default class Cell extends Any.StyleInheritable{
 	static displayName="cell"
+	render(){
+		return <td>{this.getContent()}</td>
+	}
 	nextAvailableSpace(required){
 		let {width,height}=super.nextAvailableSpace(...arguments)
 
@@ -22,29 +38,34 @@ export default class Cell extends Any.StyleInheritable{
 	}
 
 	getStyle(){
-		let conditions=this.conditions
+		const conditions=this.conditions
+		const cellStyle=this.cellStyle
 
-		const {tableStyle, rowStyle}=this.context
-		const directStyle=this.props.directStyle.add(rowStyle, tableStyle)
+		let border=cellStyle.cellBorder(conditions)
 
-		let edges="lastCol,firstCol,lastRow,firstRow".split(",")
-			.filter(cond=>!conditions.includes(cond) && this.context[asIsFunc(cond)+"Absolute"]())
+		let margin=cellStyle.cellMargin(conditions)
 
-		let border=directStyle.cellBorder(conditions, edges)
+		let spacing=cellStyle.cellKey("w\\:tblPr w\\:spacing")||0
 
-		let margin=directStyle.cellMarge(conditions)
-		//"left,right,top,bottom".split(",").forEach(a=>margin[a]=directStyle.get(`margin.${a}`)||0)
+		let background=cellStyle.cellKey('w\\:tcPr>w\\:shd',conditions)
 
-		let spacing=directStyle.cellKey("w\\:spacing")||0
-
-		let background=directStyle.cellKey('w\\:tcPr>w\\:shd',conditions)
-
-		return this._style={border, margin, spacing, background}
+		return {border, margin, spacing, background}
 	}
 
 	get conditions(){
-		return "seCell,swCell,neCell,nwCell,lastCol,firstCol,lastRow,firstRow,band2Horz,band1Horz,band2Vert,band1Vert"
+		let conds="seCell,swCell,neCell,nwCell,lastCol,firstCol,lastRow,firstRow,band2Horz,band1Horz,band2Vert,band1Vert"
 			.split(",").filter(cond=>this.context[asIsFunc(cond)]())
+		let edges="lastCol,firstCol,lastRow,firstRow".split(",")
+			.filter(cond=>!conds.includes(cond) && this.context[asIsFunc(cond)+"Absolute"]())
+		return conds.concat(edges).sort((a,b)=>PRIORIZED.indexOf(a)-PRIORIZED.indexOf(b))
+	}
+	
+	get cellStyle(){
+		const {tableStyle, rowStyle}=this.context
+		const directStyle=this.props.directStyle
+		const table=directStyle.closest("w\\:tbl")
+		let cellStyle=table.find(tableStyle.get(0)).add(rowStyle.get(0)).add(directStyle.get(0))
+		return cellStyle
 	}
 
 	static contextTypes={
@@ -73,14 +94,14 @@ export default class Cell extends Any.StyleInheritable{
 		let self=this
 		let conditions=this.conditions
 		const {tableStyle, rowStyle, inheritedStyle}=this.context
-		const directStyle=this.props.directStyle.add(tableStyle,rowStyle)
+		const cellStyle=this.cellStyle
 		return {
 				...super.getChildContext(),
 				inheritedStyle:{
                     key(path){
-						let v = directStyle.key(path,conditions)
+						let v = cellStyle.cellKey(path,conditions)
                         if (v == undefined)
-                            return inheritedStyle.key(path,conditions)
+                            return inheritedStyle.key(path)
                         return v
                     }
                 }

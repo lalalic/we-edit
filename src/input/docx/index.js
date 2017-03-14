@@ -23,7 +23,13 @@ export default class extends Base{
 				let node=props.node
 				let id=node.attribs['id']||uuid()
 				let keyProps={id, key:id}
-				console.log(type)
+				children=children.reduce((merged,a)=>{
+					if(Array.isArray(a))
+						merged.splice(merged.length-1, ...a)
+					else
+						merged.push(a)
+					return merged
+				},[])
 				switch(type){
 				case "document":
 					return React.createElement(domain.Document,
@@ -38,18 +44,27 @@ export default class extends Base{
 					return React.createElement(domain.Row,{...selector.row(props),...keyProps},children)
 				case "tc":
 					return React.createElement(domain.Cell,{...selector.cell(props),...keyProps},children)
+				case "list":
+				case "heading":
 				case "p":
 					return React.createElement(domain.Paragraph,{...selector.paragraph(props),...keyProps},children||[])
 				case "r":
-					return React.createElement(domain.Inline,{...selector.inline(props),...keyProps},children)
+					if(children.length)
+						return React.createElement(domain.Inline,{...selector.inline(props),...keyProps},children)
+					else
+						return null
 				case "t":
 					return React.createElement(domain.Text,keyProps,children[0])
+				case "control.picture":
 				case "inline.picture":
 					return React.createElement(domain.Image,{...selector.image(props),...keyProps, src:props.url})
-
+				case "bookmarkStart":
+				case "bookmarkEnd":
+					return null
 				default:
-					if(children.length==1)
+					if(children.length==0)
 						return children[0]
+					return children
 				}
 			})
 		})//.then(tree=>{console.dir(tree);return tree})

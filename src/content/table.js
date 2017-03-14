@@ -44,20 +44,28 @@ export default class Table extends Any{
 					</Spacing>
 				</Cell>
 			);
+			
 			x+=cols[colNo]
 			height=Math.max(height,y)
+			if(rowNo+colNo===0)
+				this.computed.composed.firstCellMarge=margin
 			return cell
 		})
 
-		this.context.parent.appendComposed(this.createComposed2Parent({width,height,children:groupsWithXY}))
+		this.context.parent.appendComposed(this.createComposed2Parent({
+			width,
+			height,
+			children:groupsWithXY
+		}))
 	}
 
 	createComposed2Parent(props){
-		return <Row {...props}/>
+		let tblInd=this.props.directStyle.key("w\\:tblInd")||0
+		return <Row x={tblInd-this.computed.composed.firstCellMarge.right} {...props}/>
 	}
 
 	getHeaderRowCount(){
-		const {firstRow}=(this.props.directStyle||self.defaultStyle).get('w\\:tblLook')||{}
+		const {firstRow}=this.props.directStyle.key('w\\:tblLook')||{}
 		if(firstRow!=="1")
 			return 0
 
@@ -138,7 +146,7 @@ class Cell extends Group{
 		const {width,height, background, children, ...others}=this.props
 		return (
 			<Group {...others}>
-				{background && (<rect width={width} height={height} fill={background}/>)}
+				{background ? (<rect width={width} height={height} fill={background}/>)  : null}
 				{children}
 			</Group>
 		)
@@ -173,10 +181,10 @@ class Border extends Component{
 		height-=spacing
 		return (
 			<Group {...others}>
-				{top.sz && <path strokeWidth={top.sz} stroke={top.color} d={`M0 0 L${width} 0`}/>}
-				{bottom.sz && <path strokeWidth={bottom.sz} stroke={bottom.color} d={`M0 ${height} L${width} ${height}`}/>}
-				{right.sz && <path strokeWidth={right.sz} stroke={right.color} d={`M${width} 0 L${width} ${height}`}/>}
-				{left.sz && <path strokeWidth={left.sz} stroke={left.color} d={`M0 0 L0 ${height}`}/>}
+				{top.sz && <path strokeWidth={top.sz} stroke={top.color} d={`M0 0 L${width} 0`}/> || null}
+				{bottom.sz && <path strokeWidth={bottom.sz} stroke={bottom.color} d={`M0 ${height} L${width} ${height}`}/>  || null}
+				{right.sz && <path strokeWidth={right.sz} stroke={right.color} d={`M${width} 0 L${width} ${height}`}/>  || null}
+				{left.sz && <path strokeWidth={left.sz} stroke={left.color} d={`M0 0 L0 ${height}`}/>  || null}
 				<Group x={left.sz} y={top.sz}>
 					{children}
 				</Group>

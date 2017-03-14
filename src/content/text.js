@@ -7,7 +7,10 @@ import ComposedText from "../composed/text"
 
 export default class Text extends NoChild{
 	static displayName="text"
-
+	
+	render(){
+		return <i>{this.props.children}</i>
+	}
 	compose(){
 		let parent=this.context.parent
 		let composer=new this.constructor.WordWrapper("", this.getStyle())

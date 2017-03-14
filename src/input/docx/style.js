@@ -1,3 +1,5 @@
+import makeTableStylable from "./table-style"
+
 const Stylable={
 	getDefault(type){
 		switch(type){
@@ -50,10 +52,11 @@ export default function makeStylable({docx, props}){
 		let style=null
 		if(styleId){
 			style=$.getStyle(styleId)
-		}else{
-			styleId={tc:"table",tr:"table",tbl:"table",p:"paragraph",r:"character"}[this.end().prop("name").split(":").pop()]
+		}else if(this.length){
+			styleId={tcPr:"table",tc:"table",tr:"table",tbl:"table",p:"paragraph",r:"character"}[this.end().prop("name").split(":").pop()]
 			style=$.getDefault(styleId)
-		}
+		}else
+			style=$.getDefault("table")
 
 		return style
 	}
@@ -75,9 +78,9 @@ export default function makeStylable({docx, props}){
 		return null
 	}
 
-
-	docx.officeDocument.content.prototype.asTableStyle=function(tblPr, trPr, tcPr){
-		tblPr && tblPr.is
-	}
+	
+	makeTableStylable(docx,props)
+	
+	
 	return $
 }
