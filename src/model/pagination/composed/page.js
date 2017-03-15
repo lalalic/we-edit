@@ -7,18 +7,18 @@ export const Page=({
 			margin:{left,top, right,bottom, header:headerStartAt=0, footer:footerEndAt=0}, 
 			columns, 
 			header, 
-			footer})=>(
+			footer},{media="printer"})=>(
 	<Group className="page">
-		<Paper width={width} height={height} fill="white" 
-			margin={{left,top,right:width-right,bottom:height-bottom}}/>
+		{media!=="printer" ? <Paper width={width} height={height} fill="white" 
+			margin={{left,top,right:width-right,bottom:height-bottom}}/> : null}
 		
-		{header && (<Group x={left} y={headerStartAt} className="header">{header}</Group>)}
+		{header ? (<Group x={left} y={headerStartAt} className="header">{header}</Group>) : null}
 		
 		<Group x={left} y={top} className="content">
 			{columns.map((a,i)=><Group key={i} {...a}/>)}
 		</Group>
 		
-		{footer && (<Group x={left} y={height-footerEndAt-footer.props.height} className="footer">{footer}</Group>)}
+		{footer ? (<Group x={left} y={height-footerEndAt-footer.props.height} className="footer">{footer}</Group>) : null}
 		
 	</Group>
 )
@@ -29,6 +29,10 @@ Page.propTypes={
 	margin: PropTypes.object,
 	header: PropTypes.element,
 	footer: PropTypes.element
+}
+
+Page.contextTypes={
+	media: PropTypes.string
 }
 
 const Paper=({margin:{left,top, right,bottom},marginWidth=20,...others})=>(

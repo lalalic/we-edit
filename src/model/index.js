@@ -6,4 +6,4 @@ import Header from "./header"
 import Footer from "./footer"
 import Image from "./image"
 
-export {Document, Section, Paragraph, Text, Header, Footer, Image}
+export default {Document, Section, Paragraph, Text, Header, Footer, Image}

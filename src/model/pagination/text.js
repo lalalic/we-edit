@@ -17,9 +17,9 @@ export default class Text extends Super{
 	}
 
     compose(){
-        const parent=this.context.parent
+		const parent=this.context.parent
         const {fonts,size,color,bold,italic,vanish}=this.style
-		const composer=new this.constructor.WordWrapper("", {rFonts:fonts,sz:size,color,b:bold,i:italic,vanish})
+		const composer=new this.constructor.WordWrapper("", {fonts,size,color,bold,italic,vanish})
 		const defaultStyle=composer.defaultStyle
 
 		const breakOpportunities=this.context.getMyBreakOpportunities(parent)

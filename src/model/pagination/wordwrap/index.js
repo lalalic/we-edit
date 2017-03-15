@@ -12,7 +12,7 @@ export default class WordWrapper{
 
 		this.defaultStyle={
 			whiteSpace:'pre',
-			fontSize:`${this.size}pt`,
+			fontSize:`${size}pt`,
 			fontWeight:style.bold ? 700 : 400,
 			fontStyle:style.italic ? "italic" : "normal",
 			height: this.height,
