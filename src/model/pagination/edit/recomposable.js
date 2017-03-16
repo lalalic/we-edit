@@ -1,3 +1,4 @@
+import {PropTypes} from "react"
 /**
  *  it's a very complicated job, so we need a very simple design, one sentence described solution. options:
  *  1. remove all composed, and re-compose all
@@ -20,15 +21,13 @@
  *
  *  	3.a: recompose this content line by line ..., much logics here
  */
-export default function editable(Content){
+export default function recomposable(Content){
 	return class extends Content{
-		static displayName=`editable-${Content.displayName}`
+		static displayName=`recomposable-${Content.displayName}`
 		
-		constructor(){
-			super(...arguments)
-			if(this.props.id==undefined){
-				throw new Error("id is must for every editable element")
-			}
+		static propTypes={
+			...(Content.propTypes||{}),
+			id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired
 		}
 		
 		appendLastComposed(){

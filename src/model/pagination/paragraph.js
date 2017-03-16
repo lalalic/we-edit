@@ -8,7 +8,7 @@ import Group from "./composed/group"
 import Line from "./composed/line"
 import ComposedText from "./composed/text"
 
-import Text from "./text"
+import Text from "../text"
 
 const Super=HasParentAndChild(Base)
 export default class Paragraph extends Super{
@@ -43,7 +43,7 @@ export default class Paragraph extends Super{
         return {
             ...super.getChildContext(),
             getMyBreakOpportunities({props:{id}}){
-                return opportunities.filter(({start,end})=>start.itemId==id || (end && end.itemId==id))
+				return opportunities.filter(({start,end})=>start.itemId==id || (end && end.itemId==id))
             }
         }
     }

@@ -7,7 +7,7 @@ import editable from "./editable"
 import Inline from "./inline"
 import Text from "./text"
 
-import {uuid} from "../tools/uuid"
+import {uuid} from "tools/uuid"
 
 
 export default class extends editable(Paragraph){

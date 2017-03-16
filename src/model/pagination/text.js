@@ -15,14 +15,19 @@ export default class Text extends Super{
 		...Super.contextTypes,
 		getMyBreakOpportunities: PropTypes.func
 	}
+	static propTypes={
+		...(Super.propTypes||{}),
+		//line break opportunity need it in paragraph, how can we remove it
+		id:PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired
+	}
 
     compose(){
 		const parent=this.context.parent
         const {fonts,size,color,bold,italic,vanish}=this.style
-		const composer=new this.constructor.WordWrapper("", {fonts,size,color,bold,italic,vanish})
+		const composer=new this.constructor.WordWrapper({fonts,size,color,bold,italic,vanish})
 		const defaultStyle=composer.defaultStyle
 
-		const breakOpportunities=this.context.getMyBreakOpportunities(parent)
+		const breakOpportunities=this.context.getMyBreakOpportunities(this)
 
 		const commit=state=>{
 			let {content,width,end}=state

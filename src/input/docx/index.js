@@ -1,7 +1,7 @@
 import React, {Component, PropTypes} from "react"
 import docx4js from "docx4js"
 import Base from "../base"
-import uuid from "../../tools/uuid"
+import uuid from "tools/uuid"
 
 import Selector from "./selector"
 import getStyles from "./style"

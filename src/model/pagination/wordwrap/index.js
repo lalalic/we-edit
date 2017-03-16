@@ -1,9 +1,8 @@
 var _textComposerTime=0
 export default class WordWrapper{
-    constructor(text, style){
+    constructor(style){
 		const {fonts, size, color}=style
 		this.style=style
-        this.text=text
         this.fontFamily=fonts
 		this.size=size
 		const {height, descent}=this.lineHeight()

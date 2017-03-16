@@ -7,7 +7,7 @@ import ComposedText from "../composed/text"
 import Inline from "./inline"
 import Text from "./text"
 
-import uuid from "../tools/uuid"
+import uuid from "tools/uuid"
 
 import opportunities from "../wordwrap/line-break"
 

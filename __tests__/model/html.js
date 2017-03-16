@@ -1,6 +1,6 @@
 import React from "react"
 import {shallow, render, mount} from "enzyme"
-import Models, {Document, Section, Paragraph, Text} from "../../src/model/html"
+import Models, {Document, Section, Paragraph, Text} from "html"
 
 describe("html", function(){
 	it("basic",function(){

@@ -1,5 +1,5 @@
 import React, {Component, PropTypes} from "react"
-import merge from "../tools/merge"
+import merge from "tools/merge"
 
 export default class Text extends Component{
 	static displayName="text"

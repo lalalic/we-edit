@@ -1,11 +1,23 @@
 {
     "presets": [
-      "es2015",
-      "react"
+		"es2015",
+		"react"
     ],
     "plugins": [
-      "babel-plugin-add-module-exports",
-      "babel-plugin-transform-object-rest-spread",
-      "babel-plugin-transform-class-properties"
+		"babel-plugin-add-module-exports",
+		"babel-plugin-transform-object-rest-spread",
+		"babel-plugin-transform-class-properties",
+		["module-resolver",{
+			"root": ["./src"],
+			"alias":{
+				"state":"state",
+				"model":"model",
+				"html":"model/html",
+				"pagination":"model/pagination",
+				"composed":"model/pagination/composed",
+				"tools":"tools",
+				"input":"input"
+			}
+		}]
     ]
   }

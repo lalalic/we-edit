@@ -1,5 +1,5 @@
 import React, {Component, PropTypes} from "react"
-import merge from "../tools/merge"
+import merge from "tools/merge"
 
 export default class Paragraph extends Component{
 	static displayName="paragraph"
