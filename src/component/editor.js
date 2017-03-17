@@ -1,9 +1,8 @@
 import React, {Children, Component, PropTypes} from "react"
-import {createStore, applyMiddleware,compose} from "redux"
-import {Provider, connect} from "react-redux"
-import immutable from "immutable"
+import {connect} from "react-redux"
 
 import Models from "model"
+
 import {getContent} from "state/selector"
 import Input from "input"
 
@@ -11,19 +10,38 @@ const STATEFUL=new Map()
 
 export class Editor extends Component{
 	static propTypes={
-		url: PropTypes.string
+		media:PropTypes.string,
+		width:PropTypes.number.isRequired,
+		pgGap:PropTypes.number,
+		style:PropTypes.object
 	}
-	state={doc:null}
 	
+	static defaultProps={
+		media:"browser",
+		width: typeof(window)=='undefined' ? 10000 : window.innerWidth,
+		pgGap: 20,
+		style: {
+			background:"lightgray"
+		}
+	}
+	
+	static childContextTypes={
+		media:PropTypes.string,
+		width:PropTypes.number.isRequired,
+		pgGap:PropTypes.number,
+		style:PropTypes.object		
+	}
+	
+	getChildContext(){
+		const {media, width, pgGap, style}=this.props
+		return {media, width, pgGap, style}
+	}
 	render(){
-		const {doc}=this.state
-		if(!doc)
-			return "loading"
-		
 		return (
-			<Provider store={this.store}>
+			<div className="editor">
 				{
-				Children.map(this.props.children,(i,{props:{domain}})=>{
+				Children.map(this.props.children,({props:{domain}},i)=>{
+					domain=domain("editor")
 					if(!STATEFUL.has(domain)){
 						STATEFUL.set(
 							domain,
@@ -40,34 +58,27 @@ export class Editor extends Component{
 						return "not supported!"
 				})
 				}
-			</Provider>
-		)
-	}
-	
-	load(){
-		Input.load(this.props.url).then(doc=>{
-			this.setState({doc})
-		})
-	}
-	
-	get store(){
-		return createStore(
-			function(state,payload){
-				
-			}, 
-			Immutable.fromJS({
-				content:null,
-				selection:null,
-				file:null
-			})
+			</div>
 		)
 	}
 }
 
-function stateful(Model){
+function stateful(Model, domain){
 	return connect((state,{id})=>{
-		let {props}=getContent(state,id)
-		return props
+		const {props,children=[]}=getContent(state,id).toJS()
+		if(!Array.isArray(children)){
+			return {...props, id, children}
+		}
+		return {
+			...props,
+			children: children.map(function({type, id, props, children}){
+				if(type=="text")
+					return <domain.Text {...props} children={children}/>
+				
+				let Child=domain[type[0].toUpperCase()+type.substr(1)]
+				return <Child key={id} id={id}/>
+			})
+		}
 	})(Model)
 }
 

@@ -1,12 +1,22 @@
 import react, {Component, PropTypes} from "react"
 import models from "html"
+import edits from "html/edit"
 
 export class Html extends Component{
 	static propTypes={
-		domain: PropTypes.oneOf([models])
+		domain: PropTypes.func
 	}
 	
 	static defaultProps={
-		domain:models
+		domain(type){
+			switch(type){
+			case "editor":
+				return edits
+			default:
+				return models
+			}
+		}
 	}
 }
+
+export default Html

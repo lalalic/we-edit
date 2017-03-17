@@ -17,6 +17,9 @@ export default class Document extends Super{
 			</div>
 		)
     }
+	compose(){
+		
+	}
 }
 
 

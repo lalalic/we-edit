@@ -18,14 +18,17 @@ export default class Paragraph extends Super{
     }
 
     getBreakOpportunities(){
+		if(this.computed.breakOpportunities)
+			return this.computed.breakOpportunities
+		
         const children=React.Children.toArray(this.props.children)
 
         function getText({props:{children:text}}){
             return text
         }
 
-        function breakable({type}){
-            return type==Text || type.prototype instanceof Text
+        function breakable({type,props:{children:text}}){
+            return typeof(text)=="string"
         }
 
         function reviver(opportunity){
@@ -35,7 +38,9 @@ export default class Paragraph extends Super{
             return opportunity
         }
 
-        return opportunities(children,getText, breakable, reviver)
+       console.dir(this.computed.breakOpportunities=opportunities(children,getText, breakable, reviver))
+	   
+	   return this.computed.breakOpportunities
     }
 
     getChildContext(){

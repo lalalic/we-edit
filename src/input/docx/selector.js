@@ -85,9 +85,12 @@ class Props{
 	}
 
 	cols(x){
-		let cols={}
-		x.attribs['w:num'] && (cols.num=parseInt(x.attribs['w:num']));
-		x.attribs['w:space'] && (cols.space=this.docx.dxa2Px(x.attribs['w:space']));
+		let cols={num:1}, t
+		if(t=x.attribs['w:num'])
+			cols.num=parseInt(x.attribs['w:num'])
+
+		if(t=x.attribs['w:space'])
+			cols.space=this.docx.dxa2Px(x.attribs['w:space'])
 
 		cols.data=this.docx.officeDocument.content(x).find("w\\:col").toArray()
 			.map(col=>({

@@ -30,4 +30,20 @@ export default class WordWrapper{
 	stringWidth(string){
 		return 200
 	}
+	
+	widthString(width,string){
+		return Array.prototype.reduce.call(string,(state,a)=>{
+			if(state.done)
+				return state
+			
+			let aWidth=this.stringWidth(a)
+			if(state.width+aWidth>width){
+				state.done=true
+			}else{
+				state.width+=aWidth
+				state.text+=a
+			}
+			return state
+		},{width:0,text:"",done:false}).text.length
+	}
 }

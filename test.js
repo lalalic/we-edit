@@ -1,8 +1,9 @@
-import {preview} from "./src"
+import {edit,preview,compose} from "./src"
 
-window.preview=preview
+Object.assign(window, {edit,preview,compose})
+
 fetch("basic.docx").then(res=>res.blob()).then(docx=>{
 	docx.name="basic.docx"
 	let app=document.querySelector('#app')
-	preview(docx,app)
+	edit(docx,app)
 })

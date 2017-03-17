@@ -1,45 +1,25 @@
-import {getContent} from "./selector"
+import React, {Component, PropTypes} from "react"
 
-export const DOMAIN="selection"
-export const ACTION{
-	INSERT: t=>({type:`${DOMAIN}/INSERT`,payload:t})
-	,REMOVE: n=>({type:`${DOMAIN}/REMOVE`,payload:n})
-	,SELECT: (start, at, end=start, endAt=at)=>({
-		type:`${DOMAIN}/SELECTED`
-		,payload: {
-			start:{
-				id:start
-				,at
-			}
-			,end:{
-				id:end
-				,at:endAt
-			}
-		}
-	})
-	,MOVE_RIGHT: a=>({type:`${DOMAIN}/MOVE_RIGHT`})
-	,MOVE_LEFT: a=>({type:`${DOMAIN}/MOVE_LEFT`})
-	,MOVE_UP: a=>({type:`${DOMAIN}/MOVE_UP`})
-	,MOVE_DOWN: a=>({type:`${DOMAIN}/MOVE_DOWN`})
+export class Selection extends Component{
+	render(){
+		return null
+	}
 }
 
-
-export const reducer=(state={
-		start:{
-			id:0
-			,at:0
-		}
-		,end:{
-			id:0
-			,at:0
-		}
-	}, {type,payload})=>{
+const DOMAIN="selection"
+const INIT_STATE={
+	start:{
+		id:0
+		,at:0
+	}
+	,end:{
+		id:0
+		,at:0
+	}
+}
+export const reducer=(state=INIT_STATE, {type,payload})=>{
 	switch(type){
-	case `${DOMAIN}/INSERT`:
-		
-	case `${DOMAIN}/REMOVE`:
-		
-	case `${DOMAIN}/SELECTED`:
+	case `${DOMAIN}/selected`:
 		return ({...state, ...payload})
 	case `${DOMAIN}/MOVE_DOWN`:
 	case `${DOMAIN}/MOVE_RIGHT`:{
@@ -78,3 +58,5 @@ export const reducer=(state={
 	}
 	return state
 }
+
+export default Selection

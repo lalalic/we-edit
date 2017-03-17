@@ -1,13 +1,21 @@
 import react, {Component, PropTypes} from "react"
 import models from "pagination"
+import edits from "pagination/edit"
 
 export class Pagination extends Component{
 	static propTypes={
-		domain: PropTypes.oneOf([models])
+		domain: PropTypes.func
 	}
 	
 	static defaultProps={
-		domain:models
+		domain(type){
+			switch(type){
+			case "editor":
+				return edits
+			default:
+				return models
+			}
+		}
 	}
 }
 export default Pagination

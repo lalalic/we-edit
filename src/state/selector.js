@@ -1,10 +1,30 @@
-let contents={}
 
-export const recordContent=content=>contents[content.id]=content
+export function getContent(state,id){
+	return state.get("content").get(id)	
+}
 
-export const getContent=id=>contents[id]
+export function getContentClientBoundBox(texts, at, id){
+	let found, from
+	for(let i=0, len=texts.length; i<len; i++){
+		let a=texts[i]
+		let end=parseInt(a.getAttribute('end'))
+		let length=a.textContent.length
+		let start=end-length
+		if(start<=at && at<end){
+			found=a
+			from=start
+			break
+		}
+	}
 
-const findTextIn=(content, direction="")=>{
+	if(!found)
+		throw new Error(`can't found text(${id},${at})`)
+	let {top,left}=found.getBoundingClientRect()
+	return {top,left,from}
+}
+
+
+export function findTextIn(content, direction=""){
 	if(typeof(content.getContent())=='string')
 		return content
 	return content.computed.children[`reduce${direction}`]((state,next)=>{
@@ -14,7 +34,7 @@ const findTextIn=(content, direction="")=>{
 	},null)
 }
 		
-export const getNextTextOf=id=>{
+export function getNextTextOf(id){
 	let current=getContent(id)
 	let parent=current.context.parent
 	let children=parent.computed.children
@@ -35,7 +55,7 @@ export const getNextTextOf=id=>{
 	return found
 }
 
-export const getPrevTextOf=id=>{
+export function getPrevTextOf(id){
 	let current=getContent(id)
 	let parent=current.context.parent
 	let children=parent.computed.children
@@ -56,23 +76,5 @@ export const getPrevTextOf=id=>{
 	return found
 }
 
-export const getContentClientBoundBox=(id, at)=>{
-	let found, from
-	let texts=document.querySelectorAll(`svg text[data-content="${id}"][end]`)
-	for(let i=0, len=texts.length; i<len; i++){
-		let a=texts[i]
-		let end=parseInt(a.getAttribute('end'))
-		let length=a.textContent.length
-		let start=end-length
-		if(start<=at && at<end){
-			found=a
-			from=start
-			break
-		}
-	}
 
-	if(!found)
-		throw new Error(`can't found text(${id},${at})`)
-	let {top,left}=found.getBoundingClientRect()
-	return {top,left,from}
-}
+export default {getContent, getContentClientBoundBox}
