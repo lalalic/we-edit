@@ -3,8 +3,6 @@ import Base from "../document"
 
 import {ACTION,Cursor,Selection} from "state"
 
-console.dir({ACTION,Cursor,Selection})
-
 import {editable} from "model/edit"
 import recomposable from "./recomposable"
 
@@ -21,20 +19,19 @@ export default class Document extends editable(recomposable(Base)){
 			</div>
 		)
     }
-	
+
 	componentDidMount(){
-		console.log("are here") 
 		if(super.componentDidMount)
 			super.componentDidMount()
 		this.cursorReady()
 		this.inputReady()
 	}
-	
+
 	get root(){
 		return this.refs.main.querySelector("svg")
 	}
-	
-	
+
+
 	inputReady(){
 		document.addEventListener("keydown",e=>{
 			switch(e.keyCode){
@@ -71,6 +68,9 @@ export default class Document extends editable(recomposable(Base)){
 	}
 
 	cursorReady(){
+		let firstText=this.root.querySelector("text[data-content]").getAttribute("data-content")
+		debugger
+		this.props.dispatch(ACTION.Selection.SELECT(firstText,0))
 		this.root.addEventListener("click", e=>{
 			const target=e.target
 			switch(target.nodeName){
@@ -83,6 +83,7 @@ export default class Document extends editable(recomposable(Base)){
 			break
 			}
 		})
+
 	}
 }
 
@@ -99,7 +100,7 @@ const StateCursor=connect((state,{id:docId})=>{
 	if(end.id==id && end.at==at){
 		let texts=document.querySelectorAll(`#${docId} svg text[data-content="${id}"][end]`)
 		let {top,left,from}=getContentClientBoundBox(texts,at,id)
-		const content=getContent(state, id)
+		const content=getContent(state, id).toJS()
 		const text=content.children
 		let wordwrapper=new Text.WordWrapper(content.props)
 		let contentWidth=wordwrapper.stringWidth(text.substring(from,at))

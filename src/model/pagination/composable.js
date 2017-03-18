@@ -82,7 +82,7 @@ export function HasChild(Component){
             return Children.count(this.props.children) == this.computed.children.length
         }
 
-        onAllChildrenComposed() {
+        onAllChildrenComposed() {//
 
         }
 

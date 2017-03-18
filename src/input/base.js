@@ -25,14 +25,14 @@ export default class{
 							self._render(doc, models, (type, props, children, raw)=>{
 								props.id=self._identify(raw,props.id)
 								content.set(props.id, new Map({type:type.displayName,props,children}))
-								
+
 								if(type.displayName=="text")
 									return {type:type.displayName,props,children}
-								
+
 								return {type:type.displayName,id:props.id}
 							})
 						})
-						
+
 						return (
 							<Provider store={createState(doc,content, self.onChange.bind(this))}>
 								<div>
@@ -46,17 +46,17 @@ export default class{
 	}
 
 	_loadFile(url){
-		
+
 	}
-	
+
 	_render(doc, domain, createElement/*(TYPE, props, children, rawcontent)*/){
-		
+
 	}
-	
+
 	_identify(raw, id){
 		return id
 	}
-	
+
 	onChange(state, action){
 		return state
 	}

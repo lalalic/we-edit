@@ -20,7 +20,7 @@ export default class Text extends Super{
 		//line break opportunity need it in paragraph, how can we remove it
 		id:PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired
 	}
-	
+
 	static get breakable(){
 		return true
 	}
@@ -32,7 +32,6 @@ export default class Text extends Super{
 		const defaultStyle=composer.defaultStyle
 
 		const breakOpportunities=this.context.getMyBreakOpportunities(this)
-		console.dir({id:this.props.id, breakOpportunities})
 
 		const commit=state=>{
 			let {content,width,end}=state
@@ -46,7 +45,7 @@ export default class Text extends Super{
 			parent.appendComposed(composedText)
 		}
 		let consume1
-
+        debugger
 		let state=breakOpportunities.reduce(consume1=(state,opportunity,i)=>{
 			let {
 				word,

@@ -19,7 +19,7 @@ const INIT_STATE={
 }
 export const reducer=(state=INIT_STATE, {type,payload})=>{
 	switch(type){
-	case `${DOMAIN}/selected`:
+	case `${DOMAIN}/SELECTED`:
 		return ({...state, ...payload})
 	case `${DOMAIN}/MOVE_DOWN`:
 	case `${DOMAIN}/MOVE_RIGHT`:{

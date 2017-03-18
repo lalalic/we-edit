@@ -20,7 +20,7 @@ export default class Paragraph extends Super{
     getBreakOpportunities(){
 		if(this.computed.breakOpportunities)
 			return this.computed.breakOpportunities
-		
+
         const children=React.Children.toArray(this.props.children)
 
         function getText({props:{children:text}}){
@@ -38,8 +38,8 @@ export default class Paragraph extends Super{
             return opportunity
         }
 
-       console.dir(this.computed.breakOpportunities=opportunities(children,getText, breakable, reviver))
-	   
+       this.computed.breakOpportunities=opportunities(children,getText, breakable, reviver)
+
 	   return this.computed.breakOpportunities
     }
 
