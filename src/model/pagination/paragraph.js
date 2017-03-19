@@ -17,6 +17,11 @@ export default class Paragraph extends Super{
         getMyBreakOpportunities: PropTypes.func
     }
 
+    compose(){
+        delete this.computed.breakOpportunities
+        this.getBreakOpportunities()
+    }
+
     getBreakOpportunities(){
 		if(this.computed.breakOpportunities)
 			return this.computed.breakOpportunities
@@ -44,7 +49,7 @@ export default class Paragraph extends Super{
     }
 
     getChildContext(){
-        let opportunities=this.getBreakOpportunities()
+        let opportunities=this.computed.breakOpportunities
         return {
             ...super.getChildContext(),
             getMyBreakOpportunities({props:{id}}){
@@ -81,8 +86,7 @@ export default class Paragraph extends Super{
         let {width,availableWidth}=currentLine
         if(availableWidth<minRequiredW || this.availableSpace.height<minRequiredH){
             this.commitCurrentLine(true)
-            if(this.availableSpace.height<minRequiredH)
-                this.availableSpace=this.context.parent.nextAvailableSpace(required)
+            this.availableSpace=this.context.parent.nextAvailableSpace(required)
 
             availableWidth=this.lineWidth()
         }

@@ -24,7 +24,7 @@ export default class Document extends editable(recomposable(Base)){
 		if(super.componentDidMount)
 			super.componentDidMount()
 		this.cursorReady()
-		this.inputReady()
+		//this.inputReady()
 	}
 
 	get root(){
@@ -68,9 +68,8 @@ export default class Document extends editable(recomposable(Base)){
 	}
 
 	cursorReady(){
-		let firstText=this.root.querySelector("text[data-content]").getAttribute("data-content")
-		debugger
-		this.props.dispatch(ACTION.Selection.SELECT(firstText,0))
+		//let firstText=this.root.querySelector("text[data-content]").getAttribute("data-content")
+		//this.props.dispatch(ACTION.Selection.SELECT(firstText,0))
 		this.root.addEventListener("click", e=>{
 			const target=e.target
 			switch(target.nodeName){
@@ -84,6 +83,10 @@ export default class Document extends editable(recomposable(Base)){
 			}
 		})
 
+	}
+
+	shouldComponentUpdate(){
+		return false
 	}
 }
 
@@ -99,6 +102,11 @@ const StateCursor=connect((state,{id:docId})=>{
 		return {height:0}
 	if(end.id==id && end.at==at){
 		let texts=document.querySelectorAll(`#${docId} svg text[data-content="${id}"][end]`)
+		if(texts.length==0){
+			console.warn(`can't find text[id=${id}]`)
+			return {}
+		}
+
 		let {top,left,from}=getContentClientBoundBox(texts,at,id)
 		const content=getContent(state, id).toJS()
 		const text=content.children

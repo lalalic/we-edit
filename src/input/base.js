@@ -5,7 +5,7 @@ import Immutable, {Map} from "immutable"
 import models from "model"
 import {createState} from "state"
 
-import {uuid} from "../tools/uuid"
+import {uuid} from "tools/uuid"
 
 export default class{
 	static support(){
@@ -18,18 +18,16 @@ export default class{
 			.then(doc=>{
 				return {
 					render(domain){
-						return self._render(doc, domain, React.createElement)
+						return self._render(doc, domain, (type, props, children, raw)=>{
+							return React.createElement(type,{...props,key:self._identify(raw)},children)
+						})
 					},
 					Store(props){
 						let content=new Map().withMutations(function(content){
 							self._render(doc, models, (type, props, children, raw)=>{
-								props.id=self._identify(raw,props.id)
-								content.set(props.id, new Map({type:type.displayName,props,children}))
-
-								if(type.displayName=="text")
-									return {type:type.displayName,props,children}
-
-								return {type:type.displayName,id:props.id}
+								const id=type.displayName=="document" ? "root" : self._identify(raw)
+								content.set(id, new Map({type:type.displayName,props,children}))
+								return id
 							})
 						})
 
@@ -53,8 +51,8 @@ export default class{
 
 	}
 
-	_identify(raw, id){
-		return id
+	_identify(raw){
+		return uuid()+""
 	}
 
 	onChange(state, action){

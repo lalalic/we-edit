@@ -1,9 +1,10 @@
 
 export function getContent(state,id){
-	return state.get("content").get(id)	
+	return state.get("content").get(id)
 }
 
 export function getContentClientBoundBox(texts, at, id){
+	console.dir({texts,at,id})
 	let found, from
 	for(let i=0, len=texts.length; i<len; i++){
 		let a=texts[i]
@@ -33,7 +34,7 @@ export function findTextIn(content, direction=""){
 		return findTextIn(next, direction)
 	},null)
 }
-		
+
 export function getNextTextOf(id){
 	let current=getContent(id)
 	let parent=current.context.parent
@@ -51,7 +52,7 @@ export function getNextTextOf(id){
 			return findTextIn(next)
 		},null)
 	}
-	
+
 	return found
 }
 
@@ -72,7 +73,7 @@ export function getPrevTextOf(id){
 			return findTextIn(next,"Right")
 		},null)
 	}
-	
+
 	return found
 }
 

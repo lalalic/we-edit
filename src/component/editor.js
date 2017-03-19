@@ -15,7 +15,7 @@ export class Editor extends Component{
 		pgGap:PropTypes.number,
 		style:PropTypes.object
 	}
-	
+
 	static defaultProps={
 		media:"browser",
 		width: typeof(window)=='undefined' ? 10000 : window.innerWidth,
@@ -24,14 +24,14 @@ export class Editor extends Component{
 			background:"lightgray"
 		}
 	}
-	
+
 	static childContextTypes={
 		media:PropTypes.string,
 		width:PropTypes.number.isRequired,
 		pgGap:PropTypes.number,
-		style:PropTypes.object		
+		style:PropTypes.object
 	}
-	
+
 	getChildContext(){
 		const {media, width, pgGap, style}=this.props
 		return {media, width, pgGap, style}
@@ -64,20 +64,23 @@ export class Editor extends Component{
 }
 
 function stateful(Model, domain){
-	return connect((state,{id})=>{
+	return connect((state,{id,children:currentChildren=[]})=>{
+		console.log(`${Model.displayName}[${id}] connecting`)
 		const {props,children=[]}=getContent(state,id).toJS()
-		if(!Array.isArray(children)){
+
+		if(!Array.isArray(children))
 			return {...props, id, children}
-		}
+
 		return {
 			...props,
-			children: children.map(function({type, id, props, children}){
-				if(type=="text")
-					return <domain.Text {...props} children={children}/>
-				
-				let Child=domain[type[0].toUpperCase()+type.substr(1)]
-				return <Child key={id} id={id}/>
-			})
+			children: children.map(id=>{
+					let {type, props, children}=getContent(state,id).toJS()
+					let Child=domain[type[0].toUpperCase()+type.substr(1)]
+					return <Child key={id} id={id}
+						{...props}
+						{...(Array.isArray(children) ? null : {children})}
+						/>
+				})
 		}
 	})(Model)
 }

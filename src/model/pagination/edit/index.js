@@ -9,7 +9,12 @@ const Editabls=Object.keys(Models).reduce((Editabls, key)=>{
 },{})
 
 import Document from "./document"
+import Section from "./section"
+import Paragraph from "./paragraph"
+
 export default {
 	...Editabls,
-	Document
+	Document,
+	Section,
+	Paragraph
 }

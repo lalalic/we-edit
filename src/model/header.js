@@ -1,4 +1,4 @@
-import React, {Component, PropTypes} from "react"
+import React, {PureComponent as Component,PropTypes} from "react"
 
 export default class Header extends Component{
     static displayName="header"

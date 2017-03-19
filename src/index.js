@@ -20,9 +20,6 @@ export function edit(input,container){
 				<Editor>
 					<Pagination/>
 				</Editor>
-				<Editor>
-					<Html/>
-				</Editor>
 			</doc.Store>
 		), container))
 }

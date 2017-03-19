@@ -24,12 +24,12 @@ import {PropTypes} from "react"
 export default function recomposable(Content){
 	return class extends Content{
 		static displayName=`recomposable-${Content.displayName}`
-		
+
 		static propTypes={
 			...(Content.propTypes||{}),
 			id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired
 		}
-		
+
 		appendLastComposed(){
 
 		}
@@ -40,6 +40,7 @@ export default function recomposable(Content){
 
         reCompose(){
     		this._reComposeFrom(this)//#2 solution
+			this.compose()
     	}
 
     	/**
@@ -80,15 +81,29 @@ export default function recomposable(Content){
         }
         /**
          * only no composed should be re-compose
-         */
+
         shouldComponentUpdate(nextProps, nextState, nextContext){
-            if(this.computed.composed.length==0){
+			let should=super.shouldComponentUpdate(...arguments)
+			console.log(`${this.constructor.displayName}[${this.props.id}] updating[${should}], composed=${this.computed.composed.length}`)
+			//return false
+			if(this.computed.composed.length==0){
 				if(this.computed.lastComposed){
 					this.appendLastComposed()
-				}else
+				}else{
 					this.compose()
+				}
+			}else{
+				this.reCompose()
 			}
             return true
-        }
+        }*/
+
+		componentWillReceiveProps(){
+			console.log(`${this.constructor.displayName}[${this.props.id}] receiving`)
+		}
+
+		componentWillUpdate(){
+			console.log(`${this.constructor.displayName}[${this.props.id}] updating`)
+		}
 	}
 }

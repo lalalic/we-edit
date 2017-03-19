@@ -45,8 +45,7 @@ export default class Text extends Super{
 			parent.appendComposed(composedText)
 		}
 		let consume1
-        debugger
-		let state=breakOpportunities.reduce(consume1=(state,opportunity,i)=>{
+        let state=breakOpportunities.reduce(consume1=(state,opportunity,i)=>{
 			let {
 				word,
 				start:{itemId:startItemId, at:startAt},

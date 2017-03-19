@@ -70,18 +70,16 @@ export default class extends Base{
 		})//.then(tree=>{console.dir(tree);return tree})
 	}
 
-	
+
 	_loadFile(file){
 		return docx4js.load(file)
 	}
-	
+
 	_render(docx,domain,createElement){
 		const selector=new Selector(docx)
 
 		return docx.render((type,props,children)=>{
 			let node=props.node
-			let id=node.attribs['id']||uuid()
-			let keyProps={key:id}
 			children=children.reduce((merged,a)=>{
 				if(Array.isArray(a))
 					merged.splice(merged.length-1, ...a)
@@ -92,16 +90,16 @@ export default class extends Base{
 			switch(type){
 			case "document":
 				return createElement(domain.Document,
-					{...selector.document(props),...keyProps,id:"root",styles:getStyles(selector)},
+					{...selector.document(props),styles:getStyles(selector)},
 					children, node
 				)
 			case "section":
-				return createElement(domain.Section,{...selector.section(props),...keyProps},children,node)
+				return createElement(domain.Section,selector.section(props),children,node)
 			case "p":
-				return createElement(domain.Paragraph,{...selector.paragraph(props),...keyProps},children||[],node)
+				return createElement(domain.Paragraph,selector.paragraph(props),children||[],node)
 			case "t":
 				if(children[0])
-					return createElement(domain.Text,keyProps,children[0],node)
+					return createElement(domain.Text,{},children[0],node)
 				else
 					return null
 			case "bookmarkStart":
@@ -115,25 +113,23 @@ export default class extends Base{
 		})
 	}
 
-	_identify(raw, id){
-		if(id==undefined){
-			id=uuid()+""
-			Object.defineProperty(raw.attribs,"id",{
-				enumerable: false,
-				configurable: false,
-				writable: false,
-				value: id
-			})
-		}
+	_identify(raw){
+		let id=uuid()+""
+		Object.defineProperty(raw.attribs,"id",{
+			enumerable: false,
+			configurable: false,
+			writable: false,
+			value: id
+		})
 		return id
 	}
-	
+
 	onChange(state, {type,payload}){
 		switch(type){
 		case `selection/INSERT`:
 
 		case `selection/REMOVE`:
-			
+
 		}
 		return state
 	}

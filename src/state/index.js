@@ -6,9 +6,9 @@ import {reducer as selectionReducer} from "./selection"
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
-export function createState(doc, content, docReducer){
+export function createState(doc, content, docReducer=state=>state){
 	const INIT_STATE=Map({doc,content})
-	
+
 	return createStore(function(state=INIT_STATE,action){
 			state=docReducer(state, action)
 			state=state.set("selection",selectionReducer(state.get("selection"),action))
@@ -24,4 +24,3 @@ export {Cursor} from "./cursor"
 export {Selection} from "./selection"
 
 export const ACTION={Cursor, Text, Selection}
-
