@@ -39,8 +39,10 @@ export default function recomposable(Content){
 		}
 
         reCompose(){
-    		this._reComposeFrom(this)//#2 solution
-			this.compose()
+    		if(this.computed.lastComposed)
+				this.appendLastComposed()
+			else
+				this.compose()
     	}
 
     	/**
@@ -81,29 +83,15 @@ export default function recomposable(Content){
         }
         /**
          * only no composed should be re-compose
-
-        shouldComponentUpdate(nextProps, nextState, nextContext){
-			let should=super.shouldComponentUpdate(...arguments)
-			console.log(`${this.constructor.displayName}[${this.props.id}] updating[${should}], composed=${this.computed.composed.length}`)
-			//return false
-			if(this.computed.composed.length==0){
-				if(this.computed.lastComposed){
-					this.appendLastComposed()
-				}else{
-					this.compose()
-				}
-			}else{
-				this.reCompose()
-			}
-            return true
-        }*/
-
-		componentWillReceiveProps(){
-			console.log(`${this.constructor.displayName}[${this.props.id}] receiving`)
-		}
-
+		*/
 		componentWillUpdate(){
-			console.log(`${this.constructor.displayName}[${this.props.id}] updating`)
+			console.log(`componentWillUpdate--${this.constructor.displayName}[${this.props.id}]`)
+			this.reCompose()
+		}
+		
+		componentWillReceiveProps(){
+			this._reComposeFrom(this)
+			console.log(`componentWillReceiveProps--${this.constructor.displayName}[${this.props.id}]`)
 		}
 	}
 }

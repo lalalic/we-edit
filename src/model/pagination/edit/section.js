@@ -10,8 +10,10 @@ export default class Section extends editable(recomposable(Base)){
     }
 
     _reComposeFrom(content){
+		this.forceUpdate()
+		return 
         const {composed}=this.computed
-        const {id: targetId}=content
+        const targetId=content.props.id
         let currentPage=composed[composed.length-1]
         let {columns}=currentPage
         let currentColumn=columns[columns.length-1]
@@ -47,21 +49,12 @@ export default class Section extends editable(recomposable(Base)){
 
             const removed=this.computed.children.splice(index)
 
-            const composedTime=new Date().toString()
-
             removed.forEach((a,i)=>{
                 a._clearComposed4reCompose(i==0)
-                /**
-                 *  do re-compose job
-                 */
-                a.setState({composedTime})
+                a.forceUpdate()
             })
         }else{
             throw new Error("you should find the line from section, but not")
         }
-    }
-
-    shouldComponentUpdate(){
-        return false
     }
 }

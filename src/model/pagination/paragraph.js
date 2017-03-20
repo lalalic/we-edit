@@ -43,9 +43,9 @@ export default class Paragraph extends Super{
             return opportunity
         }
 
-       this.computed.breakOpportunities=opportunities(children,getText, breakable, reviver)
-
-	   return this.computed.breakOpportunities
+        this.computed.breakOpportunities=opportunities(children,getText, breakable, reviver)
+		
+	    return this.computed.breakOpportunities
     }
 
     getChildContext(){

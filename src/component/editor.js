@@ -1,5 +1,5 @@
 import React, {Children, Component, PropTypes} from "react"
-import {connect} from "react-redux"
+import {connect, connectAdvanced} from "react-redux"
 
 import Models from "model"
 
@@ -29,7 +29,8 @@ export class Editor extends Component{
 		media:PropTypes.string,
 		width:PropTypes.number.isRequired,
 		pgGap:PropTypes.number,
-		style:PropTypes.object
+		style:PropTypes.object,
+		dispatch: PropTypes.func
 	}
 
 	getChildContext(){
@@ -52,8 +53,7 @@ export class Editor extends Component{
 						)
 					}
 					if(STATEFUL.has(domain)){
-						let Document=STATEFUL.get(domain).Document
-						return <Document id="root" key={i}/>
+						return <Root key={i} domain={STATEFUL.get(domain)}/>
 					}else
 						return "not supported!"
 				})
@@ -63,24 +63,41 @@ export class Editor extends Component{
 	}
 }
 
-function stateful(Model, domain){
-	return connect((state,{id,children:currentChildren=[]})=>{
-		console.log(`${Model.displayName}[${id}] connecting`)
-		const {props,children=[]}=getContent(state,id).toJS()
+const Root=connect((state,{domain})=>{
+	let doc=createChildElement("root",state,domain)
+	return state=>({doc})
+},null,stateProps=>stateProps)(({doc})=>doc)
 
+function createChildElement(id,state,domain){
+	let content=getContent(state,id)
+	let {type, props, children}=content.toJS()
+	let Child=domain[type[0].toUpperCase()+type.substr(1)]
+	return (<Child key={id} id={id} content={content}
+			{...props}
+			children={Array.isArray(children) ? children.map(a=>createChildElement(a,state,domain)) : children}
+		/>)
+}
+
+function stateful(Model, domain){
+	return connect((state,currentProps)=>{
+		const {id,children:currentChildren=[],content:currentContent}=currentProps
+		console.log(`${Model.displayName}[${id}] connecting`)
+		
+		const content=getContent(state,id)
+		
+		if(currentContent==content)
+			return currentProps
+		
+		const {props,children=[]}=content.toJS()
+		
+		console.log(`${Model.displayName}[${id}] connected`)
+		
 		if(!Array.isArray(children))
-			return {...props, id, children}
+			return {...props, id, children, content}
 
 		return {
 			...props,
-			children: children.map(id=>{
-					let {type, props, children}=getContent(state,id).toJS()
-					let Child=domain[type[0].toUpperCase()+type.substr(1)]
-					return <Child key={id} id={id}
-						{...props}
-						{...(Array.isArray(children) ? null : {children})}
-						/>
-				})
+			children: children.map(a=>createChildElement(a,state,domain))
 		}
 	})(Model)
 }

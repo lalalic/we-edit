@@ -12,10 +12,12 @@ export default class Document extends editable(recomposable(Base)){
 	uuid=`doc${uuid()}`
 	render(){
         return (
-			<div ref="main" id={this.uuid}>
+			<div id={this.uuid}>
+				<div ref="main">
+					{super.render()}
+				</div>
 				<Selection id={this.uuid}/>
 				<StateCursor id={this.uuid}/>
-				{super.render()}
 			</div>
 		)
     }
@@ -37,27 +39,27 @@ export default class Document extends editable(recomposable(Base)){
 			switch(e.keyCode){
 			case 8://backspace
 				e.preventDefault()
-				this.store.dispatch(ACTION.Text.REMOVE(1))
+				this.props.dispatch(ACTION.Text.REMOVE(1))
 			break
 			case 32://space
 				e.preventDefault()
-				this.store.dispatch(ACTION.Text.INSERT(String.fromCharCode(e.keyCode)))
+				this.props.dispatch(ACTION.Text.INSERT(String.fromCharCode(e.keyCode)))
 			break
 			case 37://ARROW LEFT
 				e.preventDefault()
-				this.store.dispatch(ACTION.Selection.MOVE_LEFT())
+				this.props.dispatch(ACTION.Cursor.MOVE_LEFT())
 			break
 			case 38://ARROW UP
 				e.preventDefault()
-				this.store.dispatch(ACTION.Selection.MOVE_UP())
+				this.props.dispatch(ACTION.Cursor.MOVE_UP())
 			break
 			case 39://ARROW RIGHT
 				e.preventDefault()
-				this.store.dispatch(ACTION.Selection.MOVE_RIGHT())
+				this.props.dispatch(ACTION.Cursor.MOVE_RIGHT())
 			break
 			case 40://ARROW DOWN
 				e.preventDefault()
-				this.store.dispatch(ACTION.Selection.MOVE_DOWN())
+				this.props.dispatch(ACTION.Cursor.MOVE_DOWN())
 			break
 			}
 		})
@@ -68,8 +70,8 @@ export default class Document extends editable(recomposable(Base)){
 	}
 
 	cursorReady(){
-		//let firstText=this.root.querySelector("text[data-content]").getAttribute("data-content")
-		//this.props.dispatch(ACTION.Selection.SELECT(firstText,0))
+		let firstText=this.root.querySelector("text[data-content]").getAttribute("data-content")
+		this.props.dispatch(ACTION.Selection.SELECT(firstText,0))
 		this.root.addEventListener("click", e=>{
 			const target=e.target
 			switch(target.nodeName){
@@ -82,11 +84,6 @@ export default class Document extends editable(recomposable(Base)){
 			break
 			}
 		})
-
-	}
-
-	shouldComponentUpdate(){
-		return false
 	}
 }
 

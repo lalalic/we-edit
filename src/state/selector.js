@@ -24,7 +24,6 @@ export function getContentClientBoundBox(texts, at, id){
 	return {top,left,from}
 }
 
-
 export function findTextIn(content, direction=""){
 	if(typeof(content.getContent())=='string')
 		return content
@@ -35,8 +34,8 @@ export function findTextIn(content, direction=""){
 	},null)
 }
 
-export function getNextTextOf(id){
-	let current=getContent(id)
+export function getNextTextOf(state,id){
+	let current=getContent(state,id)
 	let parent=current.context.parent
 	let children=parent.computed.children
 	let index=children.findIndex(a=>a==current)
@@ -56,7 +55,7 @@ export function getNextTextOf(id){
 	return found
 }
 
-export function getPrevTextOf(id){
+export function getPrevTextOf(state,id){
 	let current=getContent(id)
 	let parent=current.context.parent
 	let children=parent.computed.children

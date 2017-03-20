@@ -9,39 +9,47 @@ export const Cursor={
 		const end=wordwrapper.widthString(width, text.substr(from))
 		dispatch(Selection.SELECT(contentId, from+end))
 	}
+	,MOVE_RIGHT: ()=>(dispatch,getState)=>{
+		const state=getState()
+		let {start:{id,at},end}=state.get("selection")
+		let target=getContent(state,id).toJS()
+		const text=target.children
+		if(text.length>at+1){
+			at++
+		}else{
+			target=getNextTextOf(state,id)
+			if(target){
+				id=target.get("id")
+				at=0
+			}else{
+				//keep cursor at end of current target
+			}
+		}
+		dispatch(Selection.SELECT(id,at))
+	}
+	,MOVE_LEFT: ()=>(dispatch,getState)=>{
+		const state=getState()
+		let {start:{id,at},end}=state.get("selection")
+		if(at>0){
+			at--
+		}else{
+			let target=getPrevTextOf(state,id)
+			if(target){
+				id=target.get("id")
+				at=target.children.length-1
+			}else{
+				//keep cursor at end of current target
+			}
+		}
+		dispatch(Selection.SELECT(id,at))
+	}
+	,MOVE_UP: ()=>Selection.MOVE_LEFT()
+	,MOVE_DOWN: ()=>Selection.MOVE_RIGHT()
 }
 
 export const Text={
-	INSERT: t=>(dispatch, getState)=>{
-		const state=getState()
-		const {start:{id,at},end}=state.selection
-		if(id==end.id){
-			let content=getContent(state, id)
-			let text=content.children
-			let newText=text.substring(0,at)+t+text.substr(end.at)
-			content.setState({content:newText}, e=>{
-				content.reCompose()
-				dispatch(Selection.SELECT(id,at+t.length))
-			})
-		}else{
-
-		}
-	}
-	,REMOVE: n=>(dispatch, getState)=>{
-		const state=getState()
-		const {start:{id,at},end}=state.selection
-		if(id==end.id){
-			let content=getContent(state,id)
-			let text=content.children
-			let newText=text.substring(0,at-n)+text.substr(end.at)
-			content.setState({content:newText}, e=>{
-				content.reCompose()
-				dispatch(Selection.SELECT(id,at-n))
-			})
-		}else{
-
-		}
-	}
+	INSERT: t=>({type:"text/insert",payload:t})
+	,REMOVE: n=>({type:"text/remove",payload:n})
 }
 
 export const Selection={
@@ -58,9 +66,8 @@ export const Selection={
 			}
 		}
 	})
-	,MOVE_RIGHT: a=>({type:`selection/MOVE_RIGHT`})
-	,MOVE_LEFT: a=>({type:`selection/MOVE_LEFT`})
-	,MOVE_UP: a=>({type:`selection/MOVE_UP`})
-	,MOVE_DOWN: a=>({type:`selection/MOVE_DOWN`})
 }
 
+export const ACTION={Cursor, Text, Selection}
+
+export default ACTION

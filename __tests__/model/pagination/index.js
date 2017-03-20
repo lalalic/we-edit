@@ -53,6 +53,8 @@ describe("composer", function(){
 
 				"Document,Section,Paragraph".split(",")
 					.forEach(a=>spyOn(Domain[a].prototype,"appendComposed").and.callThrough())
+					
+				spyOn(Domain.Paragraph.prototype,"getBreakOpportunities").and.callThrough()	
 
 				let node=mount(
 					<Domain.Document>
@@ -75,6 +77,8 @@ describe("composer", function(){
 
 				"Document,Section,Paragraph".split(",")
 					.forEach(a=>expect(Domain[a].prototype.appendComposed).toHaveBeenCalled())
+					
+				expect(Domain.Paragraph.prototype.getBreakOpportunities.calls.count()).toBe(1)
 
 				expect(node.find("svg").length).toBe(1)
 			})
@@ -92,9 +96,63 @@ describe("composer", function(){
 				expect(node.find("g.page").length).toBe(1)
 				expect(node.find("svg").text()).toBe("Hello")
 			})
+			
+			describe("composed content", function(){
+				it("<p><t>hello</t><t> world</t></p>", function(){
+					let node=mount(
+						<Domain.Document>
+							<Domain.Section>
+								<Domain.Paragraph>
+									<Domain.Text id="100">Hello</Domain.Text>
+								</Domain.Paragraph>
+								<Domain.Paragraph>
+									<Domain.Text id="101"> world</Domain.Text>
+								</Domain.Paragraph>
+							</Domain.Section>
+						</Domain.Document>
+					)
+					let texts=node.find("text")
+					expect(texts.length).toBe(2)
+					expect(texts.at(0).text()).toBe("Hello")
+					expect(texts.at(1).text()).toBe(" world")
+				})
+				
+				it("2*<sect><p><t>hello</t><t> world</t></p></sect>", function(){
+					let node=mount(
+						<Domain.Document>
+							<Domain.Section>
+								<Domain.Paragraph>
+									<Domain.Text id="100">Hello</Domain.Text>
+								</Domain.Paragraph>
+								<Domain.Paragraph>
+									<Domain.Text id="101"> world</Domain.Text>
+								</Domain.Paragraph>
+							</Domain.Section>
+							<Domain.Section>
+								<Domain.Paragraph>
+									<Domain.Text id="102">Hello</Domain.Text>
+								</Domain.Paragraph>
+								<Domain.Paragraph>
+									<Domain.Text id="103"> world</Domain.Text>
+								</Domain.Paragraph>
+							</Domain.Section>
+						</Domain.Document>
+					)
+					
+					expect(node.find("g.page").length).toBe(2)
+					let texts=node.find("text")
+					expect(texts.length).toBe(4)
+					expect(texts.at(0).text()).toBe("Hello")
+					expect(texts.at(1).text()).toBe(" world")
+					expect(texts.at(2).text()).toBe("Hello")
+					expect(texts.at(3).text()).toBe(" world")
+				})
+			
+			})
+			
 
-			describe("style", function(){
-				it("style inherited from document > paragraph > Text", function(){
+			describe("direct style", function(){
+				it("style inherited from document", function(){
 					let node=mount(
 						<Domain.Document>
 							<Domain.Section>
@@ -110,7 +168,7 @@ describe("composer", function(){
 					expect(text.prop("fontSize")).toBe(Domain.Document.defaultProps.size+'pt')
 				})
 
-				it("style inherited from document > paragraph", function(){
+				it("style inherited from paragraph", function(){
 					let node=mount(
 						<Domain.Document>
 							<Domain.Section>
@@ -126,7 +184,7 @@ describe("composer", function(){
 					expect(text.prop("fontSize")).toBe(Domain.Document.defaultProps.size+'pt')
 				})
 
-				it("style inherited from document > paragraph", function(){
+				it("direct style", function(){
 					let node=mount(
 						<Domain.Document>
 							<Domain.Section>
@@ -142,6 +200,9 @@ describe("composer", function(){
 					expect(text.prop("fontSize")).toBe(Domain.Document.defaultProps.size+'pt')
 				})
 			})
+			
+			
+			
 		})
 	)
 })

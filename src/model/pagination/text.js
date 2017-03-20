@@ -17,7 +17,7 @@ export default class Text extends Super{
 	}
 	static propTypes={
 		...(Super.propTypes||{}),
-		//line break opportunity need it in paragraph, how can we remove it
+		//line break opportunity need it in paragraph, how can we remove it?????
 		id:PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired
 	}
 
@@ -44,7 +44,7 @@ export default class Text extends Super{
 				})
 			parent.appendComposed(composedText)
 		}
-		let consume1
+		let consume1, id=this.props.id
         let state=breakOpportunities.reduce(consume1=(state,opportunity,i)=>{
 			let {
 				word,
@@ -53,10 +53,10 @@ export default class Text extends Super{
 				}=opportunity
 			if(startItemId==endItemId){
 				//whole word
-			}else if(i==0){//cross at begin
+			}else if(startItemId==id){
+				word=word.substring(0,word.length-endAt)
+			}else if(endItemId==id){
 				word=word.substr(-endAt)
-			}else{//cross at end
-				word=word.substr(0,word.length-endAt)
 			}
 			let wordWidth=composer.stringWidth(word)
 			let {space:{width:maxWidth},content,width}=state
