@@ -1,4 +1,4 @@
-import React, {PureComponent as Component,PropTypes} from "react"
+import React, {Component,PropTypes} from "react"
 import merge from "tools/merge"
 
 export default class Text extends Component{

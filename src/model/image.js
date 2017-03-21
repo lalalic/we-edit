@@ -1,4 +1,4 @@
-import React, {PureComponent as Component,PropTypes} from "react"
+import React, {Component,PropTypes} from "react"
 
 export default class Image extends Component{
 	static displayName="image"
