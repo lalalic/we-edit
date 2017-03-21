@@ -29,16 +29,16 @@ export class Cursor extends Component{
 			</div>
 		)
 	}
-	
+
 	componentDidMount(){
 		this.flash()
-		
+
 	}
-	
+
 	componentDidUpdate(){
 		this.flash()
 	}
-	
+
 	flash(){
 		let node=this.refs.cursor
 		if(this.timer){
@@ -102,7 +102,7 @@ class Focus extends Component{
 							}
 						}
 					}
-					
+
 		/>
 	}
 }

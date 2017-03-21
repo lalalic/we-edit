@@ -24,7 +24,7 @@ export default class Section extends editable(recomposable(Base)){
                     currentPage=composed[composed.length-1]
                     columns=currentPage.columns
                     currentColumn=columns[columns.length-1]
-                }else {//all page removed because can' find in composed 
+                }else {//all page removed because can' find in composed
                     break
                     //throw new Error("you should find the line from section, but not")
                 }
@@ -36,15 +36,15 @@ export default class Section extends editable(recomposable(Base)){
 
             let index=this.computed.children.findIndex(a=>a.props.id==targetId)
 			let removed=this.computed.children.splice(index)
-			
+
 			this.context.parent._reComposeFrom(this)
-			
+
             let done=removed.map((a,i)=>new Promise((resolve,reject)=>{
                 a._clearComposed4reCompose(i==0)
-                a.forceUpdate(resolve)
+                //a.forceUpdate(resolve)
             }))
-			
-			Promise.all(done).then(a=>this.context.parent.refreshComposed())
+
+			//Promise.all(done).then(a=>this.context.parent.refreshComposed())
         }else{
             throw new Error("you should find the line from section, but not")
         }

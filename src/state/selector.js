@@ -1,4 +1,3 @@
-
 export function getContent(state,id){
 	return state.get("content").get(id)
 }

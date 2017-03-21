@@ -7,7 +7,7 @@ import {text, selection} from "./reducer"
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
 export function createState(doc, content, docReducer=state=>state){
-	const INIT_STATE=Map({doc,content})
+	const INIT_STATE=Map({doc,content,mutable:{nodes:{}}})
 
 	return createStore(function(state=INIT_STATE,action){
 			state=docReducer(state, action)

@@ -43,7 +43,7 @@ export class Editor extends Component{
 				{
 				Children.map(this.props.children,({props:{domain}},i)=>{
 					domain=domain("editor")
-					//return <Root key={i} domain={domain}/>
+					return <Root key={i} domain={domain}/>
 					if(!STATEFUL.has(domain)){
 						STATEFUL.set(
 							domain,
@@ -64,18 +64,39 @@ export class Editor extends Component{
 	}
 }
 
-const Root=connect((state,{domain})=>{
-	let doc=createChildElement("root",state,domain)
-	return state=>({doc})
-},null,stateProps=>stateProps)(({doc})=>doc)
+const Root=connect((state,{domain,content})=>{
+	return {doc:createChildElement("root",state,domain),content:state.get("content")}
+},null,stateProps=>stateProps)(class extends Component{
+	static contextTypes={
+		store: PropTypes.any
+	}
+	/*
+	componentWillReceiveProps(nextProps){
+		if(this.props.content!=nextProps.content){
+			const state=this.context.store.getState()
+			const {start:{id}}=state.get('selection')
+			const node=state.get("mutable").nodes[id]
+			node._reComposeFrom(node)
+		}
+	}
 
-function createChildElement(id,state,domain){
+
+	componentDidUpdate(){
+
+	}
+	*/
+	render(){
+		return this.props.doc
+	}
+})
+
+function createChildElement(id,state,domain,pid){
 	let content=getContent(state,id)
 	let {type, props, children}=content.toJS()
 	let Child=domain[type[0].toUpperCase()+type.substr(1)]
-	return (<Child key={id} id={id} content={content}
+	return (<Child key={id} id={id}
 			{...props}
-			children={Array.isArray(children) ? children.map(a=>createChildElement(a,state,domain)) : children}
+			children={Array.isArray(children) ? children.map(a=>createChildElement(a,state,domain,id)) : children}
 		/>)
 }
 
@@ -83,16 +104,16 @@ function stateful(Model, domain){
 	return connect((state,currentProps)=>{
 		const {id,children:currentChildren=[],content:currentContent}=currentProps
 		console.log(`${Model.displayName}[${id}] connecting`)
-		
+
 		const content=getContent(state,id)
-		
+
 		if(currentContent==content)
 			return currentProps
-		
+
 		const {props,children=[]}=content.toJS()
-		
+
 		console.log(`${Model.displayName}[${id}] connected`)
-		
+
 		if(!Array.isArray(children))
 			return {...props, id, children, content}
 

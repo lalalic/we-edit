@@ -16,17 +16,14 @@ export default class Paragraph extends Super{
         ...Super.childContextTypes,
         getMyBreakOpportunities: PropTypes.func
     }
-
-    compose(){
-        delete this.computed.breakOpportunities
-        this.getBreakOpportunities()
+    constructor(){
+        super(...arguments)
+        this.computed.breakOpportunities=this.getBreakOpportunities()
     }
 
-    getBreakOpportunities(){
-		if(this.computed.breakOpportunities)
-			return this.computed.breakOpportunities
-
-        const children=React.Children.toArray(this.props.children)
+    getBreakOpportunities(children){
+		if(!children)
+            children=React.Children.toArray(this.props.children)
 
         function getText({props:{children:text}}){
             return text
@@ -43,17 +40,15 @@ export default class Paragraph extends Super{
             return opportunity
         }
 
-        this.computed.breakOpportunities=opportunities(children,getText, breakable, reviver)
-		console.dir(this.computed.breakOpportunities)
-	    return this.computed.breakOpportunities
+        return opportunities(children,getText, breakable, reviver)
     }
 
     getChildContext(){
-        let opportunities=this.computed.breakOpportunities
+        let self=this
         return {
             ...super.getChildContext(),
             getMyBreakOpportunities({props:{id}}){
-				return opportunities.filter(({start,end})=>start.itemId==id || (end && end.itemId==id))
+				return self.computed.breakOpportunities.filter(({start,end})=>start.itemId==id || (end && end.itemId==id))
             }
         }
     }
@@ -167,7 +162,7 @@ class LineInfo{
 	constructor(width,p){
 		this.width=width
 		this.children=[]
-		
+
 		Object.defineProperties(this,{
 			height:{
 				enumerable:true,

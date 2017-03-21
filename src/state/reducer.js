@@ -8,6 +8,7 @@ export function text(state, {type,payload}){
 			let content=getContent(state, id)
 			let text=content.get("children")
 			content=content.set("children",text.substring(0,at)+payload+text.substr(end.at))
+			console.dir(content.toJS())
 			at+=payload.length
 			return state.withMutations(state=>{
 				state
@@ -15,7 +16,7 @@ export function text(state, {type,payload}){
 					.set("content",state.get("content").set(id,content))
 			})
 		}else{
-			
+
 		}
 	}
 	case "text/remove":{
@@ -31,7 +32,7 @@ export function text(state, {type,payload}){
 					.set("content",state.get("content").set(id,content))
 			})
 		}else{
-			
+
 		}
 	}
 	default:

@@ -30,6 +30,16 @@ export default function recomposable(Content){
 			id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired
 		}
 
+		static contextTypes={
+			...Content.contextTypes,
+			store:PropTypes.any
+		}
+
+		constructor(){
+			super(...arguments)
+			this.context.store.getState().get("mutable").nodes[this.props.id]=this
+		}
+
 		appendLastComposed(){
 
 		}
@@ -42,10 +52,9 @@ export default function recomposable(Content){
 		}
 
         reCompose(){
-    		if(this.computed.lastComposed)
-				this.appendLastComposed()
-			else
-				this.compose()
+			this.computed.composed.splice(0,this.computed.composed.length)
+			this.computed.children.splice(0,this.computed.children.length)
+			this.compose()
     	}
 
     	/**
@@ -91,19 +100,14 @@ export default function recomposable(Content){
 			console.log(`componentWillUpdate--${this.constructor.displayName}[${this.props.id}]`)
 			this.reCompose()
 		}
+
 		
-		componentWillReceiveProps(){
-			
-			console.log(`componentWillReceiveProps--${this.constructor.displayName}[${this.props.id}]`)
-		}
-		
+
 		shouldComponentUpdate(nextProps){
+			return true
 			let should=this.computed.composed.length==0
-			console.log(`shouldComponentUpdate--${this.constructor.displayName}[${this.props.id}][${should}]`)
-			if(this.props.content!=nextProps.content){
-				this._reComposeFrom(this)
-				console.log(`${this.props.children}==>${nextProps.children}`)
-			}
+			//console.log(`shouldComponentUpdate--${this.constructor.displayName}[${this.props.id}][${should}]`)
+
 			return should
 		}
 	}

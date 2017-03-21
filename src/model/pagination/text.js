@@ -25,6 +25,10 @@ export default class Text extends Super{
 		return true
 	}
 
+    compontentWillReceiveProps(nextProps){
+        console.log(`${this.constructor.displayName}:${nextProps.children}`)
+    }
+
     compose(){
 		const parent=this.context.parent
         const {fonts,size,color,bold,italic,vanish}=this.style
