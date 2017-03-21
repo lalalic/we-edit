@@ -1,4 +1,4 @@
-import {PropTypes} from "react"
+import React, {PropTypes} from "react"
 /**
  *  it's a very complicated job, so we need a very simple design, one sentence described solution. options:
  *  1. remove all composed, and re-compose all
@@ -34,8 +34,11 @@ export default function recomposable(Content){
 
 		}
 
+		/*
+		* content and container should have data-content id
+		*/
 		createComposed2Parent(props){
-			return super.createComposed2Parent({...props, "data-content":this.props.id})
+			return React.cloneElement(super.createComposed2Parent({...props, "data-content":this.props.id}),{"data-content":this.props.id})
 		}
 
         reCompose(){
@@ -92,6 +95,10 @@ export default function recomposable(Content){
 		componentWillReceiveProps(){
 			this._reComposeFrom(this)
 			console.log(`componentWillReceiveProps--${this.constructor.displayName}[${this.props.id}]`)
+		}
+		
+		shouldComponentUpdate(){
+			return this.computed.children.length==0
 		}
 	}
 }

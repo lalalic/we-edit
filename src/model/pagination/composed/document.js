@@ -1,8 +1,11 @@
-import React, {Component, PropTypes} from "react"
+import React, {PureComponent as Component, PropTypes} from "react"
 import Group from "./group"
 import Page from "./page"
 
 export default class Document extends Component{
+	static proptTypes={
+		pages: PropTypes.arrayOf(PropTypes.element)
+	}
 	static contextTypes={
 		width:PropTypes.number,
 		pgGap:PropTypes.number,
@@ -11,32 +14,26 @@ export default class Document extends Component{
 	
 	render(){
 		let {width,pgGap,style}=this.context
+		let {pages:pageInfos}=this.props
 		let height=0, pages
 		
 		if(width==undefined){
-			pages=this.props.sections.reduce((pages,section,i)=>{
-				section.computed.composed
-					.forEach((page,j)=>pages.push(<Page {...page} key={i+j}/>))
-				return pages
-			}, [])
+			pages=pageInfos.map((page,i)=><Page {...page} key={i}/>)
 			width=height=1
 		}else{
+			let y=0
 			pages=(
 				<Group y={pgGap}>
 				{
-					this.props.sections.map((section,i,a,b,y=0)=>{
-						return <Group y={height} key={i}>{
-							section.computed.composed.map((page,j)=>{
-								let newPage=(
-									<Group y={y} x={(width-page.size.width)/2} key={j}>
-										<Page {...page}/>
-									</Group>
-								);
-								y+=(page.size.height+pgGap)
-								height+=(page.size.height+pgGap)
-								return newPage
-							})
-						}</Group>
+					pageInfos.map((page,i)=>{
+						let newPage=(
+							<Group y={y} x={(width-page.size.width)/2} key={i}>
+								<Page {...page}/>
+							</Group>
+						);
+						y+=(page.size.height+pgGap)
+						height+=(page.size.height+pgGap)
+						return newPage
 					})
 				}
 				</Group>

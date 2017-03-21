@@ -17,7 +17,7 @@ export class Editor extends Component{
 	}
 
 	static defaultProps={
-		media:"browser",
+		media:"screen",
 		width: typeof(window)=='undefined' ? 10000 : window.innerWidth,
 		pgGap: 20,
 		style: {

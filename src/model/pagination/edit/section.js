@@ -5,35 +5,26 @@ import {editable} from "model/edit"
 import recomposable from "./recomposable"
 
 export default class Section extends editable(recomposable(Base)){
-    createComposed2Parent(props){
-        return super.createComposed2Parent({...props,index:this.computed.children.length})
-    }
-
     _reComposeFrom(content){
-		this.forceUpdate()
-		return 
+		const targetId=content.props.id
+		const contentIndex=column=>column.children.findIndex(a=>a.props.children.props["data-content"]==targetId)
+
         const {composed}=this.computed
-        const targetId=content.props.id
         let currentPage=composed[composed.length-1]
         let {columns}=currentPage
         let currentColumn=columns[columns.length-1]
         let found=-1
-        while(-1==(found=currentColumn.children.findIndex(group=>{//group/Line
-            return group.props.children.props.id==targetId
-        }))){
-            columns.pop()
+        while((found=contentIndex(currentColumn))==-1){
+            columns.pop() //not found in current column, remove current column
             if(columns.length){
                 currentColumn=columns[columns.length-1]
-                found=-1
-            }else{
+            }else{//not found in current page, remove page
                 composed.pop()
-                console.log("a page is removed")
                 if(composed.length){
-                    currentPage=composed[composed.length-1];
-                    ({columns}=currentPage);
-                    currentColumn=columns[columns.length-1];
-                    found=-1
-                }else {
+                    currentPage=composed[composed.length-1]
+                    columns=currentPage.columns
+                    currentColumn=columns[columns.length-1]
+                }else {//all page removed because can' find in composed 
                     break
                     //throw new Error("you should find the line from section, but not")
                 }
@@ -41,18 +32,17 @@ export default class Section extends editable(recomposable(Base)){
         }
 
         if(found!=-1){
-            //we need know from which child each line composes from for re-compose
-            //that's why overwrite createComposed2Parent
-            const index=currentColumn.children[found].props.index
-
             currentColumn.children.splice(found)
 
-            const removed=this.computed.children.splice(index)
+            let index=this.computed.children.findIndex(a=>a.props.id==targetId)
+			let removed=this.computed.children.splice(index)
 
-            removed.forEach((a,i)=>{
+            let done=removed.map((a,i)=>new Promise((resolve,reject)=>{
                 a._clearComposed4reCompose(i==0)
-                a.forceUpdate()
-            })
+                a.forceUpdate(resolve)
+            }))
+			
+			Promise.all(done).then(a=>this.context.parent.refreshComposed())
         }else{
             throw new Error("you should find the line from section, but not")
         }

@@ -1,7 +1,10 @@
-import React, {Component, PropTypes} from "react"
+import React, {PureComponent as Component, PropTypes} from "react"
 
 export default class Group extends Component{
-	state={composedTime:new Date().toString()}
+	static propTypes={
+		width: PropTypes.number,
+		height: PropTypes.number
+	}
     render(){
 		let len=Object.keys(this.props).length
 		if(len==0)

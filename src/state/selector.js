@@ -4,7 +4,6 @@ export function getContent(state,id){
 }
 
 export function getContentClientBoundBox(texts, at, id){
-	console.dir({texts,at,id})
 	let found, from
 	for(let i=0, len=texts.length; i<len; i++){
 		let a=texts[i]
@@ -18,8 +17,10 @@ export function getContentClientBoundBox(texts, at, id){
 		}
 	}
 
-	if(!found)
-		throw new Error(`can't found text(${id},${at})`)
+	if(!found){
+		console.warn(`can't found text(${id},${at})`)
+		return {top:0,left:0,from:0}
+	}
 	let {top,left}=found.getBoundingClientRect()
 	return {top,left,from}
 }

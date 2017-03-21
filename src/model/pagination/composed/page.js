@@ -1,4 +1,4 @@
-import React, {Component, PropTypes} from "react"
+import React, {PureComponent as Component, PropTypes} from "react"
 import Group from "./group"
 import Line from "./line"
 
@@ -7,9 +7,9 @@ export const Page=({
 			margin:{left,top, right,bottom, header:headerStartAt=0, footer:footerEndAt=0}, 
 			columns, 
 			header, 
-			footer},{media="printer"})=>(
+			footer},{media="print"})=>(
 	<Group className="page">
-		{media!=="printer" ? <Paper width={width} height={height} fill="white" 
+		{media!=="print" ? <Paper width={width} height={height} fill="white" 
 			margin={{left,top,right:width-right,bottom:height-bottom}}/> : null}
 		
 		{header ? (<Group x={left} y={headerStartAt} className="header">{header}</Group>) : null}

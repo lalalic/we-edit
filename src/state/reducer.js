@@ -11,7 +11,7 @@ export function text(state, {type,payload}){
 			at+=payload.length
 			return state.withMutations(state=>{
 				state
-					.set("selection",{start:{id,at},end:{id,at}})
+					//.set("selection",{start:{id,at},end:{id,at}})
 					.set("content",state.get("content").set(id,content))
 			})
 		}else{

@@ -25,48 +25,16 @@ export default class Document extends editable(recomposable(Base)){
 	componentDidMount(){
 		if(super.componentDidMount)
 			super.componentDidMount()
+		
 		this.cursorReady()
-		//this.inputReady()
+	}
+	
+	refreshComposed(){
+		this.composed.forceUpdate()
 	}
 
 	get root(){
 		return this.refs.main.querySelector("svg")
-	}
-
-
-	inputReady(){
-		document.addEventListener("keydown",e=>{
-			switch(e.keyCode){
-			case 8://backspace
-				e.preventDefault()
-				this.props.dispatch(ACTION.Text.REMOVE(1))
-			break
-			case 32://space
-				e.preventDefault()
-				this.props.dispatch(ACTION.Text.INSERT(String.fromCharCode(e.keyCode)))
-			break
-			case 37://ARROW LEFT
-				e.preventDefault()
-				this.props.dispatch(ACTION.Cursor.MOVE_LEFT())
-			break
-			case 38://ARROW UP
-				e.preventDefault()
-				this.props.dispatch(ACTION.Cursor.MOVE_UP())
-			break
-			case 39://ARROW RIGHT
-				e.preventDefault()
-				this.props.dispatch(ACTION.Cursor.MOVE_RIGHT())
-			break
-			case 40://ARROW DOWN
-				e.preventDefault()
-				this.props.dispatch(ACTION.Cursor.MOVE_DOWN())
-			break
-			}
-		})
-
-		document.addEventListener("keypress",e=>{
-			this.props.dispatch(ACTION.Text.INSERT(String.fromCharCode(e.keyCode)))
-		})
 	}
 
 	cursorReady(){
