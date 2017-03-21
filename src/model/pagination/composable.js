@@ -30,6 +30,7 @@ export function HasChild(Component){
         }
 
         render(){
+			console.log(`render--${this.constructor.displayName}[${this.props.id}]`)
             return (<div>{this.props.children}</div>)
         }
 

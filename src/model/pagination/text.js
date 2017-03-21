@@ -42,7 +42,7 @@ export default class Text extends Super{
 					end,
 					children:[...content]
 				})
-			parent.appendComposed(composedText)
+			this.appendComposed(composedText)
 		}
 		let consume1, id=this.props.id
         let state=breakOpportunities.reduce(consume1=(state,opportunity,i)=>{
@@ -80,7 +80,8 @@ export default class Text extends Super{
 		parent.on1ChildComposed(this)
     }
 
-	createComposed2Parent(props){
-		return <ComposedText {...props}/>
+	createComposed2Parent(props, composed){
+		this.computed.composed.push(composed=<ComposedText {...props}/>)
+		return composed
 	}
 }

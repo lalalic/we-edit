@@ -1,4 +1,4 @@
-import React from "react"
+import React, {PropTypes} from "react"
 import Base from "../document"
 
 import {ACTION,Cursor,Selection} from "state"
@@ -32,6 +32,11 @@ export default class Document extends editable(recomposable(Base)){
 	refreshComposed(){
 		this.composed.forceUpdate()
 	}
+	
+	_reComposeFrom(section){
+		let index=this.computed.children.findIndex(a=>a==section)
+		this.computed.children.splice(index,1)
+	}
 
 	get root(){
 		return this.refs.main.querySelector("svg")
@@ -39,7 +44,7 @@ export default class Document extends editable(recomposable(Base)){
 
 	cursorReady(){
 		let firstText=this.root.querySelector("text[data-content]").getAttribute("data-content")
-		this.props.dispatch(ACTION.Selection.SELECT(firstText,0))
+		this.context.store.dispatch(ACTION.Selection.SELECT(firstText,0))
 		this.root.addEventListener("click", e=>{
 			const target=e.target
 			switch(target.nodeName){
@@ -48,10 +53,14 @@ export default class Document extends editable(recomposable(Base)){
 				let contentEndIndex=target.getAttribute("end")
 				let contentID=target.getAttribute("data-content")
 				let [x]=offset(e, target)
-				this.props.dispatch(ACTION.Cursor.AT(contentID,contentEndIndex-text.length, x))
+				this.context.store.dispatch(ACTION.Cursor.AT(contentID,contentEndIndex-text.length, x))
 			break
 			}
 		})
+	}
+	
+	static contextTypes={
+		store:PropTypes.any
 	}
 }
 

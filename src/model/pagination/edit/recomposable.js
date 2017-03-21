@@ -93,12 +93,18 @@ export default function recomposable(Content){
 		}
 		
 		componentWillReceiveProps(){
-			this._reComposeFrom(this)
+			
 			console.log(`componentWillReceiveProps--${this.constructor.displayName}[${this.props.id}]`)
 		}
 		
-		shouldComponentUpdate(){
-			return this.computed.children.length==0
+		shouldComponentUpdate(nextProps){
+			let should=this.computed.composed.length==0
+			console.log(`shouldComponentUpdate--${this.constructor.displayName}[${this.props.id}][${should}]`)
+			if(this.props.content!=nextProps.content){
+				this._reComposeFrom(this)
+				console.log(`${this.props.children}==>${nextProps.children}`)
+			}
+			return should
 		}
 	}
 }

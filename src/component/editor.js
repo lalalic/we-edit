@@ -43,6 +43,7 @@ export class Editor extends Component{
 				{
 				Children.map(this.props.children,({props:{domain}},i)=>{
 					domain=domain("editor")
+					//return <Root key={i} domain={domain}/>
 					if(!STATEFUL.has(domain)){
 						STATEFUL.set(
 							domain,
@@ -99,7 +100,7 @@ function stateful(Model, domain){
 			...props,
 			children: children.map(a=>createChildElement(a,state,domain))
 		}
-	})(Model)
+	},null,null,{pure:false})(Model)
 }
 
 export default Editor

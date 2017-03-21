@@ -36,7 +36,9 @@ export default class Section extends editable(recomposable(Base)){
 
             let index=this.computed.children.findIndex(a=>a.props.id==targetId)
 			let removed=this.computed.children.splice(index)
-
+			
+			this.context.parent._reComposeFrom(this)
+			
             let done=removed.map((a,i)=>new Promise((resolve,reject)=>{
                 a._clearComposed4reCompose(i==0)
                 a.forceUpdate(resolve)

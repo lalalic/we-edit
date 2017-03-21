@@ -44,7 +44,7 @@ export default class Paragraph extends Super{
         }
 
         this.computed.breakOpportunities=opportunities(children,getText, breakable, reviver)
-		
+		console.dir(this.computed.breakOpportunities)
 	    return this.computed.breakOpportunities
     }
 
