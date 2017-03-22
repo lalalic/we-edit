@@ -40,9 +40,6 @@ export default function recomposable(Content){
 			this.context.store.getState().get("mutable").nodes[this.props.id]=this
 		}
 
-		appendLastComposed(){
-
-		}
 
 		/*
 		* content and container should have data-content id
@@ -57,6 +54,9 @@ export default function recomposable(Content){
 			this.compose()
     	}
 
+		appendLastComposed(){
+
+		}
     	/**
     	 *  if with content
     	 *  	> simply ask parent to recompose
@@ -97,18 +97,7 @@ export default function recomposable(Content){
          * only no composed should be re-compose
 		*/
 		componentWillUpdate(){
-			console.log(`componentWillUpdate--${this.constructor.displayName}[${this.props.id}]`)
 			this.reCompose()
-		}
-
-		
-
-		shouldComponentUpdate(nextProps){
-			return true
-			let should=this.computed.composed.length==0
-			//console.log(`shouldComponentUpdate--${this.constructor.displayName}[${this.props.id}][${should}]`)
-
-			return should
 		}
 	}
 }

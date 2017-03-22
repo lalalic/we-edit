@@ -4,7 +4,8 @@ import Page from "./page"
 
 export default class Document extends Component{
 	static proptTypes={
-		pages: PropTypes.arrayOf(PropTypes.element)
+		pages: PropTypes.arrayOf(PropTypes.element),
+		width: PropTypes.number
 	}
 	static contextTypes={
 		width:PropTypes.number,
@@ -13,21 +14,24 @@ export default class Document extends Component{
 	}
 	
 	render(){
-		let {width,pgGap,style}=this.context
-		let {pages:pageInfos}=this.props
+		let {width:containerWidth,pgGap,style}=this.context
+		let {pages:pageInfos, width:contentWidth}=this.props
 		let height=0, pages
+		let viewBoxWidth=1
+		let viewBoxHeight=1
 		
-		if(width==undefined){
+		if(containerWidth==undefined){
 			pages=pageInfos.map((page,i)=><Page {...page} key={i}/>)
-			width=height=1
+			containerWidth=1
 		}else{
+			viewBoxWidth=Math.max(contentWidth+2*pgGap, containerWidth)
 			let y=0
 			pages=(
 				<Group y={pgGap}>
 				{
 					pageInfos.map((page,i)=>{
 						let newPage=(
-							<Group y={y} x={(width-page.size.width)/2} key={i}>
+							<Group y={y} x={(viewBoxWidth-page.size.width)/2} key={i}>
 								<Page {...page}/>
 							</Group>
 						);
@@ -39,12 +43,17 @@ export default class Document extends Component{
 				</Group>
 			)
 			height+=pgGap
+			viewBoxHeight=viewBoxWidth*height/containerWidth
 		}
 		return (
-			<svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} style={style}>
+			<svg width={containerWidth} height={height} 
+				viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`} 
+				style={style}>
 				{this.props.children}
 				{pages}        
 			</svg>
 		)
 	}
+	
+	
 }

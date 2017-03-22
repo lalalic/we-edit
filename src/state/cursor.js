@@ -7,7 +7,8 @@ export class Cursor extends Component{
 		top: PropTypes.number,
 		height: PropTypes.number,
 		color: PropTypes.string,
-		size: PropTypes.number
+		size: PropTypes.number,
+		editorId: PropTypes.any.isRequired
 	}
 
 	static defaultProps={
@@ -25,7 +26,7 @@ export class Cursor extends Component{
 		return (
 			<div unselectable="on" ref="cursor"
 				style={{...style,background:color,left,top,position:"absolute",height:20,width:size}}>
-				<Focus dispatch={this.props.dispatch} style={{...style,height:8,width:8,background:"transparent",color:"black"}}/>
+				<Focus dispatch={this.props.dispatch} style={{...style,height:0.1,width:0.1,background:"transparent",color:"transparent"}}/>
 			</div>
 		)
 	}
@@ -71,13 +72,11 @@ class Focus extends Component{
 		let {dispatch,...others}=this.props
 		return <input type="text" value="" {...others}
 					onChange={({target:{value}})=>{
-							console.log("onChange:"+value)
 							this.props.dispatch(ACTION.Text.INSERT(value))
 							this.setState({value:""})
 						}
 					}
 					onKeyDown={e=>{
-							console.log("onKeyDown")
 							switch(e.keyCode){
 							case 8://backspace
 								e.preventDefault()

@@ -17,9 +17,11 @@ export function edit(input,container){
 	return Input.load(input)
 		.then(doc=>ReactDOM.render((
 			<doc.Store>
-				<Editor>
-					<Pagination/>
-				</Editor>
+				<div className="editors">
+					<Editor>
+						<Pagination/>
+					</Editor>
+				</div>
 			</doc.Store>
 		), container))
 }

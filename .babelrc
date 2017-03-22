@@ -16,7 +16,8 @@
 				"pagination":"model/pagination",
 				"composed":"model/pagination/composed",
 				"tools":"tools",
-				"input":"input"
+				"input":"input",
+				"wordwrap":"model/pagination/wordwrap"
 			}
 		}]
     ]

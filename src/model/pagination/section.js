@@ -124,6 +124,7 @@ export default class Section extends Super{
 
 	//check http://officeopenxml.com/WPsectionFooterReference.php
 	getPageHeaderFooter(category, pageNo){
+		return null
 		category=this.computed[`${category}s`]
 		let type=pageNo==1&&this.props.titlePg!=undefined ? 'first' : (pageNo%2==0 ? 'even' : 'default')
 		let target=category[type]
