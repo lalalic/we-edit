@@ -1,4 +1,4 @@
-import React, {Component, PropTypes} from "react"
+import React, {Children, Component, PropTypes} from "react"
 
 import {HasChild} from "./composable"
 import Base from "../document"
@@ -14,11 +14,16 @@ export default class Document extends Super{
 				{super.render()}
 				</div>
 				<this.constructor.Composed ref="composed" 
-					width={this.props.children.reduce((w,{props:{pgSz:{width}}})=>Math.max(w,width),0)}
+					width={this.contentWidth}
 					sections={this.computed.children}/>
 			</div>
 		)
     }
+	
+	get contentWidth(){
+		return Children.toArray(this.props.children)
+			.reduce((w,{props:{pgSz:{width}}})=>Math.max(w,width),0)
+	}
 	
 	compose(){
 		

@@ -37,7 +37,7 @@ export default function recomposable(Content){
 
 		constructor(){
 			super(...arguments)
-			this.context.store.getState().get("mutable").nodes[this.props.id]=this
+			//this.context.store.getState().get("mutable").nodes[this.props.id]=this
 		}
 
 
