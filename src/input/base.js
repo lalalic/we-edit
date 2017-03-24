@@ -20,14 +20,28 @@ export default class{
 					render(domain){
 						return self._render(doc, domain, (type, props, children, raw)=>{
 							return React.createElement(type,{...props,key:self._identify(raw)},children)
-						})
+						}, React.cloneElement)
 					},
 					Store(props){
 						let content=new Map().withMutations(function(content){
 							self._render(doc, models, (type, props, children, raw)=>{
 								const id=type.displayName=="document" ? "root" : self._identify(raw)
-								content.set(id, new Map({type:type.displayName,props,children}))
-								return id
+								
+								content.set(id, new Map({
+									type:type.displayName,
+									props,
+									children: !Array.isArray(children) ? children : children.map(a=>a.id)
+								}))
+								
+								return {id,type,props,children}
+							}, ({id},props,children)=>{
+								let item=content.get(id)
+								content.set(id,item.withMutations(map=>{
+									if(props)
+										map.props={...map.props,...props}
+									if(children)
+										map.children=!Array.isArray(children) ? children : children.map(a=>a.id)
+								}))
 							})
 						})
 
@@ -59,7 +73,7 @@ export default class{
 	* render a doc, loaded by this._loadFile, with models in domain to a element tree, 
 	* whose element is created with createElement
 	*/
-	_render(doc, domain, createElement/*(TYPE, props, children, rawcontent)*/){
+	_render(doc, domain, createElement/*(TYPE, props, children, rawcontent)*/, cloneElement/*(element,props,children)*/){
 		return <div>{"Input._render should be implemented"}</div>
 	}
 	

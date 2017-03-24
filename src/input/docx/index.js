@@ -3,8 +3,7 @@ import docx4js from "docx4js"
 import Base from "../base"
 import uuid from "tools/uuid"
 
-import Selector from "./selector"
-import getStyles from "./style"
+import Styles from "./styles"
 
 export default class extends Base{
 	static support({type}){
@@ -75,9 +74,9 @@ export default class extends Base{
 		return docx4js.load(file)
 	}
 
-	_render(docx,domain,createElement){
-		const selector=new Selector(docx)
-
+	_render(docx,domain,createElement, cloneElement){
+		const styles=new Styles(docx)
+		
 		return docx.render((type,props,children)=>{
 			let node=props.node
 			children=children.reduce((merged,a)=>{
@@ -89,14 +88,15 @@ export default class extends Base{
 			},[])
 			switch(type){
 			case "document":
-				return createElement(domain.Document,
-					{...selector.document(props),styles:getStyles(selector)},
-					children, node
-				)
+				return createElement(domain.Document,{},children, node)
 			case "section":
-				return createElement(domain.Section,selector.section(props),children,node)
+				return createElement(domain.Section,{},children,node)
 			case "p":
-				return createElement(domain.Paragraph,selector.paragraph(props),children||[],node)
+				return createElement(domain.Paragraph,{},children||[],node)
+			case "r":{
+				let style=styles.rStyle(props.pr)
+				return children.map(a=>cloneElement(a,style))	
+			}
 			case "t":
 				if(children[0])
 					return createElement(domain.Text,{},children[0],node)
