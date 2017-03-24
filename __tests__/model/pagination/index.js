@@ -164,8 +164,8 @@ describe("composer", function(){
 					)
 
 					let text=node.find("text")
-					expect(text.prop("fontFamily")).toBe(Domain.Document.defaultProps.fonts)
-					expect(text.prop("fontSize")).toBe(Domain.Document.defaultProps.size+'pt')
+					expect(text.prop("fontFamily")).toBe(Domain.Text.defaultProps.fonts)
+					expect(text.prop("fontSize")).toBe(Domain.Text.defaultProps.size+'pt')
 				})
 
 				it("style inherited from paragraph", function(){
@@ -180,8 +180,9 @@ describe("composer", function(){
 					)
 
 					let text=node.find("text")
-					expect(text.prop("fontFamily")).toBe("SimSun")
-					expect(text.prop("fontSize")).toBe(Domain.Document.defaultProps.size+'pt')
+					expect(text.prop("fontFamily")).not.toBe("SimSun")
+					expect(text.prop("fontFamily")).toBe(Domain.Text.defaultProps.fonts)
+					expect(text.prop("fontSize")).toBe(Domain.Text.defaultProps.size+'pt')
 				})
 
 				it("direct style", function(){
@@ -197,7 +198,7 @@ describe("composer", function(){
 
 					let text=node.find("text")
 					expect(text.prop("fontFamily")).toBe("Symbol")
-					expect(text.prop("fontSize")).toBe(Domain.Document.defaultProps.size+'pt')
+					expect(text.prop("fontSize")).toBe(Domain.Text.defaultProps.size+'pt')
 				})
 			})
 			

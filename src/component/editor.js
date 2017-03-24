@@ -30,18 +30,37 @@ export class Editor extends Component{
 		pgGap:PropTypes.number,
 		style:PropTypes.object
 	}
+	
+	static contextTypes={
+		transformer: PropTypes.func
+	}
+	
+	constructor(){
+		super(...arguments)
+		this.transformed=new Map()
+	}
 
 	getChildContext(){
 		const {media, width, pgGap, style}=this.props
 		return {media, width, pgGap, style}
 	}
 	render(){
+		let transform=this.context.transformer||(a=>a)
 		return (
 			<div className={this.constructor.displayName}>
 			{
-				Children.map(this.props.children,({props:{domain}},i)=>
-					<Root key={i} domain={domain(this.constructor.displayName)}/>
-				)
+				Children.map(this.props.children,({props:{domain}},i)=>{
+					domain=domain(this.constructor.displayName)
+					if(!this.transformed.has(domain)){
+						this.transformed.set(domain, Object.keys(domain).reduce((transforming, key)=>{
+							transforming[key]=transform(transforming[key])
+							return transforming
+						},{...domain}))
+					}
+					domain=this.transformed.get(domain)
+					
+					return (<Root key={i} domain={domain}/>)
+				})
 			}
 			</div>
 		)

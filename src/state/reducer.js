@@ -20,6 +20,7 @@ export function text(state, {type,payload}){
 	}
 	case "text/remove":{
 		let {start:{id,at},end}=state.get("selection")
+		let n=payload
 		if(id==end.id){
 			let content=getContent(state,id)
 			let text=content.get("children")

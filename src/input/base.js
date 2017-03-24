@@ -32,30 +32,60 @@ export default class{
 						})
 
 						return (
-							<Provider store={createState(doc,content, self.onChange.bind(this))}>
+							<Provider store={createState(doc,content, self.onChange.bind(self))} 
+								transformer={self._transform}>
 								<div>
 									{props.children}
 								</div>
 							</Provider>
 						)
+					},
+					save(option, name=url){
+						return self.save(doc, option, name)
 					}
 				}
 			})
 	}
+	
+	save(doc, option, name){
+		return doc.save(name)
+	}
 
 	_loadFile(url){
-
+		return Promise.reject(new Error("need implementation to load and parse content at "+url))
 	}
-
+	
+	/**
+	* render a doc, loaded by this._loadFile, with models in domain to a element tree, 
+	* whose element is created with createElement
+	*/
 	_render(doc, domain, createElement/*(TYPE, props, children, rawcontent)*/){
-
+		return <div>{"Input._render should be implemented"}</div>
 	}
-
-	_identify(raw){
+	
+	//to identify raw content node with an id, so editor can specify what is changed
+	_identify(rawNode){
 		return uuid()+""
 	}
 
 	onChange(state, action){
+		if(action.type=="@@INIT")
+			return state
+		
+		const doc=state.get("doc")
+		const selection=state.get("selection")
+		
+		this._onChange(doc, action, selection,state.get("content").get(selection.start.id),state)
+
 		return state
+	}
+	
+	_onChange(doc,action,selection){
+		//change your content
+	}
+	
+	//a higher-order component of models
+	_transform(Component){
+		return Component
 	}
 }

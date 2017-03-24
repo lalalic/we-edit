@@ -124,13 +124,20 @@ export default class extends Base{
 		return id
 	}
 
-	onChange(state, {type,payload}){
+	_onChange(doc, {type,payload}, {start:{id,at}, end}){
 		switch(type){
-		case `selection/INSERT`:
-
-		case `selection/REMOVE`:
-
+			case `selection/INSERT`:{
+				let target=this.doc.officeDocument.content(`#${id}`)
+				let text=target.children
+				target.children=text.substring(0,at)+payload+text.substr(end.at)
+				break
+			}
+			case `selection/REMOVE`:{
+				let target=this.doc.officeDocument.content(`#${id}`)
+				let text=target.children, n=payload
+				target.children=text.substring(0,at-n)+text.substr(end.at)
+				break
+			}
 		}
-		return state
 	}
 }
