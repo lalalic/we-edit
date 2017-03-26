@@ -25,15 +25,15 @@ export default class Document extends editable(recomposable(Base)){
 	componentDidMount(){
 		if(super.componentDidMount)
 			super.componentDidMount()
-		
+
 		this.cursorReady()
 		this.refs.cursor.forceUpdate()
 	}
-	
+
 	refreshComposed(){
 		this.composed.forceUpdate()
 	}
-	
+
 	_reComposeFrom(section){
 		let index=this.computed.children.findIndex(a=>a==section)
 		this.computed.children.splice(index,1)
@@ -44,8 +44,11 @@ export default class Document extends editable(recomposable(Base)){
 	}
 
 	cursorReady(){
-		let firstText=this.root.querySelector("text[data-content]").getAttribute("data-content")
-		this.context.store.dispatch(ACTION.Selection.SELECT(firstText,0))
+		let firstText=this.root.querySelector("text[data-content]")
+		if(firstText){
+			firstText=firstText.getAttribute("data-content")
+			this.context.store.dispatch(ACTION.Selection.SELECT(firstText,0))
+		}
 		this.root.addEventListener("click", e=>{
 			const target=e.target
 			switch(target.nodeName){
@@ -59,11 +62,11 @@ export default class Document extends editable(recomposable(Base)){
 			}
 		})
 	}
-	
+
 	componentDidUpdate(){
 		this.refs.cursor.forceUpdate()
 	}
-	
+
 	static contextTypes={
 		store:PropTypes.any
 	}
@@ -83,23 +86,23 @@ const StateCursor=connect(state=>{
 		id: PropTypes.string,
 		at: PropTypes.number
 	}
-	
+
 	static contextTypes={
 		store: PropTypes.any
 	}
-	
+
 	info=null
-	
+
 	componentWillReceiveProps(next){
 		this.info=this.position(next)
 	}
-	
+
 	position({docId, id, at}){
 		let texts=document.querySelectorAll(`#${docId} svg text[data-content="${id}"][end]`)
 		if(texts.length==0)
 			return null
 
-		
+
 		const state=this.context.store.getState()
 
 		let {top,left,from}=getContentClientBoundBox(texts,at,id)
@@ -111,16 +114,13 @@ const StateCursor=connect(state=>{
 		left+=contentWidth
 		return {left, top, height}
 	}
-	
+
 	render(){
 		if(!this.info)
 			this.info=this.position(this.props)
-		
-		return <Cursor dispatch={this.props.dispatch} 
-			{...this.info||{height:0}} 
+
+		return <Cursor dispatch={this.props.dispatch}
+			{...this.info||{height:0}}
 			editorId={this.props.docId}/>
 	}
 })
-
-
-

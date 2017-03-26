@@ -26,13 +26,13 @@ export default class{
 						let content=new Map().withMutations(function(content){
 							self._render(doc, models, (type, props, children, raw)=>{
 								const id=type.displayName=="document" ? "root" : self._identify(raw)
-								
+
 								content.set(id, new Map({
 									type:type.displayName,
 									props,
 									children: !Array.isArray(children) ? children : children.map(a=>a.id)
 								}))
-								
+
 								return {id,type,props,children}
 							}, ({id},props,children)=>{
 								let item=content.get(id)
@@ -46,7 +46,7 @@ export default class{
 						})
 
 						return (
-							<Provider store={createState(doc,content, self.onChange.bind(self))} 
+							<Provider store={createState(doc,content, self.onChange.bind(self))}
 								transformer={self._transform}>
 								<div>
 									{props.children}
@@ -60,7 +60,7 @@ export default class{
 				}
 			})
 	}
-	
+
 	save(doc, option, name){
 		return doc.save(name)
 	}
@@ -68,15 +68,15 @@ export default class{
 	_loadFile(url){
 		return Promise.reject(new Error("need implementation to load and parse content at "+url))
 	}
-	
+
 	/**
-	* render a doc, loaded by this._loadFile, with models in domain to a element tree, 
+	* render a doc, loaded by this._loadFile, with models in domain to a element tree,
 	* whose element is created with createElement
 	*/
 	_render(doc, domain, createElement/*(TYPE, props, children, rawcontent)*/, cloneElement/*(element,props,children)*/){
 		return <div>{"Input._render should be implemented"}</div>
 	}
-	
+
 	//to identify raw content node with an id, so editor can specify what is changed
 	_identify(rawNode){
 		return uuid()+""
@@ -85,19 +85,21 @@ export default class{
 	onChange(state, action){
 		if(action.type=="@@INIT")
 			return state
-		
+
 		const doc=state.get("doc")
 		const selection=state.get("selection")
-		
-		this._onChange(doc, action, selection,state.get("content").get(selection.start.id),state)
+		const content=state.get("content")
+		if(selection && content)
+			this._onChange(doc, action, selection,
+					content.get(selection.start.id),state)
 
 		return state
 	}
-	
+
 	_onChange(doc,action,selection){
 		//change your content
 	}
-	
+
 	//a higher-order component of models
 	_transform(Component){
 		return Component
