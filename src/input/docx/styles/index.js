@@ -33,29 +33,17 @@ export class Styles{
 					styles[id]=new Table(node,styles,selector)
 				break
 				}
-				
+
 				if(node.attribs["w:default"]=="1")
 					styles[`*${type}`]=styles[id]
 			}
 		})
-		
-		
-		this.rStyle=pr=>{
-			let direct=pr ? new Character(pr) : styles['*Character']||styles['*']
-			return "fonts,size,color,bold,italic,vanish".split(",").reduce((style,key)=>{
-				style[key]=direct.get(`rPr.${key}`)
-				return style
-			},{})
-		}
-		
-		this.pStyle=pr=>{
-			let direct=pr ? new Paragraph(pr) : styles['*Paragraph']||styles['*']
-			return "spacing,indent".split(",").reduce((style,key)=>{
-				style[key]=direct.get(`pPr.${key}`)
-				return style
-			},{})
-		}
-		
+
+
+		this.rStyle=pr=>pr ? new Character({children:[pr]}) : styles['*Character']||styles['*']
+
+		this.pStyle=pr=>pr ? new Paragraph({children:[pr]}) : styles['*Paragraph']||styles['*']
+
 		this.update=node=>docx.officeDocument.renderNode(node,parse)
 	}
 }

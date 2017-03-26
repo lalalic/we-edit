@@ -5,6 +5,8 @@ export default class Style{
 			switch(a.name.split(":").pop()){
 			case "name":
 				return this.name=a.attribs["w:value"]
+			case "rStyle":
+			case "pStyle":
 			case "basedOn":
 				return this.basedOn=a.attribs["w:value"]
 			}
@@ -14,8 +16,8 @@ export default class Style{
 		else
 			this.cache=new Map()
 	}
-	
-	_convert(target,map, selector){
+
+	_convert(node, target, map, selector){
 		let pr=node.children.find(a=>a.name==target)
 		if(pr){
 			return pr.children.reduce((style,a)=>{
@@ -30,21 +32,27 @@ export default class Style{
 	get(path){
 		if(this.cache && this.cache.has(path))
 			return this.cache.get(path)
-		
+
 		let value=_.get(this.style,path)
-		
+
 		if(value==undefined)
-			value=this.getFromBasedOn(...arguments)
-		
+			value=this._getFromBasedOn(...arguments)
+
 		this.cache && this.cache.set(path,value)
-		
+
 		return value
 	}
 
-	getFromBasedOn(path){
+	_getFromBasedOn(path){
 		let t
 		if(this.basedOn && (t=this.styles[this.basedOn]))
 			return t.get(...arguments)
 		return undefined
+	}
+
+	get parent(){
+		let t
+		if(this.basedOn && (t=this.styles[this.basedOn]))
+			return t
 	}
 }
