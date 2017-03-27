@@ -1,3 +1,10 @@
+export function getSelection(state){
+	return state.get("selection")
+}
+export function getFile(state){
+	return state.get("doc")
+}
+
 export function getContent(state,id){
 	return state.get("content").get(id)
 }

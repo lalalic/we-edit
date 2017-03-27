@@ -45,18 +45,14 @@ export class Editor extends Component{
 		return {media, width, pgGap, style}
 	}
 	render(){
-		let transform=this.context.transformer||(a=>a)
+		let transform=this.context.transformer
 		return (
 			<div className={this.constructor.displayName}>
 			{
 				Children.map(this.props.children,({props:{domain}},i)=>{
 					domain=domain(this.constructor.displayName)
-					if(!this.transformed.has(domain)){
-						this.transformed.set(domain, Object.keys(domain).reduce((transforming, key)=>{
-							transforming[key]=transform(transforming[key])
-							return transforming
-						},{...domain}))
-					}
+					if(!this.transformed.has(domain))
+						this.transformed.set(domain, transform(domain))
 					domain=this.transformed.get(domain)
 					
 					return (<Root key={i} domain={domain}/>)
@@ -71,7 +67,7 @@ const Root=connect((state,{domain})=>{
 	return {doc:createChildElement("root",state,domain)}
 },null,stateProps=>stateProps)(({doc})=>doc)
 
-function createChildElement(id,state,domain,pid){
+function createChildElement(id,state,domain){
 	let content=getContent(state,id)
 	let {type, props, children}=content.toJS()
 	let Child=domain[type[0].toUpperCase()+type.substr(1)]

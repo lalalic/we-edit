@@ -58,7 +58,7 @@ export default class Paragraph extends Super{
     }
 
     lineWidth(){
-        const {indent:{left=0,right=0,firstLine=0,hanging=0}}=this.style
+        const {indent:{left=0,right=0,firstLine=0,hanging=0}}=this.props
         let {width}=this.availableSpace
         width-=(left+right)
         if(this.computed.composed.length==0)
@@ -128,7 +128,7 @@ export default class Paragraph extends Super{
 
     createComposed2Parent(props){
         let {height, width, ...others}=props
-        let {spacing:{lineHeight="100%",top=0, bottom=0}, indent:{left=0,right=0,firstLine=0,hanging=0}}=this.style
+        let {spacing:{lineHeight="100%",top=0, bottom=0}, indent:{left=0,right=0,firstLine=0,hanging=0}}=this.props
         let contentY=0, contentX=left
 
        lineHeight=typeof(lineHeight)=='string' ? Math.ceil(height*parseInt(lineHeight)/100.0): lineHeight

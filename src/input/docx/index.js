@@ -5,6 +5,8 @@ import uuid from "tools/uuid"
 
 import Styles from "./styles"
 
+import {getFile, getSelection} from "state/selector"
+
 export default class extends Base{
 	static support({type}){
 		return type=="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
@@ -81,27 +83,26 @@ export default class extends Base{
 			let node=props.node
 			children=children.reduce((merged,a)=>{
 				if(Array.isArray(a))
-					merged.splice(merged.length-1, ...a)
+					merged.splice(merged.length,0, ...a)
 				else
 					merged.push(a)
 				return merged
 			},[])
 			switch(type){
 			case "document":
-				return createElement(domain.Document,{},children, node)
+				return createElement(domain.Document,{styles},children, node)
 			case "section":
 				return createElement(domain.Section,{},children,node)
-			case "p":
-				return createElement(domain.Paragraph,{},children||[],node)
+			case "p":{
+				let style=styles.pStyle(props.pr)
+				return createElement(domain.Paragraph,style,children||[],node)
+			}
 			case "r":{
 				let style=styles.rStyle(props.pr)
 				return children.map(a=>cloneElement(a,style))	
 			}
 			case "t":
-				if(children[0])
-					return createElement(domain.Text,{},children[0],node)
-				else
-					return null
+				return children[0] ? createElement(domain.Text,{},children[0],node) : null
 			case "bookmarkStart":
 			case "bookmarkEnd":
 				return null
@@ -114,6 +115,9 @@ export default class extends Base{
 	}
 
 	_identify(raw){
+		if(raw.atrribs.id!=undefined)
+			return raw.atrribs.id
+		
 		let id=uuid()+""
 		Object.defineProperty(raw.attribs,"id",{
 			enumerable: false,
@@ -124,20 +128,42 @@ export default class extends Base{
 		return id
 	}
 
-	_onChange(doc, {type,payload}, {start:{id,at}, end}){
+	_onChange(state,action,createElement, cloneElement){
+		const {type,payload}=action
+		const doc=getFile(state)
+		const {start:{id,at}, end}=getSelection(state)
+		
 		switch(type){
 			case `selection/INSERT`:{
-				let target=this.doc.officeDocument.content(`#${id}`)
+				let target=doc.officeDocument.content(`#${id}`)
 				let text=target.children
 				target.children=text.substring(0,at)+payload+text.substr(end.at)
+				
 				break
 			}
 			case `selection/REMOVE`:{
-				let target=this.doc.officeDocument.content(`#${id}`)
+				let target=doc.officeDocument.content(`#${id}`)
 				let text=target.children, n=payload
 				target.children=text.substring(0,at-n)+text.substr(end.at)
 				break
 			}
+			case `style/UPDATE`:{
+				
+			}
+		}
+	}
+	
+	_transform(Models){
+		return Models
+	}
+}
+
+function resolveStyle(Wrapped){
+	return class extends Component{
+		
+		render(){
+			let {namedStyle}=this.props
+			return <Wrapped/>
 		}
 	}
 }

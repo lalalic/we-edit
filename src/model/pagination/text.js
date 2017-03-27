@@ -31,7 +31,7 @@ export default class Text extends Super{
 
     compose(){
 		const parent=this.context.parent
-        const {fonts,size,color,bold,italic,vanish}=this.style
+        const {fonts,size,color,bold,italic,vanish}=this.props
 		const composer=new this.constructor.WordWrapper({fonts,size,color,bold,italic,vanish})
 		const defaultStyle=composer.defaultStyle
 

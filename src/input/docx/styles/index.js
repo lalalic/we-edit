@@ -12,10 +12,9 @@ export class Styles{
 		let styles={}
 		let $=docx.officeDocument.styles
 		let parse
-		docx.officeDocument.renderNode($("w\\:styles").get(0),parse=(type,{id,node})=>{
-			if(type=="style")
-				return
-			if(!!id)
+		$("w\\:styles").children("w\\:style,w\\:docDefaults").toArray().forEach(parse=node=>{
+			let id=node.attribs["w:styleId"]
+			if(!id)
 				styles['*']=new Default(node, selector)
 			else{
 				let type=node.attribs["w:type"]
@@ -27,10 +26,10 @@ export class Styles{
 					styles[id]=new Character(node,styles,selector)
 				break
 				case "numbering":
-					styles[id]=new Numbering(node,styles,selector)
+					//styles[id]=new Numbering(node,styles,selector)
 				break
 				case "table":
-					styles[id]=new Table(node,styles,selector)
+					//styles[id]=new Table(node,styles,selector)
 				break
 				}
 
@@ -40,11 +39,31 @@ export class Styles{
 		})
 
 
-		this.rStyle=pr=>pr ? new Character({children:[pr]}) : styles['*Character']||styles['*']
+		this.rStyle=pr=>{
+			let style=pr ? new Character({attribs:{},children:[pr]},styles,selector) : styles['*character']||styles['*']
+			return "bold,italic,vanish".split(",")
+				.reduce((o,key)=>{
+						o[key]=!!style.get(`rPr.${key}`)
+						return o
+					},
+					"fonts,size,color".split(",")
+					.reduce((o,key)=>{
+						o[key]=style.get(`rPr.${key}`)
+						return o
+					},{namedStyle:style.id||style.basedOn})
+				)
+		}
 
-		this.pStyle=pr=>pr ? new Paragraph({children:[pr]}) : styles['*Paragraph']||styles['*']
+		this.pStyle=pr=>{
+			let style=pr ? new Paragraph({attribs:{},children:[pr]},styles,selector) : styles['*paragraph']||styles['*']
+			return "spacing,indent".split(",")
+				.reduce((o,key)=>{
+					o[key]=style.get(`pPr.${key}`)
+					return o
+				},{namedStyle:style.id||style.basedOn})
+		}
 
-		this.update=node=>docx.officeDocument.renderNode(node,parse)
+		this.update=parse
 	}
 }
 

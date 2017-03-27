@@ -4,6 +4,7 @@ import Immutable, {Map} from "immutable"
 
 import models from "model"
 import {createState} from "state"
+import {getContent} from "state/selector"
 
 import {uuid} from "tools/uuid"
 
@@ -36,21 +37,49 @@ export default class{
 								return {id,type,props,children}
 							}, ({id},props,children)=>{
 								let item=content.get(id)
-								content.set(id,item.withMutations(map=>{
+								content.set(id,item=item.withMutations(map=>{
 									if(props)
-										map.props={...map.props,...props}
+										map.set("props",{...map.get("props"),...props})
 									if(children)
-										map.children=!Array.isArray(children) ? children : children.map(a=>a.id)
+										map.set("children", !Array.isArray(children) ? children : children.map(a=>a.id))
 								}))
+								return {id,...item.toJS()}
 							})
 						})
+						
+						let reducer=(state,action)=>{
+							let content=getContent(state)
+							content=content.withMutations(function(content){
+								self.onChange(state,action,(type, props, children, raw)=>{
+									const id=type.displayName=="document" ? "root" : self._identify(raw)
+
+									content.set(id, new Map({
+										type:type.displayName,
+										props,
+										children: !Array.isArray(children) ? children : children.map(a=>a.id)
+									}))
+
+									return {id,type,props,children}
+								}, ({id},props,children)=>{
+									let item=content.get(id)
+									content.set(id,item=item.withMutations(map=>{
+										if(props)
+											map.set("props",{...map.get("props"),...props})
+										if(children)
+											map.set("children", !Array.isArray(children) ? children : children.map(a=>a.id))
+									}))
+									return {id,...item.toJS()}
+								})
+							})
+							
+							state=state.set("content",content)
+						}
 
 						return (
-							<Provider store={createState(doc,content, self.onChange.bind(self))}
-								transformer={self._transform}>
-								<div>
+							<Provider store={createState(doc,content, reducer)}>
+								<TransformerProvider transformer={self._transform}>
 									{props.children}
-								</div>
+								</TransformerProvider>
 							</Provider>
 						)
 					},
@@ -73,7 +102,9 @@ export default class{
 	* render a doc, loaded by this._loadFile, with models in domain to a element tree,
 	* whose element is created with createElement
 	*/
-	_render(doc, domain, createElement/*(TYPE, props, children, rawcontent)*/, cloneElement/*(element,props,children)*/){
+	_render(doc, domain, 
+		createElement/*(TYPE, props, children, rawcontent)*/, 
+		cloneElement/*(element,props,children)*/){
 		return <div>{"Input._render should be implemented"}</div>
 	}
 
@@ -82,17 +113,18 @@ export default class{
 		return uuid()+""
 	}
 
-	onChange(state, action){
+	onChange(state, action, createElement,cloneElement){
 		if(action.type=="@@INIT")
 			return state
 
-		const doc=state.get("doc")
-		const selection=state.get("selection")
-		const content=state.get("content")
-		if(selection && content)
-			this._onChange(doc, action, selection,
-					content.get(selection.start.id),state)
-
+		let changed=this._onChange(state,action, createElement,cloneElement)
+					
+		if(changed){
+			content=content.withMutations(map=>{
+				Object.keys(changed).forEach(id=>map.set(id,changed[id]))
+			})
+			state=state.set("content",content)
+		}
 		return state
 	}
 
@@ -101,7 +133,27 @@ export default class{
 	}
 
 	//a higher-order component of models
-	_transform(Component){
-		return Component
+	_transform(Models){
+		return Models
+	}
+}
+
+class TransformerProvider extends Component{
+	static propTypes={
+		transformer: PropTypes.func.isRequired
+	}
+	
+	static childContextTypes={
+		transformer: PropTypes.func
+	}
+	
+	getChildContext(){
+		return {
+			transformer:this.props.transformer
+		}
+	}
+	
+	render(){
+		return <div>{this.props.children}</div>
 	}
 }

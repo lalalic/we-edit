@@ -3,7 +3,10 @@ export default class WordWrapper{
     constructor(style){
 		const {fonts, size, color}=style
 		this.style=style
-        this.fontFamily=fonts
+        this.fontFamily=Object.keys(fonts).reduce((values,k)=>{
+			values.push(fonts[k])
+			return values
+		},[]).join(",")
 		this.size=size
 		const {height, descent}=this.lineHeight()
         this.height=Math.ceil(height)

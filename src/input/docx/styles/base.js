@@ -1,5 +1,8 @@
+import get from "lodash.get"
+
 export default class Style{
 	constructor(node, styles, selector){
+		this.id=node.attribs["w:styleId"]
 		this.styles=styles
 		node.children.forEach(a=>{
 			switch(a.name.split(":").pop()){
@@ -23,9 +26,9 @@ export default class Style{
 			return pr.children.reduce((style,a)=>{
 				let key=map[a.name]
 				if(key)
-					style[key]=selector.props(a)
+					style[key]=selector.props.selectValue(a)
 				return style
-			},style)
+			},{})
 		}
 	}
 
@@ -33,7 +36,7 @@ export default class Style{
 		if(this.cache && this.cache.has(path))
 			return this.cache.get(path)
 
-		let value=_.get(this.style,path)
+		let value=get(this,path)
 
 		if(value==undefined)
 			value=this._getFromBasedOn(...arguments)

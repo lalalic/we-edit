@@ -4,7 +4,7 @@ import Component from "./component"
 export default class Text extends Component{
 	static displayName="text"
 	static propTypes={
-		fonts: PropTypes.string.isRequired,
+		fonts: PropTypes.object.isRequired,
 		size: PropTypes.number.isRequired,
 		color: PropTypes.string,
 		bold: PropTypes.bool,
@@ -13,7 +13,9 @@ export default class Text extends Component{
 	}
 	
 	static defaultProps={
-		fonts:"Arial",
+		fonts:{
+			ascii:"Arial"
+		},
 		size:11
 	}
 }
