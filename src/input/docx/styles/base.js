@@ -1,7 +1,9 @@
 import get from "lodash.get"
+import {Record} from "immutable"
 
-export default class Style{
+export default class Style extends Record({}){
 	constructor(node, styles, selector){
+		super()
 		this.id=node.attribs["w:styleId"]
 		this.styles=styles
 		node.children.forEach(a=>{

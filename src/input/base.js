@@ -21,7 +21,7 @@ export default class{
 					render(domain){
 						return self._render(doc, domain, (type, props, children, raw)=>{
 							return React.createElement(type,{...props,key:self._identify(raw)},children)
-						}, React.cloneElement)
+						}, React.cloneElement,true)
 					},
 					Store(props){
 						let content=new Map().withMutations(function(content){
@@ -44,11 +44,13 @@ export default class{
 										map.set("children", !Array.isArray(children) ? children : children.map(a=>a.id))
 								}))
 								return {id,...item.toJS()}
-							})
+							},false)
 						})
-						
+
 						let reducer=(state,action)=>{
 							let content=getContent(state)
+							if(!content)
+								return state
 							content=content.withMutations(function(content){
 								self.onChange(state,action,(type, props, children, raw)=>{
 									const id=type.displayName=="document" ? "root" : self._identify(raw)
@@ -71,12 +73,12 @@ export default class{
 									return {id,...item.toJS()}
 								})
 							})
-							
+
 							state=state.set("content",content)
 						}
 
 						return (
-							<Provider store={createState(doc,content, reducer)}>
+							<Provider store={createState(doc,content,reducer)}>
 								<TransformerProvider transformer={self._transform}>
 									{props.children}
 								</TransformerProvider>
@@ -102,9 +104,10 @@ export default class{
 	* render a doc, loaded by this._loadFile, with models in domain to a element tree,
 	* whose element is created with createElement
 	*/
-	_render(doc, domain, 
-		createElement/*(TYPE, props, children, rawcontent)*/, 
-		cloneElement/*(element,props,children)*/){
+	_render(doc, domain,
+		createElement/*(TYPE, props, children, rawcontent)*/,
+		cloneElement/*(element,props,children)*/,
+		finalStyle/*bool, true will resolve namedStyle and direct style when create element*/){
 		return <div>{"Input._render should be implemented"}</div>
 	}
 
@@ -117,14 +120,8 @@ export default class{
 		if(action.type=="@@INIT")
 			return state
 
-		let changed=this._onChange(state,action, createElement,cloneElement)
-					
-		if(changed){
-			content=content.withMutations(map=>{
-				Object.keys(changed).forEach(id=>map.set(id,changed[id]))
-			})
-			state=state.set("content",content)
-		}
+		this._onChange(state,action, createElement,cloneElement)
+
 		return state
 	}
 
@@ -142,17 +139,17 @@ class TransformerProvider extends Component{
 	static propTypes={
 		transformer: PropTypes.func.isRequired
 	}
-	
+
 	static childContextTypes={
 		transformer: PropTypes.func
 	}
-	
+
 	getChildContext(){
 		return {
 			transformer:this.props.transformer
 		}
 	}
-	
+
 	render(){
 		return <div>{this.props.children}</div>
 	}

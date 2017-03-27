@@ -76,10 +76,13 @@ export default class extends Base{
 		return docx4js.load(file)
 	}
 
-	_render(docx,domain,createElement, cloneElement){
+	_render(docx,domain,createElement, cloneElement,finalStyle){
 		const styles=new Styles(docx)
-		
-		return docx.render((type,props,children)=>{
+		return docx.render(this.createElement(styles,domain,createElement,cloneElement,finalStyle))
+	}
+
+	createElement(styles,domain,createElement,cloneElement,finalStyle){
+		return (type,props,children)=>{
 			let node=props.node
 			children=children.reduce((merged,a)=>{
 				if(Array.isArray(a))
@@ -94,12 +97,12 @@ export default class extends Base{
 			case "section":
 				return createElement(domain.Section,{},children,node)
 			case "p":{
-				let style=styles.pStyle(props.pr)
-				return createElement(domain.Paragraph,style,children||[],node)
+				let style=styles.pStyle(props.pr,finalStyle)
+				return createElement(domain.Paragraph,{style},children||[],node)
 			}
 			case "r":{
-				let style=styles.rStyle(props.pr)
-				return children.map(a=>cloneElement(a,style))	
+				let style=styles.rStyle(props.pr,finalStyle)
+				return children.map(a=>cloneElement(a,style))
 			}
 			case "t":
 				return children[0] ? createElement(domain.Text,{},children[0],node) : null
@@ -111,13 +114,13 @@ export default class extends Base{
 					return children[0]
 				return children
 			}
-		})
+		}
 	}
 
 	_identify(raw){
-		if(raw.atrribs.id!=undefined)
+		if(raw.attribs.id!=undefined)
 			return raw.atrribs.id
-		
+
 		let id=uuid()+""
 		Object.defineProperty(raw.attribs,"id",{
 			enumerable: false,
@@ -132,13 +135,12 @@ export default class extends Base{
 		const {type,payload}=action
 		const doc=getFile(state)
 		const {start:{id,at}, end}=getSelection(state)
-		
+
 		switch(type){
 			case `selection/INSERT`:{
 				let target=doc.officeDocument.content(`#${id}`)
 				let text=target.children
 				target.children=text.substring(0,at)+payload+text.substr(end.at)
-				
 				break
 			}
 			case `selection/REMOVE`:{
@@ -148,22 +150,51 @@ export default class extends Base{
 				break
 			}
 			case `style/UPDATE`:{
-				
+
 			}
 		}
 	}
-	
+
 	_transform(Models){
 		return Models
 	}
 }
 
 function resolveStyle(Wrapped){
-	return class extends Component{
-		
-		render(){
-			let {namedStyle}=this.props
-			return <Wrapped/>
+	return class extends Wrapped{
+		static contextTypes={
+			...Wrapped.contextTypes,
+			styles: PropTypes.object
+		}
+
+		resolveStyle(props,{styles}){
+			const {children,namedStyle,...others}=props
+			if(namedStyle){
+				let style=styles[namedStyle]
+				if(style){
+					return this.resolveMyStyle(others,style,styles)
+				}
+			}
+			return others
+		}
+
+		constructor(){
+			super(...arguments)
+			this.style=this.resolveStyle(this.props,this.context)
+		}
+
+		componentWillReceiveProps(props,context){
+			if(super.componentWillReceiveProps)
+				super.componentWillReceiveProps(...arguments)
+			this.style=this.resolveStyle(props,context)
+		}
+	}
+}
+
+function resolveTextStyle(Text){
+	return class extends resolveStyle(Text){
+		resolveMyStyle(direct,style,styles){
+			return direct
 		}
 	}
 }
