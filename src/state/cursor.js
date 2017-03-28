@@ -21,11 +21,14 @@ export class Cursor extends Component{
 
 	timer=null
 	render(){
-		const {left, top, height, color, size}=this.props
-		const style={margin:0,padding:0,border:0}
+		const {left, top, height, color, size,children}=this.props
+		const style={margin:0,padding:0,border:0,position:"absolute"}
+		let flasher=children ? React.Children.only(children) : <Flasher/>
+
 		return (
 			<div unselectable="on" ref="cursor"
-				style={{...style,background:color,left,top,position:"absolute",height:20,width:size}}>
+				style={{...style,position:"absolute",height:1,width:1}}>
+				{React.cloneElement(flasher,{left,top,height,color,size,unselectable:"on",style})}
 				<Focus dispatch={this.props.dispatch} style={{...style,height:0.1,width:0.1,background:"transparent",color:"transparent"}}/>
 			</div>
 		)
@@ -63,6 +66,15 @@ export class Cursor extends Component{
 			clearInterval(this.timer)
 			delete this.timer
 		}
+	}
+}
+
+class Flasher extends Component{
+	timer=null
+	render(){
+		const {left, top, height, color, size, style, ...others}=this.props
+		return <div {...others}
+			style={{...style,background:color,left,top,height,width:size}}/>
 	}
 }
 
