@@ -45,7 +45,7 @@ export class Editor extends Component{
 		return {media, width, pgGap, style}
 	}
 	render(){
-		let transform=this.context.transformer
+		let transform=this.context.transformer||(a=>a)
 		return (
 			<div className={this.constructor.displayName}>
 			{

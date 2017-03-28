@@ -78,11 +78,8 @@ export default class extends Base{
 
 	_render(docx,domain,createElement, cloneElement){
 		const styles=new Styles(docx)
-		return docx.render(this.createElement(styles,domain,createElement,cloneElement))
-	}
-
-	createElement(styles,domain,createElement,cloneElement){
-		return (type,props,children)=>{
+		
+		return docx.render((type,props,children)=>{
 			let node=props.node
 			children=children.reduce((merged,a)=>{
 				if(Array.isArray(a))
@@ -93,15 +90,51 @@ export default class extends Base{
 			},[])
 			switch(type){
 			case "document":
-				return createElement(domain.Document,{styles},children, node)
+				return createElement(
+					domain.Document,
+					{styles, ...styles.select(node.children.filter(a=>a.name!="w:body"))},
+					children, 
+					node
+				)
 			case "section":
-				return createElement(domain.Section,{},children,node)
+				return createElement(domain.Section,styles.select(node.children),children,node)
+			case "tbl":{
+				let cols=styles.select([node.children.find(a=>a.name=="w:tblGrid")]).tblGrid
+				let width=cols.reduce((w,a)=>w+a,0)
+				let [direct,style]=styles.tbl(props.pr)
+				
+				children=children.map(row=>{
+					let children=row.children.map(cell=>{
+						let cellStyle=style.merge(cell.props)
+						
+						return cloneElement(cell,{...cellStyle,cnfStyle:undefined})
+					})
+					return cloneElement(row,{children})
+				})
+
+				return createElement(domain.Table,{cols,width,...direct},children,node)
+			}
+			case "tr":{//direct style only
+				if(props.pr){
+					let style=styles.tr(props.pr)
+					const {cnfStyle,...others}=style
+					
+					if(style.cnfStyle)
+						children=children.map(a=>cloneElement(a,{cnfStyle: style.cnfStyle | a.props.cnfStyle}))
+					return createElement(domain.Row,others,children,node)
+				}
+				return createElement(domain.Row,{},children,node)
+			}
+			case "tc":{//direct style only
+				let style=styles.tc(props.pr)||{}
+				return createElement(domain.Cell,style,children,node)
+			}
 			case "p":{
-				let style=styles.pStyle(props.pr)
+				let style=styles.p(props.pr)
 				return createElement(domain.Paragraph,style,children||[],node)
 			}
 			case "r":{
-				let style=styles.rStyle(props.pr)
+				let style=styles.r(props.pr)
 				return children.map(a=>cloneElement(a,style))
 			}
 			case "t":
@@ -114,7 +147,7 @@ export default class extends Base{
 					return children[0]
 				return children
 			}
-		}
+		})
 	}
 
 	_identify(raw){
@@ -156,6 +189,60 @@ export default class extends Base{
 	}
 
 	_transform(Models){
-		return Models
+		class Cell extends Component{
+			static displayName="docx-cell"
+			static childContextTypes={
+				p: PropTypes.object,
+				r: PropTypes.object
+			}
+			
+			getChildContext(){
+				const {p,r}=this.props
+			}
+			
+			render(){
+				const {p,r,...others}=this.props
+				return <Models.Cell {...others}/>
+			}
+		}
+		class Paragraph extends Component{
+			static displayName="docx-paragraph"
+			static contextTypes={
+				p: PropTypes.object
+			}
+			
+			constructor(){
+				super(...arguments)
+				this.componentWillReceiveProps(this.props,this.context)
+			}
+			
+			componentWillReceiveProps(next,context){
+				this.style={...context.p,...next}
+			}
+			
+			render(){
+				return <Models.Paragraph {...this.style}/>
+			}
+		}
+		
+		class Text extends Component{
+			static displayName="docx-text"
+			static contextTypes={
+				r: PropTypes.object
+			}
+			constructor(){
+				super(...arguments)
+				this.componentWillReceiveProps(this.props,this.context)
+			}
+			
+			componentWillReceiveProps(next,context){
+				this.style={...context.r,...next}
+			}
+			
+			render(){
+				return <Models.Text {...this.style}/>
+			}
+		}
+		return {...Models, Cell, Paragraph, Text}
 	}
 }

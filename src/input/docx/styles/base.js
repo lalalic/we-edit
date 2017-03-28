@@ -7,11 +7,12 @@ export default class Style{
 		node.children.forEach(a=>{
 			switch(a.name.split(":").pop()){
 			case "name":
-				return this.name=a.attribs["w:value"]
+				return this.name=a.attribs["w:val"]
 			case "rStyle":
 			case "pStyle":
+			case "tblStyle":
 			case "basedOn":
-				return this.basedOn=a.attribs["w:value"]
+				return this.basedOn=a.attribs["w:val"]
 			}
 		})
 		if(!this.basedOn)
@@ -26,7 +27,7 @@ export default class Style{
 			return pr.children.reduce((style,a)=>{
 				let key=map[a.name]
 				if(key)
-					style[key]=selector.props.selectValue(a)
+					style[key]=selector.selectValue(a)
 				return style
 			},{})
 		}

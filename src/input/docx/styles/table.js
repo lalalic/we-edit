@@ -1,5 +1,5 @@
-import Style from "./base"
-
+import Style from "./paragraph"
+import get from "lodash.get"
 
 /**
  * conditional formatting: http://officeopenxml.com/WPstyleTableStylesCond.php
@@ -11,12 +11,19 @@ import Style from "./base"
 	>First column/firstCol, last column/lastCol
 	>Top left/nwCell, top right/neCell, bottom left/swCell, bottom right/seCell
  */
-let PRIORIZED='seCell,swCell,neCell,nwCell,lastCol,firstCol,lastRow,firstRow,band2Horz,band1Horz,band2Vert,band1Vert'.split(',')
-
+const PRIORIZED='seCell,swCell,neCell,nwCell,lastCol,firstCol,lastRow,firstRow,band2Horz,band1Horz,band2Vert,band1Vert'.split(',')
+const CNF='firstRow,lastRow,firstCol,lastCol,band1Vert,band2Vert,band1Horz,band2Horz,nwCell,neCell,swCell,seCell'.split(",")
 class WithBorder extends Style{
-
+	constructor(node,styles,selector){
+		super(...arguments)
+		this.tbl=this._convert(node,"w:tcPr",{
+			"w:tcMargin":"margin",
+			"w:tcBorders":"border"
+		},selector)		
+	}
+	
 	_1border(type){
-		let value=this.raw.get(type,false)
+		let value=this.get(type)
 		if(value!=undefined){
 			if(value.val=='nil')
 				return {sz:0}
@@ -107,13 +114,19 @@ types.row=RowStyle
 types.cell=CellStyle
 
 export default class TableStyle extends WithBorder{
-	constructor(style,styles,basedOn){
+	constructor(node,styles,selector){
 		super(...arguments)
+		
+		this.tbl=this._convert(node,"w:tblPr",{
+			"w:tblInd":"indent",
+			"w:tblCellMar":"margin",
+			"w:tblBorders":"border"
+		},selector)
 
-		;(this.raw.get('tblStylePr')||[]).forEach(a=>{
-			a=getable(a)
-			let type=a.get('$.type')
-			this[type]=new types[type](a)
+		node.children.filter(a=>a.name=="w:tblStylePr")
+		.forEach(a=>{
+			let type=a.attribs["w:type"]
+			this[type]=new types[type](a,styles,selector)
 		})
 	}
 
@@ -127,7 +140,7 @@ export default class TableStyle extends WithBorder{
 	}
 
 	get(path, conditions=[]){
-		let value=this.priorize(conditions).reduce((found, condition)=>{
+		let value=conditions.reduce((found, condition)=>{
 			if(found!=undefined)
 				return found
 			let conditionStyle=this[condition]
@@ -142,11 +155,6 @@ export default class TableStyle extends WithBorder{
 		return value
 	}
 
-	priorize(conditions){
-		conditions.sort((a,b)=>PRIORIZED.indexOf(a)-PRIORIZED.indexOf(b))
-		return conditions
-	}
-
 	/**
 	 * 1. conditional formatting
 	 * 2. table.tcPr
@@ -154,7 +162,7 @@ export default class TableStyle extends WithBorder{
 	 * 4. table.tblPr
 	 */
 	_right(conditions, edges){
-		let value=this.priorize(conditions).reduce((found, cond)=>{//1. conditional
+		let value=conditions.reduce((found, cond)=>{//1. conditional
 			if(found!=undefined)
 				return found
 			let condStyle=this[cond]
@@ -191,7 +199,7 @@ export default class TableStyle extends WithBorder{
 	}
 
 	_left(conditions,edges){
-		let value=this.priorize(conditions).reduce((found, cond)=>{//1. conditional
+		let value=conditions.reduce((found, cond)=>{//1. conditional
 			if(found!=undefined)
 				return found
 			let condStyle=this[cond]
@@ -228,7 +236,7 @@ export default class TableStyle extends WithBorder{
 	}
 
 	_top(conditions,edges){
-		let value=this.priorize(conditions).reduce((found, cond)=>{
+		let value=conditions.reduce((found, cond)=>{
 			if(found!=undefined)
 				return found
 			let condStyle=this[cond]
@@ -264,7 +272,7 @@ export default class TableStyle extends WithBorder{
 	}
 
 	_bottom(conditions, edges){
-		let value=this.priorize(conditions).reduce((found, cond)=>{
+		let value=conditions.reduce((found, cond)=>{
 			if(found!=undefined)
 				return found
 			let condStyle=this[cond]
@@ -298,5 +306,50 @@ export default class TableStyle extends WithBorder{
 		}
 
 		return value
+	}
+	
+	merge(style){
+		let {cnfStyle}=style
+		cnfStyle=Array.from((cnfStyle>>>0).toString(2))
+			.map((a,i)=>a=="1"&&CNF[i]).filter(a=>a)
+			.sort((a,b)=>PRIORIZED.indexOf(a)-PRIORIZED.indexOf(b))
+		
+		let margin="left,right,top,bottom".split(",").reduce((margin,a)=>{
+			let v=get(style,`margin.${a}`)
+			if(v==undefined)
+				v=this.get(`tbl.margin.${a}`,cnfStyle)
+			if(v!==undefined)
+				margin[a]=v
+			return margin
+		},{})
+		
+		let border="left,right,top,bottom".split(",").reduce((border,a)=>{
+			let v=get(style,`margin.${a}`)
+			if(v==undefined)
+				v=this.get(`tbl.margin.${a}`,cnfStyle)
+			if(v!==undefined)
+				border[a]=this[`_${a}`](cnfStyle)
+			return border
+		},{})
+		
+		let p="spacing,indent".split(",").reduce((p,k)=>{
+			let v=this.get(`p.${k}`,cnfStyle)
+			if(v!==undefined)
+				p[k]=v
+			return p
+		},{})
+		
+		let r="fonts,size,bold,italic,color,vanish".split(",").reduce((r,k)=>{
+			let v=this.get(`p.${k}`,cnfStyle)
+			if(v!==undefined)
+				r[k]=v
+			return r
+		},{})
+		
+		const clean=a=>Object.keys(a).length==0 ? undefined : a
+		
+		[margin,border,p,r]=[clean(margin),clean(border),clean(p),clean(r)]
+		
+		return {margin,border,p,r}
 	}
 }

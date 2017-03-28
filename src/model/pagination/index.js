@@ -7,6 +7,9 @@ import Text from "./text"
 import Header from "./header"
 import Footer from "./footer"
 import Image from "./image"
+import Table from "./table"
+import Row from "./row"
+import Cell from "./cell"
 
 export default {
 	...Models,
@@ -16,5 +19,8 @@ export default {
 	Text, 
 	Header, 
 	Footer, 
-	Image
+	Image,
+	Table,
+	Row,
+	Cell
 }

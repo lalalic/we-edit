@@ -3,7 +3,7 @@ import Base from "./base"
 export default class extends Base{
 	constructor(node, styles, selector){
 		super(...arguments)
-		this.rPr=this._convert(node, "w:rPr",{
+		this.r=this._convert(node, "w:rPr",{
 			"w:rFonts":"fonts",
 			"w:sz":"size",
 			"w:color":"color",

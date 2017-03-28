@@ -1,4 +1,4 @@
-import Selector from "../selector"
+import Properties from "./properties"
 
 import Default from "./default"
 import Character from "./character"
@@ -8,7 +8,7 @@ import Table from "./table"
 
 export class Styles{
 	constructor(docx){
-		let selector=new Selector(docx)
+		let selector=new Properties(docx)
 		let styles={}
 		let $=docx.officeDocument.styles
 		let parse
@@ -29,7 +29,7 @@ export class Styles{
 					//styles[id]=new Numbering(node,styles,selector)
 				break
 				case "table":
-					//styles[id]=new Table(node,styles,selector)
+					styles[id]=new Table(node,styles,selector)
 				break
 				}
 
@@ -39,38 +39,68 @@ export class Styles{
 		})
 
 
-		this.rStyle=pr=>{
-			let style=pr ? new Character({attribs:{},children:[pr]},styles,selector) : styles['*character']||styles['*']
+		this.r=pr=>{
+			let style=styles['*character']
+			if(pr){
+				let basedOn=pr.children.find(a=>a.name=="w:rStyle")
+				if(!basedOn)
+					basedOn={name:"w:basedOn",attribs:{"w:val":"*character"}}
+				style=new Character({attribs:{},children:[pr,basedOn]},styles,selector)
+			}
 			let namedStyle=style.id||style.basedOn
 			return "bold,italic,vanish".split(",")
 				.reduce((o,key)=>{
-						o[key]=!!style.get(`rPr.${key}`)
+						o[key]=!!style.get(`r.${key}`)
 						return o
 					},
 					"fonts,size,color".split(",")
 					.reduce((o,key)=>{
-						o[key]=style.get(`rPr.${key}`)
+						o[key]=style.get(`r.${key}`)
 						return o
 					},{namedStyle})
 				)
 		}
 
-		this.pStyle=pr=>{
-			let style=pr ? new Paragraph({attribs:{},children:[pr]},styles,selector) : styles['*paragraph']||styles['*']
+		this.p=pr=>{
+			let style=styles['*paragraph']
+			if(pr){
+				let basedOn=pr.children.find(a=>a.name=="w:pStyle")
+				if(!basedOn)
+					basedOn={name:"w:basedOn",attribs:{"w:val":"*paragraph"}}
+				style=new Character({attribs:{},children:[pr,basedOn]},styles,selector) 
+			}
 			let namedStyle=style.id||style.basedOn
 			return "spacing,indent".split(",")
 				.reduce((o,key)=>{
-					o[key]=style.get(`pPr.${key}`)
+					o[key]=style.get(`p.${key}`)
 					return o
 				},{namedStyle})
 		}
+		
+		this.tbl=pr=>{
+			let style=styles['*table']
+			if(pr){
+				let basedOn=pr.children.find(a=>a.name=="w:tblStyle")
+				if(!basedOn)
+					basedOn={name:"w:basedOn",attribs:{"w:val":"*table"}}
+				style=new Table({attribs:{},children:[pr,basedOn]},styles,selector)
+			}
+			let namedStyle=style.id||style.basedOn
+			return ["indent,margin".split(",")
+				.reduce((o,key)=>{
+					o[key]=style.get(`tbl.${key}`)
+					return o
+				},{namedStyle}),style]
+		}
+		
+		this.tr=this.tc=pr=>{
+			return pr ? selector.select(pr.children,{"w:tcBorders":"borders"}) : null
+		}
 
 		this.update=parse
+		
+		this.select=a=>selector.select(a)
 	}
 }
 
 export default Styles
-
-export function convert(){
-	
-}

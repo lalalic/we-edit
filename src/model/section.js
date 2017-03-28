@@ -43,17 +43,17 @@ export default class Section extends Component{
 
 	static defaultProps={
 		pgSz: {
-			width:876,
-			height:980
+			width:816,
+			height:1056
 		},
 		pgMar: {
-			left: 20,
-			right: 20,
-			top: 20,
-			bottom: 20,
+			left: 96,
+			right: 120,
+			top: 120,
+			bottom: 96,
 
-			header: 10,
-			footer: 10
+			header: 48,
+			footer: 48
 		},
 		cols:{
 			num:1

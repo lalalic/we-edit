@@ -1,66 +1,16 @@
-import getTheme from "./theme"
+import getTheme from "../theme"
 
-export default class Selector{
-	constructor(docx){
-		this.docx=docx
-		this.props=new Props(docx)
-		this.$=this.docx.officeDocument.content.bind(this)
-	}
-
-	document({node}){
-		return Object.assign(this.props.select(node.children.filter(a=>a.name!="w:body")))
-	}
-
-	section({node}){
-		return Object.assign(this.props.select(node.children),{node})
-	}
-
-	table({node}){
-		let props=this.props.select(this.$(node).find(">w\\:tblGrid").toArray())
-		props.directStyle=Object.freeze(this.$(node).find(">w\\:tblPr"))
-		return props
-	}
-
-	row({node}){
-		let props={}
-		props.directStyle=this.$(node).find(">w\\:trPr")
-		return props
-	}
-
-	cell({node}){
-		let props={}
-		props.directStyle=this.$(node).find(">w\\:tcPr")
-		return props
-	}
-
-	paragraph({node}){
-		let props={}
-		props.directStyle=this.$(node).find(">w\\:pPr")
-		return props
-	}
-
-	inline({node}){
-		let props={}
-		props.directStyle=this.$(node).find(">w\\:rPr")
-		return props
-	}
-
-	image({node}){
-		return this.props.select(this.$(node).find("wp\\:extent").toArray())
-	}
-}
-
-class Props{
+export class Properties{
 	constructor(docx){
 		this.docx=docx
 		this.theme=getTheme(docx)
 	}
 
-	select(nodes){
+	select(nodes, keyMap={}){
 		return nodes.reduce((props,x)=>{
 			let name=x.name.split(":").pop()
 			if(this[name])
-				props[name]=this[name](x)
+				props[keyMap[x.name]||name]=this[name](x)
 			return props
 		},{})
 	}
@@ -82,6 +32,10 @@ class Props{
 			value[a.split(':').pop()]=this.docx.dxa2Px(x.attribs[a])
 			return value
 		},{})
+	}
+	
+	cnfStyle(x){
+		return parseInt(x.attribs["w:val"],2)
 	}
 
 	cols(x){
@@ -212,6 +166,7 @@ class Props{
 	tcBorders(x){
 		return x.children.reduce((p,a)=>{
 			p[a.name.split(":").pop()]=this.toBorder(a)
+			return p
 		},{})
 	}
 
@@ -222,6 +177,7 @@ class Props{
 	tblCellMar(x){
 		return x.children.reduce((p,a)=>{
 			p[a.name.split(":").pop()]=this.docx.dxa2Px(a.attribs["w:w"])
+			return p
 		},{})
 	}
 
@@ -237,7 +193,7 @@ class Props{
 	}
 
 	tcW(x){
-		return this.dxa2Px(x.attribs['w:w'])
+		return this.docx.dxa2Px(x.attribs['w:w'])
 	}
 
 	shd(x){
@@ -314,3 +270,5 @@ class Props{
 		return this.docx.asColor(x.attribs['w:val']||x.attribs['w:color']|| this.theme.color(x.attribs['w:themeColor']))
 	}
 }
+
+export default Properties

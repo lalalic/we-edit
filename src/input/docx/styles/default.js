@@ -6,7 +6,7 @@ export default class extends Base{
 		this.basedOn=null
 		this.cache=null
 
-		this.rPr=this._convert(node.children.find(a=>a.name=="w:rPrDefault"), "w:rPr",{
+		this.r=this._convert(node.children.find(a=>a.name=="w:rPrDefault"), "w:rPr",{
 			"w:rFonts":"fonts",
 			"w:sz":"size",
 			"w:color":"color",
@@ -15,7 +15,7 @@ export default class extends Base{
 			"w:vanish":"vanish"
 		}, selector)
 
-		this.pPr=this._convert(node.children.find(a=>a.name=="w:pPrDefault"), "w:pPr",{
+		this.p=this._convert(node.children.find(a=>a.name=="w:pPrDefault"), "w:pPr",{
 			"w:spacing":"spacing",
 			"w:indent":"indent"
 		}, selector)
