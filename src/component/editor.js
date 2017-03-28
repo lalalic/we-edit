@@ -30,11 +30,11 @@ export class Editor extends Component{
 		pgGap:PropTypes.number,
 		style:PropTypes.object
 	}
-	
+
 	static contextTypes={
 		transformer: PropTypes.func
 	}
-	
+
 	constructor(){
 		super(...arguments)
 		this.transformed=new Map()
@@ -54,7 +54,7 @@ export class Editor extends Component{
 					if(!this.transformed.has(domain))
 						this.transformed.set(domain, transform(domain))
 					domain=this.transformed.get(domain)
-					
+
 					return (<Root key={i} domain={domain}/>)
 				})
 			}
@@ -65,7 +65,12 @@ export class Editor extends Component{
 
 const Root=connect((state,{domain})=>{
 	return {doc:createChildElement("root",state,domain)}
-},null,stateProps=>stateProps)(({doc})=>doc)
+},null,stateProps=>stateProps)(class extends Component{
+	static displayName="state-document"
+	render(){
+		return this.props.doc
+	}
+})
 
 function createChildElement(id,state,domain){
 	let content=getContent(state,id)

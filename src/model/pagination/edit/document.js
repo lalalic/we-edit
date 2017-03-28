@@ -25,9 +25,9 @@ export default class Document extends editable(recomposable(Base)){
 	componentDidMount(){
 		if(super.componentDidMount)
 			super.componentDidMount()
+		this.refs.cursor.forceUpdate()
 
 		this.cursorReady()
-		this.refs.cursor.forceUpdate()
 	}
 
 	refreshComposed(){
@@ -44,11 +44,6 @@ export default class Document extends editable(recomposable(Base)){
 	}
 
 	cursorReady(){
-		let firstText=this.root.querySelector("text[data-content]")
-		if(firstText){
-			firstText=firstText.getAttribute("data-content")
-			this.context.store.dispatch(ACTION.Selection.SELECT(firstText,0))
-		}
 		this.root.addEventListener("click", e=>{
 			const target=e.target
 			switch(target.nodeName){
@@ -116,9 +111,6 @@ const StateCursor=connect(state=>{
 	}
 
 	render(){
-		if(!this.info)
-			this.info=this.position(this.props)
-
 		return <Cursor dispatch={this.props.dispatch}
 			{...this.info||{height:0}}
 			editorId={this.props.docId}/>

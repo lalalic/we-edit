@@ -8,18 +8,19 @@ export default class Document extends Component{
 		width: PropTypes.number
 	}
 	static contextTypes={
+		media:PropTypes.string,
 		width:PropTypes.number,
 		pgGap:PropTypes.number,
 		style:PropTypes.object
 	}
-	
+
 	render(){
 		let {width:containerWidth,pgGap,style}=this.context
 		let {pages:pageInfos, width:contentWidth}=this.props
 		let height=0, pages
 		let viewBoxWidth=1
 		let viewBoxHeight=1
-		
+
 		if(containerWidth==undefined){
 			pages=pageInfos.map((page,i)=><Page {...page} key={i}/>)
 			containerWidth=1
@@ -46,14 +47,12 @@ export default class Document extends Component{
 			viewBoxHeight=viewBoxWidth*height/containerWidth
 		}
 		return (
-			<svg width={containerWidth} height={height} 
-				viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`} 
+			<svg width={containerWidth} height={height}
+				viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
 				style={style}>
 				{this.props.children}
-				{pages}        
+				{pages}
 			</svg>
 		)
 	}
-	
-	
 }
