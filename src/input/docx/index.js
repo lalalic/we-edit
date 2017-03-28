@@ -76,12 +76,12 @@ export default class extends Base{
 		return docx4js.load(file)
 	}
 
-	_render(docx,domain,createElement, cloneElement,finalStyle){
+	_render(docx,domain,createElement, cloneElement){
 		const styles=new Styles(docx)
-		return docx.render(this.createElement(styles,domain,createElement,cloneElement,finalStyle))
+		return docx.render(this.createElement(styles,domain,createElement,cloneElement))
 	}
 
-	createElement(styles,domain,createElement,cloneElement,finalStyle){
+	createElement(styles,domain,createElement,cloneElement){
 		return (type,props,children)=>{
 			let node=props.node
 			children=children.reduce((merged,a)=>{
@@ -97,11 +97,11 @@ export default class extends Base{
 			case "section":
 				return createElement(domain.Section,{},children,node)
 			case "p":{
-				let style=styles.pStyle(props.pr,finalStyle)
-				return createElement(domain.Paragraph,{style},children||[],node)
+				let style=styles.pStyle(props.pr)
+				return createElement(domain.Paragraph,style,children||[],node)
 			}
 			case "r":{
-				let style=styles.rStyle(props.pr,finalStyle)
+				let style=styles.rStyle(props.pr)
 				return children.map(a=>cloneElement(a,style))
 			}
 			case "t":
@@ -157,44 +157,5 @@ export default class extends Base{
 
 	_transform(Models){
 		return Models
-	}
-}
-
-function resolveStyle(Wrapped){
-	return class extends Wrapped{
-		static contextTypes={
-			...Wrapped.contextTypes,
-			styles: PropTypes.object
-		}
-
-		resolveStyle(props,{styles}){
-			const {children,namedStyle,...others}=props
-			if(namedStyle){
-				let style=styles[namedStyle]
-				if(style){
-					return this.resolveMyStyle(others,style,styles)
-				}
-			}
-			return others
-		}
-
-		constructor(){
-			super(...arguments)
-			this.style=this.resolveStyle(this.props,this.context)
-		}
-
-		componentWillReceiveProps(props,context){
-			if(super.componentWillReceiveProps)
-				super.componentWillReceiveProps(...arguments)
-			this.style=this.resolveStyle(props,context)
-		}
-	}
-}
-
-function resolveTextStyle(Text){
-	return class extends resolveStyle(Text){
-		resolveMyStyle(direct,style,styles){
-			return direct
-		}
 	}
 }

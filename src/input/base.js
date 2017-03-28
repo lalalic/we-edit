@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from "react"
 import {Provider} from "react-redux"
-import Immutable, {Map} from "immutable"
+import Immutable, {Map, Record} from "immutable"
 
 import models from "model"
 import {createState} from "state"
@@ -21,7 +21,7 @@ export default class{
 					render(domain){
 						return self._render(doc, domain, (type, props, children, raw)=>{
 							return React.createElement(type,{...props,key:self._identify(raw)},children)
-						}, React.cloneElement,true)
+						}, React.cloneElement)
 					},
 					Store(props){
 						let content=new Map().withMutations(function(content){
@@ -44,7 +44,7 @@ export default class{
 										map.set("children", !Array.isArray(children) ? children : children.map(a=>a.id))
 								}))
 								return {id,...item.toJS()}
-							},false)
+							})
 						})
 
 						let reducer=(state,action)=>{
@@ -106,8 +106,7 @@ export default class{
 	*/
 	_render(doc, domain,
 		createElement/*(TYPE, props, children, rawcontent)*/,
-		cloneElement/*(element,props,children)*/,
-		finalStyle/*bool, true will resolve namedStyle and direct style when create element*/){
+		cloneElement/*(element,props,children)*/){
 		return <div>{"Input._render should be implemented"}</div>
 	}
 

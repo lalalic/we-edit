@@ -39,12 +39,9 @@ export class Styles{
 		})
 
 
-		this.rStyle=(pr,final)=>{
+		this.rStyle=pr=>{
 			let style=pr ? new Character({attribs:{},children:[pr]},styles,selector) : styles['*character']||styles['*']
 			let namedStyle=style.id||style.basedOn
-			if(!final)
-				return pr ? {...style.rPr,namedStyle} : {namedStyle}
-
 			return "bold,italic,vanish".split(",")
 				.reduce((o,key)=>{
 						o[key]=!!style.get(`rPr.${key}`)
@@ -54,21 +51,18 @@ export class Styles{
 					.reduce((o,key)=>{
 						o[key]=style.get(`rPr.${key}`)
 						return o
-					})
+					},{namedStyle})
 				)
 		}
 
-		this.pStyle=(pr,final)=>{
+		this.pStyle=pr=>{
 			let style=pr ? new Paragraph({attribs:{},children:[pr]},styles,selector) : styles['*paragraph']||styles['*']
 			let namedStyle=style.id||style.basedOn
-			if(!final)
-				return pr ? {...style.pPr,namedStyle} : {namedStyle}
-
 			return "spacing,indent".split(",")
 				.reduce((o,key)=>{
 					o[key]=style.get(`pPr.${key}`)
 					return o
-				})
+				},{namedStyle})
 		}
 
 		this.update=parse
@@ -76,3 +70,7 @@ export class Styles{
 }
 
 export default Styles
+
+export function convert(){
+	
+}
