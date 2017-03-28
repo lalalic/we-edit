@@ -1327,13 +1327,6 @@ diffie-hellman@^5.0.0:
     miller-rabin "^4.0.0"
     randombytes "^2.0.0"
 
-"docx4js@https://github.com/lalalic/docx4js":
-  version "3.1.1"
-  resolved "https://github.com/lalalic/docx4js#3690a4596d68d05cf1cb02482c1f10e4f94d090d"
-  dependencies:
-    cheerio "^0.22.0"
-    jszip "^2.6.0"
-
 dom-serializer@0, dom-serializer@~0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/dom-serializer/-/dom-serializer-0.1.0.tgz#073c697546ce0780ce23be4a28e293e40bc30c82"
@@ -2742,6 +2735,10 @@ lodash.foreach@^4.3.0:
 lodash.get@^4.4.2:
   version "4.4.2"
   resolved "http://registry.npm.taobao.org/lodash.get/download/lodash.get-4.4.2.tgz#2d177f652fa31e939b4438d5341499dfa3825e99"
+
+lodash.invoke@^4.5.2:
+  version "4.5.2"
+  resolved "http://registry.npm.taobao.org/lodash.invoke/download/lodash.invoke-4.5.2.tgz#01ca07e470903affa3ffec7ad2ed22723d2f697c"
 
 lodash.map@^4.4.0:
   version "4.6.0"

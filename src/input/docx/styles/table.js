@@ -1,4 +1,4 @@
-import Style from "./paragraph"
+import Paragraph from "./paragraph"
 import get from "lodash.get"
 
 /**
@@ -13,60 +13,49 @@ import get from "lodash.get"
  */
 const PRIORIZED='seCell,swCell,neCell,nwCell,lastCol,firstCol,lastRow,firstRow,band2Horz,band1Horz,band2Vert,band1Vert'.split(',')
 const CNF='firstRow,lastRow,firstCol,lastCol,band1Vert,band2Vert,band1Horz,band2Horz,nwCell,neCell,swCell,seCell'.split(",")
-class WithBorder extends Style{
+class WithBorder extends Paragraph{
 	constructor(node,styles,selector){
 		super(...arguments)
 		this.tbl=this._convert(node,"w:tcPr",{
 			"w:tcMargin":"margin",
 			"w:tcBorders":"border"
-		},selector)		
-	}
-	
-	_1border(type){
-		let value=this.get(type)
-		if(value!=undefined){
-			if(value.val=='nil')
-				return {sz:0}
-			return value
-		}
-
-		return undefined
+		},selector)
 	}
 
-	_right(conditions){
-		return this._1border('tcPr.tcBorders.right')
+	right(){
+		return this.get('tbl.border.right')
 	}
 
-	_left(conditions){
-		return this._1border('tcPr.tcBorders.left')
+	left(){
+		return this.get('tbl.border.left')
 	}
 
-	_top(){
-		return this._1border('tcPr.tcBorders.top')
+	top(){
+		return this.get('tbl.border.top')
 	}
 
-	_bottom(){
-		return this._1border('tcPr.tcBorders.bottom')
+	bottom(){
+		return this.get('tbl.border.bottom')
 	}
 }
 
 class RowStyle extends WithBorder{
-	_right(conditions,edges){
+	right(conditions){
 		let value
-		if(conditions.includes('lastCol') || edges.includes('lastCol'))
-			value=super._right(...arguments)
+		if(conditions.includes('lastCol'))
+			value=super.right(...arguments)
 		else
-			value=this._1border('tcPr.tcBorders.insideV')
+			value=this.get('tbl.border.insideV')
 
 		return value
 	}
 
-	_left(conditions,edges){
+	left(conditions){
 		let value
-		if(conditions.includes('firstCol') || edges.includes('firstCol'))
-			value=super._right(...arguments)
+		if(conditions.includes('firstCol'))
+			value=super.right(...arguments)
 		else
-			value=this._1border('tcPr.tcBorders.insideV')
+			value=this.get('tbl.border.insideV')
 
 		return value
 	}
@@ -77,14 +66,14 @@ class CellStyle extends WithBorder{
 }
 
 class ColStyle extends WithBorder{
-	_top(conditions,edges){
-		if(conditions.includes('firstRow') || edges.includes('firstRow'))
-			return super._top(...arguments)
+	top(conditions){
+		if(conditions.includes('firstRow'))
+			return super.top(...arguments)
 	}
 
-	_bottom(conditions,edges){
-		if(conditions.includes('lastRow') || edges.includes('lastRow'))
-			return super._bottom(...arguments)
+	bottom(conditions,edges){
+		if(conditions.includes('lastRow'))
+			return super.bottom(...arguments)
 	}
 }
 
@@ -116,8 +105,20 @@ types.cell=CellStyle
 export default class TableStyle extends WithBorder{
 	constructor(node,styles,selector){
 		super(...arguments)
-		
+
 		this.tbl=this._convert(node,"w:tblPr",{
+			"w:tblInd":"indent",
+			"w:tblCellMar":"margin",
+			"w:tblBorders":"border"
+		},selector)
+
+		this.tc=this._convert(node,"w:tcPr",{
+			"w:tblInd":"indent",
+			"w:tblCellMar":"margin",
+			"w:tblBorders":"border"
+		},selector)
+
+		this.tr=this._convert(node,"w:tblPrEx",{
 			"w:tblInd":"indent",
 			"w:tblCellMar":"margin",
 			"w:tblBorders":"border"
@@ -130,190 +131,139 @@ export default class TableStyle extends WithBorder{
 		})
 	}
 
-	getBorder(conditions, edges){
-		return {
-			right:this._right(...arguments)||{sz:0},
-			left: this._left(...arguments)||{sz:0},
-			top: this._top(...arguments)||{sz:0},
-			bottom: this._bottom(...arguments)||{sz:0}
-		}
-	}
-
 	get(path, conditions=[]){
 		let value=conditions.reduce((found, condition)=>{
 			if(found!=undefined)
 				return found
-			let conditionStyle=this[condition]
-			if(conditionStyle)
-				return conditionStyle.get(path,conditions)
-			return found
+			return super.get(`${condition}.${path}`)
 		},undefined)
 
 		if(value==undefined)
-			value=super.get(...arguments)
+			value=super.get(path)
 
 		return value
 	}
-
 	/**
 	 * 1. conditional formatting
 	 * 2. table.tcPr
 	 * 3. table.trPr=tblPrEx
 	 * 4. table.tblPr
 	 */
-	_right(conditions, edges){
+	right(conditions){
 		let value=conditions.reduce((found, cond)=>{//1. conditional
 			if(found!=undefined)
 				return found
-			let condStyle=this[cond]
-			if(condStyle && condStyle._right)
-				return condStyle._right(...arguments)
+			return this.invoke(`${cond}.right`,conditions)
 		},undefined)
 
-		let pr=null
-		if(value==undefined && (pr=this.raw.get('tcPr')))
-			value=super._right(...arguments)//2. table.tcPr
+		if(value==undefined)
+			value=this.get('tc.border.right')//2. table.tcPr
 
-		if(value==undefined && (pr=this.raw.get('tblPrEx'))){//3.table.trPr
-			if(conditions.includes('lastCol') || edges.includes('lastCol'))
-				value=this._1border('tblPrEx.tblBorders.right')
+		if(value==undefined){//3.table.trPr
+			if(conditions.includes('lastCol'))
+				value=this.get('tr.border.right')
 			else
-				value=this._1border('tblPrEx.tblBorders.insideV')
+				value=this.get('tr.border.insideV')
 		}
 
-		if(value==undefined && (pr=this.raw.get('tblPr'))){//4.
-			if(conditions.includes('lastCol') || edges.includes('lastCol'))
-				value=this._1border('tblPr.tblBorders.right')
+		if(value==undefined){//4.
+			if(conditions.includes('lastCol'))
+				value=this.get('tbl.border.right')
 			else
-				value=this._1border('tblPr.tblBorders.insideV')
-		}
-
-
-		if(value==undefined){
-			let basedOn=this.getBasedOn()
-			if(basedOn && basedOn._right)
-				value=basedOn._right(...arguments)
+				value=this.get('tbl.border.insideV')
 		}
 
 		return value
 	}
 
-	_left(conditions,edges){
+	left(conditions){
 		let value=conditions.reduce((found, cond)=>{//1. conditional
 			if(found!=undefined)
 				return found
-			let condStyle=this[cond]
-			if(condStyle && condStyle._left)
-				return condStyle._left(...arguments)
+			return this.invoke(`${cond}.left`, conditions)
 		},undefined)
 
-		let pr=null
-		if(value==undefined && (pr=this.raw.get('tcPr')))
-			value=super._left(...arguments)//2. table.tcPr
+		if(value==undefined)
+			value=this.get("tc.border.left")//2. table.tcPr
 
-		if(value==undefined && (pr=this.raw.get('tblPrEx'))){//3.table.trPr
-			if(conditions.includes('firstCol') || edges.includes('firstCol'))
-				value=this._1border('tblPrEx.tblBorders.left')
+		if(value==undefined){//3.table.trPr
+			if(conditions.includes('firstCol'))
+				value=this.get('tr.border.left')
 			else
-				value=this._1border('tblPrEx.tblBorders.insideV')
+				value=this.get('tr.border.insideV')
 		}
 
-		if(value==undefined && (pr=this.raw.get('tblPr'))){//4.
-			if(conditions.includes('firstCol') || edges.includes('firstCol'))
-				value=this._1border('tblPr.tblBorders.left')
+		if(value==undefined){//4.
+			if(conditions.includes('firstCol'))
+				value=this.get('tbl.border.left')
 			else
-				value=this._1border('tblPr.tblBorders.insideV')
-		}
-
-
-		if(value==undefined){
-			let basedOn=this.getBasedOn()
-			if(basedOn && basedOn._left)
-				value=basedOn._left(...arguments)
+				value=this.get('tbl.border.insideV')
 		}
 
 		return value
 	}
 
-	_top(conditions,edges){
+	top(conditions){
 		let value=conditions.reduce((found, cond)=>{
 			if(found!=undefined)
 				return found
-			let condStyle=this[cond]
-			if(condStyle && condStyle._top)
-				return condStyle._top(...arguments)
+			return this.invoke(`${cond}.top`,conditions)
 		},undefined)
 
-		let pr=null
-		if(value==undefined && (pr=this.raw.get('tcPr')))
-			value=super._top(...arguments)//2. table.tcPr
+		if(value==undefined)
+			value=this.get("tc.border.top")//2. table.tcPr
 
-		if(value==undefined && (pr=this.raw.get('tblPrEx'))){//3.table.trPr
-			if(conditions.includes('firstRow') || edges.includes('firstRow'))
-				value=this._1border('tblPrEx.tblBorders.top')
+		if(value==undefined){//3.table.trPr
+			if(conditions.includes('firstRow'))
+				value=this.get('tr.border.top')
 			else
-				value=this._1border('tblPrEx.tblBorders.insideH')
+				value=this.get('tr.border.insideH')
 		}
 
-		if(value==undefined && (pr=this.raw.get('tblPr'))){//4.
-			if(conditions.includes('firstRow') || edges.includes('firstRow'))
-				value=this._1border('tblPr.tblBorders.top')
+		if(value==undefined){//4.
+			if(conditions.includes('firstRow'))
+				value=this.get('tbl.border.top')
 			else
-				value=this._1border('tblPr.tblBorders.insideH')
-		}
-
-		if(value==undefined){
-			let basedOn=this.getBasedOn()
-			if(basedOn && basedOn._top)
-				value=basedOn._top(...arguments)
+				value=this.get('tbl.border.insideH')
 		}
 
 		return value
 	}
 
-	_bottom(conditions, edges){
+	bottom(conditions){
 		let value=conditions.reduce((found, cond)=>{
 			if(found!=undefined)
 				return found
-			let condStyle=this[cond]
-			if(condStyle && condStyle._bottom)
-				return condStyle._bottom(...arguments)
+			return this.invoke(`${cond}.bottom`,conditions)
 		},undefined)
 
 
-		let pr=null
-		if(value==undefined && (pr=this.raw.get('tcPr')))
-			value=super._top(...arguments)//2. table.tcPr
+		if(value==undefined)
+			value=this.get("tc.border.top")//2. table.tcPr
 
-		if(value==undefined && (pr=this.raw.get('tblPrEx'))){//3.table.trPr
-			if(conditions.includes('lastRow') || edges.includes('lastRow'))
-				value=this._1border('tblPrEx.tblBorders.bottom')
+		if(value==undefined){//3.table.trPr
+			if(conditions.includes('lastRow'))
+				value=this.get('tr.border.bottom')
 			else
-				value=this._1border('tblPrEx.tblBorders.insideH')
+				value=this.get('tr.border.insideH')
 		}
 
-		if(value==undefined && (pr=this.raw.get('tblPr'))){//4.
-			if(conditions.includes('lastRow') || edges.includes('lastRow'))
-				value=this._1border('tblPr.tblBorders.bottom')
+		if(value==undefined){//4.
+			if(conditions.includes('lastRow'))
+				value=this.get('tbl.border.bottom')
 			else
-				value=this._1border('tblPr.tblBorders.insideH')
-		}
-
-		if(value==undefined){
-			let basedOn=this.getBasedOn()
-			if(basedOn && basedOn._bottom)
-				value=basedOn._bottom(...arguments)
+				value=this.get('tbl.border.insideH')
 		}
 
 		return value
 	}
-	
+
 	merge(style){
 		let {cnfStyle}=style
 		cnfStyle=Array.from((cnfStyle>>>0).toString(2))
 			.map((a,i)=>a=="1"&&CNF[i]).filter(a=>a)
 			.sort((a,b)=>PRIORIZED.indexOf(a)-PRIORIZED.indexOf(b))
-		
+
 		let margin="left,right,top,bottom".split(",").reduce((margin,a)=>{
 			let v=get(style,`margin.${a}`)
 			if(v==undefined)
@@ -322,34 +272,34 @@ export default class TableStyle extends WithBorder{
 				margin[a]=v
 			return margin
 		},{})
-		
+
 		let border="left,right,top,bottom".split(",").reduce((border,a)=>{
-			let v=get(style,`margin.${a}`)
+			let v=get(style,`border.${a}`)
 			if(v==undefined)
-				v=this.get(`tbl.margin.${a}`,cnfStyle)
+				v=this[a](cnfStyle)
 			if(v!==undefined)
-				border[a]=this[`_${a}`](cnfStyle)
+				border[a]=v
 			return border
 		},{})
-		
+
 		let p="spacing,indent".split(",").reduce((p,k)=>{
 			let v=this.get(`p.${k}`,cnfStyle)
 			if(v!==undefined)
 				p[k]=v
 			return p
 		},{})
-		
+
 		let r="fonts,size,bold,italic,color,vanish".split(",").reduce((r,k)=>{
-			let v=this.get(`p.${k}`,cnfStyle)
+			let v=this.get(`r.${k}`,cnfStyle)
 			if(v!==undefined)
 				r[k]=v
 			return r
 		},{})
-		
+
 		const clean=a=>Object.keys(a).length==0 ? undefined : a
-		
+
 		[margin,border,p,r]=[clean(margin),clean(border),clean(p),clean(r)]
-		
+
 		return {margin,border,p,r}
 	}
 }

@@ -78,7 +78,7 @@ export default class extends Base{
 
 	_render(docx,domain,createElement, cloneElement){
 		const styles=new Styles(docx)
-		
+
 		return docx.render((type,props,children)=>{
 			let node=props.node
 			children=children.reduce((merged,a)=>{
@@ -93,7 +93,7 @@ export default class extends Base{
 				return createElement(
 					domain.Document,
 					{styles, ...styles.select(node.children.filter(a=>a.name!="w:body"))},
-					children, 
+					children,
 					node
 				)
 			case "section":
@@ -102,11 +102,11 @@ export default class extends Base{
 				let cols=styles.select([node.children.find(a=>a.name=="w:tblGrid")]).tblGrid
 				let width=cols.reduce((w,a)=>w+a,0)
 				let [direct,style]=styles.tbl(props.pr)
-				
+
 				children=children.map(row=>{
 					let children=row.children.map(cell=>{
 						let cellStyle=style.merge(cell.props)
-						
+
 						return cloneElement(cell,{...cellStyle,cnfStyle:undefined})
 					})
 					return cloneElement(row,{children})
@@ -118,7 +118,7 @@ export default class extends Base{
 				if(props.pr){
 					let style=styles.tr(props.pr)
 					const {cnfStyle,...others}=style
-					
+
 					if(style.cnfStyle)
 						children=children.map(a=>cloneElement(a,{cnfStyle: style.cnfStyle | a.props.cnfStyle}))
 					return createElement(domain.Row,others,children,node)
@@ -195,11 +195,11 @@ export default class extends Base{
 				p: PropTypes.object,
 				r: PropTypes.object
 			}
-			
+
 			getChildContext(){
 				const {p,r}=this.props
 			}
-			
+
 			render(){
 				const {p,r,...others}=this.props
 				return <Models.Cell {...others}/>
@@ -208,23 +208,34 @@ export default class extends Base{
 		class Paragraph extends Component{
 			static displayName="docx-paragraph"
 			static contextTypes={
-				p: PropTypes.object
+				p: PropTypes.object,
+				r: PropTypes.object,
 			}
-			
+
+			static childContextTypes={
+				r: PropTypes.object
+			}
+
 			constructor(){
 				super(...arguments)
 				this.componentWillReceiveProps(this.props,this.context)
 			}
-			
+
+			getChildContext(){
+				return {
+					r: {...this.context.r,...this.props.r}
+				}
+			}
+
 			componentWillReceiveProps(next,context){
 				this.style={...context.p,...next}
 			}
-			
+
 			render(){
 				return <Models.Paragraph {...this.style}/>
 			}
 		}
-		
+
 		class Text extends Component{
 			static displayName="docx-text"
 			static contextTypes={
@@ -234,11 +245,11 @@ export default class extends Base{
 				super(...arguments)
 				this.componentWillReceiveProps(this.props,this.context)
 			}
-			
+
 			componentWillReceiveProps(next,context){
 				this.style={...context.r,...next}
 			}
-			
+
 			render(){
 				return <Models.Text {...this.style}/>
 			}

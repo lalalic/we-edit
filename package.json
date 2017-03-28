@@ -13,6 +13,7 @@
     "immutable": "^3.8.1",
     "linebreak": "^0.3.0",
     "lodash.get": "^4.4.2",
+    "lodash.invoke": "^4.5.2",
     "mouse-event-offset": "^3.0.2",
     "normalizr": "^2.2.1",
     "react": "^15.1.0",

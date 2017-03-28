@@ -1,4 +1,4 @@
-import getTheme from "../theme"
+import getTheme from "./theme"
 
 export class Properties{
 	constructor(docx){
@@ -33,7 +33,7 @@ export class Properties{
 			return value
 		},{})
 	}
-	
+
 	cnfStyle(x){
 		return parseInt(x.attribs["w:val"],2)
 	}
@@ -85,12 +85,12 @@ export class Properties{
 			props.ascii=t
 		else if(t=x.attribs['w:asciiTheme'])
 			props.ascii=this.theme.font(t)
-		
+
 		if(t=x.attribs['w:eastAsia'])
 			props.asia=t
 		else if(t=x.attribs['w:eastAsiaTheme'])
 			props.asia=this.theme.font(t)
-		
+
 		if(props.ascii || props.asia)
 			return props
 	}
@@ -187,7 +187,7 @@ export class Properties{
 			return props
 		},{})
 	}
-	
+
 	tblInd(x){
 		return this.docx.dxa2Px(x.attribs["w:w"])
 	}
@@ -247,22 +247,22 @@ export class Properties{
 		border.val=x.attribs['w:val']
 		if(border.val=="nil"){
 			border.sz=0
-			return 
+			return
 		}
-		
+
 		if(t=x.attribs['w:sz'])
 			border.sz=this.docx.pt2Px(t/8)
-		
+
 		if(t=x.attribs['w:color'])
 			border.color=this.docx.asColor(t)
 		else if(t=x.attribs['w:themeColor'])
 			border.color=this.theme.color(t)
-		
-		
+
+
 		if(t=x.attribs['w:space'])
 			border.space=parseInt(t)
-		
-		
+
+
 		return border
 	}
 

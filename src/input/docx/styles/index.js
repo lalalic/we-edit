@@ -67,16 +67,30 @@ export class Styles{
 				let basedOn=pr.children.find(a=>a.name=="w:pStyle")
 				if(!basedOn)
 					basedOn={name:"w:basedOn",attribs:{"w:val":"*paragraph"}}
-				style=new Character({attribs:{},children:[pr,basedOn]},styles,selector) 
+				style=new Character({attribs:{},children:[pr,basedOn]},styles,selector)
 			}
 			let namedStyle=style.id||style.basedOn
+
+			let r="bold,italic,vanish".split(",")
+				.reduce((o,key)=>{
+						o[key]=!!style.get(`r.${key}`)
+						return o
+					},
+
+					"fonts,size,color".split(",")
+						.reduce((o,key)=>{
+							o[key]=style.get(`r.${key}`)
+							return o
+						},{})
+				)
+
 			return "spacing,indent".split(",")
 				.reduce((o,key)=>{
 					o[key]=style.get(`p.${key}`)
 					return o
-				},{namedStyle})
+				},{namedStyle, r})
 		}
-		
+
 		this.tbl=pr=>{
 			let style=styles['*table']
 			if(pr){
@@ -92,13 +106,13 @@ export class Styles{
 					return o
 				},{namedStyle}),style]
 		}
-		
+
 		this.tr=this.tc=pr=>{
 			return pr ? selector.select(pr.children,{"w:tcBorders":"borders"}) : null
 		}
 
 		this.update=parse
-		
+
 		this.select=a=>selector.select(a)
 	}
 }

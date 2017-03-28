@@ -1,4 +1,5 @@
 import get from "lodash.get"
+import invoke from "lodash.invoke"
 
 export default class Style{
 	constructor(node, styles, selector){
@@ -51,6 +52,20 @@ export default class Style{
 		let t
 		if(this.basedOn && (t=this.styles[this.basedOn]))
 			return t.get(...arguments)
+		return undefined
+	}
+
+	invoke(path){
+		let value=invoke(this,...arguments)
+		if(value==undefined)
+			value=this._invokeOnBasedOn(...arguments)
+		return value
+	}
+
+	_invokeOnBasedOn(path){
+		let t
+		if(this.basedOn && (t=this.styles[this.basedOn]))
+			return t.invoke(...arguments)
 		return undefined
 	}
 
