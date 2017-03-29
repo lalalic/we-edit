@@ -5,7 +5,8 @@ export default class extends Base{
 		super(...arguments)
 		this.p=this._convert(node, "w:pPr",{
 			"w:spacing":"spacing",
-			"w:ind":"indent"
+			"w:ind":"indent",
+			"w:numPr":"num"
 		}, selector)
 	}
 }

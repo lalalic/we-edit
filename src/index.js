@@ -15,15 +15,18 @@ import Input from "./input"
 export function edit(input,container){
 	ReactDOM.unmountComponentAtNode(container)
 	return Input.load(input)
-		.then(doc=>ReactDOM.render((
-			<doc.Store>
-				<div className="editors">
-					<Editor>
-						<Pagination/>
-					</Editor>
-				</div>
-			</doc.Store>
-		), container))
+		.then(doc=>{
+			ReactDOM.render((
+				<doc.Store>
+					<div className="editors">
+						<Editor>
+							<Pagination/>
+						</Editor>
+					</div>
+				</doc.Store>
+			), container)
+			return doc
+		})
 }
 
 export function preview(input,container){

@@ -35,7 +35,8 @@
 			<!--
 			<input type="file" id="fonts" onchange="javascript: require('we-edit').loadFont(this.files)">
 			-->
-			<input type="file" id="content" onchange="edit(this.files[0], document.querySelector('#app'));this.value=''">
+			<button type="button" onClick="window.doc.save('changed.docx')">save</button>
+			<input type="file" id="content" onchange="edit(this.files[0], document.querySelector('#app')).then(doc=>window.doc=doc);this.value=''">
 		</div>
 		<div id="app" style="position:absolute"></div>
 		

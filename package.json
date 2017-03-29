@@ -49,7 +49,7 @@
     "compile": "babel src -d lib --source-maps inline",
     "build.release": "webpack -p",
     "build.debug": "webpack -d",
-    "test": "jest",
+    "test": "jest __tests__",
     "dev": "webpack-dev-server --hot --inline -d --entry=./test.js"
   },
   "keywords": [],

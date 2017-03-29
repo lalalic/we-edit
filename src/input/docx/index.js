@@ -129,6 +129,10 @@ export default class extends Base{
 				let style=styles.tc(props.pr)||{}
 				return createElement(domain.Cell,style,children,node)
 			}
+			case "list":{
+				let style=styles.list(props.pr)||{}
+				return createElement(domain.List,style,children,node)
+			}
 			case "p":{
 				let style=styles.p(props.pr)
 				return createElement(domain.Paragraph,style,children||[],node)
@@ -170,16 +174,16 @@ export default class extends Base{
 		const {start:{id,at}, end}=getSelection(state)
 
 		switch(type){
-			case `selection/INSERT`:{
+			case `text/insert`:{
 				let target=doc.officeDocument.content(`#${id}`)
-				let text=target.children
-				target.children=text.substring(0,at)+payload+text.substr(end.at)
+				let text=target.text()
+				target.text(text.substring(0,at)+payload+text.substr(end.at))
 				break
 			}
-			case `selection/REMOVE`:{
+			case `text/remove`:{
 				let target=doc.officeDocument.content(`#${id}`)
-				let text=target.children, n=payload
-				target.children=text.substring(0,at-n)+text.substr(end.at)
+				let text=target.text(), n=payload
+				target.text(text.substring(0,at-n)+text.substr(end.at))
 				break
 			}
 			case `style/UPDATE`:{
@@ -189,6 +193,28 @@ export default class extends Base{
 	}
 
 	_transform(Models){
+		class Document extends Component{
+			static displayName="docx-document"
+			static childContextTypes={
+				label: PropTypes.func
+			}
+			
+			getChildContext(){
+				let self=this
+				return {
+					label(id,level){
+						return self.props.styles.listLabel(id,level)
+					}
+				}
+			}
+			
+			render(){
+				const {styles,...others}=this.props
+				styles.resetNum()
+				return <Models.Document {...others}/>
+			}
+		}
+		
 		class Cell extends Component{
 			static displayName="docx-cell"
 			static childContextTypes={
@@ -255,6 +281,30 @@ export default class extends Base{
 				return <Models.Text {...this.style}/>
 			}
 		}
-		return {...Models, Cell, Paragraph, Text}
+		
+		class List extends Paragraph{
+			static displayName="docx-list"
+			static propTypes={
+				numId: PropTypes.string,
+				level: PropTypes.string
+			}
+			
+			static contextTypes={
+				label: PropTypes.func
+			}
+			
+			componentWillReceiveProps(next,context){
+				super.componentWillReceiveProps(...arguments)
+				this.label=this.context.label(next.numId,next.level)
+				this.label={...this.label,...this.getChildContext().r}
+			}
+			
+			render(){
+				return <Models.List {...this.style} 
+					label={<Models.Text {...this.label} id={`${this.props.numId}_${this.props.level}`}/>}/>
+			}
+		}
+		
+		return {...Models, Document, List, Cell, Paragraph, Text}
 	}
 }

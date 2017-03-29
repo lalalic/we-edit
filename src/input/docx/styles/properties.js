@@ -80,19 +80,19 @@ export class Properties{
 	}
 
 	rFonts(x){
-		let props={}, t
+		let fonts=[], t
 		if(t=x.attribs['w:ascii'])
-			props.ascii=t
+			fonts.push(t)
 		else if(t=x.attribs['w:asciiTheme'])
-			props.ascii=this.theme.font(t)
+			fonts.push(this.theme.font(t))
 
 		if(t=x.attribs['w:eastAsia'])
-			props.asia=t
+			fonts.push(t)
 		else if(t=x.attribs['w:eastAsiaTheme'])
-			props.asia=this.theme.font(t)
+			fonts.push(this.theme.font(t))
 
-		if(props.ascii || props.asia)
-			return props
+		if(fonts.length)
+			return fonts.join(",")
 	}
 
 	lang(x){
@@ -204,6 +204,12 @@ export class Properties{
 		return {width:this.docx.cm2Px(x.attribs.cx),height:this.docx.cm2Px(x.attribs.cy)}
 	}
 
+	numPr(x){
+		return x.children.reduce((p,a)=>{
+			p[a.name.split(":").pop()]=a.attribs["w:val"]
+			return p
+		},{})
+	}
 
 	asToggle(x){
 		if(x==undefined || x.val==undefined){

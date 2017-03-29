@@ -47,38 +47,10 @@ export default class{
 							})
 						})
 
-						let reducer=(state,action)=>{
-							let content=getContent(state)
-							if(!content)
-								return state
-							content=content.withMutations(function(content){
-								self.onChange(state,action,(type, props, children, raw)=>{
-									const id=type.displayName=="document" ? "root" : self._identify(raw)
-
-									content.set(id, new Map({
-										type:type.displayName,
-										props,
-										children: !Array.isArray(children) ? children : children.map(a=>a.id)
-									}))
-
-									return {id,type,props,children}
-								}, ({id},props,children)=>{
-									let item=content.get(id)
-									content.set(id,item=item.withMutations(map=>{
-										if(props)
-											map.set("props",{...map.get("props"),...props})
-										if(children)
-											map.set("children", !Array.isArray(children) ? children : children.map(a=>a.id))
-									}))
-									return {id,...item.toJS()}
-								})
-							})
-
-							state=state.set("content",content)
-						}
+						
 
 						return (
-							<Provider store={createState(doc,content,reducer)}>
+							<Provider store={createState(doc,content,self.onChange.bind(self))}>
 								<TransformerProvider transformer={self._transform}>
 									{props.children}
 								</TransformerProvider>

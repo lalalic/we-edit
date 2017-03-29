@@ -10,6 +10,7 @@ import Image from "./image"
 import Table from "./table"
 import Row from "./row"
 import Cell from "./cell"
+import List from "./list"
 
 export default {
 	...Models,
@@ -22,5 +23,6 @@ export default {
 	Image,
 	Table,
 	Row,
-	Cell
+	Cell,
+	List
 }
