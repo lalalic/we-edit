@@ -4,6 +4,7 @@ import Component from "./component"
 export default class List extends Component{
 	static displayName="list"
 	static propTypes={
-		label:PropTypes.node.isRequired
+		label:PropTypes.node.isRequired,
+		labelWidth: PropTypes.number.isRequired
 	}
 }

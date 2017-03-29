@@ -38,12 +38,12 @@ export class Styles{
 					styles[`*${type}`]=styles[id]
 			}
 		}
-		
+
 		docx.officeDocument.styles("w\\:styles")
 			.children("w\\:style,w\\:docDefaults")
 			.toArray().forEach(parseStyle)
-		
-		
+
+
 		const parseNum=a=>{
 			switch(a.name){
 			case "w:num":
@@ -54,7 +54,7 @@ export class Styles{
 			break
 			}
 		}
-		
+
 		if(docx.officeDocument.numbering){
 			docx.officeDocument.numbering("w\\:numbering")
 				.children("w\\:num, w\\:abstractNum")
@@ -137,7 +137,7 @@ export class Styles{
 		this.tr=this.tc=pr=>{
 			return pr ? selector.select(pr.children,{"w:tcBorders":"borders"}) : null
 		}
-		
+
 		this.list=pr=>{
 			let style=styles['*numbering']
 			if(pr){
@@ -147,9 +147,9 @@ export class Styles{
 				style=new Numbering({attribs:{},children:[pr,basedOn]},styles,selector)
 			}
 			let namedStyle=style.id||style.basedOn
-			
+
 			let numId=style.get("p.num.numId")
-			
+
 			let level=style.get("p.num.ilvl")
 
 			let r="bold,italic,vanish".split(",")
@@ -165,14 +165,14 @@ export class Styles{
 						return o
 					},{})
 				)
-			let indent=styles[`_num_${numId}`].get(`${level}.p.indent`)
+			let indentList=styles[`_num_${numId}`].get(`${level}.p.indent`)
 			
-			return "spacing".split(",")
+			return "spacing,indent".split(",")
 				.reduce((o,key,t)=>{
 					if((t=style.get(`p.${key}`))!=undefined)
 						o[key]=t
 					return o
-				},{indent, namedStyle, r, numId, level})
+				},{indentList, namedStyle, r, numId, level})
 		}
 
 		this.listLabel=(id,level)=>{
@@ -191,7 +191,7 @@ export class Styles{
 					},{children:label})
 				)
 		}
-		
+
 		this.resetNum=()=>{
 			Object.keys(styles).filter(k=>k.startsWith("_num_"))
 				.forEach(k=>styles[k].reset())

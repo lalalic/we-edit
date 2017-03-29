@@ -16,22 +16,22 @@ export default class List extends Paragraph{
 		...Paragraph.propTypes,
 		...Super.propTypes
 	}
-	
+
 	_newLine(){
         let line=super._newLine()
 
 		if(this.computed.composed.length==0){
-			let {indent, label}=this.props
+			let {labelWidth, label}=this.props
 			let {defaultStyle}=new Text.WordWrapper(label.props)
 			line.children.push(
 				<Group
-					x={-indent.hanging}
+					x={-labelWidth}
 					descent={defaultStyle.descent}
 					width={0}
 					height={0}>
-					<ComposedText {...defaultStyle} 
-						width={indent.hanging}
-						contentWidth={indent.hanging}
+					<ComposedText {...defaultStyle}
+						width={labelWidth}
+						contentWidth={labelWidth}
 						children={[label.props.children]}/>
 				</Group>
 			)
