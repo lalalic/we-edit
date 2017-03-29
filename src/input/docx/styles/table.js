@@ -18,7 +18,8 @@ class WithBorder extends Paragraph{
 		super(...arguments)
 		this.tbl=this._convert(node,"w:tcPr",{
 			"w:tcMargin":"margin",
-			"w:tcBorders":"border"
+			"w:tcBorders":"border",
+			"w:shd":"background"
 		},selector)
 	}
 
@@ -260,7 +261,7 @@ export default class TableStyle extends WithBorder{
 
 	merge(style){
 		let {cnfStyle}=style
-		cnfStyle=Array.from((cnfStyle>>>0).toString(2))
+		cnfStyle=Array.from(("000000000000"+(cnfStyle>>>0).toString(2)).substr(-12))
 			.map((a,i)=>a=="1"&&CNF[i]).filter(a=>a)
 			.sort((a,b)=>PRIORIZED.indexOf(a)-PRIORIZED.indexOf(b))
 
@@ -289,17 +290,24 @@ export default class TableStyle extends WithBorder{
 			return p
 		},{})
 
-		let r="fonts,size,bold,italic,color,vanish".split(",").reduce((r,k)=>{
+		let r="fonts,size,color".split(",").reduce((r,k)=>{
 			let v=this.get(`r.${k}`,cnfStyle)
 			if(v!==undefined)
 				r[k]=v
 			return r
-		},{})
+		},"bold,italic,vanish".split(",").reduce((r,k)=>{
+			let v=this.get(`r.${k}`,cnfStyle)
+			if(v!==undefined)
+				r[k]=!!v
+			return r
+		},{}))
+		
+		let background=this.get('tbl.background',cnfStyle)
 
 		const clean=a=>Object.keys(a).length==0 ? undefined : a
 
 		[margin,border,p,r]=[clean(margin),clean(border),clean(p),clean(r)]
 
-		return {margin,border,p,r}
+		return {margin,border,background,p,r}
 	}
 }

@@ -20,8 +20,8 @@ export default class Table extends Super{
 		let groupsWithXY=colGroups.map((linesWithStyle,colNo)=>{
 			let {border, margin, spacing, background}=linesWithStyle.style
 			let y=0
-			let grouped=linesWithStyle.map(line=>{
-					let a=<Group y={y}>{line}</Group>
+			let grouped=linesWithStyle.map((line,i)=>{
+					let a=<Group y={y} key={i}>{line}</Group>
 					y+=line.props.height
 					return a
 				})

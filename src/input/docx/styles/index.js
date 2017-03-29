@@ -49,13 +49,15 @@ export class Styles{
 			}
 			let namedStyle=style.id||style.basedOn
 			return "bold,italic,vanish".split(",")
-				.reduce((o,key)=>{
-						o[key]=!!style.get(`r.${key}`)
+				.reduce((o,key,t)=>{
+						if((t=style.get(`r.${key}`))!=undefined)
+							o[key]=!!t
 						return o
 					},
 					"fonts,size,color".split(",")
-					.reduce((o,key)=>{
-						o[key]=style.get(`r.${key}`)
+					.reduce((o,key,t)=>{
+						if((t=style.get(`r.${key}`))!=undefined)
+							o[key]=t
 						return o
 					},{namedStyle})
 				)
@@ -72,21 +74,23 @@ export class Styles{
 			let namedStyle=style.id||style.basedOn
 
 			let r="bold,italic,vanish".split(",")
-				.reduce((o,key)=>{
-						o[key]=!!style.get(`r.${key}`)
+				.reduce((o,key,t)=>{
+						if((t=style.get(`r.${key}`))!=undefined)
+							o[key]=!!t
 						return o
 					},
-
 					"fonts,size,color".split(",")
-						.reduce((o,key)=>{
-							o[key]=style.get(`r.${key}`)
-							return o
-						},{})
+					.reduce((o,key,t)=>{
+						if((t=style.get(`r.${key}`))!=undefined)
+							o[key]=t
+						return o
+					},{})
 				)
 
 			return "spacing,indent".split(",")
-				.reduce((o,key)=>{
-					o[key]=style.get(`p.${key}`)
+				.reduce((o,key,t)=>{
+					if((t=style.get(`p.${key}`))!=undefined)
+						o[key]=t
 					return o
 				},{namedStyle, r})
 		}
@@ -101,8 +105,9 @@ export class Styles{
 			}
 			let namedStyle=style.id||style.basedOn
 			return ["indent,margin".split(",")
-				.reduce((o,key)=>{
-					o[key]=style.get(`tbl.${key}`)
+				.reduce((o,key,t)=>{
+					if((t=style.get(`tbl.${key}`))!=undefined)
+						o[key]=t
 					return o
 				},{namedStyle}),style]
 		}

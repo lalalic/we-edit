@@ -103,9 +103,9 @@ export default class extends Base{
 				let width=cols.reduce((w,a)=>w+a,0)
 				let [direct,style]=styles.tbl(props.pr)
 
-				children=children.map(row=>{
-					let children=row.children.map(cell=>{
-						let cellStyle=style.merge(cell.props)
+				children=children.map((row,i)=>{
+					let children=row.children.map((cell,j)=>{
+						let cellStyle=style.merge(cell.props,i,j)
 
 						return cloneElement(cell,{...cellStyle,cnfStyle:undefined})
 					})
@@ -198,6 +198,7 @@ export default class extends Base{
 
 			getChildContext(){
 				const {p,r}=this.props
+				return {p,r}
 			}
 
 			render(){

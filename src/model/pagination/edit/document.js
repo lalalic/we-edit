@@ -17,9 +17,7 @@ export default class Document extends editable(recomposable(Base)){
 					{super.render()}
 				</div>
 				<Selection docId={this.uuid}/>
-				<StateCursor ref="cursor" docId={this.uuid}>
-					<Flasher ref="flasher"/>
-				</StateCursor>
+				<StateCursor ref="cursor" docId={this.uuid}/>
 			</div>
 		)
     }
@@ -28,7 +26,7 @@ export default class Document extends editable(recomposable(Base)){
 		if(super.componentDidMount)
 			super.componentDidMount()
 		this.cursorReady()
-		this.refs.cursor.forceUpdate(()=>this.root.appendChild(this.refs.flasher))
+		this.refs.cursor.forceUpdate()
 	}
 
 	refreshComposed(){
@@ -60,7 +58,7 @@ export default class Document extends editable(recomposable(Base)){
 	}
 
 	componentDidUpdate(){
-		this.refs.cursor.forceUpdate(()=>this.root.appendChild(this.refs.flasher))
+		this.refs.cursor.forceUpdate()
 	}
 
 	static contextTypes={
@@ -123,7 +121,7 @@ const StateCursor=connect(state=>{
 
 class Flasher extends PureComponent{
 	render(){
-		const {top, left, height,color}=info
+		const {top, left, height,color}=this.props
 		return (
 			<line
 				x1={left}
@@ -133,7 +131,10 @@ class Flasher extends PureComponent{
 				strokeWidth={1}
 				stroke={color||"black"}
 				ref={node=>{
-					this.timer && clearInterval(this.timer);
+					this.node=node
+					if(this.timer)
+						clearInterval(this.timer)
+					
 					this.timer=setInterval(a=>{
 						let y1=node.getAttribute('y1'), y2=node.getAttribute('y2')
 						node.setAttribute('y2',y1==y2 ? top+height : top)
