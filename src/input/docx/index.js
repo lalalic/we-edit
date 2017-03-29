@@ -78,6 +78,7 @@ export default class extends Base{
 
 	_render(docx,domain,createElement, cloneElement){
 		const styles=new Styles(docx)
+		const $=docx.officeDocument.content
 
 		return docx.render((type,props,children)=>{
 			let node=props.node
@@ -143,6 +144,11 @@ export default class extends Base{
 			}
 			case "t":
 				return children[0] ? createElement(domain.Text,{},children[0],node) : null
+			case "control.picture":
+			case "inline.picture":{
+				let style=styles.select($(node).find("wp\\:extent").toArray())
+				return createElement(domain.Image,{...style, src:props.url},null,node)
+			}
 			case "bookmarkStart":
 			case "bookmarkEnd":
 				return null
