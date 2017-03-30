@@ -1,7 +1,6 @@
 import docx4js from "docx4js"
 
-import Selector from "../../src/input/docx/selector"
-import getStyles from "../../src/input/docx/style"
+import Styles from "input/docx/styles"
 
 describe("styles",function(){
 	let styles
@@ -9,44 +8,30 @@ describe("styles",function(){
 	beforeAll(()=>{
 		return docx4js.create().then(docx=>{
 			docx.parts["word/styles.xml"]=docx4js.parseXml(content)
-			return styles=getStyles(new Selector(docx))
+			return styles=new Styles(docx)
 		})
 	})
 	
-	describe("default styles", function(){
-		"document,paragraph,inline,list,table"
-			.split(",")
-			.forEach(type=>{
-				it(type, function(){
-					expect(styles.getDefault(type).length===1).toBe(true)
-				})
-			})
+	it("r", function(){})
+	
+	it("p", function(){})
+	
+	describe("table", function(){
+		it("table", function(){})
+		it("tc", function(){})
+		it("tr", function(){})
 	})
 	
-	it("Normal, getStyle, getParentStyle,key", function(){
-		let normal=styles.getStyle("Normal")
-		expect(normal.attr("w:styleId")).toBe("Normal")
-		expect(normal.getParentStyle()).toBe(null)
-		expect(normal.key("sz")).toBe(null)
+	describe("list", function(){
+		it("list",function(){})
+		it("label",function(){})
+		it("reset",function(){})
 	})
 	
-	it("get Normal1,Normal2,Normal3",function(){
-		"Normal1,Normal2,Normal3".split(",")
-			.forEach(a=>expect(styles.getStyle(a).attr("w:styleId")).toBe(a))
+	describe("update",function(){
+		it("style",function(){})
+		it("numbering", function(){})
 	})
-	
-	it("key selected: document default style information",function(){
-		expect(styles.getDefault("document").key("w\\:sz")).toBe(11)
-	})
-	
-	it("key path", function(){
-		let normal1=styles.getStyle("Normal1")
-		expect(normal1.attr('w:styleId')).toBe("Normal1")
-		expect(normal1.key('w\\:jc')).toBe("right")
-		
-		expect(styles.getStyle("Normal3").key('w\\:jc')).toBe("right")
-	})
-	
 	
 	
 	const content=`

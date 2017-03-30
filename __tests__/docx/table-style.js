@@ -1,7 +1,6 @@
 import docx4js from "docx4js"
 
-import Selector from "../../src/input/docx/selector"
-import getStyles from "../../src/input/docx/style"
+import Styles from "input/docx/styles"
 
 describe("styles",function(){
 	let styles
@@ -9,55 +8,20 @@ describe("styles",function(){
 	beforeAll(()=>{
 		return docx4js.create().then(docx=>{
 			docx.parts["word/styles.xml"]=docx4js.parseXml(content)
-			return styles=getStyles(new Selector(docx))
+			return styles=new Styles(docx)
 		})
 	})
 	
-	describe("cellKey", function(){
-		it("tblInd",()=>{
-			let style=styles.getStyle("TableNormal")
-			expect(style.cellKey("w\\:tblInd")).toBe(0)
-		})
-		
-		it("pPr spacing",()=>{
-			let style=styles.getStyle("TableGrid")
-			expect(style.cellKey("w\\:pPr>w\\:spacing")).toMatchObject({lineRule:"auto"})
-		})
-	})
-	
-	
-	
-	fdescribe("cellBorder",()=>{
-		it("tblBorders",function(){
-			let {right,left,top,bottom}=styles.getStyle("TableGrid").cellBorder()
-			expect(right)
-				.toMatchObject({sz:1,color:"#000000",val:"single",space:0})
-			expect(right).toMatchObject(left)
-			expect(right).toMatchObject(top)
-			expect(right).toMatchObject(bottom)
-		})
-	})
-	
-	describe("cellMargin",()=>{
-		it("tblCellMar",()=>{
-			let style=styles.getStyle("TableNormal")
-			let {top,bottom,right,left}=style.cellMargin()
-			expect(top).toBe(0)
-			expect(bottom).toBe(0)
-			expect(right).toBeGreaterThan(0)
-			expect(left).toBeGreaterThan(0)
-			expect(right===left).toBe(true)
-		})
-		
-		it("tblCellMar inheritance",()=>{
-			expect(styles.getStyle("TableNormal").cellMargin())
-				.toMatchObject(styles.getStyle("TableGrid").cellMargin())
-		})
-	})
-	
-	describe("content table style tblPr+trPr+tcPr",function(){
+	it("margin",function(){
 		
 	})
+	
+	it("p", function(){})
+	
+	it("r",function(){})
+	
+	it("border",function(){})
+	
 	
 	const content=`
 	<w:style w:type="table" w:default="1" w:styleId="TableNormal">
