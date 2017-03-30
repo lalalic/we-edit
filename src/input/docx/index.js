@@ -82,11 +82,18 @@ export default class extends Base{
 			}
 			case "heading":
 			case "p":{
-				let style=styles.p(props.pr)
+				let style=styles.p(props.pr), rStyle
 				if(children.length==0){
 					let r=$("<w:r><w:t> </w:t></w:r>").appendTo(node).get(0)
 					let t=r.children[0]
-					children.push(createElement(domain.Text,style.r," ",t))
+					if(props.pr){
+						let rPr=props.pr.children.find(a=>a.name=="w:rPr")
+						if(rPr){
+							$(rPr).clone().prependTo(r)
+							rStyle=styles.r(rPr.get(0))
+						}
+					}
+					children.push(createElement(domain.Text,{...rStyle, ...style.r}," ",t))
 				}
 				return createElement(domain.Paragraph,style,children,node)
 			}
