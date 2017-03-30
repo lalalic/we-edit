@@ -2,7 +2,8 @@ import {getContent} from "./selector"
 import {Text as TextModel} from "pagination"
 
 export const Cursor={
-	AT: (contentId, from, width, editorId)=>(dispatch,getState)=>{
+	ACTIVE: docId=>{type:"selection/DOC",payload:docId}
+	AT: (contentId, from, width)=>(dispatch,getState)=>{
 		const content=getContent(getState(), contentId).toJS()
 		const text=content.children
 		const wordwrapper=new TextModel.WordWrapper(content.props)

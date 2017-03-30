@@ -1,10 +1,12 @@
-import React, {Children, Component, PropTypes} from "react"
+import React, {Children, PureComponent, Component, PropTypes} from "react"
 import {connect, connectAdvanced} from "react-redux"
 
 import Models from "model"
 
 import {getContent} from "state/selector"
+import Cursor from "state/cursor"
 import Input from "input"
+import uuid from "tools/uuid"
 
 export class Editor extends Component{
 	static displayName="editor"
@@ -12,7 +14,7 @@ export class Editor extends Component{
 		media:PropTypes.string,
 		width:PropTypes.number.isRequired,
 		pgGap:PropTypes.number,
-		style:PropTypes.object
+		style:PropTypes.object,
 	}
 
 	static defaultProps={
@@ -28,21 +30,25 @@ export class Editor extends Component{
 		media:PropTypes.string,
 		width:PropTypes.number.isRequired,
 		pgGap:PropTypes.number,
-		style:PropTypes.object
+		style:PropTypes.object,
+		getCursor: PropTypes.func
 	}
 
 	static contextTypes={
 		transformer: PropTypes.func
 	}
 
-	constructor(){
-		super(...arguments)
-		this.transformed=new Map()
-	}
-
+	transformed=new Map()
+	
 	getChildContext(){
 		const {media, width, pgGap, style}=this.props
-		return {media, width, pgGap, style}
+		const self=this
+		return {
+			media, width, pgGap, style,
+			getCursor(){
+				return self.refs.cursor
+			}
+		}
 	}
 	render(){
 		let transform=this.context.transformer||(a=>a)
@@ -58,27 +64,43 @@ export class Editor extends Component{
 					return (<Root key={i} domain={domain}/>)
 				})
 			}
+				<Cursor ref="cursor"/>
 			</div>
 		)
 	}
 }
 
 const Root=connect((state,{domain})=>{
-	return {doc:createChildElement("root",state,domain)}
-},null,stateProps=>stateProps)(class extends Component{
-	static displayName="state-document"
+	return {content:state.get("content"),domain}
+})(class extends PureComponent{
+	static childContextTypes={
+		docId: PropTypes.string
+	}
+	docId=uuid()
+	constructor(){
+		super(...arguments)
+		this.componentWillReceiveProps(this.props)
+	}
+	
+	getChildContext(){
+		return {docId}
+	}
+	
+	componentWillReceiveProps({content,domain}){
+		this.doc=createChildElement("root",content,domain)
+	}
+	
 	render(){
-		return this.props.doc
+		return this.doc
 	}
 })
 
-function createChildElement(id,state,domain){
-	let content=getContent(state,id)
-	let {type, props, children}=content.toJS()
+function createChildElement(id,content,domain){
+	let {type, props, children}=content.get(id).toJS()
 	let Child=domain[type[0].toUpperCase()+type.substr(1)]
 	return (<Child key={id} id={id}
 			{...props}
-			children={Array.isArray(children) ? children.map(a=>createChildElement(a,state,domain,id)) : children}
+			children={Array.isArray(children) ? children.map(a=>createChildElement(a,content,domain,id)) : children}
 		/>)
 }
 

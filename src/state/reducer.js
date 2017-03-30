@@ -44,6 +44,8 @@ export function selection(state={start:{id:"0",at:0},end:{id:"0",at:0}}, {type,p
 	switch(type){
 	case `selection/SELECTED`:
 		return ({...state, ...payload})
+	case `selection/DOC`:
+		return ({...state, active:payload})
 	default:
 		return state
 	}

@@ -21,6 +21,3 @@ export function createState(doc, content, docReducer=state=>state){
 }
 
 export {ACTION} from "./action"
-
-export {Cursor} from "./cursor"
-export {Selection} from "./selection"

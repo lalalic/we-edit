@@ -22,7 +22,7 @@ export default class extends Base{
 		return docx4js.load(file)
 	}
 	
-	_render(docx,domain,createElement){
+	_render(docx,domain,createElement, cloneElement){
 		const styles=new Styles(docx)
 		const $=docx.officeDocument.content
 
@@ -87,7 +87,11 @@ export default class extends Base{
 			}
 			case "r":{
 				let style=styles.r(props.pr)
-				return createElement(Transformers.Run(domain),style,children,node)
+				return children.map(a=>{
+					if(a.type==domain.Text)
+						return cloneElement(a,style)
+					return a
+				})
 			}
 			case "t":
 				return children[0] ? createElement(domain.Text,{},children[0],node) : null

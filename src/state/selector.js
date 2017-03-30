@@ -9,28 +9,6 @@ export function getContent(state,id){
 	return state.get("content").get(id)
 }
 
-export function getContentClientBoundBox(texts, at, id){
-	let found, from
-	for(let i=0, len=texts.length; i<len; i++){
-		let a=texts[i]
-		let end=parseInt(a.getAttribute('end'))
-		let length=a.textContent.length
-		let start=end-length
-		if(start<=at && at<end){
-			found=a
-			from=start
-			break
-		}
-	}
-
-	if(!found){
-		console.warn(`can't found text(${id},${at})`)
-		return {top:0,left:0,from:0}
-	}
-	let {top,left}=found.getBoundingClientRect()
-	return {top,left,from}
-}
-
 export function findTextIn(content, direction=""){
 	if(typeof(content.getContent())=='string')
 		return content

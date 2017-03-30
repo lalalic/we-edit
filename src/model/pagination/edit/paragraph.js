@@ -29,6 +29,5 @@ export default class Paragraph extends editable(recomposable(Base)){
 
     componentWillReceiveProps(next){
         this.computed.breakOpportunities=this.getBreakOpportunities(React.Children.toArray(next.children))
-        console.dir(this.computed.breakOpportunities)
     }
 }
