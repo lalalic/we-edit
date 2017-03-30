@@ -127,11 +127,9 @@ export function NoChild(Component){
     return class extends HasParentAndChild(Component){
         compose() {
             let composed = this.createComposed2Parent()
-
-            const {parent} = this.context
             this.computed.composed.push(composed)
-            parent.appendComposed(composed)
-            parent.on1ChildComposed(this)
+            this.appendComposed(composed)
+            this.context.parent.on1ChildComposed(this)
         }
     }
 }

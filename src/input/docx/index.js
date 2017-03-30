@@ -7,6 +7,8 @@ import Styles from "./styles"
 
 import {getFile, getSelection} from "state/selector"
 
+import Transformers from "./model"
+
 export default class extends Base{
 	static support({type}){
 		return type=="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
@@ -16,67 +18,11 @@ export default class extends Base{
 		return docx4js.create()
 	}
 
-	load1(data, domain){
-		return docx4js.load(data).then(docx=>{
-			const selector=new Selector(docx)
-
-			return docx.render((type,props,children)=>{
-				let node=props.node
-				let id=node.attribs['id']||uuid()
-				let keyProps={id, key:id}
-				children=children.reduce((merged,a)=>{
-					if(Array.isArray(a))
-						merged.splice(merged.length-1, ...a)
-					else
-						merged.push(a)
-					return merged
-				},[])
-				switch(type){
-				case "document":
-					return React.createElement(domain.Document,
-						{...selector.document(props),key:id,styles:getStyles(selector)},
-						children
-					)
-				case "section":
-					return React.createElement(domain.Section,{...selector.section(props),...keyProps},children)
-				case "tbl":
-					return React.createElement(domain.Table,{...selector.table(props),...keyProps},children)
-				case "tr":
-					return React.createElement(domain.Row,{...selector.row(props),...keyProps},children)
-				case "tc":
-					return React.createElement(domain.Cell,{...selector.cell(props),...keyProps},children)
-				case "list":
-				case "heading":
-				case "p":
-					return React.createElement(domain.Paragraph,{...selector.paragraph(props),...keyProps},children||[])
-				case "r":
-					if(children.length)
-						return React.createElement(domain.Inline,{...selector.inline(props),...keyProps},children)
-					else
-						return null
-				case "t":
-					return React.createElement(domain.Text,keyProps,children[0])
-				case "control.picture":
-				case "inline.picture":
-					return React.createElement(domain.Image,{...selector.image(props),...keyProps, src:props.url})
-				case "bookmarkStart":
-				case "bookmarkEnd":
-					return null
-				default:
-					if(children.length==0)
-						return children[0]
-					return children
-				}
-			})
-		})//.then(tree=>{console.dir(tree);return tree})
-	}
-
-
 	_loadFile(file){
 		return docx4js.load(file)
 	}
-
-	_render(docx,domain,createElement, cloneElement){
+	
+	_render(docx,domain,createElement){
 		const styles=new Styles(docx)
 		const $=docx.officeDocument.content
 
@@ -134,20 +80,21 @@ export default class extends Base{
 				let style=styles.list(props.pr)||{}
 				return createElement(domain.List,style,children,node)
 			}
+			case "heading":
 			case "p":{
 				let style=styles.p(props.pr)
 				return createElement(domain.Paragraph,style,children||[],node)
 			}
 			case "r":{
 				let style=styles.r(props.pr)
-				return children.map(a=>cloneElement(a,style))
+				return createElement(Transformers.Run(domain),style,children,node)
 			}
 			case "t":
 				return children[0] ? createElement(domain.Text,{},children[0],node) : null
 			case "control.picture":
 			case "inline.picture":{
 				let style=styles.select($(node).find("wp\\:extent").toArray())
-				return createElement(domain.Image,{...style, src:props.url},null,node)
+				return createElement(domain.Image,{...style.extent, src:props.url},null,node)
 			}
 			case "bookmarkStart":
 			case "bookmarkEnd":
@@ -174,7 +121,7 @@ export default class extends Base{
 		return id
 	}
 
-	_onChange(state,action,createElement, cloneElement){
+	_onChange(state,action){
 		const {type,payload}=action
 		const doc=getFile(state)
 		const {start:{id,at}, end}=getSelection(state)
@@ -199,131 +146,9 @@ export default class extends Base{
 	}
 
 	_transform(Models){
-		class Document extends Component{
-			static displayName="docx-document"
-			static childContextTypes={
-				label: PropTypes.func
-			}
-
-			getChildContext(){
-				let self=this
-				return {
-					label(id,level){
-						return self.props.styles.listLabel(id,level)
-					}
-				}
-			}
-
-			render(){
-				const {styles,...others}=this.props
-				styles.resetNum()
-				return <Models.Document {...others}/>
-			}
-		}
-
-		class Cell extends Component{
-			static displayName="docx-cell"
-			static childContextTypes={
-				p: PropTypes.object,
-				r: PropTypes.object
-			}
-
-			getChildContext(){
-				const {p,r}=this.props
-				return {p,r}
-			}
-
-			render(){
-				const {p,r,...others}=this.props
-				return <Models.Cell {...others}/>
-			}
-		}
-		class Paragraph extends Component{
-			static displayName="docx-paragraph"
-			static contextTypes={
-				p: PropTypes.object,
-				r: PropTypes.object,
-			}
-
-			static childContextTypes={
-				r: PropTypes.object
-			}
-
-			constructor(){
-				super(...arguments)
-				this.componentWillReceiveProps(this.props,this.context)
-			}
-
-			getChildContext(){
-				return {
-					r: {...this.context.r,...this.props.r}
-				}
-			}
-
-			componentWillReceiveProps(next,context){
-				this.style={...context.p,...next}
-			}
-
-			render(){
-				return <Models.Paragraph {...this.style}/>
-			}
-		}
-
-		class Text extends Component{
-			static displayName="docx-text"
-			static contextTypes={
-				r: PropTypes.object
-			}
-			constructor(){
-				super(...arguments)
-				this.componentWillReceiveProps(this.props,this.context)
-			}
-
-			componentWillReceiveProps(next,context){
-				this.style={...context.r,...next}
-			}
-
-			render(){
-				return <Models.Text {...this.style}/>
-			}
-		}
-
-		class List extends Paragraph{
-			static displayName="docx-list"
-			static propTypes={
-				numId: PropTypes.string,
-				level: PropTypes.string,
-				indentList: PropTypes.shape({
-					left: PropTypes.number.isRequired,
-					hanging: PropTypes.number.isRequired
-				}).isRequired
-			}
-
-			static contextTypes={
-				label: PropTypes.func
-			}
-
-			componentWillReceiveProps(next,context){
-				super.componentWillReceiveProps(...arguments)
-				this.label=this.context.label(next.numId,next.level)
-				this.label={...this.label,...this.getChildContext().r}
-				delete this.style.indentList
-				if(this.style.indent){
-					const {left=0,hanging=0}=this.style.indent
-					this.style.indent.left=Math.max(left+hanging,this.props.indentList.left)
-				}else {
-					this.style.indent=this.props.indentList
-				}
-				this.style.labelWidth=Math.max(this.style.indent.hanging||0,this.props.indentList.hanging)
-				delete this.style.indent.hanging
-			}
-
-			render(){
-				return <Models.List {...this.style}
-					label={<Models.Text {...this.label} id={`${this.props.numId}_${this.props.level}`}/>}/>
-			}
-		}
-
-		return {...Models, Document, List, Cell, Paragraph, Text}
+		return Object.keys(Transformers).reduce((transformed,k)=>{
+			transformed[k]=Transformers[k](Models)
+			return transformed
+		},{...Models})
 	}
 }

@@ -199,7 +199,9 @@ export class Styles{
 		this.updateStyle=parseStyle
 		this.updateList=parseNum
 
-		this.select=a=>selector.select(a)
+		this.select=function(){
+			return selector.select(...arguments)
+		}
 	}
 }
 

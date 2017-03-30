@@ -21,33 +21,22 @@ export default class{
 					render(domain){
 						return self._render(doc, domain, (type, props, children, raw)=>{
 							return React.createElement(type,{...props,key:self._identify(raw)},children)
-						}, React.cloneElement)
+						})
 					},
 					Store(props){
 						let content=new Map().withMutations(function(content){
 							self._render(doc, models, (type, props, children, raw)=>{
 								const id=type.displayName=="document" ? "root" : self._identify(raw)
 
-								content.set(id, new Map({
+								content.set(id, Immutable.fromJS({
 									type:type.displayName,
 									props,
 									children: !Array.isArray(children) ? children : children.map(a=>a.id)
 								}))
 
 								return {id,type,props,children}
-							}, ({id},props,children)=>{
-								let item=content.get(id)
-								content.set(id,item=item.withMutations(map=>{
-									if(props)
-										map.set("props",{...map.get("props"),...props})
-									if(children)
-										map.set("children", !Array.isArray(children) ? children : children.map(a=>a.id))
-								}))
-								return {id,...item.toJS()}
 							})
 						})
-
-						
 
 						return (
 							<Provider store={createState(doc,content,self.onChange.bind(self))}>
@@ -87,11 +76,11 @@ export default class{
 		return uuid()+""
 	}
 
-	onChange(state, action, createElement,cloneElement){
+	onChange(state, action, createElement){
 		if(action.type=="@@INIT")
 			return state
 
-		this._onChange(state,action, createElement,cloneElement)
+		this._onChange(state,action, createElement)
 
 		return state
 	}
