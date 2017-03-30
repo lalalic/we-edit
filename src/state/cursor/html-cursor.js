@@ -1,5 +1,6 @@
 import React, {PropTypes} from "react"
 import Cursor from "./base"
+import WordWrapper from "wordwrap"
 
 export class HtmlCursor extends Cursor{
 	render(){
@@ -18,7 +19,7 @@ export class HtmlCursor extends Cursor{
 			return null
 
 		let {top,left}=node.getBoundingClientRect()
-		let wordwrapper=new HtmlWrapper(node)
+		let wordwrapper=new this.constructor.HtmlWrapper(node)
 		let width=wordwrapper.stringWidth(text.substring(0,at))
 		let {height, descent}=wordwrapper
 		wordwrapper.close()
@@ -29,26 +30,32 @@ export class HtmlCursor extends Cursor{
 		let color=this.root.style.background
 		this.root.style.background=color=="transparent" ? this.state.color : "transparent"
 	}
+
+	static HtmlWrapper=class{
+		constructor(node){
+			this.node=node
+			this.tester=node.cloneNode(false)
+			this.tester.style="position:absolute;left:-999;top:0;"
+			node.parentNode.appendChild(this.tester)
+			this.height=node.getBoundingClientRect().height
+			this.descent=0
+		}
+
+		stringWidth(word){
+	        this.tester.innerHTML=word
+	        return this.tester.getBoundingClientRect().width
+	    }
+
+		widthString(width,text){
+			return WordWrapper.prototype.widthString.apply(this,width,text)
+		}
+
+		close(){
+			this.tester.parentNode.removeChild(this.tester)
+		}
+	}
 }
 
-class HtmlWrapper{
-	constructor(node){
-		this.node=node
-		this.tester=node.cloneNode(false)
-		this.tester.style="position:absolute;left:-999;top:0;"
-		node.parentNode.appendChild(this.tester)
-		this.height=node.getBoundingClientRect().height
-		this.descent=0
-	}
 
-	stringWidth(word){
-        this.tester.innerHTML=word
-        return this.tester.getBoundingClientRect().width
-    }
-
-	close(){
-		this.tester.parentNode.removeChild(this.tester)
-	}
-}
 
 export default HtmlCursor.connect()

@@ -2,14 +2,8 @@ import {getContent} from "./selector"
 import {Text as TextModel} from "pagination"
 
 export const Cursor={
-	ACTIVE: docId=>({type:"selection/DOC",payload:docId}),
-	AT: (contentId, from, width)=>(dispatch,getState)=>{
-		const content=getContent(getState(), contentId).toJS()
-		const text=content.children
-		const wordwrapper=new TextModel.WordWrapper(content.props)
-		const end=wordwrapper.widthString(width, text.substr(from))
-		dispatch(Selection.SELECT(contentId, from+end))
-	}
+	ACTIVE: docId=>({type:"selection/DOC",payload:docId})
+	,AT: (contentId, at)=>Selection.SELECT(contentId, at)
 	,MOVE_RIGHT: ()=>(dispatch,getState)=>{
 		const state=getState()
 		let {start:{id,at},end}=state.get("selection")
