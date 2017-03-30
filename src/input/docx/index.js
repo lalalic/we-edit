@@ -21,7 +21,7 @@ export default class extends Base{
 	_loadFile(file){
 		return docx4js.load(file)
 	}
-	
+
 	_render(docx,domain,createElement, cloneElement){
 		const styles=new Styles(docx)
 		const $=docx.officeDocument.content
@@ -83,7 +83,12 @@ export default class extends Base{
 			case "heading":
 			case "p":{
 				let style=styles.p(props.pr)
-				return createElement(domain.Paragraph,style,children||[],node)
+				if(children.length==0){
+					let r=$("<w:r><w:t> </w:t></w:r>").appendTo(node).get(0)
+					let t=r.children[0]
+					children.push(createElement(domain.Text,style.r," ",t))
+				}
+				return createElement(domain.Paragraph,style,children,node)
 			}
 			case "r":{
 				let style=styles.r(props.pr)
