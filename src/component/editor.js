@@ -30,8 +30,7 @@ export class Editor extends Component{
 		media:PropTypes.string,
 		width:PropTypes.number.isRequired,
 		pgGap:PropTypes.number,
-		style:PropTypes.object,
-		getCursor: PropTypes.func
+		style:PropTypes.object
 	}
 
 	static contextTypes={
@@ -39,16 +38,10 @@ export class Editor extends Component{
 	}
 
 	transformed=new Map()
-	
+
 	getChildContext(){
 		const {media, width, pgGap, style}=this.props
-		const self=this
-		return {
-			media, width, pgGap, style,
-			getCursor(){
-				return self.refs.cursor
-			}
-		}
+		return {media, width, pgGap, style}
 	}
 	render(){
 		let transform=this.context.transformer||(a=>a)
@@ -64,7 +57,6 @@ export class Editor extends Component{
 					return (<Root key={i} domain={domain}/>)
 				})
 			}
-				<Cursor ref="cursor"/>
 			</div>
 		)
 	}
@@ -76,22 +68,22 @@ const Root=connect((state,{domain})=>{
 	static childContextTypes={
 		docId: PropTypes.string
 	}
-	docId=uuid()
+	docId=`editor_${uuid()}`
 	constructor(){
 		super(...arguments)
 		this.componentWillReceiveProps(this.props)
 	}
-	
+
 	getChildContext(){
-		return {docId}
+		return {docId:this.docId}
 	}
-	
+
 	componentWillReceiveProps({content,domain}){
 		this.doc=createChildElement("root",content,domain)
 	}
-	
+
 	render(){
-		return this.doc
+		return <div id={this.docId}>{this.doc}</div>
 	}
 })
 

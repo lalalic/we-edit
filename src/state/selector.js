@@ -60,6 +60,3 @@ export function getPrevTextOf(state,id){
 
 	return found
 }
-
-
-export default {getContent, getContentClientBoundBox}

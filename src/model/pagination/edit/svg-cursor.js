@@ -1,23 +1,23 @@
 import React from "react"
 
 import {Text} from "pagination"
-import {Flasher, stateful} from "state/cursor"
+import {Cursor} from "state/cursor"
 
-export class SVGFlasher extends Flasher{
+export class SVGCursor extends Cursor{
 	render(){
 		const {top, left, height,color}=this.state
 		return (
-			<line ref={a=>this.root}
+			<line ref={a=>this.root=a}
 				x1={left}
 				y1={top}
 				x2={left}
 				y2={top+height}
 				strokeWidth={1}
-				stroke={color||"black"}
+				stroke={"black"}
 				/>
 		)
 	}
-	
+
 	toggle(){
 		const {top, left, height,color}=this.state
 		let line=this.root
@@ -25,18 +25,18 @@ export class SVGFlasher extends Flasher{
 		let y2=line.getAttribute('y2')
 		line.setAttribute('y2',y1==y2 ? top+height : top)
 	}
-	
+
 	info(docId, id, at, text, style){
 		let texts=document.querySelectorAll(`#${docId} svg text[data-content="${id}"][end]`)
 		if(texts.length==0)
 			return null
-		
+
 		let {top,left,from}=getContentClientBoundBox(texts,at,id)
 		let wordwrapper=new Text.WordWrapper(style)
-		let width=wordwrapper.stringWidth(text.substring(from,at)))
+		let width=wordwrapper.stringWidth(text.substring(from,at))
 		let {height, descent}=wordwrapper
 		return {top, left, width, height, descent}
-	} 
+	}
 }
 
 function getContentClientBoundBox(texts, at, id){
@@ -61,4 +61,4 @@ function getContentClientBoundBox(texts, at, id){
 	return {top,left,from}
 }
 
-export default stateful(SVGFlasher)
+export default SVGCursor.connect()

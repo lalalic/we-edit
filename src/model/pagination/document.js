@@ -36,14 +36,16 @@ export default class Document extends Super{
 	static Composed=class extends Component{
         static displayName="composed-document"
 		render(){
-			const {sections, width}=this.props
+			const {sections, width, children}=this.props
 			return (
 				<ComposedDocument width={width} pages={
 					sections.reduce((pages,section)=>{
 						section.computed.composed.forEach(page=>pages.push(page))
 						return pages
 					},[])
-				}/>
+				}>
+                    {children}
+                </ComposedDocument>
 			)
 		}
 	}

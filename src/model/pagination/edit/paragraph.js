@@ -4,10 +4,11 @@ import Base from "../paragraph"
 import {editable} from "model/edit"
 import recomposable from "./recomposable"
 
-export default class Paragraph extends editable(recomposable(Base)){
+let mix
+export default editable(recomposable(Base)).mixin(mix={
     _isLastComposedFitIntoParent(){
         return true
-    }
+    },
 
     /**
      *  isAllChildrenComposed will affect last line height, so here we need make it right
@@ -25,9 +26,11 @@ export default class Paragraph extends editable(recomposable(Base)){
         })
         this.context.parent.on1ChildComposed(this)
         this.computed.lastComposed=null
-    }
+    },
 
     componentWillReceiveProps(next){
         this.computed.breakOpportunities=this.getBreakOpportunities(React.Children.toArray(next.children))
     }
-}
+})
+
+export const Paragraph=mix

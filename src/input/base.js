@@ -5,6 +5,7 @@ import Immutable, {Map, Record} from "immutable"
 import models from "model"
 import {createState} from "state"
 import {getContent} from "state/selector"
+import {Input} from "state/cursor"
 
 import {uuid} from "tools/uuid"
 
@@ -47,7 +48,7 @@ export default class{
 							})
 						})
 
-						
+
 
 						return (
 							<Provider store={createState(doc,content,self.onChange.bind(self))}>
@@ -112,16 +113,26 @@ class TransformerProvider extends Component{
 	}
 
 	static childContextTypes={
-		transformer: PropTypes.func
+		transformer: PropTypes.func,
+		getCursorInput: PropTypes.func
 	}
 
 	getChildContext(){
+		const self=this
 		return {
-			transformer:this.props.transformer
+			transformer:this.props.transformer,
+			getCursorInput(){
+				return self.refs.input
+			}
 		}
 	}
 
 	render(){
-		return <div>{this.props.children}</div>
+		return (
+			<div>
+				{this.props.children}
+				<Input ref="input"/>
+			</div>
+		)
 	}
 }

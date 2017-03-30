@@ -50,8 +50,8 @@ export default class Document extends Component{
 			<svg width={containerWidth} height={height}
 				viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
 				style={style}>
-				{this.props.children}
 				{pages}
+				{this.props.children}
 			</svg>
 		)
 	}
