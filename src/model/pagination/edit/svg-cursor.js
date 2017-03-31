@@ -6,7 +6,8 @@ import {getContent,getContentStyle} from "state/selector"
 
 export class SVGCursor extends Cursor{
 	render(){
-		const {top, left, height,color}=this.state
+		let {top, left, height,color}=this.state
+		height=0.1
 		return (
 			<line ref={a=>this.root=a}
 				x1={left}
@@ -20,7 +21,8 @@ export class SVGCursor extends Cursor{
 	}
 
 	toggle(){
-		const {top, left, height,color}=this.state
+		let {top, left, height,color}=this.state
+		height=0.1
 		let line=this.root
 		let y1=line.getAttribute('y1')
 		let y2=line.getAttribute('y2')

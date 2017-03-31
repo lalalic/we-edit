@@ -4,18 +4,20 @@ import Listener from "./listener"
 export default class Input extends Component{
 	state={top:0,left:0,height:0}
 	render(){
-		const {top,left,height}=this.state
-		const style={margin:0,padding:0,border:0,position:"absolute"}
+		const {top,left,height,color,fonts,size}=this.state
+		const style={margin:0,padding:0,border:0,position:"absolute",outline:"none"}
 		return (
 			<div unselectable="on"
-				style={{...style,left,top:top-height,position:"absolute",height:0.1,width:0.1}}>
+				style={{...style,left,top:top,position:"absolute",height:0,width:0}}>
 				<Listener ref={a=>this.listener=a}
 					style={{
 						...style,
+						color,
+						fontSize:size,
+						fontFamily:fonts,
 						height:height,
 						width:2,
-						background:"blue",
-						color:"transparent"
+						background:"transparent"
 					}}/>
 			</div>
 		)

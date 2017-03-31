@@ -56,7 +56,7 @@ export default class Cursor extends Component{
 		let {top,left,width,height,descent}=this.info(docId, id, at, text,style)
 		left+=width
 
-		return {color:style.color,left,top,height}
+		return {...style,left,top,height}
 	}
 
 	//should implement,{top, left, width,height,descent}
