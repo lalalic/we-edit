@@ -2,7 +2,7 @@ import React, {PureComponent, Component, PropTypes} from "react"
 import Base from "../document"
 import {Text} from "model/pagination"
 import {ACTION} from "state"
-import {getContent} from "state/selector"
+import {getContent,getContentStyle} from "state/selector"
 import {editable} from "model/edit"
 import recomposable from "./recomposable"
 
@@ -22,6 +22,16 @@ export default class Document extends editable(recomposable(Base)){
 			store: PropTypes.any
 		}
 
+		render(){
+			return (
+				<div ref={a=>this.root=a}>
+					<Base.Composed {...this.props}>
+						<SVGCursor ref={a=>this.cursor=a}/>
+					</Base.Composed>
+				</div>
+			)
+		}
+		
 		componentDidMount(){
 			this.root.querySelector("svg").addEventListener("click", e=>{
 				const target=e.target
@@ -34,24 +44,16 @@ export default class Document extends editable(recomposable(Base)){
 					let contentID=target.getAttribute("data-content")
 					let [x]=offset(e, target)
 					let dispatch=this.context.store.dispatch
-					const content=getContent(this.context.store.getState(), contentID).toJS()
-					const wordwrapper=new Text.WordWrapper(content.props)
+					const state=this.context.store.getState()
+					const content=getContent(state, contentID).toJS()
+					const style=getContentStyle(state,this.context.docId, contentID)
+					const wordwrapper=new Text.WordWrapper(style)
 					const end=wordwrapper.widthString(x, content.children.substr(from))
 					dispatch(ACTION.Cursor.AT(contentID,from+end))
 					dispatch(ACTION.Cursor.ACTIVE(this.context.docId))
 				break
 				}
 			})
-		}
-
-		render(){
-			return (
-				<div ref={a=>this.root=a}>
-					<Base.Composed {...this.props}>
-						<SVGCursor ref={a=>this.cursor=a}/>
-					</Base.Composed>
-				</div>
-			)
 		}
 
 		componentDidUpdate(){

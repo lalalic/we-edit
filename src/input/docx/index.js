@@ -22,11 +22,14 @@ export default class extends Base{
 		return docx4js.load(file)
 	}
 
+	//@TODO: remove cloneElement, docx-table,docx-row have to be imlemented
 	_render(docx,domain,createElement, cloneElement){
 		const styles=new Styles(docx)
 		const $=docx.officeDocument.content
+		let build
+		let renderNode=node=>docx.officeDocument.renderNode(node,build)
 
-		return docx.render((type,props,children)=>{
+		return docx.render(build=(type,props,children)=>{
 			let node=props.node
 			children=children.reduce((merged,a)=>{
 				if(Array.isArray(a))
@@ -90,20 +93,17 @@ export default class extends Base{
 						let rPr=props.pr.children.find(a=>a.name=="w:rPr")
 						if(rPr){
 							$(rPr).clone().prependTo(r)
+							
 							rStyle=styles.r(rPr.get(0))
 						}
 					}
-					children.push(createElement(domain.Text,{...rStyle, ...style.r}," ",t))
+					children.push(renderNode(r))
 				}
 				return createElement(domain.Paragraph,style,children,node)
 			}
 			case "r":{
 				let style=styles.r(props.pr)
-				return children.map(a=>{
-					if(a.type==domain.Text)
-						return cloneElement(a,style)
-					return a
-				})
+				return createElement(Transformers.Run(domain),style,children,node)
 			}
 			case "t":
 				return children[0] ? createElement(domain.Text,{},children[0],node) : null
@@ -127,7 +127,7 @@ export default class extends Base{
 		if(raw.attribs.id!=undefined)
 			return raw.atrribs.id
 
-		let id=uuid()+""
+		let id=uuid()
 		Object.defineProperty(raw.attribs,"id",{
 			enumerable: false,
 			configurable: false,
@@ -141,16 +141,18 @@ export default class extends Base{
 		const {type,payload}=action
 		const doc=getFile(state)
 		const {start:{id,at}, end}=getSelection(state)
-
+		const target=doc.officeDocument.content(`#${id}`)
+		if(target.length!=1){
+			console.dir(doc.officeDocument.content.xml(target))
+			throw new Error(`[content.id=${id}].length=${target.length}`)
+		}
 		switch(type){
 			case `text/insert`:{
-				let target=doc.officeDocument.content(`#${id}`)
 				let text=target.text()
 				target.text(text.substring(0,at)+payload+text.substr(end.at))
 				break
 			}
 			case `text/remove`:{
-				let target=doc.officeDocument.content(`#${id}`)
 				let text=target.text(), n=payload
 				target.text(text.substring(0,at-n)+text.substr(end.at))
 				break

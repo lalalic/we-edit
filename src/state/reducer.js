@@ -11,7 +11,7 @@ export function text(state, {type,payload}){
 			at+=payload.length
 			return state.withMutations(state=>{
 				state
-					.set("selection",{start:{id,at},end:{id,at}})
+					.set("selection",{...state.get("selection"),start:{id,at},end:{id,at}})
 					.set("content",state.get("content").set(id,content))
 			})
 		}else{
@@ -28,7 +28,7 @@ export function text(state, {type,payload}){
 			at-=n
 			return state.withMutations(state=>{
 				state
-					.set("selection",{start:{id,at},end:{id,at}})
+					.set("selection",{...state.get("selection"),start:{id,at},end:{id,at}})
 					.set("content",state.get("content").set(id,content))
 			})
 		}else{
@@ -43,9 +43,9 @@ export function text(state, {type,payload}){
 export function selection(state={start:{id:"0",at:0},end:{id:"0",at:0}}, {type,payload}){
 	switch(type){
 	case `selection/SELECTED`:
-		return ({...state, ...payload})
+		return {...state, ...payload}
 	case `selection/DOC`:
-		return ({...state, active:payload})
+		return {...state, active:payload}
 	default:
 		return state
 	}

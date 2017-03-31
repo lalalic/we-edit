@@ -1,5 +1,4 @@
-var _textComposerTime=0
-export default class WordWrapper{
+export class WordWrapper{
     constructor(style){
 		const {fonts, size, color}=style
 		this.style=style
@@ -47,3 +46,5 @@ export default class WordWrapper{
 		},{width:0,text:"",done:false}).text.length
 	}
 }
+
+export default WordWrapper

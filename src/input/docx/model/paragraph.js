@@ -1,6 +1,17 @@
 import React, {Children,Component, PropTypes} from "react"
 
-export default function(Models){
+export default function transform(Models){
+	const Paragraph=Models.Paragraph.mixin(transform.extend={
+		getBreakOpportunities(){
+			let children=[]
+			Children.forEach(this.props.children, r=>{
+				children.splice(children.length,0,...Children.toArray(r.props.children))
+			})
+			let opportunities=Models.Paragraph.prototype.getBreakOpportunities.call(this,children)
+			return opportunities
+		}
+	})
+	
 	return class extends Component{
 		static displayName="docx-paragraph"
 		static contextTypes={
@@ -28,7 +39,7 @@ export default function(Models){
 		}
 
 		render(){
-			return <Models.Paragraph {...this.style}/>
+			return <Paragraph {...this.style}/>
 		}
 	}
 }

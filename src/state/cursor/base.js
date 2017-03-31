@@ -1,6 +1,6 @@
 import React, {PureComponent as Component, PropTypes} from "react"
 import {connect} from "react-redux"
-import {getContent} from "state/selector"
+import {getContent, getContentStyle} from "state/selector"
 
 export default class Cursor extends Component{
 	static display="cursor"
@@ -25,10 +25,12 @@ export default class Cursor extends Component{
 	}
 
 	componentWillReceiveProps({active,id,at}, {docId,getCursorInput}){
-		if(this.props.id!==id || this.props.at!==at)
-			this.position(this.context.docId,id,at)
-
-		if(docId==active)
+		if(this.props.id!==id || this.props.at!==at){
+			let style=this.position(docId,id,at)
+			this.setState(style)
+			if(docId==active)
+				getCursorInput().setState(style)
+		}else if(docId==active)
 			getCursorInput().setState(this.state)
 	}
 
@@ -48,14 +50,13 @@ export default class Cursor extends Component{
 
 	position(docId,id,at){
 		const state=this.context.store.getState()
-		const {children:text, ...style}=getContent(state, id).toJS()
+		const {children:text}=getContent(state, id).toJS()
+		const style=getContentStyle(state, docId, id)
 
 		let {top,left,width,height,descent}=this.info(docId, id, at, text,style)
 		left+=width
 
-		this.setState({...style,left,top,height})
-
-		return {left, top}
+		return {color:style.color,left,top,height}
 	}
 
 	//should implement,{top, left, width,height,descent}

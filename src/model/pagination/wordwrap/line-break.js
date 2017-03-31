@@ -1,5 +1,9 @@
 import LineBreaker from "linebreak"
 
+/**
+* find opportunities from a structured texts
+*
+*/
 export default function opportunities(items,getText=a=>a,breakable=a=>true, reviver=a=>a){
     let commit=(state,i)=>{
         if(state.text.length==0)
@@ -50,8 +54,15 @@ export default function opportunities(items,getText=a=>a,breakable=a=>true, revi
                     end:{itemIndex:end.itemIndex,at:end.i},
                     word
                 }))
-            start=end
-            
+			
+			start=end
+			
+			//end at item end, let next start from next item
+            if(start.itemIndex<text.length 
+				&& text[start.itemIndex].length==start.i){
+				start.itemIndex+=1
+				start.i=0
+			}
         }
        text.splice(0,text.length)
        return state

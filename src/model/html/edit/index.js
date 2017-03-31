@@ -7,7 +7,13 @@ import Document from "./document"
 function composable(Content){
 	return class extends Content{
 		render(){
-			return React.cloneElement(super.render(), {"data-content":this.props.id})
+			if(!super.render)
+				return null
+			
+			let root=super.render()
+			if(root && root.type)
+				return React.cloneElement(root, {"data-content":this.props.id})
+			return root
 		}
 	}
 }

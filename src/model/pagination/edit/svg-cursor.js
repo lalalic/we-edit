@@ -2,7 +2,7 @@ import React from "react"
 
 import {Text} from "pagination"
 import {Cursor} from "state/cursor"
-import {getContent} from "state/selector"
+import {getContent,getContentStyle} from "state/selector"
 
 export class SVGCursor extends Cursor{
 	render(){

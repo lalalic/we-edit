@@ -1,6 +1,6 @@
 import React, {PropTypes} from "react"
 import Cursor from "./base"
-import WordWrapper from "wordwrap"
+import {WordWrapper} from "wordwrap"
 
 export class HtmlCursor extends Cursor{
 	render(){
@@ -8,18 +8,19 @@ export class HtmlCursor extends Cursor{
 		const style={margin:0,padding:0,border:0,position:"absolute"}
 
 		return (
-			<div unselectable="on" ref={a=>this.root}
+			<div unselectable="on" ref={a=>this.root=a}
 				style={{...style,left,top,height,width:size}}/>
 		)
 	}
 
-	info(docId, id, text, style){
+	info(docId, id, at, text, style){
 		let node=document.querySelector(`#${docId} span[data-content="${id}"]`)
 		if(!node)
 			return null
 
 		let {top,left}=node.getBoundingClientRect()
 		let wordwrapper=new this.constructor.HtmlWrapper(node)
+		
 		let width=wordwrapper.stringWidth(text.substring(0,at))
 		let {height, descent}=wordwrapper
 		wordwrapper.close()
@@ -35,9 +36,10 @@ export class HtmlCursor extends Cursor{
 		constructor(node){
 			this.node=node
 			this.tester=node.cloneNode(false)
+			this.tester.innerHTML="M"
 			this.tester.style="position:absolute;left:-999;top:0;"
 			node.parentNode.appendChild(this.tester)
-			this.height=node.getBoundingClientRect().height
+			this.height=this.tester.getBoundingClientRect().height
 			this.descent=0
 		}
 
@@ -47,7 +49,7 @@ export class HtmlCursor extends Cursor{
 	    }
 
 		widthString(width,text){
-			return WordWrapper.prototype.widthString.apply(this,width,text)
+			return WordWrapper.prototype.widthString.apply(this,arguments)
 		}
 
 		close(){

@@ -58,15 +58,15 @@ export default class{
 							</Provider>
 						)
 					},
-					save(option, name=url){
-						return self.save(doc, option, name)
+					save(name,option){
+						return self.save(doc, name, option)
 					}
 				}
 			})
 	}
 
-	save(doc, option, name){
-		return doc.save(name)
+	save(doc, name, option){
+		return doc.save(name,option)
 	}
 
 	_loadFile(url){

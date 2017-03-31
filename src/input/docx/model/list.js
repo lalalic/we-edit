@@ -1,8 +1,11 @@
-import React, {Component, PropTypes} from "react"
+import React, {Children, Component, PropTypes} from "react"
 import Paragraph from "./paragraph"
 
 export default function(Models){
-	return class List extends Paragraph(Models){
+	class List extends Models.List.mixin(Paragraph.extend){
+	}
+	
+	return class extends Paragraph(Models){
 		static displayName="docx-list"
 		static propTypes={
 			numId: PropTypes.string,
@@ -33,7 +36,7 @@ export default function(Models){
 		}
 
 		render(){
-			return <Models.List {...this.style}
+			return <List {...this.style}
 				label={<Models.Text {...this.label} id={`${this.props.numId}_${this.props.level}`}/>}/>
 		}
 	}

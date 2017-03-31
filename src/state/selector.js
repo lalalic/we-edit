@@ -1,12 +1,23 @@
 export function getSelection(state){
 	return state.get("selection")
 }
+
 export function getFile(state){
 	return state.get("doc")
 }
 
 export function getContent(state,id){
 	return state.get("content").get(id)
+}
+
+export function getComposers(state){
+	return state.get("composers")
+}
+
+export function getContentStyle(state, editorId, contentId){
+	const composers=state.get("composers")
+	let {children,id,namedStyle,...style}=composers[editorId][contentId].props
+	return style
 }
 
 export function findTextIn(content, direction=""){

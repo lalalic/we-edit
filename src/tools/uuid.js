@@ -1,4 +1,7 @@
-let id=1
-export const uuid=a=>id++
+import shortid from "shortid"
+
+function uuid(){
+	return shortid.generate()
+}
 
 export default uuid
