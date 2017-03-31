@@ -20,6 +20,10 @@ export function getContentStyle(state, editorId, contentId){
 	return style
 }
 
+export function getStyles(state){
+	return state.get("content").get("root").get("props.styles")
+}
+
 export function findTextIn(content, direction=""){
 	if(typeof(content.getContent())=='string')
 		return content

@@ -65,15 +65,20 @@ export default class extends Base{
 				return createElement(domain.Table,{cols,width,...direct},children,node)
 			}
 			case "tr":{//direct style only
+				let style={}
 				if(props.pr){
+					style=styles.select(node.children)
+					/*
 					let style=styles.tr(props.pr)
 					const {cnfStyle,...others}=style
 
 					if(style.cnfStyle)
 						children=children.map(a=>cloneElement(a,{cnfStyle: style.cnfStyle | a.props.cnfStyle}))
 					return createElement(domain.Row,others,children,node)
+					*/
 				}
-				return createElement(domain.Row,{},children,node)
+
+				return createElement(domain.Row,style,children,node)
 			}
 			case "tc":{//direct style only
 				let style=styles.tc(props.pr)||{}
@@ -93,7 +98,7 @@ export default class extends Base{
 						let rPr=props.pr.children.find(a=>a.name=="w:rPr")
 						if(rPr){
 							$(rPr).clone().prependTo(r)
-							
+
 							rStyle=styles.r(rPr.get(0))
 						}
 					}
