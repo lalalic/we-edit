@@ -16,7 +16,8 @@ export default function(Models){
 
 		render(){
 			const {styles,...others}=this.props
-			
+	
+			Object.keys(styles).forEach((k,t)=>(t=styles[k])&& t.reset && t.reset())
 			
 			return <Models.Document {...others}/>
 		}

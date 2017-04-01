@@ -11,7 +11,7 @@ export default function(Models){
 		}
 					
 		componentWillReceiveProps({children,...direct},{styles}){
-			let style=styles.get(direct.namedStyle||this.constructor.namedStyle)
+			let style=styles[direct.namedStyle||this.constructor.namedStyle]
 			
 			let tblStyle="indent".split(",")
 				.reduce((o,key,t)=>{

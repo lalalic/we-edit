@@ -31,7 +31,7 @@ export default function(Models){
 			super.componentWillReceiveProps(...arguments)
 			const {numId,ilvl:level}=next.num
 			
-			const numStyle=styles.get(`_num_${numId}`)
+			const numStyle=styles[`_num_${numId}`]
 			
 			this.label=this.getLabel(numStyle,numId,level)
 			this.label={...this.label,...this.getChildContext().r}

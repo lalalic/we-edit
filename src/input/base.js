@@ -48,16 +48,6 @@ export default class{
 	}
 	
 	static createStyles(){
-		return {
-			set:(id,style)=>{
-				Object.defineProperty(this,id,{
-					enumerable: true,
-					configurable: true,
-					writable: true,
-					value: style
-				})
-			},
-			get:id=>this[id]
-		}
+		return {}
 	}	
 }

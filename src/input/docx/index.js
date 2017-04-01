@@ -48,34 +48,34 @@ export default class extends Base{
 			case "style":{
 				let id=props.id
 				if(!id){
-					styles.set("*",new Style.Default(node, selector))
+					styles['*']=new Style.Default(node, selector)
 				}else{
 					let type=node.attribs["w:type"]
 					switch(type){
 					case "paragraph":
-						styles.set(id,new Style.Paragraph(node,styles,selector))
+						styles[id]=new Style.Paragraph(node,styles,selector)
 					break
 					case "character":
-						styles.set(id,new Style.Character(node,styles,selector))
+						styles[id]=new Style.Character(node,styles,selector)
 					break
 					case "numbering":
-						styles.set(id,new Style.Numbering(node,styles,selector))
+						styles[id]=new Style.Numbering(node,styles,selector)
 					break
 					case "table":
-						styles.set(id,new Style.Table(node,styles,selector))
+						styles[id]=new Style.Table(node,styles,selector)
 					break
 					}
 
 					if(node.attribs["w:default"]=="1")
-						styles.set(`*${type}`,styles.get(id))
+						styles[`*${type}`]=styles[id]
 				}
 				return null
 			}
 			case "num":
-				styles.set(`_num_${node.attribs["w:numId"]}`,new Style.Num(node,styles,selector))
+				styles[`_num_${node.attribs["w:numId"]}`]=new Style.Num(node,styles,selector)
 				return null
 			case "abstractNum":
-				styles.set(`_abstractNum_${node.attribs["w:abstractNumId"]}`,new Style.AbstractNum(node,styles,selector))
+				styles[`_abstractNum_${node.attribs["w:abstractNumId"]}`]=new Style.AbstractNum(node,styles,selector)
 				return null
 			case "document":
 				return createElement(

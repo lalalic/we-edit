@@ -38,7 +38,7 @@ export default function transform(Models){
 
 		componentWillReceiveProps(direct,context){
 			const styles=context.styles
-			let style=styles.get(direct.namedStyle||this.constructor.namedStyle)
+			let style=styles[direct.namedStyle||this.constructor.namedStyle]
 			
 			let rStyle="bold,italic,vanish".split(",")
 				.reduce((o,key,t)=>{

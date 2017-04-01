@@ -26,7 +26,7 @@ export default function(Models){
 
 		componentWillReceiveProps({children,id,namedStyle,...direct},context){
 			const styles=context.styles
-			let style=styles.get(namedStyle||this.constructor.namedStyle)
+			let style=styles[namedStyle||this.constructor.namedStyle]
 			
 			let rStyle="bold,italic,vanish".split(",")
 				.reduce((o,key,t)=>{
