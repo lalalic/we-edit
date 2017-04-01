@@ -4,15 +4,15 @@ jest.mock("react-redux", ()=>{
 	}
 })
 import React from "react"
-import {shallow, render, mount} from "enzyme"
+import {mount as rawMount} from "enzyme"
 
 import Page from "composed/page"
 import Pagination from "pagination"
 import Editable from "pagination/edit"
 
-
-
 const DOMAIN={Pagination, Editable}
+
+let mount=rawMount
 
 describe("composer", function(){
 	"Pagination,Editable".split(",").forEach(domain=>
@@ -38,6 +38,19 @@ describe("composer", function(){
 						EditablesWithId[key]=withDefaultId(EditablesWithId[key])
 						return EditablesWithId
 					},{...Domain})
+				})
+				mount=a=>rawMount(a,{
+					context:{
+						store:{
+							getState(){
+								return {
+									get(){
+										return {}
+									}
+								}
+							}
+						}
+					}
 				})
 			}
 
