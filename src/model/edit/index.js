@@ -1,5 +1,5 @@
 import {PropTypes} from "react"
-import {getComposers} from "state/selector"
+import {recordComposer} from "state/selector"
 
 export function editable(Model){
 	return class extends Model{
@@ -12,20 +12,12 @@ export function editable(Model){
 		
 		static contextTypes={
 			...Model.contextTypes,
-			docId: PropTypes.any,
-			store: PropTypes.any,
+			docId: PropTypes.any
 		}
 		
 		constructor(){
 			super(...arguments)
-			const state=this.context.store.getState()
-			const composers=getComposers(state)
-			let editorId=this.context.docId
-			let contentId=this.props.id
-			let t
-			if(!(t=composers[editorId]))
-				t=composers[editorId]={}
-			t[contentId]=this
+			recordComposer(this)
 		}
 	}
 }

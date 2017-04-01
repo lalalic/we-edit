@@ -9,7 +9,6 @@ export function createState(doc, content, docReducer=state=>state){
 	const INIT_STATE=Map({
 			doc, //source file
 			content, // models
-			composers:{}, //model instances
 			selection:{start:{id,at},end:{id,at}}
 			})
 

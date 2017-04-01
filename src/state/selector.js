@@ -1,3 +1,5 @@
+const composers={}
+
 export function getSelection(state){
 	return state.get("selection")
 }
@@ -10,12 +12,15 @@ export function getContent(state,id){
 	return state.get("content").get(id)
 }
 
-export function getComposers(state){
-	return state.get("composers")
+export function recordComposer(composer,t){
+	let editorId=composer.context.docId
+	let contentId=composer.props.id
+	if(!(t=composers[editorId]))
+		t=composers[editorId]={}
+	t[contentId]=composer
 }
 
 export function getContentStyle(state, editorId, contentId){
-	const composers=state.get("composers")
 	let {children,id,namedStyle,...style}=composers[editorId][contentId].props
 	return style
 }
