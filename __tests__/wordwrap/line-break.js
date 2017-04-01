@@ -1,4 +1,4 @@
-import opportunities from "../../src/wordwrap/line-break"
+import opportunities from "wordwrap/line-break"
 
 describe("opportunities", function(){
 	const text=[	"hello world ",
@@ -93,6 +93,14 @@ describe("opportunities", function(){
 	it("reviver", function(){
 		let items=opportunities(text,undefined,undefined,a=>({...a,id:a.start.itemIndex}))
 		items.forEach(a=>expect(a.id).toBe(a.start.itemIndex))
+	})
+	
+	it("boundary:[hello ][world]",function(){
+		let items=opportunities(["hello ","world"])
+		let [first,second]=items
+		expect(items.length).toBe(2)
+		expect(second.start.itemIndex).toBe(1)
+		expect(second.start.at).toBe(0)
 	})
 	
 })
