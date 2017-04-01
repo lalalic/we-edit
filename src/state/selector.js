@@ -21,7 +21,7 @@ export function getContentStyle(state, editorId, contentId){
 }
 
 export function getStyles(state){
-	return state.get("content").get("root").get("props.styles")
+	return state.get("content").get("root").get("props").get("styles")
 }
 
 export function findTextIn(content, direction=""){

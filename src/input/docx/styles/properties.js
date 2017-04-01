@@ -4,13 +4,14 @@ export class Properties{
 	constructor(docx){
 		this.docx=docx
 		this.theme=getTheme(docx)
+		this.rStyle=this.pStyle=this.tblStyle=this._val
 	}
 
 	select(nodes, keyMap={}){
 		return nodes.reduce((props,x)=>{
 			let name=x.name.split(":").pop()
 			if(this[name])
-				props[keyMap[x.name]||name]=this[name](x)
+				props[keyMap[x.name]||keyMap[name]||name]=this[name](x)
 			return props
 		},{})
 	}
@@ -213,9 +214,9 @@ export class Properties{
 
 	asToggle(x){
 		if(x==undefined || x.val==undefined){
-			return -1
+			return !!-1
 		}else{
-			return parseInt(this._val(x))
+			return !!parseInt(this._val(x))
 		}
 	}
 

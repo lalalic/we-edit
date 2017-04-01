@@ -4,6 +4,7 @@ import Base from "../base"
 import uuid from "tools/uuid"
 
 import Styles from "./styles"
+import Properties from "./styles/properties"
 
 import {getFile, getSelection} from "state/selector"
 
@@ -24,6 +25,7 @@ export default class extends Base{
 
 	//@TODO: remove cloneElement, docx-table,docx-row have to be imlemented
 	_render(docx,domain,createElement, cloneElement){
+		const selector=new Properties(docx)
 		const styles=new Styles(docx)
 		const $=docx.officeDocument.content
 		let build
@@ -85,29 +87,49 @@ export default class extends Base{
 				return createElement(domain.Cell,style,children,node)
 			}
 			case "list":{
-				let style=styles.list(props.pr)||{}
+				let style=selector.select(props.pr.children,{
+					spacing:"spacing",
+					ind:"indent",
+					numPr:"num",
+					pStyle:"namedStyle"
+				})
 				return createElement(domain.List,style,children,node)
 			}
 			case "heading":
 			case "p":{
-				let style=styles.p(props.pr), rStyle
+				let style=null
+				if(props.pr)
+					style=selector.select(props.pr.children,{
+						spacing:"spacing",
+						ind:"indent",
+						numPr:"num",
+						pStyle:"namedStyle"
+					})
+				
 				if(children.length==0){
 					let r=$("<w:r><w:t> </w:t></w:r>").appendTo(node).get(0)
 					let t=r.children[0]
 					if(props.pr){
 						let rPr=props.pr.children.find(a=>a.name=="w:rPr")
-						if(rPr){
+						if(rPr)
 							$(rPr).clone().prependTo(r)
-
-							rStyle=styles.r(rPr.get(0))
-						}
 					}
 					children.push(renderNode(r))
 				}
+				
 				return createElement(domain.Paragraph,style,children,node)
 			}
 			case "r":{
-				let style=styles.r(props.pr)
+				let style=null
+				if(props.pr)
+					style = selector.select(props.pr.children, {
+							rFonts: "fonts",
+							sz: "size",
+							b: "bold",
+							i: "italic",
+							rStyle: "namedStyle"
+						})
+				
 				return createElement(Transformers.Run(domain),style,children,node)
 			}
 			case "t":

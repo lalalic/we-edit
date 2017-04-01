@@ -8,6 +8,7 @@ import Table from "./table"
 import Num from "./numbering/num"
 import AbstractNum from "./numbering/abstractNum"
 
+import {Record} from "immutable"
 export class Styles{
 	constructor(docx){
 		let selector=new Properties(docx)
@@ -202,6 +203,8 @@ export class Styles{
 		this.select=function(){
 			return selector.select(...arguments)
 		}
+		
+		this.get=a=>styles[a]
 	}
 }
 
