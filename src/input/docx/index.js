@@ -1,13 +1,8 @@
-import React, {Component, PropTypes} from "react"
 import docx4js from "docx4js"
-import Base from "../base"
 import uuid from "tools/uuid"
+import Base from "input/base"
 
-import Styles from "./styles"
-import Properties from "./styles/properties"
-
-import {getFile, getSelection} from "state/selector"
-
+import Style from "./styles"
 import Transformers from "./model"
 
 export default class extends Base{
@@ -15,22 +10,32 @@ export default class extends Base{
 		return type=="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 	}
 
+	load(file){
+		return docx4js.load(file)
+	}
+	
 	create(){
 		return docx4js.create()
 	}
-
-	_loadFile(file){
-		return docx4js.load(file)
+	
+	save(docx,name,option){
+		return docx.save(name,option)
 	}
-
-	_render(docx,domain,createElement){
-		const selector=new Properties(docx)
-		const styles=new Styles(docx)
+	
+	transform(domain){
+		return Object.keys(Transformers).reduce((transformed,k)=>{
+			transformed[k]=Transformers[k](domain)
+			return transformed
+		},{...domain})
+	}
+	
+	render(docx,domain,createElement){
+		const selector=new Style.Properties(docx)
 		const $=docx.officeDocument.content
-		let build
-		let renderNode=node=>docx.officeDocument.renderNode(node,build)
-
-		return docx.render(build=(type,props,children)=>{
+		
+		const styles=Base.createStyles()	
+		
+		function build(type,props,children){
 			let node=props.node
 			children=children.reduce((merged,a)=>{
 				if(Array.isArray(a))
@@ -40,17 +45,49 @@ export default class extends Base{
 				return merged
 			},[])
 			switch(type){
+			case "style":{
+				let id=props.id
+				if(!id){
+					styles.set("*",new Style.Default(node, selector))
+				}else{
+					let type=node.attribs["w:type"]
+					switch(type){
+					case "paragraph":
+						styles.set(id,new Style.Paragraph(node,styles,selector))
+					break
+					case "character":
+						styles.set(id,new Style.Character(node,styles,selector))
+					break
+					case "numbering":
+						styles.set(id,new Style.Numbering(node,styles,selector))
+					break
+					case "table":
+						styles.set(id,new Style.Table(node,styles,selector))
+					break
+					}
+
+					if(node.attribs["w:default"]=="1")
+						styles.set(`*${type}`,styles.get(id))
+				}
+				return null
+			}
+			case "num":
+				styles.set(`_num_${node.attribs["w:numId"]}`,new Style.Num(node,styles,selector))
+				return null
+			case "abstractNum":
+				styles.set(`_abstractNum_${node.attribs["w:abstractNumId"]}`,new Style.AbstractNum(node,styles,selector))
+				return null
 			case "document":
 				return createElement(
 					domain.Document,
-					{styles, ...styles.select(node.children.filter(a=>a.name!="w:body"))},
+					{styles, ...selector.select(node.children.filter(a=>a.name!="w:body"))},
 					children,
 					node
 				)
 			case "section":
-				return createElement(domain.Section,styles.select(node.children),children,node)
+				return createElement(domain.Section,selector.select(node.children),children,node)
 			case "tbl":{
-				let cols=styles.select([node.children.find(a=>a.name=="w:tblGrid")]).tblGrid
+				let cols=selector.select([node.children.find(a=>a.name=="w:tblGrid")]).tblGrid
 				let width=cols.reduce((w,a)=>w+a,0)
 				let style
 				if(props.pr)
@@ -135,15 +172,21 @@ export default class extends Base{
 					return children[0]
 				return children
 			}
-		})
+		}
+		
+		function renderNode(node){
+			return docx.officeDocument.renderNode(node,build)
+		}
+
+		return docx.render(build)
 	}
 
-	_identify(raw){
-		if(raw.attribs.id!=undefined)
-			return raw.atrribs.id
+	identify(node){
+		if(node.attribs.id!=undefined)
+			return node.atrribs.id
 
 		let id=uuid()
-		Object.defineProperty(raw.attribs,"id",{
+		Object.defineProperty(node.attribs,"id",{
 			enumerable: false,
 			configurable: false,
 			writable: false,
@@ -152,15 +195,16 @@ export default class extends Base{
 		return id
 	}
 
-	_onChange(state,action){
+	onChange(docx, selection,action){
 		const {type,payload}=action
-		const doc=getFile(state)
-		const {start:{id,at}, end}=getSelection(state)
-		const target=doc.officeDocument.content(`#${id}`)
+		const {start:{id,at}, end}=selection
+		
+		const target=docx.officeDocument.content(`#${id}`)
 		if(target.length!=1){
-			console.dir(doc.officeDocument.content.xml(target))
+			console.dir(docx.officeDocument.content.xml(target))
 			throw new Error(`[content.id=${id}].length=${target.length}`)
 		}
+		
 		switch(type){
 			case `text/insert`:{
 				let text=target.text()
@@ -176,12 +220,6 @@ export default class extends Base{
 
 			}
 		}
-	}
-
-	_transform(Models){
-		return Object.keys(Transformers).reduce((transformed,k)=>{
-			transformed[k]=Transformers[k](Models)
-			return transformed
-		},{...Models})
+		return true
 	}
 }

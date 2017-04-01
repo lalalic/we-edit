@@ -1,6 +1,5 @@
 import React, {Children, Component, PropTypes} from "react"
 import Paragraph from "./paragraph"
-import {getStyles} from "state/selector"
 
 export default function(Models){
 	class List extends Models.List.mixin(Paragraph.extend){
@@ -24,12 +23,12 @@ export default function(Models){
 
 		static contextTypes={
 			...Super.contextTypes,
-			label: PropTypes.func
+			label: PropTypes.func,
+			styles: PropTypes.object
 		}
 
-		componentWillReceiveProps(next,context){
+		componentWillReceiveProps(next,{styles}){
 			super.componentWillReceiveProps(...arguments)
-			const styles=getStyles(context.store.getState())
 			const {numId,ilvl:level}=next.num
 			
 			const numStyle=styles.get(`_num_${numId}`)

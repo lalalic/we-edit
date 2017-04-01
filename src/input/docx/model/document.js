@@ -3,22 +3,21 @@ import React, {Component, PropTypes} from "react"
 export default function(Models){
 	return class Document extends Component{
 		static displayName="docx-document"
+		
 		static childContextTypes={
-			label: PropTypes.func
+			styles: PropTypes.object
 		}
-
+		
 		getChildContext(){
-			let self=this
 			return {
-				label(id,level){
-					return self.props.styles.listLabel(id,level)
-				}
+				styles:this.props.styles
 			}
 		}
 
 		render(){
 			const {styles,...others}=this.props
-			styles.resetNum()
+			
+			
 			return <Models.Document {...others}/>
 		}
 	}

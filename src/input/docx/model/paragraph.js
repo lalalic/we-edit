@@ -1,5 +1,4 @@
 import React, {Children,Component, PropTypes} from "react"
-import {getStyles} from "state/selector"
 
 export default function transform(Models){
 	const Paragraph=Models.Paragraph.mixin(transform.extend={
@@ -19,7 +18,7 @@ export default function transform(Models){
 		static contextTypes={
 			p: PropTypes.object,
 			r: PropTypes.object,
-			store: PropTypes.any
+			styles: PropTypes.object
 		}
 
 		static childContextTypes={
@@ -38,7 +37,7 @@ export default function transform(Models){
 		}
 
 		componentWillReceiveProps(direct,context){
-			const styles=getStyles(context.store.getState())
+			const styles=context.styles
 			let style=styles.get(direct.namedStyle||this.constructor.namedStyle)
 			
 			let rStyle="bold,italic,vanish".split(",")

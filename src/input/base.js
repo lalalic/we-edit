@@ -1,128 +1,63 @@
-import React, {Component, PropTypes} from "react"
-import {Provider} from "react-redux"
-import Immutable, {Map, Record} from "immutable"
-
-import models from "model"
-import {createState} from "state"
-import {getContent} from "state/selector"
-import {Input} from "state/cursor"
-
 import {uuid} from "tools/uuid"
 
 export default class{
 	static support(){
 		return false
 	}
-
+	
 	load(url){
-		let self=this
-		return this._loadFile(url)
-			.then(doc=>{
-				return {
-					render(domain){
-						return self._render(doc, domain, (type, props, children, raw)=>{
-							return React.createElement(type,{...props,key:self._identify(raw)},children)
-						}, React.cloneElement)
-					},
-					Store(props){
-						let content=new Map().withMutations(function(content){
-							self._render(doc, models, (type, props, children, raw)=>{
-								const id=type.displayName=="document" ? "root" : self._identify(raw)
-
-								content.set(id, Immutable.fromJS({
-									type:type.displayName,
-									props,
-									children: !Array.isArray(children) ? children : children.map(a=>a.id)
-								}))
-
-								return {id,type,props,children}
-							})
-						})
-
-
-
-						return (
-							<Provider store={createState(doc,content,self.onChange.bind(self))}>
-								<TransformerProvider transformer={self._transform}>
-									{props.children}
-								</TransformerProvider>
-							</Provider>
-						)
-					},
-					save(name,option){
-						return self.save(doc, name, option)
-					}
-				}
-			})
-	}
-
-	save(doc, name, option){
-		return doc.save(name,option)
-	}
-
-	_loadFile(url){
 		return Promise.reject(new Error("need implementation to load and parse content at "+url))
+	}
+	
+	create(){
+		throw new Error("not support")
 	}
 
 	/**
-	* render a doc, loaded by this._loadFile, with models in domain to a element tree,
+	* render a loaded doc, loaded by this._loadFile, with models in domain to a element tree,
 	* whose element is created with createElement
 	*/
-	_render(doc, domain,
-		createElement/*(TYPE, props, children, rawcontent)*/){
-		return <div>{"Input._render should be implemented"}</div>
+	render(loaded, domain, createElement/*(TYPE, props, children, rawcontent)*/){
+		return "Input.render should be implemented"
+	}
+	
+	/**
+	* a higher-order component of models
+	* 
+	*/
+	transform(domain){
+		return domain
+	}	
+
+	/**
+	* to identify raw content node with an id, so editor can specify what is changed
+	*/
+	identify(content){
+		return uuid()
 	}
 
-	//to identify raw content node with an id, so editor can specify what is changed
-	_identify(rawNode){
-		return uuid()+""
+	/**
+	* 
+	*/
+	onChange(loaded, selection, action){
+		return true
 	}
-
-	onChange(state, action){
-		if(action.type=="@@INIT")
-			return state
-
-		this._onChange(state,action)
-
-		return state
+	
+	save(loaded, name, option){
+		throw new Error("not support")
 	}
-
-	_onChange(doc,action,selection){
-		//change your content
-	}
-
-	//a higher-order component of models
-	_transform(Models){
-		return Models
-	}
-}
-
-class TransformerProvider extends Component{
-	static propTypes={
-		transformer: PropTypes.func.isRequired
-	}
-
-	static childContextTypes={
-		transformer: PropTypes.func,
-		getCursorInput: PropTypes.func
-	}
-
-	getChildContext(){
-		const self=this
+	
+	static createStyles(){
 		return {
-			transformer:this.props.transformer,
-			getCursorInput(){
-				return self.refs.input
-			}
+			set:(id,style)=>{
+				Object.defineProperty(this,id,{
+					enumerable: true,
+					configurable: true,
+					writable: true,
+					value: style
+				})
+			},
+			get:id=>this[id]
 		}
-	}
-
-	render(){
-		return (
-			<div>
-				{this.props.children}
-				<Input ref="input"/>
-			</div>
-		)
-	}
+	}	
 }

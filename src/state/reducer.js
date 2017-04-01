@@ -40,7 +40,7 @@ export function text(state, {type,payload}){
 	}
 }
 
-export function selection(state={start:{id:"0",at:0},end:{id:"0",at:0}}, {type,payload}){
+export function selection(state, {type,payload}){
 	switch(type){
 	case `selection/SELECTED`:
 		return {...state, ...payload}

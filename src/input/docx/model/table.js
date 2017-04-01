@@ -1,22 +1,16 @@
 import React, {Component, PropTypes} from "react"
-import {getStyles} from "state/selector"
 
 export default function(Models){
 	return class extends Component{
 		static displayName="docx-table"
 		static namedStyle="*table"
 		
-		static contextTypes={
-			store: PropTypes.any
-		}
-		
 		constructor(){
 			super(...arguments)
 			this.componentWillReceiveProps(this.props,this.context)
 		}
 					
-		componentWillReceiveProps({children,...direct},{store}){
-			const styles=getStyles(store.getState())
+		componentWillReceiveProps({children,...direct},{styles}){
 			let style=styles.get(direct.namedStyle||this.constructor.namedStyle)
 			
 			let tblStyle="indent".split(",")

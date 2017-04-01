@@ -23,7 +23,7 @@ export class Getable{
 
 	_getFromBasedOn(path){
 		let t
-		if(this.basedOn && (t=this.styles[this.basedOn]))
+		if(this.basedOn && (t=this.styles.get(this.basedOn)))
 			return t.get(...arguments)
 		return undefined
 	}
@@ -37,14 +37,14 @@ export class Getable{
 
 	_invokeOnBasedOn(path){
 		let t
-		if(this.basedOn && (t=this.styles[this.basedOn]))
+		if(this.basedOn && (t=this.styles.get(this.basedOn)))
 			return t.invoke(...arguments)
 		return undefined
 	}
 
 	get parent(){
 		let t
-		if(this.basedOn && (t=this.styles[this.basedOn]))
+		if(this.basedOn && (t=this.styles.get(this.basedOn)))
 			return t
 	}
 }

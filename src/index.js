@@ -1,16 +1,14 @@
-if (!String.prototype.splice) {
-    String.prototype.splice = function(start, delCount, newSubStr="") {
-        return this.slice(0, start) + newSubStr + this.slice(start + Math.abs(delCount));
-    };
-}
-
 import React, {Component, PropTypes} from "react"
 import ReactDOM from "react-dom"
 import ReactDOMServer from "react-dom/server"
 
 import {Editor, Composer, Viewer, Pagination, Html} from "component"
 
-import Input from "./input"
+import Input from "input"
+
+import Docx from "input/docx"
+
+Input.support(Docx)
 
 export function edit(input,container){
 	ReactDOM.unmountComponentAtNode(container)
@@ -53,5 +51,16 @@ export function compose(input){
 export function create(container){
     ReactDOM.unmountComponentAtNode(container)
 	return Input.create()
-        .then(doc=>ReactDOM.render(doc,container))
+        .then(doc=>{
+			ReactDOM.render((
+				<doc.Store>
+					<div className="editors">
+						<Editor>
+							<Pagination/>
+						</Editor>
+					</div>
+				</doc.Store>
+			), container)
+			return doc
+		})
 }

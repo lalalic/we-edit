@@ -1,5 +1,4 @@
 import React, {Component, PropTypes} from "react"
-import {getStyles} from "state/selector"
 
 export default function(Models){
 	return class extends Component{
@@ -17,7 +16,7 @@ export default function(Models){
 		
 		static contextTypes={
 			r: PropTypes.object,
-			store: PropTypes.any
+			styles: PropTypes.object
 		}
 		
 		constructor(){
@@ -26,7 +25,7 @@ export default function(Models){
 		}
 
 		componentWillReceiveProps({children,id,namedStyle,...direct},context){
-			const styles=getStyles(context.store.getState())
+			const styles=context.styles
 			let style=styles.get(namedStyle||this.constructor.namedStyle)
 			
 			let rStyle="bold,italic,vanish".split(",")
