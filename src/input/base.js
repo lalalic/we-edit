@@ -36,15 +36,6 @@ export default class{
 								}))
 
 								return {id,type,props,children}
-							}, ({id},props,children)=>{
-								let item=content.get(id)
-								content.set(id,item=item.withMutations(map=>{
-									if(props)
-										map.set("props",{...map.get("props"),...props})
-									if(children)
-										map.set("children", !Array.isArray(children) ? children : children.map(a=>a.id))
-								}))
-								return {id,...item.toJS()}
 							})
 						})
 
@@ -78,8 +69,7 @@ export default class{
 	* whose element is created with createElement
 	*/
 	_render(doc, domain,
-		createElement/*(TYPE, props, children, rawcontent)*/,
-		cloneElement/*(element,props,children)*/){
+		createElement/*(TYPE, props, children, rawcontent)*/){
 		return <div>{"Input._render should be implemented"}</div>
 	}
 
@@ -88,11 +78,11 @@ export default class{
 		return uuid()+""
 	}
 
-	onChange(state, action, createElement,cloneElement){
+	onChange(state, action){
 		if(action.type=="@@INIT")
 			return state
 
-		this._onChange(state,action, createElement,cloneElement)
+		this._onChange(state,action)
 
 		return state
 	}

@@ -23,8 +23,7 @@ export default class extends Base{
 		return docx4js.load(file)
 	}
 
-	//@TODO: remove cloneElement, docx-table,docx-row have to be imlemented
-	_render(docx,domain,createElement, cloneElement){
+	_render(docx,domain,createElement){
 		const selector=new Properties(docx)
 		const styles=new Styles(docx)
 		const $=docx.officeDocument.content
@@ -53,37 +52,26 @@ export default class extends Base{
 			case "tbl":{
 				let cols=styles.select([node.children.find(a=>a.name=="w:tblGrid")]).tblGrid
 				let width=cols.reduce((w,a)=>w+a,0)
-				let [direct,style]=styles.tbl(props.pr)
-
-				children=children.map((row,i)=>{
-					let children=row.children.map((cell,j)=>{
-						let cellStyle=style.merge(cell.props,i,j)
-
-						return cloneElement(cell,{...cellStyle,cnfStyle:undefined})
+				let style
+				if(props.pr)
+					style=selector.select(props.pr.children, {
+						tblStyle:"namedStyle"
 					})
-					return cloneElement(row,{children})
-				})
 
-				return createElement(domain.Table,{cols,width,...direct},children,node)
+				return createElement(domain.Table,{cols,width,...style},children,node)
 			}
-			case "tr":{//direct style only
-				let style={}
-				if(props.pr){
-					style=styles.select(node.children)
-					/*
-					let style=styles.tr(props.pr)
-					const {cnfStyle,...others}=style
-
-					if(style.cnfStyle)
-						children=children.map(a=>cloneElement(a,{cnfStyle: style.cnfStyle | a.props.cnfStyle}))
-					return createElement(domain.Row,others,children,node)
-					*/
-				}
+			case "tr":{
+				let style
+				if(props.pr)
+					style=selector.select(props.pr.children,{"w:tcBorders":"border"})
 
 				return createElement(domain.Row,style,children,node)
 			}
-			case "tc":{//direct style only
-				let style=styles.tc(props.pr)||{}
+			case "tc":{
+				let style
+				if(props.pr)
+					style=selector.select(props.pr.children,{"w:tcBorders":"border"})
+				
 				return createElement(domain.Cell,style,children,node)
 			}
 			case "list":{

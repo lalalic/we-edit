@@ -29,13 +29,15 @@ export default function(Models){
 
 		componentWillReceiveProps(next,context){
 			super.componentWillReceiveProps(...arguments)
-			this.label=context.label(next.num.numId,next.num.ilvl)
-			this.label={...this.label,...this.getChildContext().r}
+			const styles=getStyles(context.store.getState())
 			const {numId,ilvl:level}=next.num
 			
-			const styles=getStyles(context.store.getState())
-			let indentList={...styles.get([`_num_${numId}`]).get(`${level}.p.indent`)}
+			const numStyle=styles.get(`_num_${numId}`)
 			
+			this.label=this.getLabel(numStyle,numId,level)
+			this.label={...this.label,...this.getChildContext().r}
+			
+			let indentList={...numStyle.get(`${level}.p.indent`)}
 			if(this.style.indent){
 				const {left=0,hanging=0}=this.style.indent
 				this.style.indent.left=Math.max(left+hanging,indentList.left)
@@ -47,6 +49,22 @@ export default function(Models){
 			
 			this.style.numId=numId
 			this.style.level=level
+		}
+		
+		getLabel(numStyle,id,level){
+			let label=numStyle.level(level).invoke(`next`)
+			return "fonts,size,color".split(",")
+				.reduce((props,key, t)=>{
+					if(t=numStyle.get(`${level}.r.${key}`)!=undefined)
+						props[key]=t
+					return props
+				},"bold,italic,vanish".split(",")
+					.reduce((o,key,t)=>{
+						if((t=numStyle.get(`${level}.r.${key}`))!=undefined)
+							o[key]=!!t
+						return o
+					},{children:label})
+				)
 		}
 
 		render(){
