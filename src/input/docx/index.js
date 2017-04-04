@@ -13,28 +13,28 @@ export default class extends Base{
 	load(file){
 		return docx4js.load(file)
 	}
-	
+
 	create(){
 		return docx4js.create()
 	}
-	
+
 	save(docx,name,option){
 		return docx.save(name,option)
 	}
-	
+
 	transform(domain){
 		return Object.keys(Transformers).reduce((transformed,k)=>{
 			transformed[k]=Transformers[k](domain)
 			return transformed
 		},{...domain})
 	}
-	
+
 	render(docx,domain,createElement){
 		const selector=new Style.Properties(docx)
 		const $=docx.officeDocument.content
-		
-		const styles=Base.createStyles()	
-		
+
+		const styles=Base.createStyles()
+
 		function build(type,props,children){
 			let node=props.node
 			children=children.reduce((merged,a)=>{
@@ -85,7 +85,28 @@ export default class extends Base{
 					node
 				)
 			case "section":
-				return createElement(domain.Section,selector.select(node.children),children,node)
+				let style=selector.select(node.children)
+				style.headers={}
+				style.footers={}
+				let {headers, footers}=props
+
+				for(let [type,header] of headers){
+					let hdr=header("w\\:hdr").get(0)
+					children.splice(0,0,style.headers[type]=createElement(domain.Header,{type},
+						hdr.children.map(a=>renderNode(a)),
+						hdr
+					))
+				}
+
+				for(let [type,footer] of footers){
+					let ftr=footer("w\\:ftr").get(0)
+					children.splice(0,0,style.footers[type]=createElement(domain.Footer,{type},
+							ftr.children.map(a=>renderNode(a)),
+							ftr
+						))
+				}
+
+				return createElement(domain.Section,style,children,node)
 			case "tbl":{
 				let cols=selector.select([node.children.find(a=>a.name=="w:tblGrid")]).tblGrid
 				let width=cols.reduce((w,a)=>w+a,0)
@@ -108,7 +129,7 @@ export default class extends Base{
 				let style
 				if(props.pr)
 					style=selector.select(props.pr.children,{"w:tcBorders":"border"})
-				
+
 				return createElement(domain.Cell,style,children,node)
 			}
 			case "list":{
@@ -130,7 +151,7 @@ export default class extends Base{
 						numPr:"num",
 						pStyle:"namedStyle"
 					})
-				
+
 				if(children.length==0){
 					let r=$("<w:r><w:t> </w:t></w:r>").appendTo(node).get(0)
 					let t=r.children[0]
@@ -141,7 +162,7 @@ export default class extends Base{
 					}
 					children.push(renderNode(r))
 				}
-				
+
 				return createElement(domain.Paragraph,style,children,node)
 			}
 			case "r":{
@@ -154,7 +175,7 @@ export default class extends Base{
 							i: "italic",
 							rStyle: "namedStyle"
 						})
-				
+
 				return createElement(Transformers.Run(domain),style,children,node)
 			}
 			case "t":
@@ -173,7 +194,7 @@ export default class extends Base{
 				return children
 			}
 		}
-		
+
 		function renderNode(node){
 			return docx.officeDocument.renderNode(node,build)
 		}
@@ -198,13 +219,13 @@ export default class extends Base{
 	onChange(docx, selection,action){
 		const {type,payload}=action
 		const {start:{id,at}, end}=selection
-		
+
 		const target=docx.officeDocument.content(`#${id}`)
 		if(target.length!=1){
 			console.dir(docx.officeDocument.content.xml(target))
 			throw new Error(`[content.id=${id}].length=${target.length}`)
 		}
-		
+
 		switch(type){
 			case `text/insert`:{
 				let text=target.text()

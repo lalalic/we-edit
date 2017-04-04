@@ -1,11 +1,11 @@
 import React from "react"
 
-import {HasChild} from "./composable"
+import {HasParentAndChild} from "./composable"
 import Base from "../header"
 
 import Group from "./composed/group"
 
-const Super=HasChild(Base)
+const Super=HasParentAndChild(Base)
 export default class Header extends Super{
 	nextAvailableSpace(){
 		const {pgSz:{width}, pgMar:{right,left}}=this.context
@@ -17,7 +17,7 @@ export default class Header extends Super{
 	}
 
 	onAllChildrenComposed(){
-		super.onAllChildrenComposed()
+		this.context.parent.on1ChildComposed(this)
 	}
 
 	createComposed2Parent(){

@@ -30,14 +30,12 @@ export default class Section extends Component{
 		headers: PropTypes.shape({
 			first: PropTypes.element,
 			even: PropTypes.element,
-			odd: PropTypes.element,
-			default: PropTypes.element,
+			odd: PropTypes.element
 		}),
 		footers: PropTypes.shape({
 			first: PropTypes.element,
 			even: PropTypes.element,
-			odd: PropTypes.element,
-			default: PropTypes.element,
+			odd: PropTypes.element
 		})
 	}
 
