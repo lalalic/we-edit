@@ -5,7 +5,7 @@ import Component from "./component"
 export default class Header extends Component{
     static displayName="header"
     static propTypes={
-        type: PropTypes.oneOf(["first","event","default"])
+        type: PropTypes.oneOf(["first","even","default"])
     }
 
     static defaultProps={

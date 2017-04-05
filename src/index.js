@@ -1,8 +1,8 @@
-import React, {Component, PropTypes} from "react"
+import React from "react"
 import ReactDOM from "react-dom"
 import ReactDOMServer from "react-dom/server"
 
-import {Editor, Composer, Viewer, Pagination, Html} from "component"
+import {Editor, Viewer, Pagination, Html} from "component"
 
 import Input from "input"
 
@@ -27,27 +27,6 @@ export function edit(input,container){
 		})
 }
 
-export function preview(input,container){
-    ReactDOM.unmountComponentAtNode(container)
-	return Input.load(input)
-		.then(doc=>ReactDOM.render((
-			<doc.Store>
-				<Viewer>
-					<Pagination/>
-				</Viewer>
-				<Viewer>
-					<Html/>
-				</Viewer>
-			</doc.Store>
-		), container))
-}
-
-export function compose(input){
-	Content.Text.WordWrapper=NodeWordWrapper
-	return Input.load(input)
-		.then(doc=>ReactDOMServer.renderToStaticMarkup(doc.render(Pagination)))
-}
-
 export function create(container){
     ReactDOM.unmountComponentAtNode(container)
 	return Input.create()
@@ -63,4 +42,22 @@ export function create(container){
 			), container)
 			return doc
 		})
+}
+
+export function preview(input,container){
+    ReactDOM.unmountComponentAtNode(container)
+	return Input.load(input)
+		.then(doc=>ReactDOM.render((
+			<doc.Store>
+				<Viewer>
+					<Pagination/>
+				</Viewer>
+			</doc.Store>
+		), container))
+}
+
+export function compose(input){
+	Content.Text.WordWrapper=NodeWordWrapper
+	return Input.load(input)
+		.then(doc=>ReactDOMServer.renderToStaticMarkup(doc.render(Pagination)))
 }

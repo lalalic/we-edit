@@ -34,6 +34,10 @@ export class Properties{
 			return value
 		},{})
 	}
+	
+	titlePg(x){
+		return true
+	}
 
 	cnfStyle(x){
 		return parseInt(x.attribs["w:val"],2)

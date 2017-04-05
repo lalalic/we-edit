@@ -1,4 +1,5 @@
 import Document from "./document"
+import Section from "./section"
 
 import Paragraph from "./paragraph"
 import List from "./list"
@@ -10,7 +11,7 @@ import Row from "./row"
 import Cell from "./cell"
 
 export default {
-	Document,
+	Document, Section, 
 	Paragraph,
 	List,
 	Text,

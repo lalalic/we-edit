@@ -1,4 +1,7 @@
 import React, {PropTypes} from "react"
+
+import get from "lodash.get"
+
 import {HasParentAndChild} from "./composable"
 import Base from "../section"
 
@@ -122,13 +125,9 @@ export default class Section extends Super{
 		return <Group {...props}/>
 	}
 
-	//check http://officeopenxml.com/WPsectionFooterReference.php
 	getPageHeaderFooter(category, pageNo){
 		category=this.computed[`${category}s`]
-		let type=pageNo==1 ? 'first' : (pageNo%2==0 ? 'even' : 'default')
-		let target=category[type]
-		if(target)
-			return target
+		return get(category,`${pageNo==1 ? 'first' : pageNo%2==0 ? 'even' : 'odd'}`,get(category,`default`))
 	}
 
 	on1ChildComposed(child){

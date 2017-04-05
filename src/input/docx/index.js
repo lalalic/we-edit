@@ -30,8 +30,10 @@ export default class extends Base{
 	}
 
 	render(docx,domain,createElement){
+		const self=this
 		const selector=new Style.Properties(docx)
 		const $=docx.officeDocument.content
+		const settings=docx.officeDocument.settings
 
 		const styles=Base.createStyles()
 
@@ -78,34 +80,32 @@ export default class extends Base{
 				styles[`_abstractNum_${node.attribs["w:abstractNumId"]}`]=new Style.AbstractNum(node,styles,selector)
 				return null
 			case "document":
+				let evenAndOddHeaders=settings("w\\:evenAndOddHeaders").length>0
 				return createElement(
 					domain.Document,
-					{styles, ...selector.select(node.children.filter(a=>a.name!="w:body"))},
+					{styles, evenAndOddHeaders, ...selector.select(node.children.filter(a=>a.name!="w:body"))},
 					children,
 					node
 				)
 			case "section":
 				let style=selector.select(node.children)
-				style.headers={}
-				style.footers={}
-				let {headers, footers}=props
 
-				for(let [type,header] of headers){
-					let hdr=header("w\\:hdr").get(0)
-					children.splice(0,0,style.headers[type]=createElement(domain.Header,{type},
-						hdr.children.map(a=>renderNode(a)),
-						hdr
-					))
-				}
-
-				for(let [type,footer] of footers){
-					let ftr=footer("w\\:ftr").get(0)
-					children.splice(0,0,style.footers[type]=createElement(domain.Footer,{type},
-							ftr.children.map(a=>renderNode(a)),
-							ftr
+				const hf=cat=>node.children.filter(a=>a.name==`w:${cat}Reference`)
+					.forEach(a=>{
+						let type=a.attribs["w:type"]
+						let rId=a.attribs["r:id"]
+						let root=docx.officeDocument.getRel(rId).root().children().get(0)
+						self.part=rId
+						children.splice(0,0,createElement(domain[`${cat.charAt(0).toUpperCase()}${cat.substr(1)}`],{type},
+							root.children.map(a=>renderNode(a)),
+							root
 						))
-				}
-
+						delete self.part
+					})
+					
+				hf("header")
+				hf("footer")
+					
 				return createElement(domain.Section,style,children,node)
 			case "tbl":{
 				let cols=selector.select([node.children.find(a=>a.name=="w:tblGrid")]).tblGrid
@@ -213,14 +213,27 @@ export default class extends Base{
 			writable: false,
 			value: id
 		})
+		
+		if(this.part)
+			return `${id}[${this.part}]`
+		
 		return id
+	}
+	
+	getRaw(docx, id){
+		var part
+		[id,part]=id.split(/[\[\]]/g)
+		if(!part)
+			return docx.officeDocument.content(`#${id}`)
+		else
+			return docx.officeDocument.getRel(part)(`#${id}`)
 	}
 
 	onChange(docx, selection,action){
 		const {type,payload}=action
 		const {start:{id,at}, end}=selection
 
-		const target=docx.officeDocument.content(`#${id}`)
+		const target=this.getRaw(docx,id)
 		if(target.length!=1){
 			console.dir(docx.officeDocument.content.xml(target))
 			throw new Error(`[content.id=${id}].length=${target.length}`)

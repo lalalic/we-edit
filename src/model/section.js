@@ -26,16 +26,6 @@ export default class Section extends Component{
 				width: PropTypes.number,
 				space: PropTypes.number
 			}))
-		}),
-		headers: PropTypes.shape({
-			first: PropTypes.element,
-			even: PropTypes.element,
-			odd: PropTypes.element
-		}),
-		footers: PropTypes.shape({
-			first: PropTypes.element,
-			even: PropTypes.element,
-			odd: PropTypes.element
 		})
 	}
 

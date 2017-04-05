@@ -13,7 +13,7 @@ export default class Header extends Super{
 	}
 
 	appendComposed(line){
-		this.computed.composed.push(line)
+		this.computed.composed.push(React.cloneElement(line,{key:this.computed.composed.length}))
 	}
 
 	onAllChildrenComposed(){
