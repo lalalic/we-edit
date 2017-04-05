@@ -17,6 +17,7 @@
 				"composed":"model/pagination/composed",
 				"tools":"tools",
 				"input":"input",
+				"fonts":"model/pagination/wordwrap/fonts",
 				"wordwrap":"model/pagination/wordwrap"
 			}
 		}]

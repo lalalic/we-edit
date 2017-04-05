@@ -1,5 +1,5 @@
 import WordWrapper from "."
-import Fonts from "../fonts"
+import Fonts from "fonts"
 
 export default class NodeWordWraper extends WordWrapper{
     lineHeight(){
@@ -7,7 +7,7 @@ export default class NodeWordWraper extends WordWrapper{
         return {
 			height : this.tester.lineHeight(this.size), 
 			descent: this.tester.lineDescent(this.size)
-			}
+		}
     }
 
     stringWidth(word){

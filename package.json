@@ -16,6 +16,7 @@
     "lodash.invoke": "^4.5.2",
     "mouse-event-offset": "^3.0.2",
     "normalizr": "^2.2.1",
+    "opentype.js": "^0.6.9",
     "react": "^15.1.0",
     "react-dom": "^15.1.0",
     "react-redux": "^4.4.6",

@@ -4,13 +4,18 @@ import {NoChild} from "./composable"
 import Base from "../text"
 
 import SVGWordWrapper from "./wordwrap/svg"
+import NodeWordWrapper from "./wordwrap/node"
+
 import Group from "./composed/group"
 import ComposedText from "./composed/text"
 
 const Super=NoChild(Base)
 
 export default class Text extends Super{
-    static WordWrapper=SVGWordWrapper
+    static get WordWrapper(){
+		return typeof(window)!="undefined" ? SVGWordWrapper : NodeWordWrapper
+	}
+	
     static contextTypes={
 		...Super.contextTypes,
 		getMyBreakOpportunities: PropTypes.func

@@ -1,6 +1,6 @@
 import docx4js from "docx4js"
 
-import Styles from "input/docx/styles"
+import Properties from "input/docx/styles/properties"
 
 describe("styles",function(){
 	let styles
@@ -8,7 +8,7 @@ describe("styles",function(){
 	beforeAll(()=>{
 		return docx4js.create().then(docx=>{
 			docx.parts["word/styles.xml"]=docx4js.parseXml(content)
-			return styles=new Styles(docx)
+			return styles=new Properties(docx)
 		})
 	})
 	
