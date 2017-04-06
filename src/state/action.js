@@ -1,4 +1,4 @@
-import {getContent} from "./selector"
+import {getContent, nextCursorable, prevCursorable} from "./selector"
 import {Text as TextModel} from "pagination"
 
 export const Cursor={
@@ -12,9 +12,9 @@ export const Cursor={
 		if(text.length>at+1){
 			at++
 		}else{
-			target=getNextTextOf(state,id)
+			target=nextCursorable(state,id)
 			if(target){
-				id=target.get("id")
+				id=target
 				at=0
 			}else{
 				//keep cursor at end of current target
@@ -28,10 +28,11 @@ export const Cursor={
 		if(at>0){
 			at--
 		}else{
-			let target=getPrevTextOf(state,id)
+			let target=prevCursorable(state,id)
 			if(target){
-				id=target.get("id")
-				at=target.children.length-1
+				id=target
+				let children=getContent(state, target).get("children")
+				at=children.length-1
 			}else{
 				//keep cursor at end of current target
 			}

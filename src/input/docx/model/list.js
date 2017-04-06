@@ -2,9 +2,6 @@ import React, {Children, Component, PropTypes} from "react"
 import Paragraph from "./paragraph"
 
 export default function(Models){
-	class List extends Models.List.mixin(Paragraph.extend){
-	}
-	
 	const Super=Paragraph(Models)
 	return class extends Super{
 		static displayName="docx-list"
@@ -67,7 +64,7 @@ export default function(Models){
 		}
 
 		render(){
-			return <List {...this.style}
+			return <Models.List {...this.style} children={this.children}
 				label={<Models.Text {...this.label} id={`${this.props.numId}_${this.props.level}`}/>}/>
 		}
 	}

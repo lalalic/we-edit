@@ -3,9 +3,9 @@ import Models from ".."
 import {editable} from "model/edit"
 import recomposable from "./recomposable"
 
-const Editabls=Object.keys(Models).reduce((Editabls, key)=>{
-	Editabls[key]=editable(recomposable(Models[key]))
-	return Editabls
+const Editables=Object.keys(Models).reduce((Editables, key)=>{
+	Editables[key]=editable(recomposable(Models[key]))
+	return Editables
 },{})
 
 import Document from "./document"
@@ -14,7 +14,7 @@ import Paragraph from "./paragraph"
 import List from "./list"
 
 export default {
-	...Editabls,
+	...Editables,
 	Document,
 	Section,
 	Paragraph,

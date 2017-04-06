@@ -12,9 +12,7 @@ import ComposedText from "./composed/text"
 const Super=NoChild(Base)
 
 export default class Text extends Super{
-    static get WordWrapper(){
-		return typeof(window)!="undefined" ? SVGWordWrapper : NodeWordWrapper
-	}
+    static WordWrapper=typeof(window)!="undefined" ? SVGWordWrapper : NodeWordWrapper
 	
     static contextTypes={
 		...Super.contextTypes,
@@ -32,12 +30,12 @@ export default class Text extends Super{
 
     compose(){
 		const parent=this.context.parent
-        const {fonts,size,color,bold,italic,vanish}=this.props
+        const {fonts,size,color,bold,italic,vanish,children:myText}=this.props
 		const composer=new this.constructor.WordWrapper({fonts,size,color,bold,italic,vanish})
 		const defaultStyle=composer.defaultStyle
 
 		const breakOpportunities=this.context.getMyBreakOpportunities(this)
-
+		
 		const commit=state=>{
 			let {content,width,end}=state
 			let composedText=this.createComposed2Parent({
@@ -59,17 +57,28 @@ export default class Text extends Super{
 			if(startItemId==endItemId){
 				//whole word
 			}else if(startItemId==id){
-				word=word.substring(0,word.length-endAt)
+				if(endItemId==id)
+					word=word.substring(0,word.length-endAt)
+				else{
+					word=word.substring(0,myText.length)
+					endAt=myText.length
+				}
 			}else if(endItemId==id){
 				word=word.substr(-endAt)
 			}
 			let wordWidth=composer.stringWidth(word)
 			let {space:{width:maxWidth},content,width}=state
-			if(width+wordWidth<=maxWidth){
+			if(Math.floor(width+wordWidth)<=maxWidth){
 				content.push(word)
 				state.width+=wordWidth
 				state.end=endAt
-			}else{//@TODO: end-of-line with whitespace,xx should be able to extend line width
+			}else if((/\s+$/.test(word) && //doing: end-of-line with whitespace,xx should be able to extend line width
+				Math.floor(width+(wordWidth=composer.stringWidth(word.replace(/\s+$/,''))))<=maxWidth)){
+				content.push(word)
+				state.width+=wordWidth
+				state.end=endAt
+			}
+			else{
 				if(width!=0)
 					commit(state)
 				state.space=parent.nextAvailableSpace({height:composer.height,width:wordWidth})

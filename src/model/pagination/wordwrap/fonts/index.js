@@ -11,6 +11,9 @@ export default {
             throw new Error(`${name} not exists`)
         }
     },
+	names(){
+		return Object.keys(fonts)
+	},
 	fromBrowser(loader){
 		return new Promise((resolve, reject)=>{
 			let loaded=[], files=loader.files
@@ -23,7 +26,7 @@ export default {
 						try{
 							let data=reader.result
 							let id=name.split(".")[0].toLowerCase()
-							fonts[id]=opentype.parse(data)
+							fonts[id]=extend(opentype.parse(data))
 							console.log(`${name} font loaded`)
 							resolve(fonts[id])
 						}catch(e){
@@ -47,19 +50,43 @@ export default {
 				if(err)
 					reject(err)
 				else {
-					let all=files.map(file=>new Promise((r,j)=>{
+					let all=files.filter(a=>a.endsWith(".ttf")).map(file=>new Promise((r,j)=>{
 						fs.readFile(`${path}/${file}`, (err, data)=>{
 							if(err){
-								j(error)
+								j(err)
 							}else{
 								let id=file.split(".")[0].toLowerCase()
-								r(fonts[id]=opentype.parse(data))
+								let buffer=nodeBufferToArrayBuffer(data)
+								r(fonts[id]=extend(opentype.parse(buffer)))
 							}
 						})
 					}))
-					Promise.all(...all).then(resolve,reject)
+					Promise.all(all).then(resolve,reject)
 				}
 			})
 		})
 	}
+}
+
+function extend(font){
+	return Object.assign(font,{
+		lineHeight(fontSize){
+			const scale = 1 / this.unitsPerEm * fontSize
+			return scale*(this.ascender-this.descender)
+		},
+		lineDescent(fontSize){
+			const scale = 1 / this.unitsPerEm * fontSize;
+			return -this.descender*scale
+		}
+	})
+}
+
+
+function nodeBufferToArrayBuffer(buffer) {
+	var ab = new ArrayBuffer(buffer.length);
+	var view = new Uint8Array(ab);
+	for (var i = 0; i < buffer.length; ++i) {
+		view[i] = buffer[i];
+	}
+	return ab;
 }

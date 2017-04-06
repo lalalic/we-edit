@@ -18,14 +18,11 @@ export default class Paragraph extends Super{
     }
     constructor(){
         super(...arguments)
-        this.computed.breakOpportunities=this.getBreakOpportunities()
+        this.computed.breakOpportunities=this.getBreakOpportunities(this.props.children)
     }
 
     getBreakOpportunities(children){
-		if(!children)
-            children=React.Children.toArray(this.props.children)
-
-        function getText({props:{children:text}}){
+		function getText({props:{children:text}}){
             return text
         }
 
@@ -39,8 +36,8 @@ export default class Paragraph extends Super{
                 opportunity.end.itemId=children[opportunity.end.itemIndex].props.id
             return opportunity
         }
-
-        return opportunities(children,getText, breakable, reviver)
+		
+		return opportunities(children,getText, breakable, reviver)
     }
 
     getChildContext(){
@@ -48,7 +45,19 @@ export default class Paragraph extends Super{
         return {
             ...super.getChildContext(),
             getMyBreakOpportunities({props:{id}}){
-				return self.computed.breakOpportunities.filter(({start,end})=>start.itemId==id || (end && end.itemId==id))
+				let index=self.computed.children.length
+				let opportunities=self.computed.breakOpportunities.filter(({start,end})=>{
+					return start.itemIndex<=index && end.itemIndex>=index
+				})
+				if(false && opportunities.length && opportunities[0].itemIndex!=index){
+					let {start:{itemIndex,at}, end}=opportunies[0]
+					for(let i=itemIndex;i<index;i++){
+						self.props.children[itemIndex]
+					}
+					let adjusted={end, start:{at, itemIndex:index, itemId:id}}
+					opportunies[0]=adjusted
+				}
+				return opportunities
             }
         }
     }

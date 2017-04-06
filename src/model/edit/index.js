@@ -19,5 +19,10 @@ export function editable(Model){
 			super(...arguments)
 			recordComposer(this)
 		}
+		
+		cursorable(){
+			let type=this.constructor.displayName.split('-').pop()
+			return ["text","image"].indexOf(type)!=-1
+		}
 	}
 }

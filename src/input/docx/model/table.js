@@ -5,6 +5,10 @@ export default function(Models){
 		static displayName="docx-table"
 		static namedStyle="*table"
 		
+		static contextTypes={
+			styles: PropTypes.object
+		}
+		
 		constructor(){
 			super(...arguments)
 			this.componentWillReceiveProps(this.props,this.context)

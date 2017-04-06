@@ -29,19 +29,22 @@ export function getStyles(state){
 	return state.get("content").get("root").get("props").get("styles")
 }
 
-export function findTextIn(content, direction=""){
-	if(typeof(content.getContent())=='string')
+function findCursorableIn(content, direction=""){
+	if(content.cursorable())
 		return content
 	return content.computed.children[`reduce${direction}`]((state,next)=>{
 		if(state)
 			return state
-		return findTextIn(next, direction)
+		return findCursorableIn(next, direction)
 	},null)
 }
 
-export function getNextTextOf(state,id){
-	let current=getContent(state,id)
+export function nextCursorable(state,id){
+	let {active}=getSelection(state)
+	let components=composers[active]
+	let current=components[id]
 	let parent=current.context.parent
+	
 	let children=parent.computed.children
 	let index=children.findIndex(a=>a==current)
 	let found=children[index+1]
@@ -53,16 +56,19 @@ export function getNextTextOf(state,id){
 		found=children.filter((a,i)=>i>index).reduce((state,next)=>{
 			if(state)
 				return state
-			return findTextIn(next)
+			return findCursorableIn(next)
 		},null)
 	}
-
-	return found
+	
+	return found ? found.props.id : null
 }
 
-export function getPrevTextOf(state,id){
-	let current=getContent(id)
+export function prevCursorable(state,id){
+	let {active}=getSelection(state)
+	let components=composers[active]
+	let current=components[id]
 	let parent=current.context.parent
+	
 	let children=parent.computed.children
 	let index=children.findIndex(a=>a==current)
 	let found=children[index-1]
@@ -74,9 +80,9 @@ export function getPrevTextOf(state,id){
 		found=children.filter((a,i)=>i<index).reduceRight((state,next)=>{
 			if(state)
 				return state
-			return findTextIn(next,"Right")
+			return findCursorableIn(next,"Right")
 		},null)
 	}
 
-	return found
+	return found ? found.props.id : null
 }

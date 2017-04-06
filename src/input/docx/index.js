@@ -182,7 +182,7 @@ export default class extends Base{
 				return children[0] ? createElement(domain.Text,{},children[0],node) : null
 			case "control.picture":
 			case "inline.picture":{
-				let style=styles.select($(node).find("wp\\:extent").toArray())
+				let style=selector.select($(node).find("wp\\:extent").toArray())
 				return createElement(domain.Image,{...style.extent, src:props.url},null,node)
 			}
 			case "bookmarkStart":
