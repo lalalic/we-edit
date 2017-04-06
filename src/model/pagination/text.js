@@ -13,7 +13,7 @@ const Super=NoChild(Base)
 
 export default class Text extends Super{
     static WordWrapper=typeof(window)!="undefined" ? SVGWordWrapper : NodeWordWrapper
-	
+
     static contextTypes={
 		...Super.contextTypes,
 		getMyBreakOpportunities: PropTypes.func
@@ -35,7 +35,7 @@ export default class Text extends Super{
 		const defaultStyle=composer.defaultStyle
 
 		const breakOpportunities=this.context.getMyBreakOpportunities(this)
-		
+
 		const commit=state=>{
 			let {content,width,end}=state
 			let composedText=this.createComposed2Parent({
@@ -59,10 +59,8 @@ export default class Text extends Super{
 			}else if(startItemId==id){
 				if(endItemId==id)
 					word=word.substring(0,word.length-endAt)
-				else{
-					word=word.substring(0,myText.length)
-					endAt=myText.length
-				}
+				else
+					word=word.substring(0,myText.length-startAt)
 			}else if(endItemId==id){
 				word=word.substr(-endAt)
 			}
