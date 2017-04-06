@@ -30,23 +30,14 @@ export default class Paragraph extends Super{
             return typeof(text)=="string"
         }
 
-        function reviver(opportunity){
-            opportunity.start.itemId=children[opportunity.start.itemIndex].props.id
-            if(opportunity.end)
-                opportunity.end.itemId=children[opportunity.end.itemIndex].props.id
-            return opportunity
-        }
-
-		let ops=opportunities(children,getText, breakable, reviver)
-        Object.freeze(ops)
-        return ops
+		return Object.freeze(opportunities(children,getText, breakable))
     }
 
     getChildContext(){
         let self=this
         return {
             ...super.getChildContext(),
-            getMyBreakOpportunities({props:{id}}){
+            getMyBreakOpportunities(){
 				let index=self.computed.children.length
 				let opportunities=self.computed.breakOpportunities.filter(({start,end})=>{
 					return start.itemIndex<=index && end.itemIndex>=index
@@ -58,10 +49,10 @@ export default class Paragraph extends Super{
 					for(let i=itemIndex+1;i<index;i++)
 						remove+=children[i].props.children.length
 
-					let adjusted={end, word: word.substring(remove), start:{at:0, itemIndex:index, itemId:id}}
+					let adjusted={end, word: word.substring(remove), start:{at:0, itemIndex:index}}
 					opportunities[0]=adjusted
 				}
-				return opportunities
+				return [index,opportunities]
             }
         }
     }

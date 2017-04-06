@@ -34,7 +34,7 @@ export default class Text extends Super{
 		const composer=new this.constructor.WordWrapper({fonts,size,color,bold,italic,vanish})
 		const defaultStyle=composer.defaultStyle
 
-		const breakOpportunities=this.context.getMyBreakOpportunities(this)
+		const [index,breakOpportunities]=this.context.getMyBreakOpportunities()
 
 		const commit=state=>{
 			let {content,width,end}=state
@@ -47,21 +47,21 @@ export default class Text extends Super{
 				})
 			this.appendComposed(composedText)
 		}
-		let consume1, id=this.props.id
+		let consume1
         let state=breakOpportunities.reduce(consume1=(state,opportunity,i)=>{
 			let {
 				word,
-				start:{itemId:startItemId, at:startAt},
-				end:{itemId:endItemId, at:endAt}
+				start:{itemIndex:startItemIndex, at:startAt},
+				end:{itemIndex:endItemIndex, at:endAt}
 				}=opportunity
-			if(startItemId==endItemId){
+			if(startItemIndex==endItemIndex){
 				//whole word
-			}else if(startItemId==id){
-				if(endItemId==id)
+			}else if(startItemIndex==index){
+				if(endItemIndex==index)
 					word=word.substring(0,word.length-endAt)
 				else
 					word=word.substring(0,myText.length-startAt)
-			}else if(endItemId==id){
+			}else if(endItemIndex==index){
 				word=word.substr(-endAt)
 			}
 			let wordWidth=composer.stringWidth(word)
