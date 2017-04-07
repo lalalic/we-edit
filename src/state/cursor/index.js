@@ -32,10 +32,6 @@ export class Cursor extends Component{
 			getCursorInput().setState(this.style)
 	}
 
-	active(){
-		this.context.getCursorInput().setState(this.style)
-	}
-
 	componentDidMount(){
 		const {active,id,at}=this.props
 		const {docId,getCursorInput}=this.context
@@ -47,10 +43,10 @@ export class Cursor extends Component{
 		const {children:text}=getContent(state, id).toJS()
 		const style=getContentStyle(state, docId, id)
 
-		let {top,left,width,height,descent}=this.props.positioning(id, at, text,style)
+		let {top,left,width,height,descent,up,down}=this.props.positioning(id, at, text,style)
 		left+=width
 
-		return {...style,left,top,height}
+		return {...style,left,top,height,up,down}
 	}
 }
 

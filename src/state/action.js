@@ -39,8 +39,6 @@ export const Cursor={
 		}
 		dispatch(Selection.SELECT(id,at))
 	}
-	,MOVE_UP: ()=>Selection.MOVE_LEFT()
-	,MOVE_DOWN: ()=>Selection.MOVE_RIGHT()
 }
 
 export const Text={

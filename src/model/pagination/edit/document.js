@@ -9,6 +9,8 @@ import recomposable from "./recomposable"
 import Cursor from "state/cursor"
 import offset from "mouse-event-offset"
 
+import get from "lodash.get"
+
 export default class Document extends editable(recomposable(Base)){
 	_reComposeFrom(section){
 		let index=this.computed.children.findIndex(a=>a==section)
@@ -27,7 +29,9 @@ export default class Document extends editable(recomposable(Base)){
 			return (
 				<div ref={a=>this.root=a}>
 					<Base.Composed {...this.props}>
-						<Cursor ref={a=>this.cursor=a} positioning={this.cursorPosition.bind(this)}/>
+						<Cursor ref={a=>this.cursor=a}
+							positioning={this.cursorPosition.bind(this)}
+							/>
 					</Base.Composed>
 				</div>
 			)
@@ -38,7 +42,7 @@ export default class Document extends editable(recomposable(Base)){
 			if(texts.length==0)
 				return null
 
-			let {top,left,from}=getContentClientBoundBox(texts,at,id)
+			let {top,left,from,node}=getContentClientBoundBox(texts,at,id)
 			let wordwrapper=new Text.WordWrapper(style)
 			let width=wordwrapper.stringWidth(text.substring(from,at))
 			let {height, descent}=wordwrapper
@@ -47,7 +51,35 @@ export default class Document extends editable(recomposable(Base)){
 				height=height/this.ratio
 				descent=descent/this.ratio
 			}
-			return {top, left, width, height, descent}
+
+			const downUp=a=>()=>{
+				let current=node, target
+				while(current.getAttribute("class")!=="line")
+					current=current.parentNode
+				let {height}=current.getBoundingClientRect()
+				let next=get(current,`parentNode.${a}Sibling.firstChild`)
+				if(!next)
+					return
+
+				let y=top+height+next.getBoundingClientRect().height/2
+				let x=left+width
+				let pots=next.querySelectorAll("text")
+				for(let i=0,len=pots.length;i<len;i++){
+					let {left:l,width:w}=pots[i].getBoundingClientRect()
+					if(l<=x && x<=l+w){
+						target=pots[i]
+						let wrapper=new Text.WordWrapper(getContentStyle(this.context.store.getState(), this.context.docId, target.getAttribute("data-content")))
+						let end=wrapper.widthString((x-l)*this.ratio, target.textContent)
+						end+=target.getAttribute("data-endAt")-target.textContent.length
+						this.context.store.dispatch(ACTION.Cursor.AT(target.getAttribute("data-content"),end))
+						return
+					}
+				}
+
+				target=pots[pots.length-1]
+				this.context.store.dispatch(ACTION.Cursor.AT(target.getAttribute("data-content"), target.getAttribute("data-endAt")))
+			}
+			return {top, left, width, height, descent,up:downUp("previous"),down:downUp("next")}
 		}
 
 		componentDidMount(){
@@ -111,5 +143,5 @@ function getContentClientBoundBox(texts, at, id){
 	let {top,left}=found.getBoundingClientRect()
 	top+=window.scrollY
 	left+=window.scrollX
-	return {top,left,from}
+	return {top,left,from,node:found}
 }

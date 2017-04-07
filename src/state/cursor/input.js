@@ -4,12 +4,12 @@ import Listener from "./listener"
 export default class Input extends Component{
 	state={top:0,left:0,height:0}
 	render(){
-		const {top,left,height,color,fonts,size}=this.state
+		const {top,left,height,color,fonts,size,up,down}=this.state
 		const style={margin:0,padding:0,border:0,position:"absolute",outline:"none"}
 		return (
 			<div unselectable="on"
 				style={{...style,left,top:top,position:"absolute",height:0,width:0}}>
-				<Listener ref={a=>this.listener=a}
+				<Listener ref={a=>this.listener=a} up={up} down={down}
 					style={{
 						...style,
 						color,

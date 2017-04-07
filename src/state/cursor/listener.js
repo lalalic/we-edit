@@ -13,7 +13,8 @@ export default class Listener extends Component{
 	}
 	render(){
 		let {dispatch}=this.context.store
-		return <input ref={a=>this.input=a} type="text" value={this.state.value} {...this.props}
+		let {up,down,...others}=this.props
+		return <input ref={a=>this.input=a} type="text" value={this.state.value} {...others}
 					{...reactComposition({
 							onChange:e=>{
 								let value = e.target.value
@@ -24,7 +25,7 @@ export default class Listener extends Component{
 									this.setState({value})
 							}
 					})}
-					
+
 					onKeyDown={e=>{
 							switch(e.keyCode){
 							case 8://backspace
@@ -37,7 +38,7 @@ export default class Listener extends Component{
 							break
 							case 38://ARROW UP
 								e.preventDefault()
-								dispatch(ACTION.Cursor.MOVE_UP())
+								up()
 							break
 							case 39://ARROW RIGHT
 								e.preventDefault()
@@ -45,7 +46,7 @@ export default class Listener extends Component{
 							break
 							case 40://ARROW DOWN
 								e.preventDefault()
-								dispatch(ACTION.Cursor.MOVE_DOWN())
+								down()
 							break
 							}
 						}
