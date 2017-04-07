@@ -29,10 +29,10 @@ export function getStyles(state){
 	return state.get("content").get("root").get("props").get("styles")
 }
 
-function findCursorableIn(content, direction=""){
-	if(content.cursorable())
-		return content
-	return content.computed.children[`reduce${direction}`]((state,next)=>{
+function findCursorableIn(composer, direction=""){
+	if(composer.constructor.cursorable())
+		return composer
+	return composer.computed.children[`reduce${direction}`]((state,next)=>{
 		if(state)
 			return state
 		return findCursorableIn(next, direction)

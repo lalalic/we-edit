@@ -30,17 +30,6 @@ export default function recomposable(Content){
 			id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired
 		}
 
-		static contextTypes={
-			...Content.contextTypes,
-			store:PropTypes.any
-		}
-
-		constructor(){
-			super(...arguments)
-			//this.context.store.getState().get("mutable").nodes[this.props.id]=this
-		}
-
-
 		/*
 		* content and container should have data-content id
 		*/
@@ -49,7 +38,7 @@ export default function recomposable(Content){
 		}
 
         reCompose(){
-			this.computed.composed.splice(0,this.computed.composed.length)
+			this.computed.composed=[]//.splice(0,this.computed.composed.length)
 			this.computed.children.splice(0,this.computed.children.length)
 			this.compose()
     	}

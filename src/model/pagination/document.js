@@ -29,10 +29,6 @@ export default class Document extends Super{
 
 	}
 
-	get composed(){
-		return this.refs.composed
-	}
-
 	static Composed=class extends Component{
         static displayName="composed-document"
 		render(){
@@ -48,5 +44,9 @@ export default class Document extends Super{
                 </ComposedDocument>
 			)
 		}
+		componentDidUpdate(){
+			console.log(`${this.constructor.displayName} componentDidUpdate`)
+		}		
+		
 	}
 }

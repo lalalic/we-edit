@@ -18,15 +18,6 @@ export default class Text extends Super{
 		...Super.contextTypes,
 		getMyBreakOpportunities: PropTypes.func
 	}
-	static propTypes={
-		...(Super.propTypes||{}),
-		//line break opportunity need it in paragraph, how can we remove it?????
-		id:PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired
-	}
-
-	static get breakable(){
-		return true
-	}
 
     compose(){
 		const parent=this.context.parent
