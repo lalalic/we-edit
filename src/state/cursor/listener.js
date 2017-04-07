@@ -1,6 +1,8 @@
 import React, {Component, PropTypes} from "react"
 import {ACTION} from "state"
 
+import reactComposition from "react-composition"
+
 export default class Listener extends Component{
 	static contextTypes={
 		store: PropTypes.any
@@ -11,12 +13,18 @@ export default class Listener extends Component{
 	}
 	render(){
 		let {dispatch}=this.context.store
-		return <input ref={a=>this.input=a} type="text" value="" {...this.props}
-					onChange={({target:{value}})=>{
-							dispatch(ACTION.Text.INSERT(value))
-							this.setState({value:""})
-						}
-					}
+		return <input ref={a=>this.input=a} type="text" value={this.state.value} {...this.props}
+					{...reactComposition({
+							onChange:e=>{
+								let value = e.target.value
+								if(e.reactComposition.composition === false){
+									dispatch(ACTION.Text.INSERT(value))
+									this.setState({value:""})
+								}else
+									this.setState({value})
+							}
+					})}
+					
 					onKeyDown={e=>{
 							switch(e.keyCode){
 							case 8://backspace

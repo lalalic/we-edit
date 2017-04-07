@@ -259,11 +259,11 @@ export default class TableStyle extends WithBorder{
 		return value
 	}
 
-	merge(style){
+	merge(style, edges){
 		let {cnfStyle}=style
 		cnfStyle=Array.from(("000000000000"+(cnfStyle>>>0).toString(2)).substr(-12))
-			.map((a,i)=>a=="1"&&CNF[i]).filter(a=>a)
-			.sort((a,b)=>PRIORIZED.indexOf(a)-PRIORIZED.indexOf(b))
+				.map((a,i)=>a=="1"&&CNF[i]).filter(a=>a)
+				.sort((a,b)=>PRIORIZED.indexOf(a)-PRIORIZED.indexOf(b))
 
 		let margin="left,right,top,bottom".split(",").reduce((margin,a)=>{
 			let v=get(style,`margin.${a}`)
@@ -278,8 +278,14 @@ export default class TableStyle extends WithBorder{
 			let v=get(style,`border.${a}`)
 			if(v==undefined)
 				v=this[a](cnfStyle)
+			
+			if(v==undefined)
+				v=edges.reduce((found,edge)=>found||get(this,edge),undefined)
+			
 			if(v!==undefined)
 				border[a]=v
+			else
+				border[a]={sz:0}
 			return border
 		},{})
 

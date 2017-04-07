@@ -95,19 +95,22 @@ export default class Paragraph extends Super{
         }
     }
 
-    appendComposed(content){//@TODO: need consider availableSpace.height
+    appendComposed(content, il=0){//@TODO: need consider availableSpace.height
         const {composed}=this.computed
         const {parent}=this.context
 
         let currentLine=composed[composed.length-1]
         let availableWidth=currentLine.availableWidth
         let {width:contentWidth}=content.props
+		
+		if(il>2)
+			throw new Error("infinite loop")
 
-        if(availableWidth>contentWidth){
+        if(availableWidth>=contentWidth){
           currentLine.children.push(content)
         }else {
             this.commitCurrentLine(true)
-            this.appendComposed(content)
+            this.appendComposed(content,++il)
         }
     }
 

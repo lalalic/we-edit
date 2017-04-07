@@ -8,6 +8,7 @@ export class Cursor extends Component{
 		store: PropTypes.any,
 		docId: PropTypes.string,
 		getCursorInput: PropTypes.func,
+		getViewBoxRatio:PropTypes.func
 	}
 	static propTypes={
 		id: PropTypes.string,

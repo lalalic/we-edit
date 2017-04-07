@@ -26,7 +26,7 @@ export default class Document extends editable(recomposable(Base)){
 			return (
 				<div ref={a=>this.root=a}>
 					<Base.Composed {...this.props}>
-						<Cursor positioning={this.cursorPosition.bind(this)}/>
+						<Cursor ref={a=>this.cursor=a} positioning={this.cursorPosition.bind(this)}/>
 					</Base.Composed>
 				</div>
 			)
@@ -55,6 +55,7 @@ export default class Document extends editable(recomposable(Base)){
 
 					let contentID=target.getAttribute("data-content")
 					let [x]=offset(e, target)
+					
 					let dispatch=this.context.store.dispatch
 					const state=this.context.store.getState()
 					const content=getContent(state, contentID).toJS()

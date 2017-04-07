@@ -81,7 +81,7 @@ class HtmlWrapper{
 	}
 
 	widthString(width,text){
-		return WordWrapper.prototype.widthString.apply(this,arguments)
+		return WordWrapper.prototype.widthString.call(this,width,text)
 	}
 
 	close(){

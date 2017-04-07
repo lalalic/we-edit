@@ -9,7 +9,7 @@ export const Cursor={
 		let {start:{id,at},end}=state.get("selection")
 		let target=getContent(state,id).toJS()
 		const text=target.children
-		if(text.length>at+1){
+		if(text.length>at){
 			at++
 		}else{
 			target=nextCursorable(state,id)

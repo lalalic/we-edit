@@ -13,6 +13,21 @@ export default class Document extends Component{
 		pgGap:PropTypes.number,
 		style:PropTypes.object
 	}
+	
+	static childContextTypes={
+		getViewBoxRatio: PropTypes.func
+	}
+	
+	getChildContext(){
+		const self=this
+		return {
+			getViewBoxRatio(){
+				let [,,viewWidth]=self.svg.getAttribute("viewBox").split(" ")
+				let width=self.svg.getAttribute("width")
+				return width/viewWidth
+			}
+		}
+	}
 
 	render(){
 		let {width:containerWidth,pgGap,style}=this.context
@@ -47,7 +62,7 @@ export default class Document extends Component{
 			viewBoxHeight=viewBoxWidth*height/containerWidth
 		}
 		return (
-			<svg width={containerWidth} height={height}
+			<svg width={containerWidth} height={height} ref={a=>this.svg=a}
 				viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
 				style={style}>
 				{pages}

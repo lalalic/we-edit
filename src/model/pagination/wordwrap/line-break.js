@@ -75,7 +75,7 @@ export default function opportunities(items,getText=a=>a,breakable=a=>true, revi
             indexes[i]=t.length
         }else{
             commit(state,i)
-            opportunities.push({start:{itemIndex:i}})
+            opportunities.push({start:{itemIndex:i,at:0},end:{itemIndex:i,at:0} })
             state.start=i+1
         }
         return state
