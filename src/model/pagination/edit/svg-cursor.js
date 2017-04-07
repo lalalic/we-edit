@@ -30,7 +30,7 @@ export class SVGCursor extends Cursor{
 	}
 
 	info(docId, id, at, text, style){
-		let texts=document.querySelectorAll(`#${docId} svg text[data-content="${id}"][end]`)
+		let texts=document.querySelectorAll(`#${docId} svg text[data-content="${id}"]`)
 		if(texts.length==0)
 			return null
 
@@ -46,7 +46,7 @@ function getContentClientBoundBox(texts, at, id){
 	let found, from
 	for(let i=0, len=texts.length; i<len; i++){
 		let a=texts[i]
-		let end=parseInt(a.getAttribute('end'))
+		let end=parseInt(a.getAttribute('data-endAt'))
 		let length=a.textContent.length
 		let start=end-length
 		if(start<=at && at<end){

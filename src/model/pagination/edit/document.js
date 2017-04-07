@@ -26,7 +26,7 @@ export default class Document extends editable(recomposable(Base)){
 			return (
 				<div ref={a=>this.root=a}>
 					<Base.Composed {...this.props}>
-						<SVGCursor ref={a=>this.cursor=a}/>
+						<SVGCursor/>
 					</Base.Composed>
 				</div>
 			)
@@ -38,7 +38,7 @@ export default class Document extends editable(recomposable(Base)){
 				switch(target.nodeName){
 				case 'text':
 					let text=target.textContent
-					let contentEndIndex=target.getAttribute("end")
+					let contentEndIndex=target.getAttribute("data-endAt")
 					let from=contentEndIndex-text.length
 
 					let contentID=target.getAttribute("data-content")
@@ -54,10 +54,6 @@ export default class Document extends editable(recomposable(Base)){
 				break
 				}
 			})
-		}
-
-		componentDidUpdate(){
-			this.cursor.forceUpdate()
 		}
 	}
 }

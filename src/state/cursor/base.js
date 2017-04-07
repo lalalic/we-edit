@@ -38,14 +38,10 @@ export default class Cursor extends Component{
 		this.flash()
 	}
 
-	componentDidUpdate(){
-		this.flash()
-	}
-
 	flash(){
 		this.reset()
 		if(this.state.height)
-			this.timer=setInterval(a=>this.toggle(), 700)
+			this.timer=setInterval(a=>this.toggle(), 500)
 	}
 
 	position(docId,id,at){

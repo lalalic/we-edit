@@ -42,7 +42,7 @@ export default class Text extends Super{
 					...defaultStyle,
 					width:Math.floor(width),
 					contentWidth:width,
-					end,
+					"data-endAt":end,
 					children:[...content]
 				})
 			this.appendComposed(composedText)
@@ -57,10 +57,8 @@ export default class Text extends Super{
 			if(startItemIndex==endItemIndex){
 				//whole word
 			}else if(startItemIndex==index){
-				if(endItemIndex==index)
-					word=word.substring(0,word.length-endAt)
-				else
-					word=word.substring(0,myText.length-startAt)
+				word=word.substring(0,myText.length-startAt)
+				endAt=startAt+word.length
 			}else if(endItemIndex==index){
 				word=word.substr(-endAt)
 			}
@@ -75,8 +73,7 @@ export default class Text extends Super{
 				content.push(word)
 				state.width+=wordWidth
 				state.end=endAt
-			}
-			else{
+			}else{
 				if(width!=0)
 					commit(state)
 				state.space=parent.nextAvailableSpace({height:composer.height,width:wordWidth})
