@@ -7,8 +7,7 @@ export class Cursor extends Component{
 	static contextTypes={
 		store: PropTypes.any,
 		docId: PropTypes.string,
-		getCursorInput: PropTypes.func,
-		getViewBoxRatio:PropTypes.func
+		getCursorInput: PropTypes.func
 	}
 	static propTypes={
 		id: PropTypes.string,
@@ -19,7 +18,7 @@ export class Cursor extends Component{
 		*/
 		positioning: PropTypes.func.isRequired
 	}
-	
+
 	render(){
 		return null
 	}
@@ -31,6 +30,10 @@ export class Cursor extends Component{
 				getCursorInput().setState(this.style)
 		}else if(docId==active)
 			getCursorInput().setState(this.style)
+	}
+
+	active(){
+		this.context.getCursorInput().setState(this.style)
 	}
 
 	componentDidMount(){

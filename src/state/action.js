@@ -32,7 +32,7 @@ export const Cursor={
 			if(target){
 				id=target
 				let children=getContent(state, target).get("children")
-				at=children.length-1
+				at=children.length
 			}else{
 				//keep cursor at end of current target
 			}

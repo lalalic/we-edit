@@ -2,7 +2,7 @@ import React, {PureComponent, Component, PropTypes} from "react"
 import Base from "../document"
 import {Text} from "model/pagination"
 import {ACTION} from "state"
-import {getContent,getContentStyle} from "state/selector"
+import {getContent,getContentStyle,getSelection} from "state/selector"
 import {editable} from "model/edit"
 import recomposable from "./recomposable"
 
@@ -19,7 +19,8 @@ export default class Document extends editable(recomposable(Base)){
 		static displayName="composed-document-with-flasher"
 		static contextTypes={
 			docId: PropTypes.string,
-			store: PropTypes.any
+			store: PropTypes.any,
+			getCursorInput: PropTypes.func
 		}
 
 		render(){
@@ -31,7 +32,7 @@ export default class Document extends editable(recomposable(Base)){
 				</div>
 			)
 		}
-		
+
 		cursorPosition(id, at, text, style){
 			let texts=document.querySelectorAll(`#${this.context.docId} svg text[data-content="${id}"]`)
 			if(texts.length==0)
@@ -41,11 +42,23 @@ export default class Document extends editable(recomposable(Base)){
 			let wordwrapper=new Text.WordWrapper(style)
 			let width=wordwrapper.stringWidth(text.substring(from,at))
 			let {height, descent}=wordwrapper
+			if(this.ratio){
+				width=width/this.ratio
+				height=height/this.ratio
+				descent=descent/this.ratio
+			}
 			return {top, left, width, height, descent}
 		}
-		
+
 		componentDidMount(){
-			this.root.querySelector("svg").addEventListener("click", e=>{
+			let svg=this.root.querySelector("svg")
+			let width=svg.getAttribute("width")
+			let [,,viewBoxWidth]=svg.getAttribute("viewBox").split(" ")
+			this.ratio=viewBoxWidth/width
+
+			let dispatch=this.context.store.dispatch
+
+			svg.addEventListener("click", e=>{
 				const target=e.target
 				switch(target.nodeName){
 				case 'text':
@@ -55,19 +68,24 @@ export default class Document extends editable(recomposable(Base)){
 
 					let contentID=target.getAttribute("data-content")
 					let [x]=offset(e, target)
-					
-					let dispatch=this.context.store.dispatch
+					x=x*this.ratio
+
 					const state=this.context.store.getState()
 					const content=getContent(state, contentID).toJS()
 					const style=getContentStyle(state,this.context.docId, contentID)
 					const wordwrapper=new Text.WordWrapper(style)
 					const end=wordwrapper.widthString(x, content.children.substr(from))
 					dispatch(ACTION.Cursor.AT(contentID,from+end))
-					dispatch(ACTION.Cursor.ACTIVE(this.context.docId))
 				break
 				}
+				let {active}=getSelection(this.context.store.getState())
+				if(active!=this.context.docId)
+					dispatch(ACTION.Cursor.ACTIVE(this.context.docId))
+				else
+					this.context.getCursorInput().forceUpdate()
 			})
-			this.context.store.dispatch(ACTION.Cursor.ACTIVE(this.context.docId))
+
+			dispatch(ACTION.Cursor.ACTIVE(this.context.docId))
 		}
 	}
 }
@@ -79,7 +97,7 @@ function getContentClientBoundBox(texts, at, id){
 		let end=parseInt(a.getAttribute('data-endAt'))
 		let length=a.textContent.length
 		let start=end-length
-		if(start<=at && at<end){
+		if(start<=at && at<=end){
 			found=a
 			from=start
 			break
@@ -91,5 +109,7 @@ function getContentClientBoundBox(texts, at, id){
 		return {top:0,left:0,from:0}
 	}
 	let {top,left}=found.getBoundingClientRect()
+	top+=window.scrollY
+	left+=window.scrollX
 	return {top,left,from}
 }

@@ -15,7 +15,7 @@ export default class Input extends Component{
 						color,
 						fontSize:size,
 						fontFamily:fonts,
-						height:height,
+						height,
 						width:2,
 						background:"transparent"
 					}}/>

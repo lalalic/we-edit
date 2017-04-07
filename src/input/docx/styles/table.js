@@ -150,7 +150,7 @@ export default class TableStyle extends WithBorder{
 	 * 3. table.trPr=tblPrEx
 	 * 4. table.tblPr
 	 */
-	right(conditions){
+	right(conditions,edges){
 		let value=conditions.reduce((found, cond)=>{//1. conditional
 			if(found!=undefined)
 				return found
@@ -168,7 +168,7 @@ export default class TableStyle extends WithBorder{
 		}
 
 		if(value==undefined){//4.
-			if(conditions.includes('lastCol'))
+			if(conditions.includes('lastCol')||edges.includes("lastCol"))
 				value=this.get('tbl.border.right')
 			else
 				value=this.get('tbl.border.insideV')
@@ -177,7 +177,7 @@ export default class TableStyle extends WithBorder{
 		return value
 	}
 
-	left(conditions){
+	left(conditions,edges){
 		let value=conditions.reduce((found, cond)=>{//1. conditional
 			if(found!=undefined)
 				return found
@@ -195,7 +195,7 @@ export default class TableStyle extends WithBorder{
 		}
 
 		if(value==undefined){//4.
-			if(conditions.includes('firstCol'))
+			if(conditions.includes('firstCol')||edges.includes("firstCol"))
 				value=this.get('tbl.border.left')
 			else
 				value=this.get('tbl.border.insideV')
@@ -204,7 +204,7 @@ export default class TableStyle extends WithBorder{
 		return value
 	}
 
-	top(conditions){
+	top(conditions,edges){
 		let value=conditions.reduce((found, cond)=>{
 			if(found!=undefined)
 				return found
@@ -222,7 +222,7 @@ export default class TableStyle extends WithBorder{
 		}
 
 		if(value==undefined){//4.
-			if(conditions.includes('firstRow'))
+			if(conditions.includes('firstRow')||edges.includes("firstRow"))
 				value=this.get('tbl.border.top')
 			else
 				value=this.get('tbl.border.insideH')
@@ -231,7 +231,7 @@ export default class TableStyle extends WithBorder{
 		return value
 	}
 
-	bottom(conditions){
+	bottom(conditions, edges){
 		let value=conditions.reduce((found, cond)=>{
 			if(found!=undefined)
 				return found
@@ -250,7 +250,7 @@ export default class TableStyle extends WithBorder{
 		}
 
 		if(value==undefined){//4.
-			if(conditions.includes('lastRow'))
+			if(conditions.includes('lastRow')||edges.includes('lastRow'))
 				value=this.get('tbl.border.bottom')
 			else
 				value=this.get('tbl.border.insideH')
@@ -277,11 +277,8 @@ export default class TableStyle extends WithBorder{
 		let border="left,right,top,bottom".split(",").reduce((border,a)=>{
 			let v=get(style,`border.${a}`)
 			if(v==undefined)
-				v=this[a](cnfStyle)
-			
-			if(v==undefined)
-				v=edges.reduce((found,edge)=>found||get(this,edge),undefined)
-			
+				v=this[a](cnfStyle,edges)
+
 			if(v!==undefined)
 				border[a]=v
 			else
@@ -307,7 +304,7 @@ export default class TableStyle extends WithBorder{
 				r[k]=!!v
 			return r
 		},{}))
-		
+
 		let background=this.get('tbl.background',cnfStyle)
 
 		const clean=a=>Object.keys(a).length==0 ? undefined : a
