@@ -1,10 +1,12 @@
-import React from "react"
+import React, {PropTypes} from "react"
 import Base from "../document"
 
 export default class Document extends Base{
 	render(){
 		return (
-			<article>{this.props.children}</article>
+			<article>
+				{this.props.children}
+			</article>
 		)
 	}
 }

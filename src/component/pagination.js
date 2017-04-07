@@ -3,6 +3,7 @@ import models from "pagination"
 import edits from "pagination/edit"
 
 export class Pagination extends Component{
+	static displayName="pagination"
 	static propTypes={
 		domain: PropTypes.func
 	}

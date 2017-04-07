@@ -26,7 +26,7 @@ export default function recomposable(Content){
 		static displayName=`recomposable-${Content.displayName}`
 
 		static propTypes={
-			...(Content.propTypes||{}),
+			...Content.propTypes,
 			id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired
 		}
 
@@ -38,7 +38,7 @@ export default function recomposable(Content){
 		}
 
         reCompose(){
-			this.computed.composed=[]//.splice(0,this.computed.composed.length)
+			this.computed.composed=[]
 			this.computed.children.splice(0,this.computed.children.length)
 			this.compose()
     	}

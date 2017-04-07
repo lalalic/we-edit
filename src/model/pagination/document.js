@@ -43,10 +43,6 @@ export default class Document extends Super{
                     {children}
                 </ComposedDocument>
 			)
-		}
-		componentDidUpdate(){
-			console.log(`${this.constructor.displayName} componentDidUpdate`)
 		}		
-		
 	}
 }

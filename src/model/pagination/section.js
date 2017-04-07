@@ -136,7 +136,6 @@ export default class Section extends Super{
 			this.computed.footers[child.props.type]=child
 		}else if(child instanceof Header){
 			this.computed.headers[child.props.type]=child
-			console.log("header in section updated")
 		}
 	}
 

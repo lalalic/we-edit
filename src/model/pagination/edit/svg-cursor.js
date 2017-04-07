@@ -5,30 +5,6 @@ import {Cursor} from "state/cursor"
 import {getContent,getContentStyle} from "state/selector"
 
 export class SVGCursor extends Cursor{
-	render(){
-		let {top, left, height,color}=this.state
-		height=0.1
-		return (
-			<line ref={a=>this.root=a}
-				x1={left}
-				y1={top}
-				x2={left}
-				y2={top+height}
-				strokeWidth={1}
-				stroke={"black"}
-				/>
-		)
-	}
-
-	toggle(){
-		let {top, left, height,color}=this.state
-		height=0.1
-		let line=this.root
-		let y1=line.getAttribute('y1')
-		let y2=line.getAttribute('y2')
-		line.setAttribute('y2',y1==y2 ? top+height : top)
-	}
-
 	info(docId, id, at, text, style){
 		let texts=document.querySelectorAll(`#${docId} svg text[data-content="${id}"]`)
 		if(texts.length==0)

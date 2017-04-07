@@ -29,6 +29,17 @@ export function getStyles(state){
 	return state.get("content").get("root").get("props").get("styles")
 }
 
+export function findFirstCursorable(content){
+	const visit=(a,id)=>{
+		if(["header","footer"].indexOf(a.type)!=-1)
+			return null
+		if(["text","image"].indexOf(a.type)!=-1)
+			return id
+		return a.children.reduce((found,child)=> found || visit(content.get(child).toJS(), child),null)
+	}
+	return visit(content.get("root").toJS())
+}
+
 function findCursorableIn(composer, direction=""){
 	if(composer.constructor.cursorable())
 		return composer

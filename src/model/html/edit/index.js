@@ -1,5 +1,5 @@
 import React from "react"
-import Models from ".."
+import Models from "model/html"
 
 import {editable} from "model/edit"
 import Document from "./document"

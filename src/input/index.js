@@ -94,7 +94,7 @@ export default {
 	}
 }
 
-import {Input} from "state/cursor"
+import Input from "state/cursor/input"
 class TransformerProvider extends Component{
 	static propTypes={
 		transformer: PropTypes.func.isRequired
@@ -118,8 +118,8 @@ class TransformerProvider extends Component{
 	render(){
 		return (
 			<div>
-				{this.props.children}
 				<Input ref="input"/>
+				{this.props.children}
 			</div>
 		)
 	}
