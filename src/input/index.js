@@ -28,12 +28,12 @@ export default {
 			throw new Error(`we cannot create this type of file`)
 		}
 	},
-	
+
 	support(...inputs){
 		inputs.forEach(a=>supported.findIndex(a)==-1 && supported.push(a))
 		return this
 	},
-	
+
 	build(doc,self){
 		return {
 			render(domain){
@@ -51,7 +51,7 @@ export default {
 						}else{
 							id=self.identify(raw)
 						}
-						
+
 						content.set(id, Immutable.fromJS({
 							type:type.displayName,
 							props,
@@ -61,17 +61,17 @@ export default {
 						return {id,type,props,children}
 					})
 				})
-				
+
 				 function onChange(state,action){
 					if(action.type=="@@INIT")
 						return state
-					
+
 					if(self.onChangeEx)
 						return self.onChangeEx(state,action)
-					
+
 					const doc=getFile(state)
 					const selection=getSelection(state)
-					
+
 					if(self.onChange(doc, selection, action,state)){
 						state=reducer.text(state,action)
 						state=state.set("selection",reducer.selection(getSelection(state),action))

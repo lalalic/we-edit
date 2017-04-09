@@ -17,10 +17,6 @@ export default class Selection extends Component{
 		return null
 	}
 
-	clear(){
-		this.selection.removeAllRanges()
-	}
-
 	componentDidMount(){
 		this.selection=window.getSelection()||document.getSelection()
 	}

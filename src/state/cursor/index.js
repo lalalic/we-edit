@@ -26,7 +26,7 @@ export class Cursor extends Component{
 	}
 
 	render(){
-		return <Selection ref={a=>this.selection=a}
+		return <Selection
 			start={this.props.start}
 			end={{id:this.props.id,at:this.props.at}}
 			getRange={this.props.getRange}
@@ -34,11 +34,10 @@ export class Cursor extends Component{
 	}
 
 	componentWillReceiveProps({active,id,at,start}, {docId,getCursorInput}){
-		if(this.props.id!==id || this.props.at!==at){
+		if(this.props.id!==id || this.props.at!==at)
 			this.style=this.position(docId,id,at)
-			if(docId==active)
-				getCursorInput().setState(this.style)
-		}else if(docId==active)
+
+		if(docId==active)
 			getCursorInput().setState(this.style)
 	}
 

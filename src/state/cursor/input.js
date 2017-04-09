@@ -24,10 +24,6 @@ export default class Input extends Component{
 	}
 
 	componentDidUpdate(){
-		this.focus()
-	}
-
-	focus(){
 		this.listener.focus()
 	}
 }

@@ -109,6 +109,17 @@ export default class Document extends editable(recomposable(Base)){
 			this.ratio=viewBoxWidth/width
 
 			let dispatch=this.context.store.dispatch
+			dispatch(ACTION.Cursor.ACTIVE(this.context.docId))
+
+			let docId=this.context.docId
+
+			const active=()=>{
+				let {active}=getSelection(this.context.store.getState())
+				if(active!=docId)
+					dispatch(ACTION.Cursor.ACTIVE(docId))
+				else
+					this.context.getCursorInput().forceUpdate()
+			}
 
 			svg.addEventListener("click", e=>{
 				const target=e.target
@@ -124,20 +135,43 @@ export default class Document extends editable(recomposable(Base)){
 
 					const state=this.context.store.getState()
 					const content=getContent(state, contentID).toJS()
-					const style=getContentStyle(state,this.context.docId, contentID)
+					const style=getContentStyle(state,docId, contentID)
 					const wordwrapper=new Text.WordWrapper(style)
 					const end=wordwrapper.widthString(x, content.children.substr(from))
 					dispatch(ACTION.Cursor.AT(contentID,from+end))
 				break
 				}
-				let {active}=getSelection(this.context.store.getState())
-				if(active!=this.context.docId)
-					dispatch(ACTION.Cursor.ACTIVE(this.context.docId))
-				else
-					this.context.getCursorInput().forceUpdate()
+
+				active()
+
 			})
 
-			dispatch(ACTION.Cursor.ACTIVE(this.context.docId))
+			svg.addEventListener("mouseup",e=>{
+				let selection=window.getSelection()||document.getSelection()
+				if(selection.type=="Range"){
+					let first=selection.anchorNode
+					first=first.parentNode
+
+					let last=selection.focusNode
+					last=last.parentNode
+
+					dispatch(ACTION.Selection.SELECT(
+							first.getAttribute("data-content"),
+							first.getAttribute("data-endAt")-first.textContent.length+selection.anchorOffset,
+							last.getAttribute("data-content"),
+							last.getAttribute("data-endAt")-last.textContent.length+selection.focusOffset
+						))
+				}
+				active()
+			})
+
+			svg.addEventListener("keydown", e=>{
+				console.log("keydown on svg")
+				return
+				let sel=window.getSelection()
+				if(sel.type=="Range")
+					active()
+			})
 		}
 	}
 }
