@@ -4,9 +4,10 @@ import {Text as TextModel} from "pagination"
 export const Cursor={
 	ACTIVE: docId=>({type:"selection/DOC",payload:docId})
 	,AT: (contentId, at)=>Selection.SELECT(contentId, at)
-	,MOVE_RIGHT: ()=>(dispatch,getState)=>{
+	,MOVE_RIGHT: (bEnd)=>(dispatch,getState)=>{
 		const state=getState()
-		let {start:{id,at},end}=state.get("selection")
+		let {start,end}=state.get("selection")
+		let {id,at}=bEnd ? end : start
 		let target=getContent(state,id).toJS()
 		const text=target.children
 		if(text.length>at){
@@ -20,11 +21,15 @@ export const Cursor={
 				//keep cursor at end of current target
 			}
 		}
-		dispatch(Selection.SELECT(id,at))
+		if(bEnd)
+			dispatch(Selection.SELECT(start.id, start.at,id,at))
+		else
+			dispatch(Selection.SELECT(id,at))
 	}
-	,MOVE_LEFT: ()=>(dispatch,getState)=>{
+	,MOVE_LEFT: (bEnd)=>(dispatch,getState)=>{
 		const state=getState()
-		let {start:{id,at},end}=state.get("selection")
+		let {start,end}=state.get("selection")
+		let {id,at}=bEnd ? end : start
 		if(at>0){
 			at--
 		}else{
@@ -37,7 +42,10 @@ export const Cursor={
 				//keep cursor at end of current target
 			}
 		}
-		dispatch(Selection.SELECT(id,at))
+		if(bEnd)
+			dispatch(Selection.SELECT(start.id, start.at,id,at))
+		else
+			dispatch(Selection.SELECT(id,at))
 	}
 }
 
@@ -59,7 +67,8 @@ export const Selection={
 				,at:endAt
 			}
 		}
-	})
+	}),
+	END_AT: (id,at)=>({type:"selection/ENDAT",payload:{id,at}})
 }
 
 export const ACTION={Cursor, Text, Selection}

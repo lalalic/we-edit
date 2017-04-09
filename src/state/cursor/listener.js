@@ -34,19 +34,19 @@ export default class Listener extends Component{
 							break
 							case 37://ARROW LEFT
 								e.preventDefault()
-								dispatch(ACTION.Cursor.MOVE_LEFT())
+								dispatch(ACTION.Cursor.MOVE_LEFT(e.shiftKey))
 							break
 							case 38://ARROW UP
 								e.preventDefault()
-								up()
+								up(e.shiftKey)
 							break
 							case 39://ARROW RIGHT
 								e.preventDefault()
-								dispatch(ACTION.Cursor.MOVE_RIGHT())
+								dispatch(ACTION.Cursor.MOVE_RIGHT(e.shiftKey))
 							break
 							case 40://ARROW DOWN
 								e.preventDefault()
-								down()
+								down(e.shiftKey)
 							break
 							}
 						}

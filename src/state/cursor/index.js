@@ -1,6 +1,7 @@
-import React, {PureComponent as Component, PropTypes} from "react"
+import React, {PureComponent as Component, Children, PropTypes} from "react"
 import {connect} from "react-redux"
 import {getContent, getContentStyle, getSelection} from "state/selector"
+import Selection from "state/selection"
 
 export class Cursor extends Component{
 	static display="cursor"
@@ -12,24 +13,37 @@ export class Cursor extends Component{
 	static propTypes={
 		id: PropTypes.string,
 		at: PropTypes.number,
+		start: PropTypes.shape({
+			id: PropTypes.string,
+			at: PropTypes.number
+		}),
 		active: PropTypes.string,
 		/**
 		* return flasher position {top,left,width,height,descent}
 		*/
-		positioning: PropTypes.func.isRequired
+		positioning: PropTypes.func.isRequired,
+		getRange: PropTypes.func.isRequired
 	}
 
 	render(){
-		return null
+		return <Selection ref={a=>this.selection=a}
+			start={this.props.start}
+			end={{id:this.props.id,at:this.props.at}}
+			getRange={this.props.getRange}
+			/>
 	}
 
-	componentWillReceiveProps({active,id,at}, {docId,getCursorInput}){
+	componentWillReceiveProps({active,id,at,start}, {docId,getCursorInput}){
 		if(this.props.id!==id || this.props.at!==at){
 			this.style=this.position(docId,id,at)
 			if(docId==active)
 				getCursorInput().setState(this.style)
 		}else if(docId==active)
 			getCursorInput().setState(this.style)
+	}
+
+	shouldComponentUpdate({id,at,start,active}){
+		return (start.id!==id || start.at!==at) && this.context.docId==active
 	}
 
 	componentDidMount(){
@@ -51,6 +65,6 @@ export class Cursor extends Component{
 }
 
 export default connect(state=>{
-	let {start:{id,at},active}=getSelection(state)
-	return {id,at,active}
+	let {end:{id,at},start,active}=getSelection(state)
+	return {id,at,active,start}
 })(Cursor)

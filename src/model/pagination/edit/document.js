@@ -31,18 +31,31 @@ export default class Document extends editable(recomposable(Base)){
 					<Base.Composed {...this.props}>
 						<Cursor ref={a=>this.cursor=a}
 							positioning={this.cursorPosition.bind(this)}
+							getRange={this.getRange.bind(this)}
 							/>
 					</Base.Composed>
 				</div>
 			)
 		}
 
-		cursorPosition(id, at, text, style){
-			let texts=document.querySelectorAll(`#${this.context.docId} svg text[data-content="${id}"]`)
-			if(texts.length==0)
-				return null
+		getRange(start,end){
+			let docId=this.context.docId
+			let firstNode=getNode(docId, start.id, start.at)
+			let lastNode=getNode(docId, end.id, end.at)
+			let range=document.createRange()
+			range.setStart(firstNode.firstChild, start.at-(firstNode.getAttribute("data-endAt")-firstNode.textContent.length))
+			range.setEnd(lastNode.firstChild, end.at-(lastNode.getAttribute("data-endAt")-lastNode.textContent.length))
+			return range
+		}
 
-			let {top,left,from,node}=getContentClientBoundBox(texts,at,id)
+		cursorPosition(id, at, text, style){
+			let node=getNode(this.context.docId, id, at)
+			let {top,left}=node.getBoundingClientRect()
+			let from=node.getAttribute("data-endAt")-node.textContent.length
+			top+=window.scrollY
+			left+=window.scrollX
+
+
 			let wordwrapper=new Text.WordWrapper(style)
 			let width=wordwrapper.stringWidth(text.substring(from,at))
 			let {height, descent}=wordwrapper
@@ -52,7 +65,7 @@ export default class Document extends editable(recomposable(Base)){
 				descent=descent/this.ratio
 			}
 
-			const downUp=a=>()=>{
+			const downUp=a=>(bEnd)=>{
 				let current=node, target
 				while(current.getAttribute("class")!=="line")
 					current=current.parentNode
@@ -60,6 +73,7 @@ export default class Document extends editable(recomposable(Base)){
 				let next=get(current,`parentNode.${a}Sibling.firstChild`)
 				if(!next)
 					return
+				const dispatch=this.context.store.dispatch
 
 				let y=top+height+next.getBoundingClientRect().height/2
 				let x=left+width
@@ -71,13 +85,19 @@ export default class Document extends editable(recomposable(Base)){
 						let wrapper=new Text.WordWrapper(getContentStyle(this.context.store.getState(), this.context.docId, target.getAttribute("data-content")))
 						let end=wrapper.widthString((x-l)*this.ratio, target.textContent)
 						end+=target.getAttribute("data-endAt")-target.textContent.length
-						this.context.store.dispatch(ACTION.Cursor.AT(target.getAttribute("data-content"),end))
+						if(!bEnd)
+							dispatch(ACTION.Cursor.AT(target.getAttribute("data-content"),end))
+						else
+							dispatch(ACTION.Selection.END_AT(target.getAttribute("data-content"),end))
 						return
 					}
 				}
 
 				target=pots[pots.length-1]
-				this.context.store.dispatch(ACTION.Cursor.AT(target.getAttribute("data-content"), target.getAttribute("data-endAt")))
+				if(!bEnd)
+					dispatch(ACTION.Cursor.AT(target.getAttribute("data-content"), parseInt(target.getAttribute("data-endAt"))))
+				else
+					dispatch(ACTION.Selection.END_AT(target.getAttribute("data-content"), parseInt(target.getAttribute("data-endAt"))))
 			}
 			return {top, left, width, height, descent,up:downUp("previous"),down:downUp("next")}
 		}
@@ -122,26 +142,17 @@ export default class Document extends editable(recomposable(Base)){
 	}
 }
 
-function getContentClientBoundBox(texts, at, id){
-	let found, from
-	for(let i=0, len=texts.length; i<len; i++){
-		let a=texts[i]
+function getNode(docId, id, at){
+	let nodes=document.querySelectorAll(`#${docId} svg [data-content="${id}"]`)
+	if(nodes.length==1)
+		return nodes[0]
+
+	for(let i=0, len=nodes.length; i<len; i++){
+		let a=nodes[i]
 		let end=parseInt(a.getAttribute('data-endAt'))
 		let length=a.textContent.length
 		let start=end-length
-		if(start<=at && at<=end){
-			found=a
-			from=start
-			break
-		}
+		if(start<=at && at<=end)
+			return a
 	}
-
-	if(!found){
-		console.warn(`can't found text(${id},${at})`)
-		return {top:0,left:0,from:0}
-	}
-	let {top,left}=found.getBoundingClientRect()
-	top+=window.scrollY
-	left+=window.scrollX
-	return {top,left,from,node:found}
 }

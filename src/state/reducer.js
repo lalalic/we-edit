@@ -46,6 +46,8 @@ export function selection(state, {type,payload}){
 		return {...state, ...payload}
 	case `selection/DOC`:
 		return {...state, active:payload}
+	case "selection/ENDAT":
+		return {...state, end:payload}
 	default:
 		return state
 	}
