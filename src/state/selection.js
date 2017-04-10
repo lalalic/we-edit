@@ -23,7 +23,15 @@ export default class Selection extends Component{
 
 	componentDidUpdate(){
 		const {start,end,getRange}=this.props
-		this.selection.removeAllRanges()
+		this.clear()
 		this.selection.addRange(getRange(start,end))
+	}
+
+	clear(){
+		if(this.selection.type=="Range")
+			this.selection.removeAllRanges()
+		else {
+			console.dir(this.selection)
+		}
 	}
 }

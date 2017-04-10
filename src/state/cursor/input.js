@@ -24,6 +24,8 @@ export default class Input extends Component{
 	}
 
 	componentDidUpdate(){
+		//console.log("input componentDidUpdate")
+		//console.dir(window.getSelection())
 		this.listener.focus()
 	}
 }

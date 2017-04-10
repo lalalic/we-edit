@@ -2,7 +2,7 @@ import {getContent} from "./selector"
 
 export function text(state, {type,payload}){
 	switch(type){
-	case "text/insert":{
+	case "text/INSERT":{
 		let {start:{id,at},end}=state.get("selection")
 		if(id==end.id){
 			let content=getContent(state, id)
@@ -18,7 +18,7 @@ export function text(state, {type,payload}){
 
 		}
 	}
-	case "text/remove":{
+	case "text/REMOVE":{
 		let {start:{id,at},end}=state.get("selection")
 		let n=payload
 		if(id==end.id){
@@ -46,8 +46,11 @@ export function selection(state, {type,payload}){
 		return {...state, ...payload}
 	case `selection/DOC`:
 		return {...state, active:payload}
+	case "selection/STARTAT":
+		return {...state, start:payload}
 	case "selection/ENDAT":
 		return {...state, end:payload}
+	case "selection/REMOVE":
 	default:
 		return state
 	}

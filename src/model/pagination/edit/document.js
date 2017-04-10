@@ -138,7 +138,24 @@ export default class Document extends editable(recomposable(Base)){
 					const style=getContentStyle(state,docId, contentID)
 					const wordwrapper=new Text.WordWrapper(style)
 					const end=wordwrapper.widthString(x, content.children.substr(from))
-					dispatch(ACTION.Cursor.AT(contentID,from+end))
+					if(e.shiftKey){
+						let {end:{id,at}}=getSelection(state)
+						if(id==contentID){
+							if(at<from+end){
+								dispatch(ACTION.Selection.END_AT(contentID,from+end))
+							}else{
+								dispatch(ACTION.Selection.START_AT(contentID,from+end))
+							}
+						}else{
+							let current=getNode(docId,id,at)
+							if(current.getBoundingClientRect().top<target.getBoundingClientRect().top){
+								dispatch(ACTION.Selection.END_AT(contentID,from+end))
+							}else{
+								dispatch(ACTION.Selection.START_AT(contentID,from+end))
+							}
+						}
+					}else
+						dispatch(ACTION.Cursor.AT(contentID,from+end))
 				break
 				}
 
@@ -165,13 +182,39 @@ export default class Document extends editable(recomposable(Base)){
 				active()
 			})
 
-			svg.addEventListener("keydown", e=>{
-				console.log("keydown on svg")
-				return
-				let sel=window.getSelection()
-				if(sel.type=="Range")
-					active()
-			})
+			/*
+			document.addEventListener("keydown", e=>{
+				if(!e.shiftKey){
+					let sel=window.getSelection()
+					if(sel.type!=="Range")
+						return
+					sel.removeAllRanges()
+
+					const {start, end, active}=getSelection(this.context.store.getState())
+					if(active!==docId)
+						return
+
+					switch(e.keyCode){
+					case 8://backspace
+						e.preventDefault()
+						dispatch(ACTION.Selection.REMOVE())
+					break
+					case 38://ARROW UP
+					case 37://ARROW LEFT
+						e.preventDefault()
+						dispatch(ACTION.Cursor.AT(start.id,start.at))
+					break
+
+					case 40://ARROW DOWN
+					case 39://ARROW RIGHT
+						e.preventDefault()
+						dispatch(ACTION.Cursor.AT(end.id, end.at))
+					break
+					default:
+
+					}
+				}
+			})*/
 		}
 	}
 }

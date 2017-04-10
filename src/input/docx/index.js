@@ -102,10 +102,10 @@ export default class extends Base{
 						))
 						delete self.part
 					})
-					
+
 				hf("header")
 				hf("footer")
-					
+
 				return createElement(domain.Section,style,children,node)
 			case "tbl":{
 				let cols=selector.select([node.children.find(a=>a.name=="w:tblGrid")]).tblGrid
@@ -213,13 +213,13 @@ export default class extends Base{
 			writable: false,
 			value: id
 		})
-		
+
 		if(this.part)
 			return `${id}[${this.part}]`
-		
+
 		return id
 	}
-	
+
 	getRaw(docx, id){
 		var part
 		[id,part]=id.split(/[\[\]]/g)
@@ -240,12 +240,12 @@ export default class extends Base{
 		}
 
 		switch(type){
-			case `text/insert`:{
+			case `text/INSERT`:{
 				let text=target.text()
 				target.text(text.substring(0,at)+payload+text.substr(end.at))
 				break
 			}
-			case `text/remove`:{
+			case `text/REMOVE`:{
 				let text=target.text(), n=payload
 				target.text(text.substring(0,at-n)+text.substr(end.at))
 				break

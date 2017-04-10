@@ -50,8 +50,8 @@ export const Cursor={
 }
 
 export const Text={
-	INSERT: t=>({type:"text/insert",payload:t})
-	,REMOVE: n=>({type:"text/remove",payload:n})
+	INSERT: t=>({type:"text/INSERT",payload:t})
+	,REMOVE: n=>({type:"text/REMOVE",payload:n})
 }
 
 export const Selection={
@@ -68,7 +68,9 @@ export const Selection={
 			}
 		}
 	}),
-	END_AT: (id,at)=>({type:"selection/ENDAT",payload:{id,at}})
+	START_AT:(id,at)=>({type:"selection/STARTAT",payload:{id,at}}),
+	END_AT: (id,at)=>({type:"selection/ENDAT",payload:{id,at}}),
+	REMOVE: ()=>({type:"selection/REMOVE"})
 }
 
 export const ACTION={Cursor, Text, Selection}
