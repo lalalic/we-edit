@@ -1,5 +1,9 @@
 import React, {Component, PropTypes} from "react"
-export default class Selection extends Component{
+import {connect} from "react-redux"
+import {getSelection} from "state/selector"
+
+
+export class Selection extends Component{
 	static displayName="selection"
 	static propTypes={
 		start:PropTypes.shape({
@@ -14,24 +18,13 @@ export default class Selection extends Component{
 	}
 
 	render(){
-		return null
-	}
-
-	componentDidMount(){
-		this.selection=window.getSelection()||document.getSelection()
-	}
-
-	componentDidUpdate(){
-		const {start,end,getRange}=this.props
-		this.clear()
-		this.selection.addRange(getRange(start,end))
-	}
-
-	clear(){
-		if(this.selection.type=="Range")
-			this.selection.removeAllRanges()
-		else {
-			console.dir(this.selection)
+		const {start,end, getRange}=this.props
+		let path=""
+		if(start.id!=end.id || start.at!=end.at){
+			path=getRange(start,end)
 		}
+		return <path d={path} fill="lightblue" style={{fillOpacity:0.5}}/>
 	}
 }
+
+export default connect(state=>getSelection(state))(Selection)

@@ -43,13 +43,13 @@ export function text(state, {type,payload}){
 export function selection(state, {type,payload}){
 	switch(type){
 	case `selection/SELECTED`:
-		return {...state, ...payload}
+		return {...state, cursorAt:"end",...payload}
 	case `selection/DOC`:
 		return {...state, active:payload}
 	case "selection/STARTAT":
-		return {...state, start:payload}
+		return {...state, cursorAt:"start", start:payload}
 	case "selection/ENDAT":
-		return {...state, end:payload}
+		return {...state, cursorAt:"end", end:payload}
 	case "selection/REMOVE":
 	default:
 		return state

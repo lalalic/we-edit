@@ -4,48 +4,91 @@ import {Text as TextModel} from "pagination"
 export const Cursor={
 	ACTIVE: docId=>({type:"selection/DOC",payload:docId})
 	,AT: (contentId, at)=>Selection.SELECT(contentId, at)
-	,MOVE_RIGHT: (bEnd)=>(dispatch,getState)=>{
+	,MOVE_RIGHT: (shift)=>(dispatch,getState)=>{
 		const state=getState()
-		let {start,end}=state.get("selection")
-		let {id,at}=bEnd ? end : start
-		let target=getContent(state,id).toJS()
-		const text=target.children
-		if(text.length>at){
-			at++
-		}else{
-			target=nextCursorable(state,id)
-			if(target){
-				id=target
-				at=0
+		let {start,end,cursorAt}=state.get("selection")
+		
+		if(start.id==end.id && start.at==end.at){
+			let {id,at}=shift ? end : start
+			let target=getContent(state,id).toJS()
+			const text=target.children
+			if(text.length>at){
+				at++
 			}else{
-				//keep cursor at end of current target
+				target=nextCursorable(state,id)
+				if(target){
+					id=target
+					at=0
+				}else{
+					//keep cursor at end of current target
+				}
 			}
+			if(shift)
+				dispatch(Selection.END_AT(id,at))
+			else
+				dispatch(Selection.SELECT(id,at))
+		}else{
+			if(shift){
+				let {id,at}=cursorAt=="end" ? end : start
+				let target=getContent(state,id).toJS()
+				const text=target.children
+				if(text.length>at){
+					at++
+				}else{
+					target=nextCursorable(state,id)
+					if(target){
+						id=target
+						at=0
+					}else{
+						//keep cursor at end of current target
+					}
+				}
+				dispatch(Selection[`${cursorAt.toUpperCase()}_AT`](id,at))
+			}else
+				dispatch(Selection.SELECT(end.id,end.at))	
 		}
-		if(bEnd)
-			dispatch(Selection.SELECT(start.id, start.at,id,at))
-		else
-			dispatch(Selection.SELECT(id,at))
 	}
-	,MOVE_LEFT: (bEnd)=>(dispatch,getState)=>{
+	,MOVE_LEFT: (shift)=>(dispatch,getState)=>{
 		const state=getState()
-		let {start,end}=state.get("selection")
-		let {id,at}=bEnd ? end : start
-		if(at>0){
-			at--
-		}else{
-			let target=prevCursorable(state,id)
-			if(target){
-				id=target
-				let children=getContent(state, target).get("children")
-				at=children.length
+		let {start,end,cursorAt}=state.get("selection")
+		if(start.id==end.id && start.at==end.at){
+			let {id,at}=shift ? end : start
+			if(at>0){
+				at--
 			}else{
-				//keep cursor at end of current target
+				let target=prevCursorable(state,id)
+				if(target){
+					id=target
+					let children=getContent(state, target).get("children")
+					at=children.length
+				}else{
+					//keep cursor at end of current target
+				}
 			}
+			if(shift)
+				dispatch(Selection.START_AT(id, at))
+			else
+				dispatch(Selection.SELECT(id,at))
+		}else{
+			if(shift){
+				let {id,at}=cursorAt=="start" ? start : end
+				if(at>0){
+					at--
+				}else{
+					let target=prevCursorable(state,id)
+					if(target){
+						id=target
+						let children=getContent(state, target).get("children")
+						at=children.length
+					}else{
+						//keep cursor at end of current target
+					}
+				}
+				dispatch(Selection[`${cursorAt.toUpperCase()}_AT`](id,at))
+
+			}else
+				dispatch(Selection.SELECT(start.id,start.at))
 		}
-		if(bEnd)
-			dispatch(Selection.SELECT(start.id, start.at,id,at))
-		else
-			dispatch(Selection.SELECT(id,at))
 	}
 }
 

@@ -6,10 +6,10 @@ import {getContent,getContentStyle,getSelection} from "state/selector"
 import {editable} from "model/edit"
 import recomposable from "./recomposable"
 
+import Selection from "state/selection"
 import Cursor from "state/cursor"
-import offset from "mouse-event-offset"
 
-import get from "lodash.get"
+import offset from "mouse-event-offset"
 
 export default class Document extends editable(recomposable(Base)){
 	_reComposeFrom(section){
@@ -29,10 +29,11 @@ export default class Document extends editable(recomposable(Base)){
 			return (
 				<div ref={a=>this.root=a}>
 					<Base.Composed {...this.props}>
-						<Cursor ref={a=>this.cursor=a}
-							positioning={this.cursorPosition.bind(this)}
-							getRange={this.getRange.bind(this)}
-							/>
+						<Cursor 
+							getWordWrapper={style=>new Text.WordWrapper(style)} 
+							getRatio={()=>this.ratio}/>
+							
+						<Selection getRange={this.getRange.bind(this)}/>
 					</Base.Composed>
 				</div>
 			)
@@ -40,66 +41,78 @@ export default class Document extends editable(recomposable(Base)){
 
 		getRange(start,end){
 			let docId=this.context.docId
+			let ratio=this.ratio
+			let state=this.context.store.getState()
+			const x=(node,id,at)=>{
+				let left=node.getBoundingClientRect().left
+				let style=getContentStyle(state,docId,id)
+				let text=node.textContent
+				let from=node.getAttribute("data-endAt")-text.length
+				
+				let wordwrapper=new Text.WordWrapper(style)
+				let width=wordwrapper.stringWidth(text.substring(0,at-from))
+				if(ratio)
+					width=width/ratio
+				return left+width
+			}
+			
 			let firstNode=getNode(docId, start.id, start.at)
 			let lastNode=getNode(docId, end.id, end.at)
-			let range=document.createRange()
-			range.setStart(firstNode.firstChild, start.at-(firstNode.getAttribute("data-endAt")-firstNode.textContent.length))
-			range.setEnd(lastNode.firstChild, end.at-(lastNode.getAttribute("data-endAt")-lastNode.textContent.length))
-			return range
-		}
-
-		cursorPosition(id, at, text, style){
-			let node=getNode(this.context.docId, id, at)
-			let {top,left}=node.getBoundingClientRect()
-			let from=node.getAttribute("data-endAt")-node.textContent.length
-			top+=window.scrollY
-			left+=window.scrollX
-
-
-			let wordwrapper=new Text.WordWrapper(style)
-			let width=wordwrapper.stringWidth(text.substring(from,at))
-			let {height, descent}=wordwrapper
-			if(this.ratio){
-				width=width/this.ratio
-				height=height/this.ratio
-				descent=descent/this.ratio
+			
+			const line=n=>n.className=="line" ? n : n.parentNode
+			let firstLine=line(firstNode)
+			let lastLine=line(lastNode)
+			while(firstLine.parentNode!=lastLine.parentNode){
+				firstLine=firstLine.parentNode
+				lastLine=lastLine.parentNode
 			}
-
-			const downUp=a=>(bEnd)=>{
-				let current=node, target
-				while(current.getAttribute("class")!=="line")
-					current=current.parentNode
-				let {height}=current.getBoundingClientRect()
-				let next=get(current,`parentNode.${a}Sibling.firstChild`)
-				if(!next)
-					return
-				const dispatch=this.context.store.dispatch
-
-				let y=top+height+next.getBoundingClientRect().height/2
-				let x=left+width
-				let pots=next.querySelectorAll("text")
-				for(let i=0,len=pots.length;i<len;i++){
-					let {left:l,width:w}=pots[i].getBoundingClientRect()
-					if(l<=x && x<=l+w){
-						target=pots[i]
-						let wrapper=new Text.WordWrapper(getContentStyle(this.context.store.getState(), this.context.docId, target.getAttribute("data-content")))
-						let end=wrapper.widthString((x-l)*this.ratio, target.textContent)
-						end+=target.getAttribute("data-endAt")-target.textContent.length
-						if(!bEnd)
-							dispatch(ACTION.Cursor.AT(target.getAttribute("data-content"),end))
-						else
-							dispatch(ACTION.Selection.END_AT(target.getAttribute("data-content"),end))
-						return
-					}
+			
+			if(firstLine==lastLine){
+				let x0=x(firstNode,start.id,start.at)
+				let x1=x(lastNode, end.id, end.at)
+				let {top,height}=firstLine.getBoundingClientRect()
+				return `M${x0} ${top} L${x1} ${top} L${x1} ${top+height} L${x0} ${top+height} L${x0} ${top}`
+			}else{
+				let all=firstLine.parentNode.children
+				const indexOf=(aa,a)=>{
+					for(let i=0,len=aa.length;i<len;i++)
+						if(aa[i]==a)
+							return i
+					return -1
 				}
-
-				target=pots[pots.length-1]
-				if(!bEnd)
-					dispatch(ACTION.Cursor.AT(target.getAttribute("data-content"), parseInt(target.getAttribute("data-endAt"))))
-				else
-					dispatch(ACTION.Selection.END_AT(target.getAttribute("data-content"), parseInt(target.getAttribute("data-endAt"))))
+				
+				let lines=[]
+				for(let i=indexOf(all,firstLine),l=indexOf(all,lastLine);i<=l;i++){
+					lines.push(all[i])
+				}
+				
+				let {path,l}=lines.reduce((route, l, i)=>{
+					let {left,top,height,width}=l.getBoundingClientRect()
+					let t
+					switch(i){
+					case 0:
+						t=x(firstNode,start.id, start.at)
+						route.path.push(`M${t} ${top}`)
+						route.path.push(`L${left+width} ${top} L${left+width} ${top+height}`)
+						route.l.unshift(`L${t} ${top+height} L${t} ${top}`)
+					break
+					case lines.length-1:
+						t=x(lastNode,end.id, end.at)
+						route.path.push(`L${t} ${top} L${t} ${top+height}`)
+						route.l.unshift(`L${left} ${top+height} L${left} ${top}`)
+					break
+					default:
+						route.path.push(`L${left+width} ${top} L${left+width} ${top+height}`)
+						route.l.unshift(`L${left} ${top+height} L${left} ${top}`)
+					break
+					}
+					
+					return route
+				},{path:[],l:[]})
+				
+				path.splice(path.length,0,...l)
+				return path.join(" ")
 			}
-			return {top, left, width, height, descent,up:downUp("previous"),down:downUp("next")}
 		}
 
 		componentDidMount(){
@@ -181,40 +194,6 @@ export default class Document extends editable(recomposable(Base)){
 				}
 				active()
 			})
-
-			/*
-			document.addEventListener("keydown", e=>{
-				if(!e.shiftKey){
-					let sel=window.getSelection()
-					if(sel.type!=="Range")
-						return
-					sel.removeAllRanges()
-
-					const {start, end, active}=getSelection(this.context.store.getState())
-					if(active!==docId)
-						return
-
-					switch(e.keyCode){
-					case 8://backspace
-						e.preventDefault()
-						dispatch(ACTION.Selection.REMOVE())
-					break
-					case 38://ARROW UP
-					case 37://ARROW LEFT
-						e.preventDefault()
-						dispatch(ACTION.Cursor.AT(start.id,start.at))
-					break
-
-					case 40://ARROW DOWN
-					case 39://ARROW RIGHT
-						e.preventDefault()
-						dispatch(ACTION.Cursor.AT(end.id, end.at))
-					break
-					default:
-
-					}
-				}
-			})*/
 		}
 	}
 }

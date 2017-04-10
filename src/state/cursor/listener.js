@@ -8,9 +8,7 @@ export default class Listener extends Component{
 		store: PropTypes.any
 	}
 	state={value:""}
-	focus(){
-		this.input.focus()
-	}
+	
 	render(){
 		let {dispatch}=this.context.store
 		let {up,down,...others}=this.props
@@ -27,7 +25,7 @@ export default class Listener extends Component{
 					})}
 
 					onKeyDown={e=>{
-							switch(e.keyCode){
+						switch(e.keyCode){
 							case 8://backspace
 								e.preventDefault()
 								dispatch(ACTION.Text.REMOVE(1))
@@ -53,5 +51,9 @@ export default class Listener extends Component{
 					}
 
 		/>
+	}
+	
+	componentDidUpdate(){
+		this.input.focus()
 	}
 }

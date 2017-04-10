@@ -11,7 +11,7 @@ export function createState(doc, content, docReducer=state=>state){
 	const INIT_STATE=Map({
 			doc, //source file
 			content, // models
-			selection:{start:{id,at:0},end:{id,at:0}}
+			selection:{start:{id,at:0},end:{id,at:0},cursorAt:"end"}
 			})
 
 	return createStore(
