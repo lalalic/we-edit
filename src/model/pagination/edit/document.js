@@ -29,10 +29,10 @@ export default class Document extends editable(recomposable(Base)){
 			return (
 				<div ref={a=>this.root=a}>
 					<Base.Composed {...this.props}>
-						<Cursor 
-							getWordWrapper={style=>new Text.WordWrapper(style)} 
+						<Cursor
+							getWordWrapper={style=>new Text.WordWrapper(style)}
 							getRatio={()=>this.ratio}/>
-							
+
 						<Selection getRange={this.getRange.bind(this)}/>
 					</Base.Composed>
 				</div>
@@ -48,25 +48,29 @@ export default class Document extends editable(recomposable(Base)){
 				let style=getContentStyle(state,docId,id)
 				let text=node.textContent
 				let from=node.getAttribute("data-endAt")-text.length
-				
+
 				let wordwrapper=new Text.WordWrapper(style)
 				let width=wordwrapper.stringWidth(text.substring(0,at-from))
 				if(ratio)
 					width=width/ratio
 				return left+width
 			}
-			
+
 			let firstNode=getNode(docId, start.id, start.at)
 			let lastNode=getNode(docId, end.id, end.at)
-			
-			const line=n=>n.className=="line" ? n : n.parentNode
+
+			const line=n=>{
+				while(n.getAttribute("class")!="line")
+				 	n=n.parentNode
+				return n
+			}
 			let firstLine=line(firstNode)
 			let lastLine=line(lastNode)
 			while(firstLine.parentNode!=lastLine.parentNode){
 				firstLine=firstLine.parentNode
 				lastLine=lastLine.parentNode
 			}
-			
+
 			if(firstLine==lastLine){
 				let x0=x(firstNode,start.id,start.at)
 				let x1=x(lastNode, end.id, end.at)
@@ -80,12 +84,12 @@ export default class Document extends editable(recomposable(Base)){
 							return i
 					return -1
 				}
-				
+
 				let lines=[]
 				for(let i=indexOf(all,firstLine),l=indexOf(all,lastLine);i<=l;i++){
 					lines.push(all[i])
 				}
-				
+
 				let {path,l}=lines.reduce((route, l, i)=>{
 					let {left,top,height,width}=l.getBoundingClientRect()
 					let t
@@ -106,10 +110,10 @@ export default class Document extends editable(recomposable(Base)){
 						route.l.unshift(`L${left} ${top+height} L${left} ${top}`)
 					break
 					}
-					
+
 					return route
 				},{path:[],l:[]})
-				
+
 				path.splice(path.length,0,...l)
 				return path.join(" ")
 			}
@@ -179,18 +183,66 @@ export default class Document extends editable(recomposable(Base)){
 			svg.addEventListener("mouseup",e=>{
 				let selection=window.getSelection()||document.getSelection()
 				if(selection.type=="Range"){
+					debugger
+					const line=n=>{
+						while(n.getAttribute("class")!="line")
+							n=n.parentNode
+						return n
+					}
+
 					let first=selection.anchorNode
-					first=first.parentNode
+					first=first.parentNode//text
+					let firstId=first.getAttribute("data-content")
+					let firstAt=first.getAttribute("data-endAt")-first.textContent.length+selection.anchorOffset
+					let firstLine=line(first)
+					firstLine=firstLine.getBoundingClientRect()
 
 					let last=selection.focusNode
-					last=last.parentNode
+					last=last.parentNode//text
+					let lastId=last.getAttribute("data-content")
+					let lastAt=last.getAttribute("data-endAt")-last.textContent.length+selection.focusOffset
+					let lastLine=line(last)
+					lastLine=lastLine.getBoundingClientRect()
 
-					dispatch(ACTION.Selection.SELECT(
-							first.getAttribute("data-content"),
-							first.getAttribute("data-endAt")-first.textContent.length+selection.anchorOffset,
-							last.getAttribute("data-content"),
-							last.getAttribute("data-endAt")-last.textContent.length+selection.focusOffset
-						))
+					const firstLast=a=>{
+						dispatch(ACTION.Selection.SELECT(
+								firstId,
+								firstAt,
+								lastId,
+								lastAt
+							))
+						dispatch(ACTION.Selection.END_AT(lastId,lastAt))
+					}
+
+					const lastFirst=a=>{
+						dispatch(ACTION.Selection.SELECT(
+								lastId,
+								lastAt,
+								firstId,
+								firstAt
+							))
+						dispatch(ACTION.Selection.START_AT(lastId,lastAt))
+					}
+
+					if(firstLine.top>lastLine.top){
+						firstLast()
+					}else if(firstLine.top<lastLine.top){
+						lastFirst()
+					}else{
+						if(first!=last){
+							if(first.getBoundingClientRect().left<last.getBoundingClientRect().left){
+								firstLast()
+							}else{
+								lastFirst()
+							}
+						}else{
+							if(firstAt<lastAt){
+								firstLast()
+							}else{
+								lastFirst()
+							}
+						}
+					}
 				}
 				active()
 			})
