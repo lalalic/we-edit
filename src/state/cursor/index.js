@@ -19,13 +19,13 @@ export class Cursor extends Component{
 		getWordWrapper: PropTypes.func,
 		getRatio: PropTypes.func
 	}
-	
+
 	static defaultProps={
 		getRatio(){
 			return 1
 		}
 	}
-	
+
 	render(){
 		return null
 	}
@@ -39,8 +39,8 @@ export class Cursor extends Component{
 		if(docId==active)
 			getCursorInput()
 			.setState({
-				...this.style, 
-				up:this.up.bind(this), 
+				...this.style,
+				up:this.up.bind(this),
 				down:this.down.bind(this)
 			})
 	}
@@ -56,7 +56,7 @@ export class Cursor extends Component{
 		const state=this.context.store.getState()
 		const {children:text}=getContent(state, id).toJS()
 		const style=getContentStyle(state, docId, id)
-		
+
 		let node=this.node
 		let {top,left}=node.getBoundingClientRect()
 		let from=node.getAttribute("data-endAt")-node.textContent.length
@@ -76,7 +76,8 @@ export class Cursor extends Component{
 
 		return {...style,left,top,height,width}
 	}
-	
+
+	//get node of cusor at
 	getTargetNode(id,at){
 		let nodes=document.querySelectorAll(`#${this.context.docId} [data-content="${id}"]`)
 		if(nodes.length==1)
@@ -91,13 +92,13 @@ export class Cursor extends Component{
 				return a
 		}
 	}
-	
+
 	getLineNode(which,node){
 		let current=node||this.node;
-		
+
 		while(current.getAttribute("class")!=="line")
 			current=current.parentNode
-		
+
 		switch(which){
 		case "next":
 		case "previous":
@@ -106,15 +107,13 @@ export class Cursor extends Component{
 			return current
 		}
 	}
-	
-	up(shiftKey){
+
+	getNextLine(direct){
 		let current=this.getLineNode()
-		let next=this.getLineNode("previous")
-		
-		const dispatch=this.context.store.dispatch
+		let next=this.getLineNode(direct)
+
 		const state=this.context.store.getState()
-		const {start,end,cursorAt}=getSelection(state)
-		
+
 		let {left,top}=this.node.getBoundingClientRect()
 
 		let {height}=current.getBoundingClientRect()
@@ -141,7 +140,17 @@ export class Cursor extends Component{
 			id=target.getAttribute("data-content")
 			at=parseInt(target.getAttribute("data-endAt"))
 		}
-		
+
+		return {target,id,at,next}
+	}
+
+	up(shiftKey){
+		const dispatch=this.context.store.dispatch
+		const state=this.context.store.getState()
+		const {start,end,cursorAt}=getSelection(state)
+
+		let {id,at,target,next}=this.getNextLine("previous")
+
 		if(!shiftKey)
 			dispatch(ACTION.Cursor.AT(id,at))
 		else{
@@ -153,9 +162,11 @@ export class Cursor extends Component{
 				else if(cursorAt=="end"){
 					let startNode=this.getTargetNode(start.id,start.at)
 					let startLine=this.getLineNode("",startNode)
-					if(startLine==next && 
+					if(startLine.parentNode.previousSibling==next.parentNode ||
+						(startLine==next &&
 						(startNode==target && at<start.at) ||
-						startNode.getBoundingClientRect().left>target.getBoundingClientRect().left){
+						startNode.getBoundingClientRect().left>target.getBoundingClientRect().left
+					)){
 						dispatch(ACTION.Selection.SELECT(id,at,start.id,start.at))
 						dispatch(ACTION.Selection.START_AT(id,at))
 					}else{
@@ -165,42 +176,14 @@ export class Cursor extends Component{
 			}
 		}
 	}
-	
+
 	down(shiftKey){
-		let current=this.getLineNode()
-		let next=this.getLineNode("next")
-		
 		const dispatch=this.context.store.dispatch
 		const state=this.context.store.getState()
 		const {start,end,cursorAt}=getSelection(state)
-		
-		let {left,top}=this.node.getBoundingClientRect()
 
-		let {height}=current.getBoundingClientRect()
-		let y=top+height+next.getBoundingClientRect().height/2
-		let x=left+this.style.width
-		let pots=next.querySelectorAll("text")
-		let id,at,target
-		for(let i=0,len=pots.length;i<len;i++){
-			let {left:l,width:w}=pots[i].getBoundingClientRect()
-			if(l<=x && x<=l+w){
-				target=pots[i]
-				id=target.getAttribute("data-content")
-				let text=target.textContent
-				let wrapper=this.props.getWordWrapper(getContentStyle(state, this.context.docId, id))
-				let ratio=this.props.getRatio()
-				at=wrapper.widthString(Math.ceil((x-l)*ratio), text)
-							+parseInt(target.getAttribute("data-endAt"))
-							-text.length
-				break
-			}
-		}
-		if(!id){
-			target=pots[pots.length-1]
-			id=target.getAttribute("data-content")
-			at=parseInt(target.getAttribute("data-endAt"))
-		}
-		
+		let {id,at,target,next}=this.getNextLine("next")
+
 		if(!shiftKey)
 			dispatch(ACTION.Cursor.AT(id,at))
 		else{
@@ -212,9 +195,11 @@ export class Cursor extends Component{
 				else if(cursorAt=="start"){
 					let endNode=this.getTargetNode(end.id,end.at)
 					let endLine=this.getLineNode("",endNode)
-					if(endLine==next &&
+					if(endLine.parentNode.nextSibling==next.parentNode ||
+						(endLine==next &&
 						(endNode==target && at>end.at) ||
-						endNode.getBoundingClientRect().left<target.getBoundingClientRect().left){
+						endNode.getBoundingClientRect().left<target.getBoundingClientRect().left)
+					){
 						dispatch(ACTION.Selection.SELECT(end.id,end.at,id,at))
 						dispatch(ACTION.Selection.END_AT(id,at))
 					}else{
