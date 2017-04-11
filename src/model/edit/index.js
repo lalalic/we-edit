@@ -24,9 +24,5 @@ export function editable(Model){
 			let type=this.displayName.split('-').pop()
 			return ["text","image"].indexOf(type)!=-1
 		}
-		
-		static breakable(){
-			return this.displayName.split('-').pop()=="text"
-		}
 	}
 }

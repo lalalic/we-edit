@@ -8,7 +8,8 @@ export default {
 		if(fonts[name]){
 			return fonts[name]
 		}else{
-            throw new Error(`${name} not exists`)
+			return fonts.verdana
+            //throw new Error(`${name} not exists`)
         }
     },
 	names(){

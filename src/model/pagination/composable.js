@@ -3,15 +3,16 @@ import React, {Children, PropTypes} from "react"
 export function HasChild(Component){
     return class extends Component{
         static displayName=`composable-${Component.displayName}`
-        computed = { children: [], composed: [] }
-
+        
         static childContextTypes = {
             ...(Component.childContextTypes||{}),
             parent: PropTypes.object,
             prevSibling: PropTypes.func
         }
 
-        getChildContext() {
+        computed = { children: [], composed: [] }
+		
+		getChildContext() {
             let self = this
             let superChildContext=super.getChildContext ? super.getChildContext() : {}
             return {

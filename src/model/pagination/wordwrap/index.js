@@ -38,6 +38,10 @@ export class WordWrapper{
 			let aWidth=this.stringWidth(a)
 			if(state.width+aWidth>width){
 				state.done=true
+				if(width-state.width>state.width+aWidth-width){
+					state.width+=aWidth
+					state.text+=a
+				}
 			}else{
 				state.width+=aWidth
 				state.text+=a

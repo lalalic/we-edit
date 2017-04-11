@@ -16,21 +16,32 @@ export default class Paragraph extends Super{
         ...Super.childContextTypes,
         getMyBreakOpportunities: PropTypes.func
     }
+	
+	static propTypes={
+		...Super.propTypes,
+		getChildText: PropTypes.func
+	}
+	
+	static defaultProps={
+		...Super.defaultProps,
+		getChildText(el){
+			while(typeof(el.props.children)!=="string"){
+				el=el.props.children[0]
+				if(!React.isValidElement(el))
+					return null
+			}
+			return el.props.children
+		}
+	}
+	
+	
     constructor(){
         super(...arguments)
         this.computed.breakOpportunities=this.getBreakOpportunities(this.props.children)
     }
 
     getBreakOpportunities(children){
-		function getText({props:{children:text}}){
-            return text
-        }
-
-        function breakable({type,props:{children:text}}){
-            return typeof(text)=="string"
-        }
-
-		return Object.freeze(opportunities(children,getText, breakable))
+		return Object.freeze(opportunities(children,this.props.getChildText))
     }
 
     getChildContext(){

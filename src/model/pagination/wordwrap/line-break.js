@@ -4,7 +4,7 @@ import LineBreaker from "linebreak"
 * find opportunities from a structured texts
 *
 */
-export default function opportunities(items,getText=a=>a,breakable=a=>true, reviver=a=>a){
+export default function opportunities(items,getText=a=>a,reviver=a=>a){
     let commit=(state,i)=>{
         if(state.text.length==0)
             return state
@@ -69,8 +69,8 @@ export default function opportunities(items,getText=a=>a,breakable=a=>true, revi
     }
     return commit(items.reduce((state, piece, i)=>{
         let {text,opportunities,indexes}=state
-        if(breakable(piece)){
-            let t=getText(piece)
+		let t=getText(piece)
+        if(t){
             text.push(t)
             indexes[i]=t.length
         }else{

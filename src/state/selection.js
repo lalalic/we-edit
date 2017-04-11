@@ -23,14 +23,12 @@ export class Selection extends Component{
 		if(start.id!=end.id || start.at!=end.at){
 			path=getRange(start,end)
 		}
-		return <path ref={a=>this.path=a} d={path} fill="lightblue" style={{fillOpacity:0.5}}/>
-	}
-	
-	componentDidUpdate(){
-		const {start,end, onUpdate}=this.props
-		if(start.id!=end.id || start.at!=end.at && onUpdate){
-			onUpdate(this.path)
-		}
+		return <path ref={a=>this.path=a} 
+				d={path} 
+				fill="lightblue" 
+				style={{fillOpacity:0.5}}
+				
+				/>
 	}
 }
 

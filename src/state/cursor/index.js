@@ -61,8 +61,6 @@ export class Cursor extends Component{
 		let node=this.node
 		let {top,left}=node.getClientRect()
 		let from=node.dataset.endAt-node.textContent.length
-		//top+=window.scrollY
-		//left+=window.scrollX
 
 		let wordwrapper=this.props.getWordWrapper(style)
 		let width=wordwrapper.stringWidth(text.substring(from,at))

@@ -30,31 +30,12 @@ export default class Document extends editable(recomposable(Base)){
 			return (
 				<div ref={a=>this.root=a}>
 					<Base.Composed {...this.props}>
-						<Cursor ref={a=>this.cursor=a}
+						<Cursor 
 							getWordWrapper={style=>new Text.WordWrapper(style)}
 							getRatio={()=>this.ratio}/>
 
 						<Selection 
 							getRange={this.getRange.bind(this)}
-							onUpdate={path=>{/*
-								let {id,at}=this.cursor.mergedProps
-								let page=getNode(this.context.docId, id,at)
-								while(page.getAttribute("class")!=="page")
-									page=page.parentNode
-								
-								let content=page.querySelector(".content")
-								content.insertBefore(path,content.firstChild)
-								
-								let g=content,x=0,y=0
-								while(g.tagName!="svg"){
-									let {e:x1,f:y1}=g.transform.baseVal.consolidate().matrix
-									x+=x1
-									y+=y1
-									g=g.parentNode
-								}
-								path.setAttribute("transform",`translate(-${x} -${y})`)
-								*/
-							}}
 							/>
 					</Base.Composed>
 				</div>
@@ -146,126 +127,138 @@ export default class Document extends editable(recomposable(Base)){
 			let width=svg.getAttribute("width")
 			let [,,viewBoxWidth]=svg.getAttribute("viewBox").split(" ")
 			this.ratio=viewBoxWidth/width
+			
+			this.context.store.dispatch(ACTION.Cursor.ACTIVE(this.context.docId))
 
-			let dispatch=this.context.store.dispatch
-			dispatch(ACTION.Cursor.ACTIVE(this.context.docId))
+			svg.addEventListener("click", this.onClick.bind(this))
+			
+			svg.addEventListener("mouseup", this.onSelect.bind(this))
+			
+			svg.addEventListener("dblclick",e=>{
+				
+				console.dir(window.getSelection())
+			})
+		}
+	
+		active(){
+			let {docId, store}=this.context
+			let {active}=getSelection(store.getState())
+			if(active!=docId)
+				dispatch(ACTION.Cursor.ACTIVE(docId))
+			else
+				this.context.getCursorInput().forceUpdate()
+		}
+		
+		onClick(e){
+			const dispatch=this.context.store.dispatch
+			const docId=this.context.docId
+			const target=e.target
+			
+			switch(target.nodeName){
+			case 'text':
+				let text=target.textContent
+				let {endAt:contentEndIndex, content:contentID}=target.dataset
+				let from=contentEndIndex-text.length
 
-			let docId=this.context.docId
+				let [x]=offset(e, target)
+				x=x*this.ratio
 
-			const active=()=>{
-				let {active}=getSelection(this.context.store.getState())
-				if(active!=docId)
-					dispatch(ACTION.Cursor.ACTIVE(docId))
-				else
-					this.context.getCursorInput().forceUpdate()
+				const state=this.context.store.getState()
+				const content=getContent(state, contentID).toJS()
+				const style=getContentStyle(state,docId, contentID)
+				const wordwrapper=new Text.WordWrapper(style)
+				const end=wordwrapper.widthString(x, content.children.substr(from))
+				if(e.shiftKey){
+					let {end:{id,at}}=getSelection(state)
+					if(id==contentID){
+						if(at<from+end){
+							dispatch(ACTION.Selection.END_AT(contentID,from+end))
+						}else{
+							dispatch(ACTION.Selection.START_AT(contentID,from+end))
+						}
+					}else{
+						let current=getNode(docId,id,at)
+						if(current.getClientRect().top<target.getClientRect().top){
+							dispatch(ACTION.Selection.END_AT(contentID,from+end))
+						}else{
+							dispatch(ACTION.Selection.START_AT(contentID,from+end))
+						}
+					}
+				}else
+					dispatch(ACTION.Cursor.AT(contentID,from+end))
+			break
 			}
 
-			svg.addEventListener("click", e=>{
-				const target=e.target
-				switch(target.nodeName){
-				case 'text':
-					let text=target.textContent
-					let {endAt:contentEndIndex, content:contentID}=target.dataset
-					let from=contentEndIndex-text.length
-
-					let [x]=offset(e, target)
-					x=x*this.ratio
-
-					const state=this.context.store.getState()
-					const content=getContent(state, contentID).toJS()
-					const style=getContentStyle(state,docId, contentID)
-					const wordwrapper=new Text.WordWrapper(style)
-					const end=wordwrapper.widthString(x, content.children.substr(from))
-					if(e.shiftKey){
-						let {end:{id,at}}=getSelection(state)
-						if(id==contentID){
-							if(at<from+end){
-								dispatch(ACTION.Selection.END_AT(contentID,from+end))
-							}else{
-								dispatch(ACTION.Selection.START_AT(contentID,from+end))
-							}
-						}else{
-							let current=getNode(docId,id,at)
-							if(current.getClientRect().top<target.getClientRect().top){
-								dispatch(ACTION.Selection.END_AT(contentID,from+end))
-							}else{
-								dispatch(ACTION.Selection.START_AT(contentID,from+end))
-							}
-						}
-					}else
-						dispatch(ACTION.Cursor.AT(contentID,from+end))
-				break
+			this.active()
+		}
+	
+		onSelect(e){
+			const dispatch=this.context.store.dispatch
+			const docId=this.context.docId
+			
+			let selection=window.getSelection()||document.getSelection()
+			if(selection.type=="Range"){
+				const line=n=>{
+					while(n.getAttribute("class")!="line")
+						n=n.parentNode
+					return n
 				}
 
-				active()
+				let first=selection.anchorNode
+				first=first.parentNode//text
+				let firstId=first.dataset.content
+				let firstAt=first.dataset.endAt-first.textContent.length+selection.anchorOffset
+				let firstLine=line(first)
+				firstLine=firstLine.getClientRect()
 
-			})
+				let last=selection.focusNode
+				last=last.parentNode//text
+				let lastId=last.dataset.content
+				let lastAt=last.dataset.endAt-last.textContent.length+selection.focusOffset
+				let lastLine=line(last)
+				lastLine=lastLine.getClientRect()
 
-			svg.addEventListener("mouseup",e=>{
-				let selection=window.getSelection()||document.getSelection()
-				if(selection.type=="Range"){
-					const line=n=>{
-						while(n.getAttribute("class")!="line")
-							n=n.parentNode
-						return n
-					}
+				const firstLast=a=>{
+					dispatch(ACTION.Selection.SELECT(
+							firstId,
+							firstAt,
+							lastId,
+							lastAt
+						))
+					dispatch(ACTION.Selection.END_AT(lastId,lastAt))
+				}
 
-					let first=selection.anchorNode
-					first=first.parentNode//text
-					let firstId=first.dataset.content
-					let firstAt=first.dataset.endAt-first.textContent.length+selection.anchorOffset
-					let firstLine=line(first)
-					firstLine=firstLine.getClientRect()
+				const lastFirst=a=>{
+					dispatch(ACTION.Selection.SELECT(
+							lastId,
+							lastAt,
+							firstId,
+							firstAt
+						))
+					dispatch(ACTION.Selection.START_AT(lastId,lastAt))
+				}
 
-					let last=selection.focusNode
-					last=last.parentNode//text
-					let lastId=last.dataset.content
-					let lastAt=last.dataset.endAt-last.textContent.length+selection.focusOffset
-					let lastLine=line(last)
-					lastLine=lastLine.getClientRect()
-
-					const firstLast=a=>{
-						dispatch(ACTION.Selection.SELECT(
-								firstId,
-								firstAt,
-								lastId,
-								lastAt
-							))
-						dispatch(ACTION.Selection.END_AT(lastId,lastAt))
-					}
-
-					const lastFirst=a=>{
-						dispatch(ACTION.Selection.SELECT(
-								lastId,
-								lastAt,
-								firstId,
-								firstAt
-							))
-						dispatch(ACTION.Selection.START_AT(lastId,lastAt))
-					}
-
-					if(firstLine.top>lastLine.top){
-						lastFirst()
-					}else if(firstLine.top<lastLine.top){
-						firstLast()
+				if(firstLine.top>lastLine.top){
+					lastFirst()
+				}else if(firstLine.top<lastLine.top){
+					firstLast()
+				}else{
+					if(first!=last){
+						if(first.getClientRect().left<last.getClientRect().left){
+							firstLast()
+						}else{
+							lastFirst()
+						}
 					}else{
-						if(first!=last){
-							if(first.getClientRect().left<last.getClientRect().left){
-								firstLast()
-							}else{
-								lastFirst()
-							}
+						if(firstAt<lastAt){
+							firstLast()
 						}else{
-							if(firstAt<lastAt){
-								firstLast()
-							}else{
-								lastFirst()
-							}
+							lastFirst()
 						}
 					}
 				}
-				active()
-			})
+			}
+			this.active()
 		}
 	}
 }

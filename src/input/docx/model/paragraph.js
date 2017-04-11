@@ -52,14 +52,10 @@ export default function transform(Models){
 			
 			this.style={...context.p, ...pStyle, ...direct}
 			this.rStyle={...context.r,...rStyle}
-			this.children=direct.children.reduce((children,r)=>{
-				children.splice(children.length,0,...r.props.children)
-				return children
-			},[])
 		}
 
 		render(){
-			return <Models.Paragraph {...this.style} children={this.children}/>
+			return <Models.Paragraph {...this.style} children={this.props.children}/>
 		}
 	}
 }
