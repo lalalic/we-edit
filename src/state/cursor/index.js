@@ -1,30 +1,24 @@
 import React, {PureComponent as Component, Children, PropTypes} from "react"
 import {connect} from "react-redux"
-import {getContent, getContentStyle, getSelection} from "state/selector"
+import {getContent, getContentStyle, getSelection,getNode} from "state/selector"
 import {ACTION} from "state"
 
 import get from "lodash.get"
-import client from "tools/get-client-rect"
+import getClientRect from "tools/get-client-rect"
 
 export class Cursor extends Component{
 	static display="cursor"
 	static contextTypes={
 		store: PropTypes.any,
 		docId: PropTypes.string,
-		getCursorInput: PropTypes.func
+		getCursorInput: PropTypes.func,
+		getRatio: PropTypes.func,
+		getWordWrapper: PropTypes.func
 	}
 	static propTypes={
 		id: PropTypes.string,
 		at: PropTypes.number,
-		active: PropTypes.string,
-		getWordWrapper: PropTypes.func,
-		getRatio: PropTypes.func
-	}
-
-	static defaultProps={
-		getRatio(){
-			return 1
-		}
+		active: PropTypes.string
 	}
 
 	render(){
@@ -33,7 +27,7 @@ export class Cursor extends Component{
 
 	componentWillReceiveProps({active,id,at}, {docId,getCursorInput}){
 		if(this.props.id!==id || this.props.at!==at){
-			this.node=this.getTargetNode(id, at)
+			this.node=getNode(docId,id, at)
 			this.style=this.position(docId,id,at)
 		}
 
@@ -49,7 +43,7 @@ export class Cursor extends Component{
 	componentDidMount(){
 		const {active,id,at}=this.props
 		const {docId,getCursorInput}=this.context
-		this.node=this.getTargetNode(id, at)
+		this.node=getNode(docId, id, at)
 		this.style=this.position(docId,id,at)
 	}
 
@@ -59,13 +53,13 @@ export class Cursor extends Component{
 		const style=getContentStyle(state, docId, id)
 
 		let node=this.node
-		let {top,left}=node.getClientRect()
+		let {top,left}=getClientRect(node)
 		let from=node.dataset.endAt-node.textContent.length
 
-		let wordwrapper=this.props.getWordWrapper(style)
+		let wordwrapper=this.context.getWordWrapper(style)
 		let width=wordwrapper.stringWidth(text.substring(from,at))
 		let {height, descent}=wordwrapper
-		let ratio=this.props.getRatio()
+		let ratio=this.context.getRatio()
 		if(ratio){
 			width=width/ratio
 			height=height/ratio
@@ -76,21 +70,6 @@ export class Cursor extends Component{
 		return {...style,left,top,height,width}
 	}
 
-	//get node of cusor at
-	getTargetNode(id,at){
-		let nodes=document.querySelectorAll(`#${this.context.docId} [data-content="${id}"]`)
-		if(nodes.length==1)
-			return nodes[0]
-
-		for(let i=0, len=nodes.length; i<len; i++){
-			let a=nodes[i]
-			let end=parseInt(a.dataset.endAt)
-			let length=a.textContent.length
-			let start=end-length
-			if(start<=at && at<=end)
-				return a
-		}
-	}
 
 	getLineNode(which,node){
 		let current=node||this.node;
@@ -110,24 +89,24 @@ export class Cursor extends Component{
 	getNextLine(direct){
 		let current=this.getLineNode()
 		let next=this.getLineNode(direct)
-
+		
 		const state=this.context.store.getState()
 
-		let {left,top}=this.node.getClientRect()
+		let {left,top}=getClientRect(this.node)
 
-		let {height}=current.getClientRect()
-		let y=top+height+next.getClientRect().height/2
+		let {height}=getClientRect(current)
+		let y=top+height+getClientRect(next).height/2
 		let x=left+this.style.width
 		let pots=next.querySelectorAll("text")
 		let id,at,target
 		for(let i=0,len=pots.length;i<len;i++){
-			let {left:l,width:w}=pots[i].getClientRect()
+			let {left:l,width:w}=getClientRect(pots[i])
 			if(l<=x && x<=l+w){
 				target=pots[i]
 				id=target.dataset.content
 				let text=target.textContent
-				let wrapper=this.props.getWordWrapper(getContentStyle(state, this.context.docId, id))
-				let ratio=this.props.getRatio()
+				let wrapper=this.context.getWordWrapper(getContentStyle(state, this.context.docId, id))
+				let ratio=this.context.getRatio()
 				at=wrapper.widthString(Math.ceil((x-l)*ratio), text)
 							+parseInt(target.dataset.endAt)
 							-text.length
@@ -144,8 +123,9 @@ export class Cursor extends Component{
 	}
 
 	up(shiftKey){
-		const dispatch=this.context.store.dispatch
-		const state=this.context.store.getState()
+		const {docId,store}=this.context
+		const dispatch=store.dispatch
+		const state=store.getState()
 		const {start,end,cursorAt}=getSelection(state)
 
 		let {id,at,target,next}=this.getNextLine("previous")
@@ -159,12 +139,12 @@ export class Cursor extends Component{
 				if(cursorAt=="start")
 					dispatch(ACTION.Selection.START_AT(id,at))
 				else if(cursorAt=="end"){
-					let startNode=this.getTargetNode(start.id,start.at)
+					let startNode=getNode(docId, start.id,start.at)
 					let startLine=this.getLineNode("",startNode)
 					if(startLine.parentNode.previousSibling==next.parentNode ||
 						(startLine==next &&
 						(startNode==target && at<start.at) ||
-						startNode.getClientRect().left>target.getClientRect().left
+						getClientRect(startNode).left>getClientRect(target).left
 					)){
 						dispatch(ACTION.Selection.SELECT(id,at,start.id,start.at))
 						dispatch(ACTION.Selection.START_AT(id,at))
@@ -177,8 +157,9 @@ export class Cursor extends Component{
 	}
 
 	down(shiftKey){
-		const dispatch=this.context.store.dispatch
-		const state=this.context.store.getState()
+		const {docId,store}=this.context
+		const dispatch=store.dispatch
+		const state=store.getState()
 		const {start,end,cursorAt}=getSelection(state)
 
 		let {id,at,target,next}=this.getNextLine("next")
@@ -192,12 +173,12 @@ export class Cursor extends Component{
 				if(cursorAt=="end")
 					dispatch(ACTION.Selection.END_AT(id,at))
 				else if(cursorAt=="start"){
-					let endNode=this.getTargetNode(end.id,end.at)
+					let endNode=getNode(docId, end.id,end.at)
 					let endLine=this.getLineNode("",endNode)
 					if(endLine.parentNode.nextSibling==next.parentNode ||
 						(endLine==next &&
 						(endNode==target && at>end.at) ||
-						endNode.getClientRect().left<target.getClientRect().left)
+						getClientRect(endNode).left<getClientRect(target).left)
 					){
 						dispatch(ACTION.Selection.SELECT(end.id,end.at,id,at))
 						dispatch(ACTION.Selection.END_AT(id,at))

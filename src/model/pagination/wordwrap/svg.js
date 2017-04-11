@@ -1,5 +1,5 @@
 import WordWrapper from "./html"
-import client from "tools/get-client-rect"
+import getClientRect from "tools/get-client-rect"
 
 /**
  *
@@ -32,6 +32,6 @@ export default class SVGWordWrapper extends WordWrapper{
 
     stringWidth(word){
         tester.firstChild.data=word
-        return tester.getClientRect().width
+        return getClientRect(tester).width
     }
 }

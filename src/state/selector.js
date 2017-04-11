@@ -97,3 +97,18 @@ export function prevCursorable(state,id){
 
 	return found ? found.props.id : null
 }
+
+export function getNode(docId, id,at){
+	let nodes=document.querySelectorAll(`#${docId} [data-content="${id}"]`)
+	if(nodes.length==1 || at==undefined)
+		return nodes[0]
+
+	for(let i=0, len=nodes.length; i<len; i++){
+		let a=nodes[i]
+		let end=parseInt(a.dataset.endAt)
+		let length=a.textContent.length
+		let start=end-length
+		if(start<=at && at<=end)
+			return a
+	}
+}

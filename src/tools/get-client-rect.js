@@ -1,5 +1,8 @@
-if(!Element.prototype.getClientRect)
-Element.prototype.getClientRect=function(){
-	let {left,top,width,height}=this.getBoundingClientRect()
-	return {left:left+window.scrollX, top:top+window.scrollY, height,width}
+export default function getClientRect(el){
+	let {left,top,bottom,right,width,height}=el.getBoundingClientRect()
+	let {scrollX,scrollY}=window
+	return {
+		left:left+scrollX, right: right+scrollX,
+		top:top+scrollY, bottom: bottom+scrollY,
+		height,width}
 }

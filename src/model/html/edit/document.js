@@ -6,7 +6,7 @@ import {editable} from "model/edit"
 import Cursor from "state/cursor"
 import {getContent} from "state/selector"
 import offset from "mouse-event-offset"
-import client from "tools/get-client-rect"
+import getClientRect from "tools/get-client-rect"
 
 export default class Document extends editable(Base){
 	static contextTypes={
@@ -18,7 +18,7 @@ export default class Document extends editable(Base){
         return (
 			<div ref={a=>this.root=a}>
 				{super.render()}
-				<Cursor positioning={this.cursorPosition.bind(this)}/>
+				
 			</div>
 		)
     }
@@ -52,7 +52,7 @@ export default class Document extends editable(Base){
 		if(!node)
 			return null
 
-		let {top,left}=node.getClientRect()
+		let {top,left}=getClientRect(node)
 		let wordwrapper=new HtmlWrapper(node)
 		
 		let width=wordwrapper.stringWidth(text.substring(0,at))
@@ -72,13 +72,13 @@ class HtmlWrapper{
 		this.tester.innerHTML="M"
 		this.tester.style="position:absolute;left:-999;top:0;"
 		node.parentNode.appendChild(this.tester)
-		this.height=this.tester.getClientRect().height
+		this.height=getClientRect(this.tester).height
 		this.descent=0
 	}
 
 	stringWidth(word){
 		this.tester.innerHTML=word
-		return this.tester.getClientRect().width
+		return getClientRect(this.tester).width
 	}
 
 	widthString(width,text){

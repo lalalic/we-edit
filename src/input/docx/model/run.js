@@ -48,7 +48,7 @@ export default function(Models){
 
 		render(){
 			return (
-				<div>
+				<span>
 				{
 					React.Children.map(this.props.children,a=>{
 						if(a.type.displayName.endsWith("-text"))
@@ -57,7 +57,7 @@ export default function(Models){
 							return a
 					})
 				}
-				</div>
+				</span>
 			)
 		}
 	}
