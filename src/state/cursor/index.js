@@ -4,6 +4,7 @@ import {getContent, getContentStyle, getSelection} from "state/selector"
 import {ACTION} from "state"
 
 import get from "lodash.get"
+import client from "tools/get-client-rect"
 
 export class Cursor extends Component{
 	static display="cursor"
@@ -58,10 +59,10 @@ export class Cursor extends Component{
 		const style=getContentStyle(state, docId, id)
 
 		let node=this.node
-		let {top,left}=node.getBoundingClientRect()
+		let {top,left}=node.getClientRect()
 		let from=node.dataset.endAt-node.textContent.length
-		top+=window.scrollY
-		left+=window.scrollX
+		//top+=window.scrollY
+		//left+=window.scrollX
 
 		let wordwrapper=this.props.getWordWrapper(style)
 		let width=wordwrapper.stringWidth(text.substring(from,at))
@@ -114,15 +115,15 @@ export class Cursor extends Component{
 
 		const state=this.context.store.getState()
 
-		let {left,top}=this.node.getBoundingClientRect()
+		let {left,top}=this.node.getClientRect()
 
-		let {height}=current.getBoundingClientRect()
-		let y=top+height+next.getBoundingClientRect().height/2
+		let {height}=current.getClientRect()
+		let y=top+height+next.getClientRect().height/2
 		let x=left+this.style.width
 		let pots=next.querySelectorAll("text")
 		let id,at,target
 		for(let i=0,len=pots.length;i<len;i++){
-			let {left:l,width:w}=pots[i].getBoundingClientRect()
+			let {left:l,width:w}=pots[i].getClientRect()
 			if(l<=x && x<=l+w){
 				target=pots[i]
 				id=target.dataset.content
@@ -165,7 +166,7 @@ export class Cursor extends Component{
 					if(startLine.parentNode.previousSibling==next.parentNode ||
 						(startLine==next &&
 						(startNode==target && at<start.at) ||
-						startNode.getBoundingClientRect().left>target.getBoundingClientRect().left
+						startNode.getClientRect().left>target.getClientRect().left
 					)){
 						dispatch(ACTION.Selection.SELECT(id,at,start.id,start.at))
 						dispatch(ACTION.Selection.START_AT(id,at))
@@ -198,7 +199,7 @@ export class Cursor extends Component{
 					if(endLine.parentNode.nextSibling==next.parentNode ||
 						(endLine==next &&
 						(endNode==target && at>end.at) ||
-						endNode.getBoundingClientRect().left<target.getBoundingClientRect().left)
+						endNode.getClientRect().left<target.getClientRect().left)
 					){
 						dispatch(ACTION.Selection.SELECT(end.id,end.at,id,at))
 						dispatch(ACTION.Selection.END_AT(id,at))

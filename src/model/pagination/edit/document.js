@@ -10,6 +10,7 @@ import Selection from "state/selection"
 import Cursor from "state/cursor"
 
 import offset from "mouse-event-offset"
+import client from "tools/get-client-rect"
 
 export default class Document extends editable(recomposable(Base)){
 	_reComposeFrom(section){
@@ -44,7 +45,7 @@ export default class Document extends editable(recomposable(Base)){
 			let ratio=this.ratio
 			let state=this.context.store.getState()
 			const x=(node,id,at)=>{
-				let left=node.getBoundingClientRect().left
+				let left=node.getClientRect().left
 				let style=getContentStyle(state,docId,id)
 				let text=node.textContent
 				let from=node.dataset.endAt-text.length
@@ -74,7 +75,7 @@ export default class Document extends editable(recomposable(Base)){
 			if(firstLine==lastLine){
 				let x0=x(firstNode,start.id,start.at)
 				let x1=x(lastNode, end.id, end.at)
-				let {top,height}=firstLine.getBoundingClientRect()
+				let {top,height}=firstLine.getClientRect()
 				return `M${x0} ${top} L${x1} ${top} L${x1} ${top+height} L${x0} ${top+height} L${x0} ${top}`
 			}else{
 				let all=firstLine.parentNode.children
@@ -91,7 +92,7 @@ export default class Document extends editable(recomposable(Base)){
 				}
 
 				let {path,l}=lines.reduce((route, l, i)=>{
-					let {left,top,height,width}=l.getBoundingClientRect()
+					let {left,top,height,width}=l.getClientRect()
 					let t
 					switch(i){
 					case 0:
@@ -164,7 +165,7 @@ export default class Document extends editable(recomposable(Base)){
 							}
 						}else{
 							let current=getNode(docId,id,at)
-							if(current.getBoundingClientRect().top<target.getBoundingClientRect().top){
+							if(current.getClientRect().top<target.getClientRect().top){
 								dispatch(ACTION.Selection.END_AT(contentID,from+end))
 							}else{
 								dispatch(ACTION.Selection.START_AT(contentID,from+end))
@@ -193,14 +194,14 @@ export default class Document extends editable(recomposable(Base)){
 					let firstId=first.dataset.content
 					let firstAt=first.dataset.endAt-first.textContent.length+selection.anchorOffset
 					let firstLine=line(first)
-					firstLine=firstLine.getBoundingClientRect()
+					firstLine=firstLine.getClientRect()
 
 					let last=selection.focusNode
 					last=last.parentNode//text
 					let lastId=last.dataset.content
 					let lastAt=last.dataset.endAt-last.textContent.length+selection.focusOffset
 					let lastLine=line(last)
-					lastLine=lastLine.getBoundingClientRect()
+					lastLine=lastLine.getClientRect()
 
 					const firstLast=a=>{
 						dispatch(ACTION.Selection.SELECT(
@@ -223,12 +224,12 @@ export default class Document extends editable(recomposable(Base)){
 					}
 
 					if(firstLine.top>lastLine.top){
-						firstLast()
-					}else if(firstLine.top<lastLine.top){
 						lastFirst()
+					}else if(firstLine.top<lastLine.top){
+						firstLast()
 					}else{
 						if(first!=last){
-							if(first.getBoundingClientRect().left<last.getBoundingClientRect().left){
+							if(first.getClientRect().left<last.getClientRect().left){
 								firstLast()
 							}else{
 								lastFirst()
