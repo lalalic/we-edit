@@ -12,7 +12,7 @@ export function text(state, {type,payload}){
 				else
 					return insertCrossParagraphTextWithoutSelection(state,payload,selection)
 			}else{
-				
+
 			}
 		}else{
 
@@ -54,27 +54,25 @@ function insertInParagraphTextWithoutSelection(state,inserted,selection){
 }
 
 function insertCrossParagraphTextWithoutSelection(state,inserted,selection){
-	
+
 }
 
 function insertInParagraphTextWithinParagraphSelection(){
-	
+
 }
 
 function insertInParagraphTextCrossParagraphsSelection(){
-	
+
 }
 
 function removeWithoutSelection(){
-	
+
 }
 
 function removeWithinParagaphSelection(){
-	
+
 }
 
 function removeCrossParagraphsSelection(){
-	
+
 }
-
-

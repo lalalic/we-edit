@@ -29,7 +29,7 @@ export default class extends Base{
 		},{...domain})
 	}
 
-	render(docx,domain,createElement){
+	render(docx,domain,createElement,createElementFactory){
 		const self=this
 		const selector=new Style.Properties(docx)
 		const $=docx.officeDocument.content
@@ -199,7 +199,18 @@ export default class extends Base{
 			return docx.officeDocument.renderNode(node,build)
 		}
 
+		this.renderChanged=node=>{
+			let changed={}
+			createElement=createElementFactory(changed)
+			renderNode(node)
+			return changed
+		}
+
 		return docx.render(build)
+	}
+
+	renderChanged(node){
+		return docx.officeDocument.renderNode(node)
 	}
 
 	identify(node){
@@ -229,9 +240,9 @@ export default class extends Base{
 			return docx.officeDocument.getRel(part)(`#${id}`)
 	}
 
-	onChange(docx, selection,action){
+	onChange(docx, selection,action,state){
 		const {type,payload}=action
-		const {start:{id,at}, end}=selection
+		let {start:{id,at}, end}=selection
 
 		const target=this.getRaw(docx,id)
 		if(target.length!=1){
@@ -243,6 +254,14 @@ export default class extends Base{
 			case `text/INSERT`:{
 				let text=target.text()
 				target.text(text.substring(0,at)+payload+text.substr(end.at))
+				at+=payload.length
+				return {
+					content:this.renderChanged(target),
+					selection:{
+						start:{id,at},
+						end:{id,at}
+					}
+				}
 				break
 			}
 			case `text/REMOVE`:{

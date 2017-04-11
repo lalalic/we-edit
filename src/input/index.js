@@ -43,7 +43,8 @@ export default {
 			},
 			Store(props){
 				let content=new Map().withMutations(function(content){
-					self.render(doc, DOMAIN, (type, props, children, raw)=>{
+					let factory
+					self.render(doc, DOMAIN, (factory=content=>(type, props, children, raw)=>{
 						let id
 						if(type.displayName=="document"){
 							id="root"
@@ -52,30 +53,49 @@ export default {
 							id=self.identify(raw)
 						}
 
-						content.set(id, Immutable.fromJS({
+						let record={
 							type:type.displayName,
 							props,
 							children: !Array.isArray(children) ? children : children.map(a=>a.id)
-						}))
+						}
+
+						if(content.set){
+							content.set(id, Immutable.fromJS(record))
+						}else{
+							content[id]=record
+						}
 
 						return {id,type,props,children}
-					})
+					})(content), factory)
 				})
 
 				 function onChange(state,action){
 					if(action.type=="@@INIT")
 						return state
 
-					if(self.onChangeEx)
-						return self.onChangeEx(state,action)
+					if(self.onChangeEx){
+						state=self.onChangeEx(state,action)
+					}else{
+						const doc=getFile(state)
+						const selection=getSelection(state)
 
-					const doc=getFile(state)
-					const selection=getSelection(state)
-
-					if(self.onChange(doc, selection, action,state)){
-						state=reducer.text(state,action)
-						state=state.set("selection",reducer.selection(getSelection(state),action))
+						let changed=self.onChange(doc, selection, action,state)
+						if(changed===false){
+							return state
+						}else if(typeof(changed)=="object"){
+							if(changed.selection)
+								state=state.set("selection", {...selection, ...changed.selection})
+							if(changed.content){
+								let content=state.get("content")
+								content=content.withMutations(content=>{
+									Object.keys(changed.content)
+										.forEach(id=>content.set(id,Immutable.fromJS(changed.content[id])))
+								})
+								state=state.set("content",content)
+							}
+						}
 					}
+					state=state.set("selection",reducer.selection(getSelection(state),action))
 					return state
 				}
 
