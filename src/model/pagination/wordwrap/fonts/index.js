@@ -66,6 +66,11 @@ export default {
 				}
 			})
 		})
+	},
+	
+	load(url,id){
+		return fetch(url).then(res=>res.arrayBuffer())
+			.then(buffer=>fonts[id]=extend(opentype.parse(buffer)))
 	}
 }
 

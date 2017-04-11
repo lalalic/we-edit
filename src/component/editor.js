@@ -90,7 +90,6 @@ const Root=connect((state,{domain})=>{
 function createChildElement(id,content,domain){
 	let {type, props, children}=content.get(id).toJS()
 	let Child=domain[type[0].toUpperCase()+type.substr(1)]
-	console.log(Child.displayName)
 	return (<Child key={id} id={id}
 			{...props}
 			children={Array.isArray(children) ? children.map(a=>createChildElement(a,content,domain,id)) : children}

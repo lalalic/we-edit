@@ -8,11 +8,11 @@ import Input from "input"
 import Docx from "input/docx"
 Input.support(Docx)
 
-/*
+
 import NodeWordWrapper from "wordwrap/node"
 import {Text} from "pagination"
-Text.WordWrapper=NodeWordWrapper
-*/
+//Text.WordWrapper=NodeWordWrapper
+
 
 function edit(input,container){
 	ReactDOM.unmountComponentAtNode(container)
@@ -65,5 +65,7 @@ Object.assign(window, {edit,preview,loadFont: fonts.fromBrowser})
 fetch("basic.docx").then(res=>res.blob()).then(docx=>{
 	docx.name="basic.docx"
 	let app=document.querySelector('#app')
-	edit(docx,app).then(a=>window.doc=a)
+	
+	fonts.load("verdana.ttf", "verdana")
+	.then(()=>edit(docx,app).then(a=>window.doc=a))
 })
