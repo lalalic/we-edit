@@ -98,7 +98,7 @@ export const Text={
 }
 
 export const Selection={
-	SELECT: (start, at, end=start, endAt=at)=>({
+	SELECT: (start, at, end=start, endAt=at, cursorAt)=>({
 		type:`selection/SELECTED`
 		,payload: {
 			start:{

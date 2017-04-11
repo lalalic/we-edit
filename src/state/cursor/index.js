@@ -59,7 +59,7 @@ export class Cursor extends Component{
 
 		let node=this.node
 		let {top,left}=node.getBoundingClientRect()
-		let from=node.getAttribute("data-endAt")-node.textContent.length
+		let from=node.dataset.endAt-node.textContent.length
 		top+=window.scrollY
 		left+=window.scrollX
 
@@ -85,7 +85,7 @@ export class Cursor extends Component{
 
 		for(let i=0, len=nodes.length; i<len; i++){
 			let a=nodes[i]
-			let end=parseInt(a.getAttribute('data-endAt'))
+			let end=parseInt(a.dataset.endAt)
 			let length=a.textContent.length
 			let start=end-length
 			if(start<=at && at<=end)
@@ -125,20 +125,20 @@ export class Cursor extends Component{
 			let {left:l,width:w}=pots[i].getBoundingClientRect()
 			if(l<=x && x<=l+w){
 				target=pots[i]
-				id=target.getAttribute("data-content")
+				id=target.dataset.content
 				let text=target.textContent
 				let wrapper=this.props.getWordWrapper(getContentStyle(state, this.context.docId, id))
 				let ratio=this.props.getRatio()
 				at=wrapper.widthString(Math.ceil((x-l)*ratio), text)
-							+parseInt(target.getAttribute("data-endAt"))
+							+parseInt(target.dataset.endAt)
 							-text.length
 				break
 			}
 		}
 		if(!id){
 			target=pots[pots.length-1]
-			id=target.getAttribute("data-content")
-			at=parseInt(target.getAttribute("data-endAt"))
+			id=target.dataset.content
+			at=parseInt(target.dataset.endAt)
 		}
 
 		return {target,id,at,next}

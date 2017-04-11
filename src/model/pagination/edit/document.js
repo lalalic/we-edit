@@ -47,7 +47,7 @@ export default class Document extends editable(recomposable(Base)){
 				let left=node.getBoundingClientRect().left
 				let style=getContentStyle(state,docId,id)
 				let text=node.textContent
-				let from=node.getAttribute("data-endAt")-text.length
+				let from=node.dataset.endAt-text.length
 
 				let wordwrapper=new Text.WordWrapper(style)
 				let width=wordwrapper.stringWidth(text.substring(0,at-from))
@@ -143,10 +143,9 @@ export default class Document extends editable(recomposable(Base)){
 				switch(target.nodeName){
 				case 'text':
 					let text=target.textContent
-					let contentEndIndex=target.getAttribute("data-endAt")
+					let {endAt:contentEndIndex, content:contentID}=target.dataset
 					let from=contentEndIndex-text.length
 
-					let contentID=target.getAttribute("data-content")
 					let [x]=offset(e, target)
 					x=x*this.ratio
 
@@ -183,7 +182,6 @@ export default class Document extends editable(recomposable(Base)){
 			svg.addEventListener("mouseup",e=>{
 				let selection=window.getSelection()||document.getSelection()
 				if(selection.type=="Range"){
-					debugger
 					const line=n=>{
 						while(n.getAttribute("class")!="line")
 							n=n.parentNode
@@ -192,15 +190,15 @@ export default class Document extends editable(recomposable(Base)){
 
 					let first=selection.anchorNode
 					first=first.parentNode//text
-					let firstId=first.getAttribute("data-content")
-					let firstAt=first.getAttribute("data-endAt")-first.textContent.length+selection.anchorOffset
+					let firstId=first.dataset.content
+					let firstAt=first.dataset.endAt-first.textContent.length+selection.anchorOffset
 					let firstLine=line(first)
 					firstLine=firstLine.getBoundingClientRect()
 
 					let last=selection.focusNode
 					last=last.parentNode//text
-					let lastId=last.getAttribute("data-content")
-					let lastAt=last.getAttribute("data-endAt")-last.textContent.length+selection.focusOffset
+					let lastId=last.dataset.content
+					let lastAt=last.dataset.endAt-last.textContent.length+selection.focusOffset
 					let lastLine=line(last)
 					lastLine=lastLine.getBoundingClientRect()
 
@@ -257,7 +255,7 @@ function getNode(docId, id, at){
 
 	for(let i=0, len=nodes.length; i<len; i++){
 		let a=nodes[i]
-		let end=parseInt(a.getAttribute('data-endAt'))
+		let end=parseInt(a.dataset.endAt)
 		let length=a.textContent.length
 		let start=end-length
 		if(start<=at && at<=end)

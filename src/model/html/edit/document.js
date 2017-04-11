@@ -27,7 +27,7 @@ export default class Document extends editable(Base){
 			const target=e.target
 			switch(target.nodeName.toLowerCase()){
 			case 'span':
-				let contentID=target.getAttribute("data-content")
+				let contentID=target.dataset.content
 				console.assert(!!contentID)
 				let [x]=offset(e, target)
 
