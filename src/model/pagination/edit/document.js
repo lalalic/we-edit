@@ -30,11 +30,32 @@ export default class Document extends editable(recomposable(Base)){
 			return (
 				<div ref={a=>this.root=a}>
 					<Base.Composed {...this.props}>
-						<Cursor
+						<Cursor ref={a=>this.cursor=a}
 							getWordWrapper={style=>new Text.WordWrapper(style)}
 							getRatio={()=>this.ratio}/>
 
-						<Selection getRange={this.getRange.bind(this)}/>
+						<Selection 
+							getRange={this.getRange.bind(this)}
+							onUpdate={path=>{/*
+								let {id,at}=this.cursor.mergedProps
+								let page=getNode(this.context.docId, id,at)
+								while(page.getAttribute("class")!=="page")
+									page=page.parentNode
+								
+								let content=page.querySelector(".content")
+								content.insertBefore(path,content.firstChild)
+								
+								let g=content,x=0,y=0
+								while(g.tagName!="svg"){
+									let {e:x1,f:y1}=g.transform.baseVal.consolidate().matrix
+									x+=x1
+									y+=y1
+									g=g.parentNode
+								}
+								path.setAttribute("transform",`translate(-${x} -${y})`)
+								*/
+							}}
+							/>
 					</Base.Composed>
 				</div>
 			)
