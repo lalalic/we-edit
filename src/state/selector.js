@@ -9,7 +9,7 @@ export function getFile(state){
 }
 
 export function getContent(state,id){
-	return state.get("content").get(id)
+	return state.getIn(`content.${id}`.split("."))
 }
 
 export function recordComposer(composer,t){
@@ -26,7 +26,7 @@ export function getContentStyle(state, editorId, contentId){
 }
 
 export function getStyles(state){
-	return state.get("content").get("root").get("props").get("styles")
+	return state.getIn("content.root.props.styles".split("."))
 }
 
 export function findFirstCursorable(content){

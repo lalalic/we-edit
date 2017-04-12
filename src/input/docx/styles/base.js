@@ -53,7 +53,7 @@ export default class Style extends Getable{
 	constructor(node, styles, selector){
 		super(...arguments)
 		this.id=node.attribs["w:styleId"]
-		node.children.forEach(a=>{
+		node.children.filter(a=>a.type!="text").forEach(a=>{
 			switch(a.name.split(":").pop()){
 			case "name":
 				return this.name=a.attribs["w:val"]

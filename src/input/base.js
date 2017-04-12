@@ -39,7 +39,7 @@ export default class{
 	/**
 	*
 	*/
-	onChange(loaded, selection, action){
+	onChange(loaded,selection,action,createElement/*,state*/){
 		return true
 	}
 

@@ -1,10 +1,10 @@
 import React, {Component, PropTypes} from "react"
 import {Provider} from "react-redux"
-import Immutable, {Map, Record} from "immutable"
+import Immutable, {Map} from "immutable"
 
 import DOMAIN from "model"
 import {createState} from "state"
-import {getFile, getSelection} from "state/selector"
+import {getContent,getSelection,getFile} from "state/selector"
 import * as reducer from "state/reducer"
 
 const supported=[]
@@ -35,6 +35,7 @@ export default {
 	},
 
 	build(doc,self){
+		let store
 		return {
 			render(domain){
 				return self.render(doc, domain, (type, props, children)=>{
@@ -42,33 +43,25 @@ export default {
 				})
 			},
 			Store(props){
-				let content=new Map().withMutations(function(content){
-					let factory
-					self.render(doc, DOMAIN, (factory=content=>(type, props, children, raw)=>{
-						let id
-						if(type.displayName=="document"){
-							id="root"
-							props.styles=Immutable.fromJS(props.styles)
-						}else{
-							id=self.identify(raw)
-						}
+				const createElementFactory=content=>(type, props, children, raw)=>{
+					let id
+					if(type.displayName=="document"){
+						id="root"
+						props.styles=new Map(props.styles)
+					}else{
+						id=self.identify(raw)
+					}
 
-						let record={
-							type:type.displayName,
-							props,
-							children: !Array.isArray(children) ? children : children.map(a=>a.id)
-						}
+					content.set(id, Immutable.fromJS({
+						type:type.displayName,
+						props,
+						children: !Array.isArray(children) ? children : children.map(a=>a.id)
+					}))
 
-						if(content.set){
-							content.set(id, Immutable.fromJS(record))
-						}else{
-							content[id]=record
-						}
-
-						return {id,type,props,children}
-					})(content), factory)
-				})
-
+					return {id,type,props,children}
+				}
+				
+				
 				 function onChange(state,action){
 					if(action.type=="@@INIT")
 						return state
@@ -76,31 +69,43 @@ export default {
 					if(self.onChangeEx){
 						state=self.onChangeEx(state,action)
 					}else{
-						const doc=getFile(state)
-						const selection=getSelection(state)
-
-						let changed=self.onChange(doc, selection, action,state)
+						let docx=getFile(state)
+						let selection=getSelection(state)
+						let changed
+						let changedContent=new Map()
+							.withMutations(a=>changed=self.onChange(docx,selection,action,createElementFactory(a),state))
+						
 						if(changed===false){
 							return state
-						}else if(typeof(changed)=="object"){
-							if(changed.selection)
-								state=state.set("selection", {...selection, ...changed.selection})
-							if(changed.content){
-								let content=state.get("content")
-								content=content.withMutations(content=>{
-									Object.keys(changed.content)
-										.forEach(id=>content.set(id,Immutable.fromJS(changed.content[id])))
+						}else{
+							if(changedContent.size!=0)
+								state=state.mergeIn(["content"],changedContent)
+							
+							if(typeof(changed)=="object"){
+								Object.keys(changed).forEach(k=>{
+									switch(k){
+									case "selection":
+										state=state.set("selection", {...selection, ...changed.selection})
+									break
+									case "styles":
+										state=state.setIn("content.root.props.styles".split("."),new Map(changed.styles))
+									break
+									}
 								})
-								state=state.set("content",content)
 							}
 						}
 					}
 					state=state.set("selection",reducer.selection(getSelection(state),action))
 					return state
 				}
+				
+				let content=new Map()
+					.withMutations(a=>self.render(doc, DOMAIN, createElementFactory(a)))
+					
+				store=createState(doc,content,onChange)
 
 				return (
-					<Provider store={createState(doc,content,onChange)}>
+					<Provider store={store}>
 						<TransformerProvider transformer={self.transform}>
 							{props.children}
 						</TransformerProvider>
@@ -109,6 +114,12 @@ export default {
 			},
 			save(name,option){
 				return self.save(doc, name, option)
+			},
+			getState(){
+				return store.getState()
+			},
+			get dispatch(){
+				return store.dispatch
 			}
 		}
 	}

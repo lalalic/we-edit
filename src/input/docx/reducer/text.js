@@ -1,78 +1,53 @@
-import {getContent,getSelection} from "state/selector"
-
-export function text(state, {type,payload}){
-	switch(type){
-	case "text/INSERT":{
-		let selection=getSelection(state)
-		let {start:{id,at},end}=selection
-		if(id==end.id){
-			if(typeof(payload)=="string"){
-				if(payload.indexOf("\n")==-1 && payload.indexOf("\r")==-1)
-					return insertInParagraphTextWithoutSelection(state,payload,selection)
-				else
-					return insertCrossParagraphTextWithoutSelection(state,payload,selection)
-			}else{
-
-			}
-		}else{
-
-		}
-	}
-	case "text/REMOVE":{
-		let {start:{id,at},end}=state.get("selection")
-		let n=payload
-		if(id==end.id){
-			let content=getContent(state,id)
-			let text=content.get("children")
-			content=content.set("children",text.substring(0,at-n)+text.substr(end.at))
-			at-=n
-			return state.withMutations(state=>{
-				state
-					.set("selection",{...state.get("selection"),start:{id,at},end:{id,at}})
-					.set("content",state.get("content").set(id,content))
-			})
-		}else{
-
-		}
-	}
-	default:
-		return state
-	}
-}
-
-function insertInParagraphTextWithoutSelection(state,inserted,selection){
+export function insert(docx, selection,inserting,getNode,renderChanged){
 	let {start:{id,at},end}=selection
-	let content=getContent(state, id)
-	let text=content.get("children")
-	content=content.set("children",text.substring(0,at)+inserted+text.substr(end.at))
-	at+=inserted.length
-	return state.withMutations(state=>{
-		state
-			.set("selection",{...selection,start:{id,at},end:{id,at}})
-			.set("content",state.get("content").set(id,content))
-	})
+	if(id==end.id){
+		if(typeof(inserting)=="string"){
+			if(inserting.indexOf("\n")==-1 && inserting.indexOf("\r")==-1)
+				return insertStringWithoutSelection(...arguments)
+			else
+				return insertStringWithCarriageWithoutSelection(...arguments)
+		}else{
+
+		}
+	}else{
+
+	}
 }
 
-function insertCrossParagraphTextWithoutSelection(state,inserted,selection){
-
+function insertStringWithoutSelection(docx, selection,inserting,getNode,renderChanged){
+	let {start:{id,at},end}=selection
+	const target=getNode(docx,id)
+	
+	let text=target.text()
+	target.text(text.substring(0,at)+inserting+text.substr(end.at))
+	at+=inserting.length
+	renderChanged(target.get(0))
+	
+	return {selection:{start:{id,at},end:{id,at}}}
 }
 
-function insertInParagraphTextWithinParagraphSelection(){
 
+export function remove(docx, selection,removing,getNode,renderChanged){
+	let {start:{id,at},end}=selection
+	if(id==end.id){
+		if(typeof(removing)=="number"){
+			return removeInRunWithoutSelection(...arguments)
+		}else{
+
+		}
+	}else{
+
+	}
 }
 
-function insertInParagraphTextCrossParagraphsSelection(){
-
+function removeInRunWithoutSelection(docx, selection,removing,getNode,renderChanged){
+	let {start:{id,at}}=selection
+	const target=getNode(docx,id)
+	let text=target.text()
+	target.text(text.substring(0,at-removing)+text.substr(at))
+	at-=removing
+	
+	renderChanged(target.get(0))
+	return {selection:{start:{id,at},end:{id,at}}}
 }
 
-function removeWithoutSelection(){
-
-}
-
-function removeWithinParagaphSelection(){
-
-}
-
-function removeCrossParagraphsSelection(){
-
-}

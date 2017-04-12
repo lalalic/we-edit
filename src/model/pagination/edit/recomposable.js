@@ -85,7 +85,10 @@ export default function recomposable(Content){
         /**
          * only no composed should be re-compose
 		*/
-		componentWillUpdate(){
+		componentWillUpdate(nextProps, nextState, nextContext){
+			//******TRICK: we want every compose based on this.props and this.context, so ...*******
+			this.props=nextProps
+			this.context=nextContext
 			this.reCompose()
 		}
 	}

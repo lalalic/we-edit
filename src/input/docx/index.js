@@ -5,6 +5,8 @@ import Base from "input/base"
 import Style from "./styles"
 import Transformers from "./model"
 
+import * as reducer from "./reducer"
+
 export default class extends Base{
 	static support({type}){
 		return type=="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
@@ -29,15 +31,15 @@ export default class extends Base{
 		},{...domain})
 	}
 
-	render(docx,domain,createElement,createElementFactory){
+	render(docx,domain,createElement){
 		const self=this
 		const selector=new Style.Properties(docx)
 		const $=docx.officeDocument.content
 		const settings=docx.officeDocument.settings
 
-		const styles=Base.createStyles()
+		const styles=this.styles=Base.createStyles()
 
-		function build(type,props,children){
+		const buildFactory=createElement=>(type,props,children)=>{
 			let node=props.node
 			children=children.reduce((merged,a)=>{
 				if(Array.isArray(a))
@@ -195,27 +197,23 @@ export default class extends Base{
 			}
 		}
 
+		const build=buildFactory(createElement)
+		const identify=docx4js.OfficeDocument.identify
+		
 		function renderNode(node){
-			return docx.officeDocument.renderNode(node,build)
+			return docx.officeDocument.renderNode(node,build,identify)
 		}
-
-		this.renderChanged=node=>{
-			let changed={}
-			createElement=createElementFactory(changed)
-			renderNode(node)
-			return changed
+		
+		this.renderChanged=(node,createElement)=>{
+			return docx.officeDocument.renderNode(node,buildFactory(createElement),identify)
 		}
-
+		
 		return docx.render(build)
-	}
-
-	renderChanged(node){
-		return docx.officeDocument.renderNode(node)
 	}
 
 	identify(node){
 		if(node.attribs.id!=undefined)
-			return node.atrribs.id
+			return node.attribs.id
 
 		let id=uuid()
 		Object.defineProperty(node.attribs,"id",{
@@ -240,37 +238,35 @@ export default class extends Base{
 			return docx.officeDocument.getRel(part)(`#${id}`)
 	}
 
-	onChange(docx, selection,action,state){
-		const {type,payload}=action
-		let {start:{id,at}, end}=selection
-
-		const target=this.getRaw(docx,id)
-		if(target.length!=1){
-			console.dir(docx.officeDocument.content.xml(target))
-			throw new Error(`[content.id=${id}].length=${target.length}`)
-		}
+	onChange(docx,selection,{type,payload},createElement){
+		let renderChanged=changed=>this.renderChanged(changed,createElement)
+		let getNode=this.getRaw
 
 		switch(type){
-			case `text/INSERT`:{
-				let text=target.text()
-				target.text(text.substring(0,at)+payload+text.substr(end.at))
-				at+=payload.length
-				return {
-					content:this.renderChanged(target),
-					selection:{
-						start:{id,at},
-						end:{id,at}
-					}
-				}
-				break
-			}
-			case `text/REMOVE`:{
-				let text=target.text(), n=payload
-				target.text(text.substring(0,at-n)+text.substr(end.at))
-				break
+			case `text/INSERT`:
+				return reducer.text.insert(docx,selection,payload,getNode,renderChanged)
+			case `text/REMOVE`:
+				return reducer.text.remove(docx,selection,payload,getNode,renderChanged)
+			case 'style/ADD':{
+				const {type,id,name,isDefault=false,...others}=payload
+				let $=docx.officeDocument.styles
+				let styleNode=docx4js.parseXml(`
+					<w:style w:type="${type}" ${isDefault ? 'w:default="1"' : ""} w:styleId="${id}">
+						<w:name w:val="${name}"/>
+						<w:uiPriority w:val="1"/>
+						<w:semiHidden/>
+						<w:unhideWhenUsed/>
+					</w:style>`).root().children().get(0)
+				$(styleNode).appendTo("w\\:styles")
+				this.renderChanged(styleNode)
+				return {styles: this.styles}
 			}
 			case `style/UPDATE`:{
-
+				return {styles: this.styles}
+			}
+			case 'style/REMOVE':{
+				delete this.styles[payload]
+				return {styles: this.styles}
 			}
 		}
 		return true
