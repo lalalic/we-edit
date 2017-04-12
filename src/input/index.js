@@ -4,7 +4,7 @@ import Immutable, {Map} from "immutable"
 
 import DOMAIN from "model"
 import {createState} from "state"
-import {getContent,getSelection,getFile} from "state/selector"
+import {getContent,getSelection,getFile,getComposer} from "state/selector"
 import * as reducer from "state/reducer"
 
 const supported=[]
@@ -60,8 +60,8 @@ export default {
 
 					return {id,type,props,children}
 				}
-				
-				
+
+
 				 function onChange(state,action){
 					if(action.type=="@@INIT")
 						return state
@@ -74,34 +74,45 @@ export default {
 						let changed
 						let changedContent=new Map()
 							.withMutations(a=>changed=self.onChange(docx,selection,action,createElementFactory(a),state))
-						
+
 						if(changed===false){
 							return state
 						}else{
 							if(changedContent.size!=0)
 								state=state.mergeIn(["content"],changedContent)
-							
+
 							if(typeof(changed)=="object"){
 								Object.keys(changed).forEach(k=>{
 									switch(k){
 									case "selection":
-										state=state.set("selection", {...selection, ...changed.selection})
+										state=state.mergeIn(["selection"], changed.selection)
 									break
 									case "styles":
 										state=state.setIn("content.root.props.styles".split("."),new Map(changed.styles))
+									break
+									case "removed":{
+										let content=state.get("content")
+										content=content.withMutations(content=>
+											changed.removed.forEach(([id,parent])=>{
+												content.delete(id)
+												content.updateIn([parent,"children"],list=>list.delete(list.indexOf(id)))
+											})
+										)
+										state=state.set("content",content)
+									}
 									break
 									}
 								})
 							}
 						}
 					}
-					state=state.set("selection",reducer.selection(getSelection(state),action))
+					state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))
 					return state
 				}
-				
+
 				let content=new Map()
 					.withMutations(a=>self.render(doc, DOMAIN, createElementFactory(a)))
-					
+
 				store=createState(doc,content,onChange)
 
 				return (

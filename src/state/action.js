@@ -1,4 +1,4 @@
-import {getContent, nextCursorable, prevCursorable} from "./selector"
+import {getContent, nextCursorable, prevCursorable,getSelection} from "./selector"
 import {Text as TextModel} from "pagination"
 
 export const Cursor={
@@ -6,8 +6,8 @@ export const Cursor={
 	,AT: (contentId, at)=>Selection.SELECT(contentId, at)
 	,MOVE_RIGHT: (shift)=>(dispatch,getState)=>{
 		const state=getState()
-		let {start,end,cursorAt}=state.get("selection")
-		
+		let {start,end,cursorAt}=getSelection(state)
+
 		if(start.id==end.id && start.at==end.at){
 			let {id,at}=shift ? end : start
 			let target=getContent(state,id).toJS()
@@ -45,12 +45,12 @@ export const Cursor={
 				}
 				dispatch(Selection[`${cursorAt.toUpperCase()}_AT`](id,at))
 			}else
-				dispatch(Selection.SELECT(end.id,end.at))	
+				dispatch(Selection.SELECT(end.id,end.at))
 		}
 	}
 	,MOVE_LEFT: (shift)=>(dispatch,getState)=>{
 		const state=getState()
-		let {start,end,cursorAt}=state.get("selection")
+		let {start,end,cursorAt}=getSelection(state)
 		if(start.id==end.id && start.at==end.at){
 			let {id,at}=shift ? end : start
 			if(at>0){

@@ -1,7 +1,7 @@
 const composers={}
 
 export function getSelection(state){
-	return state.get("selection")
+	return state.get("selection").toJS()
 }
 
 export function getFile(state){
@@ -55,7 +55,7 @@ export function nextCursorable(state,id){
 	let components=composers[active]
 	let current=components[id]
 	let parent=current.context.parent
-	
+
 	let children=parent.computed.children
 	let index=children.findIndex(a=>a==current)
 	let found=children[index+1]
@@ -70,7 +70,7 @@ export function nextCursorable(state,id){
 			return findCursorableIn(next)
 		},null)
 	}
-	
+
 	return found ? found.props.id : null
 }
 
@@ -79,7 +79,7 @@ export function prevCursorable(state,id){
 	let components=composers[active]
 	let current=components[id]
 	let parent=current.context.parent
-	
+
 	let children=parent.computed.children
 	let index=children.findIndex(a=>a==current)
 	let found=children[index-1]
