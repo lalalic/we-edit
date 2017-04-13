@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from "react"
 import {Provider} from "react-redux"
-import Immutable, {Map} from "immutable"
+import Immutable, {Map,List} from "immutable"
 
 import DOMAIN from "model"
 import {createState} from "state"
@@ -98,6 +98,14 @@ export default {
 												content.updateIn([parent,"children"],list=>list.delete(list.indexOf(id)))
 											})
 										)
+										state=state.set("content",content)
+									}
+									case "updated":{//only children
+										let content=state.get("content")
+										Object.keys(changed.updated).forEach(id=>{
+											content=content.set(id,getContent(state,id).set("children",Immutable.fromJS(changed.updated[id])))
+										})
+						
 										state=state.set("content",content)
 									}
 									break

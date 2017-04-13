@@ -20,6 +20,22 @@ export function recordComposer(composer,t){
 	t[contentId]=composer
 }
 
+//experimental
+export function getParentId(state,id){
+	return Object.keys(composers).reduce((found, k)=>{
+		if(found)
+			return found
+		
+		let adoc=composers[k]
+		let me=adoc[id]
+		if(me){
+			let parent=me.context.parent
+			if(parent)
+				return parent.props.id
+		}
+	},undefined)
+}
+
 export function getContentStyle(state, editorId, contentId){
 	let {children,id,namedStyle,...style}=composers[editorId][contentId].props
 	return style

@@ -5,7 +5,7 @@ import Base from "input/base"
 import Style from "./styles"
 import Transformers from "./model"
 
-import * as reducer from "./reducer"
+import * as changer from "./changer"
 
 export default class extends Base{
 	static support({type}){
@@ -238,15 +238,19 @@ export default class extends Base{
 			return docx.officeDocument.getRel(part)(`#${id}`)
 	}
 
-	onChange(docx,selection,{type,payload},createElement){
+	onChange(docx,selection,{type,payload},createElement,state){
 		let renderChanged=changed=>this.renderChanged(changed,createElement)
-		let getNode=this.getRaw
+		let getNode=id=>this.getRaw(docx,id)
 
 		switch(type){
 			case `text/INSERT`:
-				return reducer.text.insert(docx,selection,payload,getNode,renderChanged)
+				return new changer.text(state,getNode,renderChanged)
+					.insert(payload)
+					.state()
 			case `text/REMOVE`:
-				return reducer.text.remove(docx,selection,payload,getNode,renderChanged)
+				return new changer.text(state,getNode,renderChanged)
+					.remove(payload)
+					.state()
 			case 'style/ADD':{
 				const {type,id,name,isDefault=false,...others}=payload
 				let $=docx.officeDocument.styles
