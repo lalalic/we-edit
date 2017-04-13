@@ -26,6 +26,10 @@ export function remove(docx, selection,removing,getNode,renderChanged){
 	let path=[]
 	if(id==end.id){
 		path.push("withoutSelection")
+		if(removing>0)
+			path.push("backspace")
+		else if(removing<0)
+			path.push("Delete")
 	}else{
 		path.push("withSelection")
 	}
@@ -126,14 +130,24 @@ const text={
 		}
 	},
 	remove:{
-		withoutSelection(docx, {start:{id,at}},removing,getNode,renderChanged){
-			const target=getNode(docx,id)
-			let text=target.text()
-			target.text(text.substring(0,at-removing)+text.substr(at))
-			at-=removing
+		withoutSelection:{
+			backspace(docx, {start:{id,at}},removing,getNode,renderChanged){
+				const target=getNode(docx,id)
+				let text=target.text()
+				target.text(text.substring(0,at-removing)+text.substr(at))
+				at-=removing
 
-			renderChanged(target.get(0))
-			return {selection:{start:{id,at},end:{id,at}}}
+				renderChanged(target.get(0))
+				return {selection:{start:{id,at},end:{id,at}}}
+			},
+			Delete(docx, {start:{id,at}},removing,getNode,renderChanged){
+				const target=getNode(docx,id)
+				let text=target.text()
+				target.text(text.substring(0,at)+text.substr(at-removing))
+
+				renderChanged(target.get(0))
+				return {selection:{start:{id,at},end:{id,at}}}
+			}
 		},
 		withSelection(docx, {start,end},removing,getNode,renderChanged){
 			const target0=getNode(docx,start.id)

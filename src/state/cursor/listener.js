@@ -26,6 +26,10 @@ export default class Listener extends Component{
 
 					onKeyDown={e=>{
 						switch(e.keyCode){
+							case 46:
+								e.preventDefault()
+								dispatch(ACTION.Text.REMOVE(-1))
+							break
 							case 8://backspace
 								e.preventDefault()
 								dispatch(ACTION.Text.REMOVE(1))
