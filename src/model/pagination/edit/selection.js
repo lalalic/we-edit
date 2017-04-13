@@ -20,7 +20,7 @@ export class Selection extends Component{
 		}).isRequired,
 		getRatio: PropTypes.func
 	}
-	
+
 	static contextTypes={
 		docId: PropTypes.any,
 		store: PropTypes.any,
@@ -29,8 +29,8 @@ export class Selection extends Component{
 	path=""
 	render(){
 		return <path
-				d={this.path} 
-				fill="lightblue" 
+				d={this.path}
+				fill="lightblue"
 				style={{fillOpacity:0.5}}
 				onClick={e=>{
 					let path=e.target
@@ -39,7 +39,7 @@ export class Selection extends Component{
 					let o=getClientRect(path)
 					x+=o.left
 					y+=o.top
-					
+
 					path.setAttribute("d","")
 					let found=document.elementFromPoint(x,y)
 					found.dispatchEvent(new MouseEvent("click",{
@@ -51,16 +51,16 @@ export class Selection extends Component{
 				}}
 				/>
 	}
-	
+
 	componentWillReceiveProps({start,end},{docId,store,getRatio}){
 		if(start.id==end.id && start.at==end.at){
 			this.path=""
-			return 
+			return
 		}
-			
+
 		let ratio=getRatio()
 		let state=store.getState()
-		
+
 		const x=(node,id,at)=>{
 			let left=getClientRect(node).left
 			let style=getContentStyle(state,docId,id)

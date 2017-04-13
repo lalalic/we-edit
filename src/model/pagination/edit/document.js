@@ -25,12 +25,12 @@ export default class Document extends editable(recomposable(Base)){
 			store: PropTypes.any,
 			getCursorInput: PropTypes.func
 		}
-		
+
 		static childContextTypes={
 			getRatio: PropTypes.func,
 			getWordWrapper:PropTypes.func
 		}
-		
+
 		getChildContext(){
 			let self=this
 			return {
@@ -48,10 +48,14 @@ export default class Document extends editable(recomposable(Base)){
 				<div ref={a=>this.root=a}>
 					<Base.Composed {...this.props}>
 						<Cursor ref={a=>this.cursor=a}/>
-						<Selection ref={a=>this.selection=a}/>	
+						<Selection/>
 					</Base.Composed>
 				</div>
 			)
+		}
+
+		componentDidUpdate(){
+			//this.cursor.forceUpdate()
 		}
 
 		componentDidMount(){
@@ -59,14 +63,14 @@ export default class Document extends editable(recomposable(Base)){
 			let width=svg.getAttribute("width")
 			let [,,viewBoxWidth]=svg.getAttribute("viewBox").split(" ")
 			this.ratio=viewBoxWidth/width
-			
+
 			this.context.store.dispatch(ACTION.Cursor.ACTIVE(this.context.docId))
 
 			svg.addEventListener("click", this.onClick.bind(this))
-			
+
 			svg.addEventListener("mouseup", this.onSelect.bind(this))
 		}
-	
+
 		active(){
 			let {docId, store}=this.context
 			let {active}=getSelection(store.getState())
@@ -75,12 +79,12 @@ export default class Document extends editable(recomposable(Base)){
 			else
 				this.context.getCursorInput().forceUpdate()
 		}
-		
+
 		onClick(e){
 			const dispatch=this.context.store.dispatch
 			const docId=this.context.docId
 			const target=e.target
-			
+
 			switch(target.nodeName){
 			case 'text':
 				let text=target.textContent
@@ -118,11 +122,11 @@ export default class Document extends editable(recomposable(Base)){
 
 			this.active()
 		}
-	
+
 		onSelect(e){
 			const dispatch=this.context.store.dispatch
 			const docId=this.context.docId
-			
+
 			let selection=window.getSelection()||document.getSelection()
 			if(selection.type=="Range"){
 				const line=n=>{

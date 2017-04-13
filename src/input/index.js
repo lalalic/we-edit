@@ -4,7 +4,7 @@ import Immutable, {Map,List} from "immutable"
 
 import DOMAIN from "model"
 import {createState} from "state"
-import {getContent,getSelection,getFile,getComposer} from "state/selector"
+import {getContent,getSelection,getFile,getParentId} from "state/selector"
 import * as reducer from "state/reducer"
 
 const supported=[]
@@ -78,40 +78,39 @@ export default {
 						if(changed===false){
 							return state
 						}else{
+							if(typeof(changed)=="object"){
+								let {selection,styles,removed,updated}=changed
+								if(selection)
+									state=state.mergeIn(["selection"], selection)
+
+								if(styles)
+									state=state.setIn("content.root.props.styles".split("."),new Map(styles))
+
+								if(removed){
+									let content=state.get("content")
+									content=content.withMutations(content=>
+										removed.forEach(id=>{
+											content.delete(id)
+											let parent=getParentId(state,id)
+											if(parent)
+												content.updateIn([parent,"children"],list=>list.delete(list.indexOf(id)))
+										})
+									)
+									state=state.set("content",content)
+								}
+
+								if(updated){
+									let content=state.get("content")
+									Object.keys(changed.updated).forEach(id=>{
+										content=content.set(id,getContent(state,id).set("children",Immutable.fromJS(changed.updated[id])))
+									})
+
+									state=state.set("content",content)
+								}
+							}
+
 							if(changedContent.size!=0)
 								state=state.mergeIn(["content"],changedContent)
-
-							if(typeof(changed)=="object"){
-								Object.keys(changed).forEach(k=>{
-									switch(k){
-									case "selection":
-										state=state.mergeIn(["selection"], changed.selection)
-									break
-									case "styles":
-										state=state.setIn("content.root.props.styles".split("."),new Map(changed.styles))
-									break
-									case "removed":{
-										let content=state.get("content")
-										content=content.withMutations(content=>
-											changed.removed.forEach(([id,parent])=>{
-												content.delete(id)
-												content.updateIn([parent,"children"],list=>list.delete(list.indexOf(id)))
-											})
-										)
-										state=state.set("content",content)
-									}
-									case "updated":{//only children
-										let content=state.get("content")
-										Object.keys(changed.updated).forEach(id=>{
-											content=content.set(id,getContent(state,id).set("children",Immutable.fromJS(changed.updated[id])))
-										})
-						
-										state=state.set("content",content)
-									}
-									break
-									}
-								})
-							}
 						}
 					}
 					state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))

@@ -7,7 +7,6 @@ import get from "lodash.get"
 import getClientRect from "tools/get-client-rect"
 
 export class Cursor extends Component{
-	static display="cursor"
 	static contextTypes={
 		store: PropTypes.any,
 		docId: PropTypes.string,
@@ -43,12 +42,11 @@ export class Cursor extends Component{
 				down:this.down.bind(this)
 			})
 	}
-	
+
 	componentDidUpdate(){
 		if(this.node)
-			return 
-		
-		//for new content block
+			return
+
 		const {active,id,at}=this.props
 		const {docId, getCursorInput}=this.context
 		this.node=getNode(docId,id, at)
@@ -56,7 +54,6 @@ export class Cursor extends Component{
 			this.style=null
 			return
 		}
-				
 		this.style=this.position(docId,id,at)
 
 		if(docId==active)
@@ -117,7 +114,7 @@ export class Cursor extends Component{
 	getNextLine(direct){
 		let current=this.getLineNode()
 		let next=this.getLineNode(direct)
-		
+
 		const state=this.context.store.getState()
 
 		let {left,top}=getClientRect(this.node)
@@ -219,9 +216,16 @@ export class Cursor extends Component{
 	}
 }
 
-export default connect(state=>{
+const StateCursor=connect(state=>{
 	let selection=getSelection(state)
 	let {end,start,active,cursorAt}=selection
 	let {id,at}=selection[cursorAt]
 	return {id,at,active}
-})(Cursor)
+},null,null,{pure:false})(Cursor)
+
+
+export default class Wrapper extends Component{
+	render(){
+		return <StateCursor time={Date.now()}/>
+	}
+}
