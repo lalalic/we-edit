@@ -136,8 +136,8 @@ export default {
 			getState(){
 				return store.getState()
 			},
-			get dispatch(){
-				return store.dispatch
+			dispatch(){
+				return store.dispatch(...arguments)
 			}
 		}
 	}

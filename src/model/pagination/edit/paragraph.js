@@ -1,4 +1,4 @@
-import React from "react"
+import React,{Children} from "react"
 import Base from "../paragraph"
 
 import {editable} from "model/edit"
@@ -29,7 +29,7 @@ export default editable(recomposable(Base)).mixin(mix={
     },
 
     componentWillReceiveProps({children}){
-        this.computed.breakOpportunities=this.getBreakOpportunities(children)
+        this.computed.breakOpportunities=this.getBreakOpportunities(Children.toArray(children))
     }
 })
 

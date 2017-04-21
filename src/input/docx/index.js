@@ -8,8 +8,17 @@ import Transformers from "./model"
 import * as changer from "./changer"
 
 export default class extends Base{
-	static support({type}){
-		return type=="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+	static support(file){
+		switch(typeof(file)){
+		case "string":
+			return file.toLowerCase().endsWith(".docx")
+		case "object":
+			if(file.type=="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+				return true
+			if(file instanceof docx4js)
+				return true
+		}
+		return false
 	}
 
 	load(file){

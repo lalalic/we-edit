@@ -1,4 +1,4 @@
-import React, {PropTypes} from "react"
+import React, {Children,PropTypes} from "react"
 
 import {HasParentAndChild} from "./composable"
 import Base from "../paragraph"
@@ -37,7 +37,7 @@ export default class Paragraph extends Super{
 	
     constructor(){
         super(...arguments)
-        this.computed.breakOpportunities=this.getBreakOpportunities(this.props.children)
+        this.computed.breakOpportunities=this.getBreakOpportunities(Children.toArray(this.props.children))
     }
 
     getBreakOpportunities(children){

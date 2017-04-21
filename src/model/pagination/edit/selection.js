@@ -20,6 +20,11 @@ export class Selection extends Component{
 		}).isRequired,
 		getRatio: PropTypes.func
 	}
+	
+	static defaultProps={
+		start:{id:"",at:0},
+		end:{id:"",at:0}
+	}
 
 	static contextTypes={
 		docId: PropTypes.any,
