@@ -64,34 +64,8 @@ describe("opportunities", function(){
 		fromArray.forEach((a,i)=>expect(fromWrapper[i].word).toBe(a.word))
 	})
 	
-	it("breakable", function(){
-		class Wrapper{
-			constructor(content){
-				this.content=content
-			}
-		}
-		let wrapped=text.map(a=>new Wrapper(a))
-		let fromWrapper=opportunities(wrapped,wrapper=>wrapper.content, wrapper=>wrapper.content!="nobreakable ")
-		let fromArray1=opportunities(text.filter(a=>a!="nobreakable "))
-		expect(fromArray1.length).toBe(fromWrapper.length-1)
-		
-		let found=fromArray1.reduce((found,a,i)=>{
-			if(found!=-1)
-				return found
-			if(a.word==fromWrapper[i].word)
-				return -1
-			return i
-		},-1)
-		
-		let index=text.indexOf("nobreakable ")
-		
-		expect(fromWrapper[found].start.itemIndex).toBe(index)
-		expect(fromWrapper[found].start.at).not.toBeDefined()
-		expect(fromWrapper[found].end).not.toBeDefined()
-	})
-	
 	it("reviver", function(){
-		let items=opportunities(text,undefined,undefined,a=>({...a,id:a.start.itemIndex}))
+		let items=opportunities(text,undefined,a=>({...a,id:a.start.itemIndex}))
 		items.forEach(a=>expect(a.id).toBe(a.start.itemIndex))
 	})
 	

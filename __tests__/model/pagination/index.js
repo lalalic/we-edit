@@ -3,12 +3,14 @@ jest.mock("react-redux", ()=>{
 		connect:()=>A=>A
 	}
 })
-import React from "react"
+
+import React,{Component} from "react"
 import {mount as rawMount} from "enzyme"
 
 import Page from "composed/page"
 import Pagination from "pagination"
 import Editable from "pagination/edit"
+import {Cursor} from "state/cursor"
 
 const DOMAIN={Pagination, Editable}
 
@@ -38,20 +40,36 @@ describe("composer", function(){
 						EditablesWithId[key]=withDefaultId(EditablesWithId[key])
 						return EditablesWithId
 					},{...Domain})
+					
+					spyOn(Cursor.prototype,"componentDidMount").and.callFake(()=>1)
 				})
-				mount=a=>rawMount(a,{
-					context:{
-						store:{
-							getState(){
-								return {
-									get(){
-										return {}
+				
+				class Wrapper extends Component{
+					static childContextTypes={
+						store: React.PropTypes.any
+					}
+					getChildContext(){
+						return {
+							store:{
+								getState(){
+									return {
+										get(a){
+											return {}
+										}
 									}
+								},
+								dispatch(){
+									
 								}
 							}
 						}
 					}
-				})
+					render(){
+						return React.Children.only(this.props.children)
+					}
+				}
+				
+				mount=a=>rawMount(<Wrapper>{a}</Wrapper>)
 			}
 
 			it("composable interface", function(){
@@ -73,7 +91,7 @@ describe("composer", function(){
 					<Domain.Document>
 						<Domain.Section>
 							<Domain.Paragraph>
-								<Domain.Text id="100">Hello</Domain.Text>
+								<Domain.Text>Hello</Domain.Text>
 							</Domain.Paragraph>
 						</Domain.Section>
 					</Domain.Document>
@@ -116,10 +134,10 @@ describe("composer", function(){
 						<Domain.Document>
 							<Domain.Section>
 								<Domain.Paragraph>
-									<Domain.Text id="100">Hello</Domain.Text>
+									<Domain.Text>Hello</Domain.Text>
 								</Domain.Paragraph>
 								<Domain.Paragraph>
-									<Domain.Text id="101"> world</Domain.Text>
+									<Domain.Text> world</Domain.Text>
 								</Domain.Paragraph>
 							</Domain.Section>
 						</Domain.Document>
@@ -135,18 +153,18 @@ describe("composer", function(){
 						<Domain.Document>
 							<Domain.Section>
 								<Domain.Paragraph>
-									<Domain.Text id="100">Hello</Domain.Text>
+									<Domain.Text>Hello</Domain.Text>
 								</Domain.Paragraph>
 								<Domain.Paragraph>
-									<Domain.Text id="101"> world</Domain.Text>
+									<Domain.Text> world</Domain.Text>
 								</Domain.Paragraph>
 							</Domain.Section>
 							<Domain.Section>
 								<Domain.Paragraph>
-									<Domain.Text id="102">Hello</Domain.Text>
+									<Domain.Text>Hello</Domain.Text>
 								</Domain.Paragraph>
 								<Domain.Paragraph>
-									<Domain.Text id="103"> world</Domain.Text>
+									<Domain.Text> world</Domain.Text>
 								</Domain.Paragraph>
 							</Domain.Section>
 						</Domain.Document>
@@ -170,7 +188,7 @@ describe("composer", function(){
 						<Domain.Document>
 							<Domain.Section>
 								<Domain.Paragraph>
-									<Domain.Text id="100">Hello</Domain.Text>
+									<Domain.Text>Hello</Domain.Text>
 								</Domain.Paragraph>
 							</Domain.Section>
 						</Domain.Document>
@@ -186,7 +204,7 @@ describe("composer", function(){
 						<Domain.Document>
 							<Domain.Section>
 								<Domain.Paragraph fonts="SimSun">
-									<Domain.Text id="100">Hello</Domain.Text>
+									<Domain.Text>Hello</Domain.Text>
 								</Domain.Paragraph>
 							</Domain.Section>
 						</Domain.Document>
@@ -203,7 +221,7 @@ describe("composer", function(){
 						<Domain.Document>
 							<Domain.Section>
 								<Domain.Paragraph>
-									<Domain.Text id="100" fonts="Symbol">Hello</Domain.Text>
+									<Domain.Text fonts="Symbol">Hello</Domain.Text>
 								</Domain.Paragraph>
 							</Domain.Section>
 						</Domain.Document>
