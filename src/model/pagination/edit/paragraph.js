@@ -28,8 +28,21 @@ export default editable(recomposable(Base)).mixin(mix={
         this.computed.lastComposed=null
     },
 
-    componentWillReceiveProps({children}){
-        this.computed.breakOpportunities=this.getBreakOpportunities(Children.toArray(children))
+    componentWillReceiveProps({children,getChildText}){
+        children=Children.toArray(children)
+        let current=Children.toArray(this.props.children)
+        if(current.length==children.length){
+            let redo=false
+            for(let i=0,len=children.length;i<len;i++){
+                if(getChildText(children[i])!==this.props.getChildText(current[i])){
+                    redo=true
+                    break
+                }
+            }
+            if(!redo)
+                return
+        }
+        this.computed.breakOpportunities=this.getBreakOpportunities(children)
     }
 })
 

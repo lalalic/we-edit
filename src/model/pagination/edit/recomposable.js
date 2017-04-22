@@ -37,11 +37,12 @@ export default function recomposable(Content){
 			return super.createComposed2Parent({...props, "data-content":this.props.id})
 		}
 
-        reCompose(){
+		render(){
 			this.computed.composed=[]
 			this.computed.children.splice(0,this.computed.children.length)
-			this.compose()
-    	}
+
+			return super.render()
+		}
 
 		appendLastComposed(){
 
@@ -82,14 +83,5 @@ export default function recomposable(Content){
         _isLastComposedFitIntoParent(lastComposed){
 			return false
         }
-        /**
-         * only no composed should be re-compose
-		*/
-		componentWillUpdate(nextProps, nextState, nextContext){
-			//******TRICK: we want every compose based on this.props and this.context, so ...*******
-			this.props=nextProps
-			this.context=nextContext
-			this.reCompose()
-		}
 	}
 }

@@ -3,7 +3,7 @@ import React, {Children, PropTypes} from "react"
 export function HasChild(Component){
     return class extends Component{
         static displayName=`composable-${Component.displayName}`
-        
+
         static childContextTypes = {
             ...(Component.childContextTypes||{}),
             parent: PropTypes.object,
@@ -11,7 +11,7 @@ export function HasChild(Component){
         }
 
         computed = { children: [], composed: [] }
-		
+
 		getChildContext() {
             let self = this
             let superChildContext=super.getChildContext ? super.getChildContext() : {}
@@ -30,25 +30,15 @@ export function HasChild(Component){
             }
         }
 
-        render(){
-			//console.log(`render--${this.constructor.displayName}[${this.props.id}]`)
-            return (<div>{this.props.children}</div>)
-        }
-
-        /**
-         * compose on client or server
-         */
-        componentWillMount() {
-            this.compose()
-        }
-
         /**
          * usually NoChild content should be composed according to nextAvailableSpace,
          * and then append to itself.composed[] and parent.appendComposed
          */
-        compose() {
+        render(){
             if(Children.count(this.props.children)===0)
                 this.context.parent.on1ChildComposed(this)
+			//console.log(`render--${this.constructor.displayName}[${this.props.id}]`)
+            return (<div>{this.props.children}</div>)
         }
 
         /**
@@ -126,11 +116,12 @@ export function HasParentAndChild(Component){
 
 export function NoChild(Component){
     return class extends HasParentAndChild(Component){
-        compose() {
+        render() {
             let composed = this.createComposed2Parent()
             this.computed.composed.push(composed)
             this.appendComposed(composed)
             this.context.parent.on1ChildComposed(this)
+            return null
         }
     }
 }

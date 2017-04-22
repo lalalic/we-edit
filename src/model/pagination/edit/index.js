@@ -12,11 +12,13 @@ import Document from "./document"
 import Section from "./section"
 import Paragraph from "./paragraph"
 import List from "./list"
+import Text from "./text"
 
 export default {
 	...Editables,
 	Document,
 	Section,
 	Paragraph,
-	List
+	List,
+	Text
 }

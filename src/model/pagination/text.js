@@ -19,13 +19,37 @@ export default class Text extends Super{
 		getMyBreakOpportunities: PropTypes.func
 	}
 
-    compose(){
-		const parent=this.context.parent
-        const {fonts,size,color,bold,italic,vanish,children:myText}=this.props
-		const composer=new this.constructor.WordWrapper({fonts,size,color,bold,italic,vanish})
-		const defaultStyle=composer.defaultStyle
+    constructor(){
+        super(...arguments)
+        this.computed.breakOpportunities=this.getBreakOpportunitiesWidth()
+    }
 
+    getBreakOpportunitiesWidth(){
+        const {fonts,size,color,bold,italic,vanish,children:myText}=this.props
+		const composer=this.composer=new this.constructor.WordWrapper({fonts,size,color,bold,italic,vanish})
 		const [index,breakOpportunities]=this.context.getMyBreakOpportunities()
+        return breakOpportunities.map(opportunity=>{
+            let {
+                word,
+                start:{itemIndex:startItemIndex, at:startAt},
+                end:{itemIndex:endItemIndex, at:endAt}
+                }=opportunity
+            if(startItemIndex==endItemIndex){
+                //whole word
+            }else if(startItemIndex==index){
+                word=word.substring(0,myText.length-startAt)
+            }else if(endItemIndex==index){
+                word=word.substr(-endAt)
+            }
+            return [word,composer.stringWidth(word)]
+        })
+
+    }
+
+    render(){
+		const parent=this.context.parent
+        const composer=this.composer
+		const defaultStyle=this.composer.defaultStyle
 
 		const commit=state=>{
 			let {content,width,end}=state
@@ -39,31 +63,18 @@ export default class Text extends Super{
 			this.appendComposed(composedText)
 		}
 		let consume1
-        let state=breakOpportunities.reduce(consume1=(state,opportunity,i)=>{
-			let {
-				word,
-				start:{itemIndex:startItemIndex, at:startAt},
-				end:{itemIndex:endItemIndex, at:endAt}
-				}=opportunity
-			if(startItemIndex==endItemIndex){
-				//whole word
-			}else if(startItemIndex==index){
-				word=word.substring(0,myText.length-startAt)
-				endAt=startAt+word.length
-			}else if(endItemIndex==index){
-				word=word.substr(-endAt)
-			}
-			let wordWidth=composer.stringWidth(word)
+        let state=this.computed.breakOpportunities.reduce(consume1=(state,opportunity,i)=>{
+            let [word, wordWidth]=opportunity
 			let {space:{width:maxWidth},content,width}=state
 			if(Math.floor(width+wordWidth)<=maxWidth){
 				content.push(word)
 				state.width+=wordWidth
-				state.end=endAt
+				state.end+=word.length
 			}else if((/\s+$/.test(word) && //doing: end-of-line with whitespace,xx should be able to extend line width
 				Math.floor(width+(wordWidth=composer.stringWidth(word.replace(/\s+$/,''))))<=maxWidth)){
 				content.push(word)
 				state.width+=wordWidth
-				state.end=endAt
+				state.end=+word.length
 			}else{
 				if(width!=0)
 					commit(state)
@@ -78,6 +89,8 @@ export default class Text extends Super{
 		commit(state)
 
 		parent.on1ChildComposed(this)
+
+        return null
     }
 
 	createComposed2Parent(props, composed){

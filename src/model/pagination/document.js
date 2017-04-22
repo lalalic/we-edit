@@ -25,10 +25,6 @@ export default class Document extends Super{
 			.reduce((w,{props:{pgSz:{width}}})=>Math.max(w,width),0)
 	}
 
-	compose(){
-
-	}
-
 	static Composed=class extends Component{
         static displayName="composed-document"
 		render(){
@@ -43,6 +39,6 @@ export default class Document extends Super{
                     {children}
                 </ComposedDocument>
 			)
-		}		
+		}
 	}
 }
