@@ -16,12 +16,12 @@ export default class Paragraph extends Super{
         ...Super.childContextTypes,
         getMyBreakOpportunities: PropTypes.func
     }
-	
+
 	static propTypes={
 		...Super.propTypes,
 		getChildText: PropTypes.func
 	}
-	
+
 	static defaultProps={
 		...Super.defaultProps,
 		getChildText(el){
@@ -32,8 +32,8 @@ export default class Paragraph extends Super{
 			return el.props.children
 		}
 	}
-	
-	
+
+
     constructor(){
         super(...arguments)
         this.computed.breakOpportunities=this.getBreakOpportunities(Children.toArray(this.props.children))
@@ -92,15 +92,15 @@ export default class Paragraph extends Super{
         }
         let currentLine=composed[composed.length-1]
 
-        let {width,availableWidth}=currentLine
-        if(availableWidth<minRequiredW || this.availableSpace.height<minRequiredH){
+        let {width,availableWidth,availableMaxWidth=availableWidth}=currentLine
+        if(availableMaxWidth<minRequiredW || this.availableSpace.height<minRequiredH){
             this.commitCurrentLine(true)
             this.availableSpace=this.context.parent.nextAvailableSpace(required)
 
             availableWidth=this.lineWidth()
         }
         return {
-            width:availableWidth,
+            width:availableWidth<minRequiredW ? availableMaxWidth : availableWidth,
             height:this.availableSpace.height
         }
     }
@@ -110,13 +110,13 @@ export default class Paragraph extends Super{
         const {parent}=this.context
 
         let currentLine=composed[composed.length-1]
-        let availableWidth=currentLine.availableWidth
+        const {availableWidth,availableMaxWidth=availableWidth}=currentLine
         let {width:contentWidth}=content.props
-		
+
 		if(il>2)
 			throw new Error("infinite loop")
 
-        if(availableWidth>=contentWidth){
+        if(availableMaxWidth>=contentWidth){
           currentLine=currentLine.push(content)
 		  composed.pop()
 		  composed.push(currentLine)
