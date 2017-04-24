@@ -11,6 +11,7 @@ import Table from "./table"
 import Row from "./row"
 import Cell from "./cell"
 import List from "./list"
+import Frame from "./frame"
 
 export default {
 	...Models,
@@ -24,5 +25,6 @@ export default {
 	Table,
 	Row,
 	Cell,
-	List
+	List,
+	Frame
 }

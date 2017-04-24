@@ -5,6 +5,7 @@ export class Properties{
 		this.docx=docx
 		this.theme=getTheme(docx)
 		this.rStyle=this.pStyle=this.tblStyle=this._val
+		this.wrapTopAndBottom=this.wrapSquare=this.wrapTight=this.wrapThrough=this.wrap
 	}
 
 	select(nodes, keyMap={}){
@@ -207,6 +208,14 @@ export class Properties{
 
 	extent(x){
 		return {width:this.docx.cm2Px(x.attribs.cx),height:this.docx.cm2Px(x.attribs.cy)}
+	}
+	
+	xfrm(x){
+		return this.extent(x.children.find(a=>a.name=="a:ext"))
+	}
+	
+	wrap(x){
+		return {mode:x.name.substring("wp:wrap".length)}
 	}
 
 	numPr(x){

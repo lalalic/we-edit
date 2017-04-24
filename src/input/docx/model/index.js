@@ -10,6 +10,9 @@ import Table from "./table"
 import Row from "./row"
 import Cell from "./cell"
 
+import Wrapper from "./wrapper"
+import Anchor from "./anchor"
+
 export default {
 	Document, Section, 
 	Paragraph,
@@ -18,5 +21,7 @@ export default {
 	Run,
 	Cell,
 	Row,
-	Table
+	Table,
+	Wrapper,
+	Anchor
 }

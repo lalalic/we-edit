@@ -191,10 +191,22 @@ export default class extends Base{
 			}
 			case "t":
 				return children[0] ? createElement(domain.Text,{},children[0],node) : null
-			case "control.picture":
-			case "inline.picture":{
+			
+			case "picture":{
+				let style=selector.select($(node).find("a\\:xfrm").toArray())
+				return createElement(domain.Image,{...style.xfrm,src:props.url},null,node)
+			}
+			case "drawing.inline":{
 				let style=selector.select($(node).find("wp\\:extent").toArray())
-				return createElement(domain.Image,{...style.extent, src:props.url},null,node)
+				return createElement(Transformers.Wrapper(domain),style.extent,children,node)
+			}
+			case "drawing.anchor":{
+				let style=selector.select($(node).find("wp\\:extent,wp\\:positionH,wp\\:positionV").toArray())
+				let wrap=selector.selectValue(
+					$(node)
+					.find("TopAndBottom,Square,Tight,Through".split(",").map(a=>`wp\\:wrap${a}`).join(","))
+					.get(0))
+				return createElement(Transformers.Anchor(domain),{...style.extent,wrap},children,node)
 			}
 			case "bookmarkStart":
 			case "bookmarkEnd":

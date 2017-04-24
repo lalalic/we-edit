@@ -5,7 +5,7 @@ import Base from "../paragraph"
 
 import opportunities from "./wordwrap/line-break"
 import Group from "./composed/group"
-import Line from "./composed/line"
+import Line, {Info as LineInfo} from "./composed/line"
 import ComposedText from "./composed/text"
 
 import Text from "../text"
@@ -26,8 +26,7 @@ export default class Paragraph extends Super{
 		...Super.defaultProps,
 		getChildText(el){
 			while(typeof(el.props.children)!=="string"){
-				el=el.props.children[0]
-				if(!React.isValidElement(el))
+				if(!el.props.children || !(el=el.props.children[0]) || !React.isValidElement(el))
 					return null
 			}
 			return el.props.children
@@ -118,7 +117,9 @@ export default class Paragraph extends Super{
 			throw new Error("infinite loop")
 
         if(availableWidth>=contentWidth){
-          currentLine.children.push(content)
+          currentLine=currentLine.push(content)
+		  composed.pop()
+		  composed.push(currentLine)
         }else {
             this.commitCurrentLine(true)
             this.appendComposed(content,++il)
@@ -173,27 +174,4 @@ export default class Paragraph extends Super{
             </Group>
         )
     }
-}
-
-
-class LineInfo{
-	constructor(width,p){
-		this.width=width
-		this.children=[]
-
-		Object.defineProperties(this,{
-			height:{
-				enumerable:true,
-				get(){
-					return this.children.reduce((h,{props:{height}})=>Math.max(h,height),0)
-				}
-			},
-			availableWidth:{
-				enumerable:true,
-				get(){
-					return this.children.reduce((w,{props:{width}})=>w-width,this.width)
-				}
-			}
-		})
-	}
 }

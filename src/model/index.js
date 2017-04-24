@@ -9,5 +9,19 @@ import Table from "./table"
 import Row from "./row"
 import Cell from "./cell"
 import List from "./list"
+import Frame from "./frame"
 
-export default {Document, Section, Paragraph, Text, Header, Footer, Image,Table,Row,Cell,List}
+export default{
+	Document,
+	Section,
+	Paragraph,
+	Text,
+	Header,
+	Footer,
+	Image,
+	Table,
+	Row,
+	Cell,
+	List,
+	Frame
+}
