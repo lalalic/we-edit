@@ -140,7 +140,6 @@ export default class Section extends Super{
 	}
 
     onAllChildrenComposed(){
-        //don't check, and document will check against last page
         this.context.parent.appendComposed(this.computed.composed[this.computed.composed.length-1])
         super.onAllChildrenComposed()
     }

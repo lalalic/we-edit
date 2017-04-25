@@ -39,13 +39,6 @@ class Inline{
 					return this.content.reduce((h,{props:{height}})=>Math.max(h,height),0)
 				}
 			},
-			availableWidth:{
-				enumerable:true,
-				configurable:true,
-				get(){
-					return this.content.reduce((w,{props:{width}})=>w-width,this.width)
-				}
-			},
 			children:{
 				enumerable:true,
 				configurable:true,
@@ -54,6 +47,13 @@ class Inline{
 				}
 			}
 		})
+	}
+	
+	availableWidth(min=0){
+		let avW=this.content.reduce((w,{props:{width}})=>w-width,this.width)
+		if(avW>=min)
+			return avW
+		return 0
 	}
 
 	push(piece){
@@ -91,7 +91,7 @@ class TopAndBottom extends Inline{
 		this.base=base
 
 		const {height:targetHeight}=target.props
-		let x=base.width-base.availableWidth
+		let x=base.width-base.availableWidth()
 		Object.defineProperties(this,{
 			height:{
 				enumerable:true,
@@ -99,20 +99,21 @@ class TopAndBottom extends Inline{
 					return this.base.height+targetHeight
 				}
 			},
-			availableWidth:{
-				enumerable:true,
-				get(){
-					return this.base.availableWidth
-				}
-			},
 			children:{
 				enumerable:true,
 				configurable:true,
 				get(){
-					return [...this.base.children,<Group x={x} y={-this.base.height} height={this.height}>{target}</Group>]
+					return [
+					...this.base.children,
+					<Group x={x} y={-this.base.height} height={this.height} key={this.base.children.length}>{target}</Group>
+					]
 				}
 			}
 		})
+	}
+	
+	availableWidth(min=0){
+		return this.base.availableWidth(...arguments)
 	}
 
 	append(){
@@ -127,7 +128,7 @@ class Square extends Inline{
 		this.target=target
 
 		const {height:targetHeight,width:targetWidth}=this.target.props
-		let x=this.width-base.availableWidth
+		let x=this.width-base.availableWidth()
 		let leftWidth=this.leftWidth=x, rightWidth=this.rightWidth=this.width-leftWidth-targetWidth
 		let maxWidth=this.maxWidth=Math.max(leftWidth,rightWidth)
 
@@ -138,84 +139,75 @@ class Square extends Inline{
 					return Math.max(this.content.reduce((h,a)=>h+=a.height,0),targetHeight)
 				}
 			},
-			availableWidth:{
-				enumerable:true,
-				get(){
-					let current=this.content[this.content.length-1]
-					let width=this.width-current.availableWidth
-					if(width<leftWidth)
-						return leftWidth-width
-					else if(width<leftWidth+targetWidth)
-						return rightWidth
-					else if(width<this.width)
-						return this.width-width
-					else if(this.content.reduce((h,a)=>h+=a.height,0)<targetHeight)
-						return rightWidth
-					else
-						return 0
-				}
-			},
-			availableMaxWidth:{
-				enumerable:true,
-				get(){
-					if(this.content.reduce((h,a)=>h+=a.height,0)>=targetHeight){
-						let current=this.content[this.content.length-1]
-						let width=this.width-current.availableWidth
-						if(width<leftWidth)
-							return Math.max(leftWidth-width,rightWidth)
-						else if(width<leftWidth+targetWidth)
-							return rightWidth
-						else if(width<this.width)
-							return this.width-width
-						else
-							return 0
-					}else{
-						return maxWidth
-					}
-				}
-			},
 			children:{
 				enumerable:true,
 				configurable:true,
 				get(){
-					let y=0
-					let lines=this.content.map(a=>{
-						let line=<Group y={y}>{a.children}</Group>
-						y+=a.height
+					let y=this.height
+					let lines=this.content.map((a,i)=>{
+						let line=<Group key={i} y={-y}><Line>{a.children}</Line></Group>
+						y-=a.height
 						return line
 					})
 					return [
-						<Group width={this.width} height={this.height}>{lines}</Group>,
-						<Group x={x} width={targetWidth} height={this.height}>{target}</Group>
+						<Group width={this.width} height={this.height} key={0}>{lines}</Group>,
+						<Group x={x} width={targetWidth} height={this.height} key={1}>{target}</Group>
 					]
 				}
 			}
 		})
 	}
+	
+	availableWidth(min){
+		let current=this.content[this.content.length-1]
+		let width=this.width-current.availableWidth()
+		const {height:targetHeight,width:targetWidth}=this.target.props
+		let t=0
+		
+		if(width<this.leftWidth){
+			if((t=this.leftWidth-width)>=min)
+				return t
+		}else if(width<this.leftWidth+targetWidth){
+			if(this.rightWidth>=min)
+				return this.rightWidth
+		}else if(width<this.width){
+			if((t=this.width-width)>=min)
+				return t
+		}
+		
+		if(this.content.reduce((h,a)=>h+=a.height,0)<targetHeight){
+			if((t=Math.min(this.leftWidth,this.rightWidth))>=min)
+				return t
+			else if((t=Math.max(this.leftWidth,this.rightWidth))>=min)
+				return t
+		}
+		
+		return 0
+	}
 
 	append(piece){
 		let current=this.content[this.content.length-1]
-		let width=this.width-current.availableWidth
+		let x=this.width-current.availableWidth()
 		let {width:contentWidth}=piece.props
 		let {leftWidth,rightWidth,maxWidth}=this
 		const {height:targetHeight,width:targetWidth}=this.target.props
 		
-		if(width<leftWidth){
-			if(leftWidth-width>=contentWidth)
+		if(x<leftWidth){
+			if(leftWidth-x>=contentWidth)
 				return current.push(piece)
 			else{
-				current.push(<Group width={targetWidth+leftWidth-width} height={1}/>)
-				width=leftWidth+targetWidth
+				current.push(<Group width={targetWidth+leftWidth-x} height={1} key="empty"/>)
+				x=leftWidth+targetWidth
 			}
 		}
 
-		if(width<leftWidth+targetWidth){
-			current.push(<Group width={targetWidth+leftWidth-width} height={1}/>)
-			width=leftWidth+targetWidth
+		if(x<leftWidth+targetWidth){
+			current.push(<Group width={targetWidth+leftWidth-x} height={1}  key="empty"/>)
+			x=leftWidth+targetWidth
 		}
 
-		if(width==leftWidth+targetWidth){
-			if(rightWidth<=contentWidth)
+		if(x==leftWidth+targetWidth){
+			if(rightWidth>=contentWidth)
 				return current.push(piece)
 			else if(this.content.reduce((h,a)=>h+=a.height,0)<targetHeight){
 				this.content.push(new Inline(this.width))
@@ -225,8 +217,8 @@ class Square extends Inline{
 			}
 		}
 
-		if(width<this.width){
-			if(this.width-width>=contentWidth){
+		if(x<this.width){
+			if(this.width-x>=contentWidth){
 				return current.push(piece)
 			}else if(this.content.reduce((h,a)=>h+=a.height,0)<targetHeight){
 				this.content.push(new Inline(this.width))
@@ -236,7 +228,7 @@ class Square extends Inline{
 			}
 		}
 
-		if(width>=this.width){
+		if(x>=this.width){
 			if(this.content.reduce((h,a)=>h+=a.height,0)<targetHeight){
 				this.content.push(new Inline(this.width))
 				return this.append(piece)

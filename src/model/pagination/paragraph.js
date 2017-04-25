@@ -93,15 +93,15 @@ export default class Paragraph extends Super{
         }
         let currentLine=composed[composed.length-1]
 
-        let {width,availableWidth,availableMaxWidth=availableWidth}=currentLine
-        if(availableMaxWidth<minRequiredW || this.availableSpace.height<minRequiredH){
+        let availableWidth=currentLine.availableWidth(minRequiredW)
+        if(availableWidth<minRequiredW || this.availableSpace.height<minRequiredH){
             this.commitCurrentLine(true)
             this.availableSpace=this.context.parent.nextAvailableSpace(required)
 
             availableWidth=this.lineWidth()
         }
         return {
-            width:availableWidth<minRequiredW ? availableMaxWidth : availableWidth,
+            width:availableWidth,
             height:this.availableSpace.height
         }
     }
@@ -109,15 +109,16 @@ export default class Paragraph extends Super{
     appendComposed(content, il=0){//@TODO: need consider availableSpace.height
         const {composed}=this.computed
         const {parent}=this.context
-
+		let {width:contentWidth}=content.props
+		
         let currentLine=composed[composed.length-1]
-        const {availableWidth,availableMaxWidth=availableWidth}=currentLine
-        let {width:contentWidth}=content.props
+        const availableWidth=currentLine.availableWidth(contentWidth)
+        
 
 		if(il>2)
 			throw new Error("infinite loop")
 
-        if(availableMaxWidth>=contentWidth){
+        if(availableWidth>=contentWidth){
           currentLine=currentLine.push(content)
 		  composed.pop()
 		  composed.push(currentLine)

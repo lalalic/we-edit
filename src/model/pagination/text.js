@@ -50,7 +50,7 @@ export default class Text extends Super{
 		const parent=this.context.parent
         const composer=this.composer
 		const defaultStyle=this.composer.defaultStyle
-
+		let i=0
 		const commit=state=>{
 			let {content,width,end}=state
 			let composedText=this.createComposed2Parent({
@@ -94,7 +94,7 @@ export default class Text extends Super{
     }
 
 	createComposed2Parent(props, composed){
-		this.computed.composed.push(composed=<ComposedText {...props}/>)
+		this.computed.composed.push(composed=<ComposedText {...props} key={this.computed.composed.length}/>)
 		return composed
 	}
 }

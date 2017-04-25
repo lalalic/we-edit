@@ -6,7 +6,7 @@ export default class Group extends Component{
 		height: PropTypes.number
 	}
     render(){
-		let {x,y, width, height, index, children, ...others}=this.props
+		let {x,y, width, height, index, children=[], ...others}=this.props
 		if(x||y)
 			others.transform=`translate(${x||0} ${y||0})`
 		
@@ -17,6 +17,6 @@ export default class Group extends Component{
 		}else if(children.length==1){
 			return children[0]
 		}else
-			throw new Error("should not be here")
+			return null
     }
 }

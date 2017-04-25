@@ -201,12 +201,18 @@ export default class extends Base{
 				return createElement(Transformers.Wrapper(domain),style.extent,children,node)
 			}
 			case "drawing.anchor":{
-				let style=selector.select($(node).find("wp\\:extent,wp\\:positionH,wp\\:positionV").toArray())
+				let root=$(node)
+				let style=selector.select(root.find("wp\\:extent,wp\\:positionH,wp\\:positionV").toArray())
 				let wrap=selector.selectValue(
-					$(node)
+					root
 					.find("TopAndBottom,Square,Tight,Through".split(",").map(a=>`wp\\:wrap${a}`).join(","))
 					.get(0))
-				return createElement(Transformers.Anchor(domain),{...style.extent,wrap},children,node)
+				let margin="Right,Left,Bottom,Top".split(",")
+					.reduce((margin,a)=>{
+						margin[a.toLowerCase()]=docx.cm2Px(root.attr(`dist${a[0]}`))
+						return margin
+					},{})
+				return createElement(Transformers.Anchor(domain),{...style.extent,wrap,margin},children,node)
 			}
 			case "bookmarkStart":
 			case "bookmarkEnd":
