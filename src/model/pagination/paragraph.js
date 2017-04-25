@@ -48,6 +48,7 @@ export default class Paragraph extends Super{
         return {
             ...super.getChildContext(),
             getMyBreakOpportunities(){
+				const {getChildText}=self.props
 				let index=self.computed.children.length
 				let opportunities=self.computed.breakOpportunities.filter(({start,end})=>{
 					return start.itemIndex<=index && end.itemIndex>=index
@@ -55,9 +56,9 @@ export default class Paragraph extends Super{
 				if(opportunities.length && opportunities[0].start.itemIndex!=index){
 					let {start:{itemIndex,at}, end, word}=opportunities[0]
                     let children=self.props.children
-                    let remove=children[itemIndex].props.children.length-at
+                    let remove=getChildText(children[itemIndex]).length-at
 					for(let i=itemIndex+1;i<index;i++)
-						remove+=children[i].props.children.length
+						remove+=getChildText(children[i]).length
 
 					let adjusted={end, word: word.substring(remove), start:{at:0, itemIndex:index}}
 					opportunities[0]=adjusted
