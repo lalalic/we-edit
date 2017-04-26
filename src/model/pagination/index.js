@@ -12,6 +12,7 @@ import Row from "./row"
 import Cell from "./cell"
 import List from "./list"
 import Frame from "./frame"
+import Shape from "./shape"
 
 export default {
 	...Models,
@@ -26,5 +27,6 @@ export default {
 	Row,
 	Cell,
 	List,
-	Frame
+	Frame,
+	Shape
 }

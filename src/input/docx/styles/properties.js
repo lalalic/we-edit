@@ -214,6 +214,13 @@ export class Properties{
 		return this.extent(x.children.find(a=>a.name=="a:ext"))
 	}
 	
+	prstGeom(x){
+		switch(x.attribs.prst){
+		case "ellipse":
+		break
+		}
+	}
+	
 	wrap(x){
 		return {mode:x.name.substring("wp:wrap".length)}
 	}
@@ -232,6 +239,8 @@ export class Properties{
 			return !!parseInt(this._val(x))
 		}
 	}
+	
+	
 
 	toSpacing(x){
 		let props={}, line, t

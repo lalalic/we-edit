@@ -214,6 +214,10 @@ export default class extends Base{
 					},{})
 				return createElement(Transformers.Anchor(domain),{...style.extent,wrap,margin},children,node)
 			}
+			case "shape":{
+				let style=selector.select($(node).find("wps\\:spPr").children().toArray())
+				return createElement(domain.Shape,{},children,node)
+			}
 			case "bookmarkStart":
 			case "bookmarkEnd":
 				return null
