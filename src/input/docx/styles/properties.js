@@ -35,7 +35,7 @@ export class Properties{
 			return value
 		},{})
 	}
-	
+
 	titlePg(x){
 		return true
 	}
@@ -209,18 +209,38 @@ export class Properties{
 	extent(x){
 		return {width:this.docx.cm2Px(x.attribs.cx),height:this.docx.cm2Px(x.attribs.cy)}
 	}
-	
+
 	xfrm(x){
 		return this.extent(x.children.find(a=>a.name=="a:ext"))
 	}
-	
+
 	prstGeom(x){
-		switch(x.attribs.prst){
-		case "ellipse":
-		break
-		}
+		return x.attribs.prst
 	}
-	
+
+	custGeom(x){
+		let path=[]
+		let px=x=>this.docx.cm2Px(x);
+		for(var a, children=x.$1('path').childNodes, len=children.length,i=0;i<len;i++){
+			a=children[i]
+			switch(a.localName){
+			case 'moveTo':
+				path.push('M '+px(a.firstChild.attr('x'))+' '+px(a.firstChild.attr('y')))
+				break
+			case 'lnTo':
+				path.push('L '+px(a.firstChild.attr('x'))+' '+px(a.firstChild.attr('y')))
+				break
+			break
+			case 'cubicBezTo':
+				path.push('L '+px(a.childNodes[0].attr('x'))+' '+px(a.childNodes[0].attr('y')))
+				path.push('Q '+px(a.childNodes[1].attr('x'))+' '+px(a.childNodes[1].attr('y'))
+					+' '+px(a.childNodes[2].attr('x'))+' '+px(a.childNodes[2].attr('y')))
+			break
+			}
+		}
+		return path.join(" ")
+	}
+
 	wrap(x){
 		return {mode:x.name.substring("wp:wrap".length)}
 	}
@@ -239,8 +259,8 @@ export class Properties{
 			return !!parseInt(this._val(x))
 		}
 	}
-	
-	
+
+
 
 	toSpacing(x){
 		let props={}, line, t

@@ -191,7 +191,7 @@ export default class extends Base{
 			}
 			case "t":
 				return children[0] ? createElement(domain.Text,{},children[0],node) : null
-			
+
 			case "picture":{
 				let style=selector.select($(node).find("a\\:xfrm").toArray())
 				return createElement(domain.Image,{...style.xfrm,src:props.url},null,node)
@@ -215,7 +215,7 @@ export default class extends Base{
 				return createElement(Transformers.Anchor(domain),{...style.extent,wrap,margin},children,node)
 			}
 			case "shape":{
-				let style=selector.select($(node).find("wps\\:spPr").children().toArray())
+				let style=selector.select($(node).find("wps\\:spPr").children().toArray(),{})
 				return createElement(domain.Shape,{},children,node)
 			}
 			case "bookmarkStart":
@@ -230,15 +230,15 @@ export default class extends Base{
 
 		const build=buildFactory(createElement)
 		const identify=docx4js.OfficeDocument.identify
-		
+
 		function renderNode(node){
 			return docx.officeDocument.renderNode(node,build,identify)
 		}
-		
+
 		this.renderChanged=(node,createElement)=>{
 			return docx.officeDocument.renderNode(node,buildFactory(createElement),identify)
 		}
-		
+
 		return docx.render(build)
 	}
 
