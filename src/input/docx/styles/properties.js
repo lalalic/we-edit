@@ -220,26 +220,48 @@ export class Properties{
 
 	custGeom(x){
 		let path=[]
-		let px=x=>this.docx.cm2Px(x);
-		for(var a, children=x.$1('path').childNodes, len=children.length,i=0;i<len;i++){
+		let px=x=>this.docx.cm2Px(x)
+		
+		for(let a, children=x.children.find(a=>a.name=="a:pathLst").children[0].children, len=children.length,i=0;i<len;i++){
 			a=children[i]
-			switch(a.localName){
+			switch(a.name.split(":").pop()){
 			case 'moveTo':
-				path.push('M '+px(a.firstChild.attr('x'))+' '+px(a.firstChild.attr('y')))
+				path.push('M '+px(a.children[0].attribs.x)+' '+px(a.children[0].attribs.y))
 				break
 			case 'lnTo':
-				path.push('L '+px(a.firstChild.attr('x'))+' '+px(a.firstChild.attr('y')))
+				path.push('L '+px(a.children[0].attribs.x)+' '+px(a.children[0].attribs.y))
 				break
 			break
 			case 'cubicBezTo':
-				path.push('L '+px(a.childNodes[0].attr('x'))+' '+px(a.childNodes[0].attr('y')))
-				path.push('Q '+px(a.childNodes[1].attr('x'))+' '+px(a.childNodes[1].attr('y'))
-					+' '+px(a.childNodes[2].attr('x'))+' '+px(a.childNodes[2].attr('y')))
+				path.push('L '+px(a.children[0].attr('x'))+' '+px(a.children[0].attr('y')))
+				path.push('Q '+px(a.children[1].attr('x'))+' '+px(a.children[1].attr('y'))
+					+' '+px(a.children[2].attr('x'))+' '+px(a.children[2].attr('y')))
 			break
 			}
 		}
 		return path.join(" ")
 	}
+		
+	bodyPr(x){
+		let props={}
+		props.margin="bottom,top,right,left".split(",").reduce((margin,a,t)=>{
+			if(t=x.attribs[`${a[0]}Ins`])
+				margin[a]=this.docx.cm2Px(t)
+			return margin
+		},{})
+		
+		return props
+	}
+	
+	fillRef(x){
+		let color=x.children.find(a=>a.name=="a:schemeClr")
+		if(color)
+			color=this.theme.color(color.attribs.val)
+		
+		//this.theme.format("fill",x.attribs.idx)
+		return {fill:color}
+	}
+	
 
 	wrap(x){
 		return {mode:x.name.substring("wp:wrap".length)}

@@ -215,8 +215,21 @@ export default class extends Base{
 				return createElement(Transformers.Anchor(domain),{...style.extent,wrap,margin},children,node)
 			}
 			case "shape":{
-				let style=selector.select($(node).find("wps\\:spPr").children().toArray(),{})
-				return createElement(domain.Shape,{},children,node)
+				let {xfrm,...others}=selector.select($(node).find("wps\\:spPr").children().toArray(),{
+						custGeom:"path",
+						prstGeom:"shape",
+						ln:"outline",
+						solidFill:"fill"
+					})
+				let content=selector.select($(node).find("wps\\:bodyPr").toArray(),{})
+				let style=selector.select($(node).find("wps\\:style").children().toArray(),{
+						lnRef:"outline",
+						fillRef:"fill",
+						fontRef:"font",
+						effectRef:"effect"
+					})
+					
+				return createElement(domain.Shape,{...others,...xfrm, ...content.bodyPr,...style},children,node)
 			}
 			case "bookmarkStart":
 			case "bookmarkEnd":

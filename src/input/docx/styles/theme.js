@@ -23,7 +23,7 @@ export default function getTheme(docx, props){
 		},
 		
 		format(type,idx){
-			let kind={line:'ln',fill:'bgFillStyleLst',bgFill:'bgFillStyleLst',effect:'effectStyle',font:'fontScheme'}[type]
+			let kind={line:'ln',fill:'fillStyleLst',bgFill:'bgFillStyleLst',effect:'effectStyle',font:'fontScheme'}[type]
 			return this.find(`a\\:fmtScheme a\\:${kind}:nth-child(${parseInt(idx)+1})`)
 		}
 	})
