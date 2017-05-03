@@ -40,12 +40,10 @@ export default function recomposable(Content){
 					"data-type":this.constructor.displayName.split("-").pop()
 				})
 		}
-
-		render(){
+		
+		componentWillUpdate(){
 			this.computed.composed=[]
 			this.computed.children.splice(0,this.computed.children.length)
-
-			return super.render()
 		}
 
 		appendLastComposed(){

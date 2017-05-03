@@ -35,8 +35,10 @@ export function HasChild(Component){
          * and then append to itself.composed[] and parent.appendComposed
          */
         render(){
-            if(Children.count(this.props.children)===0)
-                this.context.parent.on1ChildComposed(this)
+            if(Children.count(this.props.children)===0){
+				this.onAllChildrenComposed()
+				this.context.parent.on1ChildComposed(this)
+			}
 			//console.log(`render--${this.constructor.displayName}[${this.props.id}]`)
             return (<div>{this.props.children}</div>)
         }

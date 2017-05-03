@@ -99,9 +99,10 @@ export default class Shape extends Super{
 			
 			let size=this.availableSpace()	
 			return [
-				<ellipse cx={width/2} cy={height/2} 
-						rx={width/2} ry={height/2}
-						style={{...outline, ...fill}} />,
+				<ellipse key="shape"
+					cx={width/2} cy={height/2} 
+					rx={width/2} ry={height/2}
+					style={{...outline, ...fill}} />,
 							
 				<Group key="content" 
 					x={width/2-size.width/2} 
@@ -123,7 +124,6 @@ export default class Shape extends Super{
 		}
 		
 		createComposedShape(content){
-			debugger
 			let {
 					width,height,margin,
 					path,
@@ -132,8 +132,9 @@ export default class Shape extends Super{
 				}=this.props
 
 			return [
-				<path d={path}
-						style={{...outline, ...fill}} />,
+				<path key="shape" 
+					d={path}
+					style={{...outline, ...fill}} />,
 							
 				<Group key="content" 
 					x={margin.left} 

@@ -47,15 +47,11 @@ export default class Document extends editable(recomposable(Base)){
 			return (
 				<div ref={a=>this.root=a}>
 					<Base.Composed {...this.props}>
-						<Cursor ref={a=>this.cursor=a}/>
+						<Cursor/>
 						<Selection/>
 					</Base.Composed>
 				</div>
 			)
-		}
-
-		componentDidUpdate(){
-			//this.cursor.forceUpdate()
 		}
 
 		componentDidMount(){
