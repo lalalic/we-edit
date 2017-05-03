@@ -41,9 +41,10 @@ export default function recomposable(Content){
 				})
 		}
 		
-		componentWillUpdate(){
+		shouldComponentUpdate(){
 			this.computed.composed=[]
 			this.computed.children.splice(0,this.computed.children.length)
+			return true
 		}
 
 		appendLastComposed(){

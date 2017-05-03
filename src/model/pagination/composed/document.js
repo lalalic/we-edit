@@ -15,7 +15,7 @@ export default class Document extends Component{
 	}
 	
 	render(){
-		let {width:containerWidth,pgGap,style}=this.context
+		let {width:containerWidth,pgGap,style,media}=this.context
 		let {pages:pageInfos, width:contentWidth}=this.props
 		let height=0, pages
 		let viewBoxWidth=1

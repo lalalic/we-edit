@@ -36,7 +36,7 @@ export default class Shape extends Super{
 	}
 	
 	createComposed2Parent(){
-		let {width,height,margin}=this.props
+		let {width,height,margin,position}=this.props
 		this.context.parent.nextAvailableSpace({width,height})
 		let y=0
 		let content=this.computed.composed.map((a,i)=>{
@@ -49,7 +49,9 @@ export default class Shape extends Super{
 		return (
 			<Group {...{width,height}}>
 				<Group x={0} y={-height}>
-					{this.shape.createComposedShape(content)}
+					<Group {...position}>
+						{this.shape.createComposedShape(content)}
+					</Group>
 				</Group>
 			</Group>
 		)

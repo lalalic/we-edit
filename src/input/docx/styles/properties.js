@@ -6,6 +6,7 @@ export class Properties{
 		this.theme=getTheme(docx)
 		this.rStyle=this.pStyle=this.tblStyle=this._val
 		this.wrapTopAndBottom=this.wrapSquare=this.wrapTight=this.wrapThrough=this.wrap
+		this.ext=this.extent
 	}
 
 	select(nodes, keyMap={}){
@@ -206,12 +207,17 @@ export class Properties{
 		return this.docx.asColor(x.attribs["w:fill"])
 	}
 
+/**************drawingML********************/	
 	extent(x){
 		return {width:this.docx.cm2Px(x.attribs.cx),height:this.docx.cm2Px(x.attribs.cy)}
 	}
+	
+	off(x){
+		return {x:this.docx.cm2Px(x.attribs.x),y:this.docx.cm2Px(x.attribs.y)}
+	}
 
 	xfrm(x){
-		return this.extent(x.children.find(a=>a.name=="a:ext"))
+		return this.select(x.children,{off:"position",ext:"size"})
 	}
 
 	prstGeom(x){
@@ -237,11 +243,62 @@ export class Properties{
 				path.push('Q '+px(a.children[1].attr('x'))+' '+px(a.children[1].attr('y'))
 					+' '+px(a.children[2].attr('x'))+' '+px(a.children[2].attr('y')))
 			break
+			case 'arcTo':
+				path.push(`A`)
+				
+			break
+			case 'close':
+				path.push('Z')
+			break
 			}
 		}
 		return path.join(" ")
 	}
 		
+	solidFill(x){
+		return this.toColor(x.children[0])
+	}
+	
+	blip(x){
+		let rid=x.attribs["r:embed"]
+		return {...officeDocument.getRel(rid)}
+	}
+	
+	stretch(x){
+		return this.fillRect(x.children[0])
+	}
+	
+	fillRect(x){
+		return "left,right,bottom,top".split(",").reduce((fill,a)=>{
+			fill[a]=parseInt(x.attribs[a[0]])/100000
+			return fill
+		},{})
+	}
+	
+	srcRect(x){
+		return this.fillRect(x)
+	}
+	
+	tile(x){
+		return {...x.attribs}
+	}
+	
+	blipFill(x){
+		return this.select(x.children,{
+			blip:"src",
+			stretch:"stretch",
+			srcRect:"portion",
+			tile:"tile"
+		})
+	}
+	
+	ln(x){	
+		let props=this.select(x.children,{prstDash:"dash"})
+		props.width=this.docx.cm2Px(x.children.attribs.w)
+		return props
+	}
+	
+	
 	bodyPr(x){
 		let props={}
 		props.margin="bottom,top,right,left".split(",").reduce((margin,a,t)=>{
@@ -253,19 +310,11 @@ export class Properties{
 		return props
 	}
 	
-	fillRef(x){
-		let color=x.children.find(a=>a.name=="a:schemeClr")
-		if(color)
-			color=this.theme.color(color.attribs.val)
-		
-		//this.theme.format("fill",x.attribs.idx)
-		return {fill:color}
-	}
-	
-
 	wrap(x){
 		return {mode:x.name.substring("wp:wrap".length)}
 	}
+/********************************/	
+	
 
 	numPr(x){
 		return x.children.reduce((p,a)=>{
@@ -341,5 +390,8 @@ export class Properties{
 		return this.docx.asColor(x.attribs['w:val']||x.attribs['w:color']|| this.theme.color(x.attribs['w:themeColor']))
 	}
 }
+
+
+
 
 export default Properties

@@ -13,10 +13,6 @@ import offset from "mouse-event-offset"
 import getClientRect from "tools/get-client-rect"
 
 export default class Document extends editable(recomposable(Base)){
-	_reComposeFrom(section){
-		let index=this.computed.children.findIndex(a=>a==section)
-		this.computed.children.splice(index,1)
-	}
 
 	static Composed=class extends Component{
 		static displayName="composed-document-with-flasher"
