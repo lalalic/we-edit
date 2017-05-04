@@ -43,7 +43,17 @@ export default editable(recomposable(Base)).mixin(mix={
                 return
         }
         this.computed.breakOpportunities=this.getBreakOpportunities(children)
-    }
+    },
+	
+	render(){
+		if(this.computed.composed.length>0)
+			return null
+		
+		if(!this.context.parent.shouldContinueCompose())
+			return null
+		
+		return Base.prototype.render.apply(this)
+	}
 })
 
 export const Paragraph=mix

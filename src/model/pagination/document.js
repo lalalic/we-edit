@@ -13,32 +13,26 @@ export default class Document extends Super{
 				<div style={{display:"none"}}>
 				{super.render()}
 				</div>
-				<this.constructor.Composed ref="composed"
+				<this.constructor.Composed
 					width={this.contentWidth}
-					sections={this.computed.children}/>
+					pages={this.computed.composed}
+					/>
 			</div>
 		)
     }
+	
+	appendComposed(page){
+		this.computed.composed.push(page)
+	}
 
 	get contentWidth(){
 		return Children.toArray(this.props.children)
 			.reduce((w,{props:{pgSz:{width}}})=>Math.max(w,width),0)
 	}
-
-	static Composed=class extends Component{
-        static displayName="composed-document"
-		render(){
-			const {sections, width, children}=this.props
-			return (
-				<ComposedDocument width={width} pages={
-					sections.reduce((pages,section)=>{
-						section.computed.composed.forEach(page=>pages.push(page))
-						return pages
-					},[])
-				}>
-                    {children}
-                </ComposedDocument>
-			)
-		}
+	
+	get contentHeight(){
+		return this.computed.composed.reduce((w,{size:{height}})=>w+height,0)
 	}
+
+	static Composed=ComposedDocument
 }

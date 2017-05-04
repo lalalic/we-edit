@@ -13,13 +13,15 @@ export class Editor extends Component{
 	static propTypes={
 		media:PropTypes.string,
 		width:PropTypes.number.isRequired,
+		height:PropTypes.number,
 		pgGap:PropTypes.number,
 		style:PropTypes.object,
 	}
 
 	static defaultProps={
 		media:"screen",
-		width: typeof(window)=='undefined' ? 10000 : window.innerWidth-20,
+		width: typeof(window)=='undefined' ? 1 : window.innerWidth-20,
+		height: typeof(window)=='undefined' ? 1 : window.innerHeight,
 		pgGap: 20,
 		style: {
 			background:"lightgray"
@@ -28,7 +30,10 @@ export class Editor extends Component{
 
 	static childContextTypes={
 		media:PropTypes.string,
-		width:PropTypes.number.isRequired,
+		viewport:PropTypes.shape({
+			width:PropTypes.number.isRequired,
+			height:PropTypes.number,
+		}),
 		pgGap:PropTypes.number,
 		style:PropTypes.object
 	}
@@ -40,8 +45,8 @@ export class Editor extends Component{
 	transformed=new Map()
 
 	getChildContext(){
-		const {media, width, pgGap, style}=this.props
-		return {media, width, pgGap, style}
+		const {media, width, pgGap, style,height}=this.props
+		return {media, viewport:{width,height}, pgGap, style}
 	}
 	render(){
 		let transform=this.context.transformer||(a=>a)

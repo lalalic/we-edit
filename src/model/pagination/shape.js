@@ -20,6 +20,11 @@ export default class Shape extends Super{
 		const {shape="custom"}=this.props
 		this.shape=new this.constructor[shape](...arguments)
 	}
+	
+	shouldContinueCompose(){
+		return true
+	}
+	
 	nextAvailableSpace(){
 		return this.shape.availableSpace()
 	}

@@ -1,4 +1,6 @@
 import React, {PureComponent, Component, PropTypes} from "react"
+import Waypoint from "react-waypoint"
+
 import Base from "../document"
 import {Text} from "model/pagination"
 import {ACTION} from "state"
@@ -12,14 +14,70 @@ import Cursor from "state/cursor"
 import offset from "mouse-event-offset"
 import getClientRect from "tools/get-client-rect"
 
-export default class Document extends editable(recomposable(Base)){
+const Super=editable(recomposable(Base))
+
+export default class Document extends Super{
+	static contextTypes={
+		...Super.contextTypes,
+		viewport:PropTypes.any,
+		media: PropTypes.string
+	}
+	
+	constructor(){
+		super(...arguments)
+		this.state={compose2Page:2}
+	}
+		
+	render(){
+        return (
+			<div>
+				<div style={{display:"none"}}>
+				{this.props.children}
+				</div>
+				<this.constructor.Composed
+					width={this.contentWidth}
+					pages={this.computed.composed}
+					allComposed={this.computed.children.length==this.props.children.length}
+					composeMore={e=>this.composeMore()}
+					/>
+			</div>
+		)
+    }
+	
+	composeMore(){
+		this.setState(p=>({compose2Page:p.compose2Page+2,mode:"performant"}))
+	}
+	
+	componentWillReceiveProps(){
+		super.componentWillReceiveProps()
+		this.setState({mode:"content"})
+	}
+	
+	shouldRemoveComposed(){
+		return this.state.mode=="content"
+	}
+	
+	shouldContinueCompose(){
+		const {media,viewport}=this.context
+		const {compose2Page}=this.state
+		
+		if(media=="screen"){
+			if(this.contentHeight>viewport.height){
+				return this.computed.composed.length<compose2Page
+			}else
+				return true
+		}else
+			return true
+	}
+	
 
 	static Composed=class extends Component{
 		static displayName="composed-document-with-flasher"
 		static contextTypes={
 			docId: PropTypes.string,
 			store: PropTypes.any,
-			getCursorInput: PropTypes.func
+			getCursorInput: PropTypes.func,
+			pgGap: PropTypes.number
 		}
 
 		static childContextTypes={
@@ -40,9 +98,23 @@ export default class Document extends editable(recomposable(Base)){
 		}
 
 		render(){
+			const {allComposed, composeMore, pages, ...props}=this.props
+			let composeMoreTrigger=null
+			if(!allComposed){
+				let y=pages.reduce((h,{size:{height}})=>h+height,0)
+					+(pages.length-2)*this.context.pgGap
+					-pages[pages.length-1].size.height
+					
+				composeMoreTrigger=(
+					<Waypoint onEnter={e=>composeMore()}>
+						<g transform={`translate(0 ${y})`}/>
+					</Waypoint>
+				)
+			}
 			return (
 				<div ref={a=>this.root=a}>
-					<Base.Composed {...this.props}>
+					<Base.Composed {...props} pages={pages}>
+						{composeMoreTrigger}
 						<Cursor/>
 						<Selection/>
 					</Base.Composed>

@@ -9,23 +9,22 @@ export default class Document extends Component{
 	}
 	static contextTypes={
 		media:PropTypes.string,
-		width:PropTypes.number,
+		viewport:PropTypes.any,
 		pgGap:PropTypes.number,
 		style:PropTypes.object
 	}
 	
 	render(){
-		let {width:containerWidth,pgGap,style,media}=this.context
+		let {viewport,pgGap,style,media}=this.context
 		let {pages:pageInfos, width:contentWidth}=this.props
 		let height=0, pages
 		let viewBoxWidth=1
 		let viewBoxHeight=1
 
-		if(containerWidth==undefined){
+		if(media=="print"){
 			pages=pageInfos.map((page,i)=><Page {...page} key={i}/>)
-			containerWidth=1
 		}else{
-			viewBoxWidth=Math.max(contentWidth+2*pgGap, containerWidth)
+			viewBoxWidth=Math.max(contentWidth+2*pgGap, viewport.width)
 			let y=0
 			pages=(
 				<Group y={pgGap}>
@@ -44,10 +43,10 @@ export default class Document extends Component{
 				</Group>
 			)
 			height+=pgGap
-			viewBoxHeight=viewBoxWidth*height/containerWidth
+			viewBoxHeight=viewBoxWidth*height/viewport.width
 		}
 		return (
-			<svg width={containerWidth} height={height} ref={a=>this.svg=a}
+			<svg width={viewport.width} height={height}
 				viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
 				style={style}>
 				{pages}

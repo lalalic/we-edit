@@ -41,10 +41,19 @@ export default function recomposable(Content){
 				})
 		}
 		
-		shouldComponentUpdate(){
-			this.computed.composed=[]
-			this.computed.children.splice(0,this.computed.children.length)
-			return true
+		componentWillReceiveProps(){
+			if(this.shouldRemoveComposed()){
+				this.computed.composed=[]
+				this.computed.children.splice(0,this.computed.children.length)
+			}
+		}
+		
+		shouldContinueCompose(){
+			return this.context.parent.shouldContinueCompose()
+		}
+		
+		shouldRemoveComposed(){
+			return this.context.parent.shouldRemoveComposed()
 		}
 
 		appendLastComposed(){

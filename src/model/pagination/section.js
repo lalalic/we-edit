@@ -58,6 +58,7 @@ export default class Section extends Super{
             header: headerEl ? headerEl.createComposed2Parent() : null,
             footer: footerEl ? footerEl.createComposed2Parent() : null
         }
+		this.context.parent.appendComposed(info)
 		return info
     }
 
@@ -103,7 +104,6 @@ export default class Section extends Super{
             if(allowedColumns>columns.length){// new column
                 columns.push(currentColumn=this._newColumn(columns.length))
             }else{//new page
-                this.context.parent.appendComposed(currentPage)
                 composed.push(currentPage=this._newPage(composed.length))
                 currentColumn=currentPage.columns[0]
             }
@@ -138,9 +138,4 @@ export default class Section extends Super{
 			this.computed.headers[child.props.type]=child
 		}
 	}
-
-    onAllChildrenComposed(){
-        this.context.parent.appendComposed(this.computed.composed[this.computed.composed.length-1])
-        super.onAllChildrenComposed()
-    }
 }
