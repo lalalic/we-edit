@@ -80,11 +80,13 @@ const Root=connect((state,{domain})=>{
 	}
 
 	getChildContext(){
-		return {docId:this.docId}
+		return {
+			docId:this.docId
+		}
 	}
-
+	
 	componentWillReceiveProps({content,domain}){
-		this.doc=createChildElement("root",content,domain)
+		this.doc=createChildElement("root",content,domain,this.props.content)
 	}
 
 	render(){
@@ -92,12 +94,33 @@ const Root=connect((state,{domain})=>{
 	}
 })
 
-function createChildElement(id,content,domain){
-	let {type, props, children}=content.get(id).toJS()
+function createChildElement(id,content,domain,lastContent){
+	let current=content.get(id)
+	let {type, props, children}=current.toJS()
 	let Child=domain[type[0].toUpperCase()+type.substr(1)]
-	return (<Child key={id} id={id}
+	let elChildren=children
+	
+	if(Array.isArray(children))
+		elChildren=children.map(a=>createChildElement(a,content,domain,lastContent))
+	
+	let changed=false
+	
+	if(lastContent){
+		let last=lastContent.get(id)
+		
+		if(current!=last){
+			changed=true
+		}else if(Array.isArray(children)){
+			changed=!!elChildren.find(({props:{changed}})=>changed)
+		}
+	}
+	
+	return (<Child 
+			key={id} 
+			id={id}
 			{...props}
-			children={Array.isArray(children) ? children.map(a=>createChildElement(a,content,domain,id)) : children}
+			children={elChildren}
+			changed={changed}
 		/>)
 }
 

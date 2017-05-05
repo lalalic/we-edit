@@ -42,58 +42,12 @@ export default function recomposable(Content){
 		}
 		
 		componentWillReceiveProps(){
-			if(this.shouldRemoveComposed()){
-				this.computed.composed=[]
-				this.computed.children.splice(0,this.computed.children.length)
-			}
+			this.clearComposed()
 		}
 		
-		shouldContinueCompose(){
-			return this.context.parent.shouldContinueCompose()
+		clearComposed(){
+			this.computed.composed=[]
+			this.computed.children=[]
 		}
-		
-		shouldRemoveComposed(){
-			return this.context.parent.shouldRemoveComposed()
-		}
-
-		appendLastComposed(){
-
-		}
-    	/**
-    	 *  if with content
-    	 *  	> simply ask parent to recompose
-    	 *  if without content
-    	 *  	> just remove all and offspring to be ready to re-compose
-    	 *  	> somewhere sometime it will be triggered to re-compose
-    	 */
-    	_reComposeFrom(content){
-            this.context.parent._reComposeFrom(this)
-    	}
-
-		_clearComposed4reCompose(fullclear){
-			let lastComposed=this.computed.composed.splice(0)
-
-			let clearAll=a=>{
-				if(this.computed.children.length){
-					this.computed.children.forEach(a=>a._clearComposed4reCompose(true))
-					this.computed.children.splice(0)
-				}
-				this.computed.lastComposed=null
-			}
-			if(fullclear){
-				clearAll()
-			}else if(!this._isLastComposedFitIntoParent(lastComposed)){
-				clearAll()
-			}else {
-				this.computed.lastComposed=lastComposed
-			}
-		}
-
-        /**
-         * is there a way to just simply re-use last composed?
-         */
-        _isLastComposedFitIntoParent(lastComposed){
-			return false
-        }
 	}
 }

@@ -6,7 +6,7 @@ export default class Group extends Component{
 		height: PropTypes.number
 	}
     render(){
-		let {x,y, width, height, index, children=[], ...others}=this.props
+		let {x,y, width, height, index, children=[], childIndex,...others}=this.props
 		if(x||y)
 			others.transform=`translate(${x||0} ${y||0})`
 		

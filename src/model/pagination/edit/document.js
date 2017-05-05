@@ -20,12 +20,26 @@ export default class Document extends Super{
 	static contextTypes={
 		...Super.contextTypes,
 		viewport:PropTypes.any,
-		media: PropTypes.string
+		media: PropTypes.string,
+		isContentChanged: PropTypes.func
 	}
 	
-	constructor(){
-		super(...arguments)
-		this.state={compose2Page:2}
+	static childContextTypes={
+		...Super.childContextTypes,
+		shouldContinueCompose: PropTypes.func,
+		shouldRemoveComposed: PropTypes.func
+	}
+	
+	state={compose2Page:2}
+	
+	getChildContext(){
+		let shouldRemoveComposed=this.shouldRemoveComposed.bind(this)
+		let shouldContinueCompose=this.shouldContinueCompose.bind(this)
+		return {
+			...super.getChildContext(),
+			shouldContinueCompose,
+			shouldRemoveComposed
+		}
 	}
 		
 	render(){
@@ -49,7 +63,7 @@ export default class Document extends Super{
 	}
 	
 	componentWillReceiveProps(){
-		super.componentWillReceiveProps()
+		super.componentWillReceiveProps(...arguments)	
 		this.setState({mode:"content"})
 	}
 	
@@ -63,7 +77,10 @@ export default class Document extends Super{
 		
 		if(media=="screen"){
 			if(this.contentHeight>viewport.height){
-				return this.computed.composed.length<compose2Page
+				if(this.computed.composed.length<compose2Page)
+					return true
+				this.stopCompose=true
+				return false
 			}else
 				return true
 		}else

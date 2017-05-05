@@ -1,52 +1,78 @@
-import React from "react"
+import React, {PropTypes} from "react"
 import Base from "../section"
 
 import {editable} from "model/edit"
 import recomposable from "./recomposable"
 
-export default class Section extends editable(recomposable(Base)){
-    _reComposeFrom(content){
-		const targetId=content.props.id
-		const contentIndex=column=>column.children.findIndex(a=>a.props.children.props["data-content"]==targetId)
+const Super=editable(recomposable(Base))
 
-        const {composed}=this.computed
-        let currentPage=composed[composed.length-1]
-        let {columns}=currentPage
-        let currentColumn=columns[columns.length-1]
-        let found=-1
-        while((found=contentIndex(currentColumn))==-1){
-            columns.pop() //not found in current column, remove current column
-            if(columns.length){
-                currentColumn=columns[columns.length-1]
-            }else{//not found in current page, remove page
-                composed.pop()
-                if(composed.length){
-                    currentPage=composed[composed.length-1]
-                    columns=currentPage.columns
-                    currentColumn=columns[columns.length-1]
-                }else {//all page removed because can' find in composed
-                    break
-                    //throw new Error("you should find the line from section, but not")
-                }
-            }
-        }
+export default class Section extends Super{
+	static contextTypes={
+		...Super.contextTypes,
+		shouldRemoveComposed:PropTypes.func,
+		shouldContinueCompose:PropTypes.func
+	}
+	
+	createComposed2Parent(){
+		return React.cloneElement(super.createComposed2Parent(...arguments),{childIndex:this.computed.children.length})
+	}
+	
+	componentWillReceiveProps({changed,children}){
+		if(this.context.shouldRemoveComposed(this)){
+			if(changed){
+				let index=children.findIndex((current,i)=>{
+					let last=this.props.children[i]
+					if(!last)
+						return true
+					if(current.props.id!=last.props.id)
+						return true
+					return current.props.changed
+				})
+				
+				this.computed.children=this.computed.children.slice(0,index)
+				let childIndex=this.computed.children.length
+				
+				let changedPageIndex=this.computed.composed.findIndex(({columns})=>{
+					let start=columns[0].children[0].props.childIndex
+					let lastColumn=columns[columns.length-1]
+					let lastColumnChildren=lastColumn.children
+					let end=lastColumnChildren[lastColumnChildren.length-1].props.childIndex
+					return (start<=childIndex || childIndex<=end)
+				})
+				
+				let changedPage=this.computed.composed[changedPageIndex]
+				this.computed.composed=this.computed.composed.slice(0,changedPageIndex)
+				
+				
+				let changedColumnIndex=changedPage.columns.findIndex(({children})=>{
+					let start=children[0].props.childIndex
+					let end=children[children.length-1].props.childIndex
+					return (start<=childIndex || childIndex<=end)
+				})
+				
+				let changedColumn=changedPage.columns[changedColumnIndex]
+				changedPage.columns=changedPage.columns.slice(0,changedColumnIndex)
+				
+				
+				let changedLineIndex=changedColumn.children.findIndex(line=>line.props.childIndex>=childIndex)
+				changedColumn.children=changedColumn.children.slice(0,changedLineIndex)
+				changedPage.columns.push(changedColumn)
+				
+				this.computed.composed.push(changedPage)
+			}
+			
+			this.computed.composed.forEach(page=>this.context.parent.appendComposed(page))
+		}
+	}
+	
+	render(){
+		if(!this.context.shouldContinueCompose()){
+			return null
+		}
 
-        if(found!=-1){
-            currentColumn.children.splice(found)
-
-            let index=this.computed.children.findIndex(a=>a.props.id==targetId)
-			let removed=this.computed.children.splice(index)
-
-			this.context.parent._reComposeFrom(this)
-
-            let done=removed.map((a,i)=>new Promise((resolve,reject)=>{
-                a._clearComposed4reCompose(i==0)
-                //a.forceUpdate(resolve)
-            }))
-
-			//Promise.all(done).then(a=>this.context.parent.refreshComposed())
-        }else{
-            throw new Error("you should find the line from section, but not")
-        }
-    }
+		if(this.computed.children.length<this.props.children.length)
+			return (<div>{this.props.children.slice(this.computed.children.length)}</div>)
+				
+		return super.render()
+	}
 }
