@@ -74,7 +74,7 @@ export default class Text extends Super{
 				Math.floor(width+(wordWidth=composer.stringWidth(word.replace(/\s+$/,''))))<=maxWidth)){
 				content.push(word)
 				state.width+=wordWidth
-				state.end=+word.length
+				state.end+=word.length
 			}else{
 				if(width!=0)
 					commit(state)
