@@ -6,7 +6,7 @@ import {ACTION} from "state"
 import get from "lodash.get"
 import getClientRect from "tools/get-client-rect"
 
-export class Cursor extends Component{
+export default class Cursor extends Component{
 	static contextTypes={
 		store: PropTypes.any,
 		docId: PropTypes.string,
@@ -14,39 +14,23 @@ export class Cursor extends Component{
 		getRatio: PropTypes.func,
 		getWordWrapper: PropTypes.func
 	}
+
 	static propTypes={
 		id: PropTypes.string,
 		at: PropTypes.number,
-		active: PropTypes.string
+		active: PropTypes.string,
+		contentChanged: PropTypes.bool
 	}
 
 	render(){
 		return null
 	}
 
-	componentWillReceiveProps({active,id,at}, {docId,getCursorInput}){
-		if(this.props.id!==id || this.props.at!==at){
-			this.node=getNode(docId,id, at)
-			if(!this.node){
-				this.style=null
-				return
-			}
-			this.style=this.position(docId,id,at)
-		}
-
-		if(docId==active)
-			getCursorInput()
-			.setState({
-				...this.style,
-				up:this.up.bind(this),
-				down:this.down.bind(this)
-			})
+	shouldComponentUpdate({contentChanged}){
+		return !contentChanged
 	}
 
-	componentDidUpdate(){
-		if(this.node)
-			return
-
+	componentDidUpdate(prevProps){
 		const {active,id,at}=this.props
 		const {docId, getCursorInput}=this.context
 		this.node=getNode(docId,id, at)
@@ -63,16 +47,6 @@ export class Cursor extends Component{
 				up:this.up.bind(this),
 				down:this.down.bind(this)
 			})
-	}
-
-	componentDidMount(){
-		const {active,id,at}=this.props
-		const {docId,getCursorInput}=this.context
-		this.node=getNode(docId, id, at)
-		if(!this.node)
-			return
-		
-		this.style=this.position(docId,id,at)
 	}
 
 	position(docId,id,at){
@@ -216,19 +190,5 @@ export class Cursor extends Component{
 				}
 			}
 		}
-	}
-}
-
-const StateCursor=connect(state=>{
-	let selection=getSelection(state)
-	let {end,start,active,cursorAt}=selection
-	let {id,at}=selection[cursorAt]
-	return {id,at,active}
-},null,null,{pure:false})(Cursor)
-
-
-export default class Wrapper extends Component{
-	render(){
-		return <StateCursor time={Date.now()}/>
 	}
 }

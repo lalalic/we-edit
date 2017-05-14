@@ -13,18 +13,18 @@ export default class Paragraph extends Super{
 		shouldContinueCompose:PropTypes.func,
 		shouldRemoveComposed:PropTypes.func
 	}
-	
+
 	constructor(){
 		super(...arguments)
 		this.computed.lines=[]
 	}
-	
+
 	createComposed2Parent(){
 		let line=super.createComposed2Parent(...arguments)
 		this.computed.lines.push(line)
 		return line
 	}
-	
+
     componentWillReceiveProps({children,getChildText,changed},{shouldRemoveComposed,parent}){
 		if(shouldRemoveComposed(this)){
 			if(changed){
@@ -35,22 +35,21 @@ export default class Paragraph extends Super{
 			}
 		}
     }
-	
+
 	clearComposed(){
 		super.clearComposed()
 		this.computed.lines=[]
 	}
-	
+
 	render(){
 		if(!this.context.shouldContinueCompose()){
 			return null
 		}
-		
+
 		if(this.computed.composed.length>0){
 			return null
 		}
-		
-		console.log(`[paragraph=${this.props.id}] re-composed`)
+
 		return super.render()
 	}
 }

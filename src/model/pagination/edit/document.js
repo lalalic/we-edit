@@ -1,4 +1,5 @@
 import React, {PureComponent, Component, PropTypes} from "react"
+import {connect} from "react-redux"
 import Waypoint from "react-waypoint"
 
 import Base from "../document"
@@ -23,15 +24,15 @@ export default class Document extends Super{
 		media: PropTypes.string,
 		isContentChanged: PropTypes.func
 	}
-	
+
 	static childContextTypes={
 		...Super.childContextTypes,
 		shouldContinueCompose: PropTypes.func,
 		shouldRemoveComposed: PropTypes.func
 	}
-	
+
 	state={compose2Page:2}
-	
+
 	getChildContext(){
 		let shouldRemoveComposed=this.shouldRemoveComposed.bind(this)
 		let shouldContinueCompose=this.shouldContinueCompose.bind(this)
@@ -41,7 +42,7 @@ export default class Document extends Super{
 			shouldRemoveComposed
 		}
 	}
-		
+
 	render(){
         return (
 			<div>
@@ -57,24 +58,24 @@ export default class Document extends Super{
 			</div>
 		)
     }
-	
+
 	composeMore(){
 		this.setState(p=>({compose2Page:p.compose2Page+2,mode:"performant"}))
 	}
-	
+
 	componentWillReceiveProps(){
-		super.componentWillReceiveProps(...arguments)	
+		super.componentWillReceiveProps(...arguments)
 		this.setState({mode:"content"})
 	}
-	
+
 	shouldRemoveComposed(){
 		return this.state.mode=="content"
 	}
-	
+
 	shouldContinueCompose(){
 		const {media,viewport}=this.context
 		const {compose2Page}=this.state
-		
+
 		if(media=="screen"){
 			if(this.contentHeight>viewport.height){
 				if(this.computed.composed.length<compose2Page)
@@ -86,7 +87,7 @@ export default class Document extends Super{
 		}else
 			return true
 	}
-	
+
 
 	static Composed=class extends Component{
 		static displayName="composed-document-with-flasher"
@@ -121,22 +122,35 @@ export default class Document extends Super{
 				let y=pages.reduce((h,{size:{height}})=>h+height,0)
 					+(pages.length-2)*this.context.pgGap
 					-pages[pages.length-1].size.height
-					
+
 				composeMoreTrigger=(
 					<Waypoint onEnter={e=>composeMore()}>
 						<g transform={`translate(0 ${y})`}/>
 					</Waypoint>
 				)
 			}
+
+			let selection=getSelection(this.context.store.getState())
+			let {end,start,active,cursorAt}=selection
+			let {id,at}=selection[cursorAt]
+
 			return (
 				<div ref={a=>this.root=a}>
-					<Base.Composed {...props} pages={pages}>
+					<Base.Composed {...props} pages={pages}
+						onPageHide={e=>this.updateCursorAndSelection()}
+						onPageShow={e=>this.updateCursorAndSelection()}>
 						{composeMoreTrigger}
-						<Cursor/>
-						<Selection/>
+
+						<SelectionState>
+							<Cursor {...{id,at,active}} ref={a=>this.cursor=a}/>
+						</SelectionState>
 					</Base.Composed>
 				</div>
 			)
+		}
+
+		componentDidUpdate(){
+			this.updateCursorAndSelection()
 		}
 
 		componentDidMount(){
@@ -150,6 +164,11 @@ export default class Document extends Super{
 			svg.addEventListener("click", this.onClick.bind(this))
 
 			svg.addEventListener("mouseup", this.onSelect.bind(this))
+		}
+
+		updateCursorAndSelection(){
+			this.cursor.forceUpdate()
+			//this.selection.foreceUpdate()
 		}
 
 		active(){
@@ -274,3 +293,20 @@ export default class Document extends Super{
 		}
 	}
 }
+
+let lastContent=null
+const SelectionState=connect(state=>{
+	let selection=getSelection(state)
+	let content=state.get("content")
+	let {end,start,active,cursorAt}=selection
+	let {id,at}=selection[cursorAt]
+	let contentChanged=!!(lastContent && lastContent!==content)
+	lastContent=content
+	return {id,at,active, contentChanged}
+})(
+class extends Component{
+	render(){
+		const {children,id,at,active,contentChanged}=this.props
+		return React.cloneElement(children,{id,at,active,contentChanged})
+	}
+})
