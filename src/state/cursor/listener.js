@@ -8,7 +8,7 @@ export default class Listener extends Component{
 		store: PropTypes.any
 	}
 	state={value:""}
-	
+
 	render(){
 		let {dispatch}=this.context.store
 		let {up,down,...others}=this.props
@@ -60,7 +60,7 @@ export default class Listener extends Component{
 
 		/>
 	}
-	
+
 	componentDidUpdate(){
 		this.input.focus()
 	}
