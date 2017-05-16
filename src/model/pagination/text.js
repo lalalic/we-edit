@@ -64,7 +64,7 @@ export default class Text extends Super{
 		}
 		let consume1
         let state=this.computed.breakOpportunities.reduce(consume1=(state,opportunity,i)=>{
-            let [word, wordWidth]=opportunity
+            let [word="", wordWidth]=opportunity
 			let {space:{width:maxWidth},content,width}=state
 			if(Math.floor(width+wordWidth)<=maxWidth){
 				content.push(word)

@@ -3,7 +3,11 @@ import Base from "state/reducer/text"
 export class text extends Base{
 	constructor(state, getNode, renderChanged){
 		super(state)
-		this.getNode=getNode
+		this.getNode=function(){
+			let n=getNode(...arguments)
+			console.assert(n.length==1)
+			return n
+		}
 		this.renderChanged=renderChanged
 		this.xml=this.file.officeDocument.content.xml.bind(this.file.officeDocument.content)
 	}
@@ -25,7 +29,7 @@ export class text extends Base{
 	insert_withoutSelection_string_withNewLine(inserting){
 		const {start:{id,at}}=this.selection
 		let target=this.getNode(id)
-		
+
 		let text=target.text()
 
 		let r=target.closest("w\\:r")
@@ -58,9 +62,12 @@ export class text extends Base{
 					p0.append(r0)
 					 .append(r.nextAll())
 					 .insertAfter(p)
-					
-					//@TODO: p0!=p.next(), it's weird, so use p.next().get(0)
-					let rendered=this.renderChanged(p.next().get(0))
+
+					 //@TODO: p0!=p.next(), it's weird, so use p.next().get(0)
+ 					p0=p.next()
+					t0=p0.find("w\\:t").eq(0)
+
+					let rendered=this.renderChanged(p0.get(0))
 					this.updateChildren(parentId, children=>children.splice(children.indexOf(pId)+1,0,rendered.id))
 					this.updateSelection(t0.attr("id"), piece.length)
 					break
@@ -73,7 +80,9 @@ export class text extends Base{
 					p0.append(r0)
 					  .insertAfter(p)
 
-					let rendered=this.renderChanged(p.next().get(0))
+					 p0=p.next()
+
+					let rendered=this.renderChanged(p0.get(0))
 					this.updateChildren(parentId, children=>children.splice(children.indexOf(pId)+1,0,rendered.id))
 				}
 			}

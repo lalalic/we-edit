@@ -190,7 +190,7 @@ export default class extends Base{
 				return createElement(Transformers.Run(domain),style,children,node)
 			}
 			case "t":
-				return children[0] ? createElement(domain.Text,{},children[0],node) : null
+				return createElement(domain.Text,{},children[0]||"",node)
 
 			case "picture":{
 				let style=selector.select($(node).find("a\\:xfrm").toArray())
@@ -229,7 +229,7 @@ export default class extends Base{
 						fontRef:"font",
 						effectRef:"effect"
 					})
-					
+
 				return createElement(domain.Shape,{...style,...others,...size,position, ...content.bodyPr},children,node)
 			}
 			case "bookmarkStart":
