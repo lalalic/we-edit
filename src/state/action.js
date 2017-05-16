@@ -95,6 +95,7 @@ export const Cursor={
 export const Text={
 	INSERT: t=>({type:"text/INSERT",payload:t})
 	,REMOVE: n=>({type:"text/REMOVE",payload:n})
+	,RETURN: n=>({type:"text/RETURN"})
 }
 
 export const Selection={

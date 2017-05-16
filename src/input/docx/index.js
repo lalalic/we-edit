@@ -288,6 +288,10 @@ export default class extends Base{
 		let getNode=id=>this.getRaw(docx,id)
 
 		switch(type){
+			case `text/RETURN`:
+				return new changer.text(state,getNode,renderChanged)
+					.insert("\r")
+					.state()
 			case `text/INSERT`:
 				return new changer.text(state,getNode,renderChanged)
 					.insert(payload)
