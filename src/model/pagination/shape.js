@@ -21,10 +21,6 @@ export default class Shape extends Super{
 		this.shape=new this.constructor[shape](...arguments)
 	}
 	
-	shouldContinueCompose(){
-		return true
-	}
-	
 	nextAvailableSpace(){
 		return this.shape.availableSpace()
 	}

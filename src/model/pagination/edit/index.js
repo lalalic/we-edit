@@ -13,6 +13,7 @@ import Section from "./section"
 import Paragraph from "./paragraph"
 import List from "./list"
 import Text from "./text"
+import Shape from "./shape"
 
 export default {
 	...Editables,
@@ -20,5 +21,6 @@ export default {
 	Section,
 	Paragraph,
 	List,
-	Text
+	Text,
+	Shape
 }
