@@ -75,7 +75,7 @@ export default class Section extends Super{
         let availableHeight=children.reduce((prev, a)=>prev-a.props.height,height)
 
         //@TODO: what if never can find min area
-        while(availableHeight<=minRequiredH || width<minRequiredW){
+        while(minRequiredH-availableHeight>1 || minRequiredW-width>1){
             if(allowedColumns>columns.length){// new column
                 columns.push(currentColumn=this._newColumn(columns.length))
             }else{//new page
@@ -100,7 +100,7 @@ export default class Section extends Super{
 
         const {height:contentHeight}=line.props
 
-		if(contentHeight>availableHeight){
+		if(contentHeight-availableHeight>1){
             if(allowedColumns>columns.length){// new column
                 columns.push(currentColumn=this._newColumn(columns.length))
             }else{//new page
