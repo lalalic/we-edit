@@ -50,7 +50,7 @@ export default class Document extends Super{
 		let props={}
 		if(mode=="content")
 			props.minHeight=this.canvas.getClientRect().height
-		
+
         return (
 			<div>
 				<div style={{display:"none"}}>
@@ -72,14 +72,14 @@ export default class Document extends Super{
 	}
 
 	componentWillReceiveProps(){
-		super.componentWillReceiveProps(...arguments)
+		this.clearComposed()
 		this.setState({mode:"content"})
 	}
 
 	shouldRemoveComposed(){
 		return this.state.mode=="content"
 	}
-	
+
 	get contentHeight(){
 		//return this.computed.composed.reduce((w,{size:{height}})=>w+height,0)
 		let last=this.computed.composed.pop()
@@ -98,7 +98,7 @@ export default class Document extends Super{
 	shouldContinueCompose(){
 		const {media,viewport}=this.context
 		const {compose2Page,mode}=this.state
-		
+
 		if(media=="screen"){
 			if(this.contentHeight>viewport.height){
 				switch(mode){
@@ -157,7 +157,7 @@ export default class Document extends Super{
 			}else{
 				delete props.minHeight
 			}
-				
+
 
 			let selection=getSelection(this.context.store.getState())
 			let {end,start,active,cursorAt}=selection
@@ -193,7 +193,7 @@ export default class Document extends Super{
 			svg.addEventListener("click", this.onClick.bind(this))
 
 			svg.addEventListener("mouseup", this.onSelect.bind(this))
-			
+
 			this.getClientRect=()=>svg.getBoundingClientRect()
 		}
 

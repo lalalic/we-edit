@@ -12,11 +12,11 @@ export default class Section extends Super{
 		shouldRemoveComposed:PropTypes.func,
 		shouldContinueCompose:PropTypes.func
 	}
-	
+
 	createComposed2Parent(){
 		return React.cloneElement(super.createComposed2Parent(...arguments),{childIndex:this.computed.children.length})
 	}
-	
+
 	componentWillReceiveProps({changed,children}){
 		if(this.context.shouldRemoveComposed(this)){
 			if(changed){
@@ -28,43 +28,55 @@ export default class Section extends Super{
 						return true
 					return current.props.changed
 				})
-				
+
 				this.computed.children=this.computed.children.slice(0,index)
 				let childIndex=this.computed.children.length
-				
+
 				let changedPageIndex=this.computed.composed.findIndex(({columns})=>{
 					let start=columns[0].children[0].props.childIndex
-					let lastColumn=columns[columns.length-1]
-					let lastColumnChildren=lastColumn.children
-					let end=lastColumnChildren[lastColumnChildren.length-1].props.childIndex
-					return (start<=childIndex || childIndex<=end)
+					if(start==childIndex)
+						return true
+					else if(start<childIndex){
+						let lastColumn=columns[columns.length-1]
+						let lastColumnChildren=lastColumn.children
+						let end=lastColumnChildren[lastColumnChildren.length-1].props.childIndex
+						return end>=childIndex
+					}else {
+						throw new Error("should not be here")
+					}
 				})
-				
+
 				let changedPage=this.computed.composed[changedPageIndex]
 				this.computed.composed=this.computed.composed.slice(0,changedPageIndex)
-				
-				
+
+
 				let changedColumnIndex=changedPage.columns.findIndex(({children})=>{
 					let start=children[0].props.childIndex
-					let end=children[children.length-1].props.childIndex
-					return (start<=childIndex || childIndex<=end)
+					if(start==childIndex)
+						return true
+					else if(start<childIndex){
+						let end=children[children.length-1].props.childIndex
+						return end>=childIndex
+					}else{
+						throw new Error("should not be here")
+					}
 				})
-				
+
 				let changedColumn=changedPage.columns[changedColumnIndex]
 				changedPage.columns=changedPage.columns.slice(0,changedColumnIndex)
-				
-				
+
+
 				let changedLineIndex=changedColumn.children.findIndex(line=>line.props.childIndex>=childIndex)
 				changedColumn.children=changedColumn.children.slice(0,changedLineIndex)
 				changedPage.columns.push(changedColumn)
-				
+
 				this.computed.composed.push(changedPage)
 			}
-			
+
 			this.computed.composed.forEach(page=>this.context.parent.appendComposed(page))
 		}
 	}
-	
+
 	render(){
 		if(!this.context.shouldContinueCompose()){
 			return null
@@ -72,7 +84,7 @@ export default class Section extends Super{
 
 		if(this.computed.children.length<this.props.children.length)
 			return (<div>{this.props.children.slice(this.computed.children.length)}</div>)
-				
+
 		return super.render()
 	}
 }
