@@ -29,10 +29,6 @@ export default class Document extends Super{
 		return Children.toArray(this.props.children)
 			.reduce((w,{props:{pgSz:{width}}})=>Math.max(w,width),0)
 	}
-	
-	get contentHeight(){
-		return this.computed.composed.reduce((w,{size:{height}})=>w+height,0)
-	}
 
 	static Composed=ComposedDocument
 }

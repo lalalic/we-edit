@@ -16,7 +16,7 @@ export default class Document extends Component{
 	
 	render(){
 		let {viewport,pgGap,style,media}=this.context
-		let {pages:pageInfos, width:contentWidth}=this.props
+		let {pages:pageInfos, width:contentWidth, minHeight=0}=this.props
 		let height=0, pages
 		let viewBoxWidth=1
 		let viewBoxHeight=1
@@ -43,6 +43,9 @@ export default class Document extends Component{
 				</Group>
 			)
 			height+=pgGap
+			if(minHeight>height)
+				height=minHeight
+			
 			viewBoxHeight=viewBoxWidth*height/viewport.width
 		}
 		return (
