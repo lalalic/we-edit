@@ -52,7 +52,7 @@ export default class Document extends Super{
 				<this.constructor.Composed
 					width={this.contentWidth}
 					pages={this.computed.composed}
-					allComposed={this.computed.children.length==this.props.children.length}
+					isAllComposed={()=>this.computed.children.length==this.props.children.length}
 					composeMore={e=>this.composeMore()}
 					/>
 			</div>
@@ -116,12 +116,12 @@ export default class Document extends Super{
 		}
 
 		render(){
-			const {allComposed, composeMore, pages, ...props}=this.props
+			const {isAllComposed, composeMore, pages, ...props}=this.props
 			let composeMoreTrigger=null
-			if(!allComposed){
+			if(!isAllComposed()){
 				let y=pages.reduce((h,{size:{height}})=>h+height,0)
-					+(pages.length-2)*this.context.pgGap
-					-pages[pages.length-1].size.height
+						+(pages.length-2)*this.context.pgGap
+						-pages[pages.length-1].size.height/3
 
 				composeMoreTrigger=(
 					<Waypoint onEnter={e=>composeMore()}>
