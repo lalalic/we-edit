@@ -46,9 +46,10 @@ export default class Page extends Component{
 						onEnter={e=>this.setState({display:true},onPageShow)}
 						onLeave={e=>this.setState({display:false},onPageHide)}>
 					<g className="page">
-							<Paper width={width} height={height} fill="white"
-								margin={{left,top,right:width-right,bottom:height-bottom}}/>
-
+							<Paper width={width} height={height} fill="white"/>
+							
+							{display ? <Margin margin={{left,top,right:width-right,bottom:height-bottom}}/> : null}
+							
 							{display ? elHeader : null}
 
 							{display ? content : null}
@@ -69,9 +70,14 @@ export default class Page extends Component{
 	}
 }
 
-const Paper=({margin:{left,top, right,bottom},marginWidth=20,...others})=>(
+const Paper=props=>(
 	<g>
-		<rect {...others}/>
+		<rect {...props}/>
+	</g>
+)
+
+const Margin=({margin:{left,top, right,bottom},marginWidth=20})=>(
+	<g>
 		<line x1={left} y1={top} x2={left-marginWidth} y2={top} strokeWidth={1} stroke="gray"/>
 		<line x1={left} y1={top} x2={left} y2={top-marginWidth} strokeWidth={1} stroke="gray"/>
 

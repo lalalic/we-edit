@@ -26,12 +26,16 @@ export default class Paragraph extends Super{
 	}
 
     componentWillReceiveProps({children,getChildText,changed},{shouldRemoveComposed,parent}){
-		if(shouldRemoveComposed(this)){
-			if(changed){
-				this.clearComposed()
-				this.computed.breakOpportunities=this.getBreakOpportunities(Children.toArray(children))
-			}else{
-				this.computed.lines.forEach(line=>parent.appendComposed(line))
+		if(this.computed.composed.length>0){
+			if(shouldRemoveComposed(this)){
+				if(changed){
+					this.clearComposed()
+					this.computed.breakOpportunities=this.getBreakOpportunities(Children.toArray(children))
+				}else{
+					this.computed.lines.forEach(line=>parent.appendComposed(line))
+					this.availableSpace={width:0, height:0}
+					parent.on1ChildComposed(this)
+				}
 			}
 		}
     }
