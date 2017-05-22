@@ -53,7 +53,7 @@ export default class Paragraph extends Super{
 		if(this.computed.composed.length>0){
 			return null
 		}
-
+		
 		return super.render()
 	}
 }

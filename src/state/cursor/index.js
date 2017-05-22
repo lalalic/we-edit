@@ -43,6 +43,7 @@ export default class Cursor extends Component{
 		if(docId==active)
 			getCursorInput()
 			.setState({
+				color:"black",
 				...this.style,
 				up:this.up.bind(this),
 				down:this.down.bind(this)

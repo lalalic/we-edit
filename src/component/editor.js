@@ -76,6 +76,8 @@ const Root=connect((state,{domain})=>{
 	docId=`editor_${uuid()}`
 	constructor(){
 		super(...arguments)
+		this.els=new Map()
+		this.tree=new Map()
 		this.componentWillReceiveProps(this.props)
 	}
 
@@ -86,42 +88,63 @@ const Root=connect((state,{domain})=>{
 	}
 	
 	componentWillReceiveProps({content,domain}){
-		this.doc=createChildElement("root",content,domain,this.props.content)
+		if(content.size>50){//replace mode
+			const changed=content.filter(function(v,k){
+				return v!=this.get(k)
+			},this.props.content)
+			.forEach((v,k)=>{
+				let parentId=this.tree.get(k)
+				let parentEl=this.els.get(parentId)
+			})
+			
+			this.doc=createChildElement("root",content,domain,this.props.content)
+		}else{//reproduce mode
+			this.doc=createChildElement("root",content,domain,this.props.content)
+		}
+	}
+	
+	createChildElement(id,content,domain,lastContent){
+		let current=content.get(id)
+		let {type, props, children}=current.toJS()
+		let Child=domain[type[0].toUpperCase()+type.substr(1)]
+		let elChildren=children
+		
+		if(Array.isArray(children))
+			elChildren=children.map(a=>{
+				this.tree.set(a,id)
+				return this.createChildElement(a,content,domain,lastContent)
+			})
+		
+		let changed=false
+		
+		if(lastContent){
+			let last=lastContent.get(id)
+			
+			if(current!=last){
+				changed=true
+			}else if(Array.isArray(children)){
+				changed=!!elChildren.find(({props:{changed}})=>changed)
+			}
+		}
+		
+		let el
+		
+		el=(<Child 
+				key={id} 
+				id={id}
+				{...props}
+				children={elChildren}
+				changed={changed}
+			/>)
+		
+		this.els.set(id,el)
+		
+		return el
 	}
 
 	render(){
 		return <div id={this.docId}>{this.doc}</div>
 	}
 })
-
-function createChildElement(id,content,domain,lastContent){
-	let current=content.get(id)
-	let {type, props, children}=current.toJS()
-	let Child=domain[type[0].toUpperCase()+type.substr(1)]
-	let elChildren=children
-	
-	if(Array.isArray(children))
-		elChildren=children.map(a=>createChildElement(a,content,domain,lastContent))
-	
-	let changed=false
-	
-	if(lastContent){
-		let last=lastContent.get(id)
-		
-		if(current!=last){
-			changed=true
-		}else if(Array.isArray(children)){
-			changed=!!elChildren.find(({props:{changed}})=>changed)
-		}
-	}
-	
-	return (<Child 
-			key={id} 
-			id={id}
-			{...props}
-			children={elChildren}
-			changed={changed}
-		/>)
-}
 
 export default Editor

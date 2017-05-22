@@ -74,6 +74,7 @@ export default class Document extends Super{
 	componentWillReceiveProps(){
 		this.clearComposed()
 		this.setState({mode:"content"})
+		this.continueComposing=true
 	}
 
 	shouldRemoveComposed(){
@@ -81,7 +82,6 @@ export default class Document extends Super{
 	}
 
 	get contentHeight(){
-		//return this.computed.composed.reduce((w,{size:{height}})=>w+height,0)
 		let last=this.computed.composed.pop()
 		let height=this.computed.composed.reduce((w,{size:{height}})=>w+height,0)
 		if(last){
@@ -96,14 +96,18 @@ export default class Document extends Super{
 	}
 
 	shouldContinueCompose(){
-		const {media,viewport}=this.context
 		const {compose2Page,mode}=this.state
-
+		if(mode=="content" && this.continueComposing==false)
+			return false
+		
+		const {media,viewport}=this.context
+		
 		if(media=="screen"){
-			if(this.contentHeight>viewport.height){
+			let contentHeight=this.contentHeight
+			if(contentHeight>viewport.height){
 				switch(mode){
 				case "content":
-					return this.contentHeight<(screen.height-this.canvas.getClientRect().top)
+					return this.continueComposing=contentHeight<(screen.height-this.canvas.getClientRect().top)
 				case "performant":
 				default:
 					return this.computed.composed.length<compose2Page+1
