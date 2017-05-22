@@ -77,7 +77,7 @@ const Root=connect((state,{domain})=>{
 	constructor(){
 		super(...arguments)
 		this.els=new Map()
-		this.tree=new Map()
+		this.parents=new Map()
 		this.componentWillReceiveProps(this.props)
 	}
 
@@ -86,59 +86,79 @@ const Root=connect((state,{domain})=>{
 			docId:this.docId
 		}
 	}
-	
+
 	componentWillReceiveProps({content,domain}){
-		if(content.size>50){//replace mode
+		if(this.doc && content.size>50){//replace mode
 			const changed=content.filter(function(v,k){
 				return v!=this.get(k)
 			},this.props.content)
 			.forEach((v,k)=>{
-				let parentId=this.tree.get(k)
+				let parentId=this.parents.get(k)
 				let parentEl=this.els.get(parentId)
+				let children=parentEl.props.children
+				let index=children.indexOf(k)
+				let changed=this.createChildElement(k,content,domain,this.props.content)
+				children[index]=changed
+
+				function changeParent(id){
+					let el=this.els.get(id)
+					let changed=React.cloneElement(el,{changed})
+
+					let parentId=this.parents.get(id)
+					let parentEl=this.els.get(parentId)
+					let children=parentEl.props.children
+					let index=children.indexOf(k)
+					children[index]=changed
+
+					if(parentId!="root")
+						changeParent(parentId)
+				}
+
+				changeParent(parentId);
 			})
-			
-			this.doc=createChildElement("root",content,domain,this.props.content)
+
+
 		}else{//reproduce mode
-			this.doc=createChildElement("root",content,domain,this.props.content)
+			this.doc=this.createChildElement("root",content,domain,this.props.content)
 		}
 	}
-	
+
 	createChildElement(id,content,domain,lastContent){
 		let current=content.get(id)
 		let {type, props, children}=current.toJS()
 		let Child=domain[type[0].toUpperCase()+type.substr(1)]
 		let elChildren=children
-		
+
 		if(Array.isArray(children))
 			elChildren=children.map(a=>{
-				this.tree.set(a,id)
+				this.parents.set(a,id)
 				return this.createChildElement(a,content,domain,lastContent)
 			})
-		
+
 		let changed=false
-		
+
 		if(lastContent){
 			let last=lastContent.get(id)
-			
+
 			if(current!=last){
 				changed=true
 			}else if(Array.isArray(children)){
 				changed=!!elChildren.find(({props:{changed}})=>changed)
 			}
 		}
-		
+
 		let el
-		
-		el=(<Child 
-				key={id} 
+
+		el=(<Child
+				key={id}
 				id={id}
 				{...props}
 				children={elChildren}
 				changed={changed}
 			/>)
-		
+
 		this.els.set(id,el)
-		
+
 		return el
 	}
 
