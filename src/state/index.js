@@ -9,10 +9,11 @@ export function createState(doc, content, docReducer=state=>state){
 	let id=findFirstCursorable(content)
 
 	const INIT_STATE=Map({
-			doc, //source file
-			content, // models
-			selection:Immutable.fromJS({start:{id,at:0},end:{id,at:0},cursorAt:"end"})
-			})
+		doc, //source file
+		content, // models
+		selection:Immutable.fromJS({start:{id,at:0},end:{id,at:0},cursorAt:"end"}),
+		violent:{}
+	})
 
 	return createStore(
 		docReducer,

@@ -78,6 +78,7 @@ export default {
 						if(changed===false){
 							return state
 						}else{
+							let changing=new Set()
 							if(typeof(changed)=="object"){
 								let {selection,styles,removed,updated}=changed
 								if(selection)
@@ -90,6 +91,7 @@ export default {
 									let content=state.get("content")
 									content=content.withMutations(content=>
 										removed.forEach(id=>{
+											changing.add(id)
 											content.delete(id)
 											let parent=getParentId(state,id)
 											if(parent)
@@ -102,6 +104,7 @@ export default {
 								if(updated){
 									let content=state.get("content")
 									Object.keys(changed.updated).forEach(id=>{
+										changing.add(id)
 										content=content.set(id,getContent(state,id).set("children",Immutable.fromJS(changed.updated[id])))
 									})
 
@@ -109,8 +112,13 @@ export default {
 								}
 							}
 
-							if(changedContent.size!=0)
+							if(changedContent.size!=0){
 								state=state.mergeIn(["content"],changedContent)
+								changedContent.forEach((v,k)=>changing.add(k))
+							}
+							
+							if(changing.size)
+								state.get("violent").changing=changing
 						}
 					}
 					state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))

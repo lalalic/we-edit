@@ -88,6 +88,7 @@ const Root=connect((state,{domain})=>{
 	}
 
 	componentWillReceiveProps({content,domain}){
+		return this.doc=this.createChildElement("root",content,domain,this.props.content)
 		if(this.doc && content.size>50){//replace mode
 			const changed=content.filter(function(v,k){
 				return v!=this.get(k)

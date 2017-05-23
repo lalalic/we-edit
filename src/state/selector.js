@@ -12,6 +12,10 @@ export function getContent(state,id){
 	return state.getIn(`content.${id}`.split("."))
 }
 
+export function getChanged(state){
+	return state.get("violent").changing
+}
+
 export function recordComposer(composer,t){
 	let editorId=composer.context.docId
 	let contentId=composer.props.id
