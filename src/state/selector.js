@@ -12,6 +12,7 @@ export function getContent(state,id){
 	return state.getIn(`content.${id}`.split("."))
 }
 
+//experimental
 export function getChanged(state){
 	return state.get("violent").changing
 }

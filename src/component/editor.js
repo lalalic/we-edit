@@ -3,7 +3,7 @@ import {connect, connectAdvanced} from "react-redux"
 
 import Models from "model"
 
-import {getContent,getChanged} from "state/selector"
+import {getContent} from "state/selector"
 import Cursor from "state/cursor"
 import Input from "input"
 import uuid from "tools/uuid"
@@ -89,38 +89,6 @@ const Root=connect((state,{domain})=>{
 
 	componentWillReceiveProps({content,changed,domain}){
 		this.doc=this.createChildElement("root",content,domain,this.props.content)
-		/*
-		if(this.doc && content.size>50){//replace mode
-			changed.forEach(k=>{
-				let parentId=this.parents.get(k)
-				let parentEl=this.els.get(parentId)
-				let children=parentEl.props.children
-				let index=content.get(parentId).toJS().children.indexOf(k)
-				let changed=this.createChildElement(k,content,domain,this.props.content)
-				children[index]=changed
-
-				const changeParent=id=>{
-					let el=this.els.get(id)
-					let changed=React.cloneElement(el,{changed:true})
-
-					let parentId=this.parents.get(id)
-					
-					if(parentId){
-						let parentEl=this.els.get(parentId)
-						let children=parentEl.props.children
-						let index=content.get(parentId).toJS().children.indexOf(id)
-						children[index]=changed
-						changeParent(parentId)
-					}else{
-						this.doc=changed
-					}
-				}
-				changeParent(parentId);
-			})
-		}else{//reproduce mode
-			this.doc=this.createChildElement("root",content,domain,this.props.content)
-		}
-		*/
 	}
 
 	createChildElement(id,content,domain,lastContent){
