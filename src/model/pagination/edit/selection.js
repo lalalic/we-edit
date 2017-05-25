@@ -17,8 +17,7 @@ export class Selection extends Component{
 		end:PropTypes.shape({
 			id: PropTypes.string.isRequired,
 			at: PropTypes.number.isRquired
-		}).isRequired,
-		getRatio: PropTypes.func
+		}).isRequired
 	}
 	
 	static defaultProps={
@@ -141,7 +140,17 @@ export class Selection extends Component{
 			this.path=path.join(" ")
 		}
 	}
-
 }
 
-export default connect(state=>getSelection(state))(Selection)
+export default connect(state=>{
+	return getSelection(state)
+})(
+class extends Component{
+	static propTypes={
+		onRef:PropTypes.func.isRequired
+	}
+	render(){
+		const {onRef,...others}=this.props
+		return <Selection {...others} ref={onRef}/>
+	}
+})

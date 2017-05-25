@@ -114,33 +114,48 @@ export class text extends Base{
 	remove_withSelection(){
 		const {start,end}=this.selection
 		const target0=this.getNode(start.id)
-		const target1=this.getNode(end.id)
-		const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
-		let ancestors0=target0.parentsUntil(ancestor)
-		let ancestors1=target1.parentsUntil(ancestor)
+		if(start.id==end.id){
+			let text=target0.text()
+			target0.text(text.substring(0,start.at)+text.substring(end.at))
+			this.renderChanged(target0.parent().get(0))
+			this.updateSelection(start.id,start.at)
+		}else{
+			
+			const target1=this.getNode(end.id)
+			const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
+			let ancestors0=target0.parentsUntil(ancestor)
+			let ancestors1=target1.parentsUntil(ancestor)
 
-		const $=this.file.officeDocument.content
-		const willRemove=a=>{
-			this.removeContent(a.attribs.id || $(a).find("[id]").attr("id"))
+			const $=this.file.officeDocument.content
+			const willRemove=a=>{
+				this.removeContent(a.attribs.id || $(a).find("[id]").attr("id"))
+			}
+
+			ancestors0.last().nextUntil(ancestors1.last()).each((i,a)=>willRemove(a)).remove()
+
+			ancestors0.each(a=>$(a).nextAll().each((i,a)=>willRemove(a)).remove())
+			ancestors1.each(a=>$(a).prevAll().each((i,a)=>willRemove(a)).remove())
+
+			let text=target0.text()
+			target0.text(text.substring(0,start.at))
+
+			text=target1.text()
+			target1.text(text.substr(end.at))
+
+
+			switch(ancestor.get(0).name){
+			case "w:p":
+			case "w:r":
+				this.renderChanged(ancestor.get(0))
+			break
+			default:
+				willRemove(ancestors1.last().get(0))
+				ancestors0.last().append(ancestors1.last().children())
+				this.renderChanged(ancestors0.last().get(0))
+			break
+			}
+
+			this.updateSelection(start.id,start.at)
 		}
-
-		ancestors0.last().nextUntil(ancestors1.last()).each(willRemove).remove()
-
-		ancestors0.each(a=>$(a).nextAll().each(willRemove).remove())
-		ancestors1.each(a=>$(a).prevAll().each(willRemove).remove())
-
-		let text=target0.text()
-		target0.text(text.substring(0,start.at))
-
-		text=target1.text()
-		target1.text(text.substr(end.at))
-
-
-		ancestors0.last().append(ancestors1.last().children())
-		willRemove(ancestors1.last().get(0))
-		ancestors1.last().remove()
-
-		this.renderChanged(ancestors0.last().get(0))
-		this.updateSelection(start.id,start.at)
 	}
 }

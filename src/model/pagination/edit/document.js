@@ -162,11 +162,6 @@ export default class Document extends Super{
 				delete props.minHeight
 			}
 
-
-			let selection=getSelection(this.context.store.getState())
-			let {end,start,active,cursorAt}=selection
-			let {id,at}=selection[cursorAt]
-
 			return (
 				<div ref={a=>this.root=a}>
 					<Base.Composed {...props} pages={pages}
@@ -174,9 +169,8 @@ export default class Document extends Super{
 						onPageShow={e=>this.updateCursorAndSelection()}>
 						{composeMoreTrigger}
 
-						<SelectionState>
-							<Cursor {...{id,at,active}} ref={a=>this.cursor=a}/>
-						</SelectionState>
+						<Cursor onRef={a=>this.cursor=a}/>
+						<Selection onRef={a=>this.selection=a}/>
 					</Base.Composed>
 				</div>
 			)
@@ -203,7 +197,7 @@ export default class Document extends Super{
 
 		updateCursorAndSelection(){
 			this.cursor.forceUpdate()
-			//this.selection.foreceUpdate()
+			this.selection.forceUpdate()
 		}
 
 		active(){
@@ -328,20 +322,3 @@ export default class Document extends Super{
 		}
 	}
 }
-
-let lastContent=null
-const SelectionState=connect(state=>{
-	let selection=getSelection(state)
-	let content=state.get("content")
-	let {end,start,active,cursorAt}=selection
-	let {id,at}=selection[cursorAt]
-	let contentChanged=!!(lastContent && lastContent!==content)
-	lastContent=content
-	return {id,at,active, contentChanged}
-})(
-class extends Component{
-	render(){
-		const {children,id,at,active,contentChanged}=this.props
-		return React.cloneElement(children,{id,at,active,contentChanged})
-	}
-})

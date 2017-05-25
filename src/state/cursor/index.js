@@ -6,7 +6,7 @@ import {ACTION} from "state"
 import get from "lodash.get"
 import getClientRect from "tools/get-client-rect"
 
-export default class Cursor extends Component{
+export class Cursor extends Component{
 	static contextTypes={
 		store: PropTypes.any,
 		docId: PropTypes.string,
@@ -193,3 +193,23 @@ export default class Cursor extends Component{
 		}
 	}
 }
+
+let lastContent=null
+export default connect(state=>{
+	let selection=getSelection(state)
+	let content=state.get("content")
+	let {end,start,active,cursorAt}=selection
+	let {id,at}=selection[cursorAt]
+	let contentChanged=!!(lastContent && lastContent!==content)
+	lastContent=content
+	return {id,at,active, contentChanged}
+})(
+class extends Component{
+	static propTypes={
+		onRef:PropTypes.func.isRequired
+	}
+	render(){
+		const {onRef,...others}=this.props
+		return <Cursor {...others} ref={onRef}/>
+	}
+})

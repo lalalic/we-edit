@@ -2,6 +2,7 @@ import React, {PureComponent as Component, PropTypes} from "react"
 import Group from "./group"
 import Page from "./page"
 
+
 export default class Document extends Component{
 	static proptTypes={
 		pages: PropTypes.arrayOf(PropTypes.element),

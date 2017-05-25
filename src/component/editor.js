@@ -3,7 +3,7 @@ import {connect, connectAdvanced} from "react-redux"
 
 import Models from "model"
 
-import {getContent} from "state/selector"
+import {getContent, getChanged} from "state/selector"
 import Cursor from "state/cursor"
 import Input from "input"
 import uuid from "tools/uuid"
@@ -68,7 +68,7 @@ export class Editor extends Component{
 }
 
 const Root=connect((state,{domain})=>{
-	return {content:state.get("content"),changed:getChanged(state), domain}
+	return {content:state.get("content"),changed: getChanged(state),domain}
 })(class extends PureComponent{
 	static childContextTypes={
 		docId: PropTypes.string
@@ -86,9 +86,75 @@ const Root=connect((state,{domain})=>{
 			docId:this.docId
 		}
 	}
+	
+	changedType(id,current,last){
+		return {
+			"10":"delete", 
+			"11":"update", 
+			"01":"create"
+		}[`${last.has(id)&&1||0}${current.has(id)&&1||0}`]
+	}
 
 	componentWillReceiveProps({content,changed,domain}){
-		this.doc=this.createChildElement("root",content,domain,this.props.content)
+		return this.doc=this.createChildElement("root",content,domain,this.props.content)
+		
+		if(this.doc // editing
+			&& content.size>50 // big  
+			&& changed.size==1 //
+			&& this.changedType(changed[0], content, this.props.content)=="update"
+			){//replace mode
+			const changeParent=id=>{
+				let el=this.els.get(id)
+				let changed=React.cloneElement(el,{changed:true})
+
+				let parentId=this.parents.get(id)					
+				if(parentId){
+					let parentEl=this.els.get(parentId)
+					let children=parentEl.props.children
+					let index=content.get(parentId).toJS().children.indexOf(id)
+					children[index]=changed
+					changeParent(parentId)
+				}else{
+					this.doc=changed
+				}
+			}
+			
+			changed.forEach(k=>{
+				switch(this.changedType(k,content,this.props.content)){
+					case "delete":{
+						let parentId=this.parents.get(k)
+						let parentEl=this.els.get(parentId)
+						let children=parentEl.props.children
+						let index=this.props.content.get(parentId).toJS().children.indexOf(k)
+						children.splice(index,1)
+						changeParent(parentId)
+						break
+					}
+					case "update":{
+						let parentId=this.parents.get(k)
+						let parentEl=this.els.get(parentId)
+						let children=parentEl.props.children
+						let index=content.get(parentId).toJS().children.indexOf(k)
+						children[index]=this.createChildElement(k,content,domain,this.props.content)
+						changeParent(parentId);
+						break
+					}
+					case "create":{
+						let parentId=this.parents.get(k)
+						let parentEl=this.els.get(parentId)
+						let children=parentEl.props.children
+						let index=this.props.content.get(parentId).toJS().children.indexOf(k)
+						children.splice(index,1)
+						changeParent(parentId)
+						break
+					}
+				}
+			})
+		}else{//reproduce mode
+			this.els=new Map()
+			this.parents=new Map()
+			this.doc=this.createChildElement("root",content,domain,this.props.content)
+		}
 	}
 
 	createChildElement(id,content,domain,lastContent){

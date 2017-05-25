@@ -53,11 +53,14 @@ export class Properties{
 		if(t=x.attribs['w:space'])
 			cols.space=this.docx.dxa2Px(x.attribs['w:space'])
 
-		cols.data=this.docx.officeDocument.content(x).find("w\\:col").toArray()
+		let data=this.docx.officeDocument.content(x).find("w\\:col").toArray()
 			.map(col=>({
 				width:this.docx.dxa2Px(col.attribs['w:w']),
 				space:this.docx.dxa2Px(col.attribs['w:space'])
 			}))
+		if(data.length)
+			cols.data=data
+		
 		return cols
 	}
 

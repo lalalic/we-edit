@@ -4,7 +4,7 @@ export default class Changer{
 		this._state=state
 		this._updated={}
 		this._removed=[]
-		this._selection={}
+		this._selection=getSelection(state)
 	}
 	
 	getParentId(id){
@@ -25,7 +25,7 @@ export default class Changer{
 	}
 	
 	get selection(){
-		return getSelection(this._state)
+		return this._selection
 	}
 	
 	get file(){
