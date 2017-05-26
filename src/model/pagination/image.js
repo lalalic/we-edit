@@ -9,7 +9,7 @@ export default class Image extends Super{
 		width: 1,
 		height:1
 	}
-    createComposed2Parent(){
+    createComposed2Parent(props){
         const {src, width,height}=this.props
         let availableSpace=this.context.parent.nextAvailableSpace({width,height})
         return <image {...{
@@ -17,6 +17,6 @@ export default class Image extends Super{
                 height,
                 xlinkHref: src,
                 y:-height
-            }} />
+            }} {...props}/>
     }
 }

@@ -15,6 +15,7 @@ export default class Listener extends Component{
 		return <input ref={a=>this.input=a} type="text" value={this.state.value} {...others}
 					{...reactComposition({
 							onChange:e=>{
+								debugger
 								let value = e.target.value
 								if(e.reactComposition.composition === false){
 									dispatch(ACTION.Text.INSERT(value))

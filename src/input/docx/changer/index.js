@@ -1,3 +1,4 @@
 import {text} from "./text"
+import {entity} from "./entity"
 
-export default {text}
+export default {text,entity}

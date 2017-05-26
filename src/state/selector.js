@@ -121,7 +121,7 @@ export function prevCursorable(state,id){
 
 export function getNode(docId, id,at){
 	let nodes=document.querySelectorAll(`#${docId} [data-content="${id}"]`)
-	if(nodes.length==1 || at==undefined)
+	if(nodes.length==1 || at==undefined || at<0)
 		return nodes[0]
 
 	for(let i=0, len=nodes.length; i<len; i++){

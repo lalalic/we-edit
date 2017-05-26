@@ -34,9 +34,16 @@ export class Cursor extends Component{
 		const {active,id,at}=this.props
 		const {docId, getCursorInput}=this.context
 		this.node=getNode(docId,id, at)
-		if(!this.node){
-			this.style=null
+		this.style=null
+			
+		if(!this.node)
 			return
+
+		switch(this.node.tagName){
+		case "image":
+			
+			return
+		break
 		}
 		this.style=this.position(docId,id,at)
 

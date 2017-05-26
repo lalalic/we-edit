@@ -117,6 +117,10 @@ export const Selection={
 	REMOVE: ()=>({type:"selection/REMOVE"})
 }
 
-export const ACTION={Cursor, Text, Selection}
+export const Entity={
+	RESIZE: delta=>({type:"entity/RESIZE",payload:delta})
+}
+
+export const ACTION={Cursor, Text, Selection,Entity}
 
 export default ACTION

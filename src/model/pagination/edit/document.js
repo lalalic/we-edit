@@ -170,7 +170,9 @@ export default class Document extends Super{
 						{composeMoreTrigger}
 
 						<Cursor onRef={a=>this.cursor=a}/>
-						<Selection onRef={a=>this.selection=a}/>
+						<Selection onRef={a=>this.selection=a}
+							onMove={this.onMove.bind(this)}
+							onResize={this.onResize.bind(this)}/>
 					</Base.Composed>
 				</div>
 			)
@@ -218,6 +220,15 @@ export default class Document extends Super{
 			if(active!=docId)
 				store.dispatch(ACTION.Cursor.ACTIVE(docId))
 		}
+		
+		onResize(e){
+			let {docId, store}=this.context
+			store.dispatch(ACTION.Entity.RESIZE(e))
+		}
+		
+		onMove(e){
+			
+		}
 
 		onClick(e){
 			const dispatch=this.context.store.dispatch
@@ -256,6 +267,9 @@ export default class Document extends Super{
 					}
 				}else
 					dispatch(ACTION.Cursor.AT(contentID,from+end))
+			break
+			case "image":
+				dispatch(ACTION.Selection.SELECT(target.dataset.content,-1))
 			break
 			}
 

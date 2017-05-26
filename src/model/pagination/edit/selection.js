@@ -7,6 +7,8 @@ import {Text} from "model/pagination"
 import offset from "mouse-event-offset"
 import getClientRect from "tools/get-client-rect"
 
+import Extent from "state/selection/extent"
+
 export class Selection extends Component{
 	static displayName="selection"
 	static propTypes={
@@ -31,7 +33,16 @@ export class Selection extends Component{
 		getRatio: PropTypes.func
 	}
 	path=""
+	type="Caret"
 	render(){
+		if(this.type=="image"){
+			return <Extent 
+				path={this.path} 
+				spots={this.spots}
+				onResize={this.props.onResize}
+				onMove={this.props.onMove}
+				/>
+		}
 		return <path
 				d={this.path}
 				fill="lightblue"
@@ -55,10 +66,39 @@ export class Selection extends Component{
 				}}
 				/>
 	}
+	
+	image(node){
+		let {top,left,bottom,right}=getClientRect(node)
+		this.spots=[
+			{x:left,y:top,resize:"nw"},
+			{x:(left+right)/2,y:top,resize:"n"},
+			{x:right,y:top,resize:"ne"},
+			{x:right,y:(top+bottom)/2,resize:"e"},
+			{x:right,y:bottom,resize:"nw"},
+			{x:(left+right)/2,y:bottom,resize:"n"},
+			{x:left,y:bottom,resize:"ne"},
+			{x:left,y:(top+bottom)/2,resize:"e"},
+		]
+		return `M${left} ${top} L${right} ${top} L${right} ${bottom} L${left} ${bottom} Z`
+	}
 
 	componentWillReceiveProps({start,end},{docId,store,getRatio}){
 		if(start.id==end.id && start.at==end.at){
-			this.path=""
+			let node=getNode(docId,start.id,start.at)
+			if(!node){
+				this.type=""
+				return
+			}				
+			
+			switch(node.tagName){
+			case "image":
+				this.type="image"
+				this.path=this.image(node)
+			break
+			default:
+				this.type=""
+				this.path=""
+			}
 			return
 		}
 
@@ -138,6 +178,7 @@ export class Selection extends Component{
 
 			path.splice(path.length,0,...l)
 			this.path=path.join(" ")
+			this.type="Range"
 		}
 	}
 }

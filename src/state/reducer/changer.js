@@ -32,6 +32,10 @@ export default class Changer{
 		return getFile(this._state)
 	}
 	
+	getContent(id){
+		return getContent(this._state,id).toJS()
+	}
+	
 	updateChildren(id, f){
 		if(!this._updated[id])
 			this._updated[id]=getContent(this._state,id).get("children").toJS()
