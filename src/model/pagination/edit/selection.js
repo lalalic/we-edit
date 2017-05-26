@@ -97,7 +97,7 @@ export class Selection extends Component{
 			let x0=x(firstNode,start.id,start.at)
 			let x1=x(lastNode, end.id, end.at)
 			let {top,height}=getClientRect(firstLine)
-			return `M${x0} ${top} L${x1} ${top} L${x1} ${top+height} L${x0} ${top+height} L${x0} ${top}`
+			this.path=`M${x0} ${top} L${x1} ${top} L${x1} ${top+height} L${x0} ${top+height} L${x0} ${top}`
 		}else{
 			let all=firstLine.parentNode.children
 			const indexOf=(aa,a)=>{

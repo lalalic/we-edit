@@ -187,10 +187,22 @@ export default class Document extends Super{
 			this.ratio=viewBoxWidth/width
 
 			this.context.store.dispatch(ACTION.Cursor.ACTIVE(this.context.docId))
+			
+			const selection=()=>window.getSelection()||document.getSelection()
+			
+			svg.addEventListener("click", e=>{
+				if(selection.done===false)
+					this.onClick(e)
+			})
 
-			svg.addEventListener("click", this.onClick.bind(this))
-
-			svg.addEventListener("mouseup", this.onSelect.bind(this))
+			svg.addEventListener("mouseup", e=>{
+				selection.done=false
+				let sel=selection()
+				if(sel.type=="Range"){
+					this.onSelect(sel)
+					selection.done=true
+				}
+			})
 
 			this.getClientRect=()=>svg.getBoundingClientRect()
 		}
@@ -205,8 +217,6 @@ export default class Document extends Super{
 			let {active}=getSelection(store.getState())
 			if(active!=docId)
 				store.dispatch(ACTION.Cursor.ACTIVE(docId))
-			else
-				this.context.getCursorInput().forceUpdate()
 		}
 
 		onClick(e){
@@ -252,69 +262,66 @@ export default class Document extends Super{
 			this.active()
 		}
 
-		onSelect(e){
+		onSelect(selection){
 			const dispatch=this.context.store.dispatch
 			const docId=this.context.docId
 
-			let selection=window.getSelection()||document.getSelection()
-			if(selection.type=="Range"){
-				const line=n=>{
-					while(n.getAttribute("class")!="line")
-						n=n.parentNode
-					return n
-				}
+			const line=n=>{
+				while(n.getAttribute("class")!="line")
+					n=n.parentNode
+				return n
+			}
 
-				let first=selection.anchorNode
-				first=first.parentNode//text
-				let firstId=first.dataset.content
-				let firstAt=first.dataset.endAt-first.textContent.length+selection.anchorOffset
-				let firstLine=line(first)
-				firstLine=getClientRect(firstLine)
+			let first=selection.anchorNode
+			first=first.parentNode//text
+			let firstId=first.dataset.content
+			let firstAt=first.dataset.endAt-first.textContent.length+selection.anchorOffset
+			let firstLine=line(first)
+			firstLine=getClientRect(firstLine)
 
-				let last=selection.focusNode
-				last=last.parentNode//text
-				let lastId=last.dataset.content
-				let lastAt=last.dataset.endAt-last.textContent.length+selection.focusOffset
-				let lastLine=line(last)
-				lastLine=getClientRect(lastLine)
+			let last=selection.focusNode
+			last=last.parentNode//text
+			let lastId=last.dataset.content
+			let lastAt=last.dataset.endAt-last.textContent.length+selection.focusOffset
+			let lastLine=line(last)
+			lastLine=getClientRect(lastLine)
 
-				const firstLast=a=>{
-					dispatch(ACTION.Selection.SELECT(
-							firstId,
-							firstAt,
-							lastId,
-							lastAt
-						))
-					dispatch(ACTION.Selection.END_AT(lastId,lastAt))
-				}
+			const forward=a=>{
+				dispatch(ACTION.Selection.SELECT(
+						firstId,
+						firstAt,
+						lastId,
+						lastAt
+					))
+				dispatch(ACTION.Selection.END_AT(lastId,lastAt))
+			}
 
-				const lastFirst=a=>{
-					dispatch(ACTION.Selection.SELECT(
-							lastId,
-							lastAt,
-							firstId,
-							firstAt
-						))
-					dispatch(ACTION.Selection.START_AT(lastId,lastAt))
-				}
+			const backward=a=>{
+				dispatch(ACTION.Selection.SELECT(
+						lastId,
+						lastAt,
+						firstId,
+						firstAt
+					))
+				dispatch(ACTION.Selection.START_AT(lastId,lastAt))
+			}
 
-				if(firstLine.top>lastLine.top){
-					lastFirst()
-				}else if(firstLine.top<lastLine.top){
-					firstLast()
-				}else{
-					if(first!=last){
-						if(getClientRect(first).left<getClientRect(last).left){
-							firstLast()
-						}else{
-							lastFirst()
-						}
+			if(firstLine.top>lastLine.top){
+				backward()
+			}else if(firstLine.top<lastLine.top){
+				forward()
+			}else if(firstLine.top==lastLine.top){
+				if(first!=last){
+					if(getClientRect(first).left<getClientRect(last).left){
+						forward()
 					}else{
-						if(firstAt<lastAt){
-							firstLast()
-						}else{
-							lastFirst()
-						}
+						backward()
+					}
+				}else{
+					if(firstAt<lastAt){
+						forward()
+					}else{
+						backward()
 					}
 				}
 			}

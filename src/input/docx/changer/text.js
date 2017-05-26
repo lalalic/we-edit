@@ -119,8 +119,7 @@ export class text extends Base{
 			target0.text(text.substring(0,start.at)+text.substring(end.at))
 			this.renderChanged(target0.parent().get(0))
 			this.updateSelection(start.id,start.at)
-		}else{
-			
+		}else{	
 			const target1=this.getNode(end.id)
 			const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
 			let ancestors0=target0.parentsUntil(ancestor)
