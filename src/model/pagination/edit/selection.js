@@ -70,14 +70,14 @@ export class Selection extends Component{
 	image(node){
 		let {top,left,bottom,right}=getClientRect(node)
 		this.spots=[
-			{x:left,y:top,resize:"nw"},
-			{x:(left+right)/2,y:top,resize:"n"},
-			{x:right,y:top,resize:"ne"},
-			{x:right,y:(top+bottom)/2,resize:"e"},
-			{x:right,y:bottom,resize:"nw"},
-			{x:(left+right)/2,y:bottom,resize:"n"},
-			{x:left,y:bottom,resize:"ne"},
-			{x:left,y:(top+bottom)/2,resize:"e"},
+			{x:left,y:top,resize:"nwse"},
+			{x:(left+right)/2,y:top,resize:"ns",},
+			{x:right,y:top,resize:"nesw"},
+			{x:right,y:(top+bottom)/2,resize:"ew"},
+			{x:right,y:bottom,resize:"-nwse"},
+			{x:(left+right)/2,y:bottom,resize:"-ns"},
+			{x:left,y:bottom,resize:"-nesw"},
+			{x:left,y:(top+bottom)/2,resize:"-ew"},
 		]
 		return `M${left} ${top} L${right} ${top} L${right} ${bottom} L${left} ${bottom} Z`
 	}

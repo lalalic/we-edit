@@ -16,7 +16,8 @@ export default class Image extends Super{
                 width,
                 height,
                 xlinkHref: src,
-                y:-height
+                y:-height,
+				preserveAspectRatio:"none"
             }} {...props}/>
     }
 }

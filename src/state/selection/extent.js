@@ -28,25 +28,34 @@ export class Extent extends Component{
 				cursor="crosshair"
 				onMouseUp={e=>this.setState({resize:undefined})}
 				onMouseMove={e=>{
-					if(Date.now()-this.time<150)
-						return
 					let x=e.clientX-this.left
 					let y=e.clientY-this.top
 					switch(resize){
-					case "n":
-						y && onResize({y})
+					case "-ns":
+						y*=-1
+					case "ns":
+						y && onResize({y:-y})
 					break
-					case "e":
-						x && Math.abs(x)<30 && onResize({x})
+					case "-ew":
+						x*=-1
+					case "ew":
+						x && onResize({x})
 					break
-					default:
+					
+					case "-nwse":
+						x*=-1
+					case "nwse":
+						x && y && onResize({x:-x,y})
+					break
+					
+					case "-nesw":
+						x*=-1
+					case "nesw":
 						x && y && onResize({x,y})
 					break
 					}
 					this.left=e.clientX
 					this.top=e.clientY
-					this.time=Date.now()
-					//this.setState({resize:undefined})
 				}}
 				/>
 		}
@@ -66,7 +75,6 @@ export class Extent extends Component{
 		this.setState({resize})
 		this.left=e.clientX
 		this.top=e.clientY
-		this.time=Date.now()
 	}
 
 

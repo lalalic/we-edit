@@ -96,13 +96,23 @@ const Root=connect((state,{domain})=>{
 	}
 
 	componentWillReceiveProps({content,changed,domain}){
-		return this.doc=this.createChildElement("root",content,domain,this.props.content)
+		//return this.doc=this.createChildElement("root",content,domain,this.props.content)
 		
 		if(this.doc // editing
 			&& content.size>50 // big  
-			&& changed.size==1 //
-			&& this.changedType(changed[0], content, this.props.content)=="update"
 			){//replace mode
+			
+			if(changed.size>1){
+				let children=new Set()
+				changed.forEach(k=>{
+					let thisChildren=content.get(k).get("children")
+					if(thisChildren)
+						thisChildren.toJS()
+							.forEach(a=>children.add(a))
+				})
+				changed.forEach(k=>children.has(k) && changed.delete(k))
+			}
+			
 			const changeParent=id=>{
 				let el=this.els.get(id)
 				let changed=React.cloneElement(el,{changed:true})

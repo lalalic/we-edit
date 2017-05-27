@@ -22,9 +22,8 @@ export default class entity extends Changer{
 		}else if(x===undefined){
 			this.resize_height(target,height+y)
 		}else{
-			let ratio=Math.min(Math.abs(x)/width,Math.abs(y)/height)
-			
-			this.resize_width_height(target,width,height)
+			let ratio=1+Math.max(Math.abs(x)/width,Math.abs(y)/height)*x/Math.abs(x)
+			this.resize_width_height(target,width*ratio,height*ratio)
 		}
 		return this
 	}

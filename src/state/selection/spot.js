@@ -21,7 +21,7 @@ export default class Spot extends Component{
 		}
 		
 		if(resize){
-			props.cursor=`${resize}-resize`
+			props.cursor=`${resize.replace("-","")}-resize`
 			props.onMouseDown=e=>onStartResize(resize,e)
 		}
 		
