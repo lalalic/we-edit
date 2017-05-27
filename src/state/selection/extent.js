@@ -28,7 +28,7 @@ export class Extent extends Component{
 				cursor="crosshair"
 				onMouseUp={e=>this.setState({resize:undefined})}
 				onMouseMove={e=>{
-					if(Date.now()-this.time<500)
+					if(Date.now()-this.time<150)
 						return
 					let x=e.clientX-this.left
 					let y=e.clientY-this.top

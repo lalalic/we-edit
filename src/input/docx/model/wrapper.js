@@ -5,7 +5,7 @@ export default function(Models){
 		static displayName="wrapper"
 
 		render(){
-			let {children, id, ...others}=this.props
+			let {children, id, changed, selfChanged, ...others}=this.props
 			return React.cloneElement(children[0], others)
 		}
 	}

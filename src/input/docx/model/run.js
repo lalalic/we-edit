@@ -24,7 +24,7 @@ export default function(Models){
 			this.componentWillReceiveProps(this.props,this.context)
 		}
 
-		componentWillReceiveProps({children,id,namedStyle,...direct},context){
+		componentWillReceiveProps({children,id,namedStyle,changed,selfChanged,...direct},context){
 			const styles=context.styles
 			let style=styles[namedStyle||this.constructor.namedStyle]
 			
@@ -51,9 +51,9 @@ export default function(Models){
 				<span>
 				{
 					React.Children.map(this.props.children,a=>{
-						if(a.type.displayName.endsWith("-text"))
+						if(a.type.displayName.endsWith("-text")){
 							return React.cloneElement(a,this.style)
-						else
+						}else
 							return a
 					})
 				}

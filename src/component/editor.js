@@ -169,26 +169,32 @@ const Root=connect((state,{domain})=>{
 				return this.createChildElement(a,content,domain,lastContent)
 			})
 
-		let changed=false
+		let changed=false, selfChanged=false
 
 		if(lastContent){
 			let last=lastContent.get(id)
-
+			
 			if(current!=last){
 				changed=true
 			}else if(Array.isArray(children)){
 				changed=!!elChildren.find(({props:{changed}})=>changed)
 			}
+			
+			if(Array.isArray(children)){
+				selfChanged=last && current.get("props")!=last.get("props")
+			}else{
+				if(selfChanged=changed)
+					console.log(`${id} self changed=${selfChanged}`)
+			}
 		}
 
-		let el
-
-		el=(<Child
+		let el=(<Child
 				key={id}
 				id={id}
 				{...props}
 				children={elChildren}
 				changed={changed}
+				selfChanged={selfChanged}
 			/>)
 
 		this.els.set(id,el)

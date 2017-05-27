@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from "react"
 
-export default class Extent extends Component{
+export default class Spot extends Component{
 	static propTypes={
 		x:PropTypes.number.isRequired,
 		y:PropTypes.number.isRequired,
