@@ -172,7 +172,9 @@ export default class Document extends Super{
 						<Cursor onRef={a=>this.cursor=a}/>
 						<Selection onRef={a=>this.selection=a}
 							onMove={this.onMove.bind(this)}
-							onResize={this.onResize.bind(this)}/>
+							onResize={this.onResize.bind(this)}
+							onRotate={this.onRotate.bind(this)}
+							/>
 					</Base.Composed>
 				</div>
 			)
@@ -221,9 +223,12 @@ export default class Document extends Super{
 				store.dispatch(ACTION.Cursor.ACTIVE(docId))
 		}
 		
+		onRotate(e){
+			this.context.store.dispatch(ACTION.Entity.ROTATE(e))
+		}
+		
 		onResize(e){
-			let {docId, store}=this.context
-			store.dispatch(ACTION.Entity.RESIZE(e))
+			this.context.store.dispatch(ACTION.Entity.RESIZE(e))
 		}
 		
 		onMove(e){

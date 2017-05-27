@@ -8,6 +8,7 @@ import offset from "mouse-event-offset"
 import getClientRect from "tools/get-client-rect"
 
 import Extent from "state/selection/extent"
+import Rotator from "state/selection/rotator"
 
 export class Selection extends Component{
 	static displayName="selection"
@@ -32,76 +33,42 @@ export class Selection extends Component{
 		store: PropTypes.any,
 		getRatio: PropTypes.func
 	}
-	path=""
-	type="Caret"
+	
+	el=null
 	render(){
-		if(this.type=="image"){
-			return <Extent 
-				path={this.path} 
-				spots={this.spots}
-				onResize={this.props.onResize}
-				onMove={this.props.onMove}
-				/>
-		}
-		return <path
-				d={this.path}
-				fill="lightblue"
-				style={{fillOpacity:0.5}}
-				onClick={e=>{
-					let path=e.target
-
-					let [x,y]=offset(e,path)
-					let o=getClientRect(path)
-					x+=o.left
-					y+=o.top
-
-					path.setAttribute("d","")
-					let found=document.elementFromPoint(x,y)
-					found.dispatchEvent(new MouseEvent("click",{
-						clientX:x,clientY:y,
-						view:window,
-						bubbles:true,
-						cancelable:true
-					}))
-				}}
-				/>
+		return this.el
 	}
 	
 	image(node){
 		let {top,left,bottom,right}=getClientRect(node)
-		this.spots=[
-			{x:left,y:top,resize:"nwse"},
-			{x:(left+right)/2,y:top,resize:"ns",},
-			{x:right,y:top,resize:"nesw"},
-			{x:right,y:(top+bottom)/2,resize:"ew"},
-			{x:right,y:bottom,resize:"-nwse"},
-			{x:(left+right)/2,y:bottom,resize:"-ns"},
-			{x:left,y:bottom,resize:"-nesw"},
-			{x:left,y:(top+bottom)/2,resize:"-ew"},
-		]
-		return `M${left} ${top} L${right} ${top} L${right} ${bottom} L${left} ${bottom} Z`
+		return (
+				<g>
+					<Extent 
+						path={`M${left} ${top} L${right} ${top} L${right} ${bottom} L${left} ${bottom} Z`} 
+						spots={[
+								{x:left,y:top,resize:"nwse"},
+								{x:(left+right)/2,y:top,resize:"ns",},
+								{x:right,y:top,resize:"nesw"},
+								{x:right,y:(top+bottom)/2,resize:"ew"},
+								{x:right,y:bottom,resize:"-nwse"},
+								{x:(left+right)/2,y:bottom,resize:"-ns"},
+								{x:left,y:bottom,resize:"-nesw"},
+								{x:left,y:(top+bottom)/2,resize:"-ew"},
+							]}
+						onResize={this.props.onResize}
+						onMove={this.props.onMove}
+						/>
+					<Rotator
+						r={12}
+						x={(left+right)/2}
+						y={top-20}
+						onRotate={this.props.onRotate}
+						/>
+				</g>
+			)
 	}
-
-	componentWillReceiveProps({start,end},{docId,store,getRatio}){
-		if(start.id==end.id && start.at==end.at){
-			let node=getNode(docId,start.id,start.at)
-			if(!node){
-				this.type=""
-				return
-			}				
-			
-			switch(node.tagName){
-			case "image":
-				this.type="image"
-				this.path=this.image(node)
-			break
-			default:
-				this.type=""
-				this.path=""
-			}
-			return
-		}
-
+	
+	range(start,end,docId,store,getRatio){
 		let ratio=getRatio()
 		let state=store.getState()
 
@@ -177,8 +144,47 @@ export class Selection extends Component{
 			},{path:[],l:[]})
 
 			path.splice(path.length,0,...l)
-			this.path=path.join(" ")
-			this.type="Range"
+			path=path.join(" ")
+			
+			return <path
+				d={path}
+				fill="lightblue"
+				style={{fillOpacity:0.5}}
+				onClick={e=>{
+					let path=e.target
+
+					let [x,y]=offset(e,path)
+					let o=getClientRect(path)
+					x+=o.left
+					y+=o.top
+
+					path.setAttribute("d","")
+					let found=document.elementFromPoint(x,y)
+					found.dispatchEvent(new MouseEvent("click",{
+						clientX:x,clientY:y,
+						view:window,
+						bubbles:true,
+						cancelable:true
+					}))
+				}}
+				/>
+		}
+	}
+
+	componentWillReceiveProps({start,end},{docId,store,getRatio}){
+		this.el=null
+		if(start.id==end.id && start.at==end.at){
+			let node=getNode(docId,start.id,start.at)
+			if(!node)
+				return			
+			
+			switch(node.tagName){
+			case "image":
+				this.el=this.image(node)
+			break
+			}
+		}else{
+			this.el=this.range(start,end,docId,store,getRatio)
 		}
 	}
 }

@@ -56,6 +56,10 @@ export class entity extends Base{
 		}else{
 			this.renderChanged(node.get(0))
 		}
-		
+	}
+	
+	rotate(){
+		console.log("rotating")
+		return this
 	}
 }

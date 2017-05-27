@@ -304,6 +304,10 @@ export default class extends Base{
 				return new changer.entity(state,getNode,renderChanged)
 					.resize(payload)
 					.state()
+			case "entity/ROTATE":
+				return new changer.entity(state,getNode,renderChanged)
+					.rotate(payload)
+					.state()
 			case 'style/ADD':{
 				const {type,id,name,isDefault=false,...others}=payload
 				let $=docx.officeDocument.styles

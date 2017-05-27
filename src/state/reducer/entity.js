@@ -39,4 +39,8 @@ export default class entity extends Changer{
 	resize_width_height(node,x,y){
 		
 	}
+	
+	rotate(x,y){
+		
+	}
 }

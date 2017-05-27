@@ -118,7 +118,8 @@ export const Selection={
 }
 
 export const Entity={
-	RESIZE: delta=>({type:"entity/RESIZE",payload:delta})
+	RESIZE: delta=>({type:"entity/RESIZE",payload:delta}),
+	ROTATE: a=>({type:"entity/ROTATE",payload:a})
 }
 
 export const ACTION={Cursor, Text, Selection,Entity}
