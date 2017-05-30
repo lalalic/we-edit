@@ -11,7 +11,7 @@ export default class Mover extends Component{
         return (
             <g>
                 <text x={x} y={y} {...this.props}>{`${x},${y}`}</text>
-                {caret}    
+                {caret}
             </g>
         )
     }

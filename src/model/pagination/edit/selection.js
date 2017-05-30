@@ -9,6 +9,7 @@ import getClientRect from "tools/get-client-rect"
 
 import Extent from "state/selection/extent"
 import Rotator from "state/selection/rotator"
+import Range from "state/selection/range"
 
 export class Selection extends Component{
 	static displayName="selection"
@@ -22,7 +23,7 @@ export class Selection extends Component{
 			at: PropTypes.number.isRquired
 		}).isRequired
 	}
-	
+
 	static defaultProps={
 		start:{id:"",at:0},
 		end:{id:"",at:0}
@@ -33,18 +34,18 @@ export class Selection extends Component{
 		store: PropTypes.any,
 		getRatio: PropTypes.func
 	}
-	
+
 	el=null
 	render(){
 		return this.el
 	}
-	
+
 	image(node){
 		let {top,left,bottom,right}=getClientRect(node)
 		return (
 				<g>
-					<Extent 
-						path={`M${left} ${top} L${right} ${top} L${right} ${bottom} L${left} ${bottom} Z`} 
+					<Extent
+						path={`M${left} ${top} L${right} ${top} L${right} ${bottom} L${left} ${bottom} Z`}
 						spots={[
 								{x:left,y:top,resize:"nwse"},
 								{x:(left+right)/2,y:top,resize:"ns",},
@@ -67,7 +68,7 @@ export class Selection extends Component{
 				</g>
 			)
 	}
-	
+
 	range(start,end,docId,store,getRatio){
 		let ratio=getRatio()
 		let state=store.getState()
@@ -145,29 +146,8 @@ export class Selection extends Component{
 
 			path.splice(path.length,0,...l)
 			path=path.join(" ")
-			
-			return <path
-				d={path}
-				fill="lightblue"
-				style={{fillOpacity:0.5}}
-				onClick={e=>{
-					let path=e.target
 
-					let [x,y]=offset(e,path)
-					let o=getClientRect(path)
-					x+=o.left
-					y+=o.top
-
-					path.setAttribute("d","")
-					let found=document.elementFromPoint(x,y)
-					found.dispatchEvent(new MouseEvent("click",{
-						clientX:x,clientY:y,
-						view:window,
-						bubbles:true,
-						cancelable:true
-					}))
-				}}
-				/>
+			return <Range path={path} onMove={this.props.onMove}/>
 		}
 	}
 
@@ -176,8 +156,8 @@ export class Selection extends Component{
 		if(start.id==end.id && start.at==end.at){
 			let node=getNode(docId,start.id,start.at)
 			if(!node)
-				return			
-			
+				return
+
 			switch(node.tagName){
 			case "image":
 				this.el=this.image(node)

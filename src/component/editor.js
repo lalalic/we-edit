@@ -86,22 +86,22 @@ const Root=connect((state,{domain})=>{
 			docId:this.docId
 		}
 	}
-	
+
 	changedType(id,current,last){
 		return {
-			"10":"delete", 
-			"11":"update", 
+			"10":"delete",
+			"11":"update",
 			"01":"create"
 		}[`${last.has(id)&&1||0}${current.has(id)&&1||0}`]
 	}
 
 	componentWillReceiveProps({content,changed,domain}){
 		//return this.doc=this.createChildElement("root",content,domain,this.props.content)
-		
+
 		if(this.doc // editing
-			&& content.size>50 // big  
+			&& content.size>50 // big
 			){//replace mode
-			
+
 			if(changed.size>1){
 				let children=new Set()
 				changed.forEach(k=>{
@@ -112,12 +112,12 @@ const Root=connect((state,{domain})=>{
 				})
 				changed.forEach(k=>children.has(k) && changed.delete(k))
 			}
-			
+
 			const changeParent=id=>{
 				let el=this.els.get(id)
 				let changed=React.cloneElement(el,{changed:true})
 
-				let parentId=this.parents.get(id)					
+				let parentId=this.parents.get(id)
 				if(parentId){
 					let parentEl=this.els.get(parentId)
 					let children=parentEl.props.children
@@ -128,7 +128,7 @@ const Root=connect((state,{domain})=>{
 					this.doc=changed
 				}
 			}
-			
+
 			changed.forEach(k=>{
 				switch(this.changedType(k,content,this.props.content)){
 					case "delete":{
@@ -183,18 +183,17 @@ const Root=connect((state,{domain})=>{
 
 		if(lastContent){
 			let last=lastContent.get(id)
-			
+
 			if(current!=last){
 				changed=true
 			}else if(Array.isArray(children)){
 				changed=!!elChildren.find(({props:{changed}})=>changed)
 			}
-			
+
 			if(Array.isArray(children)){
 				selfChanged=last && current.get("props")!=last.get("props")
 			}else{
-				if(selfChanged=changed)
-					console.log(`${id} self changed=${selfChanged}`)
+				selfChanged=changed
 			}
 		}
 
