@@ -20,7 +20,7 @@ export class entity extends Base{
 		}else{
 			this.renderChanged(node.get(0))
 		}
-		
+
 	}
 
 	resize_height(node,y){
@@ -38,7 +38,7 @@ export class entity extends Base{
 		}else{
 			this.renderChanged(node.get(0))
 		}
-		
+
 	}
 
 	resize_width_height(node,x,y){
@@ -57,9 +57,14 @@ export class entity extends Base{
 			this.renderChanged(node.get(0))
 		}
 	}
-	
-	rotate(){
+
+	rotate({x,y}){
 		console.log("rotating")
+		return this
+	}
+
+	move({id,at}){
+		console.log("moving")
 		return this
 	}
 }

@@ -287,26 +287,31 @@ export default class extends Base{
 		let renderChanged=changed=>this.renderChanged(changed,createElement)
 		let getNode=id=>this.getRaw(docx,id)
 
+		let params=[state,getNode,renderChanged]
 		switch(type){
 			case `text/RETURN`:
-				return new changer.text(state,getNode,renderChanged)
+				return new changer.text(...params)
 					.insert("\r")
 					.state()
 			case `text/INSERT`:
-				return new changer.text(state,getNode,renderChanged)
+				return new changer.text(...params)
 					.insert(payload)
 					.state()
 			case `text/REMOVE`:
-				return new changer.text(state,getNode,renderChanged)
+				return new changer.text(...params)
 					.remove(payload)
 					.state()
 			case "entity/RESIZE":
-				return new changer.entity(state,getNode,renderChanged)
+				return new changer.entity(...params)
 					.resize(payload)
 					.state()
 			case "entity/ROTATE":
-				return new changer.entity(state,getNode,renderChanged)
+				return new changer.entity(...params)
 					.rotate(payload)
+					.state()
+			case "selection/MOVE":
+				return new changer.entity(...params)
+					.move(payload)
 					.state()
 			case 'style/ADD':{
 				const {type,id,name,isDefault=false,...others}=payload

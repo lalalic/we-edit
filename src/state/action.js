@@ -114,7 +114,11 @@ export const Selection={
 	}),
 	START_AT:(id,at)=>({type:"selection/STARTAT",payload:{id,at}}),
 	END_AT: (id,at)=>({type:"selection/ENDAT",payload:{id,at}}),
-	REMOVE: ()=>({type:"selection/REMOVE"})
+	REMOVE: ()=>({type:"selection/REMOVE"}),
+	MOVE: (id,at)=>({type:"selection/MOVE",payload:{id,at}}),
+	COPY: ()=>({type:"selection/COPY"}),
+	PASTE: (id,at)=>({type:"selection/PASTE",payload:{id,at}}),
+	CUT: ()=>({type:"selection/CUT"})
 }
 
 export const Entity={

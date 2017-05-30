@@ -11,12 +11,12 @@ export default class entity extends Changer{
 		this.renderChanged=renderChanged
 		this.xml=this.file.officeDocument.content.xml.bind(this.file.officeDocument.content)
 	}
-	
+
 	resize({x,y}){
 		let {start:{id}}=this.selection
 		const target=this.getNode(id)
 		const {size:{width,height}}=this.getContent(id).props
-		
+
 		if(y===undefined){
 			this.resize_width(target,width+x)
 		}else if(x===undefined){
@@ -27,20 +27,24 @@ export default class entity extends Changer{
 		}
 		return this
 	}
-	
+
 	resize_width(node,x){
-		
+
 	}
-	
+
 	resize_height(node,y){
-		
+
 	}
-	
+
 	resize_width_height(node,x,y){
-		
+
 	}
-	
-	rotate(x,y){
-		
+
+	rotate({x,y}){
+		return this
+	}
+
+	move({id,at}){
+		return this
 	}
 }

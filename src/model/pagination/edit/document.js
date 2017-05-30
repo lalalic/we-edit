@@ -99,9 +99,9 @@ export default class Document extends Super{
 		const {compose2Page,mode}=this.state
 		if(mode=="content" && this.continueComposing==false)
 			return false
-		
+
 		const {media,viewport}=this.context
-		
+
 		if(media=="screen"){
 			let contentHeight=this.contentHeight
 			if(contentHeight>viewport.height){
@@ -130,19 +130,62 @@ export default class Document extends Super{
 
 		static childContextTypes={
 			getRatio: PropTypes.func,
-			getWordWrapper:PropTypes.func
+			getWordWrapper:PropTypes.func,
+			positionFromPoint:PropTypes.func
 		}
 
 		getChildContext(){
 			let self=this
+			let positionFromPoint=this.positionFromPoint.bind(this)
 			return {
 				getRatio(){
 					return self.ratio
 				},
 				getWordWrapper(style){
 					return new Text.WordWrapper(style)
-				}
+				},
+				positionFromPoint
 			}
+		}
+
+		positionFromPoint(x0,y0){
+			const find=(node,selector)=>{
+				if(!node) return null
+
+				let all=node.querySelectorAll(selector)
+				for(let i=0,len=all.length,a;i<len;i++){
+					let {left,top,right,bottom}=getClientRect(all[i])
+					if(left<=x0 && x0<=right && top<=y0 && y0<=bottom){
+						return all[i]
+					}
+				}
+
+				return null
+			}
+
+			let target="g.page,g.line,text".split(",")
+				.reduce((scope,selector)=>find(scope,selector),this.root)
+
+			if(!target)
+				return null
+
+			const {store,docId}=this.context
+
+			let text=target.textContent
+			let {endAt:contentEndIndex, content:contentID}=target.dataset
+			let from=contentEndIndex-text.length
+
+			let box=getClientRect(target)
+			let x=x0-box.left
+			x=x*this.ratio
+
+			const state=store.getState()
+			const content=getContent(state, contentID).toJS()
+			let style=getContentStyle(state,docId, contentID)
+			let wordwrapper=new Text.WordWrapper(style)
+			let end=wordwrapper.widthString(x, content.children.substr(from))
+			x=wordwrapper.stringWidth(content.children.substr(from,end))
+			return {id:contentID, at:from+end, top:box.top, left:box.left+x}
 		}
 
 		render(){
@@ -191,9 +234,9 @@ export default class Document extends Super{
 			this.ratio=viewBoxWidth/width
 
 			this.context.store.dispatch(ACTION.Cursor.ACTIVE(this.context.docId))
-			
+
 			const selection=()=>window.getSelection()||document.getSelection()
-			
+
 			svg.addEventListener("click", e=>{
 				if(selection.done===false)
 					this.onClick(e)
@@ -222,17 +265,17 @@ export default class Document extends Super{
 			if(active!=docId)
 				store.dispatch(ACTION.Cursor.ACTIVE(docId))
 		}
-		
+
 		onRotate(e){
 			this.context.store.dispatch(ACTION.Entity.ROTATE(e))
 		}
-		
+
 		onResize(e){
 			this.context.store.dispatch(ACTION.Entity.RESIZE(e))
 		}
-		
-		onMove(e){
-			
+
+		onMove({id,at}){
+			this.context.store.dispatch(ACTION.Selection.MOVE(id,at))
 		}
 
 		onClick(e){
