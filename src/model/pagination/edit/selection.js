@@ -7,8 +7,7 @@ import {Text} from "model/pagination"
 import offset from "mouse-event-offset"
 import getClientRect from "tools/get-client-rect"
 
-import Extent from "state/selection/extent"
-import Rotator from "state/selection/rotator"
+import Entity from "state/selection/entity"
 import Range from "state/selection/range"
 
 export class Selection extends Component{
@@ -42,31 +41,30 @@ export class Selection extends Component{
 
 	image(node){
 		let {top,left,bottom,right}=getClientRect(node)
-		return (
-				<g>
-					<Extent
-						path={`M${left} ${top} L${right} ${top} L${right} ${bottom} L${left} ${bottom} Z`}
-						spots={[
-								{x:left,y:top,resize:"nwse"},
-								{x:(left+right)/2,y:top,resize:"ns",},
-								{x:right,y:top,resize:"nesw"},
-								{x:right,y:(top+bottom)/2,resize:"ew"},
-								{x:right,y:bottom,resize:"-nwse"},
-								{x:(left+right)/2,y:bottom,resize:"-ns"},
-								{x:left,y:bottom,resize:"-nesw"},
-								{x:left,y:(top+bottom)/2,resize:"-ew"},
-							]}
-						onResize={this.props.onResize}
-						onMove={this.props.onMove}
-						/>
-					<Rotator
-						r={12}
-						x={(left+right)/2}
-						y={top-20}
-						onRotate={this.props.onRotate}
-						/>
-				</g>
-			)
+		const {onResize, onMove, onRotate}=this.props
+		return <Entity
+					path={`M${left} ${top} L${right} ${top} L${right} ${bottom} L${left} ${bottom} Z`}
+					onMove={onMove}	
+					
+					spots={[
+							{x:left,y:top,resize:"nwse"},
+							{x:(left+right)/2,y:top,resize:"ns",},
+							{x:right,y:top,resize:"nesw"},
+							{x:right,y:(top+bottom)/2,resize:"ew"},
+							{x:right,y:bottom,resize:"-nwse"},
+							{x:(left+right)/2,y:bottom,resize:"-ns"},
+							{x:left,y:bottom,resize:"-nesw"},
+							{x:left,y:(top+bottom)/2,resize:"-ew"},
+						]}
+					onResize={onResize}
+					
+					rotate={{
+						r:12,
+						x:(left+right)/2,
+						y:top-20
+					}}
+					onRotate={onRotate}
+					/>
 	}
 
 	range(start,end,docId,store,getRatio){
@@ -100,12 +98,14 @@ export class Selection extends Component{
 			firstLine=firstLine.parentNode
 			lastLine=lastLine.parentNode
 		}
+		
+		let path
 
 		if(firstLine==lastLine){
 			let x0=x(firstNode,start.id,start.at)
 			let x1=x(lastNode, end.id, end.at)
 			let {top,height}=getClientRect(firstLine)
-			this.path=`M${x0} ${top} L${x1} ${top} L${x1} ${top+height} L${x0} ${top+height} L${x0} ${top}`
+			path=`M${x0} ${top} L${x1} ${top} L${x1} ${top+height} L${x0} ${top+height} L${x0} ${top}`
 		}else{
 			let all=firstLine.parentNode.children
 			const indexOf=(aa,a)=>{
@@ -120,7 +120,7 @@ export class Selection extends Component{
 				lines.push(all[i])
 			}
 
-			let {path,l}=lines.reduce((route, l, i)=>{
+			let {path:paths,l}=lines.reduce((route, l, i)=>{
 				let {left,top,right,bottom}=getClientRect(l)
 				let t
 				switch(i){
@@ -144,11 +144,11 @@ export class Selection extends Component{
 				return route
 			},{path:[],l:[]})
 
-			path.splice(path.length,0,...l)
-			path=path.join(" ")
-
-			return <Range path={path} onMove={this.props.onMove}/>
+			paths.splice(paths.length,0,...l)
+			path=paths.join(" ")
 		}
+		
+		return <Range path={path} onMove={this.props.onMove}/>
 	}
 
 	componentWillReceiveProps({start,end},{docId,store,getRatio}){

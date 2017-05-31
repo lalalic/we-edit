@@ -17,7 +17,7 @@ export default class Document extends Component{
 	
 	render(){
 		let {viewport,pgGap,style,media}=this.context
-		let {pages:pageInfos, width:contentWidth, minHeight=0}=this.props
+		let {pages:pageInfos, width:contentWidth, minHeight=0,onPageHide, onPageShow,...others}=this.props
 		let height=0, pages
 		let viewBoxWidth=1
 		let viewBoxHeight=1
@@ -34,7 +34,7 @@ export default class Document extends Component{
 						let newPage=(
 							<Group y={y} x={(viewBoxWidth-page.size.width)/2} key={i}>
 								<text>page: {i}</text>
-								<Page {...page}/>
+								<Page {...page} {...{onPageHide, onPageShow}}/>
 							</Group>
 						);
 						y+=(page.size.height+pgGap)
@@ -51,7 +51,8 @@ export default class Document extends Component{
 			viewBoxHeight=viewBoxWidth*height/viewport.width
 		}
 		return (
-			<svg width={viewport.width} height={height}
+			<svg {...others} 
+				width={viewport.width} height={height}
 				viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`}
 				style={style}>
 				{pages}

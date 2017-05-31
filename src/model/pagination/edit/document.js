@@ -208,6 +208,17 @@ export default class Document extends Super{
 			return (
 				<div ref={a=>this.root=a}>
 					<Base.Composed {...props} pages={pages}
+						onClick={e=>{
+							if(this.documentSelection().type!=="Range"){
+								this.onClick(e)
+							}
+						}}
+						onMouseUp={e=>{
+							let sel=this.documentSelection()
+							if(sel.type=="Range"){
+								this.onSelect(sel)
+							}
+						}}
 						onPageHide={e=>this.updateCursorAndSelection()}
 						onPageShow={e=>this.updateCursorAndSelection()}>
 						{composeMoreTrigger}
@@ -222,6 +233,10 @@ export default class Document extends Super{
 				</div>
 			)
 		}
+		
+		documentSelection(){
+			return window.getSelection()||document.getSelection()
+		}
 
 		componentDidUpdate(){
 			this.updateCursorAndSelection()
@@ -232,26 +247,9 @@ export default class Document extends Super{
 			let width=svg.getAttribute("width")
 			let [,,viewBoxWidth]=svg.getAttribute("viewBox").split(" ")
 			this.ratio=viewBoxWidth/width
-
-			this.context.store.dispatch(ACTION.Cursor.ACTIVE(this.context.docId))
-
-			const selection=()=>window.getSelection()||document.getSelection()
-
-			svg.addEventListener("click", e=>{
-				if(selection.done===false)
-					this.onClick(e)
-			})
-
-			svg.addEventListener("mouseup", e=>{
-				selection.done=false
-				let sel=selection()
-				if(sel.type=="Range"){
-					this.onSelect(sel)
-					selection.done=true
-				}
-			})
-
 			this.getClientRect=()=>svg.getBoundingClientRect()
+			
+			this.context.store.dispatch(ACTION.Cursor.ACTIVE(this.context.docId))
 		}
 
 		updateCursorAndSelection(){

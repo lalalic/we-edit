@@ -1,60 +1,22 @@
 import React, {Component, PropTypes} from "react"
 import offset from "mouse-event-offset"
 import getClientRect from "tools/get-client-rect"
-import Overlay from "./overlay"
-import Mover from "./mover"
+
+import Movable from "./movable"
 
 export default class Range extends Component{
-    static contextTypes={
-        positionFromPoint: PropTypes.func
-    }
-
-    state={}
+	static displayName="range"
     render(){
-        const {path}=this.props
-        const {move}=this.state
-        let overlay
-        if(move){
-            overlay=(
-                <Overlay cursor="default"
-                    onMouseUp={e=>this.onEndMove()}
-                    onMouseMove={e=>this.move(e.clientX, e.clientY)}
-                    >
-                    <Mover ref={a=>this.mover=a} cursor="default"/>
-                </Overlay>
-            )
-        }
+        const {path, onMove}=this.props
         return (
-            <g>
+            <Movable onMove={onMove}>
                 <path d={path}
                     fill="lightblue"
 				    style={{fillOpacity:0.5}}
-                    onMouseDown={this.onStartMove.bind(this)}
-                    onClick={this.click.bind(this)}
+                    onClick={e=>this.click(e)}
                     />
-                {overlay}
-            </g>
+            </Movable>
         )
-    }
-
-    onStartMove(){
-        this.setState({move:true})
-    }
-
-    onEndMove(){
-        let {id,at}=this.mover.state
-        this.setState({move:undefined},()=>{
-            if(id)
-                this.props.onMove(id,at)
-        })
-    }
-
-    move(x,y){
-        let pos=this.context.positionFromPoint(x,y)
-		if(!pos)
-			pos={id:undefined,left:x, top:y}
-
-		this.mover.setState(pos)
     }
 
     click(e){
@@ -73,5 +35,7 @@ export default class Range extends Component{
             bubbles:true,
             cancelable:true
         }))
+		
+		e.stopPropagation()
     }
 }

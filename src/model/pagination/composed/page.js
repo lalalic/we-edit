@@ -27,43 +27,62 @@ export default class Page extends Component{
 			footer}=this.props
 
 		let {media="print"}=this.context
-
-		let elHeader=header ? (<Group x={left} y={headerStartAt} className="header">{header}</Group>) : null
-
-		let elFooter=footer ? (<Group x={left} y={height-footerEndAt-footer.props.height} className="footer">{footer}</Group>) : null
-
-		let content=(
-					<Group x={left} y={top} className="content">
-						{columns.map((a,i)=><Group key={i} {...a}/>)}
-					</Group>
+		
+		let contents=[]
+		
+		if(header)
+			contents.push(
+				<Group key="header" 
+					x={left} y={headerStartAt} 
+					className="header">
+					{header}
+				</Group>
+			)
+		
+		contents.push(
+			<Group key="content" 
+				x={left} y={top} 
+				className="content">
+				{columns.map((a,i)=><Group key={i} {...a}/>)}
+			</Group>
+		)
+					
+		if(footer)
+			contents.push(
+				<Group key="footer" 
+					x={left} 
+					y={height-footerEndAt-footer.props.height}
+					className="footer">
+					{footer}
+				</Group>
 			)
 
 		if(media=="screen"){
 			const {display}=this.state
 			const {onPageShow=a=>a,onPageHide=a=>a}=this.props
+			
+			if(display){
+				contents.unshift(
+					<Margin key="margin" 
+						margin={{left,top,right:width-right,bottom:height-bottom}}/>
+				)
+			}else{
+				contents=null
+			}
 			return(
 				<Waypoint fireOnRapidScroll={false}
 						onEnter={e=>this.setState({display:true},onPageShow)}
 						onLeave={e=>this.setState({display:false},onPageHide)}>
 					<g className="page">
-							<Paper width={width} height={height} fill="white"/>
-							
-							{display ? <Margin margin={{left,top,right:width-right,bottom:height-bottom}}/> : null}
-							
-							{display ? elHeader : null}
-
-							{display ? content : null}
-
-							{display ? elFooter : null}
+						<Paper width={width} height={height} fill="white"/>
+						{contents}
 					</g>
 				</Waypoint>
 			)
 		}else{
 			return(
 				<Group className="page">
-					{elHeader}
-					{content}
-					{elFooter}
+					{contents}
 				</Group>
 			)
 		}
