@@ -1,5 +1,6 @@
 import {getContent, nextCursorable, prevCursorable,getSelection} from "./selector"
 import {Text as TextModel} from "pagination"
+import {ACTION as History} from "./undoable"
 
 export const Cursor={
 	ACTIVE: docId=>({type:"selection/DOC",payload:docId})
@@ -126,6 +127,6 @@ export const Entity={
 	ROTATE: a=>({type:"entity/ROTATE",payload:a})
 }
 
-export const ACTION={Cursor, Text, Selection,Entity}
+export const ACTION={Cursor, Text, Selection,Entity,History}
 
 export default ACTION

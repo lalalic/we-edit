@@ -1,17 +1,6 @@
 import Changer from "./changer"
 
 export default class entity extends Changer{
-	constructor(state, getNode, renderChanged){
-		super(state)
-		this.getNode=function(){
-			let n=getNode(...arguments)
-			console.assert(n.length==1)
-			return n
-		}
-		this.renderChanged=renderChanged
-		this.xml=this.file.officeDocument.content.xml.bind(this.file.officeDocument.content)
-	}
-
 	resize({x,y}){
 		let {start:{id}}=this.selection
 		const target=this.getNode(id)

@@ -1,10 +1,15 @@
 import Base from "state/reducer/entity"
+import mixin from "./mixin"
 
 function px2cm(px){
 	return Math.ceil(px*72/96*360000/28.3464567)
 }
 
 export class entity extends Base{
+	constructor(state,renderChanged){
+		super(state)
+		mixin.bind(this)(renderChanged)
+	}
 	resize_width(node,x){
 		let cx=px2cm(x)
 		let ext0=node.find("a\\:xfrm>a\\:ext")

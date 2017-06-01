@@ -1,15 +1,10 @@
 import Base from "state/reducer/text"
+import mixin from "./mixin"
 
 export class text extends Base{
-	constructor(state, getNode, renderChanged){
+	constructor(state,renderChanged){
 		super(state)
-		this.getNode=function(){
-			let n=getNode(...arguments)
-			console.assert(n.length==1)
-			return n
-		}
-		this.renderChanged=renderChanged
-		this.xml=this.file.officeDocument.content.xml.bind(this.file.officeDocument.content)
+		mixin.bind(this)(renderChanged)
 	}
 
 	insert_withoutSelection_string_withoutNewLine(inserting){
@@ -125,15 +120,10 @@ export class text extends Base{
 			let ancestors0=target0.parentsUntil(ancestor)
 			let ancestors1=target1.parentsUntil(ancestor)
 
-			const $=this.file.officeDocument.content
-			const willRemove=a=>{
-				this.removeContent(a.attribs.id || $(a).find("[id]").attr("id"))
-			}
+			ancestors0.last().nextUntil(ancestors1.last()).remove()
 
-			ancestors0.last().nextUntil(ancestors1.last()).each((i,a)=>willRemove(a)).remove()
-
-			ancestors0.each(a=>$(a).nextAll().each((i,a)=>willRemove(a)).remove())
-			ancestors1.each(a=>$(a).prevAll().each((i,a)=>willRemove(a)).remove())
+			ancestors0.each(a=>$(a).nextAll().remove())
+			ancestors1.each(a=>$(a).prevAll().remove())
 
 			let text=target0.text()
 			target0.text(text.substring(0,start.at))
@@ -141,14 +131,14 @@ export class text extends Base{
 			text=target1.text()
 			target1.text(text.substr(end.at))
 
-
 			switch(ancestor.get(0).name){
 			case "w:p":
 			case "w:r":
 				this.renderChanged(ancestor.get(0))
 			break
+			//cross paragraph/run
 			default:
-				willRemove(ancestors1.last().get(0))
+				//then merge
 				ancestors0.last().append(ancestors1.last().children())
 				this.renderChanged(ancestors0.last().get(0))
 			break

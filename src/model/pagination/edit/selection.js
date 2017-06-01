@@ -81,7 +81,7 @@ export class Selection extends Component{
 			let width=wordwrapper.stringWidth(text.substring(0,at-from))
 			if(ratio)
 				width=width/ratio
-			return left+width
+			return Math.floor(left+width)
 		}
 
 		let firstNode=getNode(docId, start.id, start.at)

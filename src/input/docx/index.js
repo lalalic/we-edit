@@ -274,20 +274,10 @@ export default class extends Base{
 		return id
 	}
 
-	getRaw(docx, id){
-		var part
-		[id,part]=id.split(/[\[\]]/g)
-		if(!part)
-			return docx.officeDocument.content(`#${id}`)
-		else
-			return docx.officeDocument.getRel(part)(`#${id}`)
-	}
-
-	onChange(docx,selection,{type,payload},createElement,state){
+	onChange(state,{type,payload},createElement){
 		let renderChanged=changed=>this.renderChanged(changed,createElement)
-		let getNode=id=>this.getRaw(docx,id)
 
-		let params=[state,getNode,renderChanged]
+		let params=[state,renderChanged]
 		switch(type){
 			case `text/RETURN`:
 				return new changer.text(...params)

@@ -28,13 +28,17 @@ export default class Range extends Component{
         y+=o.top
 
         path.setAttribute("d","")
-        let found=document.elementFromPoint(x,y)
-        found.dispatchEvent(new MouseEvent("click",{
-            clientX:x,clientY:y,
-            view:window,
-            bubbles:true,
-            cancelable:true
-        }))
+		
+		//trick: infinite loop without setTimeout
+		setTimeout(()=>{
+			let  found=document.elementFromPoint(x,y)
+			found.dispatchEvent(new MouseEvent("click",{
+				clientX:x,clientY:y,
+				view:window,
+				bubbles:true,
+				cancelable:false
+			}))
+		},1)
 		
 		e.stopPropagation()
     }

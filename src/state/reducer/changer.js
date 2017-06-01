@@ -3,7 +3,6 @@ export default class Changer{
 	constructor(state){
 		this._state=state
 		this._updated={}
-		this._removed=[]
 		this._selection=getSelection(state)
 	}
 	
@@ -17,8 +16,6 @@ export default class Changer{
 			state.updated=this._updated
 		if(Object.keys(this._selection).length>0)
 			state.selection=this._selection
-		if(this._removed.length>0)
-			state.removed=this._removed
 		
 		if(Object.keys(state).length>0)
 			return state
@@ -38,13 +35,8 @@ export default class Changer{
 	
 	updateChildren(id, f){
 		if(!this._updated[id])
-			this._updated[id]=getContent(this._state,id).get("children").toJS()
-		f(this._updated[id])
-		return this
-	}
-	
-	removeContent(id){
-		this._removed.push(id)
+			this._updated[id]={children:getContent(this._state,id).get("children").toJS()}
+		f(this._updated[id].children)
 		return this
 	}
 	
@@ -54,5 +46,14 @@ export default class Changer{
 		
 		this._selection={...this._selection,start:{id,at}, end:{id:endId, at:endAt}}
 		return this._selection
+	}
+		
+	renderChanged(changed){
+		let {id,props,children}=this._renderChanged(...arguments)
+		this._updated[id]={}
+	}
+
+	_renderChanged(changed){
+		throw new Error("you need implement it")
 	}
 }

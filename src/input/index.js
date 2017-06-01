@@ -66,62 +66,32 @@ export default {
 					if(action.type=="@@INIT")
 						return state
 
-					if(self.onChangeEx){
-						state=self.onChangeEx(state,action)
-					}else{
-						let docx=getFile(state)
-						let selection=getSelection(state)
-						let changed
-						let changedContent=new Map()
-							.withMutations(a=>changed=self.onChange(docx,selection,action,createElementFactory(a),state))
 
-						if(changed===false){
-							return state
-						}else{
-							let changing=new Set()
-							if(typeof(changed)=="object"){
-								let {selection,styles,removed,updated}=changed
-								if(selection)
-									state=state.mergeIn(["selection"], selection)
+					let changed
+					let changedContent=new Map()
+						.withMutations(a=>changed=self.onChange(state,action,createElementFactory(a)))
 
-								if(styles)
-									state=state.setIn("content.root.props.styles".split("."),new Map(styles))
+					if(changed===false){
+						return state
+					}else if(typeof(changed)=="object"){
+						let {selection,styles,updated}=changed
+						if(selection)
+							state=state.mergeIn(["selection"], selection)
 
-								if(removed){
-									let content=state.get("content")
-									content=content.withMutations(content=>
-										removed.forEach(id=>{
-											changing.add(id)
-											content.delete(id)
-											let parent=getParentId(state,id)
-											if(parent)
-												content.updateIn([parent,"children"],list=>list.delete(list.indexOf(id)))
-										})
-									)
-									state=state.set("content",content)
-								}
+						if(styles)
+							state=state.setIn("content.root.props.styles".split("."),new Map(styles))
 
-								if(updated){
-									let content=state.get("content")
-									Object.keys(changed.updated).forEach(id=>{
-										changing.add(id)
-										content=content.set(id,getContent(state,id).set("children",Immutable.fromJS(changed.updated[id])))
-									})
-
-									state=state.set("content",content)
-								}
-							}
-
-							if(changedContent.size!=0){
-								state=state.mergeIn(["content"],changedContent)
-								changedContent.forEach((v,k)=>changing.add(k))
-							}
-							
-							if(changing.size)
-								state.get("violent").changing=changing
+						if(updated){
+							state=state.mergeIn(["content"],updated)
+							state.get("violent").changing=updated
 						}
+					}else{
+						state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))
 					}
-					state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))
+					
+					if(changedContent.size!=0)
+						state=state.mergeIn(["content"],changedContent)
+
 					return state
 				}
 

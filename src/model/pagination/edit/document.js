@@ -204,19 +204,23 @@ export default class Document extends Super{
 			}else{
 				delete props.minHeight
 			}
+			
+			let done=null
 
 			return (
 				<div ref={a=>this.root=a}>
 					<Base.Composed {...props} pages={pages}
 						onClick={e=>{
-							if(this.documentSelection().type!=="Range"){
-								this.onClick(e)
-							}
+							if(done==e.timeStamp)
+								return 
+							
+							this.onClick(e)
 						}}
 						onMouseUp={e=>{
 							let sel=this.documentSelection()
 							if(sel.type=="Range"){
 								this.onSelect(sel)
+								done=e.timeStamp
 							}
 						}}
 						onPageHide={e=>this.updateCursorAndSelection()}
