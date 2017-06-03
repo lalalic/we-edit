@@ -57,10 +57,10 @@ export class History{
 					Object.freeze(action)
 					let entry=new Entry(state,action)
 					let changedState=reducer(state,action,entry)
-					if(changedState.get("content")!==state.get("content"))
+					if(changedState.get("content")!==state.get("content")){
 						history.add(entry)
-					else
 						history.future=[]
+					}
 					return changedState
 				}
 			}

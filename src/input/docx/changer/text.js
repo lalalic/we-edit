@@ -90,6 +90,8 @@ export class text extends Base{
 		let {start:{id,at}}=this.selection
 		const target=this.getNode(id)
 
+		this.save4Undo(target)
+
 		let text=target.text()
 		target.text(text.substring(0,at-removing)+text.substr(at))
 		at-=removing
@@ -101,6 +103,8 @@ export class text extends Base{
 	remove_withoutSelection_delete(removing){
 		let {start:{id,at}}=this.selection
 		const target=this.getNode(id)
+
+		this.save4Undo(target)
 
 		let text=target.text()
 		target.text(text.substring(0,at)+text.substr(at-removing))
