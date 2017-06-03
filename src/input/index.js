@@ -7,6 +7,8 @@ import {createState} from "state"
 import {getContent,getSelection,getFile,getParentId} from "state/selector"
 import * as reducer from "state/reducer"
 
+import {History} from "state/undoable"
+
 const supported=[]
 
 export default {
@@ -35,7 +37,7 @@ export default {
 	},
 
 	build(doc,self){
-		let store
+		let store,history
 		return {
 			render(domain){
 				return self.render(doc, domain, (type, props, children)=>{
@@ -62,7 +64,7 @@ export default {
 				}
 
 
-				 function onChange(state,action){
+				 function onChange(state,action,historyEntry){
 					if(action.type=="@@INIT")
 						return state
 
@@ -70,6 +72,8 @@ export default {
 					let changed
 					let changedContent=new Map()
 						.withMutations(a=>changed=self.onChange(state,action,createElementFactory(a)))
+
+					historyEntry.changed=Object.freeze(changed)
 
 					if(changed===false){
 						return state
@@ -81,14 +85,13 @@ export default {
 						if(styles)
 							state=state.setIn("content.root.props.styles".split("."),new Map(styles))
 
-						if(updated){
+						if(updated)
 							state=state.mergeIn(["content"],updated)
-							state.get("violent").changing=updated
-						}
+						state.get("violent").changing=updated
 					}else{
 						state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))
 					}
-					
+
 					if(changedContent.size!=0)
 						state=state.mergeIn(["content"],changedContent)
 
@@ -98,7 +101,8 @@ export default {
 				let content=new Map()
 					.withMutations(a=>self.render(doc, DOMAIN, createElementFactory(a)))
 
-				store=createState(doc,content,onChange)
+				history=new History()
+				store=createState(doc,content,history.undoable(onChange))
 
 				return (
 					<Provider store={store}>
@@ -116,6 +120,16 @@ export default {
 			},
 			dispatch(){
 				return store.dispatch(...arguments)
+			},
+			history(){
+				return {
+					canRedo(){
+						return history.past.length>0
+					},
+					canRedo(){
+						return history.future.length>0
+					}
+				}
 			}
 		}
 	}

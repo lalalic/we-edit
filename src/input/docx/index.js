@@ -303,6 +303,10 @@ export default class extends Base{
 				return new changer.entity(...params)
 					.move(payload)
 					.state()
+			case "history/UNDO":
+				return new changer.undo(...params)
+					.run(payload)
+					.state()
 			case 'style/ADD':{
 				const {type,id,name,isDefault=false,...others}=payload
 				let $=docx.officeDocument.styles

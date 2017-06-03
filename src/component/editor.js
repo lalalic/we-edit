@@ -98,21 +98,8 @@ const Root=connect((state,{domain})=>{
 	componentWillReceiveProps({content,changed,domain}){
 		//return this.doc=this.createChildElement("root",content,domain,this.props.content)
 
-		if(this.doc // editing
-			&& content.size>50 // big
-			){//replace mode
-
-			if(changed.size>1){
-				let children=new Set()
-				changed.forEach(k=>{
-					let thisChildren=content.get(k).get("children")
-					if(thisChildren)
-						thisChildren.toJS()
-							.forEach(a=>children.add(a))
-				})
-				changed.forEach(k=>children.has(k) && changed.delete(k))
-			}
-
+		if(this.doc && changed){ // editing
+			//&& content.size>50){ // big
 			const changeParent=id=>{
 				let el=this.els.get(id)
 				let changed=React.cloneElement(el,{changed:true})
@@ -129,7 +116,7 @@ const Root=connect((state,{domain})=>{
 				}
 			}
 
-			changed.forEach(k=>{
+			Object.keys(changed).forEach(k=>{
 				switch(this.changedType(k,content,this.props.content)){
 					case "delete":{
 						let parentId=this.parents.get(k)
