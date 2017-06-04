@@ -116,17 +116,25 @@ export class text extends Base{
 		const {start,end}=this.selection
 		const target0=this.getNode(start.id)
 		if(start.id==end.id){
+			this.save4Undo(target0)
+
 			let text=target0.text()
 			target0.text(text.substring(0,start.at)+text.substring(end.at))
 			this.renderChanged(target0.parent().get(0))
 			this.updateSelection(start.id,start.at)
 		}else{
+			const $=this.file.officeDocument.content
 			const target1=this.getNode(end.id)
 			const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
 			let ancestors0=target0.parentsUntil(ancestor)
 			let ancestors1=target1.parentsUntil(ancestor)
 
-			ancestors0.last().nextUntil(ancestors1.last()).remove()
+			ancestors0.last().nextUntil(ancestors1.last())
+				.each((i,el)=>this.save4Undo($(el)))
+				.remove()
+
+			this.save4Undo(ancestors0.last())
+			this.save4Undo(ancestors1.last())
 
 			ancestors0.each(a=>$(a).nextAll().remove())
 			ancestors1.each(a=>$(a).prevAll().remove())

@@ -35,8 +35,8 @@ export default class Changer{
 
 	updateChildren(id, f){
 		if(!this._updated[id])
-			this._updated[id]={children:getContent(this._state,id).get("children").toJS()}
-		f(this._updated[id].children)
+			this._updated[id]=getContent(this._state,id).get("children").toJS()
+		f(this._updated[id])
 		return this
 	}
 
@@ -53,7 +53,10 @@ export default class Changer{
 	}
 
 	renderChanged(changed){
-		throw new Error("you need implement it")
+		let id=id=this._renderChanged(changed).id
+		if(!this._updated[id]){
+			this._updated[id]={}
+		}
 	}
 
 	clone(node){

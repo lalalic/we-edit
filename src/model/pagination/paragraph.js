@@ -53,16 +53,37 @@ export default class Paragraph extends Super{
 				let opportunities=self.computed.breakOpportunities.filter(({start,end})=>{
 					return start.itemIndex<=index && end.itemIndex>=index
 				})
-				if(opportunities.length && opportunities[0].start.itemIndex!=index){
-					let {start:{itemIndex,at}, end, word}=opportunities[0]
-                    let children=self.props.children
-                    let remove=getChildText(children[itemIndex]).length-at
-					for(let i=itemIndex+1;i<index;i++)
-						remove+=getChildText(children[i]).length
 
-					let adjusted={end, word: word.substring(remove), start:{at:0, itemIndex:index}}
-					opportunities[0]=adjusted
-				}
+				if(opportunities.length){
+                    if(opportunities[0].start.itemIndex!=index){
+       					let {start:{itemIndex,at}, end, word}=opportunities[0]
+                        let children=self.props.children
+                        let remove=getChildText(children[itemIndex]).length-at
+       					for(let i=itemIndex+1;i<index;i++)
+       						remove+=getChildText(children[i]).length
+
+       					let adjusted={end, word: word.substring(remove), start:{at:0, itemIndex:index}}
+       					opportunities[0]=adjusted
+       				}
+
+                    let len=opportunities.length,last=opportunities[len-1]
+                    if(last.end.itemIndex!=index){
+                        let {end:{itemIndex,at}, start, word}=last
+                        let children=self.props.children
+                        let remove=at
+       					for(let i=itemIndex-1;i>index;i--)
+       						remove+=getChildText(children[i]).length
+
+       					let adjusted={
+                            start,
+                            word: word.substring(0,word.length-remove),
+                            end:{at:getChildText(children[index]).length-1, itemIndex:index}
+                        }
+       					opportunities[len-1]=adjusted
+                    }
+
+                }
+
 				return [index,opportunities]
             }
         }
@@ -110,10 +131,10 @@ export default class Paragraph extends Super{
         const {composed}=this.computed
         const {parent}=this.context
 		let {width:contentWidth}=content.props
-		
+
         let currentLine=composed[composed.length-1]
         const availableWidth=currentLine.availableWidth(contentWidth)
-        
+
 
 		if(il>2)
 			throw new Error("infinite loop")

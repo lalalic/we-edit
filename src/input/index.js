@@ -73,8 +73,6 @@ export default {
 					let changedContent=new Map()
 						.withMutations(a=>changed=self.onChange(state,action,createElementFactory(a)))
 
-					historyEntry.changed=Object.freeze(changed)
-
 					if(changed===false){
 						return state
 					}else if(typeof(changed)=="object"){
@@ -85,16 +83,35 @@ export default {
 						if(styles)
 							state=state.setIn("content.root.props.styles".split("."),new Map(styles))
 
-						if(updated)
-							state=state.mergeIn(["content"],updated)
-						state.get("violent").changing=updated
+						if(updated){
+							let changing=Object.keys(updated).reduce((s,k)=>{
+								let v=updated[k]
+								let {_state,_history,_merge}=s
+								if(Array.isArray(v)){
+									_state[k]={children:v}
+									_history[k]=getContent(state,k).toJS().children
+									_merge[k]={children:v}
+								}else{
+									_state[k]={}
+									_history[k]=v
+								}
+								return s
+							},{_state:{}, _history:{},_merge:{}})
+							state=state.mergeIn(["content"],changing._merge)
+							historyEntry.changed=changing._history
+							state.get("violent").changing=changing._state
+						}else{
+							state.get("violent").changing={}
+						}
+
+
 					}else{
 						state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))
 					}
 
-					if(changedContent.size!=0)
+					if(changedContent.size!=0){
 						state=state.mergeIn(["content"],changedContent)
-
+					}
 					return state
 				}
 

@@ -10,9 +10,14 @@ export default function mixin(renderChanged){
 		console.assert(node.length<2)
 		return node
 	}
-	this.renderChanged=renderChanged
+	this._renderChanged=renderChanged
 
-	this.clone=node=>node.clone()
+	this.clone=node=>{
+		let withIds=node.find("[id]").each((i,el)=>el.attribs._id=el.attribs.id)
+		let cloned=node.clone()
+		withIds.removeAttr("_id")
+		return cloned
+	}
 
 	this.xml=this.file.officeDocument.content.xml.bind(this.file.officeDocument.content)
 }

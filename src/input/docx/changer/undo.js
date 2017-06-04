@@ -11,13 +11,23 @@ export class undo extends Base{
         return this._selection={...this._selection,...selection}
     }
 
-    run({changed:{updated},selection}){
+    run({changed:updated,selection}){
         Object.keys(updated).forEach(k=>{
-            let last=updated[k].clone()
-            let current=this.getNode(k)
-            current.replaceWith(last)
-            this.identify(last.get(0),k)
-            this.renderChanged(last.get(0))
+            let changing=updated[k]
+            if(changing instanceof Array){
+                this.updateChildren(k,children=>{
+                    children.splice(0,children.length,...updated[k])
+                })
+            }else if(changing.cheerio){
+                let last=updated[k].clone()
+                last.find("[_id]")
+                    .each((i,el)=>this.identify(el,el.attribs._id))
+                    .removeAttr("_id")
+                let current=this.getNode(k)
+                current.replaceWith(last)
+                this.identify(last.get(0),k)
+                this.renderChanged(last.get(0))
+            }
         })
         this.updateSelection(selection)
         return this

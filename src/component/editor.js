@@ -117,6 +117,12 @@ const Root=connect((state,{domain})=>{
 			}
 
 			Object.keys(changed).forEach(k=>{
+				if(changed[k].children){
+					let el=this.els.get(k)
+					el.props.children=changed[k].children
+					changeParent(k)
+					return
+				}
 				switch(this.changedType(k,content,this.props.content)){
 					case "delete":{
 						let parentId=this.parents.get(k)
