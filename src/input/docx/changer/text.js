@@ -128,7 +128,9 @@ export class text extends Base{
 			const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
 			let ancestors0=target0.parentsUntil(ancestor)
 			let ancestors1=target1.parentsUntil(ancestor)
-
+			
+			let ancestorId=this.getParentId(ancestors0.last().attr("id"))
+			
 			ancestors0.last().nextUntil(ancestors1.last())
 				.each((i,el)=>this.save4Undo($(el)))
 				.remove()

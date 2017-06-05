@@ -76,35 +76,45 @@ export default {
 					if(changed===false){
 						return state
 					}else if(typeof(changed)=="object"){
-						let {selection,styles,updated}=changed
+						let {selection,styles,updated,undoables}=changed
 						if(selection)
 							state=state.mergeIn(["selection"], selection)
 
 						if(styles)
 							state=state.setIn("content.root.props.styles".split("."),new Map(styles))
-
-						if(updated){
-							let changing=Object.keys(updated).reduce((s,k)=>{
-								let v=updated[k]
-								let {_state,_history,_merge}=s
-								if(Array.isArray(v)){
-									_state[k]={children:v}
-									_history[k]=getContent(state,k).toJS().children
-									_merge[k]={children:v}
-								}else{
-									_state[k]={}
-									_history[k]=v
+						
+						if(undoables){
+							const collect=(collected,k)=>{
+								let children=state.getIn(`content.${k}.children`.split(".")).toJS()
+								if(Array.isArray(children)){
+									children.reduce(collect,collected)
 								}
-								return s
-							},{_state:{}, _history:{},_merge:{}})
-							state=state.mergeIn(["content"],changing._merge)
-							historyEntry.changed=changing._history
-							state.get("violent").changing=changing._state
+								collected.push(k)
+								return collected
+							}
+							
+							let removed=Object.keys(undoables)
+								.filter(k=>!changedContent.has(k))
+								.reduce(collect,[])
+								.filter(k=>!changedContent.has(k))
+								
+							if(removed.length>0){
+								state=state.updateIn(["content"],content=>content.removeAll(removed))
+							}
+							historyEntry.changed=undoables
+						}
+						
+						if(updated){
+							Object.keys(updated)
+								.filter(k=>!!updated[k].children)
+								.forEach(k=>{
+									undoables[k]=state.getIn(["content",k,"children"]).toJS()
+								})
+							state=state.mergeDeepIn(["content"],updated)
+							state.get("violent").changing=updated
 						}else{
 							state.get("violent").changing={}
 						}
-
-
 					}else{
 						state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))
 					}

@@ -115,44 +115,50 @@ const Root=connect((state,{domain})=>{
 					this.doc=changed
 				}
 			}
+			
+			//first handle with children changed
+			let changedKeys=Object.keys(changed).reduce((sorted,a)=>{
+					sorted[a.children ? "push" : "unshift"](a)
+					return sorted
+				},[])
 
-			Object.keys(changed).forEach(k=>{
-				if(changed[k].children){
-					let el=this.els.get(k)
-					el.props.children=changed[k].children
+			changedKeys.reduceRight((handled, k)=>{
+				let children=changed[k].children
+				if(children){
+					let {props:{children:els}}=this.els.get(k)
+					els.forEach(({props:{id}})=>{
+						this.parents.delete(id)
+						this.els.delete(id)
+					})
+					let rawEls=els.splice(0,els.length)
+					
+					children.forEach(j=>{
+						let el=rawEls.find(({props:{id}})=>id==j)
+						if(changedKeys.includes(j)){
+							el=this.createChildElement(j,content,domain,this.props.content)
+							handled.push(j)
+						}
+						if(el){
+							els.push(el)
+							this.els.set(j,el)
+						}else{
+							el=this.createChildElement(j,content,domain,this.props.content)
+							handled.push(j)
+							els.push(el)
+						}
+						this.parents.set(j,k)
+					})
 					changeParent(k)
-					return
+				}else if(handled.includes(k)){
+					let parentId=this.parents.get(k)
+					let parentEl=this.els.get(parentId)
+					children=parentEl.props.children
+					let index=content.get(parentId).toJS().children.indexOf(k)
+					children[index]=this.createChildElement(k,content,domain,this.props.content)
+					changeParent(parentId);
 				}
-				switch(this.changedType(k,content,this.props.content)){
-					case "delete":{
-						let parentId=this.parents.get(k)
-						let parentEl=this.els.get(parentId)
-						let children=parentEl.props.children
-						let index=this.props.content.get(parentId).toJS().children.indexOf(k)
-						children.splice(index,1)
-						changeParent(parentId)
-						break
-					}
-					case "update":{
-						let parentId=this.parents.get(k)
-						let parentEl=this.els.get(parentId)
-						let children=parentEl.props.children
-						let index=content.get(parentId).toJS().children.indexOf(k)
-						children[index]=this.createChildElement(k,content,domain,this.props.content)
-						changeParent(parentId);
-						break
-					}
-					case "create":{
-						let parentId=this.parents.get(k)
-						let parentEl=this.els.get(parentId)
-						let children=parentEl.props.children
-						let index=this.props.content.get(parentId).toJS().children.indexOf(k)
-						children.splice(index,1)
-						changeParent(parentId)
-						break
-					}
-				}
-			})
+				return handled
+			},[])
 		}else{//reproduce mode
 			this.els=new Map()
 			this.parents=new Map()
