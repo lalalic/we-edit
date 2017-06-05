@@ -14,9 +14,9 @@ export class undo extends Base{
     run({changed:updated,selection}){
         Object.keys(updated).forEach(k=>{
             let changing=updated[k]
-            if(changing instanceof Array){
+            if(changing.children){
                 this.updateChildren(k,children=>{
-                    children.splice(0,children.length,...updated[k])
+                    children.splice(0,children.length,...changing.children)
                 })
             }else if(changing.cheerio){
                 let last=updated[k].clone()

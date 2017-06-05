@@ -15,10 +15,10 @@ export default class Changer{
 		let state={}
 		if(Object.keys(this._updated).length>0)
 			state.updated=this._updated
-		
-		if(_undoables.length>0)
+
+		if(Object.keys(this._undoables).length>0)
 			state.undoables=this._undoables
-		
+
 		if(Object.keys(this._selection).length>0)
 			state.selection=this._selection
 
@@ -37,7 +37,7 @@ export default class Changer{
 	getContent(id){
 		return getContent(this._state,id).toJS()
 	}
-	
+
 	updateChildren(parent,f){
 		if(!(parent in this._updated)){
 			this._updated[parent]={

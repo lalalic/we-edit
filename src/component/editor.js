@@ -115,7 +115,7 @@ const Root=connect((state,{domain})=>{
 					this.doc=changed
 				}
 			}
-			
+
 			//first handle with children changed
 			let changedKeys=Object.keys(changed).reduce((sorted,a)=>{
 					sorted[a.children ? "push" : "unshift"](a)
@@ -131,7 +131,7 @@ const Root=connect((state,{domain})=>{
 						this.els.delete(id)
 					})
 					let rawEls=els.splice(0,els.length)
-					
+
 					children.forEach(j=>{
 						let el=rawEls.find(({props:{id}})=>id==j)
 						if(changedKeys.includes(j)){
@@ -149,7 +149,7 @@ const Root=connect((state,{domain})=>{
 						this.parents.set(j,k)
 					})
 					changeParent(k)
-				}else if(handled.includes(k)){
+				}else if(!handled.includes(k)){
 					let parentId=this.parents.get(k)
 					let parentEl=this.els.get(parentId)
 					children=parentEl.props.children
