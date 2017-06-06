@@ -126,32 +126,48 @@ export class text extends Base{
 			const $=this.file.officeDocument.content
 			const target1=this.getNode(end.id)
 			const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
+			
 			let ancestors0=target0.parentsUntil(ancestor)
 			let ancestors1=target1.parentsUntil(ancestor)
+			let top0=ancestors0.last()
+			let top1=ancestors1.last()
 			
-			let ancestorId=this.id(ancestor)
+			let ancestorId=this.id(ancestor)||this.getParentId(this.id(top0))
+			console.assert(!!ancestorId)
 			
-			ancestors0.last().nextUntil(ancestors1.last())
-				.each((i,el)=>{
+			let removingTops=top0.nextUntil(top1)
+			
+			//save for undo
+			switch(ancestor.prop("name")){
+			case "w:p"://render whole, and save whole for undo
+			case "w:r":
+				this.save4Undo(ancestor)
+			break
+			default:
+				removingTops.each((i,el)=>{
 					let $el=$(el)
 					this.save4Undo($el)
 					this.updateChildren(ancestorId,this.id($el))
 				})
-				.remove()
 
-			this.save4Undo(ancestors0.last())
-			this.save4Undo(ancestors1.last())
+				this.save4Undo(top0)
+				this.save4Undo(top1)
+			break
+			}
+			
+			{//remove
+				removingTops.remove()
+				ancestors0.not(top0).each((i,a)=>$(a).nextAll().remove())
+				ancestors1.not(top1).each((i,a)=>$(a).prevAll().remove())
 
-			ancestors0.each(a=>$(a).nextAll().remove())
-			ancestors1.each(a=>$(a).prevAll().remove())
+				let text=target0.text()
+				target0.text(text.substring(0,start.at))
 
-			let text=target0.text()
-			target0.text(text.substring(0,start.at))
+				text=target1.text()
+				target1.text(text.substr(end.at))
+			}
 
-			text=target1.text()
-			target1.text(text.substr(end.at))
-
-			switch(ancestor.get(0).name){
+			switch(ancestor.prop("name")){
 			case "w:p":
 			case "w:r":
 				this.renderChanged(ancestor.get(0))
@@ -159,9 +175,8 @@ export class text extends Base{
 			//cross paragraph/run
 			default:
 				//then merge
-				this.updateChildren(ancestorId,this.id(ancestors1.last()))
-				ancestors0.last().append(ancestors1.last().children())
-				this.renderChanged(ancestors0.last().get(0))
+				this.renderChanged(top0.get(0))
+				this.renderChanged(top1.get(0))
 			break
 			}
 

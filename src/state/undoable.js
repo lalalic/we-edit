@@ -46,7 +46,7 @@ export class History{
 				case "history/REDO":{
 					if(history.future.length){
 						let entry=history.future.pop()
-						let changedState=reducer(state,entry.action,{})
+						let changedState=reducer(state.mergeDeepIn(["selection"],entry.selection),entry.action,{})
 						history.past.push(entry)
 						return changedState
 					}else{

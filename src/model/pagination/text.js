@@ -30,7 +30,7 @@ export default class Text extends Super{
 		const [index,breakOpportunities]=this.context.getMyBreakOpportunities()
         return breakOpportunities.map(opportunity=>{
             let {
-                word,
+                word="",
                 start:{itemIndex:startItemIndex, at:startAt},
                 end:{itemIndex:endItemIndex, at:endAt}
                 }=opportunity

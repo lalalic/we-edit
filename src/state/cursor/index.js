@@ -36,8 +36,16 @@ export class Cursor extends Component{
 		this.node=getNode(docId,id, at)
 		this.style=null
 			
-		if(!this.node)
+		if(!this.node){
+			if(docId==active){
+				getCursorInput()
+				.setState({
+					color:"transparent",
+					inView:false
+				})
+			}
 			return
+		}
 
 		switch(this.node.tagName){
 		case "image":

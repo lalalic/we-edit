@@ -105,12 +105,18 @@ export default {
 						}
 						
 						if(updated){
-							Object.keys(updated)
+							state=Object.keys(updated)
 								.filter(k=>!!updated[k].children)
-								.forEach(k=>{
-									undoables[k]=state.getIn(["content",k,"children"])
-								})
-							state=state.mergeDeepIn(["content"],updated)
+								.reduce((merged,k)=>{
+									if(!undoables){
+										undoables=historyEntry.changed={}
+									}
+									return state.updateIn(["content",k,"children"],c=>{
+										undoables[k]={children:c.toJS()}
+										return Immutable.fromJS(updated[k].children)
+									})
+								},state)
+
 							state.get("violent").changing=updated
 						}else{
 							state.get("violent").changing={}

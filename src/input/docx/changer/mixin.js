@@ -19,7 +19,12 @@ export default function mixin(renderChanged){
 		return cloned
 	}
 	
-	this.id=node=>node.attr("id")||node.find("[id]").attr("id")
+	this.id=node=>{
+		if(node.prop("name")=="w:body")
+			return null
+		
+		return node.attr("id")||node.find("[id]").attr("id")
+	}
 
 	this.xml=this.file.officeDocument.content.xml.bind(this.file.officeDocument.content)
 }
