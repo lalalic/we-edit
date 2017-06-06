@@ -44,29 +44,38 @@ export class undo extends Base{
 		.forEach(k=>{
             let changing=updated[k]
             if(changing.cheerio){
-                let last=updated[k]//.clone()
+                let last=updated[k].clone()
                 let current=this.getNode(k)
 				if(current.length==0){
 					orphans[k]=last
 				}else{
 					recoverId(last)
 					current.replaceWith(last)
+					this.identify(last.get(0),k)
+					this.renderChanged(last.get(0))
 				}
-				this.identify(last.get(0),k)
-				this.renderChanged(last.get(0))
+				
             }else if(changing.children){
                 this.updateChildren(k,children=>{
                     children.splice(0,children.length,...changing.children)
                 })
 				
 				changing.children.forEach((a,i)=>{
-					if(orphans[a]){
+					let target=orphans[a]
+					if(target){
 						let n
+						target.attr("id",a)
 						if(n=pre(i,changing.children)){
-							orphans[a].insertAfter(n)
+							target.insertAfter(n)
 						}else if(n=next(i,changing.children)){
-							orphans[a].insertBefore(n)
+							target.insertBefore(n)
 						}
+						
+						let attached=this.getNode(a)
+						recoverId(attached)
+						attached.removeAttr("id")
+						this.identify(attached.get(0),a)
+						this.renderChanged(attached.get(0))
 					}
 				})
             }
