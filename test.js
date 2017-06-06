@@ -11,7 +11,7 @@ Input.support(Docx)
 
 import NodeWordWrapper from "wordwrap/node"
 import {Text} from "pagination"
-//Text.WordWrapper=NodeWordWrapper
+Text.WordWrapper=NodeWordWrapper
 
 
 function edit(input,container){
@@ -21,7 +21,7 @@ function edit(input,container){
 			ReactDOM.render((
 				<doc.Store>
 					<div className="editors">
-						<Editor>
+						<Editor width={600}>
 							<Pagination/>
 						</Editor>
 					</div>
