@@ -14,11 +14,7 @@ export class undo extends Base{
     run({changed:updated,selection}){
         Object.keys(updated).forEach(k=>{
             let changing=updated[k]
-            if(changing.children){
-                this.updateChildren(k,children=>{
-                    children.splice(0,children.length,...changing.children)
-                })
-            }else if(changing.cheerio){
+            if(changing.cheerio){
                 let last=updated[k].clone()
                 last.find("[_id]")
                     .each((i,el)=>this.identify(el,el.attribs._id))
@@ -27,6 +23,10 @@ export class undo extends Base{
                 current.replaceWith(last)
                 this.identify(last.get(0),k)
                 this.renderChanged(last.get(0))
+            }else if(changing.children){
+                this.updateChildren(k,children=>{
+                    children.splice(0,children.length,...changing.children)
+                })
             }
         })
         this.updateSelection(selection)

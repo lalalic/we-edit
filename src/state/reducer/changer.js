@@ -41,10 +41,18 @@ export default class Changer{
 	updateChildren(parent,f){
 		if(!(parent in this._updated)){
 			this._updated[parent]={
-				children:getContent(this._state,parent).get("children").toJS()
+				children:this.getContent(parent).children
 			}
 		}
-		f(this._updated[parent].children)
+		
+		if(typeof(f)=="string"){
+			let children=this._updated[parent].children
+			let index=children.indexOf(f)
+			if(index!=-1)
+				children.splice(index,1)
+		}else{
+			f(this._updated[parent].children)
+		}
 	}
 
 	updateSelection(id,at, endId=id, endAt=at, cursorAt){
@@ -63,6 +71,10 @@ export default class Changer{
 		let id=this._renderChanged(changed).id
 		if(this._state.hasIn(["content",id]))
 			this._updated[id]={}
+	}
+	
+	id(node){
+		throw new Error("you need implement it")
 	}
 
 	clone(node){

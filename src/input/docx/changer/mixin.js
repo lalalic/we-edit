@@ -18,6 +18,8 @@ export default function mixin(renderChanged){
 		withIds.removeAttr("_id")
 		return cloned
 	}
+	
+	this.id=node=>node.attr("id")||node.find("[id]").attr("id")
 
 	this.xml=this.file.officeDocument.content.xml.bind(this.file.officeDocument.content)
 }

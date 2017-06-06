@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from "react"
 import {Provider} from "react-redux"
-import Immutable, {Map,List} from "immutable"
+import Immutable, {Map,Collection} from "immutable"
 
 import DOMAIN from "model"
 import {createState} from "state"
@@ -85,8 +85,8 @@ export default {
 						
 						if(undoables){
 							const collect=(collected,k)=>{
-								let children=state.getIn(`content.${k}.children`.split(".")).toJS()
-								if(Array.isArray(children)){
+								let children=state.getIn(`content.${k}.children`.split("."))
+								if(children instanceof Collection){
 									children.reduce(collect,collected)
 								}
 								collected.push(k)
@@ -99,7 +99,7 @@ export default {
 								.filter(k=>!changedContent.has(k))
 								
 							if(removed.length>0){
-								state=state.updateIn(["content"],content=>content.removeAll(removed))
+								state=state.updateIn(["content"],c=>removed.reduce((c,k)=>c.remove(k),c))
 							}
 							historyEntry.changed=undoables
 						}
@@ -108,7 +108,7 @@ export default {
 							Object.keys(updated)
 								.filter(k=>!!updated[k].children)
 								.forEach(k=>{
-									undoables[k]=state.getIn(["content",k,"children"]).toJS()
+									undoables[k]=state.getIn(["content",k,"children"])
 								})
 							state=state.mergeDeepIn(["content"],updated)
 							state.get("violent").changing=updated

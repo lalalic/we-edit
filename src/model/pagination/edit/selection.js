@@ -38,9 +38,18 @@ export class Selection extends Component{
 	render(){
 		return this.el
 	}
+	
+	getClientRect(node){
+		let ratio=this.context.getRatio()
+		return "left,right,top,bottom,height,width".split(",")
+			.reduce((rect,k)=>{
+				rect[k]*=ratio
+				return rect
+			},getClientRect(node))
+	}
 
 	image(node){
-		let {top,left,bottom,right}=getClientRect(node)
+		let {top,left,bottom,right}=this.getClientRect(node)
 		const {onResize, onMove, onRotate}=this.props
 		return <Entity
 					path={`M${left} ${top} L${right} ${top} L${right} ${bottom} L${left} ${bottom} Z`}
@@ -72,15 +81,13 @@ export class Selection extends Component{
 		let state=store.getState()
 
 		const x=(node,id,at)=>{
-			let left=getClientRect(node).left
+			let left=this.getClientRect(node).left
 			let style=getContentStyle(state,docId,id)
 			let text=node.textContent
 			let from=node.dataset.endAt-text.length
 
 			let wordwrapper=new Text.WordWrapper(style)
 			let width=wordwrapper.stringWidth(text.substring(0,at-from))
-			if(ratio)
-				width=width/ratio
 			return Math.floor(left+width)
 		}
 
@@ -104,7 +111,7 @@ export class Selection extends Component{
 		if(firstLine==lastLine){
 			let x0=x(firstNode,start.id,start.at)
 			let x1=x(lastNode, end.id, end.at)
-			let {top,height}=getClientRect(firstLine)
+			let {top,height}=this.getClientRect(firstLine)
 			path=`M${x0} ${top} L${x1} ${top} L${x1} ${top+height} L${x0} ${top+height} L${x0} ${top}`
 		}else{
 			let all=firstLine.parentNode.children
@@ -121,7 +128,7 @@ export class Selection extends Component{
 			}
 
 			let {path:paths,l}=lines.reduce((route, l, i)=>{
-				let {left,top,right,bottom}=getClientRect(l)
+				let {left,top,right,bottom}=this.getClientRect(l)
 				let t
 				switch(i){
 				case 0:

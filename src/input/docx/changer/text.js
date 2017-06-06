@@ -129,10 +129,14 @@ export class text extends Base{
 			let ancestors0=target0.parentsUntil(ancestor)
 			let ancestors1=target1.parentsUntil(ancestor)
 			
-			let ancestorId=this.getParentId(ancestors0.last().attr("id"))
+			let ancestorId=this.id(ancestor)
 			
 			ancestors0.last().nextUntil(ancestors1.last())
-				.each((i,el)=>this.save4Undo($(el)))
+				.each((i,el)=>{
+					let $el=$(el)
+					this.save4Undo($el)
+					this.updateChildren(ancestorId,this.id($el))
+				})
 				.remove()
 
 			this.save4Undo(ancestors0.last())
@@ -155,6 +159,7 @@ export class text extends Base{
 			//cross paragraph/run
 			default:
 				//then merge
+				this.updateChildren(ancestorId,this.id(ancestors1.last()))
 				ancestors0.last().append(ancestors1.last().children())
 				this.renderChanged(ancestors0.last().get(0))
 			break
