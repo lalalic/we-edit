@@ -77,6 +77,7 @@ export class Cursor extends Component{
 		let wordwrapper=this.context.getWordWrapper(style)
 		let width=wordwrapper.stringWidth(text.substring(from,at))
 		let {height, descent}=wordwrapper
+		
 		let ratio=this.context.getRatio()
 		if(ratio){
 			width=width/ratio
@@ -84,6 +85,9 @@ export class Cursor extends Component{
 			descent=descent/ratio
 		}
 		left+=width
+		
+		if(text.length==0)//empty text
+			top-=(height-descent)
 
 		return {...style,left,top,height,width}
 	}

@@ -4,7 +4,7 @@ import Immutable, {Map,Collection} from "immutable"
 
 import DOMAIN from "model"
 import {createState} from "state"
-import {getContent,getSelection,getFile,getParentId} from "state/selector"
+import {getContent,getSelection,getFile} from "state/selector"
 import * as reducer from "state/reducer"
 
 import {History} from "state/undoable"

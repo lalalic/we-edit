@@ -32,6 +32,21 @@ export default class text extends Changer{
 		this[path.join("_")](...arguments)
 		return this
 	}
+	
+	isFirstOfParagraph(tid){
+		let p=this.getContent(this.getParentId(tid))
+		while(p.type!=="paragraph"){
+			p=this.getContent(id)
+		}
+	}
+	
+	isFirstOfDocument(){
+		return false
+	}
+	
+	isLastOfParagraph(id){
+		return false
+	}
 
 	remove(removing){
 		let docx=this.file
@@ -39,11 +54,33 @@ export default class text extends Changer{
 		let path=["remove"]
 		if(id==end.id && at==end.at){
 			path.push("withoutSelection")
-			console.assert(typeof(removing)=="number")
-			if(removing>0)
+			console.assert(Math.abs(removing)==1)
+			if(removing>0){
 				path.push("backspace")
-			else if(removing<0)
+				if(at==0){
+					path.push("headOf")
+					if(this.isFirstOfParagraph(id)){
+						if(this.isFirstOfDocument(id)){
+							path.push("document")
+						}else{
+							path.push("paragraph")
+						}
+					}else{
+						path.push("text")
+					}
+				}
+			}else if(removing<0){
 				path.push("delete")
+				let {children:text}=this.getContent(id)
+				if(text.length-1==at){
+					path.push("tailOf")
+					if(this.isLastOfParagraph(id)){
+						path.push("paragraph")
+					}else{
+						path.push("text")
+					}
+				}
+			}
 		}else{
 			path.push("withSelection")
 		}
@@ -72,14 +109,34 @@ export default class text extends Changer{
 	}	
 	
 	remove_withoutSelection_backspace(removing){
-		
+		throw new Error("no implementation")
+	}
+	
+	remove_withoutSelection_backspace_headOf_text(){
+		throw new Error("no implementation")
+	}
+	
+	remove_withoutSelection_backspace_headOf_paragraph(){
+		throw new Error("no implementation")
+	}
+	
+	remove_withoutSelection_backspace_headOf_document(){
+		//do nothing
 	}
 	
 	remove_withoutSelection_delete(removing){
-		
+		throw new Error("no implementation")
+	}
+	
+	remove_withoutSelection_delete_tailOf_paragraph(removing){
+		throw new Error("no implementation")
+	}
+	
+	remove_withoutSelection_delete_tailOf_text(removing){
+		throw new Error("no implementation")
 	}
 	
 	remove_withSelection(){
-		
+		throw new Error("no implementation")
 	}
 }

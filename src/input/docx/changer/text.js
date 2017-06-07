@@ -99,6 +99,14 @@ export class text extends Base{
 		this.renderChanged(target.get(0))
 		this.updateSelection(id,at)
 	}
+	
+	remove_withoutSelection_backspace_headOf_text(){
+		
+	}
+	
+	remove_withoutSelection_backspace_headOf_paragraph(){
+		
+	}
 
 	remove_withoutSelection_delete(removing){
 		let {start:{id,at}}=this.selection
@@ -132,7 +140,7 @@ export class text extends Base{
 			let top0=ancestors0.last()
 			let top1=ancestors1.last()
 			
-			let ancestorId=this.id(ancestor)||this.getParentId(this.id(top0))
+			let ancestorId=this.getParentId(this.id(top0))
 			console.assert(!!ancestorId)
 			
 			let removingTops=top0.nextUntil(top1)

@@ -17,7 +17,7 @@ export function getChanged(state){
 	return state.get("violent").changing
 }
 
-export function recordComposer(composer,t){
+export function _recordComposer(composer,t){
 	let editorId=composer.context.docId
 	let contentId=composer.props.id
 	if(!(t=composers[editorId]))
@@ -25,20 +25,23 @@ export function recordComposer(composer,t){
 	t[contentId]=composer
 }
 
-//experimental
-export function getParentId(state,id){
-	return Object.keys(composers).reduce((found, k)=>{
-		if(found)
-			return found
-		
-		let adoc=composers[k]
-		let me=adoc[id]
-		if(me){
-			let parent=me.context.parent
-			if(parent)
-				return parent.props.id
-		}
-	},undefined)
+export function _removeComposer(composer){
+	let editorId=composer.context.docId
+	let contentId=composer.props.id
+	delete composers[editorId][contentId]
+}
+
+export function getComposers(state){
+	let active=getSelection(state).active
+	let doc=composers[active]
+	return doc
+}
+
+export function getParentId(content,id){
+	return content.findKey(v=>{
+		let children=v.get("children")
+		return children && children.includes && children.includes(id)
+	})
 }
 
 export function getContentStyle(state, editorId, contentId){
@@ -79,13 +82,13 @@ export function nextCursorable(state,id){
 
 	let children=parent.computed.children
 	let index=children.findIndex(a=>a==current)
-	let found=children[index+1]
+	let found=children.slice(index+1).find(a=>!!a.props.children)
 	while(!found && parent.context.parent){
 		current=parent
 		parent=parent.context.parent
 		children=parent.computed.children
 		index=children.findIndex(a=>a==current)
-		found=children.filter((a,i)=>i>index).reduce((state,next)=>{
+		found=children.slice(index+1).reduce((state,next)=>{
 			if(state)
 				return state
 			return findCursorableIn(next)
@@ -103,13 +106,14 @@ export function prevCursorable(state,id){
 
 	let children=parent.computed.children
 	let index=children.findIndex(a=>a==current)
-	let found=children[index-1]
+	let found=children.slice(0,index).reverse().find(a=>!!a.props.children)
+	
 	while(!found && parent.context.parent){
 		current=parent
 		parent=parent.context.parent
 		children=parent.computed.children
 		index=children.findIndex(a=>a==current)
-		found=children.filter((a,i)=>i<index).reduceRight((state,next)=>{
+		found=children.slice(0,index).reduceRight((state,next)=>{
 			if(state)
 				return state
 			return findCursorableIn(next,"Right")

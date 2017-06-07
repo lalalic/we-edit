@@ -1,5 +1,5 @@
 import {PropTypes} from "react"
-import {recordComposer} from "state/selector"
+import {_recordComposer,_removeComposer} from "state/selector"
 
 export function editable(Model){
 	return class extends Model{
@@ -17,7 +17,11 @@ export function editable(Model){
 		
 		constructor(){
 			super(...arguments)
-			recordComposer(this)
+			_recordComposer(this)
+		}
+		
+		componentWillUnmount(){
+			_removeComposer(this)
 		}
 		
 		static cursorable(){

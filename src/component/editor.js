@@ -3,7 +3,7 @@ import {connect, connectAdvanced} from "react-redux"
 
 import Models from "model"
 
-import {getContent, getChanged} from "state/selector"
+import {getContent, getChanged, getParentId} from "state/selector"
 import Cursor from "state/cursor"
 import Input from "input"
 import uuid from "tools/uuid"
@@ -77,7 +77,6 @@ const Root=connect((state,{domain})=>{
 	constructor(){
 		super(...arguments)
 		this.els=new Map()
-		this.parents=new Map()
 		this.componentWillReceiveProps(this.props)
 	}
 
@@ -87,24 +86,18 @@ const Root=connect((state,{domain})=>{
 		}
 	}
 
-	changedType(id,current,last){
-		return {
-			"10":"delete",
-			"11":"update",
-			"01":"create"
-		}[`${last.has(id)&&1||0}${current.has(id)&&1||0}`]
-	}
-
 	componentWillReceiveProps({content,changed,domain}){
 		//return this.doc=this.createChildElement("root",content,domain,this.props.content)
 
 		if(this.doc && changed){ // editing
 			//&& content.size>50){ // big
+			const getThisParentId=id=>getParentId(this.props.content,id)
+			
 			const changeParent=id=>{
 				let el=this.els.get(id)
 				let changed=React.cloneElement(el,{changed:true})
 
-				let parentId=this.parents.get(id)
+				let parentId=getThisParentId(id)
 				if(parentId){
 					let parentEl=this.els.get(parentId)
 					let children=parentEl.props.children
@@ -127,7 +120,6 @@ const Root=connect((state,{domain})=>{
 				if(children){
 					let {props:{children:els}}=this.els.get(k)
 					els.forEach(({props:{id}})=>{
-						this.parents.delete(id)
 						this.els.delete(id)
 					})
 					let rawEls=els.splice(0,els.length)
@@ -146,11 +138,10 @@ const Root=connect((state,{domain})=>{
 							handled.push(j)
 							els.push(el)
 						}
-						this.parents.set(j,k)
 					})
 					changeParent(k)
 				}else if(!handled.includes(k)){
-					let parentId=this.parents.get(k)
+					let parentId=getThisParentId(k)
 					let parentEl=this.els.get(parentId)
 					children=parentEl.props.children
 					let index=content.get(parentId).toJS().children.indexOf(k)
@@ -161,7 +152,6 @@ const Root=connect((state,{domain})=>{
 			},[])
 		}else{//reproduce mode
 			this.els=new Map()
-			this.parents=new Map()
 			this.doc=this.createChildElement("root",content,domain,this.props.content)
 		}
 	}
@@ -174,7 +164,6 @@ const Root=connect((state,{domain})=>{
 
 		if(Array.isArray(children))
 			elChildren=children.map(a=>{
-				this.parents.set(a,id)
 				return this.createChildElement(a,content,domain,lastContent)
 			})
 

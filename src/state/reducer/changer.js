@@ -8,7 +8,7 @@ export default class Changer{
 	}
 
 	getParentId(id){
-		return getParentId(this._state, id)
+		return getParentId(this._state.get("content"), id)
 	}
 
 	state(){
