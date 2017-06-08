@@ -60,6 +60,10 @@ export default {
 						children: !Array.isArray(children) ? children : children.map(a=>a.id)
 					}))
 
+					if(Array.isArray(children)){
+						children.forEach(k=>content.mergeIn([k.id],{parent:id}))
+					}
+
 					return {id,type,props,children}
 				}
 
@@ -82,7 +86,7 @@ export default {
 
 						if(styles)
 							state=state.setIn("content.root.props.styles".split("."),new Map(styles))
-						
+
 						if(undoables){
 							const collect=(collected,k)=>{
 								let children=state.getIn(`content.${k}.children`.split("."))
@@ -92,18 +96,18 @@ export default {
 								collected.push(k)
 								return collected
 							}
-							
+
 							let removed=Object.keys(undoables)
 								.filter(k=>!changedContent.has(k))
 								.reduce(collect,[])
 								.filter(k=>!changedContent.has(k))
-								
+
 							if(removed.length>0){
 								state=state.updateIn(["content"],c=>removed.reduce((c,k)=>c.remove(k),c))
 							}
 							historyEntry.changed=undoables
 						}
-						
+
 						if(updated){
 							state=Object.keys(updated)
 								.filter(k=>!!updated[k].children)
@@ -111,6 +115,19 @@ export default {
 									if(!undoables){
 										undoables=historyEntry.changed={}
 									}
+
+									if(changedContent.size>0){//set parent
+										changedContent=changedContent.withMutations(changed=>
+											updated[k].children.forEach(c=>{
+												if(changed.has(c)){
+													if(!changed.hasIn([c,"parent"])){
+														changed.updateIn([c],v=>v.set("parent",k))
+													}
+												}
+											})
+										)
+									}
+
 									return state.updateIn(["content",k,"children"],c=>{
 										undoables[k]={children:c.toJS()}
 										return Immutable.fromJS(updated[k].children)

@@ -1,4 +1,4 @@
-const composers={}
+import {List} from "immutable"
 
 export function getSelection(state){
 	return state.get("selection").toJS()
@@ -17,36 +17,18 @@ export function getChanged(state){
 	return state.get("violent").changing
 }
 
-export function _recordComposer(composer,t){
-	let editorId=composer.context.docId
-	let contentId=composer.props.id
-	if(!(t=composers[editorId]))
-		t=composers[editorId]={}
-	t[contentId]=composer
-}
-
-export function _removeComposer(composer){
-	let editorId=composer.context.docId
-	let contentId=composer.props.id
-	delete composers[editorId][contentId]
-}
-
-export function getComposers(state){
-	let active=getSelection(state).active
-	let doc=composers[active]
-	return doc
-}
-
 export function getParentId(content,id){
-	return content.findKey(v=>{
-		let children=v.get("children")
-		return children && children.includes && children.includes(id)
-	})
+	return content.getIn([id,"parent"])
 }
 
 export function getContentStyle(state, editorId, contentId){
-	let {children,id,namedStyle,...style}=composers[editorId][contentId].props
-	return style
+	let el=document.querySelector(`#${editorId} [data-content='${contentId}']`)
+	return {
+		fonts:el.getAttribute("font-family"),
+		size: parseInt(el.getAttribute("font-size")),
+		bold: el.getAttribute("font-weight")=="700",
+		italic: el.getAttribute("font-style")=="italic"
+	}
 }
 
 export function getStyles(state){
@@ -107,7 +89,7 @@ export function prevCursorable(state,id){
 	let children=parent.computed.children
 	let index=children.findIndex(a=>a==current)
 	let found=children.slice(0,index).reverse().find(a=>!!a.props.children)
-	
+
 	while(!found && parent.context.parent){
 		current=parent
 		parent=parent.context.parent
@@ -136,4 +118,42 @@ export function getNode(docId, id,at){
 		if(start<=at && at<=end)
 			return a
 	}
+}
+
+export function traverse(content, f, start="root", started=false){
+	let {id,node}={start,content.get(start)}
+	if(started && f(node)===true)
+		return true
+
+	let children=node.get("children")
+	if(children instanceof List){
+		return !!children.find(k=>{
+			if(f(content.get(k))===true){
+				return true
+			}else{
+				return traverse(content,f,k,true)
+			}
+		})
+	}
+}
+
+export function traversePrev(content, f, start="root", started=false){
+	let {id,node}={start,content.get(start)}
+	if(started && f(node)===true)
+		return true
+
+	let children=node.get("children")
+	if(children instanceof List){
+		return !!children.find(k=>{
+			if(f(content.get(k))===true){
+				return true
+			}else{
+				return traverse(content,f,k,true)
+			}
+		})
+	}
+}
+
+export function traverseNext(content, f, start="root", started=false){
+
 }
