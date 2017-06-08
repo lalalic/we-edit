@@ -35,26 +35,109 @@ export function getStyles(state){
 	return state.getIn("content.root.props.styles".split("."))
 }
 
-export function findFirstCursorable(content){
-	const visit=(a,id)=>{
-		if(["header","footer"].indexOf(a.type)!=-1)
-			return null
-		if(["text","image"].indexOf(a.type)!=-1)
-			return id
-		return a.children.reduce((found,child)=> found || visit(content.get(child).toJS(), child),null)
+
+
+export function traverse(content, f, start="root"){
+	let [id,node]=[start,content.get(start)]
+	let children=node.get("children")
+	if(children instanceof List){
+		return !!children.find(k=>{
+			let result=f(content.get(k),k)
+			if(result===true){
+				return true
+			}else if(result===false){
+				return false
+			}else{
+				return traverse(content,f,k)
+			}
+		})
+	}else{
+		return f(node,id)
 	}
-	return visit(content.get("root").toJS())
+}
+
+export function traversePrev(content, f, start="root"){
+	let parentId=getParentId(content,start)
+	if(parentId){
+		let parent=content.get(parentId)
+		let siblings=parent.get("children")
+		if(siblings instanceof List){
+			let index=siblings.indexOf(start)
+			let prevs=siblings.slice(0,index)
+			return !!prevs.findLast((k,i)=>{
+				let result=f(content.get(k),k)
+				if(result===true){
+					return true
+				}else if(result===false){
+					return false
+				}else{
+					return traversePrev(content,f,k)
+				}
+
+			})
+		}else{
+			return f(parent,parentId)
+		}
+	}
+}
+
+export function traverseNext(content, f, start="root"){
+	let parentId=getParentId(content,start)
+	if(parentId){
+		let siblings=content.get(parentId).get("children")
+		if(siblings instanceof List){
+			let index=siblings.indexOf(start)
+			let nexts=siblings.slice(index+1)
+			return !!nexts.find(k=>{
+				let result=f(content.get(k),k)
+				if(result===true){
+					return true
+				}else if(result===false){
+					return false
+				}else{
+					return traversePrev(content,f,k)
+				}
+			})
+		}
+	}
 }
 
 const cursorables=["text","image"]
+export function firstCursorable(content){
+	const excludes=["header","footer"]
+	let found
+	traverse(content,(n,k,type=n.get("type"))=>{
+		if(excludes.includes(type)){
+			return false
+		}
+		if(cursorables.includes(type)){
+			found=k
+			return true
+		}
+	})
+	return found
+}
+
 export function nextCursorable(state,id){
-	let found=traverseNext(state.get("content"),n=>cursorables.includes(n.type),id)
-	return found ? found.props.id : null
+	let found
+	traverseNext(state.get("content"),(n,k,type=n.get("type"))=>{
+		if(cursorables.includes(type)){
+			found=k
+			return true
+		}
+	},id)
+	return found
 }
 
 export function prevCursorable(state,id){
-	let found=traversePrev(state.get("content"),n=>cursorables.includes(n.type),id)
-	return found ? found.props.id : null
+	let found
+	traversePrev(state.get("content"),(n,k,type=n.get("type"))=>{
+		if(cursorables.includes(type)){
+			found=k
+			return true
+		}
+	},id)
+	return found
 }
 
 export function getNode(docId, id,at){
@@ -69,57 +152,5 @@ export function getNode(docId, id,at){
 		let start=end-length
 		if(start<=at && at<=end)
 			return a
-	}
-}
-
-export function traverse(content, f, start="root"){
-	let {id,node}={start,content.get(start)}
-	let children=node.get("children")
-	if(children instanceof List){
-		return !!children.find(k=>{
-			if(f(content.get(k))===true){
-				return true
-			}else{
-				return traverse(content,f,k,true)
-			}
-		})
-	}
-}
-
-export function traversePrev(content, f, start="root"){
-	let parentId=getParentId(start)
-	if(parentId){
-		let siblings=content.get(parentId).get("children")
-		if(slibings instanceof List){
-			let index=siblings.indexOf(start)
-			let prevs=siblings.slice(0,index)
-			return !!prevs.find(k=>{
-				if(f(content.get(k)===true)){
-					return true
-				}else{
-					return traversePrev(content,f,k)
-				}
-
-			})
-		}
-	}
-}
-
-export function traverseNext(content, f, start="root"){
-	let parentId=getParentId(start)
-	if(parentId){
-		let siblings=content.get(parentId).get("children")
-		if(slibings instanceof List){
-			let index=siblings.indexOf(start)
-			let nexts=siblings.slice(index+1)
-			return !!nexts.find(k=>{
-				if(f(content.get(k)===true)){
-					return true
-				}else{
-					return traversePrev(content,f,k)
-				}
-
-			})
-		}
 	}
 }

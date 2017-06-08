@@ -1,12 +1,12 @@
 import {createStore, compose, applyMiddleware} from "redux"
 import Immutable,{Map} from "immutable"
 import thunk from "redux-thunk"
-import {findFirstCursorable} from "./selector"
+import {firstCursorable} from "./selector"
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
 export function createState(doc, content, docReducer=state=>state){
-	let id=findFirstCursorable(content)
+	let id=firstCursorable(content)
 
 	const INIT_STATE=Map({
 		doc, //source file
