@@ -46,62 +46,14 @@ export function findFirstCursorable(content){
 	return visit(content.get("root").toJS())
 }
 
-function findCursorableIn(composer, direction=""){
-	if(composer.constructor.cursorable())
-		return composer
-	return composer.computed.children[`reduce${direction}`]((state,next)=>{
-		if(state)
-			return state
-		return findCursorableIn(next, direction)
-	},null)
-}
-
+const cursorables=["text","image"]
 export function nextCursorable(state,id){
-	let {active}=getSelection(state)
-	let components=composers[active]
-	let current=components[id]
-	let parent=current.context.parent
-
-	let children=parent.computed.children
-	let index=children.findIndex(a=>a==current)
-	let found=children.slice(index+1).find(a=>!!a.props.children)
-	while(!found && parent.context.parent){
-		current=parent
-		parent=parent.context.parent
-		children=parent.computed.children
-		index=children.findIndex(a=>a==current)
-		found=children.slice(index+1).reduce((state,next)=>{
-			if(state)
-				return state
-			return findCursorableIn(next)
-		},null)
-	}
-
+	let found=traverseNext(state.get("content"),n=>cursorables.includes(n.type),id)
 	return found ? found.props.id : null
 }
 
 export function prevCursorable(state,id){
-	let {active}=getSelection(state)
-	let components=composers[active]
-	let current=components[id]
-	let parent=current.context.parent
-
-	let children=parent.computed.children
-	let index=children.findIndex(a=>a==current)
-	let found=children.slice(0,index).reverse().find(a=>!!a.props.children)
-
-	while(!found && parent.context.parent){
-		current=parent
-		parent=parent.context.parent
-		children=parent.computed.children
-		index=children.findIndex(a=>a==current)
-		found=children.slice(0,index).reduceRight((state,next)=>{
-			if(state)
-				return state
-			return findCursorableIn(next,"Right")
-		},null)
-	}
-
+	let found=traversePrev(state.get("content"),n=>cursorables.includes(n.type),id)
 	return found ? found.props.id : null
 }
 
@@ -120,11 +72,8 @@ export function getNode(docId, id,at){
 	}
 }
 
-export function traverse(content, f, start="root", started=false){
+export function traverse(content, f, start="root"){
 	let {id,node}={start,content.get(start)}
-	if(started && f(node)===true)
-		return true
-
 	let children=node.get("children")
 	if(children instanceof List){
 		return !!children.find(k=>{
@@ -137,23 +86,40 @@ export function traverse(content, f, start="root", started=false){
 	}
 }
 
-export function traversePrev(content, f, start="root", started=false){
-	let {id,node}={start,content.get(start)}
-	if(started && f(node)===true)
-		return true
+export function traversePrev(content, f, start="root"){
+	let parentId=getParentId(start)
+	if(parentId){
+		let siblings=content.get(parentId).get("children")
+		if(slibings instanceof List){
+			let index=siblings.indexOf(start)
+			let prevs=siblings.slice(0,index)
+			return !!prevs.find(k=>{
+				if(f(content.get(k)===true)){
+					return true
+				}else{
+					return traversePrev(content,f,k)
+				}
 
-	let children=node.get("children")
-	if(children instanceof List){
-		return !!children.find(k=>{
-			if(f(content.get(k))===true){
-				return true
-			}else{
-				return traverse(content,f,k,true)
-			}
-		})
+			})
+		}
 	}
 }
 
-export function traverseNext(content, f, start="root", started=false){
+export function traverseNext(content, f, start="root"){
+	let parentId=getParentId(start)
+	if(parentId){
+		let siblings=content.get(parentId).get("children")
+		if(slibings instanceof List){
+			let index=siblings.indexOf(start)
+			let nexts=siblings.slice(index+1)
+			return !!nexts.find(k=>{
+				if(f(content.get(k)===true)){
+					return true
+				}else{
+					return traversePrev(content,f,k)
+				}
 
+			})
+		}
+	}
 }
