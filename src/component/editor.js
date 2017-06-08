@@ -91,8 +91,8 @@ const Root=connect((state,{domain})=>{
 
 		if(this.doc && changed){ // editing
 			//&& content.size>50){ // big
-			const getThisParentId=id=>getParentId(this.props.content,id)
-			
+			const getThisParentId=id=>getParentId(content,id)
+
 			const changeParent=id=>{
 				let el=this.els.get(id)
 				let changed=React.cloneElement(el,{changed:true})

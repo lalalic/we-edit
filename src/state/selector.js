@@ -37,22 +37,20 @@ export function getStyles(state){
 
 
 
-export function traverse(content, f, start="root"){
+export function traverse(content, f, start="root", right=false){
 	let [id,node]=[start,content.get(start)]
 	let children=node.get("children")
 	if(children instanceof List){
-		return !!children.find(k=>{
+		return !!children[`find${right ? "Last" :""}`](k=>{
 			let result=f(content.get(k),k)
 			if(result===true){
 				return true
 			}else if(result===false){
 				return false
 			}else{
-				return traverse(content,f,k)
+				return !!traverse(content,f,k,right)
 			}
 		})
-	}else{
-		return f(node,id)
 	}
 }
 
@@ -61,22 +59,22 @@ export function traversePrev(content, f, start="root"){
 	if(parentId){
 		let parent=content.get(parentId)
 		let siblings=parent.get("children")
-		if(siblings instanceof List){
-			let index=siblings.indexOf(start)
-			let prevs=siblings.slice(0,index)
-			return !!prevs.findLast((k,i)=>{
-				let result=f(content.get(k),k)
-				if(result===true){
-					return true
-				}else if(result===false){
-					return false
-				}else{
-					return traversePrev(content,f,k)
-				}
+		let index=siblings.indexOf(start)
+		let prevs=siblings.slice(0,index)
+		let found=!!prevs.findLast((k,i)=>{
+			let result=f(content.get(k),k)
+			if(result===true){
+				return true
+			}else if(result===false){
+				return false
+			}else{
+				return !!traverse(content,f,k,true)
+			}
 
-			})
-		}else{
-			return f(parent,parentId)
+		})
+
+		if(!found){
+			traversePrev(content,f,parentId)
 		}
 	}
 }
@@ -84,20 +82,24 @@ export function traversePrev(content, f, start="root"){
 export function traverseNext(content, f, start="root"){
 	let parentId=getParentId(content,start)
 	if(parentId){
-		let siblings=content.get(parentId).get("children")
-		if(siblings instanceof List){
-			let index=siblings.indexOf(start)
-			let nexts=siblings.slice(index+1)
-			return !!nexts.find(k=>{
-				let result=f(content.get(k),k)
-				if(result===true){
-					return true
-				}else if(result===false){
-					return false
-				}else{
-					return traversePrev(content,f,k)
-				}
-			})
+		let parent=content.get(parentId)
+		let siblings=parent.get("children")
+		let index=siblings.indexOf(start)
+		let nexts=siblings.slice(index+1)
+		let found=!!nexts.find((k,i)=>{
+			let result=f(content.get(k),k)
+			if(result===true){
+				return true
+			}else if(result===false){
+				return false
+			}else{
+				return !!traverse(content,f,k)
+			}
+
+		})
+
+		if(!found){
+			traverseNext(content,f,parentId)
 		}
 	}
 }
@@ -122,8 +124,15 @@ export function nextCursorable(state,id){
 	let found
 	traverseNext(state.get("content"),(n,k,type=n.get("type"))=>{
 		if(cursorables.includes(type)){
-			found=k
-			return true
+			if(type=="text"){
+				if(n.get("children").length>0){
+					found=k
+					return true
+				}
+			}else{
+				found=k
+				return true
+			}
 		}
 	},id)
 	return found
@@ -133,8 +142,15 @@ export function prevCursorable(state,id){
 	let found
 	traversePrev(state.get("content"),(n,k,type=n.get("type"))=>{
 		if(cursorables.includes(type)){
-			found=k
-			return true
+			if(type=="text"){
+				if(n.get("children").length>0){
+					found=k
+					return true
+				}
+			}else{
+				found=k
+				return true
+			}
 		}
 	},id)
 	return found

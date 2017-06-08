@@ -19,7 +19,7 @@ export const Cursor={
 				target=nextCursorable(state,id)
 				if(target){
 					id=target
-					at=0
+					at=1
 				}else{
 					//keep cursor at end of current target
 				}
@@ -39,7 +39,7 @@ export const Cursor={
 					target=nextCursorable(state,id)
 					if(target){
 						id=target
-						at=0
+						at=1
 					}else{
 						//keep cursor at end of current target
 					}
@@ -61,7 +61,7 @@ export const Cursor={
 				if(target){
 					id=target
 					let children=getContent(state, target).get("children")
-					at=children.length
+					at=children.length-1
 				}else{
 					//keep cursor at end of current target
 				}
@@ -80,7 +80,7 @@ export const Cursor={
 					if(target){
 						id=target
 						let children=getContent(state, target).get("children")
-						at=children.length
+						at=children.length-1
 					}else{
 						//keep cursor at end of current target
 					}
