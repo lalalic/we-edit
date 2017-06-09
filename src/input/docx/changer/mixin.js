@@ -25,8 +25,6 @@ export default function mixin(renderChanged){
 		
 		return node.attr("id")||node.find("[id]").attr("id")
 	}
-	
-	this.$=this.file.officeDocument.content
 
 	this.xml=this.file.officeDocument.content.xml.bind(this.file.officeDocument.content)
 }

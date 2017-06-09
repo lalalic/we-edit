@@ -33,11 +33,11 @@ export default class text extends Changer{
 		return this
 	}
 	
-	isFirstOfParagraph(tid){
-		let p=this.getContent(this.getParentId(tid))
-		while(p.type!=="paragraph"){
-			p=this.getContent(id)
-		}
+	isFirstOfParagraph(target){
+		target=this.$(target)
+		return target.closest("paragraph")
+			.first(target.attr("type"))
+			.attr("id")==target.attr("id")
 	}
 	
 	isFirstOfDocument(){

@@ -168,3 +168,8 @@ export function getNode(docId, id,at){
 			return a
 	}
 }
+
+import Query from "./query"
+export function query(content,context){
+	return new Query(content,context)
+}

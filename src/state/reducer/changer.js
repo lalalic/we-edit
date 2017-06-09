@@ -1,10 +1,12 @@
 import {getSelection, getParentId,getFile,getContent} from "state/selector"
+import {query} from "state/selector"
 export default class Changer{
 	constructor(state){
 		this._state=state
 		this._undoables={}
 		this._updated={}
 		this._selection=getSelection(state)
+		this.$=context=>query(state.get("content"),context)
 	}
 
 	getParentId(id){
