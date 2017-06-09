@@ -4,7 +4,7 @@ import Immutable, {Map,Collection} from "immutable"
 
 import DOMAIN from "model"
 import {createState} from "state"
-import {getContent,getSelection,getFile} from "state/selector"
+import {getContent,getSelection,getFile,getParentId} from "state/selector"
 import * as reducer from "state/reducer"
 
 import {History} from "state/undoable"
@@ -16,7 +16,7 @@ export default {
 		let Found=supported.find(TYPE=>TYPE.support(url))
 		if(Found){
 			const inst=new Found()
-			return inst.load(url).then(doc=>this.build(doc,inst))
+			return inst.load(url).then(doc=>buildEditableDoc(doc,inst))
 		}else{
 			throw new Error(`we cannot edit this type of file`)
 		}
@@ -25,7 +25,7 @@ export default {
 		let Found=supported.find(TYPE=>TYPE.support(type))
 		if(Found){
 			const inst=new Found()
-			return inst.create(type).then(doc=>this.build(doc,inst))
+			return inst.create(type).then(doc=>buildEditableDoc(doc,inst))
 		}else{
 			throw new Error(`we cannot create this type of file`)
 		}
@@ -34,156 +34,178 @@ export default {
 	support(...inputs){
 		inputs.forEach(a=>supported.findIndex(a)==-1 && supported.push(a))
 		return this
-	},
+	}
+}
 
-	build(doc,self){
-		let store,history
-		return {
-			render(domain){
-				return self.render(doc, domain, (type, props, children)=>{
-					return React.createElement(type,{...props,key:uuid()},children)
-				})
-			},
-			Store(props){
-				const createElementFactory=content=>(type, props, children, raw)=>{
-					let id
-					if(type.displayName=="document"){
-						id="root"
-						props.styles=new Map(props.styles)
-					}else{
-						id=self.identify(raw)
-					}
+function buildEditableDoc(doc,inputTypeInstance){
+	let store,history				
+	return {
+		render(domain){
+			return inputTypeInstance.render(doc, domain, (type, props, children)=>{
+				return React.createElement(type,{...props,key:uuid()},children)
+			})
+		},
+		Store(props){
+			let createElementFactory=createElementFactoryBuilder(inputTypeInstance)
+			let changeReducer=changeReducerBuilder(createElementFactory,inputTypeInstance)
+			let content=new Map().withMutations(a=>inputTypeInstance.render(doc, DOMAIN, createElementFactory(a)))
 
-					content.set(id, Immutable.fromJS({
-						type:type.displayName,
-						props,
-						children: !Array.isArray(children) ? children : children.map(a=>a.id)
-					}))
+			history=new History()
+			store=createState(doc,content,history.undoable(changeReducer))
 
-					if(Array.isArray(children)){
-						children.forEach(k=>content.mergeIn([k.id],{parent:id}))
-					}
-
-					return {id,type,props,children}
-				}
-
-
-				 function onChange(state,action,historyEntry){
-					if(action.type=="@@INIT")
-						return state
-
-
-					let changed
-					let changedContent=new Map()
-						.withMutations(a=>changed=self.onChange(state,action,createElementFactory(a)))
-
-					if(changed===false){
-						return state
-					}else if(typeof(changed)=="object"){
-						let {selection,styles,updated,undoables}=changed
-						if(selection)
-							state=state.mergeIn(["selection"], selection)
-
-						if(styles)
-							state=state.setIn("content.root.props.styles".split("."),new Map(styles))
-
-						if(undoables){
-							const collect=(collected,k)=>{
-								let children=state.getIn(`content.${k}.children`.split("."))
-								if(children instanceof Collection){
-									children.reduce(collect,collected)
-								}
-								collected.push(k)
-								return collected
-							}
-
-							let removed=Object.keys(undoables)
-								.filter(k=>!changedContent.has(k))
-								.reduce(collect,[])
-								.filter(k=>!changedContent.has(k))
-
-							if(removed.length>0){
-								state=state.updateIn(["content"],c=>removed.reduce((c,k)=>c.remove(k),c))
-							}
-							historyEntry.changed=undoables
-						}
-
-						if(updated){
-							state=Object.keys(updated)
-								.filter(k=>!!updated[k].children)
-								.reduce((merged,k)=>{
-									if(!undoables){
-										undoables=historyEntry.changed={}
-									}
-
-									if(changedContent.size>0){//set parent
-										changedContent=changedContent.withMutations(changed=>
-											updated[k].children.forEach(c=>{
-												if(changed.has(c)){
-													if(!changed.hasIn([c,"parent"])){
-														changed.updateIn([c],v=>v.set("parent",k))
-													}
-												}
-											})
-										)
-									}
-
-									return state.updateIn(["content",k,"children"],c=>{
-										undoables[k]={children:c.toJS()}
-										return Immutable.fromJS(updated[k].children)
-									})
-								},state)
-
-							state.get("violent").changing=updated
-						}else{
-							state.get("violent").changing={}
-						}
-					}else{
-						state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))
-					}
-
-					if(changedContent.size!=0){
-						state=state.mergeIn(["content"],changedContent)
-					}
-					return state
-				}
-
-				let content=new Map()
-					.withMutations(a=>self.render(doc, DOMAIN, createElementFactory(a)))
-
-				history=new History()
-				store=createState(doc,content,history.undoable(onChange))
-
-				return (
-					<Provider store={store}>
-						<TransformerProvider transformer={self.transform}>
-							{props.children}
-						</TransformerProvider>
-					</Provider>
-				)
-			},
-			save(name,option){
-				return self.save(doc, name, option)
-			},
-			getState(){
-				return store.getState()
-			},
-			dispatch(){
-				return store.dispatch(...arguments)
-			},
-			history(){
-				return {
-					canRedo(){
-						return history.past.length>0
-					},
-					canRedo(){
-						return history.future.length>0
-					}
+			return (
+				<Provider store={store}>
+					<TransformerProvider transformer={inputTypeInstance.transform}>
+						{props.children}
+					</TransformerProvider>
+				</Provider>
+			)
+		},
+		save(name,option){
+			return inputTypeInstance.save(doc, name, option)
+		},
+		getState(){
+			return store.getState()
+		},
+		dispatch(){
+			return store.dispatch(...arguments)
+		},
+		history(){
+			return {
+				canUndo(){
+					return history.past.length>0
+				},
+				canRedo(){
+					return history.future.length>0
 				}
 			}
 		}
 	}
 }
+/*
+the builder to create reducer
+*/
+const changeReducerBuilder=(createElementFactory,inputTypeInstance)=>
+	(state,action,historyEntry)=>{
+	if(action.type=="@@INIT")
+		return state
+	
+	let changed
+	let changedContent=new Map()
+		.withMutations(a=>{
+			changed=inputTypeInstance.onChange(state,action,createElementFactory(a))
+		})
+
+	if(changed===false){
+		return state
+	}else if(typeof(changed)=="object"){
+		let {selection,styles,updated,undoables}=changed
+		if(selection)
+			state=state.mergeIn(["selection"], selection)
+
+		if(styles)
+			state=state.setIn("content.root.props.styles".split("."),new Map(styles))
+
+		if(undoables){
+			const collect=(collected,k)=>{
+				let children=state.getIn(`content.${k}.children`.split("."))
+				if(children instanceof Collection){
+					children.reduce(collect,collected)
+				}
+				collected.push(k)
+				return collected
+			}
+			/*all saved for undo are possibly deleted, 
+				so delete all and descendants
+				then later recreate from re-rendered in changedContent
+			*/
+			let removed=Object.keys(undoables)
+				.filter(k=>!changedContent.has(k))
+				.reduce(collect,[])
+				.filter(k=>!changedContent.has(k))
+
+			if(removed.length>0){
+				state=state.updateIn(["content"],c=>removed.reduce((c,k)=>c.remove(k),c))
+			}
+			historyEntry.changed=undoables
+		}
+
+		if(updated){
+			state=Object.keys(updated)
+				.filter((k,children)=>{//return only children updated 
+					if(!!(children=updated[k].children)){
+						//reset parent of children
+						changedContent=changedContent.withMutations(changed=>
+							children.forEach(c=>{
+								if(changed.has(c)){
+									if(!changed.hasIn([c,"parent"])){
+										changed.updateIn([c],v=>v.set("parent",k))
+									}
+								}
+							})
+						)
+						return true
+					}else{
+						if(!changedContent.hasIn([k,"parent"])){
+							//use old parent
+							changedContent=changedContent.updateIn([k],v=>{
+								return v.set("parent",getContent(state,k).get("parent"))
+							})
+						}
+						return false
+					}
+				})
+				.reduce((merged,k)=>{//save original children for undo
+					if(!undoables){
+						undoables=historyEntry.changed={}
+					}
+
+					return state.updateIn(["content",k,"children"],c=>{
+						undoables[k]={children:c.toJS()}
+						return Immutable.fromJS(updated[k].children)
+					})
+				},state)
+			//for fast recompose updated 
+			state.get("violent").changing=updated
+		}else{
+			state.get("violent").changing={}
+		}
+	}else{
+		state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))
+	}
+	
+	state=state.mergeIn(["content"],changedContent)
+	return state
+}
+/*
+the builder to create a factory function
+the factory function is to build content state as map and tree 
+node prototype: {type:string,props:{},children:[...id],parent:string}
+*/
+const createElementFactoryBuilder=inputTypeInstance=>content=>(type, props, children, raw)=>{
+	let id
+	if(type.displayName=="document"){
+		id="root"
+		props.styles=new Map(props.styles)
+	}else{
+		id=inputTypeInstance.identify(raw)
+	}
+
+	content.set(id, Immutable.fromJS({
+		type:type.displayName,
+		props,
+		children: !Array.isArray(children) ? children : children.map(a=>a.id)
+	}))
+
+	if(Array.isArray(children)){
+		//set parent make map as a double direction tree structure
+		children.forEach(k=>content.mergeIn([k.id],{parent:id}))
+	}
+
+	return {id,type,props,children}
+}
+
+
 
 import Input from "state/cursor/input"
 class TransformerProvider extends Component{

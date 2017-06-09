@@ -35,8 +35,6 @@ export function getStyles(state){
 	return state.getIn("content.root.props.styles".split("."))
 }
 
-
-
 export function traverse(content, f, start="root", right=false){
 	let [id,node]=[start,content.get(start)]
 	let children=node.get("children")

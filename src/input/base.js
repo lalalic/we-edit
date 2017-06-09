@@ -37,9 +37,17 @@ export default class{
 	}
 
 	/**
-	*
+	*return:
+	- false: no state change
+	- {
+		selection: change of selection,
+		styles: all styles if any style changed,
+		updated: updated content,
+		undoables: saved changed content for history
+	}: all these changes will be applied on state
+	- any else: reduce selection action
 	*/
-	onChange(loaded,selection,action,createElement/*,state*/){
+	onChange(state,action,createElement){
 		return true
 	}
 
