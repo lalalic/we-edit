@@ -40,7 +40,7 @@ export function traverse(content, f, start="root", right=false){
 	let children=node.get("children")
 	if(children instanceof List){
 		return !!children[`find${right ? "Last" :""}`](k=>{
-			let result=f(content.get(k),k)
+			let result=f(content.get(k))
 			if(result===true){
 				return true
 			}else if(result===false){
@@ -60,7 +60,7 @@ export function traversePrev(content, f, start="root"){
 		let index=siblings.indexOf(start)
 		let prevs=siblings.slice(0,index)
 		let found=!!prevs.findLast((k,i)=>{
-			let result=f(content.get(k),k)
+			let result=f(content.get(k))
 			if(result===true){
 				return true
 			}else if(result===false){
@@ -85,7 +85,7 @@ export function traverseNext(content, f, start="root"){
 		let index=siblings.indexOf(start)
 		let nexts=siblings.slice(index+1)
 		let found=!!nexts.find((k,i)=>{
-			let result=f(content.get(k),k)
+			let result=f(content.get(k))
 			if(result===true){
 				return true
 			}else if(result===false){
@@ -106,7 +106,7 @@ const cursorables=["text","image"]
 export function firstCursorable(content){
 	const excludes=["header","footer"]
 	let found
-	traverse(content,(n,k,type=n.get("type"))=>{
+	traverse(content,(n,k=n.get("id"),type=n.get("type"))=>{
 		if(excludes.includes(type)){
 			return false
 		}
@@ -120,7 +120,7 @@ export function firstCursorable(content){
 
 export function nextCursorable(state,id){
 	let found
-	traverseNext(state.get("content"),(n,k,type=n.get("type"))=>{
+	traverseNext(state.get("content"),(n,k=n.get("id"),type=n.get("type"))=>{
 		if(cursorables.includes(type)){
 			if(type=="text"){
 				if(n.get("children").length>0){
@@ -138,7 +138,7 @@ export function nextCursorable(state,id){
 
 export function prevCursorable(state,id){
 	let found
-	traversePrev(state.get("content"),(n,k,type=n.get("type"))=>{
+	traversePrev(state.get("content"),(n,k=n.get("id"),type=n.get("type"))=>{
 		if(cursorables.includes(type)){
 			if(type=="text"){
 				if(n.get("children").length>0){

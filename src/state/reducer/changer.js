@@ -46,7 +46,7 @@ export default class Changer{
 				children:this.getContent(parent).children
 			}
 		}
-		
+
 		if(typeof(f)=="string"){
 			let children=this._updated[parent].children
 			let index=children.indexOf(f)
@@ -70,11 +70,12 @@ export default class Changer{
 	}
 
 	renderChanged(changed){
-		let id=this._renderChanged(changed).id
-		if(this._state.hasIn(["content",id]))
-			this._updated[id]={}
+		let node=this._renderChanged(changed)
+		if(this._state.hasIn(["content",node.id]))
+			this._updated[node.id]={}
+		return node
 	}
-	
+
 	id(node){
 		throw new Error("you need implement it")
 	}

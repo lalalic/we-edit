@@ -1,3 +1,4 @@
+import {List} from "immutable"
 import Changer from "./changer"
 
 export default class text extends Changer{
@@ -32,20 +33,31 @@ export default class text extends Changer{
 		this[path.join("_")](...arguments)
 		return this
 	}
-	
-	isFirstOfParagraph(target){
-		target=this.$(target)
-		return target.closest("paragraph")
-			.first(target.attr("type"))
-			.attr("id")==target.attr("id")
+
+	isFirstOfParagraph(id){
+		return this.$('#'+id).closest("paragraph")
+			.findFirst(n=>!(n.get("children") instanceof List))
+			.attr("id")==id
 	}
-	
-	isFirstOfDocument(){
+
+	isFirstOfDocument(id){
+		if(this.isFirstOfParagraph(id)){
+			return this.$('#'+id).closest("paragraph").prev().length==0
+		}
 		return false
 	}
-	
+
+	isLastOfDocument(id){
+		if(this.isLastOfParagraph(id)){
+			return this.$('#'+id).closest("paragraph").next().length==0
+		}
+		return false
+	}
+
 	isLastOfParagraph(id){
-		return false
+		return this.$('#'+id).closest("paragraph")
+			.findLast(n=>!(n.get("children") instanceof List))
+			.attr("id")==id
 	}
 
 	remove(removing){
@@ -59,12 +71,16 @@ export default class text extends Changer{
 				path.push("backspace")
 				if(at==0){
 					path.push("headOf")
-					if(this.isFirstOfParagraph(id)){
-						if(this.isFirstOfDocument(id)){
-							path.push("document")
-						}else{
-							path.push("paragraph")
+					if(this.isFirstOfDocument(id)){
+						//do nothing
+						return this
+					}else if(this.isFirstOfParagraph(id)){
+						if(this.$('#'+id).closest("paragraph")
+							.prev("paragraph").length==0){
+							return this
 						}
+
+						path.push("paragraph")
 					}else{
 						path.push("text")
 					}
@@ -74,7 +90,13 @@ export default class text extends Changer{
 				let {children:text}=this.getContent(id)
 				if(text.length-1==at){
 					path.push("tailOf")
-					if(this.isLastOfParagraph(id)){
+					if(this.isLastOfDocument(id)){
+						return this
+					}else if(this.isLastOfParagraph(id)){
+						if(this.$('#'+id).closest("paragraph")
+							.next("paragraph").length==0){
+							return this
+						}
 						path.push("paragraph")
 					}else{
 						path.push("text")
@@ -88,54 +110,50 @@ export default class text extends Changer{
 		this[path.join("_")](...arguments)
 		return this
 	}
-	
-	
+
+
 	insert_withoutSelection_string_withoutNewLine(inserting){
-		
+
 	}
-	
+
 	insert_withoutSelection_string_withNewLine(inserting){
-		
+
 	}
-	
+
 	insert_withSelection_string_withoutNewLine(inserting){
 		this.remove_withSelection()
 		this.insert_withoutSelection_string_withoutNewLine(...arguments)
 	}
-	
+
 	insert_withSelection_string_withNewLine(inserting){
 		this.remove_withSelection()
 		this.insert_withoutSelection_string_withNewLine(...arguments)
-	}	
-	
+	}
+
 	remove_withoutSelection_backspace(removing){
 		throw new Error("no implementation")
 	}
-	
+
 	remove_withoutSelection_backspace_headOf_text(){
 		throw new Error("no implementation")
 	}
-	
+
 	remove_withoutSelection_backspace_headOf_paragraph(){
 		throw new Error("no implementation")
 	}
-	
-	remove_withoutSelection_backspace_headOf_document(){
-		//do nothing
-	}
-	
+
 	remove_withoutSelection_delete(removing){
 		throw new Error("no implementation")
 	}
-	
+
 	remove_withoutSelection_delete_tailOf_paragraph(removing){
 		throw new Error("no implementation")
 	}
-	
+
 	remove_withoutSelection_delete_tailOf_text(removing){
 		throw new Error("no implementation")
 	}
-	
+
 	remove_withSelection(){
 		throw new Error("no implementation")
 	}

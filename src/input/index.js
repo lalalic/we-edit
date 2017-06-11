@@ -38,7 +38,7 @@ export default {
 }
 
 function buildEditableDoc(doc,inputTypeInstance){
-	let store,history				
+	let store,history
 	return {
 		render(domain){
 			return inputTypeInstance.render(doc, domain, (type, props, children)=>{
@@ -89,7 +89,7 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance)=>
 	(state,action,historyEntry)=>{
 	if(action.type=="@@INIT")
 		return state
-	
+
 	let changed
 	let changedContent=new Map()
 		.withMutations(a=>{
@@ -115,7 +115,7 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance)=>
 				collected.push(k)
 				return collected
 			}
-			/*all saved for undo are possibly deleted, 
+			/*all saved for undo are possibly deleted,
 				so delete all and descendants
 				then later recreate from re-rendered in changedContent
 			*/
@@ -132,7 +132,7 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance)=>
 
 		if(updated){
 			state=Object.keys(updated)
-				.filter((k,children)=>{//return only children updated 
+				.filter((k,children)=>{//return only children updated
 					if(!!(children=updated[k].children)){
 						//reset parent of children
 						changedContent=changedContent.withMutations(changed=>
@@ -165,21 +165,21 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance)=>
 						return Immutable.fromJS(updated[k].children)
 					})
 				},state)
-			//for fast recompose updated 
+			//for fast recompose updated
 			state.get("violent").changing=updated
 		}else{
-			state.get("violent").changing={}
+			state.get("violent").changing=null
 		}
 	}else{
 		state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))
 	}
-	
+
 	state=state.mergeIn(["content"],changedContent)
 	return state
 }
 /*
 the builder to create a factory function
-the factory function is to build content state as map and tree 
+the factory function is to build content state as map and tree
 node prototype: {type:string,props:{},children:[...id],parent:string}
 */
 const createElementFactoryBuilder=inputTypeInstance=>content=>(type, props, children, raw)=>{
@@ -193,6 +193,7 @@ const createElementFactoryBuilder=inputTypeInstance=>content=>(type, props, chil
 
 	content.set(id, Immutable.fromJS({
 		type:type.displayName,
+		id,
 		props,
 		children: !Array.isArray(children) ? children : children.map(a=>a.id)
 	}))

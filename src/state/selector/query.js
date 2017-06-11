@@ -1,72 +1,81 @@
 import {Map,List} from "immutable"
 import {traverse, traverseNext, traversePrev}  from "."
+import cssSelect from "./css"
 
 export default class Query{
 	constructor(content,selector){
 		this._content=content
 		this._nodes=[]
+		this._$=n=>new this.constructor(content,[n])
 		if(!selector){
 			this._nodes.push('root')
 			return this
 		}
-		
+
 		//$($)
 		if(selector instanceof Query){
 			return selector
 		}else
-		
+
 		//$({type...})
 		if(isNode(selector)){
 			selector=[selector]
 		}
-		
+
 		//$([{}]
 		if(Array.isArray(selector)){
 			selector.forEach(a=>{
 				if(isNode(a)){
-					this._nodes.push(content.keyOf(a))
+					this._nodes.push(a.get("id"))
 				}else if(typeof(a)=="string"){//id
 					this._nodes.push(a)
 				}
 			})
 			return this
-		}
-		
-		if(typeof(selector)=="string"){
+		}else
+
+		if(typeof(selector)=="string" && selector!="root"){
+			this._nodes.push('root')
 			return this.find(selector)
 		}
 	}
-	
+
 	get length(){
 		return this._nodes.length
 	}
-	
-	
+
 	attr(k){
 		if(this.length){
-			return this._content.getIn(`${this_nodes[0]}.${k}`)
+			let path=[this._nodes[0]]
+			if(["type","id","parent","children"].includes(k)){
+				path.push(k)
+			}else{
+				path.push("props")
+				path.push(k)
+			}
+			return this._content.getIn(path)
 		}else{
 			return null
 		}
 	}
-	
+
 	parent(selector){
-		let select=asSelector(selector)
+		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,id)=>{
 			let node=this._content.get(id)
-			if(node && node.has("parent") && select(node,id))
+			if(node && node.has("parent") && select(node))
 				found.push(node.get("parent"))
 			return found
 		},[])
 		return new this.constructor(this._content,found)
 	}
-	
+
 	parents(selector){
-		let select=asSelector(selector)
+		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,id)=>{
 			let node=this._content.get(id)
 			while(node && node.has("parent")){
-				if(select(node,id))
+				if(select(node))
 					found.push(node.get("parent"))
 				id=node.get("parent")
 				node=this._content.get(id)
@@ -75,14 +84,14 @@ export default class Query{
 		},[])
 		return new this.constructor(this._content,found)
 	}
-	
+
 	parentsUntil(selector){
-		let select=asSelector(selector)
+		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,id)=>{
 			let node=this._content.get(id)
 			while(node && node.has("parent")){
-				if(select(node,id)){
-					break 
+				if(select(node)){
+					break
 				}else{
 					found.push(node.get("parent"))
 				}
@@ -93,15 +102,15 @@ export default class Query{
 		},[])
 		return new this.constructor(this._content,found)
 	}
-	
+
 	closest(selector){
-		let select=asSelector(selector)
+		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,id)=>{
 			let node=this._content.get(id)
 			while(node && node.has("parent")){
-				if(select(node,id)){
-					found.push(node.get("parent"))
-					break 
+				if(select(node)){
+					found.push(node.get("id"))
+					break
 				}
 				id=node.get("parent")
 				node=this._content.get(id)
@@ -110,16 +119,16 @@ export default class Query{
 		},[])
 		return new this.constructor(this._content,found)
 	}
-	
+
 	nextAll(selector){
-		let select=asSelector(selector)
+		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,id)=>{
 			let node=this._content.get(id)
 			if(node && node.has("parent")){
-				let siblings=this._content.getIn(`${node.get("parent")}.children`)
+				let siblings=this._content.getIn([node.get("parent"),"children"])
 				for(let i=siblings.indexOf(id)+1;i<siblings.length;i++){
-					if(select(this._content.get(siblings[i]),siblings[i])){
-						found.push(siblings[i])
+					if(select(this._content.get(siblings.get(i)))){
+						found.push(siblings.get(i))
 					}
 				}
 			}
@@ -127,16 +136,16 @@ export default class Query{
 		},[])
 		return new this.constructor(this._content,found)
 	}
-	
+
 	prevAll(selector){
-		let select=asSelector(selector)
+		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,id)=>{
 			let node=this._content.get(id)
 			if(node && node.has("parent")){
-				let siblings=this._content.getIn(`${node.get("parent")}.children`)
+				let siblings=this._content.getIn([node.get("parent"),"children"])
 				for(let i=0,end=siblings.indexOf(id);i<end;i++){
-					if(select(this._content.get(siblings[i]),siblings[i])){
-						found.push(siblings[i])
+					if(select(this._content.get(siblings.get(i)))){
+						found.push(siblings(i))
 					}
 				}
 			}
@@ -144,18 +153,18 @@ export default class Query{
 		},[])
 		return new this.constructor(this._content,found)
 	}
-	
+
 	next(selector){
-		let select=asSelector(selector)
+		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,id)=>{
 			let node=this._content.get(id)
 			if(node && node.has("parent")){
-				let siblings=this._content.getIn(`${node.get("parent")}.children`)
+				let siblings=this._content.getIn([node.get("parent"),"children"])
 				let index=siblings.indexOf(id)
 				if(index<siblings.length-1){
 					++index
-					if(select(this._content.get(siblings[index]),siblings[index])){
-						found.push(siblings[index])
+					if(select(this._content.get(siblings.get(index)))){
+						found.push(siblings.get(index))
 					}
 				}
 			}
@@ -163,18 +172,18 @@ export default class Query{
 		},[])
 		return new this.constructor(this._content,found)
 	}
-	
+
 	prev(selector){
-		let select=asSelector(selector)
+		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,id)=>{
 			let node=this._content.get(id)
 			if(node && node.has("parent")){
-				let siblings=this._content.getIn(`${node.get("parent")}.children`)
+				let siblings=this._content.getIn([node.get("parent"),"children"])
 				let index=siblings.indexOf(id)
 				if(index>0){
 					--index
-					if(select(this._content.get(siblings[index]),siblings[index])){
-						found.push(siblings[index])
+					if(select(this._content.get(siblings.get(index)))){
+						found.push(siblings.get(index))
 					}
 				}
 			}
@@ -182,44 +191,72 @@ export default class Query{
 		},[])
 		return new this.constructor(this._content,found)
 	}
-	
+
 	nextUntil(selector){
-		let select=asSelector(selector)
+		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,k)=>{
-			traverseNext(this._content,(node,id)=>{
-				if(!!selector(node,id)){
+			traverseNext(this._content,node=>{
+				if(!!select(node)){
 					return true
 				}else{
-					found.push(id)
+					found.push(node.get("id"))
 				}
 			},k)
 			return found
 		},[])
 		return new this.constructor(this._content,found)
 	}
-	
+
 	prevUntil(selector){
-		let select=asSelector(selector)
+		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,k)=>{
-			traversePrev(this._content,(node,id)=>{
-				if(!!selector(node,id)){
+			traversePrev(this._content,node=>{
+				if(!!select(node)){
 					return true
 				}else{
-					found.push(id)
+					found.push(node.get("id"))
 				}
 			},k)
 			return found
 		},[])
 		return new this.constructor(this._content,found)
 	}
-	
-	children(selector){
-		let select=asSelector(selector)
+
+	nextFirst(selector){
+		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,k)=>{
-			let children=this._content.getIn(`${id}.children`)
+			traverseNext(this._content,node=>{
+				if(!!select(node)){
+					found.push(node.get("id"))
+					return true
+				}
+			},k)
+			return found
+		},[])
+		return new this.constructor(this._content,found)
+	}
+
+	prevFirst(selector){
+		let select=asSelector(selector,this._$)
+		let found=this._nodes.reduce((found,k)=>{
+			traversePrev(this._content,node=>{
+				if(!!select(node)){
+					found.push(node.get("id"))
+					return true
+				}
+			},k)
+			return found
+		},[])
+		return new this.constructor(this._content,found)
+	}
+
+	children(selector){
+		let select=asSelector(selector,this._$)
+		let found=this._nodes.reduce((found,k)=>{
+			let children=this._content.getIn([id,"children"])
 			if(children && children instanceof List){
 				children.forEach(a=>{
-					if(select(this._content.get(a),a)){
+					if(select(this._content.get(a))){
 						found.push(a)
 					}
 				})
@@ -228,26 +265,26 @@ export default class Query{
 		},[])
 		return new this.constructor(this._content,found)
 	}
-	
+
 	find(selector){
-		let select=asSelector(selector)
+		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,k)=>{
-			traverse(this._content,(node,id)=>{
-				if(!!selector(node,id)){
-					found.push(id)
+			traverse(this._content,node=>{
+				if(!!select(node)){
+					found.push(node.get("id"))
 				}
 			},k)
 			return found
 		},[])
 		return new this.constructor(this._content,found)
 	}
-	
+
 	findFirst(selector){
-		let select=asSelector(selector)
+		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,k)=>{
-			traverse(this._content,(node,id)=>{
-				if(!!selector(node,id)){
-					found.push(id)
+			traverse(this._content,node=>{
+				if(!!select(node)){
+					found.push(node.get("id"))
 					return true
 				}
 			},k)
@@ -255,14 +292,14 @@ export default class Query{
 		},[])
 		return new this.constructor(this._content,found)
 	}
-	
+
 	findLast(selector){
-		let select=asSelector(selector)
+		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,k)=>{
 			let kFound=[]
 			traverse(this._content,(node,id)=>{
-				if(!!selector(node,id)){
-					kFound.push(id)
+				if(!!select(node)){
+					kFound.push(node.get("id"))
 				}
 			},k)
 			if(kFound.length){
@@ -272,45 +309,65 @@ export default class Query{
 		},[])
 		return new this.constructor(this._content,found)
 	}
-	
+
 	filter(selector){
-		let select=asSelector(selector)
-		let found=this._nodes.filter(k=>select(this._content.get(k),k))
+		let select=asSelector(selector,this._$)
+		let found=this._nodes.filter(k=>select(this._content.get(k)))
 		return new this.constructor(this._content,found)
 	}
-	
+
 	not(selector){
-		let select=asSelector(selector)
-		let found=this._nodes.filter(k=>!select(this._content.get(k),k))
+		let select=asSelector(selector,this._$)
+		let found=this._nodes.filter(k=>!select(this._content.get(k)))
 		return new this.constructor(this._content,found)
 	}
-	
+
 	first(){
 		return new this.constructor(this._content,this._nodes.slice(0,1))
 	}
-	
+
 	last(){
 		return new this.constructor(this._content,this._nodes.slice(this.nodes.length-1))
 	}
-	
+
 	eq(i){
 		return new this.constructor(this._content,this._nodes.slice(i,i+1))
 	}
-	
+
 	get(i){
 		return this._content.get(this._nodes[i])
 	}
-	
+
 	has(selector){
-		let select=asSelector(selector)
-		return !!this._nodes.find(k=>select(this._content.get(k),k))
+		let select=asSelector(selector,this._$)
+		return !!this._nodes.find(k=>select(this._content.get(k)))
+	}
+
+	each(f){
+		this._nodes.forEach(function(id,i){
+			let node=this._content.get(id)
+			f.bind(node)(i,node)
+		})
+		return this
+	}
+
+	map(f){
+		let mapped=this._nodes.map(function(id,i){
+			let node=this._content.get(id)
+			return f.bind(node)(i,node)
+		}).filter(a=>!!a)
+		if(mapped.find(a=>!isNode(a))){
+			return mapped
+		}else{
+			return new this.constructor(this._content, mapped)
+		}
 	}
 }
 
 
 const isNode=a=>a instanceof Map
 
-function asSelector(selector){
+function asSelector(selector,$){
 	switch(typeof(selector)){
 		case "function":{
 			return selector
@@ -320,48 +377,12 @@ function asSelector(selector){
 				return node=>selector.has(node)
 			}else if(selector instanceof Map){
 				return node=>node==selector
+			}else{
+				throw new Error("not supported object selector")
 			}
-			break
 		}
-		case "string":{//#id,type,[a=b]
-			//any true would true
-			return (n,k)=>selector.split(",")
-				.map(a=>{
-					//any false would false
-					return (n,k)=>!a.split(/(?=[#\[\]])/g)
-						.map(k=>{
-							if(k[0]=="]"){
-								return k.substr(1)	
-							}
-							return k
-						}).filter(a=>!!a)
-						.map(k=>{
-							switch(k[0]){
-								case '#':{
-									let id=k.substr(1)
-									return (n,k)=>k==id
-								}
-								case '[':{
-									let [k,v]=k.substr(1).split("=")
-									return n=>{
-										if(n.has(k)){
-											if(typeof(v)=='undefined'){
-												return true
-											}else{
-												v=v.replace(/^['"]/).replace(/$['"]/)
-												return n.getIn(`props.${k}`)==v
-											}
-										}
-										return false
-									}
-								}
-								default:{
-									return n=>n.get("type")==k
-								}
-							}
-						}).find(f=>!f(n,k))
-				}).find(f=>f(n,k))
-			break
+		case "string":{
+			return cssSelect(selector,$)
 		}
 		default:
 			return a=>true

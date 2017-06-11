@@ -29,11 +29,14 @@ export class text extends Base{
 
 		let text=target.text()
 
-		let r=target.closest("w\\:r")
-		let p=target.closest("w\\:p")
+		let $r=this.$('#'+id).closest("run")
+		let $p=$r.closest("paragraph")
 
-		let pId=p.attr("id")
-		let parentId=this.getParentId(pId)
+		let r=this.getNode($r.attr("id"))
+		let p=this.getNode($p.attr("id"))
+
+		let pId=$p.attr("id")
+		let parentId=$p.attr("parent")
 
 		let emptyR=r.clone(), emptyP=p.clone()
 		console.assert(emptyR.attr("id")==undefined)
@@ -43,6 +46,8 @@ export class text extends Base{
 		let pieces=inserting.split(/[\r\n]+/g)
 		let first=0, last=pieces.length-1
 		let cursorId, cursorAt
+
+		this.save4Undo(p)
 
 		pieces.reduceRight((b,piece,i)=>{
 			switch(i){
@@ -65,7 +70,9 @@ export class text extends Base{
 					t0=p0.find("w\\:t").eq(0)
 
 					let rendered=this.renderChanged(p0.get(0))
-					this.updateChildren(parentId, children=>children.splice(children.indexOf(pId)+1,0,rendered.id))
+					this.updateChildren(parentId, children=>{
+						children.splice(children.indexOf(pId)+1,0,rendered.id)
+					})
 					this.updateSelection(t0.attr("id"), piece.length)
 					break
 				}
@@ -99,13 +106,42 @@ export class text extends Base{
 		this.renderChanged(target.get(0))
 		this.updateSelection(id,at)
 	}
-	
-	remove_withoutSelection_backspace_headOf_text(){
-		
+
+	remove_withoutSelection_backspace_headOf_text(removing){
+		let {start:{id,at}}=this.selection
+		let prev=this.$('#'+id)
+			.prevFirst(n=>{
+				return n.get("type")=="text"
+					&& n.has("children")
+					&& typeof(n.get("children"))=="string"
+					&& !!n.get("children").length
+			});
+		id=prev.attr("id")
+		at=prev.attr("children").length
+		this.updateSelection(id,at)
+		this.remove_withoutSelection_backspace(removing)
 	}
-	
+
+	//merge with prev paragraph
 	remove_withoutSelection_backspace_headOf_paragraph(){
-		
+		let {start:{id,at}}=this.selection
+		let p=this.$('#'+id).closest("paragraph")
+		let prevPid=p.prev("paragraph").attr("id")
+		let pId=p.attr("id")
+
+		let target=this.getNode(pId)
+		let prevP=this.getNode(prevPid)
+
+		this.save4Undo(target)
+		this.save4Undo(prevP)
+
+		prevP.append(target.children().not("w\\:pPr"))
+
+		this.updateChildren(p.attr("parent"),pId)
+		target.remove()
+
+		this.renderChanged(prevP.get(0))
+		this.updateSelection(id,at)
 	}
 
 	remove_withoutSelection_delete(removing){
@@ -119,6 +155,44 @@ export class text extends Base{
 
 		this.renderChanged(target.get(0))
 	}
+
+	//merge with next paragraph
+	remove_withoutSelection_delete_tailOf_paragraph(removing){
+		let {start:{id,at}}=this.selection
+		let p=this.$('#'+id).closest("paragraph")
+		let nextPid=p.next("paragraph").attr("id")
+		let pId=p.attr("id")
+
+		let target=this.getNode(pId)
+		let nextP=this.getNode(nextPid)
+
+		this.save4Undo(target)
+		this.save4Undo(nextP)
+
+		target.append(nextP.children().not("w\\:pPr"))
+
+		this.updateChildren(nextP.attr("parent"),nextPid)
+		nextP.remove()
+
+		this.renderChanged(target.get(0))
+		this.updateSelection(id,at)
+	}
+
+	remove_withoutSelection_delete_tailOf_text(removing){
+		let {start:{id,at}}=this.selection
+		let prev=this.$('#'+id)
+			.nextFirst(n=>{
+				return n.get("type")=="text"
+					&& n.has("children")
+					&& typeof(n.get("children"))=="string"
+					&& !!n.get("children").length
+			});
+		id=prev.attr("id")
+		at=0
+		this.updateSelection(id,at)
+		this.remove_withoutSelection_delete(removing)
+	}
+
 
 	remove_withSelection(){
 		const {start,end}=this.selection
@@ -134,17 +208,17 @@ export class text extends Base{
 			const $=this.file.officeDocument.content
 			const target1=this.getNode(end.id)
 			const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
-			
+
 			let ancestors0=target0.parentsUntil(ancestor)
 			let ancestors1=target1.parentsUntil(ancestor)
 			let top0=ancestors0.last()
 			let top1=ancestors1.last()
-			
+
 			let ancestorId=this.getParentId(this.id(top0))
 			console.assert(!!ancestorId)
-			
+
 			let removingTops=top0.nextUntil(top1)
-			
+
 			//save for undo
 			switch(ancestor.prop("name")){
 			case "w:p"://render whole, and save whole for undo
@@ -162,7 +236,7 @@ export class text extends Base{
 				this.save4Undo(top1)
 			break
 			}
-			
+
 			{//remove
 				removingTops.remove()
 				ancestors0.not(top0).each((i,a)=>$(a).nextAll().remove())

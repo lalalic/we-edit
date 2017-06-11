@@ -3,16 +3,27 @@ import Immutable,{Map} from "immutable"
 import thunk from "redux-thunk"
 import {firstCursorable} from "./selector"
 
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-
 export function createState(doc, content, docReducer=state=>state){
+	const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
+	 	window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
+			serialize:{
+				immutable: Immutable,
+				reviver(key,value){
+					if(key=="doc")
+						return doc
+					return value
+				}
+			}
+		}) : compose;
+
 	let id=firstCursorable(content)
+	doc.toJSON=a=>1
 
 	const INIT_STATE=Map({
 		doc, //source file
 		content, // models
 		selection:Immutable.fromJS({start:{id,at:0},end:{id,at:0},cursorAt:"end"}),
-		violent:{}
+		violent:{toJSON:a=>undefined}
 	})
 
 	return createStore(
