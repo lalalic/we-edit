@@ -1,12 +1,15 @@
 import {getSelection, getParentId,getFile,getContent} from "state/selector"
 import {query} from "state/selector"
+import ACTION from "state/action"
+import Content from "./content"
+
 export default class Changer{
 	constructor(state){
 		this._state=state
 		this._undoables={}
 		this._updated={}
 		this._selection=getSelection(state)
-		this.$=context=>query(state.get("content"),context)
+		this.$=context=>new Content(state,context)
 	}
 
 	getParentId(id){
@@ -86,5 +89,9 @@ export default class Changer{
 
 	_renderChanged(changed){
 		throw new Error("you need implement it")
+	}
+
+	cursorAt(id,at){
+		this._selection=select(this._selection,ACTION.Cursor.AT(id,at))
 	}
 }

@@ -170,6 +170,6 @@ export function getNode(docId, id,at){
 }
 
 import Query from "./query"
-export function query(content,context){
-	return new Query(content,context)
+export function query(state,context){
+	return new Query(state,context)
 }

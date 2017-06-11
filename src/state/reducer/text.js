@@ -113,7 +113,13 @@ export default class text extends Changer{
 
 
 	insert_withoutSelection_string_withoutNewLine(inserting){
+		let {start:{id,at}}=this.selection
+		const target=this.$('#'+id)
 
+		let text=target.text()
+		target.text(text.substring(0,at)+inserting+text.substr(at))
+
+		this.cursorAT(id,at+inserting.length)
 	}
 
 	insert_withoutSelection_string_withNewLine(inserting){
@@ -131,7 +137,13 @@ export default class text extends Changer{
 	}
 
 	remove_withoutSelection_backspace(removing){
-		throw new Error("no implementation")
+		let {start:{id,at}}=this.selection
+		let target=this.$('#'+id)
+
+		let text=target.text()
+		target.text(text.substring(0,at-removing)+text.substr(at))
+
+		this.cursorAt(id,at-removing)
 	}
 
 	remove_withoutSelection_backspace_headOf_text(){
@@ -143,7 +155,11 @@ export default class text extends Changer{
 	}
 
 	remove_withoutSelection_delete(removing){
-		throw new Error("no implementation")
+		let {start:{id,at}}=this.selection
+		const target=this.$('#'+id)
+
+		let text=target.text()
+		target.text(text.substring(0,at)+text.substr(at-removing))
 	}
 
 	remove_withoutSelection_delete_tailOf_paragraph(removing){

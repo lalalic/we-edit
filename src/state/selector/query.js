@@ -3,8 +3,9 @@ import {traverse, traverseNext, traversePrev}  from "."
 import cssSelect from "./css"
 
 export default class Query{
-	constructor(content,selector){
-		this._content=content
+	constructor(state,selector){
+		this.state=state
+		this._content=state.get("content")
 		this._nodes=[]
 		this._$=n=>new this.constructor(content,[n])
 		if(!selector){
@@ -67,7 +68,7 @@ export default class Query{
 				found.push(node.get("parent"))
 			return found
 		},[])
-		return new this.constructor(this._content,found)
+		return new this.constructor(this.state,found)
 	}
 
 	parents(selector){
@@ -82,7 +83,7 @@ export default class Query{
 			}
 			return found
 		},[])
-		return new this.constructor(this._content,found)
+		return new this.constructor(this.state,found)
 	}
 
 	parentsUntil(selector){
@@ -100,7 +101,7 @@ export default class Query{
 			}
 			return found
 		},[])
-		return new this.constructor(this._content,found)
+		return new this.constructor(this.state,found)
 	}
 
 	closest(selector){
@@ -117,7 +118,7 @@ export default class Query{
 			}
 			return found
 		},[])
-		return new this.constructor(this._content,found)
+		return new this.constructor(this.state,found)
 	}
 
 	nextAll(selector){
@@ -134,7 +135,7 @@ export default class Query{
 			}
 			return found
 		},[])
-		return new this.constructor(this._content,found)
+		return new this.constructor(this.state,found)
 	}
 
 	prevAll(selector){
@@ -151,7 +152,7 @@ export default class Query{
 			}
 			return found
 		},[])
-		return new this.constructor(this._content,found)
+		return new this.constructor(this.state,found)
 	}
 
 	next(selector){
@@ -170,7 +171,7 @@ export default class Query{
 			}
 			return found
 		},[])
-		return new this.constructor(this._content,found)
+		return new this.constructor(this.state,found)
 	}
 
 	prev(selector){
@@ -189,7 +190,7 @@ export default class Query{
 			}
 			return found
 		},[])
-		return new this.constructor(this._content,found)
+		return new this.constructor(this.state,found)
 	}
 
 	nextUntil(selector){
@@ -204,7 +205,7 @@ export default class Query{
 			},k)
 			return found
 		},[])
-		return new this.constructor(this._content,found)
+		return new this.constructor(this.state,found)
 	}
 
 	prevUntil(selector){
@@ -219,7 +220,7 @@ export default class Query{
 			},k)
 			return found
 		},[])
-		return new this.constructor(this._content,found)
+		return new this.constructor(this.state,found)
 	}
 
 	nextFirst(selector){
@@ -233,7 +234,7 @@ export default class Query{
 			},k)
 			return found
 		},[])
-		return new this.constructor(this._content,found)
+		return new this.constructor(this.state,found)
 	}
 
 	prevFirst(selector){
@@ -247,7 +248,7 @@ export default class Query{
 			},k)
 			return found
 		},[])
-		return new this.constructor(this._content,found)
+		return new this.constructor(this.state,found)
 	}
 
 	children(selector){
@@ -263,7 +264,7 @@ export default class Query{
 			}
 			return found
 		},[])
-		return new this.constructor(this._content,found)
+		return new this.constructor(this.state,found)
 	}
 
 	find(selector){
@@ -276,7 +277,7 @@ export default class Query{
 			},k)
 			return found
 		},[])
-		return new this.constructor(this._content,found)
+		return new this.constructor(this.state,found)
 	}
 
 	findFirst(selector){
@@ -290,7 +291,7 @@ export default class Query{
 			},k)
 			return found
 		},[])
-		return new this.constructor(this._content,found)
+		return new this.constructor(this.state,found)
 	}
 
 	findLast(selector){
@@ -307,31 +308,31 @@ export default class Query{
 			}
 			return found
 		},[])
-		return new this.constructor(this._content,found)
+		return new this.constructor(this.state,found)
 	}
 
 	filter(selector){
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.filter(k=>select(this._content.get(k)))
-		return new this.constructor(this._content,found)
+		return new this.constructor(this.state,found)
 	}
 
 	not(selector){
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.filter(k=>!select(this._content.get(k)))
-		return new this.constructor(this._content,found)
+		return new this.constructor(this.state,found)
 	}
 
 	first(){
-		return new this.constructor(this._content,this._nodes.slice(0,1))
+		return new this.constructor(this.state,this._nodes.slice(0,1))
 	}
 
 	last(){
-		return new this.constructor(this._content,this._nodes.slice(this.nodes.length-1))
+		return new this.constructor(this.state,this._nodes.slice(this.nodes.length-1))
 	}
 
 	eq(i){
-		return new this.constructor(this._content,this._nodes.slice(i,i+1))
+		return new this.constructor(this.state,this._nodes.slice(i,i+1))
 	}
 
 	get(i){
@@ -341,6 +342,11 @@ export default class Query{
 	has(selector){
 		let select=asSelector(selector,this._$)
 		return !!this._nodes.find(k=>select(this._content.get(k)))
+	}
+
+	is(selector){
+		let select=asSelector(selector,this._$)
+		return !this._nodes.find(k=>!select(this._content.get(k)))
 	}
 
 	each(f){
@@ -359,8 +365,30 @@ export default class Query{
 		if(mapped.find(a=>!isNode(a))){
 			return mapped
 		}else{
-			return new this.constructor(this._content, mapped)
+			return new this.constructor(this.state, mapped)
 		}
+	}
+
+	add(selector){
+		let nodes=[...this._nodes]
+		new this.constructor(this.state,selector)._nodes.forEach(id=>{
+			if(!nodes.includes(id))
+				nodes.push(id)
+		})
+		return new this.constructor(this.state, nodes)
+	}
+
+	text(){
+		return this._nodes.map(k=>{
+			let node=this._content.get(k)
+			if(node.get("type")=="text")
+				return node.get("children")
+			else
+				return new this.constructor(this.state, [k])
+					.find("text")
+					.map((i,node)=>node.get("children"))
+					.join("")
+		}).join("")
 	}
 }
 
