@@ -3,6 +3,15 @@ import uuid from "tools/uuid"
 
 export default class loader extends docx4js{
 	makeId(node, uid){
+		if(uid){
+			Object.defineProperty(node.attribs,"id",{
+				enumerable: false,
+				configurable: false,
+				writable: false,
+				value: uid
+			})
+			return 
+		}
 		if(node.attribs.id!=undefined)
 			return node.attribs.id
 
@@ -54,8 +63,8 @@ export default class loader extends docx4js{
 		return this[`_update${type[0].toUpperCase()+type.substr(1)}Node`](...arguments)
 	}
 	
-	removeNode(content){
-		
+	removeNode({id,type}){
+		return this.getNode(id).remove()
 	}
 	
 	_updateTextNode({id},{props,children}){

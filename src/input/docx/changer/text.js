@@ -7,7 +7,7 @@ export class text extends Base{
 		mixin.bind(this)(renderChanged)
 	}
 
-	insert_withoutSelection_string_withoutNewLine(inserting){
+	_insert_withoutSelection_string_withoutNewLine(inserting){
 		let {start:{id,at}}=this.selection
 		const target=this.file.getNode(id)
 
@@ -19,7 +19,7 @@ export class text extends Base{
 
 		this.renderChanged(target.get(0))
 
-		this.updateSelection(id,at)
+		this.cursorAt(id,at)
 	}
 
 	//{type:"text/INSERT", payload:"hello\r\nworld"}
@@ -73,7 +73,7 @@ export class text extends Base{
 					this.updateChildren(parentId, children=>{
 						children.splice(children.indexOf(pId)+1,0,rendered.id)
 					})
-					this.updateSelection(t0.attr("id"), piece.length)
+					this.cursorAt(t0.attr("id"), piece.length)
 					break
 				}
 			default:{
@@ -93,7 +93,7 @@ export class text extends Base{
 		},1)
 	}
 
-	remove_withoutSelection_backspace(removing){
+	_remove_withoutSelection_backspace(removing){
 		let {start:{id,at}}=this.selection
 		const target=this.file.getNode(id)
 
@@ -104,7 +104,7 @@ export class text extends Base{
 		at-=removing
 
 		this.renderChanged(target.get(0))
-		this.updateSelection(id,at)
+		this.cursorAt(id,at)
 	}
 
 	remove_withoutSelection_backspace_headOf_text(removing){
@@ -118,7 +118,7 @@ export class text extends Base{
 			});
 		id=prev.attr("id")
 		at=prev.attr("children").length
-		this.updateSelection(id,at)
+		this.cursorAt(id,at)
 		this.remove_withoutSelection_backspace(removing)
 	}
 
@@ -141,10 +141,10 @@ export class text extends Base{
 		target.remove()
 
 		this.renderChanged(prevP.get(0))
-		this.updateSelection(id,at)
+		this.cursorAt(id,at)
 	}
 
-	remove_withoutSelection_delete(removing){
+	_remove_withoutSelection_delete(removing){
 		let {start:{id,at}}=this.selection
 		const target=this.file.getNode(id)
 
@@ -175,7 +175,7 @@ export class text extends Base{
 		nextP.remove()
 
 		this.renderChanged(target.get(0))
-		this.updateSelection(id,at)
+		this.cursorAt(id,at)
 	}
 
 	remove_withoutSelection_delete_tailOf_text(removing){
@@ -189,12 +189,12 @@ export class text extends Base{
 			});
 		id=prev.attr("id")
 		at=0
-		this.updateSelection(id,at)
+		this.cursorAt(id,at)
 		this.remove_withoutSelection_delete(removing)
 	}
 
 
-	remove_withSelection(){
+	_remove_withSelection(){
 		const {start,end}=this.selection
 		const target0=this.file.getNode(start.id)
 		if(start.id==end.id){
@@ -203,7 +203,7 @@ export class text extends Base{
 			let text=target0.text()
 			target0.text(text.substring(0,start.at)+text.substring(end.at))
 			this.renderChanged(target0.parent().get(0))
-			this.updateSelection(start.id,start.at)
+			this.cursorAt(start.id,start.at)
 		}else{
 			const $=this.file.officeDocument.content
 			const target1=this.file.getNode(end.id)
@@ -262,7 +262,7 @@ export class text extends Base{
 			break
 			}
 
-			this.updateSelection(start.id,start.at)
+			this.cursorAt(start.id,start.at)
 		}
 	}
 }

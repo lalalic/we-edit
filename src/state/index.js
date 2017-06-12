@@ -1,6 +1,7 @@
 import {createStore, compose, applyMiddleware} from "redux"
 import Immutable,{Map} from "immutable"
 import thunk from "redux-thunk"
+import reduxCatch from "redux-catch"
 import {firstCursorable} from "./selector"
 
 export function createState(doc, content, docReducer=state=>state){
@@ -30,7 +31,7 @@ export function createState(doc, content, docReducer=state=>state){
 	return createStore(
 		docReducer,
 		INIT_STATE,
-		composeEnhancers(applyMiddleware(report,thunk))
+		composeEnhancers(applyMiddleware(reduxCatch(console.error),thunk))
 	)
 }
 

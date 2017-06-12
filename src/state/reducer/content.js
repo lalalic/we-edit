@@ -68,8 +68,13 @@ export default class Content extends Query{
 
 	}
 
-	remove(node){
-
+	remove(){
+		this._nodes.forEach(k=>{
+			let node=this._content.get(k)
+			this._content.remove(k)
+			this._content.updateIn([node.get("parent"),"children"],c=>c.delete(c.indexOf(k)))
+		})
+		return this
 	}
 
 	replaceWith(){

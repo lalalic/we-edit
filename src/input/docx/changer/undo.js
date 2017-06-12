@@ -7,10 +7,6 @@ export class undo extends Base{
 		mixin.bind(this)(renderChanged)
 	}
 
-    updateSelection(selection){
-        return this._selection={...this._selection,...selection}
-    }
-
     run({changed:updated,selection}){
 		let orphans={}
 		const recoverId=node=>{
@@ -43,7 +39,7 @@ export class undo extends Base{
 			},[])
 		.forEach(k=>{
             let changing=updated[k]
-            if(changing.cheerio){
+            if(changing.cheerio){//a content node
                 let last=updated[k].clone()
                 let current=this.file.getNode(k)
 				if(current.length==0){
@@ -80,7 +76,7 @@ export class undo extends Base{
 				})
             }
         })
-        this.updateSelection(selection)
+        this._selection={...this._selection,...selection}
         return this
     }
 	

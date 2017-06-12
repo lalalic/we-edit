@@ -64,8 +64,8 @@ export default class Query{
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,id)=>{
 			let node=this._content.get(id)
-			if(node && node.has("parent") && select(node))
-				found.push(node.get("parent"))
+			if(node && node.has("parent") && select(node=this._content.get(node.get("parent"))))
+				found.push(node.get("id"))
 			return found
 		},[])
 		return new this.constructor(this.state,found)
@@ -75,29 +75,25 @@ export default class Query{
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,id)=>{
 			let node=this._content.get(id)
-			while(node && node.has("parent")){
+			while(node && node.has("parent") && (node=this._content.get(node.get("parent")))){
 				if(select(node))
-					found.push(node.get("parent"))
-				id=node.get("parent")
-				node=this._content.get(id)
+					found.push(node.get("id"))
 			}
 			return found
 		},[])
 		return new this.constructor(this.state,found)
 	}
 
-	parentsUntil(selector){
+	parentsUntil(selector=()=>false){
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,id)=>{
 			let node=this._content.get(id)
-			while(node && node.has("parent")){
+			while(node && node.has("parent") && (node=this._content.get(node.get("parent")))){
 				if(select(node)){
 					break
 				}else{
-					found.push(node.get("parent"))
+					found.push(node.get("id"))
 				}
-				id=node.get("parent")
-				node=this._content.get(id)
 			}
 			return found
 		},[])
@@ -120,6 +116,25 @@ export default class Query{
 		},[])
 		return new this.constructor(this.state,found)
 	}
+	
+	next(selector){
+		let select=asSelector(selector,this._$)
+		let found=this._nodes.reduce((found,id)=>{
+			let node=this._content.get(id)
+			if(node && node.has("parent")){
+				let siblings=this._content.getIn([node.get("parent"),"children"])
+				let index=siblings.indexOf(id)
+				if(index<siblings.size-1){
+					++index
+					if(select(this._content.get(siblings.get(index)))){
+						found.push(siblings.get(index))
+					}
+				}
+			}
+			return found
+		},[])
+		return new this.constructor(this.state,found)
+	}
 
 	nextAll(selector){
 		let select=asSelector(selector,this._$)
@@ -127,7 +142,7 @@ export default class Query{
 			let node=this._content.get(id)
 			if(node && node.has("parent")){
 				let siblings=this._content.getIn([node.get("parent"),"children"])
-				for(let i=siblings.indexOf(id)+1;i<siblings.length;i++){
+				for(let i=siblings.indexOf(id)+1;i<siblings.size;i++){
 					if(select(this._content.get(siblings.get(i)))){
 						found.push(siblings.get(i))
 					}
@@ -137,16 +152,18 @@ export default class Query{
 		},[])
 		return new this.constructor(this.state,found)
 	}
-
-	prevAll(selector){
+	
+	nextUntil(selector){
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,id)=>{
 			let node=this._content.get(id)
 			if(node && node.has("parent")){
 				let siblings=this._content.getIn([node.get("parent"),"children"])
-				for(let i=0,end=siblings.indexOf(id);i<end;i++){
+				for(let i=siblings.indexOf(id)+1;i<siblings.size;i++){
 					if(select(this._content.get(siblings.get(i)))){
-						found.push(siblings(i))
+						break
+					}else{
+						found.push(siblings.get(i))
 					}
 				}
 			}
@@ -154,21 +171,31 @@ export default class Query{
 		},[])
 		return new this.constructor(this.state,found)
 	}
-
-	next(selector){
+	
+	nextFirst(selector){
 		let select=asSelector(selector,this._$)
-		let found=this._nodes.reduce((found,id)=>{
-			let node=this._content.get(id)
-			if(node && node.has("parent")){
-				let siblings=this._content.getIn([node.get("parent"),"children"])
-				let index=siblings.indexOf(id)
-				if(index<siblings.length-1){
-					++index
-					if(select(this._content.get(siblings.get(index)))){
-						found.push(siblings.get(index))
-					}
+		let found=this._nodes.reduce((found,k)=>{
+			traverseNext(this._content,node=>{
+				if(!!select(node)){
+					found.push(node.get("id"))
+					return true
 				}
-			}
+			},k)
+			return found
+		},[])
+		return new this.constructor(this.state,found)
+	}
+	
+	forwardUntil(selector=()=>false){
+		let select=asSelector(selector,this._$)
+		let found=this._nodes.reduce((found,k)=>{
+			traverseNext(this._content,node=>{
+				if(!!select(node)){
+					return true
+				}else{
+					found.push(node.get("id"))
+				}
+			},k)
 			return found
 		},[])
 		return new this.constructor(this.state,found)
@@ -192,46 +219,38 @@ export default class Query{
 		},[])
 		return new this.constructor(this.state,found)
 	}
-
-	nextUntil(selector){
+	
+	prevAll(selector){
 		let select=asSelector(selector,this._$)
-		let found=this._nodes.reduce((found,k)=>{
-			traverseNext(this._content,node=>{
-				if(!!select(node)){
-					return true
-				}else{
-					found.push(node.get("id"))
+		let found=this._nodes.reduce((found,id)=>{
+			let node=this._content.get(id)
+			if(node && node.has("parent")){
+				let siblings=this._content.getIn([node.get("parent"),"children"])
+				for(let i=0,end=siblings.indexOf(id);i<end;i++){
+					if(select(this._content.get(siblings.get(i)))){
+						found.push(siblings(i))
+					}
 				}
-			},k)
+			}
 			return found
 		},[])
 		return new this.constructor(this.state,found)
-	}
-
+	}	
+	
 	prevUntil(selector){
 		let select=asSelector(selector,this._$)
-		let found=this._nodes.reduce((found,k)=>{
-			traversePrev(this._content,node=>{
-				if(!!select(node)){
-					return true
-				}else{
-					found.push(node.get("id"))
+		let found=this._nodes.reduce((found,id)=>{
+			let node=this._content.get(id)
+			if(node && node.has("parent")){
+				let siblings=this._content.getIn([node.get("parent"),"children"])
+				for(let i=0,end=siblings.indexOf(id);i<end;i++){
+					if(select(this._content.get(siblings.get(i)))){
+						break
+					}else{
+						found.push(siblings(i))
+					}
 				}
-			},k)
-			return found
-		},[])
-		return new this.constructor(this.state,found)
-	}
-
-	nextFirst(selector){
-		let select=asSelector(selector,this._$)
-		let found=this._nodes.reduce((found,k)=>{
-			traverseNext(this._content,node=>{
-				if(!!select(node)){
-					found.push(node.get("id"))
-					return true
-				}
-			},k)
+			}
 			return found
 		},[])
 		return new this.constructor(this.state,found)
@@ -251,6 +270,22 @@ export default class Query{
 		return new this.constructor(this.state,found)
 	}
 
+	
+	backwardUntil(selector=()=>false){
+		let select=asSelector(selector,this._$)
+		let found=this._nodes.reduce((found,k)=>{
+			traversePrev(this._content,node=>{
+				if(!!select(node)){
+					return true
+				}else{
+					found.push(node.get("id"))
+				}
+			},k)
+			return found
+		},[])
+		return new this.constructor(this.state,found)
+	}
+	
 	children(selector){
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,k)=>{
@@ -328,7 +363,7 @@ export default class Query{
 	}
 
 	last(){
-		return new this.constructor(this.state,this._nodes.slice(this.nodes.length-1))
+		return new this.constructor(this.state,this._nodes.slice(-1))
 	}
 
 	eq(i){
@@ -341,12 +376,12 @@ export default class Query{
 
 	has(selector){
 		let select=asSelector(selector,this._$)
-		return !!this._nodes.find(k=>select(this._content.get(k)))
+		return this._nodes.findIndex(k=>select(this._content.get(k)))!=-1
 	}
 
 	is(selector){
 		let select=asSelector(selector,this._$)
-		return !this._nodes.find(k=>!select(this._content.get(k)))
+		return this._nodes.findIndex(k=>!select(this._content.get(k)))==-1
 	}
 
 	each(f){
@@ -358,7 +393,7 @@ export default class Query{
 	}
 
 	map(f){
-		let mapped=this._nodes.map(function(id,i){
+		let mapped=this._nodes.map((id,i)=>{
 			let node=this._content.get(id)
 			return f.bind(node)(i,node)
 		}).filter(a=>!!a)
@@ -404,7 +439,9 @@ function asSelector(selector,$){
 			if(selector instanceof Query){
 				return node=>selector.has(node)
 			}else if(selector instanceof Map){
-				return node=>node==selector
+				return function(node){
+					return node.get("id")==selector.get("id")
+				}
 			}else{
 				throw new Error("not supported object selector")
 			}

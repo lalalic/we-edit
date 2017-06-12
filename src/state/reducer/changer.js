@@ -63,16 +63,12 @@ export default class Changer{
 		}
 	}
 
-	updateSelection(id,at, endId=id, endAt=at, cursorAt){
+	cursorAt(id,at, endId=id, endAt=at, cursorAt){
 		if(cursorAt=="start" || cursorAt=="end")
 			this._selection.cursorAt=cursorAt
 
 		this._selection={...this._selection,start:{id,at}, end:{id:endId, at:endAt}}
 		return this._selection
-	}
-	
-	cursorAt(id,at){
-		this._selection=select(this._selection,ACTION.Cursor.AT(id,at))
 	}
 	
 	save4Undo(node,id){

@@ -4,6 +4,67 @@ import diff from "immutablediff"
 import Changer from "./changer"
 
 export default class text extends Changer{
+	state(){
+		let changedContent=this._mutableState.get("content")
+		let rawContent=this._state.get("content")
+		let dif=diff(rawContent, changedContent)
+		const before=id=>rawContent.get(id).toJS()
+		const after=id=>changedContent.get(id).toJS()
+		
+		let changed=dif.reduce((state,d)=>{
+			const {updated}=state
+			let {op,path,value}=d.toJS()
+			let [id,key,prop]=path.split("/").slice(1)
+			switch(op){
+				case "add":{
+					break
+				}
+				case "replace":{
+					this.save4Undo(this.file.getNode(id),id)
+					
+					if(key=="children" && typeof(value)!="string"){
+						updated[id]={children:value}
+					}else{
+						updated[id]={}
+					}
+					
+					let updatedNode=this.file.updateNode(
+						before(id),
+						{[key]: prop ? {[prop]:value} : value},
+						after(id)
+					)
+					
+					this.renderChanged(updatedNode)
+					break
+				}
+				case "remove":{
+					if(key==undefined){//remove node
+						this.save4Undo(this.file.getNode(id),id)
+						this.file.removeNode(before(id))
+					}else if(key=="children"){
+						if(!(id in updated) || !updated[id].children){
+							updated[id]={children:changedContent.getIn([id,"children"]).toJS()}
+							this.renderChanged(this.file.getNode(id).get(0))
+						}
+					}else{
+						updated[id]={}
+					}
+					break
+				}
+			}
+			return state
+		},{
+			updated:{}
+		})
+		
+		
+		
+		if(Object.keys(changed.updated).length)
+			return {...super.state(),...changed}
+		else
+			return super.state()
+	}
+	
 	insert(inserting){
 		let docx=this.file
 		let {start:{id,at},end}=this.selection
@@ -108,6 +169,9 @@ export default class text extends Changer{
 			}
 		}else{
 			path.push("withSelection")
+			if(id==end.id){
+				path.push("inline")
+			}
 		}
 
 		this[path.join("_")](...arguments)
@@ -171,8 +235,41 @@ export default class text extends Changer{
 	remove_withoutSelection_delete_tailOf_text(removing){
 		throw new Error("no implementation")
 	}
-
+	
+	remove_withSelection_inline(){
+		let {start,end}=this.selection
+		let target=this.$('#'+start.id)
+		let text=target.text()
+		target.text(text.substring(0,start.at)+text.substring(end.at))
+		this.cursorAt(start.id,start.at)
+	}
+	
 	remove_withSelection(){
-		throw new Error("no implementation")
+		const {start,end}=this.selection
+		const target0=this.$('#'+start.id)
+		const target1=this.$("#"+end.id)
+		const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
+
+		let ancestors0=target0.parentsUntil(ancestor)
+		let ancestors1=target1.parentsUntil(ancestor)
+		let top0=ancestors0.last()
+		let top1=ancestors1.last()
+
+		let ancestorId=top0.parent().attr("id")
+		console.assert(!!ancestorId)
+
+		let removingTops=top0.nextUntil(top1)
+		
+		removingTops.remove()
+		ancestors0.not(top0).each((i,a)=>$(a).nextAll().remove())
+		ancestors1.not(top1).each((i,a)=>$(a).prevAll().remove())
+
+		let text=target0.text()
+		target0.text(text.substring(0,start.at))
+
+		text=target1.text()
+		target1.text(text.substr(end.at))
+		
+		this.cursorAt(start.id,start.at)
 	}
 }
