@@ -31,11 +31,14 @@ export default class Content extends Query{
         else{
             this.filter("text").add(this.find("text"))
 				._nodes
-				.reduce((c,id)=>c.setIn([id,"children"],value),this._content)
+				.reduce((c,id)=>{
+                    this._doc.updateNode(c.get(id).toJS(),{children:value})
+                    return c.setIn([id,"children"],value)
+                },this._content)
 			return this
         }
     }
-	
+
 	append(node){
 
 	}
@@ -72,6 +75,7 @@ export default class Content extends Query{
 		this._nodes.forEach(k=>{
 			let node=this._content.get(k)
 			this._content.remove(k)
+            this._doc.removeNode(node)
 			this._content.updateIn([node.get("parent"),"children"],c=>c.delete(c.indexOf(k)))
 		})
 		return this

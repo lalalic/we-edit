@@ -116,7 +116,7 @@ export default class Query{
 		},[])
 		return new this.constructor(this.state,found)
 	}
-	
+
 	next(selector){
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,id)=>{
@@ -152,7 +152,7 @@ export default class Query{
 		},[])
 		return new this.constructor(this.state,found)
 	}
-	
+
 	nextUntil(selector){
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,id)=>{
@@ -171,7 +171,7 @@ export default class Query{
 		},[])
 		return new this.constructor(this.state,found)
 	}
-	
+
 	nextFirst(selector){
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,k)=>{
@@ -185,7 +185,7 @@ export default class Query{
 		},[])
 		return new this.constructor(this.state,found)
 	}
-	
+
 	forwardUntil(selector=()=>false){
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,k)=>{
@@ -219,7 +219,7 @@ export default class Query{
 		},[])
 		return new this.constructor(this.state,found)
 	}
-	
+
 	prevAll(selector){
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,id)=>{
@@ -235,8 +235,8 @@ export default class Query{
 			return found
 		},[])
 		return new this.constructor(this.state,found)
-	}	
-	
+	}
+
 	prevUntil(selector){
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,id)=>{
@@ -270,7 +270,7 @@ export default class Query{
 		return new this.constructor(this.state,found)
 	}
 
-	
+
 	backwardUntil(selector=()=>false){
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,k)=>{
@@ -285,7 +285,7 @@ export default class Query{
 		},[])
 		return new this.constructor(this.state,found)
 	}
-	
+
 	children(selector){
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,k)=>{
@@ -424,6 +424,10 @@ export default class Query{
 					.map((i,node)=>node.get("children"))
 					.join("")
 		}).join("")
+	}
+
+	toArray(){
+		return [...this._nodes]
 	}
 }
 

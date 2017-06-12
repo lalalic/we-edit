@@ -1,70 +1,26 @@
 import {List} from "immutable"
-import diff from "immutablediff"
-
 import Changer from "./changer"
 
 export default class text extends Changer{
 	state(){
-		let changedContent=this._mutableState.get("content")
-		let rawContent=this._state.get("content")
-		let dif=diff(rawContent, changedContent)
-		const before=id=>rawContent.get(id).toJS()
-		const after=id=>changedContent.get(id).toJS()
-		
-		let changed=dif.reduce((state,d)=>{
-			const {updated}=state
-			let {op,path,value}=d.toJS()
-			let [id,key,prop]=path.split("/").slice(1)
-			switch(op){
-				case "add":{
-					break
-				}
-				case "replace":{
-					this.save4Undo(this.file.getNode(id),id)
-					
-					if(key=="children" && typeof(value)!="string"){
-						updated[id]={children:value}
-					}else{
-						updated[id]={}
-					}
-					
-					let updatedNode=this.file.updateNode(
-						before(id),
-						{[key]: prop ? {[prop]:value} : value},
-						after(id)
-					)
-					
-					this.renderChanged(updatedNode)
-					break
-				}
-				case "remove":{
-					if(key==undefined){//remove node
-						this.save4Undo(this.file.getNode(id),id)
-						this.file.removeNode(before(id))
-					}else if(key=="children"){
-						if(!(id in updated) || !updated[id].children){
-							updated[id]={children:changedContent.getIn([id,"children"]).toJS()}
-							this.renderChanged(this.file.getNode(id).get(0))
-						}
-					}else{
-						updated[id]={}
-					}
-					break
-				}
-			}
-			return state
-		},{
-			updated:{}
-		})
-		
-		
-		
-		if(Object.keys(changed.updated).length)
-			return {...super.state(),...changed}
-		else
-			return super.state()
+		return super.state()
 	}
-	
+
+	save4undo(id){
+		this._undoables[id]=this.file.cloneNode(this.file.getNode(id))
+	}
+
+	renderChanged(id){
+		let node=this._renderChanged(this.file.getNode(id).get(0))
+		if(this._state.hasIn(["content",id]))
+			this._updated[node.id]={}
+		return node
+	}
+
+	renderChangedChildren(id){
+		this._updated[id]={children:this.$('#'+id).children().toArray()}
+	}
+
 	insert(inserting){
 		let docx=this.file
 		let {start:{id,at},end}=this.selection
@@ -94,7 +50,7 @@ export default class text extends Changer{
 		}
 
 		this[path.join("_")](...arguments)
-		
+
 		return this
 	}
 
@@ -182,10 +138,14 @@ export default class text extends Changer{
 		let {start:{id,at}}=this.selection
 		const target=this.$('#'+id)
 
+		this.save4undo(id)
+
 		let text=target.text()
 		target.text(text.substring(0,at)+inserting+text.substr(at))
 
 		this.cursorAt(id,at+inserting.length)
+
+		this.renderChanged(id)
 	}
 
 	insert_withoutSelection_string_withNewLine(inserting){
@@ -206,10 +166,14 @@ export default class text extends Changer{
 		let {start:{id,at}}=this.selection
 		let target=this.$('#'+id)
 
+		this.save4undo(id)
+
 		let text=target.text()
 		target.text(text.substring(0,at-removing)+text.substr(at))
 
 		this.cursorAt(id,at-removing)
+
+		this.renderChanged(id)
 	}
 
 	remove_withoutSelection_backspace_headOf_text(){
@@ -224,8 +188,12 @@ export default class text extends Changer{
 		let {start:{id,at}}=this.selection
 		const target=this.$('#'+id)
 
+		this.save4undo(id)
+
 		let text=target.text()
 		target.text(text.substring(0,at)+text.substr(at-removing))
+
+		this.renderChanged(id)
 	}
 
 	remove_withoutSelection_delete_tailOf_paragraph(removing){
@@ -235,31 +203,42 @@ export default class text extends Changer{
 	remove_withoutSelection_delete_tailOf_text(removing){
 		throw new Error("no implementation")
 	}
-	
+
 	remove_withSelection_inline(){
 		let {start,end}=this.selection
 		let target=this.$('#'+start.id)
+
+		this.save4undo(id)
+
 		let text=target.text()
 		target.text(text.substring(0,start.at)+text.substring(end.at))
 		this.cursorAt(start.id,start.at)
+
+		this.renderChanged(id)
 	}
-	
+
 	remove_withSelection(){
 		const {start,end}=this.selection
 		const target0=this.$('#'+start.id)
 		const target1=this.$("#"+end.id)
 		const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
+		const isInParagraph=ancestor.is("paragraph") || ancestor.parents("paragraph").length
 
 		let ancestors0=target0.parentsUntil(ancestor)
 		let ancestors1=target1.parentsUntil(ancestor)
 		let top0=ancestors0.last()
 		let top1=ancestors1.last()
 
-		let ancestorId=top0.parent().attr("id")
-		console.assert(!!ancestorId)
-
 		let removingTops=top0.nextUntil(top1)
-		
+
+		if(isInParagraph){
+			this.save4undo(ancestor.attr("id"))
+		}else{
+			removingTops.each((i,node)=>this.save4undo(node.attr("id")))
+			this.save4undo(top0.attr("id"))
+			this.save4undo(top1.attr("id"))
+		}
+
 		removingTops.remove()
 		ancestors0.not(top0).each((i,a)=>$(a).nextAll().remove())
 		ancestors1.not(top1).each((i,a)=>$(a).prevAll().remove())
@@ -269,7 +248,15 @@ export default class text extends Changer{
 
 		text=target1.text()
 		target1.text(text.substr(end.at))
-		
+
 		this.cursorAt(start.id,start.at)
+
+		if(isInParagraph){
+			this.renderChanged(ancestor.attr("id"))
+		}else{
+			this.renderChangedChildren(ancestor.attr("id"))
+			this.renderChanged(top0.attr("id"))
+			this.renderChanged(top1.attr("id"))
+		}
 	}
 }

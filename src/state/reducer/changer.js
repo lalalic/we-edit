@@ -10,7 +10,7 @@ export default class Changer{
 		this._undoables={}
 		this._updated={}
 		this._selection=getSelection(state)
-		
+
 		this._mutableState=state.updateIn(["content"],c=>c.asMutable())
 		this.$=context=>new Content(this._mutableState,context)
 	}
@@ -70,7 +70,7 @@ export default class Changer{
 		this._selection={...this._selection,start:{id,at}, end:{id:endId, at:endAt}}
 		return this._selection
 	}
-	
+
 	save4Undo(node,id){
 		this._undoables[id||node.attr('id')]=this.file.cloneNode(node)
 	}
