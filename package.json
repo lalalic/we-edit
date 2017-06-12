@@ -11,6 +11,7 @@
     "docx4js": "https://github.com/lalalic/docx4js",
     "enzyme": "^2.7.1",
     "immutable": "^3.8.1",
+    "immutablediff": "^0.4.4",
     "linebreak": "^0.3.0",
     "lodash.get": "^4.4.2",
     "lodash.invoke": "^4.5.2",
