@@ -20,6 +20,7 @@ export function createState(doc, content, docReducer=state=>state){
 	doc.toJSON=a=>1
 
 	const INIT_STATE=Map({
+		vendor:"we-edit",
 		doc, //source file
 		content, // models
 		selection:Immutable.fromJS({start:{id,at:0},end:{id,at:0},cursorAt:"end"}),
@@ -33,6 +34,10 @@ export function createState(doc, content, docReducer=state=>state){
 	)
 }
 
+
+export function isState(data){
+	return data instanceof Map && data.get("vendor")=="we-edit"
+}
 const report=store=>next=>action=>{
 	try{
 		return next(action)

@@ -1,4 +1,6 @@
 import {List} from "immutable"
+import diff from "immutablediff"
+
 import Changer from "./changer"
 
 export default class text extends Changer{
@@ -31,6 +33,7 @@ export default class text extends Changer{
 		}
 
 		this[path.join("_")](...arguments)
+		
 		return this
 	}
 
@@ -111,7 +114,6 @@ export default class text extends Changer{
 		return this
 	}
 
-
 	insert_withoutSelection_string_withoutNewLine(inserting){
 		let {start:{id,at}}=this.selection
 		const target=this.$('#'+id)
@@ -119,7 +121,7 @@ export default class text extends Changer{
 		let text=target.text()
 		target.text(text.substring(0,at)+inserting+text.substr(at))
 
-		this.cursorAT(id,at+inserting.length)
+		this.cursorAt(id,at+inserting.length)
 	}
 
 	insert_withoutSelection_string_withNewLine(inserting){

@@ -8,8 +8,6 @@ import Cursor from "state/cursor"
 import Input from "input"
 import uuid from "tools/uuid"
 
-import diff from "immutablediff"
-
 export class Editor extends Component{
 	static displayName="editor"
 	static propTypes={
@@ -88,10 +86,7 @@ const Root=connect((state,{domain})=>{
 		}
 	}
 
-	componentWillReceiveProps({content,changed,domain}){
-		//return this.doc=this.createChildElement("root",content,domain,this.props.content)
-		let dif=diff(content, this.props.content)
-		
+	componentWillReceiveProps({content,changed,domain}){		
 		if(this.doc && changed){ // editing
 			//&& content.size>50){ // big
 			const getThisParentId=id=>getParentId(content,id)

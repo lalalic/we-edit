@@ -9,7 +9,7 @@ export class text extends Base{
 
 	insert_withoutSelection_string_withoutNewLine(inserting){
 		let {start:{id,at}}=this.selection
-		const target=this.getNode(id)
+		const target=this.file.getNode(id)
 
 		this.save4Undo(target)
 
@@ -25,15 +25,15 @@ export class text extends Base{
 	//{type:"text/INSERT", payload:"hello\r\nworld"}
 	insert_withoutSelection_string_withNewLine(inserting){
 		const {start:{id,at}}=this.selection
-		let target=this.getNode(id)
+		let target=this.file.getNode(id)
 
 		let text=target.text()
 
 		let $r=this.$('#'+id).closest("run")
 		let $p=$r.closest("paragraph")
 
-		let r=this.getNode($r.attr("id"))
-		let p=this.getNode($p.attr("id"))
+		let r=this.file.getNode($r.attr("id"))
+		let p=this.file.getNode($p.attr("id"))
 
 		let pId=$p.attr("id")
 		let parentId=$p.attr("parent")
@@ -95,7 +95,7 @@ export class text extends Base{
 
 	remove_withoutSelection_backspace(removing){
 		let {start:{id,at}}=this.selection
-		const target=this.getNode(id)
+		const target=this.file.getNode(id)
 
 		this.save4Undo(target)
 
@@ -129,8 +129,8 @@ export class text extends Base{
 		let prevPid=p.prev("paragraph").attr("id")
 		let pId=p.attr("id")
 
-		let target=this.getNode(pId)
-		let prevP=this.getNode(prevPid)
+		let target=this.file.getNode(pId)
+		let prevP=this.file.getNode(prevPid)
 
 		this.save4Undo(target)
 		this.save4Undo(prevP)
@@ -146,7 +146,7 @@ export class text extends Base{
 
 	remove_withoutSelection_delete(removing){
 		let {start:{id,at}}=this.selection
-		const target=this.getNode(id)
+		const target=this.file.getNode(id)
 
 		this.save4Undo(target)
 
@@ -163,8 +163,8 @@ export class text extends Base{
 		let nextPid=p.next("paragraph").attr("id")
 		let pId=p.attr("id")
 
-		let target=this.getNode(pId)
-		let nextP=this.getNode(nextPid)
+		let target=this.file.getNode(pId)
+		let nextP=this.file.getNode(nextPid)
 
 		this.save4Undo(target)
 		this.save4Undo(nextP)
@@ -196,7 +196,7 @@ export class text extends Base{
 
 	remove_withSelection(){
 		const {start,end}=this.selection
-		const target0=this.getNode(start.id)
+		const target0=this.file.getNode(start.id)
 		if(start.id==end.id){
 			this.save4Undo(target0)
 
@@ -206,7 +206,7 @@ export class text extends Base{
 			this.updateSelection(start.id,start.at)
 		}else{
 			const $=this.file.officeDocument.content
-			const target1=this.getNode(end.id)
+			const target1=this.file.getNode(end.id)
 			const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
 
 			let ancestors0=target0.parentsUntil(ancestor)
@@ -214,7 +214,7 @@ export class text extends Base{
 			let top0=ancestors0.last()
 			let top1=ancestors1.last()
 
-			let ancestorId=this.getParentId(this.id(top0))
+			let ancestorId=this.getParentId(this.file.getId(top0))
 			console.assert(!!ancestorId)
 
 			let removingTops=top0.nextUntil(top1)
@@ -229,7 +229,7 @@ export class text extends Base{
 				removingTops.each((i,el)=>{
 					let $el=$(el)
 					this.save4Undo($el)
-					this.updateChildren(ancestorId,this.id($el))
+					this.updateChildren(ancestorId,this.file.getId($el))
 				})
 
 				this.save4Undo(top0)

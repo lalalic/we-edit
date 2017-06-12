@@ -29,18 +29,13 @@ export default class Content extends Query{
         if(value==undefined)
             return super.text()
         else{
-            return this._nodes.map(k=>{
-    			let node=this._content.get(k)
-    			if(node.get("type")=="text")
-    				return node.get("children")
-    			else
-    				return new this.constructor(this.state, [k])
-    					.find("text")
-    					.map((i,node)=>node.get("children"))
-    					.join("")
-    		}).join("")
+            this.filter("text").add(this.find("text"))
+				._nodes
+				.reduce((c,id)=>c.setIn([id,"children"],value),this._content)
+			return this
         }
     }
+	
 	append(node){
 
 	}

@@ -15,14 +15,14 @@ export class undo extends Base{
 		let orphans={}
 		const recoverId=node=>{
 			return node.find("[_id]")
-				.each((i,el)=>this.identify(el,el.attribs._id))
+				.each((i,el)=>this.file.makeId(el,el.attribs._id))
 				.removeAttr("_id")
 		}
 		
 		const pre=(i,keys)=>{
 			let found
 			while(i>0){
-				if((found=this.getNode(keys[--i])).length>0)
+				if((found=this.file.getNode(keys[--i])).length>0)
 					return found
 			}
 			return null
@@ -31,7 +31,7 @@ export class undo extends Base{
 		const next=(i,keys)=>{
 			let found,len=keys.length
 			while(i<len){
-				if((found=this.getNode(keys[++i])).length>0)
+				if((found=this.file.getNode(keys[++i])).length>0)
 					return found
 			}
 			return null
@@ -45,13 +45,13 @@ export class undo extends Base{
             let changing=updated[k]
             if(changing.cheerio){
                 let last=updated[k].clone()
-                let current=this.getNode(k)
+                let current=this.file.getNode(k)
 				if(current.length==0){
 					orphans[k]=last
 				}else{
 					recoverId(last)
 					current.replaceWith(last)
-					this.identify(last.get(0),k)
+					this.file.makeId(last.get(0),k)
 					this.renderChanged(last.get(0))
 				}
 				
@@ -71,10 +71,10 @@ export class undo extends Base{
 							target.insertBefore(n)
 						}
 						
-						let attached=this.getNode(a)
+						let attached=this.file.getNode(a)
 						recoverId(attached)
 						attached.removeAttr("id")
-						this.identify(attached.get(0),a)
+						this.file.makeId(attached.get(0),a)
 						this.renderChanged(attached.get(0))
 					}
 				})
@@ -93,13 +93,4 @@ export class undo extends Base{
 		}
 		console.assert(parentNode.find(`#${id}`).length==1)
 	}
-
-    identify(node,id){
-        Object.defineProperty(node.attribs,"id",{
-			enumerable: false,
-			configurable: false,
-			writable: false,
-			value: id
-		})
-    }
 }

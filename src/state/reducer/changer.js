@@ -2,6 +2,7 @@ import {getSelection, getParentId,getFile,getContent} from "state/selector"
 import {query} from "state/selector"
 import ACTION from "state/action"
 import Content from "./content"
+import {selection as select} from "./selection"
 
 export default class Changer{
 	constructor(state){
@@ -9,7 +10,9 @@ export default class Changer{
 		this._undoables={}
 		this._updated={}
 		this._selection=getSelection(state)
-		this.$=context=>new Content(state,context)
+		
+		this._mutableState=state.updateIn(["content"],c=>c.asMutable())
+		this.$=context=>new Content(this._mutableState,context)
 	}
 
 	getParentId(id){
@@ -67,9 +70,13 @@ export default class Changer{
 		this._selection={...this._selection,start:{id,at}, end:{id:endId, at:endAt}}
 		return this._selection
 	}
-
-	save4Undo(node){
-		this._undoables[node.attr('id')]=this.clone(node)
+	
+	cursorAt(id,at){
+		this._selection=select(this._selection,ACTION.Cursor.AT(id,at))
+	}
+	
+	save4Undo(node,id){
+		this._undoables[id||node.attr('id')]=this.file.cloneNode(node)
 	}
 
 	renderChanged(changed){
@@ -79,19 +86,7 @@ export default class Changer{
 		return node
 	}
 
-	id(node){
-		throw new Error("you need implement it")
-	}
-
-	clone(node){
-		throw new Error("you need implement it")
-	}
-
 	_renderChanged(changed){
 		throw new Error("you need implement it")
-	}
-
-	cursorAt(id,at){
-		this._selection=select(this._selection,ACTION.Cursor.AT(id,at))
 	}
 }

@@ -1,5 +1,4 @@
-import docx4js from "docx4js"
-import uuid from "tools/uuid"
+import docx4js from "./loader"
 import Base from "input/base"
 
 import Style from "./styles"
@@ -256,22 +255,8 @@ export default class extends Base{
 		return docx.render(build)
 	}
 
-	identify(node){
-		if(node.attribs.id!=undefined)
-			return node.attribs.id
-
-		let id=uuid()
-		Object.defineProperty(node.attribs,"id",{
-			enumerable: false,
-			configurable: false,
-			writable: false,
-			value: id
-		})
-
-		if(this.part)
-			return `${id}[${this.part}]`
-
-		return id
+	makeId(node){
+		return docx4js.prototype.makeId(...arguments)
 	}
 
 	onChange(state,{type,payload},createElement){

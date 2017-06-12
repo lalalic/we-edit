@@ -3,7 +3,7 @@ import {Provider} from "react-redux"
 import Immutable, {Map,Collection} from "immutable"
 
 import DOMAIN from "model"
-import {createState} from "state"
+import {createState, isState} from "state"
 import {getContent,getSelection,getFile,getParentId} from "state/selector"
 import * as reducer from "state/reducer"
 
@@ -98,6 +98,8 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance)=>
 
 	if(changed===false){
 		return state
+	}else if(isState(changed)){
+		state=changed
 	}else if(typeof(changed)=="object"){
 		let {selection,styles,updated,undoables}=changed
 		if(selection)
@@ -188,7 +190,7 @@ const createElementFactoryBuilder=inputTypeInstance=>content=>(type, props, chil
 		id="root"
 		props.styles=new Map(props.styles)
 	}else{
-		id=inputTypeInstance.identify(raw)
+		id=inputTypeInstance.makeId(raw)
 	}
 
 	content.set(id, Immutable.fromJS({
