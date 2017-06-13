@@ -178,7 +178,7 @@ export class text extends Base{
 		this.cursorAt(id,at)
 	}
 
-	remove_withoutSelection_delete_tailOf_text(removing){
+	_remove_withoutSelection_delete_tailOf_text(removing){
 		let {start:{id,at}}=this.selection
 		let prev=this.$('#'+id)
 			.nextFirst(n=>{

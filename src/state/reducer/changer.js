@@ -15,10 +15,6 @@ export default class Changer{
 		this.$=context=>new Content(this._mutableState,context)
 	}
 
-	getParentId(id){
-		return getParentId(this._state.get("content"), id)
-	}
-
 	state(){
 		let state={}
 		if(Object.keys(this._updated).length>0)
@@ -29,7 +25,7 @@ export default class Changer{
 
 		if(Object.keys(this._selection).length>0)
 			state.selection=this._selection
-		
+
 		state.content=this._mutableState.get("content").asImmutable()
 
 		return state

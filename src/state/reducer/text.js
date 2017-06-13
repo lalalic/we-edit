@@ -5,7 +5,10 @@ export default class text extends Changer{
 	state(){
 		return super.state()
 	}
-	
+
+	/**
+	 * not need to record for undo
+	 **/
 	undo({changed:updated,selection}){
 		let orphans={}
 		const recoverId=node=>{
@@ -13,7 +16,7 @@ export default class text extends Changer{
 				.each((i,el)=>this.file.makeId(el,el.attribs._id))
 				.removeAttr("_id")
 		}
-		
+
 		const pre=(i,keys)=>{
 			let found
 			while(i>0){
@@ -22,7 +25,7 @@ export default class text extends Changer{
 			}
 			return null
 		}
-		
+
 		const next=(i,keys)=>{
 			let found,len=keys.length
 			while(i<len){
@@ -51,8 +54,8 @@ export default class text extends Changer{
 				}
             }else if(changing.children){
 				this._updated[k]={children:changing.children}
-				this._mutableState.updateIn(["content",k,"parent"],c=>new List(changing.children))
-				
+				this._mutableState.updateIn(["content",k,"children"],c=>new List(changing.children))
+
 				changing.children.forEach((a,i)=>{
 					let target=orphans[a]
 					if(target){
@@ -63,7 +66,7 @@ export default class text extends Changer{
 						}else if(n=next(i,changing.children)){
 							target.insertBefore(n)
 						}
-						
+
 						let attached=this.file.getNode(a)
 						recoverId(attached)
 						attached.removeAttr("id")
@@ -223,7 +226,73 @@ export default class text extends Changer{
 	}
 
 	insert_withoutSelection_string_withNewLine(inserting){
+		const {start:{id,at}}=this.selection
+		let target=this.$('#'+id)
 
+		let text=target.text()
+
+		let $r=target.closest("run")
+		let $p=$r.closest("paragraph")
+
+		let r=this.file.getNode($r.attr("id"))
+		let p=this.file.getNode($p.attr("id"))
+
+		let pId=$p.attr("id")
+		let parentId=$p.attr("parent")
+
+		let emptyR=r.clone(), emptyP=p.clone()
+		console.assert(emptyR.attr("id")==undefined)
+		emptyR.find("w\\:t").text("")
+		emptyP.find("w\\:r").remove()
+
+		let pieces=inserting.split(/[\r\n]+/g)
+		let first=0, last=pieces.length-1
+		let cursorId, cursorAt
+
+		this.save4Undo(p)
+
+		pieces.reduceRight((b,piece,i)=>{
+			switch(i){
+			case first:{
+					target.text(text.substring(0,at)+piece)
+					this.renderChanged(p.get(0))
+					break
+				}
+			case last:{
+					let r0=emptyR.clone(), t0=r0.find("w\\:t")
+					t0.text(piece+text.substr(at))
+					let p0=emptyP.clone()
+
+					p0.append(r0)
+					 .append(r.nextAll())
+					 .insertAfter(p)
+
+					 //@TODO: p0!=p.next(), it's weird, so use p.next().get(0)
+ 					p0=p.next()
+					t0=p0.find("w\\:t").eq(0)
+
+					let rendered=this.renderChanged(p0.get(0))
+					this.updateChildren(parentId, children=>{
+						children.splice(children.indexOf(pId)+1,0,rendered.id)
+					})
+					this.cursorAt(t0.attr("id"), piece.length)
+					break
+				}
+			default:{
+					let r0=emptyR.clone()
+					r0.find("w\\:t").text(piece)
+
+					let p0=emptyP.clone()
+					p0.append(r0)
+					  .insertAfter(p)
+
+					 p0=p.next()
+
+					let rendered=this.renderChanged(p0.get(0))
+					this.updateChildren(parentId, children=>children.splice(children.indexOf(pId)+1,0,rendered.id))
+				}
+			}
+		},1)
 	}
 
 	insert_withSelection_string_withoutNewLine(inserting){
@@ -275,7 +344,7 @@ export default class text extends Changer{
 
 		prev.append(p.children())
 		p.remove(false)
-		
+
 		this.cursorAt(id,at)
 
 		this.renderChanged(prev.attr("id"))
@@ -295,11 +364,33 @@ export default class text extends Changer{
 	}
 
 	remove_withoutSelection_delete_tailOf_paragraph(removing){
-		throw new Error("no implementation")
+		let {start:{id,at}}=this.selection
+		let p=this.$('#'+id).closest("paragraph")
+		let nextP=p.next("paragraph")
+
+		this.save4undo(p.attr("id"))
+		this.save4undo(nextP.attr("id"))
+
+		p.append(nextP.children())
+		nextP.remove(false)
+
+		this.cursorAt(id,at)
+
+		this.renderChanged(p.attr("id"))
+		this.renderChangedChildren(p.attr("parent"))
 	}
 
 	remove_withoutSelection_delete_tailOf_text(removing){
-		throw new Error("no implementation")
+		let {start:{id,at}}=this.selection
+		let prev=this.$('#'+id)
+			.nextFirst(n=>{
+				return n.get("type")=="text"
+					&& n.has("children")
+					&& typeof(n.get("children"))=="string"
+					&& n.get("children").length>0
+			});
+		this.cursorAt(prev.attr("id"),0)
+		this.remove_withoutSelection_delete(removing)
 	}
 
 	remove_withSelection_inline(){
