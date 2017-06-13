@@ -107,7 +107,7 @@ export class text extends Base{
 		this.cursorAt(id,at)
 	}
 
-	remove_withoutSelection_backspace_headOf_text(removing){
+	_remove_withoutSelection_backspace_headOf_text(removing){
 		let {start:{id,at}}=this.selection
 		let prev=this.$('#'+id)
 			.prevFirst(n=>{
@@ -123,7 +123,7 @@ export class text extends Base{
 	}
 
 	//merge with prev paragraph
-	remove_withoutSelection_backspace_headOf_paragraph(){
+	_remove_withoutSelection_backspace_headOf_paragraph(){
 		let {start:{id,at}}=this.selection
 		let p=this.$('#'+id).closest("paragraph")
 		let prevPid=p.prev("paragraph").attr("id")

@@ -256,7 +256,7 @@ export default class extends Base{
 	}
 
 	makeId(node){
-		return docx4js.prototype.makeId(...arguments)
+		return docx4js.prototype.makeId.call(this,...arguments)
 	}
 
 	onChange(state,{type,payload},createElement){
@@ -290,7 +290,7 @@ export default class extends Base{
 					.state()
 			case "history/UNDO":
 				return new changer.undo(...params)
-					.run(payload)
+					.undo(payload)
 					.state()
 			case 'style/ADD':{
 				const {type,id,name,isDefault=false,...others}=payload

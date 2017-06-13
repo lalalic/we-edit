@@ -29,9 +29,10 @@ export default class Changer{
 
 		if(Object.keys(this._selection).length>0)
 			state.selection=this._selection
+		
+		state.content=this._mutableState.get("content").asImmutable()
 
-		if(Object.keys(state).length>0)
-			return state
+		return state
 	}
 
 	get selection(){

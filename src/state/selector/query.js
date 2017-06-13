@@ -289,7 +289,7 @@ export default class Query{
 	children(selector){
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,k)=>{
-			let children=this._content.getIn([id,"children"])
+			let children=this._content.getIn([k,"children"])
 			if(children && children instanceof List){
 				children.forEach(a=>{
 					if(select(this._content.get(a))){
@@ -307,6 +307,7 @@ export default class Query{
 		let found=this._nodes.reduce((found,k)=>{
 			traverse(this._content,node=>{
 				if(!!select(node)){
+					console.assert(!!node)
 					found.push(node.get("id"))
 				}
 			},k)
@@ -385,7 +386,7 @@ export default class Query{
 	}
 
 	each(f){
-		this._nodes.forEach(function(id,i){
+		this._nodes.forEach((id,i)=>{
 			let node=this._content.get(id)
 			f.bind(node)(i,node)
 		})
@@ -397,7 +398,7 @@ export default class Query{
 			let node=this._content.get(id)
 			return f.bind(node)(i,node)
 		}).filter(a=>!!a)
-		if(mapped.find(a=>!isNode(a))){
+		if(mapped.length==0 || mapped.find(a=>!isNode(a))){
 			return mapped
 		}else{
 			return new this.constructor(this.state, mapped)

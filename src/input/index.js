@@ -51,6 +51,7 @@ function buildEditableDoc(doc,inputTypeInstance){
 			let content=new Map().withMutations(a=>inputTypeInstance.render(doc, DOMAIN, createElementFactory(a)))
 
 			history=new History()
+			
 			store=createState(doc,content,history.undoable(changeReducer))
 
 			return (
@@ -101,77 +102,42 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance)=>
 	}else if(isState(changed)){
 		state=changed
 	}else if(typeof(changed)=="object"){
-		let {selection,styles,updated,undoables}=changed
+		let {selection,styles,updated,undoables,content}=changed
+		
 		if(selection)
 			state=state.mergeIn(["selection"], selection)
 
+		if(undoables)
+			historyEntry.changed=undoables
+		
+		if(updated){
+			Object.keys(updated).forEach(k=>{
+				let children
+				if(!!(children=updated[k].children)){
+						//reset parent of children
+					changedContent=changedContent.withMutations(changed=>
+						children.forEach(c=>{
+							if(changed.has(c)){
+								if(!changed.hasIn([c,"parent"])){
+									changed.setIn([c,"parent"],k)
+								}
+							}
+						})
+					)
+				}else{
+					if(changedContent.has(k) && !changedContent.hasIn([k,"parent"])){
+						//use old parent
+						changedContent=changedContent.setIn([k,"parent"],state.getIn(["content",k,"parent"]))
+					}
+				}
+			})
+			state.get("violent").changing=updated
+		}
+		
+		state=state.set("content",content)
+		
 		if(styles)
 			state=state.setIn("content.root.props.styles".split("."),new Map(styles))
-
-		if(undoables){
-			const collect=(collected,k)=>{
-				let children=state.getIn(`content.${k}.children`.split("."))
-				if(children instanceof Collection){
-					children.reduce(collect,collected)
-				}
-				collected.push(k)
-				return collected
-			}
-			/*all saved for undo are possibly deleted,
-				so delete all and descendants
-				then later recreate from re-rendered in changedContent
-			*/
-			let removed=Object.keys(undoables)
-				.filter(k=>!changedContent.has(k))
-				.reduce(collect,[])
-				.filter(k=>!changedContent.has(k))
-
-			if(removed.length>0){
-				state=state.updateIn(["content"],c=>removed.reduce((c,k)=>c.remove(k),c))
-			}
-			historyEntry.changed=undoables
-		}
-
-		if(updated){
-			state=Object.keys(updated)
-				.filter((k,children)=>{//return only children updated
-					if(!!(children=updated[k].children)){
-						//reset parent of children
-						changedContent=changedContent.withMutations(changed=>
-							children.forEach(c=>{
-								if(changed.has(c)){
-									if(!changed.hasIn([c,"parent"])){
-										changed.updateIn([c],v=>v.set("parent",k))
-									}
-								}
-							})
-						)
-						return true
-					}else{
-						if(!changedContent.hasIn([k,"parent"])){
-							//use old parent
-							changedContent=changedContent.updateIn([k],v=>{
-								return v.set("parent",getContent(state,k).get("parent"))
-							})
-						}
-						return false
-					}
-				})
-				.reduce((merged,k)=>{//save original children for undo
-					if(!undoables){
-						undoables=historyEntry.changed={}
-					}
-
-					return state.updateIn(["content",k,"children"],c=>{
-						undoables[k]={children:c.toJS()}
-						return Immutable.fromJS(updated[k].children)
-					})
-				},state)
-			//for fast recompose updated
-			state.get("violent").changing=updated
-		}else{
-			state.get("violent").changing=null
-		}
 	}else{
 		state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))
 	}

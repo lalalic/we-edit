@@ -1,27 +1,24 @@
 import docx4js from "docx4js"
 import uuid from "tools/uuid"
 
+const defineId=(target,id)=>Object.defineProperty(target,"id",{
+	enumerable: false,
+	configurable: false,
+	writable: false,
+	value: id
+})
 export default class loader extends docx4js{
 	makeId(node, uid){
 		if(uid){
-			Object.defineProperty(node.attribs,"id",{
-				enumerable: false,
-				configurable: false,
-				writable: false,
-				value: uid
-			})
-			return 
+			defineId(node.attribs,uid)
+			return uid
 		}
+		
 		if(node.attribs.id!=undefined)
 			return node.attribs.id
 
 		let id=uid||uuid()
-		Object.defineProperty(node.attribs,"id",{
-			enumerable: false,
-			configurable: false,
-			writable: false,
-			value: id
-		})
+		defineId(node.attribs,id)
 
 		if(this.part)
 			return `${id}[${this.part}]`
@@ -39,13 +36,6 @@ export default class loader extends docx4js{
 			node=this.officeDocument.getRel(part)(`#${id}`)
 		console.assert(node.length<2)
 		return node
-	}
-	
-	getId(node){
-		if(node.prop("name")=="w:body")
-			return null
-		
-		return node.attr("id")||node.find("[id]").attr("id")
 	}
 	
 	cloneNode(node){

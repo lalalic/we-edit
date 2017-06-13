@@ -5,6 +5,78 @@ export default class text extends Changer{
 	state(){
 		return super.state()
 	}
+	
+	undo({changed:updated,selection}){
+		let orphans={}
+		const recoverId=node=>{
+			return node.find("[_id]")
+				.each((i,el)=>this.file.makeId(el,el.attribs._id))
+				.removeAttr("_id")
+		}
+		
+		const pre=(i,keys)=>{
+			let found
+			while(i>0){
+				if((found=this.file.getNode(keys[--i])).length>0)
+					return found
+			}
+			return null
+		}
+		
+		const next=(i,keys)=>{
+			let found,len=keys.length
+			while(i<len){
+				if((found=this.file.getNode(keys[++i])).length>0)
+					return found
+			}
+			return null
+		}
+        Object.keys(updated)
+			.reduce((sorted,a)=>{
+				sorted[updated[a].cheerio ? "unshift" : "push"](a)
+				return sorted
+			},[])
+		.forEach(k=>{
+            let changing=updated[k]
+            if(changing.cheerio){//a content node
+                let last=updated[k].clone()
+                let current=this.file.getNode(k)
+				if(current.length==0){
+					orphans[k]=last
+				}else{
+					recoverId(last)
+					current.replaceWith(last)
+					this.file.makeId(last.get(0),k)
+					this.renderChanged(k)
+				}
+            }else if(changing.children){
+                this.updateChildren(k,children=>{
+                    children.splice(0,children.length,...changing.children)
+                })
+				
+				changing.children.forEach((a,i)=>{
+					let target=orphans[a]
+					if(target){
+						let n
+						target.attr("id",a)
+						if(n=pre(i,changing.children)){
+							target.insertAfter(n)
+						}else if(n=next(i,changing.children)){
+							target.insertBefore(n)
+						}
+						
+						let attached=this.file.getNode(a)
+						recoverId(attached)
+						attached.removeAttr("id")
+						this.file.makeId(attached.get(0),a)
+						this.renderChanged(a)
+					}
+				})
+            }
+        })
+        this._selection={...this._selection,...selection}
+        return this
+	}
 
 	save4undo(id){
 		this._undoables[id]=this.file.cloneNode(this.file.getNode(id))
@@ -13,11 +85,15 @@ export default class text extends Changer{
 	renderChanged(id){
 		let node=this._renderChanged(this.file.getNode(id).get(0))
 		if(this._state.hasIn(["content",id]))
-			this._updated[node.id]={}
+			this._updated[id]={}
 		return node
 	}
 
 	renderChangedChildren(id){
+		if(id in this._undoables || id in this._updated)
+			console.warning("some conflict in undo/update queue")
+
+		this._undoables[id]={children:this._state.getIn(["content",id,"children"]).toJS()}
 		this._updated[id]={children:this.$('#'+id).children().toArray()}
 	}
 
@@ -176,12 +252,36 @@ export default class text extends Changer{
 		this.renderChanged(id)
 	}
 
-	remove_withoutSelection_backspace_headOf_text(){
-		throw new Error("no implementation")
+	remove_withoutSelection_backspace_headOf_text(removing){
+		let {start:{id,at}}=this.selection
+		let prev=this.$('#'+id)
+			.prevFirst(n=>{
+				return n.get("type")=="text"
+					&& n.has("children")
+					&& typeof(n.get("children"))=="string"
+					&& !!n.get("children").length
+			});
+		id=prev.attr("id")
+		at=prev.attr("children").length
+		this.cursorAt(id,at)
+		this.remove_withoutSelection_backspace(removing)
 	}
 
 	remove_withoutSelection_backspace_headOf_paragraph(){
-		throw new Error("no implementation")
+		let {start:{id,at}}=this.selection
+		let p=this.$('#'+id).closest("paragraph")
+		let prev=p.prev("paragraph")
+
+		this.save4undo(id)
+		this.save4undo(prev.attr("id"))
+
+		prev.append(p.children())
+		p.remove(false)
+		
+		this.cursorAt(id,at)
+
+		this.renderChanged(prev.attr("id"))
+		this.renderChangedChildren(prev.attr("parent"))
 	}
 
 	remove_withoutSelection_delete(removing){

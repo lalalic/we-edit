@@ -40,7 +40,12 @@ export function traverse(content, f, start="root", right=false){
 	let children=node.get("children")
 	if(children instanceof List){
 		return !!children[`find${right ? "Last" :""}`](k=>{
-			let result=f(content.get(k))
+			let node=content.get(k)
+			if(!node){
+				debugger
+			}
+			console.assert(!!node,`${k} not in content, but parent[${id}] includes it as child`)
+			let result=f(node)
 			if(result===true){
 				return true
 			}else if(result===false){
