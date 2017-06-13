@@ -50,9 +50,8 @@ export default class text extends Changer{
 					this.renderChanged(k)
 				}
             }else if(changing.children){
-                this.updateChildren(k,children=>{
-                    children.splice(0,children.length,...changing.children)
-                })
+				this._updated[k]={children:changing.children}
+				this._mutableState.updateIn(["content",k,"parent"],c=>new List(changing.children))
 				
 				changing.children.forEach((a,i)=>{
 					let target=orphans[a]
@@ -84,8 +83,7 @@ export default class text extends Changer{
 
 	renderChanged(id){
 		let node=this._renderChanged(this.file.getNode(id).get(0))
-		if(this._state.hasIn(["content",id]))
-			this._updated[id]={}
+		this._updated[id]={}
 		return node
 	}
 
@@ -272,7 +270,7 @@ export default class text extends Changer{
 		let p=this.$('#'+id).closest("paragraph")
 		let prev=p.prev("paragraph")
 
-		this.save4undo(id)
+		this.save4undo(p.attr("id"))
 		this.save4undo(prev.attr("id"))
 
 		prev.append(p.children())

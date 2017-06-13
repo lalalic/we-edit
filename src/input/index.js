@@ -134,7 +134,7 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance)=>
 			state.get("violent").changing=updated
 		}
 		
-		state=state.set("content",content)
+		state=state.set("content",content) 
 		
 		if(styles)
 			state=state.setIn("content.root.props.styles".split("."),new Map(styles))
