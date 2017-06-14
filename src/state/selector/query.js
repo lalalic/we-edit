@@ -1,6 +1,6 @@
 import {Map,List} from "immutable"
 import {traverse, traverseNext, traversePrev}  from "."
-import cssSelect from "./css"
+import cssSelect, {isIdSelector} from "./css"
 
 export default class Query{
 	constructor(state,selector){
@@ -303,6 +303,9 @@ export default class Query{
 	}
 
 	find(selector){
+		if(isIdSelector(selector))
+			return this.findFirst(selector)
+		
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,k)=>{
 			traverse(this._content,node=>{

@@ -9,6 +9,13 @@ export default function selectors(a,$){
 	}
 }
 
+const UNION=/[\s\[,:<>+~]/
+export function isIdSelector(selector){
+	return typeof(selector)=="string" 
+		&& (selector=selector.trim())[0]=='#' 
+		&& !UNION.test(selector)
+}
+
 //selector |> selector
 const SCOPE={
 		">":"parent",
