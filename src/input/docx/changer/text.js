@@ -23,7 +23,7 @@ export class text extends Base{
 	}
 
 	//{type:"text/INSERT", payload:"hello\r\nworld"}
-	insert_withoutSelection_string_withNewLine(inserting){
+	_insert_withoutSelection_string_withNewLine(inserting){
 		const {start:{id,at}}=this.selection
 		let target=this.file.getNode(id)
 

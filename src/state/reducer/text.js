@@ -88,15 +88,15 @@ export default class text extends Changer{
 	renderChanged(id){
 		let docNode=typeof(id)=="string" ? this.file.getNode(id).get(0) : id
 		let rendered=this._renderChanged(docNode)
-		
+
 		id=rendered.id
-		
+
 		if(this._state.hasIn(["content",id])){
 			this._state.setIn(["_content",id,"parent"],
 				this._state.getIn(["content",id,"parent"]))
 			this._updated[id]={}
 		}
-		
+
 		return rendered
 	}
 
@@ -243,25 +243,30 @@ export default class text extends Changer{
 		const pieces=inserting.split(/[\r\n]+/g)
 		const FIRST=0
 		const LAST=pieces.length-1
-		
-		this.save4Undo(p.attr("id"))
-		
+
+		this.save4undo(p.attr("id"))
+
 		let text=target.text()
 
 		pieces.reduceRight((b,piece,i)=>{
 			switch(i){
-				case FIRST:{//first piece merged into 
+				case FIRST:{//first piece merged into
 					target.text(text.substring(0,at)+piece)
 					this.renderChanged(p.attr("id"))
 					break
 				}
 				case LAST:{
 					let {id:idP0}=this.renderChanged(this.file.construct(target.attr("id"), p.attr("id")))
-					
+
 					let p0=this.$('#'+idP0).insertAfter(p)
+					console.assert(p0.attr("id")==idP0 && p0.attr("parent")==p.attr("parent"))
+
 					let t0=p0.findFirst("text").text(piece+text.substr(at))
-					p0.append(r.nextAll())
-					
+
+					target.parentsUntil(p).each(function(i,node,$){
+						this.eq(i).append($(node).nextAll())
+					},t0.parentsUntil(p0))
+
 					this.cursorAt(t0.attr("id"), piece.length)
 					break
 				}

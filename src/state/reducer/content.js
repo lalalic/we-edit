@@ -8,7 +8,7 @@ export default class Content extends Query{
 		this._content=this.state.get("_content")
         this._doc=getFile(this.state)
     }
-	
+
     attr(k,value){
         if(value==undefined)
             return super.attr(k)
@@ -50,11 +50,11 @@ export default class Content extends Query{
 		.forEach(id=>{
 			if(this._content.hasIn([id0,"children"]))
 				this._content.updateIn([id0,"children"],c=>c.push(id))
-			
+
 			if(this._content.hasIn([id,"parent"]))
 				this._content.updateIn([this._content.getIn([id,"parent"]),"children"],c=>c.delete(c.indexOf(id)))
-			
-			
+
+
 			if(this._content.has(id))
 				this._content.setIn([id,"parent"],id0)
 			docNode.append(this._doc.getNode(id))
@@ -74,11 +74,11 @@ export default class Content extends Query{
 		.forEach(id=>{
 			if(this._content.hasIn([id0,"children"]))
 				this._content.updateIn([id0,"children"],c=>c.unshift(id))
-			
+
 			if(this._content.hasIn([id,"parent"]))
 				this._content.updateIn([this._content.getIn([id,"parent"]),"children"],c=>c.delete(c.indexOf(id)))
-			
-			
+
+
 			if(this._content.has(id))
 				this._content.setIn([id,"parent"],id0)
 			docNode.append(this._doc.getNode(id))
@@ -94,18 +94,17 @@ export default class Content extends Query{
 	after(nodes){
 		let parent=this.parent()
 		let pid=parent.attr("id")
-		let docNode=this.file.get(this.attr("id"))
+		let docNode=this._doc.getNode(this.attr("id"))
 		let index=parent.get(0).get("children").indexOf(this.attr("id"))
-		new this.constructor(this.state,nodes)
-		._nodes
-		.forEach((k,i)=>{
-			if(this._content.hasIn([k,"parent"]))
-				this._content.updateIn([this._content.getIn([k,"parent"]),"children"],c=>c.delete(c.indexOf(k)))
-			
-			this._content.setIn([k,"parent"],pid)
-			this._content.updateIn([pid,"children"],c=>c.insert(index+i,k))
-			docNode.after(this.file.get(k))
-		})
+		new this.constructor(this.state,nodes)._nodes
+    		.forEach((k,i)=>{
+    			if(this._content.hasIn([k,"parent"]))
+    				this._content.updateIn([this._content.getIn([k,"parent"]),"children"],c=>c.delete(c.indexOf(k)))
+
+    			this._content.setIn([k,"parent"],pid)
+    			this._content.updateIn([pid,"children"],c=>c.insert(index+i,k))
+    			docNode.after(this._doc.getNode(k))
+    		})
 		return this
 	}
 
@@ -117,17 +116,17 @@ export default class Content extends Query{
 	before(nodes){
 		let parent=this.parent()
 		let pid=parent.attr("id")
-		let docNode=this.file.get(this.attr("id"))
+		let docNode=this._doc.getNode(this.attr("id"))
 		let index=parent.get(0).get("children").indexOf(this.attr("id"))
 		new this.constructor(this.state,nodes)
 		._nodes.reverse()
 		.forEach((k,i)=>{
 			if(this._content.hasIn([k,"parent"]))
 				this._content.updateIn([this._content.getIn([k,"parent"]),"children"],c=>c.delete(c.indexOf(k)))
-			
+
 			this._content.setIn([k,"parent"],pid)
 			this._content.updateIn([pid,"children"],c=>c.insert(index,k))
-			docNode.before(this.file.get(k))
+			docNode.before(this._doc.getNode(k))
 		})
 		return this
 	}

@@ -303,9 +303,10 @@ export default class Query{
 	}
 
 	find(selector){
-		if(isIdSelector(selector))
+		if(isIdSelector(selector)){
 			return this.findFirst(selector)
-		
+		}
+
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,k)=>{
 			traverse(this._content,node=>{
@@ -320,6 +321,10 @@ export default class Query{
 	}
 
 	findFirst(selector){
+		if(isIdSelector(selector)){
+			let id=selector.substr(1)
+			return new this.constructor(this.state, this._content.has(id) ?[id] : [])
+		}
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,k)=>{
 			traverse(this._content,node=>{
@@ -388,18 +393,18 @@ export default class Query{
 		return this._nodes.findIndex(k=>!select(this._content.get(k)))==-1
 	}
 
-	each(f){
+	each(f,context){
 		this._nodes.forEach((id,i)=>{
 			let node=this._content.get(id)
-			f.bind(node)(i,node)
+			f.bind(context||node)(i,node,this._$)
 		})
 		return this
 	}
 
-	map(f){
+	map(f,context){
 		let mapped=this._nodes.map((id,i)=>{
 			let node=this._content.get(id)
-			return f.bind(node)(i,node)
+			return f.bind(context||node)(i,node,this._$)
 		}).filter(a=>!!a)
 		if(mapped.length==0 || mapped.find(a=>!isNode(a))){
 			return mapped

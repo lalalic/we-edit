@@ -13,7 +13,7 @@ export default class loader extends docx4js{
 			defineId(node.attribs,uid)
 			return uid
 		}
-		
+
 		if(node.attribs.id!=undefined)
 			return node.attribs.id
 
@@ -25,7 +25,7 @@ export default class loader extends docx4js{
 
 		return id
 	}
-	
+
 	getNode(uid){
 		let [id,part]=uid.split(/[\[\]]/g)
 		let node=null
@@ -37,39 +37,52 @@ export default class loader extends docx4js{
 		console.assert(node.length<2)
 		return node
 	}
-	
+
 	cloneNode(node){
 		let withIds=node.find("[id]").each((i,el)=>el.attribs._id=el.attribs.id)
 		let cloned=node.clone()
 		withIds.removeAttr("_id")
 		return cloned
 	}
-	
+
 	createNode(props){
-		
+
 	}
-	
+
 	updateNode({type}){
 		return this[`_update${type[0].toUpperCase()+type.substr(1)}Node`](...arguments)
 	}
-	
+
 	removeNode({id,type}){
 		return this.getNode(id).remove()
 	}
-	
+
 	_updateTextNode({id},{props,children}){
 		if(children!=undefined){
 			return this.getNode(id).text(children).get(0)
 		}else{
-			
+
 		}
 	}
-	
+
 	construct(from,to){
+		let $=this.officeDocument.content
 		let nodeFrom=this.getNode(from)
 		let nodeTo=this.getNode(to)
-		nodeFrom.parentsUntil(nodeTo).map((i,node)=>{
-			
-		})
+		let path=nodeFrom.parentsUntil(nodeTo).toArray()
+		path.splice(path.length,0,nodeTo.get(0))
+
+		let xml=path.reduce((constructed,node)=>{
+				switch(node.name.split(":").pop()){
+				case "r":
+					return `<w:r>${$.xml($(node).find("w\\:rPr"))}${constructed}</w:r>`
+				break
+				case "p":
+					return `<w:p>${$.xml($(node).find("w\\:pPr"))}${constructed}</w:p>`
+				break
+				}
+			},`<${nodeFrom.get(0).name}/>`)
+
+		return $(xml).get(0)
 	}
 }
