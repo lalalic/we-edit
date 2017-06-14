@@ -1,7 +1,14 @@
 import {getContent, nextCursorable, prevCursorable,getSelection} from "./selector"
 import {Text as TextModel} from "pagination"
 import {ACTION as History} from "./undoable"
+import Query from "state/selector/query"
 
+function isInSameParagraph(state,id1,id2){
+	return new Query(state,[id1])
+		.parents("paragraph")
+		.is(new Query(state,[id2]).parents("paragraph"))
+}
+						
 export const Cursor={
 	ACTIVE: docId=>({type:"selection/DOC",payload:docId})
 	,AT: (contentId, at)=>Selection.SELECT(contentId, at)
@@ -18,8 +25,8 @@ export const Cursor={
 			}else{
 				target=nextCursorable(state,id)
 				if(target){
+					at=isInSameParagraph(state,id,target) ? 1 : 0
 					id=target
-					at=1
 				}else{
 					//keep cursor at end of current target
 				}
@@ -38,8 +45,8 @@ export const Cursor={
 				}else{
 					target=nextCursorable(state,id)
 					if(target){
+						at=isInSameParagraph(state,id,target) ? 1 : 0
 						id=target
-						at=1
 					}else{
 						//keep cursor at end of current target
 					}
@@ -59,9 +66,9 @@ export const Cursor={
 			}else{
 				let target=prevCursorable(state,id)
 				if(target){
-					id=target
 					let children=getContent(state, target).get("children")
-					at=children.length-1
+					at=isInSameParagraph(state,id,target) ? children.length-1 : children.length
+					id=target
 				}else{
 					//keep cursor at end of current target
 				}
@@ -78,9 +85,9 @@ export const Cursor={
 				}else{
 					let target=prevCursorable(state,id)
 					if(target){
-						id=target
 						let children=getContent(state, target).get("children")
-						at=children.length-1
+						at=isInSameParagraph(state,id,target) ? children.length-1 : children.length
+						id=target
 					}else{
 						//keep cursor at end of current target
 					}
