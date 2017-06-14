@@ -64,4 +64,12 @@ export default class loader extends docx4js{
 			
 		}
 	}
+	
+	construct(from,to){
+		let nodeFrom=this.getNode(from)
+		let nodeTo=this.getNode(to)
+		nodeFrom.parentsUntil(nodeTo).map((i,node)=>{
+			
+		})
+	}
 }

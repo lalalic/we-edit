@@ -10,9 +10,8 @@ export default class Changer{
 		this._undoables={}
 		this._updated={}
 		this._selection=getSelection(state)
-
-		this._mutableState=state.updateIn(["content"],c=>c.asMutable())
-		this.$=context=>new Content(this._mutableState,context)
+		
+		this.$=context=>new Content(state,context)
 	}
 
 	state(){
@@ -25,8 +24,6 @@ export default class Changer{
 
 		if(Object.keys(this._selection).length>0)
 			state.selection=this._selection
-
-		state.content=this._mutableState.get("content").asImmutable()
 
 		return state
 	}

@@ -5,15 +5,9 @@ import {getFile} from "state/selector"
 export default class Content extends Query{
     constructor(){
         super(...arguments)
+		this._content=this.state.get("_content")
         this._doc=getFile(this.state)
     }
-	
-	asNode(nodes){
-		if(nodes instanceof Query)
-			return nodes
-		else 
-			return this.constructor(this.state,nodes)
-	}
 	
     attr(k,value){
         if(value==undefined)
@@ -27,7 +21,7 @@ export default class Content extends Query{
     				path.push("props")
     				path.push(k)
     			}
-    			this._content=this._content.setIn(path,value)
+    			this._content.setIn(path,value)
     		}
 
             return this
@@ -38,7 +32,8 @@ export default class Content extends Query{
         if(value==undefined)
             return super.text()
         else{
-            this.filter("text").add(this.find("text"))
+            this.filter("text")
+				.add(this.find("text"))
 				._nodes
 				.reduce((c,id)=>{
                     this._doc.updateNode(c.get(id).toJS(),{children:value})
@@ -49,49 +44,100 @@ export default class Content extends Query{
     }
 
 	append(nodes){
-		nodes=this.asNode(nodes)
 		let id0=this.attr("id")
-		let docNode=this._doc.getNode(id0)
-		nodes._nodes.forEach(id=>{
-			this._content.updateIn([id0,"children"],c=>c.push(id))
-			if(this._content.hasIn([id,"parent"])){
+		let docNode=this._doc.getNode(id0);
+		(new this.constructor(this.state,nodes))._nodes
+		.forEach(id=>{
+			if(this._content.hasIn([id0,"children"]))
+				this._content.updateIn([id0,"children"],c=>c.push(id))
+			
+			if(this._content.hasIn([id,"parent"]))
 				this._content.updateIn([this._content.getIn([id,"parent"]),"children"],c=>c.delete(c.indexOf(id)))
-			}
-			this._content.setIn([id,"parent"],id0)
+			
+			
+			if(this._content.has(id))
+				this._content.setIn([id,"parent"],id0)
 			docNode.append(this._doc.getNode(id))
 		})
 		return this
 	}
 
 	appendTo(parent){
-
+		new this.constructor(this.state, parent).append(this)
+		return this
 	}
 
 	prepend(node){
-
+		let id0=this.attr("id")
+		let docNode=this._doc.getNode(id0);
+		(new this.constructor(this.state,nodes))._nodes.reverse()
+		.forEach(id=>{
+			if(this._content.hasIn([id0,"children"]))
+				this._content.updateIn([id0,"children"],c=>c.unshift(id))
+			
+			if(this._content.hasIn([id,"parent"]))
+				this._content.updateIn([this._content.getIn([id,"parent"]),"children"],c=>c.delete(c.indexOf(id)))
+			
+			
+			if(this._content.has(id))
+				this._content.setIn([id,"parent"],id0)
+			docNode.append(this._doc.getNode(id))
+		})
+		return this
 	}
 
-	prependTo(target){
-
+	prependTo(parent){
+		new this.constructor(this.state, parent).prepend(this)
+		return this
 	}
 
-	after(){
-
+	after(nodes){
+		let parent=this.parent()
+		let pid=parent.attr("id")
+		let docNode=this.file.get(this.attr("id"))
+		let index=parent.get(0).get("children").indexOf(this.attr("id"))
+		new this.constructor(this.state,nodes)
+		._nodes
+		.forEach((k,i)=>{
+			if(this._content.hasIn([k,"parent"]))
+				this._content.updateIn([this._content.getIn([k,"parent"]),"children"],c=>c.delete(c.indexOf(k)))
+			
+			this._content.setIn([k,"parent"],pid)
+			this._content.updateIn([pid,"children"],c=>c.insert(index+i,k))
+			docNode.after(this.file.get(k))
+		})
+		return this
 	}
 
-	insertAfter(){
-
+	insertAfter(node){
+		new this.constructor(this.state,node).after(this)
+		return this
 	}
 
-	before(){
-
+	before(nodes){
+		let parent=this.parent()
+		let pid=parent.attr("id")
+		let docNode=this.file.get(this.attr("id"))
+		let index=parent.get(0).get("children").indexOf(this.attr("id"))
+		new this.constructor(this.state,nodes)
+		._nodes.reverse()
+		.forEach((k,i)=>{
+			if(this._content.hasIn([k,"parent"]))
+				this._content.updateIn([this._content.getIn([k,"parent"]),"children"],c=>c.delete(c.indexOf(k)))
+			
+			this._content.setIn([k,"parent"],pid)
+			this._content.updateIn([pid,"children"],c=>c.insert(index,k))
+			docNode.before(this.file.get(k))
+		})
+		return this
 	}
 
-	insertBefore(){
-
+	insertBefore(node){
+		new this.constructor(this.state,node).before(this)
+		return this
 	}
 
-	remove(deep=false){
+	remove(deep=true){
 		const clear=k=>{//clear the tree
 			this._content.remove(k)
 			if(!deep)
@@ -108,13 +154,5 @@ export default class Content extends Query{
 			clear(k)
 		})
 		return this
-	}
-
-	replaceWith(node){
-		
-	}
-
-	empty(){
-
 	}
 }

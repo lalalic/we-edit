@@ -91,50 +91,30 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance)=>
 	if(action.type=="@@INIT")
 		return state
 
-	let changed
-	let changedContent=new Map()
-		.withMutations(a=>{
-			changed=inputTypeInstance.onChange(state,action,createElementFactory(a))
-		})
+	let changedContent=state.get("content").asMutable()
+	
+	let changed=inputTypeInstance.onChange(
+		state.set("_content", changedContent),
+		action,
+		createElementFactory(changedContent)
+	)
 
 	if(changed===false){
 		return state
 	}else if(isState(changed)){
-		state=changed
+		return changed.remove("_content")
 	}else if(typeof(changed)=="object"){
-		let {selection,styles,updated,undoables,content}=changed
+		let {selection,styles,updated,undoables}=changed
 		
 		if(selection)
 			state=state.mergeIn(["selection"], selection)
 
 		if(undoables)
 			historyEntry.changed=undoables
+
+		state.get("violent").changing=updated
 		
-		if(updated){
-			Object.keys(updated).forEach(k=>{
-				let children
-				if(!!(children=updated[k].children)){
-						//reset parent of children
-					changedContent=changedContent.withMutations(changed=>
-						children.forEach(c=>{
-							if(changed.has(c)){
-								if(!changed.hasIn([c,"parent"])){
-									changed.setIn([c,"parent"],k)
-								}
-							}
-						})
-					)
-				}else{
-					if(changedContent.has(k) && !changedContent.hasIn([k,"parent"])){
-						//use old parent
-						changedContent=changedContent.setIn([k,"parent"],state.getIn(["content",k,"parent"]))
-					}
-				}
-			})
-			state.get("violent").changing=updated
-		}
-		
-		state=state.set("content",content) 
+		state=state.setIn(["content"],changedContent.asImmutable())
 		
 		if(styles)
 			state=state.setIn("content.root.props.styles".split("."),new Map(styles))
@@ -142,7 +122,7 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance)=>
 		state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))
 	}
 
-	state=state.mergeIn(["content"],changedContent)
+	
 	return state
 }
 /*

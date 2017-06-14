@@ -54,7 +54,7 @@ export default class text extends Changer{
 				}
             }else if(changing.children){
 				this._updated[k]={children:changing.children}
-				this._mutableState.updateIn(["content",k,"children"],c=>new List(changing.children))
+				this._state.updateIn(["_content",k,"children"],c=>new List(changing.children))
 
 				changing.children.forEach((a,i)=>{
 					let target=orphans[a]
@@ -72,6 +72,7 @@ export default class text extends Changer{
 						attached.removeAttr("id")
 						this.file.makeId(attached.get(0),a)
 						this.renderChanged(a)
+						this._state.setIn(["_content",a,"parent"],k)
 					}
 				})
             }
@@ -85,9 +86,18 @@ export default class text extends Changer{
 	}
 
 	renderChanged(id){
-		let node=this._renderChanged(this.file.getNode(id).get(0))
-		this._updated[id]={}
-		return node
+		let docNode=typeof(id)=="string" ? this.file.getNode(id).get(0) : id
+		let rendered=this._renderChanged(docNode)
+		
+		id=rendered.id
+		
+		if(this._state.hasIn(["content",id])){
+			this._state.setIn(["_content",id,"parent"],
+				this._state.getIn(["content",id,"parent"]))
+			this._updated[id]={}
+		}
+		
+		return rendered
 	}
 
 	renderChangedChildren(id){
@@ -185,7 +195,7 @@ export default class text extends Changer{
 			}else if(removing<0){
 				path.push("delete")
 				let {children:text}=this.getContent(id)
-				if(text.length-1==at){
+				if(text.length==at){
 					path.push("tailOf")
 					if(this.isLastOfDocument(id)){
 						return this
@@ -227,72 +237,42 @@ export default class text extends Changer{
 
 	insert_withoutSelection_string_withNewLine(inserting){
 		const {start:{id,at}}=this.selection
-		let target=this.$('#'+id)
+		const target=this.$('#'+id)
+		const p=target.closest("paragraph")
 
+		const pieces=inserting.split(/[\r\n]+/g)
+		const FIRST=0
+		const LAST=pieces.length-1
+		
+		this.save4Undo(p.attr("id"))
+		
 		let text=target.text()
-
-		let $r=target.closest("run")
-		let $p=$r.closest("paragraph")
-
-		let r=this.file.getNode($r.attr("id"))
-		let p=this.file.getNode($p.attr("id"))
-
-		let pId=$p.attr("id")
-		let parentId=$p.attr("parent")
-
-		let emptyR=r.clone(), emptyP=p.clone()
-		console.assert(emptyR.attr("id")==undefined)
-		emptyR.find("w\\:t").text("")
-		emptyP.find("w\\:r").remove()
-
-		let pieces=inserting.split(/[\r\n]+/g)
-		let first=0, last=pieces.length-1
-		let cursorId, cursorAt
-
-		this.save4Undo(p)
 
 		pieces.reduceRight((b,piece,i)=>{
 			switch(i){
-			case first:{
+				case FIRST:{//first piece merged into 
 					target.text(text.substring(0,at)+piece)
-					this.renderChanged(p.get(0))
+					this.renderChanged(p.attr("id"))
 					break
 				}
-			case last:{
-					let r0=emptyR.clone(), t0=r0.find("w\\:t")
-					t0.text(piece+text.substr(at))
-					let p0=emptyP.clone()
-
-					p0.append(r0)
-					 .append(r.nextAll())
-					 .insertAfter(p)
-
-					 //@TODO: p0!=p.next(), it's weird, so use p.next().get(0)
- 					p0=p.next()
-					t0=p0.find("w\\:t").eq(0)
-
-					let rendered=this.renderChanged(p0.get(0))
-					this.updateChildren(parentId, children=>{
-						children.splice(children.indexOf(pId)+1,0,rendered.id)
-					})
+				case LAST:{
+					let {id:idP0}=this.renderChanged(this.file.construct(target.attr("id"), p.attr("id")))
+					
+					let p0=this.$('#'+idP0).insertAfter(p)
+					let t0=p0.findFirst("text").text(piece+text.substr(at))
+					p0.append(r.nextAll())
+					
 					this.cursorAt(t0.attr("id"), piece.length)
 					break
 				}
-			default:{
-					let r0=emptyR.clone()
-					r0.find("w\\:t").text(piece)
-
-					let p0=emptyP.clone()
-					p0.append(r0)
-					  .insertAfter(p)
-
-					 p0=p.next()
-
-					let rendered=this.renderChanged(p0.get(0))
-					this.updateChildren(parentId, children=>children.splice(children.indexOf(pId)+1,0,rendered.id))
+				default:{
+					let {id:idP0}=this.renderChanged(this.file.construct(target.attr("id"), p.attr("id")))
+					let p0=this.$('#'+idP0).insertAfter(p)
+					let t0=p0.findFirst("text").text(piece)
 				}
 			}
 		},1)
+		this.renderChangedChildren(p.attr("parent"))
 	}
 
 	insert_withSelection_string_withoutNewLine(inserting){
@@ -343,7 +323,7 @@ export default class text extends Changer{
 		this.save4undo(prev.attr("id"))
 
 		prev.append(p.children())
-		p.remove(false)
+		p.remove()
 
 		this.cursorAt(id,at)
 

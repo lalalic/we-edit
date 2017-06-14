@@ -157,7 +157,7 @@ export class text extends Base{
 	}
 
 	//merge with next paragraph
-	remove_withoutSelection_delete_tailOf_paragraph(removing){
+	_remove_withoutSelection_delete_tailOf_paragraph(removing){
 		let {start:{id,at}}=this.selection
 		let p=this.$('#'+id).closest("paragraph")
 		let nextPid=p.next("paragraph").attr("id")
