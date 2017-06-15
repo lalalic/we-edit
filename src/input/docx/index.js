@@ -1,10 +1,8 @@
-import docx4js from "./loader"
-import Base from "input/base"
+import docx4js from "input/docx/document"
+import Base from "input/type"
 
-import Style from "./styles"
-import Transformers from "./model"
-
-import * as changer from "./changer"
+import Style from "input/docx/styles"
+import Transformers from "input/docx/model"
 
 export default class extends Base{
 	static support(file){
@@ -247,8 +245,9 @@ export default class extends Base{
 		function renderNode(node){
 			return docx.officeDocument.renderNode(node,build,identify)
 		}
-
-		this.renderChanged=(node,createElement)=>{
+		
+		//implement loader.renderChangedNode
+		docx.renderChangedNode=(node,createElement)=>{
 			return docx.officeDocument.renderNode(node,buildFactory(createElement),identify)
 		}
 
@@ -257,63 +256,5 @@ export default class extends Base{
 
 	makeId(node){
 		return docx4js.prototype.makeId.call(this,...arguments)
-	}
-
-	onChange(state,{type,payload},createElement){
-		let renderChanged=changed=>this.renderChanged(changed,createElement)
-
-		let params=[state,renderChanged]
-		switch(type){
-			case `text/RETURN`:
-				return new changer.text(...params)
-					.insert("\r")
-					.state()
-			case `text/INSERT`:
-				return new changer.text(...params)
-					.insert(payload)
-					.state()
-			case `text/REMOVE`:
-				return new changer.text(...params)
-					.remove(payload)
-					.state()
-			case "entity/RESIZE":
-				return new changer.entity(...params)
-					.resize(payload)
-					.state()
-			case "entity/ROTATE":
-				return new changer.entity(...params)
-					.rotate(payload)
-					.state()
-			case "selection/MOVE":
-				return new changer.entity(...params)
-					.move(payload)
-					.state()
-			case "history/UNDO":
-				return new changer.undo(...params)
-					.undo(payload)
-					.state()
-			case 'style/ADD':{
-				const {type,id,name,isDefault=false,...others}=payload
-				let $=docx.officeDocument.styles
-				let styleNode=docx4js.parseXml(`
-					<w:style w:type="${type}" ${isDefault ? 'w:default="1"' : ""} w:styleId="${id}">
-						<w:name w:val="${name}"/>
-						<w:uiPriority w:val="1"/>
-						<w:semiHidden/>
-						<w:unhideWhenUsed/>
-					</w:style>`).root().children().get(0)
-				$(styleNode).appendTo("w\\:styles")
-				this.renderChanged(styleNode)
-				return {styles: this.styles}
-			}
-			case `style/UPDATE`:{
-				return {styles: this.styles}
-			}
-			case 'style/REMOVE':{
-				delete this.styles[payload]
-				return {styles: this.styles}
-			}
-		}
-		return true
 	}
 }

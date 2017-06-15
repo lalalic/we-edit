@@ -1,113 +1,7 @@
 import {List} from "immutable"
-import Changer from "./changer"
+import reducer from "./base"
 
-export default class text extends Changer{
-	state(){
-		return super.state()
-	}
-
-	/**
-	 * not need to record for undo
-	 **/
-	undo({changed:updated,selection}){
-		let orphans={}
-		const recoverId=node=>{
-			return node.find("[_id]")
-				.each((i,el)=>this.file.makeId(el,el.attribs._id))
-				.removeAttr("_id")
-		}
-
-		const pre=(i,keys)=>{
-			let found
-			while(i>0){
-				if((found=this.file.getNode(keys[--i])).length>0)
-					return found
-			}
-			return null
-		}
-
-		const next=(i,keys)=>{
-			let found,len=keys.length
-			while(i<len){
-				if((found=this.file.getNode(keys[++i])).length>0)
-					return found
-			}
-			return null
-		}
-        Object.keys(updated)
-			.reduce((sorted,a)=>{
-				sorted[updated[a].cheerio ? "unshift" : "push"](a)
-				return sorted
-			},[])
-		.forEach(k=>{
-            let changing=updated[k]
-            if(changing.cheerio){//a content node
-                let last=updated[k].clone()
-                let current=this.file.getNode(k)
-				if(current.length==0){
-					orphans[k]=last
-				}else{
-					recoverId(last)
-					current.replaceWith(last)
-					this.file.makeId(last.get(0),k)
-					this.renderChanged(k)
-				}
-            }else if(changing.children){
-				this._updated[k]={children:changing.children}
-				this._state.updateIn(["_content",k,"children"],c=>new List(changing.children))
-
-				changing.children.forEach((a,i)=>{
-					let target=orphans[a]
-					if(target){
-						let n
-						target.attr("id",a)
-						if(n=pre(i,changing.children)){
-							target.insertAfter(n)
-						}else if(n=next(i,changing.children)){
-							target.insertBefore(n)
-						}
-
-						let attached=this.file.getNode(a)
-						recoverId(attached)
-						attached.removeAttr("id")
-						this.file.makeId(attached.get(0),a)
-						this.renderChanged(a)
-						this._state.setIn(["_content",a,"parent"],k)
-					}
-				})
-            }
-        })
-        this._selection={...this._selection,...selection}
-        return this
-	}
-
-	save4undo(id){
-		this._undoables[id]=this.file.cloneNode(this.file.getNode(id))
-	}
-
-	renderChanged(id){
-		let docNode=typeof(id)=="string" ? this.file.getNode(id).get(0) : id
-		let rendered=this._renderChanged(docNode)
-
-		id=rendered.id
-
-		if(this._state.hasIn(["content",id])){
-			this._state.setIn(["_content",id,"parent"],
-				this._state.getIn(["content",id,"parent"]))
-			this._updated[id]={}
-		}
-
-		return rendered
-	}
-
-	renderChangedChildren(id){
-		if(id in this._undoables || id in this._updated)
-			console.warning("some conflict in undo/update queue")
-
-		this._undoables[id]={children:this._state.getIn(["content",id,"children"]).toJS()}
-		this._updated[id]={children:this.$('#'+id).children().toArray()}
-	}
-
+export class text extends reducer{
 	insert(inserting){
 		let docx=this.file
 		let {start:{id,at},end}=this.selection
@@ -256,24 +150,26 @@ export default class text extends Changer{
 					break
 				}
 				case LAST:{
-					let {id:idP0}=this.renderChanged(this.file.construct(target.attr("id"), p.attr("id")))
+					let {id:idP0}=this.renderChanged(target.constructUp(p))
 
 					let p0=this.$('#'+idP0).insertAfter(p)
-					console.assert(p0.attr("id")==idP0 && p0.attr("parent")==p.attr("parent"))
-
+					
 					let t0=p0.findFirst("text").text(piece+text.substr(at))
 
 					target.parentsUntil(p).each(function(i,node,$){
-						this.eq(i).append($(node).nextAll())
+						this.eq(i).after($(node).nextAll())
 					},t0.parentsUntil(p0))
 
 					this.cursorAt(t0.attr("id"), piece.length)
 					break
 				}
 				default:{
-					let {id:idP0}=this.renderChanged(this.file.construct(target.attr("id"), p.attr("id")))
-					let p0=this.$('#'+idP0).insertAfter(p)
-					let t0=p0.findFirst("text").text(piece)
+					let {id:idP0}=this.renderChanged(target.constructUp(p))
+					this.$('#'+idP0)
+						.insertAfter(p)
+						.findFirst("text")
+						.text(piece)
+					break
 				}
 			}
 		},1)

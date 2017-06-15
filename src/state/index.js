@@ -6,14 +6,7 @@ import {firstCursorable} from "./selector"
 export function createState(doc, content, docReducer=state=>state){
 	const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
 	 	window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
-			serialize:{
-				immutable: Immutable,
-				reviver(key,value){
-					if(key=="doc")
-						return doc
-					return value
-				}
-			}
+			serialize:true
 		}) : compose;
 
 	let id=firstCursorable(content)

@@ -1,6 +1,6 @@
 import {Getable} from "../base"
 import Level from "./level"
-import NUMFMT from "input/number-format"
+import NUMFMT from "./number-format"
 
 export default class Num extends Getable{
 	constructor(node, styles, selector){

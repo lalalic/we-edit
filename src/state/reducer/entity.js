@@ -1,32 +1,25 @@
-import Changer from "./changer"
+import reducer from "./base"
 
-export default class entity extends Changer{
+export class entity extends reducer{
 	resize({x,y}){
 		let {start:{id}}=this.selection
-		const target=this.getNode(id)
-		const {size:{width,height}}=this.getContent(id).props
-
+		const {width,height}=this.$('#'+id).attr("size").toJS()
+		let changedNode
+		
+		this.save4undo(id)
+		
 		if(y===undefined){
-			this.resize_width(target,width+x)
+			changedNode=this.file.resize(id,width+x)
 		}else if(x===undefined){
-			this.resize_height(target,height+y)
+			changedNode=this.file.resize(id,null,height+y)
 		}else{
 			let ratio=1+Math.max(Math.abs(x)/width,Math.abs(y)/height)*x/Math.abs(x)
-			this.resize_width_height(target,width*ratio,height*ratio)
+			changedNode=this.file.resize(id,width*ratio,height*ratio)
 		}
+		
+		this.renderChanged(changedNode)
+		
 		return this
-	}
-
-	resize_width(node,x){
-
-	}
-
-	resize_height(node,y){
-
-	}
-
-	resize_width_height(node,x,y){
-
 	}
 
 	rotate({x,y}){

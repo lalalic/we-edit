@@ -5,9 +5,9 @@ import cssSelect, {isIdSelector} from "./css"
 export default class Query{
 	constructor(state,selector){
 		this.state=state
-		this._content=state.get("content")
+		this._content=this._getContent()
 		this._nodes=[]
-		this._$=n=>new this.constructor(content,[n])
+		this._$=n=>new this.constructor(state,[n])
 		if(!selector){
 			this._nodes.push('root')
 			return this
@@ -41,8 +41,14 @@ export default class Query{
 		}
 	}
 
+
+	
 	get length(){
 		return this._nodes.length
+	}
+	
+	_getContent(){
+		return this.state.get("content")
 	}
 
 	attr(k){

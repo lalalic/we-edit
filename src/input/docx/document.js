@@ -1,5 +1,6 @@
 import docx4js from "docx4js"
 import uuid from "tools/uuid"
+import Base from "input/document"
 
 const defineId=(target,id)=>Object.defineProperty(target,"id",{
 	enumerable: false,
@@ -7,7 +8,9 @@ const defineId=(target,id)=>Object.defineProperty(target,"id",{
 	writable: false,
 	value: id
 })
-export default class loader extends docx4js{
+
+//implement Base interface
+export default class Document extends docx4js{
 	makeId(node, uid){
 		if(uid){
 			defineId(node.attribs,uid)
@@ -83,6 +86,35 @@ export default class loader extends docx4js{
 				}
 			},`<${nodeFrom.get(0).name}/>`)
 
-		return $(xml).get(0)
+		return $(xml).appendTo("w\\:body").get(0)
 	}
+	
+	resize(id, width, height){
+		let node=this.getNode(id)
+		let ext0=node.find("a\\:xfrm>a\\:ext")
+		let inline=node.closest("wp\\:inline")
+		
+		const update=(x,target)=>{
+			if(x){
+				let cx=px2cm(x)
+				let cx0=parseInt(ext0.attr(target))
+				ext0.attr(target,cx)
+
+				if(inline.length){
+					let ext1=inline.children("wp\\:extent")
+					let cx1=parseInt(ext1.attr(target))
+					ext1.attr(target,cx+cx1-cx0)
+				}
+			}
+		}
+		
+		update(width,"cx")
+		update(height,"cy")
+		
+		return (inline.length ? inline : node).get(0)
+	}
+}
+
+function px2cm(px){
+	return Math.ceil(px*72/96*360000/28.3464567)
 }
