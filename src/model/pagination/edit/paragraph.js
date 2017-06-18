@@ -36,6 +36,8 @@ export default class Paragraph extends Super{
 					this.availableSpace={width:0, height:0}
 					parent.on1ChildComposed(this)
 				}
+			}else{
+				parent.on1ChildComposed(this)
 			}
 		}
     }
@@ -53,7 +55,7 @@ export default class Paragraph extends Super{
 		if(this.computed.composed.length>0){
 			return null
 		}
-		
+
 		return super.render()
 	}
 }

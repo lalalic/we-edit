@@ -30,10 +30,5 @@ export default class Document extends Super{
 			.reduce((w,{props:{pgSz:{width}}})=>Math.max(w,width),0)
 	}
 
-    on1ChildComposed(section){
-        debugger
-        super.on1ChildComposed(section)
-    }
-
 	static Composed=ComposedDocument
 }
