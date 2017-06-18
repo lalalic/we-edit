@@ -33,12 +33,11 @@ export function isState(data){
 }
 const report=store=>next=>action=>{
 	try{
-		console.debug(JSON.stringify(action))
 		return next(action)
 	}catch(error){
 		console.error(error)
 	}finally{
-		console.dir(window.action={state:store.getState().toJSON(),action})
+		//console.dir(window.action={state:store.getState().toJSON(),action})
 	}
 }
 

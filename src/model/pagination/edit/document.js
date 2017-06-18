@@ -4,6 +4,8 @@ import Waypoint from "react-waypoint"
 
 import Base from "../document"
 import {Text} from "model/pagination"
+import ComposedDocument from "composed/document"
+
 import {ACTION} from "state"
 import {getContent,getContentStyle,getSelection,getNode} from "state/selector"
 import {editable} from "model/edit"
@@ -16,8 +18,6 @@ import offset from "mouse-event-offset"
 import getClientRect from "tools/get-client-rect"
 
 const Super=editable(recomposable(Base))
-
-let UUID=0
 
 export default class Document extends Super{
 	static contextTypes={
@@ -83,21 +83,6 @@ export default class Document extends Super{
 		return this.state.mode=="content"
 	}
 
-	get contentHeight(){
-		let pgGap=this.context.pgGap
-		let last=this.computed.composed.pop()
-		let height=this.computed.composed.reduce((w,{size:{height}})=>w+height+pgGap,0)
-		if(last){
-			this.computed.composed.push(last)
-			let lastColumnLines=last.columns[last.columns.length-1].children
-			let lastLine=lastColumnLines[lastColumnLines.length-1]
-			height+=last.margin.top
-			if(lastLine)
-				height+=(lastLine.props.y+lastLine.props.height)
-		}
-		return height
-	}
-
 	shouldContinueCompose(){
 		const {compose2Page,mode}=this.state
 		if(mode=="content" && this.continueComposing==false)
@@ -106,7 +91,7 @@ export default class Document extends Super{
 		const {media,viewport}=this.context
 
 		if(media=="screen"){
-			let contentY=this.contentHeight
+			let contentY=ComposedDocument.contentY(this.computed.composed, this.context.pgGap)
 			if(contentY>viewport.height){
 				switch(mode){
 				case "content":{
@@ -138,7 +123,8 @@ export default class Document extends Super{
 		static childContextTypes={
 			getRatio: PropTypes.func,
 			getWordWrapper:PropTypes.func,
-			positionFromPoint:PropTypes.func
+			positionFromPoint:PropTypes.func,
+			query: PropTypes.func
 		}
 
 		getChildContext(){
@@ -151,7 +137,10 @@ export default class Document extends Super{
 				getWordWrapper(style){
 					return new Text.WordWrapper(style)
 				},
-				positionFromPoint
+				positionFromPoint,
+				query(){
+
+				}
 			}
 		}
 
@@ -199,10 +188,7 @@ export default class Document extends Super{
 			const {isAllComposed, composeMore, pages, ...props}=this.props
 			let composeMoreTrigger=null
 			if(!isAllComposed()){
-				let y=pages.reduce((h,{size:{height}})=>h+height,0)
-						+(pages.length-2)*this.context.pgGap
-						-pages[pages.length-1].size.height
-
+				let y=ComposedDocument.pageY(pages,this.context.pgGap,-1)
 				composeMoreTrigger=(
 					<Waypoint onEnter={e=>composeMore()} >
 						<g transform={`translate(0 ${y})`}/>
