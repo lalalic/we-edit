@@ -11,8 +11,7 @@ export function HasChild(Component){
         }
 
         computed = { children: [], composed: [] }
-
-		getChildContext() {
+        getChildContext() {
             let self = this
             let superChildContext=super.getChildContext ? super.getChildContext() : {}
             return {

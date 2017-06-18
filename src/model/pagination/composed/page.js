@@ -27,30 +27,30 @@ export default class Page extends Component{
 			footer}=this.props
 
 		let {media="print"}=this.context
-		
+
 		let contents=[]
-		
+
 		if(header)
 			contents.push(
-				<Group key="header" 
-					x={left} y={headerStartAt} 
+				<Group key="header"
+					x={left} y={headerStartAt}
 					className="header">
 					{header}
 				</Group>
 			)
-		
+
 		contents.push(
-			<Group key="content" 
-				x={left} y={top} 
+			<Group key="content"
+				x={left} y={top}
 				className="content">
 				{columns.map((a,i)=><Group key={i} {...a}/>)}
 			</Group>
 		)
-					
+
 		if(footer)
 			contents.push(
-				<Group key="footer" 
-					x={left} 
+				<Group key="footer"
+					x={left}
 					y={height-footerEndAt-footer.props.height}
 					className="footer">
 					{footer}
@@ -60,10 +60,10 @@ export default class Page extends Component{
 		if(media=="screen"){
 			const {display}=this.state
 			const {onPageShow=a=>a,onPageHide=a=>a}=this.props
-			
+
 			if(display){
 				contents.unshift(
-					<Margin key="margin" 
+					<Margin key="margin"
 						margin={{left,top,right:width-right,bottom:height-bottom}}/>
 				)
 			}else{

@@ -17,7 +17,7 @@ export function createState(doc, content, docReducer=state=>state){
 		doc, //source file
 		content, // models
 		selection:Immutable.fromJS({start:{id,at:0},end:{id,at:0},cursorAt:"end"}),
-		violent:{toJSON:a=>undefined}
+		violent:{}
 	})
 
 	return createStore(
@@ -33,9 +33,12 @@ export function isState(data){
 }
 const report=store=>next=>action=>{
 	try{
+		console.debug(JSON.stringify(action))
 		return next(action)
 	}catch(error){
 		console.error(error)
+	}finally{
+		console.dir(window.action={state:store.getState().toJSON(),action})
 	}
 }
 

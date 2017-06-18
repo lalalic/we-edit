@@ -51,7 +51,7 @@ function buildEditableDoc(doc,inputTypeInstance){
 			let content=new Map().withMutations(a=>inputTypeInstance.render(doc, DOMAIN, createElementFactory(a)))
 
 			history=new History()
-			
+
 			store=createState(doc,content,history.undoable(changeReducer))
 
 			return (
@@ -88,11 +88,18 @@ the builder to create reducer
 */
 const changeReducerBuilder=(createElementFactory,inputTypeInstance)=>
 	(state,action,historyEntry)=>{
-	if(action.type=="@@INIT")
+	switch(action.type){
+	case "@@INIT":
 		return state
+	case "@@refresh":
+		state.get("violent").changing=null
+		return state.setIn(["content","refreshAt"],Date.now())
+	default:
+		break
+	}
 
 	let changedContent=state.get("content").asMutable()
-	
+
 	let changed=inputTypeInstance.onChange(
 		state.set("_content", changedContent),
 		action,
@@ -105,7 +112,7 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance)=>
 		return changed.remove("_content")
 	}else if(typeof(changed)=="object"){
 		let {selection,styles,updated,undoables}=changed
-		
+
 		if(selection)
 			state=state.mergeIn(["selection"], selection)
 
@@ -113,16 +120,16 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance)=>
 			historyEntry.changed=undoables
 
 		state.get("violent").changing=updated
-		
+
 		state=state.setIn(["content"],changedContent.asImmutable())
-		
+
 		if(styles)
 			state=state.setIn("content.root.props.styles".split("."),new Map(styles))
 	}else{
 		state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))
 	}
 
-	
+
 	return state
 }
 /*

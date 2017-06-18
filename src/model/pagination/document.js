@@ -20,7 +20,7 @@ export default class Document extends Super{
 			</div>
 		)
     }
-	
+
 	appendComposed(page){
 		this.computed.composed.push(page)
 	}
@@ -29,6 +29,11 @@ export default class Document extends Super{
 		return Children.toArray(this.props.children)
 			.reduce((w,{props:{pgSz:{width}}})=>Math.max(w,width),0)
 	}
+
+    on1ChildComposed(section){
+        debugger
+        super.on1ChildComposed(section)
+    }
 
 	static Composed=ComposedDocument
 }

@@ -24,6 +24,7 @@ export default class Document extends Super{
 		...Super.contextTypes,
 		viewport:PropTypes.any,
 		media: PropTypes.string,
+		pgGap: PropTypes.number,
 		isContentChanged: PropTypes.func
 	}
 
@@ -33,7 +34,7 @@ export default class Document extends Super{
 		shouldRemoveComposed: PropTypes.func
 	}
 
-	state={compose2Page:1}
+	state={compose2Page:1, computed:this.computed}
 
 	getChildContext(){
 		let shouldRemoveComposed=this.shouldRemoveComposed.bind(this)
@@ -68,6 +69,7 @@ export default class Document extends Super{
     }
 
 	composeMore(){
+		console.log("compose more to "+(this.state.compose2Page+1))
 		this.setState(p=>({compose2Page:p.compose2Page+1,mode:"performant"}))
 	}
 
@@ -82,8 +84,9 @@ export default class Document extends Super{
 	}
 
 	get contentHeight(){
+		let pgGap=this.context.pgGap
 		let last=this.computed.composed.pop()
-		let height=this.computed.composed.reduce((w,{size:{height}})=>w+height,0)
+		let height=this.computed.composed.reduce((w,{size:{height}})=>w+height+pgGap,0)
 		if(last){
 			this.computed.composed.push(last)
 			let lastColumnLines=last.columns[last.columns.length-1].children
@@ -103,11 +106,15 @@ export default class Document extends Super{
 		const {media,viewport}=this.context
 
 		if(media=="screen"){
-			let contentHeight=this.contentHeight
-			if(contentHeight>viewport.height){
+			let contentY=this.contentHeight
+			if(contentY>viewport.height){
 				switch(mode){
-				case "content":
-					return this.continueComposing=contentHeight<(screen.height-this.canvas.getClientRect().top)
+				case "content":{
+					//@TODO: relative to editor's self viewport, instead of window
+					let maxY=window.innerHeight-this.canvas.getClientRect().top
+					maxY*=this.canvas.ratio
+					return this.continueComposing=contentY<maxY
+				}
 				case "performant":
 				default:
 					return this.computed.composed.length<compose2Page+1
@@ -197,14 +204,14 @@ export default class Document extends Super{
 						-pages[pages.length-1].size.height
 
 				composeMoreTrigger=(
-					<Waypoint key={UUID++} onEnter={e=>composeMore()}>
+					<Waypoint onEnter={e=>composeMore()} >
 						<g transform={`translate(0 ${y})`}/>
 					</Waypoint>
 				)
 			}else{
 				delete props.minHeight
 			}
-			
+
 			let done=null
 
 			return (
@@ -212,8 +219,8 @@ export default class Document extends Super{
 					<Base.Composed {...props} pages={pages}
 						onClick={e=>{
 							if(done==e.timeStamp)
-								return 
-							
+								return
+
 							this.onClick(e)
 						}}
 						onMouseUp={e=>{
@@ -237,7 +244,7 @@ export default class Document extends Super{
 				</div>
 			)
 		}
-		
+
 		documentSelection(){
 			return window.getSelection()||document.getSelection()
 		}
@@ -252,7 +259,7 @@ export default class Document extends Super{
 			let [,,viewBoxWidth]=svg.getAttribute("viewBox").split(" ")
 			this.ratio=viewBoxWidth/width
 			this.getClientRect=()=>svg.getBoundingClientRect()
-			
+
 			this.context.store.dispatch(ACTION.Cursor.ACTIVE(this.context.docId))
 		}
 
