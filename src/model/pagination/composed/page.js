@@ -43,7 +43,7 @@ export default class Page extends Component{
 			<Group key="content"
 				x={left} y={top}
 				className="content">
-				{columns.map((a,i)=><Group key={i} {...a}/>)}
+				{columns.map((a,i)=><Group key={i} className="column" {...a}/>)}
 			</Group>
 		)
 
