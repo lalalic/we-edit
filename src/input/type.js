@@ -79,6 +79,10 @@ export default class{
 				return new reducer.entity(...params)
 					.rotate(payload)
 					.state()
+			case "entity/CREATE":
+				return new reducer.entity(...params)
+					.create(payload)
+					.state()
 			case "selection/MOVE":
 				return new reducer.entity(...params)
 					.move(payload)

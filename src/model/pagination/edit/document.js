@@ -91,7 +91,7 @@ export default class Document extends Super{
 		const {media,viewport}=this.context
 
 		if(media=="screen"){
-			let contentY=ComposedDocument.contentY(this.computed.composed, this.context.pgGap)
+			let contentY=new ComposedDocument.Query(this.computed.composed, this.context.pgGap).y
 			if(contentY>viewport.height){
 				switch(mode){
 				case "content":{
@@ -139,9 +139,13 @@ export default class Document extends Super{
 				},
 				positionFromPoint,
 				query(){
-
+					return self.query()
 				}
 			}
+		}
+		
+		query(){
+			return new ComposedDocument.Query(this.props.pages,this.context.pgGap)
 		}
 
 		positionFromPoint(x0,y0){
@@ -188,7 +192,7 @@ export default class Document extends Super{
 			const {isAllComposed, composeMore, pages, ...props}=this.props
 			let composeMoreTrigger=null
 			if(!isAllComposed()){
-				let y=ComposedDocument.pageY(pages,this.context.pgGap,-1)
+				let y=new ComposedDocument.Query(pages,this.context.pgGap).pageY(-1)
 				composeMoreTrigger=(
 					<Waypoint onEnter={e=>composeMore()} >
 						<g transform={`translate(0 ${y})`}/>

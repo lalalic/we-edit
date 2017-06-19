@@ -48,8 +48,8 @@ export default class Document extends docx4js{
 		return cloned
 	}
 
-	createNode(props){
-
+	createNode({type}){
+		return this[`_create${type[0].toUpperCase()+type.substr(1)}Node`](...arguments)
 	}
 
 	updateNode({type}){
@@ -66,6 +66,45 @@ export default class Document extends docx4js{
 		}else{
 
 		}
+	}
+	
+	_createTable({rows,cols,width}){
+		let aColWidth=parseInt(width/cols)
+		let xCols=new Array(cols-1)
+			.fill(aColWidth)
+			.push(width-(cols-1)*aColWidth)
+			
+		let xRow=xCols.map(w=>`
+			<w:tc>
+				<w:tcPr>
+					<w:tcW w:w="${w}" w:type="dxa"/>
+				</w:tcPr>
+				<w:p><w:r><w:t></w:t></w:r></w:p>
+			</w:tc>
+		`)
+
+		let xRows=new Array(rows)
+			.fill(`<w:tr>${xRow.join("")}</w:tr>`)
+			
+		const xml=`
+		<w:tbl>
+			<w:tblPr>
+				<w:tblStyle w:val="TableGrid"/>
+				<w:tblW w:w="0" w:type="auto"/>
+				<w:tblLook w:val="04A0" w:noVBand="1" w:noHBand="0" w:lastColumn="0" w:firstColumn="1" w:lastRow="0" w:firstRow="1"/>
+			</w:tblPr>
+			<w:tblGrid>
+				${xCols.map(w=>`<w:gridCol w:w="${w}"/>`).join("")}
+			</w:tblGrid>
+			${xRows.join("")}
+		</w:tbl>
+		`
+		
+		return this.attach(xml)
+	}
+	
+	attach(xml){
+		return this.officeDocument.content(xml).appendTo("w\\:body").get(0)
 	}
 
 	construct(from,to){
@@ -86,7 +125,7 @@ export default class Document extends docx4js{
 				}
 			},`<${nodeFrom.get(0).name}/>`)
 
-		return $(xml).appendTo("w\\:body").get(0)
+		return this.attach(xml)
 	}
 	
 	resize(id, width, height){

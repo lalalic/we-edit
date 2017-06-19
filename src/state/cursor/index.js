@@ -12,7 +12,8 @@ export class Cursor extends Component{
 		docId: PropTypes.string,
 		getCursorInput: PropTypes.func,
 		getRatio: PropTypes.func,
-		getWordWrapper: PropTypes.func
+		getWordWrapper: PropTypes.func,
+		query: PropTypes.func
 	}
 
 	static propTypes={
@@ -91,7 +92,6 @@ export class Cursor extends Component{
 
 		return {...style,left,top,height,width}
 	}
-
 
 	getLineNode(which,node){
 		let current=node||this.node;
