@@ -1,18 +1,18 @@
-import reducer from "./text"
+import {text as reducer} from "./text"
 
 export class entity extends reducer{
-create({type}){
+	create({type}){
 		let {start:{id,at},end}=this.selection
 		let path=["create"]
 		if(id==end.id && at==end.at){
-			
+
 		}else{
 			this.remove_withSelection()
 		}
-		
-		let {nodes,prevId}=this.file.create(...arguments)
+
+		let {nodes,prevId}=this.file.create(this[`create_${type}`](...arguments))
 		let prev=prevId ? this.$('#'+prevId) : null
-		
+
 		nodes.reduceRight(node=>{
 			let {id}=this.renderChanged(node)
 			if(prev){
@@ -26,17 +26,23 @@ create({type}){
 					siblings.first().before('#'+id)
 				}else{
 					parent.append('#'+id)
-				}	
+				}
 			}
 		})
 	}
+
+	create_table({}){
+		let {start:{id,at},end}=this.selection
+			
+	}
+
 	resize({x,y}){
 		let {start:{id}}=this.selection
 		const {width,height}=this.$('#'+id).attr("size").toJS()
 		let changedNode
-		
+
 		this.save4undo(id)
-		
+
 		if(y===undefined){
 			changedNode=this.file.resize(id,width+x)
 		}else if(x===undefined){
@@ -45,9 +51,9 @@ create({type}){
 			let ratio=1+Math.max(Math.abs(x)/width,Math.abs(y)/height)*x/Math.abs(x)
 			changedNode=this.file.resize(id,width*ratio,height*ratio)
 		}
-		
+
 		this.renderChanged(changedNode)
-		
+
 		return this
 	}
 

@@ -6,11 +6,11 @@ export default class Group extends Component{
 		height: PropTypes.number
 	}
     render(){
-		let {x,y, width, height, index, children=[], childIndex,...others}=this.props
+		let {x,y, width, height, index, children=[], childIndex, type,...others}=this.props
 		if(x||y)
 			others.transform=`translate(${x||0} ${y||0})`
-		
-		if(Object.keys(others).length>0 || children.length>1)
+
+	 	if(Object.keys(others).length>0 || children.length>1)
 			return <g {...others} children={children}/>
 		else if(React.isValidElement(children)){
 			return children

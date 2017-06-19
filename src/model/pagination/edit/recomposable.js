@@ -34,17 +34,16 @@ export default function recomposable(Content){
 		* content and container should have data-content id
 		*/
 		createComposed2Parent(props){
-			return super.createComposed2Parent({
-					...props,
+			return React.cloneElement(super.createComposed2Parent(props),{
 					"data-content":this.props.id,
 					"data-type":this.constructor.displayName.split("-").pop()
 				})
 		}
-		
+
 		componentWillReceiveProps(){
 			this.clearComposed()
 		}
-		
+
 		clearComposed(){
 			this.computed.composed=[]
 			this.computed.children=[]

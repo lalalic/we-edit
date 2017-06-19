@@ -31,7 +31,8 @@ export default class Document extends Super{
 	static childContextTypes={
 		...Super.childContextTypes,
 		shouldContinueCompose: PropTypes.func,
-		shouldRemoveComposed: PropTypes.func
+		shouldRemoveComposed: PropTypes.func,
+		query: PropTypes.func
 	}
 
 	state={compose2Page:1, computed:this.computed}
@@ -39,11 +40,17 @@ export default class Document extends Super{
 	getChildContext(){
 		let shouldRemoveComposed=this.shouldRemoveComposed.bind(this)
 		let shouldContinueCompose=this.shouldContinueCompose.bind(this)
+		let query=this.query.bind(this)
 		return {
 			...super.getChildContext(),
 			shouldContinueCompose,
-			shouldRemoveComposed
+			shouldRemoveComposed,
+			query
 		}
+	}
+
+	query(){
+		return new ComposedDocument.Query(this)
 	}
 
 	render(){
@@ -91,7 +98,7 @@ export default class Document extends Super{
 		const {media,viewport}=this.context
 
 		if(media=="screen"){
-			let contentY=new ComposedDocument.Query(this.computed.composed, this.context.pgGap).y
+			let contentY=this.query().y
 			if(contentY>viewport.height){
 				switch(mode){
 				case "content":{
@@ -117,14 +124,14 @@ export default class Document extends Super{
 			docId: PropTypes.string,
 			store: PropTypes.any,
 			getCursorInput: PropTypes.func,
-			pgGap: PropTypes.number
+			pgGap: PropTypes.number,
+			query: PropTypes.func
 		}
 
 		static childContextTypes={
 			getRatio: PropTypes.func,
 			getWordWrapper:PropTypes.func,
-			positionFromPoint:PropTypes.func,
-			query: PropTypes.func
+			positionFromPoint:PropTypes.func
 		}
 
 		getChildContext(){
@@ -137,15 +144,8 @@ export default class Document extends Super{
 				getWordWrapper(style){
 					return new Text.WordWrapper(style)
 				},
-				positionFromPoint,
-				query(){
-					return self.query()
-				}
+				positionFromPoint
 			}
-		}
-		
-		query(){
-			return new ComposedDocument.Query(this.props.pages,this.context.pgGap)
 		}
 
 		positionFromPoint(x0,y0){
@@ -192,7 +192,7 @@ export default class Document extends Super{
 			const {isAllComposed, composeMore, pages, ...props}=this.props
 			let composeMoreTrigger=null
 			if(!isAllComposed()){
-				let y=new ComposedDocument.Query(pages,this.context.pgGap).pageY(-1)
+				let y=this.context.query().pageY(-1)
 				composeMoreTrigger=(
 					<Waypoint onEnter={e=>composeMore()} >
 						<g transform={`translate(0 ${y})`}/>
