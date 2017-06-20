@@ -25,6 +25,7 @@ export default class Document extends Super{
 		viewport:PropTypes.any,
 		media: PropTypes.string,
 		pgGap: PropTypes.number,
+		store: PropTypes.any,
 		isContentChanged: PropTypes.func
 	}
 
@@ -32,25 +33,29 @@ export default class Document extends Super{
 		...Super.childContextTypes,
 		shouldContinueCompose: PropTypes.func,
 		shouldRemoveComposed: PropTypes.func,
-		query: PropTypes.func
+		query: PropTypes.func,
+		mount: PropTypes.func,
+		unmount: PropTypes.func
 	}
 
 	state={compose2Page:1, computed:this.computed}
-
+	composers=new Map([[this.props.id,this]])
 	getChildContext(){
 		let shouldRemoveComposed=this.shouldRemoveComposed.bind(this)
 		let shouldContinueCompose=this.shouldContinueCompose.bind(this)
 		let query=this.query.bind(this)
+		let mount=a=>this.composers.set(a.props.id,a)
+		let unmount=a=>this.composers.delete(a.props.id)
 		return {
 			...super.getChildContext(),
 			shouldContinueCompose,
 			shouldRemoveComposed,
-			query
+			query,mount,unmount
 		}
 	}
 
 	query(){
-		return new ComposedDocument.Query(this)
+		return new ComposedDocument.Query(this,this.context.store.getState())
 	}
 
 	render(){

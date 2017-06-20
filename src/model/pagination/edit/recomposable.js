@@ -30,6 +30,18 @@ export default function recomposable(Content){
 			id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired
 		}
 
+		static contextTypes={
+			...Content.contextTypes,
+			mount: PropTypes.func,
+			unmount: PropTypes.func
+		}
+
+		constructor(){
+			super(...arguments)
+			if(this.context.mount)
+				this.context.mount(this)
+		}
+
 		/*
 		* content and container should have data-content id
 		*/
@@ -47,6 +59,11 @@ export default function recomposable(Content){
 		clearComposed(){
 			this.computed.composed=[]
 			this.computed.children=[]
+		}
+
+		componentWillUnmount(){
+			if(this.context.unmount)
+				this.context.unmount(this)
 		}
 	}
 }

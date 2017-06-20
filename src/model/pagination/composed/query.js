@@ -1,9 +1,11 @@
 import React from "react"
-import {Text} from "model/pagination"
+import ComposedText from "./text"
+import Text from "pagination/text"
 
 export default class Query{
-	constructor(document){
+	constructor(document,state){
 		this.document=document
+		this.state=state
 		this.pages=document.computed.composed
 		this.pgGap=document.context.pgGap
 	}
@@ -88,7 +90,7 @@ export default class Query{
 		let style=this.getStyle(piece)
 
 		let wordwrapper=new Text.WordWrapper(style)
-		let content=getContent(this.state,id).toJS()
+		let content=this.state.getIn(["content",id]).toJS()
 		let end=wordwrapper.widthString(offsetX, content.children.substr(from))
 		offsetX=wordwrapper.stringWidth(content.children.substr(from,end))
 		return {
@@ -106,41 +108,30 @@ export default class Query{
 	}
 
 	getComposer(id){
-		let {pages,pgGap}=this
-		let pageNo, columnNo,lineNo,node
-		pages.findIndex(page=>{
-			this.traverse(page,function({type,props},parent,index){
-				if(parent.type=="column"){
-					lineNo=index
-				}else if(parent.type="page"){
-					columnNo=index
-				}
-				if(type=="text"){
-					let {"data-content":dataId,"data-endAt":dataEndAt}=props
-					if(dataId==id && at<=dataEndAt){
-						node=arguments[0]
-						return true
-					}
-				}
-			})
-			return !!node
-		})
+		return this.document.composers.get(id)
 	}
 
 	position(id,at){
 		let {pages,pgGap}=this
 		let columnNo,lineNo,node, path=[]
 		let pageNo=pages.findIndex(page=>{
-			this.traverse(page,function({type,props},parent,index){
+			this.traverse(page,function({type,props},parent,index,pi){
+				if((pi=path.indexOf(parent))!=-1){
+					path.splice(pi+1)
+				}else{
+					path.push(parent)
+				}
+
 				if(parent.type=="column"){
 					lineNo=index
 				}else if(parent.type=="page"){
 					columnNo=index
 				}
-				if(type.name=="Text"){
+				if(type==ComposedText){
 					let {"data-content":dataId,"data-endAt":dataEndAt}=props
 					if(dataId==id && at<=dataEndAt){
 						node=arguments[0]
+						path.push(node)
 						return true
 					}
 				}
@@ -148,13 +139,39 @@ export default class Query{
 			return !!node
 		})
 
-		if(node){
-			return {
-				page: pageNo,
-				column: columnNo,
-				line: lineNo,
-				node
-			}
+		if(!node)
+			return
+
+		let [page,column]=path
+		const e=(a,w='x')=>{
+			if(w in a)
+				return a[w]
+			else if(a.props && w in a.props)
+				return a.props[w]
+			else
+				return 0
+		}
+		let {x,y}=path.reduce((state,a)=>{
+				state.x+=e(a,'x')
+				state.y+=e(a,'y')
+				return state
+			},{
+				x:page.margin.left,
+				y:pages.slice(0,pageNo).reduce((y,{size:{height}})=>y+=(a.height+pgGap),-pgGap)
+					+page.margin.top
+			})
+		let wordwrapper=new Text.WordWrapper(this.getComposer(id).props)
+		let content=getContent(this.state,id).toJS()
+		let end=wordwrapper.widthString(offsetX, content.children.substr(from))
+		offsetX=wordwrapper.stringWidth(content.children.substr(from,end))
+
+
+		return {
+			page: pageNo,
+			column: columnNo,
+			line: lineNo,
+			x,y,
+			id,at
 		}
 	}
 
@@ -168,7 +185,7 @@ export default class Query{
 				}else if(parent.type="page"){
 					columnNo=index
 				}
-				if(type==Text){
+				if(type==ComposedText){
 					let {"data-content":dataId,"data-endAt":dataEndAt}=props
 					if(dataId==id && at<=dataEndAt){
 						node=arguments[0]
@@ -203,9 +220,9 @@ export default class Query{
 			children=node.children
 			break
 		default:
-			if(node.type==Text){
+			if(node.type==ComposedText){
 				return
-			}if(node.props && node.props.children){
+			}else if(node.props && node.props.children){
 				children=React.Children.toArray(node.props.children)
 			}else
 				return
