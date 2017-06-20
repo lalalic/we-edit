@@ -33,10 +33,11 @@ export class Cursor extends Component{
 
 	componentDidUpdate(prevProps){
 		const {active,id,at}=this.props
-		const {docId, getCursorInput}=this.context
+		const {docId, getCursorInput,query}=this.context
+		let position=query().position(id,at)
 		this.node=getNode(docId,id, at)
 		this.style=null
-			
+
 		if(!this.node){
 			if(docId==active){
 				getCursorInput()
@@ -50,7 +51,7 @@ export class Cursor extends Component{
 
 		switch(this.node.tagName){
 		case "image":
-			
+
 			return
 		break
 		}
@@ -78,7 +79,7 @@ export class Cursor extends Component{
 		let wordwrapper=this.context.getWordWrapper(style)
 		let width=wordwrapper.stringWidth(text.substring(from,at))
 		let {height, descent}=wordwrapper
-		
+
 		let ratio=this.context.getRatio()
 		if(ratio){
 			width=width/ratio
@@ -86,7 +87,7 @@ export class Cursor extends Component{
 			descent=descent/ratio
 		}
 		left+=width
-		
+
 		if(text.length==0)//empty text
 			top-=(height-descent)
 

@@ -129,15 +129,15 @@ export default class Query{
 
 	position(id,at){
 		let {pages,pgGap}=this
-		let pageNo, columnNo,lineNo,node, path=[]
-		pages.findIndex(page=>{
+		let columnNo,lineNo,node, path=[]
+		let pageNo=pages.findIndex(page=>{
 			this.traverse(page,function({type,props},parent,index){
 				if(parent.type=="column"){
 					lineNo=index
-				}else if(parent.type="page"){
+				}else if(parent.type=="page"){
 					columnNo=index
 				}
-				if(type=="text"){
+				if(type.name=="Text"){
 					let {"data-content":dataId,"data-endAt":dataEndAt}=props
 					if(dataId==id && at<=dataEndAt){
 						node=arguments[0]
@@ -168,7 +168,7 @@ export default class Query{
 				}else if(parent.type="page"){
 					columnNo=index
 				}
-				if(type=="text"){
+				if(type==Text){
 					let {"data-content":dataId,"data-endAt":dataEndAt}=props
 					if(dataId==id && at<=dataEndAt){
 						node=arguments[0]
@@ -203,8 +203,12 @@ export default class Query{
 			children=node.children
 			break
 		default:
-			children=React.Children.toArray(node.props.children)
-			break
+			if(node.type==Text){
+				return
+			}if(node.props && node.props.children){
+				children=React.Children.toArray(node.props.children)
+			}else
+				return
 		}
 
 		return !!children[`find${right ? "Last" :""}`]((child,i)=>{
@@ -214,7 +218,7 @@ export default class Query{
 			}else if(result===false){
 				return false
 			}else{
-				return !!traverse(child,f,right)
+				return !!this.traverse(child,f,right)
 			}
 		})
 	}
