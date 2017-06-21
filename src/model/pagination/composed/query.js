@@ -141,30 +141,36 @@ export default class Query{
 
 		if(!node)
 			return
-
-		let [page,column]=path
-		const e=(a,w='x')=>{
-			if(w in a)
-				return a[w]
-			else if(a.props && w in a.props)
-				return a.props[w]
-			else
-				return 0
-		}
-		let {x,y}=path.reduce((state,a)=>{
-				state.x+=e(a,'x')
-				state.y+=e(a,'y')
-				return state
-			},{
-				x:page.margin.left,
-				y:pages.slice(0,pageNo).reduce((y,{size:{height}})=>y+=(a.height+pgGap),-pgGap)
-					+page.margin.top
-			})
-		let wordwrapper=new Text.WordWrapper(this.getComposer(id).props)
-		let content=getContent(this.state,id).toJS()
-		let end=wordwrapper.widthString(offsetX, content.children.substr(from))
-		offsetX=wordwrapper.stringWidth(content.children.substr(from,end))
-
+		
+		let {x,y}=(()=>{//get absolute x,y of begin of content[id]
+			let [page,column]=path
+			const e=(a,w='x')=>{
+				if(w in a)
+					return a[w]
+				else if(a.props && w in a.props)
+					return a.props[w]
+				else
+					return 0
+			}
+			return path.reduce((state,a)=>{
+					state.x+=e(a,'x')
+					state.y+=e(a,'y')
+					return state
+				},{
+					x:page.margin.left,
+					y:pages.slice(0,pageNo).reduce((y,{size:{height}})=>y+=(a.height+pgGap),-pgGap)
+						+page.margin.top
+				})
+		})();
+		
+		
+		let offsetX=(()=>{
+			let {children:text,...style}=this.getComposer(id).props
+			let wordwrapper=new Text.WordWrapper(style)
+			return parseInt(wordwrapper.stringWidth(text.substr(0,at)))
+		})();
+		
+		x+=offsetX
 
 		return {
 			page: pageNo,
