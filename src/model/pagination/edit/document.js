@@ -34,8 +34,7 @@ export default class Document extends Super{
 		shouldContinueCompose: PropTypes.func,
 		shouldRemoveComposed: PropTypes.func,
 		query: PropTypes.func,
-		mount: PropTypes.func,
-		unmount: PropTypes.func
+		mount: PropTypes.func
 	}
 
 	state={compose2Page:1, computed:this.computed}
@@ -45,17 +44,20 @@ export default class Document extends Super{
 		let shouldContinueCompose=this.shouldContinueCompose.bind(this)
 		let query=this.query.bind(this)
 		let mount=a=>this.composers.set(a.props.id,a)
-		let unmount=a=>this.composers.delete(a.props.id)
 		return {
 			...super.getChildContext(),
 			shouldContinueCompose,
 			shouldRemoveComposed,
-			query,mount,unmount
+			query,mount
 		}
 	}
 
 	query(){
 		return new ComposedDocument.Query(this,this.context.store.getState())
+	}
+
+	get canvas(){
+		return this.refs.canvas
 	}
 
 	render(){
@@ -69,7 +71,7 @@ export default class Document extends Super{
 				<div style={{display:"none"}}>
 				{this.props.children}
 				</div>
-				<this.constructor.Composed ref={a=>this.canvas=a}
+				<this.constructor.Composed ref="canvas"
 					{...props}
 					width={this.contentWidth}
 					pages={this.computed.composed}
@@ -193,6 +195,10 @@ export default class Document extends Super{
 			return {id:contentID, at:from+end, top:box.top, left:box.left+x}
 		}
 
+		get root(){
+			return this.refs.root
+		}
+
 		render(){
 			const {isAllComposed, composeMore, pages, ...props}=this.props
 			let composeMoreTrigger=null
@@ -210,7 +216,7 @@ export default class Document extends Super{
 			let done=null
 
 			return (
-				<div ref={a=>this.root=a}>
+				<div ref="root">
 					<Base.Composed {...props} pages={pages}
 						onClick={e=>{
 							if(done==e.timeStamp)

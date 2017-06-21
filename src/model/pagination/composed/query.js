@@ -141,7 +141,7 @@ export default class Query{
 
 		if(!node)
 			return
-		
+
 		let {x,y}=(()=>{//get absolute x,y of begin of content[id]
 			let [page,column]=path
 			const e=(a,w='x')=>{
@@ -152,32 +152,43 @@ export default class Query{
 				else
 					return 0
 			}
+			let svg=this.document.canvas.root.querySelector("svg")
+			let [,,width,]=svg.getAttribute("viewBox").split(" ")
+			width=parseInt(width)
 			return path.reduce((state,a)=>{
 					state.x+=e(a,'x')
 					state.y+=e(a,'y')
 					return state
 				},{
-					x:page.margin.left,
-					y:pages.slice(0,pageNo).reduce((y,{size:{height}})=>y+=(a.height+pgGap),-pgGap)
+					x:(width-page.size.width)/2+page.margin.left,
+					y:pages.slice(0,pageNo).reduce((y,{size:{height}})=>y+=(pgGap+a.height),0)
 						+page.margin.top
 				})
 		})();
-		
-		
-		let offsetX=(()=>{
-			let {children:text,...style}=this.getComposer(id).props
+
+		let style=(from=>{
+			let composer=this.getComposer(id)
+			let {children:text,...style}=composer.props
 			let wordwrapper=new Text.WordWrapper(style)
-			return parseInt(wordwrapper.stringWidth(text.substr(0,at)))
-		})();
-		
-		x+=offsetX
+			style=wordwrapper.defaultStyle
+			style.width=wordwrapper.stringWidth(text.substr(from,at))
+			return style
+		})(node.props["data-endAt"]-node.props.children.join("").length);
+
+		x+=style.width
+		y+=(style.height-style.descent)
+
+		let ratio=this.document.canvas.ratio
 
 		return {
 			page: pageNo,
 			column: columnNo,
 			line: lineNo,
-			x,y,
-			id,at
+			left:Math.ceil(x/ratio),
+			top:Math.ceil(y/ratio),
+			id,
+			at,
+			...style
 		}
 	}
 

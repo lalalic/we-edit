@@ -34,9 +34,8 @@ export class Cursor extends Component{
 	componentDidUpdate(prevProps){
 		const {active,id,at}=this.props
 		const {docId, getCursorInput,query}=this.context
-		let position=query().position(id,at)
+		this.style=query().position(id,at)
 		this.node=getNode(docId,id, at)
-		this.style=null
 
 		if(!this.node){
 			if(docId==active){
@@ -55,7 +54,7 @@ export class Cursor extends Component{
 			return
 		break
 		}
-		this.style=this.position(docId,id,at)
+		this.style=position//this.position(docId,id,at)
 
 		if(docId==active)
 			getCursorInput()
