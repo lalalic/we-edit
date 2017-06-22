@@ -223,8 +223,28 @@ export default class Query{
 
 	}
 
-	prevLine(id,at){
+	prevLine({page:pageNo,column:colNo,line:lineNo,left}){
 		let {pages,pgGap}=this
+		let page,column
+		if(line==0){
+			if(column==0){
+				if(page==0){
+					return arguments[0]
+				}else{
+					page=pages[--pageNo]
+					columnNo=page.columns.length-1
+					lineNo=page.columns[columnNo].children.length-1
+				}
+			}else{
+				lineNo=pages[pageNo].columns[--column].children.length-1
+			}
+		}else{
+			--lineNo
+		}
+
+		let line=pages[pageNo].columns[colNo].children[lineNo]
+		
+
 	}
 
 	traverse(node, f, right=false){

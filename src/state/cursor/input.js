@@ -9,6 +9,7 @@ export default class Input extends Component{
 		let {scrollX,scrollY,screen:{height,width}}=window
 		return scrollY<top<scrollY+height && scrollX<left<scrollX+width
 	}
+	
 	render(){
 		const {top,left,height,color,fonts,size,up,down}=this.state
 		let style={height,margin:0,padding:0,border:0,left:0,top:0,position:"absolute",outline:"none"}

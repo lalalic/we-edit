@@ -35,36 +35,18 @@ export class Cursor extends Component{
 		const {active,id,at}=this.props
 		const {docId, getCursorInput,query}=this.context
 		this.style=query().position(id,at)
-		this.node=getNode(docId,id, at)
-
-		if(!this.node){
-			if(docId==active){
-				getCursorInput()
-				.setState({
-					color:"transparent",
-					inView:false
-				})
-			}
+		if(docId!==active)
 			return
-		}
 
-		switch(this.node.tagName){
-		case "image":
-
-			return
-		break
-		}
-		this.style=position//this.position(docId,id,at)
-
-		if(docId==active)
-			getCursorInput()
-			.setState({
-				color:"black",
-				...this.style,
-				up:this.up.bind(this),
-				down:this.down.bind(this)
-			})
+		getCursorInput().setState({
+			...this.style,
+			color: this.style ? "black" : "transparent",
+			up: this.up.bind(this),
+			down: this.down.bind(this)
+		})
 	}
+
+
 
 	position(docId,id,at){
 		const state=this.context.store.getState()
@@ -145,12 +127,12 @@ export class Cursor extends Component{
 	}
 
 	up(shiftKey){
-		const {docId,store}=this.context
+		const {docId,store, query}=this.context
 		const dispatch=store.dispatch
 		const state=store.getState()
 		const {start,end,cursorAt}=getSelection(state)
 
-		let {id,at,target,next}=this.getNextLine("previous")
+		let {id,at,target,next}=query().prevLine(this.style)
 
 		if(!shiftKey)
 			dispatch(ACTION.Cursor.AT(id,at))

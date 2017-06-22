@@ -5,7 +5,8 @@ import reactComposition from "react-composition"
 
 export default class Listener extends Component{
 	static contextTypes={
-		store: PropTypes.any
+		store: PropTypes.any,
+		query: PropTypes.func
 	}
 	state={value:""}
 
