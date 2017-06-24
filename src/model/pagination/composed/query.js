@@ -124,8 +124,10 @@ export default class Query{
 
 				if(parent.type=="column"){
 					lineNo=index
+					path.splice(1,path.length-1,parent)
 				}else if(parent.type=="page"){
 					columnNo=index
+					path.splice(0,path.length,parent)
 				}
 				if(type==ComposedText){
 					let {"data-content":dataId,"data-endAt":dataEndAt}=props
@@ -161,8 +163,8 @@ export default class Query{
 					return state
 				},{
 					x:(width-page.size.width)/2+page.margin.left,
-					y:pages.slice(0,pageNo).reduce((y,{size:{height}})=>y+=(pgGap+a.height),0)
-						+page.margin.top
+					y:pages.slice(0,pageNo).reduce((y,{size:{height}})=>y+=(pgGap+height),0)
+						+pgGap+page.margin.top
 				})
 		})();
 
@@ -171,12 +173,12 @@ export default class Query{
 			let {children:text,...style}=composer.props
 			let wordwrapper=new Text.WordWrapper(style)
 			style=wordwrapper.defaultStyle
-			style.width=wordwrapper.stringWidth(text.substr(from,at))
+			style.width=wordwrapper.stringWidth(text.substring(from,at))
 			return style
 		})(node.props["data-endAt"]-node.props.children.join("").length);
 
 		x+=style.width
-		y+=(style.height-style.descent)
+		y-=style.descent
 
 		let ratio=this.document.canvas.ratio
 
@@ -243,7 +245,7 @@ export default class Query{
 		}
 
 		let line=pages[pageNo].columns[colNo].children[lineNo]
-		
+
 
 	}
 
