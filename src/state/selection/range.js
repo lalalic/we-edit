@@ -7,14 +7,12 @@ import Movable from "./movable"
 export default class Range extends Component{
 	static displayName="range"
     render(){
-        const {path, onMove}=this.props
+        const {path, onMove, children}=this.props
         return (
             <Movable onMove={onMove}>
-                <path d={path}
-                    fill="lightblue"
-				    style={{fillOpacity:0.5}}
-                    onClick={e=>this.click(e)}
-                    />
+				<g onClick={this.click.bind(this)}>
+                	{children}
+				</g>
             </Movable>
         )
     }
@@ -28,7 +26,7 @@ export default class Range extends Component{
         y+=o.top
 
         path.setAttribute("d","")
-		
+
 		//trick: infinite loop without setTimeout
 		setTimeout(()=>{
 			let  found=document.elementFromPoint(x,y)
@@ -39,7 +37,7 @@ export default class Range extends Component{
 				cancelable:false
 			}))
 		},1)
-		
+
 		e.stopPropagation()
     }
 }

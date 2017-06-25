@@ -189,8 +189,10 @@ export default class Paragraph extends Super{
 
         this.availableSpace.height-=lineHeight
 
+        let contentWidth=props.children.reduce((w,{props:{width}})=>w+width,0)
+
         return (
-            <Group height={lineHeight} width={width}>
+            <Group height={lineHeight} width={width} contentWidth={contentWidth}>
                 <Group x={contentX} y={contentY} width={width} height={height}>
                     <Line width={width} height={height} {...others}/>
                 </Group>

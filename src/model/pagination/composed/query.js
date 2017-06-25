@@ -202,7 +202,8 @@ export default class Query{
 			})
 	}
 
-	position(id,at){
+	position(id,at, ratio){
+		ratio=ratio||this.ratio
 		let {pages,pgGap}=this
 		let {pageNo,columnNo,lineNo,node, path}=this._locate(id,at)
 
@@ -219,15 +220,15 @@ export default class Query{
 		x+=wordwrapper.stringWidth(text.substring(from,at))
 		y=y-style.height
 
-		style.height=style.height/this.ratio
-		style.descent=style.descent/this.ratio
+		style.height=style.height/ratio
+		style.descent=style.descent.ratio
 
 		return {
 			page: pageNo,
 			column: columnNo,
 			line: lineNo,
-			left:Math.ceil(x/this.ratio),
-			top:Math.ceil(y/this.ratio),
+			left:Math.ceil(x/ratio),
+			top:Math.ceil(y/ratio),
 			id,
 			at,
 			...style
@@ -361,6 +362,121 @@ export default class Query{
 				let at=item.props["data-endAt"]-text.length+len
 				return {id,at}
 			}
+		}
+	}
+
+	lineRects(start,end){
+		let {pages,pgGap}=this
+		let svg=this.document.canvas.root.querySelector("svg")
+		let [,,width,]=svg.getAttribute("viewBox").split(" ").map(a=>parseInt(a))
+
+		const pageXY=n=>{
+			let page=pages[n]
+			let x=(width-page.size.width)/2+page.margin.left
+			let y=pages.slice(0,n)
+				.reduce((h,{size:{height}})=>h+height+pgGap,pgGap+page.margin.top)
+			return {page,x,y}
+		}
+
+		const rect=(x,y,{props:{children:{props:{contentWidth:width,height}},y:y0}})=>{
+			return {
+				left:Math.ceil(x),
+				top:Math.ceil(y+y0),
+				right:Math.ceil(x+width),
+				bottom:Math.ceil(y+y0+height)
+			}
+		}
+
+		const inPageLines=(start,end)=>{
+			const {page,x,y}=pageXY(start.page)
+			if(start.column==end.column){
+				let column=page.columns[start.column]
+				return column.children
+					.slice(start.line,end.line+1)
+					.map(l=>rect(x+column.x,y,l))
+			}else{
+				let column=page.columns[start.column]
+				return column.children
+					.slice(start.line)
+					.map(l=>rect(x+column.x,y,l))
+					.concat(//between columns
+						page.columns.slice(start.column+1,end.column-1)
+							.reduce((lines,column)=>{
+								column.children
+									.forEach(l=>lines.push(rect(x+column.x,y,l)))
+								return lines
+							},[])
+					)
+					.concat(//last column
+						(()=>{
+							let column=page.columns[end.column]
+							return column.children
+								.slice(0,end.line+1)
+								.map(l=>rect(x+column.x,y,l))
+						})()
+					)
+			}
+		}
+
+		const startLines=start=>{
+			const {page,x,y}=pageXY(start.page)
+
+			let column=page.columns[start.column]
+			return column.children
+				.slice(start.line)
+				.map(l=>rect(x+column.x,y,l))
+				.concat(//between columns
+					page.columns.slice(start.column+1)
+						.reduce((lines,column)=>{
+							column.children
+								.forEach(l=>lines.push(rect(x+column.x,y,l)))
+							return lines
+						},[])
+				)
+		}
+
+		const endLines=end=>{
+			const {page,x,y}=pageXY(end.page)
+
+			return page.columns
+				.slice(0,end.column)
+				.reduce((lines,column)=>{
+					column.children
+						.forEach(l=>lines.push(rect(x+column.x,y,l)))
+					return lines
+				},[])
+				.concat(
+					(()=>{
+						let column=page.columns[end.column]
+						return column.children
+							.slice(0,end.line+1)
+							.map(l=>rect(x+column.x,y,l))
+					})()
+				)
+		}
+
+		const pageLines=pageNo=>{
+			const {page,x,y}=pageXY(pageNo)
+
+			return  page.columns.reduce((lines,column)=>{
+				column.children.forEach(l=>lines.push(rect(x+column.x, y, l)))
+				return lines
+			},[])
+		}
+
+		if(start.page==end.page){
+			return inPageLines(start,end)
+		}else{
+			return startLines(start)
+				.concat(
+					(lines=>{
+						for(let i=start.page+1;i<end.page;i++){
+							lines=lines.concat(pageLines(i))
+						}
+						return lines
+					})([])
+				)
+				.concat(endLines(end))
 		}
 	}
 

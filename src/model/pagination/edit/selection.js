@@ -72,83 +72,44 @@ export class Selection extends Component{
 
 	range(start,end,docId,store){
 		let state=store.getState()
+		let $=this.context.query()
 
-		const x=(node,id,at)=>{
-			let left=this.getClientRect(node).left
-			let style=getContentStyle(state,docId,id)
-			let text=node.textContent
-			let from=node.dataset.endAt-text.length
+		start.pos=$.position(start.id, start.at,1)
+		end.pos=$.position(end.id, end.at,1)
 
-			let wordwrapper=new Text.WordWrapper(style)
-			let width=wordwrapper.stringWidth(text.substring(0,at-from))
-			return Math.floor(left+width)
-		}
-
-		let firstNode=getNode(docId, start.id, start.at)
-		let lastNode=getNode(docId, end.id, end.at)
-
-		const line=n=>{
-			while(n.getAttribute("class")!="line")
-				n=n.parentNode
-			return n
-		}
-		let firstLine=line(firstNode)
-		let lastLine=line(lastNode)
-		while(firstLine.parentNode!=lastLine.parentNode){
-			firstLine=firstLine.parentNode
-			lastLine=lastLine.parentNode
-		}
-
-		let path
-
-		if(firstLine==lastLine){
-			let x0=x(firstNode,start.id,start.at)
-			let x1=x(lastNode, end.id, end.at)
-			let {top,height}=this.getClientRect(firstLine)
-			path=`M${x0} ${top} L${x1} ${top} L${x1} ${top+height} L${x0} ${top+height} L${x0} ${top}`
+		let paths=[]
+		if(start.pos.top==end.pos.top){
+			let x0=start.pos.left, x1=end.pos.left
+			let {top,height}=start.pos
+			paths.push(`M${x0} ${top} L${x1} ${top} L${x1} ${top+height} L${x0} ${top+height} L${x0} ${top}`)
 		}else{
-			let all=firstLine.parentNode.children
-			const indexOf=(aa,a)=>{
-				for(let i=0,len=aa.length;i<len;i++)
-					if(aa[i]==a)
-						return i
-				return -1
-			}
-
-			let lines=[]
-			for(let i=indexOf(all,firstLine),l=indexOf(all,lastLine);i<=l;i++){
-				lines.push(all[i])
-			}
-
-			let {path:paths,l}=lines.reduce((route, l, i)=>{
-				let {left,top,right,bottom}=this.getClientRect(l)
-				let t
+			let lines=$.lineRects(start.pos, end.pos)
+			lines.reduce((paths, {left,top,right,bottom}, i, t)=>{
 				switch(i){
 				case 0:
-					t=x(firstNode,start.id, start.at)
-					route.path.push(`M${t} ${top}`)
-					route.path.push(`L${right} ${top} L${right} ${bottom}`)
-					route.l.unshift(`L${t} ${bottom} L${t} ${top}`)
+					paths.push(`M${start.pos.left} ${top} L${right} ${top} L${right} ${bottom} L${start.pos.left} ${bottom} Z`)
 				break
 				case lines.length-1:
-					t=x(lastNode,end.id, end.at)
-					route.path.push(`L${t} ${top} L${t} ${bottom}`)
-					route.l.unshift(`L${left} ${bottom} L${left} ${top}`)
+					paths.push(`M${end.pos.left} ${top} L${end.pos.left} ${bottom} L${left} ${bottom} L${left} ${top} Z`)
 				break
 				default:
-					route.path.push(`L${right} ${top} L${right} ${bottom}`)
-					route.l.unshift(`L${left} ${bottom} L${left} ${top}`)
+					paths.push(`M${left} ${top} L${right} ${top} L${right} ${bottom} L${left} ${bottom} Z`)
 				break
 				}
-
-				return route
-			},{path:[],l:[]})
-
-			paths.splice(paths.length,0,...l)
-			path=paths.join(" ")
+				return paths
+			},paths)
 		}
-
-		return <Range path={path} onMove={this.props.onMove}/>
+		return (
+			<Range onMove={this.props.onMove}>
+				{
+					paths.map((a,i)=>(<path key={i}
+						fill="lightblue"
+						style={{fillOpacity:0.5}}
+						d={a}/>
+					))
+				}
+			</Range>
+		)
 	}
 
 	componentWillReceiveProps({start,end},{docId,store,getRatio}){

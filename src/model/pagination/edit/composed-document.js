@@ -250,14 +250,14 @@ export default class extends Component{
         }else if(top0<top1){
             forward()
         }else if(top0==top1){
-            if(first.id!=last.id){
+            if(first.id!=end.id){
                 if(left0<left1){
                     forward()
                 }else{
                     backward()
                 }
             }else{
-                if(first.at<last.at){
+                if(first.at<end.at){
                     forward()
                 }else{
                     backward()
