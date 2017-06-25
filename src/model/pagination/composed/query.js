@@ -36,7 +36,7 @@ export default class Query{
 	pageY(which){
 		let {pages,pgGap}=this
 		return pages.slice(0,which)
-			.reduce((h,{size:{height}})=>h+height+pgGap,-pgGap)
+			.reduce((h,{size:{height}})=>h+height+pgGap,pgGap)
 	}
 
 	getClientRect(node){
@@ -46,43 +46,43 @@ export default class Query{
 				return rect
 			},getClientRect(node))
 	}
-/*
+
+	_pageMarginRight(n){
+		let svg=this.document.canvas.root.querySelector("svg")
+		let [,,width,]=svg.getAttribute("viewBox").split(" ")
+			.map(a=>parseInt(a))
+		let page=this.pages[n]
+		return (width-page.size.width)/2+page.margin.left
+	}
+
 	at(x,y){
 		let {pages,pgGap}=this
 		let pageNo=(()=>{
 			switch(pages.length){
 				case 0: return -1
-				case 1: return 0
 				default: {
-					let h=pages[0].size.height
-					return pages.slice(1).findIndex(({size:{height}})=>h<y<(h+=height))+1
+					let h=pages[0].size.height+pgGap
+					return pages.slice(1).findIndex(({size:{height}})=>h<y<(h+=height+pgGap))+1
 				}
 			}
 		})();
 		let page=pages[pageNo]
 
-		let columnNo=(columns=>{
+		let columnNo=((columns,pageMargin)=>{
 			switch(columns.length){
 				case 0: return -1
 				case 1: return 0
 				default: {
-					return columns.find(({x:x0,width})=>x0<x<x0+width)
+					return columns.findIndex(({x:x0,width})=>pageMargin+x0<x<pageMargin+x0+width)
 				}
 			}
-		})(page.columns);
+		})(page.columns,this._pageMargin(page));
 		let column=page.columns[columnNo]
 
 		let lineNo=((lines,pY)=>{
 			return lines.findIndex(({props:{y:y0,height}})=>y0<=pY<=y0+height)
-		})(column.children,
-			y-pages.slice(0,pages.indexOf(page)).reduce((h,{size:{height}})=>h+=height,0)-page.margin.top
-		);
-
-		let line=this.traverse(column.children[lineNo],el=>{
-			if(el.type==Line){
-				return true
-			}
-		})
+		})(column.children,y-this.pageY(pageNo)-page.margin.top);
+		let line=column.children[lineNo]
 
 		let pieces=line.props.children
 		let offsetX=x-page.margin.right-column.x
@@ -121,7 +121,7 @@ export default class Query{
 	getStyle({props:{fontFamily, fontSize, fontWeigth, fontStyle}}){
 		return {fontFamily, fontSize, fontWeigth, fontStyle}
 	}
-*/
+
 	getComposer(id){
 		return this.document.composers.get(id)
 	}
