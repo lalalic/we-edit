@@ -5,7 +5,6 @@ import {getSelection,getContentStyle,getNode} from "state/selector"
 import {Text} from "model/pagination"
 
 import offset from "mouse-event-offset"
-import getClientRect from "tools/get-client-rect"
 
 import Entity from "state/selection/entity"
 import Range from "state/selection/range"
@@ -31,21 +30,16 @@ export class Selection extends Component{
 	static contextTypes={
 		docId: PropTypes.any,
 		store: PropTypes.any,
-		getRatio: PropTypes.func
+		query: PropTypes.func
 	}
 
 	el=null
 	render(){
 		return this.el
 	}
-	
+
 	getClientRect(node){
-		let ratio=this.context.getRatio()
-		return "left,right,top,bottom,height,width".split(",")
-			.reduce((rect,k)=>{
-				rect[k]*=ratio
-				return rect
-			},getClientRect(node))
+		return this.context.query().getClientRect(node)
 	}
 
 	image(node){
@@ -53,8 +47,8 @@ export class Selection extends Component{
 		const {onResize, onMove, onRotate}=this.props
 		return <Entity
 					path={`M${left} ${top} L${right} ${top} L${right} ${bottom} L${left} ${bottom} Z`}
-					onMove={onMove}	
-					
+					onMove={onMove}
+
 					spots={[
 							{x:left,y:top,resize:"nwse"},
 							{x:(left+right)/2,y:top,resize:"ns",},
@@ -66,7 +60,7 @@ export class Selection extends Component{
 							{x:left,y:(top+bottom)/2,resize:"-ew"},
 						]}
 					onResize={onResize}
-					
+
 					rotate={{
 						r:12,
 						x:(left+right)/2,
@@ -76,8 +70,7 @@ export class Selection extends Component{
 					/>
 	}
 
-	range(start,end,docId,store,getRatio){
-		let ratio=getRatio()
+	range(start,end,docId,store){
 		let state=store.getState()
 
 		const x=(node,id,at)=>{
@@ -105,7 +98,7 @@ export class Selection extends Component{
 			firstLine=firstLine.parentNode
 			lastLine=lastLine.parentNode
 		}
-		
+
 		let path
 
 		if(firstLine==lastLine){
@@ -154,7 +147,7 @@ export class Selection extends Component{
 			paths.splice(paths.length,0,...l)
 			path=paths.join(" ")
 		}
-		
+
 		return <Range path={path} onMove={this.props.onMove}/>
 	}
 

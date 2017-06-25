@@ -9,9 +9,9 @@ export default class Input extends Component{
 		let {scrollX,scrollY,screen:{height,width}}=window
 		return scrollY<top<scrollY+height && scrollX<left<scrollX+width
 	}
-	
+
 	render(){
-		const {top,left,height,color,fonts,size,up,down}=this.state
+		const {top,left,height,color,fontFamily,fontSize,up,down}=this.state
 		let style={height,margin:0,padding:0,border:0,left:0,top:0,position:"absolute",outline:"none"}
 		if(!this.isInView(left,top)){
 			style.position="fixed"
@@ -25,12 +25,12 @@ export default class Input extends Component{
 				>
 				<div unselectable="on"
 					style={{left,top:top,position:"absolute",height:0,width:0}}>
-					<Listener ref={a=>this.listener=a} up={up} down={down}
+					<Listener up={up} down={down}
 						style={{
 							...style,
 							color,
-							fontSize:size,
-							fontFamily:fonts,
+							fontSize,
+							fontFamily,
 							width:2,
 							background:"transparent"
 						}}/>

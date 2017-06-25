@@ -58,23 +58,5 @@ export default class Document extends Component{
 		)
 	}
 
-	static pageY(pages,pgGap,which){
-		return pages.slice(0,which)
-			.reduce((h,{size:{height}})=>h+height+pgGap,-pgGap)
-	}
-
-	static contentAt(pages, pgGap, x, y){
-
-	}
-
-	static nextLine(pages,pgGap, x, y){
-
-	}
-
-	static prevLine(pages,gpGap,x,y){
-
-	}
-	
 	static Query=Query
 }
-

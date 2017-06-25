@@ -13,7 +13,7 @@ export default class Document extends Super{
 				<div style={{display:"none"}}>
 				{super.render()}
 				</div>
-				<this.constructor.Composed
+				<ComposedDocument
 					width={this.contentWidth}
 					pages={this.computed.composed}
 					/>
@@ -29,6 +29,4 @@ export default class Document extends Super{
 		return Children.toArray(this.props.children)
 			.reduce((w,{props:{pgSz:{width}}})=>Math.max(w,width),0)
 	}
-
-	static Composed=ComposedDocument
 }

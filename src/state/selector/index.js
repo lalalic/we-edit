@@ -1,4 +1,5 @@
 import {List} from "immutable"
+import FindLast from "tools/array-find-last"
 
 export function getSelection(state){
 	return state.get("selection").toJS()

@@ -1,6 +1,10 @@
 import React from "react"
 import ComposedText from "./text"
+import ComposedLine from "./line"
 import Text from "pagination/text"
+
+import FindLast from "tools/array-find-last"
+import getClientRect from "tools/get-client-rect"
 
 export default class Query{
 	constructor(document,state){
@@ -8,6 +12,10 @@ export default class Query{
 		this.state=state
 		this.pages=document.computed.composed
 		this.pgGap=document.context.pgGap
+	}
+
+	get ratio(){
+		return this.document.canvas.ratio
 	}
 
 	get y(){
@@ -31,6 +39,14 @@ export default class Query{
 			.reduce((h,{size:{height}})=>h+height+pgGap,-pgGap)
 	}
 
+	getClientRect(node){
+		return "left,right,top,bottom,height,width".split(",")
+			.reduce((rect,k)=>{
+				rect[k]*=this.ratio
+				return rect
+			},getClientRect(node))
+	}
+/*
 	at(x,y){
 		let {pages,pgGap}=this
 		let pageNo=(()=>{
@@ -87,9 +103,8 @@ export default class Query{
 		let id=piece.props["data-content"]
 		let from=piece.props["data-endAt"]
 
-		let style=this.getStyle(piece)
 
-		let wordwrapper=new Text.WordWrapper(style)
+		let wordwrapper=new Text.WordWrapper(this.getComposer(id).props)
 		let content=this.state.getIn(["content",id]).toJS()
 		let end=wordwrapper.widthString(offsetX, content.children.substr(from))
 		offsetX=wordwrapper.stringWidth(content.children.substr(from,end))
@@ -106,12 +121,12 @@ export default class Query{
 	getStyle({props:{fontFamily, fontSize, fontWeigth, fontStyle}}){
 		return {fontFamily, fontSize, fontWeigth, fontStyle}
 	}
-
+*/
 	getComposer(id){
 		return this.document.composers.get(id)
 	}
 
-	position(id,at){
+	_locate(id,at){
 		let {pages,pgGap}=this
 		let columnNo,lineNo,node, path=[]
 		let pageNo=pages.findIndex(page=>{
@@ -141,112 +156,212 @@ export default class Query{
 			return !!node
 		})
 
-		if(!node)
-			return
+		return {pageNo,columnNo,lineNo,node, path}
+	}
 
-		let {x,y}=(()=>{//get absolute x,y of begin of content[id]
-			let [page,column]=path
-			const e=(a,w='x')=>{
-				if(w in a)
-					return a[w]
-				else if(a.props && w in a.props)
-					return a.props[w]
-				else
-					return 0
-			}
-			let svg=this.document.canvas.root.querySelector("svg")
-			let [,,width,]=svg.getAttribute("viewBox").split(" ")
-			width=parseInt(width)
-			return path.reduce((state,a)=>{
-					state.x+=e(a,'x')
-					state.y+=e(a,'y')
-					return state
-				},{
-					x:(width-page.size.width)/2+page.margin.left,
-					y:pages.slice(0,pageNo).reduce((y,{size:{height}})=>y+=(pgGap+height),0)
-						+pgGap+page.margin.top
-				})
-		})();
+	_xy(id,path){
+		let [page,column]=path
+		let {pages,pgGap}=this
+		let pageNo=pages.indexOf(page)
 
-		let style=(from=>{
-			let composer=this.getComposer(id)
-			let {children:text,...style}=composer.props
-			let wordwrapper=new Text.WordWrapper(style)
-			style=wordwrapper.defaultStyle
-			style.width=wordwrapper.stringWidth(text.substring(from,at))
-			return style
-		})(node.props["data-endAt"]-node.props.children.join("").length);
+		const e=(a,w='x')=>{
+			if(w in a)
+				return a[w]
+			else if(a.props && w in a.props)
+				return a.props[w]
+			else
+				return 0
+		}
 
-		x+=style.width
-		y-=style.descent
+		let svg=this.document.canvas.root.querySelector("svg")
+		let [,,width,]=svg.getAttribute("viewBox").split(" ").map(a=>parseInt(a))
+		let offsetX=path.filter(a=>a.type==ComposedLine)
+			.reduce((x,line)=>{
+				let lineItem=path[path.indexOf(line)+1]
+				let itemIndex=line.props.children
+					.findIndex(a=>a==lineItem ||
+						(a.props["data-content"]==lineItem.props["data-content"] &&
+						a.props["data-endAt"]==lineItem.props["data-endAt"])
+					)
+				console.assert(itemIndex!=-1)
+				return x+=line.props.children.slice(0,itemIndex)
+					.reduce((w,li)=>w+=li.props.width,0)
+			},0)
+		return path.reduce((state,a)=>{
+				state.x+=e(a,'x')
+				state.y+=e(a,'y')
+				return state
+			},{
+				x:(width-page.size.width)/2
+					+page.margin.left+offsetX,
 
-		let ratio=this.document.canvas.ratio
+				y:pages.slice(0,pageNo)
+					.reduce((y,{size:{height}})=>y+=(pgGap+height),0)
+					+pgGap+page.margin.top
+					+path.findLast(a=>a.type==ComposedLine).props.height
+			})
+	}
+
+	position(id,at){
+		let {pages,pgGap}=this
+		let {pageNo,columnNo,lineNo,node, path}=this._locate(id,at)
+
+		if(!node) return;
+
+		let from=node.props["data-endAt"]-node.props.children.join("").length
+		let composer=this.getComposer(id)
+		let {children:text,...props}=composer.props
+		let wordwrapper=new Text.WordWrapper(props)
+		let style=wordwrapper.defaultStyle
+
+		let {x,y}=this._xy(id,path)
+
+		x+=wordwrapper.stringWidth(text.substring(from,at))
+		y=y-style.height
+
+		style.height=style.height/this.ratio
+		style.descent=style.descent/this.ratio
 
 		return {
 			page: pageNo,
 			column: columnNo,
 			line: lineNo,
-			left:Math.ceil(x/ratio),
-			top:Math.ceil(y/ratio),
+			left:Math.ceil(x/this.ratio),
+			top:Math.ceil(y/this.ratio),
 			id,
 			at,
 			...style
 		}
 	}
 
-	nextLine(id,at){
+	nextLine({page:pageNo,column:colNo,line:lineNo,left}){
+		left=left*this.ratio
 		let {pages,pgGap}=this
-		let pageNo, columnNo,lineNo,node
-		pages.findIndex(page=>{
-			this.traverse(page,function({type,props},parent,index){
-				if(parent.type=="column"){
-					lineNo=index
-				}else if(parent.type="page"){
-					columnNo=index
+		let page=pages[pageNo]
+		let columns=page.columns
+		let lines=columns[colNo].children
+
+		if(lineNo==lines.length-1){
+			if(colNo==columns.length-1){
+				if(pageNo==pages.length-1){
+					return arguments[0]
+				}else{
+					page=pages[++pageNo]
+					colNo=0
+					lineNo=0
 				}
-				if(type==ComposedText){
-					let {"data-content":dataId,"data-endAt":dataEndAt}=props
-					if(dataId==id && at<=dataEndAt){
-						node=arguments[0]
-						return true
-					}
-				}
-			})
-			return !!node
+			}else{
+				colNo++
+				lineNo=0
+			}
+		}else{
+			lineNo++
+		}
+
+		page=pages[pageNo]
+		let column=page.columns[colNo]
+		let line=null
+		this.traverse(column.children[lineNo], function(node,parent,i){
+			if(node.type==ComposedLine){
+				line=node
+				return true
+			}
+		})
+		console.assert(!!line)
+
+		let svg=this.document.canvas.root.querySelector("svg")
+		let [,,width,]=svg.getAttribute("viewBox").split(" ").map(a=>parseInt(a))
+		let x=(width-page.size.width)/2+page.margin.left+column.x
+		let index=line.props.children.findIndex(a=>{
+			if(x+a.props.width>=left){
+				return true
+			}else{
+				x+=a.props.width
+			}
 		})
 
-		let column=pages[pageNo].columns[columnNo]
-		let line=column.children[lineNo]
-		let x=column.x+line
-
-		let next=column.children[lineNo+1]
-
-
-
+		if(index==-1){
+			let item=line.props.children[0]
+			if(item.type==ComposedText){
+				let id=item.props["data-content"]
+				let at=item.props["data-endAt"]
+				return {id,at}
+			}
+		}else{
+			let item=line.props.children[index]
+			if(item.type==ComposedText){
+				let id=item.props["data-content"]
+				let composer=this.getComposer(id)
+				let text=item.props.children.join("")
+				let wordwrapper=new Text.WordWrapper(composer.props)
+				let len=wordwrapper.widthString(left-x,text)
+				let at=item.props["data-endAt"]-text.length+len
+				return {id,at}
+			}
+		}
 	}
 
 	prevLine({page:pageNo,column:colNo,line:lineNo,left}){
+		left=left*this.ratio
 		let {pages,pgGap}=this
 		let page,column
-		if(line==0){
-			if(column==0){
-				if(page==0){
+		if(lineNo==0){
+			if(colNo==0){
+				if(pageNo==0){
 					return arguments[0]
 				}else{
 					page=pages[--pageNo]
-					columnNo=page.columns.length-1
-					lineNo=page.columns[columnNo].children.length-1
+					colNo=page.columns.length-1
+					lineNo=page.columns[colNo].children.length-1
 				}
 			}else{
-				lineNo=pages[pageNo].columns[--column].children.length-1
+				lineNo=pages[pageNo].columns[--colNo].children.length-1
 			}
 		}else{
 			--lineNo
 		}
 
-		let line=pages[pageNo].columns[colNo].children[lineNo]
+		page=pages[pageNo]
+		column=page.columns[colNo]
+		let line=null
+		this.traverse(column.children[lineNo], function(node,parent,i){
+			if(node.type==ComposedLine){
+				line=node
+				return true
+			}
+		})
+		console.assert(!!line)
 
+		let svg=this.document.canvas.root.querySelector("svg")
+		let [,,width,]=svg.getAttribute("viewBox").split(" ").map(a=>parseInt(a))
+		let x=(width-page.size.width)/2+page.margin.left+column.x
+		let index=line.props.children.findIndex(a=>{
+			if(x+a.props.width>=left){
+				return true
+			}else{
+				x+=a.props.width
+			}
+		})
 
+		if(index==-1){
+			let item=line.props.children[0]
+			if(item.type==ComposedText){
+				let id=item.props["data-content"]
+				let at=item.props["data-endAt"]
+				return {id,at}
+			}
+		}else{
+			let item=line.props.children[index]
+			if(item.type==ComposedText){
+				let id=item.props["data-content"]
+				let composer=this.getComposer(id)
+				let text=item.props.children.join("")
+				let wordwrapper=new Text.WordWrapper(composer.props)
+				let len=wordwrapper.widthString(left-x,text)
+				let at=item.props["data-endAt"]-text.length+len
+				return {id,at}
+			}
+		}
 	}
 
 	traverse(node, f, right=false){
