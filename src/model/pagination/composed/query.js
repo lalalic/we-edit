@@ -55,6 +55,7 @@ export default class Query{
 		return (width-page.size.width)/2+page.margin.left
 	}
 
+/*
 	at(x,y){
 		let {pages,pgGap}=this
 		let pageNo=(()=>{
@@ -121,10 +122,49 @@ export default class Query{
 	getStyle({props:{fontFamily, fontSize, fontWeigth, fontStyle}}){
 		return {fontFamily, fontSize, fontWeigth, fontStyle}
 	}
+*/
+
 
 	getComposer(id){
 		return this.document.composers.get(id)
 	}
+
+	/***
+	 * since it always on canvas, so query dom directly
+	 */
+	at(x0,y0){
+		const find=(node,selector)=>{
+            if(!node) return null
+
+            let all=node.querySelectorAll(selector)
+            for(let i=0,len=all.length,a;i<len;i++){
+                let {left,top,right,bottom}=getClientRect(all[i])
+                if(left<=x0 && x0<=right && top<=y0 && y0<=bottom){
+                    return all[i]
+                }
+            }
+
+            return null
+        }
+
+        let target="g.page,g.line,text".split(",")
+            .reduce((scope,selector)=>find(scope,selector),this.document.canvas.root)
+
+        if(!target)
+            return {id:null, left: x0*this.ratio, top:y0*this.ratio}
+
+        let text=target.textContent
+        let {endAt, content:id}=target.dataset
+        let from=endAt-text.length
+
+        let box=getClientRect(target)
+        let x=x0-box.left
+
+        let wordwrapper=new Text.WordWrapper(this.getComposer(id).props)
+        let end=wordwrapper.widthString(x, text)
+        x=wordwrapper.stringWidth(text.substring(0,end+1))
+        return {id, at:from+end, top:box.top*this.ratio, left:(box.left+x)*this.ratio}
+    }
 
 	_locate(id,at){
 		let {pages,pgGap}=this
@@ -365,7 +405,21 @@ export default class Query{
 		}
 	}
 
-	lineRects(start,end){
+	_fixStartEnd(start0,end0){
+		let start=start0
+		let end=end0
+		if(end0.page<start0.page ||
+			(end0.page==start0.page && end0.column<start0.column) ||
+			(end0.page==start0.page && end0.column==start0.column && end0.line<start0.line) ||
+			(end0.page==start0.page && end0.column==start0.column && end0.line==start0.line && end0.left<start0.left)){
+			start=end0
+			end=start0
+		}
+		return {start,end}
+	}
+	lineRects(start0,end0){
+		let {start,end}=this._fixStartEnd(start0,end0)
+
 		let {pages,pgGap}=this
 		let svg=this.document.canvas.root.querySelector("svg")
 		let [,,width,]=svg.getAttribute("viewBox").split(" ").map(a=>parseInt(a))

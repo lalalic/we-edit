@@ -4,9 +4,9 @@ import Overlay from "./overlay"
 
 export default class Movable extends Component{
 	static contextTypes={
-        positionFromPoint: PropTypes.func
+        query: PropTypes.func
     }
-	
+
 	static propTypes={
 		onMove: PropTypes.func.isRequired
 	}
@@ -15,28 +15,22 @@ export default class Movable extends Component{
 	render(){
 		const {move}=this.state
 		const {children}=this.props
-		
-		if(move){
-			return (
-				<g>
-					{children}
-					 <Overlay cursor="default"
+
+		return (
+			<g>
+				{React.cloneElement(children,{onMouseDown:this.onStartMove.bind(this)})}
+				{ !move ? null :
+					 (<Overlay cursor="default"
 						onMouseUp={e=>this.onEndMove(e)}
 						onMouseMove={e=>this.move(e)}
 						>
 						<Mover ref={a=>this.mover=a} cursor="default"/>
-					</Overlay>
-				</g>
-			)
-		}else{
-			return (
-				<g>
-					{React.cloneElement(children,{onMouseDown:this.onStartMove.bind(this)})}
-				</g>
-			)
-		}
+					</Overlay>)
+				}
+			</g>
+		)
 	}
-	
+
 	onStartMove(e){
         this.setState({move:true})
 		e.stopPropagation()
@@ -53,10 +47,8 @@ export default class Movable extends Component{
 
     move(e){
 		let x=e.clientX, y=e.clientY
-        let pos=this.context.positionFromPoint(x,y)
-		if(!pos)
-			pos={id:undefined,left:x, top:y}
-
+        let pos=this.context.query().at(x,y)
+		
 		this.mover.setState(pos)
 		e.stopPropagation()
     }
@@ -71,9 +63,9 @@ class Mover extends Component{
             caret=<rect x={x} y={y} width={2} height={20} fill="black"/>
 
 		if(x!=undefined && y!=undefined)
-			placeholder=<rect x={x+5} y={y+20} width={10} height={5} 
-					fill="transparent" 
-					stroke="gray" 
+			placeholder=<rect x={x+5} y={y+20} width={10} height={5}
+					fill="transparent"
+					stroke="gray"
 					strokeWidth="1"/>
         return (
             <g>
