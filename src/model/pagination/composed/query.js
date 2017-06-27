@@ -405,21 +405,7 @@ export default class Query{
 		}
 	}
 
-	_fixStartEnd(start0,end0){
-		let start=start0
-		let end=end0
-		if(end0.page<start0.page ||
-			(end0.page==start0.page && end0.column<start0.column) ||
-			(end0.page==start0.page && end0.column==start0.column && end0.line<start0.line) ||
-			(end0.page==start0.page && end0.column==start0.column && end0.line==start0.line && end0.left<start0.left)){
-			start=end0
-			end=start0
-		}
-		return {start,end}
-	}
-	lineRects(start0,end0){
-		let {start,end}=this._fixStartEnd(start0,end0)
-
+	lineRects(start,end){
 		let {pages,pgGap}=this
 		let svg=this.document.canvas.root.querySelector("svg")
 		let [,,width,]=svg.getAttribute("viewBox").split(" ").map(a=>parseInt(a))

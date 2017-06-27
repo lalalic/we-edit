@@ -77,6 +77,17 @@ export class Selection extends Component{
 		start.pos=$.position(start.id, start.at,1)
 		end.pos=$.position(end.id, end.at,1)
 
+		let posNotCorrect=((start,end)=>(end.page<start.page ||
+				(end.page==start.page && end.column<start.column) ||
+				(end.page==start.page && end.column==start.column && end.line<start.line) ||
+				(end.page==start.page && end.column==start.column && end.line==start.line && end.left<start.left))
+			)(start.pos, end.pos)
+		if(posNotCorrect){
+			let t=start
+			start=end
+			end=t
+		}
+
 		let paths=[]
 		if(start.pos.top==end.pos.top){
 			let x0=start.pos.left, x1=end.pos.left
