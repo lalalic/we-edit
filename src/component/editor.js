@@ -86,7 +86,7 @@ const Root=connect((state,{domain})=>{
 		}
 	}
 
-	componentWillReceiveProps({content,changed,domain}){		
+	componentWillReceiveProps({content,changed,domain}){
 		if(this.doc && changed){ // editing
 			//&& content.size>50){ // big
 			const getThisParentId=id=>getParentId(content,id)

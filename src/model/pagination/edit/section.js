@@ -20,7 +20,7 @@ export default class Section extends Super{
 	componentWillReceiveProps({changed,children}){
 		if(this.context.shouldRemoveComposed(this)){
 			if(changed){
-				let index=children.findIndex((current,i)=>{
+				let iFirstChangedChild=children.findIndex((current,i)=>{
 					let last=this.props.children[i]
 					if(!last)
 						return true
@@ -29,18 +29,17 @@ export default class Section extends Super{
 					return current.props.changed
 				})
 
-				this.computed.children=this.computed.children.slice(0,index)
-				let childIndex=this.computed.children.length
+				this.computed.children=this.computed.children.slice(0,iFirstChangedChild)
 
 				let changedPageIndex=this.computed.composed.findIndex(({columns})=>{
 					let start=columns[0].children[0].props.childIndex
-					if(start==childIndex)
+					if(start==iFirstChangedChild)
 						return true
-					else if(start<childIndex){
+					else if(start<iFirstChangedChild){
 						let lastColumn=columns[columns.length-1]
 						let lastColumnChildren=lastColumn.children
 						let end=lastColumnChildren[lastColumnChildren.length-1].props.childIndex
-						return end>=childIndex
+						return end>=iFirstChangedChild
 					}else {
 						throw new Error("should not be here")
 					}
@@ -52,11 +51,11 @@ export default class Section extends Super{
 
 				let changedColumnIndex=changedPage.columns.findIndex(({children})=>{
 					let start=children[0].props.childIndex
-					if(start==childIndex)
+					if(start==iFirstChangedChild)
 						return true
-					else if(start<childIndex){
+					else if(start<iFirstChangedChild){
 						let end=children[children.length-1].props.childIndex
-						return end>=childIndex
+						return end>=iFirstChangedChild
 					}else{
 						throw new Error("should not be here")
 					}
@@ -66,7 +65,7 @@ export default class Section extends Super{
 				changedPage.columns=changedPage.columns.slice(0,changedColumnIndex)
 
 
-				let changedLineIndex=changedColumn.children.findIndex(line=>line.props.childIndex>=childIndex)
+				let changedLineIndex=changedColumn.children.findIndex(line=>line.props.childIndex>=iFirstChangedChild)
 				changedColumn.children=changedColumn.children.slice(0,changedLineIndex)
 				changedPage.columns.push(changedColumn)
 

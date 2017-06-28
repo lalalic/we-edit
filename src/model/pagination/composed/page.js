@@ -1,4 +1,4 @@
-import React, {PureComponent as Component, PropTypes} from "react"
+import React, {Component, PropTypes} from "react"
 import Waypoint from "react-waypoint"
 import Group from "./group"
 import Line from "./line"

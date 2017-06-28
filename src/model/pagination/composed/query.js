@@ -6,6 +6,7 @@ import Text from "pagination/text"
 import FindLast from "tools/array-find-last"
 import getClientRect from "tools/get-client-rect"
 
+const NOT_FOUND={left:-9999,top:0}
 export default class Query{
 	constructor(document,state){
 		this.document=document
@@ -56,43 +57,58 @@ export default class Query{
 	}
 
 	at(x,y){
+		x=x*this.ratio
+		y=y*this.ratio
 		let {pages,pgGap}=this
 		let pageNo=(()=>{
 			switch(pages.length){
 				case 0: return -1
 				default: {
-					let h=pages[0].size.height+pgGap
-					return pages.slice(1).findIndex(({size:{height}})=>h<y<(h+=height+pgGap))+1
+					let h=0
+					return pages
+						.findIndex(({size:{height}})=>{
+							return h<=y && y<=(h+=height+pgGap)
+						})
 				}
 			}
 		})();
+		if(pageNo==-1) return NOT_FOUND
 		let page=pages[pageNo]
 
 		let columnNo=((columns,pageMargin)=>{
 			switch(columns.length){
 				case 0: return -1
-				case 1: return 0
 				default: {
-					return columns.findIndex(({x:x0,width})=>pageMargin+x0<x<pageMargin+x0+width)
+					return columns
+						.findIndex(({x:x0,width})=>{
+							return (pageMargin+x0)<=x && x<=(pageMargin+x0+width)
+						})
 				}
 			}
 		})(page.columns,this._pageMarginRight(pageNo));
+		if(columnNo==-1) return NOT_FOUND
 		let column=page.columns[columnNo]
 
 		let lineNo=((lines,pY)=>{
-			return lines.findIndex(({props:{y:y0,height}})=>y0<=pY<=y0+height)
+			return lines
+				.findIndex(({props:{y:y0,height}})=>{
+					return y0<=pY && pY<=(y0+height)
+				})
 		})(column.children,y-this.pageY(pageNo)-page.margin.top);
+		if(lineNo==-1) return NOT_FOUND
 		let line=column.children[lineNo]
 
 		let pieces=React.Children.toArray(line.props.children)
 		let offsetX=x-this._pageMarginRight(pageNo)-column.x
-		let piece=pieces.find(piece=>{
-			if(0<=offsetX<=piece.props.width){
+		let piece=pieces.find(({props:{width}})=>{
+			if(0<=offsetX && offsetX<=width){
 				return true
 			}else{
-				offsetX-=piece.props.width
+				offsetX-=width
 			}
 		})
+
+		if(piece==null) return NOT_FOUND
 
 		this.traverse(piece,el=>{
 			if('data-content' in el.props && 'data-endAt' in el.props){
@@ -100,6 +116,10 @@ export default class Query{
 				return true
 			}
 		})
+
+		if(!('data-content' in piece.props && 'data-endAt' in piece.props)){
+			return NOT_FOUND
+		}
 
 		let id=piece.props["data-content"]
 		let from=piece.props["data-endAt"]
@@ -115,56 +135,14 @@ export default class Query{
 			line: lineNo,
 			id,
 			at: from+end,
-			left: (x-offsetX)*this.ratio,
-			top: (this.pageY(pageNo)+line.props.y)*this.ratio
+			left: x-offsetX+window.scrollX*this.ratio,
+			top: this.pageY(pageNo)+page.margin.top+line.props.y+window.scrollY*this.ratio
 		}
 	}
 
 	getComposer(id){
 		return this.document.composers.get(id)
 	}
-
-	/***
-	 * since it always on canvas, so query dom directly
-	 */
-	at1(x0,y0){
-		const find=(node,selector)=>{
-            if(!node) return null
-
-            let all=node.querySelectorAll(selector)
-            for(let i=0,len=all.length,a;i<len;i++){
-                let {left,top,right,bottom}=getClientRect(all[i])
-                if(left<=x0 && x0<=right && top<=y0 && y0<=bottom){
-                    return all[i]
-                }
-            }
-
-            return null
-        }
-
-        let target="g.page,g.line,text".split(",")
-            .reduce((scope,selector)=>find(scope,selector),this.document.canvas.root)
-
-        if(!target)
-            return {id:null, left: x0*this.ratio, top:y0*this.ratio}
-
-        let text=target.textContent
-        let {endAt, content:id}=target.dataset
-        let from=endAt-text.length
-
-        let box=getClientRect(target)
-        let x=x0-box.left
-
-        let wordwrapper=new Text.WordWrapper(this.getComposer(id).props)
-        let end=wordwrapper.widthString(x, text)
-        x=wordwrapper.stringWidth(text.substring(0,end+1))
-        return {
-			id,
-			at:from+end,
-			top:Math.ceil((box.top+window.scrollY)*this.ratio),
-			left:Math.ceil((box.left+x+window.scrollX)*this.ratio)
-		}
-    }
 
 	_locate(id,at){
 		let {pages,pgGap}=this
