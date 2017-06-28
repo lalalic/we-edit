@@ -18,7 +18,6 @@ export default class Movable extends Component{
 
 		return (
 			<g>
-				{React.cloneElement(children,{onMouseDown:this.onStartMove.bind(this)})}
 				{ !move ? null :
 					 (<Overlay cursor="default"
 						onMouseUp={e=>this.onEndMove(e)}
@@ -27,6 +26,7 @@ export default class Movable extends Component{
 						<Mover ref={a=>this.mover=a} cursor="default"/>
 					</Overlay>)
 				}
+				{React.cloneElement(children,{onMouseDown:this.onStartMove.bind(this)})}
 			</g>
 		)
 	}
@@ -38,7 +38,7 @@ export default class Movable extends Component{
 
     onEndMove(e){
         let {id,at}=this.mover.state
-        this.setState({move:undefined},()=>{
+        this.setState({move:false},()=>{
             if(id)
                 this.props.onMove(id,at)
         })
@@ -48,7 +48,7 @@ export default class Movable extends Component{
     move(e){
 		let x=e.clientX, y=e.clientY
         let pos=this.context.query().at(x,y)
-		
+
 		this.mover.setState(pos)
 		e.stopPropagation()
     }

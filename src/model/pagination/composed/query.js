@@ -55,7 +55,6 @@ export default class Query{
 		return (width-page.size.width)/2+page.margin.left
 	}
 
-/*
 	at(x,y){
 		let {pages,pgGap}=this
 		let pageNo=(()=>{
@@ -77,7 +76,7 @@ export default class Query{
 					return columns.findIndex(({x:x0,width})=>pageMargin+x0<x<pageMargin+x0+width)
 				}
 			}
-		})(page.columns,this._pageMargin(page));
+		})(page.columns,this._pageMarginRight(pageNo));
 		let column=page.columns[columnNo]
 
 		let lineNo=((lines,pY)=>{
@@ -85,9 +84,9 @@ export default class Query{
 		})(column.children,y-this.pageY(pageNo)-page.margin.top);
 		let line=column.children[lineNo]
 
-		let pieces=line.props.children
-		let offsetX=x-page.margin.right-column.x
-		let piece=pieces.find((offsetX,piece)=>{
+		let pieces=React.Children.toArray(line.props.children)
+		let offsetX=x-this._pageMarginRight(pageNo)-column.x
+		let piece=pieces.find(piece=>{
 			if(0<=offsetX<=piece.props.width){
 				return true
 			}else{
@@ -95,35 +94,31 @@ export default class Query{
 			}
 		})
 
-		piece=this.traverse(piece,el=>{
+		this.traverse(piece,el=>{
 			if('data-content' in el.props && 'data-endAt' in el.props){
+				piece=el
 				return true
 			}
 		})
 
 		let id=piece.props["data-content"]
 		let from=piece.props["data-endAt"]
+		let text=piece.props.children.join("")
 
 
 		let wordwrapper=new Text.WordWrapper(this.getComposer(id).props)
-		let content=this.state.getIn(["content",id]).toJS()
-		let end=wordwrapper.widthString(offsetX, content.children.substr(from))
-		offsetX=wordwrapper.stringWidth(content.children.substr(from,end))
+		let end=wordwrapper.widthString(offsetX, text)
+		offsetX=offsetX-wordwrapper.stringWidth(text.substr(0,end))
 		return {
 			page: pageNo,
 			column: columnNo,
 			line: lineNo,
 			id,
 			at: from+end,
-			style
+			left: (x-offsetX)*this.ratio,
+			top: (this.pageY(pageNo)+line.props.y)*this.ratio
 		}
 	}
-
-	getStyle({props:{fontFamily, fontSize, fontWeigth, fontStyle}}){
-		return {fontFamily, fontSize, fontWeigth, fontStyle}
-	}
-*/
-
 
 	getComposer(id){
 		return this.document.composers.get(id)
@@ -132,7 +127,7 @@ export default class Query{
 	/***
 	 * since it always on canvas, so query dom directly
 	 */
-	at(x0,y0){
+	at1(x0,y0){
 		const find=(node,selector)=>{
             if(!node) return null
 
@@ -163,7 +158,12 @@ export default class Query{
         let wordwrapper=new Text.WordWrapper(this.getComposer(id).props)
         let end=wordwrapper.widthString(x, text)
         x=wordwrapper.stringWidth(text.substring(0,end+1))
-        return {id, at:from+end, top:box.top*this.ratio, left:(box.left+x)*this.ratio}
+        return {
+			id,
+			at:from+end,
+			top:Math.ceil((box.top+window.scrollY)*this.ratio),
+			left:Math.ceil((box.left+x+window.scrollX)*this.ratio)
+		}
     }
 
 	_locate(id,at){
