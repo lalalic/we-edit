@@ -24,7 +24,8 @@ export default class Page extends Component{
 			margin:{left,top, right,bottom, header:headerStartAt=0, footer:footerEndAt=0},
 			columns,
 			header,
-			footer}=this.props
+			footer,
+			i:pageNo}=this.props
 
 		let {media="print"}=this.context
 
@@ -71,9 +72,16 @@ export default class Page extends Component{
 			}
 			return(
 				<Waypoint fireOnRapidScroll={false}
-						onEnter={e=>this.setState({display:true},onPageShow)}
-						onLeave={e=>this.setState({display:false},onPageHide)}>
+						onEnter={e=>{
+							this.setState({display:true},onPageShow)
+							console.log(`page[${pageNo}] display`)
+						}}
+						onLeave={e=>{
+							this.setState({display:false},onPageHide)
+							console.log(`page[${pageNo}] hide`)
+						}}>
 					<g className="page">
+						<text>page:{pageNo}</text>
 						<Paper width={width} height={height} fill="white"/>
 						{contents}
 					</g>

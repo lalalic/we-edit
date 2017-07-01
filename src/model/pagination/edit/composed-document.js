@@ -37,7 +37,7 @@ export default class extends Component{
             let y=this.context.query().pageY(-1)
             composeMoreTrigger=(
                 <Waypoint onEnter={e=>composeMore()} >
-                    <g transform={`translate(0 ${y})`}/>
+                    <g transform={`translate(0 ${y-50})`}/>
                 </Waypoint>
             )
         }else{

@@ -32,8 +32,7 @@ export default class Document extends Component{
 					pageInfos.map((page,i)=>{
 						let newPage=(
 							<Group y={y} x={(viewBoxWidth-page.size.width)/2} key={i}>
-								<text>page: {i}</text>
-								<Page {...page} {...{onPageHide, onPageShow}}/>
+								<Page {...page} {...{onPageHide, onPageShow,i}}/>
 							</Group>
 						);
 						y+=(page.size.height+pgGap)
