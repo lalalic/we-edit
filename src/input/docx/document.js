@@ -67,13 +67,13 @@ export default class Document extends docx4js{
 
 		}
 	}
-	
+
 	_createTable({rows,cols,width}){
 		let aColWidth=parseInt(width/cols)
 		let xCols=new Array(cols-1)
 			.fill(aColWidth)
 			.push(width-(cols-1)*aColWidth)
-			
+
 		let xRow=xCols.map(w=>`
 			<w:tc>
 				<w:tcPr>
@@ -85,7 +85,7 @@ export default class Document extends docx4js{
 
 		let xRows=new Array(rows)
 			.fill(`<w:tr>${xRow.join("")}</w:tr>`)
-			
+
 		const xml=`
 		<w:tbl>
 			<w:tblPr>
@@ -99,10 +99,10 @@ export default class Document extends docx4js{
 			${xRows.join("")}
 		</w:tbl>
 		`
-		
+
 		return this.attach(xml)
 	}
-	
+
 	attach(xml){
 		return this.officeDocument.content(xml).appendTo("w\\:body").get(0)
 	}
@@ -127,12 +127,12 @@ export default class Document extends docx4js{
 
 		return this.attach(xml)
 	}
-	
+
 	resize(id, width, height){
 		let node=this.getNode(id)
 		let ext0=node.find("a\\:xfrm>a\\:ext")
 		let inline=node.closest("wp\\:inline")
-		
+
 		const update=(x,target)=>{
 			if(x){
 				let cx=px2cm(x)
@@ -146,10 +146,10 @@ export default class Document extends docx4js{
 				}
 			}
 		}
-		
+
 		update(width,"cx")
 		update(height,"cy")
-		
+
 		return (inline.length ? inline : node).get(0)
 	}
 }

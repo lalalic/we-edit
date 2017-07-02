@@ -10,7 +10,7 @@ export class entity extends reducer{
 			this.remove_withSelection()
 		}
 
-		let {nodes,prevId}=this.file.create(this[`create_${type}`](...arguments))
+		let {nodes,prevId}=this.file.create(this.arguments[0])
 		let prev=prevId ? this.$('#'+prevId) : null
 
 		nodes.reduceRight(node=>{
@@ -29,11 +29,6 @@ export class entity extends reducer{
 				}
 			}
 		})
-	}
-
-	create_table({}){
-		let {start:{id,at},end}=this.selection
-			
 	}
 
 	resize({x,y}){

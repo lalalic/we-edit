@@ -72,14 +72,8 @@ export default class Page extends Component{
 			}
 			return(
 				<Waypoint fireOnRapidScroll={false}
-						onEnter={e=>{
-							this.setState({display:true},onPageShow)
-							console.log(`page[${pageNo}] display`)
-						}}
-						onLeave={e=>{
-							this.setState({display:false},onPageHide)
-							console.log(`page[${pageNo}] hide`)
-						}}>
+						onEnter={e=>this.setState({display:true},onPageShow)}
+						onLeave={e=>this.setState({display:false},onPageHide)}>
 					<g className="page">
 						<text>page:{pageNo}</text>
 						<Paper width={width} height={height} fill="white"/>
