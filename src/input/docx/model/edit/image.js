@@ -1,34 +1,58 @@
 import Base from "./base"
 
 export class Image extends Base{
-    apply(props, changing){
-        if(size){
-            let {width,height}=size
-            let ext0=node.find("a\\:xfrm>a\\:ext")
-    		let inline=node.closest("wp\\:inline")
+    apply(props){
+        if(props.data){
+            this.load(props.data, props)
+                .then(doApply)
+        }else{
+            doApply(props)
+            return Promise.resolve()
+        }
 
-    		const update=(x,target)=>{
-    			if(x){
-    				let cx=this.px2cm(x)
-    				let cx0=parseInt(ext0.attr(target))
-    				ext0.attr(target,cx)
+        const doApply=({id, ...attrs})=>{
+            if(id)
+                this.node=this.node.find("pic\\:pic")
 
-    				if(inline.length){
-    					let ext1=inline.children("wp\\:extent")
-    					let cx1=parseInt(ext1.attr(target))
-    					ext1.attr(target,cx+cx1-cx0)
-    				}
-    			}
-    		}
+            Object.keys(attrs)
+                .forEach(k=>{
+                    if(this[k]){
+                        this[k](attrs[k], props)
+                    }
+                })
 
-    		update(width,"cx")
-    		update(height,"cy")
-
-    		return (inline.length ? inline : node).get(0)
+            if(id)
+                this.node=this.node.cloest("w\\:drawing")
         }
     }
 
-    extent({width,height}){
+    load(data, {data:ignore,...props}){
+        return new Promise((resolve, reject)=>{
+            let rid, name
+            let img=new Image()
+            img.onload=e=>{
+                let {width,height}=img
+                resolve({...props, rid,name,width,height})
+            }
+            img.onerror=reject
+
+            if(typeof(data)=='string'){//file name
+                rid=this.file.officeDocument.addExternalImage(data)
+                img.src=data
+            }else if(data instanceof Blob){
+                let reader=new FileReader()
+                reader.onload=function(e){
+                    buffer=e.target.result
+                    rid=this.file.officeDocument.addImage(buffer)
+                    name=data.name
+                    img.src=btoa(buffer)
+                }
+                reader.readAsArrayBuffer(inputFile);
+            }
+        })
+    }
+
+    size({width,height}){
         let ext0=this.node.find("a\\:xfrm>a\\:ext")
         let inline=this.node.closest("wp\\:inline")
 
@@ -48,13 +72,6 @@ export class Image extends Base{
 
         update(width,"cx")
         update(height,"cy")
-        return `<wp:extent cx="${cx}" cy="${cy}"/>`
-    }
-
-    ext({width,height}){
-        let cx=this.file.cm2px(width)
-        let cy=this.file.cm2px(height)
-        return `<a:extent cx="${cx}" cy="${cy}"/>`
     }
 
     effectExtent(props){
@@ -65,12 +82,19 @@ export class Image extends Base{
         return null
     }
 
-    rid({rid}){
-        return rid
+    rid(rid){
+        this.node.find("a\\:blip").attr("r:embed","rid")
     }
 
-    name({name, rid}){
-        return name || `Picture ${rid}`
+    name(name, {rid}){
+        this.node
+            .find("pic\\:cNvPr")
+            .attr("name", name)
+        this.node
+            .closest("wp\\:inline")
+            .find("wp\\:docPr")
+            .attr("id", rid)
+            .attr("name", name)
     }
 
     template(props){

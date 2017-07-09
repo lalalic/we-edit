@@ -10,7 +10,7 @@ export default class Editor{
         return this.node
     }
 
-    update(props,changing){
+    update(changing){
         this.node=this.fild.getNode(props.id)
         this.apply(...arguments)
         return this.node

@@ -51,6 +51,14 @@ export default class Query{
 		return this.state.get("content")
 	}
 
+	props(){
+		if(this.length){
+			return this._content.get(this._nodes[0])
+		}else{
+			return null
+		}
+	}
+
 	attr(k){
 		if(this.length){
 			let path=[this._nodes[0]]

@@ -43,7 +43,7 @@ export class entity extends reducer{
 
 	resize({x,y}){
 		let {start:{id}}=this.selection
-		let props=this.$('#'+id).attr()
+		let props=this.$('#'+id).props()
 		const {width,height}=props.get("size").toJS()
 		let changedNode
 		let changing={}
@@ -51,9 +51,9 @@ export class entity extends reducer{
 		this.save4undo(id)
 
 		if(y===undefined){
-			changing={width:width+x)
+			changing={width:width+x}
 		}else if(x===undefined){
-			changing={height:height+y)
+			changing={height:height+y}
 		}else{
 			let ratio=1+Math.max(Math.abs(x)/width,Math.abs(y)/height)*x/Math.abs(x)
 			changing={width:width*ratio, height:height*ratio}
