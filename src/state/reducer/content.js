@@ -7,13 +7,17 @@ export default class Content extends Query{
         super(...arguments)
         this._doc=getFile(this.state)
     }
-	
+
 	_getContent(){
 		return this.state.get("_content")
 	}
 
     attr(k,value){
-        if(value==undefined)
+        if(k==undefined){
+            if(this.length){
+                return this._content.get(this._nodes[0])
+            }
+        }else if(value==undefined)
             return super.attr(k)
         else{
             if(this.length){
@@ -39,8 +43,9 @@ export default class Content extends Query{
 				.add(this.find("text"))
 				._nodes
 				.reduce((c,id)=>{
-                    this._doc.updateNode(c.get(id).toJS(),{children:value})
-                    return c.setIn([id,"children"],value)
+                    let updated=c.setIn([id,"children"],value)
+                    this._doc.updateNode(updated.toJS(),this)
+                    return updated
                 },this._content)
 			return this
         }
@@ -55,7 +60,7 @@ export default class Content extends Query{
 			if(this._content.hasIn([id0,"children"])){
 				this._content.updateIn([id0,"children"],c=>c.push(id))
 			}
-			
+
 			//remove from original parent
 			if(this._content.hasIn([id,"parent"])){
 				this._content.updateIn([this._content.getIn([id,"parent"]),"children"],c=>c.delete(c.indexOf(id)))
@@ -65,7 +70,7 @@ export default class Content extends Query{
 			if(this._content.has(id)){
 				this._content.setIn([id,"parent"],id0)
 			}
-			
+
 			docNode.append(this._doc.getNode(id))
 		})
 		return this
@@ -163,7 +168,7 @@ export default class Content extends Query{
 		})
 		return this
 	}
-	
+
 	constructUp(to){
 		return this._doc.construct(this.attr("id"), new this.constructor(this.state,to).attr("id"))
 	}

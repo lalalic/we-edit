@@ -42,11 +42,11 @@ export default class Query{
 	}
 
 
-	
+
 	get length(){
 		return this._nodes.length
 	}
-	
+
 	_getContent(){
 		return this.state.get("content")
 	}
@@ -58,7 +58,7 @@ export default class Query{
 				path.push(k)
 			}else{
 				path.push("props")
-				path.push(k)
+				path=path.concat(k.split("."))
 			}
 			return this._content.getIn(path)
 		}else{

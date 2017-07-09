@@ -9,8 +9,11 @@ export class entity extends reducer{
 		}else{
 			this.remove_withSelection()
 		}
+		let props=arguments[0]
+		if(this[`on${type}Create`])
+			props=this[`on${type}Create`](props)
 
-		let {nodes,prevId}=this.file.create(this.arguments[0])
+		let {nodes,prevId}=this.file.create(props)
 		let prev=prevId ? this.$('#'+prevId) : null
 
 		nodes.reduceRight(node=>{
@@ -31,21 +34,32 @@ export class entity extends reducer{
 		})
 	}
 
+	onTableCreate({id}){
+		let width=this.$(`#${id}`)
+			.closest("section")
+			.attr("pgSz.width")
+		return {...arguments[0], width}
+	}
+
 	resize({x,y}){
 		let {start:{id}}=this.selection
-		const {width,height}=this.$('#'+id).attr("size").toJS()
+		let props=this.$('#'+id).attr()
+		const {width,height}=props.get("size").toJS()
 		let changedNode
+		let changing={}
 
 		this.save4undo(id)
 
 		if(y===undefined){
-			changedNode=this.file.resize(id,width+x)
+			changing={width:width+x)
 		}else if(x===undefined){
-			changedNode=this.file.resize(id,null,height+y)
+			changing={height:height+y)
 		}else{
 			let ratio=1+Math.max(Math.abs(x)/width,Math.abs(y)/height)*x/Math.abs(x)
-			changedNode=this.file.resize(id,width*ratio,height*ratio)
+			changing={width:width*ratio, height:height*ratio}
 		}
+
+		changeNode=this.file.updateNode(props.toJS(), {size: changing}, this.$)
 
 		this.renderChanged(changedNode)
 

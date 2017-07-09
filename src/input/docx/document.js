@@ -1,6 +1,7 @@
 import docx4js from "docx4js"
 import uuid from "tools/uuid"
 import Base from "input/document"
+import editors from "./model/edit"
 
 const defineId=(target,id)=>Object.defineProperty(target,"id",{
 	enumerable: false,
@@ -48,59 +49,18 @@ export default class Document extends docx4js{
 		return cloned
 	}
 
-	createNode({type}){
-		return this[`_create${type[0].toUpperCase()+type.substr(1)}Node`](...arguments)
+	createNode({type}, doc){
+		return this.attach(new editors[type](this,doc)
+			.create(arguments[0]))
 	}
 
-	updateNode({type}){
-		return this[`_update${type[0].toUpperCase()+type.substr(1)}Node`](...arguments)
+	updateNode({type},changing,doc){
+		return new editors[type](this, doc)
+			.update(arguments[0],changing)
 	}
 
 	removeNode({id,type}){
 		return this.getNode(id).remove()
-	}
-
-	_updateTextNode({id},{props,children}){
-		if(children!=undefined){
-			return this.getNode(id).text(children).get(0)
-		}else{
-
-		}
-	}
-
-	_createTable({rows,cols,width}){
-		let aColWidth=parseInt(width/cols)
-		let xCols=new Array(cols-1)
-			.fill(aColWidth)
-			.push(width-(cols-1)*aColWidth)
-
-		let xRow=xCols.map(w=>`
-			<w:tc>
-				<w:tcPr>
-					<w:tcW w:w="${w}" w:type="dxa"/>
-				</w:tcPr>
-				<w:p><w:r><w:t></w:t></w:r></w:p>
-			</w:tc>
-		`)
-
-		let xRows=new Array(rows)
-			.fill(`<w:tr>${xRow.join("")}</w:tr>`)
-
-		const xml=`
-		<w:tbl>
-			<w:tblPr>
-				<w:tblStyle w:val="TableGrid"/>
-				<w:tblW w:w="0" w:type="auto"/>
-				<w:tblLook w:val="04A0" w:noVBand="1" w:noHBand="0" w:lastColumn="0" w:firstColumn="1" w:lastRow="0" w:firstRow="1"/>
-			</w:tblPr>
-			<w:tblGrid>
-				${xCols.map(w=>`<w:gridCol w:w="${w}"/>`).join("")}
-			</w:tblGrid>
-			${xRows.join("")}
-		</w:tbl>
-		`
-
-		return this.attach(xml)
 	}
 
 	attach(xml){
@@ -135,7 +95,7 @@ export default class Document extends docx4js{
 
 		const update=(x,target)=>{
 			if(x){
-				let cx=px2cm(x)
+				let cx=this.px2cm(x)
 				let cx0=parseInt(ext0.attr(target))
 				ext0.attr(target,cx)
 
@@ -152,8 +112,8 @@ export default class Document extends docx4js{
 
 		return (inline.length ? inline : node).get(0)
 	}
-}
 
-function px2cm(px){
-	return Math.ceil(px*72/96*360000/28.3464567)
+	px2cm(px){
+		return Math.ceil(px*72/96*360000/28.3464567)
+	}
 }
