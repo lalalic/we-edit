@@ -10,9 +10,9 @@ export default class Editor{
         return this.node
     }
 
-    update(changing){
-        this.node=this.fild.getNode(props.id)
-        this.apply(...arguments)
+    update({id},changing){
+        this.node=this.file.getNode(id)
+        this.apply(changing)
         return this.node
     }
 

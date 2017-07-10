@@ -43,8 +43,9 @@ export class entity extends reducer{
 
 	resize({x,y}){
 		let {start:{id}}=this.selection
-		let props=this.$('#'+id).props()
-		const {width,height}=props.get("size").toJS()
+		let content=this.$('#'+id)
+		let props=content.props()
+		const {width,height}=content.attr("size").toJS()
 		let changedNode
 		let changing={}
 
@@ -59,9 +60,9 @@ export class entity extends reducer{
 			changing={width:width*ratio, height:height*ratio}
 		}
 
-		changeNode=this.file.updateNode(props.toJS(), {size: changing}, this.$)
+		changedNode=this.file.updateNode(props.toJS(), {size: changing}, this.$)
 
-		this.renderChanged(changedNode)
+		this.renderChanged(changedNode.get(0))
 
 		return this
 	}

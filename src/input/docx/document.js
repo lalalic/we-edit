@@ -50,16 +50,16 @@ export default class Document extends docx4js{
 	}
 
 	createNode({type}, doc){
-		return this.attach(new editors[type](this,doc)
+		return this.attach(new editors[type[0].toUpperCase()+type.substr(1)](this,doc)
 			.create(arguments[0]))
 	}
 
-	updateNode({type},changing,doc){
-		return new editors[type](this, doc)
+	updateNode({id,type},changing,doc){
+		return new editors[type[0].toUpperCase()+type.substr(1)](this, doc)
 			.update(arguments[0],changing)
 	}
 
-	removeNode({id,type}){
+	removeNode({id}){
 		return this.getNode(id).remove()
 	}
 

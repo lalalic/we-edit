@@ -1,3 +1,6 @@
-export {Image} from "./image"
-export {Table} from "./table"
-export {Text} from "./text"
+import {Image} from "./image"
+import {Table} from "./table"
+import {Text} from "./text"
+
+
+export default {Image, Table, Text}
