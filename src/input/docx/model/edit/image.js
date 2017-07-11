@@ -1,55 +1,22 @@
 import Base from "./base"
 
 export class Image extends Base{
-    apply(props, id){
-        const doApply=attrs=>{
-            if(id)
-                this.node=this.node.find("pic\\:pic")
-
-            Object.keys(attrs)
-                .forEach(k=>{
-                    if(this[k]){
-                        this[k](attrs[k], props)
-                    }
-                })
-
-            if(id)
-                this.node=this.node.closest("w\\:drawing")
+    apply({id, data, ...props}){
+        if(this.node.prop('name')!=='pic:pic'){
+            this.node=this.node.find("pic\\:pic")
         }
 
-        if(props.data){
-            this.load(props.data, props)
-                .then(doApply)
-        }else{
-            doApply(props)
-            return Promise.resolve()
-        }
-    }
-
-    load(data, {data:ignore,...props}){
-        return new Promise((resolve, reject)=>{
-            let rid, name
-            let img=new Image()
-            img.onload=e=>{
-                let {width,height}=img
-                resolve({...props, rid,name,width,height})
-            }
-            img.onerror=reject
-
+        if(data){
             if(typeof(data)=='string'){//file name
-                rid=this.file.officeDocument.addExternalImage(data)
-                img.src=data
-            }else if(data instanceof Blob){
-                let reader=new FileReader()
-                reader.onload=function(e){
-                    buffer=e.target.result
-                    rid=this.file.officeDocument.addImage(buffer)
-                    name=data.name
-                    img.src=btoa(buffer)
-                }
-                reader.readAsArrayBuffer(inputFile);
+                props.rid=this.file.officeDocument.addExternalImage(data)
+            }else{
+                props.rid=this.file.officeDocument.addImage(data)
             }
-        })
+        }
+
+        super.apply(props)
+
+        return this.node.closest("w\\:drawing")
     }
 
     size({width,height}){

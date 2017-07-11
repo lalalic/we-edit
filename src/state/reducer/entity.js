@@ -13,7 +13,7 @@ export class entity extends reducer{
 		if(this[`on${type}Create`])
 			props=this[`on${type}Create`](props)
 
-		let {nodes,prevId}=this.file.create(props)
+		let {nodes,prevId}=this.file.createNode(props)
 		let prev=prevId ? this.$('#'+prevId) : null
 
 		nodes.reduceRight(node=>{
