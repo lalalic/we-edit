@@ -22,6 +22,10 @@ export default class extends Base{
 		return docx4js.load(file)
 	}
 
+	release(){
+		this.docx.release()
+	}
+
 	create(){
 		return docx4js.create()
 	}
@@ -38,6 +42,7 @@ export default class extends Base{
 	}
 
 	render(docx,domain,createElement){
+		this.docx=docx
 		const self=this
 		const selector=new Style.Properties(docx)
 		const $=docx.officeDocument.content
@@ -245,7 +250,7 @@ export default class extends Base{
 		function renderNode(node){
 			return docx.officeDocument.renderNode(node,build,identify)
 		}
-		
+
 		//implement loader.renderChangedNode
 		docx.renderChangedNode=(node,createElement)=>{
 			return docx.officeDocument.renderNode(node,buildFactory(createElement),identify)

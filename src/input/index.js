@@ -56,7 +56,9 @@ function buildEditableDoc(doc,inputTypeInstance){
 
 			return (
 				<Provider store={store}>
-					<TransformerProvider transformer={inputTypeInstance.transform}>
+					<TransformerProvider
+						onQuit={()=>inputTypeInstance.release()}
+						transformer={inputTypeInstance.transform}>
 						{props.children}
 					</TransformerProvider>
 				</Provider>
@@ -166,7 +168,8 @@ const createElementFactoryBuilder=inputTypeInstance=>content=>(type, props, chil
 import Input from "state/cursor/input"
 class TransformerProvider extends Component{
 	static propTypes={
-		transformer: PropTypes.func.isRequired
+		transformer: PropTypes.func.isRequired,
+		onQuit: PropTypes.func
 	}
 
 	static childContextTypes={
@@ -191,5 +194,9 @@ class TransformerProvider extends Component{
 				{this.props.children}
 			</div>
 		)
+	}
+
+	componentWillUnmount(){
+		this.props.onQuit()
 	}
 }

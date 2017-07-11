@@ -6,13 +6,17 @@ export default class{
 	static support(){
 		return false
 	}
-	
+
 	static createStyles(){
 		return {}
-	}	
+	}
 
 	load(url){
 		return Promise.reject(new Error("need implementation to load and parse content at "+url))
+	}
+
+	release(){
+		
 	}
 
 	create(){
