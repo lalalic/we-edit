@@ -49,14 +49,19 @@ export default class Document extends docx4js{
 		return cloned
 	}
 
-	createNode({type}, doc){
-		return this.attach(new editors[type[0].toUpperCase()+type.substr(1)](this,doc)
-			.create(arguments[0]))
+	asType(type){
+		return type[0].toUpperCase()+type.substr(1)
+	}
+
+	createNode({type}, locationNode){
+		let editor=new editors[this.asType(type)](this)
+		let node=editor.create(arguments[0],locationNode)
+		return node
 	}
 
 	updateNode({id,type},changing,doc){
-		return new editors[type[0].toUpperCase()+type.substr(1)](this, doc)
-			.update(arguments[0],changing)
+		let editor=new editors[this.asType(type)](this)
+		return editor.update(arguments[0],changing)
 	}
 
 	removeNode({id}){

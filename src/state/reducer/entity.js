@@ -10,10 +10,13 @@ export class entity extends reducer{
 			this.remove_withSelection()
 		}
 		let props=arguments[0]
-		if(this[`on${type}Create`])
-			props=this[`on${type}Create`](props)
+		let Type=type[0].toUpperCase()+type.substr(1)
+		if(this[`on${Type}Create`]){
+			props=this[`on${Type}Create`](props)
+		}
 
-		let {nodes,prevId}=this.file.createNode(props)
+		let created=this.file.createNode(props,id)
+		let {nodes,prevId}=created
 		let prev=prevId ? this.$('#'+prevId) : null
 
 		nodes.reduceRight(node=>{
@@ -34,11 +37,12 @@ export class entity extends reducer{
 		})
 	}
 
-	onTableCreate({id}){
-		let width=this.$(`#${id}`)
-			.closest("section")
-			.attr("pgSz.width")
-		return {...arguments[0], width}
+	onTableCreate(props){
+		let {start:{id}}=this.selection
+		let $=this.$(`#${id}`)
+		let width=$.closest("section")
+				.attr("pgSz.width")
+		return {...props, width}
 	}
 
 	resize({x,y}){

@@ -2,11 +2,18 @@ import Base from "./base"
 
 export class Table extends Base{
     apply(props){
-        if(!!props.id){
-            return new Creating(this.file, this.doc).apply(props)
+        if(!props.id){
+            return new Creating(this.file, this.node).apply(props)
         }
 
         return super.apply(...arguments)
+    }
+
+    attachCreated(node, locationId){
+        let locationNode=this.file.getNode(locationId)
+        let p=locationNode.closest("w\\:p")
+        p.after(node)
+        return node
     }
 
     style({namedStyle}){
@@ -23,7 +30,7 @@ export class Table extends Base{
     }
 
     rows(rows){
-        
+
     }
 
     template(props){
@@ -42,13 +49,15 @@ export class Table extends Base{
 }
 
 class Creating extends Table{
+    constructor(file,node){
+        super(file)
+        this.node=node
+    }
+
     apply({cols, width, ...props}){
         let aColWidth=parseInt(width/cols)
-        props.cols=new Array(cols-1)
-            .fill(aColWidth)
-            .push(width-(cols-1)*aColWidth)
-
-        return Base.prototype.apply.call(this,...arguments)
+        props.cols=new Array(cols-1).fill(aColWidth)
+        props.cols.push(width-(cols-1)*aColWidth)
     }
 
     cols(cols){
@@ -57,22 +66,23 @@ class Creating extends Table{
     }
 
     rows(rows,{cols}){
-        this.node.append(new Array(rows)
-            .map(()=>{
-                return [
-                    "<w:tr>",
-                    cols.map(w=>w=>`
-            			<w:tc>
-            				<w:tcPr>
-            					<w:tcW w:w="${w}" w:type="dxa"/>
-            				</w:tcPr>
-            				<w:p><w:r><w:t></w:t></w:r></w:p>
-            			</w:tc>
-            		`).join(""),
-                    "</w:tr>"
-                ].join("")
-            })
-        )
+        let elRows=new Array(rows).fill(0)
+                .map(a=>{
+                    return [
+                        "<w:tr>",
+                        cols.map(w=>w=>`
+                			<w:tc>
+                				<w:tcPr>
+                					<w:tcW w:w="${w}" w:type="dxa"/>
+                				</w:tcPr>
+                				<w:p><w:r><w:t></w:t></w:r></w:p>
+                			</w:tc>
+                		`).join(""),
+                        "</w:tr>"
+                    ].join("")
+                }
+            )
+        this.node.append(elRows.join(""))
     }
 }
 

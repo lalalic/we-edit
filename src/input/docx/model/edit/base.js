@@ -1,12 +1,18 @@
 export default class Editor{
-    constructor(file,doc){
+    constructor(file){
         this.file=file
-        this.doc=doc
     }
 
-    create(props){
-        this.node=this.file.parseXml(this.template(props))
-        return this.apply(props)
+    parseXml(xml){
+        let $=this.file.constructor.parseXml(xml)
+        return $.root().children().first()
+    }
+
+    create(props, locationId){
+        this.node=this.parseXml(this.template(props))
+        this.node=this.node.root().children().first()
+        let node=this.apply(props)
+        return this.attachCreated(node, locationId)
     }
 
     update({id},changing){
@@ -22,6 +28,10 @@ export default class Editor{
                 }
             })
         return this.node
+    }
+
+    attachCreated(node, locationId){
+
     }
 
     template(props){
