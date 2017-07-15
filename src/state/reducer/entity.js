@@ -15,34 +15,46 @@ export class entity extends reducer{
 			props=this[`on${Type}Create`](props)
 		}
 
-		let created=this.file.createNode(props,id)
-		let {nodes,prevId}=created
-		let prev=prevId ? this.$('#'+prevId) : null
+		let nodes=this.file.createNode(props,id)
+		let right=nodes[0].attr("id"), last=nodes[nodes.length-1].attr("id")
+		let parent=this.$('#'+(right||last)).parent()
+		let siblings=parent.children().toArray()
+		let nodesRendered=null
 
-		nodes.reduceRight(node=>{
-			let {id}=this.renderChanged(node)
-			if(prev){
-				preve.after('#'+id)
-			}else{
-				let parentId=this.file.getNode(id)
-					.parentsUntil("[id]").parent().attr("id")
-				let parent=this.$('#'+parentId)
-				let siblings=parent.children()
-				if(silbings.length){
-					siblings.first().before('#'+id)
-				}else{
-					parent.append('#'+id)
-				}
+		if(!right){
+			right=last
+			nodesRendered=nodes.map(a=>this.renderChanged(a.get(0))).reverse()
+			siblings=siblings.reverse()
+		}else{
+			nodesRendered=nodes.map(a=>this.renderChanged(a))
+		}
+
+		right=siblings.indexOf(right)
+		let inserted=0
+		nodesRendered.forEach(({id},i)=>{
+			if(!siblings.includes(id)){
+				siblings.splice(right+i+inserted,0,id)
 			}
 		})
+
+		if(!right){
+			siblings=siblings.reverse()
+		}
+
+		parent.attr("children", siblings)
+
+		this.renderChangedChildren(parent.attr('id'))
+
+		return this
 	}
 
 	onTableCreate(props){
 		let {start:{id}}=this.selection
 		let $=this.$(`#${id}`)
-		let width=$.closest("section")
-				.attr("pgSz.width")
-		return {...props, width}
+		let section=$.closest("section")
+		let width=section.attr("pgSz.width")
+		let {left, right}=section.attr("pgMar").toJS()
+		return {...props, width:width-left-right}
 	}
 
 	resize({x,y}){

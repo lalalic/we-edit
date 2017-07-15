@@ -1,5 +1,6 @@
 import Base from "./base"
 
+//{type:"entity/CREATE", payload:{type:"table", rows:3, cols:3}}
 export class Table extends Base{
     apply(props){
         if(!props.id){
@@ -12,8 +13,8 @@ export class Table extends Base{
     attachCreated(node, locationId){
         let locationNode=this.file.getNode(locationId)
         let p=locationNode.closest("w\\:p")
-        p.after(node)
-        return node
+        p.before(node)
+        return [node,p]
     }
 
     style({namedStyle}){
@@ -55,9 +56,12 @@ class Creating extends Table{
     }
 
     apply({cols, width, ...props}){
+        width=this.px2dxa(width)
         let aColWidth=parseInt(width/cols)
         props.cols=new Array(cols-1).fill(aColWidth)
         props.cols.push(width-(cols-1)*aColWidth)
+
+        return Base.prototype.apply.call(this,props)
     }
 
     cols(cols){
@@ -70,7 +74,7 @@ class Creating extends Table{
                 .map(a=>{
                     return [
                         "<w:tr>",
-                        cols.map(w=>w=>`
+                        cols.map(w=>`
                 			<w:tc>
                 				<w:tcPr>
                 					<w:tcW w:w="${w}" w:type="dxa"/>
@@ -82,7 +86,7 @@ class Creating extends Table{
                     ].join("")
                 }
             )
-        this.node.append(elRows.join(""))
+        this.node.append(elRows.join("").replace(/\s+/g,""))
     }
 }
 

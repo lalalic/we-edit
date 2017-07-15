@@ -10,7 +10,6 @@ export default class Editor{
 
     create(props, locationId){
         this.node=this.parseXml(this.template(props))
-        this.node=this.node.root().children().first()
         let node=this.apply(props)
         return this.attachCreated(node, locationId)
     }
@@ -36,5 +35,9 @@ export default class Editor{
 
     template(props){
         return ``
+    }
+
+    px2dxa(w){
+        return w*72*20/96
     }
 }
