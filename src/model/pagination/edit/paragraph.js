@@ -1,4 +1,6 @@
-import React,{Children, PropTypes} from "react"
+import React,{Children} from "react"
+import PropTypes from "prop-types"
+
 import Base from "../paragraph"
 
 import {editable} from "model/edit"

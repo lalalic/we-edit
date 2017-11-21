@@ -167,7 +167,7 @@ export function getNode(docId, id,at){
 
 	for(let i=0, len=nodes.length; i<len; i++){
 		let a=nodes[i]
-		let end=parseInt(a.dataset.endAt)
+		let end=parseInt(a.dataset.endat)
 		let length=a.textContent.length
 		let start=end-length
 		if(start<=at && at<=end)

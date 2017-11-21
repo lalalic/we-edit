@@ -1,4 +1,6 @@
-import React, {Children,Component, PropTypes} from "react"
+import React, {Children,Component} from "react"
+import PropTypes from "prop-types"
+
 
 export default function transform(Models){
 	return class extends Component{

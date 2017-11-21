@@ -44,7 +44,7 @@ export default class Content extends Query{
 				._nodes
 				.reduce((c,id)=>{
                     let updated=c.setIn([id,"children"],value)
-                    this._doc.updateNode(updated.toJS(),this)
+                    this._doc.updateNode(updated.get(id).toJS(),this)
                     return updated
                 },this._content)
 			return this

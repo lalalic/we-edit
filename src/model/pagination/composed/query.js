@@ -111,18 +111,18 @@ export default class Query{
 		if(piece==null) return NOT_FOUND
 
 		this.traverse(piece,el=>{
-			if('data-content' in el.props && 'data-endAt' in el.props){
+			if('data-content' in el.props && 'data-endat' in el.props){
 				piece=el
 				return true
 			}
 		})
 
-		if(!('data-content' in piece.props && 'data-endAt' in piece.props)){
+		if(!('data-content' in piece.props && 'data-endat' in piece.props)){
 			return NOT_FOUND
 		}
 
 		let id=piece.props["data-content"]
-		let from=piece.props["data-endAt"]
+		let from=piece.props["data-endat"]
 		let text=piece.props.children.join("")
 
 
@@ -163,7 +163,7 @@ export default class Query{
 					path.splice(0,path.length,parent)
 				}
 				if(type==ComposedText){
-					let {"data-content":dataId,"data-endAt":dataEndAt}=props
+					let {"data-content":dataId,"data-endat":dataEndAt}=props
 					if(dataId==id && at<=dataEndAt){
 						node=arguments[0]
 						path.push(node)
@@ -199,7 +199,7 @@ export default class Query{
 				let itemIndex=line.props.children
 					.findIndex(a=>a==lineItem ||
 						(a.props["data-content"]==lineItem.props["data-content"] &&
-						a.props["data-endAt"]==lineItem.props["data-endAt"])
+						a.props["data-endat"]==lineItem.props["data-endat"])
 					)
 				console.assert(itemIndex!=-1)
 				return x+=line.props.children.slice(0,itemIndex)
@@ -227,7 +227,7 @@ export default class Query{
 
 		if(!node) return;
 
-		let from=node.props["data-endAt"]-node.props.children.join("").length
+		let from=node.props["data-endat"]-node.props.children.join("").length
 		let composer=this.getComposer(id)
 		let {children:text,...props}=composer.props
 		let wordwrapper=new Text.WordWrapper(props)
@@ -303,7 +303,7 @@ export default class Query{
 			let item=line.props.children[0]
 			if(item.type==ComposedText){
 				let id=item.props["data-content"]
-				let at=item.props["data-endAt"]
+				let at=item.props["data-endat"]
 				return {id,at}
 			}
 		}else{
@@ -314,7 +314,7 @@ export default class Query{
 				let text=item.props.children.join("")
 				let wordwrapper=new Text.WordWrapper(composer.props)
 				let len=wordwrapper.widthString(left-x,text)
-				let at=item.props["data-endAt"]-text.length+len
+				let at=item.props["data-endat"]-text.length+len
 				return {id,at}
 			}
 		}
@@ -366,7 +366,7 @@ export default class Query{
 			let item=line.props.children[0]
 			if(item.type==ComposedText){
 				let id=item.props["data-content"]
-				let at=item.props["data-endAt"]
+				let at=item.props["data-endat"]
 				return {id,at}
 			}
 		}else{
@@ -377,7 +377,7 @@ export default class Query{
 				let text=item.props.children.join("")
 				let wordwrapper=new Text.WordWrapper(composer.props)
 				let len=wordwrapper.widthString(left-x,text)
-				let at=item.props["data-endAt"]-text.length+len
+				let at=item.props["data-endat"]-text.length+len
 				return {id,at}
 			}
 		}

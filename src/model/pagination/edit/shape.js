@@ -1,4 +1,6 @@
-import React, {PropTypes} from "react"
+import React from "react"
+import PropTypes from "prop-types"
+
 import Base from "../shape"
 
 import {editable} from "model/edit"

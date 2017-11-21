@@ -1,4 +1,6 @@
-import React, {Children, PureComponent, Component, PropTypes} from "react"
+import React, {Children, PureComponent, Component} from "react"
+import PropTypes from "prop-types"
+
 import {connect, connectAdvanced} from "react-redux"
 
 import Models from "model"

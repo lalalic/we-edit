@@ -1,4 +1,6 @@
-import React, {Component, PropTypes} from "react"
+import React, {Component} from "react"
+import PropTypes from "prop-types"
+
 import {connect} from "react-redux"
 import Waypoint from "react-waypoint"
 
@@ -128,12 +130,12 @@ export default class extends Component{
         switch(target.nodeName){
         case 'text':
             let text=target.textContent
-            let {endAt, content:id}=target.dataset
+            let {endat, content:id}=target.dataset
             let [x]=offset(e, target)
 
             const wordwrapper=new Text.WordWrapper($.getComposer(id).props)
             let end=wordwrapper.widthString(x*this.ratio, text)
-            let at=endAt-text.length+end
+            let at=endat-text.length+end
 
             if(!e.shiftKey){
                 dispatch(ACTION.Cursor.AT(id,at))
@@ -163,7 +165,7 @@ export default class extends Component{
             let node=selection[`${a}Node`].parentNode
             return {
                 id:node.dataset.content,
-                at:node.dataset.endAt-node.textContent.length+selection[`${a}Offset`]
+                at:node.dataset.endat-node.textContent.length+selection[`${a}Offset`]
             }
         }
 

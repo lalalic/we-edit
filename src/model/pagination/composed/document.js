@@ -1,4 +1,6 @@
-import React, {PureComponent as Component, PropTypes} from "react"
+import React, {PureComponent as Component} from "react"
+import PropTypes from "prop-types"
+
 import Group from "./group"
 import Page from "./page"
 import Query from "./query"
