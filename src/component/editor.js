@@ -159,7 +159,11 @@ const Root=connect((state,{domain})=>{
 	createChildElement(id,content,domain,lastContent){
 		let current=content.get(id)
 		let {type, props, children}=current.toJS()
-		let Child=domain[type[0].toUpperCase()+type.substr(1)]
+		let Child=domain[type[0].toUpperCase()+type.substr(1)]	
+		if(!Child){
+			console.error(`[${type}] not found`)
+			return null
+		}
 		let elChildren=children
 
 		if(Array.isArray(children))

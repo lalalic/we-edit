@@ -1,6 +1,6 @@
 import {List} from "immutable"
-import Query from "state/selector/query"
-import {getFile} from "state/selector"
+import Query from "we-edit/state/selector/query"
+import {getFile} from "we-edit/state/selector"
 
 export default class Content extends Query{
     constructor(){

@@ -7,7 +7,6 @@ export default function(Models){
 		static displayName="docx-document"
 		
 		static propTypes={
-			styles: PropTypes.object.isRequired,
 			evenAndOddHeaders: PropTypes.bool
 		}
 		
@@ -18,17 +17,20 @@ export default function(Models){
 		
 		getChildContext(){
 			return {
-				styles:this.props.styles,
+				styles:this.props.children[0].props.styles,
 				evenAndOddHeaders: !!this.props.evenAndOddHeaders
 			}
 		}
 
 		render(){
-			const {styles,evenAndOddHeaders,...others}=this.props
-	
-			Object.keys(styles).forEach((k,t)=>(t=styles[k])&& t.reset && t.reset())
+			const {children,evenAndOddHeaders,...others}=this.props
+			let [styles,...content]=children
+			styles=styles.props.styles
 			
-			return <Models.Document {...others}/>
+			Object.keys(styles)
+				.forEach((k,t)=>(t=styles[k])&& t.reset && t.reset())
+			
+			return <Models.Document {...others} children={content}/>
 		}
 	}
 }

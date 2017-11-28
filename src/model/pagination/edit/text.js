@@ -9,6 +9,7 @@ import shallowEqual from "react-redux/lib/utils/shallowEqual"
 export default class Text extends editable(recomposable(Base)){
     componentWillReceiveProps(next){
         if(!shallowEqual(this.props,next)){
+			console.debug("text changed")
             this.computed.breakOpportunities=this.getBreakOpportunitiesWidth()
         }
     }

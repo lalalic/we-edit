@@ -1,3 +1,4 @@
+import {PureComponent as Component} from "react"
 import Document from "./document"
 import Section from "./section"
 
@@ -13,6 +14,15 @@ import Cell from "./cell"
 import Wrapper from "./wrapper"
 import Anchor from "./anchor"
 
+const createUnvisibleComponent=type=>{
+	return class extends Component{
+		static displayName=`${type}`
+		render(){
+			return null
+		}
+	}
+}
+
 export default {
 	Document, Section, 
 	Paragraph,
@@ -23,5 +33,7 @@ export default {
 	Row,
 	Table,
 	Wrapper,
-	Anchor
+	Anchor,
+	Styles:()=>createUnvisibleComponent("styles"),
+	Style:()=>createUnvisibleComponent("style"),
 }

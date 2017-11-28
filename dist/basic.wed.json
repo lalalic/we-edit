@@ -1,0 +1,16 @@
+{
+	"type":"document",
+	"children":[{
+		"type":"section",
+		"children":[{
+			"type":"paragraph",
+			"children":[{
+				"type":"text",
+				"children":"hello, have fun",
+				"props":{
+					"fonts":"verdana"
+				}
+			}]
+		}]
+	}]
+}

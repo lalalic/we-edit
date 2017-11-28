@@ -1,7 +1,9 @@
 import docx4js from "docx4js"
-import uuid from "tools/uuid"
-import Base from "input/document"
 import editors from "./model/edit"
+import Editable from "we-edit/input/editable-doc"
+
+let _uuid=0
+const uuid=()=>`${_uuid++}`
 
 const defineId=(target,id)=>Object.defineProperty(target,"id",{
 	enumerable: false,
@@ -10,8 +12,7 @@ const defineId=(target,id)=>Object.defineProperty(target,"id",{
 	value: id
 })
 
-//implement Base interface
-export default class Document extends docx4js{
+export default class EditableDocument extends docx4js{
 	makeId(node, uid){
 		if(uid){
 			defineId(node.attribs,uid)
@@ -59,7 +60,7 @@ export default class Document extends docx4js{
 		return node
 	}
 
-	updateNode({id,type},changing,doc){
+	updateNode({id,type},changing){
 		let editor=new editors[this.asType(type)](this)
 		return editor.update(arguments[0],changing)
 	}

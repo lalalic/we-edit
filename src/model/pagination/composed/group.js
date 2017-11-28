@@ -13,9 +13,10 @@ export default class Group extends Component{
 			others.transform=`translate(${x||0} ${y||0})`
 
 	 	if(Object.keys(others).length>0 || children.length>1){
+			let now=Date.now()
 			children=Children.toArray(children).map((a,i)=>{
 				if(typeof(a.key)=="undefined")
-					return React.cloneElement(a,{key:i})
+					return React.cloneElement(a,{key:`${now}.${i}`})
 				return a
 			})
 			return <g {...others} children={children}/>

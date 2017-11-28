@@ -13,7 +13,6 @@
     "lodash.get": "^4.4.2",
     "lodash.invoke": "^4.5.2",
     "mouse-event-offset": "^3.0.2",
-    "normalizr": "^2.2.1",
     "opentype.js": "^0.6.9",
     "prop-types": "^15.6.0",
     "react": "^16.1.1",
@@ -23,7 +22,6 @@
     "react-waypoint": "^7.3.1",
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0",
-    "sax": "^1.2.1",
     "shortid": "^2.2.8",
     "ttfjs": "^0.4.0",
     "word-wrapper": "^1.0.7"
@@ -46,8 +44,8 @@
     "react-hot-loader": "^3.1.3",
     "source-map-loader": "^0.1.6",
     "transform-loader": "^0.2.4",
-    "webpack": "^2.2.1",
-    "webpack-dev-server": "^2.4.1"
+    "webpack": "^3.8.1",
+    "webpack-dev-server": "^2.9.4"
   },
   "scripts": {
     "compile": "babel src -d lib --source-maps inline",

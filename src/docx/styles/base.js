@@ -47,6 +47,10 @@ export class Getable{
 		if(this.basedOn && (t=this.styles[this.basedOn]))
 			return t
 	}
+	
+	toJSON(){
+		return undefined
+	}
 }
 
 export default class Style extends Getable{

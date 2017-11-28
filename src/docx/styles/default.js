@@ -3,6 +3,7 @@ import Base from "./base"
 export default class extends Base{
 	constructor(node, selector){
 		super(node,null,selector)
+		this.id='*'
 		this.basedOn=null
 		this.cache=null
 

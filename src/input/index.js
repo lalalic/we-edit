@@ -4,10 +4,12 @@ import PropTypes from "prop-types"
 import {Provider} from "react-redux"
 import Immutable, {Map,Collection} from "immutable"
 
-import DOMAIN from "model"
+import Components from "model"
 import {createState, isState} from "state"
 import {getContent,getSelection,getFile,getParentId} from "state/selector"
 import * as reducer from "state/reducer"
+
+import Type from "./type"
 
 import {History} from "state/undoable"
 
@@ -18,7 +20,7 @@ export default {
 		let Found=supported.find(TYPE=>TYPE.support(url))
 		if(Found){
 			const inst=new Found()
-			return inst.load(url).then(doc=>buildEditableDoc(doc,inst))
+			return Promise.resolve(inst.load(url)).then(doc=>buildEditableDoc(doc,inst))
 		}else{
 			throw new Error(`we cannot edit this type of file`)
 		}
@@ -27,7 +29,7 @@ export default {
 		let Found=supported.find(TYPE=>TYPE.support(type))
 		if(Found){
 			const inst=new Found()
-			return inst.create(type).then(doc=>buildEditableDoc(doc,inst))
+			return Promise.resolve(inst.create(type)).then(doc=>buildEditableDoc(doc,inst))
 		}else{
 			throw new Error(`we cannot create this type of file`)
 		}
@@ -36,21 +38,24 @@ export default {
 	support(...inputs){
 		inputs.forEach(a=>supported.findIndex(a)==-1 && supported.push(a))
 		return this
-	}
+	},
+	
+	Type
 }
 
 function buildEditableDoc(doc,inputTypeInstance){
+	inputTypeInstance.doc=doc
 	let store,history
 	return {
-		render(domain){
-			return inputTypeInstance.render(doc, domain, (type, props, children)=>{
+		render(components){
+			return inputTypeInstance.render((type, props, children)=>{
 				return React.createElement(type,{...props,key:uuid()},children)
-			})
+			},components)
 		},
 		Store(props){
 			let createElementFactory=createElementFactoryBuilder(inputTypeInstance)
 			let changeReducer=changeReducerBuilder(createElementFactory,inputTypeInstance)
-			let content=new Map().withMutations(a=>inputTypeInstance.render(doc, DOMAIN, createElementFactory(a)))
+			let content=new Map().withMutations(a=>inputTypeInstance.render(createElementFactory(a),Components))
 
 			history=new History()
 
@@ -67,7 +72,24 @@ function buildEditableDoc(doc,inputTypeInstance){
 			)
 		},
 		save(name,option){
-			return inputTypeInstance.save(doc, name, option)
+			return Promise.resolve(inputTypeInstance.serialize(option)).then(data=>{
+				if(typeof(document)!="undefined" && window.URL && window.URL.createObjectURL){
+					let url = window.URL.createObjectURL(data)
+					let link = document.createElement("a");
+					document.body.appendChild(link)
+					link.download = name
+					link.href = url;
+					link.click()
+					document.body.removeChild(link)
+					window.URL.revokeObjectURL(url)
+				}else{
+					return new Promise((resolve,reject)=>
+						require("fs").writeFile(name,data,error=>{
+							error ? reject(error) : resolve(data)
+						})
+					)
+				}
+			})
 		},
 		getState(){
 			return store.getState()
@@ -103,11 +125,14 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance)=>
 	}
 
 	let changedContent=state.get("content").asMutable()
-
+	
+	const createElement=createElementFactory(changedContent)
+	
+	inputTypeInstance.doc.renderChanged=node=>inputTypeInstance.renderNode(node,createElement)
 	let changed=inputTypeInstance.onChange(
 		state.set("_content", changedContent),
 		action,
-		createElementFactory(changedContent)
+		createElement
 	)
 
 	if(changed===false){
@@ -115,7 +140,7 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance)=>
 	}else if(isState(changed)){
 		return changed.remove("_content")
 	}else if(typeof(changed)=="object"){
-		let {selection,styles,updated,undoables}=changed
+		let {selection,updated,undoables}=changed
 
 		if(selection)
 			state=state.mergeIn(["selection"], selection)
@@ -126,13 +151,9 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance)=>
 		state.get("violent").changing=updated
 
 		state=state.setIn(["content"],changedContent.asImmutable())
-
-		if(styles)
-			state=state.setIn("content.root.props.styles".split("."),new Map(styles))
 	}else{
 		state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))
 	}
-
 
 	return state
 }
@@ -145,7 +166,6 @@ const createElementFactoryBuilder=inputTypeInstance=>content=>(type, props, chil
 	let id
 	if(type.displayName=="document"){
 		id="root"
-		props.styles=new Map(props.styles)
 	}else{
 		id=inputTypeInstance.makeId(raw)
 	}

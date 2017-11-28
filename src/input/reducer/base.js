@@ -1,6 +1,6 @@
-import {getSelection,getFile} from "state/selector"
-import ACTION from "state/action"
-import Content from "state/reducer/content"
+import {getSelection,getFile} from "we-edit/state/selector"
+import ACTION from "we-edit/state/action"
+import Content from "./content"
 
 export default class reducer{
 	constructor(state){
@@ -40,7 +40,7 @@ export default class reducer{
 	}
 
 	renderChanged(id){
-		let docNode=typeof(id)=="string" ? this.file.getNode(id).get(0) : id
+		let docNode=typeof(id)=="string" ? this.file.getNode(id) : id
 		let rendered=this.file.renderChanged(docNode)
 
 		id=rendered.id

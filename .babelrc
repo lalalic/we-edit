@@ -18,7 +18,9 @@
 				"tools":"tools",
 				"input":"input",
 				"fonts":"model/pagination/wordwrap/fonts",
-				"wordwrap":"model/pagination/wordwrap"
+				"wordwrap":"model/pagination/wordwrap",
+				"we-edit-docx":"docx",
+				"we-edit":"we-edit-docx/.."
 			}
 		}]
     ]

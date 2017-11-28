@@ -11,15 +11,15 @@ export default class {
 		
 	}
 	
-	createNode(){
+	createNode(nodeTemplate,  locationNode){
 		
 	}
 	
-	updateNode(){
+	updateNode(node, changing){
 		
 	}
 	
-	removeNode(){
+	removeNode(node){
 		
 	}
 	
@@ -28,10 +28,6 @@ export default class {
 	}
 	
 	resize(id,width,height){
-		
-	}
-	
-	renderChangedNode(node,createElement){
 		
 	}
 }

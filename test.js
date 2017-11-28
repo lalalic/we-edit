@@ -5,14 +5,9 @@ import {Editor, Viewer, Pagination, Html} from "component"
 import fonts from "fonts"
 import Input from "input"
 
-import Docx from "input/docx"
-Input.support(Docx)
-
-
 import NodeWordWrapper from "wordwrap/node"
 import {Text} from "pagination"
 Text.WordWrapper=NodeWordWrapper
-
 
 function edit(input,container){
 	ReactDOM.unmountComponentAtNode(container)
@@ -62,10 +57,25 @@ function preview(input,container){
 
 Object.assign(window, {edit,preview,loadFont: fonts.fromBrowser})
 
-fetch("basic.docx").then(res=>res.blob()).then(docx=>{
-	docx.name="basic.docx"
-	let app=document.querySelector('#app')
-	
-	fonts.load("verdana.ttf", "verdana")
-	.then(()=>edit(docx,app).then(a=>window.doc=a))
-})
+
+function testDocx(){
+	Input.support(require("./src/docx"))
+	fetch("basic.docx").then(res=>res.blob()).then(docx=>{
+		docx.name="basic.docx"
+		let app=document.querySelector('#app')
+		
+		fonts.load("verdana.ttf", "verdana")
+		.then(()=>edit(docx,app).then(a=>window.doc=a))
+	})
+}
+
+function testNative(){
+	Input.support(require("./src/input/native"))
+	fetch("basic.wed.json").then(res=>res.json()).then(doc=>{
+		let app=document.querySelector('#app')	
+		fonts.load("verdana.ttf", "verdana")
+		.then(()=>edit(doc,app).then(a=>window.doc=a))
+	})
+}
+
+testNative()

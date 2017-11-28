@@ -31,6 +31,7 @@ export default class Paragraph extends Super{
 		if(this.computed.composed.length>0){
 			if(shouldRemoveComposed(this)){
 				if(changed){
+					console.debug("paragraph changed, clear composed and then recompose")
 					this.clearComposed()
 					this.computed.breakOpportunities=this.getBreakOpportunities(Children.toArray(children))
 				}else{
