@@ -70,8 +70,8 @@ export default class Content extends Query{
 			if(this._content.has(id)){
 				this._content.setIn([id,"parent"],id0)
 			}
-
-			docNode.append(this._doc.getNode(id))
+			this._doc.insertNodeBefore(this._doc.getNode(id),null,docNode)
+			//docNode.append(this._doc.getNode(id))
 		})
 		return this
 	}
@@ -95,7 +95,9 @@ export default class Content extends Query{
 
 			if(this._content.has(id))
 				this._content.setIn([id,"parent"],id0)
-			docNode.append(this._doc.getNode(id))
+			
+			this._doc.insertNodeBefore(this._doc.getNode(id),null,docNode)
+			//docNode.append(this._doc.getNode(id))
 		})
 		return this
 	}
@@ -117,7 +119,9 @@ export default class Content extends Query{
 
     			this._content.setIn([k,"parent"],pid)
     			this._content.updateIn([pid,"children"],c=>c.insert(index+i,k))
-    			docNode.after(this._doc.getNode(k))
+    			
+				this._doc.insertNodeAfter(this._doc.getNode(k),docNode)
+				//docNode.after(this._doc.getNode(k))
     		})
 		return this
 	}
@@ -140,7 +144,9 @@ export default class Content extends Query{
 
 			this._content.setIn([k,"parent"],pid)
 			this._content.updateIn([pid,"children"],c=>c.insert(index,k))
-			docNode.before(this._doc.getNode(k))
+			
+			this._doc.insertNodeBefore(this._doc.getNode(k),docNode)
+			//docNode.before(this._doc.getNode(k))
 		})
 		return this
 	}

@@ -10,14 +10,16 @@ export function createState(doc, content, docReducer=state=>state){
 		}) : compose;
 
 	let id=firstCursorable(content)
-	doc.toJSON=a=>1
+	doc.toJSON=()=>undefined
 
 	const INIT_STATE=Map({
 		vendor:"we-edit",
 		doc, //source file
 		content, // models
 		selection:Immutable.fromJS({start:{id,at:0},end:{id,at:0},cursorAt:"end"}),
-		violent:{}
+		violent:{
+			toJSON:()=>undefined
+		}
 	})
 
 	return createStore(

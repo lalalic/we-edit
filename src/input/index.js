@@ -36,17 +36,41 @@ export default {
 	},
 
 	support(...inputs){
-		inputs.forEach(a=>supported.findIndex(a)==-1 && supported.push(a))
+		inputs.forEach(a=>{
+			if(!supported.includes(a)){
+				supported.push(a)
+			}
+		})
 		return this
 	},
 	
 	Type
 }
 
+function buildDocLevelStore(store,doc){
+	return new Proxy(store,{
+		get(target,key, receiver){
+			switch(key){
+				case "dispatch":{
+					return doc.dispatch.bind(doc)
+				}
+				case "getState":{
+					return doc.getState.bind(doc)
+				}
+				default:
+					return function(){
+						return target[key](...arguments)
+					}
+			}
+
+		}
+	})
+}
+
 function buildEditableDoc(doc,inputTypeInstance){
 	inputTypeInstance.doc=doc
 	let store,history
-	return {
+	let editableDoc={
 		render(components){
 			return inputTypeInstance.render((type, props, children)=>{
 				return React.createElement(type,{...props,key:uuid()},children)
@@ -64,6 +88,7 @@ function buildEditableDoc(doc,inputTypeInstance){
 			return (
 				<Provider store={store}>
 					<TransformerProvider
+						store={buildDocLevelStore(store,editableDoc)}
 						onQuit={()=>inputTypeInstance.release()}
 						transformer={inputTypeInstance.transform}>
 						{props.children}
@@ -108,6 +133,8 @@ function buildEditableDoc(doc,inputTypeInstance){
 			}
 		}
 	}
+	
+	return editableDoc
 }
 /*
 the builder to create reducer
@@ -191,12 +218,14 @@ import Input from "state/cursor/input"
 class TransformerProvider extends Component{
 	static propTypes={
 		transformer: PropTypes.func.isRequired,
-		onQuit: PropTypes.func
+		onQuit: PropTypes.func,
+		store: PropTypes.object.isRequired,
 	}
 
 	static childContextTypes={
 		transformer: PropTypes.func,
-		getCursorInput: PropTypes.func
+		getCursorInput: PropTypes.func,
+		store: PropTypes.object,
 	}
 
 	getChildContext(){
@@ -205,7 +234,8 @@ class TransformerProvider extends Component{
 			transformer:this.props.transformer,
 			getCursorInput(){
 				return self.refs.input
-			}
+			},
+			store: this.props.store,
 		}
 	}
 

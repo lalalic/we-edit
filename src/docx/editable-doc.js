@@ -12,6 +12,8 @@ const defineId=(target,id)=>Object.defineProperty(target,"id",{
 	value: id
 })
 
+const Type=type=>type[0].toUpperCase()+type.substr(1)
+
 export default class EditableDocument extends docx4js{
 	makeId(node, uid){
 		if(uid){
@@ -50,24 +52,38 @@ export default class EditableDocument extends docx4js{
 		return cloned
 	}
 
-	asType(type){
-		return type[0].toUpperCase()+type.substr(1)
-	}
-
 	createNode({type}, locationNode){
-		let editor=new editors[this.asType(type)](this)
+		let editor=new editors[Type(type)](this)
 		let node=editor.create(arguments[0],locationNode)
 		return node
 	}
 
 	updateNode({id,type},changing){
-		let editor=new editors[this.asType(type)](this)
+		let editor=new editors[Type(type)](this)
 		return editor.update(arguments[0],changing)
 	}
 
 	removeNode({id}){
 		return this.getNode(id).remove()
 	}
+	
+	insertNodeBefore(newNode,referenceNode,parentNode){
+		if(referenceNode)
+			referenceNode.before(newNode)
+		else if(parentNode)
+			parentNode.append(newNode)
+		else
+			throw new Error("not support")
+	}
+	
+	insertNodeAfter(newNode,referenceNode,parentNode){
+		if(referenceNode)
+			referenceNode.after(newNode)
+		else if(parentNode)
+			parentNode.prepend(newNode)
+		else
+			throw new Error("not support")
+	}	
 
 	attach(xml){
 		return this.officeDocument.content(xml).appendTo("w\\:body").get(0)
@@ -92,31 +108,6 @@ export default class EditableDocument extends docx4js{
 			},`<${nodeFrom.get(0).name}/>`)
 
 		return this.attach(xml)
-	}
-
-	resize(id, width, height){
-		let node=this.getNode(id)
-		let ext0=node.find("a\\:xfrm>a\\:ext")
-		let inline=node.closest("wp\\:inline")
-
-		const update=(x,target)=>{
-			if(x){
-				let cx=this.px2cm(x)
-				let cx0=parseInt(ext0.attr(target))
-				ext0.attr(target,cx)
-
-				if(inline.length){
-					let ext1=inline.children("wp\\:extent")
-					let cx1=parseInt(ext1.attr(target))
-					ext1.attr(target,cx+cx1-cx0)
-				}
-			}
-		}
-
-		update(width,"cx")
-		update(height,"cy")
-
-		return (inline.length ? inline : node).get(0)
 	}
 
 	px2cm(px){

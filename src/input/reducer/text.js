@@ -37,7 +37,18 @@ export class text extends reducer{
 
 	isFirstOfParagraph(id){
 		return this.$('#'+id).closest("paragraph")
-			.findFirst(n=>!(n.get("children") instanceof List))
+			.findFirst(n=>{
+				if(!(n.get("children") instanceof List)){
+					if(n.get("type")=="text"){
+						if(n.get("children").length>0){
+							return true
+						}
+					}else{
+						return true
+					}
+				}
+				return false
+			})
 			.attr("id")==id
 	}
 
@@ -57,7 +68,18 @@ export class text extends reducer{
 
 	isLastOfParagraph(id){
 		return this.$('#'+id).closest("paragraph")
-			.findLast(n=>!(n.get("children") instanceof List))
+			.findLast(n=>{
+				if(!(n.get("children") instanceof List)){
+					if(n.get("type")=="text"){
+						if(n.get("children").length>0){
+							return true
+						}
+					}else{
+						return true
+					}
+				}
+				return false
+			})
 			.attr("id")==id
 	}
 

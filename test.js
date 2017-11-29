@@ -9,42 +9,41 @@ import NodeWordWrapper from "wordwrap/node"
 import {Text} from "pagination"
 Text.WordWrapper=NodeWordWrapper
 
-function edit(input,container){
-	ReactDOM.unmountComponentAtNode(container)
+function edit(input){
+	let container=document.createElement("div")
+	document.querySelector("#app").appendChild(container)
 	return Input.load(input)
 		.then(doc=>{
 			ReactDOM.render((
 				<doc.Store>
-					<div className="editors">
-						<Editor width={600}>
-							<Pagination/>
-						</Editor>
-					</div>
+					<Editor width={600}>
+						<Pagination/>
+					</Editor>
 				</doc.Store>
 			), container)
 			return doc
 		})
 }
 
-function create(container){
-    ReactDOM.unmountComponentAtNode(container)
+function create(){
+    let container=document.createElement("div")
+	document.querySelector("#app").appendChild(container)
 	return Input.create()
         .then(doc=>{
 			ReactDOM.render((
 				<doc.Store>
-					<div className="editors">
-						<Editor>
-							<Pagination/>
-						</Editor>
-					</div>
+					<Editor>
+						<Pagination/>
+					</Editor>
 				</doc.Store>
 			), container)
 			return doc
 		})
 }
 
-function preview(input,container){
-    ReactDOM.unmountComponentAtNode(container)
+function preview(input){
+    let container=document.createElement("div")
+	document.querySelector("#app").appendChild(container)
 	return Input.load(input)
 		.then(doc=>ReactDOM.render((
 			<doc.Store>
@@ -57,25 +56,22 @@ function preview(input,container){
 
 Object.assign(window, {edit,preview,loadFont: fonts.fromBrowser})
 
+Input.support(require("./src/docx"),require("./src/input/native"))
 
 function testDocx(){
-	Input.support(require("./src/docx"))
 	fetch("basic.docx").then(res=>res.blob()).then(docx=>{
 		docx.name="basic.docx"
-		let app=document.querySelector('#app')
-		
 		fonts.load("verdana.ttf", "verdana")
-		.then(()=>edit(docx,app).then(a=>window.doc=a))
+		.then(()=>edit(docx).then(a=>window.doc=a))
 	})
 }
 
 function testNative(){
-	Input.support(require("./src/input/native"))
 	fetch("basic.wed.json").then(res=>res.json()).then(doc=>{
-		let app=document.querySelector('#app')	
 		fonts.load("verdana.ttf", "verdana")
-		.then(()=>edit(doc,app).then(a=>window.doc=a))
+		.then(()=>edit(doc).then(a=>window.doc=a))
 	})
 }
 
-testNative()
+//testNative()
+testDocx()

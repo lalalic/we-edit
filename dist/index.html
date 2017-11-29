@@ -36,7 +36,6 @@
 			<button type="button" onClick="window.doc.save()">save</button>
 			<input type="file" id="content" onchange="edit(this.files[0], document.querySelector('#app')).then(doc=>window.doc=doc);this.value=''">
 		</div>
-		<div id="app" style="position:absolute"></div>
-		
+		<div id="app" class="editors" style="position:absolute"></div>
 	</body>
 </html>

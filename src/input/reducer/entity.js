@@ -1,21 +1,15 @@
 import {text as reducer} from "./text"
 
 export class entity extends reducer{
-	create({type}){
+	create(element){
 		let {start:{id,at},end}=this.selection
-		let path=["create"]
 		if(id==end.id && at==end.at){
 
 		}else{
 			this.remove_withSelection()
 		}
-		let props=arguments[0]
-		let Type=type[0].toUpperCase()+type.substr(1)
-		if(this[`on${Type}Create`]){
-			props=this[`on${Type}Create`](props)
-		}
-
-		let created=this.file.createNode(props,id)
+		
+		let created=this.file.createNode(element,this)
 		let {nodes,prevId}=created
 		let prev=prevId ? this.$('#'+prevId) : null
 
@@ -35,14 +29,6 @@ export class entity extends reducer{
 				}
 			}
 		})
-	}
-
-	onTableCreate(props){
-		let {start:{id}}=this.selection
-		let $=this.$(`#${id}`)
-		let width=$.closest("section")
-				.attr("pgSz.width")
-		return {...props, width}
 	}
 
 	resize({x,y}){
@@ -66,7 +52,7 @@ export class entity extends reducer{
 
 		changedNode=this.file.updateNode(props.toJS(), {size: changing}, this.$)
 
-		this.renderChanged(changedNode.get(0))
+		this.renderChanged(changedNode)
 
 		return this
 	}
