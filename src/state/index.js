@@ -1,18 +1,26 @@
-import {createStore, compose, applyMiddleware} from "redux"
+import {createStore as createRawStore, compose, applyMiddleware} from "redux"
 import Immutable,{Map} from "immutable"
 import thunk from "redux-thunk"
 import {firstCursorable} from "./selector"
 
-export function createState(doc, content, docReducer=state=>state){
+export function createStore(INIT_STATE, reducer){
 	const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
 	 	window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
 			serialize:true
 		}) : compose;
 
+	return createRawStore(
+		reducer,
+		INIT_STATE,
+		composeEnhancers(applyMiddleware(report,thunk))
+	)
+}
+
+export function createState(doc, content){
 	let id=firstCursorable(content)
 	doc.toJSON=()=>undefined
 
-	const INIT_STATE=Map({
+	return Map({
 		vendor:"we-edit",
 		doc, //source file
 		content, // models
@@ -20,13 +28,7 @@ export function createState(doc, content, docReducer=state=>state){
 		violent:{
 			toJSON:()=>undefined
 		}
-	})
-
-	return createStore(
-		docReducer,
-		INIT_STATE,
-		composeEnhancers(applyMiddleware(report,thunk))
-	)
+	})	
 }
 
 

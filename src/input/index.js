@@ -3,9 +3,10 @@ import PropTypes from "prop-types"
 
 import {Provider} from "react-redux"
 import Immutable, {Map,Collection} from "immutable"
+import {getContext} from "recompose"
 
 import Components from "model"
-import {createState, isState} from "state"
+import {createStore, createState, isState} from "state"
 import {getContent,getSelection,getFile,getParentId} from "state/selector"
 import * as reducer from "state/reducer"
 
@@ -56,30 +57,45 @@ function buildEditableDoc(doc,inputTypeInstance){
 				return React.createElement(type,{...props,key:uuid()},children)
 			},components)
 		},
-		Store({children, reducer}){
+		
+		Store:getContext({store:PropTypes.object})(({children,store:passedStore})=>{
+			let root=(
+				<TransformerProvider
+					doc={editableDoc}
+					onQuit={()=>inputTypeInstance.release()}
+					transformer={inputTypeInstance.transform}>
+					{children}
+				</TransformerProvider>
+			)
+			debugger
+			
+			if(passedStore){
+				store=passedStore
+				return root
+			}else{
+				let {state,reducer}=editableDoc.initState()
+				store=createStore(state,reducer)
+				return (
+					<Provider store={store}>
+						{root}
+					</Provider>
+				)
+			}
+		}),
+		
+		initState(){
 			let createElementFactory=createElementFactoryBuilder(inputTypeInstance)
 			let changeReducer=changeReducerBuilder(createElementFactory,inputTypeInstance)
 			let content=new Map().withMutations(a=>inputTypeInstance.render(createElementFactory(a),Components))
 
 			history=new History()
 			
-			let reducers=[history.undoable(changeReducer), reducer]
-
-			store=createState(doc,content,function(state,action){
-				return reducers.reduce((stated,a)=>a(stated,action),state)
-			})
-
-			return (
-				<Provider store={store}>
-					<TransformerProvider
-						doc={editableDoc}
-						onQuit={()=>inputTypeInstance.release()}
-						transformer={inputTypeInstance.transform}>
-						{children}
-					</TransformerProvider>
-				</Provider>
-			)
+			return {
+				state:createState(doc,content),
+				reducer:history.undoable(changeReducer)
+			}
 		},
+		
 		save(name,option){
 			return Promise.resolve(inputTypeInstance.serialize(option)).then(data=>{
 				if(typeof(document)!="undefined" && window.URL && window.URL.createObjectURL){
@@ -100,9 +116,11 @@ function buildEditableDoc(doc,inputTypeInstance){
 				}
 			})
 		},
+		
 		getState(){
 			return store.getState()
 		},
+		
 		dispatch(){
 			return store.dispatch(...arguments)
 		},
@@ -203,40 +221,11 @@ class TransformerProvider extends Component{
 	static propTypes={
 		transformer: PropTypes.func.isRequired,
 		onQuit: PropTypes.func,
-		doc: PropTypes.object.isRequired,
-	}
-
-	static contextTypes={
-		store: PropTypes.object
 	}
 	
 	static childContextTypes={
 		transformer: PropTypes.func,
 		getCursorInput: PropTypes.func,
-		store: PropTypes.object,
-	}
-	
-	constructor(props,context){
-		super(...arguments)
-		const {doc}=this.props
-		const {store}=this.context
-		this.store=new Proxy(store,{
-			get(target,key, receiver){
-				switch(key){
-					case "dispatch":{
-						return doc.dispatch.bind(doc)
-					}
-					case "getState":{
-						return doc.getState.bind(doc)
-					}
-					default:
-						return function(){
-							return target[key](...arguments)
-						}
-				}
-
-			}
-		})
 	}
 
 	getChildContext(){
@@ -245,8 +234,7 @@ class TransformerProvider extends Component{
 			transformer:this.props.transformer,
 			getCursorInput(){
 				return self.refs.input
-			},
-			store: this.store,
+			}
 		}
 	}
 

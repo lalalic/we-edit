@@ -20,7 +20,8 @@
 				"fonts":"model/pagination/wordwrap/fonts",
 				"wordwrap":"model/pagination/wordwrap",
 				"we-edit-docx":"docx",
-				"we-edit":"we-edit-docx/.."
+				"we-edit":"we-edit-docx/..",
+				"we-edit-ui":"ui",
 			}
 		}]
     ]
