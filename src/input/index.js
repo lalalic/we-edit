@@ -1,11 +1,16 @@
-import React, {Component, PropTypes} from "react"
+import React, {Component} from "react"
+import PropTypes from "prop-types"
+
 import {Provider} from "react-redux"
 import Immutable, {Map,Collection} from "immutable"
+import {getContext} from "recompose"
 
-import DOMAIN from "model"
-import {createState, isState} from "state"
+import Components from "model"
+import {createStore, createState, isState} from "state"
 import {getContent,getSelection,getFile,getParentId} from "state/selector"
 import * as reducer from "state/reducer"
+
+import Type from "./type"
 
 import {History} from "state/undoable"
 
@@ -16,7 +21,7 @@ export default {
 		let Found=supported.find(TYPE=>TYPE.support(url))
 		if(Found){
 			const inst=new Found()
-			return inst.load(url).then(doc=>buildEditableDoc(doc,inst))
+			return Promise.resolve(inst.load(url)).then(doc=>buildEditableDoc(doc,inst))
 		}else{
 			throw new Error(`we cannot edit this type of file`)
 		}
@@ -25,51 +30,94 @@ export default {
 		let Found=supported.find(TYPE=>TYPE.support(type))
 		if(Found){
 			const inst=new Found()
-			return inst.create(type).then(doc=>buildEditableDoc(doc,inst))
+			return Promise.resolve(inst.create(type)).then(doc=>buildEditableDoc(doc,inst))
 		}else{
 			throw new Error(`we cannot create this type of file`)
 		}
 	},
 
 	support(...inputs){
-		inputs.forEach(a=>supported.findIndex(a)==-1 && supported.push(a))
+		inputs.forEach(a=>{
+			if(!supported.includes(a)){
+				supported.push(a)
+			}
+		})
 		return this
-	}
+	},
+
+	Type
 }
 
 function buildEditableDoc(doc,inputTypeInstance){
+	inputTypeInstance.doc=doc
 	let store,history
-	return {
-		render(domain){
-			return inputTypeInstance.render(doc, domain, (type, props, children)=>{
+	let editableDoc={
+		render(components){
+			return inputTypeInstance.render((type, props, children)=>{
 				return React.createElement(type,{...props,key:uuid()},children)
-			})
+			},components)
 		},
-		Store(props){
+
+		Store:getContext({store:PropTypes.object})(({children,store:passedStore})=>{
+			let root=(
+				<TransformerProvider
+					doc={editableDoc}
+					onQuit={()=>inputTypeInstance.release()}
+					transformer={inputTypeInstance.transform}>
+					{children}
+				</TransformerProvider>
+			)
+
+			if(passedStore){
+				store=passedStore
+				return root
+			}else{
+				store=createStore(editableDoc.buildReducer())
+				return (
+					<Provider store={store}>
+						{root}
+					</Provider>
+				)
+			}
+		}),
+
+		buildReducer(){
 			let createElementFactory=createElementFactoryBuilder(inputTypeInstance)
 			let changeReducer=changeReducerBuilder(createElementFactory,inputTypeInstance)
-			let content=new Map().withMutations(a=>inputTypeInstance.render(doc, DOMAIN, createElementFactory(a)))
+			let content=new Map().withMutations(a=>inputTypeInstance.render(createElementFactory(a),Components))
 
 			history=new History()
+			let reducer=history.undoable(changeReducer)
+			let INIT_STATE=createState(doc,content)
 
-			store=createState(doc,content,history.undoable(changeReducer))
-
-			return (
-				<Provider store={store}>
-					<TransformerProvider
-						onQuit={()=>inputTypeInstance.release()}
-						transformer={inputTypeInstance.transform}>
-						{props.children}
-					</TransformerProvider>
-				</Provider>
-			)
+			return (state,action)=>state ? reducer(state,action) : INIT_STATE
 		},
+
 		save(name,option){
-			return inputTypeInstance.save(doc, name, option)
+			return Promise.resolve(inputTypeInstance.serialize(option)).then(data=>{
+				if(typeof(document)!="undefined" && window.URL && window.URL.createObjectURL){
+					let url = window.URL.createObjectURL(data)
+					let link = document.createElement("a");
+					document.body.appendChild(link)
+					link.download = name
+					link.href = url;
+					link.click()
+					document.body.removeChild(link)
+					window.URL.revokeObjectURL(url)
+				}else{
+					return new Promise((resolve,reject)=>
+						require("fs").writeFile(name,data,error=>{
+							error ? reject(error) : resolve(data)
+						})
+					)
+				}
+			})
 		},
+
 		getState(){
 			return store.getState()
 		},
+
 		dispatch(){
 			return store.dispatch(...arguments)
 		},
@@ -84,6 +132,8 @@ function buildEditableDoc(doc,inputTypeInstance){
 			}
 		}
 	}
+
+	return editableDoc
 }
 /*
 the builder to create reducer
@@ -91,8 +141,6 @@ the builder to create reducer
 const changeReducerBuilder=(createElementFactory,inputTypeInstance)=>
 	(state,action,historyEntry)=>{
 	switch(action.type){
-	case "@@INIT":
-		return state
 	case "@@refresh":
 		state.get("violent").changing=null
 		return state.setIn(["content","refreshAt"],Date.now())
@@ -102,10 +150,13 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance)=>
 
 	let changedContent=state.get("content").asMutable()
 
+	const createElement=createElementFactory(changedContent)
+
+	inputTypeInstance.doc.renderChanged=node=>inputTypeInstance.renderNode(node,createElement)
 	let changed=inputTypeInstance.onChange(
 		state.set("_content", changedContent),
 		action,
-		createElementFactory(changedContent)
+		createElement
 	)
 
 	if(changed===false){
@@ -113,7 +164,7 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance)=>
 	}else if(isState(changed)){
 		return changed.remove("_content")
 	}else if(typeof(changed)=="object"){
-		let {selection,styles,updated,undoables}=changed
+		let {selection,updated,undoables}=changed
 
 		if(selection)
 			state=state.mergeIn(["selection"], selection)
@@ -124,13 +175,9 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance)=>
 		state.get("violent").changing=updated
 
 		state=state.setIn(["content"],changedContent.asImmutable())
-
-		if(styles)
-			state=state.setIn("content.root.props.styles".split("."),new Map(styles))
 	}else{
 		state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))
 	}
-
 
 	return state
 }
@@ -143,7 +190,6 @@ const createElementFactoryBuilder=inputTypeInstance=>content=>(type, props, chil
 	let id
 	if(type.displayName=="document"){
 		id="root"
-		props.styles=new Map(props.styles)
 	}else{
 		id=inputTypeInstance.makeId(raw)
 	}
@@ -169,12 +215,12 @@ import Input from "state/cursor/input"
 class TransformerProvider extends Component{
 	static propTypes={
 		transformer: PropTypes.func.isRequired,
-		onQuit: PropTypes.func
+		onQuit: PropTypes.func,
 	}
 
 	static childContextTypes={
 		transformer: PropTypes.func,
-		getCursorInput: PropTypes.func
+		getCursorInput: PropTypes.func,
 	}
 
 	getChildContext(){
@@ -195,6 +241,8 @@ class TransformerProvider extends Component{
 			</div>
 		)
 	}
+
+
 
 	componentWillUnmount(){
 		this.props.onQuit()

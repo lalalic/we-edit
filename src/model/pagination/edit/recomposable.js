@@ -1,4 +1,6 @@
-import React, {PropTypes} from "react"
+import React from "react"
+import PropTypes from "prop-types"
+
 /**
  *  it's a very complicated job, so we need a very simple design, one sentence described solution. options:
  *  1. remove all composed, and re-compose all

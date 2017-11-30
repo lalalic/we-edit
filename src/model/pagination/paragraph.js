@@ -1,4 +1,6 @@
-import React, {Children,PropTypes} from "react"
+import React, {Children,} from "react"
+import PropTypes from "prop-types"
+
 
 import {HasParentAndChild} from "./composable"
 import Base from "../paragraph"
@@ -152,9 +154,11 @@ export default class Paragraph extends Super{
     commitCurrentLine(needNewLine=false){
         const {composed}=this.computed
         const {parent}=this.context
-        let currentLine=composed[composed.length-1]
+		if(composed.length>0){
+			let currentLine=composed[composed.length-1]
 
-        parent.appendComposed(this.createComposed2Parent(currentLine))
+			parent.appendComposed(this.createComposed2Parent(currentLine))
+		}
 
         if(needNewLine)
             composed.push(this._newLine())

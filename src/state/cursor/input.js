@@ -1,4 +1,6 @@
-import React, {PureComponent as Component, PropTypes} from "react"
+import React, {PureComponent as Component} from "react"
+import PropTypes from "prop-types"
+
 import Waypoint from "react-waypoint"
 
 import Listener from "./listener"
@@ -24,7 +26,7 @@ export default class Input extends Component{
 				onLeave={e=>this.forceUpdate()}
 				>
 				<div unselectable="on"
-					style={{left,top:top,position:"absolute",height:0,width:0}}>
+					style={{left,top,position:"fixed",height:0,width:0}}>
 					<Listener up={up} down={down}
 						style={{
 							...style,

@@ -5,6 +5,7 @@ jest.mock("react-redux", ()=>{
 })
 
 import React,{Component} from "react"
+import PropTypes from "prop-types"
 import {mount as rawMount} from "enzyme"
 
 import Page from "composed/page"
@@ -46,7 +47,7 @@ describe("composer", function(){
 				
 				class Wrapper extends Component{
 					static childContextTypes={
-						store: React.PropTypes.any
+						store: PropTypes.any
 					}
 					getChildContext(){
 						return {

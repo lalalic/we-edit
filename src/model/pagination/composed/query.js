@@ -14,6 +14,10 @@ export default class Query{
 		this.pages=document.computed.composed
 		this.pgGap=document.context.pgGap
 	}
+	
+	get svg(){
+		return this._svg=this._svg||this.document.canvas.getClientRect()
+	}
 
 	get ratio(){
 		return this.document.canvas.ratio
@@ -40,12 +44,18 @@ export default class Query{
 			.reduce((h,{size:{height}})=>h+height+pgGap,pgGap)
 	}
 
-	getClientRect(node){
+	getClientRectInSVG(node){
+		let {left,right,top,bottom,height,width}=getClientRect(node)
+		left=left-this.svg.left
+		top=top-this.svg.top
+		right=right-this.svg.left
+		bottom=bottom-this.svg.top
+		
 		return "left,right,top,bottom,height,width".split(",")
 			.reduce((rect,k)=>{
 				rect[k]*=this.ratio
 				return rect
-			},getClientRect(node))
+			},{left,right,top,bottom,height,width})
 	}
 
 	_pageMarginRight(n){
@@ -56,7 +66,10 @@ export default class Query{
 		return (width-page.size.width)/2+page.margin.left
 	}
 
-	at(x,y){
+	at(x,y/*clientX, clientY*/){
+		x=x-this.svg.left
+		y=y-this.svg.top
+		
 		x=x*this.ratio
 		y=y*this.ratio
 		let {pages,pgGap}=this
@@ -111,18 +124,18 @@ export default class Query{
 		if(piece==null) return NOT_FOUND
 
 		this.traverse(piece,el=>{
-			if('data-content' in el.props && 'data-endAt' in el.props){
+			if('data-content' in el.props && 'data-endat' in el.props){
 				piece=el
 				return true
 			}
 		})
 
-		if(!('data-content' in piece.props && 'data-endAt' in piece.props)){
+		if(!('data-content' in piece.props && 'data-endat' in piece.props)){
 			return NOT_FOUND
 		}
 
 		let id=piece.props["data-content"]
-		let from=piece.props["data-endAt"]
+		let from=piece.props["data-endat"]
 		let text=piece.props.children.join("")
 
 
@@ -163,7 +176,7 @@ export default class Query{
 					path.splice(0,path.length,parent)
 				}
 				if(type==ComposedText){
-					let {"data-content":dataId,"data-endAt":dataEndAt}=props
+					let {"data-content":dataId,"data-endat":dataEndAt}=props
 					if(dataId==id && at<=dataEndAt){
 						node=arguments[0]
 						path.push(node)
@@ -199,7 +212,7 @@ export default class Query{
 				let itemIndex=line.props.children
 					.findIndex(a=>a==lineItem ||
 						(a.props["data-content"]==lineItem.props["data-content"] &&
-						a.props["data-endAt"]==lineItem.props["data-endAt"])
+						a.props["data-endat"]==lineItem.props["data-endat"])
 					)
 				console.assert(itemIndex!=-1)
 				return x+=line.props.children.slice(0,itemIndex)
@@ -217,17 +230,17 @@ export default class Query{
 					.reduce((y,{size:{height}})=>y+=(pgGap+height),0)
 					+pgGap+page.margin.top
 					+path.findLast(a=>a.type==ComposedLine).props.height
-			})
+			});
 	}
 
-	position(id,at, ratio){
+	position(id,at, ratio){//return left:clientX, top:clientY
 		ratio=ratio||this.ratio
 		let {pages,pgGap}=this
 		let {pageNo,columnNo,lineNo,node, path}=this._locate(id,at)
 
 		if(!node) return;
 
-		let from=node.props["data-endAt"]-node.props.children.join("").length
+		let from=node.props["data-endat"]-node.props.children.join("").length
 		let composer=this.getComposer(id)
 		let {children:text,...props}=composer.props
 		let wordwrapper=new Text.WordWrapper(props)
@@ -240,20 +253,20 @@ export default class Query{
 
 		style.height=style.height/ratio
 		style.descent=style.descent.ratio
-
+		
 		return {
 			page: pageNo,
 			column: columnNo,
 			line: lineNo,
-			left:Math.ceil(x/ratio),
-			top:Math.ceil(y/ratio),
+			left:Math.ceil(x/ratio)+this.svg.left,
+			top:Math.ceil(y/ratio)+this.svg.top,
 			id,
 			at,
 			...style
 		}
 	}
 
-	nextLine({page:pageNo,column:colNo,line:lineNo,left}){
+	nextLine({page:pageNo,column:colNo,line:lineNo,left}/*usually returned from .postion*/){
 		left=left*this.ratio
 		let {pages,pgGap}=this
 		let page=pages[pageNo]
@@ -303,7 +316,7 @@ export default class Query{
 			let item=line.props.children[0]
 			if(item.type==ComposedText){
 				let id=item.props["data-content"]
-				let at=item.props["data-endAt"]
+				let at=item.props["data-endat"]
 				return {id,at}
 			}
 		}else{
@@ -314,13 +327,13 @@ export default class Query{
 				let text=item.props.children.join("")
 				let wordwrapper=new Text.WordWrapper(composer.props)
 				let len=wordwrapper.widthString(left-x,text)
-				let at=item.props["data-endAt"]-text.length+len
+				let at=item.props["data-endat"]-text.length+len
 				return {id,at}
 			}
 		}
 	}
 
-	prevLine({page:pageNo,column:colNo,line:lineNo,left}){
+	prevLine({page:pageNo,column:colNo,line:lineNo,left}/*usually returned from .postion*/){
 		left=left*this.ratio
 		let {pages,pgGap}=this
 		let page,column
@@ -366,7 +379,7 @@ export default class Query{
 			let item=line.props.children[0]
 			if(item.type==ComposedText){
 				let id=item.props["data-content"]
-				let at=item.props["data-endAt"]
+				let at=item.props["data-endat"]
 				return {id,at}
 			}
 		}else{
@@ -377,13 +390,13 @@ export default class Query{
 				let text=item.props.children.join("")
 				let wordwrapper=new Text.WordWrapper(composer.props)
 				let len=wordwrapper.widthString(left-x,text)
-				let at=item.props["data-endAt"]-text.length+len
+				let at=item.props["data-endat"]-text.length+len
 				return {id,at}
 			}
 		}
 	}
 
-	lineRects(start,end){
+	lineRects(start,end/*usually returned from .postion*/){
 		let {pages,pgGap}=this
 		let svg=this.document.canvas.root.querySelector("svg")
 		let [,,width,]=svg.getAttribute("viewBox").split(" ").map(a=>parseInt(a))

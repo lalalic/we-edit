@@ -1,4 +1,6 @@
-import React, {PropTypes} from "react"
+import React from "react"
+import PropTypes from "prop-types"
+
 
 import {NoChild} from "./composable"
 import Base from "../text"
@@ -59,7 +61,7 @@ export default class Text extends Super{
 					...defaultStyle,
 					width:Math.floor(width),
 					contentWidth:width,
-					"data-endAt":end,
+					"data-endat":end,
 					children:[...content]
 				})
 			this.appendComposed(composedText)

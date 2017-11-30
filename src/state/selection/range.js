@@ -1,4 +1,6 @@
-import React, {Component, PropTypes} from "react"
+import React, {Component} from "react"
+import PropTypes from "prop-types"
+
 import offset from "mouse-event-offset"
 import getClientRect from "tools/get-client-rect"
 

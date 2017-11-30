@@ -1,49 +1,73 @@
-import {uuid} from "tools/uuid"
-import {getFile} from "state/selector"
-import * as reducer from "state/reducer"
+import * as reducer from "./reducer"
 
-export default class{
-	static support(){
+export class Viewable{
+	static support(file){
 		return false
 	}
-
-	static createStyles(){
-		return {}
+	static isBlob(file){
+		return file.size
 	}
+	
+	static load(file){
+		return new Promise((resolve, reject)=>{
+			var reader=new FileReader();
+			reader.onload=e=>{
+				resolve({
+					data:e.target.result,
+					type:file.type.split("/").pop(),
+					name:file.name
+				})
+			}
+			reader.readAsText(file);
+		})
 
+	}
+	//doc=null//injected from load/create
 	load(url){
 		return Promise.reject(new Error("need implementation to load and parse content at "+url))
 	}
 
 	release(){
-		
+
 	}
 
-	create(){
-		throw new Error("not support")
+	/**
+	* a higher-order component to transform basic components to your typed components
+	* components may be model/html, model/pagination, model/pagination/edit depending on
+	* outer component[editor, html, viewer, pagination, plain]
+	*/
+	transform(components){
+		return components
 	}
 
 	/**
 	* render a loaded/created doc, loaded by this._loadFile, with models in domain to a element tree,
 	* whose element is created with createElement
 	*/
-	render(doc, domain, createElement/*(TYPE, props, children, rawcontent)*/){
+	render(createElement/*(TYPE, props, children, rawcontent)*/,components){
 		return "Input.render should be implemented"
 	}
+}
 
-	/**
-	* a higher-order component of standard models
-	*
-	*/
-	transform(domain){
-		return domain
+export class Editable extends Viewable{
+	static createStyles(){
+		return {}
 	}
 
-	/**
-	* to identify raw content node with an id, so editor can specify what is changed
-	*/
+	create(){
+		throw new Error("not support")
+	}
+
+	serialize(option){
+		throw new Error("not support")
+	}
+
 	makeId(content){
-		return uuid()
+		throw new Error("make your own uuid")
+	}
+
+	renderNode(node, createElement/*(TYPE, props, children, rawcontent)*/){
+
 	}
 
 	/**
@@ -58,9 +82,6 @@ export default class{
 	- any else: reduce selection action
 	*/
 	onChange(state,{type,payload},createElement){
-		let	docx=getFile(state)
-		docx.renderChanged=changed=>docx.renderChangedNode(changed,createElement)
-
 		let params=[state]
 		switch(type){
 			case `text/RETURN`:
@@ -91,36 +112,9 @@ export default class{
 				return new reducer.entity(...params)
 					.move(payload)
 					.state()
-			case "history/UNDO":
-				return new reducer.undo(...params)
-					.undo(payload)
-					.state()
-			case 'style/ADD':{
-				const {type,id,name,isDefault=false,...others}=payload
-				let $=docx.officeDocument.styles
-				let styleNode=docx4js.parseXml(`
-					<w:style w:type="${type}" ${isDefault ? 'w:default="1"' : ""} w:styleId="${id}">
-						<w:name w:val="${name}"/>
-						<w:uiPriority w:val="1"/>
-						<w:semiHidden/>
-						<w:unhideWhenUsed/>
-					</w:style>`).root().children().get(0)
-				$(styleNode).appendTo("w\\:styles")
-				this.renderChanged(styleNode)
-				return {styles: this.styles}
-			}
-			case `style/UPDATE`:{
-				return {styles: this.styles}
-			}
-			case 'style/REMOVE':{
-				delete this.styles[payload]
-				return {styles: this.styles}
-			}
 		}
 		return true
 	}
-
-	save(loaded, name, option){
-		throw new Error("not support")
-	}
 }
+
+export default Editable

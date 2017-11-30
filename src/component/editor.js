@@ -1,4 +1,6 @@
-import React, {Children, PureComponent, Component, PropTypes} from "react"
+import React, {Children, PureComponent, Component} from "react"
+import PropTypes from "prop-types"
+
 import {connect, connectAdvanced} from "react-redux"
 
 import Models from "model"
@@ -157,7 +159,11 @@ const Root=connect((state,{domain})=>{
 	createChildElement(id,content,domain,lastContent){
 		let current=content.get(id)
 		let {type, props, children}=current.toJS()
-		let Child=domain[type[0].toUpperCase()+type.substr(1)]
+		let Child=domain[type[0].toUpperCase()+type.substr(1)]	
+		if(!Child){
+			console.error(`[${type}] not found`)
+			return null
+		}
 		let elChildren=children
 
 		if(Array.isArray(children))
