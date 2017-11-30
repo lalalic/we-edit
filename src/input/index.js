@@ -47,26 +47,6 @@ export default {
 	Type
 }
 
-function buildDocLevelStore(store,doc){
-	return new Proxy(store,{
-		get(target,key, receiver){
-			switch(key){
-				case "dispatch":{
-					return doc.dispatch.bind(doc)
-				}
-				case "getState":{
-					return doc.getState.bind(doc)
-				}
-				default:
-					return function(){
-						return target[key](...arguments)
-					}
-			}
-
-		}
-	})
-}
-
 function buildEditableDoc(doc,inputTypeInstance){
 	inputTypeInstance.doc=doc
 	let store,history
@@ -76,22 +56,26 @@ function buildEditableDoc(doc,inputTypeInstance){
 				return React.createElement(type,{...props,key:uuid()},children)
 			},components)
 		},
-		Store(props){
+		Store({children, reducer}){
 			let createElementFactory=createElementFactoryBuilder(inputTypeInstance)
 			let changeReducer=changeReducerBuilder(createElementFactory,inputTypeInstance)
 			let content=new Map().withMutations(a=>inputTypeInstance.render(createElementFactory(a),Components))
 
 			history=new History()
+			
+			let reducers=[history.undoable(changeReducer), reducer]
 
-			store=createState(doc,content,history.undoable(changeReducer))
+			store=createState(doc,content,function(state,action){
+				return reducers.reduce((stated,a)=>a(stated,action),state)
+			})
 
 			return (
 				<Provider store={store}>
 					<TransformerProvider
-						store={buildDocLevelStore(store,editableDoc)}
+						doc={editableDoc}
 						onQuit={()=>inputTypeInstance.release()}
 						transformer={inputTypeInstance.transform}>
-						{props.children}
+						{children}
 					</TransformerProvider>
 				</Provider>
 			)
@@ -219,13 +203,40 @@ class TransformerProvider extends Component{
 	static propTypes={
 		transformer: PropTypes.func.isRequired,
 		onQuit: PropTypes.func,
-		store: PropTypes.object.isRequired,
+		doc: PropTypes.object.isRequired,
 	}
 
+	static contextTypes={
+		store: PropTypes.object
+	}
+	
 	static childContextTypes={
 		transformer: PropTypes.func,
 		getCursorInput: PropTypes.func,
 		store: PropTypes.object,
+	}
+	
+	constructor(props,context){
+		super(...arguments)
+		const {doc}=this.props
+		const {store}=this.context
+		this.store=new Proxy(store,{
+			get(target,key, receiver){
+				switch(key){
+					case "dispatch":{
+						return doc.dispatch.bind(doc)
+					}
+					case "getState":{
+						return doc.getState.bind(doc)
+					}
+					default:
+						return function(){
+							return target[key](...arguments)
+						}
+				}
+
+			}
+		})
 	}
 
 	getChildContext(){
@@ -235,7 +246,7 @@ class TransformerProvider extends Component{
 			getCursorInput(){
 				return self.refs.input
 			},
-			store: this.props.store,
+			store: this.store,
 		}
 	}
 
@@ -247,6 +258,8 @@ class TransformerProvider extends Component{
 			</div>
 		)
 	}
+	
+	
 
 	componentWillUnmount(){
 		this.props.onQuit()

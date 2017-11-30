@@ -14,6 +14,10 @@ export default class Query{
 		this.pages=document.computed.composed
 		this.pgGap=document.context.pgGap
 	}
+	
+	get svg(){
+		return this._svg=this._svg||this.document.canvas.getClientRect()
+	}
 
 	get ratio(){
 		return this.document.canvas.ratio
@@ -40,12 +44,18 @@ export default class Query{
 			.reduce((h,{size:{height}})=>h+height+pgGap,pgGap)
 	}
 
-	getClientRect(node){
+	getClientRectInSVG(node){
+		let {left,right,top,bottom,height,width}=getClientRect(node)
+		left=left-this.svg.left
+		top=top-this.svg.top
+		right=right-this.svg.left
+		bottom=bottom-this.svg.top
+		
 		return "left,right,top,bottom,height,width".split(",")
 			.reduce((rect,k)=>{
 				rect[k]*=this.ratio
 				return rect
-			},getClientRect(node))
+			},{left,right,top,bottom,height,width})
 	}
 
 	_pageMarginRight(n){
@@ -56,7 +66,10 @@ export default class Query{
 		return (width-page.size.width)/2+page.margin.left
 	}
 
-	at(x,y){
+	at(x,y/*clientX, clientY*/){
+		x=x-this.svg.left
+		y=y-this.svg.top
+		
 		x=x*this.ratio
 		y=y*this.ratio
 		let {pages,pgGap}=this
@@ -217,10 +230,10 @@ export default class Query{
 					.reduce((y,{size:{height}})=>y+=(pgGap+height),0)
 					+pgGap+page.margin.top
 					+path.findLast(a=>a.type==ComposedLine).props.height
-			})
+			});
 	}
 
-	position(id,at, ratio){
+	position(id,at, ratio){//return left:clientX, top:clientY
 		ratio=ratio||this.ratio
 		let {pages,pgGap}=this
 		let {pageNo,columnNo,lineNo,node, path}=this._locate(id,at)
@@ -240,20 +253,20 @@ export default class Query{
 
 		style.height=style.height/ratio
 		style.descent=style.descent.ratio
-
+		
 		return {
 			page: pageNo,
 			column: columnNo,
 			line: lineNo,
-			left:Math.ceil(x/ratio),
-			top:Math.ceil(y/ratio),
+			left:Math.ceil(x/ratio)+this.svg.left,
+			top:Math.ceil(y/ratio)+this.svg.top,
 			id,
 			at,
 			...style
 		}
 	}
 
-	nextLine({page:pageNo,column:colNo,line:lineNo,left}){
+	nextLine({page:pageNo,column:colNo,line:lineNo,left}/*usually returned from .postion*/){
 		left=left*this.ratio
 		let {pages,pgGap}=this
 		let page=pages[pageNo]
@@ -320,7 +333,7 @@ export default class Query{
 		}
 	}
 
-	prevLine({page:pageNo,column:colNo,line:lineNo,left}){
+	prevLine({page:pageNo,column:colNo,line:lineNo,left}/*usually returned from .postion*/){
 		left=left*this.ratio
 		let {pages,pgGap}=this
 		let page,column
@@ -383,7 +396,7 @@ export default class Query{
 		}
 	}
 
-	lineRects(start,end){
+	lineRects(start,end/*usually returned from .postion*/){
 		let {pages,pgGap}=this
 		let svg=this.document.canvas.root.querySelector("svg")
 		let [,,width,]=svg.getAttribute("viewBox").split(" ").map(a=>parseInt(a))

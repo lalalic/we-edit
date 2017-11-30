@@ -40,12 +40,8 @@ export class Selection extends Component{
 		return this.el
 	}
 
-	getClientRect(node){
-		return this.context.query().getClientRect(node)
-	}
-
 	image(node){
-		let {top,left,bottom,right}=this.getClientRect(node)
+		let {top,left,bottom,right}=this.context.query().getClientRectInSVG(node)
 		const {onResize, onMove, onRotate}=this.props
 		return <Entity
 					path={`M${left} ${top} L${right} ${top} L${right} ${bottom} L${left} ${bottom} Z`}

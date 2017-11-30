@@ -16,7 +16,6 @@ import Selection from "./selection"
 import Cursor from "state/cursor"
 
 import offset from "mouse-event-offset"
-import getClientRect from "tools/get-client-rect"
 
 export default class extends Component{
     static displayName="composed-document-with-flasher"
