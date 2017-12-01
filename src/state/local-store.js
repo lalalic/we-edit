@@ -1,11 +1,16 @@
 export default class LocalStore{
 	constructor(store,key, getState){
 		this.getState=()=>{
-			if(getState){
-				return getState(store.getState())
+			try{
+				if(getState){
+					return getState(store.getState())
+				}
+				return store.getState()[key]
+			}catch(e){
+				return {}
 			}
-			return store.getState()[key]
 		}
+		
 		this.dispatch=action=>{
 			if(typeof(action)=="object"){
 				if(action.type){

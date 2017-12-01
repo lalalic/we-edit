@@ -1,44 +1,63 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 import {connect} from "react-redux"
+import {compose, mapProps,getContext,setDisplayName} from "recompose"
 
 import Input from "we-edit/input"
 
-import {ToolbarGroup, ToolbarSeparator, ToolbarTitle,IconButton, } from "material-ui"
+import {ToolbarGroup, ToolbarSeparator, ToolbarTitle} from "material-ui"
+import {IconButton} from "we-edit-ui/with-no-doc"
 
-import IconOpen from "material-ui/svg-icons/file/folder-open"
-import IconCreate from "material-ui/svg-icons/content/create"
+
 import IconSave from "material-ui/svg-icons/content/save"
+import IconSaveAs from "material-ui/svg-icons/content/save"
+import IconClose from "material-ui/svg-icons/navigation/close"
 
 import {ACTION} from "we-edit-ui"
 
 export class File extends Component{
 	render(){
-		const {create,open,save}=this.props
+		const {save,saveAs,changed,}=this.props
 		return (
 			<ToolbarGroup>
-				<IconButton onClick={create}><IconCreate/></IconButton>
-				<IconButton onClick={open}><IconOpen/></IconButton>
-				<IconButton onClick={save}><IconSave/></IconButton>
+				<IconButton 
+					disabled={!changed}
+					onClick={save}>
+					<IconSave/>
+				</IconButton>
+				<IconButton 
+					onClick={saveAs}>
+					<IconSaveAs/>
+				</IconButton>
 			</ToolbarGroup>
 		)
 	}
 }
 
-export default connect(state=>({}),(dispatch,{})=>({
-		create(){
+export function create(dispatch){
+	return (type=".docx")=>Input.create(type)
+}
 
-		},
+export function open(dispatch){
+	return ()=>selectFile()
+		.then(files=>files.map(file=>Input.load(file)
+		.then(doc=>dispatch(ACTION.ADD(doc)))))			
+}
 
-		open(){
-			return selectFile()
-				.then(files=>files.map(file=>Input.load(file).then(doc=>dispatch(ACTION.ADD(doc)))))
-		},
-
+export default compose(
+	setDisplayName("FileTool"),
+	getContext({store:PropTypes.object}),
+	mapProps(({store:{dispatch}})=>({
 		save(){
 			return dispatch(ACTION.SAVE())
+		},
+		
+		saveAs(path){
+			return dispatch(ACTION.SAVEAS(path))
 		}
-}))(File)
+	})),
+	connect(({changed,noDoc})=>({changed,noDoc})),
+)(File)
 
 var input=null
 export function selectFile(){
@@ -52,6 +71,7 @@ export function selectFile(){
 	return new Promise((resolve, reject)=>{
 		input.onchange=function(){
 			resolve(Array.from(this.files))
+			input.value=""
 		}
 		input.click()
 	})

@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 
 import {Provider} from "react-redux"
 import Immutable, {Map,Collection} from "immutable"
-import {getContext} from "recompose"
+import {compose, setDisplayName, getContext} from "recompose"
 
 import Components from "model"
 import {createStore, createState, isState} from "state"
@@ -58,7 +58,10 @@ function buildEditableDoc(doc,inputTypeInstance){
 			},components)
 		},
 
-		Store:getContext({store:PropTypes.object})(({children,store:passedStore})=>{
+		Store:compose(
+				setDisplayName("DocStore"),
+				getContext({store:PropTypes.object}),
+			)(({children,store:passedStore})=>{
 			let root=(
 				<TransformerProvider
 					doc={editableDoc}
@@ -92,8 +95,14 @@ function buildEditableDoc(doc,inputTypeInstance){
 
 			return (state,action)=>state ? reducer(state,action) : INIT_STATE
 		},
+		
+		get name(){
+			return inputTypeInstance.name
+		},
 
 		save(name,option){
+			name=name||inputTypeInstance.name
+			inputTypeInstance.name=name
 			return Promise.resolve(inputTypeInstance.serialize(option)).then(data=>{
 				if(typeof(document)!="undefined" && window.URL && window.URL.createObjectURL){
 					let url = window.URL.createObjectURL(data)
@@ -121,7 +130,7 @@ function buildEditableDoc(doc,inputTypeInstance){
 		dispatch(){
 			return store.dispatch(...arguments)
 		},
-		history(){
+		get history(){
 			return {
 				canUndo(){
 					return history.past.length>0
@@ -241,8 +250,6 @@ class TransformerProvider extends Component{
 			</div>
 		)
 	}
-
-
 
 	componentWillUnmount(){
 		this.props.onQuit()

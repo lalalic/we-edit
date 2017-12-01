@@ -21,6 +21,8 @@ export default class extends Input.Type{
 	}
 
 	load(file){
+		if(file.name)
+			this.name=file.name
 		return Docx.load(file)
 	}
 

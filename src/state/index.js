@@ -35,6 +35,7 @@ export function createState(doc, content){
 export function isState(data){
 	return data instanceof Map && data.get("vendor")=="we-edit"
 }
+
 const report=store=>next=>action=>{
 	try{
 		return next(action)

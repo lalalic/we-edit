@@ -2,8 +2,82 @@ import * as reducer from "./reducer"
 
 export class Viewable{
 	static support(file){
+		if(this.Support)
+			return new this.Support().check(file)
 		return false
 	}
+	
+	static Support=class{
+		isNode(){
+			return typeof(process)!=="undefined"
+		}
+		
+		check(file){
+			switch(typeof(file)){
+			case "string":
+				
+			break
+			case "object":
+				
+			break
+			default:
+				return false
+			}	
+		}
+		
+		load(file,type){
+			
+		}
+		
+		isFile(str){
+			
+		}
+		
+		isUrl(){
+			
+		}
+		
+		isContent(){
+			
+		}
+		
+		isObject(){
+			
+		}
+		
+		isBlob(){
+			
+		}
+		
+		isBuffer(){
+			
+		}
+		
+		isStream(){
+			
+		}
+		
+		fromFile(str){
+			
+		}
+		
+		fromUrl(str){
+			
+		}
+		
+		fromContent(str){
+			
+		}
+		
+		fromObject(obj){
+			
+		}
+		
+		fromBlob(file){
+			
+		}
+	}
+	
 	static isBlob(file){
 		return file.size
 	}
@@ -22,6 +96,7 @@ export class Viewable{
 		})
 
 	}
+	
 	//doc=null//injected from load/create
 	load(url){
 		return Promise.reject(new Error("need implementation to load and parse content at "+url))

@@ -11,7 +11,13 @@ export default class extends Input.Type{
 		case "object":
 			if(this.isPlainData(file) && file.type=="document")
 				return true
-			if(this.isBlob(file) && (file.type=="application/json" || file.type=="application/xml"))
+			if(this.isBlob(file) && 
+					(
+					file.type=="application/json" || 
+					file.type=="application/xml" ||
+					file.name.endsWith(".wed.json") || 
+					file.name.endsWith(".wed.xml")
+					))
 				return true
 		}
 	}
@@ -25,21 +31,22 @@ export default class extends Input.Type{
 		case "object":
 			if(this.constructor.isPlainData(file) && file.type=="document")
 				return new EditableDocument(file)
-			if(this.constructor.isBlob(file) && (file.type=="application/json" || file.type=="application/xml")){
+			if(this.constructor.isBlob(file)){
 				return this.constructor.load(file).then(({data,type,name})=>{
-					switch(type){
+					this.name=name
+					switch(type||name.split(".").pop()){
 						case "json":
 							return new EditableDocument(JSON.parse(data))
 						case "xml":
 							return new EditableDocument(JSON.parse(data))
 					}
-
+					
 				})
 			}
 		case "string":
-			if(file.endsWith(".json"))
-				return new EditableDocument(require(file))
-			else if(file.endsWith(".xml"))
+			if(file.endsWith(".json")){
+				return new EditableDocument(JSON.parse(require("fs").readFileSync(file)))
+			}else if(file.endsWith(".xml"))
 				return Promise.resolve(this.loadXML(file))
 				.then(doc=>new EditableDocument(doc))
 		default:
@@ -67,7 +74,7 @@ export default class extends Input.Type{
 		})
 	}
 
-	serialize(name, option){
+	serialize(){
 		return this.doc.serialize()
 	}
 

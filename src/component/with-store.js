@@ -18,6 +18,10 @@ export class WithStore extends Component{
 		super(...arguments)
 		this.store=new LocalStore(this.context.store,this.props.storeKey, this.props.getState)
 	}
+	
+	componentWillReceiveProps({storeKey,getState}){
+		this.store=new LocalStore(this.context.store,storeKey, getState)
+	}
 
 	getChildContext(){
 		return {store:this.store}

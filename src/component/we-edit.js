@@ -47,6 +47,6 @@ export class WeEdit extends Component{
 		if(children.length==1)
 			children=children[0]
 
-		return <Provider store={this.store} children={<div>{children}</div>}/>
+		return <Provider store={this.store} children={<div style={{width:"100%"}}>{children}</div>}/>
 	}
 }
