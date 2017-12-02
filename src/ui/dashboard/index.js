@@ -4,7 +4,7 @@ import {connect} from "react-redux"
 import {compose,mapProps,getContext,setDisplayName}  from "recompose"
 
 import {Drawer,MenuItem} from "material-ui"
-import {IconButton} from "we-edit-ui/with-no-doc"
+import {IconButton} from "we-edit-ui/components/with-no-doc"
 
 import IconOpen from "material-ui/svg-icons/file/folder-open"
 import IconCreate from "material-ui/svg-icons/content/create"

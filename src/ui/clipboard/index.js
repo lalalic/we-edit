@@ -6,7 +6,7 @@ import {compose, mapProps,getContext,setDisplayName} from "recompose"
 import Input from "we-edit/input"
 
 import {ToolbarGroup} from "material-ui"
-import {IconButton} from "we-edit-ui/with-no-doc"
+import {IconButton} from "we-edit-ui/components/with-no-doc"
 
 
 import IconRedo from "material-ui/svg-icons/content/redo"

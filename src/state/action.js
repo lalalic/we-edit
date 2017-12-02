@@ -1,6 +1,6 @@
-import {getContent, nextCursorable, prevCursorable,getSelection} from "./selector"
+import {getContent, nextCursorable, prevCursorable,getSelection} from "state/selector"
 import {Text as TextModel} from "pagination"
-import {ACTION as History} from "./undoable"
+import {ACTION as History} from "state/undoable"
 import Query from "state/selector/query"
 
 function isInSameParagraph(state,id1,id2){
@@ -8,7 +8,7 @@ function isInSameParagraph(state,id1,id2){
 		.parents("paragraph")
 		.is(new Query(state,[id2]).parents("paragraph"))
 }
-						
+
 export const Cursor={
 	ACTIVE: docId=>({type:"selection/DOC",payload:docId})
 	,AT: (contentId, at)=>Selection.SELECT(contentId, at)

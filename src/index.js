@@ -1,8 +1,11 @@
+import React from "react"
 import ReactDOMServer from "react-dom/server"
-import Pagination from "model/pagination"
+import ReactDOM from "react-dom"
+
+import {Editor, Viewer, Pagination} from "component"
+
 import Native from "input/native"
 import Input from "input"
-
 Input.support(Native)
 
 export function compose(file){
@@ -10,5 +13,41 @@ export function compose(file){
 		.then(doc=>ReactDOMServer.renderToStaticMarkup(doc.render(Pagination)))
 }
 
+export function edit(doc, container, editor=(<Editor><Pagination/></Editor>)){
+	return Input.load(doc)
+		.then(loaded=>{
+			ReactDOM.render((
+				<loaded.Store>
+					{editor}
+				</loaded.Store>
+			), container)
 
-export {default as Input} from "input"
+			return loaded
+		})
+}
+
+export function create(type, container, editor=(<Editor><Pagination/></Editor>)){
+	return Input.create(type)
+		.then(loaded=>{
+			ReactDOM.render((
+				<loaded.Store>
+					{editor}
+				</loaded.Store>
+			), container)
+
+			return loaded
+		})
+}
+
+export function preview(doc, container, viewer=((<Viewer><Pagination/></Viewer>))){
+	return Input.create(type)
+		.then(loaded=>{
+			ReactDOM.render((
+				<loaded.Store>
+					{editor}
+				</loaded.Store>
+			), container)
+
+			return loaded
+		})
+}
