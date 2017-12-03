@@ -2,7 +2,7 @@ import React, {Component, Children} from "react"
 import PropTypes from "prop-types"
 
 import {connect} from "react-redux"
-import {getContent, getContentStyle, getSelection,getNode} from "state/selector"
+import {getContent,  getSelection,getNode} from "state/selector"
 import {ACTION} from "state"
 
 import get from "lodash.get"

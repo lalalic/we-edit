@@ -1,14 +1,31 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
+
+import {compose,setDisplayName} from "recompose"
 import {connect} from "react-redux"
 
-import {} from "material-ui"
+import {ToolbarGroup} from "material-ui"
 import {IconButton} from "we-edit-ui/components/with-no-doc"
 
-export class Paragraph extends Component{
-	render(){
-		return null
-	}
-}
+import IconAlignCenter from "material-ui/svg-icons/editor/format-align-center"
+import IconAlignLeft from "material-ui/svg-icons/editor/format-align-left"
+import IconAlignRight from "material-ui/svg-icons/editor/format-align-right"
 
-export default connect()(Paragraph)
+export default compose(
+	setDisplayName("ParagraphStyle"),
+	connect(({})=>({
+
+	}))
+)(({})=>(
+	<ToolbarGroup>
+		<IconButton
+			children={<IconAlignLeft/>}
+			/>
+		<IconButton
+			children={<IconAlignCenter/>}
+			/>
+		<IconButton
+			children={<IconAlignRight/>}
+			/>
+	</ToolbarGroup>
+))

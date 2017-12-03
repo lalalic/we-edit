@@ -2,7 +2,7 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 
 import {connect} from "react-redux"
-import {getSelection,getContentStyle,getNode} from "state/selector"
+import {getSelection,getNode} from "state/selector"
 
 import {Text} from "model/pagination"
 

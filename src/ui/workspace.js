@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 import {connect} from "react-redux"
 import {compose,setDisplayName,setStatic}  from "recompose"
 
-import {Toolbar} from "material-ui"
+import {Toolbar,ToolbarSeparator} from "material-ui"
 import {WithStore} from "we-edit/component"
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
@@ -17,6 +17,7 @@ import Paragraph from "we-edit-ui/paragraph"
 import File from "we-edit-ui/file"
 import Clipboard from "we-edit-ui/clipboard"
 import Canvas from "we-edit-ui/canvas"
+import Selection from "we-edit-ui/selection"
 
 export class Workspace extends PureComponent{
 	render(){
@@ -24,14 +25,27 @@ export class Workspace extends PureComponent{
 		return (
 			<MuiThemeProvider muiTheme={theme}>
 				<div>
-					<AppBar />
+					<AppBar/>
 					<WithStore
 						storeKey={active}
-						getState={state=>state.docs[state.active]||{noDoc:true}}>
+						getState={({active,docs,...others})=>{
+							if(!active){
+								return {noDoc:true}
+							}else{
+								let doc=docs[active]
+								return {...doc, selection:new Selection(doc.state)}
+							}
+						}>
 						<Toolbar>
 							<File/>
+							<ToolbarSeparator/>
+
 							<Clipboard/>
+							<ToolbarSeparator/>
+
 							<Text/>
+							<ToolbarSeparator/>
+
 							<Paragraph/>
 						</Toolbar>
 					</WithStore>

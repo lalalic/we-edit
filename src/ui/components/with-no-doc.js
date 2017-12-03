@@ -1,7 +1,7 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 import {connect} from "react-redux"
-import {compose, mapProps,getContext,setDisplayName} from "recompose"
+import {compose, mapProps,getContext,setDisplayName,branch} from "recompose"
 
 import Input from "we-edit/input"
 

@@ -22,20 +22,6 @@ export function getParentId(content,id){
 	return content.getIn([id,"parent"])
 }
 
-export function getContentStyle(state, editorId, contentId){
-	let el=document.querySelector(`#${editorId} [data-content='${contentId}']`)
-	return {
-		fonts:el.getAttribute("font-family"),
-		size: parseInt(el.getAttribute("font-size")),
-		bold: el.getAttribute("font-weight")=="700",
-		italic: el.getAttribute("font-style")=="italic"
-	}
-}
-
-export function getStyles(state){
-	return state.getIn("content.root.props.styles".split("."))
-}
-
 export function traverse(content, f, start="root", right=false){
 	let [id,node]=[start,content.get(start)]
 	let children=node.get("children")

@@ -52,7 +52,7 @@ function testNative(){
 	})
 }
 
-testNative()
-testDocx()
+//testNative()
+//testDocx()
 
-//editor()
+editor()

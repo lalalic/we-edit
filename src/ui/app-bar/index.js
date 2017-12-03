@@ -15,7 +15,7 @@ import {ACTION} from "we-edit-ui"
 export class Bar extends PureComponent{
     state={showDrawer:false, showFiles:false}
     render(){
-        const {active, docs, setActive, close}=this.props
+        const {active, docs, setActive, close,zoom=0.3}=this.props
         let {showDrawer,showFiles, fileAnchor}=this.state
 		let drawer=null
 		if(showDrawer){
@@ -29,7 +29,7 @@ export class Bar extends PureComponent{
 					icon={<IconFiles style={{visibility: docs.length>1 ? "inherit" : "hidden"}}/>}
 					label={active.doc.name}
 					labelPosition="before"
-					onClick={e=>docs.length>1 && this.setState({showFiles:true,fileAnchor:e.currentTarget}) }/>
+					onClick={e=>docs.length>1 && this.setState({showFiles:true,fileAnchor:this.refs.anchor}) }/>
 			)
 		}
 
@@ -37,9 +37,9 @@ export class Bar extends PureComponent{
 		if(showFiles && docs.length>1){
 			files=(
 				<Popover
-					anchorEl={fileAnchor}
-					anchorOrigin={{vertical: 'bottom', horizontal: 'left'}}
-					targetOrigin={{ vertical: 'top', horizontal: 'left',}}
+                    anchorEl={fileAnchor}
+					anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
+					targetOrigin={{ vertical: 'top', horizontal: 'right',}}
 					onRequestClose={()=>this.setState({showFiles:false,fileAnchor:undefined})}
 					open={true}>
 					<Menu>
@@ -57,35 +57,41 @@ export class Bar extends PureComponent{
 		}
 
         return (
-            <AppBar
-                title="we edit"
-                iconElementRight={
-                    <div>
-                        {currentFile}
-                        {files}
-                        <IconButton onClick={close}>
-                            <IconClose/>
-                        </IconButton>
-                    </div>
-                }
-                onLeftIconButtonTouchTap={()=>this.setState({showDrawer:!this.state.showDrawer})}
-                >
+            <div>
+                <AppBar
+                    style={{zoom}}
+                    title="we edit"
+                    iconElementRight={
+                        <div>
+                            {currentFile}
+                            <IconButton onClick={close}>
+                                <IconClose/>
+                            </IconButton>
+                        </div>
+                    }
+                    onLeftIconButtonTouchTap={()=>this.setState({showDrawer:!this.state.showDrawer})}
+                    />
+                <div ref="anchor" style={{height:0.1}}></div>
                 {drawer}
-            </AppBar>
+                {files}
+            </div>
         )
     }
 }
 
 export default compose(
     setDisplayName("AppBar"),
-    getContext({store:PropTypes.object}),
-    mapProps(({store:{dispatch}})=>({
+    getContext({
+        store:PropTypes.object,
+    }),
+    mapProps(({store:{dispatch}, zoom})=>({
         setActive(id){
             dispatch(ACTION.ACTIVE(id))
         },
         close(){
             dispatch(ACTION.CLOSE())
         },
+        zoom
     })),
     connect(({active,docs})=>({
         active:active ? docs[active] : undefined,

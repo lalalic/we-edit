@@ -10,7 +10,7 @@ import ComposedDocument from "./composed-document"
 import {Query} from "../composed/document"
 
 import {ACTION} from "state"
-import {getContent,getContentStyle,getSelection,getNode} from "state/selector"
+import {getContent,getSelection,getNode} from "state/selector"
 import {editable} from "model/edit"
 import recomposable from "./recomposable"
 

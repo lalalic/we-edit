@@ -20,14 +20,10 @@ export class File extends Component{
 		const {save,saveAs,changed,}=this.props
 		return (
 			<ToolbarGroup>
-				<IconButton 
+				<IconButton
 					disabled={!changed}
 					onClick={save}>
 					<IconSave/>
-				</IconButton>
-				<IconButton 
-					onClick={saveAs}>
-					<IconSaveAs/>
 				</IconButton>
 			</ToolbarGroup>
 		)
@@ -41,7 +37,7 @@ export function create(dispatch){
 export function open(dispatch){
 	return ()=>selectFile()
 		.then(files=>files.map(file=>Input.load(file)
-		.then(doc=>dispatch(ACTION.ADD(doc)))))			
+		.then(doc=>dispatch(ACTION.ADD(doc)))))
 }
 
 export default compose(
@@ -51,7 +47,7 @@ export default compose(
 		save(){
 			return dispatch(ACTION.SAVE())
 		},
-		
+
 		saveAs(path){
 			return dispatch(ACTION.SAVEAS(path))
 		}
