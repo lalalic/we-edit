@@ -2,14 +2,14 @@ import {getSelection} from "state/selector"
 
 export const ACTION={
 	undo:entry=>{
-		let action={type:"history/UNDO"}
+		let action={type:"we-edit/history/UNDO"}
 		if(entry){
 			action.payload=entry
 		}
 
 		return action
 	},
-	redo:()=>({type:"history/REDO"})
+	redo:()=>({type:"we-edit/history/REDO"})
 }
 
 class Entry{
@@ -33,7 +33,7 @@ export class History{
 		let history=this
 		return function(state,action){
 			switch(action.type){
-				case "history/UNDO":{
+				case "we-edit/history/UNDO":{
 					if(history.past.length){
 						let entry=history.past.pop()
 						let changedState=reducer(state,ACTION.undo(entry),{})
@@ -43,7 +43,7 @@ export class History{
 						return state
 					}
 				}
-				case "history/REDO":{
+				case "we-edit/history/REDO":{
 					if(history.future.length){
 						let entry=history.future.pop()
 						let changedState=reducer(state.mergeDeepIn(["selection"],entry.selection),entry.action,{})

@@ -40,7 +40,7 @@ export default class Document extends Super{
 		mount: PropTypes.func
 	}
 
-	state={compose2Page:1, computed:this.computed}
+	state={compose2Page:1}
 	composers=new Map([[this.props.id,this]])
 	getChildContext(){
 		let shouldRemoveComposed=this.shouldRemoveComposed.bind(this)

@@ -13,7 +13,7 @@ import IconSave from "material-ui/svg-icons/content/save"
 import IconSaveAs from "material-ui/svg-icons/content/save"
 import IconClose from "material-ui/svg-icons/navigation/close"
 
-import {ACTION} from "we-edit-ui"
+import {ACTION, getActive} from "we-edit"
 
 export class File extends Component{
 	render(){
@@ -52,7 +52,7 @@ export default compose(
 			return dispatch(ACTION.SAVEAS(path))
 		}
 	})),
-	connect(({changed,noDoc})=>({changed,noDoc})),
+	connect(state=>({changed:getActive(state).changed})),
 )(File)
 
 var input=null

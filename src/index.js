@@ -2,7 +2,7 @@ import React from "react"
 import ReactDOMServer from "react-dom/server"
 import ReactDOM from "react-dom"
 
-import {Editor, Viewer, Pagination} from "component"
+import {Editor, Viewer, Pagination, WeEdit} from "component"
 
 import Native from "input/native"
 import Input from "input"
@@ -51,3 +51,7 @@ export function preview(doc, container, viewer=((<Viewer><Pagination/></Viewer>)
 			return loaded
 		})
 }
+
+export {ACTION, getActive} from "component/we-edit"
+
+

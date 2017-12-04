@@ -3,10 +3,10 @@ import ReactDOM from "react-dom"
 
 import {edit,create,preview,compose} from "we-edit"
 import Input from "we-edit/input"
-import {Editor,Pagination,WeEdit} from "we-edit/component"
+import {Editor,Pagination,Html,Plain,WeEdit} from "we-edit/component"
 import fonts from "fonts"
 
-import Workspace from "we-edit-ui"
+import WeEditUI, {Workspace, Bare} from "we-edit-ui"
 import NodeWordWrapper from "wordwrap/node"
 import {Text} from "pagination"
 Text.WordWrapper=NodeWordWrapper
@@ -14,17 +14,25 @@ Text.WordWrapper=NodeWordWrapper
 import Docx from "we-edit-docx"
 Input.support(Docx)
 
+
 function editor(){
 	window.addEventListener("load", function(){
 		fonts.load("verdana.ttf", "verdana").then(()=>{
 			let container=document.querySelector("#app")
 			ReactDOM.render((
 				<WeEdit>
-					<Workspace>
-						<Editor width={600}>
-							<Pagination/>
-						</Editor>
-					</Workspace>
+					<WeEditUI>
+						<Workspace filter={a=>a.name.endsWith(".docx")}>
+							<Editor width={600}>
+								<Pagination/>
+							</Editor>
+						</Workspace>
+						<Bare>
+							<Editor width={600}>
+								<Pagination/>
+							</Editor>
+						</Bare>
+					</WeEditUI>
 				</WeEdit>
 			), container)
 		})

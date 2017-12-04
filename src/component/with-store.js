@@ -2,6 +2,11 @@ import React, {Component, Children} from "react"
 import PropTypes from "prop-types"
 
 export class WithStore extends Component{
+	static propTypes={
+		storeKey:PropTypes.string,
+		getState:PropTypes.func,
+	}
+	
 	static buildStoreKeyReducer=(key,reducer)=>({
 		[key]:(state,action)=>{
 			if(!state){
@@ -40,7 +45,7 @@ export class WithStore extends Component{
 	}
 }
 
-class LocalStore{
+export class LocalStore{
 	constructor(store,key, getState){
 		this.key=key
 		this.getState=()=>{
@@ -55,11 +60,7 @@ class LocalStore{
 		}
 
 		this.dispatch=action=>{
-			if(typeof(action)=="object"){
-				if(action.type){
-					return store.dispatch({...action, type:`${key}/${action.type}`})
-				}
-			}else if(typeof(action)=="function"){
+			if(typeof(action)=="function"){
 				return action(this.dispatch, this.getState)
 			}
 			return store.dispatch(action)

@@ -10,7 +10,7 @@ function isInSameParagraph(state,id1,id2){
 }
 
 export const Cursor={
-	ACTIVE: docId=>({type:"selection/DOC",payload:docId})
+	ACTIVE: docId=>({type:"we-edit/selection/DOC",payload:docId})
 	,AT: (contentId, at)=>Selection.SELECT(contentId, at)
 	,MOVE_RIGHT: (shift)=>(dispatch,getState)=>{
 		const state=getState()
@@ -101,14 +101,14 @@ export const Cursor={
 }
 
 export const Text={
-	INSERT: t=>({type:"text/INSERT",payload:t})
-	,REMOVE: n=>({type:"text/REMOVE",payload:n})
-	,RETURN: n=>({type:"text/RETURN"})
+	INSERT: t=>({type:"we-edit/text/INSERT",payload:t})
+	,REMOVE: n=>({type:"we-edit/text/REMOVE",payload:n})
+	,RETURN: n=>({type:"we-edit/text/RETURN"})
 }
 
 export const Selection={
 	SELECT: (start, at, end=start, endAt=at, cursorAt)=>({
-		type:`selection/SELECTED`
+		type:`we-edit/selection/SELECTED`
 		,payload: {
 			start:{
 				id:start
@@ -120,18 +120,18 @@ export const Selection={
 			}
 		}
 	}),
-	START_AT:(id,at)=>({type:"selection/STARTAT",payload:{id,at}}),
-	END_AT: (id,at)=>({type:"selection/ENDAT",payload:{id,at}}),
-	REMOVE: ()=>({type:"selection/REMOVE"}),
-	MOVE: (id,at)=>({type:"selection/MOVE",payload:{id,at}}),
-	COPY: ()=>({type:"selection/COPY"}),
-	PASTE: (id,at)=>({type:"selection/PASTE",payload:{id,at}}),
-	CUT: ()=>({type:"selection/CUT"})
+	START_AT:(id,at)=>({type:"we-edit/selection/STARTAT",payload:{id,at}}),
+	END_AT: (id,at)=>({type:"we-edit/selection/ENDAT",payload:{id,at}}),
+	REMOVE: ()=>({type:"we-edit/selection/REMOVE"}),
+	MOVE: (id,at)=>({type:"we-edit/selection/MOVE",payload:{id,at}}),
+	COPY: ()=>({type:"we-edit/selection/COPY"}),
+	PASTE: (id,at)=>({type:"we-edit/selection/PASTE",payload:{id,at}}),
+	CUT: ()=>({type:"we-edit/selection/CUT"})
 }
 
 export const Entity={
-	RESIZE: delta=>({type:"entity/RESIZE",payload:delta}),
-	ROTATE: a=>({type:"entity/ROTATE",payload:a})
+	RESIZE: delta=>({type:"we-edit/entity/RESIZE",payload:delta}),
+	ROTATE: a=>({type:"we-edit/entity/ROTATE",payload:a})
 }
 
 export const ACTION={Cursor, Text, Selection,Entity,History}

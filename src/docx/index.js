@@ -320,19 +320,21 @@ export default class extends Input.Type{
 	onChange(state,{type,payload},createElement){
 		let params=[state]
 		switch(type){
-			case 'style/ADD':
+			case 'we-edit/style/ADD':
 				return new reducer.style(...params)
 					.create(payload)
 					.state()
-			case `style/UPDATE`:
+			case `we-edit/style/UPDATE`:
 				return new reducer.style(...params)
 					.update(payload)
 					.state()
-			case 'style/REMOVE':
+			case 'we-edit/style/REMOVE':
 				return new reducer.style(...params)
 					.remove(payload)
 					.state()
 		}
 		return super.onChange(...arguments)
-	}	
+	}
+	
+	
 }

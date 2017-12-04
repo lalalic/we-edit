@@ -159,31 +159,31 @@ export class Editable extends Viewable{
 	onChange(state,{type,payload},createElement){
 		let params=[state]
 		switch(type){
-			case `text/RETURN`:
+			case `we-edit/text/RETURN`:
 				return new reducer.text(...params)
 					.insert("\r")
 					.state()
-			case `text/INSERT`:
+			case `we-edit/text/INSERT`:
 				return new reducer.text(...params)
 					.insert(payload)
 					.state()
-			case `text/REMOVE`:
+			case `we-edit/text/REMOVE`:
 				return new reducer.text(...params)
 					.remove(payload)
 					.state()
-			case "entity/RESIZE":
+			case "we-edit/entity/RESIZE":
 				return new reducer.entity(...params)
 					.resize(payload)
 					.state()
-			case "entity/ROTATE":
+			case "we-edit/entity/ROTATE":
 				return new reducer.entity(...params)
 					.rotate(payload)
 					.state()
-			case "entity/CREATE":
+			case "we-edit/entity/CREATE":
 				return new reducer.entity(...params)
 					.create(payload)
 					.state()
-			case "selection/MOVE":
+			case "we-edit/selection/MOVE":
 				return new reducer.entity(...params)
 					.move(payload)
 					.state()

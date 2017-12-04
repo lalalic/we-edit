@@ -5,10 +5,14 @@ import {Provider} from "react-redux"
 import Immutable, {Map,Collection} from "immutable"
 import {compose, setDisplayName, getContext} from "recompose"
 
+import {LocalStore} from "component/with-store"
+
 import Components from "model"
 import {createStore, createState, isState} from "state"
 import {getContent,getSelection,getFile,getParentId} from "state/selector"
 import * as reducer from "state/reducer"
+
+import uuid from "tools/uuid"
 
 import Type from "./type"
 
@@ -50,14 +54,51 @@ export default {
 
 function buildEditableDoc(doc,inputTypeInstance){
 	inputTypeInstance.doc=doc
+	let id=uuid()
+	let _lastSelection=null, lastSelection
 	let store,history
+	
 	let editableDoc={
+		toJSON(){
+			return this.name
+		},
+		
 		render(components){
 			return inputTypeInstance.render((type, props, children)=>{
 				return React.createElement(type,{...props,key:uuid()},children)
 			},components)
 		},
-
+		
+		createSelection(state){
+			if(_lastSelection==state.get("selection"))
+				return lastSelection
+			
+			const selection=getSelection(state)
+			const tranform=inputTypeInstance.transform
+			let {id,at}=selection[selection.cursorAt]
+			
+			const createElementUp=id=>{
+				let last=null
+				while(id){
+					const {type, props,children,parent}=getContent(state,id).toJS()
+					const Type=transform[type[0].toUpperCase()+type.substr(1)](Components)
+					last=React.createElement(Type, props, last)
+					id=parent
+				}
+				return last
+			}
+			
+			const render=el=>{
+				
+			}
+			
+			let doc=createElementUp(id)
+			let rendered=render(doc)
+			
+			_lastSelection=state.get("selection")
+			return lastSelection=new Selection(rendered)
+		},
+		
 		Store:compose(
 				setDisplayName("DocStore"),
 				getContext({store:PropTypes.object}),
@@ -70,18 +111,17 @@ function buildEditableDoc(doc,inputTypeInstance){
 					{children}
 				</TransformerProvider>
 			)
-
+			
 			if(passedStore){
-				store=passedStore
-				return root
+				store=new LocalStore(passedStore, "we-edit", state=>state['we-edit'].docs[id].state)
 			}else{
 				store=createStore(editableDoc.buildReducer())
-				return (
-					<Provider store={store}>
-						{root}
-					</Provider>
-				)
 			}
+			return (
+				<Provider store={store}>
+					{root}
+				</Provider>
+			)
 		}),
 
 		buildReducer(){
@@ -98,6 +138,10 @@ function buildEditableDoc(doc,inputTypeInstance){
 		
 		get name(){
 			return inputTypeInstance.name
+		},
+		
+		get id(){
+			return id
 		},
 
 		save(name,option){
@@ -130,6 +174,7 @@ function buildEditableDoc(doc,inputTypeInstance){
 		dispatch(){
 			return store.dispatch(...arguments)
 		},
+		
 		get history(){
 			return {
 				canUndo(){
@@ -255,3 +300,14 @@ class TransformerProvider extends Component{
 		this.props.onQuit()
 	}
 }
+
+class Selection{
+    isApplicable(type){
+        return this.routes.includes(type)
+    }
+
+    getStyle(type){
+        
+    }
+}
+

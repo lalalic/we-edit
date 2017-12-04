@@ -9,7 +9,7 @@ import IconFiles from "material-ui/svg-icons/navigation/arrow-drop-down"
 
 import Dashboard from "we-edit-ui/dashboard"
 
-import {ACTION} from "we-edit-ui"
+import {ACTION} from "we-edit"
 
 
 export class Bar extends PureComponent{
@@ -93,7 +93,7 @@ export default compose(
         },
         zoom
     })),
-    connect(({active,docs})=>({
+    connect(({"we-edit":{active,docs}})=>({
         active:active ? docs[active] : undefined,
         docs:Object.keys(docs).map(k=>docs[k])
     }))

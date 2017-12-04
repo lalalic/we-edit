@@ -1,74 +1,84 @@
-import {WithStore} from "we-edit/component"
+import React, {PureComponent, Children} from "react"
+import PropTypes from "prop-types"
+import {connect} from "react-redux"
+import {compose,setDisplayName}  from "recompose"
 
-import Workspace from "./workspace"
+import {Toolbar,ToolbarSeparator} from "material-ui"
 
-var _uuid=0
-const uuid=()=>`${_uuid++}`
-const reducers={}
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
+import getMuiTheme from 'material-ui/styles/getMuiTheme'
 
-function getActiveDoc(state){
-	return state.docs[state.active].doc
-}
 
-export const ACTION={
-	ADD:doc=>{
-		let id=uuid()
-		reducers[id]=WithStore.buildStoreKeyReducer(id,doc.buildReducer())[id]
-		return {type:"ADD",payload:{id,state: reducers[id](), doc}}
-	},
-	SAVE:()=>(dispatch,getState)=>{
-		getActiveDoc(getState()).save()
-	},
-	SAVEAS: path=>(dispath, getState)=>getActiveDoc(getState()).save(path),
-	CLOSE: ()=>({}),
-	ACTIVE: id=>({type:"ACTIVE", payload:id})
-}
+import AppBar from "we-edit-ui/app-bar"
+import Text from "we-edit-ui/text"
+import Paragraph from "we-edit-ui/paragraph"
+import File from "we-edit-ui/file"
+import Clipboard from "we-edit-ui/clipboard"
+import Canvas from "we-edit-ui/canvas"
 
-export function reducer(state={
-		active:null,
-		docs:{}
-	}, action){
-	const {type,payload}=action
-	switch(type){
-		case "ADD":{
-			return {
-				...state,
-				docs:{...state.docs,[payload.id]:payload},
-				active:payload.id
-			}
-		}
-		case "ACTIVE":
-			return {...state, active:payload}
-		default:
-			let id=Object.keys(reducers).filter(a=>type.startsWith(`${a}/`))[0]
-			if(id){
-				let reducer=reducers[id]
-				let myDoc=state.docs[id].doc
-				let myState=state.docs[id].state
-				let changedMyState=reducer(myState,action)
-				if(changedMyState){
-					return {
-						...state, 
-						docs:{
-							...state.docs, 
-							[id]:{
-								...state.docs[id],
-								state:changedMyState,
-								changed:changedMyState.get("content")!=myState.get("content"),
-								canUndo: myDoc.history.canUndo(),
-								canRedo: myDoc.history.canRedo(),
-							}
-						}
-					}
-				}else{
-					let docs={...state.docs}
-					delete docs[id]
-					let active=Object.keys(docs)[0]
-					return {...state, docs, active}
-				}
-			}
-			return state
+import {getActive} from "we-edit"
+
+
+export class Workspace extends PureComponent{
+	render(){
+		const {doc}=this.props
+		return (
+			<div>
+				<Toolbar>
+					<File/>
+					<ToolbarSeparator/>
+
+					<Clipboard/>
+					<ToolbarSeparator/>
+
+					<Text/>
+					<ToolbarSeparator/>
+
+					<Paragraph/>
+				</Toolbar>
+				<Canvas doc={doc}>
+					{this.props.children}
+				</Canvas>
+			</div>
+		)
 	}
 }
 
-export  default Workspace
+export const Bare=({doc,...props})=>(<doc.Store {...props}/>)
+
+export default compose(
+	setDisplayName("workspace"),
+	connect(state=>({active:getActive(state).doc})),
+)(class extends PureComponent{
+	render(){
+		let {children,active,theme=getMuiTheme()}=this.props
+		let child=null
+		if(active){
+			child=Children.toArray(children)
+				.find(({props:{filter=a=>!!a}})=>{
+					if(typeof(filter)=="string"){
+						filter=filter.replace('.','\\\\.').replace('*','.*')
+						filter=a=>new RegExp(filter,"i").test(a.name)
+					}
+					if(typeof(filter)=="function")
+						return filter(active)
+					
+					return !!filter
+				})
+				
+			if(child)
+				child=React.cloneElement(child,{doc:active})
+			else
+				child=(<div>no editor for this document</div>)
+		}
+		
+		return (
+			<MuiThemeProvider muiTheme={theme}>
+				<div>
+					<AppBar/>
+					{child}
+				</div>
+			</MuiThemeProvider>
+		)
+	}
+})
