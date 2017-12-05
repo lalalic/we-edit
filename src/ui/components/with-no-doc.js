@@ -18,4 +18,4 @@ const withNoDoc=A=>compose(
 
 export default withNoDoc
 
-export const IconButton=withNoDoc(IconButton0)
+export const IconButton=IconButton0

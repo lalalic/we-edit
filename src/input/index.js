@@ -16,7 +16,7 @@ import uuid from "tools/uuid"
 
 import Type from "./type"
 
-import {History} from "state/undoable"
+import undoable from "state/undoable"
 
 const supported=[]
 
@@ -56,7 +56,7 @@ function buildEditableDoc(doc,inputTypeInstance){
 	inputTypeInstance.doc=doc
 	let id=uuid()
 	let _lastSelection=null, lastSelection
-	let store,history
+	let store
 	
 	let editableDoc={
 		toJSON(){
@@ -133,8 +133,7 @@ function buildEditableDoc(doc,inputTypeInstance){
 			let changeReducer=changeReducerBuilder(createElementFactory,inputTypeInstance)
 			let content=new Map().withMutations(a=>inputTypeInstance.render(createElementFactory(a),Components))
 
-			history=new History()
-			let reducer=history.undoable(changeReducer)
+			let reducer=undoable(changeReducer)
 			let INIT_STATE=createState(doc,content)
 
 			return (state,action)=>state ? reducer(state,action) : INIT_STATE
@@ -181,17 +180,6 @@ function buildEditableDoc(doc,inputTypeInstance){
 
 		dispatch(){
 			return store.dispatch(...arguments)
-		},
-		
-		get history(){
-			return {
-				canUndo(){
-					return history.past.length>0
-				},
-				canRedo(){
-					return history.future.length>0
-				}
-			}
 		}
 	}
 

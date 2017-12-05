@@ -1,6 +1,14 @@
 import {List} from "immutable"
 import FindLast from "tools/array-find-last"
 
+export function getUndos(state){
+	return state.get("undos")
+}
+
+export function getRedos(state){
+	return state.get("redos")
+}
+
 export function getSelection(state){
 	return state.get("selection").toJS()
 }

@@ -1,5 +1,4 @@
 import {getContent, nextCursorable, prevCursorable,getSelection} from "state/selector"
-import {Text as TextModel} from "pagination"
 import {ACTION as History} from "state/undoable"
 import Query from "state/selector/query"
 

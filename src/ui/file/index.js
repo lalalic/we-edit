@@ -1,4 +1,4 @@
-import React, {Component} from "react"
+import React, {PureComponent} from "react"
 import PropTypes from "prop-types"
 import {connect} from "react-redux"
 import {compose, mapProps,getContext,setDisplayName} from "recompose"
@@ -15,13 +15,17 @@ import IconClose from "material-ui/svg-icons/navigation/close"
 
 import {ACTION, getActive} from "we-edit"
 
-export class File extends Component{
+export class File extends PureComponent{
+	changed=false
+	componentWillReceiveProps({content}){
+		this.change=this.props.content!=content
+	}
 	render(){
-		const {save,saveAs,changed,}=this.props
+		const {save,saveAs}=this.props
 		return (
 			<ToolbarGroup>
 				<IconButton
-					disabled={!changed}
+					disabled={!this.changed}
 					onClick={save}>
 					<IconSave/>
 				</IconButton>
@@ -52,7 +56,7 @@ export default compose(
 			return dispatch(ACTION.SAVEAS(path))
 		}
 	})),
-	connect(state=>({changed:getActive(state).changed})),
+	connect(state=>({content:state.get('content')})),
 )(File)
 
 var input=null

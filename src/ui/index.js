@@ -24,23 +24,20 @@ export class Workspace extends PureComponent{
 	render(){
 		const {doc}=this.props
 		return (
-			<div>
+			<doc.Store>
 				<Toolbar>
 					<File/>
-					<ToolbarSeparator/>
-
 					<Clipboard/>
 					<ToolbarSeparator/>
-
+					
 					<Text/>
 					<ToolbarSeparator/>
-
 					<Paragraph/>
 				</Toolbar>
 				<Canvas doc={doc}>
 					{this.props.children}
 				</Canvas>
-			</div>
+			</doc.Store>
 		)
 	}
 }

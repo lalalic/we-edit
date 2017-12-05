@@ -1,4 +1,4 @@
-import {getSelection} from "state/selector"
+import {getSelection, getRedos, getUndos} from "state/selector"
 
 export const ACTION={
 	undo:entry=>{
@@ -12,59 +12,54 @@ export const ACTION={
 	redo:()=>({type:"we-edit/history/REDO"})
 }
 
-class Entry{
-	constructor(state,action){
-		this.action=action
-		this.selection=getSelection(state)
-		this.changed=null
-	}
-}
-
-export class History{
-	past=[]
-	future=[]
-
-	/*it should be able to be merged*/
-	add(entry){
-		this.past.push(entry)
-	}
-
-	undoable(reducer){
-		let history=this
-		return function(state,action){
-			switch(action.type){
-				case "we-edit/history/UNDO":{
-					if(history.past.length){
-						let entry=history.past.pop()
-						let changedState=reducer(state,ACTION.undo(entry),{})
-						history.future.push(entry)
-						return changedState
-					}else{
-						return state
-					}
-				}
-				case "we-edit/history/REDO":{
-					if(history.future.length){
-						let entry=history.future.pop()
-						let changedState=reducer(state.mergeDeepIn(["selection"],entry.selection),entry.action,{})
-						history.past.push(entry)
-						return changedState
-					}else{
-						return state
-					}
-				}
-				default:{
-					Object.freeze(action)
-					let entry=new Entry(state,action)
-					let changedState=reducer(state,action,entry)
-					if(changedState.get("content")!==state.get("content")){
-						history.add(entry)
-						history.future=[]
-					}
+export default function undoable(reducer){
+	return function(state,action){
+		switch(action.type){
+			case "we-edit/history/UNDO":{
+				let undos=getUndos(state)
+				if(undos.length){
+					let entry=undos.pop()
+					let changedState=reducer(state,ACTION.undo(entry),{})
+					let redos=getRedos(state)
+					redos.push(entry)
+					changedState=changedState.set('redos',[...redos])
+					changedState=changedState.set('undos',[...undos])
 					return changedState
+				}else{
+					return state
 				}
 			}
-
+			case "we-edit/history/REDO":{
+				let redos=getRedos(state)
+				if(redos.length){
+					let entry=redos.pop()
+					let changedState=reducer(state.mergeDeepIn(["selection"],entry.selection),entry.action,{})
+					let undos=getUndos(state)
+					undos.push(entry)
+					changedState=changedState.set('redos',[...redos])
+					changedState=changedState.set('undos',[...undos])
+					return changedState
+				}else{
+					return state
+				}
+			}
+			default:{
+				Object.freeze(action)
+				let entry={
+					action,
+					selection:getSelection(state)
+				}
+				let changedState=reducer(state,action,entry)
+				if(changedState.get("content")!==state.get("content")){
+					let undos=getUndos(state)
+					undos.push(entry)
+					let redos=[]
+					changedState=changedState.set('redos',[...redos])
+					changedState=changedState.set('undos',[...undos])
+				}
+				return changedState
+			}
 		}
+
 	}
 }

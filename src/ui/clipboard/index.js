@@ -12,7 +12,7 @@ import {IconButton} from "we-edit-ui/components/with-no-doc"
 import IconRedo from "material-ui/svg-icons/content/redo"
 import IconUndo from "material-ui/svg-icons/content/undo"
 
-import {ACTION, getActive} from "we-edit"
+import {ACTION, getActive, selector} from "we-edit"
 
 export default compose(
 	setDisplayName("clipboard"),
@@ -26,8 +26,12 @@ export default compose(
 		}
 	})),
 	connect(state=>{
-		const{canRedo, canUndo}=getActive(state)
-		return {canRedo, canUndo}
+		let redos=selector.getRedos(state)
+		let undos=selector.getUndos(state)
+		return {
+			canRedo:!!redos.length, 
+			canUndo:!!undos.length
+		}
 	})
 )(({undo,redo, canUndo, canRedo})=>(
 	<ToolbarGroup>

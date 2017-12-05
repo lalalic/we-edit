@@ -27,7 +27,9 @@ export function createState(doc, content){
 		selection:Immutable.fromJS({start:{id,at:0},end:{id,at:0},cursorAt:"end"}),
 		violent:{
 			toJSON:()=>undefined
-		}
+		},
+		undos:[],
+		redos:[],
 	})
 }
 

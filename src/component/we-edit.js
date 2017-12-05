@@ -116,10 +116,7 @@ export function reducer(state={active:null,docs:{}}, action){
 							...state.docs, 
 							[id]:{
 								...state.docs[id],
-								state:changedMyState,
-								changed:changedMyState.get("content")!=myState.get("content"),
-								canUndo: myDoc.history.canUndo(),
-								canRedo: myDoc.history.canRedo(),
+								state:changedMyState
 							}
 						}
 					}

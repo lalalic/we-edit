@@ -53,5 +53,7 @@ export function preview(doc, container, viewer=((<Viewer><Pagination/></Viewer>)
 }
 
 export {ACTION, getActive} from "component/we-edit"
+import * as selector from "state/selector"
+export {selector}
 
 
