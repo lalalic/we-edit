@@ -6,7 +6,7 @@ import {compose, mapProps,getContext,setDisplayName} from "recompose"
 import Input from "we-edit/input"
 
 import {ToolbarGroup, ToolbarSeparator, ToolbarTitle} from "material-ui"
-import {IconButton} from "we-edit-ui/components/with-no-doc"
+import CheckIconButton from "we-edit-ui/components/check-icon-button"
 
 
 import IconSave from "material-ui/svg-icons/content/save"
@@ -24,11 +24,11 @@ export class File extends PureComponent{
 		const {save,saveAs}=this.props
 		return (
 			<ToolbarGroup>
-				<IconButton
-					disabled={!this.changed}
+				<CheckIconButton
+					status={this.changed ? "uncheck" : "disabled"}
 					onClick={save}>
 					<IconSave/>
-				</IconButton>
+				</CheckIconButton>
 			</ToolbarGroup>
 		)
 	}

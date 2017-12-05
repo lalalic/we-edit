@@ -2,6 +2,8 @@ import {getContent, nextCursorable, prevCursorable,getSelection} from "state/sel
 import {ACTION as History} from "state/undoable"
 import Query from "state/selector/query"
 
+import Style from "./style"
+
 function isInSameParagraph(state,id1,id2){
 	return new Query(state,[id1])
 		.parents("paragraph")
@@ -133,6 +135,6 @@ export const Entity={
 	ROTATE: a=>({type:"we-edit/entity/ROTATE",payload:a})
 }
 
-export const ACTION={Cursor, Text, Selection,Entity,History}
+export const ACTION={Cursor, Text, Selection,Entity,History, Style}
 
 export default ACTION

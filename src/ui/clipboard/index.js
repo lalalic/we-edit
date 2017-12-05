@@ -6,7 +6,7 @@ import {compose, mapProps,getContext,setDisplayName} from "recompose"
 import Input from "we-edit/input"
 
 import {ToolbarGroup} from "material-ui"
-import {IconButton} from "we-edit-ui/components/with-no-doc"
+import CheckIconButton from "we-edit-ui/components/check-icon-button"
 
 
 import IconRedo from "material-ui/svg-icons/content/redo"
@@ -35,13 +35,13 @@ export default compose(
 	})
 )(({undo,redo, canUndo, canRedo})=>(
 	<ToolbarGroup>
-		<IconButton
-			disabled={!canUndo}
+		<CheckIconButton
+			status={canUndo ? "uncheck" : "disabled"}
 			children={<IconUndo/>}
 			onClick={undo}
 			/>
-		<IconButton
-			disabled={!canRedo}
+		<CheckIconButton
+			status={canRedo ? "uncheck" : "disabled"}
 			children={<IconRedo/>}
 			onClick={redo}
 			/>

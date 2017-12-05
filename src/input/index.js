@@ -1,7 +1,7 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 
-import {Provider} from "react-redux"
+import {Provider,connect} from "react-redux"
 import Immutable, {Map,Collection} from "immutable"
 import {compose, setDisplayName, getContext} from "recompose"
 
@@ -9,14 +9,14 @@ import {LocalStore} from "component/with-store"
 
 import Components from "model"
 import {createStore, createState, isState} from "state"
-import {getContent,getSelection,getFile,getParentId} from "state/selector"
+import {getContent,getSelection,getFile,getParentId, query} from "state/selector"
 import * as reducer from "state/reducer"
 
 import uuid from "tools/uuid"
 
 import Type from "./type"
 
-import undoable from "state/undoable"
+import undoable, {ACTION} from "state/undoable"
 
 const supported=[]
 
@@ -55,7 +55,6 @@ export default {
 function buildEditableDoc(doc,inputTypeInstance){
 	inputTypeInstance.doc=doc
 	let id=uuid()
-	let _lastSelection=null, lastSelection
 	let store
 	
 	let editableDoc={
@@ -69,35 +68,20 @@ function buildEditableDoc(doc,inputTypeInstance){
 			},components)
 		},
 		
-		createSelection(state){
-			if(_lastSelection==state.get("selection"))
-				return lastSelection
-			
-			const selection=getSelection(state)
-			const tranform=inputTypeInstance.transform
-			let {id,at}=selection[selection.cursorAt]
-			
-			const createElementUp=id=>{
-				let last=null
-				while(id){
-					const {type, props,children,parent}=getContent(state,id).toJS()
-					const Type=transform[type[0].toUpperCase()+type.substr(1)](Components)
-					last=React.createElement(Type, props, last)
-					id=parent
-				}
-				return last
-			}
-			
-			const render=el=>{
-				
-			}
-			
-			let doc=createElementUp(id)
-			let rendered=render(doc)
-			
-			_lastSelection=state.get("selection")
-			return lastSelection=new Selection(rendered)
+		selection(){
+			return new Selection(editableDoc)
 		},
+		
+		withSelection:compose(
+			setDisplayName("DocSelection"),
+			getContext({store:PropTypes.object}),
+			connect(state=>({selection:getSelection(state)})),
+			)(({selection,store,children})=>{
+			
+			selection=new Selection(editableDoc);
+			let storeWithSelection=new LocalStore(store,"",state=>({state,selection}))
+			return (<Provider store={storeWithSelection}>{children}</Provider>)
+		}),
 		
 		Store:compose(
 				setDisplayName("DocStore"),
@@ -151,6 +135,7 @@ function buildEditableDoc(doc,inputTypeInstance){
 			name=name||inputTypeInstance.name
 			inputTypeInstance.name=name
 			return Promise.resolve(inputTypeInstance.serialize(option)).then(data=>{
+				store.dispatch(ACTION.clear())
 				if(typeof(document)!="undefined" && window.URL && window.URL.createObjectURL){
 					let url = window.URL.createObjectURL(data)
 					let link = document.createElement("a");
@@ -264,11 +249,13 @@ const createElementFactoryBuilder=inputTypeInstance=>content=>(type, props, chil
 import Input from "state/cursor/input"
 class TransformerProvider extends Component{
 	static propTypes={
+		doc: PropTypes.object,
 		transformer: PropTypes.func.isRequired,
 		onQuit: PropTypes.func,
 	}
 
 	static childContextTypes={
+		doc: PropTypes.object,
 		transformer: PropTypes.func,
 		getCursorInput: PropTypes.func,
 	}
@@ -276,8 +263,10 @@ class TransformerProvider extends Component{
 	getChildContext(){
 		const self=this
 		return {
+			doc: this.props.doc,
 			transformer:this.props.transformer,
-			getCursorInput(){
+			getCursorInput(composedDoc){
+				self.props.doc.composedDoc=composedDoc
 				return self.refs.input
 			}
 		}
@@ -300,12 +289,40 @@ class TransformerProvider extends Component{
 }
 
 class Selection{
-    isApplicable(type){
-        return this.routes.includes(type)
+	constructor(doc){
+		const state=doc.getState()
+		const selection=getSelection(state)
+		const {id,at}=selection[selection.cursorAt]
+		this.from=id
+		this.doc=doc
+	}
+	
+    has(TYPE){
+		const state=this.doc.getState()
+		let id=this.from
+		while(id){
+			let {type,parent}=getContent(state,id).toJS()
+			if(type==TYPE)
+				return id
+			else
+				id=parent
+			
+		}
+		
+		return false
     }
-
-    getStyle(type){
-        
+	
+	//it can be construct from re-rendering, instead of parse composers along long way
+    props(TYPE){
+		let id=this.has(TYPE)
+		if(id===false){
+			return false
+		}else if(this.doc.composedDoc){
+			let composer=this.doc.composedDoc.getComposer(id)
+			let {children, ...props}=composer.props
+			return props
+		}
+		return false
     }
 }
 

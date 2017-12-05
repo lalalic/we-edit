@@ -2,6 +2,7 @@ import Input from "input"
 import uuid from "tools/uuid"
 import {getSelection} from "state/selector"
 import EditableDocument from "./editable-doc"
+import * as reducer from "./reducer"
 
 export default class extends Input.Type{
 	static support(file){
@@ -97,5 +98,16 @@ export default class extends Input.Type{
 
 	makeId(node){
 		return this.doc.makeId(node)
+	}
+	
+	onChange(state,{type,payload},createElement){
+		let params=[state]
+		switch(type){
+			case 'we-edit/style/text/bold':
+				return new reducer.text(...params)
+					.update({bold:payload})
+					.state()
+		}
+		return super.onChange(...arguments)
 	}
 }

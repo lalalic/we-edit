@@ -36,9 +36,10 @@ export class Cursor extends Component{
 		const {docId, getCursorInput,query}=this.context
 		if(docId!==active)
 			return
-		this.style=query().position(id,at)
+		let docQuery=query()
+		this.style=docQuery.position(id,at)
 		let {top,left,height,fontFamily,fontSize}=this.style||{}
-		getCursorInput().setState({
+		getCursorInput({getComposer:id=>docQuery.getComposer(id),active,id,at}).setState({
 			top,left,height,fontFamily,fontSize,
 			up: this.up.bind(this),
 			down: this.down.bind(this)
@@ -109,22 +110,23 @@ export class Cursor extends Component{
 	}
 }
 
-let lastContent=null
 export default connect(state=>{
 	let selection=getSelection(state)
 	let content=state.get("content")
 	let {end,start,active,cursorAt}=selection
 	let {id,at}=selection[cursorAt]
-	let contentChanged=!!(lastContent && lastContent!==content)
-	lastContent=content
-	return {id,at,active, contentChanged}
+	return {id,at,active, content}
 })(
 class extends Component{
 	static propTypes={
 		onRef:PropTypes.func.isRequired
 	}
+	contentChanged=false
+	componentWillReceiveProps({content}){
+		this.contentChanged=this.props.content!=content
+	}
 	render(){
 		const {onRef,...others}=this.props
-		return <Cursor {...others} ref={onRef}/>
+		return <Cursor {...others} contentChanged={this.contentChanged} ref={onRef}/>
 	}
 })

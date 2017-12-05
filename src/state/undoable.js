@@ -9,12 +9,18 @@ export const ACTION={
 
 		return action
 	},
-	redo:()=>({type:"we-edit/history/REDO"})
+	redo:()=>({type:"we-edit/history/REDO"}),
+	clear:()=>({type:"we-edit/history/CLEAR"})
 }
 
 export default function undoable(reducer){
 	return function(state,action){
 		switch(action.type){
+			case "we-edit/history/CLEAR":{
+				state=state.set('redos',[])
+				state=state.set('undos',[])
+				return state
+			}
 			case "we-edit/history/UNDO":{
 				let undos=getUndos(state)
 				if(undos.length){

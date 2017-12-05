@@ -128,8 +128,4 @@ export default class EditableDocument extends Editable{
 		this.doc.children.splice(0,0,piece)
 		return piece
 	}
-	
-	resize(id,width,height){
-		
-	}	
 }

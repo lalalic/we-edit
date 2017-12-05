@@ -11,6 +11,14 @@ export default class Content extends Query{
 	_getContent(){
 		return this.state.get("_content")
 	}
+	
+	clone(render){
+		let nodes=this._nodes.map(a=>{
+			let node=this._doc.cloneNode(this._doc.getNode(a))
+			return render(this._doc.attach(node))
+		})
+		return new this.constructor(this.state,nodes)
+	}
 
     attr(k,value){
         if(k==undefined){
@@ -81,7 +89,7 @@ export default class Content extends Query{
 		return this
 	}
 
-	prepend(node){
+	prepend(nodes){
 		let id0=this.attr("id")
 		let docNode=this._doc.getNode(id0);
 		(new this.constructor(this.state,nodes))._nodes.reverse()

@@ -17,7 +17,8 @@ export default class Paragraph extends Component{
 			right:PropTypes.number,
 			firstLine:PropTypes.number,
 			hanging:PropTypes.number
-		}).isRequired
+		}).isRequired,
+		align:PropTypes.string
 	}
 	
 	static defaultProps={
