@@ -56,38 +56,30 @@ function buildEditableDoc(doc,inputTypeInstance){
 	inputTypeInstance.doc=doc
 	let id=uuid()
 	let store
-	
+
+	const Transformed=inputTypeInstance.transform(Components)
 	let editableDoc={
+		Transformed,
+
 		toJSON(){
 			return this.name
 		},
-		
+
 		render(components){
 			return inputTypeInstance.render((type, props, children)=>{
 				return React.createElement(type,{...props,key:uuid()},children)
 			},components)
 		},
-		
+
 		selection(){
-			return new Selection(editableDoc)
+			return new Selection(editableDoc.getState(), inputTypeInstance)
 		},
-		
-		withSelection:compose(
-			setDisplayName("DocSelection"),
-			getContext({store:PropTypes.object}),
-			connect(state=>({selection:getSelection(state)})),
-			)(({selection,store,children})=>{
-			
-			selection=new Selection(editableDoc);
-			let storeWithSelection=new LocalStore(store,"",state=>({state,selection}))
-			return (<Provider store={storeWithSelection}>{children}</Provider>)
-		}),
-		
+
 		Store:compose(
 				setDisplayName("DocStore"),
 				getContext({store:PropTypes.object}),
 			)(({children,store:passedStore})=>{
-			
+
 			let onQuit=null
 			if(passedStore){
 				store=new LocalStore(passedStore, "we-edit", state=>state['we-edit'].docs[id].state)
@@ -95,7 +87,7 @@ function buildEditableDoc(doc,inputTypeInstance){
 				store=createStore(editableDoc.buildReducer())
 				onQuit=()=>inputTypeInstance.release()
 			}
-			
+
 			let root=(
 				<TransformerProvider
 					doc={editableDoc}
@@ -104,7 +96,7 @@ function buildEditableDoc(doc,inputTypeInstance){
 					{children}
 				</TransformerProvider>
 			)
-			
+
 			return (
 				<Provider store={store}>
 					{root}
@@ -122,11 +114,11 @@ function buildEditableDoc(doc,inputTypeInstance){
 
 			return (state,action)=>state ? reducer(state,action) : INIT_STATE
 		},
-		
+
 		get name(){
 			return inputTypeInstance.name
 		},
-		
+
 		get id(){
 			return id
 		},
@@ -154,7 +146,7 @@ function buildEditableDoc(doc,inputTypeInstance){
 				}
 			})
 		},
-		
+
 		release(){
 			return inputTypeInstance.release()
 		},
@@ -288,16 +280,22 @@ class TransformerProvider extends Component{
 	}
 }
 
+import TestRenderer from 'react-test-renderer';
 class Selection{
-	constructor(doc){
-		const state=doc.getState()
+	constructor(state, inputInstance){
 		const selection=getSelection(state)
-		const {id,at}=selection[selection.cursorAt]
-		this.from=id
-		this.doc=doc
+		let {id,at}=selection[selection.cursorAt]
+
+		this.doc=TestRenderer.create(inputInstance.buildUp(state))
 	}
-	
+
     has(TYPE){
+		try{
+			this.root.findByType(this.Transformed[TYPE[0].toUpperCase()+TYPE.substr(1).toLowerCase()])
+			return true
+		}catch(e){
+			return false
+		}
 		const state=this.doc.getState()
 		let id=this.from
 		while(id){
@@ -306,14 +304,21 @@ class Selection{
 				return id
 			else
 				id=parent
-			
+
 		}
-		
+
 		return false
     }
-	
+
 	//it can be construct from re-rendering, instead of parse composers along long way
     props(TYPE){
+		try{
+			let found=this.root.findByType(this.Transformed[TYPE[0].toUpperCase()+TYPE.substr(1).toLowerCase()])
+			return found.props
+			return true
+		}catch(e){
+			return {}
+		}
 		let id=this.has(TYPE)
 		if(id===false){
 			return false
@@ -325,4 +330,3 @@ class Selection{
 		return false
     }
 }
-

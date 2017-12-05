@@ -1,4 +1,4 @@
-import {Component} from "react"
+import React, {Component} from "react"
 
 export default class Base extends Component{
 	static mixin(mix){
@@ -10,5 +10,9 @@ export default class Base extends Component{
 		},A.prototype)
 
 		return A
+	}
+
+	render(){
+		return (<div>{this.props.children}</div>)
 	}
 }

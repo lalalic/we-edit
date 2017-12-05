@@ -1,4 +1,7 @@
+import React from "react"
 import * as reducer from "./reducer"
+import Components from "model"
+import {getSelection, getContent} from "state/selector"
 
 export class Viewable{
 	static support(file){
@@ -6,82 +9,82 @@ export class Viewable{
 			return new this.Support().check(file)
 		return false
 	}
-	
+
 	static Support=class{
 		isNode(){
 			return typeof(process)!=="undefined"
 		}
-		
+
 		check(file){
 			switch(typeof(file)){
 			case "string":
-				
+
 			break
 			case "object":
-				
+
 			break
 			default:
 				return false
-			}	
+			}
 		}
-		
+
 		load(file,type){
-			
+
 		}
-		
+
 		isFile(str){
-			
+
 		}
-		
+
 		isUrl(){
-			
+
 		}
-		
+
 		isContent(){
-			
+
 		}
-		
+
 		isObject(){
-			
+
 		}
-		
+
 		isBlob(){
-			
+
 		}
-		
+
 		isBuffer(){
-			
+
 		}
-		
+
 		isStream(){
-			
+
 		}
-		
+
 		fromFile(str){
-			
+
 		}
-		
+
 		fromUrl(str){
-			
+
 		}
-		
+
 		fromContent(str){
-			
+
 		}
-		
+
 		fromObject(obj){
-			
+
 		}
-		
+
 		fromBlob(file){
-			
+
 		}
 	}
-	
+
 	static isBlob(file){
 		return file.size
 	}
-	
+
 	static load(file){
 		return new Promise((resolve, reject)=>{
 			var reader=new FileReader();
@@ -96,7 +99,7 @@ export class Viewable{
 		})
 
 	}
-	
+
 	//doc=null//injected from load/create
 	load(url){
 		return Promise.reject(new Error("need implementation to load and parse content at "+url))
@@ -143,6 +146,20 @@ export class Editable extends Viewable{
 
 	renderNode(node, createElement/*(TYPE, props, children, rawcontent)*/){
 
+	}
+
+	buildUp(state){
+		const Transformed=this.transform(Components)
+		const selection=getSelection(state)
+		let {id,at}=selection[selection.cursorAt]
+		let element=null
+		while(id){
+			let {type, props, parent}=getContent(state, id).toJS()
+			let Type=Transformed[type[0].toUpperCase()+type.substr(1)]
+			element=React.createElement(Type, {...props,key:id}, element)
+			id=parent
+		}
+		return element
 	}
 
 	/**

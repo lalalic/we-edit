@@ -5,19 +5,34 @@ import PropTypes from "prop-types"
 export default function(Models){
 	return class Document extends Component{
 		static displayName="docx-document"
-		
+
 		static propTypes={
 			evenAndOddHeaders: PropTypes.bool
 		}
-		
+
 		static childContextTypes={
 			styles: PropTypes.object,
 			evenAndOddHeaders: PropTypes.bool
 		}
-		
+		constructor(){
+			super(...arguments)
+			this.styles=this.getStyles(this.props)
+		}
+
+		componentWillReceiveProps(next){
+			this.styles=this.getStyles(next)
+		}
+
+		getStyles({children:[styles]}){
+			this.styles=styles.props.styles
+			if(this.styles.toJS)
+				this.styles=this.styles.toJS()
+			return this.styles
+		}
+
 		getChildContext(){
 			return {
-				styles:this.props.children[0].props.styles,
+				styles:this.styles,
 				evenAndOddHeaders: !!this.props.evenAndOddHeaders
 			}
 		}
@@ -25,11 +40,11 @@ export default function(Models){
 		render(){
 			const {children,evenAndOddHeaders,...others}=this.props
 			let [styles,...content]=children
-			styles=styles.props.styles
-			
+			styles=this.styles
+
 			Object.keys(styles)
 				.forEach((k,t)=>(t=styles[k])&& t.reset && t.reset())
-			
+
 			return <Models.Document {...others} children={content}/>
 		}
 	}

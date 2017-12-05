@@ -1,3 +1,4 @@
+import React from "react"
 import Docx from "./editable-doc"
 import Input from "we-edit/input"
 import {Map} from "immutable"
@@ -49,6 +50,11 @@ export default class extends Input.Type{
 		},{...components})
 	}
 
+	buildUp(state){
+		let doc=super.buildUp(state)
+		return React.cloneElement(doc,{}, this.refreshStyles(), doc.props.children)
+	}
+
 	render(createElement,components){
 		const self=this
 		const docx=this.doc
@@ -57,7 +63,7 @@ export default class extends Input.Type{
 		const settings=docx.officeDocument.settings
 
 		const styles=this.styles=Input.Type.createStyles()
-		
+
 		const createStylesElement=()=>createElement(
 			Transformers.Styles(components),
 			{styles:new Map(styles)},
@@ -74,7 +80,7 @@ export default class extends Input.Type{
 					merged.push(a)
 				return merged
 			},[])
-			
+
 			switch(type){
 			case "style":{
 				let style=null
@@ -115,14 +121,14 @@ export default class extends Input.Type{
 				let style=new Style.AbstractNum(node,styles,selector)
 				styles[style.id]=style
 				return createStylesElement()
-			}				
+			}
 			case "document":{
 				let evenAndOddHeaders=settings("w\\:evenAndOddHeaders").length>0
 				return createElement(
 					components.Document,
 					{
 						...selector.select(node.children.filter(a=>a.name!="w:body")),
-						evenAndOddHeaders, 
+						evenAndOddHeaders,
 					},
 					[
 						createStylesElement(),
@@ -287,11 +293,11 @@ export default class extends Input.Type{
 			try{
 				node=node.get(0)
 			}catch(e){
-				
+
 			}
 			return docx.officeDocument.renderNode(node,buildFactory(createElement),identify)
 		}
-		
+
 		this.refreshStyles=createStylesElement
 
 		return docx.render(build)
@@ -302,11 +308,11 @@ export default class extends Input.Type{
 			return node.id
 		return Docx.prototype.makeId.call(this,...arguments)
 	}
-	
+
 	renderNode(node, createElement){
 		//injected implementation by render
 	}
-	
+
 	/**
 	*return:
 	- false: no state change
@@ -335,6 +341,6 @@ export default class extends Input.Type{
 		}
 		return super.onChange(...arguments)
 	}
-	
-	
+
+
 }
