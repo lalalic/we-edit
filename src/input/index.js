@@ -103,20 +103,24 @@ function buildEditableDoc(doc,inputTypeInstance){
 				setDisplayName("DocStore"),
 				getContext({store:PropTypes.object}),
 			)(({children,store:passedStore})=>{
+			
+			let onQuit=null
+			if(passedStore){
+				store=new LocalStore(passedStore, "we-edit", state=>state['we-edit'].docs[id].state)
+			}else{
+				store=createStore(editableDoc.buildReducer())
+				onQuit=()=>inputTypeInstance.release()
+			}
+			
 			let root=(
 				<TransformerProvider
 					doc={editableDoc}
-					onQuit={()=>inputTypeInstance.release()}
+					onQuit={onQuit}
 					transformer={inputTypeInstance.transform}>
 					{children}
 				</TransformerProvider>
 			)
 			
-			if(passedStore){
-				store=new LocalStore(passedStore, "we-edit", state=>state['we-edit'].docs[id].state)
-			}else{
-				store=createStore(editableDoc.buildReducer())
-			}
 			return (
 				<Provider store={store}>
 					{root}
@@ -165,6 +169,10 @@ function buildEditableDoc(doc,inputTypeInstance){
 					)
 				}
 			})
+		},
+		
+		release(){
+			return inputTypeInstance.release()
 		},
 
 		getState(){
@@ -297,7 +305,9 @@ class TransformerProvider extends Component{
 	}
 
 	componentWillUnmount(){
-		this.props.onQuit()
+		let {onQuit}=this.props
+		if(onQuit)
+			onQuit()
 	}
 }
 

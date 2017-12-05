@@ -2,6 +2,7 @@ import React, {PureComponent, Children} from "react"
 import PropTypes from "prop-types"
 import {connect} from "react-redux"
 import {compose,setDisplayName}  from "recompose"
+import minimatch from "minimatch"
 
 import {Toolbar,ToolbarSeparator} from "material-ui"
 
@@ -47,7 +48,7 @@ export class Workspace extends PureComponent{
 export const Bare=({doc,...props})=>(<doc.Store {...props}/>)
 
 export default compose(
-	setDisplayName("workspace"),
+	setDisplayName("FilterableThemeProvider"),
 	connect(state=>({active:getActive(state).doc})),
 )(class extends PureComponent{
 	render(){
@@ -57,13 +58,14 @@ export default compose(
 			child=Children.toArray(children)
 				.find(({props:{filter=a=>!!a}})=>{
 					if(typeof(filter)=="string"){
-						filter=filter.replace('.','\\\\.').replace('*','.*')
-						filter=a=>new RegExp(filter,"i").test(a.name)
+						let glob=filter
+						filter=a=>minimatch(a.name,glob)
 					}
+					
 					if(typeof(filter)=="function")
 						return filter(active)
 					
-					return !!filter
+					return false
 				})
 				
 			if(child)

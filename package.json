@@ -13,6 +13,7 @@
     "lodash.get": "^4.4.2",
     "lodash.invoke": "^4.5.2",
     "material-ui": "^0.19.4",
+    "minimatch": "^3.0.4",
     "mouse-event-offset": "^3.0.2",
     "opentype.js": "^0.6.9",
     "prop-types": "^15.6.0",
