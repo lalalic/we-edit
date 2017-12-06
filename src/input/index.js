@@ -280,53 +280,35 @@ class TransformerProvider extends Component{
 	}
 }
 
-import TestRenderer from 'react-test-renderer';
+import TestRenderer from 'react-test-renderer'
 class Selection{
 	constructor(state, inputInstance){
+		const Transformed=inputInstance.transform(Components)
 		const selection=getSelection(state)
 		let {id,at}=selection[selection.cursorAt]
 
-		this.doc=TestRenderer.create(inputInstance.buildUp(state))
+		const root=TestRenderer.create(inputInstance.buildUp(state,Transformed)).root
+		
+		const Type=type=>type[0].toUpperCase()+type.substr(1).toLowerCase()
+
+		this.has=(type)=>{
+			try{
+				root.findByType(Transformed[Type(type)])
+				return true
+			}catch(e){
+				return false
+			}
+		}
+
+		//it can be construct from re-rendering, instead of parse composers along long way
+		this.props=(type)=>{
+			try{
+				let found=root.findByType(Transformed[Type(type)])
+				return found.props
+			}catch(e){
+				return {}
+			}
+		}		
+		
 	}
-
-    has(TYPE){
-		try{
-			this.root.findByType(this.Transformed[TYPE[0].toUpperCase()+TYPE.substr(1).toLowerCase()])
-			return true
-		}catch(e){
-			return false
-		}
-		const state=this.doc.getState()
-		let id=this.from
-		while(id){
-			let {type,parent}=getContent(state,id).toJS()
-			if(type==TYPE)
-				return id
-			else
-				id=parent
-
-		}
-
-		return false
-    }
-
-	//it can be construct from re-rendering, instead of parse composers along long way
-    props(TYPE){
-		try{
-			let found=this.root.findByType(this.Transformed[TYPE[0].toUpperCase()+TYPE.substr(1).toLowerCase()])
-			return found.props
-			return true
-		}catch(e){
-			return {}
-		}
-		let id=this.has(TYPE)
-		if(id===false){
-			return false
-		}else if(this.doc.composedDoc){
-			let composer=this.doc.composedDoc.getComposer(id)
-			let {children, ...props}=composer.props
-			return props
-		}
-		return false
-    }
 }

@@ -148,8 +148,7 @@ export class Editable extends Viewable{
 
 	}
 
-	buildUp(state){
-		const Transformed=this.transform(Components)
+	buildUp(state, Transformed){
 		const selection=getSelection(state)
 		let {id,at}=selection[selection.cursorAt]
 		let element=null
@@ -159,6 +158,7 @@ export class Editable extends Viewable{
 			element=React.createElement(Type, {...props,key:id}, element)
 			id=parent
 		}
+		
 		return element
 	}
 

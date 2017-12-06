@@ -50,8 +50,8 @@ export default class extends Input.Type{
 		},{...components})
 	}
 
-	buildUp(state){
-		let doc=super.buildUp(state)
+	buildUp(state,Transformed){
+		let doc=super.buildUp(state,Transformed)
 		return React.cloneElement(doc,{}, this.refreshStyles(), doc.props.children)
 	}
 
@@ -66,7 +66,7 @@ export default class extends Input.Type{
 
 		const createStylesElement=()=>createElement(
 			Transformers.Styles(components),
-			{styles:new Map(styles)},
+			{styles:{...styles}},
 			null,
 			{id:"styles"}
 		)
