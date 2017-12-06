@@ -12,16 +12,6 @@ export default class xQuery extends Query{
 		return this.state.get("_content")
 	}
 
-	clone(){
-		let nodes=this._nodes.map(a=>{
-			let node=this._doc.cloneNode(this._doc.getNode(a))
-			let {id}=this._doc.renderChanged(node)
-			this._doc.attach(node)
-			return id
-		})
-		return new this.constructor(this.state,nodes)
-	}
-
     attr(k,value){
         if(k==undefined){
             if(this.length){
@@ -187,6 +177,18 @@ export default class xQuery extends Query{
 	}
 
 	constructUp(to){
-		return this._doc.construct(this.attr("id"), new this.constructor(this.state,to).attr("id"))
+		let docNode=this._doc.construct(this.attr("id"), new this.constructor(this.state,to).attr("id"))
+        let {id}=this._doc.renderChanged(docNode)
+        return new this.constructor(this.state, [id])
+	}
+
+    clone(){
+		let nodes=this._nodes.map(a=>{
+			let node=this._doc.cloneNode(this._doc.getNode(a))
+			let {id}=this._doc.renderChanged(node)
+			this._doc.attach(node)
+			return id
+		})
+		return new this.constructor(this.state,nodes)
 	}
 }

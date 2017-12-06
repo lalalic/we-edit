@@ -427,11 +427,11 @@ export default class Query{
 		}
 	}
 
-	add(selector){
+	add(selector, at="push"){
 		let nodes=[...this._nodes]
 		new this.constructor(this.state,selector)._nodes.forEach(id=>{
 			if(!nodes.includes(id))
-				nodes.push(id)
+				nodes[at](id)
 		})
 		return new this.constructor(this.state, nodes)
 	}

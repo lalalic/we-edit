@@ -182,11 +182,11 @@ export class Insert extends Remove{
 					break
 				}
 				case LAST:{
-					let {id:idP0}=this.renderChanged(target.constructUp(p))
+					let p0=target.constructUp(p)
+						.insertAfter(p)
 
-					let p0=this.$('#'+idP0).insertAfter(p)
-
-					let t0=p0.findFirst("text").text(piece+text.substr(at))
+					let t0=p0.findFirst("text")
+						.text(piece+text.substr(at))
 
 					target.parentsUntil(p).each(function(i,node,$){
 						this.eq(i).after($(node).nextAll())
@@ -196,8 +196,7 @@ export class Insert extends Remove{
 					break
 				}
 				default:{
-					let {id:idP0}=this.renderChanged(target.constructUp(p))
-					this.$('#'+idP0)
+					target.constructUp(p)
 						.insertAfter(p)
 						.findFirst("text")
 						.text(piece)
@@ -224,8 +223,16 @@ export class Update extends Insert{
 		const {start:{id,at}, end}=this.selection
 		let target=this.$(`#${id}`)
 		let text=target.text()
+
+		let grand=target.parentsUntil("paragraph").last()
+		let clonedRoute=target.constructUp(grand)
+		
+
+
 		let parent=target.parent()
 		let grandPa=parent.parent()
+
+		let target.constructUp(target.closest("paragraph"))
 
 		this.save4undo(parent.attr('id'))
 
