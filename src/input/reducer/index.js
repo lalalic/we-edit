@@ -1,5 +1,3 @@
-export {default as Base} from "./base"
-export {document} from "./document"
-export {text} from "./text"
+export {default as content} from "./content"
 export {entity} from "./entity"
 export {undo} from "./undo"

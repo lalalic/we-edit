@@ -158,7 +158,7 @@ export class Editable extends Viewable{
 			element=React.createElement(Type, {...props,key:id, children:[element]})
 			id=parent
 		}
-		
+
 		return element
 	}
 
@@ -177,16 +177,32 @@ export class Editable extends Viewable{
 		let params=[state]
 		switch(type){
 			case `we-edit/text/RETURN`:
-				return new reducer.text(...params)
+				return new reducer.content(...params)
 					.insert("\r")
 					.state()
 			case `we-edit/text/INSERT`:
-				return new reducer.text(...params)
+				return new reducer.content(...params)
 					.insert(payload)
 					.state()
 			case `we-edit/text/REMOVE`:
-				return new reducer.text(...params)
+				return new reducer.content(...params)
 					.remove(payload)
+					.state()
+			case 'we-edit/clipboard/copy':
+				return new reducer.clipboard(...params)
+					.copy(payload)
+					.state()
+			case 'we-edit/clipboard/paste':
+				return new reducer.clipboard(...params)
+					.paste(payload)
+					.state()
+			case 'we-edit/clipboard/cut':
+				return new reducer.clipboard(...params)
+					.cut(payload)
+					.state()
+			case `we-edit/content/update`:
+				return new reducer.content(...params)
+					.update(payload)
 					.state()
 			case "we-edit/entity/RESIZE":
 				return new reducer.entity(...params)

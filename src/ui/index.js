@@ -14,7 +14,7 @@ import AppBar from "we-edit-ui/app-bar"
 import Text from "we-edit-ui/text"
 import Paragraph from "we-edit-ui/paragraph"
 import File from "we-edit-ui/file"
-import Clipboard from "we-edit-ui/clipboard"
+import History from "we-edit-ui/history"
 import Canvas from "we-edit-ui/canvas"
 
 import {getActive} from "we-edit"
@@ -27,9 +27,9 @@ export class Workspace extends PureComponent{
 			<doc.Store>
 					<Toolbar>
 						<File/>
-						<Clipboard/>
+						<History/>
 						<ToolbarSeparator/>
-						
+
 						<Text/>
 						<ToolbarSeparator/>
 						<Paragraph/>
@@ -58,19 +58,19 @@ export default compose(
 						let glob=filter
 						filter=a=>minimatch(a.name,glob)
 					}
-					
+
 					if(typeof(filter)=="function")
 						return filter(active)
-					
+
 					return false
 				})
-				
+
 			if(child)
 				child=React.cloneElement(child,{doc:active})
 			else
 				child=(<div>no editor for this document</div>)
 		}
-		
+
 		return (
 			<MuiThemeProvider muiTheme={theme}>
 				<div>

@@ -20,7 +20,7 @@ export default compose(
 	}),
 	mapProps(({store:{dispatch},doc})=>({
 		doc,
-		align:type=>dispatch(ACTION.style.paragraph.align(type)),
+		align:type=>dispatch(ACTION.Style.update({paragraph:{align:type}})),
 	})),
 	connect(state=>({selection:selector.getSelection(state)})),
 )(({doc,style=doc.selection().props("paragraph"), align})=>(

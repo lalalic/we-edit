@@ -21,9 +21,9 @@ export default compose(
 	}),
 	mapProps(({store:{dispatch},doc})=>({
 		doc,
-		toggleB:b=>dispatch(ACTION.Style.text.bold(b)),
-		toggleI:b=>dispatch(ACTION.style.text.italic(b)),
-		toggleU:b=>dispatch(ACTION.style.text.underline(b)),
+		toggleB:b=>dispatch(ACTION.Style.update({text:{bold:b}})),
+		toggleI:b=>dispatch(ACTION.Style.update({text:{italic:b}})),
+		toggleU:b=>dispatch(ACTION.Style.update({text:{underline:b}})),
 	})),
 	connect(state=>({selection:state.get('selection')})),
 )(({doc, style=doc.selection().props("text"), toggleB, toggleI, toggleU})=>(

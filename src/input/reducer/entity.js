@@ -1,6 +1,6 @@
-import document from "./document"
+import  {Remove} from "./content"
 
-export class entity extends document{
+export class entity extends Remove{
 	create(element){
 		let {start:{id,at},end}=this.selection
 		if(id==end.id && at==end.at){
@@ -58,7 +58,7 @@ export class entity extends document{
 			let ratio=1+Math.max(Math.abs(x)/width,Math.abs(y)/height)*x/Math.abs(x)
 			changing={width:width*ratio, height:height*ratio}
 		}
-		
+
 		content.attr("size",changing)
 
 		changedNode=this.file.updateNode(content.get(0).toJS(), this)

@@ -12,11 +12,11 @@ export default class extends Input.Type{
 		case "object":
 			if(this.isPlainData(file) && file.type=="document")
 				return true
-			if(this.isBlob(file) && 
+			if(this.isBlob(file) &&
 					(
-					file.type=="application/json" || 
+					file.type=="application/json" ||
 					file.type=="application/xml" ||
-					file.name.endsWith(".wed.json") || 
+					file.name.endsWith(".wed.json") ||
 					file.name.endsWith(".wed.xml")
 					))
 				return true
@@ -41,7 +41,7 @@ export default class extends Input.Type{
 						case "xml":
 							return new EditableDocument(JSON.parse(data))
 					}
-					
+
 				})
 			}
 		case "string":
@@ -98,16 +98,5 @@ export default class extends Input.Type{
 
 	makeId(node){
 		return this.doc.makeId(node)
-	}
-	
-	onChange(state,{type,payload},createElement){
-		let params=[state]
-		switch(type){
-			case 'we-edit/style/text/bold':
-				return new reducer.document(...params)
-					.update({bold:payload})
-					.state()
-		}
-		return super.onChange(...arguments)
 	}
 }

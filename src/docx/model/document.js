@@ -25,7 +25,6 @@ export default function(Models){
 
 		getStyles({children:[styles]}){
 			return this.styles=styles.props.styles
-			
 		}
 
 		getChildContext(){
@@ -39,7 +38,7 @@ export default function(Models){
 			const {children,evenAndOddHeaders,...others}=this.props
 			let [styles,...content]=children
 			styles=this.styles
-			
+
 			//reset for numbering
 			Object.keys(styles)
 				.forEach((k,t)=>(t=styles[k])&& t.reset && t.reset())

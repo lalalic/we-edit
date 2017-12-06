@@ -6,26 +6,23 @@ function extract(Component){
 	let propTypes=Component.propTypes||{}
 
 	return Object.keys(propTypes).reduce((actions, k)=>{
-		
+
 		switch(propTypes[k]){
 			case PropTypes.bool:
 			case PropTypes.number:
 			case PropTypes.string:
 			case PropTypes.bool.isRequired:
 			case PropTypes.number.isRequired:
-			case PropTypes.string.isRequired:			
+			case PropTypes.string.isRequired:
 				actions[k]=b=>({type:`we-edit/style/${name}/${k}`,payload:b})
 			break
 			default:
-				
+
 		}
 		return actions
 	}, {})
 }
 
-export default Object.keys(Components).map(k=>Components[k])
-	.reduce((styled, a)=>{
-		styled[a.displayName]=extract(a)
-		
-		return styled
-	},{})
+export default {
+	update:payload=>({type:"we-edit/content/update", payload})
+}

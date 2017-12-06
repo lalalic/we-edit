@@ -5,7 +5,6 @@ import {Map} from "immutable"
 
 import Style from "./styles"
 import Transformers from "./model"
-import * as reducer from "./reducer"
 
 export default class extends Input.Type{
 	static support(file){
@@ -312,35 +311,4 @@ export default class extends Input.Type{
 	renderNode(node, createElement){
 		//injected implementation by render
 	}
-
-	/**
-	*return:
-	- false: no state change
-	- {
-		selection: change of selection,
-		updated: updated content,
-		undoables: saved changed content for history
-	}: all these changes will be applied on state
-	- any else: reduce selection action
-	*/
-	onChange(state,{type,payload},createElement){
-		let params=[state]
-		switch(type){
-			case 'we-edit/style/ADD':
-				return new reducer.style(...params)
-					.create(payload)
-					.state()
-			case `we-edit/style/UPDATE`:
-				return new reducer.style(...params)
-					.update(payload)
-					.state()
-			case 'we-edit/style/REMOVE':
-				return new reducer.style(...params)
-					.remove(payload)
-					.state()
-		}
-		return super.onChange(...arguments)
-	}
-
-
 }

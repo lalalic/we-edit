@@ -1,16 +1,16 @@
 import {getSelection,getFile} from "we-edit/state/selector"
 import ACTION from "we-edit/state/action"
-import Content from "./content"
+import xQuery from "./xquery"
 
-export default class reducer{
+export default class Reducer{
 	constructor(state){
 		this._state=state
 		this._undoables={}
 		this._updated={}
 		this._selection=getSelection(state)
 		this._file=getFile(state)
-		
-		this.$=context=>new Content(state,context,)
+
+		this.$=context=>new xQuery(state,context)
 	}
 
 	state(){
@@ -34,7 +34,7 @@ export default class reducer{
 	get file(){
 		return this._file
 	}
-	
+
 	save4undo(id){
 		this._undoables[id]=this.file.cloneNode(this.file.getNode(id))
 	}
