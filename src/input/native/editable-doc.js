@@ -52,13 +52,14 @@ export default class EditableDocument extends Editable{
 		return JSON.parse(JSON.stringify(node,(k,v)=>k=="id" ? undefined : v))
 	}
 	
-	createNode(nodeTmpl,locationNode){
+	createNode(nodeTmpl,reducer){
 		return {...nodeTmpl}
 	}
 	
-	updateNode({id,parent,...others}){
+	updateNode({id,props}, reducer){
 		let docNode=this.getNode(id)
-		return Object.assign(docNode,others)
+		Object.assign(docNode,arguments[0])
+		return docNode
 	}
 	
 	removeNode({id}){

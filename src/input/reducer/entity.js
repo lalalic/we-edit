@@ -1,6 +1,6 @@
-import {text as reducer} from "./text"
+import document from "./document"
 
-export class entity extends reducer{
+export class entity extends document{
 	create(element){
 		let {start:{id,at},end}=this.selection
 		if(id==end.id && at==end.at){
@@ -44,7 +44,6 @@ export class entity extends reducer{
 	resize({x,y}){
 		let {start:{id}}=this.selection
 		let content=this.$('#'+id)
-		let props=content.props()
 		const {width,height}=content.attr("size").toJS()
 		let changedNode
 		let changing={}
@@ -59,8 +58,10 @@ export class entity extends reducer{
 			let ratio=1+Math.max(Math.abs(x)/width,Math.abs(y)/height)*x/Math.abs(x)
 			changing={width:width*ratio, height:height*ratio}
 		}
+		
+		content.attr("size",changing)
 
-		changedNode=this.file.updateNode(props.toJS(), {size: changing}, this.$)
+		changedNode=this.file.updateNode(content.get(0).toJS(), this)
 
 		this.renderChanged(changedNode)
 

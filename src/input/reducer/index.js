@@ -1,4 +1,5 @@
 export {default as Base} from "./base"
+export {document} from "./document"
 export {text} from "./text"
 export {entity} from "./entity"
 export {undo} from "./undo"

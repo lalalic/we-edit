@@ -12,10 +12,12 @@ export default class Content extends Query{
 		return this.state.get("_content")
 	}
 	
-	clone(render){
+	clone(){
 		let nodes=this._nodes.map(a=>{
 			let node=this._doc.cloneNode(this._doc.getNode(a))
-			return render(this._doc.attach(node))
+			let {id}=this._doc.renderChanged(node)
+			this._doc.attach(node)
+			return id
 		})
 		return new this.constructor(this.state,nodes)
 	}
@@ -36,7 +38,8 @@ export default class Content extends Query{
     				path.push("props")
     				path.push(k)
     			}
-    			this._content.setIn(path,value)
+				this._content.setIn(path,value)
+				this._doc.updateNode(this._content.get(path[0]).toJS(),this)
     		}
 
             return this
@@ -51,9 +54,9 @@ export default class Content extends Query{
 				.add(this.find("text"))
 				._nodes
 				.reduce((c,id)=>{
-                    let updated=c.setIn([id,"children"],value)
-                    this._doc.updateNode(updated.get(id).toJS(),this)
-                    return updated
+                    c.setIn([id,"children"],value)
+                    this._doc.updateNode(c.get(id).toJS(),this)
+                    return c
                 },this._content)
 			return this
         }

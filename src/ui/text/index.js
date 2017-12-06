@@ -25,7 +25,7 @@ export default compose(
 		toggleI:b=>dispatch(ACTION.style.text.italic(b)),
 		toggleU:b=>dispatch(ACTION.style.text.underline(b)),
 	})),
-	connect(state=>({selection:selector.getSelection(state)})),
+	connect(state=>({selection:state.get('selection')})),
 )(({doc, style=doc.selection().props("text"), toggleB, toggleI, toggleU})=>(
 	<ToolbarGroup>
 		<CheckIconButton

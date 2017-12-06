@@ -8,11 +8,13 @@ const Super=NoChild(Base)
 export default class Image extends Super{
 	static defaultProps={
 		...Super.defaultProps,
-		width: 1,
-		height:1
+		size:{
+			width: 1,
+			height:1
+		},
 	}
     createComposed2Parent(props){
-        const {src, width,height}=this.props
+        const {src, size:{width,height}}=this.props
         let availableSpace=this.context.parent.nextAvailableSpace({width,height})
         return <image {...{
                 width,

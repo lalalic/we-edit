@@ -74,7 +74,7 @@ function buildEditableDoc(doc,inputTypeInstance){
 		selection(){
 			return new Selection(editableDoc.getState(), inputTypeInstance)
 		},
-
+ 
 		Store:compose(
 				setDisplayName("DocStore"),
 				getContext({store:PropTypes.object}),
@@ -286,19 +286,17 @@ class Selection{
 		const Transformed=inputInstance.transform(Components)
 		const selection=getSelection(state)
 		let {id,at}=selection[selection.cursorAt]
-
-		const root=TestRenderer.create(inputInstance.buildUp(state,Transformed)).root
+		let root=null
+		
+		try{
+			root=TestRenderer.create(inputInstance.renderUp(state,Transformed)).root
+		}catch(e){
+			debugger
+			console.error(e)
+			root=TestRenderer.create(<div/>).root
+		}
 		
 		const Type=type=>type[0].toUpperCase()+type.substr(1).toLowerCase()
-
-		this.has=(type)=>{
-			try{
-				root.findByType(Transformed[Type(type)])
-				return true
-			}catch(e){
-				return false
-			}
-		}
 
 		//it can be construct from re-rendering, instead of parse composers along long way
 		this.props=(type)=>{
@@ -306,7 +304,7 @@ class Selection{
 				let found=root.findByType(Transformed[Type(type)])
 				return found.props
 			}catch(e){
-				return {}
+				return null
 			}
 		}		
 		

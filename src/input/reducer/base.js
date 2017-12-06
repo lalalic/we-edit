@@ -10,7 +10,7 @@ export default class reducer{
 		this._selection=getSelection(state)
 		this._file=getFile(state)
 		
-		this.$=context=>new Content(state,context)
+		this.$=context=>new Content(state,context,)
 	}
 
 	state(){

@@ -50,9 +50,9 @@ export default class extends Input.Type{
 		},{...components})
 	}
 
-	buildUp(state,Transformed){
-		let doc=super.buildUp(state,Transformed)
-		return React.cloneElement(doc,{}, this.refreshStyles(), doc.props.children)
+	renderUp(state,Transformed){
+		let doc=super.renderUp(state,Transformed)
+		return React.cloneElement(doc,{}, this.refreshStyles(), ...doc.props.children)
 	}
 
 	render(createElement,components){

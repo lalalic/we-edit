@@ -1,5 +1,5 @@
-import {text as Base} from "input/reducer"
-export class text extends Base{
+import Insert from "./insert"
+export class Update extends Insert{
 	update(props){
 		const {start,end}=this.selection
 		let path=["update"]
@@ -44,10 +44,10 @@ export class text extends Base{
 		
 		this.save4undo(parent.attr('id'))
 
-		let created=target.clone(a=>this.renderChanged(a).id)
+		let created=target.clone()
 		created.text("")
 		Object.keys(props).forEach(k=>created.attr(k, props[k]))
-		created.insertBefore(target)
+		target.before(created)
 
 		this.renderChanged(parent.attr('id'))
 		this.cursorAt(created.attr('id'),0)
@@ -65,3 +65,5 @@ export class text extends Base{
 		
 	}
 }
+
+export default Update
