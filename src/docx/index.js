@@ -289,11 +289,6 @@ export default class extends Input.Type{
 
 		//implement loader.renderChangedNode
 		this.renderNode=(node,createElement)=>{
-			try{
-				node=node.get(0)
-			}catch(e){
-
-			}
 			return docx.officeDocument.renderNode(node,buildFactory(createElement),identify)
 		}
 

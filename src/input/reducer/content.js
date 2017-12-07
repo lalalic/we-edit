@@ -220,54 +220,60 @@ export class Insert extends Remove{
 
 export class Update extends Insert{
 	update_text_inline(targets, changing){
-		const {start:{id,at}, end}=this.selection
+		const {start:{id,at}, end, cursorAt}=this.selection
 		let target=this.$(`#${id}`)
 		let text=target.text()
 
-		let grand=target.parentsUntil("paragraph").last()
+		let grand=target.parentsUntil("paragraph")
+				.add(target,"unshift")
+				.last()
 		let clonedRoute=target.constructUp(grand)
 		
-
-
-		let parent=target.parent()
-		let grandPa=parent.parent()
-
-		let target.constructUp(target.closest("paragraph"))
-
-		this.save4undo(parent.attr('id'))
-
-		target.clone()
+		let p=target.closest("paragraph")
+		
+		this.save4undo(p.attr('id'))
+		
+		clonedRoute.clone()
 			.text(text.substring(0,at))
-			.insertBefore(target)
-
-		target.clone()
-			.text(text.substring(end.at))
-			.insertAfter(target)
-
+			.insertBefore(grand)
+		
 		target.text(text.substring(at, end.at))
+		
+		clonedRoute
+			.text(text.substring(end.at))
+			.insertAfter(grand)
 
 		target.attr(changing)
+		
+		this.cursorAt(id,0,id,end.at-at)
 
-		this.renderChanged(graphPa)
+		this.renderChanged(p.attr('id'))
 	}
 
 	update_withoutSelection(props){
 
 	}
 
-	update_withoutSelection_atHead(props){
+	update_text_withoutSelection_atHead(targets, changing){
 		let {start:{id,at}}=this.selection
 		let target=this.$('#'+id)
-		let parent=target.parent()
+		let p=target.closest("paragraph")
+		
+		this.save4undo(p.attr('id'))
+		
+		let grand=target.parentsUntil("paragraph")
+				.add(target,"unshift")
+				.last()
+		let created=target.constructUp(grand)
+				.insertBefore(grand)
+				.findFirst("text", true)
+				.text("")
 
-		this.save4undo(parent.attr('id'))
+		Object.keys(changing).forEach(k=>created.attr(k, changing[k]))
+		
 
-		let created=target.clone()
-		created.text("")
-		Object.keys(props).forEach(k=>created.attr(k, props[k]))
-		target.before(created)
-
-		this.renderChanged(parent.attr('id'))
+		this.renderChanged(p.attr('id'))
+		
 		this.cursorAt(created.attr('id'),0)
 	}
 

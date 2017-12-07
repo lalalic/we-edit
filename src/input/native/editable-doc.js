@@ -88,6 +88,10 @@ export default class EditableDocument extends Editable{
 	}
 	
 	construct(from,to){
+		if(from==to){
+			return this.attach(this.cloneNode(this.getNode(from)))
+		}
+			
 		const getPath=()=>{
 			let path=[]
 			const find=node=>{

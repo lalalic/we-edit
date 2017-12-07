@@ -106,7 +106,7 @@ export default class IChange extends Reducer{
         let targets=this.$(`#${start.id}`)
 			.forwardUntil(`#${end.id}`)
 			.add(this.$(`#${start.id}`).parents())
-			.add(this$(`#${end.id}`).parents())
+			.add(this.$(`#${end.id}`).parents())
 			.filter(type)
 
 		let path=[]

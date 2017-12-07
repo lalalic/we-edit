@@ -41,6 +41,13 @@ export default class Reducer{
 
 	renderChanged(id){
 		let docNode=typeof(id)=="string" ? this.file.getNode(id) : id
+		
+		try{
+			docNode=docNode.get(0)
+		}catch(e){
+
+		}
+		
 		let rendered=this.file.renderChanged(docNode)
 
 		id=rendered.id

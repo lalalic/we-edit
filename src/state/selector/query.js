@@ -316,9 +316,9 @@ export default class Query{
 		return new this.constructor(this.state,found)
 	}
 
-	find(selector){
+	find(selector, includeSelf=false){
 		if(isIdSelector(selector)){
-			return this.findFirst(selector)
+			return this.findFirst(...arguments)
 		}
 
 		let select=asSelector(selector,this._$)
@@ -334,13 +334,21 @@ export default class Query{
 		return new this.constructor(this.state,found)
 	}
 
-	findFirst(selector){
+	findFirst(selector, includeSelf=false){
 		if(isIdSelector(selector)){
 			let id=selector.substr(1)
 			return new this.constructor(this.state, this._content.has(id) ?[id] : [])
 		}
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,k)=>{
+			if(found.length>0)
+				return found
+			
+			if(includeSelf && !!select(this._content.get(k))){
+				found.push(k)
+				return found
+			}
+				
 			traverse(this._content,node=>{
 				if(!!select(node)){
 					found.push(node.get("id"))
@@ -352,21 +360,8 @@ export default class Query{
 		return new this.constructor(this.state,found)
 	}
 
-	findLast(selector){
-		let select=asSelector(selector,this._$)
-		let found=this._nodes.reduce((found,k)=>{
-			let kFound=[]
-			traverse(this._content,(node,id)=>{
-				if(!!select(node)){
-					kFound.push(node.get("id"))
-				}
-			},k)
-			if(kFound.length){
-				found.push(kFound.pop())
-			}
-			return found
-		},[])
-		return new this.constructor(this.state,found)
+	findLast(selector, includeSelf){
+		return this.find(...arguments).last()
 	}
 
 	filter(selector){
