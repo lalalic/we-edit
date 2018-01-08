@@ -72,8 +72,15 @@ export class Selection extends Component{
 		let state=store.getState()
 		let $=this.context.query()
 
-		start.pos=$.position(start.id, start.at,1)
-		end.pos=$.position(end.id, end.at,1)
+		const inSVG=pos=>{
+			const {left,top}=$.svg
+			pos.left-=left
+			pos.top-=top
+			return pos
+		}
+		
+		start.pos=inSVG($.position(start.id, start.at,1))
+		end.pos=inSVG($.position(end.id, end.at,1))
 
 		let posNotCorrect=((start,end)=>(end.page<start.page ||
 				(end.page==start.page && end.column<start.column) ||
