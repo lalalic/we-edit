@@ -1,43 +1,37 @@
-import  {Remove} from "./content"
+import  Content from "./content"
 
-export class entity extends Remove{
+export class entity extends Content{
 	create(element){
 		let {start:{id,at},end}=this.selection
+		const target=this.$(`#{id}`)
+		const p=target.parents("paragraph")
+		const parent=p.parent()
+		
+		this.save4Undo(p.attr('id'))
+		this.save4Undo(parent.attr('id'))
+		
 		if(id==end.id && at==end.at){
 
 		}else{
 			this.remove_withSelection()
 		}
 
-		let created=this.file.createNode(element,this)
-		let {nodes,prevId}=created
-		let prev=prevId ? this.$('#'+prevId) : null
-
-		nodes.reduceRight(node=>{
-			let {id}=this.renderChanged(node)
-			if(prev){
-				preve.after('#'+id)
-			}else{
-				let parentId=this.file.getNode(id)
-					.parentsUntil("[id]").parent().attr("id")
-				let parent=this.$('#'+parentId)
-				let siblings=parent.children()
-				if(silbings.length){
-					siblings.first().before('#'+id)
-				}else{
-					parent.append('#'+id)
-				}
-			}
-		})
-
-		if(!right){
-			siblings=siblings.reverse()
-		}
-
-		parent.attr("children", siblings)
-
+		const createdNode=this.file.createNode(element, this);
+		const {id:createdId}=this.renderChanged(createdNode)
+		let created=this.$(`#{createId}`)
+		
+		//table
+		const [p0,p1]=this._splitParagraphAt(this.selection.start)
+		this.file.insertNodeAfter(createdNode,p0)
+		
+		this.renderChanged(p0)
+		this.renderChanged(p1)
 		this.renderChangedChildren(parent.attr('id'))
-
+		
+		id=created.first('text').attr('id')
+		at=0
+		this.cursorAt(id,at)
+		
 		return this
 	}
 
@@ -61,9 +55,7 @@ export class entity extends Remove{
 
 		content.attr("size",changing)
 
-		changedNode=this.file.updateNode(content.get(0).toJS(), this)
-
-		this.renderChanged(changedNode)
+		this.renderChanged(id)
 
 		return this
 	}

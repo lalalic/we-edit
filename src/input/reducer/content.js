@@ -1,6 +1,26 @@
 import IChange from "./ichange"
 
 export  class Remove extends IChange{
+	_splitParagraphAt({id,at}){
+		const target=this.$('#'+id)
+		const text=target.text()
+		const p=target.closest("paragraph")
+		
+		let p0=target.constructUp(p)
+			.insertAfter(p)
+
+		let t0=p0.findFirst("text")
+			.text(text.substr(at))
+
+		target.parentsUntil(p).each(function(i,node,$){
+			this.eq(i).after($(node).nextAll())
+		},t0.parentsUntil(p0))
+		
+		target.text(text.substr(0,at))
+		
+		return [p,p0]
+	}
+	
 	remove_withoutSelection_backspace(removing){
 		let {start:{id,at}}=this.selection
 		let target=this.$('#'+id)
@@ -93,13 +113,13 @@ export  class Remove extends IChange{
 		let {start,end}=this.selection
 		let target=this.$('#'+start.id)
 
-		this.save4undo(id)
+		this.save4undo(start.id)
 
 		let text=target.text()
 		target.text(text.substring(0,start.at)+text.substring(end.at))
 		this.cursorAt(start.id,start.at)
 
-		this.renderChanged(id)
+		this.renderChanged(start.id)
 	}
 
 	remove_withSelection(){

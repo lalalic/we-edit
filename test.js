@@ -22,7 +22,7 @@ function editor(){
 			ReactDOM.render((
 				<WeEdit>
 					<WeEditUI>
-						<Workspace>
+						<Workspace filter="*.docx">
 							<Editor width={600}>
 								<Pagination/>
 							</Editor>

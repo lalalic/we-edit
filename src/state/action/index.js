@@ -131,10 +131,11 @@ export const Selection={
 }
 
 export const Entity={
-	RESIZE: delta=>({type:"we-edit/entity/RESIZE",payload:delta}),
-	ROTATE: a=>({type:"we-edit/entity/ROTATE",payload:a})
+	RESIZE: deltaXY=>({type:"we-edit/entity/RESIZE",payload:deltaXY}),
+	ROTATE: a=>({type:"we-edit/entity/ROTATE",payload:a}),
+	CREATE: element=>({type:"we-edit/entity/CREATE", payload:element})
 }
 
-export const ACTION={Cursor, Text, Selection,Entity,History, Style}
+export const ACTION={Cursor, Text, Selection,Entity,History,Style}
 
 export default ACTION

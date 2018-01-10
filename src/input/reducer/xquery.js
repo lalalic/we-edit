@@ -1,4 +1,4 @@
-import {List} from "immutable"
+import Immutable, {List} from "immutable"
 import Query from "we-edit/state/selector/query"
 import {getFile} from "we-edit/state/selector"
 
@@ -8,6 +8,7 @@ export default class xQuery extends Query{
         this._doc=getFile(this.state)
     }
 
+	//override	
 	_getContent(){
 		return this.state.get("_content")
 	}
@@ -24,12 +25,15 @@ export default class xQuery extends Query{
     			let path=[this._nodes[0]]
     			if(["type","id","parent","children"].includes(k)){
     				path.push(k)
+					this._content.setIn(path,value)
     			}else{
     				path.push("props")
     				path.push(k)
+					this._content.setIn(path,Immutable.fromJS(value))
+					this._doc.updateNode(this._content.get(path[0]).toJS(),{[k]:value}, this)
     			}
-				this._content.setIn(path,value)
-				this._doc.updateNode(this._content.get(path[0]).toJS(),this)
+				
+				
     		}
 
             return this
@@ -45,7 +49,7 @@ export default class xQuery extends Query{
 				._nodes
 				.reduce((c,id)=>{
                     c.setIn([id,"children"],value)
-                    this._doc.updateNode(c.get(id).toJS(),this)
+                    this._doc.updateNode(c.get(id).toJS(),value,this)
                     return c
                 },this._content)
 			return this
@@ -72,7 +76,6 @@ export default class xQuery extends Query{
 				this._content.setIn([id,"parent"],id0)
 			}
 			this._doc.insertNodeBefore(this._doc.getNode(id),null,docNode)
-			//docNode.append(this._doc.getNode(id))
 		})
 		return this
 	}
@@ -98,7 +101,6 @@ export default class xQuery extends Query{
 				this._content.setIn([id,"parent"],id0)
 
 			this._doc.insertNodeBefore(this._doc.getNode(id),null,docNode)
-			//docNode.append(this._doc.getNode(id))
 		})
 		return this
 	}
@@ -122,7 +124,6 @@ export default class xQuery extends Query{
     			this._content.updateIn([pid,"children"],c=>c.insert(index+i,k))
 
 				this._doc.insertNodeAfter(this._doc.getNode(k),docNode)
-				//docNode.after(this._doc.getNode(k))
     		})
 		return this
 	}
@@ -147,7 +148,6 @@ export default class xQuery extends Query{
 			this._content.updateIn([pid,"children"],c=>c.insert(index,k))
 
 			this._doc.insertNodeBefore(this._doc.getNode(k),docNode)
-			//docNode.before(this._doc.getNode(k))
 		})
 		return this
 	}

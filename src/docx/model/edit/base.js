@@ -8,10 +8,9 @@ export default class Editor{
         return $.root().children().first()
     }
 
-    create(props, locationId){
+    create(props, reducer){
         this.node=this.parseXml(this.template(props))
-        let node=this.apply(props)
-        return this.attachCreated(node, locationId)
+        return this.apply(props, reducer)
     }
 
     update({id},changing){
@@ -19,11 +18,11 @@ export default class Editor{
         return this.apply({id, ...changing})
     }
 
-    apply(props){
-        Object.keys(props)
+    apply(changing){
+        Object.keys(changing)
             .forEach(k=>{
                 if(this[k]){
-                    this[k](props[k], props)
+                    this[k](changing[k], changing)
                 }
             })
         return this.node

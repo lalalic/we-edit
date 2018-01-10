@@ -188,18 +188,6 @@ export class Editable extends Viewable{
 				return new reducer.content(...params)
 					.remove(payload)
 					.state()
-			case 'we-edit/clipboard/copy':
-				return new reducer.clipboard(...params)
-					.copy(payload)
-					.state()
-			case 'we-edit/clipboard/paste':
-				return new reducer.clipboard(...params)
-					.paste(payload)
-					.state()
-			case 'we-edit/clipboard/cut':
-				return new reducer.clipboard(...params)
-					.cut(payload)
-					.state()
 			case `we-edit/content/update`:
 				return new reducer.content(...params)
 					.update(payload)
@@ -216,6 +204,18 @@ export class Editable extends Viewable{
 				return new reducer.entity(...params)
 					.create(payload)
 					.state()
+			case 'we-edit/selection/COPY':
+				return new reducer.clipboard(...params)
+					.copy(payload)
+					.state()
+			case 'we-edit/selection/PASTE':
+				return new reducer.clipboard(...params)
+					.paste(payload)
+					.state()
+			case 'we-edit/selection/CUT':
+				return new reducer.clipboard(...params)
+					.cut(payload)
+					.state()					
 			case "we-edit/selection/MOVE":
 				return new reducer.entity(...params)
 					.move(payload)

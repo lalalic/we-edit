@@ -52,13 +52,13 @@ export default class EditableDocument extends docx4js{
 		return cloned
 	}
 
-	createNode({type}, locationNode){
+	createNode({type},reducer){
 		let editor=new editors[Type(type)](this)
-		let node=editor.create(arguments[0],locationNode)
+		let node=editor.create(arguments[0],reducer)
 		return node
 	}
 
-	updateNode({id,type},changing){
+	updateNode({id,type},changing, query){
 		let editor=new editors[Type(type)](this)
 		return editor.update(arguments[0],changing)
 	}

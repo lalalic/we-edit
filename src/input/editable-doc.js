@@ -24,7 +24,7 @@ export default class {
 		
 	}
 	
-	updateNode(element, reducer){
+	updateNode(element, changing, query){
 		
 	}
 	
