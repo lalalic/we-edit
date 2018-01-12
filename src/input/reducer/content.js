@@ -5,6 +5,10 @@ export  class Remove extends IChange{
 		const target=this.$('#'+id)
 		const text=target.text()
 		const p=target.closest("paragraph")
+		const parent=p.parent()
+		
+		this.save4undo(p.attr('id'))
+		this.save4undo(parent.attr('id'))
 		
 		let p0=target.constructUp(p)
 			.insertAfter(p)
@@ -17,6 +21,10 @@ export  class Remove extends IChange{
 		},t0.parentsUntil(p0))
 		
 		target.text(text.substr(0,at))
+		
+		this.renderChanged(p0.attr('id'))
+		this.renderChanged(p.attr('id'))
+		this.renderChangedChildren(parent.attr('id'))
 		
 		return [p,p0]
 	}

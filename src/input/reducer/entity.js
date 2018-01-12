@@ -7,9 +7,6 @@ export class entity extends Content{
 		const p=target.closest("paragraph")
 		const parent=p.parent()
 		
-		this.save4undo(p.attr('id'))
-		this.save4undo(parent.attr('id'))
-		
 		if(id==end.id && at==end.at){
 
 		}else{
@@ -21,8 +18,6 @@ export class entity extends Content{
 		const {id:createdId}=this.renderChanged(createdNode)
 		let created=this.$(`#${createdId}`).insertAfter(p0)
 		
-		this.renderChanged(p0.attr('id'))
-		this.renderChanged(p1.attr('id'))
 		this.renderChangedChildren(parent.attr('id'))
 		
 		id=created.findFirst('text').attr('id')
