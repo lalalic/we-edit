@@ -31,7 +31,11 @@ export class Table extends Base{
                 				<w:tcPr>
                 					<w:tcW w:w="${w}" w:type="dxa"/>
                 				</w:tcPr>
-                				<w:p><w:r><w:t> </w:t></w:r></w:p>
+                				<w:p><w:pPr>
+							<w:rPr>
+								<w:rFonts w:ascii="Verdana" w:hAnsi="Verdana"/>
+							</w:rPr>
+						</w:pPr></w:p>
                 			</w:tc>
                 		`).join(""),
                         "</w:tr>"

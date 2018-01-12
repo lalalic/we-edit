@@ -56,6 +56,8 @@ export default class extends Input.Type{
 
 	render(createElement,components){
 		const self=this
+		const identify=Docx.OfficeDocument.identify
+		
 		const docx=this.doc
 		const selector=new Style.Properties(docx)
 		const $=docx.officeDocument.content
@@ -280,21 +282,22 @@ export default class extends Input.Type{
 			}
 		}
 
-		const build=buildFactory(createElement)
-		const identify=Docx.OfficeDocument.identify
+		let build=buildFactory(createElement)
+		let renderNode=node=>docx.officeDocument.renderNode(node,build,identify)
 
-		function renderNode(node){
+		let rendered=docx.render(build)
+		
+		
+		//implement loader.renderChangedNode
+		this.renderNode=(node,createElement)=>{
+			build=buildFactory(createElement)
 			return docx.officeDocument.renderNode(node,build,identify)
 		}
 
-		//implement loader.renderChangedNode
-		this.renderNode=(node,createElement)=>{
-			return docx.officeDocument.renderNode(node,buildFactory(createElement),identify)
-		}
-
 		this.refreshStyles=createStylesElement
+		
 
-		return docx.render(build)
+		return rendered
 	}
 
 	makeId(node){
