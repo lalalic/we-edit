@@ -18,8 +18,9 @@ import {ACTION, getActive} from "we-edit"
 export class File extends PureComponent{
 	changed=false
 	componentWillReceiveProps({content}){
-		this.change=this.props.content!=content
+		this.changed=this.props.content!=content
 	}
+	
 	render(){
 		const {save,saveAs}=this.props
 		return (
@@ -46,14 +47,16 @@ export function open(dispatch){
 
 export default compose(
 	setDisplayName("FileTool"),
-	getContext({store:PropTypes.object}),
-	mapProps(({store:{dispatch}})=>({
+	getContext({
+		doc: PropTypes.object,
+	}),
+	mapProps(({doc})=>({
 		save(){
-			return dispatch(ACTION.SAVE())
+			return doc.save()
 		},
 
 		saveAs(path){
-			return dispatch(ACTION.SAVEAS(path))
+			return doc.save(path)
 		}
 	})),
 	connect(state=>({content:state.get('content')})),

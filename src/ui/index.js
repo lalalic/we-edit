@@ -4,7 +4,7 @@ import {connect} from "react-redux"
 import {compose,setDisplayName}  from "recompose"
 import minimatch from "minimatch"
 
-import {Toolbar,ToolbarSeparator} from "material-ui"
+import {Toolbar,ToolbarSeparator, Tabs, Tab} from "material-ui"
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
@@ -16,6 +16,7 @@ import Paragraph from "we-edit-ui/paragraph"
 import File from "we-edit-ui/file"
 import History from "we-edit-ui/history"
 import Canvas from "we-edit-ui/canvas"
+import * as Table from "we-edit-ui/table"
 
 import {getActive} from "we-edit"
 
@@ -25,15 +26,24 @@ export class Workspace extends PureComponent{
 		const {doc}=this.props
 		return (
 			<doc.Store>
-					<Toolbar>
-						<File/>
-						<History/>
-						<ToolbarSeparator/>
+				<Tabs>
+					<Tab label="Home">
+						<Toolbar>
+							<File/>
+							<History/>
+							<ToolbarSeparator/>
 
-						<Text/>
-						<ToolbarSeparator/>
-						<Paragraph/>
-					</Toolbar>
+							<Text/>
+							<ToolbarSeparator/>
+							<Paragraph/>
+						</Toolbar>
+					</Tab>
+					<Tab label="Insert">
+						<Toolbar>
+							<Table.Create/>
+						</Toolbar>
+					</Tab>
+				</Tabs>
 				<Canvas>
 					{this.props.children}
 				</Canvas>

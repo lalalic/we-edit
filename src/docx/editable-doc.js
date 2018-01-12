@@ -54,8 +54,8 @@ export default class EditableDocument extends docx4js{
 
 	createNode({type},reducer){
 		let editor=new editors[Type(type)](this)
-		let node=editor.create(arguments[0],reducer)
-		return node
+		let created=editor.create(arguments[0],reducer)
+		return this.attach(created)
 	}
 
 	updateNode({id,type},changing, query){
@@ -86,7 +86,9 @@ export default class EditableDocument extends docx4js{
 	}	
 
 	attach(xml){
-		return this.officeDocument.content(xml).appendTo("w\\:body").get(0)
+		xml=this.officeDocument.content(xml)
+		this.officeDocument.content("w\\:body").append(xml)
+		return xml.get(0)
 	}
 
 	construct(from,to){

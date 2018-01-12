@@ -3,12 +3,12 @@ import  Content from "./content"
 export class entity extends Content{
 	create(element){
 		let {start:{id,at},end}=this.selection
-		const target=this.$(`#{id}`)
-		const p=target.parents("paragraph")
+		const target=this.$(`#${id}`)
+		const p=target.closest("paragraph")
 		const parent=p.parent()
 		
-		this.save4Undo(p.attr('id'))
-		this.save4Undo(parent.attr('id'))
+		this.save4undo(p.attr('id'))
+		this.save4undo(parent.attr('id'))
 		
 		if(id==end.id && at==end.at){
 
@@ -16,19 +16,16 @@ export class entity extends Content{
 			this.remove_withSelection()
 		}
 
-		const createdNode=this.file.createNode(element, this);
-		const {id:createdId}=this.renderChanged(createdNode)
-		let created=this.$(`#{createId}`)
-		
-		//table
 		const [p0,p1]=this._splitParagraphAt(this.selection.start)
-		this.file.insertNodeAfter(createdNode,p0)
+		const createdNode=this.file.createNode(element, this.$('#'+id));
+		const {id:createdId}=this.renderChanged(createdNode)
+		let created=this.$(`#${createdId}`).insertAfter(p0)
 		
-		this.renderChanged(p0)
-		this.renderChanged(p1)
+		this.renderChanged(p0.attr('id'))
+		this.renderChanged(p1.attr('id'))
 		this.renderChangedChildren(parent.attr('id'))
 		
-		id=created.first('text').attr('id')
+		id=created.findFirst('text').attr('id')
 		at=0
 		this.cursorAt(id,at)
 		

@@ -60,16 +60,6 @@ export const ACTION={
 		reducers[id]=doc.buildReducer()
 		return {type:`${DOMAIN}/ADD`,payload:{id,state: reducers[id](), doc}}
 	},
-	SAVE:()=>(dispatch,getState)=>{
-		return getActiveDoc(getState())
-			.save()
-			.then(()=>dispatch({type:`${DOMAIN}/SAVE`}))
-	},
-	SAVEAS: path=>(dispath, getState)=>{
-		return getActiveDoc(getState())
-			.save(path)
-			.then(()=>dispatch({type:`${DOMAIN}/SAVE`}))
-	},
 	CLOSE: ()=>({type:`${DOMAIN}/CLOSE`}),
 	ACTIVE: id=>({type:`${DOMAIN}/ACTIVE`, payload:id}),
 	...EditorAction

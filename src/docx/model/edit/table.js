@@ -2,19 +2,11 @@ import Base from "./base"
 
 //{type:"entity/CREATE", payload:{type:"table", rows:3, cols:3}}
 export class Table extends Base{
-    apply(props){
-        if(!props.id){
-            return new Creating(this.file, this.node).apply(props)
-        }
-
-        return super.apply(...arguments)
-    }
-
-    attachCreated(node, locationId){
-        let locationNode=this.file.getNode(locationId)
-        let p=locationNode.closest("w\\:p")
-        p.before(node)
-        return [node,p]
+    apply({rows, cols, ...props}, $){
+        if(rows){
+			this.rows(rows, arguments[0])
+		}
+        return super.apply(props)
     }
 
     style({namedStyle}){
@@ -26,12 +18,27 @@ export class Table extends Base{
             return null
     }
 
-    cols(cols){
-
-    }
-
-    rows(rows){
-
+    rows(rows,{cols}){
+		this.node.find("w\\:tblGrid")
+            .append(cols.map(w=>`<w:gridCol w:w="${w}"/>`).join(""))
+			
+        let elRows=new Array(rows).fill(0)
+                .map(a=>{
+                    return [
+                        "<w:tr>",
+                        cols.map(w=>`
+                			<w:tc>
+                				<w:tcPr>
+                					<w:tcW w:w="${w}" w:type="dxa"/>
+                				</w:tcPr>
+                				<w:p><w:r><w:t> </w:t></w:r></w:p>
+                			</w:tc>
+                		`).join(""),
+                        "</w:tr>"
+                    ].join("")
+                }
+            )
+        this.node.append(this.trim(elRows.join("")))
     }
 
     template(props){
@@ -47,57 +54,4 @@ export class Table extends Base{
             </w:tbl>
         `
     }
-}
-
-class Creating extends Table{
-    constructor(file,node){
-        super(file)
-        this.node=node
-    }
-
-    apply({cols, width, ...props}){
-        width=this.px2dxa(width)
-        let aColWidth=parseInt(width/cols)
-        props.cols=new Array(cols-1).fill(aColWidth)
-        props.cols.push(width-(cols-1)*aColWidth)
-
-        return Base.prototype.apply.call(this,props)
-    }
-
-    cols(cols){
-        this.node.find("w\\:tblGrid")
-            .append(cols.map(w=>`<w:gridCol w:w="${w}"/>`).join(""))
-    }
-
-    rows(rows,{cols}){
-        let elRows=new Array(rows).fill(0)
-                .map(a=>{
-                    return [
-                        "<w:tr>",
-                        cols.map(w=>`
-                			<w:tc>
-                				<w:tcPr>
-                					<w:tcW w:w="${w}" w:type="dxa"/>
-                				</w:tcPr>
-                				<w:p><w:r><w:t></w:t></w:r></w:p>
-                			</w:tc>
-                		`).join(""),
-                        "</w:tr>"
-                    ].join("")
-                }
-            )
-        this.node.append(elRows.join("").replace(/\s+/g,""))
-    }
-}
-
-class ColInserting extends Table{
-
-}
-
-class RowInserting extends Table{
-
-}
-
-class ColResizing extends Table{
-
 }

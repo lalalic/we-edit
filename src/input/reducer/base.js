@@ -62,9 +62,6 @@ export default class Reducer{
 	}
 
 	renderChangedChildren(id){
-		if(id in this._undoables || id in this._updated)
-			console.warning("some conflict in undo/update queue")
-
 		this._undoables[id]={children:this._state.getIn(["content",id,"children"]).toJS()}
 		this._updated[id]={children:this.$('#'+id).children().toArray()}
 	}

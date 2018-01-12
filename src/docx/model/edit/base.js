@@ -2,20 +2,24 @@ export default class Editor{
     constructor(file){
         this.file=file
     }
+	
+	trim(xml){
+		return xml.replace(/>\s+/g,">").replace(/\s+</g,"<")
+	}
 
     parseXml(xml){
-        let $=this.file.constructor.parseXml(xml)
+        let $=this.file.constructor.parseXml(this.trim(xml))
         return $.root().children().first()
     }
 
-    create(props, reducer){
+    create(props, query){
         this.node=this.parseXml(this.template(props))
-        return this.apply(props, reducer)
+        return this.apply(props, query)
     }
 
-    update({id},changing){
+    update({id},changing,query){
         this.node=this.file.getNode(id)
-        return this.apply({id, ...changing})
+        return this.apply({id, ...changing},query)
     }
 
     apply(changing){
@@ -26,10 +30,6 @@ export default class Editor{
                 }
             })
         return this.node
-    }
-
-    attachCreated(node, locationId){
-
     }
 
     template(props){
