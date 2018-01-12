@@ -13,7 +13,7 @@ export class entity extends Content{
 			this.remove_withSelection()
 		}
 
-		const [p0,p1]=this._splitParagraphAt(this.selection.start)
+		const [p0,p1]=this.splitAtUpto(this.selection.start,"paragraph")
 		const createdNode=this.file.createNode(element, this.$('#'+id));
 		const {id:createdId}=this.renderChanged(createdNode)
 		let created=this.$(`#${createdId}`).insertAfter(p0)

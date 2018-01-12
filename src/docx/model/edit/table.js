@@ -19,6 +19,7 @@ export class Table extends Base{
     }
 
     rows(rows,{cols}){
+		cols=cols.map(w=>this.px2dxa(w))
 		this.node.find("w\\:tblGrid")
             .append(cols.map(w=>`<w:gridCol w:w="${w}"/>`).join(""))
 			

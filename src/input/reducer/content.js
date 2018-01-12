@@ -1,32 +1,32 @@
 import IChange from "./ichange"
 
 export  class Remove extends IChange{
-	_splitParagraphAt({id,at}){
+	splitAtUpto({id,at},to="paragraph"){
 		const target=this.$('#'+id)
 		const text=target.text()
-		const p=target.closest("paragraph")
-		const parent=p.parent()
+		to=target.closest(to)
+		const parent=to.parent()
 		
-		this.save4undo(p.attr('id'))
+		this.save4undo(to.attr('id'))
 		this.save4undo(parent.attr('id'))
 		
-		let p0=target.constructUp(p)
-			.insertAfter(p)
+		let to1=target.constructUp(to)
+			.insertAfter(to)
 
-		let t0=p0.findFirst("text")
+		let t0=to1.findFirst("text")
 			.text(text.substr(at))
 
-		target.parentsUntil(p).each(function(i,node,$){
+		target.parentsUntil(to).each(function(i,node,$){
 			this.eq(i).after($(node).nextAll())
-		},t0.parentsUntil(p0))
+		},t0.parentsUntil(to1))
 		
 		target.text(text.substr(0,at))
 		
-		this.renderChanged(p0.attr('id'))
-		this.renderChanged(p.attr('id'))
+		this.renderChanged(to1.attr('id'))
+		this.renderChanged(to.attr('id'))
 		this.renderChangedChildren(parent.attr('id'))
 		
-		return [p,p0]
+		return [to,to1]
 	}
 	
 	remove_withoutSelection_backspace(removing){

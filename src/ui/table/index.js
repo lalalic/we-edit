@@ -56,7 +56,9 @@ const RCSize=compose(
 	mapProps(({store:{dispatch},doc, onAction})=>({
 		doc,
 		create(rows, col){
-			let cols=new Array(col).fill(1224)
+			let layoutWidth=doc.composedDoc.getLayoutWidth()
+			let cols=new Array(col-1).fill(parseInt(layoutWidth/col))
+			cols.push(layoutWidth-cols.reduce((sum,a)=>sum+=a,0))
 			let element={type:"table", rows, cols}
 			dispatch(ACTION.Entity.CREATE(element))
 			onAction()

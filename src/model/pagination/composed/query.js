@@ -545,9 +545,12 @@ export default class Query{
 	getLayoutWidth(id,at){
 		const {columnNo}=this._locate(id,at)
 		const $=new ContentQuery(this.state)
-		$.find('#'+id)
+		let sectionId=$.find('#'+id)
 			.closest("section")
-			.attr("")
-		debugger
+			.attr('id')
+		
+		let section=this.getComposer(sectionId)
+		let cols=section.props.cols
+		return cols[columnNo].width
 	}
 }

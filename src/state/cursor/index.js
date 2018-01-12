@@ -39,11 +39,15 @@ export class Cursor extends Component{
 		let docQuery=query()
 		this.style=docQuery.position(id,at)
 		let {top,left,height,fontFamily,fontSize}=this.style||{}
-		getCursorInput({getComposer:id=>docQuery.getComposer(id),active,id,at}).setState({
-			top,left,height,fontFamily,fontSize,
-			up: this.up.bind(this),
-			down: this.down.bind(this)
-		})
+		getCursorInput({
+				getLayoutWidth: ()=>docQuery.getLayoutWidth(id,at),
+				active,id,at
+			})
+			.setState({
+				top,left,height,fontFamily,fontSize,
+				up: this.up.bind(this),
+				down: this.down.bind(this)
+			})
 	}
 
 	up(shiftKey){
