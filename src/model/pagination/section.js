@@ -23,25 +23,14 @@ export default class Section extends Super{
      * i: column no
      */
     _newColumn(i){
-		const {pgSz:{width, height},  pgMar:{top, bottom, left, right}, cols:{num, space, data}}=this.props
+		const {pgSz:{width, height},  pgMar:{top, bottom, left, right}, cols=[{space:0,width:width-left-right}]}=this.props
 		let info={
             type:"column",
 			y:0,
 			height:height-bottom-top,
-            children:[]
-		}
-		let availableWidth=width-left-right
-
-		if(num==1){
-			info.width=availableWidth
-			info.x=0
-		}else if(data){
-			info.x=data.reduce((p, a, j)=>(j<i ? p+a.width+a.space : p),0)
-			info.width=data[i].width
-		}else{
-			let colWidth=(availableWidth-(num-1)*space)/num
-			info.x=i*(colWidth+space)
-			info.width=colWidth
+            children:[],
+			x: cols.reduce((p, a, j)=>(j<i ? p+a.width+a.space : p),0),
+			width: cols[i].width
 		}
 		return info
     }
@@ -71,7 +60,7 @@ export default class Section extends Super{
         const {composed}=this.computed
 		if(composed.length==0)
 			this.computed.composed.push(this._newPage())
-		const {cols:{num:allowedColumns=1}}=this.props
+		const {cols,allowedColumns=cols ? cols.length : 1}=this.props
         let currentPage=composed[composed.length-1]
         let {columns}=currentPage
         let currentColumn=columns[columns.length-1]
@@ -95,7 +84,7 @@ export default class Section extends Super{
 
     appendComposed(line){
         const {composed}=this.computed
-		const {cols:{num:allowedColumns=1}}=this.props
+		const {cols,allowedColumns=cols ? cols.length : 1}=this.props
         let currentPage=composed[composed.length-1]
         let {columns}=currentPage
         let currentColumn=columns[columns.length-1]

@@ -21,14 +21,10 @@ export default class Section extends Component{
 
 			gutter: PropTypes.number
 		}),
-		cols: PropTypes.shape({
-			num: PropTypes.number.isRequired,
-			space: PropTypes.number,
-			data: PropTypes.arrayOf(PropTypes.shape({
-				width: PropTypes.number,
-				space: PropTypes.number
-			}))
-		})
+		cols: PropTypes.arrayOf(PropTypes.shape({
+			width: PropTypes.number,
+			space: PropTypes.number
+		}))
 	}
 
 	static defaultProps={
@@ -44,9 +40,6 @@ export default class Section extends Component{
 
 			header: 48,
 			footer: 48
-		},
-		cols:{
-			num:1
 		}
 	}
 

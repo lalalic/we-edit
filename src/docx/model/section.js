@@ -4,7 +4,7 @@ import PropTypes from "prop-types"
 import get from "lodash.get"
 
 export default function(Models){
-	return class extends Models.Section{
+	class Section extends Models.Section{
 		static displayName=`docx-${Models.Section.displayName}`
 		static propTypes={
 			...Models.Section.propTypes,
@@ -38,6 +38,40 @@ export default function(Models){
 				return
 
 			return prevSection.getPageHeaderFooter(category,type)
+		}
+	}
+	
+	
+	return class extends Component{
+		static displayName=`docx-section`
+		static propTypes={
+			...Section.propTypes,
+			cols: PropTypes.shape({
+				num: PropTypes.number.isRequired,
+				space: PropTypes.number,
+				data: Section.propTypes.cols
+			})
+		}
+		
+		static defaultProps={
+			...Section.defaultProps,
+			cols:{
+				num:1
+			}
+		}
+		
+		constructor(){
+			super(...arguments)
+			this.componentWillReceiveProps(this.props)
+		}
+
+		componentWillReceiveProps({pgSz:{width},  pgMar:{left, right}, cols:{num=1, space=0, data}}){
+			let availableWidth=width-left-right
+			this.cols=data ? data : new Array(num).fill({width:(availableWidth-(num-1)*space)/num,space})
+		}
+		
+		render(){
+			return <Section {...this.props} cols={this.cols}/>
 		}
 	}
 }

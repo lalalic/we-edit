@@ -2,6 +2,7 @@ import React from "react"
 import ComposedText from "./text"
 import ComposedLine from "./line"
 import Text from "pagination/text"
+import ContentQuery from "state/selector/query"
 
 import FindLast from "tools/array-find-last"
 import getClientRect from "tools/get-client-rect"
@@ -539,5 +540,14 @@ export default class Query{
 				return !!this.traverse(child,f,right)
 			}
 		})
+	}
+
+	getLayoutWidth(id,at){
+		const {columnNo}=this._locate(id,at)
+		const $=new ContentQuery(this.state)
+		$.find('#'+id)
+			.closest("section")
+			.attr("")
+		debugger
 	}
 }
