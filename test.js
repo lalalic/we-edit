@@ -23,7 +23,7 @@ function editor(){
 				<WeEdit>
 					<WeEditUI>
 						<Workspace filter="*.docx">
-							<Editor width={600}>
+							<Editor>
 								<Pagination/>
 							</Editor>
 						</Workspace>
@@ -61,6 +61,6 @@ function testNative(){
 }
 
 //testNative()
-//testDocx()
+testDocx()
 
-editor()
+//editor()

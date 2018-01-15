@@ -33,7 +33,7 @@ export class Bar extends PureComponent{
 			)
 		}
 
-		let files=null
+		let files=null, closeButton=null
 		if(showFiles && docs.length>1){
 			files=(
 				<Popover
@@ -55,6 +55,14 @@ export class Bar extends PureComponent{
 				</Popover>
 			)
 		}
+		
+		if(docs.length>0){
+			closeButton=(
+				<IconButton onClick={close}>
+					<IconClose/>
+				</IconButton>
+			)
+		}
 
         return (
             <div>
@@ -64,9 +72,7 @@ export class Bar extends PureComponent{
                     iconElementRight={
                         <div>
                             {currentFile}
-                            <IconButton onClick={close}>
-                                <IconClose/>
-                            </IconButton>
+							{closeButton}
                         </div>
                     }
                     onLeftIconButtonTouchTap={()=>this.setState({showDrawer:!this.state.showDrawer})}

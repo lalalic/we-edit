@@ -49,11 +49,11 @@ export default class EditableDocument extends Editable{
 	}
 	
 	cloneNode(node){
-		return JSON.parse(JSON.stringify(node,(k,v)=>k=="id" ? undefined : v))
+		return this.attach(JSON.parse(JSON.stringify(node,(k,v)=>k=="id" ? undefined : v)))
 	}
 	
 	createNode(nodeTmpl){
-		return {...nodeTmpl}
+		return this.attach({...nodeTmpl})
 	}
 	
 	updateNode({id,props}){
@@ -130,6 +130,7 @@ export default class EditableDocument extends Editable{
 	}
 	
 	attach(piece){
+		this.makeId(piece)
 		this.doc.children.splice(0,0,piece)
 		return piece
 	}

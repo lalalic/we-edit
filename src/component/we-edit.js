@@ -77,20 +77,14 @@ export function reducer(state={active:null,docs:{}}, action){
 		}
 		case `${DOMAIN}/ACTIVE`:
 			return {...state, active:payload}
-		case `${DOMAIN}/SAVE`:{
-			let active=state.docs[state.active]
-			return {...state, docs:{...state.docs, [state.active]:{...active,changed:false}}}
-		}
 		case `${DOMAIN}/CLOSE`:{
 			let active=state.docs[state.active]
 			if(active){
 				active.doc.release()
 				delete state.docs[active.id]
-				let docs=Object.keys(state.docs)
-				if(docs.length>0)
-					return {...state, docs:{...state.docs}, active:docs[0]}
+				active=Object.keys(state.docs)[0]
 			}
-			return {...state, active:null, docs:null}
+			return {...state, docs:{...state.docs}, active}
 		}
 		default:{
 			let id=state.active

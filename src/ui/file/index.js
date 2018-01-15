@@ -16,18 +16,19 @@ import IconClose from "material-ui/svg-icons/navigation/close"
 import {ACTION, getActive} from "we-edit"
 
 export class File extends PureComponent{
-	changed=false
+	state={changed:false}
 	componentWillReceiveProps({content}){
-		this.changed=this.props.content!=content
+		this.setState({changed:this.props.content!=content})
 	}
 	
 	render(){
-		const {save,saveAs}=this.props
+		const {changed}=this.state
+		const {save}=this.props
 		return (
 			<ToolbarGroup>
 				<CheckIconButton
-					status={this.changed ? "uncheck" : "disabled"}
-					onClick={save}>
+					status={changed ? "uncheck" : "disabled"}
+					onClick={()=>save().then(a=>this.setState({changed:false}))}>
 					<IconSave/>
 				</CheckIconButton>
 			</ToolbarGroup>
@@ -53,12 +54,8 @@ export default compose(
 	mapProps(({doc})=>({
 		save(){
 			return doc.save()
-		},
-
-		saveAs(path){
-			return doc.save(path)
 		}
-	})),
+	})),	
 	connect(state=>({content:state.get('content')})),
 )(File)
 

@@ -49,7 +49,7 @@ export default class EditableDocument extends docx4js{
 		let withIds=node.find("[id]").each((i,el)=>el.attribs._id=el.attribs.id)
 		let cloned=node.clone()
 		withIds.removeAttr("_id")
-		return cloned
+		return this.attach(cloned)
 	}
 
 	createNode({type},reducer){
@@ -88,6 +88,7 @@ export default class EditableDocument extends docx4js{
 	attach(xml){
 		xml=this.officeDocument.content(xml)
 		this.officeDocument.content("w\\:body").append(xml)
+		this.makeId(xml.get(0))
 		return xml.get(0)
 	}
 
