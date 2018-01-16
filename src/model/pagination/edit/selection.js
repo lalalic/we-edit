@@ -119,7 +119,7 @@ export class Selection extends Component{
 			<Range onMove={this.props.onMove}>
 				{
 					paths.map((a,i)=>(<path key={i}
-						fill="lightblue"
+						fill="#3297FD"
 						style={{fillOpacity:0.5}}
 						d={a}/>
 					))

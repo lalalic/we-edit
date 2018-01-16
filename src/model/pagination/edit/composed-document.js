@@ -14,8 +14,10 @@ import recomposable from "./recomposable"
 
 import Selection from "./selection"
 import Cursor from "state/cursor"
+import CursorShape from "./cursor"
 
 import offset from "mouse-event-offset"
+import getClientRect from "tools/get-client-rect"
 
 export default class extends Component{
     static displayName="composed-document-with-flasher"
@@ -67,7 +69,9 @@ export default class extends Component{
                     onPageShow={e=>this.updateCursorAndSelection()}>
                     {composeMoreTrigger}
 
-                    <Cursor onRef={a=>this.cursor=a}/>
+                    <Cursor onRef={a=>this.cursor=a}>
+						<CursorShape/>
+					</Cursor>
                     <Selection onRef={a=>this.selection=a}
                         onMove={this.onMove.bind(this)}
                         onResize={this.onResize.bind(this)}
@@ -91,7 +95,7 @@ export default class extends Component{
         let width=svg.getAttribute("width")
         let [,,viewBoxWidth]=svg.getAttribute("viewBox").split(" ").map(a=>parseInt(a))
         this.ratio=viewBoxWidth/width
-        this.getClientRect=()=>svg.getBoundingClientRect()
+        this.getClientRect=()=>getClientRect(svg)
 
         this.context.store.dispatch(ACTION.Cursor.ACTIVE(this.context.docId))
     }

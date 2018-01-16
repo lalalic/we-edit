@@ -15,7 +15,11 @@ export default class Listener extends Component{
 	render(){
 		let {dispatch}=this.context.store
 		let {up,down,...others}=this.props
-		return <input ref={a=>this.input=a} type="text" value={this.state.value} {...others}
+		return <input 
+			ref={a=>this.input=a} 
+			type="text" 
+			value={this.state.value} 
+			{...others}
 					{...reactComposition({
 							onChange:e=>{
 								let value = e.target.value

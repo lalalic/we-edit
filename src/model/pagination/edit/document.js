@@ -14,9 +14,6 @@ import {getContent,getSelection,getNode} from "state/selector"
 import {editable} from "model/edit"
 import recomposable from "./recomposable"
 
-import Selection from "./selection"
-import Cursor from "state/cursor"
-
 import offset from "mouse-event-offset"
 import getClientRect from "tools/get-client-rect"
 

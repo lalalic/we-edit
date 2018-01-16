@@ -261,6 +261,8 @@ export default class Query{
 			line: lineNo,
 			left:Math.ceil(x/ratio)+this.svg.left,
 			top:Math.ceil(y/ratio)+this.svg.top,
+			canvasLeft:Math.ceil(x),
+			canvasTop:Math.ceil(y),
 			id,
 			at,
 			...style

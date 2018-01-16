@@ -22,12 +22,13 @@ export class Cursor extends Component{
 		active: PropTypes.string,
 		contentChanged: PropTypes.bool
 	}
-
+	
 	render(){
-		return null
+		return this.props.children ? React.cloneElement(Children.only(this.props.children),{ref:a=>this.shape=a}) : null
 	}
 
 	shouldComponentUpdate({contentChanged}){
+		//when content changed, it will be forceUpdated by composed document
 		return !contentChanged
 	}
 
@@ -38,16 +39,20 @@ export class Cursor extends Component{
 			return
 		let docQuery=query()
 		this.style=docQuery.position(id,at)
-		let {top,left,height,fontFamily,fontSize}=this.style||{}
+		let {top,left,canvasTop, canvasLeft, height,fontFamily,fontSize,color}=this.style||{}
 		getCursorInput({
 				getLayoutWidth: ()=>docQuery.getLayoutWidth(id,at),
 				active,id,at
 			})
 			.setState({
-				top,left,height,fontFamily,fontSize,
+				top,left,fontFamily,fontSize,
+				height: this.shape ? 0.1 : height,
 				up: this.up.bind(this),
 				down: this.down.bind(this)
 			})
+			
+		if(this.shape)
+			this.shape.setState({top:canvasTop,left:canvasLeft,height,color})
 	}
 
 	up(shiftKey){
