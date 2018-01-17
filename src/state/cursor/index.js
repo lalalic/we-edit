@@ -39,7 +39,7 @@ export class Cursor extends Component{
 			return
 		let docQuery=query()
 		this.style=docQuery.position(id,at)
-		let {top,left,canvasTop, canvasLeft, height,fontFamily,fontSize,color}=this.style||{}
+		let {top,left,canvasTop, canvasLeft, height,fontFamily,fontSize,}=this.style||{}
 		getCursorInput({
 				getLayoutWidth: ()=>docQuery.getLayoutWidth(id,at),
 				active,id,at
@@ -52,7 +52,7 @@ export class Cursor extends Component{
 			})
 			
 		if(this.shape)
-			this.shape.setState({top:canvasTop,left:canvasLeft,height,color})
+			this.shape.setState({top:canvasTop,left:canvasLeft,height})
 	}
 
 	up(shiftKey){

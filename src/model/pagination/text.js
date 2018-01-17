@@ -65,9 +65,11 @@ export default class Text extends Super{
 					children:[...content]
 				})
 			this.appendComposed(composedText)
+			state.width=0
+			content.splice(0,content.length)
 		}
-		let consume1
-        let state=this.computed.breakOpportunities.reduce(consume1=(state,opportunity,i)=>{
+		
+		const consume1=(state,opportunity,i)=>{
             let [word="", wordWidth]=opportunity
 			let {space:{width:maxWidth},content,width}=state
 			if(Math.floor(width+wordWidth)<=maxWidth){
@@ -80,15 +82,31 @@ export default class Text extends Super{
 				state.width+=wordWidth
 				state.end+=word.length
 			}else{
-				if(width!=0)
+				let nextSpace=parent.nextAvailableSpace({height:composer.height,width:wordWidth})
+				if(width!=0){
 					commit(state)
-				state.space=parent.nextAvailableSpace({height:composer.height,width:wordWidth})
-				content.splice(0,content.length)
-				state.width=0
+				}else{
+					if(nextSpace.width<wordWidth){
+						let text=word.substr(0,this.composer.widthString(maxWidth, word))
+						content.push(text)
+						state.width+=maxWidth
+						state.end+=text.length
+						commit(state)
+						
+						let unComposedText=word.substr(text.length)
+						opportunity=[unComposedText, this.composer.stringWidth(unComposedText)]
+					}
+				}
+				state.space=nextSpace
 				consume1(state,opportunity,i)
 			}
 			return state
-		},{space:parent.nextAvailableSpace({height:composer.height}),content:[],width:0,end:0})
+		}
+		
+        let state=this.computed.breakOpportunities.reduce(
+			consume1,
+			{space:parent.nextAvailableSpace({height:composer.height}),content:[],width:0,end:0}
+		)
 
 		commit(state)
 

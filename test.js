@@ -17,7 +17,7 @@ Input.support(Docx)
 
 function editor(){
 	window.addEventListener("load", function(){
-		fonts.load("verdana.ttf", "verdana").then(()=>{
+		fonts.load("fonts/verdana.ttf", "verdana").then(()=>{
 			let container=document.querySelector("#app")
 			ReactDOM.render((
 				<WeEdit>
@@ -46,7 +46,7 @@ function testDocx(){
 		docx.name="basic.docx"
 		let container=document.createElement("div")
 		document.querySelector("#app").appendChild(container)
-		fonts.load("verdana.ttf", "verdana")
+		fonts.load("fonts/verdana.ttf", "verdana")
 		.then(()=>edit(docx,container).then(a=>window.doc=a))
 	})
 }
@@ -55,7 +55,7 @@ function testNative(){
 	fetch("basic.wed.json").then(res=>res.json()).then(doc=>{
 		let container=document.createElement("div")
 		document.querySelector("#app").appendChild(container)
-		fonts.load("verdana.ttf", "verdana")
+		fonts.load("fonts/verdana.ttf", "verdana")
 			.then(()=>edit(doc,container).then(a=>window.doc=a))
 	})
 }

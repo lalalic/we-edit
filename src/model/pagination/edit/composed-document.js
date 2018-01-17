@@ -131,31 +131,56 @@ export default class extends Component{
         const target=e.target
 
         switch(target.nodeName){
-        case 'text':
-            let text=target.textContent
-            let {endat, content:id}=target.dataset
-            let [x]=offset(e, target)
+			case "image":
+				dispatch(ACTION.Selection.SELECT(target.dataset.content,-1))
+			break
+			default:{
+				const locate=()=>{
+					if(target.nodeName=="text"){
+						let text=target.textContent
+						let {endat, content:id}=target.dataset
+						let [x]=offset(e, target)
 
-            const wordwrapper=new Text.WordWrapper($.getComposer(id).props)
-            let end=wordwrapper.widthString(x*this.ratio, text)
-            let at=endat-text.length+end
-
-            if(!e.shiftKey){
-                dispatch(ACTION.Cursor.AT(id,at))
-            }else{
-                let {end}=getSelection(this.context.store.getState())
-                let {left,top}=$.position(id,at)
-                let {left:left1,top:top1}=$.position(end.id,end.at)
-                if(top<top1 || (top==top1 && left<=left1)){
-                    dispatch(ACTION.Selection.START_AT(id,at))
-                }else{
-                    dispatch(ACTION.Selection.SELECT(end.id, end.at, id, at))
-                }
-            }
-        break
-        case "image":
-            dispatch(ACTION.Selection.SELECT(target.dataset.content,-1))
-        break
+						const wordwrapper=new Text.WordWrapper($.getComposer(id).props)
+						let end=wordwrapper.widthString(x*this.ratio, text)
+						let at=endat-text.length+end
+						return {id,at}
+					}else{
+						let parent=target.parentNode
+						let text=parent.querySelector('text')
+						while(!text){
+							parent=parent.parentNode
+							if(parent)
+								text=parent.querySelector('text')
+							else
+								break
+						}
+						if(text){
+							let {endat, content:id}=text.dataset
+							return {id,at:parseInt(endat)}
+						}
+					}
+					return {}
+				}
+				
+				let {id,at}=locate()
+				
+				if(id){
+					if(!e.shiftKey){
+						dispatch(ACTION.Cursor.AT(id,at))
+					}else{
+						let {end}=getSelection(this.context.store.getState())
+						let {left,top}=$.position(id,at)
+						let {left:left1,top:top1}=$.position(end.id,end.at)
+						if(top<top1 || (top==top1 && left<=left1)){
+							dispatch(ACTION.Selection.START_AT(id,at))
+						}else{
+							dispatch(ACTION.Selection.SELECT(end.id, end.at, id, at))
+						}
+					}
+				}
+				break
+			}
         }
 
         this.active()

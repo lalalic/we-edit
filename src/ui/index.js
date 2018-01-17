@@ -4,7 +4,7 @@ import {connect} from "react-redux"
 import {compose,setDisplayName}  from "recompose"
 import minimatch from "minimatch"
 
-import {Toolbar,ToolbarSeparator, Tabs, Tab} from "material-ui"
+import {Toolbar,ToolbarSeparator, Tabs, Tab, Snackbar} from "material-ui"
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
@@ -58,6 +58,11 @@ export default compose(
 	setDisplayName("FilterableThemeProvider"),
 	connect(state=>({active:getActive(state).doc})),
 )(class extends PureComponent{
+	state={}
+	componentDidCatch(error, info){
+		this.setState({error})	
+	}
+	
 	render(){
 		let {children,active,theme=getMuiTheme()}=this.props
 		let child=null
@@ -80,12 +85,20 @@ export default compose(
 			else
 				child=(<div>no editor for this document</div>)
 		}
+		
+		const {error}=this.state
 
 		return (
 			<MuiThemeProvider muiTheme={theme}>
 				<div>
 					<AppBar/>
 					{child}
+					<Snackbar 
+						open={!!error}
+						message={error||""}
+						autoHideDuration={4000}
+						onRequestClose={()=>this.setState({error:undefined})}
+						/>
 				</div>
 			</MuiThemeProvider>
 		)

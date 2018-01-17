@@ -204,7 +204,7 @@ export default class extends Input.Type{
 					})
 
 				if(children.length==0){
-					let r=$("<w:r><w:t> </w:t></w:r>").appendTo(node).get(0)
+					let r=$("<w:r><w:t></w:t></w:r>").appendTo(node).get(0)
 					let t=r.children[0]
 					if(props.pr){
 						let rPr=props.pr.children.find(a=>a.name=="w:rPr")
