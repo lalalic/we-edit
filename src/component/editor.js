@@ -18,6 +18,7 @@ export class Editor extends Component{
 		height:PropTypes.number,
 		pgGap:PropTypes.number,
 		style:PropTypes.object,
+		fullReCompose:PropTypes.bool,
 	}
 
 	static defaultProps={
@@ -50,7 +51,9 @@ export class Editor extends Component{
 		const {media, width, pgGap, style,height}=this.props
 		return {media, viewport:{width,height}, pgGap, style}
 	}
+	
 	render(){
+		const {fullReCompose}=this.props
 		let transform=this.context.transformer||(a=>a)
 		return (
 			<div className={this.constructor.displayName}>
@@ -61,7 +64,7 @@ export class Editor extends Component{
 						this.transformed.set(domain, transform(domain))
 					domain=this.transformed.get(domain)
 
-					return (<Root key={i} domain={domain}/>)
+					return (<Root key={i} domain={domain} fullReCompose={fullReCompose}/>)
 				})
 			}
 			</div>
@@ -88,8 +91,8 @@ const Root=connect((state,{domain})=>{
 		}
 	}
 
-	componentWillReceiveProps({content,changed,domain}){
-		if(this.doc && changed){ // editing
+	componentWillReceiveProps({content,changed,domain, fullReCompose}){
+		if(!fullReCompose && this.doc && changed){ // editing
 			//&& content.size>50){ // big
 			const getThisParentId=id=>getParentId(content,id)
 
