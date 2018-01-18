@@ -77,15 +77,18 @@ export default class Text extends Super{
 				state.width+=wordWidth
 				state.end+=word.length
 			}else if((/\s+$/.test(word) && //doing: end-of-line with whitespace,xx should be able to extend line width
-				Math.floor(width+(wordWidth=composer.stringWidth(word.replace(/\s+$/,''))))<=maxWidth)){
+				(width+(wordWidth=composer.stringWidth(word.replace(/\s+$/,''))))<=maxWidth)){
 				content.push(word)
 				state.width+=wordWidth
 				state.end+=word.length
 			}else{
-				let nextSpace=parent.nextAvailableSpace({height:composer.height,width:wordWidth})
 				if(width!=0){
 					commit(state)
-				}else{
+				}
+				
+				let nextSpace=parent.nextAvailableSpace({height:composer.height,width:wordWidth})
+					
+				if(width==0){
 					if(nextSpace.width<wordWidth){
 						let text=word.substr(0,this.composer.widthString(maxWidth, word))
 						content.push(text)
