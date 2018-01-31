@@ -1,4 +1,4 @@
-import WordWrapper from "./html"
+import HtmlMeasure from "./html"
 import getClientRect from "tools/get-client-rect"
 
 /**
@@ -6,7 +6,7 @@ import getClientRect from "tools/get-client-rect"
  * why it's slower than html
  */
 let tester=null
-export default class SVGWordWrapper extends WordWrapper{
+export default class SVGMeasure extends HtmlMeasure{
     lineHeight(){
 		if(!tester){
 			let container=document.createElement("div")

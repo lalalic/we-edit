@@ -7,9 +7,7 @@ import {Editor,Pagination,Html,Plain,WeEdit} from "we-edit/component"
 import fonts from "fonts"
 
 import WeEditUI, {Workspace, Bare} from "we-edit-ui"
-import NodeWordWrapper from "wordwrap/node"
-import {Text} from "pagination"
-Text.WordWrapper=NodeWordWrapper
+import {FontMeasure} from "wordwrap/measure"
 
 import Docx from "we-edit-docx"
 Input.support(Docx)
@@ -24,12 +22,12 @@ function editor(){
 					<WeEditUI>
 						<Workspace filter="*.docx">
 							<Editor>
-								<Pagination/>
+								<Pagination measure={FontMeasure}/>
 							</Editor>
 						</Workspace>
 						<Bare>
 							<Editor width={600}>
-								<Pagination/>
+								<Pagination measure={FontMeasure}/>
 							</Editor>
 						</Bare>
 					</WeEditUI>

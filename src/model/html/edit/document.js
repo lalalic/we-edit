@@ -9,6 +9,7 @@ import Cursor from "state/cursor"
 import {getContent} from "state/selector"
 import offset from "mouse-event-offset"
 import getClientRect from "tools/get-client-rect"
+import {HTMLMeasure} from "wordwrap/measure"
 
 export default class Document extends editable(Base){
 	static contextTypes={
@@ -37,9 +38,8 @@ export default class Document extends editable(Base){
 				let dispatch=this.context.store.dispatch
 				const content=getContent(this.context.store.getState(), contentID).toJS()
 
-				let wrapper=new HtmlWrapper(target)
+				let wrapper=new HTMLMeasure(target)
 				let end=wrapper.widthString(x,content.children)
-				wrapper.close()
 
 				dispatch(ACTION.Cursor.AT(contentID,end))
 				dispatch(ACTION.Cursor.ACTIVE(this.context.docId))
@@ -55,39 +55,11 @@ export default class Document extends editable(Base){
 			return null
 
 		let {top,left}=getClientRect(node)
-		let wordwrapper=new HtmlWrapper(node)
+		let wordwrapper=new HTMLMeasure(node)
 		
 		let width=wordwrapper.stringWidth(text.substring(0,at))
 		let {height, descent}=wordwrapper
-		wordwrapper.close()
+
 		return {top, left, width,height,descent}
-	}
-}
-
-
-import {WordWrapper} from "wordwrap"
-
-class HtmlWrapper{
-	constructor(node){
-		this.node=node
-		this.tester=node.cloneNode(false)
-		this.tester.innerHTML="M"
-		this.tester.style="position:absolute;left:-999;top:0;"
-		node.parentNode.appendChild(this.tester)
-		this.height=getClientRect(this.tester).height
-		this.descent=0
-	}
-
-	stringWidth(word){
-		this.tester.innerHTML=word
-		return getClientRect(this.tester).width
-	}
-
-	widthString(width,text){
-		return WordWrapper.prototype.widthString.call(this,width,text)
-	}
-
-	close(){
-		this.tester.parentNode.removeChild(this.tester)
 	}
 }

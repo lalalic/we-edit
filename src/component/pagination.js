@@ -1,24 +1,36 @@
-import react, {Component} from "react"
+import React, {PureComponent as Component} from "react"
 import PropTypes from "prop-types"
 
-import models from "pagination"
-import edits from "pagination/edit"
+import ViewerTypes from "pagination"
+import EditorTypes from "pagination/edit"
+
+import {FontMeasure, SVGMeasure} from "wordwrap/measure"
+
+import IType from "./IType"
 
 export class Pagination extends Component{
 	static displayName="pagination"
 	static propTypes={
-		domain: PropTypes.func
+		Measure: PropTypes.func
+	}
+
+	
+	static childContextTypes={
+		Measure: PropTypes.func
 	}
 	
-	static defaultProps={
-		domain(type){
-			switch(type){
-			case "editor":
-				return edits
-			default:
-				return models
-			}
+	get Measure(){
+		return typeof(window)=="undefined" ? FontMeasure : this.props.Measure||SVGMeasure
+	}
+	
+	getChildContext(){
+		return {
+			Measure: this.Measure,
 		}
+	}
+	
+	render(){
+		return <IType {...{ViewerTypes,EditorTypes,...this.props} }/>
 	}
 }
 export default Pagination

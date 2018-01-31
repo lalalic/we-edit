@@ -1,9 +1,9 @@
-import WordWrapper from "./"
+import Measure from "./measure"
 import getClientRect from "tools/get-client-rect"
 
 let tester=null
 let DEFAULT_STYLE="margin:0;padding:0;border:0;position:absolute;left:-1000px;white-space: pre;"
-export default class HtmlWordWrapper extends WordWrapper{
+export default class HtmlMeasure extends Measure{
 	lineHeight(){
 		if(!tester){
 			tester=document.createElement('span')

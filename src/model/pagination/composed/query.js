@@ -1,7 +1,6 @@
 import React from "react"
 import ComposedText from "./text"
 import ComposedLine from "./line"
-import Text from "pagination/text"
 import ContentQuery from "state/selector/query"
 
 import FindLast from "tools/array-find-last"
@@ -140,9 +139,9 @@ export default class Query{
 		let text=piece.props.children.join("")
 
 
-		let wordwrapper=new Text.WordWrapper(this.getComposer(id).props)
-		let end=wordwrapper.widthString(offsetX, text)
-		offsetX=offsetX-wordwrapper.stringWidth(text.substr(0,end))
+		let measure=this.getComposer(id).measure
+		let end=measure.widthString(offsetX, text)
+		offsetX=offsetX-measure.stringWidth(text.substr(0,end))
 		return {
 			page: pageNo,
 			column: columnNo,
@@ -244,16 +243,16 @@ export default class Query{
 		let from=node.props["data-endat"]-node.props.children.join("").length
 		let composer=this.getComposer(id)
 		let {children:text,...props}=composer.props
-		let wordwrapper=new Text.WordWrapper(props)
-		let style=wordwrapper.defaultStyle
+		let measure=composer.measure
+		let style=measure.defaultStyle
 
 		let {x,y}=this._xy(id,path)
 
-		x+=wordwrapper.stringWidth(text.substring(from,at))
+		x+=measure.stringWidth(text.substring(from,at))
 		y=y-style.height
 
 		style.height=style.height/ratio
-		style.descent=style.descent.ratio
+		style.descent=style.descent/ratio
 		
 		return {
 			page: pageNo,
@@ -328,8 +327,8 @@ export default class Query{
 				let id=item.props["data-content"]
 				let composer=this.getComposer(id)
 				let text=item.props.children.join("")
-				let wordwrapper=new Text.WordWrapper(composer.props)
-				let len=wordwrapper.widthString(left-x,text)
+				let measure=composer.measure
+				let len=measure.widthString(left-x,text)
 				let at=item.props["data-endat"]-text.length+len
 				return {id,at}
 			}
@@ -391,8 +390,8 @@ export default class Query{
 				let id=item.props["data-content"]
 				let composer=this.getComposer(id)
 				let text=item.props.children.join("")
-				let wordwrapper=new Text.WordWrapper(composer.props)
-				let len=wordwrapper.widthString(left-x,text)
+				let measure=composer.measure
+				let len=measure.widthString(left-x,text)
 				let at=item.props["data-endat"]-text.length+len
 				return {id,at}
 			}

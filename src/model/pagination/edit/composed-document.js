@@ -143,8 +143,8 @@ export default class extends Component{
 						let {endat, content:id}=target.dataset
 						let [x]=offset(e, target)
 
-						const wordwrapper=new Text.WordWrapper($.getComposer(id).props)
-						let end=wordwrapper.widthString(x*this.ratio, text)
+						const measure=$.getComposer(id).measure
+						let end=measure.widthString(x*this.ratio, text)
 						let at=endat-text.length+end
 						return {id,at}
 					}else{

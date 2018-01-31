@@ -1,7 +1,7 @@
-import WordWrapper from "."
+import Measure from "./measure"
 import Fonts from "fonts"
 
-export default class NodeWordWraper extends WordWrapper{
+export default class FontMeasure extends Measure{
     lineHeight(){
 		this.font=Fonts.get(this.fontFamily)
         return {

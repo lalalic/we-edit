@@ -5,8 +5,7 @@ import PropTypes from "prop-types"
 import {NoChild} from "./composable"
 import Base from "../text"
 
-import SVGWordWrapper from "./wordwrap/svg"
-import NodeWordWrapper from "./wordwrap/node"
+import {SVGMeasure, FontMeasure} from "wordwrap/measure"
 
 import Group from "./composed/group"
 import ComposedText from "./composed/text"
@@ -14,11 +13,10 @@ import ComposedText from "./composed/text"
 const Super=NoChild(Base)
 
 export default class Text extends Super{
-    static WordWrapper=typeof(window)!="undefined" ? SVGWordWrapper : NodeWordWrapper
-
     static contextTypes={
 		...Super.contextTypes,
-		getMyBreakOpportunities: PropTypes.func
+		getMyBreakOpportunities: PropTypes.func,
+		Measure: PropTypes.func,
 	}
 
     constructor(){
@@ -28,7 +26,7 @@ export default class Text extends Super{
 
     getBreakOpportunitiesWidth(){
         const {fonts,size,color,bold,italic,vanish,children:myText}=this.props
-		const composer=this.composer=new this.constructor.WordWrapper({fonts,size,color,bold,italic,vanish})
+		const measure=this.measure=new this.context.Measure({fonts,size,color,bold,italic,vanish})
 		const [index,breakOpportunities]=this.context.getMyBreakOpportunities()
         return breakOpportunities.map(opportunity=>{
             let {
@@ -45,15 +43,15 @@ export default class Text extends Super{
             }
 			word=word||""
 
-            return [word,composer.stringWidth(word)]
+            return [word,measure.stringWidth(word)]
         })
 
     }
 
     render(){
 		const parent=this.context.parent
-        const composer=this.composer
-		const defaultStyle=this.composer.defaultStyle
+        const measure=this.measure
+		const defaultStyle=this.measure.defaultStyle
 		let i=0
 		const commit=state=>{
 			let {content,width,end}=state
@@ -77,7 +75,7 @@ export default class Text extends Super{
 				state.width+=wordWidth
 				state.end+=word.length
 			}else if((/\s+$/.test(word) && //doing: end-of-line with whitespace,xx should be able to extend line width
-				(width+(wordWidth=composer.stringWidth(word.replace(/\s+$/,''))))<=maxWidth)){
+				(width+(wordWidth=measure.stringWidth(word.replace(/\s+$/,''))))<=maxWidth)){
 				content.push(word)
 				state.width+=wordWidth
 				state.end+=word.length
@@ -86,18 +84,18 @@ export default class Text extends Super{
 					commit(state)
 				}
 				
-				let nextSpace=parent.nextAvailableSpace({height:composer.height,width:wordWidth})
+				let nextSpace=parent.nextAvailableSpace({height:measure.height,width:wordWidth})
 					
 				if(width==0){
 					if(nextSpace.width<wordWidth){
-						let text=word.substr(0,this.composer.widthString(maxWidth, word))
+						let text=word.substr(0,this.measure.widthString(maxWidth, word))
 						content.push(text)
 						state.width+=maxWidth
 						state.end+=text.length
 						commit(state)
 						
 						let unComposedText=word.substr(text.length)
-						opportunity=[unComposedText, this.composer.stringWidth(unComposedText)]
+						opportunity=[unComposedText, this.measure.stringWidth(unComposedText)]
 					}
 				}
 				state.space=nextSpace
@@ -108,7 +106,7 @@ export default class Text extends Super{
 		
         let state=this.computed.breakOpportunities.reduce(
 			consume1,
-			{space:parent.nextAvailableSpace({height:composer.height}),content:[],width:0,end:0}
+			{space:parent.nextAvailableSpace({height:measure.height}),content:[],width:0,end:0}
 		)
 
 		commit(state)

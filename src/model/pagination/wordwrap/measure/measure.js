@@ -1,4 +1,4 @@
-export class WordWrapper{
+export class Measure{
     constructor(style){
 		const {fonts, size, color}=style
 		this.style=style
@@ -51,4 +51,4 @@ export class WordWrapper{
 	}
 }
 
-export default WordWrapper
+export default Measure

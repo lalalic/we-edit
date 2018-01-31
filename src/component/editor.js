@@ -3,8 +3,6 @@ import PropTypes from "prop-types"
 
 import {connect, connectAdvanced} from "react-redux"
 
-import Models from "model"
-
 import {getContent, getChanged, getParentId} from "state/selector"
 import Cursor from "state/cursor"
 import Input from "input"
@@ -41,30 +39,19 @@ export class Editor extends Component{
 		style:PropTypes.object
 	}
 
-	static contextTypes={
-		transformer: PropTypes.func
-	}
-
-	transformed=new Map()
-
 	getChildContext(){
 		const {media, width, pgGap, style,height}=this.props
 		return {media, viewport:{width,height}, pgGap, style}
 	}
 	
 	render(){
-		const {fullReCompose}=this.props
-		let transform=this.context.transformer||(a=>a)
+		const {fullReCompose, children}=this.props
 		return (
 			<div className={this.constructor.displayName}>
 			{
-				Children.map(this.props.children,({props:{domain}},i)=>{
-					domain=domain(this.constructor.displayName)
-					if(!this.transformed.has(domain))
-						this.transformed.set(domain, transform(domain))
-					domain=this.transformed.get(domain)
-
-					return (<Root key={i} domain={domain} fullReCompose={fullReCompose}/>)
+				React.cloneElement(Children.only(children),{
+					domain:this.constructor.displayName,
+					children: (<Root fullReCompose={fullReCompose}/>)
 				})
 			}
 			</div>
@@ -72,17 +59,21 @@ export class Editor extends Component{
 	}
 }
 
-const Root=connect((state,{domain})=>{
-	return {content:state.get("content"),changed: getChanged(state),domain}
+const Root=connect((state)=>{
+	return {content:state.get("content"),changed: getChanged(state)}
 })(class extends PureComponent{
 	static childContextTypes={
 		docId: PropTypes.string
 	}
+	static contextTypes={
+		ModelTypes: PropTypes.object
+	}
+	
 	docId=`editor_${uuid()}`
 	constructor(){
 		super(...arguments)
 		this.els=new Map()
-		this.componentWillReceiveProps(this.props)
+		this.componentWillReceiveProps(this.props,this.context)
 	}
 
 	getChildContext(){
@@ -91,7 +82,7 @@ const Root=connect((state,{domain})=>{
 		}
 	}
 
-	componentWillReceiveProps({content,changed,domain, fullReCompose}){
+	componentWillReceiveProps({content,changed,fullReCompose},{ModelTypes}){
 		if(!fullReCompose && this.doc && changed){ // editing
 			//&& content.size>50){ // big
 			const getThisParentId=id=>getParentId(content,id)
@@ -130,14 +121,14 @@ const Root=connect((state,{domain})=>{
 					children.forEach(j=>{
 						let el=rawEls.find(({props:{id}})=>id==j)
 						if(changedKeys.includes(j)){
-							el=this.createChildElement(j,content,domain,this.props.content)
+							el=this.createChildElement(j,content,ModelTypes,this.props.content)
 							handled.push(j)
 						}
 						if(el){
 							els.push(el)
 							this.els.set(j,el)
 						}else{
-							el=this.createChildElement(j,content,domain,this.props.content)
+							el=this.createChildElement(j,content,ModelTypes,this.props.content)
 							handled.push(j)
 							els.push(el)
 						}
@@ -148,21 +139,21 @@ const Root=connect((state,{domain})=>{
 					let parentEl=this.els.get(parentId)
 					children=parentEl.props.children
 					let index=content.get(parentId).toJS().children.indexOf(k)
-					children[index]=this.createChildElement(k,content,domain,this.props.content)
+					children[index]=this.createChildElement(k,content,ModelTypes,this.props.content)
 					changeParent(parentId);
 				}
 				return handled
 			},[])
 		}else{//reproduce mode
 			this.els=new Map()
-			this.doc=this.createChildElement("root",content,domain,this.props.content)
+			this.doc=this.createChildElement("root",content,ModelTypes,this.props.content)
 		}
 	}
 
-	createChildElement(id,content,domain,lastContent){
+	createChildElement(id,content,ModelTypes,lastContent){
 		let current=content.get(id)
 		let {type, props, children}=current.toJS()
-		let Child=domain[type[0].toUpperCase()+type.substr(1)]	
+		let Child=ModelTypes[type[0].toUpperCase()+type.substr(1)]	
 		if(!Child){
 			console.error(`[${type}] not found`)
 			return null
@@ -171,7 +162,7 @@ const Root=connect((state,{domain})=>{
 
 		if(Array.isArray(children))
 			elChildren=children.map(a=>{
-				return this.createChildElement(a,content,domain,lastContent)
+				return this.createChildElement(a,content,ModelTypes,lastContent)
 			})
 
 		let changed=false, selfChanged=false
