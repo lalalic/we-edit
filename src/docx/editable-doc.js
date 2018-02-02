@@ -116,4 +116,8 @@ export default class EditableDocument extends docx4js{
 	px2cm(px){
 		return Math.ceil(px*72/96*360000/28.3464567)
 	}
+	
+	toString(id){
+		return this.officeDocument.content.xml(this.getNode(id))
+	}
 }

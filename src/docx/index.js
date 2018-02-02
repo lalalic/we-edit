@@ -62,7 +62,7 @@ export default class extends Input.Type{
 		const selector=new Style.Properties(docx)
 		const $=docx.officeDocument.content
 		const settings=docx.officeDocument.settings
-
+		
 		const styles=this.styles=Input.Type.createStyles()
 
 		const createStylesElement=()=>createElement(
@@ -296,7 +296,8 @@ export default class extends Input.Type{
 
 		this.refreshStyles=createStylesElement
 		
-
+		this.getFontList=()=>Array.from(selector.requireFonts)
+		
 		return rendered
 	}
 
@@ -307,6 +308,10 @@ export default class extends Input.Type{
 	}
 
 	renderNode(node, createElement){
+		//injected implementation by render
+	}
+	
+	getFontList(){
 		//injected implementation by render
 	}
 }

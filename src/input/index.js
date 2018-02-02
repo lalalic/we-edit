@@ -74,6 +74,10 @@ function buildEditableDoc(doc,inputTypeInstance){
 		selection(){
 			return new Selection(editableDoc.getState(), inputTypeInstance)
 		},
+		
+		getFontList(){
+			return inputTypeInstance.getFontList()
+		},
  
 		Store:compose(
 				setDisplayName("DocStore"),

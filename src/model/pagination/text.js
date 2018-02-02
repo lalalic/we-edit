@@ -17,17 +17,19 @@ export default class Text extends Super{
 		...Super.contextTypes,
 		getMyBreakOpportunities: PropTypes.func,
 		Measure: PropTypes.func,
+		defaultFont: PropTypes.string,
 	}
 
     constructor(){
         super(...arguments)
-        this.computed.breakOpportunities=this.getBreakOpportunitiesWidth()
+        this.computed.breakOpportunities=this.getBreakOpportunitiesWidth(this.props,this.context)
     }
 
-    getBreakOpportunitiesWidth(){
-        const {fonts,size,color,bold,italic,vanish,children:myText}=this.props
-		const measure=this.measure=new this.context.Measure({fonts,size,color,bold,italic,vanish})
-		const [index,breakOpportunities]=this.context.getMyBreakOpportunities()
+    getBreakOpportunitiesWidth(props,context){
+		const {defaultFont}=context
+        const {fonts=defaultFont,size,color,bold,italic,vanish,children:myText}=props
+		const measure=this.measure=new context.Measure({fonts,size,color,bold,italic,vanish})
+		const [index,breakOpportunities]=context.getMyBreakOpportunities()
         return breakOpportunities.map(opportunity=>{
             let {
                 word,

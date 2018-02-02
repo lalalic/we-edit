@@ -43,4 +43,8 @@ export default class {
 	construct(fromId,toId){
 		
 	}
+	
+	toString(id){
+		return `[${id}]`
+	}
 }

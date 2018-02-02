@@ -18,9 +18,13 @@ export default class xQuery extends Query{
             if(this.length){
                 return this._content.get(this._nodes[0])
             }
-        }else if(value==undefined)
-            return super.attr(k)
-        else{
+        }else if(value==undefined){
+			if(typeof(k)=="string"){
+				return super.attr(k)
+			}else if(typeof(k)=="object"){
+				Object.keys(k).forEach(key=>this.attr(key,k[key]))
+			}
+        }else{
             if(this.length){
     			let path=[this._nodes[0]]
     			if(["type","id","parent","children"].includes(k)){
@@ -49,7 +53,7 @@ export default class xQuery extends Query{
 				._nodes
 				.reduce((c,id)=>{
                     c.setIn([id,"children"],value)
-                    this._doc.updateNode(c.get(id).toJS(),value,this)
+                    this._doc.updateNode(c.get(id).toJS(),{children:value},this)
                     return c
                 },this._content)
 			return this
@@ -189,5 +193,9 @@ export default class xQuery extends Query{
 			return id
 		})
 		return new this.constructor(this.state,nodes)
+	}
+
+	toString(){
+		return this._nodes.map(id=>this._doc.toString(id)).join("\r\n")
 	}
 }

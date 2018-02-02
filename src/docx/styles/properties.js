@@ -7,6 +7,7 @@ export class Properties{
 		this.rStyle=this.pStyle=this.tblStyle=this._val
 		this.wrapTopAndBottom=this.wrapSquare=this.wrapTight=this.wrapThrough=this.wrap
 		this.ext=this.extent
+		this.requireFonts=new Set()
 	}
 
 	select(nodes, keyMap={}){
@@ -100,9 +101,13 @@ export class Properties{
 			fonts.push(t)
 		else if(t=x.attribs['w:eastAsiaTheme'])
 			fonts.push(this.theme.font(t))
-
-		if(fonts.length)
-			return fonts.join(",")
+		
+		if(fonts.length){
+			fonts=fonts.join(",")
+			fonts.split(",")
+				.forEach(a=>this.requireFonts.add(a))
+			return fonts
+		}
 	}
 
 	lang(x){

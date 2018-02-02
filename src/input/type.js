@@ -125,6 +125,16 @@ export class Viewable{
 	render(createElement/*(TYPE, props, children, rawcontent)*/,components){
 		return "Input.render should be implemented"
 	}
+	
+	/**
+	* []: the fonts array that loaded/created doc uses
+	* it's only for <Pagination measure={FontMeasure}/> type
+	* it will be called when rendering for pagination output
+	* usually you can collect it during render function
+	*/
+	getFontList(){
+		return []
+	}
 }
 
 export class Editable extends Viewable{
