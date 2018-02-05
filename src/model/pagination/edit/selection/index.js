@@ -1,32 +1,19 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 
-import {connect} from "react-redux"
-import {getSelection,getNode} from "state/selector"
+import Entity from "./entity"
+import Range from "./range"
 
-import {Text} from "model/pagination"
-
-import offset from "mouse-event-offset"
-
-import Entity from "state/selection/entity"
-import Range from "state/selection/range"
-
-export class Selection extends Component{
-	static displayName="selection"
+export default class SelectionShape extends Component{
 	static propTypes={
 		start:PropTypes.shape({
 			id: PropTypes.string.isRequired,
 			at: PropTypes.number.isRquired
-		}).isRequired,
+		}),
 		end:PropTypes.shape({
 			id: PropTypes.string.isRequired,
 			at: PropTypes.number.isRquired
-		}).isRequired
-	}
-
-	static defaultProps={
-		start:{id:"",at:0},
-		end:{id:"",at:0}
+		})
 	}
 
 	static contextTypes={
@@ -34,14 +21,16 @@ export class Selection extends Component{
 		store: PropTypes.any,
 		query: PropTypes.func
 	}
-
+	
 	el=null
+
 	render(){
 		return this.el
 	}
 
-	image(node){
-		let {top,left,bottom,right}=this.context.query().getClientRectInSVG(node)
+
+	renderEntity(id){
+		let {top,left,bottom,right}=this.context.query().getClientRect(id)
 		const {onResize, onMove, onRotate}=this.props
 		return <Entity
 					path={`M${left} ${top} L${right} ${top} L${right} ${bottom} L${left} ${bottom} Z`}
@@ -68,7 +57,7 @@ export class Selection extends Component{
 					/>
 	}
 
-	range(start,end,docId,store){
+	renderRange(start,end,docId,store){
 		let state=store.getState()
 		let $=this.context.query()
 
@@ -128,33 +117,12 @@ export class Selection extends Component{
 		)
 	}
 
-	componentWillReceiveProps({start,end},{docId,store,getRatio}){
+	componentWillReceiveProps({start,end},{docId,store,query,getRatio}){
 		this.el=null
 		if(start.id==end.id && start.at==end.at){
-			let node=getNode(docId,start.id,start.at)
-			if(!node)
-				return
-
-			switch(node.tagName){
-			case "image":
-				this.el=this.image(node)
-			break
-			}
+			this.el=this.renderEntity(start.id)
 		}else{
-			this.el=this.range(start,end,docId,store,getRatio)
+			this.el=this.renderRange(start,end,docId,store,getRatio)
 		}
 	}
 }
-
-export default connect(state=>{
-	return getSelection(state)
-})(
-class extends Component{
-	static propTypes={
-		onRef:PropTypes.func.isRequired
-	}
-	render(){
-		const {onRef,...others}=this.props
-		return <Selection {...others} ref={onRef}/>
-	}
-})

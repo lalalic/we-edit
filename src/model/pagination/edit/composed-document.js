@@ -12,9 +12,9 @@ import {getContent,getSelection} from "state/selector"
 import {editable} from "model/edit"
 import recomposable from "./recomposable"
 
-import Selection from "./selection"
+import Selection from "state/selection"
 import Cursor from "state/cursor"
-import CursorShape from "./cursor"
+import SelectionShape from "./selection"
 
 import offset from "mouse-event-offset"
 import getClientRect from "tools/get-client-rect"
@@ -69,14 +69,22 @@ export default class extends Component{
                     onPageShow={e=>this.updateCursorAndSelection()}>
                     {composeMoreTrigger}
 
-                    <Cursor onRef={a=>this.cursor=a}>
-						<CursorShape/>
-					</Cursor>
-                    <Selection onRef={a=>this.selection=a}
-                        onMove={this.onMove.bind(this)}
+                    <Cursor 
+						ref={a=>this.cursor=a}
+						render={({top=0,left=0,height=0,color})=>(
+							<path d={`M${left} ${top} L${left} ${top+height}`} 
+									style={{stroke:color, strokeWidth:1}}/>
+						)}
+						/>
+
+                    <Selection 
+						ref={a=>this.selection=a}
+						onMove={this.onMove.bind(this)}
                         onResize={this.onResize.bind(this)}
                         onRotate={this.onRotate.bind(this)}
-                        />
+                        >
+						<SelectionShape/>
+					</Selection>
                 </Base>
             </div>
         )

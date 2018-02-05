@@ -44,7 +44,8 @@ export default class Query{
 			.reduce((h,{size:{height}})=>h+height+pgGap,pgGap)
 	}
 
-	getClientRectInSVG(node){
+	getClientRect(id){
+		let node=this.document.canvas.root.querySelector(`svg [data-content="${id}"]`)
 		let {left,right,top,bottom,height,width}=getClientRect(node)
 		left=left-this.svg.left
 		top=top-this.svg.top

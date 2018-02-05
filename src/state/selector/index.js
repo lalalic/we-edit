@@ -154,21 +154,6 @@ export function prevCursorable(state,id){
 	return found
 }
 
-export function getNode(docId, id,at){
-	let nodes=document.querySelectorAll(`#${docId} [data-content="${id}"]`)
-	if(nodes.length==1 || at==undefined || at<0)
-		return nodes[0]
-
-	for(let i=0, len=nodes.length; i<len; i++){
-		let a=nodes[i]
-		let end=parseInt(a.dataset.endat)
-		let length=a.textContent.length
-		let start=end-length
-		if(start<=at && at<=end)
-			return a
-	}
-}
-
 import Query from "./query"
 export function query(state,context){
 	return new Query(state,context)

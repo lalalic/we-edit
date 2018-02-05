@@ -34,10 +34,10 @@ export default compose(
 	toggleB, toggleI, toggleU,
 	changeFont,changeSize})=>(
 	<ToolbarGroup>
-		<FontList value={style.fonts} changeFont={changeFont}/>
+		<FontList value={style ? style.fonts : []} changeFont={changeFont}/>
 		<SelectField 
 			style={{width:50,overflow:"hidden"}} 
-			value={style.size} 
+			value={style ? style.size: 11} 
 			onChange={(e,i,value)=>changeSize(value)}>
 			{[8,9,10,11,12,14,16,20,22,24,26,28,36,72].map(a=><MenuItem key={a} value={a} primaryText={a}/>)}
 		</SelectField>

@@ -2,11 +2,13 @@ import React, {Component, Children} from "react"
 import PropTypes from "prop-types"
 
 import {connect} from "react-redux"
-import {getContent,  getSelection,getNode} from "state/selector"
+import {getContent,  getSelection} from "state/selector"
 import {ACTION} from "state"
 
 import get from "lodash.get"
 import getClientRect from "tools/get-client-rect"
+
+import Shape from "./shape"
 
 export class Cursor extends Component{
 	static contextTypes={
@@ -20,20 +22,30 @@ export class Cursor extends Component{
 		id: PropTypes.string,
 		at: PropTypes.number,
 		active: PropTypes.string,
-		contentChanged: PropTypes.bool
 	}
 	
+	contentChanged=false
+	
 	render(){
-		return this.props.children ? React.cloneElement(Children.only(this.props.children),{ref:a=>this.shape=a}) : null
+		const {children}=this.props
+		return (
+			<Shape ref={a=>this.shape=a}>
+				{children}
+			</Shape>
+		)
+	}
+	
+	componentWillReceiveProps({content}){
+		this.contentChanged=this.props.content!=content
 	}
 
-	shouldComponentUpdate({contentChanged}){
+	shouldComponentUpdate(){
 		//when content changed, it will be forceUpdated by composed document
-		return !contentChanged
+		return !this.contentChanged
 	}
 
 	componentDidUpdate(prevProps){
-		const {active,id,at}=this.props
+		const {active,id,at, up, down}=this.props
 		const {docId, getCursorInput,query}=this.context
 		if(docId!==active)
 			return
@@ -56,7 +68,7 @@ export class Cursor extends Component{
 	}
 
 	up(shiftKey){
-		const {docId,store, query}=this.context
+		const {store, query}=this.context
 		const dispatch=store.dispatch
 		const state=store.getState()
 		const {start,end,cursorAt}=getSelection(state)
@@ -88,7 +100,7 @@ export class Cursor extends Component{
 	}
 
 	down(shiftKey){
-		const {docId,store,query}=this.context
+		const {store,query}=this.context
 		const dispatch=store.dispatch
 		const state=store.getState()
 		const {start,end,cursorAt}=getSelection(state)
@@ -119,23 +131,38 @@ export class Cursor extends Component{
 	}
 }
 
-export default connect(state=>{
+const CursorHolder=connect((state)=>{
 	let selection=getSelection(state)
 	let content=state.get("content")
 	let {end,start,active,cursorAt}=selection
 	let {id,at}=selection[cursorAt]
 	return {id,at,active, content}
-})(
-class extends Component{
-	static propTypes={
-		onRef:PropTypes.func.isRequired
+},null,null, {withRef:true})(Cursor)
+
+export default class extends Component{
+	constructor(){
+		super(...arguments)
+		this.componentWillReceiveProps(this.props)	
 	}
-	contentChanged=false
-	componentWillReceiveProps({content}){
-		this.contentChanged=this.props.content!=content
+	
+	forceUpdate(){
+		if(this.cursor)
+			this.cursor.forceUpdate()
 	}
+	
+	componentWillReceiveProps({render}){
+		this.Shape=render
+	}
+	
 	render(){
-		const {onRef,...others}=this.props
-		return <Cursor {...others} contentChanged={this.contentChanged} ref={onRef}/>
+		const {children, render, ...others}=this.props
+		return (
+			<CursorHolder 
+				ref={a=>{a && (this.cursor=a.getWrappedInstance())}} 
+				{...others}>
+				{this.Shape ? <this.Shape/> : children}
+			</CursorHolder>
+			)
+			
 	}
-})
+}
