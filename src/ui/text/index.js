@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 
 import {selector, ACTION} from "we-edit"
 
-import {compose,setDisplayName,getContext,mapProps} from "recompose"
+import {compose,setDisplayName,getContext,mapProps,withProps} from "recompose"
 import {connect} from "react-redux"
 
 import {ToolbarGroup,TextField,SelectField, MenuItem} from "material-ui"
@@ -21,7 +21,7 @@ export default compose(
 		store:PropTypes.object,
 		doc: PropTypes.object
 	}),
-	mapProps(({store:{dispatch},doc})=>({
+	withProps(({store:{dispatch},doc})=>({
 		doc,
 		toggleB:b=>dispatch(ACTION.Style.update({text:{bold:b}})),
 		toggleI:b=>dispatch(ACTION.Style.update({text:{italic:b}})),
@@ -30,7 +30,7 @@ export default compose(
 		changeSize:size=>dispatch(ACTION.Style.update({text:{size}})),
 	})),
 	connect(state=>({selection:state.get('selection')})),
-)(({doc, style=doc.selection().props("text"), 
+)(({doc, style=doc.selection().props("text"), children,
 	toggleB, toggleI, toggleU,
 	changeFont,changeSize})=>(
 	<ToolbarGroup>
@@ -56,5 +56,6 @@ export default compose(
 			onClick={()=>toggleU(!style.underline)}
 			children={<IconUnderlined/>}
 			/>
+		{children}
 	</ToolbarGroup>
 ))

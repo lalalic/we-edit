@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 import {compose,setDisplayName,getContext,mapProps} from "recompose"
 import {connect} from "react-redux"
 
-import {SelectField,MenuItem,Subheader } from 'material-ui'
+import {SelectField,MenuItem,Subheader} from 'material-ui'
 
 import Fonts from "fonts"
 

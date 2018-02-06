@@ -26,7 +26,7 @@ export class Selection extends Component{
 	el=null
 	render(){
 		const {children,  ...others}=this.props
-		return React.cloneElement(React.Children.only(children),{start,end,...others})
+		return React.cloneElement(React.Children.only(children),{...others})
 	}
 }
 

@@ -543,6 +543,10 @@ export default class Query{
 			}
 		})
 	}
+	
+	get content(){
+		return new ContentQuery(this.state)
+	}
 
 	getLayoutWidth(id,at){
 		const {columnNo}=this._locate(id,at)

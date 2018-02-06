@@ -18,12 +18,12 @@ export default compose(
 		store:PropTypes.object,
 		doc: PropTypes.object
 	}),
-	mapProps(({store:{dispatch},doc})=>({
-		doc,
+	mapProps(({store:{dispatch},doc,children})=>({
+		doc,children,
 		align:type=>dispatch(ACTION.Style.update({paragraph:{align:type}})),
 	})),
 	connect(state=>({selection:selector.getSelection(state)})),
-)(({doc,style=doc.selection().props("paragraph"), align})=>(
+)(({doc,style=doc.selection().props("paragraph"), align,children})=>(
 	<ToolbarGroup>
 		<CheckIconButton
 			status={!style ? "disabled" : (!style.align ||style.align=="left")?"checked":"unchecked"}
@@ -40,5 +40,6 @@ export default compose(
 			onClick={()=>align("right")}
 			children={<IconAlignRight/>}
 			/>
+		{children}
 	</ToolbarGroup>
 ))

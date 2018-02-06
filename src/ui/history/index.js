@@ -17,13 +17,14 @@ import {ACTION, getActive, selector} from "we-edit"
 export default compose(
 	setDisplayName("clipboard"),
 	getContext({store:PropTypes.object}),
-	mapProps(({store:{dispatch}})=>({
+	mapProps(({store:{dispatch},children})=>({
 		undo(){
 			dispatch(ACTION.History.undo())
 		},
 		redo(){
 			dispatch(ACTION.History.redo())
-		}
+		},
+		children
 	})),
 	connect(state=>{
 		let redos=selector.getRedos(state)
@@ -33,7 +34,7 @@ export default compose(
 			canUndo:!!undos.length
 		}
 	})
-)(({undo,redo, canUndo, canRedo})=>(
+)(({undo,redo, canUndo, canRedo,children})=>(
 	<ToolbarGroup>
 		<CheckIconButton
 			status={canUndo ? "uncheck" : "disabled"}
@@ -45,5 +46,6 @@ export default compose(
 			children={<IconRedo/>}
 			onClick={redo}
 			/>
+		{children}
 	</ToolbarGroup>
 ))

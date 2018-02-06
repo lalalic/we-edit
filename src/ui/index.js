@@ -4,7 +4,7 @@ import {connect} from "react-redux"
 import {compose,setDisplayName}  from "recompose"
 import minimatch from "minimatch"
 
-import {Toolbar,ToolbarSeparator, Tabs, Tab, Snackbar} from "material-ui"
+import {Toolbar,ToolbarSeparator, ToolbarTitle, Tabs, Tab, Snackbar} from "material-ui"
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
@@ -30,11 +30,14 @@ export class Workspace extends PureComponent{
 					<Tab label="Home">
 						<Toolbar>
 							<File/>
-							<History/>
-							<ToolbarSeparator/>
+							<History>
+								<ToolbarSeparator/>
+							</History>
 
-							<Text/>
-							<ToolbarSeparator/>
+							<Text>
+								<ToolbarSeparator/>
+							</Text>
+							
 							<Paragraph/>
 						</Toolbar>
 					</Tab>

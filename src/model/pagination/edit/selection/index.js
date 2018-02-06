@@ -120,6 +120,10 @@ export default class SelectionShape extends Component{
 	componentWillReceiveProps({start,end},{docId,store,query,getRatio}){
 		this.el=null
 		if(start.id==end.id && start.at==end.at){
+			const type=query().content.find(`#${start.id}`).attr('type')
+			if(type=="text")
+				return this.el=null
+			
 			this.el=this.renderEntity(start.id)
 		}else{
 			this.el=this.renderRange(start,end,docId,store,getRatio)

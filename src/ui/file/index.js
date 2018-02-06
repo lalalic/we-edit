@@ -5,7 +5,7 @@ import {compose, mapProps,getContext,setDisplayName} from "recompose"
 
 import Input from "we-edit/input"
 
-import {ToolbarGroup, ToolbarSeparator, ToolbarTitle} from "material-ui"
+import {ToolbarGroup} from "material-ui"
 import CheckIconButton from "we-edit-ui/components/check-icon-button"
 
 
@@ -23,7 +23,7 @@ export class File extends PureComponent{
 	
 	render(){
 		const {changed}=this.state
-		const {save}=this.props
+		const {save,children}=this.props
 		return (
 			<ToolbarGroup>
 				<CheckIconButton
@@ -31,6 +31,7 @@ export class File extends PureComponent{
 					onClick={()=>save().then(a=>this.setState({changed:false}))}>
 					<IconSave/>
 				</CheckIconButton>
+				{children}
 			</ToolbarGroup>
 		)
 	}
