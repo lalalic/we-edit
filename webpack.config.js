@@ -15,14 +15,21 @@ module.exports=env=>{
 				enforce: "pre",
 				include:/(docx4js|docx-template)/
 			  },{
-				test: /.js?$/,
+				test: /\.js?$/,
 				use: ['babel-loader'],
 				exclude: /node_modules/,
 			},{
-				test: /.js?$/,
+				test: /\.js?$/,
 				use: ["transform-loader/cacheable?brfs"],
 				enforce:"post",
 				include: /(linebreak)/
+			},{
+				test:/\.less?$/,
+				use: [
+					'style-loader',
+					{ loader: 'css-loader', options: { importLoaders: 1 } },
+					'less-loader'
+				]
 			}]
 		},
 		node:{

@@ -20,36 +20,55 @@ import * as Table from "we-edit-ui/table"
 
 import {getActive} from "we-edit"
 
+import Ruler from "we-edit-ui/ruler"
+import Status from "we-edit-ui/status"
+
+require("./style.less")
+				
 
 export class Workspace extends PureComponent{
 	render(){
 		const {doc}=this.props
 		return (
 			<doc.Store>
-				<Tabs>
-					<Tab label="Home">
-						<Toolbar>
-							<File/>
-							<History>
-								<ToolbarSeparator/>
-							</History>
+				<div>
+					<Tabs>
+						<Tab label="Home">
+							<Toolbar>
+								<File/>
+								<History>
+									<ToolbarSeparator/>
+								</History>
 
-							<Text>
-								<ToolbarSeparator/>
-							</Text>
-							
-							<Paragraph/>
-						</Toolbar>
-					</Tab>
-					<Tab label="Insert">
-						<Toolbar>
-							<Table.Create/>
-						</Toolbar>
-					</Tab>
-				</Tabs>
-				<Canvas>
-					{this.props.children}
-				</Canvas>
+								<Text>
+									<ToolbarSeparator/>
+								</Text>
+								
+								<Paragraph/>
+							</Toolbar>
+						</Tab>
+						<Tab label="Insert">
+							<Toolbar>
+								<Table.Create/>
+							</Toolbar>
+						</Tab>
+					</Tabs>
+					
+					<Ruler/>
+				</div>
+				
+				<div style={{marginBottom:35}}>
+					<Canvas>
+						{this.props.children}
+					</Canvas>
+				</div>
+				
+				<Status style={{
+						position:"fixed",
+						bottom:0,
+						left:0,
+						width:"100%"
+					}}/>
 			</doc.Store>
 		)
 	}
@@ -93,8 +112,9 @@ export default compose(
 
 		return (
 			<MuiThemeProvider muiTheme={theme}>
-				<div>
+				<div style={{overflowY:"hidden"}}>
 					<AppBar/>
+					<Ruler/>
 					{child}
 					<Snackbar 
 						open={!!error}

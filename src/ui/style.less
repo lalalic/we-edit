@@ -1,0 +1,129 @@
+@rulerHalfHeight:10px;
+@rulerQuarterHeight:6px;
+@rulerHeight:20px;
+
+.vendor(@prop,@value){
+    -webkit-@{prop}:@value;
+    -moz-@{prop}:   @value;
+        @{prop}:    @value;
+}
+
+.flex(@orient:horizontal){
+    display:-webkit-box;
+    display:-moz-box;
+    display:box;
+
+    .vendor(box-orient,@orient)
+}
+
+.ruler{
+	&.horizontal{
+		.flex();
+		
+		position:relative;
+		
+		.margin{
+			height:@rulerHeight;
+			background-color:black;
+			opacity:0.4;
+		}
+		
+		.indent{
+			height:@rulerHeight/2;
+			top:5px;
+			svg{
+				width:@rulerHeight/2-2!important;
+				height:@rulerHeight/2-2!important;
+				position:relative;
+				left:@rulerHeight/4-1;
+			}
+		}
+		
+		.first-line{
+			@rulerHeight/2;
+			svg{
+				width:@rulerHeight/2-2!important;
+				height:@rulerHeight/2-2!important;
+			}
+		}
+		
+		
+		
+		.segments{
+			border:1px 0px;
+			border-color: lightgray;
+			.flex();
+			
+			.segment{
+				.flex();
+				background-color:skyblue;
+					
+				>div{
+					width:25%;
+					height:@rulerHeight;
+					text-align:right;
+						
+					
+					&:nth-child(1){
+						span{
+							position:relative;
+							display:inline-block;
+							width:1px;
+							border-right:1px solid gray;
+							box-sizing:border-box;
+							height:@rulerQuarterHeight;
+							left:0.5px;
+							margin:@rulerHeight/2-@rulerQuarterHeight/2 0;
+						}
+					}
+					&:nth-child(2){
+						span{
+							position:relative;
+							display:inline-block;
+							width:1px;
+							border-right:1px solid gray;
+							box-sizing:border-box;
+							height:@rulerHalfHeight;
+							left:0.5px;
+							margin:@rulerHeight/2-@rulerHalfHeight/2 0px;
+						}
+					}
+					&:nth-child(3){
+						span{
+							position:relative;
+							display:inline-block;
+							width:1px;
+							border-right:1px solid gray;
+							box-sizing:border-box;
+							height:@rulerQuarterHeight;
+							left:0.5px;
+							margin:@rulerHeight/2-@rulerQuarterHeight/2 0px;
+						}
+					}
+					&:nth-child(4){
+						span{
+							font-size:13px;
+							position:relative;
+							display:inline-block;
+							text-align:center;
+							left:5px;
+							width:10px;
+							height:10px;
+							line-height:10px;
+							margin:@rulerHeight/2-5 0px;
+						}
+					}
+				}
+				
+				
+			}
+		}
+		
+		>:not(.segments){
+			position:absolute;
+			top:0px;
+		}
+	}
+	
+
+}
