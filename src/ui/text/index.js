@@ -1,7 +1,7 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 
-import {selector, ACTION} from "we-edit"
+import {ACTION} from "we-edit"
 
 import {compose,setDisplayName,getContext,mapProps,withProps} from "recompose"
 import {connect} from "react-redux"

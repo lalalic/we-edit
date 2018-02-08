@@ -114,7 +114,6 @@ export default compose(
 			<MuiThemeProvider muiTheme={theme}>
 				<div style={{overflowY:"hidden"}}>
 					<AppBar/>
-					<Ruler/>
 					{child}
 					<Snackbar 
 						open={!!error}

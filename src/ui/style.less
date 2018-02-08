@@ -18,7 +18,7 @@
 
 .ruler{
 	&.horizontal{
-		.flex();
+		margin:0px auto;
 		
 		position:relative;
 		
@@ -26,102 +26,67 @@
 			height:@rulerHeight;
 			background-color:black;
 			opacity:0.4;
+			
+			.mover{
+				position:relative;
+				width:4px;
+				height:100%;
+				cursor:ew-resize;
+			}
+			
+			&.right .mover{
+				right: 2px;
+			}
+			
+			&.left .mover{
+				float:right;
+				right: -2px;
+			}
+		}
+		
+		.marker{
+			height:8px;
+			width:8px;
+			svg{
+				width:100%!important;
+				height:100%!important;
+				display:block!important;
+				position:relative;
+				top:12px;
+			}
 		}
 		
 		.indent{
-			height:@rulerHeight/2;
-			top:5px;
-			svg{
-				width:@rulerHeight/2-2!important;
-				height:@rulerHeight/2-2!important;
-				position:relative;
-				left:@rulerHeight/4-1;
+			.marker();
+			
+			&.left svg{
+				left:-4px;
 			}
+			
+			&.right svg{
+				right:-4px;
+			}			
 		}
 		
 		.first-line{
-			@rulerHeight/2;
-			svg{
-				width:@rulerHeight/2-2!important;
-				height:@rulerHeight/2-2!important;
-			}
-		}
-		
-		
-		
-		.segments{
-			border:1px 0px;
-			border-color: lightgray;
-			.flex();
+			.marker();
 			
-			.segment{
-				.flex();
-				background-color:skyblue;
-					
-				>div{
-					width:25%;
-					height:@rulerHeight;
-					text-align:right;
-						
-					
-					&:nth-child(1){
-						span{
-							position:relative;
-							display:inline-block;
-							width:1px;
-							border-right:1px solid gray;
-							box-sizing:border-box;
-							height:@rulerQuarterHeight;
-							left:0.5px;
-							margin:@rulerHeight/2-@rulerQuarterHeight/2 0;
-						}
-					}
-					&:nth-child(2){
-						span{
-							position:relative;
-							display:inline-block;
-							width:1px;
-							border-right:1px solid gray;
-							box-sizing:border-box;
-							height:@rulerHalfHeight;
-							left:0.5px;
-							margin:@rulerHeight/2-@rulerHalfHeight/2 0px;
-						}
-					}
-					&:nth-child(3){
-						span{
-							position:relative;
-							display:inline-block;
-							width:1px;
-							border-right:1px solid gray;
-							box-sizing:border-box;
-							height:@rulerQuarterHeight;
-							left:0.5px;
-							margin:@rulerHeight/2-@rulerQuarterHeight/2 0px;
-						}
-					}
-					&:nth-child(4){
-						span{
-							font-size:13px;
-							position:relative;
-							display:inline-block;
-							text-align:center;
-							left:5px;
-							width:10px;
-							height:10px;
-							line-height:10px;
-							margin:@rulerHeight/2-5 0px;
-						}
-					}
-				}
-				
-				
+			&.left svg{
+				top:0px;
+				left:-4px;
 			}
 		}
 		
-		>:not(.segments){
+		
+		
+		>div{
 			position:absolute;
-			top:0px;
+		}
+		
+		>svg{
+			text{
+				font-size: 10px;
+			}
 		}
 	}
 	
