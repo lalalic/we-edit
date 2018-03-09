@@ -23,6 +23,11 @@ export default class Paragraph extends Super{
 		...Super.propTypes,
 		getChildText: PropTypes.func
 	}
+	
+	static contextTypes={
+		...Super.contextTypes,
+		statistics: PropTypes.func
+	}
 
 	static defaultProps={
 		...Super.defaultProps,
@@ -42,7 +47,14 @@ export default class Paragraph extends Super{
     }
 
     getBreakOpportunities(children){
-		return Object.freeze(opportunities(children,this.props.getChildText))
+		let ops=Object.freeze(opportunities(children,this.props.getChildText))
+		if(this.context.statistics){
+			let count=ops.length
+			if(this.computed.breakOpportunities)
+				count=count-this.computed.breakOpportunities.length
+			this.context.statistics("word",count)
+		}
+		return ops
     }
 
     getChildContext(){

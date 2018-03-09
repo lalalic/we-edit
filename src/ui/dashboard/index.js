@@ -7,8 +7,6 @@ import {Drawer,Menu, MenuItem, Avatar} from "material-ui"
 import Divider from 'material-ui/Divider';
 import {yellow500, gray100} from 'material-ui/styles/colors';
 
-import {IconButton} from "we-edit-ui/components/with-no-doc"
-
 import IconLogo from "material-ui/svg-icons/editor/border-color"
 import * as File from "we-edit-ui/file"
 

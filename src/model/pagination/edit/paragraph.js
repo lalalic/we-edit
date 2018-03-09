@@ -13,7 +13,7 @@ export default class Paragraph extends Super{
 	static contextTypes={
 		...Super.contextTypes,
 		shouldContinueCompose:PropTypes.func,
-		shouldRemoveComposed:PropTypes.func
+		shouldRemoveComposed:PropTypes.func,
 	}
 
 	constructor(){

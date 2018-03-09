@@ -53,17 +53,13 @@ export default compose(
 		let {
 			indent:{left:leftIndent,right:rightIndent,firstLine}={}
 		}=selection.props("paragraph")
-			
+		
 		return {
 			width,height,leftMargin,topMargin,bottomMargin,rightMargin,leftIndent,rightIndent,firstLine,
 			header,footer
 		}
 	}),
-)(props=>(
-	<div style={{position:"relative"}}>
-		<HorizontalRuler {...props}/>
-		<div style={{position:"absolute",height:0,zIndex:1}}>
-			<VerticalRuler {...props}/>
-		</div>
-	</div>
+)(({direction="horizontal", Ruler=direction=="horizontal" ? HorizontalRuler : VerticalRuler, ...props})=>(
+	<Ruler {...props}/>
 ))
+

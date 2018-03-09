@@ -1,12 +1,8 @@
-import React, {PureComponent} from "react"
+import React, {PureComponent, Children} from "react"
 
 export default class Canvas extends PureComponent{
 	render(){
 		const {doc,children}=this.props
-		return (
-			<div style={{position:"relative", overflowY:"hidden"}}>
-				{children}
-			</div>
-		)
+		return Children.only(children)
 	}
 }

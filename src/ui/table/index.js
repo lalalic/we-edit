@@ -1,13 +1,12 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
-import {compose, getContext, mapProps} from "recompose"
+import {compose, getContext, mapProps,withProps} from "recompose"
 import {connect} from "react-redux"
 
 import {IconButton, Popover,Subheader } from "material-ui"
 import IconTable from "material-ui/svg-icons/editor/border-all"
 
-import {selector, ACTION} from "we-edit"
-
+import {ACTION} from "we-edit"
 
 export class Create extends Component{
 	state={show:false}
@@ -51,20 +50,25 @@ class Setting extends Component{
 const RCSize=compose(
 	getContext({
 		store:PropTypes.object,
-		doc: PropTypes.object
+		doc: PropTypes.object,
+		selection: PropTypes.object
 	}),
-	mapProps(({store:{dispatch},doc, onAction})=>({
+	mapProps(({store,doc, onAction,selection})=>({
 		doc,
 		create(rows, col){
-			let layoutWidth=doc.composedDoc.getLayoutWidth()
+			let layoutWidth=(()=>{
+				let {cols}=selection.props("section")
+				let {column}=selection.props("page")
+				return cols[0].width
+			})();
+			
 			let cols=new Array(col-1).fill(parseInt(layoutWidth/col))
 			cols.push(layoutWidth-cols.reduce((sum,a)=>sum+=a,0))
 			let element={type:"table", rows, cols}
-			dispatch(ACTION.Entity.CREATE(element))
+			store.dispatch(ACTION.Entity.CREATE(element))
 			onAction()
 		}
-	})),
-	connect(state=>({selection:state.get('selection')})),
+	}))
 )(class RCSize extends Component{
 	state={row:0,col:0}
 	render(){
@@ -97,16 +101,12 @@ const RCSize=compose(
 		)
 	}
 	
-	create(){
+	tr(){
 		const {create}=this.props
 		const {row, col}=this.state
-		create(row, col)
-	}
-	
-	tr(){
 		const td=()=>(<td 
 			style={{width:5,height:5,border:"1px solid gray"}} 
-			onClick={e=>this.create()}
+			onClick={e=>create(row,col)}
 			onMouseOver={e=>this.rowCol(e.target)}/>)
 		return (
 			<tr>

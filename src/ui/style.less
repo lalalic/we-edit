@@ -2,6 +2,7 @@
 @rulerQuarterHeight:6px;
 @rulerHeight:20px;
 
+
 .vendor(@prop,@value){
     -webkit-@{prop}:@value;
     -moz-@{prop}:   @value;
@@ -17,11 +18,32 @@
 }
 
 .ruler{
-	&.horizontal{
-		margin:0px auto;
-		
+	&.vertical{
 		position:relative;
-		
+		.margin{
+			width:@rulerHeight;
+			background-color:black;
+			opacity:0.4;
+			
+			.mover{
+				position:relative;
+				height:4px;
+				width:100%;
+				cursor:ns-resize;
+			}
+			
+			&.top{
+				display:flex;
+				flex-flow:wrap-reverse;
+				.mover{
+					bottom: -2px;
+				}
+			}
+		}
+	}
+	
+	&.horizontal{
+		margin: 0px auto 0px auto;
 		.margin{
 			height:@rulerHeight;
 			background-color:black;
@@ -76,19 +98,16 @@
 				left:-4px;
 			}
 		}
-		
-		
-		
-		>div{
-			position:absolute;
-		}
-		
-		>svg{
-			text{
-				font-size: 10px;
-			}
+	}
+	
+	
+				
+	>svg{
+		text{
+			font-size: 10px;
 		}
 	}
+	
 	
 
 }

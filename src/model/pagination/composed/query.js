@@ -158,7 +158,7 @@ export default class Query{
 		return this.document.composers.get(id)
 	}
 
-	_locate(id,at){
+	locate(id,at){
 		let {pages,pgGap}=this
 		let columnNo,lineNo,node, path=[]
 		let pageNo=pages.findIndex(page=>{
@@ -237,7 +237,7 @@ export default class Query{
 	position(id,at, ratio){//return left:clientX, top:clientY
 		ratio=ratio||this.ratio
 		let {pages,pgGap}=this
-		let {pageNo,columnNo,lineNo,node, path}=this._locate(id,at)
+		let {pageNo,columnNo,lineNo,node, path}=this.locate(id,at)
 
 		if(!node) return;
 
@@ -546,17 +546,5 @@ export default class Query{
 	
 	get content(){
 		return new ContentQuery(this.state)
-	}
-
-	getLayoutWidth(id,at){
-		const {columnNo}=this._locate(id,at)
-		const $=new ContentQuery(this.state)
-		let sectionId=$.find('#'+id)
-			.closest("section")
-			.attr('id')
-		
-		let section=this.getComposer(sectionId)
-		let cols=section.props.cols
-		return cols[columnNo].width
 	}
 }

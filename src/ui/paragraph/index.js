@@ -16,14 +16,16 @@ export default compose(
 	setDisplayName("ParagraphStyle"),
 	getContext({
 		store:PropTypes.object,
-		doc: PropTypes.object
+		doc: PropTypes.object,
+		selection: PropTypes.object
 	}),
-	mapProps(({store:{dispatch},doc,children})=>({
+	mapProps(({store:{dispatch},doc,children,selection})=>({
 		doc,children,
+		style:selection.props("paragraph"),
 		align:type=>dispatch(ACTION.Style.update({paragraph:{align:type}})),
 	})),
 	connect(state=>({selection:selector.getSelection(state)})),
-)(({doc,style=doc.selection().props("paragraph"), align,children})=>(
+)(({doc,style, align,children})=>(
 	<ToolbarGroup>
 		<CheckIconButton
 			status={!style ? "disabled" : (!style.align ||style.align=="left")?"checked":"unchecked"}

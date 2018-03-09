@@ -136,6 +136,10 @@ export const Entity={
 	CREATE: element=>({type:"we-edit/entity/CREATE", payload:element})
 }
 
-export const ACTION={Cursor, Text, Selection,Entity,History,Style}
+export const Stat={
+	word: payload=>({type:"we-edit/statistics/word",payload}),
+	page: payload=>({type:"we-edit/statistics/page",payload}),
+}
+export const ACTION={Cursor, Text, Selection,Entity,History,Style, Stat}
 
 export default ACTION

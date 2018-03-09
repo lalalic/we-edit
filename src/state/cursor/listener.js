@@ -70,6 +70,5 @@ export default class Listener extends Component{
 
 	componentDidUpdate(){
 		this.input.focus()
-		console.log("input focused")
 	}
 }

@@ -21,7 +21,7 @@ export class Editor extends Component{
 
 	static defaultProps={
 		media:"screen",
-		width: typeof(window)=='undefined' ? 1 : window.innerWidth-20,
+		width: typeof(window)=='undefined' ? 1 : window.innerWidth,
 		height: typeof(window)=='undefined' ? 1 : window.innerHeight,
 		pgGap: 20,
 		style: {

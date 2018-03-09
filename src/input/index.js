@@ -3,20 +3,21 @@ import PropTypes from "prop-types"
 
 import {Provider,connect} from "react-redux"
 import Immutable, {Map,Collection} from "immutable"
-import {compose, setDisplayName, getContext} from "recompose"
-
+import {compose, setDisplayName, getContext,withContext} from "recompose"
+import TestRenderer from 'react-test-renderer'
 import {LocalStore} from "component/with-store"
 
 import Components from "model"
 import {createStore, createState, isState} from "state"
-import {getContent,getSelection,getFile,getParentId, query} from "state/selector"
+import {getContent,getSelection,getFile,getParentId, query, getStatistics} from "state/selector"
+import undoable, {ACTION} from "state/undoable"
 import * as reducer from "state/reducer"
+import Input from "state/cursor/input"
+import {Cursor,Stat} from "state/action"
+
 
 import uuid from "tools/uuid"
-
 import Type from "./type"
-
-import undoable, {ACTION} from "state/undoable"
 
 const supported=[]
 
@@ -53,14 +54,12 @@ export default {
 }
 
 function buildEditableDoc(doc,inputTypeInstance){
-	inputTypeInstance.doc=doc
-	let id=uuid()
-	let store
-
+	const id=uuid()
 	const Transformed=inputTypeInstance.transform(Components)
-	let editableDoc={
+	inputTypeInstance.doc=doc
+	
+	const editableDoc={
 		Transformed,
-
 		toJSON(){
 			return this.name
 		},
@@ -70,10 +69,6 @@ function buildEditableDoc(doc,inputTypeInstance){
 				return React.createElement(type,{...props,key:uuid()},children)
 			},components)
 		},
-
-		selection(){
-			return new Selection(editableDoc.getState(), inputTypeInstance)
-		},
 		
 		getFontList(){
 			return inputTypeInstance.getFontList()
@@ -82,9 +77,10 @@ function buildEditableDoc(doc,inputTypeInstance){
 		Store:compose(
 				setDisplayName("DocStore"),
 				getContext({store:PropTypes.object}),
-			)(({children,store:passedStore})=>{
+			)(({children,store:passedStore, style})=>{
 
 			let onQuit=null
+			let store=null
 			if(passedStore){
 				store=new LocalStore(passedStore, "we-edit", state=>state['we-edit'].docs[id].state)
 			}else{
@@ -93,12 +89,15 @@ function buildEditableDoc(doc,inputTypeInstance){
 			}
 
 			let root=(
-				<TransformerProvider
+				<ContextProvider
 					doc={editableDoc}
 					onQuit={onQuit}
-					transformer={inputTypeInstance.transform}>
+					renderUp={state=>inputTypeInstance.renderUp(state,Transformed )}
+					transformer={inputTypeInstance.transform}
+					style={style}
+					>
 					{children}
-				</TransformerProvider>
+				</ContextProvider>
 			)
 
 			return (
@@ -113,10 +112,14 @@ function buildEditableDoc(doc,inputTypeInstance){
 			let changeReducer=changeReducerBuilder(createElementFactory,inputTypeInstance)
 			let content=new Map().withMutations(a=>inputTypeInstance.render(createElementFactory(a),Components))
 
-			let reducer=undoable(changeReducer)
+			let _reducer=undoable(changeReducer)
 			let INIT_STATE=createState(doc,content)
 
-			return (state,action)=>state ? reducer(state,action) : INIT_STATE
+			return (state,action={})=>{
+				state=state ? _reducer(state,action) : INIT_STATE;
+				state=state.mergeIn(["statistics"],reducer.statistics(getStatistics(state),action))
+				return state
+			}
 		},
 
 		get name(){
@@ -153,14 +156,6 @@ function buildEditableDoc(doc,inputTypeInstance){
 
 		release(){
 			return inputTypeInstance.release()
-		},
-
-		getState(){
-			return store.getState()
-		},
-
-		dispatch(){
-			return store.dispatch(...arguments)
 		}
 	}
 
@@ -207,7 +202,7 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance)=>
 
 		state=state.setIn(["content"],changedContent.asImmutable())
 	}else{
-		state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))
+		state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))		
 	}
 
 	return state
@@ -240,10 +235,7 @@ const createElementFactoryBuilder=inputTypeInstance=>content=>(type, props, chil
 	return {id,type,props,children}
 }
 
-
-
-import Input from "state/cursor/input"
-class TransformerProvider extends Component{
+class ContextProvider extends Component{
 	static propTypes={
 		doc: PropTypes.object,
 		transformer: PropTypes.func.isRequired,
@@ -254,25 +246,131 @@ class TransformerProvider extends Component{
 		doc: PropTypes.object,
 		transformer: PropTypes.func,
 		getCursorInput: PropTypes.func,
+		//return {props(type){}}, to calculate selection props
+		selected:PropTypes.func,
+		statistics: PropTypes.func,
 	}
-
-	getChildContext(){
+	
+	static contextTypes={
+		store: PropTypes.object
+	}
+	
+	//to calculate selection props directly from composed
+	selectedFromComposed(state,composed){
+		if(!composed){
+			return {
+				props(){
+					return null
+				}
+			}
+		}
+		
 		const self=this
+		
+		let {cursorAt, ...sel}=getSelection(state)
+		let {id,at}=sel[cursorAt]
+		const TYPE=a=>a.constructor.displayName.split("-").pop()
+		const current=composed.getComposer(id)
 		return {
-			doc: this.props.doc,
-			transformer:this.props.transformer,
-			getCursorInput(composedDoc){
-				self.props.doc.composedDoc=composedDoc
-				return self.refs.input
+			props(type){
+				if(type=="page"){
+					return self.location
+				}
+				let found=current
+				while(found){
+					let foundType=TYPE(found)
+					if(foundType==type)
+						return found.props
+					else{
+						found=found.context.parent
+					}
+				}
+				return null
+
+				
+			}
+		}
+	}
+	
+	//to calculate selection props from content by Type.renderUp
+	selectedFromDoc(state){
+		const self=this
+		const {doc,renderUp}=this.props
+		const Transformed=doc.Transformed
+		const selection=getSelection(state)
+
+		let {id,at}=selection[selection.cursorAt]
+
+		let root=null
+		try{
+			root=TestRenderer.create(renderUp(state)).root
+		}catch(e){
+			root=TestRenderer.create(<div/>).root
+		}
+		
+		const Type=type=>type[0].toUpperCase()+type.substr(1).toLowerCase()
+		return {
+			props(type){
+				if(type=="page"){
+					if(self.location){
+						return self.location
+					}else{
+						return {
+							page:0,
+							column:0,
+							line:0,
+							id,at
+						}
+					}
+				}
+				
+				try{
+					let found=root.findByType(Transformed[Type(type)])
+					return found.props
+				}catch(e){
+					return null
+				}
 			}
 		}
 	}
 
+	getChildContext(){
+		const self=this
+		const doc=this.props.doc
+		let composedDoc=null
+		return {
+			doc,
+			transformer:this.props.transformer,
+			getCursorInput(location,composedDocQuery){
+				self.location=location
+				composedDoc=doc.composed=composedDocQuery
+				return self.refs.input
+			},
+			selected(state){
+				if(composedDoc && composedDoc.getComposer)
+					return self.selectedFromComposed(state,composedDoc)
+				
+				return self.selectedFromDoc(state)
+			},
+			statistics(type, payload){
+				self.context.store.dispatch(Stat[type](payload))
+			}
+		}
+	}
+	
+	componentDidMount(){
+		const store=this.context.store
+		const state=store.getState()
+		const {start:{id,at}}=getSelection(state)
+		store.dispatch(Cursor.AT(id,at))	
+	}
+
 	render(){
+		const {children,style}=this.props
 		return (
-			<div>
+			<div style={style}>
 				<Input ref="input"/>
-				{this.props.children}
+				{children}
 			</div>
 		)
 	}
@@ -284,33 +382,3 @@ class TransformerProvider extends Component{
 	}
 }
 
-import TestRenderer from 'react-test-renderer'
-class Selection{
-	constructor(state, inputInstance){
-		const Transformed=inputInstance.transform(Components)
-		const selection=getSelection(state)
-		let {id,at}=selection[selection.cursorAt]
-		let root=null
-		
-		try{
-			root=TestRenderer.create(inputInstance.renderUp(state,Transformed)).root
-		}catch(e){
-			debugger
-			console.error(e)
-			root=TestRenderer.create(<div/>).root
-		}
-		
-		const Type=type=>type[0].toUpperCase()+type.substr(1).toLowerCase()
-
-		//it can be construct from re-rendering, instead of parse composers along long way
-		this.props=(type)=>{
-			try{
-				let found=root.findByType(Transformed[Type(type)])
-				return found.props
-			}catch(e){
-				return null
-			}
-		}		
-		
-	}
-}

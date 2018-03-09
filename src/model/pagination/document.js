@@ -9,6 +9,11 @@ import ComposedDocument from "./composed/document"
 
 const Super=HasChild(Base)
 export default class Document extends Super{
+	static contextTypes={
+		...Super.contextTypes,
+		statistics: PropTypes.func
+	}
+	
     render(){
         return (
 			<div>
@@ -25,6 +30,8 @@ export default class Document extends Super{
 
 	appendComposed(page){
 		this.computed.composed.push(page)
+		if(this.context.statistics)
+			this.context.statistics("page",this.computed.composed.length)
 	}
 
 	get contentWidth(){

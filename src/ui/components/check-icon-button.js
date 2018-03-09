@@ -11,6 +11,6 @@ const styles={
 	}
 }
 
-export default ({status, ...props, disabled=status=="disabled", style=styles[status]})=>(
-	<IconButton {...{disabled,style}} {...props}/>
+export default ({status, ...props, disabled=status=="disabled", style={}})=>(
+	<IconButton {...{disabled,style:{...styles[status],...style}}} {...props}/>
 )

@@ -11,50 +11,21 @@ import Dashboard from "we-edit-ui/dashboard"
 
 import {ACTION} from "we-edit"
 
+import ComboBox from "we-edit-ui/components/combo-box"
+import Zoom from "we-edit-ui/components/zoom"
+
 
 export class Bar extends PureComponent{
-    state={showDrawer:false, showFiles:false}
+    state={showDrawer:false}
     render(){
         const {active, docs, setActive, close,zoom=0.3}=this.props
-        let {showDrawer,showFiles, fileAnchor}=this.state
+        let {showDrawer}=this.state
 		let drawer=null
 		if(showDrawer){
 			drawer=<Dashboard dispear={()=>this.setState({showDrawer:false})}/>
 		}
 
-		let currentFile=null
-		if(active){
-			currentFile=(
-				<FlatButton
-					icon={<IconFiles style={{visibility: docs.length>1 ? "inherit" : "hidden"}}/>}
-					label={active.doc.name}
-					labelPosition="before"
-					onClick={e=>docs.length>1 && this.setState({showFiles:true,fileAnchor:this.refs.anchor}) }/>
-			)
-		}
-
-		let files=null, closeButton=null
-		if(showFiles && docs.length>1){
-			files=(
-				<Popover
-                    anchorEl={fileAnchor}
-					anchorOrigin={{vertical: 'bottom', horizontal: 'right'}}
-					targetOrigin={{ vertical: 'top', horizontal: 'right',}}
-					onRequestClose={()=>this.setState({showFiles:false,fileAnchor:undefined})}
-					open={true}>
-					<Menu>
-						{docs.map(({id,doc})=>(
-							<MenuItem key={id}
-								onClick={()=>{
-									setActive(id)
-									this.setState({showFiles:false,fileAnchor:undefined})
-								}}
-								primaryText={doc.name}/>
-						))}
-					</Menu>
-				</Popover>
-			)
-		}
+		let closeButton=null
 		
 		if(docs.length>0){
 			closeButton=(
@@ -63,24 +34,30 @@ export class Bar extends PureComponent{
 				</IconButton>
 			)
 		}
-
-        return (
-            <div>
-                <AppBar
-                    style={{zoom}}
-                    title="we edit"
-                    iconElementRight={
-                        <div>
-                            {currentFile}
-							{closeButton}
-                        </div>
-                    }
-                    onLeftIconButtonTouchTap={()=>this.setState({showDrawer:!this.state.showDrawer})}
-                    />
-                <div ref="anchor" style={{height:0.1}}></div>
-                {drawer}
-                {files}
-            </div>
+		
+		return (
+			<div>
+				<Zoom scale={zoom}>
+					<AppBar
+						title="we edit"
+						iconElementRight={
+							<div>
+								<ComboBox
+									disabled={active==null}
+									value={active ? active.id : ""}
+									dataSource={docs.map(({doc:{id:value,name:text}})=>({text,value}))}
+									onChange={setActive}
+									underlineShow={false}
+									style={{width:100}}
+									/>
+								{closeButton}
+							</div>
+						}
+						onLeftIconButtonTouchTap={()=>this.setState({showDrawer:!this.state.showDrawer})}
+						/>
+				</Zoom>
+				{drawer}
+			</div>
         )
     }
 }

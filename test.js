@@ -16,9 +16,9 @@ function editor(){
 	window.addEventListener("load", function(){
 		ReactDOM.render((
 			<WeEdit>
-				<WeEditUI>
+				<WeEditUI style={{width:1200}}>
 					<Workspace filter="*.docx">
-						<Editor>
+						<Editor width={1200}>
 							<Pagination fonts="fonts/" measure={SVGMeasure}/>
 						</Editor>
 					</Workspace>

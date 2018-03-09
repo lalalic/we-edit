@@ -77,7 +77,6 @@ export default class Page extends Component{
 						onEnter={e=>this.setState({display:true},onPageShow)}
 						onLeave={e=>this.setState({display:false},onPageHide)}>
 					<g className="page">
-						<text>page:{pageNo}</text>
 						<Paper width={width} height={height} fill="white"/>
 						{contents}
 					</g>

@@ -21,6 +21,10 @@ export function getContent(state,id){
 	return state.getIn(`content.${id}`.split("."))
 }
 
+export function getStatistics(state){
+	return state.get("statistics").toJS()
+}
+
 //experimental
 export function getChanged(state){
 	return state.get("violent").changing
