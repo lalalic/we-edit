@@ -21,7 +21,6 @@ export default class Document extends Super{
 				{super.render()}
 				</div>
 				<ComposedDocument
-					width={this.contentWidth}
 					pages={this.computed.composed}
 					/>
 			</div>
@@ -32,10 +31,5 @@ export default class Document extends Super{
 		this.computed.composed.push(page)
 		if(this.context.statistics)
 			this.context.statistics("page",this.computed.composed.length)
-	}
-
-	get contentWidth(){
-		return Children.toArray(this.props.children)
-			.reduce((w,{props:{pgSz:{width}}})=>Math.max(w,width),0)
 	}
 }

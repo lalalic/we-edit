@@ -60,16 +60,19 @@ export class Workspace extends PureComponent{
 								</Tabs>
 							</div>
 						</Zoom>
-						<Ruler direction="horizontal"/>
 					</div>
 					
 					<div style={{order:3}}>
 						<Status />
 					</div>
 					
-					<div style={{order:2,display:"flex", flexDirection:"row",overflowY:"scroll", overflowX:"hidden"}}>
+					<div style={{order:2,display:"flex", background:"lightgray", flexDirection:"row",overflowY:"scroll", overflowX:"hidden"}}>
 						<VerticalRuler gap={child.props.pgGap}/>
-						<div>
+						<div style={{position:"absolute",width:"100%"}}>
+							<Ruler direction="horizontal"/>
+						</div>
+						<div style={{flex:"1 100%", textAlign:"center", margin:"auto"}}>
+							
 							<Canvas>
 								{child}
 							</Canvas>

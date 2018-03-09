@@ -61,8 +61,8 @@ export default class Query{
 
 	_pageMarginRight(n){
 		let svg=this.document.canvas.root.querySelector("svg")
-		let [,,width,]=svg.getAttribute("viewBox").split(" ")
-			.map(a=>parseInt(a))
+		//let [,,width,]=svg.getAttribute("viewBox").split(" ").map(a=>parseInt(a))
+		let width=this.svg.width
 		let page=this.pages[n]
 		return (width-page.size.width)/2+page.margin.left
 	}
@@ -206,7 +206,8 @@ export default class Query{
 		}
 
 		let svg=this.document.canvas.root.querySelector("svg")
-		let [,,width,]=svg.getAttribute("viewBox").split(" ").map(a=>parseInt(a))
+		//let [,,width,]=svg.getAttribute("viewBox").split(" ").map(a=>parseInt(a))
+		let width=this.svg.width
 		let offsetX=path.filter(a=>a.type==ComposedLine)
 			.reduce((x,line)=>{
 				let lineItem=path[path.indexOf(line)+1]
@@ -305,7 +306,8 @@ export default class Query{
 		console.assert(!!line)
 
 		let svg=this.document.canvas.root.querySelector("svg")
-		let [,,width,]=svg.getAttribute("viewBox").split(" ").map(a=>parseInt(a))
+		//let [,,width,]=svg.getAttribute("viewBox").split(" ").map(a=>parseInt(a))
+		let width=this.svg.width
 		let x=(width-page.size.width)/2+page.margin.left+column.x
 		let index=line.props.children.findIndex(a=>{
 			if(x+a.props.width>=left){
@@ -368,7 +370,8 @@ export default class Query{
 		console.assert(!!line)
 
 		let svg=this.document.canvas.root.querySelector("svg")
-		let [,,width,]=svg.getAttribute("viewBox").split(" ").map(a=>parseInt(a))
+		//let [,,width,]=svg.getAttribute("viewBox").split(" ").map(a=>parseInt(a))
+		let width=this.svg.width
 		let x=(width-page.size.width)/2+page.margin.left+column.x
 		let index=line.props.children.findIndex(a=>{
 			if(x+a.props.width>=left){
@@ -402,8 +405,9 @@ export default class Query{
 	lineRects(start,end/*usually returned from .postion*/){
 		let {pages,pgGap}=this
 		let svg=this.document.canvas.root.querySelector("svg")
-		let [,,width,]=svg.getAttribute("viewBox").split(" ").map(a=>parseInt(a))
-
+		//let [,,width,]=svg.getAttribute("viewBox").split(" ").map(a=>parseInt(a))
+		let width=this.svg.width
+		
 		const pageXY=n=>{
 			let page=pages[n]
 			let x=(width-page.size.width)/2+page.margin.left
