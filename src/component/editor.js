@@ -23,7 +23,7 @@ export class Editor extends Component{
 		media:"screen",
 		width: typeof(window)=='undefined' ? 1 : window.innerWidth,
 		height: typeof(window)=='undefined' ? 1 : window.innerHeight,
-		pgGap: 20,
+		pgGap: 24,
 		style: {
 			background:"lightgray"
 		}
@@ -43,7 +43,7 @@ export class Editor extends Component{
 		const {media, width, pgGap, style,height}=this.props
 		return {media, viewport:{width,height}, pgGap, style}
 	}
-	
+
 	render(){
 		const {fullReCompose, children}=this.props
 		return (
@@ -68,7 +68,7 @@ const Root=connect((state)=>{
 	static contextTypes={
 		ModelTypes: PropTypes.object
 	}
-	
+
 	docId=`editor_${uuid()}`
 	constructor(){
 		super(...arguments)
@@ -153,7 +153,7 @@ const Root=connect((state)=>{
 	createChildElement(id,content,ModelTypes,lastContent){
 		let current=content.get(id)
 		let {type, props, children}=current.toJS()
-		let Child=ModelTypes[type[0].toUpperCase()+type.substr(1)]	
+		let Child=ModelTypes[type[0].toUpperCase()+type.substr(1)]
 		if(!Child){
 			console.error(`[${type}] not found`)
 			return null

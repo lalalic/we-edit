@@ -15,7 +15,7 @@ import Text from "we-edit-ui/text"
 import Paragraph from "we-edit-ui/paragraph"
 import File from "we-edit-ui/file"
 import History from "we-edit-ui/history"
-import Canvas from "we-edit-ui/canvas"
+import Canvas, {Pagination, Html, Plain} from "we-edit-ui/canvas"
 import * as Table from "we-edit-ui/table"
 
 import {getActive, selector} from "we-edit"
@@ -25,12 +25,12 @@ import Status from "we-edit-ui/status"
 import Zoom from "we-edit-ui/components/zoom"
 
 require("./style.less")
-				
+
 
 export class Workspace extends PureComponent{
 	render(){
 		const {doc, children}=this.props
-		let child=Children.only(children)
+		let child=Children.toArray(children)[0]
 		return (
 			<doc.Store style={{display:"flex", flexDirection:"column"}}>
 				<WithSelection  style={{flex:1, display:"flex", flexDirection:"column"}}>
@@ -48,7 +48,7 @@ export class Workspace extends PureComponent{
 											<Text>
 												<ToolbarSeparator/>
 											</Text>
-											
+
 											<Paragraph/>
 										</Toolbar>
 									</Tab>
@@ -61,18 +61,23 @@ export class Workspace extends PureComponent{
 							</div>
 						</Zoom>
 					</div>
-					
+
 					<div style={{order:3}}>
 						<Status />
 					</div>
-					
-					<div style={{order:2,display:"flex", background:"lightgray", flexDirection:"row",overflowY:"scroll", overflowX:"hidden"}}>
+
+					<div style={{order:2,
+						display:"flex", flexDirection:"row",
+						background:"lightgray",
+						overflow:"auto"}}>
+
 						<VerticalRuler gap={child.props.pgGap}/>
-						<div style={{position:"absolute",width:"100%"}}>
+
+						<div ref="rulerContainer" style={{position:"absolute",paddingTop:4, background:"lightgray"}}>
 							<Ruler direction="horizontal"/>
 						</div>
-						<div style={{flex:"1 100%", textAlign:"center", margin:"auto"}}>
-							
+
+						<div ref="canvas" style={{flex:"1 100%", textAlign:"center", margin:"4px auto auto auto"}}>
 							<Canvas>
 								{child}
 							</Canvas>
@@ -81,6 +86,10 @@ export class Workspace extends PureComponent{
 				</WithSelection>
 			</doc.Store>
 		)
+	}
+
+	componentDidMount(){
+		this.refs.rulerContainer.style.width=this.refs.canvas.getBoundingClientRect().width+"px"
 	}
 }
 
@@ -103,9 +112,9 @@ export default compose(
 )(class extends PureComponent{
 	state={}
 	componentDidCatch(error, info){
-		this.setState({error})	
+		this.setState({error})
 	}
-	
+
 	render(){
 		let {children,active,theme=getMuiTheme({
 			tabs:{
@@ -142,7 +151,7 @@ export default compose(
 			else
 				child=(<div>no editor for this document</div>)
 		}
-		
+
 		const {error}=this.state
 
 		return (
@@ -152,7 +161,7 @@ export default compose(
 					<div style={{flex:"100%",display:"flex", flexDirection:"column"}}>
 						{child}
 					</div>
-					<Snackbar 
+					<Snackbar
 						open={!!error}
 						message={error||""}
 						autoHideDuration={4000}
