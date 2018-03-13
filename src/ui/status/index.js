@@ -39,15 +39,14 @@ const Status=compose(
 			page,
 			height:muiTheme.button.height
 		}
-	}),
-	connect(state=>({stat:selector.getStatistics(state)}))
-)(({page,stat, height, layout})=>(
+	})
+)(({page,words, scale, height, layout})=>(
 	<div style={{...RootStyle,height}}>
-		<Page current={page+1} total={stat.pages}/>
-		<Words total={stat.words}/>
+		<Page {...page}/>
+		<Words total={words}/>
 		<div style={{flex:"1 100%"}}/>
 		{layout.items.length<2 ? null : <Layout height={height} {...layout}/>}
-		<Scale/>
+		<Scale {...scale}/>
 	</div>
 ))
 
@@ -63,7 +62,7 @@ const Words=({total=120})=>(
 	</FlatButton>
 )
 
-const Scale=({percent=100,decrease=console.log,increase=console.log})=>(
+const Scale=({current,max,min,decrease=console.log,increase=console.log})=>(
 	<div style={{display:"flex"}}>
 		<FlatButton label="-" onClick={decrease} 
 			style={{...CompactButtonStyle}} 
@@ -71,12 +70,12 @@ const Scale=({percent=100,decrease=console.log,increase=console.log})=>(
 		<Slider style={{width:100, display:"inline-block"}}
 			sliderStyle={{top:-13}} 
 			step={5} 
-			value={100} min={20} max={200}
+			value={current} min={min} max={max}
 			/>
 		<FlatButton label="+" onClick={increase} 
 			style={{...CompactButtonStyle}} 
 			labelStyle={{fontSize:18, fontWeight:700,paddingRight:4,paddingLeft:4}}/>
-		<FlatButton label={`${percent}%`} 
+		<FlatButton label={`${current}%`} 
 			style={{...CompactButtonStyle}} 
 			labelStyle={{fontSize:ButtonStyle.fontSize}}
 			/>

@@ -12,25 +12,20 @@ export default class Document extends Component{
 	
 	static contextTypes={
 		media:PropTypes.string,
-		pgGap:PropTypes.number,
-		style:PropTypes.object
+		pgGap:PropTypes.number
 	}
 
 	render(){
-		if(this.props.canvas)
-			return React.cloneElement(canvas, {pages:pageInfo,...others})
-		
-		let {pgGap,style,media}=this.context
-		let {pages:pageInfos,...others}=this.props
-		
-		let pages
-		let {width,height}=pageInfos.reduce((size,{size:{width,height}})=>{
+		const {pages:pageInfos, ...others}=this.props
+		const {pgGap,media}=this.context
+		const {width,height}=pageInfos.reduce((size,{size:{width,height}})=>{
 				return {
 					width:Math.max(size.width,width),
 					height:size.height+height
 				}
-			},{width:0,height:pgGap})
-
+			},{width:0,height:pgGap})		
+		
+		let pages
 		if(media=="screen"){
 			let y=0
 			pages=(
@@ -57,7 +52,7 @@ export default class Document extends Component{
 		return (
 			<svg {...others}
 				viewBox={`0 0 ${width} ${height}`}
-				style={{background:"lightgray", margin:"auto", width, height}}>
+				style={{background:"lightgray", width, height}}>
 				{pages}
 				{this.props.children}
 			</svg>

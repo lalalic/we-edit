@@ -63,7 +63,7 @@ export default class extends Component{
 
         return (
             <div ref="root">
-                <Base {...props} pages={pages}
+                <Base pages={pages}
                     onClick={e=>{
                         if(done==e.timeStamp)
                             return
@@ -111,9 +111,7 @@ export default class extends Component{
 
     componentDidMount(){
         let svg=this.root.querySelector("svg")
-        //let width=svg.getAttribute("width")
-       // let [,,viewBoxWidth]=svg.getAttribute("viewBox").split(" ").map(a=>parseInt(a))
-        this.ratio=1//viewBoxWidth/width
+        this.ratio=1
         this.getClientRect=()=>getClientRect(svg)
 
         this.context.store.dispatch(ACTION.Cursor.ACTIVE(this.context.docId))

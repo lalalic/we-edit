@@ -28,7 +28,6 @@ export function createState(doc, content){
 		violent:{
 			toJSON:()=>undefined
 		},
-		statistics:Immutable.fromJS({words:0, pages:0}),
 		undos:[],
 		redos:[],
 	})

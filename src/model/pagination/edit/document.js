@@ -22,8 +22,6 @@ const Super=editable(recomposable(Base))
 export default class Document extends Super{
 	static contextTypes={
 		...Super.contextTypes,
-		viewport:PropTypes.any,
-		media: PropTypes.string,
 		pgGap: PropTypes.number,
 		store: PropTypes.any,
 		isContentChanged: PropTypes.func
@@ -65,9 +63,10 @@ export default class Document extends Super{
 	render(){
 		const {mode}=this.state
 		let props={}
+			{/*
 		if(mode=="content")
 			props.minHeight=this.canvas.getClientRect().height
-
+			*/}
         return (
 			<div>
 				<div style={{display:"none"}}>
@@ -82,6 +81,10 @@ export default class Document extends Super{
 			</div>
 		)
     }
+	
+	componentDidMount(){
+		
+	}
 
 	composeMore(){
 		console.log("compose more to "+(this.state.compose2Page+1))

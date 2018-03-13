@@ -10,27 +10,27 @@ import ComposedDocument from "./composed/document"
 const Super=HasChild(Base)
 export default class Document extends Super{
 	static contextTypes={
-		...Super.contextTypes,
-		statistics: PropTypes.func
+		...Super.contextTypes
 	}
 	
     render(){
+		const {canvas}=this.props
         return (
 			<div>
 				<div style={{display:"none"}}>
 				{super.render()}
 				</div>
-				<ComposedDocument
-					canvas={this.props.canvas}
-					pages={this.computed.composed}
-					/>
+				
+				{canvas ? 
+					React.cloneElement(canvas, {pages:this.computed.composed}) : 
+					<ComposedDocument pages={this.computed.composed}/>
+				}
+				
 			</div>
 		)
     }
 
 	appendComposed(page){
 		this.computed.composed.push(page)
-		if(this.context.statistics)
-			this.context.statistics("page",this.computed.composed.length)
 	}
 }

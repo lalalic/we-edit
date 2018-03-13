@@ -12,36 +12,23 @@ export class Editor extends Component{
 	static displayName="editor"
 	static propTypes={
 		media:PropTypes.string,
-		width:PropTypes.number.isRequired,
-		height:PropTypes.number,
 		pgGap:PropTypes.number,
-		style:PropTypes.object,
 		fullReCompose:PropTypes.bool,
 	}
 
 	static defaultProps={
 		media:"screen",
-		width: typeof(window)=='undefined' ? 1 : window.innerWidth,
-		height: typeof(window)=='undefined' ? 1 : window.innerHeight,
-		pgGap: 24,
-		style: {
-			background:"lightgray"
-		}
+		pgGap: 24
 	}
 
 	static childContextTypes={
 		media:PropTypes.string,
-		viewport:PropTypes.shape({
-			width:PropTypes.number.isRequired,
-			height:PropTypes.number,
-		}),
-		pgGap:PropTypes.number,
-		style:PropTypes.object
+		pgGap:PropTypes.number
 	}
 
 	getChildContext(){
-		const {media, width, pgGap, style,height}=this.props
-		return {media, viewport:{width,height}, pgGap, style}
+		const {media, pgGap}=this.props
+		return {media, pgGap}
 	}
 
 	render(){

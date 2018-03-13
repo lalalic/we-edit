@@ -66,7 +66,16 @@ export class Workspace extends PureComponent{
 	
 	state={
 		layout:this.props.layout,
-		scale: this.props.scale
+		scale: {
+			max:200,
+			min:20,
+			current:100
+		},
+		words: 0,
+		page:{
+			current:1,
+			total:1
+		}
 	}
 	
 	get layouts(){
@@ -77,7 +86,7 @@ export class Workspace extends PureComponent{
 	
 	render(){
 		const {doc, children, toolBar, statusBar}=this.props
-		const {layout, scale}=this.state
+		const {layout, scale,page, words}=this.state
 		return (
 			<doc.Store style={{display:"flex", flexDirection:"column"}}>
 				<WithSelection  style={{flex:1, display:"flex", flexDirection:"column"}}>
@@ -91,7 +100,10 @@ export class Workspace extends PureComponent{
 								items:this.layouts,
 								current:layout,
 								onChange: layout=>this.setState({layout})
-							}
+							},
+							page,
+							scale,
+							words
 						})}
 					</div>
 

@@ -9,7 +9,7 @@ import {LocalStore} from "component/with-store"
 
 import Components from "model"
 import {createStore, createState, isState} from "state"
-import {getContent,getSelection,getFile,getParentId, query, getStatistics} from "state/selector"
+import {getContent,getSelection,getFile,getParentId, query} from "state/selector"
 import undoable, {ACTION} from "state/undoable"
 import * as reducer from "state/reducer"
 import Input from "state/cursor/input"
@@ -115,11 +115,7 @@ function buildEditableDoc(doc,inputTypeInstance){
 			let _reducer=undoable(changeReducer)
 			let INIT_STATE=createState(doc,content)
 
-			return (state,action={})=>{
-				state=state ? _reducer(state,action) : INIT_STATE;
-				state=state.mergeIn(["statistics"],reducer.statistics(getStatistics(state),action))
-				return state
-			}
+			return (state,action={})=>state ? _reducer(state,action) : INIT_STATE
 		},
 
 		get name(){
@@ -247,8 +243,7 @@ class ContextProvider extends Component{
 		transformer: PropTypes.func,
 		getCursorInput: PropTypes.func,
 		//return {props(type){}}, to calculate selection props
-		selected:PropTypes.func,
-		statistics: PropTypes.func,
+		selected:PropTypes.func
 	}
 	
 	static contextTypes={
@@ -352,9 +347,6 @@ class ContextProvider extends Component{
 					return self.selectedFromComposed(state,composedDoc)
 				
 				return self.selectedFromDoc(state)
-			},
-			statistics(type, payload){
-				self.context.store.dispatch(Stat[type](payload))
 			}
 		}
 	}
