@@ -28,10 +28,22 @@ export default class extends Component{
         pgGap: PropTypes.number,
         query: PropTypes.func
     }
+	
+	static childContextTypes={
+		onPageHide: PropTypes.func,
+		onPageShow: PropTypes.func,
+	}
 
     get root(){
         return this.refs.root
     }
+	
+	getChildContext(){
+		return {
+			onPageHide:e=>this.updateCursorAndSelection(),
+            onPageShow:e=>this.updateCursorAndSelection(),	
+		}
+	}
 
     render(){
         const {isAllComposed, composeMore, pages, ...props}=this.props
@@ -65,8 +77,7 @@ export default class extends Component{
                             done=e.timeStamp
                         }
                     }}
-                    onPageHide={e=>this.updateCursorAndSelection()}
-                    onPageShow={e=>this.updateCursorAndSelection()}>
+                    >
                     {composeMoreTrigger}
 
                     <Cursor 

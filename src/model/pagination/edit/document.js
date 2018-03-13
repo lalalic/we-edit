@@ -34,7 +34,8 @@ export default class Document extends Super{
 		shouldContinueCompose: PropTypes.func,
 		shouldRemoveComposed: PropTypes.func,
 		query: PropTypes.func,
-		mount: PropTypes.func
+		mount: PropTypes.func,
+		unmount: PropTypes.func,
 	}
 
 	state={compose2Page:1}
@@ -44,11 +45,12 @@ export default class Document extends Super{
 		let shouldContinueCompose=this.shouldContinueCompose.bind(this)
 		let query=this.query.bind(this)
 		let mount=a=>this.composers.set(a.props.id,a)
+		let unmount=a=>this.composers.delete(a.props.id)
 		return {
 			...super.getChildContext(),
 			shouldContinueCompose,
 			shouldRemoveComposed,
-			query,mount
+			query,mount,unmount
 		}
 	}
 
@@ -73,7 +75,6 @@ export default class Document extends Super{
 				</div>
 				<ComposedDocument ref="canvas"
 					{...props}
-					width={this.contentWidth}
 					pages={this.computed.composed}
 					isAllComposed={()=>this.computed.children.length==this.props.children.length}
 					composeMore={e=>this.composeMore()}
@@ -99,27 +100,22 @@ export default class Document extends Super{
 
 	shouldContinueCompose(){
 		const {compose2Page,mode}=this.state
+		if(compose2Page==1)
+			return true
+		
 		if(mode=="content" && this.continueComposing==false)
 			return false
 
-		const {media,viewport}=this.context
-
-		if(media=="screen"){
-			let contentY=this.query().y
-			if(contentY>viewport.height){
-				switch(mode){
-				case "content":{
-					//@TODO: relative to editor's self viewport, instead of window
-					let maxY=window.innerHeight-this.canvas.getClientRect().top
-					maxY*=this.canvas.ratio
-					return this.continueComposing=contentY<maxY
-				}
-				case "performant":
-				default:
-					return this.computed.composed.length<compose2Page+1
-				}
-			}else
-				return true
+		const $=this.query()
+		let contentY=$.y
+		if(contentY>$.svg.height){
+			switch(mode){
+			case "content":
+				return this.continueComposing=contentY<$.svg.height-$.svg.top
+			case "performant":
+			default:
+				return this.computed.composed.length<compose2Page+1
+			}
 		}else
 			return true
 	}

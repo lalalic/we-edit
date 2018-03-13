@@ -1,13 +1,9 @@
 import React from "react"
 import PropTypes from "prop-types"
 import {connect} from "react-redux"
-import {compose, getContext, mapProps,withProps} from "recompose"
+import {compose, getContext, mapProps,withProps,setDisplayName} from "recompose"
 import {Toolbar, ToolbarGroup, FlatButton, IconButton, Slider} from "material-ui"
 import * as selector from "we-edit/state/selector"
-
-import IconRead from "material-ui/svg-icons/communication/import-contacts"
-import IconPrint from "material-ui/svg-icons/editor/format-align-justify"
-import IconWeb from "material-ui/svg-icons/av/web"
 import {blue800, blue900} from "material-ui/styles/colors"
 
 const ButtonStyle={
@@ -31,24 +27,26 @@ const CompactButtonStyle={
 
 
 const Status=compose(
+	setDisplayName("StatusBar"),
 	getContext({
 		selection:PropTypes.object,
 		muiTheme: PropTypes.object,
 	}),
-	mapProps(({selection,muiTheme})=>{
+	mapProps(({selection,muiTheme,layout})=>{
 		const {page}=selection.props("page")
 		return {
+			layout,
 			page,
 			height:muiTheme.button.height
 		}
 	}),
 	connect(state=>({stat:selector.getStatistics(state)}))
-)(({page,stat, height})=>(
+)(({page,stat, height, layout})=>(
 	<div style={{...RootStyle,height}}>
 		<Page current={page+1} total={stat.pages}/>
 		<Words total={stat.words}/>
 		<div style={{flex:"1 100%"}}/>
-		<Mode height={height}/>
+		{layout.items.length<2 ? null : <Layout height={height} {...layout}/>}
 		<Scale/>
 	</div>
 ))
@@ -85,28 +83,25 @@ const Scale=({percent=100,decrease=console.log,increase=console.log})=>(
 	</div>
 )
 
-const Mode=({current, height, style={height,width:height,padding:6},iconStyle={height:18,width:18}})=>(
+const Layout=({items, current, onChange, height,iconStyle={height:18,width:18}})=>(
 	<div style={{display:"flex", opacity:0.4}}>
-		<IconButton 
-			style={style}
-			iconStyle={iconStyle}
-			tooltip="read mode">
-			<IconRead/>
-		</IconButton>
-		
-		<IconButton 
-			style={{...style,background:blue900}}
-			iconStyle={iconStyle}
-			tooltip="print mode">
-			<IconPrint/>
-		</IconButton>
-		
-		<IconButton 
-			style={style}
-			iconStyle={iconStyle}
-			tooltip="web mode">
-			<IconWeb/>
-		</IconButton>
+		{items.map(({layout, icon, style={height,width:height,padding:6}})=>{
+			if(layout==current){
+				style.background=blue900
+			}
+			
+			return (
+				<IconButton key={layout}
+					style={style}
+					iconStyle={iconStyle}
+					tooltip={`${layout} mode`}
+					tooltipPosition="top-center"
+					onClick={()=>onChange(layout)}
+					>
+					{icon}
+				</IconButton>
+			)
+		})}
 	</div>
 )
 

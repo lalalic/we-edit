@@ -15,7 +15,9 @@ export default class Page extends Component{
 	}
 
 	static contextTypes={
-		media: PropTypes.string
+		media: PropTypes.string,
+		onPageHide: PropTypes.func,
+		onPageShow: PropTypes.func,
 	}
 
 	state={display:false}
@@ -29,7 +31,7 @@ export default class Page extends Component{
 			footer,
 			i:pageNo}=this.props
 
-		let {media="print"}=this.context
+		let {media}=this.context
 
 		let contents=[]
 
@@ -62,7 +64,7 @@ export default class Page extends Component{
 
 		if(media=="screen"){
 			const {display}=this.state
-			const {onPageShow=a=>a,onPageHide=a=>a}=this.props
+			const {onPageShow=a=>a,onPageHide=a=>a}=this.context
 
 			if(display){
 				contents.unshift(

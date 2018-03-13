@@ -7,8 +7,7 @@ import Query from "./query"
 
 export default class Document extends Component{
 	static proptTypes={
-		pages: PropTypes.arrayOf(PropTypes.element),
-		width: PropTypes.number
+		pages: PropTypes.arrayOf(PropTypes.element)
 	}
 	
 	static contextTypes={
@@ -18,8 +17,12 @@ export default class Document extends Component{
 	}
 
 	render(){
+		if(this.props.canvas)
+			return React.cloneElement(canvas, {pages:pageInfo,...others})
+		
 		let {pgGap,style,media}=this.context
-		let {pages:pageInfos, onPageHide, onPageShow,...others}=this.props
+		let {pages:pageInfos,...others}=this.props
+		
 		let pages
 		let {width,height}=pageInfos.reduce((size,{size:{width,height}})=>{
 				return {
@@ -28,9 +31,7 @@ export default class Document extends Component{
 				}
 			},{width:0,height:pgGap})
 
-		if(media=="print"){
-			pages=pageInfos.map((page,i)=><Page {...page} key={i}/>)
-		}else{
+		if(media=="screen"){
 			let y=0
 			pages=(
 				<Group y={pgGap} x={0}>
@@ -38,7 +39,7 @@ export default class Document extends Component{
 					pageInfos.map((page,i)=>{
 						let newPage=(
 							<Group y={y} x={(width-page.size.width)/2} key={i}>
-								<Page {...page} {...{onPageHide, onPageShow,i}}/>
+								<Page {...page} i={i}/>
 							</Group>
 						);
 						y+=(page.size.height+pgGap)
@@ -47,12 +48,16 @@ export default class Document extends Component{
 				}
 				</Group>
 			)
-			y+=pgGap
+			y+=pgGap	
+			
+		}else{
+			pages=pageInfos.map((page,i)=><Page {...page} key={i}/>)
 		}
+		
 		return (
 			<svg {...others}
 				viewBox={`0 0 ${width} ${height}`}
-				style={{...style, margin:"auto", width, height}}>
+				style={{background:"lightgray", margin:"auto", width, height}}>
 				{pages}
 				{this.props.children}
 			</svg>

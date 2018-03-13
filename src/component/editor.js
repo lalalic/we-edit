@@ -45,13 +45,13 @@ export class Editor extends Component{
 	}
 
 	render(){
-		const {fullReCompose, children}=this.props
+		const {fullReCompose, children, channel, ...props}=this.props
 		return (
 			<div className={this.constructor.displayName}>
 			{
-				React.cloneElement(Children.only(children),{
+				React.cloneElement(channel,{
 					domain:this.constructor.displayName,
-					children: (<Root fullReCompose={fullReCompose}/>)
+					children: (<Root fullReCompose={fullReCompose} {...props}/>)
 				})
 			}
 			</div>
@@ -82,7 +82,7 @@ const Root=connect((state)=>{
 		}
 	}
 
-	componentWillReceiveProps({content,changed,fullReCompose},{ModelTypes}){
+	componentWillReceiveProps({content,changed,fullReCompose,...renderProps},{ModelTypes}){
 		if(!fullReCompose && this.doc && changed){ // editing
 			//&& content.size>50){ // big
 			const getThisParentId=id=>getParentId(content,id)
@@ -146,11 +146,11 @@ const Root=connect((state)=>{
 			},[])
 		}else{//reproduce mode
 			this.els=new Map()
-			this.doc=this.createChildElement("root",content,ModelTypes,this.props.content)
+			this.doc=this.createChildElement("root",content,ModelTypes,this.props.content,renderProps)
 		}
 	}
 
-	createChildElement(id,content,ModelTypes,lastContent){
+	createChildElement(id,content,ModelTypes,lastContent, renderProps={}){
 		let current=content.get(id)
 		let {type, props, children}=current.toJS()
 		let Child=ModelTypes[type[0].toUpperCase()+type.substr(1)]
@@ -187,6 +187,7 @@ const Root=connect((state)=>{
 				key={id}
 				id={id}
 				{...props}
+				{...renderProps}
 				children={elChildren}
 				changed={changed}
 				selfChanged={selfChanged}

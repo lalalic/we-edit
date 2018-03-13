@@ -21,6 +21,7 @@ export default class Document extends Super{
 				{super.render()}
 				</div>
 				<ComposedDocument
+					canvas={this.props.canvas}
 					pages={this.computed.composed}
 					/>
 			</div>

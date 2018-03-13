@@ -1,8 +1,12 @@
 import React from "react"
 import ReactDOM from "react-dom"
 
+import IconRead from "material-ui/svg-icons/communication/import-contacts"
+import IconPrint from "material-ui/svg-icons/editor/format-align-justify"
+import IconWeb from "material-ui/svg-icons/av/web"
+
 import {edit,create,preview,compose} from "we-edit"
-import {Editor,Pagination,Html,Plain,WeEdit} from "we-edit/component"
+import {Editor,Viewer,Pagination,Html,Plain,WeEdit} from "we-edit/component"
 
 import WeEditUI, {Workspace, Bare} from "we-edit-ui"
 import {FontMeasure, SVGMeasure} from "wordwrap/measure"
@@ -16,14 +20,27 @@ function editor(){
 	window.addEventListener("load", function(){
 		ReactDOM.render((
 			<WeEdit>
-				<WeEditUI style={{width:1200}}>
-					<Workspace filter="*.docx">
-						<Editor width={1200}>
-							<Pagination fonts="fonts/" measure={SVGMeasure}/>
+				<WeEditUI>
+					<Workspace filter="*.docx" layout="print">
+						<Viewer 
+							layout="read" icon={<IconRead/>}
+							channel={<Pagination fonts="fonts/" measure={SVGMeasure}/>}>
+						</Viewer>
+						
+						<Editor 
+							layout="print" icon={<IconPrint/>}
+							channel={<Pagination fonts="fonts/" measure={SVGMeasure}/>}>
+							
+						</Editor>
+						
+						<Editor 
+							layout="web" icon={<IconWeb/>}
+							channel={<Html/>}>
+							
 						</Editor>
 					</Workspace>
 					<Bare>
-						<Editor width={600}>
+						<Editor>
 							<Pagination fonts="fonts/" measure={FontMeasure}/>
 						</Editor>
 					</Bare>

@@ -316,6 +316,7 @@ class ContextProvider extends Component{
 						return self.location
 					}else{
 						return {
+							pageY:20,
 							page:0,
 							column:0,
 							line:0,

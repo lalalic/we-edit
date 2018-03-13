@@ -34,13 +34,13 @@ export default function recomposable(Content){
 
 		static contextTypes={
 			...Content.contextTypes,
-			mount: PropTypes.func
+			mount: PropTypes.func,
+			unmount: PropTypes.func,
 		}
 
 		constructor(){
 			super(...arguments)
-			if(this.context.mount)
-				this.context.mount(this)
+			this.context.mount && this.context.mount(this)
 		}
 
 		/*
@@ -60,6 +60,10 @@ export default function recomposable(Content){
 		clearComposed(){
 			this.computed.composed=[]
 			this.computed.children=[]
+		}
+		
+		componentWillUnmount(){
+			this.context.unmount && this.context.unmount(this)
 		}
 	}
 }

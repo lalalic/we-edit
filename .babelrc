@@ -14,6 +14,7 @@
 				"model":"model",
 				"html":"model/html",
 				"pagination":"model/pagination",
+				"plain":"model/plain",
 				"composed":"model/pagination/composed",
 				"tools":"tools",
 				"input":"input",
