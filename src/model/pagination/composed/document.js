@@ -3,21 +3,24 @@ import PropTypes from "prop-types"
 
 import Group from "./group"
 import Page from "./page"
-import Query from "./query"
 
 export default class Document extends Component{
-	static proptTypes={
-		pages: PropTypes.arrayOf(PropTypes.element)
+	static propTypes={
+		pages: PropTypes.arrayOf(PropTypes.object).isRequired,
+		pgGap: PropTypes.number.isRequired,
+	}
+	
+	static defaultProps={
+		pgGap:24
 	}
 	
 	static contextTypes={
-		media:PropTypes.string,
-		pgGap:PropTypes.number
+		media:PropTypes.string
 	}
 
 	render(){
-		const {pages:pageInfos, ...others}=this.props
-		const {pgGap,media}=this.context
+		const {pages:pageInfos, pgGap, ...others}=this.props
+		const {media}=this.context
 		const {width,height}=pageInfos.reduce((size,{size:{width,height}})=>{
 				return {
 					width:Math.max(size.width,width),
@@ -58,6 +61,4 @@ export default class Document extends Component{
 			</svg>
 		)
 	}
-
-	static Query=Query
 }

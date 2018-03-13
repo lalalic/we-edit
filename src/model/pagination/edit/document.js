@@ -7,7 +7,6 @@ import Waypoint from "react-waypoint"
 import Base from "../document"
 import {Text} from "model/pagination"
 import ComposedDocument from "./composed-document"
-import {Query} from "../composed/document"
 
 import {ACTION} from "state"
 import {getContent,getSelection} from "state/selector"
@@ -22,9 +21,7 @@ const Super=editable(recomposable(Base))
 export default class Document extends Super{
 	static contextTypes={
 		...Super.contextTypes,
-		pgGap: PropTypes.number,
-		store: PropTypes.any,
-		isContentChanged: PropTypes.func
+		store: PropTypes.any
 	}
 
 	static childContextTypes={
@@ -53,7 +50,7 @@ export default class Document extends Super{
 	}
 
 	query(){
-		return new Query(this,this.context.store.getState())
+		return new ComposedDocument.Query(this,this.context.store.getState())
 	}
 
 	get canvas(){
@@ -61,14 +58,17 @@ export default class Document extends Super{
 	}
 
 	render(){
-		const {mode}=this.state
+		const {viewport, mode}=this.state
+		if(!viewport){//to find container width, height
+			return <div ref="viewporter"/>
+		}
 		let props={}
-			{/*
-		if(mode=="content")
-			props.minHeight=this.canvas.getClientRect().height
-			*/}
+		if(mode=="content"){
+			//props.minHeight=this.canvas.getClientRect().height
+		}
+		
         return (
-			<div>
+			<div ref="viewporter">
 				<div style={{display:"none"}}>
 				{this.props.children}
 				</div>
@@ -81,13 +81,8 @@ export default class Document extends Super{
 			</div>
 		)
     }
-	
-	componentDidMount(){
-		
-	}
 
 	composeMore(){
-		console.log("compose more to "+(this.state.compose2Page+1))
 		this.setState(p=>({compose2Page:p.compose2Page+1,mode:"performant"}))
 	}
 
@@ -97,12 +92,36 @@ export default class Document extends Super{
 		this.continueComposing=true
 	}
 
+	componentDidMount(){
+		if(!this.state.viewport){
+			this.getContainer(this.refs.viewporter)
+			const{width,height}=this.container.getBoundingClientRect()
+			this.setState({viewport:{width,height}})
+		}
+	}
+	
+	getContainer(node){
+		return this.container=(function getScrollParent(node) {
+			const isElement = node instanceof HTMLElement;
+			const overflowY = isElement && window.getComputedStyle(node).overflowY;
+			const isScrollable = overflowY !== 'visible' && overflowY !== 'hidden';
+
+			if (!node) {
+			return null;
+			} else if (isScrollable && node.scrollHeight >= node.clientHeight) {
+			return node;
+			}
+
+			return getScrollParent(node.parentNode) || document.body;
+		})(node)
+	}
+	
 	shouldRemoveComposed(){
 		return this.state.mode=="content"
 	}
 
 	shouldContinueCompose(){
-		const {compose2Page,mode}=this.state
+		const {compose2Page,mode, viewport}=this.state
 		if(compose2Page==1)
 			return true
 		
@@ -111,16 +130,17 @@ export default class Document extends Super{
 
 		const $=this.query()
 		let contentY=$.y
-		if(contentY>$.svg.height){
-			switch(mode){
-			case "content":
-				return this.continueComposing=contentY<$.svg.height-$.svg.top
-			case "performant":
-			default:
-				return this.computed.composed.length<compose2Page+1
-			}
-		}else
+		if(contentY<=viewport.height)
 			return true
-	}
 
+		switch(mode){
+		case "content":
+			let maxViewableY=viewport.height-$.svg.top
+			maxViewableY*=this.canvas.ratio
+			return this.continueComposing=contentY<maxViewableY
+		case "performant":
+		default:
+			return this.computed.composed.length<compose2Page+1
+		}
+	}
 }

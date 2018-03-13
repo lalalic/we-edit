@@ -23,6 +23,7 @@ export default class Channel extends Component{
 	}
 	
 	render(){
+		const {domain, EditorTypes, ViewerTypes}=this.props
 		return Children.only(this.props.children)
 	}
 }

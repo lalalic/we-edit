@@ -25,6 +25,7 @@ function editor(){
 						<Viewer 
 							layout="read" icon={<IconRead/>}
 							channel={<Pagination fonts="fonts/" measure={SVGMeasure}/>}>
+							
 						</Viewer>
 						
 						<Editor 

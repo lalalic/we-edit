@@ -12,33 +12,30 @@ export class Editor extends Component{
 	static displayName="editor"
 	static propTypes={
 		media:PropTypes.string,
-		pgGap:PropTypes.number,
 		fullReCompose:PropTypes.bool,
 	}
 
 	static defaultProps={
-		media:"screen",
-		pgGap: 24
+		media:"screen"
 	}
 
 	static childContextTypes={
-		media:PropTypes.string,
-		pgGap:PropTypes.number
+		media:PropTypes.string
 	}
 
 	getChildContext(){
-		const {media, pgGap}=this.props
-		return {media, pgGap}
+		const {media}=this.props
+		return {media}
 	}
 
 	render(){
-		const {fullReCompose, children, channel, ...props}=this.props
+		const {fullReCompose, children, channel}=this.props
 		return (
 			<div className={this.constructor.displayName}>
 			{
 				React.cloneElement(channel,{
 					domain:this.constructor.displayName,
-					children: (<Root fullReCompose={fullReCompose} {...props}/>)
+					children: (<Root fullReCompose={fullReCompose} canvas={children}/>)
 				})
 			}
 			</div>

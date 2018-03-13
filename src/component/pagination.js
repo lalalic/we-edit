@@ -5,7 +5,7 @@ import {FontMeasure, SVGMeasure} from "wordwrap/measure"
 
 import ViewerTypes from "pagination"
 import EditorTypes from "pagination/edit"
-import IType from "./IType"
+import Channel from "./channel"
 import isNode from "is-node"
 
 const createFontMeasureWithDefault=defaultFont=>{
@@ -27,6 +27,8 @@ export class Pagination extends Component{
 		measure: PropTypes.func,
 		fonts: PropTypes.string,
 		defaultFont: PropTypes.string,
+		canvas: PropTypes.node,
+		pgGap: PropTypes.number,
 	}
 
 	static defaultProps={
@@ -70,8 +72,10 @@ export class Pagination extends Component{
 		const {fontsLoaded}=this.state
 		if(!fontsLoaded)
 			return null
+		
+		const {defaultFont,measure,fonts, ...props}=this.props
 
-		return <IType {...{ViewerTypes,EditorTypes,...this.props} }/>
+		return <Channel {...{ViewerTypes,EditorTypes,...props} }/>
 	}
 }
 export default Pagination

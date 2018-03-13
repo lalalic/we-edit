@@ -63,7 +63,7 @@ export default function recomposable(Content){
 		}
 		
 		componentWillUnmount(){
-			this.context.unmount && this.context.unmount(this)
+	
 		}
 	}
 }

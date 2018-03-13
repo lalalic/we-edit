@@ -14,7 +14,7 @@ export default class Canvas extends PureComponent{
 					<Ruler direction="horizontal"/>
 				</div>
 
-				<div ref="canvas" style={{flex:"1 100%", textAlign:"center", margin:"4px auto auto auto"}}>
+				<div ref="contentContainer" style={{flex:"1 100%", textAlign:"center", margin:"4px auto auto auto"}}>
 					<div style={{margin:"auto",display:"inline-block"}}>
 						{this.props.children}
 					</div>
@@ -24,7 +24,7 @@ export default class Canvas extends PureComponent{
 	}
 	
 	componentDidMount(){
-		this.refs.rulerContainer.style.width=this.refs.canvas.getBoundingClientRect().width+"px"
+		this.refs.rulerContainer.style.width=this.refs.contentContainer.getBoundingClientRect().width+"px"
 	}
 }
 

@@ -2,6 +2,6 @@ import React from "react"
 import ViewerTypes from "plain"
 import EditorTypes from "plain/edit"
 
-import IType from "./IType"
+import Channel from "./channel"
 
-export default props=><IType {...{ViewerTypes,EditorTypes, ...props}}/>
+export default props=><Channel {...{ViewerTypes,EditorTypes, ...props}}/>

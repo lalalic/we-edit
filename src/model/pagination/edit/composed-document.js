@@ -6,6 +6,7 @@ import Waypoint from "react-waypoint"
 
 import Base from "../composed/document"
 import {Text} from "model/pagination"
+import Query from "./query"
 
 import {ACTION} from "state"
 import {getContent,getSelection} from "state/selector"
@@ -25,7 +26,6 @@ export default class extends Component{
         docId: PropTypes.string,
         store: PropTypes.any,
         getCursorInput: PropTypes.func,
-        pgGap: PropTypes.number,
         query: PropTypes.func
     }
 	
@@ -46,7 +46,7 @@ export default class extends Component{
 	}
 
     render(){
-        const {isAllComposed, composeMore, pages, ...props}=this.props
+        const {isAllComposed, composeMore, ...props}=this.props
         let composeMoreTrigger=null
         if(!isAllComposed()){
             let y=this.context.query().pageY(-1)
@@ -63,7 +63,7 @@ export default class extends Component{
 
         return (
             <div ref="root">
-                <Base pages={pages}
+                <Base {...props}
                     onClick={e=>{
                         if(done==e.timeStamp)
                             return
@@ -252,4 +252,6 @@ export default class extends Component{
         }
         this.active()
     }
+	
+	static Query=Query
 }

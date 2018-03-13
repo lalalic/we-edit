@@ -1,6 +1,7 @@
 import React from "react"
-import ComposedText from "./text"
-import ComposedLine from "./line"
+import ComposedDocument from "composed/document"
+import ComposedText from "composed/text"
+import ComposedLine from "composed/line"
 import ContentQuery from "state/selector/query"
 
 import FindLast from "tools/array-find-last"
@@ -12,7 +13,7 @@ export default class Query{
 		this.document=document
 		this.state=state
 		this.pages=document.computed.composed
-		this.pgGap=document.context.pgGap
+		this.pgGap=document.canvas.props.pgGap||ComposedDocument.defaultProps.pgGap
 	}
 	
 	get svg(){
@@ -60,8 +61,6 @@ export default class Query{
 	}
 
 	_pageMarginRight(n){
-		let svg=this.document.canvas.root.querySelector("svg")
-		//let [,,width,]=svg.getAttribute("viewBox").split(" ").map(a=>parseInt(a))
 		let width=this.svg.width
 		let page=this.pages[n]
 		return (width-page.size.width)/2+page.margin.left
@@ -205,8 +204,6 @@ export default class Query{
 				return 0
 		}
 
-		let svg=this.document.canvas.root.querySelector("svg")
-		//let [,,width,]=svg.getAttribute("viewBox").split(" ").map(a=>parseInt(a))
 		let width=this.svg.width
 		let offsetX=path.filter(a=>a.type==ComposedLine)
 			.reduce((x,line)=>{
@@ -220,19 +217,16 @@ export default class Query{
 				return x+=line.props.children.slice(0,itemIndex)
 					.reduce((w,li)=>w+=li.props.width,0)
 			},0)
+		
+		let x=(width-page.size.width)/2+page.margin.left+offsetX
+		let y=pages.slice(0,pageNo).reduce((y,{size:{height}})=>y+=(pgGap+height),0)
+		y=y+pgGap+page.margin.top
+		y=y+path.findLast(a=>a.type==ComposedLine).props.height
 		return path.reduce((state,a)=>{
 				state.x+=e(a,'x')
 				state.y+=e(a,'y')
 				return state
-			},{
-				x:(width-page.size.width)/2
-					+page.margin.left+offsetX,
-
-				y:pages.slice(0,pageNo)
-					.reduce((y,{size:{height}})=>y+=(pgGap+height),0)
-					+pgGap+page.margin.top
-					+path.findLast(a=>a.type==ComposedLine).props.height
-			});
+			},{x,y});
 	}
 
 	position(id,at, ratio){//return left:clientX, top:clientY
@@ -305,8 +299,6 @@ export default class Query{
 		})
 		console.assert(!!line)
 
-		let svg=this.document.canvas.root.querySelector("svg")
-		//let [,,width,]=svg.getAttribute("viewBox").split(" ").map(a=>parseInt(a))
 		let width=this.svg.width
 		let x=(width-page.size.width)/2+page.margin.left+column.x
 		let index=line.props.children.findIndex(a=>{
@@ -369,8 +361,6 @@ export default class Query{
 		})
 		console.assert(!!line)
 
-		let svg=this.document.canvas.root.querySelector("svg")
-		//let [,,width,]=svg.getAttribute("viewBox").split(" ").map(a=>parseInt(a))
 		let width=this.svg.width
 		let x=(width-page.size.width)/2+page.margin.left+column.x
 		let index=line.props.children.findIndex(a=>{
@@ -404,8 +394,6 @@ export default class Query{
 
 	lineRects(start,end/*usually returned from .postion*/){
 		let {pages,pgGap}=this
-		let svg=this.document.canvas.root.querySelector("svg")
-		//let [,,width,]=svg.getAttribute("viewBox").split(" ").map(a=>parseInt(a))
 		let width=this.svg.width
 		
 		const pageXY=n=>{
