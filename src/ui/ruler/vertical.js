@@ -1,13 +1,13 @@
 import React from "react"
 
 export default ({height, footer, header, scale,
-	topMargin=3, bottomMargin=3, 
+	topMargin=3, bottomMargin=3,
 	setTopMargin, setBottomMargin,
 	})=>(
 	<div className="ruler vertical">
 		<Scale {...{height:height*scale,from:topMargin*scale, cm:scale*96/2.54}}/>
 		<Margin style={{position:"absolute",top:0, left:0, height:topMargin*scale}} onMove={setTopMargin}/>
-		<Margin style={{position:"absolute", bottom:0, left:0, height:bottomMargin*scale}}  
+		<Margin style={{position:"absolute", bottom:0, left:0, height:bottomMargin*scale}}
 			onMove={setBottomMargin}/>
 	</div>
 )
@@ -22,7 +22,7 @@ const Margin=({style, onMove, at=AT(style)})=>(
 )
 
 const Scale=({width=20,height,from,cm=96/2.54, scale})=>(
-	<svg style={{width,height:height*scale,backgroundColor:"white"}} 
+	<svg style={{width,height,backgroundColor:"white"}} 
 		viewBox={`0 0 ${width} ${height}`} >
 		<g transform={`translate(0 ${from})`}>
 		{
@@ -36,7 +36,7 @@ const Scale=({width=20,height,from,cm=96/2.54, scale})=>(
 				.map((a,i)=><CM cm={cm} key={i} i={i}/>)
 		}
 		</g>
-		
+
 	</svg>
 )
 
