@@ -4,22 +4,24 @@ import PropTypes from "prop-types"
 import Group from "./group"
 import Page from "./page"
 
-export default class Document extends Component{
+export default class ComposedDocument extends Component{
 	static propTypes={
 		pages: PropTypes.arrayOf(PropTypes.object).isRequired,
 		pgGap: PropTypes.number.isRequired,
+		scale: PropTypes.number.isRequired,
 	}
 	
 	static defaultProps={
-		pgGap:24
+		pgGap:24,
+		scale:1,
 	}
 	
 	static contextTypes={
-		media:PropTypes.string
+		media:PropTypes.string,
 	}
 
 	render(){
-		const {pages:pageInfos, pgGap, ...others}=this.props
+		const {pages:pageInfos, pgGap, scale=1, ...others}=this.props
 		const {media}=this.context
 		const {width,height}=pageInfos.reduce((size,{size:{width,height}})=>{
 				return {
@@ -55,7 +57,7 @@ export default class Document extends Component{
 		return (
 			<svg {...others}
 				viewBox={`0 0 ${width} ${height}`}
-				style={{background:"lightgray", width, height}}>
+				style={{background:"lightgray", width:width*scale, height:height*scale}}>
 				{pages}
 				{this.props.children}
 			</svg>

@@ -29,13 +29,13 @@ export class Editor extends Component{
 	}
 
 	render(){
-		const {fullReCompose, children, channel}=this.props
+		const {fullReCompose, children, channel, scale}=this.props
 		return (
 			<div className={this.constructor.displayName}>
 			{
 				React.cloneElement(channel,{
 					domain:this.constructor.displayName,
-					children: (<Root fullReCompose={fullReCompose} canvas={children}/>)
+					children: (<Root fullReCompose={fullReCompose} canvas={children} scale={scale}/>)
 				})
 			}
 			</div>

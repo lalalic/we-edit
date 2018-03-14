@@ -6,6 +6,10 @@ import Waypoint from "react-waypoint"
 import Listener from "./listener"
 
 export default class Input extends Component{
+	static contextTypes={
+		cursorPlaced: PropTypes.func
+	}
+	
 	state={top:0,left:0,height:0}
 	isInView(left,top){
 		let {scrollX,scrollY,screen:{height,width}}=window
@@ -39,5 +43,10 @@ export default class Input extends Component{
 				</div>
 			</Waypoint>
 		)
+	}
+	
+	componentDidUpdate(){
+		if(this.context.cursorPlaced)
+			this.context.cursorPlaced()
 	}
 }

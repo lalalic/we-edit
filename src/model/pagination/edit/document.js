@@ -21,7 +21,7 @@ const Super=editable(recomposable(Base))
 export default class Document extends Super{
 	static contextTypes={
 		...Super.contextTypes,
-		store: PropTypes.any
+		store: PropTypes.any,
 	}
 
 	static childContextTypes={
@@ -74,6 +74,7 @@ export default class Document extends Super{
 				</div>
 				<ComposedDocument ref="canvas"
 					{...props}
+					scale={this.props.scale}
 					pages={this.computed.composed}
 					isAllComposed={()=>this.computed.children.length==this.props.children.length}
 					composeMore={e=>this.composeMore()}

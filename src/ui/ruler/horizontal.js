@@ -1,17 +1,17 @@
 import React from "react"
 import {SvgIcon} from "material-ui"
 
-export default ({width,
+export default ({width,scale,
 	leftMargin=3, rightMargin=3, setLeftMargin, setRightMargin,
 	firstLine=0, leftIndent=0, rightIndent=0, setFirstLine, setLeftIndent, setRightIndent,
 	})=>(
-	<div className="ruler horizontal" style={{width,position:"relative"}}>
-		<Scale {...{width,from:leftMargin}}/>
-		<Margin style={{position:"absolute", top:0,left:0,width:leftMargin}} onMove={setLeftMargin}/>
-		<FirstLine style={{position:"absolute", top:0,left:leftMargin+firstLine}} onMove={setFirstLine}/>
-		<Indent style={{position:"absolute", top:0,left:leftMargin+leftIndent}} onMove={setLeftIndent}/>
-		<Margin style={{position:"absolute", top:0,right:0,width:rightMargin}} onMove={setRightMargin}/>
-		<Indent style={{position:"absolute", top:0,right:rightMargin+rightIndent}} onMove={setRightIndent}/>
+	<div className="ruler horizontal" style={{width:width*scale,position:"relative"}}>
+		<Scale {...{width:width*scale,from:leftMargin*scale,cm:scale*96/2.54}}/>
+		<Margin style={{position:"absolute", top:0,left:0,width:leftMargin*scale}} onMove={setLeftMargin}/>
+		<FirstLine style={{position:"absolute", top:0,left:(leftMargin+firstLine)*scale}} onMove={setFirstLine}/>
+		<Indent style={{position:"absolute", top:0,left:(leftMargin+leftIndent)*scale}} onMove={setLeftIndent}/>
+		<Margin style={{position:"absolute", top:0,right:0,width:rightMargin*scale}} onMove={setRightMargin}/>
+		<Indent style={{position:"absolute", top:0,right:(rightMargin+rightIndent)*scale}} onMove={setRightIndent}/>
 	</div>
 )
 
@@ -42,8 +42,8 @@ const Marker=({direction="top",degs={bottom:180}})=>(
 	</SvgIcon>	
 )
 
-const Scale=({width,height=20,from,cm=96/2.54})=>(
-	<svg style={{width,height,backgroundColor:"white"}} 
+const Scale=({width,height=20,from,cm, })=>(
+	<svg style={{width:width,height,backgroundColor:"white"}} 
 		viewBox={`0 0 ${width} ${height}`} >
 		<g transform={`translate(${from} 0)`}>
 		{

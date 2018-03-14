@@ -32,11 +32,11 @@ const Status=compose(
 		selection:PropTypes.object,
 		muiTheme: PropTypes.object,
 	}),
-	mapProps(({selection,muiTheme,layout})=>{
-		const {page}=selection.props("page")
+	mapProps(({selection,muiTheme,layout,words,scale,pages, setScale})=>{
+		const {page:current}=selection.props("page")
 		return {
-			layout,
-			page,
+			layout,scale,words,
+			page:{current,total:pages},
 			height:muiTheme.button.height
 		}
 	})
@@ -50,9 +50,9 @@ const Status=compose(
 	</div>
 ))
 
-const Page=({current=1,total=20})=>(
+const Page=({current=0,total=20})=>(
 	<FlatButton style={ButtonStyle}>
-		PAGE {current} OF {total}
+		PAGE {current+1} OF {total}
 	</FlatButton>
 )
 
@@ -62,17 +62,20 @@ const Words=({total=120})=>(
 	</FlatButton>
 )
 
-const Scale=({current,max,min,decrease=console.log,increase=console.log})=>(
+const Scale=({
+	current,max,min,step=10,
+	onChange, 
+	})=>(
 	<div style={{display:"flex"}}>
-		<FlatButton label="-" onClick={decrease} 
+		<FlatButton label="-" onClick={()=>onChange(Math.max(current-step,min))} 
 			style={{...CompactButtonStyle}} 
 			labelStyle={{fontSize:20, fontWeight:700,paddingRight:4,paddingLeft:4}}/>
 		<Slider style={{width:100, display:"inline-block"}}
 			sliderStyle={{top:-13}} 
-			step={5} 
+			step={step} 
 			value={current} min={min} max={max}
 			/>
-		<FlatButton label="+" onClick={increase} 
+		<FlatButton label="+" onClick={()=>onChange(Math.min(current+step,max))} 
 			style={{...CompactButtonStyle}} 
 			labelStyle={{fontSize:18, fontWeight:700,paddingRight:4,paddingLeft:4}}/>
 		<FlatButton label={`${current}%`} 

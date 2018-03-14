@@ -111,7 +111,9 @@ export default class extends Component{
 
     componentDidMount(){
         let svg=this.root.querySelector("svg")
-        this.ratio=1
+        let {width}=svg.getBoundingClientRect()
+        let [,,viewBoxWidth]=svg.getAttribute("viewBox").split(" ").map(a=>parseInt(a))
+        this.ratio=viewBoxWidth/width
         this.getClientRect=()=>getClientRect(svg)
 
         this.context.store.dispatch(ACTION.Cursor.ACTIVE(this.context.docId))

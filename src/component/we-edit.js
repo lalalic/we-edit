@@ -36,10 +36,9 @@ export class WeEdit extends Component{
 	}
 
 	render(){
-		const {style={}, children}=this.props
 		return (
 			<Provider store={this.store}>
-				<div style={{width:"100%",...style}}>{children}</div>
+				{this.props.children}
 			</Provider>
 		)
 	}
