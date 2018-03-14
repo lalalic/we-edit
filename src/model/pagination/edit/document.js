@@ -17,7 +17,7 @@ import offset from "mouse-event-offset"
 import getClientRect from "tools/get-client-rect"
 
 const Super=editable(recomposable(Base))
-
+const PageGap=24
 export default class Document extends Super{
 	static contextTypes={
 		...Super.contextTypes,
@@ -33,7 +33,8 @@ export default class Document extends Super{
 		unmount: PropTypes.func,
 	}
 
-	state={compose2Page:1}
+	state={compose2Page:1, mode:"performant"}
+
 	composers=new Map([[this.props.id,this]])
 	getChildContext(){
 		let shouldRemoveComposed=this.shouldRemoveComposed.bind(this)
@@ -50,7 +51,7 @@ export default class Document extends Super{
 	}
 
 	query(){
-		return new ComposedDocument.Query(this,this.context.store.getState())
+		return new ComposedDocument.Query(this,this.context.store.getState(),PageGap)
 	}
 
 	get canvas(){
@@ -66,7 +67,7 @@ export default class Document extends Super{
 		if(mode=="content"){
 			//props.minHeight=this.canvas.getClientRect().height
 		}
-		
+
         return (
 			<div ref="viewporter">
 				<div style={{display:"none"}}>
@@ -75,6 +76,7 @@ export default class Document extends Super{
 				<ComposedDocument ref="canvas"
 					{...props}
 					scale={this.props.scale}
+					pgGap={PageGap}
 					pages={this.computed.composed}
 					isAllComposed={()=>this.computed.children.length==this.props.children.length}
 					composeMore={e=>this.composeMore()}
@@ -100,7 +102,7 @@ export default class Document extends Super{
 			this.setState({viewport:{width,height}})
 		}
 	}
-	
+
 	getContainer(node){
 		return this.container=(function getScrollParent(node) {
 			const isElement = node instanceof HTMLElement;
@@ -116,32 +118,31 @@ export default class Document extends Super{
 			return getScrollParent(node.parentNode) || document.body;
 		})(node)
 	}
-	
+
 	shouldRemoveComposed(){
 		return this.state.mode=="content"
 	}
 
 	shouldContinueCompose(){
 		const {compose2Page,mode, viewport}=this.state
-		if(compose2Page==1)
-			return true
-		
+
 		if(mode=="content" && this.continueComposing==false)
 			return false
 
 		const $=this.query()
-		let contentY=$.y
-		if(contentY<=viewport.height)
+		if($.y<=viewport.height)
 			return true
 
 		switch(mode){
 		case "content":
 			let maxViewableY=viewport.height-$.svg.top
 			maxViewableY*=this.canvas.ratio
-			return this.continueComposing=contentY<maxViewableY
+			return this.continueComposing=$.y<maxViewableY
 		case "performant":
 		default:
 			return this.computed.composed.length<compose2Page+1
 		}
 	}
+
+
 }

@@ -9,13 +9,16 @@ import getClientRect from "tools/get-client-rect"
 
 const NOT_FOUND={left:-9999,top:0}
 export default class Query{
-	constructor(document,state){
+	constructor(document,state,pageGap){
 		this.document=document
 		this.state=state
-		this.pages=document.computed.composed
-		this.pgGap=document.canvas.props.pgGap||ComposedDocument.defaultProps.pgGap
+		this.pgGap=pageGap
 	}
-	
+
+	get pages(){
+		return this.document.computed.composed
+	}
+
 	get svg(){
 		return this._svg=this._svg||this.document.canvas.getClientRect()
 	}
@@ -25,18 +28,23 @@ export default class Query{
 	}
 
 	get y(){
-		let {pages,pgGap}=this
-		return pages.slice(0,pages.length-1)
-			.reduce((w,{size:{height}})=>w+height+pgGap,(last=>{
-				if(!last)
-					return 0
+		return this._y=this._y||(()=>{
+			const {pages,pgGap}=this
+			if(this.pages.length==0)
+				return pgGap
+
+			const lastPageHeight=(last=>{//@TODO: balanced column, last page of section
 				let lastColumnLines=last.columns[last.columns.length-1].children
 				let lastLine=lastColumnLines[lastColumnLines.length-1]
 				let height=last.margin.top
 				if(lastLine)
 					height+=lastLine.props.y+lastLine.props.height
 				return height
-			})(pages[pages.length-1]))
+			})(pages[pages.length-1])
+
+			return pages.slice(0,pages.length-1)
+				.reduce((w,{size:{height}})=>w+height+pgGap,lastPageHeight)
+			})();
 	}
 
 	pageY(which){
@@ -52,7 +60,7 @@ export default class Query{
 		top=top-this.svg.top
 		right=right-this.svg.left
 		bottom=bottom-this.svg.top
-		
+
 		return "left,right,top,bottom,height,width".split(",")
 			.reduce((rect,k)=>{
 				rect[k]*=this.ratio
@@ -69,7 +77,7 @@ export default class Query{
 	at(x,y/*clientX, clientY*/){
 		x=x-this.svg.left
 		y=y-this.svg.top
-		
+
 		x=x*this.ratio
 		y=y*this.ratio
 		let {pages,pgGap}=this
@@ -217,7 +225,7 @@ export default class Query{
 				return x+=line.props.children.slice(0,itemIndex)
 					.reduce((w,li)=>w+=li.props.width,0)
 			},0)
-		
+
 		let x=(width-page.size.width)/2+page.margin.left+offsetX
 		let y=pages.slice(0,pageNo).reduce((y,{size:{height}})=>y+=(pgGap+height),0)
 		y=y+pgGap+page.margin.top
@@ -249,7 +257,7 @@ export default class Query{
 
 		style.height=style.height/ratio
 		style.descent=style.descent/ratio
-		
+
 		return {
 			page: pageNo,
 			column: columnNo,
@@ -395,7 +403,7 @@ export default class Query{
 	lineRects(start,end/*usually returned from .postion*/){
 		let {pages,pgGap}=this
 		let width=this.svg.width
-		
+
 		const pageXY=n=>{
 			let page=pages[n]
 			let x=(width-page.size.width)/2+page.margin.left
@@ -535,7 +543,7 @@ export default class Query{
 			}
 		})
 	}
-	
+
 	get content(){
 		return new ContentQuery(this.state)
 	}

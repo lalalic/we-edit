@@ -41,6 +41,7 @@ export default function recomposable(Content){
 		constructor(){
 			super(...arguments)
 			this.context.mount && this.context.mount(this)
+			this.state={...this.computed}
 		}
 
 		/*
@@ -61,9 +62,9 @@ export default function recomposable(Content){
 			this.computed.composed=[]
 			this.computed.children=[]
 		}
-		
+
 		componentWillUnmount(){
-	
+
 		}
 	}
 }
