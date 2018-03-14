@@ -1,10 +1,10 @@
 export {Editor} from "./editor"
 export {Viewer} from "./viewer"
 
-export {Pagination} from "./pagination"
-export {default as Html} from "./html"
-export {default as Plain} from "./plain"
+export {Pagination, Plain, Html} from "./channel"
 
 export {WeEdit} from "./we-edit"
 
 export {WithStore} from "./with-store"
+
+export {WithSelection} from "./with-selection"

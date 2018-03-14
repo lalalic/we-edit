@@ -19,8 +19,10 @@ import Canvas from "we-edit-ui/canvas"
 import * as Table from "we-edit-ui/table"
 
 import {getActive, selector} from "we-edit"
+import {WithSelection} from "we-edit/component"
 
 import Status from "we-edit-ui/status"
+import Ruler from "we-edit-ui/ruler"
 import Zoom from "we-edit-ui/components/zoom"
 
 require("./style.less")
@@ -85,17 +87,27 @@ export class Workspace extends PureComponent{
 	}
 	
 	render(){
-		const {doc, children, toolBar, statusBar}=this.props
+		let {children, toolBar, statusBar, ruler=true}=this.props
+		children=Children.toArray(children)
 		const {layout, scale,page, words}=this.state
+		
+		const current=children.find(({props})=>props.layout==layout)
+		const uncontrolled=children.filter(({props})=>!props.layout)
+		
+		if(current){
+			toolBar=typeof(current.props.toolBar)=="undefined" ? toolBar : current.props.toolBar
+			statusBar=typeof(current.props.statusBar)=="undefined"? statusBar : current.props.statusBar
+			ruler=typeof(current.props.ruler)=="undefined"? ruler : current.props.ruler
+		}
+		
 		return (
-			<doc.Store style={{display:"flex", flexDirection:"column"}}>
 				<WithSelection  style={{flex:1, display:"flex", flexDirection:"column"}}>
 					<div style={{flext:1,order:1}}>
 						{toolBar}
 					</div>
 
 					<div style={{order:3}}>
-						{React.cloneElement(statusBar,{
+						{statusBar ? React.cloneElement(statusBar,{
 							layout:{
 								items:this.layouts,
 								current:layout,
@@ -104,21 +116,47 @@ export class Workspace extends PureComponent{
 							page,
 							scale,
 							words
-						})}
+						}) : null}
 					</div>
 
 					<div style={{order:2,background:"lightgray",overflow:"auto"}}>
-						<Canvas>
-							{Children.toArray(children).filter(({props:{layout:a}})=>a==layout || !a)}
-						</Canvas>
+						<div style={{display:"flex", flexDirection:"row"}}>
+
+							{ruler ? <VerticalRuler/> : null}
+
+							{ruler ? (
+							<div ref="rulerContainer" style={{position:"absolute",paddingTop:4, background:"lightgray"}}>
+								<Ruler direction="horizontal"/>
+							</div>
+							) : null}
+
+							<div ref="contentContainer" style={{flex:"1 100%", textAlign:"center", margin:"4px auto auto auto"}}>
+								<div style={{margin:"auto",display:"inline-block"}}>
+									{current}
+									{uncontrolled}
+								</div>
+							</div>
+						</div>
+						
 					</div>
 				</WithSelection>
-			</doc.Store>
 		)
+	}
+	componentDidMount(){
+		this.refs.rulerContainer.style.width=this.refs.contentContainer.getBoundingClientRect().width+"px"
 	}
 }
 
-export const Bare=({doc,children,...props})=>(<doc.Store {...props}><WithSelection>{children}</WithSelection></doc.Store>)
+const VerticalRuler=getContext({
+	selection: PropTypes.object
+})(({selection})=>{
+	let {pageY:top}=selection.props("page")
+	return (
+		<div style={{position:"relative",width:0,top}}>
+			<Ruler direction="vertical"/>
+		</div>
+	)
+})
 
 export default compose(
 	setDisplayName("FilterableThemeProvider"),
@@ -156,20 +194,24 @@ export default compose(
 		let child=null
 		if(active){
 			child=Children.toArray(children)
-				.find(({props:{filter=a=>!!a}})=>{
-					if(typeof(filter)=="string"){
-						let glob=filter
-						filter=a=>minimatch(a.name,glob)
+				.find(({props:{accept=a=>!!a}})=>{
+					if(typeof(accept)=="string"){
+						let glob=accept
+						accept=a=>minimatch(a.name,glob)
 					}
 
-					if(typeof(filter)=="function")
-						return filter(active)
+					if(typeof(accept)=="function")
+						return accept(active)
 
 					return false
 				})
 
 			if(child)
-				child=React.cloneElement(child,{doc:active})
+				child=(
+					<active.Store style={{display:"flex", flexDirection:"column"}}>
+						{child}
+					</active.Store>
+				)
 			else
 				child=(<div>no editor for this document</div>)
 		}
@@ -195,19 +237,6 @@ export default compose(
 	}
 })
 
-const WithSelection=compose(
-	getContext({
-		selected:PropTypes.func
-	}),
-	connect((state,{selected})=>{
-		return {
-			selection: selected(state)
-		}
-	}),
-	withContext(
-		{selection:PropTypes.shape({props:PropTypes.func})},
-		({selection})=>({selection}),
-	),
-)(({children,style})=><div style={style}>{children}</div>)
+
 
 //export WithSelection

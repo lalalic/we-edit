@@ -5,7 +5,7 @@ import {FontMeasure, SVGMeasure} from "wordwrap/measure"
 
 import ViewerTypes from "pagination"
 import EditorTypes from "pagination/edit"
-import Channel from "./channel"
+import Channel from "./base"
 import isNode from "is-node"
 
 const createFontMeasureWithDefault=defaultFont=>{

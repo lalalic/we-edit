@@ -21,8 +21,9 @@ function editor(){
 		ReactDOM.render((
 			<WeEdit>
 				<WeEditUI>
-					<Workspace filter="*.docx" layout="print">
+					<Workspace accept="*.docx" layout="print">
 						<Viewer 
+							toolBar={null} ruler={false}
 							layout="read" icon={<IconRead/>}
 							channel={<Pagination fonts="fonts/" measure={SVGMeasure}/>}>
 							
@@ -34,17 +35,17 @@ function editor(){
 							
 						</Editor>
 						
-						<Editor 
+						<Editor ruler={false}
 							layout="web" icon={<IconWeb/>}
 							channel={<Html/>}>
 							
 						</Editor>
 					</Workspace>
-					<Bare>
+					<Workspace toolBar={null} statusBar={null} ruler={null}>
 						<Editor>
 							<Pagination fonts="fonts/" measure={FontMeasure}/>
 						</Editor>
-					</Bare>
+					</Workspace>
 				</WeEditUI>
 			</WeEdit>
 		), document.querySelector("#app"))

@@ -127,8 +127,6 @@ export default class extends Component{
         let {active}=getSelection(store.getState())
         if(active!=docId)
             store.dispatch(ACTION.Cursor.ACTIVE(docId))
-		else
-			this.updateCursorAndSelection()
     }
 
     onRotate(e){
