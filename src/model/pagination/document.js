@@ -1,4 +1,4 @@
-import React, {Children, Component} from "react"
+import React, {Children, Component, Fragment} from "react"
 import PropTypes from "prop-types"
 
 
@@ -16,21 +16,20 @@ export default class Document extends Super{
     render(){
 		const {canvas}=this.props
         return (
-			<div>
-				<div style={{display:"none"}}>
+			<Fragment>
 				{super.render()}
-				</div>
 				
 				{canvas ? 
 					React.cloneElement(canvas, {pages:this.computed.composed}) : 
 					<ComposedDocument pages={this.computed.composed}/>
 				}
 				
-			</div>
+			</Fragment>
 		)
     }
 
 	appendComposed(page){
 		this.computed.composed.push(page)
+		this.emit("pages",this.computed.composed.length)
 	}
 }

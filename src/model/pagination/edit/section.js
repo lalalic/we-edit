@@ -1,4 +1,4 @@
-import React from "react"
+import React, {Fragment} from "react"
 import PropTypes from "prop-types"
 
 import Base from "../section"
@@ -99,6 +99,6 @@ export default class Section extends Super{
 		if(!this.context.shouldContinueCompose(this.computed.children.length==0))
 			return null
 		
-		return (<div>{this.props.children.slice(this.computed.children.length)}</div>)
+		return (<Fragment>{this.props.children.slice(this.computed.children.length)}</Fragment>)
 	}
 }

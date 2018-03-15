@@ -1,4 +1,4 @@
-import React, {PureComponent, Component} from "react"
+import React, {PureComponent, Component, Fragment} from "react"
 import PropTypes from "prop-types"
 
 import {connect} from "react-redux"
@@ -69,10 +69,10 @@ export default class Document extends Super{
 		}
 
         return (
-			<div ref="viewporter">
-				<div style={{display:"none"}}>
-				{this.props.children}
-				</div>
+			<Fragment>
+				<Fragment>
+					{this.props.children}
+				</Fragment>
 				<ComposedDocument ref="canvas"
 					{...props}
 					scale={this.props.scale}
@@ -81,7 +81,7 @@ export default class Document extends Super{
 					isAllComposed={()=>this.computed.children.length==this.props.children.length}
 					composeMore={e=>this.composeMore()}
 					/>
-			</div>
+			</Fragment>
 		)
     }
 

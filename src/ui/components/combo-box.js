@@ -4,6 +4,9 @@ import PropTypes from "prop-types"
 import {AutoComplete} from "material-ui"
 
 export class ComboBox extends PureComponent{
+	static contextTypes={
+		muiTheme: PropTypes.object,
+	}
 	state={searchText:this.getText(this.props)}
 	
 	isObjectData(props){
@@ -43,15 +46,28 @@ export class ComboBox extends PureComponent{
 	}
 	
 	render(){
+		let {comboBox}=this.context.muiTheme
 		let {name=`_${Date.now()}`, value, onChange, onException, style, textFieldStyle, ...props}=this.props
 		let text=this.getText()
 		let {searchText}=this.state
-		if(style && style.width){
+		if(comboBox && comboBox.height){
+			if(!style){
+				style={height:comboBox.height}
+			}else if(!style.height){
+				style.height=comboBox.height
+			}
+		}
+		
+		if(style){
 			if(!textFieldStyle){
 				textFieldStyle={}
 			}
-			if(!textFieldStyle.width){
+			if(style.width && !textFieldStyle.width){
 				textFieldStyle.width=style.width
+			}
+			
+			if(style.height && !textFieldStyle.height){
+				textFieldStyle.height=style.height
 			}
 		}
 		return <AutoComplete 

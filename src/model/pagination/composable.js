@@ -1,10 +1,14 @@
-import React, {Children} from "react"
+import React, {Children,Fragment} from "react"
 import PropTypes from "prop-types"
 
 
 export function HasChild(Component){
     return class extends Component{
         static displayName=`composable-${Component.displayName}`
+		static contextTypes={
+			eventemitter: PropTypes.shape({emit:PropTypes.func.isRequired}),
+			debug: PropTypes.bool,
+		}
 
         static childContextTypes = {
             ...(Component.childContextTypes||{}),
@@ -41,7 +45,7 @@ export function HasChild(Component){
 				this.context.parent.on1ChildComposed(this)
 			}
 			//console.log(`render--${this.constructor.displayName}[${this.props.id}]`)
-            return (<div>{this.props.children}</div>)
+            return (<Fragment>{this.props.children}</Fragment>)
         }
 
         /**
@@ -84,6 +88,19 @@ export function HasChild(Component){
         createComposed2Parent(props) {
 
         }
+		
+		emit(){
+			try{
+				if(this.context.eventemitter)
+					this.context.eventemitter.emit(...arguments)
+			}catch(e){
+				
+			}
+		}
+		
+		get debug(){
+			return !!this.context.debug
+		}
     }
 }
 

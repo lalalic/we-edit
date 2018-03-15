@@ -7,7 +7,7 @@ import Listener from "./listener"
 
 export default class Input extends Component{
 	static contextTypes={
-		cursorPlaced: PropTypes.func
+		eventemitter: PropTypes.shape({emit:PropTypes.func.isRequired})
 	}
 	
 	state={top:0,left:0,height:0}
@@ -46,7 +46,11 @@ export default class Input extends Component{
 	}
 	
 	componentDidUpdate(){
-		if(this.context.cursorPlaced)
-			this.context.cursorPlaced()
+		try{
+			if(this.context.eventemitter)
+				this.context.eventemitter.emit("cursorPlaced",this.state)
+		}catch(e){
+			
+		}
 	}
 }

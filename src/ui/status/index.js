@@ -5,6 +5,7 @@ import {compose, getContext, mapProps,withProps,setDisplayName} from "recompose"
 import {Toolbar, ToolbarGroup, FlatButton, IconButton, Slider} from "material-ui"
 import * as selector from "we-edit/state/selector"
 import {blue800, blue900} from "material-ui/styles/colors"
+import SizeIconButton from "we-edit-ui/components/size-icon-button"
 
 const ButtonStyle={
 	background:"transparent",
@@ -85,23 +86,24 @@ const Scale=({
 	</div>
 )
 
-const Layout=({items, current, onChange, height,iconStyle={height:18,width:18}})=>(
+const Layout=({items, current, onChange, height:size})=>(
 	<div style={{display:"flex", opacity:0.4}}>
-		{items.map(({layout, icon, style={height,width:height,padding:6}})=>{
+		{items.map(({layout, icon, style={}})=>{
 			if(layout==current){
 				style.background=blue900
 			}
 			
 			return (
-				<IconButton key={layout}
+				<SizeIconButton key={layout}
+					size={size}
+					padding={size/4}
 					style={style}
-					iconStyle={iconStyle}
 					tooltip={`${layout} mode`}
 					tooltipPosition="top-center"
 					onClick={()=>onChange(layout)}
 					>
 					{icon}
-				</IconButton>
+				</SizeIconButton>
 			)
 		})}
 	</div>

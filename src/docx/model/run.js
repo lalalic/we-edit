@@ -1,4 +1,4 @@
-import React, {Component} from "react"
+import React, {Component, Fragment} from "react"
 import PropTypes from "prop-types"
 
 
@@ -50,7 +50,7 @@ export default function(Models){
 
 		render(){
 			return (
-				<span>
+				<Fragment>
 				{
 					React.Children.map(this.props.children,a=>{
 						if(a.type.displayName.endsWith("-text")){
@@ -59,7 +59,7 @@ export default function(Models){
 							return a
 					})
 				}
-				</span>
+				</Fragment>
 			)
 		}
 	}

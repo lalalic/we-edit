@@ -57,7 +57,7 @@ export default class ComposedDocument extends Component{
 		return (
 			<svg {...others}
 				viewBox={`0 0 ${width} ${height}`}
-				style={{background:"lightgray", width:width*scale, height:height*scale}}>
+				style={{background:"transparent", width:width*scale, height:height*scale}}>
 				{pages}
 				{this.props.children}
 			</svg>

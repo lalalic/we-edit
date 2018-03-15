@@ -1,5 +1,5 @@
 import React from "react"
-import {IconButton} from "material-ui"
+import SizeIconButton from "./size-icon-button"
 
 const styles={
 	checked:{
@@ -12,5 +12,5 @@ const styles={
 }
 
 export default ({status, ...props, disabled=status=="disabled", style={}})=>(
-	<IconButton {...{disabled,style:{...styles[status],...style}}} {...props}/>
+	<SizeIconButton {...{disabled,style:{...styles[status],...style}}} {...props}/>
 )

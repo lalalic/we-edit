@@ -94,24 +94,27 @@ export default class Page extends Component{
 	}
 }
 
-const Paper=props=>(
+const Paper=({width,height,...props})=>(
 	<g>
-		<rect {...props}/>
+		<rect {...props} {...{width,height}}/>
+		<path d={`M0 0 L${width} 0 L${width} ${height} L0 ${height}Z`} 
+			fill="none"
+			strokeWidth={1} stroke="lightgray"/>
 	</g>
 )
 
 const Margin=({margin:{left,top, right,bottom},marginWidth=20})=>(
 	<g>
-		<line x1={left} y1={top} x2={left-marginWidth} y2={top} strokeWidth={1} stroke="gray"/>
-		<line x1={left} y1={top} x2={left} y2={top-marginWidth} strokeWidth={1} stroke="gray"/>
+		<line x1={left} y1={top} x2={left-marginWidth} y2={top} strokeWidth={1} stroke="lightgray"/>
+		<line x1={left} y1={top} x2={left} y2={top-marginWidth} strokeWidth={1} stroke="lightgray"/>
 
-		<line x1={left} y1={bottom} x2={left-marginWidth} y2={bottom} strokeWidth={1} stroke="gray"/>
-		<line x1={left} y1={bottom} x2={left} y2={bottom+marginWidth} strokeWidth={1} stroke="gray"/>
+		<line x1={left} y1={bottom} x2={left-marginWidth} y2={bottom} strokeWidth={1} stroke="lightgray"/>
+		<line x1={left} y1={bottom} x2={left} y2={bottom+marginWidth} strokeWidth={1} stroke="lightgray"/>
 
-		<line x1={right} y1={bottom} x2={right+marginWidth} y2={bottom} strokeWidth={1} stroke="gray"/>
-		<line x1={right} y1={bottom} x2={right} y2={bottom+marginWidth} strokeWidth={1} stroke="gray"/>
+		<line x1={right} y1={bottom} x2={right+marginWidth} y2={bottom} strokeWidth={1} stroke="lightgray"/>
+		<line x1={right} y1={bottom} x2={right} y2={bottom+marginWidth} strokeWidth={1} stroke="lightgray"/>
 
-		<line x1={right} y1={top} x2={right+marginWidth} y2={top} strokeWidth={1} stroke="gray"/>
-		<line x1={right} y1={top} x2={right} y2={top-marginWidth} strokeWidth={1} stroke="gray"/>
+		<line x1={right} y1={top} x2={right+marginWidth} y2={top} strokeWidth={1} stroke="lightgray"/>
+		<line x1={right} y1={top} x2={right} y2={top-marginWidth} strokeWidth={1} stroke="lightgray"/>
 	</g>
 )
