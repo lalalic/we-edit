@@ -41,7 +41,7 @@ function editor(){
 							
 						</Editor>
 					</Workspace>
-					<Workspace toolBar={null} statusBar={null} ruler={null}>
+					<Workspace toolBar={null} statusBar={null} ruler={false}>
 						<Editor>
 							<Pagination fonts="fonts/" measure={FontMeasure}/>
 						</Editor>

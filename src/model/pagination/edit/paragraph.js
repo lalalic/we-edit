@@ -50,12 +50,15 @@ export default class Paragraph extends Super{
 		this.computed.lines=[]
 	}
 
+	/**
+	*recompose [all|0]
+	*/
 	render(){
-		if(!this.context.shouldContinueCompose()){
+		if(this.computed.composed.length>0){
 			return null
 		}
-
-		if(this.computed.composed.length>0){
+		
+		if(!this.context.shouldContinueCompose()){
 			return null
 		}
 

@@ -123,21 +123,22 @@ export default class Document extends Super{
 		return this.state.mode=="content"
 	}
 
-	shouldContinueCompose(){
+	shouldContinueCompose(sectionEnd=false){
 		const {compose2Page,mode, viewport}=this.state
 
 		if(mode=="content" && this.continueComposing==false)
 			return false
 
 		const $=this.query()
-		if($.y<=viewport.height)
+		let contentY= sectionEnd ? $.pageY($.pages.length) : $.y
+		if(contentY<=viewport.height)
 			return true
 
 		switch(mode){
 		case "content":
 			let maxViewableY=viewport.height-$.svg.top
 			maxViewableY*=this.canvas.ratio
-			return this.continueComposing=$.y<maxViewableY
+			return this.continueComposing=contentY<maxViewableY
 		case "performant":
 		default:
 			return this.computed.composed.length<compose2Page+1

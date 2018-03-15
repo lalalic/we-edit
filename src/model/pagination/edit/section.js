@@ -19,7 +19,7 @@ export default class Section extends Super{
 		return React.cloneElement(super.createComposed2Parent(...arguments),{childIndex:this.computed.children.length})
 	}
 
-	shouldComponentUpdate({changed,children}){
+	componentWillReceiveProps({changed,children}){
 		if(this.context.shouldRemoveComposed(this)){
 			if(changed){
 				let iFirstChangedChild=this.getFirstChangedChildIndex(children)
@@ -27,10 +27,9 @@ export default class Section extends Super{
 
 				this.removeComposedFrom(iFirstChangedChild)
 			}
-
+			
 			this.computed.composed.forEach(page=>this.context.parent.appendComposed(page))
 		}
-		return this.context.shouldContinueCompose()&&this.computed.children.length!==children.length
 	}
 
 	getFirstChangedChildIndex(children){
@@ -46,6 +45,11 @@ export default class Section extends Super{
 
 	removeComposedFrom(iFirstChangedChild){
 		this.computed.children=this.computed.children.slice(0,iFirstChangedChild)
+		
+		if(this.computed.children.length==0){
+			this.computed.composed=[]
+			return 
+		}
 
 		let changedPageIndex=this.computed.composed.findIndex(({columns})=>{
 			let start=columns[0].children[0].props.childIndex
@@ -89,6 +93,12 @@ export default class Section extends Super{
 	}
 
 	render(){
+		if(this.computed.children.length==this.props.children.length)
+			return null		
+		
+		if(!this.context.shouldContinueCompose(this.computed.children.length==0))
+			return null
+		
 		return (<div>{this.props.children.slice(this.computed.children.length)}</div>)
 	}
 }
