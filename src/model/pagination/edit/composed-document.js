@@ -39,7 +39,7 @@ export default class extends Component{
     }
 
     get ratio(){
-        return this.props.scale
+        return 1/this.props.scale
     }
 
 	getChildContext(){

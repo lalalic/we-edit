@@ -197,11 +197,11 @@ export const VerticalRuler=compose(
 	getContext({
 		selection: PropTypes.object
 	})
-)(({selection, ...props})=>{
-	let {pageY:top}=selection.props("page")
+)(({selection, scale, ...props})=>{
+	let {pageY}=selection.props("page")
 	return (
-		<div style={{position:"relative",width:0,top}}>
-			<Ruler direction="vertical" {...props}/>
+		<div style={{position:"relative",width:0,top:pageY*scale}}>
+			<Ruler direction="vertical" {...props} scale={scale}/>
 		</div>
 	)
 })
