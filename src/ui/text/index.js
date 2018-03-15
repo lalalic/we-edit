@@ -34,14 +34,14 @@ export default compose(
 	toggleB, toggleI, toggleU,
 	changeFont,changeSize})=>(
 	<ToolbarGroup>
-		<FontList 
+		<FontList
 			disabled={style==null}
-			value={style ? style.fonts.split(",")[0] : ""} 
+			value={style ? style.fonts.split(",")[0] : ""}
 			changeFont={changeFont}/>
 		<ComboBox 
 			disabled={style==null}
 			style={{width:50,overflow:"hidden"}}
-			value={style ? style.size: 11} 
+			value={style ? style.size: 11}
 			onChange={value=>changeSize(parseInt(value))}
 			dataSource={[8,9,10,11,12,14,16,20,22,24,26,28,36,72].map(a=>a+"")}
 			underlineShow={false}

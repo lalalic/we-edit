@@ -10,12 +10,12 @@ export default class ComposedDocument extends Component{
 		pgGap: PropTypes.number.isRequired,
 		scale: PropTypes.number.isRequired,
 	}
-	
+
 	static defaultProps={
 		pgGap:24,
 		scale:1,
 	}
-	
+
 	static contextTypes={
 		media:PropTypes.string,
 	}
@@ -26,10 +26,10 @@ export default class ComposedDocument extends Component{
 		const {width,height}=pageInfos.reduce((size,{size:{width,height}})=>{
 				return {
 					width:Math.max(size.width,width),
-					height:size.height+height
+					height:size.height+height+pgGap
 				}
-			},{width:0,height:pgGap})		
-		
+			},{width:0,height:pgGap})
+
 		let pages
 		if(media=="screen"){
 			let y=0
@@ -48,12 +48,12 @@ export default class ComposedDocument extends Component{
 				}
 				</Group>
 			)
-			y+=pgGap	
-			
+			y+=pgGap
+
 		}else{
 			pages=pageInfos.map((page,i)=><Page {...page} key={i}/>)
 		}
-		
+
 		return (
 			<svg {...others}
 				viewBox={`0 0 ${width} ${height}`}

@@ -24,7 +24,7 @@ import Ruler from "we-edit-ui/ruler"
 export const Ribbon=compose(
 	setDisplayName("Ribbon"),
 	getContext({muiTheme:PropTypes.object}),
-)(({children, muiTheme, buttonStyle={height:24}})=>(
+)(({children, muiTheme, buttonStyle={height:24, fontSize:10, lineHeight:"24px"}})=>(
 	<div style={{display:"inline-block",width:200}}>
 		<MuiThemeProvider muiTheme={getMuiTheme(muiTheme,{
 			sizeIconButton:{
@@ -36,6 +36,13 @@ export const Ribbon=compose(
 				textFieldStyle:{
 					fontSize:12
 				}
+			},
+			toolbar:{
+				height:30
+			},
+			menuItem:{
+				height: 24,
+				padding:4,
 			}
 		})}>
 			<Tabs>
@@ -68,17 +75,17 @@ export class Workspace extends PureComponent{
 	static childContextTypes={
 		eventemitter: PropTypes.shape({emit:PropTypes.func.isRequired}),
 	}
-	
+
 	static propTypes={
 		toolBar:PropTypes.node,
 		statusBar: PropTypes.node,
 	}
-	
+
 	static defaultProps={
 		toolBar: (<Ribbon/>),
 		statusBar:(<Status/>),
 	}
-	
+
 	state={
 		layout:this.props.layout,
 		scale: {
@@ -89,13 +96,13 @@ export class Workspace extends PureComponent{
 		words: 0,
 		pages: "...",
 	}
-	
+
 	get layouts(){
 		return Children.toArray(this.props.children)
 			.map(({props:{layout,icon}})=>layout ? {layout,icon} : null)
 			.filter(a=>!!a)
 	}
-	
+
 	getChildContext(){
 		const self=this
 		return {
@@ -116,30 +123,30 @@ export class Workspace extends PureComponent{
 			}
 		}
 	}
-	
+
 	render(){
 		let {doc, children, toolBar, statusBar, ruler=true}=this.props
 		children=Children.toArray(children)
 		const {layout, scale,pages, words}=this.state
-		
+
 		let current=children.find(({props})=>props.layout==layout)
 		const uncontrolled=children.filter(({props})=>!props.layout)
-		
+
 		if(current){
 			toolBar=typeof(current.props.toolBar)=="undefined" ? toolBar : current.props.toolBar
 			statusBar=typeof(current.props.statusBar)=="undefined"? statusBar : current.props.statusBar
 			ruler=typeof(current.props.ruler)=="undefined"? ruler : current.props.ruler
 			current=React.cloneElement(current,{scale:scale.current/100})
 		}
-		
+
 		return (
 			<doc.Store style={{flex:"100%", display:"flex", flexDirection:"column"}}>
 				<WithSelection  style={{flex:1, display:"flex", flexDirection:"column"}}>
-					<div style={{flext:1,order:1}}>
+					<div style={{order:1,height:24+30}}>
 						{toolBar}
 					</div>
 
-					<div style={{order:3}}>
+					<div style={{order:3,height:30}}>
 						{statusBar ? React.cloneElement(statusBar,{
 							layout:{
 								items:this.layouts,
@@ -173,13 +180,13 @@ export class Workspace extends PureComponent{
 								</div>
 							</div>
 						</div>
-						
+
 					</div>
 				</WithSelection>
 			</doc.Store>
 		)
 	}
-	componentDidMount(){
+	componentDidUpdate(){
 		if(this.refs.rulerContainer){
 			this.refs.rulerContainer.style.width=this.refs.contentContainer.getBoundingClientRect().width+"px"
 		}

@@ -68,6 +68,8 @@ export default class Document extends Super{
 			//props.minHeight=this.canvas.getClientRect().height
 		}
 
+		const {scale}=this.props
+
         return (
 			<Fragment>
 				<Fragment>
@@ -75,7 +77,7 @@ export default class Document extends Super{
 				</Fragment>
 				<ComposedDocument ref="canvas"
 					{...props}
-					scale={this.props.scale}
+					scale={scale}
 					pgGap={PageGap}
 					pages={this.computed.composed}
 					isAllComposed={()=>this.computed.children.length==this.props.children.length}
@@ -137,7 +139,7 @@ export default class Document extends Super{
 		switch(mode){
 		case "content":
 			let maxViewableY=viewport.height-$.svg.top
-			maxViewableY*=this.canvas.ratio
+			maxViewableY*=this.props.scale
 			return this.continueComposing=contentY<maxViewableY
 		case "performant":
 		default:
