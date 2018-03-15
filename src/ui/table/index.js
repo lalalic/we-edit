@@ -3,10 +3,11 @@ import PropTypes from "prop-types"
 import {compose, getContext, mapProps,withProps} from "recompose"
 import {connect} from "react-redux"
 
-import {IconButton, Popover,Subheader } from "material-ui"
+import { Popover,Subheader } from "material-ui"
 import IconTable from "material-ui/svg-icons/editor/border-all"
 
 import {ACTION} from "we-edit"
+import SizeIconButton from "we-edit-ui/components/size-icon-button"
 
 export class Create extends Component{
 	state={show:false}
@@ -26,10 +27,10 @@ export class Create extends Component{
 		}
 		return (
 			<span>
-				<IconButton 
+				<SizeIconButton 
 					onClick={e=>this.setState({show:!this.state.show,anchor:e.target})}>
 					<IconTable/>
-				</IconButton>
+				</SizeIconButton>
 				{setting}
 			</span>
 		)

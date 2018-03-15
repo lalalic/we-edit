@@ -35,10 +35,11 @@ export default compose(
 		let {children,active,theme=getMuiTheme({
 			tabs:{
 				backgroundColor:"transparent",
+				textColor: "black",
+				selectedTextColor: "red",
 			},
 			toolbar:{
 				backgroundColor: "transparent",
-				height: 30,
 			},
 			
 		}), titleBar, style}=this.props

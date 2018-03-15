@@ -58,6 +58,10 @@ export class ComboBox extends PureComponent{
 			}
 		}
 		
+		if(comboBox && comboBox.textFieldStyle){
+			textFieldStyle={...comboBox.textFieldStyle,...textFieldStyle}
+		}
+		
 		if(style){
 			if(!textFieldStyle){
 				textFieldStyle={}

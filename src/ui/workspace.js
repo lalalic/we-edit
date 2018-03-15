@@ -32,7 +32,10 @@ export const Ribbon=compose(
 				padding:4,
 			},
 			comboBox:{
-				height:24
+				height:24,
+				textFieldStyle:{
+					fontSize:12
+				}
 			}
 		})}>
 			<Tabs>
