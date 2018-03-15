@@ -28,7 +28,7 @@ export default class extends Component{
         getCursorInput: PropTypes.func,
         query: PropTypes.func
     }
-	
+
 	static childContextTypes={
 		onPageHide: PropTypes.func,
 		onPageShow: PropTypes.func,
@@ -37,11 +37,15 @@ export default class extends Component{
     get root(){
         return this.refs.root
     }
-	
+
+    get ratio(){
+        return this.props.scale
+    }
+
 	getChildContext(){
 		return {
 			onPageHide:e=>this.updateCursorAndSelection(),
-            onPageShow:e=>this.updateCursorAndSelection(),	
+            onPageShow:e=>this.updateCursorAndSelection(),
 		}
 	}
 
@@ -80,15 +84,15 @@ export default class extends Component{
                     >
                     {composeMoreTrigger}
 
-                    <Cursor 
+                    <Cursor
 						ref={a=>this.cursor=a}
 						render={({top=0,left=0,height=0,color})=>(
-							<path d={`M${left} ${top} L${left} ${top+height}`} 
+							<path d={`M${left} ${top} L${left} ${top+height}`}
 									style={{stroke:color, strokeWidth:1}}/>
 						)}
 						/>
 
-                    <Selection 
+                    <Selection
 						ref={a=>this.selection=a}
 						onMove={this.onMove.bind(this)}
                         onResize={this.onResize.bind(this)}
@@ -111,9 +115,6 @@ export default class extends Component{
 
     componentDidMount(){
         let svg=this.root.querySelector("svg")
-        let {width}=svg.getBoundingClientRect()
-        let [,,viewBoxWidth]=svg.getAttribute("viewBox").split(" ").map(a=>parseInt(a))
-        this.ratio=viewBoxWidth/width
         this.getClientRect=()=>getClientRect(svg)
 
         this.context.store.dispatch(ACTION.Cursor.ACTIVE(this.context.docId))
@@ -181,9 +182,9 @@ export default class extends Component{
 					}
 					return {}
 				}
-				
+
 				let {id,at}=locate()
-				
+
 				if(id){
 					if(!e.shiftKey){
 						dispatch(ACTION.Cursor.AT(id,at))
@@ -252,6 +253,6 @@ export default class extends Component{
         }
         this.active()
     }
-	
+
 	static Query=Query
 }

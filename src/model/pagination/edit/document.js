@@ -77,6 +77,7 @@ export default class Document extends Super{
 				</Fragment>
 				<ComposedDocument ref="canvas"
 					{...props}
+					viewport={viewport}
 					scale={scale}
 					pgGap={PageGap}
 					pages={this.computed.composed}
