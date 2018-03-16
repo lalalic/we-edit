@@ -58,7 +58,7 @@ function buildEditableDoc(doc,inputTypeInstance){
 	const Transformed=inputTypeInstance.transform(Components)
 	inputTypeInstance.doc=doc
 	let store=null
-	
+
 	const editableDoc={
 		Transformed,
 		toJSON(){
@@ -70,11 +70,11 @@ function buildEditableDoc(doc,inputTypeInstance){
 				return React.createElement(type,{...props,key:uuid()},children)
 			},components)
 		},
-		
+
 		getFontList(){
 			return inputTypeInstance.getFontList()
 		},
- 
+
 		Store:compose(
 				setDisplayName("DocStore"),
 				getContext({store:PropTypes.object}),
@@ -197,7 +197,7 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance)=>
 
 		state=state.setIn(["content"],changedContent.asImmutable())
 	}else{
-		state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))		
+		state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))
 	}
 
 	return state
@@ -244,11 +244,11 @@ class ContextProvider extends Component{
 		//return {props(type){}}, to calculate selection props
 		selected:PropTypes.func
 	}
-	
+
 	static contextTypes={
 		store: PropTypes.object
 	}
-	
+
 	//to calculate selection props directly from composed
 	selectedFromComposed(state,composed){
 		if(!composed){
@@ -258,9 +258,9 @@ class ContextProvider extends Component{
 				}
 			}
 		}
-		
+
 		const self=this
-		
+
 		let {cursorAt, ...sel}=getSelection(state)
 		let {id,at}=sel[cursorAt]
 		const TYPE=a=>a.constructor.displayName.split("-").pop()
@@ -281,11 +281,11 @@ class ContextProvider extends Component{
 				}
 				return null
 
-				
+
 			}
 		}
 	}
-	
+
 	//to calculate selection props from content by Type.renderUp
 	selectedFromDoc(state){
 		const self=this
@@ -301,7 +301,7 @@ class ContextProvider extends Component{
 		}catch(e){
 			root=TestRenderer.create(<div/>).root
 		}
-		
+
 		const Type=type=>type[0].toUpperCase()+type.substr(1).toLowerCase()
 		return {
 			props(type){
@@ -319,7 +319,7 @@ class ContextProvider extends Component{
 						}
 					}
 				}
-				
+
 				try{
 					let found=root.findByType(Transformed[Type(type)])
 					return found.props
@@ -343,19 +343,19 @@ class ContextProvider extends Component{
 				return self.refs.input
 			},
 			selected(state){
-				if(composedDoc && composedDoc.getComposer)
-					return self.selectedFromComposed(state,composedDoc)
-				
+				//if(composedDoc && composedDoc.getComposer)
+				//	return self.selectedFromComposed(state,composedDoc)
+
 				return self.selectedFromDoc(state)
 			}
 		}
 	}
-	
+
 	componentDidMount(){
 		const store=this.context.store
 		const state=store.getState()
 		const {start:{id,at}}=getSelection(state)
-		store.dispatch(Cursor.AT(id,at))	
+		store.dispatch(Cursor.AT(id,at))
 	}
 
 	render(){
@@ -374,4 +374,3 @@ class ContextProvider extends Component{
 			onQuit()
 	}
 }
-
