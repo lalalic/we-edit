@@ -133,14 +133,13 @@ export default class Document extends Super{
 			return false
 
 		const $=this.query()
-		let contentY= sectionEnd ? $.pageY($.pages.length) : $.y
+		let contentY=$.toViewportCoordinate(sectionEnd ? $.pageY($.pages.length) : $.y)
 		if(contentY<=viewport.height)
 			return true
 
 		switch(mode){
 		case "content":
 			let maxViewableY=viewport.height-$.svg.top
-			maxViewableY*=this.props.scale
 			return this.continueComposing=contentY<maxViewableY
 		case "performant":
 		default:

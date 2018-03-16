@@ -37,10 +37,6 @@ export default class extends Component{
     get root(){
         return this.refs.root
     }
-
-    get ratio(){
-        return 1/this.props.scale
-    }
 	
 	get scale(){
 		return this.props.scale
@@ -54,13 +50,13 @@ export default class extends Component{
 	}
 
     render(){
-        const {isAllComposed, composeMore, ...props}=this.props
+        const {isAllComposed, composeMore, pgGap, ...props}=this.props
         let composeMoreTrigger=null
         if(!isAllComposed()){
             let y=this.context.query().pageY(-1)
             composeMoreTrigger=(
                 <Waypoint onEnter={e=>composeMore()} >
-                    <g transform={`translate(0 ${y-50})`}/>
+                    <g transform={`translate(0 ${y-pgGap})`}/>
                 </Waypoint>
             )
         }else{
@@ -71,7 +67,7 @@ export default class extends Component{
 
         return (
             <div ref="root">
-                <Base {...props}
+                <Base {...props} pgGap={pgGap}
                     onClick={e=>{
                         if(done==e.timeStamp)
                             return
