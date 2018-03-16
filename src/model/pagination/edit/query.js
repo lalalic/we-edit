@@ -13,18 +13,17 @@ export default class Query{
 		this.document=document
 		this.state=state
 		this.pgGap=pageGap
+		this.pages=document.computed.composed
+		this.canvasWidth=this.pages.reduce((a,{size:{width}})=>Math.max(a,width),0)
 	}
-
-	get pages(){
-		return this.document.computed.composed
-	}
-
+	
 	get svg(){
-		return this._svg=this._svg||this.document.canvas.getClientRect()
-	}
-
-	get ratio(){
-		return this.document.canvas.ratio
+		if(!this._svg){
+			const {left,top}=this.document.canvas.getClientRect()
+			this._svg={left,top}
+		}
+		
+		return this._svg
 	}
 
 	get y(){
@@ -46,6 +45,16 @@ export default class Query{
 				.reduce((w,{size:{height}})=>w+height+pgGap,lastPageHeight)
 			})();
 	}
+	
+	toCanvasCoordinate(...viewportNumbers){
+		const to=a=>a/this.document.canvas.scale
+		return viewportNumbers.length==1 ? to(viewportNumbers) : viewportNumbers.map(to)
+	}
+	
+	toViewportCoordinate(...canvasNumbers){
+		const to=a=>a*this.document.canvas.scale
+		return canvasNumbers.length==1 ? to(canvasNumbers) : canvasNumbers.map(to)
+	}
 
 	pageY(which){
 		let {pages,pgGap}=this
@@ -53,33 +62,28 @@ export default class Query{
 			.reduce((h,{size:{height}})=>h+height+pgGap,pgGap)
 	}
 
-	getClientRect(id){
+	getCanvasRect(id){
 		let node=this.document.canvas.root.querySelector(`svg [data-content="${id}"]`)
 		let {left,right,top,bottom,height,width}=getClientRect(node)
 		left=left-this.svg.left
 		top=top-this.svg.top
 		right=right-this.svg.left
-		bottom=bottom-this.svg.top
+		bottom=bottom-this.svg.top;
+		
+		[left,right,top,bottom,height,width]=this.toCanvasCoordinate(left,right,top,bottom,height,width);
 
-		return "left,right,top,bottom,height,width".split(",")
-			.reduce((rect,k)=>{
-				rect[k]*=this.ratio
-				return rect
-			},{left,right,top,bottom,height,width})
+		return {left,right,top,bottom,height,width}
 	}
 
 	_pageMarginRight(n){
-		let width=this.svg.width
+		let width=this.canvasWidth
 		let page=this.pages[n]
 		return (width-page.size.width)/2+page.margin.left
 	}
 
 	at(x,y/*clientX, clientY*/){
-		x=x-this.svg.left
-		y=y-this.svg.top
-
-		x=x*this.ratio
-		y=y*this.ratio
+		x=this.toCanvasCoordinate(x-this.svg.left)
+		y=this.toCanvasCoordinate(y-this.svg.top)
 		let {pages,pgGap}=this
 		let pageNo=(()=>{
 			switch(pages.length){
@@ -141,7 +145,9 @@ export default class Query{
 		if(!('data-content' in piece.props && 'data-endat' in piece.props)){
 			return NOT_FOUND
 		}
-
+		
+		let top=this.pageY(pageNo)+page.margin.top+line.props.y
+		
 		let id=piece.props["data-content"]
 		let from=piece.props["data-endat"]
 		let text=piece.props.children.join("")
@@ -150,14 +156,15 @@ export default class Query{
 		let measure=this.getComposer(id).measure
 		let end=measure.widthString(offsetX, text)
 		offsetX=offsetX-measure.stringWidth(text.substr(0,end))
+		let left=x-offsetX
 		return {
+			id,
+			at: from+end,
 			page: pageNo,
 			column: columnNo,
 			line: lineNo,
-			id,
-			at: from+end,
-			left: x-offsetX+window.scrollX*this.ratio,
-			top: this.pageY(pageNo)+page.margin.top+line.props.y+window.scrollY*this.ratio
+			left: left+this.toCanvasCoordinate(window.scrollX),//@TODO: should use canvas's scroll container
+			top: top+this.toCanvasCoordinate(window.scrollY)
 		}
 	}
 
@@ -212,7 +219,7 @@ export default class Query{
 				return 0
 		}
 
-		let width=this.svg.width
+		let width=this.canvasWidth
 		let offsetX=path.filter(a=>a.type==ComposedLine)
 			.reduce((x,line)=>{
 				let lineItem=path[path.indexOf(line)+1]
@@ -237,8 +244,7 @@ export default class Query{
 			},{x,y});
 	}
 
-	position(id,at, ratio){//return left:clientX, top:clientY
-		ratio=ratio||this.ratio
+	position(id,at){//return left:clientX, top:clientY
 		let {pages,pgGap}=this
 		let {pageNo,columnNo,lineNo,node, path}=this.locate(id,at)
 
@@ -248,32 +254,32 @@ export default class Query{
 		let composer=this.getComposer(id)
 		let {children:text,...props}=composer.props
 		let measure=composer.measure
-		let style=measure.defaultStyle
+		let {height,descent,fontSize, fontFamily}=measure.defaultStyle
 
 		let {x,y}=this._xy(id,path)
 
 		x+=measure.stringWidth(text.substring(from,at))
-		y=y-style.height
-
-		style.height=style.height/ratio
-		style.descent=style.descent/ratio
-
+		y=y-height
+		
 		return {
+			id,
+			at,
 			page: pageNo,
 			column: columnNo,
 			line: lineNo,
-			left:Math.ceil(x/ratio)+this.svg.left,
-			top:Math.ceil(y/ratio)+this.svg.top,
+			left:Math.ceil(this.toViewportCoordinate(x))+this.svg.left,
+			top:Math.ceil(this.toViewportCoordinate(y))+this.svg.top,
+			height:this.toViewportCoordinate(height),
+			descent: this.toViewportCoordinate(descent),
 			canvasLeft:Math.ceil(x),
 			canvasTop:Math.ceil(y),
-			id,
-			at,
-			...style
+			fontFamily,
+			fontSize, 
 		}
 	}
 
 	nextLine({page:pageNo,column:colNo,line:lineNo,left}/*usually returned from .postion*/){
-		left=left*this.ratio
+		left=this.toCanvasCoordinate(left)
 		let {pages,pgGap}=this
 		let page=pages[pageNo]
 		let columns=page.columns
@@ -307,7 +313,7 @@ export default class Query{
 		})
 		console.assert(!!line)
 
-		let width=this.svg.width
+		let width=this.canvasWidth
 		let x=(width-page.size.width)/2+page.margin.left+column.x
 		let index=line.props.children.findIndex(a=>{
 			if(x+a.props.width>=left){
@@ -339,7 +345,7 @@ export default class Query{
 	}
 
 	prevLine({page:pageNo,column:colNo,line:lineNo,left}/*usually returned from .postion*/){
-		left=left*this.ratio
+		left=this.toCanvasCoordinate(left)
 		let {pages,pgGap}=this
 		let page,column
 		if(lineNo==0){
@@ -369,7 +375,7 @@ export default class Query{
 		})
 		console.assert(!!line)
 
-		let width=this.svg.width
+		let width=this.canvasWidth
 		let x=(width-page.size.width)/2+page.margin.left+column.x
 		let index=line.props.children.findIndex(a=>{
 			if(x+a.props.width>=left){
@@ -402,7 +408,7 @@ export default class Query{
 
 	lineRects(start,end/*usually returned from .postion*/){
 		let {pages,pgGap}=this
-		let width=this.svg.width
+		let width=this.canvasWidth
 
 		const pageXY=n=>{
 			let page=pages[n]

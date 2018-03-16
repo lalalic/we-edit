@@ -30,7 +30,7 @@ export default class SelectionShape extends Component{
 
 
 	renderEntity(id){
-		let {top,left,bottom,right}=this.context.query().getClientRect(id)
+		let {top,left,bottom,right}=this.context.query().getCanvasRect(id)
 		const {onResize, onMove, onRotate}=this.props
 		return <Entity
 					path={`M${left} ${top} L${right} ${top} L${right} ${bottom} L${left} ${bottom} Z`}

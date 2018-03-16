@@ -67,8 +67,10 @@ const Root=connect((state)=>{
 	}
 
 	componentWillReceiveProps({content,changed,fullReCompose,...renderProps},{ModelTypes}){
-		if(!fullReCompose && this.doc && changed){ // editing
-			//&& content.size>50){ // big
+		if(fullReCompose || !this.doc){
+			this.els=new Map()
+			this.doc=this.createChildElement("root",content,ModelTypes,this.props.content,renderProps)
+		}else if(this.props.content!=content){
 			const getThisParentId=id=>getParentId(content,id)
 
 			const changeParent=id=>{
@@ -128,9 +130,9 @@ const Root=connect((state)=>{
 				}
 				return handled
 			},[])
-		}else{//reproduce mode
-			this.els=new Map()
-			this.doc=this.createChildElement("root",content,ModelTypes,this.props.content,renderProps)
+			this.doc=React.cloneElement(this.doc,  renderProps)
+		}else{
+			this.doc=React.cloneElement(this.doc,  renderProps)
 		}
 	}
 

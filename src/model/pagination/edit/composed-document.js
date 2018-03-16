@@ -41,6 +41,10 @@ export default class extends Component{
     get ratio(){
         return 1/this.props.scale
     }
+	
+	get scale(){
+		return this.props.scale
+	}
 
 	getChildContext(){
 		return {
@@ -162,7 +166,7 @@ export default class extends Component{
 						let [x]=offset(e, target)
 
 						const measure=$.getComposer(id).measure
-						let end=measure.widthString(x*this.ratio, text)
+						let end=measure.widthString($.toCanvasCoordinate(x), text)
 						let at=endat-text.length+end
 						return {id,at}
 					}else{
