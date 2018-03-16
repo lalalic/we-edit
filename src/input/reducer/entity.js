@@ -41,8 +41,8 @@ export class entity extends Content{
 		}else if(x===undefined){
 			changing={height:height+y}
 		}else{
-			let ratio=1+Math.max(Math.abs(x)/width,Math.abs(y)/height)*x/Math.abs(x)
-			changing={width:width*ratio, height:height*ratio}
+			let scale=1+Math.max(Math.abs(x)/width,Math.abs(y)/height)*x/Math.abs(x)
+			changing={width:width*scale, height:height*scale}
 		}
 
 		content.attr("size",changing)
