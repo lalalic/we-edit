@@ -165,8 +165,8 @@ export default class Query{
 			page: pageNo,
 			column: columnNo,
 			line: lineNo,
-			left: left+this.toCanvasCoordinate(window.scrollX),//@TODO: should use canvas's scroll container
-			top: top+this.toCanvasCoordinate(window.scrollY)
+			left: left,
+			top: top,
 		}
 	}
 

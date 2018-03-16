@@ -57,6 +57,7 @@ function buildEditableDoc(doc,inputTypeInstance){
 	const id=uuid()
 	const Transformed=inputTypeInstance.transform(Components)
 	inputTypeInstance.doc=doc
+	let store=null
 	
 	const editableDoc={
 		Transformed,
@@ -80,7 +81,6 @@ function buildEditableDoc(doc,inputTypeInstance){
 			)(({children,store:passedStore})=>{
 
 			let onQuit=null
-			let store=null
 			if(passedStore){
 				store=new LocalStore(passedStore, "we-edit", state=>state['we-edit'].docs[id].state)
 			}else{
@@ -313,7 +313,9 @@ class ContextProvider extends Component{
 							page:0,
 							column:0,
 							line:0,
-							id,at
+							id,
+							at,
+							pageY:24
 						}
 					}
 				}

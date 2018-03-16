@@ -77,7 +77,6 @@ export default class Document extends Super{
 				</Fragment>
 				<ComposedDocument ref="canvas"
 					{...props}
-					viewport={viewport}
 					scale={scale}
 					pgGap={PageGap}
 					pages={this.computed.composed}
@@ -132,13 +131,13 @@ export default class Document extends Super{
 		if(mode=="content" && this.continueComposing==false)
 			return false
 
-		const $=this.query()
-		let contentY=$.toViewportCoordinate(sectionEnd ? $.pageY($.pages.length) : $.y)
-		if(contentY<=viewport.height)
-			return true
-
 		switch(mode){
 		case "content":
+			const $=this.query()
+			let contentY=$.toViewportCoordinate(sectionEnd ? $.pageY($.pages.length) : $.y)
+			if(contentY<=viewport.height)
+				return true
+
 			let maxViewableY=viewport.height-$.svg.top
 			return this.continueComposing=contentY<maxViewableY
 		case "performant":

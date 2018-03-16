@@ -53,12 +53,8 @@ export default class extends Component{
         const {isAllComposed, composeMore, pgGap, ...props}=this.props
         let composeMoreTrigger=null
         if(!isAllComposed()){
-            let y=this.context.query().pageY(-1)
-            composeMoreTrigger=(
-                <Waypoint onEnter={e=>composeMore()} >
-                    <g transform={`translate(0 ${y-pgGap})`}/>
-                </Waypoint>
-            )
+            let y=this.context.query().pageY(-2)
+            composeMoreTrigger=<ComposeMoreTrigger {...{composeMore, y:y-pgGap}}/>
         }else{
             delete props.minHeight
         }
@@ -256,3 +252,9 @@ export default class extends Component{
 
 	static Query=Query
 }
+
+const ComposeMoreTrigger=({composeMore,y})=>(
+	<Waypoint onEnter={composeMore} >
+		<g transform={`translate(0 ${y})`}/>
+	</Waypoint>
+)

@@ -110,10 +110,10 @@ export class Workspace extends PureComponent{
 				emit(name,payload){
 					switch(name){
 					case "words":
-						//self.setState({words:this.state.words+payload})
+						self.setState({words:this.state.words+payload})
 					break
 					case "pages":
-						//self.setState({pages:payload})
+						self.setState({pages:payload})
 					break
 					case "cursorPlaced":
 						self.setState({composed:Date.now()})
@@ -165,7 +165,7 @@ export class Workspace extends PureComponent{
 					<div style={{order:2,flex:"1 100%", overflow:"auto", display:"flex", flexDirection:"column"}}>
 						<div style={{flex:1, display:"flex", flexDirection:"row"}}>
 
-							{ruler ? <VerticalRuler scale={scale.current/100} ccomposed={this.state.composed} /> : null}
+							{ruler ? <VerticalRuler scale={scale.current/100} composed={this.state.composed} /> : null}
 
 							{ruler ? (
 							<div ref="rulerContainer" style={{position:"absolute",paddingTop:4}}>
