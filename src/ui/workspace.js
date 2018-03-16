@@ -110,10 +110,10 @@ export class Workspace extends PureComponent{
 				emit(name,payload){
 					switch(name){
 					case "words":
-						self.setState({words:this.state.words+payload})
+						//self.setState({words:this.state.words+payload})
 					break
 					case "pages":
-						self.setState({pages:payload})
+						//self.setState({pages:payload})
 					break
 					case "cursorPlaced":
 						self.setState({composed:Date.now()})
@@ -123,9 +123,9 @@ export class Workspace extends PureComponent{
 			}
 		}
 	}
-
+	
 	render(){
-		let {doc, children, toolBar, statusBar, ruler=true}=this.props
+		let {children, toolBar, statusBar, ruler=true}=this.props
 		children=Children.toArray(children)
 		const {layout, scale,pages, words}=this.state
 
@@ -140,8 +140,8 @@ export class Workspace extends PureComponent{
 		}
 
 		return (
-			<doc.Store style={{flex:"100%", display:"flex", flexDirection:"column"}}>
-				<WithSelection  style={{flex:1, display:"flex", flexDirection:"column"}}>
+			<WithSelection>
+				<div style={{flex:1, display:"flex", flexDirection:"column"}}>
 					<div style={{order:1,height:24+30}}>
 						{toolBar}
 					</div>
@@ -182,14 +182,23 @@ export class Workspace extends PureComponent{
 						</div>
 
 					</div>
-				</WithSelection>
-			</doc.Store>
+				</div>
+			</WithSelection>
 		)
 	}
-	componentDidUpdate(){
+	
+	setupHorizontalRuler(){
 		if(this.refs.rulerContainer){
 			this.refs.rulerContainer.style.width=this.refs.contentContainer.getBoundingClientRect().width+"px"
 		}
+	}
+	
+	componentDidMount(){
+		this.setupHorizontalRuler()
+	}
+	
+	componentDidUpdate(){
+		this.setupHorizontalRuler()
 	}
 }
 
@@ -198,7 +207,7 @@ export const VerticalRuler=compose(
 		selection: PropTypes.object
 	})
 )(({selection, scale, ...props})=>{
-	let {pageY}=selection.props("page")
+	let {pageY=0}=selection.props("page")
 	return (
 		<div style={{position:"relative",width:0,top:pageY*scale}}>
 			<Ruler direction="vertical" {...props} scale={scale}/>

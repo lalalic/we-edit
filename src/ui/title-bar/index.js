@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 import {connect} from "react-redux"
 import {compose,setDisplayName, getContext, mapProps} from "recompose"
 
-import {Toolbar, AppBar,IconButton,Drawer,Menu,MenuItem,Popover,FlatButton} from "material-ui"
+import {IconButton,Drawer,Menu,MenuItem,Popover,FlatButton} from "material-ui"
 import IconClose from "material-ui/svg-icons/navigation/close"
 import IconFiles from "material-ui/svg-icons/navigation/arrow-drop-down"
 import IconMenu from "material-ui/svg-icons/navigation/menu"
@@ -34,8 +34,6 @@ export class Bar extends PureComponent{
 				</SizeIconButton>
 			)
 		}
-		
-		
 		
 		return (
 			<div style={{background:"transparent",height, display:"flex", flexDirection:"row", ...style}}>
@@ -70,17 +68,19 @@ export class Bar extends PureComponent{
 }
 
 export default compose(
-    setDisplayName("AppBar"),
+    setDisplayName("TitleBar"),
     getContext({
         store:PropTypes.object,
+		muiTheme: PropTypes.object,
     }),
-    mapProps(({store:{dispatch}})=>({
+    mapProps(({store:{dispatch},  muiTheme:{titleBar}})=>({
         setActive(id){
             dispatch(ACTION.ACTIVE(id))
         },
         close(){
             dispatch(ACTION.CLOSE())
-        }
+        },
+		height:titleBar ? titleBar.height : undefined
     })),
     connect(({"we-edit":{active,docs}})=>({
         active:active ? docs[active] : undefined,

@@ -8,12 +8,34 @@ import {Snackbar} from "material-ui"
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
-import TitleBar from "we-edit-ui/app-bar"
+import TitleBar from "we-edit-ui/title-bar"
 import {getActive} from "we-edit"
 import {grey50 as BACKGROUND} from "material-ui/styles/colors"
 
 require("./style.less")
 
+
+const styles={
+	root:{
+		position:"absolute",
+		width:"100%",
+		height:"100%", 
+		display:"flex", 
+		flexDirection:"column",
+		background:BACKGROUND,
+		overflow:"hidden",
+	},
+	theme:{
+		tabs:{
+			backgroundColor:"transparent",
+			textColor: "black",
+			selectedTextColor: "red",
+		},
+		toolbar:{
+			backgroundColor: "transparent",
+		}
+	}
+}
 export default compose(
 	setDisplayName("We-Edit-UI"),
 	connect(state=>({active:getActive(state).doc})),
@@ -27,22 +49,15 @@ export default compose(
 	}
 	
 	state={}
+	
+	theme=getMuiTheme(styles.theme,this.props.theme)
+	
 	componentDidCatch(error, info){
 		this.setState({error})
 	}
 
 	render(){
-		let {children,active,theme=getMuiTheme({
-			tabs:{
-				backgroundColor:"transparent",
-				textColor: "black",
-				selectedTextColor: "red",
-			},
-			toolbar:{
-				backgroundColor: "transparent",
-			},
-			
-		}), titleBar, style}=this.props
+		let {children,active, titleBar, style}=this.props
 		let child=null
 		if(active){
 			child=Children.toArray(children)
@@ -59,7 +74,7 @@ export default compose(
 				})
 
 			if(child)
-				child=React.cloneElement(child,{doc:active})
+				child=<active.Store children={child}/>
 			else
 				child=(<div>no editor for this document</div>)
 		}
@@ -67,12 +82,10 @@ export default compose(
 		const {error}=this.state
 
 		return (
-			<MuiThemeProvider muiTheme={theme}>
-				<div style={{width:"100%",display:"flex", flexDirection:"column",position:"absolute",height:"100%", background:BACKGROUND,...style}}>
+			<MuiThemeProvider muiTheme={this.theme}>
+				<div style={{...styles.root,...style}}>
 					{titleBar}
-					<div style={{flex:"100%",display:"flex", flexDirection:"column"}}>
-						{child}
-					</div>
+					{child}
 					<Snackbar
 						open={!!error}
 						message={error||""}

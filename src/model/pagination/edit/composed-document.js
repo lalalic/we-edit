@@ -144,7 +144,7 @@ export default class extends Component{
         this.context.store.dispatch(ACTION.Entity.RESIZE(e))
     }
 
-    onMove({id,at}){
+    onMove(id,at){
         this.context.store.dispatch(ACTION.Selection.MOVE(id,at))
     }
 

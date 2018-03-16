@@ -64,6 +64,8 @@ export default class Query{
 
 	getCanvasRect(id){
 		let node=this.document.canvas.root.querySelector(`svg [data-content="${id}"]`)
+		if(node==null)
+			return null
 		let {left,right,top,bottom,height,width}=getClientRect(node)
 		left=left-this.svg.left
 		top=top-this.svg.top

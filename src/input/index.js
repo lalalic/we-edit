@@ -1,4 +1,4 @@
-import React, {Component} from "react"
+import React, {Component, Fragment} from "react"
 import PropTypes from "prop-types"
 
 import {Provider,connect} from "react-redux"
@@ -77,7 +77,7 @@ function buildEditableDoc(doc,inputTypeInstance){
 		Store:compose(
 				setDisplayName("DocStore"),
 				getContext({store:PropTypes.object}),
-			)(({children,store:passedStore, style})=>{
+			)(({children,store:passedStore})=>{
 
 			let onQuit=null
 			let store=null
@@ -94,7 +94,6 @@ function buildEditableDoc(doc,inputTypeInstance){
 					onQuit={onQuit}
 					renderUp={state=>inputTypeInstance.renderUp(state,Transformed )}
 					transformer={inputTypeInstance.transform}
-					style={style}
 					>
 					{children}
 				</ContextProvider>
@@ -358,12 +357,12 @@ class ContextProvider extends Component{
 	}
 
 	render(){
-		const {children,style}=this.props
+		const {children}=this.props
 		return (
-			<div style={style}>
+			<Fragment>
 				<Input ref="input"/>
 				{children}
-			</div>
+			</Fragment>
 		)
 	}
 
