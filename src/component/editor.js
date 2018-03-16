@@ -65,72 +65,80 @@ const Root=connect((state)=>{
 			docId:this.docId
 		}
 	}
+	
+	modifyDocOnChanged(content,changed,ModelTypes){
+		const getThisParentId=id=>getParentId(content,id)
+
+		const changeParent=id=>{
+			let el=this.els.get(id)
+			let changed=React.cloneElement(el,{changed:true})
+
+			let parentId=getThisParentId(id)
+			if(parentId){
+				let parentEl=this.els.get(parentId)
+				let children=parentEl.props.children
+				let index=content.get(parentId).toJS().children.indexOf(id)
+				children[index]=changed
+				changeParent(parentId)
+			}else{
+				this.doc=changed
+			}
+		}
+
+		//first handle with children changed
+		let changedKeys=Object.keys(changed).reduce((sorted,a)=>{
+				sorted[a.children ? "push" : "unshift"](a)
+				return sorted
+			},[])
+
+		changedKeys.reduceRight((handled, k)=>{
+			let children=changed[k].children
+			if(children){
+				let {props:{children:els}}=this.els.get(k)
+				els.forEach(({props:{id}})=>{
+					this.els.delete(id)
+				})
+				let rawEls=els.splice(0,els.length)
+
+				children.forEach(j=>{
+					let el=rawEls.find(({props:{id}})=>id==j)
+					if(changedKeys.includes(j)){
+						el=this.createChildElement(j,content,ModelTypes,this.props.content)
+						handled.push(j)
+					}
+					if(el){
+						els.push(el)
+						this.els.set(j,el)
+					}else{
+						el=this.createChildElement(j,content,ModelTypes,this.props.content)
+						handled.push(j)
+						els.push(el)
+					}
+				})
+				changeParent(k)
+			}else if(!handled.includes(k)){
+				let parentId=getThisParentId(k)
+				let parentEl=this.els.get(parentId)
+				children=parentEl.props.children
+				let index=content.get(parentId).toJS().children.indexOf(k)
+				children[index]=this.createChildElement(k,content,ModelTypes,this.props.content)
+				changeParent(parentId);
+			}
+			return handled
+		},[])
+	}
 
 	componentWillReceiveProps({content,changed,fullReCompose,...renderProps},{ModelTypes}){
 		if(fullReCompose || !this.doc){
 			this.els=new Map()
 			this.doc=this.createChildElement("root",content,ModelTypes,this.props.content,renderProps)
 		}else if(this.props.content!=content){
-			const getThisParentId=id=>getParentId(content,id)
-
-			const changeParent=id=>{
-				let el=this.els.get(id)
-				let changed=React.cloneElement(el,{changed:true})
-
-				let parentId=getThisParentId(id)
-				if(parentId){
-					let parentEl=this.els.get(parentId)
-					let children=parentEl.props.children
-					let index=content.get(parentId).toJS().children.indexOf(id)
-					children[index]=changed
-					changeParent(parentId)
-				}else{
-					this.doc=changed
-				}
+			if(!changed){
+				this.doc=this.createChildElement("root",content,ModelTypes,this.props.content,renderProps)
+			}else{
+				this.modifyDocOnChanged(content,changed,ModelTypes)
+				this.doc=React.cloneElement(this.doc,renderProps)
 			}
-
-			//first handle with children changed
-			let changedKeys=Object.keys(changed).reduce((sorted,a)=>{
-					sorted[a.children ? "push" : "unshift"](a)
-					return sorted
-				},[])
-
-			changedKeys.reduceRight((handled, k)=>{
-				let children=changed[k].children
-				if(children){
-					let {props:{children:els}}=this.els.get(k)
-					els.forEach(({props:{id}})=>{
-						this.els.delete(id)
-					})
-					let rawEls=els.splice(0,els.length)
-
-					children.forEach(j=>{
-						let el=rawEls.find(({props:{id}})=>id==j)
-						if(changedKeys.includes(j)){
-							el=this.createChildElement(j,content,ModelTypes,this.props.content)
-							handled.push(j)
-						}
-						if(el){
-							els.push(el)
-							this.els.set(j,el)
-						}else{
-							el=this.createChildElement(j,content,ModelTypes,this.props.content)
-							handled.push(j)
-							els.push(el)
-						}
-					})
-					changeParent(k)
-				}else if(!handled.includes(k)){
-					let parentId=getThisParentId(k)
-					let parentEl=this.els.get(parentId)
-					children=parentEl.props.children
-					let index=content.get(parentId).toJS().children.indexOf(k)
-					children[index]=this.createChildElement(k,content,ModelTypes,this.props.content)
-					changeParent(parentId);
-				}
-				return handled
-			},[])
-			this.doc=React.cloneElement(this.doc,  renderProps)
 		}else{
 			this.doc=React.cloneElement(this.doc,  renderProps)
 		}
