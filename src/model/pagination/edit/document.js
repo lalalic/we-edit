@@ -60,6 +60,7 @@ export default class Document extends Super{
 
 	render(){
 		const {viewport, mode}=this.state
+		const {canvas}=this.props
 		if(!viewport){//to find container width, height
 			return <div ref="viewporter"/>
 		}
@@ -77,6 +78,7 @@ export default class Document extends Super{
 				</Fragment>
 				<ComposedDocument ref="canvas"
 					{...props}
+					canvas={canvas}
 					scale={scale}
 					pgGap={PageGap}
 					pages={this.computed.composed}

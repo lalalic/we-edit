@@ -128,7 +128,7 @@ const Root=connect((state)=>{
 		},[])
 	}
 
-	componentWillReceiveProps({content,changed,fullReCompose,...renderProps},{ModelTypes}){
+	componentWillReceiveProps({content,changed,fullReCompose,dispatch,...renderProps},{ModelTypes}){
 		if(fullReCompose || !this.doc){
 			this.els=new Map()
 			this.doc=this.createChildElement("root",content,ModelTypes,this.props.content,renderProps)

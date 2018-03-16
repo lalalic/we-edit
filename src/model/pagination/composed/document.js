@@ -21,7 +21,7 @@ export default class ComposedDocument extends Component{
 	}
 
 	render(){
-		const {pages:pageInfos, pgGap, scale=1, ...others}=this.props
+		const {pages:pageInfos, pgGap, scale=1, canvas, ...others}=this.props
 		const {media}=this.context
 		const {width,height}=pageInfos.reduce((size,{size:{width,height}})=>{
 				return {
@@ -53,8 +53,8 @@ export default class ComposedDocument extends Component{
 		}else{
 			pages=pageInfos.map((page,i)=><Page {...page} key={i}/>)
 		}
-
-		return (
+		
+		const content=(
 			<svg {...others}
 				viewBox={`0 0 ${width} ${height}`}
 				style={{background:"transparent", width:width*scale, height:height*scale}}>
@@ -62,5 +62,11 @@ export default class ComposedDocument extends Component{
 				{this.props.children}
 			</svg>
 		)
+		
+		if(canvas){
+			return React.cloneElement(canvas,{pages:pageInfos, pgGap, scale, content})
+		}else{
+			return content
+		}
 	}
 }

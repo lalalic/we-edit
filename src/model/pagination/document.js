@@ -19,11 +19,7 @@ export default class Document extends Super{
 			<Fragment>
 				{super.render()}
 				
-				{canvas ? 
-					React.cloneElement(canvas, {pages:this.computed.composed}) : 
-					<ComposedDocument pages={this.computed.composed}/>
-				}
-				
+				<ComposedDocument pages={this.computed.composed} canvas={canvas}/>
 			</Fragment>
 		)
     }
