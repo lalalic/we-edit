@@ -23,9 +23,9 @@ export class Cursor extends Component{
 		at: PropTypes.number,
 		active: PropTypes.string,
 	}
-	
+
 	contentChanged=false
-	
+
 	render(){
 		const {children}=this.props
 		return (
@@ -34,7 +34,7 @@ export class Cursor extends Component{
 			</Shape>
 		)
 	}
-	
+
 	componentWillReceiveProps({content}){
 		this.contentChanged=this.props.content!=content
 	}
@@ -52,21 +52,20 @@ export class Cursor extends Component{
 		let docQuery=query()
 		this.style=docQuery.position(id,at)
 		if(!this.style)
-			return 
+			return
 		let {page,column,line,top,left,canvasTop, canvasLeft, height,fontFamily,fontSize,}=this.style
-		getCursorInput({
-				page,column,line,id,at, 
+		getCursorInput()
+			.setState({
+				page,column,line,id,at,
 				get pageY(){
 					return docQuery.pageY(page)
-				}
-			}, docQuery)
-			.setState({
+				},
 				top,left,fontFamily,fontSize,
 				height: this.shape ? 0.1 : height,
 				up: this.up.bind(this),
 				down: this.down.bind(this)
 			})
-			
+
 		if(this.shape)
 			this.shape.setState({top:canvasTop,left:canvasLeft,height})
 	}
@@ -146,27 +145,27 @@ const CursorHolder=connect((state)=>{
 export default class extends Component{
 	constructor(){
 		super(...arguments)
-		this.componentWillReceiveProps(this.props)	
+		this.componentWillReceiveProps(this.props)
 	}
-	
+
 	forceUpdate(){
 		if(this.cursor)
 			this.cursor.forceUpdate()
 	}
-	
+
 	componentWillReceiveProps({render}){
 		this.Shape=render
 	}
-	
+
 	render(){
 		const {children, render, ...others}=this.props
 		return (
-			<CursorHolder 
-				ref={a=>{a && (this.cursor=a.getWrappedInstance())}} 
+			<CursorHolder
+				ref={a=>{a && (this.cursor=a.getWrappedInstance())}}
 				{...others}>
 				{this.Shape ? <this.Shape/> : children}
 			</CursorHolder>
 			)
-			
+
 	}
 }

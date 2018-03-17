@@ -37,7 +37,7 @@ export default class extends Component{
     get root(){
         return this.refs.root
     }
-	
+
 	get scale(){
 		return this.props.scale
 	}

@@ -1,4 +1,4 @@
-import React from "react"
+import React,{PureComponent} from "react"
 import PropTypes from "prop-types"
 import {connect} from "react-redux"
 import {compose, getContext, mapProps,withProps,setDisplayName} from "recompose"
@@ -6,6 +6,7 @@ import {Toolbar, ToolbarGroup, FlatButton, IconButton, Slider} from "material-ui
 import * as selector from "we-edit/state/selector"
 import {blue800, blue900} from "material-ui/styles/colors"
 import SizeIconButton from "we-edit-ui/components/size-icon-button"
+import {when} from "we-edit/component"
 
 const ButtonStyle={
 	background:"transparent",
@@ -30,57 +31,67 @@ const CompactButtonStyle={
 const Status=compose(
 	setDisplayName("StatusBar"),
 	getContext({
-		selection:PropTypes.object,
 		muiTheme: PropTypes.object,
 	}),
-	mapProps(({selection,muiTheme,layout,words,scale,pages, setScale})=>{
-		const {page:current}=selection.props("page")
+	mapProps(({muiTheme,layout,scale,setScale})=>{
 		return {
-			layout,scale,words,
-			page:{current,total:pages},
+			layout,scale,
 			height:muiTheme.button.height
 		}
 	})
-)(({page,words, scale, height, layout})=>(
+)(({scale, height, layout})=>(
 	<div style={{...RootStyle,height}}>
-		<Page {...page}/>
-		<Words total={words}/>
+		<Page/>
+		<Words/>
 		<div style={{flex:"1 100%"}}/>
 		{layout.items.length<2 ? null : <Layout height={height} {...layout}/>}
 		<Scale {...scale}/>
 	</div>
 ))
 
-const Page=({current=0,total=20})=>(
+const Page=compose(
+	when("composed",total=>({total})),
+	when("cursorPlaced", ({page})=>({current:page})),
+)(({current=0,total="..."})=>(
 	<FlatButton style={ButtonStyle}>
 		PAGE {current+1} OF {total}
 	</FlatButton>
-)
+))
 
-const Words=({total=120})=>(
-	<FlatButton style={ButtonStyle}>
-		{total} WORDS
-	</FlatButton>
+const Words=when("words",words=>({words}))(
+	class extends PureComponent{
+		total=0
+		componentWillReceiveProps({words}){
+			this.total+=words
+		}
+		render(){
+			return (
+				<FlatButton style={ButtonStyle}>
+					{this.total} WORDS
+				</FlatButton>
+			)
+		}
+	}
 )
 
 const Scale=({
-	current,max,min,step=10,
-	onChange, 
+	current=100,max=200,min=10,step=10,
+	onChange,
 	})=>(
 	<div style={{display:"flex"}}>
-		<FlatButton label="-" onClick={()=>onChange(Math.max(current-step,min))} 
-			style={{...CompactButtonStyle}} 
+		<FlatButton label="-" onClick={()=>onChange(Math.max(current-step,min))}
+			style={{...CompactButtonStyle}}
 			labelStyle={{fontSize:20, fontWeight:700,paddingRight:4,paddingLeft:4}}/>
 		<Slider style={{width:100, display:"inline-block"}}
-			sliderStyle={{top:-13}} 
-			step={step} 
+			sliderStyle={{top:-13}}
+			step={step}
 			value={current} min={min} max={max}
 			/>
-		<FlatButton label="+" onClick={()=>onChange(Math.min(current+step,max))} 
-			style={{...CompactButtonStyle}} 
+		<FlatButton label="+" onClick={()=>onChange(Math.min(current+step,max))}
+			style={{...CompactButtonStyle}}
 			labelStyle={{fontSize:18, fontWeight:700,paddingRight:4,paddingLeft:4}}/>
-		<FlatButton label={`${current}%`} 
-			style={{...CompactButtonStyle}} 
+		<FlatButton label={`${current}%`}
+			style={{...CompactButtonStyle}}
 			labelStyle={{fontSize:ButtonStyle.fontSize}}
 			/>
 	</div>
@@ -92,7 +103,7 @@ const Layout=({items, current, onChange, height:size})=>(
 			if(layout==current){
 				style.background=blue900
 			}
-			
+
 			return (
 				<SizeIconButton key={layout}
 					size={size}

@@ -16,10 +16,11 @@ import History from "we-edit-ui/history"
 import * as Table from "we-edit-ui/table"
 
 import {getActive, selector} from "we-edit"
-import {WithSelection} from "we-edit/component"
+import {WithSelection,onlyWhen, when} from "we-edit/component"
 
 import Status from "we-edit-ui/status"
 import Ruler from "we-edit-ui/ruler"
+import EventEmitter from "events"
 
 export const Ribbon=compose(
 	setDisplayName("Ribbon"),
@@ -72,10 +73,6 @@ export const Ribbon=compose(
 ))
 
 export class Workspace extends PureComponent{
-	static childContextTypes={
-		eventemitter: PropTypes.shape({emit:PropTypes.func.isRequired}),
-	}
-
 	static propTypes={
 		toolBar:PropTypes.node,
 		statusBar: PropTypes.node,
@@ -86,16 +83,16 @@ export class Workspace extends PureComponent{
 		statusBar:(<Status/>),
 	}
 
-	state={
-		layout:this.props.layout,
-		scale: {
-			max:200,
-			min:20,
-			current:100
-		},
-		words: 0,
-		pages: "...",
+
+	constructor(){
+		super(...arguments)
+		this.state={
+			layout:this.props.layout,
+			scale: 100,
+		}
 	}
+
+
 
 	get layouts(){
 		return Children.toArray(this.props.children)
@@ -103,31 +100,10 @@ export class Workspace extends PureComponent{
 			.filter(a=>!!a)
 	}
 
-	getChildContext(){
-		const self=this
-		return {
-			eventemitter: {
-				emit(name,payload){
-					switch(name){
-					case "words":
-						self.setState({words:this.state.words+payload})
-					break
-					case "pages":
-						self.setState({pages:payload})
-					break
-					case "cursorPlaced":
-						self.setState({composed:Date.now()})
-					break
-					}
-				}
-			}
-		}
-	}
-	
 	render(){
 		let {children, toolBar, statusBar, ruler=true}=this.props
 		children=Children.toArray(children)
-		const {layout, scale,pages, words}=this.state
+		const {layout, scale}=this.state
 
 		let current=children.find(({props})=>props.layout==layout)
 		const uncontrolled=children.filter(({props})=>!props.layout)
@@ -136,7 +112,7 @@ export class Workspace extends PureComponent{
 			toolBar=typeof(current.props.toolBar)=="undefined" ? toolBar : current.props.toolBar
 			statusBar=typeof(current.props.statusBar)=="undefined"? statusBar : current.props.statusBar
 			ruler=typeof(current.props.ruler)=="undefined"? ruler : current.props.ruler
-			current=React.cloneElement(current,{scale:scale.current/100})
+			current=React.cloneElement(current,{scale:scale/100})
 		}
 
 		return (
@@ -153,23 +129,21 @@ export class Workspace extends PureComponent{
 								current:layout,
 								onChange: layout=>this.setState({layout})
 							},
-							pages,
 							scale:{
-								...scale,
-								onChange: a=>this.setState({scale:{...scale,current:a}})
+								current:scale,
+								onChange: scale=>this.setState({scale})
 							},
-							words,
 						}) : null}
 					</div>
 
 					<div style={{order:2,flex:"1 100%", overflow:"auto", display:"flex", flexDirection:"column"}}>
 						<div style={{flex:1, display:"flex", flexDirection:"row"}}>
 
-							{ruler ? <VerticalRuler scale={scale.current/100} composed={this.state.composed} /> : null}
+							{ruler ? <VerticalRuler scale={scale/100} /> : null}
 
 							{ruler ? (
 							<div ref="rulerContainer" style={{position:"absolute",paddingTop:4}}>
-								<Ruler direction="horizontal" scale={scale.current/100}/>
+								<Ruler direction="horizontal" scale={scale/100}/>
 							</div>
 							) : null}
 
@@ -186,28 +160,26 @@ export class Workspace extends PureComponent{
 			</WithSelection>
 		)
 	}
-	
+
 	setupHorizontalRuler(){
 		if(this.refs.rulerContainer){
 			this.refs.rulerContainer.style.width=this.refs.contentContainer.getBoundingClientRect().width+"px"
 		}
 	}
-	
+
 	componentDidMount(){
 		this.setupHorizontalRuler()
 	}
-	
+
 	componentDidUpdate(){
 		this.setupHorizontalRuler()
 	}
 }
 
 export const VerticalRuler=compose(
-	getContext({
-		selection: PropTypes.object
-	})
-)(({selection, scale, ...props})=>{
-	let {pageY=0}=selection.props("page")
+	setDisplayName("VerticalRuler"),
+	when("cursorPlaced",({pageY})=>({pageY})),
+)(({pageY=0, scale, ...props})=>{
 	return (
 		<div style={{position:"relative",width:0,top:pageY*scale}}>
 			<Ruler direction="vertical" {...props} scale={scale}/>
@@ -215,4 +187,14 @@ export const VerticalRuler=compose(
 	)
 })
 
-export default Workspace
+export default compose(
+	setDisplayName("EventEmitterProvider"),
+	withContext(
+		{events: PropTypes.object},
+		({events=new EventEmitter()})=>({events})
+	),
+)(({doc,...props})=>(
+	<doc.Store>
+		<Workspace {...props}/>
+	</doc.Store>
+))

@@ -249,43 +249,6 @@ class ContextProvider extends Component{
 		store: PropTypes.object
 	}
 
-	//to calculate selection props directly from composed
-	selectedFromComposed(state,composed){
-		if(!composed){
-			return {
-				props(){
-					return null
-				}
-			}
-		}
-
-		const self=this
-
-		let {cursorAt, ...sel}=getSelection(state)
-		let {id,at}=sel[cursorAt]
-		const TYPE=a=>a.constructor.displayName.split("-").pop()
-		const current=composed.getComposer(id)
-		return {
-			props(type){
-				if(type=="page"){
-					return self.location
-				}
-				let found=current
-				while(found){
-					let foundType=TYPE(found)
-					if(foundType==type)
-						return found.props
-					else{
-						found=found.context.parent
-					}
-				}
-				return null
-
-
-			}
-		}
-	}
-
 	//to calculate selection props from content by Type.renderUp
 	selectedFromDoc(state){
 		const self=this
@@ -305,21 +268,6 @@ class ContextProvider extends Component{
 		const Type=type=>type[0].toUpperCase()+type.substr(1).toLowerCase()
 		return {
 			props(type){
-				if(type=="page"){
-					if(self.location){
-						return self.location
-					}else{
-						return {
-							page:0,
-							column:0,
-							line:0,
-							id,
-							at,
-							pageY:24
-						}
-					}
-				}
-
 				try{
 					let found=root.findByType(Transformed[Type(type)])
 					return found.props
@@ -337,15 +285,10 @@ class ContextProvider extends Component{
 		return {
 			doc,
 			transformer:this.props.transformer,
-			getCursorInput(location,composedDocQuery){
-				self.location=location
-				composedDoc=doc.composed=composedDocQuery
+			getCursorInput(){
 				return self.refs.input
 			},
 			selected(state){
-				//if(composedDoc && composedDoc.getComposer)
-				//	return self.selectedFromComposed(state,composedDoc)
-
 				return self.selectedFromDoc(state)
 			}
 		}

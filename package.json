@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "docx4js": "^3.1.12",
+    "events": "^2.0.0",
     "immutable": "^3.8.1",
     "is-node": "^1.0.2",
     "linebreak": "^0.3.0",

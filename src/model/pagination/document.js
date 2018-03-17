@@ -9,16 +9,12 @@ import ComposedDocument from "./composed/document"
 
 const Super=HasChild(Base)
 export default class Document extends Super{
-	static contextTypes={
-		...Super.contextTypes
-	}
-	
     render(){
 		const {canvas}=this.props
         return (
 			<Fragment>
 				{super.render()}
-				
+
 				<ComposedDocument pages={this.computed.composed} canvas={canvas}/>
 			</Fragment>
 		)
@@ -26,6 +22,5 @@ export default class Document extends Super{
 
 	appendComposed(page){
 		this.computed.composed.push(page)
-		this.emit("pages",this.computed.composed.length)
 	}
 }

@@ -7,9 +7,9 @@ import Listener from "./listener"
 
 export default class Input extends Component{
 	static contextTypes={
-		eventemitter: PropTypes.shape({emit:PropTypes.func.isRequired})
+		events: PropTypes.object,
 	}
-	
+
 	state={top:0,left:0,height:0}
 	isInView(left,top){
 		let {scrollX,scrollY,screen:{height,width}}=window
@@ -44,13 +44,13 @@ export default class Input extends Component{
 			</Waypoint>
 		)
 	}
-	
+
 	componentDidUpdate(){
 		try{
-			if(this.context.eventemitter)
-				this.context.eventemitter.emit("cursorPlaced",this.state)
+			if(this.context.events)
+				this.context.events.emit("cursorPlaced",this.state)
 		}catch(e){
-			
+
 		}
 	}
 }

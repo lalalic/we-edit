@@ -18,6 +18,7 @@ export default class ComposedDocument extends Component{
 
 	static contextTypes={
 		media:PropTypes.string,
+		events: PropTypes.shape({emit:PropTypes.func.isRequired}),
 	}
 
 	render(){
@@ -53,7 +54,7 @@ export default class ComposedDocument extends Component{
 		}else{
 			pages=pageInfos.map((page,i)=><Page {...page} key={i}/>)
 		}
-		
+
 		const content=(
 			<svg {...others}
 				viewBox={`0 0 ${width} ${height}`}
@@ -62,11 +63,37 @@ export default class ComposedDocument extends Component{
 				{this.props.children}
 			</svg>
 		)
-		
+
 		if(canvas){
 			return React.cloneElement(canvas,{pages:pageInfos, pgGap, scale, content})
 		}else{
 			return content
 		}
 	}
+
+	componentWillMount(){
+		this.emit("composed",this.props.pages.length)
+	}
+
+	componentWillUpdate(){
+		this.emit("composed",this.props.pages.length)
+	}
+
+	componentDidMount(){
+		this.emit("emitted",this.props.pages.length)
+	}
+
+	componentDidUpdate(){
+		this.emit("emitted",this.props.pages.length)
+	}
+
+	emit(){
+		try{
+			if(this.context.events)
+				this.context.events.emit(...arguments)
+		}catch(e){
+			console.error(e)
+		}
+	}
+
 }

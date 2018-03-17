@@ -19,8 +19,8 @@ const styles={
 	root:{
 		position:"absolute",
 		width:"100%",
-		height:"100%", 
-		display:"flex", 
+		height:"100%",
+		display:"flex",
 		flexDirection:"column",
 		background:BACKGROUND,
 		overflow:"hidden",
@@ -43,15 +43,15 @@ export default compose(
 	static propTypes={
 		titleBar:PropTypes.node
 	}
-	
+
 	static defaultProps={
 		titleBar:<TitleBar/>
 	}
-	
+
 	state={}
-	
+
 	theme=getMuiTheme(styles.theme,this.props.theme)
-	
+
 	componentDidCatch(error, info){
 		this.setState({error})
 	}
@@ -74,7 +74,7 @@ export default compose(
 				})
 
 			if(child)
-				child=<active.Store children={child}/>
+				child=React.cloneElement(child, {doc:active})
 			else
 				child=(<div>no editor for this document</div>)
 		}
@@ -96,10 +96,10 @@ export default compose(
 			</MuiThemeProvider>
 		)
 	}
-	
+
 	componentDidCatch(error){
 		this.setState({error:error.message})
 	}
 })
 
-export {Workspace} from "./workspace"
+export {default as Workspace} from "./workspace"
