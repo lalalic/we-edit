@@ -40,7 +40,7 @@ export class Cursor extends Component{
 	}
 
 	shouldComponentUpdate(){
-		//when content changed, it will be forceUpdated by composed document
+		//when content changed, composition must happen, it will be forceUpdated by composed document
 		return !this.contentChanged
 	}
 
@@ -166,6 +166,5 @@ export default class extends Component{
 				{this.Shape ? <this.Shape/> : children}
 			</CursorHolder>
 			)
-
 	}
 }
