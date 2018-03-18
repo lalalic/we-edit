@@ -32,9 +32,11 @@ export default class Document extends Super{
 		unmount: PropTypes.func,
 	}
 
-	state={mode:"viewport"}
-
-	composers=new Map([[this.props.id,this]])
+	constructor(){
+		super(...arguments)
+		this.composers=new Map([[this.props.id,this]])
+		this.state={mode:"viewport",...this.state}	
+	}
 	getChildContext(){
 		let shouldRemoveComposed=this.shouldRemoveComposed.bind(this)
 		let shouldContinueCompose=this.shouldContinueCompose.bind(this)

@@ -190,8 +190,14 @@ export const VerticalRuler=compose(
 export default compose(
 	setDisplayName("EventEmitterProvider"),
 	withContext(
-		{events: PropTypes.object},
-		({events=new EventEmitter()})=>({events})
+		{
+			events: PropTypes.object,
+			debug: PropTypes.bool,
+		},
+		({events=new EventEmitter(),debug})=>({
+			events,
+			debug
+		})
 	),
 )(({doc,...props})=>(
 	<doc.Store>

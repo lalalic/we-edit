@@ -21,24 +21,24 @@ function editor(){
 		ReactDOM.render((
 			<WeEdit>
 				<WeEditUI>
-					<Workspace accept="*.docx" layout="print">
-						<Viewer 
+					<Workspace accept="*.docx" layout="print" debug={true}>
+						<Viewer
 							toolBar={null} ruler={false}
 							layout="read" icon={<IconRead/>}
 							channel={<Pagination fonts="fonts/" measure={SVGMeasure}/>}>
-							
+
 						</Viewer>
-						
-						<Editor 
+
+						<Editor
 							layout="print" icon={<IconPrint/>}
 							channel={<Pagination fonts="fonts/" measure={SVGMeasure}/>}>
-							
+
 						</Editor>
-						
+
 						<Editor ruler={false}
 							layout="web" icon={<IconWeb/>}
 							channel={<Html/>}>
-							
+
 						</Editor>
 					</Workspace>
 					<Workspace toolBar={null} statusBar={null} ruler={false}>

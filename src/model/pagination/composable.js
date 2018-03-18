@@ -16,7 +16,14 @@ export function HasChild(Component){
             prevSibling: PropTypes.func
         }
 
-        computed = { children: [], composed: [] }
+
+        constructor(){
+            super(...arguments)
+            this.computed = { children: [], composed: [] }
+
+            if(this.debug)
+                this.state={...this.computed}
+        }
         getChildContext() {
             let self = this
             let superChildContext=super.getChildContext ? super.getChildContext() : {}
