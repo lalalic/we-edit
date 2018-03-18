@@ -56,6 +56,7 @@ export default class extends Component{
         if(!isAllComposed()){
             composeMoreTrigger=(<ComposeMoreTrigger onEnter={composeMore} y={this.context.query().y}/>)
         }
+        let done=null
         return (
             <div ref="root">
                 <Base {...props}
