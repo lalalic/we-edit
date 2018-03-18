@@ -35,7 +35,7 @@ export default class Document extends Super{
 	constructor(){
 		super(...arguments)
 		this.composers=new Map([[this.props.id,this]])
-		this.state={mode:"viewport",...this.state}	
+		this.state={mode:"viewport",...this.state}
 	}
 	getChildContext(){
 		let shouldRemoveComposed=this.shouldRemoveComposed.bind(this)

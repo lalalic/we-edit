@@ -20,9 +20,6 @@ export function HasChild(Component){
         constructor(){
             super(...arguments)
             this.computed = { children: [], composed: [] }
-
-            if(this.debug)
-                this.state={...this.computed}
         }
         getChildContext() {
             let self = this

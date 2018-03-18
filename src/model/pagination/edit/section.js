@@ -90,10 +90,20 @@ export default class Section extends Super{
 		changedPage.columns.push(changedColumn)
 
 		this.computed.composed.push(changedPage)
+
+		if(changedPage.lastSectionPage){
+			if(!this.isAllComposed()){
+				delete changedPage.lastSectionPage
+			}
+		}
+	}
+
+	isAllComposed(){
+		return this.computed.children.length==this.props.children.length
 	}
 
 	render(){
-		if(this.computed.children.length==this.props.children.length)
+		if(this.isAllComposed())
 			return null
 
 		if(!this.context.shouldContinueCompose())
