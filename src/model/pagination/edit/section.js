@@ -27,7 +27,7 @@ export default class Section extends Super{
 
 				this.removeComposedFrom(iFirstChangedChild)
 			}
-			
+
 			this.computed.composed.forEach(page=>this.context.parent.appendComposed(page))
 		}
 	}
@@ -45,10 +45,10 @@ export default class Section extends Super{
 
 	removeComposedFrom(iFirstChangedChild){
 		this.computed.children=this.computed.children.slice(0,iFirstChangedChild)
-		
+
 		if(this.computed.children.length==0){
 			this.computed.composed=[]
-			return 
+			return
 		}
 
 		let changedPageIndex=this.computed.composed.findIndex(({columns})=>{
@@ -94,11 +94,17 @@ export default class Section extends Super{
 
 	render(){
 		if(this.computed.children.length==this.props.children.length)
-			return null		
-		
-		if(!this.context.shouldContinueCompose(this.computed.children.length==0))
 			return null
-		
+
+		if(!this.context.shouldContinueCompose())
+			return null
+
 		return (<Fragment>{this.props.children.slice(this.computed.children.length)}</Fragment>)
+	}
+
+	onAllChildrenComposed(){
+		super.onAllChildrenComposed()
+		let last=this.computed.composed[this.computed.composed.length-1]
+		last.lastSectionPage=true
 	}
 }

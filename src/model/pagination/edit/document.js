@@ -2,7 +2,6 @@ import React, {PureComponent, Component, Fragment} from "react"
 import PropTypes from "prop-types"
 
 import {connect} from "react-redux"
-import Waypoint from "react-waypoint"
 
 import Base from "../document"
 import {Text} from "model/pagination"
@@ -33,7 +32,7 @@ export default class Document extends Super{
 		unmount: PropTypes.func,
 	}
 
-	state={compose2Page:1, mode:"performant"}
+	state={mode:"viewport"}
 
 	composers=new Map([[this.props.id,this]])
 	getChildContext(){
@@ -51,7 +50,7 @@ export default class Document extends Super{
 	}
 
 	query(){
-		return new ComposedDocument.Query(this,this.context.store.getState(),PageGap)
+		return new ComposedDocument.Query(this,this.context.store.getState(),PageGap,this.props.scale)
 	}
 
 	get canvas(){
@@ -60,43 +59,38 @@ export default class Document extends Super{
 
 	render(){
 		const {viewport, mode}=this.state
-		const {canvas}=this.props
+		const {canvas,scale}=this.props
 		if(!viewport){//to find container width, height
 			return <div ref="viewporter"/>
 		}
-		let props={}
-		if(mode=="content"){
-			//props.minHeight=this.canvas.getClientRect().height
+
+		let minHeight=undefined
+		if(mode=="content" && this.canvas){
+			minHeight=this.canvas.getClientRect().height
 		}
 
-		const {scale}=this.props
-
-        return (
+		return (
 			<Fragment>
 				<Fragment>
 					{this.props.children}
 				</Fragment>
-				<ComposedDocument ref="canvas"
-					{...props}
+				<ComposedDocument
+					ref="canvas"
+					style={{minHeight}}
 					canvas={canvas}
 					scale={scale}
 					pgGap={PageGap}
 					pages={this.computed.composed}
-					isAllComposed={()=>this.computed.children.length==this.props.children.length}
-					composeMore={e=>this.composeMore()}
+					isAllComposed={()=>this.isAllChildrenComposed()}
+					composeMore={triggerAt=>this.setState({triggerAt,mode:"viewport"})}
 					/>
 			</Fragment>
 		)
     }
 
-	composeMore(){
-		this.setState(p=>({compose2Page:p.compose2Page+1,mode:"performant"}))
-	}
-
 	componentWillReceiveProps(){
 		this.clearComposed()
 		this.setState({mode:"content"})
-		this.continueComposing=true
 	}
 
 	componentDidMount(){
@@ -127,26 +121,12 @@ export default class Document extends Super{
 		return this.state.mode=="content"
 	}
 
-	shouldContinueCompose(sectionEnd=false){
-		const {compose2Page,mode, viewport}=this.state
-
-		if(mode=="content" && this.continueComposing==false)
-			return false
-
-		switch(mode){
-		case "content":
-			const $=this.query()
-			let contentY=$.toViewportCoordinate(sectionEnd ? $.pageY($.pages.length) : $.y)
-			if(contentY<=viewport.height)
-				return true
-
-			let maxViewableY=viewport.height-$.svg.top
-			return this.continueComposing=contentY<maxViewableY
-		case "performant":
-		default:
-			return this.computed.composed.length<compose2Page+1
-		}
+	shouldContinueCompose(){
+		const {mode, viewport}=this.state
+		const $=this.query()
+		let contentY=$.toViewportCoordinate($.y)
+		let viewableY=viewport.height-$.svg.top
+		let pageCount=this.computed.composed.length
+		return contentY<viewableY+(pageCount>0 ? this.computed.composed[pageCount-1].size.height/4 : 0)
 	}
-
-
 }

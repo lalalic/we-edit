@@ -2,11 +2,12 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 
 import {connect} from "react-redux"
-import Waypoint from "react-waypoint"
+import {setDisplayName} from "recompose"
 
 import Base from "../composed/document"
 import {Text} from "model/pagination"
 import Query from "./query"
+import Waypoint from "react-waypoint"
 
 import {ACTION} from "state"
 import {getContent,getSelection} from "state/selector"
@@ -21,7 +22,7 @@ import offset from "mouse-event-offset"
 import getClientRect from "tools/get-client-rect"
 
 export default class extends Component{
-    static displayName="composed-document-with-flasher"
+    static displayName="composed-document-with-cursor"
     static contextTypes={
         docId: PropTypes.string,
         store: PropTypes.any,
@@ -50,20 +51,14 @@ export default class extends Component{
 	}
 
     render(){
-        const {isAllComposed, composeMore, pgGap, ...props}=this.props
+        const {isAllComposed, composeMore, ...props}=this.props
         let composeMoreTrigger=null
         if(!isAllComposed()){
-            let y=this.context.query().pageY(-2)
-            composeMoreTrigger=<ComposeMoreTrigger {...{composeMore, y:y-pgGap}}/>
-        }else{
-            delete props.minHeight
+            composeMoreTrigger=(<ComposeMoreTrigger onEnter={composeMore} y={this.context.query().y}/>)
         }
-
-        let done=null
-
         return (
             <div ref="root">
-                <Base {...props} pgGap={pgGap}
+                <Base {...props}
                     onClick={e=>{
                         if(done==e.timeStamp)
                             return
@@ -78,8 +73,6 @@ export default class extends Component{
                         }
                     }}
                     >
-                    {composeMoreTrigger}
-
                     <Cursor
 						ref={a=>this.cursor=a}
 						render={({top=0,left=0,height=0,color})=>(
@@ -96,6 +89,7 @@ export default class extends Component{
                         >
 						<SelectionShape/>
 					</Selection>
+                    {composeMoreTrigger}
                 </Base>
             </div>
         )
@@ -253,8 +247,8 @@ export default class extends Component{
 	static Query=Query
 }
 
-const ComposeMoreTrigger=({composeMore,y})=>(
-	<Waypoint onEnter={composeMore} >
+const ComposeMoreTrigger=setDisplayName("More")(({onEnter,y})=>(
+	<Waypoint onEnter={()=>onEnter(y)} >
 		<g transform={`translate(0 ${y})`}/>
 	</Waypoint>
-)
+))

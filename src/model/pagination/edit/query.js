@@ -9,20 +9,25 @@ import getClientRect from "tools/get-client-rect"
 
 const NOT_FOUND={left:-9999,top:0}
 export default class Query{
-	constructor(document,state,pageGap){
+	constructor(document,state,pageGap,scale){
 		this.document=document
 		this.state=state
 		this.pgGap=pageGap
+		this.scale=scale
 		this.pages=document.computed.composed
 		this.canvasWidth=this.pages.reduce((a,{size:{width}})=>Math.max(a,width),0)
+
 	}
-	
+
 	get svg(){
 		if(!this._svg){
-			const {left,top}=this.document.canvas.getClientRect()
-			this._svg={left,top}
+			if(this.document.canvas){
+				return this.document.canvas.getClientRect()
+			}else{
+				return {left:0,top:0}
+			}
 		}
-		
+
 		return this._svg
 	}
 
@@ -33,6 +38,9 @@ export default class Query{
 				return pgGap
 
 			const lastPageHeight=(last=>{//@TODO: balanced column, last page of section
+				if(last.lastSectionPage){
+					return last.size.height
+				}
 				let lastColumnLines=last.columns[last.columns.length-1].children
 				let lastLine=lastColumnLines[lastColumnLines.length-1]
 				let height=last.margin.top
@@ -45,14 +53,14 @@ export default class Query{
 				.reduce((w,{size:{height}})=>w+height+pgGap,lastPageHeight)
 			})();
 	}
-	
+
 	toCanvasCoordinate(...viewportNumbers){
-		const to=a=>a/this.document.canvas.scale
+		const to=a=>a/this.scale
 		return viewportNumbers.length==1 ? to(viewportNumbers) : viewportNumbers.map(to)
 	}
-	
+
 	toViewportCoordinate(...canvasNumbers){
-		const to=a=>a*this.document.canvas.scale
+		const to=a=>a*this.scale
 		return canvasNumbers.length==1 ? to(canvasNumbers) : canvasNumbers.map(to)
 	}
 
@@ -71,7 +79,7 @@ export default class Query{
 		top=top-this.svg.top
 		right=right-this.svg.left
 		bottom=bottom-this.svg.top;
-		
+
 		[left,right,top,bottom,height,width]=this.toCanvasCoordinate(left,right,top,bottom,height,width);
 
 		return {left,right,top,bottom,height,width}
@@ -147,9 +155,9 @@ export default class Query{
 		if(!('data-content' in piece.props && 'data-endat' in piece.props)){
 			return NOT_FOUND
 		}
-		
+
 		let top=this.pageY(pageNo)+page.margin.top+line.props.y
-		
+
 		let id=piece.props["data-content"]
 		let from=piece.props["data-endat"]
 		let text=piece.props.children.join("")
@@ -262,7 +270,7 @@ export default class Query{
 
 		x+=measure.stringWidth(text.substring(from,at))
 		y=y-height
-		
+
 		return {
 			id,
 			at,
@@ -276,7 +284,7 @@ export default class Query{
 			canvasLeft:Math.ceil(x),
 			canvasTop:Math.ceil(y),
 			fontFamily,
-			fontSize, 
+			fontSize,
 		}
 	}
 
