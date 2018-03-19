@@ -16,7 +16,7 @@ export default class Query{
 		this.scale=scale
 		this.pages=document.computed.composed
 		this.canvasWidth=this.pages.reduce((a,{size:{width}})=>Math.max(a,width),0)
-
+		console.log(`scale=${scale}`)
 	}
 
 	get svg(){

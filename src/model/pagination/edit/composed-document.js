@@ -21,28 +21,22 @@ import SelectionShape from "./selection"
 import offset from "mouse-event-offset"
 import getClientRect from "tools/get-client-rect"
 
-export default class extends Component{
+export default class extends Base{
     static displayName="composed-document-with-cursor"
     static contextTypes={
+        ...Base.contextTypes,
         docId: PropTypes.string,
         store: PropTypes.any,
         getCursorInput: PropTypes.func,
         query: PropTypes.func,
-		events: PropTypes.shape({emit:PropTypes.func.isRequired}),
     }
 
 	static childContextTypes={
-		onPageHide: PropTypes.func,
+        onPageHide: PropTypes.func,
 		onPageShow: PropTypes.func,
 	}
 
-    get root(){
-        return this.refs.root
-    }
-
-	get scale(){
-		return this.props.scale
-	}
+    scale=this.props.scale
 
 	getChildContext(){
 		return {
@@ -52,48 +46,47 @@ export default class extends Component{
 	}
 
     render(){
-        const {isAllComposed, composeMore, ...props}=this.props
+        const {isAllComposed, composeMore}=this.props
         let composeMoreTrigger=null
         if(!isAllComposed()){
             composeMoreTrigger=(<ComposeMoreTrigger onEnter={composeMore} y={this.context.query().y}/>)
         }
         let done=null
+        let {props:{children:pages, ...others}}=super.render()
         return (
-            <div ref="root">
-                <Base {...props}
-                    onClick={e=>{
-                        if(done==e.timeStamp)
-                            return
+            <svg {...others}
+                ref={a=>this.svg=a}
+                onClick={e=>{
+                    if(done==e.timeStamp)
+                        return
 
-                        this.onClick(e)
-                    }}
-                    onMouseUp={e=>{
-                        let sel=this.documentSelection()
-                        if(sel.type=="Range"){
-                            this.onSelect(sel)
-                            done=e.timeStamp
-                        }
-                    }}
+                    this.onClick(e)
+                }}
+                onMouseUp={e=>{
+                    let sel=this.documentSelection()
+                    if(sel.type=="Range"){
+                        this.onSelect(sel)
+                        done=e.timeStamp
+                    }
+                }}>
+                {pages}
+                <Cursor
+                    ref={a=>this.cursor=a}
+                    render={({top=0,left=0,height=0,color})=>(
+                        <path d={`M${left} ${top} L${left} ${top+height}`}
+                                style={{stroke:color, strokeWidth:1}}/>
+                    )}
+                    />
+                <Selection
+                    ref={a=>this.selection=a}
+                    onMove={this.onMove.bind(this)}
+                    onResize={this.onResize.bind(this)}
+                    onRotate={this.onRotate.bind(this)}
                     >
-                    <Cursor
-						ref={a=>this.cursor=a}
-						render={({top=0,left=0,height=0,color})=>(
-							<path d={`M${left} ${top} L${left} ${top+height}`}
-									style={{stroke:color, strokeWidth:1}}/>
-						)}
-						/>
-
-                    <Selection
-						ref={a=>this.selection=a}
-						onMove={this.onMove.bind(this)}
-                        onResize={this.onResize.bind(this)}
-                        onRotate={this.onRotate.bind(this)}
-                        >
-						<SelectionShape/>
-					</Selection>
-                    {composeMoreTrigger}
-                </Base>
-            </div>
+                    <SelectionShape/>
+                </Selection>
+                {composeMoreTrigger}
+            </svg>
         )
     }
 
@@ -101,38 +94,32 @@ export default class extends Component{
         return window.getSelection()||document.getSelection()
     }
 
+    setScale(){
+        let clientRect=this.svg.getBoundingClientRect()
+        let [,,canvasWidth]=this.svg.getAttribute("viewBox").split(" ")
+        this.scale=clientRect.width/parseInt(canvasWidth)
+        this.getClientRect=()=>clientRect
+    }
+
     componentDidUpdate(){
+        this.setScale()
         this.updateCursorAndSelection()
-		if(this.props.isAllComposed()){
-			this.emit("emitted.all", this.props.pages.length)
-		}else{
-			this.emit("emitted", this.props.pages.length)
-		}
+		this.emit(`emitted${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
     }
 
     componentDidMount(){
-        let svg=this.root.querySelector("svg")
-        this.getClientRect=()=>getClientRect(svg)
-
+        this.setScale()
         this.context.store.dispatch(ACTION.Cursor.ACTIVE(this.context.docId))
-		if(this.props.isAllComposed()){
-			this.emit("emitted.all", this.props.pages.length)
-		}
+        this.emit(`emitted${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
     }
-	
+
 	componentWillMount(){
-		if(this.props.isAllComposed()){
-			this.emit("composed.all", this.props.pages.length)
-		}
+		this.emit(`composed${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
 	}
 
 	componentWillUpdate(){
-		if(this.props.isAllComposed()){
-			this.emit("composed.all", this.props.pages.length)
-		}else{
-			this.emit("composed",this.props.pages.length)
-		}
-	}	
+		this.emit(`composed${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
+	}
 
     updateCursorAndSelection(){
         this.cursor && this.cursor.forceUpdate()
@@ -267,15 +254,6 @@ export default class extends Component{
         }
         this.active()
     }
-	
-	emit(){
-		try{
-			if(this.context.events)
-				this.context.events.emit(...arguments)
-		}catch(e){
-			console.error(e)
-		}
-	}
 
 	static Query=Query
 }

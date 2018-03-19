@@ -31,7 +31,7 @@ function editor(){
 						<Editor
 							layout="print" icon={<IconPrint/>}
 							channel={<Pagination fonts="fonts/" measure={SVGMeasure}/>}>
-							
+
 						</Editor>
 
 						<Editor ruler={false}
@@ -52,7 +52,7 @@ function editor(){
 function testDocx(){
 	fetch("basic.docx").then(res=>res.blob()).then(docx=>{
 		docx.name="basic.docx"
-		//document.querySelector("#app").style="margin:auto;height:500px;overflow-y:scroll;display:inline-block"
+		document.querySelector("#app").style="width:500px;height:500px;overflow-y:scroll;text-align:center"
 		edit(docx,document.querySelector("#app"))
 	})
 }
@@ -65,6 +65,6 @@ function testNative(){
 }
 
 //testNative()
-testDocx()
+//testDocx()
 
-//editor()
+editor()

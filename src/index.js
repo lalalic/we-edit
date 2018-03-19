@@ -14,7 +14,7 @@ export function compose(file){
 		.then(doc=>ReactDOMServer.renderToStaticMarkup(doc.render(Pagination)))
 }
 
-export function edit(doc, container, editor=(<Editor channel={<Pagination measure={SVGMeasure}/>} />)){
+export function edit(doc, container, editor=(<Editor canvasStyle={{width:"80%"}} channel={<Pagination measure={SVGMeasure}/>} />)){
 	return Input.load(doc)
 		.then(loaded=>{
 			ReactDOM.render((
@@ -56,5 +56,3 @@ export function preview(doc, container, viewer=((<Viewer channel={<Pagination me
 export {ACTION, getActive} from "components/we-edit"
 import * as selector from "state/selector"
 export {selector}
-
-

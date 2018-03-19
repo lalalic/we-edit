@@ -21,7 +21,7 @@ export default class ComposedDocument extends Component{
 	}
 
 	render(){
-		const {pages:pageInfos, pgGap, scale, canvas, style, ...others}=this.props
+		const {pages:pageInfos, pgGap, scale, canvas, style}=this.props
 		const {media}=this.context
 		const {width,height}=pageInfos.reduce((size,{size:{width,height}})=>{
 				return {
@@ -55,11 +55,11 @@ export default class ComposedDocument extends Component{
 		}
 
 		const content=(
-			<svg {...others}
+			<svg
+				preserveAspectRatio="xMidYMin"
 				viewBox={`0 0 ${width} ${height}`}
 				style={{background:"transparent", width:width*scale, height:height*scale, ...style}}>
 				{pages}
-				{this.props.children}
 			</svg>
 		)
 

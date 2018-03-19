@@ -15,6 +15,7 @@ export class Editor extends Component{
 		fullReCompose:PropTypes.bool,
 		channel: PropTypes.node.isRequired,
 		scale: PropTypes.number,
+		canvasStyle: PropTypes.object,
 	}
 
 	static defaultProps={
@@ -62,7 +63,7 @@ const Root=connect((state)=>{
 			docId:this.docId
 		}
 	}
-	
+
 	modifyDocOnChanged(content,changed,ModelTypes){
 		const getThisParentId=id=>getParentId(content,id)
 

@@ -52,11 +52,19 @@ export default class Document extends Super{
 	}
 
 	query(){
-		return new ComposedDocument.Query(this,this.context.store.getState(),PageGap,this.props.scale)
+		return new ComposedDocument.Query(this,this.context.store.getState(),PageGap,this.scale)
 	}
 
 	get canvas(){
 		return this.refs.canvas
+	}
+
+	get scale(){
+		if(this.canvas){
+			return this.canvas.scale
+		}else{
+			return this.props.scale
+		}
 	}
 
 	render(){
@@ -73,9 +81,7 @@ export default class Document extends Super{
 
 		return (
 			<Fragment>
-				<Fragment>
-					{this.props.children}
-				</Fragment>
+				{this.props.children}
 				<ComposedDocument
 					ref="canvas"
 					style={{minHeight, ...canvasStyle}}
@@ -114,7 +120,7 @@ export default class Document extends Super{
 				if(isScrollable)
 					return node
 			}
-			
+
 			if (!node) {
 				return null;
 			}
