@@ -6,7 +6,7 @@ import IconPrint from "material-ui/svg-icons/editor/format-align-justify"
 import IconWeb from "material-ui/svg-icons/av/web"
 
 import {edit,create,preview,compose} from "we-edit"
-import {Editor,Viewer,Pagination,Html,Plain,WeEdit} from "we-edit/component"
+import {Editor,Viewer,Pagination,Html,Plain,WeEdit} from "we-edit/components"
 
 import WeEditUI, {Workspace, Bare} from "we-edit-ui"
 import {FontMeasure, SVGMeasure} from "wordwrap/measure"
@@ -41,9 +41,7 @@ function editor(){
 						</Editor>
 					</Workspace>
 					<Workspace toolBar={null} statusBar={null} ruler={false}>
-						<Editor>
-							<Pagination fonts="fonts/" measure={FontMeasure}/>
-						</Editor>
+						<Editor channel={<Pagination fonts="fonts/" measure={FontMeasure}/>}/>
 					</Workspace>
 				</WeEditUI>
 			</WeEdit>
@@ -54,17 +52,19 @@ function editor(){
 function testDocx(){
 	fetch("basic.docx").then(res=>res.blob()).then(docx=>{
 		docx.name="basic.docx"
+		//document.querySelector("#app").style="margin:auto;height:500px;overflow-y:scroll;display:inline-block"
 		edit(docx,document.querySelector("#app"))
 	})
 }
 
 function testNative(){
 	fetch("basic.wed.json").then(res=>res.json()).then(doc=>{
+		document.querySelector("#app").style="width:400px;height:400px;position:absolute;"
 		edit(doc,document.querySelector("#app"))
 	})
 }
 
 //testNative()
-//testDocx()
+testDocx()
 
-editor()
+//editor()

@@ -6,7 +6,7 @@ import {Toolbar, ToolbarGroup, FlatButton, IconButton, Slider} from "material-ui
 import * as selector from "we-edit/state/selector"
 import {blue800, blue900} from "material-ui/styles/colors"
 import SizeIconButton from "we-edit-ui/components/size-icon-button"
-import {when} from "we-edit/component"
+import {when} from "we-edit/components"
 
 const ButtonStyle={
 	background:"transparent",

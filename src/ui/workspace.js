@@ -16,7 +16,7 @@ import History from "we-edit-ui/history"
 import * as Table from "we-edit-ui/table"
 
 import {getActive, selector} from "we-edit"
-import {WithSelection,onlyWhen, when} from "we-edit/component"
+import {WithSelection,onlyWhen, when} from "we-edit/components"
 
 import Status from "we-edit-ui/status"
 import Ruler from "we-edit-ui/ruler"

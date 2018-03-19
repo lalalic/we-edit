@@ -13,7 +13,6 @@ export default class ComposedDocument extends Component{
 
 	static defaultProps={
 		pgGap:24,
-		scale:1,
 	}
 
 	static contextTypes={
@@ -22,7 +21,7 @@ export default class ComposedDocument extends Component{
 	}
 
 	render(){
-		const {pages:pageInfos, pgGap, scale=1, canvas, ...others}=this.props
+		const {pages:pageInfos, pgGap, scale, canvas, style, ...others}=this.props
 		const {media}=this.context
 		const {width,height}=pageInfos.reduce((size,{size:{width,height}})=>{
 				return {
@@ -58,7 +57,7 @@ export default class ComposedDocument extends Component{
 		const content=(
 			<svg {...others}
 				viewBox={`0 0 ${width} ${height}`}
-				style={{background:"transparent", width:width*scale, height:height*scale}}>
+				style={{background:"transparent", width:width*scale, height:height*scale, ...style}}>
 				{pages}
 				{this.props.children}
 			</svg>

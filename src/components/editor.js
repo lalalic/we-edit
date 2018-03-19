@@ -13,10 +13,13 @@ export class Editor extends Component{
 	static propTypes={
 		media:PropTypes.string,
 		fullReCompose:PropTypes.bool,
+		channel: PropTypes.node.isRequired,
+		scale: PropTypes.number,
 	}
 
 	static defaultProps={
-		media:"screen"
+		media:"screen",
+		scale:1,
 	}
 
 	static childContextTypes={
@@ -29,17 +32,11 @@ export class Editor extends Component{
 	}
 
 	render(){
-		const {fullReCompose, children, channel, scale}=this.props
-		return (
-			<div className={this.constructor.displayName}>
-			{
-				React.cloneElement(channel,{
-					domain:this.constructor.displayName,
-					children: (<Root fullReCompose={fullReCompose} canvas={children} scale={scale}/>)
-				})
-			}
-			</div>
-		)
+		const {fullReCompose, children, channel, scale, canvasStyle}=this.props
+		return React.cloneElement(channel,{
+			domain:this.constructor.displayName,
+			children: (<Root fullReCompose={fullReCompose} canvas={children} scale={scale} canvasStyle={canvasStyle}/>)
+		})
 	}
 }
 
@@ -53,7 +50,7 @@ const Root=connect((state)=>{
 		ModelTypes: PropTypes.object
 	}
 
-	docId=`editor_${uuid()}`
+	docId=`${uuid()}`
 	constructor(){
 		super(...arguments)
 		this.els=new Map()

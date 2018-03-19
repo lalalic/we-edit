@@ -2,7 +2,8 @@ import React from "react"
 import ReactDOMServer from "react-dom/server"
 import ReactDOM from "react-dom"
 
-import {Editor, Viewer, Pagination, WeEdit} from "component"
+import {Editor, Viewer, Pagination, WeEdit} from "components"
+import {FontMeasure, SVGMeasure} from "wordwrap/measure"
 
 import Native from "input/native"
 import Input from "input"
@@ -13,7 +14,7 @@ export function compose(file){
 		.then(doc=>ReactDOMServer.renderToStaticMarkup(doc.render(Pagination)))
 }
 
-export function edit(doc, container, editor=(<Editor><Pagination/></Editor>)){
+export function edit(doc, container, editor=(<Editor channel={<Pagination measure={SVGMeasure}/>} />)){
 	return Input.load(doc)
 		.then(loaded=>{
 			ReactDOM.render((
@@ -26,7 +27,7 @@ export function edit(doc, container, editor=(<Editor><Pagination/></Editor>)){
 		})
 }
 
-export function create(type, container, editor=(<Editor><Pagination/></Editor>)){
+export function create(type, container, editor=(<Editor channel={<Pagination measure={SVGMeasure}/>} />)){
 	return Input.create(type)
 		.then(loaded=>{
 			ReactDOM.render((
@@ -39,7 +40,7 @@ export function create(type, container, editor=(<Editor><Pagination/></Editor>))
 		})
 }
 
-export function preview(doc, container, viewer=((<Viewer><Pagination/></Viewer>))){
+export function preview(doc, container, viewer=((<Viewer channel={<Pagination measure={SVGMeasure}/>} />))){
 	return Input.create(type)
 		.then(loaded=>{
 			ReactDOM.render((
@@ -52,7 +53,7 @@ export function preview(doc, container, viewer=((<Viewer><Pagination/></Viewer>)
 		})
 }
 
-export {ACTION, getActive} from "component/we-edit"
+export {ACTION, getActive} from "components/we-edit"
 import * as selector from "state/selector"
 export {selector}
 

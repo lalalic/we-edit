@@ -61,7 +61,7 @@ export default class Document extends Super{
 
 	render(){
 		const {viewport, mode}=this.state
-		const {canvas,scale}=this.props
+		const {canvas,scale, canvasStyle}=this.props
 		if(!viewport){//to find container width, height
 			return <div ref="viewporter"/>
 		}
@@ -78,7 +78,7 @@ export default class Document extends Super{
 				</Fragment>
 				<ComposedDocument
 					ref="canvas"
-					style={{minHeight}}
+					style={{minHeight, ...canvasStyle}}
 					canvas={canvas}
 					scale={scale}
 					pgGap={PageGap}
@@ -99,23 +99,27 @@ export default class Document extends Super{
 		if(!this.state.viewport){
 			this.getContainer(this.refs.viewporter)
 			const{width,height}=this.container.getBoundingClientRect()
-			this.setState({viewport:{width,height}})
+			this.setState({viewport:{width,height:height||1056}})
 		}
 	}
 
 	getContainer(node){
-		return this.container=(function getScrollParent(node) {
+		return this.container=(function getFrameParent(node) {
 			const isElement = node instanceof HTMLElement;
-			const overflowY = isElement && window.getComputedStyle(node).overflowY;
-			const isScrollable = overflowY !== 'visible' && overflowY !== 'hidden';
-
+			if(isElement){
+				const {overflowY,width,height} = window.getComputedStyle(node);
+				if(width>0 && height>0)
+					return node
+				const isScrollable = overflowY !== 'visible' && overflowY !== 'hidden';
+				if(isScrollable)
+					return node
+			}
+			
 			if (!node) {
-			return null;
-			} else if (isScrollable && node.scrollHeight >= node.clientHeight) {
-			return node;
+				return null;
 			}
 
-			return getScrollParent(node.parentNode) || document.body;
+			return getFrameParent(node.parentNode) || document.body;
 		})(node)
 	}
 

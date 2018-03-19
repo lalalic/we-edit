@@ -7,20 +7,6 @@ import {combineReducers} from "redux"
 import {Provider} from "react-redux"
 import {ACTION as EditorAction} from "state/action"
 
-/**
-<WeEdit>
-	connect(({active,docs})=>({active,docs}))(({active,docs})=>{
-		<div>tools</div>
-		{Object.keys(docs).map(k=>docs[k]).map(({id,doc})=>(
-			<div style={{display: active==id ? "block" : "none"}}>
-				<doc.Store>
-					{children}
-				</doc.Store>
-			</div>
-		))}
-	})
-</WeEdit>
-*/
 export class WeEdit extends Component{
 	static contextTypes={
 		store: PropTypes.object
@@ -49,11 +35,7 @@ export const DOMAIN="we-edit"
 
 const reducers={}
 
-function getActiveDoc(state){
-	return getActive(state).doc
-}
-
-export function getActive({"we-edit":{docs, active}}){
+export function getActive({[DOMAIN]:{docs, active}}){
 	return docs[active]||{}
 }
 

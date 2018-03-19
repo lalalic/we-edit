@@ -5,7 +5,7 @@ import {Provider,connect} from "react-redux"
 import Immutable, {Map,Collection} from "immutable"
 import {compose, setDisplayName, getContext,withContext} from "recompose"
 import TestRenderer from 'react-test-renderer'
-import {LocalStore} from "component/with-store"
+import {LocalStore} from "components/with-store"
 
 import Components from "model"
 import {createStore, createState, isState} from "state"
