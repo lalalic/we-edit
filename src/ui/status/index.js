@@ -1,4 +1,4 @@
-import React,{PureComponent} from "react"
+import React,{PureComponent, Component} from "react"
 import PropTypes from "prop-types"
 import {connect} from "react-redux"
 import {compose, getContext, mapProps,withProps,setDisplayName} from "recompose"
@@ -59,24 +59,29 @@ const Page=compose(
 	</FlatButton>
 ))
 
-const Words=compose()(
-	when("words",words=>({words}))
-)(
-	class extends PureComponent{
-		total=0
-		componentWillReceiveProps({words=0}){
-			debugger
-			this.total+=words
-		}
-		render(){
-			return (
-				<FlatButton style={ButtonStyle}>
-					{this.total} WORDS
-				</FlatButton>
-			)
+class Words extends PureComponent{
+	static contextTypes={
+		events: PropTypes.object
+	}
+	
+	constructor(props, {events}){
+		super(...arguments)
+		this.state={total:0}
+		if(events){
+			events.on("words",pending=>{
+				this.setState(({total})=>({total:total+pending}))
+			})
 		}
 	}
-)
+	
+	render(){
+		return (
+			<FlatButton style={ButtonStyle}>
+				{this.state.total} WORDS
+			</FlatButton>
+		)
+	}
+}
 
 const Scale=({
 	current=100,max=200,min=10,step=10,

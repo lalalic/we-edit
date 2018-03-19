@@ -1,4 +1,4 @@
-import React from "react"
+import React, {Component, Fragment} from "react"
 import ReactDOM from "react-dom"
 
 import IconRead from "material-ui/svg-icons/communication/import-contacts"
@@ -15,13 +15,12 @@ import Input from "we-edit/input"
 import Docx from "we-edit-docx"
 Input.support(Docx)
 
-
 function editor(){
 	window.addEventListener("load", function(){
 		ReactDOM.render((
 			<WeEdit>
 				<WeEditUI>
-					<Workspace accept="*.docx" layout="print" debug={true}>
+					<Workspace accept="*.docx" layout="print" debug={false}>
 						<Viewer
 							toolBar={null} ruler={false}
 							layout="read" icon={<IconRead/>}
@@ -32,7 +31,7 @@ function editor(){
 						<Editor
 							layout="print" icon={<IconPrint/>}
 							channel={<Pagination fonts="fonts/" measure={SVGMeasure}/>}>
-
+							
 						</Editor>
 
 						<Editor ruler={false}

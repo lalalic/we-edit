@@ -26,6 +26,10 @@ export default class Paragraph extends Super{
 		this.computed.lines.push(line)
 		return line
 	}
+	
+	componentWillUnmount(){
+		this.emit("words", -this.computed.breakOpportunities.length)
+	}
 
     componentWillReceiveProps({children,getChildText,changed},{shouldRemoveComposed,parent}){
 		if(this.computed.composed.length>0){

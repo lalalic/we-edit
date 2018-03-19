@@ -45,7 +45,7 @@ export default class Paragraph extends Super{
 		return Object.freeze(opportunities(children,this.props.getChildText))
     }
 	
-	componentWillMount(){
+	componentDidMount(){
 		this.emit("words",this.computed.breakOpportunities.length)
 	}
 
