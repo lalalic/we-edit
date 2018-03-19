@@ -2066,7 +2066,7 @@ events@^1.0.0:
 
 events@^2.0.0:
   version "2.0.0"
-  resolved "http://registry.npm.taobao.org/events/download/events-2.0.0.tgz#cbbb56bf3ab1ac18d71c43bb32c86255062769f2"
+  resolved "https://registry.yarnpkg.com/events/-/events-2.0.0.tgz#cbbb56bf3ab1ac18d71c43bb32c86255062769f2"
 
 eventsource@0.1.6:
   version "0.1.6"

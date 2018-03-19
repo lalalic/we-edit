@@ -42,10 +42,12 @@ export default class Paragraph extends Super{
     }
 
     getBreakOpportunities(children){
-		let ops=Object.freeze(opportunities(children,this.props.getChildText))
-		this.emit("words",this.computed.breakOpportunities ? ops.length-this.computed.breakOpportunities.length : ops.length)
-		return ops
+		return Object.freeze(opportunities(children,this.props.getChildText))
     }
+	
+	componentWillMount(){
+		this.emit("words",this.computed.breakOpportunities.length)
+	}
 
     getChildContext(){
         let self=this

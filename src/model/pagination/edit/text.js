@@ -4,7 +4,7 @@ import Base from "../text"
 import {editable} from "model/edit"
 import recomposable from "./recomposable"
 
-import shallowEqual from "react-redux/lib/utils/shallowEqual"
+import shallowEqual from "tools/shallow-equal"
 
 export default class Text extends editable(recomposable(Base)){
     componentWillReceiveProps(next,context){

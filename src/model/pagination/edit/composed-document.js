@@ -27,7 +27,8 @@ export default class extends Component{
         docId: PropTypes.string,
         store: PropTypes.any,
         getCursorInput: PropTypes.func,
-        query: PropTypes.func
+        query: PropTypes.func,
+		events: PropTypes.shape({emit:PropTypes.func.isRequired}),
     }
 
 	static childContextTypes={
@@ -102,6 +103,11 @@ export default class extends Component{
 
     componentDidUpdate(){
         this.updateCursorAndSelection()
+		if(this.props.isAllComposed()){
+			this.emit("emitted.all", this.props.pages.length)
+		}else{
+			this.emit("emitted", this.props.pages.length)
+		}
     }
 
     componentDidMount(){
@@ -109,11 +115,28 @@ export default class extends Component{
         this.getClientRect=()=>getClientRect(svg)
 
         this.context.store.dispatch(ACTION.Cursor.ACTIVE(this.context.docId))
+		if(this.props.isAllComposed()){
+			this.emit("emitted.all", this.props.pages.length)
+		}
     }
+	
+	componentWillMount(){
+		if(this.props.isAllComposed()){
+			this.emit("composed.all", this.props.pages.length)
+		}
+	}
+
+	componentWillUpdate(){
+		if(this.props.isAllComposed()){
+			this.emit("composed.all", this.props.pages.length)
+		}else{
+			this.emit("composed",this.props.pages.length)
+		}
+	}	
 
     updateCursorAndSelection(){
-        this.cursor.forceUpdate()
-        this.selection.forceUpdate()
+        this.cursor && this.cursor.forceUpdate()
+        this.selection && this.selection.forceUpdate()
     }
 
     active(){
@@ -244,6 +267,15 @@ export default class extends Component{
         }
         this.active()
     }
+	
+	emit(){
+		try{
+			if(this.context.events)
+				this.context.events.emit(...arguments)
+		}catch(e){
+			console.error(e)
+		}
+	}
 
 	static Query=Query
 }

@@ -50,18 +50,22 @@ const Status=compose(
 ))
 
 const Page=compose(
-	when("composed",total=>({total})),
+	when("composed.all",total=>({total})),
+	when("composed",currentTotal=>({currentTotal})),
 	when("cursorPlaced", ({page})=>({current:page})),
-)(({current=0,total="..."})=>(
+)(({current=0,currentTotal=0, total=0, showTotal=Math.max(total,currentTotal)})=>(
 	<FlatButton style={ButtonStyle}>
-		PAGE {current+1} OF {total}
+		PAGE {current+1} OF {showTotal}{showTotal!==total ? ".." : ""}
 	</FlatButton>
 ))
 
-const Words=when("words",words=>({words}))(
+const Words=compose()(
+	when("words",words=>({words}))
+)(
 	class extends PureComponent{
 		total=0
-		componentWillReceiveProps({words}){
+		componentWillReceiveProps({words=0}){
+			debugger
 			this.total+=words
 		}
 		render(){

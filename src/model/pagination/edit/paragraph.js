@@ -31,9 +31,10 @@ export default class Paragraph extends Super{
 		if(this.computed.composed.length>0){
 			if(shouldRemoveComposed(this)){
 				if(changed){
-					console.debug("paragraph changed, clear composed and then recompose")
 					this.clearComposed()
+					let lastBreakOpportunities=this.computed.breakOpportunities
 					this.computed.breakOpportunities=this.getBreakOpportunities(Children.toArray(children))
+					this.emit("words", this.computed.breakOpportunities.length-lastBreakOpportunities.length)
 				}else{
 					this.computed.lines.forEach(line=>parent.appendComposed(line))
 					this.availableSpace={width:0, height:0}

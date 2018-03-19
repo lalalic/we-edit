@@ -1,6 +1,6 @@
-import React, {PureComponent as Component, Children} from "react"
+import React, {Component, Children} from "react"
 import PropTypes from "prop-types"
-
+import shallowEqual from "tools/shallow-equal"
 
 export default class Group extends Component{
 	static propTypes={

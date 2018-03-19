@@ -6,6 +6,7 @@ export function HasChild(Component){
     return class extends Component{
         static displayName=`composable-${Component.displayName}`
 		static contextTypes={
+			...Component.contextTypes,
 			events: PropTypes.shape({emit:PropTypes.func.isRequired}),
 			debug: PropTypes.bool,
 		}
@@ -93,10 +94,14 @@ export function HasChild(Component){
 
         }
 
-		emit(){
+		emit(type, args){
 			try{
-				if(this.context.events)
+				if(this.context.events){
+					if(this.debug){
+						console.dir({type,args})
+					}
 					this.context.events.emit(...arguments)
+				}
 			}catch(e){
 
 			}
@@ -109,9 +114,10 @@ export function HasChild(Component){
 }
 
 export function HasParentAndChild(Component){
-    return class extends HasChild(Component){
+	const Super=HasChild(Component)
+    return class extends Super{
         static contextTypes = {
-            ...(Component.contextTypes||{}),
+            ...Super.contextTypes,
             parent: PropTypes.object,
             prevSibling: PropTypes.func
         }

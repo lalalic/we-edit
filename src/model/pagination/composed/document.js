@@ -75,17 +75,10 @@ export default class ComposedDocument extends Component{
 		this.emit("composed",this.props.pages.length)
 	}
 
-	componentWillUpdate(){
-		this.emit("composed",this.props.pages.length)
-	}
-
 	componentDidMount(){
 		this.emit("emitted",this.props.pages.length)
 	}
 
-	componentDidUpdate(){
-		this.emit("emitted",this.props.pages.length)
-	}
 
 	emit(){
 		try{

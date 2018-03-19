@@ -128,7 +128,7 @@ export default class Document extends Super{
 		const $=this.query()
 		let contentY=$.toViewportCoordinate($.y)
 		let viewableY=viewport.height-$.svg.top
-		let pageCount=this.computed.composed.length
-		return contentY<viewableY+(pageCount>0 ? this.computed.composed[pageCount-1].size.height/4 : 0)
+		let cacheY=viewport.height
+		return contentY<viewableY+cacheY
 	}
 }
