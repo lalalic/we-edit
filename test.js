@@ -17,8 +17,8 @@ function editor(){
 	window.addEventListener("load", function(){
 		ReactDOM.render((
 			<WeEdit types={[Docx]}>
-				<WeEditUI fonts={[]}>
-					<Workspace accept="*.docx" layout="print" debug={true}>
+				<WeEditUI fonts={["Arial","Calibri", "Cambria"]}>
+					<Workspace accept="*.docx" layout="print" debug={false}>
 						<Viewer
 							toolBar={null} ruler={false}
 							layout="read" icon={<IconRead/>}
@@ -27,7 +27,7 @@ function editor(){
 						</Viewer>
 
 						<Editor
-							screenBuffer={a=>5*a}
+							screenBuffer={viewportHeight=>5*viewportHeight}
 							layout="print" icon={<IconPrint/>}
 							channel={<Pagination measure={SVGMeasure}/>}>
 

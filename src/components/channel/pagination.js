@@ -7,6 +7,7 @@ import ViewerTypes from "pagination"
 import EditorTypes from "pagination/edit"
 import Channel from "./base"
 import isNode from "is-node"
+import Fonts from "fonts"
 
 const createFontMeasureWithDefault=defaultFont=>{
 	return class extends FontMeasure{
@@ -33,6 +34,10 @@ export class Pagination extends Component{
 		defaultFont:"arial"
 	}
 
+	static contextTypes={
+		events: PropTypes.object
+	}
+
 	static childContextTypes={
 		Measure: PropTypes.func
 	}
@@ -50,8 +55,17 @@ export class Pagination extends Component{
 				this.Measure=createFontMeasureWithDefault(defaultFont)
 				const requiredFonts=this.context.doc.getFontList()
 				const fontsLoaded=errors=>{
+					let fonts=Fonts.names
+					if(!fonts.includes(defaultFont)){
+						console.warn(`default font[${defaultFont}] can't be loaded, set ${fonts[0]} as default`)
+						this.Measure=createFontMeasureWithDefault(fonts[0])
+					}
+
 					this.setState({fontsLoaded:true})
-					console.warn("the following fonts with loading erorr: "+errors.join(","))
+					events.emit("fonts.loaded",Fonts.names)
+					if(errors.length){
+						console.warn("the following fonts with loading erorr: "+errors.join(","))
+					}
 				}
 				FontMeasure.requireFonts([defaultFont,...requiredFonts],fonts)
 					.then(fontsLoaded,fontsLoaded)
@@ -74,10 +88,16 @@ export class Pagination extends Component{
 		const {fontsLoaded}=this.state
 		if(!fontsLoaded)
 			return <div>loading fonts...</div>
-		
+
 		const {defaultFont,measure,fonts, ...props}=this.props
 
 		return <Channel {...{ViewerTypes,EditorTypes,...props} }/>
+	}
+
+	componentWillUnmount(){
+		if(FontMeasure.isPrototypeOf(this.Measure)){
+			events.emit("fonts.unloaded")
+		}
 	}
 }
 export default Pagination

@@ -16,8 +16,7 @@ import History from "we-edit-ui/history"
 import * as Table from "we-edit-ui/table"
 
 import {getActive, selector} from "we-edit"
-import {WithSelection,onlyWhen, when} from "we-edit/components"
-import {FontMeasure} from "we-edit/wordwrap/measure"
+import {WithSelection, when} from "we-edit/components"
 
 import Status from "we-edit-ui/status"
 import Ruler from "we-edit-ui/ruler"
@@ -114,13 +113,6 @@ export class Workspace extends PureComponent{
 			statusBar=typeof(current.props.statusBar)=="undefined"? statusBar : current.props.statusBar
 			ruler=typeof(current.props.ruler)=="undefined"? ruler : current.props.ruler
 			current=React.cloneElement(current,{scale:scale/100})
-			
-			let channel=current.props.channel
-			if(channel){
-				if(channel.props.measure && channel.props.measure==FontMeasure){
-					//@TODO:fonts passed to FontList
-				}
-			}
 		}
 
 		return (
