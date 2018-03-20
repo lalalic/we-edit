@@ -36,14 +36,14 @@ export const Ribbon=compose(
 				height:24,
 				textFieldStyle:{
 					fontSize:12
+				},
+				menu:{
+					style:{overflowX:"hidden"},
+					menuItemStyle:{minHeight:"24px", lineHeight:"24px", fontSize:12}
 				}
 			},
 			toolbar:{
 				height:30
-			},
-			menuItem:{
-				height: 24,
-				padding:4,
 			}
 		})}>
 			<Tabs>
