@@ -76,7 +76,7 @@ export default class Document extends Super{
 
 		let minHeight=undefined
 		if(mode=="content" && this.canvas){
-			minHeight=this.canvas.getClientRect().height
+			minHeight=this.canvas.clientRect.height
 		}
 
 		return (

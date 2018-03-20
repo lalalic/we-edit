@@ -16,19 +16,10 @@ export default class Query{
 		this.scale=scale
 		this.pages=document.computed.composed
 		this.canvasWidth=this.pages.reduce((a,{size:{width}})=>Math.max(a,width),0)
-		console.log(`scale=${scale}`)
 	}
 
 	get svg(){
-		if(!this._svg){
-			if(this.document.canvas){
-				return this.document.canvas.getClientRect()
-			}else{
-				return {left:0,top:0}
-			}
-		}
-
-		return this._svg
+		return this.document.canvas && this.document.canvas.clientRect || {left:0,top:0}
 	}
 
 	get y(){
@@ -71,7 +62,7 @@ export default class Query{
 	}
 
 	getCanvasRect(id){
-		let node=this.document.canvas.root.querySelector(`svg [data-content="${id}"]`)
+		let node=this.document.canvas.svg.querySelector(`[data-content="${id}"]`)
 		if(node==null)
 			return null
 		let {left,right,top,bottom,height,width}=getClientRect(node)
@@ -200,7 +191,14 @@ export default class Query{
 					columnNo=index
 					path.splice(0,path.length,parent)
 				}
-				if(type==ComposedText){
+				
+				if(at==-1){
+					if(props && props["data-content"]==id){
+						node=arguments[0]
+						path.push(node)
+						return true
+					}
+				}else if(type==ComposedText){
 					let {"data-content":dataId,"data-endat":dataEndAt}=props
 					if(dataId==id && at<=dataEndAt){
 						node=arguments[0]
@@ -259,17 +257,31 @@ export default class Query{
 		let {pageNo,columnNo,lineNo,node, path}=this.locate(id,at)
 
 		if(!node) return;
-
-		let from=node.props["data-endat"]-node.props.children.join("").length
-		let composer=this.getComposer(id)
-		let {children:text,...props}=composer.props
-		let measure=composer.measure
-		let {height,descent,fontSize, fontFamily}=measure.defaultStyle
-
+		
 		let {x,y}=this._xy(id,path)
-
-		x+=measure.stringWidth(text.substring(from,at))
-		y=y-height
+		
+		let extra={}
+		
+		if(at==-1){
+			extra.height=0
+		}else{
+			let from=node.props["data-endat"]-node.props.children.join("").length
+			let composer=this.getComposer(id)
+			let {children:text,...props}=composer.props
+			let measure=composer.measure
+			let {height,descent,fontSize, fontFamily}=measure.defaultStyle
+			
+			x+=measure.stringWidth(text.substring(from,at))
+			
+			y=y-height
+			
+			extra={
+				height:this.toViewportCoordinate(height),
+				descent:this.toViewportCoordinate(descent),
+				fontFamily,
+				fontSize,
+			}
+		}
 
 		return {
 			id,
@@ -279,12 +291,9 @@ export default class Query{
 			line: lineNo,
 			left:Math.ceil(this.toViewportCoordinate(x))+this.svg.left,
 			top:Math.ceil(this.toViewportCoordinate(y))+this.svg.top,
-			height:this.toViewportCoordinate(height),
-			descent: this.toViewportCoordinate(descent),
 			canvasLeft:Math.ceil(x),
 			canvasTop:Math.ceil(y),
-			fontFamily,
-			fontSize,
+			...extra,
 		}
 	}
 

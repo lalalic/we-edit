@@ -51,13 +51,12 @@ export default class extends Base{
         if(!isAllComposed()){
             composeMoreTrigger=(<ComposeMoreTrigger onEnter={composeMore} y={this.context.query().y}/>)
         }
-        let done=null
         let {props:{children:pages, ...others}}=super.render()
         return (
             <svg {...others}
                 ref={a=>this.svg=a}
                 onClick={e=>{
-                    if(done==e.timeStamp)
+                    if(this.eventAlreadyDone==e.timeStamp)
                         return
 
                     this.onClick(e)
@@ -66,7 +65,7 @@ export default class extends Base{
                     let sel=this.documentSelection()
                     if(sel.type=="Range"){
                         this.onSelect(sel)
-                        done=e.timeStamp
+                        this.eventAlreadyDone=e.timeStamp
                     }
                 }}>
                 {pages}
@@ -98,7 +97,7 @@ export default class extends Base{
         let clientRect=this.svg.getBoundingClientRect()
         let [,,canvasWidth]=this.svg.getAttribute("viewBox").split(" ")
         this.scale=clientRect.width/parseInt(canvasWidth)
-        this.getClientRect=()=>clientRect
+        this.clientRect=clientRect
     }
 
     componentDidUpdate(){

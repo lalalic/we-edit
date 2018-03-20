@@ -14,6 +14,9 @@ export class Editor extends Component{
 		media:PropTypes.string,
 		fullReCompose:PropTypes.bool,
 		channel: PropTypes.node.isRequired,
+		style: PropTypes.object,
+		
+		//canvas props for svg
 		scale: PropTypes.number,
 		canvasStyle: PropTypes.object,
 	}
@@ -24,44 +27,36 @@ export class Editor extends Component{
 	}
 
 	static childContextTypes={
-		media:PropTypes.string
+		media:PropTypes.string,
+		docId: PropTypes.string,
 	}
-
+	
+	docId=`${uuid()}`
 	getChildContext(){
 		const {media}=this.props
-		return {media}
+		return {media, docId:this.docId}
 	}
 
 	render(){
-		const {fullReCompose, children, channel, scale, canvasStyle}=this.props
-		return React.cloneElement(channel,{
-			domain:this.constructor.displayName,
-			children: (<Root fullReCompose={fullReCompose} canvas={children} scale={scale} canvasStyle={canvasStyle}/>)
-		})
+		const {media, channel, style, children:canvas, ...props}=this.props
+		return React.cloneElement(channel,
+			{domain:this.constructor.displayName},
+			<Root style={style} docId={this.docId} canvasProps={{canvas, ...props}}/>
+		)
 	}
 }
 
 const Root=connect((state)=>{
 	return {content:state.get("content"),changed: getChanged(state)}
 })(class extends PureComponent{
-	static childContextTypes={
-		docId: PropTypes.string
-	}
 	static contextTypes={
 		ModelTypes: PropTypes.object
 	}
 
-	docId=`${uuid()}`
 	constructor(){
 		super(...arguments)
 		this.els=new Map()
 		this.componentWillReceiveProps(this.props,this.context)
-	}
-
-	getChildContext(){
-		return {
-			docId:this.docId
-		}
 	}
 
 	modifyDocOnChanged(content,changed,ModelTypes){
@@ -126,23 +121,23 @@ const Root=connect((state)=>{
 		},[])
 	}
 
-	componentWillReceiveProps({content,changed,fullReCompose,dispatch,...renderProps},{ModelTypes}){
+	componentWillReceiveProps({content,changed,fullReCompose,canvasProps},{ModelTypes}){
 		if(fullReCompose || !this.doc){
 			this.els=new Map()
-			this.doc=this.createChildElement("root",content,ModelTypes,this.props.content,renderProps)
+			this.doc=this.createChildElement("root",content,ModelTypes,this.props.content,canvasProps)
 		}else if(this.props.content!=content){
 			if(!changed){
-				this.doc=this.createChildElement("root",content,ModelTypes,this.props.content,renderProps)
+				this.doc=this.createChildElement("root",content,ModelTypes,this.props.content,canvasProps)
 			}else{
 				this.modifyDocOnChanged(content,changed,ModelTypes)
-				this.doc=React.cloneElement(this.doc,renderProps)
+				this.doc=React.cloneElement(this.doc,canvasProps)
 			}
 		}else{
-			this.doc=React.cloneElement(this.doc,  renderProps)
+			this.doc=React.cloneElement(this.doc,  canvasProps)
 		}
 	}
 
-	createChildElement(id,content,ModelTypes,lastContent, renderProps={}){
+	createChildElement(id,content,ModelTypes,lastContent, canvasProps={}){
 		let current=content.get(id)
 		let {type, props, children}=current.toJS()
 		let Child=ModelTypes[type[0].toUpperCase()+type.substr(1)]
@@ -179,7 +174,7 @@ const Root=connect((state)=>{
 				key={id}
 				id={id}
 				{...props}
-				{...renderProps}
+				{...canvasProps}
 				children={elChildren}
 				changed={changed}
 				selfChanged={selfChanged}
@@ -191,7 +186,7 @@ const Root=connect((state)=>{
 	}
 
 	render(){
-		return <div id={this.docId}>{this.doc}</div>
+		return <div id={this.props.docId} style={this.props.style}>{this.doc}</div>
 	}
 })
 

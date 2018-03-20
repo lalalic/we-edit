@@ -52,7 +52,7 @@ export class Cursor extends Component{
 		let docQuery=query()
 		this.style=docQuery.position(id,at)
 		if(!this.style)
-			return
+			return 
 		let {page,column,line,top,left,canvasTop, canvasLeft, height,fontFamily,fontSize,}=this.style
 		getCursorInput()
 			.setState({

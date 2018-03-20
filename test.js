@@ -29,6 +29,7 @@ function editor(){
 						</Viewer>
 
 						<Editor
+							
 							layout="print" icon={<IconPrint/>}
 							channel={<Pagination fonts="fonts/" measure={SVGMeasure}/>}>
 
