@@ -19,7 +19,15 @@ export default class Query{
 	}
 
 	get svg(){
-		return this.document.canvas && this.document.canvas.clientRect || {left:0,top:0}
+		if(!this._svg){
+			let canvas=this.document.canvas
+			if(canvas && canvas.svg)//it must be dynamic for viewport render
+				return this._svg=canvas.svg.getBoundingClientRect()
+			else
+				return this._svg={left:0,top:0}
+		}
+			
+		return this._svg
 	}
 
 	get y(){

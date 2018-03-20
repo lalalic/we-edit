@@ -76,7 +76,8 @@ export default class Document extends Super{
 
 		let minHeight=undefined
 		if(mode=="content" && this.canvas){
-			minHeight=this.canvas.clientRect.height
+			//to keep scrollbar position
+			minHeight=this.canvas.svg.getBoundingClientRect().height
 		}
 
 		return (
@@ -109,6 +110,7 @@ export default class Document extends Super{
 		}
 	}
 
+	//with width&&height, or scrollable Y
 	getContainer(node){
 		return this.container=(function getFrameParent(node) {
 			const isElement = node instanceof HTMLElement;
@@ -137,7 +139,7 @@ export default class Document extends Super{
 		const {mode, viewport}=this.state
 		const $=this.query()
 		let contentY=$.toViewportCoordinate($.y)
-		let viewableY=viewport.height-$.svg.top
+		let viewableY=viewport.height-$.svg.top//svg.top must be dynamic per scroll
 		let cacheY=viewport.height
 		return contentY<viewableY+cacheY
 	}

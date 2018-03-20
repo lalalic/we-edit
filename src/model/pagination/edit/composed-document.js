@@ -2,7 +2,7 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 
 import {connect} from "react-redux"
-import {setDisplayName} from "recompose"
+import {setDisplayName,compose, getContext} from "recompose"
 
 import Base from "../composed/document"
 import {Text} from "model/pagination"
@@ -93,21 +93,20 @@ export default class extends Base{
         return window.getSelection()||document.getSelection()
     }
 
-    setScale(){
-        let clientRect=this.svg.getBoundingClientRect()
+    getComputedScale(){
+		let clientRect=this.svg.getBoundingClientRect()
         let [,,canvasWidth]=this.svg.getAttribute("viewBox").split(" ")
         this.scale=clientRect.width/parseInt(canvasWidth)
-        this.clientRect=clientRect
     }
 
     componentDidUpdate(){
-        this.setScale()
+        this.getComputedScale()
         this.updateCursorAndSelection()
 		this.emit(`emitted${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
     }
 
     componentDidMount(){
-        this.setScale()
+        this.getComputedScale()
         this.context.store.dispatch(ACTION.Cursor.ACTIVE(this.context.docId))
         this.emit(`emitted${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
     }
@@ -257,8 +256,13 @@ export default class extends Base{
 	static Query=Query
 }
 
-const ComposeMoreTrigger=setDisplayName("More")(({onEnter,y})=>(
+const ComposeMoreTrigger=compose(
+	setDisplayName("More"),
+	getContext({debug: PropTypes.bool})
+)(({onEnter,y, debug})=>(
 	<Waypoint onEnter={()=>onEnter(y)} >
-		<g transform={`translate(0 ${y})`}/>
+		<g transform={`translate(0 ${y})`}>
+			{debug ? <line x1="0" y1="0" x2="10000" y2="0" strokeWidth="2" stroke="red"/> : null}
+		</g>
 	</Waypoint>
 ))

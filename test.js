@@ -20,7 +20,7 @@ function editor(){
 		ReactDOM.render((
 			<WeEdit>
 				<WeEditUI>
-					<Workspace accept="*.docx" layout="print" debug={false}>
+					<Workspace accept="*.docx" layout="print" debug={true}>
 						<Viewer
 							toolBar={null} ruler={false}
 							layout="read" icon={<IconRead/>}

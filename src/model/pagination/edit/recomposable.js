@@ -42,7 +42,7 @@ export default function recomposable(Content){
 			super(...arguments)
 			this.context.mount && this.context.mount(this)
 			if(this.debug){
-				this.state={...this.computed}
+				this.state={computed:this.computed}
 			}
 		}
 
