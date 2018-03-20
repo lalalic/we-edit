@@ -4,6 +4,10 @@ import Components from "model"
 import {getSelection, getContent} from "state/selector"
 
 export class Viewable{
+	static get isWeEditType(){
+		return true
+	}
+	
 	static support(file){
 		if(this.Support)
 			return new this.Support().check(file)

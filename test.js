@@ -11,14 +11,12 @@ import {Editor,Viewer,Pagination,Html,Plain,WeEdit} from "we-edit/components"
 import WeEditUI, {Workspace, Bare} from "we-edit-ui"
 import {FontMeasure, SVGMeasure} from "wordwrap/measure"
 
-import Input from "we-edit/input"
 import Docx from "we-edit-docx"
-Input.support(Docx)
 
 function editor(){
 	window.addEventListener("load", function(){
 		ReactDOM.render((
-			<WeEdit>
+			<WeEdit types={[Docx]}>
 				<WeEditUI>
 					<Workspace accept="*.docx" layout="print" debug={true}>
 						<Viewer

@@ -7,7 +7,21 @@ import {combineReducers} from "redux"
 import {Provider} from "react-redux"
 import {ACTION as EditorAction} from "state/action"
 
+import Input from "input"
+
 export class WeEdit extends Component{
+	static propTypes={
+		types: PropTypes.arrayOf(function(types, key, componentName){
+			if(!types[key].isWeEditType){
+				throw new Error(`Invalid prop types provided to ${componentName}: types[${key}] is not valid Input type implementation` )
+			}
+		})
+	}
+	
+	static defaultProps={
+		types:[]
+	}
+	
 	static contextTypes={
 		store: PropTypes.object
 	}
@@ -15,6 +29,7 @@ export class WeEdit extends Component{
 	constructor(){
 		super(...arguments)
 		this.store=this.context.store||this.createStore()
+		this.props.types.forEach(type=>Input.support(type))
 	}
 
 	createStore(){

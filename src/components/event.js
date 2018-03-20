@@ -63,3 +63,9 @@ export const when=(test,stateHandler)=>BaseComponent=>{
         }
     }
 }
+
+export const names="words,composed,emitted,composed.all,emitted.all".split(",")
+		.reduce((state,a)=>{
+			state[a]=a
+			return state
+		},{})
