@@ -27,8 +27,6 @@ export class Pagination extends Component{
 		measure: PropTypes.func,
 		fonts: PropTypes.string,
 		defaultFont: PropTypes.string,
-		canvas: PropTypes.node,
-		pgGap: PropTypes.number,
 	}
 
 	static defaultProps={
@@ -44,21 +42,25 @@ export class Pagination extends Component{
 	}
 
 	state={fontsLoaded:false}
-
 	componentWillMount(){
 		const {defaultFont,measure,fonts}=this.props
 		this.Measure=isNode ? FontMeasure : measure||SVGMeasure
-		if(this.Measure==FontMeasure){
-			this.Measure=createFontMeasureWithDefault(defaultFont)
-			const requiredFonts=this.context.doc.getFontList()
-			const fontsLoaded=errors=>{
-				this.setState({fontsLoaded:true})
-				console.warn("the following fonts with loading erorr: "+errors.join(","))
+		switch(this.Measure){
+			case FontMeasure:{
+				this.Measure=createFontMeasureWithDefault(defaultFont)
+				const requiredFonts=this.context.doc.getFontList()
+				const fontsLoaded=errors=>{
+					this.setState({fontsLoaded:true})
+					console.warn("the following fonts with loading erorr: "+errors.join(","))
+				}
+				FontMeasure.requireFonts([defaultFont,...requiredFonts],fonts)
+					.then(fontsLoaded,fontsLoaded)
+				break
 			}
-			this.Measure.requireFonts([defaultFont,...requiredFonts],fonts)
-				.then(fontsLoaded,fontsLoaded)
-		}else{
-			this.setState({fontsLoaded:true})
+			default:{
+				this.setState({fontsLoaded:true})
+				break
+			}
 		}
 	}
 
@@ -71,7 +73,7 @@ export class Pagination extends Component{
 	render(){
 		const {fontsLoaded}=this.state
 		if(!fontsLoaded)
-			return null
+			return <div>loading fonts...</div>
 		
 		const {defaultFont,measure,fonts, ...props}=this.props
 

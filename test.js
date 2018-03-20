@@ -17,19 +17,19 @@ function editor(){
 	window.addEventListener("load", function(){
 		ReactDOM.render((
 			<WeEdit types={[Docx]}>
-				<WeEditUI>
+				<WeEditUI fonts={[]}>
 					<Workspace accept="*.docx" layout="print" debug={true}>
 						<Viewer
 							toolBar={null} ruler={false}
 							layout="read" icon={<IconRead/>}
-							channel={<Pagination fonts="fonts/" measure={SVGMeasure}/>}>
+							channel={<Pagination measure={SVGMeasure}/>}>
 
 						</Viewer>
 
 						<Editor
 							screenBuffer={a=>5*a}
 							layout="print" icon={<IconPrint/>}
-							channel={<Pagination fonts="fonts/" measure={SVGMeasure}/>}>
+							channel={<Pagination measure={SVGMeasure}/>}>
 
 						</Editor>
 

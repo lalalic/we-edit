@@ -28,12 +28,12 @@ export class WeEdit extends Component{
 
 	constructor(){
 		super(...arguments)
-		this.store=this.context.store||this.createStore()
+		this.store=this.context.store||this.createStore(this.props.reducers)
 		this.props.types.forEach(type=>Input.support(type))
 	}
 
-	createStore(){
-		return createStore(combineReducers({[DOMAIN]:reducer}))
+	createStore(customizedReducers={}){
+		return createStore(combineReducers({[DOMAIN]:reducer, ...customizedReducers}))
 	}
 
 	render(){

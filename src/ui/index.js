@@ -50,14 +50,14 @@ export default compose(
 
 	state={}
 
-	theme=getMuiTheme(styles.theme,this.props.theme)
+	theme=getMuiTheme(styles.theme,this.props.theme, {fonts:this.props.fonts})
 
 	componentDidCatch(error, info){
 		this.setState({error})
 	}
 
 	render(){
-		let {children,active, titleBar, style}=this.props
+		let {children,active, titleBar, style, ...others}=this.props
 		let child=null
 		if(active){
 			child=Children.toArray(children)
@@ -74,7 +74,7 @@ export default compose(
 				})
 
 			if(child)
-				child=React.cloneElement(child, {doc:active})
+				child=React.cloneElement(child, {doc:active, ...others, ...child.props})
 			else
 				child=(<div>no editor for this document</div>)
 		}
