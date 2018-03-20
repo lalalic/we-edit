@@ -29,7 +29,7 @@ function editor(){
 						</Viewer>
 
 						<Editor
-							
+							screenBuffer={a=>5*a}
 							layout="print" icon={<IconPrint/>}
 							channel={<Pagination fonts="fonts/" measure={SVGMeasure}/>}>
 

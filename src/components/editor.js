@@ -12,13 +12,14 @@ export class Editor extends Component{
 	static displayName="editor"
 	static propTypes={
 		media:PropTypes.string,
-		fullReCompose:PropTypes.bool,
+		reCreateDoc:PropTypes.bool,
 		channel: PropTypes.node.isRequired,
 		style: PropTypes.object,
 		
 		//canvas props for svg
 		scale: PropTypes.number,
 		canvasStyle: PropTypes.object,
+		screenBuffer: PropTypes.oneOfType([PropTypes.func, PropTypes.number]),
 	}
 
 	static defaultProps={
@@ -121,8 +122,8 @@ const Root=connect((state)=>{
 		},[])
 	}
 
-	componentWillReceiveProps({content,changed,fullReCompose,canvasProps},{ModelTypes}){
-		if(fullReCompose || !this.doc){
+	componentWillReceiveProps({content,changed,reCreateDoc,canvasProps},{ModelTypes}){
+		if(reCreateDoc || !this.doc){
 			this.els=new Map()
 			this.doc=this.createChildElement("root",content,ModelTypes,this.props.content,canvasProps)
 		}else if(this.props.content!=content){

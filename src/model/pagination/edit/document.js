@@ -32,10 +32,11 @@ export default class Document extends Super{
 		unmount: PropTypes.func,
 	}
 
-	constructor(){
+	constructor({screenBuffer}){
 		super(...arguments)
 		this.composers=new Map([[this.props.id,this]])
 		this.state={mode:"viewport",...this.state}
+		this.screenBuffer=typeof(screenBuffer)=="function" ? screenBuffer : a=>screenBuffer||a;
 	}
 	getChildContext(){
 		let shouldRemoveComposed=this.shouldRemoveComposed.bind(this)
@@ -97,7 +98,7 @@ export default class Document extends Super{
 		)
     }
 
-	componentWillReceiveProps(){
+	componentWillReceiveProps({screenBuffer}){
 		this.clearComposed()
 		this.setState({mode:"content"})
 	}
@@ -140,7 +141,7 @@ export default class Document extends Super{
 		const $=this.query()
 		let contentY=$.toViewportCoordinate($.y)
 		let viewableY=viewport.height-$.svg.top//svg.top must be dynamic per scroll
-		let cacheY=viewport.height
-		return contentY<viewableY+cacheY
+		let bufferY=this.screenBuffer(viewport.height)
+		return contentY<viewableY+bufferY
 	}
 }

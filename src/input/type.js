@@ -177,7 +177,6 @@ export class Editable extends Viewable{
 	- false: no state change
 	- {
 		selection: change of selection,
-		styles: all styles if any style changed,
 		updated: updated content,
 		undoables: saved changed content for history
 	}: all these changes will be applied on state
