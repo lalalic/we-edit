@@ -1,9 +1,8 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 
-import {ACTION} from "state"
-
 import reactComposition from "react-composition"
+import {ACTION} from ".."
 
 export default class Listener extends Component{
 	static contextTypes={
@@ -15,10 +14,10 @@ export default class Listener extends Component{
 	render(){
 		let {dispatch}=this.context.store
 		let {up,down,...others}=this.props
-		return <input 
-			ref={a=>this.input=a} 
-			type="text" 
-			value={this.state.value} 
+		return <input
+			ref={a=>this.input=a}
+			type="text"
+			value={this.state.value}
 			{...others}
 					{...reactComposition({
 							onChange:e=>{

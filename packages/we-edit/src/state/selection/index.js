@@ -2,7 +2,7 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 
 import {connect} from "react-redux"
-import {getSelection,getContent} from "state/selector"
+import {getSelection,getContent} from "../selector"
 
 export class Selection extends Component{
 	static displayName="selection"
@@ -45,11 +45,11 @@ export default class extends Component{
 		if(this.selection)
 			this.selection.forceUpdate()
 	}
-	
+
 	render(){
 		return (
-			<SelectionHolder 
-				ref={a=>{a && (this.selection=a.getWrappedInstance())}} 
+			<SelectionHolder
+				ref={a=>{a && (this.selection=a.getWrappedInstance())}}
 				{...this.props}/>
 			)
 	}

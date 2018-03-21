@@ -8,7 +8,7 @@ import {Snackbar} from "material-ui"
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
-import TitleBar from "we-edit-ui/title-bar"
+import TitleBar from "./title-bar"
 import {getActive} from "we-edit"
 import {grey50 as BACKGROUND} from "material-ui/styles/colors"
 

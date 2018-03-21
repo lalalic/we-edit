@@ -3,10 +3,10 @@ import PropTypes from "prop-types"
 
 import {connect, connectAdvanced} from "react-redux"
 
-import {getContent, getChanged, getParentId} from "state/selector"
-import Cursor from "state/cursor"
-import Input from "input"
-import uuid from "tools/uuid"
+import {getContent, getChanged, getParentId} from "../state/selector"
+import Cursor from "../state/cursor"
+import Input from "../input"
+import uuid from "../tools/uuid"
 
 export class Editor extends Component{
 	static displayName="editor"
@@ -15,7 +15,7 @@ export class Editor extends Component{
 		reCreateDoc:PropTypes.bool,
 		channel: PropTypes.node.isRequired,
 		style: PropTypes.object,
-		
+
 		//canvas props for svg
 		scale: PropTypes.number,
 		canvasStyle: PropTypes.object,
@@ -31,7 +31,7 @@ export class Editor extends Component{
 		media:PropTypes.string,
 		docId: PropTypes.string,
 	}
-	
+
 	docId=`${uuid()}`
 	getChildContext(){
 		const {media}=this.props

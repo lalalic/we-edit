@@ -8,12 +8,12 @@ import IconClose from "material-ui/svg-icons/navigation/close"
 import IconFiles from "material-ui/svg-icons/navigation/arrow-drop-down"
 import IconMenu from "material-ui/svg-icons/navigation/menu"
 
-import Dashboard from "we-edit-ui/dashboard"
+import Dashboard from "./dashboard"
 
 import {ACTION} from "we-edit"
 
-import ComboBox from "we-edit-ui/components/combo-box"
-import SizeIconButton from "we-edit-ui/components/size-icon-button"
+import ComboBox from "./components/combo-box"
+import SizeIconButton from "./components/size-icon-button"
 
 export class Bar extends PureComponent{
     state={showDrawer:false}

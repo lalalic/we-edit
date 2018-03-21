@@ -1,4 +1,4 @@
-import {getSelection, getRedos, getUndos} from "state/selector"
+import {getSelection, getRedos, getUndos} from "./selector"
 
 export const ACTION={
 	undo:entry=>{

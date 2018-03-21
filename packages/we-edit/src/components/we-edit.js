@@ -1,13 +1,12 @@
 import React,{Component, Children} from "react"
 import PropTypes from "prop-types"
 
-import {createStore} from "state"
-
 import {combineReducers} from "redux"
 import {Provider} from "react-redux"
-import {ACTION as EditorAction} from "state/action"
 
-import Input from "input"
+import {ACTION as EditorAction} from "../state/action"
+import {createStore} from "../state"
+import Input from "../input"
 
 export class WeEdit extends Component{
 	static propTypes={
@@ -17,11 +16,11 @@ export class WeEdit extends Component{
 			}
 		})
 	}
-	
+
 	static defaultProps={
 		types:[]
 	}
-	
+
 	static contextTypes={
 		store: PropTypes.object
 	}
@@ -95,9 +94,9 @@ export function reducer(state={active:null,docs:{}}, action){
 				let changedMyState=reducer(myState,action)
 				if(changedMyState){
 					return {
-						...state, 
+						...state,
 						docs:{
-							...state.docs, 
+							...state.docs,
 							[id]:{
 								...state.docs[id],
 								state:changedMyState
@@ -115,10 +114,3 @@ export function reducer(state={active:null,docs:{}}, action){
 		}
 	}
 }
-
-
-
-
-
-
-

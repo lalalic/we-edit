@@ -1,13 +1,13 @@
 import React from "react"
 import * as reducer from "./reducer"
-import Components from "model"
-import {getSelection, getContent} from "state/selector"
+import Components from "../model"
+import {getSelection, getContent} from "../state/selector"
 
 export class Viewable{
 	static get isWeEditType(){
 		return true
 	}
-	
+
 	static support(file){
 		if(this.Support)
 			return new this.Support().check(file)
@@ -129,7 +129,7 @@ export class Viewable{
 	render(createElement/*(TYPE, props, children, rawcontent)*/,components){
 		return "Input.render should be implemented"
 	}
-	
+
 	/**
 	* []: the fonts array that loaded/created doc uses
 	* it's only for <Pagination measure={FontMeasure}/> type
@@ -228,7 +228,7 @@ export class Editable extends Viewable{
 			case 'we-edit/selection/CUT':
 				return new reducer.clipboard(...params)
 					.cut(payload)
-					.state()					
+					.state()
 			case "we-edit/selection/MOVE":
 				return new reducer.entity(...params)
 					.move(payload)

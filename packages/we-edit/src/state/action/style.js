@@ -1,5 +1,5 @@
 import PropTypes from "prop-types"
-import Components from "model"
+import Components from "../../model"
 
 function extract(Component){
 	let name=Component.displayName

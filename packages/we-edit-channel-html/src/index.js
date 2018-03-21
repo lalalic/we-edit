@@ -1,20 +1,7 @@
-import Models from "we-edit/model"
-import Document from "./document"
-import Section from "./section"
-import Paragraph from "./paragraph"
-import Text from "./text"
-import Image from "./image"
-import Table from "./table"
-import Row from "./row"
-import Cell from "./cell"
+import React from "react"
+import {Channel} from "we-edit/components"
 
+import ViewerTypes from "html"
+import EditorTypes from "html/edit"
 
-export default {
-	...Models,
-	Document, 
-	Section, 
-	Paragraph, 
-	Text,
-	Image,
-	Table, Row, Cell
-}
+export default props=><Channel {...{ViewerTypes,EditorTypes,...props}}/>

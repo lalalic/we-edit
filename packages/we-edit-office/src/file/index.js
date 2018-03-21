@@ -6,7 +6,7 @@ import {compose, mapProps,getContext,setDisplayName} from "recompose"
 import Input from "we-edit/input"
 
 import {ToolbarGroup} from "material-ui"
-import CheckIconButton from "we-edit-ui/components/check-icon-button"
+import CheckIconButton from "./components/check-icon-button"
 
 
 import IconSave from "material-ui/svg-icons/content/save"

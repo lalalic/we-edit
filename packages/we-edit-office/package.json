@@ -20,11 +20,11 @@
 	"we-edit-type-json": "^3.0.0",
 	"we-edit-channel-pagination": "^3.0.0",
 	"we-edit-channel-html": "^3.0.0",
-	"we-edit-channel-text": "^3.0.0",
+	"we-edit-channel-text": "^3.0.0"
   },
   "peerDependencies":{
-	
-  },  
+
+  },
   "engines": {
     "node": ">=0.10.0"
   },

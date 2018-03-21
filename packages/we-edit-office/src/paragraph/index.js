@@ -6,7 +6,7 @@ import {connect} from "react-redux"
 import {selector} from "we-edit"
 
 import {ToolbarGroup} from "material-ui"
-import CheckIconButton from "we-edit-ui/components/check-icon-button"
+import CheckIconButton from "./components/check-icon-button"
 
 import IconAlignCenter from "material-ui/svg-icons/editor/format-align-center"
 import IconAlignLeft from "material-ui/svg-icons/editor/format-align-left"

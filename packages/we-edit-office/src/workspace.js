@@ -3,24 +3,22 @@ import PropTypes from "prop-types"
 import {connect} from "react-redux"
 import {compose,setDisplayName,getContext,withContext}  from "recompose"
 import minimatch from "minimatch"
+import EventEmitter from "events"
 
 import {Toolbar,ToolbarSeparator, ToolbarTitle, Tabs, Tab, Snackbar} from "material-ui"
-
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
-
-import Text from "we-edit-ui/text"
-import Paragraph from "we-edit-ui/paragraph"
-import File from "we-edit-ui/file"
-import History from "we-edit-ui/history"
-import * as Table from "we-edit-ui/table"
 
 import {getActive, selector} from "we-edit"
 import {WithSelection, when} from "we-edit/components"
 
-import Status from "we-edit-ui/status"
-import Ruler from "we-edit-ui/ruler"
-import EventEmitter from "events"
+import Text from "./text"
+import Paragraph from "./paragraph"
+import File from "./file"
+import History from "./history"
+import * as Table from "./table"
+import Status from "./status"
+import Ruler from "./ruler"
 
 export const Ribbon=compose(
 	setDisplayName("Ribbon"),

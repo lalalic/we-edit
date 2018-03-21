@@ -7,7 +7,7 @@ import { Popover,Subheader } from "material-ui"
 import IconTable from "material-ui/svg-icons/editor/border-all"
 
 import {ACTION} from "we-edit"
-import SizeIconButton from "we-edit-ui/components/size-icon-button"
+import SizeIconButton from "./components/size-icon-button"
 
 export class Create extends Component{
 	state={show:false}

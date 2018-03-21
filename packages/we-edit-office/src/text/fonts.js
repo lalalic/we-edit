@@ -4,7 +4,7 @@ import {compose,setDisplayName,getContext,withProps} from "recompose"
 import {connect} from "react-redux"
 
 import {SelectField,MenuItem,Subheader} from 'material-ui'
-import ComboBox from "we-edit-ui/components/combo-box"
+import ComboBox from "./components/combo-box"
 import {when} from "we-edit/components"
 
 const FontList=compose(

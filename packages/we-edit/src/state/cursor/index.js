@@ -2,11 +2,11 @@ import React, {Component, Children} from "react"
 import PropTypes from "prop-types"
 
 import {connect} from "react-redux"
-import {getContent,  getSelection} from "state/selector"
-import {ACTION} from "state"
+import {ACTION} from ".."
+import {getContent,  getSelection} from "../selector"
 
 import get from "lodash.get"
-import getClientRect from "tools/get-client-rect"
+import getClientRect from "../../tools/get-client-rect"
 
 import Shape from "./shape"
 
@@ -52,7 +52,7 @@ export class Cursor extends Component{
 		let docQuery=query()
 		this.style=docQuery.position(id,at)
 		if(!this.style)
-			return 
+			return
 		let {page,column,line,top,left,canvasTop, canvasLeft, height,fontFamily,fontSize,}=this.style
 		getCursorInput()
 			.setState({

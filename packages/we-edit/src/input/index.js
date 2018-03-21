@@ -5,18 +5,17 @@ import {Provider,connect} from "react-redux"
 import Immutable, {Map,Collection} from "immutable"
 import {compose, setDisplayName, getContext,withContext} from "recompose"
 import TestRenderer from 'react-test-renderer'
-import {LocalStore} from "components/with-store"
 
-import Components from "model"
-import {createStore, createState, isState} from "state"
-import {getContent,getSelection,getFile,getParentId, query} from "state/selector"
-import undoable, {ACTION} from "state/undoable"
-import * as reducer from "state/reducer"
-import Input from "state/cursor/input"
-import {Cursor,Stat} from "state/action"
+import Components from "../model"
+import {createStore, createState, isState} from "../state"
+import {getContent,getSelection,getFile,getParentId, query} from "../state/selector"
+import undoable, {ACTION} from "../state/undoable"
+import * as reducer from "../state/reducer"
+import Input from "../state/cursor/input"
+import {Cursor,Stat} from "../state/action"
 
-
-import uuid from "tools/uuid"
+import {LocalStore} from "../components/with-store"
+import uuid from "../tools/uuid"
 import Type from "./type"
 
 const supported=[]

@@ -1,5 +1,5 @@
 import React from "react"
-import Models from "model/html"
+import Models from "../all"
 
 import {editable} from "model/edit"
 import Document from "./document"
@@ -9,7 +9,7 @@ function composable(Content){
 		render(){
 			if(!super.render)
 				return null
-			
+
 			let root=super.render()
 			if(root && root.type)
 				return React.cloneElement(root, {"data-content":this.props.id})

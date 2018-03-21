@@ -1,6 +1,6 @@
-import {getContent, nextCursorable, prevCursorable,getSelection} from "state/selector"
-import {ACTION as History} from "state/undoable"
-import Query from "state/selector/query"
+import {getContent, nextCursorable, prevCursorable,getSelection} from "../selector"
+import {ACTION as History} from "../undoable"
+import Query from "../selector/query"
 
 import Style from "./style"
 
