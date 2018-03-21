@@ -7,23 +7,5 @@
 		"babel-plugin-add-module-exports",
 		"babel-plugin-transform-object-rest-spread",
 		"babel-plugin-transform-class-properties",
-		["module-resolver",{
-			"root": ["./src"],
-			"alias":{
-				"state":"state",
-				"model":"model",
-				"html":"model/html",
-				"pagination":"model/pagination",
-				"plain":"model/plain",
-				"composed":"model/pagination/composed",
-				"tools":"tools",
-				"input":"input",
-				"fonts":"model/pagination/wordwrap/fonts",
-				"wordwrap":"model/pagination/wordwrap",
-				"we-edit-docx":"docx",
-				"we-edit":"we-edit-docx/..",
-				"we-edit-ui":"ui",
-			}
-		}]
     ]
-  }
+}

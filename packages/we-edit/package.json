@@ -1,0 +1,29 @@
+{
+  "name": "we-edit",
+  "description": "a text editor framework",
+  "version": "3.0.0",
+  "author": {
+    "name": "Raymond Li",
+    "email": "lalalic@139.com"
+  },
+  "keywords": ["we-edit"],  
+  "main", "src/index.js",
+  "dependencies": {
+    "immutable": "^3.8.1",
+    "is-node": "^1.0.2",
+    "lodash.get": "^4.4.2",
+    "prop-types": "^15.6.0",
+    "react": "^16.2.0",
+    "react-composition": "^0.2.1",
+    "react-dom": "^16.1.1",
+    "react-redux": "^5.0.6",
+    "react-test-renderer": "^16.2.0",
+    "recompose": "^0.26.0",
+    "redux": "^3.7.2",
+    "redux-thunk": "^2.2.0",
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "readme": "README.md"
+}

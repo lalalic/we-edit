@@ -1,37 +1,16 @@
 {
+  "private": true,
   "name": "we-edit",
-  "description": "an text editor",
+  "description": "a text editor",
   "version": "3.0.0",
   "author": {
     "name": "Raymond Li",
     "email": "lalalic@139.com"
   },
-  "dependencies": {
-    "docx4js": "^3.1.12",
-    "events": "^2.0.0",
-    "immutable": "^3.8.1",
-    "is-node": "^1.0.2",
-    "linebreak": "^0.3.0",
-    "lodash.get": "^4.4.2",
-    "lodash.invoke": "^4.5.2",
-    "material-ui": "^0.19.4",
-    "minimatch": "^3.0.4",
-    "mouse-event-offset": "^3.0.2",
-    "opentype.js": "^0.6.9",
-    "prop-types": "^15.6.0",
-    "react": "^16.2.0",
-    "react-composition": "^0.2.1",
-    "react-dom": "^16.1.1",
-    "react-redux": "^5.0.6",
-    "react-test-renderer": "^16.2.0",
-    "react-waypoint": "^7.3.1",
-    "recompose": "^0.26.0",
-    "redux": "^3.7.2",
-    "redux-thunk": "^2.2.0",
-    "shortid": "^2.2.8",
-    "ttfjs": "^0.4.0",
-    "word-wrapper": "^1.0.7"
-  },
+  "workspaces": [
+    "packages/we-edit",
+	"packages/we-edit-docx"
+  ],
   "devDependencies": {
     "babel-cli": "^6.6.5",
     "babel-loader": "^6.3.2",
@@ -58,7 +37,6 @@
     "webpack-dev-server": "^2.9.4"
   },
   "scripts": {
-    "compile": "babel src -d lib --source-maps inline",
     "build.release": "webpack -p",
     "build.debug": "webpack -d",
     "test": "jest __tests__",
@@ -70,7 +48,7 @@
     "url": ""
   },
   "engines": {
-    "node": ">= 0.4.4"
+    "node": ">=0.10.0"
   },
   "readme": "README.md"
 }

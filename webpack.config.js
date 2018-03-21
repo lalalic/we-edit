@@ -14,7 +14,7 @@ module.exports=env=>{
 				use: ["source-map-loader"],
 				enforce: "pre",
 				include:/(docx4js|docx-template)/
-			  },{
+			},{
 				test: /\.js?$/,
 				use: ['babel-loader'],
 				exclude: /node_modules/,
