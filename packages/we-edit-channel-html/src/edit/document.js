@@ -3,13 +3,12 @@ import PropTypes from "prop-types"
 
 import Base from "../document"
 
-import {ACTION} from "state"
-import {editable} from "model/edit"
-import Cursor from "state/cursor"
-import {getContent} from "state/selector"
+import {ACTION} from "we-edit/state"
+import {editable} from "we-edit/model/edit"
+import Cursor from "we-edit/state/cursor"
+import {getContent} from "we-edit/state/selector"
 import offset from "mouse-event-offset"
-import getClientRect from "tools/get-client-rect"
-import {HTMLMeasure} from "wordwrap/measure"
+import getClientRect from "we-edit/tools/get-client-rect"
 
 export default class Document extends editable(Base){
 	static contextTypes={
@@ -21,7 +20,7 @@ export default class Document extends editable(Base){
         return (
 			<div ref={a=>this.root=a}>
 				{super.render()}
-				
+
 			</div>
 		)
     }
@@ -56,10 +55,20 @@ export default class Document extends editable(Base){
 
 		let {top,left}=getClientRect(node)
 		let wordwrapper=new HTMLMeasure(node)
-		
+
 		let width=wordwrapper.stringWidth(text.substring(0,at))
 		let {height, descent}=wordwrapper
 
 		return {top, left, width,height,descent}
+	}
+}
+
+class HTMLMeasure{
+	widthString(width, text){
+		return 0
+	}
+
+	stringWidth(str){
+		return str.length
 	}
 }

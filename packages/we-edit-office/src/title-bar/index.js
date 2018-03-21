@@ -8,12 +8,12 @@ import IconClose from "material-ui/svg-icons/navigation/close"
 import IconFiles from "material-ui/svg-icons/navigation/arrow-drop-down"
 import IconMenu from "material-ui/svg-icons/navigation/menu"
 
-import Dashboard from "./dashboard"
+import Dashboard from "../dashboard"
 
 import {ACTION} from "we-edit"
 
-import ComboBox from "./components/combo-box"
-import SizeIconButton from "./components/size-icon-button"
+import ComboBox from "../components/combo-box"
+import SizeIconButton from "../components/size-icon-button"
 
 export class Bar extends PureComponent{
     state={showDrawer:false}
@@ -26,7 +26,7 @@ export class Bar extends PureComponent{
 		}
 
 		let closeButton=null
-		
+
 		if(docs.length>0){
 			closeButton=(
 				<SizeIconButton size={height} padding={height/4} onClick={close}>
@@ -34,11 +34,11 @@ export class Bar extends PureComponent{
 				</SizeIconButton>
 			)
 		}
-		
+
 		return (
 			<div style={{background:"transparent",height, display:"flex", flexDirection:"row", ...style}}>
 				<div>
-					<SizeIconButton 
+					<SizeIconButton
 						size={height}
 						onClick={()=>this.setState({showDrawer:true})}
 						>

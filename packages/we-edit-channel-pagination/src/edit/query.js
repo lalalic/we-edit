@@ -1,11 +1,11 @@
 import React from "react"
-import ComposedDocument from "composed/document"
-import ComposedText from "composed/text"
-import ComposedLine from "composed/line"
-import ContentQuery from "state/selector/query"
+import ComposedDocument from "../composed/document"
+import ComposedText from "../composed/text"
+import ComposedLine from "../composed/line"
+import ContentQuery from "we-edit/state/selector/query"
 
-import FindLast from "tools/array-find-last"
-import getClientRect from "tools/get-client-rect"
+import FindLast from "we-edit/tools/array-find-last"
+import getClientRect from "we-edit/tools/get-client-rect"
 
 const NOT_FOUND={left:-9999,top:0}
 export default class Query{
@@ -26,7 +26,7 @@ export default class Query{
 			else
 				return this._svg={left:0,top:0}
 		}
-			
+
 		return this._svg
 	}
 
@@ -199,7 +199,7 @@ export default class Query{
 					columnNo=index
 					path.splice(0,path.length,parent)
 				}
-				
+
 				if(at==-1){
 					if(props && props["data-content"]==id){
 						node=arguments[0]
@@ -265,11 +265,11 @@ export default class Query{
 		let {pageNo,columnNo,lineNo,node, path}=this.locate(id,at)
 
 		if(!node) return;
-		
+
 		let {x,y}=this._xy(id,path)
-		
+
 		let extra={}
-		
+
 		if(at==-1){
 			extra.height=0
 		}else{
@@ -278,11 +278,11 @@ export default class Query{
 			let {children:text,...props}=composer.props
 			let measure=composer.measure
 			let {height,descent,fontSize, fontFamily}=measure.defaultStyle
-			
+
 			x+=measure.stringWidth(text.substring(from,at))
-			
+
 			y=y-height
-			
+
 			extra={
 				height:this.toViewportCoordinate(height),
 				descent:this.toViewportCoordinate(descent),

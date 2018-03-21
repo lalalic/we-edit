@@ -1,7 +1,7 @@
 import React from "react"
 import Models from "../all"
 
-import {editable} from "model/edit"
+import {editable} from "we-edit/model/edit"
 import Document from "./document"
 
 function composable(Content){

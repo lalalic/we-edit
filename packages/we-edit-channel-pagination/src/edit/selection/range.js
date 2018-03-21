@@ -2,7 +2,7 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 
 import offset from "mouse-event-offset"
-import getClientRect from "tools/get-client-rect"
+import getClientRect from "we-edit/tools/get-client-rect"
 
 import Movable from "./movable"
 

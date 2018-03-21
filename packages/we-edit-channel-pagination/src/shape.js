@@ -5,7 +5,7 @@ import PropTypes from "prop-types"
 import Group from "./composed/group"
 
 import {HasParentAndChild} from "./composable"
-import Base from "../shape"
+import Base from "we-edut/model/shape"
 const Super=HasParentAndChild(Base)
 
 class Area{
@@ -22,22 +22,22 @@ export default class Shape extends Super{
 		const {shape="custom"}=this.props
 		this.shape=new this.constructor[shape](...arguments)
 	}
-	
+
 	nextAvailableSpace(){
 		return this.shape.availableSpace()
 	}
-	
+
 	appendComposed(content){
 		return this.computed.composed.push(content)
 	}
-	
+
 	onAllChildrenComposed(){
 		let composed=this.createComposed2Parent()
 		this.context.parent.appendComposed(composed)
-		
+
 		super.onAllChildrenComposed()
 	}
-	
+
 	createComposed2Parent(){
 		let {width,height,margin,position}=this.props
 		this.context.parent.nextAvailableSpace({width,height})
@@ -59,7 +59,7 @@ export default class Shape extends Super{
 			</Group>
 		)
 	}
-	
+
 	static rect=class extends Area{
 		availableSpace(){
 			const {width,height,margin}=this.props
@@ -68,24 +68,24 @@ export default class Shape extends Super{
 				height: height-margin.top-margin.bottom
 			}
 		}
-		
+
 		createComposedShape(content){
 			let {
 					width,height,margin,
 					outline={strokeWidth:1,stroke:"black"},
 					fill={fill:"none"}
 				}=this.props
-				
+
 			return [
-				<rect key="shape" x="0" y="0" 
-							width={width} height={height} 
+				<rect key="shape" x="0" y="0"
+							width={width} height={height}
 							style={{...outline, ...fill}}/>,
-							
-				<Group key="content" x={margin.left} y={margin.top} children={content}/>			
+
+				<Group key="content" x={margin.left} y={margin.top} children={content}/>
 			]
 		}
 	}
-	
+
 	static ellipse=class extends Area{
 		availableSpace(){
 			const {width,height,margin}=this.props
@@ -94,31 +94,31 @@ export default class Shape extends Super{
 				height: Math.sqrt(2)*height/2-margin.top-margin.bottom
 			}
 		}
-		
+
 		createComposedShape(content){
 			let {
 					width,height,margin,
 					outline={strokeWidth:1,stroke:"black"},
 					fill={fill:"none"}
 				}=this.props
-			
-			let size=this.availableSpace()	
+
+			let size=this.availableSpace()
 			return [
 				<ellipse key="shape"
-					cx={width/2} cy={height/2} 
+					cx={width/2} cy={height/2}
 					rx={width/2} ry={height/2}
 					style={{...outline, ...fill}} />,
-							
-				<Group key="content" 
-					x={width/2-size.width/2} 
-					y={height/2-size.height/2} 
-					children={content}/>			
+
+				<Group key="content"
+					x={width/2-size.width/2}
+					y={height/2-size.height/2}
+					children={content}/>
 			]
 		}
 	}
-	
+
 	static circle=Shape.ellipse
-	
+
 	static custom=class extends Area{
 		availableSpace(){
 			const {width,height,margin}=this.props
@@ -127,7 +127,7 @@ export default class Shape extends Super{
 				height: height-margin.top-margin.bottom
 			}
 		}
-		
+
 		createComposedShape(content){
 			let {
 					width,height,margin,
@@ -137,18 +137,15 @@ export default class Shape extends Super{
 				}=this.props
 
 			return [
-				<path key="shape" 
+				<path key="shape"
 					d={path}
 					style={{...outline, ...fill}} />,
-							
-				<Group key="content" 
-					x={margin.left} 
-					y={margin.top} 
-					children={content}/>			
+
+				<Group key="content"
+					x={margin.left}
+					y={margin.top}
+					children={content}/>
 			]
 		}
 	}
 }
-
-
-

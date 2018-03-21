@@ -8,7 +8,7 @@ import Divider from 'material-ui/Divider';
 import {yellow500, gray100} from 'material-ui/styles/colors';
 
 import IconLogo from "material-ui/svg-icons/editor/border-color"
-import * as File from "./file"
+import * as File from "../file"
 
 export default compose(
 	setDisplayName("dashboard"),
@@ -53,7 +53,7 @@ export default compose(
 				primaryText="Options"
 				onClick={()=>Promise.resolve(open()).then(dispear,dispear)}
 				/>
-				
+
 			<MenuItem
 				primaryText="Close"
 				onClick={()=>Promise.resolve(open()).then(dispear,dispear)}

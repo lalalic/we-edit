@@ -6,7 +6,7 @@ import {compose, mapProps,getContext,setDisplayName} from "recompose"
 import Input from "we-edit/input"
 
 import {ToolbarGroup} from "material-ui"
-import CheckIconButton from "./components/check-icon-button"
+import CheckIconButton from "../components/check-icon-button"
 
 
 import IconSave from "material-ui/svg-icons/content/save"
@@ -20,7 +20,7 @@ export class File extends PureComponent{
 	componentWillReceiveProps({content}){
 		this.setState({changed:this.props.content!=content})
 	}
-	
+
 	render(){
 		const {changed}=this.state
 		const {save,children}=this.props
@@ -56,7 +56,7 @@ export default compose(
 		save(){
 			return doc.save()
 		}
-	})),	
+	})),
 	connect(state=>({content:state.get('content')})),
 )(File)
 

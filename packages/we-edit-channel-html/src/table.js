@@ -1,5 +1,5 @@
 import React from "react"
-import Base from "../table"
+import Base from "we-edit/model/table"
 
 export default class Table extends Base{
 	render(){

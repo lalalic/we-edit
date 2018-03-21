@@ -1,13 +1,13 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 
-import {Channel} from "we-edit/components"
-import {FontMeasure, SVGMeasure} from "wordwrap/measure"
-
-import ViewerTypes from "pagination"
-import EditorTypes from "pagination/edit"
 import isNode from "is-node"
-import Fonts from "fonts"
+import {Channel} from "we-edit/components"
+
+import ViewerTypes from "./all"
+import EditorTypes from "./edit"
+import Fonts from "./wordwrap/fonts"
+import {FontMeasure, SVGMeasure} from "./wordwrap/measure"
 
 const createFontMeasureWithDefault=defaultFont=>{
 	return class extends FontMeasure{

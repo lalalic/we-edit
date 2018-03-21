@@ -5,21 +5,21 @@ import {connect} from "react-redux"
 import {setDisplayName,compose, getContext} from "recompose"
 
 import Base from "../composed/document"
-import {Text} from "model/pagination"
+import {Text} from ".."
 import Query from "./query"
 import Waypoint from "react-waypoint"
 
-import {ACTION} from "state"
-import {getContent,getSelection} from "state/selector"
-import {editable} from "model/edit"
+import {ACTION} from "we-edit/state"
+import {getContent,getSelection} from "we-edit/state/selector"
+import {editable} from "we-edit/model/edit"
 import recomposable from "./recomposable"
 
-import Selection from "state/selection"
-import Cursor from "state/cursor"
+import Selection from "we-edit/state/selection"
+import Cursor from "we-edit/state/cursor"
 import SelectionShape from "./selection"
 
 import offset from "mouse-event-offset"
-import getClientRect from "tools/get-client-rect"
+import getClientRect from "we-edit/tools/get-client-rect"
 
 export default class extends Base{
     static displayName="composed-document-with-cursor"

@@ -6,7 +6,7 @@ import {compose, mapProps,getContext,setDisplayName} from "recompose"
 import Input from "we-edit/input"
 
 import {ToolbarGroup} from "material-ui"
-import CheckIconButton from "./components/check-icon-button"
+import CheckIconButton from "../components/check-icon-button"
 
 
 import IconRedo from "material-ui/svg-icons/content/redo"
@@ -30,7 +30,7 @@ export default compose(
 		let redos=selector.getRedos(state)
 		let undos=selector.getUndos(state)
 		return {
-			canRedo:!!redos.length, 
+			canRedo:!!redos.length,
 			canUndo:!!undos.length
 		}
 	})

@@ -3,9 +3,9 @@ import PropTypes from "prop-types"
 
 
 import {NoChild} from "./composable"
-import Base from "../text"
+import Base from "we-edit/model/text"
 
-import {SVGMeasure, FontMeasure} from "wordwrap/measure"
+import {SVGMeasure, FontMeasure} from "./wordwrap/measure"
 
 import Group from "./composed/group"
 import ComposedText from "./composed/text"
@@ -68,7 +68,7 @@ export default class Text extends Super{
 			state.width=0
 			content.splice(0,content.length)
 		}
-		
+
 		const consume1=(state,opportunity,i)=>{
             let [word="", wordWidth]=opportunity
 			let {space:{width:maxWidth},content,width}=state
@@ -85,9 +85,9 @@ export default class Text extends Super{
 				if(width!=0){
 					commit(state)
 				}
-				
+
 				let nextSpace=parent.nextAvailableSpace({height:measure.height,width:wordWidth})
-					
+
 				if(width==0){
 					if(nextSpace.width<wordWidth){
 						let text=word.substr(0,this.measure.widthString(maxWidth, word))
@@ -95,7 +95,7 @@ export default class Text extends Super{
 						state.width+=maxWidth
 						state.end+=text.length
 						commit(state)
-						
+
 						let unComposedText=word.substr(text.length)
 						opportunity=[unComposedText, this.measure.stringWidth(unComposedText)]
 					}
@@ -105,7 +105,7 @@ export default class Text extends Super{
 			}
 			return state
 		}
-		
+
         let state=this.computed.breakOpportunities.reduce(
 			consume1,
 			{space:parent.nextAvailableSpace({height:measure.height}),content:[],width:0,end:0}

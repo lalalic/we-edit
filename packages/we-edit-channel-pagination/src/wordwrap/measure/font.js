@@ -1,16 +1,16 @@
 import Measure from "./measure"
-import Fonts from "fonts"
+import Fonts from "../fonts"
 import {default as isNode} from "is-node"
 
 export default class FontMeasure extends Measure{
 	getFont(){
 		return Fonts.get(this.fontFamily)
 	}
-	
+
     lineHeight(){
 		this.font=this.getFont()
         return {
-			height : this.font.lineHeight(this.size)*96/72, 
+			height : this.font.lineHeight(this.size)*96/72,
 			descent: this.font.lineDescent(this.size)*96/72
 		}
     }
@@ -31,7 +31,7 @@ export default class FontMeasure extends Measure{
 		}
 		return width*96/72;
     }
-	
+
 	static requireFonts(fonts, service){
 		const done=()=>{
 			let errors=fonts.filter(a=>{
@@ -47,7 +47,7 @@ export default class FontMeasure extends Measure{
 		}
 		if(!service)
 			return Promise.resolve(done())
-		
+
 		if(isNode){
 			return Fonts.fromPath(service,fonts)
 				.then(done,done)

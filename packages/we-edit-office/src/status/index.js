@@ -5,7 +5,7 @@ import {compose, getContext, mapProps,withProps,setDisplayName} from "recompose"
 import {Toolbar, ToolbarGroup, FlatButton, IconButton, Slider} from "material-ui"
 import * as selector from "we-edit/state/selector"
 import {blue800, blue900} from "material-ui/styles/colors"
-import SizeIconButton from "./components/size-icon-button"
+import SizeIconButton from "../components/size-icon-button"
 import {when} from "we-edit/components"
 
 const ButtonStyle={
@@ -63,7 +63,7 @@ class Words extends PureComponent{
 	static contextTypes={
 		events: PropTypes.object
 	}
-	
+
 	constructor(props, {events}){
 		super(...arguments)
 		this.state={total:0}
@@ -73,7 +73,7 @@ class Words extends PureComponent{
 			})
 		}
 	}
-	
+
 	render(){
 		return (
 			<FlatButton style={ButtonStyle}>

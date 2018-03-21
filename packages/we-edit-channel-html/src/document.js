@@ -1,7 +1,7 @@
 import React from "react"
 import PropTypes from "prop-types"
 
-import Base from "../document"
+import Base from "we-edit/model/document"
 
 export default class Document extends Base{
 	render(){

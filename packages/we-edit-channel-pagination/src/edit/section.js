@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 
 import Base from "../section"
 
-import {editable} from "model/edit"
+import {editable} from "we-edit/model/edit"
 import recomposable from "./recomposable"
 
 const Super=editable(recomposable(Base))

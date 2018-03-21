@@ -1,5 +1,5 @@
 import Measure from "./measure"
-import getClientRect from "tools/get-client-rect"
+import getClientRect from "we-edit/tools/get-client-rect"
 
 let tester=null
 let DEFAULT_STYLE="margin:0;padding:0;border:0;position:absolute;left:-1000px;white-space: pre;"

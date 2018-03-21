@@ -4,16 +4,16 @@ import PropTypes from "prop-types"
 import {connect} from "react-redux"
 
 import Base from "../document"
-import {Text} from "model/pagination"
+import {Text} from ".."
 import ComposedDocument from "./composed-document"
 
-import {ACTION} from "state"
-import {getContent,getSelection} from "state/selector"
-import {editable} from "model/edit"
+import {ACTION} from "we-edit/state"
+import {getContent,getSelection} from "we-edit/state/selector"
+import {editable} from "we-edit/model/edit"
 import recomposable from "./recomposable"
 
 import offset from "mouse-event-offset"
-import getClientRect from "tools/get-client-rect"
+import getClientRect from "we-edit/tools/get-client-rect"
 
 const Super=editable(recomposable(Base))
 const PageGap=24

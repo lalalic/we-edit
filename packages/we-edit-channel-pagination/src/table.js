@@ -5,7 +5,7 @@ import PropTypes from "prop-types"
 import Group from "./composed/group"
 
 import {HasParentAndChild} from "./composable"
-import Base from "../table"
+import Base from "we-edit/model/table"
 const Super=HasParentAndChild(Base)
 
 export default class Table extends Super{
@@ -44,7 +44,7 @@ export default class Table extends Super{
 					</Spacing>
 				</Cell>
 			);
-			
+
 			x+=cols[colNo]
 			height=Math.max(height,y)
 			if(rowNo+colNo===0)

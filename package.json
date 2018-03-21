@@ -1,6 +1,8 @@
 {
   "private": true,
-  "workspaces": ["packages/*"],
+  "workspaces": [
+      "packages/*"
+    ],
   "name": "we-edit",
   "description": "a text editor",
   "version": "3.0.0",
@@ -23,6 +25,7 @@
     "css-loader": "^0.28.9",
     "enzyme": "^2.7.1",
     "jest": "^19.0.2",
+    "lerna": "^2.9.0",
     "less": "^2.7.3",
     "less-loader": "^4.0.5",
     "react-addons-test-utils": "^15.6.2",
@@ -39,7 +42,9 @@
     "test": "jest __tests__",
     "dev": "webpack-dev-server --env=dev"
   },
-  "keywords": ["we-edit"],
+  "keywords": [
+    "we-edit"
+  ],
   "repository": {
     "type": "git",
     "url": ""

@@ -7,12 +7,12 @@ import {compose,setDisplayName,getContext,mapProps,withProps} from "recompose"
 import {connect} from "react-redux"
 
 import {ToolbarGroup,TextField,SelectField, MenuItem} from "material-ui"
-import CheckIconButton from "./components/check-icon-button"
+import CheckIconButton from "../components/check-icon-button"
 
 import IconBold from "material-ui/svg-icons/editor/format-bold"
 import IconItalic from "material-ui/svg-icons/editor/format-italic"
 import IconUnderlined from "material-ui/svg-icons/editor/format-underlined"
-import ComboBox from "./components/combo-box"
+import ComboBox from "../components/combo-box"
 import FontList from "./fonts"
 
 export default compose(

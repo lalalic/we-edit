@@ -3,14 +3,14 @@ import PropTypes from "prop-types"
 
 
 import {HasParentAndChild} from "./composable"
-import Base from "../paragraph"
+import Base from "we-edit/model/paragraph"
 
 import opportunities from "./wordwrap/line-break"
 import Group from "./composed/group"
 import Line, {Info as LineInfo} from "./composed/line"
 import ComposedText from "./composed/text"
 
-import Text from "../text"
+import Text from "we-edit/model/text"
 
 const Super=HasParentAndChild(Base)
 export default class Paragraph extends Super{
@@ -44,7 +44,7 @@ export default class Paragraph extends Super{
     getBreakOpportunities(children){
 		return Object.freeze(opportunities(children,this.props.getChildText))
     }
-	
+
 	componentDidMount(){
 		this.emit("words",this.computed.breakOpportunities.length)
 	}
