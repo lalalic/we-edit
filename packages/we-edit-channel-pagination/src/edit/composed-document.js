@@ -14,8 +14,7 @@ import {getContent,getSelection} from "we-edit/state/selector"
 import {editable} from "we-edit/model/edit"
 import recomposable from "./recomposable"
 
-import Selection from "we-edit/state/selection"
-import Cursor from "we-edit/state/cursor"
+import {Cursor,Selection} from "we-edit/components"
 import SelectionShape from "./selection"
 
 import offset from "mouse-event-offset"

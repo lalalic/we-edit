@@ -10,3 +10,7 @@ export {WithStore} from "./with-store"
 export {WithSelection} from "./with-selection"
 
 export {onlyWhen, when} from "./event"
+
+export {default as Cursor} from "./cursor"
+
+export {default as Selection} from "./selection"

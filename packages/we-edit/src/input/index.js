@@ -11,7 +11,7 @@ import {createStore, createState, isState} from "../state"
 import {getContent,getSelection,getFile,getParentId, query} from "../state/selector"
 import undoable, {ACTION} from "../state/undoable"
 import * as reducer from "../state/reducer"
-import Input from "../state/cursor/input"
+import Input from "../components/cursor/input"
 import {Cursor,Stat} from "../state/action"
 
 import {LocalStore} from "../components/with-store"

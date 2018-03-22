@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 
 import {connect} from "react-redux"
 import {ACTION} from ".."
-import {getContent,  getSelection} from "../selector"
+import {getContent,  getSelection} from "../../state/selector"
 
 import get from "lodash.get"
 import getClientRect from "../../tools/get-client-rect"
