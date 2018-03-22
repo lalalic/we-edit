@@ -38,7 +38,8 @@
     "webpack-dev-server": "^2.9.4"
   },
   "scripts": {
-    "build": "webpack",
+	"compile": "babel --source-maps inline",
+    "build": "webpack -p --env=npm",
     "test": "jest __tests__",
     "dev": "webpack-dev-server --env=dev"
   },

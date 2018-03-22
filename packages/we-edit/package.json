@@ -27,5 +27,6 @@
   "engines": {
     "node": ">=0.10.0"
   },
+  "main":"lib",
   "readme": "README.md"
 }
