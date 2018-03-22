@@ -43,17 +43,22 @@ export const Office=()=>(
 
 import ReactDOM from "react-dom"
 export function createOffice(container){
-	if(!container){
+	if(!container || container=document.body){
 		container=document.createElement("div")
 		document.body.style="margin:0px;padding:0px;border:0px"
 		document.body.appendChild(container)
 	}
-	window.addEventListener("load",()=>{
-		ReactDOM.render(<Office/>, container)
-	})
+	return ReactDOM.render(<Office/>, container)
 }
 
-export default Office
+export default Office;
 
-createOffice()
+(function(me){
+	window.addEventListener("load", ()=>{
+		if(me.OfficeContainer){
+			let container=typeof(me.OfficeContainer)=="string"? document.querySelector(me.OfficeContainer) : me.OfficeContainer
+			createOffice(container)
+		}
+	})
+})(window);
 
