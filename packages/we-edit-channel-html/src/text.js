@@ -1,5 +1,5 @@
 import React from "react"
-import Base from "we-edit/model/text"
+import {Text as Base} from "we-edit/model"
 
 export default class Text extends Base{
 	render(){

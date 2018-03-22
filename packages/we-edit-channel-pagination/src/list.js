@@ -4,7 +4,7 @@ import PropTypes from "prop-types"
 
 import {HasParentAndChild} from "./composable"
 import Paragraph from "./paragraph"
-import Base from "we-edit/model/list"
+import {List as Base} from "we-edit/model"
 import Text from "./text"
 import Group from "./composed/group"
 import ComposedText from "./composed/text"
@@ -18,7 +18,7 @@ export default class List extends Paragraph{
 		...Paragraph.propTypes,
 		...Super.propTypes
 	}
-	
+
 	static contextTypes={
 		...Paragraph.contextTypes,
 		...Super.contextTypes,

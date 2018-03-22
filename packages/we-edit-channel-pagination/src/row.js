@@ -5,7 +5,7 @@ import PropTypes from "prop-types"
 import Group from "./composed/group"
 
 import {HasParentAndChild} from "./composable"
-import Base from "we-edit/model/row"
+import {Row as Base} from "we-edit/model"
 const Super=HasParentAndChild(Base)
 
 export default class Row extends Super{
@@ -85,7 +85,7 @@ export default class Row extends Super{
 				minSpace.height=minHeight
 			}else
 				parent.appendComposed(currentGroupedLines)
-			
+
 			if(counter++>100)
 				throw new Error("there should be a infinite loop during row split, please check")
 		}while(!isAllSent2Table());

@@ -3,14 +3,14 @@ import PropTypes from "prop-types"
 
 
 import {HasParentAndChild} from "./composable"
-import Base from "we-edit/model/paragraph"
+import {Paragraph as Base} from "we-edit/model"
 
 import opportunities from "./wordwrap/line-break"
 import Group from "./composed/group"
 import Line, {Info as LineInfo} from "./composed/line"
 import ComposedText from "./composed/text"
 
-import Text from "we-edit/model/text"
+import {Text} from "we-edit/model"
 
 const Super=HasParentAndChild(Base)
 export default class Paragraph extends Super{

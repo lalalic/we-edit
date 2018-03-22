@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 
 
 import {NoChild} from "./composable"
-import Base from "we-edit/model/text"
+import {Text as Base} from "we-edit/model"
 
 import {SVGMeasure, FontMeasure} from "./wordwrap/measure"
 

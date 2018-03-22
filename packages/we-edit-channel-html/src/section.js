@@ -1,5 +1,5 @@
 import React from "react"
-import Base from "we-edit/model/section"
+import {Section as Base} from "we-edit/model"
 
 export default class Section extends Base{
 	render(){

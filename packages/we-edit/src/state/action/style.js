@@ -1,5 +1,4 @@
 import PropTypes from "prop-types"
-import Components from "we-edit/model"
 
 function extract(Component){
 	let name=Component.displayName

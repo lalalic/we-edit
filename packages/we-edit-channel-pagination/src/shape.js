@@ -5,7 +5,7 @@ import PropTypes from "prop-types"
 import Group from "./composed/group"
 
 import {HasParentAndChild} from "./composable"
-import Base from "we-edit/model/shape"
+import {Shape as Base} from "we-edit/model"
 const Super=HasParentAndChild(Base)
 
 class Area{

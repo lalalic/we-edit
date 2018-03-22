@@ -1,5 +1,5 @@
 import React from "react"
-import Base from "we-edit/model/cell"
+import {Cell as Base} from "we-edit/model"
 
 export default class Cell extends Base{
 	render(){

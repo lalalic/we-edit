@@ -1,7 +1,7 @@
 import React from "react"
 
 import {HasParentAndChild} from "./composable"
-import Base from "we-edit/model/header"
+import {Header as Base} from "we-edit/model"
 
 import Group from "./composed/group"
 

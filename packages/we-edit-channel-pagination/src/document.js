@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 
 
 import {HasChild} from "./composable"
-import Base from "we-edit/model/document"
+import {Document as Base} from "we-edit/model"
 
 import ComposedDocument from "./composed/document"
 
@@ -15,8 +15,8 @@ export default class Document extends Super{
 			<Fragment>
 				{this.computed.children.length==0 ? super.render() : null}
 
-				<ComposedDocument 
-					pages={this.computed.composed} 
+				<ComposedDocument
+					pages={this.computed.composed}
 					{...{canvas,scale, canvasStyle}}/>
 			</Fragment>
 		)

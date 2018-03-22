@@ -1,5 +1,5 @@
 import React from "react"
-import Base from "we-edit/model/row"
+import {Row as Base} from "we-edit/model"
 
 export default class Row extends Base{
 	render(){
