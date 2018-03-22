@@ -1,5 +1,5 @@
 import HtmlMeasure from "./html"
-import getClientRect from "we-edit/tools/get-client-rect"
+import {getClientRect} from "we-edit"
 
 /**
  *

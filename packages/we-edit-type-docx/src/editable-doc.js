@@ -1,6 +1,5 @@
 import docx4js from "docx4js"
 import editors from "./model/edit"
-import Editable from "we-edit/input/editable-doc"
 
 let _uuid=0
 const uuid=()=>`${_uuid++}`
@@ -66,7 +65,7 @@ export default class EditableDocument extends docx4js{
 	removeNode({id}){
 		return this.getNode(id).remove()
 	}
-	
+
 	insertNodeBefore(newNode,referenceNode,parentNode){
 		if(referenceNode)
 			referenceNode.before(newNode)
@@ -75,7 +74,7 @@ export default class EditableDocument extends docx4js{
 		else
 			throw new Error("not support")
 	}
-	
+
 	insertNodeAfter(newNode,referenceNode,parentNode){
 		if(referenceNode)
 			referenceNode.after(newNode)
@@ -83,7 +82,7 @@ export default class EditableDocument extends docx4js{
 			parentNode.prepend(newNode)
 		else
 			throw new Error("not support")
-	}	
+	}
 
 	attach(xml){
 		xml=this.officeDocument.content(xml)
@@ -116,7 +115,7 @@ export default class EditableDocument extends docx4js{
 	px2cm(px){
 		return Math.ceil(px*72/96*360000/28.3464567)
 	}
-	
+
 	toString(id){
 		return this.officeDocument.content.xml(this.getNode(id))
 	}

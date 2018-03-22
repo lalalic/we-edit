@@ -2,10 +2,7 @@ import React from "react"
 import ComposedDocument from "../composed/document"
 import ComposedText from "../composed/text"
 import ComposedLine from "../composed/line"
-import ContentQuery from "we-edit/state/selector/query"
-
-import FindLast from "we-edit/tools/array-find-last"
-import getClientRect from "we-edit/tools/get-client-rect"
+import {ContentQuery, getClientRect} from "we-edit"
 
 const NOT_FOUND={left:-9999,top:0}
 export default class Query{

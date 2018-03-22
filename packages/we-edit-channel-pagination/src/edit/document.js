@@ -7,15 +7,13 @@ import Base from "../document"
 import {Text} from ".."
 import ComposedDocument from "./composed-document"
 
-import {ACTION} from "we-edit/state"
-import {getContent,getSelection} from "we-edit/state/selector"
-import {editable} from "we-edit/model/edit"
+import {getContent,getSelection,getClientRect, ACTION} from "we-edit"
+import {editify} from "we-edit"
 import recomposable from "./recomposable"
 
 import offset from "mouse-event-offset"
-import getClientRect from "we-edit/tools/get-client-rect"
 
-const Super=editable(recomposable(Base))
+const Super=editify(recomposable(Base))
 const PageGap=24
 export default class Document extends Super{
 	static contextTypes={

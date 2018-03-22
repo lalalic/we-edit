@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 import {connect} from "react-redux"
 import {compose, mapProps,getContext,setDisplayName} from "recompose"
 
-import Input from "we-edit/input"
+import {Input} from "we-edit"
 
 import {ToolbarGroup} from "material-ui"
 import CheckIconButton from "../components/check-icon-button"

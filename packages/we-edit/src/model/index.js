@@ -27,5 +27,3 @@ export default{
 	Frame,
 	Shape
 }
-
-export {editable} from "./edit"

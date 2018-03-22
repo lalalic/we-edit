@@ -1,7 +1,7 @@
 import PropTypes from "prop-types"
 
 
-export function editable(Model){
+export function editify(Model){
 	return class extends Model{
 		static displayName=`editable-${Model.displayName}`
 

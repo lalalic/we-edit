@@ -3,10 +3,10 @@ import PropTypes from "prop-types"
 
 import Base from "../shape"
 
-import {editable} from "we-edit/model/edit"
+import {editify} from "we-edit"
 import recomposable from "./recomposable"
 
-const Super=editable(recomposable(Base))
+const Super=editify(recomposable(Base))
 
 export default class Shape extends Super{
 	static contextTypes={
@@ -14,11 +14,11 @@ export default class Shape extends Super{
 		shouldRemoveComposed:PropTypes.func,
 		shouldContinueCompose:PropTypes.func
 	}
-	
+
 	shouldContinueCompose(){
 		return true
 	}
-	
+
 	componentWillReceiveProps({width,height,changed,children}){
 		if(this.context.shouldRemoveComposed(this)){
 			if(changed){
@@ -32,7 +32,7 @@ export default class Shape extends Super{
 				this.onAllChildrenComposed()
 			}
 		}
-	}	
+	}
 
 	render(){
 		if(!this.context.shouldContinueCompose()){
@@ -42,7 +42,7 @@ export default class Shape extends Super{
 		if(this.computed.children.length>0){ //@TODO: optimize to clear changed only
 			return null
 		}
-				
+
 		return super.render()
 	}
 }

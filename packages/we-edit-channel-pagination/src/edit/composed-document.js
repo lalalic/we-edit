@@ -6,19 +6,16 @@ import {setDisplayName,compose, getContext} from "recompose"
 
 import Base from "../composed/document"
 import {Text} from ".."
-import Query from "./query"
 import Waypoint from "react-waypoint"
+import Query from "./query"
 
-import {ACTION} from "we-edit/state"
-import {getContent,getSelection} from "we-edit/state/selector"
-import {editable} from "we-edit/model/edit"
+import {getContent,getSelection, getClientRect, ACTION, Cursor, Selection} from "we-edit"
+import {editify} from "we-edit"
 import recomposable from "./recomposable"
 
-import {Cursor,Selection} from "we-edit/components"
 import SelectionShape from "./selection"
 
 import offset from "mouse-event-offset"
-import getClientRect from "we-edit/tools/get-client-rect"
 
 export default class extends Base{
     static displayName="composed-document-with-cursor"

@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 
 import {compose,setDisplayName,getContext,mapProps} from "recompose"
 import {connect} from "react-redux"
-import {selector} from "we-edit"
+import {getSelection} from "we-edit"
 
 import {ToolbarGroup} from "material-ui"
 import CheckIconButton from "../components/check-icon-button"
@@ -24,7 +24,7 @@ export default compose(
 		style:selection.props("paragraph"),
 		align:type=>dispatch(ACTION.Style.update({paragraph:{align:type}})),
 	})),
-	connect(state=>({selection:selector.getSelection(state)})),
+	connect(state=>({selection:getSelection(state)})),
 )(({doc,style, align,children})=>(
 	<ToolbarGroup>
 		<CheckIconButton

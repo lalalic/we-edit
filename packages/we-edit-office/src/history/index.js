@@ -3,8 +3,6 @@ import PropTypes from "prop-types"
 import {connect} from "react-redux"
 import {compose, mapProps,getContext,setDisplayName} from "recompose"
 
-import Input from "we-edit/input"
-
 import {ToolbarGroup} from "material-ui"
 import CheckIconButton from "../components/check-icon-button"
 
@@ -12,7 +10,7 @@ import CheckIconButton from "../components/check-icon-button"
 import IconRedo from "material-ui/svg-icons/content/redo"
 import IconUndo from "material-ui/svg-icons/content/undo"
 
-import {ACTION, getActive, selector} from "we-edit"
+import {ACTION, getActive, getUndos, getRedos, Input} from "we-edit"
 
 export default compose(
 	setDisplayName("clipboard"),
@@ -27,8 +25,8 @@ export default compose(
 		children
 	})),
 	connect(state=>{
-		let redos=selector.getRedos(state)
-		let undos=selector.getUndos(state)
+		let redos=getRedos(state)
+		let undos=getUndos(state)
 		return {
 			canRedo:!!redos.length,
 			canUndo:!!undos.length

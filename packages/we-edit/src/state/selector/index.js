@@ -1,5 +1,4 @@
 import {List} from "immutable"
-import FindLast from "../../tools/array-find-last"
 
 export function getUndos(state){
 	return state.get("undos")

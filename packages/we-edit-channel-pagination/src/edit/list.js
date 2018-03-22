@@ -2,9 +2,9 @@ import React from "react"
 import Base from "../list"
 import {Paragraph} from "./paragraph"
 
-import {editable} from "we-edit/model/edit"
+import {editify} from "we-edit"
 import recomposable from "./recomposable"
 
-export default class List extends editable(recomposable(Base)){
-    
+export default class List extends editify(recomposable(Base)){
+
 }

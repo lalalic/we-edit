@@ -3,10 +3,10 @@ import PropTypes from "prop-types"
 
 import Base from "../paragraph"
 
-import {editable} from "we-edit/model/edit"
+import {editify} from "we-edit"
 import recomposable from "./recomposable"
 
-const Super=editable(recomposable(Base))
+const Super=editify(recomposable(Base))
 
 //compose all or clear all
 export default class Paragraph extends Super{
@@ -26,7 +26,7 @@ export default class Paragraph extends Super{
 		this.computed.lines.push(line)
 		return line
 	}
-	
+
 	componentWillUnmount(){
 		this.emit("words", -this.computed.breakOpportunities.length)
 	}
@@ -62,7 +62,7 @@ export default class Paragraph extends Super{
 		if(this.computed.composed.length>0){
 			return null
 		}
-		
+
 		if(!this.context.shouldContinueCompose()){
 			return null
 		}

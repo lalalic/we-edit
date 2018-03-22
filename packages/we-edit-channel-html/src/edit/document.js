@@ -3,14 +3,11 @@ import PropTypes from "prop-types"
 
 import Base from "../document"
 
-import {ACTION} from "we-edit/state"
-import {editable} from "we-edit/model/edit"
-import Cursor from "we-edit/state/cursor"
-import {getContent} from "we-edit/state/selector"
+import {ACTION, Cursor, getContent, getClientRect} from "we-edit"
+import {editify} from "we-edit"
 import offset from "mouse-event-offset"
-import getClientRect from "we-edit/tools/get-client-rect"
 
-export default class Document extends editable(Base){
+export default class Document extends editify(Base){
 	static contextTypes={
 		store:PropTypes.any,
 		docId:PropTypes.any

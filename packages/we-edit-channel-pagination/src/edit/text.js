@@ -1,12 +1,12 @@
 import React from "react"
 import Base from "../text"
 
-import {editable} from "we-edit/model/edit"
+import {editify} from "we-edit"
 import recomposable from "./recomposable"
 
-import shallowEqual from "we-edit/tools/shallow-equal"
+import {shallowEqual} from "we-edit"
 
-export default class Text extends editable(recomposable(Base)){
+export default class Text extends editify(recomposable(Base)){
     componentWillReceiveProps(next,context){
         if(!shallowEqual(this.props,next)){
             this.computed.breakOpportunities=this.getBreakOpportunitiesWidth(next,context)

@@ -9,8 +9,7 @@ import {Toolbar,ToolbarSeparator, ToolbarTitle, Tabs, Tab, Snackbar} from "mater
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
 
-import {getActive, selector} from "we-edit"
-import {WithSelection, when} from "we-edit/components"
+import {getActive, WithSelection, when} from "we-edit"
 
 import Text from "./text"
 import Paragraph from "./paragraph"

@@ -1,5 +1,5 @@
 import React from "react"
-import {WeEdit, Viewer, Editor} from "we-edit/components"
+import {WeEdit, Viewer, Editor} from "we-edit"
 import Pagination from "we-edit-channel-pagination"
 import Html from "we-edit-channel-html"
 
@@ -60,4 +60,3 @@ export default Office;
 			createOffice(container)
 	})
 })(window);
-

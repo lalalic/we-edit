@@ -5,7 +5,7 @@ import {connect} from "react-redux"
 
 import {SelectField,MenuItem,Subheader} from 'material-ui'
 import ComboBox from "../components/combo-box"
-import {when} from "we-edit/components"
+import {when} from "we-edit"
 
 const FontList=compose(
 	getContext({muiTheme:PropTypes.object}),

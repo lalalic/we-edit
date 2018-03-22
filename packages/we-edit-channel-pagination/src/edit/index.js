@@ -1,10 +1,10 @@
 import Models from "../all"
 
-import {editable} from "we-edit/model"
+import {editify} from "we-edit"
 import recomposable from "./recomposable"
 
 const Editables=Object.keys(Models).reduce((Editables, key)=>{
-	Editables[key]=editable(recomposable(Models[key]))
+	Editables[key]=editify(recomposable(Models[key]))
 	return Editables
 },{})
 

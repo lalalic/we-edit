@@ -2,7 +2,7 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 
 import isNode from "is-node"
-import {Channel} from "we-edit/components"
+import {Channel} from "we-edit"
 
 import ViewerTypes from "./all"
 import EditorTypes from "./edit"

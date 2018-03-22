@@ -1,7 +1,7 @@
 import React from "react"
 import Models from "../all"
 
-import {editable} from "we-edit/model/edit"
+import {editify} from "we-edit"
 import Document from "./document"
 
 function composable(Content){
@@ -19,7 +19,7 @@ function composable(Content){
 }
 
 const Editabls=Object.keys(Models).reduce((Editabls, key)=>{
-	Editabls[key]=editable(composable(Models[key]))
+	Editabls[key]=editify(composable(Models[key]))
 	return Editabls
 },{})
 

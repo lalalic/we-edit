@@ -3,10 +3,9 @@ import PropTypes from "prop-types"
 import {connect} from "react-redux"
 import {compose, getContext, mapProps,withProps,setDisplayName} from "recompose"
 import {Toolbar, ToolbarGroup, FlatButton, IconButton, Slider} from "material-ui"
-import * as selector from "we-edit/state/selector"
 import {blue800, blue900} from "material-ui/styles/colors"
 import SizeIconButton from "../components/size-icon-button"
-import {when} from "we-edit/components"
+import {when} from "we-edit"
 
 const ButtonStyle={
 	background:"transparent",

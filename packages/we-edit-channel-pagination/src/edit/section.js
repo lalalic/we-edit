@@ -3,10 +3,10 @@ import PropTypes from "prop-types"
 
 import Base from "../section"
 
-import {editable} from "we-edit/model/edit"
+import {editify} from "we-edit"
 import recomposable from "./recomposable"
 
-const Super=editable(recomposable(Base))
+const Super=editify(recomposable(Base))
 
 export default class Section extends Super{
 	static contextTypes={

@@ -2,7 +2,7 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 
 import {connect} from "react-redux"
-import {getSelection,getContent} from "../../state/selector"
+import {getSelection,getContent} from "we-edit/state/selector"
 
 export class Selection extends Component{
 	static displayName="selection"
