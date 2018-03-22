@@ -8,14 +8,15 @@
   },
   "dependencies": {
 
-  },  
+  },
   "peerDependencies":{
 	"we-edit":"^3.0.0"
-  }, 
+  },
   "keywords": ["we-edit"],
   "engines": {
     "node": ">= 0.4.4"
   },
   "main":"lib",
+  "files":["lib","dist","README.md"],
   "readme": "README.md"
 }

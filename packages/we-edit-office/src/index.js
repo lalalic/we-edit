@@ -2,6 +2,7 @@ import React from "react"
 import {WeEdit, Viewer, Editor} from "we-edit"
 import Pagination from "we-edit-channel-pagination"
 import Html from "we-edit-channel-html"
+import Text from "we-edit-channel-text"
 
 import "we-edit-type-docx"
 import "we-edit-type-json"

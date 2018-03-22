@@ -30,5 +30,6 @@
     "node": ">=0.10.0"
   },
   "main":"lib",
+  "files":["lib","dist","README.md"],
   "readme": "README.md"
 }

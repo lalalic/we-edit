@@ -5,7 +5,7 @@ import PropTypes from "prop-types"
 import {NoChild} from "./composable"
 import {Text as Base} from "we-edit/model"
 
-import {SVGMeasure, FontMeasure} from "./wordwrap/measure"
+import {SVGMeasure, FontMeasure} from "./measure"
 
 import Group from "./composed/group"
 import ComposedText from "./composed/text"

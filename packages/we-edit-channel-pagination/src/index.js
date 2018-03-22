@@ -6,8 +6,8 @@ import {Channel} from "we-edit"
 
 import ViewerTypes from "./all"
 import EditorTypes from "./edit"
-import Fonts from "./wordwrap/fonts"
-import {FontMeasure, SVGMeasure} from "./wordwrap/measure"
+import Fonts from "./fonts"
+import {FontMeasure, SVGMeasure} from "./measure"
 
 const createFontMeasureWithDefault=defaultFont=>{
 	return class extends FontMeasure{

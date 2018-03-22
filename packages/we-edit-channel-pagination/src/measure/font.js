@@ -1,4 +1,4 @@
-import Measure from "./measure"
+import Measure from "./base"
 import Fonts from "../fonts"
 import {default as isNode} from "is-node"
 

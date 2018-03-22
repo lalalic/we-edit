@@ -1,4 +1,4 @@
-import Measure from "./measure"
+import Measure from "./base"
 import {getClientRect} from "we-edit"
 
 let tester=null
