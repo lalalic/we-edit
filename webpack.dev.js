@@ -1,23 +1,19 @@
 const path = require('path');
 const HtmlWebpackPlugin=require("html-webpack-plugin")
 
-const alias=",channel-html,channel-pagination,channel-text,type-docx,type-json,office"
-	.split(",")
-	.reduce((alias,k)=>{
-		let p=`we-edit${k.length ? `-${k}` : ''}`
-		alias[p]=path.resolve(__dirname, `packages/${p}/src/`)
-		return alias
-	},{})
-
-module.exports=(base)=>{
+module.exports=(base, packages)=>{
 	return {
 		...base,
 		entry:["./packages/we-edit-office/src/index.js"],
 		devtool: 'source-map',
-		resolve:{alias},
+		resolve:{
+			alias: packages.reduce((alias,p)=>(alias[p]=path.resolve(__dirname, `packages/${p}/src/`),alias),{})
+		},
 		plugins:[
 			...base.plugins,
-			new HtmlWebpackPlugin()
+			new HtmlWebpackPlugin({
+				title:"WEOffice"
+			})
 		],
 		devServer:{
 			contentBase: path.join(__dirname, "dist"),

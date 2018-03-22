@@ -10,12 +10,14 @@ import ComposedDocument from "./composed/document"
 const Super=HasChild(Base)
 export default class Document extends Super{
     render(){
-		const {canvas}=this.props
+		const {canvas,scale, canvasStyle}=this.props
         return (
 			<Fragment>
-				{super.render()}
+				{this.computed.children.length==0 ? super.render() : null}
 
-				<ComposedDocument pages={this.computed.composed} canvas={canvas}/>
+				<ComposedDocument 
+					pages={this.computed.composed} 
+					{...{canvas,scale, canvasStyle}}/>
 			</Fragment>
 		)
     }

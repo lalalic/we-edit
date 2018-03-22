@@ -38,8 +38,7 @@
     "webpack-dev-server": "^2.9.4"
   },
   "scripts": {
-    "build.release": "webpack -p",
-    "build.debug": "webpack -d",
+    "build": "webpack",
     "test": "jest __tests__",
     "dev": "webpack-dev-server --env=dev"
   },

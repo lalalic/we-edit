@@ -1,11 +1,15 @@
 const path = require('path');
 const webpack = require("webpack");
+const packages=",channel-html,channel-pagination,channel-text,type-docx,type-json,office"
+	.split(",")
+	.map(k=>`we-edit${k.length ? `-${k}` : ''}`)
+
 
 module.exports=env=>{
 	const base={
 		entry:"./src/index.js",
 		output:{
-			filename:"index.js",
+			filename:"[name].js",
 			path:path.resolve(__dirname, 'dist')
 		},
 		module:{
@@ -39,7 +43,7 @@ module.exports=env=>{
 	}
 	
 	if(env){
-		return require(`./webpack.${env}.js`)(base)
+		return require(`./webpack.${env}.js`)(base, packages)
 	}
 	
 	return base
