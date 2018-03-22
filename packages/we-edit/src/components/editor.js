@@ -4,7 +4,7 @@ import PropTypes from "prop-types"
 import {connect, connectAdvanced} from "react-redux"
 
 import {getContent, getChanged, getParentId} from "../state/selector"
-import Cursor from "../state/cursor"
+import Cursor from "./cursor"
 import Input from "../input"
 import uuid from "../tools/uuid"
 

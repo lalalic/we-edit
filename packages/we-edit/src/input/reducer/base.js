@@ -1,5 +1,5 @@
-import {getSelection,getFile} from "we-edit/state/selector"
-import ACTION from "we-edit/state/action"
+import {getSelection,getFile} from "../../state/selector"
+import ACTION from "../../state/action"
 import xQuery from "./xquery"
 
 export default class Reducer{
@@ -41,13 +41,13 @@ export default class Reducer{
 
 	renderChanged(id){
 		let docNode=typeof(id)=="string" ? this.file.getNode(id) : id
-		
+
 		try{
 			docNode=docNode.get(0)
 		}catch(e){
 
 		}
-		
+
 		let rendered=this.file.renderChanged(docNode)
 
 		id=rendered.id

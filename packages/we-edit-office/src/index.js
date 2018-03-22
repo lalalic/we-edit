@@ -3,8 +3,8 @@ import {WeEdit, Viewer, Editor} from "we-edit"
 import Pagination from "we-edit-channel-pagination"
 import Html from "we-edit-channel-html"
 
-import {} from "we-edit-type-docx"
-import {} from "we-edit-type-json"
+import "we-edit-type-docx"
+import "we-edit-type-json"
 
 import WeEditUI from "./we-edit-ui"
 import Workspace from "./workspace"

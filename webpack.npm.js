@@ -19,10 +19,7 @@ module.exports=(base, packages)=>{
 					filename:`index.${process.env.NODE_ENV}.js`,
 					path: path.resolve(`${__dirname}/packages/${p}`, 'dist')
 				},
-				externals:{
-					react:"react",
-					"we-edit":"we-edit"
-				}
+				externals:["react","we-edit"]
 			}
 		})
 }

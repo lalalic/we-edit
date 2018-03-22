@@ -1,6 +1,6 @@
 import Immutable, {List} from "immutable"
-import Query from "we-edit/state/selector/query"
-import {getFile} from "we-edit/state/selector"
+import Query from "../../state/selector/query"
+import {getFile} from "../../state/selector"
 
 export default class xQuery extends Query{
     constructor(){
@@ -8,7 +8,7 @@ export default class xQuery extends Query{
         this._doc=getFile(this.state)
     }
 
-	//override	
+	//override
 	_getContent(){
 		return this.state.get("_content")
 	}
@@ -36,8 +36,8 @@ export default class xQuery extends Query{
 					this._content.setIn(path,Immutable.fromJS(value))
 					this._doc.updateNode(this._content.get(path[0]).toJS(),{[k]:value}, this)
     			}
-				
-				
+
+
     		}
 
             return this

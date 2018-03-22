@@ -2,8 +2,8 @@ import React, {Component, Children} from "react"
 import PropTypes from "prop-types"
 
 import {connect} from "react-redux"
-import {ACTION} from ".."
-import {getContent,  getSelection} from "we-edit/state/selector"
+import ACTION from "../../state/action"
+import {getContent,  getSelection} from "../../state/selector"
 
 import get from "lodash.get"
 

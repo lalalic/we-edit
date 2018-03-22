@@ -1,8 +1,8 @@
 import React from "react"
-import {Channel} from "we-edit "
+import {Channel} from "we-edit"
 
-import ViewerTypes from "plain"
-import EditorTypes from "plain/edit"
+import ViewerTypes from "."
+import EditorTypes from "./edit"
 
 
 export default props=><Channel {...{ViewerTypes,EditorTypes, ...props}}/>
