@@ -4,7 +4,7 @@ import PropTypes from "prop-types"
 
 import {HasParentAndChild} from "./composable"
 import Paragraph from "./paragraph"
-import Base from "../list"
+import Base from "we-edit/model/list"
 import Text from "./text"
 import Group from "./composed/group"
 import ComposedText from "./composed/text"

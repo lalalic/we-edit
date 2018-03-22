@@ -2,7 +2,7 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 
 import {NoChild} from "./composable"
-import Base from "../image"
+import Base from "we-edit/model/image"
 
 const Super=NoChild(Base)
 export default class Image extends Super{

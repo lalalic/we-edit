@@ -16,11 +16,14 @@ import {Cursor,Stat} from "../state/action"
 
 import {LocalStore} from "../components/with-store"
 import uuid from "../tools/uuid"
-import Type from "./type"
+
+import {Viewable, Editable, default as Type} from "./type"
+import {EditableDocument} from "./editable-doc"
 
 const supported=[]
 
 export default {
+	Viewable, Editable, Type, EditableDocument,
 	load(url){
 		let Found=supported.find(TYPE=>TYPE.support(url))
 		if(Found){
@@ -47,9 +50,7 @@ export default {
 			}
 		})
 		return this
-	},
-
-	Type
+	}
 }
 
 function buildEditableDoc(doc,inputTypeInstance){

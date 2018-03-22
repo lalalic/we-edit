@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 
 
 import {HasChild} from "./composable"
-import Base from "../document"
+import Base from "we-edit/model/document"
 
 import ComposedDocument from "./composed/document"
 

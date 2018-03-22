@@ -1,10 +1,9 @@
-import Input from "input"
-import uuid from "tools/uuid"
-import {getSelection} from "state/selector"
+import {Input} from "we-edit"
+import uuid from "we-edit/tools/uuid"
+import {getSelection} from "we-edit/state/selector"
 import EditableDocument from "./editable-doc"
-import * as reducer from "input/reducer"
 
-export default class extends Input.Type{
+export default class JSONType extends Input.Type{
 	static support(file){
 		switch(typeof(file)){
 		case "string":
@@ -100,3 +99,5 @@ export default class extends Input.Type{
 		return this.doc.makeId(node)
 	}
 }
+
+Input.support(JSONType)

@@ -32,6 +32,7 @@ module.exports=env=>{
 				]
 			}]
 		},
+		plugins:[],
 		node:{
 			fs: "empty"
 		}

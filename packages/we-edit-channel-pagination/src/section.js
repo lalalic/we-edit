@@ -5,7 +5,7 @@ import PropTypes from "prop-types"
 import get from "lodash.get"
 
 import {HasParentAndChild} from "./composable"
-import Base from "../section"
+import Base from "we-edit/model/section"
 
 import Group from "./composed/group"
 import Header from "./header"

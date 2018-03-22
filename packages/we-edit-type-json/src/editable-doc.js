@@ -1,8 +1,8 @@
-import Editable from "input/editable-doc"
+import {Input} from "we-edit"
 
 let _uuid=0
 const uuid=()=>`${_uuid++}`
-export default class EditableDocument extends Editable{
+export default class EditableDocument extends Input.Editable{
 	constructor(data){
 		super(...arguments)
 		this.doc=data

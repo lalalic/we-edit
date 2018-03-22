@@ -1,4 +1,4 @@
-import Models from ".."
+import Models from "../all"
 
 import {editable} from "we-edit/model"
 import recomposable from "./recomposable"

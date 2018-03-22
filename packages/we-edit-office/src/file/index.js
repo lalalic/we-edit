@@ -43,8 +43,12 @@ export function create(dispatch){
 
 export function open(dispatch){
 	return ()=>selectFile()
-		.then(files=>files.map(file=>Input.load(file)
-		.then(doc=>dispatch(ACTION.ADD(doc)))))
+		.then(files=>files.map(file=>{
+				Input.load(file)
+					.then(doc=>dispatch(ACTION.ADD(doc)))
+					.catch(e=>dispatch(ACTION.MESSAGE({type:"error", message:e.message})))
+			})
+		)
 }
 
 export default compose(

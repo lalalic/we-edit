@@ -1,11 +1,11 @@
 import React from "react"
 import Docx from "./editable-doc"
-import Input from "we-edit/input"
+import {Input} from "we-edit"
 
 import Style from "./styles"
 import Transformers from "./model"
 
-export default class extends Input.Type{
+export default class DocxType extends Input.Type{
 	static support(file){
 		switch(typeof(file)){
 		case "string":
@@ -314,3 +314,5 @@ export default class extends Input.Type{
 		//injected implementation by render
 	}
 }
+
+Input.support(DocxType)

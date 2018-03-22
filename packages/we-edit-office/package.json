@@ -6,25 +6,26 @@
     "name": "Raymond Li",
     "email": "lalalic@139.com"
   },
-  "keywords": ["we-edit"],
+  "keywords": [
+    "we-edit"
+  ],
   "dependencies": {
     "events": "^2.0.0",
+    "lodash.invoke": "^4.5.2",
     "material-ui": "^0.19.4",
     "minimatch": "^3.0.4",
     "prop-types": "^15.6.0",
     "react": "^16.2.0",
     "react-dom": "^16.1.1",
     "recompose": "^0.26.0",
-	"we-edit":"^3.0.0",
-	"we-edit-type-docx": "^3.0.0",
-	"we-edit-type-json": "^3.0.0",
-	"we-edit-channel-pagination": "^3.0.0",
-	"we-edit-channel-html": "^3.0.0",
-	"we-edit-channel-text": "^3.0.0"
+    "we-edit": "^3.0.0",
+    "we-edit-channel-html": "^3.0.0",
+    "we-edit-channel-pagination": "^3.0.0",
+    "we-edit-channel-text": "^3.0.0",
+    "we-edit-type-docx": "^3.0.0",
+    "we-edit-type-json": "^3.0.0"
   },
-  "peerDependencies":{
-
-  },
+  "peerDependencies": {},
   "engines": {
     "node": ">=0.10.0"
   },

@@ -44,6 +44,7 @@ export class WeEdit extends Component{
 	}
 }
 
+export default WeEdit
 
 export const DOMAIN="we-edit"
 
@@ -61,6 +62,7 @@ export const ACTION={
 	},
 	CLOSE: ()=>({type:`${DOMAIN}/CLOSE`}),
 	ACTIVE: id=>({type:`${DOMAIN}/ACTIVE`, payload:id}),
+	MESSAGE: payload=>({type:`${DOMAIN/MESSAGE}`,payload}),
 	...EditorAction
 }
 
@@ -85,6 +87,8 @@ export function reducer(state={active:null,docs:{}}, action){
 			}
 			return {...state, docs:{...state.docs}, active}
 		}
+		case `${DOMAIN}/MESSAGE`:
+			return {...state, message:payload}
 		default:{
 			let id=state.active
 			if(id && type.startsWith(DOMAIN)){
