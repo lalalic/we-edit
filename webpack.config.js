@@ -1,9 +1,11 @@
 const path = require('path');
 const webpack = require("webpack");
-const packages=",channel-html,channel-pagination,channel-text,type-docx,type-json,office"
-	.split(",")
-	.map(k=>`we-edit${k.length ? `-${k}` : ''}`)
-
+const packages=(function(){
+	let ps=require("fs").readdirSync("./packages").sort()
+	ps.splice(ps.indexOf("we-edit-office"),1)
+	ps.push("we-edit-office")
+	return ps
+})();
 
 module.exports=env=>{
 	const base={

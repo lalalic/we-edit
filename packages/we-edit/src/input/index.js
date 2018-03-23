@@ -65,10 +65,25 @@ function buildEditableDoc(doc,inputTypeInstance){
 			return this.name
 		},
 
-		render(components){
-			return inputTypeInstance.render((type, props, children)=>{
-				return React.createElement(type,{...props,key:uuid()},children)
-			},components)
+		/*
+		Input.load(...)
+			.then(doc=>doc.render(
+				<Emitter channel={<Pagination/>}>
+					<PDF/>
+					<PCL/>
+					<Docx/>
+				</Emitter>
+				<Emitter channel={<Html/>}>
+					<HTML/>
+				</Emitter>
+				<Emitter channel={<Text/>}>
+					<PlainText/>
+				</Emitter>
+			))
+		*/
+		render(channels){
+			
+			//return inputTypeInstance.render(,channel)
 		},
 
 		getFontList(){

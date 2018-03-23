@@ -28,6 +28,7 @@ export default compose(
 				<IconLogo color={yellow500}/>
 			</Avatar>
 		</center>
+		<div><File.OutputTypes/></div>
 		<Menu>
 			<MenuItem
 				primaryText="New"
@@ -37,26 +38,28 @@ export default compose(
 				primaryText="Open"
 				onClick={()=>Promise.resolve(open()).then(dispear,dispear)}
 				/>
+			<MenuItem
+				primaryText="Save"
+				/>
+			<MenuItem
+				primaryText="SaveAs"
+				/>
 			<Divider/>
 
 			<MenuItem
 				primaryText="Print"
-				onClick={()=>Promise.resolve(open()).then(dispear,dispear)}
 				/>
 
 			<MenuItem
 				primaryText="Print Preview"
-				onClick={()=>Promise.resolve(open()).then(dispear,dispear)}
 				/>
 
 			<MenuItem
 				primaryText="Options"
-				onClick={()=>Promise.resolve(open()).then(dispear,dispear)}
 				/>
 
 			<MenuItem
 				primaryText="Close"
-				onClick={()=>Promise.resolve(open()).then(dispear,dispear)}
 				/>
 
 		</Menu>

@@ -1,6 +1,6 @@
 {
-  "name": "we-edit-type-docx",
-  "description": "docx type implementation",
+  "name": "we-edit-input-native",
+  "description": "native json input type implementation",
   "version": "3.0.0",
   "keywords": ["we-edit"],
   "author": {

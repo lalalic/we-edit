@@ -81,3 +81,5 @@ export function selectFile(){
 		input.click()
 	})
 }
+
+export {default as OutputTypes} from "./output-types"

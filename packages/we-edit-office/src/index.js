@@ -4,8 +4,13 @@ import Pagination from "we-edit-channel-pagination"
 import Html from "we-edit-channel-html"
 import Text from "we-edit-channel-text"
 
-import "we-edit-type-docx"
-import "we-edit-type-json"
+import "we-edit-input-docx"
+import "we-edit-input-native"
+
+import "we-edit-output-pdf"
+import "we-edit-output-html"
+import "we-edit-output-svg"
+import "we-edit-output-input"
 
 import WeEditUI from "./we-edit-ui"
 import Workspace from "./workspace"
@@ -27,8 +32,10 @@ export const Office=()=>(
                 </Viewer>
 
                 <Editor
-                    layout="print" icon={<IconPrint/>}
-                    channel={<Pagination/>}>
+                    layout="print" 
+					icon={<IconPrint/>}
+                    channel={<Pagination/>}
+					>
 
                 </Editor>
 
