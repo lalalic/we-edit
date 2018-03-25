@@ -2,6 +2,7 @@
   "name": "we-edit",
   "description": "a text editor framework",
   "version": "3.0.0",
+  "module":true,
   "author": {
     "name": "Raymond Li",
     "email": "lalalic@139.com"
@@ -27,7 +28,7 @@
   "engines": {
     "node": ">=0.10.0"
   },
-  "main":"lib",
-  "files":["lib","dist","model.js","README.md"],
+  "main":"index.js",
+  "files":["cjs/","umd/","index.js","model.js","README.md"],
   "readme": "README.md"
 }

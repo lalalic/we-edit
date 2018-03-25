@@ -13,3 +13,5 @@ export {default as ContentQuery} from "./state/selector/query"
 export {default as Input} from "./input"
 
 export {editify} from "./model/edit"
+
+export {default as model} from "./model"

@@ -2,7 +2,7 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 
 import reactComposition from "react-composition"
-import {ACTION} from "we-edit"
+import {ACTION} from "../../state/action"
 
 export default class Listener extends Component{
 	static contextTypes={

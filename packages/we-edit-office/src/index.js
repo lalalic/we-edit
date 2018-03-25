@@ -1,6 +1,8 @@
 import React from "react"
 import {WeEdit, Viewer, Editor} from "we-edit"
+
 import Pagination from "we-edit-channel-pagination"
+/*
 import Html from "we-edit-channel-html"
 import Text from "we-edit-channel-text"
 
@@ -11,7 +13,7 @@ import "we-edit-output-pdf"
 import "we-edit-output-html"
 import "we-edit-output-svg"
 import "we-edit-output-input"
-
+*/
 import WeEditUI from "./we-edit-ui"
 import Workspace from "./workspace"
 
@@ -20,6 +22,7 @@ import IconPrint from "material-ui/svg-icons/editor/format-align-justify"
 import IconWeb from "material-ui/svg-icons/av/web"
 
 
+const Html=()=>null
 export const Office=()=>(
     <WeEdit>
         <WeEditUI fonts={["Arial", "Calibri", "Cambria"]}>
@@ -32,7 +35,7 @@ export const Office=()=>(
                 </Viewer>
 
                 <Editor
-                    layout="print" 
+                    layout="print"
 					icon={<IconPrint/>}
                     channel={<Pagination/>}
 					>

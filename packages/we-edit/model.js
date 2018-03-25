@@ -1,1 +1,1 @@
-module.exports=require("./lib/model")
+module.exports=require("we-edit").model
