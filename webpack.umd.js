@@ -23,7 +23,7 @@ module.exports=(base, packages)=>{
 					libraryTarget:"umd",
 				},
 				resolve:{
-					alias: packages.reduce((alias,p)=>(alias[p]=path.resolve(__dirname, `packages/${p}/src/`),alias),{})
+					//alias: packages.reduce((alias,p)=>(alias[p]=path.resolve(__dirname, `packages/${p}/src/`),alias),{})
 				},
 				externals:Object.keys(peerDependencies)
 			}

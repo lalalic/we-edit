@@ -46,7 +46,7 @@
   },
   "scripts": {
     "compile": "babel --source-maps inline",
-    "build": "webpack --progress -p --env=npm",
+    "build": "webpack --progress -p --env=cjs && webpack --progress -p --env=umd",
 
     "rollup": "rollup -c rollup.config.js",
     "test": "jest __tests__",
