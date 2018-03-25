@@ -7,16 +7,16 @@ process.env.NODE_ENV='production'
 module.exports=(base, packages)=>{
 	//packages="we-edit,we-edit-channel-pagination".split(",")
 
-	execSync(`yarn clean`)
+	execSync(`yarn del packages/*/cjs`)
 
-	packages.forEach(p=>execSync(`mkdir packages/${p}/cjs packages/${p}/umd`))
+	packages.forEach(p=>execSync(`mkdir packages/${p}/cjs`))
 
-	return packages.reduce((builds,p)=>{
+	return packages.map((p)=>{
 			let root=`packages/${p}`
 			let entry=`./${root}/src/index.js`
 			let {dependencies={}, peerDependencies={}}=require(`./${root}/package.json`)
 			let externals=Object.keys(dependencies).concat(Object.keys(peerDependencies))
-			let cjs={
+			return {
 				...base,
 				entry,
 				output:{
@@ -27,23 +27,5 @@ module.exports=(base, packages)=>{
 				},
 				externals
 			}
-
-			let umd={
-				...base,
-				entry,
-				output:{
-					filename:`index.${process.env.NODE_ENV}.js`,
-					path: path.resolve(`${__dirname}/${root}`, 'umd'),
-					library:p,
-					libraryTarget:"umd",
-				},
-				resolve:{
-					alias: packages.reduce((alias,p)=>(alias[p]=path.resolve(__dirname, `packages/${p}/src/`),alias),{})
-				},
-				externals:Object.keys(peerDependencies)
-			}
-
-			builds.splice(builds.length, 0, cjs,umd)
-			return builds
-		},[])
+		})
 }
