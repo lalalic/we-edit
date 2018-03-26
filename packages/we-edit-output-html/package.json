@@ -10,7 +10,8 @@
 
   },
   "peerDependencies":{
-	"we-edit":"^3.0.0"
+	"we-edit":"^3.0.0",
+	"we-edit-channel-html":"^3.0.0"
   },
   "keywords": ["we-edit"],
   "engines": {

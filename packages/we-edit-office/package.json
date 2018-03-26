@@ -25,7 +25,8 @@
     "we-edit-input-docx": "^3.0.0",
     "we-edit-input-json": "^3.0.0"
   },
-  "peerDependencies": {},
+  "peerDependencies": {
+  },
   "engines": {
     "node": ">=0.10.0"
   },

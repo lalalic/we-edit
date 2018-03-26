@@ -10,7 +10,7 @@ const packages=(function(){
 	return ps
 })();
 
-module.exports=env=>{
+module.exports=(env,args)=>{
 	const base={
 		entry:"./src/index.js",
 		output:{
@@ -48,7 +48,7 @@ module.exports=env=>{
 	}
 
 	if(env){
-		return require(`./webpack.${env}.js`)(base, packages)
+		return require(`./webpack.${env}.js`)(base, packages, args)
 	}
 
 	return base
