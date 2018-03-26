@@ -8,17 +8,17 @@ import TestRenderer from 'react-test-renderer'
 
 import Components from "../model"
 import {createStore, createState, isState} from "../state"
-import {getContent,getSelection,getFile,getParentId, query} from "../state/selector"
+import {getContent,getSelection,getFile,getParentId} from "../state/selector"
 import undoable, {ACTION} from "../state/undoable"
 import * as reducer from "../state/reducer"
 import Input from "../components/cursor/input"
-import {Cursor,Stat} from "../state/action"
+import {Cursor} from "../state/action"
 
 import {LocalStore} from "../components/with-store"
 import uuid from "../tools/uuid"
 
 import {Viewable, Editable, default as Type} from "./type"
-import {EditableDocument} from "./editable-doc"
+import EditableDocument from "./editable-doc"
 
 const supported=[]
 
@@ -82,7 +82,7 @@ function buildEditableDoc(doc,inputTypeInstance){
 			))
 		*/
 		render(channels){
-			
+
 			//return inputTypeInstance.render(,channel)
 		},
 

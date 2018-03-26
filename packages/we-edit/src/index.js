@@ -1,4 +1,3 @@
-'strict mode'
 import "./tools/array-find-last"
 
 export * from "./components"

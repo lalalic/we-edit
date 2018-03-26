@@ -152,8 +152,3 @@ export function prevCursorable(state,id){
 	},id)
 	return found
 }
-
-import Query from "./query"
-export function query(state,context){
-	return new Query(state,context)
-}
