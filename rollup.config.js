@@ -3,7 +3,7 @@ const commonjs = require("rollup-plugin-commonjs");
 const resolve = require("rollup-plugin-node-resolve");
 const minify=require("rollup-plugin-uglify")
 
-const project="we-edit-channel-html"
+const project="we-edit-channel-pagination"
 const mode="development"
 
 export default {
@@ -25,7 +25,7 @@ export default {
 			["env", {modules:false}],
 			"react",
 		],
-		exclude: "node_modules/**",
+		exclude: ["node_modules/**"],
 		plugins:[
 			"babel-plugin-external-helpers",
 			"babel-plugin-add-module-exports",
@@ -43,6 +43,51 @@ export default {
 			],
 			"node_modules/immutable/dist/immutable.js":[
 				"List","Map","Collection"
+			],
+			"packages/we-edit/index.js":[
+				"Channel",
+				"editify",
+				"ACTION", 
+				"DOMAIN", 
+				"reducer", 
+				"getActive",
+				"getContent", 
+				"getSelection", 
+				"getFile", 
+				"getUndos", 
+				"getRedos",
+				"getClientRect",
+				"shallowEqual",
+				"uuid",
+				"ContentQuery",
+				"Input",
+				"model",
+				"Editor",
+				"Viewer",
+				"Emitter",
+				"WeEdit",
+				"WithStore",
+				"WithSelection",
+				"onlyWhen", 
+				"when",
+				"Cursor",
+				"Selection"
+				
+			],
+			"packages/we-edit/model.js":[
+				"Document",
+				"Section",
+				"Paragraph",
+				"Text",
+				"Header",
+				"Footer",
+				"Image",
+				"Table",
+				"Row",
+				"Cell",
+				"List",
+				"Frame",
+				"Shape"
 			],
 		}
 	}),
