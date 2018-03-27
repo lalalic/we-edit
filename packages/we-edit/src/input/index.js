@@ -69,7 +69,9 @@ function buildEditableDoc(doc,inputTypeInstance){
 		Input.load(...)
 			.then(doc=>doc.render(
 				<Emitter channel={<Pagination/>}>
-					<PDF/>
+					<Stream>
+						<PDF/>
+					</Stream>
 					<PCL/>
 					<Docx/>
 				</Emitter>
@@ -138,6 +140,10 @@ function buildEditableDoc(doc,inputTypeInstance){
 
 		get id(){
 			return id
+		},
+		
+		get type(){
+			return inputTypeInstance.getDocumentType()
 		},
 
 		save(name,option){

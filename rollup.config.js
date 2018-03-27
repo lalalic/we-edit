@@ -3,57 +3,48 @@ const commonjs = require("rollup-plugin-commonjs");
 const resolve = require("rollup-plugin-node-resolve");
 const minify=require("rollup-plugin-uglify")
 
-export function config(project,mode="production"){
-    let base={
-      input: `packages/${project}/src/index.js`,
-      output:{
-    	file: `packages/${project}/cjs/index.${mode}.js`,
-    	format: "cjs",
-      },
-      plugins: [
-        resolve({
-            browser:true,
-        }),
+const project="we-edit-channel-html"
+const mode="development"
 
-        babel({
-    		babelrc:false,
-    		presets: [
-    			["env", {modules:false}],
-    			"react",
-    		],
-            exclude: "node_modules/**",
-    		plugins:[
-    			"babel-plugin-external-helpers",
-    			//"babel-plugin-add-module-exports",
-    			"babel-plugin-transform-object-rest-spread",
-    			"babel-plugin-transform-class-properties",
-    		]
-    	}),
+export default {
+  input: `packages/${project}/src/index.js`,
+  output:{
+	file: `packages/${project}/cjs/index.${mode}.js`,
+	format: "cjs",
+  },
+  cache:false,
+ 
+  plugins: [
+	resolve({
+		browser:true,
+	}),
 
-    	commonjs({
-    		namedExports:{
-    			'node_modules/react/index.js': [
-    				'Component', 'PureComponent',
-    				'Children', 'createElement',
-                    'Fragment', 'createFactory'
-    			],
-                "node_modules/immutable/dist/immutable.js":[
-                    "List","Map","Collection"
-                ],
-    		}
-    	}),
+	babel({
+		babelrc:false,
+		presets: [
+			["env", {modules:false}],
+			"react",
+		],
+		exclude: "node_modules/**",
+		plugins:[
+			"babel-plugin-external-helpers",
+			"babel-plugin-add-module-exports",
+			"babel-plugin-transform-object-rest-spread",
+			"babel-plugin-transform-class-properties",
+		]
+	}),
 
-
-      ]
-    }
-
-    if(mode=="production"){
-        base.plugins.push(minify())
-    }else{
-        base.output.sourcemap=true
-    }
-    console.dir(base)
-    return base
+	commonjs({
+		namedExports:{
+			'node_modules/react/index.js': [
+				'Component', 'PureComponent',
+				'Children', 'createElement',
+				'Fragment', 'createFactory'
+			],
+			"node_modules/immutable/dist/immutable.js":[
+				"List","Map","Collection"
+			],
+		}
+	}),
+  ]
 }
-
-export default config("we-edit")

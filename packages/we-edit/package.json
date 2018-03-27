@@ -2,7 +2,6 @@
   "name": "we-edit",
   "description": "a text editor framework",
   "version": "3.0.0",
-  "module":true,
   "author": {
     "name": "Raymond Li",
     "email": "lalalic@139.com"

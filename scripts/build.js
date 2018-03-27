@@ -1,8 +1,9 @@
-const rollup = require('rollup');
+const {rollup} = require('rollup');
 const babel = require("rollup-plugin-babel");
 const commonjs = require("rollup-plugin-commonjs");
 const resolve = require("rollup-plugin-node-resolve");
 const minify=require("rollup-plugin-uglify")
+const async=require("neo-async")
 
 const packages=(function(){
 	let ps=require("fs")
@@ -35,7 +36,7 @@ function config(project,mode="production"){
             exclude: "node_modules/**",
     		plugins:[
     			"babel-plugin-external-helpers",
-    			//"babel-plugin-add-module-exports",
+    			"babel-plugin-add-module-exports",
     			"babel-plugin-transform-object-rest-spread",
     			"babel-plugin-transform-class-properties",
     		]
@@ -53,8 +54,6 @@ function config(project,mode="production"){
                 ],
     		}
     	}),
-
-
       ]
     }
 
@@ -63,15 +62,21 @@ function config(project,mode="production"){
     }else{
         base.output.sourcemap=true
     }
-    console.dir(base)
     return base
 }
 
-(async function(){
-    packages.forEach((p)=>{
-        const {output, ...input}=config(p)
-        const bundle=await rollup.rollup(input)
-        await bundle.write(output)
-        console.log(`${p} done`)
-    })
-})();
+async.eachSeries(packages, function(p,done){
+	console.log(`[${p}] start...`)
+	const {output, ...input}=config(p)
+	console.dir({input, output})
+	rollup(input)
+		.then(bundle=>{
+			console.log(`[${p}] output...`)
+			return bundle.write(output)
+		})
+		.catch(e=>console.log(e.message))
+		.then(()=>{
+			console.log(`[${p}] done`)
+			done()
+		})
+})

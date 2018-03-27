@@ -18,6 +18,10 @@ export default class DocxType extends Input.Type{
 		}
 		return false
 	}
+	
+	getDocumentType(){
+		return "Word Document (*.docx)"
+	}
 
 	load(file){
 		if(file.name)

@@ -1,5 +1,5 @@
 import React, {Children, PureComponent, Component} from "react"
-import PropTypes from "prop-types"
+import * as PropTypes from "prop-types"
 
 import {connect, connectAdvanced} from "react-redux"
 
