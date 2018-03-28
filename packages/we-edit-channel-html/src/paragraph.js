@@ -1,5 +1,6 @@
 import React from "react"
-import {Paragraph as Base} from "we-edit/model"
+import {models} from "we-edit"
+const {Paragraph:Base}=models
 
 export default class Paragraph extends Base{
 	render(){

@@ -1,4 +1,4 @@
-import Models from "we-edit/model"
+import {models} from "we-edit"
 import Document from "./document"
 import Section from "./section"
 import Paragraph from "./paragraph"
@@ -10,7 +10,7 @@ import Cell from "./cell"
 
 
 export default {
-	...Models,
+	...models,
 	Document, 
 	Section, 
 	Paragraph, 

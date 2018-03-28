@@ -3,7 +3,8 @@ import PropTypes from "prop-types"
 
 
 import {HasParentAndChild} from "./composable"
-import {Cell as Base} from "we-edit/model"
+import {models} from "we-edit"
+const {Cell:Base}=models
 const Super=HasParentAndChild(Base)
 
 export default class Cell extends Super{

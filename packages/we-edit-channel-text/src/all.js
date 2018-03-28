@@ -1,3 +1,5 @@
-import Models from "we-edit/model"
+import {models} from "we-edit"
 
-export default {}
+export default {
+	...models
+}

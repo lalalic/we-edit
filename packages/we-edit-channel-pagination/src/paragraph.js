@@ -3,7 +3,8 @@ import PropTypes from "prop-types"
 
 
 import {HasParentAndChild} from "./composable"
-import {Paragraph as Base} from "we-edit/model"
+import {models} from "we-edit"
+const {Paragraph:Base}=models
 
 import opportunities from "./wordwrap/line-break"
 import Group from "./composed/group"

@@ -1,5 +1,6 @@
 import React from "react"
-import {Row as Base} from "we-edit/model"
+import {models} from "we-edit"
+const {Row:Base}=models
 
 export default class Row extends Base{
 	render(){

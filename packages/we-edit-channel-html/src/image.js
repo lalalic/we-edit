@@ -1,5 +1,6 @@
 import React from "react"
-import {Image as Base} from "we-edit/model"
+import {models} from "we-edit"
+const {Image:Base}=models
 
 export default class Image extends Base{
 	render(){

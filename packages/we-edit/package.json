@@ -28,6 +28,6 @@
     "node": ">=0.10.0"
   },
   "main":"index.js",
-  "files":["cjs/","umd/","index.js","model.js","README.md"],
+  "files":["cjs/","umd/","index.js","README.md"],
   "readme": "README.md"
 }

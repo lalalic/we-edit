@@ -5,7 +5,8 @@ import PropTypes from "prop-types"
 import Group from "./composed/group"
 
 import {HasParentAndChild} from "./composable"
-import {Table as Base} from "we-edit/model"
+import {models} from "we-edit"
+const {Table:Base}=models
 const Super=HasParentAndChild(Base)
 
 export default class Table extends Super{

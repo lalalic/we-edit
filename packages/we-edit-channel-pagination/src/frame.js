@@ -3,7 +3,8 @@ import PropTypes from "prop-types"
 
 
 import {HasParentAndChild} from "./composable"
-import {Frame as Base} from "we-edit/model"
+import {models} from "we-edit"
+const {Frame:Base}=models
 
 import ComposedFrame from "./composed/frame"
 import Group from "./composed/group"
