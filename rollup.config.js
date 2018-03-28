@@ -3,7 +3,7 @@ const commonjs = require("rollup-plugin-commonjs");
 const resolve = require("rollup-plugin-node-resolve");
 const minify=require("rollup-plugin-uglify")
 
-const project="we-edit-channel-pagination"
+const project="we-edit"
 const mode="development"
 
 export default {

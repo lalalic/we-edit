@@ -17,3 +17,5 @@ export {default as Cursor} from "./cursor"
 
 export {default as Selection} from "./selection" 
 
+export {Stream} from "./stream"
+

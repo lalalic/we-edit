@@ -1,5 +1,5 @@
 import React from "react"
-import {WeEdit, Viewer, Editor} from "we-edit"
+import {WeEdit, Viewer, Editor, Stream} from "we-edit"
 
 import Pagination from "we-edit-channel-pagination"
 
@@ -11,7 +11,7 @@ import "we-edit-input-json"
 
 import "we-edit-output-pdf"
 import "we-edit-output-html"
-import "we-edit-output-svg"
+import SVG from "we-edit-output-svg"
 import "we-edit-output-input"
 
 import WeEditUI from "./we-edit-ui"
@@ -46,7 +46,12 @@ export const Office=()=>(
                     channel={<Html/>}>
 
                 </Editor>
-
+				
+				<Emitter channel={<Pagination/>}>
+					<Stream path="./a.svg">
+						<SVG/>
+					</Stream>
+				</Emitter>
             </Workspace>
         </WeEditUI>
     </WeEdit>
