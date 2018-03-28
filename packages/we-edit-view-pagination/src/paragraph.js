@@ -12,7 +12,7 @@ import Line, {Info as LineInfo} from "./composed/line"
 import ComposedText from "./composed/text"
 
 const Super=HasParentAndChild(Base)
-export default class Paragraph extends Super{
+export class Paragraph extends Super{
     static childContextTypes={
         ...Super.childContextTypes,
         getMyBreakOpportunities: PropTypes.func
@@ -207,3 +207,5 @@ export default class Paragraph extends Super{
         )
     }
 }
+
+export default Paragraph

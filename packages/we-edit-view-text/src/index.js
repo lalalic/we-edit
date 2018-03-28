@@ -1,7 +1,7 @@
 import React from "react"
 import {view} from "we-edit"
 
-import ViewerTypes from "."
+import ViewerTypes from "./all"
 import EditorTypes from "./edit"
 
 

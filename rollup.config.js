@@ -3,93 +3,61 @@ const commonjs = require("rollup-plugin-commonjs");
 const resolve = require("rollup-plugin-node-resolve");
 const minify=require("rollup-plugin-uglify")
 
-const project="we-edit"
-const mode="development"
+export function config(project,format){
+	const {dependencies={}, peerDependencies={}}=require(`./packages/${project}/package.json`)
+	let cjs={
+		  input: `packages/${project}/src/index.js`,
+		  output:{
+			file: `packages/${project}/index.js`,
+			format,
+			sourcemap:true,
+		  },
+		  treeshake:false,
+		  
+		  cache:true,
+		  
+		  external:Object.keys(dependencies).concat(Object.keys(peerDependencies)).filter(a=>!!a),
+		  plugins: [
+			babel({
+				babelrc:false,
+				presets: [
+					["env", {modules:false}],
+					"react",
+				],
+				exclude: ["node_modules/**"],
+				plugins:[
+					"babel-plugin-external-helpers",
+					"babel-plugin-add-module-exports",
+					"babel-plugin-transform-object-rest-spread",
+					"babel-plugin-transform-class-properties",
+				]
+			}),
+			commonjs(),
+		  ]
+	}
+	if(format=="cjs")
+		return cjs
 
-export default {
-  input: `packages/${project}/src/index.js`,
-  output:{
-	file: `packages/${project}/cjs/index.${mode}.js`,
-	format: "cjs",
-  },
-  cache:false,
- 
-  plugins: [
-	resolve({
-		browser:true,
-	}),
-
-	babel({
-		babelrc:false,
-		presets: [
-			["env", {modules:false}],
-			"react",
-		],
-		exclude: ["node_modules/**"],
+	return {
+		...cjs,
+		name:project,
+		output:{
+			...cjs.output,
+			sourcemap:false,
+			file: `packages/${project}/index.browser.js`,
+		},
+		external:Object.keys(peerDependencies).filter(a=>!!a),
 		plugins:[
-			"babel-plugin-external-helpers",
-			"babel-plugin-add-module-exports",
-			"babel-plugin-transform-object-rest-spread",
-			"babel-plugin-transform-class-properties",
-		]
-	}),
-
-	commonjs({
-		namedExports:{
-			'node_modules/react/index.js': [
-				'Component', 'PureComponent',
-				'Children', 'createElement',
-				'Fragment', 'createFactory'
-			],
-			"node_modules/immutable/dist/immutable.js":[
-				"List","Map","Collection"
-			],
-			"packages/we-edit/index.js":[
-				"Channel",
-				"editify",
-				"ACTION", 
-				"DOMAIN", 
-				"reducer", 
-				"getActive",
-				"getContent", 
-				"getSelection", 
-				"getFile", 
-				"getUndos", 
-				"getRedos",
-				"getClientRect",
-				"shallowEqual",
-				"uuid",
-				"ContentQuery",
-				"Input",
-				"model",
-				"Editor",
-				"Viewer",
-				"Emitter",
-				"WeEdit",
-				"WithStore",
-				"WithSelection",
-				"onlyWhen", 
-				"when",
-				"Cursor",
-				"Selection"
-				
-			],
-			"packages/we-edit/model.js":[
-				"Document",
-				"Section",
-				"Paragraph",
-				"Text",
-				"Header",
-				"Footer",
-				"Image",
-				"Table",
-				"Row",
-				"Cell",
-				"List",
-				"Frame",
-				"Shape"
-			],
-		}
-	}),
-  ]
+			resolve({
+				browser:true,
+				preferBuiltins: false
+			})
+		].concat(cjs.plugins)
+		.concat([minify()])
+		
+	}
+	
+	return 
 }
+
+export default config("we-edit","cjs")

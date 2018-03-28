@@ -1,14 +1,11 @@
 import React, {PureComponent, Component, Fragment} from "react"
 import PropTypes from "prop-types"
-
+import {getContent,getSelection,getClientRect, ACTION, editify} from "we-edit"
 import {connect} from "react-redux"
 
 import Base from "../document"
-import {Text} from ".."
 import ComposedDocument from "./composed-document"
 
-import {getContent,getSelection,getClientRect, ACTION} from "we-edit"
-import {editify} from "we-edit"
 import recomposable from "./recomposable"
 
 import offset from "mouse-event-offset"

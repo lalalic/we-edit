@@ -101,5 +101,3 @@ export default compose(
 		this.setState({error:error.message})
 	}
 })
-
-export {default as Workspace} from "./workspace"

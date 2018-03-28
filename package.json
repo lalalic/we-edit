@@ -53,7 +53,7 @@
     "dev": "webpack-dev-server --env=dev",
     "del": "del-cli",
     "webpack": "webpack",
-    "rollup": "rollup -c rollup.config.js --environment NODE_ENV:development",
+    "rollup": "rollup -c rollup.config.js",
     "build": "node scripts/build.js"
   },
   "keywords": [

@@ -1,4 +1,4 @@
-import {Input, uuid, getSelection} from "we-edit"
+import {Input} from "we-edit"
 import EditableDocument from "./editable-doc"
 
 export default class JSONType extends Input.Type{

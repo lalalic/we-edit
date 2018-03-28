@@ -7,7 +7,9 @@
     "email": "lalalic@139.com"
   },
   "dependencies": {
-
+	"prop-types": "^15.6.0",
+    "react": "^16.2.0",
+	"mouse-event-offset": "^3.0.2"
   },
   "peerDependencies":{
 	"we-edit":"^3.0.0"
@@ -16,7 +18,7 @@
   "engines": {
     "node": ">= 0.4.4"
   },
-  "main":"lib",
-  "files":["lib","dist","README.md"],
+  
+  "files":["index.js","index.browser.js","README.md"],
   "readme": "README.md"
 }

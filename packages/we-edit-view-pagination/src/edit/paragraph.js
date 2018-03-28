@@ -9,7 +9,7 @@ import recomposable from "./recomposable"
 const Super=editify(recomposable(Base))
 
 //compose all or clear all
-export default class Paragraph extends Super{
+export class Paragraph extends Super{
 	static contextTypes={
 		...Super.contextTypes,
 		shouldContinueCompose:PropTypes.func,
@@ -70,3 +70,5 @@ export default class Paragraph extends Super{
 		return super.render()
 	}
 }
+
+export default Paragraph

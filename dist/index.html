@@ -8,8 +8,12 @@
 		<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta http-equiv="Content-Security-Policy">
-		<script src="../node_modules/react/umd/react.development.js"></script>
-        <script src="index.development.js"></script>
+		<script>
+			var process={env:{}}
+			var module={}
+		</script>
+		<script src="../packages/we-edit/index.browser.js"></script>
+		<script src="../packages/we-edit-view-pagination/index.browser.js"></script>
         <title>we-edit</title>
 		<style>
 			svg ::selection{

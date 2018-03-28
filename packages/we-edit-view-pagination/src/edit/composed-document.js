@@ -1,21 +1,16 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 
+import {getContent,getSelection, getClientRect, ACTION, Cursor, Selection, editify} from "we-edit"
 import {connect} from "react-redux"
 import {setDisplayName,compose, getContext} from "recompose"
+import Waypoint from "react-waypoint"
+import offset from "mouse-event-offset"
 
 import Base from "../composed/document"
-import {Text} from ".."
-import Waypoint from "react-waypoint"
 import Query from "./query"
-
-import {getContent,getSelection, getClientRect, ACTION, Cursor, Selection} from "we-edit"
-import {editify} from "we-edit"
 import recomposable from "./recomposable"
-
 import SelectionShape from "./selection"
-
-import offset from "mouse-event-offset"
 
 export default class extends Base{
     static displayName="composed-document-with-cursor"

@@ -19,7 +19,7 @@
   "engines": {
     "node": ">=0.10.0"
   },
-  "main":"lib",
-  "files":["lib","dist","README.md"],
+  
+  "files":["index.js","index.browser.js","README.md"],
   "readme": "README.md"
 }

@@ -1,4 +1,4 @@
-import React, {Component, Fragment} from "react"
+import React, {Component} from "react"
 import {Emitter} from "we-edit"
 import Pagination from "we-edit-view-pagination"
 

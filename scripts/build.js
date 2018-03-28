@@ -5,7 +5,7 @@ const resolve = require("rollup-plugin-node-resolve");
 const minify=require("rollup-plugin-uglify")
 const async=require("neo-async")
 
-const packages=(function(){
+var packages=(function(){
 	let ps=require("fs")
 		.readdirSync("./packages")
 		.filter(a=>a.startsWith("we-edit"))
@@ -15,68 +15,104 @@ const packages=(function(){
 	return ps
 })();
 
-function config(project,mode="production"){
-    let base={
-      input: `packages/${project}/src/index.js`,
-      output:{
-    	file: `packages/${project}/cjs/index.${mode}.js`,
-    	format: "cjs",
-      },
-      plugins: [
-        resolve({
-            browser:true,
-        }),
+function config(project,format){
+	const _external=externals=>id=>!!externals.find(a=>id==a||id.startsWith(a+'/'))
+	const {dependencies={}, peerDependencies={}}=require(`../packages/${project}/package.json`)
+	let cjs={
+		  input: `./packages/${project}/src/index.js`,
+		  output:{
+			file: `./packages/${project}/index.js`,
+			format,
+			sourcemap:"inline",
+		  },
+		  treeshake:false,
+		  
+		  cache:true,
+		  
+		  external:_external(
+			  Object.keys(dependencies)
+				.concat(Object.keys(peerDependencies))
+				.filter(a=>!!a)
+			),
+		  plugins: [
+			babel({
+				babelrc:false,
+				presets: [
+					["env", {modules:false}],
+					"react",
+				],
+				exclude: ["node_modules/**"],
+				plugins:[
+					"babel-plugin-external-helpers",
+					"babel-plugin-add-module-exports",
+					"babel-plugin-transform-object-rest-spread",
+					"babel-plugin-transform-class-properties",
+				]
+			}),
+			commonjs({
+				namedExports:{
+					'node_modules/react/index.js': [
+						'Component', 'PureComponent',
+						'Children', 'createElement',
+						'Fragment', 'createFactory'
+					],
+					"node_modules/immutable/dist/immutable.js":[
+						"List","Map","Collection"
+					],
+					'node_modules/prop-types/index.js':
+						"string,object,bool,node,number,oneOfType,func".split(",")
+					
+				}
+			}),
+		  ]
+	}
+	if(format=="cjs")
+		return cjs
 
-        babel({
-    		babelrc:false,
-    		presets: [
-    			["env", {modules:false}],
-    			"react",
-    		],
-            exclude: "node_modules/**",
-    		plugins:[
-    			"babel-plugin-external-helpers",
-    			"babel-plugin-add-module-exports",
-    			"babel-plugin-transform-object-rest-spread",
-    			"babel-plugin-transform-class-properties",
-    		]
-    	}),
-
-    	commonjs({
-    		namedExports:{
-    			'node_modules/react/index.js': [
-    				'Component', 'PureComponent',
-    				'Children', 'createElement',
-                    'Fragment', 'createFactory'
-    			],
-                "node_modules/immutable/dist/immutable.js":[
-                    "List","Map","Collection"
-                ],
-    		}
-    	}),
-      ]
-    }
-
-    if(mode=="production"){
-        base.plugins.push(minify())
-    }else{
-        base.output.sourcemap=true
-    }
-    return base
+	return {
+		...cjs,
+		output:{
+			...cjs.output,
+			sourcemap:false,
+			file: `./packages/${project}/index.browser.js`,
+			name:project.replace(/-/g,'$'),
+			globals:Object.keys(peerDependencies).reduce((gs,a)=>{
+				gs[a]=a.replace(/-/g,'$')
+				return gs
+			},{})
+		},
+		external:_external(
+			Object.keys(peerDependencies)
+				.concat(["fs","path"])
+				.filter(a=>!!a)
+		),
+		plugins:[
+			resolve({
+				browser:true,
+				preferBuiltins: false
+			})
+		].concat(cjs.plugins)
+		//.concat([minify()])
+		
+	}
 }
 
+const mode=process.argv[2]||"cjs"
+
+if(process.argv[3]){
+	packages=process.argv[3].split(",").filter(a=>!!a)
+}
+
+
 async.eachSeries(packages, function(p,done){
-	console.log(`[${p}] start...`)
-	const {output, ...input}=config(p)
-	console.dir({input, output})
+	console.log(`---[${mode}.${p}]---`)
+	let {output, ...input}=config(p,mode)
 	rollup(input)
 		.then(bundle=>{
-			console.log(`[${p}] output...`)
+			console.log(`	output...`)
 			return bundle.write(output)
 		})
-		.catch(e=>console.log(e.message))
-		.then(()=>{
-			console.log(`[${p}] done`)
-			done()
-		})
+		.catch(e=>console.error(`	>>>error: ${e.message}`))
+		.then(()=>console.log(`	done`))
+		.then(done)
 })
