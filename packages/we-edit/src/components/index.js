@@ -3,7 +3,7 @@ export {Viewer} from "./viewer"
 
 export {default as Emitter} from "./emitter"
 
-export {Channel} from "./channel"
+export {View} from "./view"
 
 export {WeEdit} from "./we-edit"
 

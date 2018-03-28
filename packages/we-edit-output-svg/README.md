@@ -1,2 +1,2 @@
-# we-edit-channel-html
+# we-edit-view-html
 

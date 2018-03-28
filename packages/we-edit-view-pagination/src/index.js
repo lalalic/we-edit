@@ -2,7 +2,7 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 
 import isNode from "is-node"
-import {Channel} from "we-edit"
+import {View} from "we-edit"
 
 import ViewerTypes from "./all"
 import EditorTypes from "./edit"
@@ -91,7 +91,7 @@ export class Pagination extends Component{
 
 		const {defaultFont,measure,fonts, ...props}=this.props
 
-		return <Channel {...{ViewerTypes,EditorTypes,...props} }/>
+		return <View {...{ViewerTypes,EditorTypes,...props} }/>
 	}
 
 	componentWillUnmount(){

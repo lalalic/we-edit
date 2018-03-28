@@ -1,6 +1,6 @@
 {
   "name": "we-edit-output-html",
-  "description": "html channel implementation",
+  "description": "html view implementation",
   "version": "3.0.0",
   "author": {
     "name": "Raymond Li",
@@ -11,7 +11,7 @@
   },
   "peerDependencies":{
 	"we-edit":"^3.0.0",
-	"we-edit-channel-html":"^3.0.0"
+	"we-edit-view-html":"^3.0.0"
   },
   "keywords": ["we-edit"],
   "engines": {

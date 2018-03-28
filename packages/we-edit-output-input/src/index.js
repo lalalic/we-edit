@@ -2,7 +2,7 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 import {Emitter} from "we-edit"
 
-const EmptyChannel=()=>null
+const EmptyView=()=>null
 
 export class Input extends Component{
 	static contextTypes={
@@ -13,4 +13,4 @@ export class Input extends Component{
 	}
 }
 
-Emitter.support(<Emitter channel={<EmptyChannel/>}><Input/></Emitter>)
+Emitter.support(<Emitter view={<EmptyView/>}><Input/></Emitter>)

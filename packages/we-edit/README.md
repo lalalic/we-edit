@@ -8,7 +8,7 @@ npm install we-edit
 ## design
 * load (input)->
 * render to ([editor/viewer: model state ==>] we-edit model)->
-* render to (channel document)->
+* render to (view document)->
 * render to (output document)
 
 
@@ -29,7 +29,7 @@ npm install we-edit
 * Editor
 * Viewer
 * Emitter
-* Channel
+* View
 * WithStore
 * WithSelection
 * onlyWhen

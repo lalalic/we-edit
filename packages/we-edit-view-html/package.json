@@ -1,6 +1,6 @@
 {
-  "name": "we-edit-channel-text",
-  "description": "text channel implementation",
+  "name": "we-edit-view-html",
+  "description": "html view implementation",
   "version": "3.0.0",
   "author": {
     "name": "Raymond Li",

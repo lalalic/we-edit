@@ -2,7 +2,7 @@ import React, {PureComponent as Component, Children} from "react"
 import PropTypes from "prop-types"
 
 
-export class Channel extends Component{
+export class View extends Component{
 	static propTypes={
 		domain: PropTypes.string,
 		EditorTypes: PropTypes.object, 
@@ -30,4 +30,4 @@ export class Channel extends Component{
 	}
 }
 
-export default Channel
+export default View

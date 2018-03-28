@@ -1,10 +1,10 @@
 import React from "react"
-import {WeEdit, Viewer, Editor, Stream} from "we-edit"
+import {WeEdit, Viewer, Editor, Emitter, Stream} from "we-edit"
 
-import Pagination from "we-edit-channel-pagination"
+import Pagination from "we-edit-view-pagination"
 
-import Html from "we-edit-channel-html"
-import Text from "we-edit-channel-text"
+import Html from "we-edit-view-html"
+import Text from "we-edit-view-text"
 
 import "we-edit-input-docx"
 import "we-edit-input-json"
@@ -29,29 +29,24 @@ export const Office=()=>(
                 <Viewer
                     toolBar={null} ruler={false}
                     layout="read" icon={<IconRead/>}
-                    channel={<Pagination/>}>
+                    view={<Pagination/>}>
 
                 </Viewer>
 
                 <Editor
                     layout="print"
 					icon={<IconPrint/>}
-                    channel={<Pagination/>}
+                    view={<Pagination/>}
 					>
 
                 </Editor>
 
                 <Editor ruler={false}
                     layout="web" icon={<IconWeb/>}
-                    channel={<Html/>}>
+                    view={<Html/>}>
 
                 </Editor>
 				
-				<Emitter channel={<Pagination/>}>
-					<Stream path="./a.svg">
-						<SVG/>
-					</Stream>
-				</Emitter>
             </Workspace>
         </WeEditUI>
     </WeEdit>

@@ -13,7 +13,7 @@ export class Editor extends Component{
 	static propTypes={
 		media:PropTypes.string,
 		reCreateDoc:PropTypes.bool,
-		channel: PropTypes.node.isRequired,
+		view: PropTypes.node.isRequired,
 		style: PropTypes.object,
 
 		//canvas props for svg
@@ -39,8 +39,8 @@ export class Editor extends Component{
 	}
 
 	render(){
-		const {media, channel, style, children:canvas, ...props}=this.props
-		return React.cloneElement(channel,
+		const {media, view, style, children:canvas, ...props}=this.props
+		return React.cloneElement(view,
 			{domain:this.constructor.displayName},
 			<Root style={style} docId={this.docId} canvasProps={{canvas, ...props}}/>
 		)
