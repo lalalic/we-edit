@@ -1,4 +1,4 @@
-import Models from "we-edit/model"
+import {models} from "we-edit"
 
 import Document from "./document"
 import Section from "./section"
@@ -15,7 +15,7 @@ import Frame from "./frame"
 import Shape from "./shape"
 
 export default {
-	...Models,
+	...models,
 	Document, 
 	Section, 
 	Paragraph, 

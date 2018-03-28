@@ -11,8 +11,6 @@ import Group from "./composed/group"
 import Line, {Info as LineInfo} from "./composed/line"
 import ComposedText from "./composed/text"
 
-import {Text} from "we-edit/model"
-
 const Super=HasParentAndChild(Base)
 export default class Paragraph extends Super{
     static childContextTypes={

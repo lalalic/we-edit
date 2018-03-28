@@ -13,4 +13,4 @@ export {default as Input} from "./input"
 
 export {editify} from "./model/edit"
 
-export {default as model} from "./model"
+export {default as models} from "./model"
