@@ -58,7 +58,8 @@
     "del": "del-cli",
     "webpack": "webpack",
     "rollup": "node scripts/build.js",
-    "build": "yarn rollup && webpack --progress -p --env=browser --env.prod && webpack --progress -p --env=office --env.prod"
+    "build.browser": "webpack --env=browser",
+    "build": "yarn rollup && yarn build.browser -p --env.prod --progress"
   },
   "keywords": [
     "we-edit"

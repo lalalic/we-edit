@@ -42,6 +42,9 @@ module.exports=(env,args)=>{
 				]
 			}]
 		},
+		resolve:{
+			symlinks:false,
+		},
 		plugins:[],
 		node:{
 			fs: "empty"
