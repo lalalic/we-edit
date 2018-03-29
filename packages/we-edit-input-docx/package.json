@@ -10,13 +10,13 @@
   "dependencies": {
     "docx4js": "^3.1.12",
     "prop-types": "^15.6.0",
-    "react": "^16.2.0",
     "recompose": "^0.26.0",
 	"lodash.get": "^4.4.2",
 	"lodash.invoke": "^4.5.2"
   },
   "peerDependencies":{
-	"we-edit":"^3.0.0"
+	"react": "^16.2.0",
+    "we-edit":"^3.0.0"
   },
   "engines": {
     "node": ">=0.10.0"
