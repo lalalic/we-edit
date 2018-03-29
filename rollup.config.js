@@ -24,7 +24,7 @@ function config(project,format){
 				.filter(a=>!!a)
 			),
 		  plugins: [
-			less({insert:true}),
+			less({insert:true,output:a=>a}),
 			babel({
 				babelrc:false,
 				presets: [
