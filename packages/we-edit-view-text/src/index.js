@@ -1,8 +1,8 @@
 import React from "react"
-import {view} from "we-edit"
+import {View} from "we-edit"
 
 import ViewerTypes from "./all"
 import EditorTypes from "./edit"
 
 
-export default props=><view {...{ViewerTypes,EditorTypes, ...props}}/>
+export default props=><View {...{ViewerTypes,EditorTypes, ...props}}/>
