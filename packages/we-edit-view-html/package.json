@@ -8,10 +8,10 @@
   },
   "dependencies": {
 	"prop-types": "^15.6.0",
-    "react": "^16.2.0",
 	"mouse-event-offset": "^3.0.2"
   },
   "peerDependencies":{
+    "react": "^16.2.0",
 	"we-edit":"^3.0.0"
   },
   "keywords": ["we-edit"],

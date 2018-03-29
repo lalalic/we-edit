@@ -2,22 +2,29 @@ const babel = require("rollup-plugin-babel");
 const commonjs = require("rollup-plugin-commonjs");
 const resolve = require("rollup-plugin-node-resolve");
 const minify=require("rollup-plugin-uglify")
+const less =require('rollup-plugin-less')
 
-export function config(project,format){
+function config(project,format){
+	const _external=externals=>id=>!!externals.find(a=>id==a||id.startsWith(a+'/'))
 	const {dependencies={}, peerDependencies={}}=require(`./packages/${project}/package.json`)
 	let cjs={
-		  input: `packages/${project}/src/index.js`,
+		  input: `./packages/${project}/src/index.js`,
 		  output:{
-			file: `packages/${project}/index.js`,
+			file: `./packages/${project}/index.js`,
 			format,
-			sourcemap:true,
+			sourcemap:"inline",
 		  },
 		  treeshake:false,
 		  
 		  cache:true,
 		  
-		  external:Object.keys(dependencies).concat(Object.keys(peerDependencies)).filter(a=>!!a),
+		  external:_external(
+			  Object.keys(dependencies)
+				.concat(Object.keys(peerDependencies))
+				.filter(a=>!!a)
+			),
 		  plugins: [
+			less({insert:true,output:a=>a}),
 			babel({
 				babelrc:false,
 				presets: [
@@ -27,12 +34,28 @@ export function config(project,format){
 				exclude: ["node_modules/**"],
 				plugins:[
 					"babel-plugin-external-helpers",
-					"babel-plugin-add-module-exports",
+					//@@@can't use this for rollup, otherwise it will add module.exports=exports["default"]
+					//"babel-plugin-add-module-exports",
 					"babel-plugin-transform-object-rest-spread",
 					"babel-plugin-transform-class-properties",
 				]
 			}),
-			commonjs(),
+			commonjs({
+				namedExports:{
+					'node_modules/react/index.js': [
+						'Component', 'PureComponent',
+						'Children', 'createElement',
+						'Fragment', 'createFactory'
+					],
+					"node_modules/immutable/dist/immutable.js":[
+						"List","Map","Collection"
+					],
+					'node_modules/prop-types/index.js':
+						"string,object,bool,node,number,oneOfType,func".split(",")
+					
+				}
+			}),
+			
 		  ]
 	}
 	if(format=="cjs")
@@ -40,24 +63,31 @@ export function config(project,format){
 
 	return {
 		...cjs,
-		name:project,
 		output:{
 			...cjs.output,
 			sourcemap:false,
-			file: `packages/${project}/index.browser.js`,
+			file: `./packages/${project}/index.browser.js`,
+			name:project.replace(/-/g,'$'),
+			globals:Object.keys(peerDependencies).reduce((gs,a)=>{
+				gs[a]=a.replace(/-/g,'$')
+				return gs
+			},{})
 		},
-		external:Object.keys(peerDependencies).filter(a=>!!a),
+		external:_external(
+			Object.keys(peerDependencies)
+				.concat(["fs","path"])
+				.filter(a=>!!a)
+		),
 		plugins:[
 			resolve({
 				browser:true,
 				preferBuiltins: false
 			})
 		].concat(cjs.plugins)
-		.concat([minify()])
+		//.concat([minify()])
 		
 	}
-	
-	return 
 }
 
-export default config("we-edit","cjs")
+exports.default=config("we-edit","cjs")
+exports.config=config

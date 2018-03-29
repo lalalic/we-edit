@@ -27,6 +27,7 @@ module.exports=(env,args)=>{
 				test: /\.js?$/,
 				use: ['babel-loader'],
 				exclude: /node_modules/,
+				include: /src/
 			},{
 				test: /\.js?$/,
 				use: ["transform-loader/cacheable?brfs"],
@@ -44,7 +45,8 @@ module.exports=(env,args)=>{
 		plugins:[],
 		node:{
 			fs: "empty"
-		}
+		},
+		stats:"errors-only",
 	}
 
 	if(env){

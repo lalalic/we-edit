@@ -7,9 +7,9 @@
     "email": "lalalic@139.com"
   },
   "dependencies": {
-	"react": "^16.2.0"
   },
   "peerDependencies":{
+	"react": "^16.2.0",
 	"we-edit":"^3.0.0",
 	"we-edit-view-html":"^3.0.0"
   },
