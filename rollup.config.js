@@ -34,7 +34,8 @@ function config(project,format){
 				exclude: ["node_modules/**"],
 				plugins:[
 					"babel-plugin-external-helpers",
-					"babel-plugin-add-module-exports",
+					//@@@can't use this for rollup, otherwise it will add module.exports=exports["default"]
+					//"babel-plugin-add-module-exports",
 					"babel-plugin-transform-object-rest-spread",
 					"babel-plugin-transform-class-properties",
 				]

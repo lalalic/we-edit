@@ -6,6 +6,7 @@ class PrintChunksPlugin{
 	apply(compiler) {
 		compiler.plugin('compilation', function(compilation, params) {
 			compilation.plugin('after-optimize-chunk-assets', function(chunks) {
+				return ;
 				chunks.map(function(c) {
 					console.log(c.name)
 					console.log(
@@ -38,7 +39,9 @@ module.exports=(base, packages, args)=>{
 			path: path.resolve(`${__dirname}/${root}`),
 			library:p,
 			libraryTarget:"window",
+			pathinfo:true,
 		},
+		devtool:false,
 		plugins:[
 			new FileManager({
 				onEnd:{
