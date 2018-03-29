@@ -5,7 +5,7 @@ const FileManager = require("filemanager-webpack-plugin")
 module.exports=(base, packages, args)=>{
 	const p="we-edit-office"
 	let root=`node_modules/${p}`
-	let entry=`./${root}/index.js`	
+	let entry=`./${root}/index.js`
 	return {
 		...base,
 		entry,
@@ -16,7 +16,7 @@ module.exports=(base, packages, args)=>{
 			libraryTarget:"window",
 			pathinfo:true,
 		},
-		plugins:[
+		plugins:[/*
 			new FileManager({
 				onEnd:{
 					copy:[
@@ -26,14 +26,10 @@ module.exports=(base, packages, args)=>{
 						}
 					]
 				}
-			}),
+			}),*/
 			...base.plugins
 		],
 		externals:[],
-		
+
 	}
 }
-
-
-
-

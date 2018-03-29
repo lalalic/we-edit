@@ -10,6 +10,10 @@
     "name": "Raymond Li",
     "email": "lalalic@139.com"
   },
+  "dependencies":{
+      "react": "^16.2.0",
+      "react-dom": "^16.1.1"
+  },
   "devDependencies": {
     "babel-cli": "^6.6.5",
     "babel-loader": "^6.3.2",
@@ -54,7 +58,7 @@
     "del": "del-cli",
     "webpack": "webpack",
     "rollup": "node scripts/build.js",
-    "build": "yarn rollup && webpack --progress -d --env=browser && webpack --progress -p --env=office --env.prod"
+    "build": "yarn rollup && webpack --progress -p --env=browser --env.prod && webpack --progress -p --env=office --env.prod"
   },
   "keywords": [
     "we-edit"
