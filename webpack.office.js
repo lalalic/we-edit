@@ -11,7 +11,8 @@ class PrintChunksPlugin{
 					console.log(
 						c.modules.map((m)=>m.request)
 							.filter(a=>!!a)
-							.map(a=>a.split(/we-edit[\\\/]/g).pop().split(/[\\\/]/g).join("/"))
+							.map(a=>a.split(/we-edit[\\\/]node_modules/g).pop()
+								.split(/[\\\/]/g).join("/"))
 							.filter(a=>-1!=a.indexOf("we-edit"))
 					)
 				})
@@ -30,6 +31,7 @@ module.exports=(base, packages, args)=>{
 		resolve:{
 			...base.resolve,
 			symlinks:false,
+			modules:["packages", "node_modules"]
 		},
 		output:{
 			filename:`index.all.js`,
