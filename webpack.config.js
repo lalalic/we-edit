@@ -44,7 +44,8 @@ module.exports=(env,args)=>{
 		plugins:[],
 		node:{
 			fs: "empty"
-		}
+		},
+		stats:"errors-only",
 	}
 
 	if(env){

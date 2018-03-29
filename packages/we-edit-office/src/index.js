@@ -5,7 +5,6 @@ import Pagination from "we-edit-view-pagination"
 import Html from "we-edit-view-html"
 import Text from "we-edit-view-text"
 
-/*
 import "we-edit-input-docx"
 import "we-edit-input-json"
 
@@ -13,7 +12,7 @@ import "we-edit-output-pdf"
 import "we-edit-output-html"
 import "we-edit-output-svg"
 import "we-edit-output-input"
-*/
+
 
 import WeEditUI from "./we-edit-ui"
 import Workspace from "./workspace"
@@ -65,6 +64,9 @@ export function create(container, office=<DefaultOffice/>){
 
 export {ReactDOM, React}
 export {Pagination, Html, Text}
+
+import * as weedit from "we-edit"
+export {weedit}
 
 (function(me){
 	window.addEventListener("load", ()=>{

@@ -39,6 +39,7 @@
     "rollup": "^0.57.1",
     "rollup-plugin-babel": "^3.0.3",
     "rollup-plugin-commonjs": "^9.1.0",
+    "rollup-plugin-less": "^0.1.4",
     "rollup-plugin-node-resolve": "^3.3.0",
     "rollup-plugin-uglify": "^3.0.0",
     "source-map-loader": "^0.1.6",
@@ -48,13 +49,12 @@
     "webpack-dev-server": "^2.9.4"
   },
   "scripts": {
-    "build1": "webpack --progress -p --env=npm --display=minimal && webpack --progress -d --env=npm  --display=minimal",
     "test": "jest __tests__",
     "dev": "webpack-dev-server --env=dev",
     "del": "del-cli",
     "webpack": "webpack",
-    "rollup": "rollup -c rollup.config.js",
-    "build": "node scripts/build.js"
+    "rollup": "node scripts/build.js",
+    "build": "webpack --progress --env=npm -d && webpack --progress -p --env=office"
   },
   "keywords": [
     "we-edit"

@@ -12,7 +12,7 @@ import TitleBar from "./title-bar"
 import {getActive} from "we-edit"
 import {grey50 as BACKGROUND} from "material-ui/styles/colors"
 
-require("./style.less")
+import "./style.less"
 
 
 const styles={

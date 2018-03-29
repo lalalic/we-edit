@@ -1,9 +1,19 @@
 const path = require('path')
 const webpack = require('webpack')
 const FileManager = require("filemanager-webpack-plugin")
+class CleanMessage{
+	apply(compiler){
+		compiler.plugin("done",function({startTime, endTime, compilation:{
+				options:{entry}, 
+				outputOptions:{filename,path:root}
+			}}){
+			//root=root.split(/[\\\/]/g).slice(-1).join("/")
+			//console.log(`	${root}/${filename}\r\n`)
+		})
+	}
+}
 
 module.exports=(base, packages, args)=>{
-	let buildType=args.p ? "production" : "development"
 	let configs=packages.reduce((builds, p)=>{
 			let root=`packages/${p}`
 			let entry=`./${root}/src/index.js`
@@ -15,18 +25,21 @@ module.exports=(base, packages, args)=>{
 				entry,
 				name:p,
 				output:{
-					filename:`index.${buildType}.js`,
-					path: path.resolve(`${__dirname}/${root}`, 'cjs'),
+					filename:`index.js`,
+					path: path.resolve(`${__dirname}/${root}`),
 					library:p,
-					libraryTarget:"commonjs",
+					libraryTarget:"commonjs2",
 				},
 				externals,
-				plugins:[new FileManager({
-					onStart:{
-						"delete":[`./${root}/cjs/*${buildType}*`],
-						mkdir:[`./${root}/cjs`]
-					}
-				}), ...base.plugins],
+				plugins:[
+					new CleanMessage(),
+					new FileManager({
+						onStart:{
+							"delete":[`./${root}/index.js`],
+						}
+					}), 
+					...base.plugins
+				],
 				dependencies:buildDependencies
 			}
 			
@@ -34,36 +47,26 @@ module.exports=(base, packages, args)=>{
 				...base,
 				entry,
 				output:{
-					filename:`index.${buildType}.js`,
-					path: path.resolve(`${__dirname}/${root}`, 'umd'),
+					filename:`index.browser.js`,
+					path: path.resolve(`${__dirname}/${root}`),
 					library:p,
-					libraryTarget:"umd",
+					libraryTarget:"window",
 				},
 				externals:Object.keys(peerDependencies),
-				plugins:[new FileManager({
-					onStart:{
-						"delete":[`./${root}/umd/*${buildType}*`],
-						mkdir:[`./${root}/umd`]
-					}
-				}), ...base.plugins],
+				plugins:[
+					new CleanMessage(),
+					new FileManager({
+						onStart:{
+							"delete":[`./${root}/index.browser.js`],
+						}
+					}), 
+					...base.plugins
+				],
 				dependencies:buildDependencies
 			}
 			
 			builds.splice(builds.length,0,cjs, umd)
 			return builds
 		}, [])
-	let office=configs.pop()
-	office.plugins.push(new FileManager({
-		onEnd:{
-			copy:[
-				{
-					source:`${office.output.path}/${office.output.filename}`,
-					destination: './dist'
-				}
-			]
-		}
-	}))
-	office.externals=undefined
-	configs.push(office)
 	return configs
 }
