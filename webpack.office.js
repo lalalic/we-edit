@@ -2,38 +2,13 @@ const path = require('path')
 const webpack = require('webpack')
 const FileManager = require("filemanager-webpack-plugin")
 
-class PrintChunksPlugin{
-	apply(compiler) {
-		compiler.plugin('compilation', function(compilation, params) {
-			compilation.plugin('after-optimize-chunk-assets', function(chunks) {
-				return ;
-				chunks.map(function(c) {
-					console.log(c.name)
-					console.log(
-						c.modules.map((m)=>m.request)
-							.filter(a=>!!a)
-							.map(a=>a.split(/we-edit[\\\/]node_modules/g).pop()
-								.split(/[\\\/]/g).join("/"))
-							.filter(a=>-1!=a.indexOf("we-edit"))
-					)
-				})
-			});
-		});
-	}
-}
-
 module.exports=(base, packages, args)=>{
 	const p="we-edit-office"
 	let root=`node_modules/${p}`
 	let entry=`./${root}/index.js`	
-	let a={
+	return {
 		...base,
 		entry,
-		resolve:{
-			...base.resolve,
-			symlinks:false,
-			modules:["packages", "node_modules"]
-		},
 		output:{
 			filename:`index.all.js`,
 			path: path.resolve(`${__dirname}/${root}`),
@@ -41,7 +16,6 @@ module.exports=(base, packages, args)=>{
 			libraryTarget:"window",
 			pathinfo:true,
 		},
-		devtool:false,
 		plugins:[
 			new FileManager({
 				onEnd:{
@@ -53,13 +27,11 @@ module.exports=(base, packages, args)=>{
 					]
 				}
 			}),
-			new PrintChunksPlugin(),
 			...base.plugins
 		],
 		externals:[],
 		
 	}
-	return a
 }
 
 
