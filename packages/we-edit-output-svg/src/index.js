@@ -15,5 +15,6 @@ Emitter.support(
 		presentation={<Pagination/>}
 		>
 		<SVG/>
-	</Emitter>
+	</Emitter>,
+	
 )

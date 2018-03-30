@@ -1,6 +1,6 @@
 {
   "name": "we-edit-presentation-text",
-  "description": "text view implementation",
+  "description": "text representation implementation",
   "version": "3.0.0",
   "author": {
     "name": "Raymond Li",
