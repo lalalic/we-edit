@@ -11,6 +11,7 @@ import uuid from "../tools/uuid"
 
 export class Editor extends Component{
 	static displayName="editor"
+	static domain="edit"
 	static propTypes={
 		media:PropTypes.string,
 		reCreateDoc:PropTypes.bool,
@@ -42,7 +43,7 @@ export class Editor extends Component{
 	render(){
 		const {media, representation, style, children:canvas, ...props}=this.props
 		return React.cloneElement(this.getTypedRepresentation(representation),
-			{domain:this.constructor.displayName},
+			{domain:this.constructor.domain},
 			<Root style={style} docId={this.docId} canvasProps={{canvas, ...props}}/>
 		)
 	}

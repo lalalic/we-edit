@@ -29,7 +29,7 @@ export default class  extends Component{
 	getChildContext(){
 		const {domain, EditorTypes, ViewerTypes}=this.props
 		return {
-			ModelTypes: this.context.transformer(domain=="editor" ? EditorTypes : ViewerTypes),
+			ModelTypes: this.context.transformer(domain=="edit" ? EditorTypes : ViewerTypes),
 		}
 	}
 	
