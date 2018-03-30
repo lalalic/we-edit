@@ -53,8 +53,6 @@ export class Editor extends Component{
 			const TypedPresentation=Presentation.get(type)
 			if(TypedPresentation){
 				return <TypedPresentation {...others}/>
-			}else{
-				return <div>Presentation[{type}] is not installed</div>
 			}
 		}
 		return this.props.presentation
@@ -137,6 +135,8 @@ const Root=connect((state)=>{
 	}
 
 	componentWillReceiveProps({content,changed,reCreateDoc,canvasProps},{ModelTypes}){
+		if(!ModelTypes)
+			return
 		if(reCreateDoc || !this.doc){
 			this.els=new Map()
 			this.doc=this.createChildElement("root",content,ModelTypes,this.props.content,canvasProps)
@@ -201,6 +201,9 @@ const Root=connect((state)=>{
 	}
 
 	render(){
+		if(!this.context.ModelTypes){
+			return <div style={{color:"red", marginTop:100}}>Presentation is not installed</div>
+		}
 		return <div id={this.props.docId} style={this.props.style}>{this.doc}</div>
 	}
 })
