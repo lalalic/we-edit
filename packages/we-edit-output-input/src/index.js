@@ -13,4 +13,4 @@ export class Input extends Component{
 	}
 }
 
-Emitter.support(<Emitter presentation={<EmptyView/>}><Input/></Emitter>)
+Emitter.support(<Emitter representation={<EmptyView/>}><Input/></Emitter>)

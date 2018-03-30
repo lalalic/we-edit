@@ -1,5 +1,5 @@
 import React, {PureComponent as Component} from "react"
-import {Presentation} from "we-edit"
+import {Representation} from "we-edit"
 
 import ViewerTypes from "./all"
 import EditorTypes from "./edit"
@@ -7,8 +7,8 @@ import EditorTypes from "./edit"
 
 export default class Text extends Component{
 	render(){
-		return <Presentation {...{ViewerTypes,EditorTypes,...this.props}}/>
+		return <Representation {...{ViewerTypes,EditorTypes,...this.props}}/>
 	}
 }
 
-Presentation.support(Text,"text")
+Representation.support(Text,"text")

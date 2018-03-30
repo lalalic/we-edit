@@ -12,7 +12,7 @@
   "peerDependencies":{
 	"react": "^16.2.0",
 	"we-edit":"^3.0.0",
-	"we-edit-presentation-pagination":"^3.0.0"
+	"we-edit-representation-pagination":"^3.0.0"
   },
   "keywords": ["we-edit"],
   "engines": {

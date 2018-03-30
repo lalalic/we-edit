@@ -7,8 +7,8 @@ npm install we-edit
 
 ## design
 * load (input)->
-* render to ([editor/viewer: model state ==>] we-edit model)->
-* render to (view document)->
+* render to (we-edit document)->
+* render to (represenation document)->
 * render to (output document)
 
 
@@ -26,14 +26,20 @@ npm install we-edit
 
 #### components
 * WeEdit
+
 * Editor
 * Viewer
 * Emitter
-* View
+
+* Represenation
+* Emitter
+
 * WithStore
 * WithSelection
+
 * onlyWhen
 * when
+
 * Cursor
 * Selection
 

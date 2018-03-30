@@ -1,9 +1,9 @@
 import React from "react"
-import {WeEdit, Viewer, Editor, Emitter,Presentation} from "we-edit"
+import {WeEdit, Viewer, Editor, Emitter,Representation} from "we-edit"
 
-import "we-edit-presentation-pagination"
-import "we-edit-presentation-html"
-import "we-edit-presentation-text"
+import "we-edit-representation-pagination"
+import "we-edit-representation-html"
+import "we-edit-representation-text"
 
 import "we-edit-input-docx"
 import "we-edit-input-json"
@@ -28,21 +28,21 @@ export const DefaultOffice=()=>(
                 <Viewer
                     toolBar={null} ruler={false}
                     layout="read" icon={<IconRead/>}
-                    presentation={<Presentation type="pagination"/>}>
+                    representation={<Representation type="pagination"/>}>
 
                 </Viewer>
 
                 <Editor
                     layout="print"
 					icon={<IconPrint/>}
-                    presentation={<Presentation type="pagination"/>}
+                    representation={<Representation type="pagination"/>}
 					>
 
                 </Editor>
 
                 <Editor ruler={false}
                     layout="web" icon={<IconWeb/>}
-                    presentation={<Presentation type="html"/>}>
+                    representation={<Representation type="html"/>}>
 
                 </Editor>
 				

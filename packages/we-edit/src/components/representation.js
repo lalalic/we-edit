@@ -18,8 +18,8 @@ export default class  extends Component{
 		ModelTypes: PropTypes.object,
 	}
 	
-	static support(Presentation,name){
-		supports[name]=Presentation
+	static support(Representation,name){
+		supports[name]=Representation
 	}
 	
 	static get(name){

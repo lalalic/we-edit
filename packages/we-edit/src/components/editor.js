@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 
 import {connect, connectAdvanced} from "react-redux"
 
-import Presentation from "./presentation"
+import Representation from "./representation"
 import {getContent, getChanged, getParentId} from "../state/selector"
 import Cursor from "./cursor"
 import Input from "../input"
@@ -14,7 +14,7 @@ export class Editor extends Component{
 	static propTypes={
 		media:PropTypes.string,
 		reCreateDoc:PropTypes.bool,
-		presentation: PropTypes.node.isRequired,
+		representation: PropTypes.node.isRequired,
 		style: PropTypes.object,
 
 		//canvas props for svg
@@ -40,22 +40,22 @@ export class Editor extends Component{
 	}
 
 	render(){
-		const {media, presentation, style, children:canvas, ...props}=this.props
-		return React.cloneElement(this.getTypedPresentation(presentation),
+		const {media, representation, style, children:canvas, ...props}=this.props
+		return React.cloneElement(this.getTypedRepresentation(representation),
 			{domain:this.constructor.displayName},
 			<Root style={style} docId={this.docId} canvasProps={{canvas, ...props}}/>
 		)
 	}
 	
-	getTypedPresentation(){
-		const {props:{type, ...others}}=this.props.presentation
+	getTypedRepresentation(){
+		const {props:{type, ...others}}=this.props.representation
 		if(type){
-			const TypedPresentation=Presentation.get(type)
-			if(TypedPresentation){
-				return <TypedPresentation {...others}/>
+			const TypedRepresentation=Representation.get(type)
+			if(TypedRepresentation){
+				return <TypedRepresentation {...others}/>
 			}
 		}
-		return this.props.presentation
+		return this.props.representation
 	}
 }
 
@@ -202,7 +202,7 @@ const Root=connect((state)=>{
 
 	render(){
 		if(!this.context.ModelTypes){
-			return <div style={{color:"red", marginTop:100}}>Presentation is not installed</div>
+			return <div style={{color:"red", marginTop:100}}>Representation is not installed</div>
 		}
 		return <div id={this.props.docId} style={this.props.style}>{this.doc}</div>
 	}

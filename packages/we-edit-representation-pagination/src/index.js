@@ -2,7 +2,7 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 
 import isNode from "is-node"
-import {Presentation} from "we-edit"
+import {Representation} from "we-edit"
 
 import ViewerTypes from "./all"
 import EditorTypes from "./edit"
@@ -92,7 +92,7 @@ export default class Pagination extends Component{
 
 		const {defaultFont,measure,fonts, ...props}=this.props
 
-		return <Presentation {...{ViewerTypes,EditorTypes,...props} }/>
+		return <Representation {...{ViewerTypes,EditorTypes,...props} }/>
 	}
 
 	componentWillUnmount(){
@@ -102,4 +102,4 @@ export default class Pagination extends Component{
 	}
 }
 
-Presentation.support(Pagination,"pagination")
+Representation.support(Pagination,"pagination")

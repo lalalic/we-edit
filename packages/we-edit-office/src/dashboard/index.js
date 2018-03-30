@@ -23,12 +23,13 @@ export default compose(
 		docked={false}
 		open={true}
 		onRequestChange={dispear}>
+		
 		<center style={{zoom:2,marginTop:5}}>
 			<Avatar backgroundColor={gray100}>
 				<IconLogo color={yellow500}/>
 			</Avatar>
 		</center>
-		<div><File.OutputTypes/></div>
+		
 		<Menu>
 			<MenuItem
 				primaryText="New"

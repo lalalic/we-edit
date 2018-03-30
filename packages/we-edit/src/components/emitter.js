@@ -3,17 +3,17 @@ import PropTypes from "prop-types"
 import Viewer from "./viewer"
 
 /**
-<emiter presentation={<Pagination/>}>
+<emiter representation={<Pagination/>}>
 	<PDF/>
 	<PCL/>
 	<APF/>
 </emiter>
-<emiter presentation={<Html/>}>
+<emiter representation={<Html/>}>
 	<HTML/>
 	<StylessHtml/>
 	<APF/>
 </emiter>
-<emiter presentation={<Text/>}>
+<emiter representation={<Text/>}>
 	<PlainText/>
 </emiter>
 */
@@ -42,13 +42,13 @@ export default class extends Viewer{
 	}
 	
 	render(){
-		const {presentation, children, input, ...props}=this.props
-		const docElement=input.render(createElement,presentation.props.ViewerTypes)
+		const {representation, children, input, ...props}=this.props
+		const docElement=input.render(createElement,representation.props.ViewerTypes)
 		return (
 			<Fragment>
 				{
 					Children.toArray(children)
-						.map(output=>React.cloneElement(output, {presentation, ...props}, docElement))
+						.map(output=>React.cloneElement(output, {representation, ...props}, docElement))
 				}
 			</Fragment>
 		)

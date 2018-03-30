@@ -3,7 +3,7 @@ export {Viewer} from "./viewer"
 
 export {default as Emitter} from "./emitter"
 
-export {default as Presentation} from "./presentation"
+export {default as Representation} from "./representation"
 
 export {WeEdit} from "./we-edit"
 
