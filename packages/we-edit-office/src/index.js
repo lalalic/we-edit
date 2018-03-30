@@ -1,5 +1,5 @@
 import React from "react"
-import {WeEdit, Viewer, Editor, Emitter,Representation} from "we-edit"
+import {WeEdit, Viewer, Editor, Emitter,Stream, Representation} from "we-edit"
 
 import "we-edit-representation-pagination"
 import "we-edit-representation-html"
@@ -45,6 +45,16 @@ export const DefaultOffice=()=>(
                     representation={<Representation type="html"/>}>
 
                 </Editor>
+				
+				<div>
+					<Emitter 
+						representation={<Representation type="pagination"/>}>
+						<Stream>
+							<Emitter.Format type="svg"/>
+							<Emitter.Format type="pdf"/>
+						</Stream>
+					</Emitter>
+				</div>
 				
             </Workspace>
         </WeEditUI>

@@ -42,9 +42,10 @@ export class Editor extends Component{
 
 	render(){
 		const {media, representation, style, children:canvas, ...props}=this.props
-		return React.cloneElement(this.getTypedRepresentation(representation),
+		return React.cloneElement(
+			this.getTypedRepresentation(representation),
 			{domain:this.constructor.domain},
-			<Root style={style} docId={this.docId} canvasProps={{canvas, ...props}}/>
+			this.createDocument({style, docId:this.docId, canvasProps:{canvas, ...props}})
 		)
 	}
 	
@@ -58,11 +59,63 @@ export class Editor extends Component{
 		}
 		return this.props.representation
 	}
+	
+	createDocument(props){
+		return 	<Root {...props}/>
+	}
 }
 
-const Root=connect((state)=>{
-	return {content:state.get("content"),changed: getChanged(state)}
-})(class extends PureComponent{
+export function createWeDocument(id,content,ModelTypes, canvasProps={}, lastContent, onElCreate){
+	let current=content.get(id)
+	let {type, props, children}=current.toJS()
+	let Child=ModelTypes[type[0].toUpperCase()+type.substr(1)]
+	if(!Child){
+		console.error(`[${type}] not found`)
+		return null
+	}
+	let elChildren=children
+
+	if(Array.isArray(children))
+		elChildren=children.map(a=>{
+			return createWeDocument(a,content,ModelTypes,lastContent,undefined,onElCreate)
+		})
+
+	let changed=false, selfChanged=false
+
+	if(lastContent){
+		let last=lastContent.get(id)
+
+		if(current!=last){
+			changed=true
+		}else if(Array.isArray(children)){
+			changed=!!elChildren.find(({props:{changed}})=>changed)
+		}
+
+		if(Array.isArray(children)){
+			selfChanged=last && current.get("props")!=last.get("props")
+		}else{
+			selfChanged=changed
+		}
+	}
+
+	let el=(<Child
+			key={id}
+			id={id}
+			{...props}
+			{...canvasProps}
+			children={elChildren}
+			changed={changed}
+			selfChanged={selfChanged}
+		/>)
+		
+	if(onElCreate){
+		onElCreate(el)
+	}
+	return el
+}
+
+
+class WeDocumentStub extends PureComponent{
 	static contextTypes={
 		ModelTypes: PropTypes.object
 	}
@@ -154,51 +207,10 @@ const Root=connect((state)=>{
 	}
 
 	createChildElement(id,content,ModelTypes,lastContent, canvasProps={}){
-		let current=content.get(id)
-		let {type, props, children}=current.toJS()
-		let Child=ModelTypes[type[0].toUpperCase()+type.substr(1)]
-		if(!Child){
-			console.error(`[${type}] not found`)
-			return null
-		}
-		let elChildren=children
-
-		if(Array.isArray(children))
-			elChildren=children.map(a=>{
-				return this.createChildElement(a,content,ModelTypes,lastContent)
-			})
-
-		let changed=false, selfChanged=false
-
-		if(lastContent){
-			let last=lastContent.get(id)
-
-			if(current!=last){
-				changed=true
-			}else if(Array.isArray(children)){
-				changed=!!elChildren.find(({props:{changed}})=>changed)
-			}
-
-			if(Array.isArray(children)){
-				selfChanged=last && current.get("props")!=last.get("props")
-			}else{
-				selfChanged=changed
-			}
-		}
-
-		let el=(<Child
-				key={id}
-				id={id}
-				{...props}
-				{...canvasProps}
-				children={elChildren}
-				changed={changed}
-				selfChanged={selfChanged}
-			/>)
-
-		this.els.set(id,el)
-
-		return el
+		return createWeDocument(
+			id,content,ModelTypes,canvasProps,lastContent,
+			el=>{this.els.set(el.props.id,el)}
+		)
 	}
 
 	render(){
@@ -207,6 +219,11 @@ const Root=connect((state)=>{
 		}
 		return <div id={this.props.docId} style={this.props.style}>{this.doc}</div>
 	}
-})
+}
+
+
+const Root=connect((state)=>{
+	return {content:state.get("content"),changed: getChanged(state)}
+})(WeDocumentStub)
 
 export default Editor

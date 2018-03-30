@@ -4,6 +4,8 @@ import Pagination from "we-edit-representation-pagination"
 
 export default class PDF extends Component{
 	render(){
+		const {stream,pages}=this.props
+		stream.write(pages)
 		return null
 	}
 }

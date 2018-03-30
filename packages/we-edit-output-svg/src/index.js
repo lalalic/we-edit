@@ -4,7 +4,9 @@ import Pagination from "we-edit-representation-pagination"
 
 export default class SVG extends Component{
 	render(){
-		return Children.only(this.props.children)
+		const {stream,pages}=this.props
+		stream.write(pages)
+		return null
 	}
 }
 
@@ -16,5 +18,4 @@ Emitter.support(
 		>
 		<SVG/>
 	</Emitter>,
-	
 )
