@@ -12,9 +12,9 @@ export default class PDF extends Component{
 
 Emitter.support(
 	<Emitter 
-		type="pdf"
 		name="PDF Document(*.pdf)"
 		representation={<Pagination/>}>
 		<PDF/>
-	</Emitter>
+	</Emitter>,
+	"pdf"
 )

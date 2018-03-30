@@ -10,9 +10,9 @@ export default class HTML extends Component{
 
 Emitter.support(
 	<Emitter 
-		type="html"
 		name="HTML Document(*.html)"
 		representation={<Html/>}>
 		<HTML/>
-	</Emitter>
+	</Emitter>,
+	"html"
 )

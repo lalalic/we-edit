@@ -13,4 +13,4 @@ export class Input extends PureComponent{
 	}
 }
 
-Emitter.support(<Emitter><Input/></Emitter>)
+Emitter.support(<Emitter><Input/></Emitter>,"")

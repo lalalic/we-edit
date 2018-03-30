@@ -12,10 +12,10 @@ export default class SVG extends Component{
 
 Emitter.support(
 	<Emitter 
-		type="svg"
 		name="SVG Document(*.svg)"
 		representation={<Pagination/>}
 		>
 		<SVG/>
 	</Emitter>,
+	"svg"
 )
