@@ -2,7 +2,7 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 
 import isNode from "is-node"
-import {View} from "we-edit"
+import {Presentation} from "we-edit"
 
 import ViewerTypes from "./all"
 import EditorTypes from "./edit"
@@ -22,8 +22,9 @@ const createFontMeasureWithDefault=defaultFont=>{
 	}
 }
 
-class Pagination extends Component{
+export default class Pagination extends Component{
 	static displayName="pagination"
+	
 	static propTypes={
 		measure: PropTypes.func,
 		fonts: PropTypes.string,
@@ -91,7 +92,7 @@ class Pagination extends Component{
 
 		const {defaultFont,measure,fonts, ...props}=this.props
 
-		return <View {...{ViewerTypes,EditorTypes,...props} }/>
+		return <Presentation {...{ViewerTypes,EditorTypes,...props} }/>
 	}
 
 	componentWillUnmount(){
@@ -100,4 +101,5 @@ class Pagination extends Component{
 		}
 	}
 }
-export default Pagination
+
+Presentation.support(Pagination,"pagination")

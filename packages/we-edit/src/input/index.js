@@ -68,22 +68,22 @@ function buildEditableDoc(doc,inputTypeInstance){
 		/*
 		Input.load(...)
 			.then(doc=>doc.render(
-				<Emitter view={<Pagination/>}>
+				<Emitter presentation={<Pagination/>}>
 					<Stream>
 						<PDF/>
 					</Stream>
 					<PCL/>
 					<Docx/>
 				</Emitter>
-				<Emitter view={<Html/>}>
+				<Emitter presentation={<Html/>}>
 					<HTML/>
 				</Emitter>
-				<Emitter view={<Text/>}>
+				<Emitter presentation={<Text/>}>
 					<PlainText/>
 				</Emitter>
 			))
 		*/
-		render(views){
+		render(emitters){
 
 			//return inputTypeInstance.render(,view)
 		},

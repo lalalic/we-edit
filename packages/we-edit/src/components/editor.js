@@ -1,8 +1,9 @@
 import React, {Children, PureComponent, Component} from "react"
-import * as PropTypes from "prop-types"
+import PropTypes from "prop-types"
 
 import {connect, connectAdvanced} from "react-redux"
 
+import Presentation from "./presentation"
 import {getContent, getChanged, getParentId} from "../state/selector"
 import Cursor from "./cursor"
 import Input from "../input"
@@ -13,7 +14,7 @@ export class Editor extends Component{
 	static propTypes={
 		media:PropTypes.string,
 		reCreateDoc:PropTypes.bool,
-		view: PropTypes.node.isRequired,
+		presentation: PropTypes.node.isRequired,
 		style: PropTypes.object,
 
 		//canvas props for svg
@@ -39,11 +40,20 @@ export class Editor extends Component{
 	}
 
 	render(){
-		const {media, view, style, children:canvas, ...props}=this.props
-		return React.cloneElement(view,
+		const {media, presentation, style, children:canvas, ...props}=this.props
+		return React.cloneElement(this.getTypedPresentation(presentation),
 			{domain:this.constructor.displayName},
 			<Root style={style} docId={this.docId} canvasProps={{canvas, ...props}}/>
 		)
+	}
+	
+	getTypedPresentation(){
+		const {props:{type, ...others}}=this.props.presentation
+		if(type){
+			const TypedPresentation=Presentation.get(type)
+			return <TypedPresentation {...others}/>
+		}
+		return this.props.presentation
 	}
 }
 

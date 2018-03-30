@@ -17,9 +17,6 @@
     "prop-types": "^15.6.0",
     "react-dom": "^16.1.1",
     "recompose": "^0.26.0",
-    "we-edit-view-html": "^3.0.0",
-    "we-edit-view-pagination": "^3.0.0",
-    "we-edit-view-text": "^3.0.0",
 	"we-edit-output-input": "^3.0.0",
 	"react-redux": "^5.0.6"
   },
@@ -30,7 +27,10 @@
     "we-edit-input-json": "^3.0.0",
 	"we-edit-output-svg": "^3.0.0",
 	"we-edit-output-pdf": "^3.0.0",
-	"we-edit-output-html": "^3.0.0"
+	"we-edit-output-html": "^3.0.0",
+    "we-edit-presentation-html": "^3.0.0",
+    "we-edit-presentation-pagination": "^3.0.0",
+    "we-edit-presentation-text": "^3.0.0"
   },
   "engines": {
     "node": ">=0.10.0"

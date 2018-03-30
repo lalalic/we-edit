@@ -1,6 +1,6 @@
 import React, {Component, Children} from "react"
 import {Emitter} from "we-edit"
-import Pagination from "we-edit-view-pagination"
+import Pagination from "we-edit-presentation-pagination"
 
 export default class SVG extends Component{
 	render(){
@@ -12,7 +12,7 @@ Emitter.support(
 	<Emitter 
 		type="svg"
 		name="SVG Document(*.svg)"
-		view={<Pagination/>}
+		presentation={<Pagination/>}
 		>
 		<SVG/>
 	</Emitter>

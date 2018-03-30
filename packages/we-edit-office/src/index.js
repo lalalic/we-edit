@@ -1,9 +1,9 @@
 import React from "react"
-import {WeEdit, Viewer, Editor, Emitter, Stream} from "we-edit"
+import {WeEdit, Viewer, Editor, Emitter,Presentation} from "we-edit"
 
-import Pagination from "we-edit-view-pagination"
-import Html from "we-edit-view-html"
-import Text from "we-edit-view-text"
+import "we-edit-presentation-pagination"
+import "we-edit-presentation-html"
+import "we-edit-presentation-text"
 
 import "we-edit-input-docx"
 import "we-edit-input-json"
@@ -28,21 +28,21 @@ export const DefaultOffice=()=>(
                 <Viewer
                     toolBar={null} ruler={false}
                     layout="read" icon={<IconRead/>}
-                    view={<Pagination/>}>
+                    presentation={<Presentation type="pagination"/>}>
 
                 </Viewer>
 
                 <Editor
                     layout="print"
 					icon={<IconPrint/>}
-                    view={<Pagination/>}
+                    presentation={<Presentation type="pagination"/>}
 					>
 
                 </Editor>
 
                 <Editor ruler={false}
                     layout="web" icon={<IconWeb/>}
-                    view={<Html/>}>
+                    presentation={<Presentation type="html"/>}>
 
                 </Editor>
 				
@@ -63,7 +63,6 @@ export function create(container, office=<DefaultOffice/>){
 }
 
 export {ReactDOM, React}
-export {Pagination, Html, Text}
 
 import * as weedit from "we-edit"
 export {weedit}

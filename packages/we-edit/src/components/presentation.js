@@ -1,10 +1,11 @@
 import React, {PureComponent as Component, Children} from "react"
 import PropTypes from "prop-types"
 
-
-export class View extends Component{
+const supported={}
+export default class  extends Component{
 	static propTypes={
 		domain: PropTypes.string,
+		type: PropTypes.string,
 		EditorTypes: PropTypes.object, 
 		ViewerTypes: PropTypes.object,
 	}
@@ -17,6 +18,14 @@ export class View extends Component{
 		ModelTypes: PropTypes.object,
 	}
 	
+	static support(Presentation,name){
+		supported[name]=Presentation
+	}
+	
+	static get(name){
+		return supported[name]
+	}
+	
 	getChildContext(){
 		const {domain, EditorTypes, ViewerTypes}=this.props
 		return {
@@ -25,9 +34,6 @@ export class View extends Component{
 	}
 	
 	render(){
-		const {domain, EditorTypes, ViewerTypes}=this.props
 		return Children.only(this.props.children)
 	}
 }
-
-export default View

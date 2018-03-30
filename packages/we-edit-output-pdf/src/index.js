@@ -1,6 +1,6 @@
 import React, {Component} from "react"
 import {Emitter} from "we-edit"
-import Pagination from "we-edit-view-pagination"
+import Pagination from "we-edit-presentation-pagination"
 
 export default class PDF extends Component{
 	render(){
@@ -12,7 +12,7 @@ Emitter.support(
 	<Emitter 
 		type="pdf"
 		name="PDF Document(*.pdf)"
-		view={<Pagination/>}>
+		presentation={<Pagination/>}>
 		<PDF/>
 	</Emitter>
 )

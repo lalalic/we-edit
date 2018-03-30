@@ -1,14 +1,13 @@
 {
-  "name": "we-edit-view-html",
-  "description": "html view implementation",
+  "name": "we-edit-presentation-text",
+  "description": "text view implementation",
   "version": "3.0.0",
   "author": {
     "name": "Raymond Li",
     "email": "lalalic@139.com"
   },
   "dependencies": {
-	"prop-types": "^15.6.0",
-	"mouse-event-offset": "^3.0.2"
+	"prop-types": "^15.6.0"
   },
   "peerDependencies":{
     "react": "^16.2.0",

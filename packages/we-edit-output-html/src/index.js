@@ -1,6 +1,6 @@
 import React, {Component} from "react"
 import {Emitter} from "we-edit"
-import View from "we-edit-view-html"
+import Html from "we-edit-presentation-html"
 
 export default class HTML extends Component{
 	render(){
@@ -12,7 +12,7 @@ Emitter.support(
 	<Emitter 
 		type="html"
 		name="HTML Document(*.html)"
-		view={<View/>}>
+		presentation={<Html/>}>
 		<HTML/>
 	</Emitter>
 )
