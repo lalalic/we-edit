@@ -17,7 +17,7 @@ import Viewer from "./viewer"
 	<PlainText/>
 </emiter>
 */
-const supports=[]
+const supports={}
 const createElement=(type, props, children)=>React.createElement(type,{...props,key:uuid()},children)
 export default class extends Viewer{
 	static displayName="emitter"
@@ -33,12 +33,12 @@ export default class extends Viewer{
 		media:"file"
 	}
 	
-	static support(node){
-		supports.push(node)
+	static support(node,name){
+		supports[name]=node
 	}
 	
 	static get supports(){
-		return supports
+		return {...supports}
 	}
 	
 	render(){

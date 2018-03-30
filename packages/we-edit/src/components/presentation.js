@@ -1,7 +1,7 @@
 import React, {PureComponent as Component, Children} from "react"
 import PropTypes from "prop-types"
 
-const supported={}
+const supports={}
 export default class  extends Component{
 	static propTypes={
 		domain: PropTypes.string,
@@ -19,11 +19,11 @@ export default class  extends Component{
 	}
 	
 	static support(Presentation,name){
-		supported[name]=Presentation
+		supports[name]=Presentation
 	}
 	
 	static get(name){
-		return supported[name]
+		return supports[name]
 	}
 	
 	getChildContext(){

@@ -13,11 +13,7 @@ export default compose(
 )(({doc,value=doc ? doc.type : "",  ...props})=>(
 	<ComboBox 
 		value={value}
-		dataSource={
-			Emitter.supports
-				.map(({props:{name}})=>name||value)
-				.filter(a=>!!a)
-		} 
+		dataSource={Object.keys(Emitter.supports).filter(a=>!!a)} 
 		{...props}
 		/>
 ))

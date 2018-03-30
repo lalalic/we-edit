@@ -51,7 +51,11 @@ export class Editor extends Component{
 		const {props:{type, ...others}}=this.props.presentation
 		if(type){
 			const TypedPresentation=Presentation.get(type)
-			return <TypedPresentation {...others}/>
+			if(TypedPresentation){
+				return <TypedPresentation {...others}/>
+			}else{
+				return <div>Presentation[{type}] is not installed</div>
+			}
 		}
 		return this.props.presentation
 	}
