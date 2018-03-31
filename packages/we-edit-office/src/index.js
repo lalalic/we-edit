@@ -13,6 +13,8 @@ import "we-edit-output-html"
 import "we-edit-output-svg"
 import "we-edit-output-input"
 
+import "we-edit-stream-browser"
+
 
 import WeEditUI from "./we-edit-ui"
 import Workspace from "./workspace"
@@ -45,17 +47,16 @@ export const DefaultOffice=()=>(
                     representation={<Representation type="html"/>}>
 
                 </Editor>
-				
+
 				<div>
-					<Emitter 
-						representation={<Representation type="pagination"/>}>
-						<Stream>
+					<Emitter>
+						<Stream type="browser" name="quick.svg">
 							<Emitter.Format type="svg"/>
 							<Emitter.Format type="pdf"/>
 						</Stream>
 					</Emitter>
 				</div>
-				
+
             </Workspace>
         </WeEditUI>
     </WeEdit>

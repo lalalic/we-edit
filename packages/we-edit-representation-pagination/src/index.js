@@ -24,14 +24,15 @@ const createFontMeasureWithDefault=defaultFont=>{
 
 export default class Pagination extends Component{
 	static displayName="pagination"
-	
 	static propTypes={
+		type: PropTypes.string.isRequired,
 		measure: PropTypes.func,
 		fonts: PropTypes.string,
 		defaultFont: PropTypes.string,
 	}
 
 	static defaultProps={
+		type:"pagination",
 		defaultFont:"arial"
 	}
 
@@ -102,4 +103,4 @@ export default class Pagination extends Component{
 	}
 }
 
-Representation.support(Pagination,"pagination")
+Representation.support(Pagination)

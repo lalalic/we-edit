@@ -1,21 +1,31 @@
-import React, {Component, Children} from "react"
+import React, {PureComponent, Children} from "react"
+import PropTypes from "prop-types"
 import {Emitter} from "we-edit"
-import Pagination from "we-edit-representation-pagination"
+import ReactDOMServer from "react-dom/server"
 
-export default class SVG extends Component{
+export default class SVG extends Emitter.Format{
+	static displayName="SVG"
+	static propTypes={
+		type: PropTypes.string.isRequired,
+		name: PropTypes.string.isRequired,
+		ext: PropTypes.string.isRequired,
+		representation: PropTypes.string.isRequired,
+	}
+
+	static defaultProps={
+		type:"svg",
+		name:"SVG Document",
+		ext:"svg",
+		representation: "pagination"
+	}
+
 	render(){
-		const {stream,pages}=this.props
-		stream.write(pages)
+		const {content, stream}=this.props
+		let svg=ReactDOMServer.renderToString(content)
+		stream.write(svg)
+		stream.flush()
 		return null
 	}
 }
 
-Emitter.support(
-	<Emitter 
-		name="SVG Document(*.svg)"
-		representation={<Pagination/>}
-		>
-		<SVG/>
-	</Emitter>,
-	"svg"
-)
+Emitter.support(SVG)

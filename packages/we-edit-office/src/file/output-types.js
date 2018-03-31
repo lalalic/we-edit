@@ -8,12 +8,23 @@ import {OutputInput} from "we-edit-output-input"
 
 import ComboBox from "../components/combo-box"
 
+function getSupporttedFormats(supports=Emitter.supports){
+	return Object.keys(supports)
+		.reduce((collected,k)=>{
+			if(k){
+				let {name,ext}=supports[k].defaultProps
+				collected[k]=`${name} (*.${ext})`
+			}
+			return collected
+		},{})
+}
+
 export default compose(
 	getContext({doc:PropTypes.object})
 )(({doc,value=doc ? doc.type : "",  ...props})=>(
-	<ComboBox 
+	<ComboBox
 		value={value}
-		dataSource={Object.keys(Emitter.supports).filter(a=>!!a)} 
+		dataSource={getSupportedFormats()}
 		{...props}
 		/>
 ))

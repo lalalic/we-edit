@@ -48,18 +48,18 @@ export class Editor extends Component{
 			this.createDocument({style, docId:this.docId, canvasProps:{canvas, ...props}})
 		)
 	}
-	
-	getTypedRepresentation(){
-		const {props:{type, ...others}}=this.props.representation
+
+	getTypedRepresentation(representation){
+		const {props:{type, ...others}}=representation
 		if(type){
 			const TypedRepresentation=Representation.get(type)
 			if(TypedRepresentation){
 				return <TypedRepresentation {...others}/>
 			}
 		}
-		return this.props.representation
+		return representation
 	}
-	
+
 	createDocument(props){
 		return 	<Root {...props}/>
 	}
@@ -107,7 +107,7 @@ export function createWeDocument(id,content,ModelTypes, canvasProps={}, lastCont
 			changed={changed}
 			selfChanged={selfChanged}
 		/>)
-		
+
 	if(onElCreate){
 		onElCreate(el)
 	}

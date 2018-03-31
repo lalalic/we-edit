@@ -1,6 +1,6 @@
 {
-  "name": "we-edit-output-html",
-  "description": "html emitter",
+  "name": "we-edit-stream-browser",
+  "description": "browser stream to emit a download file",
   "version": "3.0.0",
   "author": {
     "name": "Raymond Li",
@@ -9,9 +9,7 @@
   "dependencies": {
   },
   "peerDependencies":{
-	"react": "^16.2.0",
-	"we-edit":"^3.0.0",
-	"we-edit-representation-html":"^3.0.0"
+	"we-edit":"^3.0.0"
   },
   "keywords": ["we-edit"],
   "engines": {
