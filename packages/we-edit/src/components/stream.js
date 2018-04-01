@@ -14,7 +14,7 @@ export class Stream extends PureComponent{
 			<Fragment>
 			{
 				Children.toArray(children).map((format,key)=>{
-					return React.cloneElement(format,{key,...props,stream: new Type(props,type)})
+					return React.cloneElement(format,{key,...props,stream: new Type({...props,format:format.props.type},type, )})
 				})
 			}
 			</Fragment>

@@ -1,4 +1,4 @@
-import React from "react"
+import React, {Component} from "react"
 import {WeEdit, Viewer, Editor, Emitter,Stream, Representation} from "we-edit"
 
 import "we-edit-representation-pagination"
@@ -48,14 +48,7 @@ export const DefaultOffice=()=>(
 
                 </Editor>
 
-				<div>
-					<Emitter>
-						<Stream type="browser" name="quick.svg">
-							<Emitter.Format type="svg"/>
-							<Emitter.Format type="pdf"/>
-						</Stream>
-					</Emitter>
-				</div>
+
 
             </Workspace>
         </WeEditUI>

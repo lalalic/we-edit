@@ -1,6 +1,8 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 
+import ComposedImage from "./composed/image"
+
 import {NoChild} from "./composable"
 import {models} from "we-edit"
 const {Image:Base}=models
@@ -17,7 +19,7 @@ export default class Image extends Super{
     createComposed2Parent(props){
         const {src, size:{width,height}}=this.props
         let availableSpace=this.context.parent.nextAvailableSpace({width,height})
-        return <image {...{
+        return <ComposedImage {...{
                 width,
                 height,
                 xlinkHref: src,

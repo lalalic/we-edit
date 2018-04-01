@@ -82,13 +82,13 @@ export default class Document extends Super{
 				<ComposedDocument
 					ref="canvas"
 					style={{minHeight, ...canvasStyle}}
-					canvas={canvas}
 					scale={scale}
 					pgGap={PageGap}
 					pages={this.computed.composed}
 					isAllComposed={()=>this.isAllChildrenComposed()}
 					composeMore={triggerAt=>this.setState({triggerAt,mode:"viewport"})}
 					/>
+				{canvas ? React.cloneElement(canvas,{pages:this.computed.composed}) : null}
 			</Fragment>
 		)
     }
