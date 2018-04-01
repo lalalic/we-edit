@@ -21,9 +21,7 @@ export default class SVG extends Emitter.Format{
 
 	render(){
 		const {content, stream}=this.props
-		let svg=ReactDOMServer.renderToString(content)
-		stream.write(svg)
-		stream.flush()
+		ReactDOMServer.renderToStaticNodeStream(content).pipe(stream)
 		return null
 	}
 }

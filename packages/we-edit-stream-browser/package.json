@@ -7,15 +7,21 @@
     "email": "lalalic@139.com"
   },
   "dependencies": {
+    "stream": "^0.0.2"
   },
-  "peerDependencies":{
-	"we-edit":"^3.0.0"
+  "peerDependencies": {
+    "we-edit": "^3.0.0"
   },
-  "keywords": ["we-edit"],
+  "keywords": [
+    "we-edit"
+  ],
   "engines": {
     "node": ">= 0.4.4"
   },
-
-  "files":["index.js","index.browser.js","README.md"],
+  "files": [
+    "index.js",
+    "index.browser.js",
+    "README.md"
+  ],
   "readme": "README.md"
 }

@@ -7,18 +7,24 @@
     "email": "lalalic@139.com"
   },
   "dependencies": {
-	"prop-types": "^15.6.0"
+    "pdfkit": "^0.8.3",
+    "prop-types": "^15.6.0"
   },
-  "peerDependencies":{
-	"react": "^16.2.0",
-	"we-edit":"^3.0.0",
-	"we-edit-representation-pagination":"^3.0.0"
+  "peerDependencies": {
+    "react": "^16.2.0",
+    "we-edit": "^3.0.0",
+    "we-edit-representation-pagination": "^3.0.0"
   },
-  "keywords": ["we-edit"],
+  "keywords": [
+    "we-edit"
+  ],
   "engines": {
     "node": ">= 0.4.4"
   },
-  
-  "files":["index.js","index.browser.js","README.md"],
+  "files": [
+    "index.js",
+    "index.browser.js",
+    "README.md"
+  ],
   "readme": "README.md"
 }
