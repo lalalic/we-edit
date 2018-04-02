@@ -8,7 +8,7 @@ npm install we-edit
 ## design
 * load (input)->
 * render to (we-edit document)->
-* render to (represenation document)->
+* render to (represenation document) to Viewer/Editor/Emitter->
 * render to (output document)
 
 
@@ -30,9 +30,14 @@ npm install we-edit
 * Editor
 * Viewer
 * Emitter
+* Emitter.Format[type]
 
-* Represenation
-* Emitter
+* models domain
+
+* Represenation[type]
+
+* Stream[type]
+* Stream.Collection
 
 * WithStore
 * WithSelection
@@ -43,10 +48,9 @@ npm install we-edit
 * Cursor
 * Selection
 
-
 #### state
 * ACTION
-* DOMAIN
+* DOMAIN="we-edit"
 * reducer
 * getActive
 * getContent
@@ -60,7 +64,7 @@ npm install we-edit
 * shallowEqual
 * uuid
 
-### model
+### models
 * Document
 * Section
 * Paragraph
@@ -74,3 +78,23 @@ npm install we-edit
 * List
 * Frame
 * Shape
+
+###example
+```js
+import {Input} from "we-edit"
+import ReactDOMServer from "reactDOM/server"
+
+Input.load("test.docx")
+	.then(doc=>ReactDOMServer.renderToString(
+		<doc.Store>
+			<Emitter>
+				<Stream type="file" path="./test">
+					<Emitter.Format type="pdf"/>
+					<Emitter.Format type="svg"/>
+					<Emitter.Format type="html"/>
+				</Stream>
+			</Emitter>
+		</doc.Store>
+	))
+
+```

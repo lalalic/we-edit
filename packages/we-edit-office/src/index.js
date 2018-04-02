@@ -39,7 +39,14 @@ export const DefaultOffice=()=>(
 					icon={<IconPrint/>}
                     representation={<Representation type="pagination"/>}
 					>
-
+					<Stream.Collection>
+						<Stream type="browser" target="_blank">
+							<Emitter.Format type="pdf"/>
+						</Stream>
+						<Stream type="browser" target="previewer2">
+							<Emitter.Format type="svg"/>
+						</Stream>
+					</Stream.Collection>
                 </Editor>
 
                 <Editor ruler={false}

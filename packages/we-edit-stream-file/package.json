@@ -1,0 +1,25 @@
+{
+  "name": "we-edit-stream-file",
+  "description": "file stream to emit to files",
+  "version": "3.0.0",
+  "author": {
+    "name": "Raymond Li",
+    "email": "lalalic@139.com"
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "we-edit": "^3.0.0"
+  },
+  "keywords": [
+    "we-edit"
+  ],
+  "engines": {
+    "node": ">= 0.4.4"
+  },
+  "files": [
+    "index.js",
+    "index.browser.js",
+    "README.md"
+  ],
+  "readme": "README.md"
+}

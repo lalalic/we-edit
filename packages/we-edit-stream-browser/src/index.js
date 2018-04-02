@@ -6,7 +6,7 @@ import {Stream} from "we-edit"
 * name: only for download
 * target: show on iframe/window
 */
-class Browser extends Writable{
+export default class Browser extends Writable{
     static type="browser"
     constructor({name, target,format,windowFeatures}){
         super({})

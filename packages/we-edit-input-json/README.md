@@ -1,4 +1,4 @@
-# we-edit-input-native
+# we-edit-input-json
 
 content state json 
 
