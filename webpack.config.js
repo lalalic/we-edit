@@ -32,7 +32,7 @@ module.exports=(env,args)=>{
 				test: /\.js?$/,
 				use: ["transform-loader/cacheable?brfs"],
 				enforce:"post",
-				include: /(linebreak)/
+				include: /(linebreak|unicode-properties|fontkit|pdfkit)/
 			},{
 				test:/\.less?$/,
 				use: [
@@ -47,7 +47,8 @@ module.exports=(env,args)=>{
 		},
 		plugins:[],
 		node:{
-			fs: "empty"
+			fs: "empty",
+			stream: true,
 		},
 		stats:"errors-only",
 	}

@@ -132,6 +132,16 @@ export default class Emitter extends Viewer{
 
 	static Format=class extends PureComponent{
 		static displayName="Format"
+		static childContextTypes={
+			media:PropTypes.string	
+		}
+		
+		getChildContext(){
+			return {
+				media:Emitter.defaultProps.media
+			}
+		}
+		
 		render(){
 			if(this.constructor==Emitter.Format){
 				const {type, ...props}=this.props

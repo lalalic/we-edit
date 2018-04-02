@@ -86,7 +86,7 @@ export default class Page extends Component{
 			)
 		}else{
 			return(
-				<Group className="page">
+				<Group className="page" width={width} height={height}>
 					{contents}
 				</Group>
 			)

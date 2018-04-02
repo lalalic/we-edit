@@ -5,6 +5,7 @@ import {Representation} from "we-edit"
 import ViewerTypes from "./all"
 import EditorTypes from "./edit"
 
+export {default as Output} from "./output"
 
 export default class Text extends Component{
 	static displayName="text"

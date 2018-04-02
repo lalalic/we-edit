@@ -1,4 +1,4 @@
-import React from "react"
+import React,{Fragment} from "react"
 import PropTypes from "prop-types"
 
 import Base from "../document"
@@ -14,11 +14,14 @@ export default class Document extends editify(Base){
 	}
 
 	render(){
+		const {canvas, ...props}=this.props
         return (
-			<div ref={a=>this.root=a}>
-				{super.render()}
-
-			</div>
+			<Fragment>
+				<div ref={a=>this.root=a}>
+					<Base {...props}/>
+				</div>
+				{canvas ? React.cloneElement(canvas,{content:<Base {...props}/>}) : null}
+			</Fragment>
 		)
     }
 

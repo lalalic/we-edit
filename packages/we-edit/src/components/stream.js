@@ -1,10 +1,14 @@
-import React,{PureComponent, Fragment, Children} from "react"
+import React,{Component, Fragment, Children} from "react"
 import PropTypes from "prop-types"
 
 const supports={}
-export class Stream extends PureComponent{
+export class Stream extends Component{
 	static support(stream){
 		supports[stream.type]=stream
+	}
+	
+	shouldComponentUpdate(){
+		return false
 	}
 
 	render(){
@@ -20,6 +24,12 @@ export class Stream extends PureComponent{
 			</Fragment>
 		)
 	}
+	
+	static Collection=({children,...props})=>(
+		<Fragment>
+			{Children.toArray(children).map((a,i)=>React.cloneElement(a,{...props,...a.props}))}
+		</Fragment>
+	)
 }
 
 class ConsoleStream{

@@ -7,26 +7,32 @@
     "email": "lalalic@139.com"
   },
   "dependencies": {
+    "htmlparser2": "^3.9.2",
+    "is-node": "^1.0.2",
     "linebreak": "^0.3.0",
+    "lodash.get": "^4.4.2",
     "mouse-event-offset": "^3.0.2",
     "opentype.js": "^0.6.9",
     "prop-types": "^15.6.0",
+    "react-redux": "^5.0.6",
     "react-waypoint": "^7.3.1",
     "recompose": "^0.26.0",
-    "ttfjs": "^0.4.0",
-	"is-node": "^1.0.2",
-	"react-redux": "^5.0.6",
-	"lodash.get": "^4.4.2"
+    "ttfjs": "^0.4.0"
   },
-  "peerDependencies":{
+  "peerDependencies": {
     "react": "^16.2.0",
-	"we-edit":"^3.0.0"
+    "we-edit": "^3.0.0"
   },
-  "keywords": ["we-edit"],
+  "keywords": [
+    "we-edit"
+  ],
   "engines": {
     "node": ">= 0.4.4"
   },
-  
-  "files":["index.js","index.browser.js","README.md"],
+  "files": [
+    "index.js",
+    "index.browser.js",
+    "README.md"
+  ],
   "readme": "README.md"
 }

@@ -6,9 +6,7 @@
     "name": "Raymond Li",
     "email": "lalalic@139.com"
   },
-  "dependencies": {
-    "stream": "^0.0.2"
-  },
+  "dependencies": {},
   "peerDependencies": {
     "we-edit": "^3.0.0"
   },

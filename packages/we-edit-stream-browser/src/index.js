@@ -1,20 +1,33 @@
-import Stream from "stream"
+import {Writable} from "stream"
+import {Stream} from "we-edit"
 
-class Browser extends Stream{
+/**
+* options:
+* name: only for download
+* target: show on iframe/window
+*/
+class Browser extends Writable{
     static type="browser"
-    constructor({name, target}){
-        super()
-        this.on("end",()=>{
+    constructor({name, target,format,windowFeatures}){
+        super({})
+		this.format=format
+		this.data=[]
+        this.on("finish",()=>{
             if(name){
-                this.download(name)
-            }else if(target){
-                this.preview(target)
+                this.download(name.indexOf(".")!=-1 ? name : `${name}.${format}`)
+            }else {
+                this.preview(target,windowFeatures)
             }
         })
     }
+	
+	_write(chunk, enc, next){
+		this.data.push(chunk)
+		next()
+	}
 
     download(name){
-        let url = window.URL.createObjectURL(new Blob([this.data.join("")]))
+        let url = window.URL.createObjectURL(this.blob)
         let link = document.createElement("a");
         document.body.appendChild(link)
         link.download = name
@@ -24,10 +37,30 @@ class Browser extends Stream{
         window.URL.revokeObjectURL(url)
     }
 
-    preview(target){
-        let iframe=document.querySelector("#"+target)
-        iframe.src=window.URL.createObjectURL(new Blob([]))
+    preview(target,windowFeatures){
+		let src=window.URL.createObjectURL(this.blob)
+		if(windowFeatures){
+			window.open(src,target||"we-edit-previewer",windowFeatures)
+		}else{
+			let a=document.createElement("a")
+			let body=document.querySelector('body')
+			a.href=src
+			a.target=target||"we-edit-previewer"
+			body.appendChild(a)
+			a.click()
+			body.removeChild(a)
+		}
     }
+	
+	get blob(){
+		switch(this.format){
+		case 'svg':
+			return new Blob(["<html><body>",...this.data, "</body></html>"],{type:"text/html"})
+		break
+		case 'pdf':
+			return new Blob(this.data, {type:"application/pdf"})
+		}
+	}
 }
 
 Stream.support(Browser)

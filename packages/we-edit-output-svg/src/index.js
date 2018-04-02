@@ -1,9 +1,10 @@
 import React, {PureComponent, Children} from "react"
 import PropTypes from "prop-types"
 import {Emitter} from "we-edit"
-import ReactDOMServer from "react-dom/server"
+import {Output} from "we-edit-representation-pagination"
 
-export default class SVG extends Emitter.Format{
+
+export default class SVG extends Output{
 	static displayName="SVG"
 	static propTypes={
 		type: PropTypes.string.isRequired,
@@ -18,11 +19,9 @@ export default class SVG extends Emitter.Format{
 		ext:"svg",
 		representation: "pagination"
 	}
-
-	render(){
-		const {content, stream}=this.props
-		ReactDOMServer.renderToStaticNodeStream(content).pipe(stream)
-		return null
+	
+	output(stream){
+		stream.pipe(this.props.stream)
 	}
 }
 

@@ -47,9 +47,6 @@ export const DefaultOffice=()=>(
                     representation={<Representation type="html"/>}>
 
                 </Editor>
-
-
-
             </Workspace>
         </WeEditUI>
     </WeEdit>
