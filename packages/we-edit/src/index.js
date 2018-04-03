@@ -1,4 +1,5 @@
 import "./tools/array-find-last"
+import TestRenderer from 'react-test-renderer'
 
 export * from "./components"
 
@@ -14,3 +15,9 @@ export {default as Input} from "./input"
 export {editify} from "./model/edit"
 
 export {default as models} from "./model"
+
+
+export function render(element){
+    let render=TestRenderer.create(element)
+    render.unmount()
+}

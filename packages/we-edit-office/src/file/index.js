@@ -13,7 +13,7 @@ import IconSave from "material-ui/svg-icons/content/save"
 import IconSaveAs from "material-ui/svg-icons/content/save"
 import IconClose from "material-ui/svg-icons/navigation/close"
 
-import {ACTION, Emitter, Stream} from "we-edit"
+import {ACTION, Emitter, Stream, render} from "we-edit"
 import OutputInput from "we-edit-output-input"
 
 export class File extends PureComponent{
@@ -52,15 +52,17 @@ export function open(dispatch){
 		)
 }
 
-export const save=dispatch=>({format, name})=>{
+export const save=(dispatch,doc)=>({format, name})=>{
 	const supports=Emitter.supports
 	const Format=supports[format]||OutputInput
-	return (
-		<Emitter>
-			<Stream type="browser" name={name}>
-				<Format/>
-			</Stream>
-		</Emitter>
+	render(
+		<doc.Store readonly={true}>
+			<Emitter>
+				<Stream type="browser" name={name}>
+					<Format/>
+				</Stream>
+			</Emitter>
+		</doc.Store>
 	)
 }
 

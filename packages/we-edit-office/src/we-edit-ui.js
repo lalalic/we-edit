@@ -1,4 +1,4 @@
-import React, {PureComponent, Children, Fragment} from "react"
+import React, {PureComponent, Children} from "react"
 import PropTypes from "prop-types"
 import {connect} from "react-redux"
 import {compose,setDisplayName}  from "recompose"
@@ -94,7 +94,6 @@ export default compose(
 				<div style={{...styles.root,...style}}>
 					<TitleBar active={active}
 						onMenu={()=>this.refs.dashboard.setState({display:true})}
-						run={run}
 						/>
 
 					<Dashboard
@@ -102,7 +101,7 @@ export default compose(
 						active={active}
 						dispatch={dispatch}
 						zIndex={this.theme.zIndex.popover}
-						run={run}/>
+						/>
 
 					{child}
 
@@ -121,10 +120,3 @@ export default compose(
 		this.setState({error:error.message})
 	}
 })
-
-class Runner extends PureComponent{
-	state={element:null}
-	render(){
-		return <Fragment>{this.state.element}</Fragment>
-	}
-}

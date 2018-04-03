@@ -95,7 +95,7 @@ function buildEditableDoc(doc,inputTypeInstance){
 		Store:compose(
 				setDisplayName("DocStore"),
 				getContext({store:PropTypes.object}),
-			)(({children,store:passedStore})=>{
+			)(({children,store:passedStore,...props})=>{
 
 			let onQuit=null
 			if(passedStore){
@@ -111,6 +111,7 @@ function buildEditableDoc(doc,inputTypeInstance){
 					onQuit={onQuit}
 					renderUp={state=>inputTypeInstance.renderUp(state,Transformed )}
 					transformer={inputTypeInstance.transform}
+					{...props}
 					>
 					{children}
 				</ContextProvider>
@@ -264,6 +265,7 @@ class ContextProvider extends Component{
 		doc: PropTypes.object,
 		transformer: PropTypes.func.isRequired,
 		onQuit: PropTypes.func,
+		readonly: PropTypes.bool,
 	}
 
 	static childContextTypes={
@@ -324,6 +326,8 @@ class ContextProvider extends Component{
 	}
 
 	componentDidMount(){
+		if(this.props.readonly)
+			return
 		const store=this.context.store
 		const state=store.getState()
 		const {start:{id,at}}=getSelection(state)
@@ -331,10 +335,10 @@ class ContextProvider extends Component{
 	}
 
 	render(){
-		const {children}=this.props
+		const {children, readonly}=this.props
 		return (
 			<Fragment>
-				<Input ref="input"/>
+				{readonly ? null : <Input ref="input"/>}
 				{children}
 			</Fragment>
 		)

@@ -18,11 +18,11 @@ export default class Dashboard extends PureComponent{
 	state={action:null, display: false}
 	render(){
 		const {display,action}=this.state
-		const dispear=()=>this.setState({display:false})
+		const dispear=()=>this.setState({display:false,action:null})
 		const {dispatch, active, zIndex,run, width=256}=this.props
 		const create=File.create(dispatch)
 		const open=File.open(dispatch)
-		const save=File.save(dispatch)
+		const save=File.save(dispatch,active)
 		return (
 			<div style={{zIndex,
 				position:"fixed",left:0,top:0,width:"100%",

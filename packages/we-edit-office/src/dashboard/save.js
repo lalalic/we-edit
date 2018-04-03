@@ -20,6 +20,15 @@ export default class SaveUI extends PureComponent{
         return formats
     }
 
+    fixName(format,name){
+        name=name||this.state.name
+        let Format=Emitter.supports[format]
+        let ext=Format.defaultProps.ext
+        if(name.indexOf(".")==-1)
+            return name+'.'+ext
+        return name.replace(/\.\w+$/g, "."+ext)
+    }
+
     render(){
         const {active, onCancel, onSave}=this.props
         return (
@@ -37,7 +46,9 @@ export default class SaveUI extends PureComponent{
                         <ComboBox
                             value={this.state.format}
                             dataSource={this.getSupportedFormats()}
-                            onChange={format=>this.setState({format})}/>
+                            onChange={format=>{
+                                this.setState({format, name: this.fixName(format)})
+                            }}/>
                     </center>
                 </div>
 
