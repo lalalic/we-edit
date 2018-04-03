@@ -1,4 +1,4 @@
-import React, {PureComponent, Children} from "react"
+import React, {PureComponent, Children, Fragment} from "react"
 import PropTypes from "prop-types"
 import {connect} from "react-redux"
 import {compose,setDisplayName}  from "recompose"
@@ -9,6 +9,7 @@ import {Snackbar} from "material-ui"
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
 import TitleBar from "./title-bar"
+import Dashboard from "./dashboard"
 import {getActive} from "we-edit"
 import {grey50 as BACKGROUND} from "material-ui/styles/colors"
 
@@ -57,7 +58,7 @@ export default compose(
 	}
 
 	render(){
-		let {children,active, titleBar, style, ...others}=this.props
+		let {children,active, titleBar, style, dispatch, ...others}=this.props
 		let child=null
 		if(active){
 			child=Children.toArray(children)
@@ -73,19 +74,38 @@ export default compose(
 					return false
 				})
 
-			if(child)
-				child=React.cloneElement(child, {doc:active, ...others, ...child.props})
-			else
+			if(child){
+				child=(
+					<active.Store>
+						{React.cloneElement(child, {...others, ...child.props})}
+						<Runner ref="runner"/>
+					</active.Store>
+				)
+			}else
 				child=(<div>no editor for this document</div>)
 		}
 
 		const {error}=this.state
 
+		const run=element=>this.refs.runner.setState({element})
+
 		return (
 			<MuiThemeProvider muiTheme={this.theme}>
 				<div style={{...styles.root,...style}}>
-					{titleBar}
+					<TitleBar active={active}
+						onMenu={()=>this.refs.dashboard.setState({display:true})}
+						run={run}
+						/>
+
+					<Dashboard
+						ref="dashboard"
+						active={active}
+						dispatch={dispatch}
+						zIndex={this.theme.zIndex.popover}
+						run={run}/>
+
 					{child}
+
 					<Snackbar
 						open={!!error}
 						message={error||""}
@@ -101,3 +121,10 @@ export default compose(
 		this.setState({error:error.message})
 	}
 })
+
+class Runner extends PureComponent{
+	state={element:null}
+	render(){
+		return <Fragment>{this.state.element}</Fragment>
+	}
+}

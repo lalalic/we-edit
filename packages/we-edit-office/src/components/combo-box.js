@@ -19,7 +19,11 @@ export class ComboBox extends PureComponent{
 		const {text:kText,value:kValue}=dataSourceConfig||{ text: 'text', value: 'value',}
 		if(this.isObjectData(props)){
 			let found=dataSource.find(a=>a[kValue]==value)
-			return found[kText]+""
+			if(found){
+				return found[kText]+""
+			}else{
+				return ""
+			}
 		}else{
 			return value+""
 		}

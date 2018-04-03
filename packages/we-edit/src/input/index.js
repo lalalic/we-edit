@@ -141,9 +141,17 @@ function buildEditableDoc(doc,inputTypeInstance){
 		get id(){
 			return id
 		},
-		
+
 		get type(){
 			return inputTypeInstance.getDocumentType()
+		},
+
+		get typeName(){
+			return inputTypeInstance.getDocumentTypeName()
+		},
+
+		get typeExt(){
+			return inputTypeInstance.getDocumentTypeExt()
 		},
 
 		save(name,option){

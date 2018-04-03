@@ -1,7 +1,7 @@
-import React, {Component} from "react"
+import React, {Component, PureComponent} from "react"
 import PropTypes from "prop-types"
 import {connect} from "react-redux"
-import {compose,mapProps,getContext,setDisplayName}  from "recompose"
+import {compose,mapProps,getContext,setDisplayName,}  from "recompose"
 
 import {Drawer,Menu, MenuItem, Avatar,Paper} from "material-ui"
 import Divider from 'material-ui/Divider';
@@ -11,67 +11,95 @@ import IconLogo from "material-ui/svg-icons/editor/border-color"
 import {getActive} from "we-edit"
 import * as File from "../file"
 
-export default compose(
-	setDisplayName("dashboard"),
-	connect(state=>({activeDoc:(getActive(state)||{}).doc})),
-	mapProps(({dispatch, activeDoc, dispear})=>({
-		create:File.create(dispatch),
-		open:File.open(dispatch),
-		dispear,
-		activeDoc,
-	})),
-)(({open, create, dispear, activeDoc})=>(
-	<div style={{position:"fixed",left:0,top:0,width:"100%",height:"100%", display:"flex", flexDirection:"row"}}>
-		<Paper style={{flex:1, width:200,height:"100%", backgroundColor:"white"}}>
-				<center style={{zoom:2,marginTop:5}}>
-					<Avatar backgroundColor={gray100}>
-						<IconLogo color={yellow500}/>
-					</Avatar>
-				</center>
+import SaveUI from "./save"
+import OptionsUI from "./options"
 
-				<Menu>
-					<MenuItem
-						primaryText="New"
-						onClick={()=>Promise.resolve(create()).then(dispear,dispear)}
-						/>
-					<MenuItem
-						primaryText="Open"
-						onClick={()=>Promise.resolve(open()).then(dispear,dispear)}
-						/>
-					<MenuItem
-						disabled={!activeDoc}
-						primaryText="Save"
-						/>
-					<MenuItem
-						disabled={!activeDoc}
-						primaryText="SaveAs"
-						/>
-					<Divider/>
+export default class Dashboard extends PureComponent{
+	state={action:null, display: false}
+	render(){
+		const {display,action}=this.state
+		const dispear=()=>this.setState({display:false})
+		const {dispatch, active, zIndex,run, width=256}=this.props
+		const create=File.create(dispatch)
+		const open=File.open(dispatch)
+		const save=File.save(dispatch)
+		return (
+			<div style={{zIndex,
+				position:"fixed",left:0,top:0,width:"100%",
+				height:"100%", display:display ? "flex" : "none",
+				flexDirection:"row"}}>
+				<Paper zDepth={2} style={{width,height:"100%",backgroundColor:"white"}}>
+						<center style={{zoom:2,marginTop:5}}>
+							<Avatar backgroundColor={gray100}>
+								<IconLogo color={yellow500}/>
+							</Avatar>
+						</center>
 
-					<MenuItem
-						disabled={!activeDoc}
-						primaryText="Print"
-						/>
+						<Menu width={width} autoWidth={!width}>
+							<MenuItem
+								primaryText="New"
+								onClick={()=>Promise.resolve(create()).then(dispear,dispear)}
+								/>
+							<MenuItem
+								primaryText="Open"
+								onClick={()=>Promise.resolve(open()).then(dispear,dispear)}
+								/>
+							<MenuItem
+								disabled={!active}
+								primaryText="Save"
+								onClick={()=>this.setState({action:"save"})}
+								/>
+							<MenuItem
+								disabled={!active}
+								primaryText="SaveAs"
+								onClick={()=>this.setState({action:"saveAs"})}
+								/>
+							<Divider/>
 
-					<MenuItem
-						disabled={!activeDoc}
-						primaryText="Print Preview"
-						/>
+							<MenuItem
+								disabled={!active}
+								primaryText="Print"
+								onClick={()=>this.setState({action:"print"})}
+								/>
 
-					<MenuItem
-						primaryText="Options"
-						/>
+							<MenuItem
+								primaryText="Options"
+								onClick={()=>this.setState({action:"options"})}
+								/>
 
-					<MenuItem
-						primaryText="Close"
-						/>
+							<MenuItem
+								primaryText="Close"
+								/>
 
-				</Menu>
-		</Paper>
-		<div style={{flex:"1 100%"}} onClick={dispear}>
-			<div style={{position:"absolute",width:"100%",height:"100%",backgroundColor:"black",opacity:"0.5"}}/>
-			<div>hello</div>
-
-		</div>
-	</div>
-))
+						</Menu>
+				</Paper>
+				<div style={{flex:"1 100%", display:"flex", flexDirection:"column",backgroundColor:"lightgray"}}>
+					<div style={{flex:1}}>
+					{
+						(function(action){
+							if(!action)
+								return null
+							switch(action){
+							case "save":
+							case "saveAs":
+								return <SaveUI
+									active={active}
+									onCancel={dispear}
+									onSave={option=>{
+										dispear()
+										run(save(option))
+									}}
+									/>
+							case "options":
+								return <OptionsUI/>
+							}
+						})(action)
+					}
+					</div>
+					<div onClick={dispear}
+						style={{width:"100%",flex:"1 100%"}}/>
+				</div>
+			</div>
+		)
+	}
+}

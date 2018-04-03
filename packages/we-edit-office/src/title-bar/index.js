@@ -10,7 +10,7 @@ import IconMenu from "material-ui/svg-icons/navigation/menu"
 
 import Dashboard from "../dashboard"
 
-import {ACTION,DOMAIN, getActive} from "we-edit"
+import {ACTION,DOMAIN} from "we-edit"
 
 import ComboBox from "../components/combo-box"
 import SizeIconButton from "../components/size-icon-button"
@@ -18,14 +18,8 @@ import SizeIconButton from "../components/size-icon-button"
 export class Bar extends PureComponent{
     state={showDrawer:false}
     render(){
-        const {active, docs, setActive, close, height=20, style={}}=this.props
-        let {showDrawer}=this.state
-		let drawer=null
-		if(showDrawer){
-			drawer=<Dashboard dispear={()=>this.setState({showDrawer:false})}/>
-		}
-
-		let closeButton=null
+        const {active, docs, setActive, close, height=20, style={}, onMenu}=this.props
+        let closeButton=null
 
 		if(docs.length>0){
 			closeButton=(
@@ -40,7 +34,7 @@ export class Bar extends PureComponent{
 				<div>
 					<SizeIconButton
 						size={height}
-						onClick={()=>this.setState({showDrawer:true})}
+						onClick={onMenu}
 						>
 						<IconMenu/>
 					</SizeIconButton>
@@ -61,7 +55,6 @@ export class Bar extends PureComponent{
 				<div>
 					{closeButton}
 				</div>
-				{drawer}
 			</div>
         )
     }
@@ -73,19 +66,19 @@ export default compose(
         store:PropTypes.object,
 		muiTheme: PropTypes.object,
     }),
-    mapProps(({store:{dispatch},  muiTheme:{titleBar}})=>({
+    mapProps(({store:{dispatch},  muiTheme:{titleBar}, onMenu})=>({
         setActive(id){
             dispatch(ACTION.ACTIVE(id))
         },
         close(){
             dispatch(ACTION.CLOSE())
         },
-		height:titleBar ? titleBar.height : undefined
+		height:titleBar ? titleBar.height : undefined,
+        onMenu,
     })),
     connect(state=>{
         const {[DOMAIN]:{docs}}=state
         return {
-            active:getActive(state),
             docs:Object.keys(docs).map(k=>docs[k])
         }
     })

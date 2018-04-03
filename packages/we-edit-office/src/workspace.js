@@ -196,8 +196,4 @@ export default compose(
 			debug
 		})
 	),
-)(({doc,...props})=>(
-	<doc.Store>
-		<Workspace {...props}/>
-	</doc.Store>
-))
+)(props=><Workspace {...props}/>)

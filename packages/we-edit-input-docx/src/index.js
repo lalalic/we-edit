@@ -18,9 +18,16 @@ export default class DocxType extends Input.Type{
 		}
 		return false
 	}
-	
+
 	getDocumentType(){
-		return "Word Document (*.docx)"
+		return "docx"
+	}
+
+	getDocumentTypeName(){
+		return "Word Document"
+	}
+	getDocumentTypeExt(){
+		return this.getDocumentType()
 	}
 
 	load(file){
@@ -60,12 +67,12 @@ export default class DocxType extends Input.Type{
 	render(createElement,components){
 		const self=this
 		const identify=Docx.OfficeDocument.identify
-		
+
 		const docx=this.doc
 		const selector=new Style.Properties(docx)
 		const $=docx.officeDocument.content
 		const settings=docx.officeDocument.settings
-		
+
 		const styles=this.styles=Input.Type.createStyles()
 
 		const createStylesElement=()=>createElement(
@@ -289,8 +296,8 @@ export default class DocxType extends Input.Type{
 		let renderNode=node=>docx.officeDocument.renderNode(node,build,identify)
 
 		let rendered=docx.render(build)
-		
-		
+
+
 		//implement loader.renderChangedNode
 		this.renderNode=(node,createElement)=>{
 			build=buildFactory(createElement)
@@ -298,9 +305,9 @@ export default class DocxType extends Input.Type{
 		}
 
 		this.refreshStyles=createStylesElement
-		
+
 		this.getFontList=()=>Array.from(selector.requireFonts)
-		
+
 		return rendered
 	}
 
@@ -313,7 +320,7 @@ export default class DocxType extends Input.Type{
 	renderNode(node, createElement){
 		//injected implementation by render
 	}
-	
+
 	getFontList(){
 		//injected implementation by render
 	}
