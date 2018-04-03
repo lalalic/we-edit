@@ -13,7 +13,7 @@ import IconSave from "material-ui/svg-icons/content/save"
 import IconSaveAs from "material-ui/svg-icons/content/save"
 import IconClose from "material-ui/svg-icons/navigation/close"
 
-import {ACTION, getActive} from "we-edit"
+import {ACTION} from "we-edit"
 
 export class File extends PureComponent{
 	state={changed:false}

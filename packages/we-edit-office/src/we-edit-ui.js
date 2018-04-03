@@ -38,7 +38,7 @@ const styles={
 }
 export default compose(
 	setDisplayName("We-Edit-UI"),
-	connect(state=>({active:getActive(state).doc})),
+	connect(state=>({active:(getActive(state)||{}).doc})),
 )(class extends PureComponent{
 	static propTypes={
 		titleBar:PropTypes.node

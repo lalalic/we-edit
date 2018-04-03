@@ -10,7 +10,7 @@ import IconMenu from "material-ui/svg-icons/navigation/menu"
 
 import Dashboard from "../dashboard"
 
-import {ACTION} from "we-edit"
+import {ACTION,DOMAIN, getActive} from "we-edit"
 
 import ComboBox from "../components/combo-box"
 import SizeIconButton from "../components/size-icon-button"
@@ -82,8 +82,11 @@ export default compose(
         },
 		height:titleBar ? titleBar.height : undefined
     })),
-    connect(({"we-edit":{active,docs}})=>({
-        active:active ? docs[active] : undefined,
-        docs:Object.keys(docs).map(k=>docs[k])
-    }))
+    connect(state=>{
+        const {[DOMAIN]:{docs}}=state
+        return {
+            active:getActive(state),
+            docs:Object.keys(docs).map(k=>docs[k])
+        }
+    })
 )(Bar)

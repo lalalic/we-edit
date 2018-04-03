@@ -12,7 +12,7 @@ import Input from "../input"
 # example
 ```jsx
 <WeEdit>
-	
+
 </WeEdit>
 ```
 */
@@ -46,7 +46,7 @@ export const DOMAIN="we-edit"
 const reducers={}
 
 export function getActive({[DOMAIN]:{docs, active}}){
-	return docs[active]||{}
+	return docs[active]
 }
 
 export const ACTION={

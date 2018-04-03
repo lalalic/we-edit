@@ -10,7 +10,7 @@ import CheckIconButton from "../components/check-icon-button"
 import IconRedo from "material-ui/svg-icons/content/redo"
 import IconUndo from "material-ui/svg-icons/content/undo"
 
-import {ACTION, getActive, getUndos, getRedos, Input} from "we-edit"
+import {ACTION, getUndos, getRedos, Input} from "we-edit"
 
 export default compose(
 	setDisplayName("clipboard"),
