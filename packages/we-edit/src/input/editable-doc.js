@@ -16,7 +16,7 @@ export default class {
 	}
 	
 	/*clone node without all ids*/
-	cloneNode(node){
+	cloneNode(node, autoAttach=true){
 		
 	}
 	

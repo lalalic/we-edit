@@ -3,8 +3,16 @@ import PropTypes from "prop-types"
 
 const supports={}
 export class Stream extends Component{
+	static contextTypes={
+		addAsyncJob: PropTypes.func
+	}
+	
 	static support(stream){
 		supports[stream.type]=stream
+	}
+	
+	static get supports(){
+		return {...supports}
 	}
 
 	shouldComponentUpdate(){
@@ -13,8 +21,10 @@ export class Stream extends Component{
 
 	render(){
 		const {type, children, ...props}=this.props
+		const {addAsyncJob}=this.context
 		const Type=supports[type]
-		return (
+		const jobs=[]
+		let rendered=(
 			<Fragment>
 			{
 				Children.toArray(children).map((format,key)=>{
@@ -29,11 +39,22 @@ export class Stream extends Component{
 						}
 						stream=new ConsoleStream()
 					}
+					jobs.push(
+						new Promise((resolve,reject)=>{
+							stream.on("finish",()=>resolve())
+							stream.on("error",reject)
+						})
+					)
 					return React.cloneElement(format,{key,...props,stream})
 				})
 			}
 			</Fragment>
 		)
+		
+		if(addAsyncJob)
+			addAsyncJob(Promise.all(jobs))
+		
+		return rendered
 	}
 
 	static Collection=({children,...props})=>(

@@ -1,6 +1,7 @@
 import {Writable} from "stream"
 import {Stream} from "we-edit"
 
+import Setting from "./setting"
 /**
 * options:
 * name: only for download
@@ -8,6 +9,7 @@ import {Stream} from "we-edit"
 */
 export default class Browser extends Writable{
     static type="browser"
+	static SettingUI=Setting
     constructor({name, target,format,windowFeatures}){
         super({})
 		this.format=format
@@ -57,8 +59,8 @@ export default class Browser extends Writable{
 		case 'svg':
 			return new Blob(["<html><body>",...this.data, "</body></html>"],{type:"text/html"})
 		break
-		case 'pdf':
-			return new Blob(this.data, {type:"application/pdf"})
+		default:
+			return new Blob(this.data, {type:"application/"+this.format})
 		}
 	}
 }

@@ -44,11 +44,14 @@ export default class EditableDocument extends docx4js{
 		return node
 	}
 
-	cloneNode(node){
+	cloneNode(node, autoAttach=true){
 		let withIds=node.find("[id]").each((i,el)=>el.attribs._id=el.attribs.id)
 		let cloned=node.clone()
 		withIds.removeAttr("_id")
-		return this.attach(cloned)
+		if(autoAttach)
+			return this.attach(cloned)
+		else
+			return cloned
 	}
 
 	createNode({type},reducer){

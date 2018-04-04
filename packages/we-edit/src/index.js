@@ -1,5 +1,7 @@
 import "./tools/array-find-last"
 import TestRenderer from 'react-test-renderer'
+import React, {PureComponent} from "react"
+import PropTypes from "prop-types"
 
 export * from "./components"
 
@@ -18,6 +20,22 @@ export {default as models} from "./model"
 
 
 export function render(element){
-    let render=TestRenderer.create(element)
-    render.unmount()
+	let promises=[]
+	class Render extends PureComponent{
+		static childContextTypes={
+			addAsyncJob: PropTypes.func
+		}
+		getChildContext(){
+			return {
+				addAsyncJob(p){
+					promises.push(p.catch(e=>e))
+				}
+			}
+		}
+		render(){
+			return element
+		}
+	}
+    let render=TestRenderer.create(<Render/>)
+	return Promise.all(promises).then(()=>render.unmount())
 }

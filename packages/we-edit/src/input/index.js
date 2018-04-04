@@ -95,7 +95,7 @@ function buildEditableDoc(doc,inputTypeInstance){
 		Store:compose(
 				setDisplayName("DocStore"),
 				getContext({store:PropTypes.object}),
-			)(({children,store:passedStore,...props})=>{
+			)(({children,store:passedStore,release,...props})=>{
 
 			let onQuit=null
 			if(passedStore){
@@ -108,7 +108,7 @@ function buildEditableDoc(doc,inputTypeInstance){
 			let root=(
 				<ContextProvider
 					doc={editableDoc}
-					onQuit={onQuit}
+					onQuit={release ? onQuit : null}
 					renderUp={state=>inputTypeInstance.renderUp(state,Transformed )}
 					transformer={inputTypeInstance.transform}
 					{...props}
@@ -144,39 +144,23 @@ function buildEditableDoc(doc,inputTypeInstance){
 		},
 
 		get type(){
-			return inputTypeInstance.getDocumentType()
+			return inputTypeInstance.getType()
 		},
 
 		get typeName(){
-			return inputTypeInstance.getDocumentTypeName()
+			return inputTypeInstance.getTypeName()
 		},
 
 		get typeExt(){
-			return inputTypeInstance.getDocumentTypeExt()
+			return inputTypeInstance.getTypeExt()
+		},
+		
+		get mimeType(){
+			return inputTypeInstance.getTypeMimeType()
 		},
 
-		save(name,option){
-			name=name||inputTypeInstance.name
-			inputTypeInstance.name=name
-			return Promise.resolve(inputTypeInstance.serialize(option)).then(data=>{
-				store.dispatch(ACTION.clear())
-				if(typeof(document)!="undefined" && window.URL && window.URL.createObjectURL){
-					let url = window.URL.createObjectURL(data)
-					let link = document.createElement("a");
-					document.body.appendChild(link)
-					link.download = name
-					link.href = url;
-					link.click()
-					document.body.removeChild(link)
-					window.URL.revokeObjectURL(url)
-				}else{
-					return new Promise((resolve,reject)=>
-						require("fs").writeFile(name,data,error=>{
-							error ? reject(error) : resolve(data)
-						})
-					)
-				}
-			})
+		stream(option){
+			return inputTypeInstance.stream(option)
 		},
 
 		release(){

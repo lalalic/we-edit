@@ -78,7 +78,6 @@ export default compose(
 				child=(
 					<active.Store>
 						{React.cloneElement(child, {...others, ...child.props})}
-						<Runner ref="runner"/>
 					</active.Store>
 				)
 			}else

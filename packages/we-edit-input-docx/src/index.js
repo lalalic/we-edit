@@ -1,6 +1,7 @@
 import React from "react"
 import Docx from "./editable-doc"
 import {Input} from "we-edit"
+import {Readable} from 'stream'
 
 import Style from "./styles"
 import Transformers from "./model"
@@ -19,15 +20,18 @@ export default class DocxType extends Input.Type{
 		return false
 	}
 
-	getDocumentType(){
+	getType(){
 		return "docx"
 	}
 
-	getDocumentTypeName(){
+	getTypeName(){
 		return "Word Document"
 	}
-	getDocumentTypeExt(){
-		return this.getDocumentType()
+	getTypeExt(){
+		return this.getType()
+	}
+	getTypeMimeType(){
+		return "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 	}
 
 	load(file){
@@ -44,12 +48,16 @@ export default class DocxType extends Input.Type{
 		return Docx.create()
 	}
 
-	serialize(option){
-		return this.doc.serialize(option).generate({
-			...option,
-			mimeType:this.doc.mime,
-			type: typeof(document)!="undefined" && window.URL && window.URL.createObjectURL ? "blob": "nodebuffer"
+	stream(option){
+		let data=this.doc.serialize(option)
+			.generate({
+				...option,
+				type:"uint8array",
+				mimeType:this.doc.mime,
 			})
+		let stream=new Readable({objectMode: true})
+		stream.push(data,"uint8array")
+		return stream
 	}
 
 	transform(components){

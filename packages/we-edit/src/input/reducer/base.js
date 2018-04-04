@@ -36,7 +36,7 @@ export default class Reducer{
 	}
 
 	save4undo(id){
-		this._undoables[id]=this.file.cloneNode(this.file.getNode(id))
+		this._undoables[id]=this.file.cloneNode(this.file.getNode(id),false)
 	}
 
 	renderChanged(id){

@@ -2,7 +2,7 @@ import React, {PureComponent} from "react"
 import PropTypes from "prop-types"
 import {Emitter} from "we-edit"
 
-export class Input extends Emitter.Format{
+export default class Input extends Emitter.Format{
 	static displayName="[Origin]"
 	static propTypes={
 		type: PropTypes.string.isRequired,
@@ -18,7 +18,9 @@ export class Input extends Emitter.Format{
 
 	render(){
 		const {stream}=this.props
-		doc.save(stream)
+		let docStream=this.context.doc.stream()
+		docStream.pipe(stream)
+		docStream.push(null)
 		return null
 	}
 }

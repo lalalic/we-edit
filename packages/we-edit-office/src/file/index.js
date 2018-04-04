@@ -3,8 +3,6 @@ import PropTypes from "prop-types"
 import {connect} from "react-redux"
 import {compose, mapProps,getContext,setDisplayName} from "recompose"
 
-import {Input} from "we-edit"
-
 import {ToolbarGroup} from "material-ui"
 import CheckIconButton from "../components/check-icon-button"
 
@@ -13,7 +11,7 @@ import IconSave from "material-ui/svg-icons/content/save"
 import IconSaveAs from "material-ui/svg-icons/content/save"
 import IconClose from "material-ui/svg-icons/navigation/close"
 
-import {ACTION, Emitter, Stream, render} from "we-edit"
+import {Input,ACTION, Emitter, Stream, render} from "we-edit"
 import OutputInput from "we-edit-output-input"
 
 export class File extends PureComponent{
@@ -24,12 +22,15 @@ export class File extends PureComponent{
 
 	render(){
 		const {changed}=this.state
-		const {save,children}=this.props
+		const {doc, dispatch, children}=this.props
 		return (
 			<ToolbarGroup>
 				<CheckIconButton
 					status={changed ? "uncheck" : "disabled"}
-					onClick={()=>save().then(a=>this.setState({changed:false}))}>
+					onClick={()=>{
+						save(dispatch,doc)({stream:{type:"browser", name:doc.name}})
+						this.setState({changed:false})
+					}}>
 					<IconSave/>
 				</CheckIconButton>
 				{children}
@@ -52,13 +53,13 @@ export function open(dispatch){
 		)
 }
 
-export const save=(dispatch,doc)=>({format, name})=>{
+export const save=(dispatch,doc)=>({format, stream})=>{
 	const supports=Emitter.supports
-	const Format=supports[format]||OutputInput
+	let Format=!format||doc.type==format ? OutputInput : supports[format]
 	render(
-		<doc.Store readonly={true}>
+		<doc.Store readonly={true} release={false}>
 			<Emitter>
-				<Stream type="browser" name={name}>
+				<Stream {...stream}>
 					<Format/>
 				</Stream>
 			</Emitter>
@@ -71,11 +72,6 @@ export default compose(
 	getContext({
 		doc: PropTypes.object,
 	}),
-	mapProps(({doc})=>({
-		save(){
-			return doc.save()
-		}
-	})),
 	connect(state=>({content:state.get('content')})),
 )(File)
 

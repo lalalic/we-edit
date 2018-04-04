@@ -23,6 +23,21 @@ export default class JSONType extends Input.Type{
 	static isPlainData(file){
 		return file.children
 	}
+	getType(){
+		return "json"
+	}
+
+	getTypeName(){
+		return "WE document"
+	}
+	
+	getTypeExt(){
+		return this.getDocumentType()
+	}
+	
+	getTypeMimeType(){
+		return "application/json"
+	}	
 
 	load(file){
 		switch(typeof(file)){

@@ -85,6 +85,7 @@ export default class Emitter extends Viewer{
 						case "object"://node, maybe have props <Html styless={true}/>
 						//not support yet
 						break
+						case "undefined"://OutputInput
 						case "string":
 							Map.prototype.set.call(this,k,[])
 						break

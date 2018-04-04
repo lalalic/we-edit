@@ -19,7 +19,7 @@ export default class Dashboard extends PureComponent{
 	render(){
 		const {display,action}=this.state
 		const dispear=()=>this.setState({display:false,action:null})
-		const {dispatch, active, zIndex,run, width=256}=this.props
+		const {dispatch, active, zIndex, width=256}=this.props
 		const create=File.create(dispatch)
 		const open=File.open(dispatch)
 		const save=File.save(dispatch,active)
@@ -87,7 +87,7 @@ export default class Dashboard extends PureComponent{
 									onCancel={dispear}
 									onSave={option=>{
 										dispear()
-										run(save(option))
+										save(option)
 									}}
 									/>
 							case "options":

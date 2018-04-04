@@ -103,6 +103,23 @@ export class Viewable{
 		})
 
 	}
+	
+	getType(){
+		throw new Exception("You have to specify document type, such as docx")
+	}
+	
+	getTypeName(){
+		throw new Exception("You have to specify document type name, such as Word Document")
+	}
+	
+	getTypeExt(){
+		throw new Exception("You have to specify document type ext, such as docx")
+	}
+	
+	getTypeMimeType(){
+		throw new Exception("You have to specify document mime type, such as application/docx")
+	}
+	
 
 	//doc=null//injected from load/create
 	load(url){
@@ -150,7 +167,7 @@ export class Editable extends Viewable{
 		throw new Error("not support")
 	}
 
-	serialize(option){
+	stream(option){
 		throw new Error("not support")
 	}
 
