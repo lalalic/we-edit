@@ -65,29 +65,6 @@ function buildEditableDoc(doc,inputTypeInstance){
 			return this.name
 		},
 
-		/*
-		Input.load(...)
-			.then(doc=>doc.render(
-				<Emitter representation={<Pagination/>}>
-					<Stream>
-						<PDF/>
-					</Stream>
-					<PCL/>
-					<Docx/>
-				</Emitter>
-				<Emitter representation={<Html/>}>
-					<HTML/>
-				</Emitter>
-				<Emitter representation={<Text/>}>
-					<PlainText/>
-				</Emitter>
-			))
-		*/
-		render(emitters){
-
-			//return inputTypeInstance.render(,view)
-		},
-
 		getFontList(){
 			return inputTypeInstance.getFontList()
 		},

@@ -15,21 +15,14 @@ import {Input,ACTION, Emitter, Stream, render} from "we-edit"
 import OutputInput from "we-edit-output-input"
 
 export class File extends PureComponent{
-	state={changed:false}
-	componentWillReceiveProps({content}){
-		this.setState({changed:this.props.content!=content})
-	}
-
 	render(){
-		const {changed}=this.state
 		const {doc, dispatch, children}=this.props
 		return (
 			<ToolbarGroup>
 				<CheckIconButton
-					status={changed ? "uncheck" : "disabled"}
+					status={"checked"}
 					onClick={()=>{
 						save(dispatch,doc)({stream:{type:"browser", name:doc.name}})
-						this.setState({changed:false})
 					}}>
 					<IconSave/>
 				</CheckIconButton>
@@ -56,7 +49,7 @@ export function open(dispatch){
 export const save=(dispatch,doc)=>({format, stream})=>{
 	const supports=Emitter.supports
 	let Format=!format||doc.type==format ? OutputInput : supports[format]
-	render(
+	return render(
 		<doc.Store readonly={true} release={false}>
 			<Emitter>
 				<Stream {...stream}>
