@@ -57,7 +57,7 @@ export const ACTION={
 	},
 	CLOSE: ()=>({type:`${DOMAIN}/CLOSE`}),
 	ACTIVE: id=>({type:`${DOMAIN}/ACTIVE`, payload:id}),
-	MESSAGE: payload=>({type:`${DOMAIN/MESSAGE}`,payload}),
+	MESSAGE: payload=>({type:`${DOMAIN}/MESSAGE`,payload}),
 	...EditorAction
 }
 

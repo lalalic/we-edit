@@ -6,7 +6,7 @@ import {Readable} from 'stream'
 import Style from "./styles"
 import Transformers from "./model"
 
-export default class DocxType extends Input.Type{
+export default class DocxType extends Input.Editable{
 	static support(file){
 		switch(typeof(file)){
 		case "string":
@@ -81,7 +81,7 @@ export default class DocxType extends Input.Type{
 		const $=docx.officeDocument.content
 		const settings=docx.officeDocument.settings
 
-		const styles=this.styles=Input.Type.createStyles()
+		const styles=this.styles=this.constructor.createStyles()
 
 		const createStylesElement=()=>createElement(
 			Transformers.Styles(components),

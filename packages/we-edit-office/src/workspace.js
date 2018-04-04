@@ -69,12 +69,28 @@ export const Ribbon=compose(
 	</div>
 ))
 
+
+export const VerticalRuler=compose(
+	setDisplayName("VerticalRuler"),
+	when("cursorPlaced",({pageY})=>({pageY})),
+)(({pageY=0, scale, ...props})=>{
+	return (
+		<div style={{position:"relative",width:0,top:pageY*scale}}>
+			<Ruler direction="vertical" {...props} scale={scale}/>
+		</div>
+	)
+})
+
+/**
+ * doc.Store can't be removed to Workspace since cursor
+ *
+ */
 export default class Workspace extends PureComponent{
 	static childContextTypes={
 		events: PropTypes.object,
 		debug: PropTypes.bool,
 	}
-	
+
 	static propTypes={
 		toolBar:PropTypes.node,
 		statusBar: PropTypes.node,
@@ -185,14 +201,3 @@ export default class Workspace extends PureComponent{
 		this.setupHorizontalRuler()
 	}
 }
-
-export const VerticalRuler=compose(
-	setDisplayName("VerticalRuler"),
-	when("cursorPlaced",({pageY})=>({pageY})),
-)(({pageY=0, scale, ...props})=>{
-	return (
-		<div style={{position:"relative",width:0,top:pageY*scale}}>
-			<Ruler direction="vertical" {...props} scale={scale}/>
-		</div>
-	)
-})

@@ -1,7 +1,7 @@
 import {Input} from "we-edit"
 import EditableDocument from "./editable-doc"
 
-export default class JSONType extends Input.Type{
+export default class JSONType extends Input.Editable{
 	static support(file){
 		switch(typeof(file)){
 		case "string":
@@ -30,14 +30,14 @@ export default class JSONType extends Input.Type{
 	getTypeName(){
 		return "WE document"
 	}
-	
+
 	getTypeExt(){
 		return this.getDocumentType()
 	}
-	
+
 	getTypeMimeType(){
 		return "application/json"
-	}	
+	}
 
 	load(file){
 		switch(typeof(file)){
