@@ -69,7 +69,12 @@ export const Ribbon=compose(
 	</div>
 ))
 
-export class Workspace extends PureComponent{
+export default class Workspace extends PureComponent{
+	static childContextTypes={
+		events: PropTypes.object,
+		debug: PropTypes.bool,
+	}
+	
 	static propTypes={
 		toolBar:PropTypes.node,
 		statusBar: PropTypes.node,
@@ -89,7 +94,13 @@ export class Workspace extends PureComponent{
 		}
 	}
 
-
+	getChildContext(){
+		const {debug}=this.props
+		return {
+			events:new EventEmitter(),
+			debug
+		}
+	}
 
 	get layouts(){
 		return Children.toArray(this.props.children)
@@ -98,7 +109,7 @@ export class Workspace extends PureComponent{
 	}
 
 	render(){
-		let {children, toolBar, statusBar, ruler=true, fonts}=this.props
+		let {doc, children, toolBar, statusBar, ruler=true, fonts}=this.props
 		children=Children.toArray(children)
 		const {layout, scale}=this.state
 
@@ -113,48 +124,50 @@ export class Workspace extends PureComponent{
 		}
 
 		return (
-			<WithSelection>
-				<div style={{flex:1, display:"flex", flexDirection:"column"}}>
-					<div style={{order:1,height:24+30}}>
-						{toolBar}
-					</div>
-
-					<div style={{order:3,height:30}}>
-						{statusBar ? React.cloneElement(statusBar,{
-							layout:{
-								items:this.layouts,
-								current:layout,
-								onChange: layout=>this.setState({layout})
-							},
-							scale:{
-								current:scale,
-								onChange: scale=>this.setState({scale})
-							},
-						}) : null}
-					</div>
-
-					<div style={{order:2,flex:"1 100%", overflow:"auto", display:"flex", flexDirection:"column"}}>
-						<div style={{flex:1, display:"flex", flexDirection:"row"}}>
-
-							{ruler ? <VerticalRuler scale={scale/100} /> : null}
-
-							{ruler ? (
-							<div ref="rulerContainer" style={{position:"absolute",paddingTop:4}}>
-								<Ruler direction="horizontal" scale={scale/100}/>
-							</div>
-							) : null}
-
-							<div ref="contentContainer" style={{flex:"1 100%", textAlign:"center", margin:"4px auto auto auto"}}>
-								<div style={{margin:"auto",display:"inline-block"}}>
-									{current}
-									{uncontrolled}
-								</div>
-							</div>
+			<doc.Store>
+				<WithSelection>
+					<div style={{flex:1, display:"flex", flexDirection:"column"}}>
+						<div style={{order:1,height:24+30}}>
+							{toolBar}
 						</div>
 
+						<div style={{order:3,height:30}}>
+							{statusBar ? React.cloneElement(statusBar,{
+								layout:{
+									items:this.layouts,
+									current:layout,
+									onChange: layout=>this.setState({layout})
+								},
+								scale:{
+									current:scale,
+									onChange: scale=>this.setState({scale})
+								},
+							}) : null}
+						</div>
+
+						<div style={{order:2,flex:"1 100%", overflow:"auto", display:"flex", flexDirection:"column"}}>
+							<div style={{flex:1, display:"flex", flexDirection:"row"}}>
+
+								{ruler ? <VerticalRuler scale={scale/100} /> : null}
+
+								{ruler ? (
+								<div ref="rulerContainer" style={{position:"absolute",paddingTop:4}}>
+									<Ruler direction="horizontal" scale={scale/100}/>
+								</div>
+								) : null}
+
+								<div ref="contentContainer" style={{flex:"1 100%", textAlign:"center", margin:"4px auto auto auto"}}>
+									<div style={{margin:"auto",display:"inline-block"}}>
+										{current}
+										{uncontrolled}
+									</div>
+								</div>
+							</div>
+
+						</div>
 					</div>
-				</div>
-			</WithSelection>
+				</WithSelection>
+			</doc.Store>
 		)
 	}
 
@@ -183,17 +196,3 @@ export const VerticalRuler=compose(
 		</div>
 	)
 })
-
-export default compose(
-	setDisplayName("EventEmitterProvider"),
-	withContext(
-		{
-			events: PropTypes.object,
-			debug: PropTypes.bool,
-		},
-		({events=new EventEmitter(),debug})=>({
-			events,
-			debug
-		})
-	),
-)(props=><Workspace {...props}/>)

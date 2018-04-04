@@ -72,13 +72,13 @@ function buildEditableDoc(doc,inputTypeInstance){
 		Store:compose(
 				setDisplayName("DocStore"),
 				getContext({store:PropTypes.object}),
-			)(({children,store:passedStore,release,...props})=>{
+			)(({children,store:passedStore,release,reducer,...props})=>{
 
 			let onQuit=null
 			if(passedStore){
 				store=new LocalStore(passedStore, "we-edit", state=>state['we-edit'].docs[id].state)
 			}else{
-				store=createStore(editableDoc.buildReducer())
+				store=createStore(editableDoc.buildReducer(reducer))
 				onQuit=()=>inputTypeInstance.release()
 			}
 
@@ -101,7 +101,7 @@ function buildEditableDoc(doc,inputTypeInstance){
 			)
 		}),
 
-		buildReducer(){
+		buildReducer(reducer){
 			let createElementFactory=createElementFactoryBuilder(inputTypeInstance)
 			let changeReducer=changeReducerBuilder(createElementFactory,inputTypeInstance)
 			let content=new Map().withMutations(a=>inputTypeInstance.render(createElementFactory(a),Components))
@@ -109,7 +109,7 @@ function buildEditableDoc(doc,inputTypeInstance){
 			let _reducer=undoable(changeReducer)
 			let INIT_STATE=createState(doc,content)
 
-			return (state,action={})=>state ? _reducer(state,action) : INIT_STATE
+			return (state=INIT_STATE,action={})=>_reducer(state,action)
 		},
 
 		get name(){

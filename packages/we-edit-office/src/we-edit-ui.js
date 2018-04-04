@@ -75,11 +75,7 @@ export default compose(
 				})
 
 			if(child){
-				child=(
-					<active.Store>
-						{React.cloneElement(child, {...others, ...child.props})}
-					</active.Store>
-				)
+				child=React.cloneElement(child, {doc:active, ...others, ...child.props})
 			}else
 				child=(<div>no editor for this document</div>)
 		}

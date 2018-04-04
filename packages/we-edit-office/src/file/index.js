@@ -14,13 +14,19 @@ import IconClose from "material-ui/svg-icons/navigation/close"
 import {Input,ACTION, Emitter, Stream, render} from "we-edit"
 import OutputInput from "we-edit-output-input"
 
-export class File extends PureComponent{
+export default class File extends PureComponent{
+	static contextTypes={
+		doc: PropTypes.object,
+		store: PropTypes.object,
+	}
 	render(){
-		const {doc, dispatch, children}=this.props
+		const {doc, store}=this.context
+		const dispatch=store.dispatch
+		const {children}=this.props
 		return (
 			<ToolbarGroup>
 				<CheckIconButton
-					status={"checked"}
+					status="unchecked"
 					onClick={()=>{
 						save(dispatch,doc)({stream:{type:"browser", name:doc.name}})
 					}}>
@@ -59,14 +65,6 @@ export const save=(dispatch,doc)=>({format, stream})=>{
 		</doc.Store>
 	)
 }
-
-export default compose(
-	setDisplayName("FileTool"),
-	getContext({
-		doc: PropTypes.object,
-	}),
-	connect(state=>({content:state.get('content')})),
-)(File)
 
 var input=null
 export function selectFile(){
