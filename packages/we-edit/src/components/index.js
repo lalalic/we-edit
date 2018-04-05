@@ -15,7 +15,8 @@ export {onlyWhen, when} from "./event"
 
 export {default as Cursor} from "./cursor"
 
-export {default as Selection} from "./selection" 
+export {default as Selection} from "./selection"
 
 export {Stream} from "./stream"
 
+export {default as Loader} from "./loader"

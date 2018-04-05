@@ -7,16 +7,16 @@ import Style from "./styles"
 import Transformers from "./model"
 
 export default class DocxType extends Input.Editable{
-	static support(file){
-		switch(typeof(file)){
-		case "string":
-			return file.toLowerCase().endsWith(".docx")
-		case "object":
-			if(file.type=="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
-				return true
-			if(file instanceof Docx)
-				return true
-		}
+	static support({data, name, type}){
+		if(name && name.toLowerCase().endsWith(".docx"))
+			return true
+
+		if(type && type=="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+			return true
+
+		if(arguments[0] instanceof Docx || data instanceof Docx)
+			return true
+
 		return false
 	}
 
@@ -30,14 +30,16 @@ export default class DocxType extends Input.Editable{
 	getTypeExt(){
 		return this.getType()
 	}
+
 	getTypeMimeType(){
 		return "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 	}
 
-	load(file){
-		if(file.name)
-			this.name=file.name
-		return Docx.load(file)
+	load({data, name, ...props}){
+		if(name)
+			this.name=name
+		this.props=props
+		return Docx.load(data)
 	}
 
 	release(){

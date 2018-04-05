@@ -13,6 +13,7 @@ import * as File from "../file"
 
 import SaveUI from "./save"
 import OptionsUI from "./options"
+import OpenUI from "./open"
 
 export default class Dashboard extends PureComponent{
 	state={action:null, display: false}
@@ -21,7 +22,6 @@ export default class Dashboard extends PureComponent{
 		const dispear=()=>this.setState({display:false,action:null})
 		const {dispatch, active, zIndex, width=256}=this.props
 		const create=File.create(dispatch)
-		const open=File.open(dispatch)
 		const save=File.save(dispatch,active)
 		return (
 			<div style={{zIndex,
@@ -42,7 +42,7 @@ export default class Dashboard extends PureComponent{
 								/>
 							<MenuItem
 								primaryText="Open"
-								onClick={()=>Promise.resolve(open()).then(dispear,dispear)}
+								onClick={()=>this.setState({action:"open"})}
 								/>
 							<MenuItem
 								disabled={!active}
@@ -92,6 +92,8 @@ export default class Dashboard extends PureComponent{
 									/>
 							case "options":
 								return <OptionsUI/>
+							case "open":
+								return <OpenUI onOpen={dispear}/>
 							}
 						})(action)
 					}

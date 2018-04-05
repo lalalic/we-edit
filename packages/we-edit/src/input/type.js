@@ -14,77 +14,6 @@ export class Viewable{
 		return false
 	}
 
-	static Support=class{
-		isNode(){
-			return typeof(process)!=="undefined"
-		}
-
-		check(file){
-			switch(typeof(file)){
-			case "string":
-
-			break
-			case "object":
-
-			break
-			default:
-				return false
-			}
-		}
-
-		load(file,type){
-
-		}
-
-		isFile(str){
-
-		}
-
-		isUrl(){
-
-		}
-
-		isContent(){
-
-		}
-
-		isObject(){
-
-		}
-
-		isBlob(){
-
-		}
-
-		isBuffer(){
-
-		}
-
-		isStream(){
-
-		}
-
-		fromFile(str){
-
-		}
-
-		fromUrl(str){
-
-		}
-
-		fromContent(str){
-
-		}
-
-		fromObject(obj){
-
-		}
-
-		fromBlob(file){
-
-		}
-	}
-
 	static isBlob(file){
 		return file.size
 	}
@@ -103,23 +32,23 @@ export class Viewable{
 		})
 
 	}
-	
+
 	getType(){
 		throw new Exception("You have to specify document type, such as docx")
 	}
-	
+
 	getTypeName(){
 		throw new Exception("You have to specify document type name, such as Word Document")
 	}
-	
+
 	getTypeExt(){
 		throw new Exception("You have to specify document type ext, such as docx")
 	}
-	
+
 	getTypeMimeType(){
 		throw new Exception("You have to specify document mime type, such as application/docx")
 	}
-	
+
 
 	//doc=null//injected from load/create
 	load(url){

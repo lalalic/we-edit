@@ -15,6 +15,8 @@ import "we-edit-output-input"
 
 import "we-edit-stream-browser"
 
+import "we-edit-loader-browser"
+
 
 import WeEditUI from "./we-edit-ui"
 import Workspace from "./workspace"

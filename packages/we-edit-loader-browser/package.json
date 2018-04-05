@@ -1,0 +1,23 @@
+{
+  "name": "we-edit-loader-browser",
+  "description": "load file from browser",
+  "version": "3.0.0",
+  "keywords": ["we-edit"],
+  "author": {
+    "name": "Raymond Li",
+    "email": "lalalic@139.com"
+  },
+  "dependencies": {
+    "prop-types": "^15.6.0"
+  },
+  "peerDependencies":{
+	"react": "^16.2.0",
+    "we-edit":"^3.0.0"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+
+  "files":["index.js","index.browser.js","README.md"],
+  "readme": "README.md"
+}

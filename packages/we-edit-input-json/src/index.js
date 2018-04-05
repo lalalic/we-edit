@@ -2,7 +2,13 @@ import {Input} from "we-edit"
 import EditableDocument from "./editable-doc"
 
 export default class JSONType extends Input.Editable{
-	static support(file){
+	static support({data, name, type}){
+		if(name && name.endsWith(".wed.json") || name.endsWith(".wed.xml"))
+			return true
+
+		if(type && type=="document")
+			return true
+		/*
 		switch(typeof(file)){
 		case "string":
 			return file.endsWith(".wed.json") || file.endsWith(".wed.xml")
@@ -18,6 +24,8 @@ export default class JSONType extends Input.Editable{
 					))
 				return true
 		}
+		*/
+		return false
 	}
 
 	static isPlainData(file){
