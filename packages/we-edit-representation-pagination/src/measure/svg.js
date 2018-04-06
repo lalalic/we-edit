@@ -10,7 +10,7 @@ export default class SVGMeasure extends HtmlMeasure{
     lineHeight(){
 		if(!tester){
 			let container=document.createElement("div")
-			container.style="position:absolute;top:-1000"
+			container.style="position:absolute;top:-1000px"
 			document.body.appendChild(container)
 			const {screenX, screenY}=window
 			container.innerHTML=
