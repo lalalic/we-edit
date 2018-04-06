@@ -96,6 +96,7 @@ export default class Saver extends PureComponent{
                 if(Type && Type.SettingUI){
                     return <Type.SettingUI
                             ref="stream"
+                            fixName={name=>this.fixName(format,name)}
                             {...streamProps}
                                 />
                 }else{
@@ -136,10 +137,7 @@ export default class Saver extends PureComponent{
                             value={format}
                             dataSource={this.getSupportedFormats()}
                             onChange={format=>{
-                                if(stream.name){
-                                    stream={...stream, name:this.fixName(format, stream.name)}
-                                }
-                                this.setState({format, stream})
+                                this.setState({format})
                             }}/>
                     </center>
                 </div>

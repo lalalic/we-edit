@@ -7,7 +7,11 @@ export default class extends Component{
 		windowFeatures:"menubar=no,location=no,resizable=yes,scrollbars=yes,status=no",
 		...this.props
 	}
-	
+
+	componentWillReceiveProps({fixName}){
+		this.setState({name:fixName(this.state.name)})
+	}
+
 	render(){
 		const {name, target, windowFeatures}=this.state
 		return (
@@ -19,7 +23,7 @@ export default class extends Component{
 						onChange={(e,name)=>this.setState({name})}/>
 				</div>
 				<div>
-					<TextField value={target} 
+					<TextField value={target}
 						floatingLabelText="target:_blank|_self|_parent|_top|frame name"
 						onChange={(e,target)=>{
 							if(target){
@@ -30,7 +34,7 @@ export default class extends Component{
 						}}/>
 				</div>
 				<div>
-					<TextField value={windowFeatures} 
+					<TextField value={windowFeatures}
 						floatingLabelText="window features"
 						onChange={(e,windowFeatures)=>{
 							this.setState({windowFeatures})
