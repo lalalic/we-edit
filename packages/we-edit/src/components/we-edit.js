@@ -50,9 +50,9 @@ export function getActive({[DOMAIN]:{docs, active}}){
 }
 
 export const ACTION={
-	ADD:doc=>{
+	ADD:(doc,reducer)=>{
 		let id=doc.id
-		reducers[id]=doc.buildReducer()
+		reducers[id]=doc.buildReducer(reducer)
 		return {type:`${DOMAIN}/ADD`,payload:{id,state: reducers[id](), doc}}
 	},
 	CLOSE: ()=>({type:`${DOMAIN}/CLOSE`}),

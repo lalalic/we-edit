@@ -1,4 +1,4 @@
-import buildEditableDoc from "./build-editable-doc"
+import buildDoc from "./build-doc"
 
 import {Viewable, Editable} from "./type"
 import EditableDocument from "./editable-doc"
@@ -13,7 +13,7 @@ export default {
 		let Found=supported.find(TYPE=>TYPE.support(file))
 		if(Found){
 			const inst=new Found()
-			return Promise.resolve(inst.load(file)).then(doc=>buildEditableDoc(doc,inst))
+			return Promise.resolve(inst.load(file)).then(doc=>buildDoc(doc,inst))
 		}else{
 			throw new Error(`we cannot edit ${file}`)
 		}
@@ -23,7 +23,7 @@ export default {
 		let Found=supported.find(TYPE=>TYPE.support(type))
 		if(Found){
 			const inst=new Found()
-			return Promise.resolve(inst.create(type)).then(doc=>buildEditableDoc(doc,inst))
+			return Promise.resolve(inst.create(type)).then(doc=>buildDoc(doc,inst))
 		}else{
 			throw new Error(`we cannot create ${type} content`)
 		}

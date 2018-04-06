@@ -9,28 +9,7 @@ export class Viewable{
 	}
 
 	static support(file){
-		if(this.Support)
-			return new this.Support().check(file)
 		return false
-	}
-
-	static isBlob(file){
-		return file.size
-	}
-
-	static load(file){
-		return new Promise((resolve, reject)=>{
-			var reader=new FileReader();
-			reader.onload=e=>{
-				resolve({
-					data:e.target.result,
-					type:file.type.split("/").pop(),
-					name:file.name
-				})
-			}
-			reader.readAsText(file);
-		})
-
 	}
 
 	getType(){

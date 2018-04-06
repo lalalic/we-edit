@@ -3,14 +3,29 @@ import PropTypes from "prop-types"
 import {Input,DOMAIN, ACTION} from "we-edit"
 
 const supports={}
+
+/**
+ * Loader is used to load document
+ *
+ */
 export default class Loader extends Component{
     static displayName="loader"
+    static propTypes={
+        type: PropTypes.string.isRequired,
+        reducer: PropTypes.func,
+        onLoad: PropTypes.func,
+    }
+
+    static defaultProps={
+        onLoad:a=>a
+    }
+
     static contextTypes={
         store:PropTypes.object
     }
 
     static support(loader){
-		supports[loader.type]=loader
+		supports[loader.defaultProps.type]=loader
 	}
 
 	static get supports(){
@@ -41,7 +56,7 @@ export default class Loader extends Component{
             if(this.constructor==Loader){
                 const {type, ...props}=this.props;
         		const Type=supports[type]
-                return <Type onLoad={this.onLoad.bind(this)} {...props}/>
+                return <Type {...props} onLoad={this.onLoad.bind(this)}/>
             }
         }
     }
@@ -49,12 +64,14 @@ export default class Loader extends Component{
     onLoad(file){
         Input.load(file)
             .then(doc=>{
+                const {onLoad, reducer,type}=this.props
                 if(this.isInWeEditDomain()){
-                    this.context.store.dispatch(ACTION.ADD(doc))
+                    this.context.store.dispatch(ACTION.ADD(doc,reducer))
                 }else{
                     this.setState({file,doc})
                 }
-                this.props.onOpen()
+                let {data,stream, ...props}=file
+                onLoad({type,...props})
             })
     }
 }

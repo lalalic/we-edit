@@ -93,7 +93,7 @@ export default class Dashboard extends PureComponent{
 							case "options":
 								return <OptionsUI/>
 							case "open":
-								return <OpenUI onOpen={dispear}/>
+								return <OpenUI onLoad={dispear} dispatch={dispatch}/>
 							}
 						})(action)
 					}

@@ -60,7 +60,7 @@ export default function buildEditableDoc(doc,inputTypeInstance){
 			)
 		}),
 
-		buildReducer(reducer){
+		buildReducer(reducer=a=>a){
 			let createElementFactory=createElementFactoryBuilder(inputTypeInstance)
 			let changeReducer=changeReducerBuilder(createElementFactory,inputTypeInstance)
 			let content=new Map().withMutations(a=>inputTypeInstance.render(createElementFactory(a),Components))
@@ -68,7 +68,7 @@ export default function buildEditableDoc(doc,inputTypeInstance){
 			let _reducer=undoable(changeReducer)
 			let INIT_STATE=createState(doc,content)
 
-			return (state=INIT_STATE,action={})=>_reducer(state,action)
+			return (state=INIT_STATE,action={})=>reducer(_reducer(state,action),action)
 		},
 
 		get name(){

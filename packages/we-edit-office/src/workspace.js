@@ -94,6 +94,9 @@ export default class Workspace extends PureComponent{
 	static propTypes={
 		toolBar:PropTypes.node,
 		statusBar: PropTypes.node,
+		debug: PropTypes.bool,
+		doc: PropTypes.object,
+		ruler: PropTypes.bool,
 	}
 
 	static defaultProps={
@@ -125,7 +128,7 @@ export default class Workspace extends PureComponent{
 	}
 
 	render(){
-		let {doc, children, toolBar, statusBar, ruler=true, fonts}=this.props
+		let {doc, children, toolBar, statusBar, ruler=true}=this.props
 		children=Children.toArray(children)
 		const {layout, scale}=this.state
 

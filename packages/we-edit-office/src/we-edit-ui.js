@@ -1,5 +1,6 @@
 import React, {PureComponent, Children} from "react"
 import PropTypes from "prop-types"
+
 import {connect} from "react-redux"
 import {compose,setDisplayName}  from "recompose"
 import minimatch from "minimatch"
@@ -14,7 +15,6 @@ import {getActive} from "we-edit"
 import {grey50 as BACKGROUND} from "material-ui/styles/colors"
 
 import "./style.less"
-
 
 const styles={
 	root:{

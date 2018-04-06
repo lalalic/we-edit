@@ -31,7 +31,7 @@ export default class Browser extends PureComponent{
         reader.onload=e=>{
             this.props.onLoad({
                 data:e.target.result,
-                type:file.type.split("/").pop(),
+                mimeType:file.type,
                 name:file.name
             })
         }
