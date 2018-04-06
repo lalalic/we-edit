@@ -20,7 +20,7 @@ export default {
 	},
 
 	create(type){
-		let Found=supported.find(TYPE=>TYPE.support(type))
+		let Found=supported.find(TYPE=>TYPE.getType()==type)
 		if(Found){
 			const inst=new Found()
 			return Promise.resolve(inst.create(type)).then(doc=>buildDoc(doc,inst))
@@ -36,5 +36,9 @@ export default {
 			}
 		})
 		return this
+	},
+
+	get supports(){
+		return [...supported]
 	}
 }

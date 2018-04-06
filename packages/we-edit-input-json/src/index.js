@@ -31,19 +31,19 @@ export default class JSONType extends Input.Editable{
 	static isPlainData(file){
 		return file.children
 	}
-	getType(){
+	static getType(){
 		return "json"
 	}
 
-	getTypeName(){
+	static getTypeName(){
 		return "WE document"
 	}
 
-	getTypeExt(){
-		return this.getDocumentType()
+	static getTypeExt(){
+		return this.getType()
 	}
 
-	getTypeMimeType(){
+	static getTypeMimeType(){
 		return "application/json"
 	}
 

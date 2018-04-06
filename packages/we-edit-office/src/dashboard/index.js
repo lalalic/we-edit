@@ -8,21 +8,16 @@ import Divider from 'material-ui/Divider';
 import {yellow500, gray100} from 'material-ui/styles/colors';
 
 import IconLogo from "material-ui/svg-icons/editor/border-color"
-import {getActive} from "we-edit"
-import * as File from "../file"
 
-import SaveUI from "./save"
+import {Save,Open,Create} from "../file"
 import OptionsUI from "./options"
-import OpenUI from "./open"
 
 export default class Dashboard extends PureComponent{
 	state={action:null, display: false}
 	render(){
 		const {display,action}=this.state
 		const dispear=()=>this.setState({display:false,action:null})
-		const {dispatch, active, zIndex, width=256}=this.props
-		const create=File.create(dispatch)
-		const save=File.save(dispatch,active)
+		const {active, zIndex, width=256}=this.props
 		return (
 			<div style={{zIndex,
 				position:"fixed",left:0,top:0,width:"100%",
@@ -38,7 +33,7 @@ export default class Dashboard extends PureComponent{
 						<Menu width={width} autoWidth={!width}>
 							<MenuItem
 								primaryText="New"
-								onClick={()=>Promise.resolve(create()).then(dispear,dispear)}
+								onClick={()=>this.setState({action:"create"})}
 								/>
 							<MenuItem
 								primaryText="Open"
@@ -73,34 +68,33 @@ export default class Dashboard extends PureComponent{
 
 						</Menu>
 				</Paper>
-				<div style={{flex:"1 100%", display:"flex", flexDirection:"column",backgroundColor:"lightgray"}}>
-					<div style={{flex:1}}>
-					{
-						(function(action){
-							if(!action)
-								return null
-							switch(action){
-							case "save":
-							case "saveAs":
-								return <SaveUI
-									active={active}
-									dispatch={dispatch}
-									onCancel={dispear}
-									onSave={option=>{
-										dispear()
-										save(option)
-									}}
-									/>
-							case "options":
-								return <OptionsUI/>
-							case "open":
-								return <OpenUI onLoad={dispear} dispatch={dispatch}/>
-							}
-						})(action)
-					}
-					</div>
-					<div onClick={dispear}
-						style={{width:"100%",flex:"1 100%"}}/>
+				<div style={{flex:"1 100%", backgroundColor:"lightgray"}}>
+				{
+					(function(action){
+						if(!action)
+							return null
+						switch(action){
+						case "create":
+							return <Create
+								onCancel={dispear}
+								onCreate={dispear}
+								/>
+						case "save":
+						case "saveAs":
+							return <Save
+								onCancel={dispear}
+								onSave={dispear}
+								/>
+						case "options":
+							return <OptionsUI/>
+						case "open":
+							return <Open
+								onCancel={dispear}
+								onLoad={dispear}
+								/>
+						}
+					})(action)
+				}
 				</div>
 			</div>
 		)

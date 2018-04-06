@@ -37,5 +37,18 @@ export function render(element){
 		}
 	}
     let render=TestRenderer.create(<Render/>)
-	return Promise.all(promises).then(()=>render.unmount())
+	return Promise.all(promises)
+		.then(()=>render.unmount())
+		.catch(as=>{
+			render.unmount()
+			let error=as.reduce((errors,a)=>{
+				if(a&&a.message){
+					errors.push(a)
+				}
+				return errors
+			},[])
+			if(error.length){
+				throw new Error(error.join("\r\n"));
+			}
+		})
 }

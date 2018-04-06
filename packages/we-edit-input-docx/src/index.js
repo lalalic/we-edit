@@ -20,18 +20,18 @@ export default class DocxType extends Input.Editable{
 		return false
 	}
 
-	getType(){
+	static getType(){
 		return "docx"
 	}
 
-	getTypeName(){
+	static getTypeName(){
 		return "Word Document"
 	}
-	getTypeExt(){
+	static getTypeExt(){
 		return this.getType()
 	}
 
-	getTypeMimeType(){
+	static getTypeMimeType(){
 		return "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 	}
 

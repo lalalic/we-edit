@@ -12,22 +12,37 @@ export class Viewable{
 		return false
 	}
 
-	getType(){
+	static getType(){
 		throw new Exception("You have to specify document type, such as docx")
 	}
 
-	getTypeName(){
+	static getTypeName(){
 		throw new Exception("You have to specify document type name, such as Word Document")
 	}
 
-	getTypeExt(){
+	static getTypeExt(){
 		throw new Exception("You have to specify document type ext, such as docx")
 	}
 
-	getTypeMimeType(){
+	static getTypeMimeType(){
 		throw new Exception("You have to specify document mime type, such as application/docx")
 	}
 
+	getType(){
+		return this.constructor.getType()
+	}
+
+	getTypeName(){
+		return this.constructor.getTypeName()
+	}
+
+	getTypeExt(){
+		return this.constructor.getTypeExt()
+	}
+
+	getTypeMimeType(){
+		return this.constructor.getTypeMimeType()
+	}
 
 	//doc=null//injected from load/create
 	load(url){
