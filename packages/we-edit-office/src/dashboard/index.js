@@ -84,6 +84,7 @@ export default class Dashboard extends PureComponent{
 							case "saveAs":
 								return <SaveUI
 									active={active}
+									dispatch={dispatch}
 									onCancel={dispear}
 									onSave={option=>{
 										dispear()

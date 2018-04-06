@@ -1,15 +1,35 @@
 import React, {PureComponent} from "react"
-import {Emitter, Stream} from "we-edit"
+import PropTypes from "prop-types"
+import {Emitter, Stream, getActive} from "we-edit"
 import {TextField, RaisedButton} from "material-ui"
 
 import ComboBox from "../components/combo-box"
+import ACTION from "../state/action"
 
 export default class SaveUI extends PureComponent{
+    static contextTypes={
+        store:PropTypes.object
+    }
+
     state={
-		format:this.props.active.type, 
+		format:this.props.active.type,
 		name: this.props.active.name,
-		stream: "browser"
+		stream: this.getLastStream().type
 	}
+
+    getLastStream(){
+        const {state}=getActive(this.context.store.getState())
+        let {stream={},loader}=state.get("office")
+        if(!stream.type){
+            if(loader && Emitter.supports[loader.type]){
+                stream={...loader}
+            }else{
+                stream={type:"browser"}
+            }
+        }
+        return stream
+    }
+
     getSupportedFormats(){
         let supports=Emitter.supports
         let formats=Object.keys(supports).filter(a=>!!a)
@@ -21,12 +41,12 @@ export default class SaveUI extends PureComponent{
         if(!supports[active.type]){
             formats.unshift({
 				text:`${active.typeName} (*.${active.typeExt})`,
-				value:active.type, 
+				value:active.type,
 			})
         }
         return formats
     }
-	
+
 	getSupportedStreams(){
 		let supports=Stream.supports
 		return Object.keys(supports).filter(a=>!!a)
@@ -57,8 +77,9 @@ export default class SaveUI extends PureComponent{
 					((type)=>{
 						let Type=Stream.supports[type]
 						if(Type && Type.SettingUI){
-							return <Type.SettingUI ref="stream" 
-							name={this.fixName(format,active.name)}/>
+							return <Type.SettingUI ref="stream"
+							name={this.fixName(format,active.name)}
+                            />
 						}
 					})(stream)
 				}
@@ -90,15 +111,13 @@ export default class SaveUI extends PureComponent{
             </div>
         )
     }
-	
+
 	save(){
-		const {format, stream}=this.state
-		this.props.onSave({
-			format, 
-			stream:{
-				...(this.refs.stream ? this.refs.stream.state :{}),
-				type:stream
-			}
-		})
+        const {onSave, dispatch}=this.props
+		let {format,stream}=this.state
+        stream={...(this.refs.stream ? this.refs.stream.state :{}), type:stream}
+		onSave({format,stream})
+        dispatch(ACTION.stream(stream))
+        dispatch(ACTION.format({type:format}))
 	}
 }
