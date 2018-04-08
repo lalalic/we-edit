@@ -31,3 +31,4 @@ export default class File extends PureComponent{
 export {default as Save} from "./save"
 export {default as Open} from "./open"
 export {default as Create} from "./create"
+export {default as Print} from "./print"

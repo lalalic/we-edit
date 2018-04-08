@@ -9,7 +9,7 @@ import {yellow500, gray100} from 'material-ui/styles/colors';
 
 import IconLogo from "material-ui/svg-icons/editor/border-color"
 
-import {Save,Open,Create} from "../file"
+import {Save,Open,Create,Print} from "../file"
 import OptionsUI from "./options"
 
 export default class Dashboard extends PureComponent{
@@ -91,6 +91,12 @@ export default class Dashboard extends PureComponent{
 							return <Open
 								onCancel={dispear}
 								onLoad={dispear}
+								/>
+						case "print":
+							return <Print
+								doc={active}
+								onCanncel={dispear}
+								onPrint={dispear}
 								/>
 						}
 					})(action)

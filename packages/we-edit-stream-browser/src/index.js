@@ -42,7 +42,8 @@ export default class Browser extends Writable{
     preview(target,windowFeatures){
 		let src=window.URL.createObjectURL(this.blob)
 		if(windowFeatures){
-			window.open(src,target||"we-edit-previewer",windowFeatures)
+			let winPreview=window.open(src,target||"we-edit-previewer",windowFeatures)
+			winPreview.addEventListener("beforeunload",()=>window.URL.revokeObjectURL(src))
 		}else{
 			let a=document.createElement("a")
 			let body=document.querySelector('body')
