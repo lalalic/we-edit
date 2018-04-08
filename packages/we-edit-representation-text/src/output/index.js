@@ -1,5 +1,3 @@
-import React, {PureComponent, Children} from "react"
-import PropTypes from "prop-types"
 import {Emitter} from "we-edit"
 import ReactDOMServer from "react-dom/server.node"
 

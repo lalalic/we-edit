@@ -31,7 +31,8 @@
     "we-edit-representation-html": "^3.0.0",
     "we-edit-representation-pagination": "^3.0.0",
     "we-edit-representation-text": "^3.0.0",
-    "we-edit-stream-browser":"^3.0.0"
+    "we-edit-stream-browser":"^3.0.0",
+	"we-edit-loader-browser":"^3.0.0"
   },
   "engines": {
     "node": ">=0.10.0"

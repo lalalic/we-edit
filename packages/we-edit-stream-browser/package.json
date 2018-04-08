@@ -6,9 +6,14 @@
     "name": "Raymond Li",
     "email": "lalalic@139.com"
   },
-  "dependencies": {},
+  "dependencies": {
+	"stream": "^0.0.2",
+    "prop-types": "^15.6.0"
+  },
   "peerDependencies": {
-    "we-edit": "^3.0.0"
+   "react": "^16.2.0",
+   "material-ui": "^0.19.4",
+   "we-edit": "^3.0.0"
   },
   "keywords": [
     "we-edit"

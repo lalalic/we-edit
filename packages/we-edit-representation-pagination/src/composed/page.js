@@ -78,7 +78,7 @@ export default class Page extends Component{
 				<Waypoint fireOnRapidScroll={false}
 						onEnter={e=>this.setState({display:true},onPageShow)}
 						onLeave={e=>this.setState({display:false},onPageHide)}>
-					<g className="page">
+					<g className="page" width={width} height={height}>
 						<Paper width={width} height={height} fill="white"/>
 						{contents}
 					</g>
@@ -86,9 +86,9 @@ export default class Page extends Component{
 			)
 		}else{
 			return(
-				<Group className="page" width={width} height={height}>
+				<g className="page" width={width} height={height}>
 					{contents}
-				</Group>
+				</g>
 			)
 		}
 	}

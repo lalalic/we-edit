@@ -12,8 +12,8 @@ export default class Group extends Component{
 			childIndex, type, contentWidth, ...others}=this.props
 		if(x||y)
 			others.transform=`translate(${x||0} ${y||0})`
-
-	 	if(Object.keys(others).length>0 || children.length>1){
+		
+		if(Object.keys(others).length>0 || children.length>1){
 			let now=Date.now()
 			children=Children.toArray(children).map((a,i)=>{
 				if(typeof(a.key)=="undefined")

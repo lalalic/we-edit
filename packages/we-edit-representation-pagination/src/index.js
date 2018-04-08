@@ -24,7 +24,7 @@ const createFontMeasureWithDefault=defaultFont=>{
 
 export {default as Output} from "./output"
 
-export default class Pagination extends Component{
+export class Pagination extends Component{
 	static displayName="pagination"
 	static propTypes={
 		type: PropTypes.string.isRequired,

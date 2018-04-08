@@ -1,6 +1,7 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
-import {Input,DOMAIN, ACTION} from "we-edit"
+import {DOMAIN, ACTION} from "./we-edit"
+import Input from "../input"
 
 const supports={}
 

@@ -7,7 +7,7 @@ import EditorTypes from "./edit"
 
 export {default as Output} from "./output"
 
-export default class Html extends Component{
+export class Html extends Component{
 	static displayName="html"
 	static propTypes={
 		type: PropTypes.string.isRequired

@@ -4,6 +4,8 @@ const resolve = require("rollup-plugin-node-resolve");
 const minify=require("rollup-plugin-uglify")
 const less =require('rollup-plugin-less')
 
+const nodeLibs="fs,stream,path".split(",")
+
 function config(project,format){
 	const _external=externals=>id=>!!externals.find(a=>id==a||id.startsWith(a+'/'))
 	const {dependencies={}, peerDependencies={}}=require(`./packages/${project}/package.json`)
@@ -21,6 +23,7 @@ function config(project,format){
 		  external:_external(
 			  Object.keys(dependencies)
 				.concat(Object.keys(peerDependencies))
+				.concat(nodeLibs)
 				.filter(a=>!!a)
 			),
 		  plugins: [
@@ -75,7 +78,7 @@ function config(project,format){
 		},
 		external:_external(
 			Object.keys(peerDependencies)
-				.concat(["fs","path"])
+				.concat(nodeLibs)
 				.filter(a=>!!a)
 		),
 		plugins:[

@@ -1,4 +1,3 @@
-import React, {Component} from "react"
 import PropTypes from "prop-types"
 import {Emitter} from "we-edit"
 import {Output} from "we-edit-representation-html"
