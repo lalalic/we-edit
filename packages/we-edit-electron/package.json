@@ -1,0 +1,28 @@
+{
+  "name": "we-office",
+  "productName":"WE Office",
+  "description": "we-office",
+  "version": "3.0.0",
+  "author": {
+    "name": "Raymond Li",
+    "email": "lalalic@139.com"
+  },
+  "keywords": [
+    "we-edit"
+  ],
+  "dependencies": {
+  },
+  "peerDependencies": {
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+	"package": "electron-packager"
+  },  
+  "files": [
+    "index.js",
+    "README.md"
+  ],
+  "readme": "README.md"
+}

@@ -4,6 +4,7 @@
     "packages/*"
   ],
   "name": "we-edit",
+  "productName": "WE Office",
   "description": "a text editor",
   "version": "3.0.0",
   "author": {
@@ -61,7 +62,7 @@
     "build.browser": "webpack --env=browser",
 	"build.electron": "webpack --env=electron",
     "build": "yarn rollup && yarn build.browser -p --env.prod --progress",
-	"package": "yarn rollup && yarn builld.electron && electron-packager ."
+	"package": "electron-packager"
   },
   "keywords": [
     "we-edit"

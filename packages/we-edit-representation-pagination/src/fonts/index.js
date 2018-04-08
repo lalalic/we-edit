@@ -13,7 +13,7 @@ const FontManager={
 			throw new Error(`font[${name}] not loaded`)
 		}
     },
-	names(){
+	get names(){
 		return Object.keys(fonts)
 			.filter(a=>!!fonts[a])
 			.map(a=>fonts[a].names.fontFamily.en)

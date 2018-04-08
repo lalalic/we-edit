@@ -29,3 +29,5 @@ node_modules
 .DS_Store
 
 dist/*.js
+
+*-win32-x64/
