@@ -80,6 +80,8 @@ export default class Saver extends PureComponent{
 	}
 
     fixName(format,name){
+		if(!name)
+			return name
         let Format=Emitter.supports[format]
         let ext=Format ? Format.defaultProps.ext : this.doc.typeExt
         if(name.indexOf(".")==-1)
@@ -117,15 +119,18 @@ export default class Saver extends PureComponent{
                         onClick={this.save.bind(this)}/>
                 </center>
             )
+		let supportedStreams=this.getSupportedStreams()
         return (
             <div style={{display:"flex", flexDirection:"column"}}>
-				<center style={{height:100, lineHeight:"100px"}}>
-                    <span>SaveTo:</span>
-                    <ComboBox
-                            value={stream.type}
-                            dataSource={this.getSupportedStreams()}
-                            onChange={type=>this.setState({stream:{...stream,type}})}/>
-                </center>
+				{supportedStreams.length>1 &&
+					(<center style={{height:100, lineHeight:"100px"}}>
+						<span>SaveTo:</span>
+						<ComboBox
+								value={stream.type}
+								dataSource={supportedStreams}
+								onChange={type=>this.setState({stream:{...stream,type}})}/>
+					</center>)
+				}
 				<div>
 				{typedStreamUI}
 				</div>

@@ -32,12 +32,14 @@ export default class Output extends Emitter.Format{
 	onopentag(name,attrs){
 		switch(name){
 			case 'svg':
+				this.onreset()
 				this.onDocument(attrs)
 			break
 			case 'g':
 				if(attrs.class=="page")
 					this.onPage(attrs)
-				this.onGroup(attrs)
+				else
+					this.onGroup(attrs)
 			break
 			case 'text':
 				this._currentText=attrs
@@ -98,7 +100,9 @@ export default class Output extends Emitter.Format{
 
 	onend(){
 		Promise.all(this._asyncJobs)
-			.then(()=>this.onDocumentEnd())
+			.then(()=>{
+				this.onDocumentEnd()
+			})
 	}
 
 	addAsyncJob(a){
@@ -106,15 +110,15 @@ export default class Output extends Emitter.Format{
 	}
 
 	onDocument(){
-		this.onreset()
+		
 	}
 
 	onDocumentEnd(){
-		this.onreset()
+		
 	}
 
-	onPage(){
-
+	onPage(attrs){
+		this.onGroup(attrs)
 	}
 
 	onImage(){

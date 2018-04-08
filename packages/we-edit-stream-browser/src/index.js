@@ -57,7 +57,7 @@ export default class Browser extends Writable{
 	get blob(){
 		switch(this.format){
 		case 'svg':
-			return new Blob(["<html><body>",...this.data, "</body></html>"],{type:"text/html"})
+			return new Blob(this.data,{type:"image/svg+xml"})
 		break
 		default:
 			return new Blob(this.data, {type:"application/"+this.format})
