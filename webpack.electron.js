@@ -1,8 +1,8 @@
 const path = require('path');
 const HtmlWebpackPlugin=require("html-webpack-plugin")
 
-module.exports=(base, packages)=>{
-	return {
+module.exports=(base, packages, args)=>{
+	let config={
 		...base,
 		entry:["./packages/we-edit-office/src/index.js"],
 		devtool: 'source-map',
@@ -17,4 +17,17 @@ module.exports=(base, packages)=>{
 		],
 		target:"electron-renderer",
 	}
+	
+	if(args.debug){
+		config.devServer={
+			contentBase: path.join(__dirname, "packages/we-edit-electron"),
+			compress: true,
+			port: 9092,
+			host:"0.0.0.0",
+			//disableHostCheck:true,
+			inline:true,
+			hot:false,
+		}
+	}
+	return config
 }

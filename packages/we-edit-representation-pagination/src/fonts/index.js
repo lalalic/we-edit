@@ -58,7 +58,7 @@ const FontManager={
 				}))
 			}
 			loader.value=""
-			Promise.all(loaded).then(resolve, reject)	
+			Promise.all([...loaded,Promise.resolve()]).then(resolve, reject)	
 		})
 	},
 	
@@ -94,7 +94,7 @@ const FontManager={
 							})
 						}).filter(a=>!!a)
 					
-					Promise.all(all).then(resolve,reject)
+					Promise.all([...all,Promise.resolve()]).then(resolve,reject)
 				}
 			})
 		})

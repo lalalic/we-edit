@@ -58,11 +58,11 @@
     "dev": "webpack-dev-server --env=dev",
     "del": "del-cli",
     "webpack": "webpack",
+	"webpack-dev": "webpack-dev-server ",
     "rollup": "node scripts/build.js",
-    "build.browser": "webpack --env=browser",
-	"build.electron": "webpack --env=electron",
-    "build": "yarn rollup && yarn build.browser -p --env.prod --progress",
-	"package": "electron-packager"
+    "build": "yarn rollup && yarn webpack --env=browser -p --env.prod --progress",
+	"package": "electron-packager packages/we-edit-electron",
+	"electron":"electron ./packages/we-edit-electron"
   },
   "keywords": [
     "we-edit"

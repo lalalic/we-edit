@@ -8,6 +8,7 @@ import ComboBox from "../components/combo-box"
 import {when} from "we-edit"
 
 const FontList=compose(
+	setDisplayName("FontList"),
 	getContext({muiTheme:PropTypes.object}),
 	withProps(({muiTheme:{fonts}})=>({fonts})),
 	when("fonts.loaded", fonts=>({fonts})),

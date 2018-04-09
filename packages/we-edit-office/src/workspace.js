@@ -114,9 +114,9 @@ export default class Workspace extends PureComponent{
 	}
 
 	getChildContext(){
-		const {debug}=this.props
+		const {debug,events=new EventEmitter()}=this.props
 		return {
-			events:new EventEmitter(),
+			events,
 			debug
 		}
 	}
@@ -191,8 +191,9 @@ export default class Workspace extends PureComponent{
 	}
 
 	setupHorizontalRuler(){
-		if(this.refs.rulerContainer){
-			this.refs.rulerContainer.style.width=this.refs.contentContainer.getBoundingClientRect().width+"px"
+		const {rulerContainer, contentContainer}=this.refs
+		if(rulerContainer && contentContainer){
+			rulerContainer.style.width=contentContainer.getBoundingClientRect().width+"px"
 		}
 	}
 

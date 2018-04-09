@@ -45,13 +45,26 @@ export default class FontMeasure extends Measure{
 			if(errors.length)
 				return Promise.reject(errors)
 		}
-		if(!service)
-			return Promise.resolve(done())
-
+		
 		if(isNode){
+			if(!service){//guess system fonts path
+				switch(process.platform){
+				case "win32":
+					service=`${process.env.SystemRoot}/fonts`.replace(/\\/g,"/")
+				break
+				case "darwin":
+				break
+				case "linux":
+				break
+				}
+			}
+
 			return Fonts.fromPath(service,fonts)
 				.then(done,done)
 		}else{
+			if(!service)
+				return Promise.resolve(done())
+
 			return Promise.all(fonts.map(a=>Fonts.load(`${service}${a}.ttf`,a)))
 				.then(done,done)
 		}

@@ -2,7 +2,7 @@ export class Measure{
     constructor(style){
 		const {fonts, size, color}=style
 		this.style=style
-		this.fontFamily=fonts
+		this.fontFamily=fonts.split(",").map(a=>a.trim()).filter(a=>!!a)[0]
 		this.size=size
 		const {height, descent}=this.lineHeight()
         this.height=Math.ceil(height)

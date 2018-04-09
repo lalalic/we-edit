@@ -8,7 +8,8 @@ export class Stream extends Component{
 	}
 	
 	static support(stream){
-		supports[stream.type]=stream
+		if(!stream.support || stream.support())
+			supports[stream.type]=stream
 	}
 	
 	static get supports(){

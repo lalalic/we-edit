@@ -54,7 +54,9 @@ export const when=(test,stateHandler)=>BaseComponent=>{
             super(...arguments)
             this.state={}
             if(this.context.events){
-                this.context.events.on(test,a=>this.setState(stateHandler(a,this.props)))
+                this.context.events.on(test,a=>{
+					this.setState(stateHandler(a,this.props))
+				})
             }
         }
 

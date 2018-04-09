@@ -35,11 +35,7 @@ export class Pagination extends Component{
 
 	static defaultProps={
 		type:"pagination",
-		defaultFont:"arial"
-	}
-
-	static contextTypes={
-		events: PropTypes.object
+		defaultFont:"Arial"
 	}
 
 	static childContextTypes={
@@ -47,11 +43,12 @@ export class Pagination extends Component{
 	}
 
 	static contextTypes={
-		doc: PropTypes.object
+		doc: PropTypes.object,
+		events: PropTypes.object
 	}
 
 	state={fontsLoaded:false}
-	componentWillMount(){
+	componentDidMount(){
 		const {defaultFont,measure,fonts}=this.props
 		this.Measure=isNode ? FontMeasure : measure||SVGMeasure
 		switch(this.Measure){
@@ -60,18 +57,19 @@ export class Pagination extends Component{
 				const requiredFonts=this.context.doc.getFontList()
 				const fontsLoaded=errors=>{
 					let fonts=Fonts.names
-					if(!fonts.includes(defaultFont)){
+					if(!fonts.find(a=>a.toLowerCase()==defaultFont.toLowerCase())){
 						console.warn(`default font[${defaultFont}] can't be loaded, set ${fonts[0]} as default`)
 						this.Measure=createFontMeasureWithDefault(fonts[0])
 					}
 
 					this.setState({fontsLoaded:true})
-					events.emit("fonts.loaded",Fonts.names)
+					this.emit("fonts.loaded",fonts)
 					if(errors.length){
 						console.warn("the following fonts with loading erorr: "+errors.join(","))
 					}
 				}
-				FontMeasure.requireFonts([defaultFont,...requiredFonts],fonts)
+				FontMeasure
+					.requireFonts([defaultFont,...requiredFonts],fonts)
 					.then(fontsLoaded,fontsLoaded)
 				break
 			}
@@ -100,7 +98,18 @@ export class Pagination extends Component{
 
 	componentWillUnmount(){
 		if(FontMeasure.isPrototypeOf(this.Measure)){
-			events.emit("fonts.unloaded")
+			this.emit("fonts.unloaded")
+		}
+	}
+	
+	emit(){
+		let events=this.context.events
+		if(events){
+			try{
+				events.emit(...arguments)
+			}catch(e){
+				console.error(e)
+			}
 		}
 	}
 }
