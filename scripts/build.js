@@ -20,6 +20,7 @@ const packages=(function(packages){
 		.sort()
 	ps.splice(ps.indexOf("we-edit-office"),1)
 	ps.push("we-edit-office")
+	ps.splice(ps.indexOf("we-edit-electron"),1)
 	return ps
 })(process.argv[3] ? process.argv[3].split(",").filter(a=>!!a) : undefined);
 

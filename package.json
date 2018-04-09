@@ -31,11 +31,11 @@
     "css-loader": "^0.28.9",
     "del": "^3.0.0",
     "del-cli": "^1.1.0",
+	"jest":"^22.0.0",
     "electron": "^1.8.4",
     "electron-packager": "^12.0.0",
     "filemanager-webpack-plugin": "^1.0.26",
     "html-webpack-plugin": "^3.0.7",
-    "jest": "^19.0.2",
     "lerna": "^2.9.0",
     "less": "^2.7.3",
     "less-loader": "^4.0.5",
@@ -54,15 +54,15 @@
     "webpack-dev-server": "^2.9.4"
   },
   "scripts": {
-    "test": "jest __tests__",
+    "test": "jest",
     "dev": "webpack-dev-server --env=dev",
     "del": "del-cli",
     "webpack": "webpack",
-	"webpack-dev": "webpack-dev-server ",
+    "webpack-dev": "webpack-dev-server ",
     "rollup": "node scripts/build.js",
     "build": "yarn rollup && yarn webpack --env=browser -p --env.prod --progress",
-	"package": "electron-packager packages/we-edit-electron",
-	"electron":"electron ./packages/we-edit-electron"
+    "package": "electron-packager packages/we-edit-electron",
+    "electron": "electron ./packages/we-edit-electron"
   },
   "keywords": [
     "we-edit"

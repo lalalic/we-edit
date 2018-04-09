@@ -1,12 +1,18 @@
 import React from "react"
-import {shallow, render, mount} from "enzyme"
-import Models, {Document, Section, Paragraph, Text} from "html"
+import TestRenderer from "react-test-renderer"
+
+import Document from "../src/document"
+import Section from "../src/section"
+import Paragraph from "../src/paragraph"
+import Text from "../src/text"
+
+const render=element=>TestRenderer.create(element).root
 
 describe("html", function(){
-	it("basic",function(){
+	fit("basic",function(){
 		let node=render(
 			<Document>
-				<Section>
+				<Section cols={{}}>
 					<Paragraph>
 						<Text>Hello</Text>
 					</Paragraph>

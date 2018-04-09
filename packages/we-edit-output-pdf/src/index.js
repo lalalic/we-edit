@@ -1,4 +1,3 @@
-import PropTypes from "prop-types"
 import {Emitter} from "we-edit"
 import {Output} from "we-edit-representation-pagination"
 import PDFDocument from "pdfkit"

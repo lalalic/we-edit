@@ -1,6 +1,5 @@
 import {Stream} from "we-edit"
 import {createWriteStream} from "fs"
-import isNode from "is-node"
 import path from "path"
 
 let current=0

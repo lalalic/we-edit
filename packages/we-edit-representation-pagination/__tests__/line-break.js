@@ -1,4 +1,4 @@
-import opportunities from "wordwrap/line-break"
+import opportunities from "../src/wordwrap/line-break"
 
 describe("opportunities", function(){
 	const text=[	"hello world ",
