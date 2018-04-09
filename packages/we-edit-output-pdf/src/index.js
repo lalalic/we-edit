@@ -5,13 +5,6 @@ import PDFDocument from "pdfkit"
 
 export default class PDF extends Output{
 	static displayName="PDF"
-	static propTypes={
-		type: PropTypes.string.isRequired,
-		name: PropTypes.string.isRequired,
-		ext: PropTypes.string.isRequired,
-		representation: PropTypes.string.isRequired,
-	}
-
 	static defaultProps={
 		type:"pdf",
 		name:"PDF Document",

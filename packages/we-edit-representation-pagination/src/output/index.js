@@ -11,6 +11,13 @@ export default class Output extends Emitter.Format{
 		...Emitter.Format.contextTypes,
 		addAsyncJob: PropTypes.func,
 	}
+	static propTypes={
+		type: PropTypes.string.isRequired,
+		name: PropTypes.string.isRequired,
+		ext: PropTypes.string.isRequired,
+		representation: PropTypes.string.isRequired,
+	}		
+	
 	render(){
 		const {pages}=this.props
 		let svgStream=ReactDOMServer.renderToStaticNodeStream(

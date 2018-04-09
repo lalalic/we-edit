@@ -48,7 +48,8 @@ export default class Emitter extends Viewer{
 
 	static defaultProps={
 		...Viewer.defaultProps,
-		media:"file"
+		media:"file",
+		domain:"view",
 	}
 
 	static support(Format){

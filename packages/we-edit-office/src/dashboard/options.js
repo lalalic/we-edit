@@ -1,7 +1,8 @@
-import React from "react"
+import React, {Component,Fragment} from "react"
+
 
 export default props=>(
-    <div>
-        put your options here!
+    <div style={{width:300}}>
+        
     </div>
 )

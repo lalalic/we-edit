@@ -37,10 +37,11 @@ export function render(element){
 		}
 	}
     let render=TestRenderer.create(<Render/>)
+	console.dir(render.toTree())
 	return Promise.all(promises)
-		.then(()=>render.unmount())
+		//.then(()=>render.unmount())
 		.catch(as=>{
-			render.unmount()
+			//render.unmount()
 			let error=as.reduce((errors,a)=>{
 				if(a&&a.message){
 					errors.push(a)

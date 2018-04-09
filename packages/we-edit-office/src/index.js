@@ -14,12 +14,12 @@ import "we-edit-output-svg"
 import "we-edit-output-input"
 
 import "we-edit-stream-browser"
-
 import "we-edit-loader-browser"
 
 
 import WeEditUI from "./we-edit-ui"
 import Workspace from "./workspace"
+
 
 import IconRead from "material-ui/svg-icons/communication/import-contacts"
 import IconPrint from "material-ui/svg-icons/editor/format-align-justify"
