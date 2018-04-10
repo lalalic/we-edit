@@ -19,10 +19,10 @@ import "we-edit-loader-stream-browser"
 const {Format}=Emitter
 
 describe("we-edit integration", function(){
-	const template=(format,)=>(
-		<Loader type="file" path={Path.resolve(__dirname, "test.docx")}>
+	const template=(format="svg")=>(
+		<Loader type="file" path={Path.resolve(__dirname, "basic.docx")}>
 			<Emitter>
-				<Stream type="file" path={Path.resolve(__dirname, "test.docx")}>
+				<Stream type="file" path={Path.resolve(__dirname, "test.svg")}>
 					<Format type={format}/>
 				</Stream>
 			</Emitter>

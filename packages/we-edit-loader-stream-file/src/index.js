@@ -1,7 +1,7 @@
-import React, {PureComponent} from "react"
+import {PureComponent} from "react"
 import PropTypes from "prop-types"
 import {Stream,Loader} from "we-edit"
-import {createWriteStream, readFile} from "fs"
+import {createWriteStream, readFile, basename} from "fs"
 import path from "path"
 
 let current=0
@@ -37,7 +37,7 @@ export class Reader extends PureComponent{
 	componentWillMount(){
 		const {path, onLoad}=this.props
 		readFile(path, (error,data)=>{
-			onLoad({data,path,error})
+			onLoad({data,path,error,name:basename(path)})
 		})
 	}
 	

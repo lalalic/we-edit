@@ -77,7 +77,7 @@ export class Writer extends Writable{
 	}
 }
 
-export default class Reader extends PureComponent{
+export class Reader extends PureComponent{
     static displayName="loader-browser"
     static propTypes={
         type: PropTypes.string.isRequired

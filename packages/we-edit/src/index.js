@@ -2,7 +2,7 @@ import "./tools/array-find-last"
 import TestRenderer from 'react-test-renderer'
 import React, {PureComponent} from "react"
 import PropTypes from "prop-types"
-import {default as Stream} from "./components/stream"
+import {Stream} from "./components/stream"
 
 export * from "./components"
 
