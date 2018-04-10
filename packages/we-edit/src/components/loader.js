@@ -59,6 +59,7 @@ export default class Loader extends Component{
             if(this.constructor==Loader){
                 const {type, ...props}=this.props;
         		const Type=supports[type]
+				console.assert(!!Type==true)
                 return <Type {...props} onLoad={this.onLoad.bind(this)}/>
             }
         }
@@ -74,8 +75,7 @@ export default class Loader extends Component{
 		}
 		
         return Input.load(file)
-            .then(doc=>{
-                
+            .then(doc=>{ 
                 if(this.isInWeEditDomain()){
                     this.context.store.dispatch(ACTION.ADD(doc,reducer))
                 }else{

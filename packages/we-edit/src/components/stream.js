@@ -54,7 +54,7 @@ export class Stream extends Component{
 			</Fragment>
 		)
 		
-		Promise.all(jobs).then(onFinish,onFinish)
+		Promise.all([...jobs,  Promise.resolve()]).then(onFinish,onFinish)
 		
 		return rendered
 	}

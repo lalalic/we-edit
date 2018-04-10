@@ -1,20 +1,20 @@
 import React from "react"
 import Path from "path"
-import {Loader, Emitter, Stream, render} from "we-edit"
-import "we-edit-representation-pagination"
-import "we-edit-representation-html"
-import "we-edit-representation-text"
-
-import "we-edit-input-docx"
-import "we-edit-input-json"
-
-import "we-edit-output-pdf"
-import "we-edit-output-html"
-import "we-edit-output-svg"
-import "we-edit-output-input"
-
-import "we-edit-loader-stream-file"
-import "we-edit-loader-stream-browser"
+import {Loader, Emitter, Stream, render} from "../packages/we-edit/src"
+import "../packages/we-edit-representation-pagination/src"
+import "../packages/we-edit-representation-html/src"
+import "../packages/we-edit-representation-text/src"
+        
+import "../packages/we-edit-input-docx/src"
+import "../packages/we-edit-input-json/src"
+        
+import "../packages/we-edit-output-pdf/src"
+import "../packages/we-edit-output-html/src"
+import "../packages/we-edit-output-svg/src"
+import "../packages/we-edit-output-input/src"
+        
+import "../packages/we-edit-loader-stream-file/src"
+import "../packages/we-edit-loader-stream-browser/src"
 
 const {Format}=Emitter
 

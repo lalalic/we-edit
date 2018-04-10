@@ -1,12 +1,12 @@
 import {PureComponent} from "react"
 import PropTypes from "prop-types"
 import {Stream,Loader} from "we-edit"
-import {createWriteStream, readFile, basename} from "fs"
-import path from "path"
+import {createWriteStream, readFile} from "fs"
+import {dirname, basename} from "path"
 
 let current=0
 const counter=({format})=>`${current++}.${format}`
-const support=()=>createWriteStream && readFile && path
+const support=()=>createWriteStream && readFile
 export class Writer{
     static type="file"
 	static support=support
@@ -37,7 +37,7 @@ export class Reader extends PureComponent{
 	componentWillMount(){
 		const {path, onLoad}=this.props
 		readFile(path, (error,data)=>{
-			onLoad({data,path,error,name:basename(path)})
+			onLoad({data,path:dirname(path),error,name:basename(path)})
 		})
 	}
 	
