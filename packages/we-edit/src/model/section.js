@@ -40,8 +40,7 @@ export default class Section extends Component{
 
 			header: 48,
 			footer: 48
-		},
-		cols:{}
+		}
 	}
 
 	static childContextTypes={

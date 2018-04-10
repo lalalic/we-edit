@@ -9,20 +9,6 @@ import Text from "../src/text"
 const render=element=>TestRenderer.create(element).root
 
 describe("html", function(){
-	fit("basic",function(){
-		let node=render(
-			<Document>
-				<Section cols={{}}>
-					<Paragraph>
-						<Text>Hello</Text>
-					</Paragraph>
-				</Section>
-			</Document>
-		)
-		expect(node.find("article,section,p,span").length).toBe(4)
-		expect(node.find("span").text()).toBe("Hello")
-	})
-	
 	it("basic",function(){
 		let node=render(
 			<Document>
@@ -31,14 +17,36 @@ describe("html", function(){
 						<Text>Hello</Text>
 					</Paragraph>
 				</Section>
+			</Document>
+		)
+		
+		"article,section,p,span"
+			.split(",")
+			.forEach(a=>expect(node.findAllByType(a).length).toBe(1))
+
+		expect(node.find(a=>a.type=="span").props.children).toBe("Hello")
+	})
+	
+	it("basic",function(){
+		let node=render(
+			<Document>
 				<Section>
 					<Paragraph>
-						<Text>Hello</Text>
+						<Text>Hello0</Text>
+					</Paragraph>
+				</Section>
+				<Section>
+					<Paragraph>
+						<Text>Hello1</Text>
 					</Paragraph>
 				</Section>
 			</Document>
 		)
-		expect(node.find("article,section,p,span").length).toBe(7)
-		expect(node.find("span").text()).toBe("HelloHello")
+		expect(node.findAllByType("article").length).toBe(1)
+		"section,p,span"
+			.split(",")
+			.forEach(a=>expect(node.findAllByType(a).length).toBe(2))
+		node.findAllByType("span")
+			.forEach((a,i)=>expect(a.props.children).toBe(`Hello${i}`))
 	})
 })

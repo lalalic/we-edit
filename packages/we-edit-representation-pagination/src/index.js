@@ -50,7 +50,7 @@ export class Pagination extends Component{
 	state={fontsLoaded:false}
 	componentWillMount(){
 		const {defaultFont,measure,fonts}=this.props
-		this.Measure=isNode ? FontMeasure : measure||SVGMeasure
+		this.Measure=measure||(isNode ? FontMeasure : SVGMeasure)
 		switch(this.Measure){
 			case FontMeasure:{
 				this.Measure=createFontMeasureWithDefault(defaultFont)
