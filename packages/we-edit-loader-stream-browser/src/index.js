@@ -1,15 +1,25 @@
+import React, {PureComponent} from "react"
 import {Writable} from "stream"
-import {Stream} from "we-edit"
+import {Stream, Loader} from "we-edit"
 
 import Setting from "./setting"
+const support=()=>{
+	try{
+		window.URL.createObjectURL && document.createElement
+		return true
+	}catch(e){
+		return false
+	}
+}
 /**
 * options:
 * name: only for download
 * target: show on iframe/window
 */
-export default class Browser extends Writable{
+export class Writer extends Writable{
     static type="browser"
 	static SettingUI=Setting
+	static support=support
     constructor({name, target,format,windowFeatures}){
         super({})
 		this.format=format
@@ -66,4 +76,44 @@ export default class Browser extends Writable{
 	}
 }
 
-Stream.support(Browser)
+export default class Reader extends PureComponent{
+    static displayName="loader-browser"
+    static propTypes={
+        type: PropTypes.string.isRequired
+    }
+
+    static defaultProps={
+        type:"browser"
+    }
+	static support=support
+
+    render(){
+        return <input ref="input"
+            type="file"
+            onChange={({target})=>{
+                this.select(target.files[0])
+                target.value=""
+            }}
+            style={{position:"fixed", left:-9999}}/>
+    }
+
+    componentDidMount(){
+        this.refs.input.click()
+    }
+
+    select(file){
+        let reader=new FileReader()
+        reader.onload=e=>{
+            this.props.onLoad({
+                data:e.target.result,
+                mimeType:file.type,
+                name:file.name
+            })
+        }
+        reader.readAsArrayBuffer(file)
+    }
+}
+
+Loader.support(Reader)
+Stream.support(Writer)
+

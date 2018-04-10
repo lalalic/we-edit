@@ -63,7 +63,7 @@ export default class Loader extends Component{
     }
 
     onLoad(file){
-        Input.load(file)
+        return Input.load(file)
             .then(doc=>{
                 const {onLoad, reducer,type}=this.props
                 if(this.isInWeEditDomain()){

@@ -13,9 +13,8 @@ import "we-edit-output-html"
 import "we-edit-output-svg"
 import "we-edit-output-input"
 
-import "we-edit-stream-browser"
-import "we-edit-loader-browser"
-
+import "we-edit-loader-stream-browser"
+import "we-edit-loader-stream-file"
 
 import WeEditUI from "./we-edit-ui"
 import Workspace from "./workspace"
