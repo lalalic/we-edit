@@ -33,7 +33,9 @@ export default class extends PureComponent{
                     onLoad={
                         loader=>{
                             onLoad()
-                            this.context.store.dispatch(ACTION.loader(loader))
+							if(loader){
+								this.context.store.dispatch(ACTION.loader(loader))
+							}
                         }
                     }
                     reducer={reducer}

@@ -3,13 +3,15 @@ import PropTypes from "prop-types"
 
 const supports={}
 export class Stream extends Component{
-	static contextTypes={
-		addAsyncJob: PropTypes.func
+	static propTypes={
+		type: PropTypes.string,
+		onFinish: PropTypes.func,
 	}
 	
 	static support(stream){
-		if(!stream.support || stream.support())
+		if(!stream.support || stream.support()){
 			supports[stream.type]=stream
+		}
 	}
 	
 	static get supports(){
@@ -21,8 +23,8 @@ export class Stream extends Component{
 	}
 
 	render(){
-		const {type, children, ...props}=this.props
-		const {addAsyncJob}=this.context
+		const {type, children, onFinish=a=>a, ...props}=this.props
+
 		const Type=supports[type]
 		const jobs=[]
 		let rendered=(
@@ -42,7 +44,7 @@ export class Stream extends Component{
 					}
 					jobs.push(
 						new Promise((resolve,reject)=>{
-							stream.on("finish",()=>resolve())
+							stream.on("finish",resolve)
 							stream.on("error",reject)
 						})
 					)
@@ -52,8 +54,7 @@ export class Stream extends Component{
 			</Fragment>
 		)
 		
-		if(addAsyncJob)
-			addAsyncJob(Promise.all(jobs))
+		Promise.all(jobs).then(onFinish,onFinish)
 		
 		return rendered
 	}

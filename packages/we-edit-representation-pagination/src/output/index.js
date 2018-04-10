@@ -9,7 +9,6 @@ import Page from "../composed/page"
 export default class Output extends Emitter.Format{
 	static contextTypes={
 		...Emitter.Format.contextTypes,
-		addAsyncJob: PropTypes.func,
 	}
 	static propTypes={
 		type: PropTypes.string.isRequired,

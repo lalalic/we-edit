@@ -20,8 +20,9 @@
   "scripts": {
 	"package": "electron-packager"
   },  
+  "main":"dist/index.js",
   "files": [
-    "index.js",
+    "dist/index.js",
     "README.md"
   ],
   "readme": "README.md"

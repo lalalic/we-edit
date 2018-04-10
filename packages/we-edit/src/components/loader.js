@@ -26,7 +26,9 @@ export default class Loader extends Component{
     }
 
     static support(loader){
-		supports[loader.defaultProps.type]=loader
+		if(!loader.support || loader.support()){
+			supports[loader.defaultProps.type]=loader
+		}
 	}
 
 	static get supports(){
@@ -62,10 +64,18 @@ export default class Loader extends Component{
         }
     }
 
-    onLoad(file){
+    onLoad({error, ...file}){
+		const {onLoad, reducer,type}=this.props
+		if(error){
+			this.context.store
+				.dispatch(ACTION.MESSAGE({type:"error", message:error.message}))
+			onLoad()
+			return 
+		}
+		
         return Input.load(file)
             .then(doc=>{
-                const {onLoad, reducer,type}=this.props
+                
                 if(this.isInWeEditDomain()){
                     this.context.store.dispatch(ACTION.ADD(doc,reducer))
                 }else{

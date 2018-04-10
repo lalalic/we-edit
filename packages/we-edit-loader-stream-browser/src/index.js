@@ -1,4 +1,5 @@
 import React, {PureComponent} from "react"
+import PropTypes from "prop-types"
 import {Writable} from "stream"
 import {Stream, Loader} from "we-edit"
 

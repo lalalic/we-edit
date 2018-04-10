@@ -2,6 +2,7 @@ import "./tools/array-find-last"
 import TestRenderer from 'react-test-renderer'
 import React, {PureComponent} from "react"
 import PropTypes from "prop-types"
+import {default as Stream} from "./components/stream"
 
 export * from "./components"
 
@@ -18,30 +19,39 @@ export {editify} from "./model/edit"
 
 export {default as models} from "./model"
 
-
 export function render(element){
 	let promises=[]
-	class Render extends PureComponent{
-		static childContextTypes={
-			addAsyncJob: PropTypes.func
-		}
-		getChildContext(){
-			return {
-				addAsyncJob(p){
-					promises.push(p.catch(e=>e))
-				}
+    let render=TestRenderer.create(element,{
+		createNodeMock(el){
+			if(el.type==Stream){
+				let onFinishWithPromise=null
+				
+				promises.push(
+					new Promise((resolve, reject)=>{
+						const {onFinish=a=>a}=el.props
+						onFinishWithPromise=e=>{
+							onFinish(...arguments)
+							if(e){
+								reject(e)
+							}else{
+								resolve()
+							}
+						}
+					})
+				)
+				
+				return React.cloneElement(el,{
+						onFinish:onFinishWithPromise
+					})
 			}
+			return el
 		}
-		render(){
-			return element
-		}
-	}
-    let render=TestRenderer.create(<Render/>)
-	console.dir(render.toTree())
+	})
+
 	return Promise.all(promises)
-		//.then(()=>render.unmount())
+		.then(()=>render.unmount())
 		.catch(as=>{
-			//render.unmount()
+			render.unmount()
 			let error=as.reduce((errors,a)=>{
 				if(a&&a.message){
 					errors.push(a)

@@ -1,4 +1,5 @@
 import React, {PureComponent} from "react"
+import PropTypes from "prop-types"
 import {Stream,Loader} from "we-edit"
 import {createWriteStream, readFile} from "fs"
 import path from "path"
@@ -31,23 +32,12 @@ export class Reader extends PureComponent{
         type:"file"
     }
 	
-	static contextTypes={
-		addAsyncJob: PropTypes.func
-	}
-	
 	static support=support
 	
 	componentWillMount(){
 		const {path, onLoad}=this.props
-		const {addAsyncJob=a=>a}=this.context
-		readFile(path, (e,data)=>{
-			addAsyncJob(new Promise((resolve,reject)=>{
-				if(e){
-					reject(e)
-				}else{
-					resolve(onLoad({data,path}))
-				}
-			})
+		readFile(path, (error,data)=>{
+			onLoad({data,path,error})
 		})
 	}
 	
