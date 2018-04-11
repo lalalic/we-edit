@@ -24,16 +24,17 @@ describe("we-edit integration", function(){
 		<Loader type="file" path={Path.resolve(__dirname, "basic.docx")} 
 			readonly={true} release={true}>
 			<Emitter>
-				<Stream type="file" path={Path.resolve(__dirname,"test.svg")}>
+				<Stream type="file" 
+					path={Path.resolve(__dirname)} 
+					name={({format})=>`test.${format}`}
+					>
 					<Format type={format}/>
-				</Stream>
-				
-				<Stream type="file" path={Path.resolve(__dirname,"test.pdf")}>
 					<Format type="pdf"/>
+					<Format type="html"/>
 				</Stream>
 			</Emitter>
 		</Loader>
 	)
 	
-	it("",()=>render(template()), 10000)
+	it("",()=>render(template()))
 })

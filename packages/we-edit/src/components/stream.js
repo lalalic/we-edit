@@ -32,7 +32,7 @@ export class Stream extends Component{
 
 	render(){
 		const {type, children, onFinish, ...props}=this.props
-
+		const {path,name,...formatProps}=props
 		const Type=supports[type]
 		const jobs=[]
 		let rendered=(
@@ -56,7 +56,7 @@ export class Stream extends Component{
 							stream.on("error",resolve)
 						})
 					)
-					return React.cloneElement(format,{key,...props,stream})
+					return React.cloneElement(format,{key,...formatProps,stream})
 				})
 			}
 			</Fragment>
