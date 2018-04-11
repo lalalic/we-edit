@@ -1,8 +1,6 @@
 {
   "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": ["packages/*"],
   "name": "we-edit",
   "productName": "WE Office",
   "description": "a text editor",

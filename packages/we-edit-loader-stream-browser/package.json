@@ -1,5 +1,5 @@
 {
-  "name": "we-edit-stream-browser",
+  "name": "we-edit-loader-stream-browser",
   "description": "browser stream to emit a download file",
   "version": "3.0.0",
   "author": {

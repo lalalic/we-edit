@@ -1,6 +1,7 @@
 import {Emitter} from "we-edit"
 import {Output} from "we-edit-representation-pagination"
 import PDFDocument from "pdfkit"
+import "isomorphic-fetch"
 
 export default class PDF extends Output{
 	static displayName="PDF"

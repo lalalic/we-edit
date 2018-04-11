@@ -112,7 +112,7 @@ export default class Output extends Emitter.Format{
 	}
 
 	addAsyncJob(a){
-		this._asyncJobs.push(a.catch(e=>console.error(e)))
+		this._asyncJobs.push(a.catch(e=>e))
 	}
 
 	onDocument(){

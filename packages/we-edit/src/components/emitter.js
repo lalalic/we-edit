@@ -53,7 +53,9 @@ export default class Emitter extends Viewer{
 	}
 
 	static support(Format){
-		supports[Format.defaultProps.type]=Format
+		const type=Format.defaultProps.type
+		supports[type]=Format
+		console.log(`Format[${type}] installed`)
 	}
 
 	static get supports(){
@@ -132,7 +134,7 @@ export default class Emitter extends Viewer{
 		return represents
 	}
 
-	static Format=class extends PureComponent{
+	static Format=class Format extends PureComponent{
 		static displayName="Format"
 		static childContextTypes={
 			media:PropTypes.string	

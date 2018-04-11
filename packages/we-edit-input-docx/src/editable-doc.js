@@ -1,5 +1,6 @@
 import docx4js from "docx4js"
 import editors from "./model/edit"
+import isNode from "is-node"
 
 let _uuid=0
 const uuid=()=>`${_uuid++}`
@@ -14,6 +15,35 @@ const defineId=(target,id)=>Object.defineProperty(target,"id",{
 const Type=type=>type[0].toUpperCase()+type.substr(1)
 
 export default class EditableDocument extends docx4js{
+	createObjectURL(data){
+		if(isNode){
+			let path="c:/work/temp/"+Date.now()
+			require("fs").writeFileSync(path, data, null)
+			return "file:///"+path
+		}else if(typeof(URL)!="undefined" && URL.createObjectURL){
+			return URL.createObjectURL(new Blob([this.getDataPart(name)],{type}))
+		}
+	}
+	
+	getDataPartAsUrl(name,type="*/*"){
+		let part=this.parts[name]
+		let crc32=part._data.crc32
+		if(!this._shouldReleased.has(crc32)){
+			this._shouldReleased.set(crc32,this.createObjectURL(this.getDataPart(name)))
+		}
+		return this._shouldReleased.get(crc32)
+	}
+
+	release(){
+		for(let [, url] of this._shouldReleased){
+			if(isNode){
+				
+			}else{
+				URL.revokeObjectURL(url)
+			}
+		}
+	}
+	
 	makeId(node, uid){
 		if(uid){
 			defineId(node.attribs,uid)

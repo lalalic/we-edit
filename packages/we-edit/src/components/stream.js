@@ -8,9 +8,17 @@ export class Stream extends Component{
 		onFinish: PropTypes.func,
 	}
 	
+	static defaultProps={
+		onFinish:a=>a
+	}
+	
 	static support(stream){
+		const type=stream.type
 		if(!stream.support || stream.support()){
-			supports[stream.type]=stream
+			console.log(`stream[${type}] installed`)
+			supports[type]=stream
+		}else{
+			console.log(`stream[${type}] discarded because of not supported environment`)
 		}
 	}
 	
@@ -23,7 +31,7 @@ export class Stream extends Component{
 	}
 
 	render(){
-		const {type, children, onFinish=a=>a, ...props}=this.props
+		const {type, children, onFinish, ...props}=this.props
 
 		const Type=supports[type]
 		const jobs=[]
@@ -45,7 +53,7 @@ export class Stream extends Component{
 					jobs.push(
 						new Promise((resolve,reject)=>{
 							stream.on("finish",resolve)
-							stream.on("error",reject)
+							stream.on("error",resolve)
 						})
 					)
 					return React.cloneElement(format,{key,...props,stream})
@@ -53,8 +61,7 @@ export class Stream extends Component{
 			}
 			</Fragment>
 		)
-		
-		Promise.all([...jobs,  Promise.resolve()]).then(onFinish,onFinish)
+		Promise.all(jobs).then(onFinish,onFinish)
 		
 		return rendered
 	}
@@ -68,7 +75,10 @@ export class Stream extends Component{
 
 import {Writable} from "stream"
 class ConsoleStream extends Writable{
+	static type="console"
 	_write(chunk){
 		console.log(chunk)
 	}
 }
+
+Stream.support(ConsoleStream)

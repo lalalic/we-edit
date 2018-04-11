@@ -26,8 +26,13 @@ export default class Loader extends Component{
     }
 
     static support(loader){
+		let type=loader.defaultProps.type
+		
 		if(!loader.support || loader.support()){
-			supports[loader.defaultProps.type]=loader
+			console.log(`loader[${type}] installed`)
+			supports[type]=loader
+		}else{
+			console.log(`loader[${type}] discarded because of not supported environment`)
 		}
 	}
 
@@ -54,11 +59,16 @@ export default class Loader extends Component{
 	render(){
         const {file,doc}=this.state
         if(!this.isInWeEditDomain() && file && doc){
-            return <doc.Store>{this.props.children}</doc.Store>
+			const {readonly,release}=this.props
+            return <doc.Store {...{readonly,release}}>{this.props.children}</doc.Store>
         }else{
             if(this.constructor==Loader){
                 const {type, ...props}=this.props;
         		const Type=supports[type]
+				if(!Type){
+					console.error(`loader[${type}] not installed`)
+					return null
+				}
 				console.assert(!!Type==true)
                 return <Type {...props} onLoad={this.onLoad.bind(this)}/>
             }
@@ -68,8 +78,12 @@ export default class Loader extends Component{
     onLoad({error, ...file}){
 		const {onLoad, reducer,type}=this.props
 		if(error){
-			this.context.store
-				.dispatch(ACTION.MESSAGE({type:"error", message:error.message}))
+			if(this.isInWeEditDomain()){
+				this.context.store
+					.dispatch(ACTION.MESSAGE({type:"error", message:error.message}))
+			}else{
+				throw error
+			}
 			onLoad()
 			return 
 		}
@@ -79,7 +93,7 @@ export default class Loader extends Component{
                 if(this.isInWeEditDomain()){
                     this.context.store.dispatch(ACTION.ADD(doc,reducer))
                 }else{
-                    this.setState({file,doc})
+                    this.setState({file,doc},()=>this.forceUpdate())
                 }
                 let {data,stream, ...props}=file
                 onLoad({type,...props})

@@ -1,6 +1,7 @@
 import PropTypes from "prop-types"
 import {Emitter} from "we-edit"
 import {Output} from "we-edit-representation-pagination"
+import "isomorphic-fetch"
 
 
 export default class SVG extends Output{
@@ -106,6 +107,7 @@ export default class SVG extends Output{
 					stream.write('/>')
 					stream.write(`</defs>`)
 				})
+
 			this.addAsyncJob(job)
 		}
 	}
