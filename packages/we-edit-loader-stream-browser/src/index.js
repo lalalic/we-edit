@@ -25,6 +25,7 @@ export class Writer extends Writable{
         super({})
 		this.format=format
 		this.data=[]
+		this.name="[browser]"
         this.on("finish",()=>{
             if(name){
                 this.download(name.indexOf(".")!=-1 ? name : `${name}.${format}`)

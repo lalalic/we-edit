@@ -46,20 +46,21 @@ export default function render(element){
 		overall
 			.catch(e=>{
 				render.unmount()
-				reject(e)
+				reject([e])
 			})
 
 		Promise.all(promises)
 			.then(results=>{
 				render.unmount()
 				
-				let errors=results.reduce((flat,a)=>[...flat,...a],[])
+				results=results.reduce((flat,a)=>[...flat,...a],[])
 					.filter(a=>!!a)
-					.filter(a=>a instanceof Error)
+					
+				let errors=results.filter(a=>a instanceof Error)
 				if(errors.length){
-					reject(errors)
+					reject(errors,results.filter(a=>!(a instanceof Error)))
 				}else{
-					resolve()
+					resolve(results)
 				}
 			})
 	})

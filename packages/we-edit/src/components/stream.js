@@ -52,7 +52,7 @@ export class Stream extends Component{
 					}
 					jobs.push(
 						new Promise((resolve,reject)=>{
-							stream.on("finish",resolve)
+							stream.on("finish",()=>resolve(stream.name))
 							stream.on("error",resolve)
 						})
 					)

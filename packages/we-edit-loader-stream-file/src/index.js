@@ -32,7 +32,7 @@ export class Writer{
 	
     constructor(props){
         const {path,name}=resolvePathName(props)
-		return createWriteStream(resolve(path,name))
+		return createWriteStream(this.name=resolve(path,name))
     }
 }
 
