@@ -29,8 +29,6 @@ describe("we-edit integration", function(){
 					name={({format})=>`test.${format}`}
 					>
 					<Format type={format}/>
-					<Format type="pdf"/>
-					<Format type="html"/>
 				</Stream>
 			</Emitter>
 		</Loader>

@@ -1,9 +1,8 @@
 import docx4js from "docx4js"
 import editors from "./model/edit"
-import isNode from "is-node"
+import Fetchable from "fetchable"
 
-let _uuid=0
-const uuid=()=>`${_uuid++}`
+const uuid=(_uuid=>()=>`${_uuid++}`)(0)
 
 const defineId=(target,id)=>Object.defineProperty(target,"id",{
 	enumerable: false,
@@ -13,34 +12,35 @@ const defineId=(target,id)=>Object.defineProperty(target,"id",{
 })
 
 const Type=type=>type[0].toUpperCase()+type.substr(1)
-
+	
 export default class EditableDocument extends docx4js{
-	createObjectURL(data){
-		if(isNode){
-			let path="c:/work/temp/"+Date.now()
-			require("fs").writeFileSync(path, data, null)
-			return "file:///"+path
-		}else if(typeof(URL)!="undefined" && URL.createObjectURL){
-			return URL.createObjectURL(new Blob([this.getDataPart(name)],{type}))
+	static get URL(){
+		if(!this.__cachedData){
+			this.__cachedData=new Fetchable("docx-memory")
 		}
+		return this.__cachedData
+	}
+	
+	createObjectURL(data,type){
+		return EditableDocument.URL.createObjectURL(...arguments)
+	}
+	
+	revokeObjectURL(url){
+		return EditableDocument.URL.revokeObjectURL(...arguments)
 	}
 	
 	getDataPartAsUrl(name,type="*/*"){
 		let part=this.parts[name]
 		let crc32=part._data.crc32
 		if(!this._shouldReleased.has(crc32)){
-			this._shouldReleased.set(crc32,this.createObjectURL(this.getDataPart(name)))
+			this._shouldReleased.set(crc32,this.createObjectURL(this.getDataPart(name),type))
 		}
 		return this._shouldReleased.get(crc32)
 	}
 
 	release(){
 		for(let [, url] of this._shouldReleased){
-			if(isNode){
-				
-			}else{
-				URL.revokeObjectURL(url)
-			}
+			this.revokeObjectURL(url)
 		}
 	}
 	
@@ -153,3 +153,5 @@ export default class EditableDocument extends docx4js{
 		return this.officeDocument.content.xml(this.getNode(id))
 	}
 }
+
+
