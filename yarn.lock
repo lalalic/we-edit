@@ -5007,9 +5007,9 @@ left-pad@^1.2.0:
   version "1.3.0"
   resolved "http://registry.npm.taobao.org/left-pad/download/left-pad-1.3.0.tgz#5b8a3a7765dfe001261dde915589e782f8c94d1e"
 
-lerna@^2.9.0:
-  version "2.9.0"
-  resolved "http://registry.npm.taobao.org/lerna/download/lerna-2.9.0.tgz#303f70bc50b1c4541bdcf54eda13c36fe54401f3"
+lerna@^2.10.1:
+  version "2.10.1"
+  resolved "http://registry.npm.taobao.org/lerna/download/lerna-2.10.1.tgz#3b0ffe6b80d3312e8efdc7003a50d47d90ebdf03"
   dependencies:
     async "^1.5.0"
     chalk "^2.1.0"
