@@ -13,7 +13,8 @@
     "recompose": "^0.26.0",
 	"lodash.get": "^4.4.2",
 	"lodash.invoke": "^4.5.2",
-	"stream": "^0.0.2"
+	"stream": "^0.0.2",
+	"fetchable":"^1.0.0"
   },
   "peerDependencies":{
 	"react": "^16.2.0",

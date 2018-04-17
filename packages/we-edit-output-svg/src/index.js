@@ -1,8 +1,6 @@
 import PropTypes from "prop-types"
 import {Emitter} from "we-edit"
 import {Output} from "we-edit-representation-pagination"
-import "isomorphic-fetch"
-
 
 export default class SVG extends Output{
 	static displayName="SVG"
@@ -59,7 +57,7 @@ export default class SVG extends Output{
 		`)
 	}
 
-	onDocumentEnd(){
+	onDocumentEnd(e){
 		this.props.stream.end('</svg>')
 	}
 

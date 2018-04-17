@@ -1,4 +1,6 @@
+import "fetch-any"
 import "./tools/array-find-last"
+
 export * from "./components"
 
 export {ACTION, DOMAIN, reducer, getActive} from "./components/we-edit"
@@ -15,4 +17,6 @@ export {editify} from "./model/edit"
 export {default as models} from "./model"
 
 export {default as render} from "./render"
+
+
 

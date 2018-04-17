@@ -1,6 +1,8 @@
 {
   "private": true,
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/*"
+  ],
   "name": "we-edit",
   "productName": "WE Office",
   "description": "a text editor",
@@ -29,12 +31,12 @@
     "css-loader": "^0.28.9",
     "del": "^3.0.0",
     "del-cli": "^1.1.0",
-	"jest":"^22.0.0",
     "electron": "^1.8.4",
     "electron-packager": "^12.0.0",
     "filemanager-webpack-plugin": "^1.0.26",
     "html-webpack-plugin": "^3.0.7",
-    "lerna": "^2.9.0",
+    "jest": "^22.0.0",
+    "lerna": "^2.10.1",
     "less": "^2.7.3",
     "less-loader": "^4.0.5",
     "neo-async": "^2.5.0",
@@ -60,7 +62,8 @@
     "rollup": "node scripts/build.js",
     "build": "yarn rollup && yarn webpack --env=browser -p --env.prod --progress",
     "package": "electron-packager packages/we-edit-electron",
-    "electron": "electron ./packages/we-edit-electron"
+    "electron": "electron ./packages/we-edit-electron",
+    "lerna": "lerna"
   },
   "keywords": [
     "we-edit"

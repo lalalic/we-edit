@@ -3246,6 +3246,18 @@ fd-slicer@~1.0.1:
   dependencies:
     pend "~1.2.0"
 
+fetch-any@^1.0.0:
+  version "1.0.0"
+  resolved "http://registry.npm.taobao.org/fetch-any/download/fetch-any-1.0.0.tgz#e49a3449d8869f82df66d6dbc9745659c0d1e134"
+  dependencies:
+    isomorphic-fetch "^2.2.1"
+
+fetchable@^1.0.0:
+  version "1.0.0"
+  resolved "http://registry.npm.taobao.org/fetchable/download/fetchable-1.0.0.tgz#35cfcdfd4d6295305ceaf59d8aebb3d2590bb1db"
+  dependencies:
+    fetch-any "^1.0.0"
+
 figures@^2.0.0:
   version "2.0.0"
   resolved "http://registry.npm.taobao.org/figures/download/figures-2.0.0.tgz#3ab1a2d2a62c8bfb431a0c94cb797a2fce27c962"
@@ -4995,9 +5007,9 @@ left-pad@^1.2.0:
   version "1.3.0"
   resolved "http://registry.npm.taobao.org/left-pad/download/left-pad-1.3.0.tgz#5b8a3a7765dfe001261dde915589e782f8c94d1e"
 
-lerna@^2.9.0:
-  version "2.9.0"
-  resolved "http://registry.npm.taobao.org/lerna/download/lerna-2.9.0.tgz#303f70bc50b1c4541bdcf54eda13c36fe54401f3"
+lerna@^2.10.1:
+  version "2.10.1"
+  resolved "http://registry.npm.taobao.org/lerna/download/lerna-2.10.1.tgz#3b0ffe6b80d3312e8efdc7003a50d47d90ebdf03"
   dependencies:
     async "^1.5.0"
     chalk "^2.1.0"
