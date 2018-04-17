@@ -149,7 +149,7 @@ export default class Emitter extends Viewer{
 		render(){
 			if(this.constructor==Emitter.Format){
 				const {type, ...props}=this.props
-				if(type){
+				if(typeof(type)!="undefined"){
 					const Type=supports[type]
 					if(Type){
 						return <Type {...props}/>
@@ -185,3 +185,28 @@ class WeDocumentStub extends PureComponent{
 		}
 	}
 }
+
+class OutputInput extends Emitter.Format{
+	static displayName="[Origin]"
+	static propTypes={
+		type: PropTypes.string.isRequired,
+	}
+
+	static defaultProps={
+		type:"",
+	}
+
+	static contextTypes={
+		doc: PropTypes.object
+	}
+
+	render(){
+		const {stream}=this.props
+		let docStream=this.context.doc.stream()
+		docStream.pipe(stream)
+		docStream.push(null)
+		return null
+	}
+}
+
+Emitter.support(Emitter.Format.OutputInput=OutputInput)

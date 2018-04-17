@@ -11,7 +11,6 @@ import "we-edit-input-json"
 import "we-edit-output-pdf"
 import "we-edit-output-html"
 import "we-edit-output-svg"
-import "we-edit-output-input"
 
 import "we-edit-loader-stream-browser"
 import "we-edit-loader-stream-file"

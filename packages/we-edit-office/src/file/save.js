@@ -5,7 +5,6 @@ import {TextField, RaisedButton} from "material-ui"
 
 import ComboBox from "../components/combo-box"
 import ACTION from "../state/action"
-import OutputInput from "we-edit-output-input"
 
 export default class Saver extends PureComponent{
     static contextTypes={
@@ -21,7 +20,7 @@ export default class Saver extends PureComponent{
             format=doc.type
 
         const supports=Emitter.supports
-    	let Format=!format||doc.type==format ? OutputInput : supports[format]
+    	let Format=!format||doc.type==format ? Emitter.Format.OutputInput : supports[format]
     	return render(
     		<doc.Store readonly={true} release={false}>
     			<Emitter>

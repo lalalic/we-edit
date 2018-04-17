@@ -62,7 +62,8 @@
     "rollup": "node scripts/build.js",
     "build": "yarn rollup && yarn webpack --env=browser -p --env.prod --progress",
     "package": "electron-packager packages/we-edit-electron",
-    "electron": "electron ./packages/we-edit-electron"
+    "electron": "electron ./packages/we-edit-electron",
+    "lerna": "lerna"
   },
   "keywords": [
     "we-edit"
