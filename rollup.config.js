@@ -6,6 +6,21 @@ const less =require('rollup-plugin-less')
 
 const nodeLibs="fs,stream,path".split(",")
 
+const packages=(function(packages){
+	if(packages)
+		return packages
+
+	let ps=require("fs")
+		.readdirSync("./packages")
+		.filter(a=>a.startsWith("we-edit"))
+		.sort()
+	ps.splice(ps.indexOf("we-edit-office"),1)
+	ps.push("we-edit-office")
+	ps.splice(ps.indexOf("we-edit-electron"),1)
+	return ps
+})(process.argv[3] ? process.argv[3].split(",").filter(a=>!!a) : undefined);
+
+
 function config(project,format){
 	const _external=externals=>id=>!!externals.find(a=>id==a||id.startsWith(a+'/'))
 	const {dependencies={}, peerDependencies={}}=require(`./packages/${project}/package.json`)
@@ -17,15 +32,14 @@ function config(project,format){
 			sourcemap:"inline",
 		  },
 		  treeshake:false,
-		  
-		  cache:true,
-		  
+
 		  external:_external(
 			  Object.keys(dependencies)
 				.concat(Object.keys(peerDependencies))
 				.concat(nodeLibs)
 				.filter(a=>!!a)
 			),
+
 		  plugins: [
 			less({insert:true,output:a=>a}),
 			babel({
@@ -55,10 +69,10 @@ function config(project,format){
 					],
 					'node_modules/prop-types/index.js':
 						"string,object,bool,node,number,oneOfType,func".split(",")
-					
+
 				}
 			}),
-			
+
 		  ]
 	}
 	if(format=="cjs")
@@ -88,9 +102,14 @@ function config(project,format){
 			})
 		].concat(cjs.plugins)
 		//.concat([minify()])
-		
+
 	}
 }
 
-exports.default=config("we-edit","cjs")
-exports.config=config
+export default function(args){
+	let projects=(args.projects||packages).split(",")
+	let format=args.format
+	return projects.map(k=>config(k, format))
+}
+
+//exports.config=config
