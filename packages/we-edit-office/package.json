@@ -17,7 +17,6 @@
     "prop-types": "^15.6.0",
     "react-dom": "^16.1.1",
     "recompose": "^0.26.0",
-	"we-edit-output-input": "^3.0.0",
 	"react-redux": "^5.0.6"
   },
   "peerDependencies": {
