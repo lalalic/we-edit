@@ -59,11 +59,12 @@
     "del": "del-cli",
     "webpack": "webpack",
     "webpack-dev": "webpack-dev-server ",
-    "rollup": "node scripts/build.js",
+    "rollup": "rollup -c --no-treeshake",
     "build": "yarn rollup && yarn webpack --env=browser -p --env.prod --progress",
     "package": "electron-packager packages/we-edit-electron",
     "electron": "electron ./packages/we-edit-electron",
-    "lerna": "lerna"
+    "lerna": "lerna",
+	"relay": "relay-compiler --src ./packages/we-edit-on-qili/src --schema ./packages/we-edit-on-qili/schema.graphql"
   },
   "keywords": [
     "we-edit"

@@ -7,9 +7,6 @@ const less =require('rollup-plugin-less')
 const nodeLibs="fs,stream,path".split(",")
 
 const packages=(function(packages){
-	if(packages)
-		return packages
-
 	let ps=require("fs")
 		.readdirSync("./packages")
 		.filter(a=>a.startsWith("we-edit"))
@@ -18,7 +15,7 @@ const packages=(function(packages){
 	ps.push("we-edit-office")
 	ps.splice(ps.indexOf("we-edit-electron"),1)
 	return ps
-})(process.argv[3] ? process.argv[3].split(",").filter(a=>!!a) : undefined);
+})();
 
 
 function config(project,format){
@@ -31,15 +28,12 @@ function config(project,format){
 			format,
 			sourcemap:"inline",
 		  },
-		  treeshake:false,
-
 		  external:_external(
 			  Object.keys(dependencies)
 				.concat(Object.keys(peerDependencies))
 				.concat(nodeLibs)
 				.filter(a=>!!a)
 			),
-
 		  plugins: [
 			less({insert:true,output:a=>a}),
 			babel({
@@ -107,9 +101,7 @@ function config(project,format){
 }
 
 export default function(args){
-	let projects=(args.projects||packages).split(",")
-	let format=args.format
+	let projects=(args.projects||packages.join(",")).split(",")
+	let format=args.format||"cjs"
 	return projects.map(k=>config(k, format))
 }
-
-//exports.config=config

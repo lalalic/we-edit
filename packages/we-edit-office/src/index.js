@@ -1,19 +1,7 @@
 import React, {Component} from "react"
+import ReactDOM from "react-dom"
 import {WeEdit, Viewer, Editor, Emitter,Stream, Representation} from "we-edit"
 
-import "we-edit-representation-pagination"
-import "we-edit-representation-html"
-import "we-edit-representation-text"
-
-import "we-edit-input-docx"
-import "we-edit-input-json"
-
-import "we-edit-output-pdf"
-import "we-edit-output-html"
-import "we-edit-output-svg"
-
-import "we-edit-loader-stream-browser"
-import "we-edit-loader-stream-file"
 
 import WeEditUI from "./we-edit-ui"
 import Workspace from "./workspace"
@@ -23,7 +11,7 @@ import IconRead from "material-ui/svg-icons/communication/import-contacts"
 import IconPrint from "material-ui/svg-icons/editor/format-align-justify"
 import IconWeb from "material-ui/svg-icons/av/web"
 
-export const DefaultOffice=()=>(
+const DefaultOffice=()=>(
     <WeEdit>
         <WeEditUI fonts={["Arial", "Calibri", "Cambria"]}>
             <Workspace accept="*.docx" layout="print" debug={false}>
@@ -51,8 +39,6 @@ export const DefaultOffice=()=>(
     </WeEdit>
 )
 
-import ReactDOM from "react-dom"
-
 export function create(container, office=<DefaultOffice/>){
 	if(!container || container==document.body){
 		container=document.createElement("div")
@@ -62,11 +48,6 @@ export function create(container, office=<DefaultOffice/>){
 	return ReactDOM.render(office, container)
 }
 
-export {ReactDOM, React}
-
-import * as weedit from "we-edit"
-export {weedit}
-
 (function(me){
 	window.addEventListener("load", ()=>{
 		let container=document.querySelector('#OfficeContainer')
@@ -74,3 +55,15 @@ export {weedit}
 			create(container)
 	})
 })(window);
+
+
+export const WeEditOffice={
+	Default:DefaultOffice,
+	WeEditUI,
+	Workspace,
+}
+
+import * as WE from "we-edit"
+import * as MaterialUI from "material-ui"
+export {React,ReactDOM,MaterialUI, WE as WeEdit}
+

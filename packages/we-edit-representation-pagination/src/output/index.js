@@ -5,7 +5,7 @@ import ReactDOMServer from "react-dom/server.node"
 import Parser from "htmlparser2"
 import Page from "../composed/page"
 
-
+const RE_TRANSLATE=/translate\((\d+)\s+(\d+)\)/
 export default class Output extends Emitter.Format{
 	static contextTypes={
 		...Emitter.Format.contextTypes,
@@ -142,11 +142,8 @@ export default class Output extends Emitter.Format{
 	}
 
 	onGroup({transform="translate(0 0)"}){
-		function translate(x=0,y=0){
-			return [x,y]
-		}
-		let [x,y]=eval(transform.replace(/\s+/,","))
-		this._offsets.push({x,y})
+		let [,x=0,y=0]=transform.match(RE_TRANSLATE)
+		this._offsets.push({x:parseInt(x),y:parseInt(y)})
 	}
 
 	onGroupEnd(){
