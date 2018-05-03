@@ -18,7 +18,7 @@ import SizeIconButton from "../components/size-icon-button"
 export class Bar extends PureComponent{
     state={showDrawer:false}
     render(){
-        const {active, docs, setActive, close, height=20, style={}, onMenu}=this.props
+        const {title, active, docs, setActive, close, height=20, style={}, onMenu}=this.props
         let closeButton=null
 
 		if(docs.length>0){
@@ -39,7 +39,7 @@ export class Bar extends PureComponent{
 						<IconMenu/>
 					</SizeIconButton>
 				</div>
-				<div style={{width:50,lineHeight:`${height}px`,fontSize:height/2}}>we-edit</div>
+				<div style={{width:50,lineHeight:`${height}px`,fontSize:height/2}}>{title||"we-edit"}</div>
 				<div style={{flex:"1 100%", textAlign:"center"}}>
 					<ComboBox
 						disabled={active==null}
@@ -66,7 +66,7 @@ export default compose(
         store:PropTypes.object,
 		muiTheme: PropTypes.object,
     }),
-    mapProps(({store:{dispatch},  muiTheme:{titleBar}, onMenu})=>({
+    mapProps(({title, store:{dispatch},  muiTheme:{titleBar}, onMenu})=>({
         setActive(id){
             dispatch(ACTION.ACTIVE(id))
         },
@@ -75,6 +75,7 @@ export default compose(
         },
 		height:titleBar ? titleBar.height : undefined,
         onMenu,
+        title,
     })),
     connect(state=>{
         const {[DOMAIN]:{docs}}=state

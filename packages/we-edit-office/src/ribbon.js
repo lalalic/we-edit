@@ -52,7 +52,7 @@ const Ribbon=compose(
 			})
 			return tabs
 		},[])
-	
+
 	return (
 		<div style={{display:"inline-block"}}>
 			<MuiThemeProvider muiTheme={getMuiTheme(muiTheme,{
@@ -74,7 +74,7 @@ const Ribbon=compose(
 					height:30
 				}
 			})}>
-				<Tabs 
+				<Tabs
 					className="ribbon"
 					contentContainerStyle={{height:30}}
 					>
@@ -114,6 +114,6 @@ const Ribbon=compose(
 	)
 })
 
-Ribbon.support(Table.ribbons, "table")
-
 export default Ribbon
+
+//Ribbon.support(Table.ribbons, "table")

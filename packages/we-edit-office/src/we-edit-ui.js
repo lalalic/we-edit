@@ -58,7 +58,7 @@ export default compose(
 	}
 
 	render(){
-		let {children,active, titleBar, style, dispatch, ...others}=this.props
+		let {children,active, titleBar, style, dispatch, title, ...others}=this.props
 		let child=null
 		if(active){
 			child=Children.toArray(children)
@@ -88,6 +88,7 @@ export default compose(
 			<MuiThemeProvider muiTheme={this.theme}>
 				<div style={{...styles.root,...style}}>
 					<TitleBar active={active}
+						title={title}
 						onMenu={()=>this.refs.dashboard.setState({display:true})}
 						/>
 

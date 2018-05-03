@@ -1,74 +1,13 @@
-import React, {PureComponent, Children} from "react"
+import React, {PureComponent, Children, Fragment} from "react"
 import PropTypes from "prop-types"
-import {connect} from "react-redux"
-import {compose,setDisplayName,getContext,withContext}  from "recompose"
-import minimatch from "minimatch"
+import {compose,setDisplayName}  from "recompose"
 import EventEmitter from "events"
-
-import {Toolbar,ToolbarSeparator, ToolbarTitle, Tabs, Tab, Snackbar} from "material-ui"
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
-import getMuiTheme from 'material-ui/styles/getMuiTheme'
 
 import {WithSelection, when} from "we-edit"
 
-import Text from "./text"
-import Paragraph from "./paragraph"
-import File from "./file"
-import History from "./history"
-import * as Table from "./table"
 import Status from "./status"
 import Ruler from "./ruler"
-
-export const Ribbon=compose(
-	setDisplayName("Ribbon"),
-	getContext({muiTheme:PropTypes.object}),
-)(({children, muiTheme, buttonStyle={height:24, fontSize:10, lineHeight:"24px"}})=>(
-	<div style={{display:"inline-block",width:200}}>
-		<MuiThemeProvider muiTheme={getMuiTheme(muiTheme,{
-			sizeIconButton:{
-				size:24,
-				padding:4,
-			},
-			comboBox:{
-				height:24,
-				textFieldStyle:{
-					fontSize:12
-				},
-				menu:{
-					style:{overflowX:"hidden"},
-					menuItemStyle:{minHeight:"24px", lineHeight:"24px", fontSize:12}
-				}
-			},
-			toolbar:{
-				height:30
-			}
-		})}>
-			<Tabs>
-				<Tab label="Home" buttonStyle={buttonStyle}>
-					<Toolbar>
-						<File/>
-						<History>
-							<ToolbarSeparator/>
-						</History>
-
-						<Text>
-							<ToolbarSeparator/>
-						</Text>
-
-						<Paragraph/>
-					</Toolbar>
-				</Tab>
-				<Tab label="Insert"  buttonStyle={buttonStyle}>
-					<Toolbar>
-						<Table.Create/>
-					</Toolbar>
-				</Tab>
-				{children}
-			</Tabs>
-		</MuiThemeProvider>
-	</div>
-))
-
+import Ribbon from "./ribbon"
 
 export const VerticalRuler=compose(
 	setDisplayName("VerticalRuler"),
@@ -146,34 +85,23 @@ export default class Workspace extends PureComponent{
 			<doc.Store>
 				<WithSelection>
 					<div style={{flex:1, display:"flex", flexDirection:"column"}}>
-						<div style={{order:1,height:24+30}}>
-							{toolBar}
-						</div>
+						{toolbar && (
+							<div style={{height:24+30}}>
+								{toolBar}
+							</div>
+						)}
 
-						<div style={{order:3,height:30}}>
-							{statusBar ? React.cloneElement(statusBar,{
-								layout:{
-									items:this.layouts,
-									current:layout,
-									onChange: layout=>this.setState({layout})
-								},
-								scale:{
-									current:scale,
-									onChange: scale=>this.setState({scale})
-								},
-							}) : null}
-						</div>
-
-						<div style={{order:2,flex:"1 100%", overflow:"auto", display:"flex", flexDirection:"column"}}>
+						<div style={{flex:"1 100%", overflow:"auto", display:"flex", flexDirection:"column"}}>
 							<div style={{flex:1, display:"flex", flexDirection:"row"}}>
 
-								{ruler ? <VerticalRuler scale={scale/100} /> : null}
-
-								{ruler ? (
-								<div ref="rulerContainer" style={{position:"absolute",paddingTop:4}}>
-									<Ruler direction="horizontal" scale={scale/100}/>
-								</div>
-								) : null}
+								{ruler && (
+									<Fragment>
+										<VerticalRuler scale={scale/100} />
+										<div ref="rulerContainer" style={{position:"absolute",paddingTop:4}}>
+											<Ruler direction="horizontal" scale={scale/100}/>
+										</div>
+									</Fragment>
+								)}
 
 								<div ref="contentContainer" style={{flex:"1 100%", textAlign:"center", margin:"4px auto auto auto"}}>
 									<div style={{margin:"auto",display:"inline-block"}}>
@@ -184,6 +112,23 @@ export default class Workspace extends PureComponent{
 							</div>
 
 						</div>
+
+						{statusBar && (
+							<div style={{height:30}}>
+								{React.cloneElement(statusBar,{
+									layout:{
+										items:this.layouts,
+										current:layout,
+										onChange: layout=>this.setState({layout})
+									},
+									scale:{
+										current:scale,
+										onChange: scale=>this.setState({scale})
+									},
+								})}
+							</div>
+						)}
+
 					</div>
 				</WithSelection>
 			</doc.Store>
