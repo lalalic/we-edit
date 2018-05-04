@@ -21,17 +21,7 @@
   },
   "peerDependencies": {
 	"react": "^16.2.0",
-    "we-edit": "^3.0.0",
-    "we-edit-input-docx": "^3.0.0",
-    "we-edit-input-json": "^3.0.0",
-	"we-edit-output-svg": "^3.0.0",
-	"we-edit-output-pdf": "^3.0.0",
-	"we-edit-output-html": "^3.0.0",
-    "we-edit-representation-html": "^3.0.0",
-    "we-edit-representation-pagination": "^3.0.0",
-    "we-edit-representation-text": "^3.0.0",
-    "we-edit-loader-stream-file":"^3.0.0",
-	"we-edit-loader-stream-browser":"^3.0.0"
+    "we-edit": "^3.0.0"
   },
   "engines": {
     "node": ">=0.10.0"

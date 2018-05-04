@@ -58,7 +58,6 @@
     "dev": "webpack-dev-server --env=dev",
     "del": "del-cli",
     "webpack": "webpack",
-    "webpack-dev": "webpack-dev-server ",
     "rollup": "rollup -c --no-treeshake",
     "build": "yarn rollup && yarn webpack --env=browser -p --env.prod --progress",
     "package": "electron-packager packages/we-edit-electron",
