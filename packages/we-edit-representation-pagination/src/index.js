@@ -57,16 +57,19 @@ export class Pagination extends Component{
 				const requiredFonts=this.context.doc.getFontList()
 				const fontsLoaded=errors=>{
 					let fonts=Fonts.names
-					if(!fonts.find(a=>a.toLowerCase()==defaultFont.toLowerCase())){
-						console.warn(`default font[${defaultFont}] can't be loaded, set ${fonts[0]} as default`)
-						this.Measure=createFontMeasureWithDefault(fonts[0])
+					if(fonts && fonts.length){
+						if(!fonts.find(a=>a.toLowerCase()==defaultFont.toLowerCase())){
+							console.warn(`default font[${defaultFont}] can't be loaded, set ${fonts[0]} as default`)
+							this.Measure=createFontMeasureWithDefault(fonts[0])
+						}
+					}
+
+					if(errors.length){
+						console.warn("the following fonts with loading erorr: "+errors.join(","))
 					}
 
 					this.setState({fontsLoaded:true})
 					this.emit("fonts.loaded",fonts)
-					if(errors.length){
-						console.warn("the following fonts with loading erorr: "+errors.join(","))
-					}
 				}
 				FontMeasure
 					.requireFonts([defaultFont,...requiredFonts],fonts)
@@ -101,7 +104,7 @@ export class Pagination extends Component{
 			this.emit("fonts.unloaded")
 		}
 	}
-	
+
 	emit(){
 		let events=this.context.events
 		if(events){

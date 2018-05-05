@@ -7,6 +7,7 @@
     "email": "lalalic@139.com"
   },
   "dependencies": {
+    "get-system-fonts": "^1.0.0",
     "htmlparser2": "^3.9.2",
     "is-node": "^1.0.2",
     "linebreak": "^0.3.0",
@@ -21,7 +22,7 @@
   },
   "peerDependencies": {
     "react": "^16.2.0",
-	"react-dom": "^16.1.1",
+    "react-dom": "^16.1.1",
     "we-edit": "^3.0.0"
   },
   "keywords": [
