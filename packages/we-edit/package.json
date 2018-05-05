@@ -14,7 +14,6 @@
     "is-node": "^1.0.2",
     "lodash.get": "^4.4.2",
     "prop-types": "^15.6.0",
-    "react": "^16.2.0",
     "react-composition": "^0.2.1",
     "react-dom": "^16.1.1",
     "react-redux": "^5.0.6",
@@ -30,12 +29,15 @@
   "peerDependencies": {
     "react": "^16.2.0"
   },
+  "devDependencies":{
+    "transform-loader": "^0.2.4",
+    "brfs": "^1.4.3"  
+  },
   "engines": {
     "node": ">=0.10.0"
   },
   "files": [
-    "index.js",
-    "index.browser.js",
+    "*.js",
     "README.md"
   ],
   "readme": "README.md"
