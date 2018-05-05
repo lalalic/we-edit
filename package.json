@@ -47,7 +47,7 @@
     "webpack-dev-server": "^2.9.4"
   },
   "scripts": {
-    "test": "jest __tests__",
+    "test": "jest packages/**/__tests__",
     "dev": "webpack-dev-server --env=dev",
     "del": "del-cli",
     "webpack": "webpack",
