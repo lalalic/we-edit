@@ -1,13 +1,13 @@
 {
   "name": "we-edit",
-  "description": "a text editor framework",
-  "version": "3.0.0",
+  "description": "a text editor framework based on React",
+  "version": "3.0.1",
   "author": {
     "name": "Raymond Li",
     "email": "lalalic@139.com"
   },
   "keywords": [
-    "we-edit"
+    "we-edit","office"
   ],
   "dependencies": {
     "immutable": "^3.8.1",
@@ -24,14 +24,14 @@
     "redux-thunk": "^2.2.0",
     "shortid": "^2.2.8",
     "stream": "^0.0.2",
-	"fetch-any":"^1.0.0"
+    "fetch-any": "^1.0.0"
   },
   "peerDependencies": {
     "react": "^16.2.0"
   },
-  "devDependencies":{
+  "devDependencies": {
     "transform-loader": "^0.2.4",
-    "brfs": "^1.4.3"  
+    "brfs": "^1.4.3"
   },
   "engines": {
     "node": ">=0.10.0"
@@ -40,5 +40,19 @@
     "*.js",
     "README.md"
   ],
-  "readme": "README.md"
+  "readme": "README.md",
+  "optionalDependencies": {
+    "docx4js": "^3.1.12",
+    "lodash.invoke": "^4.5.2",
+    "fetchable": "^1.0.0",
+    "pdfkit": "^0.8.3",
+    "mouse-event-offset": "^3.0.2",
+    "htmlparser2": "^3.9.2",
+    "linebreak": "^0.3.0",
+    "opentype.js": "^0.6.9",
+    "ttfjs": "^0.4.0",
+    "events": "^2.0.0",
+    "material-ui": "^0.19.4",
+    "minimatch": "^3.0.4"
+  }
 }

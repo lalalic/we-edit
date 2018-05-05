@@ -17,14 +17,30 @@ const packages=(function(packages){
 	return ps
 })();
 
+function optionalDependencies(){
+	let optionals=packages.filter(a=>a!="we-edit")
+		.reduce((collected, a)=>{
+			let {dependencies}=require(`./packages/${a}/package.json`)
+			return {...collected,...dependencies}
+		},{})
+	let p=require(`./packages/we-edit/package.json`)
+	optionals=Object.keys(p.dependencies)
+		.reduce((optionals,k)=>{
+			delete optionals[k]
+			return optionals
+		},optionals)
+	p.optionalDependencies=optionals
+	require("fs").writeFileSync(require.resolve(`./packages/we-edit/package.json`),JSON.stringify(p,null,2))
+}
 
-function config(project,format){
+
+function config(project,format, dest){
 	const _external=externals=>id=>!!externals.find(a=>id==a||id.startsWith(a+'/'))
 	const {dependencies={}, peerDependencies={}}=require(`./packages/${project}/package.json`)
 	let cjs={
 		  input: `./packages/${project}/src/index.js`,
 		  output:{
-			file: `./packages/${project}/index.js`,
+			file: dest ? `${dest}/${project.substr("we-edit".length+1)||"index"}.js` : `./packages/${project}/index.js`,
 			format,
 			sourcemap:"inline",
 		  },
@@ -101,7 +117,12 @@ function config(project,format){
 }
 
 export default function(args){
-	let projects=(args.projects||packages.join(",")).split(",")
-	let format=args.format||"cjs"
-	return projects.map(k=>config(k, format))
+	let {format="cjs", projects, dest}=args
+	delete args.projects
+	delete args.dest
+	projects=(projects||packages.join(";")).split(";")
+	if(dest){
+		optionalDependencies()
+	}
+	return projects.map(k=>config(k, format, dest))
 }

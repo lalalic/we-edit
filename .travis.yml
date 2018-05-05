@@ -1,6 +1,6 @@
 language: node_js
 node_js:
- - 6
+ - 8
 
 before_install:
  - npm install yarn -g
@@ -9,12 +9,17 @@ install:
  - yarn install
 
 before_deploy:
- - yarn run build
+ - yarn build
+ - cd packages/we-edit
+ - yarn info we-edit --json > info.json
+ - export LATEST=$(node -p "require('./info.json').data['dist-tags'].latest")
+ - export CURRENT=$(node -p "require('./package.json').version")
 
 deploy:
  provider: npm
  email: "lalalic@139.com"
  api_key: $NPM_KEY
+ skip_cleanup: true
  on:
   branch: master
-  tags: true
+  condition: "$LATEST != $CURRENT"
