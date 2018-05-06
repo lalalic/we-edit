@@ -7,7 +7,8 @@
     "email": "lalalic@139.com"
   },
   "keywords": [
-    "we-edit","office"
+    "we-edit",
+    "office"
   ],
   "dependencies": {
     "immutable": "^3.8.1",
@@ -47,6 +48,7 @@
     "fetchable": "^1.0.0",
     "pdfkit": "^0.8.3",
     "mouse-event-offset": "^3.0.2",
+    "get-system-fonts": "^1.0.0",
     "htmlparser2": "^3.9.2",
     "linebreak": "^0.3.0",
     "opentype.js": "^0.6.9",
