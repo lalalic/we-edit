@@ -68,7 +68,8 @@ export default class Dashboard extends PureComponent{
 
 						</Menu>
 				</Paper>
-				<div style={{flex:"1 100%", backgroundColor:"lightgray"}}>
+				<div style={{flex:"1 100%", backgroundColor:"lightgray",display:"flex",flexDirection:"column"}}>
+				<div style={{flex:1}}>
 				{
 					(function(action){
 						if(!action)
@@ -101,6 +102,8 @@ export default class Dashboard extends PureComponent{
 						}
 					})(action)
 				}
+				</div>
+				<div style={{flex:"1 100%"}} onClick={dispear}></div>
 				</div>
 			</div>
 		)

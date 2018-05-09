@@ -58,11 +58,11 @@ export default compose(
 	}
 
 	render(){
-		let {children,active, titleBar, style, dispatch, title, ...others}=this.props
+		let {children,active, titleBar, style, dispatch, titleBarProps, ...others}=this.props
+		children=Children.toArray(children)
 		let child=null
 		if(active){
-			child=Children.toArray(children)
-				.find(({props:{accept=a=>!!a}})=>{
+			child=children.find(({props:{accept}})=>{
 					if(typeof(accept)=="string"){
 						let glob=accept
 						accept=a=>minimatch(a.name,glob)
@@ -78,17 +78,17 @@ export default compose(
 				child=React.cloneElement(child, {doc:active, ...others, ...child.props})
 			}else
 				child=(<div>no editor for this document</div>)
+		}else{
+			child=children.filter(({props:{accept}})=>!accept)
 		}
 
 		const {error}=this.state
 
-		const run=element=>this.refs.runner.setState({element})
-
 		return (
 			<MuiThemeProvider muiTheme={this.theme}>
 				<div style={{...styles.root,...style}}>
-					<TitleBar active={active}
-						title={title}
+					<TitleBar {...titleBarProps}
+						active={active}
 						onMenu={()=>this.refs.dashboard.setState({display:true})}
 						/>
 

@@ -9,12 +9,13 @@ import IconPrint from "material-ui/svg-icons/editor/format-align-justify"
 import IconWeb from "material-ui/svg-icons/av/web"
 
 export default ({
-        title,
+        titleBarProps,
         accept="*.docx",
         fonts=["Arial", "Calibri", "Cambria"],
+		children
     })=>(
     <WeEdit>
-        <WeEditUI title={title} fonts={fonts}>
+        <WeEditUI {...{titleBarProps, fonts}}>
             <Workspace accept={accept} layout="print" debug={false}>
                 <Viewer
                     toolBar={null} ruler={false}
@@ -36,6 +37,7 @@ export default ({
 
                 </Editor>
             </Workspace>
+			{children}
         </WeEditUI>
     </WeEdit>
 )

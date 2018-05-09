@@ -18,7 +18,7 @@ import SizeIconButton from "../components/size-icon-button"
 export class Bar extends PureComponent{
     state={showDrawer:false}
     render(){
-        const {title, active, docs, setActive, close, height=20, style={}, onMenu}=this.props
+        const {title, children, active, docs, setActive, close, height=20, style={}, onMenu}=this.props
         let closeButton=null
 
 		if(docs.length>0){
@@ -30,7 +30,13 @@ export class Bar extends PureComponent{
 		}
 
 		return (
-			<div style={{background:"transparent",height, display:"flex", flexDirection:"row", ...style}}>
+			<div style={{
+					position:"relative",
+					background:"transparent",
+					height, 
+					whiteSpace:"nowrap",
+					display:"flex", flexDirection:"row", 
+					...style}}>
 				<div>
 					<SizeIconButton
 						size={height}
@@ -39,8 +45,8 @@ export class Bar extends PureComponent{
 						<IconMenu/>
 					</SizeIconButton>
 				</div>
-				<div style={{width:50,lineHeight:`${height}px`,fontSize:height/2}}>{title||"we-edit"}</div>
-				<div style={{flex:"1 100%", textAlign:"center"}}>
+				<div style={{lineHeight:`${height}px`,fontSize:height/2}}>{title||"we-edit"}</div>
+				<div style={{flex:"1 100%",paddingLeft:20}}>
 					<ComboBox
 						disabled={active==null}
 						value={active ? active.id : ""}
@@ -49,10 +55,12 @@ export class Bar extends PureComponent{
 						underlineShow={false}
 						style={{width:100,height}}
 						textFieldStyle={{height,lineHeight:`${height}px`,fontSize:height/2}}
-						/>
+						/>				
 				</div>
-				<div style={{width:50,lineHeight:`${height}px`,fontSize:height/2}}></div>
-				<div>
+				<div style={{lineHeight:`${height}px`,fontSize:height/2}}>
+					{children}
+				</div>
+				<div style={{width:50}}>
 					{closeButton}
 				</div>
 			</div>
@@ -66,7 +74,8 @@ export default compose(
         store:PropTypes.object,
 		muiTheme: PropTypes.object,
     }),
-    mapProps(({title, store:{dispatch},  muiTheme:{titleBar}, onMenu})=>({
+    mapProps(({ store:{dispatch},  muiTheme:{titleBar}, ...others})=>({
+		...others,
         setActive(id){
             dispatch(ACTION.ACTIVE(id))
         },
@@ -74,8 +83,6 @@ export default compose(
             dispatch(ACTION.CLOSE())
         },
 		height:titleBar ? titleBar.height : undefined,
-        onMenu,
-        title,
     })),
     connect(state=>{
         const {[DOMAIN]:{docs}}=state

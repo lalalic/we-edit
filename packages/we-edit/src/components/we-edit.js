@@ -1,4 +1,4 @@
-import React,{Component, Children} from "react"
+import React,{PureComponent, Fragment} from "react"
 import PropTypes from "prop-types"
 
 import {combineReducers} from "redux"
@@ -16,9 +16,13 @@ import Input from "../input"
 </WeEdit>
 ```
 */
-export class WeEdit extends Component{
+export class WeEdit extends PureComponent{
 	static contextTypes={
 		store: PropTypes.object
+	}
+	
+	static propTypes={
+		reducers: PropTypes.object
 	}
 
 	constructor(){
@@ -31,6 +35,9 @@ export class WeEdit extends Component{
 	}
 
 	render(){
+		if(this.context.store)
+			return (<Fragment>{this.props.children}</Fragment>)
+		
 		return (
 			<Provider store={this.store}>
 				{this.props.children}
