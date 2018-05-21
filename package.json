@@ -34,25 +34,18 @@
     "jest": "^22.0.0",
     "less": "^2.7.3",
     "less-loader": "^4.0.5",
-    "rollup": "^0.57.1",
-    "rollup-plugin-babel": "^3.0.3",
-    "rollup-plugin-commonjs": "^9.1.0",
-    "rollup-plugin-less": "^0.1.4",
-    "rollup-plugin-node-resolve": "^3.3.0",
-    "rollup-plugin-uglify": "^3.0.0",
     "source-map-loader": "^0.1.6",
     "style-loader": "^0.20.3",
     "transform-loader": "^0.2.4",
     "webpack": "^3.8.1",
-    "webpack-dev-server": "^2.9.4"
+    "webpack-dev-server": "^2.9.4",
+    "webpack-node-externals": "^1.7.2"
   },
   "scripts": {
     "test": "jest packages/**/__tests__",
     "dev": "webpack-dev-server --env=dev",
     "del": "del-cli",
-    "webpack": "webpack",
-    "rollup": "rollup -c --no-treeshake",
-    "build": "yarn rollup --dest ./packages/we-edit"
+    "build": "webpack --env=api"
   },
   "keywords": [
     "we-edit"
