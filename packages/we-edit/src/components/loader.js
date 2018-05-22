@@ -1,4 +1,4 @@
-import React, {Component} from "react"
+import React, {Component,PureComponent} from "react"
 import PropTypes from "prop-types"
 import {DOMAIN, ACTION} from "./we-edit"
 import Input from "../input"
@@ -9,7 +9,7 @@ const supports={}
  * Loader is used to load document
  *
  */
-export default class Loader extends Component{
+export default class Loader extends PureComponent{
     static displayName="loader"
     static propTypes={
         type: PropTypes.string.isRequired,
@@ -51,10 +51,6 @@ export default class Loader extends Component{
 
         return false
     }
-
-	shouldComponentUpdate(){
-		return false
-	}
 
 	render(){
         const {file,doc}=this.state

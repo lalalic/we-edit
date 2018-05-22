@@ -10,36 +10,45 @@ export default class extends PureComponent{
     static contextTypes={
         store: PropTypes.object
     }
-    state={type:this.getSupportedLoaders()[0]}
-
+	
+    state={}
     getSupportedLoaders(){
         return Object.keys(Loader.supports)
     }
 
     render(){
-        const Loaders=this.getSupportedLoaders()
+		const Loaders=this.getSupportedLoaders()
+        let {type}=this.state
         const {onLoad}=this.props
+		
+		if(!type && Loaders.length==1){
+			type=Loaders[0]
+		}
         return (
             <Fragment>
-                { Loaders.length>1 ?
-                    (<div>
-                        <ComboBox dataSource={Loaders}
+                { Loaders.length>1 &&
+                    (<div style={{textAlign:"center"}}>
+                        <ComboBox 
+							hintText="select a loader..."
+							dataSource={Loaders}
                             onChange={type=>this.setState({type})}
-                            value={this.state.type}/>
-                    </div>) : null
+                            value={type||""}/>
+                    </div>)
                 }
-                <Loader type={this.state.type}
-                    {...this.props}
-                    onLoad={
-                        loader=>{
-                            onLoad()
-							if(loader){
-								this.context.store.dispatch(ACTION.loader(loader))
+				{type && 
+					<Loader type={type}
+						{...this.props}
+						onLoad={
+							loader=>{
+								onLoad()
+								if(loader){
+									this.context.store.dispatch(ACTION.loader(loader))
+								}
 							}
-                        }
-                    }
-                    reducer={reducer}
-                    />
+						}
+						reducer={reducer}
+						/>
+				}
             </Fragment>
         )
     }

@@ -69,7 +69,7 @@ export default class Dashboard extends PureComponent{
 						</Menu>
 				</Paper>
 				<div style={{flex:"1 100%", backgroundColor:"lightgray",display:"flex",flexDirection:"column"}}>
-				<div style={{flex:1}}>
+				<div style={{flex:1, padding:10}}>
 				{
 					(function(action){
 						if(!action)
