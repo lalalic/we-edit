@@ -33,7 +33,6 @@ import Representation from "./representation"
 		<PlainText/>
 	</Stream>
 </emiter>
-
 */
 const supports={}
 export default class Emitter extends Viewer{

@@ -10,6 +10,10 @@ export default class Output extends Emitter.Format{
 		representation: PropTypes.string.isRequired,
 	}	
 	
+	static defaultProps={
+		representation: "html"
+	}
+	
 	render(){
 		const {content}=this.props
 		let stream=ReactDOMServer.renderToStaticNodeStream(content)

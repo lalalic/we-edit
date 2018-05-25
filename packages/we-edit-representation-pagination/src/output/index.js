@@ -15,7 +15,11 @@ export default class Output extends Emitter.Format{
 		name: PropTypes.string.isRequired,
 		ext: PropTypes.string.isRequired,
 		representation: PropTypes.string.isRequired,
-	}		
+	}
+
+	static defaultProps={
+		representation: "pagination"
+	}
 	
 	render(){
 		const {pages}=this.props
