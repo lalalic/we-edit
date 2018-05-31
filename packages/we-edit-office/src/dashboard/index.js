@@ -103,7 +103,7 @@ export default class Dashboard extends PureComponent{
 					})(action)
 				}
 				</div>
-				<div style={{flex:"1 100%"}} onClick={dispear}></div>
+				<div style={{flex:"1 100%", overflow:"scroll"}} onClick={dispear}></div>
 				</div>
 			</div>
 		)

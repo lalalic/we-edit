@@ -1,8 +1,7 @@
 import PropTypes from "prop-types"
-import {Emitter} from "we-edit"
-import {Output} from "we-edit-representation-html"
+import {Emitter, Representation} from "we-edit"
 
-export default class HTML extends Output{
+export default class HTML extends Representation.Html{
 	static displayName="HTML"
 	static propTypes={
 		type: PropTypes.string.isRequired,

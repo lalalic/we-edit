@@ -5,7 +5,7 @@ import {Representation} from "we-edit"
 import ViewerTypes from "./all"
 import EditorTypes from "./edit"
 
-export {default as Output} from "./output"
+import Output from "./output"
 
 export class Text extends Component{
 	static displayName="text"
@@ -16,6 +16,8 @@ export class Text extends Component{
 	static defaultProps={
 		type:"text"
 	}
+	
+	static Output=Output
 	
 	render(){
 		return <Representation {...{ViewerTypes,EditorTypes,...this.props}}/>

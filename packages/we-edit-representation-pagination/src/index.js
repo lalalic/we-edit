@@ -8,6 +8,7 @@ import ViewerTypes from "./all"
 import EditorTypes from "./edit"
 import Fonts from "./fonts"
 import {FontMeasure, SVGMeasure} from "./measure"
+import Output from "./output"
 
 const createFontMeasureWithDefault=defaultFont=>{
 	return class extends FontMeasure{
@@ -21,8 +22,6 @@ const createFontMeasureWithDefault=defaultFont=>{
 		}
 	}
 }
-
-export {default as Output} from "./output"
 
 export class Pagination extends Component{
 	static displayName="pagination"
@@ -46,6 +45,8 @@ export class Pagination extends Component{
 		doc: PropTypes.object,
 		events: PropTypes.object
 	}
+	
+	static Output=Output
 
 	state={fontsLoaded:false}
 	componentWillMount(){

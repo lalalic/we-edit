@@ -25,6 +25,18 @@ export default class  Representation extends Component{
 	static get(name){
 		return supports[name]
 	}
+	
+	static get Pagination(){
+		return supports['pagination']
+	}
+	
+	static get Html(){
+		return supports['html']
+	}
+	
+	static get Text(){
+		return supports['text']
+	}
 
 	getChildContext(){
 		const {domain, EditorTypes, ViewerTypes}=this.props
