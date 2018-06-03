@@ -7,11 +7,11 @@ export class Stream extends Component{
 		type: PropTypes.string,
 		onFinish: PropTypes.func,
 	}
-	
+
 	static defaultProps={
 		onFinish:a=>a
 	}
-	
+
 	static support(stream){
 		const type=stream.type
 		if(!stream.support || stream.support()){
@@ -21,7 +21,15 @@ export class Stream extends Component{
 			console.log(`stream[${type}] discarded because of not supported environment`)
 		}
 	}
-	
+
+	static unsupport(stream){
+		const type=stream.type
+		if(supports[type]){
+			delete supports[type]
+			console.log(`stream[${type}] uninstalled`)
+		}
+	}
+
 	static get supports(){
 		return {...supports}
 	}
@@ -62,7 +70,7 @@ export class Stream extends Component{
 			</Fragment>
 		)
 		Promise.all(jobs).then(onFinish,onFinish)
-		
+
 		return rendered
 	}
 

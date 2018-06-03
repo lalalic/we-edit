@@ -15,9 +15,8 @@ module.exports=base=>{
             externals:"react,react-dom,material-ui,prop-types,we-edit,react-redux,recompose"
 				.split(",")
 				.reduce((cols,a)=>{
-					cols[a]="commonjs "+a
+					cols[a]="commonjs2 "+a
 					return cols
 				},{})
         }))
 }
-

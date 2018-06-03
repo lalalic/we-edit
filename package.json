@@ -37,7 +37,7 @@
     "source-map-loader": "^0.1.6",
     "style-loader": "^0.20.3",
     "transform-loader": "^0.2.4",
-    "we-office-cli": "^0.0.2",
+    "we-office-cli": "0.0.4",
     "webpack": "^3.8.1",
     "webpack-dev-server": "^2.9.4",
     "webpack-node-externals": "^1.7.2"
@@ -46,20 +46,18 @@
     "test": "jest packages/**/__tests__",
     "dev": "webpack-dev-server --env=dev",
     "build": "webpack --env=api",
-	"sync": "webpack --env=plugin && yarn syncall",
-	
-	"syncall":"webpack --env=plugin && yarn sync-input-docx && yarn sync-input-json && yarn sync-loader-stream-browser && yarn sync-loader-stream-file && yarn sync-output-html && yarn sync-output-pdf && yarn sync-output-svg && yarn sync-representation-html && yarn sync-representation-pagination && yarn sync-representation-text",
-	
-	"sync-input-docx":"wo publish packages/we-edit-input-docx --pluginName input-docx",
-	"sync-input-json":"wo publish packages/we-edit-input-json --pluginName input-json",
-	"sync-loader-stream-browser":"wo publish packages/we-edit-loader-stream-browser --pluginName loader-stream-browser",
-	"sync-loader-stream-file":"wo publish packages/we-edit-loader-stream-file --pluginName loader-stream-file",
-	"sync-output-html":"wo publish packages/we-edit-output-html --pluginName output-html",
-	"sync-output-pdf":"wo publish packages/we-edit-output-pdf --pluginName output-pdf",
-	"sync-output-svg":"wo publish packages/we-edit-output-svg --pluginName output-svg",
-	"sync-representation-html":"wo publish packages/we-edit-representation-html --pluginName representation-html",
-	"sync-representation-pagination":"wo publish packages/we-edit-representation-pagination --pluginName representation-pagination",
-	"sync-representation-text":"wo publish packages/we-edit-representation-text --pluginName representation-text"
+    "sync": "webpack --env=plugin && yarn syncall",
+    "syncall": "yarn sync-input-docx && yarn sync-input-json && yarn sync-loader-stream-browser && yarn sync-loader-stream-file && yarn sync-output-html && yarn sync-output-pdf && yarn sync-output-svg && yarn sync-representation-html && yarn sync-representation-pagination && yarn sync-representation-text",
+    "sync-input-docx": "wo publish packages/we-edit-input-docx",
+    "sync-input-json": "wo publish packages/we-edit-input-json",
+    "sync-loader-stream-browser": "wo publish packages/we-edit-loader-stream-browser",
+    "sync-loader-stream-file": "wo publish packages/we-edit-loader-stream-file",
+    "sync-output-html": "wo publish packages/we-edit-output-html",
+    "sync-output-pdf": "wo publish packages/we-edit-output-pdf",
+    "sync-output-svg": "wo publish packages/we-edit-output-svg",
+    "sync-representation-html": "wo publish packages/we-edit-representation-html",
+    "sync-representation-pagination": "wo publish packages/we-edit-representation-pagination",
+    "sync-representation-text": "wo publish packages/we-edit-representation-text"
   },
   "keywords": [
     "we-edit"

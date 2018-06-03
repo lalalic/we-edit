@@ -57,6 +57,14 @@ export default class Emitter extends Viewer{
 		console.log(`Format[${type}] installed`)
 	}
 
+	static unsupport(Format){
+		const type=Format.defaultProps.type
+		if(supports[type]){
+			delete supports[type]
+			console.log(`Format[${type}] uninstalled`)	
+		}
+	}
+
 	static get supports(){
 		return {...supports}
 	}
@@ -136,15 +144,15 @@ export default class Emitter extends Viewer{
 	static Format=class Format extends PureComponent{
 		static displayName="Format"
 		static childContextTypes={
-			media:PropTypes.string	
+			media:PropTypes.string
 		}
-		
+
 		getChildContext(){
 			return {
 				media:Emitter.defaultProps.media
 			}
 		}
-		
+
 		render(){
 			if(this.constructor==Emitter.Format){
 				const {type, ...props}=this.props

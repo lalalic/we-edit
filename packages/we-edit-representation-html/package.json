@@ -19,7 +19,10 @@
   "engines": {
     "node": ">= 0.4.4"
   },
-  
+  "we-office":{
+      "name":"representation-html",
+      "type":["representation"]
+  },
   "files":["index.js","index.browser.js","README.md"],
   "readme": "README.md"
 }

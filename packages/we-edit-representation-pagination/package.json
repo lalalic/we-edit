@@ -31,6 +31,10 @@
   "engines": {
     "node": ">= 0.4.4"
   },
+  "we-office":{
+      "name":"representation-pagination",
+      "type":["representation"]
+  },
   "files": [
     "index.js",
     "index.browser.js",

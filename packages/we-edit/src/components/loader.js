@@ -27,7 +27,7 @@ export default class Loader extends PureComponent{
 
     static support(loader){
 		let type=loader.defaultProps.type
-		
+
 		if(!loader.support || loader.support()){
 			console.log(`loader[${type}] installed`)
 			supports[type]=loader
@@ -35,6 +35,15 @@ export default class Loader extends PureComponent{
 			console.log(`loader[${type}] discarded because of not supported environment`)
 		}
 	}
+
+    static unsupport(loader){
+        let type=loader.defaultProps.type
+
+		if(supports[type]){
+			delete supports[type]
+            console.log(`loader[${type}] uninstalled`)
+		}
+    }
 
 	static get supports(){
 		return {...supports}
@@ -81,11 +90,11 @@ export default class Loader extends PureComponent{
 				throw error
 			}
 			onLoad()
-			return 
+			return
 		}
-		
+
         return Input.load(file)
-            .then(doc=>{ 
+            .then(doc=>{
                 if(this.isInWeEditDomain()){
                     this.context.store.dispatch(ACTION.ADD(doc,reducer))
                 }else{

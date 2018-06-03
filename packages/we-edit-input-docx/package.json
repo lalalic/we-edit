@@ -16,13 +16,17 @@
   },
   "peerDependencies":{
 	"react": "^16.2.0",
-    "react-dom": "^16.1.1",	
+    "react-dom": "^16.1.1",
     "prop-types": "^15.6.0",
     "recompose": "^0.26.0",
     "we-edit":"^3.0.0"
   },
   "engines": {
     "node": ">=0.10.0"
+  },
+  "we-office":{
+      "name":"input-docx",
+      "type":["input"]
   },
   "files":["index.js","index.browser.js","README.md"],
   "readme": "README.md"

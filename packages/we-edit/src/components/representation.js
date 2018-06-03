@@ -20,20 +20,29 @@ export default class  Representation extends Component{
 
 	static support(Representation){
 		supports[Representation.defaultProps.type]=Representation
+		console.log(`Representation[${Representation.defaultProps.type}] installed`)
+	}
+
+	static unsupport(Representation){
+		const type=Representation.defaultProps.type
+		if(suppors[type]){
+			delete supports[type]
+			console.log(`Representation[${type}] uninstalled`)
+		}
 	}
 
 	static get(name){
 		return supports[name]
 	}
-	
+
 	static get Pagination(){
 		return supports['pagination']
 	}
-	
+
 	static get Html(){
 		return supports['html']
 	}
-	
+
 	static get Text(){
 		return supports['text']
 	}

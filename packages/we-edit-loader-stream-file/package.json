@@ -20,6 +20,10 @@
   "engines": {
     "node": ">= 0.4.4"
   },
+  "we-office":{
+      "name":"loader-emitter-file",
+      "type":["loader","emitter"]
+  },
   "files": [
     "index.js",
     "index.browser.js",
