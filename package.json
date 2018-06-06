@@ -37,13 +37,13 @@
     "source-map-loader": "^0.1.6",
     "style-loader": "^0.20.3",
     "transform-loader": "^0.2.4",
-    "we-office-cli": "0.0.4",
+    "we-office-cli": "0.0.5",
     "webpack": "^3.8.1",
     "webpack-dev-server": "^2.9.4",
     "webpack-node-externals": "^1.7.2"
   },
   "scripts": {
-    "test": "jest packages/**/__tests__",
+    "test": "jest",
     "dev": "webpack-dev-server --env=dev",
     "build": "webpack --env=api",
     "sync": "webpack --env=plugin && yarn syncall",

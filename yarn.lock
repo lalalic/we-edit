@@ -1311,8 +1311,8 @@ buffer-fill@^0.1.0:
   resolved "https://registry.yarnpkg.com/buffer-fill/-/buffer-fill-0.1.1.tgz#76d825c4d6e50e06b7a31eb520c04d08cc235071"
 
 buffer-from@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/buffer-from/-/buffer-from-1.0.0.tgz#4cb8832d23612589b0406e9e2956c17f06fdf531"
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/buffer-from/-/buffer-from-1.1.0.tgz#87fcaa3a298358e0ade6e442cfce840740d1ad04"
 
 buffer-indexof@^1.0.0:
   version "1.1.1"
@@ -7448,9 +7448,9 @@ wbuf@^1.1.0, wbuf@^1.7.2:
   dependencies:
     minimalistic-assert "^1.0.0"
 
-we-office-cli@0.0.4:
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/we-office-cli/-/we-office-cli-0.0.4.tgz#79c127626066f7563df4737bb38b90554c097a26"
+we-office-cli@0.0.5:
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/we-office-cli/-/we-office-cli-0.0.5.tgz#9bb247973d50b9f2cfa52e6e3452bb1348cdeed2"
   dependencies:
     lodash.merge "^4.6.1"
     mkdirp "0.5.1"
