@@ -1,9 +1,11 @@
 import React from "react"
 import Path from "path"
 import {Loader, Emitter, Stream, render} from "we-edit"
+
 import "we-edit-representation-pagination"
 import "we-edit-representation-html"
 import "we-edit-representation-text"
+
 
 import "we-edit-input-docx"
 import "we-edit-input-json"
@@ -14,6 +16,7 @@ import "we-edit-output-svg"
 
 import "we-edit-loader-stream-file"
 import "we-edit-loader-stream-browser"
+
 
 const {Format}=Emitter
 
@@ -35,5 +38,9 @@ describe("we-edit integration", function(){
 
 	it("svg",()=>{
 		return render(template())
+	})
+	
+	it("pdf", ()=>{
+		return render(template("pdf"))
 	})
 })

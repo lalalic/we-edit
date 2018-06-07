@@ -47,6 +47,15 @@ export class Pagination extends Component{
 	}
 	
 	static Output=Output
+	
+	static install(){
+		console.log("installing pagination")
+		Representation.install(this)
+	}
+	
+	static uninstall(){
+		Representation.uninstall(this)
+	}
 
 	state={fontsLoaded:false}
 	componentWillMount(){
@@ -118,4 +127,4 @@ export class Pagination extends Component{
 	}
 }
 
-Representation.support(Pagination)
+Pagination.install()

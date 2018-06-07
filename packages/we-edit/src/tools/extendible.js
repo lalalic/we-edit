@@ -1,7 +1,7 @@
-export default function supportable(Type, Category){
+export default function extendible(Type, Category){
     const supports={}
 
-    Type.support=function(New){
+    Type.install=function(New){
         const type=New.defaultProps.type
         if(New.support && !New.support()){
             console.log(`${Category}[${type}] discarded because of not supported environment`)
@@ -14,7 +14,7 @@ export default function supportable(Type, Category){
         }
     }
 
-    Type.unsupport=function(New){
+    Type.uninstall=function(New){
         const type=New.defaultProps.type
         if(supports[type]){
             delete supports[type]
@@ -27,6 +27,7 @@ export default function supportable(Type, Category){
     }
 
     Type.get=function(type){
+		console.log("getting "+type)
         return supports[type]
     }
 

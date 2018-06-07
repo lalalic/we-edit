@@ -1,8 +1,8 @@
 import React, {PureComponent as Component, Children} from "react"
 import PropTypes from "prop-types"
+import extendible from "../tools/extendible"
 
-const supports={}
-export default class  Representation extends Component{
+class  Representation extends Component{
 	static propTypes={
 		domain: PropTypes.string,
 		type: PropTypes.string,
@@ -18,35 +18,6 @@ export default class  Representation extends Component{
 		ModelTypes: PropTypes.object,
 	}
 
-	static support(Representation){
-		supports[Representation.defaultProps.type]=Representation
-		console.log(`Representation[${Representation.defaultProps.type}] installed`)
-	}
-
-	static unsupport(Representation){
-		const type=Representation.defaultProps.type
-		if(suppors[type]){
-			delete supports[type]
-			console.log(`Representation[${type}] uninstalled`)
-		}
-	}
-
-	static get(name){
-		return supports[name]
-	}
-
-	static get Pagination(){
-		return supports['pagination']
-	}
-
-	static get Html(){
-		return supports['html']
-	}
-
-	static get Text(){
-		return supports['text']
-	}
-
 	getChildContext(){
 		const {domain, EditorTypes, ViewerTypes}=this.props
 		return {
@@ -58,3 +29,5 @@ export default class  Representation extends Component{
 		return Children.only(this.props.children)
 	}
 }
+
+export default extendible(Representation, "representation")

@@ -18,10 +18,19 @@ export class Html extends Component{
 	}
 	
 	static Output=Output
+	
+	static install(){
+		console.log("installing pagination")
+		Representation.install(this)
+	}
+	
+	static uninstall(){
+		Representation.uninstall(this)
+	}
 
 	render(){
 		return <Representation {...{ViewerTypes,EditorTypes,...this.props}}/>
 	}
 }
 
-Representation.support(Html)
+Html.install()

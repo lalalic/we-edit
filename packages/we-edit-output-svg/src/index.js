@@ -1,7 +1,7 @@
 import PropTypes from "prop-types"
 import {Emitter, Representation} from "we-edit"
 
-export default class SVG extends Representation.Pagination.Output{
+export default class SVG extends Representation.get("pagination").Output{
 	static displayName="SVG"
 	static propTypes={
 		type: PropTypes.string.isRequired,

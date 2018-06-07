@@ -1,7 +1,7 @@
 import {Emitter, Representation} from "we-edit"
 import PDFDocument from "pdfkit"
 
-export default class PDF extends Representation.Pagination.Output{
+export default class PDF extends Representation.get("pagination").Output{
 	static displayName="PDF"
 	static defaultProps={
 		type:"pdf",
