@@ -30,4 +30,4 @@ class  Representation extends Component{
 	}
 }
 
-export default extendible(Representation, "representation")
+export default extendible(Representation, "representation", "Output")

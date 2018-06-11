@@ -3,6 +3,7 @@ import PropTypes from "prop-types"
 import Viewer from "./viewer"
 import {createWeDocument} from "./editor"
 import Representation from "./representation"
+import extendible from "../tools/extendible"
 
 /**
 <emiter representation={<Pagination/>}>
@@ -34,7 +35,6 @@ import Representation from "./representation"
 	</Stream>
 </emiter>
 */
-const supports={}
 export default class Emitter extends Viewer{
 	static displayName="emitter"
 
@@ -49,24 +49,6 @@ export default class Emitter extends Viewer{
 		...Viewer.defaultProps,
 		media:"file",
 		domain:"view",
-	}
-
-	static support(Format){
-		const type=Format.defaultProps.type
-		supports[type]=Format
-		console.log(`Format[${type}] installed`)
-	}
-
-	static unsupport(Format){
-		const type=Format.defaultProps.type
-		if(supports[type]){
-			delete supports[type]
-			console.log(`Format[${type}] uninstalled`)	
-		}
-	}
-
-	static get supports(){
-		return {...supports}
 	}
 
 	shouldComponentUpdate(){
@@ -86,7 +68,6 @@ export default class Emitter extends Viewer{
 	}
 
 	groupStreamFormat(){
-		const SupportedFormats=Emitter.supports
 		const createGroup=()=>{
 			let collected=new Map()
 			collected.set=function(k,v){
@@ -113,7 +94,7 @@ export default class Emitter extends Viewer{
 			formats.reduce((groups, format)=>{
 				let {props:{type, representation}, type:ClassType}=format
 				if(ClassType==Emitter.Format){
-					let TypedFormat=SupportedFormats[type]
+					let TypedFormat=Emitter.get(type)
 					groups.set(TypedFormat.defaultProps.representation).push(format)
 				}else {
 					groups.set(representation).push(format)
@@ -216,4 +197,6 @@ class OutputInput extends Emitter.Format{
 	}
 }
 
-Emitter.support(Emitter.Format.OutputInput=OutputInput)
+extendible(Emitter, "emitter")
+
+Emitter.install(Emitter.Format.OutputInput=OutputInput)

@@ -1,4 +1,4 @@
-export default function extendible(Type, Category){
+export default function extendible(Type, Category, ProxiedProp){
     const supports={}
 
     Type.install=function(New){
@@ -22,14 +22,36 @@ export default function extendible(Type, Category){
         }
     }
 
-    Type.supports=function(){
-        return Object.freeze({...supports})
-    }
-
     Type.get=function(type){
-		console.log("getting "+type)
-        return supports[type]
+		return supports[type]
     }
+	
+    Object.defineProperty(Type, "supports", {
+		configurable:true,
+		get(){
+			return Object.freeze({...supports})
+		}
+	})	
+	
+	if(ProxiedProp){
+		let proxy=new Proxy(supports, {
+			get(o, prop){
+				let name=prop[0].toLowerCase()+prop.substr(1)
+				if(o[name]){
+					return o[name][ProxiedProp]
+				}
+				
+				throw new Error()
+			},
+			set(){
+				throw new Error()
+			}
+		})
+		Object.defineProperty(Type, ProxiedProp, {
+			configurable:true,
+			value: proxy
+		})
+	}
 
     return Type
 }

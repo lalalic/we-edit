@@ -2,6 +2,7 @@ import React, {Component,PureComponent} from "react"
 import PropTypes from "prop-types"
 import {DOMAIN, ACTION} from "./we-edit"
 import Input from "../input"
+import extendible from "../tools/extendible"
 
 const supports={}
 
@@ -9,7 +10,7 @@ const supports={}
  * Loader is used to load document
  *
  */
-export default class Loader extends PureComponent{
+class Loader extends PureComponent{
     static displayName="loader"
     static propTypes={
         type: PropTypes.string.isRequired,
@@ -24,30 +25,6 @@ export default class Loader extends PureComponent{
     static contextTypes={
         store:PropTypes.object
     }
-
-    static support(loader){
-		let type=loader.defaultProps.type
-
-		if(!loader.support || loader.support()){
-			console.log(`loader[${type}] installed`)
-			supports[type]=loader
-		}else{
-			console.log(`loader[${type}] discarded because of not supported environment`)
-		}
-	}
-
-    static unsupport(loader){
-        let type=loader.defaultProps.type
-
-		if(supports[type]){
-			delete supports[type]
-            console.log(`loader[${type}] uninstalled`)
-		}
-    }
-
-	static get supports(){
-		return {...supports}
-	}
 
     state={file:null}
 
@@ -105,3 +82,5 @@ export default class Loader extends PureComponent{
             })
     }
 }
+
+export default extendible(Loader, "loader")

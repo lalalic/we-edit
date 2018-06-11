@@ -1,7 +1,7 @@
 import PropTypes from "prop-types"
 import {Emitter, Representation} from "we-edit"
 
-export default class HTML extends Representation.get("html").Output{
+export default class HTML extends Representation.Output.Html{
 	static displayName="HTML"
 	static propTypes={
 		type: PropTypes.string.isRequired,
@@ -29,4 +29,4 @@ export default class HTML extends Representation.get("html").Output{
 	}
 }
 
-Emitter.support(HTML)
+Emitter.install(HTML)

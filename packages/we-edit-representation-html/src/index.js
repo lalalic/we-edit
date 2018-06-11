@@ -20,7 +20,6 @@ export class Html extends Component{
 	static Output=Output
 	
 	static install(){
-		console.log("installing pagination")
 		Representation.install(this)
 	}
 	

@@ -1,7 +1,7 @@
 import React,{Component, Fragment, Children} from "react"
 import PropTypes from "prop-types"
+import extendible from "../tools/extendible"
 
-const supports={}
 export class Stream extends Component{
 	static propTypes={
 		type: PropTypes.string,
@@ -11,29 +11,7 @@ export class Stream extends Component{
 	static defaultProps={
 		onFinish:a=>a
 	}
-
-	static support(stream){
-		const type=stream.type
-		if(!stream.support || stream.support()){
-			console.log(`stream[${type}] installed`)
-			supports[type]=stream
-		}else{
-			console.log(`stream[${type}] discarded because of not supported environment`)
-		}
-	}
-
-	static unsupport(stream){
-		const type=stream.type
-		if(supports[type]){
-			delete supports[type]
-			console.log(`stream[${type}] uninstalled`)
-		}
-	}
-
-	static get supports(){
-		return {...supports}
-	}
-
+	
 	shouldComponentUpdate(){
 		return false
 	}
@@ -81,6 +59,8 @@ export class Stream extends Component{
 	)
 }
 
+extendible(Stream, "output stream")
+
 import {Writable} from "stream"
 class ConsoleStream extends Writable{
 	static type="console"
@@ -89,4 +69,4 @@ class ConsoleStream extends Writable{
 	}
 }
 
-Stream.support(ConsoleStream)
+Stream.install(ConsoleStream)
