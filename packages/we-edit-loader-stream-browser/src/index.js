@@ -116,6 +116,6 @@ export class Reader extends PureComponent{
     }
 }
 
-Loader.support(Reader)
-Stream.support(Writer)
+Loader.install(Reader)
+Stream.install(Writer)
 

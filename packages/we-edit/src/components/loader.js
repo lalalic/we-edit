@@ -46,7 +46,7 @@ class Loader extends PureComponent{
         }else{
             if(this.constructor==Loader){
                 const {type, ...props}=this.props;
-        		const Type=supports[type]
+        		const Type=this.constructor.get(type)
 				if(!Type){
 					console.error(`loader[${type}] not installed`)
 					return null

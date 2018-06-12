@@ -2,7 +2,7 @@ export default function extendible(Type, Category, ProxiedProp){
     const supports={}
 
     Type.install=function(New){
-        const type=New.defaultProps.type
+        const type=New.defaultProps ? New.defaultProps.type : New.type
         if(New.support && !New.support()){
             console.log(`${Category}[${type}] discarded because of not supported environment`)
             return
@@ -15,7 +15,7 @@ export default function extendible(Type, Category, ProxiedProp){
     }
 
     Type.uninstall=function(New){
-        const type=New.defaultProps.type
+        const type=New.defaultProps ? New.defaultProps.type : New.type
         if(supports[type]){
             delete supports[type]
             console.log(`${Category}[${type}] uninstalled`)

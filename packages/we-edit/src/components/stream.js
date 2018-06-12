@@ -19,7 +19,7 @@ export class Stream extends Component{
 	render(){
 		const {type, children, onFinish, ...props}=this.props
 		const {path,name,...formatProps}=props
-		const Type=supports[type]
+		const Type=this.constructor.get(type)
 		const jobs=[]
 		let rendered=(
 			<Fragment>

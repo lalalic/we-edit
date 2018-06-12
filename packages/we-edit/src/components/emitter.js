@@ -197,6 +197,6 @@ class OutputInput extends Emitter.Format{
 	}
 }
 
-extendible(Emitter, "emitter")
+extendible(Emitter, "output format")
 
 Emitter.install(Emitter.Format.OutputInput=OutputInput)
