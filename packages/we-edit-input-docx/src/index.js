@@ -7,7 +7,12 @@ import Style from "./styles"
 import Transformers from "./model"
 
 export default class DocxType extends Input.Editable{
-	static support({data, name, type}){
+	static support(file){
+		if(arguments.length==0){//for installer
+			return true
+		}
+		
+		const {data, name, type}=file
 		if(name && name.toLowerCase().endsWith(".docx"))
 			return true
 
@@ -336,4 +341,4 @@ export default class DocxType extends Input.Editable{
 	}
 }
 
-Input.support(DocxType)
+Input.install(DocxType)

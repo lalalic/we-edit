@@ -1,4 +1,6 @@
 import React from "react"
+import PropTypes from "prop-types"
+
 import * as reducer from "./reducer"
 import Components from "../model"
 import {getSelection, getContent} from "../state/selector"
@@ -10,6 +12,13 @@ export class Viewable{
 
 	static support(file){
 		return false
+	}
+	
+	static propTypes={
+		type: PropTypes.string.isRequired,
+		name: PropTypes.string.isRequired,
+		ext: propTypes.string.isRequired,
+		mimeType: propTypes.string.isRequired
 	}
 
 	static getType(){

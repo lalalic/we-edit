@@ -62,6 +62,5 @@ export class Reader extends PureComponent{
 	}
 }
 
-
 Stream.install(Writer)
 Loader.install(Reader)
