@@ -17,24 +17,24 @@ export class Viewable{
 	static propTypes={
 		type: PropTypes.string.isRequired,
 		name: PropTypes.string.isRequired,
-		ext: propTypes.string.isRequired,
-		mimeType: propTypes.string.isRequired
+		ext: PropTypes.string.isRequired,
+		mimeType: PropTypes.string.isRequired
 	}
 
 	static getType(){
-		throw new Exception("You have to specify document type, such as docx")
+		return this.defaultProps.type	
 	}
 
 	static getTypeName(){
-		throw new Exception("You have to specify document type name, such as Word Document")
+		return this.defaultProps.name
 	}
 
 	static getTypeExt(){
-		throw new Exception("You have to specify document type ext, such as docx")
+		return this.defaultProps.ext
 	}
 
 	static getTypeMimeType(){
-		throw new Exception("You have to specify document mime type, such as application/docx")
+		return this.defaultProps.mimeType
 	}
 
 	getType(){
@@ -54,8 +54,8 @@ export class Viewable{
 	}
 
 	//doc=null//injected from load/create
-	load(url){
-		return Promise.reject(new Error("need implementation to load and parse content at "+url))
+	parse({data/*stream,array,object,...*/,...props}){
+		return Promise.reject(new Error("need implementation to parse file {data}"))
 	}
 
 	release(){

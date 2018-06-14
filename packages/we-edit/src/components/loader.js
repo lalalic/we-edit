@@ -70,7 +70,7 @@ class Loader extends PureComponent{
 			return
 		}
 
-        return Input.load(file)
+        return Input.parse(file)
             .then(doc=>{
                 if(this.isInWeEditDomain()){
                     this.context.store.dispatch(ACTION.ADD(doc,reducer))

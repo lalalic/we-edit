@@ -13,7 +13,12 @@ export default class Create extends PureComponent{
     state={type:this.getSupportedFormats()[0].value}
 
     getSupportedFormats(){
-        return Input.supports.filter(Type=>Type.prototype.create)
+        return Object.keys(Input.supports)
+				.reduce((collected,k)=>{
+					collected.push(Input.get(k))
+					return collected
+				},[])
+			.filter(Type=>Type.prototype.create)
             .map(Type=>({text:`${Type.getTypeName()}(*.${Type.getTypeExt()})`,value:Type.getType()}))
     }
 

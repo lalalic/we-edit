@@ -138,7 +138,7 @@ export default class Emitter extends Viewer{
 			if(this.constructor==Emitter.Format){
 				const {type, ...props}=this.props
 				if(typeof(type)!="undefined"){
-					const Type=supports[type]
+					const Type=Emitter.get(type)
 					if(Type){
 						return <Type {...props}/>
 					}

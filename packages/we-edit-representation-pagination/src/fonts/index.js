@@ -121,7 +121,7 @@ const FontManager={
             }else{
                 require("get-system-fonts")()
                     .then(fonts=>fonts.filter(a=>a.endsWith(".ttf")))
-                    .then(a=>(console.dir(a),a))
+                    //.then(a=>(console.dir(a),a))
                     .then(fonts=>Promise.all(fonts.map(load1).filter(a=>!!a)))
                     .then(resolve,reject)
             }

@@ -8,13 +8,12 @@ export default extendible({
 	Viewable,
 	Editable,
 	EditableDocument,
-	load(file){
-		console.log(file)
+	parse(file){
 		const type=this.resolveFileType(file)
 		let Found=this.get(type)
 		if(Found){
 			const inst=new Found()
-			return Promise.resolve(inst.load(file)).then(doc=>buildDoc(doc,inst))
+			return Promise.resolve(inst.parse(file)).then(doc=>buildDoc(doc,inst))
 		}else{
 			throw new Error(`we cannot edit ${file}`)
 		}
@@ -38,14 +37,13 @@ export default extendible({
 		if(name && !ext){
 			ext=name.split(".").pop().trim()
 		}
-		
-		const supports=this.supports()
-		return Object.keys(supports)
+
+		return Object.keys(this.supports)
 			.reduce((foundType, a)=>{
 				if(foundType)
 					return foundType
 				
-				Type=this.get(a)
+				const Type=this.get(a)
 				if(Type){
 					if(ext){
 						if(Type.getTypeExt()==ext)

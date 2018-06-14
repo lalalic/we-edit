@@ -31,6 +31,7 @@ export default function render(element){
 	let overall=new Promise((resolve,reject)=>{
 		ErrorContainer=class  extends PureComponent{
 			componentDidCatch(error,info){
+				console.debug(error)
 				reject(error)
 			}
 			render(){

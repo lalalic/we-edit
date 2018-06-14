@@ -2,7 +2,11 @@ import {Input} from "we-edit"
 import EditableDocument from "./editable-doc"
 
 export default class JSONType extends Input.Editable{
-	static support({data, name, type}){
+	static support(file){
+		if(!file)
+			return true
+		
+		const {data, name, type}=file
 		if(name && name.endsWith(".wed.json") || name.endsWith(".wed.xml"))
 			return true
 
@@ -27,33 +31,25 @@ export default class JSONType extends Input.Editable{
 		*/
 		return false
 	}
+	
+	static defaultProps={
+		type:"json",
+		ext:"json",
+		name:"WE document",
+		mimeType:"application/json"
+	}
 
 	static isPlainData(file){
 		return file.children
 	}
-	static getType(){
-		return "json"
-	}
 
-	static getTypeName(){
-		return "WE document"
-	}
-
-	static getTypeExt(){
-		return this.getType()
-	}
-
-	static getTypeMimeType(){
-		return "application/json"
-	}
-
-	load(file){
+	parse(file){
 		switch(typeof(file)){
 		case "object":
 			if(this.constructor.isPlainData(file) && file.type=="document")
 				return new EditableDocument(file)
 			if(this.constructor.isBlob(file)){
-				return this.constructor.load(file).then(({data,type,name})=>{
+				return this.constructor.parse(file).then(({data,type,name})=>{
 					this.name=name
 					switch(type||name.split(".").pop()){
 						case "json":
@@ -121,4 +117,4 @@ export default class JSONType extends Input.Editable{
 	}
 }
 
-Input.support(JSONType)
+Input.install(JSONType)

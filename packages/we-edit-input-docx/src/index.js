@@ -24,23 +24,15 @@ export default class DocxType extends Input.Editable{
 
 		return false
 	}
-
-	static getType(){
-		return "docx"
+	
+	static defaultProps={
+		type: "docx",
+		name: "Word Document",
+		ext: "docx",
+		mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 	}
 
-	static getTypeName(){
-		return "Word Document"
-	}
-	static getTypeExt(){
-		return this.getType()
-	}
-
-	static getTypeMimeType(){
-		return "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-	}
-
-	load({data, name, ...props}){
+	parse({data, name, ...props}){
 		if(name)
 			this.name=name
 		this.props=props
