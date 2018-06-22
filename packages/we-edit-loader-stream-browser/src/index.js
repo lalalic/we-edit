@@ -78,10 +78,10 @@ export class Writer extends Stream.Base{
 		
 		const {name,format,target,windowFeatures}=this.props
 		stream.on("finish",()=>{
-            if(name){
-                this.download(name.indexOf(".")!=-1 ? name : `${name}.${format}`)
+            if(target){
+				this.preview(target,windowFeatures)
             }else {
-                this.preview(target,windowFeatures)
+               this.download(name.indexOf(".")!=-1 ? name : `${name}.${format}`)
             }
         })
 		

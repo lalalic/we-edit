@@ -30,6 +30,16 @@ export default function render(element){
 	
 	let overall=new Promise((resolve,reject)=>{
 		ErrorContainer=class  extends PureComponent{
+			static childContextTypes={
+				inRender: PropTypes.bool
+			}
+			
+			getChildContext(){
+				return {
+					inRender:true
+				}
+			}
+			
 			componentDidCatch(error,info){
 				console.debug(error)
 				reject(error)

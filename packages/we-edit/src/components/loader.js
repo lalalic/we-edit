@@ -31,8 +31,13 @@ class Loader extends PureComponent{
 			type: PropTypes.string.isRequired
 		}
 		
-		componentDidMount(){
-			if(!this.render()){
+		static contextTypes={
+			inRender: PropTypes.bool
+		}
+		
+		constructor(){
+			super(...arguments)
+			if(this.context.inRender){
 				this.doLoad()
 			}
 		}

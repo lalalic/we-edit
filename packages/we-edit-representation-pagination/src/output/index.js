@@ -7,17 +7,8 @@ import Page from "../composed/page"
 
 const RE_TRANSLATE=/translate\((\d+)\s+(\d+)\)/
 export default class Output extends Emitter.Format.Base{
-	static contextTypes={
-		...Emitter.Format.contextTypes,
-	}
-	static propTypes={
-		type: PropTypes.string.isRequired,
-		name: PropTypes.string.isRequired,
-		ext: PropTypes.string.isRequired,
-		representation: PropTypes.string.isRequired,
-	}
-
 	static defaultProps={
+		...Emitter.Format.Base.defaultProps,
 		representation: "pagination"
 	}
 	

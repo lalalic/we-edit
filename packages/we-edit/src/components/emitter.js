@@ -131,26 +131,30 @@ export default class Emitter extends Viewer{
 		static Base=class extends Component{
 			static propTypes={
 				type: PropTypes.string.isRequired,
+				name: PropTypes.string.isRequired,
+				ext: PropTypes.string.isRequired,
+				representation: PropTypes.string.isRequired,
 				stream: PropTypes.node
 			}
 			
+			static defaultProps={
+				
+			}
+			
 			static Setting=class extends Component{
+				state={}
 				render(){
 					return null
 				}
 			}
 			
 			render(){
-				this.emit()
-				return null
-			}
-			
-			get stream(){
-				if(!this._stream){
-					const {type, props}=this.props.stream
-					this._stream=new type(props).doCreate()
-				}
-				return this._stream
+				return React.cloneElement(this.props.stream,{
+					onReady:stream=>{
+						this.stream=stream
+						this.emit()
+					}
+				})
 			}
 			
 			emit(){

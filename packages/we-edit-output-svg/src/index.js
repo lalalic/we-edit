@@ -4,11 +4,7 @@ import {Emitter, Representation} from "we-edit"
 export default class SVG extends Representation.Output.Pagination{
 	static displayName="SVG"
 	static propTypes={
-		type: PropTypes.string.isRequired,
-		name: PropTypes.string.isRequired,
-		ext: PropTypes.string.isRequired,
-		representation: PropTypes.string.isRequired,
-		
+		...Representation.Output.Pagination.propTypes,
 		pgGap: PropTypes.number,
 		pgColor: PropTypes.string,
 	}

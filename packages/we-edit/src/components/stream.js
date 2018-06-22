@@ -19,8 +19,13 @@ export class Stream extends Component{
 			onError: PropTypes.func
 		}
 		
-		componentDidMount(){
-			if(!this.render()){
+		static contextTypes={
+			inRender: PropTypes.bool
+		}
+		
+		constructor(){
+			super(...arguments)
+			if(this.context.inRender){
 				this.doCreate()
 			}
 		}
@@ -31,9 +36,10 @@ export class Stream extends Component{
 		
 		doCreate(){
 			let stream=this.create()
-			const {onFinish, onError}=this.props
+			const {onFinish, onError, onReady}=this.props
 			stream.on("finish",onFinish)
 			stream.on("error",onError)
+			onReady(stream)
 			return stream
 		}
 		
