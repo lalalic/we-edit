@@ -120,7 +120,7 @@ export default class Output extends Emitter.Format.Base{
 
 	addAsyncJob(a){
 		this._asyncJobs.push(a.catch(e=>{
-			console.warn(e.message)
+			console.error(e)
 			return e
 		}))
 	}

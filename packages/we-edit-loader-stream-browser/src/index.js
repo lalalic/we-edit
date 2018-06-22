@@ -3,11 +3,11 @@ import PropTypes from "prop-types"
 import {Writable} from "stream"
 import {Stream, Loader} from "we-edit"
 
-import Setting from "./setting"
+import {TextField} from "material-ui"
+
 const support=()=>{
 	try{
-		window.URL.createObjectURL && document.createElement
-		return true
+		return window.URL.createObjectURL && document.createElement
 	}catch(e){
 		return false
 	}
@@ -18,26 +18,74 @@ const support=()=>{
 * target: show on iframe/window
 */
 export class Writer extends Stream.Base{
-    static type="browser"
-	static SettingUI=Setting
+	static defaultProps={
+		...Stream.Base.defaultProps,
+		type:"browser",
+	}
 	static support=support
-    constructor({name, target,format,windowFeatures}){
-        super({})
-		this.format=format
-		this.data=[]
-		this.name="[browser]"
-        this.on("finish",()=>{
+	
+	state={
+		windowFeatures:"menubar=no,location=no,resizable=yes,scrollbars=yes,status=no",
+		...this.props
+	}
+
+	componentWillReceiveProps({format,fixName}){
+		if(this.props.format!=format){
+			this.setState({name:fixName(this.state.name)})
+		}
+	}
+
+	render(){
+		const {name, target, windowFeatures}=this.state
+		return (
+			<center>
+				<div>
+					<TextField
+						value={name}
+						floatingLabelText="file name"
+						onChange={(e,name)=>this.setState({name})}/>
+				</div>
+				<div>
+					<TextField value={target}
+						floatingLabelText="target:_blank|_self|_parent|_top|frame name"
+						onChange={(e,target)=>{
+							if(target){
+								this.setState({target,name:""})
+							}else{
+								this.setState({target,name:this.props.name})
+							}
+						}}/>
+				</div>
+				<div>
+					<TextField value={windowFeatures}
+						floatingLabelText="window features"
+						onChange={(e,windowFeatures)=>{
+							this.setState({windowFeatures})
+						}}/>
+				</div>
+			</center>
+		)
+	}
+	
+	create(){
+		let data=this.data=[]
+		let stream=new Writable({
+			write(chunk,enc, next){
+				data.push(chunk)
+				next()
+			}
+		})
+		
+		const {name,format,target,windowFeatures}=this.props
+		stream.on("finish",()=>{
             if(name){
                 this.download(name.indexOf(".")!=-1 ? name : `${name}.${format}`)
             }else {
                 this.preview(target,windowFeatures)
             }
         })
-    }
-	
-	_write(chunk, enc, next){
-		this.data.push(chunk)
-		next()
+		
+		return stream
 	}
 
     download(name){
@@ -68,12 +116,12 @@ export class Writer extends Stream.Base{
     }
 	
 	get blob(){
-		switch(this.format){
+		switch(this.props.format){
 		case 'svg':
 			return new Blob(this.data,{type:"image/svg+xml"})
 		break
 		default:
-			return new Blob(this.data, {type:"application/"+this.format})
+			return new Blob(this.data, {type:"application/"+this.props.format})
 		}
 	}
 }

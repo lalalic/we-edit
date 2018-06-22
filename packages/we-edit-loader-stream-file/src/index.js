@@ -36,7 +36,7 @@ export class Writer extends Stream.Base{
 	
 	create(){
 		const {path,name}=resolvePathName(this.props)
-		return createWriteStream(this.name=resolve(path,name))
+		return createWriteStream(resolve(path,name))
 	}
 }
 
@@ -56,7 +56,6 @@ export class Reader extends Loader.Base{
 	
 	load(){
 		const {path,name}=resolvePathName(this.props)
-		
 		return new Promise((resolve1,reject)=>{
 			readFile(resolve(path,name), (error,data)=>{
 				resolve1({data,path,error,name})

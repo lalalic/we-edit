@@ -1,6 +1,7 @@
 import React,{Component, Fragment, Children} from "react"
 import PropTypes from "prop-types"
 import extendible from "../tools/extendible"
+import {Writable} from "stream"
 
 export class Stream extends Component{
 	static propTypes={
@@ -15,15 +16,12 @@ export class Stream extends Component{
 	static Base=class extends Component{
 		static propTypes={
 			onFinish: PropTypes.func,
-			onError: PropTypes.func,
-			onReady: PropTypes.func
+			onError: PropTypes.func
 		}
 		
 		componentDidMount(){
 			if(!this.render()){
-				Promise
-					.resolve(this.create())
-					.then(stream=>this.onCreated(stream))
+				this.doCreate()
 			}
 		}
 		
@@ -31,15 +29,16 @@ export class Stream extends Component{
 			return null
 		}
 		
-		create(){
-			
-		}
-		
-		onCreated(stream){
-			const {onFinish, onError, onReady}=this.props
+		doCreate(){
+			let stream=this.create()
+			const {onFinish, onError}=this.props
 			stream.on("finish",onFinish)
 			stream.on("error",onError)
-			onReady(stream)
+			return stream
+		}
+		
+		create(){
+			throw new Error("no implementation")
 		}
 	}
 	
@@ -87,11 +86,18 @@ export class Stream extends Component{
 
 extendible(Stream, "output stream")
 
-import {Writable} from "stream"
-class ConsoleStream extends Writable{
-	static type="console"
-	_write(chunk){
-		console.log(chunk)
+class ConsoleStream extends Stream.Base{
+	static defaultProps={
+		...Stream.Base.defaultProps,
+		type:""
+	}
+	
+	create(){
+		return new Writable({
+			write(){
+				console.log(chunk)
+			}
+		})
 	}
 }
 

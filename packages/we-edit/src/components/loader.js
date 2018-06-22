@@ -33,9 +33,7 @@ class Loader extends PureComponent{
 		
 		componentDidMount(){
 			if(!this.render()){
-				Promise
-					.resolve(this.load())
-					.then(file=>this.props.onLoad(file))
+				this.doLoad()
 			}
 		}
 		
@@ -43,8 +41,14 @@ class Loader extends PureComponent{
 			return null
 		}
 		
+		doLoad(){
+			Promise
+				.resolve(this.load())
+				.then(file=>this.props.onLoad(file))
+		}
+		
 		load(){
-			
+			throw new Error("no implementation")
 		}
 	}
 

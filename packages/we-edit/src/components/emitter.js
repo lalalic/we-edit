@@ -130,6 +130,7 @@ export default class Emitter extends Viewer{
 		
 		static Base=class extends Component{
 			static propTypes={
+				type: PropTypes.string.isRequired,
 				stream: PropTypes.node
 			}
 			
@@ -139,20 +140,15 @@ export default class Emitter extends Viewer{
 				}
 			}
 			
-			componentDidMount(){
-				if(!this.render()){
-					this.emit()
-				}
-			}
-			
 			render(){
+				this.emit()
 				return null
 			}
 			
 			get stream(){
 				if(!this._stream){
 					const {type, props}=this.props.stream
-					this._stream=new type(props)
+					this._stream=new type(props).doCreate()
 				}
 				return this._stream
 			}
@@ -203,11 +199,8 @@ class WeDocumentStub extends PureComponent{
 
 class OutputInput extends Emitter.Format.Base{
 	static displayName="[Origin]"
-	static propTypes={
-		type: PropTypes.string.isRequired,
-	}
-
 	static defaultProps={
+		...Emitter.Format.Base,
 		type:"",
 	}
 
@@ -216,9 +209,8 @@ class OutputInput extends Emitter.Format.Base{
 	}
 
 	emit(){
-		const {stream}=this.props
 		let docStream=this.context.doc.stream()
-		docStream.pipe(stream)
+		docStream.pipe(this.stream)
 		docStream.push(null)
 	}
 }

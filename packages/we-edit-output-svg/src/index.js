@@ -89,7 +89,7 @@ export default class SVG extends Representation.Output.Pagination{
 					return res.arrayBuffer()
 				})
 				.then(buffer=>{
-					const {stream}=this.props
+					const stream=this.stream
 					
 					const toString=view=>view.reduce((b,a,i)=>{
 							b[i]=String.fromCharCode(a)

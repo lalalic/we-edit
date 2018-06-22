@@ -13,37 +13,44 @@ export default class Saver extends PureComponent{
 
     static save=(state, doc)=>({format, stream})=>{
         if(!stream){
-            stream=Saver.getStream(state,doc)
+            stream=Saver.getEmitterStream(state,doc).stream
         }
 
     	if(!format)
-            format=doc.type
+            format={type:doc.type}
 
-        const supports=Emitter.supports
-    	let Format=!format||doc.type==format ? Emitter.Format.OutputInput : supports[format]
+    	let Format=doc.type==format.type ? Emitter.Format.OutputInput : Emitter.get(format.type)
+		
     	return render(
     		<doc.Store readonly={true} release={false}>
     			<Emitter>
     				<Stream {...stream}>
-    					<Format/>
+    					<Format {...format}/>
     				</Stream>
     			</Emitter>
     		</doc.Store>
         )
     }
 
-    static getStream(state, doc){
-        let {format={type:doc.type}, stream={type:"browser",name:doc.name},loader}=state.get("office")
+    static getEmitterStream(state, doc){
+        let {
+			format={type:doc.type}, 
+			stream={type:"browser",name:doc.name},
+			loader
+		}=state.get("office")
+		
         if(format.type!=doc.type){
             if(loader && Emitter.supports[loader.type]){
                 stream={...loader}
             }else{
                 stream={type:"browser", name:doc.name}
             }
+			
+			format={type:doc.type}
         }
         if(!stream.type)
             stream={type:"browser", name:doc.name}
-        return stream
+        return {format,stream}
     }
 
     constructor(){
@@ -51,10 +58,7 @@ export default class Saver extends PureComponent{
         const {store}=this.context
         const {doc, state}=getActive(store.getState())
         this.doc=doc
-        this.state={
-            format: doc.type,
-            stream: Saver.getStream(state, doc),
-        }
+        this.state=Saver.getEmitterStream(state, doc)
     }
 
     getSupportedFormats(){
@@ -81,7 +85,7 @@ export default class Saver extends PureComponent{
     fixName(format,name){
 		if(!name)
 			return name
-        let Format=Emitter.supports[format]
+        let Format=Emitter.get(format)
         let ext=Format ? Format.defaultProps.ext : this.doc.typeExt
         if(name.indexOf(".")==-1)
             return name+'.'+ext
@@ -97,12 +101,13 @@ export default class Saver extends PureComponent{
         let noTypedStream=false
         let typedStreamUI=(({type, ...streamProps})=>{
 			let Type=Stream.get(type)
-			if(Type && Type.SettingUI){
-				return <Type.SettingUI
+			if(Type){
+				return <Type
 						ref="stream"
-						fixName={name=>this.fixName(format,name)}
 						{...streamProps}
-							/>
+						format={format.type}
+						fixName={name=>this.fixName(format.type,name)}
+						/>
 			}else{
 				noTypedStream=true
 				return (
@@ -115,8 +120,8 @@ export default class Saver extends PureComponent{
 		
 		let typedFormatUI=(({type, ...formatProps})=>{
 			let Type=Emitter.get(type)
-			if(Type && Type.SettingUI){
-				return <Type.SettingUI	{...formatProps} />
+			if(Type){
+				return <Type.Setting ref="format"	{...formatProps} />
 			}else{
 				return null
 			}
@@ -136,7 +141,7 @@ export default class Saver extends PureComponent{
 									onChange={type=>this.setState({stream:{...stream,type}})}/>
 						</center>)
 					}
-				<div>
+				</div>
 				
 				<div>
 					{typedStreamUI}
@@ -148,10 +153,10 @@ export default class Saver extends PureComponent{
 						<center>
 							<span>Save as type:</span>
 							<ComboBox
-								value={format}
+								value={format.type}
 								dataSource={supportedFormats}
-								onChange={format=>{
-									this.setState({format})
+								onChange={type=>{
+									this.setState({format:{...format,type}})
 								}}/>
 						</center>
 					 )}
@@ -162,14 +167,18 @@ export default class Saver extends PureComponent{
 				</div>
 
                 <center>
-                    <RaisedButton label="Cancel"
+                    <RaisedButton 
+						label="Cancel"
                         style={{marginRight:5}}
-                        onClick={onCancel}/>
+                        onClick={onCancel}
+						/>
 
-                    <RaisedButton label="Save"
+                    <RaisedButton 
+						label="Save"
                         disabled={noTypedStream}
                         primary={true}
-                        onClick={this.save.bind(this)}/>
+                        onClick={this.save.bind(this)}
+						/>
                 </center>
             </div>
         )
@@ -180,12 +189,13 @@ export default class Saver extends PureComponent{
         const {onSave}=this.props
         const {doc,state}=getActive(store.getState())
 		let {format,stream}=this.state
-        stream={...stream, ...(this.refs.stream ? this.refs.stream.state :{})}
+        stream={...stream, ...(this.refs.stream && this.refs.stream.state || {})}
+		format={...format, ...(this.refs.format && this.refs.format.state || {})}
         onSave()
         Saver.save(state,doc)({format,stream})
             .then(()=>{
                 store.dispatch(ACTION.stream(stream))
-                store.dispatch(ACTION.format({type:format}))
+                store.dispatch(ACTION.format(format))
             }).catch(e=>store.dispatch(weACTION.MESSAGE({type:"error", message:e.message})))
 	}
 }
