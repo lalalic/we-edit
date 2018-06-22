@@ -13,7 +13,7 @@ export default class PDF extends Representation.Output.Pagination{
 	onDocument(){
 		super.onDocument()
 		this.pdf=new PDFDocument({autoFirstPage:false})
-		this.pdf.pipe(this.props.stream)
+		this.pdf.pipe(this.stream)
 	}
 	
 	onPage(){

@@ -1,4 +1,4 @@
-import React, {PureComponent, Fragment, Children} from "react"
+import React, {Component,PureComponent, Fragment, Children} from "react"
 import PropTypes from "prop-types"
 import Viewer from "./viewer"
 import {createWeDocument} from "./editor"
@@ -127,6 +127,40 @@ export default class Emitter extends Viewer{
 		static childContextTypes={
 			media:PropTypes.string
 		}
+		
+		static Base=class extends Component{
+			static propTypes={
+				stream: PropTypes.node
+			}
+			
+			static Setting=class extends Component{
+				render(){
+					return null
+				}
+			}
+			
+			componentDidMount(){
+				if(!this.render()){
+					this.emit()
+				}
+			}
+			
+			render(){
+				return null
+			}
+			
+			get stream(){
+				if(!this._stream){
+					const {type, props}=this.props.stream
+					this._stream=new type(props)
+				}
+				return this._stream
+			}
+			
+			emit(){
+				
+			}
+		}
 
 		getChildContext(){
 			return {
@@ -135,19 +169,12 @@ export default class Emitter extends Viewer{
 		}
 
 		render(){
-			if(this.constructor==Emitter.Format){
-				const {type, ...props}=this.props
-				if(typeof(type)!="undefined"){
-					const Type=Emitter.get(type)
-					if(Type){
-						return <Type {...props}/>
-					}
-				}else{
-					return <div style={{color:"red"}}>Emitter type not specified</div>
-				}
-				return <div style={{color:"red"}}>Emitter[type={type}] not installed</div>
+			const {type}=this.props
+			const Type=Emitter.get(type,true)
+			if(Type){
+				return <Type {...this.props}/>
 			}
-			return <Fragment>{this.props.children}</Fragment>
+			return null
 		}
 	}
 }
@@ -174,7 +201,7 @@ class WeDocumentStub extends PureComponent{
 	}
 }
 
-class OutputInput extends Emitter.Format{
+class OutputInput extends Emitter.Format.Base{
 	static displayName="[Origin]"
 	static propTypes={
 		type: PropTypes.string.isRequired,
@@ -188,12 +215,11 @@ class OutputInput extends Emitter.Format{
 		doc: PropTypes.object
 	}
 
-	render(){
+	emit(){
 		const {stream}=this.props
 		let docStream=this.context.doc.stream()
 		docStream.pipe(stream)
 		docStream.push(null)
-		return null
 	}
 }
 

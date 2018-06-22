@@ -22,6 +22,6 @@ export default class Output extends Emitter.Format{
 	}
 	
 	output(stream){
-		stream.pipe(this.props.stream,{end:false})
+		stream.pipe(this.stream,{end:false})
 	}
 }

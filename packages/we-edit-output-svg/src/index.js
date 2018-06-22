@@ -48,7 +48,7 @@ export default class SVG extends Representation.Output.Pagination{
 	}
 	
 	onDocument(){
-		this.props.stream.write(`<svg 
+		this.stream.write(`<svg 
 	style="background:lightgray"
 	width="${this.width}" height="${this.height}"
 	xmlns="http://www.w3.org/2000/svg" 
@@ -57,17 +57,17 @@ export default class SVG extends Representation.Output.Pagination{
 	}
 
 	onDocumentEnd(e){
-		this.props.stream.end('</svg>')
+		this.stream.end('</svg>')
 	}
 
 	onPage({width,height}){
 		width=parseInt(width)
 		height=parseInt(height)
 		this.y+=this.props.pgGap
-		const {stream, pgGap, pgColor}=this.props
-		stream.write(`<g transform="translate(${(this.width-width)/2} ${this.y})">`)
+		const { pgGap, pgColor}=this.props
+		this.stream.write(`<g transform="translate(${(this.width-width)/2} ${this.y})">`)
 		if(pgColor)
-			stream.write(`<rect width="${width}" height="${height}" fill="${pgColor}"/>`)
+			this.stream.write(`<rect width="${width}" height="${height}" fill="${pgColor}"/>`)
 		
 		this.y+=height
 	}
@@ -77,7 +77,7 @@ export default class SVG extends Representation.Output.Pagination{
 		delete attrs["xlink:href"]
 		let id=btoa(href)
 		
-		this.props.stream.write(`<use xlink:href="#${id}"/>`)
+		this.stream.write(`<use xlink:href="#${id}"/>`)
 		
 		if(!this.defs.has(href)){
 			this.defs.add(href)
@@ -110,30 +110,30 @@ export default class SVG extends Representation.Output.Pagination{
 	}
 
 	onText({text, ...attrs}){
-		this.props.stream.write(`<text ${this.spread(attrs)}>${text}</text>`)
+		this.stream.write(`<text ${this.spread(attrs)}>${text}</text>`)
 	}
 	
 	onGroup(attrs){
 		super.onGroup(...arguments)
-		this.props.stream.write(`<g ${this.spread(attrs)}>`)
+		this.stream.write(`<g ${this.spread(attrs)}>`)
 	}
 	
 	onGroupEnd(){
 		super.onGroupEnd()
-		this.props.stream.write("</g>")
+		this.stream.write("</g>")
 	}
 	
 	onopentag(){
 		super.onopentag(...arguments)
-		this.props.stream.write("\r\n")
+		this.stream.write("\r\n")
 		this.depth++
-		this.props.stream.write(new Array(this.depth).fill("\t").join(""))		
+		this.stream.write(new Array(this.depth).fill("\t").join(""))		
 	}
 	
 	onclosetag(){
 		super.onclosetag(...arguments)
-		this.props.stream.write("\r\n")
-		this.props.stream.write(new Array(this.depth).fill("\t").join(""))
+		this.stream.write("\r\n")
+		this.stream.write(new Array(this.depth).fill("\t").join(""))
 		this.depth--
 				
 	}

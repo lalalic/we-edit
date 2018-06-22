@@ -17,7 +17,7 @@ const support=()=>{
 * name: only for download
 * target: show on iframe/window
 */
-export class Writer extends Writable{
+export class Writer extends Stream.Base{
     static type="browser"
 	static SettingUI=Setting
 	static support=support
@@ -78,41 +78,37 @@ export class Writer extends Writable{
 	}
 }
 
-export class Reader extends PureComponent{
+export class Reader extends Loader.Base{
     static displayName="loader-browser"
-    static propTypes={
-        type: PropTypes.string.isRequired
-    }
 
     static defaultProps={
+		...Loader.Base.defaultProps,
         type:"browser"
     }
+	
 	static support=support
 
     render(){
         return <input ref="input"
             type="file"
             onChange={({target})=>{
-                this.select(target.files[0])
-                target.value=""
+				let file=target.files[0]
+                let reader=new FileReader()
+				reader.onload=e=>{
+					this.props.onLoad({
+						data:e.target.result,
+						mimeType:file.type,
+						name:file.name
+					})
+				}
+				reader.readAsArrayBuffer(file)
+				target.value=""
             }}
             style={{position:"fixed", left:-9999}}/>
     }
 
     componentDidMount(){
         this.refs.input.click()
-    }
-
-    select(file){
-        let reader=new FileReader()
-        reader.onload=e=>{
-            this.props.onLoad({
-                data:e.target.result,
-                mimeType:file.type,
-                name:file.name
-            })
-        }
-        reader.readAsArrayBuffer(file)
     }
 }
 

@@ -6,7 +6,7 @@ import Parser from "htmlparser2"
 import Page from "../composed/page"
 
 const RE_TRANSLATE=/translate\((\d+)\s+(\d+)\)/
-export default class Output extends Emitter.Format{
+export default class Output extends Emitter.Format.Base{
 	static contextTypes={
 		...Emitter.Format.contextTypes,
 	}
@@ -21,7 +21,7 @@ export default class Output extends Emitter.Format{
 		representation: "pagination"
 	}
 	
-	render(){
+	emit(){
 		const {pages}=this.props
 		let svgStream=ReactDOMServer.renderToStaticNodeStream(
 			<svg style={{width:"100%",height:"100%"}}>

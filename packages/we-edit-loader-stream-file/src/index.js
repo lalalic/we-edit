@@ -26,39 +26,42 @@ function resolvePathName({path,name}){
 	return {path,name}
 }
 
-export class Writer{
-    static type="file"
+export class Writer extends Stream.Base{
+    static defaultProps={
+		...Stream.Base.defaultProps,
+		type:"file"
+	}
+	
 	static support=support
 	
-    constructor(props){
-        const {path,name}=resolvePathName(props)
+	create(){
+		const {path,name}=resolvePathName(this.props)
 		return createWriteStream(this.name=resolve(path,name))
-    }
+	}
 }
 
-export class Reader extends PureComponent{
+export class Reader extends Loader.Base{
 	static displayName="loader-file"
     static propTypes={
-        type: PropTypes.string.isRequired,
+		...Loader.Base.propTypes,
 		path: PropTypes.string.isRequired,
     }
 
     static defaultProps={
+		...Loader.Base.defaultProps,
         type:"file"
     }
 	
 	static support=support
 	
-	componentWillMount(){
-		let {onLoad}=this.props
+	load(){
 		const {path,name}=resolvePathName(this.props)
-		readFile(resolve(path,name), (error,data)=>{
-			onLoad({data,path,error,name})
+		
+		return new Promise((resolve1,reject)=>{
+			readFile(resolve(path,name), (error,data)=>{
+				resolve1({data,path,error,name})
+			})
 		})
-	}
-	
-	render(){
-		return null
 	}
 }
 

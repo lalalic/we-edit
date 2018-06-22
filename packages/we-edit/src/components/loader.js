@@ -25,6 +25,28 @@ class Loader extends PureComponent{
     static contextTypes={
         store:PropTypes.object
     }
+	
+	static Base=class extends Component{
+		static propTypes={
+			type: PropTypes.string.isRequired
+		}
+		
+		componentDidMount(){
+			if(!this.render()){
+				Promise
+					.resolve(this.load())
+					.then(file=>this.props.onLoad(file))
+			}
+		}
+		
+		render(){
+			return null
+		}
+		
+		load(){
+			
+		}
+	}
 
     state={file:null}
 
@@ -43,18 +65,15 @@ class Loader extends PureComponent{
         if(!this.isInWeEditDomain() && file && doc){
 			const {readonly,release}=this.props
             return <doc.Store {...{readonly,release}}>{this.props.children}</doc.Store>
-        }else{
-            if(this.constructor==Loader){
-                const {type, ...props}=this.props;
-        		const Type=this.constructor.get(type)
-				if(!Type){
-					console.error(`loader[${type}] not installed`)
-					return null
-				}
-				console.assert(!!Type==true)
-                return <Type {...props} onLoad={this.onLoad.bind(this)}/>
-            }
         }
+		
+		const {type, ...props}=this.props
+		const Type=this.constructor.get(type,true)
+		if(Type){
+			return <Type {...this.props} onLoad={this.onLoad.bind(this)}/>
+		}
+		
+		return null
     }
 
     onLoad({error, ...file}){

@@ -35,7 +35,7 @@ describe("we-edit integration", function(){
 		</Loader>
 	)
 
-	it("svg",()=>{
+	fit("svg",()=>{
 		return render(template())
 	})
 	

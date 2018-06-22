@@ -22,8 +22,12 @@ export default function extendible(Type, Category, ProxiedProp){
         }
     }
 
-    Type.get=function(type){
-		return supports[type]
+    Type.get=function(type, notFoundMessage=false){
+		let Typed=supports[type]
+		if(notFoundMessage && !Typed){
+			console.error(`${Category}[${type}] not supported`)
+		}
+		return Typed
     }
 	
     Object.defineProperty(Type, "supports", {

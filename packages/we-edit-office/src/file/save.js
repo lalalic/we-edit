@@ -91,22 +91,76 @@ export default class Saver extends PureComponent{
     render(){
         const {onCancel, onSave}=this.props
 		let {format, stream}=this.state
+		let supportedStreams=this.getSupportedStreams()
+		let supportedFormats=this.getSupportedFormats()
+		
         let noTypedStream=false
         let typedStreamUI=(({type, ...streamProps})=>{
-                let Type=Stream.supports[type]
-                if(Type && Type.SettingUI){
-                    return <Type.SettingUI
-                            ref="stream"
-                            fixName={name=>this.fixName(format,name)}
-                            {...streamProps}
-                                />
-                }else{
-                    noTypedStream=true
-                    return <center style={{color:"red"}}>no stream[type={type}] implemenation</center>
-                }
-            })(stream);
+			let Type=Stream.get(type)
+			if(Type && Type.SettingUI){
+				return <Type.SettingUI
+						ref="stream"
+						fixName={name=>this.fixName(format,name)}
+						{...streamProps}
+							/>
+			}else{
+				noTypedStream=true
+				return (
+					<center style={{color:"red"}}>
+					no stream[type={type}] implemenation
+					</center>
+				)
+			}
+		})(stream);
+		
+		let typedFormatUI=(({type, ...formatProps})=>{
+			let Type=Emitter.get(type)
+			if(Type && Type.SettingUI){
+				return <Type.SettingUI	{...formatProps} />
+			}else{
+				return null
+			}
+		})(format);
+			
+		
+		
+        return (
+            <div style={{display:"flex", flexDirection:"column"}}>
+				<div>
+					{supportedStreams.length>1 &&
+						(<center style={{height:100, lineHeight:"100px"}}>
+							<span>Save to:</span>
+							<ComboBox
+									value={stream.type}
+									dataSource={supportedStreams}
+									onChange={type=>this.setState({stream:{...stream,type}})}/>
+						</center>)
+					}
+				<div>
+				
+				<div>
+					{typedStreamUI}
+				</div>
 
-        let actions=(
+               
+				<div style={{flex:"1 100%"}}>
+					 {supportedFormats.length>0 && (
+						<center>
+							<span>Save as type:</span>
+							<ComboBox
+								value={format}
+								dataSource={supportedFormats}
+								onChange={format=>{
+									this.setState({format})
+								}}/>
+						</center>
+					 )}
+				</div>
+				
+				<div>
+					{typedFormatUI}
+				</div>
+
                 <center>
                     <RaisedButton label="Cancel"
                         style={{marginRight:5}}
@@ -117,36 +171,6 @@ export default class Saver extends PureComponent{
                         primary={true}
                         onClick={this.save.bind(this)}/>
                 </center>
-            )
-		let supportedStreams=this.getSupportedStreams()
-        return (
-            <div style={{display:"flex", flexDirection:"column"}}>
-				{supportedStreams.length>1 &&
-					(<center style={{height:100, lineHeight:"100px"}}>
-						<span>SaveTo:</span>
-						<ComboBox
-								value={stream.type}
-								dataSource={supportedStreams}
-								onChange={type=>this.setState({stream:{...stream,type}})}/>
-					</center>)
-				}
-				<div>
-				{typedStreamUI}
-				</div>
-
-                <div style={{flex:"1 100%"}}>
-                    <center>
-                        <span>Format:</span>
-                        <ComboBox
-                            value={format}
-                            dataSource={this.getSupportedFormats()}
-                            onChange={format=>{
-                                this.setState({format})
-                            }}/>
-                    </center>
-                </div>
-
-                {actions}
             </div>
         )
     }
