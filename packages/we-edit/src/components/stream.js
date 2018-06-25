@@ -14,6 +14,14 @@ export class Stream extends Component{
 	}
 	
 	static Base=class extends Component{
+		static install(){
+			Stream.install(this)
+		}
+		
+		static uninstall(){
+			Stream.uninstall(this)
+		}
+		
 		static propTypes={
 			onFinish: PropTypes.func,
 			onError: PropTypes.func

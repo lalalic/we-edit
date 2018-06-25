@@ -129,6 +129,13 @@ export default class Emitter extends Viewer{
 		}
 		
 		static Base=class extends Component{
+			static install(){
+				Emitter.install(this)
+			}
+			
+			static uninstall(){
+				Emitter.uninstall(this)
+			}		
 			static propTypes={
 				type: PropTypes.string.isRequired,
 				name: PropTypes.string.isRequired,
@@ -203,9 +210,11 @@ class WeDocumentStub extends PureComponent{
 
 class OutputInput extends Emitter.Format.Base{
 	static displayName="[Origin]"
+	static propTypes={
+		
+	}
 	static defaultProps={
-		...Emitter.Format.Base,
-		type:"",
+		type:""
 	}
 
 	static contextTypes={

@@ -7,7 +7,7 @@ import EditorTypes from "./edit"
 
 import Output from "./output"
 
-export class Text extends Component{
+export default class Text extends Representation.Base{
 	static displayName="text"
 	static propTypes={
 		type: PropTypes.string.isRequired
@@ -18,14 +18,6 @@ export class Text extends Component{
 	}
 	
 	static Output=Output
-	
-	static install(){
-		Representation.install(this)
-	}
-	
-	static uninstall(){
-		Representation.uninstall(this)
-	}
 	
 	render(){
 		return <Representation {...{ViewerTypes,EditorTypes,...this.props}}/>

@@ -1,8 +1,8 @@
-import React, {PureComponent as Component, Children} from "react"
+import React, {Component,PureComponent, Children} from "react"
 import PropTypes from "prop-types"
 import extendible from "../tools/extendible"
 
-class  Representation extends Component{
+class  Representation extends PureComponent{
 	static propTypes={
 		domain: PropTypes.string,
 		type: PropTypes.string,
@@ -16,6 +16,16 @@ class  Representation extends Component{
 
 	static childContextTypes={
 		ModelTypes: PropTypes.object,
+	}
+	
+	static Base=class extends Component{
+		static install(){
+			Representation.install(this)
+		}
+		
+		static uninstall(){
+			Representation.uninstall(this)
+		}
 	}
 
 	getChildContext(){

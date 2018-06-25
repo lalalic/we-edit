@@ -6,19 +6,38 @@ import "we-edit-representation-pagination"
 import "we-edit-representation-html"
 import "we-edit-representation-text"
 
-import "we-edit-output-pdf"
-import "we-edit-output-html"
-import "we-edit-output-svg"
+import PDF from "we-edit-output-pdf"
+import HTML from "we-edit-output-html"
+import SVG from "we-edit-output-svg"
 
-import "we-edit-loader-stream-file"
+import File from "we-edit-loader-stream-file"
 
-import "we-edit-input-docx"
+import iDocx from "we-edit-input-docx"
 
 
 const {Format}=Emitter
 
 
 describe("we-edit integration", function(){
+	beforeAll(()=>{
+		PDF.install()
+		HTML.install()
+		SVG.install()
+		
+		File.install()
+		
+		iDocx.install()
+	})
+
+	afterAll(()=>{		
+		PDF.uninstall()
+		HTML.uninstall()
+		SVG.uninstall()
+		
+		File.uninstall()
+		
+		iDocx.uninstall()
+	})
 	const template=(format="svg")=>(
 		<Loader type="file" 
 			path={require.resolve("../dist/basic.docx")}

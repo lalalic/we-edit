@@ -116,5 +116,3 @@ export default class JSONType extends Input.Editable{
 		return this.doc.makeId(node)
 	}
 }
-
-Input.install(JSONType)

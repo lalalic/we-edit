@@ -64,5 +64,14 @@ export class Reader extends Loader.Base{
 	}
 }
 
-Stream.install(Writer)
-Loader.install(Reader)
+export default {
+	install(){
+		Reader.install()
+		Writer.install()
+	},
+	
+	uninstall(){
+		Reader.uninstall()
+		Writer.uninstall()
+	}
+}

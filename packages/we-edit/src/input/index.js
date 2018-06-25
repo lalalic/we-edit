@@ -4,9 +4,25 @@ import {Viewable, Editable} from "./type"
 import EditableDocument from "./editable-doc"
 import extendible from "../tools/extendible"
 
-export default extendible({
-	Viewable,
-	Editable,
+const Input=extendible({
+	Viewable:class extends Viewable{
+		static install(){
+			Input.install(this)
+		}
+		
+		static uninstall(){
+			Input.uninstall(this)
+		}
+	},
+	Editable: class extends Editable{
+		static install(){
+			Input.install(this)
+		}
+		
+		static uninstall(){
+			Input.uninstall(this)
+		}
+	},
 	EditableDocument,
 	parse(file){
 		const type=this.resolveFileType(file)
@@ -61,3 +77,5 @@ export default extendible({
 			}, null)
 	}
 },"input format")
+
+export default Input

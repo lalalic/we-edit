@@ -134,5 +134,3 @@ export default class SVG extends Representation.Output.Pagination{
 				
 	}
 }
-
-Emitter.install(SVG)

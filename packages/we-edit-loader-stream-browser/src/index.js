@@ -41,12 +41,13 @@ export class Writer extends Stream.Base{
 			<center>
 				<div>
 					<TextField
-						value={name}
+						value={name||""}
 						floatingLabelText="file name"
 						onChange={(e,name)=>this.setState({name})}/>
 				</div>
 				<div>
-					<TextField value={target}
+					<TextField 
+						value={target||""}
 						floatingLabelText="target:_blank|_self|_parent|_top|frame name"
 						onChange={(e,target)=>{
 							if(target){
@@ -57,7 +58,8 @@ export class Writer extends Stream.Base{
 						}}/>
 				</div>
 				<div>
-					<TextField value={windowFeatures}
+					<TextField 
+						value={windowFeatures||""}
 						floatingLabelText="window features"
 						onChange={(e,windowFeatures)=>{
 							this.setState({windowFeatures})
@@ -160,6 +162,15 @@ export class Reader extends Loader.Base{
     }
 }
 
-Loader.install(Reader)
-Stream.install(Writer)
+export default {
+	install(){
+		Reader.install()
+		Writer.install()
+	},
+	
+	uninstall(){
+		Reader.uninstall()
+		Writer.uninstall()
+	}
+}
 

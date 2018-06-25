@@ -47,5 +47,3 @@ export default class PDF extends Representation.Output.Pagination{
 		this.pdf=null
 	}
 }
-
-Emitter.install(PDF)

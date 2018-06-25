@@ -332,5 +332,3 @@ export default class DocxType extends Input.Editable{
 		//injected implementation by render
 	}
 }
-
-Input.install(DocxType)

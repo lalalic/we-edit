@@ -27,6 +27,14 @@ class Loader extends PureComponent{
     }
 	
 	static Base=class extends Component{
+		static install(){
+			Loader.install(this)
+		}
+		
+		static uninstall(){
+			Loader.uninstall(this)
+		}
+		
 		static propTypes={
 			type: PropTypes.string.isRequired
 		}

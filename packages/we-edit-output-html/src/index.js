@@ -25,5 +25,3 @@ export default class HTML extends Representation.Output.Html{
 		stream.end(wrapperEnd)
 	}
 }
-
-Emitter.install(HTML)

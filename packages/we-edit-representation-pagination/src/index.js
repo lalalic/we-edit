@@ -23,7 +23,7 @@ const createFontMeasureWithDefault=defaultFont=>{
 	}
 }
 
-export class Pagination extends Component{
+export default class Pagination extends Representation.Base{
 	static displayName="pagination"
 	static propTypes={
 		type: PropTypes.string.isRequired,
@@ -47,14 +47,6 @@ export class Pagination extends Component{
 	}
 	
 	static Output=Output
-	
-	static install(){
-		Representation.install(this)
-	}
-	
-	static uninstall(){
-		Representation.uninstall(this)
-	}
 
 	state={fontsLoaded:false}
 	componentWillMount(){
