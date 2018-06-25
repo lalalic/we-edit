@@ -32,8 +32,7 @@
     "node": ">= 0.4.4"
   },
   "we-office":{
-      "name":"representation-pagination",
-      "type":["representation"]
+      "type":["Representation"]
   },
   "files": [
     "index.js",

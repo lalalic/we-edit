@@ -27,7 +27,7 @@ class Loader extends PureComponent{
     }
 	
 	static Base=class extends Component{
-		static install(){
+		static install(config){
 			Loader.install(this)
 		}
 		

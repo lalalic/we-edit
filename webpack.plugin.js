@@ -8,6 +8,7 @@ module.exports=base=>{
         .map(a=>({
             ...base,
             entry:`./packages/${a}/src/index.js`,
+			target:"node",
     		output:{
     			filename:`index.js`,
     			path:path.resolve(__dirname, `packages/${a}`),

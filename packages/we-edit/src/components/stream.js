@@ -14,7 +14,7 @@ export class Stream extends Component{
 	}
 	
 	static Base=class extends Component{
-		static install(){
+		static install(config){
 			Stream.install(this)
 		}
 		
@@ -35,6 +35,7 @@ export class Stream extends Component{
 			super(...arguments)
 			if(this.context.inRender){
 				this.doCreate()
+				this.render=()=>null
 			}
 		}
 		

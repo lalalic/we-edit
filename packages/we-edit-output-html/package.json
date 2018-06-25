@@ -19,8 +19,7 @@
     "node": ">= 0.4.4"
   },
   "we-office":{
-      "name":"output-html",
-      "type":["output"]
+      "type":["Emitter"]
   },
   "files":["index.js","index.browser.js","README.md"],
   "readme": "README.md"

@@ -21,8 +21,7 @@
     "node": ">= 0.4.4"
   },
   "we-office":{
-      "name":"output-svg",
-      "type":["output"]
+      "type":["Emitter"]
   },
   "files": [
     "index.js",

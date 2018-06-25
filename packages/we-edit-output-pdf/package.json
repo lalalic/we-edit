@@ -22,8 +22,7 @@
     "node": ">= 0.4.4"
   },
   "we-office":{
-      "name":"output-pdf",
-      "type":["output"]
+      "type":["Emitter"]
   },
   "files": [
     "index.js",

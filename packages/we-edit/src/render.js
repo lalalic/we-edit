@@ -31,17 +31,19 @@ export default function render(element){
 	let overall=new Promise((resolve,reject)=>{
 		ErrorContainer=class  extends PureComponent{
 			static childContextTypes={
-				inRender: PropTypes.bool
+				inRender: PropTypes.bool,
+				muiTheme: PropTypes.object,
 			}
 			
 			getChildContext(){
 				return {
-					inRender:true
+					inRender:true,
+					muiTheme:{}
 				}
 			}
 			
 			componentDidCatch(error,info){
-				console.debug(error)
+				//console.debug(error)
 				reject(error)
 			}
 			render(){

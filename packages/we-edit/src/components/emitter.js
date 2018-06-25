@@ -129,7 +129,7 @@ export default class Emitter extends Viewer{
 		}
 		
 		static Base=class extends Component{
-			static install(){
+			static install(config){
 				Emitter.install(this)
 			}
 			

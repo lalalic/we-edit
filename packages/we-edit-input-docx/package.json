@@ -24,8 +24,7 @@
     "node": ">=0.10.0"
   },
   "we-office":{
-      "name":"input-docx",
-      "type":["input"]
+      "type":["Input"]
   },
   "files":["index.js","index.browser.js","README.md"],
   "readme": "README.md"

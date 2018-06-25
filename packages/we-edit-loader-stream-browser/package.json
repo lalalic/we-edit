@@ -23,8 +23,7 @@
     "node": ">= 0.4.4"
   },
   "we-office":{
-      "name":"loader-emitter-browser",
-      "type":["loader","emitter"]
+      "type":["Loader","Stream"]
   },
   "files": [
     "index.js",

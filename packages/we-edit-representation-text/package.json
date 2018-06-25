@@ -19,8 +19,7 @@
     "node": ">= 0.4.4"
   },
   "we-office":{
-      "name":"representation-text",
-      "type":["representation"]
+      "type":["Representation"]
   },
   "files":["index.js","index.browser.js","README.md"],
   "readme": "README.md"
