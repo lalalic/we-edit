@@ -8,10 +8,9 @@ module.exports=base=>{
         .map(a=>({
             ...base,
             entry:`./packages/${a}/src/index.js`,
-			target:"node",
     		output:{
     			filename:`index.js`,
-    			path:path.resolve(__dirname, `packages/${a}`),
+    			path:path.resolve(__dirname, `packages/${a}`)
     		},
             externals:"react,react-dom,material-ui,prop-types,we-edit,react-redux,recompose"
 				.split(",")
