@@ -42,8 +42,12 @@ export class Editor extends Component{
 
 	render(){
 		const {media, representation, style, children:canvas, ...props}=this.props
+		const TypedRepresentation=this.getTypedRepresentation(representation)
+		if(!TypedRepresentation)
+			return null
+		
 		return React.cloneElement(
-			this.getTypedRepresentation(representation),
+			TypedRepresentation,
 			{domain:this.constructor.domain},
 			this.createDocument({style, docId:this.docId, canvasProps:{canvas, ...props}})
 		)
