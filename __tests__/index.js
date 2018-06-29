@@ -2,7 +2,7 @@ import React from "react"
 import Path from "path"
 import {Loader, Emitter, Stream, render} from "we-edit"
 
-import "we-edit-representation-pagination"
+import Pagination from "we-edit-representation-pagination"
 import "we-edit-representation-html"
 import "we-edit-representation-text"
 
@@ -27,6 +27,23 @@ describe("we-edit integration", function(){
 		File.install()
 		
 		iDocx.install()
+		Pagination.defaultProps.measure=class {
+			defaultStyle={
+				
+			}
+			
+			lineHeight(){
+				return {height:1,descent:0}
+			}
+
+			stringWidth(string){
+				return string.length
+			}
+			
+			widthString(width,string){
+				return string
+			}
+		}
 	})
 
 	afterAll(()=>{		
@@ -37,6 +54,8 @@ describe("we-edit integration", function(){
 		File.uninstall()
 		
 		iDocx.uninstall()
+		
+		Pagination.defaultProps.measure=undefined
 	})
 	const template=(format="svg")=>(
 		<Loader type="file" 
