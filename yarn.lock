@@ -4838,7 +4838,7 @@ mixin-deep@^1.2.0:
     for-in "^1.0.2"
     is-extendable "^1.0.1"
 
-mkdirp@0.5.1, mkdirp@0.5.x, mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@~0.5.0, mkdirp@~0.5.1:
+mkdirp@0.5.x, mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@~0.5.0, mkdirp@~0.5.1:
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-0.5.1.tgz#30057438eac6cf7f8c4767f38648d6697d75c903"
   dependencies:
@@ -5794,6 +5794,17 @@ punycode@^2.1.0:
 q@^1.1.2:
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/q/-/q-1.5.1.tgz#7e32f75b41381291d04611f1bf14109ac00651d7"
+
+qili-cli@^1.2.30:
+  version "1.2.31"
+  resolved "https://registry.yarnpkg.com/qili-cli/-/qili-cli-1.2.31.tgz#7fdff04c69e999f1834c6468eea892bdb91df07d"
+  dependencies:
+    chalk "^2.4.0"
+    commander "^2.15.1"
+    ncp "^2.0.0"
+    node-fetch "^2.1.2"
+    prompts "^0.1.8"
+    rc "^1.2.6"
 
 qiniu@^6.1.0:
   version "6.1.13"
@@ -7422,6 +7433,16 @@ wbuf@^1.1.0, wbuf@^1.7.2:
   resolved "https://registry.yarnpkg.com/wbuf/-/wbuf-1.7.3.tgz#c1d8d149316d3ea852848895cb6a0bfe887b87df"
   dependencies:
     minimalistic-assert "^1.0.0"
+
+we-office-cli@^0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/we-office-cli/-/we-office-cli-0.0.8.tgz#3ff9d7414635419cd3fc77f21ff84cb452a5f911"
+  dependencies:
+    lodash.merge "^4.6.1"
+    mkdirp "^0.5.1"
+    qili-cli "^1.2.30"
+    qiniu "^6.1.0"
+    semver "^5.5.0"
 
 webidl-conversions@^4.0.2:
   version "4.0.2"
