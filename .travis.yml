@@ -13,6 +13,11 @@ install:
  - export CURRENT=$(node -p "require('./packages/we-edit/package.json').version")
  - yarn build
 
+script:
+ - yarn webpack --env=plugin
+ - yarn sync-input-docx --service $WO --contact "$CONTACT" --token "$TOKEN"
+ - yarn syncall
+
 before_deploy:
  - cd packages/we-edit
 
