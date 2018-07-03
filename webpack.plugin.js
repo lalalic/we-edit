@@ -1,5 +1,7 @@
 const path=require("path")
 const nodeExternals=require("webpack-node-externals")
+const {ContextReplacementPlugin, DefinePlugin, IgnorePlugin} = require("webpack")
+const UglifyJsPlugin = require("uglifyjs-webpack-plugin")
 
 module.exports=base=>{
     return require("fs")
@@ -12,6 +14,13 @@ module.exports=base=>{
     			filename:`index.js`,
     			path:path.resolve(__dirname, `packages/${a}`)
     		},
+			plugins:[
+				new UglifyJsPlugin(),
+				new DefinePlugin({
+					'process.env.NODE_ENV': JSON.stringify('production')
+				}),
+				...base.plugins
+			],
             externals:"react,react-dom,material-ui,prop-types,we-edit,react-redux,recompose"
 				.split(",")
 				.reduce((cols,a)=>{

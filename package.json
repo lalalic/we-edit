@@ -37,6 +37,7 @@
     "source-map-loader": "^0.1.6",
     "style-loader": "^0.20.3",
     "transform-loader": "^0.2.4",
+    "uglifyjs-webpack-plugin": "^1.2.7",
     "we-office-cli": "^0.0.9",
     "webpack": "^3.8.1",
     "webpack-dev-server": "^2.9.4",
