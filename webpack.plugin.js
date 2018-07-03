@@ -15,7 +15,6 @@ module.exports=base=>{
     			path:path.resolve(__dirname, `packages/${a}`)
     		},
 			plugins:[
-				new UglifyJsPlugin(),
 				new DefinePlugin({
 					'process.env.NODE_ENV': JSON.stringify('production')
 				}),
