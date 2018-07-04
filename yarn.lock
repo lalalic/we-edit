@@ -2850,8 +2850,8 @@ fetch-any@^1.0.0:
     isomorphic-fetch "^2.2.1"
 
 fetchable@^1.0.0:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/fetchable/-/fetchable-1.0.1.tgz#1cbeacd50f4d573d997710c03bab070df6713226"
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/fetchable/-/fetchable-1.0.2.tgz#cfd017c02980cb8a8d5ab26f2473936d24b88839"
   dependencies:
     fetch-any "^1.0.0"
 
