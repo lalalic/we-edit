@@ -13,7 +13,12 @@ import Output from "./output"
 const createFontMeasureWithDefault=defaultFont=>{
 	return class extends FontMeasure{
 		getFont(){
-			let font=super.getFont()
+			let font=null
+			try{
+				font=super.getFont()
+			}catch(e){
+				
+			}
 			if(!font && this.fontFamily!=defaultFont){
 				this.fontFamily=defaultFont
 				font=super.getFont()
@@ -28,7 +33,7 @@ export default class Pagination extends Representation.Base{
 	static propTypes={
 		type: PropTypes.string.isRequired,
 		measure: PropTypes.func,
-		fonts: PropTypes.string,
+		fonts: PropTypes.oneOfType([PropTypes.string,PropTypes.func]),
 		defaultFont: PropTypes.string,
 	}
 
@@ -51,17 +56,17 @@ export default class Pagination extends Representation.Base{
 	state={fontsLoaded:false}
 	componentWillMount(){
 		const {defaultFont,measure,fonts}=this.props
-		this.Measure=measure||(isNode ? FontMeasure : SVGMeasure)
+		this.Measure=measure||(fonts||isNode ? FontMeasure : SVGMeasure)
 		switch(this.Measure){
 			case FontMeasure:{
 				this.Measure=createFontMeasureWithDefault(defaultFont)
 				const requiredFonts=this.context.doc.getFontList()
 				const fontsLoaded=errors=>{
-					let fonts=Fonts.names
-					if(fonts && fonts.length){
-						if(!fonts.find(a=>a.toLowerCase()==defaultFont.toLowerCase())){
-							console.warn(`default font[${defaultFont}] can't be loaded, set ${fonts[0]} as default`)
-							this.Measure=createFontMeasureWithDefault(fonts[0])
+					let loaded=Fonts.names
+					if(loaded && loaded.length){
+						if(!loaded.find(a=>a.toLowerCase()==defaultFont.toLowerCase())){
+							console.warn(`default font[${defaultFont}] can't be loaded, set ${loaded[0]} as default`)
+							this.Measure=createFontMeasureWithDefault(loaded[0])
 						}
 					}
 
@@ -70,11 +75,11 @@ export default class Pagination extends Representation.Base{
 					}
 
 					this.setState({fontsLoaded:true})
-					this.emit("fonts.loaded",fonts)
+					this.emit("fonts.loaded",loaded)
 				}
 				FontMeasure
 					.requireFonts([defaultFont,...requiredFonts],fonts)
-					.then(fontsLoaded,fontsLoaded)
+					.then(fontsLoaded, fontsLoaded)
 				break
 			}
 			default:{

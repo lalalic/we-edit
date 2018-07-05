@@ -15,7 +15,22 @@ window.addEventListener("load",function(){
 		Input
 			.parse(docx)
 			.then(doc=>{
-				const representation=React.createElement(Representation,{type:"pagination", fonts:"http://localhost:9091/fonts"})
+				const representation=React.createElement(Representation,{
+						type:"pagination", 
+						fonts(id){
+							id=id.toLowerCase()
+							if(id=="宋体")
+								id="simsung"
+							return fetch(`fonts/${id}.ttf`)
+								.then(res=>{
+									if(!res.ok){
+										throw new Error(res.statusText)
+									}
+									return res.arrayBuffer()
+								})
+						}
+					}
+				)
 				const editor=React.createElement(Editor,{representation})
 				const store=React.createElement(doc.Store,{},editor)
 				ReactDOM.render(store,container)

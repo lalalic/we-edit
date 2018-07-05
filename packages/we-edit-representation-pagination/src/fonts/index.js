@@ -128,15 +128,28 @@ const FontManager={
 		})
 	},
 
-	load(url,id){
+	load(service,id){
 		id=FontManager.toId(id)
 		if(typeof(fonts[id])!="undefined")
 			return Promise.resolve(fonts[id])
 
-		return fetch(url)
-			.then(res=>res.arrayBuffer())
+		let dataRetrieved
+		if(typeof(service)=="string"){
+			dataRetrieved=fetch(`${service}/${id}`)
+				.then(res=>{
+					if(!res.ok){
+						throw new Error(res.statusText)
+					}
+					return res.arrayBuffer()
+				})
+		}else{
+			dataRetrieved=service(id)
+		}
+		
+		return dataRetrieved
 			.then(buffer=>fonts[id]=extend(opentype.parse(buffer)))
-			.catch(()=>{
+			.catch((e)=>{
+				console.error(`font[${id}]:${e.message}`)
 				fonts[id]=null
 				return id
 			})
@@ -166,4 +179,28 @@ function nodeBufferToArrayBuffer(buffer) {
 		view[i] = buffer[i];
 	}
 	return ab;
+}
+
+
+class Font{
+	Font(){
+		this.unitsPerEm=0
+		this.ascender=0
+		this.descender=0
+		
+	}
+	
+	stringToGlyphs(text){
+		return [/*Glyph*/]
+	}
+	
+	getKerningValue(glyphA, glyphB){
+		return 0
+	}
+}
+
+class Glyph{
+	Glyph(){
+		this.advanceWidth=0
+	}
 }

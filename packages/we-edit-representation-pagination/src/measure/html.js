@@ -22,7 +22,9 @@ export default class HtmlMeasure extends Measure{
 		return {height, descent: height-(baseline-top)}
 	}
 
+
     stringWidth(word){
+		tester.style=`${DEFAULT_STYLE};font-family:${this.fontFamily};font-size:${this.size}pt`
         tester.innerHTML=word
         return getClientRect(tester).width
     }

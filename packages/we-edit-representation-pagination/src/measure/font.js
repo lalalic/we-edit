@@ -45,16 +45,23 @@ export default class FontMeasure extends Measure{
 			if(errors.length)
 				return Promise.reject(errors)
 		}
-
+		
 		if(isNode){
-			return Fonts.fromPath(service,fonts)
+			return Fonts
+				.fromPath(service,fonts)
 				.then(done,done)
 		}else{
-			if(!service)
+			switch(typeof(service)){
+			case "string"://url
+			case "function":
+				return Promise
+					.all(fonts.map(a=>Fonts.load(service,a)))
+					.finally(done)
+			break
+			default:
 				return Promise.resolve(done())
-
-			return Promise.all(fonts.map(a=>Fonts.load(`${service}${a}.ttf`,a)))
-				.then(done,done)
+			break
+			}
 		}
 	}
 }

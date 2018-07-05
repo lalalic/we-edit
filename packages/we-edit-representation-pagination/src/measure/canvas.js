@@ -16,6 +16,7 @@ export default class CanvasMeasure extends HtmlMeasure{
     }
 
     stringWidth(word){
+		ctx2d.font=`${this.size}pt ${this.fontFamily}`
         return ctx2d.measureText(word).width
     }
 }
