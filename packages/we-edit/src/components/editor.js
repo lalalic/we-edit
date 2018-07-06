@@ -9,7 +9,7 @@ import Cursor from "./cursor"
 import Input from "../input"
 import uuid from "../tools/uuid"
 
-export class Editor extends Component{
+export class Editor extends PureComponent{
 	static displayName="editor"
 	static domain="edit"
 	static propTypes={

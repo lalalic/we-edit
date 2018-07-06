@@ -24,6 +24,13 @@ export class Cursor extends Component{
 	}
 
 	contentChanged=false
+	
+	constructor(){
+		super(...arguments)
+		this.up=this.up.bind(this)
+		this.down=this.down.bind(this)
+		this.i=0
+	}
 
 	render(){
 		const {children}=this.props
@@ -52,25 +59,19 @@ export class Cursor extends Component{
 		this.style=docQuery.position(id,at)
 		if(!this.style)
 			return
-		let {page,column,line,top,left,
-			canvasTop, canvasLeft, height,
-			fontFamily,fontSize,
-			path}=this.style
+		let {
+			top,left, height,fontFamily,fontSize,
+			canvasTop=top, canvasLeft=left, 
+			}=this.style
 		getCursorInput()
 			.setState({
-				page,column,line,id,at,
-				get pageY(){
-					return docQuery.pageY(page)
-				},
-				props(type){
-					path.find(function(a){
-						debugger
-					})
-				},
+				style:this.style,
+				query:docQuery,
+				
 				top,left,fontFamily,fontSize,
 				height: this.shape ? 0.1 : height,
-				up: this.up.bind(this),
-				down: this.down.bind(this)
+				up: this.up,
+				down: this.down
 			})
 
 		if(this.shape)

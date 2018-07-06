@@ -3,27 +3,22 @@ import PropTypes from "prop-types"
 import {connect} from "react-redux"
 import {compose,setDisplayName,getContext,withContext}  from "recompose"
 import {when} from "./event"
+import {getSelection} from "../state/selector"
 
 
 export const WithSelection=compose(
 	setDisplayName("WithSelectionProps"),
-
-	getContext({
-		selected:PropTypes.func
-	}),
-	connect((state,{selected})=>{
+	
+	when("cursorPlaced",({style,query})=>{
 		return {
-			selection: selected(state)
+			selection: query.asSelection(style)
 		}
 	}),
 
-	when("cursorPlaced",state=>{
-		
-	}),
 	withContext(
 		{selection:PropTypes.shape({props:PropTypes.func})},
 		({selection})=>({selection}),
 	),
-)(({children,style})=><Fragment>{children}</Fragment>)
+)(({children})=><Fragment>{children}</Fragment>)
 
 export default WithSelection

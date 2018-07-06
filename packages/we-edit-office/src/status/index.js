@@ -49,10 +49,24 @@ const Status=compose(
 ))
 
 const Page=compose(
+	getContext({
+		selection: PropTypes.object
+	}),
+	withProps(({selection})=>{
+		if(selection){
+			let props=selection.props("page")
+			if(props)
+				return {current: props.page}
+		}
+	}),
 	when("composed.all",total=>({total})),
 	when("composed",currentTotal=>({currentTotal})),
-	when("cursorPlaced", ({page})=>({current:page})),
-)(({current=0,currentTotal=0, total=0, showTotal=Math.max(total,currentTotal)})=>(
+)(({
+	current=0,
+	currentTotal=0, 
+	total=0, 
+	showTotal=Math.max(total,currentTotal)
+})=>(
 	<FlatButton style={ButtonStyle}>
 		PAGE {current+1} OF {showTotal}{showTotal!==total ? ".." : ""}
 	</FlatButton>

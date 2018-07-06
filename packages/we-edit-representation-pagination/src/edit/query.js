@@ -578,4 +578,36 @@ export default class Query{
 	get content(){
 		return new ContentQuery(this.state)
 	}
+	
+	asSelection({page,column,line, path=[],id},state){
+		let self=this
+		return self.selection={
+			state,
+			props(type){
+				type=new RegExp(type,"i")
+				if(type.test("page")){
+					return {
+						page,
+						column,
+						line,
+						get pageY(){
+							return self.pageY(page)
+						}
+					}
+				}
+				
+				let found=path.find(a=>type.test(a.props["data-type"]))
+				
+				if(!found)
+					return null
+				
+				let composer=self.getComposer(found.props["data-content"])
+				
+				if(composer)
+					return composer.props
+				
+				return null
+			}
+		}
+	}
 }

@@ -1,9 +1,9 @@
 import React, {PureComponent, Children, Fragment} from "react"
 import PropTypes from "prop-types"
-import {compose,setDisplayName}  from "recompose"
+import {compose,setDisplayName,getContext,withProps}  from "recompose"
 import EventEmitter from "events"
 
-import {WithSelection, when} from "we-edit"
+import {WithSelection} from "we-edit"
 
 import Status from "./status"
 import Ruler from "./ruler"
@@ -11,7 +11,19 @@ import Ribbon from "./ribbon"
 
 export const VerticalRuler=compose(
 	setDisplayName("VerticalRuler"),
-	when("cursorPlaced",({pageY})=>({pageY})),
+	getContext({
+		selection: PropTypes.object
+	}),
+	withProps(({selection})=>{
+		if(selection){
+			let props=selection.props("page")
+			if(props){
+				return {
+					pageY:props.pageY
+				}
+			}
+		}
+	})
 )(({pageY=0, scale, ...props})=>{
 	return (
 		<div style={{position:"relative",width:0,top:pageY*scale}}>
@@ -103,7 +115,8 @@ export default class Workspace extends PureComponent{
 									</Fragment>
 								)}
 
-								<div ref="contentContainer" style={{flex:"1 100%", textAlign:"center", margin:"4px auto auto auto"}}>
+								<div ref="contentContainer" 
+									style={{flex:"1 100%", textAlign:"center", margin:"4px auto auto auto"}}>
 									<div style={{margin:"auto",display:"inline-block"}}>
 										{current}
 										{uncontrolled}
