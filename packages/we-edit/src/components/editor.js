@@ -27,6 +27,7 @@ export class Editor extends PureComponent{
 	static defaultProps={
 		media:"screen",
 		scale:1,
+		reCreateDoc: false,
 	}
 
 	static childContextTypes={
@@ -81,7 +82,7 @@ export function createWeDocument(id,content,ModelTypes, canvasProps={}, lastCont
 
 	if(Array.isArray(children))
 		elChildren=children.map(a=>{
-			return createWeDocument(a,content,ModelTypes,lastContent,undefined,onElCreate)
+			return createWeDocument(a,content,ModelTypes,undefined,lastContent,onElCreate)
 		})
 
 	let changed=false, selfChanged=false
@@ -183,6 +184,7 @@ class WeDocumentStub extends PureComponent{
 			}else if(!handled.includes(k)){
 				let parentId=getThisParentId(k)
 				let parentEl=this.els.get(parentId)
+				
 				children=parentEl.props.children
 				let index=content.get(parentId).toJS().children.indexOf(k)
 				children[index]=this.createChildElement(k,content,ModelTypes,this.props.content)

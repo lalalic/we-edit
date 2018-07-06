@@ -51,10 +51,6 @@ export default class Emitter extends Viewer{
 		domain:"view",
 	}
 
-	shouldComponentUpdate(){
-		return false
-	}
-
 	render(){
 		if(!this.props.representation){
 			return <Fragment>{this.groupStreamFormat()}</Fragment>

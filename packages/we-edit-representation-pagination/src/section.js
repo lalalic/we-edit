@@ -68,6 +68,7 @@ export default class Section extends Super{
         let {width,height, children}=currentColumn
         let availableHeight=children.reduce((prev, a)=>prev-a.props.height,height)
 
+		let looped=0
         //@TODO: what if never can find min area
         while(minRequiredH-availableHeight>1 || minRequiredW-width>1){
             if(allowedColumns>columns.length){// new column
@@ -79,6 +80,10 @@ export default class Section extends Super{
             width=currentColumn.width
             height=currentColumn.height
             availableHeight=currentColumn.height
+			if(looped++>3){
+				console.warn("section can't find required space")
+				break
+			}
         }
         return {width, height:availableHeight}
     }
