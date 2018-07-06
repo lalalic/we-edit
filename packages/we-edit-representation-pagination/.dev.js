@@ -16,7 +16,7 @@ window.addEventListener("load",function(){
 			.parse(docx)
 			.then(doc=>{
 				const representation=React.createElement(Representation,{
-						type:"pagination", 
+						type:"pagination", /*
 						fonts(id){
 							id=id.toLowerCase()
 							if(id=="宋体")
@@ -28,7 +28,7 @@ window.addEventListener("load",function(){
 									}
 									return res.arrayBuffer()
 								})
-						}
+						}*/
 					}
 				)
 				const editor=React.createElement(Editor,{representation})

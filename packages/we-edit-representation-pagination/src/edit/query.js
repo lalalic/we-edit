@@ -299,6 +299,7 @@ export default class Query{
 			canvasLeft:Math.ceil(x),
 			canvasTop:Math.ceil(y),
 			...extra,
+			path,
 		}
 	}
 

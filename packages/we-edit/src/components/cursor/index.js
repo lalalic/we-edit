@@ -52,12 +52,20 @@ export class Cursor extends Component{
 		this.style=docQuery.position(id,at)
 		if(!this.style)
 			return
-		let {page,column,line,top,left,canvasTop, canvasLeft, height,fontFamily,fontSize,}=this.style
+		let {page,column,line,top,left,
+			canvasTop, canvasLeft, height,
+			fontFamily,fontSize,
+			path}=this.style
 		getCursorInput()
 			.setState({
 				page,column,line,id,at,
 				get pageY(){
 					return docQuery.pageY(page)
+				},
+				props(type){
+					path.find(function(a){
+						debugger
+					})
 				},
 				top,left,fontFamily,fontSize,
 				height: this.shape ? 0.1 : height,

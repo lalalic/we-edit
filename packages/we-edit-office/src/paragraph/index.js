@@ -21,7 +21,7 @@ export default compose(
 	}),
 	mapProps(({store:{dispatch},doc,children,selection})=>({
 		doc,children,
-		style:selection.props("paragraph"),
+		style:selection ? selection.props("paragraph") : null,
 		align:type=>dispatch(ACTION.Style.update({paragraph:{align:type}})),
 	})),
 	connect(state=>({selection:getSelection(state)})),

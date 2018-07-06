@@ -23,7 +23,7 @@ export default compose(
 		selection: PropTypes.object
 	}),
 	withProps(({store:{dispatch},selection})=>({
-		style:selection.props("text"),
+		style:selection ? selection.props("text") : null,
 		toggleB:b=>dispatch(ACTION.Style.update({text:{bold:b}})),
 		toggleI:b=>dispatch(ACTION.Style.update({text:{italic:b}})),
 		toggleU:b=>dispatch(ACTION.Style.update({text:{underline:b}})),

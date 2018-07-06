@@ -9,12 +9,17 @@ import IconTable from "material-ui/svg-icons/editor/border-all"
 import {ACTION} from "we-edit"
 import SizeIconButton from "../components/size-icon-button"
 
-export class Create extends Component{
+export const Create=compose(
+	getContext({
+		selection: PropTypes.object
+	}),
+)(class  extends Component{
 	state={show:false}
 	render(){
+		const {selection}=this.props
 		const {show,anchor}=this.state
 		let setting=null
-		if(show){
+		if(selection && show){
 			setting=(
 				<Popover
 					open={true}
@@ -28,6 +33,7 @@ export class Create extends Component{
 		return (
 			<span>
 				<SizeIconButton
+					disabled={!selection}
 					onClick={e=>this.setState({show:!this.state.show,anchor:e.target})}>
 					<IconTable/>
 				</SizeIconButton>
@@ -35,7 +41,7 @@ export class Create extends Component{
 			</span>
 		)
 	}
-}
+})
 
 class Setting extends Component{
 	render(){

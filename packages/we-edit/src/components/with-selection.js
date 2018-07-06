@@ -2,10 +2,12 @@ import React,{Fragment} from "react"
 import PropTypes from "prop-types"
 import {connect} from "react-redux"
 import {compose,setDisplayName,getContext,withContext}  from "recompose"
+import {when} from "./event"
 
 
 export const WithSelection=compose(
 	setDisplayName("WithSelectionProps"),
+
 	getContext({
 		selected:PropTypes.func
 	}),
@@ -13,6 +15,10 @@ export const WithSelection=compose(
 		return {
 			selection: selected(state)
 		}
+	}),
+
+	when("cursorPlaced",state=>{
+		
 	}),
 	withContext(
 		{selection:PropTypes.shape({props:PropTypes.func})},

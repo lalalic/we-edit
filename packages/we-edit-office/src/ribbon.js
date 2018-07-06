@@ -30,6 +30,9 @@ const Ribbon=compose(
 		.reduce((tabs, [ribbons, type],i)=>{
 			ribbons=(()=>{
 				if(type){
+					if(!selection)
+						return null
+					
 					let style=selection.props(type)
 					if(style){
 						return ribbons({style,selection})

@@ -42,6 +42,11 @@ export default compose(
 		}
 	})),
 	withProps(({doc,selection})=>{
+		if(!selection){
+			return {
+				Ruler: a=>null
+			}
+		}
 		let {
 				pgSz:{width,height}, 
 				pgMar:{
