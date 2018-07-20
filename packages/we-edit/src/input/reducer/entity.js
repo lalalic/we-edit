@@ -16,6 +16,7 @@ export class entity extends Content{
 		const [p0,p1]=this.splitAtUpto(this.selection.start,"paragraph")
 		const createdNode=this.file.createNode(element, this.$('#'+id));
 		const {id:createdId}=this.renderChanged(createdNode)
+		
 		let created=this.$(`#${createdId}`).insertAfter(p0)
 		
 		this.renderChangedChildren(parent.attr('id'))
@@ -23,7 +24,7 @@ export class entity extends Content{
 		id=created.findFirst('text').attr('id')
 		at=0
 		this.cursorAt(id,at)
-		
+
 		return this
 	}
 

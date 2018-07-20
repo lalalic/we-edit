@@ -60,7 +60,7 @@ export class Image extends Base{
     }
 
     rid(rid){
-        this.node.find("a\\:blip").attr("r:embed","rid")
+        this.node.find("a\\:blip").attr("r:embed",rid)
     }
 
     name(name, {rid}){
