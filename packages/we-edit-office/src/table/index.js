@@ -3,11 +3,13 @@ import PropTypes from "prop-types"
 import {compose, getContext, mapProps,withProps} from "recompose"
 import {connect} from "react-redux"
 
-import { Popover,Subheader } from "material-ui"
+import { Popover,Subheader, ToolbarGroup} from "material-ui"
 import IconTable from "material-ui/svg-icons/editor/border-all"
 
 import {ACTION} from "we-edit"
 import SizeIconButton from "../components/size-icon-button"
+
+export {default as Ribbon} from "./ribbon"
 
 export const Create=compose(
 	getContext({
@@ -16,7 +18,7 @@ export const Create=compose(
 )(class  extends Component{
 	state={show:false}
 	render(){
-		const {selection}=this.props
+		const {selection, children}=this.props
 		const {show,anchor}=this.state
 		let setting=null
 		if(selection && show){
@@ -31,14 +33,15 @@ export const Create=compose(
 			)
 		}
 		return (
-			<span>
+			<ToolbarGroup>
 				<SizeIconButton
 					disabled={!selection}
 					onClick={e=>this.setState({show:!this.state.show,anchor:e.target})}>
 					<IconTable/>
 				</SizeIconButton>
 				{setting}
-			</span>
+				{children}
+			</ToolbarGroup>
 		)
 	}
 })

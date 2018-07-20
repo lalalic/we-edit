@@ -596,7 +596,7 @@ export default class Query{
 					}
 				}
 				
-				let found=path.find(a=>type.test(a.props["data-type"]))
+				let found=path.find(a=>!!a.props && type.test(a.props["data-type"]))
 				
 				if(!found)
 					return null
