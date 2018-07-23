@@ -4,26 +4,42 @@ export class entity extends Content{
 	create(element){
 		let {start:{id,at},end}=this.selection
 		const target=this.$(`#${id}`)
-		const p=target.closest("paragraph")
-		const parent=p.parent()
 		
 		if(id==end.id && at==end.at){
 
 		}else{
 			this.remove_withSelection()
 		}
-
-		const [p0,p1]=this.splitAtUpto(this.selection.start,"paragraph")
-		const createdNode=this.file.createNode(element, this.$('#'+id));
+		
+		const cursor=this.file.createNode(element, this, target)
+		
+		/*
+		const [p0,p1]=this.splitAtUpto(this.selection.start,type)
+		const createdNode=this.file.createNode(element, this, target)
 		const {id:createdId}=this.renderChanged(createdNode)
 		
 		let created=this.$(`#${createdId}`).insertAfter(p0)
 		
-		this.renderChangedChildren(parent.attr('id'))
+		this.renderChangedChildren(p0.parent().attr('id'))
 		
-		id=created.findFirst('text').attr('id')
-		at=0
-		this.cursorAt(id,at)
+		function locateTextCursor(){
+			let id=created.findFirst('text').attr('id')
+			
+			if(!id){
+				id=created.forwardUntil("text").attr('id')
+			}
+			
+			if(!id){
+				id=created.backwardUntil("text").attr('id')
+			}
+			
+			if(!id)
+				id=this.$('text').attr('id')
+			return id
+		}
+		*/
+		
+		this.cursorAt(cursor.id, cursor.at)
 
 		return this
 	}

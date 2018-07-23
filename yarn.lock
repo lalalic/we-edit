@@ -2275,6 +2275,15 @@ docx4js@^3.1.12:
     htmlparser2 "^3.9.2"
     jszip "^2.6.0"
 
+docx4js@^3.1.13:
+  version "3.1.13"
+  resolved "https://registry.yarnpkg.com/docx4js/-/docx4js-3.1.13.tgz#78f69673d7ddb9ea908981d1de163fb0782cd07b"
+  dependencies:
+    cfb "^0.12.1"
+    cheerio "^0.22.0"
+    htmlparser2 "^3.9.2"
+    jszip "^2.6.0"
+
 dom-converter@~0.1:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/dom-converter/-/dom-converter-0.1.4.tgz#a45ef5727b890c9bffe6d7c876e7b19cb0e17f3b"

@@ -12,9 +12,9 @@ export default class Editor{
         return $.root().children().first()
     }
 
-    create(props, query){
+    create(props, reducer, target){
         this.node=this.parseXml(this.template(props))
-        return this.apply(props, query)
+        return this.file.attach(this.apply(props, reducer))
     }
 
     update({id},changing,query){

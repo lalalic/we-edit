@@ -34,9 +34,14 @@ export const Tools=compose(
 					store.dispatch(ACTION.Entity.CREATE({type:"image",data}))
 				})
 		},
-		selectRemote,
+		selectRemote(){
+			return selectFile("image/*")
+		},
+		createSection(){
+			store.dispatch(ACTION.Entity.CREATE({type:"section"}))
+		},
 	})),
-)(({children, insert,selectRemote})=>{
+)(({children, insert,selectRemote, createSection})=>{
 	return (
 		<ToolbarGroup>
 			<SizeIconButton 

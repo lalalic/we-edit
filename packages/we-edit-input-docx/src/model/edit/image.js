@@ -73,6 +73,23 @@ export class Image extends Base{
             .attr("id", rid)
             .attr("name", name)
     }
+	
+	create(props,reducer,target){
+		let r=target.constructUp("run")
+		const [p0,p1]=reducer.splitAtUpto(reducer.selection.start,"run")
+		let createdNode=super.create(...arguments)
+		
+		this.file.getNode(r.attr('id'))
+			.find("w\\:t")
+			.replaceWith(createdNode)
+		
+		r.insertAfter(p0)
+		
+		reducer.renderChanged(p0.parent().attr('id'))
+
+		let cursor=p1.findFirst('text').attr('id')
+		return {id:cursor,at:0}
+	}
 
     template(props){
         return `

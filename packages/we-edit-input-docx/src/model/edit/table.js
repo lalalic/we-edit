@@ -59,4 +59,16 @@ export class Table extends Base{
             </w:tbl>
         `
     }
+	
+	create(props,reducer,target){
+		const [p0,p1]=reducer.splitAtUpto(reducer.selection.start,"paragraph")
+		const createdNode=super.create(...arguments)
+		const {id:createdId}=reducer.renderChanged(createdNode)
+		
+		let created=reducer.$(`#${createdId}`).insertAfter(p0)
+		
+		reducer.renderChangedChildren(p0.parent().attr('id'))
+		let cursor=created.findFirst('text').attr('id')
+		return {id:cursor,at:0}
+	}
 }
