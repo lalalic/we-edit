@@ -53,7 +53,7 @@ export default class EditableDocument extends docx4js{
 		if(node.attribs.id!=undefined)
 			return node.attribs.id
 
-		let id=uid||uuid()
+		let id=uid||(node.name=="w:document"&&"root")||uuid()
 		defineId(node.attribs,id)
 
 		if(this.part)

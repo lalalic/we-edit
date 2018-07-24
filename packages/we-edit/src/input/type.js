@@ -111,20 +111,6 @@ export class Editable extends Viewable{
 
 	}
 
-	renderUp(state, Transformed){
-		const selection=getSelection(state)
-		let {id,at}=selection[selection.cursorAt]
-		let element=null
-		while(id){
-			let {type, props, parent}=getContent(state, id).toJS()
-			let Type=Transformed[type[0].toUpperCase()+type.substr(1)]
-			element=React.createElement(Type, {...props,key:id, children:[element]})
-			id=parent
-		}
-
-		return element
-	}
-
 	/**
 	*return:
 	- false: no state change

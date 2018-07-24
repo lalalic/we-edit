@@ -55,6 +55,12 @@ export const Tools=compose(
 				>
 				<IconOnlinePicture/>
 			</SizeIconButton>
+			
+			<SizeIconButton
+				onClick={e=>createSection()}
+				>
+				<IconOnlinePicture/>
+			</SizeIconButton>
 
 			{children}
 		</ToolbarGroup>

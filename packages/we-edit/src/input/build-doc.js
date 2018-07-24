@@ -158,12 +158,7 @@ the factory function is to build content state as map and tree
 node prototype: {type:string,props:{},children:[...id],parent:string}
 */
 const createElementFactoryBuilder=inputTypeInstance=>content=>(type, props, children, raw)=>{
-	let id
-	if(type.displayName=="document"){
-		id="root"
-	}else{
-		id=inputTypeInstance.makeId(raw)
-	}
+	let id=inputTypeInstance.makeId(raw)
 
 	content.set(id, Immutable.fromJS({
 		type:type.displayName,

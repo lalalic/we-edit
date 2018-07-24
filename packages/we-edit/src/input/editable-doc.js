@@ -6,6 +6,7 @@
 */
 export default class {
 	/*create/asign uid for node*/
+	//root node's id must be "root"
 	makeId(node,id){
 		
 	}
