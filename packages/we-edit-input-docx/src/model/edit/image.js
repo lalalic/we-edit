@@ -19,16 +19,6 @@ export class Image extends Base{
         return this.node.closest("w\\:drawing")
     }
 
-    attachCreated(node, locationId){
-        let prev=this.file
-            .getNode(locationId)
-            .closest("w\\:r")
-
-        return this.parseXml(`<w:r></w:r>`)
-            .insertAfter(prev)
-            .append(node)
-    }
-
     size({width,height}){
         let ext0=this.node.find("a\\:xfrm>a\\:ext")
         let inline=this.node.closest("wp\\:inline")

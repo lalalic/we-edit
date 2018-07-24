@@ -36,10 +36,7 @@ export const Tools=compose(
 		},
 		selectRemote(){
 			return selectFile("image/*")
-		},
-		createSection(){
-			store.dispatch(ACTION.Entity.CREATE({type:"section"}))
-		},
+		}
 	})),
 )(({children, insert,selectRemote, createSection})=>{
 	return (
@@ -52,12 +49,6 @@ export const Tools=compose(
 			
 			<SizeIconButton
 				onClick={e=>selectRemote().then(insert)}
-				>
-				<IconOnlinePicture/>
-			</SizeIconButton>
-			
-			<SizeIconButton
-				onClick={e=>createSection()}
 				>
 				<IconOnlinePicture/>
 			</SizeIconButton>

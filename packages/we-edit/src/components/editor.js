@@ -73,6 +73,9 @@ export class Editor extends PureComponent{
 export function createWeDocument(id,content,ModelTypes, canvasProps={}, lastContent, onElCreate){
 	let current=content.get(id)
 	let {type, props, children}=current.toJS()
+	if(!type){
+		debugger
+	}
 	let Child=ModelTypes[type[0].toUpperCase()+type.substr(1)]
 	if(!Child){
 		console.error(`[${type}] not found`)
@@ -161,12 +164,13 @@ class WeDocumentStub extends PureComponent{
 				let parent=getThisParentId(a)
 				while(parent){
 					if(all.includes(parent)){
-						return 
+						return filtered
 					}else{
 						parent=getThisParentId(parent)
 					}
 				}
 				filtered.push(a)
+				return filtered
 			},[])
 
 		changedKeys.reduceRight((handled, k)=>{

@@ -12,6 +12,7 @@ import File from "./file"
 import History from "./history"
 import * as Table from "./table"
 import * as Picture from "./picture"
+import * as Layout from "./layout"
 
 const supports=[]
 
@@ -124,6 +125,9 @@ const Ribbon=compose(
 					<Tab label="Design"  buttonStyle={buttonStyle} style={tabStyle}>
 					</Tab>
 					<Tab label="Page Layout"  buttonStyle={buttonStyle} style={tabStyle}>
+						<Toolbar>
+							<Layout.Tools/>
+						</Toolbar>
 					</Tab>
 					<Tab label="Review"  buttonStyle={buttonStyle} style={tabStyle}>
 					</Tab>
