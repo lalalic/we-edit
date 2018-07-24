@@ -151,9 +151,22 @@ class WeDocumentStub extends PureComponent{
 		}
 
 		//first handle with children changed
-		let changedKeys=Object.keys(changed).reduce((sorted,a)=>{
+		
+		let changedKeys=Object.keys(changed)
+			.reduce((sorted,a)=>{
 				sorted[a.children ? "push" : "unshift"](a)
 				return sorted
+			},[])
+			.reduce((filtered,a, i, all)=>{
+				let parent=getThisParentId(a)
+				while(parent){
+					if(all.includes(parent)){
+						return 
+					}else{
+						parent=getThisParentId(parent)
+					}
+				}
+				filtered.push(a)
 			},[])
 
 		changedKeys.reduceRight((handled, k)=>{

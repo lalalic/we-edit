@@ -12,18 +12,6 @@ export class Section extends Base{
 			.after(createdNode)
 			
 		reducer.renderChanged('root')
-		reducer._updated={root:{}}
-		
-		/*
-		let newSection=reducer.renderChanged(createdNode)
-		let section=p0.closest("section")
-		
-		let sectionChildren=reducer._state.getIn(["content",section.attr('id'),"children"]).toJS()
-		let p0Id=p0.attr('id')
-		let i=sectionChildren.findIndex(a=>a==p0Id)
-		let newSectionChildren=sectionChildren.slice(i+1)
-		sectionChildren=sectionChildren.slice(0,i+1)
-		*/
 		
 		
 		let cursor=p1.findFirst('text').attr('id')
