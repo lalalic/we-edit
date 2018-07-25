@@ -13,6 +13,7 @@ import History from "./history"
 import * as Table from "./table"
 import * as Picture from "./picture"
 import * as Layout from "./layout"
+import Insertion from "./insertion"
 
 const supports=[]
 
@@ -120,6 +121,9 @@ const Ribbon=compose(
 							<Picture.Tools>
 								<ToolbarSeparator/>
 							</Picture.Tools>
+							
+							<Insertion/>
+							
 						</Toolbar>
 					</Tab>
 					<Tab label="Design"  buttonStyle={buttonStyle} style={tabStyle}>

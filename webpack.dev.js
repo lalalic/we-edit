@@ -7,6 +7,14 @@ module.exports=(base, packages)=>{
 		entry:
 		//"./packages/we-edit-representation-pagination/.dev.js",
 		["./.dev.js","./packages/we-edit-office/src/index.js"],
+		module:{
+			rules:[{
+					test: /\.dev\.js?$/,
+					use: ['babel-loader'],
+				},
+				...base.module.rules
+			]
+		},
 		devtool: 'source-map',
 		resolve:{
 			alias: packages.reduce((alias,p)=>(alias[p]=path.resolve(__dirname, `packages/${p}/src/`),alias),{})

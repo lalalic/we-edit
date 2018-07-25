@@ -17,21 +17,19 @@ export default class extends Component{
 					open={true} 
 					anchorEl={anchor}
 					onRequestClose={e=>this.setState({open:false})}>
-					<Menu>
+					<Menu onItemTouchTap={e=>this.setState({open:false})}>
 						{children}
 					</Menu>
 				</Popover>
 			)
 		}
 		return (
-			<span>
+			<span hint={label}>
 				<SizeIconButton onClick={toggle}>
 					{icon}
 				</SizeIconButton>
-				{label && (<span style={labelStyle} onClick={toggle}>{label}</span>)}
-				<SizeIconButton  onClick={toggle}>
-					<IconMore/>
-				</SizeIconButton>
+				{false && (<span style={labelStyle} onClick={toggle}>{label}</span>)}
+				<IconMore style={{height:24,width:6}} viewBox="6 -12 18 36" onClick={toggle}/>
 				{menus}
 			</span>
 		)
