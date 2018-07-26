@@ -2,6 +2,7 @@ import React,{PureComponent} from "react"
 import PropTypes from "prop-types"
 
 import {AutoComplete} from "material-ui"
+import IconMore from 'material-ui/svg-icons/navigation/arrow-drop-down'
 
 export class ComboBox extends PureComponent{
 	static contextTypes={
@@ -51,7 +52,8 @@ export class ComboBox extends PureComponent{
 
 	render(){
 		let {comboBox}=this.context.muiTheme
-		let {name=`_${Date.now()}`, value, onChange, onException, style, menuProps={}, textFieldStyle, ...props}=this.props
+		let {name=`_${Date.now()}`, value, onChange, onException, style, menuProps={}, 
+			textFieldStyle, inputStyle, children,icon=children, ...props}=this.props
 		let text=this.getText()
 		let {searchText}=this.state
 		if(comboBox && comboBox.height){
@@ -85,46 +87,64 @@ export class ComboBox extends PureComponent{
 			if(menuProps.style && !menuProps.style.width && style.width)
 				menuProps.style={...menuProps.style, width:style.width}
 		}
+		
+		if(inputStyle && inputStyle.border){
+			inputStyle.paddingRight=6
+			
+		}
+		
+		if(!icon){
+			icon=(<IconMore 
+					style={{height:textFieldStyle.height-4,width:6}} 
+					viewBox="6 -20 18 28" 
+					/>)
+		}
 
-		return <AutoComplete
-			name={name}
-			searchText={searchText}
-			menuProps={menuProps}
-			onNewRequest={
-				(selected, index)=>{
-					if(-1==index && selected){//enter
-						index=this.getIndex(selected)
+		return (
+			<span>
+				<AutoComplete
+					name={name}
+					searchText={searchText}
+					menuProps={menuProps}
+					onNewRequest={
+						(selected, index)=>{
+							if(-1==index && selected){//enter
+								index=this.getIndex(selected)
+							}
+
+							if(-1!=index){
+								onChange && onChange(this.getValue(index))
+							}else if(selected){
+								onException && onException(selected)
+							}
+						}
 					}
 
-					if(-1!=index){
-						onChange && onChange(this.getValue(index))
-					}else if(selected){
-						onException && onException(selected)
+					onUpdateInput={
+						(searchText, dataSource)=>{
+							this.setState({searchText})
+						}
 					}
-				}
-			}
 
-			onUpdateInput={
-				(searchText, dataSource)=>{
-					this.setState({searchText})
-				}
-			}
+					onClose={()=>this.setState({searchText:text})}
 
-			onClose={()=>this.setState({searchText:text})}
-
-			filter={
-				(searchText,key)=>{
-					if(searchText!=text){
-						return key.indexOf(searchText)!=-1
-					}else{
-						return true
+					filter={
+						(searchText,key)=>{
+							if(searchText!=text){
+								return key.indexOf(searchText)!=-1
+							}else{
+								return true
+							}
+						}
 					}
-				}
-			}
-			openOnFocus={true}
-			style={style}
-			textFieldStyle={textFieldStyle}
-			{...props} />
+					openOnFocus={true}
+					style={style}
+					inputStyle={inputStyle}
+					textFieldStyle={textFieldStyle}
+					{...props} />
+					{icon}
+			</span>
+		)
 	}
 
 	componentWillReceiveProps(next){

@@ -54,6 +54,7 @@ export default compose(
 		<ComboBox
 			disabled={style==null}
 			style={{width:50}}
+			inputStyle={{border:"1px solid lightgray"}}
 			value={style ? style.size: 11}
 			onChange={value=>changeSize(parseInt(value))}
 			dataSource={[8,9,10,11,12,14,16,20,22,24,26,28,36,72].map(a=>a+"")}

@@ -55,7 +55,8 @@ export class Bar extends PureComponent{
 						underlineShow={false}
 						style={{width:100,height}}
 						textFieldStyle={{height,lineHeight:`${height}px`,fontSize:height/2}}
-						/>				
+						icon={<span/>}
+						/>	
 				</div>
 				<div style={{lineHeight:`${height}px`,fontSize:height/2}}>
 					{children}

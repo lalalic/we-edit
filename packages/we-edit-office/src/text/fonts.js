@@ -19,7 +19,7 @@ const FontList=compose(
 		value={value}
 		dataSource={fonts}
 		onChange={set}
-		inputStyle={{paddingLeft:16}}
+		inputStyle={{border:"1px solid lightgray"}}
 		underlineShow={false}
 		{...props}
 		/>
