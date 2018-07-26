@@ -9,7 +9,9 @@ export default class extends Base{
 			"w:color":"color",
 			"w:b":"bold",
 			"w:i":"italic",
-			"w:vanish":"vanish"
+			"w:vanish":"vanish",
+			"w:highlight":"highlight",
+			"w:bdr":"border",
 		}, selector)
 	}
 }

@@ -241,6 +241,8 @@ export default class DocxType extends Input.Editable{
 							sz: "size",
 							b: "bold",
 							i: "italic",
+							bdr: "border",
+							u: "underline",
 							rStyle: "namedStyle"
 						})
 

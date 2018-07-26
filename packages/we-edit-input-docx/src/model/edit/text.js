@@ -41,11 +41,48 @@ export class Text extends Base{
 		this.got("w:i").attr("w:val",b ? "1" : "0")
 	}
 	
-	color(color){
-		
+	vanish(b){
+		this.got("w:vanish").attr("w:val",b ? "1" : "0")
 	}
 	
-	vanish(){
-		
+	color(color,a, attr="w:color"){
+		let node=this.got(attr)
+		if(color){
+			node.attr("w:val", color)
+		}else{
+			node.remove()
+		}
+	}
+	
+	highlight(color,a){
+		this.color(color,a,"w:highlight")
+	}
+	
+	border(){
+		let node=this.got("w:bdr")
+		if(!node.attr("w:val")){
+			node.replaceWith(`<w:bdr w:val="single" w:sz="4" w:space="0" w:color="auto"/>`)
+		}else{
+			node.remove()
+		}
+	}
+	
+	underline(type){
+		let node=this.got("w:u")
+		if(type){
+			node.attr("w:val",type)
+		}else{
+			node.remove()
+		}
+	}
+	
+	strike(b){
+		this.got("w:strike").attr("w:val",b ? "1" : "0")
+	}
+	
+	_clear(){
+		let r=this.node.closest("w\\:r")
+		let rPr=r.children("w\\:rPr")
+		rPr.remove()
 	}
 }

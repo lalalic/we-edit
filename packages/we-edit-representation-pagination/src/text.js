@@ -28,8 +28,8 @@ export default class Text extends Super{
 
     getBreakOpportunitiesWidth(props,context){
 		const {defaultFont}=context
-        const {fonts=defaultFont,size,color,bold,italic,vanish,children:myText}=props
-		const measure=this.measure=new context.Measure({fonts,size,color,bold,italic,vanish})
+        const {fonts=defaultFont,size,bold,italic,children:myText}=props
+		const measure=this.measure=new context.Measure({fonts,size,bold,italic})
 		const [index,breakOpportunities]=context.getMyBreakOpportunities()
         return breakOpportunities.map(opportunity=>{
             let {
@@ -53,14 +53,25 @@ export default class Text extends Super{
 
     render(){
 		const parent=this.context.parent
+		const {color,highlight,vanish,border,underline,strike}=this.props
+		if(vanish){
+			parent.on1ChildComposed(this)
+			return null
+		}
+			
+		
         const measure=this.measure
-		const defaultStyle=this.measure.defaultStyle
+		const defaultStyle={...this.measure.defaultStyle, color, highlight,border,underline,strike}
+		
+		
 		let i=0
 		const commit=state=>{
 			let {content,width,end}=state
 			let composedText=this.createComposed2Parent({
 					...defaultStyle,
-					width:Math.floor(width),
+					color,
+					highlight,
+					width:Math.ceil(width),
 					contentWidth:width,
 					"data-endat":end,
 					children:[...content]

@@ -11,7 +11,11 @@ export default class Text extends Component{
 		color: PropTypes.string,
 		bold: PropTypes.bool,
 		italic: PropTypes.bool,
-		vanish: PropTypes.bool
+		vanish: PropTypes.bool,
+		hightlight: PropTypes.string,
+		border: PropTypes.object,
+		underline: PropTypes.string,
+		strike: PropTypes.bool,
 	}
 	
 	static defaultProps={

@@ -1,5 +1,5 @@
 import React, {Component} from "react"
-import {FlatButton} from "material-ui"
+import {FlatButton,FontIcon} from "material-ui"
 
 import IconColor from "material-ui/svg-icons/image/color-lens"
 
@@ -8,14 +8,16 @@ export default class extends Component{
 		const titleStyle={fontWeight:700, marginTop:4}
 		const {onChange}=this.props
 		return (
-			<div onClick={onChange} style={{width:150, fontSize:"smaller"}}>
-				<AutoColor/>
+			<div style={{width:150, fontSize:"smaller"}}>
+				<SpecialColor color="currentColor" label="Automatic" onSelect={onChange}/>
 				
 				<div style={titleStyle}>Theme Colors</div>	
-				<ThemeColors/>
+				<ThemeColors onSelect={onChange}/>
 				
-				<div style={titleStyle}>Theme Colors</div>	
-				<StandardColors/>
+				<div style={titleStyle}>Standard Colors</div>	
+				<StandardColors onSelect={onChange}/>
+				
+				<SpecialColor color="" label="No Color" onSelect={onChange}/>
 				
 				<div style={{marginTop:4}}>
 					<FlatButton 
@@ -28,26 +30,44 @@ export default class extends Component{
 	}
 }
 
-const ColorBlock=({color,size=12})=>(
-	<span style={{background:color,display:"inline-block",width:size,height:size,marginRight:2}}>
+const ColorBlock=({color,size=12,...props})=>(
+	<span {...props}
+		style={{
+			cursor:"default",
+			background:color,
+			display:"inline-block",
+			width:size,
+			height:size,
+			marginRight:2,
+			lineHeight:"100%"
+		}}>
 		&nbsp;
 	</span>
 )
 
-const AutoColor=({color="currentColor"})=>(
-	<div style={{padding:2}}>
-		<ColorBlock color={color} size={16}/>
-		<span style={{lineHeight:"16px"}}>Automatic</span>
-	</div>
+const SpecialColor=({color, label, onSelect})=>(
+	<FlatButton 
+		fullWidth={true}
+		style={{textAlign:"left"}}
+		label={label}
+		onClick={e=>onSelect(color)}
+		icon={
+			<FontIcon>
+				<ColorBlock color={color} size={16}/>
+			</FontIcon>
+		}/>
 )
 
 class ThemeColors extends Component{
 	render(){
-		const {colorThemes=[]}=this.props
+		const {colorThemes=[], onSelect}=this.props
 		return (
 			<div style={{padding:2}}>
 				{[0,1,2,3,4,5].map(opacity=>
-					<StandardColors colors={colorThemes.map(theme=>this.getColor(theme,opacity))}/>
+					<StandardColors key={opacity}
+						onSelect={onSelect} 
+						colors={colorThemes.map(theme=>this.getColor(theme,opacity))}
+						/>
 				)}
 			</div>
 		)
@@ -57,8 +77,8 @@ class ThemeColors extends Component{
 		return color
 	}
 }
-const StandardColors=({colors="black,blue,red,yellow,chocolate,tan,pink,brown,green,orange".split(",")})=>(
+const StandardColors=({onSelect, colors="black,blue,red,yellow,chocolate,tan,pink,brown,green,orange".split(",")})=>(
 	<div style={{paddingLeft:2, paddingTop:2, paddingBottom:2}}>
-		{colors.map(a=><ColorBlock color={a}/>)}
+		{colors.map(a=><ColorBlock key={a} color={a} onClick={()=>onSelect(a)}/>)}
 	</div>
 )

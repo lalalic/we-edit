@@ -18,7 +18,7 @@ import IconItalic from "material-ui/svg-icons/editor/format-italic"
 import IconUnderlined from "material-ui/svg-icons/editor/format-underlined"
 
 import IconClear from "material-ui/svg-icons/editor/format-clear"
-import IconStrikethrough from "material-ui/svg-icons/editor/strikethrough-s"
+import IconStrike from "material-ui/svg-icons/editor/strikethrough-s"
 import IconBackground from "material-ui/svg-icons/editor/format-color-fill"
 import IconColor from "material-ui/svg-icons/editor/format-color-text"
 
@@ -32,19 +32,47 @@ export default compose(
 		doc: PropTypes.object,
 		selection: PropTypes.object
 	}),
-	withProps(({store:{dispatch},selection})=>({
-		style:selection ? selection.props("text") : null,
-		toggleB:b=>dispatch(ACTION.Style.update({text:{bold:b}})),
-		toggleI:b=>dispatch(ACTION.Style.update({text:{italic:b}})),
-		toggleU:b=>dispatch(ACTION.Style.update({text:{underline:b}})),
-		changeFont:fonts=>dispatch(ACTION.Style.update({text:{fonts}})),
-		changeSize:size=>dispatch(ACTION.Style.update({text:{size}})),
-	}))
+	withProps(({store:{dispatch},selection})=>{
+		let style=selection ? selection.props("text") : null
+		let changeSize=size=>dispatch(ACTION.Style.update({text:{size}}))
+		return {
+			style,
+			toggleB:b=>dispatch(ACTION.Style.update({text:{bold:b}})),
+			toggleI:b=>dispatch(ACTION.Style.update({text:{italic:b}})),
+			toggleU:b=>dispatch(ACTION.Style.update({text:{underline:b}})),
+			changeFont:fonts=>dispatch(ACTION.Style.update({text:{fonts}})),
+			changeSize,
+			smaller(){
+				changeSize(Math.max(style.size-Math.ceil(Math.abs((style.size-8)/5)),8))
+			},
+			bigger(){
+				changeSize(style.size+2)
+			},
+			changeHightlight(highlight){
+				dispatch(ACTION.Style.update({text:{highlight}}))
+			},
+			changeColor(color){
+				dispatch(ACTION.Style.update({text:{color}}))
+			},
+			clear(_clear=true){
+				dispatch(ACTION.Style.update({text:{_clear}}))
+			},
+			toggleBorder(border={}){
+				dispatch(ACTION.Style.update({text:{border}}))
+			},
+			underline(underline){
+				dispatch(ACTION.Style.update({text:{underline}}))
+			},
+			toggleStrike(strike){
+				dispatch(ACTION.Style.update({text:{strike}}))
+			}
+		}
+	})
 )(({doc, style, children,
 	bigger, smaller, clear, 
-	toggleStrikethrough, changeHightlight,changeColor,
+	toggleStrike, changeHightlight,changeColor,
 	toggleSubscript, toggleSuperscript, toggleBorder,
-	toggleB, toggleI, toggleU,
+	toggleB, toggleI, underline,
 	changeFont,changeSize})=>(
 	<ToolbarGroup>
 		<FontList
@@ -82,15 +110,24 @@ export default compose(
 			onClick={()=>toggleI(!style.italic)}
 			children={<IconItalic/>}
 			/>
-		<CheckIconButton
+		<DropDownButton
 			status={!style ? "disabled" : style.underline?"checked":"unchecked"}
-			onClick={()=>toggleU(!style.underline)}
-			children={<IconUnderlined/>}
-			/>
+			onClick={a=>underline(style&&style.underline ? "" : "single")}
+			icon={<IconUnderlined/>}
+			>
+			{"single,double,dot,dash".split(",").map(a=>
+				<MenuItem 
+					key={a} 
+					onClick={e=>underline(a)}
+					primaryText={a}
+					/>
+			)}
+		</DropDownButton>
+			
 		<CheckIconButton
-			status={!style ? "disabled" : style.strikethrough?"checked":"unchecked"}
-			onClick={()=>toggleStrikethrough(!style.strikethrough)}
-			children={<IconStrikethrough/>}
+			status={!style ? "disabled" : style.strike?"checked":"unchecked"}
+			onClick={()=>toggleStrike(!style.strike)}
+			children={<IconStrike/>}
 			/>
 		<ToolbarSeparator/>
 		

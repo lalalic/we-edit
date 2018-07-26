@@ -137,9 +137,13 @@ export class Properties{
 	i(x){
 		return this.asToggle(x)
 	}
+	
+	strike(x){
+		return this.asToggle(x)
+	}
 
 	u(x){
-		return this.asToggle(x)
+		return this._val(x)
 	}
 
 	vanish(x){
@@ -158,7 +162,7 @@ export class Properties{
 		return this.toColor(x,'w:color')
 	}
 
-	hightlight(x){
+	highlight(x){
 		return this.toColor(x)
 	}
 
@@ -166,7 +170,7 @@ export class Properties{
 		return this.toColor(x)
 	}
 
-	bdx(x){
+	bdr(x){
 		return this.toBorder(x)
 	}
 

@@ -13,6 +13,10 @@ export default function(Models){
 			bold: PropTypes.bool,
 			italic: PropTypes.bool,
 			vanish: PropTypes.bool,
+			highlight: PropTypes.string,
+			border: PropTypes.object,
+			underline: PropTypes.string,
+			strike: PropTypes.bool,
 			namedStyle: PropTypes.string
 		}
 		
@@ -30,13 +34,13 @@ export default function(Models){
 			const styles=context.styles
 			let style=styles[namedStyle||this.constructor.namedStyle]
 			
-			let rStyle="bold,italic,vanish".split(",")
+			let rStyle="bold,italic,vanish,strike".split(",")
 				.reduce((o,key,t)=>{
 						if(direct[key]==undefined && (t=style.get(`r.${key}`))!=undefined)
 							o[key]=!!t
 						return o
 					},
-					"fonts,size,color".split(",")
+					"fonts,size,color,highlight,border,underline".split(",")
 					.reduce((o,key,t)=>{
 						if(direct[key]==undefined && (t=style.get(`r.${key}`))!=undefined)
 							o[key]=t

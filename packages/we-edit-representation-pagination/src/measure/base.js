@@ -1,6 +1,6 @@
 export class Measure{
     constructor(style){
-		const {fonts, size, color}=style
+		const {fonts, size}=style
 		this.style=style
 		this.fontFamily=fonts.split(",").map(a=>a.trim()).filter(a=>!!a)[0]
 		this.size=size
@@ -17,9 +17,6 @@ export class Measure{
 			descent: this.descent,
 			fontFamily:this.fontFamily
 		}
-
-		if(color)
-			this.defaultStyle.fill=color
     }
 
 	lineHeight(){

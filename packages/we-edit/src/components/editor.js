@@ -214,7 +214,7 @@ class WeDocumentStub extends PureComponent{
 	componentWillReceiveProps({content,changed,reCreateDoc,canvasProps},{ModelTypes}){
 		if(!ModelTypes)
 			return
-		if(reCreateDoc || !this.doc || changed.root){
+		if(reCreateDoc || !this.doc || (changed&&changed.root)){
 			this.els=new Map()
 			this.doc=this.createChildElement("root",content,ModelTypes,this.props.content,canvasProps)
 		}else if(this.props.content!=content){
