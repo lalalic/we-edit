@@ -3,6 +3,27 @@ export default class Editor{
         this.file=file
     }
 	
+	//find pr, if no,create it
+	got(nodeName,tagContent, tagPr){
+		let contentSelector=tagContent.replace(":", "\\:")
+		let prSelector=tagPr.replace(":", "\\:")
+		
+		let content=this.node.closest(contentSelector)
+		let pr=content.children(prSelector)
+		if(pr.length==0){
+			content.append(`<${tagPr}/>`)
+			pr=content.children(prSelector)
+		}
+		
+		let selector=nodeName.replace(":", "\\:")
+		let target=pr.children(selector)
+		if(target.length==0){
+			pr.append(`<${nodeName}/>`)
+			target=pr.children(selector)
+		}
+		return target
+	}
+	
 	trim(xml){
 		return xml.replace(/>\s+/g,">").replace(/\s+</g,"<")
 	}

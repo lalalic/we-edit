@@ -9,19 +9,7 @@ export class Text extends Base{
 	}
 	
 	got(nodeName){
-		let r=this.node.closest("w\\:r")
-		let rPr=r.children("w\\:rPr")
-		if(rPr.length==0){
-			r.append(`<w:rPr/>`)
-			rPr=r.children("w\\:rPr")
-		}
-		let selector=nodeName.replace(":", "\\:")
-		let target=rPr.children(selector)
-		if(target.length==0){
-			rPr.append(`<${nodeName}/>`)
-			target=rPr.children(selector)
-		}
-		return target
+		return super.got(nodeName,"w:r", "w:rPr")
 	}
 	
 	fonts(fonts){
