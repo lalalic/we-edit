@@ -117,6 +117,8 @@ export default class IChange extends Reducer{
 					path.push("atHead")
 				}else if(start.at==this.$('#'+start.id).children.length-1){
 					path.push("atTail")
+				}else{
+					path.push("inline")
 				}
 			}else{
 				path.push("inline")

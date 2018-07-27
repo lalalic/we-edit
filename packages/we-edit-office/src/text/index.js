@@ -75,11 +75,11 @@ export default compose(
 	toggleB, toggleI, underline,
 	changeFont,changeSize})=>(
 	<ToolbarGroup>
-		<FontList
+		<FontList label="font" hint="Pick a new font for text"
 			disabled={style==null}
 			value={style ? style.fonts.split(",")[0] : ""}
 			changeFont={changeFont}/>
-		<ComboBox
+		<ComboBox label="font size" hint="change font size of the text"
 			disabled={style==null}
 			style={{width:50}}
 			inputStyle={{border:"1px solid lightgray"}}
@@ -88,29 +88,29 @@ export default compose(
 			dataSource={[8,9,10,11,12,14,16,20,22,24,26,28,36,72].map(a=>a+"")}
 			underlineShow={false}
 			/>
-		<CheckIconButton hint="bigger font"
+		<CheckIconButton label="increase font size" hint="make text a bit bigger"
 			status={!style ? "disabled" : "unchecked"}
 			onClick={bigger}
 			children={<IconBigger/>}
 			/>
-		<CheckIconButton hint="smaller font"
+		<CheckIconButton label="descrease font size" hint="make text a bit smaller"
 			status={!style ? "disabled" : "unchecked"}
 			onClick={smaller}
 			children={<IconSmaller/>}
 			/>
 		<ToolbarSeparator/>
 			
-		<CheckIconButton
+		<CheckIconButton label="bold"
 			status={!style ? "disabled" : style.bold?"checked":"unchecked"}
 			onClick={()=>toggleB(!style.bold)}
 			children={<IconBold/>}
 			/>
-		<CheckIconButton
+		<CheckIconButton label="italic"
 			status={!style ? "disabled" : style.italic?"checked":"unchecked"}
 			onClick={()=>toggleI(!style.italic)}
 			children={<IconItalic/>}
 			/>
-		<DropDownButton
+		<DropDownButton label="underline"
 			status={!style ? "disabled" : style.underline?"checked":"unchecked"}
 			onClick={a=>underline(style&&style.underline ? "" : "single")}
 			icon={<IconUnderlined/>}
@@ -124,44 +124,44 @@ export default compose(
 			)}
 		</DropDownButton>
 			
-		<CheckIconButton
+		<CheckIconButton label="strikethrough"
 			status={!style ? "disabled" : style.strike?"checked":"unchecked"}
 			onClick={()=>toggleStrike(!style.strike)}
 			children={<IconStrike/>}
 			/>
 		<ToolbarSeparator/>
 		
-		<CheckIconButton
+		<CheckIconButton label="Subscript"
 			status={!style ? "disabled" : style.subscript?"checked":"unchecked"}
 			onClick={()=>toggleSubscript(!style.subscript)}
 			children={<IconSubscript/>}
 			/>
-		<CheckIconButton
+		<CheckIconButton label="Superscript"
 			status={!style ? "disabled" : style.superscript?"checked":"unchecked"}
 			onClick={()=>toggleSuperscript(!style.superscript)}
 			children={<IconSuperscript/>}
 			/>
+
+		<CheckIconButton label="text border"
+			onClick={toggleBorder}
+			children={<IconTextBorder/>}
+			/>	
 			
-		<ColorButton 
+		<ColorButton label="text highlight color"
 			status={!style ? "disabled" : "unchecked"}
 			onChange={color=>changeHightlight(color)}>
 			<IconBackground/>
 		</ColorButton>
 		
-		<ColorButton 
+		<ColorButton label="text color"
 			status={!style ? "disabled" : "unchecked"}
 			value={!style ? null : style.color}
 			onChange={color=>changeColor(color)}>
 			<IconColor/>
-		</ColorButton>
-
-		<CheckIconButton hint="Border text"
-			onClick={toggleBorder}
-			children={<IconTextBorder/>}
-			/>			
+		</ColorButton>		
 		
 		<ToolbarSeparator/>
-		<CheckIconButton hint="clear text format"
+		<CheckIconButton label="clear all text formatting"
 			onClick={clear}
 			children={<IconClear/>}
 			/>

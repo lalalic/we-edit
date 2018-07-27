@@ -53,7 +53,7 @@ export class ComboBox extends PureComponent{
 	render(){
 		let {comboBox}=this.context.muiTheme
 		let {name=`_${Date.now()}`, value, onChange, onException, style, menuProps={}, 
-			textFieldStyle, inputStyle, children,icon=children, ...props}=this.props
+			textFieldStyle, inputStyle, children,icon=children,label,hint=label, ...props}=this.props
 		let text=this.getText()
 		let {searchText}=this.state
 		if(comboBox && comboBox.height){
@@ -141,6 +141,7 @@ export class ComboBox extends PureComponent{
 					style={style}
 					inputStyle={inputStyle}
 					textFieldStyle={textFieldStyle}
+					hintText={hint}
 					{...props} />
 					{icon}
 			</span>

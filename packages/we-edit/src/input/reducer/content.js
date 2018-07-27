@@ -277,11 +277,14 @@ export class Update extends Insert{
 
 		this.renderChanged(p.attr('id'))
 	}
-
-	update_withoutSelection(props){
-
+	
+	update_text_withoutSelection_inline(targets, changing){
+		const {start:{id,at}}=this.selection
+		let target=this.$(`#${id}`)
+		target.attr(changing)
+		this.renderChanged(target.closest("paragraph").attr('id'))
 	}
-
+	
 	update_text_withoutSelection_atHead(targets, changing){
 		let {start:{id,at}}=this.selection
 		let target=this.$('#'+id)
@@ -303,7 +306,12 @@ export class Update extends Insert{
 		this.renderChanged(p.attr('id'))
 		
 		this.cursorAt(created.attr('id'),0)
+	}	
+
+	update_withoutSelection(props){
+
 	}
+
 
 	update_withoutSelection_atTail(props){
 

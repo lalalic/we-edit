@@ -336,7 +336,7 @@ export class Properties{
 	}
 
 	asToggle(x){
-		if(x==undefined || x.val==undefined){
+		if(x==undefined || x.attribs['w:val']==undefined){
 			return !!-1
 		}else{
 			return !!parseInt(this._val(x))

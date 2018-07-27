@@ -7,7 +7,7 @@ import {IconButton} from "material-ui"
 export const SizeIconButton=compose(
 	setDisplayName("SizableIconButton"),
 	getContext({muiTheme:PropTypes.object}),
-)(({size,padding,style={},iconStyle={}, muiTheme:{sizeIconButton}, ...props})=>{
+)(({size,padding,style={},iconStyle={}, muiTheme:{sizeIconButton}, label, hint=label, onChange,...props})=>{
 	if(sizeIconButton){
 		if(!size && sizeIconButton.size)
 			size=sizeIconButton.size
@@ -23,7 +23,7 @@ export const SizeIconButton=compose(
 		style.padding=padding
 	}
 	
-	return <IconButton {...props} {...{style,iconStyle}}/>
+	return <IconButton {...props} {...{style,iconStyle}} tooltip={hint}/>
 })
 
 export default SizeIconButton

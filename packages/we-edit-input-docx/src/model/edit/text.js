@@ -34,15 +34,15 @@ export class Text extends Base{
 	}
 	
 	bold(b){
-		this.got("w:b").attr("w:val",b ? "1" : "0")
+		this._toggle("w:b",b)
 	}
 	
 	italic(b){
-		this.got("w:i").attr("w:val",b ? "1" : "0")
+		this._toggle("w:i",b)
 	}
 	
 	vanish(b){
-		this.got("w:vanish").attr("w:val",b ? "1" : "0")
+		this._toggle("w:vanish",b)
 	}
 	
 	color(color,a, attr="w:color"){
@@ -77,7 +77,16 @@ export class Text extends Base{
 	}
 	
 	strike(b){
-		this.got("w:strike").attr("w:val",b ? "1" : "0")
+		this._toggle("w:strike",b)
+	}
+	
+	_toggle(k,b){
+		let node=this.got(k)
+		if(b){
+			node.attr("w:val","1")
+		}else{
+			node.remove()
+		}
 	}
 	
 	_clear(){
