@@ -206,6 +206,8 @@ export class Paragraph extends Super{
 		
 		if(align=="right"){
 			contentX+=(width-contentWidth)
+		}else if(align=="center"){
+			contentX+=(width-contentWidth)/2
 		}
 
         return (

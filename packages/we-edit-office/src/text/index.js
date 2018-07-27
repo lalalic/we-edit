@@ -132,12 +132,12 @@ export default compose(
 		<ToolbarSeparator/>
 		
 		<CheckIconButton label="Subscript"
-			status={!style ? "disabled" : style.subscript?"checked":"unchecked"}
+			status={true||!style ? "disabled" : style.subscript?"checked":"unchecked"}
 			onClick={()=>toggleSubscript(!style.subscript)}
 			children={<IconSubscript/>}
 			/>
 		<CheckIconButton label="Superscript"
-			status={!style ? "disabled" : style.superscript?"checked":"unchecked"}
+			status={true||!style ? "disabled" : style.superscript?"checked":"unchecked"}
 			onClick={()=>toggleSuperscript(!style.superscript)}
 			children={<IconSuperscript/>}
 			/>

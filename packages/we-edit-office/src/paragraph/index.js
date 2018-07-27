@@ -51,7 +51,7 @@ export default compose(
 			children={<IconAlignRight/>}
 			/>
 		<CheckIconButton
-			status={!style ? "disabled" : style.align=="justify"?"checked":"unchecked"}
+			status={true||!style ? "disabled" : style.align=="justify"?"checked":"unchecked"}
 			onClick={()=>align("justify")}
 			children={<IconAlignJustify/>}
 			/>
