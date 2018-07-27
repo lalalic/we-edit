@@ -9,7 +9,12 @@ export const Text=({
 	})=>{
 		let background=null
 		if(highlight || border){
-			let props={width, height,fill:highlight||"none",x:0,y:-height+descent}
+			let props={
+					width:Math.ceil(width), 
+					height:Math.ceil(height),
+					fill:highlight||"none",
+					x:0,y:-height+descent
+				}
 			if(border){
 				props.stroke="black"
 				props.strokeWidth=0.5

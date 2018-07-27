@@ -308,13 +308,19 @@ export class Update extends Insert{
 		this.cursorAt(created.attr('id'),0)
 	}	
 
-	update_withoutSelection(props){
-
+	update_withoutSelection_inline(targets, changing){
+		let target=targets.first()
+		target.attr(changing)
+		this.renderChanged(target.attr("id"))
 	}
 
 
-	update_withoutSelection_atTail(props){
-
+	update_withoutSelection_atTail(){
+		this.update_withoutSelection_inline(...arguments)
+	}
+	
+	update_withoutSelection_atHead(){
+		this.update_withoutSelection_inline(...arguments)
 	}
 
 	update_withSelection_inParagraph(){

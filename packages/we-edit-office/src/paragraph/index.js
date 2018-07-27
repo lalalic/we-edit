@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 
 import {compose,setDisplayName,getContext,mapProps} from "recompose"
 import {connect} from "react-redux"
-import {getSelection} from "we-edit"
+import {getSelection, ACTION} from "we-edit"
 
 import {ToolbarGroup,ToolbarSeparator as ToolbarSeparator0,} from "material-ui"
 import CheckIconButton from "../components/check-icon-button"
@@ -30,7 +30,7 @@ export default compose(
 	mapProps(({store:{dispatch},doc,children,selection})=>({
 		doc,children,
 		style:selection ? selection.props("paragraph") : null,
-		align:type=>dispatch(ACTION.Style.update({paragraph:{align:type}})),
+		align:align=>dispatch(ACTION.Style.update({paragraph:{align}})),
 	})),
 	connect(state=>({selection:getSelection(state)})),
 )(({doc,style, align,children})=>(
@@ -51,8 +51,8 @@ export default compose(
 			children={<IconAlignRight/>}
 			/>
 		<CheckIconButton
-			status={!style ? "disabled" : style.align=="right"?"checked":"unchecked"}
-			onClick={()=>align("right")}
+			status={!style ? "disabled" : style.align=="justify"?"checked":"unchecked"}
+			onClick={()=>align("justify")}
 			children={<IconAlignJustify/>}
 			/>
 		<ToolbarSeparator/>
@@ -64,7 +64,7 @@ export default compose(
 			/>
 		<DropDownButton
 			status={!style ? "disabled" : style.align=="center"?"checked":"unchecked"}
-			onchange={()=>number()}
+			onChange={()=>number()}
 			icon={<IconListNumber/>}
 			/>
 		

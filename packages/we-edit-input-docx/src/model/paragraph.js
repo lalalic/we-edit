@@ -45,7 +45,7 @@ export default function transform(Models){
 					},{})
 				)
 				
-			let pStyle="spacing,indent".split(",")
+			let pStyle="spacing,indent,align".split(",")
 					.reduce((o,key,t)=>{
 						if(direct[key]==undefined && (t=style.get(`p.${key}`))!=undefined)
 							o[key]=t

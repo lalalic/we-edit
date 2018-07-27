@@ -217,6 +217,7 @@ export default class DocxType extends Input.Editable{
 						spacing:"spacing",
 						ind:"indent",
 						numPr:"num",
+						"jc":"align",
 						pStyle:"namedStyle"
 					})
 
