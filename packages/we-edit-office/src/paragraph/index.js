@@ -33,7 +33,7 @@ export default compose(
 		align:align=>dispatch(ACTION.Style.update({paragraph:{align}})),
 	})),
 	connect(state=>({selection:getSelection(state)})),
-)(({doc,style, align,children})=>(
+)(({doc,style, align,number, bullet, children})=>(
 	<ToolbarGroup>
 		<CheckIconButton
 			status={!style ? "disabled" : (!style.align ||style.align=="left")?"checked":"unchecked"}
@@ -55,21 +55,6 @@ export default compose(
 			onClick={()=>align("justify")}
 			children={<IconAlignJustify/>}
 			/>
-		<ToolbarSeparator/>
-		
-		<DropDownButton
-			status={!style ? "disabled" : (!style.align ||style.align=="left")?"checked":"unchecked"}
-			onChange={()=>bullet()}
-			icon={<IconListBullet/>}
-			>
-			
-		</DropDownButton>
-		<DropDownButton
-			status={!style ? "disabled" : style.align=="center"?"checked":"unchecked"}
-			onChange={()=>number()}
-			icon={<IconListNumber/>}
-			>
-		</DropDownButton>
 		
 		{children}
 	</ToolbarGroup>

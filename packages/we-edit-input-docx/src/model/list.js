@@ -43,13 +43,16 @@ export default function(Models){
 			
 			this.style.numId=numId
 			this.style.level=level
+			
+			this.style.format=numStyle.parent[level].numFmt
 		}
 		
 		getLabel(numStyle,id,level){
 			let label=numStyle.level(level).invoke(`next`)
 			let style=Run.mergeStyle(numStyle, {}, `${level}.r`)
 			
-			return {...style, children:label, id:`${id}_${level}`}
+			
+			return {...style, children:label,id:`${id}_${level}`}
 		}
 
 		render(){

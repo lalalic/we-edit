@@ -9,7 +9,9 @@ export default class extends Component{
 	render(){
 		const {open,anchor}=this.state
 		const toggle=this.toggle.bind(this)
-		const {icon, children, labelStyle={fontSize:"xx-small"},onClick=toggle, ...props}=this.props
+		const {icon, 
+			children, labelStyle={fontSize:"xx-small"},
+			status, onClick=toggle, ...props}=this.props
 		
 		let menus=null
 		if(open){
@@ -26,7 +28,7 @@ export default class extends Component{
 		}
 		return (
 			<span>
-				<SizeIconButton onClick={onClick} {...props}>
+				<SizeIconButton onClick={onClick} {...props} status={status}>
 					{icon}
 				</SizeIconButton>
 				{false && (<span style={labelStyle} onClick={onClick}>{label}</span>)}

@@ -103,7 +103,9 @@ export default class IChange extends Reducer{
         let type=Object.keys(props)[0]
 		let set=props[type]
 		const {start,end}=this.selection
-        let targets=this.$(`#${start.id}`)
+		const target=this.$(`#${start.id}`)
+        let targets=[]
+		this.$(`#${start.id}`)
 			.forwardUntil(`#${end.id}`)
 			.add(this.$(`#${start.id}`).parents())
 			.add(this.$(`#${end.id}`).parents())
@@ -111,6 +113,7 @@ export default class IChange extends Reducer{
 
 		let path=[]
 		if(start.id==end.id){
+			targets=target.add(target.parents())
 			if(start.at==end.at){
 				path.push("withoutSelection")
 				if(start.at==0){
@@ -124,15 +127,22 @@ export default class IChange extends Reducer{
 				path.push("inline")
 			}
 		}else{
+			targets=target
+				.forwardUntil(`#${end.id}`)
+				.add(target.parents())
+				.add(this.$(`#${end.id}`).parents())
+			
 			path.push("withSelection")
 			let p0=this.$('#'+start.id).parents("paragraph").attr('id')
 			let p1=this.$('#'+end.id).parents("paragraph").attr('id')
 			if(p0==p1){
 				path.push("inParagraph")
 			}else{
-				path.puah("crossParagraph")
+				path.push("crossParagraph")
 			}
 		}
+		
+		targets=targets.filter(type)
 
         let fname=null
         let typed=["update",type,...path].join("_")

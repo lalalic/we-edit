@@ -8,8 +8,10 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme'
 
 import Text from "./text"
 import Paragraph from "./paragraph"
+import List from  "./list"
 import File from "./file"
 import History from "./history"
+
 import * as Table from "./table"
 import * as Picture from "./picture"
 import * as Layout from "./layout"
@@ -109,7 +111,12 @@ const Ribbon=compose(
 								<ToolbarSeparator/>
 							</Text>
 
-							<Paragraph/>
+							<Paragraph>
+								<ToolbarSeparator/>
+							</Paragraph>
+							
+							<List/>
+							
 						</Toolbar>
 					</Tab>
 					<Tab label="Insert"  buttonStyle={buttonStyle} style={tabStyle}>

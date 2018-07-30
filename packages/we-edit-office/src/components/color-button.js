@@ -37,7 +37,7 @@ export default class extends Component{
 		
 		return (
 			<span>
-				<SizeIconButton {...props} onClick={toggle}/>
+				<SizeIconButton {...props} onClick={e=>props.status=="checked" ? onChange("") : toggle(e)}/>
 				<IconMore style={{height:24,width:6}} viewBox="6 -12 18 36" onClick={toggle}/>
 				{colorSelector}
 			</span>
