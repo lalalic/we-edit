@@ -57,7 +57,7 @@ export default compose(
 			
 		let {
 			indent:{left:leftIndent,right:rightIndent,firstLine}={}
-		}=selection.props("paragraph")
+		}=selection.props("paragraph")||selection.props("list")
 		
 		return {
 			width,height,leftMargin,topMargin,bottomMargin,rightMargin,leftIndent,rightIndent,firstLine,

@@ -1,6 +1,8 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 
+import Run from "./run"
+
 
 export default function transform(Models){
 	return class extends Component{
@@ -31,26 +33,10 @@ export default function transform(Models){
 			const styles=context.styles
 			let style=styles[direct.namedStyle||this.constructor.namedStyle]
 			
-			let rStyle="bold,italic,vanish".split(",")
-				.reduce((o,key,t)=>{
-						if((t=style.get(`r.${key}`))!=undefined)
-							o[key]=!!t
-						return o
-					},
-					"fonts,size,color".split(",")
-					.reduce((o,key,t)=>{
-						if((t=style.get(`r.${key}`))!=undefined)
-							o[key]=t
-						return o
-					},{})
-				)
+			let rStyle=Run.mergeStyle(style)
 				
-			let pStyle="spacing,indent,align".split(",")
-					.reduce((o,key,t)=>{
-						if(direct[key]==undefined && (t=style.get(`p.${key}`))!=undefined)
-							o[key]=t
-						return o
-					},{})
+			let pStyle=transform.mergeStyle(style, direct)
+			
 			
 			this.style={...context.p, ...pStyle, ...direct}
 			this.rStyle={...context.r,...rStyle}
@@ -60,4 +46,13 @@ export default function transform(Models){
 			return <Models.Paragraph {...this.style} children={this.props.children}/>
 		}
 	}
+}
+
+transform.mergeStyle=function(named, direct={}){
+	return "spacing,indent,align".split(",")
+		.reduce((o,key,t)=>{
+			if(direct[key]==undefined && (t=named.get(`p.${key}`))!=undefined)
+				o[key]=t
+			return o
+		},{})
 }

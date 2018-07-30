@@ -47,4 +47,8 @@ export default class List extends Paragraph{
 		}
 		return line
 	}
+	
+	render(){
+		return super.render()
+	}
 }

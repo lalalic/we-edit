@@ -136,7 +136,8 @@ export default class Output extends Emitter.Format.Base{
 
 	}
 
-	onGroup({transform="translate(0 0)"}){
+	onGroup(props){
+		const {transform="translate(0 0)"}=(props||{})
 		let [,x=0,y=0]=transform.match(RE_TRANSLATE)
 		this._offsets.push({x:parseInt(x),y:parseInt(y)})
 	}

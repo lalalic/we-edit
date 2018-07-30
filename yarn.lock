@@ -2858,9 +2858,9 @@ fetch-any@^1.0.0:
   dependencies:
     isomorphic-fetch "^2.2.1"
 
-fetchable@^1.0.0:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/fetchable/-/fetchable-1.0.3.tgz#51a4d63c5ceb8aaf3ebb59804ee32fd2df7fd0e7"
+fetchable@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/fetchable/-/fetchable-1.0.4.tgz#29200ba13f61eca59b080bbc8867a7d4e6d5c1f5"
   dependencies:
     fetch-any "^1.0.0"
 
@@ -6079,6 +6079,15 @@ react-dom@^0.14.8:
 react-dom@^16.1.1:
   version "16.3.2"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.3.2.tgz#cb90f107e09536d683d84ed5d4888e9640e0e4df"
+  dependencies:
+    fbjs "^0.8.16"
+    loose-envify "^1.1.0"
+    object-assign "^4.1.1"
+    prop-types "^15.6.0"
+
+react-dom@^16.2.0:
+  version "16.4.1"
+  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.4.1.tgz#7f8b0223b3a5fbe205116c56deb85de32685dad6"
   dependencies:
     fbjs "^0.8.16"
     loose-envify "^1.1.0"

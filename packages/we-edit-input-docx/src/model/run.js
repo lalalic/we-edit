@@ -2,7 +2,7 @@ import React, {Component, Fragment} from "react"
 import PropTypes from "prop-types"
 
 
-export default function(Models){
+export default function transform(Models){
 	return class extends Component{
 		static displayName="run"
 		static namedStyle="*character"
@@ -34,20 +34,7 @@ export default function(Models){
 			const styles=context.styles
 			let style=styles[namedStyle||this.constructor.namedStyle]
 			
-			let rStyle="bold,italic,vanish,strike".split(",")
-				.reduce((o,key,t)=>{
-						if(direct[key]==undefined && (t=style.get(`r.${key}`))!=undefined)
-							o[key]=!!t
-						return o
-					},
-					"fonts,size,color,highlight,border,underline".split(",")
-					.reduce((o,key,t)=>{
-						if(direct[key]==undefined && (t=style.get(`r.${key}`))!=undefined)
-							o[key]=t
-						return o
-					},{})
-				)
-			
+			let rStyle=transform.mergeStyle(style,direct)
 			
 			this.style={...context.r,...rStyle,...direct,namedStyle}
 		}
@@ -67,4 +54,20 @@ export default function(Models){
 			)
 		}
 	}
+}
+
+transform.mergeStyle=function(named,direct={}, r="r"){
+	return "bold,italic,vanish,strike".split(",")
+		.reduce((o,key,t)=>{
+				if(direct[key]==undefined && (t=named.get(`${r}.${key}`))!=undefined)
+					o[key]=!!t
+				return o
+			},
+			"fonts,size,color,highlight,border,underline".split(",")
+			.reduce((o,key,t)=>{
+				if(direct[key]==undefined && (t=named.get(`${r}.${key}`))!=undefined)
+					o[key]=t
+				return o
+			},{})
+		)
 }

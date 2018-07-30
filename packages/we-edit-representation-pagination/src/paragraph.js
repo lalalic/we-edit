@@ -143,10 +143,10 @@ export class Paragraph extends Super{
 
 		if(il>2){
 			console.warn("infinite loop during paragraph line content pending")
-			throw new Error("infinit loop")
+			//throw new Error("infinit loop")
 		}
 		
-        if((availableWidth+1)>=contentWidth){
+        if((availableWidth+1)>=contentWidth || il>2){
           currentLine=currentLine.push(content)
 		  composed.pop()
 		  composed.push(currentLine)

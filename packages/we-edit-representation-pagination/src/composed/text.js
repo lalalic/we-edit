@@ -45,7 +45,7 @@ export const Text=({
 				{background}
 				{strikeline}
 				{decoration}
-				<text style={{userSelect:"text",whiteSpace:"pre",}} {...others} textLength={width} fill={fill}>
+				<text style={{userSelect:"text",whiteSpace:"pre",}} {...others} fill={fill}>
 					{children.join("")}
 				</text>
 			</Fragment>

@@ -2,6 +2,7 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 
 import Paragraph from "./paragraph"
+import Run from "./run"
 
 export default function(Models){
 	const Super=Paragraph(Models)
@@ -51,23 +52,14 @@ export default function(Models){
 		
 		getLabel(numStyle,id,level){
 			let label=numStyle.level(level).invoke(`next`)
-			return "fonts,size,color".split(",")
-				.reduce((props,key, t)=>{
-					if(t=numStyle.get(`${level}.r.${key}`)!=undefined)
-						props[key]=t
-					return props
-				},"bold,italic,vanish".split(",")
-					.reduce((o,key,t)=>{
-						if((t=numStyle.get(`${level}.r.${key}`))!=undefined)
-							o[key]=!!t
-						return o
-					},{children:label})
-				)
+			let style=Run.mergeStyle(numStyle, {}, `${level}.r`)
+			return {...style, children:label, id:`${id}_${level}`}
 		}
 
 		render(){
-			return <Models.List {...this.style} children={this.children}
-				label={<Models.Text {...this.label} id={`${this.props.numId}_${this.props.level}`}/>}/>
+			return <Models.List {...this.style} 
+				children={this.props.children}
+				label={<Models.Text {...this.label}/>}/>
 		}
 	}
 }
