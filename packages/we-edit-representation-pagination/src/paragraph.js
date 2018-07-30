@@ -191,9 +191,7 @@ export class Paragraph extends Super{
         if(this.computed.composed.length==1){//first line
             lineHeight+=top
             contentY+=top
-            contentX+=firstLine
-        }else{
-            contentX+=hanging
+            contentX+=(firstLine||-hanging)
         }
 
         if(this.isAllChildrenComposed()){//last line

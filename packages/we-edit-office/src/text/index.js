@@ -148,14 +148,13 @@ export default compose(
 			/>	
 			
 		<ColorButton label="text highlight color"
-			status={!style ? "disabled" : "unchecked"}
+			status={!style ? "disabled" : style.highlight?"checked":"unchecked"}
 			onChange={color=>changeHightlight(color)}>
 			<IconBackground/>
 		</ColorButton>
 		
 		<ColorButton label="text color"
-			status={!style ? "disabled" : "unchecked"}
-			value={!style ? null : style.color}
+			status={!style ? "disabled" : style.color?"checked":"unchecked"}
 			onChange={color=>changeColor(color)}>
 			<IconColor/>
 		</ColorButton>		

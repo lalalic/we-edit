@@ -27,24 +27,19 @@ export default function(Models){
 			styles: PropTypes.object
 		}
 
-		componentWillReceiveProps(next,{styles}){
+		componentWillReceiveProps(direct,{styles}){
 			super.componentWillReceiveProps(...arguments)
-			const {numId,ilvl:level}=next.num
+			const {numId,ilvl:level}=direct.num
 			
 			const numStyle=styles[`_num_${numId}`]
 			
 			this.label=this.getLabel(numStyle,numId,level)
-			this.label={...this.label,...this.getChildContext().r}
+			this.label={...this.getChildContext().r,...this.label}
 			
 			let indentList={...numStyle.get(`${level}.p.indent`)}
-			if(this.style.indent){
-				const {left=0,hanging=0}=this.style.indent
-				this.style.indent.left=Math.max(left+hanging,indentList.left)
-			}else {
-				this.style.indent=indentList
-			}
-			this.style.labelWidth=Math.max(this.style.indent.hanging||0,indentList.hanging)
-			delete this.style.indent.hanging
+			this.style.indent={...this.style.indent, ...indentList, ...direct.indent}
+			
+			this.style.labelWidth=this.style.indent.hanging
 			
 			this.style.numId=numId
 			this.style.level=level
@@ -53,6 +48,7 @@ export default function(Models){
 		getLabel(numStyle,id,level){
 			let label=numStyle.level(level).invoke(`next`)
 			let style=Run.mergeStyle(numStyle, {}, `${level}.r`)
+			
 			return {...style, children:label, id:`${id}_${level}`}
 		}
 

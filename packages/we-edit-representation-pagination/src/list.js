@@ -34,9 +34,8 @@ export default class List extends Paragraph{
 			let {defaultStyle}=new this.context.Measure(label.props)
 			line.children.push(
 				<Group
-					x={-labelWidth}
 					descent={defaultStyle.descent}
-					width={0}
+					width={labelWidth}
 					height={0}>
 					<ComposedText {...defaultStyle}
 						width={labelWidth}
@@ -46,9 +45,5 @@ export default class List extends Paragraph{
 			)
 		}
 		return line
-	}
-	
-	render(){
-		return super.render()
 	}
 }

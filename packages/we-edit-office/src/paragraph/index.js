@@ -5,7 +5,7 @@ import {compose,setDisplayName,getContext,mapProps} from "recompose"
 import {connect} from "react-redux"
 import {getSelection, ACTION} from "we-edit"
 
-import {ToolbarGroup,ToolbarSeparator as ToolbarSeparator0,} from "material-ui"
+import {ToolbarGroup,ToolbarSeparator as ToolbarSeparator0,MenuItem} from "material-ui"
 import CheckIconButton from "../components/check-icon-button"
 import DropDownButton from "../components/drop-down-button"
 
@@ -61,12 +61,15 @@ export default compose(
 			status={!style ? "disabled" : (!style.align ||style.align=="left")?"checked":"unchecked"}
 			onChange={()=>bullet()}
 			icon={<IconListBullet/>}
-			/>
+			>
+			
+		</DropDownButton>
 		<DropDownButton
 			status={!style ? "disabled" : style.align=="center"?"checked":"unchecked"}
 			onChange={()=>number()}
 			icon={<IconListNumber/>}
-			/>
+			>
+		</DropDownButton>
 		
 		{children}
 	</ToolbarGroup>

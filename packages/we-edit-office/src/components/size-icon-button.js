@@ -4,10 +4,22 @@ import {compose, mapProps,getContext,setDisplayName} from "recompose"
 
 import {IconButton} from "material-ui"
 
+const styles={
+	checked:{
+		background:"lightblue",
+	},
+	unchecked:{
+	},
+	disabled:{
+	}
+}
+
 export const SizeIconButton=compose(
 	setDisplayName("SizableIconButton"),
 	getContext({muiTheme:PropTypes.object}),
-)(({size,padding,style={},iconStyle={}, muiTheme:{sizeIconButton}, label, hint=label,...props})=>{
+)(({status, disabled=status=="disabled",
+	size,padding,style={},iconStyle={}, muiTheme:{sizeIconButton}, label, hint=label,
+	...props})=>{
 	if(sizeIconButton){
 		if(!size && sizeIconButton.size)
 			size=sizeIconButton.size
@@ -22,6 +34,8 @@ export const SizeIconButton=compose(
 		iconStyle.width=iconStyle.height=size-padding*2
 		style.padding=padding
 	}
+	
+	style={...style, ...styles[status]}
 	
 	return <IconButton {...props} {...{style,iconStyle}} tooltip={hint}/>
 })
