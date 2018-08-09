@@ -8,7 +8,6 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme'
 
 import Text from "./text"
 import Paragraph from "./paragraph"
-import List from  "./list"
 import File from "./file"
 import History from "./history"
 
@@ -114,8 +113,6 @@ const Ribbon=compose(
 							<Paragraph>
 								<ToolbarSeparator/>
 							</Paragraph>
-							
-							<List/>
 							
 						</Toolbar>
 					</Tab>

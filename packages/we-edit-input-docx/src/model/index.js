@@ -3,7 +3,6 @@ import Document from "./document"
 import Section from "./section"
 
 import Paragraph from "./paragraph"
-import List from "./list"
 import Text from "./text"
 import Run from "./run"
 
@@ -26,7 +25,6 @@ const createUnvisibleComponent=type=>{
 export default {
 	Document, Section, 
 	Paragraph,
-	List,
 	Text,
 	Run,
 	Cell,

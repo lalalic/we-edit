@@ -13,6 +13,10 @@ import ComposedText from "./composed/text"
 
 const Super=HasParentAndChild(Base)
 export class Paragraph extends Super{
+	static contextTypes={
+		...Super.contextTypes,
+		Measure: PropTypes.func,
+	}
     static childContextTypes={
         ...Super.childContextTypes,
         getMyBreakOpportunities: PropTypes.func
@@ -95,7 +99,23 @@ export class Paragraph extends Super{
     }
 
     _newLine(){
-        return new LineInfo(this.lineWidth())
+        let line=new LineInfo(this.lineWidth())
+		if(this.props.numbering && this.computed.composed.length==0){
+			let {numbering:{label}, indent:{hanging}}=this.props
+			let {defaultStyle}=new this.context.Measure(label.props)
+			line.children.push(
+				<Group
+					descent={defaultStyle.descent}
+					width={hanging}
+					height={0}>
+					<ComposedText {...defaultStyle}
+						width={hanging}
+						contentWidth={hanging}
+						children={[label.props.children]}/>
+				</Group>
+			)
+		}
+		return line
     }
 
     lineWidth(){

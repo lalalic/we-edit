@@ -31,6 +31,12 @@ export default compose(
 		doc,children,
 		style:selection ? selection.props("paragraph") : null,
 		align:align=>dispatch(ACTION.Style.update({paragraph:{align}})),
+		bullet: numFmt=>{
+			dispatch(ACTION.Style.update({paragraph:{numFmt}}))
+		},
+		numbering: numFmt=>{
+			dispatch(ACTION.Style.update({paragraph:{numFmt}}))
+		}
 	})),
 	connect(state=>({selection:getSelection(state)})),
 )(({doc,style, align,number, bullet, children})=>(
@@ -55,6 +61,26 @@ export default compose(
 			onClick={()=>align("justify")}
 			children={<IconAlignJustify/>}
 			/>
+		<ToolbarSeparator/>
+		
+		<DropDownButton
+			status={!style||!style.numbering ? "disabled" : style.numbering.format=="bullet" ?"checked":"unchecked"}
+			onClick={()=>bullet("")}
+			icon={<IconListBullet/>}
+			>
+			<MenuItem primaryText="bullet" onClick={e=>bullet(".")}/>
+			<MenuItem primaryText="circle" onClick={e=>bullet("o")}/>
+			
+		</DropDownButton>
+		<DropDownButton
+			status={!style||!style.numbering ? "disabled" : style.numbering.format!=="bullet" ?"checked":"unchecked"}
+			onClick={()=>bullet("")}
+			icon={<IconListNumber/>}
+			>
+			<MenuItem primaryText="1." onClick={e=>numbering("decimal")}/>
+			<MenuItem primaryText="a." onClick={e=>numbering("lowerLetter")}/>
+			<MenuItem primaryText="一" onClick={e=>numbering("chinese")}/>
+		</DropDownButton>
 		
 		{children}
 	</ToolbarGroup>

@@ -34,14 +34,35 @@ export default function transform(Models){
 			let style=styles[direct.namedStyle||this.constructor.namedStyle]
 			
 			let rStyle=Run.mergeStyle(style)
+			this.rStyle={...context.r,...rStyle}
 				
 			let pStyle=transform.mergeStyle(style, direct)
-			
-			
 			this.style={...context.p, ...pStyle, ...direct}
-			this.rStyle={...context.r,...rStyle}
+			
+			if(this.style.num){
+				const {numId,ilvl:level}=this.style.num
+				const numStyle=styles[`_num_${numId}`]
+				this.style.indent={
+					...this.style.indent, 
+					...numStyle.get(`${level}.p.indent`), 
+					...direct.indent
+				}
+				
+				this.style.numbering={
+					label:(<Models.Text 
+							children={numStyle.level(level).invoke(`next`)}
+							{...Run.mergeStyle(numStyle, {}, `${level}.r`)}
+							id={`${numId}_${level}`}
+							/>),
+					format:numStyle.parent[level].numFmt,
+					numId,
+					level
+				}
+				
+				delete this.style.num
+			}
 		}
-
+		
 		render(){
 			return <Models.Paragraph {...this.style} children={this.props.children}/>
 		}
@@ -49,7 +70,7 @@ export default function transform(Models){
 }
 
 transform.mergeStyle=function(named, direct={}){
-	return "spacing,indent,align".split(",")
+	return "spacing,indent,align,num,heading".split(",")
 		.reduce((o,key,t)=>{
 			if(direct[key]==undefined && (t=named.get(`p.${key}`))!=undefined)
 				o[key]=t

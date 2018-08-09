@@ -18,7 +18,10 @@ export default class Paragraph extends Component{
 			firstLine:PropTypes.number,
 			hanging:PropTypes.number
 		}).isRequired,
-		align:PropTypes.string
+		align:PropTypes.string,
+		numbering: PropTypes.shape({
+			label: PropTypes.node.isRequired
+		})
 	}
 	
 	static defaultProps={

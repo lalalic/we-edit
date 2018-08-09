@@ -200,15 +200,7 @@ export default class DocxType extends Input.Editable{
 
 				return createElement(components.Cell,style,children,node)
 			}
-			case "list":{
-				let style=selector.select(props.pr.children,{
-					spacing:"spacing",
-					ind:"indent",
-					numPr:"num",
-					pStyle:"namedStyle"
-				})
-				return createElement(components.List,style,children,node)
-			}
+			case "list":
 			case "heading":
 			case "p":{
 				let style=null
@@ -217,7 +209,8 @@ export default class DocxType extends Input.Editable{
 						spacing:"spacing",
 						ind:"indent",
 						numPr:"num",
-						"jc":"align",
+						jc:"align",
+						outlineLvl:"heading",
 						pStyle:"namedStyle"
 					})
 

@@ -7,7 +7,8 @@ export default class extends Base{
 			"w:spacing":"spacing",
 			"w:ind":"indent",
 			"w:numPr":"num",
-			"w:jc":"align"
+			"w:jc":"align",
+			"w:outlineLvl":"heading"
 		}, selector)
 	}
 }

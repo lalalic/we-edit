@@ -334,6 +334,10 @@ export class Properties{
 			return p
 		},{})
 	}
+	
+	outlineLvl(x){
+		return parseInt(x.attribs['w:val'])
+	}
 
 	asToggle(x){
 		if(x==undefined || x.attribs['w:val']==undefined){

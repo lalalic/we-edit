@@ -11,7 +11,6 @@ const Editables=Object.keys(Models).reduce((Editables, key)=>{
 import Document from "./document"
 import Section from "./section"
 import Paragraph from "./paragraph"
-import List from "./list"
 import Text from "./text"
 import Shape from "./shape"
 
@@ -20,7 +19,6 @@ export default {
 	Document,
 	Section,
 	Paragraph,
-	List,
 	Text,
 	Shape
 }

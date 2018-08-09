@@ -8,4 +8,13 @@ export default class extends Editor{
 	align(type){
 		this.got("w:jc").attr("w:val",type)
 	}
+	
+	numFmt(x){
+		let numPr=this.got("w:numPr")
+		if(!x){
+			numPr.remove()
+		}else{
+			
+		}
+	}	
 }
