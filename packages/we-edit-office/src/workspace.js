@@ -103,7 +103,7 @@ export default class Workspace extends PureComponent{
 							</div>
 						)}
 
-						<div style={{flex:"1 100%", overflow:"auto", display:"flex", flexDirection:"column"}}>
+						<div style={{flex:"1 100%", overflowX:"auto", overflowY:"scroll", display:"flex", flexDirection:"column"}}>
 							<div style={{flex:1, display:"flex", flexDirection:"row"}}>
 
 								{ruler && (
@@ -116,7 +116,7 @@ export default class Workspace extends PureComponent{
 								)}
 
 								<div ref="contentContainer" 
-									style={{flex:"1 100%", textAlign:"center", margin:"4px auto auto auto"}}>
+									style={{flex:"1 100%", textAlign:"center", margin:"4px auto auto auto",}}>
 									<div style={{margin:"auto",display:"inline-block"}}>
 										{current}
 										{uncontrolled}

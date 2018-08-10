@@ -56,6 +56,10 @@ export function getActive({[DOMAIN]:{docs, active}}){
 	return docs[active]
 }
 
+export function getAll({[DOMAIN]:{docs}}){
+	return Object.keys(docs).map(k=>docs[k])
+}
+
 export const ACTION={
 	ADD:(doc,reducer)=>{
 		let id=doc.id

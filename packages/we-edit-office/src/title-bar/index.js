@@ -10,7 +10,7 @@ import IconMenu from "material-ui/svg-icons/navigation/menu"
 
 import Dashboard from "../dashboard"
 
-import {ACTION,DOMAIN} from "we-edit"
+import {ACTION,getAll} from "we-edit"
 
 import ComboBox from "../components/combo-box"
 import SizeIconButton from "../components/size-icon-button"
@@ -86,9 +86,8 @@ export default compose(
 		height:titleBar ? titleBar.height : undefined,
     })),
     connect(state=>{
-        const {[DOMAIN]:{docs}}=state
         return {
-            docs:Object.keys(docs).map(k=>docs[k])
+            docs:getAll(state)
         }
     })
 )(Bar)
