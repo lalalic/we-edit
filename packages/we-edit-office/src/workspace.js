@@ -6,31 +6,8 @@ import EventEmitter from "events"
 import {WithSelection} from "we-edit"
 
 import Status from "./status"
-import Ruler from "./ruler"
 import Ribbon from "./ribbon"
-
-export const VerticalRuler=compose(
-	setDisplayName("VerticalRuler"),
-	getContext({
-		selection: PropTypes.object
-	}),
-	withProps(({selection})=>{
-		if(selection){
-			let props=selection.props("page")
-			if(props){
-				return {
-					pageY:props.pageY
-				}
-			}
-		}
-	})
-)(({pageY=0, scale, ...props})=>{
-	return (
-		<div style={{position:"relative",width:0,top:pageY*scale}}>
-			<Ruler direction="vertical" {...props} scale={scale}/>
-		</div>
-	)
-})
+import Canvas from "./canvas"
 
 /**
  * doc.Store can't be removed to Workspace since cursor
@@ -97,69 +74,27 @@ export default class Workspace extends PureComponent{
 			<doc.Store>
 				<WithSelection>
 					<div style={{flex:1, display:"flex", flexDirection:"column"}}>
-						{toolbar && (
-							<div style={{height:24+30}}>
-								{toolBar}
-							</div>
-						)}
+						{toolBar}
 
-						<div style={{flex:"1 100%", overflowX:"auto", overflowY:"scroll", display:"flex", flexDirection:"column"}}>
-							<div style={{flex:1, display:"flex", flexDirection:"row"}}>
+						<Canvas scale={scale} ruler={!!ruler}>
+							{current}
+							{uncontrolled}
+						</Canvas>
 
-								{ruler && (
-									<Fragment>
-										<VerticalRuler scale={scale/100} />
-										<div ref="rulerContainer" style={{position:"absolute",paddingTop:4}}>
-											<Ruler direction="horizontal" scale={scale/100}/>
-										</div>
-									</Fragment>
-								)}
-
-								<div ref="contentContainer" 
-									style={{flex:"1 100%", textAlign:"center", margin:"4px auto auto auto",}}>
-									<div style={{margin:"auto",display:"inline-block"}}>
-										{current}
-										{uncontrolled}
-									</div>
-								</div>
-							</div>
-
-						</div>
-
-						{statusBar && (
-							<div style={{height:30}}>
-								{React.cloneElement(statusBar,{
-									layout:{
-										items:this.layouts,
-										current:layout,
-										onChange: layout=>this.setState({layout})
-									},
-									scale:{
-										current:scale,
-										onChange: scale=>this.setState({scale})
-									},
-								})}
-							</div>
-						)}
-
+						{statusBar && React.cloneElement(statusBar,{
+							layout:{
+								items:this.layouts,
+								current:layout,
+								onChange: layout=>this.setState({layout})
+							},
+							scale:{
+								current:scale,
+								onChange: scale=>this.setState({scale})
+							}
+						})}
 					</div>
 				</WithSelection>
 			</doc.Store>
 		)
-	}
-
-	setupHorizontalRuler(){
-		const {rulerContainer, contentContainer}=this.refs
-		if(rulerContainer && contentContainer){
-			rulerContainer.style.width=contentContainer.getBoundingClientRect().width+"px"
-		}
-	}
-
-	componentDidMount(){
-		this.setupHorizontalRuler()
-	}
-
-	componentDidUpdate(){
-		this.setupHorizontalRuler()
 	}
 }

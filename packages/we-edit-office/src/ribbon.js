@@ -32,10 +32,11 @@ const Ribbon=compose(
 		}
 	}),
 	getContext({muiTheme:PropTypes.object,selection:PropTypes.object}),
-)(({children, selection, 
+)(({children, selection,
 	muiTheme, 
 	buttonStyle={height:24, fontSize:10, lineHeight:"24px", paddingRight:5,  paddingLeft:5},
-	tabStyle={width:"auto"}
+	tabStyle={width:"auto"},
+	style
 	})=>{
 	let plugins=supports
 		.reduce((tabs, [ribbons, type],i)=>{
@@ -75,7 +76,7 @@ const Ribbon=compose(
 		},[])
 
 	return (
-		<div>
+		<div style={{height:24+30, ...style}}>
 			<MuiThemeProvider muiTheme={getMuiTheme(muiTheme,{
 				sizeIconButton:{
 					size:24,

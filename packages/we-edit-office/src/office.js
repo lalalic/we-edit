@@ -41,3 +41,11 @@ export default ({
         </WeEditUI>
     </WeEdit>
 )
+/*
+const Default={
+	titleBar:<TitleBar/>,
+	dashboard:<Dashboard/>,
+	workspaces:[
+		
+	]
+}*/

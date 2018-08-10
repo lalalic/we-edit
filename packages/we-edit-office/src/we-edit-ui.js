@@ -42,11 +42,13 @@ export default compose(
 	connect(state=>({active:(getActive(state)||{}).doc})),
 )(class extends PureComponent{
 	static propTypes={
-		titleBar:PropTypes.node
+		titleBar:PropTypes.node,
+		dashboard: PropTypes.node,
 	}
 
 	static defaultProps={
-		titleBar:<TitleBar/>
+		titleBar:<TitleBar/>,
+		dashboard: <Dashboard/>
 	}
 
 	state={}
@@ -58,7 +60,7 @@ export default compose(
 	}
 
 	render(){
-		let {children,active, titleBar, style, dispatch, titleBarProps, ...others}=this.props
+		let {children,active, titleBar, dashboard, style, dispatch, titleBarProps, ...others}=this.props
 		children=Children.toArray(children)
 		let child=null
 		if(active){
@@ -87,17 +89,18 @@ export default compose(
 		return (
 			<MuiThemeProvider muiTheme={this.theme}>
 				<div style={{...styles.root,...style}}>
-					<TitleBar {...titleBarProps}
-						active={active}
-						onMenu={()=>this.refs.dashboard.setState({display:true})}
-						/>
+					{titleBar && React.cloneElement(titleBar,{
+						...titleBarProps, 
+						active, 
+						onMenu:a=>this.refs.dashboard.setState({display:true})
+					})}
 
-					<Dashboard
-						ref="dashboard"
-						active={active}
-						dispatch={dispatch}
-						zIndex={this.theme.zIndex.popover}
-						/>
+					{dashboard && React.cloneElement(dashboard,{
+						ref:"dashboard",
+						active,
+						dispatch,
+						zIndex:this.theme.zIndex.popover
+					})}
 
 					{child}
 

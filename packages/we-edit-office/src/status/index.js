@@ -38,8 +38,8 @@ const Status=compose(
 			height:muiTheme.button.height
 		}
 	})
-)(({scale, height, layout})=>(
-	<div style={{...RootStyle,height}}>
+)(({scale, height, layout, style={height}})=>(
+	<div style={{...RootStyle,...style}}>
 		<Page/>
 		<Words/>
 		<div style={{flex:"1 100%"}}/>
