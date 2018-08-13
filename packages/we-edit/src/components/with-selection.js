@@ -7,8 +7,7 @@ import {getSelection} from "../state/selector"
 
 
 export const WithSelection=compose(
-	setDisplayName("WithSelectionProps"),
-	
+	setDisplayName("WithSelection(when(cursorPlaced))"),
 	when("cursorPlaced",({style,query})=>{
 		return {
 			selection: query.asSelection(style)

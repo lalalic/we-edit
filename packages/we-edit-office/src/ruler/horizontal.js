@@ -1,17 +1,39 @@
 import React from "react"
 import {SvgIcon} from "material-ui"
 
+import Movable from "../components/movable"
+
 export default ({width,scale,
 	leftMargin=3, rightMargin=3, setLeftMargin, setRightMargin,
 	firstLine=0, leftIndent=0, rightIndent=0, setFirstLine, setLeftIndent, setRightIndent,
+	cm=scale*96/2.54, step=cm/8
 	})=>(
 	<div className="ruler horizontal" style={{width:width*scale,position:"relative"}}>
-		<Scale {...{width:width*scale,from:leftMargin*scale,cm:scale*96/2.54}}/>
+		<Scale {...{width:width*scale,from:leftMargin*scale,cm}}/>
 		<Margin style={{position:"absolute", top:0,left:0,width:leftMargin*scale}} onMove={setLeftMargin}/>
-		<FirstLine style={{position:"absolute", top:0,left:(leftMargin+firstLine)*scale}} onMove={setFirstLine}/>
-		<Indent style={{position:"absolute", top:0,left:(leftMargin+leftIndent)*scale}} onMove={setLeftIndent}/>
+		
+		<Movable 
+			onAccept={dx=>setFirstLine(firstLine+dx/scale)} 
+			onMove={dx=>({style:{position:"absolute", top:0,left:(leftMargin+firstLine)*scale+dx}})}
+			>
+			<FirstLine style={{position:"absolute", top:0,left:(leftMargin+firstLine)*scale}}/>
+		</Movable>	
+	
+		<Movable 
+			onAccept={dx=>setLeftIndent(leftIndent+dx/scale)} 
+			onMove={dx=>({style:{position:"absolute", top:0,left:(leftMargin+leftIndent)*scale+dx}})}
+			>
+			<Indent style={{position:"absolute", top:0,left:(leftMargin+leftIndent)*scale}}/>
+		</Movable>
+		
 		<Margin style={{position:"absolute", top:0,right:0,width:rightMargin*scale}} onMove={setRightMargin}/>
-		<Indent style={{position:"absolute", top:0,right:(rightMargin+rightIndent)*scale}} onMove={setRightIndent}/>
+		
+		<Movable 
+			onAccept={dx=>setRightIndent(rightIndent-dx/scale)} 
+			onMove={dx=>({style:{position:"absolute", top:0,right:(rightMargin+rightIndent)*scale-dx}})}
+			>
+			<Indent style={{position:"absolute", top:0,right:(rightMargin+rightIndent)*scale}}/>
+		</Movable>
 	</div>
 )
 
@@ -23,14 +45,14 @@ const Margin=({style, onMove, at=AT(style)})=>(
 	</div>
 )
 
-const Indent=({style,onMove,at=AT(style)})=>(
-	<div className={`indent ${at}`} style={style} title={`${at} Indent`}>
+const Indent=({style,at=AT(style), ...props})=>(
+	<div className={`indent ${at}`} style={style} title={`${at} Indent`} {...props}>
 		<Marker/>
 	</div>
 )
 
-const FirstLine=({style, onMove})=>(
-	<div className="first-line left" style={style} title="First Line Indent">
+const FirstLine=props=>(
+	<div className="first-line left" {...props} title="First Line Indent">
 		<Marker direction="bottom"/>
 	</div>
 )

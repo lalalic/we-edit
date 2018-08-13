@@ -30,6 +30,7 @@ export default class Workspace extends PureComponent{
 	static defaultProps={
 		toolBar: (<Ribbon/>),
 		statusBar:(<Status/>),
+		events:new EventEmitter(),
 	}
 
 
@@ -42,7 +43,7 @@ export default class Workspace extends PureComponent{
 	}
 
 	getChildContext(){
-		const {debug,events=new EventEmitter()}=this.props
+		const {debug,events}=this.props
 		return {
 			events,
 			debug

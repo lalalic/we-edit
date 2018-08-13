@@ -19,26 +19,26 @@ export default compose(
 	}),
 	withProps(({store:{dispatch},doc})=>({
 		doc,
-		setLeftMargin(value){
-			dispatch(ACTION.Style.update({section:{pgMar:{left:value}}}))
+		setLeftMargin(left){
+			dispatch(ACTION.Style.update({section:{pgMar:{left}}}))
 		},
-		setRightMargin(value){
-			dispatch(ACTION.Style.update({section:{pgMar:{right:value}}}))
+		setRightMargin(right){
+			dispatch(ACTION.Style.update({section:{pgMar:{right}}}))
 		},
-		setBottomMargin(value){
-			dispatch(ACTION.Style.update({section:{pgMar:{bottom:value}}}))
+		setBottomMargin(bottom){
+			dispatch(ACTION.Style.update({section:{pgMar:{bottom}}}))
 		},
-		setTopMargin(value){
-			dispatch(ACTION.Style.update({section:{pgMar:{top:value}}}))
+		setTopMargin(top){
+			dispatch(ACTION.Style.update({section:{pgMar:{top}}}))
 		},
-		setFirstLine(){
-			dispatch(ACTION.Style.update({paragraph:{indent:{firstLine:value}}}))
+		setFirstLine(firstLine){
+			dispatch(ACTION.Style.update({paragraph:{indent:{firstLine}}}))
 		},
-		setLeftIndent(){
-			dispatch(ACTION.Style.update({paragraph:{indent:{left:value}}}))
+		setLeftIndent(left){
+			dispatch(ACTION.Style.update({paragraph:{indent:{left}}}))
 		},
-		setRightIndent(){
-			dispatch(ACTION.Style.update({paragraph:{indent:{right:value}}}))
+		setRightIndent(right){
+			dispatch(ACTION.Style.update({paragraph:{indent:{right}}}))
 		}
 	})),
 	withProps(({doc,selection})=>{

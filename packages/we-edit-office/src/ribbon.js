@@ -14,67 +14,78 @@ import History from "./history"
 import * as Table from "./table"
 import * as Picture from "./picture"
 import * as Layout from "./layout"
-import Insertion from "./insertion"
-
-const supports=[]
 
 const Toolbar=props=><Toolbar0 style={{justifyContent:"initial"}} {...props}/>
 const ToolbarSeparator=props=><ToolbarSeparator0 style={{marginRight:2, marginLeft:2}} {...props}/>
 
 const Ribbon=compose(
 	setDisplayName("Ribbon"),
-	setStatic("install",function install(ribbons,type){
-		if(!type){
-			let i=supports.findIndex(a=>a[1])
-			supports.splice(i,0,[ribbons,type])
-		}else{
-			supports.push([ribbons,type])
-		}
-	}),
 	getContext({muiTheme:PropTypes.object,selection:PropTypes.object}),
 )(({children, selection,
 	muiTheme, 
 	buttonStyle={height:24, fontSize:10, lineHeight:"24px", paddingRight:5,  paddingLeft:5},
 	tabStyle={width:"auto"},
-	style
+	style,
+	commands={}
 	})=>{
-	let plugins=supports
-		.reduce((tabs, [ribbons, type],i)=>{
-			
-			ribbons=(()=>{
-				if(type){
-					if(!selection)
-						return null
-					
-					let style=selection.props(type)
-					if(style){
-						return ribbons({style,selection})
-					}else{
-						return null
+		let {home,insert,layout,when}="home,insert,layout,when".split(",").reduce((merged,k)=>{
+				if(commands[k]  || commands[k]===undefined){
+					if(typeof(commands[k])=="object"){
+						merged[k]={...merged[k], ...commands[k]}
+					}
+					if(k=="when"){
+						if(!selection){
+							merged[k]=null
+						}else{
+							let when=merged.when
+							merged.when=Object.keys(when)
+								.reduce((collected,type)=>{
+									let style=selection.props(type)
+									if(style){
+										let plugins=when[type].type({style,selection})
+										if(Array.isArray(plugins)){
+											collected=[...collected, ...plugins]
+										}else if(plugins){
+											collected.push(plugins)
+										}
+									}
+									return collected
+								},[])
+								.map(a=>React.cloneElement(a,{
+										key:a.props.label,
+										buttonStyle:{
+											...(a.props.buttonStyle||{}),
+											...buttonStyle,
+											backgroundColor:"antiquewhite"
+										},
+										style:{...(a.props.tabStyle||{}),...tabStyle, marginRight:2}
+									})
+								)
+						}
 					}
 				}else{
-					return ribbons({selection})
-				}})();
-				
-			if(!ribbons)
-				return tabs
-			ribbons=(Array.isArray(ribbons) ? ribbons : [ribbons]).filter(a=>!!a)
-			if(ribbons.length==0)
-				return tabs
-			ribbons.forEach(a=>{
-				tabs.push(React.cloneElement(a,{
-					key:a.props.label,
-					buttonStyle:{
-						...(a.props.buttonStyle||{}),
-						...buttonStyle,
-						backgroundColor:"antiquewhite"
-					},
-					style:{...(a.props.tabStyle||{}),...tabStyle, marginRight:2}
-				}))
-			})
-			return tabs
-		},[])
-
+					merged[k]=commands[k]
+				}
+				return merged
+			},{
+			home:{
+				file: <File/>,
+				history: <History><ToolbarSeparator/></History>,
+				text: <Text><ToolbarSeparator/></Text>,
+				paragraph: <Paragraph><ToolbarSeparator/></Paragraph>
+			},
+			insert:{
+				table:<Table.Create><ToolbarSeparator/></Table.Create>,
+				picture:<Picture.Tools><ToolbarSeparator/></Picture.Tools>,
+			},
+			layout:{
+				basic:<Layout.Tools/>
+			},
+			when:{
+				table:<Table.Ribbon/>,
+				picture: <Picture.Ribbon/>,
+			}
+		})
 	return (
 		<div style={{height:24+30, ...style}}>
 			<MuiThemeProvider muiTheme={getMuiTheme(muiTheme,{
@@ -100,52 +111,34 @@ const Ribbon=compose(
 					contentContainerStyle={{height:30}}
 					inkBarStyle={{display:"none"}}
 					>
-					<Tab label="Home" buttonStyle={buttonStyle} style={tabStyle}>
+					{home && <Tab label="Home" buttonStyle={buttonStyle} style={tabStyle}>
 						<Toolbar>
-							<File/>
-							<History>
-								<ToolbarSeparator/>
-							</History>
+							{home.file}
+							
+							{home.history}
 
-							<Text>
-								<ToolbarSeparator/>
-							</Text>
-
-							<Paragraph>
-								<ToolbarSeparator/>
-							</Paragraph>
+							{home.text}
 							
+							{home.paragraph}
+							
+							{home.more}
 						</Toolbar>
-					</Tab>
-					<Tab label="Insert"  buttonStyle={buttonStyle} style={tabStyle}>
+					</Tab>}
+					{insert && <Tab label="Insert"  buttonStyle={buttonStyle} style={tabStyle}>
 						<Toolbar>
-							<Table.Create>
-								<ToolbarSeparator/>
-							</Table.Create>
-							
-							<Picture.Tools>
-								<ToolbarSeparator/>
-							</Picture.Tools>
-							
-							<Insertion/>
-							
+							{insert.table}
+							{insert.picture}
+							{insert.more}	
 						</Toolbar>
-					</Tab>
-					<Tab label="Design"  buttonStyle={buttonStyle} style={tabStyle}>
-					</Tab>
-					<Tab label="Page Layout"  buttonStyle={buttonStyle} style={tabStyle}>
+					</Tab>}
+					
+					{layout && <Tab label="Page Layout"  buttonStyle={buttonStyle} style={tabStyle}>
 						<Toolbar>
-							<Layout.Tools/>
+							{layout.basic}
 						</Toolbar>
-					</Tab>
-					<Tab label="Review"  buttonStyle={buttonStyle} style={tabStyle}>
-					</Tab>
-					<Tab label="View"  buttonStyle={buttonStyle} style={tabStyle}>
-					</Tab>
-					<Tab label="Developer"  buttonStyle={buttonStyle} style={tabStyle}>
-					</Tab>
-					{children}
-					{plugins}
+					</Tab>}
+					{React.Children.toArray(children).map(a=>React.cloneElement(a,{buttonStyle, style:tabStyle,key:a.props.label}))}
+					{when}
 					<Tab label="beautifier"  
 						buttonStyle={buttonStyle}
 						style={{visibility:"hidden", flex:"1 100%",...tabStyle}}
@@ -156,9 +149,9 @@ const Ribbon=compose(
 	)
 })
 
-Ribbon.install(Table.Ribbon, "table")
-Ribbon.install(Picture.Ribbon, "image")
-
 export default Ribbon
+
+export {Text, Paragraph,File,History,Table,Picture,Layout, Toolbar, ToolbarSeparator, Tab}
+
 
 

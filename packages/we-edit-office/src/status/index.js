@@ -32,14 +32,14 @@ const Status=compose(
 	getContext({
 		muiTheme: PropTypes.object,
 	}),
-	mapProps(({muiTheme,layout,scale,setScale})=>{
+	mapProps(({muiTheme,layout,scale,setScale,style})=>{
 		return {
-			layout,scale,
+			layout,scale,style,
 			height:muiTheme.button.height
 		}
 	})
-)(({scale, height, layout, style={height}})=>(
-	<div style={{...RootStyle,...style}}>
+)(({scale, height, layout, style})=>(
+	<div style={{...RootStyle,height,...style}}>
 		<Page/>
 		<Words/>
 		<div style={{flex:"1 100%"}}/>

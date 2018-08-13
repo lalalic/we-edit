@@ -56,7 +56,7 @@ export default compose(
 	theme=getMuiTheme(styles.theme,this.props.theme, {fonts:this.props.fonts})
 
 	componentDidCatch(error, info){
-		this.setState({error})
+		this.setState({error:error.message})
 	}
 
 	render(){
@@ -113,9 +113,5 @@ export default compose(
 				</div>
 			</MuiThemeProvider>
 		)
-	}
-
-	componentDidCatch(error){
-		this.setState({error:error.message})
 	}
 })

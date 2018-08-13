@@ -15,7 +15,7 @@ export const onlyWhen=(test,stateHandler)=>BaseComponent=>{
             super(...arguments)
             this.state={inited:false}
             if(this.context.events){
-                this.context.events.on(test,a=>{
+                this.context.events.on(test,this.handler=a=>{
                     this.setState({
                             inited:true,
                             ...stateHandler(a,this.props),
@@ -36,6 +36,13 @@ export const onlyWhen=(test,stateHandler)=>BaseComponent=>{
         shouldComponentUpdate(){
             return false
         }
+		
+		componentWillUnmount(){
+			if(this.context.events){
+                this.context.events.removeListener(test,this.handler)
+            }
+		}
+		
     }
 }
 
@@ -54,7 +61,7 @@ export const when=(test,stateHandler)=>BaseComponent=>{
             super(...arguments)
             this.state={}
             if(this.context.events){
-                this.context.events.on(test,a=>{
+                this.context.events.on(test,this.handler=a=>{
 					this.setState(stateHandler(a,this.props))
 				})
             }
@@ -63,10 +70,16 @@ export const when=(test,stateHandler)=>BaseComponent=>{
         render(){
             return factory({...this.props,...this.state})
         }
+		
+		componentWillUnmount(){
+			if(this.context.events){
+                this.context.events.removeListener(test,this.handler)
+            }
+		}
     }
 }
 
-export const names="words,composed,emitted,composed.all,emitted.all".split(",")
+export const names="words,composed,emitted,composed.all,emitted.all,cursorPlaced".split(",")
 		.reduce((state,a)=>{
 			state[a]=a
 			return state
