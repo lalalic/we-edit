@@ -13,7 +13,6 @@ export default ({width,scale,
 	cm=scale*96/2.54, step=cm/8, trim=(x,dx)=>Math[dx>0 ? 'ceil' : 'floor']((x+dx)/step)*step
 	})=>{
 		let fl=null
-		firstLine=leftIndent+firstLine
 		return (
 			<div className="ruler horizontal" style={{width:width*scale,position:"relative"}}>
 				<Scale {...{width:width*scale,from:leftMargin*scale,cm}}/>
@@ -21,10 +20,10 @@ export default ({width,scale,
 				<Margin style={{position:"absolute", top:0,left:0,width:leftMargin*scale}} onMove={setLeftMargin}/>
 				
 				<Movable ref={a=>fl=a}
-					onAccept={dx=>setFirstLine(trim(firstLine*scale,dx)/scale)} 
-					onMove={dx=>({style:{position:"absolute", top:0,left:leftMargin*scale+trim(firstLine*scale,dx)}})}
+					onAccept={dx=>setFirstLine((trim((leftIndent+firstLine)*scale,dx)-leftIndent*scale)/scale)} 
+					onMove={dx=>({style:{position:"absolute", top:0,left:leftMargin*scale+trim((leftIndent+firstLine)*scale,dx)}})}
 					>
-					<FirstLine style={{position:"absolute", top:0,left:(leftMargin+firstLine)*scale}}/>
+					<FirstLine style={{position:"absolute", top:0,left:(leftMargin+leftIndent+firstLine)*scale}}/>
 				</Movable>	
 			
 				<Movable 

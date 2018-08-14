@@ -81,7 +81,7 @@ class Words extends PureComponent{
 		super(...arguments)
 		this.state={total:0}
 		if(events){
-			events.on("words",pending=>{
+			events.on("words",this.handler=pending=>{
 				this.setState(({total})=>({total:total+pending}))
 			})
 		}
@@ -93,6 +93,12 @@ class Words extends PureComponent{
 				{this.state.total} WORDS
 			</FlatButton>
 		)
+	}
+	
+	componentWillUnmount(){
+		if(this.context.events){
+			this.context.events.removeListener("words",this.handler)
+		}
 	}
 }
 

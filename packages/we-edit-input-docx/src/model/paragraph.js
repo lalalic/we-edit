@@ -48,10 +48,12 @@ export default function transform(Models){
 					...direct.indent
 				}
 				
+				let labelStyle={...this.rStyle,...direct.r, ...Run.mergeStyle(numStyle, {}, `${level}.r`)}
+				
 				this.style.numbering={
 					label:(<Models.Text 
 							children={numStyle.level(level).invoke(`next`)}
-							{...Run.mergeStyle(numStyle, {}, `${level}.r`)}
+							{...labelStyle}
 							id={`${numId}_${level}`}
 							/>),
 					format:numStyle.parent[level].numFmt,
@@ -60,6 +62,15 @@ export default function transform(Models){
 				}
 				
 				delete this.style.num
+			}
+			
+			try{
+				if(this.style.indent.hanging){
+					this.style.indent.firstLine=-this.style.indent.hanging
+					delete this.style.indent.hanging
+				}
+			}catch(e){
+				
 			}
 		}
 		

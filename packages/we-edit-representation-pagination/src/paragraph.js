@@ -101,8 +101,9 @@ export class Paragraph extends Super{
     _newLine(){
         let line=new LineInfo(this.lineWidth())
 		if(this.props.numbering && this.computed.composed.length==0){
-			let {numbering:{label}, indent:{hanging}}=this.props
+			let {numbering:{label}, indent:{firstLine}}=this.props
 			let {defaultStyle}=new this.context.Measure(label.props)
+			let hanging=-firstLine
 			line.children.push(
 				<Group
 					descent={defaultStyle.descent}
@@ -119,13 +120,12 @@ export class Paragraph extends Super{
     }
 
     lineWidth(){
-        const {indent:{left=0,right=0,firstLine=0,hanging=0}}=this.props
+        const {indent:{left=0,right=0,firstLine=0}}=this.props
         let {width}=this.availableSpace
         width-=(left+right)
         if(this.computed.composed.length==0)
             width-=firstLine
-        else
-            width-=hanging
+
         return width
     }
 
@@ -201,7 +201,7 @@ export class Paragraph extends Super{
         let {height, width, ...others}=props
         let {
 			spacing:{lineHeight="100%",top=0, bottom=0}, 
-			indent:{left=0,right=0,firstLine=0,hanging=0},
+			indent:{left=0,right=0,firstLine=0},
 			align
 			}=this.props
         let contentY=0, contentX=left
@@ -211,7 +211,7 @@ export class Paragraph extends Super{
         if(this.computed.composed.length==1){//first line
             lineHeight+=top
             contentY+=top
-            contentX+=(firstLine||-hanging)
+            contentX+=firstLine
         }
 
         if(this.isAllChildrenComposed()){//last line
