@@ -29,9 +29,7 @@ export default ({width,scale,
 				<Movable 
 					onAccept={dx=>{
 						fl.setState({move:false})
-						let value=trim(leftIndent*scale,dx)/scale
-						setLeftIndent(value)
-						setFirstLine(firstLine+(value-leftIndent))
+						setLeftIndent(trim(leftIndent*scale,dx)/scale)
 					}} 
 					onMove={dx=>{
 						fl.setState({move:true,x0:0,y0:0,x:dx,y:0})
