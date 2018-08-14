@@ -3,39 +3,56 @@ import {SvgIcon} from "material-ui"
 
 import Movable from "../components/movable"
 
+function trim(x, dx, step){
+	
+}
+
 export default ({width,scale,
 	leftMargin=3, rightMargin=3, setLeftMargin, setRightMargin,
 	firstLine=0, leftIndent=0, rightIndent=0, setFirstLine, setLeftIndent, setRightIndent,
-	cm=scale*96/2.54, step=cm/8
-	})=>(
-	<div className="ruler horizontal" style={{width:width*scale,position:"relative"}}>
-		<Scale {...{width:width*scale,from:leftMargin*scale,cm}}/>
-		<Margin style={{position:"absolute", top:0,left:0,width:leftMargin*scale}} onMove={setLeftMargin}/>
-		
-		<Movable 
-			onAccept={dx=>setFirstLine(firstLine+dx/scale)} 
-			onMove={dx=>({style:{position:"absolute", top:0,left:(leftMargin+firstLine)*scale+dx}})}
-			>
-			<FirstLine style={{position:"absolute", top:0,left:(leftMargin+firstLine)*scale}}/>
-		</Movable>	
-	
-		<Movable 
-			onAccept={dx=>setLeftIndent(leftIndent+dx/scale)} 
-			onMove={dx=>({style:{position:"absolute", top:0,left:(leftMargin+leftIndent)*scale+dx}})}
-			>
-			<Indent style={{position:"absolute", top:0,left:(leftMargin+leftIndent)*scale}}/>
-		</Movable>
-		
-		<Margin style={{position:"absolute", top:0,right:0,width:rightMargin*scale}} onMove={setRightMargin}/>
-		
-		<Movable 
-			onAccept={dx=>setRightIndent(rightIndent-dx/scale)} 
-			onMove={dx=>({style:{position:"absolute", top:0,right:(rightMargin+rightIndent)*scale-dx}})}
-			>
-			<Indent style={{position:"absolute", top:0,right:(rightMargin+rightIndent)*scale}}/>
-		</Movable>
-	</div>
-)
+	cm=scale*96/2.54, step=cm/8, trim=(x,dx)=>Math[dx>0 ? 'ceil' : 'floor']((x+dx)/step)*step
+	})=>{
+		let fl=null
+		firstLine=leftIndent+firstLine
+		return (
+			<div className="ruler horizontal" style={{width:width*scale,position:"relative"}}>
+				<Scale {...{width:width*scale,from:leftMargin*scale,cm}}/>
+				
+				<Margin style={{position:"absolute", top:0,left:0,width:leftMargin*scale}} onMove={setLeftMargin}/>
+				
+				<Movable ref={a=>fl=a}
+					onAccept={dx=>setFirstLine(trim(firstLine*scale,dx)/scale)} 
+					onMove={dx=>({style:{position:"absolute", top:0,left:leftMargin*scale+trim(firstLine*scale,dx)}})}
+					>
+					<FirstLine style={{position:"absolute", top:0,left:(leftMargin+firstLine)*scale}}/>
+				</Movable>	
+			
+				<Movable 
+					onAccept={dx=>{
+						fl.setState({move:false})
+						let value=trim(leftIndent*scale,dx)/scale
+						setLeftIndent(value)
+						setFirstLine(firstLine+(value-leftIndent))
+					}} 
+					onMove={dx=>{
+						fl.setState({move:true,x0:0,y0:0,x:dx,y:0})
+						return {style:{position:"absolute", top:0,left:leftMargin*scale+trim(leftIndent*scale,dx)}}
+					}}
+					>
+					<Indent style={{position:"absolute", top:0,left:(leftMargin+leftIndent)*scale}}/>
+				</Movable>
+				
+				<Margin style={{position:"absolute", top:0,right:0,width:rightMargin*scale}} onMove={setRightMargin}/>
+				
+				<Movable 
+					onAccept={dx=>setRightIndent(trim(rightIndent*scale,-dx)/scale)} 
+					onMove={dx=>({style:{position:"absolute", top:0,right:rightMargin*scale+trim(rightIndent*scale,-dx)}})}
+					>
+					<Indent style={{position:"absolute", top:0,right:(rightMargin+rightIndent)*scale}}/>
+				</Movable>
+			</div>
+		)
+}
 
 const AT=(style,keys=Object.keys(style))=>"left,right".split(",").find(a=>keys.includes(a))
 
@@ -57,14 +74,14 @@ const FirstLine=props=>(
 	</div>
 )
 
-const Marker=({direction="top",degs={bottom:180}})=>(
-	<SvgIcon>
+const Marker=({direction="top",degs={bottom:180}, ...props})=>(
+	<SvgIcon {...props}>
 		<path transform={`rotate(${degs[direction]||0} 12 12)`}
 			d="M11.5 0 L23 11.5 L23 23 L0 23 L0 11.5Z" fill="white" strokeWidth="1" stroke="gray"/>">
 	</SvgIcon>	
 )
 
-const Scale=({width,height=20,from,cm, })=>(
+const Scale=({width,height=20,from,cm, children})=>(
 	<svg style={{width:width,height,backgroundColor:"white"}} 
 		viewBox={`0 0 ${width} ${height}`} >
 		<g transform={`translate(${from} 0)`}>
@@ -79,7 +96,7 @@ const Scale=({width,height=20,from,cm, })=>(
 				.map((a,i)=><CM cm={cm} key={i} i={i}/>)
 		}
 		</g>
-		
+		{children}
 	</svg>
 )
 

@@ -77,5 +77,5 @@ export default class Canvas extends Component{
 
 	componentDidUpdate(){
 		this.setupHorizontalRuler()
-	}	
+	}
 }
