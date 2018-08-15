@@ -15,11 +15,7 @@ const Default={
 			accept="*.*"
 			key="*"
 			layout="print"
-			toolBar={
-				<Ribbon>
-					<Tab label="Developer"/>
-				</Ribbon>
-			}
+			toolBar={<Ribbon commands={{layout:false}}/>}
 			>
 			<Viewer
 				toolBar={null} 
