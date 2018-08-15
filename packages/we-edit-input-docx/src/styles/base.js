@@ -69,13 +69,13 @@ export default class Style extends Getable{
 			}
 		})
 		if(!this.basedOn)
-			this.basedOn="*"
+			;//this.basedOn="*"
 		else
 			this.cache=new Map()
 	}
 
 	_convert(node, target, map, selector){
-		let pr=node.children.find(a=>a.name==target)
+		let pr=target ? node.children.find(a=>a.name==target) : node
 		if(pr){
 			return pr.children.reduce((style,a)=>{
 				let key=map[a.name]
@@ -85,6 +85,5 @@ export default class Style extends Getable{
 			},{})
 		}
 	}
-
 }
 

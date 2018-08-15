@@ -2,30 +2,39 @@
   "name": "we-edit-input-docx",
   "description": "docx input type implementation",
   "version": "3.0.2",
-  "keywords": ["we-edit"],
+  "keywords": [
+    "we-edit"
+  ],
   "author": {
     "name": "Raymond Li",
     "email": "lalalic@139.com"
   },
   "dependencies": {
     "docx4js": "^3.1.12",
-	"lodash.get": "^4.4.2",
-	"lodash.invoke": "^4.5.2",
-	"fetchable":"^1.0.4"
+    "fetchable": "^1.0.4",
+    "lodash.get": "^4.4.2",
+    "lodash.invoke": "^4.5.2",
+    "memoize-one": "^4.0.0"
   },
-  "peerDependencies":{
-	"react": "^16.2.0",
-    "react-dom": "^16.1.1",
+  "peerDependencies": {
     "prop-types": "^15.6.0",
+    "react": "^16.2.0",
+    "react-dom": "^16.1.1",
     "recompose": "^0.26.0",
-    "we-edit":"^3.0.0"
+    "we-edit": "^3.0.0"
   },
   "engines": {
     "node": ">=0.10.0"
   },
-  "we-office":{
-      "type":["Input"]
+  "we-office": {
+    "type": [
+      "Input"
+    ]
   },
-  "files":["index.js","index.browser.js","README.md"],
+  "files": [
+    "index.js",
+    "index.browser.js",
+    "README.md"
+  ],
   "readme": "README.md"
 }

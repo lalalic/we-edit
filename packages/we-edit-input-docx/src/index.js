@@ -203,16 +203,7 @@ export default class DocxType extends Input.Editable{
 			case "list":
 			case "heading":
 			case "p":{
-				let style=null
-				if(props.pr)
-					style=selector.select(props.pr.children,{
-						spacing:"spacing",
-						ind:"indent",
-						numPr:"num",
-						jc:"align",
-						outlineLvl:"heading",
-						pStyle:"namedStyle"
-					})
+				let style= !props.pr ? styles['*paragraph'] : new Style.Paragraph.Direct(props.pr,styles,selector);
 
 				if(children.length==0){
 					let r=$("<w:r><w:t></w:t></w:r>").appendTo(node).get(0)
@@ -225,22 +216,12 @@ export default class DocxType extends Input.Editable{
 					children.push(renderNode(r))
 				}
 
-				return createElement(components.Paragraph,style,children,node)
+				return createElement(components.Paragraph,{style},children,node)
 			}
 			case "r":{
-				let style=null
-				if(props.pr)
-					style = selector.select(props.pr.children, {
-							rFonts: "fonts",
-							sz: "size",
-							b: "bold",
-							i: "italic",
-							bdr: "border",
-							u: "underline",
-							rStyle: "namedStyle"
-						})
+				let style= !props.pr ? styles['*character'] : new Style.Character.Direct(props.pr,  styles, selector)
 
-				return createElement(Transformers.Run(components),style,children,node)
+				return createElement(Transformers.Run(components),{style},children,node)
 			}
 			case "t":
 				return createElement(components.Text,{},children[0]||"",node)

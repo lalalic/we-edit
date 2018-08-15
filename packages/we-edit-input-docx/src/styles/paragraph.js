@@ -1,14 +1,51 @@
 import Base from "./character"
 
-export default class extends Base{
+const attribs={
+	"w:spacing":"spacing",
+	"w:ind":"indent",
+	"w:numPr":"num",
+	"w:jc":"align",
+	"w:outlineLvl":"heading"
+}
+export default class Paragraph extends Base{
 	constructor(node,styles,selector){
 		super(...arguments)
-		this.p=this._convert(node, "w:pPr",{
-			"w:spacing":"spacing",
-			"w:ind":"indent",
-			"w:numPr":"num",
-			"w:jc":"align",
-			"w:outlineLvl":"heading"
-		}, selector)
+		this.p=this._convert(node, "w:pPr",attribs, selector)
+	}
+	
+	static Direct=class extends Paragraph{
+		constructor(node,styles,selector){
+			super(...arguments)
+			this.p=this._convert(node, null,attribs, selector)
+		}
+	}
+	
+	flat(...inherits){
+		let targets=[this,...inherits]
+		return "spacing,indent,align,num,heading"
+				.split(",")
+				.reduce((props, k)=>{
+					if(targets.find(a=>(props[k]=a.get(`p.${k}`))!==undefined)){
+						if(k==="num"){
+							let {numId,ilvl:level}=props.num
+							let numStyle=this.styles[`_num_${numId}`]
+							props.indent={
+								...props.indent, 
+								...numStyle.get(`${level}.p.indent`)
+							}
+							
+							props.numbering={
+								label:numStyle.level(level).invoke(`next`),
+								style:super.flat(numStyle.get(`${level}`),...inherits),
+								format:numStyle.parent[level].numFmt,
+								numId,
+								level,
+							}
+							
+							delete props.num
+						}
+					}
+					return props
+				},{})
 	}
 }
