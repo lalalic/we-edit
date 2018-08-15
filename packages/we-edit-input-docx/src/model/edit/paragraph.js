@@ -21,18 +21,21 @@ export default class extends Editor{
 	indent({left,right,firstLine}){
 		let node=this.got("w:ind")
 			
-		if(left)
-			node.attr("w:left",this.px2dxa(left))
+		if(left!=undefined)
+			node.attr("w:left",this.px2dxa(left)||null)
 		
-		if(right)
-			node.attr("w:right",this.px2dxa(right))
+		if(right!=undefined)
+			node.attr("w:right",this.px2dxa(right)||null)
 		
-		if(firstLine){
+		if(firstLine!=undefined){
 			if(firstLine>0){
-				node.attr("w:firstLine",this.px2dxa(Math.abs(firstLine)))
+				node.attr("w:firstLine",this.px2dxa(Math.abs(firstLine))||null)
+				node.attr("w:hanging",null)
 			}else if(firstLine<0){
-				node.attr("w:hanging",this.px2dxa(Math.abs(firstLine)))
+				node.attr("w:hanging",this.px2dxa(Math.abs(firstLine))||null)
+				node.attr("w:firstLine",null)
 			}
 		}
+
 	}
 }

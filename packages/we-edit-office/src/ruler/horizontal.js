@@ -3,10 +3,6 @@ import {SvgIcon} from "material-ui"
 
 import Movable from "../components/movable"
 
-function trim(x, dx, step){
-	
-}
-
 export default ({width,scale,
 	leftMargin=3, rightMargin=3, setLeftMargin, setRightMargin,
 	firstLine=0, leftIndent=0, rightIndent=0, setFirstLine, setLeftIndent, setRightIndent,
