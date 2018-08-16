@@ -11,7 +11,6 @@ install:
  - yarn info we-edit --json > info.json
  - export LATEST=$(node -p "require('./info.json').data['dist-tags'].latest")
  - export CURRENT=$(node -p "require('./packages/we-edit/package.json').version")
- - yarn build
 
 #script:
 # - yarn webpack --env=plugin

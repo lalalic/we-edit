@@ -7,14 +7,14 @@ import Paragraph from "../src/paragraph"
 import Text from "../src/text"
 
 const render=element=>TestRenderer.create(element).root
-
+const TEXT={fonts:"arial",size:11}
 describe("html", function(){
 	it("basic",function(){
 		let node=render(
 			<Document>
 				<Section>
 					<Paragraph>
-						<Text>Hello</Text>
+						<Text {...TEXT}>Hello</Text>
 					</Paragraph>
 				</Section>
 			</Document>
@@ -32,12 +32,12 @@ describe("html", function(){
 			<Document>
 				<Section>
 					<Paragraph>
-						<Text>Hello0</Text>
+						<Text {...TEXT}>Hello0</Text>
 					</Paragraph>
 				</Section>
 				<Section>
 					<Paragraph>
-						<Text>Hello1</Text>
+						<Text {...TEXT}>Hello1</Text>
 					</Paragraph>
 				</Section>
 			</Document>
