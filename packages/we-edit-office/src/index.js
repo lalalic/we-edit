@@ -2,10 +2,11 @@ export {default as WeEditUI} from "./we-edit-ui"
 export {default as Workspace} from "./workspace"
 export {default as StatusBar} from "./status"
 export {default as Canvas} from "./canvas"
-export *  from "./ribbon"
 
 export {default as DefaultOffice} from "./office"
+import * as Ribbon  from "./ribbon"
 
+export {Ribbon}
 
 
 

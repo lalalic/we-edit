@@ -151,7 +151,7 @@ const Ribbon=compose(
 
 export default Ribbon
 
-export {Text, Paragraph,File,History,Table,Picture,Layout, Toolbar, ToolbarSeparator, Tab}
+export {Ribbon, Text, Paragraph,File,History,Table,Picture,Layout, Toolbar, ToolbarSeparator, Tab}
 
 
 
