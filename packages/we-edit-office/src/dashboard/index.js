@@ -17,7 +17,7 @@ export default class Dashboard extends PureComponent{
 	render(){
 		const {display,action}=this.state
 		const dispear=()=>this.setState({display:false,action:null})
-		const {active, zIndex, width=256}=this.props
+		const {active, zIndex, width=256, children, avatar}=this.props
 		return (
 			<div style={{zIndex,
 				position:"fixed",left:0,top:0,width:"100%",
@@ -25,9 +25,11 @@ export default class Dashboard extends PureComponent{
 				flexDirection:"row"}}>
 				<Paper zDepth={2} style={{width,height:"100%",backgroundColor:"white"}}>
 						<center style={{zoom:2,marginTop:5}}>
-							<Avatar backgroundColor={gray100}>
-								<IconLogo color={yellow500}/>
-							</Avatar>
+							{avatar || 
+								<Avatar backgroundColor={gray100}>
+									<IconLogo color={yellow500}/>
+								</Avatar>
+							}
 						</center>
 
 						<Menu width={width} autoWidth={!width}>
@@ -62,48 +64,48 @@ export default class Dashboard extends PureComponent{
 								onClick={()=>this.setState({action:"options"})}
 								/>
 
-							<MenuItem
-								primaryText="Close"
-								/>
+							{children}
 
 						</Menu>
 				</Paper>
 				<div style={{flex:"1 100%", backgroundColor:"lightgray",display:"flex",flexDirection:"column"}}>
-				<div style={{flex:1, padding:10}}>
-				{
-					(function(action){
-						if(!action)
-							return null
-						switch(action){
-						case "create":
-							return <Create
-								onCancel={dispear}
-								onCreate={dispear}
-								/>
-						case "save":
-						case "saveAs":
-							return <Save
-								onCancel={dispear}
-								onSave={dispear}
-								/>
-						case "options":
-							return <OptionsUI/>
-						case "open":
-							return <Open
-								onCancel={dispear}
-								onLoad={dispear}
-								/>
-						case "print":
-							return <Print
-								doc={active}
-								onCanncel={dispear}
-								onPrint={dispear}
-								/>
-						}
-					})(action)
-				}
-				</div>
-				<div style={{flex:"1 100%", overflow:"scroll"}} onClick={dispear}></div>
+					<div style={{flex:1, padding:10}}>
+					{
+						(function(action){
+							if(!action)
+								return null
+							switch(action){
+							case "create":
+								return <Create
+									onCancel={dispear}
+									onCreate={dispear}
+									/>
+							case "save":
+							case "saveAs":
+								return <Save
+									onCancel={dispear}
+									onSave={dispear}
+									/>
+							case "options":
+								return <OptionsUI/>
+							case "open":
+								return <Open
+									onCancel={dispear}
+									onLoad={dispear}
+									/>
+							case "print":
+								return <Print
+									doc={active}
+									onCanncel={dispear}
+									onPrint={dispear}
+									/>
+							}
+						})(action)
+					}
+					</div>
+					<div style={{flex:"1 100%", overflow:"scroll"}} onClick={dispear}>
+					
+					</div>
 				</div>
 			</div>
 		)
