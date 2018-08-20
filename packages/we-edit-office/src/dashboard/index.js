@@ -12,100 +12,79 @@ import IconLogo from "material-ui/svg-icons/editor/border-color"
 import {Save,Open,Create,Print} from "../file"
 import OptionsUI from "./options"
 
+
 export default class Dashboard extends PureComponent{
 	state={action:null, display: false}
 	render(){
 		const {display,action}=this.state
-		const dispear=()=>this.setState({display:false,action:null})
-		const {active, zIndex, width=256, children, avatar}=this.props
+		const done=()=>this.setState({display:false,action:null})
+		const {active, zIndex, width=256, children, avatar, commands}=this.props
 		return (
-			<div style={{zIndex,
-				position:"fixed",left:0,top:0,width:"100%",
-				height:"100%", display:display ? "flex" : "none",
-				flexDirection:"row"}}>
+			<div style={{
+					zIndex,
+					position:"fixed",left:0,top:0,width:"100%",
+					height:"100%", display:display ? "flex" : "none",
+					flexDirection:"row"
+				}}
+				>
 				<Paper zDepth={2} style={{width,height:"100%",backgroundColor:"white"}}>
 						<center style={{zoom:2,marginTop:5}}>
-							{avatar || 
+							{avatar && React.cloneElement(avatar,{onClick:done}) || 
 								<Avatar backgroundColor={gray100}>
 									<IconLogo color={yellow500}/>
 								</Avatar>
 							}
 						</center>
 
-						<Menu width={width} autoWidth={!width}>
+						<Menu width={width} autoWidth={!width}
+							value={action}
+							selectedMenuItemStyle={{background:"lightgray",color:"red"}}
+							onChange={(e,action)=>{this.setState({action})}}
+							>
 							<MenuItem
 								primaryText="New"
-								onClick={()=>this.setState({action:"create"})}
+								value={<Create	onCancel={done} onCreate={done}/>}
 								/>
 							<MenuItem
 								primaryText="Open"
-								onClick={()=>this.setState({action:"open"})}
+								value={<Open onCancel={done} onLoad={done}/>}
 								/>
+								
 							<MenuItem
 								disabled={!active}
 								primaryText="Save"
-								onClick={()=>this.setState({action:"save"})}
+								value={<Save onCancel={done} onSave={done}/>}
 								/>
 							<MenuItem
 								disabled={!active}
 								primaryText="SaveAs"
-								onClick={()=>this.setState({action:"saveAs"})}
+								value={<Save onCancel={done} onSave={done}/>}
 								/>
 							<Divider/>
 
 							<MenuItem
 								disabled={!active}
 								primaryText="Print"
-								onClick={()=>this.setState({action:"print"})}
+								value={<Print doc={active} onCanncel={done} onPrint={done} />}
 								/>
 
 							<MenuItem
 								primaryText="Options"
-								onClick={()=>this.setState({action:"options"})}
+								value={<OptionsUI/>}
 								/>
 
-							{children}
-
+							{React.Children.map(children,function(a){
+								let {value}=a.props
+								if(!value){
+									return React.cloneElement(a,{onClick:done})
+								}
+								
+								return a
+							})}
 						</Menu>
 				</Paper>
-				<div style={{flex:"1 100%", backgroundColor:"lightgray",display:"flex",flexDirection:"column"}}>
-					<div style={{flex:1, padding:10}}>
-					{
-						(function(action){
-							if(!action)
-								return null
-							switch(action){
-							case "create":
-								return <Create
-									onCancel={dispear}
-									onCreate={dispear}
-									/>
-							case "save":
-							case "saveAs":
-								return <Save
-									onCancel={dispear}
-									onSave={dispear}
-									/>
-							case "options":
-								return <OptionsUI/>
-							case "open":
-								return <Open
-									onCancel={dispear}
-									onLoad={dispear}
-									/>
-							case "print":
-								return <Print
-									doc={active}
-									onCanncel={dispear}
-									onPrint={dispear}
-									/>
-							}
-						})(action)
-					}
-					</div>
-					<div style={{flex:"1 100%", overflow:"scroll"}} onClick={dispear}>
-					
-					</div>
+				<div style={{flex:"1 100%", backgroundColor:"lightgray",display:"flex",flexDirection:"column",padding:10}}>
+					{action && React.cloneElement(action, {done}) || <div onClick={done} flex="1 100%" style={{height:"100%"}}/>}
 				</div>
 			</div>
 		)
