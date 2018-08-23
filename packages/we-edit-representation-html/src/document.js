@@ -6,11 +6,13 @@ const {Document:Base}=models
 
 export default class Document extends Base{
 	render(){
-		const {canvas=<Fragment/>,scale}=this.props
-		return React.cloneElement(
-			canvas,
-			{scale},
-			<article>{this.props.children}</article>
-		)
+		const {canvas,scale}=this.props
+		const content=<article>{this.props.children}</article>
+		if(canvas){
+			return React.cloneElement(canvas,{scale,content})
+		}else{
+			return content
+		}
+		
 	}
 }

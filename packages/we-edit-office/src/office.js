@@ -29,6 +29,12 @@ const Default={
 				icon={<IconPrint/>}
 				representation={<Representation type="pagination"/>}
 				/>
+			<Editor
+				layout="web" 
+				ruler={false}
+				icon={<IconPrint/>}
+				representation={<Representation type="html"/>}
+				/>
 		</Workspace>
 	]
 }

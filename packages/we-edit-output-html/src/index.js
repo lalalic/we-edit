@@ -4,7 +4,7 @@ import {Emitter, Representation} from "we-edit"
 export default class HTML extends Representation.Output.Html{
 	static displayName="HTML"
 	static propTypes={
-		...Representation.Output.Html,
+		...Representation.Output.Html.propTypes,
 		wrapperStart: PropTypes.string,
 		wrapperEnd: PropTypes.string,
 	}
@@ -20,6 +20,7 @@ export default class HTML extends Representation.Output.Html{
 	
 	output(){
 		const stream=this.stream
+		const {wrapperStart, wrapperEnd}=this.props
 		stream.write(wrapperStart)
 		super.output(...arguments)
 		stream.end(wrapperEnd)

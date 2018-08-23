@@ -4,10 +4,9 @@ const {ContextReplacementPlugin, DefinePlugin, IgnorePlugin} = require("webpack"
 const UglifyJsPlugin = require("uglifyjs-webpack-plugin")
 
 module.exports=base=>{
-    return require("fs")
-		.readdirSync("./packages")
-		.filter(a=>a.startsWith("we-edit-") && a!="we-edit-office")
-        .map(a=>({
+    return "input-docx,input-json,output-html,output-pdf".split(",")
+		.map(a=>`we-edit-${a}`)
+		.map(a=>({
             ...base,
             entry:`./packages/${a}/src/index.js`,
     		output:{

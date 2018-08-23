@@ -4,7 +4,7 @@ import ReactDOMServer from "react-dom/server.node"
 
 export default class Output extends Emitter.Format.Base{	
 	static defaultProps={
-		...Emitter.Format.Base,
+		...Emitter.Format.Base.defaultProps,
 		representation: "html"
 	}
 	

@@ -50,7 +50,7 @@ export default class Canvas extends Component{
 
 					<div ref="contentContainer" 
 						style={{flex:"1 100%", textAlign:"center", margin:"4px auto auto auto",}}>
-						<div style={{margin:"auto",display:"inline-block"}}>
+						<div style={{margin:"auto",display:"inline-block", textAlign:"initial"}}>
 							{children}
 						</div>
 					</div>
