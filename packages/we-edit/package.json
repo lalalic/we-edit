@@ -1,7 +1,7 @@
 {
   "name": "we-edit",
   "description": "a text editor framework based on React",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "author": {
     "name": "Raymond Li",
     "email": "lalalic@139.com"
@@ -11,12 +11,13 @@
     "office"
   ],
   "dependencies": {
+    "extend": "^3.0.2",
+    "fetch-any": "^1.0.0",
     "immutable": "^3.8.1",
     "is-node": "^1.0.2",
     "lodash.get": "^4.4.2",
     "prop-types": "^15.6.0",
-    "react-composition": "^0.2.1",
-	"react": "^16.2.0",
+    "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-redux": "^5.0.6",
     "react-test-renderer": "^16.3.1",
@@ -24,20 +25,19 @@
     "recompose": "^0.26.0",
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0",
-    "shortid": "^2.2.8",
-    "fetch-any": "^1.0.0"
+    "shortid": "^2.2.8"
   },
-  "optionalDependencies":{
+  "optionalDependencies": {
     "get-system-fonts": "^1.0.0",
     "htmlparser2": "^3.9.2",
     "linebreak": "^0.3.0",
     "mouse-event-offset": "^3.0.2",
     "opentype.js": "^0.6.9",
-    "ttfjs": "^0.4.0"	
+    "ttfjs": "^0.4.0"
   },
   "devDependencies": {
-    "transform-loader": "^0.2.4",
-    "brfs": "^1.4.3"
+    "brfs": "^1.4.3",
+    "transform-loader": "^0.2.4"
   },
   "engines": {
     "node": ">=0.10.0"

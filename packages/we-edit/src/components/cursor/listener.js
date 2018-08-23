@@ -1,7 +1,7 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 
-import reactComposition from "react-composition"
+import reactComposition from "../../tools/react-composition"
 import {ACTION} from "../../state/action"
 
 export default class Listener extends Component{
