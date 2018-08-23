@@ -16,14 +16,8 @@ install:
 # - yarn webpack --env=plugin
 # - yarn sync-input-docx --service $WO --contact "$CONTACT" --token "$TOKEN"
 # - yarn sync-input-json
-# - yarn sync-loader-stream-browser
-# - yarn sync-loader-stream-file
 # - yarn sync-output-html
 # - yarn sync-output-pdf
-# - yarn sync-output-svg
-# - yarn sync-representation-html
-# - yarn sync-representation-pagination
-# - yarn sync-representation-text
 
 before_deploy:
  - cd packages/we-edit
