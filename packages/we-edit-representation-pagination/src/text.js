@@ -6,8 +6,6 @@ import {NoChild} from "./composable"
 import {models} from "we-edit"
 const {Text:Base}=models
 
-import {SVGMeasure, FontMeasure} from "./measure"
-
 import Group from "./composed/group"
 import ComposedText from "./composed/text"
 

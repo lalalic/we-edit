@@ -24,4 +24,18 @@ export default class Text extends Representation.Base{
 	}
 }
 
+(function(A){
+	let install=A.install.bind(A)
+	A.install=function(){
+		install(...arguments)
+		A.Output.install()
+	}
+	
+	let uninstall=A.uninstall.bind(A)
+	A.uninstall=function(){
+		uninstall(...arguments)
+		A.Output.uninstall()
+	}
+})(Text);
+
 Text.install()

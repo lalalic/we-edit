@@ -13,6 +13,5 @@ export default class Document extends Base{
 		}else{
 			return content
 		}
-		
 	}
 }

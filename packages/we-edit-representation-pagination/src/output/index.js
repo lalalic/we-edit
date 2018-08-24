@@ -23,7 +23,6 @@ export default class Output extends Emitter.Format.Base{
 		)
 
 		this.output(svgStream)
-		return null
 	}
 
 	output(stream){

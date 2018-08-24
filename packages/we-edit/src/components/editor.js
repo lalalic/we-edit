@@ -70,7 +70,7 @@ export class Editor extends PureComponent{
 	}
 }
 
-export function createWeDocument(id,content,ModelTypes, canvasProps={}, lastContent, onElCreate){
+export function createWeDocument(id,content,ModelTypes,lastContent, onElCreate){
 	let current=content.get(id)
 	let {type, props, children}=current.toJS()
 	if(!type){
@@ -85,7 +85,7 @@ export function createWeDocument(id,content,ModelTypes, canvasProps={}, lastCont
 
 	if(Array.isArray(children))
 		elChildren=children.map(a=>{
-			return createWeDocument(a,content,ModelTypes,undefined,lastContent,onElCreate)
+			return createWeDocument(a,content,ModelTypes,lastContent,onElCreate)
 		})
 
 	let changed=false, selfChanged=false
@@ -110,7 +110,6 @@ export function createWeDocument(id,content,ModelTypes, canvasProps={}, lastCont
 			key={id}
 			id={id}
 			{...props}
-			{...canvasProps}
 			children={elChildren}
 			changed={changed}
 			selfChanged={selfChanged}
@@ -216,31 +215,30 @@ class WeDocumentStub extends PureComponent{
 			return
 		if(reCreateDoc || !this.doc || (changed&&changed.root)){
 			this.els=new Map()
-			this.doc=this.createChildElement("root",content,ModelTypes,this.props.content,canvasProps)
+			this.doc=this.createChildElement("root",content,ModelTypes,this.props.content)
 		}else if(this.props.content!=content){
 			if(!changed){
-				this.doc=this.createChildElement("root",content,ModelTypes,this.props.content,canvasProps)
+				this.doc=this.createChildElement("root",content,ModelTypes,this.props.content)
 			}else{
 				this.modifyDocOnChanged(content,changed,ModelTypes)
-				this.doc=React.cloneElement(this.doc,canvasProps)
 			}
-		}else{
-			this.doc=React.cloneElement(this.doc,  canvasProps)
 		}
+		
+		this.doc=React.cloneElement(this.doc,  canvasProps)
 	}
 
-	createChildElement(id,content,ModelTypes,lastContent, canvasProps={}){
+	createChildElement(id,content,ModelTypes,lastContent){
 		return createWeDocument(
-			id,content,ModelTypes,canvasProps,lastContent,
+			id,content,ModelTypes,lastContent,
 			el=>{this.els.set(el.props.id,el)}
 		)
 	}
 
-	render(){
-		if(!this.context.ModelTypes){
+	render(){if(!this.context.ModelTypes){
 			return <div style={{color:"red", marginTop:100}}>Representation is not installed</div>
 		}
 		return <div id={this.props.docId} style={this.props.style}>{this.doc}</div>
+		
 	}
 }
 

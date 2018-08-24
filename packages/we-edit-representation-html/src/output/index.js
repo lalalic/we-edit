@@ -5,16 +5,32 @@ import ReactDOMServer from "react-dom/server.node"
 export default class Output extends Emitter.Format.Base{	
 	static defaultProps={
 		...Emitter.Format.Base.defaultProps,
-		representation: "html"
+		representation: "html",
+		type:"html",
+		name:"HTML Document",
+		ext:"html",
+		wrapperStart:"<html><body>",
+		wrapperEnd:"</body></html>"
+	}
+	
+	static contextTypes={
+		...Emitter.Format.Base.contextTypes,
+		root:PropTypes.node
 	}
 	
 	emit(){
-		const {content}=this.props
-		let stream=ReactDOMServer.renderToStaticNodeStream(content)
-		this.output(stream)
+		this.output(ReactDOMServer.renderToStaticNodeStream(this.context.root))
 	}
 	
-	output(stream){
-		stream.pipe(this.stream,{end:false})
+	output(content){
+		const {wrapperStart, wrapperEnd}=this.props
+		if(wrapperStart){
+			this.stream.write(wrapperStart)
+		}
+		
+		content.pipe(this.stream,{end:false})
+		content.on("end",()=>{
+			this.stream.end(wrapperEnd)
+		})
 	}
 }

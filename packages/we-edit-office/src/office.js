@@ -14,7 +14,7 @@ const Default={
 		<Workspace 
 			accept="*.*"
 			key="*"
-			layout="print"
+			layout="web"
 			toolBar={<Ribbon commands={{layout:false}}/>}
 			>
 			<Viewer
@@ -34,6 +34,13 @@ const Default={
 				ruler={false}
 				icon={<IconPrint/>}
 				representation={<Representation type="html"/>}
+				/>
+			<Editor
+				layout="plain text" 
+				ruler={false}
+				toolBar={false}
+				icon={<IconPrint/>}
+				representation={<Representation type="text"/>}
 				/>
 		</Workspace>
 	]

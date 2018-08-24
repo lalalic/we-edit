@@ -193,14 +193,23 @@ class WeDocumentStub extends PureComponent{
 		store: PropTypes.object,
 		ModelTypes: PropTypes.object
 	}
-	render(){
-		const {store, ModelTypes}=this.context
+	
+	static childContextTypes={
+		root: PropTypes.node
+	}
+	
+	constructor(props,{store,ModelTypes}){
+		super(...arguments)
 		const content=store.getState().get("content")
-		if(content){
-			return createWeDocument("root",content,ModelTypes,{scale:1,...this.props})
-		}else{
-			return null
-		}
+		this.doc=content ? createWeDocument("root",content,ModelTypes) : null
+	}
+	
+	getChildContext(){
+		return {root:this.doc}
+	}
+	
+	render(){
+		return this.doc ? React.cloneElement(this.doc,{scale:1,...this.props}) : null
 	}
 }
 

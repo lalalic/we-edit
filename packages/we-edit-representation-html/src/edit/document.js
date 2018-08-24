@@ -3,8 +3,8 @@ import PropTypes from "prop-types"
 
 import Base from "../document"
 
-import {ACTION, Cursor, getContent, getClientRect} from "we-edit"
-import {editify} from "we-edit"
+import {ACTION, Cursor, getContent, getClientRect,editify} from "we-edit"
+import {HTMLMeasure} from "we-edit-representation-pagination/measure"
 import offset from "mouse-event-offset"
 
 export default class Document extends editify(Base){
@@ -12,63 +12,89 @@ export default class Document extends editify(Base){
 		store:PropTypes.any,
 		docId:PropTypes.any
 	}
+	
+	static childContextTypes={
+		query: PropTypes.func
+	}
+	
+	getChildContext(){
+		return {
+			query(){
+				return {
+					position(id,at){
+						return {
+							top:100,
+							left:300,
+							id,
+							at
+						}
+					},
+					prevLine(){
+						
+					},
+					nextLine(){
+						
+					}
+				}
+			}
+		}
+	}
 
 	render(){
 		const {canvas, ...props}=this.props
         return (
 			<Fragment>
-				<div ref={a=>this.root=a}>
+				<div
+					onClick={e=>{
+						if(this.eventAlreadyDone==e.timeStamp)
+							return
+
+						this.onClick(e)
+					}}
+					
+					onMouseUp={e=>{
+						let sel=this.documentSelection()
+						if(sel.type=="Range"){
+							this.onSelect(sel)
+							this.eventAlreadyDone=e.timeStamp
+						}
+					}}
+					>
 					<Base {...props}/>
+					<Cursor
+						ref={a=>this.cursor=a}
+						render={({top=0,left=0,height=0,color="black"})=>(
+							<div style={{width:1,height,top,left,background:color}}/>
+						)}
+						/>
 				</div>
 				{canvas ? React.cloneElement(canvas,{content:<Base {...props}/>}) : null}
 			</Fragment>
 		)
     }
-
-	componentDidMount(){
-		this.root.addEventListener("click", e=>{
-			const target=e.target
-			switch(target.nodeName.toLowerCase()){
-			case 'span':
-				let contentID=target.dataset.content
-				console.assert(!!contentID)
-				let [x]=offset(e, target)
-
-				let dispatch=this.context.store.dispatch
-				const content=getContent(this.context.store.getState(), contentID).toJS()
-
-				let wrapper=new HTMLMeasure(target)
-				let end=wrapper.widthString(x,content.children)
-
-				dispatch(ACTION.Cursor.AT(contentID,end))
-				dispatch(ACTION.Cursor.ACTIVE(this.context.docId))
+	
+	documentSelection(){
+        return window.getSelection()||document.getSelection()
+    }
+	
+	onClick(e){
+		const target=e.target
+		switch(target.nodeName){
+			case "img":
 			break
+			default:{
+				debugger
+				let text=target.textContent
+				let {endat, content:id}=target.dataset
+				let [x]=offset(e, target)
+				this.context.store.dispatch(ACTION.Cursor.AT(id,at))
 			}
-		})
-		this.context.store.dispatch(ACTION.Cursor.ACTIVE(this.context.docId))
+		}
+		
 	}
-
-	cursorPosition(id, at, text, style){
-		let node=document.querySelector(`#${this.context.docId} span[data-content="${id}"]`)
-		if(!node)
-			return null
-
-		let {top,left}=getClientRect(node)
-		let wordwrapper=new HTMLMeasure(node)
-
-		let width=wordwrapper.stringWidth(text.substring(0,at))
-		let {height, descent}=wordwrapper
-
-		return {top, left, width,height,descent}
-	}
-}
-
-class HTMLMeasure{
-	widthString(width, text){
-		return 0
-	}
-
-	stringWidth(str){
-		return str.length
+	
+	onSelect(e){
+		let sel=this.documentSelection()
+		debugger
 	}
 }

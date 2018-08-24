@@ -19,9 +19,24 @@ export default class Html extends Representation.Base{
 	
 	static Output=Output
 
+
 	render(){
 		return <Representation {...{ViewerTypes,EditorTypes,...this.props}}/>
 	}
 }
+
+(function(A){
+	let install=A.install.bind(A)
+	A.install=function(){
+		install(...arguments)
+		A.Output.install()
+	}
+	
+	let uninstall=A.uninstall.bind(A)
+	A.uninstall=function(){
+		uninstall(...arguments)
+		A.Output.uninstall()
+	}
+})(Html);
 
 Html.install()
