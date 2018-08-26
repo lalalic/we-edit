@@ -16,6 +16,7 @@ export default class Listener extends Component{
 		let {up,down,...others}=this.props
 		return <input
 			ref={a=>this.input=a}
+			className="cursor"
 			type="text"
 			value={this.state.value}
 			{...others}
@@ -68,7 +69,6 @@ export default class Listener extends Component{
 	}
 
 	componentDidUpdate(){
-		console.log("input focused")
 		this.input.focus()
 	}
 }

@@ -172,19 +172,50 @@ class SelectionShape extends Component{
 		query: PropTypes.func
 	}
 
+	rects(){
+		const {start,end, getContent}=this.props
+		if(start.id==end.id && start.at==end.at && getContent(start.id).type=="text")
+			return []
+			
+		let range=document.createRange()
+		const set=({id,at}, A)=>{
+			if(getContent(id).type=="text"){
+				range[`set${A}`](document.querySelector(`[data-content="${id}"]`).firstChild,at)
+			}else{
+				range[`set${A}`](document.querySelector(`[data-content="${id}"]`))
+			}
+		}
+		set(start,"Start")
+		set(end, "End")
+		let rects=range.getClientRects()
+		let data=[]
+		for(let i=0,len=rects.length;i<len;i++){
+			data.push(rects[i])
+		}
+		return data
+	}
+
 	render(){
 		const {start,end, getContent}=this.props
 		if(start.id==end.id && start.at==end.at && getContent(start.id).type=="text")
 			return null
 
 		return (
-			<div style={{position:"fixed",top:10,left:10,background:"red"}}>
-				{JSON.stringify(start)} -- {JSON.stringify(end)}
-			</div>
+			<Fragment>
+				<div style={{position:"fixed",top:10,left:10,background:"red"}}>
+					{JSON.stringify(start)} -- {JSON.stringify(end)}
+				</div>
+				{
+					this.rects().map(({top,left,width,height},i)=>{
+						return <div key={i} style={{position:"absolute",left,top,width,height,background:"blue",opacity:0.5}}/>
+					})
+				}
+			</Fragment>
 		)
 	}
 
 	componentDidUpdate(){
+		return
 		const {start,end, getContent}=this.props
 		if(start.id==end.id && start.at==end.at && getContent(start.id).type=="text")
 			return
@@ -200,6 +231,7 @@ class SelectionShape extends Component{
 		}
 		set(start,"Start")
 		set(end, "End")
+		let rects=range.getClientRects()
 		selection.addRange(range)
 	}
 }
