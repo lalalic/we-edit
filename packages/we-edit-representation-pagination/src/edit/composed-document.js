@@ -207,9 +207,8 @@ export default class extends Base{
             }
         }
 
-        let first=locate("anchor")
+        let first=locate("anchor"), end=locate("focus")
         let {left:left0,top:top0}=$.position(first.id, first.at)
-        let end=locate("focus")
         let {left:left1,top:top1}=$.position(end.id, end.at)
 
         const forward=a=>{
@@ -241,6 +240,7 @@ export default class extends Base{
                 }
             }
         }
+        
         this.active()
     }
 

@@ -6,10 +6,10 @@ import Component from "./component"
 export default class List extends Component{
 	static displayName="list"
 	static propTypes={
-		numId: PropTypes.string.isRequired,
-		level: PropTypes.string.isRequired,
+		numId: PropTypes.string,
+		level: PropTypes.string,
 		label:PropTypes.node.isRequired,
 		labelWidth: PropTypes.number.isRequired,
-		format: PropTypes.string.isRequired,
+		format: PropTypes.string,
 	}
 }

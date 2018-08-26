@@ -21,7 +21,7 @@ export default class SelectionShape extends Component{
 		store: PropTypes.any,
 		query: PropTypes.func
 	}
-	
+
 	el=null
 
 	render(){
@@ -33,10 +33,10 @@ export default class SelectionShape extends Component{
 		let position=this.context.query().getCanvasRect(id)
 		if(position==null)
 			return this.el
-		
+
 		let {top,left,bottom,right}=position
-		
-		
+
+
 		const {onResize, onMove, onRotate}=this.props
 		return <Entity
 					path={`M${left} ${top} L${right} ${top} L${right} ${bottom} L${left} ${bottom} Z`}
@@ -73,7 +73,7 @@ export default class SelectionShape extends Component{
 			pos.top-=top
 			return pos
 		}
-		
+
 		start.pos=inSVG($.position(start.id, start.at,1))
 		end.pos=inSVG($.position(end.id, end.at,1))
 
@@ -129,7 +129,7 @@ export default class SelectionShape extends Component{
 			const type=query().content.find(`#${start.id}`).attr('type')
 			if(type=="text")
 				return this.el=null
-			
+
 			this.el=this.renderEntity(start.id)
 		}else{
 			this.el=this.renderRange(start,end,docId,store,getRatio)
