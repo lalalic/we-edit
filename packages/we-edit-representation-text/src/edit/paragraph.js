@@ -6,7 +6,7 @@ import {models} from "we-edit"
 export default class extends models.Paragraph{
 	render(){
 		return (
-			<p>{this.props.children}</p>
+			<p style={{margin:0}}>{this.props.children}</p>
 		)
 	}
 }
