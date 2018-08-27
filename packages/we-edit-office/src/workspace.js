@@ -60,17 +60,17 @@ export default class Workspace extends PureComponent{
 		const {layout, scale, error}=this.state
 		if(error){
 			return (
-				<div style={{flex:1, display:"flex", flexDirection:"column"}}>	
+				<div style={{flex:1, display:"flex", flexDirection:"column"}}>
 					<pre style={{margin:"auto",color:"red",fontSize:"bigger"}}>
 						{error.stack}
 					</pre>
 				</div>
 			)
 		}
-		
+
 		let {doc, children, toolBar, statusBar, ruler=true}=this.props
 		children=Children.toArray(children)
-		
+
 
 		let current=children.find(({props})=>props.layout==layout)
 		const uncontrolled=children.filter(({props})=>!props.layout)
@@ -84,7 +84,7 @@ export default class Workspace extends PureComponent{
 
 		return (
 			<doc.Store>
-				<WithSelection>
+				<WithSelection key={layout}>
 					<div style={{flex:1, display:"flex", flexDirection:"column"}}>
 						{toolBar}
 
@@ -109,10 +109,10 @@ export default class Workspace extends PureComponent{
 			</doc.Store>
 		)
 	}
-	
+
 	componentDidCatch(error){
 		this.setState({error})
 	}
-	
+
 	static Desk=({children, toolBar, ruler, layout, statusBar, icon})=><Fragment>{children}</Fragment>
 }
