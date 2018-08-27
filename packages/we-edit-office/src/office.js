@@ -14,7 +14,7 @@ const Default={
 		<Workspace 
 			accept="*.*"
 			key="*"
-			layout="web"
+			layout="plain text"
 			toolBar={<Ribbon commands={{layout:false}}/>}
 			>
 			<Viewer

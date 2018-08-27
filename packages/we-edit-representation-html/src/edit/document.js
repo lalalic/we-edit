@@ -42,7 +42,6 @@ export default class Document extends editify(Base){
 
 	render(){
 		const {canvas, ...props}=this.props
-		const dispatch=this.context.store.dispatch
 
         return (
 				<div

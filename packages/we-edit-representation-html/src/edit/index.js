@@ -6,7 +6,7 @@ import Models from "../all"
 import {editify} from "we-edit"
 import Document from "./document"
 
-function composable(Content){
+export function editable(Content){
 	return class extends Content{
 		static contextTypes={
 			...Content.contextTypes,
@@ -34,15 +34,12 @@ function composable(Content){
 	}
 }
 
-const Editabls=Object.keys(Models).reduce((Editabls, key)=>{
-	Editabls[key]=editify(composable(Models[key]))
-	return Editabls
-},{})
+const all={...Models}
 
-
-
-
-export default {
-	...Editabls,
-	Document
-}
+export default Object.keys(all)
+	.reduce((Editables, key)=>{
+		if(!Editables[key]){
+			Editables[key]=editify(editable(all[key]))
+		}
+		return Editables
+	},{Document})
