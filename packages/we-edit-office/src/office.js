@@ -52,7 +52,7 @@ const Default={
 				icon={<IconPrint/>}
 				>
 				<div style={{border:"1px solid", borderStyle:"inset", padding:4,margin:4}}>
-					<Editor representation="text"/>
+					<Editor representation="text" style={{fontSize:16}}/>
 				</div>
 			</Workspace.Desk>
 
