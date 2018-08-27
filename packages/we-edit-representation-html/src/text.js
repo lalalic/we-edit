@@ -4,9 +4,19 @@ const {Text:Base}=models
 
 export default class Text extends Base{
 	render(){
-		const {fonts,size,color,bold,italic,vanish}=this.props
+		const {fonts:fontFamily,size,color,bold,italic,vanish}=this.props
+		let style={fontFamily,fontSize:`${size}pt`,color,fontStyle:"normal"}
+		if(bold)
+			style.fontWeight=700
+		
+		if(vanish)
+			style.display="none"
+		
+		if(italic)
+			style.fontStyle="italic"
+		
 		return (
-			<span>{this.props.children}</span>
+			<span style={style}>{this.props.children}</span>
 		)
 	}
 }

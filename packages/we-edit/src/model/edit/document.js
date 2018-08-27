@@ -1,15 +1,6 @@
-import React,{Fragment, Component} from "react"
-import PropTypes from "prop-types"
+import React, {Component} from "react"
 
-import Base from "../document"
-import Query from "./query"
-import SelectionShape from "./selection"
-
-import {ACTION, Cursor, Selection, getContent, getClientRect,editify} from "we-edit"
-import {HTMLMeasure} from "we-edit-representation-pagination/measure"
-import offset from "mouse-event-offset"
-
-export default class Document extends editify(Base){
+export default class{
 	static contextTypes={
 		store:PropTypes.any,
 		docId:PropTypes.any
@@ -20,6 +11,7 @@ export default class Document extends editify(Base){
 		mount: PropTypes.func,
 		unmount: PropTypes.func,
 	}
+
 	constructor(){
 		super(...arguments)
 		this.composers=new Map([[this.props.id,this]])
@@ -39,51 +31,7 @@ export default class Document extends editify(Base){
 	query(){
 		return new Query(this, this.context.store.getState())
 	}
-
-	render(){
-		const {canvas, ...props}=this.props
-		const dispatch=this.context.store.dispatch
-
-        return (
-				<div
-					ref={a=>this.root=a}
-					style={{padding:0, margin:0,border:0}}
-					onClick={e=>{
-						if(this.eventAlreadyDone==e.timeStamp)
-							return
-
-						this.onClick(e)
-					}}
-
-					onMouseUp={e=>{
-						let sel=this.documentSelection()
-						if(sel.type=="Range"){
-							this.onSelect(sel)
-							this.eventAlreadyDone=e.timeStamp
-						}
-					}}
-					>
-					<Base {...props}/>
-					<Cursor
-						ref={a=>this.cursor=a}
-						render={({top=0,left=0,height=0,color="black"})=>(
-							<div style={{position:"absolute",width:1,height,top,left,background:color}}/>
-						)}
-						/>
-					<Selection 
-						ref={a=>this.selection=a}
-						onMove={this.onMove.bind(this)}
-						onResize={this.onResize.bind(this)}
-						onRotate={this.onRotate.bind(this)}
-						>
-						<SelectionShape/>
-					</Selection>
-				</div>
-		)
-    }
 	
-	
-
 	active(){
         let {docId, store}=this.context
         let {active}=getSelection(store.getState())
@@ -111,25 +59,13 @@ export default class Document extends editify(Base){
 	documentSelection(){
         return window.getSelection()||document.getSelection()
     }
-	
-	onRotate(e){
-        this.context.store.dispatch(ACTION.Entity.ROTATE(e))
-    }
-
-    onResize(e){
-        this.context.store.dispatch(ACTION.Entity.RESIZE(e))
-    }
-
-    onMove(id,at){
-        this.context.store.dispatch(ACTION.Selection.MOVE(id,at))
-    }
 
 	onClick(e){
 		const dispatch=this.context.store.dispatch
 		const target=e.target
 		const $=this.query()
 		switch(target.nodeName){
-			case "IMG":
+			case "img":
 				dispatch(ACTION.Selection.SELECT(target.dataset.content,-1))
 			break
 			default:{
