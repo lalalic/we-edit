@@ -13,33 +13,33 @@ const Wrapper= props=>React.Children.only(props.children)
 
 const Default={
 	workspaces:[
-		<Workspace 
+		<Workspace
 			accept="*.*"
 			key="*"
 			layout="plain text"
 			tools={<Ribbon commands={{layout:false}}/>}
 			>
 			<Viewer
-				toolBar={null} 
+				toolBar={null}
 				ruler={false}
-				layout="read" 
+				layout="read"
 				icon={<IconRead/>}
 				representation={<Representation type="pagination"/>}
 				/>
 			<Editor
-				layout="print" 
+				layout="print"
 				icon={<IconPrint/>}
 				representation={<Representation type="pagination"/>}
 				/>
 			<Editor
-				layout="web" 
+				layout="web"
 				ruler={false}
 				icon={<IconPrint/>}
 				representation={<Representation type="html"/>}
 				/>
-			
+
 			<Workspace.Desk
-				layout="plain text" 
+				layout="plain text"
 				ruler={false}
 				toolBar={<Ribbon commands={{
 					home:{
@@ -55,7 +55,7 @@ const Default={
 					<Editor representation="text"/>
 				</div>
 			</Workspace.Desk>
-			
+
 		</Workspace>
 	]
 }
@@ -67,14 +67,14 @@ export default compose(
 		setStatic("install", function install(office1){
 			myOffice.push(office1)
 		}),
-		
+
 		setStatic("uninstall", function uninstall(office1){
 			myOffice.splice(myOffice.indexOf(office1),1)
 		}),
 		withProps(props=>{
 			let _=myOffice.reduce((merged,a)=>({
-				...merged, 
-				...a, 
+				...merged,
+				...a,
 				workspaces:[...(a.workspaces||[]), ...merged.workspaces]
 			}),{workspaces:[]})
 			let {titleBar=_.titleBar, dashboard=_.dashboard, workspaces=_.workspaces}=props
@@ -92,7 +92,7 @@ export default compose(
 		dashboard,
 		workspaces
     })=>{
-		
+
 		return (
 			<WeEdit>
 				<WeEditUI {...{titleBarProps, fonts, titleBar,dashboard}}>
@@ -102,4 +102,3 @@ export default compose(
 			</WeEdit>
 		)
 	})
-

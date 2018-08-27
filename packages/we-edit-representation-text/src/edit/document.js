@@ -6,6 +6,17 @@ import {connect} from "react-redux"
 import Html from "we-edit-representation-html/edit"
 
 export default class  Document extends Html.Document{
+	static childContextTypes={
+		...Html.Document.childContextTypes,
+		color:PropTypes.bool
+	}
+
+	getChildContext(){
+		return {
+			...super.getChildContext(),
+			color:this.props.color,
+		}
+	}
 	render(){
 		return (
 			<div style={{lineHeight:"140%",display:"flex", flexDirection:"collumn"}}>
@@ -40,8 +51,10 @@ class LineNo extends PureComponent{
 		const {lines}=this.state
 		return (
 			<div style={{background:"lightgray"}}>
-					{new Array(lines).fill(0).map((a,i)=><div key={i} style={{textAlign:"right",marginRight:2, marginLeft:2}}>{i}</div>)}
-				</div>
+				{new Array(lines).fill(0).map((a,i)=>
+					<div key={i} style={{textAlign:"right",marginRight:2, marginLeft:2}}>{i+1}</div>
+				)}
+			</div>
 		)
 	}
 }
