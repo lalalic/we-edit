@@ -23,6 +23,10 @@ export class Editor extends PureComponent{
 		canvasStyle: PropTypes.object,
 		screenBuffer: PropTypes.oneOfType([PropTypes.func, PropTypes.number]),
 	}
+	
+	static contextTypes={
+		events: PropTypes.object
+	}
 
 	static defaultProps={
 		media:"screen",
@@ -55,19 +59,30 @@ export class Editor extends PureComponent{
 	}
 
 	getTypedRepresentation(representation){
-		const {props:{type, ...others}}=representation
-		if(type){
-			const TypedRepresentation=Representation.get(type)
+		let TypedRepresentation=null
+		if(typeof(representation)=="string"){
+			TypedRepresentation=Representation.get(representation)
+			if(TypedRepresentation){
+				return <TypedRepresentation/>
+			}
+		}else if(React.isValidElement(representation)){
+			let {props:{type, ...others}}=representation
+			if(type){
+				TypedRepresentation=Representation.get(type)
+			}
 			if(TypedRepresentation){
 				return <TypedRepresentation {...others}/>
 			}
 		}
+		
+		
 		return representation
 	}
 
 	createDocument(props){
 		return 	<Root {...props}/>
 	}
+
 }
 
 export function createWeDocument(id,content,ModelTypes,lastContent, onElCreate){
@@ -224,7 +239,7 @@ class WeDocumentStub extends PureComponent{
 			}
 		}
 		
-		this.doc=React.cloneElement(this.doc,  canvasProps)
+		this.doc=React.cloneElement(this.doc,  {...canvasProps, ...this.doc.props})
 	}
 
 	createChildElement(id,content,ModelTypes,lastContent){

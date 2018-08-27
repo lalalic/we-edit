@@ -42,9 +42,8 @@ export default class Document extends editify(Base){
 
 	render(){
 		const {canvas, ...props}=this.props
-
-        return (
-				<div
+		
+		const content=(<div
 					ref={a=>this.root=a}
 					style={{padding:0, margin:0,border:0}}
 					onClick={e=>{
@@ -77,8 +76,8 @@ export default class Document extends editify(Base){
 						>
 						<SelectionShape/>
 					</Selection>
-				</div>
-		)
+				</div>)
+        return (canvas ? React.cloneElement(canvas, {content, children:canvas.props.children||content}) : content)
     }
 	
 	

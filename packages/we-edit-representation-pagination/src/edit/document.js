@@ -75,11 +75,8 @@ export default class Document extends Super{
 			//to keep scrollbar position
 			minHeight=this.canvas.svg.getBoundingClientRect().height
 		}
-
-		return (
-			<Fragment>
-				{this.props.children}
-				<ComposedDocument
+		
+		const content=(<ComposedDocument
 					ref="canvas"
 					style={{minHeight, ...canvasStyle}}
 					scale={scale}
@@ -87,8 +84,12 @@ export default class Document extends Super{
 					pages={this.computed.composed}
 					isAllComposed={()=>this.isAllChildrenComposed()}
 					composeMore={triggerAt=>this.setState({triggerAt,mode:"viewport"})}
-					/>
-				{canvas ? React.cloneElement(canvas,{pages:this.computed.composed}) : null}
+					/>)
+
+		return (
+			<Fragment>
+				{this.props.children}
+				{canvas ? React.cloneElement(canvas,{pages:this.computed.composed,content}) : content}
 			</Fragment>
 		)
     }

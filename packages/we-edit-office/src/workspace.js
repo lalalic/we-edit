@@ -113,4 +113,6 @@ export default class Workspace extends PureComponent{
 	componentDidCatch(error){
 		this.setState({error})
 	}
+	
+	static Desk=({children, toolBar, ruler, layout, statusBar, icon})=><Fragment>{children}</Fragment>
 }

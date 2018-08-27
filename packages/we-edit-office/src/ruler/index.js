@@ -47,6 +47,7 @@ export default compose(
 				Ruler: a=>null
 			}
 		}
+		
 		let {
 				pgSz:{width,height}, 
 				pgMar:{

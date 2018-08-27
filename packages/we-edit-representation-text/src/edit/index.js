@@ -1,8 +1,9 @@
 import {editify} from "we-edit"
-import Editables, {editable} from "we-edit-representation-html/edit"
+import {editable} from "we-edit-representation-html/edit"
 
 import models from "../all"
 
+import Document from "./document"
 import Paragraph from "./paragraph"
 import Text from "./text"
 
@@ -13,4 +14,4 @@ export default Object.keys(all)
 		if(converted[k]===undefined)
 			converted[k]=editify(editable(all[k]))
 		return converted
-	},{Document:Editables.Document})
+	},{Document})

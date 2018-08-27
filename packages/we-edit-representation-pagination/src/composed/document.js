@@ -63,11 +63,8 @@ export default class ComposedDocument extends Component{
 			</svg>
 		)
 
-		if(canvas){
-			return React.cloneElement(canvas,{pages:pageInfos, pgGap, scale, content})
-		}else{
-			return content
-		}
+		return   canvas ? React.cloneElement(canvas,{pages:pageInfos, pgGap, scale, content}) : content
+
 	}
 
 	componentWillMount(){

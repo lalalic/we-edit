@@ -6,12 +6,8 @@ const {Document:Base}=models
 
 export default class Document extends Base{
 	render(){
-		const {canvas,scale}=this.props
-		const content=<article style={{whiteSpace:"pre-wrap"}}>{this.props.children}</article>
-		if(canvas){
-			return React.cloneElement(canvas,{scale,content})
-		}else{
-			return content
-		}
+		const {canvas,scale, whiteSpace="pre-wrap"}=this.props
+		const content=<article style={{whiteSpace}}>{this.props.children}</article>
+		return canvas ? React.cloneElement(canvas,{scale,content}) : content
 	}
 }
