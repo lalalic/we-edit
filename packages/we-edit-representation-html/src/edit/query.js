@@ -3,9 +3,16 @@ export default class Query{
         this.document=document
         this.state=state
     }
+	
+	toCanvasCoordintation({left,top}){
+		if(!this.document.root)
+			return arguments[0]
+		let a=this.document.root.getBoundingClientRect()
+		return {left:left-a.left, top:top-a.top}
+	}
 
     position(id,at){
-		if(at==-1){
+		if(at==-1 || !this.document.root){
 			return {id,at,left:0,top:0,height:0}
 		}
 		
@@ -14,7 +21,8 @@ export default class Query{
 		range.setStart(el.firstChild,at)
 		range.collapse()
 		let {left,top,height}=range.getBoundingClientRect()
-		return {id,at,left,top,height}
+		let {left:canvasLeft,top:canvasTop}=this.toCanvasCoordintation({left,top})
+		return {id,at,left,top,height, canvasLeft, canvasTop}
     }
 
     prevLine({id,at}){

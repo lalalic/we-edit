@@ -16,7 +16,7 @@ const Default={
 		<Workspace
 			accept="*.*"
 			key="*"
-			layout="plain text"
+			layout="print"
 			tools={<Ribbon commands={{layout:false}}/>}
 			>
 			<Viewer
@@ -31,12 +31,16 @@ const Default={
 				icon={<IconPrint/>}
 				representation={<Representation type="pagination"/>}
 				/>
-			<Editor
+				
+			<Workspace.Desk
 				layout="web"
-				ruler={false}
-				icon={<IconPrint/>}
-				representation={<Representation type="html"/>}
-				/>
+					ruler={false}
+					icon={<IconPrint/>}
+					>
+				<div style={{border:"1px solid", borderStyle:"inset", padding:4,margin:4}}>
+					<Editor representation={<Representation type="html"/>}/>
+				</div>
+			</Workspace.Desk>
 
 			<Workspace.Desk
 				layout="plain text"
@@ -45,14 +49,13 @@ const Default={
 					home:{
 						text:false,
 						paragraph:false,
-						more: <span></span>
 					},
 					insert:false,layout:false,when:false,
 				}}/>}
 				icon={<IconPrint/>}
 				>
 				<div style={{border:"1px solid", borderStyle:"inset", padding:4,margin:4}}>
-					<Editor representation="text" style={{fontSize:16}}/>
+					<Editor representation="text" style={{fontSize:16}} color={true} wrap={true}/>
 				</div>
 			</Workspace.Desk>
 

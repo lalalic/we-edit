@@ -41,11 +41,11 @@ export default class Document extends editify(Base){
 	}
 
 	render(){
-		const {canvas, ...props}=this.props
+		const {canvas, children, ...props}=this.props
 		
-		const content=(<div
+		const content=(<article
 					ref={a=>this.root=a}
-					style={{padding:0, margin:0,border:0}}
+					style={{position:"relative",top:0,left:0, whiteSpace:"pre-wrap"}}
 					onClick={e=>{
 						if(this.eventAlreadyDone==e.timeStamp)
 							return
@@ -61,11 +61,17 @@ export default class Document extends editify(Base){
 						}
 					}}
 					>
-					<Base {...props}/>
+					{children}
 					<Cursor
 						ref={a=>this.cursor=a}
 						render={({top=0,left=0,height=0,color="black"})=>(
-							<div style={{position:"absolute",width:1,height,top,left,background:color}}/>
+							<div style={{
+								position:"absolute",
+								width:1,
+								height,
+								left,top,
+								background:color
+							}}/>
 						)}
 						/>
 					<Selection 
@@ -76,7 +82,7 @@ export default class Document extends editify(Base){
 						>
 						<SelectionShape/>
 					</Selection>
-				</div>)
+				</article>)
         return (canvas ? React.cloneElement(canvas, {content, children:canvas.props.children||content}) : content)
     }
 	

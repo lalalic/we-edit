@@ -47,8 +47,9 @@ export default class Input extends Component{
 
 	componentDidUpdate(){
 		try{
-			if(this.context.events)
+			if(this.context.events){
 				this.context.events.emit("cursorPlaced",this.state)
+			}
 		}catch(e){
 
 		}

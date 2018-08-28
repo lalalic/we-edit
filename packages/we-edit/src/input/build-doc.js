@@ -35,7 +35,7 @@ export default function buildEditableDoc(doc,inputTypeInstance){
 		Store:compose(
 				setDisplayName("DocStore"),
 				getContext({store:PropTypes.object}),
-			)(({children,store:passedStore,release,reducer,...props})=>{
+			)(({children,store:passedStore,release=true,reducer,...props})=>{
 
 			let onQuit=null
 			if(passedStore){

@@ -1,4 +1,4 @@
-import React from "react"
+import React,{Fragment} from "react"
 import {models} from "we-edit"
 const {Section:Base}=models
 
@@ -12,7 +12,7 @@ export default class Section extends Base{
 			paddingLeft:left
 		}
 		return (
-			<section style={style}>{this.props.children}</section>
+			<Fragment>{this.props.children}</Fragment>
 		)
 	}
 }

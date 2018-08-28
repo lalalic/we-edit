@@ -68,7 +68,7 @@ export default class Workspace extends PureComponent{
 			)
 		}
 
-		let {doc, children, toolBar, statusBar, ruler=true}=this.props
+		let {doc, children, toolBar, statusBar, ruler=true, reducer}=this.props
 		children=Children.toArray(children)
 
 
@@ -83,7 +83,7 @@ export default class Workspace extends PureComponent{
 		}
 
 		return (
-			<doc.Store>
+			<doc.Store reducer={reducer}>
 				<WithSelection key={layout}>
 					<div style={{flex:1, display:"flex", flexDirection:"column"}}>
 						{toolBar}

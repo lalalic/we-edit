@@ -1,6 +1,10 @@
 import React,{Fragment, Component} from "react"
+import PropTypes from "prop-types"
 
 export default class SelectionShape extends Component{
+	static contextTypes={
+		query: PropTypes.func
+	}
 	rects(){
 		const {start,end, getContent}=this.props
 		if(start.id==end.id && start.at==end.at && getContent(start.id).type=="text")
@@ -29,6 +33,7 @@ export default class SelectionShape extends Component{
 		if(start.id==end.id && start.at==end.at && getContent(start.id).type=="text")
 			return null
 
+		let $=this.context.query()
 		return (
 			<Fragment>
 				<div style={{position:"fixed",top:10,left:10,background:"red"}}>
@@ -37,7 +42,11 @@ export default class SelectionShape extends Component{
 				{
 					this.rects().map(({top,left,width,height},i)=>{
 						return <div key={i} className="notContent"
-							style={{position:"absolute",left,top,width,height,background:"blue",opacity:0.5}}/>
+							style={{
+								position:"absolute",
+								...$.toCanvasCoordintation({left,top}),
+								width,height,background:"blue",opacity:0.5
+							}}/>
 					})
 				}
 			</Fragment>
