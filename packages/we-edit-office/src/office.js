@@ -16,7 +16,7 @@ const Default={
 		<Workspace
 			accept="*.*"
 			key="*"
-			layout="print"
+			layout="web"
 			tools={<Ribbon commands={{layout:false}}/>}
 			>
 			<Viewer
@@ -31,7 +31,7 @@ const Default={
 				icon={<IconPrint/>}
 				representation={<Representation type="pagination"/>}
 				/>
-				
+
 			<Workspace.Desk
 				layout="web"
 					ruler={false}

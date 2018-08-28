@@ -578,7 +578,7 @@ export default class Query{
 	get content(){
 		return new ContentQuery(this.state)
 	}
-	
+
 	asSelection({page,column,line, path=[],id},state){
 		let self=this
 		return self.selection={
@@ -595,17 +595,17 @@ export default class Query{
 						}
 					}
 				}
-				
+
 				let found=path.find(a=>!!a.props && type.test(a.props["data-type"]))
-				
+
 				if(!found)
 					return null
-				
+
 				let composer=self.getComposer(found.props["data-content"])
-				
+
 				if(composer)
 					return composer.props
-				
+
 				return null
 			}
 		}

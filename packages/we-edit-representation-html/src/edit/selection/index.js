@@ -1,21 +1,18 @@
 import React,{Fragment, Component} from "react"
 import PropTypes from "prop-types"
+import Base from "we-edit-representation-pagination/edit/selection"
 
-export default class SelectionShape extends Component{
-	static contextTypes={
-		query: PropTypes.func
-	}
-	rects(){
-		const {start,end, getContent}=this.props
-		if(start.id==end.id && start.at==end.at && getContent(start.id).type=="text")
-			return []
-			
+
+export default class SelectionShape extends Base{
+	getRects(start, end){
 		let range=document.createRange()
 		const set=({id,at}, A)=>{
+			let el=document.querySelector(`[data-content="${id}"]`)
+
 			if(at==-1){
-				range.selectNode(document.querySelector(`[data-content="${id}"]`))
+				range.selectNode(el)
 			}else{
-				range[`set${A}`](document.querySelector(`[data-content="${id}"]`).firstChild,at)
+				range[`set${A}`](el.firstChild,at)
 			}
 		}
 		set(start,"Start")
@@ -28,11 +25,18 @@ export default class SelectionShape extends Component{
 		return data
 	}
 
-	render(){
-		const {start,end, getContent}=this.props
-		if(start.id==end.id && start.at==end.at && getContent(start.id).type=="text")
-			return null
+	renderEntity(id){
+		let el=document.querySelector(`[data-content="${id}"]`)
+		el.style.outline="1px solid red"
+		return null
+/*
+		let position=this.context.query().getCanvasRect(id)
+		if(position==null)
+			return this.el
+*/
+	}
 
+	renderRange(start, end, docId, store){
 		let $=this.context.query()
 		return (
 			<Fragment>
@@ -40,10 +44,11 @@ export default class SelectionShape extends Component{
 					{JSON.stringify(start)} -- {JSON.stringify(end)}
 				</div>
 				{
-					this.rects().map(({top,left,width,height},i)=>{
+					this.getRects(start, end).map(({top,left,width,height},i)=>{
 						return <div key={i} className="notContent"
 							style={{
 								position:"absolute",
+								cursor:"move",
 								...$.toCanvasCoordintation({left,top}),
 								width,height,background:"blue",opacity:0.5
 							}}/>

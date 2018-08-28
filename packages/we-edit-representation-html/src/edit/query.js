@@ -1,21 +1,37 @@
+import {ContentQuery,getClientRect} from "we-edit"
+
 export default class Query{
     constructor(document, state){
         this.document=document
         this.state=state
     }
-	
-	toCanvasCoordintation({left,top}){
+
+    getCanvasRect(id){
+        let node=this.document.canvas.svg.querySelector(`[data-content="${id}"]`)
+		if(node==null)
+			return null
+		return this.toCanvasCoordintation(getClientRect(node))
+    }
+
+	toCanvasCoordintation({left,top,bottom,right, ...others}){
 		if(!this.document.root)
 			return arguments[0]
 		let a=this.document.root.getBoundingClientRect()
-		return {left:left-a.left, top:top-a.top}
+		let converted={left:left-a.left, top:top-a.top,...others}
+        if(bottom!=undefined){
+            converted.bottom=bottom-a.top
+        }
+        if(right!=undefined){
+            converted.right=right-a.left
+        }
+        return converted
 	}
 
     position(id,at){
 		if(at==-1 || !this.document.root){
 			return {id,at,left:0,top:0,height:0}
 		}
-		
+
 		let el=this.document.root.querySelector(`[data-content="${id}"]`)
 		let range=document.createRange()
 		range.setStart(el.firstChild,at)
@@ -40,7 +56,7 @@ export default class Query{
 						return p
 				}
 			})();
-			
+
 			if(prevP){
 				let {bottom}=prevP.getBoundingClientRect()
 				return this.at(left,bottom-5)
@@ -53,20 +69,24 @@ export default class Query{
         let {left,top,height}=this.position(id,at)
         return this.at(left,top+height+5)
     }
-	
+
 	at(x,y){
 		let notContents=this.document.root.querySelectorAll(".notContent")
 		notContents.forEach(a=>a.style.visibility="hidden")
 		let {endContainer:{parentElement:{dataset:{content:id}}}, endOffset:at}=document.caretRangeFromPoint(x,y)
 		notContents.forEach(a=>a.style.visibility="initial")
-		
+
 		return {id,at}
 	}
-	
+
 	getComposer(id){
 		return this.document.composers.get(id)
 	}
-	
+
+    get content(){
+		return new ContentQuery(this.state)
+	}
+
 	asSelection({id,at}){
 		let self=this
 		let root=this.document.root
@@ -77,15 +97,15 @@ export default class Query{
 				while(found && !type.test(found.dataset.type)){
 					found=found.parentElement
 				}
-				
+
 				if(!found)
 					return null
-				
+
 				let composer=self.getComposer(found.dataset.content)
-				
+
 				if(composer)
 					return composer.props
-				
+
 				return null
 			}
 		}
