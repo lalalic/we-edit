@@ -1,12 +1,10 @@
-import React,{Component, Fragment} from "react"
-import PropTypes  from "prop-types"
+import React, {Component} from "react"
+import {Editors} from  "we-edit-representation-pagination"
 
-import {models} from "we-edit"
 
-export default class extends models.Paragraph{
+export default class Paragraph extends Component{
 	render(){
-		return (
-			<p style={{margin:0}}>{this.props.children}</p>
-		)
+		let {id,children}=this.props
+		return (<Editors.Paragraph {...{lineHeight:"140%",children,id}}/>)
 	}
 }

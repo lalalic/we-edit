@@ -38,8 +38,8 @@ const Default={
 				icon={<IconPrint/>}
 				representation={<Representation type="html"/>}
 				/>
-			
-			<Workspace.Desk
+				
+			<Editor 
 				layout="plain text"
 				ruler={false}
 				toolBar={<Ribbon commands={{
@@ -50,12 +50,8 @@ const Default={
 					insert:false,layout:false,when:false,
 				}}/>}
 				icon={<IconPrint/>}
-				>
-				<div style={{border:"1px solid", borderStyle:"inset", padding:4,margin:4}}>
-					<Editor representation="text" style={{fontSize:16}} color={true} wrap={true}/>
-				</div>
-			</Workspace.Desk>
-
+				representation="text" size={16} fonts="calibri" color={true} wrap={true}/>
+				
 		</Workspace>
 	]
 }

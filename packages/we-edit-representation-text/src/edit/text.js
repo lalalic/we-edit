@@ -1,17 +1,25 @@
-import React from "react"
+import React,{Component} from "react"
 import PropTypes from "prop-types"
-import {models} from  "we-edit"
+import {Editors} from  "we-edit-representation-pagination"
 
-export default class extends models.Paragraph{
+export default class Text extends Component{
 	static contextTypes={
-		color:PropTypes.bool
+		color:PropTypes.bool,
+		fonts: PropTypes.string,
+		size: PropTypes.number
 	}
+	
 	render(){
-		let {color}=this.props
-		let style=null
+		let {color, vanish,id,children}=this.props
+		if(vanish || children.length==0)
+			return null
+		
+		let {fonts, size}=this.context
+		
+		let props={fonts, size, vanish, id, children}
 		if(this.context.color){
-			style={color}
+			props.color=color
 		}
-		return <span style={style}>{this.props.children}</span>
+		return <Editors.Text {...props}/>
 	}
 }

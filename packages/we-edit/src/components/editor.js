@@ -86,7 +86,6 @@ export class Editor extends PureComponent{
 }
 
 export function createWeDocument(id,content,ModelTypes,lastContent, onElCreate){
-	console.log("creating we-document")
 	let current=content.get(id)
 	let {type, props, children}=current.toJS()
 	if(!type){

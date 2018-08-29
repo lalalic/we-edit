@@ -8,6 +8,8 @@ import Editors from "./edit"
 
 import Output from "./output"
 
+export {Viewers, Editors}
+
 export default class Html extends Representation.Base{
 	static displayName="html"
 

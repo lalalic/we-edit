@@ -146,6 +146,10 @@ export function HasParentAndChild(Component){
 
 export function NoChild(Component){
     return class extends HasParentAndChild(Component){
+		static get NoChild(){
+			return true
+		}
+		
         render() {
             let composed = this.createComposed2Parent()
             this.computed.composed.push(composed)

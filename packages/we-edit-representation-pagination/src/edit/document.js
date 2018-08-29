@@ -140,4 +140,8 @@ export default class Document extends Super{
 		let bufferY=this.screenBuffer(viewport.height)
 		return contentY<viewableY+bufferY
 	}
+	
+	get viewport(){
+		return this.state.viewport
+	}
 }
