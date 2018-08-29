@@ -1,6 +1,5 @@
 import React,{Fragment, Component} from "react"
 import {Editors} from "we-edit-representation-pagination"
-import {Editors as HTMLEditors} from "we-edit-representation-html"
 import {HasParentAndChild, NoChild} from "we-edit-representation-pagination/composable"
 
 import Document from "./document"
@@ -22,4 +21,4 @@ export default Object.keys(Editors)
 			}
 		}
 		return TextEditors
-	},{Document,Paragraph,Text,Section:HTMLEditors.Section})
+	},{Document,Paragraph,Text})
