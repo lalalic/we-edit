@@ -4,11 +4,13 @@ import PropTypes from "prop-types"
 import isNode from "is-node"
 import {Representation} from "we-edit"
 
-import ViewerTypes from "./all"
-import EditorTypes from "./edit"
+import Viewers from "./all"
+import Editors from "./edit"
 import Fonts from "./fonts"
-import {FontMeasure, SVGMeasure} from "./measure"
+import * as Measure from "./measure"
 import Output from "./output"
+
+const {FontMeasure, SVGMeasure}=Measure
 
 const createFontMeasureWithDefault=defaultFont=>{
 	return class extends FontMeasure{
@@ -100,7 +102,7 @@ export default class Pagination extends Representation.Base{
 		if(!fontsLoaded)
 			return <div>loading fonts...</div>
 
-		const {defaultFont,measure,fonts, ...props}=this.props
+		const {defaultFont,measure,fonts, ViewerTypes=Viewers, EditorTypes=Editors, ...props}=this.props
 
 		return <Representation {...{ViewerTypes,EditorTypes,...props} }/>
 	}
@@ -124,3 +126,6 @@ export default class Pagination extends Representation.Base{
 }
 
 Pagination.install()
+
+export {Viewers, Editors, Fonts, Measure}
+

@@ -31,17 +31,14 @@ const Default={
 				icon={<IconPrint/>}
 				representation={<Representation type="pagination"/>}
 				/>
-
-			<Workspace.Desk
+	
+			<Editor
 				layout="web"
-					ruler={false}
-					icon={<IconPrint/>}
-					>
-				<div style={{border:"1px solid", borderStyle:"inset", padding:4,margin:4}}>
-					<Editor representation={<Representation type="html"/>}/>
-				</div>
-			</Workspace.Desk>
-
+				ruler={{vertical:false}}
+				icon={<IconPrint/>}
+				representation={<Representation type="html"/>}
+				/>
+			
 			<Workspace.Desk
 				layout="plain text"
 				ruler={false}

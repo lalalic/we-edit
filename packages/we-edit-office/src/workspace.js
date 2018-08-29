@@ -88,7 +88,7 @@ export default class Workspace extends PureComponent{
 					<div style={{flex:1, display:"flex", flexDirection:"column"}}>
 						{toolBar}
 
-						<Canvas scale={scale} ruler={!!ruler}>
+						<Canvas scale={scale} ruler={ruler}>
 							{current}
 							{uncontrolled}
 						</Canvas>

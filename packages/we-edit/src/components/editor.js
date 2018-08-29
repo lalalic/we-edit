@@ -86,6 +86,7 @@ export class Editor extends PureComponent{
 }
 
 export function createWeDocument(id,content,ModelTypes,lastContent, onElCreate){
+	console.log("creating we-document")
 	let current=content.get(id)
 	let {type, props, children}=current.toJS()
 	if(!type){
@@ -249,7 +250,8 @@ class WeDocumentStub extends PureComponent{
 		)
 	}
 
-	render(){if(!this.context.ModelTypes){
+	render(){
+		if(!this.context.ModelTypes){
 			return <div style={{color:"red", marginTop:100}}>Representation is not installed</div>
 		}
 		return <div id={this.props.docId} style={this.props.style}>{this.doc}</div>

@@ -43,7 +43,7 @@ export default class Document extends Super{
 			...super.getChildContext(),
 			shouldContinueCompose,
 			shouldRemoveComposed,
-			query,mount,unmount
+			query,mount,unmount,
 		}
 	}
 
@@ -139,9 +139,5 @@ export default class Document extends Super{
 		let viewableY=viewport.height-$.svg.top//svg.top must be dynamic per scroll
 		let bufferY=this.screenBuffer(viewport.height)
 		return contentY<viewableY+bufferY
-	}
-
-	get viewport(){
-		return this.state.viewport
 	}
 }

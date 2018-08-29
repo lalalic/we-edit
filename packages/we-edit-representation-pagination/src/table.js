@@ -49,7 +49,7 @@ export default class Table extends Super{
 			x+=cols[colNo]
 			height=Math.max(height,y)
 			if(rowNo+colNo===0)
-				this.computed.composed.firstCellMarge=margin
+				this.computed.composed.firstCellMargin=margin
 			return cell
 		})
 
@@ -62,7 +62,7 @@ export default class Table extends Super{
 
 	createComposed2Parent(props){
 		let tblInd=this.props.indent
-		return <Row x={tblInd-this.computed.composed.firstCellMarge.right} {...props}/>
+		return <Row x={tblInd/*-this.computed.composed.firstCellMargin.right*/} {...props}/>
 	}
 }
 

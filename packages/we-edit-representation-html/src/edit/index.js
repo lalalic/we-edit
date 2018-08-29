@@ -1,5 +1,12 @@
-import PAGEModels from "we-edit-representation-pagination/edit"
+import {Editors} from "we-edit-representation-pagination"
+
+import Document from "./document"
+import Section from "./section"
+import Table from "./table"
 
 export default {
-    ...PAGEModels
+    ...Editors,
+	Document,
+	Section,
+	Table
 }

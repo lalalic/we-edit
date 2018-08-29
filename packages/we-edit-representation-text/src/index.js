@@ -2,8 +2,10 @@ import React, {PureComponent as Component} from "react"
 import PropTypes from "prop-types"
 import {Representation} from "we-edit"
 
-import ViewerTypes from "./all"
-import EditorTypes from "./edit"
+import Html from "we-edit-representation-pagination"
+
+import Viewers from "./all"
+import Editors from "./edit"
 
 import Output from "./output"
 
@@ -20,7 +22,8 @@ export default class Text extends Representation.Base{
 	static Output=Output
 	
 	render(){
-		return <Representation {...{ViewerTypes,EditorTypes,...this.props}}/>
+		const {ViewerTypes=Viewers, EditorTypes=Editors, ...props}=this.props
+		return <Html {...{ViewerTypes,EditorTypes,...props}}/>
 	}
 }
 

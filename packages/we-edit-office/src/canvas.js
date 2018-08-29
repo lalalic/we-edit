@@ -29,7 +29,7 @@ const VerticalRuler=compose(
 
 export default class Canvas extends Component{
 	render(){
-		const {scale=100,ruler=true, style={}, children}=this.props
+		const {scale=100,ruler={vertical:true}, style={}, children}=this.props
 		return (
 			<div style={{
 					overflow:"auto", flex:"1 100%",
@@ -41,7 +41,7 @@ export default class Canvas extends Component{
 
 					{ruler && (
 						<Fragment>
-							<VerticalRuler scale={scale/100} />
+							{ruler.vertical!==false && <VerticalRuler scale={scale/100} />}
 							<div ref="rulerContainer" style={{position:"absolute",paddingTop:4}}>
 								<Ruler direction="horizontal" scale={scale/100}/>
 							</div>
