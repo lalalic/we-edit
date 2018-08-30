@@ -15,6 +15,7 @@ export default class Page extends Component{
 	}
 
 	static contextTypes={
+		paper:PropTypes.bool,
 		media: PropTypes.string,
 		onPageHide: PropTypes.func,
 		onPageShow: PropTypes.func,
@@ -31,7 +32,7 @@ export default class Page extends Component{
 			footer,
 			i:pageNo}=this.props
 
-		let {media}=this.context
+		let {media,paper=true}=this.context
 
 		let contents=[]
 
@@ -66,12 +67,7 @@ export default class Page extends Component{
 			const {display}=this.state
 			const {onPageShow=a=>a,onPageHide=a=>a}=this.context
 
-			if(display){
-				contents.unshift(
-					<Margin key="margin"
-						margin={{left,top,right:width-right,bottom:height-bottom}}/>
-				)
-			}else{
+			if(!display){
 				contents=null
 			}
 			return(
@@ -79,7 +75,8 @@ export default class Page extends Component{
 						onEnter={e=>this.setState({display:true},onPageShow)}
 						onLeave={e=>this.setState({display:false},onPageHide)}>
 					<g className="page" width={width} height={height}>
-						<Paper width={width} height={height} fill="white"/>
+						{paper && <Paper width={width} height={height} fill="white"/>}
+						{paper && <Margin margin={{left,top,right:width-right,bottom:height-bottom}}/>}
 						{contents}
 					</g>
 				</Waypoint>

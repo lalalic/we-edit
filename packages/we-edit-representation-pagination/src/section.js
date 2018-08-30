@@ -90,6 +90,8 @@ export default class Section extends Super{
 
     appendComposed(line){
         const {composed}=this.computed
+		if(composed.length==0)
+			this.computed.composed.push(this._newPage())
 		const {cols,allowedColumns=cols ? cols.length : 1}=this.props
         let currentPage=composed[composed.length-1]
         let {columns}=currentPage

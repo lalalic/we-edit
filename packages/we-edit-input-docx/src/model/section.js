@@ -49,7 +49,10 @@ export default function(Models){
 			cols: PropTypes.shape({
 				num: PropTypes.number.isRequired,
 				space: PropTypes.number,
-				data: Models.Section.propTypes.cols
+				data: PropTypes.arrayOf(PropTypes.shape({
+					width: PropTypes.number,
+					space: PropTypes.number
+				}))
 			}),
 			titlePg:PropTypes.bool
 		}

@@ -11,8 +11,16 @@ import recomposable from "./recomposable"
 import offset from "mouse-event-offset"
 
 const Super=editify(recomposable(Base))
-const PageGap=24
 export default class Document extends Super{
+	static propTypes={
+		...Super.propTypes,
+		pageGap: PropTypes.number,
+	}
+	
+	static defaultProps={
+		...Super.defaultProps,
+		pageGap:24
+	}
 	static contextTypes={
 		...Super.contextTypes,
 		store: PropTypes.any,
@@ -48,7 +56,7 @@ export default class Document extends Super{
 	}
 
 	query(){
-		return new ComposedDocument.Query(this,this.context.store.getState(),PageGap,this.scale)
+		return new ComposedDocument.Query(this,this.context.store.getState(),this.props.pageGap,this.scale)
 	}
 
 	get canvas(){
@@ -65,9 +73,9 @@ export default class Document extends Super{
 
 	render(){
 		const {viewport, mode}=this.state
-		const {canvas,scale, canvasStyle}=this.props
+		const {canvas,scale, canvasStyle,pageGap}=this.props
 		if(!viewport){//to find container width, height
-			return <div ref="viewporter"/>
+			return <div ref="viewporter" />
 		}
 
 		let minHeight=undefined
@@ -80,7 +88,7 @@ export default class Document extends Super{
 					ref="canvas"
 					style={{minHeight, ...canvasStyle}}
 					scale={scale}
-					pgGap={PageGap}
+					pgGap={pageGap}
 					pages={this.computed.composed}
 					isAllComposed={()=>this.isAllChildrenComposed()}
 					composeMore={triggerAt=>this.setState({triggerAt,mode:"viewport"})}
@@ -102,7 +110,13 @@ export default class Document extends Super{
 	componentDidMount(){
 		if(!this.state.viewport){
 			this.getContainer(this.refs.viewporter)
-			const{width,height}=this.container.getBoundingClientRect()
+			const {height}=this.container.getBoundingClientRect()
+			
+			let a=this.refs.viewporter, width
+			while((width=a.getBoundingClientRect().width)==0){
+				a=a.parentNode
+			}
+			
 			this.setState({viewport:{width,height:height||1056}})
 		}
 	}

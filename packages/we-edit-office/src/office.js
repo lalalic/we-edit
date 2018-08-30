@@ -50,7 +50,7 @@ const Default={
 					insert:false,layout:false,when:false,
 				}}/>}
 				icon={<IconPrint/>}
-				representation="text" size={16} fonts="calibri" color={true} wrap={true}/>
+				representation="text" size={12} fonts="calibri" color={true} wrap={true}/>
 				
 		</Workspace>
 	]
