@@ -24,7 +24,19 @@ export default class Section extends Component{
 		cols: PropTypes.arrayOf(PropTypes.shape({
 			width: PropTypes.number,
 			space: PropTypes.number
-		}))
+		})),
+		hearder:PropTypes.shape({
+			first: PropTypes.node,
+			even: PropTypes.node,
+			odd: PropTypes.node,
+			default: PropTypes.node
+		}),
+		footer:PropTypes.shape({
+			first: PropTypes.node,
+			even: PropTypes.node,
+			odd: PropTypes.node,
+			default: PropTypes.node
+		})
 	}
 
 	static defaultProps={

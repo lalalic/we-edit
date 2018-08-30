@@ -4,6 +4,7 @@ import PropTypes from "prop-types"
 import get from "lodash.get"
 
 export default function(Models){
+	/*@TODO: should be removed, and refactor for  docx
 	class Section extends Models.Section{
 		static displayName=`docx-${Models.Section.displayName}`
 		static propTypes={
@@ -40,24 +41,27 @@ export default function(Models){
 			return prevSection.getPageHeaderFooter(category,type)
 		}
 	}
-	
+	*/
 	
 	return class extends Component{
 		static displayName=`docx-section`
 		static propTypes={
-			...Section.propTypes,
 			cols: PropTypes.shape({
 				num: PropTypes.number.isRequired,
 				space: PropTypes.number,
-				data: Section.propTypes.cols
-			})
+				data: Models.Section.propTypes.cols
+			}),
+			titlePg:PropTypes.bool
 		}
 		
 		static defaultProps={
-			...Section.defaultProps,
 			cols:{
 				num:1
 			}
+		}
+		
+		static contextTypes={
+			evenAndOddHeaders: PropTypes.bool
 		}
 		
 		constructor(){
@@ -71,7 +75,29 @@ export default function(Models){
 		}
 		
 		render(){
-			return <Section {...this.props} cols={this.cols}/>
+			/*
+			let {headers, footers, titlePg, ...props}=this.props
+			if(!titlePg){
+				if(headers){
+					headers={...headers, first:undefined}
+				}
+				
+				if(footers){
+					footers={...footers, first:undefined}
+				}
+			}
+			
+			if(this.context.evenAndOddHeaders){
+				if(headers){
+					headers={...headers, odd:undefined}
+				}
+				
+				if(footers){
+					footers={...footers, odd:undefined}
+				}
+			}
+			*/
+			return <Models.Section {...this.props} cols={this.cols}/>
 		}
 	}
 }
