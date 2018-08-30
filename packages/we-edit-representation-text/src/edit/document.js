@@ -1,4 +1,4 @@
-import React,{Component} from "react"
+import React,{Component,Fragment} from "react"
 import PropTypes from "prop-types"
 import {compose, setDisplayName} from "recompose"
 
@@ -42,7 +42,6 @@ class TextCanvas extends Component{
 		return (
 			<div style={{display:"flex", flexDirection:"collumn"}}>
 				<LinesNo/>
-				<ActiveLine/>
 				{canvas ? React.cloneElement(canvas, {pages,content,...props}) : content}
 			</div>
 		)
@@ -63,18 +62,21 @@ class LinesNo extends Component{
 		let height=new Measure({fonts,size}).height
 		height=height*parseInt(lineHeight)/100
 		return (
-			<div style={{background:"lightgray",lineHeight:`${height}px`,fontSize:"smaller"}}>
-				{new Array(lines).fill(0).map((a,i)=>
-					<div key={i} style={{textAlign:"right",marginRight:2, marginLeft:2}}>{i+1}</div>
-				)}
-			</div>
+			<Fragment>
+				<div style={{background:"lightgray",lineHeight:`${height}px`,fontSize:"smaller"}}>
+					{new Array(lines).fill(0).map((a,i)=>
+						<div key={i} style={{textAlign:"right",marginRight:2, marginLeft:2}}>{i+1}</div>
+					)}
+				</div>
+				<ActiveLine height={height}/>
+			</Fragment>
 		)
 	}
 }
 
 const ActiveLine=compose(
 	setDisplayName("ActiveLine"),
-	when("cursorPlaced",({top,height})=>{
-		return {top,height}
+	when("cursorPlaced",({top})=>{
+		return {top}
 	}),
-)(({top,height})=>(<div style={{position:"absolute",left:0,top,width:"100%",height,background:"lightblue"}}>&nbsp;</div>))
+)(({top,height})=>(<div style={{position:"absolute",left:0,top,width:"100%",height,background:"lightblue",opacity:0.5}}>&nbsp;</div>))
