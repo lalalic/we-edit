@@ -165,7 +165,7 @@ export class Paragraph extends Super{
 			console.warn("infinite loop during paragraph line content pending")
 			//throw new Error("infinit loop")
 		}
-		
+
         if((availableWidth+1)>=contentWidth || il>2){
           currentLine=currentLine.push(content)
 		  composed.pop()
@@ -200,7 +200,7 @@ export class Paragraph extends Super{
     createComposed2Parent(props){
         let {height, width, ...others}=props
         let {
-			spacing:{lineHeight="100%",top=0, bottom=0}, 
+			spacing:{lineHeight="100%",top=0, bottom=0},
 			indent:{left=0,right=0,firstLine=0},
 			align
 			}=this.props
@@ -221,7 +221,7 @@ export class Paragraph extends Super{
         this.availableSpace.height-=lineHeight
 
         let contentWidth=props.children.reduce((w,{props:{width}})=>w+width,0)
-		
+
 		if(align=="right"){
 			contentX+=(width-contentWidth)
 		}else if(align=="center"){
@@ -230,7 +230,7 @@ export class Paragraph extends Super{
 
         return (
             <Group height={lineHeight} width={width} contentWidth={contentWidth}>
-                <Group x={contentX} y={contentY} width={width} height={height}>
+                <Group x={contentX} y={contentY+(lineHeight-height)/2} width={width} height={height}>
                    <Line width={width} height={height} {...others}/>
                 </Group>
             </Group>

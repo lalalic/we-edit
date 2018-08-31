@@ -35,7 +35,7 @@ export default class Responsible extends Component{
 	}
 
     render(){
-        const {isAllComposed, composeMore, ...props}=this.props
+        const {isAllComposed, composeMore, children, ...props}=this.props
         return (
             <ComposedDocument {...props}
                 svgRef={a=>this.svg=a}
@@ -53,6 +53,7 @@ export default class Responsible extends Component{
                     }
                 }}>
 				<Fragment>
+                    {children}
 					<Cursor
 						ref={a=>this.cursor=a}
 						render={({top=0,left=0,height=0,color})=>(
@@ -133,6 +134,8 @@ export default class Responsible extends Component{
         const docId=this.context.docId
         const $=this.context.query()
         const target=e.target
+        if(!target.dataset.content)
+            return;
 
         switch(target.nodeName){
 			case "image":
@@ -195,13 +198,22 @@ export default class Responsible extends Component{
         const $=this.context.query()
         const locate=a=>{
             let node=selection[`${a}Node`].parentNode
+            if(!node.dataset.content)
+                return null
             return {
                 id:node.dataset.content,
                 at:node.dataset.endat-node.textContent.length+selection[`${a}Offset`]
             }
         }
 
-        let first=locate("anchor"), end=locate("focus")
+        let first=locate("anchor")
+        if(!first)
+            return
+
+        let end=locate("focus")
+        if(!end)
+            return
+            
         let {left:left0,top:top0}=$.position(first.id, first.at)
         let {left:left1,top:top1}=$.position(end.id, end.at)
 
@@ -234,7 +246,7 @@ export default class Responsible extends Component{
                 }
             }
         }
-        
+
         this.active()
     }
 
@@ -246,7 +258,7 @@ export default class Responsible extends Component{
 			console.error(e)
 		}
 	}
-	
+
 	static Query=Query
 }
 
