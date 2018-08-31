@@ -35,6 +35,7 @@ const Default={
 			<Editor
 				layout="web"
 				ruler={{vertical:false}}
+				toolBar={<Ribbon commands={{layout:false}}/>}
 				icon={<IconPrint/>}
 				representation={<Representation type="html"/>}
 				/>

@@ -4,7 +4,7 @@ import {getContent,getSelection,getClientRect, ACTION, editify} from "we-edit"
 import {connect} from "react-redux"
 
 import Base from "../document"
-import ComposedDocument from "./composed-document"
+import Responsible from "./responsible"
 
 import recomposable from "./recomposable"
 
@@ -19,7 +19,7 @@ export default class Document extends Super{
 	
 	static defaultProps={
 		...Super.defaultProps,
-		pageGap:24
+		pageGap:12
 	}
 	static contextTypes={
 		...Super.contextTypes,
@@ -56,7 +56,7 @@ export default class Document extends Super{
 	}
 
 	query(){
-		return new ComposedDocument.Query(this,this.context.store.getState(),this.props.pageGap,this.scale)
+		return new Responsible.Query(this,this.context.store.getState(),this.props.pageGap,this.scale)
 	}
 
 	get canvas(){
@@ -73,7 +73,7 @@ export default class Document extends Super{
 
 	render(){
 		const {viewport, mode}=this.state
-		const {canvas,scale, canvasStyle,pageGap}=this.props
+		const {canvas,scale,pageGap}=this.props
 		if(!viewport){//to find container width, height
 			return <div ref="viewporter" />
 		}
@@ -84,15 +84,15 @@ export default class Document extends Super{
 			minHeight=this.canvas.svg.getBoundingClientRect().height
 		}
 
-		const content=(<ComposedDocument
-					ref="canvas"
-					style={{minHeight, ...canvasStyle}}
-					scale={scale}
-					pgGap={pageGap}
-					pages={this.computed.composed}
-					isAllComposed={()=>this.isAllChildrenComposed()}
-					composeMore={triggerAt=>this.setState({triggerAt,mode:"viewport"})}
-					/>)
+		const content=<Responsible
+							ref="canvas"
+							style={{minHeight}}
+							scale={scale}
+							pgGap={pageGap}
+							pages={this.computed.composed}
+							isAllComposed={a=>this.isAllChildrenComposed()}
+							composeMore={y=>this.setState({y,mode:"viewport"})} 
+							/>
 
 		return (
 			<Fragment>

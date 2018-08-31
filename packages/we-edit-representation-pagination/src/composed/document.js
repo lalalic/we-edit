@@ -21,49 +21,28 @@ export default class ComposedDocument extends Component{
 	}
 
 	render(){
-		const {pages:pageInfos, pgGap, scale, canvas, style}=this.props
-		const {media}=this.context
-		const {width,height}=pageInfos.reduce((size,{size:{width,height}})=>{
+		const {pages, pgGap, scale, canvas=<Dummy/>, style,children, svgRef, ...props}=this.props
+		const {width,height}=pages.reduce((size,{size:{width,height}})=>{
 				return {
 					width:Math.max(size.width,width),
 					height:size.height+height+pgGap
 				}
 			},{width:0,height:pgGap})
 
-		let pages
-		if(media=="screen"){
-			let y=0
-			pages=(
-				<Group y={pgGap} x={0}>
-				{
-					pageInfos.map((page,i)=>{
-						let newPage=(
-							<Group y={y} x={(width-page.size.width)/2} key={i}>
-								<Page {...page} i={i}/>
-							</Group>
-						);
-						y+=(page.size.height+pgGap)
-						return newPage
-					})
-				}
-				</Group>
-			)
-			y+=pgGap
-
-		}else{
-			pages=pageInfos.map((page,i)=><Page {...page} key={i}/>)
-		}
-
-		const content=(
-			<svg
-				preserveAspectRatio="xMidYMin"
-				viewBox={`0 0 ${width} ${height}`}
-				style={{background:"transparent", width:width*scale, height:height*scale, ...style}}>
-				{pages}
-			</svg>
-		)
-
-		return   canvas ? React.cloneElement(canvas,{pages:pageInfos, content}) : content
+		return   React.cloneElement(canvas,{content:
+					<svg
+						{...props}
+						ref={svgRef}
+						preserveAspectRatio="xMidYMin"
+						viewBox={`0 0 ${width} ${height}`}
+						style={{background:"transparent", width:width*scale, height:height*scale, ...style}}
+						>
+						<Media {...{pgGap, width}}>
+							{pages.map((page,i)=><Page {...page} key={i}/>)}
+						</Media>
+						{children}
+					</svg>
+				})
 
 	}
 
@@ -84,5 +63,40 @@ export default class ComposedDocument extends Component{
 			console.error(e)
 		}
 	}
+}
 
+const Dummy=({content})=>content
+
+class Media extends Component{
+	static contextTypes={
+		media:PropTypes.string
+	}
+	render(){
+		const {children:pages, pgGap,width}=this.props
+		const {media}=this.context
+		switch(media){
+			case "screen":{
+				let y=0
+				return (
+					<Group y={pgGap} x={0}>
+					{
+						pages.map((page,i)=>{
+							let size=page.props.size
+							
+							let newPage=(
+								<Group y={y} x={(width-size.width)/2} key={i}>
+									{page}
+								</Group>
+							);
+							y+=(size.height+pgGap)
+							return newPage
+						})
+					}
+					</Group>
+				)
+			}
+			default:
+				return pages
+		}
+	}
 }

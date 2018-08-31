@@ -7,19 +7,18 @@ import {setDisplayName,compose, getContext} from "recompose"
 import Waypoint from "react-waypoint"
 import offset from "mouse-event-offset"
 
-import Base from "../composed/document"
+import ComposedDocument from "../composed/document"
 import Query from "./query"
-import recomposable from "./recomposable"
 import SelectionShape from "./selection"
 
-export default class extends Base{
+export default class Responsible extends Component{
     static displayName="composed-document-with-cursor"
     static contextTypes={
-        ...Base.contextTypes,
         docId: PropTypes.string,
         store: PropTypes.any,
         getCursorInput: PropTypes.func,
         query: PropTypes.func,
+		events: PropTypes.shape({emit:PropTypes.func.isRequired}),
     }
 
 	static childContextTypes={
@@ -37,15 +36,10 @@ export default class extends Base{
 	}
 
     render(){
-        const {isAllComposed, composeMore}=this.props
-        let composeMoreTrigger=null
-        if(!isAllComposed()){
-            composeMoreTrigger=(<ComposeMoreTrigger onEnter={composeMore} y={this.context.query().y}/>)
-        }
-        let {props:{children:pages, ...others}}=super.render()
+        const {isAllComposed, composeMore, children, ...props}=this.props
         return (
-            <svg {...others}
-                ref={a=>this.svg=a}
+            <ComposedDocument {...props}
+                svgRef={a=>this.svg=a}
                 onClick={e=>{
                     if(this.eventAlreadyDone==e.timeStamp)
                         return
@@ -59,7 +53,6 @@ export default class extends Base{
                         this.eventAlreadyDone=e.timeStamp
                     }
                 }}>
-                {pages}
                 <Cursor
                     ref={a=>this.cursor=a}
                     render={({top=0,left=0,height=0,color})=>(
@@ -75,8 +68,8 @@ export default class extends Base{
                     >
                     <SelectionShape/>
                 </Selection>
-                {composeMoreTrigger}
-            </svg>
+				{!isAllComposed()&&<ComposeMoreTrigger y={this.context.query().y} onEnter={composeMore} />}
+            </ComposedDocument>
         )
     }
 
@@ -244,6 +237,15 @@ export default class extends Base{
         this.active()
     }
 
+	emit(){
+		try{
+			if(this.context.events)
+				this.context.events.emit(...arguments)
+		}catch(e){
+			console.error(e)
+		}
+	}
+	
 	static Query=Query
 }
 
