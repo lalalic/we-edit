@@ -34,7 +34,7 @@ export default class Canvas extends Component{
 		return (
 			<div style={{
 					overflow:"auto", flex:"1 100%",
-					overflowY:ruler ? "scroll" : "auto",
+					overflowY:"scroll",
 					...style, 
 					display:"flex", flexDirection:"row"
 				}}>

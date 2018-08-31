@@ -7,6 +7,7 @@ import {Representation} from "we-edit"
 import Viewers from "./all"
 import Editors from "./edit"
 import Fonts from "./fonts"
+import * as Composed from "./composed"
 import * as Measure from "./measure"
 import Output from "./output"
 
@@ -127,5 +128,5 @@ export default class Pagination extends Representation.Base{
 
 Pagination.install()
 
-export {Viewers, Editors, Fonts, Measure}
+export {Viewers, Editors, Fonts, Measure, Composed}
 

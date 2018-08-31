@@ -5,6 +5,7 @@ import recomposable from "we-edit-representation-pagination/edit/recomposable"
 
 import {Editors} from "we-edit-representation-html"
 import Document from "./document"
+import Section from "./section"
 import Paragraph from "./paragraph"
 import Text from "./text"
 
@@ -18,7 +19,7 @@ export default Object.keys(Editors)
 		return TextEditors
 	},{
 		Document,
-		Section:Editors.Section,
+		Section,
 		Paragraph,
 		Text
 	})

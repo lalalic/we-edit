@@ -2,12 +2,12 @@ import React, {PureComponent as Component,Fragment} from "react"
 import PropTypes from "prop-types"
 import {Editors} from "we-edit-representation-pagination"
 
-const Canvas=({pages, content, canvas, ...props})=>{
-	pages.forEach(page=>{
+const Canvas=({content, canvas, ...props})=>{
+	content.props.pages.forEach(page=>{
 		let col=page.columns[0]
 		page.size.height=col.children.reduce((h,a)=>h+a.props.height,0)
 	})
-	return canvas ? React.cloneElement(canvas, {pages,content,...props}) : content
+	return canvas ? React.cloneElement(canvas, {content,...props}) : content
 }
 
 export default class Document extends Component{
