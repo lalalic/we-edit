@@ -45,7 +45,7 @@ export class Editor extends PureComponent{
 	}
 
 	render(){
-		const {media, representation, style, children:canvas, ...props}=this.props
+		const {media, representation, children:canvas, ...props}=this.props
 		const TypedRepresentation=this.getTypedRepresentation(representation)
 		if(!TypedRepresentation)
 			return null
@@ -53,7 +53,7 @@ export class Editor extends PureComponent{
 		return React.cloneElement(
 			TypedRepresentation,
 			{domain:this.constructor.domain},
-			this.createDocument({style, docId:this.docId, canvasProps:{canvas, ...props}})
+			this.createDocument({docId:this.docId, canvasProps:{canvas, ...props}})
 		)
 	}
 

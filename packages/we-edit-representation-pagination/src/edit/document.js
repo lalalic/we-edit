@@ -97,7 +97,7 @@ export default class Document extends Super{
 		return (
 			<Fragment>
 				{this.props.children}
-				{canvas ? React.cloneElement(canvas,{pages:this.computed.composed,content}) : content}
+				{canvas ? React.cloneElement(canvas,{content}) : content}
 			</Fragment>
 		)
     }

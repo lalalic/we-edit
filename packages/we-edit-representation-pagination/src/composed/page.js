@@ -1,7 +1,6 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 
-import Waypoint from "react-waypoint"
 import Group from "./group"
 import Line from "./line"
 
@@ -11,17 +10,9 @@ export default class Page extends Component{
 		size: PropTypes.object.isRequired,
 		margin: PropTypes.object,
 		header: PropTypes.element,
-		footer: PropTypes.element
+		footer: PropTypes.element,
+		i: PropTypes.number.isRequired,
 	}
-
-	static contextTypes={
-		paper:PropTypes.bool,
-		media: PropTypes.string,
-		onPageHide: PropTypes.func,
-		onPageShow: PropTypes.func,
-	}
-
-	state={display:false}
 
 	render(){
 		let {
@@ -30,88 +21,34 @@ export default class Page extends Component{
 			columns,
 			header,
 			footer,
-			i:pageNo}=this.props
+			}=this.props
 
-		let {media,paper=true}=this.context
-
-		let contents=[]
-
-		if(header)
-			contents.push(
-				<Group key="header"
-					x={left} y={headerStartAt}
-					className="header">
-					{header}
+		return(
+			<g className="page" width={width} height={height}>
+				{header && 
+					<Group
+						x={left} y={headerStartAt}
+						className="header">
+						{header}
+					</Group>
+				}
+				
+				<Group
+					x={left} y={top}
+					className="content">
+					{columns.map((a,i)=><Group key={i} className="column" {...a}/>)}
 				</Group>
-			)
-
-		contents.push(
-			<Group key="content"
-				x={left} y={top}
-				className="content">
-				{columns.map((a,i)=><Group key={i} className="column" {...a}/>)}
-			</Group>
+				
+				{footer && 
+					<Group 
+						x={left}
+						y={height-footerEndAt-footer.props.height}
+						className="footer">
+						{footer}
+					</Group>
+				}
+				
+			</g>
 		)
-
-		if(footer)
-			contents.push(
-				<Group key="footer"
-					x={left}
-					y={height-footerEndAt-footer.props.height}
-					className="footer">
-					{footer}
-				</Group>
-			)
-
-		if(media=="screen"){
-			const {display}=this.state
-			const {onPageShow=a=>a,onPageHide=a=>a}=this.context
-
-			if(!display){
-				contents=null
-			}
-			return(
-				<Waypoint fireOnRapidScroll={false}
-						onEnter={e=>this.setState({display:true},onPageShow)}
-						onLeave={e=>this.setState({display:false},onPageHide)}>
-					<g className="page" width={width} height={height}>
-						{paper && <Paper width={width} height={height} fill="white"/>}
-						{paper && <Margin margin={{left,top,right:width-right,bottom:height-bottom}}/>}
-						{contents}
-					</g>
-				</Waypoint>
-			)
-		}else{
-			return(
-				<g className="page" width={width} height={height}>
-					{contents}
-				</g>
-			)
-		}
 	}
 }
-
-const Paper=({width,height,...props})=>(
-	<g>
-		<rect {...props} {...{width,height}}/>
-		<path d={`M0 0 L${width} 0 L${width} ${height} L0 ${height}Z`} 
-			fill="none"
-			strokeWidth={1} stroke="lightgray"/>
-	</g>
-)
-
-const Margin=({margin:{left,top, right,bottom},marginWidth=20})=>(
-	<g>
-		<line x1={left} y1={top} x2={left-marginWidth} y2={top} strokeWidth={1} stroke="lightgray"/>
-		<line x1={left} y1={top} x2={left} y2={top-marginWidth} strokeWidth={1} stroke="lightgray"/>
-
-		<line x1={left} y1={bottom} x2={left-marginWidth} y2={bottom} strokeWidth={1} stroke="lightgray"/>
-		<line x1={left} y1={bottom} x2={left} y2={bottom+marginWidth} strokeWidth={1} stroke="lightgray"/>
-
-		<line x1={right} y1={bottom} x2={right+marginWidth} y2={bottom} strokeWidth={1} stroke="lightgray"/>
-		<line x1={right} y1={bottom} x2={right} y2={bottom+marginWidth} strokeWidth={1} stroke="lightgray"/>
-
-		<line x1={right} y1={top} x2={right+marginWidth} y2={top} strokeWidth={1} stroke="lightgray"/>
-		<line x1={right} y1={top} x2={right} y2={top-marginWidth} strokeWidth={1} stroke="lightgray"/>
-	</g>
-)

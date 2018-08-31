@@ -1,8 +1,9 @@
-import React, {PureComponent as Component} from "react"
+import React, {Component} from "react"
 import PropTypes from "prop-types"
 
 import Group from "./group"
 import Page from "./page"
+import Media from "../edit/media"
 
 export default class ComposedDocument extends Component{
 	static propTypes={
@@ -16,7 +17,6 @@ export default class ComposedDocument extends Component{
 	}
 
 	static contextTypes={
-		media:PropTypes.string,
 		events: PropTypes.shape({emit:PropTypes.func.isRequired}),
 	}
 
@@ -38,7 +38,7 @@ export default class ComposedDocument extends Component{
 						style={{background:"transparent", width:width*scale, height:height*scale, ...style}}
 						>
 						<Media {...{pgGap, width}}>
-							{pages.map((page,i)=><Page {...page} key={i}/>)}
+							{pages.map((page,i)=><Page {...page} key={i} i={i}/>)}
 						</Media>
 						{children}
 					</svg>
@@ -66,37 +66,3 @@ export default class ComposedDocument extends Component{
 }
 
 const Dummy=({content})=>content
-
-class Media extends Component{
-	static contextTypes={
-		media:PropTypes.string
-	}
-	render(){
-		const {children:pages, pgGap,width}=this.props
-		const {media}=this.context
-		switch(media){
-			case "screen":{
-				let y=0
-				return (
-					<Group y={pgGap} x={0}>
-					{
-						pages.map((page,i)=>{
-							let size=page.props.size
-							
-							let newPage=(
-								<Group y={y} x={(width-size.width)/2} key={i}>
-									{page}
-								</Group>
-							);
-							y+=(size.height+pgGap)
-							return newPage
-						})
-					}
-					</Group>
-				)
-			}
-			default:
-				return pages
-		}
-	}
-}

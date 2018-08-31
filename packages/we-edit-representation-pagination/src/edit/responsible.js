@@ -1,8 +1,7 @@
-import React, {Component} from "react"
+import React, {Component,Fragment} from "react"
 import PropTypes from "prop-types"
 
-import {getContent,getSelection, getClientRect, ACTION, Cursor, Selection, editify} from "we-edit"
-import {connect} from "react-redux"
+import {getSelection, ACTION, Cursor, Selection} from "we-edit"
 import {setDisplayName,compose, getContext} from "recompose"
 import Waypoint from "react-waypoint"
 import offset from "mouse-event-offset"
@@ -36,7 +35,7 @@ export default class Responsible extends Component{
 	}
 
     render(){
-        const {isAllComposed, composeMore, children, ...props}=this.props
+        const {isAllComposed, composeMore, ...props}=this.props
         return (
             <ComposedDocument {...props}
                 svgRef={a=>this.svg=a}
@@ -53,22 +52,24 @@ export default class Responsible extends Component{
                         this.eventAlreadyDone=e.timeStamp
                     }
                 }}>
-                <Cursor
-                    ref={a=>this.cursor=a}
-                    render={({top=0,left=0,height=0,color})=>(
-                        <path d={`M${left} ${top} L${left} ${top+height}`}
-                                style={{stroke:color, strokeWidth:1}}/>
-                    )}
-                    />
-                <Selection
-                    ref={a=>this.selection=a}
-                    onMove={this.onMove.bind(this)}
-                    onResize={this.onResize.bind(this)}
-                    onRotate={this.onRotate.bind(this)}
-                    >
-                    <SelectionShape/>
-                </Selection>
-				{!isAllComposed()&&<ComposeMoreTrigger y={this.context.query().y} onEnter={composeMore} />}
+				<Fragment>
+					<Cursor
+						ref={a=>this.cursor=a}
+						render={({top=0,left=0,height=0,color})=>(
+							<path d={`M${left} ${top} L${left} ${top+height}`}
+									style={{stroke:color, strokeWidth:1}}/>
+						)}
+						/>
+					<Selection
+						ref={a=>this.selection=a}
+						onMove={this.onMove.bind(this)}
+						onResize={this.onResize.bind(this)}
+						onRotate={this.onRotate.bind(this)}
+						>
+						<SelectionShape/>
+					</Selection>
+					{!isAllComposed()&&<ComposeMoreTrigger y={this.context.query().y} onEnter={composeMore} />}
+				</Fragment>
             </ComposedDocument>
         )
     }
