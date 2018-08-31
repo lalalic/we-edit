@@ -16,7 +16,7 @@ const Default={
 		<Workspace
 			accept="*.*"
 			key="*"
-			layout="web"
+			layout="print"
 			tools={<Ribbon commands={{layout:false}}/>}
 			>
 			<Viewer

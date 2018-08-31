@@ -253,7 +253,7 @@ class WeDocumentStub extends PureComponent{
 		if(!this.context.ModelTypes){
 			return <div style={{color:"red", marginTop:100}}>Representation is not installed</div>
 		}
-		return <div id={this.props.docId} style={this.props.style}>{this.doc}</div>
+		return this.doc
 		
 	}
 }

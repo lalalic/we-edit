@@ -21,7 +21,7 @@ const VerticalRuler=compose(
 	})
 )(({pageY=0, scale, ...props})=>{
 	return (
-		<div style={{position:"relative",width:0,top:pageY*scale}}>
+		<div style={{position:"relative",top:pageY*scale}}>
 			<Ruler direction="vertical" {...props} scale={scale}/>
 		</div>
 	)
@@ -30,52 +30,33 @@ const VerticalRuler=compose(
 export default class Canvas extends Component{
 	render(){
 		const {scale=100,ruler={vertical:true}, style={}, children}=this.props
+		const horizontalRulerHeight=20
 		return (
 			<div style={{
 					overflow:"auto", flex:"1 100%",
 					overflowY:ruler ? "scroll" : "auto",
 					...style, 
-					display:"flex", flexDirection:"column"
+					display:"flex", flexDirection:"row"
 				}}>
-				<div style={{flex:1, display:"flex", flexDirection:"row"}}>
+				{ruler && ruler.vertical!==false && (
+					<div style={{flex:1, paddingTop:20+4}}>
+						<VerticalRuler scale={scale/100} />
+					</div>
+				)}
+				<div style={{flex:"1 100%", display:"flex", flexDirection:"column"}}>
 
 					{ruler && (
-						<Fragment>
-							{ruler.vertical!==false && <VerticalRuler scale={scale/100} />}
-							<div ref="rulerContainer" style={{position:"absolute",paddingTop:4}}>
-								<Ruler direction="horizontal" scale={scale/100}/>
-							</div>
-						</Fragment>
-					)}
-
-					<div ref="contentContainer" 
-						style={{flex:"1 100%", textAlign:"center", margin:"4px auto auto auto",}}>
-						<div style={{margin:"auto",display:"inline-block", textAlign:"initial"}}>
-							{children}
+						<div style={{paddingTop:2, paddingBottom:2}}>
+							<Ruler direction="horizontal" scale={scale/100}/>
 						</div>
+					)}
+					
+					<div style={{flex:"1 100%", margin:"0px auto"}}>
+						{children}
 					</div>
 				</div>
 
 			</div>
 		)
-	}
-	
-	setupHorizontalRuler(){
-		const {ruler=true}=this.props
-		if(!ruler)
-			return
-		
-		const {rulerContainer, contentContainer}=this.refs
-		if(rulerContainer && contentContainer){
-			rulerContainer.style.width=contentContainer.getBoundingClientRect().width+"px"
-		}
-	}
-
-	componentDidMount(){
-		this.setupHorizontalRuler()
-	}
-
-	componentDidUpdate(){
-		this.setupHorizontalRuler()
 	}
 }
