@@ -71,35 +71,14 @@ class TextCanvas extends Component{
 	}
 }
 
-const LineN=({i, children:line})=>{
-	//return line
-	let pieces=[...line.props.children]
-	pieces.splice(0,0,<Group x={-20} width={0} height={0}><text>{i}</text></Group>)
-	return React.cloneElement(line,{children:pieces})
-}
+const LineN=({i, children:line})=>React.cloneElement(line, {children:[
+		<Group x={-20} y={15} width={0} height={0} >
+			<text style={{fontSize:"smaller"}}>{i}</text>
+		</Group>,
+		...React.Children.toArray(line.props.children)
+		]
+})
 
-
-
-
-
-
-
-class LinesNo extends Component{
-	state={lines:10}
-	render(){
-		const {lines,lineHeight}=this.state
-		return (
-			<Fragment>
-				<div style={{background:"lightgray",lineHeight:`${lineHeight}px`,fontSize:"smaller",width:"2em"}}>
-					{new Array(lines).fill(0).map((a,i)=>
-						<div key={i} style={{textAlign:"right",marginRight:2, marginLeft:2}}>{i+1}</div>
-					)}
-				</div>
-				<ActiveLine height={lineHeight}/>
-			</Fragment>
-		)
-	}
-}
 
 const ActiveLine=compose(
 	setDisplayName("ActiveLine"),
