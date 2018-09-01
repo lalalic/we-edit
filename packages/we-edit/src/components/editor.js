@@ -22,7 +22,7 @@ export class Editor extends PureComponent{
 		scale: PropTypes.number,
 		screenBuffer: PropTypes.oneOfType([PropTypes.func, PropTypes.number]),
 	}
-	
+
 	static contextTypes={
 		events: PropTypes.object
 	}
@@ -49,7 +49,7 @@ export class Editor extends PureComponent{
 		const TypedRepresentation=this.getTypedRepresentation(representation)
 		if(!TypedRepresentation)
 			return null
-		
+
 		return React.cloneElement(
 			TypedRepresentation,
 			{domain:this.constructor.domain},
@@ -73,8 +73,8 @@ export class Editor extends PureComponent{
 				return <TypedRepresentation {...others}/>
 			}
 		}
-		
-		
+
+
 		return representation
 	}
 
@@ -167,7 +167,7 @@ class WeDocumentStub extends PureComponent{
 		}
 
 		//first handle with children changed
-		
+
 		let changedKeys=Object.keys(changed)
 			.reduce((sorted,a)=>{
 				sorted[a.children ? "push" : "unshift"](a)
@@ -214,7 +214,7 @@ class WeDocumentStub extends PureComponent{
 			}else if(!handled.includes(k)){
 				let parentId=getThisParentId(k)
 				let parentEl=this.els.get(parentId)
-				
+
 				children=parentEl.props.children
 				let index=content.get(parentId).toJS().children.indexOf(k)
 				children[index]=this.createChildElement(k,content,ModelTypes,this.props.content)
@@ -237,8 +237,8 @@ class WeDocumentStub extends PureComponent{
 				this.modifyDocOnChanged(content,changed,ModelTypes)
 			}
 		}
-		
-		this.doc=React.cloneElement(this.doc,  {...canvasProps, ...this.doc.props})
+
+		this.doc=React.cloneElement(this.doc,  {...canvasProps})
 	}
 
 	createChildElement(id,content,ModelTypes,lastContent){
@@ -253,7 +253,7 @@ class WeDocumentStub extends PureComponent{
 			return <div style={{color:"red", marginTop:100}}>Representation is not installed</div>
 		}
 		return this.doc
-		
+
 	}
 }
 

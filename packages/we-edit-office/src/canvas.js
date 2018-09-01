@@ -35,7 +35,7 @@ export default class Canvas extends Component{
 			<div style={{
 					overflow:"auto", flex:"1 100%",
 					overflowY:"scroll",
-					...style, 
+					...style,
 					display:"flex", flexDirection:"row"
 				}}>
 				{ruler && ruler.vertical!==false && (
@@ -46,11 +46,11 @@ export default class Canvas extends Component{
 				<div style={{flex:"1 100%", display:"flex", flexDirection:"column"}}>
 
 					{ruler && (
-						<div style={{paddingTop:2, paddingBottom:2}}>
+						<div style={{paddingTop:2, paddingBottom:2,background:"lightgray",position:"sticky",top:0}}>
 							<Ruler direction="horizontal" scale={scale/100}/>
 						</div>
 					)}
-					
+
 					<div style={{flex:"1 100%", margin:"0px auto"}}>
 						{children}
 					</div>
