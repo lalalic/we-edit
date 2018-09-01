@@ -249,7 +249,11 @@ export default class Query{
 		let x=(width-page.size.width)/2+page.margin.left+offsetX
 		let y=pages.slice(0,pageNo).reduce((y,{size:{height}})=>y+=(pgGap+height),0)
 		y=y+pgGap+page.margin.top
-		y=y+path.findLast(a=>a.type==ComposedLine).props.height
+		let line=path.findLast(a=>a.type==ComposedLine)
+		y=y+line.props.height
+		let descent=line.props.children.reduce((h,{props:{descent=0}})=>Math.max(h,descent),0)
+		y=y-descent
+
 		return path.reduce((state,a)=>{
 				state.x+=e(a,'x')
 				state.y+=e(a,'y')
@@ -278,7 +282,7 @@ export default class Query{
 
 			x+=measure.stringWidth(text.substring(from,at))
 
-			y=y-height
+			y=y-height+descent
 
 			extra={
 				height:this.toViewportCoordinate(height),
