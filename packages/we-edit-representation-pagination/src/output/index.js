@@ -11,16 +11,10 @@ export default class Output extends Emitter.Format.Base{
 		...Emitter.Format.Base.defaultProps,
 		representation: "pagination"
 	}
-	
+
 	emit(){
-		const {pages}=this.props
-		let svgStream=ReactDOMServer.renderToStaticNodeStream(
-			<svg style={{width:"100%",height:"100%"}}>
-			{
-				pages.map((page,i)=><Page key={i} {...page}/>)
-			}
-			</svg>
-		)
+		const {content}=this.props
+		let svgStream=ReactDOMServer.renderToStaticNodeStream(content)
 
 		this.output(svgStream)
 	}
@@ -116,11 +110,11 @@ export default class Output extends Emitter.Format.Base{
 	}
 
 	onDocument(){
-		
+
 	}
 
 	onDocumentEnd(){
-		
+
 	}
 
 	onPage(attrs){
