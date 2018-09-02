@@ -70,7 +70,9 @@ class TextCanvas extends Component{
 				return linesWithNo
 			},count==1 ? [
 				<rect x={-30} y={0} width={25} height={totalHeight} fill="lightgray"/>,
-				<ActiveLine  x={30} width={page.size.width} height={col.children[0].props.height}/>
+				<ActiveLine  x={30}
+					width={page.size.width-page.margin.right-page.margin.left}
+					height={col.children[0].props.height}/>
 			] : [])
 
 			pagesWithNo.push(page)
