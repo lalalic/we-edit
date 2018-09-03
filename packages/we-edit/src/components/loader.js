@@ -1,4 +1,4 @@
-import React, {Component,PureComponent} from "react"
+import React, {Component,PureComponent,Fragment} from "react"
 import PropTypes from "prop-types"
 import {DOMAIN, ACTION} from "./we-edit"
 import Input from "../input"
@@ -24,47 +24,62 @@ class Loader extends PureComponent{
     static contextTypes={
         store:PropTypes.object
     }
-	
+
+    static childContextTypes={
+        onLoad: PropTypes.func
+    }
+
 	static Base=class extends Component{
 		static install(config){
 			Loader.install(this)
 		}
-		
+
 		static uninstall(){
 			Loader.uninstall(this)
 		}
-		
+
 		static propTypes={
 			type: PropTypes.string.isRequired
 		}
-		
+
 		static contextTypes={
 			inRender: PropTypes.bool
 		}
-		
+
 		constructor(){
 			super(...arguments)
 			if(this.context.inRender){
 				this.doLoad()
 			}
 		}
-		
+
 		render(){
 			return null
 		}
-		
+
 		doLoad(){
-			Promise
+			return Promise
 				.resolve(this.load())
-				.then(file=>this.props.onLoad(file))
+				.then(file=>{
+                    this.props.onLoad(file)
+                    return file
+                })
 		}
-		
+
 		load(){
 			throw new Error("no implementation")
 		}
 	}
 
-    state={file:null}
+    constructor(){
+        super(...arguments)
+        this.state={file:null}
+        this.onLoad=this.onLoad.bind(this)
+    }
+
+    getChildContext(){
+        return {onLoad:this.onLoad}
+    }
 
     isInWeEditDomain(){
         const {store}=this.context
@@ -82,14 +97,16 @@ class Loader extends PureComponent{
 			const {readonly,release}=this.props
             return <doc.Store {...{readonly,release}}>{this.props.children}</doc.Store>
         }
-		
-		const {type, ...props}=this.props
-		const Type=this.constructor.get(type,true)
-		if(Type){
-			return <Type {...this.props} onLoad={this.onLoad.bind(this)}/>
-		}
-		
-		return null
+
+		const {type,children, ...props}=this.props
+        if(type){
+    		const Type=this.constructor.get(type,true)
+    		if(Type){
+    			return <Type {...this.props} onLoad={this.onLoad.bind(this)}/>
+    		}
+        }
+
+		return (<Fragment>{children}</Fragment>)
     }
 
     onLoad({error, ...file}){

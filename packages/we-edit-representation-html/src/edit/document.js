@@ -20,34 +20,31 @@ export default class Document extends Component{
 		this.state={}
 		this.resizeViewPort=this.resizeViewPort.bind(this)
 	}
-	
+
 	componentDidMount(){
 		window.addEventListener("resize", this.resizeViewPort)
 	}
-	
+
 	componentWillUnmount(){
 		window.removeEventListener("resize", this.resizeViewPort)
 	}
-	
+
 	resizeViewPort(){
 		this.setState({resize:Date.now()})
 	}
-	
+
 	getChildContext(){
 		return {
 			paper:false
 		}
 	}
-	
+
 	render(){
 		const {canvas}=this.props
 		return <Editors.Document key={this.state.resize}
-			{...this.props} 
+			{...this.props}
 			pageGap={0}
 			canvas={<Canvas canvas={canvas}/>}
 			/>
 	}
 }
-
-
-

@@ -123,15 +123,15 @@ export default class Emitter extends Viewer{
 		static childContextTypes={
 			media:PropTypes.string
 		}
-		
+
 		static Base=class extends Component{
 			static install(config){
 				Emitter.install(this)
 			}
-			
+
 			static uninstall(){
 				Emitter.uninstall(this)
-			}		
+			}
 			static propTypes={
 				type: PropTypes.string.isRequired,
 				name: PropTypes.string.isRequired,
@@ -139,29 +139,44 @@ export default class Emitter extends Viewer{
 				representation: PropTypes.string.isRequired,
 				stream: PropTypes.node
 			}
-			
+
 			static defaultProps={
-				
+
 			}
-			
-			static Setting=class extends Component{
-				state={}
+
+			static Setting=class extends PureComponent{
 				render(){
 					return null
 				}
 			}
-			
-			render(){
-				return React.cloneElement(this.props.stream,{
-					onReady:stream=>{
-						this.stream=stream
-						this.emit()
-					}
-				})
+
+			state={stream:null}
+
+			get stream(){
+				return this.state.stream
 			}
-			
+
+			render(){
+				const {stream}=this.state
+				if(!stream){
+					return React.cloneElement(this.props.stream,{
+						onReady:stream=>{
+							this.setState({stream})
+						}
+					})
+				}
+
+
+				let emitted=this.emit()
+				if(emitted && React.isValidElement(emitted)){
+					return emitted
+				}
+
+				return null
+			}
+
 			emit(){
-				
+
 			}
 		}
 
@@ -172,12 +187,14 @@ export default class Emitter extends Viewer{
 		}
 
 		render(){
-			const {type}=this.props
-			const Type=Emitter.get(type,true)
-			if(Type){
-				return <Type {...this.props}/>
+			const {type,children}=this.props
+			if(type){
+				const Type=Emitter.get(type,true)
+				if(Type){
+					return <Type {...this.props}/>
+				}
 			}
-			return null
+			return (<Fragment>{children}</Fragment>)
 		}
 	}
 }
@@ -193,21 +210,21 @@ class WeDocumentStub extends PureComponent{
 		store: PropTypes.object,
 		ModelTypes: PropTypes.object
 	}
-	
+
 	static childContextTypes={
 		root: PropTypes.node
 	}
-	
+
 	constructor(props,{store,ModelTypes}){
 		super(...arguments)
 		const content=store.getState().get("content")
 		this.doc=content ? createWeDocument("root",content,ModelTypes) : null
 	}
-	
+
 	getChildContext(){
 		return {root:this.doc}
 	}
-	
+
 	render(){
 		return this.doc ? React.cloneElement(this.doc,{scale:1,...this.props}) : null
 	}
@@ -216,7 +233,7 @@ class WeDocumentStub extends PureComponent{
 class OutputInput extends Emitter.Format.Base{
 	static displayName="[Origin]"
 	static propTypes={
-		
+
 	}
 	static defaultProps={
 		type:""

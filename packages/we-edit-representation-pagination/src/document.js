@@ -11,15 +11,11 @@ import ComposedDocument from "./composed/document"
 const Super=HasChild(Base)
 export default class Document extends Super{
     render(){
-		const {canvas,scale}=this.props
+		const {canvas=<Dummy/>}=this.props
         return (
 			<Fragment>
 				{this.computed.children.length==0 ? super.render() : null}
-
-				<ComposedDocument
-					pages={this.computed.composed}
-					{...{canvas,scale}}
-					/>
+                {React.cloneElement(canvas, {content:<ComposedDocument pages={this.computed.composed}/>})}
 			</Fragment>
 		)
     }
@@ -28,3 +24,5 @@ export default class Document extends Super{
 		this.computed.composed.push(page)
 	}
 }
+
+const Dummy=({content})=>content

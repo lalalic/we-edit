@@ -6,31 +6,31 @@ import {Writable} from "stream"
 export class Stream extends Component{
 	static propTypes={
 		type: PropTypes.string,
-		onFinish: PropTypes.func,
+		onFinish: PropTypes.func
 	}
 
 	static defaultProps={
 		onFinish:a=>a
 	}
-	
+
 	static Base=class extends Component{
 		static install(config){
 			Stream.install(this)
 		}
-		
+
 		static uninstall(){
 			Stream.uninstall(this)
 		}
-		
+
 		static propTypes={
 			onFinish: PropTypes.func,
 			onError: PropTypes.func
 		}
-		
+
 		static contextTypes={
 			inRender: PropTypes.bool
 		}
-		
+
 		constructor(){
 			super(...arguments)
 			if(this.context.inRender){
@@ -38,25 +38,28 @@ export class Stream extends Component{
 				this.render=()=>null
 			}
 		}
-		
+
 		render(){
 			return null
 		}
-		
+
 		doCreate(){
-			let stream=this.create()
-			const {onFinish, onError, onReady}=this.props
-			stream.on("finish",onFinish)
-			stream.on("error",onError)
-			onReady(stream)
-			return stream
+			return Promise
+				.resolve(this.create())
+				.then(stream=>{
+					const {onFinish, onError, onReady}=this.props
+					stream.on("finish",onFinish)
+					stream.on("error",onError)
+					onReady(stream)
+					return stream
+				})
 		}
-		
+
 		create(){
 			throw new Error("no implementation")
 		}
 	}
-	
+
 	shouldComponentUpdate(){
 		return false
 	}
@@ -77,11 +80,11 @@ export class Stream extends Component{
 							onError=resolve
 						})
 					)
-						
-					let stream=(<Type 
+
+					let stream=(<Type
 								{...{...props,format:format.props.type,onFinish,onError}}
 								/>)
-					
+
 					return React.cloneElement(format,{key,...formatProps,stream})
 				})
 			}
@@ -106,7 +109,7 @@ class ConsoleStream extends Stream.Base{
 		...Stream.Base.defaultProps,
 		type:""
 	}
-	
+
 	create(){
 		return new Writable({
 			write(){

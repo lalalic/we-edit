@@ -14,6 +14,7 @@ export default class ComposedDocument extends Component{
 
 	static defaultProps={
 		pgGap:24,
+		scale:1,
 	}
 
 	static contextTypes={
@@ -21,7 +22,7 @@ export default class ComposedDocument extends Component{
 	}
 
 	render(){
-		const {pages, pgGap, scale, canvas=<Dummy/>, style,children, svgRef, ...props}=this.props
+		const {pages, pgGap, scale, style,children, svgRef, ...props}=this.props
 		const {width,height}=pages.reduce((size,{size:{width,height}})=>{
 				return {
 					width:Math.max(size.width,width),
@@ -29,21 +30,20 @@ export default class ComposedDocument extends Component{
 				}
 			},{width:0,height:pgGap})
 
-		return   React.cloneElement(canvas,{content:
-					<svg
-						{...props}
-						ref={svgRef}
-						preserveAspectRatio="xMidYMin"
-						viewBox={`0 0 ${width} ${height}`}
-						style={{background:"transparent", width:width*scale, height:height*scale, ...style}}
-						>
-						<Media {...{pgGap, width}}>
-							{pages.map((page,i)=><Page {...page} key={i} i={i}/>)}
-						</Media>
-						{children}
-					</svg>
-				})
-
+		return   (
+			<svg
+				{...props}
+				ref={svgRef}
+				preserveAspectRatio="xMidYMin"
+				viewBox={`0 0 ${width} ${height}`}
+				style={{background:"transparent", width:width*scale, height:height*scale, ...style}}
+				>
+				<Media {...{pgGap, width}}>
+					{pages.map((page,i)=><Page {...page} key={i} i={i}/>)}
+				</Media>
+				{children}
+			</svg>
+		)
 	}
 
 	componentWillMount(){
@@ -64,5 +64,3 @@ export default class ComposedDocument extends Component{
 		}
 	}
 }
-
-const Dummy=({content})=>content
