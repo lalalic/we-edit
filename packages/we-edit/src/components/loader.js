@@ -4,7 +4,6 @@ import {DOMAIN, ACTION} from "./we-edit"
 import Input from "../input"
 import extendible from "../tools/extendible"
 
-const supports={}
 
 /**
  * Loader is used to load document
