@@ -52,7 +52,7 @@ export class ComboBox extends PureComponent{
 
 	render(){
 		let {comboBox}=this.context.muiTheme
-		let {name=`_${Date.now()}`, value, onChange, onException, style, menuProps={}, 
+		let {name=`_${Date.now()}`, value, onChange, onException, style, menuProps={},
 			textFieldStyle, inputStyle, children,icon=children,label,hint=label, ...props}=this.props
 		let text=this.getText()
 		let {searchText}=this.state
@@ -87,16 +87,16 @@ export class ComboBox extends PureComponent{
 			if(menuProps.style && !menuProps.style.width && style.width)
 				menuProps.style={...menuProps.style, width:style.width}
 		}
-		
+
 		if(inputStyle && inputStyle.border){
 			inputStyle.paddingRight=6
-			
+
 		}
-		
-		if(!icon && textFieldStyle.height){
-			icon=(<IconMore 
-					style={{height:textFieldStyle.height-4,width:6}} 
-					viewBox="6 -20 18 28" 
+
+		if(!icon && textFieldStyle && textFieldStyle.height){
+			icon=(<IconMore
+					style={{height:textFieldStyle.height-4,width:6}}
+					viewBox="6 -20 18 28"
 					/>)
 		}
 
