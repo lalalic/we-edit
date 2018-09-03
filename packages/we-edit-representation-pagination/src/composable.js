@@ -97,9 +97,6 @@ export function HasChild(Component){
 		emit(type, args){
 			try{
 				if(this.context.events){
-					if(this.debug){
-						console.dir({type,args})
-					}
 					this.context.events.emit(...arguments)
 				}
 			}catch(e){

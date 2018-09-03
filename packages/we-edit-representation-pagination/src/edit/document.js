@@ -72,7 +72,7 @@ export default class Document extends Super{
 	}
 
 	render(){
-		const {viewport, mode}=this.state
+		const {viewport, mode, error}=this.state
 		const {canvas,scale,pageGap}=this.props
 		if(!viewport){//to find container width, height
 			return <div ref="viewporter" />
@@ -95,12 +95,17 @@ export default class Document extends Super{
 							/>
 
 		return (
-			<Fragment>
+			<Fragment key={error}>
 				{this.props.children}
 				{canvas ? React.cloneElement(canvas,{content}) : content}
 			</Fragment>
 		)
     }
+	
+	componentDidCatch(error){
+		console.error(error)
+		this.setState({error})
+	}
 
 	componentWillReceiveProps({screenBuffer}){
 		this.clearComposed()

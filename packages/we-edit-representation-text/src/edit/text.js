@@ -11,8 +11,6 @@ export default class Text extends Component{
 	
 	render(){
 		let {color, vanish,id,children, changed, selfChanged}=this.props
-		if(vanish || children.length==0)
-			return null
 		
 		let {fonts, size}=this.context
 		

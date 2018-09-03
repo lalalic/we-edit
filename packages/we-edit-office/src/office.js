@@ -14,9 +14,10 @@ const Wrapper= props=>React.Children.only(props.children)
 const Default={
 	workspaces:[
 		<Workspace
+			debug={true}
 			accept="*.*"
 			key="*"
-			layout="plain text"
+			layout="print"
 			tools={<Ribbon commands={{layout:false}}/>}
 			>
 			<Viewer
@@ -29,6 +30,7 @@ const Default={
 			<Editor
 				layout="print"
 				icon={<IconPrint/>}
+				reCreateDoc={true}
 				representation={<Representation type="pagination"/>}
 				/>
 	

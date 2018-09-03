@@ -16,7 +16,6 @@ export class Editor extends PureComponent{
 		media:PropTypes.string,
 		reCreateDoc:PropTypes.bool,
 		representation: PropTypes.node.isRequired,
-		style: PropTypes.object,
 
 		//canvas props for svg
 		scale: PropTypes.number,
@@ -30,7 +29,7 @@ export class Editor extends PureComponent{
 	static defaultProps={
 		media:"screen",
 		scale:1,
-		reCreateDoc: false,
+		reCreateDoc: true,
 	}
 
 	static childContextTypes={
@@ -45,7 +44,7 @@ export class Editor extends PureComponent{
 	}
 
 	render(){
-		const {media, representation, children:canvas, ...props}=this.props
+		const {media, representation, reCreateDoc, scale, screenBuffer, children:canvas, ...props}=this.props
 		const TypedRepresentation=this.getTypedRepresentation(representation)
 		if(!TypedRepresentation)
 			return null
@@ -53,7 +52,7 @@ export class Editor extends PureComponent{
 		return React.cloneElement(
 			TypedRepresentation,
 			{domain:this.constructor.domain},
-			this.createDocument({docId:this.docId, canvasProps:{canvas, ...props}})
+			this.createDocument({docId:this.docId, reCreateDoc, canvasProps:{canvas, scale, screenBuffer, ...props}})
 		)
 	}
 
@@ -143,7 +142,7 @@ class WeDocumentStub extends PureComponent{
 
 	constructor(){
 		super(...arguments)
-		this.els=new Map()
+		//this.els=new Map()
 		this.componentWillReceiveProps(this.props,this.context)
 	}
 
@@ -166,14 +165,13 @@ class WeDocumentStub extends PureComponent{
 			}
 		}
 
-		//first handle with children changed
-
 		let changedKeys=Object.keys(changed)
-			.reduce((sorted,a)=>{
+			.reduce((sorted,a)=>{//first handle with children changed
 				sorted[a.children ? "push" : "unshift"](a)
 				return sorted
 			},[])
 			.reduce((filtered,a, i, all)=>{
+				//if parent is changed, then children would not be handle here
 				let parent=getThisParentId(a)
 				while(parent){
 					if(all.includes(parent)){
@@ -227,13 +225,14 @@ class WeDocumentStub extends PureComponent{
 	componentWillReceiveProps({content,changed,reCreateDoc,canvasProps},{ModelTypes}){
 		if(!ModelTypes)
 			return
-		if(reCreateDoc || !this.doc || (changed&&changed.root)){
-			this.els=new Map()
-			this.doc=this.createChildElement("root",content,ModelTypes,this.props.content)
+		if(!this.doc){
+			//this.els=new Map()
+			this.doc=this.createChildElement("root",content,ModelTypes)
+			this.doc=React.cloneElement(this.doc,{key:Date.now()})
 		}else if(this.props.content!=content){
-			if(!changed){
+			if(reCreateDoc || !changed || (changed&&changed.root)){
 				this.doc=this.createChildElement("root",content,ModelTypes,this.props.content)
-			}else{
+			}else{//deprecated
 				this.modifyDocOnChanged(content,changed,ModelTypes)
 			}
 		}
@@ -244,7 +243,7 @@ class WeDocumentStub extends PureComponent{
 	createChildElement(id,content,ModelTypes,lastContent){
 		return createWeDocument(
 			id,content,ModelTypes,lastContent,
-			el=>{this.els.set(el.props.id,el)}
+			//el=>{this.els.set(el.props.id,el)}
 		)
 	}
 

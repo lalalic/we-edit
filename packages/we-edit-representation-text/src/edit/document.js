@@ -11,6 +11,7 @@ import {Composed} from "we-edit-representation-pagination"
 const {Group}=Composed
 
 export default class  Document extends Component{
+	static displayName="text-document"
 	static contextTypes={
 		color:PropTypes.bool,
 		fonts: PropTypes.string,

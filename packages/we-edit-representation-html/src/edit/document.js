@@ -11,6 +11,7 @@ const Canvas=({content, canvas, ...props})=>{
 }
 
 export default class Document extends Component{
+	static displayName="html-document"
 	static childContextTypes={
 		paper: PropTypes.bool
 	}
