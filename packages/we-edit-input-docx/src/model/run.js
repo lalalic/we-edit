@@ -33,19 +33,3 @@ export default function transform(Models){
 		}
 	}
 }
-
-transform.mergeStyle=function(named,direct={}, r="r"){
-	return "bold,italic,vanish,strike".split(",")
-		.reduce((o,key,t)=>{
-				if(direct[key]==undefined && (t=named.get(`${r}.${key}`))!=undefined)
-					o[key]=!!t
-				return o
-			},
-			"fonts,size,color,highlight,border,underline".split(",")
-			.reduce((o,key,t)=>{
-				if(direct[key]==undefined && (t=named.get(`${r}.${key}`))!=undefined)
-					o[key]=t
-				return o
-			},{})
-		)
-}
