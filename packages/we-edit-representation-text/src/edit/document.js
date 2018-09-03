@@ -1,6 +1,6 @@
 import React,{Component,Fragment} from "react"
 import PropTypes from "prop-types"
-import {compose, setDisplayName} from "recompose"
+import {compose, setDisplayName,getContext} from "recompose"
 
 import {when} from "we-edit"
 
@@ -12,26 +12,27 @@ const {Group}=Composed
 
 export default class  Document extends Component{
 	static displayName="text-document"
-	static contextTypes={
-		color:PropTypes.bool,
-		fonts: PropTypes.string,
-		size: PropTypes.number,
-		lineHeight: PropTypes.string,
-	}
-
 	static childContextTypes={
-		color:PropTypes.bool,
+		colorful:PropTypes.bool,
 		fonts: PropTypes.string,
 		size: PropTypes.number,
 		lineHeight: PropTypes.string,
-		wrap: PropTypes.bool
+		wrap: PropTypes.bool,
+		color: PropTypes.string,
+		background: PropTypes.string,
+		activeColor: PropTypes.string,
 	}
 
 	state={viewport:0}
 
 	getChildContext(){
-		const {color, fonts="arial", size=11, lineHeight="140%", wrap=true}=this.props
-		return {color, fonts, size, lineHeight, wrap}
+		const {
+			colorful, fonts="arial", 
+			size=11, lineHeight="140%", 
+			wrap=true,background,
+			activeColor="beige"
+		}=this.props
+		return {colorful, fonts, size, lineHeight, wrap, background,activeColor}
 	}
 
 	render(){
@@ -70,10 +71,10 @@ class TextCanvas extends Component{
 				linesWithNo.push(<LineN children={b} i={count++}/>)
 				return linesWithNo
 			},count==1 ? [
-				<rect x={-30} y={0} width={25} height={totalHeight} fill="lightgray"/>,
-				<ActiveLine  x={30}
-					width={page.size.width-page.margin.right-page.margin.left}
-					height={col.children[0].props.height}/>
+				<ActiveLine  x={-page.margin.left}
+					width={page.size.width-page.margin.right}
+					height={col.children[0].props.height}/>,
+				<rect x={-page.margin.left} y={0} width={page.margin.left-5} height={totalHeight} fill="lightgray"/>,
 			] : [])
 
 			pagesWithNo.push(page)
@@ -102,6 +103,7 @@ const ActiveLine=compose(
 	when("cursorPlaced",({top,query})=>{
 		return {y:top-query.svg.top}
 	}),
-)(({x,y=0,height,width})=>(
-	<rect {...{x:0,y:parseInt(y-(height-height/1.4)/2),width,height,fill:"red",style:{opacity:0.5}}}/>
+	getContext({activeColor:PropTypes.string})
+)(({x,y=0,height,width,activeColor})=>(
+	<rect {...{x,y:parseInt(y-(height-height/1.4)/2),width:width,height,fill:activeColor}}/>
 ))
