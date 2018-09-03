@@ -93,7 +93,7 @@ export class ComboBox extends PureComponent{
 			
 		}
 		
-		if(!icon){
+		if(!icon && textFieldStyle.height){
 			icon=(<IconMore 
 					style={{height:textFieldStyle.height-4,width:6}} 
 					viewBox="6 -20 18 28" 

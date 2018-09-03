@@ -43,10 +43,6 @@ export default class DocxType extends Input.Editable{
 		this.doc.release()
 	}
 
-	create(){
-		return Docx.create()
-	}
-
 	stream(option){
 		let data=this.doc.serialize(option)
 			.generate({
@@ -64,11 +60,6 @@ export default class DocxType extends Input.Editable{
 			transformed[k]=Transformers[k](components)
 			return transformed
 		},{...components})
-	}
-
-	renderUp(state,Transformed){
-		let doc=super.renderUp(state,Transformed)
-		return React.cloneElement(doc,{}, this.refreshStyles(), ...doc.props.children)
 	}
 
 	render(createElement,components){

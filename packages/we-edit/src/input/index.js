@@ -15,7 +15,10 @@ const Input=extendible({
 		}
 	},
 	Editable: class extends Editable{
-		static install(){
+		static install(props){
+			if(props){
+				this.defaultProps={...this.defaultProps,...props}
+			}
 			Input.install(this)
 		}
 		

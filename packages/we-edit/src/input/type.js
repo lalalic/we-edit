@@ -95,10 +95,6 @@ export class Editable extends Viewable{
 		return {}
 	}
 
-	create(){
-		throw new Error("not support")
-	}
-
 	stream(option){
 		throw new Error("not support")
 	}

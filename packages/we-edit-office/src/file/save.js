@@ -135,7 +135,7 @@ export default class Saver extends PureComponent{
 					{supportedStreams.length>1 &&
 						(<center style={{height:100, lineHeight:"100px"}}>
 							<span>Save to:</span>
-							<ComboBox icon={<span/>}
+							<ComboBox
 									value={stream.type}
 									dataSource={supportedStreams}
 									onChange={type=>this.setState({stream:{...stream,type}})}/>
@@ -152,7 +152,7 @@ export default class Saver extends PureComponent{
 					 {supportedFormats.length>0 && (
 						<center>
 							<span>Save as type:</span>
-							<ComboBox icon={<span/>}
+							<ComboBox
 								value={format.type}
 								dataSource={supportedFormats}
 								onChange={type=>{

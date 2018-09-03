@@ -142,7 +142,7 @@ class WeDocumentStub extends PureComponent{
 
 	constructor(){
 		super(...arguments)
-		//this.els=new Map()
+		this.els=new Map()
 		this.componentWillReceiveProps(this.props,this.context)
 	}
 
@@ -230,7 +230,7 @@ class WeDocumentStub extends PureComponent{
 			this.doc=this.createChildElement("root",content,ModelTypes)
 			this.doc=React.cloneElement(this.doc,{key:Date.now()})
 		}else if(this.props.content!=content){
-			if(reCreateDoc || !changed || (changed&&changed.root)){
+			if(reCreateDoc || !changed || (changed&&(changed.root || Object.keys(changed).length>1))){
 				this.doc=this.createChildElement("root",content,ModelTypes,this.props.content)
 			}else{//deprecated
 				this.modifyDocOnChanged(content,changed,ModelTypes)
@@ -243,7 +243,7 @@ class WeDocumentStub extends PureComponent{
 	createChildElement(id,content,ModelTypes,lastContent){
 		return createWeDocument(
 			id,content,ModelTypes,lastContent,
-			//el=>{this.els.set(el.props.id,el)}
+			el=>{this.els.set(el.props.id,el)}
 		)
 	}
 
