@@ -9,7 +9,9 @@ import ioBrowser from "we-edit-loader-stream-browser"
 import SVG from "we-edit-output-svg"
 import PDF from "we-edit-output-pdf"
 
-iDocx.install({template:"/templates/normal.docx"})
+iDocx.install({
+	template:"/templates/normal.docx"
+})
 iJson.install()
 ioFile.install()
 ioBrowser.install()

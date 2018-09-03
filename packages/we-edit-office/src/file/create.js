@@ -1,6 +1,6 @@
 import React,{PureComponent, Fragment} from "react"
 import PropTypes from "prop-types"
-import {Input} from "we-edit"
+import {Input,ACTION, getAll} from "we-edit"
 import {RaisedButton} from "material-ui"
 
 import ComboBox from "../components/combo-box"
@@ -10,7 +10,10 @@ export default class Create extends PureComponent{
     static contextTypes={
         store: PropTypes.object
     }
-    state={type:this.getSupportedFormats()[0].value}
+	
+	static childContextTypes={
+		create:PropTypes.func
+	}
 
     getSupportedFormats(){
         return Object.keys(Input.supports)
@@ -18,47 +21,61 @@ export default class Create extends PureComponent{
 					collected.push(Input.get(k))
 					return collected
 				},[])
-			.filter(Type=>Type.prototype.create)
-            .map(Type=>({text:`${Type.getTypeName()}(*.${Type.getTypeExt()})`,value:Type.getType()}))
+			.filter(Type=>Type.prototype.onChange && Type.defaultProps.template)
+            .map(({defaultProps})=>{
+				let {template, type}=defaultProps
+				if(React.isValidElement(template)){
+					return React.cloneElement(template,{key:"type"})
+				} else if(typeof(template)=="string"){
+					return <URLFetcher key={type} {...defaultProps} url={template} template={undefined}/>
+				}
+			})
     }
 
     render(){
-        const formats=this.getSupportedFormats()
-        if(formats.length==1)
-            return null
-
-        const {onCancel}=this.props
+		let templates=this.getSupportedFormats()
+		if(templates.length==0)
+			templates=<center style={{color:"red"}}>no templates</center>
         return (
             <div>
-                <center>
-                    <ComboBox dataSource={formats} value={this.state.type}/>
-                </center>
-                <center>
-                    <RaisedButton label="Cancel"
-                        style={{marginRight:5}}
-                        onClick={onCancel}/>
-
-                    <RaisedButton label="Create"
-                        primary={true}
-                        onClick={this.create.bind(this)}/>
-                </center>
+				{templates}
             </div>
         )
     }
 
-    componentDidMount(){
-        const formats=this.getSupportedFormats()
-        if(formats.length==1){
-            this.create()
-        }
-    }
-
-    create(){
-        Input.create(this.state.type)
-            .then(doc=>{
-                const {onCreate, reducer}=this.props
+    create({url,...props}){
+		fetch(url)
+			.then(res=>res.blob())
+			.then(data=>({data,...props,name:`Document${getAll(this.context.store.getState()).length+1}.${props.ext}`}))
+			.then(file=>Input.parse(file))
+			.then(doc=>{
+				const {onCreate}=this.props
                 this.context.store.dispatch(ACTION.ADD(doc,reducer))
                 onCreate()
-            })
+			})
     }
+	
+	getChildContext(){
+		return {
+			create:this.create.bind(this)
+		}
+	}
+}
+
+class URLFetcher extends PureComponent{
+	static contextTypes={
+		create: PropTypes.func
+	}
+
+	render(){
+		const {type,...props}=this.props
+		const {create}=this.context
+		return (
+			<div style={{display:"inline-block"}}>
+				<svg onClick={()=>create({...props,type})} 
+					style={{width:50,height:75,background:"white"}}/>
+				<center style={{fontSize:"smaller"}}>{type}</center>
+			</div>
+		)
+	}
 }
