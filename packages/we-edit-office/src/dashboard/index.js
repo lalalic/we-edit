@@ -8,6 +8,7 @@ import Divider from 'material-ui/Divider';
 import {yellow500, gray100} from 'material-ui/styles/colors';
 
 import IconLogo from "material-ui/svg-icons/editor/border-color"
+import IconBack from "material-ui/svg-icons/navigation/arrow-back"
 
 import {Save,Open,Create,Print} from "../file"
 import OptionsUI from "./options"
@@ -29,6 +30,13 @@ export default class Dashboard extends PureComponent{
 				>
 				<Paper zDepth={2} style={{width,height:"100%",backgroundColor:"white"}}>
 						<center style={{zoom:2,marginTop:5}}>
+							<Avatar 
+								onClick={done}
+								size={12} 
+								style={{position:"absolute",left:10,top:10}}
+								>
+								<IconBack/>
+							</Avatar>
 							{avatar && React.cloneElement(avatar,{onClick:done}) || 
 								<Avatar backgroundColor={gray100}>
 									<IconLogo color={yellow500}/>
