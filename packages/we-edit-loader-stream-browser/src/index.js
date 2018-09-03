@@ -23,7 +23,7 @@ export class Writer extends Stream.Base{
 		type:"browser",
 	}
 	static support=support
-	
+
 	state={
 		windowFeatures:"menubar=no,location=no,resizable=yes,scrollbars=yes,status=no",
 		...this.props
@@ -46,7 +46,7 @@ export class Writer extends Stream.Base{
 						onChange={(e,name)=>this.setState({name})}/>
 				</div>
 				<div>
-					<TextField 
+					<TextField
 						value={target||""}
 						floatingLabelText="target:_blank|_self|_parent|_top|frame name"
 						onChange={(e,target)=>{
@@ -58,7 +58,7 @@ export class Writer extends Stream.Base{
 						}}/>
 				</div>
 				<div>
-					<TextField 
+					<TextField
 						value={windowFeatures||""}
 						floatingLabelText="window features"
 						onChange={(e,windowFeatures)=>{
@@ -68,7 +68,7 @@ export class Writer extends Stream.Base{
 			</center>
 		)
 	}
-	
+
 	create(){
 		let data=this.data=[]
 		let stream=new Writable({
@@ -77,7 +77,7 @@ export class Writer extends Stream.Base{
 				next()
 			}
 		})
-		
+
 		const {name,format,target,windowFeatures}=this.props
 		stream.on("finish",()=>{
             if(target){
@@ -86,7 +86,7 @@ export class Writer extends Stream.Base{
                this.download(name.indexOf(".")!=-1 ? name : `${name}.${format}`)
             }
         })
-		
+
 		return stream
 	}
 
@@ -116,7 +116,7 @@ export class Writer extends Stream.Base{
 			body.removeChild(a)
 		}
     }
-	
+
 	get blob(){
 		switch(this.props.format){
 		case 'svg':
@@ -135,11 +135,13 @@ export class Reader extends Loader.Base{
 		...Loader.Base.defaultProps,
         type:"browser"
     }
-	
+
 	static support=support
 
     render(){
-        return <input ref="input"
+        return <input
+			key={Date.now()}
+			ref="input"
             type="file"
             onChange={({target})=>{
 				let file=target.files[0]
@@ -160,6 +162,10 @@ export class Reader extends Loader.Base{
     componentDidMount(){
         this.refs.input.click()
     }
+
+	componentDidUpdate(){
+		this.refs.input.click()
+	}
 }
 
 export default {
@@ -167,10 +173,9 @@ export default {
 		Reader.install()
 		Writer.install()
 	},
-	
+
 	uninstall(){
 		Reader.uninstall()
 		Writer.uninstall()
 	}
 }
-
