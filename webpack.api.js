@@ -1,4 +1,5 @@
 const path=require("path")
+const webpack=require("webpack")
 const nodeExternals=require("webpack-node-externals")
 
 module.exports=base=>{
@@ -13,7 +14,33 @@ module.exports=base=>{
     			path:path.resolve(__dirname, 'packages/we-edit'),
                 libraryTarget:"commonjs2"
     		},
+            plugins:[
+                ...base.plugins,
+                new LocalReference(),
+            ],
             target:"node",
             externals:[nodeExternals()]
         }))
+}
+
+class LocalReference{
+    apply(compiler){
+        compiler.plugin("emit",function(compilation,done){
+            let fileName=compilation.options.output.filename
+            let asset=compilation.assets[fileName]
+            let content=asset.source()
+            let revised=content.replace(/require\("we-edit-/g,'require("./')
+            if(content!=revised){
+                compilation.assets[fileName]={
+                    source(){
+                        return revised
+                    },
+                    size(){
+                        return revised.length
+                    }
+                }
+            }
+            done()
+        })
+    }
 }
