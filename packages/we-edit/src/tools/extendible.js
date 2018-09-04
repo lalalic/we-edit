@@ -10,7 +10,7 @@ export default function extendible(Type, Category, ProxiedProp){
 
         if(!supports[type]){
             supports[type]=New
-            console.log(`${Category}[${type}] installed`)
+            console.debug(`${Category}[${type}] installed`)
         }
     }
 
@@ -18,7 +18,7 @@ export default function extendible(Type, Category, ProxiedProp){
         const type=New.defaultProps ? New.defaultProps.type : New.type
         if(supports[type]){
             delete supports[type]
-            console.log(`${Category}[${type}] uninstalled`)
+            console.debug(`${Category}[${type}] uninstalled`)
         }
     }
 

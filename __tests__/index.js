@@ -6,12 +6,8 @@ import Pagination from "we-edit-representation-pagination"
 import "we-edit-representation-html"
 import "we-edit-representation-text"
 
-import PDF from "we-edit-output-pdf"
-import HTML from "we-edit-output-html"
 import SVG from "we-edit-output-svg"
-
 import File from "we-edit-loader-stream-file"
-
 import iDocx from "we-edit-input-docx"
 
 
@@ -19,8 +15,6 @@ const {Format}=Emitter
 
 describe("we-edit integration", function(){
 	beforeAll(()=>{
-		PDF.install()
-		HTML.install()
 		SVG.install()
 		
 		File.install()
@@ -46,8 +40,6 @@ describe("we-edit integration", function(){
 	})
 
 	afterAll(()=>{		
-		PDF.uninstall()
-		HTML.uninstall()
 		SVG.uninstall()
 		
 		File.uninstall()

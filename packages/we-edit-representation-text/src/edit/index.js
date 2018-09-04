@@ -1,13 +1,14 @@
 import React,{Fragment, Component} from "react"
 import {models} from "we-edit"
-import {HasParentAndChild} from "we-edit-representation-pagination/composable"
-import recomposable from "we-edit-representation-pagination/edit/recomposable"
+import {composable, recomposable} from "we-edit-representation-pagination"
 
 import {Editors} from "we-edit-representation-html"
 import Document from "./document"
 import Section from "./section"
 import Paragraph from "./paragraph"
 import Text from "./text"
+
+const {HasParentAndChild}=composable
 
 const wrapper=A=>recomposable(HasParentAndChild(A))
 

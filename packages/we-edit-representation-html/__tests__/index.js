@@ -20,7 +20,7 @@ describe("html", function(){
 			</Document>
 		)
 		
-		"article,section,p,span"
+		"article,p,span"
 			.split(",")
 			.forEach(a=>expect(node.findAllByType(a).length).toBe(1))
 
@@ -43,7 +43,7 @@ describe("html", function(){
 			</Document>
 		)
 		expect(node.findAllByType("article").length).toBe(1)
-		"section,p,span"
+		"p,span"
 			.split(",")
 			.forEach(a=>expect(node.findAllByType(a).length).toBe(2))
 		node.findAllByType("span")
