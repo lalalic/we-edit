@@ -134,9 +134,7 @@ export default class Responsible extends Component{
         const docId=this.context.docId
         const $=this.context.query()
         const target=e.target
-        if(!target.dataset.content)
-            return;
-
+		
         switch(target.nodeName){
 			case "image":
 				dispatch(ACTION.Selection.SELECT(target.dataset.content,-1))

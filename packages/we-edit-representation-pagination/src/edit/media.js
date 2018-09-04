@@ -9,12 +9,13 @@ export default class Media extends Component{
 		media: PropTypes.string,
 		paper: PropTypes.bool,
 		onPageHide: PropTypes.func,
-		onPageShow: PropTypes.func
+		onPageShow: PropTypes.func,
+		scrollableAncestor: PropTypes.any,
 	}
 	
 	render(){
 		const {children:pages, pgGap, width}=this.props
-		const {paper=true,media,onPageHide,onPageShow}=this.context
+		const {paper=true,media,onPageHide,onPageShow,scrollableAncestor}=this.context
 		switch(media){
 			case "screen":{
 				let y=0
@@ -26,7 +27,7 @@ export default class Media extends Component{
 							let newPage=(
 								<Group y={y} x={(width-size.width)/2} key={i}>
 									{paper && <Paper {...{size,margin,fill:"white"}}/>}
-									<SmartShow {...{onPageHide,onPageShow}}>
+									<SmartShow {...{onPageHide,onPageShow,scrollableAncestor}}>
 										{page}
 									</SmartShow>
 								</Group>
@@ -47,9 +48,9 @@ class SmartShow extends Component{
 	state={display:false}
 	render(){
 		const {display}=this.state
-		const {children, onPageShow, onPageHide}=this.props
+		const {children, onPageShow, onPageHide, scrollableAncestor}=this.props
 		return (
-			<Waypoint fireOnRapidScroll={false}                                                                
+			<Waypoint fireOnRapidScroll={false}   scrollableAncestor={scrollableAncestor}                                                             
 				onEnter={e=>this.setState({display:true},onPageShow)}                              		
 				onLeave={e=>this.setState({display:false},onPageHide)}>                            		
 				{display ? children : <g/>}                                                                                       		

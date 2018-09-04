@@ -8,8 +8,12 @@ export default class Cursor extends Component{
 	}
 	
 	render(){
-		const {children}=this.props
-		return children ? React.cloneElement(React.Children.only(children),this.state) : null
+		const {children,active}=this.props
+		let props={...this.state}
+		if(!active){
+			props.color="lightgray"
+		}
+		return children ? React.cloneElement(React.Children.only(children),props) : null
 	}
 	
 	componentWillUnmount(){

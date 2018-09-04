@@ -33,9 +33,10 @@ export class Cursor extends Component{
 	}
 
 	render(){
-		const {children}=this.props
+		const {active,children}=this.props
+		const {docId}=this.context
 		return (
-			<Shape ref={a=>this.shape=a}>
+			<Shape ref={a=>this.shape=a} active={active==docId}>
 				{children}
 			</Shape>
 		)
@@ -53,29 +54,32 @@ export class Cursor extends Component{
 	componentDidUpdate(prevProps){
 		const {active,id,at, up, down}=this.props
 		const {docId, getCursorInput,query}=this.context
-		if(docId!==active)
-			return
 		let docQuery=query()
 		this.style=docQuery.position(id,at)
 		if(!this.style)
 			return
+		
 		let {
 			top,left, height,fontFamily,fontSize,
 			canvasTop=top, canvasLeft=left, 
 			}=this.style
-		getCursorInput()
-			.setState({
-				style:this.style,
-				query:docQuery,
-				
-				top,left,fontFamily,fontSize,
-				height: this.shape ? 0.1 : height,
-				up: this.up,
-				down: this.down
-			})
-
-		if(this.shape)
+			
+		if(docId==active){
+			getCursorInput()
+				.setState({
+					style:this.style,
+					query:docQuery,
+					
+					top,left,fontFamily,fontSize,
+					height: this.shape ? 0.1 : height,
+					up: this.up,
+					down: this.down
+				})
+		}
+		
+		if(this.shape){
 			this.shape.setState({top:canvasTop,left:canvasLeft,height})
+		}
 	}
 
 	up(shiftKey){

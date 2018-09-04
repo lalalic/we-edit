@@ -33,6 +33,7 @@ export default class Document extends Super{
 		query: PropTypes.func,
 		mount: PropTypes.func,
 		unmount: PropTypes.func,
+		scrollableAncestor: PropTypes.any
 	}
 
 	constructor({screenBuffer}){
@@ -52,6 +53,7 @@ export default class Document extends Super{
 			shouldContinueCompose,
 			shouldRemoveComposed,
 			query,mount,unmount,
+			scrollableAncestor:this.container,
 		}
 	}
 
