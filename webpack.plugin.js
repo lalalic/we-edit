@@ -4,7 +4,7 @@ const {ContextReplacementPlugin, DefinePlugin, IgnorePlugin} = require("webpack"
 const UglifyJsPlugin = require("uglifyjs-webpack-plugin")
 
 module.exports=base=>{
-    return "input-docx,input-json,output-html,output-pdf".split(",")
+    return "input-docx,input-json,output-pdf".split(",")
 		.map(a=>`we-edit-${a}`)
 		.map(a=>({
             ...base,
