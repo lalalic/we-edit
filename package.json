@@ -39,7 +39,7 @@
     "style-loader": "^0.20.3",
     "transform-loader": "^0.2.4",
     "uglifyjs-webpack-plugin": "^1.2.7",
-    "we-office-cli": "^0.0.9",
+    "we-office-cli": "^0.0.13",
     "webpack": "^3.8.1",
     "webpack-dev-server": "^2.9.4",
     "webpack-node-externals": "^1.7.2"
@@ -49,10 +49,9 @@
     "dev": "webpack-dev-server --env=dev",
     "build": "webpack --env=api",
     "sync": "webpack --env=plugin && yarn syncall",
-    "syncall": "yarn sync-input-docx && yarn sync-input-json && yarn sync-output-html && yarn sync-output-pdf",
+    "syncall": "yarn sync-input-docx && yarn sync-input-json && yarn sync-output-pdf",
     "sync-input-docx": "wo publish packages/we-edit-input-docx",
     "sync-input-json": "wo publish packages/we-edit-input-json",
-    "sync-output-html": "wo publish packages/we-edit-output-html",
     "sync-output-pdf": "wo publish packages/we-edit-output-pdf"
   },
   "keywords": [

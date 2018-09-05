@@ -5883,9 +5883,9 @@ q@^1.1.2:
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/q/-/q-1.5.1.tgz#7e32f75b41381291d04611f1bf14109ac00651d7"
 
-qili-cli@^1.2.30:
-  version "1.2.31"
-  resolved "https://registry.yarnpkg.com/qili-cli/-/qili-cli-1.2.31.tgz#7fdff04c69e999f1834c6468eea892bdb91df07d"
+qili-cli@^1.2.46:
+  version "1.2.46"
+  resolved "https://registry.yarnpkg.com/qili-cli/-/qili-cli-1.2.46.tgz#8512bc70a8df4fa75b3955ba311628c748fb2689"
   dependencies:
     chalk "^2.4.0"
     commander "^2.15.1"
@@ -7562,13 +7562,13 @@ wbuf@^1.1.0, wbuf@^1.7.2:
   dependencies:
     minimalistic-assert "^1.0.0"
 
-we-office-cli@^0.0.9:
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/we-office-cli/-/we-office-cli-0.0.9.tgz#5188bc87e883bb13338e5370c25b025fe5626102"
+we-office-cli@^0.0.13:
+  version "0.0.13"
+  resolved "https://registry.yarnpkg.com/we-office-cli/-/we-office-cli-0.0.13.tgz#bcc52a5ae2d8abd0934a110416247f2b065d7e3a"
   dependencies:
     lodash.merge "^4.6.1"
     mkdirp "^0.5.1"
-    qili-cli "^1.2.30"
+    qili-cli "^1.2.46"
     qiniu "^6.1.0"
     semver "^5.5.0"
 
