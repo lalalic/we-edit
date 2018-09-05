@@ -592,7 +592,10 @@ export default class Query{
 			},
 			props(type,raw=false){
 				if(raw){//from content in state
-					return this.$.closest(type).props().toJS().props
+					let props=this.$.closest(type).props()
+					if(props)
+						return props.toJS().props
+					return props
 				}
 
 				let reType=new RegExp(type,"i")
