@@ -9,8 +9,6 @@ import Ribbon, {Tab} from "./ribbon"
 import IconRead from "material-ui/svg-icons/communication/import-contacts"
 import IconPrint from "material-ui/svg-icons/editor/format-align-justify"
 
-const Wrapper= props=>React.Children.only(props.children)
-
 const Default={
 	workspaces:[
 		<Workspace
@@ -25,13 +23,13 @@ const Default={
 				ruler={false}
 				layout="read"
 				icon={<IconRead/>}
-				representation={<Representation type="pagination"/>}
+				representation="pagination"
 				/>
 			<Editor
 				layout="print"
 				icon={<IconPrint/>}
 				reCreateDoc={true}
-				representation={<Representation type="pagination"/>}
+				representation="pagination"
 				/>
 	
 			<Editor
@@ -39,7 +37,7 @@ const Default={
 				ruler={{vertical:false}}
 				toolBar={<Ribbon commands={{layout:false}}/>}
 				icon={<IconPrint/>}
-				representation={<Representation type="html"/>}
+				representation="html"
 				/>
 				
 			<Editor 
@@ -54,7 +52,6 @@ const Default={
 				}}/>}
 				icon={<IconPrint/>}
 				representation="text" size={12} fonts="calibri" color={true} wrap={true}/>
-				
 		</Workspace>
 	]
 }

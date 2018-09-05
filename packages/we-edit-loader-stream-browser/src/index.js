@@ -1,7 +1,7 @@
 import React, {PureComponent} from "react"
 import PropTypes from "prop-types"
 import {Writable} from "stream"
-import {Stream, Loader} from "we-edit"
+import {Stream, Loader, Input} from "we-edit"
 
 import {TextField} from "material-ui"
 
@@ -139,10 +139,16 @@ export class Reader extends Loader.Base{
 	static support=support
 
     render(){
+		const supports=Input.supports
+		let types=Object.keys(supports)
+			.map(a=>supports[a].defaultProps.ext)
+			.filter(a=>!!a)
+			.map(a=>"."+a)
         return <input
 			key={Date.now()}
 			ref="input"
             type="file"
+			accept={types.join(",")}
             onChange={({target})=>{
 				let file=target.files[0]
                 let reader=new FileReader()

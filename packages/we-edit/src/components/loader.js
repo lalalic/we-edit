@@ -132,6 +132,10 @@ class Loader extends PureComponent{
                 let {data,stream, ...props}=file
                 onLoad({type,...props})
             })
+			.catch(error=>{
+				this.context.store
+					.dispatch(ACTION.MESSAGE({type:"error", message:error.message}))
+			})
     }
 }
 

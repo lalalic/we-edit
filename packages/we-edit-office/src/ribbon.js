@@ -135,6 +135,7 @@ const Ribbon=compose(
 					{layout && <Tab label="Page Layout"  buttonStyle={buttonStyle} style={tabStyle}>
 						<Toolbar>
 							{layout.basic}
+							{layout.more}
 						</Toolbar>
 					</Tab>}
 					{React.Children.toArray(children).map(a=>React.cloneElement(a,{buttonStyle, style:tabStyle,key:a.props.label}))}
