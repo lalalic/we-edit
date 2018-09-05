@@ -1,6 +1,5 @@
 import PropTypes from "prop-types"
 import {Emitter} from "we-edit"
-import ReactDOMServer from "react-dom/server.node"
 
 export default class Output extends Emitter.Format.Base{	
 	static defaultProps={
@@ -11,15 +10,6 @@ export default class Output extends Emitter.Format.Base{
 		ext:"html",
 		wrapperStart:"<html><body>",
 		wrapperEnd:"</body></html>"
-	}
-	
-	static contextTypes={
-		...Emitter.Format.Base.contextTypes,
-		root:PropTypes.node
-	}
-	
-	emit(){
-		this.output(ReactDOMServer.renderToStaticNodeStream(this.context.root))
 	}
 	
 	output(content){

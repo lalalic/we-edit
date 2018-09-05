@@ -23,6 +23,10 @@ export default function buildEditableDoc(doc,inputTypeInstance){
 
 	const editableDoc={
 		Transformed,
+		
+		editable(){
+			return !!inputTypeInstance.onChange
+		},
 
 		toJSON(){
 			return this.name
@@ -50,7 +54,6 @@ export default function buildEditableDoc(doc,inputTypeInstance){
                     <ContextProvider
                         doc={editableDoc}
                         onQuit={release ? onQuit : null}
-                        renderUp={state=>inputTypeInstance.renderUp(state,Transformed )}
                         transformer={inputTypeInstance.transform}
                         {...props}
                         >

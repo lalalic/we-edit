@@ -37,16 +37,6 @@ const Input=extendible({
 			throw new Error(`we cannot edit ${file}`)
 		}
 	},
-
-	create(type){
-		let Found=this.get(type)
-		if(Found){
-			const inst=new Found()
-			return Promise.resolve(inst.create(type)).then(doc=>buildDoc(doc,inst))
-		}else{
-			throw new Error(`we cannot create ${type} content`)
-		}
-	},
 	
 	resolveFileType({data, type, mimeType, ext, name}){
 		if(type){

@@ -1,4 +1,5 @@
 import React, {Component,PureComponent, Fragment, Children} from "react"
+import ReactDOMServer from "react-dom/server.node"
 import PropTypes from "prop-types"
 import Viewer from "./viewer"
 import {createWeDocument} from "./editor"
@@ -137,7 +138,12 @@ export default class Emitter extends Viewer{
 				name: PropTypes.string.isRequired,
 				ext: PropTypes.string.isRequired,
 				representation: PropTypes.string.isRequired,
-				stream: PropTypes.node
+				stream: PropTypes.node,
+				content: PropTypes.node,
+			}
+			
+			static contextTypes={
+				weDocument: PropTypes.node
 			}
 
 			static defaultProps={
@@ -176,7 +182,11 @@ export default class Emitter extends Viewer{
 			}
 
 			emit(){
-
+				this.output(ReactDOMServer.renderToStaticNodeStream(this.context.weDocument))
+			}
+			
+			output(content){
+				throw new Error("Please implement output(content/*a node stream with converted content*/){content.pipe(this.stream)}")
 			}
 		}
 
@@ -212,7 +222,7 @@ class WeDocumentStub extends PureComponent{
 	}
 
 	static childContextTypes={
-		root: PropTypes.node
+		weDocument: PropTypes.node
 	}
 
 	constructor(props,{store,ModelTypes}){
@@ -222,7 +232,7 @@ class WeDocumentStub extends PureComponent{
 	}
 
 	getChildContext(){
-		return {root:this.doc}
+		return {weDocument:this.doc}
 	}
 
 	render(){

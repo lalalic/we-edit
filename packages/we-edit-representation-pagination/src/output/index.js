@@ -13,10 +13,7 @@ export default class Output extends Emitter.Format.Base{
 	}
 
 	emit(){
-		const {content}=this.props
-		let svgStream=ReactDOMServer.renderToStaticNodeStream(content)
-
-		this.output(svgStream)
+		this.output(ReactDOMServer.renderToStaticNodeStream(this.props.content))
 	}
 
 	output(stream){

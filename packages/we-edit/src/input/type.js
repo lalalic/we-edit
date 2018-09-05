@@ -4,6 +4,7 @@ import PropTypes from "prop-types"
 import * as reducer from "./reducer"
 import Components from "../model"
 import {getSelection, getContent} from "../state/selector"
+var i=0
 
 export class Viewable{
 	static get isWeEditType(){
@@ -51,6 +52,10 @@ export class Viewable{
 
 	getTypeMimeType(){
 		return this.constructor.getTypeMimeType()
+	}
+	
+	makeId(node){
+		return i++
 	}
 
 	//doc=null//injected from load/create

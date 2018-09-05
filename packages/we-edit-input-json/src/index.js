@@ -3,9 +3,6 @@ import EditableDocument from "./editable-doc"
 
 export default class JSONType extends Input.Editable{
 	static support(file){
-		if(!file)
-			return true
-		
 		const {data, name, type}=file
 		if(name && name.endsWith(".wed.json") || name.endsWith(".wed.xml"))
 			return true

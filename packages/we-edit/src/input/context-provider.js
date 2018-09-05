@@ -37,8 +37,10 @@ export default class ContextProvider extends Component{
 	}
 
 	componentDidMount(){
-		if(this.props.readonly)
+		const {readonly, doc}=this.props
+		if(readonly||!doc.editable())
 			return
+		
 		const store=this.context.store
 		const state=store.getState()
 		const {start:{id,at}}=getSelection(state)
@@ -46,10 +48,10 @@ export default class ContextProvider extends Component{
 	}
 
 	render(){
-		const {children, readonly}=this.props
+		const {children, readonly,  doc}=this.props
 		return (
 			<Fragment>
-				{readonly ? null : <Input ref="input"/>}
+				{readonly||!doc.editable() ? <span/> : <Input ref="input"/>}
 				{children}
 			</Fragment>
 		)
