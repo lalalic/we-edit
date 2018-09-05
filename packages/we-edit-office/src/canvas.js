@@ -43,20 +43,27 @@ export default class Canvas extends Component{
 						<VerticalRuler scale={scale/100} />
 					</div>
 				)}
-				<div style={{flex:"1 100%", display:"flex", flexDirection:"column"}}>
+				<div ref={a=>this.a=a} style={{flex:"1 100%", display:"flex", flexDirection:"column"}}>
 
 					{ruler && (
-						<div style={{paddingTop:2, paddingBottom:2,position:"sticky",top:0}}>
+						<div style={{paddingTop:2, paddingBottom:2,position:"sticky",top:0, height:28}}>
 							<Ruler direction="horizontal" scale={scale/100}/>
 						</div>
 					)}
 
-					<div style={{flex:"1 100%", margin:"0px auto"}}>
+					<div ref={b=>this.b=b} style={{flex:"1 100%", margin:"0px auto"}}>
 						{children}
 					</div>
 				</div>
 
 			</div>
 		)
+	}
+
+	componentDiDMount(){
+		this.a.style.minHeight=this.b.getBoundingClientRect().height+'px'
+	}
+	componentDidUpdate(){
+		this.a.style.minHeight=this.b.getBoundingClientRect().height+'px'
 	}
 }
