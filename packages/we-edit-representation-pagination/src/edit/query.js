@@ -583,13 +583,20 @@ export default class Query{
 		return new ContentQuery(this.state)
 	}
 
-	asSelection({page,column,line, path=[],id},state){
+	asSelection({page,column,line, path=[],id}){
 		let self=this
+		let content=null
 		return self.selection={
-			state,
-			props(type){
-				type=new RegExp(type,"i")
-				if(type.test("page")){
+			get $(){
+				return content||(content=new ContentQuery(self.state,`#${id}`))
+			},
+			props(type,raw=false){
+				if(raw){//from content in state
+					return this.$.closest(type).props().toJS().props
+				}
+
+				let reType=new RegExp(type,"i")
+				if(reType.test("page")){
 					return {
 						page,
 						column,
@@ -600,15 +607,12 @@ export default class Query{
 					}
 				}
 
-				let found=path.find(a=>!!a.props && type.test(a.props["data-type"]))
-
-				if(!found)
-					return null
-
-				let composer=self.getComposer(found.props["data-content"])
-
-				if(composer)
-					return composer.props
+				let found=path.find(a=>!!a.props && reType.test(a.props["data-type"]))
+				if(found){
+					let composer=self.getComposer(found.props["data-content"])
+					if(composer)
+						return composer.props
+				}
 
 				return null
 			}
