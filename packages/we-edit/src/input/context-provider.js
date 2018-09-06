@@ -36,16 +36,6 @@ export default class ContextProvider extends Component{
 		}
 	}
 
-	componentDidMount(){
-		const {readonly, doc}=this.props
-		if(readonly||!doc.editable())
-			return
-		
-		const store=this.context.store
-		const state=store.getState()
-		const {start:{id,at}}=getSelection(state)
-		store.dispatch(Cursor.AT(id,at))
-	}
 
 	render(){
 		const {children, readonly,  doc}=this.props

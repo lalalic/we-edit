@@ -39,19 +39,19 @@ export default class Canvas extends Component{
 					display:"flex", flexDirection:"row"
 				}}>
 				{ruler && ruler.vertical!==false && (
-					<div style={{flex:1, paddingTop:20+4}}>
+					<div style={{flex:1, paddingTop:horizontalRulerHeight}}>
 						<VerticalRuler scale={scale/100} />
 					</div>
 				)}
 				<div ref={a=>this.a=a} style={{flex:"1 100%", display:"flex", flexDirection:"column"}}>
 
 					{ruler && (
-						<div style={{paddingTop:2, paddingBottom:2,position:"sticky",top:0, height:28}}>
+						<div style={{position:"sticky",top:0}}>
 							<Ruler direction="horizontal" scale={scale/100}/>
 						</div>
 					)}
 
-					<div ref={b=>this.b=b} style={{flex:"1 100%", margin:"0px auto"}}>
+					<div ref={b=>this.b=b} style={{flex:"1 100%"}}>
 						{children}
 					</div>
 				</div>

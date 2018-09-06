@@ -11,7 +11,7 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
 import TitleBar from "./title-bar"
 import Dashboard from "./dashboard"
-import {getActive} from "we-edit"
+import {getActive,Input} from "we-edit"
 import {grey50 as BACKGROUND} from "material-ui/styles/colors"
 
 import "./style.less"
@@ -67,13 +67,18 @@ export default compose(
 			child=children.find(({props:{accept}})=>{
 					if(typeof(accept)=="string"){
 						let glob=accept
-						accept=a=>minimatch(a.name,glob)
+						accept=a=>minimatch(a.name||"",glob)
+					}else if(accept 
+						&& accept.prototype 
+						&& accept.prototype instanceof Input.Viewable){
+						let InputType=accept
+						accept=a=>a.isTypeOf(InputType)
 					}
 
 					if(typeof(accept)=="function")
 						return accept(active)
 
-					return false
+					return !!accept
 				})
 
 			if(child){

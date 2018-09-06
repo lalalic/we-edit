@@ -75,7 +75,7 @@ export default function buildEditableDoc(doc,inputTypeInstance){
 		},
 
 		get name(){
-			return inputTypeInstance.name
+			return inputTypeInstance.name||(inputTypeInstance.props && inputTypeInstance.props.name)
 		},
 
 		get id(){
@@ -104,6 +104,10 @@ export default function buildEditableDoc(doc,inputTypeInstance){
 
 		release(){
 			return inputTypeInstance.release()
+		},
+		
+		isTypeOf(InputType){
+			return inputTypeInstance instanceof InputType
 		}
 	}
 

@@ -5,27 +5,27 @@ import EditableDocument from "./editable-doc"
 import extendible from "../tools/extendible"
 
 const Input=extendible({
-	Viewable:class extends Viewable{
-		static install(){
+	Viewable:Object.assign(Viewable,{
+		install(){
 			Input.install(this)
-		}
+		},
 		
-		static uninstall(){
+		uninstall(){
 			Input.uninstall(this)
 		}
-	},
-	Editable: class extends Editable{
-		static install(props){
+	}),
+	Editable: Object.assign(Editable,{
+		install(props){
 			if(props){
 				this.defaultProps={...this.defaultProps,...props}
 			}
 			Input.install(this)
-		}
+		},
 		
-		static uninstall(){
+		uninstall(){
 			Input.uninstall(this)
 		}
-	},
+	}),
 	EditableDocument,
 	parse(file){
 		const type=this.resolveFileType(file)

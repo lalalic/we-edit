@@ -112,6 +112,7 @@ class Loader extends PureComponent{
     onLoad({error, ...file}){
 		const {onLoad, reducer,type}=this.props
 		if(error){
+			console.error(error)
 			if(this.isInWeEditDomain()){
 				this.context.store
 					.dispatch(ACTION.MESSAGE({type:"error", message:error.message}))
@@ -133,6 +134,7 @@ class Loader extends PureComponent{
                 onLoad({type,...props})
             })
 			.catch(error=>{
+				console.error(error)
 				this.context.store
 					.dispatch(ACTION.MESSAGE({type:"error", message:error.message}))
 			})

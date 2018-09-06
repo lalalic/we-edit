@@ -87,7 +87,7 @@ const Ribbon=compose(
 			}
 		})
 	return (
-		<div style={{height:24+30, ...style}}>
+		<div style={{height:24+30, borderBottom:"0.5px solid lightgray",marginBottom:1,paddingBottom:4, ...style}}>
 			<MuiThemeProvider muiTheme={getMuiTheme(muiTheme,{
 				sizeIconButton:{
 					size:24,
