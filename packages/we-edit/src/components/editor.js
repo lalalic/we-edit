@@ -20,6 +20,10 @@ export class Editor extends PureComponent{
 		//canvas props for svg
 		scale: PropTypes.number,
 		screenBuffer: PropTypes.oneOfType([PropTypes.func, PropTypes.number]),
+		viewport: PropTypes.Shape({
+			width: PropTypes.number,
+			height: PropTypes.number
+		})
 	}
 
 	static contextTypes={
@@ -44,7 +48,7 @@ export class Editor extends PureComponent{
 	}
 
 	render(){
-		const {media, representation, reCreateDoc, scale, screenBuffer, children:canvas, ...props}=this.props
+		const {media, representation, reCreateDoc, scale, screenBuffer, children:canvas, viewport, ...props}=this.props
 		const TypedRepresentation=this.getTypedRepresentation(representation)
 		if(!TypedRepresentation)
 			return null
@@ -52,7 +56,7 @@ export class Editor extends PureComponent{
 		return React.cloneElement(
 			TypedRepresentation,
 			{domain:this.constructor.domain},
-			this.createDocument({docId:this.docId, reCreateDoc, canvasProps:{canvas, scale, screenBuffer, ...props}})
+			this.createDocument({docId:this.docId, reCreateDoc, canvasProps:{canvas, scale, screenBuffer,viewport, ...props}})
 		)
 	}
 

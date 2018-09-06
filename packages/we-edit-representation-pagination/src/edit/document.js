@@ -16,7 +16,7 @@ export default class Document extends Super{
 		...Super.propTypes,
 		pageGap: PropTypes.number,
 	}
-	
+
 	static defaultProps={
 		...Super.defaultProps,
 		pageGap:12
@@ -73,6 +73,13 @@ export default class Document extends Super{
 		}
 	}
 
+	getDerivedStateFromProps({viewport}){
+		if(viewport){
+			return {viewport}
+		}
+		return null
+	}
+
 	render(){
 		const {viewport, mode, error}=this.state
 		const {canvas,scale,pageGap}=this.props
@@ -93,7 +100,7 @@ export default class Document extends Super{
 							pgGap={pageGap}
 							pages={this.computed.composed}
 							isAllComposed={a=>this.isAllChildrenComposed()}
-							composeMore={y=>this.setState({y,mode:"viewport"})} 
+							composeMore={y=>this.setState({y,mode:"viewport"})}
 							/>
 
 		return (
@@ -103,7 +110,7 @@ export default class Document extends Super{
 			</Fragment>
 		)
     }
-	
+
 	componentDidCatch(error){
 		console.error(error)
 		this.setState({error})
@@ -118,12 +125,12 @@ export default class Document extends Super{
 		if(!this.state.viewport){
 			this.getContainer(this.refs.viewporter)
 			const {height}=this.container.getBoundingClientRect()
-			
+
 			let a=this.refs.viewporter, width
 			while((width=a.getBoundingClientRect().width)==0){
 				a=a.parentNode
 			}
-			
+
 			this.setState({viewport:{width,height:height||1056}})
 		}
 	}
@@ -161,7 +168,7 @@ export default class Document extends Super{
 		let bufferY=this.screenBuffer(viewport.height)
 		return contentY<viewableY+bufferY
 	}
-	
+
 	get viewport(){
 		return this.state.viewport
 	}
