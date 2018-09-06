@@ -47,19 +47,19 @@ export default compose(
 				Ruler: a=>null
 			}
 		}
-		
+
 		let {
-				pgSz:{width,height}, 
+				pgSz:{width,height},
 				pgMar:{
 					left:leftMargin,top:topMargin,right:rightMargin,bottom:bottomMargin,
 					header,footer,
 				}
-			}=selection.props("section")
-			
+			}=selection.props("section",false)
+
 		let {
 			indent:{left:leftIndent,right:rightIndent,firstLine}={}
-		}=selection.props("paragraph")
-		
+		}=selection.props("paragraph",false)
+
 		return {
 			width,height,leftMargin,topMargin,bottomMargin,rightMargin,leftIndent,rightIndent,firstLine,
 			header,footer
@@ -68,4 +68,3 @@ export default compose(
 )(({direction="horizontal", Ruler=direction=="horizontal" ? HorizontalRuler : VerticalRuler, ...props})=>(
 	<Ruler {...props}/>
 ))
-

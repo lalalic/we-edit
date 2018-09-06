@@ -67,8 +67,8 @@ const RCSize=compose(
 		doc,
 		create(rows, col){
 			let layoutWidth=(()=>{
-				let {cols}=selection.props("section")
-				let {column}=selection.props("page")
+				let {cols}=selection.props("section",false)
+				let {column}=selection.props("page",false)
 				return cols[0].width
 			})();
 

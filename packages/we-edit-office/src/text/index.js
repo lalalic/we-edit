@@ -33,7 +33,7 @@ export default compose(
 		selection: PropTypes.object
 	}),
 	withProps(({store:{dispatch},selection})=>{
-		let style=selection ? selection.props("text") : null
+		let style=selection ? selection.props("text",false) : null
 		let changeSize=size=>dispatch(ACTION.Style.update({text:{size}}))
 		return {
 			style,
@@ -69,13 +69,13 @@ export default compose(
 		}
 	})
 )(({doc, style, children,
-	bigger, smaller, clear, 
+	bigger, smaller, clear,
 	toggleStrike, changeHightlight,changeColor,
 	toggleSubscript, toggleSuperscript, toggleBorder,
 	toggleB, toggleI, underline,
 	changeFont,changeSize})=>(
 	<ToolbarGroup>
-		<FontList label="font" 
+		<FontList label="font"
 			disabled={style==null}
 			value={style ? style.fonts.split(",")[0] : ""}
 			changeFont={changeFont}/>
@@ -99,7 +99,7 @@ export default compose(
 			children={<IconSmaller/>}
 			/>
 		<ToolbarSeparator/>
-			
+
 		<CheckIconButton label="bold"
 			status={!style ? "disabled" : style.bold?"checked":"unchecked"}
 			onClick={()=>toggleB(!style.bold)}
@@ -116,21 +116,21 @@ export default compose(
 			icon={<IconUnderlined/>}
 			>
 			{"single,double,dot,dash".split(",").map(a=>
-				<MenuItem 
-					key={a} 
+				<MenuItem
+					key={a}
 					onClick={e=>underline(a)}
 					primaryText={a}
 					/>
 			)}
 		</DropDownButton>
-			
+
 		<CheckIconButton label="strikethrough"
 			status={!style ? "disabled" : style.strike?"checked":"unchecked"}
 			onClick={()=>toggleStrike(!style.strike)}
 			children={<IconStrike/>}
 			/>
 		<ToolbarSeparator/>
-		
+
 		<CheckIconButton label="Subscript"
 			status={true||!style ? "disabled" : style.subscript?"checked":"unchecked"}
 			onClick={()=>toggleSubscript(!style.subscript)}
@@ -145,26 +145,26 @@ export default compose(
 		<CheckIconButton label="text border"
 			onClick={toggleBorder}
 			children={<IconTextBorder/>}
-			/>	
-			
+			/>
+
 		<ColorButton label="text highlight color"
 			status={!style ? "disabled" : style.highlight?"checked":"unchecked"}
 			onChange={color=>changeHightlight(color)}>
 			<IconBackground/>
 		</ColorButton>
-		
+
 		<ColorButton label="text color"
 			status={!style ? "disabled" : style.color?"checked":"unchecked"}
 			onChange={color=>changeColor(color)}>
 			<IconColor/>
-		</ColorButton>		
-		
+		</ColorButton>
+
 		<ToolbarSeparator/>
 		<CheckIconButton label="clear all text formatting"
 			onClick={clear}
 			children={<IconClear/>}
 			/>
-			
+
 		{children}
 	</ToolbarGroup>
 ))
@@ -217,4 +217,3 @@ const IconTextBorder=props=>(
 		<path d="M2 2 h20v20h-20z" fill="none" stroke="black"/>
 	</SvgIcon>
 )
-

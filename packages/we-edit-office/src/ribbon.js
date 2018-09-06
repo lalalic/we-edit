@@ -22,7 +22,7 @@ const Ribbon=compose(
 	setDisplayName("Ribbon"),
 	getContext({muiTheme:PropTypes.object,selection:PropTypes.object}),
 )(({children, selection,
-	muiTheme, 
+	muiTheme,
 	buttonStyle={height:24, fontSize:10, lineHeight:"24px", paddingRight:5,  paddingLeft:5},
 	tabStyle={width:"auto"},
 	style,
@@ -114,13 +114,13 @@ const Ribbon=compose(
 					{home && <Tab label="Home" buttonStyle={buttonStyle} style={tabStyle}>
 						<Toolbar>
 							{home.file}
-							
+
 							{home.history}
 
 							{home.text}
-							
+
 							{home.paragraph}
-							
+
 							{home.more}
 						</Toolbar>
 					</Tab>}
@@ -128,10 +128,10 @@ const Ribbon=compose(
 						<Toolbar>
 							{insert.table}
 							{insert.picture}
-							{insert.more}	
+							{insert.more}
 						</Toolbar>
 					</Tab>}
-					
+
 					{layout && <Tab label="Page Layout"  buttonStyle={buttonStyle} style={tabStyle}>
 						<Toolbar>
 							{layout.basic}
@@ -140,7 +140,7 @@ const Ribbon=compose(
 					</Tab>}
 					{React.Children.toArray(children).map(a=>React.cloneElement(a,{buttonStyle, style:tabStyle,key:a.props.label}))}
 					{when}
-					<Tab label="beautifier"  
+					<Tab label="beautifier"
 						buttonStyle={buttonStyle}
 						style={{visibility:"hidden", flex:"1 100%",...tabStyle}}
 						/>
@@ -153,6 +153,3 @@ const Ribbon=compose(
 export default Ribbon
 
 export {Ribbon, Text, Paragraph,File,History,Table,Picture,Layout, Toolbar, ToolbarSeparator, Tab}
-
-
-

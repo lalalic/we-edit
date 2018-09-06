@@ -590,8 +590,8 @@ export default class Query{
 			get $(){
 				return content||(content=new ContentQuery(self.state,`#${id}`))
 			},
-			props(type,raw=false){
-				if(raw){//from content in state
+			props(type,bContent=true){
+				if(bContent){//from content in state
 					let props=this.$.closest(type).props()
 					if(props)
 						return props.toJS().props

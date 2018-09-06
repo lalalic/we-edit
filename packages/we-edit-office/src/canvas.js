@@ -11,7 +11,7 @@ const VerticalRuler=compose(
 	}),
 	withProps(({selection})=>{
 		if(selection){
-			let props=selection.props("page")
+			let props=selection.props("page",false)
 			if(props){
 				return {
 					pageY:props.pageY

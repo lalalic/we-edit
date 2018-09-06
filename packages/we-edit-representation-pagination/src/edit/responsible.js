@@ -134,7 +134,7 @@ export default class Responsible extends Component{
         const docId=this.context.docId
         const $=this.context.query()
         const target=e.target
-		
+
         switch(target.nodeName){
 			case "image":
 				dispatch(ACTION.Selection.SELECT(target.dataset.content,-1))
@@ -211,7 +211,7 @@ export default class Responsible extends Component{
         let end=locate("focus")
         if(!end)
             return
-            
+
         let {left:left0,top:top0}=$.position(first.id, first.at)
         let {left:left1,top:top1}=$.position(end.id, end.at)
 

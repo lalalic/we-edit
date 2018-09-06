@@ -29,7 +29,7 @@ export default compose(
 	}),
 	mapProps(({store:{dispatch},doc,children,selection})=>({
 		doc,children,
-		style:selection ? selection.props("paragraph") : null,
+		style:selection ? selection.props("paragraph",false) : null,
 		align:align=>dispatch(ACTION.Style.update({paragraph:{align}})),
 		bullet: numFmt=>{
 			dispatch(ACTION.Style.update({paragraph:{numFmt}}))
@@ -62,7 +62,7 @@ export default compose(
 			children={<IconAlignJustify/>}
 			/>
 		<ToolbarSeparator/>
-		
+
 		<DropDownButton
 			status={!style||!style.numbering ? "disabled" : style.numbering.format=="bullet" ?"checked":"unchecked"}
 			onClick={()=>bullet("")}
@@ -70,7 +70,7 @@ export default compose(
 			>
 			<MenuItem primaryText="bullet" onClick={e=>bullet(".")}/>
 			<MenuItem primaryText="circle" onClick={e=>bullet("o")}/>
-			
+
 		</DropDownButton>
 		<DropDownButton
 			status={!style||!style.numbering ? "disabled" : style.numbering.format!=="bullet" ?"checked":"unchecked"}
@@ -81,7 +81,7 @@ export default compose(
 			<MenuItem primaryText="a." onClick={e=>numbering("lowerLetter")}/>
 			<MenuItem primaryText="一" onClick={e=>numbering("chinese")}/>
 		</DropDownButton>
-		
+
 		{children}
 	</ToolbarGroup>
 ))

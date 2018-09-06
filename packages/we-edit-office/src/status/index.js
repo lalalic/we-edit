@@ -54,7 +54,7 @@ const Page=compose(
 	}),
 	withProps(({selection})=>{
 		if(selection){
-			let props=selection.props("page")
+			let props=selection.props("page",false)
 			if(props)
 				return {current: props.page}
 		}
@@ -63,8 +63,8 @@ const Page=compose(
 	when("composed",currentTotal=>({currentTotal})),
 )(({
 	current=0,
-	currentTotal=0, 
-	total=0, 
+	currentTotal=0,
+	total=0,
 	showTotal=Math.max(total,currentTotal)
 })=>(
 	<FlatButton style={ButtonStyle}>
@@ -94,7 +94,7 @@ class Words extends PureComponent{
 			</FlatButton>
 		)
 	}
-	
+
 	componentWillUnmount(){
 		if(this.context.events){
 			this.context.events.removeListener("words",this.handler)

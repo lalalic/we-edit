@@ -79,15 +79,8 @@ export default class Document extends Super{
 			return <div ref="viewporter" />
 		}
 
-		let minHeight=undefined
-		if(mode=="content" && this.canvas){
-			//to keep scrollbar position
-			minHeight=this.canvas.svg.getBoundingClientRect().height
-		}
-
 		const content=<Responsible
 							ref="canvas"
-							style={{minHeight}}
 							scale={scale}
 							pgGap={pageGap}
 							pages={this.computed.composed}
