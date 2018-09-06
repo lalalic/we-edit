@@ -20,7 +20,7 @@ export class Editor extends PureComponent{
 		//canvas props for svg
 		scale: PropTypes.number,
 		screenBuffer: PropTypes.oneOfType([PropTypes.func, PropTypes.number]),
-		viewport: PropTypes.Shape({
+		viewport: PropTypes.shape({
 			width: PropTypes.number,
 			height: PropTypes.number
 		})

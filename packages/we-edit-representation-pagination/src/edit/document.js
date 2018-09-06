@@ -36,10 +36,10 @@ export default class Document extends Super{
 		scrollableAncestor: PropTypes.any
 	}
 
-	constructor({screenBuffer}){
+	constructor({screenBuffer,viewport}){
 		super(...arguments)
 		this.composers=new Map([[this.props.id,this]])
-		this.state={mode:"viewport",...this.state}
+		this.state={mode:"viewport",viewport, ...this.state}
 		this.screenBuffer=typeof(screenBuffer)=="function" ? screenBuffer : a=>screenBuffer||a;
 	}
 	getChildContext(){
@@ -53,7 +53,6 @@ export default class Document extends Super{
 			shouldContinueCompose,
 			shouldRemoveComposed,
 			query,mount,unmount,
-			scrollableAncestor:this.container,
 		}
 	}
 
@@ -71,13 +70,6 @@ export default class Document extends Super{
 		}else{
 			return this.props.scale
 		}
-	}
-
-	getDerivedStateFromProps({viewport}){
-		if(viewport){
-			return {viewport}
-		}
-		return null
 	}
 
 	render(){
@@ -123,37 +115,33 @@ export default class Document extends Super{
 
 	componentDidMount(){
 		if(!this.state.viewport){
-			this.getContainer(this.refs.viewporter)
-			const {height}=this.container.getBoundingClientRect()
+			const container=(function getFrameParent(node){
+				const isElement = node instanceof HTMLElement;
+				if(isElement){
+					const {overflowY,width,height} = window.getComputedStyle(node);
+					if(width>0 && height>0)
+						return node
+					const isScrollable = overflowY !== 'visible' && overflowY !== 'hidden';
+					if(isScrollable)
+						return node
+				}
+
+				if (!node) {
+					return null;
+				}
+
+				return getFrameParent(node.parentNode) || document.body;
+			})(this.refs.viewporter);
+
+			const {height}=container.getBoundingClientRect()
 
 			let a=this.refs.viewporter, width
 			while((width=a.getBoundingClientRect().width)==0){
 				a=a.parentNode
 			}
 
-			this.setState({viewport:{width,height:height||1056}})
+			this.setState({viewport:{width:parseInt(width),height:parseInt(height||1056)}})
 		}
-	}
-
-	//with width&&height, or scrollable Y
-	getContainer(node){
-		return this.container=(function getFrameParent(node) {
-			const isElement = node instanceof HTMLElement;
-			if(isElement){
-				const {overflowY,width,height} = window.getComputedStyle(node);
-				if(width>0 && height>0)
-					return node
-				const isScrollable = overflowY !== 'visible' && overflowY !== 'hidden';
-				if(isScrollable)
-					return node
-			}
-
-			if (!node) {
-				return null;
-			}
-
-			return getFrameParent(node.parentNode) || document.body;
-		})(node)
 	}
 
 	shouldRemoveComposed(){
