@@ -23,7 +23,7 @@ const createFontMeasureWithDefault=defaultFont=>{
 			try{
 				font=super.getFont()
 			}catch(e){
-				
+
 			}
 			if(!font && this.fontFamily!=defaultFont){
 				this.fontFamily=defaultFont
@@ -56,11 +56,11 @@ export default class Pagination extends Representation.Base{
 		doc: PropTypes.object,
 		events: PropTypes.object
 	}
-	
+
 	static Output=Output
 
 	state={fontsLoaded:false}
-	componentWillMount(){
+	componentDidMount(){
 		const {defaultFont,measure,fonts}=this.props
 		this.Measure=measure||(fonts||isNode ? FontMeasure : SVGMeasure)
 		switch(this.Measure){
@@ -110,14 +110,6 @@ export default class Pagination extends Representation.Base{
 
 		return (<div style={{textAlign:"center"}}><Representation {...{ViewerTypes,EditorTypes,...props} }/></div>)
 	}
-	
-	componentDidMount(){
-		
-	}
-	
-	componentDidUpdate(){
-		
-	}
 
 	componentWillUnmount(){
 		if(FontMeasure.isPrototypeOf(this.Measure)){
@@ -140,4 +132,3 @@ export default class Pagination extends Representation.Base{
 Pagination.install()
 
 export {Viewers, Editors, Fonts, Measure, Composed, composable, recomposable}
-
