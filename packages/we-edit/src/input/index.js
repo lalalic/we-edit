@@ -6,8 +6,8 @@ import extendible from "../tools/extendible"
 
 const Input=extendible({
 	Viewable:Object.assign(Viewable,{
-		install(){
-			Input.install(this)
+		install(conf){
+			Input.install(this,conf)
 		},
 		
 		uninstall(){
@@ -15,11 +15,8 @@ const Input=extendible({
 		}
 	}),
 	Editable: Object.assign(Editable,{
-		install(props){
-			if(props){
-				this.defaultProps={...this.defaultProps,...props}
-			}
-			Input.install(this)
+		install(conf){
+			Input.install(this,conf)
 		},
 		
 		uninstall(){

@@ -1,5 +1,6 @@
 import React, {Component,PureComponent,Fragment} from "react"
 import PropTypes from "prop-types"
+import {Readable} from "stream"
 import {DOMAIN, ACTION} from "./we-edit"
 import Input from "../input"
 import extendible from "../tools/extendible"
@@ -30,8 +31,8 @@ class Loader extends PureComponent{
     }
 
 	static Base=class extends Component{
-		static install(config){
-			Loader.install(this)
+		static install(conf){
+			Loader.install(this,conf)
 		}
 
 		static uninstall(){
@@ -67,7 +68,7 @@ class Loader extends PureComponent{
 		}
 
 		load(){
-			throw new Error("no implementation")
+			return new Readable({})
 		}
 	}
 

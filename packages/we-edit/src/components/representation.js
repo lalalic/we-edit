@@ -19,8 +19,8 @@ class  Representation extends PureComponent{
 	}
 	
 	static Base=class extends Component{
-		static install(){
-			Representation.install(this)
+		static install(conf){
+			Representation.install(this,conf)
 		}
 		
 		static uninstall(){

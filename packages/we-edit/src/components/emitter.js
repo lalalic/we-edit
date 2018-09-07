@@ -126,8 +126,8 @@ export default class Emitter extends Viewer{
 		}
 
 		static Base=class extends Component{
-			static install(config){
-				Emitter.install(this)
+			static install(conf){
+				Emitter.install(this,conf)
 			}
 
 			static uninstall(){

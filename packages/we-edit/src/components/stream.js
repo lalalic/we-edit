@@ -14,8 +14,8 @@ export class Stream extends Component{
 	}
 
 	static Base=class extends Component{
-		static install(config){
-			Stream.install(this)
+		static install(conf){
+			Stream.install(this,conf)
 		}
 
 		static uninstall(){
@@ -56,7 +56,11 @@ export class Stream extends Component{
 		}
 
 		create(){
-			throw new Error("no implementation")
+			return new Writable({
+				write(){
+					
+				}
+			})
 		}
 	}
 

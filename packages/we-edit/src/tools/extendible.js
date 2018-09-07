@@ -1,17 +1,22 @@
 export default function extendible(Type, Category, ProxiedProp){
-    const supports={}
-
-    Type.install=function(New){
-        const type=New.defaultProps ? New.defaultProps.type : New.type
+    var supports={}
+	
+	Type.install=function(New, props){
+		let defaultProps=New.defaultProps
+		if(props){
+			defaultProps={...defaultProps,...props}
+		}
+		
+        const type=defaultProps.type
         if(New.support && !New.support()){
             console.log(`${Category}[${type}] discarded because of not supported environment`)
             return
         }
+		
+		New.defaultProps=defaultProps
 
-        if(!supports[type]){
-            supports[type]=New
-            console.debug(`${Category}[${type}] installed`)
-        }
+        supports[type]=New
+        console.debug(`${Category}[${type}] installed`)
     }
 
     Type.uninstall=function(New){
