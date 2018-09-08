@@ -10,6 +10,7 @@ import Row from "./row"
 import Cell from "./cell"
 import Frame from "./frame"
 import Shape from "./shape"
+import Variants from "./Variants"
 
 export default{
 	Document,
@@ -23,5 +24,6 @@ export default{
 	Row,
 	Cell,
 	Frame,
-	Shape
+	Shape,
+	Variants
 }
