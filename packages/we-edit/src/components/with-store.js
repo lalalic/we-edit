@@ -1,12 +1,13 @@
 import React, {Component, Children} from "react"
 import PropTypes from "prop-types"
+import memoize from "memoize-one"
 
 export class WithStore extends Component{
 	static propTypes={
 		storeKey:PropTypes.string,
 		getState:PropTypes.func,
 	}
-	
+
 	static buildStoreKeyReducer=(key,reducer)=>({
 		[key]:(state,action)=>{
 			if(!state){
@@ -27,17 +28,16 @@ export class WithStore extends Component{
 		store: PropTypes.object
 	}
 
-	constructor(){
-		super(...arguments)
-		this.store=new LocalStore(this.context.store,this.props.storeKey, this.props.getState)
-	}
-
-	componentWillReceiveProps({storeKey,getState}){
-		this.store=new LocalStore(this.context.store,storeKey, getState)
-	}
+	getStore=memoize((store, storeKey, getState)=>{
+		return new LocalStore(store,storeKey, getState)
+	})
 
 	getChildContext(){
-		return {store:this.store}
+		const {store}=this.context
+		const {storeKey, getState}=this.props
+		return {
+			store:this.getStore(store, storeKey, getState)
+		}
 	}
 
 	render(){

@@ -23,13 +23,10 @@ export class Cursor extends Component{
 		active: PropTypes.string,
 	}
 
-	contentChanged=false
-	
 	constructor(){
 		super(...arguments)
 		this.up=this.up.bind(this)
 		this.down=this.down.bind(this)
-		this.i=0
 	}
 
 	render(){
@@ -42,13 +39,13 @@ export class Cursor extends Component{
 		)
 	}
 
-	componentWillReceiveProps({content}){
-		this.contentChanged=this.props.content!=content
-	}
-
-	shouldComponentUpdate(){
-		//when content changed, composition must happen, it will be forceUpdated by composed document
-		return !this.contentChanged
+	shouldComponentUpdate({content}){
+		/**
+			when content changed, composition must happen,
+			it will be forceUpdated by composed document,
+			otherwise the timing is not correct.
+		**/
+		return this.props.content==content
 	}
 
 	componentDidUpdate(prevProps){
@@ -58,25 +55,25 @@ export class Cursor extends Component{
 		this.style=docQuery.position(id,at)
 		if(!this.style)
 			return
-		
+
 		let {
 			top,left, height,fontFamily,fontSize,
-			canvasTop=top, canvasLeft=left, 
+			canvasTop=top, canvasLeft=left,
 			}=this.style
-			
+
 		if(docId==active){
 			getCursorInput()
 				.setState({
 					style:this.style,
 					query:docQuery,
-					
+
 					top,left,fontFamily,fontSize,
 					height: this.shape ? 0.1 : height,
 					up: this.up,
 					down: this.down
 				})
 		}
-		
+
 		if(this.shape){
 			this.shape.setState({top:canvasTop,left:canvasLeft,height})
 		}
