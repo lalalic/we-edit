@@ -31,7 +31,7 @@ const Default={
 				reCreateDoc={true}
 				representation="pagination"
 				/>
-	
+
 			<Editor
 				layout="web"
 				ruler={{vertical:false}}
@@ -39,8 +39,8 @@ const Default={
 				icon={<IconPrint/>}
 				representation="html"
 				/>
-				
-			<Editor 
+
+			<Editor
 				layout="plain text"
 				ruler={false}
 				toolBar={<Ribbon commands={{
@@ -51,7 +51,7 @@ const Default={
 					insert:false,layout:false,when:false,
 				}}/>}
 				icon={<IconPrint/>}
-				representation="text" size={12} fonts="calibri" color={true} wrap={true}/>
+				representation="text" size={12} fonts="calibri" color={true} wrap={false}/>
 		</Workspace>
 	]
 }

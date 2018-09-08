@@ -17,31 +17,32 @@ export default class  Document extends Component{
 		fonts: PropTypes.string,
 		size: PropTypes.number,
 		lineHeight: PropTypes.string,
-		wrap: PropTypes.bool,
 		color: PropTypes.string,
+		wrap: PropTypes.bool,
 		background: PropTypes.string,
 		activeColor: PropTypes.string,
 	}
 
-	state={viewport:0}
-
 	getChildContext(){
 		const {
-			colorful, fonts="arial", 
-			size=11, lineHeight="140%", 
-			wrap=true,background,
+			colorful,
+			wrap,
+			fonts="arial",
+			size=11,
+			lineHeight="140%",
+			background,
 			activeColor="beige"
 		}=this.props
-		return {colorful, fonts, size, lineHeight, wrap, background,activeColor}
+		return {colorful, fonts, size, wrap, lineHeight, background,activeColor}
 	}
 
 	render(){
-		let {canvas,lineNo=true}=this.props
+		let {canvas,wrap,lineNo=true}=this.props
 		if(lineNo){
-			canvas=<TextCanvas canvas={canvas}/>
+			canvas=<TextCanvas wrap={wrap} canvas={canvas}/>
 		}
 
-		return (<Editors.Document {...this.props} canvas={canvas}/>)
+		return (<Editors.Document margin={{left:30,right:10}} {...this.props} canvas={canvas}/>)
 	}
 }
 
@@ -54,32 +55,41 @@ class TextCanvas extends Component{
 	}
 
 	render(){
-		let {canvas, content, ...props}=this.props
+		let {canvas, wrap, content, viewport, ...props}=this.props
 		let {pages}=content.props
 		let count=1
-		let totalHeight=0
-		pages.forEach(page=>{
+		let totalHeight=0,maxContentWidth=0
+		const contentWidth=b=>b && b.props && b.props.contentWidth || contentWidth(b.props.children) || 0
+		pages=pages.map(a=>{
+			let page={...a, size:{...a.size, height:0}, columns:[...a.columns]}
 			let col=page.columns[0]
-			totalHeight+=(page.size.height=col.children.reduce((h,a)=>h+a.props.height,0))
-		})
 
-		pages=pages.reduce((pagesWithNo, a)=>{
-			let page={...a},col
-			page.columns=[col={...a.columns[0]}]
+			col.children=col.children.map(b=>{
+				page.size.height+=b.props.height
+				if(!wrap){
+					maxContentWidth=Math.max(maxContentWidth,contentWidth(b))
+				}
+				return (<LineN children={b} i={count++}/>)
+			})
 
-			col.children=col.children.reduce((linesWithNo, b)=>{
-				linesWithNo.push(<LineN children={b} i={count++}/>)
-				return linesWithNo
-			},count==1 ? [
+			totalHeight+=page.size.height
+			return page
+		});
+
+		((page,col=page.columns[0])=>{
+			if(!wrap){
+				let width=Math.max(viewport.width, maxContentWidth+page.margin.left+page.margin.right)
+				pages.forEach(a=>a.size.width=width)
+			}
+
+			col.children.splice(
+				0,0,
 				<ActiveLine  x={-page.margin.left}
 					width={page.size.width-page.margin.right}
-					height={col.children[0].props.height}/>,
-				<rect x={-page.margin.left} y={0} width={page.margin.left-5} height={totalHeight} fill="lightgray"/>,
-			] : [])
-
-			pagesWithNo.push(page)
-			return pagesWithNo
-		},[])
+					height={col.children[0].props.children.props.height}/>,
+				<rect x={-page.margin.left} y={0} width={page.margin.left-5} height={totalHeight} fill="lightgray"/>
+			)
+		})(pages[0]);
 
 		content=React.cloneElement(content, {pages})
 		return canvas ? React.cloneElement(canvas, {content,...props}) : content

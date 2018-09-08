@@ -25,5 +25,5 @@ export default{
 	Cell,
 	Frame,
 	Shape,
-	Variants
+	//Variants
 }

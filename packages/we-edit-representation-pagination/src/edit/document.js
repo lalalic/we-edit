@@ -91,7 +91,7 @@ export default class Document extends Super{
 		return (
 			<Fragment key={error}>
 				{this.props.children}
-				{canvas ? React.cloneElement(canvas,{content}) : content}
+				{canvas ? React.cloneElement(canvas,{content, viewport}) : content}
 			</Fragment>
 		)
     }
@@ -108,32 +108,7 @@ export default class Document extends Super{
 
 	componentDidMount(){
 		if(!this.state.viewport){
-			const container=(function getFrameParent(node){
-				const isElement = node instanceof HTMLElement;
-				if(isElement){
-					const {overflowY,width,height} = window.getComputedStyle(node);
-					if(width>0 && height>0)
-						return node
-					const isScrollable = overflowY !== 'visible' && overflowY !== 'hidden';
-					if(isScrollable)
-						return node
-				}
-
-				if (!node) {
-					return null;
-				}
-
-				return getFrameParent(node.parentNode) || document.body;
-			})(this.refs.viewporter);
-
-			const {height}=container.getBoundingClientRect()
-
-			let a=this.refs.viewporter, width
-			while((width=a.getBoundingClientRect().width)==0){
-				a=a.parentNode
-			}
-
-			this.setState({viewport:{width:parseInt(width),height:parseInt(height||1056)}})
+			this.initViewport(this.refs.viewporter)
 		}
 	}
 
@@ -148,6 +123,34 @@ export default class Document extends Super{
 		let viewableY=viewport.height-$.svg.top//svg.top must be dynamic per scroll
 		let bufferY=this.screenBuffer(viewport.height)
 		return contentY<viewableY+bufferY
+	}
+
+	initViewport(viewporter){
+		const container=(function getFrameParent(node){
+			const isElement = node instanceof HTMLElement;
+			if(isElement){
+				const {overflowY,width,height} = window.getComputedStyle(node);
+				if(width>0 && height>0)
+					return node
+				const isScrollable = overflowY !== 'visible' && overflowY !== 'hidden';
+				if(isScrollable)
+					return node
+			}
+
+			if (!node) {
+				return null;
+			}
+
+			return getFrameParent(node.parentNode) || document.body;
+		})(viewporter);
+
+		const {height}=container.getBoundingClientRect()
+
+		let a=viewporter, width
+		while((width=a.getBoundingClientRect().width)==0){
+			a=a.parentNode
+		}
+		this.setState({viewport:{width:parseInt(width),height:parseInt(height||1056)}})
 	}
 
 	get viewport(){
