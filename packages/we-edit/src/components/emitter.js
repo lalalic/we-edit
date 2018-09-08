@@ -1,6 +1,7 @@
 import React, {Component,PureComponent, Fragment, Children} from "react"
 import ReactDOMServer from "react-dom/server.node"
 import PropTypes from "prop-types"
+import memoize from "memoize-one"
 import Viewer from "./viewer"
 import {createWeDocument} from "./editor"
 import Representation from "./representation"
@@ -54,17 +55,19 @@ export default class Emitter extends Viewer{
 
 	render(){
 		if(!this.props.representation){
-			return <Fragment>{this.groupStreamFormat()}</Fragment>
+			return <Fragment>{this.groupStreamFormat(this.props.children)}</Fragment>
 		}else{
 			return super.render()
 		}
 	}
 
+
+
 	createDocument({canvasProps}){
 		return <WeDocumentStub {...canvasProps}/>
 	}
 
-	groupStreamFormat(){
+	groupStreamFormat=memoize(streams=>{
 		const createGroup=()=>{
 			let collected=new Map()
 			collected.set=function(k,v){
@@ -85,7 +88,7 @@ export default class Emitter extends Viewer{
 		}
 
 		const represents=[]
-		Children.toArray(this.props.children).reduce((represents, stream)=>{
+		Children.toArray(streams).reduce((represents, stream)=>{
 			const formats=Children.toArray(stream.props.children)
 			//group format by representation
 			formats.reduce((groups, format)=>{
@@ -117,7 +120,7 @@ export default class Emitter extends Viewer{
 		})
 
 		return represents
-	}
+	})
 
 	static Format=class Format extends PureComponent{
 		static displayName="Format"
@@ -141,7 +144,7 @@ export default class Emitter extends Viewer{
 				stream: PropTypes.node,
 				content: PropTypes.node,
 			}
-			
+
 			static contextTypes={
 				weDocument: PropTypes.node
 			}
@@ -184,7 +187,7 @@ export default class Emitter extends Viewer{
 			emit(){
 				this.output(ReactDOMServer.renderToStaticNodeStream(this.context.weDocument))
 			}
-			
+
 			output(content){
 				throw new Error("Please implement output(content/*a node stream with converted content*/){content.pipe(this.stream)}")
 			}

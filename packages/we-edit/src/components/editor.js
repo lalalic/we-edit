@@ -1,5 +1,6 @@
 import React, {Children, PureComponent, Component} from "react"
 import PropTypes from "prop-types"
+import memoize from "memoize-one"
 
 import {connect, connectAdvanced} from "react-redux"
 
@@ -41,7 +42,11 @@ export class Editor extends PureComponent{
 		docId: PropTypes.string,
 	}
 
-	docId=`${uuid()}`
+	constructor(){
+		super(...arguments)
+		this.docId=`${uuid()}`
+		this.getTypedRepresentation=memoize(this.getTypedRepresentation.bind(this))
+	}
 	getChildContext(){
 		const {media}=this.props
 		return {media, docId:this.docId}
@@ -230,9 +235,8 @@ class WeDocumentStub extends PureComponent{
 		if(!ModelTypes)
 			return
 		if(!this.doc){
-			//this.els=new Map()
+			this.els=new Map()
 			this.doc=this.createChildElement("root",content,ModelTypes)
-			this.doc=React.cloneElement(this.doc,{key:Date.now()})
 		}else if(this.props.content!=content){
 			if(reCreateDoc || !changed || (changed&&(changed.root || Object.keys(changed).length>1))){
 				this.doc=this.createChildElement("root",content,ModelTypes,this.props.content)
