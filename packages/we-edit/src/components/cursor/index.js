@@ -152,28 +152,18 @@ const CursorHolder=connect((state)=>{
 },null,null, {withRef:true})(Cursor)
 
 export default class extends Component{
-	constructor(){
-		super(...arguments)
-		this.componentWillReceiveProps(this.props)
-	}
-
 	forceUpdate(){
 		if(this.cursor)
 			this.cursor.forceUpdate()
 	}
 
-	componentWillReceiveProps({render}){
-		this.Shape=render
-	}
-
 	render(){
-		const {children, render, ...others}=this.props
+		const {children, render:Shape, ...others}=this.props
 		return (
-			<CursorHolder
-				ref={a=>{a && (this.cursor=a.getWrappedInstance())}}
+			<CursorHolder ref={a=>{a && (this.cursor=a.getWrappedInstance())}}
 				{...others}>
-				{this.Shape ? <this.Shape/> : children}
+				{Shape ? <Shape/> : children}
 			</CursorHolder>
-			)
+		)
 	}
 }
