@@ -42,7 +42,7 @@ export default class  Document extends Component{
 			canvas=<TextCanvas wrap={wrap} canvas={canvas}/>
 		}
 
-		return (<Editors.Document key={wrap} margin={{left:30,right:10}} {...this.props} canvas={canvas}/>)
+		return (<Editors.Document key={wrap} margin={{left:32,right:10}} {...this.props} canvas={canvas}/>)
 	}
 }
 
@@ -57,9 +57,10 @@ class TextCanvas extends Component{
 	render(){
 		let {canvas, content, wrap, viewport, ...props}=this.props
 		let {pages}=content.props
-		let count=1
+		let count=0
 		let totalHeight=0
 		let maxLineContentWidth=0
+		let lineHeight=0
 		const contentWidth=a=>{
 			try{
 				return a.props.contentWidth || contentWidth(a.props.children)
@@ -70,12 +71,13 @@ class TextCanvas extends Component{
 		pages=pages.map((a)=>{
 			let col, page={...a,size:{...a.size,height:0}, columns:[col={...a.columns[0]}]}
 
-			col.children=col.children.map((b)=>{
+			col.children=[...col.children]
+			col.children.forEach(b=>{
 				page.size.height+=b.props.height
 				if(!wrap){
 					maxLineContentWidth=Math.max(maxLineContentWidth, contentWidth(b))
 				}
-				return (<LineN children={b} i={count++}/>)
+				count++
 			})
 			totalHeight+=page.size.height
 			return page
@@ -87,36 +89,49 @@ class TextCanvas extends Component{
 				pages.forEach(a=>a.size.width=lineWidth)
 			}
 
-			let lineN0=col.children[0]
-			let line0=lineN0.props.children
-			col.children=[
-				<ActiveLine  x={-page.margin.left}
-					width={page.size.width-page.margin.right}
-					height={line0.props.height}/>,
+			let line0=col.children[0]
+			lineHeight=line0.props.height
 
-				<rect x={-page.margin.left} y={0} width={page.margin.left-5}
-					height={totalHeight} fill="lightgray"/>,
+			col.children=[
+				<ActiveLine
+					x={-page.margin.left}
+					width={page.size.width-page.margin.right}
+					height={lineHeight}/>,
 				...col.children
 			]
 		})(pages[0]);
 
 		content=React.cloneElement(content, {pages})
-		return canvas ? React.cloneElement(canvas, {content,...props}) : content
-
+		content=canvas ? React.cloneElement(canvas, {content,...props}) : content
+		const {fonts, size}=this.context
+		return (
+			<Fragment>
+				<div style={{
+						position:"sticky", left:0, width:30,height:0,
+						fontFamily:fonts, fontSize:size,lineHeight:`${lineHeight}px`,
+						cursor:"default", userSelect:"none",
+					}}>
+					<div style={{background:"lightgray", display:"flex", flexDirection:"row"}}>
+						<div style={{flex:"1 100%", textAlign:"right", paddingRight:2}}>
+							{new Array(count).fill(0).map((a,i)=><div key={i}>{i+1}</div>)}
+						</div>
+						<div style={{width:8, textAlign:"center"}}>
+							{new Array(count).fill(0).map((a,i)=>
+								<div key={i} style={{visibility:"hidden"}}
+									onMouseOver={e=>e.target.style.visibility="visible"}
+									onMouseLeave={e=>e.target.style.visibility="hidden"}
+									>
+									v
+								</div>
+							)}
+						</div>
+					</div>
+				</div>
+				{content}
+			</Fragment>
+		)
 	}
 }
-
-const LineN=({i, children:line})=>{
-	let y=line.props.height/2
-	return React.cloneElement(line, {children:[
-			<Group x={-20} y={y+4} width={0} height={0} >
-				<text style={{fontSize:"smaller"}}>{i}</text>
-			</Group>,
-			...React.Children.toArray(line.props.children)
-		]
-	})
-}
-
 
 const ActiveLine=compose(
 	setDisplayName("ActiveLine"),
