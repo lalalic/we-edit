@@ -42,7 +42,7 @@ export default class  Document extends Component{
 			canvas=<TextCanvas wrap={wrap} canvas={canvas}/>
 		}
 
-		return (<Editors.Document margin={{left:30,right:10}} {...this.props} canvas={canvas}/>)
+		return (<Editors.Document key={wrap} margin={{left:30,right:10}} {...this.props} canvas={canvas}/>)
 	}
 }
 
@@ -55,43 +55,44 @@ class TextCanvas extends Component{
 	}
 
 	render(){
-		let {canvas, wrap, content, viewport, ...props}=this.props
+		let {canvas, content, wrap, viewport, ...props}=this.props
 		let {pages}=content.props
 		let count=1
-		let totalHeight=0,maxContentWidth=0
-		const contentWidth=b=>{
+		let totalHeight=0
+		let maxLineContentWidth=0
+		const contentWidth=a=>{
 			try{
-				return b.props.contentWidth || contentWidth(b.props.children)
+				return a.props.contentWidth || contentWidth(a.props.children)
 			}catch(e){
 				return 1
 			}
 		}
-		pages=pages.map(a=>{
-			let page={...a, size:{...a.size, height:0}, columns:[...a.columns]}
-			let col=page.columns[0]
+		pages=pages.map((a)=>{
+			let col, page={...a,size:{...a.size,height:0}, columns:[col={...a.columns[0]}]}
 
-			col.children=col.children.map(b=>{
+			col.children=col.children.map((b)=>{
 				page.size.height+=b.props.height
 				if(!wrap){
-					maxContentWidth=Math.max(maxContentWidth,contentWidth(b))
+					maxLineContentWidth=Math.max(maxLineContentWidth, contentWidth(b))
 				}
 				return (<LineN children={b} i={count++}/>)
 			})
-
 			totalHeight+=page.size.height
 			return page
 		});
 
-		((page,col=page.columns[0])=>{
+		((page, col=page.columns[0])=>{
 			if(!wrap){
-				let width=Math.max(viewport.width, maxContentWidth+page.margin.left+page.margin.right)
-				pages.forEach(a=>a.size.width=width)
+				let lineWidth=Math.max(viewport.width,page.margin.right+page.margin.left+maxLineContentWidth)
+				pages.forEach(a=>a.size.width=lineWidth)
 			}
 
+			let lineN0=col.children[0]
+			let line0=lineN0.props.children
 			col.children=[
 				<ActiveLine  x={-page.margin.left}
 					width={page.size.width-page.margin.right}
-					height={col.children[0].props.children.props.height}/>,
+					height={line0.props.height}/>,
 
 				<rect x={-page.margin.left} y={0} width={page.margin.left-5}
 					height={totalHeight} fill="lightgray"/>,
@@ -100,8 +101,7 @@ class TextCanvas extends Component{
 		})(pages[0]);
 
 		content=React.cloneElement(content, {pages})
-		content=canvas ? React.cloneElement(canvas, {content,...props}) : content
-		return content
+		return canvas ? React.cloneElement(canvas, {content,...props}) : content
 
 	}
 }
