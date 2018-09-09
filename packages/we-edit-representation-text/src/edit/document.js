@@ -59,7 +59,13 @@ class TextCanvas extends Component{
 		let {pages}=content.props
 		let count=1
 		let totalHeight=0,maxContentWidth=0
-		const contentWidth=b=>b && b.props && b.props.contentWidth || contentWidth(b.props.children) || 0
+		const contentWidth=b=>{
+			try{
+				return b.props.contentWidth || contentWidth(b.props.children)
+			}catch(e){
+				return 1
+			}
+		}
 		pages=pages.map(a=>{
 			let page={...a, size:{...a.size, height:0}, columns:[...a.columns]}
 			let col=page.columns[0]
@@ -82,17 +88,21 @@ class TextCanvas extends Component{
 				pages.forEach(a=>a.size.width=width)
 			}
 
-			col.children.splice(
-				0,0,
+			col.children=[
 				<ActiveLine  x={-page.margin.left}
 					width={page.size.width-page.margin.right}
 					height={col.children[0].props.children.props.height}/>,
-				<rect x={-page.margin.left} y={0} width={page.margin.left-5} height={totalHeight} fill="lightgray"/>
-			)
+
+				<rect x={-page.margin.left} y={0} width={page.margin.left-5}
+					height={totalHeight} fill="lightgray"/>,
+				...col.children
+			]
 		})(pages[0]);
 
 		content=React.cloneElement(content, {pages})
-		return canvas ? React.cloneElement(canvas, {content,...props}) : content
+		content=canvas ? React.cloneElement(canvas, {content,...props}) : content
+		return content
+
 	}
 }
 

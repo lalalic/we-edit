@@ -15,7 +15,7 @@ const Default={
 			debug={true}
 			accept="*.*"
 			key="*"
-			layout="print"
+			layout="plain text"
 			tools={<Ribbon commands={{layout:false}}/>}
 			>
 			<Viewer
