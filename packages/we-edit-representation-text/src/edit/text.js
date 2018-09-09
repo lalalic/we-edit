@@ -8,14 +8,14 @@ export default class Text extends Component{
 		fonts: PropTypes.string,
 		size: PropTypes.number
 	}
-	
+
 	render(){
-		let {colorful, vanish,id,children, changed, selfChanged}=this.props
-		
-		let {fonts, size}=this.context
-		
+		let {color, vanish,id,children, changed, selfChanged}=this.props
+
+		let {fonts, size,colorful}=this.context
+
 		let props={fonts, size, vanish, id, children,changed, selfChanged}
-		if(this.context.colorful){
+		if(colorful){
 			props.color=color
 		}
 		return <Editors.Text {...props}/>
