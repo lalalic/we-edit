@@ -2,6 +2,7 @@ import React, {PureComponent, Children, Fragment} from "react"
 import PropTypes from "prop-types"
 import {compose,setDisplayName,getContext,withProps}  from "recompose"
 import EventEmitter from "events"
+import memoize from "memoize-one"
 
 import {WithSelection} from "we-edit"
 
@@ -50,11 +51,11 @@ export default class Workspace extends PureComponent{
 		}
 	}
 
-	get layouts(){
-		return Children.toArray(this.props.children)
+	getLayouts=memoize(children=>{
+		return Children.toArray(children)
 			.map(({props:{layout,icon}})=>layout ? {layout,icon} : null)
 			.filter(a=>!!a)
-	}
+	})
 
 	render(){
 		const {layout, scale, error}=this.state
@@ -95,7 +96,7 @@ export default class Workspace extends PureComponent{
 
 						{statusBar && React.cloneElement(statusBar,{
 							layout:{
-								items:this.layouts,
+								items:this.getLayouts(this.props.children),
 								current:layout,
 								onChange: layout=>this.setState({layout})
 							},

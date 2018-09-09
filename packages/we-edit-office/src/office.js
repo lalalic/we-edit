@@ -47,11 +47,25 @@ const Default={
 					home:{
 						text:false,
 						paragraph:false,
+						more:(
+							<div style={{lineHeight:"30px"}}>
+								<span>
+									<input type="checkbox"/>
+									<span>wrap</span>
+								</span>
+								<span>
+									<input type="checkbox"/>
+									<span>color</span>
+								</span>
+							</div>
+						)
 					},
 					insert:false,layout:false,when:false,
+
 				}}/>}
 				icon={<IconPrint/>}
-				representation="text" size={12} fonts="calibri" color={true} wrap={false}/>
+				representation="text" size={12} fonts="calibri"
+				colorful={true} wrap={false}/>
 		</Workspace>
 	]
 }
@@ -88,7 +102,6 @@ export default compose(
 		dashboard,
 		workspaces
     })=>{
-
 		return (
 			<WeEdit>
 				<WeEditUI {...{titleBarProps, fonts, titleBar,dashboard}}>
