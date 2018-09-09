@@ -35,7 +35,15 @@ export default class Document extends Component{
 	constructor(){
 		super(...arguments)
 		this.state={}
-		this.resizeViewPort=this.resizeViewPort.bind(this)
+		let resizeTimeout=null
+		this.resizeViewPort=()=>{
+			if(!resizeTimeout){
+				resizeTimeout=setTimeout(()=>{
+					resizeTimeout=null
+					this.setState({resize:Date.now()})
+				},66)
+			}
+		}
 	}
 
 	componentDidMount(){
@@ -44,10 +52,6 @@ export default class Document extends Component{
 
 	componentWillUnmount(){
 		window.removeEventListener("resize", this.resizeViewPort)
-	}
-
-	resizeViewPort(){
-		this.setState({resize:Date.now()})
 	}
 
 	getChildContext(){
@@ -59,7 +63,8 @@ export default class Document extends Component{
 
 	render(){
 		const {canvas}=this.props
-		return <Editors.Document key={this.state.resize}
+		return <Editors.Document
+			key={this.state.resize}
 			{...this.props}
 			pageGap={0}
 			canvas={<Canvas canvas={canvas}/>}
