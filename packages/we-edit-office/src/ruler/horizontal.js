@@ -12,21 +12,21 @@ export default ({width,scale,
 		return (
 			<div className="ruler horizontal" style={{width:width*scale,position:"relative"}}>
 				<Scale {...{width:width*scale,from:leftMargin*scale,cm}}/>
-				
+
 				<Margin style={{position:"absolute", top:0,left:0,width:leftMargin*scale}} onMove={setLeftMargin}/>
-				
+
 				<Movable ref={a=>fl=a}
-					onAccept={dx=>setFirstLine((trim((leftIndent+firstLine)*scale,dx)-leftIndent*scale)/scale)} 
+					onAccept={dx=>setFirstLine((trim((leftIndent+firstLine)*scale,dx)-leftIndent*scale)/scale)}
 					onMove={dx=>({style:{position:"absolute", top:0,left:leftMargin*scale+trim((leftIndent+firstLine)*scale,dx)}})}
 					>
 					<FirstLine style={{position:"absolute", top:0,left:(leftMargin+leftIndent+firstLine)*scale}}/>
-				</Movable>	
-			
-				<Movable 
+				</Movable>
+
+				<Movable
 					onAccept={dx=>{
 						fl.setState({move:false})
 						setLeftIndent(trim(leftIndent*scale,dx)/scale)
-					}} 
+					}}
 					onMove={dx=>{
 						fl.setState({move:true,x0:0,y0:0,x:dx,y:0})
 						return {style:{position:"absolute", top:0,left:leftMargin*scale+trim(leftIndent*scale,dx)}}
@@ -34,11 +34,11 @@ export default ({width,scale,
 					>
 					<Indent style={{position:"absolute", top:0,left:(leftMargin+leftIndent)*scale}}/>
 				</Movable>
-				
+
 				<Margin style={{position:"absolute", top:0,right:0,width:rightMargin*scale}} onMove={setRightMargin}/>
-				
-				<Movable 
-					onAccept={dx=>setRightIndent(trim(rightIndent*scale,-dx)/scale)} 
+
+				<Movable
+					onAccept={dx=>setRightIndent(trim(rightIndent*scale,-dx)/scale)}
 					onMove={dx=>({style:{position:"absolute", top:0,right:rightMargin*scale+trim(rightIndent*scale,-dx)}})}
 					>
 					<Indent style={{position:"absolute", top:0,right:(rightMargin+rightIndent)*scale}}/>
@@ -70,12 +70,12 @@ const FirstLine=props=>(
 const Marker=({direction="top",degs={bottom:180}, ...props})=>(
 	<SvgIcon {...props}>
 		<path transform={`rotate(${degs[direction]||0} 12 12)`}
-			d="M11.5 0 L23 11.5 L23 23 L0 23 L0 11.5Z" fill="white" strokeWidth="1" stroke="gray"/>">
-	</SvgIcon>	
+			d="M11.5 0 L23 11.5 L23 23 L0 23 L0 11.5Z" fill="white" strokeWidth="1" stroke="gray"/>
+	</SvgIcon>
 )
 
 const Scale=({width,height=20,from,cm, children})=>(
-	<svg style={{width:width,height,backgroundColor:"white"}} 
+	<svg style={{width:width,height,backgroundColor:"white"}}
 		viewBox={`0 0 ${width} ${height}`} >
 		<g transform={`translate(${from} 0)`}>
 		{
