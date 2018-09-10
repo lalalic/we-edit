@@ -12,32 +12,33 @@ import IconPrint from "material-ui/svg-icons/editor/format-align-justify"
 
 const KEY="default(accept=*)"
 const TextEditor=compose(
+	setDisplayName("TextEditor"),
 	connect(state=>{
-		//debugger
-		//let {text}=state[KEY]
-		//return text
+		let {text}=state[KEY]
+		return text
 	}),
 )((props)=>(<Editor {...props}/>))
 
 const TextEditorTool=compose(
+	setDisplayName("TextEditorTool"),
 	connect(state=>{
 		let {text}=state[KEY]
 		return text
-	},({dispatch})=>{
+	},dispatch=>{
 		return {
 			toggle(k){
 				dispatch({type:`${DOMAIN}/${KEY}/text/toggle`,payload:k})
 			}
 		}
 	})
-)(({toggle,wrap=true,colorful=false})=>
+)(({toggle,wrap,colorful})=>
 	<div style={{lineHeight:"30px"}}>
 		<span>
-			<input type="checkbox" checked={wrap} onClick={()=>toggle("wrap")}/>
+			<input type="checkbox" checked={wrap} onChange={()=>toggle("wrap")}/>
 			<span>wrap</span>
 		</span>
 		<span>
-			<input type="checkbox" checked={colorful} onClick={()=>toggle("colorful")}/>
+			<input type="checkbox" checked={colorful} onChange={()=>toggle("colorful")}/>
 			<span>color</span>
 		</span>
 	</div>
@@ -55,13 +56,13 @@ const Default={
 					text:{
 						wrap:true,
 						colorful:false,
-						size:11,
-						fonts:"arial",
-						lineHeight:"100%",
+						size:12,
+						fonts:"calibri",
+						lineHeight:"140%",
 					}
 				},{type,payload})=>{
 					switch(type){
-						case "office/*/text/toggle":{
+						case `${DOMAIN}/${KEY}/text/toggle`:{
 							return {...state, text:{...state.text, [payload]:!state.text[payload]}}	
 						}
 						default:
@@ -92,7 +93,7 @@ const Default={
 				representation="html"
 				/>
 
-			<Workspace.Desk
+			<TextEditor
 				layout="plain text"
 				ruler={false}
 				toolBar={<Ribbon commands={{
@@ -105,12 +106,8 @@ const Default={
 
 				}}/>}
 				icon={<IconPrint/>}
-				>
-				<Editor representation="text"  
-					size={12} fonts="calibri" 
-					colorful={true} wrap={false}
-					/>
-			</Workspace.Desk>
+				representation="text"
+				/>
 				
 		</Workspace>
 	]
@@ -137,8 +134,8 @@ export default compose(
 			let {titleBar=_.titleBar, dashboard=_.dashboard, workspaces=_.workspaces,reducers={}}=props
 			reducers=workspaces.reduce((collected,a)=>{
 				if(a.props.reducer){
-					collected[a.key]=(state={},action)=>{
-						let reduced=a.props.reducer(state[a.key],action)
+					collected[a.key]=(state,action)=>{
+						let reduced=a.props.reducer(state,action)
 						return {...state,...reduced}
 					}
 				}

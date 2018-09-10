@@ -220,7 +220,7 @@ const Wrapper=({children, ...props})=>(
 
 class WeDocumentStub extends PureComponent{
 	static contextTypes={
-		store: PropTypes.object,
+		activeDocStore: PropTypes.object,
 		ModelTypes: PropTypes.object
 	}
 
@@ -228,9 +228,9 @@ class WeDocumentStub extends PureComponent{
 		weDocument: PropTypes.node
 	}
 
-	constructor(props,{store,ModelTypes}){
+	constructor(props,{activeDocStore,ModelTypes}){
 		super(...arguments)
-		const content=store.getState().get("content")
+		const content=activeDocStore.getState().get("content")
 		this.doc=content ? createWeDocument("root",content,ModelTypes) : null
 	}
 

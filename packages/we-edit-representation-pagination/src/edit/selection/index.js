@@ -18,7 +18,7 @@ export default class SelectionShape extends Component{
 
 	static contextTypes={
 		docId: PropTypes.any,
-		store: PropTypes.any,
+		activeDocStore: PropTypes.any,
 		query: PropTypes.func
 	}
 
@@ -63,8 +63,8 @@ export default class SelectionShape extends Component{
 					/>
 	}
 
-	renderRange(start,end,docId,store){
-		let state=store.getState()
+	renderRange(start,end,docId,activeDocStore){
+		let state=activeDocStore.getState()
 		let $=this.context.query()
 
 		const inSVG=pos=>{
@@ -123,7 +123,7 @@ export default class SelectionShape extends Component{
 		)
 	}
 
-	componentWillReceiveProps({start,end},{docId,store,query}){
+	componentWillReceiveProps({start,end},{docId,activeDocStore,query}){
 		this.el=null
 		if(start.id==end.id && start.at==end.at){
 			const type=query().content.find(`#${start.id}`).attr('type')
@@ -132,7 +132,7 @@ export default class SelectionShape extends Component{
 
 			this.el=this.renderEntity(start.id)
 		}else{
-			this.el=this.renderRange(start,end,docId,store)
+			this.el=this.renderRange(start,end,docId,activeDocStore)
 		}
 	}
 }

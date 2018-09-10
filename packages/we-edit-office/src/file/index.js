@@ -3,6 +3,8 @@ import PropTypes from "prop-types"
 import {ToolbarGroup} from "material-ui"
 import IconSave from "material-ui/svg-icons/content/save"
 
+import {getActive} from "we-edit"
+
 import Save from "./save"
 import CheckIconButton from "../components/check-icon-button"
 
@@ -19,7 +21,7 @@ export default class File extends PureComponent{
 			<ToolbarGroup>
 				<CheckIconButton
 					status="unchecked"
-					onClick={()=>Save.save(store.getState(),doc)({})}>
+					onClick={()=>Save.save(getActive(store.getState()),doc)({})}>
 					<IconSave/>
 				</CheckIconButton>
 				{children}

@@ -2,7 +2,7 @@ import React, {Component} from "react"
 
 export default class{
 	static contextTypes={
-		store:PropTypes.any,
+		activeDocStore:PropTypes.any,
 		docId:PropTypes.any
 	}
 
@@ -29,14 +29,14 @@ export default class{
 	}
 
 	query(){
-		return new Query(this, this.context.store.getState())
+		return new Query(this, this.context.activeDocStore.getState())
 	}
 	
 	active(){
-        let {docId, store}=this.context
-        let {active}=getSelection(store.getState())
+        let {docId, activeDocStore}=this.context
+        let {active}=getSelection(activeDocStore.getState())
         if(active!=docId)
-            store.dispatch(ACTION.Cursor.ACTIVE(docId))
+            activeDocStore.dispatch(ACTION.Cursor.ACTIVE(docId))
     }
 
 	componentDidMount(){
@@ -61,7 +61,7 @@ export default class{
     }
 
 	onClick(e){
-		const dispatch=this.context.store.dispatch
+		const dispatch=this.context.activeDocStore.dispatch
 		const target=e.target
 		const $=this.query()
 		switch(target.nodeName){
@@ -73,7 +73,7 @@ export default class{
 				if(!e.shiftKey){
 					dispatch(ACTION.Cursor.AT(id,at))
 				}else{
-					let {end}=getSelection(this.context.store.getState())
+					let {end}=getSelection(this.context.activeDocStore.getState())
 					let {left,top}=$.position(id,at)
 					let {left:left1,top:top1}=$.position(end.id,end.at)
 					if(top<top1 || (top==top1 && left<=left1)){
@@ -88,7 +88,7 @@ export default class{
 	}
 
 	onSelect(selection){
-		const dispatch=this.context.store.dispatch
+		const dispatch=this.context.activeDocStore.dispatch
         const $=this.query()
         const locate=a=>{
             let node=selection[`${a}Node`].parentNode

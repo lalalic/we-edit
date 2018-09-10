@@ -72,8 +72,8 @@ export class Viewable{
 	* components may be model/html, model/pagination, model/pagination/edit depending on
 	* outer component[editor, html, viewer, pagination, plain]
 	*/
-	transform(components){
-		return components
+	transform(representations){
+		return representations
 	}
 
 	/**

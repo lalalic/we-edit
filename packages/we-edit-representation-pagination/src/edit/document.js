@@ -22,7 +22,7 @@ export default class Document extends Super{
 	}
 	static contextTypes={
 		...Super.contextTypes,
-		store: PropTypes.any,
+		activeDocStore: PropTypes.any,
 	}
 
 	static childContextTypes={
@@ -56,7 +56,7 @@ export default class Document extends Super{
 	}
 
 	query(){
-		return new Responsible.Query(this,this.context.store.getState(),this.props.pageGap,this.scale)
+		return new Responsible.Query(this,this.context.activeDocStore.getState(),this.props.pageGap,this.scale)
 	}
 
 	get canvas(){

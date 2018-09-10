@@ -1,12 +1,12 @@
 import React, {Component, Fragment} from "react"
 import PropTypes from "prop-types"
 
-import {Provider} from "react-redux"
 import Immutable, {Map,Collection} from "immutable"
 import {compose, setDisplayName, getContext,withContext} from "recompose"
+import memoize from "memoize-one"
 
 import Components from "../model"
-import {createStore, createState, isState} from "../state"
+import {createStore, createState, isState, Provider} from "../state"
 import {getSelection} from "../state/selector"
 import undoable from "../state/undoable"
 import * as reducer from "../state/reducer"
@@ -21,6 +21,8 @@ export default function buildEditableDoc(doc,inputTypeInstance){
 	inputTypeInstance.doc=doc
 	let store=null
 
+	const getDocStore=memoize((store,id)=>new LocalStore(store, "we-edit", state=>state['we-edit'].docs[id].state))
+	
 	const editableDoc={
 		Transformed,
 		
@@ -43,7 +45,7 @@ export default function buildEditableDoc(doc,inputTypeInstance){
 
 			let onQuit=null
 			if(passedStore){
-				store=new LocalStore(passedStore, "we-edit", state=>state['we-edit'].docs[id].state)
+				store=getDocStore(passedStore,id)
 			}else{
 				store=createStore(editableDoc.buildReducer(reducer))
 				onQuit=()=>inputTypeInstance.release()
@@ -62,6 +64,8 @@ export default function buildEditableDoc(doc,inputTypeInstance){
 				</Provider>
 			)
 		}),
+		
+		
 
 		buildReducer(reducer=a=>a){
 			let createElementFactory=createElementFactoryBuilder(inputTypeInstance)

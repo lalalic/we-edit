@@ -1,7 +1,7 @@
 import React, {Component, Children} from "react"
 import PropTypes from "prop-types"
 
-import {connect} from "react-redux"
+import {connect} from "../../state"
 import ACTION from "../../state/action"
 import {getContent,  getSelection} from "../../state/selector"
 
@@ -11,7 +11,7 @@ import Shape from "./shape"
 
 export class Cursor extends Component{
 	static contextTypes={
-		store: PropTypes.any,
+		activeDocStore: PropTypes.any,
 		docId: PropTypes.string,
 		getCursorInput: PropTypes.func,
 		query: PropTypes.func
@@ -80,9 +80,9 @@ export class Cursor extends Component{
 	}
 
 	up(shiftKey){
-		const {store, query}=this.context
-		const dispatch=store.dispatch
-		const state=store.getState()
+		const {activeDocStore, query}=this.context
+		const dispatch=activeDocStore.dispatch
+		const state=activeDocStore.getState()
 		const {start,end,cursorAt}=getSelection(state)
 		const $=query()
 		let {id,at}=$.prevLine(this.style)
@@ -112,9 +112,9 @@ export class Cursor extends Component{
 	}
 
 	down(shiftKey){
-		const {store,query}=this.context
-		const dispatch=store.dispatch
-		const state=store.getState()
+		const {activeDocStore,query}=this.context
+		const dispatch=activeDocStore.dispatch
+		const state=activeDocStore.getState()
 		const {start,end,cursorAt}=getSelection(state)
 		const $=query()
 

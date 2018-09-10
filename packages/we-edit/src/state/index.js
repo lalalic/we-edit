@@ -1,4 +1,5 @@
 import {createStore as createRawStore, compose, applyMiddleware} from "redux"
+import {connect as _connect, createProvider} from "react-redux"
 import Immutable,{Map} from "immutable"
 import thunk from "redux-thunk"
 import {firstCursorable} from "./selector"
@@ -49,3 +50,10 @@ const report=store=>next=>action=>{
 }
 
 export {ACTION} from "./action"
+
+export const STORE_KEY="activeDocStore"
+export const Provider=createProvider(STORE_KEY)
+export const connect=(stateMap, actionMap, mergeProps, options={})=>{
+	options.storeKey=STORE_KEY
+	return _connect(stateMap, actionMap, mergeProps, options)
+}

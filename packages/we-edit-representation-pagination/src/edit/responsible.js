@@ -14,7 +14,7 @@ export default class Responsible extends Component{
     static displayName="composed-document-with-cursor"
     static contextTypes={
         docId: PropTypes.string,
-        store: PropTypes.any,
+        activeDocStore: PropTypes.any,
         getCursorInput: PropTypes.func,
         query: PropTypes.func,
 		events: PropTypes.shape({emit:PropTypes.func.isRequired}),
@@ -93,7 +93,7 @@ export default class Responsible extends Component{
 
     componentDidMount(){
         this.getComputedScale()
-        this.context.store.dispatch(ACTION.Cursor.ACTIVE(this.context.docId))
+        this.context.activeDocStore.dispatch(ACTION.Cursor.ACTIVE(this.context.docId))
         this.emit(`emitted${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
     }
 
@@ -111,26 +111,26 @@ export default class Responsible extends Component{
     }
 
     active(){
-        let {docId, store}=this.context
-        let {active}=getSelection(store.getState())
+        let {docId, activeDocStore}=this.context
+        let {active}=getSelection(activeDocStore.getState())
         if(active!=docId)
-            store.dispatch(ACTION.Cursor.ACTIVE(docId))
+            activeDocStore.dispatch(ACTION.Cursor.ACTIVE(docId))
     }
 
     onRotate(e){
-        this.context.store.dispatch(ACTION.Entity.ROTATE(e))
+        this.context.activeDocStore.dispatch(ACTION.Entity.ROTATE(e))
     }
 
     onResize(e){
-        this.context.store.dispatch(ACTION.Entity.RESIZE(e))
+        this.context.activeDocStore.dispatch(ACTION.Entity.RESIZE(e))
     }
 
     onMove(id,at){
-        this.context.store.dispatch(ACTION.Selection.MOVE(id,at))
+        this.context.activeDocStore.dispatch(ACTION.Selection.MOVE(id,at))
     }
 
     onClick(e){
-        const dispatch=this.context.store.dispatch
+        const dispatch=this.context.activeDocStore.dispatch
         const docId=this.context.docId
         const $=this.context.query()
         const target=e.target
@@ -174,7 +174,7 @@ export default class Responsible extends Component{
 					if(!e.shiftKey){
 						dispatch(ACTION.Cursor.AT(id,at))
 					}else{
-						let {end}=getSelection(this.context.store.getState())
+						let {end}=getSelection(this.context.activeDocStore.getState())
 						let {left,top}=$.position(id,at)
 						let {left:left1,top:top1}=$.position(end.id,end.at)
 						if(top<top1 || (top==top1 && left<=left1)){
@@ -192,7 +192,7 @@ export default class Responsible extends Component{
     }
 
     onSelect(selection){
-        const dispatch=this.context.store.dispatch
+        const dispatch=this.context.activeDocStore.dispatch
         const $=this.context.query()
         const locate=a=>{
             let node=selection[`${a}Node`].parentNode

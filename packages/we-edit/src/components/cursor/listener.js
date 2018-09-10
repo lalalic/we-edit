@@ -6,13 +6,13 @@ import {ACTION} from "../../state/action"
 
 export default class Listener extends Component{
 	static contextTypes={
-		store: PropTypes.any,
+		activeDocStore: PropTypes.any,
 		query: PropTypes.func
 	}
 	state={value:""}
 
 	render(){
-		let {dispatch}=this.context.store
+		let {dispatch}=this.context.activeDocStore
 		let {up,down,...others}=this.props
 		return <input
 			ref={a=>this.input=a}

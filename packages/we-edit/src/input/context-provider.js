@@ -20,10 +20,6 @@ export default class ContextProvider extends Component{
 		getCursorInput: PropTypes.func,
 	}
 
-	static contextTypes={
-		store: PropTypes.object
-	}
-
 	getChildContext(){
 		const self=this
 		const doc=this.props.doc
