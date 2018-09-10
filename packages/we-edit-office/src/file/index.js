@@ -10,18 +10,20 @@ import CheckIconButton from "../components/check-icon-button"
 
 export default class File extends PureComponent{
 	static contextTypes={
-		doc: PropTypes.object,
 		store: PropTypes.object,
 	}
 
 	render(){
 		const {children}=this.props
-		const {store,doc}=this.context
 		return (
 			<ToolbarGroup>
 				<CheckIconButton
 					status="unchecked"
-					onClick={()=>Save.save(getActive(store.getState()),doc)({})}>
+					onClick={e=>{
+						const {store}=this.context
+						const {doc,state}=getActive(store.getState())
+						Save.save(state,doc)({})
+					}}>
 					<IconSave/>
 				</CheckIconButton>
 				{children}
