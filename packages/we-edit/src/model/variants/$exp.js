@@ -7,10 +7,14 @@ import Component from "../component"
 export default class extends Component{
     static displayName="$exp"
     static propTypes={
-
+        expression:PropTypes.string.isRequired,
+        name: PropTypes.string
     }
 
     static defaultProps={
-
+        expression:"",
+        getText({name,expression}){
+            return `{${name||expression}}`
+        }
     }
 }

@@ -10,9 +10,9 @@ import Row from "./row"
 import Cell from "./cell"
 import Frame from "./frame"
 import Shape from "./shape"
-import Variants from "./variants"
+import * as Variants from "./variants"
 
-export default{
+export default {
 	Document,
 	Section,
 	Paragraph,

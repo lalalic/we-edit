@@ -30,6 +30,9 @@ export class Paragraph extends Super{
 	static defaultProps={
 		...Super.defaultProps,
 		getChildText(el){
+			if(el.props.getText)
+				return el.props.getText(el.props)
+				
 			while(typeof(el.props.children)!=="string"){
 				if(!el.props.children || !(el=el.props.children[0]) || !React.isValidElement(el))
 					return null

@@ -50,7 +50,7 @@ const Default={
 			debug={true}
 			accept="*"
 			key={KEY}
-			layout="plain text"
+			layout="print"
 			tools={<Ribbon commands={{layout:false}}/>}
 			reducer={(state={
 					text:{
@@ -63,7 +63,7 @@ const Default={
 				},{type,payload})=>{
 					switch(type){
 						case `${DOMAIN}/${KEY}/text/toggle`:{
-							return {...state, text:{...state.text, [payload]:!state.text[payload]}}	
+							return {...state, text:{...state.text, [payload]:!state.text[payload]}}
 						}
 						default:
 							return state
@@ -108,7 +108,7 @@ const Default={
 				icon={<IconPrint/>}
 				representation="text"
 				/>
-				
+
 		</Workspace>
 	]
 }
@@ -130,7 +130,7 @@ export default compose(
 				...a,
 				workspaces:[...(a.workspaces||[]), ...merged.workspaces]
 			}),{workspaces:[]})
-			
+
 			let {titleBar=_.titleBar, dashboard=_.dashboard, workspaces=_.workspaces,reducers={}}=props
 			reducers=workspaces.reduce((collected,a)=>{
 				if(a.props.reducer){
@@ -141,7 +141,7 @@ export default compose(
 				}
 				return collected
 			},{...reducers})
-			
+
 			return {
 				titleBar,
 				dashboard,

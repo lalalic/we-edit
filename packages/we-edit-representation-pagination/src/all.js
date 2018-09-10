@@ -12,19 +12,21 @@ import Row from "./row"
 import Cell from "./cell"
 import Frame from "./frame"
 import Shape from "./shape"
+import $exp from "./$exp"
 
 export default {
 	...models,
-	Document, 
-	Section, 
-	Paragraph, 
-	Text, 
-	Header, 
-	Footer, 
+	Document,
+	Section,
+	Paragraph,
+	Text,
+	Header,
+	Footer,
 	Image,
 	Table,
 	Row,
 	Cell,
 	Frame,
-	Shape
+	Shape,
+	$exp,
 }
