@@ -10,26 +10,26 @@ import CheckIconButton from "../components/check-icon-button"
 import IconRedo from "material-ui/svg-icons/content/redo"
 import IconUndo from "material-ui/svg-icons/content/undo"
 
-import {ACTION, getUndos, getRedos, Input} from "we-edit"
+import {ACTION, getUndos, getRedos, Input, getActive} from "we-edit"
 
 export default compose(
 	setDisplayName("clipboard"),
-	getContext({store:PropTypes.object}),
-	mapProps(({store:{dispatch},children})=>({
-		undo(){
-			dispatch(ACTION.History.undo())
-		},
-		redo(){
-			dispatch(ACTION.History.redo())
-		},
-		children
-	})),
 	connect(state=>{
+		state=getActive(state).state
 		let redos=getRedos(state)
 		let undos=getUndos(state)
 		return {
 			canRedo:!!redos.length,
 			canUndo:!!undos.length
+		}
+	},(dispatch)=>{
+		return {
+			undo(){
+				dispatch(ACTION.History.undo())
+			},
+			redo(){
+				dispatch(ACTION.History.redo())
+			}
 		}
 	})
 )(({undo,redo, canUndo, canRedo,children})=>(

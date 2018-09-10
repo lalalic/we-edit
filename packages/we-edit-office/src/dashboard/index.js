@@ -1,6 +1,5 @@
 import React, {Component, PureComponent} from "react"
 import PropTypes from "prop-types"
-import {connect} from "react-redux"
 import {compose,mapProps,getContext,setDisplayName,}  from "recompose"
 
 import {Drawer,Menu, MenuItem, Avatar,Paper} from "material-ui"

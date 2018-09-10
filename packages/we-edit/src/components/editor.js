@@ -2,7 +2,7 @@ import React, {Children, PureComponent, Component} from "react"
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
 
-import {connect, connectAdvanced} from "react-redux"
+import {connect} from "react-redux"
 
 import Representation from "./representation"
 import {getContent, getChanged, getParentId} from "../state/selector"

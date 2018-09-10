@@ -2,7 +2,6 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 
 import {compose,setDisplayName,getContext,mapProps} from "recompose"
-import {connect} from "react-redux"
 import {getSelection, ACTION} from "we-edit"
 
 import {ToolbarGroup,ToolbarSeparator as ToolbarSeparator0,MenuItem} from "material-ui"
@@ -38,7 +37,6 @@ export default compose(
 			dispatch(ACTION.Style.update({paragraph:{numFmt}}))
 		}
 	})),
-	connect(state=>({selection:getSelection(state)})),
 )(({doc,style, align,number, bullet, children})=>(
 	<ToolbarGroup>
 		<CheckIconButton

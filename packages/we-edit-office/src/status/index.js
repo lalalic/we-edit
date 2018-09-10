@@ -1,6 +1,5 @@
 import React,{PureComponent, Component} from "react"
 import PropTypes from "prop-types"
-import {connect} from "react-redux"
 import {compose, getContext, mapProps,withProps,setDisplayName} from "recompose"
 import {Toolbar, ToolbarGroup, FlatButton, IconButton, Slider} from "material-ui"
 import {blue800, blue900} from "material-ui/styles/colors"

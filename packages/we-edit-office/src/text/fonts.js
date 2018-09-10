@@ -1,7 +1,6 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 import {compose,setDisplayName,getContext,withProps} from "recompose"
-import {connect} from "react-redux"
 
 import {SelectField,MenuItem,Subheader} from 'material-ui'
 import ComboBox from "../components/combo-box"

@@ -1,6 +1,7 @@
 import React, {PureComponent, Children, Fragment} from "react"
 import PropTypes from "prop-types"
 import {compose,setDisplayName,getContext,withProps}  from "recompose"
+import {Provider} from "react-redux"
 import EventEmitter from "events"
 import memoize from "memoize-one"
 
@@ -30,8 +31,11 @@ export default class Workspace extends PureComponent{
 
 	static defaultProps={
 		toolBar: (<Ribbon/>),
-		statusBar:(<Status/>),
-		events:new EventEmitter(),
+		statusBar:(<Status/>)
+	}
+	
+	static contextTypes={
+		store: PropTypes.object
 	}
 
 
@@ -41,12 +45,13 @@ export default class Workspace extends PureComponent{
 			layout:this.props.layout,
 			scale: 100,
 		}
+		this.events=new EventEmitter()
 	}
 
 	getChildContext(){
-		const {debug,events}=this.props
+		const {debug}=this.props
 		return {
-			events,
+			events:this.events,
 			debug
 		}
 	}
@@ -84,30 +89,30 @@ export default class Workspace extends PureComponent{
 		}
 
 		return (
-			<doc.Store reducer={reducer}>
-				<WithSelection key={layout}>
-					<div style={{flex:1, display:"flex", flexDirection:"column"}}>
-						{toolBar}
+			<WithSelection key={layout}>
+				<div style={{flex:1, display:"flex", flexDirection:"column"}}>
+					{toolBar}
 
-						<Canvas scale={scale} ruler={ruler}>
+					<Canvas scale={scale} ruler={ruler}>
+						<doc.Store reducer={reducer}>
 							{current}
-							{uncontrolled}
-						</Canvas>
+						</doc.Store>
+						{uncontrolled}
+					</Canvas>
 
-						{statusBar && React.cloneElement(statusBar,{
-							layout:{
-								items:this.getLayouts(this.props.children),
-								current:layout,
-								onChange: layout=>this.setState({layout})
-							},
-							scale:{
-								current:scale,
-								onChange: scale=>this.setState({scale})
-							}
-						})}
-					</div>
-				</WithSelection>
-			</doc.Store>
+					{statusBar && React.cloneElement(statusBar,{
+						layout:{
+							items:this.getLayouts(this.props.children),
+							current:layout,
+							onChange: layout=>this.setState({layout})
+						},
+						scale:{
+							current:scale,
+							onChange: scale=>this.setState({scale})
+						}
+					})}
+				</div>
+			</WithSelection>
 		)
 	}
 

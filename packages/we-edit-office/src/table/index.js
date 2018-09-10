@@ -1,7 +1,6 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 import {compose, getContext, mapProps,withProps} from "recompose"
-import {connect} from "react-redux"
 
 import { Popover,Subheader, ToolbarGroup} from "material-ui"
 import IconTable from "material-ui/svg-icons/editor/border-all"

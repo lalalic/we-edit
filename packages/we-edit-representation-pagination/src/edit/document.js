@@ -1,7 +1,6 @@
 import React, {PureComponent, Component, Fragment} from "react"
 import PropTypes from "prop-types"
 import {getContent,getSelection,getClientRect, ACTION, editify} from "we-edit"
-import {connect} from "react-redux"
 
 import Base from "../document"
 import Responsible from "./responsible"

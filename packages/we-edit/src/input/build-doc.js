@@ -1,7 +1,7 @@
 import React, {Component, Fragment} from "react"
 import PropTypes from "prop-types"
 
-import {Provider,connect} from "react-redux"
+import {Provider} from "react-redux"
 import Immutable, {Map,Collection} from "immutable"
 import {compose, setDisplayName, getContext,withContext} from "recompose"
 

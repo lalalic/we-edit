@@ -4,7 +4,6 @@ import PropTypes from "prop-types"
 import {ACTION} from "we-edit"
 
 import {compose,setDisplayName,getContext,mapProps,withProps} from "recompose"
-import {connect} from "react-redux"
 
 import {ToolbarGroup,TextField,SelectField, MenuItem,SvgIcon,ToolbarSeparator as ToolbarSeparator0,} from "material-ui"
 
