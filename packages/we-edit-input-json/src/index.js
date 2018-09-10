@@ -1,4 +1,5 @@
 import {Input} from "we-edit"
+import {Readable} from 'stream'
 import EditableDocument from "./editable-doc"
 
 export default class JSONType extends Input.Editable{
@@ -6,93 +7,36 @@ export default class JSONType extends Input.Editable{
 		if(!file)//for installer
 			return true
 
-		const {data, name, type}=file
-		if(name && name.endsWith(".wed.json") || name.endsWith(".wed.xml"))
+		const {data, name, ext, type}=file
+		if(ext && ext=="wed.json")
+			return true
+
+		if(name && name.endsWith(".wed.json"))
 			return true
 
 		if(type && type=="document")
 			return true
-		/*
-		switch(typeof(file)){
-		case "string":
-			return file.endsWith(".wed.json") || file.endsWith(".wed.xml")
-		case "object":
-			if(this.isPlainData(file) && file.type=="document")
-				return true
-			if(this.isBlob(file) &&
-					(
-					file.type=="application/json" ||
-					file.type=="application/xml" ||
-					file.name.endsWith(".wed.json") ||
-					file.name.endsWith(".wed.xml")
-					))
-				return true
-		}
-		*/
 		return false
 	}
 
 	static defaultProps={
 		type:"json",
 		ext:"json",
-		name:"WE document",
+		name:"We-Edit document",
 		mimeType:"application/json"
 	}
 
-	static isPlainData(file){
-		return file.children
+	parse({data, ...props}){
+		this.props=props
+		data=String.fromCharCode.apply(null, new Uint8Array(data))
+		return new EditableDocument(JSON.parse(data))
 	}
 
-	parse(file){
-		switch(typeof(file)){
-		case "object":
-			if(this.constructor.isPlainData(file) && file.type=="document")
-				return new EditableDocument(file)
-			if(this.constructor.isBlob(file)){
-				return this.constructor.parse(file).then(({data,type,name})=>{
-					this.name=name
-					switch(type||name.split(".").pop()){
-						case "json":
-							return new EditableDocument(JSON.parse(data))
-						case "xml":
-							return new EditableDocument(JSON.parse(data))
-					}
-
-				})
-			}
-		case "string":
-			if(file.endsWith(".json")){
-				return new EditableDocument(JSON.parse(require("fs").readFileSync(file)))
-			}else if(file.endsWith(".xml"))
-				return Promise.resolve(this.loadXML(file))
-				.then(doc=>new EditableDocument(doc))
-		default:
-			throw new Error("not supported format")
-		}
-	}
-
-	loadXML(file){
-
-	}
-
-	create(){
-		return new EditableDocument({
-			type:"document",
-			children:[{
-				type:"section",
-				children:[{
-					type:"paragraph",
-					children:[{
-						type:"text",
-						children:"hello, have fun"
-					}]
-				}]
-			}]
-		})
-	}
-
-	serialize(){
-		return this.doc.serialize()
+	stream(options){
+		let data=this.doc.serialize(options)
+		let stream=new Readable({objectMode: true})
+		stream.push(data,"uint8array")
+		return stream
 	}
 
 

@@ -6,20 +6,21 @@ export default class EditableDocument extends Input.Editable{
 	constructor(data){
 		super(...arguments)
 		this.doc=data
+		this.doc.id="root"
 	}
-	
-	serialize(){
-		return JSON.stringify(this.doc)
+
+	serialize(options){
+		return JSON.stringify(this.doc, (k,v)=>k=="id" ? undefined : v, "\t")
 	}
-	
+
 	get root(){
 		return this.doc
 	}
-	
+
 	makeId(node,uid){
-		return node.id=uid||node.id||uuid()		
+		return node.id=uid||node.id||uuid()
 	}
-	
+
 	getNode(id){
 		let found=null
 		const visit=node=>{
@@ -27,12 +28,12 @@ export default class EditableDocument extends Input.Editable{
 				return found=node
 			return node.children.find ? node.children.find(a=>visit(a)) : null
 		}
-		
+
 		visit(this.doc)
-		
+
 		return found
 	}
-	
+
 	_getParentNode(id){
 		let found=null
 		const visit=node=>{
@@ -42,26 +43,26 @@ export default class EditableDocument extends Input.Editable{
 			}
 			return node.id==id
 		}
-		
+
 		visit(this.doc)
-		
+
 		return found
 	}
-	
+
 	cloneNode(node){
 		return this.attach(JSON.parse(JSON.stringify(node,(k,v)=>k=="id" ? undefined : v)))
 	}
-	
+
 	createNode(nodeTmpl){
 		return this.attach({...nodeTmpl})
 	}
-	
+
 	updateNode({id,props}){
 		let docNode=this.getNode(id)
 		Object.assign(docNode,arguments[0])
 		return docNode
 	}
-	
+
 	removeNode({id}){
 		let {children}=this._getParentNode(id)
 		let i=children.findIndex(a=>a.id==id)
@@ -77,7 +78,7 @@ export default class EditableDocument extends Input.Editable{
 		let i=referenceNode ? siblings.findIndex(({id})=>id==referenceNode.id) : siblings.length
 		siblings.splice(i,0,newNode)
 	}
-	
+
 	insertNodeAfter(newNode,referenceNode,parentNode){
 		this.removeNode(newNode)
 		if(!parentNode)
@@ -86,12 +87,12 @@ export default class EditableDocument extends Input.Editable{
 		let i=referenceNode ? siblings.findIndex(({id})=>id==referenceNode.id) : 0
 		siblings.splice(i,0,newNode)
 	}
-	
+
 	construct(from,to){
 		if(from==to){
 			return this.attach(this.cloneNode(this.getNode(from)))
 		}
-			
+
 		const getPath=()=>{
 			let path=[]
 			const find=node=>{
@@ -111,24 +112,24 @@ export default class EditableDocument extends Input.Editable{
 				}
 				return false
 			}
-			
+
 			find(this.doc)
 
 			return path
 		}
-		
+
 		let path=getPath()
 
 		let piece=path.reduce((constructed,node)=>{
 				let cloned=this.cloneNode(node)
 				if(constructed)
-					cloned.children=[constructed] 
+					cloned.children=[constructed]
 				return cloned
 			},null)
 
 		return this.attach(piece)
 	}
-	
+
 	attach(piece){
 		this.makeId(piece)
 		this.doc.children.splice(0,0,piece)
