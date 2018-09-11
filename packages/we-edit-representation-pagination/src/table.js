@@ -16,7 +16,6 @@ export default class Table extends Super{
 	}
 
 	appendComposed(colGroups){
-		const Border=this.constructor.Border
 		const {width, cols}=this.props
 		let height=0, self=this
 
@@ -65,8 +64,6 @@ export default class Table extends Super{
 		let tblInd=this.props.indent
 		return <Row x={tblInd/*-this.computed.composed.firstCellMargin.right*/} {...props}/>
 	}
-	
-	static Border=Border
 }
 
 class Spacing extends Group{}
