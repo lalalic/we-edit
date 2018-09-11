@@ -46,6 +46,7 @@ export default class extends editify(recomposable(Base)){
 						{a.props.children}
 					</Fragment>
 					<RightSizable x1={a.props.width} y1={0} x2={a.props.width} y2={a.props.height}/>
+					<BottomSizable x1={0} x2={a.props.width} y1={a.props.height} y2={a.props.height}/>
 				</g>
 			)})
 		})
