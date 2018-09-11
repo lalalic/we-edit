@@ -108,7 +108,7 @@ export const Text={
 }
 
 export const Selection={
-	SELECT: (start, at, end=start, endAt=at, cursorAt)=>({
+	SELECT: (start, at=0, end=start, endAt=at)=>({
 		type:`we-edit/selection/SELECTED`
 		,payload: {
 			start:{
@@ -133,7 +133,8 @@ export const Selection={
 export const Entity={
 	RESIZE: deltaXY=>({type:"we-edit/entity/RESIZE",payload:deltaXY}),
 	ROTATE: a=>({type:"we-edit/entity/ROTATE",payload:a}),
-	CREATE: element=>({type:"we-edit/entity/CREATE", payload:element})
+	CREATE: element=>({type:"we-edit/entity/CREATE", payload:element}),
+	UPDATE: changing=>({type:"we-edit/entity/UPDATE", payload:changing}),
 }
 
 export const ACTION={Cursor, Text, Selection,Entity,History,Style}

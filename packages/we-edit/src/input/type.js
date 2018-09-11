@@ -153,6 +153,10 @@ export class Editable extends Viewable{
 				return new reducer.entity(...params)
 					.create(payload)
 					.state()
+			case "we-edit/entity/UPDATE":
+				return new reducer.entity(...params)
+					.update(payload)
+					.state()
 			case 'we-edit/selection/COPY':
 				return new reducer.clipboard(...params)
 					.copy(payload)

@@ -1,7 +1,7 @@
 import React from "react"
 import PropTypes from "prop-types"
 
-import Component from "../component"
+import Component from "./$"
 
 
 export default class extends Component{

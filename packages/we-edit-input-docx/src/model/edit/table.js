@@ -17,6 +17,45 @@ export class Table extends Base{
         if(!tblLook)
             return null
     }
+	
+	insert({type, at}){
+		return this[`insert_${type}`](at)
+	}
+	
+	insert_row(at){
+		let target=this.node.find("w\\:tr").eq(at)
+		let newRow=target.clone()
+		target.after(newRow)
+	}
+	
+	insert_col(at){
+		let grid=this.node.first("w\\:tblGrid")
+		let cols=grid.find("w\\:gridCol")
+		let len=cols.length
+		let width=cols.toArray().reduce((w,a)=>w+parseInt(a.attribs["w:w"]),0)
+		let ratio=len/(len+1)
+		for(let i=0;i<len;i++){
+			let col=cols.eq(i)
+			let w=parseInt(parseInt(col.attr("w:w"))*ratio)
+			col.attr("w:w",w)
+			width-=w
+		}
+		
+		cols.eq(at)
+			.after(
+				cols.eq(at)
+					.clone()
+					.attr("w:w",width)
+			)
+		
+		let rows=this.node.find("w\\:tr")
+		for(let i=0;i<rows.length;i++){
+			rows.eq(i)
+				.find("w\\:tc")
+				.eq(at)
+				.after(`<w:tc><w:p></w:p></w:tc>`)
+		}
+	}
 
     rows(rows,{cols}){
 		cols=cols.map(w=>this.px2dxa(w))
@@ -29,14 +68,13 @@ export class Table extends Base{
                         "<w:tr>",
                         cols.map(w=>`
                 			<w:tc>
-                				<w:tcPr>
-                					<w:tcW w:w="${w}" w:type="dxa"/>
-                				</w:tcPr>
-                				<w:p><w:pPr>
-							<w:rPr>
-								<w:rFonts w:ascii="Verdana" w:hAnsi="Verdana"/>
-							</w:rPr>
-						</w:pPr></w:p>
+                				<w:p>
+									<w:pPr>
+										<w:rPr>
+											<w:rFonts w:ascii="Verdana" w:hAnsi="Verdana"/>
+										</w:rPr>
+									</w:pPr>
+								</w:p>
                 			</w:tc>
                 		`).join(""),
                         "</w:tr>"

@@ -8,6 +8,6 @@ export default class $exp extends models.$exp{
     render(){
         const {expression,name,defaultValue,children, getText, ...props}=this.props
         const text=getText(this.props)
-        return <Text {...props} children={`${text}`}/>
+        return <Text {...props} color="red" children={`${text}`}/>
     }
 }
