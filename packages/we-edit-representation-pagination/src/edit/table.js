@@ -5,6 +5,7 @@ import recomposable from "./recomposable"
 import Base from "../table"
 import Resizable from "./selection/resizable"
 import Top from "./selection/top"
+import Group from "../composed/group"
 
 
 export default class extends editify(recomposable(Base)){
@@ -20,16 +21,20 @@ export default class extends editify(recomposable(Base)){
 						<Fragment>
 							{a.props.children}
 						</Fragment>
-						<Adder
+						<ColAdder
 							x={a.props.width}
 							y={-a.props.height}
-							height={a.props.height+5}
-							at={i} table={id}
+							onAdd={dispatch=>{
+								dispatch(ACTION.Selection.SELECT(id))
+								dispatch(ACTION.Entity.UPDATE({col:{at:i}}))
+							}}
 							/>
 
-						<ColSelector x1={0} x2={a.props.width}
-							y1={-a.props.height} y2={-a.props.height}
-							at={i} table={id}
+						<ColSelector
+							x1={0} x2={a.props.width} y1={-a.props.height} y2={-a.props.height}
+							onSelect={dispatch=>{
+
+							}}
 							/>
 					</Fragment>
 				)})
@@ -41,11 +46,19 @@ export default class extends editify(recomposable(Base)){
 					<Fragment>
 						{row.props.children}
 					</Fragment>
-					<Adder
-						x={0} y={row.props.height} width={row.props.width+5}
-						at={this.computed.children.length} table={id}/>
-					<RowSelector x1={0} x2={0} y1={0} y2={row.props.height}
-						at={this.computed.children.length} table={id}/>
+					<RowAdder
+						x={0}
+						y={row.props.height}
+						onAdd={dispatch=>{
+							dispatch(ACTION.Selection.SELECT(id))
+							dispatch(ACTION.Entity.UPDATE({row:{at:this.computed.children.length}}))
+						}}
+						/>
+					<RowSelector
+						x1={0} x2={0} y1={0} y2={row.props.height}
+						onSelect={dispatch=>{
+
+						}}/>
 				</Fragment>
 			)
 		})
@@ -54,7 +67,7 @@ export default class extends editify(recomposable(Base)){
 	makeCellResizable(row){
 		const {id, cols}=this.props
 		let cells=row.props.children.map((a,i)=>{
-			return React.cloneElement(a,{children:(
+			return React.cloneElement(a,{key:i,children:(
 				<Fragment>
 					<Fragment>
 						{a.props.children}
@@ -64,14 +77,14 @@ export default class extends editify(recomposable(Base)){
 						x2={a.props.width} y2={a.props.height}
 						onResize={({x},dispatch)=>{
 							let changed=[...cols]
-							
+
 							if(i<cols.length){
 								changed[i]=cols[i]+x
 								changed[i+1]=cols[i+1]-x
 							}else{
 								changed[i]=cols[i]+x
 							}
-							
+
 							dispatch(ACTION.Selection.SELECT(id))
 							dispatch(ACTION.Entity.UPDATE({cols:changed}))
 						}}
@@ -92,112 +105,80 @@ export default class extends editify(recomposable(Base)){
 	}
 }
 
-const ColResizer=connect()(class extends PureComponent{
+const Resizer=connect()(class extends PureComponent{
 	state={resizing:false}
 	render(){
 		const {resizing}=this.state
-		const {dispatch,onResize,...props}=this.props
+		const {dispatch,onResize,direction="ew", cursor="col-resize", ...props}=this.props
+		let y=direction=="ew" ? 'y' :'x'
+		let top={[y]:0}
+		let topLine={[y+'1']:"-100%", [y+'2']:"100%"}
 		return (
 			<Fragment>
-				<Resizable direction="ew"
-					onStart={e=>this.setState({resizing:true})}
-					onEnd={e=>this.setState({resizing:false})}
-					
-					onResize={a=>onResize(a,dispatch)}>
-					<line {...props}
-					stroke="blue"
-					strokeWidth={5}
-					style={{cursor:"col-resize"}}
-					/>
-				</Resizable>
-				{resizing && 
-					<Top y={0}>
-						<line {...props} className="resizing"
-						y1={0} y2={"100%"} 
-						stroke="lightgray" strokeWidth={1} strokeDasharray="5,5"/>
+				{resizing &&
+					<Top {...top}>
+						<line {...props} {...topLine}
+							stroke="lightgray"
+							strokeWidth={1}
+							strokeDasharray="5,5"/>
 					</Top>
 				}
+				<Resizable
+					direction={direction}
+					onStart={e=>this.setState({resizing:true})}
+					onEnd={e=>this.setState({resizing:false})}
+
+					onResize={a=>onResize(a,dispatch)}>
+					<line {...props}
+						stroke="transparent"
+						strokeWidth={5}
+						style={{cursor}}
+						/>
+				</Resizable>
 			</Fragment>
 		)
 	}
 })
+const ColResizer=props=><Resizer {...props} direction="ew" cursor="col-resize"/>
+const RowResizer=props=><Resizer {...props} direction="ns" cursor="row-resize"/>
 
-const RowResizer=connect()(class extends PureComponent{
-	render(){
-		const {dispatch,onResize,...props}=this.props
-		return (
-			<Resizable onResize={a=>onResize(a,dispatch)} direction="ns">
-				<line {...props}
-					stroke="transparent"
-					strokeWidth={5}
-					style={{cursor:"row-resize"}}
-					/>
-			</Resizable>
-		)
-	}
-})
 
-const RowSelector=connect()(class extends PureComponent{
+const Selector=connect()(class extends PureComponent{
 	render(){
-		const {dispatch, ...props}=this.props
+		const {dispatch, onSelect, cursor, size=5,...props}=this.props
 		return <line {...props}
 				stroke="transparent"
-				strokeWidth={5}
-				style={{cursor:"e-resize"}}
+				strokeWidth={size}
+				style={{cursor}}
+				onClick={e=>onSelect(dispatch)}
 				/>
 	}
 })
-
-const ColSelector=connect()(class extends PureComponent{
-	render(){
-		const {dispatch, ...props}=this.props
-		return <line {...props}
-				stroke="transparent"
-				strokeWidth={5}
-				style={{cursor:"s-resize"}}
-				/>
-	}
-})
+const RowSelector=props=><Selector {...props} cursor="e-resize"/>
+const ColSelector=props=><Selector {...props} cursor="s-resize"/>
 
 const Adder=connect()(class extends PureComponent{
 	state={show:false}
 	render(){
 		const {show}=this.state
-		let {x,y, width, height,dispatch,at, table,type=width ? "row" : "col",size=5}=this.props
+		let {x,y, dispatch,size=5,onAdd,type}=this.props
 		let props={
-			stroke:"transparent",
-			strokeWidth:1,
+			stroke:show ? "black" : "red",
+			strokeWidth:size,
 			onMouseOver:e=>this.setState({show:true}),
 			onMouseLeave:e=>this.setState({show:false}),
-			onClick:e=>{
-				dispatch(ACTION.Selection.SELECT(table))
-				dispatch(ACTION.Entity.UPDATE({[type]:{at}}))
-			},
+			onClick:()=>onAdd(dispatch),
 			style:{cursor:"cell"}
 		}
-		if(show){
-			props.stroke="black"
-			if(width){
-				props.width=width+size
-				props.x=x
-			}else if(height){
-				props.height=height+size
-				props.y=y
-			}
-		}
 
-		if(width){
-			props.x=x-size
-		}else if(height){
-			props.y=y-size
-		}
+		props[`${type=="row" ? 'x' : 'y'}2`]=-size
 
 		return (
-			<Fragment>
-				<rect width={size} height={size} 
-					y={y-size/2} x={x-size/2} {...props}
-					fill="transparent"/>
-			</Fragment>
+			<Group x={x} y={y}>
+				<line x1={0} y1={0} x2={0} y2={0} {...props}/>
+			</Group>
 		)
 	}
 })
+const RowAdder=props=><Adder {...props} type="row"/>
+const ColAdder=props=><Adder {...props} type="col"/>

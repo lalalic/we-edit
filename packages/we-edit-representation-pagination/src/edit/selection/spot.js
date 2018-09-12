@@ -8,10 +8,10 @@ export default class Spot extends Component{
 		y:PropTypes.number.isRequired,
 		resize:PropTypes.string
 	}
-	
+
 	render(){
 		const {width=5,height=5,x,y,resize,onStartResize}=this.props
-		const style={
+		let style={
 			fill:"white",
 			stroke:"lightgray",
 			strokeWidth:1
@@ -21,12 +21,12 @@ export default class Spot extends Component{
 			x:x-width/2,
 			y:y-height/2
 		}
-		
+
 		if(resize){
-			props.cursor=`${resize.replace("-","")}-resize`
+			style.cursor=`${resize.replace("-","")}-resize`
 			props.onMouseDown=e=>onStartResize(resize,e)
 		}
-		
+
 		return <rect {...props}/>
 	}
 }
