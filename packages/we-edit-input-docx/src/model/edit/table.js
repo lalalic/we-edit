@@ -18,19 +18,19 @@ export class Table extends Base{
         if(!tblLook)
             return null
     }
-	
+
 	cols(cols){
 		cols=cols.map(w=>this.px2dxa(w))
 		this.node.find("w\\:tblGrid").empty()
             .append(cols.map(w=>`<w:gridCol w:w="${w}"/>`).join(""))
 	}
-	
+
 	rowHeight({at, height}){
 		height=this.px2dxa(height)
 	}
-	
-	
-	
+
+
+
 	col({at}){
 		let grid=this.node.first("w\\:tblGrid")
 		let cols=grid.find("w\\:gridCol")
@@ -43,14 +43,14 @@ export class Table extends Base{
 			col.attr("w:w",w)
 			width-=w
 		}
-		
+
 		cols.eq(at)
 			.after(
 				cols.eq(at)
 					.clone()
 					.attr("w:w",width)
 			)
-		
+
 		let rows=this.node.find("w\\:tr")
 		for(let i=0;i<rows.length;i++){
 			rows.eq(i)
@@ -59,18 +59,18 @@ export class Table extends Base{
 				.after(`<w:tc><w:p></w:p></w:tc>`)
 		}
 	}
-	
+
 	row({at}){
-		let target=this.node.find("w\\:tr").eq(at)
-		let newRow=target.clone()
-		target.after(newRow)
+		let cols=this.node.first("w\\:tblGrid").find("w\\:gridCol").length
+        this.node.find("w\\:tr").eq(at)
+            .after("<w:tr>"+new Array(cols).fill(0).map(a=>`<w:tc><w:p></w:p></w:tc>`)+"</w:tr>")
 	}
 
     rows(rows,{cols}){
 		cols=cols.map(w=>this.px2dxa(w))
 		this.node.find("w\\:tblGrid").empty()
             .append(cols.map(w=>`<w:gridCol w:w="${w}"/>`).join(""))
-			
+
         let elRows=new Array(rows).fill(0)
                 .map(a=>{
                     return [
@@ -101,14 +101,14 @@ export class Table extends Base{
             </w:tbl>
         `
     }
-	
+
 	create(props,reducer,target){
 		const [p0,p1]=reducer.splitAtUpto(reducer.selection.start,"paragraph")
 		const createdNode=super.create(...arguments)
 		const {id:createdId}=reducer.renderChanged(createdNode)
-		
+
 		let created=reducer.$(`#${createdId}`).insertAfter(p0)
-		
+
 		reducer.renderChangedChildren(p0.parent().attr('id'))
 		let cursor=created.findFirst('text').attr('id')
 		return {id:cursor,at:0}
