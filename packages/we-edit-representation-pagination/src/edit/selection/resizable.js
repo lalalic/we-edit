@@ -7,18 +7,24 @@ import Overlay from "./overlay"
 export default class Resizable extends Component{
 	static propTypes={
 		onResize: PropTypes.func.isRequired,
-		direction: PropTypes.oneOf("ew,ns,nwse,nesw"，split(",").reduce((all,a)=>(all.splice(0,0,a,"-"+a),all),[]))
+		direction: PropTypes.oneOf("ew,ns,nwse,nesw".split(",").reduce((all,a)=>(all.splice(0,0,a,"-"+a),all),[]))
 	}
 	state={}
-	this.onStartResize=this.onStartResize.bind(this)
+	onStartResize=this.onStartResize.bind(this)
+	
 	render(){
-		const {resizing}=this.state
-		const {children}=this.props
+		const {resizing,cursor}=this.state
+		const {children, onEnd}=this.props
 		if(resizing){
 			return (
-				<Overlay cursor="crosshair"
-					onMouseUp={e=>this.setState({resizing:undefined})}
+				<Overlay 
+					onMouseUp={e=>{
+						this.setState({resizing:undefined})
+						if(onEnd)
+							onEnd()
+					}}
 					onMouseMove={e=>this.resize(e.clientX, e.clientY)}
+					style={{cursor}}
 					>
 					{children}
 				</Overlay>
@@ -41,9 +47,12 @@ export default class Resizable extends Component{
 		}
 	}
 	onStartResize(resizing,e){
-		this.setState({resizing})
+		this.setState({resizing,cursor:e.target.style.cursor})
 		this.left=e.clientX
 		this.top=e.clientY
+		const {onStart}=this.props
+		if(onStart)
+			onStart()
 	}
 
 	resize(left,top){

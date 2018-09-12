@@ -18,9 +18,10 @@ export class entity extends Content{
 		return this
 	}
 	
-	update({id,type,...changing}){
-		//let {start:{id,at},end}=this.selection
-		//const target=this.$(`#${id}`)
+	update(changing){
+		let {start:{id,at},end}=this.selection
+		const target=this.$(`#${id}`)
+		const type=target.attr("type")
 		
 		this.file.updateNode({id,type},changing)
 		
@@ -33,7 +34,7 @@ export class entity extends Content{
 		let {start:{id}}=this.selection
 		let content=this.$('#'+id)
 		const {width,height}=content.attr("size").toJS()
-		let changedNode
+
 		let changing={}
 
 		this.save4undo(id)

@@ -2,8 +2,9 @@ import Base from "./base"
 
 //{type:"entity/CREATE", payload:{type:"table", rows:3, cols:3}}
 export class Table extends Base{
-    apply({rows, cols, ...props}, $){
+    apply({rows, ...props}, $){
         if(rows){
+			delete props.cols
 			this.rows(rows, arguments[0])
 		}
         return super.apply(props)
@@ -18,17 +19,19 @@ export class Table extends Base{
             return null
     }
 	
-	insert({type, at}){
-		return this[`insert_${type}`](at)
+	cols(cols){
+		cols=cols.map(w=>this.px2dxa(w))
+		this.node.find("w\\:tblGrid").empty()
+            .append(cols.map(w=>`<w:gridCol w:w="${w}"/>`).join(""))
 	}
 	
-	insert_row(at){
-		let target=this.node.find("w\\:tr").eq(at)
-		let newRow=target.clone()
-		target.after(newRow)
+	rowHeight({at, height}){
+		height=this.px2dxa(height)
 	}
 	
-	insert_col(at){
+	
+	
+	col({at}){
 		let grid=this.node.first("w\\:tblGrid")
 		let cols=grid.find("w\\:gridCol")
 		let len=cols.length
@@ -56,10 +59,16 @@ export class Table extends Base{
 				.after(`<w:tc><w:p></w:p></w:tc>`)
 		}
 	}
+	
+	row({at}){
+		let target=this.node.find("w\\:tr").eq(at)
+		let newRow=target.clone()
+		target.after(newRow)
+	}
 
     rows(rows,{cols}){
 		cols=cols.map(w=>this.px2dxa(w))
-		this.node.find("w\\:tblGrid")
+		this.node.find("w\\:tblGrid").empty()
             .append(cols.map(w=>`<w:gridCol w:w="${w}"/>`).join(""))
 			
         let elRows=new Array(rows).fill(0)
@@ -69,11 +78,6 @@ export class Table extends Base{
                         cols.map(w=>`
                 			<w:tc>
                 				<w:p>
-									<w:pPr>
-										<w:rPr>
-											<w:rFonts w:ascii="Verdana" w:hAnsi="Verdana"/>
-										</w:rPr>
-									</w:pPr>
 								</w:p>
                 			</w:tc>
                 		`).join(""),

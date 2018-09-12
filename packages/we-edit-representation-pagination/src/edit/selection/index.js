@@ -127,7 +127,7 @@ export default class SelectionShape extends Component{
 		this.el=null
 		if(start.id==end.id && start.at==end.at){
 			const type=query().content.find(`#${start.id}`).attr('type')
-			if(type=="text")
+			if(type=="text" || type=="table")
 				return this.el=null
 
 			this.el=this.renderEntity(start.id)

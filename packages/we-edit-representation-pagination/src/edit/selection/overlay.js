@@ -1,22 +1,17 @@
-import React, {Component,} from "react"
+import React, {Component,Fragment} from "react"
 import PropTypes from "prop-types"
+import Top from "./top"
 
 
 export default class Overlay extends Component{
-    static contextTypes={
-		query: PropTypes.func
-	}
-
     render(){
-        let $=this.context.query()
-        let {width,height}=$.svg
-
-        let props={x:0,y:0,width,height,fill:"transparent"}
         let {children,...others}=this.props
         return (
             <g>
                 {children}
-                <rect {...props} {...others}/>
+				<Top x={0} y={0}>
+					<rect {...{width:"100%",height:"100%",fill:"transparent"}} {...others}/>
+				</Top>
             </g>
         )
     }
