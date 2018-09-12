@@ -6,46 +6,52 @@ import Overlay from "./overlay"
 
 export default class Resizable extends Component{
 	static propTypes={
-		onResize: PropTypes.func.isRequired
+		onResize: PropTypes.func.isRequired,
+		direction: PropTypes.oneOf("ew,ns,nwse,nesw"，split(",").reduce((all,a)=>(all.splice(0,0,a,"-"+a),all),[]))
 	}
 	state={}
+	this.onStartResize=this.onStartResize.bind(this)
 	render(){
-		const {resize}=this.state
+		const {resizing}=this.state
 		const {children}=this.props
-		if(resize){
+		if(resizing){
 			return (
 				<Overlay cursor="crosshair"
-					onMouseUp={e=>this.setState({resize:undefined})}
+					onMouseUp={e=>this.setState({resizing:undefined})}
 					onMouseMove={e=>this.resize(e.clientX, e.clientY)}
 					>
 					{children}
 				</Overlay>
 			)
 		}else{
-			let onStartResize=this.onStartResize.bind(this)
+			let props={}
+			const {direction}=this.props
+			if(direction){
+				props.onMouseDown=e=>this.onStartResize(direction,e)
+			}else{
+				props.onStartResize=this.onStartResize
+			}
 			return (
 				<g>
 					{
-						React.Children.map(children,
-							a=>React.cloneElement(a,{onStartResize})
-						)
+						React.Children.map(children,a=>React.cloneElement(a,props))
 					}
 				</g>
 			)
 		}
 	}
-	onStartResize(resize,e){
-		this.setState({resize})
+	onStartResize(resizing,e){
+		this.setState({resizing})
 		this.left=e.clientX
 		this.top=e.clientY
 	}
 
 	resize(left,top){
 		const {onResize}=this.props
-		const {resize}=this.state
+		const {resizing}=this.state
 		let x=left-this.left
 		let y=top-this.top
-		switch(resize){
+		switch(resizing){
 		case "-ns":
 			y*=-1
 		case "ns":

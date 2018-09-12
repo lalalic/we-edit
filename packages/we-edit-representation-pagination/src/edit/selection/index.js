@@ -42,7 +42,7 @@ export default class SelectionShape extends Component{
 					path={`M${left} ${top} L${right} ${top} L${right} ${bottom} L${left} ${bottom} Z`}
 					onMove={onMove}
 
-					spots={[
+					resizeSpots={[
 							{x:left,y:top,resize:"nwse"},
 							{x:(left+right)/2,y:top,resize:"ns",},
 							{x:right,y:top,resize:"nesw"},

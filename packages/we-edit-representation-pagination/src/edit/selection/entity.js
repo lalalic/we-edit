@@ -11,7 +11,7 @@ export default class Extent extends Component{
 	static propTypes={
 		onResize: PropTypes.func,
 		path: PropTypes.string,
-		spots: PropTypes.arrayOf(PropTypes.object),
+		resizeSpots: PropTypes.arrayOf(PropTypes.object),
 		onMove: PropTypes.func,
 		onRotate: PropTypes.func,
 		rotate: PropTypes.shape({
@@ -22,7 +22,7 @@ export default class Extent extends Component{
 	}
 
 	render(){
-		const {path, spots, onResize, onMove, onRotate, rotate}=this.props
+		const {path, resizeSpots, onResize, onMove, onRotate, rotate}=this.props
 		let rotator=null
 		if(onRotate){
 			rotator=<Rotatable onRotate={onRotate} {...rotate}/>
@@ -34,7 +34,7 @@ export default class Extent extends Component{
 					<path d={path} fill="white" fillOpacity={0.01} cursor="move"/>
 				</Movable>
 				<Resizable onResize={onResize}>
-					{spots.map((a,i)=><Spot key={i} {...a}/>)}
+					{resizeSpots.map((a,i)=><Spot key={i} {...a}/>)}
 				</Resizable>
 				{rotator}
 			</g>
