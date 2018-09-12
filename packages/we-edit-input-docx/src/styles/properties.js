@@ -61,7 +61,7 @@ export class Properties{
 			}))
 		if(data.length)
 			cols.data=data
-		
+
 		return cols
 	}
 
@@ -101,7 +101,7 @@ export class Properties{
 			fonts.push(t)
 		else if(t=x.attribs['w:eastAsiaTheme'])
 			fonts.push(this.theme.font(t))
-		
+
 		if(fonts.length){
 			fonts=fonts.join(",")
 			fonts.split(",")
@@ -137,7 +137,7 @@ export class Properties{
 	i(x){
 		return this.asToggle(x)
 	}
-	
+
 	strike(x){
 		return this.asToggle(x)
 	}
@@ -219,11 +219,15 @@ export class Properties{
 		return this.docx.asColor(x.attribs["w:fill"])
 	}
 
-/**************drawingML********************/	
+	trHeight(x){
+		return this.docx.dxa2Px(x.attribs['w:val'])
+	}
+
+/**************drawingML********************/
 	extent(x){
 		return {width:this.docx.cm2Px(x.attribs.cx),height:this.docx.cm2Px(x.attribs.cy)}
 	}
-	
+
 	off(x){
 		return {x:this.docx.cm2Px(x.attribs.x),y:this.docx.cm2Px(x.attribs.y)}
 	}
@@ -239,7 +243,7 @@ export class Properties{
 	custGeom(x){
 		let path=[]
 		let px=x=>this.docx.cm2Px(x)
-		
+
 		for(let a, children=x.children.find(a=>a.name=="a:pathLst").children[0].children, len=children.length,i=0;i<len;i++){
 			a=children[i]
 			switch(a.name.split(":").pop()){
@@ -257,7 +261,7 @@ export class Properties{
 			break
 			case 'arcTo':
 				path.push(`A`)
-				
+
 			break
 			case 'close':
 				path.push('Z')
@@ -266,35 +270,35 @@ export class Properties{
 		}
 		return path.join(" ")
 	}
-		
+
 	solidFill(x){
 		return this.toColor(x.children[0])
 	}
-	
+
 	blip(x){
 		let rid=x.attribs["r:embed"]
 		return {...officeDocument.getRel(rid)}
 	}
-	
+
 	stretch(x){
 		return this.fillRect(x.children[0])
 	}
-	
+
 	fillRect(x){
 		return "left,right,bottom,top".split(",").reduce((fill,a)=>{
 			fill[a]=parseInt(x.attribs[a[0]])/100000
 			return fill
 		},{})
 	}
-	
+
 	srcRect(x){
 		return this.fillRect(x)
 	}
-	
+
 	tile(x){
 		return {...x.attribs}
 	}
-	
+
 	blipFill(x){
 		return this.select(x.children,{
 			blip:"src",
@@ -303,14 +307,14 @@ export class Properties{
 			tile:"tile"
 		})
 	}
-	
-	ln(x){	
+
+	ln(x){
 		let props=this.select(x.children,{prstDash:"dash"})
 		props.width=this.docx.cm2Px(x.children.attribs.w)
 		return props
 	}
-	
-	
+
+
 	bodyPr(x){
 		let props={}
 		props.margin="bottom,top,right,left".split(",").reduce((margin,a,t)=>{
@@ -318,15 +322,15 @@ export class Properties{
 				margin[a]=this.docx.cm2Px(t)
 			return margin
 		},{})
-		
+
 		return props
 	}
-	
+
 	wrap(x){
 		return {mode:x.name.substring("wp:wrap".length)}
 	}
-/********************************/	
-	
+/********************************/
+
 
 	numPr(x){
 		return x.children.reduce((p,a)=>{
@@ -334,7 +338,7 @@ export class Properties{
 			return p
 		},{})
 	}
-	
+
 	outlineLvl(x){
 		return parseInt(x.attribs['w:val'])
 	}

@@ -31,8 +31,7 @@ export default class Row extends Super{
 		this.computed.composed.splice(this.computed.children.length)//on1ChildComposed will always add 1
 
 		const {parent}=this.context
-		let indexes=new Array(this.computed.composed.length)
-		indexes.fill(0)
+		let indexes=new Array(this.computed.composed.length).fill(0)
 
 		let isAllSent2Table=a=>indexes.reduce((prev,index, i)=>this.computed.composed[i].length==index && prev, true)
 
@@ -92,12 +91,5 @@ export default class Row extends Super{
 		}while(!isAllSent2Table());
 
 		super.onAllChildrenComposed()
-	}
-}
-
-class CellLinesWithCellStyle extends Array{
-	constructor(style,...others){
-		super(others)
-		this.style=style
 	}
 }

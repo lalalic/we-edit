@@ -11,7 +11,7 @@ export default class DocxType extends Input.Editable{
 		if(arguments.length==0){//for installer
 			return true
 		}
-		
+
 		const {data, name, type}=file
 		if(name && name.toLowerCase().endsWith(".docx"))
 			return true
@@ -24,7 +24,7 @@ export default class DocxType extends Input.Editable{
 
 		return false
 	}
-	
+
 	static defaultProps={
 		type: "docx",
 		name: "Word Document",
@@ -180,7 +180,7 @@ export default class DocxType extends Input.Editable{
 			case "tr":{
 				let style
 				if(props.pr)
-					style=selector.select(props.pr.children,{"w:tcBorders":"border"})
+					style=selector.select(props.pr.children,{"w:tcBorders":"border", "w:trHeight":"height"})
 
 				return createElement(components.Row,style,children,node)
 			}

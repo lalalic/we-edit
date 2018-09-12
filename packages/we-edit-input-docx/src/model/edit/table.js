@@ -26,7 +26,22 @@ export class Table extends Base{
 	}
 
 	rowHeight({at, height}){
+        let tr=this.node.find("w\\:tr").eq(at)
+        let pr=tr.find("w\\:trPr")
+        if(pr.length==0){
+            tr.prepend("<w:trPr/>")
+            pr=tr.find("w\\:trPr")
+        }
+
+        let trHeight=pr.find("w\\:trHeight")
+        if(trHeight.length==0){
+            pr.append("<w:trHeight/>")
+            trHeight=pr.find("w\\:trHeight")
+        }
+
 		height=this.px2dxa(height)
+
+        trHeight.attr("w:val",height)
 	}
 
 

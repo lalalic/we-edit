@@ -68,6 +68,8 @@ export default class extends editify(recomposable(Base)){
 	makeCellResizable(row){
 		const {id, cols}=this.props
 		const at=this.computed.children.length
+		const minCellWidth=i=>10
+		const minRowHeight=()=>10
 		let cells=row.props.children.map((a,i)=>{
 			return React.cloneElement(a,{key:i,children:(
 				<Fragment>
@@ -81,11 +83,17 @@ export default class extends editify(recomposable(Base)){
 							let changed=[...cols]
 
 							if(i<cols.length){
-								changed[i]=cols[i]+x
-								changed[i+1]=cols[i+1]-x
+								if((changed[i]=cols[i]+x)<minCellWidth(i))
+									return false
+								if((changed[i+1]=cols[i+1]-x)<minCellWidth(i+1))
+									return false
+								//@TODO: test i+1: <min(spacing+margin+border)
 							}else{
-								changed[i]=cols[i]+x
+								if((changed[i]=cols[i]+x)<minCellWidth(i))
+									return false
 							}
+							//@TODO: test i: <min(spacing+margin+border)
+
 
 							dispatch(ACTION.Selection.SELECT(id))
 							dispatch(ACTION.Entity.UPDATE({cols:changed}))
@@ -108,7 +116,22 @@ export default class extends editify(recomposable(Base)){
 }
 
 const Resizer=connect()(class extends PureComponent{
-	state={resizing:false}
+	constructor(){
+		super(...arguments)
+		this.state={resizing:false}
+		/*
+		let timeout=null
+		this.resize=a=>{
+			if(!timeout){
+				timeout=setTimeout(()=>{
+					timeout=null
+					this.props.onResize(a,this.props.dispatch)
+				},30)
+			}
+		}
+		*/
+		this.resize=a=>this.props.onResize(a,this.props.dispatch)
+	}
 	render(){
 		const {resizing}=this.state
 		const {dispatch,onResize,direction="ew", cursor="col-resize", ...props}=this.props
@@ -130,7 +153,7 @@ const Resizer=connect()(class extends PureComponent{
 					onStart={e=>this.setState({resizing:true})}
 					onEnd={e=>this.setState({resizing:false})}
 
-					onResize={a=>onResize(a,dispatch)}>
+					onResize={this.resize}>
 					<line {...props}
 						stroke="transparent"
 						strokeWidth={5}

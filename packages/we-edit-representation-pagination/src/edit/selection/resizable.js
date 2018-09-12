@@ -11,13 +11,13 @@ export default class Resizable extends Component{
 	}
 	state={}
 	onStartResize=this.onStartResize.bind(this)
-	
+
 	render(){
 		const {resizing,cursor}=this.state
 		const {children, onEnd}=this.props
 		if(resizing){
 			return (
-				<Overlay 
+				<Overlay
 					onMouseUp={e=>{
 						this.setState({resizing:undefined})
 						if(onEnd)
@@ -64,24 +64,40 @@ export default class Resizable extends Component{
 		case "-ns":
 			y*=-1
 		case "ns":
-			y && onResize({y:-y})
+			if(y){
+				if(false===onResize({y:-y})){
+					return
+				}
+			}
 		break
 		case "-ew":
 			x*=-1
 		case "ew":
-			x && onResize({x})
+			if(x){
+				if(false===onResize({x})){
+					return
+				}
+			}
 		break
 
 		case "-nwse":
 			x*=-1
 		case "nwse":
-			x && y && onResize({x:-x,y})
+			if(x && y){
+				if(false===onResize({x:-x,y})){
+					return
+				}
+			}
 		break
 
 		case "-nesw":
 			x*=-1
 		case "nesw":
-			x && y && onResize({x,y})
+			if(x && y){
+				if(false===onResize({x,y})){
+					return
+				}
+			}
 		break
 		}
 		this.left=left
