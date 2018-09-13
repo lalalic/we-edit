@@ -10,13 +10,20 @@ import Group from "../composed/group"
 
 export default class extends editify(recomposable(Base)){
 	createComposed2Parent(){
-		const {id}=this.props
-		const at=this.computed.children.length
 		let row=super.createComposed2Parent(...arguments)
+		
 		row=this.makeCellResizable(row)
 
-		if(this.computed.children.length==1){//first row
-			row=React.cloneElement(row, {children:row.props.children.map((a,i)=>{
+		if(this.computed.children.length==0){
+			row=this.makeColAdderNSelector(row)
+		}
+
+		return this.makeRowAdderNSelector(row)
+	}
+	
+	makeColAdderNSelector(firstRow){
+		const {id}=this.props
+		return React.cloneElement(firstRow, {children:firstRow.props.children.map((a,i)=>{
 				return React.cloneElement(a,{children:(
 					<Fragment>
 						<Fragment>
@@ -24,7 +31,7 @@ export default class extends editify(recomposable(Base)){
 						</Fragment>
 						<ColAdder
 							x={a.props.width}
-							y={-a.props.height}
+							y={0}
 							onAdd={dispatch=>{
 								dispatch(ACTION.Selection.SELECT(id))
 								dispatch(ACTION.Entity.UPDATE({col:{at:i}}))
@@ -32,7 +39,7 @@ export default class extends editify(recomposable(Base)){
 							/>
 
 						<ColSelector
-							x1={0} x2={a.props.width} y1={-a.props.height} y2={-a.props.height}
+							x1={0} x2={a.props.width} y1={0} y2={0}
 							onSelect={dispatch=>{
 
 							}}
@@ -40,8 +47,12 @@ export default class extends editify(recomposable(Base)){
 					</Fragment>
 				)})
 			})})
-		}
+	}
 
+	makeRowAdderNSelector(row){
+		const {id}=this.props
+		const at=this.computed.children.length
+		
 		return React.cloneElement(row, {children:(
 				<Fragment>
 					<Fragment>
@@ -62,12 +73,13 @@ export default class extends editify(recomposable(Base)){
 						}}/>
 				</Fragment>
 			)
-		})
+		})	
 	}
-
+	
 	makeCellResizable(row){
 		const {id, cols}=this.props
 		const at=this.computed.children.length
+		const {height,  contentHeight=height}=row.props
 		const minCellWidth=i=>10
 		const minRowHeight=()=>10
 		let cells=row.props.children.map((a,i)=>{
@@ -78,7 +90,7 @@ export default class extends editify(recomposable(Base)){
 					</Fragment>
 
 					<ColResizer x1={a.props.width} y1={0}
-						x2={a.props.width} y2={a.props.height}
+						x2={a.props.width} y2={height}
 						onResize={({x},dispatch)=>{
 							let changed=[...cols]
 
@@ -101,10 +113,12 @@ export default class extends editify(recomposable(Base)){
 						/>
 
 					<RowResizer x1={0} x2={a.props.width}
-						y1={a.props.height} y2={a.props.height}
+						y1={height} y2={height}
 						onResize={({y},dispatch)=>{
+							if(height+y<contentHeight)
+								return false
 							dispatch(ACTION.Selection.SELECT(id))
-							dispatch(ACTION.Entity.UPDATE({rowHeight:{height:row.props.height+y,at}}))
+							dispatch(ACTION.Entity.UPDATE({rowHeight:{height:height+y,at}}))
 						}}
 						/>
 				</Fragment>
@@ -114,7 +128,7 @@ export default class extends editify(recomposable(Base)){
 		return React.cloneElement(row, {children:cells})
 	}
 }
-
+const NoShow="transparent"
 const Resizer=connect()(class extends PureComponent{
 	constructor(){
 		super(...arguments)
@@ -143,7 +157,7 @@ const Resizer=connect()(class extends PureComponent{
 				{resizing &&
 					<Top {...top}>
 						<line {...props} {...topLine}
-							stroke="black"
+							stroke="lightgray"
 							strokeWidth={1}
 							strokeDasharray="5,5"/>
 					</Top>
@@ -155,7 +169,7 @@ const Resizer=connect()(class extends PureComponent{
 
 					onResize={this.resize}>
 					<line {...props}
-						stroke="transparent"
+						stroke={NoShow}
 						strokeWidth={5}
 						style={{cursor}}
 						/>
@@ -165,14 +179,14 @@ const Resizer=connect()(class extends PureComponent{
 	}
 })
 const ColResizer=props=><Resizer {...props} direction="ew" cursor="col-resize"/>
-const RowResizer=props=><Resizer {...props} direction="ns" cursor="row-resize"/>
+const RowResizer=props=><Resizer {...props} direction="-ns" cursor="row-resize"/>
 
 
 const Selector=connect()(class extends PureComponent{
 	render(){
 		const {dispatch, onSelect, cursor, size=5,...props}=this.props
 		return <line {...props}
-				stroke="transparent"
+				stroke={NoShow}
 				strokeWidth={size}
 				style={{cursor}}
 				onClick={e=>onSelect(dispatch)}
@@ -196,7 +210,7 @@ const Adder=connect()(class extends PureComponent{
 				<Group x={-12} y={-22}>
 					<g transform={`${type=="row" ? "rotate(-90 12 22)" : ""}`}>
 				   		<path
-							stroke={show ? "black" : "transparent"}
+							stroke={show ? "black" : NoShow}
 							strokeWidth={1}
 							onMouseOver={e=>this.setState({show:true})}
 							onMouseLeave={e=>this.setState({show:false})}

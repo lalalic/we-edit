@@ -129,7 +129,11 @@ export default class extends HasParentAndChild(models.Row){
 			return cell
 		})
 		
-		return <Row children={groupsWithXY} height={Math.max(height, this.props.height||0)} width={width}/>
+		return <Row 
+			children={groupsWithXY} 
+			height={Math.max(height, this.props.height||0)} contentHeight={height}
+			width={width}
+			/>
 	}
 }
 
@@ -160,7 +164,7 @@ class Cell extends Group{
 		const {width,height, background, children, ...others}=this.props
 		return (
 			<Group {...others}>
-				{background ? (<rect width={width} height={height} fill={background}/>)  : null}
+				{background&&background!="transparent" ? (<rect width={width} height={height} fill={background}/>)  : null}
 				{children}
 			</Group>
 		)
