@@ -49,8 +49,13 @@ class Loader extends PureComponent{
 
 		constructor(){
 			super(...arguments)
-			if(this.context.inRender){
-				this.doLoad()
+			if(this.context.inRender||this.props.now||typeof(document)=="undefined"){
+				this.render=()=>{
+					return null
+				}
+				this.componentDidMount=()=>{
+					this.doLoad()
+				}
 			}
 		}
 

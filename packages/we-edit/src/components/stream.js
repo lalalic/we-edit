@@ -33,9 +33,13 @@ export class Stream extends Component{
 
 		constructor(){
 			super(...arguments)
-			if(this.context.inRender){
-				this.doCreate()
-				this.render=()=>null
+			if(this.context.inRender||this.props.now||typeof(document)=="undefined"){
+				this.render=()=>{
+					return null
+				}
+				this.componentDidMount=()=>{
+					this.doCreate()
+				}
 			}
 		}
 

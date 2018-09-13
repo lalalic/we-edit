@@ -25,7 +25,7 @@ export default class Create extends PureComponent{
             .map(({defaultProps})=>{
 				let {template, type}=defaultProps
 				if(React.isValidElement(template)){
-					return React.cloneElement(template,{key:"type"})
+					return React.cloneElement(template,{key:type})
 				} else if(typeof(template)=="string"){
 					return <URLFetcher key={type} {...defaultProps} url={template} template={undefined}/>
 				}
