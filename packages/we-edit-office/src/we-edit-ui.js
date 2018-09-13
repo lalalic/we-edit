@@ -5,6 +5,8 @@ import {connect} from "react-redux"
 import {compose,setDisplayName}  from "recompose"
 import minimatch from "minimatch"
 
+import memoize from "memoize-one"
+
 import {Snackbar} from "material-ui"
 
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
@@ -59,34 +61,45 @@ export default compose(
 		this.setState({error:error.message})
 	}
 
+	getActiveWorkspace=memoize((children,active)=>{
+		return Children.toArray(children).find(({props:{accept}})=>{
+				if(typeof(accept)=="string"){
+					let glob=accept
+					accept=a=>minimatch(a.name||"",glob)
+				}else if(accept
+					&& accept.prototype
+					&& accept.prototype instanceof Input.Viewable){
+					let InputType=accept
+					accept=a=>a.isTypeOf(InputType)
+				}
+
+				if(typeof(accept)=="function")
+					return accept(active)
+
+				return !!accept
+			})
+	})
+
+	getNonWorkspaces=memoize((children)=>{
+		let a=Children.toArray(children).filter(({props:{accept}})=>!accept)
+		if(a.length)
+			return a
+		return null
+	})
+
 	render(){
 		let {children,active, titleBar, dashboard, style, dispatch, titleBarProps, ...others}=this.props
-		children=Children.toArray(children)
-		let child=null
+		let activeWorkspace=null
+		let nonWorkspaces=this.getNonWorkspaces(children)
+
 		if(active){
-			child=children.find(({props:{accept}})=>{
-					if(typeof(accept)=="string"){
-						let glob=accept
-						accept=a=>minimatch(a.name||"",glob)
-					}else if(accept 
-						&& accept.prototype 
-						&& accept.prototype instanceof Input.Viewable){
-						let InputType=accept
-						accept=a=>a.isTypeOf(InputType)
-					}
+			activeWorkspace=this.getActiveWorkspace(children,active)
 
-					if(typeof(accept)=="function")
-						return accept(active)
-
-					return !!accept
-				})
-
-			if(child){
-				child=React.cloneElement(child, {doc:active, ...others, ...child.props})
-			}else
-				child=(<div>no editor for this document</div>)
-		}else{
-			child=children.filter(({props:{accept}})=>!accept)
+			if(activeWorkspace){
+				activeWorkspace=React.cloneElement(activeWorkspace, {doc:active, ...others, ...activeWorkspace.props})
+			}else if(!nonWorkspaces){
+				activeWorkspace=(<div>no editor for this document</div>)
+			}
 		}
 
 		const {error}=this.state
@@ -95,8 +108,8 @@ export default compose(
 			<MuiThemeProvider muiTheme={this.theme}>
 				<div style={{...styles.root,...style}}>
 					{titleBar && React.cloneElement(titleBar,{
-						...titleBarProps, 
-						active, 
+						...titleBarProps,
+						active,
 						onMenu:a=>this.refs.dashboard.setState({display:true})
 					})}
 
@@ -107,7 +120,9 @@ export default compose(
 						zIndex:this.theme.zIndex.popover
 					})}
 
-					{child}
+					{activeWorkspace}
+
+					{nonWorkspaces}
 
 					<Snackbar
 						open={!!error}
