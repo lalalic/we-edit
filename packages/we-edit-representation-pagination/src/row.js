@@ -1,4 +1,4 @@
-import React,{Component} from "react"
+import React,{PureComponent as Component} from "react"
 import PropTypes from "prop-types"
 import {models} from "we-edit"
 
@@ -139,10 +139,10 @@ export default class extends HasParentAndChild(models.Row){
 
 
 
-class Spacing extends Group{}
-class Margin extends Group{}
+const Spacing=Group
+const Margin=Group
 
-class Cell extends Group{
+class Cell extends Component{
 	static contextTypes={
 		cellSize: PropTypes.object
 	}
@@ -172,7 +172,7 @@ class Cell extends Group{
 
 }
 
-class Row extends Group{
+class Row extends Component{
 	static childContextTypes={
 		rowSize:PropTypes.object
 	}
@@ -184,6 +184,11 @@ class Row extends Group{
 				height: this.props.height
 			}
 		}
+	}
+	
+	render(){
+		const {contentHeight, ...props}=this.props
+		return <Group {...props}/>
 	}
 }
 

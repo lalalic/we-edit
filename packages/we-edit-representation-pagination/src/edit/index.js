@@ -14,6 +14,7 @@ import Paragraph from "./paragraph"
 import Text from "./text"
 import Shape from "./shape"
 import Table from "./table"
+import Row from "./row"
 
 export default {
 	...Editables,
@@ -22,5 +23,6 @@ export default {
 	Paragraph,
 	Text,
 	Shape,
-	Table
+	Table,
+	Row,
 }
