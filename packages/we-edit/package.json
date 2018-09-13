@@ -1,7 +1,7 @@
 {
   "name": "we-edit",
   "description": "a text editor framework based on React",
-  "version": "3.2.5",
+  "version": "3.2.6",
   "author": {
     "name": "Raymond Li",
     "email": "lalalic@139.com"
@@ -25,7 +25,8 @@
     "recompose": "^0.26.0",
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0",
-    "shortid": "^2.2.8"
+    "shortid": "^2.2.8",
+	"memoize-one": "^4.0.2"
   },
   "optionalDependencies": {
     "get-system-fonts": "^1.0.0",
