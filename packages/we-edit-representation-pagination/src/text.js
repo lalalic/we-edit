@@ -1,6 +1,6 @@
 import React from "react"
 import PropTypes from "prop-types"
-
+import memoize from "memoize-one"
 
 import {NoChild} from "./composable"
 import {models} from "we-edit"
@@ -15,20 +15,13 @@ export default class Text extends Super{
     static contextTypes={
 		...Super.contextTypes,
 		getMyBreakOpportunities: PropTypes.func,
-		Measure: PropTypes.func,
-		defaultFont: PropTypes.string,
+		Measure: PropTypes.func
 	}
 
-    constructor(){
-        super(...arguments)
-        this.computed.breakOpportunities=this.getBreakOpportunitiesWidth(this.props,this.context)
-    }
-
-    getBreakOpportunitiesWidth(props,context){
-		const {defaultFont}=context
-        const {fonts=defaultFont,size,bold,italic,children:myText}=props
-		const measure=this.measure=new context.Measure({fonts,size,bold,italic})
-		const [index,breakOpportunities]=context.getMyBreakOpportunities()
+    getBreakOpportunities=memoize((myText,fonts,size,bold,italic)=>{
+		const {Measure,getMyBreakOpportunities}=this.context
+		const measure=this.measure=new Measure({fonts:fonts,size,bold,italic})
+		const [index,breakOpportunities]=getMyBreakOpportunities(this)
         return breakOpportunities.map(opportunity=>{
             let {
                 word,
@@ -46,8 +39,7 @@ export default class Text extends Super{
 
             return [word,measure.stringWidth(word)]
         })
-
-    }
+    })
 
     render(){
 		const parent=this.context.parent
@@ -57,7 +49,9 @@ export default class Text extends Super{
 			return null
 		}
 			
-		
+		const breakOpportunities=(({children:myText,fonts,size,bold,italic})=>
+			this.getBreakOpportunities(myText,fonts,size,bold,italic))(this.props);
+			
         const measure=this.measure
 		const defaultStyle={...this.measure.defaultStyle, color, highlight,border,underline,strike}
 		
@@ -116,7 +110,7 @@ export default class Text extends Super{
 			return state
 		}
 
-        let state=this.computed.breakOpportunities.reduce(
+        let state=breakOpportunities.reduce(
 			consume1,
 			{space:parent.nextAvailableSpace({height:measure.height}),content:[],width:0,end:0}
 		)

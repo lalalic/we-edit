@@ -8,6 +8,7 @@ class  Representation extends PureComponent{
 		type: PropTypes.string,
 		EditorTypes: PropTypes.object,
 		ViewerTypes: PropTypes.object,
+		transformer: PropTypes.func,
 	}
 
 	static contextTypes={
@@ -29,9 +30,9 @@ class  Representation extends PureComponent{
 	}
 
 	getChildContext(){
-		const {domain, EditorTypes, ViewerTypes}=this.props
+		const {domain, EditorTypes, ViewerTypes, transformer=a=>a}=this.props
 		return {
-			ModelTypes: this.context.transformer(domain=="edit" ? EditorTypes : ViewerTypes),
+			ModelTypes: this.context.transformer(transformer(domain=="edit" ? EditorTypes : ViewerTypes)),
 		}
 	}
 

@@ -12,7 +12,6 @@ import Row from "./row"
 import Cell from "./cell"
 import Frame from "./frame"
 import Shape from "./shape"
-import $exp from "./$exp"
 
 export default {
 	...models,
@@ -28,5 +27,4 @@ export default {
 	Cell,
 	Frame,
 	Shape,
-	$exp,
 }
