@@ -4,8 +4,8 @@ import PropTypes from "prop-types"
 import Component from "./$"
 
 
-export default class extends Component{
-    static displayName="$if"
+export default Components=>class extends Component{
+    static displayName="$sub"
     static propTypes={
 
     }

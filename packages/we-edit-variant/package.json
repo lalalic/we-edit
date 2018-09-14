@@ -1,0 +1,26 @@
+{
+  "name": "we-edit-variant",
+  "description": "dynamic content",
+  "version": "3.0.0",
+  "author": {
+    "name": "Raymond Li",
+    "email": "lalalic@139.com"
+  },
+  "dependencies": {
+	"prop-types": "^15.6.0"
+  },
+  "peerDependencies":{
+    "react": "^16.2.0",
+	"react-dom": "^16.1.1",
+	"we-edit":"^3.0.0"
+  },
+  "keywords": ["we-edit","assemble","variant","dynamic"],
+  "engines": {
+    "node": ">= 8.0.0"
+  },
+  "we-office":{
+      "type":["Representation"]
+  },
+  "files":["index.js","README.md"],
+  "readme": "README.md"
+}

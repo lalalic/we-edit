@@ -4,8 +4,8 @@ import PropTypes from "prop-types"
 import Component from "./$"
 
 
-export default class extends Component{
-    static displayName="$script"
+export default Components=>class extends Component{
+    static displayName="$picture"
     static propTypes={
 
     }

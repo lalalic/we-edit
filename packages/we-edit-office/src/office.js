@@ -10,6 +10,8 @@ import Ribbon, {Tab} from "./ribbon"
 import IconRead from "material-ui/svg-icons/communication/import-contacts"
 import IconPrint from "material-ui/svg-icons/editor/format-align-justify"
 
+import {withVariant, VariantRepresentation} from "we-edit-variant"
+
 const KEY="default(accept=*)"
 const TextEditor=compose(
 	setDisplayName("TextEditor"),
@@ -50,7 +52,7 @@ const Default={
 			debug={true}
 			accept="*"
 			key={KEY}
-			layout="print"
+			layout="variant"
 			tools={<Ribbon commands={{layout:false}}/>}
 			reducer={(state={
 					text:{
@@ -78,11 +80,19 @@ const Default={
 				icon={<IconRead/>}
 				representation="pagination"
 				/>
+				
 			<Editor
 				layout="print"
 				icon={<IconPrint/>}
 				reCreateDoc={true}
 				representation="pagination"
+				/>
+				
+			<Editor
+				layout="variant"
+				icon={<IconPrint/>}
+				reCreateDoc={true}
+				representation={<VariantRepresentation type="pagination" />}
 				/>
 
 			<Editor
