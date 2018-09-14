@@ -16,12 +16,12 @@ export default class Html extends Representation.Base{
 	static defaultProps={
 		type:"html"
 	}
-	
+
 	static Output=Output
 
 	render(){
-		const {ViewerTypes=Viewers, EditorTypes=Editors,type, ...props}=this.props
-		return (<Pagination {...{ViewerTypes,EditorTypes, ...props}}/>)
+		const {ViewerTypes=Viewers, EditorTypes=Editors, ...props}=this.props
+		return (<Pagination {...{ViewerTypes,EditorTypes, ...props,type:undefined}}/>)
 	}
 }
 
@@ -32,7 +32,7 @@ export default class Html extends Representation.Base{
 		install(...arguments)
 		A.Output.install()
 	}
-	
+
 	let uninstall=A.uninstall.bind(A)
 	A.uninstall=function(){
 		uninstall(...arguments)

@@ -106,17 +106,12 @@ export default class Emitter extends Viewer{
 			})
 			return represents
 		}, createGroup()).forEach((streams,type)=>{
-			let TypedRepresentation=Representation.get(type)
-			if(TypedRepresentation){
-				const {media, style, children, ...props}=this.props
-				represents.push(
-					<TypedRepresentation key={type}>
-						{this.createDocument({canvasProps:{canvas:<Wrapper children={streams}/>, ...props}})}
-					</TypedRepresentation>
-				)
-			}else{
-				represents.push(streams)
-			}
+			const {media, style, children, ...props}=this.props
+			represents.push(
+				<Representation type={type} key={type}>
+					{this.createDocument({canvasProps:{canvas:<Wrapper children={streams}/>, ...props}})}
+				</Representation>
+			)
 		})
 
 		return represents

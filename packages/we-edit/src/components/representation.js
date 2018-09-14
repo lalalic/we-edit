@@ -18,12 +18,12 @@ class  Representation extends PureComponent{
 	static childContextTypes={
 		ModelTypes: PropTypes.object,
 	}
-	
+
 	static Base=class extends Component{
 		static install(conf){
 			Representation.install(this,conf)
 		}
-		
+
 		static uninstall(){
 			Representation.uninstall(this)
 		}
@@ -37,6 +37,13 @@ class  Representation extends PureComponent{
 	}
 
 	render(){
+		const {type, children, ...props}=this.props
+		if(type){
+			const Typed=Representation.get(type)
+			if(Typed){
+				return <Typed {...props}>{children}</Typed>
+			}
+		}
 		return Children.only(this.props.children)
 	}
 }

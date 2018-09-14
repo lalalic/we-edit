@@ -1,6 +1,5 @@
 import React, {Children, PureComponent, Component} from "react"
 import PropTypes from "prop-types"
-import memoize from "memoize-one"
 
 import {connect} from "../state"
 
@@ -45,7 +44,6 @@ export class Editor extends PureComponent{
 	constructor(){
 		super(...arguments)
 		this.docId=`${uuid()}`
-		this.getTypedRepresentation=memoize(this.getTypedRepresentation.bind(this))
 	}
 	getChildContext(){
 		const {media}=this.props
@@ -53,37 +51,16 @@ export class Editor extends PureComponent{
 	}
 
 	render(){
-		const {media, representation, reCreateDoc, scale, screenBuffer, children:canvas, viewport, ...props}=this.props
-		const TypedRepresentation=this.getTypedRepresentation(representation)
-		if(!TypedRepresentation)
-			return null
+		let {media, representation, reCreateDoc, scale, screenBuffer, children:canvas, viewport, ...props}=this.props
+		if(typeof(representation)=="string"){
+			representation=<Representation type={representation}/>
+		}
 
 		return React.cloneElement(
-			TypedRepresentation,
+			representation,
 			{domain:this.constructor.domain},
 			this.createDocument({docId:this.docId, reCreateDoc, canvasProps:{canvas, scale, screenBuffer,viewport, ...props}})
 		)
-	}
-
-	getTypedRepresentation(representation){
-		let TypedRepresentation=null
-		if(typeof(representation)=="string"){
-			TypedRepresentation=Representation.get(representation)
-			if(TypedRepresentation){
-				return <TypedRepresentation/>
-			}
-		}else if(React.isValidElement(representation)){
-			let {props:{type, ...others}}=representation
-			if(type){
-				TypedRepresentation=Representation.get(type)
-			}
-			if(TypedRepresentation){
-				return <TypedRepresentation {...others}/>
-			}
-		}
-
-
-		return representation
 	}
 
 	createDocument(props){
