@@ -28,17 +28,19 @@ export class Paragraph extends Super{
 	}
 
 	componentWillUnmount(){
-		this.emit("words", -this.computed.breakOpportunities.length)
+		//this.emit("words", -this.computed.breakOpportunities.length)
 	}
 
-    componentWillReceiveProps({children,getChildText,changed},{shouldRemoveComposed,parent}){
+    componentWillReceiveProps({children,changed},{shouldRemoveComposed,parent}){
 		if(this.computed.composed.length>0){
 			if(shouldRemoveComposed(this)){
 				if(changed){
 					this.clearComposed()
+					/*
 					let lastBreakOpportunities=this.computed.breakOpportunities
 					this.computed.breakOpportunities=this.getBreakOpportunities(Children.toArray(children))
 					this.emit("words", this.computed.breakOpportunities.length-lastBreakOpportunities.length)
+					*/
 				}else{
 					this.computed.lines.forEach(line=>parent.appendComposed(line))
 					this.availableSpace={width:0, height:0}

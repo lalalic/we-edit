@@ -22,66 +22,55 @@ export class Paragraph extends Super{
         getMyBreakOpportunities: PropTypes.func
     }
 
-	static propTypes={
-		...Super.propTypes,
-		getChildText: PropTypes.func
-	}
-
-	static defaultProps={
-		...Super.defaultProps,
-		getChildText(el){
-			if(el.props.getText)
-				return el.props.getText(el.props)
-				
-			while(typeof(el.props.children)!=="string"){
-				if(!el.props.children || !(el=el.props.children[0]) || !React.isValidElement(el))
-					return null
-			}
-			return el.props.children
-		}
-	}
-
-
-    constructor(){
-        super(...arguments)
-        this.computed.breakOpportunities=this.getBreakOpportunities(Children.toArray(this.props.children))
-    }
-
-    getBreakOpportunities(children){
-		return Object.freeze(opportunities(children,this.props.getChildText))
-    }
-
 	componentDidMount(){
-		this.emit("words",this.computed.breakOpportunities.length)
+		//this.emit("words",this.computed.breakOpportunities.length)
 	}
 
     getChildContext(){
         let self=this
+		const getChildText=el=>{
+			if(el.getText){
+				return el.getText()
+			}
+			
+			if(typeof(el.props.children)=="string"){
+				return el.props.children
+			}
+			
+			if(el.computed.children && (el=el.computed.children[0])){
+				return getChildText(el)
+			}
+			
+			return null
+		}		
+		
         return {
             ...super.getChildContext(),
-            getMyBreakOpportunities(){
-				const {getChildText}=self.props
-				let index=self.computed.children.length
-				let opportunities=self.computed.breakOpportunities.filter(({start,end})=>{
+            getMyBreakOpportunities(me){
+				const {children:composedChildren}=self.computed
+				const children=[...composedChildren,me]
+				const index=children.length-1
+				
+				const tillNowBreakOpportunities=Object.freeze(opportunities(children,getChildText))
+				
+				let myOpportunities=tillNowBreakOpportunities.filter(({start,end})=>{
 					return start.itemIndex<=index && end.itemIndex>=index
 				})
 
-				if(opportunities.length){
-                    if(opportunities[0].start.itemIndex!=index){
-       					let {start:{itemIndex,at}, end, word}=opportunities[0]
-                        let children=self.props.children
+				if(myOpportunities.length){
+                    if(myOpportunities[0].start.itemIndex!=index){
+       					let {start:{itemIndex,at}, end, word}=myOpportunities[0]
                         let remove=getChildText(children[itemIndex]).length-at
        					for(let i=itemIndex+1;i<index;i++)
        						remove+=getChildText(children[i]).length
 
        					let adjusted={end, word: word.substring(remove), start:{at:0, itemIndex:index}}
-       					opportunities[0]=adjusted
+       					myOpportunities[0]=adjusted
        				}
 
-                    let len=opportunities.length,last=opportunities[len-1]
+                    let len=myOpportunities.length,last=myOpportunities[len-1]
                     if(last.end.itemIndex!=index){
                         let {end:{itemIndex,at}, start, word}=last
-                        let children=self.props.children
                         let remove=at
        					for(let i=itemIndex-1;i>index;i--)
        						remove+=getChildText(children[i]).length
@@ -91,12 +80,12 @@ export class Paragraph extends Super{
                             word: word.substring(0,word.length-remove),
                             end:{at:getChildText(children[index]).length-1, itemIndex:index}
                         }
-       					opportunities[len-1]=adjusted
+       					myOpportunities[len-1]=adjusted
                     }
 
                 }
 
-				return [index,opportunities]
+				return [index,myOpportunities]
             }
         }
     }
