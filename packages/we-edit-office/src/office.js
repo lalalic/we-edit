@@ -1,4 +1,5 @@
 import React, {Fragment} from "react"
+
 import {DOMAIN, WeEdit, Viewer, Editor, Emitter,Stream, Representation} from "we-edit"
 import {compose,setDisplayName,setStatic, withProps}  from "recompose"
 import {connect} from "react-redux"
@@ -10,7 +11,7 @@ import Ribbon, {Tab} from "./ribbon"
 import IconRead from "material-ui/svg-icons/communication/import-contacts"
 import IconPrint from "material-ui/svg-icons/editor/format-align-justify"
 
-import {withVariant, VariantRepresentation} from "we-edit-variant"
+import {VariantContext, VariantRepresentation} from "we-edit-variant"
 
 const KEY="default(accept=*)"
 const TextEditor=compose(
@@ -88,12 +89,16 @@ const Default={
 				representation="pagination"
 				/>
 				
-			<Editor
+			<VariantContext 
 				layout="variant"
 				icon={<IconPrint/>}
-				reCreateDoc={true}
-				representation={<VariantRepresentation type="pagination" />}
-				/>
+				value={{firstName:"raymond",lastName:"li"}}
+				>
+				<Editor
+					reCreateDoc={true}
+					representation={<VariantRepresentation type="pagination"/>}
+					/>
+			</VariantContext>
 
 			<Editor
 				layout="web"

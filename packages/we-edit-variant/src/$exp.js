@@ -1,5 +1,7 @@
 import React from "react"
 import PropTypes from "prop-types"
+import memoize from "memoize-one"
+import vm from "vm-browserify"
 
 import Component from "./$"
 
@@ -12,24 +14,26 @@ export default ({Text})=>class extends Component{
     }
 
     static defaultProps={
-        expression:"",
-        getText({name,expression}){
-            return `{${name||expression}}`
-        }
+        expression:""
     }
 	
 	render(){
-		const {variantContext}=this.context
 		const {expression,name, ...props}=this.props
-		const text=this.getText(variantContext,expression,name)
-		return <Text {...props} color="red" children={text}/>
+		return <Text {...props} color="red" children={this.getText()}/>
 	}
 	
 	
-	getText(variantContext,expression,name){
-		if(variantContext)
-			return vm.runInContext(expression, variantContext)
+	getValue=memoize((variantContext,expression,name)=>{
+		if(variantContext){
+			return vm.runInContext(expression, vm.createContext(variantContext))
+		}
 		
-		return this.props.getText({expression,name})
+		return `{${name||expression}}`
+	})
+	
+	getText(){
+		const {variantContext}=this.context
+		const {expression,name, ...props}=this.props
+		return this.getValue(variantContext,expression,name)
 	}
 }

@@ -1,5 +1,6 @@
 import React, {Component, PureComponent} from "react"
 import PropTypes from "prop-types"
+import {withContext} from "recompose"
 
 import {Representation} from "we-edit"
 
@@ -19,3 +20,9 @@ export class VariantRepresentation extends Component{
 		transformer:withVariant
 	}
 }
+
+
+export const VariantContext=withContext({
+	variantContext: PropTypes.object,
+},({value})=>({variantContext:value})
+)(({children})=>children)

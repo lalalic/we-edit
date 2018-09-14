@@ -7,20 +7,31 @@
     "email": "lalalic@139.com"
   },
   "dependencies": {
-	"prop-types": "^15.6.0"
+    "prop-types": "^15.6.0",
+    "vm-browserify": "^1.1.0"
   },
-  "peerDependencies":{
+  "peerDependencies": {
     "react": "^16.2.0",
-	"react-dom": "^16.1.1",
-	"we-edit":"^3.0.0"
+    "react-dom": "^16.1.1",
+    "we-edit": "^3.0.0"
   },
-  "keywords": ["we-edit","assemble","variant","dynamic"],
+  "keywords": [
+    "we-edit",
+    "assemble",
+    "variant",
+    "dynamic"
+  ],
   "engines": {
     "node": ">= 8.0.0"
   },
-  "we-office":{
-      "type":["Representation"]
+  "we-office": {
+    "type": [
+      "Representation"
+    ]
   },
-  "files":["index.js","README.md"],
+  "files": [
+    "index.js",
+    "README.md"
+  ],
   "readme": "README.md"
 }
