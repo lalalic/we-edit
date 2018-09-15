@@ -26,7 +26,9 @@ export default class EditableDocument extends Input.Editable{
 		const visit=node=>{
 			if(node.id==id)
 				return found=node
-			return node.children.find ? node.children.find(a=>visit(a)) : null
+			if(Array.isArray(node.children)){
+				return node.children.find(a=>visit(a))
+			}
 		}
 
 		visit(this.doc)

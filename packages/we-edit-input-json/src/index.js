@@ -1,3 +1,4 @@
+import React,{Fragment} from "react"
 import {Input} from "we-edit"
 import {Readable} from 'stream'
 import EditableDocument from "./editable-doc"
@@ -44,10 +45,11 @@ export default class JSONType extends Input.Editable{
 		const renderNode=(node,createElement)=>{
 			let {type,props,children=[]}=node
 			let Type=components[type[0].toUpperCase()+type.substr(1)]
-			if(!Type)
-				return null
+			if(!Type){
+				Type=class{static displayName=type}
+			}
 			return createElement(Type,props,
-				children.map ? children.map(a=>renderNode(a,createElement)) : children,
+				children.map ? children.map(a=>renderNode(a,createElement)).filter(a=>!!a) : children,
 				node)
 		}
 
