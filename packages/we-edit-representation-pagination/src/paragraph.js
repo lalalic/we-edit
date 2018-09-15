@@ -7,6 +7,7 @@ import {models} from "we-edit"
 const {Paragraph:Base}=models
 
 import opportunities from "./wordwrap/line-break"
+import LineBreaker from "linebreak"
 import Group from "./composed/group"
 import Line, {Info as LineInfo} from "./composed/line"
 import ComposedText from "./composed/text"
@@ -22,70 +23,54 @@ export class Paragraph extends Super{
         getMyBreakOpportunities: PropTypes.func
     }
 
+	constructor(){
+		super(...arguments)
+		this.computed.lastText=""
+	}
+
 	componentDidMount(){
 		//this.emit("words",this.computed.breakOpportunities.length)
 	}
 
     getChildContext(){
         let self=this
-		const getChildText=el=>{
-			if(el.getText){
-				return el.getText()
-			}
-			
-			if(typeof(el.props.children)=="string"){
-				return el.props.children
-			}
-			
-			if(el.computed.children && (el=el.computed.children[0])){
-				return getChildText(el)
-			}
-			
-			return null
-		}		
-		
         return {
             ...super.getChildContext(),
-            getMyBreakOpportunities(me){
-				const {children:composedChildren}=self.computed
-				const children=[...composedChildren,me]
-				const index=children.length-1
-				
-				const tillNowBreakOpportunities=Object.freeze(opportunities(children,getChildText))
-				
-				let myOpportunities=tillNowBreakOpportunities.filter(({start,end})=>{
-					return start.itemIndex<=index && end.itemIndex>=index
-				})
+            getMyBreakOpportunities(text){
+				const {lastText}=self.computed
+				if(!text){
+					if(text===null)
+						self.computed.lastText=""
+					return [""]
+				}
 
-				if(myOpportunities.length){
-                    if(myOpportunities[0].start.itemIndex!=index){
-       					let {start:{itemIndex,at}, end, word}=myOpportunities[0]
-                        let remove=getChildText(children[itemIndex]).length-at
-       					for(let i=itemIndex+1;i<index;i++)
-       						remove+=getChildText(children[i]).length
+				const opportunities=str=>{
+					let breaker=new LineBreaker(str)
+					let last=0
+					var op=[]
+					for (let bk;bk = breaker.nextBreak();) {
+					  op.push(str.slice(last, bk.position))
 
-       					let adjusted={end, word: word.substring(remove), start:{at:0, itemIndex:index}}
-       					myOpportunities[0]=adjusted
-       				}
+					  if (bk.required) {
+					    //op.push("\n")
+					  }
 
-                    let len=myOpportunities.length,last=myOpportunities[len-1]
-                    if(last.end.itemIndex!=index){
-                        let {end:{itemIndex,at}, start, word}=last
-                        let remove=at
-       					for(let i=itemIndex-1;i>index;i--)
-       						remove+=getChildText(children[i]).length
+					  last = bk.position
+					}
+					return op
+				}
 
-       					let adjusted={
-                            start,
-                            word: word.substring(0,word.length-remove),
-                            end:{at:getChildText(children[index]).length-1, itemIndex:index}
-                        }
-       					myOpportunities[len-1]=adjusted
-                    }
+				const current=opportunities(self.computed.lastText=`${lastText}${text}`)
+				if(!lastText){
+					return current
+				}
 
-                }
+				const last=opportunities(lastText)
+				const i=last.length-1
 
-				return [index,myOpportunities]
+				let possible=current.slice(i)
+				possible[0]=possible[0].substring(last.pop().length)
+				return possible
             }
         }
     }

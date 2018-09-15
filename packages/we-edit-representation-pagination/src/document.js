@@ -14,7 +14,7 @@ export default class Document extends Super{
 		const {canvas=<Dummy/>}=this.props
         return (
 			<Fragment>
-				{this.computed.children.length==0 ? super.render() : null}
+				{super.render()}
                 {React.cloneElement(canvas, {content:<ComposedDocument pages={this.computed.composed}/>})}
 			</Fragment>
 		)

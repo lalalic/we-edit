@@ -14,31 +14,14 @@ const Super=NoChild(Base)
 export default class Text extends Super{
     static contextTypes={
 		...Super.contextTypes,
-		getMyBreakOpportunities: PropTypes.func,
 		Measure: PropTypes.func
 	}
 
     getBreakOpportunities=memoize((myText,fonts,size,bold,italic)=>{
 		const {Measure,getMyBreakOpportunities}=this.context
 		const measure=this.measure=new Measure({fonts:fonts,size,bold,italic})
-		const [index,breakOpportunities]=getMyBreakOpportunities(this)
-        return breakOpportunities.map(opportunity=>{
-            let {
-                word,
-                start:{itemIndex:startItemIndex, at:startAt},
-                end:{itemIndex:endItemIndex, at:endAt}
-                }=opportunity
-            if(startItemIndex==endItemIndex){
-                //whole word
-            }else if(startItemIndex==index){
-                word=word.substring(0,myText.length-startAt)
-            }else if(endItemIndex==index){
-                word=word.substr(-endAt)
-            }
-			word=word||""
-
-            return [word,measure.stringWidth(word)]
-        })
+		const breakOpportunities=getMyBreakOpportunities(myText)
+        return breakOpportunities.map(word=>[word,measure.stringWidth(word)])
     })
 
     render(){
@@ -48,14 +31,14 @@ export default class Text extends Super{
 			parent.on1ChildComposed(this)
 			return null
 		}
-			
+
 		const breakOpportunities=(({children:myText,fonts,size,bold,italic})=>
 			this.getBreakOpportunities(myText,fonts,size,bold,italic))(this.props);
-			
+
         const measure=this.measure
 		const defaultStyle={...this.measure.defaultStyle, color, highlight,border,underline,strike}
-		
-		
+
+
 		let i=0
 		const commit=state=>{
 			let {content,width,end}=state
@@ -117,9 +100,7 @@ export default class Text extends Super{
 
 		commit(state)
 
-		parent.on1ChildComposed(this)
-
-        return null
+		return null
     }
 
 	createComposed2Parent(props, composed){
