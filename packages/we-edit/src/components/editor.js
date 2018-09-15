@@ -1,4 +1,4 @@
-import React, {Children, PureComponent, Component} from "react"
+import React, {Fragment, Children, PureComponent, Component} from "react"
 import PropTypes from "prop-types"
 
 import {connect} from "../state"
@@ -77,8 +77,8 @@ export function createWeDocument(id,content,ModelTypes,lastContent, onElCreate){
 	}
 	let Child=ModelTypes[type[0].toUpperCase()+type.substr(1)]
 	if(!Child){
-		console.error(`[${type}] not found`)
-		return null
+		Child=ModelTypes.Unknown
+		console.warn(`[${type}] not found`)
 	}
 	let elChildren=children
 

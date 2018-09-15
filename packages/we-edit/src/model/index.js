@@ -1,3 +1,4 @@
+import Unknown from "./component"
 import Document from "./document"
 import Section from "./section"
 import Paragraph from "./paragraph"
@@ -13,6 +14,7 @@ import Shape from "./shape"
 import Variants from "./variant"
 
 export default {
+	Unknown,
 	Document,
 	Section,
 	Paragraph,
@@ -25,5 +27,5 @@ export default {
 	Cell,
 	Frame,
 	Shape,
-	...Variants
+	//...Variants
 }

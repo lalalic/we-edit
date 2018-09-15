@@ -1,4 +1,4 @@
-import React, {Component} from  "react"
+import React, {Component,Fragment} from  "react"
 
 export default "exp,if,for,script,sub".split(",")
 	.reduce((s,k)=>{
@@ -6,7 +6,11 @@ export default "exp,if,for,script,sub".split(",")
 		s[name]=class extends Component{
 			static displayName=name
 			render(){
-				return null
+				return (
+					<Fragment>
+						{this.props.children}
+					</Fragment>
+				)
 			}
 		}
 		return s
