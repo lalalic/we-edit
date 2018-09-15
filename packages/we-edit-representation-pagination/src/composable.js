@@ -142,12 +142,15 @@ export function HasParentAndChild(Component){
 }
 
 export function NoChild(Component){
-    return class extends HasParentAndChild(Component){
-		static get NoChild(){
-			return true
-		}
-		
+    const Super=HasParentAndChild(Component)
+    return class extends Super{
+		static contextTypes={
+            ...Super.contextTypes,
+            getMyBreakOpportunities: PropTypes.func
+        }
+
         render() {
+            this.context.getMyBreakOpportunities(null)
             let composed = this.createComposed2Parent()
             this.computed.composed.push(composed)
             this.appendComposed(composed)
