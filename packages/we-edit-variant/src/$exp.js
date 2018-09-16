@@ -6,7 +6,7 @@ import vm from "vm-browserify"
 import Component from "./$"
 
 
-export default ({Text})=>class extends Component{
+export default ({Text,$exp})=>class extends Component{
     static displayName="$exp"
     static propTypes={
         expression:PropTypes.string.isRequired,
@@ -16,24 +16,21 @@ export default ({Text})=>class extends Component{
     static defaultProps={
         expression:""
     }
-	
+
 	render(){
-		const {expression,name, ...props}=this.props
-		return <Text {...props} color="red" children={this.getText()}/>
+        const {expression,name, children}=this.props
+        let text=Array.isArray(children) ? children[0] : children
+        if(this.canAssemble){
+            const value=this.getValue(this.context.variantContext, expression,name)
+    		return React.cloneElement(text,{children:value+"", color:"red"})
+        }
+
+        return React.cloneElement(text,{children:text.props.children||`{${expression}}`})
+
 	}
-	
-	
+
+
 	getValue=memoize((variantContext,expression,name)=>{
-		if(variantContext){
-			return vm.runInContext(expression, vm.createContext(variantContext))
-		}
-		
-		return `{${name||expression}}`
+		return this.eval(expression)
 	})
-	
-	getText(){
-		const {variantContext}=this.context
-		const {expression,name, ...props}=this.props
-		return this.getValue(variantContext,expression,name)
-	}
 }

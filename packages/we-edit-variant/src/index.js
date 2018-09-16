@@ -16,13 +16,18 @@ export function withVariant(Components){
 
 
 export class VariantRepresentation extends Component{
-	static defaultProps={
-		transformer:withVariant
+	static childContextTypes={
+		variantContext: PropTypes.object
+	}
+
+	getChildContext(){
+		return {
+			variantContext:this.props.variants
+		}
+	}
+
+	render(){
+		const {variants, transformer=a=>a, ...props}=this.props
+		return (<Representation {...props} transformer={a=> a && transformer(withVariant(a))}/>)
 	}
 }
-
-
-export const VariantContext=withContext({
-	variantContext: PropTypes.object,
-},({value})=>({variantContext:value})
-)(({children})=>children)

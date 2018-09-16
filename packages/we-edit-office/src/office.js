@@ -47,6 +47,38 @@ const TextEditorTool=compose(
 	</div>
 )
 
+const VariantEditorTool=compose(
+	setDisplayName("VariantEditorTool"),
+	connect(state=>{
+		let {variant}=state[KEY]
+		return variant
+	}, dispatch=>{
+		return {
+			toggle(k){
+				dispatch({type:`${DOMAIN}/${KEY}/variant/toggle`,payload:k})
+			}
+		}
+	})
+)(({toggle, assemble})=>(
+	<div style={{lineHeight:"30px"}}>
+		<span>
+			<input type="checkbox" checked={assemble} onChange={()=>toggle("assemble")}/>
+			<span>assemble</span>
+		</span>
+	</div>
+))
+
+const VariantEditor=compose(
+	setDisplayName("VariantEditor"),
+	connect(state=>{
+		let {variant}=state[KEY]
+		return variant
+	}),
+)(({assemble, representation, ...props})=>{
+	props.representation= !assemble ? React.cloneElement(representation,{variants:null, key:assemble}) : representation
+	return <Editor {...props}/>
+})
+
 const Default={
 	workspaces:[
 		<Workspace
@@ -62,11 +94,17 @@ const Default={
 						size:12,
 						fonts:"calibri",
 						lineHeight:"140%",
+					},
+					variant:{
+						assemble:true
 					}
 				},{type,payload})=>{
 					switch(type){
 						case `${DOMAIN}/${KEY}/text/toggle`:{
 							return {...state, text:{...state.text, [payload]:!state.text[payload]}}
+						}
+						case `${DOMAIN}/${KEY}/variant/toggle`:{
+							return {...state, variant:{...state.variant, [payload]:!state.variant[payload]}}
 						}
 						default:
 							return state
@@ -74,31 +112,38 @@ const Default={
 				}
 			}
 			>
-			<Viewer
-				toolBar={null}
-				ruler={false}
-				layout="read"
-				icon={<IconRead/>}
-				representation="pagination"
-				/>
-				
 			<Editor
 				layout="print"
 				icon={<IconPrint/>}
 				reCreateDoc={true}
 				representation="pagination"
 				/>
-				
-			<VariantContext 
+
+			<VariantEditor
 				layout="variant"
 				icon={<IconPrint/>}
-				value={{firstName:"raymond",lastName:"li"}}
-				>
-				<Editor
-					reCreateDoc={true}
-					representation={<VariantRepresentation type="pagination"/>}
-					/>
-			</VariantContext>
+				toolBar={
+					<Ribbon>
+						<Tab label="Variant">
+							<VariantEditorTool/>
+						</Tab>
+					</Ribbon>
+				}
+				reCreateDoc={true}
+				representation={
+					<VariantRepresentation type="pagination"
+						variants={{
+							firstName:"raymond",
+							lastName:"li",
+							isEmployee:false,
+							children:[
+								{name:"dayang"},
+								{name:"eryang"}	
+							]
+						}}
+						/>
+				}
+				/>
 
 			<Editor
 				layout="web"
