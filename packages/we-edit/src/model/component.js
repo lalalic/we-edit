@@ -1,18 +1,8 @@
-import React, {Component} from "react"
+import React, {Component,Fragment} from "react"
 
 export default class Base extends Component{
-	static mixin(mix){
-		class A extends this{}
-
-		Object.keys(mix).reduce((p,k)=>{
-			p[k]=mix[k]
-			return p
-		},A.prototype)
-
-		return A
-	}
-
+	static displayName="unknown"
 	render(){
-		return (<div>{this.props.children}</div>)
+		return (<Fragment>{this.props.children}</Fragment>)
 	}
 }

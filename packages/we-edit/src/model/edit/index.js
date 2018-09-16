@@ -9,10 +9,5 @@ export function editify(Model){
 			...Model.propTypes,
 			id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired
 		}
-
-		static cursorable(){
-			let type=this.displayName.split('-').pop()
-			return ["text","image"].indexOf(type)!=-1
-		}
 	}
 }
