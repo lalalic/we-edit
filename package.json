@@ -49,10 +49,11 @@
     "dev": "webpack-dev-server --env=dev",
     "build": "webpack --env=api",
     "sync": "webpack --env=plugin && yarn syncall",
-    "syncall": "yarn sync-input-docx && yarn sync-input-json && yarn sync-output-pdf",
+    "syncall": "yarn sync-input-docx && yarn sync-input-json && yarn sync-output-pdf && yarn sync-variant",
     "sync-input-docx": "wo publish packages/we-edit-input-docx",
     "sync-input-json": "wo publish packages/we-edit-input-json",
-    "sync-output-pdf": "wo publish packages/we-edit-output-pdf"
+    "sync-output-pdf": "wo publish packages/we-edit-output-pdf",
+    "sync-variant": "wo publish packages/we-edit-variant"
   },
   "keywords": [
     "we-edit"
