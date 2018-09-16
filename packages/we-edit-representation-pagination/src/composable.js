@@ -1,6 +1,16 @@
-import React, {Children,Fragment} from "react"
+import React, {Children,Fragment,Component} from "react"
 import PropTypes from "prop-types"
 
+export class ComposedAllTrigger extends Component{
+    static contextTypes={
+        parent: PropTypes.object
+    }
+
+    render(){
+        this.context.parent.onAllChildrenComposed()
+        return null
+    }
+}
 
 export function HasChild(Component){
     return class extends Component{
@@ -20,7 +30,7 @@ export function HasChild(Component){
 
         constructor(){
             super(...arguments)
-            this.computed = { children: [], composed: [] }
+            this.computed = { children: [], composed: [] , allComposed:false}
         }
         getChildContext() {
             let self = this
@@ -45,12 +55,12 @@ export function HasChild(Component){
          * and then append to itself.composed[] and parent.appendComposed
          */
         render(){
-            if(Children.count(this.props.children)===0){
-				this.onAllChildrenComposed()
-				this.context.parent.on1ChildComposed(this)
-			}
-			//console.log(`render--${this.constructor.displayName}[${this.props.id}]`)
-            return (<Fragment>{this.props.children}</Fragment>)
+            return (
+                <Fragment>
+                    {this.props.children}
+                    {<ComposedAllTrigger/>}
+                </Fragment>
+            )
         }
 
         /**
@@ -69,25 +79,12 @@ export function HasChild(Component){
 
         }
 
-    	/**
-    	 *  child calls context.parent.on1ChildComposed() to notify parent 1 child composed
-    	 *  return
-    	 *  	true: parent's all children composed
-    	 */
-        on1ChildComposed(child) {
-            this.computed.children.push(child)
-
-            if (this.isAllChildrenComposed()) {
-                this.onAllChildrenComposed()
-            }
-        }
-
         isAllChildrenComposed() {
-            return Children.count(this.props.children) == this.computed.children.length
+            return this.computed.allComposed
         }
 
         onAllChildrenComposed() {//
-
+            this.computed.allComposed=true
         }
 
         createComposed2Parent(props) {
@@ -133,11 +130,6 @@ export function HasParentAndChild(Component){
         appendComposed() {
             return this.context.parent.appendComposed(...arguments)
         }
-
-        onAllChildrenComposed() {
-            this.context.parent.on1ChildComposed(this)
-            super.onAllChildrenComposed()
-        }
     }
 }
 
@@ -151,10 +143,7 @@ export function NoChild(Component){
 
         render() {
             this.context.getMyBreakOpportunities(null)
-            let composed = this.createComposed2Parent()
-            this.computed.composed.push(composed)
-            this.appendComposed(composed)
-            this.context.parent.on1ChildComposed(this)
+            this.appendComposed(this.createComposed2Parent())
             return null
         }
     }

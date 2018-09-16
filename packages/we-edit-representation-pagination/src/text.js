@@ -28,7 +28,6 @@ export default class Text extends Super{
 		const parent=this.context.parent
 		const {color,highlight,vanish,border,underline,strike}=this.props
 		if(vanish){
-			parent.on1ChildComposed(this)
 			return null
 		}
 
@@ -56,7 +55,7 @@ export default class Text extends Super{
 			content.splice(0,content.length)
 		}
 
-		const consume1=(state,opportunity,i)=>{
+		const consume1=(function(state,opportunity,i, a, loopCounter=0){
             let [word="", wordWidth]=opportunity
 			let {space:{width:maxWidth},content,width}=state
 			if(Math.floor(width+wordWidth)<=maxWidth){
@@ -69,9 +68,14 @@ export default class Text extends Super{
 				state.width+=wordWidth
 				state.end+=word.length
 			}else{
-				if(width!=0){
+                if(width!=0){
 					commit(state)
 				}
+
+                if(loopCounter>3){//
+                    console.warn("possible dead loop, commit first")
+                    debugger
+                }
 
 				let nextSpace=parent.nextAvailableSpace({height:measure.height,width:wordWidth})
 
@@ -88,10 +92,10 @@ export default class Text extends Super{
 					}
 				}
 				state.space=nextSpace
-				consume1(state,opportunity,i)
+				consume1(state,opportunity,i,a, loopCounter+1)
 			}
 			return state
-		}
+		}).bind(this)
 
         let state=breakOpportunities.reduce(
 			consume1,
@@ -100,7 +104,7 @@ export default class Text extends Super{
 
 		commit(state)
 
-		return null
+        return null
     }
 
 	createComposed2Parent(props, composed){

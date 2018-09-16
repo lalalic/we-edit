@@ -5,42 +5,70 @@ import {models} from "we-edit"
 import Group from "./composed/group"
 
 import {HasParentAndChild} from "./composable"
+const Super=HasParentAndChild(models.Row)
 
+export default class extends Super{
+	static contextTypes={
+		...Super.contextTypes,
+		composed1Row: PropTypes.func,
+	}
 
-export default class extends HasParentAndChild(models.Row){
+	static childContextTypes={
+		...Super.childContextTypes,
+		composed1Cell: PropTypes.func,
+	}
+
+	getChildContext(){
+		return {
+			...super.getChildContext(),
+			composed1Cell: this.composed1Cell
+		}
+	}
+
+	constructor(){
+		super(...arguments)
+		this.composedCells.push([])
+		this.composed1Cell=this.composed1Cell.bind(this)
+	}
+
+	composed1Cell(a){
+		const currentCell=this.composedCells.pop()
+		currentCell.props=a.props
+		this.composedCells.push(currentCell)
+		this.composedCells.push([])
+	}
+
+	get composedCells(){
+		return this.computed.composed
+	}
+
 	nextAvailableSpace(){
 		const {cols}=this.context
-		return {width:cols[this.computed.children.length], height:Number.MAX_VALUE}
+		return {width:cols[this.composedCells.length-1], height:Number.MAX_VALUE}
 	}
 
 	appendComposed(line){
-		if(this.computed.composed.length==0)
-			this.computed.composed.push([])
-		const currentCell=this.computed.composed[this.computed.composed.length-1]
+		const currentCell=this.composedCells[this.composedCells.length-1]
 		currentCell.push(line)
 	}
 
-	on1ChildComposed(){
-		this.computed.composed.push([])
-		super.on1ChildComposed(...arguments)
-	}
-
 	onAllChildrenComposed(){
-		this.computed.composed.splice(this.computed.children.length)//on1ChildComposed will always add 1
+		this.composedCells.pop()//composed1Cell always add new cell, so remove last
+		this.context.composed1Row(this)
 
 		const {parent}=this.context
 		const {height}=this.props
-		let indexes=new Array(this.computed.composed.length).fill(0)
+		let indexes=new Array(this.composedCells.length).fill(0)
 
-		let isAllSent2Table=a=>indexes.reduce((prev,index, i)=>this.computed.composed[i].length==index && prev, true)
+		let isAllSent2Table=a=>indexes.reduce((prev,index, i)=>this.composedCells[i].length==index && prev, true)
 
 		let counter=0
 		let minSpace={}
 		do{
 			let availableSpace=parent.nextAvailableSpace(minSpace)
-			let currentGroupedLines=new Array(this.computed.composed.length)
-			this.computed.composed.forEach((lines,iCol)=>{
-				let {border, margin,spacing,background}=this.computed.children[iCol].props
+			let currentGroupedLines=new Array(this.composedCells.length)
+			this.composedCells.forEach((lines,iCol)=>{
+				let {border, margin,spacing,background}=this.composedCells[iCol].props
 				let availableContentHeight=availableSpace.height
 					-border.top.sz
 					-border.bottom.sz
@@ -68,8 +96,8 @@ export default class extends HasParentAndChild(models.Row){
 			if(!currentGroupedLines.find(a=>a.length>0)){
 				//availableSpace is too small, need find a min available space
 				let minHeight=indexes.reduce((p,index,i)=>{
-					let {border, margin, spacing}=this.computed.children[i].props
-					let line=this.computed.composed[i][index]
+					let {border, margin, spacing}=this.composedCells[i].props
+					let line=this.composedCells[i][index]
 					if(line){
 						return Math.max(p, line.props.height
 							+border.top.sz
@@ -90,12 +118,12 @@ export default class extends HasParentAndChild(models.Row){
 
 		super.onAllChildrenComposed()
 	}
-	
+
 	createComposed2Parent({colGroups,width}){
 		const {cols}=this.context
 		let height=0
 
-		let x=0, rowNo=this.computed.children.length-1
+		let x=0
 		let groupsWithXY=colGroups.map((linesWithStyle,colNo)=>{
 			let {border, margin, spacing, background}=linesWithStyle.style
 			let y=0
@@ -124,13 +152,11 @@ export default class extends HasParentAndChild(models.Row){
 
 			x+=cols[colNo]
 			height=Math.max(height,y)
-			if(rowNo+colNo===0)
-				this.computed.composed.firstCellMargin=margin
 			return cell
 		})
-		
-		return <Row 
-			children={groupsWithXY} 
+
+		return <Row
+			children={groupsWithXY}
 			height={Math.max(height, this.props.height||0)} contentHeight={height}
 			width={width}
 			/>
@@ -185,7 +211,7 @@ class Row extends Component{
 			}
 		}
 	}
-	
+
 	render(){
 		const {contentHeight, ...props}=this.props
 		return <Group {...props}/>
@@ -216,4 +242,3 @@ class Border extends Component{
 
 	}
 }
-

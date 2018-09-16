@@ -6,5 +6,8 @@ import Base from "../row"
 
 
 export default class extends editify(recomposable(Base)){
-	
+	clearComposed(){
+		super.clearComposed()
+		this.composedCells.push([])
+	}
 }

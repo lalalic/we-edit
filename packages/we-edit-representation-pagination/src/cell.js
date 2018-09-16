@@ -8,6 +8,11 @@ const {Cell:Base}=models
 const Super=HasParentAndChild(Base)
 
 export default class Cell extends Super{
+	static contextTypes={
+		...Super.contextTypes,
+		composed1Cell: PropTypes.func
+	}
+	
 	nextAvailableSpace(required){
 		let {width,height}=super.nextAvailableSpace(...arguments)
 
@@ -21,5 +26,10 @@ export default class Cell extends Super{
 			-margin.bottom
 
 		return {width,height}
+	}
+
+	onAllChildrenComposed(){
+		super.onAllChildrenComposed()
+		this.context.composed1Cell(this)
 	}
 }

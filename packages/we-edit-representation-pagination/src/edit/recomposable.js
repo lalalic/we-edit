@@ -36,6 +36,8 @@ export default function recomposable(Content){
 			...Content.contextTypes,
 			mount: PropTypes.func,
 			unmount: PropTypes.func,
+			shouldContinueCompose: PropTypes.func,
+			shouldRemoveComposed: PropTypes.func,
 		}
 
 		constructor(){
@@ -57,12 +59,24 @@ export default function recomposable(Content){
 		}
 
 		componentWillReceiveProps(){
-			this.clearComposed()
+			if(this.context.shouldRemoveComposed()){
+				this.clearComposed()
+			}
 		}
 
 		clearComposed(){
 			this.computed.composed=[]
-			this.computed.children=[]
+			this.computed.allComposed=false
+		}
+
+		render(){
+			if(this.isAllChildrenComposed())
+				return null
+
+			if(!this.context.shouldContinueCompose())
+				return null
+
+			return super.render()
 		}
 	}
 }

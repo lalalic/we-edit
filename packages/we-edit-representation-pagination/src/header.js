@@ -18,7 +18,7 @@ export default class Header extends Super{
 	}
 
 	onAllChildrenComposed(){
-		this.context.parent.on1ChildComposed(this)
+		this.context.parent.appendComposedHeader(this, this.props.type)
 	}
 
 	createComposed2Parent(){

@@ -8,4 +8,8 @@ export default class Footer extends Super{
 			return a.join("-")
 		})()
 		}`
+
+    onAllChildrenComposed(){
+		this.context.parent.appendComposedFooter(this, this.props.type)
+	}
 }

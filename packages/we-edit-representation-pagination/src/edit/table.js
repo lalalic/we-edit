@@ -9,18 +9,23 @@ import Group from "../composed/group"
 
 
 export default class extends editify(recomposable(Base)){
+	clearComposed(){
+		super.clearComposed()
+		this.computed.composedRows=-1
+	}
+
 	createComposed2Parent(){
 		let row=super.createComposed2Parent(...arguments)
-		
+
 		row=this.makeCellResizable(row)
 
-		if(this.computed.children.length==0){
+		if(this.computed.composedRows==0){
 			row=this.makeColAdderNSelector(row)
 		}
 
 		return this.makeRowAdderNSelector(row)
 	}
-	
+
 	makeColAdderNSelector(firstRow){
 		const {id}=this.props
 		return React.cloneElement(firstRow, {children:firstRow.props.children.map((a,i)=>{
@@ -51,8 +56,8 @@ export default class extends editify(recomposable(Base)){
 
 	makeRowAdderNSelector(row){
 		const {id}=this.props
-		const at=this.computed.children.length
-		
+		const at=this.computed.composedRows
+
 		return React.cloneElement(row, {children:(
 				<Fragment>
 					<Fragment>
@@ -73,12 +78,12 @@ export default class extends editify(recomposable(Base)){
 						}}/>
 				</Fragment>
 			)
-		})	
+		})
 	}
-	
+
 	makeCellResizable(row){
 		const {id, cols}=this.props
-		const at=this.computed.children.length
+		const at=this.computed.composedRows
 		const {height,  contentHeight=height}=row.props
 		const minCellWidth=i=>10
 		const minRowHeight=()=>10

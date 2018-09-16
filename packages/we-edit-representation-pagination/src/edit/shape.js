@@ -33,16 +33,4 @@ export default class Shape extends Super{
 			}
 		}
 	}
-
-	render(){
-		if(!this.context.shouldContinueCompose()){
-			return null
-		}
-
-		if(this.computed.children.length>0){ //@TODO: optimize to clear changed only
-			return null
-		}
-
-		return super.render()
-	}
 }

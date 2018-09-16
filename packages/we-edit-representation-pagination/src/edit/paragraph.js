@@ -18,12 +18,12 @@ export class Paragraph extends Super{
 
 	constructor(){
 		super(...arguments)
-		this.computed.lines=[]
+		this.computed.lastComposedLines=[]
 	}
 
 	createComposed2Parent(){
 		let line=super.createComposed2Parent(...arguments)
-		this.computed.lines.push(line)
+		this.computed.lastComposedLines.push(line)
 		return line
 	}
 
@@ -31,42 +31,25 @@ export class Paragraph extends Super{
 		//this.emit("words", -this.computed.breakOpportunities.length)
 	}
 
-    componentWillReceiveProps({children,changed},{shouldRemoveComposed,parent}){
-		if(this.computed.composed.length>0){
-			if(shouldRemoveComposed(this)){
-				if(changed){
-					this.clearComposed()
-					/*
-					let lastBreakOpportunities=this.computed.breakOpportunities
-					this.computed.breakOpportunities=this.getBreakOpportunities(Children.toArray(children))
-					this.emit("words", this.computed.breakOpportunities.length-lastBreakOpportunities.length)
-					*/
-				}else{
-					this.computed.lines.forEach(line=>parent.appendComposed(line))
-					this.availableSpace={width:0, height:0}
-					parent.on1ChildComposed(this)
-				}
-			}else{
-				parent.on1ChildComposed(this)
-			}
-		}
-    }
-
 	clearComposed(){
+		this.computed.lastText=""
 		super.clearComposed()
-		this.computed.lines=[]
 	}
 
 	/**
 	*recompose [all|0]
 	*/
 	render(){
-		if(this.computed.composed.length>0){
-			return null
-		}
+		const {shouldRemoveComposed, shouldContinueCompose,parent}=this.context
+		const {changed, selfChanged}=this.props
 
-		if(!this.context.shouldContinueCompose()){
-			return null
+		if(this.computed.lastComposedLines.length>0){
+			if(shouldRemoveComposed() && changed){
+				this.computed.lastComposedLines=[]
+			}else{
+				this.computed.lastComposedLines.forEach(line=>parent.appendComposed(line))
+				return null
+			}
 		}
 
 		return super.render()

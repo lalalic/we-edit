@@ -1,4 +1,5 @@
 import {models} from "we-edit"
+import {HasParentAndChild} from "./composable"
 
 import Document from "./document"
 import Section from "./section"
@@ -13,8 +14,12 @@ import Cell from "./cell"
 import Frame from "./frame"
 import Shape from "./shape"
 
-export default {
-	...models,
+export default Object.keys(models).reduce((all,k)=>{
+		if(!all[k]){
+			all[k]=HasParentAndChild(models[k])
+		}
+		return all
+	},{
 	Document,
 	Section,
 	Paragraph,
@@ -27,4 +32,4 @@ export default {
 	Cell,
 	Frame,
 	Shape,
-}
+})

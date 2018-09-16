@@ -131,12 +131,11 @@ export default class Section extends Super{
 		return get(category,`${pageNo==1 ? 'first' : pageNo%2==0 ? 'even' : 'odd'}`,get(category,`default`))
 	}
 
-	on1ChildComposed(child){
-		super.on1ChildComposed(...arguments)
-		if(child instanceof Footer){
-			this.computed.footers[child.props.type]=child
-		}else if(child instanceof Header){
-			this.computed.headers[child.props.type]=child
-		}
-	}
+    appendComposedHeader(header,type){
+        this.computed.headers[type]=header
+    }
+
+    appendComposedFooter(footer,type){
+        this.computed.footers[type]=footer
+    }
 }
