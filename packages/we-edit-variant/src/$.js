@@ -4,7 +4,8 @@ import vm from "vm-browserify"
 
 export default class extends Component{
 	static contextTypes={
-		variantContext:PropTypes.object
+		variantContext:PropTypes.object,
+		parent: PropTypes.object,
 	}
 
 	render(){
