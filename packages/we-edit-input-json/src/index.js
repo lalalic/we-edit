@@ -30,7 +30,7 @@ export default class JSONType extends Input.Editable{
 	parse({data, ...props}){
 		this.props=props
 		data=String.fromCharCode.apply(null, new Uint8Array(data))
-		return new EditableDocument(JSON.parse(data))
+		return new EditableDocument(eval(`(a=>a)(${data})`))
 	}
 
 	stream(options){
