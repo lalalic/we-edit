@@ -1,8 +1,8 @@
-import React, {Fragment} from "react"
+import React, {PureComponent} from "react"
+import PropTypes from "prop-types"
 
 import {DOMAIN, WeEdit, Viewer, Editor, Emitter,Stream, Representation} from "we-edit"
-import {compose,setDisplayName,setStatic, withProps,withStateHandlers}  from "recompose"
-import {connect} from "react-redux"
+import memoize from "memoize-one"
 
 import EventEmitter from "events"
 
@@ -14,9 +14,7 @@ import IconRead from "material-ui/svg-icons/communication/import-contacts"
 import IconPrint from "material-ui/svg-icons/editor/format-align-justify"
 
 const KEY="default(accept=*)"
-
-const Default={
-	workspaces:[
+var myOffice=[
 		<Workspace
 			debug={true}
 			accept="*"
@@ -52,70 +50,70 @@ const Default={
 				icon={<IconPrint/>}
 				representation="text"
 				/>
-
 		</Workspace>
-	]
-}
+]
+const event=new EventEmitter()
 
-var myOffice=[Default]
-var event=new EventEmitter()
 
-export default compose(
-		setDisplayName("Office"),
-		setStatic("install", function install(office1){
-			myOffice.push(office1)
-			event.emit("change", myOffice)
-		}),
+export default class Office extends PureComponent{
+	static propTypes={
+		workspaces: PropTypes.arrayOf(PropTypes.element),
+	}
 
-		setStatic("uninstall", function uninstall(office1){
-			myOffice.splice(myOffice.indexOf(office1),1)
-			event.emit("change",myOffice)
-		}),
-		withStateHandlers(
-			({office=[...myOffice]})=>({office}),
-			{
-				changeOffice:({office})=>(newOffice)=>({office:[...newOffice]})
+	static defaultProps={
+		workspaces:[...myOffice]
+	}
+	static install(...workspaces){
+		workspaces.reverse().forEach(a=>myOffice.unshift(a))
+		event.emit("change", [...myOffice])
+	}
+
+	static uninstall(...workspaces){
+		workspaces.forEach(a=>myOffice.splice(myOffice.indexOf(a),1))
+		event.emit("change",[...myOffice])
+	}
+
+	static getDerivedStateFromProps({workspaces,installable},state){
+		if(installable){
+			if(state.workspaces){
+				return null
+			}else{
+				return {workspaces}
 			}
-		),
-		withProps(({installable, changeOffice})=>{
-			if(installable){
-				event.on("change", newOffice=>changeOffice(newOffice))
-			}
-		}),
-		withProps(({office,  ...props})=>{
-			let _=office.reduce((merged,a)=>({
-				...merged,
-				...a,
-				workspaces:[...(a.workspaces||[]), ...merged.workspaces]
-			}),{workspaces:[]})
+		}else{
+			return {workspaces}
+		}
+	}
 
-			let {titleBar=_.titleBar, dashboard=_.dashboard, workspaces=_.workspaces,reducers={}}=props
-			reducers=workspaces.reduce((collected,a)=>{
-				if(a.props.reducer){
-					collected[a.key]=(state,action)=>{
-						let reduced=a.props.reducer(state,action)
-						return {...state,...reduced}
-					}
+	state={}
+
+	getReducers=memoize((workspaces,reducers)=>{
+		return workspaces.reduce((collected,a)=>{
+			if(a.props.reducer){
+				collected[a.key]=(state,action)=>{
+					let reduced=a.props.reducer(state,action)
+					return {...state,...reduced}
 				}
-				return collected
-			},{...reducers})
-
-			return {
-				titleBar,
-				dashboard,
-				workspaces,
-				reducers
 			}
-		})
-	)(({
-        titleBarProps,
-        fonts=["Arial", "Calibri", "Cambria"],
-		children,
-		titleBar,
-		dashboard,
-		workspaces,
-		reducers,
-    })=>{
+			return collected
+		},{...reducers})
+	})
+
+	componentDidMount(){
+		const {installable}=this.props
+		if(installable){
+			event.on("change", this.updateWorkspaces=workspaces=>{
+				this.setState({workspaces})
+			})
+		}
+	}
+
+	render(){
+		const {workspaces}=this.state
+		let {titleBarProps,children, titleBar, dashboard, reducers={},
+			fonts=["Arial", "Calibri", "Cambria"]}=this.props
+		reducers=this.getReducers(workspaces,reducers)
+
 		return (
 			<WeEdit reducers={reducers}>
 				<WeEditUI {...{titleBarProps, fonts, titleBar,dashboard}}>
@@ -124,4 +122,12 @@ export default compose(
 				</WeEditUI>
 			</WeEdit>
 		)
-	})
+	}
+
+	componentWillUnmount(){
+		if(this.props.installable){
+			event.removeListener("change",this.updateWorkspaces)
+		}
+	}
+
+}
