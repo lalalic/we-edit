@@ -5,8 +5,6 @@ import vm from "vm-browserify"
 
 import Component from "./$"
 
-import {Composed} from "we-edit-representation-pagination"
-
 
 export default ({Text,$exp})=>class extends Component{
     static displayName="$exp"
@@ -37,20 +35,4 @@ export default ({Text,$exp})=>class extends Component{
 	getValue=memoize((variantContext,expression,name)=>{
 		return this.eval(name ? `var ${name}=${expression}; ${name}` : expression)
 	})
-}
-
-class Marker extends Component{
-    static contextTypes={
-        parent: PropTypes.object
-    }
-
-    render(){
-        this.context.parent.nextAvailableSpace()
-        this.context.parent.appendComposed(
-            <Composed.Group width={0} height={0}>
-                {this.props.children}
-            </Composed.Group>
-        )
-        return null
-    }
 }

@@ -27,7 +27,8 @@
   "we-office": {
     "type": [
       "Representation"
-    ]
+    ],
+	"name":"variant"
   },
   "files": [
     "index.js",

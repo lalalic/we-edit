@@ -10,6 +10,10 @@ class  Representation extends PureComponent{
 		ViewerTypes: PropTypes.object,
 		transformer: PropTypes.func,
 	}
+	
+	static defaultProps={
+		
+	}
 
 	static contextTypes={
 		transformer: PropTypes.func
@@ -41,7 +45,9 @@ class  Representation extends PureComponent{
 		if(type){
 			const Typed=Representation.get(type)
 			if(Typed){
-				return <Typed {...props}>{children}</Typed>
+				if(Typed!=this.constructor){
+					return <Typed {...props}>{children}</Typed>
+				}
 			}
 		}
 		return Children.only(this.props.children)

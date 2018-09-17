@@ -21,6 +21,6 @@
   "we-office":{
       "type":["Representation"]
   },
-  "files":["index.js","index.browser.js","README.md"],
+  "files":["index.js","README.md"],
   "readme": "README.md"
 }

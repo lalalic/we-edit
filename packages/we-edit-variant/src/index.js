@@ -1,8 +1,7 @@
-import React, {Component, PureComponent} from "react"
-import PropTypes from "prop-types"
-import {withContext} from "recompose"
-
+import React from "react"
 import {Representation} from "we-edit"
+
+import Provider from "./variant-provider"
 
 import * as variants from "./all"
 
@@ -15,19 +14,10 @@ export function withVariant(Components){
 }
 
 
-export class VariantRepresentation extends Component{
-	static childContextTypes={
-		variantContext: PropTypes.object
-	}
+export const VariantRepresentation=({variants, transformer=a=>a, ...props})=>(
+	<Provider value={variants}>
+		<Representation {...props} transformer={a=> a && transformer(withVariant(a))}/>
+	</Provider>
+)
 
-	getChildContext(){
-		return {
-			variantContext:this.props.variants
-		}
-	}
-
-	render(){
-		const {variants, transformer=a=>a, ...props}=this.props
-		return (<Representation {...props} transformer={a=> a && transformer(withVariant(a))}/>)
-	}
-}
+export {Provider}

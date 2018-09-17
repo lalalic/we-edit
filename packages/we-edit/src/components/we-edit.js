@@ -4,6 +4,8 @@ import PropTypes from "prop-types"
 import {combineReducers} from "redux"
 import {Provider} from "react-redux"
 
+import memoize from "memoize-one"
+
 import {ACTION as EditorAction} from "../state/action"
 import {createStore} from "../state"
 import Input from "../input"
@@ -24,26 +26,33 @@ export class WeEdit extends PureComponent{
 	static propTypes={
 		reducers: PropTypes.object
 	}
-
+	
 	constructor(){
 		super(...arguments)
-		this.store=this.context.store||this.createStore(this.props.reducers)
+		this.store=this.getStore()
 	}
 
-	createStore(customizedReducers={}){
-		return createStore(combineReducers({[DOMAIN]:reducer, ...customizedReducers}))
-	}
+	getStore=memoize(()=>{
+		if(this.context.store){
+			if(this.context.store.combineReducers){
+				return this.context.store.combineReducers(this.props.reducers)
+			}else{
+				return this.context.store
+			}
+		}else{
+			return createStore(combineReducers({[DOMAIN]:reducer, ...this.props.reducers}))
+		}
+	})
 
 	render(){
-		if(this.context.store)
-			return (<Fragment>{this.props.children}</Fragment>)
-		
 		return (
 			<Provider store={this.store}>
 				{this.props.children}
 			</Provider>
 		)
 	}
+	
+	componentDid
 }
 
 export default WeEdit
