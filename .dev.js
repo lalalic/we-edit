@@ -9,7 +9,7 @@ import ioBrowser from "we-edit-loader-stream-browser"
 import SVG from "we-edit-output-svg"
 import PDF from "we-edit-output-pdf"
 
-import "we-edit-variant"
+import Variant from "we-edit-variant"
 
 iDocx.install({
 	template:"/templates/normal.docx"
@@ -19,3 +19,5 @@ ioFile.install()
 ioBrowser.install()
 SVG.install()
 PDF.install()
+
+Variant.install()

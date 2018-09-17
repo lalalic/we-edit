@@ -5,6 +5,7 @@ import {combineReducers} from "redux"
 import {Provider} from "react-redux"
 
 import memoize from "memoize-one"
+import {Map} from "immutable"
 
 import {ACTION as EditorAction} from "../state/action"
 import {createStore} from "../state"
@@ -22,26 +23,28 @@ export class WeEdit extends PureComponent{
 	static contextTypes={
 		store: PropTypes.object
 	}
-	
+
 	static propTypes={
 		reducers: PropTypes.object
 	}
-	
+
 	constructor(){
 		super(...arguments)
-		this.store=this.getStore()
+		this.store=this.getStore(this.context.store, this.props.reducers)
 	}
 
-	getStore=memoize(()=>{
-		if(this.context.store){
-			if(this.context.store.combineReducers){
-				return this.context.store.combineReducers(this.props.reducers)
+	getStore=memoize((store, reducers)=>{
+		if(store){
+			if(store.combineReducers){
+				return store.combineReducers(reducers)
 			}else{
-				return this.context.store
+				return store
 			}
 		}else{
-			return createStore(combineReducers({[DOMAIN]:reducer, ...this.props.reducers}))
+			return createStore(combineReducers({[DOMAIN]:reducer, ...reducers}))
 		}
+	},(a1, a0)=>{
+		return a0==a1 || Map(a0||{}).equals(Map(a1||{}))
 	})
 
 	render(){
@@ -51,8 +54,10 @@ export class WeEdit extends PureComponent{
 			</Provider>
 		)
 	}
-	
-	componentDid
+
+	componentDidUpdate(){
+		this.store=this.getStore(this.context.store,this.props.reducers||{})
+	}
 }
 
 export default WeEdit

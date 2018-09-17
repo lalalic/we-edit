@@ -5,7 +5,7 @@ import Provider from "./variant-provider"
 
 import * as variants from "./all"
 
-export function withVariant(Components){
+export function withVariant(Components={}){
 	let Variants=Object.keys(variants).reduce((transformed,k)=>{
 			transformed[k]=variants[k](Components)
 			return transformed
@@ -21,3 +21,12 @@ export const VariantRepresentation=({variants, transformer=a=>a, ...props})=>(
 )
 
 export {Provider}
+
+export default {
+	install(){
+		Representation.defaultProps.transformer=withVariant
+	},
+	uninstall(){
+		Representation.defaultProps.transformer=undefined
+	}
+}
