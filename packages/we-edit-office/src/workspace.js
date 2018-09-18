@@ -1,6 +1,6 @@
 import React, {PureComponent, Children, Fragment} from "react"
 import PropTypes from "prop-types"
-import {compose,setDisplayName,getContext,withProps}  from "recompose"
+import {compose,setDisplayName,getContext,withProps, pure}  from "recompose"
 import {Provider} from "react-redux"
 import EventEmitter from "events"
 import memoize from "memoize-one"
@@ -28,6 +28,7 @@ export default class Workspace extends PureComponent{
 		doc: PropTypes.object,
 		ruler: PropTypes.bool,
 		channel: PropTypes.string,
+		layout: PropTypes.node,
 	}
 
 	static defaultProps={
@@ -82,7 +83,7 @@ export default class Workspace extends PureComponent{
 			)
 		}
 		
-		let {doc, children, toolBar, statusBar, ruler=true, reducer}=this.props
+		let {doc, children, toolBar, statusBar, ruler=true, layout, reducer}=this.props
 		const channels=this.getChannels(children)
 		let {current,uncontrolled}=this.getCurrent(children, channel)
 
@@ -90,21 +91,27 @@ export default class Workspace extends PureComponent{
 			toolBar=typeof(current.props.toolBar)=="undefined" ? toolBar : current.props.toolBar
 			statusBar=typeof(current.props.statusBar)=="undefined"? statusBar : current.props.statusBar
 			ruler=typeof(current.props.ruler)=="undefined"? ruler : current.props.ruler
+			layout=typeof(current.props.layout)=="undefined"? ruler : current.props.layout
 			current=React.cloneElement(current,{scale:scale/100})
 		}
+		
+		
+		const canvas=(
+			<Canvas scale={scale} ruler={ruler}>
+				{current}
+				{uncontrolled}
+			</Canvas>
+		)
 
 		return (
 			<WithSelection key={channel}>
 				<div style={{flex:1, display:"flex", flexDirection:"column"}}>
 					{toolBar}
-
-					<Canvas scale={scale} ruler={ruler}>
-						<doc.Store reducer={reducer}>
-							{current}
-							{uncontrolled}
-						</doc.Store>
-					</Canvas>
-
+					
+					<doc.Store reducer={reducer}>
+						{layout ? React.cloneElement(layout, {canvas, children:layout.props.children||canvas}) : canvas}			
+					</doc.Store>
+					
 					{statusBar && React.cloneElement(statusBar,{
 						channel:{
 							items:this.getChannels(this.props.children),
@@ -125,5 +132,17 @@ export default class Workspace extends PureComponent{
 		this.setState({error})
 	}
 
-	static Desk=({children, toolBar, ruler, channel, statusBar, icon})=><Fragment>{children}</Fragment>
+	static Desk=pure(({children, toolBar, ruler, channel, statusBar, icon, layout})=>(
+		<Fragment>
+			{children}
+		</Fragment>
+	))
+	
+	static Layout=pure(({canvas, left,  right})=>(
+		<div style={{flex:"1 100%", display:"flex",  flexDirection:"row"}}>
+			{left && <div>{left}</div>}
+			{canvas}
+			{right && <div>{right}</div>}
+		</div>
+	))
 }

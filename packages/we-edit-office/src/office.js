@@ -120,7 +120,7 @@ export default class Office extends PureComponent{
 		return (
 			<WeEdit reducers={reducers}>
 				<WeEditUI {...{titleBarProps, fonts, titleBar,dashboard}}>
-					{workspaces}
+					{workspaces.map(a=>a.props.reducer ? React.cloneElement(a,{reducer:undefined}) : a)}
 					{children}
 				</WeEditUI>
 			</WeEdit>
