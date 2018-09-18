@@ -4,12 +4,11 @@ import {getContext,compose,setDisplayName} from "recompose"
 import minimatch from "minimatch"
 import memoize from "memoize-one"
 import {connect} from "../state"
+import {getSelection,getParentId} from "../state/selector"
+import {Selection} from "../state/action"
 
 export default compose(
 	setDisplayName("DocumentTree"),
-	getContext({
-		selection:PropTypes.any,
-	}),
 	connect((state)=>{
 		const content=state.get("content")
 		return {content}
@@ -17,10 +16,9 @@ export default compose(
 )(class extends PureComponent{
 	static propTypes={
 		content: PropTypes.any,
-		selection:  PropTypes.any,
 		node: PropTypes.element,
 	}
-	
+
 	render(){
 		const {content, filter="*", children, node=children}=this.props
 		const doc=this.getDocument(content, filter, node)
@@ -30,13 +28,33 @@ export default compose(
 			</Fragment>
 		)
 	}
-	
-	getDocument=memoize((content, filter,  node=<DL/>)=>{
+
+	getFocus=memoize((content, filter, focus)=>{
 		filter=this.getFilter(filter)
-		const createNode=(type,props,children)=>React.cloneElement(node,{type,props,children})
-		return this.constructor.createDocument(content, filter,createNode)
+		let current=focus
+		while(current && !filter(content.get(current).toJS())){
+			current=getParentId(content, current)
+		}
+		if(current){
+			return content.get(current).toJS()
+		}
+
+		return null
 	})
-	
+
+	getDocument=memoize((content, filter,  node=<DL/>)=>{
+		const isFocus=id=>focus=>{
+			let thisFocus=this.getFocus(content,filter,focus)
+			if(thisFocus){
+				return thisFocus.id==id
+			}
+			return false
+		}
+
+		const createNode=(id, type,props,children)=>React.cloneElement(node,{...props,key:id, id,type,children,isFocus:isFocus(id)})
+		return this.constructor.createDocument(content, this.getFilter(filter),createNode)
+	})
+
 	getFilter=memoize(filter=>{
 		if(typeof(filter)=="string"){
 			let glob=filter
@@ -48,21 +66,21 @@ export default compose(
 
 		return a=>!!filter
 	})
-	
+
 	static createDocument(content, filter, createNode){
 		const createElement=id=>{
 			let current=content.get(id).toJS()
 			let {type, props, children}=current
 			if(id=="root" || filter(current)){
 				return createNode(
-					type, props, 
+					id, type, props,
 					Array.isArray(children) ? create4Children(children) : children
 				)
 			}else{
 				return Array.isArray(children) ? create4Children(children) : null
 			}
 		}
-		
+
 		const create4Children=children=>{
 				children=children.map(a=>createElement(a))
 				.filter(a=>!!a && (Array.isArray(a) ? a.length>0 : true))
@@ -76,15 +94,20 @@ export default compose(
 				},[])
 				return children.length==0 ? null : children
 		}
-		
+
 		return createElement("root")
 	}
 })
 
-class DL extends PureComponent{
+const DL=connect(state=>{
+	const content=state.get("content")
+	const {cursorAt, ...selection}=getSelection(state)
+	const {id}=selection[cursorAt]
+	return {focus:id}
+})(class DL extends PureComponent{
 	state={show:true}
 	render(){
-		let {type,children}=this.props
+		let {type,id, children, isFocus, focus, dispatch,...props}=this.props
 		const {show}=this.state
 		if(children){
 			if(Array.isArray(children)){
@@ -97,20 +120,25 @@ class DL extends PureComponent{
 				children=null
 			}
 		}
+		props.style={...props.style, userSelect:"none"}
+		let typeStyle={}
+		if(isFocus(focus)){
+			typeStyle.background="lightblue"
+		}
 		return (
 			<Fragment>
 				{type &&
-				<dt style={{userSelect:"none"}}>
-					<span 
-						onClick={e=>this.setState({show:!show})} 
+				<dt {...props}>
+					<span
+						onClick={e=>this.setState({show:!show})}
 						style={{display:"inline-block",width:20,textAlign:"center"}}>
 						{!!children && (show ? "-" : "+")}
 					</span>
-					<span>{type}</span>
+					<span style={typeStyle} onClick={a=>dispatch(Selection.SELECT(id))}>{type}</span>
 				</dt>
 				}
 				{children}
 			</Fragment>
 		)
 	}
-}
+})

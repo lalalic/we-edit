@@ -33,32 +33,42 @@ import {connect} from  "react-redux"
 
 function testOffice(){
 	const KEY="test"
-	
-	const FileSelector=connect()(({dispatch,...props})=><input {...props} type="file" onChange={({target})=>{
-		let file=target.files[0]
-		if(!file)
-			return 
-		let reader=new FileReader()
-		reader.onload=e=>{
-			dispatch({type:`${KEY}/data`, payload:eval(`(a=>a)(${e.target.result})`)})
-		}
-		reader.readAsText(file)
-		target.value=""
-	}}/>)
-	
-	const VariantEditor=connect(state=>state[KEY])(({data, ...props})=>{
+
+	const FileSelector=connect(state=>state[KEY])(({dispatch,assemble,data,...props})=>(
+		<div>
+			<center>
+				<input {...props} type="file" accept=".json" onChange={({target})=>{
+					let file=target.files[0]
+					if(!file)
+						return
+					let reader=new FileReader()
+					reader.onload=e=>{
+						dispatch({type:`${KEY}/data`, payload:eval(`(a=>a)(${e.target.result})`)})
+					}
+					reader.readAsText(file)
+					target.value=""
+				}}/>
+			</center>
+			<div>
+				<input type="checkbox" checked={assemble} onChange={a=>dispatch({type:`${KEY}/assemble`})}/>
+				<span style={{background:!!data ? "lightgreen" : ""}}>Assemble</span>
+			</div>
+		</div>
+	))
+
+	const VariantEditor=connect(state=>state[KEY])(({data,assemble, ...props})=>{
 		const editor=<Editor {...props}/>
-		if(data){
+		if(data && assemble){
 			return (
 				<Provider value={data}>
 					{editor}
 				</Provider>
 			)
 		}
-		
+
 		return editor
 	})
-	
+
 	const myWorksapce=(
 		<Workspace
 			debug={true}
@@ -77,7 +87,7 @@ function testOffice(){
 			>
 			<Workspace.Desk
 				layout={
-					<Workspace.Layout 
+					<Workspace.Layout
 						right={
 							<div style={{width:200}}>
 								<Tabs>
@@ -85,9 +95,7 @@ function testOffice(){
 										<DocumentTree filter="$*"/>
 									</Tab>
 									<Tab label="Assemble">
-										<center>
-											<FileSelector accept=".json" />
-										</center>
+										<FileSelector />
 									</Tab>
 								</Tabs>
 							</div>
@@ -98,7 +106,7 @@ function testOffice(){
 				/>
 		</Workspace>
 	)
-	
+
 	Office.install(myWorksapce)
 }
 
