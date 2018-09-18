@@ -9,7 +9,7 @@ import ioBrowser from "we-edit-loader-stream-browser"
 import SVG from "we-edit-output-svg"
 import PDF from "we-edit-output-pdf"
 
-import Variant from "we-edit-variant"
+import Variant, {Provider} from "we-edit-variant"
 
 
 iDocx.install({
@@ -29,9 +29,35 @@ import PropTypes from "prop-types"
 import {Editor, DocumentTree} from  "we-edit"
 import {Office,Workspace, Ribbon} from "we-edit-office"
 import {Tabs, Tab} from "material-ui"
+import {connect} from  "react-redux"
 
 function testOffice(){
 	const KEY="test"
+	
+	const FileSelector=connect()(({dispatch,...props})=><input {...props} type="file" onChange={({target})=>{
+		let file=target.files[0]
+		if(!file)
+			return 
+		let reader=new FileReader()
+		reader.onload=e=>{
+			dispatch({type:`${KEY}/data`, payload:eval(`(a=>a)(${e.target.result})`)})
+		}
+		reader.readAsText(file)
+		target.value=""
+	}}/>)
+	
+	const VariantEditor=connect(state=>state[KEY])(({data, ...props})=>{
+		const editor=<Editor {...props}/>
+		if(data){
+			return (
+				<Provider value={data}>
+					{editor}
+				</Provider>
+			)
+		}
+		
+		return editor
+	})
 	
 	const myWorksapce=(
 		<Workspace
@@ -40,6 +66,12 @@ function testOffice(){
 			key={KEY}
 			toolBar={<Ribbon.Ribbon commands={{layout:false}}/>}
 			reducer={(state={assemble:false, data:null},{type,payload})=>{
+				switch(type){
+					case `${KEY}/data`:
+						return {...state,  data:payload}
+					case `${KEY}/assemble`:
+						return {...state, assemble:!state.assemble}
+				}
 				return state
 			}}
 			>
@@ -54,17 +86,7 @@ function testOffice(){
 									</Tab>
 									<Tab label="Assemble">
 										<center>
-											<input type="file" accept=".json" onChange={({target})=>{
-												let file=target.files[0]
-												if(!file)
-													return 
-												let reader=new FileReader()
-												reader.onload=e=>{
-													assembleData(eval(`(a=>a)(${e.target.result})`))
-												}
-												reader.readAsText(file)
-												target.value=""
-											}}/>
+											<FileSelector accept=".json" />
 										</center>
 									</Tab>
 								</Tabs>
@@ -72,7 +94,7 @@ function testOffice(){
 						}
 						/>
 				}
-				children={<Editor representation="pagination"/>}
+				children={<VariantEditor representation="pagination"/>}
 				/>
 		</Workspace>
 	)
