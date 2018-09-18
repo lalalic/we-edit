@@ -10,8 +10,9 @@ import WeEditUI from "./we-edit-ui"
 import Workspace from "./workspace"
 import Ribbon, {Tab} from "./ribbon"
 
-import IconRead from "material-ui/svg-icons/communication/import-contacts"
-import IconPrint from "material-ui/svg-icons/editor/format-align-justify"
+import IconPrint from "material-ui/svg-icons/action/view-module"
+import IconWeb from "material-ui/svg-icons/editor/format-align-justify"
+import IconText from "material-ui/svg-icons/content/text-format"
 
 const KEY="default(accept=*)"
 var myOffice=[
@@ -20,24 +21,25 @@ var myOffice=[
 			accept="*"
 			key={KEY}
 			layout="print"
-			tools={<Ribbon commands={{layout:false}}/>}
+			toolBar={<Ribbon commands={{layout:false}}/>}
 			>
-			<Editor
+			
+			<Workspace.Desk 
 				layout="print"
 				icon={<IconPrint/>}
-				reCreateDoc={true}
-				representation="pagination"
+				children={<Editor representation="pagination"/>}
 				/>
+			
 
-			<Editor
+			<Workspace.Desk
 				layout="web"
 				ruler={{vertical:false}}
 				toolBar={<Ribbon commands={{layout:false}}/>}
-				icon={<IconPrint/>}
-				representation="html"
+				icon={<IconWeb/>}
+				children={<Editor representation="html"/>}
 				/>
 
-			<Editor
+			<Workspace.Desk
 				layout="plain text"
 				ruler={false}
 				toolBar={<Ribbon commands={{
@@ -47,8 +49,8 @@ var myOffice=[
 					},
 					insert:false,layout:false,when:false,
 				}}/>}
-				icon={<IconPrint/>}
-				representation="text"
+				icon={<IconText/>}
+				children={<Editor representation="text"/>}
 				/>
 		</Workspace>
 ]
@@ -58,11 +60,13 @@ const event=new EventEmitter()
 export default class Office extends PureComponent{
 	static propTypes={
 		workspaces: PropTypes.arrayOf(PropTypes.element),
+		installable:PropTypes.bool,
 	}
 
 	static defaultProps={
-		workspaces:[...myOffice]
+		installable:true,
 	}
+	
 	static install(...workspaces){
 		workspaces.reverse().forEach(a=>myOffice.unshift(a))
 		event.emit("change", [...myOffice])
@@ -74,6 +78,7 @@ export default class Office extends PureComponent{
 	}
 
 	static getDerivedStateFromProps({workspaces,installable},state){
+		workspaces=workspaces||[...myOffice]
 		if(installable){
 			if(state.workspaces){
 				return null

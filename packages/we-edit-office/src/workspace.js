@@ -42,7 +42,7 @@ export default class Workspace extends PureComponent{
 	constructor(){
 		super(...arguments)
 		this.state={
-			layout:this.props.layout,
+			layout:this.props.layout||this.getLayouts()[0],
 			scale: 100,
 		}
 		this.events=new EventEmitter()
@@ -58,8 +58,15 @@ export default class Workspace extends PureComponent{
 
 	getLayouts=memoize(children=>{
 		return Children.toArray(children)
-			.map(({props:{layout,icon}})=>layout ? {layout,icon} : null)
+			.map(({props:{layout,icon}})=>layout ? {layout,icon:icon||<span title={{layout}}/>} : null)
 			.filter(a=>!!a)
+	})
+	
+	getCurrent=memoize((children,layout)=>{
+		children=Children.toArray(children)
+		const current=children.find(({props})=>props.layout==layout)
+		const uncontrolled=children.filter(({props})=>!props.layout).filter(a=>a!=current)
+		return {current, uncontrolled}
 	})
 
 	render(){
@@ -73,13 +80,10 @@ export default class Workspace extends PureComponent{
 				</div>
 			)
 		}
-
+		
 		let {doc, children, toolBar, statusBar, ruler=true, reducer}=this.props
-		children=Children.toArray(children)
-
-
-		let current=children.find(({props})=>props.layout==layout)
-		const uncontrolled=children.filter(({props})=>!props.layout)
+		const layouts=this.getLayouts(children)
+		let {current,uncontrolled}=this.getCurrent(children, layout)
 
 		if(current){
 			toolBar=typeof(current.props.toolBar)=="undefined" ? toolBar : current.props.toolBar
@@ -96,8 +100,8 @@ export default class Workspace extends PureComponent{
 					<Canvas scale={scale} ruler={ruler}>
 						<doc.Store reducer={reducer}>
 							{current}
+							{uncontrolled}
 						</doc.Store>
-						{uncontrolled}
 					</Canvas>
 
 					{statusBar && React.cloneElement(statusBar,{
