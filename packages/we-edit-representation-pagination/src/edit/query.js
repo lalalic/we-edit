@@ -3,6 +3,7 @@ import ComposedDocument from "../composed/document"
 import ComposedText from "../composed/text"
 import ComposedLine from "../composed/line"
 import {ContentQuery, getClientRect} from "we-edit"
+import memoize from "memoize-one"
 
 const NOT_FOUND={left:-9999,top:0}
 export default class Query{
@@ -27,6 +28,7 @@ export default class Query{
 		return this._svg
 	}
 
+	/**already composed content y*/
 	get y(){
 		return this._y=this._y||(()=>{
 			const {pages,pgGap}=this
@@ -178,8 +180,13 @@ export default class Query{
 		return this.document.composers.get(id)
 	}
 
-	locate(id,at){
+	locate=memoize((id,at)=>{
+		const $=this.content
+		const parents=$.parentsUntil("document")
 		let {pages,pgGap}=this
+
+
+
 		let columnNo,lineNo,node, path=[]
 		let pageNo=pages.findIndex(page=>{
 			this.traverse(page,function({type,props},parent,index,pi){
@@ -216,7 +223,7 @@ export default class Query{
 		})
 
 		return {pageNo,columnNo,lineNo,node, path}
-	}
+	})
 
 	_xy(id,path){
 		let [page,column]=path
@@ -580,10 +587,12 @@ export default class Query{
 	}
 
 	get content(){
-		return new ContentQuery(this.state)
+		return this.getContent()
 	}
 
-	asSelection({page,column,line, path=[],id}){
+	getContent=memoize(()=>new ContentQuery(this.state))
+
+	asSelection({page,column,line,id}){
 		let self=this
 		let content=null
 		return self.selection={
@@ -610,11 +619,17 @@ export default class Query{
 					}
 				}
 
-				let found=path.find(a=>!!a.props && reType.test(a.props["data-type"]))
-				if(found){
-					let composer=self.getComposer(found.props["data-content"])
-					if(composer)
+				let found=this.$.parents().add(`#${id}`).filter(type)//  path.find(a=>!!a.props && reType.test(a.props["data-type"]))
+				if(found.length){
+					let composer=self.getComposer(found.attr("id"))
+					if(composer){
 						return composer.props
+					}else{
+						let props=found.props()
+						if(props)
+							return props.toJS().props
+						return props
+					}
 				}
 
 				return null

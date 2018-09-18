@@ -21,33 +21,34 @@ export default class Page extends Component{
 			columns,
 			header,
 			footer,
+			...props
 			}=this.props
 
 		return(
-			<g className="page" width={width} height={height}>
-				{header && 
+			<g className="page" width={width} height={height} {...props}>
+				{header &&
 					<Group
 						x={left} y={headerStartAt}
 						className="header">
 						{header}
 					</Group>
 				}
-				
+
 				<Group
 					x={left} y={top}
 					className="content">
 					{columns.map((a,i)=><Group key={i} className="column" {...a}/>)}
 				</Group>
-				
-				{footer && 
-					<Group 
+
+				{footer &&
+					<Group
 						x={left}
 						y={height-footerEndAt-footer.props.height}
 						className="footer">
 						{footer}
 					</Group>
 				}
-				
+
 			</g>
 		)
 	}
