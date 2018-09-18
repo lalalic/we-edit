@@ -1,21 +1,19 @@
 import React,{PureComponent, Fragment} from "react"
 import PropTypes from "prop-types"
-import {connect} from "react-redux"
 import {getContext,compose,setDisplayName} from "recompose"
 import minimatch from "minimatch"
 import memoize from "memoize-one"
-import {getActive} from "./we-edit"
+import {connect} from "../state"
 
 export default compose(
 	setDisplayName("DocumentTree"),
 	getContext({
 		selection:PropTypes.any,
 	}),
-	connect((state,{store})=>{
-		const content=getActive(state).state.get("content")
+	connect((state)=>{
+		const content=state.get("content")
 		return {content}
 	}),
-	
 )(class extends PureComponent{
 	static propTypes={
 		content: PropTypes.any,

@@ -1,7 +1,7 @@
 import React, {Fragment} from "react"
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
-import vm from "vm-browserify"
+import vm from "vm"
 
 import Component from "./$"
 

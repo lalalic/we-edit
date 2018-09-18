@@ -1,6 +1,6 @@
 import React, {Component, Fragment} from "react"
 import PropTypes from "prop-types"
-import vm from "vm-browserify"
+import vm from "vm"
 
 export default class extends Component{
 	static contextTypes={
