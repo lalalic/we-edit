@@ -27,6 +27,7 @@ export default class Workspace extends PureComponent{
 		debug: PropTypes.bool,
 		doc: PropTypes.object,
 		ruler: PropTypes.bool,
+		channel: PropTypes.string,
 	}
 
 	static defaultProps={
@@ -42,7 +43,7 @@ export default class Workspace extends PureComponent{
 	constructor(){
 		super(...arguments)
 		this.state={
-			layout:this.props.layout||this.getLayouts()[0],
+			channel:this.props.channel||this.getChannels()[0],
 			scale: 100,
 		}
 		this.events=new EventEmitter()
@@ -56,21 +57,21 @@ export default class Workspace extends PureComponent{
 		}
 	}
 
-	getLayouts=memoize(children=>{
+	getChannels=memoize(children=>{
 		return Children.toArray(children)
-			.map(({props:{layout,icon}})=>layout ? {layout,icon:icon||<span title={{layout}}/>} : null)
+			.map(({props:{channel,icon}})=>channel ? {channel,icon:icon||<span title={{channel}}/>} : null)
 			.filter(a=>!!a)
 	})
 	
-	getCurrent=memoize((children,layout)=>{
+	getCurrent=memoize((children,channel)=>{
 		children=Children.toArray(children)
-		const current=children.find(({props})=>props.layout==layout)
-		const uncontrolled=children.filter(({props})=>!props.layout).filter(a=>a!=current)
+		const current=children.find(({props})=>props.channel==channel)
+		const uncontrolled=children.filter(({props})=>!props.channel).filter(a=>a!=current)
 		return {current, uncontrolled}
 	})
 
 	render(){
-		const {layout, scale, error}=this.state
+		const {channel, scale, error}=this.state
 		if(error){
 			return (
 				<div style={{flex:1, display:"flex", flexDirection:"column"}}>
@@ -82,8 +83,8 @@ export default class Workspace extends PureComponent{
 		}
 		
 		let {doc, children, toolBar, statusBar, ruler=true, reducer}=this.props
-		const layouts=this.getLayouts(children)
-		let {current,uncontrolled}=this.getCurrent(children, layout)
+		const channels=this.getChannels(children)
+		let {current,uncontrolled}=this.getCurrent(children, channel)
 
 		if(current){
 			toolBar=typeof(current.props.toolBar)=="undefined" ? toolBar : current.props.toolBar
@@ -93,7 +94,7 @@ export default class Workspace extends PureComponent{
 		}
 
 		return (
-			<WithSelection key={layout}>
+			<WithSelection key={channel}>
 				<div style={{flex:1, display:"flex", flexDirection:"column"}}>
 					{toolBar}
 
@@ -105,10 +106,10 @@ export default class Workspace extends PureComponent{
 					</Canvas>
 
 					{statusBar && React.cloneElement(statusBar,{
-						layout:{
-							items:this.getLayouts(this.props.children),
-							current:layout,
-							onChange: layout=>this.setState({layout})
+						channel:{
+							items:this.getChannels(this.props.children),
+							current:channel,
+							onChange: channel=>this.setState({channel})
 						},
 						scale:{
 							current:scale,
@@ -124,5 +125,5 @@ export default class Workspace extends PureComponent{
 		this.setState({error})
 	}
 
-	static Desk=({children, toolBar, ruler, layout, statusBar, icon})=><Fragment>{children}</Fragment>
+	static Desk=({children, toolBar, ruler, channel, statusBar, icon})=><Fragment>{children}</Fragment>
 }

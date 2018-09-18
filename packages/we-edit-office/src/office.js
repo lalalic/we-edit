@@ -20,27 +20,25 @@ var myOffice=[
 			debug={true}
 			accept="*"
 			key={KEY}
-			layout="print"
-			toolBar={<Ribbon commands={{layout:false}}/>}
+			channel="print"
 			>
 			
 			<Workspace.Desk 
-				layout="print"
+				channel="print"
 				icon={<IconPrint/>}
 				children={<Editor representation="pagination"/>}
 				/>
 			
 
 			<Workspace.Desk
-				layout="web"
+				channel="web"
 				ruler={{vertical:false}}
-				toolBar={<Ribbon commands={{layout:false}}/>}
 				icon={<IconWeb/>}
 				children={<Editor representation="html"/>}
 				/>
 
 			<Workspace.Desk
-				layout="plain text"
+				channel="plain text"
 				ruler={false}
 				toolBar={<Ribbon commands={{
 					home:{

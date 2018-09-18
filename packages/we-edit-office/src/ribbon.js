@@ -26,7 +26,7 @@ const Ribbon=compose(
 	buttonStyle={height:24, fontSize:10, lineHeight:"24px", paddingRight:5,  paddingLeft:5},
 	tabStyle={width:"auto"},
 	style,
-	commands={}
+	commands={layout:false}
 	})=>{
 		let {home,insert,layout,when}="home,insert,layout,when".split(",").reduce((merged,k)=>{
 				if(commands[k]  || commands[k]===undefined){

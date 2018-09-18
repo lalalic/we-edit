@@ -31,18 +31,18 @@ const Status=compose(
 	getContext({
 		muiTheme: PropTypes.object,
 	}),
-	mapProps(({muiTheme,layout,scale,setScale,style})=>{
+	mapProps(({muiTheme,channel,scale,setScale,style})=>{
 		return {
-			layout,scale,style,
+			channel,scale,style,
 			height:muiTheme.button.height
 		}
 	})
-)(({scale, height, layout, style})=>(
+)(({scale, height, channel, style})=>(
 	<div style={{...RootStyle,height,...style}}>
 		<Page/>
 		<Words/>
 		<div style={{flex:"1 100%"}}/>
-		{layout.items.length<2 ? null : <Layout height={height} {...layout}/>}
+		{channel.items.length<2 ? null : <Channel height={height} {...channel}/>}
 		<Scale {...scale}/>
 	</div>
 ))
@@ -124,21 +124,21 @@ const Scale=({
 	</div>
 )
 
-const Layout=({items, current, onChange, height:size})=>(
+const Channel=({items, current, onChange, height:size})=>(
 	<div style={{display:"flex", opacity:0.4}}>
-		{items.map(({layout, icon, style={}})=>{
-			if(layout==current){
+		{items.map(({channel, icon, style={}})=>{
+			if(channel==current){
 				style.background=blue900
 			}
 
 			return (
-				<SizeIconButton key={layout}
+				<SizeIconButton key={channel}
 					size={size}
 					padding={size/4}
 					style={style}
-					tooltip={`${layout} mode`}
+					tooltip={`${channel} mode`}
 					tooltipPosition="top-center"
-					onClick={()=>onChange(layout)}
+					onClick={()=>onChange(channel)}
 					>
 					{icon}
 				</SizeIconButton>
