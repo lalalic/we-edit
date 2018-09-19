@@ -132,9 +132,9 @@ export default class Workspace extends PureComponent{
 		this.setState({error})
 	}
 
-	static Desk=pure(({children, toolBar, ruler, channel, statusBar, icon, layout})=>(
+	static Desk=pure(({children, toolBar, ruler, channel, statusBar, icon, layout,...props})=>(
 		<Fragment>
-			{children}
+			{React.cloneElement(children,props)}
 		</Fragment>
 	))
 	
