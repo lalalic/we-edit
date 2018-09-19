@@ -91,7 +91,7 @@ export default class Workspace extends PureComponent{
 			toolBar=typeof(current.props.toolBar)=="undefined" ? toolBar : current.props.toolBar
 			statusBar=typeof(current.props.statusBar)=="undefined"? statusBar : current.props.statusBar
 			ruler=typeof(current.props.ruler)=="undefined"? ruler : current.props.ruler
-			layout=typeof(current.props.layout)=="undefined"? ruler : current.props.layout
+			layout=typeof(current.props.layout)=="undefined"? layout : current.props.layout
 			current=React.cloneElement(current,{scale:scale/100})
 		}
 		
