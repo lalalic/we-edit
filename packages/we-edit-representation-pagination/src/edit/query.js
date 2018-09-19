@@ -67,6 +67,14 @@ export default class Query{
 		return pages.slice(0,which)
 			.reduce((h,{size:{height}})=>h+height+pgGap,pgGap)
 	}
+	
+	getComposeType(id){
+		const composer=this.getComposer(id)
+		if(composer){
+			return composer.getComposeType()
+		}
+		return null
+	}
 
 	getCanvasRect(id){
 		let node=this.document.canvas.svg.querySelector(`[data-content="${id}"]`)
@@ -180,12 +188,37 @@ export default class Query{
 		return this.document.composers.get(id)
 	}
 
-	locate=memoize((id,at)=>{
-		const $=this.content
-		const parents=$.parentsUntil("document")
+	_locate=memoize((id,at)=>{
 		let {pages,pgGap}=this
-
-
+		let composeType=this.getComposeType(id)
+		
+		if(composeType){
+			
+		}else{//area node
+			const $=this.getContent(id)
+				
+			if(at==0){
+				//get first composed node
+				let found=$.findFirst(a=>{
+					return !!this.getComposer(a.get("id"))
+				})
+				if(found){
+					id=found.attr('id')
+				}
+			}else if(at==1){
+				//get last composed node
+				let found=$.findLast(a=>{
+					return !!this.getComposer(a.get("id"))
+				})
+				
+				if(found){
+					id=found.attr("id")
+				}
+			}
+		}
+		
+		
+		
 
 		let columnNo,lineNo,node, path=[]
 		let pageNo=pages.findIndex(page=>{
@@ -204,7 +237,7 @@ export default class Query{
 					path.splice(0,path.length,parent)
 				}
 
-				if(at==-1){
+				if(composeType!="text"){
 					if(props && props["data-content"]==id){
 						node=arguments[0]
 						path.push(node)
@@ -222,10 +255,10 @@ export default class Query{
 			return !!node
 		})
 
-		return {pageNo,columnNo,lineNo,node, path}
+		return {pageNo,columnNo,lineNo,node, path, type:composeType}
 	})
 
-	_xy(id,path){
+	_xy(path){
 		let [page,column]=path
 		let {pages,pgGap}=this
 		let pageNo=pages.indexOf(page)
@@ -270,17 +303,15 @@ export default class Query{
 
 	position(id,at){//return left:clientX, top:clientY
 		let {pages,pgGap}=this
-		let {pageNo,columnNo,lineNo,node, path}=this.locate(id,at)
+		let {pageNo,columnNo,lineNo,node, path, type}=this._locate(id,at)
 
 		if(!node) return;
 
-		let {x,y}=this._xy(id,path)
+		let {x,y}=this._xy([...path])
 
-		let extra={}
+		let extra={height:0}
 
-		if(at==-1){
-			extra.height=0
-		}else{
+		if(type=="text"){
 			let from=node.props["data-endat"]-node.props.children.join("").length
 			let composer=this.getComposer(id)
 			let {children:text,...props}=composer.props
@@ -296,6 +327,12 @@ export default class Query{
 				descent:this.toViewportCoordinate(descent),
 				fontFamily,
 				fontSize,
+			}
+		}else{
+			if(at==1){//end of entity
+				let last=path[path.length-1]
+				x+=last.props.width
+				y+=last.props.height
 			}
 		}
 
@@ -463,7 +500,7 @@ export default class Query{
 			}
 		}
 
-		const inPageLines=(start,end)=>{
+		const linesOfRangePage=(start,end)=>{
 			const {page,x,y}=pageXY(start.page)
 			if(start.column==end.column){
 				let column=page.columns[start.column]
@@ -494,7 +531,7 @@ export default class Query{
 			}
 		}
 
-		const startLines=start=>{
+		const linesOfStartPage=start=>{
 			const {page,x,y}=pageXY(start.page)
 
 			let column=page.columns[start.column]
@@ -511,7 +548,7 @@ export default class Query{
 				)
 		}
 
-		const endLines=end=>{
+		const linesOfEndPage=end=>{
 			const {page,x,y}=pageXY(end.page)
 
 			return page.columns
@@ -531,7 +568,7 @@ export default class Query{
 				)
 		}
 
-		const pageLines=pageNo=>{
+		const linesOfWholePage=pageNo=>{
 			const {page,x,y}=pageXY(pageNo)
 
 			return  page.columns.reduce((lines,column)=>{
@@ -541,18 +578,18 @@ export default class Query{
 		}
 
 		if(start.page==end.page){
-			return inPageLines(start,end)
+			return linesOfRangePage(start,end)
 		}else{
-			return startLines(start)
+			return linesOfStartPage(start)
 				.concat(
 					(lines=>{
 						for(let i=start.page+1;i<end.page;i++){
-							lines=lines.concat(pageLines(i))
+							lines=lines.concat(linesOfWholePage(i))
 						}
 						return lines
 					})([])
 				)
-				.concat(endLines(end))
+				.concat(linesOfEndPage(end))
 		}
 	}
 
@@ -590,21 +627,19 @@ export default class Query{
 		return this.getContent()
 	}
 
-	getContent=memoize(()=>new ContentQuery(this.state))
+	getContent=memoize(id=>new ContentQuery(this.state,id ? `#${id}` : null))
 
-	asSelection({page,column,line,id}){
+	asSelection({page,column,line,id,path}){
 		let self=this
-		let content=null
+		const fromContent=type=>{
+			let $=self.getContent(id)
+			let props=$.is(type) ? $.props() : $.closest(type).props()
+			return props ? props.toJS().props : null
+		}
 		return self.selection={
-			get $(){
-				return content||(content=new ContentQuery(self.state,`#${id}`))
-			},
 			props(type,bContent=true){
 				if(bContent){//from content in state
-					let props=this.$.closest(type).props()
-					if(props)
-						return props.toJS().props
-					return props
+					return fromContent(type)
 				}
 
 				let reType=new RegExp(type,"i")
@@ -619,20 +654,15 @@ export default class Query{
 					}
 				}
 
-				let found=this.$.parents().add(`#${id}`).filter(type)//  path.find(a=>!!a.props && reType.test(a.props["data-type"]))
-				if(found.length){
-					let composer=self.getComposer(found.attr("id"))
+				let found=path.find(a=>!!a.props && reType.test(a.props["data-type"]))
+				if(found){
+					let composer=self.getComposer(found.props.id)
 					if(composer){
 						return composer.props
-					}else{
-						let props=found.props()
-						if(props)
-							return props.toJS().props
-						return props
 					}
 				}
 
-				return null
+				return fromContent(type)
 			}
 		}
 	}

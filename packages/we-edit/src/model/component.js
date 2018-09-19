@@ -5,4 +5,12 @@ export default class Base extends Component{
 	render(){
 		return (<Fragment>{this.props.children}</Fragment>)
 	}
+	
+	static getType(){
+		return this.displayName.split("-").pop()
+	}
+	
+	getComposeType(){
+		return this.constructor.getType()
+	}
 }

@@ -125,12 +125,20 @@ export default class SelectionShape extends Component{
 
 	componentWillReceiveProps({start,end},{docId,activeDocStore,query}){
 		this.el=null
-		if(start.id==end.id && start.at==end.at){
-			const type=query().content.find(`#${start.id}`).attr('type')
-			if(type=="text" || type=="table")
-				return this.el=null
-
-			this.el=this.renderEntity(start.id)
+		if(start.id==end.id){
+			if(start.at==end.at){//must be text
+				return 
+			}
+			const $=query()
+			const type=$.getComposeType(start.id)
+			switch(type){
+				case "text":
+					return this.el=this.renderRange(start,end,docId,activeDocStore)
+				case "image":
+					return this.el=this.renderEntity(start.id)
+				default:
+					return this.el=this.renderRange(start,end,docId,activeDocStore)
+			}
 		}else{
 			this.el=this.renderRange(start,end,docId,activeDocStore)
 		}

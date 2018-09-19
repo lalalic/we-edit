@@ -30,10 +30,10 @@ export class Cursor extends Component{
 	}
 
 	render(){
-		const {active,children}=this.props
+		const {active,children,isCaret}=this.props
 		const {docId}=this.context
 		return (
-			<Shape ref={a=>this.shape=a} active={active==docId}>
+			<Shape ref={a=>this.shape=a} active={active==docId} >
 				{children}
 			</Shape>
 		)
@@ -49,8 +49,19 @@ export class Cursor extends Component{
 	}
 
 	componentDidUpdate(prevProps){
-		const {active,id,at, up, down}=this.props
+		const {active,id,at, up, down, isCaret}=this.props
 		const {docId, getCursorInput,query}=this.context
+		if(!isCaret){
+			this.style=null
+			getCursorInput()
+				.setState({
+					height:0
+				})
+			if(this.shape){
+				this.shape.setState({height:0})
+			}
+			return 
+		}
 		let docQuery=query()
 		this.style=docQuery.position(id,at)
 		if(!this.style)
@@ -148,7 +159,7 @@ const CursorHolder=connect((state)=>{
 	let content=state.get("content")
 	let {end,start,active,cursorAt}=selection
 	let {id,at}=selection[cursorAt]
-	return {id,at,active, content}
+	return {id,at,active, content, isCaret:end.id==start.id && end.at==start.at}
 },null,null, {withRef:true})(Cursor)
 
 export default class extends Component{

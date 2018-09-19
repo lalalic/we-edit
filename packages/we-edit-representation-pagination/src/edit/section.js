@@ -15,17 +15,4 @@ export default class Section extends Super{
 		let last=this.computed.composed[this.computed.composed.length-1]
 		last && (last.lastSectionPage=true);
 	}
-
-	render(){
-		return super.render()
-	}
-
-	//page has section info, so content doesn't need
-	createComposed2Parent=Base.prototype.createComposed2Parent.bind(this)
-	_newPage(){
-		let page=super._newPage(...arguments)
-		page["data-content"]=this.props.id
-		page["data-type"]="section"
-		return page
-	}
 }

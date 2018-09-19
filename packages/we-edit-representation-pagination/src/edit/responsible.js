@@ -137,7 +137,7 @@ export default class Responsible extends Component{
 
         switch(target.nodeName){
 			case "image":
-				dispatch(ACTION.Selection.SELECT(target.dataset.content,-1))
+				dispatch(ACTION.Selection.SELECT(target.dataset.content))
 			break
 			default:{
 				const locate=()=>{

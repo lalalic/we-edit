@@ -7,6 +7,51 @@ import {connect} from "../state"
 import {getSelection,getParentId} from "../state/selector"
 import {Selection} from "../state/action"
 
+
+const DL=connect(state=>{
+	const content=state.get("content")
+	const {cursorAt, ...selection}=getSelection(state)
+	const {id}=selection[cursorAt]
+	return {focus:id}
+})(class DL extends PureComponent{
+	state={show:true}
+	render(){
+		let {type,id, children, isFocus, focus, dispatch,...props}=this.props
+		const {show}=this.state
+		if(children){
+			if(Array.isArray(children)){
+				children=(
+					<dl style={{marginLeft:15, marginTop:0, marginBottom:0, display: show ? "" : "none"}}>
+						{children}
+					</dl>
+				)
+			}else if(typeof(children)=="string"){
+				children=null
+			}
+		}
+		props.style={...props.style, userSelect:"none"}
+		let typeStyle={}
+		if(isFocus(focus)){
+			typeStyle.background="lightblue"
+		}
+		return (
+			<Fragment>
+				{type &&
+				<dt {...props}>
+					<span
+						onClick={e=>this.setState({show:!show})}
+						style={{display:"inline-block",width:20,textAlign:"center"}}>
+						{!!children && (show ? "-" : "+")}
+					</span>
+					<span style={typeStyle} onClick={a=>dispatch(Selection.SELECT(id))}>{type}</span>
+				</dt>
+				}
+				{children}
+			</Fragment>
+		)
+	}
+})
+
 export default compose(
 	setDisplayName("DocumentTree"),
 	connect((state)=>{
@@ -42,7 +87,8 @@ export default compose(
 		return null
 	})
 
-	getDocument=memoize((content, filter,  node=<DL/>)=>{
+	getDocument=memoize((content, filter,  node)=>{
+		node=node||<this.constructor.Node/>
 		const isFocus=id=>focus=>{
 			let thisFocus=this.getFocus(content,filter,focus)
 			if(thisFocus){
@@ -97,48 +143,6 @@ export default compose(
 
 		return createElement("root")
 	}
-})
-
-const DL=connect(state=>{
-	const content=state.get("content")
-	const {cursorAt, ...selection}=getSelection(state)
-	const {id}=selection[cursorAt]
-	return {focus:id}
-})(class DL extends PureComponent{
-	state={show:true}
-	render(){
-		let {type,id, children, isFocus, focus, dispatch,...props}=this.props
-		const {show}=this.state
-		if(children){
-			if(Array.isArray(children)){
-				children=(
-					<dl style={{marginLeft:15, marginTop:0, marginBottom:0, display: show ? "" : "none"}}>
-						{children}
-					</dl>
-				)
-			}else if(typeof(children)=="string"){
-				children=null
-			}
-		}
-		props.style={...props.style, userSelect:"none"}
-		let typeStyle={}
-		if(isFocus(focus)){
-			typeStyle.background="lightblue"
-		}
-		return (
-			<Fragment>
-				{type &&
-				<dt {...props}>
-					<span
-						onClick={e=>this.setState({show:!show})}
-						style={{display:"inline-block",width:20,textAlign:"center"}}>
-						{!!children && (show ? "-" : "+")}
-					</span>
-					<span style={typeStyle} onClick={a=>dispatch(Selection.SELECT(id))}>{type}</span>
-				</dt>
-				}
-				{children}
-			</Fragment>
-		)
-	}
+	
+	static Node=DL
 })

@@ -54,7 +54,7 @@ export default function recomposable(Content){
 		createComposed2Parent(props){
 			return React.cloneElement(super.createComposed2Parent(props),{
 					"data-content":this.props.id,
-					"data-type":this.constructor.displayName.split("-").pop()
+					"data-type":this.getComposeType()
 				})
 		}
 

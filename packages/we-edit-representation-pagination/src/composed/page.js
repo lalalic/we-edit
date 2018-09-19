@@ -21,11 +21,10 @@ export default class Page extends Component{
 			columns,
 			header,
 			footer,
-			...props
 			}=this.props
 
 		return(
-			<g className="page" width={width} height={height} {...props}>
+			<g className="page" width={width} height={height}>
 				{header &&
 					<Group
 						x={left} y={headerStartAt}
