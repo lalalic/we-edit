@@ -66,7 +66,7 @@ export default class{
 		const $=this.query()
 		switch(target.nodeName){
 			case "img":
-				dispatch(ACTION.Selection.SELECT(target.dataset.content,-1))
+				dispatch(ACTION.Selection.SELECT(target.dataset.content))
 			break
 			default:{
 				let {focusOffset:at, focusNode:{parentElement:{dataset:{content:id}}}}=this.documentSelection()

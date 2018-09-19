@@ -108,19 +108,22 @@ export const Text={
 }
 
 export const Selection={
-	SELECT: (start, at=0, end=start, endAt=at)=>({
-		type:`we-edit/selection/SELECTED`
-		,payload: {
-			start:{
-				id:start
-				,at
-			}
-			,end:{
-				id:end
-				,at:endAt
+	SELECT: function(start, at=0, end=start, endAt=at){
+		endAt=arguments.length==1 ? 1 : endAt
+		return {
+			type:`we-edit/selection/SELECTED`
+			,payload: {
+				start:{
+					id:start
+					,at
+				}
+				,end:{
+					id:end
+					,at:endAt
+				}
 			}
 		}
-	}),
+	},
 	START_AT:(id,at)=>({type:"we-edit/selection/STARTAT",payload:{id,at}}),
 	END_AT: (id,at)=>({type:"we-edit/selection/ENDAT",payload:{id,at}}),
 	REMOVE: ()=>({type:"we-edit/selection/REMOVE"}),
