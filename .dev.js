@@ -33,7 +33,55 @@ import {connect} from  "react-redux"
 
 function testOffice(){
 	const KEY="test"
+	
+	const Tree=({data, filter="*", node})=>{
+		const toArray=a=>Object.keys(a).map(k=>[k,a[k]])
+		const createElement=(value,key)=>{
+			let children=typeof(value)=="object" ? (Array.isArray(value) ? value : toArray(value)) : null
+			
+			if(key=="root" || filter(key,value)){
+				return React.cloneElement(
+					node,
+					{name:key, value:current},
+					Array.isArray(children) ? create4Children(children) : children
+				)
+			}else{
+				return Array.isArray(children) ? create4Children(children) : null
+			}
+		}
 
+		const create4Children=children=>{
+				children=children.map(a=>createElement(a))
+				.filter(a=>!!a && (Array.isArray(a) ? a.length>0 : true))
+				.reduce((all,a)=>{
+					if(Array.isArray(a)){
+						all.splice(all.length,0,...a)
+					}else{
+						all.splice(all.length,0,a)
+					}
+					return all
+				},[])
+				return children.length==0 ? null : children
+		}
+
+		return createElement(data,"root")
+	}
+	
+	const Node=({name,value, children})=>{
+		if(!name)
+			return null
+		if(children){
+			children=<div style={{marginLeft:10}}>{children}</div>
+		}
+		return (
+			<Fragment>
+				<div>{name}</div>
+				{children}
+			</Fragment>
+		)
+		
+	}
+	
 	const FileSelector=connect(state=>state[KEY])(({dispatch,assemble,data,...props})=>(
 		<div>
 			<center>
@@ -53,6 +101,9 @@ function testOffice(){
 				<input type="checkbox" checked={assemble} onChange={a=>dispatch({type:`${KEY}/assemble`})}/>
 				<span style={{background:!!data ? "lightgreen" : ""}}>Assemble</span>
 			</div>
+			<div>
+				<Tree {...{data, node:<Node/>}}/>
+			</div>
 		</div>
 	))
 
@@ -68,7 +119,7 @@ function testOffice(){
 
 		return editor
 	})
-
+	
 	const myWorksapce=(
 		<Workspace
 			debug={true}
