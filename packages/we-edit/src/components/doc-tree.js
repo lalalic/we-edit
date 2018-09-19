@@ -143,6 +143,6 @@ export default compose(
 
 		return createElement("root")
 	}
-	
+
 	static Node=DL
 })

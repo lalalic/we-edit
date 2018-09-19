@@ -24,25 +24,38 @@ PDF.install()
 Variant.install()
 
 
-import React,{PureComponent} from "react"
+import React,{PureComponent,Fragment} from "react"
 import PropTypes from "prop-types"
 import {Editor, DocumentTree} from  "we-edit"
 import {Office,Workspace, Ribbon} from "we-edit-office"
 import {Tabs, Tab} from "material-ui"
 import {connect} from  "react-redux"
+import minimatch from "minimatch"
 
 function testOffice(){
 	const KEY="test"
-	
+
 	const Tree=({data, filter="*", node})=>{
+		filter=(filter=>{
+			if(typeof(filter)=="string"){
+				let glob=filter
+				filter=key=>minimatch(`${key}`,glob)
+			}
+
+			if(typeof(filter)=="function")
+				return filter
+
+			return a=>!!filter
+		})(filter);
+
 		const toArray=a=>Object.keys(a).map(k=>[k,a[k]])
 		const createElement=(value,key)=>{
-			let children=typeof(value)=="object" ? (Array.isArray(value) ? value : toArray(value)) : null
-			
+			let children=typeof(value)=="object"&&value ? (Array.isArray(value) ? value.map((v,i)=>[i,v]) : toArray(value)) : null
+
 			if(key=="root" || filter(key,value)){
 				return React.cloneElement(
 					node,
-					{name:key, value:current},
+					{name:key, value},
 					Array.isArray(children) ? create4Children(children) : children
 				)
 			}else{
@@ -51,22 +64,23 @@ function testOffice(){
 		}
 
 		const create4Children=children=>{
-				children=children.map(a=>createElement(a))
-				.filter(a=>!!a && (Array.isArray(a) ? a.length>0 : true))
-				.reduce((all,a)=>{
-					if(Array.isArray(a)){
-						all.splice(all.length,0,...a)
-					}else{
-						all.splice(all.length,0,a)
-					}
-					return all
-				},[])
+				children=children
+					.map(([key,value])=>createElement(value,key))
+					.filter(a=>!!a && (Array.isArray(a) ? a.length>0 : true))
+					.reduce((all,a)=>{
+						if(Array.isArray(a)){
+							all.splice(all.length,0,...a)
+						}else{
+							all.splice(all.length,0,a)
+						}
+						return all
+					},[])
 				return children.length==0 ? null : children
 		}
 
 		return createElement(data,"root")
 	}
-	
+
 	const Node=({name,value, children})=>{
 		if(!name)
 			return null
@@ -79,9 +93,9 @@ function testOffice(){
 				{children}
 			</Fragment>
 		)
-		
+
 	}
-	
+
 	const FileSelector=connect(state=>state[KEY])(({dispatch,assemble,data,...props})=>(
 		<div>
 			<center>
@@ -119,7 +133,7 @@ function testOffice(){
 
 		return editor
 	})
-	
+
 	const myWorksapce=(
 		<Workspace
 			debug={true}

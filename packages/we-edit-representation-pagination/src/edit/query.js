@@ -67,7 +67,7 @@ export default class Query{
 		return pages.slice(0,which)
 			.reduce((h,{size:{height}})=>h+height+pgGap,pgGap)
 	}
-	
+
 	getComposeType(id){
 		const composer=this.getComposer(id)
 		if(composer){
@@ -191,12 +191,12 @@ export default class Query{
 	_locate=memoize((id,at)=>{
 		let {pages,pgGap}=this
 		let composeType=this.getComposeType(id)
-		
+
 		if(composeType){
-			
+
 		}else{//area node
 			const $=this.getContent(id)
-				
+
 			if(at==0){
 				//get first composed node
 				let found=$.findFirst(a=>{
@@ -210,15 +210,15 @@ export default class Query{
 				let found=$.findLast(a=>{
 					return !!this.getComposer(a.get("id"))
 				})
-				
+
 				if(found){
 					id=found.attr("id")
 				}
 			}
 		}
-		
-		
-		
+
+
+
 
 		let columnNo,lineNo,node, path=[]
 		let pageNo=pages.findIndex(page=>{
@@ -656,7 +656,7 @@ export default class Query{
 
 				let found=path.find(a=>!!a.props && reType.test(a.props["data-type"]))
 				if(found){
-					let composer=self.getComposer(found.props.id)
+					let composer=self.getComposer(found.props["data-content"])
 					if(composer){
 						return composer.props
 					}
