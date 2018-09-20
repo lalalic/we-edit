@@ -1,4 +1,4 @@
-import React, {Component, Children} from "react"
+import React, {Component, Children, Fragment} from "react"
 import PropTypes from "prop-types"
 import {shallowEqual} from "we-edit"
 import memoize from "memoize-one"
@@ -36,6 +36,7 @@ export default class Group extends Component{
 		let {x,y, width, height, index, children=[],
 			childIndex, type, contentWidth,rotate,
 			innerRef, //for waypoint
+			className,
 			...others}=this.props
 
 		if(rotate){
@@ -55,10 +56,15 @@ export default class Group extends Component{
 
 			.filter(a=>a!==false && a!==null)
 			.map(a=>{
-				if(a.type==this.constructor){
-					return a
-				}else{
-					return a
+				switch(a.type){
+					case this.constructor:{
+						return React.cloneElement(a,{x:(a.props.x||0+offset.x), y:(a.props.y||0+offset.y)})
+					}
+					break
+					case Fragment:
+
+					default:
+						return a
 				}
 			})
 		if(Object.keys(others).length>0 || children.length>1){
