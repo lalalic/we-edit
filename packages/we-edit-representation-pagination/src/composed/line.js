@@ -3,30 +3,31 @@ import PropTypes from "prop-types"
 
 import Group from "./group"
 
-export const Line=({children})=>{
-	const height=children.reduce((h,{props:{height}})=>Math.max(h,height),0)
-	const descent=children.reduce((h,{props:{descent=0}})=>Math.max(h,descent),0)
+export default class Line extends Component{
+	render(){
+		const {children}=this.props
+		const height=children.reduce((h,{props:{height}})=>Math.max(h,height),0)
+		const descent=children.reduce((h,{props:{descent=0}})=>Math.max(h,descent),0)
 
-	return (
-		<Group y={height-descent} className="line">
-		{
-			children.reduce((state,piece,i)=>{
-				const {pieces,x}=state
-				const {width,height,x:x1}=piece.props
-				pieces.push(
-					<Group x={x1!=undefined ? 0 : x} key={i}>
-						{piece}
-					</Group>
-				);
-				state.x=x+(x1!=undefined ? 0 : width)
-				return state
-			},{pieces:[],x:0}).pieces
-		}
-		</Group>
-	)
+		return (
+			<Group y={height-descent} className="line">
+			{
+				children.reduce((state,piece,i)=>{
+					const {pieces,x}=state
+					const {width,height,x:x1}=piece.props
+					pieces.push(
+						<Group x={x1!=undefined ? 0 : x} key={i}>
+							{piece}
+						</Group>
+					);
+					state.x=x+(x1!=undefined ? 0 : width)
+					return state
+				},{pieces:[],x:0}).pieces
+			}
+			</Group>
+		)
+	}
 }
-
-export default Line
 
 class Inline{
 	constructor(width){
@@ -50,7 +51,7 @@ class Inline{
 			}
 		})
 	}
-	
+
 	availableWidth(min=0){
 		let avW=this.content.reduce((w,{props:{width}})=>w-width,this.width)
 		if(avW>=min)
@@ -113,7 +114,7 @@ class TopAndBottom extends Inline{
 			}
 		})
 	}
-	
+
 	availableWidth(min=0){
 		return this.base.availableWidth(...arguments)
 	}
@@ -159,13 +160,13 @@ class Square extends Inline{
 			}
 		})
 	}
-	
+
 	availableWidth(min){
 		let current=this.content[this.content.length-1]
 		let width=this.width-current.availableWidth()
 		const {height:targetHeight,width:targetWidth}=this.target.props
 		let t=0
-		
+
 		if(width<this.leftWidth){
 			if((t=this.leftWidth-width)>=min)
 				return t
@@ -176,14 +177,14 @@ class Square extends Inline{
 			if((t=this.width-width)>=min)
 				return t
 		}
-		
+
 		if(this.content.reduce((h,a)=>h+=a.height,0)<targetHeight){
 			if((t=Math.min(this.leftWidth,this.rightWidth))>=min)
 				return t
 			else if((t=Math.max(this.leftWidth,this.rightWidth))>=min)
 				return t
 		}
-		
+
 		return 0
 	}
 
@@ -193,7 +194,7 @@ class Square extends Inline{
 		let {width:contentWidth}=piece.props
 		let {leftWidth,rightWidth,maxWidth}=this
 		const {height:targetHeight,width:targetWidth}=this.target.props
-		
+
 		if(x<leftWidth){
 			if(leftWidth-x>=contentWidth)
 				return current.push(piece)

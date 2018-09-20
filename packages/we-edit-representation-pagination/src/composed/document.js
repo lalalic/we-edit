@@ -3,7 +3,9 @@ import PropTypes from "prop-types"
 
 import Group from "./group"
 import Page from "./page"
-import Media from "../edit/media"
+import Media from "./media"
+
+import {LocatableDocument, Locatable} from "./locatable"
 
 export default class ComposedDocument extends Component{
 	static propTypes={

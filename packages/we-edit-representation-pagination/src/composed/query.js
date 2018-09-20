@@ -187,7 +187,7 @@ export default class Query{
 	getComposer(id){
 		return this.document.composers.get(id)
 	}
-	
+
 	isTextNode(id){
 		return this.getComposeType(id)==="text"
 	}
@@ -195,9 +195,9 @@ export default class Query{
 	_locate(id,at){
 		const isComposableNode=id=>!!this.getComposeType(id)
 		const isTextNode=this.isTextNode(id)
-		const isLeafNode=id=>(this.getComposer()||{noChild:false}).noChild
-		
-		if(!isLeafNode(id)){
+		const isContainerNode=id=>!(this.getComposer()||{noChild:false}).noChild
+
+		if(isContainerNode(id)){
 			const $=this.getContent(id)
 			if(at==0){
 				//get first composed node
@@ -255,11 +255,11 @@ export default class Query{
 			})
 			return !!node
 		})
-		
+
 		if(!isComposableNode(id) &&  at==1){//if it has multiple lines, it has to be the last line location
 			//to find the same path level's next siblings
 			const [page, column]=path
-			
+
 		}
 
 		return {page:pageNo,column:columnNo,line:lineNo, inline:node, path}
@@ -278,25 +278,25 @@ export default class Query{
 				return x+=line.props.children.slice(0,itemIndex)
 					.reduce((w,li)=>w+=li.props.width,0)
 			},0)
-			
+
 		let [page,column]=path
 		let {pages,pgGap}=this
-		
+
 		let x=(this.canvasWidth-page.size.width)/2 //left svg blank
 				+page.margin.left
 				+inlineX
-				
+
 		let y=pgGap
 				+page.margin.top
 				+pages.slice(0,pages.indexOf(page)).reduce((y,{size:{height}})=>y+=(pgGap+height),0)
-				
+
 		let line=path.findLast(a=>a.type==ComposedLine)
 		if(line){
 			y=y+line.props.height
 			let descent=line.props.children.reduce((h,{props:{descent=0}})=>Math.max(h,descent),0)
 			y=y-descent
 		}
-		
+
 		const e=(a,w='x')=>{
 			if(w in a)
 				return a[w]
@@ -305,7 +305,7 @@ export default class Query{
 			else
 				return 0
 		}
-		
+
 		return path.reduce((state,a)=>{
 				state.x+=e(a,'x')
 				state.y+=e(a,'y')
@@ -318,10 +318,10 @@ export default class Query{
 
 		if(!inline){
 			return;
-		} 
-		
+		}
+
 		let position={id,at,path,page,column,line}
-		
+
 		let {x,y}=this._xy(path)
 
 		if(this.isTextNode(id)){
@@ -349,7 +349,7 @@ export default class Query{
 				y+=last.props.height
 			}
 		}
-		
+
 		return Object.assign(position,{
 			left:Math.ceil(this.toViewportCoordinate(x))+this.svg.left,
 			top:Math.ceil(this.toViewportCoordinate(y))+this.svg.top,

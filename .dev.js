@@ -139,6 +139,8 @@ function testOffice(){
 			debug={true}
 			accept="*"
 			key={KEY}
+			ruler={true}
+			
 			toolBar={<Ribbon.Ribbon commands={{layout:false}}/>}
 			reducer={(state={assemble:false, data:null},{type,payload})=>{
 				switch(type){
@@ -157,8 +159,8 @@ function testOffice(){
 							<div style={{width:200,}}>
 								<Tabs>
 									<Tab label="Document">
-										<DocumentTree 
-											filter="*" 
+										<DocumentTree
+											filter="*"
 											toNodeProps={({id,type,props})=>({name:`${type}(${id})`})}
 											/>
 									</Tab>

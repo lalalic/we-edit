@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 import {getContent,getSelection,getClientRect, ACTION} from "we-edit"
 
 import Base from "../document"
-import Responsible from "./responsible"
+import Responsible from "../composed/responsible"
 
 import recomposable from "./recomposable"
 

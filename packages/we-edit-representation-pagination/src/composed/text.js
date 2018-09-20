@@ -1,16 +1,18 @@
-import React, {Fragment} from "react"
+import React, {Fragment, PureComponent as Component} from "react"
 import PropTypes from "prop-types"
 
 
-export const Text=({
-	children, whiteSpace, color:fill, highlight,border,underline,strike,
-	descent,contentWidth, height, width, //ignore
-	...others
-	})=>{
+export class Text extends Component{
+	render(){
+		const {
+			children, whiteSpace, color:fill, highlight,border,underline,strike,
+			descent,contentWidth, height, width, //ignore
+			...others}=this.props
+
 		let background=null
 		if(highlight || border){
 			let props={
-					width:Math.ceil(width), 
+					width:Math.ceil(width),
 					height:Math.ceil(height),
 					fill:highlight||"none",
 					x:0,y:-height+descent
@@ -34,7 +36,7 @@ export const Text=({
 				})(0.5)
 			decoration=(<line y1={y} x2={width} y2={y} stroke="black" strokeWidth={strokeWidth}/>)
 		}
-		
+
 		let strikeline=null
 		if(strike){
 			let y=-descent
@@ -50,6 +52,7 @@ export const Text=({
 				</text>
 			</Fragment>
 		)
+	}
 }
 
 export default Text
