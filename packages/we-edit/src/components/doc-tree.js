@@ -16,7 +16,7 @@ const DL=connect(state=>{
 })(class DL extends PureComponent{
 	state={show:true}
 	render(){
-		let {type,id, children, isFocus, focus, dispatch,naming=()=>type, ...props}=this.props
+		let {name,id, children, isFocus, focus, dispatch, ...props}=this.props
 		const {show}=this.state
 		if(children){
 			if(Array.isArray(children)){
@@ -36,14 +36,14 @@ const DL=connect(state=>{
 		}
 		return (
 			<Fragment>
-				{type &&
+				{name &&
 				<dt {...props}>
 					<span
 						onClick={e=>this.setState({show:!show})}
 						style={{display:"inline-block",width:20,textAlign:"center"}}>
 						{!!children && (show ? "-" : "+")}
 					</span>
-					<span style={typeStyle} onClick={a=>dispatch(Selection.SELECT(id))}>{naming(this.props)}</span>
+					<span style={typeStyle} onClick={a=>dispatch(Selection.SELECT(id))}>{name}</span>
 				</dt>
 				}
 				{children}
@@ -62,12 +62,12 @@ export default compose(
 	static propTypes={
 		content: PropTypes.any,
 		node: PropTypes.element,
-		naming: PropTypes.func,
+		toNodeProps: PropTypes.func
 	}
 
 	render(){
-		const {content, filter="*", children, node=children, naming}=this.props
-		const doc=this.getDocument(content, filter, node, naming)
+		const {content, filter="*", children, node=children,  toNodeProps}=this.props
+		const doc=this.getDocument(content, filter, node, toNodeProps)
 		return (
 			<Fragment>
 				{doc.props.children}
@@ -88,7 +88,7 @@ export default compose(
 		return null
 	})
 
-	getDocument=memoize((content, filter,  node, naming)=>{
+	getDocument=memoize((content, filter,  node, toNodeProps)=>{
 		node=node||<this.constructor.Node/>
 		const isFocus=id=>focus=>{
 			let thisFocus=this.getFocus(content,filter,focus)
@@ -97,8 +97,10 @@ export default compose(
 			}
 			return false
 		}
-
-		const createNode=(id, type,props,children)=>React.cloneElement(node,{...props,key:id, id,type,children,naming,isFocus:isFocus(id)})
+		toNodeProps=toNodeProps||(({id,type,props})=>({id,name:type}))
+		const createNode=(id, type,props,children)=>{
+			return React.cloneElement(node,{...toNodeProps({id,type,props}),key:id,id,children,isFocus:isFocus(id)})
+		}
 		return this.constructor.createDocument(content, this.getFilter(filter),createNode)
 	})
 

@@ -25,7 +25,10 @@ export default ({Text,$exp})=>class extends Component{
             const value=this.getValue(this.context.variantContext, expression,name)
     		content=React.cloneElement(text,{children:value+"", color:"red"})
         }else{
-            content=React.cloneElement(text,{children:text.props.children||`{${expression}}`})
+			let {children:textContent}=text.props
+			if(Array.isArray(textContent))
+				textContent=textContent.join("")
+            content=React.cloneElement(text,{children:textContent||`{${expression}}`})
         }
 
         return (content)

@@ -140,7 +140,11 @@ function NoChild(Component){
             ...Super.contextTypes,
             getMyBreakOpportunities: PropTypes.func
         }
-
+		
+		get noChild(){
+			return true
+		}
+		
         render() {
             this.context.getMyBreakOpportunities(null)
             this.appendComposed(this.createComposed2Parent())
@@ -179,7 +183,6 @@ export const enablify=func=>(targets, excludes)=>Object.keys(targets)
 
 [HasChild,HasParentAndChild,NoChild,Locatable]
 	.forEach(a=>{
-		debugger
 		a.enable=enablify(a)
 	})
 

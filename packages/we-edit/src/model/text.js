@@ -16,5 +16,6 @@ export default class Text extends Component{
 		border: PropTypes.object,
 		underline: PropTypes.string,
 		strike: PropTypes.bool,
+		children: PropTypes.string.isRequired
 	}
 }

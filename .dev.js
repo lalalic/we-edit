@@ -154,10 +154,13 @@ function testOffice(){
 				layout={
 					<Workspace.Layout
 						right={
-							<div style={{width:200}}>
+							<div style={{width:200,}}>
 								<Tabs>
 									<Tab label="Document">
-										<DocumentTree filter="$*" naming={({type})=>type.substring(1)}/>
+										<DocumentTree 
+											filter="*" 
+											toNodeProps={({id,type,props})=>({name:`${type}(${id})`})}
+											/>
 									</Tab>
 									<Tab label="Assemble">
 										<FileSelector />

@@ -188,32 +188,26 @@ export default class Query{
 		return this.document.composers.get(id)
 	}
 	
-	_hasComposedContent(path){
-		return !!path.find(a=>a.type==ComposedLine)
+	isTextNode(id){
+		return this.getComposeType(id)==="text"
 	}
 
-	_locate=memoize((id,at)=>{
-		let {pages,pgGap}=this
-		let composeType=this.getComposeType(id)
-
-		if(composeType){
-
-		}else{//area node
+	_locate(id,at){
+		const isComposableNode=id=>!!this.getComposeType(id)
+		const isTextNode=this.isTextNode(id)
+		const isLeafNode=id=>(this.getComposer()||{noChild:false}).noChild
+		
+		if(!isLeafNode(id)){
 			const $=this.getContent(id)
-
 			if(at==0){
 				//get first composed node
-				let found=$.findFirst(a=>{
-					return !!this.getComposer(a.get("id"))
-				})
+				let found=$.findFirst(a=>isComposableNode(a.get("id")))
 				if(found){
 					id=found.attr('id')
 				}
 			}else if(at==1){
 				//get last composed node
-				let found=$.findLast(a=>{
-					return !!this.getComposer(a.get("id"))
-				})
+				let found=$.findLast(a=>isComposableNode(a.get("id")))
 
 				if(found){
 					id=found.attr("id")
@@ -221,15 +215,16 @@ export default class Query{
 			}
 		}
 
-
-
-
 		let columnNo,lineNo,node, path=[]
-		let pageNo=pages.findIndex(page=>{
-			this.traverse(page,function({type,props},parent,index,pi){
-				if((pi=path.indexOf(parent))!=-1){
-					path.splice(pi+1)
-				}else{
+		let pageNo=this.pages.findIndex(page=>{
+			this.traverse(page,function({type,props},parent,index){
+				let pi=path.indexOf(parent)
+				if(pi!=-1){
+					const isSameParantAsLastTraverse=pi==path.length-1
+					if(!isSameParantAsLastTraverse){//not same level, it must go back to upper level, so move path
+						path.splice(pi)
+					}
+				}else{//go to next level
 					path.push(parent)
 				}
 
@@ -241,43 +236,37 @@ export default class Query{
 					path.splice(0,path.length,parent)
 				}
 
-				if(composeType!="text"){
-					if(props && props["data-content"]==id){
-						node=arguments[0]
-						path.push(node)
-						return true
-					}
-				}else if(type==ComposedText){
+				if(type==ComposedText){
 					let {"data-content":dataId,"data-endat":dataEndAt}=props
 					if(dataId==id && at<=dataEndAt){
 						node=arguments[0]
 						path.push(node)
 						return true
 					}
+				}else{
+					if(!isTextNode){
+						if(props && props["data-content"]==id){
+							node=arguments[0]
+							path.push(node)
+							return true
+						}
+					}
 				}
 			})
 			return !!node
 		})
-
-		return {pageNo,columnNo,lineNo,node, path, type:composeType}
-	})
-
-	_xy(path){
-		let [page,column]=path
-		let {pages,pgGap}=this
-		let pageNo=pages.indexOf(page)
-
-		const e=(a,w='x')=>{
-			if(w in a)
-				return a[w]
-			else if(a.props && w in a.props)
-				return a.props[w]
-			else
-				return 0
+		
+		if(!isComposableNode(id) &&  at==1){//if it has multiple lines, it has to be the last line location
+			//to find the same path level's next siblings
+			const [page, column]=path
+			
 		}
 
-		let width=this.canvasWidth
-		let offsetX=path.filter(a=>a.type==ComposedLine)
+		return {page:pageNo,column:columnNo,line:lineNo, inline:node, path}
+	}
+
+	_xy(path){
+		const inlineX=path.filter(a=>a.type==ComposedLine)//may be nested, so reduce
 			.reduce((x,line)=>{
 				let lineItem=path[path.indexOf(line)+1]
 				let itemIndex=line.props.children
@@ -289,15 +278,34 @@ export default class Query{
 				return x+=line.props.children.slice(0,itemIndex)
 					.reduce((w,li)=>w+=li.props.width,0)
 			},0)
-
-		let x=(width-page.size.width)/2+page.margin.left+offsetX
-		let y=pages.slice(0,pageNo).reduce((y,{size:{height}})=>y+=(pgGap+height),0)
-		y=y+pgGap+page.margin.top
+			
+		let [page,column]=path
+		let {pages,pgGap}=this
+		
+		let x=(this.canvasWidth-page.size.width)/2 //left svg blank
+				+page.margin.left
+				+inlineX
+				
+		let y=pgGap
+				+page.margin.top
+				+pages.slice(0,pages.indexOf(page)).reduce((y,{size:{height}})=>y+=(pgGap+height),0)
+				
 		let line=path.findLast(a=>a.type==ComposedLine)
-		y=y+line.props.height
-		let descent=line.props.children.reduce((h,{props:{descent=0}})=>Math.max(h,descent),0)
-		y=y-descent
-
+		if(line){
+			y=y+line.props.height
+			let descent=line.props.children.reduce((h,{props:{descent=0}})=>Math.max(h,descent),0)
+			y=y-descent
+		}
+		
+		const e=(a,w='x')=>{
+			if(w in a)
+				return a[w]
+			else if(a.props && w in a.props)
+				return a.props[w]
+			else
+				return 0
+		}
+		
 		return path.reduce((state,a)=>{
 				state.x+=e(a,'x')
 				state.y+=e(a,'y')
@@ -306,18 +314,19 @@ export default class Query{
 	}
 
 	position(id,at){//return left:clientX, top:clientY
-		let {pages,pgGap}=this
-		const {pageNo,columnNo,lineNo,node, path, type}=this._locate(id,at)
+		const {page,column,line, inline, path}=this._locate(id,at)
 
-		if(!node) return;
+		if(!inline){
+			return;
+		} 
 		
-
+		let position={id,at,path,page,column,line}
+		
 		let {x,y}=this._xy(path)
 
-		let extra={height:0}
-
-		if(type=="text"){
-			let from=node.props["data-endat"]-node.props.children.join("").length
+		if(this.isTextNode(id)){
+			//const {children, ["data-endat"]:endat, id}=inline.props
+			let from=inline.props["data-endat"]-inline.props.children.join("").length
 			let composer=this.getComposer(id)
 			let {children:text,...props}=composer.props
 			let measure=composer.measure
@@ -327,12 +336,12 @@ export default class Query{
 
 			y=y-height+descent
 
-			extra={
+			Object.assign(position,{
 				height:this.toViewportCoordinate(height),
 				descent:this.toViewportCoordinate(descent),
 				fontFamily,
 				fontSize,
-			}
+			})
 		}else{
 			if(at==1){//end of entity
 				let last=path[path.length-1]
@@ -340,20 +349,13 @@ export default class Query{
 				y+=last.props.height
 			}
 		}
-
-		return {
-			id,
-			at,
-			page: pageNo,
-			column: columnNo,
-			line: lineNo,
+		
+		return Object.assign(position,{
 			left:Math.ceil(this.toViewportCoordinate(x))+this.svg.left,
 			top:Math.ceil(this.toViewportCoordinate(y))+this.svg.top,
 			canvasLeft:Math.ceil(x),
 			canvasTop:Math.ceil(y),
-			...extra,
-			path,
-		}
+		})
 	}
 
 	nextLine({page:pageNo,column:colNo,line:lineNo,left}/*usually returned from .postion*/){
