@@ -24,7 +24,7 @@ export default class Page extends Component{
 			}=this.props
 
 		return(
-			<g className="page" width={width} height={height}>
+			<Group className="page" width={width} height={height}>
 				{header &&
 					<Group
 						x={left} y={headerStartAt}
@@ -48,7 +48,7 @@ export default class Page extends Component{
 					</Group>
 				}
 
-			</g>
+			</Group>
 		)
 	}
 }

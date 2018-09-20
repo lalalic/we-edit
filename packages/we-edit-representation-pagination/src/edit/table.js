@@ -38,8 +38,7 @@ export default class extends recomposable(Base){
 							x={a.props.width}
 							y={0}
 							onAdd={dispatch=>{
-								dispatch(ACTION.Selection.SELECT(id))
-								dispatch(ACTION.Entity.UPDATE({col:{at:i}}))
+								dispatch(ACTION.Entity.UPDATE({id, col:{at:i}}))
 							}}
 							/>
 
@@ -67,8 +66,7 @@ export default class extends recomposable(Base){
 						x={0}
 						y={row.props.height}
 						onAdd={dispatch=>{
-							dispatch(ACTION.Selection.SELECT(id))
-							dispatch(ACTION.Entity.UPDATE({row:{at}}))
+							dispatch(ACTION.Entity.UPDATE({id, row:{at}}))
 						}}
 						/>
 					<RowSelector
@@ -112,8 +110,7 @@ export default class extends recomposable(Base){
 							//@TODO: test i: <min(spacing+margin+border)
 
 
-							dispatch(ACTION.Selection.SELECT(id))
-							dispatch(ACTION.Entity.UPDATE({cols:changed}))
+							dispatch(ACTION.Entity.UPDATE({id,cols:changed}))
 						}}
 						/>
 
@@ -122,8 +119,7 @@ export default class extends recomposable(Base){
 						onResize={({y},dispatch)=>{
 							if(height+y<contentHeight)
 								return false
-							dispatch(ACTION.Selection.SELECT(id))
-							dispatch(ACTION.Entity.UPDATE({rowHeight:{height:height+y,at}}))
+							dispatch(ACTION.Entity.UPDATE({id, rowHeight:{height:height+y,at}}))
 						}}
 						/>
 				</Fragment>
@@ -213,7 +209,7 @@ const Adder=connect()(class extends PureComponent{
 		return (
 			<Group x={x} y={y}>
 				<Group x={-12} y={-22}>
-					<g transform={`${type=="row" ? "rotate(-90 12 22)" : ""}`}>
+					<Group rotate={`${type=="row" ? "-90 12 22" : ""}`}>
 				   		<path
 							stroke={show ? "black" : NoShow}
 							strokeWidth={1}
@@ -222,7 +218,7 @@ const Adder=connect()(class extends PureComponent{
 							onClick={()=>onAdd(dispatch)}
 							fill="transparent"
 							d="M8,9h8M12,5v8 M12,2C8.13,2,5,5.13,5,9c0,5.25,7,13,7,13s7-7.75,7-13C19,5.13,15.87,2,12,2z"/>
-				   	</g>
+				   	</Group>
 				</Group>
 			</Group>
 		)

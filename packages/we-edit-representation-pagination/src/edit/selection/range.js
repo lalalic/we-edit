@@ -5,6 +5,7 @@ import offset from "mouse-event-offset"
 import {getClientRect} from "we-edit"
 
 import Movable from "./movable"
+import Group from "../../composed/group"
 
 export default class Range extends Component{
 	static displayName="range"
@@ -12,9 +13,9 @@ export default class Range extends Component{
         const {path, onMove, children}=this.props
         return (
             <Movable onMove={onMove}>
-				<g onClick={this.click.bind(this)}>
+				<Group onClick={this.click.bind(this)}>
                 	{children}
-				</g>
+				</Group>
             </Movable>
         )
     }

@@ -2,15 +2,17 @@ import React, {Component} from "react"
 import {createPortal} from "react-dom"
 import PropTypes from "prop-types"
 
+import Group from "../../composed/group"
+
 
 export default class Top extends Component{
 	state={}
     render(){
 		const {x=0, y=0, svg}=this.state
 		const content=(
-			<g ref="el" transform={`translate(${x} ${y})`}>
+			<Group innerRef={a=>this.el=a} transform={`translate(${x} ${y})`}>
                 {this.props.children}
-            </g>
+            </Group>
 		)
 
 		return svg ? createPortal(content,  svg) : content
@@ -24,7 +26,7 @@ export default class Top extends Component{
 	}
 
 	componentDidMount(){
-		let el=this.refs.el
+		let el=this.el
 		let state={svg:el.viewportElement, x:0, y:0}
 		if(this.props.x!==0 || this.props.y!==0){
 			let o=el.viewportElement.createSVGPoint()

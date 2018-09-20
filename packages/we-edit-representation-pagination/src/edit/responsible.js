@@ -9,6 +9,7 @@ import offset from "mouse-event-offset"
 import ComposedDocument from "../composed/document"
 import Query from "./query"
 import SelectionShape from "./selection"
+import Group from "../composed/group"
 
 export default class Responsible extends Component{
     static displayName="composed-document-with-cursor"
@@ -265,8 +266,8 @@ const ComposeMoreTrigger=compose(
 	getContext({debug: PropTypes.bool})
 )(({onEnter,y, debug})=>(
 	<Waypoint onEnter={()=>onEnter(y)} >
-		<g transform={`translate(0 ${y})`}>
+		<Group y={y}>
 			{debug ? <line x1="0" y1="0" x2="10000" y2="0" strokeWidth="2" stroke="red"/> : null}
-		</g>
+		</Group>
 	</Waypoint>
 ))

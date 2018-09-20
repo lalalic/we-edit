@@ -12,7 +12,7 @@ export default class Media extends Component{
 		onPageShow: PropTypes.func,
 		scrollableAncestor: PropTypes.any,
 	}
-	
+
 	render(){
 		const {children:pages, pgGap, width}=this.props
 		const {paper=true,media,onPageHide,onPageShow,scrollableAncestor}=this.context
@@ -36,11 +36,11 @@ export default class Media extends Component{
 							return newPage
 						})}
 					</Group>
-				)				
+				)
 			}
 			default:
 				return pages
-		}	
+		}
 	}
 }
 
@@ -50,13 +50,13 @@ class SmartShow extends Component{
 		const {display}=this.state
 		const {children, onPageShow, onPageHide, scrollableAncestor}=this.props
 		return (
-			<Waypoint fireOnRapidScroll={false}   scrollableAncestor={scrollableAncestor}                                                             
-				onEnter={e=>this.setState({display:true},onPageShow)}                              		
-				onLeave={e=>this.setState({display:false},onPageHide)}>                            		
+			<Waypoint fireOnRapidScroll={false}   scrollableAncestor={scrollableAncestor}
+				onEnter={e=>this.setState({display:true},onPageShow)}
+				onLeave={e=>this.setState({display:false},onPageHide)}>
 				{display ? children : <g/>}                                                                                       		
-			</Waypoint>                                                                                        
+			</Waypoint>
 		)
-		
+
 	}
 }
 
@@ -68,7 +68,7 @@ const Paper=({size:{width,height}, margin:{left,right,top,bottom},...props})=>(
 				   strokeWidth={1} stroke="lightgray"/>
 			{left&&right&&top&&bottom&&
 				<Margin margin={{left,top,right:width-right,bottom:height-bottom}}/>
-			}	
+			}
        </g>
 )
 

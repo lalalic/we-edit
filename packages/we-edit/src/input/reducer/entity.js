@@ -4,27 +4,27 @@ export class entity extends Content{
 	create(element){
 		let {start:{id,at},end}=this.selection
 		const target=this.$(`#${id}`)
-		
+
 		if(id==end.id && at==end.at){
 
 		}else{
 			this.remove_withSelection()
 		}
-		
+
 		const cursor=this.file.createNode(element, this, target)
-		
+
 		this.cursorAt(cursor.id, cursor.at)
 
 		return this
 	}
-	
-	update(changing){
-		let {start:{id,at},end}=this.selection
+
+	update({id, ...changing}){
+		id=id||this.selection.start.id
 		const target=this.$(`#${id}`)
 		const type=target.attr("type")
-		
+
 		this.file.updateNode({id,type},changing)
-		
+
 		this.renderChanged(id)
 
 		return this
