@@ -157,7 +157,7 @@ function testOffice(){
 							<div style={{width:200}}>
 								<Tabs>
 									<Tab label="Document">
-										<DocumentTree filter="$*"/>
+										<DocumentTree filter="$*" naming={({type})=>type.substring(1)}/>
 									</Tab>
 									<Tab label="Assemble">
 										<FileSelector />

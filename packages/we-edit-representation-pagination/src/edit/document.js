@@ -1,6 +1,6 @@
 import React, {PureComponent, Component, Fragment} from "react"
 import PropTypes from "prop-types"
-import {getContent,getSelection,getClientRect, ACTION, editify} from "we-edit"
+import {getContent,getSelection,getClientRect, ACTION} from "we-edit"
 
 import Base from "../document"
 import Responsible from "./responsible"
@@ -9,7 +9,7 @@ import recomposable from "./recomposable"
 
 import offset from "mouse-event-offset"
 
-const Super=editify(recomposable(Base))
+const Super=recomposable(Base)
 export default class Document extends Super{
 	static propTypes={
 		...Super.propTypes,

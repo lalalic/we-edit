@@ -187,6 +187,10 @@ export default class Query{
 	getComposer(id){
 		return this.document.composers.get(id)
 	}
+	
+	_hasComposedContent(path){
+		return !!path.find(a=>a.type==ComposedLine)
+	}
 
 	_locate=memoize((id,at)=>{
 		let {pages,pgGap}=this
@@ -303,11 +307,12 @@ export default class Query{
 
 	position(id,at){//return left:clientX, top:clientY
 		let {pages,pgGap}=this
-		let {pageNo,columnNo,lineNo,node, path, type}=this._locate(id,at)
+		const {pageNo,columnNo,lineNo,node, path, type}=this._locate(id,at)
 
 		if(!node) return;
+		
 
-		let {x,y}=this._xy([...path])
+		let {x,y}=this._xy(path)
 
 		let extra={height:0}
 

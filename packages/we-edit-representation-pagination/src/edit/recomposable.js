@@ -1,5 +1,6 @@
 import React from "react"
 import PropTypes from "prop-types"
+import {Locatable,enablify} from "../composable"
 
 /**
  *  it's a very complicated job, so we need a very simple design, one sentence described solution. options:
@@ -24,13 +25,8 @@ import PropTypes from "prop-types"
  *  	3.a: recompose this content line by line ..., much logics here
  */
 export default function recomposable(Content){
-	return class extends Content{
+	return class extends Locatable(Content){
 		static displayName=`recomposable-${Content.displayName}`
-
-		static propTypes={
-			...Content.propTypes,
-			id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired
-		}
 
 		static contextTypes={
 			...Content.contextTypes,
@@ -46,16 +42,6 @@ export default function recomposable(Content){
 			if(this.debug){
 				this.state={computed:this.computed}
 			}
-		}
-
-		/*
-		* content and container should have data-content id
-		*/
-		createComposed2Parent(props){
-			return React.cloneElement(super.createComposed2Parent(props),{
-					"data-content":this.props.id,
-					"data-type":this.getComposeType()
-				})
 		}
 
 		componentWillReceiveProps(){
@@ -80,3 +66,5 @@ export default function recomposable(Content){
 		}
 	}
 }
+
+recomposable.enable=enablify(recomposable)

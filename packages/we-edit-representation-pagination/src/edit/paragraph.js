@@ -3,10 +3,9 @@ import PropTypes from "prop-types"
 
 import Base from "../paragraph"
 
-import {editify} from "we-edit"
 import recomposable from "./recomposable"
 
-const Super=editify(recomposable(Base))
+const Super=recomposable(Base)
 
 //compose all or clear all
 export class Paragraph extends Super{

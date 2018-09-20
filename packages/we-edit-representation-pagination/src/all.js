@@ -14,12 +14,7 @@ import Cell from "./cell"
 import Frame from "./frame"
 import Shape from "./shape"
 
-export default Object.keys(models).reduce((all,k)=>{
-		if(!all[k]){
-			all[k]=HasParentAndChild(models[k])
-		}
-		return all
-	},{
+export default HasParentAndChild.enable(models,{
 	Document,
 	Section,
 	Paragraph,

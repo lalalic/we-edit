@@ -12,7 +12,7 @@ export class ComposedAllTrigger extends Component{
     }
 }
 
-export function HasChild(Component){
+function HasChild(Component){
     return class extends Component{
         static displayName=`composable-${Component.displayName}`
 		static contextTypes={
@@ -107,7 +107,7 @@ export function HasChild(Component){
     }
 }
 
-export function HasParentAndChild(Component){
+function HasParentAndChild(Component){
 	const Super=HasChild(Component)
     return class extends Super{
         static contextTypes = {
@@ -133,7 +133,7 @@ export function HasParentAndChild(Component){
     }
 }
 
-export function NoChild(Component){
+function NoChild(Component){
     const Super=HasParentAndChild(Component)
     return class extends Super{
 		static contextTypes={
@@ -148,3 +148,39 @@ export function NoChild(Component){
         }
     }
 }
+
+
+function Locatable(A){
+	return class extends A{
+		static displayName=`locatable-${A.displayName}`
+		static propTypes={
+			...A.propTypes,
+			id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired
+		}
+		
+		createComposed2Parent(){
+			return React.cloneElement(super.createComposed2Parent(...arguments),{
+					"data-content":this.props.id,
+					"data-type":this.getComposeType()
+				})
+		}
+	}
+}
+
+
+export const enablify=func=>(targets, excludes)=>Object.keys(targets)
+	.reduce((enabled, k)=>{
+		if(!enabled[k]){
+			enabled[k]=func(targets[k])
+		}
+		return enabled
+	},{...excludes});
+	
+
+[HasChild,HasParentAndChild,NoChild,Locatable]
+	.forEach(a=>{
+		debugger
+		a.enable=enablify(a)
+	})
+
+export {HasChild,HasParentAndChild,NoChild,Locatable}
