@@ -1,7 +1,7 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 
-
+import Group from "../../composed/group"
 import Overlay from "./overlay"
 
 export default class Resizable extends Component{
@@ -38,11 +38,11 @@ export default class Resizable extends Component{
 				props.onStartResize=this.onStartResize
 			}
 			return (
-				<g>
+				<Group>
 					{
 						React.Children.map(children,a=>React.cloneElement(a,props))
 					}
-				</g>
+				</Group>
 			)
 		}
 	}

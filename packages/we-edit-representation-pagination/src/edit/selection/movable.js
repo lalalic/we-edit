@@ -3,6 +3,7 @@ import PropTypes from "prop-types"
 
 
 import Overlay from "./overlay"
+import Group from "../../composed/group"
 
 export default class Movable extends Component{
 	static contextTypes={
@@ -19,7 +20,7 @@ export default class Movable extends Component{
 		const {children}=this.props
 
 		return (
-			<g>
+			<Group>
 				{ !move ? null :
 					 (<Overlay cursor="default"
 						onMouseUp={e=>this.onEndMove(e)}
@@ -29,7 +30,7 @@ export default class Movable extends Component{
 					</Overlay>)
 				}
 				{React.cloneElement(children,{onMouseDown:this.onStartMove.bind(this)})}
-			</g>
+			</Group>
 		)
 	}
 
@@ -70,10 +71,10 @@ class Mover extends Component{
 					stroke="gray"
 					strokeWidth="1"/>
         return (
-            <g>
+            <Group>
 				{placeholder}
                 {caret}
-            </g>
+            </Group>
         )
     }
 }

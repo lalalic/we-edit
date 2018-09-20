@@ -2,6 +2,8 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 
 import Overlay from "./overlay"
+import Group from "../../composed/group"
+
 
 export default class Rotatable extends Component{
 	static propTypes={
@@ -27,7 +29,7 @@ export default class Rotatable extends Component{
 			y:y-r
 		}
 		props.onMouseDown=e=>this.onStartResize(e)
-		
+
 		let rotator=(
 			<svg viewBox="0 0 24 24" {...props}>
 				<circle cx={12} cy={12} r={15}
@@ -41,7 +43,7 @@ export default class Rotatable extends Component{
 		let overlay=null
 		if(rotate){
 			return (
-				<g>
+				<Group>
 					{rotator}
 					<Overlay cursor="crosshair"
 						onMouseUp={e=>this.setState({rotate:undefined})}
@@ -52,9 +54,9 @@ export default class Rotatable extends Component{
 							this.left=e.clientX
 							this.top=e.clientY
 						}}/>
-				</g>
+				</Group>
 			)
-			
+
 		}else{
 			return rotator
 		}

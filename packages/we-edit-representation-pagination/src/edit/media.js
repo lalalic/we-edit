@@ -53,7 +53,7 @@ class SmartShow extends Component{
 			<Waypoint fireOnRapidScroll={false}   scrollableAncestor={scrollableAncestor}
 				onEnter={e=>this.setState({display:true},onPageShow)}
 				onLeave={e=>this.setState({display:false},onPageHide)}>
-				{display ? children : <g/>}                                                                                       		
+				{display ? children : <Group/>}
 			</Waypoint>
 		)
 
@@ -61,7 +61,7 @@ class SmartShow extends Component{
 }
 
 const Paper=({size:{width,height}, margin:{left,right,top,bottom},...props})=>(
-       <g>
+       <Group>
 		   <rect {...props} {...{width,height}}/>
 		   <path d={`M0 0 L${width} 0 L${width} ${height} L0 ${height}Z`}
 				   fill="none"
@@ -69,11 +69,11 @@ const Paper=({size:{width,height}, margin:{left,right,top,bottom},...props})=>(
 			{left&&right&&top&&bottom&&
 				<Margin margin={{left,top,right:width-right,bottom:height-bottom}}/>
 			}
-       </g>
+       </Group>
 )
 
 const Margin=({margin:{left,top, right,bottom},marginWidth=20})=>(
-       <g>
+       <Group>
                <line x1={left} y1={top} x2={left-marginWidth} y2={top} strokeWidth={1} stroke="lightgray"/>
                <line x1={left} y1={top} x2={left} y2={top-marginWidth} strokeWidth={1} stroke="lightgray"/>
 
@@ -85,5 +85,5 @@ const Margin=({margin:{left,top, right,bottom},marginWidth=20})=>(
 
                <line x1={right} y1={top} x2={right+marginWidth} y2={top} strokeWidth={1} stroke="lightgray"/>
                <line x1={right} y1={top} x2={right} y2={top-marginWidth} strokeWidth={1} stroke="lightgray"/>
-       </g>
+       </Group>
 )

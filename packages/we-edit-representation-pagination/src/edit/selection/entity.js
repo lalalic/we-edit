@@ -7,6 +7,8 @@ import Movable from "./movable"
 import Resizable from "./resizable"
 import Rotatable from "./rotatable"
 
+import Group from "../../composed/group"
+
 export default class Extent extends Component{
 	static propTypes={
 		onResize: PropTypes.func,
@@ -29,7 +31,7 @@ export default class Extent extends Component{
 		}
 
 		return (
-			<g>
+			<Group>
 				<Movable onMove={onMove}>
 					<path d={path} fill="white" fillOpacity={0.01} cursor="move"/>
 				</Movable>
@@ -37,7 +39,7 @@ export default class Extent extends Component{
 					{resizeSpots.map((a,i)=><Spot key={i} {...a}/>)}
 				</Resizable>
 				{rotator}
-			</g>
+			</Group>
 		)
 	}
 }
