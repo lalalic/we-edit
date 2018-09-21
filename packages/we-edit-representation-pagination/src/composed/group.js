@@ -30,54 +30,83 @@ export default class Group extends Component{
 			offset:this.offset
 		}
 	}
+	
     render(){
-		let offset=this.offset
-
-		let {x,y, width, height, index, children=[],
-			childIndex, type, contentWidth,rotate,
+		let {
 			innerRef, //for waypoint
-			className,
+			rotate,
+			x,y, 
+			children=[],
+			width, height, index, childIndex, contentWidth, className,
+			//["data-content"]:id,
+			//["data-type"]:type,
 			...others}=this.props
-
+		
+		if(innerRef){
+			return (
+				<g ref={innerRef}>
+					<Group {...this.props} innerRef={undefined}/>
+				</g>
+			)	
+		}
+		
 		if(rotate){
 			return (
-				<Group {...this.pros} rotate={null}>
-					<g transform={`rotate(${rotate})`}>
-						{children}
-					</g>
-				</Group>
+				<g transform={`rotate(${rotate})`}>
+					<Group {...this.props} rotate={undefined}/>
+				</g>
 			)
 		}
-
-		if(x||y)
-			others.transform=`translate(${x||0} ${y||0})`
-
-		children=Children.toArray(children)
-
-			.filter(a=>a!==false && a!==null)
-			.map(a=>{
-				switch(a.type){
-					case this.constructor:{
-						return React.cloneElement(a,{x:(a.props.x||0+offset.x), y:(a.props.y||0+offset.y)})
-					}
-					break
-					case Fragment:
-
-					default:
-						return a
-				}
-			})
-		if(Object.keys(others).length>0 || children.length>1){
-			let now=Date.now()
-			children=children.map((a,i)=>{
-				if(typeof(a.key)=="undefined")
-					return React.cloneElement(a,{key:`${now}.${i}`})
-				return a
-			})
-			return <g {...others} ref={innerRef} children={children}/>
-		}else if(children.length==1){
-			return children[0]
-		}else
-			return <g  ref={innerRef}/>
+		
+		if(x||y){
+			return (
+				<g transform={`translate(${parseInt(x||0)} ${parseInt(y||0)})`}>
+					<Group {...this.props} x={undefined} y={undefined}/>
+				</g>
+			)
+		}
+		
+		children=this.flat(children)
+		
+		if(children.length==0)
+			return null
+		
+		if(others["data-content"]!==undefined){
+			if(width!==undefined){
+				others["data-width"]=width
+			}
+			if(height!==undefined){
+				others["data-height"]=height
+			}
+		}
+		
+		const withoutProps=a=>Object.keys(a).length==0
+		if(withoutProps(others)){
+			return (
+				<Fragment>
+					{children}
+				</Fragment>
+			)
+		}
+			
+		return (
+			<g {...others}>
+				{children}
+			</g>
+		)
     }
+	
+	flat(children){
+		return Children.toArray(children)
+			.filter(a=>a!==false && a!==null)
+			.reduce((all,a)=>{
+				if(a.type==Fragment){
+					all.splice(all.length,0,...Children.toArray(a.props.children))
+				}else{
+					all.push(a)
+				}
+				return all
+			},[])
+			.filter(a=>a!==false && a!==null)
+	}
 }
