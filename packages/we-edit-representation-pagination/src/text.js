@@ -6,8 +6,7 @@ import {NoChild} from "./composable"
 import {models} from "we-edit"
 const {Text:Base}=models
 
-import Group from "./composed/group"
-import ComposedText from "./composed/text"
+import {Text as ComposedText,  Group} from "./composed"
 
 const Super=NoChild(Base)
 

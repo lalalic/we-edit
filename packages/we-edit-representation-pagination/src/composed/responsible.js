@@ -6,10 +6,10 @@ import {setDisplayName,compose, getContext} from "recompose"
 import Waypoint from "react-waypoint"
 import offset from "mouse-event-offset"
 
-import ComposedDocument from "../composed/document"
+import {Document as ComposedDocument,  Group} from "../composed"
 import Query from "./query"
 import SelectionShape from "./selection"
-import Group from "../composed/group"
+
 
 export default class Responsible extends Component{
     static displayName="composed-document-with-cursor"
@@ -36,10 +36,10 @@ export default class Responsible extends Component{
 	}
 
     render(){
-        const {isAllComposed, composeMore, children, ...props}=this.props
+        const {isAllComposed, composeMore, children, innerRef=a=>a, ...props}=this.props
         return (
             <ComposedDocument {...props}
-                svgRef={a=>this.svg=a}
+				ref={a=>{innerRef(a);this.clientDocument=a}}
                 onClick={e=>{
                     if(this.eventAlreadyDone==e.timeStamp)
                         return
@@ -62,6 +62,7 @@ export default class Responsible extends Component{
 									style={{stroke:color, strokeWidth:1}}/>
 						)}
 						/>
+						/*
 					<Selection
 						ref={a=>this.selection=a}
 						onMove={this.onMove.bind(this)}
@@ -70,7 +71,8 @@ export default class Responsible extends Component{
 						>
 						<SelectionShape/>
 					</Selection>
-					{!isAllComposed()&&<ComposeMoreTrigger y={this.context.query().y} onEnter={composeMore} />}
+					*/
+					{!isAllComposed()&&<ComposeMoreTrigger y={this.clientDocument.y} onEnter={composeMore} />}
 				</Fragment>
             </ComposedDocument>
         )
@@ -80,20 +82,12 @@ export default class Responsible extends Component{
         return window.getSelection()||document.getSelection()
     }
 
-    getComputedScale(){
-		let clientRect=this.svg.getBoundingClientRect()
-        let [,,canvasWidth]=this.svg.getAttribute("viewBox").split(" ")
-        this.scale=clientRect.width/parseInt(canvasWidth)
-    }
-
     componentDidUpdate(){
-        this.getComputedScale()
         this.updateCursorAndSelection()
 		this.emit(`emitted${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
     }
 
     componentDidMount(){
-        this.getComputedScale()
         this.context.activeDocStore.dispatch(ACTION.Cursor.ACTIVE(this.context.docId))
         this.emit(`emitted${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
     }

@@ -7,7 +7,7 @@ import Movable from "./movable"
 import Resizable from "./resizable"
 import Rotatable from "./rotatable"
 
-import Group from "../../composed/group"
+import {Group} from "../../composed"
 
 export default class Extent extends Component{
 	static propTypes={

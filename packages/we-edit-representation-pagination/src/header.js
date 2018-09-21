@@ -4,7 +4,7 @@ import {HasParentAndChild} from "./composable"
 import {models} from "we-edit"
 const {Header:Base}=models
 
-import Group from "./composed/group"
+import {Group} from "./composed"
 
 const Super=HasParentAndChild(Base)
 export default class Header extends Super{

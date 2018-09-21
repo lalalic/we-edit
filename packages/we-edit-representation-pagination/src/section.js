@@ -8,7 +8,7 @@ import {HasParentAndChild} from "./composable"
 import {models} from "we-edit"
 const {Section:Base}=models
 
-import Group from "./composed/group"
+import {Group} from "./composed"
 import Header from "./header"
 import Footer from "./footer"
 

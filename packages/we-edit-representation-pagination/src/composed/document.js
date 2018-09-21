@@ -1,5 +1,6 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
+import memoize from "memoize-one"
 
 import Group from "./group"
 import Page from "./page"
@@ -22,20 +23,23 @@ export default class ComposedDocument extends Component{
 	static contextTypes={
 		events: PropTypes.shape({emit:PropTypes.func.isRequired}),
 	}
-
-	render(){
-		const {pages, pgGap, scale, style,children, svgRef, ...props}=this.props
-		const {width,height}=pages.reduce((size,{size:{width,height}})=>{
+	
+	getSize=memoize((pages,pgGap)=>{
+		return pages.reduce((size,{size:{width,height}})=>{
 				return {
 					width:Math.max(size.width,width),
 					height:size.height+height+pgGap
 				}
 			},{width:0,height:pgGap})
+	})
+
+	render(){
+		const {pages, pgGap, scale, style,children, ...props}=this.props
+		const {width,height}=this.getSize(pages, pgGap)
 
 		return   (
 			<svg
 				{...props}
-				ref={svgRef}
 				preserveAspectRatio="xMidYMin"
 				viewBox={`0 0 ${width} ${height}`}
 				style={{background:"transparent", width:width*scale, height:height*scale, ...style}}

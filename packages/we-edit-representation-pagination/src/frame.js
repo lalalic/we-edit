@@ -6,8 +6,7 @@ import {HasParentAndChild} from "./composable"
 import {models} from "we-edit"
 const {Frame:Base}=models
 
-import ComposedFrame from "./composed/frame"
-import Group from "./composed/group"
+import {Group, Frame as ComposedFrame} from "./composed"
 
 const Super=HasParentAndChild(Base)
 

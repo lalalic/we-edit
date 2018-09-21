@@ -5,7 +5,7 @@ import recomposable from "./recomposable"
 import Base from "../table"
 import Resizable from "./selection/resizable"
 import Top from "./selection/top"
-import Group from "../composed/group"
+import {Group} from "../composed"
 
 
 export default class extends recomposable(Base){

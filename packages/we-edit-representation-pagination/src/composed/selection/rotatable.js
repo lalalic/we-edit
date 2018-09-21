@@ -2,7 +2,7 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 
 import Overlay from "./overlay"
-import Group from "../../composed/group"
+import {Group} from "../../composed"
 
 
 export default class Rotatable extends Component{

@@ -2,7 +2,7 @@ import React from "react"
 import PropTypes from "prop-types"
 
 
-import Group from "./composed/group"
+import {Group} from "./composed"
 
 import {HasParentAndChild} from "./composable"
 import {models} from "we-edit"

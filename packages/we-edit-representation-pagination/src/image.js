@@ -1,7 +1,7 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 
-import ComposedImage from "./composed/image"
+import {Image as ComposedImage} from "./composed"
 
 import {NoChild} from "./composable"
 import {models} from "we-edit"

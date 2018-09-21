@@ -8,9 +8,8 @@ const {Paragraph:Base}=models
 
 import opportunities from "./wordwrap/line-break"
 import LineBreaker from "linebreak"
-import Group from "./composed/group"
-import Line, {Info as LineInfo} from "./composed/line"
-import ComposedText from "./composed/text"
+import {Text as ComposedText,  Group, Line, } from "./composed"
+import {Info as LineInfo} from "./composed/line"
 
 const Super=HasParentAndChild(Base)
 export class Paragraph extends Super{

@@ -5,7 +5,7 @@ import offset from "mouse-event-offset"
 import {getClientRect} from "we-edit"
 
 import Movable from "./movable"
-import Group from "../../composed/group"
+import {Group} from "../../composed"
 
 export default class Range extends Component{
 	static displayName="range"

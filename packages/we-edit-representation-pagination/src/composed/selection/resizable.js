@@ -1,7 +1,7 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 
-import Group from "../../composed/group"
+import {Group} from "../../composed"
 import Overlay from "./overlay"
 
 export default class Resizable extends Component{

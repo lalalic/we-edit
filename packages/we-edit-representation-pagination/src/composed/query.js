@@ -1,7 +1,5 @@
 import React from "react"
-import ComposedDocument from "../composed/document"
-import ComposedText from "../composed/text"
-import ComposedLine from "../composed/line"
+import {Document as ComposedDocument,Text as ComposedText, Line as ComposedLine} from "../composed"
 import {ContentQuery, getClientRect} from "we-edit"
 import memoize from "memoize-one"
 

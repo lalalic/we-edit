@@ -6,7 +6,7 @@ import {HasChild} from "./composable"
 import {models} from "we-edit"
 const {Document:Base}=models
 
-import ComposedDocument from "./composed/document"
+import {Document as ComposedDocument} from "./composed"
 
 const Super=HasChild(Base)
 export default class Document extends Super{

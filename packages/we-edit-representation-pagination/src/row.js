@@ -2,7 +2,7 @@ import React,{PureComponent as Component} from "react"
 import PropTypes from "prop-types"
 import {models} from "we-edit"
 
-import Group from "./composed/group"
+import {Group} from "./composed"
 
 import {HasParentAndChild} from "./composable"
 const Super=HasParentAndChild(models.Row)

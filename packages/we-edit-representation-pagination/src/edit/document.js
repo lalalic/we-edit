@@ -1,6 +1,7 @@
 import React, {PureComponent, Component, Fragment} from "react"
 import PropTypes from "prop-types"
-import {getContent,getSelection,getClientRect, ACTION} from "we-edit"
+import memoize from "memoize-one"
+import {getContent,getSelection,getClientRect, ACTION, ContentQuery} from "we-edit"
 
 import Base from "../document"
 import Responsible from "../composed/responsible"
@@ -41,6 +42,7 @@ export default class Document extends Super{
 		this.state={mode:"viewport",viewport, ...this.state}
 		this.screenBuffer=typeof(screenBuffer)=="function" ? screenBuffer : a=>screenBuffer||a;
 	}
+	
 	getChildContext(){
 		let shouldRemoveComposed=this.shouldRemoveComposed.bind(this)
 		let shouldContinueCompose=this.shouldContinueCompose.bind(this)
@@ -56,19 +58,7 @@ export default class Document extends Super{
 	}
 
 	query(){
-		return new Responsible.Query(this,this.context.activeDocStore.getState(),this.props.pageGap,this.scale)
-	}
-
-	get canvas(){
-		return this.refs.canvas
-	}
-
-	get scale(){
-		if(this.canvas){
-			return this.canvas.scale
-		}else{
-			return this.props.scale
-		}
+		return new Query(this.context.activeDocStore.getState(),this.composers, this.clientDocument)
 	}
 
 	render(){
@@ -79,7 +69,7 @@ export default class Document extends Super{
 		}
 
 		const content=<Responsible
-							ref="canvas"
+							innerRef={a=>this.clientDocument=a}
 							scale={scale}
 							pgGap={pageGap}
 							pages={this.computed.composed}
@@ -117,9 +107,8 @@ export default class Document extends Super{
 
 	shouldContinueCompose(){
 		const {mode, viewport}=this.state
-		const $=this.query()
-		let contentY=$.toViewportCoordinate($.y)
-		let viewableY=viewport.height-$.svg.top//svg.top must be dynamic per scroll
+		let contentY=this.clientDocument.toViewportCoordinate(this.clientDocument.y)
+		let viewableY=viewport.height-this.clientDocument.getBoundingClientRect().top//svg.top must be dynamic per scroll
 		let bufferY=this.screenBuffer(viewport.height)
 		return contentY<viewableY+bufferY
 	}
@@ -154,5 +143,69 @@ export default class Document extends Super{
 
 	get viewport(){
 		return this.state.viewport
+	}
+}
+
+class Query{
+	constructor(content, composers, clientDoc){
+		this.content=content
+		this.composers=composers
+		this.clientDocument=clientDoc
+	}
+	
+	getComposer(id){
+		return this.composers.get(id)
+	}
+	
+	getContent=memoize(id=>new ContentQuery(this.content,id ? `#${id}` : null))
+
+	isTextNode(id){
+		return this.getComposeType(id)==="text"
+	}
+	
+	isComposableNode(id){
+		return !!this.composers.get(id)
+	}
+	
+	position(id,at){
+		if(this.isTextNode(id)){
+			let {x,y,endat,length}=this.clientDocument.getTextClientRect(id,at)
+			let from=endat-length
+			let composer=this.getComposer(id)
+			let {children:text,...props}=composer.props
+			let measure=composer.measure
+			let {height,descent,fontSize, fontFamily}=measure.defaultStyle
+
+			x+=measure.stringWidth(text.substring(from,at))
+
+			y=y-height+descent
+
+			return {
+				x,y,
+				height:this.clientDocment.toViewportCoordinate(height),
+				descent:this.clientDocument.toViewportCoordinate(descent),
+				fontFamily,
+				fontSize,
+			}
+		}else if(this.isComposableNode(id)){
+			let rects=this.clientDocument.getClientRects(id)
+		}else{
+			const $=this.getContent(id)
+			if(at==0){
+				//get first composed node
+				let found=$.findFirst(a=>this.isComposableNode(a.get("id")))
+				if(found){
+					id=found.attr('id')
+				}
+			}else if(at==1){
+				//get last composed node
+				let found=$.findLast(a=>isComposableNode(a.get("id")))
+
+				if(found){
+					id=found.attr("id")
+				}
+			}
+			
+		}
 	}
 }
