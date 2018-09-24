@@ -46,7 +46,9 @@ export default class Group extends Component{
 
 		return (
 			<g {...others}>
-				{children}
+				{Children.toArray(children).map((a,i)=>{
+					return React.cloneElement(a,{key:i})
+				})}
 			</g>
 		)
     }

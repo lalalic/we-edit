@@ -7,7 +7,7 @@ const LINE=".line:not(:empty)"
 export default A=>class LocatableDocument extends A{
     static contextTypes={
         ...A.contextTypes,
-        store: PropTypes.any,
+        activeDocStore: PropTypes.any,
         Measure: PropTypes.func
     }
     render(){
@@ -32,10 +32,9 @@ export default A=>class LocatableDocument extends A{
         return {left:location.x, top:location.y}
     }
 
-    getContent(selector){
-        const content=this.context.store.getState().get("content")
-        return new ContentQuery(content, selector)
-    }
+    getContent=memoize((state, id)=>{
+        return new ContentQuery(state, id ? "#"+id : undefined)
+    })
 
     locate(id,at,left){
         let x=left/this.props.scale
@@ -46,20 +45,26 @@ export default A=>class LocatableDocument extends A{
         return {id,at:endat-text.length+end}
     }
 
+    closest(a,types,test=a=>a.getAttribute("class")){
+        let found={}
+        let selectors=[...types]
+        while(a && a!=this.canvas && selectors.length){
+            let type=test(a)
+            if(selectors.includes(type)){
+                found[type]=a
+                selectors.splice(selectors.indexOf(type),1)
+            }
+            a=a.parentNode
+        }
+        if(types.length==1)
+            return found[types[0]]
+
+        return found
+    }
+
     position(id,at){
         const paginate=node=>{
-            const {page,column,line}=((a,selectors,found={})=>{
-                while(a && a.nodeName.toUpperCase()!="SVG" && selectors.length){
-                    let type=a.getAttribute("class")
-                    if(selectors.includes(type)){
-                        found[type]=a
-                        selectors.splice(selectors.indexOf(type),1)
-                    }
-                    a=a.parentNode
-                }
-                return found
-            })(node,"line,column,page".split(","));
-
+            const {page,column,line}=this.closest(node, ["line","column","page"])
             return {
                 page:Array.from(this.canvas.querySelectorAll(".page")).indexOf(page),
                 column:Array.from(page.querySelectorAll(".column")).indexOf(column),
@@ -213,13 +218,10 @@ export default A=>class LocatableDocument extends A{
         const query2Line=(page,column,line,node,at)=>{
             return pages[page].querySelectorAll(".column")[column].querySelectorAll(LINE)[line]
         }
-try{
+
         pages.slice(p0.page, p1.page+1).forEach(a=>{
             Array.from(a.querySelectorAll(LINE)).forEach(lineRect)
         })
-}catch(e){
-    debugger
-}
         //remove from first page before
         let firstIndex=0;
         (({page,column,line,left,top,node})=>{
@@ -311,5 +313,49 @@ try{
             return rects[i]
         }
         return null
+    }
+
+    getPageY(page){
+        const {left,top}=this.canvas.querySelectorAll(".page")[page].getBoundingClientRect()
+        return this.asCanvasPoint({left,top}).y
+    }
+
+    asSelection({page,column,line,node,id}){
+        const self=this
+		const state=this.context.activeDocStore.getState()
+        const fromContent=type=>{
+			let $=self.getContent(state,id)
+			let props=$.is(type) ? $.props() : $.closest(type).props()
+			return props ? props.toJS().props : null
+		}
+		return {
+			props:memoize((type,bContent=true)=>{
+				if(bContent){//from content in state
+					return fromContent(type)
+				}
+
+				let reType=new RegExp(type,"i")
+				if(reType.test("page")){
+					return {
+						page,
+						column,
+						line,
+						get pageY(){
+							return self.pageY(page)
+						}
+					}
+				}
+
+                let found=this.closest(node,[type],a=>a.dataset.type)
+				if(found){
+					let composer=self.getComposer(found.dataset.content)
+					if(composer){
+						return composer.props
+					}
+				}
+
+				return fromContent(type)
+			})
+		}
     }
 }
