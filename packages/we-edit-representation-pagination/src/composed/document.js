@@ -23,7 +23,7 @@ export default class ComposedDocument extends Component{
 	static contextTypes={
 		events: PropTypes.shape({emit:PropTypes.func.isRequired}),
 	}
-	
+
 	getSize=memoize((pages,pgGap)=>{
 		return pages.reduce((size,{size:{width,height}})=>{
 				return {
@@ -68,5 +68,25 @@ export default class ComposedDocument extends Component{
 		}catch(e){
 			console.error(e)
 		}
+	}
+
+	static composedY(pages,pgGap,scale=1){
+		if(pages.length==0)
+			return pgGap
+
+		const lastPageHeight=(last=>{//@TODO: balanced column, last page of section
+			if(last.lastSectionPage){
+				return last.size.height
+			}
+			let lastColumnLines=last.columns[last.columns.length-1].children
+			let lastLine=lastColumnLines[lastColumnLines.length-1]
+			let height=last.margin.top
+			if(lastLine)
+				height+=lastLine.props.y+lastLine.props.height
+			return height
+		})(pages[pages.length-1])
+
+		const Y=pages.slice(0,pages.length-1).reduce((w,{size:{height}})=>w+height+pgGap,lastPageHeight)
+		return scale*Y
 	}
 }

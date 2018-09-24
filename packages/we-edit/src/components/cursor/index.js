@@ -60,16 +60,18 @@ export class Cursor extends Component{
 			if(this.shape){
 				this.shape.setState({height:0})
 			}
-			return 
+			return
 		}
 		let docQuery=query()
+		if(!docQuery)
+			return
 		this.style=docQuery.position(id,at)
 		if(!this.style)
 			return
 
 		let {
 			top,left, height,fontFamily,fontSize,
-			canvasTop=top, canvasLeft=left,
+			x,y,
 			}=this.style
 
 		if(docId==active){
@@ -86,7 +88,7 @@ export class Cursor extends Component{
 		}
 
 		if(this.shape){
-			this.shape.setState({top:canvasTop,left:canvasLeft,height})
+			this.shape.setState({x,y,height})
 		}
 	}
 
@@ -94,9 +96,11 @@ export class Cursor extends Component{
 		const {activeDocStore, query}=this.context
 		const dispatch=activeDocStore.dispatch
 		const state=activeDocStore.getState()
-		const {start,end,cursorAt}=getSelection(state)
+		const selection=getSelection(state)
+		const {start,end,cursorAt}=selection
+		const cursor=selection[cursorAt]
 		const $=query()
-		let {id,at}=$.prevLine(this.style)
+		let {id,at}=$.prevLine(cursor.id, cursor.at)
 
 		if(!shiftKey)
 			dispatch(ACTION.Cursor.AT(id,at))
@@ -126,10 +130,12 @@ export class Cursor extends Component{
 		const {activeDocStore,query}=this.context
 		const dispatch=activeDocStore.dispatch
 		const state=activeDocStore.getState()
-		const {start,end,cursorAt}=getSelection(state)
+		const selection=getSelection(state)
+		const {start,end,cursorAt}=selection
+		const cursor=selection[cursorAt]
 		const $=query()
 
-		let {id,at}=$.nextLine(this.style)
+		let {id,at}=$.nextLine(cursor.id,cursor.at)
 
 		if(!shiftKey)
 			dispatch(ACTION.Cursor.AT(id,at))

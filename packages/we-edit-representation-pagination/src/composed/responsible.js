@@ -57,12 +57,12 @@ export default class Responsible extends Component{
                     {children}
 					<Cursor
 						ref={a=>this.cursor=a}
-						render={({top=0,left=0,height=0,color})=>(
-							<path d={`M${left} ${top} L${left} ${top+height}`}
+						render={({y=0,x=0,height=0,color})=>(
+							<path d={`M${x} ${y} L${x} ${y+height}`}
 									style={{stroke:color, strokeWidth:1}}/>
 						)}
 						/>
-						/*
+
 					<Selection
 						ref={a=>this.selection=a}
 						onMove={this.onMove.bind(this)}
@@ -71,8 +71,13 @@ export default class Responsible extends Component{
 						>
 						<SelectionShape/>
 					</Selection>
-					*/
-					{!isAllComposed()&&<ComposeMoreTrigger y={this.clientDocument.y} onEnter={composeMore} />}
+
+					{!isAllComposed()&&(
+                        <ComposeMoreTrigger
+                            y={ComposedDocument.composedY(this.props.pages, this.props.pgGap)}
+                            onEnter={composeMore}
+                            />)
+                    }
 				</Fragment>
             </ComposedDocument>
         )
@@ -140,7 +145,7 @@ export default class Responsible extends Component{
 						let text=target.textContent
 						let {endat, content:id}=target.dataset
 						let [x]=offset(e, target)
-
+                        return $.locate(id,parseInt(endat),x)
 						const measure=$.getComposer(id).measure
 						let end=measure.widthString($.toCanvasCoordinate(x), text)
 						let at=endat-text.length+end
@@ -251,8 +256,6 @@ export default class Responsible extends Component{
 			console.error(e)
 		}
 	}
-
-	static Query=Query
 }
 
 const ComposeMoreTrigger=compose(

@@ -6,68 +6,51 @@ import memoize from "memoize-one"
 export default class Group extends Component{
 	static propTypes={
 		width: PropTypes.number,
-		height: PropTypes.number
+		height: PropTypes.number,
+		x:PropTypes.number,
+		y:PropTypes.number,
 	}
-	
     render(){
 		let {
 			innerRef, //for waypoint
 			rotate,
-			x=0,y=0, 
+			x=0,y=0,
 			children,
-			width, height, index, childIndex, contentWidth, className,
+			width, height, index, childIndex, contentWidth,
 			...others}=this.props
-		
-		let firstLevelProps={}
-		
+
+
 		if(innerRef){
-			firstLevelProps.ref=innerRef
-		}
-		
-		if(rotate){
-			firstLevelProps.transform=`rotate(${rotate})`
-		}
-		
-		if(x||y){
-			firstLevelProps.transform=`${firstLevelProps.transform||""} translate(${parseInt(x||0)} ${parseInt(y||0)})`
-		}
-		
-		const hasFirstLevelProps=!!Object.keys(firstLevelProps).length
-		
-		children=this.flat(children)
-		
-		if(children.length==0){
-			if(firstLevelProps.ref){
-				return <g ref={innerRef}/>
-			}
-			return null
-		}
-		
-		if(others["data-content"]!==undefined){
-			if(width!==undefined){
-				others["data-width"]=width
-			}
-			if(height!==undefined){
-				others["data-height"]=height
-			}
-		}
-		
-		const withoutProps=a=>Object.keys(a).length==0
-		if(withoutProps(others) && !hasFirstLevelProps){
 			return (
-				<Fragment>
-					{children}
-				</Fragment>
+				<g ref={innerRef}>
+					<Group {...this.props} innerRef={undefined}/>
+				</g>
 			)
 		}
-			
+
+		if(rotate){
+			return (
+				<g transform={`rotate(${rotate})`}>
+					<Group {...this.props} rotate={undefined}/>
+				</g>
+			)
+		}
+
+		if(x||y){
+			return (
+				<g transform={`translate(${parseInt(x||0)} ${parseInt(y||0)})`}>
+					<Group {...this.props} x={undefined} y={undefined}/>
+				</g>
+			)
+		}
+		
 		return (
-			<g {...others} {...firstLevelProps}>
+			<g {...others}>
 				{children}
 			</g>
 		)
     }
-	
+
 	flat=memoize((children)=>{
 		return Children.toArray(children)
 			.filter(a=>a!==false && a!==null)
@@ -80,45 +63,38 @@ export default class Group extends Component{
 				return all
 			},[])
 			.filter(a=>a!==false && a!==null)
+			.reduce((state,a)=>{
+				let current=a.props["data-content"]
+				if(current){
+					if(current==state.last){
+						state.group[state.group.length-1].push(a)
+					}else{
+						state.last=current
+						state.group.push([a])
+					}
+				}else{
+					state.last=null
+					state.group.push(a)
+				}
+				return state
+			},{last:null,group:[]})
+			.group
+			.reduce((group,a)=>{
+				if(Array.isArray(a)){
+					if(a.length==1){
+						group.push(a[0])
+					}else{
+						const {"data-content":id, "data-type":type}=a[0].props
+						group.push(
+							<Group {...{"data-content":id, "data-type":type}} >
+								{a.map((b,i)=>React.cloneElement(b,{"data-content":undefined, "data-type":undefined,key:i}))}
+							</Group>
+						)
+					}
+				}else{
+					group.push(a)
+				}
+				return group
+			},[])
 	})
-	
-	deepSimplify(){
-		/*
-		let offset=null
-		if((offset=this.singleChildAndOnlyXY(children))){
-			x+=offset.x
-			y+=offset.y
-			if(rotate){
-				firstLevelProps.transform=`rotate(${rotate})`
-			}
-			
-			if(x||y){
-				firstLevelProps.transform=`${firstLevelProps.transform||""} translate(${parseInt(x||0)} ${parseInt(y||0)})`
-			}
-			
-			children=offset.children
-		}	
-		*/		
-	}
-	
-	singleChildAndOnlyXY(children,x=0,y=0){
-		if(children.length!==1)
-			return 
-		let child=children[0]
-		if(child.type!=this.constructor)
-			return 
-		
-		const {x:x0=0,y:y0=0}=child.props
-		let keys=Object.keys(child.props)
-		const onlyXY=!"innerRef,rotate,data-content,data-type".split(",").find(k=>keys.includes(k)) && (x0||y0)
-			
-		if(onlyXY){
-			children=this.flat(child.props.children)
-			x+=x0
-			y+=y0
-			
-			let deeper=this.singleChildAndOnlyXY(children, x, y)
-			return deeper || {children, x, y}
-		}
-	}
 }

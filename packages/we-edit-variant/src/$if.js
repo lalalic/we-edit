@@ -5,7 +5,7 @@ import memoize from "memoize-one"
 import Component from "./$"
 
 
-export default ({$if})=>class extends Component{
+export default ({Container})=>class extends Component{
     static displayName="$if"
     static propTypes={
 		condition: PropTypes.string.isRequired
@@ -16,18 +16,14 @@ export default ({$if})=>class extends Component{
     }
 
     render(){
+        const {condition, children, ...props}=this.props
+        let content=children
         if(this.canAssemble){
-            if(this.meet(this.context.variantContext,this.props.condition)){
-                return (
-                    <Fragment>
-                        {this.props.children}
-                    </Fragment>
-                )
-            }
-            return null
+            if(!this.meet(this.context.variantContext,condition))
+                content=null
         }
 
-        return super.render()
+        return <Container {...props} type={this.constructor.displayName}>{content}</Container>
     }
 
     meet=memoize((variantContext, condition)=>!!this.eval(condition))

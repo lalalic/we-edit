@@ -134,7 +134,7 @@ export class Paragraph extends Super{
 		let {width:contentWidth}=content.props
 
         let currentLine=composed[composed.length-1]
-        const availableWidth=currentLine.availableWidth(contentWidth)
+        const availableWidth=currentLine.availableWidth(parseInt(contentWidth))
 
 
 		if(il>2){

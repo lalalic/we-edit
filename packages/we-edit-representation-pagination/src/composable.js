@@ -1,5 +1,7 @@
 import React, {Children,Fragment,Component} from "react"
 import PropTypes from "prop-types"
+import {Group} from "./composed"
+
 
 export class ComposedAllTrigger extends Component{
     static contextTypes={
@@ -140,11 +142,11 @@ function NoChild(Component){
             ...Super.contextTypes,
             getMyBreakOpportunities: PropTypes.func
         }
-		
+
 		get noChild(){
 			return true
 		}
-		
+
         render() {
             this.context.getMyBreakOpportunities(null)
             this.appendComposed(this.createComposed2Parent())
@@ -161,13 +163,24 @@ function Locatable(A){
 			...A.propTypes,
 			id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired
 		}
-		
+
 		createComposed2Parent(){
 			return React.cloneElement(super.createComposed2Parent(...arguments),{
 					"data-content":this.props.id,
 					"data-type":this.getComposeType()
 				})
 		}
+
+        _containerize(element, Wrapper=Group){
+            const {id}=this.props
+            const {width,height}=element.props
+            return React.createElement(Wrapper,{
+                "data-type":this.getComposeType(),
+                "data-content":id,
+                width,height,
+                children:element
+            })
+        }
 	}
 }
 
@@ -179,7 +192,7 @@ export const enablify=func=>(targets, excludes)=>Object.keys(targets)
 		}
 		return enabled
 	},{...excludes});
-	
+
 
 [HasChild,HasParentAndChild,NoChild,Locatable]
 	.forEach(a=>{

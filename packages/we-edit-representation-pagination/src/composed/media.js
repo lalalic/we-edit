@@ -14,8 +14,12 @@ export default class Media extends Component{
 	}
 
 	render(){
-		const {children:pages, pgGap, width}=this.props
-		const {paper=true,media,onPageHide,onPageShow,scrollableAncestor}=this.context
+		const {children:pages, pgGap, width,
+			media=this.context.media,
+			paper=this.context.paper,
+			smart=true,
+		}=this.props
+		const {onPageHide,onPageShow,scrollableAncestor}=this.context
 		switch(media){
 			case "screen":{
 				let y=0
@@ -27,9 +31,7 @@ export default class Media extends Component{
 							let newPage=(
 								<Group y={y} x={(width-size.width)/2} key={i}>
 									{paper && <Paper {...{size,margin,fill:"white"}}/>}
-									<SmartShow {...{onPageHide,onPageShow,scrollableAncestor}}>
-										{page}
-									</SmartShow>
+									{smart ? <SmartShow {...{onPageHide,onPageShow,scrollableAncestor,children:page}}/> : page}
 								</Group>
 							)
 							y+=(size.height+pgGap)

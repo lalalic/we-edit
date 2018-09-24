@@ -2,12 +2,10 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 
 
-export default function(Models){
-	return class Anchor extends Component{
-		static displayName="anchor"
+export default ({Frame})=>class extends Component{
+	static displayName="anchor"
 
-		render(){
-			return <Models.Frame {...this.props}/>
-		}
+	render(){
+		return <Frame {...this.props}/>
 	}
 }

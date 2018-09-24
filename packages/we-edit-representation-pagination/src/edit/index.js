@@ -8,6 +8,7 @@ import Paragraph from "./paragraph"
 import Shape from "./shape"
 import Table from "./table"
 import Row from "./row"
+import Container from "./container"
 
 export default recomposable.enable(Models,{
 	Document,
@@ -15,5 +16,6 @@ export default recomposable.enable(Models,{
 	Paragraph,
 	Shape,
 	Table,
-	Row
+	Row,
+	Container,
 })

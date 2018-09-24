@@ -5,8 +5,7 @@ import vm from "vm"
 
 import Component from "./$"
 
-
-export default ({Text,$exp})=>class extends Component{
+export default ({Text,Container,$exp})=>class extends Component{
     static displayName="$exp"
     static propTypes={
         expression:PropTypes.string.isRequired,
@@ -18,9 +17,9 @@ export default ({Text,$exp})=>class extends Component{
     }
 
 	render(){
-        const {expression,name, children}=this.props
+        const {expression,name, children, ...props}=this.props
         let text=Array.isArray(children) ? children[0] : children
-        let content
+        let content=children
         if(this.canAssemble){
             const value=this.getValue(this.context.variantContext, expression,name)
     		content=React.cloneElement(text,{children:value+"", color:"red"})
@@ -31,7 +30,7 @@ export default ({Text,$exp})=>class extends Component{
             content=React.cloneElement(text,{children:textContent||`{${expression}}`})
         }
 
-        return (content)
+        return (<Container {...props} type={this.constructor.displayName}>{content}</Container>)
 	}
 
 

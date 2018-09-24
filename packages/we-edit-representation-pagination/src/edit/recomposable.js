@@ -1,6 +1,7 @@
 import React from "react"
 import PropTypes from "prop-types"
 import {Locatable,enablify} from "../composable"
+import {Group} from "../composed"
 
 /**
  *  it's a very complicated job, so we need a very simple design, one sentence described solution. options:
@@ -68,3 +69,16 @@ export default function recomposable(Content){
 }
 
 recomposable.enable=enablify(recomposable)
+
+recomposable.containerize=A=>class extends recomposable(A){
+	appendComposed(element){
+		const {type,id}=this.props
+        const {width,height}=element.props
+        super.appendComposed(React.createElement(Group,{
+            "data-type":type,
+            "data-content":id,
+            width,height,
+            children:element
+        }))
+	}
+}

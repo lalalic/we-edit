@@ -7,7 +7,6 @@ import Text from "./text"
 import Run from "./run"
 
 import Table from "./table"
-import Row from "./row"
 import Cell from "./cell"
 
 import Wrapper from "./wrapper"
@@ -23,12 +22,11 @@ const createUnvisibleComponent=type=>{
 }
 
 export default {
-	Document, Section, 
+	Document, Section,
 	Paragraph,
 	Text,
 	Run,
 	Cell,
-	Row,
 	Table,
 	Wrapper,
 	Anchor,

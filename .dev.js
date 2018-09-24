@@ -26,7 +26,7 @@ Variant.install()
 
 import React,{PureComponent,Fragment} from "react"
 import PropTypes from "prop-types"
-import {Editor, DocumentTree} from  "we-edit"
+import {Editor, Viewer,DocumentTree} from  "we-edit"
 import {Office,Workspace, Ribbon} from "we-edit-office"
 import {Tabs, Tab} from "material-ui"
 import {connect} from  "react-redux"
@@ -140,7 +140,7 @@ function testOffice(){
 			accept="*"
 			key={KEY}
 			ruler={true}
-			
+
 			toolBar={<Ribbon.Ribbon commands={{layout:false}}/>}
 			reducer={(state={assemble:false, data:null},{type,payload})=>{
 				switch(type){

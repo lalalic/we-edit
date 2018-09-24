@@ -8,14 +8,6 @@ export default class extends Component{
 		parent: PropTypes.object,
 	}
 
-	render(){
-		return (
-			<Fragment>
-				{this.props.children}
-			</Fragment>
-		)
-	}
-
 	get canAssemble(){
 		return !!this.context.variantContext
 	}

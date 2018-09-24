@@ -6,7 +6,7 @@ import VariantProvider from "./variant-provider"
 import Component from "./$"
 
 
-export default Components=>class extends Component{
+export default ({Container})=>class extends Component{
     static displayName="$for"
     static propTypes={
         init: PropTypes.string.isRequired,
@@ -21,26 +21,23 @@ export default Components=>class extends Component{
     }
 
     render(){
-        const {init, test, update, ...props}=this.props
+        const {init, test, update, children,...props}=this.props
+        let content=children
         if(this.canAssemble){
             const {variantContext}=this.context
             const forContext={...variantContext}
-            let contents=[]
+            let loops=[]
             this.eval(init,forContext)
             for(let i=0; this.eval(test,forContext); this.eval(update,forContext), i++){
-                contents.push(
+                loops.push(
                     <VariantProvider value={{...forContext}} key={i}>
-                        {this.props.children}
+                        {children}
                     </VariantProvider>
                 )
             }
-            return (
-                <Fragment>
-                    {contents}
-                </Fragment>
-            )
+            content=loops
         }
 
-        return super.render()
+        return <Container {...props} type={this.constructor.displayName}>{content}</Container>
     }
 }

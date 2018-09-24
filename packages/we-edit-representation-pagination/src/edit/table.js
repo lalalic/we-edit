@@ -5,7 +5,7 @@ import recomposable from "./recomposable"
 import Base from "../table"
 import Resizable from "./selection/resizable"
 import Top from "./selection/top"
-import {Group} from "../composed"
+import {Group,Line} from "../composed"
 
 
 export default class extends recomposable(Base){
@@ -15,7 +15,7 @@ export default class extends recomposable(Base){
 	}
 
 	createComposed2Parent(){
-		let row=super.createComposed2Parent(...arguments)
+		let row=Base.prototype.createComposed2Parent.call(this,...arguments)
 
 		row=this.makeCellResizable(row)
 
@@ -23,7 +23,7 @@ export default class extends recomposable(Base){
 			row=this.makeColAdderNSelector(row)
 		}
 
-		return this.makeRowAdderNSelector(row)
+		return this._containerize(this.makeRowAdderNSelector(row))
 	}
 
 	makeColAdderNSelector(firstRow){
