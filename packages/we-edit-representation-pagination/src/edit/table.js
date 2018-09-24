@@ -3,8 +3,8 @@ import React,{Fragment,PureComponent} from "react"
 import {connect,ACTION} from "we-edit"
 import recomposable from "./recomposable"
 import Base from "../table"
-import Resizable from "./selection/resizable"
-import Top from "./selection/top"
+import Resizable from "../composed/selection/resizable"
+import Top from "../composed/selection/top"
 import {Group,Line} from "../composed"
 
 

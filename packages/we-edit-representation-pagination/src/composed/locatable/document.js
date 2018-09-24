@@ -90,6 +90,7 @@ export default A=>class LocatableDocument extends A{
                     ...paginate(node),
                     height,
                     fontFamily,fontSize,
+                    node
                 }
             }
         }else{
@@ -315,12 +316,12 @@ export default A=>class LocatableDocument extends A{
         return null
     }
 
-    getPageY(page){
+    pageY(page){
         const {left,top}=this.canvas.querySelectorAll(".page")[page].getBoundingClientRect()
         return this.asCanvasPoint({left,top}).y
     }
 
-    asSelection({page,column,line,node,id}){
+    asSelection({page,column,line,node,id,at}){
         const self=this
 		const state=this.context.activeDocStore.getState()
         const fromContent=type=>{

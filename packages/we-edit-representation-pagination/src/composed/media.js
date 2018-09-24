@@ -30,7 +30,7 @@ export default class Media extends Component{
 
 							let newPage=(
 								<Group y={y} x={(width-size.width)/2} key={i}>
-									{paper && <Paper {...{size,margin,fill:"white"}}/>}
+									{paper!==false && <Paper {...{size,margin,fill:"white"}}/>}
 									{smart ? <SmartShow {...{onPageHide,onPageShow,scrollableAncestor,children:page}}/> : page}
 								</Group>
 							)

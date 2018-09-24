@@ -139,8 +139,6 @@ function testOffice(){
 			debug={true}
 			accept="*"
 			key={KEY}
-			ruler={true}
-
 			toolBar={<Ribbon.Ribbon commands={{layout:false}}/>}
 			reducer={(state={assemble:false, data:null},{type,payload})=>{
 				switch(type){
