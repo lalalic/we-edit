@@ -3,6 +3,7 @@ import PropTypes from "prop-types"
 import {ContentQuery} from "we-edit"
 import memoize from "memoize-one"
 
+const LINE=".line:not(:empty)"
 export default A=>class LocatableDocument extends A{
     static contextTypes={
         ...A.contextTypes,
@@ -62,7 +63,7 @@ export default A=>class LocatableDocument extends A{
             return {
                 page:Array.from(this.canvas.querySelectorAll(".page")).indexOf(page),
                 column:Array.from(page.querySelectorAll(".column")).indexOf(column),
-                line:line!==undefined ? Array.from(column.querySelectorAll(".line:not(:empty)")).indexOf(line): undefined
+                line:line!==undefined ? Array.from(column.querySelectorAll(LINE)).indexOf(line): undefined
             }
         }
 
@@ -91,6 +92,7 @@ export default A=>class LocatableDocument extends A{
                 const node=this.canvas.querySelector(`[data-content="${id}"]`)
                 const {left,top,width,height}=node.getBoundingClientRect()
                 return {
+                    id,at,
                     ...this.asCanvasPoint({left,top}),
                     left,top,
                     height,
@@ -101,10 +103,10 @@ export default A=>class LocatableDocument extends A{
                 const node=Array.from(this.canvas.querySelectorAll(`[data-content="${id}"]`)).pop()
                 const {left,top,width,height}=node.getBoundingClientRect()
                 const right=left+width
-                const bottom=top+height
                 return {
-                    ...this.asCanvasPoint({left:right,top:bottom}),
-                    left:right,top:bottom,
+                    id,at,
+                    ...this.asCanvasPoint({left:right,top}),
+                    left:right,top,
                     height,
                     ...paginate(node),
                     node
@@ -123,7 +125,7 @@ export default A=>class LocatableDocument extends A{
         const nPage=pages[page]
         const columns=nPage.querySelectorAll(".column")
         const nColumn=columns[column]
-        const lines=nColumn.querySelectorAll(".line:not(:empty)")
+        const lines=nColumn.querySelectorAll(LINE)
         const nLine=lines[line+1]
         if(!nLine){
             if(columns.length-1>column){
@@ -134,17 +136,26 @@ export default A=>class LocatableDocument extends A{
                 return this.nextLine({...arguments[0],page:page+1})
             }
 
-            return arguments[0]
+            return {id,at}
         }
         const contents=Array.from(nLine.querySelectorAll("[data-content]"))
         const i=contents.map(a=>a.getBoundingClientRect().left)
             .concat([left])
             .sort((a,b)=>a-b)
             .indexOf(left)
-        const node=contents[i<0 ? 0 : i-1]
-        const rect=node.getBoundingClientRect()
-        const {content, endat}=node.dataset
-        return this.locate(content,parseInt(endat),left-rect.left)
+        const node=contents[i>0 ? i-1 : 0]
+        if(!node)
+            return {id,at}
+        const text=node.dataset.type=="text" ? node : node.querySelector('[data-type="text"]')
+        if(!text)
+            return {id,at}
+        const {content, endat}=text.dataset
+        const rect=text.getBoundingClientRect()
+        if(left>rect.left){
+            return this.locate(content,parseInt(endat),left-rect.left)
+        }else{
+            return {id:content, at: endat-text.textContent.length}
+        }
     }
 
     prevLine(id,at){
@@ -156,7 +167,7 @@ export default A=>class LocatableDocument extends A{
         const nPage=pages[page]
         const columns=nPage.querySelectorAll(".column")
         const nColumn=columns[column]
-        const lines=nColumn.querySelectorAll(".line:not(:empty)")
+        const lines=nColumn.querySelectorAll(LINE)
         const nLine=lines[line-1]
         if(!nLine){
             if(column>0){
@@ -167,17 +178,28 @@ export default A=>class LocatableDocument extends A{
                 return this.prevLine({...arguments[0],page:page-1})
             }
 
-            return arguments[0]
+            return {id,at}
         }
         const contents=Array.from(nLine.querySelectorAll("[data-content]"))
         const i=contents.map(a=>a.getBoundingClientRect().left)
             .concat([left])
             .sort((a,b)=>a-b)
             .indexOf(left)
-        const node=contents[i<0 ? 0 : i-1]
-        const rect=node.getBoundingClientRect()
-        const {content, endat}=node.dataset
-        return this.locate(content,parseInt(endat),left-rect.left)
+        const node=contents[i>0 ? i-1 : 0]
+        if(!node)
+            return {id,at}
+
+        const text=node.dataset.type=="text" ? node : Array.from(node.querySelectorAll('[data-type="text"]')).pop()
+        if(!text)
+            return {id,at}
+
+        const rect=text.getBoundingClientRect()
+        const {content, endat}=text.dataset
+        if(left>rect.left){
+            return this.locate(content,parseInt(endat),left-rect.left)
+        }else{
+            return {id:content, at:endat}
+        }
     }
 
     _getRangeRects(p0, p1){
@@ -189,31 +211,35 @@ export default A=>class LocatableDocument extends A{
 
         const pages=Array.from(this.canvas.querySelectorAll(".page"))
         const query2Line=(page,column,line,node,at)=>{
-            return pages[page].querySelectorAll(".column")[column].querySelectorAll(".line")[line]
+            return pages[page].querySelectorAll(".column")[column].querySelectorAll(LINE)[line]
         }
-
+try{
         pages.slice(p0.page, p1.page+1).forEach(a=>{
-            Array.from(a.querySelectorAll(".line")).forEach(lineRect)
+            Array.from(a.querySelectorAll(LINE)).forEach(lineRect)
         })
-
+}catch(e){
+    debugger
+}
         //remove from first page before
+        let firstIndex=0;
         (({page,column,line,left,top,node})=>{
             //remove first page prev sibling lines
-            const lines=Array.from(pages[page].querySelectorAll(".line"))
-            let nLine=line==undefined ? node.querySelector(".line") : query2Line(page,column,line)
-            rects.splice(0,lines.indexOf(nLine)+1)
+            const lines=Array.from(pages[page].querySelectorAll(LINE))
+            let nLine=line==undefined ? node.querySelector(LINE) : query2Line(page,column,line)
+            firstIndex=lines.indexOf(nLine)
+            rects.splice(0,firstIndex+1)
             //first line rect
-            const {width,height}=nLine.getBoundingClientRect()
-            rects.unshift({left,top,right:left+width,bottom:top+height})
+            const a=nLine.getBoundingClientRect()
+            rects.unshift({left,top,right:a.left+a.width,bottom:a.top+a.height})
         })(p0);
 
 
         //remove from last page next
         (({page,column,line,left:right,node})=>{
-            const nLine=line==undefined ? Array.from(node.querySelectorAll(".line")).pop() : query2Line(page,column,line)
+            const nLine=line==undefined ? Array.from(node.querySelectorAll(LINE)).pop() : query2Line(page,column,line)
             //remove last page next sibling lines
-            const lines=Array.from(pages[page].querySelectorAll(".line"))
-            rects.splice(lines.indexOf(nLine))
+            const lines=Array.from(pages[page].querySelectorAll(LINE))
+            rects.splice(lines.indexOf(nLine)-firstIndex)
 
             //last line rect
             const {left,top,height}=nLine.getBoundingClientRect()
@@ -228,11 +254,12 @@ export default A=>class LocatableDocument extends A{
     }
     getRangePath(start, end){
         const type=this.getComposer(start.id).getComposeType()
+        const rect=a=>`M${a.left} ${a.top} L${a.right} ${a.top} L${a.right} ${a.bottom} L${a.left} ${a.bottom} Z`
         if(start.id==end.id && this.getComposer(start.id).noChild && type!="text"){
             const a=this.canvas.querySelector(`[data-content="${start.id}"]`).getBoundingClientRect()
             const {x:left,y:top}=this.asCanvasPoint({left:a.left,top:a.top})
             const {x:right,y:bottom}=this.asCanvasPoint({left:a.left+a.width,top:a.top+a.height})
-            return {type,path:`M${left} ${top} L${right} ${top} L${right} ${bottom} L${left} ${bottom} Z`}
+            return {type,path:rect({left,right,top,bottom})}
         }
 
         const [p0,p1]=((start,end)=>{
@@ -247,27 +274,12 @@ export default A=>class LocatableDocument extends A{
 
         let paths=[]
 		if(p0.top==p1.top){
-			let x0=p0.x, x1=p1.x
-			let {y:top,height}=p0
-			paths.push(`M${x0} ${top} L${x1} ${top} L${x1} ${top+height} L${x0} ${top+height} L${x0} ${top} Z`)
+            const {x:left, y:top, height, bottom=top+height}=p0
+            const {x:right}=p1
+            return {type:"range",path:rect({left,right,top,bottom})}
 		}else{
-			let lines=this._getRangeRects(p0, p1)
-			lines.reduce((paths, {left,top,right,bottom}, i, t)=>{
-				switch(i){
-				case 0:
-					paths.push(`M${p0.left} ${top} L${right} ${top} L${right} ${bottom} L${p0.left} ${bottom} Z`)
-				break
-				case lines.length-1:
-					paths.push(`M${p1.left} ${top} L${p1.left} ${bottom} L${left} ${bottom} L${left} ${top} Z`)
-				break
-				default:
-					paths.push(`M${left} ${top} L${right} ${top} L${right} ${bottom} L${left} ${bottom} Z`)
-				break
-				}
-				return paths
-			},paths)
+			return {type:"range",path: this._getRangeRects(p0, p1).map(rect).join(" ")}
 		}
-        return {type:"range", path:paths.join(" ")}
     }
 
     getClientRects(id){

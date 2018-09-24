@@ -43,7 +43,7 @@ export default class Group extends Component{
 				</g>
 			)
 		}
-		
+
 		return (
 			<g {...others}>
 				{children}
