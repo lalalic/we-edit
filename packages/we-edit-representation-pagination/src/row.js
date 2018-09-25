@@ -90,7 +90,6 @@ export default class extends Super{
 				indexes[iCol]=index
 
 				currentGroupedLines[iCol]=lines.slice(start,index)
-				currentGroupedLines[iCol].style={border, margin,spacing,background}
 			})
 
 			if(!currentGroupedLines.find(a=>a.length>0)){
@@ -124,8 +123,8 @@ export default class extends Super{
 		let height=0
 
 		let x=0
-		let groupsWithXY=colGroups.map((linesWithStyle,colNo)=>{
-			let {border, margin, spacing, background}=linesWithStyle.style
+		let groupsWithXY=colGroups.map((linesWithStyle,iCol)=>{
+			let {border, margin, spacing, background}=this.composedCells[iCol].props
 			let y=0
 			let grouped=linesWithStyle.map((line,i)=>{
 					let a=<Group y={y} key={i}>{line}</Group>
@@ -139,7 +138,7 @@ export default class extends Super{
 				+border.bottom.sz
 				+spacing*.5)
 			let cell=(
-				<Cell height={y} x={x} width={cols[colNo]} background={background}>
+				<Cell height={y} x={x} width={cols[iCol]} background={background}>
 					<Spacing x={spacing/2} y={spacing/2}>
 						<Border border={border} spacing={spacing}>
 							<Margin x={margin.left} y={margin.top}>
@@ -150,7 +149,7 @@ export default class extends Super{
 				</Cell>
 			);
 
-			x+=cols[colNo]
+			x+=cols[iCol]
 			height=Math.max(height,y)
 			return cell
 		})

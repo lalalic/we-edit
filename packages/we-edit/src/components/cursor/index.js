@@ -100,11 +100,14 @@ export class Cursor extends Component{
 		const {start,end,cursorAt}=selection
 		const cursor=selection[cursorAt]
 		const $=query()
-		let {id,at}=$.prevLine(cursor.id, cursor.at)
+		
 
-		if(!shiftKey)
+		if(!shiftKey){
+			let {id,at}=$.prevLine(cursor.id, cursor.at)
 			dispatch(ACTION.Cursor.AT(id,at))
-		else{
+			
+		}else{
+			let {id,at}=$.prevLine(cursor.id, cursor.at,true)
 			if(start.id==end.id && start.at==end.at){
 				dispatch(ACTION.Selection.START_AT(id,at))
 			}else{
@@ -135,11 +138,13 @@ export class Cursor extends Component{
 		const cursor=selection[cursorAt]
 		const $=query()
 
-		let {id,at}=$.nextLine(cursor.id,cursor.at)
+		
 
-		if(!shiftKey)
+		if(!shiftKey){
+			let {id,at}=$.nextLine(cursor.id,cursor.at)
 			dispatch(ACTION.Cursor.AT(id,at))
-		else{
+		}else{
+			let {id,at}=$.nextLine(cursor.id,cursor.at, true)
 			if(start.id==end.id && start.at==end.at){
 				dispatch(ACTION.Selection.END_AT(id,at))
 			}else{

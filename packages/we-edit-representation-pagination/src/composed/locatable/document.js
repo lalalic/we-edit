@@ -61,6 +61,11 @@ export default A=>class LocatableDocument extends A{
 
         return found
     }
+	
+	lines(n){
+		const nested=Array.from(n.querySelectorAll(".line .line"))
+		return Array.from(n.querySelectorAll(".line")).filter(a=>!nested.includes(a))
+	}
 
     position(id,at){
         const paginate=node=>{
@@ -68,7 +73,7 @@ export default A=>class LocatableDocument extends A{
             return {
                 page:Array.from(this.canvas.querySelectorAll(".page")).indexOf(page),
                 column:Array.from(page.querySelectorAll(".column")).indexOf(column),
-                line:line!==undefined ? Array.from(column.querySelectorAll(LINE)).indexOf(line): undefined
+                line:line!==undefined ? this.lines(column).indexOf(line): undefined
             }
         }
 
@@ -122,7 +127,7 @@ export default A=>class LocatableDocument extends A{
         return null
     }
 
-    nextLine(id,at){
+    nextLine(id,at, selecting){
         const position=this.position(id,at)
         if(!position)
             return
@@ -131,7 +136,7 @@ export default A=>class LocatableDocument extends A{
         const nPage=pages[page]
         const columns=nPage.querySelectorAll(".column")
         const nColumn=columns[column]
-        const lines=nColumn.querySelectorAll(LINE)
+        const lines=this.lines(nColumn)
         const nLine=lines[line+1]
         if(!nLine){
             if(columns.length-1>column){
@@ -144,6 +149,16 @@ export default A=>class LocatableDocument extends A{
 
             return {id,at}
         }
+		const firstContent=nLine.querySelector("[data-content]")
+		if(firstContent){
+			if(firstContent.dataset.type=="table"){
+				let row=firstContent.querySelector('[data-type="row"]')
+				return {id:row.dataset.content, at:1}
+			}
+		}else{
+			return {id,at}
+		}
+		
         const contents=Array.from(nLine.querySelectorAll("[data-content]"))
         const i=contents.map(a=>a.getBoundingClientRect().left)
             .concat([left])
@@ -164,7 +179,7 @@ export default A=>class LocatableDocument extends A{
         }
     }
 
-    prevLine(id,at){
+    prevLine(id,at, selecting){
         const position=this.position(id,at)
         if(!position)
             return
@@ -173,7 +188,7 @@ export default A=>class LocatableDocument extends A{
         const nPage=pages[page]
         const columns=nPage.querySelectorAll(".column")
         const nColumn=columns[column]
-        const lines=nColumn.querySelectorAll(LINE)
+        const lines=this.lines(nColumn)
         const nLine=lines[line-1]
         if(!nLine){
             if(column>0){
@@ -186,6 +201,17 @@ export default A=>class LocatableDocument extends A{
 
             return {id,at}
         }
+		
+		const firstContent=nLine.querySelector("[data-content]")
+		if(firstContent){
+			if(firstContent.dataset.type=="table"){
+				let row=firstContent.querySelector('[data-type="row"]')
+				return {id:row.dataset.content, at:1}
+			}
+		}else{
+			return {id,at}
+		}
+		
         const contents=Array.from(nLine.querySelectorAll("[data-content]"))
         const i=contents.map(a=>a.getBoundingClientRect().left)
             .concat([left])
@@ -217,17 +243,17 @@ export default A=>class LocatableDocument extends A{
 
         const pages=Array.from(this.canvas.querySelectorAll(".page"))
         const query2Line=(page,column,line,node,at)=>{
-            return pages[page].querySelectorAll(".column")[column].querySelectorAll(LINE)[line]
+            return this.lines(pages[page].querySelectorAll(".column")[column])[line]
         }
 
         pages.slice(p0.page, p1.page+1).forEach(a=>{
-            Array.from(a.querySelectorAll(LINE)).forEach(lineRect)
+            this.lines(a).forEach(lineRect)
         })
         //remove from first page before
         let firstIndex=0;
         (({page,column,line,left,top,node})=>{
             //remove first page prev sibling lines
-            const lines=Array.from(pages[page].querySelectorAll(LINE))
+            const lines=this.lines(pages[page])
             let nLine=line==undefined ? node.querySelector(LINE) : query2Line(page,column,line)
             firstIndex=lines.indexOf(nLine)
             rects.splice(0,firstIndex+1)
@@ -239,9 +265,9 @@ export default A=>class LocatableDocument extends A{
 
         //remove from last page next
         (({page,column,line,left:right,node})=>{
-            const nLine=line==undefined ? Array.from(node.querySelectorAll(LINE)).pop() : query2Line(page,column,line)
+            const nLine=line==undefined ? this.lines(node).pop() : query2Line(page,column,line)
             //remove last page next sibling lines
-            const lines=Array.from(pages[page].querySelectorAll(LINE))
+            const lines=this.lines(pages[page])
             rects.splice(lines.indexOf(nLine)-firstIndex)
 
             //last line rect
