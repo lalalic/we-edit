@@ -22,10 +22,10 @@ export default function buildEditableDoc(doc,inputTypeInstance){
 	let store=null
 
 	const getDocStore=memoize((store,id)=>new LocalStore(store, "we-edit", state=>state['we-edit'].docs[id].state))
-	
+
 	const editableDoc={
 		Transformed,
-		
+
 		editable(){
 			return !!inputTypeInstance.onChange
 		},
@@ -64,10 +64,10 @@ export default function buildEditableDoc(doc,inputTypeInstance){
 				</Provider>
 			)
 		}),
-		
-		
 
-		buildReducer(reducer=a=>a){
+
+
+		buildReducer(extendReducer=a=>a){
 			let createElementFactory=createElementFactoryBuilder(inputTypeInstance)
 			let changeReducer=changeReducerBuilder(createElementFactory,inputTypeInstance)
 			let content=new Map().withMutations(a=>inputTypeInstance.render(createElementFactory(a),Components))
@@ -75,7 +75,12 @@ export default function buildEditableDoc(doc,inputTypeInstance){
 			let _reducer=undoable(changeReducer)
 			let INIT_STATE=createState(doc,content)
 
-			return (state=INIT_STATE,action={})=>reducer(_reducer(state,action),action)
+			return (state=INIT_STATE,action={})=>{
+				state=_reducer(state,action)
+				state=state.mergeIn(["statistics"], reducer.statistics(state.get("statistics"),action))
+				state=state.mergeIn(["ui"], reducer.ui(state.get("ui"),action))
+				return extendReducer(state,action)
+			}
 		},
 
 		get name(){
@@ -109,7 +114,7 @@ export default function buildEditableDoc(doc,inputTypeInstance){
 		release(){
 			return inputTypeInstance.release()
 		},
-		
+
 		isTypeOf(InputType){
 			return inputTypeInstance instanceof InputType
 		}

@@ -134,7 +134,8 @@ export const Selection={
 	MOVE: (id,at)=>({type:"we-edit/selection/MOVE",payload:{id,at}}),
 	COPY: ()=>({type:"we-edit/selection/COPY"}),
 	PASTE: (id,at)=>({type:"we-edit/selection/PASTE",payload:{id,at}}),
-	CUT: ()=>({type:"we-edit/selection/CUT"})
+	CUT: ()=>({type:"we-edit/selection/CUT"}),
+	POSITION: (cursor, selection)=>({type:"we-edit/selection/POSITION",payload:{cursor,selection}})
 }
 
 export const Entity={

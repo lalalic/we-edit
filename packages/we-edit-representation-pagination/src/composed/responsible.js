@@ -2,23 +2,21 @@ import React, {Component,Fragment} from "react"
 import PropTypes from "prop-types"
 
 import {getSelection, ACTION, Cursor, Selection} from "we-edit"
-import {setDisplayName,compose, getContext} from "recompose"
-import Waypoint from "react-waypoint"
 import offset from "mouse-event-offset"
 
-import {Document as ComposedDocument,  Group} from "../composed"
-import Query from "./query"
+import {Document as ComposedDocument} from "../composed"
 import SelectionShape from "./selection"
+import Locator from "./locator"
 
+const CursorShape=({y=0,x=0,height=0,color})=>(
+    <path d={`M${x} ${y} v${height}`} stroke={color} strokeWidth={1}/>
+)
 
 export default class Responsible extends Component{
     static displayName="composed-document-with-cursor"
     static contextTypes={
         docId: PropTypes.string,
         activeDocStore: PropTypes.any,
-        getCursorInput: PropTypes.func,
-        query: PropTypes.func,
-		events: PropTypes.shape({emit:PropTypes.func.isRequired}),
     }
 
 	static childContextTypes={
@@ -27,6 +25,11 @@ export default class Responsible extends Component{
 	}
 
     scale=this.props.scale
+    onKeyUp=this.onKeyUp.bind(this)
+    onKeyDown=this.onKeyDown.bind(this)
+    onMove=this.onMove.bind(this)
+    onResize=this.onResize.bind(this)
+    onRotate=this.onRotate.bind(this)
 
 	getChildContext(){
 		return {
@@ -35,11 +38,19 @@ export default class Responsible extends Component{
 		}
 	}
 
+    get locator(){
+        return this.refs.locator.getWrappedInstance()
+    }
+
+    updateCursorAndSelection(){
+        //this.locator.setState({})
+    }
+
     render(){
-        const {isAllComposed, composeMore, children, innerRef=a=>a, ...props}=this.props
+        const {children, contentHash,docId, getComposer,...props}=this.props
         return (
             <ComposedDocument {...props}
-				ref={a=>{innerRef(a);this.clientDocument=a}}
+				innerRef={a=>{this.canvas=a}}
                 onClick={e=>{
                     if(this.eventAlreadyDone==e.timeStamp)
                         return
@@ -55,32 +66,35 @@ export default class Responsible extends Component{
                 }}>
 				<Fragment>
                     {children}
-					<Cursor
-						ref={a=>this.cursor=a}
-						render={({y=0,x=0,height=0,color})=>(
-							<path d={`M${x} ${y} L${x} ${y+height}`}
-									style={{stroke:color, strokeWidth:1}}/>
-						)}
-						/>
 
-					<Selection
-						ref={a=>this.selection=a}
-						onMove={this.onMove.bind(this)}
-						onResize={this.onResize.bind(this)}
-						onRotate={this.onRotate.bind(this)}
-						>
-						<SelectionShape/>
-					</Selection>
-
-					{!isAllComposed()&&(
-                        <ComposeMoreTrigger
-                            y={ComposedDocument.composedY(this.props.pages, this.props.pgGap)}
-                            onEnter={composeMore}
-                            />)
-                    }
+					<Locator
+                        docId={docId}
+                        scale={this.props.scale}
+                        ref="locator"
+                        cursor={
+                            <Cursor
+                                onKeyUp={this.onKeyUp}
+                                onKeyDown={this.onKeyDown}
+                                children={<CursorShape/>}
+        						/>
+                        }
+                        range={
+                            <Selection
+        						onMove={this.onMove}
+        						onResize={this.onResize}
+        						onRotate={this.onRotate}
+        						>
+        						<SelectionShape/>
+        					</Selection>
+                        }
+                        getComposer={getComposer}/>
 				</Fragment>
             </ComposedDocument>
         )
+    }
+
+    getBoundingClientRect(){
+        return this.canvas.getBoundingClientRect()
     }
 
     documentSelection(){
@@ -88,27 +102,23 @@ export default class Responsible extends Component{
     }
 
     componentDidUpdate(){
-        this.updateCursorAndSelection()
-		this.emit(`emitted${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
+        this.locator.setState({content:this.props.contentHash, canvas:this.canvas})
+        //this.emit(`emitted${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
     }
 
     componentDidMount(){
-        this.context.activeDocStore.dispatch(ACTION.Cursor.ACTIVE(this.context.docId))
-        this.emit(`emitted${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
+        this.context.activeDocStore.dispatch(ACTION.Cursor.ACTIVE(this.props.docId))
+        this.locator.setState({content:this.props.contentHash, canvas:this.canvas})
+        //this.emit(`emitted${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
     }
 
 	componentWillMount(){
-		this.emit(`composed${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
+		//this.emit(`composed${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
 	}
 
 	componentWillUpdate(){
-		this.emit(`composed${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
+		//this.emit(`composed${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
 	}
-
-    updateCursorAndSelection(){
-        this.cursor && this.cursor.forceUpdate()
-        this.selection && this.selection.forceUpdate()
-    }
 
     active(){
         let {docId, activeDocStore}=this.context
@@ -131,8 +141,8 @@ export default class Responsible extends Component{
 
     onClick(e){
         const dispatch=this.context.activeDocStore.dispatch
-        const docId=this.context.docId
-        const $=this.context.query()
+        const docId=this.props.docId
+        const $=this.locator
         const target=e.target
 
         switch(target.nodeName){
@@ -193,7 +203,7 @@ export default class Responsible extends Component{
 
     onSelect(selection){
         const dispatch=this.context.activeDocStore.dispatch
-        const $=this.context.query()
+        const $=this.locator
         const locate=a=>{
             let node=selection[`${a}Node`].parentNode
             if(!node.dataset.content)
@@ -248,23 +258,73 @@ export default class Responsible extends Component{
         this.active()
     }
 
-	emit(){
-		try{
-			if(this.context.events)
-				this.context.events.emit(...arguments)
-		}catch(e){
-			console.error(e)
+	onKeyUp(shiftKey){
+		const {activeDocStore}=this.context
+		const dispatch=activeDocStore.dispatch
+		const state=activeDocStore.getState()
+		const selection=getSelection(state)
+		const {start,end,cursorAt}=selection
+		const cursor=selection[cursorAt]
+		const $=this.locator
+
+
+		if(!shiftKey){
+			let {id,at}=$.prevLine(cursor.id, cursor.at)
+			dispatch(ACTION.Cursor.AT(id,at))
+
+		}else{
+			let {id,at}=$.prevLine(cursor.id, cursor.at,true)
+			if(start.id==end.id && start.at==end.at){
+				dispatch(ACTION.Selection.START_AT(id,at))
+			}else{
+				if(cursorAt=="start")
+					dispatch(ACTION.Selection.START_AT(id,at))
+				else if(cursorAt=="end"){
+					let {left,top}=$.position(id,at)
+					let {left:left0,top:top0}=$.position(start.id, start.at)
+					if((top0==top && left<left0) //same line, new point is on the left of start
+						|| (top<top0)) //above start point line
+						{
+						dispatch(ACTION.Selection.SELECT(id,at,start.id,start.at))
+						dispatch(ACTION.Selection.START_AT(id,at))
+					}else{
+						dispatch(ACTION.Selection.END_AT(id,at))
+					}
+				}
+			}
+		}
+	}
+
+	onKeyDown(shiftKey){
+		const {activeDocStore,query}=this.context
+		const dispatch=activeDocStore.dispatch
+		const state=activeDocStore.getState()
+		const selection=getSelection(state)
+		const {start,end,cursorAt}=selection
+		const cursor=selection[cursorAt]
+		const $=this.locator
+
+		if(!shiftKey){
+			let {id,at}=$.nextLine(cursor.id,cursor.at)
+			dispatch(ACTION.Cursor.AT(id,at))
+		}else{
+			let {id,at}=$.nextLine(cursor.id,cursor.at, true)
+			if(start.id==end.id && start.at==end.at){
+				dispatch(ACTION.Selection.END_AT(id,at))
+			}else{
+				if(cursorAt=="end")
+					dispatch(ACTION.Selection.END_AT(id,at))
+				else if(cursorAt=="start"){
+					let {left,top}=$.position(id,at)
+					let {left:left1, top:top1}=$.position(end.id, end.at)
+					if((top==top1 && left>left1) || (top>top1)){
+						dispatch(ACTION.Selection.SELECT(end.id,end.at,id,at))
+						dispatch(ACTION.Selection.END_AT(id,at))
+					}else{
+						dispatch(ACTION.Selection.START_AT(id,at))
+					}
+				}
+			}
 		}
 	}
 }
-
-const ComposeMoreTrigger=compose(
-	setDisplayName("More"),
-	getContext({debug: PropTypes.bool})
-)(({onEnter,y, debug})=>(
-	<Waypoint onEnter={()=>onEnter(y)} >
-		<Group y={y}>
-			{debug ? <line x1="0" y1="0" x2="10000" y2="0" strokeWidth="2" stroke="red"/> : null}
-		</Group>
-	</Waypoint>
-))

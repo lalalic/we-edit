@@ -11,24 +11,17 @@ export default class ContextProvider extends Component{
 		doc: PropTypes.object,
 		transformer: PropTypes.func.isRequired,
 		onQuit: PropTypes.func,
-		readonly: PropTypes.bool,
 	}
 
 	static childContextTypes={
 		doc: PropTypes.object,
 		transformer: PropTypes.func,
-		getCursorInput: PropTypes.func,
 	}
 
 	getChildContext(){
-		const self=this
-		const doc=this.props.doc
 		return {
-			doc,
-			transformer:this.props.transformer,
-			getCursorInput(){
-				return self.refs.input
-			}
+			doc:this.props.doc,
+			transformer:this.props.transformer
 		}
 	}
 
@@ -37,7 +30,6 @@ export default class ContextProvider extends Component{
 		const {children, readonly,  doc}=this.props
 		return (
 			<Fragment>
-				{readonly||!doc.editable() ? <span/> : <Input ref="input"/>}
 				{children}
 			</Fragment>
 		)

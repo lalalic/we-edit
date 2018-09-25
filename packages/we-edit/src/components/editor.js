@@ -222,7 +222,7 @@ class WeDocumentStub extends PureComponent{
 			}
 		}
 
-		this.doc=React.cloneElement(this.doc,  {...canvasProps})
+		this.doc=React.cloneElement(this.doc,  {...canvasProps, contentHash:content.hashCode()})
 	}
 
 	createChildElement(id,content,ModelTypes,lastContent){

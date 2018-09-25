@@ -6,18 +6,13 @@ import Waypoint from "react-waypoint"
 import Listener from "./listener"
 
 export default class Input extends Component{
-	static contextTypes={
-		events: PropTypes.object,
-	}
-
-	state={top:0,left:0,height:0}
 	isInView(left,top){
 		let {scrollX,scrollY,screen:{height,width}}=window
 		return scrollY<top<scrollY+height && scrollX<left<scrollX+width
 	}
 
 	render(){
-		const {top,left,height,color,fontFamily,fontSize,up,down}=this.state
+		const {top,left,height,color,fontFamily,fontSize,up,down}=this.props
 		let style={height,margin:0,padding:0,border:0,left:0,top:0,position:"absolute",outline:"none"}
 		if(!this.isInView(left,top)){
 			style.position="fixed"
@@ -43,15 +38,5 @@ export default class Input extends Component{
 				</div>
 			</Waypoint>
 		)
-	}
-
-	componentDidUpdate(){
-		try{
-			if(this.context.events){
-				this.context.events.emit("cursorPlaced",this.state)
-			}
-		}catch(e){
-
-		}
 	}
 }

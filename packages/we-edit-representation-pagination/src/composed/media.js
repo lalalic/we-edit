@@ -55,7 +55,7 @@ class SmartShow extends Component{
 			<Waypoint fireOnRapidScroll={false}   scrollableAncestor={scrollableAncestor}
 				onEnter={e=>this.setState({display:true},onPageShow)}
 				onLeave={e=>this.setState({display:false},onPageHide)}>
-				{display ? children : <Group/>}
+				{display ? children : <g style={{visibility:"hidden"}}>{children}</g>}
 			</Waypoint>
 		)
 

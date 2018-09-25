@@ -1,33 +1,13 @@
 import React, {Component} from "react"
-import PropTypes from "prop-types"
-import memoize from "memoize-one"
 
 import Entity from "./entity"
 import Range from "./range"
 
-export default class SelectionShape extends Component{
-	static propTypes={
-		start:PropTypes.shape({
-			id: PropTypes.string.isRequired,
-			at: PropTypes.number.isRquired
-		}),
-		end:PropTypes.shape({
-			id: PropTypes.string.isRequired,
-			at: PropTypes.number.isRquired
-		})
-	}
-
-	static contextTypes={
-		query: PropTypes.func
-	}
-
+export default class extends Component{
 	render(){
-		const {start, end}=this.props
-		if(start.id==end.id && start.at==end.at)
+		const {onResize, onMove, onRotate, path, type}=this.props
+		if(!path)
 			return null
-
-		const {onResize, onMove, onRotate}=this.props
-		const {type, path}=this.context.query().getRangePath(start,end)
 		switch(type){
 			case "image":{
 				const asRect=d=>d.split(/[mlz]/gi).filter(a=>!!a.trim())

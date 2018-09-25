@@ -1,18 +1,69 @@
-import React from "react"
+import React, {Component, Fragment} from "react"
 import PropTypes from "prop-types"
-import {ContentQuery} from "we-edit"
+import {connect,ACTION} from "we-edit"
+import {compose} from "recompose"
 import memoize from "memoize-one"
 
 const LINE=".line:not(:empty)"
-export default A=>class LocatableDocument extends A{
-    static contextTypes={
-        ...A.contextTypes,
-        activeDocStore: PropTypes.any,
-        Measure: PropTypes.func
-    }
+
+export default compose(
+    connect(
+        state=>({content:state.get("content").hashCode(),selection:state.get("selection")}),
+        (dispatch)=>{
+            return {
+                updateCursorAndSelection({cursor, selection}){
+                    dispatch(ACTION.Selection.POSITION(cursor, selection))
+                }
+            }
+        },
+        undefined,
+        {withRef:true}
+    ),
+
+)(class Locator extends Component{
+    state={content:null,canvas:null}
     render(){
-        return this.root=React.cloneElement(super.render(),{ref:a=>this.canvas=a})
+        if(!this.state.canvas)
+            return null
+        const {cursor, range, selection, scale, content}=this.props
+        const {position={height:0,x:0,y:0},path={path:""}}=this.getCursorSelection(content, selection, scale)
+        return (
+            <Fragment>
+                {React.cloneElement(cursor, position)}
+                {React.cloneElement(range, path)}
+            </Fragment>
+        )
     }
+
+    getComposer(id){
+        return this.props.getComposer(id)
+    }
+
+    shouldComponentUpdate({content,selection},state){
+        return state.content==content
+    }
+
+    get canvas(){
+        return this.state.canvas
+    }
+
+    getCursorSelection=memoize((content, selection,scale)=>{
+        const {updateSelection}=this.props
+        const {cursorAt, ...a}=selection.toJS()
+        const {id,at}=a[cursorAt]
+        let position=undefined
+        let path=undefined
+        try{
+            if(a.start.id!=a.end.id || a.start.at!=a.end.at){
+                path=this.getRangePath(a.start,a.end)
+            }else{
+                position=this.position(id, at)
+            }
+        }catch(e){
+            console.warn(e)
+        }
+        return {position,path}
+    })
 
     getBoundingClientRect(){
         return this.canvas.getBoundingClientRect()
@@ -61,10 +112,10 @@ export default A=>class LocatableDocument extends A{
 
         return found
     }
-	
+
 	lines(n){
 		const nested=Array.from(n.querySelectorAll(".line .line"))
-		return Array.from(n.querySelectorAll(".line")).filter(a=>!nested.includes(a))
+		return Array.from(n.querySelectorAll(LINE)).filter(a=>!nested.includes(a))
 	}
 
     position(id,at){
@@ -124,7 +175,6 @@ export default A=>class LocatableDocument extends A{
                 }
             }
         }
-        return null
     }
 
     nextLine(id,at, selecting){
@@ -158,7 +208,7 @@ export default A=>class LocatableDocument extends A{
 		}else{
 			return {id,at}
 		}
-		
+
         const contents=Array.from(nLine.querySelectorAll("[data-content]"))
         const i=contents.map(a=>a.getBoundingClientRect().left)
             .concat([left])
@@ -167,7 +217,7 @@ export default A=>class LocatableDocument extends A{
         let node=contents[i>0 ? i-1 : 0]
         if(!node)
             return {id,at}
-		
+
 		switch(node.dataset.type){
 			case "image":
 				return {id:node.dataset.content, at:1}
@@ -210,7 +260,7 @@ export default A=>class LocatableDocument extends A{
 
             return {id,at}
         }
-		
+
 		const firstContent=nLine.querySelector("[data-content]")
 		if(firstContent){
 			if(firstContent.dataset.type=="table"){
@@ -220,7 +270,7 @@ export default A=>class LocatableDocument extends A{
 		}else{
 			return {id,at}
 		}
-		
+
         const contents=Array.from(nLine.querySelectorAll("[data-content]"))
         const i=contents.map(a=>a.getBoundingClientRect().left)
             .concat([left])
@@ -230,7 +280,7 @@ export default A=>class LocatableDocument extends A{
         if(!node)
             return {id,at}
 
-		
+
 		switch(node.dataset.type){
 			case "image":
 				return {id:node.dataset.content, at:1}
@@ -408,4 +458,4 @@ export default A=>class LocatableDocument extends A{
 			})
 		}
     }
-}
+})

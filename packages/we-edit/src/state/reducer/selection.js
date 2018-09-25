@@ -1,4 +1,4 @@
-export function selection(state, {type,payload}){
+export default (state, {type,payload})=>{
 	switch(type){
 	case `we-edit/selection/SELECTED`:
 		return {...state, cursorAt:"end",...payload}

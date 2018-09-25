@@ -6,8 +6,6 @@ import Group from "./group"
 import Page from "./page"
 import Media from "./media"
 
-import {LocatableDocument, Locatable} from "./locatable"
-
 export default class ComposedDocument extends Component{
 	static propTypes={
 		pages: PropTypes.arrayOf(PropTypes.object).isRequired,
@@ -34,12 +32,13 @@ export default class ComposedDocument extends Component{
 	})
 
 	render(){
-		const {pages, pgGap, scale, style,children, ...props}=this.props
+		const {pages, pgGap, scale, style,children,innerRef, ...props}=this.props
 		const {width,height}=this.getSize(pages, pgGap)
 
 		return   (
 			<svg
 				{...props}
+				ref={innerRef}
 				preserveAspectRatio="xMidYMin"
 				viewBox={`0 0 ${width} ${height}`}
 				style={{background:"transparent", width:width*scale, height:height*scale, ...style}}

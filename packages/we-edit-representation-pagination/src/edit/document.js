@@ -1,11 +1,14 @@
 import React, {PureComponent, Component, Fragment} from "react"
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
+import Waypoint from "react-waypoint"
 import {getContent,getSelection,getClientRect, ACTION, ContentQuery} from "we-edit"
+
+import {setDisplayName,compose, getContext} from "recompose"
 
 import Base from "../document"
 import Responsible from "../composed/responsible"
-import {Document as ComposedDocument} from "../composed"
+import {Document as ComposedDocument,Group} from "../composed"
 
 import recomposable from "./recomposable"
 
@@ -31,7 +34,6 @@ export default class Document extends Super{
 		...Super.childContextTypes,
 		shouldContinueCompose: PropTypes.func,
 		shouldRemoveComposed: PropTypes.func,
-		query: PropTypes.func,
 		mount: PropTypes.func,
 		unmount: PropTypes.func,
 		scrollableAncestor: PropTypes.any
@@ -47,41 +49,39 @@ export default class Document extends Super{
 	getChildContext(){
 		let shouldRemoveComposed=this.shouldRemoveComposed.bind(this)
 		let shouldContinueCompose=this.shouldContinueCompose.bind(this)
-		let query=this.query.bind(this)
 		let mount=a=>this.composers.set(a.props.id,a)
 		let unmount=a=>this.composers.delete(a.props.id)
 		return {
 			...super.getChildContext(),
 			shouldContinueCompose,
 			shouldRemoveComposed,
-			query,mount,unmount,
+			mount,unmount,
 		}
-	}
-
-	query(){
-		return this.clientDocument
-		//return new Query(this.context.activeDocStore.getState(),this.composers, this.clientDocument, this.props.scale)
 	}
 
 	render(){
 		const {viewport, mode, error}=this.state
-		const {canvas,scale,pageGap}=this.props
+		const {canvas,scale,pageGap,docId,contentHash}=this.props
 		if(!viewport){//to find container width, height
 			return <div ref="viewporter" />
 		}
-
-		const content=<Responsible
-							innerRef={a=>{
-								if(this.clientDocument=a){
-									a.getComposer=id=>this.composers.get(id)
-								}
-							}}
+		const pages=this.computed.composed
+		const content=(<Responsible
+							docId={docId}
+							contentHash={contentHash}
+							getComposer={id=>this.composers.get(id)}
+							ref={a=>this.clientDocument=a}
 							scale={scale}
 							pgGap={pageGap}
-							pages={this.computed.composed}
-							isAllComposed={a=>this.isAllChildrenComposed()}
-							composeMore={y=>this.setState({y,mode:"viewport"})}
-							/>
+							pages={pages}
+							children={!this.isAllChildrenComposed()
+									&& (<ComposeMoreTrigger
+			                            y={ComposedDocument.composedY(pages, pageGap)}
+			                            onEnter={y=>this.setState({y,mode:"viewport"})}
+			                            />)
+								}
+							/>)
+
 
 		return (
 			<Fragment key={error}>
@@ -153,3 +153,15 @@ export default class Document extends Super{
 		return this.state.viewport
 	}
 }
+
+
+const ComposeMoreTrigger=compose(
+	setDisplayName("More"),
+	getContext({debug: PropTypes.bool})
+)(({onEnter,y, debug})=>(
+	<Waypoint onEnter={()=>onEnter(y)} >
+		<Group y={y}>
+			{debug ? <line x1="0" y1="0" x2="10000" y2="0" strokeWidth="2" stroke="red"/> : null}
+		</Group>
+	</Waypoint>
+))
