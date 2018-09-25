@@ -8,14 +8,9 @@ import Top from "../composed/selection/top"
 import {Group,Line} from "../composed"
 
 
-export default class extends recomposable(Base){
-	clearComposed(){
-		super.clearComposed()
-		this.computed.composedRows=-1
-	}
-
+export default class extends recomposable(class extends Base{
 	createComposed2Parent(){
-		let row=Base.prototype.createComposed2Parent.call(this,...arguments)
+		let row=super.createComposed2Parent(...arguments)
 
 		row=this.makeCellResizable(row)
 
@@ -24,8 +19,6 @@ export default class extends recomposable(Base){
 		}
 		
 		row=this.makeRowAdderNSelector(row)
-		
-		row=this._containerize(row)
 		
 		const {width,height}=row.props
 		
@@ -134,7 +127,13 @@ export default class extends recomposable(Base){
 
 		return React.cloneElement(row, {children:cells})
 	}
+}){
+	clearComposed(){
+		super.clearComposed()
+		this.computed.composedRows=-1
+	}
 }
+
 const NoShow="transparent"
 const Resizer=connect()(class extends PureComponent{
 	constructor(){

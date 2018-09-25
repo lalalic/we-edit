@@ -17,6 +17,7 @@ export default class Group extends Component{
 			x=0,y=0,
 			children,
 			width, height, index, childIndex, contentWidth,
+			className,
 			...others}=this.props
 
 
@@ -24,6 +25,14 @@ export default class Group extends Component{
 			return (
 				<g ref={innerRef}>
 					<Group {...this.props} innerRef={undefined}/>
+				</g>
+			)
+		}
+		
+		if(className){//type define,  such as line, <line><content.../></line>, so query can be more simplier
+			return (
+				<g className={className}>
+					<Group {...this.props} className={undefined}/>
 				</g>
 			)
 		}
