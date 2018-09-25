@@ -11,14 +11,4 @@ export default class extends recomposable(Base){
 		super.clearComposed()
 		this.composedCells.push([])
 	}
-
-	createComposed2Parent({colGroups,width}){
-		let row=super.createComposed2Parent(...arguments)
-		return React.cloneElement(row, {
-			children: row.props.children.map((cell,iCol)=>React.cloneElement(cell,{
-				"data-content":this.composedCells[iCol].props.id,
-				"data-type":"cell"
-			}))
-		})
-	}
 }

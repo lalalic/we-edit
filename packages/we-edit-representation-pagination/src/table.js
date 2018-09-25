@@ -22,7 +22,7 @@ export default class Table extends Super{
 	composed1Row(row){
 		this.computed.composedRows++
 		if(0==this.computed.composedRows){
-			this.computed.marginRight=row.composedCells[0].props.margin.right
+			this.computed.marginRight=row.getCell(0).props.margin.right
 		}
 	}
 
