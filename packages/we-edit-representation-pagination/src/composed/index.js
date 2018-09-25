@@ -4,6 +4,7 @@ import Page1 from "./page"
 import Line1 from "./line"
 import Text1 from "./text"
 import Image1 from "./image"
+import Story1 from "./story"
 
 import locatable from "./locatable"
 
@@ -13,3 +14,4 @@ export const Page=locatable(Page1)
 export const Line=locatable(Line1)
 export const Text=locatable(Text1)
 export const Image=locatable(Image1)
+export const Story=locatable(Story1)

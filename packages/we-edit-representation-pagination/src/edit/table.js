@@ -22,8 +22,14 @@ export default class extends recomposable(Base){
 		if(this.computed.composedRows==0){
 			row=this.makeColAdderNSelector(row)
 		}
-
-		return this._containerize(this.makeRowAdderNSelector(row))
+		
+		row=this.makeRowAdderNSelector(row)
+		
+		row=this._containerize(row)
+		
+		const {width,height}=row.props
+		
+		return <Line width={width} height={height} children={row}/>
 	}
 
 	makeColAdderNSelector(firstRow){

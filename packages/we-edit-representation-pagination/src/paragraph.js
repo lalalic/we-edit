@@ -8,8 +8,9 @@ const {Paragraph:Base}=models
 
 import opportunities from "./wordwrap/line-break"
 import LineBreaker from "linebreak"
-import {Text as ComposedText,  Group, Line, } from "./composed"
-import {Info as LineInfo} from "./composed/line"
+import {Text as ComposedText,  Group, Line, Story} from "./composed"
+
+const {Info:LineInfo}=Story
 
 const Super=HasParentAndChild(Base)
 export class Paragraph extends Super{
@@ -205,11 +206,11 @@ export class Paragraph extends Super{
 		}
 
         return (
-            <Group height={lineHeight} width={width} contentWidth={contentWidth}>
+            <Line height={lineHeight} width={width} contentWidth={contentWidth}>
                 <Group x={contentX} y={contentY+(lineHeight-height)/2} width={width} height={height}>
-                   <Line width={width} height={height} {...others}/>
+                   <Story width={width} height={height} {...others}/>
                 </Group>
-            </Group>
+            </Line>
         )
     }
 }
