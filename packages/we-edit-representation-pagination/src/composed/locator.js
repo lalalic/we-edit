@@ -8,11 +8,15 @@ const LINE=".line:not(:empty)"
 
 export default compose(
     connect(
-        state=>({content:state.get("content").hashCode(),selection:state.get("selection")}),
+        state=>({
+            content:state.get("content").hashCode(),
+            selection:state.get("selection"),
+            query: new ContentQuery(state),
+        }),
         (dispatch)=>{
             return {
-                updateCursorAndSelection({cursor, selection}){
-                    dispatch(ACTION.Selection.POSITION(cursor, selection))
+                updateSelectionStyle(style){
+                    dispatch(ACTION.Selection.STYLE(style))
                 }
             }
         },
@@ -41,6 +45,13 @@ export default compose(
 
     shouldComponentUpdate({content,selection},state){
         return state.content==content
+    }
+
+    componentDidUpdate({selection},{content}){
+        if(!this.props.selection.equals(selection) && content!=this.state.content){
+            const {scale, content}=this.props
+            this.props.updateSelectionStyle(this.getSelectionStyle(content,this.props.selection, scale))
+        }
     }
 
     get canvas(){
@@ -83,9 +94,9 @@ export default compose(
         return {left:location.x, top:location.y}
     }
 
-    getContent=memoize((state, id)=>{
-        return new ContentQuery(state, id ? "#"+id : undefined)
-    })
+    getContent(id){
+        return id ? this.props.query("#"+id) : this.props.query
+    }
 
     locate(id,at,left){
         let x=left/this.props.scale
@@ -420,16 +431,16 @@ export default compose(
         return this.asCanvasPoint({left,top}).y
     }
 
-    asSelection({page,column,line,node,id,at}){
-        const self=this
-		const state=this.context.activeDocStore.getState()
+    getSelectionStyle=memoize((content,selection,scale)=>{
+        const {position:{page,column,line,id,at},path}=this.getCursorSelection(content,selection, scale)
         const fromContent=type=>{
-			let $=self.getContent(state,id)
-			let props=$.is(type) ? $.props() : $.closest(type).props()
-			return props ? props.toJS().props : null
-		}
-		return {
-			props:memoize((type,bContent=true)=>{
+            let $=this.getContent(id)
+            let props=$.is(type) ? $.props() : $.closest(type).props()
+            return props ? props.toJS().props : null
+        }
+        const self=this
+        return {
+            props:memoize((type,bContent=true)=>{
 				if(bContent){//from content in state
 					return fromContent(type)
 				}
@@ -456,6 +467,6 @@ export default compose(
 
 				return fromContent(type)
 			})
-		}
-    }
+        }
+    })
 })

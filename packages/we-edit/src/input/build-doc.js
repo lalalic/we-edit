@@ -77,8 +77,8 @@ export default function buildEditableDoc(doc,inputTypeInstance){
 
 			return (state=INIT_STATE,action={})=>{
 				state=_reducer(state,action)
-				state=state.mergeIn(["statistics"], reducer.statistics(state.get("statistics"),action))
-				state=state.mergeIn(["ui"], reducer.ui(state.get("ui"),action))
+				state=state.set("statistics", reducer.statistics(state.get("statistics"),action))
+				state=state.set("ui", reducer.ui(state.get("ui"),action))
 				return extendReducer(state,action)
 			}
 		},

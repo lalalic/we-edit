@@ -135,7 +135,7 @@ export const Selection={
 	COPY: ()=>({type:"we-edit/selection/COPY"}),
 	PASTE: (id,at)=>({type:"we-edit/selection/PASTE",payload:{id,at}}),
 	CUT: ()=>({type:"we-edit/selection/CUT"}),
-	POSITION: (cursor, selection)=>({type:"we-edit/selection/POSITION",payload:{cursor,selection}})
+	STYLE: payload=>({type:"we-edit/selection/STYLE",payload})
 }
 
 export const Entity={

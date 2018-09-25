@@ -1,7 +1,7 @@
-export default (state={cursor:null,selection:null}, {type,payload})=>{
+export default (state={selectionStyle:{props(){}}}, {type,payload})=>{
 	switch(type){
-	case `we-edit/selection/POSITION`:
-		return {...state, ...payload}
+	case `we-edit/selection/STYLE`:
+		return {...state, selectionStyle:payload}
 	default:
 		return state
 	}

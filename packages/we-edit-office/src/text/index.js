@@ -1,7 +1,7 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 
-import {ACTION} from "we-edit"
+import {ACTION,connect} from "we-edit"
 
 import {compose,setDisplayName,getContext,mapProps,withProps} from "recompose"
 
@@ -31,8 +31,9 @@ export default compose(
 		doc: PropTypes.object,
 		selection: PropTypes.object
 	}),
-	withProps(({store:{dispatch},selection})=>{
-		let style=selection ? selection.props("text",false) : null
+	connect(state=>({style:getSelectionStyle(state, "text",false)})),
+	withProps(({dispatch,style})=>{
+		//let style=selection ? selection.props("text",false) : null
 		let changeSize=size=>dispatch(ACTION.Style.update({text:{size}}))
 		return {
 			style,
