@@ -41,7 +41,7 @@ export const Cursor={
 				let {id,at}=cursorAt=="end" ? end : start
 				let target=getContent(state,id).toJS()
 				const text=target.children
-				if(text.length>at){
+				if(text && text.length>at){
 					at++
 				}else{
 					target=nextCursorable(state,id)
@@ -87,7 +87,11 @@ export const Cursor={
 					let target=prevCursorable(state,id)
 					if(target){
 						let children=getContent(state, target).get("children")
-						at=isInSameParagraph(state,id,target) ? children.length-1 : children.length
+						if(!children){
+							at=1
+						}else{
+							at=isInSameParagraph(state,id,target) ? children.length-1 : children.length
+						}
 						id=target
 					}else{
 						//keep cursor at end of current target
