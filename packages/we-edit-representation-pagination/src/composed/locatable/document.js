@@ -164,18 +164,27 @@ export default A=>class LocatableDocument extends A{
             .concat([left])
             .sort((a,b)=>a-b)
             .indexOf(left)
-        const node=contents[i>0 ? i-1 : 0]
+        let node=contents[i>0 ? i-1 : 0]
         if(!node)
             return {id,at}
-        const text=node.dataset.type=="text" ? node : node.querySelector('[data-type="text"]')
-        if(!text)
+		
+		switch(node.dataset.type){
+			case "image":
+				return {id:node.dataset.content, at:1}
+			case "text":
+				break
+			default:
+				node=node.querySelector('[data-type="text"]')
+		}
+		//suppose text positioning
+        if(!node)
             return {id,at}
-        const {content, endat}=text.dataset
-        const rect=text.getBoundingClientRect()
+        const {content, endat}=node.dataset
+        const rect=node.getBoundingClientRect()
         if(left>rect.left){
             return this.locate(content,parseInt(endat),left-rect.left)
         }else{
-            return {id:content, at: endat-text.textContent.length}
+            return {id:content, at: endat-node.textContent.length}
         }
     }
 
@@ -217,20 +226,28 @@ export default A=>class LocatableDocument extends A{
             .concat([left])
             .sort((a,b)=>a-b)
             .indexOf(left)
-        const node=contents[i>0 ? i-1 : 0]
+        let node=contents[i>0 ? i-1 : 0]
         if(!node)
             return {id,at}
 
-        const text=node.dataset.type=="text" ? node : Array.from(node.querySelectorAll('[data-type="text"]')).pop()
-        if(!text)
+		
+		switch(node.dataset.type){
+			case "image":
+				return {id:node.dataset.content, at:1}
+			case "text":
+				break
+			default:
+				node=node.querySelector('[data-type="text"]')
+		}
+		//suppose text positioning
+        if(!node)
             return {id,at}
-
-        const rect=text.getBoundingClientRect()
-        const {content, endat}=text.dataset
+        const {content, endat}=node.dataset
+        const rect=node.getBoundingClientRect()
         if(left>rect.left){
             return this.locate(content,parseInt(endat),left-rect.left)
         }else{
-            return {id:content, at:endat}
+            return {id:content, at: endat}
         }
     }
 
@@ -250,11 +267,14 @@ export default A=>class LocatableDocument extends A{
             this.lines(a).forEach(lineRect)
         })
         //remove from first page before
-        let firstIndex=0;
+        let firstIndex=-1;
         (({page,column,line,left,top,node})=>{
             //remove first page prev sibling lines
             const lines=this.lines(pages[page])
             let nLine=line==undefined ? node.querySelector(LINE) : query2Line(page,column,line)
+			if(!nLine){
+				throw new Error("can't find line for start point")
+			}
             firstIndex=lines.indexOf(nLine)
             rects.splice(0,firstIndex+1)
             //first line rect
@@ -266,6 +286,9 @@ export default A=>class LocatableDocument extends A{
         //remove from last page next
         (({page,column,line,left:right,node})=>{
             const nLine=line==undefined ? this.lines(node).pop() : query2Line(page,column,line)
+			if(!nLine){
+				throw new Error("can't find line for end point")
+			}
             //remove last page next sibling lines
             const lines=this.lines(pages[page])
             rects.splice(lines.indexOf(nLine)-firstIndex)
