@@ -104,13 +104,11 @@ export default class Workspace extends PureComponent{
 		)
 
 		return (
-			<WithSelection key={channel}>
-				<div style={{flex:1, display:"flex", flexDirection:"column"}}>
+			<doc.Store reducer={reducer}>
+				<div style={{flex:1, display:"flex", flexDirection:"column"}} key={channel}>
 					{toolBar}
 					
-					<doc.Store reducer={reducer}>
-						{layout ? React.cloneElement(layout, {canvas, children:layout.props.children||canvas}) : canvas}			
-					</doc.Store>
+					{layout ? React.cloneElement(layout, {canvas, children:layout.props.children||canvas}) : canvas}			
 					
 					{statusBar && React.cloneElement(statusBar,{
 						channel:{
@@ -124,7 +122,7 @@ export default class Workspace extends PureComponent{
 						}
 					})}
 				</div>
-			</WithSelection>
+			</doc.Store>
 		)
 	}
 

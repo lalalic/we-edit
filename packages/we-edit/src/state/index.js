@@ -29,9 +29,7 @@ export function createState(doc, content){
 		violent:{
 			toJSON:()=>undefined
 		},
-		ui:{
-			selectionStyle:{props(){}}
-		},
+		ui:{},
 		undos:[],
 		redos:[],
 	})

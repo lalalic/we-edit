@@ -1,14 +1,13 @@
 import React,{Component,Fragment} from  "react"
 import PropTypes from "prop-types"
-import {compose, setDisplayName, getContext,withProps} from "recompose"
+import {connect, getSelectionStyle} from "we-edit"
+import {compose, setDisplayName, withProps} from "recompose"
 
 import Ruler from "./ruler"
 
 const VerticalRuler=compose(
 	setDisplayName("VerticalRuler"),
-	getContext({
-		selection: PropTypes.object
-	}),
+	connect(state=>({selection: getSelectionStyle(state)})),
 	withProps(({selection})=>{
 		if(selection){
 			let props=selection.props("page",false)

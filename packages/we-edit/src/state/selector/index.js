@@ -12,8 +12,8 @@ export function getSelection(state){
 	return state.get("selection").toJS()
 }
 
-export function getSelectionStyle(state,type, ...more){
-	return state.get("ui").selectionStyle.props(type, ...more)
+export function getSelectionStyle(state){
+	return state.get("ui").selectionStyle
 }
 
 export function getFile(state){

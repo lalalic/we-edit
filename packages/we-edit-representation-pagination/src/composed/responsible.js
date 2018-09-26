@@ -88,6 +88,7 @@ export default class Responsible extends Component{
         					</Selection>
                         }
                         getComposer={getComposer}/>
+						
 				</Fragment>
             </ComposedDocument>
         )

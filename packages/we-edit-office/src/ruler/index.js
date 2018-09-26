@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 
 import {compose,setDisplayName,getContext,mapProps,withProps} from "recompose"
 
-import {ACTION} from "we-edit"
+import {ACTION, connect, getSelectionStyle} from "we-edit"
 
 import HorizontalRuler from "./horizontal"
 import VerticalRuler from "./vertical"
@@ -11,13 +11,8 @@ import VerticalRuler from "./vertical"
 
 export default compose(
 	setDisplayName("Ruler"),
-	getContext({
-		store:PropTypes.object,
-		doc: PropTypes.object,
-		selection: PropTypes.object
-	}),
-	withProps(({store:{dispatch},doc})=>({
-		doc,
+	connect(state=>({selection:getSelectionStyle(state)})),
+	withProps(({dispatch})=>({
 		setLeftMargin(left){
 			dispatch(ACTION.Style.update({section:{pgMar:{left}}}))
 		},
@@ -40,7 +35,7 @@ export default compose(
 			dispatch(ACTION.Style.update({paragraph:{indent:{right}}}))
 		}
 	})),
-	withProps(({doc,selection})=>{
+	withProps(({selection})=>{
 		if(!selection){
 			return {
 				Ruler: a=>null

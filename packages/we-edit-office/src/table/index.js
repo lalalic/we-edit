@@ -5,16 +5,12 @@ import {compose, getContext, mapProps,withProps} from "recompose"
 import { Popover,Subheader, ToolbarGroup} from "material-ui"
 import IconTable from "material-ui/svg-icons/editor/border-all"
 
-import {ACTION} from "we-edit"
+import {ACTION, connect, getSelectionStyle} from "we-edit"
 import SizeIconButton from "../components/size-icon-button"
 
 export {default as Ribbon} from "./ribbon"
 
-export const Create=compose(
-	getContext({
-		selection: PropTypes.object
-	}),
-)(class  extends Component{
+export const Create=connect(state=>({selection:getSelectionStyle(state)}))(class  extends Component{
 	state={show:false}
 	render(){
 		const {selection, children}=this.props
@@ -57,13 +53,8 @@ class Setting extends Component{
 }
 
 const RCSize=compose(
-	getContext({
-		store:PropTypes.object,
-		doc: PropTypes.object,
-		selection: PropTypes.object
-	}),
-	mapProps(({store,doc, onAction,selection})=>({
-		doc,
+	connect(state=>({selection:getSelectionStyle(state)})),
+	mapProps(({onAction,selection,dispatch})=>({
 		create(rows, col){
 			let layoutWidth=(()=>{
 				let {cols}=selection.props("section",false)
@@ -74,7 +65,7 @@ const RCSize=compose(
 			let cols=new Array(col-1).fill(parseInt(layoutWidth/col))
 			cols.push(layoutWidth-cols.reduce((sum,a)=>sum+=a,0))
 			let element={type:"table", rows, cols}
-			store.dispatch(ACTION.Entity.CREATE(element))
+			dispatch(ACTION.Entity.CREATE(element))
 			onAction()
 		}
 	}))

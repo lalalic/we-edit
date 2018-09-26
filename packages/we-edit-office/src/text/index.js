@@ -1,7 +1,7 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 
-import {ACTION,connect} from "we-edit"
+import {ACTION,  connect, getSelectionStyle} from "we-edit"
 
 import {compose,setDisplayName,getContext,mapProps,withProps} from "recompose"
 
@@ -26,14 +26,8 @@ const ToolbarSeparator=props=><ToolbarSeparator0 style={{marginRight:2, marginLe
 
 export default compose(
 	setDisplayName("TextStyle"),
-	getContext({
-		store:PropTypes.object,
-		doc: PropTypes.object,
-		selection: PropTypes.object
-	}),
-	connect(state=>({style:getSelectionStyle(state, "text",false)})),
-	withProps(({dispatch,style})=>{
-		//let style=selection ? selection.props("text",false) : null
+	connect(state=>({selection:getSelectionStyle(state)})),
+	withProps(({dispatch,selection, style=(selection ? selection.props("text",false) : null)})=>{
 		let changeSize=size=>dispatch(ACTION.Style.update({text:{size}}))
 		return {
 			style,
@@ -68,7 +62,7 @@ export default compose(
 			}
 		}
 	})
-)(({doc, style, children,
+)(({style, children,
 	bigger, smaller, clear,
 	toggleStrike, changeHightlight,changeColor,
 	toggleSubscript, toggleSuperscript, toggleBorder,

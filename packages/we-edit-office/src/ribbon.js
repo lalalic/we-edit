@@ -1,5 +1,6 @@
 import React, {PureComponent, Children} from "react"
 import PropTypes from "prop-types"
+import {connect, getSelectionStyle} from "we-edit"
 import {compose,mapProps,setDisplayName,getContext,setStatic,branch,renderNothing}  from "recompose"
 
 import {Toolbar as Toolbar0,ToolbarSeparator as ToolbarSeparator0, Tabs, Tab} from "material-ui"
@@ -21,6 +22,7 @@ const ToolbarSeparator=props=><ToolbarSeparator0 style={{marginRight:2, marginLe
 const Ribbon=compose(
 	setDisplayName("Ribbon"),
 	getContext({muiTheme:PropTypes.object,selection:PropTypes.object}),
+	connect(state=>({selection:getSelectionStyle(state)}))
 )(({children, selection,
 	muiTheme,
 	buttonStyle={height:24, fontSize:10, lineHeight:"24px", paddingRight:5,  paddingLeft:5},

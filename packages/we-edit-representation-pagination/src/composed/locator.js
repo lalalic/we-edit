@@ -1,6 +1,6 @@
 import React, {Component, Fragment} from "react"
 import PropTypes from "prop-types"
-import {connect,ACTION} from "we-edit"
+import {connect,ACTION, ContentQuery} from "we-edit"
 import {compose} from "recompose"
 import memoize from "memoize-one"
 
@@ -33,8 +33,8 @@ export default compose(
         const {position={height:0,x:0,y:0},path={path:""}}=this.getCursorSelection(content, selection, scale)
         return (
             <Fragment>
-                {React.cloneElement(cursor, position)}
-                {React.cloneElement(range, path)}
+                {cursor && React.cloneElement(cursor, position)}
+                {range && React.cloneElement(range, path)}
             </Fragment>
         )
     }
@@ -48,9 +48,10 @@ export default compose(
     }
 
     componentDidUpdate({selection},{content}){
-        if(!this.props.selection.equals(selection) && content!=this.state.content){
-            const {scale, content}=this.props
-            this.props.updateSelectionStyle(this.getSelectionStyle(content,this.props.selection, scale))
+        if(!this.props.selection.equals(selection) || content!=this.state.content){
+            const {scale, updateSelectionStyle}=this.props
+			const style=this.getSelectionStyle(this.props.content,this.props.selection, scale)
+            updateSelectionStyle(style)
         }
     }
 
@@ -432,7 +433,10 @@ export default compose(
     }
 
     getSelectionStyle=memoize((content,selection,scale)=>{
-        const {position:{page,column,line,id,at},path}=this.getCursorSelection(content,selection, scale)
+        const {position,path}=this.getCursorSelection(content,selection, scale)
+		if(!position){}
+			return null
+		const {page,column,line,id,at,node}=position
         const fromContent=type=>{
             let $=this.getContent(id)
             let props=$.is(type) ? $.props() : $.closest(type).props()
@@ -440,6 +444,7 @@ export default compose(
         }
         const self=this
         return {
+			version:"1.0.0",
             props:memoize((type,bContent=true)=>{
 				if(bContent){//from content in state
 					return fromContent(type)

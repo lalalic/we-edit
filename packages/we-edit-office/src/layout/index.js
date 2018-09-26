@@ -16,15 +16,11 @@ import DropDownButton from "../components/drop-down-button"
 import {ACTION} from "we-edit"
 
 export const Tools=compose(
-	getContext({
-		store: PropTypes.object,
-		selection: PropTypes.object,
-	}),
-	mapProps(({children,store, selection})=>{
+	mapProps(({children,dispatch})=>{
 		return {
 			children,
 			createSection(props={}){
-				store.dispatch(ACTION.Entity.CREATE({...props,type:"section",}))
+				dispatch(ACTION.Entity.CREATE({...props,type:"section",}))
 			}
 		}
 	}),

@@ -2,7 +2,7 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 
 import {compose,setDisplayName,getContext,mapProps} from "recompose"
-import {getSelection, ACTION} from "we-edit"
+import {getSelection, ACTION, connect, getSelectionStyle} from "we-edit"
 
 import {ToolbarGroup,ToolbarSeparator as ToolbarSeparator0,MenuItem} from "material-ui"
 import CheckIconButton from "../components/check-icon-button"
@@ -21,14 +21,10 @@ const ToolbarSeparator=props=><ToolbarSeparator0 style={{marginRight:2, marginLe
 
 export default compose(
 	setDisplayName("ParagraphStyle"),
-	getContext({
-		store:PropTypes.object,
-		doc: PropTypes.object,
-		selection: PropTypes.object
-	}),
-	mapProps(({store:{dispatch},doc,children,selection})=>({
-		doc,children,
-		style:selection ? selection.props("paragraph",false) : null,
+	connect(state=>({selection:getSelectionStyle(state)})),
+	mapProps(({dispatch,children,selection})=>({
+		children,
+		style:selection&&selection.props("paragraph",false)||null,
 		align:align=>dispatch(ACTION.Style.update({paragraph:{align}})),
 		bullet: numFmt=>{
 			dispatch(ACTION.Style.update({paragraph:{numFmt}}))
@@ -37,7 +33,7 @@ export default compose(
 			dispatch(ACTION.Style.update({paragraph:{numFmt}}))
 		}
 	})),
-)(({doc,style, align,number, bullet, children})=>(
+)(({style, align,number, bullet, children})=>(
 	<ToolbarGroup>
 		<CheckIconButton
 			status={!style ? "disabled" : (!style.align ||style.align=="left")?"checked":"unchecked"}
