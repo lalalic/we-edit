@@ -11,7 +11,9 @@ export default compose(
         state=>({
             content:state.get("content").hashCode(),
             selection:state.get("selection"),
-            query: new ContentQuery(state),
+            getContent(id){
+				return new ContentQuery(state,  id ? `#${id}`  : undefined)
+			},
         }),
         (dispatch)=>{
             return {
@@ -96,7 +98,7 @@ export default compose(
     }
 
     getContent(id){
-        return id ? this.props.query("#"+id) : this.props.query
+        return this.props.getContent(...arguments)
     }
 
     locate(id,at,left){
@@ -434,7 +436,7 @@ export default compose(
 
     getSelectionStyle=memoize((content,selection,scale)=>{
         const {position,path}=this.getCursorSelection(content,selection, scale)
-		if(!position){}
+		if(!position)
 			return null
 		const {page,column,line,id,at,node}=position
         const fromContent=type=>{
