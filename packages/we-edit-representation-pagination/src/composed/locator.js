@@ -428,7 +428,7 @@ export default compose(
     }
 
     pageY(page){
-        const {left,top}=this.canvas.querySelectorAll(".page")[page].getBoundingClientRect()
+        const {left,top}=this.canvas.querySelectorAll(".page")[page].closest("[transform]").getBoundingClientRect()
         return this.asCanvasPoint({left,top}).y
     }
 

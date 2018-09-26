@@ -69,6 +69,7 @@ export default class Listener extends Component{
 	}
 
 	componentDidUpdate(){
+		this.input.scrollIntoView()
 		this.input.focus()
 	}
 }

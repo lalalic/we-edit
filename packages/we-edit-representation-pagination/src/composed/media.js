@@ -1,4 +1,4 @@
-import React, {Component} from "react"
+import React, {Component, Fragment} from "react"
 import PropTypes from "prop-types"
 
 import Waypoint from "react-waypoint"
@@ -27,9 +27,10 @@ export default class Media extends Component{
 					<Group y={pgGap} x={0}>
 						{pages.map((page,i)=>{
 							let {size,margin}=page.props
+							page=React.cloneElement(page, {y, x:(width-size.width)/2})
 
 							let newPage=(
-								<Group y={y} x={(width-size.width)/2} key={i}>
+								<Group key={i}>
 									{paper!==false && <Paper {...{size,margin,fill:"white"}}/>}
 									{smart ? <SmartShow {...{onPageHide,onPageShow,scrollableAncestor,children:page}}/> : page}
 								</Group>
@@ -63,7 +64,7 @@ class SmartShow extends Component{
 }
 
 const Paper=({size:{width,height}, margin:{left,right,top,bottom},...props})=>(
-       <Group>
+       <Fragment>
 		   <rect {...props} {...{width,height}}/>
 		   <path d={`M0 0 L${width} 0 L${width} ${height} L0 ${height}Z`}
 				   fill="none"
@@ -71,11 +72,11 @@ const Paper=({size:{width,height}, margin:{left,right,top,bottom},...props})=>(
 			{left&&right&&top&&bottom&&
 				<Margin margin={{left,top,right:width-right,bottom:height-bottom}}/>
 			}
-       </Group>
+       </Fragment>
 )
 
 const Margin=({margin:{left,top, right,bottom},marginWidth=20})=>(
-       <Group>
+       <Fragment>
                <line x1={left} y1={top} x2={left-marginWidth} y2={top} strokeWidth={1} stroke="lightgray"/>
                <line x1={left} y1={top} x2={left} y2={top-marginWidth} strokeWidth={1} stroke="lightgray"/>
 
@@ -87,5 +88,5 @@ const Margin=({margin:{left,top, right,bottom},marginWidth=20})=>(
 
                <line x1={right} y1={top} x2={right+marginWidth} y2={top} strokeWidth={1} stroke="lightgray"/>
                <line x1={right} y1={top} x2={right} y2={top-marginWidth} strokeWidth={1} stroke="lightgray"/>
-       </Group>
+       </Fragment>
 )
