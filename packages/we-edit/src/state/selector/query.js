@@ -343,12 +343,12 @@ export default class Query{
 		let found=this._nodes.reduce((found,k)=>{
 			if(found.length>0)
 				return found
-			
+
 			if(includeSelf && !!select(this._content.get(k))){
 				found.push(k)
 				return found
 			}
-				
+
 			traverse(this._content,node=>{
 				if(!!select(node)){
 					found.push(node.get("id"))

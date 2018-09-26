@@ -9,6 +9,8 @@ import Shape from "./shape"
 import Table from "./table"
 import Row from "./row"
 import Container from "./container"
+import Text from "./text"
+import Image from "./image"
 
 export default recomposable.enable(Models,{
 	Document,
@@ -18,4 +20,6 @@ export default recomposable.enable(Models,{
 	Table,
 	Row,
 	Container,
+	Text,
+	Image,
 })

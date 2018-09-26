@@ -1,18 +1,8 @@
-import React,{Fragment,PureComponent} from "react"
-
-import {connect,ACTION} from "we-edit"
 import recomposable from "./recomposable"
-import Container from "./container"
-import Base from "../row"
-
+import Base from "../image"
 
 export default class extends recomposable(Base){
-	clearComposed(){
-		super.clearComposed()
-		this.composedCells.push([])
-	}
-
-	nextSelectable(at){
+    nextCursorable(at){
         switch(at){
         case undefined:
             return 0
@@ -22,7 +12,7 @@ export default class extends recomposable(Base){
         return false
     }
 
-    prevSelectable(at){
+    prevCursorable(at){
         switch(at){
         case undefined:
             return 1

@@ -25,8 +25,8 @@ export default class Responsible extends Component{
 	}
 
     scale=this.props.scale
-    onKeyUp=this.onKeyUp.bind(this)
-    onKeyDown=this.onKeyDown.bind(this)
+    onArrowUp=this.onArrowUp.bind(this)
+    onArrowDown=this.onArrowDown.bind(this)
     onMove=this.onMove.bind(this)
     onResize=this.onResize.bind(this)
     onRotate=this.onRotate.bind(this)
@@ -73,8 +73,8 @@ export default class Responsible extends Component{
                         ref="locator"
                         cursor={
                             <Cursor
-                                onKeyUp={this.onKeyUp}
-                                onKeyDown={this.onKeyDown}
+                                onArrowUp={this.onArrowUp}
+                                onArrowDown={this.onArrowDown}
                                 children={<CursorShape/>}
         						/>
                         }
@@ -88,7 +88,7 @@ export default class Responsible extends Component{
         					</Selection>
                         }
                         getComposer={getComposer}/>
-						
+
 				</Fragment>
             </ComposedDocument>
         )
@@ -259,7 +259,7 @@ export default class Responsible extends Component{
         this.active()
     }
 
-	onKeyUp(shiftKey){
+	onArrowUp(shiftKey){
 		const {activeDocStore}=this.context
 		const dispatch=activeDocStore.dispatch
 		const state=activeDocStore.getState()
@@ -296,7 +296,7 @@ export default class Responsible extends Component{
 		}
 	}
 
-	onKeyDown(shiftKey){
+	onArrowDown(shiftKey){
 		const {activeDocStore,query}=this.context
 		const dispatch=activeDocStore.dispatch
 		const state=activeDocStore.getState()

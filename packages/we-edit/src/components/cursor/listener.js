@@ -1,19 +1,20 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
+import {connect} from "react-redux"
 
 import reactComposition from "../../tools/react-composition"
 import {ACTION} from "../../state/action"
 
-export default class Listener extends Component{
-	static contextTypes={
-		activeDocStore: PropTypes.any,
-		query: PropTypes.func
-	}
+export default connect()(class Listener extends Component{
 	state={value:""}
 
 	render(){
-		let {dispatch}=this.context.activeDocStore
-		let {up,down,...others}=this.props
+		let {dispatch,
+			onArrowRight=dispatch(ACTION.Cursor.MOVE_RIGHT(e.shiftKey)),
+			onArrowLeft=dispatch(ACTION.Cursor.MOVE_LEFT(e.shiftKey)),
+			onArrowDown=onArrowRight,
+			onArrowUp=onArrowLeft,
+			...others}=this.props
 		return <input
 			ref={a=>this.input=a}
 			className="cursor"
@@ -47,19 +48,19 @@ export default class Listener extends Component{
 							break
 							case 37://ARROW LEFT
 								e.preventDefault()
-								dispatch(ACTION.Cursor.MOVE_LEFT(e.shiftKey))
+								onArrowLeft(e.shiftKey)
 							break
 							case 38://ARROW UP
 								e.preventDefault()
-								up(e.shiftKey)
+								onArrowUp(e.shiftKey)
 							break
 							case 39://ARROW RIGHT
 								e.preventDefault()
-								dispatch(ACTION.Cursor.MOVE_RIGHT(e.shiftKey))
+								onArrowRight(e.shiftKey)
 							break
 							case 40://ARROW DOWN
 								e.preventDefault()
-								down(e.shiftKey)
+								onArrowDown(e.shiftKey)
 							break
 							}
 						}
@@ -69,7 +70,6 @@ export default class Listener extends Component{
 	}
 
 	componentDidUpdate(){
-		this.input.scrollIntoView()
 		this.input.focus()
 	}
-}
+})

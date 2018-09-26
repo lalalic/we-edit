@@ -1,5 +1,6 @@
 import React from "react"
 import {Container} from "../all"
+import {Group} from "../composed"
 import recomposable from "./recomposable"
 
 export default class extends recomposable(Container){

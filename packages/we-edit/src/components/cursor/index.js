@@ -7,14 +7,12 @@ import Input from "./input"
 
 export default class Cursor extends Component{
 	render(){
-		const {active,children,editable, onKeyUp, onKeyDown,...props}=this.props
+		const {active,children,editable, ...props}=this.props
 
 		return (
 			<g>
 				{createPortal(
 					<Input {...props}
-						up={onKeyUp}
-						down={onKeyDown}
 						height={children ? 1 : props.height}
 						editable={editable}/>,document.body)
 				}

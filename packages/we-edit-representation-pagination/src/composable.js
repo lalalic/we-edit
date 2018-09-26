@@ -170,6 +170,22 @@ function Locatable(A){
 					"data-type":this.getComposeType()
 				})
 		}
+
+        nextCursorable(){
+            return false
+        }
+
+        prevCursorable(){
+            return false
+        }
+
+        nextSelectable(){
+            return this.nextCursorable(...arguments)
+        }
+
+        prevSelectable(){
+            return this.prevCursorable(...arguments)
+        }
 	}
 }
 

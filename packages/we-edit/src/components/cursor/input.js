@@ -12,7 +12,7 @@ export default class Input extends Component{
 	}
 
 	render(){
-		const {top,left,height,color,fontFamily,fontSize,up,down}=this.props
+		const {top,left,height,color,fontFamily,fontSize,...props}=this.props
 		let style={height,margin:0,padding:0,border:0,left:0,top:0,position:"absolute",outline:"none"}
 		if(!this.isInView(left,top)){
 			style.position="fixed"
@@ -26,7 +26,7 @@ export default class Input extends Component{
 				>
 				<div unselectable="on"
 					style={{left,top,position:"fixed",height:0,width:0}}>
-					<Listener up={up} down={down}
+					<Listener
 						style={{
 							...style,
 							color,
@@ -34,7 +34,9 @@ export default class Input extends Component{
 							fontFamily,
 							width:2,
 							background:"transparent"
-						}}/>
+						}}
+						{...props}
+						/>
 				</div>
 			</Waypoint>
 		)
