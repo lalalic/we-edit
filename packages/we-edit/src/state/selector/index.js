@@ -156,3 +156,12 @@ export function prevCursorable(state,id){
 	},id)
 	return found
 }
+
+
+export function nextSelectable(state,id){
+	return nextCursorable(...arguments)
+}
+
+export function prevSelectable(state,id){
+	return prevSelectable(...arguments)
+}

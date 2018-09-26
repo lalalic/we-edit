@@ -1,4 +1,4 @@
-import {getContent, nextCursorable, prevCursorable,getSelection} from "../selector"
+import {getContent, nextCursorable, nextSelectable, prevCursorable, prevSelectable, getSelection} from "../selector"
 import {ACTION as History} from "../undoable"
 import Query from "../selector/query"
 
@@ -11,9 +11,9 @@ function isInSameParagraph(state,id1,id2){
 }
 
 export const Cursor={
-	ACTIVE: docId=>({type:"we-edit/selection/DOC",payload:docId})
-	,AT: (contentId, at)=>Selection.SELECT(contentId, at)
-	,MOVE_RIGHT: (shift)=>(dispatch,getState)=>{
+	ACTIVE: docId=>({type:"we-edit/selection/DOC",payload:docId}),
+	AT: (contentId, at)=>Selection.SELECT(contentId, at),
+	MOVE_RIGHT: (shift)=>(dispatch,getState)=>{
 		const state=getState()
 		let {start,end,cursorAt}=getSelection(state)
 
@@ -56,8 +56,8 @@ export const Cursor={
 			}else
 				dispatch(Selection.SELECT(end.id,end.at))
 		}
-	}
-	,MOVE_LEFT: (shift)=>(dispatch,getState)=>{
+	},
+	MOVE_LEFT: (shift)=>(dispatch,getState)=>{
 		const state=getState()
 		let {start,end,cursorAt}=getSelection(state)
 		if(start.id==end.id && start.at==end.at){
@@ -102,13 +102,13 @@ export const Cursor={
 			}else
 				dispatch(Selection.SELECT(start.id,start.at))
 		}
-	}
+	},
 }
 
 export const Text={
-	INSERT: t=>({type:"we-edit/text/INSERT",payload:t})
-	,REMOVE: n=>({type:"we-edit/text/REMOVE",payload:n})
-	,RETURN: n=>({type:"we-edit/text/RETURN"})
+	INSERT: t=>({type:"we-edit/text/INSERT",payload:t}),
+	REMOVE: n=>({type:"we-edit/text/REMOVE",payload:n}),
+	RETURN: n=>({type:"we-edit/text/RETURN"}),
 }
 
 export const Selection={
@@ -135,7 +135,7 @@ export const Selection={
 	COPY: ()=>({type:"we-edit/selection/COPY"}),
 	PASTE: (id,at)=>({type:"we-edit/selection/PASTE",payload:{id,at}}),
 	CUT: ()=>({type:"we-edit/selection/CUT"}),
-	STYLE: payload=>({type:"we-edit/selection/STYLE",payload})
+	STYLE: payload=>({type:"we-edit/selection/STYLE",payload}),
 }
 
 export const Entity={
