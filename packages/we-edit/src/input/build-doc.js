@@ -11,7 +11,6 @@ import {getSelection} from "../state/selector"
 import undoable from "../state/undoable"
 import * as reducer from "../state/reducer"
 
-import {LocalStore} from "../components/with-store"
 import uuid from "../tools/uuid"
 import ContextProvider from "./context-provider"
 
@@ -190,4 +189,30 @@ const createElementFactoryBuilder=inputTypeInstance=>content=>(type, props, chil
 	}
 
 	return {id,type,props,children}
+}
+
+
+class LocalStore{
+	constructor(store,key, getState){
+		this.key=key
+		this.getState=()=>{
+			try{
+				if(getState){
+					return getState(store.getState())
+				}
+				return store.getState()[key]
+			}catch(e){
+				return {}
+			}
+		}
+
+		this.dispatch=action=>{
+			if(typeof(action)=="function"){
+				return action(this.dispatch, this.getState)
+			}
+			return store.dispatch(action)
+		}
+		this.subscribe=store.subscribe.bind(store)
+		this.replaceReducer=store.replaceReducer.bind(store)
+	}
 }

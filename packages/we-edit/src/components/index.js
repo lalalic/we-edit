@@ -7,10 +7,6 @@ export {default as Representation} from "./representation"
 
 export {WeEdit} from "./we-edit"
 
-export {WithStore} from "./with-store"
-
-export {WithSelection} from "./with-selection"
-
 export {onlyWhen, when} from "./event"
 
 export {default as Cursor} from "./cursor"

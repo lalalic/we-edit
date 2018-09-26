@@ -5,8 +5,6 @@ import {Provider} from "react-redux"
 import EventEmitter from "events"
 import memoize from "memoize-one"
 
-import {WithSelection} from "we-edit"
-
 import Status from "./status"
 import Ribbon from "./ribbon"
 import Canvas from "./canvas"

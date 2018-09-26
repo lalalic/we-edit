@@ -35,7 +35,7 @@ export default compose(
         const {position={height:0,x:0,y:0},path={path:""}}=this.getCursorSelection(content, selection, scale)
         return (
             <Fragment>
-                {cursor && React.cloneElement(cursor, position)}
+                {cursor && React.cloneElement(cursor, {...position,/* nextCursorable, preCursorable, nextSelectable, preSelectable*/})}
                 {range && React.cloneElement(range, path)}
             </Fragment>
         )
@@ -65,13 +65,11 @@ export default compose(
         const {updateSelection}=this.props
         const {cursorAt, ...a}=selection.toJS()
         const {id,at}=a[cursorAt]
-        let position=undefined
+        let position=this.position(id, at)
         let path=undefined
         try{
             if(a.start.id!=a.end.id || a.start.at!=a.end.at){
                 path=this.getRangePath(a.start,a.end)
-            }else{
-                position=this.position(id, at)
             }
         }catch(e){
             console.warn(e)
