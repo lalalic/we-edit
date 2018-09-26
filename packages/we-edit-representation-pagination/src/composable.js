@@ -170,17 +170,6 @@ function Locatable(A){
 					"data-type":this.getComposeType()
 				})
 		}
-
-        _containerize(element, Wrapper=Group){
-            const {id}=this.props
-            const {width,height}=element.props
-            return React.createElement(Wrapper,{
-                "data-type":this.getComposeType(),
-                "data-content":id,
-                width,height,
-                children:element
-            })
-        }
 	}
 }
 

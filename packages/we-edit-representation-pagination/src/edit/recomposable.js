@@ -65,20 +65,9 @@ export default function recomposable(Content){
 
 			return super.render()
 		}
+
+
 	}
 }
 
 recomposable.enable=enablify(recomposable)
-
-recomposable.containerize=A=>class extends recomposable(A){
-	appendComposed(element){
-		const {type,id}=this.props
-        const {width,height}=element.props
-        super.appendComposed(React.createElement(Group,{
-            "data-type":type,
-            "data-content":id,
-            width,height,
-            children:element
-        }))
-	}
-}
