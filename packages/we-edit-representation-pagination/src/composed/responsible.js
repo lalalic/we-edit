@@ -14,10 +14,6 @@ const CursorShape=({y=0,x=0,height=0,color})=>(
 
 export default class Responsible extends Component{
     static displayName="composed-document-with-cursor"
-    static contextTypes={
-        docId: PropTypes.string,
-        activeDocStore: PropTypes.any,
-    }
 
 	static childContextTypes={
         onPageHide: PropTypes.func,
@@ -25,8 +21,6 @@ export default class Responsible extends Component{
 	}
 
     scale=this.props.scale
-    onArrowUp=this.onArrowUp.bind(this)
-    onArrowDown=this.onArrowDown.bind(this)
     onMove=this.onMove.bind(this)
     onResize=this.onResize.bind(this)
     onRotate=this.onRotate.bind(this)
@@ -41,6 +35,27 @@ export default class Responsible extends Component{
     get locator(){
         return this.refs.locator.getWrappedInstance()
     }
+	
+	get dispatch(){
+		return this.locator.props.dispatch
+	}
+	
+	get selection(){
+		return this.locator.props.selection.toJS()
+	}
+	
+	get cursor(){
+		const {cursorAt, ...a}=this.selection
+        return a[cursorAt]
+	}
+	
+	getComposer(id){
+		return this.props.getComposer(id)
+	}
+	
+	getContent(id){
+		return this.locator.getContent(id)
+	}
 
     updateCursorAndSelection(){
         //this.locator.setState({})
@@ -73,8 +88,12 @@ export default class Responsible extends Component{
                         ref="locator"
                         cursor={
                             <Cursor
-                                onArrowUp={this.onArrowUp}
-                                onArrowDown={this.onArrowDown}
+								keys={{
+									37:e=>this.onKeyArrowLeft(e),//move left
+									38:e=>this.onKeyArrowUp(e),//move up
+									39:e=>this.onKeyArrowRight(e),//move right
+									40:e=>this.onKeyArrowDown(e),//move down
+								}}
                                 children={<CursorShape/>}
         						/>
                         }
@@ -108,7 +127,7 @@ export default class Responsible extends Component{
     }
 
     componentDidMount(){
-        this.context.activeDocStore.dispatch(ACTION.Cursor.ACTIVE(this.props.docId))
+        this.dispatch(ACTION.Cursor.ACTIVE(this.props.docId))
         this.locator.setState({content:this.props.contentHash, canvas:this.canvas})
         //this.emit(`emitted${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
     }
@@ -122,33 +141,27 @@ export default class Responsible extends Component{
 	}
 
     active(){
-        let {docId, activeDocStore}=this.context
-        let {active}=getSelection(activeDocStore.getState())
-        if(active!=docId)
-            activeDocStore.dispatch(ACTION.Cursor.ACTIVE(docId))
+		this.dispatch(ACTION.Cursor.ACTIVE(this.props.docId))            
     }
 
     onRotate(e){
-        this.context.activeDocStore.dispatch(ACTION.Entity.ROTATE(e))
+        this.dispatch(ACTION.Entity.ROTATE(e))
     }
 
     onResize(e){
-        this.context.activeDocStore.dispatch(ACTION.Entity.RESIZE(e))
+        this.dispatch(ACTION.Entity.RESIZE(e))
     }
 
     onMove(id,at){
-        this.context.activeDocStore.dispatch(ACTION.Selection.MOVE(id,at))
+        this.dispatch(ACTION.Selection.MOVE(id,at))
     }
 
     onClick(e){
-        const dispatch=this.context.activeDocStore.dispatch
-        const docId=this.props.docId
-        const $=this.locator
         const target=e.target
 
         switch(target.nodeName){
 			case "image":
-				dispatch(ACTION.Selection.SELECT(target.dataset.content))
+				this.dispatch(ACTION.Selection.SELECT(target.dataset.content))
 			break
 			default:{
 				const locate=()=>{
@@ -156,9 +169,9 @@ export default class Responsible extends Component{
 						let text=target.textContent
 						let {endat, content:id}=target.dataset
 						let [x]=offset(e, target)
-                        return $.locate(id,parseInt(endat),x)
-						const measure=$.getComposer(id).measure
-						let end=measure.widthString($.toCanvasCoordinate(x), text)
+                        return this.locator.locate(id,parseInt(endat),x)
+						const measure=this.locator.getComposer(id).measure
+						let end=measure.widthString(this.locator.toCanvasCoordinate(x), text)
 						let at=endat-text.length+end
 						return {id,at}
 					}else{
@@ -183,15 +196,15 @@ export default class Responsible extends Component{
 
 				if(id){
 					if(!e.shiftKey){
-						dispatch(ACTION.Cursor.AT(id,at))
+						this.dispatch(ACTION.Cursor.AT(id,at))
 					}else{
-						let {end}=getSelection(this.context.activeDocStore.getState())
-						let {left,top}=$.position(id,at)
-						let {left:left1,top:top1}=$.position(end.id,end.at)
+						let {end}=this.selection
+						let {left,top}=this.locator.position(id,at)
+						let {left:left1,top:top1}=this.locator.position(end.id,end.at)
 						if(top<top1 || (top==top1 && left<=left1)){
-							dispatch(ACTION.Selection.START_AT(id,at))
+							this.dispatch(ACTION.Selection.START_AT(id,at))
 						}else{
-							dispatch(ACTION.Selection.SELECT(end.id, end.at, id, at))
+							this.dispatch(ACTION.Selection.SELECT(end.id, end.at, id, at))
 						}
 					}
 				}
@@ -203,8 +216,6 @@ export default class Responsible extends Component{
     }
 
     onSelect(selection){
-        const dispatch=this.context.activeDocStore.dispatch
-        const $=this.locator
         const locate=a=>{
             let node=selection[`${a}Node`].parentNode
             if(!node.dataset.content)
@@ -223,17 +234,17 @@ export default class Responsible extends Component{
         if(!end)
             return
 
-        let {left:left0,top:top0}=$.position(first.id, first.at)
-        let {left:left1,top:top1}=$.position(end.id, end.at)
+        let {left:left0,top:top0}=this.locator.position(first.id, first.at)
+        let {left:left1,top:top1}=this.locator.position(end.id, end.at)
 
         const forward=a=>{
-            dispatch(ACTION.Selection.SELECT(first.id,first.at,end.id,end.at))
-            dispatch(ACTION.Selection.END_AT(end.id,end.at))
+            this.dispatch(ACTION.Selection.SELECT(first.id,first.at,end.id,end.at))
+            this.dispatch(ACTION.Selection.END_AT(end.id,end.at))
         }
 
         const backward=a=>{
-            dispatch(ACTION.Selection.SELECT(end.id,end.at,first.id,first.at))
-            dispatch(ACTION.Selection.START_AT(end.id,end.at))
+            this.dispatch(ACTION.Selection.SELECT(end.id,end.at,first.id,first.at))
+            this.dispatch(ACTION.Selection.START_AT(end.id,end.at))
         }
 
         if(top0>top1){
@@ -258,74 +269,104 @@ export default class Responsible extends Component{
 
         this.active()
     }
+	
+	locate(nextOrprev, CursorableOrSelectable){
+		let {id,at}=this.cursor
+        const next=(id,at)=>{
+            let composer=this.getComposer(id)
+            if(composer){
+                return composer[`${nextOrprev}${CursorableOrSelectable}`](at)
+            }
+            return false
+        }
 
-	onArrowUp(shiftKey){
-		const {activeDocStore}=this.context
-		const dispatch=activeDocStore.dispatch
-		const state=activeDocStore.getState()
-		const selection=getSelection(state)
-		const {start,end,cursorAt}=selection
-		const cursor=selection[cursorAt]
-		const $=this.locator
 
+        if((at=next(id,at))===false){
+            this.getContent(id)[`${nextOrprev=="next" ? "forward" : "backword"}Until`](a=>{
+                    if((at=next(id=a.get("id")))!==false)
+                        return true
+                })
+        }
+        if(at!==false)
+            return {id,at}
+        return this.cursor
+	}
+	onKeyArrowUp({shiftKey}){
+		const {start,end,cursorAt}=this.selection
+		const cursor=this.cursor
 
 		if(!shiftKey){
-			let {id,at}=$.prevLine(cursor.id, cursor.at)
-			dispatch(ACTION.Cursor.AT(id,at))
+			let {id,at}=this.locator.prevLine(cursor.id, cursor.at)
+			this.dispatch(ACTION.Cursor.AT(id,at))
 
 		}else{
-			let {id,at}=$.prevLine(cursor.id, cursor.at,true)
+			let {id,at}=this.locator.prevLine(cursor.id, cursor.at,true)
 			if(start.id==end.id && start.at==end.at){
-				dispatch(ACTION.Selection.START_AT(id,at))
+				this.dispatch(ACTION.Selection.START_AT(id,at))
 			}else{
 				if(cursorAt=="start")
-					dispatch(ACTION.Selection.START_AT(id,at))
+					this.dispatch(ACTION.Selection.START_AT(id,at))
 				else if(cursorAt=="end"){
-					let {left,top}=$.position(id,at)
-					let {left:left0,top:top0}=$.position(start.id, start.at)
+					let {left,top}=this.locator.position(id,at)
+					let {left:left0,top:top0}=this.locator.position(start.id, start.at)
 					if((top0==top && left<left0) //same line, new point is on the left of start
 						|| (top<top0)) //above start point line
 						{
-						dispatch(ACTION.Selection.SELECT(id,at,start.id,start.at))
-						dispatch(ACTION.Selection.START_AT(id,at))
+						this.dispatch(ACTION.Selection.SELECT(id,at,start.id,start.at))
+						this.dispatch(ACTION.Selection.START_AT(id,at))
 					}else{
-						dispatch(ACTION.Selection.END_AT(id,at))
+						this.dispatch(ACTION.Selection.END_AT(id,at))
 					}
 				}
 			}
 		}
 	}
 
-	onArrowDown(shiftKey){
-		const {activeDocStore,query}=this.context
-		const dispatch=activeDocStore.dispatch
-		const state=activeDocStore.getState()
-		const selection=getSelection(state)
-		const {start,end,cursorAt}=selection
-		const cursor=selection[cursorAt]
-		const $=this.locator
+	onKeyArrowDown({shiftKey}){
+		const {start,end,cursorAt}=this.selection
+		const cursor=this.cursor
 
 		if(!shiftKey){
-			let {id,at}=$.nextLine(cursor.id,cursor.at)
-			dispatch(ACTION.Cursor.AT(id,at))
+			let {id,at}=this.locator.nextLine(cursor.id,cursor.at)
+			this.dispatch(ACTION.Cursor.AT(id,at))
 		}else{
-			let {id,at}=$.nextLine(cursor.id,cursor.at, true)
+			let {id,at}=this.locator.nextLine(cursor.id,cursor.at, true)
 			if(start.id==end.id && start.at==end.at){
-				dispatch(ACTION.Selection.END_AT(id,at))
+				this.dispatch(ACTION.Selection.END_AT(id,at))
 			}else{
 				if(cursorAt=="end")
-					dispatch(ACTION.Selection.END_AT(id,at))
+					this.dispatch(ACTION.Selection.END_AT(id,at))
 				else if(cursorAt=="start"){
-					let {left,top}=$.position(id,at)
-					let {left:left1, top:top1}=$.position(end.id, end.at)
+					let {left,top}=this.locator.position(id,at)
+					let {left:left1, top:top1}=this.locator.position(end.id, end.at)
 					if((top==top1 && left>left1) || (top>top1)){
-						dispatch(ACTION.Selection.SELECT(end.id,end.at,id,at))
-						dispatch(ACTION.Selection.END_AT(id,at))
+						this.dispatch(ACTION.Selection.SELECT(end.id,end.at,id,at))
+						this.dispatch(ACTION.Selection.END_AT(id,at))
 					}else{
-						dispatch(ACTION.Selection.START_AT(id,at))
+						this.dispatch(ACTION.Selection.START_AT(id,at))
 					}
 				}
 			}
 		}
 	}
+
+	onKeyArrowLeft({shiftKey}){
+        if(shiftKey){
+            const {id,at}=this.locate("prev","Selectable")
+            this.dispatch(ACTION.Selection.START_AT(id,at))
+        }else{
+            const{id,at}=this.locate("prev","Cursorable")
+            this.dispatch(ACTION.Cursor.AT(id,at))
+        }
+	}
+	
+	onKeyArrowRight({shiftKey}){
+        if(shiftKey){
+            const {id,at}=this.locate("next","Selectable")
+            this.dispatch(ACTION.Selection.END_AT(id,at))
+        }else{
+            const {id,at}=this.locate("next","Cursorable")
+            this.dispatch(ACTION.Cursor.AT(id,at))
+        }
+	}	
 }
