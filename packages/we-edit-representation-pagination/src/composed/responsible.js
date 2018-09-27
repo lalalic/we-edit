@@ -270,8 +270,10 @@ export default class Responsible extends Component{
         this.active()
     }
 	
-	locate(nextOrprev, CursorableOrSelectable){
-		let {id,at}=this.cursor
+	locate(nextOrprev, CursorableOrSelectable, id, at){
+		if(id==undefined){
+			({id,at}=this.cursor)
+		}
         const next=(id,at)=>{
             let composer=this.getComposer(id)
             if(composer){
@@ -296,8 +298,10 @@ export default class Responsible extends Component{
 		const cursor=this.cursor
 
 		if(!shiftKey){
-			let {id,at}=this.locator.prevLine(cursor.id, cursor.at)
-			this.dispatch(ACTION.Cursor.AT(id,at))
+			let {id, offset,x}=this.locator.prevLine(cursor.id, cursor.at)
+			let cursorable=this.locate("prev","Cursorable",id)
+			cursorable.at=this.getComposer(cursorable.id).distanceAt(x,offset)
+			this.dispatch(ACTION.Cursor.AT(cursorable.id,cursorable.at))
 
 		}else{
 			let {id,at}=this.locator.prevLine(cursor.id, cursor.at,true)
@@ -327,8 +331,10 @@ export default class Responsible extends Component{
 		const cursor=this.cursor
 
 		if(!shiftKey){
-			let {id,at}=this.locator.nextLine(cursor.id,cursor.at)
-			this.dispatch(ACTION.Cursor.AT(id,at))
+			let {id, offset,x}=this.locator.prevLine(cursor.id, cursor.at)
+			let cursorable=this.locate("next","Cursorable",id)
+			cursorable.at=this.getComposer(cursorable.id).distanceAt(x,offset)
+			this.dispatch(ACTION.Cursor.AT(cursorable.id,cursorable.at))
 		}else{
 			let {id,at}=this.locator.nextLine(cursor.id,cursor.at, true)
 			if(start.id==end.id && start.at==end.at){

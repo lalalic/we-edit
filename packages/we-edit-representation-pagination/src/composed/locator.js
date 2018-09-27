@@ -190,7 +190,7 @@ export default compose(
         }
     }
 
-    nextLine(id,at, selecting){
+    nextLine(id,at){
         const position=this.position(id,at)
         if(!position)
             return
@@ -212,43 +212,21 @@ export default compose(
 
             return {id,at}
         }
-		const firstContent=nLine.querySelector("[data-content]")
-		if(firstContent){
-			if(firstContent.dataset.type=="table"){
-				let row=firstContent.querySelector('[data-type="row"]')
-				return {id:row.dataset.content, at:1}
-			}
-		}else{
-			return {id,at}
-		}
-
-        const contents=Array.from(nLine.querySelectorAll("[data-content]"))
+		
+		const contents=Array.from(nLine.querySelectorAll("[data-content]"))
         const i=contents.map(a=>a.getBoundingClientRect().left)
             .concat([left])
             .sort((a,b)=>a-b)
-            .indexOf(left)
-        let node=contents[i>0 ? i-1 : 0]
-        if(!node)
-            return {id,at}
-
-		switch(node.dataset.type){
-			case "image":
-				return {id:node.dataset.content, at:1}
-			case "text":
-				break
-			default:
-				node=node.querySelector('[data-type="text"]')
+            .lastIndexOf(left)
+		const node=contents[i-1]
+        const {content,endat}=node.dataset
+		const distance=left-node.getBoundingClientRect().left
+		const point=this.asCanvasPoint({left:distance,top:0})
+		return {
+			id:content, 
+			x:point.x,
+			offset:endat!=undefined ? parseInt(endat)-node.textContent.length : undefined//only for text
 		}
-		//suppose text positioning
-        if(!node)
-            return {id,at}
-        const {content, endat}=node.dataset
-        const rect=node.getBoundingClientRect()
-        if(left>rect.left){
-            return this.locate(content,parseInt(endat),left-rect.left)
-        }else{
-            return {id:content, at: endat-node.textContent.length}
-        }
     }
 
     prevLine(id,at, selecting){
@@ -274,44 +252,20 @@ export default compose(
             return {id,at}
         }
 
-		const firstContent=nLine.querySelector("[data-content]")
-		if(firstContent){
-			if(firstContent.dataset.type=="table"){
-				let row=firstContent.querySelector('[data-type="row"]')
-				return {id:row.dataset.content, at:1}
-			}
-		}else{
-			return {id,at}
-		}
-
-        const contents=Array.from(nLine.querySelectorAll("[data-content]"))
+		const contents=Array.from(nLine.querySelectorAll("[data-content]"))
         const i=contents.map(a=>a.getBoundingClientRect().left)
             .concat([left])
             .sort((a,b)=>a-b)
-            .indexOf(left)
-        let node=contents[i>0 ? i-1 : 0]
-        if(!node)
-            return {id,at}
-
-
-		switch(node.dataset.type){
-			case "image":
-				return {id:node.dataset.content, at:1}
-			case "text":
-				break
-			default:
-				node=node.querySelector('[data-type="text"]')
+            .lastIndexOf(left)
+		const node=contents[i-1]
+        const {content,endat}=node.dataset
+		const distance=left-node.getBoundingClientRect().left
+		const point=this.asCanvasPoint({left:distance,top:0})
+		return {
+			id:content, 
+			x:point.x,
+			offset:endat!=undefined ? parseInt(endat)-node.textContent.length : undefined//only for text
 		}
-		//suppose text positioning
-        if(!node)
-            return {id,at}
-        const {content, endat}=node.dataset
-        const rect=node.getBoundingClientRect()
-        if(left>rect.left){
-            return this.locate(content,parseInt(endat),left-rect.left)
-        }else{
-            return {id:content, at: endat}
-        }
     }
 
     _getRangeRects(p0, p1){

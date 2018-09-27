@@ -186,6 +186,10 @@ function Locatable(A){
         prevSelectable(){
             return this.prevCursorable(...arguments)
         }
+		
+		distanceAt(x,offset){
+			return 0
+		}
 	}
 }
 
