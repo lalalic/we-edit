@@ -21,9 +21,33 @@ export default class extends recomposable(Base){
         }
     }
 	
-	distanceAt(x, offset=0){
-		offset=parseInt(offset)
-		let text=this.props.children.substring(offset)
-		return this.measure.widthString(x,text)+offset
+	distanceAt(x, node){
+		const endat=parseInt(node.dataset.endat)
+		const offset=endat-node.textContent.length
+		return offset+this.measure.widthString(Math.max(x,0),node.textContent)
+	}
+	
+	position(canvas, at){
+		try{
+			
+			const {id}=this.props
+			const rects=canvas.getClientRects(id)
+			const i=rects.map(a=>parseInt(a.node.dataset.endat))
+					.concat([at])
+					.sort((a,b)=>a-b)
+					.indexOf(at)
+			let x=rects[i].x
+			const {y,node}=rects[i]
+			const text=node.textContent
+			const endat=parseInt(node.dataset.endat)
+			const {fontSize, fontFamily,height}=this.measure.defaultStyle
+
+			x+=this.measure.stringWidth(text.substring(0,at-(endat-text.length)))
+			return {
+				x,y,height,fontSize, fontFamily,node
+			}
+		}catch(e){
+			debugger
+		}
 	}
 }

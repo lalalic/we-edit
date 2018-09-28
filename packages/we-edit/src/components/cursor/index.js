@@ -6,9 +6,9 @@ import Flash from "./flash"
 import Input from "./input"
 
 export default class Cursor extends Component{
+	static Flash=Flash
 	render(){
 		const {active,children,editable, ...props}=this.props
-
 		return (
 			<g>
 				{createPortal(
@@ -16,7 +16,7 @@ export default class Cursor extends Component{
 						height={children ? 1 : props.height}
 						editable={editable}/>,document.body)
 				}
-				{children && <Flash children={React.cloneElement(children, props)}/>}
+				{React.cloneElement(children, props)}
 			</g>
 		)
 	}

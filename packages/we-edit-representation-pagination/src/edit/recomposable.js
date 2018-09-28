@@ -65,8 +65,11 @@ export default function recomposable(Content){
 
 			return super.render()
 		}
-
-
+		
+		componentWillUnmount(){
+			//console.log(`${this.getComposeType()}[${this.props.id}] unmounting`)
+			this.context.unmount && this.context.unmount(this)
+		}
 	}
 }
 

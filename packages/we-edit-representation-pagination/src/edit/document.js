@@ -49,8 +49,14 @@ export default class Document extends Super{
 	getChildContext(){
 		let shouldRemoveComposed=this.shouldRemoveComposed.bind(this)
 		let shouldContinueCompose=this.shouldContinueCompose.bind(this)
-		let mount=a=>this.composers.set(a.props.id,a)
-		let unmount=a=>this.composers.delete(a.props.id)
+		let mount=a=>{
+			console.log(`${a.getComposeType()}[${a.props.id}] mounted`)
+			this.composers.set(a.props.id,a)
+		}
+		let unmount=a=>{
+			console.log(`${a.getComposeType()}[${a.props.id}] unmounted`)
+			this.composers.delete(a.props.id)
+		}
 		return {
 			...super.getChildContext(),
 			shouldContinueCompose,
@@ -69,14 +75,20 @@ export default class Document extends Super{
 		const content=(<Responsible
 							docId={docId}
 							contentHash={contentHash}
-							getComposer={id=>this.composers.get(id)}
+							getComposer={id=>{
+								if(this.composers.has(id)){
+									return this.composers.get(id)
+								}else{
+									debugger
+								}
+							}}
 							ref={a=>this.clientDocument=a}
 							scale={scale}
 							pgGap={pageGap}
 							pages={pages}
 							children={!this.isAllChildrenComposed()
 									&& (<ComposeMoreTrigger
-			                            y={ComposedDocument.composedY(pages, pageGap)}
+			                            y={ComposedDocument.composedY(pages, pageGap)||(viewport.height-10)}
 			                            onEnter={y=>this.setState({y,mode:"viewport"})}
 			                            />)
 								}
@@ -123,21 +135,18 @@ export default class Document extends Super{
 
 	initViewport(viewporter){
 		const container=(function getFrameParent(node){
-			const isElement = node instanceof HTMLElement;
-			if(isElement){
-				const {overflowY,width,height} = window.getComputedStyle(node);
-				if(width>0 && height>0)
-					return node
-				const isScrollable = overflowY !== 'visible' && overflowY !== 'hidden';
-				if(isScrollable)
-					return node
-			}
+			const {overflowY,width,height} = window.getComputedStyle(node);
+			if(width>0 && height>0)
+				return node
+			const isScrollable = overflowY !== 'visible' && overflowY !== 'hidden';
+			if(isScrollable)
+				return node
 
 			if (!node) {
 				return null;
 			}
 
-			return getFrameParent(node.parentNode) || document.body;
+			return getFrameParent(node.closest('[style*="overflow"]')) || document.body;
 		})(viewporter);
 
 		const {height}=container.getBoundingClientRect()

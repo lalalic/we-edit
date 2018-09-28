@@ -4,15 +4,13 @@ import PropTypes from "prop-types"
 export default class Flash extends Component{
 	state={color:"black"}
 	componentDidMount(){
-		this.timer=setInterval(()=>this.setState({color:this.state.color=="transparent" ? "black" : "transparent"}),500)
+		this.timer=setInterval(()=>this.setState({color:this.state.color=="transparent" ? this.props.color : "transparent"}),500)
 	}
 
 	render(){
-		const {children,active=true}=this.props
-		let props={...this.state}
-		if(!active){
-			props.color="lightgray"
-		}
+		const {children, toProps=color=>({stroke:color})}=this.props
+		const {color}=this.state
+		let props=toProps(color)
 		return React.cloneElement(children,props)
 	}
 

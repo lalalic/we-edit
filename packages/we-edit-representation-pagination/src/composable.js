@@ -163,6 +163,8 @@ function Locatable(A){
 			...A.propTypes,
 			id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired
 		}
+		
+		splittable=true
 
 		createComposed2Parent(){
 			return React.cloneElement(super.createComposed2Parent(...arguments),{
@@ -172,23 +174,44 @@ function Locatable(A){
 		}
 
         nextCursorable(){
-            return false
+            return this.props.nextCursorable ? this.props.nextCursorable() : false
         }
 
         prevCursorable(){
-            return false
+            return this.props.prevCursorable ? this.props.prevCursorable() : false
         }
 
         nextSelectable(){
-            return this.nextCursorable(...arguments)
+            return this.props.nextSelectable ? this.props.nextSelectable(...arguments) : this.nextCursorable(...arguments)
         }
 
         prevSelectable(){
-            return this.prevCursorable(...arguments)
+            return this.props.prevSelectable ? this.props.prevSelectable(...arguments) : this.prevCursorable(...arguments)
         }
 		
-		distanceAt(x,offset){
+		distanceAt(x,node){
 			return 0
+		}
+		
+		position(locator, at){
+			const {id}=this.props
+			if(at==0){
+                const {x,y,width,height,node}=locator.getClientRect(id)
+                return {x,y,width,height,node}
+            }else{
+                const {x,y,width,height,node}=locator.getClientRects(id).pop()
+                return {
+                    x:x+width,
+					y,
+					width,
+                    height,
+                    node
+                }
+            }
+		}
+		
+		getCursor(){
+			return null
 		}
 	}
 }

@@ -8,8 +8,8 @@ import {Document as ComposedDocument} from "../composed"
 import SelectionShape from "./selection"
 import Locator from "./locator"
 
-const CursorShape=({y=0,x=0,height=0,color})=>(
-    <path d={`M${x} ${y} v${height}`} stroke={color} strokeWidth={1}/>
+const CursorShape=({y=0,x=0,height=0,color="black"})=>(
+    <Cursor.Flash color={color}><path d={`M${x} ${y} v${height}`} strokeWidth={1}/></Cursor.Flash>
 )
 
 export default class Responsible extends Component{
@@ -66,19 +66,13 @@ export default class Responsible extends Component{
         return (
             <ComposedDocument {...props}
 				innerRef={a=>{this.canvas=a}}
-                onClick={e=>{
-                    if(this.eventAlreadyDone==e.timeStamp)
-                        return
-
-                    this.onClick(e)
-                }}
-                onMouseUp={e=>{
-                    let sel=this.documentSelection()
-                    if(sel.type=="Range"){
-                        this.onSelect(sel)
-                        this.eventAlreadyDone=e.timeStamp
-                    }
-                }}>
+                onClick={e=>this.onClick(e)}
+				onMouseMove={({buttons,...e})=>{
+					if(!(buttons&0x1))
+						return
+					//this.onClick({...e, shiftKey:true})
+				}}
+				>
 				<Fragment>
                     {children}
 
@@ -94,15 +88,18 @@ export default class Responsible extends Component{
 									39:e=>this.onKeyArrowRight(e),//move right
 									40:e=>this.onKeyArrowDown(e),//move down
 								}}
-                                children={<CursorShape/>}
-        						/>
+								>
+								
+								<CursorShape  
+									onMove={this.onMove}
+									onResize={this.onResize}
+									onRotate={this.onRotate}
+									/>
+									
+							</Cursor>
                         }
                         range={
-                            <Selection
-        						onMove={this.onMove}
-        						onResize={this.onResize}
-        						onRotate={this.onRotate}
-        						>
+                            <Selection onMove={this.onMove}>
         						<SelectionShape/>
         					</Selection>
                         }
@@ -156,62 +153,24 @@ export default class Responsible extends Component{
         this.dispatch(ACTION.Selection.MOVE(id,at))
     }
 
-    onClick(e){
-        const target=e.target
-
-        switch(target.nodeName){
-			case "image":
-				this.dispatch(ACTION.Selection.SELECT(target.dataset.content))
-			break
-			default:{
-				const locate=()=>{
-					if(target.nodeName=="text"){
-						let text=target.textContent
-						let {endat, content:id}=target.dataset
-						let [x]=offset(e, target)
-                        return this.locator.locate(id,parseInt(endat),x)
-						const measure=this.locator.getComposer(id).measure
-						let end=measure.widthString(this.locator.toCanvasCoordinate(x), text)
-						let at=endat-text.length+end
-						return {id,at}
-					}else{
-						let parent=target.parentNode
-						let text=parent.querySelector('text')
-						while(!text){
-							parent=parent.parentNode
-							if(parent)
-								text=parent.querySelector('text')
-							else
-								break
-						}
-						if(text){
-							let {endat, content:id}=text.dataset
-							return {id,at:parseInt(endat)}
-						}
-					}
-					return {}
+    onClick({shiftKey:selecting, target, clientX:left}){
+		const {id,x,node}=this.locator.around(target, left)
+		if(id){
+			const at=this.getComposer(id).distanceAt(x, node)
+			if(!selecting){
+				this.dispatch(ACTION.Cursor.AT(id,at))
+			}else{
+				let {end}=this.selection
+				let {left,top}=this.locator.position(id,at)
+				let {left:left1,top:top1}=this.locator.position(end.id,end.at)
+				if(top<top1 || (top==top1 && left<=left1)){
+					this.dispatch(ACTION.Selection.START_AT(id,at))
+				}else{
+					this.dispatch(ACTION.Selection.SELECT(end.id, end.at, id, at))
 				}
-
-				let {id,at}=locate()
-
-				if(id){
-					if(!e.shiftKey){
-						this.dispatch(ACTION.Cursor.AT(id,at))
-					}else{
-						let {end}=this.selection
-						let {left,top}=this.locator.position(id,at)
-						let {left:left1,top:top1}=this.locator.position(end.id,end.at)
-						if(top<top1 || (top==top1 && left<=left1)){
-							this.dispatch(ACTION.Selection.START_AT(id,at))
-						}else{
-							this.dispatch(ACTION.Selection.SELECT(end.id, end.at, id, at))
-						}
-					}
-				}
-				break
 			}
-        }
-
+		}
+		
         this.active()
     }
 
@@ -327,9 +286,16 @@ export default class Responsible extends Component{
 	
 	locateLine(nextOrPrev, cursorableOrSelectable){
 		const cursor=this.cursor
-		let {id, offset,x}=this.locator[`${nextOrPrev}Line`](cursor.id, cursor.at)
+		let {id, x, node}=this.locator[`${nextOrPrev}Line`](cursor.id, cursor.at)
 		let location=this.locate(nextOrPrev,cursorableOrSelectable,id,undefined,true)//inclusive
-		location.at=this.getComposer(location.id).distanceAt(x,offset)
+		if(id!==location.id){
+			if(nextOrPrev=="next"){
+				node=this.locator.getClientRect(location.id).node
+			}else{
+				node=this.locator.getClientRects(location.id).pop().node
+			}
+		}
+		location.at=this.getComposer(location.id).distanceAt(x,node)
 		return location
 	}
 	

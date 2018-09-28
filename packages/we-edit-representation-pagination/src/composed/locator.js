@@ -32,12 +32,33 @@ export default compose(
     render(){
         if(!this.state.canvas)
             return null
-        const {cursor, range, selection, scale, content}=this.props
-        const {position={height:0,x:0,y:0},path={path:""}}=this.getCursorSelection(content, selection, scale)
+        let {cursor, range, selection, scale, content}=this.props
+        const {position,rects}=this.getCursorSelection(content, selection, scale)
+		if(cursor  && position){
+			const {id}=position
+			let myShape=this.getComposer(id).getCursor()
+			if(myShape){
+				const {children:defaultCursorShape}=cursor.props
+				if(defaultCursorShape){
+					const {children:_forget, onMove, onResize, onRotate}=defaultCursorShape.props
+					myShape=React.cloneElement(myShape, {onMove, onResize, onRotate})
+				}
+				cursor=React.cloneElement(cursor,{children:myShape})
+			}
+			const {x,y,left,top,height,fontFamily,fontSize}=position
+			
+			cursor=React.cloneElement(cursor, {x,y,left,top,height,fontFamily,fontSize})
+		}
+		
+		if(range && rects){
+			range=React.cloneElement(range, {rects})
+		}
         return (
             <Fragment>
-                {cursor && React.cloneElement(cursor, position)}
-                {range && React.cloneElement(range, path)}
+				<g ref="cursor">
+					{cursor}
+				</g>
+                {range}
             </Fragment>
         )
     }
@@ -56,7 +77,19 @@ export default compose(
 			const style=this.getSelectionStyle(this.props.content,this.props.selection, scale)
             updateSelectionStyle(style)
         }
+		this.scrollCursorIntoView()
     }
+	
+	scrollCursorIntoView(){
+		const viewporter=this.canvas.closest('[style*="overflow"]')
+		const cursor=this.refs.cursor.getBoundingClientRect()
+		const {top,height,bottom=top+height}=viewporter.getBoundingClientRect()
+		if(cursor.bottom<top){
+			viewporter.scrollTop-=(top-cursor.top+cursor.height)
+		}else if(cursor.top>bottom){
+			viewporter.scrollTop+=(cursor.bottom-bottom+cursor.height)
+		}
+	}
 
     get canvas(){
         return this.state.canvas
@@ -67,15 +100,15 @@ export default compose(
         const {cursorAt, ...a}=selection.toJS()
         const {id,at}=a[cursorAt]
         let position=this.position(id, at)
-        let path=undefined
+        let rects=undefined
         try{
             if(a.start.id!=a.end.id || a.start.at!=a.end.at){
-                path=this.getRangePath(a.start,a.end)
+                rects=this.getRangeRects(a.start,a.end)
             }
         }catch(e){
             console.warn(e)
         }
-        return {position,path}
+        return {position,rects}
     })
 
     getBoundingClientRect(){
@@ -99,15 +132,29 @@ export default compose(
     getContent(id){
         return this.props.getContent(...arguments)
     }
-
-    locate(id,at,left){
-        let x=left/this.props.scale
-        const {endat, node}=this.getTextClientRect(id,at)
-        let text=node.textContent
-        const measure=this.getComposer(id).measure
-        const end=measure.widthString(x, text)
-        return {id,at:endat-text.length+end}
-    }
+	
+	around(node, left){
+		let {content}=node.dataset
+		if(content){
+			return {
+				id:content, 
+				x:Math.max(left-node.getBoundingClientRect().left,0)/this.props.scale, 
+				node
+			}
+		}
+		
+		let child=node.querySelector("[data-content]")
+		if(child){
+			return this.around(child,left)
+		}
+		
+		let parent=node.closest("[data-content]")
+		if(parent){
+			return this.around(parent,left)
+		}
+		
+		return {}
+	}
 
     closest(a,types,test=a=>a.getAttribute("class")){
         let found={}
@@ -141,53 +188,14 @@ export default compose(
             }
         }
 		
-		if(this.getComposer(id).getComposeType()=="text"){
-            const rect=this.getTextClientRect(id,at)
-            if(rect){
-                let x=rect.x
-                const {y,endat,node}=rect
-                const text=node.textContent
-                const measure=this.getComposer(id).measure
-                const {fontSize, fontFamily,height}=measure.defaultStyle
-
-                x+=measure.stringWidth(text.substring(0,at-(endat-text.length)))
-
-                return {
-                    id,at,
-                    x,y,
-                    ...this.asViewportPoint({x,y}),
-                    ...paginate(node),
-                    height,
-                    fontFamily,fontSize,
-                    node
-                }
-            }
-        }else{
-            if(at==0){
-                const node=this.canvas.querySelector(`[data-content="${id}"]`)
-                const {left,top,width,height}=node.getBoundingClientRect()
-                return {
-                    id,at,
-                    ...this.asCanvasPoint({left,top}),
-                    left,top,
-                    height,
-                    ...paginate(node),
-                    node
-                }
-            }else{
-                const node=Array.from(this.canvas.querySelectorAll(`[data-content="${id}"]`)).pop()
-                const {left,top,width,height}=node.getBoundingClientRect()
-                const right=left+width
-                return {
-                    id,at,
-                    ...this.asCanvasPoint({left:right,top}),
-                    left:right,top,
-                    height,
-                    ...paginate(node),
-                    node
-                }
-            }
-        }
+		const {x,y,width,node, ...position}=this.getComposer(id).position(this,at)
+		
+		return {
+			id,at,node,x,y,
+			...position,
+			...this.asViewportPoint({x,y}),
+			...paginate(node),
+		}
     }
 
     line(id,at,offset){
@@ -219,11 +227,10 @@ export default compose(
             .sort((a,b)=>a-b)
             .lastIndexOf(left)
 		const node=contents[i==0 ? 0 : i-1]
-        const {content,endat}=node.dataset
 		return {
-			id:content, 
+			id:node.dataset.content, 
 			x:(left-node.getBoundingClientRect().left)/this.props.scale,
-			offset:endat!=undefined ? parseInt(endat)-node.textContent.length : undefined//only for text
+			node
 		}
 	}
 	nextLine(id,at){
@@ -287,66 +294,48 @@ export default compose(
             return {left:a.x,top:a.y,right:b.x,bottom:b.y}
         })
     }
-    getRangePath(start, end){
-        const type=this.getComposer(start.id).getComposeType()
-        const rect=a=>`M${a.left} ${a.top} L${a.right} ${a.top} L${a.right} ${a.bottom} L${a.left} ${a.bottom} Z`
-        if(start.id==end.id && this.getComposer(start.id).noChild && type!="text"){
-            const a=this.canvas.querySelector(`[data-content="${start.id}"]`).getBoundingClientRect()
-            const {x:left,y:top}=this.asCanvasPoint({left:a.left,top:a.top})
-            const {x:right,y:bottom}=this.asCanvasPoint({left:a.left+a.width,top:a.top+a.height})
-            return {type,path:rect({left,right,top,bottom})}
-        }
-
-        const [p0,p1]=((start,end)=>{
-            if(end.page<start.page ||
-				(end.page==start.page && end.column<start.column) ||
-				(end.page==start.page && end.column==start.column && end.line<start.line) ||
-				(end.page==start.page && end.column==start.column && end.line==start.line && end.left<start.left)){
-                return [end,start]
-            }
-            return [start,end]
-        })(this.position(start.id,start.at),this.position(end.id, end.at));
-
-        let paths=[]
-		if(p0.top==p1.top){
-            const {x:left, y:top, height, bottom=top+height}=p0
-            const {x:right}=p1
-            return {type:"range",path:rect({left,right,top,bottom})}
+    getRangeRects(start, end){
+        if(start.id==end.id && !this.getComposer(start.id).splittable){
+			const {x,y,width,height}=this.getClientRect(start.id)
+			const {left,top}=this.asViewportPoint({x,y})
+			const {right,bottom}=this.asViewportPoint({x:x+width, y:y+height})
+			return [{left,right,top,bottom}]
 		}else{
-			return {type:"range",path: this._getRangeRects(p0, p1).map(rect).join(" ")}
+			const [p0,p1]=((start,end)=>{
+				if(end.page<start.page ||
+					(end.page==start.page && end.column<start.column) ||
+					(end.page==start.page && end.column==start.column && end.line<start.line) ||
+					(end.page==start.page && end.column==start.column && end.line==start.line && end.left<start.left)){
+					return [end,start]
+				}
+				return [start,end]
+			})(this.position(start.id,start.at),this.position(end.id, end.at));
+
+			let paths=[]
+			if(p0.top==p1.top){
+				const {x:left, y:top, height, bottom=top+height}=p0
+				const {x:right}=p1
+				return [{left,right,top,bottom}]
+			}else{
+				return this._getRangeRects(p0, p1)
+			}
 		}
     }
 
     getClientRects(id){
-        let rects=[]
-        this.canvas.querySelectorAll(`[data-content="${id}"]`)
-            .forEach(a=>{
-                let {left,top,width,height,length}=a.getBoundingClientRect()
-                const {endat,type}=a.dataset
-                const {x,y}=this.asCanvasPoint({left,top})
-                if(type=="text"){
-                    length=a.textContent.length
-                }
-                rects.push(Object.freeze({
-                    node:a,x,y,
-                    endat:parseInt(endat), type,length,
-                    width:width/this.props.scale,height:height/this.props.scale
-                }))
-            })
-        return rects.length ? rects : null
+        return Array.from(this.canvas.querySelectorAll(`[data-content="${id}"]`))
+			.map(a=>this.getClientRect(id,a))
     }
-
-    getTextClientRect(id, at){
-        const rects=this.getClientRects(id)
-        if(rects){
-            const i=rects.map(a=>a.endat)
-                .concat([at])
-                .sort((a,b)=>a-b)
-                .indexOf(at)
-            return rects[i]
-        }
-        return null
-    }
+	
+	getClientRect(id, node){
+		node=node||this.canvas.querySelector(`[data-content="${id}"]`)
+		const {left,top,width,height}=node.getBoundingClientRect()
+        const {x,y}=this.asCanvasPoint({left,top})
+		return {
+			x,y,left,top,node,
+			width:width/this.props.scale,height:height/this.props.scale
+		}  
+	}
 
     pageY(page){
         const {left,top}=this.canvas.querySelectorAll(".page")[page].closest("[transform]").getBoundingClientRect()

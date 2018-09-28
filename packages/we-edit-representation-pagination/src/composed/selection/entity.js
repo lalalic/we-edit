@@ -24,14 +24,14 @@ export default class Extent extends Component{
 	}
 
 	render(){
-		const {path, resizeSpots, onResize, onMove, onRotate, rotate}=this.props
+		const {path, resizeSpots, onResize, onMove, onRotate, rotate, x, y}=this.props
 		let rotator=null
 		if(onRotate){
 			rotator=<Rotatable onRotate={onRotate} {...rotate}/>
 		}
 
 		return (
-			<Group>
+			<Group x={x} y={y}>
 				<Movable onMove={onMove}>
 					<path d={path} fill="white" fillOpacity={0.01} cursor="move"/>
 				</Movable>

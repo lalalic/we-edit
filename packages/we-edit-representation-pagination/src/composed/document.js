@@ -71,7 +71,7 @@ export default class ComposedDocument extends Component{
 
 	static composedY(pages,pgGap,scale=1){
 		if(pages.length==0)
-			return pgGap
+			return 0
 
 		const lastPageHeight=(last=>{//@TODO: balanced column, last page of section
 			if(last.lastSectionPage){
