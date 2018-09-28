@@ -316,7 +316,7 @@ export default class Query{
 		return new this.constructor(this.state,found)
 	}
 
-	find(selector, includeSelf=false){
+	find(selector){
 		if(isIdSelector(selector)){
 			return this.findFirst(...arguments)
 		}
@@ -334,7 +334,7 @@ export default class Query{
 		return new this.constructor(this.state,found)
 	}
 
-	findFirst(selector, includeSelf=false){
+	findFirst(selector, includeSelf=false, right=false){
 		if(isIdSelector(selector)){
 			let id=selector.substr(1)
 			return new this.constructor(this.state, this._content.has(id) ?[id] : [])
@@ -354,14 +354,14 @@ export default class Query{
 					found.push(node.get("id"))
 					return true
 				}
-			},k)
+			},k, right)
 			return found
 		},[])
 		return new this.constructor(this.state,found)
 	}
 
 	findLast(selector, includeSelf){
-		return this.find(...arguments).last()
+		return this.find(selector, includeSelf, true)
 	}
 
 	filter(selector){
