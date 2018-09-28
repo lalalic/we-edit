@@ -186,7 +186,7 @@ export default class Query{
 		return new this.constructor(this.state,found)
 	}
 
-	nextFirst(selector){
+	forwardFirst(selector){
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,k)=>{
 			traverseNext(this._content,node=>{
@@ -270,7 +270,7 @@ export default class Query{
 		return new this.constructor(this.state,found)
 	}
 
-	prevFirst(selector){
+	backwardFirst(selector){
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,k)=>{
 			traversePrev(this._content,node=>{

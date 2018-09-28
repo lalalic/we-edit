@@ -46,7 +46,7 @@ export  class Remove extends IChange{
 	remove_withoutSelection_backspace_headOf_text(removing){
 		let {start:{id,at}}=this.selection
 		let prev=this.$('#'+id)
-			.prevFirst(n=>{
+			.backwardFirst(n=>{
 				return n.get("type")=="text"
 					&& n.has("children")
 					&& typeof(n.get("children"))=="string"
@@ -107,7 +107,7 @@ export  class Remove extends IChange{
 	remove_withoutSelection_delete_tailOf_text(removing){
 		let {start:{id,at}}=this.selection
 		let prev=this.$('#'+id)
-			.nextFirst(n=>{
+			.forwardFirst(n=>{
 				return n.get("type")=="text"
 					&& n.has("children")
 					&& typeof(n.get("children"))=="string"
