@@ -24,6 +24,6 @@ export default class extends recomposable(Base){
 	distanceAt(x, offset=0){
 		offset=parseInt(offset)
 		let text=this.props.children.substring(offset)
-		return this.measure.widthString(text, x)+offset
+		return this.measure.widthString(x,text)+offset
 	}
 }

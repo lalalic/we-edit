@@ -270,41 +270,76 @@ export default class Responsible extends Component{
         this.active()
     }
 	
-	locate(nextOrprev, CursorableOrSelectable, id, at){
+	locate(nextOrprev, CursorableOrSelectable, id, at, inclusive=false){
 		if(id==undefined){
 			({id,at}=this.cursor)
 		}
+		let path=[]
         const next=(id,at)=>{
+			path.push(id)
             let composer=this.getComposer(id)
             if(composer){
                 return composer[`${nextOrprev}${CursorableOrSelectable}`](at)
             }
             return false
         }
-
-
-        if((at=next(id,at))===false){
-            this.getContent(id)[`${nextOrprev=="next" ? "forward" : "backword"}Until`](a=>{
-                    if((at=next(id=a.get("id")))!==false)
-                        return true
-                })
-        }
+		
+		const $=this.getContent(id)
+		if(inclusive){
+			$[`find${nextOrprev=="next" ? "First" :"Last"}`](a=>{
+				if((at=next(id=a.get("id")))!==false)
+					return true
+			},true)
+		}else{
+			at=next(id,at)
+		}
+		
+		if(at===false){
+			$[`${nextOrprev=="next" ? "forward" : "backward"}Until`](a=>{
+				if((at=next(id=a.get("id")))!==false)
+					return true
+			})
+		}
+		console.log(path.join(","))
         if(at!==false)
             return {id,at}
         return this.cursor
 	}
-	onKeyArrowUp({shiftKey}){
-		const {start,end,cursorAt}=this.selection
+	onKeyArrowLeft({shiftKey}){
+        if(shiftKey){
+            const {id,at}=this.locate("prev","Selectable")
+            this.dispatch(ACTION.Selection.START_AT(id,at))
+        }else{
+            const{id,at}=this.locate("prev","Cursorable")
+            this.dispatch(ACTION.Cursor.AT(id,at))
+        }
+	}
+	
+	onKeyArrowRight({shiftKey}){
+        if(shiftKey){
+            const {id,at}=this.locate("next","Selectable")
+            this.dispatch(ACTION.Selection.END_AT(id,at))
+        }else{
+            const {id,at}=this.locate("next","Cursorable")
+            this.dispatch(ACTION.Cursor.AT(id,at))
+        }
+	}	
+	
+	locateLine(nextOrPrev, cursorableOrSelectable){
 		const cursor=this.cursor
-
-		if(!shiftKey){
-			let {id, offset,x}=this.locator.prevLine(cursor.id, cursor.at)
-			let cursorable=this.locate("prev","Cursorable",id)
-			cursorable.at=this.getComposer(cursorable.id).distanceAt(x,offset)
-			this.dispatch(ACTION.Cursor.AT(cursorable.id,cursorable.at))
-
+		let {id, offset,x}=this.locator[`${nextOrPrev}Line`](cursor.id, cursor.at)
+		let location=this.locate(nextOrPrev,cursorableOrSelectable,id,undefined,true)//inclusive
+		location.at=this.getComposer(location.id).distanceAt(x,offset)
+		return location
+	}
+	
+	onKeyArrowUp({shiftKey:selecting}){
+		const {id, at}=this.locateLine("prev", selecting ? "Selectable" : "Cursorable")
+		if(!selecting){
+			this.dispatch(ACTION.Cursor.AT(id,at))
 		}else{
-			let {id,at}=this.locator.prevLine(cursor.id, cursor.at,true)
+			const {start,end,cursorAt}=this.selection
+	
 			if(start.id==end.id && start.at==end.at){
 				this.dispatch(ACTION.Selection.START_AT(id,at))
 			}else{
@@ -326,17 +361,12 @@ export default class Responsible extends Component{
 		}
 	}
 
-	onKeyArrowDown({shiftKey}){
-		const {start,end,cursorAt}=this.selection
-		const cursor=this.cursor
-
-		if(!shiftKey){
-			let {id, offset,x}=this.locator.prevLine(cursor.id, cursor.at)
-			let cursorable=this.locate("next","Cursorable",id)
-			cursorable.at=this.getComposer(cursorable.id).distanceAt(x,offset)
-			this.dispatch(ACTION.Cursor.AT(cursorable.id,cursorable.at))
+	onKeyArrowDown({shiftKey:selecting}){
+		const {id, at}=this.locateLine("next", selecting ? "Selectable" : "Cursorable")
+		if(!selecting){
+			this.dispatch(ACTION.Cursor.AT(id,at))
 		}else{
-			let {id,at}=this.locator.nextLine(cursor.id,cursor.at, true)
+			const {start,end,cursorAt}=this.selection
 			if(start.id==end.id && start.at==end.at){
 				this.dispatch(ACTION.Selection.END_AT(id,at))
 			}else{
@@ -354,25 +384,5 @@ export default class Responsible extends Component{
 				}
 			}
 		}
-	}
-
-	onKeyArrowLeft({shiftKey}){
-        if(shiftKey){
-            const {id,at}=this.locate("prev","Selectable")
-            this.dispatch(ACTION.Selection.START_AT(id,at))
-        }else{
-            const{id,at}=this.locate("prev","Cursorable")
-            this.dispatch(ACTION.Cursor.AT(id,at))
-        }
-	}
-	
-	onKeyArrowRight({shiftKey}){
-        if(shiftKey){
-            const {id,at}=this.locate("next","Selectable")
-            this.dispatch(ACTION.Selection.END_AT(id,at))
-        }else{
-            const {id,at}=this.locate("next","Cursorable")
-            this.dispatch(ACTION.Cursor.AT(id,at))
-        }
 	}	
 }

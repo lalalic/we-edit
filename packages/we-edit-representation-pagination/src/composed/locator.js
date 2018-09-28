@@ -140,8 +140,8 @@ export default compose(
                 line:line!==undefined ? this.lines(column).indexOf(line): undefined
             }
         }
-
-        if(this.getComposer(id).getComposeType()=="text"){
+		
+		if(this.getComposer(id).getComposeType()=="text"){
             const rect=this.getTextClientRect(id,at)
             if(rect){
                 let x=rect.x
@@ -190,8 +190,8 @@ export default compose(
         }
     }
 
-    nextLine(id,at){
-        const position=this.position(id,at)
+    line(id,at,offset){
+		const position=this.position(id,at)
         if(!position)
             return
         const {page,column,line,left}=position
@@ -200,14 +200,14 @@ export default compose(
         const columns=nPage.querySelectorAll(".column")
         const nColumn=columns[column]
         const lines=this.lines(nColumn)
-        const nLine=lines[line+1]
+        const nLine=lines[line+offset]
         if(!nLine){
             if(columns.length-1>column){
-                return this.nextLine({...arguments[0],column:column+1})
+                return this.nextLine({...arguments[0],column:column+offset})
             }
 
             if(pages.length-1>page){
-                return this.nextLine({...arguments[0],page:page+1})
+                return this.nextLine({...arguments[0],page:page+offset})
             }
 
             return {id,at}
@@ -218,54 +218,20 @@ export default compose(
             .concat([left])
             .sort((a,b)=>a-b)
             .lastIndexOf(left)
-		const node=contents[i-1]
+		const node=contents[i==0 ? 0 : i-1]
         const {content,endat}=node.dataset
-		const distance=left-node.getBoundingClientRect().left
-		const point=this.asCanvasPoint({left:distance,top:0})
 		return {
 			id:content, 
-			x:point.x,
+			x:(left-node.getBoundingClientRect().left)/this.props.scale,
 			offset:endat!=undefined ? parseInt(endat)-node.textContent.length : undefined//only for text
 		}
+	}
+	nextLine(id,at){
+        return this.line(id,at,1)
     }
 
-    prevLine(id,at, selecting){
-        const position=this.position(id,at)
-        if(!position)
-            return
-        const {page,column,line,left}=position
-        const pages=this.canvas.querySelectorAll(".page")
-        const nPage=pages[page]
-        const columns=nPage.querySelectorAll(".column")
-        const nColumn=columns[column]
-        const lines=this.lines(nColumn)
-        const nLine=lines[line-1]
-        if(!nLine){
-            if(column>0){
-                return this.prevLine({...arguments[0],column:column-1})
-            }
-
-            if(page>0){
-                return this.prevLine({...arguments[0],page:page-1})
-            }
-
-            return {id,at}
-        }
-
-		const contents=Array.from(nLine.querySelectorAll("[data-content]"))
-        const i=contents.map(a=>a.getBoundingClientRect().left)
-            .concat([left])
-            .sort((a,b)=>a-b)
-            .lastIndexOf(left)
-		const node=contents[i-1]
-        const {content,endat}=node.dataset
-		const distance=left-node.getBoundingClientRect().left
-		const point=this.asCanvasPoint({left:distance,top:0})
-		return {
-			id:content, 
-			x:point.x,
-			offset:endat!=undefined ? parseInt(endat)-node.textContent.length : undefined//only for text
-		}
+    prevLine(id,at){
+        return this.line(id,at,-1)
     }
 
     _getRangeRects(p0, p1){
