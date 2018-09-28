@@ -46,10 +46,10 @@ export default compose(
 				cursor=React.cloneElement(cursor,{children:myShape})
 			}
 			const {x,y,left,top,height,fontFamily,fontSize}=position
-			
+
 			cursor=React.cloneElement(cursor, {x,y,left,top,height,fontFamily,fontSize})
 		}
-		
+
 		if(range && rects){
 			range=React.cloneElement(range, {rects})
 		}
@@ -79,7 +79,7 @@ export default compose(
         }
 		this.scrollCursorIntoView()
     }
-	
+
 	scrollCursorIntoView(){
 		const viewporter=this.canvas.closest('[style*="overflow"]')
 		const cursor=this.refs.cursor.getBoundingClientRect()
@@ -132,27 +132,27 @@ export default compose(
     getContent(id){
         return this.props.getContent(...arguments)
     }
-	
+
 	around(node, left){
 		let {content}=node.dataset
 		if(content){
 			return {
-				id:content, 
-				x:Math.max(left-node.getBoundingClientRect().left,0)/this.props.scale, 
+				id:content,
+				x:Math.max(left-node.getBoundingClientRect().left,0)/this.props.scale,
 				node
 			}
 		}
-		
+
 		let child=node.querySelector("[data-content]")
 		if(child){
 			return this.around(child,left)
 		}
-		
+
 		let parent=node.closest("[data-content]")
 		if(parent){
 			return this.around(parent,left)
 		}
-		
+
 		return {}
 	}
 
@@ -187,9 +187,9 @@ export default compose(
                 line:line!==undefined ? this.lines(column).indexOf(line): undefined
             }
         }
-		
+
 		const {x,y,width,node, ...position}=this.getComposer(id).position(this,at)
-		
+
 		return {
 			id,at,node,x,y,
 			...position,
@@ -220,7 +220,7 @@ export default compose(
 
             return {id,at}
         }
-		
+
 		const contents=Array.from(nLine.querySelectorAll("[data-content]"))
         const i=contents.map(a=>a.getBoundingClientRect().left)
             .concat([left])
@@ -228,7 +228,7 @@ export default compose(
             .lastIndexOf(left)
 		const node=contents[i==0 ? 0 : i-1]
 		return {
-			id:node.dataset.content, 
+			id:node.dataset.content,
 			x:(left-node.getBoundingClientRect().left)/this.props.scale,
 			node
 		}
@@ -326,7 +326,7 @@ export default compose(
         return Array.from(this.canvas.querySelectorAll(`[data-content="${id}"]`))
 			.map(a=>this.getClientRect(id,a))
     }
-	
+
 	getClientRect(id, node){
 		node=node||this.canvas.querySelector(`[data-content="${id}"]`)
 		const {left,top,width,height}=node.getBoundingClientRect()
@@ -334,7 +334,7 @@ export default compose(
 		return {
 			x,y,left,top,node,
 			width:width/this.props.scale,height:height/this.props.scale
-		}  
+		}
 	}
 
     pageY(page){

@@ -5,7 +5,7 @@ import Entity from "../composed/selection/entity"
 
 export default class extends recomposable(Base){
 	splittable=false
-	
+
     nextCursorable(at){
         switch(at){
         case undefined:
@@ -21,12 +21,12 @@ export default class extends recomposable(Base){
         }
         return false
     }
-	
+
 	getCursor(){
-		const {width:right, height:bottom}=this.props
+		const {width:right, height:bottom}=this.props.size
 		const left=0, top=0
 		return (
-			<Entity  
+			<Entity
 				path={`M${left} ${top} L${right} ${top} L${right} ${bottom} L${left} ${bottom} Z`}
 				resizeSpots={[
 						{x:left,y:top,resize:"nwse"},

@@ -47,7 +47,7 @@ export class Text extends Component{
 				{background}
 				{strikeline}
 				{decoration}
-				<text style={{userSelect:"text",whiteSpace:"pre",}} {...others} fill={fill}>
+				<text style={{userSelect:"none",whiteSpace:"pre",cursor:"text"}} {...others} fill={fill}>
 					{children.join("")}
 				</text>
 			</Fragment>

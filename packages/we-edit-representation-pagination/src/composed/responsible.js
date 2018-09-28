@@ -5,12 +5,20 @@ import {getSelection, ACTION, Cursor, Selection} from "we-edit"
 import offset from "mouse-event-offset"
 
 import {Document as ComposedDocument} from "../composed"
-import SelectionShape from "./selection"
+import SelectionShape, {Area} from "./selection"
 import Locator from "./locator"
 
 const CursorShape=({y=0,x=0,height=0,color="black"})=>(
     <Cursor.Flash color={color}><path d={`M${x} ${y} v${height}`} strokeWidth={1}/></Cursor.Flash>
 )
+
+class Selecting extends Component{
+    state={}
+    render(){
+        const {rects=[]}=this.state
+        return <Area rects={rects}/>
+    }
+}
 
 export default class Responsible extends Component{
     static displayName="composed-document-with-cursor"
@@ -35,24 +43,24 @@ export default class Responsible extends Component{
     get locator(){
         return this.refs.locator.getWrappedInstance()
     }
-	
+
 	get dispatch(){
 		return this.locator.props.dispatch
 	}
-	
+
 	get selection(){
 		return this.locator.props.selection.toJS()
 	}
-	
+
 	get cursor(){
 		const {cursorAt, ...a}=this.selection
         return a[cursorAt]
 	}
-	
+
 	getComposer(id){
 		return this.props.getComposer(id)
 	}
-	
+
 	getContent(id){
 		return this.locator.getContent(id)
 	}
@@ -66,11 +74,33 @@ export default class Responsible extends Component{
         return (
             <ComposedDocument {...props}
 				innerRef={a=>{this.canvas=a}}
-                onClick={e=>this.onClick(e)}
-				onMouseMove={({buttons,...e})=>{
+                onClick={e=>{
+                    if(this.selected){
+                        this.selected=false
+                    }else{
+                        this.onClick(e)
+                    }
+                }}
+				onMouseMove={({buttons, target, clientX:left})=>{
 					if(!(buttons&0x1))
 						return
-					//this.onClick({...e, shiftKey:true})
+                    const {id,x,node}=this.locator.around(target, left)
+                    if(id){
+                        const at=this.getComposer(id).distanceAt(x, node)
+                        const end={id,at}
+                        let {start=end}=this.refs.selecting.state
+
+                        const rects=start==end ? [] : this.locator.getRangeRects(start, end)
+                        this.refs.selecting.setState(({start})=>({start:start||end, end, rects}))
+                    }
+				}}
+                onMouseUp={e=>{
+					const {start,end}=this.refs.selecting.state
+                    if(start && end){
+                        this.refs.selecting.setState({start:undefined, end:undefined, rects:undefined})
+                        this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))
+                        this.selected=true
+                    }
 				}}
 				>
 				<Fragment>
@@ -89,13 +119,13 @@ export default class Responsible extends Component{
 									40:e=>this.onKeyArrowDown(e),//move down
 								}}
 								>
-								
-								<CursorShape  
+
+								<CursorShape
 									onMove={this.onMove}
 									onResize={this.onResize}
 									onRotate={this.onRotate}
 									/>
-									
+
 							</Cursor>
                         }
                         range={
@@ -105,6 +135,7 @@ export default class Responsible extends Component{
                         }
                         getComposer={getComposer}/>
 
+                        <Selecting ref="selecting"/>
 				</Fragment>
             </ComposedDocument>
         )
@@ -138,7 +169,7 @@ export default class Responsible extends Component{
 	}
 
     active(){
-		this.dispatch(ACTION.Cursor.ACTIVE(this.props.docId))            
+		this.dispatch(ACTION.Cursor.ACTIVE(this.props.docId))
     }
 
     onRotate(e){
@@ -170,7 +201,7 @@ export default class Responsible extends Component{
 				}
 			}
 		}
-		
+
         this.active()
     }
 
@@ -228,7 +259,7 @@ export default class Responsible extends Component{
 
         this.active()
     }
-	
+
 	locate(nextOrprev, CursorableOrSelectable, id, at, inclusive=false){
 		if(id==undefined){
 			({id,at}=this.cursor)
@@ -242,7 +273,7 @@ export default class Responsible extends Component{
             }
             return false
         }
-		
+
 		const $=this.getContent(id)
 		if(inclusive){
 			$[`find${nextOrprev=="next" ? "First" :"Last"}`](a=>{
@@ -252,7 +283,7 @@ export default class Responsible extends Component{
 		}else{
 			at=next(id,at)
 		}
-		
+
 		if(at===false){
 			$[`${nextOrprev=="next" ? "forward" : "backward"}Until`](a=>{
 				if((at=next(id=a.get("id")))!==false)
@@ -273,7 +304,7 @@ export default class Responsible extends Component{
             this.dispatch(ACTION.Cursor.AT(id,at))
         }
 	}
-	
+
 	onKeyArrowRight({shiftKey}){
         if(shiftKey){
             const {id,at}=this.locate("next","Selectable")
@@ -282,8 +313,8 @@ export default class Responsible extends Component{
             const {id,at}=this.locate("next","Cursorable")
             this.dispatch(ACTION.Cursor.AT(id,at))
         }
-	}	
-	
+	}
+
 	locateLine(nextOrPrev, cursorableOrSelectable){
 		const cursor=this.cursor
 		let {id, x, node}=this.locator[`${nextOrPrev}Line`](cursor.id, cursor.at)
@@ -298,14 +329,14 @@ export default class Responsible extends Component{
 		location.at=this.getComposer(location.id).distanceAt(x,node)
 		return location
 	}
-	
+
 	onKeyArrowUp({shiftKey:selecting}){
 		const {id, at}=this.locateLine("prev", selecting ? "Selectable" : "Cursorable")
 		if(!selecting){
 			this.dispatch(ACTION.Cursor.AT(id,at))
 		}else{
 			const {start,end,cursorAt}=this.selection
-	
+
 			if(start.id==end.id && start.at==end.at){
 				this.dispatch(ACTION.Selection.START_AT(id,at))
 			}else{
@@ -350,5 +381,5 @@ export default class Responsible extends Component{
 				}
 			}
 		}
-	}	
+	}
 }
