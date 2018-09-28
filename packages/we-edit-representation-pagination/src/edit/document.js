@@ -89,7 +89,16 @@ export default class Document extends Super{
 							children={!this.isAllChildrenComposed()
 									&& (<ComposeMoreTrigger
 			                            y={ComposedDocument.composedY(pages, pageGap)||(viewport.height-10)}
-			                            onEnter={y=>this.setState({y,mode:"viewport"})}
+			                            onEnter={y=>{
+											this.clientDocument &&
+											this.clientDocument.locator &&
+											this.clientDocument.locator.setState({canvas:null},()=>{
+												return
+												this.setState({y,mode:"viewport"})
+											})
+
+
+										}}
 			                            />)
 								}
 							/>)
@@ -108,7 +117,7 @@ export default class Document extends Super{
 		this.setState({error})
 	}
 
-	componentWillReceiveProps({screenBuffer}){
+	componentWillReceivProps(){
 		this.clearComposed()
 		this.setState({mode:"content"})
 	}

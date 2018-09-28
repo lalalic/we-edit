@@ -16,7 +16,7 @@ class Selecting extends Component{
     state={}
     render(){
         const {rects=[]}=this.state
-        return <Area rects={rects}/>
+        return <Area rects={rects} {...this.props}/>
     }
 }
 
@@ -104,6 +104,32 @@ export default class Responsible extends Component{
 				}}
 				>
 				<Fragment>
+                    <Selecting
+                        ref="selecting"
+                        onMouseMove={({buttons, target, clientX:left, clientY:top})=>{
+                            if(!(buttons&0x1))
+        						return
+                            const rect=(()=>{
+                                debugger
+                                const {start,end,rects}=this.refs.selecting.state
+                                const {x,y}=this.locator.asCanvasPoint({left,top})
+
+                                let rect=rects.find(({left,top,right,bottom})=>top<=y<=bottom && left<=x<=right)
+
+                                return rect
+                            })();
+
+                            const {id,x,node}=this.locator.around(rect.node,left)
+                            if(id){
+                                const at=this.getComposer(id).distanceAt(x, node)
+                                const end={id,at}
+                                let {start=end}=this.refs.selecting.state
+
+                                const rects=start==end ? [] : this.locator.getRangeRects(start, end)
+                                this.refs.selecting.setState(({start})=>({start:start||end, end, rects}))
+                            }
+                        }}
+                        />
                     {children}
 
 					<Locator
@@ -134,8 +160,6 @@ export default class Responsible extends Component{
         					</Selection>
                         }
                         getComposer={getComposer}/>
-
-                        <Selecting ref="selecting"/>
 				</Fragment>
             </ComposedDocument>
         )
@@ -147,6 +171,10 @@ export default class Responsible extends Component{
 
     documentSelection(){
         return window.getSelection()||document.getSelection()
+    }
+
+    notify(){
+        this.locator.setState({content:null,canvas:null})
     }
 
     componentDidUpdate(){
