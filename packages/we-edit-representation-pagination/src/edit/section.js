@@ -13,7 +13,7 @@ export default class Section extends Super{
 		let last=this.computed.composed[this.computed.composed.length-1]
 		last && (last.lastSectionPage=true);
 	}
-	
+
 	createComposed2Parent(){
 		const {pgSz:size,  pgMar:margin}=this.props
 		return React.cloneElement(super.createComposed2Parent(...arguments),{
@@ -21,4 +21,7 @@ export default class Section extends Super{
 			})
 	}
 
+	render(){
+		return this.chainable()
+	}
 }

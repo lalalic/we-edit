@@ -17,11 +17,11 @@ export default class extends recomposable(class extends Base{
 		if(this.computed.composedRows==0){
 			row=this.makeColAdderNSelector(row)
 		}
-		
+
 		row=this.makeRowAdderNSelector(row)
-		
+
 		const {width,height}=row.props
-		
+
 		return <Line width={width} height={height} children={row}/>
 	}
 
@@ -131,6 +131,10 @@ export default class extends recomposable(class extends Base{
 	clearComposed(){
 		super.clearComposed()
 		this.computed.composedRows=-1
+	}
+
+	render(){
+		return this.chainable()
 	}
 }
 

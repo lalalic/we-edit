@@ -33,6 +33,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 	}
 
     get locator(){
+        if(this.refs.locator)
         return this.refs.locator.getWrappedInstance()
     }
 
@@ -41,6 +42,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 	}
 
 	get selection(){
+        if(this.refs.locator)
 		return this.locator.props.selection.toJS()
 	}
 
@@ -122,7 +124,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
                         }
                         range={
                             <Selection onMove={this.onMove}>
-        						<SelectionShape ref="selecting" 
+        						<SelectionShape ref="selecting"
 									asCanvasPoint={a=>this.locator.asCanvasPoint(a)}
 									/>
         					</Selection>
@@ -139,13 +141,13 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
     }
 
     componentDidUpdate(){
-        //this.locator && this.locator.setState({content:this.props.contentHash, canvas:this.canvas})
+        this.locator && this.locator.setState({content:this.props.contentHash, canvas:this.canvas})
         //this.emit(`emitted${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
     }
 
     componentDidMount(){
-        //this.dispatch(ACTION.Cursor.ACTIVE(this.props.docId))
-        //this.locator && this.locator.setState({content:this.props.contentHash, canvas:this.canvas})
+        this.dispatch(ACTION.Cursor.ACTIVE(this.props.docId))
+        this.locator && this.locator.setState({content:this.props.contentHash, canvas:this.canvas})
         //this.emit(`emitted${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
     }
 

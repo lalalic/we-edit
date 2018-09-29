@@ -1,6 +1,6 @@
-import React from "react"
+import React,{Children, Fragment, Component} from "react"
 import PropTypes from "prop-types"
-import {Locatable,enablify} from "../composable"
+import {Locatable,enablify, ComposedAllTrigger} from "../composable"
 
 /**
  *  it's a very complicated job, so we need a very simple design, one sentence described solution. options:
@@ -56,19 +56,32 @@ export default function recomposable(Content){
 			console.debug(`${this.getComposeType()}[${this.props.id}] clear composed`)
 		}
 
-		render(){
-			if(this.isAllChildrenComposed()){
-				console.debug(`${this.getComposeType()}[${this.props.id}] has already all composed, continue next directly...`)
-				return null
-			}
-			
-			return super.render()
-		}
-		
 		componentWillUnmount(){
 			//console.log(`${this.getComposeType()}[${this.props.id}] unmounting`)
 			this.context.unmount && this.context.unmount(this)
 		}
+
+		chainable(){
+			return Children.toArray(this.props.children)
+				.reduceRight((next,current)=><Chain {...{next,current}}/>,<Chain current={<ComposedAllTrigger host={this}/>}/>)
+		}
+
+	}
+}
+
+
+class Chain extends Component{
+	static contextTypes={
+	    shouldContinueCompose: PropTypes.func,
+	}
+
+	render(){
+		const {current, next}=this.props
+		if(this.context.shouldContinueCompose(current.props.id)){
+			return <Fragment>{current}{next}</Fragment>
+		}
+
+		return null
 	}
 }
 

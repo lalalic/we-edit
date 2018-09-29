@@ -48,8 +48,12 @@ function HasChild(Component){
          * and then append to itself.composed[] and parent.appendComposed
          */
         render(){
-			return Children.toArray(this.props.children)
-				.reduceRight((next,current)=><Chain {...{next,current}}/>,<Chain current={<ComposedAllTrigger host={this}/>}/>)
+            return (
+                <Fragment>
+                    {this.props.children}
+                    <ComposedAllTrigger host={this}/>
+                </Fragment>
+            )
         }
 
         /**
@@ -150,7 +154,7 @@ function Locatable(A){
 			...A.propTypes,
 			id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired
 		}
-		
+
 		splittable=true
 
 		createComposed2Parent(){
@@ -175,11 +179,11 @@ function Locatable(A){
         prevSelectable(){
             return this.props.prevSelectable ? this.props.prevSelectable(...arguments) : this.prevCursorable(...arguments)
         }
-		
+
 		distanceAt(x,node){
 			return 0
 		}
-		
+
 		position(locator, at){
 			const {id}=this.props
 			if(at==0){
@@ -196,30 +200,10 @@ function Locatable(A){
                 }
             }
 		}
-		
+
 		getCursor(){
 			return null
 		}
-	}
-}
-
-export class Chain extends Component{
-	static contextTypes={
-		shouldContinueCompose: PropTypes.func
-	}
-	
-	shouldContinueCompose(){
-		if(this.context.shouldContinueCompose)
-			return this.context.shouldContinueCompose()
-		return true
-	}
-	
-	
-	render(){
-		if(!this.shouldContinueCompose())
-			return null
-		const {current, next}=this.props
-		return <Fragment>{current}{next}</Fragment>
 	}
 }
 

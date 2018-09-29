@@ -69,10 +69,17 @@ export default class Document extends Super{
 		if(!this.state.viewport){//to find container width, height
 			return <div ref="viewporter" />
 		}
-		
-		return super.render()
+		this.clearComposed()
+
+		const {canvas}=this.props
+        return (
+			<Fragment>
+				{super.chainable()}
+                {canvas ? React.cloneElement(canvas, {content: this.renderComposed()}) : this.renderComposed()}
+			</Fragment>
+		)
     }
-	
+
 	renderComposed(){
 		const {viewport, mode, error}=this.state
 		const {canvas,scale,pageGap,docId,contentHash}=this.props
@@ -104,7 +111,7 @@ export default class Document extends Super{
 							/>
 					}
 				</Responsible>
-						
+
 		)
 	}
 
@@ -114,7 +121,6 @@ export default class Document extends Super{
 	}
 
 	componentWillReceivProps(){
-		this.clearComposed()
 		this.setState({mode:"content"})
 	}
 
@@ -127,12 +133,12 @@ export default class Document extends Super{
 	shouldRemoveComposed(){
 		return this.state.mode=="content"
 	}
-	
+
 	get viewableY(){
 		const {viewport}=this.state
 		return viewport.node.scrollTop+viewport.height
 	}
-	
+
 	get bufferHeight(){
 		return this.screenBuffer(this.state.viewport.height)
 	}
@@ -141,18 +147,27 @@ export default class Document extends Super{
 	* 1. selection end
 	* 2. viewport: viewporter.scrollTop+viewporter.height
 	**/
-	shouldContinueCompose(){
+	shouldContinueCompose(id){
+		if(id){
+			let composer=this.composers.get(id)
+			if(composer){
+				if(composer.isAllChildrenComposed()){
+					return true
+				}
+			}
+		}
+
 		const aboveViewableBottom=()=>{
 			const composedY=ComposedDocument.composedY(this.computed.composed,this.props.pageGap,this.props.scale)
 			return composedY<this.viewableY+this.bufferHeight
 		}
-		
+
 		const selectionComposed=()=>{
 			const {activeDocStore}=this.context
 			const {end:{id}}=getSelection(activeDocStore.getState())
 			return !!this.composers.get(id)
 		}
-		
+
 		return aboveViewableBottom() || !selectionComposed()
 	}
 
