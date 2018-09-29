@@ -9,13 +9,14 @@ const provider=(A,Default={})=>withContext(A.contextTypes,({context})=>({...Defa
 describe("compose", ()=>{
 	const {Document, Section, Paragraph, Text, Image}=Viewers
 	describe("text",()=>{
-		const WithContext=provider(Text,{
+		const WithContext=provider(Text)
+		const contextFactory=({width=5,height=100})=>({
 			parent:{
 				appendComposed(){
 
 				},
 				nextAvailableSpace(){
-					return {width:3,height:100}
+					return {width,height}
 				},
 			},
 			Measure:class{
@@ -33,17 +34,33 @@ describe("compose", ()=>{
 				return text.split(/\s+/)
 			}
 		})
-		it("base",()=>{
+		const Default="hello world"
+		const test=(width=5,text=Default,expects=a=>a)=>()=>{
+			const context=contextFactory({width})
+			const getMyBreakOpportunities=context.getMyBreakOpportunities=jest.fn(context.getMyBreakOpportunities)
 			const appendComposed=context.parent.appendComposed=jest.fn()
 
 			const renderer=TestRender.create(
 				<WithContext context={context}>
-					<Text fonts="arial" size={12}>hello world</Text>
+					<Text fonts="arial" size={12}>{text}</Text>
 				</WithContext>
 			)
-			expect(appendComposed.mock.calls.length).toBe(1)
-			console.dir(appendComposed.mock.calls)
+			expect(appendComposed).toHaveBeenCalled()
+			expects(appendComposed)
+		}
+
+		it("basic process", test())
+
+		describe("text wrap",()=>{
+			const wrap=width=>it(`${Default}[${width}]`,test(width))
+
+			wrap(1)
+			wrap(2)
+			wrap(3)
+			wrap(4)
+			wrap(5)
 		})
+
 	})
 	describe("paragraph",()=>{
 		describe("wordwrap",()=>{
