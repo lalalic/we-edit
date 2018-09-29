@@ -50,11 +50,11 @@ export default class Document extends Super{
 		let shouldRemoveComposed=this.shouldRemoveComposed.bind(this)
 		let shouldContinueCompose=this.shouldContinueCompose.bind(this)
 		let mount=a=>{
-			console.log(`${a.getComposeType()}[${a.props.id}] mounted`)
+			//console.log(`${a.getComposeType()}[${a.props.id}] mounted`)
 			this.composers.set(a.props.id,a)
 		}
 		let unmount=a=>{
-			console.log(`${a.getComposeType()}[${a.props.id}] unmounted`)
+			//console.log(`${a.getComposeType()}[${a.props.id}] unmounted`)
 			this.composers.delete(a.props.id)
 		}
 		return {
@@ -72,36 +72,38 @@ export default class Document extends Super{
 			return <div ref="viewporter" />
 		}
 		const pages=this.computed.composed
-		const content=(<Responsible
-							docId={docId}
-							contentHash={contentHash}
-							getComposer={id=>{
-								if(this.composers.has(id)){
-									return this.composers.get(id)
-								}else{
-									debugger
-								}
+		const content=(
+				<Responsible
+					docId={docId}
+					contentHash={contentHash}
+					getComposer={id=>{
+						if(this.composers.has(id)){
+							return this.composers.get(id)
+						}else{
+							debugger
+						}
+					}}
+					ref={a=>this.clientDocument=a}
+					scale={scale}
+					pgGap={pageGap}
+					pages={pages}
+					>
+					{pages.length>0 && !this.isAllChildrenComposed() &&
+						<ComposeMoreTrigger
+							y={ComposedDocument.composedY(pages, pageGap)}
+							onEnter={y=>{
+								this.clientDocument &&
+								this.clientDocument.locator &&
+								this.clientDocument.locator.setState({canvas:null},()=>{
+									return
+									this.setState({y,mode:"viewport"})
+								})
 							}}
-							ref={a=>this.clientDocument=a}
-							scale={scale}
-							pgGap={pageGap}
-							pages={pages}
-							children={!this.isAllChildrenComposed()
-									&& (<ComposeMoreTrigger
-			                            y={ComposedDocument.composedY(pages, pageGap)||(viewport.height-10)}
-			                            onEnter={y=>{
-											this.clientDocument &&
-											this.clientDocument.locator &&
-											this.clientDocument.locator.setState({canvas:null},()=>{
-												return
-												this.setState({y,mode:"viewport"})
-											})
-
-
-										}}
-			                            />)
-								}
-							/>)
+							/>
+					}
+				</Responsible>
+						
+		)
 
 
 		return (

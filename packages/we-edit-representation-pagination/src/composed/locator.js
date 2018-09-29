@@ -247,7 +247,7 @@ export default compose(
         const rects=[]
         const lineRect=line=>{
             const {left,top,width,height}=line.getBoundingClientRect()
-            rects.push({left,top,right:left+width,bottom:top+height,node:line})
+            rects.push({left,top,right:left+width,bottom:top+height})
         }
 
         const pages=Array.from(this.canvas.querySelectorAll(".page"))
@@ -271,7 +271,7 @@ export default compose(
             rects.splice(0,firstIndex+1)
             //first line rect
             const a=nLine.getBoundingClientRect()
-            rects.unshift({left,top,right:a.left+a.width,bottom:a.top+a.height,node:a})
+            rects.unshift({left,top,right:a.left+a.width,bottom:a.top+a.height})
         })(p0);
 
 
@@ -287,7 +287,7 @@ export default compose(
 
             //last line rect
             const {left,top,height}=nLine.getBoundingClientRect()
-            rects.push({left,top,right,bottom:top+height,node:nLine})
+            rects.push({left,top,right,bottom:top+height})
         })(p1);
 
         return rects.map(({left,top,right,bottom,...others})=>{
@@ -317,7 +317,7 @@ export default compose(
 			if(p0.top==p1.top){
 				const {x:left, y:top, height, bottom=top+height}=p0
 				const {x:right}=p1
-				return [{left,right,top,bottom,node:p0.node}]
+				return [{left,right,top,bottom}]
 			}else{
 				return this._getRangeRects(p0, p1)
 			}

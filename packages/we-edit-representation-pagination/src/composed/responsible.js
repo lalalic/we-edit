@@ -5,20 +5,12 @@ import {getSelection, ACTION, Cursor, Selection} from "we-edit"
 import offset from "mouse-event-offset"
 
 import {Document as ComposedDocument} from "../composed"
-import SelectionShape, {Area} from "./selection"
+import SelectionShape from "./selection"
 import Locator from "./locator"
 
 const CursorShape=({y=0,x=0,height=0,color="black"})=>(
     <Cursor.Flash color={color}><path d={`M${x} ${y} v${height}`} strokeWidth={1}/></Cursor.Flash>
 )
-
-class Selecting extends Component{
-    state={}
-    render(){
-        const {rects=[]}=this.state
-        return <Area rects={rects} {...this.props}/>
-    }
-}
 
 export default class Responsible extends Component{
     static displayName="composed-document-with-cursor"
@@ -104,32 +96,6 @@ export default class Responsible extends Component{
 				}}
 				>
 				<Fragment>
-                    <Selecting
-                        ref="selecting"
-                        onMouseMove={({buttons, target, clientX:left, clientY:top})=>{
-                            if(!(buttons&0x1))
-        						return
-                            const rect=(()=>{
-                                debugger
-                                const {start,end,rects}=this.refs.selecting.state
-                                const {x,y}=this.locator.asCanvasPoint({left,top})
-
-                                let rect=rects.find(({left,top,right,bottom})=>top<=y<=bottom && left<=x<=right)
-
-                                return rect
-                            })();
-
-                            const {id,x,node}=this.locator.around(rect.node,left)
-                            if(id){
-                                const at=this.getComposer(id).distanceAt(x, node)
-                                const end={id,at}
-                                let {start=end}=this.refs.selecting.state
-
-                                const rects=start==end ? [] : this.locator.getRangeRects(start, end)
-                                this.refs.selecting.setState(({start})=>({start:start||end, end, rects}))
-                            }
-                        }}
-                        />
                     {children}
 
 					<Locator
@@ -156,10 +122,13 @@ export default class Responsible extends Component{
                         }
                         range={
                             <Selection onMove={this.onMove}>
-        						<SelectionShape/>
+        						<SelectionShape ref="selecting" 
+									asCanvasPoint={a=>this.locator.asCanvasPoint(a)}
+									/>
         					</Selection>
                         }
                         getComposer={getComposer}/>
+						
 				</Fragment>
             </ComposedDocument>
         )
@@ -167,10 +136,6 @@ export default class Responsible extends Component{
 
     getBoundingClientRect(){
         return this.canvas.getBoundingClientRect()
-    }
-
-    documentSelection(){
-        return window.getSelection()||document.getSelection()
     }
 
     notify(){
@@ -234,24 +199,6 @@ export default class Responsible extends Component{
     }
 
     onSelect(selection){
-        const locate=a=>{
-            let node=selection[`${a}Node`].parentNode
-            if(!node.dataset.content)
-                return null
-            return {
-                id:node.dataset.content,
-                at:node.dataset.endat-node.textContent.length+selection[`${a}Offset`]
-            }
-        }
-
-        let first=locate("anchor")
-        if(!first)
-            return
-
-        let end=locate("focus")
-        if(!end)
-            return
-
         let {left:left0,top:top0}=this.locator.position(first.id, first.at)
         let {left:left1,top:top1}=this.locator.position(end.id, end.at)
 

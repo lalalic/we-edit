@@ -27,12 +27,11 @@ export default class Media extends Component{
 					<Group y={pgGap} x={0}>
 						{pages.map((page,i)=>{
 							let {size,margin}=page.props
-							page=React.cloneElement(page, {y, x:(width-size.width)/2})
 
 							let newPage=(
-								<Group key={i}>
+								<Group key={i} {...{y, x:(width-size.width)/2}}>
 									{paper!==false && <Paper {...{size,margin,fill:"white"}}/>}
-									{smart ? <SmartShow {...{onPageHide,onPageShow,scrollableAncestor,children:page}}/> : page}
+									{false &&  smart ? <SmartShow {...{onPageHide,onPageShow,scrollableAncestor,children:page}}/> : page}
 								</Group>
 							)
 							y+=(size.height+pgGap)
