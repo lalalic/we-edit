@@ -1,7 +1,7 @@
 import React, {Component,Fragment} from "react"
 import PropTypes from "prop-types"
 
-import {getSelection, ACTION, Cursor, Selection} from "we-edit"
+import {getSelection, ACTION, Cursor, Selection,connect} from "we-edit"
 import offset from "mouse-event-offset"
 
 import {Document as ComposedDocument} from "../composed"
@@ -12,7 +12,7 @@ const CursorShape=({y=0,x=0,height=0,color="black"})=>(
     <Cursor.Flash color={color}><path d={`M${x} ${y} v${height}`} strokeWidth={1}/></Cursor.Flash>
 )
 
-export default class Responsible extends Component{
+export default connect(null,null,null,{withRef:true})(class Responsible extends Component{
     static displayName="composed-document-with-cursor"
 
 	static childContextTypes={
@@ -37,7 +37,7 @@ export default class Responsible extends Component{
     }
 
 	get dispatch(){
-		return this.locator.props.dispatch
+		return this.props.dispatch
 	}
 
 	get selection(){
@@ -62,7 +62,7 @@ export default class Responsible extends Component{
     }
 
     render(){
-        const {children, contentHash,docId, getComposer,...props}=this.props
+        const {children, contentHash,docId, getComposer,dispatch,...props}=this.props
         return (
             <ComposedDocument {...props}
 				innerRef={a=>{this.canvas=a}}
@@ -97,7 +97,7 @@ export default class Responsible extends Component{
 				>
 				<Fragment>
                     {children}
-
+						{/*
 					<Locator
                         docId={docId}
                         scale={this.props.scale}
@@ -128,14 +128,10 @@ export default class Responsible extends Component{
         					</Selection>
                         }
                         getComposer={getComposer}/>
-						
+					*/}
 				</Fragment>
             </ComposedDocument>
         )
-    }
-
-    getBoundingClientRect(){
-        return this.canvas.getBoundingClientRect()
     }
 
     notify(){
@@ -143,13 +139,13 @@ export default class Responsible extends Component{
     }
 
     componentDidUpdate(){
-        this.locator.setState({content:this.props.contentHash, canvas:this.canvas})
+        //this.locator && this.locator.setState({content:this.props.contentHash, canvas:this.canvas})
         //this.emit(`emitted${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
     }
 
     componentDidMount(){
-        this.dispatch(ACTION.Cursor.ACTIVE(this.props.docId))
-        this.locator.setState({content:this.props.contentHash, canvas:this.canvas})
+        //this.dispatch(ACTION.Cursor.ACTIVE(this.props.docId))
+        //this.locator && this.locator.setState({content:this.props.contentHash, canvas:this.canvas})
         //this.emit(`emitted${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
     }
 
@@ -357,4 +353,4 @@ export default class Responsible extends Component{
 			}
 		}
 	}
-}
+})

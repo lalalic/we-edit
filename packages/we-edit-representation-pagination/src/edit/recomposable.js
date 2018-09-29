@@ -1,7 +1,6 @@
 import React from "react"
 import PropTypes from "prop-types"
 import {Locatable,enablify} from "../composable"
-import {Group} from "../composed"
 
 /**
  *  it's a very complicated job, so we need a very simple design, one sentence described solution. options:
@@ -54,15 +53,15 @@ export default function recomposable(Content){
 		clearComposed(){
 			this.computed.composed=[]
 			this.computed.allComposed=false
+			console.debug(`${this.getComposeType()}[${this.props.id}] clear composed`)
 		}
 
 		render(){
-			if(this.isAllChildrenComposed())
+			if(this.isAllChildrenComposed()){
+				console.debug(`${this.getComposeType()}[${this.props.id}] has already all composed, continue next directly...`)
 				return null
-
-			if(!this.context.shouldContinueCompose())
-				return null
-
+			}
+			
 			return super.render()
 		}
 		

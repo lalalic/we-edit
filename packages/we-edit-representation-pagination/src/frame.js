@@ -11,10 +11,6 @@ import {Group} from "./composed"
 const Super=HasParentAndChild(Base)
 
 export default class Frame extends Super{
-	shouldContinueCompose(){
-		return true
-	}
-
 	nextAvailableSpace(required){
 		let {width,height}=this.props
 		return {width,height}

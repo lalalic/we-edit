@@ -30,7 +30,7 @@ export default compose(
 )(class Locator extends Component{
     state={content:null,canvas:null}
     render(){
-        if(!this.state.canvas)
+		if(!this.state.canvas)
             return null
         let {cursor, range, selection, scale, content}=this.props
         const {position,rects}=this.getCursorSelection(content, selection, scale)

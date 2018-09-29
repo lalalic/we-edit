@@ -10,12 +10,7 @@ const Super=recomposable(Base)
 export default class Shape extends Super{
 	static contextTypes={
 		...Super.contextTypes,
-		shouldRemoveComposed:PropTypes.func,
-		shouldContinueCompose:PropTypes.func
-	}
-
-	shouldContinueCompose(){
-		return true
+		shouldRemoveComposed:PropTypes.func
 	}
 
 	componentWillReceiveProps({width,height,changed,children}){

@@ -15,10 +15,14 @@ export default class Document extends Super{
         return (
 			<Fragment>
 				{super.render()}
-                {React.cloneElement(canvas, {content:<ComposedDocument pages={this.computed.composed}/>})}
+                {React.cloneElement(canvas, {content: this.renderComposed()})}
 			</Fragment>
 		)
     }
+	
+	renderComposed(){
+		return <ComposedDocument pages={this.computed.composed}/>
+	}
 
 	appendComposed(page){
 		this.computed.composed.push(page)

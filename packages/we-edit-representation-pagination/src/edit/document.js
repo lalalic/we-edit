@@ -66,13 +66,18 @@ export default class Document extends Super{
 	}
 
 	render(){
-		const {viewport, mode, error}=this.state
-		const {canvas,scale,pageGap,docId,contentHash}=this.props
-		if(!viewport){//to find container width, height
+		if(!this.state.viewport){//to find container width, height
 			return <div ref="viewporter" />
 		}
+		
+		return super.render()
+    }
+	
+	renderComposed(){
+		const {viewport, mode, error}=this.state
+		const {canvas,scale,pageGap,docId,contentHash}=this.props
 		const pages=this.computed.composed
-		const content=(
+		return (
 				<Responsible
 					docId={docId}
 					contentHash={contentHash}
@@ -83,36 +88,25 @@ export default class Document extends Super{
 							debugger
 						}
 					}}
-					ref={a=>this.clientDocument=a}
+					ref={a=>a && (this.clientDocument=a.getWrappedInstance())}
 					scale={scale}
 					pgGap={pageGap}
 					pages={pages}
 					>
-					{pages.length>0 && !this.isAllChildrenComposed() &&
+					{
 						<ComposeMoreTrigger
-							y={ComposedDocument.composedY(pages, pageGap)}
+							y={ComposedDocument.composedY(pages, pageGap)||(this.viewableY+this.bufferHeight)}
 							onEnter={y=>{
-								this.clientDocument &&
-								this.clientDocument.locator &&
-								this.clientDocument.locator.setState({canvas:null},()=>{
-									return
+								if(!this.isAllChildrenComposed()){
 									this.setState({y,mode:"viewport"})
-								})
+								}
 							}}
 							/>
 					}
 				</Responsible>
 						
 		)
-
-
-		return (
-			<Fragment key={error}>
-				{this.props.children}
-				{canvas ? React.cloneElement(canvas,{content, viewport}) : content}
-			</Fragment>
-		)
-    }
+	}
 
 	componentDidCatch(error){
 		console.error(error)
@@ -133,15 +127,33 @@ export default class Document extends Super{
 	shouldRemoveComposed(){
 		return this.state.mode=="content"
 	}
+	
+	get viewableY(){
+		const {viewport}=this.state
+		return viewport.node.scrollTop+viewport.height
+	}
+	
+	get bufferHeight(){
+		return this.screenBuffer(this.state.viewport.height)
+	}
 
+	/**
+	* 1. selection end
+	* 2. viewport: viewporter.scrollTop+viewporter.height
+	**/
 	shouldContinueCompose(){
-		const {mode, viewport}=this.state
-		const composedY=ComposedDocument.composedY(this.computed.composed,this.props.pageGap,this.props.scale)
-
-		let viewableY=viewport.height
-			-(this.clientDocument ? this.clientDocument.getBoundingClientRect().top : 0)//svg.top must be dynamic per scroll
-		let bufferY=this.screenBuffer(viewport.height)
-		return composedY<viewableY+bufferY
+		const aboveViewableBottom=()=>{
+			const composedY=ComposedDocument.composedY(this.computed.composed,this.props.pageGap,this.props.scale)
+			return composedY<this.viewableY+this.bufferHeight
+		}
+		
+		const selectionComposed=()=>{
+			const {activeDocStore}=this.context
+			const {end:{id}}=getSelection(activeDocStore.getState())
+			return !!this.composers.get(id)
+		}
+		
+		return aboveViewableBottom() || !selectionComposed()
 	}
 
 	initViewport(viewporter){
@@ -166,7 +178,7 @@ export default class Document extends Super{
 		while((width=a.getBoundingClientRect().width)==0){
 			a=a.parentNode
 		}
-		this.setState({viewport:{width:parseInt(width),height:parseInt(height||1056)}})
+		this.setState({viewport:{width:parseInt(width),height:parseInt(height||1056),node:container}})
 	}
 
 	get viewport(){

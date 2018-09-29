@@ -3,16 +3,7 @@ import PropTypes from "prop-types"
 import {Group} from "./composed"
 
 
-export class ComposedAllTrigger extends Component{
-    static contextTypes={
-        parent: PropTypes.object
-    }
-
-    render(){
-        this.context.parent.onAllChildrenComposed()
-        return null
-    }
-}
+export const ComposedAllTrigger=({host})=>(host.onAllChildrenComposed(),null)
 
 function HasChild(Component){
     return class extends Component{
@@ -57,12 +48,8 @@ function HasChild(Component){
          * and then append to itself.composed[] and parent.appendComposed
          */
         render(){
-            return (
-                <Fragment>
-                    {this.props.children}
-                    {<ComposedAllTrigger/>}
-                </Fragment>
-            )
+			return Children.toArray(this.props.children)
+				.reduceRight((next,current)=><Chain {...{next,current}}/>,<Chain current={<ComposedAllTrigger host={this}/>}/>)
         }
 
         /**
@@ -213,6 +200,26 @@ function Locatable(A){
 		getCursor(){
 			return null
 		}
+	}
+}
+
+export class Chain extends Component{
+	static contextTypes={
+		shouldContinueCompose: PropTypes.func
+	}
+	
+	shouldContinueCompose(){
+		if(this.context.shouldContinueCompose)
+			return this.context.shouldContinueCompose()
+		return true
+	}
+	
+	
+	render(){
+		if(!this.shouldContinueCompose())
+			return null
+		const {current, next}=this.props
+		return <Fragment>{current}{next}</Fragment>
 	}
 }
 

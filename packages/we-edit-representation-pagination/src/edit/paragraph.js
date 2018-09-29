@@ -9,12 +9,6 @@ const Super=recomposable(Base)
 
 //compose all or clear all
 export class Paragraph extends Super{
-	static contextTypes={
-		...Super.contextTypes,
-		shouldContinueCompose:PropTypes.func,
-		shouldRemoveComposed:PropTypes.func,
-	}
-
 	constructor(){
 		super(...arguments)
 		this.computed.lastComposedLines=[]
@@ -39,8 +33,12 @@ export class Paragraph extends Super{
 	*recompose [all|0]
 	*/
 	render(){
-		const {shouldRemoveComposed, shouldContinueCompose,parent}=this.context
-		const {changed, selfChanged}=this.props
+		if(this.isAllChildrenComposed()){
+			return null
+		}
+		
+		const {shouldRemoveComposed,parent}=this.context
+		const {changed}=this.props
 
 		if(this.computed.lastComposedLines.length>0){
 			if(shouldRemoveComposed() && changed){

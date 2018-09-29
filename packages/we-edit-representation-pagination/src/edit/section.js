@@ -20,4 +20,5 @@ export default class Section extends Super{
 				"width":size.width-margin.left-margin.right
 			})
 	}
+
 }
