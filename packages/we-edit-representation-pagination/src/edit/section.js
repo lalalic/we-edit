@@ -8,6 +8,11 @@ import recomposable from "./recomposable"
 const Super=recomposable(Base)
 
 export default class Section extends Super{
+	constructor(){
+		super(...arguments)
+		this.computed.lastComposed=[]
+	}
+	
 	onAllChildrenComposed(){
 		super.onAllChildrenComposed()
 		let last=this.computed.composed[this.computed.composed.length-1]
@@ -16,12 +21,26 @@ export default class Section extends Super{
 
 	createComposed2Parent(){
 		const {pgSz:size,  pgMar:margin}=this.props
-		return React.cloneElement(super.createComposed2Parent(...arguments),{
+		const page=React.cloneElement(super.createComposed2Parent(...arguments),{
 				"width":size.width-margin.left-margin.right
 			})
+		this.computed.lastComposed.push(page)
+		return page
 	}
 
 	render(){
-		return this.chainable()
+		const {shouldRemoveComposed,parent}=this.context
+		const {changed}=this.props
+
+		if(this.computed.lastComposed.length>0){
+			if(shouldRemoveComposed() && changed){
+				this.computed.lastComposed=[]
+			}else{
+				this.computed.lastComposed.forEach(page=>parent.appendComposed(page))
+				return null
+			}
+		}
+		
+		return super.render()
 	}
 }

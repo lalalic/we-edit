@@ -69,7 +69,6 @@ export default class Document extends Super{
 		if(!this.state.viewport){//to find container width, height
 			return <div ref="viewporter" />
 		}
-		this.clearComposed()
 
 		const {canvas}=this.props
         return (
@@ -81,6 +80,7 @@ export default class Document extends Super{
     }
 
 	renderComposed(){
+		this.clearComposed()
 		const {viewport, mode, error}=this.state
 		const {canvas,scale,pageGap,docId,contentHash}=this.props
 		const pages=this.computed.composed
@@ -105,7 +105,10 @@ export default class Document extends Super{
 							y={ComposedDocument.composedY(pages, pageGap)||(this.viewableY+this.bufferHeight)}
 							onEnter={y=>{
 								if(!this.isAllChildrenComposed()){
-									this.setState({y,mode:"viewport"})
+									let scrollTop=viewport.node.scrollTop
+									this.setState({y,mode:"viewport"},()=>{
+										viewport.node.scrollTop=scrollTop
+									})
 								}
 							}}
 							/>
@@ -121,7 +124,12 @@ export default class Document extends Super{
 	}
 
 	componentWillReceivProps(){
+		this.clearComposed()
 		this.setState({mode:"content"})
+	}
+	
+	isAllChildrenComposed(){
+		return super.isAllChildrenComposed() && lastChild && lastChild.isAllChildrenComposed()
 	}
 
 	componentDidMount(){
@@ -165,7 +173,10 @@ export default class Document extends Super{
 		const selectionComposed=()=>{
 			const {activeDocStore}=this.context
 			const {end:{id}}=getSelection(activeDocStore.getState())
-			return !!this.composers.get(id)
+			if(id){
+				return !!this.composers.get(id)
+			}
+			return true
 		}
 
 		return aboveViewableBottom() || !selectionComposed()

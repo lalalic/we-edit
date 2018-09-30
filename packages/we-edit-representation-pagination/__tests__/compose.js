@@ -1,10 +1,8 @@
-import React,{Fragment} from "react"
+import React from "react"
 import TestRender from "react-test-renderer"
 
 import {Viewers, Editors} from "../src"
-import {withContext} from "recompose"
-
-const provider=(A,Default={})=>withContext(A.contextTypes,({context})=>({...Default,...context}))(({children})=><Fragment>{children}</Fragment>)
+import provider from "./context"
 
 describe("compose", ()=>{
 	const {Document, Section, Paragraph, Text, Image}=Viewers
@@ -54,11 +52,8 @@ describe("compose", ()=>{
 		describe("text wrap",()=>{
 			const wrap=width=>it(`${Default}[${width}]`,test(width))
 
-			wrap(1)
-			wrap(2)
-			wrap(3)
-			wrap(4)
-			wrap(5)
+			//wrap(1)
+			//wrap(5)
 		})
 
 	})

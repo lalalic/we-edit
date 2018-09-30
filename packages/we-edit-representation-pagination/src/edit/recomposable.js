@@ -62,6 +62,12 @@ export default function recomposable(Content){
 		}
 
 		chainable(){
+			if(this.context.shouldContinueCompose && !this.context.shouldContinueCompose()){
+				return null
+			}
+			
+			
+			return super.render()
 			return Children.toArray(this.props.children)
 				.reduceRight((next,current)=><Chain {...{next,current}}/>,<Chain current={<ComposedAllTrigger host={this}/>}/>)
 		}

@@ -73,6 +73,7 @@ export default class Text extends Super{
 
                 if(loopCounter>3){//
                     console.warn("possible dead loop, commit first")
+					//commit(state)
                     debugger
                 }
 
