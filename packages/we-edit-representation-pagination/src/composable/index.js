@@ -6,7 +6,7 @@ import Recomposable from "./recomposable"
 import Locatable from "./locatable"
 import Stoppable from "./stoppable"
 import Continuable from "./continuable"
-import Cachable from "./cachable"
+import Cacheable from "./cacheable"
 
 const enablify=func=>(targets, excludes)=>Object.keys(targets)
 	.reduce((enabled, k)=>{
@@ -17,12 +17,12 @@ const enablify=func=>(targets, excludes)=>Object.keys(targets)
 	},{...excludes});
 
 
-[HasChild, HasParentAndChild, NoChild,Recomposable, Locatable,Stoppable,Continuable,Cachable]
+[HasChild, HasParentAndChild, NoChild,Recomposable, Locatable,Stoppable,Continuable,Cacheable]
 	.forEach(a=>a.enable=enablify(a))
 
-export {enablify, HasChild, HasParentAndChild, NoChild, Recomposable,Locatable,Stoppable,Continuable,Cachable}
+export {enablify, HasChild, HasParentAndChild, NoChild, Recomposable,Locatable,Stoppable,Continuable,Cacheable}
 
-export default function composable(A,{locatable,stoppable,continuable,cachable,recomposable}){
+export default function composable(A,{locatable,stoppable,continuable,cacheable,recomposable}){
     if(locatable){
         A=Locatable(A)
     }
@@ -35,8 +35,8 @@ export default function composable(A,{locatable,stoppable,continuable,cachable,r
     if(continuable){
         A=Continuable(A)
     }
-    if(cachable){
-        A=Cachable(A)
+    if(cacheable){//must be the last
+        A=Cacheable(A)
     }
     return A
 }

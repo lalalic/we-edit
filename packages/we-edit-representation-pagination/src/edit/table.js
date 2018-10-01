@@ -1,6 +1,7 @@
 import React,{Fragment,PureComponent} from "react"
 
 import {connect,ACTION} from "we-edit"
+import {Cacheable} from "../composable"
 import editable from "./editable"
 import Base from "../table"
 import Resizable from "../composed/selection/resizable"
@@ -129,8 +130,8 @@ export default class extends editable(class extends Base{
 	}
 },{stoppable:true,cachable:true}){
 	clearComposed(){
-		super.clearComposed()
 		this.computed.composedRows=-1
+		super.clearComposed()
 	}
 }
 

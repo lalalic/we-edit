@@ -6,16 +6,10 @@ import Base from "../paragraph"
 import editable from "./editable"
 
 //compose all or clear all
-export class Paragraph extends editable(Base,{stoppable:true,cachable:true}){
+export class Paragraph extends editable(Base,{stoppable:true,cacheable:true}){
 	constructor(){
 		super(...arguments)
-		this.computed.lastComposedLines=[]
-	}
-
-	createComposed2Parent(){
-		let line=super.createComposed2Parent(...arguments)
-		this.computed.lastComposedLines.push(line)
-		return line
+		this.computed.lastText=""
 	}
 
 	componentWillUnmount(){
@@ -26,30 +20,6 @@ export class Paragraph extends editable(Base,{stoppable:true,cachable:true}){
 		this.computed.lastText=""
 		super.clearComposed()
 	}
-
-	/**
-	*recompose [all|0]
-
-	render(){
-		if(this.isAllChildrenComposed()){
-			return null
-		}
-
-		const {shouldRemoveComposed,shouldContinueCompose, parent}=this.context
-		const {changed}=this.props
-
-		if(this.computed.lastComposedLines.length>0){
-			if(shouldRemoveComposed() && changed){
-				this.computed.lastComposedLines=[]
-			}else{
-				this.computed.lastComposedLines.forEach(line=>parent.appendComposed(line))
-				return null
-			}
-		}
-
-		return super.render()
-	}
-	*/
 }
 
 export default Paragraph

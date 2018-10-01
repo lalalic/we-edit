@@ -43,6 +43,14 @@ export default class Document extends Super{
 		this.state={mode:"viewport",viewport, ...this.state}
 		this.screenBuffer=typeof(screenBuffer)=="function" ? screenBuffer : a=>screenBuffer;
 	}
+	get viewableY(){
+		const {viewport}=this.state
+		return viewport.node.scrollTop+viewport.height
+	}
+
+	get bufferHeight(){
+		return this.screenBuffer(this.state.viewport.height)
+	}	
 
 	getChildContext(){
 		let mount=a=>{
@@ -109,32 +117,10 @@ export default class Document extends Super{
 		this.setState({error})
 	}
 
-	shouldComponentUpdate({changed},update){
-		this.clearComposed()
-		if(changed){
-			//this.setState({mode:"content"})
-		}
-		return true
-	}
-
 	componentDidMount(){
 		if(!this.state.viewport){
 			this.initViewport(this.refs.viewporter)
 		}
-	}
-
-	shouldRemoveComposed(){
-		return true
-		return this.state.mode=="content"
-	}
-
-	get viewableY(){
-		const {viewport}=this.state
-		return viewport.node.scrollTop+viewport.height
-	}
-
-	get bufferHeight(){
-		return this.screenBuffer(this.state.viewport.height)
 	}
 
 	/**
