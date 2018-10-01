@@ -1,6 +1,6 @@
 import React,{Fragment, Component} from "react"
 import {models} from "we-edit"
-import {composable, recomposable} from "we-edit-representation-pagination"
+import {composable, editable} from "we-edit-representation-pagination"
 
 import {Editors} from "we-edit-representation-html"
 import Document from "./document"
@@ -9,7 +9,7 @@ import Text from "./text"
 
 const {HasParentAndChild}=composable
 
-const wrapper=A=>recomposable(HasParentAndChild(A))
+const wrapper=A=>editable(HasParentAndChild(A))
 
 export default Object.keys(Editors)
 	.reduce((TextEditors, k)=>{

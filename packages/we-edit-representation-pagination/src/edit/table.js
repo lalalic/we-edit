@@ -1,14 +1,14 @@
 import React,{Fragment,PureComponent} from "react"
 
 import {connect,ACTION} from "we-edit"
-import recomposable from "./recomposable"
+import editable from "./editable"
 import Base from "../table"
 import Resizable from "../composed/selection/resizable"
 import Top from "../composed/selection/top"
 import {Group,Line} from "../composed"
 
 
-export default class extends recomposable(class extends Base{
+export default class extends editable(class extends Base{
 	createComposed2Parent(){
 		let row=super.createComposed2Parent(...arguments)
 
@@ -127,14 +127,10 @@ export default class extends recomposable(class extends Base{
 
 		return React.cloneElement(row, {children:cells})
 	}
-}){
+},{stoppable:true,cachable:true}){
 	clearComposed(){
 		super.clearComposed()
 		this.computed.composedRows=-1
-	}
-
-	render(){
-		return this.chainable()
 	}
 }
 

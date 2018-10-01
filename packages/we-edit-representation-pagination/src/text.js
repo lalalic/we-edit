@@ -16,6 +16,11 @@ export default class Text extends Super{
 		Measure: PropTypes.func
 	}
 
+    get text(){
+        let {children}=this.props
+        return Array.isArray(children) ? children.join("") : children
+    }
+
     getBreakOpportunities=memoize((myText,fonts,size,bold,italic)=>{
 		const {Measure,getMyBreakOpportunities}=this.context
 		const measure=this.measure=new Measure({fonts:fonts,size,bold,italic})
@@ -30,7 +35,7 @@ export default class Text extends Super{
 			return null
 		}
 
-		const breakOpportunities=(({children:myText,fonts,size,bold,italic})=>
+		const breakOpportunities=(({myText=this.text,fonts,size,bold,italic})=>
 			this.getBreakOpportunities(myText,fonts,size,bold,italic))(this.props);
 
         const measure=this.measure

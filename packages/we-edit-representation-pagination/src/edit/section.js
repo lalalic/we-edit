@@ -3,11 +3,9 @@ import PropTypes from "prop-types"
 
 import Base from "../section"
 
-import recomposable from "./recomposable"
+import editable from "./editable"
 
-const Super=recomposable(Base)
-
-export default class Section extends Super{
+export default class Section extends editable(Base,{stoppable:true,cachable:true}){
 	constructor(){
 		super(...arguments)
 		this.computed.lastComposed=[]
@@ -26,21 +24,5 @@ export default class Section extends Super{
 			})
 		this.computed.lastComposed.push(page)
 		return page
-	}
-
-	render(){
-		const {shouldRemoveComposed,parent}=this.context
-		const {changed}=this.props
-
-		if(this.computed.lastComposed.length>0){
-			if(shouldRemoveComposed() && changed){
-				this.computed.lastComposed=[]
-			}else{
-				this.computed.lastComposed.forEach(page=>parent.appendComposed(page))
-				return null
-			}
-		}
-		
-		return super.render()
 	}
 }

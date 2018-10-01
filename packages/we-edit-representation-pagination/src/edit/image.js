@@ -1,9 +1,9 @@
 import React from "react"
-import recomposable from "./recomposable"
+import editable from "./editable"
 import Base from "../image"
 import Entity from "../composed/selection/entity"
 
-export default class extends recomposable(Base){
+export default class extends editable(Base){
 	splittable=false
 
     nextCursorable(at){

@@ -3,12 +3,10 @@ import PropTypes from "prop-types"
 
 import Base from "../paragraph"
 
-import recomposable from "./recomposable"
-
-const Super=recomposable(Base)
+import editable from "./editable"
 
 //compose all or clear all
-export class Paragraph extends Super{
+export class Paragraph extends editable(Base,{stoppable:true,cachable:true}){
 	constructor(){
 		super(...arguments)
 		this.computed.lastComposedLines=[]
@@ -31,13 +29,13 @@ export class Paragraph extends Super{
 
 	/**
 	*recompose [all|0]
-	*/
+
 	render(){
 		if(this.isAllChildrenComposed()){
 			return null
 		}
-		
-		const {shouldRemoveComposed,parent}=this.context
+
+		const {shouldRemoveComposed,shouldContinueCompose, parent}=this.context
 		const {changed}=this.props
 
 		if(this.computed.lastComposedLines.length>0){
@@ -51,6 +49,7 @@ export class Paragraph extends Super{
 
 		return super.render()
 	}
+	*/
 }
 
 export default Paragraph

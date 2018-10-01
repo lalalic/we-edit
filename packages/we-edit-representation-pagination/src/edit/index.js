@@ -1,6 +1,6 @@
 import Models from "../all"
 
-import recomposable from "./recomposable"
+import editable from "./editable"
 
 import Document from "./document"
 import Section from "./section"
@@ -12,7 +12,7 @@ import Container from "./container"
 import Text from "./text"
 import Image from "./image"
 
-export default recomposable.enable(Models,{
+export default editable.enable(Models,{
 	Document,
 	Section,
 	Paragraph,

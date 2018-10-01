@@ -99,7 +99,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 				>
 				<Fragment>
                     {children}
-						{/*
+						{
 					<Locator
                         docId={docId}
                         scale={this.props.scale}
@@ -130,7 +130,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
         					</Selection>
                         }
                         getComposer={getComposer}/>
-					*/}
+					}
 				</Fragment>
             </ComposedDocument>
         )

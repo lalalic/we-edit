@@ -15,7 +15,6 @@ export default class Text extends Component{
 		hightlight: PropTypes.string,
 		border: PropTypes.object,
 		underline: PropTypes.string,
-		strike: PropTypes.bool,
-		children: PropTypes.string.isRequired
+		strike: PropTypes.bool
 	}
 }

@@ -10,11 +10,11 @@ import Base from "../document"
 import Responsible from "../composed/responsible"
 import {Document as ComposedDocument,Group} from "../composed"
 
-import recomposable from "./recomposable"
+import editable from "./editable"
 
 import offset from "mouse-event-offset"
 
-const Super=recomposable(Base)
+const Super=editable(Base,{locatable:false,continuable:true})
 export default class Document extends Super{
 	static propTypes={
 		...Super.propTypes,
@@ -32,23 +32,19 @@ export default class Document extends Super{
 
 	static childContextTypes={
 		...Super.childContextTypes,
-		shouldContinueCompose: PropTypes.func,
-		shouldRemoveComposed: PropTypes.func,
 		mount: PropTypes.func,
 		unmount: PropTypes.func,
 		scrollableAncestor: PropTypes.any
 	}
 
-	constructor({screenBuffer,viewport}){
+	constructor({screenBuffer=100,viewport}){
 		super(...arguments)
 		this.composers=new Map([[this.props.id,this]])
 		this.state={mode:"viewport",viewport, ...this.state}
-		this.screenBuffer=typeof(screenBuffer)=="function" ? screenBuffer : a=>screenBuffer||a;
+		this.screenBuffer=typeof(screenBuffer)=="function" ? screenBuffer : a=>screenBuffer;
 	}
 
 	getChildContext(){
-		let shouldRemoveComposed=this.shouldRemoveComposed.bind(this)
-		let shouldContinueCompose=this.shouldContinueCompose.bind(this)
 		let mount=a=>{
 			//console.log(`${a.getComposeType()}[${a.props.id}] mounted`)
 			this.composers.set(a.props.id,a)
@@ -59,8 +55,6 @@ export default class Document extends Super{
 		}
 		return {
 			...super.getChildContext(),
-			shouldContinueCompose,
-			shouldRemoveComposed,
 			mount,unmount,
 		}
 	}
@@ -70,17 +64,10 @@ export default class Document extends Super{
 			return <div ref="viewporter" />
 		}
 
-		const {canvas}=this.props
-        return (
-			<Fragment>
-				{super.chainable()}
-                {canvas ? React.cloneElement(canvas, {content: this.renderComposed()}) : this.renderComposed()}
-			</Fragment>
-		)
+        return super.render()
     }
 
 	renderComposed(){
-		this.clearComposed()
 		const {viewport, mode, error}=this.state
 		const {canvas,scale,pageGap,docId,contentHash}=this.props
 		const pages=this.computed.composed
@@ -95,7 +82,6 @@ export default class Document extends Super{
 							debugger
 						}
 					}}
-					ref={a=>a && (this.clientDocument=a.getWrappedInstance())}
 					scale={scale}
 					pgGap={pageGap}
 					pages={pages}
@@ -107,7 +93,7 @@ export default class Document extends Super{
 								if(!this.isAllChildrenComposed()){
 									let scrollTop=viewport.node.scrollTop
 									this.setState({y,mode:"viewport"},()=>{
-										viewport.node.scrollTop=scrollTop
+										//viewport.node.scrollTop=scrollTop
 									})
 								}
 							}}
@@ -123,13 +109,12 @@ export default class Document extends Super{
 		this.setState({error})
 	}
 
-	componentWillReceivProps(){
+	shouldComponentUpdate({changed},update){
 		this.clearComposed()
-		this.setState({mode:"content"})
-	}
-	
-	isAllChildrenComposed(){
-		return super.isAllChildrenComposed() && lastChild && lastChild.isAllChildrenComposed()
+		if(changed){
+			//this.setState({mode:"content"})
+		}
+		return true
 	}
 
 	componentDidMount(){
@@ -139,6 +124,7 @@ export default class Document extends Super{
 	}
 
 	shouldRemoveComposed(){
+		return true
 		return this.state.mode=="content"
 	}
 
@@ -155,16 +141,7 @@ export default class Document extends Super{
 	* 1. selection end
 	* 2. viewport: viewporter.scrollTop+viewporter.height
 	**/
-	shouldContinueCompose(id){
-		if(id){
-			let composer=this.composers.get(id)
-			if(composer){
-				if(composer.isAllChildrenComposed()){
-					return true
-				}
-			}
-		}
-
+	shouldContinueCompose(a){
 		const aboveViewableBottom=()=>{
 			const composedY=ComposedDocument.composedY(this.computed.composed,this.props.pageGap,this.props.scale)
 			return composedY<this.viewableY+this.bufferHeight
@@ -179,7 +156,12 @@ export default class Document extends Super{
 			return true
 		}
 
-		return aboveViewableBottom() || !selectionComposed()
+		const should=aboveViewableBottom() || !selectionComposed()
+
+		if(!should){
+			this.notifyNotAllComposed(a)
+		}
+		return should
 	}
 
 	initViewport(viewporter){

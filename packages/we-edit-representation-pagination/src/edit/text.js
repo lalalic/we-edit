@@ -1,7 +1,7 @@
-import recomposable from "./recomposable"
+import editable from "./editable"
 import Base from "../text"
 
-export default class extends recomposable(Base){
+export default class extends editable(Base){
     nextCursorable(at=-1){
         const {children:text}=this.props
         if(text.length>at){
@@ -20,16 +20,16 @@ export default class extends recomposable(Base){
             return at-1
         }
     }
-	
+
 	distanceAt(x, node){
 		const endat=parseInt(node.dataset.endat)
 		const offset=endat-node.textContent.length
 		return offset+this.measure.widthString(Math.max(x,0),node.textContent)
 	}
-	
+
 	position(canvas, at){
 		try{
-			
+
 			const {id}=this.props
 			const rects=canvas.getClientRects(id)
 			const i=rects.map(a=>parseInt(a.node.dataset.endat))

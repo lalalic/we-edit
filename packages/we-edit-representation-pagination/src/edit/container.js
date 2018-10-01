@@ -1,9 +1,9 @@
 import React from "react"
 import {Container} from "../all"
 import {Group} from "../composed"
-import recomposable from "./recomposable"
+import editable from "./editable"
 
-export default class extends recomposable(Container){
+export default class extends editable(Container){
     getComposeType(){
         return this.props.type || super.getComposeType()
     }

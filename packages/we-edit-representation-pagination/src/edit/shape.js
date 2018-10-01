@@ -3,9 +3,9 @@ import PropTypes from "prop-types"
 
 import Base from "../shape"
 
-import recomposable from "./recomposable"
+import editable from "./editable"
 
-const Super=recomposable(Base)
+const Super=editable(Base)
 
 export default class Shape extends Super{
 	static contextTypes={

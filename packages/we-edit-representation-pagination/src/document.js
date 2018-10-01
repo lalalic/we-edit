@@ -19,7 +19,7 @@ export default class Document extends Super{
 			</Fragment>
 		)
     }
-	
+
 	renderComposed(){
 		return <ComposedDocument pages={this.computed.composed}/>
 	}
