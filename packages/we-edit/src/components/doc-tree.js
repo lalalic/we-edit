@@ -16,7 +16,16 @@ const DL=connect(state=>{
 })(class DL extends PureComponent{
 	state={show:true}
 	render(){
-		let {name,id, children, isFocus, focus, dispatch, ...props}=this.props
+		let {name,id, children, isFocus, focus, dispatch, textContent,
+			onClick=a=>{
+				if(textContent){
+					dispatch(Selection.SELECT(id,0,id,textContent.length-1))
+				}else{
+					dispatch(Selection.SELECT(id))
+				}
+			},
+			...props}=this.props
+
 		const {show}=this.state
 		if(children){
 			if(Array.isArray(children)){
@@ -43,7 +52,9 @@ const DL=connect(state=>{
 						style={{display:"inline-block",width:20,textAlign:"center"}}>
 						{!!children && (show ? "-" : "+")}
 					</span>
-					<span style={typeStyle} onClick={a=>dispatch(Selection.SELECT(id))}>{name}</span>
+					<span style={typeStyle} onClick={onClick}>
+						{name}
+					</span>
 				</dt>
 				}
 				{children}
@@ -99,7 +110,14 @@ export default compose(
 		}
 		toNodeProps=toNodeProps||(({id,type,props})=>({id,name:type}))
 		const createNode=(id, type,props,children)=>{
-			return React.cloneElement(node,{...toNodeProps({id,type,props}),key:id,id,children,isFocus:isFocus(id)})
+			return React.cloneElement(node,{
+				...toNodeProps({id,type,props}),
+				key:id,
+				id,
+				children,
+				isFocus:isFocus(id),
+				textContent: typeof(children)=="string" ? children: undefined
+			})
 		}
 		return this.constructor.createDocument(content, this.getFilter(filter),createNode)
 	})

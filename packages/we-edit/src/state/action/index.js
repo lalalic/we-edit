@@ -115,15 +115,15 @@ export const Selection={
 	SELECT: function(start, at=0, end=start, endAt=at){
 		endAt=arguments.length==1 ? 1 : endAt
 		return {
-			type:`we-edit/selection/SELECTED`
-			,payload: {
+			type:`we-edit/selection/SELECTED`,
+			payload: {
 				start:{
-					id:start
-					,at
+					id:start,
+					at
 				}
 				,end:{
-					id:end
-					,at:endAt
+					id:end,
+					at:endAt
 				}
 			}
 		}

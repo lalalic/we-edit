@@ -2,7 +2,7 @@ import React, {PureComponent, Component, Fragment} from "react"
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
 import Waypoint from "react-waypoint"
-import {getContent,getSelection,getClientRect, ACTION, ContentQuery} from "we-edit"
+import {getContent,getSelection,getClientRect, ACTION, ContentQuery,connect} from "we-edit"
 
 import {setDisplayName,compose, getContext} from "recompose"
 
@@ -34,14 +34,14 @@ export default class Document extends Super{
 		...Super.childContextTypes,
 		mount: PropTypes.func,
 		unmount: PropTypes.func,
-		scrollableAncestor: PropTypes.any
 	}
 
-	constructor({screenBuffer=100,viewport}){
+	constructor({screenBuffer,viewport}){
 		super(...arguments)
 		this.composers=new Map([[this.props.id,this]])
-		this.state={mode:"viewport",viewport, ...this.state}
-		this.screenBuffer=typeof(screenBuffer)=="function" ? screenBuffer : a=>screenBuffer;
+		this.state={mode:"content",viewport, ...this.state}
+		this.screenBuffer=typeof(screenBuffer)=="function" ? screenBuffer : a=>screenBuffer!=undefined ? screenBuffer : a;
+		this.responsible=React.createRef()
 	}
 	get viewableY(){
 		const {viewport}=this.state
@@ -50,7 +50,7 @@ export default class Document extends Super{
 
 	get bufferHeight(){
 		return this.screenBuffer(this.state.viewport.height)
-	}	
+	}
 
 	getChildContext(){
 		let mount=a=>{
@@ -58,7 +58,7 @@ export default class Document extends Super{
 			this.composers.set(a.props.id,a)
 		}
 		let unmount=a=>{
-			//console.log(`${a.getComposeType()}[${a.props.id}] unmounted`)
+			console.log(`${a.getComposeType()}[${a.props.id}] unmounted`)
 			this.composers.delete(a.props.id)
 		}
 		return {
@@ -81,6 +81,7 @@ export default class Document extends Super{
 		const pages=this.computed.composed
 		return (
 				<Responsible
+					ref={this.responsible}
 					docId={docId}
 					contentHash={contentHash}
 					getComposer={id=>{
@@ -96,13 +97,22 @@ export default class Document extends Super{
 					>
 					{
 						<ComposeMoreTrigger
-							y={ComposedDocument.composedY(pages, pageGap)||(this.viewableY+this.bufferHeight)}
+							isComposed={id=>this.composers.has(id)}
+							compose4Selection={a=>{
+								if(!this.isAllChildrenComposed()){
+									this.responsible.current
+										.getWrappedInstance()
+										.notify(()=>this.setState({mode:"selection"}))
+
+								}
+							}}
+							y={()=>ComposedDocument.composedY(pages, pageGap)||(this.viewableY+this.bufferHeight)}
 							onEnter={y=>{
 								if(!this.isAllChildrenComposed()){
-									let scrollTop=viewport.node.scrollTop
-									this.setState({y,mode:"viewport"},()=>{
-										//viewport.node.scrollTop=scrollTop
-									})
+									this.responsible.current
+										.getWrappedInstance()
+										.notify(()=>this.setState({y,mode:"scroll"}))
+
 								}
 							}}
 							/>
@@ -110,6 +120,17 @@ export default class Document extends Super{
 				</Responsible>
 
 		)
+	}
+
+	static getDerivedStateFromProps({change,contentHash},{mode}){
+		let state={}
+		if(change && contentHash!=state.contentHash){
+			state.mode="content"
+		}
+		if(contentHash!=state.contentHash){
+			state.contentHash=contentHash
+		}
+		return state
 	}
 
 	componentDidCatch(error){
@@ -129,15 +150,16 @@ export default class Document extends Super{
 	**/
 	shouldContinueCompose(a){
 		const aboveViewableBottom=()=>{
+			const {y=0,viewport}=this.state
 			const composedY=ComposedDocument.composedY(this.computed.composed,this.props.pageGap,this.props.scale)
-			return composedY<this.viewableY+this.bufferHeight
+			return composedY<Math.max(this.viewableY+this.bufferHeight,y+viewport.height+this.bufferHeight)
 		}
 
 		const selectionComposed=()=>{
 			const {activeDocStore}=this.context
-			const {end:{id}}=getSelection(activeDocStore.getState())
-			if(id){
-				return !!this.composers.get(id)
+			const {end,start}=getSelection(activeDocStore.getState())
+			if(start.id){
+				return this.composers.has(start.id) && this.composers.has(end.id)
 			}
 			return true
 		}
@@ -183,11 +205,29 @@ export default class Document extends Super{
 
 const ComposeMoreTrigger=compose(
 	setDisplayName("More"),
-	getContext({debug: PropTypes.bool})
-)(({onEnter,y, debug})=>(
-	<Waypoint onEnter={()=>onEnter(y)} >
-		<Group y={y}>
-			{debug ? <line x1="0" y1="0" x2="10000" y2="0" strokeWidth="2" stroke="red"/> : null}
-		</Group>
-	</Waypoint>
-))
+	getContext({debug: PropTypes.bool}),
+	connect(state=>{
+		const {start,end}=getSelection(state)
+		return {start:start.id, end:end.id}
+	}),
+)(class extends Component{
+	shouldComponentUpdate({start,end,isComposed,compose4Selection}){
+		if((start && !isComposed(start))|| (end&&!isComposed(end))){
+			compose4Selection()
+			return false
+		}
+		return true
+	}
+
+	render(){
+		const {onEnter,debug}=this.props
+		const y=this.props.y()
+		return (
+			<Waypoint onEnter={()=>onEnter(y)} >
+				<Group y={y}>
+					{debug ? <line x1="0" y1="0" x2="10000" y2="0" strokeWidth="2" stroke="red"/> : null}
+				</Group>
+			</Waypoint>
+		)
+	}
+})

@@ -18,26 +18,28 @@ const $=pages=>{
 }
 
 
-describe("recompose", ()=>{
-	const StoreContext=provider(Responsible,{
-			activeDocStore:{
+describe("continuable", ()=>{
+	const store=(state={
+			toJS(){
+				return {start:{},end:{}}
+			},
+			hashCode(){
+				return "1234"
+			}
+		})=>({activeDocStore:{
 				subscribe(){},
 				dispatch(){},
 				getState(){
 					return {
 						get(){
-							return {
-								toJS(){
-									return {start:{},end:{}}
-								},
-								hashCode(){
-									return "1234"
-								}
-							}
+							return state
 						}
 					}
 				}
-	}})
+			}
+		})
+
+	const StoreContext=provider(Responsible,store())
 	const TextContext=provider(Text,{
 			Measure:class{
 				height=10
@@ -137,58 +139,156 @@ describe("recompose", ()=>{
 		compose2Id('1.0',1)
 		compose2Id('1.1',1)
 		compose2Id('1.2',1)
-		compose2Id('2.0',1)
 
-		compose2Id('2.1',2)
 		compose2Id('2.2',2)
-		compose2Id('3.0',2)
 
-		compose2Id('3.1',3)
 		compose2Id('3.2',3)
 	})
 
-	it("compose to y then to 2y",()=>{
-		const node={scrollTop:0}
-		const renderer=TestRender.create(
-			<StoreContext>
-				<TextContext>
-					<Document pageGap={pageGap} viewport={{width:500,height:size.height/2,node}} screenBuffer={()=>0} scale={1}>
-						{section(1)}
-						{section(2)}
-						{section(3)}
-					</Document>
-				</TextContext>
-			</StoreContext>
-		)
-		const doc=renderer.root.findByType(Document).instance
-		let pages=doc.computed.composed
 
-		expect($(pages).text()).toBe("hello1")
-		expect(pages.length).toBe(1)
+	describe("compose to y/id then y/id",()=>{
+		function compose2(node,state){
+			const renderer=TestRender.create(
+				<StoreContext context={store(state)}>
+					<TextContext>
+						<Document pageGap={pageGap} viewport={{width:500,height:size.height/2,node}} screenBuffer={()=>0} scale={1}>
+							{section(1)}
+							{section(2)}
+							{section(3)}
+						</Document>
+					</TextContext>
+				</StoreContext>
+			)
+			return renderer.root.findByType(Document).instance
+		}
 
-		return new Promise((resolve, reject)=>{
-			const shouldComponentUpdate=doc.shouldComponentUpdate=jest.fn(doc.shouldComponentUpdate)
-			const render=doc.render=jest.fn(doc.render)
+		it("compose to y then to 2y",()=>{
+			const node={scrollTop:0}
+			const state={
+				toJS(){
+					return {start:{},end:{}}
+				},
+				hashCode(){
+					return "1234"
+				}
+			}
+			const doc=compose2(node,state)
+			let pages=doc.computed.composed
 
-			node.scrollTop=size.height/2+pageGap
+			expect($(pages).text()).toBe("hello1")
+			expect(pages.length).toBe(1)
 
-			doc.setState({mode:"viewport",time:Date.now()},()=>{
-				expect(shouldComponentUpdate).toHaveBeenCalled()
-				expect(render).toHaveBeenCalled()
-				let pages=doc.computed.composed
+			return new Promise((resolve, reject)=>{
+				node.scrollTop=size.height/2+pageGap
+				doc.setState({mode:"viewport",time:Date.now()},()=>{
+					let pages=doc.computed.composed
+					expect(pages.length).toBe(2)
+					expect($(pages).text()).toBe("hello1hello2")
+					resolve()
+				})
+			})
+		})
 
-				expect(pages.length).toBe(2)
-				expect($(pages).text()).toBe("hello1hello2")
-				resolve()
+		it("compose to y then to id",()=>{
+			const node={scrollTop:0}
+			const state={
+				toJS(){
+					return {start:{},end:{}}
+				},
+				hashCode(){
+					return "1234"
+				}
+			}
+			const doc=compose2(node,state)
+
+			let pages=doc.computed.composed
+
+			expect($(pages).text()).toBe("hello1")
+			expect(pages.length).toBe(1)
+
+			return new Promise((resolve, reject)=>{
+				state.toJS=jest.fn(()=>{
+					return {start:{id:"3.3",at:0},end:{id:"3.3",at:0}}
+				})
+				doc.setState({mode:"viewport",time:Date.now()},()=>{
+					let pages=doc.computed.composed
+					expect(pages.length).toBe(3)
+					expect($(pages).text()).toBe("hello1hello2hello3")
+					resolve()
+				})
+			})
+
+		})
+
+		it("compose to id then to id",()=>{
+			const node={scrollTop:0}
+			const state={
+				toJS(){
+					return {start:{id:"2.2",at:0},end:{id:"2.2",at:0}}
+				},
+				hashCode(){
+					return "1234"
+				}
+			}
+
+			const doc=compose2(node,state)
+
+			const pages=doc.computed.composed
+			expect(pages.length).toBe(2)
+			expect($(pages).text()).toBe("hello1hello2")
+
+			return new Promise((resolve, reject)=>{
+				state.toJS=jest.fn(()=>{
+					return {start:{id:"3.3",at:0},end:{id:"3.3",at:0}}
+				})
+				doc.setState({mode:"viewport",time:Date.now()},()=>{
+					const pages=doc.computed.composed
+					expect(pages.length).toBe(3)
+					expect($(pages).text()).toBe("hello1hello2hello3")
+					resolve()
+				})
 			})
 		})
 	})
 
-	it("compose to y then to id",()=>{
 
+	describe("locating cursor/selection",()=>{
+		it("only when content composed",()=>{
+
+		})
+
+		it("only when cursored content composed",()=>{
+
+		})
+
+		it("only when selected content composed",()=>{
+
+		})
 	})
 
-	it("compose to id then to id",()=>{
+	describe("when selection/cursor changed, cursor should go to viewport",()=>{
+		it("input content",()=>{
 
+		})
+
+		it("selection change=>compose=>",()=>{
+
+		})
+
+		it("selection change=>no compose[content,scroll,selection]=>",()=>{
+
+		})
+
+		it("cursor change=>compose=>",()=>{
+
+		})
+
+		it("cursor change=>no compose=>",()=>{
+
+		})
 	})
+})
+
+describe("cacheable", ()=>{
+
 })

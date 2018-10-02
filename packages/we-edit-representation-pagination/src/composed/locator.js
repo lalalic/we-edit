@@ -68,22 +68,30 @@ export default compose(
     }
 
     shouldComponentUpdate({content,selection},state){
+        if(!selection.equals(this.props.selection)){
+            this.newSelection=true
+        }
+        if(this.newSelection===false){
+            delete this.newSelection
+            return false
+        }
+        if(!state.canvas)
+            return false
         return state.content==content
     }
 
-    componentDidUpdate({selection},{content}){
-        if(!this.props.selection.equals(selection) || content!=this.state.content){
+    componentDidUpdate({selection}){
+        if(this.canvas && this.newSelection){
             const {scale, updateSelectionStyle}=this.props
 			const style=this.getSelectionStyle(this.props.content,this.props.selection, scale)
+            this.scrollCursorIntoView()
             updateSelectionStyle(style)
-        }
-        if(this.state.canvas){
-    		this.scrollCursorIntoView()
+            this.newSelection=false
         }
     }
 
 	scrollCursorIntoView(){
-		const viewporter=this.canvas.closest('[style*="overflow"]')
+        const viewporter=this.canvas.closest('[style*="overflow"]')
 		const cursor=this.refs.cursor.getBoundingClientRect()
 		const {top,height,bottom=top+height}=viewporter.getBoundingClientRect()
 		if(cursor.bottom<top){

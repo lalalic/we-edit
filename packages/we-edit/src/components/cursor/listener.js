@@ -16,10 +16,10 @@ export default connect()(class Listener extends Component{
 		39:e=>this.props.dispatch(ACTION.Cursor.MOVE_RIGHT(e.shiftKey)),//move right
 		40:e=>this.props.dispatch(ACTION.Cursor.MOVE_RIGHT(e.shiftKey)),//move down
 	}
-	
+
 	render(){
 		let {dispatch,keys={},...others}=this.props
-		keys={...this.KEYS, ...keys}
+		keys={...this.KEYs, ...keys}
 		return <input
 			ref={a=>this.input=a}
 			className="cursor"

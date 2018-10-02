@@ -64,7 +64,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
     }
 
     render(){
-        const {children, contentHash,docId, getComposer,dispatch,...props}=this.props
+        const {children, contentHash,docId, getComposer,dispatch, ...props}=this.props
         return (
             <ComposedDocument {...props}
 				innerRef={a=>{this.canvas=a}}
@@ -99,7 +99,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 				>
 				<Fragment>
                     {children}
-						{/*
+						{
 					<Locator
                         docId={docId}
                         scale={this.props.scale}
@@ -130,17 +130,21 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
         					</Selection>
                         }
                         getComposer={getComposer}/>
-					*/}
+					}
 				</Fragment>
             </ComposedDocument>
         )
     }
 
-    notify(){
-        this.locator.setState({content:null,canvas:null})
+    notify(callback){
+        if(this.locator){
+            this.locator.setState({content:null,canvas:null},callback)
+        }else{
+            callback()
+        }
     }
 
-    componentDidUpdate(){
+    componentDidUpdate({},state,snapshot){
         this.locator && this.locator.setState({content:this.props.contentHash, canvas:this.canvas})
         //this.emit(`emitted${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
     }
@@ -151,11 +155,11 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
         //this.emit(`emitted${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
     }
 
-	componentWillMount(){
-		//this.emit(`composed${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
+	componentWillMount1(){
+		//this.emit(`co1mposed${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
 	}
 
-	componentWillUpdate(){
+	componentWillUpdate1(){
 		//this.emit(`composed${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
 	}
 

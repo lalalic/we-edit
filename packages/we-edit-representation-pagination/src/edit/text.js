@@ -29,7 +29,8 @@ export default class extends editable(Base){
 
 	position(canvas, at){
 		try{
-
+            if(at>this.text.length)
+                at=this.text.length
 			const {id}=this.props
 			const rects=canvas.getClientRects(id)
 			const i=rects.map(a=>parseInt(a.node.dataset.endat))
