@@ -122,10 +122,11 @@ export default class Document extends Super{
 		)
 	}
 
-	static getDerivedStateFromProps({change,contentHash},{mode}){
+	static getDerivedStateFromProps({changed,contentHash},{mode}){
 		let state={}
-		if(change && contentHash!=state.contentHash){
+		if(changed && contentHash!=state.contentHash){
 			state.mode="content"
+			state.y=0
 		}
 		if(contentHash!=state.contentHash){
 			state.contentHash=contentHash
