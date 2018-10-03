@@ -167,23 +167,23 @@ export class Paragraph extends Super{
     }
 
     onAllChildrenComposed(){//need append last non-full-width line to parent
-        this.commitCurrentLine()
+		super.onAllChildrenComposed()
+		this.commitCurrentLine()
 
         this.availableSpace={width:0, height:0}
-
-        super.onAllChildrenComposed()
     }
 
     createComposed2Parent(props){
-        let {height, width, ...others}=props
+        const {height, width, ...others}=props
         let {
 			spacing:{lineHeight="100%",top=0, bottom=0},
 			indent:{left=0,right=0,firstLine=0},
 			align
 			}=this.props
-        let contentY=0, contentX=left
 
        lineHeight=typeof(lineHeight)=='string' ? Math.ceil(height*parseInt(lineHeight)/100.0): lineHeight
+	   let contentY=(lineHeight-height)/2
+	   let contentX=left
 
         if(this.computed.composed.length==1){//first line
             lineHeight+=top
@@ -207,7 +207,7 @@ export class Paragraph extends Super{
 
         return (
             <Line height={lineHeight} width={width} contentWidth={contentWidth}>
-                <Group x={contentX} y={contentY+(lineHeight-height)/2} width={width} height={height}>
+                <Group x={contentX} y={contentY} width={width} height={height}>
                    <Story width={width} height={height} {...others}/>
                 </Group>
             </Line>
