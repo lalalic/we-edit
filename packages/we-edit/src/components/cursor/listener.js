@@ -5,7 +5,7 @@ import {connect} from "react-redux"
 import reactComposition from "../../tools/react-composition"
 import {ACTION} from "../../state/action"
 
-export default connect()(class Listener extends Component{
+export default class Listener extends Component{
 	state={value:""}
 	KEYs={
 		13:e=>this.props.dispatch(ACTION.Text.RETURN()),
@@ -51,4 +51,4 @@ export default connect()(class Listener extends Component{
 	componentDidUpdate(){
 		this.input.focus()
 	}
-})
+}

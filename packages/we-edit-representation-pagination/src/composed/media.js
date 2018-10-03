@@ -31,7 +31,7 @@ export default class Media extends Component{
 							let newPage=(
 								<Group key={i} {...{y, x:(width-size.width)/2}}>
 									{paper!==false && <Paper {...{size,margin,fill:"white"}}/>}
-									{false &&  smart ? <SmartShow {...{onPageHide,onPageShow,scrollableAncestor,children:page}}/> : page}
+									{smart ? <SmartShow {...{onPageHide,onPageShow,scrollableAncestor,children:page}}/> : page}
 								</Group>
 							)
 							y+=(size.height+pgGap)

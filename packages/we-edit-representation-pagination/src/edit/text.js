@@ -28,27 +28,28 @@ export default class extends editable(Base){
 	}
 
 	position(canvas, at){
-		try{
-            if(at>this.text.length)
-                at=this.text.length
-			const {id}=this.props
-			const rects=canvas.getClientRects(id)
-			const i=rects.map(a=>parseInt(a.node.dataset.endat))
-					.concat([at])
-					.sort((a,b)=>a-b)
-					.indexOf(at)
-			let x=rects[i].x
-			const {y,node}=rects[i]
-			const text=node.textContent
-			const endat=parseInt(node.dataset.endat)
-			const {fontSize, fontFamily,height}=this.measure.defaultStyle
+        if(at>this.text.length)
+            at=this.text.length
+		const {id}=this.props
+        const {fontSize, fontFamily,height}=this.measure.defaultStyle
+        const position={fontSize, fontFamily,height,x:0,y:0}
+		const rects=canvas.getClientRects(id)
+		const i=rects.map(a=>parseInt(a.node.dataset.endat))
+				.concat([at])
+				.sort((a,b)=>a-b)
+				.indexOf(at)
+        const rect=rects[i]
+        if(rect){
+    		let x=rects[i].x
+    		const {y,node}=rects[i]
+    		const text=node.textContent
+    		const endat=parseInt(node.dataset.endat)
 
-			x+=this.measure.stringWidth(text.substring(0,at-(endat-text.length)))
-			return {
-				x,y,height,fontSize, fontFamily,node
-			}
-		}catch(e){
-			debugger
-		}
+    		x+=this.measure.stringWidth(text.substring(0,at-(endat-text.length)))
+            position.x=x
+            position.y=y
+            position.node=node
+        }
+        return position
 	}
 }

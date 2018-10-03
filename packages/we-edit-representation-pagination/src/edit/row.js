@@ -1,14 +1,15 @@
 import React,{Fragment,PureComponent} from "react"
 
 import {connect,ACTION} from "we-edit"
+import {Cacheable} from "../composable"
 import editable from "./editable"
 import Container from "./container"
 import Base from "../row"
 
 
-export default class extends editable(Base){
+export default Cacheable(class extends editable(Base){
 	clearComposed(){
-		super.clearComposed()
+		super.clearComposed(...arguments)
 		this.composedCells.push([])
 	}
 
@@ -31,4 +32,4 @@ export default class extends editable(Base){
         }
         return false
     }
-}
+})

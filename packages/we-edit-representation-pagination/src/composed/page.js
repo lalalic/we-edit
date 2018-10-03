@@ -24,7 +24,7 @@ export default class Page extends Component{
 			}=this.props
 
 		return(
-			<Group className="page" width={width} height={height}>
+			<Group className="page" width={width} height={height} key={Date.now()}>
 				{header &&
 					<Group
 						x={left} y={headerStartAt}

@@ -52,10 +52,14 @@ export default A=>class extends A{
     render(){
         return (
             <Fragment>
-                {this.props.children}
+                {this.children()}
                 <ComposedAllTrigger host={this}/>
             </Fragment>
         )
+    }
+
+    children(){
+        return this.props.children
     }
 
     /**

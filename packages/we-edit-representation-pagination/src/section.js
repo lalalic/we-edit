@@ -52,7 +52,7 @@ export default class Section extends Super{
             header: headerEl ? headerEl.createComposed2Parent() : null,
             footer: footerEl ? footerEl.createComposed2Parent() : null
         }
-		this.context.parent.appendComposed(info)
+		this.context.parent.appendComposed(this.createComposed2Parent(info))
 		return info
     }
 
@@ -114,16 +114,22 @@ export default class Section extends Super{
 
             children=currentColumn.children
         }
+        const {pgSz:size,  pgMar:margin}=this.props
 
-		children.push(this.createComposed2Parent({children:line, height:contentHeight, y: height-availableHeight}))
+		children.push(<Group {...{
+            children:line,
+            height:contentHeight,
+            y: height-availableHeight,
+            width:size.width-margin.left-margin.right
+        }}/>)
         //@TODO: what if contentHeight still > availableHeight
     }
 
 	/**
 	 *  section needn't append to document, but give chance for extension
 	 */
-	createComposed2Parent(props){
-		return <Group {...props}/>
+	createComposed2Parent(page){
+		return page
 	}
 
 	getPageHeaderFooter(category, pageNo){

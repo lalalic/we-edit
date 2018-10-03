@@ -3,6 +3,10 @@ import {traverse, traverseNext, traversePrev}  from "."
 import cssSelect, {isIdSelector} from "./css"
 
 export default class Query{
+	static fromContent(content,selector){
+		return new Query({get:a=>content},selector)
+	}
+
 	constructor(state,selector){
 		this.state=state
 		this._content=this._getContent()

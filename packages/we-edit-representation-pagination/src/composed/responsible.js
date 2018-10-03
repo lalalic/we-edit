@@ -1,12 +1,13 @@
 import React, {Component,Fragment} from "react"
 import PropTypes from "prop-types"
 
-import {getSelection, ACTION, Cursor, Selection,connect} from "we-edit"
+import {getSelection, ACTION, Cursor, Selection,connect,ContentQuery} from "we-edit"
 import offset from "mouse-event-offset"
 
 import {Document as ComposedDocument} from "../composed"
 import SelectionShape from "./selection"
 import Locator from "./locator"
+import Positioning from "./positioning"
 
 const CursorShape=({y=0,x=0,height=0,color="black"})=>(
     <Cursor.Flash color={color}><path d={`M${x} ${y} v${height}`} strokeWidth={1}/></Cursor.Flash>
@@ -24,6 +25,10 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
     onMove=this.onMove.bind(this)
     onResize=this.onResize.bind(this)
     onRotate=this.onRotate.bind(this)
+    selecting=React.createRef()
+    positioning=new Positioning()
+    getComposer=this.getComposer.bind(this)
+    getContent=this.getContent.bind(this)
 
 	getChildContext(){
 		return {
@@ -43,7 +48,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 
 	get selection(){
         if(this.refs.locator)
-		return this.locator.props.selection.toJS()
+		      return this.locator.props.selection.toJS()
 	}
 
 	get cursor(){
@@ -56,7 +61,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 	}
 
 	getContent(id){
-		return this.locator.getContent(id)
+        return ContentQuery.fromContent(this.props.content,  id ? `#${id}`  : undefined)
 	}
 
     updateCursorAndSelection(){
@@ -78,20 +83,20 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 				onMouseMove={({buttons, target, clientX:left})=>{
 					if(!(buttons&0x1))
 						return
-                    const {id,x,node}=this.locator.around(target, left)
+                    const {id,x,node}=this.positioning.around(target, left)
                     if(id){
                         const at=this.getComposer(id).distanceAt(x, node)
                         const end={id,at}
-                        let {start=end}=this.refs.selecting.state
+                        let {start=end}=this.selecting.current.state
 
-                        const rects=start==end ? [] : this.locator.getRangeRects(start, end)
-                        this.refs.selecting.setState(({start})=>({start:start||end, end, rects}))
+                        const rects=start==end ? [] : this.positioning.getRangeRects(start, end)
+                        this.selecting.current.setState(({start})=>({start:start||end, end, rects, selecting:true}))
                     }
 				}}
                 onMouseUp={e=>{
-					const {start,end}=this.refs.selecting.state
+					const {start,end}=this.selecting.current.state
                     if(start && end){
-                        this.refs.selecting.setState({start:undefined, end:undefined, rects:undefined})
+                        this.selecting.current.setState({start:undefined, end:undefined, rects:undefined,selecting:false})
                         this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))
                         this.selected=true
                     }
@@ -103,10 +108,12 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 					<Locator
                         docId={docId}
                         scale={this.props.scale}
+                        positioning={this.positioning}
                         ref="locator"
                         cursor={
                             <Cursor
-								keys={{
+                                dispatch={dispatch}
+                                keys={{
 									37:e=>this.onKeyArrowLeft(e),//move left
 									38:e=>this.onKeyArrowUp(e),//move up
 									39:e=>this.onKeyArrowRight(e),//move right
@@ -124,8 +131,8 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
                         }
                         range={
                             <Selection onMove={this.onMove}>
-        						<SelectionShape ref="selecting"
-									asCanvasPoint={a=>this.locator.asCanvasPoint(a)}
+        						<SelectionShape ref={this.selecting}
+									asCanvasPoint={a=>this.positioning.asCanvasPoint(a)}
 									/>
         					</Selection>
                         }
@@ -145,13 +152,15 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
     }
 
     componentDidUpdate({},state,snapshot){
-        this.locator && this.locator.setState({content:this.props.contentHash, canvas:this.canvas})
+        this.positioning.reset(this.getComposer, this.getContent, this.canvas, this.props.scale)
+        this.locator && this.locator.setState({content:this.props.content, canvas:this.canvas})
         //this.emit(`emitted${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
     }
 
     componentDidMount(){
         this.dispatch(ACTION.Cursor.ACTIVE(this.props.docId))
-        this.locator && this.locator.setState({content:this.props.contentHash, canvas:this.canvas})
+        this.positioning.reset(this.getComposer, this.getContent, this.canvas, this.props.scale)
+        this.locator && this.locator.setState({content:this.props.content, canvas:this.canvas})
         //this.emit(`emitted${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
     }
 
@@ -180,15 +189,15 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
     }
 
     onClick({shiftKey:selecting, target, clientX:left}){
-		const {id,x,node}=this.locator.around(target, left)
+		const {id,x,node}=this.positioning.around(target, left)
 		if(id){
 			const at=this.getComposer(id).distanceAt(x, node)
 			if(!selecting){
 				this.dispatch(ACTION.Cursor.AT(id,at))
 			}else{
 				let {end}=this.selection
-				let {left,top}=this.locator.position(id,at)
-				let {left:left1,top:top1}=this.locator.position(end.id,end.at)
+				let {left,top}=this.positioning.position(id,at)
+				let {left:left1,top:top1}=this.positioning.position(end.id,end.at)
 				if(top<top1 || (top==top1 && left<=left1)){
 					this.dispatch(ACTION.Selection.START_AT(id,at))
 				}else{
@@ -201,8 +210,8 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
     }
 
     onSelect(selection){
-        let {left:left0,top:top0}=this.locator.position(first.id, first.at)
-        let {left:left1,top:top1}=this.locator.position(end.id, end.at)
+        let {left:left0,top:top0}=this.positioning.position(first.id, first.at)
+        let {left:left1,top:top1}=this.positioning.position(end.id, end.at)
 
         const forward=a=>{
             this.dispatch(ACTION.Selection.SELECT(first.id,first.at,end.id,end.at))
@@ -294,13 +303,13 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 
 	locateLine(nextOrPrev, cursorableOrSelectable){
 		const cursor=this.cursor
-		let {id, x, node}=this.locator[`${nextOrPrev}Line`](cursor.id, cursor.at)
+		let {id, x, node}=this.positioning[`${nextOrPrev}Line`](cursor.id, cursor.at)
 		let location=this.locate(nextOrPrev,cursorableOrSelectable,id,undefined,true)//inclusive
 		if(id!==location.id){
 			if(nextOrPrev=="next"){
-				node=this.locator.getClientRect(location.id).node
+				node=this.positioning.getClientRect(location.id).node
 			}else{
-				node=this.locator.getClientRects(location.id).pop().node
+				node=this.positioning.getClientRects(location.id).pop().node
 			}
 		}
 		location.at=this.getComposer(location.id).distanceAt(x,node)
@@ -320,8 +329,8 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 				if(cursorAt=="start")
 					this.dispatch(ACTION.Selection.START_AT(id,at))
 				else if(cursorAt=="end"){
-					let {left,top}=this.locator.position(id,at)
-					let {left:left0,top:top0}=this.locator.position(start.id, start.at)
+					let {left,top}=this.positioning.position(id,at)
+					let {left:left0,top:top0}=this.positioning.position(start.id, start.at)
 					if((top0==top && left<left0) //same line, new point is on the left of start
 						|| (top<top0)) //above start point line
 						{
@@ -347,8 +356,8 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 				if(cursorAt=="end")
 					this.dispatch(ACTION.Selection.END_AT(id,at))
 				else if(cursorAt=="start"){
-					let {left,top}=this.locator.position(id,at)
-					let {left:left1, top:top1}=this.locator.position(end.id, end.at)
+					let {left,top}=this.positioning.position(id,at)
+					let {left:left1, top:top1}=this.positioning.position(end.id, end.at)
 					if((top==top1 && left>left1) || (top>top1)){
 						this.dispatch(ACTION.Selection.SELECT(end.id,end.at,id,at))
 						this.dispatch(ACTION.Selection.END_AT(id,at))

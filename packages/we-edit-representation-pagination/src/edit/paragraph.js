@@ -1,12 +1,12 @@
 import React,{Children} from "react"
 import PropTypes from "prop-types"
+import {Cacheable} from "../composable"
 
 import Base from "../paragraph"
 
 import editable from "./editable"
 
-//compose all or clear all
-export class Paragraph extends editable(Base,{stoppable:true,cacheable:true}){
+export default Cacheable(class Paragraph extends editable(Base,{stoppable:true}){
 	constructor(){
 		super(...arguments)
 		this.computed.lastText=""
@@ -18,8 +18,6 @@ export class Paragraph extends editable(Base,{stoppable:true,cacheable:true}){
 
 	clearComposed(){
 		this.computed.lastText=""
-		super.clearComposed()
+		super.clearComposed(...arguments)
 	}
-}
-
-export default Paragraph
+})

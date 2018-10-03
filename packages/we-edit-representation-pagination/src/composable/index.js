@@ -22,7 +22,7 @@ const enablify=func=>(targets, excludes)=>Object.keys(targets)
 
 export {enablify, HasChild, HasParentAndChild, NoChild, Recomposable,Locatable,Stoppable,Continuable,Cacheable}
 
-export default function composable(A,{locatable,stoppable,continuable,cacheable,recomposable}){
+export default function composable(A,{locatable,stoppable,continuable,recomposable}){
     if(locatable){
         A=Locatable(A)
     }
@@ -35,8 +35,6 @@ export default function composable(A,{locatable,stoppable,continuable,cacheable,
     if(continuable){
         A=Continuable(A)
     }
-    if(cacheable){//must be the last
-        A=Cacheable(A)
-    }
+
     return A
 }

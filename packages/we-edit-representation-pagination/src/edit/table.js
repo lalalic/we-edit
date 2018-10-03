@@ -128,10 +128,10 @@ export default class extends editable(class extends Base{
 
 		return React.cloneElement(row, {children:cells})
 	}
-},{stoppable:true,cachable:true}){
+},{stoppable:true}){
 	clearComposed(){
 		this.computed.composedRows=-1
-		super.clearComposed()
+		super.clearComposed(...arguments)
 	}
 }
 

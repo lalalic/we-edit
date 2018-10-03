@@ -23,14 +23,19 @@ export default function Locatable(A){
         }
 
         componentWillUnmount(){
-            this.context.unmount(this)
+            //this.context.unmount(this)
         }
 
 		createComposed2Parent(){
-			return React.cloneElement(super.createComposed2Parent(...arguments),{
-					"data-content":this.props.id,
-					"data-type":this.getComposeType()
-				})
+			const element=super.createComposed2Parent(...arguments)
+			if(React.isValidElement(element)){
+				return React.cloneElement(element,{
+						"data-content":this.props.id,
+						"data-type":this.getComposeType()
+					})
+			}else{
+				return element
+			}
 		}
 
         nextCursorable(){

@@ -6,18 +6,19 @@ export default class SelectionShape extends Component{
 	state={}
 	onShrink=this.onShrink.bind(this)
 	render(){
-		if(this.state.rects){
+		const {rects=[], selecting}=this.state
+		if(selecting){
 			return <Area rects={this.state.rects} onMouseMove={this.onShrink} />
 		}
-		
-		const {onMove, rects=[]}=this.props
+
+		const {onMove}=this.props
 		return (
 			<Range onMove={onMove}>
 				<Area rects={rects}/>
 			</Range>
 		)
 	}
-	
+
 	onShrink({buttons, clientX:left, clientY: top}){
 		if(!(buttons&0x1))
 			return

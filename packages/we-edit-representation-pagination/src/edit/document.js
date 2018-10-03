@@ -77,13 +77,13 @@ export default class Document extends Super{
 
 	renderComposed(){
 		const {viewport, mode, error}=this.state
-		const {canvas,scale,pageGap,docId,contentHash}=this.props
+		const {canvas,scale,pageGap,docId,content}=this.props
 		const pages=this.computed.composed
 		return (
 				<Responsible
 					ref={this.responsible}
 					docId={docId}
-					contentHash={contentHash}
+					content={content}
 					getComposer={id=>{
 						if(this.composers.has(id)){
 							return this.composers.get(id)

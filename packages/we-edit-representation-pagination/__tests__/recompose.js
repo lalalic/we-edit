@@ -5,6 +5,7 @@ import cheerio from "cheerio"
 
 import {Viewers, Editors} from "../src"
 import Responsible from "../src/composed/responsible"
+import Locator from "../src/composed/locator"
 import ComposedDocument from "../src/composed/document"
 import provider from "./context"
 
@@ -17,9 +18,12 @@ const $=pages=>{
 	return $("svg")
 }
 
-
+jest.mock("../src/composed/locator")
 describe("continuable", ()=>{
 	const store=(state={
+			equals({start,end}){
+				return false
+			},
 			toJS(){
 				return {start:{},end:{}}
 			},
@@ -104,24 +108,17 @@ describe("continuable", ()=>{
 	describe("compose to id",()=>{
 		const compose2Id=(id,n)=>it(`${id},pages=${n}`,()=>{
 			const renderer=TestRender.create(
-				<StoreContext context={{activeDocStore:{
-								subscribe(){},
-								dispatch(){},
-								getState(){
-									return {
-										get(){
-											return {
-												toJS(){
-													return {start:{id,at:0},end:{id,at:0}}
-												},
-												hashCode(){
-													return "1234"
-												}
-											}
-										}
-									}
-								}
-				}}}>
+				<StoreContext context={store({
+					equals(){
+						return false
+					},
+					toJS(){
+						return {start:{id,at:0},end:{id,at:0}}
+					},
+					hashCode(){
+						return "1234"
+					}
+				})}>
 					<TextContext>
 						<Document viewport={{width:500,height:100,node:{scrollTop:0}}} screenBuffer={()=>0} scale={1}>
 							{section(1)}
@@ -165,6 +162,9 @@ describe("continuable", ()=>{
 		it("compose to y then to 2y",()=>{
 			const node={scrollTop:0}
 			const state={
+				equals(){
+					return false
+				},
 				toJS(){
 					return {start:{},end:{}}
 				},
@@ -192,6 +192,9 @@ describe("continuable", ()=>{
 		it("compose to y then to id",()=>{
 			const node={scrollTop:0}
 			const state={
+				equals(){
+					return false
+				},
 				toJS(){
 					return {start:{},end:{}}
 				},
@@ -220,9 +223,12 @@ describe("continuable", ()=>{
 
 		})
 
-		it("compose to id then to id",()=>{
+		it("compose to id then to id with cache",()=>{
 			const node={scrollTop:0}
 			const state={
+				equals(){
+					return false
+				},
 				toJS(){
 					return {start:{id:"2.2",at:0},end:{id:"2.2",at:0}}
 				},
@@ -230,21 +236,40 @@ describe("continuable", ()=>{
 					return "1234"
 				}
 			}
-
+			Section.prototype.render=jest.fn(Section.prototype.render)
+			Paragraph.prototype.render=jest.fn(Paragraph.prototype.render)
 			const doc=compose2(node,state)
 
 			const pages=doc.computed.composed
 			expect(pages.length).toBe(2)
 			expect($(pages).text()).toBe("hello1hello2")
+			expect(Section.prototype.render).toHaveBeenCalledTimes(3)
+			expect(Section.prototype.render).lastReturnedWith(null)
+			expect(Paragraph.prototype.render).toHaveBeenCalledTimes(2)
+
 
 			return new Promise((resolve, reject)=>{
 				state.toJS=jest.fn(()=>{
 					return {start:{id:"3.3",at:0},end:{id:"3.3",at:0}}
 				})
+
 				doc.setState({mode:"viewport",time:Date.now()},()=>{
 					const pages=doc.computed.composed
 					expect(pages.length).toBe(3)
 					expect($(pages).text()).toBe("hello1hello2hello3")
+
+					/**section1&section2 should not be recomposed
+					1. section1/2.render should be return null
+					2. so paragraph1/2.render should not be called
+					*/
+					expect(Section.prototype.render).toHaveBeenCalledTimes(6)
+					expect(Paragraph.prototype.render).toHaveBeenCalledTimes(3)
+
+					expect(Section.prototype.render).nthReturnedWith(4,null)
+					expect(Section.prototype.render).nthReturnedWith(5,null)
+					expect(React.isValidElement(Section.prototype.render.mock.results[5].value)).toBe(true)
+					//expect(section2.render).lastReturnedWith(null)
+
 					resolve()
 				})
 			})
@@ -252,7 +277,7 @@ describe("continuable", ()=>{
 	})
 
 
-	describe("locating cursor/selection",()=>{
+	xdescribe("locating cursor/selection",()=>{
 		it("only when content composed",()=>{
 
 		})
@@ -266,7 +291,7 @@ describe("continuable", ()=>{
 		})
 	})
 
-	describe("when selection/cursor changed, cursor should go to viewport",()=>{
+	xdescribe("when selection/cursor changed, cursor should go to viewport",()=>{
 		it("input content",()=>{
 
 		})
@@ -287,8 +312,10 @@ describe("continuable", ()=>{
 
 		})
 	})
-})
 
-describe("cacheable", ()=>{
+
+	xdescribe("cacheable", ()=>{
+
+	})
 
 })

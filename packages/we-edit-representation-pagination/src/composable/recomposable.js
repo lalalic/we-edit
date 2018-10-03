@@ -1,12 +1,12 @@
 export default A=>class extends A{
     static displayName=`recomposable-${A.displayName}`
 
-    shouldComponentUpdate(){
-        this.clearComposed()
+    shouldComponentUpdate({changed}){
+        this.clearComposed(...arguments)
         return true
     }
 
-    clearComposed(){
+    clearComposed(nextProps, nextState){
         this.computed.composed=[]
         delete this.computed.allComposed
     }
