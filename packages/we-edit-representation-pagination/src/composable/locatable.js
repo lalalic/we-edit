@@ -28,7 +28,7 @@ export default function Locatable(A){
 
 		createComposed2Parent(){
 			const element=super.createComposed2Parent(...arguments)
-			if(React.isValidElement(element)){
+			if(React.isValidElement(element) && this.props.id){
 				return React.cloneElement(element,{
 						"data-content":this.props.id,
 						"data-type":this.getComposeType()

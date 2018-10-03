@@ -12,14 +12,18 @@ export default class Paragraph extends Base{
 		super(...arguments)
 		this.p=this._convert(node, "w:pPr",attribs, selector)
 	}
-	
+
 	static Direct=class extends Paragraph{
 		constructor(node,styles,selector){
 			super(...arguments)
 			this.p=this._convert(node, null,attribs, selector)
 		}
 	}
-	
+
+	flat4Character(){
+		return super.flat(...arguments)
+	}
+
 	flat(...inherits){
 		let targets=[this,...inherits]
 		return "spacing,indent,align,num,heading"
@@ -30,10 +34,10 @@ export default class Paragraph extends Base{
 							let {numId,ilvl:level}=props.num
 							let numStyle=this.styles[`_num_${numId}`]
 							props.indent={
-								...props.indent, 
+								...props.indent,
 								...numStyle.get(`${level}.p.indent`)
 							}
-							
+
 							props.numbering={
 								label:numStyle.level(level).invoke(`next`),
 								style:super.flat(numStyle.get(`${level}`),...inherits),
@@ -41,7 +45,7 @@ export default class Paragraph extends Base{
 								numId,
 								level,
 							}
-							
+
 							delete props.num
 						}
 					}

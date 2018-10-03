@@ -4,7 +4,7 @@ import Base from "../text"
 export default class extends editable(Base){
     nextCursorable(at=-1){
         const {children:text}=this.props
-        if(text.length>at){
+        if(text.length-1>at){
             return at+1
         }
         return false
@@ -23,13 +23,13 @@ export default class extends editable(Base){
 
 	distanceAt(x, node){
 		const endat=parseInt(node.dataset.endat)
-		const offset=endat-node.textContent.length
+		const offset=endat+1-node.textContent.length
 		return offset+this.measure.widthString(Math.max(x,0),node.textContent)
 	}
 
 	position(canvas, at){
-        if(at>this.text.length)
-            at=this.text.length
+        if(at>this.text.length-1)
+            at=this.text.length-1
 		const {id}=this.props
         const {fontSize, fontFamily,height}=this.measure.defaultStyle
         const position={fontSize, fontFamily,height,x:0,y:0}
@@ -45,7 +45,7 @@ export default class extends editable(Base){
     		const text=node.textContent
     		const endat=parseInt(node.dataset.endat)
 
-    		x+=this.measure.stringWidth(text.substring(0,at-(endat-text.length)))
+    		x+=this.measure.stringWidth(text.substring(0,at-(endat+1-text.length)))
             position.x=x
             position.y=y
             position.node=node

@@ -26,8 +26,7 @@ export default class Section extends Super{
     _newColumn(i){
 		const {pgSz:{width, height},  pgMar:{top, bottom, left, right}, cols=[{space:0,width:width-left-right}]}=this.props
 		let info={
-            type:"column",
-			y:0,
+            y:0,
 			height:height-bottom-top,
             children:[],
 			x: cols.reduce((p, a, j)=>(j<i ? p+a.width+a.space : p),0),
@@ -45,7 +44,6 @@ export default class Section extends Super{
 		let headerEl=this.getPageHeaderFooter('header',pageNo)
 		let footerEl=this.getPageHeaderFooter('footer',pageNo)
         let info={
-            type:"page",
             size,
             margin,
             columns:[this._newColumn(0)],
