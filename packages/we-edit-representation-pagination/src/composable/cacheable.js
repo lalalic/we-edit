@@ -59,13 +59,13 @@ export default (A,partable)=>class extends A{
                     this.computed.composed.forEach(a=>this.context.parent.appendComposed(this.createComposed2Parent(a)))
                     //only compose from changedIndex
                     let _children=this.children
-                    this.children=()=>children.slice(lastIndex)
+                    this.children=()=>children.slice(lastIndex+1)
                     const rendered=super.render()
                     this.children=_children
                     return rendered
                 }
             }
-            
+
             this.computed.composed=[]
         }
 

@@ -48,6 +48,7 @@ export default compose(
             delete this.newSelection
             return false
         }
+        
         if(!state.canvas)
             return false
 
@@ -57,9 +58,9 @@ export default compose(
                 this.style=positioning.getSelectionStyle(content,selection,scale)
             }
             return true
-        }else{
-            return false
         }
+
+        return false
     }
 
     makeCursorSelection(props){

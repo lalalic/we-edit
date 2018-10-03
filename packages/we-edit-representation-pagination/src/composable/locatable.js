@@ -19,7 +19,7 @@ export default function Locatable(A){
         constructor(){
             super(...arguments)
             this.splittable=true
-			this.context.mount(this)
+			this.context.mount && this.context.mount(this)
         }
 
         componentWillUnmount(){
