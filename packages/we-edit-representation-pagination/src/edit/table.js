@@ -1,7 +1,6 @@
 import React,{Fragment,PureComponent} from "react"
 
 import {connect,ACTION} from "we-edit"
-import {Cacheable} from "../composable"
 import editable from "./editable"
 import Base from "../table"
 import Resizable from "../composed/selection/resizable"

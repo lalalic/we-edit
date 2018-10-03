@@ -7,6 +7,16 @@ import {Group} from "../../composed"
 export default class Overlay extends Component{
     render(){
         let {children,...others}=this.props
+        "onMouseUp,onMouseDown,onMouseMove,onClick".split(",")
+        .forEach(k=>{
+            if(others[k]){
+                let _k=others[k]
+                others[k]=function(e){
+                    e.stopPropagation()
+                    _k(e)
+                }
+            }
+        })
         return (
             <Group>
                 {children}

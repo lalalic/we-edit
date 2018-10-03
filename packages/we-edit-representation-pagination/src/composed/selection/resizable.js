@@ -23,7 +23,9 @@ export default class Resizable extends Component{
 						if(onEnd)
 							onEnd()
 					}}
-					onMouseMove={e=>this.resize(e.clientX, e.clientY)}
+					onMouseMove={e=>{
+						this.resize(e.clientX, e.clientY)
+					}}
 					style={{cursor}}
 					>
 					{children}

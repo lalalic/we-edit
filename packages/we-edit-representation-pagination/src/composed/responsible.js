@@ -80,7 +80,8 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
                         this.onClick(e)
                     }
                 }}
-				onMouseMove={({buttons, target, clientX:left})=>{
+				onMouseMove={e=>{
+                    const {buttons, target, clientX:left}=e
 					if(!(buttons&0x1))
 						return
                     const {id,x,node}=this.positioning.around(target, left)
@@ -94,7 +95,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
                     }
 				}}
                 onMouseUp={e=>{
-					const {start,end}=this.selecting.current.state
+                    const {start,end}=this.selecting.current.state
                     if(start && end){
                         this.selecting.current.setState({start:undefined, end:undefined, rects:undefined,selecting:false})
                         this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))

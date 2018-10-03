@@ -74,4 +74,4 @@ export default Cacheable(class Section extends editable(Base,{stoppable:true}){
 
 		return false
 	}
-},true)
+},false)

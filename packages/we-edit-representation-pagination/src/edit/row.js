@@ -7,7 +7,7 @@ import Container from "./container"
 import Base from "../row"
 
 
-export default Cacheable(class extends editable(Base){
+export default class extends editable(Base){
 	clearComposed(){
 		super.clearComposed(...arguments)
 		this.composedCells.push([])
@@ -32,4 +32,4 @@ export default Cacheable(class extends editable(Base){
         }
         return false
     }
-})
+}
