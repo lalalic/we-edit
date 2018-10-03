@@ -114,36 +114,55 @@ export default class Positioning{
         const position=this.position(id,at)
         if(!position)
             return
-        const {page,column,line,left}=position
-        const pages=this.canvas.querySelectorAll(".page")
-        const nPage=pages[page]
-        const columns=nPage.querySelectorAll(".column")
-        const nColumn=columns[column]
-        const lines=this.lines(nColumn)
-        const nLine=lines[line+offset]
-        if(!nLine){
-            if(columns.length-1>column){
-                return this.nextLine({...arguments[0],column:column+offset})
+        const locate=position=>{
+            const {page,column,line,left}=position
+            const pages=this.canvas.querySelectorAll(".page")
+            const nPage=pages[page]
+            const columns=nPage.querySelectorAll(".column")
+            const nColumn=columns[column]
+            const lines=this.lines(nColumn)
+            const nLine=lines[line+offset]
+            if(!nLine){
+                switch(offset){
+                    case 1:{
+                        if(columns.length-1>column){
+                            return locate({...position,column:column+1,line:-1})
+                        }
+
+                        if(pages.length-1>page){
+                            return locate({...position,page:page+1,column:0,line:-1})
+                        }
+                    }
+                    case -1:{
+                        if(column>0){
+                            return locate({...position,column:column-1,line:this.lines(columns[column-1]).length})
+                        }
+
+                        if(page>0){
+                            const columns=pages[page-1].querySelectorAll(".column")
+                            const lines=this.lines(columns[columns.length-1])
+                            return locate({...position,page:page-1,column:columns.length-1,line:lines.length})
+                        }
+                    }
+                }
+
+                return {id,at}
             }
 
-            if(pages.length-1>page){
-                return this.nextLine({...arguments[0],page:page+offset})
+            const contents=Array.from(nLine.querySelectorAll("[data-content]"))
+            const i=contents.map(a=>a.getBoundingClientRect().left)
+                .concat([left])
+                .sort((a,b)=>a-b)
+                .lastIndexOf(left)
+            const node=contents[i==0 ? 0 : i-1]
+            return {
+                id:node.dataset.content,
+                x:(left-node.getBoundingClientRect().left)/this.scale,
+                node
             }
-
-            return {id,at}
         }
 
-        const contents=Array.from(nLine.querySelectorAll("[data-content]"))
-        const i=contents.map(a=>a.getBoundingClientRect().left)
-            .concat([left])
-            .sort((a,b)=>a-b)
-            .lastIndexOf(left)
-        const node=contents[i==0 ? 0 : i-1]
-        return {
-            id:node.dataset.content,
-            x:(left-node.getBoundingClientRect().left)/this.scale,
-            node
-        }
+        return locate(position)
     }
     nextLine(id,at){
         return this.line(id,at,1)
