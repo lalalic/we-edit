@@ -48,7 +48,7 @@ export default compose(
             delete this.newSelection
             return false
         }
-        
+
         if(!state.canvas)
             return false
 
@@ -82,7 +82,7 @@ export default compose(
             this.cursor=React.cloneElement(cursor, {x,y,left,top,height,fontFamily,fontSize})
         }
 
-        if(range && rects){
+        if(range){
             this.range=React.cloneElement(range,{rects})
         }
     }

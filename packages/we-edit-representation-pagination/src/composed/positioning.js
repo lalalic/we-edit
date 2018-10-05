@@ -17,7 +17,7 @@ export default class Positioning{
         const {cursorAt, ...a}=selection.toJS()
         const {id,at}=a[cursorAt]
         let position=this.position(id, at)
-        let rects=undefined
+        let rects=[]
         if(a.start.id!=a.end.id || a.start.at!=a.end.at){
             rects=this.getRangeRects(a.start,a.end)
         }

@@ -19,6 +19,11 @@ export default class SelectionShape extends Component{
 		)
 	}
 
+	static getDerivedStateFromProps({rects},{selecting}){
+		if(!selecting)
+			return {rects}
+	}
+
 	onShrink({buttons, clientX:left, clientY: top}){
 		if(!(buttons&0x1))
 			return
