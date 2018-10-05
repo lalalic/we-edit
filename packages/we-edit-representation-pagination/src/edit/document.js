@@ -34,6 +34,7 @@ export default class Document extends Super{
 		...Super.childContextTypes,
 		mount: PropTypes.func,
 		unmount: PropTypes.func,
+		getComposer: PropTypes.func,
 	}
 
 	constructor({screenBuffer,viewport}){
@@ -42,6 +43,7 @@ export default class Document extends Super{
 		this.state={mode:"content",viewport, ...this.state}
 		this.screenBuffer=typeof(screenBuffer)=="function" ? screenBuffer : a=>screenBuffer!=undefined ? screenBuffer : a;
 		this.responsible=React.createRef()
+		this.getComposer=this.getComposer.bind(this)
 	}
 	get viewableY(){
 		const {viewport}=this.state
@@ -50,6 +52,10 @@ export default class Document extends Super{
 
 	get bufferHeight(){
 		return this.screenBuffer(this.state.viewport.height)
+	}
+
+	getComposer(id){
+		return this.composers.get(id)
 	}
 
 	getChildContext(){
@@ -64,6 +70,7 @@ export default class Document extends Super{
 		return {
 			...super.getChildContext(),
 			mount,unmount,
+			getComposer:this.getComposer
 		}
 	}
 
