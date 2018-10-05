@@ -13,17 +13,30 @@ export default Cacheable(class Section extends editable(Base,{stoppable:true}){
 		last && (last.lastSectionPage=true);
 	}
 
-	findLastChildIndexOfLastComposed(){
-		const id=(id=>{
-			this.computed.composed.findLast(({columns})=>{
-				return columns.findLast(({children:lines})=>{
-					return lines.findLast(line=>!!(id=this.findContentId(line)))
+	keepUntilLastAllChildrenComposed(){
+		const {id,pageIndex,columnIndex,lineIndex}=(id=>{
+			let pageIndex=-1, columnIndex=-1, lineIndex=-1
+			this.computed.composed.findLast(({columns},i)=>{
+				pageIndex=this.computed.composed.length-1-i
+				return columns.findLast(({children:lines},i)=>{
+					columnIndex=columns.length-1-i
+					return lines.findLast((line,i)=>{
+						lineIndex=lines.length-1-i
+						if(id=this.findContentId(line)){
+							const composer=this.context.getComposer(id)
+							if(composer && composer.isAllChildrenComposed()){
+								return true
+							}
+						}
+						return false
+					})
 				})
 			})
-			return id
+			return {id,pageIndex,columnIndex,lineIndex}
 		})();
 
 		if(id){
+			this.keepComposedUntil(pageIndex,columnIndex,lineIndex)
 			return Children.toArray(this.props.children).findIndex(a=>a.props.id===id)
 		}
 		return -1
@@ -59,19 +72,23 @@ export default Cacheable(class Section extends editable(Base,{stoppable:true}){
 				return (lineIndex=lines.findIndex(line=>findChangedContentId(line)))!=-1
 			}))!=-1
 		}))!=-1){
-			const page=this.computed.composed[pageIndex]
-			this.computed.composed=this.computed.composed.slice(0,page)
-
-			const column=page.columns[columnIndex]
-			column.children=column.children.slice(0,lineIndex)
-
-			page.columns=page.columns.slice(0,column)
-			page.columns.push(column)
-
-			this.computed.composed.push(page)
+			this.keepComposedUntil(pageIndex,columnIndex,lineIndex)
 			return true
 		}
 
 		return false
+	}
+
+	keepComposedUntil(pageIndex,columnIndex,lineIndex){
+		const page=this.computed.composed[pageIndex]
+		this.computed.composed=this.computed.composed.slice(0,pageIndex)
+
+		const column=page.columns[columnIndex]
+		column.children=column.children.slice(0,lineIndex)
+
+		page.columns=page.columns.slice(0,columnIndex)
+		page.columns.push(column)
+
+		this.computed.composed.push(page)
 	}
 },true)

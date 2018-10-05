@@ -1,8 +1,13 @@
 import React, {Children} from "react"
+import PropTypes from "prop-types"
 import Recomposable from "./recomposable"
 
 export default (A,partable)=>class extends A{
     static displayName=`cacheable(${partable ? "part" : "all"})-${A.displayName}`
+    static contextTypes={
+        ...A.contextTypes,
+        getComposer: PropTypes.func
+    }
     constructor(){
         super(...arguments)
         this.computed.lastComposed=[]
@@ -53,7 +58,7 @@ export default (A,partable)=>class extends A{
                     }
                 }
             }else if(this.computed.composed.length>0){//(!this.isAllChildrenComposed())
-                const lastIndex=this.findLastChildIndexOfLastComposed()
+                const lastIndex=this.keepUntilLastAllChildrenComposed()
                 if(lastIndex!=-1){
                     this.computed.lastComposed=[]
                     this.computed.composed.forEach(a=>this.context.parent.appendComposed(this.createComposed2Parent(a)))
