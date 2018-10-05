@@ -27,4 +27,6 @@ export default class Paragraph extends Component{
 		spacing:{},
 		indent:{}
 	}
+
+	static End=String.fromCharCode(0xb6)
 }
