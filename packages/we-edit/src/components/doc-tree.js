@@ -87,13 +87,15 @@ export default compose(
 	}
 
 	getFocus=memoize((content, filter, focus)=>{
-		filter=this.getFilter(filter)
-		let current=focus
-		while(current && !filter(content.get(current).toJS())){
-			current=getParentId(content, current)
-		}
-		if(current){
-			return content.get(current).toJS()
+		if(content.has(focus)){
+			filter=this.getFilter(filter)
+			let current=focus
+			while(current && !filter(content.get(current).toJS())){
+				current=getParentId(content, current)
+			}
+			if(current){
+				return content.get(current).toJS()
+			}
 		}
 
 		return null
