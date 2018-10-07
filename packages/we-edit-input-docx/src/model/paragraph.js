@@ -35,21 +35,17 @@ export default ({Text, Paragraph})=>class extends Component{
 		return style
 	})
 
-	pilcrowStyle=memoize((direct,context)=>direct.flat4Character(context))
+	defaultStyle=memoize((direct,context)=>direct.flat4Character(context))
 
 	render(){
-		const {style, children, ...props}=this.props
+		const {style, ...props}=this.props
 
 		return (
 			<Paragraph
 				{...this.style(this.props.style,this.context.style)}
 				{...props}
-				>
-				{children}
-				<Text {...this.pilcrowStyle(this.props.style,this.context.style)}
-					id={`${this.props.id}-pilcrow`}
-					children={String.fromCharCode(0xb6)}/>
-			</Paragraph>
+				defaultStyle={this.defaultStyle(this.props.style,this.context.style)}
+				/>
 		)
 	}
 }

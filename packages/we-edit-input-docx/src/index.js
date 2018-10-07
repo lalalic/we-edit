@@ -195,18 +195,6 @@ export default class DocxType extends Input.Editable{
 			case "heading":
 			case "p":{
 				let style= !props.pr ? styles['*paragraph'] : new Style.Paragraph.Direct(props.pr,styles,selector);
-
-				if(children.length==0){
-					let r=$("<w:r><w:t></w:t></w:r>").appendTo(node).get(0)
-					let t=r.children[0]
-					if(props.pr){
-						let rPr=props.pr.children.find(a=>a.name=="w:rPr")
-						if(rPr)
-							$(rPr).clone().prependTo(r)
-					}
-					children.push(renderNode(r))
-				}
-
 				return createElement(components.Paragraph,{style},children,node)
 			}
 			case "r":{
