@@ -14,7 +14,7 @@ import editable from "./editable"
 
 import offset from "mouse-event-offset"
 
-const Super=editable(Base,{locatable:false,continuable:true})
+const Super=editable(Base,{locatable:true,continuable:true})
 export default class Document extends Super{
 	static propTypes={
 		...Super.propTypes,
