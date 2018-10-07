@@ -159,8 +159,12 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
     }
 
     componentDidMount(){
-        this.dispatch(ACTION.Cursor.ACTIVE(this.props.docId))
         this.positioning.reset(this.getComposer, this.getContent, this.canvas, this.props.scale)
+        if(!this.selection.id){
+            const {id,at}=this.locate("next","Cursorable","root")
+            this.dispatch(ACTION.Cursor.AT(id,at))
+        }
+        this.dispatch(ACTION.Cursor.ACTIVE(this.props.docId))
         this.locator && this.locator.setState({content:this.props.content, canvas:this.canvas})
         //this.emit(`emitted${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
     }
@@ -251,54 +255,74 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 		if(id==undefined){
 			({id,at}=this.cursor)
 		}
-		let path=[]
-        const next=(id,at)=>{
-			path.push(id)
-            let composer=this.getComposer(id)
-            if(composer){
-                return composer[`${nextOrprev}${CursorableOrSelectable}`](at)
-            }
-            return false
+
+        if(false && this.positioning.isEndAtParagraph(id,at) && nextOrprev=="next"){
+            return {}
         }
 
-		const $=this.getContent(id)
-		if(inclusive){
-			$[`find${nextOrprev=="next" ? "First" :"Last"}`](a=>{
-				if((at=next(id=a.get("id")))!==false)
-					return true
-			},true)
-		}else{
-			at=next(id,at)
-		}
+        const location=((id,at)=>{
+    		let path=[]
+            const next=(id,at)=>{
+    			path.push(id)
+                let composer=this.getComposer(id)
+                if(composer){
+                    return composer[`${nextOrprev}${CursorableOrSelectable}`](at)
+                }
+                return false
+            }
 
-		if(at===false){
-			$[`${nextOrprev=="next" ? "forward" : "backward"}Until`](a=>{
-				if((at=next(id=a.get("id")))!==false)
-					return true
-			})
-		}
-		console.log(path.join(","))
-        if(at!==false)
+    		const $=this.getContent(id)
+    		if(inclusive){
+    			$[`find${nextOrprev=="next" ? "First" :"Last"}`](a=>{
+    				if((at=next(id=a.get("id")))!==false)
+    					return true
+    			},true)
+    		}else{
+    			at=next(id,at)
+    		}
+
+    		if(at===false){
+                $[`${nextOrprev=="next" ? "forward" : "backward"}Until`](a=>{
+    				if((at=next(id=a.get("id")))!==false){
+                        return true
+                    }
+    			})
+    		}
+    		console.log(path.join(","))
             return {id,at}
+        })(id,at);
+
+        if(location.at!==false){
+            return location
+        }
+
         return this.cursor
 	}
-	onKeyArrowLeft({shiftKey}){
-        if(shiftKey){
-            const {id,at}=this.locate("prev","Selectable")
-            this.dispatch(ACTION.Selection.START_AT(id,at))
-        }else{
-            const{id,at}=this.locate("prev","Cursorable")
+	onKeyArrowLeft({shiftKey:selecting}){
+        const {id,at}=this.locate("prev",selecting ? "Selectable" :"Cursorable")
+        if(!selecting){
             this.dispatch(ACTION.Cursor.AT(id,at))
+        }else{
+            const {cursorAt}=this.selection
+            if(cursorAt=="end"){
+                this.dispatch(ACTION.Selection.END_AT(id,at))
+            }else{
+                this.dispatch(ACTION.Selection.START_AT(id,at))
+            }
         }
 	}
 
-	onKeyArrowRight({shiftKey}){
-        if(shiftKey){
-            const {id,at}=this.locate("next","Selectable")
-            this.dispatch(ACTION.Selection.END_AT(id,at))
-        }else{
-            const {id,at}=this.locate("next","Cursorable")
+	onKeyArrowRight({shiftKey:selecting}){
+        const {id,at}=this.locate("next",selecting ? "Selectable" :"Cursorable")
+        if(!selecting){
             this.dispatch(ACTION.Cursor.AT(id,at))
+        }else{
+            const {cursorAt}=this.selection
+            if(cursorAt=="start"){
+                this.dispatch(ACTION.Selection.START_AT(id,at))
+            }else{
+                this.dispatch(ACTION.Selection.END_AT(id,at))
+            }
         }
 	}
 
