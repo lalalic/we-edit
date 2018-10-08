@@ -16,11 +16,12 @@ export default class Positioning{
     getCursorSelection=memoize((content, selection,scale)=>{
         const {cursorAt, ...a}=selection.toJS()
         const {id,at}=a[cursorAt]
-        let position=this.position(id, at)
         let rects=[]
         if(a.start.id!=a.end.id || a.start.at!=a.end.at){
             rects=this.getRangeRects(a.start,a.end)
         }
+
+        const position=this.position(id, at)
         return {position,rects}
     })
 
@@ -228,9 +229,12 @@ export default class Positioning{
     getRangeRects(start, end){
         if(start.id==end.id && !this.getComposer(start.id).splittable){
             const {x,y,width,height}=this.getClientRect(start.id)
-            const {left,top}=this.asViewportPoint({x,y})
-            const {right,bottom}=this.asViewportPoint({x:x+width, y:y+height})
-            return [{left,right,top,bottom}]
+            return [{
+                left:x,
+                top:y,
+                right:x+width,
+                bottom:y+height
+            }]
         }else{
             const [p0,p1]=((start,end)=>{
                 if(end.page<start.page ||

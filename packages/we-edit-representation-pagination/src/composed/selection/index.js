@@ -1,4 +1,4 @@
-import React, {Component} from "react"
+import React, {Component,Fragment} from "react"
 
 import Range from "./range"
 
@@ -11,12 +11,23 @@ export default class SelectionShape extends Component{
 			return <Area rects={this.state.rects} onMouseMove={this.onShrink} />
 		}
 
-		const {onMove}=this.props
-		return (
-			<Range onMove={onMove}>
-				<Area rects={rects}/>
-			</Range>
-		)
+		const {onMove,onResize,onRotate,shape}=this.props
+		const shapeProps={onMove,onResize,onRotate}
+		if(rects[0]){
+			shapeProps.x=rects[0].left
+			shapeProps.y=rects[0].top
+		}
+		let content=null
+
+		if(shape)
+			content=React.cloneElement(shape,shapeProps)
+		else
+			content=(
+				<Range onMove={onMove}>
+					<Area rects={rects}/>
+				</Range>
+			)
+		return content
 	}
 
 	static getDerivedStateFromProps({rects},{selecting}){

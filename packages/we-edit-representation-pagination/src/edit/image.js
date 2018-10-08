@@ -6,23 +6,7 @@ import Entity from "../composed/selection/entity"
 export default class extends editable(Base){
 	splittable=false
 
-    nextCursorable(at){
-        switch(at){
-        case undefined:
-            return 0
-        }
-        return false
-    }
-
-    prevCursorable(at){
-        switch(at){
-        case undefined:
-            return 0
-        }
-        return false
-    }
-
-	getCursor(){
+	getFocusShape(){
 		const {width:right, height:bottom}=this.props.size
 		const left=0, top=0
 		return (
@@ -45,5 +29,9 @@ export default class extends editable(Base){
 				}}
 			/>
 		)
+	}
+
+	distanceAt(x,){
+		return 1
 	}
 }

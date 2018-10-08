@@ -122,16 +122,12 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 								}}
 								>
 
-								<CursorShape
-									onMove={this.onMove}
-									onResize={this.onResize}
-									onRotate={this.onRotate}
-									/>
+								<CursorShape/>
 
 							</Cursor>
                         }
                         range={
-                            <Selection onMove={this.onMove}>
+                            <Selection onMove={this.onMove} onResize={this.onResize} onRotate={this.onRotate}>
         						<SelectionShape ref={this.selecting}
 									asCanvasPoint={a=>this.positioning.asCanvasPoint(a)}
 									/>
@@ -196,57 +192,24 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
     onClick({shiftKey:selecting, target, clientX:left}){
 		const {id,x,node}=this.positioning.around(target, left)
 		if(id){
-			const at=this.getComposer(id).distanceAt(x, node)
-			if(!selecting){
-				this.dispatch(ACTION.Cursor.AT(id,at))
-			}else{
-				let {end}=this.selection
-				let {left,top}=this.positioning.position(id,at)
-				let {left:left1,top:top1}=this.positioning.position(end.id,end.at)
-				if(top<top1 || (top==top1 && left<=left1)){
-					this.dispatch(ACTION.Selection.START_AT(id,at))
-				}else{
-					this.dispatch(ACTION.Selection.SELECT(end.id, end.at, id, at))
-				}
-			}
-		}
-
-        this.active()
-    }
-
-    onSelect(selection){
-        let {left:left0,top:top0}=this.positioning.position(first.id, first.at)
-        let {left:left1,top:top1}=this.positioning.position(end.id, end.at)
-
-        const forward=a=>{
-            this.dispatch(ACTION.Selection.SELECT(first.id,first.at,end.id,end.at))
-            this.dispatch(ACTION.Selection.END_AT(end.id,end.at))
-        }
-
-        const backward=a=>{
-            this.dispatch(ACTION.Selection.SELECT(end.id,end.at,first.id,first.at))
-            this.dispatch(ACTION.Selection.START_AT(end.id,end.at))
-        }
-
-        if(top0>top1){
-            backward()
-        }else if(top0<top1){
-            forward()
-        }else if(top0==top1){
-            if(first.id!=end.id){
-                if(left0<left1){
-                    forward()
-                }else{
-                    backward()
-                }
+            if(this.getComposer(id).nextCursorable()===false){
+                this.dispatch(ACTION.Selection.SELECT(id))
             }else{
-                if(first.at<end.at){
-                    forward()
-                }else{
-                    backward()
-                }
+    			const at=this.getComposer(id).distanceAt(x, node)
+    			if(!selecting){
+    				this.dispatch(ACTION.Cursor.AT(id,at))
+    			}else{
+    				let {end}=this.selection
+    				let {left,top}=this.positioning.position(id,at)
+    				let {left:left1,top:top1}=this.positioning.position(end.id,end.at)
+    				if(top<top1 || (top==top1 && left<=left1)){
+    					this.dispatch(ACTION.Selection.START_AT(id,at))
+    				}else{
+    					this.dispatch(ACTION.Selection.SELECT(end.id, end.at, id, at))
+    				}
+    			}
             }
-        }
+		}
 
         this.active()
     }
@@ -256,43 +219,46 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 			({id,at}=this.cursor)
 		}
 
-        if(false && this.positioning.isEndAtParagraph(id,at) && nextOrprev=="next"){
-            return {}
+        const $=this.getContent(id)
+        const next=(id,at)=>{
+            let composer=this.getComposer(id)
+            if(composer){
+                return composer[`${nextOrprev}${CursorableOrSelectable}`](at,this.positioning)
+            }
+            return false
         }
 
-        const location=((id,at)=>{
-    		let path=[]
-            const next=(id,at)=>{
-    			path.push(id)
-                let composer=this.getComposer(id)
-                if(composer){
-                    return composer[`${nextOrprev}${CursorableOrSelectable}`](at)
-                }
-                return false
-            }
-
-    		const $=this.getContent(id)
-    		if(inclusive){
-    			$[`find${nextOrprev=="next" ? "First" :"Last"}`](a=>{
-    				if((at=next(id=a.get("id")))!==false)
-    					return true
-    			},true)
+        const location=((_id,_at)=>{
+    		const check=a=>(_at=next(_id=a.get("id")))!==false
+            if(inclusive){
+    			$[`find${nextOrprev=="next" ? "First" :"Last"}`](check,true)
     		}else{
-    			at=next(id,at)
+    			_at=next(_id,_at)
     		}
 
-    		if(at===false){
-                $[`${nextOrprev=="next" ? "forward" : "backward"}Until`](a=>{
-    				if((at=next(id=a.get("id")))!==false){
-                        return true
-                    }
-    			})
+    		if(_at===false){
+                $[`${nextOrprev=="next" ? "forward" : "backward"}Until`](check)
     		}
-    		console.log(path.join(","))
-            return {id,at}
+    		return {id:_id,at:_at}
         })(id,at);
 
         if(location.at!==false){
+            const endingOrBegining=((id,at=false)=>{
+                const $1=this.getContent(location.id)
+                const differents=$.parentsUntil(a=>{
+                    return $1.parents().has(this.getContent(a.get("id")))
+                })
+                differents.toArray().find(a=>{
+                    return at=this.getComposer(id=a)[`${nextOrprev}${CursorableOrSelectable}`](-1,this.positioning)
+                })
+                if(at!==false){
+                    return {id,at}
+                }
+            })();
+
+            if(endingOrBegining)
+                return endingOrBegining
+
             return location
         }
 

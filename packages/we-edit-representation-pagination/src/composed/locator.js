@@ -28,6 +28,10 @@ export default compose(
         this.state={content:null,canvas:null}
     }
 
+    get positioning(){
+        return this.props.positioning
+    }
+
     render(){
         const {range=this.props.range, cursor=this.props.cursor}=this
         return (
@@ -66,24 +70,20 @@ export default compose(
     makeCursorSelection(props){
         let {cursor, range, selection, scale, content,getComposer,positioning}=props
         const {position,rects}=positioning.getCursorSelection(content, selection, scale)
-        if(cursor  && position){
-            const {id}=position
-            let myShape=getComposer(id).getCursor()
-            if(myShape){
-                const {children:defaultCursorShape}=cursor.props
-                if(defaultCursorShape){
-                    const {children:_forget, onMove, onResize, onRotate}=defaultCursorShape.props
-                    myShape=React.cloneElement(myShape, {onMove, onResize, onRotate})
-                }
-                cursor=React.cloneElement(cursor,{children:myShape})
-            }
+        if(rects && rects.length || !position){
+            this.cursor=React.cloneElement(cursor,{height:0})
+        }else if(!!position){
             const {x,y,left,top,height,fontFamily,fontSize}=position
-
             this.cursor=React.cloneElement(cursor, {x,y,left,top,height,fontFamily,fontSize})
         }
 
         if(range){
-            this.range=React.cloneElement(range,{rects})
+            const {start, end}=selection.toJS()
+            let shape=null
+            if(start.id==end.id){
+                shape=getComposer(start.id).getFocusShape()
+            }
+            this.range=React.cloneElement(range,{rects,shape})
         }
     }
 
