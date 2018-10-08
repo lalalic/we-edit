@@ -51,7 +51,7 @@ export default class Text extends Super{
 					highlight,
 					width,
 					contentWidth:width,
-					"data-endat":end-1,
+					"data-endat":end,
 					children:[...content]
 				})
 			this.appendComposed(composedText)
