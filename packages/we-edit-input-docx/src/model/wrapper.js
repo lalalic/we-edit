@@ -2,10 +2,14 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 
 
-export default ({})=>class extends Component{
+export default ({Container})=>class extends Component{
 	static displayName="wrapper"
 	render(){
-		let {children, id, changed, selfChanged, ...others}=this.props
-		return React.cloneElement(children[0], others)
+		const {children, id, changed, selfChanged, ...others}=this.props
+		return (
+			<Container {...{id, changed, selfChanged}}>
+				{React.cloneElement(children[0], others)}
+			</Container>
+		)
 	}
 }
