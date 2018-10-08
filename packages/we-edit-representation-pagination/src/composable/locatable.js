@@ -7,13 +7,14 @@ export default function Locatable(A){
 		static displayName=`locatable-${A.displayName}`
 		static propTypes={
 			...A.propTypes,
-			id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired
+			id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
 		}
 
         static contextTypes={
             ...A.contextTypes,
             mount: PropTypes.func,
-            unmount: PropTypes.func
+            unmount: PropTypes.func,
+			getComposer: PropTypes.func,
         }
 
         constructor(){
@@ -38,7 +39,7 @@ export default function Locatable(A){
 			}
 		}
 
-        nextCursorable(){
+		nextCursorable(){
             return this.props.nextCursorable ? this.props.nextCursorable() : false
         }
 
@@ -46,17 +47,13 @@ export default function Locatable(A){
             return this.props.prevCursorable ? this.props.prevCursorable() : false
         }
 
-        nextSelectable(){
+		nextSelectable(){
             return this.props.nextSelectable ? this.props.nextSelectable(...arguments) : this.nextCursorable(...arguments)
         }
 
         prevSelectable(){
             return this.props.prevSelectable ? this.props.prevSelectable(...arguments) : this.prevCursorable(...arguments)
         }
-
-		distanceAt(x,node){
-			return 0
-		}
 
 		position(locator, at){
 			const {id}=this.props
@@ -75,7 +72,7 @@ export default function Locatable(A){
             }
 		}
 
-		getCursor(){
+		getFocusShape(){
 			return null
 		}
 	}
