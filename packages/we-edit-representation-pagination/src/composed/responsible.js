@@ -81,10 +81,10 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
                     }
                 }}
 				onMouseMove={e=>{
-                    const {buttons, target, clientX:left}=e
+                    const {buttons, target, clientX:left,clientY:top}=e
 					if(!(buttons&0x1))
 						return
-                    const {id,x,node}=this.positioning.around(target, left)
+                    const {id,x,node}=this.positioning.around(target, left,top)
                     if(id){
                         const at=this.getComposer(id).distanceAt(x, node)
                         const end={id,at}
@@ -189,8 +189,8 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
         this.dispatch(ACTION.Selection.MOVE(id,at))
     }
 
-    onClick({shiftKey:selecting, target, clientX:left}){
-		const {id,x,node}=this.positioning.around(target, left)
+    onClick({shiftKey:selecting, target, clientX:left,clientY:top}){
+		const {id,x,node}=this.positioning.around(target, left, top)
 		if(id){
             if(this.getComposer(id).nextCursorable()===false){
                 this.dispatch(ACTION.Selection.SELECT(id))

@@ -24,7 +24,7 @@ export default class SelectionShape extends Component{
 		else
 			content=(
 				<Range onMove={onMove}>
-					<Area rects={rects}/>
+					<Area rects={rects} onClick={e=>console.log("path being clicked")}/>
 				</Range>
 			)
 		return content
@@ -42,7 +42,7 @@ export default class SelectionShape extends Component{
 		const {rects}=this.state
 		const {x,y}=asCanvasPoint({left,top})
 
-		let i=rects.findIndex(({left,top,right,bottom})=>top<=y && y<=bottom && left<=x && x<=right)
+		let i=rects.findIndex(({left,top,right,bottom})=>y<=bottom && left<=x && x<=right)
 		let newRects=rects.slice(0,i+1)
 		newRects[newRects.length-1].right=x-2
 		this.setState({rects:newRects})
@@ -57,5 +57,6 @@ export const Area=({rects, ...props})=>(
 			rects.map(({left,top,right,bottom})=>`M${left} ${top} L${right} ${top} L${right} ${bottom} L${left} ${bottom} Z`).join(" ")
 		}
 		{...props}
+		onClick={e=>console.log(1)}
 		/>
 )

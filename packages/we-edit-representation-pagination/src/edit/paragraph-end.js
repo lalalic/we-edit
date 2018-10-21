@@ -35,4 +35,7 @@ export default editable(class extends models.Unknown{
                 />
         )
     }
+    distanceAt(){
+        return 1
+    }
 })

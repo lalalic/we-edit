@@ -43,7 +43,41 @@ export default class Positioning{
         return {left:location.x, top:location.y}
     }
 
-    around(node, left){
+    around(node, left, top){
+
+        const {x,y}=this.asCanvasPoint({left,top})
+        const line=Array.from(this.canvas.querySelectorAll(LINE)).find(a=>{
+            const {right,bottom}=a.getBoundingClientRect()
+            const {y:y1}=this.asCanvasPoint({left:right,top:bottom})
+            return y<=y1
+        })
+        return (()=>{
+            const {left,right}=line.getBoundingClientRect()
+            const contents=Array.from(line.querySelectorAll(`[data-content]:not(g)`))
+            const rects=contents.map(a=>{
+                const {left,top}=a.getBoundingClientRect()
+                return this.asCanvasPoint({left,top}).x
+            })
+            const i=Math.max(0,Math.min(rects
+                .concat([x])
+                .sort((a,b)=>a-b)
+                .indexOf(x)-1,rects.length-1))
+            const node=contents[i]
+            if(node){
+                return {
+                    id:node.dataset.content,
+                    x:x-rects[i],
+                    node
+                }
+            }else{
+                return {
+
+                }
+            }
+        })();
+        /*
+
+
         let {content}=node.dataset
         if(content){
             return {
@@ -64,6 +98,7 @@ export default class Positioning{
         }
 
         return {}
+        */
     }
 
     closest(a,types,test=a=>a.getAttribute("class")){

@@ -13,7 +13,7 @@ export default class Range extends Component{
         const {path, onMove, children}=this.props
         return (
             <Movable onMove={onMove}>
-				<Group onClick={this.click.bind(this)}>
+				<Group>
                 	{children}
 				</Group>
             </Movable>

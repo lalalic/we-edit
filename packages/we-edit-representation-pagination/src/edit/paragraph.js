@@ -24,25 +24,6 @@ export default Cacheable(class Paragraph extends editable(Base,{stoppable:true})
 		super.clearComposed(...arguments)
 	}
 
-	onAllChildrenComposed(){
-		/*
-		let lastLine=this.computed.composed.pop()
-		if(!lastLine){
-			this.availableSpace=this.context.parent.nextAvailableSpace({width:0.1})
-			lastLine=this._newLine()
-			this.computed.composed.push(lastLine)
-		}
-		const {height,descent}=this.getDefaultMeasure()
-		lastLine.push(<ComposedText
-
-				width={0.1}
-				height={height}
-				descent={descent}
-				children={[this.constructor.End]}/>)
-				*/
-		super.onAllChildrenComposed()
-	}
-
 	getDefaultMeasure(){
 		return new this.context.Measure(this.props.defaultStyle)
 	}
@@ -53,7 +34,7 @@ export default Cacheable(class Paragraph extends editable(Base,{stoppable:true})
 			<ParagraphEnd {...this.props.defaultStyle}
 				key="end"
 				for={this.props.id}
-				id={`${this.props.id}-end`}/>
+				/>
 		]
 	}
 
@@ -102,5 +83,9 @@ export default Cacheable(class Paragraph extends editable(Base,{stoppable:true})
 			return 0
 		}
 		return super.prevSelectable(...arguments)
+	}
+
+	distanceAt(){
+		return 0
 	}
 })
