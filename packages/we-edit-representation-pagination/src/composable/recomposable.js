@@ -7,7 +7,9 @@ export default A=>class extends A{
     }
 
     clearComposed(nextProps, nextState){
-        this.computed.composed=[]
-        delete this.computed.allComposed
+        if(this.computed){
+            this.computed.composed=[]
+            delete this.computed.allComposed
+        }
     }
 }

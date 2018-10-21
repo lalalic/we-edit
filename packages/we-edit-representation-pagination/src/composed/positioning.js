@@ -168,6 +168,7 @@ export default class Positioning{
                         if(pages.length-1>page){
                             return locate({...position,page:page+1,column:0,line:-1})
                         }
+                        break
                     }
                     case -1:{
                         if(column>0){
@@ -179,6 +180,7 @@ export default class Positioning{
                             const lines=this.lines(columns[columns.length-1])
                             return locate({...position,page:page-1,column:columns.length-1,line:lines.length})
                         }
+                        break
                     }
                 }
 

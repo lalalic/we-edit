@@ -27,10 +27,6 @@ export default editable(class extends models.Unknown{
             <ComposedText
                 {...measure.defaultStyle}
                 width={0}
-                onClick={e=>{
-                    e.stopPropagation()
-                    this.context.activeDocStore.dispatch(ACTION.Cursor.AT(this.props.id,1))
-                }}
                 children={[String.fromCharCode(0xb6)]}
                 />
         )
