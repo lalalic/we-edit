@@ -108,7 +108,7 @@ export default class Text extends Super{
 		)
 
 		commit(state)
-
+        this.onAllChildrenComposed()
         return null
     }
 

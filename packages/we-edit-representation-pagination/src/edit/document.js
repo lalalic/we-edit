@@ -157,21 +157,25 @@ export default class Document extends Super{
 			return composedY<Math.max(this.viewableY+this.bufferHeight,y+viewport.height+this.bufferHeight)
 		}
 
-		const selectionComposed=()=>{
-			const {activeDocStore}=this.context
-			const {end,start}=getSelection(activeDocStore.getState())
-			if(start.id){
-				return this.composers.has(start.id) && this.composers.has(end.id)
-			}
-			return true
-		}
-
-		const should=aboveViewableBottom() || !selectionComposed()
+		const should=aboveViewableBottom() || !this.isSelectionComposed()
 
 		if(!should){
 			this.notifyNotAllComposed(a)
 		}
 		return should
+	}
+
+	isSelectionComposed(){
+		const {activeDocStore}=this.context
+		const {end,start}=getSelection(activeDocStore.getState())
+		if(start.id){
+			return this.composers.has(start.id)
+				&& this.composers.has(end.id)
+				&& this.getComposer(start.id).isAllChildrenComposed()
+				&& this.getComposer(end.id).isAllChildrenComposed()
+		}
+
+		return true
 	}
 
 	initViewport(viewporter){

@@ -16,6 +16,7 @@ export default A=>{
         render() {
             this.context.getMyBreakOpportunities(null)
             this.appendComposed(this.createComposed2Parent())
+            this.onAllChildrenComposed()
             return null
         }
     }

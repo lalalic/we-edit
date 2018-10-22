@@ -224,9 +224,9 @@ export default class Positioning{
 
         pages.slice(p0.page, p1.page+1).forEach(a=>{
             this.lines(a).forEach(lineRect)
-        })
+        });
+
         //remove from first page before
-        let firstIndex=-1;
         (({page,column,line,left,top,node})=>{
             //remove first page prev sibling lines
             const lines=this.lines(pages[page])
@@ -234,8 +234,7 @@ export default class Positioning{
             if(!nLine){
                 throw new Error("can't find line for start point")
             }
-            firstIndex=lines.indexOf(nLine)
-            rects.splice(0,firstIndex+1)
+            rects.splice(0,lines.indexOf(nLine)+1)
             //first line rect
             const a=nLine.getBoundingClientRect()
             rects.unshift({left,top,right:a.left+a.width,bottom:a.top+a.height})
@@ -250,7 +249,7 @@ export default class Positioning{
             }
             //remove last page next sibling lines
             const lines=this.lines(pages[page])
-            rects.splice(lines.indexOf(nLine)-firstIndex)
+            rects.splice(lines.indexOf(nLine)-lines.length)
 
             //last line rect
             const {left,top,height}=nLine.getBoundingClientRect()
