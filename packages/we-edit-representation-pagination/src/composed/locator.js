@@ -34,6 +34,7 @@ export default compose(
 
     render(){
         const {range=this.props.range, cursor=this.props.cursor}=this
+		
         return (
             <Fragment>
                 <g ref="cursor">
@@ -43,6 +44,10 @@ export default compose(
             </Fragment>
         )
     }
+	
+	componentDidCatch(error){
+		this.setState({error})
+	}
 
     shouldComponentUpdate({content,selection,scale,getComposer,getContent,positioning},state){
         if(selection && !selection.equals(this.props.selection)){
@@ -68,23 +73,28 @@ export default compose(
     }
 
     makeCursorSelection(props){
-        let {cursor, range, selection, scale, content,getComposer,positioning}=props
-        const {position,rects}=positioning.getCursorSelection(content, selection, scale)
-        if(rects && rects.length || !position){
-            this.cursor=React.cloneElement(cursor,{height:0})
-        }else if(!!position){
-            const {x,y,left,top,height,fontFamily,fontSize}=position
-            this.cursor=React.cloneElement(cursor, {x,y,left,top,height,fontFamily,fontSize})
-        }
+        try{
+			let {cursor, range, selection, scale, content,getComposer,positioning}=props
+			const {position,rects}=positioning.getCursorSelection(content, selection, scale)
+			if(rects && rects.length || !position){
+				this.cursor=React.cloneElement(cursor,{height:0})
+			}else if(!!position){
+				const {x,y,left,top,height,fontFamily,fontSize}=position
+				this.cursor=React.cloneElement(cursor, {x,y,left,top,height,fontFamily,fontSize})
+			}
 
-        if(range){
-            const {start, end}=selection.toJS()
-            let shape=null
-            if(start.id==end.id){
-                shape=getComposer(start.id).getFocusShape()
-            }
-            this.range=React.cloneElement(range,{rects,shape})
-        }
+			if(range){
+				const {start, end}=selection.toJS()
+				let shape=null
+				if(start.id==end.id){
+					shape=getComposer(start.id).getFocusShape()
+				}
+				this.range=React.cloneElement(range,{rects,shape})
+			}
+		}catch(e){
+			this.cursor=null
+			this.range=null
+		}
     }
 
     componentDidUpdate({selection}){

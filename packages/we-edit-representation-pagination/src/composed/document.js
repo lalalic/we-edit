@@ -32,7 +32,7 @@ export default class ComposedDocument extends Component{
 	})
 
 	render(){
-		const {pages, pgGap, scale, style,children,innerRef, ...props}=this.props
+		const {pages, pgGap, scale, style,children,innerRef, content, ...props}=this.props
 		const {width,height}=this.getSize(pages, pgGap)
 
 		return   (

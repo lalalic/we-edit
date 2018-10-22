@@ -91,13 +91,7 @@ export default class Document extends Super{
 					ref={this.responsible}
 					docId={docId}
 					content={content}
-					getComposer={id=>{
-						if(this.composers.has(id)){
-							return this.composers.get(id)
-						}else{
-							debugger
-						}
-					}}
+					getComposer={id=>this.composers.get(id)}
 					scale={scale}
 					pgGap={pageGap}
 					pages={pages}

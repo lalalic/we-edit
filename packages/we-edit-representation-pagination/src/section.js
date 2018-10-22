@@ -30,7 +30,9 @@ export default class Section extends Super{
 			height:height-bottom-top,
             children:[],
 			x: cols.reduce((p, a, j)=>(j<i ? p+a.width+a.space : p),0),
-			width: cols[i].width
+			width: cols[i].width,
+			"data-content":this.props.id,
+			"data-type":this.getComposeType(),
 		}
 		return info
     }

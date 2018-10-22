@@ -158,7 +158,7 @@ function testOffice(){
 								<Tabs>
 									<Tab label="Document">
 										<DocumentTree
-											filter="*"
+											filter={({type})=>type!="styles"}
 											toNodeProps={({id,type,props})=>({name:`${type}(${id})`})}
 											/>
 									</Tab>
