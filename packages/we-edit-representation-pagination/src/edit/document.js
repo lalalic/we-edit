@@ -1,14 +1,11 @@
 import React, {PureComponent, Component, Fragment} from "react"
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
-import Waypoint from "react-waypoint"
 import {getContent,getSelection,getClientRect, ACTION, ContentQuery,connect} from "we-edit"
-
-import {setDisplayName,compose, getContext} from "recompose"
 
 import Base from "../document"
 import Responsible from "../composed/responsible"
-import {Document as ComposedDocument,Group} from "../composed"
+import {Document as ComposedDocument} from "../composed"
 
 import editable from "./editable"
 
@@ -42,7 +39,6 @@ export default class Document extends Super{
 		this.composers=new Map([[this.props.id,this]])
 		this.state={mode:"content",viewport, ...this.state}
 		this.screenBuffer=typeof(screenBuffer)=="function" ? screenBuffer : a=>screenBuffer!=undefined ? screenBuffer : a;
-		this.responsible=React.createRef()
 		this.getComposer=this.getComposer.bind(this)
 	}
 	get viewableY(){
@@ -88,37 +84,19 @@ export default class Document extends Super{
 		const pages=this.computed.composed
 		return (
 				<Responsible
-					ref={this.responsible}
 					docId={docId}
 					content={content}
 					getComposer={id=>this.composers.get(id)}
 					scale={scale}
 					pgGap={pageGap}
 					pages={pages}
-					>
-					{
-						<ComposeMoreTrigger
-							isComposed={id=>this.isComposed(id)}
-							compose4Selection={a=>{
-								if(!this.isAllChildrenComposed()){
-									this.responsible.current
-										.getWrappedInstance()
-										.notify(()=>this.setState({mode:"selection",time:Date.now()}))
-
-								}
-							}}
-							y={()=>ComposedDocument.composedY(pages, pageGap)||(this.viewableY+this.bufferHeight)}
-							onEnter={y=>{
-								if(!this.isAllChildrenComposed()){
-									this.responsible.current
-										.getWrappedInstance()
-										.notify(()=>this.setState({y,mode:"scroll"}))
-
-								}
-							}}
-							/>
-					}
-				</Responsible>
+					continueCompose={{
+						isAllComposed: ()=>this.isAllChildrenComposed(),
+						isSelectionComposed:selection=>this.isSelectionComposed(selection),
+						compose4Selection:()=>this.setState({mode:"selection",time:Date.now()}),
+						compose4Scroll: y=>this.setState({y,mode:"scroll",time:Date.now()}),
+					}}
+					/>
 
 		)
 	}
@@ -156,14 +134,8 @@ export default class Document extends Super{
 			const composedY=ComposedDocument.composedY(this.computed.composed,this.props.pageGap,this.props.scale)
 			return composedY<Math.max(this.viewableY+this.bufferHeight,y+viewport.height+this.bufferHeight)
 		}
-		
-		const isSelectionComposed=()=>{
-			const {activeDocStore}=this.context
-			const {end,start}=getSelection(activeDocStore.getState())
-			return start.id ? this.isComposed(start.id) && this.isComposed(end.id) : true
-		}
 
-		const should=aboveViewableBottom() || !isSelectionComposed()
+		const should=aboveViewableBottom() || !this.isSelectionComposed()
 
 		if(!should){
 			this.notifyNotAllComposed(a)
@@ -171,8 +143,11 @@ export default class Document extends Super{
 		return should
 	}
 
-	isComposed(id){
-		return this.composers.has(id) && this.getComposer(id).isAllChildrenComposed()
+	isSelectionComposed(selection){
+		const {end,start}=selection||getSelection(this.context.activeDocStore.getState())
+		return !start.id ? true : 
+			this.composers.has(start.id) && this.getComposer(start.id).isAllChildrenComposed() &&
+			this.composers.has(end.id) && this.getComposer(end.id).isAllChildrenComposed()
 	}
 
 	initViewport(viewporter){
@@ -205,32 +180,3 @@ export default class Document extends Super{
 	}
 }
 
-
-const ComposeMoreTrigger=compose(
-	setDisplayName("More"),
-	getContext({debug: PropTypes.bool}),
-	connect(state=>{
-		const {start,end}=getSelection(state)
-		return {start:start.id, end:end.id}
-	}),
-)(class extends Component{
-	shouldComponentUpdate({start,end,isComposed,compose4Selection}){
-		if((start && !isComposed(start))|| (end&&!isComposed(end))){
-			compose4Selection()
-			return false
-		}
-		return true
-	}
-
-	render(){
-		const {onEnter,debug}=this.props
-		const y=this.props.y()
-		return (
-			<Waypoint onEnter={()=>onEnter(y)} >
-				<Group y={y}>
-					{debug ? <line x1="0" y1="0" x2="10000" y2="0" strokeWidth="2" stroke="red"/> : null}
-				</Group>
-			</Waypoint>
-		)
-	}
-})

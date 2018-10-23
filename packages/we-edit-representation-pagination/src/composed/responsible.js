@@ -1,10 +1,13 @@
 import React, {Component,Fragment} from "react"
 import PropTypes from "prop-types"
 
+import {setDisplayName,compose, getContext} from "recompose"
+import Waypoint from "react-waypoint"
+
 import {getSelection, ACTION, Cursor, Selection,connect,ContentQuery} from "we-edit"
 import offset from "mouse-event-offset"
 
-import {Document as ComposedDocument} from "../composed"
+import {Document as ComposedDocument,Group} from "../composed"
 import SelectionShape from "./selection"
 import Locator from "./locator"
 import Positioning from "./positioning"
@@ -67,9 +70,35 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
     updateCursorAndSelection(){
         //this.locator.setState({})
     }
+	
+	getComposeTrigger(){
+		const {continueCompose:{isAllComposed, isSelectionComposed, compose4Selection, compose4Scroll}, pages, pgGap}=this.props
+		const notifyLocator=callback=>{
+			if(this.locator){
+				this.locator.setState({content:null,canvas:null},callback)
+			}else{
+				callback()
+			}
+		}
+		
+		return <ComposeMoreTrigger
+					y={()=>ComposedDocument.composedY(pages, pgGap)}
+					isSelectionComposed={isSelectionComposed}	
+					compose4Selection={a=>{
+						if(!isAllComposed()){
+							notifyLocator(compose4Selection)
+						}
+					}}
+					compose4Scroll={y=>{
+						if(!isAllComposed()){
+							notifyLocator(()=>compose4Scroll(y))
+						}
+					}}
+					/>
+	}
 
     render(){
-        const {children, contentHash,docId, getComposer,dispatch, ...props}=this.props
+        const {children, contentHash,docId, continueCompose, getComposer,dispatch, ...props}=this.props
         return (
             <ComposedDocument {...props}
 				innerRef={a=>{this.canvas=a}}
@@ -105,6 +134,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 				>
 				<Fragment>
                     {children}
+					{this.getComposeTrigger()}
 					<Locator
                         docId={docId}
                         scale={this.props.scale}
@@ -136,14 +166,6 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 				</Fragment>
             </ComposedDocument>
         )
-    }
-
-    notify(callback){
-        if(this.locator){
-            this.locator.setState({content:null,canvas:null},callback)
-        }else{
-            callback()
-        }
     }
 
     componentDidUpdate({},state,snapshot){
@@ -356,5 +378,31 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 				}
 			}
 		}
+	}
+})
+
+const ComposeMoreTrigger=compose(
+	setDisplayName("More"),
+	getContext({debug: PropTypes.bool}),
+	connect(state=>({selection:getSelection(state)})),
+)(class extends Component{
+	shouldComponentUpdate({selection,isSelectionComposed,compose4Selection}){
+		if(!isSelectionComposed(selection)){
+			compose4Selection()
+			return false
+		}
+		return true
+	}
+
+	render(){
+		const {compose4Scroll,debug}=this.props
+		const y=this.props.y()
+		return (
+			<Waypoint onEnter={()=>compose4Scroll(y)} >
+				<Group y={y}>
+					{debug ? <line x1="0" y1="0" x2="10000" y2="0" strokeWidth="2" stroke="red"/> : null}
+				</Group>
+			</Waypoint>
+		)
 	}
 })

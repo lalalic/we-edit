@@ -73,16 +73,19 @@ export default class ComposedDocument extends Component{
 		if(pages.length==0)
 			return 0
 
-		const lastPageHeight=(last=>{//@TODO: balanced column, last page of section
-			if(last.lastSectionPage){
-				return last.size.height
-			}
-			let lastColumnLines=last.columns[last.columns.length-1].children
-			let lastLine=lastColumnLines[lastColumnLines.length-1]
-			let height=last.margin.top
-			if(lastLine)
-				height+=lastLine.props.y+lastLine.props.height
-			return height
+		const lastPageHeight=(({margin:{top},columns})=>{//@TODO: balanced column, last page of section
+			return Math.max(...
+				columns.map(({children:lines})=>{
+					let lastLine=lines[lines.length-1]
+					if(lastLine){
+						return lastLine.props.y+lastLine.props.height
+					}else{
+						return 0
+					}
+				})
+				.map(y=>y+top)
+			)
+			
 		})(pages[pages.length-1])
 
 		const Y=pages.slice(0,pages.length-1).reduce((w,{size:{height}})=>w+height+pgGap,lastPageHeight)
