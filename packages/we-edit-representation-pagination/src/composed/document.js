@@ -70,25 +70,7 @@ export default class ComposedDocument extends Component{
 	}
 
 	static composedY(pages,pgGap,scale=1){
-		if(pages.length==0)
-			return 0
-
-		const lastPageHeight=(({margin:{top},columns})=>{//@TODO: balanced column, last page of section
-			return Math.max(...
-				columns.map(({children:lines})=>{
-					let lastLine=lines[lines.length-1]
-					if(lastLine){
-						return lastLine.props.y+lastLine.props.height
-					}else{
-						return 0
-					}
-				})
-				.map(y=>y+top)
-			)
-			
-		})(pages[pages.length-1])
-
-		const Y=pages.slice(0,pages.length-1).reduce((w,{size:{height}})=>w+height+pgGap,lastPageHeight)
+		const Y=pages.slice(0,pages.length-1).reduce((w,{size:{height}})=>w+height+pgGap,0)
 		return scale*Y
 	}
 }
