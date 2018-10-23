@@ -7,11 +7,12 @@ import Base from "../section"
 import editable from "./editable"
 
 export default Cacheable(class Section extends editable(Base,{stoppable:true}){
-	onAllChildrenComposed(){
-		super.onAllChildrenComposed()
-		let last=this.computed.composed[this.computed.composed.length-1]
-		last && (last.lastSectionPage=true);
-	}
+	_newColumn(i){
+		return Object.assign(super._newColumn(...arguments),{
+			"data-content":this.props.id,
+			"data-type":this.getComposeType()
+		})
+    }
 
 	keepUntilLastAllChildrenComposed(){
 		const {id,pageIndex,columnIndex,lineIndex}=(id=>{

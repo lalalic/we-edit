@@ -70,7 +70,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
     updateCursorAndSelection(){
         //this.locator.setState({})
     }
-	
+
 	getComposeTrigger(){
 		const {continueCompose:{isAllComposed, isSelectionComposed, compose4Selection, compose4Scroll}, pages, pgGap}=this.props
 		const notifyLocator=callback=>{
@@ -80,10 +80,10 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 				callback()
 			}
 		}
-		
+
 		return <ComposeMoreTrigger
 					y={()=>ComposedDocument.composedY(pages, pgGap)}
-					isSelectionComposed={isSelectionComposed}	
+					isSelectionComposed={isSelectionComposed}
 					compose4Selection={a=>{
 						if(!isAllComposed()){
 							notifyLocator(compose4Selection)
@@ -98,7 +98,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 	}
 
     render(){
-        const {children, contentHash,docId, continueCompose, getComposer,dispatch, ...props}=this.props
+        const {children,docId, continueCompose, getComposer,dispatch, ...props}=this.props
         return (
             <ComposedDocument {...props}
 				innerRef={a=>{this.canvas=a}}
@@ -124,6 +124,9 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
                     }
 				}}
                 onMouseUp={e=>{
+                    const {buttons}=e
+					if(!(buttons&0x1))
+						return
                     const {start,end}=this.selecting.current.state
                     if(start && end){
                         this.selecting.current.setState({start:undefined, end:undefined, rects:undefined,selecting:false})
@@ -399,7 +402,9 @@ const ComposeMoreTrigger=compose(
 		const y=this.props.y()
 		return (
 			<Waypoint onEnter={()=>compose4Scroll(y)} >
-				<Group y={y}/>
+                <Group y={y-100}>
+                    <line x1="0" y1="0" x2="10" y2="0" strokeWidth="2" stroke={debug ? "red" : "transparent"}/>
+                </Group>
 			</Waypoint>
 		)
 	}

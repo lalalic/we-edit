@@ -101,14 +101,14 @@ export default class Document extends Super{
 		)
 	}
 
-	static getDerivedStateFromProps({changed,contentHash},{mode}){
+	static getDerivedStateFromProps({changed,content},{mode}){
 		let state={}
-		if(changed && contentHash!=state.contentHash){
+		if(changed && !content.equals(state.content)){
 			state.mode="content"
 			state.y=0
 		}
-		if(contentHash!=state.contentHash){
-			state.contentHash=contentHash
+		if(!content.equals(state.content)){
+			state.content=content
 		}
 		return state
 	}
@@ -130,9 +130,9 @@ export default class Document extends Super{
 	**/
 	shouldContinueCompose(a){
 		const aboveViewableBottom=()=>{
-			const {y=0,viewport}=this.state
+			const {y=0,viewport,mode}=this.state
 			const composedY=ComposedDocument.composedY(this.computed.composed,this.props.pageGap,this.props.scale)
-			return composedY<Math.max(this.viewableY+this.bufferHeight,y+viewport.height+this.bufferHeight)
+			return composedY<Math.max(this.viewableY+this.bufferHeight,(mode=="scroll" ? y : 0)+viewport.height+this.bufferHeight)
 		}
 
 		const should=aboveViewableBottom() || !this.isSelectionComposed()
@@ -145,7 +145,7 @@ export default class Document extends Super{
 
 	isSelectionComposed(selection){
 		const {end,start}=selection||getSelection(this.context.activeDocStore.getState())
-		return !start.id ? true : 
+		return !start.id ? true :
 			this.composers.has(start.id) && this.getComposer(start.id).isAllChildrenComposed() &&
 			this.composers.has(end.id) && this.getComposer(end.id).isAllChildrenComposed()
 	}
@@ -179,4 +179,3 @@ export default class Document extends Super{
 		return this.state.viewport
 	}
 }
-
