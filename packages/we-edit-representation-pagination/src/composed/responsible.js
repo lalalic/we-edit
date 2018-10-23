@@ -66,10 +66,6 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 	getContent(id){
         return ContentQuery.fromContent(this.props.content,  id ? `#${id}`  : undefined)
 	}
-
-    updateCursorAndSelection(){
-        //this.locator.setState({})
-    }
 	
 	getComposeTrigger(){
 		const {continueCompose:{isAllComposed, isSelectionComposed, compose4Selection, compose4Scroll}, pages, pgGap}=this.props
@@ -399,9 +395,7 @@ const ComposeMoreTrigger=compose(
 		const y=this.props.y()
 		return (
 			<Waypoint onEnter={()=>compose4Scroll(y)} >
-				<Group y={y}>
-					{debug ? <line x1="0" y1="0" x2="10000" y2="0" strokeWidth="2" stroke="red"/> : null}
-				</Group>
+				<Group y={y}/>
 			</Waypoint>
 		)
 	}
