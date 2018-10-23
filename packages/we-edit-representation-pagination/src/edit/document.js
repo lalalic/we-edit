@@ -98,12 +98,12 @@ export default class Document extends Super{
 					>
 					{
 						<ComposeMoreTrigger
-							isComposed={id=>this.composers.has(id)}
+							isComposed={id=>this.isComposed(id)}
 							compose4Selection={a=>{
 								if(!this.isAllChildrenComposed()){
 									this.responsible.current
 										.getWrappedInstance()
-										.notify(()=>this.setState({mode:"selection"}))
+										.notify(()=>this.setState({mode:"selection",time:Date.now()}))
 
 								}
 							}}
@@ -156,8 +156,14 @@ export default class Document extends Super{
 			const composedY=ComposedDocument.composedY(this.computed.composed,this.props.pageGap,this.props.scale)
 			return composedY<Math.max(this.viewableY+this.bufferHeight,y+viewport.height+this.bufferHeight)
 		}
+		
+		const isSelectionComposed=()=>{
+			const {activeDocStore}=this.context
+			const {end,start}=getSelection(activeDocStore.getState())
+			return start.id ? this.isComposed(start.id) && this.isComposed(end.id) : true
+		}
 
-		const should=aboveViewableBottom() || !this.isSelectionComposed()
+		const should=aboveViewableBottom() || !isSelectionComposed()
 
 		if(!should){
 			this.notifyNotAllComposed(a)
@@ -165,17 +171,8 @@ export default class Document extends Super{
 		return should
 	}
 
-	isSelectionComposed(){
-		const {activeDocStore}=this.context
-		const {end,start}=getSelection(activeDocStore.getState())
-		if(start.id){
-			return this.composers.has(start.id)
-				&& this.composers.has(end.id)
-				&& this.getComposer(start.id).isAllChildrenComposed()
-				&& this.getComposer(end.id).isAllChildrenComposed()
-		}
-
-		return true
+	isComposed(id){
+		return this.composers.has(id) && this.getComposer(id).isAllChildrenComposed()
 	}
 
 	initViewport(viewporter){

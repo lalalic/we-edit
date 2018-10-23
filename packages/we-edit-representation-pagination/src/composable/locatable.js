@@ -58,18 +58,26 @@ export default function Locatable(A){
 		position(locator, at){
 			const {id}=this.props
 			if(at==0){
-                const {x,y,width,height,node}=locator.getClientRect(id)
-                return {x,y,width,height,node}
+				const rect=locator.getClientRect(id)
+				if(rect){
+					const {x,y,width,height,node}=rect
+					return {x,y,width,height,node}
+				}
             }else{
-                const {x,y,width,height,node}=locator.getClientRects(id).pop()
-                return {
-                    x:x+width,
-					y,
-					width,
-                    height,
-                    node
-                }
+				const rect=locator.getClientRects(id).pop()
+				if(rect){
+					const {x,y,width,height,node}=rect
+					return {
+						x:x+width,
+						y,
+						width,
+						height,
+						node
+					}
+				}
             }
+			
+			return null
 		}
 
 		getFocusShape(){

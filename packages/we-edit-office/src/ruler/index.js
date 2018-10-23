@@ -48,7 +48,7 @@ export default compose(
 					left:leftMargin,top:topMargin,right:rightMargin,bottom:bottomMargin,
 					header,footer,
 				}
-			}=selection.props("section",false)
+			}=selection.props("section")
 
 		let {
 			indent:{left:leftIndent,right:rightIndent,firstLine}={}

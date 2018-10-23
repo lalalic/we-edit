@@ -75,30 +75,6 @@ export default class Positioning{
                 }
             }
         })();
-        /*
-
-
-        let {content}=node.dataset
-        if(content){
-            return {
-                id:content,
-                x:Math.max(left-node.getBoundingClientRect().left,0)/this.scale,
-                node
-            }
-        }
-
-        let child=node.querySelector("[data-content]")
-        if(child){
-            return this.around(child,left)
-        }
-
-        let parent=node.closest("[data-content]")
-        if(parent){
-            return this.around(parent,left)
-        }
-
-        return {}
-        */
     }
 
     closest(a,types,test=a=>a.getAttribute("class")){
@@ -135,15 +111,21 @@ export default class Positioning{
                 line:line!==undefined ? this.lines(column).indexOf(line): undefined
             }
         }
+		
+		const rect=this.getComposer(id).position(this,at)
 
-        const {x,y,width,node, ...position}=this.getComposer(id).position(this,at)
+		if(rect){
+			const {x,y,width,node, ...position}=rect
 
-        return {
-            id,at,node,x,y,
-            ...position,
-            ...this.asViewportPoint({x,y}),
-            ...paginate(node),
-        }
+			return {
+				id,at,node,x,y,
+				...position,
+				...this.asViewportPoint({x,y}),
+				...paginate(node),
+			}
+		}
+		
+		return null
     }
 
     line(id,at,offset){
@@ -264,15 +246,21 @@ export default class Positioning{
     }
     getRangeRects(start, end){
         if(start.id==end.id && !this.getComposer(start.id).splittable){
-            const {x,y,width,height}=this.getClientRect(start.id)
-            return [{
-                left:x,
-                top:y,
-                right:x+width,
-                bottom:y+height
-            }]
+			const rect=this.getClientRect(start.id)
+			if(rect){
+				const {x,y,width,height}=rect
+				return [{
+					left:x,
+					top:y,
+					right:x+width,
+					bottom:y+height
+				}]
+			}
         }else{
             const [p0,p1]=((start,end)=>{
+				if(!start || !end)
+					return []
+				
                 if(end.page<start.page ||
                     (end.page==start.page && end.column<start.column) ||
                     (end.page==start.page && end.column==start.column && end.line<start.line) ||
@@ -281,31 +269,39 @@ export default class Positioning{
                 }
                 return [start,end]
             })(this.position(start.id,start.at),this.position(end.id, end.at));
-
-            let paths=[]
-            if(p0.top==p1.top){
-                const {x:left, y:top, height, bottom=top+height}=p0
-                const {x:right}=p1
-                return [{left,right,top,bottom}]
-            }else{
-                return this._getRangeRects(p0, p1)
-            }
+			
+			if(p0 && p1){
+				if(p0.top==p1.top){
+					const {x:left, y:top, height, bottom=top+height}=p0
+					const {x:right}=p1
+					return [{left,right,top,bottom}]
+				}else{
+					return this._getRangeRects(p0, p1)
+				}
+			}
         }
+		
+		return []
     }
 
     getClientRects(id){
         return Array.from(this.canvas.querySelectorAll(`[data-content="${id}"]`))
             .map(a=>this.getClientRect(id,a))
+			.filter(a=>!!a)
     }
 
     getClientRect(id, node){
         node=node||this.canvas.querySelector(`[data-content="${id}"]`)
-        const {left,top,width,height}=node.getBoundingClientRect()
-        const {x,y}=this.asCanvasPoint({left,top})
-        return {
-            x,y,left,top,node,
-            width:width/this.scale,height:height/this.scale
-        }
+		if(node){
+			const {left,top,width,height}=node.getBoundingClientRect()
+			const {x,y}=this.asCanvasPoint({left,top})
+			return {
+				x,y,left,top,node,
+				width:width/this.scale,height:height/this.scale
+			}
+		}
+		
+		return null
     }
 
     pageY(page){
@@ -326,7 +322,12 @@ export default class Positioning{
             props:memoize((type,bContent=true)=>{
                 if(position===0){
                     ({position}=this.getCursorSelection(content,selection, scale));
-                    ({page,column,line,node,id}=position);
+					if(position){
+						({page,column,line,node,id}=position);
+					}else{
+						const {cursorAt, ...a}=selection.toJS()
+						id=a[cursorAt].id
+					}
                 }
 
                 if(bContent){//from content in state
@@ -335,24 +336,30 @@ export default class Positioning{
 
                 let reType=new RegExp(type,"i")
                 if(reType.test("page")){
-
-                    return {
-                        page,
-                        column,
-                        line,
-                        get pageY(){
-                            return self.pageY(page)
-                        }
-                    }
+					if(position){
+						return {
+							page,
+							column,
+							line,
+							get pageY(){
+								return self.pageY(page)
+							}
+						}
+					}
+					
+					return null
                 }
-
-                let found=this.closest(node,[type],a=>a.dataset.type)
-                if(found){
-                    let composer=self.getComposer(found.dataset.content)
-                    if(composer){
-                        return composer.props
-                    }
-                }
+				
+				
+				if(node){
+					let found=this.closest(node,[type],a=>a.dataset.type)
+					if(found){
+						let composer=self.getComposer(found.dataset.content)
+						if(composer){
+							return composer.props
+						}
+					}
+				}
 
                 return fromContent(type)
             })
