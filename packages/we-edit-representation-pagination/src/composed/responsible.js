@@ -66,6 +66,10 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 	getContent(id){
         return ContentQuery.fromContent(this.props.content,  id ? `#${id}`  : undefined)
 	}
+
+    updateCursorAndSelection(){
+        //this.locator.setState({})
+    }
 	
 	getComposeTrigger(){
 		const {continueCompose:{isAllComposed, isSelectionComposed, compose4Selection, compose4Scroll}, pages, pgGap}=this.props
