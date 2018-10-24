@@ -91,12 +91,16 @@ describe("continuable", ()=>{
 	)
 	const pageGap=12
 
-	describe("compose to Y", ()=>{
+	xdescribe("compose to Y", ()=>{
 		const compose2Y=(y,n)=>it(`${y},pages=${n}`,()=>{
 			const renderer=TestRender.create(
 				<StoreContext>
 					<TextContext>
-						<Document pageGap={pageGap} viewport={{width:500,height:y,node:{scrollTop:0}}} screenBuffer={()=>0} scale={1}>
+						<Document 
+							pageGap={pageGap} 
+							viewport={{width:500,height:y,node:{scrollTop:0}}} 
+							screenBuffer={()=>0} 
+							scale={1}>
 							{section(1)}
 							{section(2)}
 							{section(3)}
@@ -147,17 +151,17 @@ describe("continuable", ()=>{
 			expect(pages.length).toBe(n)
 		})
 
-		compose2Id('1.0',1)
-		compose2Id('1.1',1)
+		//compose2Id('1.0',1)
+		//compose2Id('1.1',1)
 		compose2Id('1.2',1)
 
-		compose2Id('2.2',2)
+		//compose2Id('2.2',2)
 
-		compose2Id('3.2',3)
+		//compose2Id('3.2',3)
 	})
 
 
-	describe("compose to y/id then y/id",()=>{
+	xdescribe("compose to y/id then y/id",()=>{
 		function compose2(node,state,i){
 			let root=null
 			const renderer=TestRender.create(root=

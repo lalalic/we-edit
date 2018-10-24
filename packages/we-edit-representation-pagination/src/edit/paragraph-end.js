@@ -4,16 +4,14 @@ import {models,ACTION} from "we-edit"
 import editable from "./editable"
 import {Text as ComposedText} from "../composed"
 
-export default editable(class extends models.Unknown{
+const Ender=editable(class extends models.Unknown{
     static contextTypes={
         ...models.Unknown.contextTypes,
         parent: PropTypes.object,
         Measure: PropTypes.func,
         activeDocStore: PropTypes.object,
     }
-    getComposeType(){
-        return "paragran-end"
-    }
+		
     render(){
         this.context.parent.nextAvailableSpace()
         this.context.parent.appendComposed(this.createComposed2Parent())
@@ -31,7 +29,12 @@ export default editable(class extends models.Unknown{
                 />
         )
     }
+	
     distanceAt(){
         return 1
     }
 })
+
+delete Ender.propTypes.id
+
+export default Ender

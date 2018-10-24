@@ -50,8 +50,8 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 	}
 
 	get selection(){
-        if(this.refs.locator)
-		      return this.locator.props.selection.toJS()
+        if(this.locator)
+		     return this.locator.props.selection.toJS()
 	}
 
 	get cursor(){
@@ -72,7 +72,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
     }
 
 	getComposeTrigger(){
-		const {continueCompose:{isAllComposed, isSelectionComposed, compose4Selection, compose4Scroll}, pages, pgGap}=this.props
+		const {continueCompose:{isAllComposed, isSelectionComposed, compose4Selection, compose4Scroll,composedY}, pages, pgGap}=this.props
 		const notifyLocator=callback=>{
 			if(this.locator){
 				this.locator.setState({content:null,canvas:null},callback)
@@ -82,7 +82,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 		}
 
 		return <ComposeMoreTrigger
-					y={()=>ComposedDocument.composedY(pages, pgGap)}
+					y={()=>composedY()}
 					isSelectionComposed={isSelectionComposed}
 					compose4Selection={a=>{
 						if(!isAllComposed()){
@@ -179,7 +179,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 
     componentDidMount(){
         this.positioning.reset(this.getComposer, this.getContent, this.canvas, this.props.scale)
-        if(!this.selection.id){
+        if(this.selection && !this.selection.id){
             const {id,at}=this.locate("next","Cursorable","root")
             this.dispatch(ACTION.Cursor.AT(id,at))
         }
@@ -215,7 +215,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
     onClick({shiftKey:selecting, target, clientX:left,clientY:top}){
 		const {id,x,node}=this.positioning.around(target, left, top)
 		if(id){
-            if(this.getComposer(id).nextCursorable()===false){
+            if(this.getComposer(id).nextCursorable(undefined,this.positioning)===false){
                 this.dispatch(ACTION.Selection.SELECT(id))
             }else{
     			const at=this.getComposer(id).distanceAt(x, node)
@@ -403,7 +403,7 @@ const ComposeMoreTrigger=compose(
 		return (
 			<Waypoint onEnter={()=>compose4Scroll(y)} >
                 <Group y={y-100}>
-                    <line x1="0" y1="0" x2="10" y2="0" strokeWidth="2" stroke={debug ? "red" : "transparent"}/>
+                    <line x1="0" y1="0" x2="2" y2="0" strokeWidth="2" stroke={debug ? "red" : "transparent"}/>
                 </Group>
 			</Waypoint>
 		)

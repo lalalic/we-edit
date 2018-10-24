@@ -44,36 +44,54 @@ export default class Positioning{
     }
 
     around(node, left, top){
-
         const {x,y}=this.asCanvasPoint({left,top})
-        const line=Array.from(this.canvas.querySelectorAll(LINE)).find(a=>{
-            const {right,bottom}=a.getBoundingClientRect()
-            const {y:y1}=this.asCanvasPoint({left:right,top:bottom})
-            return y<=y1
+		
+        const locateLine=(container,top=true)=>Array.from(container.querySelectorAll(LINE)).find(a=>{
+            const {right,bottom,left,top}=a.getBoundingClientRect()
+            const p1=this.asCanvasPoint({left:right,top:bottom})
+            if(y<=p1.y){
+				if(top && !a.querySelector(LINE))
+					return true
+				const p0=this.asCanvasPoint({left,top})
+				return p0.x<=x && p1.x>=x
+			}
+			return false
         })
+		
+		const line=(()=>{
+			let container=locateLine(this.canvas)
+			while(container && container.querySelector(LINE)){
+				container=locateLine(container,false)
+			}
+			return container
+		})();
+		
         return (()=>{
-            const {left,right}=line.getBoundingClientRect()
-            const contents=Array.from(line.querySelectorAll(`[data-content]:not(g)`))
-            const rects=contents.map(a=>{
-                const {left,top}=a.getBoundingClientRect()
-                return this.asCanvasPoint({left,top}).x
-            })
-            const i=Math.max(0,Math.min(rects
-                .concat([x])
-                .sort((a,b)=>a-b)
-                .indexOf(x)-1,rects.length-1))
-            const node=contents[i]
-            if(node){
-                return {
-                    id:node.dataset.content,
-                    x:x-rects[i],
-                    node
-                }
-            }else{
-                return {
-
-                }
-            }
+			if(line){
+				const {left,right}=line.getBoundingClientRect()
+				let contents=Array.from(line.querySelectorAll(`[data-content]:not(g)`))
+				if(contents.length==0){
+					contents=Array.from(line.querySelectorAll(`[data-content]`))
+				}
+				const rects=contents.map(a=>{
+					const {left,top}=a.getBoundingClientRect()
+					return this.asCanvasPoint({left,top}).x
+				})
+				const i=Math.max(0,Math.min(rects
+					.concat([x])
+					.sort((a,b)=>a-b)
+					.indexOf(x)-1,rects.length-1))
+				const node=contents[i]
+				if(node){
+					return {
+						id:node.dataset.content,
+						x:x-rects[i],
+						node
+					}
+				}
+			}
+			
+            return {}
         })();
     }
 

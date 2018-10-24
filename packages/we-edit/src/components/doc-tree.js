@@ -19,7 +19,7 @@ const DL=connect(state=>{
 		let {name,id, children, isFocus, focus, dispatch, textContent,
 			onClick=a=>{
 				if(textContent){
-					dispatch(Selection.SELECT(id,0,id,textContent.length-1))
+					dispatch(Selection.SELECT(id,0,id,textContent.length))
 				}else{
 					dispatch(Selection.SELECT(id))
 				}

@@ -16,11 +16,13 @@ export default class Document extends Super{
 	static propTypes={
 		...Super.propTypes,
 		pageGap: PropTypes.number,
+		screenBuffer: PropTypes.oneOfType([PropTypes.number, PropTypes.func])
 	}
 
 	static defaultProps={
 		...Super.defaultProps,
-		pageGap:12
+		pageGap:12,
+		screenBuffer: h=>h
 	}
 	static contextTypes={
 		...Super.contextTypes,
@@ -40,10 +42,6 @@ export default class Document extends Super{
 		this.state={mode:"content",viewport, ...this.state}
 		this.screenBuffer=typeof(screenBuffer)=="function" ? screenBuffer : a=>screenBuffer!=undefined ? screenBuffer : a;
 		this.getComposer=this.getComposer.bind(this)
-	}
-	get viewableY(){
-		const {viewport}=this.state
-		return viewport.node.scrollTop+viewport.height
 	}
 
 	get bufferHeight(){
@@ -95,6 +93,7 @@ export default class Document extends Super{
 						isSelectionComposed:selection=>this.isSelectionComposed(selection),
 						compose4Selection:()=>this.setState({mode:"selection",time:Date.now()}),
 						compose4Scroll: y=>this.setState({y,mode:"scroll",time:Date.now()}),
+						composedY:()=>this.composedY()
 					}}
 					/>
 
@@ -103,11 +102,11 @@ export default class Document extends Super{
 
 	static getDerivedStateFromProps({changed,content},{mode}){
 		let state={}
-		if(changed && !content.equals(state.content)){
+		if(changed && content && !content.equals(state.content)){
 			state.mode="content"
 			state.y=0
 		}
-		if(!content.equals(state.content)){
+		if(content && !content.equals(state.content)){
 			state.content=content
 		}
 		return state
@@ -130,9 +129,9 @@ export default class Document extends Super{
 	**/
 	shouldContinueCompose(a){
 		const aboveViewableBottom=()=>{
-			const {y=0,viewport,mode}=this.state
-			const composedY=ComposedDocument.composedY(this.computed.composed,this.props.pageGap,this.props.scale)
-			return composedY<Math.max(this.viewableY+this.bufferHeight,(mode=="scroll" ? y : 0)+viewport.height+this.bufferHeight)
+			const {y=0,viewport:{height,node:{scrollTop}},mode}=this.state
+			const composedY=this.composedY() * this.props.scale
+			return composedY<Math.max(scrollTop,y)+this.bufferHeight+height
 		}
 
 		const should=aboveViewableBottom() || !this.isSelectionComposed()
@@ -142,6 +141,34 @@ export default class Document extends Super{
 		}
 		return should
 	}
+	
+	composedY(){
+		const {computed:{composed:pages}, props:{pageGap}}=this
+		if(pages.length==0)
+			return 0
+		
+		const lastPageHeight=(({margin:{top},columns,size:{height}})=>{
+			if(this.getComposer(columns[0]["data-content"]).isAllChildrenComposed()){
+				return height
+			}
+					
+			return Math.max(...
+				columns.map(({children:lines})=>{
+					let lastLine=lines[lines.length-1]
+					if(lastLine){
+						return lastLine.props.y+lastLine.props.height
+					}else{
+						return 0
+					}
+				})
+				.map(y=>y+top)
+			)
+		})(pages[pages.length-1])
+		
+		return pages.slice(0,pages.length-1).reduce((w,{size:{height}})=>w+height+pageGap,lastPageHeight)
+	}
+	
+	
 
 	isSelectionComposed(selection){
 		const {end,start}=selection||getSelection(this.context.activeDocStore.getState())
