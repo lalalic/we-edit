@@ -1,4 +1,4 @@
-describe("recompose",()=>{
+xdescribe("recompose",()=>{
 	describe("text",()=>{
 		it("")
 	})
