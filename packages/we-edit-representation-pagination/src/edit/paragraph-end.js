@@ -26,6 +26,7 @@ export default editable(class extends models.Unknown{
                 {...measure.defaultStyle}
                 width={0}
                 children={[models.Paragraph.End]}
+				className="ender"
                 />
         )
     }

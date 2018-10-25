@@ -29,6 +29,10 @@ describe("continuable", ()=>{
 		Paragraph.prototype.children=jest.fn(function(){
 			return this.props.children
 		})
+		Paragraph.defaultProps.defaultStyle={
+			fonts:"arial",
+			size:12
+		}
 		Locator.prototype.shouldComponentUpdate=jest.fn(a=>true)
 	})
 	

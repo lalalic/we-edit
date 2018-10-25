@@ -9,7 +9,7 @@ import editable from "./editable"
 
 import {Text as ComposedText} from "../composed"
 
-export default Cacheable(class Paragraph extends editable(Base,{stoppable:true}){
+const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 	constructor(){
 		super(...arguments)
 		this.computed.lastText=""
@@ -89,3 +89,7 @@ export default Cacheable(class Paragraph extends editable(Base,{stoppable:true})
 		return 0
 	}
 })
+
+Paragraph.propTypes.defaultStyle=PropTypes.object.isRequired
+
+export default Paragraph

@@ -50,8 +50,6 @@ export default class Positioning{
             const {right,bottom,left,top}=a.getBoundingClientRect()
             const p1=this.asCanvasPoint({left:right,top:bottom})
             if(y<=p1.y){
-				if(top && !a.querySelector(LINE))
-					return true
 				const p0=this.asCanvasPoint({left,top})
 				return p0.x<=x && p1.x>=x
 			}

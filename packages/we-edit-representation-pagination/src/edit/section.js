@@ -37,7 +37,7 @@ export default Cacheable(class Section extends editable(Base,{stoppable:true}){
 		})();
 
 		if(id){
-			this.keepComposedUntil(pageIndex,columnIndex,lineIndex)
+			this.keepComposedUntil(pageIndex,columnIndex,lineIndex+1)
 			return Children.toArray(this.props.children).findIndex(a=>a.props.id===id)
 		}
 		return -1
@@ -85,7 +85,7 @@ export default Cacheable(class Section extends editable(Base,{stoppable:true}){
 		this.computed.composed=this.computed.composed.slice(0,pageIndex)
 
 		const column=page.columns[columnIndex]
-		column.children=column.children.slice(0,lineIndex+1)
+		column.children=column.children.slice(0,lineIndex)
 
 		page.columns=page.columns.slice(0,columnIndex)
 		page.columns.push(column)

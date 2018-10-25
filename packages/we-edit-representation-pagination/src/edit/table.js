@@ -139,17 +139,6 @@ const Resizer=connect()(class extends PureComponent{
 	constructor(){
 		super(...arguments)
 		this.state={resizing:false}
-		/*
-		let timeout=null
-		this.resize=a=>{
-			if(!timeout){
-				timeout=setTimeout(()=>{
-					timeout=null
-					this.props.onResize(a,this.props.dispatch)
-				},30)
-			}
-		}
-		*/
 		this.resize=a=>this.props.onResize(a,this.props.dispatch)
 	}
 	render(){
