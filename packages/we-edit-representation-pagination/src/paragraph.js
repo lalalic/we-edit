@@ -20,7 +20,8 @@ export class Paragraph extends Super{
 	}
     static childContextTypes={
         ...Super.childContextTypes,
-        getMyBreakOpportunities: PropTypes.func
+        getMyBreakOpportunities: PropTypes.func,
+		getLastText: PropTypes.func
     }
 
 	constructor(){
@@ -36,6 +37,9 @@ export class Paragraph extends Super{
         let self=this
         return {
             ...super.getChildContext(),
+			getLastText(){
+				return self.computed.lastText
+			},
             getMyBreakOpportunities(text){
 				const {lastText}=self.computed
 				if(!text){

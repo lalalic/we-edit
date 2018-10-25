@@ -13,7 +13,9 @@ const Super=NoChild(Base)
 export default class Text extends Super{
     static contextTypes={
 		...Super.contextTypes,
-		Measure: PropTypes.func
+		Measure: PropTypes.func,
+        getMyBreakOpportunities: PropTypes.func,
+        getLastText: PropTypes.func,
 	}
 
     get text(){
@@ -21,25 +23,44 @@ export default class Text extends Super{
         return Array.isArray(children) ? children.join("") : children
     }
 
-    getBreakOpportunities=memoize((myText,fonts,size,bold,italic)=>{
-		const {Measure,getMyBreakOpportunities}=this.context
-		const measure=this.measure=new Measure({fonts:fonts,size,bold,italic})
-		const breakOpportunities=getMyBreakOpportunities(myText)
+    createMeasure=memoize((fonts,size,bold,italic)=>{
+        const measure=new this.context.Measure({fonts,size,bold,italic})
+        const _stringWidth=measure.stringWidth.bind(measure)
+        const cache=new Map()
+        measure.stringWidth=word=>{
+            if(cache.has(word))
+                return cache.get(word)
+            const width=_stringWidth(word)
+            cache.set(word,width)
+            return width
+        }
+        return measure
+    })
+
+    get measure(){
+        const {fonts, size, bold, italic, }=this.props
+        return this.createMeasure(fonts,size,bold,italic)
+    }
+
+    getMyBreakOpportunities=memoize((text,last)=>this.context.getMyBreakOpportunities(text))
+
+    getBreakOpportunitiesWidth=memoize((myText,measure,lastText)=>{
+		const breakOpportunities=this.getMyBreakOpportunities(myText)
         return breakOpportunities.map(word=>[word,measure.stringWidth(word)])
     })
 
     render(){
-		const parent=this.context.parent
+		const {parent,getLastText=a=>null}=this.context
 		const {color,highlight,vanish,border,underline,strike}=this.props
 		if(vanish){
 			return null
 		}
 
-		const breakOpportunities=(({myText=this.text,fonts,size,bold,italic})=>
-			this.getBreakOpportunities(myText,fonts,size,bold,italic))(this.props);
-
         const measure=this.measure
-		const defaultStyle={...this.measure.defaultStyle, color, highlight,border,underline,strike}
+
+		const breakOpportunities=this.getBreakOpportunitiesWidth(this.text,measure,getLastText())
+
+        const defaultStyle={...measure.defaultStyle, color, highlight,border,underline,strike}
 
 
 		let i=0
@@ -86,14 +107,14 @@ export default class Text extends Super{
 
 				if(width==0){
 					if(nextSpace.width<wordWidth){
-						let text=word.substr(0,this.measure.widthString(maxWidth, word))
+						let text=word.substr(0,measure.widthString(maxWidth, word))
 						content.push(text)
 						state.width+=maxWidth
 						state.end+=text.length
 						commit(state)
 
 						let unComposedText=word.substr(text.length)
-						opportunity=[unComposedText, this.measure.stringWidth(unComposedText)]
+						opportunity=[unComposedText, measure.stringWidth(unComposedText)]
 					}
 				}
 				state.space=nextSpace
