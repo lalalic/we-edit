@@ -101,7 +101,7 @@ class Loader extends PureComponent{
         const {file,doc}=this.state
         if(!this.isInWeEditDomain() && file && doc){
 			const {readonly,release}=this.props
-            return <doc.Store {...{readonly,release}}>{this.props.children}</doc.Store>
+            return <doc.Store {...{readonly,release}} key={doc.id}>{this.props.children}</doc.Store>
         }
 
 		const {type,children, ...props}=this.props
@@ -134,7 +134,7 @@ class Loader extends PureComponent{
                 if(this.isInWeEditDomain()){
                     this.context.store.dispatch(ACTION.ADD(doc,reducer))
                 }else{
-                    this.setState({file,doc},()=>this.forceUpdate())
+                    this.setState({file,doc})
                 }
                 let {data,stream, ...props}=file
                 onLoad({type,...props})

@@ -3,10 +3,9 @@ import Path from "path"
 import {Loader, Emitter, Stream, render} from "we-edit"
 
 import Pagination from "we-edit-representation-pagination"
-import "we-edit-representation-html"
-import "we-edit-representation-text"
 
 import SVG from "we-edit-output-svg"
+import PDF from "we-edit-output-pdf"
 import File from "we-edit-loader-stream-file"
 import iDocx from "we-edit-input-docx"
 
@@ -16,10 +15,10 @@ const {Format}=Emitter
 describe("we-edit integration", function(){
 	beforeAll(()=>{
 		SVG.install()
-		
+		PDF.install()
 		File.install()
-		
 		iDocx.install()
+		
 		Pagination.defaultProps.measure=class {
 			defaultStyle={
 				
@@ -40,12 +39,10 @@ describe("we-edit integration", function(){
 	})
 
 	afterAll(()=>{		
-		SVG.uninstall()
-		
+		SVG.uninstall()	
+		PDF.uninstall()
 		File.uninstall()
-		
 		iDocx.uninstall()
-		
 		Pagination.defaultProps.measure=undefined
 	})
 	const template=(format="svg")=>(
@@ -69,7 +66,7 @@ describe("we-edit integration", function(){
 		return render(template())
 	})
 	
-	xit("pdf", ()=>{
+	it("pdf", ()=>{
 		return render(template("pdf"))
 	})
 })
