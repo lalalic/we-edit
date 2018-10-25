@@ -35,8 +35,9 @@ class  Representation extends PureComponent{
 
 	getChildContext(){
 		const {domain, EditorTypes, ViewerTypes, transformer=a=>a}=this.props
+		const models=domain=="edit" ? EditorTypes : ViewerTypes
 		return {
-			ModelTypes: this.context.transformer(transformer(domain=="edit" ? EditorTypes : ViewerTypes)),
+			ModelTypes: models ? this.context.transformer(transformer(models)) : undefined,
 		}
 	}
 
