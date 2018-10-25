@@ -110,7 +110,7 @@ describe("continuable", ()=>{
 						<Document 
 							pageGap={pageGap} 
 							viewport={{width:500,height:y,node:{scrollTop:0}}} 
-							screenBuffer={()=>0} 
+							screenBuffer={0} 
 							scale={1}>
 							{section(1)}
 							{section(2)}
@@ -149,7 +149,7 @@ describe("continuable", ()=>{
 					}
 				})}>
 					<TextContext>
-						<Document viewport={{width:500,height:100,node:{scrollTop:0}}} screenBuffer={()=>0} scale={1}>
+						<Document viewport={{width:500,height:100,node:{scrollTop:0}}} screenBuffer={0} scale={1}>
 							{section(1)}
 							{section(2)}
 							{section(3)}
@@ -179,7 +179,7 @@ describe("continuable", ()=>{
 			const renderer=TestRender.create(root=
 				<StoreContext context={store(state)} key="test">
 					<TextContext>
-						<Document pageGap={pageGap} viewport={{width:500,height:size.height/2,node}} screenBuffer={()=>0} scale={1}>
+						<Document pageGap={pageGap} viewport={{width:500,height:size.height/2,node}} screenBuffer={0} scale={1}>
 							{section(1,i)}
 							{section(2,i)}
 							{section(3,i)}
