@@ -47,13 +47,6 @@ export default compose(
 
     shouldComponentUpdate({content,selection,scale,getComposer,getContent,positioning},state){
         if(selection && !selection.equals(this.props.selection)){
-            //if selection/cursor is not composed, trigger compose to selection/cursor
-            /*
-            if(!isSelectionCursorComposed()){
-                compose2SelectionCursor(selection)
-                return false
-            }
-            */
             this.newSelection=true
         }
 
