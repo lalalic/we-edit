@@ -34,6 +34,10 @@ export default (A,partable)=>class extends A{
     }
 
     render(){
+        if(this.context.shouldContinueCompose && !this.context.shouldContinueCompose(this)){
+            return null
+        }
+
         const {changed}=this.props
         if(!changed && this.isAllChildrenComposed()){
 			this.computed.lastComposed.forEach(a=>this.context.parent.appendComposed(a))
