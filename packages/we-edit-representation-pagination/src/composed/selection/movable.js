@@ -23,7 +23,7 @@ export default class Movable extends Component{
 			<Group>
 				{ !move ? null :
 					 (<Overlay cursor="default"
-						onMouseUp={e=>this.onEndMove(e)}
+					 	onMouseUp={e=>this.onEndMove(e)}
 						onMouseMove={e=>this.move(e)}
 						>
 						<Mover ref={a=>this.mover=a} cursor="default"/>
@@ -40,19 +40,22 @@ export default class Movable extends Component{
     }
 
     onEndMove(e){
-        let {id,at}=this.mover.state
-        this.setState({move:false},()=>{
-            if(id)
-                this.props.onMove(id,at)
-        })
-		e.stopPropagation()
+		if(this.state.move){
+	        let {id,at}=this.mover.state
+	        this.setState({move:false},()=>{
+	            if(id)
+	                this.props.onMove(id,at)
+	        })
+			e.stopPropagation()
+		}
     }
 
     move(e){
-		let x=e.clientX, y=e.clientY
-        let pos=this.context.query().at(x,y)
-
-		this.mover.setState(pos)
+		const {target,clientX:left, clientY:top}=e
+		let pos=this.props.around(target,left,top)
+		if(pos){
+			this.mover.setState(pos)
+		}
 		e.stopPropagation()
     }
 }
@@ -60,7 +63,7 @@ export default class Movable extends Component{
 class Mover extends Component{
     state={}
     render(){
-        const {left:x,top:y, id}=this.state
+        const {x,y, id}=this.state
         let caret=null, placeholder=null
         if(id)
             caret=<rect x={x} y={y} width={2} height={20} fill="black"/>

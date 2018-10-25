@@ -11,8 +11,8 @@ export default class SelectionShape extends Component{
 			return <Area rects={this.state.rects} onMouseMove={this.onShrink} />
 		}
 
-		const {onMove,onResize,onRotate,shape}=this.props
-		const shapeProps={onMove,onResize,onRotate}
+		const {onMove,onResize,onRotate,shape,around}=this.props
+		const shapeProps={onMove,onResize,onRotate,around}
 		if(rects[0]){
 			shapeProps.x=rects[0].left
 			shapeProps.y=rects[0].top
@@ -23,7 +23,7 @@ export default class SelectionShape extends Component{
 			content=React.cloneElement(shape,shapeProps)
 		else
 			content=(
-				<Range onMove={onMove}>
+				<Range onMove={onMove} around={around}>
 					<Area rects={rects} onClick={e=>console.log("path being clicked")}/>
 				</Range>
 			)

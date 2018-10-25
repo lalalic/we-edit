@@ -124,9 +124,6 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
                     }
 				}}
                 onMouseUp={e=>{
-                    const {buttons}=e
-					if(!(buttons&0x1))
-						return
                     const {start,end}=this.selecting.current.state
                     if(start && end){
                         this.selecting.current.setState({start:undefined, end:undefined, rects:undefined,selecting:false})
@@ -159,7 +156,26 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 							</Cursor>
                         }
                         range={
-                            <Selection onMove={this.onMove} onResize={this.onResize} onRotate={this.onRotate}>
+                            <Selection
+                                around={(target,left,top)=>{
+                                    const {id,x,node}=this.positioning.around(target, left, top)
+                            		if(id){
+                                        let at=null
+                                        if(this.getComposer(id).nextCursorable(undefined,this.positioning)===false){
+                                            at=1
+                                        }else{
+                                			at=this.getComposer(id).distanceAt(x, node)
+                                        }
+
+                                        if(at!==null){
+                                            return this.positioning.position(id,at)
+                                        }
+                                    }
+                                }}
+
+                                onMove={this.onMove}
+                                onResize={this.onResize}
+                                onRotate={this.onRotate}>
         						<SelectionShape ref={this.selecting}
 									asCanvasPoint={a=>this.positioning.asCanvasPoint(a)}
 									/>

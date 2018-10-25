@@ -76,6 +76,12 @@ export default compose(
 			let {cursor, range, selection, scale, content,getComposer,positioning}=props
 			const {position,rects}=positioning.getCursorSelection(content, selection, scale)
 
+            this.range=range
+            if(!!position){
+                const {x,y,left,top,height,fontFamily,fontSize}=position
+                this.cursor=React.cloneElement(cursor, {x,y,left,top,height,fontFamily,fontSize})
+            }
+
             if(range && rects && rects.length){
 				const {start, end}=selection.toJS()
 				let shape=null
@@ -83,17 +89,8 @@ export default compose(
 					shape=getComposer(start.id).getFocusShape()
 				}
 				this.range=React.cloneElement(range,{rects,shape})
-			}
-
-            if(!!position){
-                const {x,y,left,top,height,fontFamily,fontSize}=position
-                this.cursor=React.cloneElement(cursor, {x,y,left,top,height,fontFamily,fontSize})
-            }
-
-            if(this.range){
                 this.cursor=React.cloneElement(this.cursor||cursor,{height:0.1})
-            }
-
+			}
 		}catch(e){
 
 		}

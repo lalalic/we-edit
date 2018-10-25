@@ -10,9 +10,9 @@ import {Group} from "../../composed"
 export default class Range extends Component{
 	static displayName="range"
     render(){
-        const {path, onMove, children}=this.props
+        const {path, onMove, children,around}=this.props
         return (
-            <Movable onMove={onMove}>
+            <Movable onMove={onMove} around={around}>
 				<Group>
                 	{children}
 				</Group>
