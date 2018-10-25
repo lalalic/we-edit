@@ -62,7 +62,7 @@ export function traversePrev(content, f, start="root"){
 		let siblings=parent.get("children")
 		let index=siblings.indexOf(start)
 		let prevs=siblings.slice(0,index)
-		let found=!!prevs.findLast((k,i)=>{
+		let found=!!prevs.findLast((k)=>{
 			let result=f(content.get(k))
 			if(result===true){
 				return true

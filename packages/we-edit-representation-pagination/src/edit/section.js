@@ -18,11 +18,11 @@ export default Cacheable(class Section extends editable(Base,{stoppable:true}){
 		const {id,pageIndex,columnIndex,lineIndex}=(id=>{
 			let pageIndex=-1, columnIndex=-1, lineIndex=-1
 			this.computed.composed.findLast(({columns},i)=>{
-				pageIndex=this.computed.composed.length-1-i
+				pageIndex=i
 				return columns.findLast(({children:lines},i)=>{
-					columnIndex=columns.length-1-i
+					columnIndex=i
 					return lines.findLast((line,i)=>{
-						lineIndex=lines.length-1-i
+						lineIndex=i
 						if(id=this.findContentId(line)){
 							const composer=this.context.getComposer(id)
 							if(composer && composer.isAllChildrenComposed()){
@@ -85,7 +85,7 @@ export default Cacheable(class Section extends editable(Base,{stoppable:true}){
 		this.computed.composed=this.computed.composed.slice(0,pageIndex)
 
 		const column=page.columns[columnIndex]
-		column.children=column.children.slice(0,lineIndex)
+		column.children=column.children.slice(0,lineIndex+1)
 
 		page.columns=page.columns.slice(0,columnIndex)
 		page.columns.push(column)

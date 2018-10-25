@@ -30,10 +30,10 @@ export default Cacheable(class Paragraph extends editable(Base,{stoppable:true})
 
 	children(){
 		return [
-			...this.props.children,
+			...Children.toArray(this.props.children),
 			<ParagraphEnd {...this.props.defaultStyle}
 				key="end"
-				for={this.props.id}
+				id={`${this.props.id}-end`}
 				/>
 		]
 	}

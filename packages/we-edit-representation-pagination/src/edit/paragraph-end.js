@@ -4,7 +4,7 @@ import {models,ACTION} from "we-edit"
 import editable from "./editable"
 import {Text as ComposedText} from "../composed"
 
-const Ender=editable(class extends models.Unknown{
+export default editable(class extends models.Unknown{
     static contextTypes={
         ...models.Unknown.contextTypes,
         parent: PropTypes.object,
@@ -25,7 +25,7 @@ const Ender=editable(class extends models.Unknown{
             <ComposedText
                 {...measure.defaultStyle}
                 width={0}
-                children={[String.fromCharCode(0xb6)]}
+                children={[models.Paragraph.End]}
                 />
         )
     }
@@ -33,8 +33,4 @@ const Ender=editable(class extends models.Unknown{
     distanceAt(){
         return 1
     }
-})
-
-delete Ender.propTypes.id
-
-export default Ender
+},{locatable:false})

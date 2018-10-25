@@ -25,6 +25,13 @@ jest.mock("../src/composed/locator")
 jest.mock("react-waypoint")
 
 describe("continuable", ()=>{
+	beforeAll(()=>{
+		Paragraph.prototype.children=jest.fn(function(){
+			return this.props.children
+		})
+		Locator.prototype.shouldComponentUpdate=jest.fn(a=>true)
+	})
+	
 	const store=(state={
 			equals({start,end}){
 				return false
@@ -91,7 +98,7 @@ describe("continuable", ()=>{
 	)
 	const pageGap=12
 
-	xdescribe("compose to Y", ()=>{
+	describe("compose to Y", ()=>{
 		const compose2Y=(y,n)=>it(`${y},pages=${n}`,()=>{
 			const renderer=TestRender.create(
 				<StoreContext>
@@ -149,19 +156,20 @@ describe("continuable", ()=>{
 			const doc=renderer.root.findByType(Document).instance
 			const pages=doc.computed.composed
 			expect(pages.length).toBe(n)
+			console.log($(pages).text())
 		})
 
-		//compose2Id('1.0',1)
-		//compose2Id('1.1',1)
+		compose2Id('1.0',1)
+		compose2Id('1.1',1)
 		compose2Id('1.2',1)
 
-		//compose2Id('2.2',2)
+		compose2Id('2.2',2)
 
-		//compose2Id('3.2',3)
+		compose2Id('3.2',3)
 	})
 
 
-	xdescribe("compose to y/id then y/id",()=>{
+	describe("compose to y/id then y/id",()=>{
 		function compose2(node,state,i){
 			let root=null
 			const renderer=TestRender.create(root=
@@ -362,11 +370,10 @@ describe("continuable", ()=>{
 					state.toJS=jest.fn(()=>{
 						return {start:{id:"3.2",at:0},end:{id:"3.2",at:0}}
 					})
-
-					doc.setState({mode:"viewport",time:Date.now()},()=>{
+					debugger
+					doc.setState({mode:"selection",time:Date.now()},()=>{
 						const pages=doc.computed.composed
 						expect(pages.length).toBe(3)
-						debugger
 						expect($(pages).text()).toBe("hello1hello1.1hello2hello2.1hello3")
 
 						/**section1&section2 should not be recomposed

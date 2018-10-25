@@ -62,7 +62,8 @@ describe("we-edit integration", function(){
 				</Stream>
 			</Emitter>
 		</Loader>
-	)
+	);
+	
 
 	it("svg",()=>{
 		return render(template())
