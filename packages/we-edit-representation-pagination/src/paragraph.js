@@ -63,6 +63,7 @@ export class Paragraph extends Super{
 
 				const current=opportunities(self.computed.lastText=`${lastText}${text}`)
 				if(!lastText){
+					self.computed.words+=current.length
 					return current
 				}
 
@@ -71,7 +72,7 @@ export class Paragraph extends Super{
 
 				let possible=current.slice(i)
 				possible[0]=possible[0].substring(last.pop().length)
-				self.computed.words+=possible.length
+				self.computed.words+=(possible.length-1)
 				return possible
             }
         }

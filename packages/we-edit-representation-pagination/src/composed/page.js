@@ -2,6 +2,7 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 
 import Group from "./group"
+import Frame from "./frame"
 import Line from "./line"
 
 export default class Page extends Component{
@@ -36,7 +37,7 @@ export default class Page extends Component{
 				<Group
 					x={left} y={top}
 					className="content">
-					{columns.map((a,i)=><Group key={i} className="column" {...a}/>)}
+					{columns.map((a,i)=><Group key={i} {...a}  className="column"/>)}
 				</Group>
 
 				{footer &&
