@@ -13,8 +13,16 @@ export default class IChange extends Reducer{
     }
 
     insert(inserting){
-		let docx=this.file
 		let {start:{id,at},end}=this.selection
+		if(typeof(inserting)=="string"){
+			let target=this.$('#'+id)
+			if(!target.is("text") && target.find("text").length==0){
+				const cursor=this.file.createNode({type:"text"}, this, target)
+				this.cursorAt(cursor.id, cursor.at);
+				({start:{id,at},end}=this.selection);
+			}
+		}
+		
 		let path=["insert"]
 		if(id==end.id && at==end.at){
 			path.push("withoutSelection")
@@ -46,7 +54,6 @@ export default class IChange extends Reducer{
 	}
 
     remove(removing){
-        let docx=this.file
         let {start:{id,at},end}=this.selection
         let path=["remove"]
         if(id==end.id && at==end.at){

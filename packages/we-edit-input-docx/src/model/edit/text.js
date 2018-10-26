@@ -1,6 +1,18 @@
 import Base from "./base"
 
 export class Text extends Base{
+	template(){
+		return `<w:r><w:t></w:t></w:r>`
+	}
+	
+	create(props,reducer,target){
+		const createdNode=super.create(...arguments)
+		const {id:createdId}=reducer.renderChanged(createdNode)
+		let created=reducer.$(`#${createdId}`).appendTo(target)
+		let cursor=created.findFirst('text').attr('id')
+		return {id:cursor,at:0}
+	}
+	
 	children(text){
 		this.node.text(text)
 		if(text.startsWith(" ") || text.endsWith(" ")){
