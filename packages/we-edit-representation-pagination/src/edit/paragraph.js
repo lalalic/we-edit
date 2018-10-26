@@ -10,17 +10,9 @@ import editable from "./editable"
 import {Text as ComposedText} from "../composed"
 
 const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
-	constructor(){
-		super(...arguments)
-		this.computed.lastText=""
-	}
-
-	componentWillUnmount(){
-		//this.emit("words", -this.computed.breakOpportunities.length)
-	}
-
 	clearComposed(){
 		this.computed.lastText=""
+		this.computed.words=0
 		super.clearComposed(...arguments)
 	}
 

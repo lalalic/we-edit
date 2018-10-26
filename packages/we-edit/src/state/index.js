@@ -30,6 +30,7 @@ export function createState(doc, content){
 			toJSON:()=>undefined
 		},
 		ui:{},
+		statistics:{},
 		undos:[],
 		redos:[],
 	})

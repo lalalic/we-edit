@@ -145,6 +145,8 @@ export const Entity={
 	UPDATE: changing=>({type:"we-edit/entity/UPDATE", payload:changing}),
 }
 
-export const ACTION={Cursor, Text, Selection,Entity,History,Style}
+export const Statistics=stat=>({type:"we-edit/statistics",payload:stat})
+
+export const ACTION={Cursor, Text, Selection,Entity,History,Style,Statistics}
 
 export default ACTION

@@ -8,7 +8,7 @@ export default A=>class extends A{
     static displayName=`composable-${A.displayName}`
 	static contextTypes={
 		...A.contextTypes,
-		events: PropTypes.shape({emit:PropTypes.func.isRequired}),
+		activeDocStore: PropTypes.object,
 		debug: PropTypes.bool,
 	}
 
@@ -91,17 +91,11 @@ export default A=>class extends A{
 
     }
 
-	emit(type, args){
-		try{
-			if(this.context.events){
-				this.context.events.emit(...arguments)
-			}
-		}catch(e){
-
-		}
-	}
-
 	get debug(){
 		return !!this.context.debug||this.props.debug
+	}
+	
+	dispatch(){
+		this.context.activeDocStore.dispatch(...arguments)
 	}
 }

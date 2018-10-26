@@ -50,22 +50,4 @@ export default class ComposedDocument extends Component{
 			</svg>
 		)
 	}
-
-	componentWillMount(){
-		this.emit("composed",this.props.pages.length)
-	}
-
-	componentDidMount(){
-		this.emit("emitted",this.props.pages.length)
-	}
-
-
-	emit(){
-		try{
-			if(this.context.events)
-				this.context.events.emit(...arguments)
-		}catch(e){
-			console.error(e)
-		}
-	}
 }

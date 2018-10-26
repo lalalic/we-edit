@@ -27,10 +27,7 @@ export class Paragraph extends Super{
 	constructor(){
 		super(...arguments)
 		this.computed.lastText=""
-	}
-
-	componentDidMount(){
-		//this.emit("words",this.computed.breakOpportunities.length)
+		this.computed.words=0
 	}
 
     getChildContext(){
@@ -74,6 +71,7 @@ export class Paragraph extends Super{
 
 				let possible=current.slice(i)
 				possible[0]=possible[0].substring(last.pop().length)
+				self.computed.words+=possible.length
 				return possible
             }
         }

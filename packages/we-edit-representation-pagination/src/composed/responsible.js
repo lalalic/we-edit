@@ -35,8 +35,8 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 
 	getChildContext(){
 		return {
-			onPageHide:e=>this.updateCursorAndSelection(),
-            onPageShow:e=>this.updateCursorAndSelection(),
+			onPageHide:e=>e,
+            onPageShow:e=>e,
 		}
 	}
 
@@ -66,10 +66,6 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 	getContent(id){
         return ContentQuery.fromContent(this.props.content,  id ? `#${id}`  : undefined)
 	}
-
-    updateCursorAndSelection(){
-        //this.locator.setState({})
-    }
 
 	getComposeTrigger(){
 		const {continueCompose:{isAllComposed, isSelectionComposed, compose4Selection, compose4Scroll,composedY}, pages, pgGap}=this.props
@@ -190,7 +186,6 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
     componentDidUpdate({},state,snapshot){
         this.positioning.reset(this.getComposer, this.getContent, this.canvas, this.props.scale)
         this.locator && this.locator.setState({content:this.props.content, canvas:this.canvas})
-        //this.emit(`emitted${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
     }
 
     componentDidMount(){
@@ -201,16 +196,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
         }
         this.dispatch(ACTION.Cursor.ACTIVE(this.props.docId))
         this.locator && this.locator.setState({content:this.props.content, canvas:this.canvas})
-        //this.emit(`emitted${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
     }
-
-	componentWillMount1(){
-		//this.emit(`co1mposed${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
-	}
-
-	componentWillUpdate1(){
-		//this.emit(`composed${this.props.isAllComposed() ? '.all' : ''}`, this.props.pages.length)
-	}
 
     active(){
 		this.dispatch(ACTION.Cursor.ACTIVE(this.props.docId))

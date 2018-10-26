@@ -4,7 +4,7 @@ import {compose, getContext, mapProps,withProps,setDisplayName} from "recompose"
 import {Toolbar, ToolbarGroup, FlatButton, IconButton, Slider} from "material-ui"
 import {blue800, blue900} from "material-ui/styles/colors"
 import SizeIconButton from "../components/size-icon-button"
-import {when} from "we-edit"
+import {when,connect, getSelectionStyle,getStatistics} from "we-edit"
 
 const ButtonStyle={
 	background:"transparent",
@@ -48,58 +48,31 @@ const Status=compose(
 ))
 
 const Page=compose(
-	getContext({
-		selection: PropTypes.object
-	}),
-	withProps(({selection})=>{
+	connect(state=>{
+		const {pages:total=0,allComposed}=getStatistics(state)
+		const selection=getSelectionStyle(state)
+		const status={total,allComposed}
 		if(selection){
 			let props=selection.props("page",false)
-			if(props)
-				return {current: props.page}
+			if(props){
+				status.current=props.page
+			}
 		}
-	}),
-	when("composed.all",total=>({total})),
-	when("composed",currentTotal=>({currentTotal})),
-)(({
-	current=0,
-	currentTotal=0,
-	total=0,
-	showTotal=Math.max(total,currentTotal)
-})=>(
+		
+		return status
+	})
+)(({current=0,total=0,allComposed})=>(
 	<FlatButton style={ButtonStyle}>
-		PAGE {current+1} OF {showTotal}{showTotal!==total ? ".." : ""}
+		PAGE {current+1} OF {total}{!allComposed ? ".." : ""}
 	</FlatButton>
 ))
 
-class Words extends PureComponent{
-	static contextTypes={
-		events: PropTypes.object
-	}
+const Words=connect(state=>getStatistics(state))(({words=0,allComposed})=>(
+	<FlatButton style={ButtonStyle}>
+		{`${words}${allComposed?'':'..'}`} WORDS
+	</FlatButton>
+))
 
-	constructor(props, {events}){
-		super(...arguments)
-		this.state={total:0}
-		if(events){
-			events.on("words",this.handler=pending=>{
-				this.setState(({total})=>({total:total+pending}))
-			})
-		}
-	}
-
-	render(){
-		return (
-			<FlatButton style={ButtonStyle}>
-				{this.state.total} WORDS
-			</FlatButton>
-		)
-	}
-
-	componentWillUnmount(){
-		if(this.context.events){
-			this.context.events.removeListener("words",this.handler)
-		}
-	}
-}
 
 const Scale=({
 	current=100,max=200,min=10,step=10,

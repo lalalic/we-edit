@@ -16,6 +16,10 @@ export function getSelectionStyle(state){
 	return state.get("ui").selectionStyle
 }
 
+export function getStatistics(state){
+	return state.get("statistics")
+}
+
 export function getFile(state){
 	return state.get("doc")
 }

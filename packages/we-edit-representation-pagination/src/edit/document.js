@@ -114,7 +114,26 @@ export default class Document extends Super{
 		if(!this.state.viewport){
 			this.initViewport(this.refs.viewporter)
 		}
+		
+		super.componentDidMount()
 	}
+	
+	componentDidUpdate(){
+		this.dispatch(ACTION.Statistics({
+			pages:this.computed.composed.length,
+			allComposed:this.isAllChildrenComposed(),
+			words: this.composedWords()
+		}))
+	}
+	
+	composedWords(){
+		let  words=0
+		this.composers.forEach(a=>{
+			words+=(a.computed.words||0)
+		})
+		return words
+	}
+	
 
 	/**
 	* 1. selection end

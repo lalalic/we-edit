@@ -14,43 +14,48 @@ export default class Movable extends Component{
 		onMove: PropTypes.func.isRequired
 	}
 
-	state={move:false}
+	state={moving:false}
 	render(){
-		const {move}=this.state
+		const {moving}=this.state
 		const {children}=this.props
 
 		return (
 			<Group>
-				{ !move ? null :
+				{ !moving ? null :
 					 (<Overlay cursor="default"
 					 	onMouseUp={e=>this.onEndMove(e)}
-						onMouseMove={e=>this.move(e)}
+						onMouseMove={e=>this.moving(e)}
 						>
 						<Mover ref={a=>this.mover=a} cursor="default"/>
 					</Overlay>)
 				}
-				{React.cloneElement(children,{onMouseDown:this.onStartMove.bind(this)})}
+				{React.cloneElement(children,{onMouseMove:e=>{
+					if(e.buttons&0x1){
+						e.stopPropagation()
+						this.setState({moving:true})
+					}
+				}})}
 			</Group>
 		)
 	}
 
-	onStartMove(e){
-        this.setState({move:true})
-		e.stopPropagation()
-    }
-
     onEndMove(e){
-		if(this.state.move){
-	        let {id,at}=this.mover.state
-	        this.setState({move:false},()=>{
-	            if(id)
-	                this.props.onMove(id,at)
-	        })
-			e.stopPropagation()
-		}
+		if(!this.state.moving)
+			return 
+			
+		let {id,at}=this.mover.state
+		this.setState({moving:false},()=>{
+			if(id){
+				this.props.onMove(id,at)
+			}
+		})
+		e.stopPropagation()
+		
     }
 
-    move(e){
+    moving(e){
+		if(!this.state.moving)
+			return 
 		const {target,clientX:left, clientY:top}=e
 		let pos=this.props.around(target,left,top)
 		if(pos){

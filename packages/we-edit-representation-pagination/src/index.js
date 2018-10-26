@@ -54,7 +54,6 @@ export default class Pagination extends Representation.Base{
 
 	static contextTypes={
 		doc: PropTypes.object,
-		events: PropTypes.object
 	}
 
 	static Output=Output
@@ -81,7 +80,6 @@ export default class Pagination extends Representation.Base{
 					}
 
 					this.setState({fontsLoaded:true})
-					this.emit("fonts.loaded",loaded)
 				}
 				FontMeasure
 					.requireFonts([defaultFont,...requiredFonts],fonts)
@@ -113,23 +111,6 @@ export default class Pagination extends Representation.Base{
 				<Representation {...{ViewerTypes,EditorTypes,...props,type:undefined} }/>
 			</div>
 		)
-	}
-
-	componentWillUnmount(){
-		if(FontMeasure.isPrototypeOf(this.Measure)){
-			this.emit("fonts.unloaded")
-		}
-	}
-
-	emit(){
-		let events=this.context.events
-		if(events){
-			try{
-				events.emit(...arguments)
-			}catch(e){
-				console.error(e)
-			}
-		}
 	}
 }
 

@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 
 
 import {HasChild} from "./composable"
-import {models} from "we-edit"
+import {models,ACTION} from "we-edit"
 const {Document:Base}=models
 
 import {Document as ComposedDocument} from "./composed"
@@ -26,6 +26,14 @@ export default class Document extends Super{
 
 	appendComposed(page){
 		this.computed.composed.push(page)
+	}
+	
+	componentDidMount(){
+		this.dispatch(ACTION.Statistics({pages:this.computed.composed.length}))
+	}
+	
+	componentDidUpdate(){
+		this.dispatch(ACTION.Statistics({pages:this.computed.composed.length}))
 	}
 }
 
