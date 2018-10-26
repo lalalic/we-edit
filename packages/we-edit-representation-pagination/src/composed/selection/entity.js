@@ -24,21 +24,23 @@ export default class Extent extends Component{
 	}
 
 	render(){
-		const {path, resizeSpots, onResize, onMove, onRotate, rotate, x, y}=this.props
-		let rotator=null
-		if(onRotate){
-			rotator=<Rotatable onRotate={onRotate} {...rotate}/>
-		}
-
+		const {path, resizeSpots, onResize, onMove, around, onRotate, rotate, x, y}=this.props
+		
 		return (
 			<Group x={x} y={y}>
-				<Movable onMove={onMove}>
-					<path d={path} fill="white" fillOpacity={0.01} cursor="move"/>
-				</Movable>
-				<Resizable onResize={onResize}>
-					{resizeSpots.map((a,i)=><Spot key={i} {...a}/>)}
-				</Resizable>
-				{rotator}
+				{onMove && (
+					<Movable onMove={onMove} around={around}>
+						<path d={path} fill="white" fillOpacity={0.01} cursor="move"/>
+					</Movable>
+				)}
+				
+				{onResize && (
+					<Resizable onResize={onResize}>
+						{resizeSpots.map((a,i)=><Spot key={i} {...a}/>)}
+					</Resizable>
+				)}
+				
+				{onRotate && <Rotatable onRotate={onRotate} {...rotate}/>}
 			</Group>
 		)
 	}

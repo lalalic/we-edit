@@ -1,7 +1,7 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 
-
+import Top from "./top"
 import Overlay from "./overlay"
 import {Group} from "../../composed"
 
@@ -79,10 +79,10 @@ class Mover extends Component{
 					stroke="gray"
 					strokeWidth="1"/>
         return (
-            <Group>
+            <Top x={0} y={0}>
 				{placeholder}
                 {caret}
-            </Group>
+            </Top>
         )
     }
 }

@@ -1,6 +1,6 @@
 import React, {Component,Fragment} from "react"
 
-import Range from "./range"
+import Movable from "./movable"
 
 export default class SelectionShape extends Component{
 	state={}
@@ -12,22 +12,21 @@ export default class SelectionShape extends Component{
 		}
 
 		const {onMove,onResize,onRotate,shape,around}=this.props
-		const shapeProps={onMove,onResize,onRotate,around}
-		if(rects[0]){
-			shapeProps.x=rects[0].left
-			shapeProps.y=rects[0].top
-		}
-		let content=null
-
-		if(shape)
-			content=React.cloneElement(shape,shapeProps)
-		else
-			content=(
-				<Range onMove={onMove} around={around}>
-					<Area rects={rects} onClick={e=>console.log("path being clicked")}/>
-				</Range>
+		if(shape){
+			const shapeProps={onMove,onResize,onRotate,around}
+			if(rects[0]){
+				shapeProps.x=rects[0].left
+				shapeProps.y=rects[0].top
+			}
+			
+			return React.cloneElement(shape,shapeProps)
+		}else{
+			return (
+				<Movable onMove={onMove} around={around}>
+					<Area rects={rects}/>
+				</Movable>
 			)
-		return content
+		}
 	}
 
 	static getDerivedStateFromProps({rects},{selecting}){

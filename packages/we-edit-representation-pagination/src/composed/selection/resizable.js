@@ -19,12 +19,18 @@ export default class Resizable extends Component{
 			return (
 				<Overlay
 					onMouseUp={e=>{
-						this.setState({resizing:undefined})
-						if(onEnd)
-							onEnd()
+						if(resizing){
+							this.setState({resizing:undefined})
+							if(onEnd)
+								onEnd()
+							e.stopPropagation()
+						}
 					}}
 					onMouseMove={e=>{
-						this.resize(e.clientX, e.clientY)
+						if(resizing){
+							this.resize(e.clientX, e.clientY)
+							e.stopPropagation()
+						}
 					}}
 					style={{cursor}}
 					>
@@ -35,7 +41,12 @@ export default class Resizable extends Component{
 			let props={}
 			const {direction}=this.props
 			if(direction){
-				props.onMouseDown=e=>this.onStartResize(direction,e)
+				props.onMouseMove=e=>{
+					if(e.buttons&0x1){
+						this.onStartResize(direction,e)
+						e.stopPropagation()
+					}
+				}
 			}else{
 				props.onStartResize=this.onStartResize
 			}
