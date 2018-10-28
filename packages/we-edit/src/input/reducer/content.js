@@ -6,10 +6,10 @@ export  class Remove extends IChange{
 		const text=target.text()
 		to=target.closest(to)
 		const parent=to.parent()
-		
+
 		this.save4undo(to.attr('id'))
 		this.save4undo(parent.attr('id'))
-		
+
 		let to1=target.constructUp(to)
 			.insertAfter(to)
 
@@ -19,16 +19,16 @@ export  class Remove extends IChange{
 		target.parentsUntil(to).each(function(i,node,$){
 			this.eq(i).after($(node).nextAll())
 		},t0.parentsUntil(to1))
-		
+
 		target.text(text.substr(0,at))
-		
+
 		this.renderChanged(to1.attr('id'))
 		this.renderChanged(to.attr('id'))
 		this.renderChangedChildren(parent.attr('id'))
-		
+
 		return [to,to1]
 	}
-	
+
 	remove_withoutSelection_backspace(removing){
 		let {start:{id,at}}=this.selection
 		let target=this.$('#'+id)
@@ -186,7 +186,7 @@ export class Insert extends Remove{
 
 		this.cursorAt(id,at+inserting.length)
 
-		this.renderChanged(id)
+		//this.renderChanged(id)
 	}
 
 	insert_withoutSelection_string_withNewLine(inserting){
@@ -256,42 +256,42 @@ export class Update extends Insert{
 				.add(target,"unshift")
 				.last()
 		let clonedRoute=target.constructUp(grand)
-		
+
 		let p=target.closest("paragraph")
-		
+
 		this.save4undo(p.attr('id'))
-		
+
 		clonedRoute.clone()
 			.text(text.substring(0,at))
 			.insertBefore(grand)
-		
+
 		target.text(text.substring(at, end.at))
-		
+
 		clonedRoute
 			.text(text.substring(end.at))
 			.insertAfter(grand)
 
 		target.attr(changing)
-		
+
 		this.cursorAt(id,0,id,end.at-at)
 
 		this.renderChanged(p.attr('id'))
 	}
-	
+
 	update_text_withoutSelection_inline(targets, changing){
 		const {start:{id,at}}=this.selection
 		let target=this.$(`#${id}`)
 		target.attr(changing)
 		this.renderChanged(target.closest("paragraph").attr('id'))
 	}
-	
+
 	update_text_withoutSelection_atHead(targets, changing){
 		let {start:{id,at}}=this.selection
 		let target=this.$('#'+id)
 		let p=target.closest("paragraph")
-		
+
 		this.save4undo(p.attr('id'))
-		
+
 		let grand=target.parentsUntil("paragraph")
 				.add(target,"unshift")
 				.last()
@@ -301,12 +301,12 @@ export class Update extends Insert{
 				.text("")
 
 		Object.keys(changing).forEach(k=>created.attr(k, changing[k]))
-		
+
 
 		this.renderChanged(p.attr('id'))
-		
+
 		this.cursorAt(created.attr('id'),0)
-	}	
+	}
 
 	update_withoutSelection_inline(targets, changing){
 		let target=targets.first()
@@ -318,7 +318,7 @@ export class Update extends Insert{
 	update_withoutSelection_atTail(){
 		this.update_withoutSelection_inline(...arguments)
 	}
-	
+
 	update_withoutSelection_atHead(){
 		this.update_withoutSelection_inline(...arguments)
 	}
