@@ -233,7 +233,17 @@ export class Properties{
 	}
 
 	xfrm(x){
-		return this.select(x.children,{off:"position",ext:"size"})
+		const props=this.select(x.children,{off:"position",ext:"size",})
+		if(x.attribs.rot){
+			props.rotate=Math.ceil(parseInt(x.attribs.rot)/60000)
+		}
+		if(x.attribs.flipH==="1"){
+			props.flipH=true
+		}
+		if(x.attribs.flipV==="1"){
+			props.flipV=true
+		}
+		return props
 	}
 
 	prstGeom(x){

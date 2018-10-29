@@ -155,7 +155,19 @@ describe("compose", ()=>{
 	describe("table",()=>{
 
 	})
-	describe("image",()=>{})
+	
+	describe("image",()=>{
+		const WithParagraphContext=provider(Paragraph)
+		xit("basic image", ()=>{
+			const rendered=TestRender.create(
+				<WithParagraphContext>
+					<Paragraph>
+						<Image/>
+					</Paragraph>
+				</WithParagraphContext>
+			)
+		})
+	})
 
 	it("can compose in any container", ()=>{
 

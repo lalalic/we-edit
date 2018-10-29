@@ -1,7 +1,7 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 
-import {Image as ComposedImage} from "./composed"
+import {Image as ComposedImage,Frame} from "./composed"
 
 import {NoChild} from "./composable"
 import {models} from "we-edit"
@@ -17,14 +17,20 @@ export default class Image extends Super{
 		},
 	}
     createComposed2Parent(props){
-        const {src, size:{width,height}}=this.props
-        let availableSpace=this.context.parent.nextAvailableSpace({width,height})
-        return <ComposedImage {...{
-                width,
-                height,
-                xlinkHref: src,
-                y:-height,
-				preserveAspectRatio:"none"
-            }} {...props}/>
+        const {src, size:{width,height},rotate}=this.props
+		const frameProps=Frame.rect({width,height,rotate})
+		
+		let availableSpace=this.context.parent.nextAvailableSpace(frameProps)
+        frameProps.y=-frameProps.height
+		return (
+			<Frame {...frameProps}>
+				<ComposedImage {...{
+					width,
+					height,
+					xlinkHref: src,
+					preserveAspectRatio:"none"
+				}} {...props}/>
+			</Frame>
+		)
     }
 }
