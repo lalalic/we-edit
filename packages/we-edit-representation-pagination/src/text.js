@@ -71,7 +71,6 @@ export default class Text extends Super{
 					color,
 					highlight,
 					width,
-					contentWidth:width,
 					"data-endat":end,
 					children:[...content]
 				})

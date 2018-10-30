@@ -1,8 +1,8 @@
 export default class {
 	constructor(node, styles, selector){
 		this.styles=styles
-		const pr=node.children.find(a=>a.name.endsWith(":spPr")
-		
+		const pr=node.children.find(a=>a.name.endsWith(":spPr"))
+
 		if(pr){
 			this.props=selector.select(pr.children,{
 				xfrm: "transform",
