@@ -6,7 +6,7 @@ export class Text extends Component{
 	render(){
 		const {
 			children, whiteSpace, color:fill, highlight,border,underline,strike,
-			descent,contentWidth, height, width, //ignore
+			descent,minWidth, height, width, //ignore
 			...others}=this.props
 
 		let background=null
@@ -48,7 +48,7 @@ export class Text extends Component{
 				{strikeline}
 				{decoration}
 				<text style={{userSelect:"none",whiteSpace:"pre",cursor:"text"}} {...others} fill={fill}>
-					{children.join("")}
+					{children}
 				</text>
 			</Fragment>
 		)

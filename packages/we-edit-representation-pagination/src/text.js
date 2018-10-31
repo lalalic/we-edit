@@ -44,11 +44,6 @@ export default class Text extends Super{
 
     getMyBreakOpportunities=memoize((text,last)=>this.context.getMyBreakOpportunities(text))
 
-    getBreakOpportunitiesWidth=memoize((myText,measure,lastText)=>{
-		const breakOpportunities=this.getMyBreakOpportunities(myText)
-        return breakOpportunities.map(word=>[word,measure.stringWidth(word)])
-    })
-
     render(){
 		const {parent,getLastText=a=>null}=this.context
 		const {color,highlight,vanish,border,underline,strike}=this.props
@@ -58,77 +53,31 @@ export default class Text extends Super{
 
         const measure=this.measure
 
-		const breakOpportunities=this.getBreakOpportunitiesWidth(this.text,measure,getLastText())
-
         const defaultStyle={...measure.defaultStyle, color, highlight,border,underline,strike}
+		
+		const whitespaceWidth=measure.stringWidth(" ")
 
-
-		let i=0
-		const commit=state=>{
-			let {content,width,end}=state
-			let composedText=this.createComposed2Parent({
-					...defaultStyle,
-					color,
-					highlight,
-					width,
-					"data-endat":end,
-					children:[...content]
-				})
-			this.appendComposed(composedText)
-			state.width=0
-			content.splice(0,content.length)
-		}
-
-		const consume1=(function(state,opportunity,i, a, loopCounter=0){
-            let [word="", wordWidth]=opportunity
-			let {space:{width:maxWidth},content,width}=state
-			if(Math.floor(width+wordWidth)<=maxWidth){
-				content.push(word)
-				state.width+=wordWidth
-				state.end+=word.length
-			}else if((/\s+$/.test(word) && //doing: end-of-line with whitespace,xx should be able to extend line width
-				(width+(wordWidth=measure.stringWidth(word.replace(/\s+$/,''))))<=maxWidth)){
-				content.push(word)
-				state.width+=wordWidth
-				state.end+=word.length
-			}else{
-                if(width!=0){
-					commit(state)
+		parent.nextAvailableSpace({height:measure.height})
+		
+		let start=0
+		this.getMyBreakOpportunities(this.text,getLastText()).forEach(a=>{
+			a.split(/(\s+)/).forEach((b,i)=>{
+				if(b.length>0){
+					const isWhitespace=i%2==1
+					this.appendComposed(this.createComposed2Parent({
+						...defaultStyle,
+						color,
+						highlight,
+						width:isWhitespace ? whitespaceWidth*b.length : measure.stringWidth(b),
+						minWidth:isWhitespace ? 0 : undefined,
+						"data-endat":start+=b.length,
+						children:b
+					}))
 				}
-
-                if(loopCounter>3){//
-                    console.warn("possible dead loop, commit first")
-					//commit(state)
-                    debugger
-                }
-
-				let nextSpace=parent.nextAvailableSpace({height:measure.height,width:wordWidth})
-
-				if(width==0){
-					if(nextSpace.width<wordWidth){
-						let text=word.substr(0,measure.widthString(maxWidth, word))
-						content.push(text)
-						state.width+=maxWidth
-						state.end+=text.length
-						commit(state)
-
-						let unComposedText=word.substr(text.length)
-						opportunity=[unComposedText, measure.stringWidth(unComposedText)]
-					}
-				}
-				state.space=nextSpace
-				consume1(state,opportunity,i,a, loopCounter+1)
-			}
-			return state
-		}).bind(this)
-
-        let state=breakOpportunities.reduce(
-			consume1,
-			{space:parent.nextAvailableSpace({height:measure.height}),content:[],width:0,end:0}
-		)
-
-		commit(state)
-        this.onAllChildrenComposed()
+			})
+		})
+		
+		this.onAllChildrenComposed()
         return null
     }
 

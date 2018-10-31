@@ -135,10 +135,10 @@ export class Paragraph extends Super{
     appendComposed(content, il=0){//@TODO: need consider availableSpace.height
         const {composed}=this.computed
         const {parent}=this.context
-		let {width:contentWidth}=content.props
+		let {width,minWidth=width}=content.props
 
         let currentLine=composed[composed.length-1]
-        const availableWidth=currentLine.availableWidth(parseInt(contentWidth))
+        const availableWidth=currentLine.availableWidth(parseInt(minWidth))
 
 
 		if(il>2){
@@ -146,7 +146,7 @@ export class Paragraph extends Super{
 			//throw new Error("infinit loop")
 		}
 
-        if((availableWidth+1)>=contentWidth || il>2){
+        if((availableWidth+1)>=minWidth || il>2){
           currentLine=currentLine.push(content)
 		  composed.pop()
 		  composed.push(currentLine)
@@ -202,10 +202,51 @@ export class Paragraph extends Super{
 
         let contentWidth=props.children.reduce((w,{props:{width}})=>w+width,0)
 
-		if(align=="right"){
+		switch(align){
+		case "right":
 			contentX+=(width-contentWidth)
-		}else if(align=="center"){
+			break
+		case "center":
 			contentX+=(width-contentWidth)/2
+			break
+		case "justify":
+			if(!this.isAllChildrenComposed()){
+				const isWhitespace=a=>a.minWidth==0
+				const countWhiteSpace=a=>{
+					while(a && a.type!=ComposedText){
+						if(a.props && a.props.children){
+							a=React.Children.only(a.props.children)
+						}else{
+							a=null
+						}
+					}
+					
+					if(a && isWhitespace(a.props)){
+						return a.props.children.length
+					}
+					
+					return 0
+				}
+				
+				const content=props.children.reduce((state,{props:{width,minWidth=width,children}})=>{
+					state.width+=minWidth
+					if(isWhitespace({minWidth,children}))
+						state.whitespaces+=countWhiteSpace(children)
+					return state
+				},{width:0,whitespaces:0});
+				
+				if(content.whitespaces>0){
+					const whitespaceWidth=(width-content.width)/content.whitespaces
+					others.children=props.children.map(a=>{
+						const {minWidth,children}=a.props
+						if(isWhitespace(a.props)){
+							return React.cloneElement(a,{width:children.length*whitespaceWidth})
+						}
+						return a
+					})
+				}
+			}
+			break
 		}
 
         return (
