@@ -124,7 +124,6 @@ export class Table extends Base{
 
 		let created=reducer.$(`#${createdId}`).insertAfter(p0)
 
-		reducer.renderChangedChildren(p0.parent().attr('id'))
 		let cursor=created.findFirst('text').attr('id')
 		return {id:cursor,at:0}
 	}

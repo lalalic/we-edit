@@ -4,7 +4,7 @@ import PropTypes from "prop-types"
 import {connect} from "../state"
 
 import Representation from "./representation"
-import {getContent, getChanged, getParentId} from "../state/selector"
+import {getContent, getParentId} from "../state/selector"
 import Cursor from "./cursor"
 import Input from "../input"
 import uuid from "../tools/uuid"
@@ -14,7 +14,6 @@ export class Editor extends PureComponent{
 	static domain="edit"
 	static propTypes={
 		media:PropTypes.string,
-		reCreateDoc:PropTypes.bool,
 		representation: PropTypes.node.isRequired,
 
 		//canvas props for svg
@@ -33,7 +32,6 @@ export class Editor extends PureComponent{
 	static defaultProps={
 		media:"screen",
 		scale:1,
-		reCreateDoc: true,
 	}
 
 	static childContextTypes={
@@ -51,7 +49,7 @@ export class Editor extends PureComponent{
 	}
 
 	render(){
-		let {media, representation, reCreateDoc, scale, screenBuffer, children:canvas, viewport, ...props}=this.props
+		let {media, representation, scale, screenBuffer, children:canvas, viewport, ...props}=this.props
 		if(typeof(representation)=="string"){
 			representation=<Representation type={representation}/>
 		}
@@ -59,7 +57,7 @@ export class Editor extends PureComponent{
 		return React.cloneElement(
 			representation,
 			{domain:this.constructor.domain},
-			this.createDocument({docId:this.docId, reCreateDoc, canvasProps:{canvas, scale, screenBuffer,viewport, ...props}})
+			this.createDocument({docId:this.docId, canvasProps:{canvas, scale, screenBuffer,viewport, ...props}})
 		)
 	}
 
@@ -69,7 +67,7 @@ export class Editor extends PureComponent{
 
 }
 
-export function createWeDocument(id,content,ModelTypes,lastContent, onElCreate){
+export function createWeDocument(id,content,ModelTypes,lastContent){
 	let current=content.get(id)
 	let {type, props, children}=current.toJS()
 	if(!type){
@@ -84,7 +82,7 @@ export function createWeDocument(id,content,ModelTypes,lastContent, onElCreate){
 
 	if(Array.isArray(children))
 		elChildren=children.map(a=>{
-			return createWeDocument(a,content,ModelTypes,lastContent,onElCreate)
+			return createWeDocument(a,content,ModelTypes,lastContent)
 		})
 
 	let changed=false, selfChanged=false
@@ -105,7 +103,7 @@ export function createWeDocument(id,content,ModelTypes,lastContent, onElCreate){
 		}
 	}
 
-	let el=(<Child
+	return(<Child
 			key={id}
 			id={id}
 			{...props}
@@ -113,11 +111,6 @@ export function createWeDocument(id,content,ModelTypes,lastContent, onElCreate){
 			changed={changed}
 			selfChanged={selfChanged}
 		/>)
-
-	if(onElCreate){
-		onElCreate(el)
-	}
-	return el
 }
 
 
@@ -128,108 +121,23 @@ class WeDocumentStub extends PureComponent{
 
 	constructor(){
 		super(...arguments)
-		this.els=new Map()
 		this.componentWillReceiveProps(this.props,this.context)
 	}
 
-	modifyDocOnChanged(content,changed,ModelTypes){
-		const getThisParentId=id=>getParentId(content,id)
-
-		const changeParent=id=>{
-			let el=this.els.get(id)
-			let changed=React.cloneElement(el,{changed:true})
-
-			let parentId=getThisParentId(id)
-			if(parentId){
-				let parentEl=this.els.get(parentId)
-				let children=parentEl.props.children
-				let index=content.get(parentId).toJS().children.indexOf(id)
-				children[index]=changed
-				changeParent(parentId)
-			}else{
-				this.doc=changed
-			}
-		}
-
-		let changedKeys=Object.keys(changed)
-			.reduce((sorted,a)=>{//first handle with children changed
-				sorted[a.children ? "push" : "unshift"](a)
-				return sorted
-			},[])
-			.reduce((filtered,a, i, all)=>{
-				//if parent is changed, then children would not be handle here
-				let parent=getThisParentId(a)
-				while(parent){
-					if(all.includes(parent)){
-						return filtered
-					}else{
-						parent=getThisParentId(parent)
-					}
-				}
-				filtered.push(a)
-				return filtered
-			},[])
-
-		changedKeys.reduceRight((handled, k)=>{
-			let children=changed[k].children
-			if(children){
-				let {props:{children:els}}=this.els.get(k)
-				els.forEach(({props:{id}})=>{
-					this.els.delete(id)
-				})
-				let rawEls=els.splice(0,els.length)
-
-				children.forEach(j=>{
-					let el=rawEls.find(({props:{id}})=>id==j)
-					if(changedKeys.includes(j)){
-						el=this.createChildElement(j,content,ModelTypes,this.props.content)
-						handled.push(j)
-					}
-					if(el){
-						els.push(el)
-						this.els.set(j,el)
-					}else{
-						el=this.createChildElement(j,content,ModelTypes,this.props.content)
-						handled.push(j)
-						els.push(el)
-					}
-				})
-				changeParent(k)
-			}else if(!handled.includes(k)){
-				let parentId=getThisParentId(k)
-				let parentEl=this.els.get(parentId)
-
-				children=parentEl.props.children
-				let index=content.get(parentId).toJS().children.indexOf(k)
-				children[index]=this.createChildElement(k,content,ModelTypes,this.props.content)
-				changeParent(parentId);
-			}
-			return handled
-		},[])
-	}
-
-	componentWillReceiveProps({content,changed,reCreateDoc,canvasProps},{ModelTypes}){
+	componentWillReceiveProps({content,canvasProps},{ModelTypes}){
 		if(!ModelTypes)
 			return
 		if(!this.doc){
-			this.els=new Map()
 			this.doc=this.createChildElement("root",content,ModelTypes)
 		}else if(this.props.content!=content){
-			if(reCreateDoc || !changed || (changed&&(changed.root || Object.keys(changed).length>1))){
-				this.doc=this.createChildElement("root",content,ModelTypes,this.props.content)
-			}else{//deprecated
-				this.modifyDocOnChanged(content,changed,ModelTypes)
-			}
+			this.doc=this.createChildElement("root",content,ModelTypes,this.props.content)
 		}
 
 		this.doc=React.cloneElement(this.doc,  {...canvasProps, content})
 	}
 
 	createChildElement(id,content,ModelTypes,lastContent){
-		return createWeDocument(
-			id,content,ModelTypes,lastContent,
-			el=>{this.els.set(el.props.id,el)}
-		)
+		return createWeDocument(id,content,ModelTypes,lastContent)
 	}
 
 	render(){
@@ -243,7 +151,7 @@ class WeDocumentStub extends PureComponent{
 
 
 const Root=connect((state)=>{
-	return {content:state.get("content"),changed: getChanged(state)}
+	return {content:state.get("content")}
 })(WeDocumentStub)
 
 export default Editor

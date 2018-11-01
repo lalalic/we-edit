@@ -158,8 +158,6 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance)=>
 		if(undoables)
 			historyEntry.changed=undoables
 
-		state.get("violent").changing=updated
-
 		state=state.setIn(["content"],changedContent.asImmutable())
 	}else{
 		state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))

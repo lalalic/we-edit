@@ -24,7 +24,6 @@ export  class Remove extends IChange{
 
 		this.renderChanged(to1.attr('id'))
 		this.renderChanged(to.attr('id'))
-		this.renderChangedChildren(parent.attr('id'))
 
 		return [to,to1]
 	}
@@ -72,7 +71,6 @@ export  class Remove extends IChange{
 		this.cursorAt(id,at)
 
 		this.renderChanged(prev.attr("id"))
-		this.renderChangedChildren(prev.attr("parent"))
 	}
 
 	remove_withoutSelection_delete(removing){
@@ -101,7 +99,6 @@ export  class Remove extends IChange{
 		this.cursorAt(id,at)
 
 		this.renderChanged(p.attr("id"))
-		this.renderChangedChildren(p.attr("parent"))
 	}
 
 	remove_withoutSelection_delete_tailOf_text(removing){
@@ -167,7 +164,6 @@ export  class Remove extends IChange{
 		if(isInParagraph){
 			this.renderChanged(ancestor.attr("id"))
 		}else{
-			this.renderChangedChildren(ancestor.attr("id"))
 			this.renderChanged(top0.attr("id"))
 			this.renderChanged(top1.attr("id"))
 		}
@@ -232,7 +228,6 @@ export class Insert extends Remove{
 				}
 			}
 		},1)
-		this.renderChangedChildren(p.attr("parent"))
 	}
 
 	insert_withSelection_string_withoutNewLine(inserting){

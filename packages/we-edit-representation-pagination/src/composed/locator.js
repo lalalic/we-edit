@@ -60,9 +60,7 @@ export default compose(
 
         if(content.equals(state.content)){
             this.makeCursorSelection(arguments[0])
-            if(this.newSelection){
-                this.style=positioning.getSelectionStyle(content,selection,scale)
-            }
+            this.style=positioning.getSelectionStyle(content,selection,scale)
             return true
         }
 

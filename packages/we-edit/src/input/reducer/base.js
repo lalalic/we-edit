@@ -6,7 +6,6 @@ export default class Reducer{
 	constructor(state){
 		this._state=state
 		this._undoables={}
-		this._updated={}
 		this._selection=getSelection(state)
 		this._file=getFile(state)
 
@@ -15,8 +14,6 @@ export default class Reducer{
 
 	state(){
 		let state={}
-		if(Object.keys(this._updated).length>0)
-			state.updated=this._updated
 
 		if(Object.keys(this._undoables).length>0)
 			state.undoables=this._undoables
@@ -55,15 +52,9 @@ export default class Reducer{
 		if(this._state.hasIn(["content",id])){
 			this._state.setIn(["_content",id,"parent"],
 				this._state.getIn(["content",id,"parent"]))
-			this._updated[id]={}
 		}
 
 		return rendered
-	}
-
-	renderChangedChildren(id){
-		this._undoables[id]={children:this._state.getIn(["content",id,"children"]).toJS()}
-		this._updated[id]={children:this.$('#'+id).children().toArray()}
 	}
 
 	cursorAt(id,at, endId=id, endAt=at, cursorAt){
