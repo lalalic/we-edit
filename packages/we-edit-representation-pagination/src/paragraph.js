@@ -211,7 +211,7 @@ export class Paragraph extends Super{
 			break
 		case "justify":
 			if(!this.isAllChildrenComposed()){
-				const isWhitespace=a=>a.minWidth==0
+				const isWhitespace=a=>a.props.minWidth==0
 				const countWhiteSpace=a=>{
 					while(a && a.type!=ComposedText){
 						if(a.props && a.props.children){
@@ -221,26 +221,31 @@ export class Paragraph extends Super{
 						}
 					}
 					
-					if(a && isWhitespace(a.props)){
+					if(a && isWhitespace(a)){
 						return a.props.children.length
 					}
 					
 					return 0
 				}
 				
-				const content=props.children.reduce((state,{props:{width,minWidth=width,children}})=>{
+				const content=props.children.reduce((state,child,i)=>{
+					const {props:{width,minWidth=width}}=child
 					state.width+=minWidth
-					if(isWhitespace({minWidth,children}))
-						state.whitespaces+=countWhiteSpace(children)
+					if(isWhitespace(child)){
+						const count=countWhiteSpace(child.props.children)
+						if(count>0){
+							state.whitespaces+=count
+							state[`${i}`]=count
+						}
+					}
 					return state
-				},{width:0,whitespaces:0});
+				},{width:0,whitespaces:0,});
 				
 				if(content.whitespaces>0){
 					const whitespaceWidth=(width-content.width)/content.whitespaces
-					others.children=props.children.map(a=>{
-						const {minWidth,children}=a.props
-						if(isWhitespace(a.props)){
-							return React.cloneElement(a,{width:children.length*whitespaceWidth})
+					others.children=props.children.map((a,i)=>{
+						if(content[`${i}`]){
+							return React.cloneElement(a,{width:content[`${i}`]*whitespaceWidth})
 						}
 						return a
 					})
