@@ -54,11 +54,11 @@ export default class Text extends Super{
         const measure=this.measure
 
         const defaultStyle={...measure.defaultStyle, color, highlight,border,underline,strike}
-		
+
 		const whitespaceWidth=measure.stringWidth(" ")
 
 		parent.nextAvailableSpace({height:measure.height})
-		
+
 		let start=0
 		this.getMyBreakOpportunities(this.text,getLastText()).forEach(a=>{
 			a.split(/(\s+)/).forEach((b,i)=>{
@@ -68,6 +68,7 @@ export default class Text extends Super{
 						...defaultStyle,
 						color,
 						highlight,
+                        className:isWhitespace ? "whitespace" : undefined,
 						width:isWhitespace ? whitespaceWidth*b.length : measure.stringWidth(b),
 						minWidth:isWhitespace ? 0 : undefined,
 						"data-endat":start+=b.length,
@@ -76,7 +77,7 @@ export default class Text extends Super{
 				}
 			})
 		})
-		
+
 		this.onAllChildrenComposed()
         return null
     }
