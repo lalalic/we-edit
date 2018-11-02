@@ -16,7 +16,7 @@ export default class Layer extends Component{
             <Group {...this.props} className="frame"/>
         )
     }
-	
+
 	static rect({width,height,rotate=0}){
 		const radians=rotate*Math.PI/180
 		const props={
@@ -27,7 +27,7 @@ export default class Layer extends Component{
 		
 		props.y=-props.height
 		props.x=props.width-width
-		
+
 		return props
 	}
 }
