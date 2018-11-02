@@ -133,23 +133,17 @@ export class Paragraph extends Super{
     }
 
     appendComposed(content, il=0){//@TODO: need consider availableSpace.height
-        const {composed}=this.computed
-        const {parent}=this.context
-		let {width,minWidth=width}=content.props
+        const {width,minWidth=width,wrap,position,outline}=content.props
 
-        let currentLine=composed[composed.length-1]
+        const {composed}=this.computed
+		let currentLine=composed[composed.length-1]
         const availableWidth=currentLine.availableWidth(parseInt(minWidth))
 
 
-		if(il>2){
-			console.warn("infinite loop during paragraph line content pending")
-			//throw new Error("infinit loop")
-		}
-
-        if((availableWidth+1)>=minWidth || il>2){
-          currentLine=currentLine.push(content)
-		  composed.pop()
-		  composed.push(currentLine)
+		if((availableWidth+1)>=minWidth || il>1){
+			currentLine=currentLine.push(content)
+			composed.pop()
+			composed.push(currentLine)
         }else {
             this.commitCurrentLine(true)
             this.appendComposed(content,++il)
@@ -200,7 +194,9 @@ export class Paragraph extends Super{
 
         this.availableSpace.height-=lineHeight
 
-        let contentWidth=props.children.reduce((w,{props:{width}})=>w+width,0)
+        let contentWidth=props.children.slice(0,-1)
+				.reduce((w,{props:{width}})=>w+width,
+					props.children.slice(-1).reduce((w,{props:{width,minWidth=width}})=>w+minWidth,0))
 
 		switch(align){
 		case "right":
