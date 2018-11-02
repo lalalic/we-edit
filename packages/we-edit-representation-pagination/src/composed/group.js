@@ -36,19 +36,21 @@ export default class Group extends Component{
 				</g>
 			)
 		}
-
-		if(rotate){
-			return (
-				<g transform={`rotate(${rotate})`}>
-					<Group {...this.props} rotate={undefined}/>
-				</g>
-			)
-		}
+		
+		let transform=""
 
 		if(x||y){
+			transform=`translate(${parseInt(x||0)} ${parseInt(y||0)})`
+		}
+		
+		if(rotate){
+			transform=`${transform} rotate(${rotate})`
+		}
+		
+		if(transform.length>0){
 			return (
-				<g transform={`translate(${parseInt(x||0)} ${parseInt(y||0)})`}>
-					<Group {...this.props} x={undefined} y={undefined}/>
+				<g transform={transform}>
+					<Group {...this.props} rotate={undefined} x={undefined} y={undefined}/>
 				</g>
 			)
 		}
