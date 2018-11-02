@@ -110,7 +110,7 @@ export class Paragraph extends Super{
     }
 
     nextAvailableSpace(required={}){
-        const {width:minRequiredW=Number.MIN_VALUE,height:minRequiredH=Number.MIN_VALUE,splitable=true}=required
+        const {width:minRequiredW=0,height:minRequiredH=0,splitable=true}=required
         const {composed}=this.computed
         if(0==composed.length){
             let {width,height}=this.context.parent.nextAvailableSpace(required)
@@ -133,7 +133,7 @@ export class Paragraph extends Super{
     }
 
     appendComposed(content, il=0){//@TODO: need consider availableSpace.height
-        const {width,minWidth=width,wrap,position,outline}=content.props
+        const {width,minWidth=width}=content.props
 
         const {composed}=this.computed
 		let currentLine=composed[composed.length-1]
@@ -216,14 +216,14 @@ export class Paragraph extends Super{
 							a=null
 						}
 					}
-					
+
 					if(a && isWhitespace(a)){
 						return a.props.children.length
 					}
-					
+
 					return 0
 				}
-				
+
 				const content=props.children.reduce((state,child,i)=>{
 					const {props:{width,minWidth=width}}=child
 					state.width+=minWidth
@@ -236,7 +236,7 @@ export class Paragraph extends Super{
 					}
 					return state
 				},{width:0,whitespaces:0,});
-				
+
 				if(content.whitespaces>0){
 					const whitespaceWidth=(width-content.width)/content.whitespaces
 					others.children=props.children.map((a,i)=>{
