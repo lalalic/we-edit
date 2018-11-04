@@ -148,18 +148,30 @@ export default class DocxType extends Input.Editable{
 			}
 			case "section":
 				let style=selector.select(node.children)
-
+				const isEmpty=a=>{
+					if(a.children.length==1){
+						const p=a.children[0]
+						if(!p.children
+							|| p.children.length==0
+							|| (p.children.length==1 && p.name=="w:p" && p.children[0].name=="w:pPr")){
+							return true
+						}
+					}
+					return false
+				}
 				const hf=cat=>node.children.filter(a=>a.name==`w:${cat}Reference`)
 					.forEach(a=>{
 						let type=a.attribs["w:type"]
 						let rId=a.attribs["r:id"]
 						let root=docx.officeDocument.getRel(rId).root().children().get(0)
-						self.part=rId
-						children.splice(0,0,createElement(components[`${cat.charAt(0).toUpperCase()}${cat.substr(1)}`],{type},
-							root.children.map(a=>renderNode(a)),
-							root
-						))
-						delete self.part
+						if(!isEmpty(root)){
+							self.part=rId
+							children.splice(0,0,createElement(components[`${cat.charAt(0).toUpperCase()}${cat.substr(1)}`],{type},
+								root.children.map(a=>renderNode(a)),
+								root
+							))
+							delete self.part
+						}
 					})
 
 				hf("header")
