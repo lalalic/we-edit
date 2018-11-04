@@ -23,11 +23,13 @@ export default class Section extends Super{
     /**
      * i: column no
      */
-    _newColumn(i){
-		const {pgSz:{width, height},  pgMar:{top, bottom, left, right}, cols=[{space:0,width:width-left-right}]}=this.props
+    _newColumn(page){
+        const i=page.columns.length
+        const {size:{width, height}, margin:{top, bottom, left, right},padding}=page
+		const {cols=[{space:0,width:width-left-right}]}=this.props
 		let info={
             y:0,
-			height:height-bottom-top,
+			height:height-bottom-top-(padding.top||0)-(padding.bottom||0),
             children:[],
 			x: cols.reduce((p, a, j)=>(j<i ? p+a.width+a.space : p),0),
 			width: cols[i].width
@@ -38,18 +40,38 @@ export default class Section extends Super{
     /**
      * i : page No, for first, even, odd page
      */
-    _newPage(i){
+    _newPage(){
         const {pgSz:size,  pgMar:margin}=this.props
-		const pageNo=this.computed.composed.length+1
-		let headerEl=this.getPageHeaderFooter('header',pageNo)
-		let footerEl=this.getPageHeaderFooter('footer',pageNo)
-        let info={
+        //const margin={...pgMar}
+        const pageNo=this.computed.composed.length+1
+		const headerComposer=this.getPageHeaderFooter('header',pageNo)
+		const footerComposer=this.getPageHeaderFooter('footer',pageNo)
+        const header=headerComposer ? headerComposer.createComposed2Parent() : null
+        const footer=footerComposer ? footerComposer.createComposed2Parent() : null
+        const headerAvailableHeight=margin.top-margin.header
+        const footerAvailableHeight=margin.bottom-margin.footer
+        const headerContentHeight=header ? header.props.height : 0
+        const footerContentHeight=footer ? footer.props.height : 0
+        const padding={top:0, bottom:0}
+        if(headerContentHeight>headerAvailableHeight){
+            //margin.top=margin.header+headerContentHeight
+            padding.top=margin.header+headerContentHeight-margin.top
+        }
+
+        if(footerContentHeight>footerAvailableHeight){
+            //margin.bottom=margin.footer+footerContentHeight
+            padding.bottom=margin.footer+footerContentHeight-margin.bottom
+        }
+
+        const info={
             size,
             margin,
-            columns:[this._newColumn(0)],
-            header: headerEl ? headerEl.createComposed2Parent() : null,
-            footer: footerEl ? footerEl.createComposed2Parent() : null
+            padding,
+            columns:[],
+            header,
+            footer,
         }
+        info.columns[0]=this._newColumn(info)
 		this.context.parent.appendComposed(this.createComposed2Parent(info))
 		return info
     }
@@ -70,7 +92,7 @@ export default class Section extends Super{
         //@TODO: what if never can find min area
         while(minRequiredH-availableHeight>1 || minRequiredW-width>1){
             if(allowedColumns>columns.length){// new column
-                columns.push(currentColumn=this._newColumn(columns.length))
+                columns.push(currentColumn=this._newColumn(currentPage))
             }else{//new page
 				composed.push(currentPage=this._newPage(composed.length))
                 currentColumn=currentPage.columns[0]
@@ -101,7 +123,7 @@ export default class Section extends Super{
 
 		if(contentHeight-availableHeight>1){
             if(allowedColumns>columns.length){// new column
-                columns.push(currentColumn=this._newColumn(columns.length))
+                columns.push(currentColumn=this._newColumn(currentPage))
             }else{//new page
                 composed.push(currentPage=this._newPage(composed.length))
                 currentColumn=currentPage.columns[0]

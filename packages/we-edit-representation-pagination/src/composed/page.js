@@ -19,6 +19,7 @@ export default class Page extends Component{
 		let {
 			size:{width, height},
 			margin:{left,top, right,bottom, header:headerStartAt=0, footer:footerEndAt=0},
+			padding,
 			columns,
 			header,
 			footer,
@@ -35,7 +36,7 @@ export default class Page extends Component{
 				}
 
 				<Group
-					x={left} y={top}
+					x={left} y={top+(padding.top||0)}
 					className="content">
 					{columns.map((a,i)=><Group key={i} {...a}  className="column"/>)}
 				</Group>

@@ -12,6 +12,7 @@ import Row from "./row"
 import Cell from "./cell"
 import Frame from "./frame"
 import Shape from "./shape"
+import Template from "./template"
 
 export default {
 	Unknown,
@@ -28,4 +29,5 @@ export default {
 	Cell,
 	Frame,
 	Shape,
+	Template,
 }

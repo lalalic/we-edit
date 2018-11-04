@@ -8,9 +8,9 @@ export default class Frame extends Component{
 	static propTypes={
 		position:PropTypes.shape({
 			x:PropTypes.number,
-			y:PropTypes.number 
+			y:PropTypes.number
 		}),
 		width:PropTypes.number.isRequired,
-		height:PropTypes.number.isRequired
+		height:PropTypes.number.isRequired,
 	}
 }

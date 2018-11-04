@@ -3,102 +3,104 @@ import PropTypes from "prop-types"
 
 import get from "lodash.get"
 
-export default ({Section})=>class extends Component{
-	static displayName=`docx-section`
-	static propTypes={
-		cols: PropTypes.shape({
-			num: PropTypes.number.isRequired,
-			space: PropTypes.number,
-			data: PropTypes.arrayOf(PropTypes.shape({
-				width: PropTypes.number,
-				space: PropTypes.number
-			}))
-		}),
-		titlePg:PropTypes.bool
-	}
+export default ({Section,Template,Frame})=>{
 
-	static defaultProps={
-		cols:{
-			num:1
+	return class extends Component{
+		static displayName=`docx-section`
+		static propTypes={
+			cols: PropTypes.shape({
+				num: PropTypes.number.isRequired,
+				space: PropTypes.number,
+				data: PropTypes.arrayOf(PropTypes.shape({
+					width: PropTypes.number,
+					space: PropTypes.number
+				}))
+			}),
+			titlePg:PropTypes.bool
 		}
-	}
 
-	static contextTypes={
-		evenAndOddHeaders: PropTypes.bool
-	}
-
-	constructor(){
-		super(...arguments)
-		this.componentWillReceiveProps(this.props)
-	}
-
-	componentWillReceiveProps({pgSz:{width},  pgMar:{left, right}, cols:{num=1, space=0, data}}){
-		let availableWidth=width-left-right
-		this.cols=data ? data : new Array(num).fill({width:(availableWidth-(num-1)*space)/num,space})
-	}
-
-	render(){
-		/*
-		let {headers, footers, titlePg, ...props}=this.props
-		if(!titlePg){
-			if(headers){
-				headers={...headers, first:undefined}
-			}
-
-			if(footers){
-				footers={...footers, first:undefined}
+		static defaultProps={
+			cols:{
+				num:1
 			}
 		}
 
-		if(this.context.evenAndOddHeaders){
-			if(headers){
-				headers={...headers, odd:undefined}
-			}
-
-			if(footers){
-				footers={...footers, odd:undefined}
-			}
+		static contextTypes={
+			evenAndOddHeaders: PropTypes.bool
 		}
-		*/
-		return <Section {...this.props} cols={this.cols}/>
+
+		constructor(){
+			super(...arguments)
+			this.componentWillReceiveProps(this.props)
+		}
+
+		componentWillReceiveProps({pgSz:{width},  pgMar:{left, right}, cols:{num=1, space=0, data}}){
+			let availableWidth=width-left-right
+			this.cols=data ? data : new Array(num).fill({width:(availableWidth-(num-1)*space)/num,space})
+		}
+
+		render(){
+			return <Section {...this.props} cols={this.cols}/>
+		}
 	}
+/*
+	class Section extends Frame{
+		render(){
+			const {
+				pgSz:{width,height},
+				pgMar:{left, right,top,bottom,top,gutter},
+				cols:{num=1, space=0, data},
+				children,
+				header:{
+					first,even,odd,default,
+				},
+				footer:{
+					first,even,odd,default,
+				}
+			}=this.props
+			return (
+				<Template {...{width,height}}>
+					<Frame><Header/></Frame>
+					<Frame><Footer/></Frame>
+					<Template>
+						{children}
+					</Template>
+				</Template>
+			)
+		}
+
+		template(i){
+			const {
+				pgSz:{width,height},
+				pgMar:{left, right,top,bottom,top,gutter},
+				cols=[{space:0,width:width-left-right}]
+			}=this.props
+			const {header:headers, footer:footers}=this.computed
+			const type=i==0 ? "first" : (i%2==0 ? "even" : "odd")
+			const header=headers[type]||headers.default
+			const footer=footers[type]||footers.default
+			const contentWidth=width-left-right
+			const contentHeight=height-top-bottom
+			return (
+				<Frame {...{width,height}}>
+					<Frame x={left} y={top} width={contentWidth} height={contentHeight}>
+						<header/>
+					</Frame>
+					<Frame x={left} y={-bottom} width={contentWidth} height={contentHeight}>
+						<footer/>
+					</Frame>
+					<Frame x={left} y={top} width={contentWidth} height={contentHeight}>
+						{
+							cols.reduce((state,a)=>{
+								all.push(<Frame x={state.lastX} width={a.width} margin={{right:a.space}}/>)
+								state.lastX+=(a.width+a.space)
+								return all
+							},{frames:[],lastX:0}).frames
+						}
+					</Frame>
+				</Frame>
+			)
+		}
+	}
+	*/
 }
-
-/*@TODO: should be removed, and refactor for  docx
-class Section extends Models.Section{
-	static displayName=`docx-${Models.Section.displayName}`
-	static propTypes={
-		...Models.Section.propTypes,
-		titlePg:PropTypes.bool
-	}
-
-	static contextTypes={
-		...Models.Section.contextTypes,
-		evenAndOddHeaders: PropTypes.bool
-	}
-
-	//check http://officeopenxml.com/WPsectionFooterReference.php
-	getPageHeaderFooter(category, pageNo){
-		category=this.computed[`${category}s`]
-		var type='default', target
-		if(typeof(pageNo)=="string")
-			type=pageNo
-		else if(pageNo==1 && this.props.titlePg)
-			type="first"
-		else if(this.context.evenAndOddHeaders)
-			type=pageNo%2==0 ? 'even' : 'default'
-
-		if(type)
-			target=get(category,type)
-
-		if(target)
-			return target
-
-		let prevSection=this.context.prevSibling(this)
-		if(!prevSection)
-			return
-
-		return prevSection.getPageHeaderFooter(category,type)
-	}
-}
-*/

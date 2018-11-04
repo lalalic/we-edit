@@ -27,6 +27,20 @@ export default class Header extends Super{
 			(p, {props:{width,height}})=>({width:Math.max(p.width, width),height:p.height+height})
 			,{width:0,height:0}
 		)
-		return (<Group {...size}>{composed}</Group>)
+		return (
+			<Group {...size}>
+				{composed.reduce((state,line,i)=>{
+					state.y+=line.props.height
+					state.positioned.push(<Group {...{
+						key:i,
+						children:line,
+						y:state.y-line.props.height,
+						width:line.props.width,
+						height:line.props.height,
+					}}/>)
+					return state
+				},{positioned:[],y:0}).positioned}
+			</Group>
+		)
 	}
 }
