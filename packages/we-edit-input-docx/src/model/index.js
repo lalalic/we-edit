@@ -30,6 +30,7 @@ export default {
 	Table,
 	Wrapper,
 	Anchor,
+	Template: Section,
 	Styles:()=>createUnvisibleComponent("styles"),
 	Style:()=>createUnvisibleComponent("style"),
 }

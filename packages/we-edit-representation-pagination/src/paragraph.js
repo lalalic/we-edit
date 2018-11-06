@@ -113,8 +113,7 @@ export class Paragraph extends Super{
         const {width:minRequiredW=0,height:minRequiredH=0,splitable=true}=required
         const {composed}=this.computed
         if(0==composed.length){
-            let {width,height}=this.context.parent.nextAvailableSpace(required)
-            this.availableSpace={width,height}
+           this.availableSpace=this.context.parent.nextAvailableSpace(required)
             composed.push(this._newLine())
         }
         let currentLine=composed[composed.length-1]

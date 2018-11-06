@@ -11,13 +11,15 @@ import {Group} from "./composed"
 const Super=HasParentAndChild(Base)
 
 export default class Frame extends Super{
-	nextAvailableSpace(required){
-		let {width,height}=this.props
-		return {width,height}
+	nextAvailableSpace(required={}){
+		const {width:maxWidth,height:maxHeight,blocks=[]}=this.props
+		const {width:minRequiredW=0,height:minRequiredH=0}=required
+		const availableHeight=this.computed.composed.reduce((prev, a)=>prev-a.props.height,maxHeight)
+		return {width:maxWidth,height:availableHeight}
 	}
 
-	appendComposed(content){
-		return this.computed.composed.push(content)
+	appendComposed(line){
+		this.computed.composed.push(React.cloneElement(line,{key:this.computed.composed.length}))
 	}
 
 	onAllChildrenComposed(){
@@ -39,3 +41,5 @@ export default class Frame extends Super{
 		)
     }
 }
+
+

@@ -19,6 +19,12 @@ export default class Section extends Super{
 		this.computed.headers={}
 		this.computed.footers={}
 	}
+	/*
+	children(){
+		const {headers, footers, children}=this.props
+		return [...Object.values(headers), ...Object.values(footers), ...children]
+	}
+	*/
 
     /**
      * i: column no
@@ -42,7 +48,6 @@ export default class Section extends Super{
      */
     _newPage(){
         const {pgSz:size,  pgMar:margin}=this.props
-        //const margin={...pgMar}
         const pageNo=this.computed.composed.length+1
 		const headerComposer=this.getPageHeaderFooter('header',pageNo)
 		const footerComposer=this.getPageHeaderFooter('footer',pageNo)
@@ -54,12 +59,10 @@ export default class Section extends Super{
         const footerContentHeight=footer ? footer.props.height : 0
         const padding={top:0, bottom:0}
         if(headerContentHeight>headerAvailableHeight){
-            //margin.top=margin.header+headerContentHeight
             padding.top=margin.header+headerContentHeight-margin.top
         }
 
         if(footerContentHeight>footerAvailableHeight){
-            //margin.bottom=margin.footer+footerContentHeight
             padding.bottom=margin.footer+footerContentHeight-margin.bottom
         }
 

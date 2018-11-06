@@ -12,5 +12,19 @@ export default class Frame extends Component{
 		}),
 		width:PropTypes.number.isRequired,
 		height:PropTypes.number.isRequired,
+		padding:PropTypes.shape({
+			left: PropTypes.number,
+			top: PropTypes.number,
+			right: PropTypes.number,
+			bottom: PropTypes.number,
+		}),
+		margin:PropTypes.shape({
+			left: PropTypes.number,
+			top: PropTypes.number,
+			right: PropTypes.number,
+			bottom: PropTypes.number,
+		}),
+		geometry: PropTypes.string,
+		blocks:PropTypes.arrayOf(PropTypes.element)
 	}
 }
