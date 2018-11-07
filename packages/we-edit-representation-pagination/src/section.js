@@ -31,6 +31,7 @@ export default class Section extends Super{
 			x: cols.reduce((p, a, j)=>(j<i ? p+a.width+a.space : p),0),
 			width: cols[i].width
 		}
+        new Frame({})
 		this.currentPage.columns.push(info)
 		return info
     }
@@ -71,11 +72,11 @@ export default class Section extends Super{
 		this.context.parent.appendComposed(this.createComposed2Parent(info))
 		return info
     }
-	
+
 	get currentPage(){
 		return this.computed.composed[this.computed.composed.length-1]
 	}
-	
+
 	get currentColumn(){
 		const {columns}=this.currentPage
 		return columns[columns.length-1]
@@ -99,7 +100,7 @@ export default class Section extends Super{
             }else{//new page
 				this._newPage()
             }
-			
+
 			;({width,height, availableHeight=height}=this.currentColumn);
 			if(looped++>3){
 				console.warn("section can't find required space")
@@ -108,7 +109,7 @@ export default class Section extends Super{
         }
         return {width, height:availableHeight}
     }
-	
+
 	appendFrame(frame){
 		const {x, position}=frame.props
 		const xy=()=>{
@@ -172,4 +173,3 @@ export default class Section extends Super{
         this.computed.footers[type]=footer
     }
 }
-

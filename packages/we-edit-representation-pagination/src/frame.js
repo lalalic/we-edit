@@ -6,7 +6,7 @@ import {HasParentAndChild} from "./composable"
 import {models} from "we-edit"
 const {Frame:Base}=models
 
-import {Group} from "./composed"
+import {Frame: ComposedFrame} from "./composed"
 
 const Super=HasParentAndChild(Base)
 
@@ -30,16 +30,13 @@ export default class Frame extends Super{
 	}
 
 	createComposed2Parent() {
-		let {width,height,margin,wrap}=this.props
+		let {width,height,margin,x,y,z}=this.props
 		width+=(margin.left+margin.right)
 		height+=(margin.top+margin.bottom)
-		this.context.parent.nextAvailableSpace({width,height})
 		return (
-			<Group {...{width,height,wrap}}>
+			<ComposedFrame {...{width,height,x,y,z}}>
 				<Group x={margin.left} y={margin.top} children={[...this.computed.composed]}/>
-			</Group>
+			</ComposedFrame>
 		)
     }
 }
-
-
