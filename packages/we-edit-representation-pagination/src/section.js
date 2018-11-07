@@ -108,6 +108,15 @@ export default class Section extends Super{
         }
         return {width, height:availableHeight}
     }
+	
+	appendFrame(frame){
+		const {x, position}=frame.props
+		const xy=()=>{
+			return {x,y:0}
+		}
+		(this.currentColumn.frames||this.currentColumn.frames=[]).push(React.cloneElement(frame,xy()))
+
+	}
 
     appendComposed(line){
         const {composed}=this.computed

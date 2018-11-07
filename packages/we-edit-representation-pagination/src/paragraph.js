@@ -113,6 +113,10 @@ export class Paragraph extends Super{
 
         return width
     }
+	
+	whatIfWrappedContent(content){
+		
+	}
 
     appendComposed(content, il=0){//@TODO: need consider availableSpace.height
         const {width,minWidth=width,height,split}=content.props
@@ -137,6 +141,7 @@ export class Paragraph extends Super{
 
 		if((availableWidth+1)>=minWidth || il>1){
 			this.currentLine.push(content)
+			this.whatIfWrappedContent(content)
         }else {
 			if(composed.length==1 && this.currentLine.isEmpty()){//empty first line
 				if(split && false){
@@ -145,6 +150,7 @@ export class Paragraph extends Super{
 					this.appendComposed(p1)
 				}else{
 					this.currentLine.push(content)
+					this.whatIfWrappedContent(content)
 				}
 			}else{
 				this.commitCurrentLine()
