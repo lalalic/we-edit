@@ -78,8 +78,14 @@ export class Paragraph extends Super{
         }
     }
 
-    _newLine(){
-        let line=new LineInfo(this.lineWidth())
+	get currentLine(){
+		const {composed}=this.computed
+		return composed[composed.length-1]
+	}
+	
+    _newLine({width,...availableSpace}){
+		const composableWidth=this.composableWidth(width)
+        let line=new LineInfo(composableWidth)
 		if(this.props.numbering && this.computed.composed.length==0){
 			let {numbering:{label}, indent:{firstLine}}=this.props
 			let {defaultStyle}=new this.context.Measure(label.props)
@@ -99,74 +105,64 @@ export class Paragraph extends Super{
 		return line
     }
 
-    lineWidth(){
+    composableWidth(width){
         const {indent:{left=0,right=0,firstLine=0}}=this.props
-        let {width}=this.availableSpace
         width-=(left+right)
-        if(this.computed.composed.length==0)
+        if(!this.currentLine)
             width-=firstLine
 
         return width
     }
 
-    nextAvailableSpace(required={}){
-        const {width:minRequiredW=0,height:minRequiredH=0,splitable=true}=required
-        const {composed}=this.computed
-        if(0==composed.length){
-           this.availableSpace=this.context.parent.nextAvailableSpace(required)
-            composed.push(this._newLine())
-        }
-        let currentLine=composed[composed.length-1]
-
-        let availableWidth=currentLine.availableWidth(minRequiredW)
-        if(availableWidth<minRequiredW || this.availableSpace.height<minRequiredH){
-            this.commitCurrentLine(true)
-            this.availableSpace=this.context.parent.nextAvailableSpace(required)
-
-            availableWidth=this.lineWidth()
-        }
-        return {
-            width:availableWidth,
-            height:this.availableSpace.height
-        }
-    }
-
     appendComposed(content, il=0){//@TODO: need consider availableSpace.height
-        const {width,minWidth=width}=content.props
+        const {width,minWidth=width,height,split}=content.props
 
         const {composed}=this.computed
-		let currentLine=composed[composed.length-1]
-        const availableWidth=currentLine.availableWidth(parseInt(minWidth))
-
+		const createLine=()=>{
+			const availableSpace=this.context.parent.nextAvailableSpace({width,height})
+			composed.push(this._newLine({...availableSpace,height}))
+		}
+		
+		if(!this.currentLine)
+           createLine()
+	   
+	    if(height>this.currentLine.height){//
+			const currentLine=this.currentLine
+			this.computed.composed.pop()
+			createLine()
+			currentLine.content.forEach(a=>this.appendComposed(a))
+		}
+        
+        const availableWidth=this.currentLine.availableWidth(parseInt(minWidth))
 
 		if((availableWidth+1)>=minWidth || il>1){
-			currentLine=currentLine.push(content)
-			composed.pop()
-			composed.push(currentLine)
+			this.currentLine.push(content)
         }else {
-            this.commitCurrentLine(true)
-            this.appendComposed(content,++il)
+			if(composed.length==1 && this.currentLine.isEmpty()){//empty first line
+				if(split && false){
+					const [p0,p1]=split(content,availableWidth)
+					this.currentLine.push(p0)
+					this.appendComposed(p1)
+				}else{
+					this.currentLine.push(content)
+				}
+			}else{
+				this.commitCurrentLine()
+				createLine()
+				this.appendComposed(content,++il)
+			}
         }
     }
 
-    commitCurrentLine(needNewLine=false){
-        const {composed}=this.computed
-        const {parent}=this.context
-		if(composed.length>0){
-			let currentLine=composed[composed.length-1]
-
-			parent.appendComposed(this.createComposed2Parent(currentLine))
+    commitCurrentLine(){
+        if(this.currentLine){
+			this.context.parent.appendComposed(this.createComposed2Parent(this.currentLine))
 		}
-
-        if(needNewLine)
-            composed.push(this._newLine())
     }
 
     onAllChildrenComposed(){//need append last non-full-width line to parent
 		super.onAllChildrenComposed()
 		this.commitCurrentLine()
-
-        this.availableSpace={width:0, height:0}
     }
 
     createComposed2Parent(props){
@@ -190,8 +186,6 @@ export class Paragraph extends Super{
         if(this.isAllChildrenComposed()){//last line
             lineHeight+=bottom
         }
-
-        this.availableSpace.height-=lineHeight
 
         let contentWidth=props.children.slice(0,-1)
 				.reduce((w,{props:{width}})=>w+width,

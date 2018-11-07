@@ -20,7 +20,6 @@ export default class Image extends Super{
         const {src, size:{width,height},rotate}=this.props
 		const frameProps=Frame.rect({width,height,rotate})
 		
-		let availableSpace=this.context.parent.nextAvailableSpace(frameProps)
         frameProps.y=-frameProps.height
 		return (
 			<Frame {...frameProps}>

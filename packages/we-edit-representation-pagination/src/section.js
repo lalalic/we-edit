@@ -19,19 +19,10 @@ export default class Section extends Super{
 		this.computed.headers={}
 		this.computed.footers={}
 	}
-	/*
-	children(){
-		const {headers, footers, children}=this.props
-		return [...Object.values(headers), ...Object.values(footers), ...children]
-	}
-	*/
 
-    /**
-     * i: column no
-     */
-    _newColumn(page){
-        const i=page.columns.length
-        const {size:{width, height}, margin:{top, bottom, left, right},padding}=page
+    _newColumn(){
+        const i=this.currentPage.columns.length
+        const {size:{width, height}, margin:{top, bottom, left, right},padding}=this.currentPage
 		const {cols=[{space:0,width:width-left-right}]}=this.props
 		let info={
             y:0,
@@ -40,6 +31,7 @@ export default class Section extends Super{
 			x: cols.reduce((p, a, j)=>(j<i ? p+a.width+a.space : p),0),
 			width: cols[i].width
 		}
+		this.currentPage.columns.push(info)
 		return info
     }
 
@@ -74,35 +66,41 @@ export default class Section extends Super{
             header,
             footer,
         }
-        info.columns[0]=this._newColumn(info)
+        this.computed.composed.push(info)
+		this._newColumn()
 		this.context.parent.appendComposed(this.createComposed2Parent(info))
 		return info
     }
+	
+	get currentPage(){
+		return this.computed.composed[this.computed.composed.length-1]
+	}
+	
+	get currentColumn(){
+		const {columns}=this.currentPage
+		return columns[columns.length-1]
+	}
 
     nextAvailableSpace(required={}){
         const {width:minRequiredW=0,height:minRequiredH=0}=required
         const {composed}=this.computed
-		if(composed.length==0)
-			this.computed.composed.push(this._newPage())
+		if(composed.length==0){
+			this._newPage()
+		}
 		const {cols,allowedColumns=cols ? cols.length : 1}=this.props
-        let currentPage=composed[composed.length-1]
-        let {columns}=currentPage
-        let currentColumn=columns[columns.length-1]
-        let {width,height, children}=currentColumn
+        let {width,height, children}=this.currentColumn
         let availableHeight=children.reduce((prev, a)=>prev-a.props.height,height)
 
 		let looped=0
         //@TODO: what if never can find min area
         while(minRequiredH-availableHeight>1 || minRequiredW-width>1){
-            if(allowedColumns>columns.length){// new column
-                columns.push(currentColumn=this._newColumn(currentPage))
+            if(allowedColumns>this.currentPage.columns.length){// new column
+                this._newColumn()
             }else{//new page
-				composed.push(currentPage=this._newPage(composed.length))
-                currentColumn=currentPage.columns[0]
+				this._newPage()
             }
-            width=currentColumn.width
-            height=currentColumn.height
-            availableHeight=currentColumn.height
+			
+			;({width,height, availableHeight=height}=this.currentColumn);
 			if(looped++>3){
 				console.warn("section can't find required space")
 				break
@@ -113,29 +111,26 @@ export default class Section extends Super{
 
     appendComposed(line){
         const {composed}=this.computed
-		if(composed.length==0)
-			this.computed.composed.push(this._newPage())
+		if(composed.length==0){
+			this._newPage()
+		}
 		const {cols,allowedColumns=cols ? cols.length : 1}=this.props
-        let currentPage=composed[composed.length-1]
-        let {columns}=currentPage
-        let currentColumn=columns[columns.length-1]
-        let {width,height, children}=currentColumn
+        let {width,height, children}=this.currentColumn
         let availableHeight=children.reduce((prev, a)=>prev-a.props.height,height)
 
         const {height:contentHeight}=line.props
 
 		if(contentHeight-availableHeight>1){
-            if(allowedColumns>columns.length){// new column
-                columns.push(currentColumn=this._newColumn(currentPage))
+            if(allowedColumns>this.currentPage.columns.length){// new column
+                this._newColumn(this.currentPage)
             }else{//new page
-                composed.push(currentPage=this._newPage(composed.length))
-                currentColumn=currentPage.columns[0]
+                this._newPage()
             }
-            availableHeight=currentColumn.height
+            availableHeight=this.currentColumn.height
 
             //@TODO: what if currentColumn.width!=line.width
 
-            children=currentColumn.children
+            children=this.currentColumn.children
         }
         const {pgSz:size,  pgMar:margin}=this.props
 
@@ -168,3 +163,4 @@ export default class Section extends Super{
         this.computed.footers[type]=footer
     }
 }
+

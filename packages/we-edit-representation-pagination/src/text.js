@@ -56,9 +56,7 @@ export default class Text extends Super{
         const defaultStyle={...measure.defaultStyle, color, highlight,border,underline,strike}
 
 		const whitespaceWidth=measure.stringWidth(" ")
-
-		parent.nextAvailableSpace({height:measure.height})
-
+		
 		let start=0
 		this.getMyBreakOpportunities(this.text,getLastText()).forEach(a=>{
 			a.split(/(\s+)/).forEach((b,i)=>{

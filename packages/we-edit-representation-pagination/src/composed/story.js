@@ -61,6 +61,9 @@ class Inline{
 
 	push(piece){
 		const {mode:wrap}=piece.props.wrap||{}
+		if(wrap){
+			debugger
+		}
 		switch(wrap){
 		case "TopAndBottom":
 			if(this instanceof TopAndBottom)
@@ -85,6 +88,10 @@ class Inline{
 
 	append(){
 		this.content.push(...arguments)
+	}
+	
+	isEmpty(){
+		return false
 	}
 }
 

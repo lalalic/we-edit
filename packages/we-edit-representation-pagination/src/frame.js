@@ -35,7 +35,7 @@ export default class Frame extends Super{
 		height+=(margin.top+margin.bottom)
 		this.context.parent.nextAvailableSpace({width,height})
 		return (
-			<Group {...{width,height}}>
+			<Group {...{width,height,wrap}}>
 				<Group x={margin.left} y={margin.top} children={[...this.computed.composed]}/>
 			</Group>
 		)

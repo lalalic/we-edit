@@ -10,11 +10,11 @@ export default class extends editable(Container){
 
     appendComposed(element){
         const {id}=this.props
-        const {width,height,minWidth}=element.props
+        const {width,height,minWidth,wrap}=element.props
         super.appendComposed(React.createElement(Group,{
             "data-type":this.getComposeType(),
             "data-content":id,
-            width,height,minWidth,
+            width,height,minWidth,wrap,
             children:element
         }))
     }
