@@ -38,7 +38,7 @@ export default class Page extends Component{
 				<Group
 					x={left} y={top+(padding.top||0)}
 					className="content">
-					{columns.map((a,i)=><Group key={i} {...a}  className="column"/>)}
+					{columns.map((a,i)=>a.createComposed2Parent())}
 				</Group>
 
 				{footer &&

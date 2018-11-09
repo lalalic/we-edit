@@ -26,4 +26,10 @@ export default class Frame extends Component{
 		geometry: PropTypes.string,
 		blocks:PropTypes.arrayOf(PropTypes.element)
 	}
+	
+	static defaultProps={
+		margin:{
+			left:0,right:0,top:0,bottom:0
+		}
+	}
 }

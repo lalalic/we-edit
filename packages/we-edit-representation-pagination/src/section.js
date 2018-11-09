@@ -11,6 +11,7 @@ const {Section:Base}=models
 import {Group} from "./composed"
 import Header from "./header"
 import Footer from "./footer"
+import Frame from "./frame"
 
 const Super=HasParentAndChild(Base)
 export default class Section extends Super{
@@ -24,16 +25,16 @@ export default class Section extends Super{
         const i=this.currentPage.columns.length
         const {size:{width, height}, margin:{top, bottom, left, right},padding}=this.currentPage
 		const {cols=[{space:0,width:width-left-right}]}=this.props
-		let info={
+		
+		const columnFrame=new Frame({
+			...Frame.defaultProps,
             y:0,
 			height:height-bottom-top-(padding.top||0)-(padding.bottom||0),
             children:[],
 			x: cols.reduce((p, a, j)=>(j<i ? p+a.width+a.space : p),0),
 			width: cols[i].width
-		}
-        new Frame({})
-		this.currentPage.columns.push(info)
-		return info
+		},{})
+		this.currentPage.columns.push(columnFrame)
     }
 
     /**
@@ -89,68 +90,42 @@ export default class Section extends Super{
 			this._newPage()
 		}
 		const {cols,allowedColumns=cols ? cols.length : 1}=this.props
-        let {width,height, children}=this.currentColumn
-        let availableHeight=children.reduce((prev, a)=>prev-a.props.height,height)
-
+       
 		let looped=0
         //@TODO: what if never can find min area
-        while(minRequiredH-availableHeight>1 || minRequiredW-width>1){
+        while(minRequiredH-this.currentColumn.availableHeight>1){
             if(allowedColumns>this.currentPage.columns.length){// new column
                 this._newColumn()
             }else{//new page
 				this._newPage()
             }
-
-			;({width,height, availableHeight=height}=this.currentColumn);
-			if(looped++>3){
+			
+			if(looped++>1){
 				console.warn("section can't find required space")
 				break
 			}
         }
-        return {width, height:availableHeight}
+        return {width:this.currentColumn.props.width, height:this.currentColumn.availableHeight}
     }
-
-	appendFrame(frame){
-		const {x, position}=frame.props
-		const xy=()=>{
-			return {x,y:0}
-		}
-		(this.currentColumn.frames||this.currentColumn.frames=[]).push(React.cloneElement(frame,xy()))
-
-	}
 
     appendComposed(line){
         const {composed}=this.computed
-		if(composed.length==0){
+		if(!this.currentPage){
 			this._newPage()
 		}
 		const {cols,allowedColumns=cols ? cols.length : 1}=this.props
-        let {width,height, children}=this.currentColumn
-        let availableHeight=children.reduce((prev, a)=>prev-a.props.height,height)
-
+        
         const {height:contentHeight}=line.props
 
-		if(contentHeight-availableHeight>1){
+		if(contentHeight-this.currentColumn.availableHeight>1){
             if(allowedColumns>this.currentPage.columns.length){// new column
-                this._newColumn(this.currentPage)
+                this._newColumn()
             }else{//new page
                 this._newPage()
             }
-            availableHeight=this.currentColumn.height
-
-            //@TODO: what if currentColumn.width!=line.width
-
-            children=this.currentColumn.children
         }
-        const {pgSz:size,  pgMar:margin}=this.props
-
-		children.push(<Group {...{
-            children:line,
-            height:contentHeight,
-            y: height-availableHeight,
-            width:size.width-margin.left-margin.right
-        }}/>)
-        //@TODO: what if contentHeight still > availableHeight
+		
+		this.currentColumn.appendComposed(line)
     }
 
 	/**

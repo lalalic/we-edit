@@ -241,7 +241,7 @@ export default class DocxType extends Input.Editable{
 						margin[a.toLowerCase()]=docx.cm2Px(root.attr(`dist${a[0]}`))
 						return margin
 					},{})
-				return createElement(Transformers.Anchor(components),{...style.extent,wrap,margin},children,node)
+				return createElement(Transformers.Frame(components),{...style.extent,wrap,margin},children,node)
 			}
 			case "shape":{
 				let {xfrm:{size,position},...others}=selector.select($(node).find("wps\\:spPr").children().toArray(),{
