@@ -226,12 +226,11 @@ export default class DocxType extends Input.Editable{
 				return createElement(components.Image,{...style.xfrm,src:props.url},null,node)
 			}
 			case "drawing.inline":{
-				let style=selector.select($(node).find("wp\\:extent").toArray())
-				return createElement(Transformers.Wrapper(components),style.extent,children,node)
+				return createElement(components.Contaner,{},children,node)
 			}
 			case "drawing.anchor":{
 				let root=$(node)
-				let style=selector.select(root.find("wp\\:extent,wp\\:positionH,wp\\:positionV").toArray())
+				let {extent:{width,height}, ...style}=selector.select(root.find("wp\\:extent,wp\\:positionH,wp\\:positionV").toArray())
 				let wrap=selector.selectValue(
 					root
 					.find("TopAndBottom,Square,Tight,Through".split(",").map(a=>`wp\\:wrap${a}`).join(","))
@@ -241,7 +240,7 @@ export default class DocxType extends Input.Editable{
 						margin[a.toLowerCase()]=docx.cm2Px(root.attr(`dist${a[0]}`))
 						return margin
 					},{})
-				return createElement(Transformers.Frame(components),{...style.extent,wrap,margin},children,node)
+				return createElement(components.Frame,{width, height,...style,wrap,margin},children,node)
 			}
 			case "shape":{
 				let {xfrm:{size,position},...others}=selector.select($(node).find("wps\\:spPr").children().toArray(),{

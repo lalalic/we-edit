@@ -9,9 +9,6 @@ import Run from "./run"
 import Table from "./table"
 import Cell from "./cell"
 
-import Wrapper from "./wrapper"
-import Anchor from "./anchor"
-
 const createUnvisibleComponent=type=>{
 	return class extends Component{
 		static displayName=`${type}`
@@ -28,8 +25,6 @@ export default {
 	Run,
 	Cell,
 	Table,
-	Wrapper,
-	Anchor,
 	Template: Section,
 	Styles:()=>createUnvisibleComponent("styles"),
 	Style:()=>createUnvisibleComponent("style"),

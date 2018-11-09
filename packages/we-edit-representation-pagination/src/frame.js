@@ -29,11 +29,11 @@ export default class Frame extends Super{
 	}
 
 	createComposed2Parent() {
-		let {width,height,margin,x,y,z}=this.props
+		let {width,height,margin,wrap, x,y,z}=this.props
 		width+=(margin.left+margin.right)
 		height+=(margin.top+margin.bottom)
 		return (
-			<ComposedFrame {...{width,height,x,y,z}}>
+			<ComposedFrame {...{width,height,wrap,x,y,z}}>
 				<Group x={margin.left} y={margin.top}>
 					{this.computed.composed.reduce((state,a,i)=>{
 						if(a.props.y==undefined){

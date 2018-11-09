@@ -13,7 +13,7 @@ export default class extends Component{
 
     render(){
         return (
-            <Group {...this.props} className="frame"/>
+            <Group {...{className:"frame", ...this.props}}/>
         )
     }
 
