@@ -137,7 +137,7 @@ export class Paragraph extends Super{
 
 		if((availableWidth+1)>=minWidth || il>1){
 			if(wrap){
-				this.context.parent.appendComposed(content)
+				this.context.parent.appendComposed(content,this.currentLine.x)
 			}else{
 				this.currentLine.push(content)
 			}
