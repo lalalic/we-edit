@@ -1,4 +1,4 @@
-import React, {PureComponent as Component} from "react"
+import React, {PureComponent as Component,Fragment} from "react"
 import PropTypes from "prop-types"
 import Group from "./group"
 
@@ -12,8 +12,12 @@ export default class extends Component{
     }
 
     render(){
+        const {width,height,debug}=this.props
         return (
-            <Group {...{className:"frame", ...this.props}}/>
+            <Group {...{className:"frame", ...this.props}}>
+                {debug && <rect width={width} height={height} fill="red"/>}
+                {this.props.children}
+            </Group>
         )
     }
 

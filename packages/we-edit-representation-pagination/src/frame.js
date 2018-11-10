@@ -12,12 +12,49 @@ const Super=HasParentAndChild(Base)
 
 export default class Frame extends Super{
 	nextAvailableSpace(required={}){
-		const {width:maxWidth,height:maxHeight,blocks=[]}=this.props
+		const {width:maxWidth,height:maxHeight}=this.props
 		const {width:minRequiredW=0,height:minRequiredH=0}=required
-		return {width:maxWidth,height:this.availableHeight}
+		const space={width:maxWidth,height:this.availableHeight}
+		if(this.blocks.length>0){
+			const y0=this.currentY
+			space.blocks=this.blocks.map(a=>{
+				const {y,height,x, width}=a.props
+				if(y0>y-height && y0<y){
+					return {x,width}
+				}
+			}).filter(a=>!!a)
+		}
+
+		return space
 	}
 
 	appendComposed(content){
+		if(content.props.wrap){
+			const {wrap:{mode}}=content.props
+			switch(mode){
+			case "Square":{
+					const {margin:{left,right,top,bottom}, x, width, height}=content.props
+						content=(
+							<ComposedFrame {...{
+								//debug:true,
+								width:width+left+right,
+								height:height+top+bottom,
+								x:x-left,
+								y:this.currentY+height+top+bottom
+							}}>
+								{React.cloneElement(content,{x:left,y:top,margin:undefined,wrap:undefined})}
+							</ComposedFrame>
+						)
+					break
+				}
+			case "Tight":{
+					break
+				}
+			case "Through":{
+					break
+				}
+			}
+		}
 		this.computed.composed.push(content)
 	}
 
@@ -29,28 +66,33 @@ export default class Frame extends Super{
 	}
 
 	createComposed2Parent() {
-		let {width,height,margin,wrap, x,y,z}=this.props
-		width+=(margin.left+margin.right)
-		height+=(margin.top+margin.bottom)
+		let {width,height,wrap,margin, x,y,z}=this.props
 		return (
-			<ComposedFrame {...{width,height,wrap,x,y,z}}>
-				<Group x={margin.left} y={margin.top}>
-					{this.computed.composed.reduce((state,a,i)=>{
-						if(a.props.y==undefined){
-							state.positioned.push(React.cloneElement(a,{y:state.y,key:i}))
-							state.y+=a.props.height
-						}else{
-							state.positioned.push(a)
-						}
-						return state
-					},{y:0,positioned:[]}).positioned}
-				</Group>
+			<ComposedFrame {...{width,height,wrap,margin,x,y,z}}>
+				{this.computed.composed.reduce((state,a,i)=>{
+					if(a.props.y==undefined){
+						state.positioned.push(React.cloneElement(a,{y:state.y,key:i}))
+						state.y+=a.props.height
+					}else{
+						state.positioned.push(React.cloneElement(a,{key:i}))
+					}
+					return state
+				},{y:0,positioned:[]}).positioned}
 			</ComposedFrame>
 		)
     }
-	
+
 	get availableHeight(){
 		const {props:{height},computed:{composed:children}}=this
 		return children.reduce((h, a)=>h-(a.props.y==undefined ? a.props.height : 0),height)
+	}
+
+	get currentY(){
+		const {props:{height},computed:{composed:children}}=this
+		return children.reduce((y, a)=>y+(a.props.y==undefined ? a.props.height : 0),0)
+	}
+
+	get blocks(){
+		return this.computed.composed.filter(({props:{x,y}})=>x!=undefined || y!=undefined)
 	}
 }

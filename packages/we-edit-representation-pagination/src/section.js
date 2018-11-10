@@ -25,7 +25,7 @@ export default class Section extends Super{
         const i=this.currentPage.columns.length
         const {size:{width, height}, margin:{top, bottom, left, right},padding}=this.currentPage
 		const {cols=[{space:0,width:width-left-right}]}=this.props
-		
+
 		const columnFrame=new Frame({
 			...Frame.defaultProps,
             y:0,
@@ -90,7 +90,7 @@ export default class Section extends Super{
 			this._newPage()
 		}
 		const {cols,allowedColumns=cols ? cols.length : 1}=this.props
-       
+
 		let looped=0
         //@TODO: what if never can find min area
         while(minRequiredH-this.currentColumn.availableHeight>1){
@@ -99,13 +99,13 @@ export default class Section extends Super{
             }else{//new page
 				this._newPage()
             }
-			
+
 			if(looped++>1){
 				console.warn("section can't find required space")
 				break
 			}
         }
-        return {width:this.currentColumn.props.width, height:this.currentColumn.availableHeight}
+        return this.currentColumn.nextAvailableSpace(required)//{width:this.currentColumn.props.width, height:this.currentColumn.availableHeight}
     }
 
     appendComposed(line){
@@ -114,7 +114,7 @@ export default class Section extends Super{
 			this._newPage()
 		}
 		const {cols,allowedColumns=cols ? cols.length : 1}=this.props
-        
+
         const {height:contentHeight}=line.props
 
 		if(contentHeight-this.currentColumn.availableHeight>1){
@@ -124,7 +124,7 @@ export default class Section extends Super{
                 this._newPage()
             }
         }
-		
+
 		this.currentColumn.appendComposed(line)
     }
 

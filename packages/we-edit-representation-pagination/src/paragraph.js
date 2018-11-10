@@ -83,9 +83,9 @@ export class Paragraph extends Super{
 		return composed[composed.length-1]
 	}
 
-    _newLine({width,height}){
+    _newLine({width,...space}){
 		const composableWidth=this.composableWidth(width)
-        let line=new LineInfo(composableWidth,height)
+        let line=new LineInfo({...space, width:composableWidth})
 		if(this.props.numbering && this.computed.composed.length==0){
 			let {numbering:{label}, indent:{firstLine}}=this.props
 			let {defaultStyle}=new this.context.Measure(label.props)
@@ -133,11 +133,14 @@ export class Paragraph extends Super{
 			currentLine.content.forEach(a=>this.appendComposed(a))
 		}
 
-        const availableWidth=this.currentLine.availableWidth(parseInt(minWidth))
+        const availableWidth=this.currentLine.availableWidth(minWidth)
 
-		if((availableWidth+1)>=minWidth || il>1){
+		if(availableWidth>=minWidth || il>1){
 			if(wrap){
-				this.context.parent.appendComposed(content,this.currentLine.x)
+				const {wrap:{mode},margin:{left,right}}=content.props
+				const x=this.currentLine.currentX
+				this.context.parent.appendComposed(React.cloneElement(content,{x}))
+				this.currentLine.push(<Group x={x-left} width={width+left+right} height={0}/>)
 			}else{
 				this.currentLine.push(content)
 			}
@@ -164,6 +167,7 @@ export class Paragraph extends Super{
 
     commitCurrentLine(){
         if(this.currentLine){
+			this.currentLine.commit()
 			this.context.parent.appendComposed(this.createComposed2Parent(this.currentLine))
 		}
     }
