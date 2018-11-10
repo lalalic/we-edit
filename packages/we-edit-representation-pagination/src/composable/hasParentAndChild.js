@@ -14,7 +14,7 @@ export default A=>{
          * return next line rect {*width, [height], [greedy(text)=true], [wordy(text)=true]}
          */
         nextAvailableSpace() {
-            return this.availableSpace = this.context.parent.nextAvailableSpace(...arguments)
+            return this.context.parent.nextAvailableSpace(...arguments)
         }
 
         /**

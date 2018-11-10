@@ -30,32 +30,44 @@ export default class Frame extends Super{
 
 	appendComposed(content){
 		if(content.props.wrap){
-			const {wrap:{mode}}=content.props
+			let {wrap:{mode},margin:{left,right,top,bottom}, x, width, height}=content.props
 			switch(mode){
 			case "Square":{
-					const {margin:{left,right,top,bottom}, x, width, height}=content.props
-						content=(
-							<ComposedFrame {...{
-								//debug:true,
-								width:width+left+right,
-								height:height+top+bottom,
-								x:x-left,
-								y:this.currentY+height+top+bottom
-							}}>
-								{React.cloneElement(content,{x:left,y:top,margin:undefined,wrap:undefined})}
-							</ComposedFrame>
-						)
-					break
+				const outline={
+					width:width+left+right,
+					height:height+top+bottom,
+					x:x-left
 				}
+				outline.y=this.currentY+outline.height
+				this.computed.composed.push(
+					<ComposedFrame {...outline}>
+						{React.cloneElement(content,{x:left,y:top,margin:undefined,wrap:undefined})}
+					</ComposedFrame>
+				)
+				return outline
+			}
 			case "Tight":{
-					break
+				const outline={
+					width:width+left+right,
+					height,
+					x:x-left
 				}
+				outline.y=this.currentY+outline.height
+
+				this.computed.composed.push(
+					<ComposedFrame {...outline}>
+						{React.cloneElement(content,{x:left,y:0,margin:undefined,wrap:undefined})}
+					</ComposedFrame>
+				)
+				return outline
+			}
 			case "Through":{
 					break
 				}
 			}
+		}else{
+			this.computed.composed.push(content)
 		}
-		this.computed.composed.push(content)
 	}
 
 	onAllChildrenComposed(){
@@ -66,9 +78,9 @@ export default class Frame extends Super{
 	}
 
 	createComposed2Parent() {
-		let {width,height,wrap,margin, x,y,z}=this.props
+		let {width,height,wrap,margin, x,y,z,geometry}=this.props
 		return (
-			<ComposedFrame {...{width,height,wrap,margin,x,y,z}}>
+			<ComposedFrame {...{width,height,wrap,margin,x,y,z,geometry}}>
 				{this.computed.composed.reduce((state,a,i)=>{
 					if(a.props.y==undefined){
 						state.positioned.push(React.cloneElement(a,{y:state.y,key:i}))

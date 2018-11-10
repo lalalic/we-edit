@@ -125,7 +125,7 @@ export default class Section extends Super{
             }
         }
 
-		this.currentColumn.appendComposed(line)
+		return this.currentColumn.appendComposed(line)
     }
 
 	/**

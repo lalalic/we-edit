@@ -137,10 +137,8 @@ export class Paragraph extends Super{
 
 		if(availableWidth>=minWidth || il>1){
 			if(wrap){
-				const {wrap:{mode},margin:{left,right}}=content.props
-				const x=this.currentLine.currentX
-				this.context.parent.appendComposed(React.cloneElement(content,{x}))
-				this.currentLine.push(<Group x={x-left} width={width+left+right} height={0}/>)
+				const {x,width}=this.context.parent.appendComposed(React.cloneElement(content,{x:this.currentLine.currentX}))
+				this.currentLine.push(<Group x={x} width={width} height={0}/>)
 			}else{
 				this.currentLine.push(content)
 			}
@@ -177,8 +175,8 @@ export class Paragraph extends Super{
 		this.commitCurrentLine()
     }
 
-    createComposed2Parent(props){
-        const {height, width, ...others}=props
+    createComposed2Parent(line){
+        const {height, width, ...others}=line
         let {
 			spacing:{lineHeight="100%",top=0, bottom=0},
 			indent:{left=0,right=0,firstLine=0},
@@ -198,7 +196,7 @@ export class Paragraph extends Super{
         if(this.isAllChildrenComposed()){//last line
             lineHeight+=bottom
         }
-
+		/*
         let contentWidth=props.children.slice(0,-1)
 				.reduce((w,{props:{width}})=>w+width,
 					props.children.slice(-1).reduce((w,{props:{width,minWidth=width}})=>w+minWidth,0))
@@ -254,11 +252,11 @@ export class Paragraph extends Super{
 			}
 			break
 		}
-
+		*/
         return (
-            <Line height={lineHeight} width={width} contentWidth={contentWidth}>
+            <Line height={lineHeight} width={width}>
                 <Group x={contentX} y={contentY} width={width} height={height}>
-                   <Story width={width} height={height} {...others}/>
+                   <Story width={width} height={height} {...others} align={align}/>
                 </Group>
             </Line>
         )
