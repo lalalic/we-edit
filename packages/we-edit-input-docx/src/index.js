@@ -167,12 +167,12 @@ export default class DocxType extends Input.Editable{
 						if(!isEmpty(root)){
 							self.part=rId
 							//hfs[type]=createElement(components[`${cat.charAt(0).toUpperCase()}${cat.substr(1)}`],{type},root.children.map(a=>renderNode(a)),root)
-						
+
 							children.splice(0,0,createElement(components[`${cat.charAt(0).toUpperCase()}${cat.substr(1)}`],{type},
 								root.children.map(a=>renderNode(a)),
 								root
 							))
-							
+
 							delete self.part
 						}
 						return hfs
@@ -226,7 +226,7 @@ export default class DocxType extends Input.Editable{
 				return createElement(components.Image,{...style.xfrm,src:props.url},null,node)
 			}
 			case "drawing.inline":{
-				return createElement(components.Contaner,{},children,node)
+				return createElement(components.Container,{},children,node)
 			}
 			case "drawing.anchor":{
 				let root=$(node)

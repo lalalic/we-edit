@@ -22,12 +22,10 @@ export default class extends Component{
 		const props={
 			width:width * Math.abs(Math.cos(radians)) + height * Math.abs(Math.sin(radians)),
 			height:height * Math.abs(Math.cos(radians)) + width * Math.abs(Math.sin(radians)),
-			rotate,
 		}
-		
-		props.y=-props.height
-		props.x=props.width-width
 
+		props.y=-props.height
+        props.x=height*Math.abs(Math.sin(radians))
 		return props
 	}
 }

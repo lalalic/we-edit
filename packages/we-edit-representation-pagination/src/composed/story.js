@@ -16,7 +16,7 @@ export default class Story extends Component{
 					const {pieces,x}=state
 					const {width,height,x:x1}=piece.props
 					pieces.push(
-						<Group x={x1!=undefined ? 0 : x} key={i}>
+						<Group x={x1!=undefined ? x1 : x} key={i}>
 							{piece}
 						</Group>
 					);
@@ -30,8 +30,9 @@ export default class Story extends Component{
 }
 
 class Inline{
-	constructor(width){
+	constructor(width,height){
 		this.width=width
+		this.availableHeight=height
 		this.content=[]
 
 		Object.defineProperties(this,{
@@ -60,36 +61,9 @@ class Inline{
 	}
 
 	push(piece){
-		const {mode:wrap}=piece.props.wrap||{}
-		if(wrap){
-			debugger
-		}
-		switch(wrap){
-		case "TopAndBottom":
-			if(this instanceof TopAndBottom)
-				this.append(piece)
-			else
-				return new TopAndBottom(this,piece)
-		break
-		case "Square":
-		case "Tight":
-		case "Through":
-			if(this instanceof Square)
-				this.append(piece)
-			else
-				return new Square(this,piece)
-		break
-		default:
-			this.append(piece)
-		}
-
-		return this
+		this.content.push(piece)
 	}
 
-	append(){
-		this.content.push(...arguments)
-	}
-	
 	isEmpty(){
 		return false
 	}

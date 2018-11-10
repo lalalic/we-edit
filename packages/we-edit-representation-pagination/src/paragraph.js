@@ -82,10 +82,10 @@ export class Paragraph extends Super{
 		const {composed}=this.computed
 		return composed[composed.length-1]
 	}
-	
-    _newLine({width,...availableSpace}){
+
+    _newLine({width,height}){
 		const composableWidth=this.composableWidth(width)
-        let line=new LineInfo(composableWidth)
+        let line=new LineInfo(composableWidth,height)
 		if(this.props.numbering && this.computed.composed.length==0){
 			let {numbering:{label}, indent:{firstLine}}=this.props
 			let {defaultStyle}=new this.context.Measure(label.props)
@@ -120,19 +120,19 @@ export class Paragraph extends Super{
         const {composed}=this.computed
 		const createLine=()=>{
 			const availableSpace=this.context.parent.nextAvailableSpace({width,height})
-			composed.push(this._newLine({...availableSpace,height}))
+			composed.push(this._newLine(availableSpace))
 		}
-		
+
 		if(!this.currentLine)
            createLine()
-	   
-	    if(height>this.currentLine.height){//
+
+	    if(this.currentLine.availableHeight<height){
 			const currentLine=this.currentLine
 			this.computed.composed.pop()
 			createLine()
 			currentLine.content.forEach(a=>this.appendComposed(a))
 		}
-        
+
         const availableWidth=this.currentLine.availableWidth(parseInt(minWidth))
 
 		if((availableWidth+1)>=minWidth || il>1){
