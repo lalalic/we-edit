@@ -70,6 +70,7 @@ export default class Story extends Component{
 			}else{
 				a.located=me[i+1].located
 			}
+			return a
 		})
 	}
 
@@ -100,97 +101,53 @@ export default class Story extends Component{
 		const contentWidth=pieces=>pieces.reduce((w,a)=>w+a.props.width,0)
 
 		return this.groupRight()
-			.reduce((state, {located, words, endingWhitespaces})=>{
-				const width=located.props.x-state.x
+			.reduce((state, {words, endingWhitespaces,located})=>{
+				const width=(located ? located.props.x : this.props.width)-state.x
+				const wordsWidth=contentWidth(words)
 				state.centerized.push(
-					<Group x={state.x+(width-contentWidth(words))/2} key={state.centerized.length}>
+					<Group x={state.x+(width-wordsWidth)/2} key={state.centerized.length}>
 						{
-							words.reduce((),{x:0,pieces:[]}).pieces
+							words.concat(endingWhitespaces).reduce((status,word,key)=>{
+								status.pieces.push(React.cloneElement(word,{x:status.x,key}))
+								status.x+=word.props.width
+								return status
+							},{x:0,pieces:[]}).pieces
 						}
 					</Group>
 				)
-				const i=state.righted.length
-				endingWhitespaces.reduce((x,whitespace)=>{
-					state.righted.push(React.cloneElement(whitespace,{x}))
-					return x+whitespace.props.width
-				},state.x)
-
-				words.reduceRight((x,word)=>{
-					x=x-word.props.width
-					state.righted.splice(i,0,React.cloneElement(word,{x}))
-					return x
-				},state.x)
 
 				if(located){
-					state.righted.splice(i,0,located)
-					state.x=located.props.x
+					state.centerized.push(React.cloneElement(located,{key:state.centerized.length}))
+					state.x=located.props.x+located.props.width
 				}
 				return state
-			},{x:0, centerized:[]})
-
-		const contentWidth=pieces=>pieces.reduce((w,a)=>w+a.props.width,0)
-		const centerizeGroup=(state,destX)=>{
-			if(state.pieces.length>0){
-				const width=destX-state.x0
-				state.centerized.push(
-					<Group x={state.x0+(width-contentWidth(state.pieces))/2} key={state.centerized.length}>
-						{[...state.pieces]}
-					</Group>
-				)
-				state.pieces=[]
-				state.x=0
-			}
-		}
-		return this.props.children.reduce((state,piece,key)=>{
-			if(piece.props.x!=undefined){
-				centerizeGroup(state,piece.props.x)
-				state.centerized.push(React.cloneElement(piece, {key:state.centerized.length}))
-				state.x0=piece.props.x+piece.props.width
-			}else{
-				state.pieces.push(React.cloneElement(piece,{x:state.x,key:state.pieces.length}))
-				state.x=state.x+piece.props.width
-			}
-			if(key==this.props.children.length-1){
-				centerizeGroup(state,this.props.width)
-			}
-			return state
-		},{pieces:[],x:0, centerized:[],x0:0}).centerized
+			},{x:0, centerized:[]}).centerized
 	}
 
 	justify(){
-		const justify=(state, destX)=>{
-			const whitespaces=state.whitespaces.reduce((sum,a)=>sum+(a||0) ,0)
-			const width=destX-state.x0
-			const whitespaceWidth=whitespaces>0 ? (width-state.contentWidth)/whitespaces : 0
-			state.pieces.reduce((x,a,key)=>{
-				if(!a) return x
-				state.justified.push(React.cloneElement(a, {x,key}))
-				return x+(state.whitespaces[key]>0 ? state.whitespaces[key]*whitespaceWidth : a.props.width)
-			},state.x0)
-			state.whitespaces=[]
-			state.pieces=[]
-			state.contentWidth=0
-		}
-
-
-		return this.props.children.reduce((state,piece,key)=>{
-			if(piece.props.x!=undefined){
-				justify(state,piece.props.x)
-				state.justified.push(React.cloneElement(piece, {key}))
-				state.x0=piece.props.x+piece.props.width
-			}else{
-				state.pieces[key]=piece
-				if(isWhitespace(piece)){
-					state.whitespaces[key]=1
-				}else{
-					state.contentWidth+=piece.props.width
-				}
-			}
-			if(key==this.props.children.length-1){
-				justify(state,this.props.width)
-			}
-			return state
-		},{pieces:[], whitespaces:[],contentWidth:0,justified:[],x0:0}).justified
+		this.groupRight()
+			.reduce((state,{words,endingWhitespaces,located})=>{
+				const len=state.justifed.length
+				const width=(located ? located.props.x : this.props.width)-state.x
+				const {whitespaces,contentWidth}=words.reduce((status,a,i)=>{
+					if(isWhitespace(a)){
+						status.whitespaces.push(i)
+					}else{
+						status.contentWidth+=a.props.width
+					}
+					return status
+				},{contentWidth:0,whitespaces:[]})
+				const whitespaceWidth=whitespaces.length>0 ? (width-contentWidth)/whitespaces.length : 0
+				words.concat(endingWhitespaces).reduce((x,word,i)=>{
+					state.justifed.push(React.cloneElement(word,{x,key:len++})
+					return x+(whitespaces.includes(i) ? whitespaceWidth : word.props.width)
+				},state.x)
+				
+				if(located){
+					state.justifed.push(React.cloneElement(located,{key:len++}))
+					state.x=located.props.x+locate.props.width
+				}	
+			},{x:0,justified:[]}).justified
 	}
 
 	both(){
