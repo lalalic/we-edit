@@ -56,23 +56,23 @@ export default class Text extends Super{
         const defaultStyle={...measure.defaultStyle, color, highlight,border,underline,strike}
 
 		const whitespaceWidth=measure.stringWidth(" ")
-		
+
 		let start=0
 		this.getMyBreakOpportunities(this.text,getLastText()).forEach(a=>{
-			a.split(/(\s+)/).forEach((b,i)=>{
-				if(b.length>0){
-					const isWhitespace=i%2==1
+			a.split(/(\s)/).filter(a=>a.length).forEach((b,i)=>{
+
+					const isWhitespace=b==" "
 					this.appendComposed(this.createComposed2Parent({
 						...defaultStyle,
 						color,
 						highlight,
                         className:isWhitespace ? "whitespace" : undefined,
-						width:isWhitespace ? whitespaceWidth*b.length : measure.stringWidth(b),
+						width:isWhitespace ? whitespaceWidth : measure.stringWidth(b),
 						minWidth:isWhitespace ? 0 : undefined,
 						"data-endat":start+=b.length,
-						children:b
+						children: isWhitespace ? "." : b
 					}))
-				}
+
 			})
 		})
 

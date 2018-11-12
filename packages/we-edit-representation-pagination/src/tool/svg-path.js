@@ -1,5 +1,5 @@
 import parse from "parse-svg-path"
-import simplify from "simplify-svg-path"
+import simplify from "simplify-path"
 import contours from "svg-path-contours"
 import memoize from "memoize-one"
 
@@ -26,7 +26,7 @@ export default class{
 
 	segments=memoize(()=>{
 		return contours(this.path)
-			.map(a=>a.map(([x,y])=>[Math.ceil(x), Math.ceil(y)])
+			.map(a=>a.map(([x,y])=>[Math.ceil(x), Math.ceil(y)]))
 			.map(a=>simplify(a,this.tolerance))
 			.reduce((all,a)=>[...all,...a],[])
 	})
@@ -34,7 +34,10 @@ export default class{
 	intersects(line){
 		const points=this.segments()
 		return points.slice(1)
-			.map(([x2,y2],i,a,b=points[i]:[x1,y1])=>({x1,y1,x2,y2}))
+			.map(([x2,y2],i)=>{
+				const [x1,y1]=points[i]
+				return {x1,y1,x2,y2}
+			})
 			.map(line1=>line_line_intersect(line1,line))
 			.filter(a=>!!a)
 	}
@@ -56,10 +59,10 @@ function line_line_intersect(line1, line2) {
 
 		const between=(a,b1,b2)=>((a >= b1) && (a <= b2))||((a >= b2) && (a <= b1))
 
-		if ( btwn(pt.x, x1, x2)
-			&& btwn(pt.y, y1, y2)
-			&& btwn(pt.x, x3, x4)
-			&& btwn(pt.y, y3, y4)) {
+		if ( between(pt.x, x1, x2)
+			&& between(pt.y, y1, y2)
+			&& between(pt.x, x3, x4)
+			&& between(pt.y, y3, y4)) {
 				return pt
 		} else {
 			//return "not in range"

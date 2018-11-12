@@ -21,7 +21,12 @@ export default class Shape extends Super{
 	constructor(){
 		super(...arguments)
 		const {shape="custom"}=this.props
-		this.shape=new this.constructor[shape](...arguments)
+		debugger
+		if(this.constructor[shape]){
+			this.shape=new this.constructor[shape](...arguments)
+		}else{
+			
+		}
 	}
 
 	nextAvailableSpace(){

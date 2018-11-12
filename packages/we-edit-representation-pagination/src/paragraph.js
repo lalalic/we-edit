@@ -193,66 +193,13 @@ export class Paragraph extends Super{
             contentX+=firstLine
         }
 
-        if(this.isAllChildrenComposed()){//last line
+        if(this.isAllChildrenComposed()){//the last line
             lineHeight+=bottom
-        }
-		/*
-        let contentWidth=props.children.slice(0,-1)
-				.reduce((w,{props:{width}})=>w+width,
-					props.children.slice(-1).reduce((w,{props:{width,minWidth=width}})=>w+minWidth,0))
-
-		switch(align){
-		case "right":
-			contentX+=(width-contentWidth)
-			break
-		case "center":
-			contentX+=(width-contentWidth)/2
-			break
-		case "justify":
-			if(!this.isAllChildrenComposed()){
-				const isWhitespace=a=>a.props.minWidth==0
-				const countWhiteSpace=a=>{
-					while(a && a.type!=ComposedText){
-						if(a.props && a.props.children){
-							a=React.Children.only(a.props.children)
-						}else{
-							a=null
-						}
-					}
-
-					if(a && isWhitespace(a)){
-						return a.props.children.length
-					}
-
-					return 0
-				}
-
-				const content=props.children.reduce((state,child,i)=>{
-					const {props:{width,minWidth=width}}=child
-					state.width+=minWidth
-					if(isWhitespace(child)){
-						const count=countWhiteSpace(child.props.children)
-						if(count>0){
-							state.whitespaces+=count
-							state[`${i}`]=count
-						}
-					}
-					return state
-				},{width:0,whitespaces:0,});
-
-				if(content.whitespaces>0){
-					const whitespaceWidth=(width-content.width)/content.whitespaces
-					others.children=props.children.map((a,i)=>{
-						if(content[`${i}`]){
-							return React.cloneElement(a,{width:content[`${i}`]*whitespaceWidth})
-						}
-						return a
-					})
-				}
+			if(align=="justify" || align=="both"){//not justify the last line
+				align=undefined
 			}
-			break
-		}
-		*/
+        }
+
         return (
             <Line height={lineHeight} width={width}>
                 <Group x={contentX} y={contentY} width={width} height={height}>

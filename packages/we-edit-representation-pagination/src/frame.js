@@ -15,14 +15,12 @@ export default class Frame extends Super{
 		const {width:maxWidth,height:maxHeight}=this.props
 		const {width:minRequiredW=0,height:minRequiredH=0}=required
 		const space={width:maxWidth,height:this.availableHeight}
-		if(this.blocks.length>0){
+		const blocks=this.blocks
+		if(blocks.length>0){
 			const y0=this.currentY
-			space.blocks=this.blocks.map(a=>{
-				const {y,height,x, width}=a.props
-				if(y0>y-height && y0<y){
-					return {x,width}
-				}
-			}).filter(a=>!!a)
+			space.blocks=blocks
+				.map(a=>new ComposedFrame(a.props).intersects({x1:0,y1:y0,x2:maxWidth,y2:y0}))
+				.filter(a=>!!a)
 		}
 
 		return space
