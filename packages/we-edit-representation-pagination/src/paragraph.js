@@ -115,7 +115,7 @@ export class Paragraph extends Super{
     }
 
     appendComposed(content, il=0){//@TODO: need consider availableSpace.height
-        const {width,minWidth=width,height,wrap,split}=content.props
+        const {width,minWidth=width,height,anchor,split}=content.props
 
         const {composed}=this.computed
 		const createLine=()=>{
@@ -136,7 +136,7 @@ export class Paragraph extends Super{
         const availableWidth=this.currentLine.availableWidth(minWidth)
 
 		if(availableWidth>=minWidth || il>1){
-			if(wrap){
+			if(anchor){
 				const {x,width}=this.context.parent.appendComposed(React.cloneElement(content,{x:this.currentLine.currentX}))
 				this.currentLine.push(<Group x={x} width={width} height={0}/>)
 			}else{

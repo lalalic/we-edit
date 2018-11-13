@@ -226,7 +226,7 @@ export default class DocxType extends Input.Editable{
 				return createElement(components.Image,{...style.xfrm,src:props.url},null,node)
 			}
 			case "drawing.inline":{
-				return createElement(components.Container,{type:"drawing"},children,node)
+				return createElement(components.Container,{},children,node)
 			}
 			case "drawing.anchor":{
 				const style=new Style.Anchor(node,styles,selector)

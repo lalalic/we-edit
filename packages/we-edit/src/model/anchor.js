@@ -18,7 +18,7 @@ export default class extends Component{
         }),
         wrap:PropTypes.shape({
             mode:PropTypes.oneOf("TopAndBottom,Square,Tight,Through".split(",")),
-            wrapText: PropTypes.oneOf("BothSides,Left,Right,Largest".split(","))   
+            wrapText: PropTypes.oneOf("bothSides,left,right,largest".split(","))   
         })
     }
 }

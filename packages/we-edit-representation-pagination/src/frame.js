@@ -47,42 +47,8 @@ export default class Frame extends Super{
 	}
 
 	appendComposed(content){
-		if(content.props.wrap){
-			let {wrap:{mode},margin:{left,right,top,bottom}, x, width, height}=content.props
-			switch(mode){
-			case "Square":{
-				const outline={
-					width:width+left+right,
-					height:height+top+bottom,
-					x:x-left
-				}
-				outline.y=this.currentY+outline.height
-				this.computed.composed.push(
-					<ComposedFrame {...outline}>
-						{React.cloneElement(content,{x:left,y:top,margin:undefined,wrap:undefined})}
-					</ComposedFrame>
-				)
-				return outline
-			}
-			case "Tight":{
-				const outline={
-					width:width+left+right,
-					height,
-					x:x-left
-				}
-				outline.y=this.currentY+outline.height
-
-				this.computed.composed.push(
-					<ComposedFrame {...outline}>
-						{React.cloneElement(content,{x:left,y:0,margin:undefined,wrap:undefined})}
-					</ComposedFrame>
-				)
-				return outline
-			}
-			case "Through":{
-					break
-				}
-			}
+		if(content.props.anchor){
+			return content.props.anchor.appendTo(this, React.cloneElement(content,{anchor:undefined}))
 		}else{
 			this.computed.composed.push(content)
 		}
