@@ -67,7 +67,7 @@ export default class extends Super{
         switch(base){
         case "page":{
             if(!align){
-                return frame.offset(base, offset)
+                return frame.relative(base, offset)
             }else{
                 return frame.align(base,align)
             }
