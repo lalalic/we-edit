@@ -22,7 +22,7 @@ export default A=>{
          * a chance to add to self's composed
          */
         appendComposed() {
-            return this.context.parent.appendComposed(...arguments)
+            return this.context.parent.appendComposed(this.createComposed2Parent(...arguments))
         }
     }
 }

@@ -16,7 +16,7 @@ export default class Image extends Super{
 			height:1
 		},
 	}
-    createComposed2Parent(props){
+    createComposed2Parent(){
         const {src, size:{width,height},rotate}=this.props
 		const {x,y, ...frameProps}=Frame.rect({width,height,rotate})
 		const image=(

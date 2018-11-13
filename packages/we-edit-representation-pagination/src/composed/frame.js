@@ -27,7 +27,7 @@ export default class extends Component{
         return new SVGPath(this.props.geometry)
     }
 
-    intersects({x1,y1,x2,y2}){
+    intersects({x2,y2,x1=0,y1=y2}){
         const {x=0,y=0,width, height,rotate,geometry}=this.props
         if(!geometry){
             console.assert(y1===y2)
@@ -35,7 +35,7 @@ export default class extends Component{
                 return {x,width}
             }
         }else{
-            const points=this.geometry.intersects(arguments[0])
+            const points=this.geometry.intersects({x1,x2,y1,y2})
             if(points.length>0){
                 let {x}=points[0]
                 let {x:x1}=points.pop()

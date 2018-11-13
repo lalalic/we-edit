@@ -87,14 +87,14 @@ export default A=>class extends A{
             this.computed.allComposed=true
     }
 
-    createComposed2Parent(props) {
-
+    createComposed2Parent(content) {
+        return content
     }
 
 	get debug(){
 		return !!this.context.debug||this.props.debug
 	}
-	
+
 	dispatch(){
 		this.context.activeDocStore.dispatch(...arguments)
 	}

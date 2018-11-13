@@ -17,10 +17,30 @@ export default class Frame extends Super{
 		const space={width:maxWidth,height:this.availableHeight}
 		const blocks=this.blocks
 		if(blocks.length>0){
-			const y0=this.currentY
 			space.blocks=blocks
-				.map(a=>new ComposedFrame(a.props).intersects({x1:0,y1:y0,x2:maxWidth,y2:y0}))
+				.map(a=>new ComposedFrame(a.props).intersects({x2:maxWidth,y2:this.currentY}))
 				.filter(a=>!!a)
+				.sort((a,b)=>a.x-b.x)
+				.reduce((all,{x,width},key)=>{
+					all.push({key,pos:"start",x})
+					all.push({key,pos:"end",x:x+width})
+					return all
+				},[])
+				.sort((a,b)=>a.x-b.x)
+				.reduce((state,a,i)=>{
+					state[`${a.pos}s`].push(a)
+					if(a.pos=="end"){
+						if(state.ends.reduce((inclusive,end)=>inclusive && !!state.starts.find(start=>start.key==end.key),true)){
+							let x0=state.starts[0].x
+							let x1=a.x
+							state.merged.push({x:x0, width:x1-x0})
+							state.starts=[]
+							state.ends=[]
+						}
+					}
+					return state
+				},{merged:[],starts:[], ends:[]})
+				.merged
 		}
 
 		return space

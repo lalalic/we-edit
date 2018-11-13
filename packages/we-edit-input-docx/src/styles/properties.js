@@ -224,6 +224,39 @@ export class Properties{
 	}
 
 /**************drawingML********************/
+	positionH(x){
+		return {
+			base:x.attribs["relativeFrom"],
+			...x.children.reduce((props,a)=>{
+				switch(a.name.split(":").pop()){
+				case "posOffset":
+					props.offset=this.docx.cm2Px(a.children[0].data)
+				break
+				case "align":
+					props.align=a.children[0].data
+				break
+				}
+				return props
+			},{})
+		}
+	}
+
+	positionV(){
+		return this.positionH(...arguments)
+	}
+
+	simplePos(x){
+		return {
+			x:{
+				base:"page",
+				offset:this.docx.cm2Px(x.attribs.x),
+			},
+			y:{
+				base:"page",
+				offset:this.docx.cm2Px(x.attribs.y)
+			}
+		}
+	}
 	extent(x){
 		return {width:this.docx.cm2Px(x.attribs.cx),height:this.docx.cm2Px(x.attribs.cy)}
 	}
@@ -337,7 +370,7 @@ export class Properties{
 	}
 
 	wrap(x){
-		return {mode:x.name.substring("wp:wrap".length)}
+		return {mode:x.name.substring("wp:wrap".length),...x.attribs}
 	}
 /********************************/
 

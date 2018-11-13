@@ -6,9 +6,6 @@ import Component from "./component"
 export default class Frame extends Component{
 	static displayName="frame"
 	static propTypes={
-		x:PropTypes.number,
-		y:PropTypes.number,
-		z: PropTypes.number,
 		width:PropTypes.number.isRequired,
 		height:PropTypes.number.isRequired,
 		padding:PropTypes.shape({
@@ -26,7 +23,7 @@ export default class Frame extends Component{
 		geometry: PropTypes.string,
 		blocks:PropTypes.arrayOf(PropTypes.element)
 	}
-	
+
 	static defaultProps={
 		margin:{
 			left:0,right:0,top:0,bottom:0

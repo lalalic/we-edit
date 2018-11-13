@@ -6,10 +6,11 @@ import Table from "./table"
 import Num from "./numbering/num"
 import AbstractNum from "./numbering/abstractNum"
 import Shape from "./shape"
+import Anchor from "./anchor"
 
 import Properties from "./properties"
 
 
 export default {
-	Default, Character, Paragraph, Num, Numbering, Table, AbstractNum, Properties, Shape
+	Default, Character, Paragraph, Num, Numbering, Table, AbstractNum, Properties, Shape,Anchor
 }

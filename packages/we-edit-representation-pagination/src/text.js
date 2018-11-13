@@ -45,7 +45,7 @@ export default class Text extends Super{
     getMyBreakOpportunities=memoize((text,last)=>this.context.getMyBreakOpportunities(text))
 
     render(){
-		const {parent,getLastText=a=>null}=this.context
+        const {parent,getLastText=a=>null}=this.context
 		const {color,highlight,vanish,border,underline,strike}=this.props
 		if(vanish){
 			return null
@@ -60,19 +60,17 @@ export default class Text extends Super{
 		let start=0
 		this.getMyBreakOpportunities(this.text,getLastText()).forEach(a=>{
 			a.split(/(\s)/).filter(a=>a.length).forEach((b,i)=>{
-
-					const isWhitespace=b==" "
-					this.appendComposed(this.createComposed2Parent({
-						...defaultStyle,
-						color,
-						highlight,
-                        className:isWhitespace ? "whitespace" : undefined,
-						width:isWhitespace ? whitespaceWidth : measure.stringWidth(b),
-						minWidth:isWhitespace ? 0 : undefined,
-						"data-endat":start+=b.length,
-						children: isWhitespace ? "." : b
-					}))
-
+				const isWhitespace=b==" "
+				this.appendComposed({
+					...defaultStyle,
+					color,
+					highlight,
+                    className:isWhitespace ? "whitespace" : undefined,
+					width:isWhitespace ? whitespaceWidth : measure.stringWidth(b),
+					minWidth:isWhitespace ? 0 : undefined,
+					"data-endat":start+=b.length,
+					children: b
+				})
 			})
 		})
 
@@ -80,8 +78,9 @@ export default class Text extends Super{
         return null
     }
 
-	createComposed2Parent(props, composed){
-		this.computed.composed.push(composed=<ComposedText {...props} key={this.computed.composed.length}/>)
+	createComposed2Parent(props){
+        const composed=<ComposedText {...props}/>
+		this.computed.composed.push(composed)
 		return composed
 	}
 }

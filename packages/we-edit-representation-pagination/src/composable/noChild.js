@@ -9,13 +9,9 @@ export default A=>{
             getMyBreakOpportunities: PropTypes.func
         }
 
-		get noChild(){
-			return true
-		}
-
         render() {
             this.context.getMyBreakOpportunities(null)
-            this.appendComposed(this.createComposed2Parent())
+            this.appendComposed()
             this.onAllChildrenComposed()
             return null
         }

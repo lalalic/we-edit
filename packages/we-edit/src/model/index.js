@@ -11,6 +11,7 @@ import Table from "./table"
 import Row from "./row"
 import Cell from "./cell"
 import Frame from "./frame"
+import Anchor from "./anchor"
 import Shape from "./shape"
 import Template from "./template"
 
@@ -29,5 +30,6 @@ export default {
 	Cell,
 	Frame,
 	Shape,
+	Anchor,
 	Template,
 }

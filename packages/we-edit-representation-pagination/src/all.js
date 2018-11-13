@@ -12,6 +12,7 @@ import Table from "./table"
 import Row from "./row"
 import Cell from "./cell"
 import Frame from "./frame"
+import Anchor from "./anchor"
 import Shape from "./shape"
 
 export default HasParentAndChild.enable(models,{
@@ -27,4 +28,5 @@ export default HasParentAndChild.enable(models,{
 	Cell,
 	Frame,
 	Shape,
+	Anchor,
 })
