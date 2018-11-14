@@ -38,50 +38,5 @@ export default function Locatable(A){
 				return element
 			}
 		}
-
-		nextCursorable(){
-            return this.props.nextCursorable ? this.props.nextCursorable() : false
-        }
-
-        prevCursorable(){
-            return this.props.prevCursorable ? this.props.prevCursorable() : false
-        }
-
-		nextSelectable(){
-            return this.props.nextSelectable ? this.props.nextSelectable(...arguments) : this.nextCursorable(...arguments)
-        }
-
-        prevSelectable(){
-            return this.props.prevSelectable ? this.props.prevSelectable(...arguments) : this.prevCursorable(...arguments)
-        }
-
-		position(locator, at){
-			const {id}=this.props
-			if(at==0){
-				const rect=locator.getClientRect(id)
-				if(rect){
-					const {x,y,width,height,node}=rect
-					return {x,y,width,height,node}
-				}
-            }else{
-				const rect=locator.getClientRects(id).pop()
-				if(rect){
-					const {x,y,width,height,node}=rect
-					return {
-						x:x+width,
-						y,
-						width,
-						height,
-						node
-					}
-				}
-            }
-			
-			return null
-		}
-
-		getFocusShape(){
-			return null
-		}
 	}
 }

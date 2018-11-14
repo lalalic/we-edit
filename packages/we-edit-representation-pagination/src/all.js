@@ -1,5 +1,5 @@
 import {models} from "we-edit"
-import {HasParentAndChild} from "./composable"
+import {HasParentAndChild,Locatable} from "./composable"
 
 import Document from "./document"
 import Section from "./section"
@@ -15,7 +15,7 @@ import Frame from "./frame"
 import Anchor from "./anchor"
 import Shape from "./shape"
 
-export default HasParentAndChild.enable(models,{
+export default Locatable.enable(HasParentAndChild.enable(models,{
 	Document,
 	Section,
 	Paragraph,
@@ -29,4 +29,4 @@ export default HasParentAndChild.enable(models,{
 	Frame,
 	Shape,
 	Anchor,
-})
+}))
