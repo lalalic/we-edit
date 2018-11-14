@@ -62,21 +62,17 @@ export default class extends Super{
     }
 
 
-    x(frame){
-        const {base, offset=0, align}=this.props.x
-        switch(base){
-        case "page":{
-            if(!align){
-                return frame.relative(base, offset)
-            }else{
-                return frame.align(base,align)
-            }
-        }
-        break
-        }
+    xy(frame){
+        const {base, ...pos}=this.props.x
+        const x=new this.construcor.Positioning[this.props.x.base](frame)(this.props.x,'x')
+        const y=new this.construcor.Positioning[this.props.y.base](frame)(this.props.y,'y')
     }
 
-    y(){
-        const {base, offset, align}=this.props.x
+    static Positioning={
+        page: class{
+            constructor(frame){
+
+            }
+        }
     }
 }

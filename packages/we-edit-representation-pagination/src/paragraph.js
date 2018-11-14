@@ -28,6 +28,7 @@ export class Paragraph extends Super{
 		super(...arguments)
 		this.computed.lastText=""
 		this.computed.words=0
+		this.computed.atoms=[]
 	}
 
     getChildContext(){
@@ -114,53 +115,8 @@ export class Paragraph extends Super{
         return width
     }
 
-    appendComposed(content, il=0){//@TODO: need consider availableSpace.height
-        const {width,minWidth=width,height,anchor,split}=content.props
-
-        const {composed}=this.computed
-		const createLine=()=>{
-			const availableSpace=this.context.parent.nextAvailableSpace({width,height})
-			composed.push(this._newLine(availableSpace))
-		}
-
-		if(!this.currentLine)
-           createLine()
-
-	    if(this.currentLine.availableHeight<height){
-			const currentLine=this.currentLine
-			this.computed.composed.pop()
-			createLine()
-			currentLine.content.forEach(a=>this.appendComposed(a))
-		}
-
-        const availableWidth=this.currentLine.availableWidth(minWidth)
-
-		if(availableWidth>=minWidth || il>1){
-			if(anchor){
-				const {x,width}=this.context.parent.appendComposed(React.cloneElement(content,{x:this.currentLine.currentX}))
-				this.currentLine.push(<Group x={x} width={width} height={0}/>)
-			}else{
-				this.currentLine.push(content)
-			}
-        }else{
-			if(composed.length==1 && this.currentLine.isEmpty()){//empty first line
-				if(split && false){
-					const [p0,p1]=split(content,availableWidth)
-					this.currentLine.push(p0)
-					this.appendComposed(p1)
-				}else{
-					if(wrap){
-						this.context.parent.appendComposed(content)
-					}else{
-						this.currentLine.push(content)
-					}
-				}
-			}else{
-				this.commitCurrentLine()
-				createLine()
-				this.appendComposed(content,++il)
-			}
-        }
+    appendComposed(content){//@TODO: need consider availableSpace.height
+		this.computed.atoms.push(content)
     }
 
     commitCurrentLine(){
@@ -171,9 +127,66 @@ export class Paragraph extends Super{
     }
 
     onAllChildrenComposed(){//need append last non-full-width line to parent
+		this.commit()
 		super.onAllChildrenComposed()
 		this.commitCurrentLine()
     }
+
+	get anchors(){
+		return this.computed.atoms.filter(a=>a.props.anchor)
+	}
+
+	commit(){
+		const append=(content,il=0)=>{
+			const {width,minWidth=width,height,anchor,split}=content.props
+	        const {composed}=this.computed
+			const createLine=()=>{
+				const availableSpace=this.context.parent.nextAvailableSpace({width,height})
+				composed.push(this._newLine(availableSpace))
+			}
+
+			if(!this.currentLine)
+	           createLine()
+
+		    if(false && this.currentLine.availableHeight<height){
+				const currentLine=this.currentLine
+				this.computed.composed.pop()
+				createLine()
+				currentLine.content.forEach(a=>this.appendComposed(a))
+			}
+
+	        const availableWidth=this.currentLine.availableWidth(minWidth)
+
+			if(availableWidth>=minWidth || il>1){
+				if(anchor){
+					const {x,width}=this.context.parent.appendComposed(React.cloneElement(content,{x:this.currentLine.currentX}))
+					this.currentLine.push(<Group x={x} width={width} height={0}/>)
+				}else{
+					this.currentLine.push(content)
+				}
+	        }else{
+				if(composed.length==1 && this.currentLine.isEmpty()){//empty first line
+					if(split && false){
+						const [p0,p1]=split(content,availableWidth)
+						this.currentLine.push(p0)
+						this.appendComposed(p1)
+					}else{
+						if(wrap){
+							this.context.parent.appendComposed(content)
+						}else{
+							this.currentLine.push(content)
+						}
+					}
+				}else{
+					this.commitCurrentLine()
+					createLine()
+					append(content,++il)
+				}
+	        }
+		}
+		
+		this.computed.atoms.forEach(a=>append(a))
+	}
 
     createComposed2Parent(line){
         const {height, width, ...others}=line
