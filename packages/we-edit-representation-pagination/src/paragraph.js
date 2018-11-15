@@ -81,6 +81,12 @@ export class Paragraph extends Super{
 
 	get currentLine(){
 		const {composed}=this.computed
+		if(composed.length==0){
+			let {context:{Measure,parent},props:{defaultStyle:{fonts,size,bold,italic}}}=this
+	        const measure=new Measure({fonts,size,bold,italic})
+			const line=this._newLine(parent.nextAvailableSpace({height:measure.defaultStyle.height}))
+			composed.push(line)
+		}
 		return composed[composed.length-1]
 	}
 
@@ -109,7 +115,7 @@ export class Paragraph extends Super{
     composableWidth(width){
         const {indent:{left=0,right=0,firstLine=0}}=this.props
         width-=(left+right)
-        if(!this.currentLine)
+        if(this.computed.composed.length==0)
             width-=firstLine
 
         return width
@@ -120,72 +126,82 @@ export class Paragraph extends Super{
     }
 
     commitCurrentLine(){
-        if(this.currentLine){
-			this.currentLine.commit()
-			this.context.parent.appendComposed(this.createComposed2Parent(this.currentLine))
-		}
+		this.context.parent.appendComposed(this.createComposed2Parent(this.currentLine.commit()))
     }
 
     onAllChildrenComposed(){//need append last non-full-width line to parent
-		this.commit()
+		let i=this.commit()
+		while(Number.isInteger(i)){
+			i=this.commit(i)
+		}
+
 		super.onAllChildrenComposed()
 		this.commitCurrentLine()
     }
 
-	get anchors(){
-		return this.computed.atoms.filter(a=>a.props.anchor)
+	/**@Todo
+	* frame dirty change, or current line height change, so refresh line
+	* i: need recompose line from atoms[i]
+	* true: not need recompose, continue compose
+	**/
+	refreshCurrentLine(height){
+		return true
 	}
 
-	commit(){
+	commit(from=0){
 		const append=(content,il=0)=>{
-			const {width,minWidth=width,height,anchor,split}=content.props
-	        const {composed}=this.computed
-			const createLine=()=>{
-				const availableSpace=this.context.parent.nextAvailableSpace({width,height})
-				composed.push(this._newLine(availableSpace))
+			const {width,minWidth=width,height,anchor}=content.props
+	        if(anchor && !this.currentLine.includes(anchor)){
+				if(this.context.parent.appendComposed(content,this.currentLine)===false){
+				  //need recompose for current page
+				  //so stop here
+				  	return false
+				}else{
+					let i=0
+					if((i=this.refreshCurrentLine())===true){//to get line dirty areas
+						//placeholder already in this.currentLine.blocks
+					}else{
+					  	return i
+					}
+				}
 			}
 
-			if(!this.currentLine)
-	           createLine()
+			if(this.currentLine.availableHeight<height){
+				let i=0
+				if((i=this.refreshCurrentLine(height))===true){
 
-		    if(false && this.currentLine.availableHeight<height){
-				const currentLine=this.currentLine
-				this.computed.composed.pop()
-				createLine()
-				currentLine.content.forEach(a=>this.appendComposed(a))
+				}else{
+					return i
+				}
 			}
 
 	        const availableWidth=this.currentLine.availableWidth(minWidth)
 
 			if(availableWidth>=minWidth || il>1){
-				if(anchor){
-					const {x,width}=this.context.parent.appendComposed(React.cloneElement(content,{x:this.currentLine.currentX}))
-					this.currentLine.push(<Group x={x} width={width} height={0}/>)
-				}else{
-					this.currentLine.push(content)
-				}
+				this.currentLine.push(content)
 	        }else{
-				if(composed.length==1 && this.currentLine.isEmpty()){//empty first line
-					if(split && false){
-						const [p0,p1]=split(content,availableWidth)
-						this.currentLine.push(p0)
-						this.appendComposed(p1)
-					}else{
-						if(wrap){
-							this.context.parent.appendComposed(content)
-						}else{
-							this.currentLine.push(content)
-						}
+				if(this.computed.composed.length==1 && this.currentLine.isEmpty()){//empty first line
+					//split word or hyphen word for availableWidth, and leave left part to next line
+					const [content0,content1]=this.split(content, availableWidth)
+					if(content0){
+						this.currentLine.push(content0)
+						content=content1
+						il=0
 					}
-				}else{
-					this.commitCurrentLine()
-					createLine()
-					append(content,++il)
 				}
+				this.commitCurrentLine()
+				this.computed.composed.push(this._newLine(this.context.parent.nextAvailableSpace({width,height})))
+				append(content,++il)
 	        }
 		}
-		
-		this.computed.atoms.forEach(a=>append(a))
+
+		for(let i=from,len=this.computed.atoms.length,b;i<len;i++){
+			if((b=append(this.computed.atoms[i]))===false){
+				return
+			}else if(Number.isInteger(b)){
+				return b
+			}
+		}
 	}
 
     createComposed2Parent(line){

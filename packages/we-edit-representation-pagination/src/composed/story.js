@@ -151,11 +151,12 @@ export default class Story extends Component{
 	}
 
 	static Info=class{
-		constructor({width,height,blocks=[]}){
+		constructor({width,height,blocks=[],anchors}){
 			this.width=width
 			this.availableHeight=height
 			this.content=[]
 			this.blocks=blocks.map(({x,width})=><Group {...{x,width,height:0}}/>)
+			this.anchors=anchors
 
 			Object.defineProperties(this,{
 				height:{
@@ -213,6 +214,7 @@ export default class Story extends Component{
 		commit(){
 			this.blocks.forEach(a=>this.content.push(a))
 			this.blocks=[]
+			return this
 		}
 
 		isEmpty(){
@@ -221,6 +223,10 @@ export default class Story extends Component{
 
 		get currentX(){
 			return this.content.reduce((x,{props:{width,x:x0}})=>x0!=undefined ? x0+width : x+width,0)
+		}
+
+		includes(anchor){
+			return this.anchors.includes(anchor.props["data-content"])
 		}
 	}
 }

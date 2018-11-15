@@ -2,7 +2,7 @@
 import React from "react"
 import PropTypes from "prop-types"
 
-export default function Locatable(A){
+function Locatable(A){
 	return class extends A{
 		static displayName=`locatable-${A.displayName}`
 		static propTypes={
@@ -40,3 +40,40 @@ export default function Locatable(A){
 		}
 	}
 }
+
+function Locatorize(A){
+	return class extends A{
+		static displayName=`locator-${A.displayName}`
+		static childContextTypes={
+			...A.childContextTypes,
+			mount: PropTypes.func,
+			unmount: PropTypes.func,
+			getComposer: PropTypes.func,
+		}
+
+		constructor(){
+			super(...arguments)
+			const composers=this.composers=new Map([[this.props.id,this]])
+			this.mount=a=>composers.set(a.props.id,a)
+			this.unmount=a=>composers.delete(a.props.id)
+			this.getComposer=id=>composers.get(id)
+			this.notifyRecompose4Anchor=anchor=>{
+				this.computed.anchor=anchor
+			}
+		}
+
+		getChildContext(){
+			const {mount,unmount,getComposer}=this
+			return {
+				...super.getChildContext(),
+				mount,unmount,getComposer
+			}
+		}
+
+
+	}
+}
+
+Locatable.Locatorize=Locatorize
+
+export default Locatable

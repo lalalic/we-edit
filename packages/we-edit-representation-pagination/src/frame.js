@@ -41,6 +41,7 @@ export default class Frame extends Super{
 					return state
 				},{merged:[],starts:[], ends:[]})
 				.merged
+			space.anchors=blocks.map(a=>a.props["data-content"])
 		}
 
 		return space
@@ -90,5 +91,19 @@ export default class Frame extends Super{
 
 	get blocks(){
 		return this.computed.composed.filter(({props:{x,y}})=>x!=undefined || y!=undefined)
+	}
+
+	isDirtyIn({x,y,width,height}){
+		return this.pageFrame.isDirtyIn({x,y,width,height})
+	}
+
+	get pageFrame(){
+		let current=this
+		while(current){
+			if(current.currentPage)
+				return current.currentPage
+			current=current.context.parent
+		}
+		return null
 	}
 }

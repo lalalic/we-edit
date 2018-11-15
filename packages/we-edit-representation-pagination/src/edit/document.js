@@ -11,7 +11,7 @@ import editable from "./editable"
 
 import offset from "mouse-event-offset"
 
-const Super=editable(Base,{locatable:true,continuable:true})
+const Super=editable(Base,{continuable:true})
 export default class Document extends Super{
 	static propTypes={
 		...Super.propTypes,
@@ -29,42 +29,13 @@ export default class Document extends Super{
 		activeDocStore: PropTypes.any,
 	}
 
-	static childContextTypes={
-		...Super.childContextTypes,
-		mount: PropTypes.func,
-		unmount: PropTypes.func,
-		getComposer: PropTypes.func,
-	}
-
 	constructor({screenBuffer,viewport}){
 		super(...arguments)
-		this.composers=new Map([[this.props.id,this]])
 		this.state={mode:"content",viewport, ...this.state}
-		this.getComposer=this.getComposer.bind(this)
 	}
 
 	get bufferHeight(){
 		return this.props.screenBuffer*this.state.viewport.height
-	}
-
-	getComposer(id){
-		return this.composers.get(id)
-	}
-
-	getChildContext(){
-		let mount=a=>{
-			//console.log(`${a.getComposeType()}[${a.props.id}] mounted`)
-			this.composers.set(a.props.id,a)
-		}
-		let unmount=a=>{
-			console.log(`${a.getComposeType()}[${a.props.id}] unmounted`)
-			this.composers.delete(a.props.id)
-		}
-		return {
-			...super.getChildContext(),
-			mount,unmount,
-			getComposer:this.getComposer
-		}
 	}
 
 	render(){
@@ -82,7 +53,7 @@ export default class Document extends Super{
 				<Responsible
 					docId={docId}
 					content={content}
-					getComposer={id=>this.composers.get(id)}
+					getComposer={this.getComposer}
 					scale={scale}
 					pgGap={pageGap}
 					pages={pages}
@@ -114,10 +85,10 @@ export default class Document extends Super{
 		if(!this.state.viewport){
 			this.initViewport(this.refs.viewporter)
 		}
-		
+
 		super.componentDidMount()
 	}
-	
+
 	componentDidUpdate(){
 		this.dispatch(ACTION.Statistics({
 			pages:this.computed.composed.length,
@@ -125,7 +96,7 @@ export default class Document extends Super{
 			words: this.composedWords()
 		}))
 	}
-	
+
 	composedWords(){
 		let  words=0
 		this.composers.forEach(a=>{
@@ -133,7 +104,7 @@ export default class Document extends Super{
 		})
 		return words
 	}
-	
+
 
 	/**
 	* 1. selection end
@@ -153,17 +124,17 @@ export default class Document extends Super{
 		}
 		return should
 	}
-	
+
 	composedY(){
 		const {computed:{composed:pages}, props:{pageGap}}=this
 		if(pages.length==0)
 			return 0
-		
+
 		const lastPageHeight=(({margin:{top},columns,size:{height}})=>{
 			if(this.getComposer(columns[0]["data-content"]).isAllChildrenComposed()){
 				return height
 			}
-					
+
 			return Math.max(...
 				columns.map(({children:lines})=>{
 					let lastLine=lines[lines.length-1]
@@ -176,11 +147,11 @@ export default class Document extends Super{
 				.map(y=>y+top)
 			)
 		})(pages[pages.length-1])
-		
+
 		return pages.slice(0,pages.length-1).reduce((w,{size:{height}})=>w+height+pageGap,lastPageHeight)
 	}
-	
-	
+
+
 
 	isSelectionComposed(selection){
 		const {end,start}=selection||getSelection(this.context.activeDocStore.getState())

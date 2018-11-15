@@ -7,7 +7,7 @@ export default class{
                 return margin
             },{})
 
-        //Object.assign(this,selector.selectValue(find("wp:extent")))//width,height
+        Object.assign(this,selector.selectValue(find("wp:extent")))//width,height
 
         switch(node.attribs["simplePos"]){//x,y
             case "1":
@@ -27,7 +27,7 @@ export default class{
     }
 
     flat(){
-        const {margin,x,y,wrap}=this
-        return {margin,x,y,wrap}
+        const {margin,x,y,wrap,width,height}=this
+        return {margin,x,y,wrap,width,height}
     }
 }

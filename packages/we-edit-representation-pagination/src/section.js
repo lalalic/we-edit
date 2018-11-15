@@ -61,14 +61,14 @@ export default class Section extends Super{
             padding.bottom=margin.footer+footerContentHeight-margin.bottom
         }
 
-        const info={
+        const info=new Page({
             size,
             margin,
             padding,
             columns:[],
             header,
             footer,
-        }
+        })
         this.computed.composed.push(info)
 		this._newColumn()
 		this.context.parent.appendComposed(this.createComposed2Parent(info))
@@ -148,4 +148,19 @@ export default class Section extends Super{
     appendComposedFooter(footer,type){
         this.computed.footers[type]=footer
     }
+}
+
+class Page{
+    constructor(props){
+        Object.assign(this,props)
+    }
+
+    get currentColumn(){
+        return this.columns[this.columns.length-1]
+    }
+
+    isDirtyIn({x,y,width,height}){
+        return true
+    }
+
 }
