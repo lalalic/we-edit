@@ -2,13 +2,13 @@ import React from "react"
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
 
-import {NoChild} from "./composable"
+import composable,{NoChild} from "./composable"
 import {models} from "we-edit"
 const {Text:Base}=models
 
 import {Text as ComposedText,  Group} from "./composed"
 
-const Super=NoChild(Base)
+const Super=composable(NoChild(Base),{locatable:true, recomposable:true})
 
 export default class Text extends Super{
     static contextTypes={

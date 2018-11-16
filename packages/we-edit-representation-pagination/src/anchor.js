@@ -2,41 +2,48 @@ import React,{PureComponent as Component} from "react"
 import PropTypes from "prop-types"
 import {Group, Frame as ComposedFrame} from "./composed"
 
-import {HasParentAndChild} from "./composable"
+import composable,{HasParentAndChild} from "./composable"
 import {models} from "we-edit"
 const {Anchor:Base}=models
-const Super=HasParentAndChild(Base)
+const Super=composable(HasParentAndChild(Base),{locatable:true,recomposable:true})
 
-export default class extends Super{
+class Anchor extends Super{
+    static contextTypes={
+        ...Super.contextTypes,
+        currentPage: PropTypes.func,
+        notifyRecompose4Anchor: PropTypes.func
+    }
     createComposed2Parent(content){
         return React.cloneElement(super.createComposed2Parent(...arguments),{anchor:this})
     }
 
     appendTo(frame,content){
-        let mode=this.props.wrap.mode
-        const {x,y}=this.xy(frame)
         const {width,height}=this.props
+        const {x,y}=this.xy(frame)
+        const composed=(()=>{
+            const {margin:{left,right,top,bottom}}=this.props
+            return (
+                <ComposedFrame {...{
+                    width:width+left+right,
+                    height:height+top+bottom,
+                    x,y,
+                    wrap:this.props.wrap,
+                    ["data-content"]:this.props.id,
+                    ["data-type"]:this.getComposeType(),
+                }}>
+                    {React.cloneElement(content,{x:left,y:top})}
+                </ComposedFrame>
+            )
+        })
+
         const rect={x,y,width,height}
-        if(frame.isDirtyIn(rect)){
+        if(frame.page.isDirtyIn(rect)){
+            frame.page.addAnchor(composed)
             //need recompose current page fully or partially
             this.context.notifyRecompose4Anchor(this)
             return false
         }else{
-            const {margin:{left,right,top,bottom}}=this.props
-            const {width, height}=content.props
-            const outline={
-                width:width+left+right,
-                height:height+top+bottom,
-                x,y,
-                wrap:this.props.wrap,
-            }
-            outline.y=frame.currentY+outline.height
-            frame.computed.composed.push(
-                <ComposedFrame {...outline}>
-                    {React.cloneElement(content,{x:left,y:top})}
-                </ComposedFrame>
-            )
-
+            frame.page.addAnchor(composed)
         }
     }
 
@@ -71,39 +78,65 @@ export default class extends Super{
 
 
     xy(frame){
-        return {x:100,y:20}
-        const x=new this.construcor.Positioning[this.props.x.base](frame).x(this.props.x)
-        const y=new this.construcor.Positioning[this.props.y.base](frame).y(this.props.y)
+        const x=new (this.constructor.Positioning[this.props.x.base])(frame,this).x(this.props.x)
+        const y=new (this.constructor.Positioning[this.props.y.base])(frame,this).y(this.props.y)
         return {x,y}
-    }
-
-    static Positioning={
-        page: class{
-            constructor(frame){
-
-            }
-        },
-        paragraph: class{
-
-        },
-        column: class{
-
-        }
     }
 }
 
 class Positioning{
-    constructor(frame){
+    constructor(frame,anchor){
         this.frame=frame
+        this.anchor=anchor
+        this.x0=0
+        this.y0=0
+    }
+
+    x({align, offset}){
+        if(align)
+            return this[`x_${align}`]()
+        else
+            return this.x0+offset
+    }
+
+    y({align, offset}){
+        if(align)
+            return this[`y_${align}`]()
+        else
+            return this.y0+offset
+    }
+}
+
+class Page extends Positioning{
+    y_top(){
+        return 0
+    }
+
+    y_bottom(){
+        return this.frame.page.height-this.anchor.height
     }
 }
 
 class Column extends Positioning{
-    x({align, offset}){
-
-    }
-
-    y({align, offset}){
-
+    constructor(){
+        super(...arguments)
+        const {margin:{left=0,top=0}, currentColumn:{props:{x,y}}}=this.frame.page
+        this.x0=left+x
+        this.y0=top+y
     }
 }
+
+class Paragraph extends Column{
+    constructor(){
+        super(...arguments)
+        this.y0+=this.frame.currentY
+    }
+}
+
+Anchor.Positioning={
+    column:Column,
+    paragraph:Paragraph,
+    page: Page,
+}
+
+export default Anchor

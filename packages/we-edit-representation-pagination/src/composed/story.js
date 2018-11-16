@@ -151,7 +151,7 @@ export default class Story extends Component{
 	}
 
 	static Info=class{
-		constructor({width,height,blocks=[],anchors}){
+		constructor({width,height,blocks=[],anchors=[]}){
 			this.width=width
 			this.availableHeight=height
 			this.content=[]

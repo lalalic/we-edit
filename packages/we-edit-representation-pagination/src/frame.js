@@ -2,23 +2,36 @@ import React from "react"
 import PropTypes from "prop-types"
 
 
-import {HasParentAndChild} from "./composable"
+import composable,{HasParentAndChild} from "./composable"
 import {models} from "we-edit"
 const {Frame:Base}=models
 
 import {Frame as ComposedFrame, Group} from "./composed"
 
-const Super=HasParentAndChild(Base)
+const Super=composable(HasParentAndChild(Base),{locatable:true, recomposable:true})
 
 export default class Frame extends Super{
+	static contextTypes={
+		...Super.contextTypes,
+		currentPage: PropTypes.func
+	}
 	nextAvailableSpace(required={}){
 		const {width:maxWidth,height:maxHeight}=this.props
 		const {width:minRequiredW=0,height:minRequiredH=0}=required
 		const space={width:maxWidth,height:this.availableHeight}
-		const blocks=this.blocks
+		const blocks=this.page.anchors
 		if(blocks.length>0){
+			const {x0,y0}=(()=>{
+				const {margin:{left,top}}=this.page
+				const {x, y}=this.props
+				return {x0:left+x,y0:top+y}
+			})
 			space.blocks=blocks
-				.map(a=>new ComposedFrame(a.props).intersects({x2:maxWidth,y2:this.currentY}))
+				.map(a=>new ComposedFrame(a.props).intersects({
+					x1:x0,
+					x2:x0+maxWidth,
+					y2:y0+this.currentY
+				}))
 				.filter(a=>!!a)
 				.sort((a,b)=>a.x-b.x)
 				.reduce((all,{x,width},key)=>{
@@ -41,7 +54,7 @@ export default class Frame extends Super{
 					return state
 				},{merged:[],starts:[], ends:[]})
 				.merged
-			space.anchors=blocks.map(a=>a.props["data-content"])
+				.map(a=>({x:a.x-x0, ...a}))
 		}
 
 		return space
@@ -93,17 +106,7 @@ export default class Frame extends Super{
 		return this.computed.composed.filter(({props:{x,y}})=>x!=undefined || y!=undefined)
 	}
 
-	isDirtyIn({x,y,width,height}){
-		return this.pageFrame.isDirtyIn({x,y,width,height})
-	}
-
-	get pageFrame(){
-		let current=this
-		while(current){
-			if(current.currentPage)
-				return current.currentPage
-			current=current.context.parent
-		}
-		return null
+	get page(){
+		return this.context.currentPage()
 	}
 }

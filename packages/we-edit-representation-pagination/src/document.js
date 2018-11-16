@@ -26,11 +26,17 @@ export default class Document extends Super{
 		)
     }
 
-    shouldContinueCompose(){
-        return !!this.computed.anchor
+    shouldContinueCompose(a){
+        const should=!!!this.computed.anchor
+        if(!should){
+            this.notifyNotAllComposed(a)
+        }
+        return should
     }
 
 	renderComposed(){
+        if(this.computed.anchor)
+            return null
 		return <ComposedDocument pages={this.computed.composed}/>
 	}
 
@@ -38,15 +44,23 @@ export default class Document extends Super{
 		this.computed.composed.push(page)
 	}
 
+    recompose4Anchor(){
+        const anchor=this.computed.anchor
+        this.setState({anchor})
+        delete this.computed.anchor
+    }
+
 	componentDidMount(){
         if(this.computed.anchor){
-            let anchor=this.computed.anchor
-            this.setState({anchor})
+            this.recompose4Anchor()
         }
 		//this.dispatch(ACTION.Statistics({pages:this.computed.composed.length}))
 	}
 
 	componentDidUpdate(){
+        if(this.computed.anchor){
+            this.recompose4Anchor()
+        }
 		//this.dispatch(ACTION.Statistics({pages:this.computed.composed.length}))
 	}
 }

@@ -4,7 +4,7 @@ import PropTypes from "prop-types"
 
 import get from "lodash.get"
 
-import {HasParentAndChild} from "./composable"
+import composable,{HasParentAndChild} from "./composable"
 import {models} from "we-edit"
 const {Section:Base}=models
 
@@ -13,13 +13,24 @@ import Header from "./header"
 import Footer from "./footer"
 import Frame from "./frame"
 
-const Super=HasParentAndChild(Base)
+const Super=composable(HasParentAndChild(Base),{locatable:true,recomposable:true})
 export default class Section extends Super{
+    static childContextTypes={
+        ...Super.childContextTypes,
+        currentPage: PropTypes.func,
+    }
     constructor(){
 		super(...arguments)
 		this.computed.headers={}
 		this.computed.footers={}
 	}
+
+    getChildContext(){
+        return {
+            ...super.getChildContext(),
+            currentPage:()=>this.currentPage
+        }
+    }
 
     _newColumn(){
         const i=this.currentPage.columns.length
@@ -34,7 +45,7 @@ export default class Section extends Super{
 			x: cols.reduce((p, a, j)=>(j<i ? p+a.width+a.space : p),0),
 			width: cols[i].width,
             type:"column",
-		},{parent:this})
+		},{parent:this, currentPage:()=>this.currentPage})
 		this.currentPage.columns.push(columnFrame)
     }
 
@@ -61,14 +72,36 @@ export default class Section extends Super{
             padding.bottom=margin.footer+footerContentHeight-margin.bottom
         }
 
-        const info=new Page({
+        const info={
             size,
             margin,
             padding,
             columns:[],
+            anchors:[],
             header,
             footer,
-        })
+            isDirtyIn(rect){
+                const isIntersect=(A,B)=>!(
+                        ((A.x+A.width)<B.x) ||
+                        (A.x>(B.x+B.width)) ||
+                        (A.y>(B.y+B.height))||
+                        ((A.y+A.height)<B.y)
+                    )
+
+                return !!this.anchors.find(({props:{x,y,width,height}})=>isIntersect(rect,{x,y,width,height}))
+            },
+
+            addAnchor(anchor){
+                this.anchors.push(anchor)
+            },
+
+            includes(anchor){
+                return !!this.anchors.find(a=>a.props["data-content"]=anchor.props["data-content"])
+            },
+            get currentColumn(){
+                return this.columns[this.columns.length-1]
+            }
+        }
         this.computed.composed.push(info)
 		this._newColumn()
 		this.context.parent.appendComposed(this.createComposed2Parent(info))
@@ -86,10 +119,10 @@ export default class Section extends Super{
 
     nextAvailableSpace(required={}){
         const {width:minRequiredW=0,height:minRequiredH=0}=required
-        const {composed}=this.computed
-		if(composed.length==0){
+        if(!this.currentPage){
 			this._newPage()
 		}
+
 		const {cols,allowedColumns=cols ? cols.length : 1}=this.props
 
 		let looped=0
@@ -148,19 +181,4 @@ export default class Section extends Super{
     appendComposedFooter(footer,type){
         this.computed.footers[type]=footer
     }
-}
-
-class Page{
-    constructor(props){
-        Object.assign(this,props)
-    }
-
-    get currentColumn(){
-        return this.columns[this.columns.length-1]
-    }
-
-    isDirtyIn({x,y,width,height}){
-        return true
-    }
-
 }

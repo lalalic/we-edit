@@ -23,7 +23,11 @@ const enablify=func=>(targets, excludes)=>Object.keys(targets)
 
 export {enablify, HasChild, HasParentAndChild, NoChild, Recomposable,Locatable,Stoppable,Continuable,Cacheable}
 
-export default function composable(A,{navigatable,stoppable,continuable}){
+export default function composable(A,{locatable,navigatable,stoppable,continuable}){
+	if(locatable){
+		A=Locatable(A)
+	}
+
     if(navigatable){
 		A=Navigatable(A)
 	}

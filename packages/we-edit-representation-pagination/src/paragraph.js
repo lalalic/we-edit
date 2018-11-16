@@ -2,7 +2,7 @@ import React, {Children,} from "react"
 import PropTypes from "prop-types"
 
 
-import {HasParentAndChild} from "./composable"
+import composable, {HasParentAndChild,} from "./composable"
 import {models} from "we-edit"
 const {Paragraph:Base}=models
 
@@ -12,10 +12,11 @@ import {Text as ComposedText,  Group, Line, Story} from "./composed"
 
 const {Info:LineInfo}=Story
 
-const Super=HasParentAndChild(Base)
+const Super=composable(HasParentAndChild(Base),{locatable:true, recomposable:true, stoppable:true})
 export class Paragraph extends Super{
 	static contextTypes={
 		...Super.contextTypes,
+		currentPage: PropTypes.func,
 		Measure: PropTypes.func,
 	}
     static childContextTypes={
@@ -151,7 +152,7 @@ export class Paragraph extends Super{
 	commit(from=0){
 		const append=(content,il=0)=>{
 			const {width,minWidth=width,height,anchor}=content.props
-	        if(anchor && !this.currentLine.includes(anchor)){
+	        if(anchor && !this.context.currentPage().includes(anchor)){
 				if(this.context.parent.appendComposed(content,this.currentLine)===false){
 				  //need recompose for current page
 				  //so stop here

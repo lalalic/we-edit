@@ -15,10 +15,12 @@ import Frame from "./frame"
 import Anchor from "./anchor"
 import Shape from "./shape"
 
-export default Recomposable.enable(Locatable.enable(HasParentAndChild.enable(models,{
+export default Object.assign(Recomposable.enable(Locatable.enable(HasParentAndChild.enable(models,{}))),{
+	Document,
 	Section,
 	Paragraph,
 	Text,
+
 	Header,
 	Footer,
 	Image,
@@ -28,6 +30,4 @@ export default Recomposable.enable(Locatable.enable(HasParentAndChild.enable(mod
 	Frame,
 	Shape,
 	Anchor,
-})),{
-	Document
 })
