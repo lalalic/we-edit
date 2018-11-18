@@ -152,6 +152,7 @@ export default class Story extends Component{
 
 	static Info=class{
 		constructor({width,height,blocks=[],anchors=[]}){
+			this.space=arguments[0]
 			this.width=width
 			this.availableHeight=height
 			this.content=[]
@@ -174,6 +175,15 @@ export default class Story extends Component{
 					}
 				}
 			})
+		}
+		
+		get first(){
+			return this.content.find(a=>a.x===undefined)
+		}
+		
+		spaceEquals({blocks=[]}){
+			const {blocks:myBlocks=[]}=this.space
+			return myBlocks.length==blocks.length && -1==blocks.findIndex((a,i)=>a.x!==myBlocks[i].x && a.width!==myBlocks[i].width)
 		}
 
 		availableWidth(min=0){

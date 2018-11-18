@@ -34,7 +34,7 @@ class Anchor extends Super{
                     {React.cloneElement(content,{x:left,y:top})}
                 </ComposedFrame>
             )
-        })
+        })();
 
         const rect={x,y,width,height}
         if(frame.page.isDirtyIn(rect)){

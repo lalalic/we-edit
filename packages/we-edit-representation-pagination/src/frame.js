@@ -25,7 +25,7 @@ export default class Frame extends Super{
 				const {margin:{left,top}}=this.page
 				const {x, y}=this.props
 				return {x0:left+x,y0:top+y}
-			})
+			})();
 			space.blocks=blocks
 				.map(a=>new ComposedFrame(a.props).intersects({
 					x1:x0,

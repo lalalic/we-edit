@@ -96,7 +96,7 @@ export default class Section extends Super{
             },
 
             includes(anchor){
-                return !!this.anchors.find(a=>a.props["data-content"]=anchor.props["data-content"])
+                return !!this.anchors.find(a=>a.props["data-content"]==anchor.props["data-content"])
             },
             get currentColumn(){
                 return this.columns[this.columns.length-1]

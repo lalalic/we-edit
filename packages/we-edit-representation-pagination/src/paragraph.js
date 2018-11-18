@@ -145,8 +145,20 @@ export class Paragraph extends Super{
 	* i: need recompose line from atoms[i]
 	* true: not need recompose, continue compose
 	**/
-	refreshCurrentLine(height){
-		return true
+	refreshCurrentLine(height=this.currentLine.height){
+		const space=this.context.parent.nextAvailableSpace({width:this.currentLine.availableWidth, height})
+		if(this.currentLine.spaceEquals(space)){
+			return true
+		}else{
+			let first=this.currentLine.first
+			this.computed.composed.pop()
+			this.computed.composed.push(this._newLine(space))
+			if(!first){
+				return -1
+			}else{
+				return this.computed.atoms.indexOf(first)
+			}
+		}
 	}
 
 	commit(from=0){
@@ -154,8 +166,8 @@ export class Paragraph extends Super{
 			const {width,minWidth=width,height,anchor}=content.props
 	        if(anchor && !this.context.currentPage().includes(anchor)){
 				if(this.context.parent.appendComposed(content,this.currentLine)===false){
-				  //need recompose for current page
-				  //so stop here
+					//need recompose for current page
+					//so stop here
 				  	return false
 				}else{
 					let i=0
@@ -200,6 +212,8 @@ export class Paragraph extends Super{
 			if((b=append(this.computed.atoms[i]))===false){
 				return
 			}else if(Number.isInteger(b)){
+				if(b==-1)
+					return i
 				return b
 			}
 		}
