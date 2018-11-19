@@ -7,7 +7,7 @@ export default class Frame extends Component{
 	static displayName="frame"
 	static propTypes={
 		width:PropTypes.number.isRequired,
-		height:PropTypes.number.isRequired,
+		height:PropTypes.number,
 		padding:PropTypes.shape({
 			left: PropTypes.number,
 			top: PropTypes.number,

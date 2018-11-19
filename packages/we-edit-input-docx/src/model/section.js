@@ -4,7 +4,6 @@ import PropTypes from "prop-types"
 import get from "lodash.get"
 
 export default ({Template,Frame})=>{
-
 	class Section extends Template{
 		createPageTemplate(){
 			const {pgSz:size,  pgMar:margin}=this.props
@@ -15,7 +14,7 @@ export default ({Template,Frame})=>{
 
 			const header=typed("header")
 			const footer=typed("footer")
-
+			
 	        const headerAvailableHeight=margin.top-margin.header
 	        const footerAvailableHeight=margin.bottom-margin.footer
 	        const headerContentHeight=header ? header.props.height : 0
@@ -37,7 +36,7 @@ export default ({Template,Frame})=>{
 	            size,
 	            margin,
 	            padding,
-	            columns:[],
+				columns:[],
 				anchors:[],
 	            header,
 	            footer,
@@ -143,11 +142,8 @@ export default ({Template,Frame})=>{
 		}
 
 		render(){
-			const {named=[],pgSz:{width,height},pgMar:{left,right,top,bottom}}=this.props
 			return (
-				<Section {...this.props}
-					cols={this.cols}
-					named={named.map(a=>React.cloneElement(a,{width:width-left-right,key:a.props.named}))}/>
+				<Section {...this.props} cols={this.cols}/>
 			)
 		}
 	}

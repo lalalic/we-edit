@@ -146,7 +146,7 @@ export default class DocxType extends Input.Editable{
 					node
 				)
 			}
-			case "section":
+			case "section":{
 				let style=selector.select(node.children)
 				const isEmpty=a=>{
 					if(a.children.length==1){
@@ -159,7 +159,9 @@ export default class DocxType extends Input.Editable{
 					}
 					return false
 				}
-				const named=[]
+				
+				const {pgSz:{width},pgMar:{left,right}}=style
+
 				const hf=cat=>node.children.filter(a=>a.name==`w:${cat}Reference`)
 					.reduce((hfs, a)=>{
 						let type=a.attribs["w:type"]
@@ -168,18 +170,12 @@ export default class DocxType extends Input.Editable{
 						if(!isEmpty(root)){
 							self.part=rId
 
-							named.push(createElement(components.Frame,{named:`${cat}.${type}`},
-								root.children.map(a=>renderNode(a)),
-								root
-							))
-							/*
 							children.splice(0,0,
-								createElement(components[`${cat.charAt(0).toUpperCase()}${cat.substr(1)}`],{type},
+								createElement(components.Frame,{named:`${cat}.${type}`,width:width-left-right},
 									root.children.map(a=>renderNode(a)),
 									root
 								)
 							)
-							*/
 
 							delete self.part
 						}
@@ -189,7 +185,8 @@ export default class DocxType extends Input.Editable{
 				hf("header")
 				hf("footer")
 
-				return createElement(components.Section,{...style, named},children,node)
+				return createElement(components.Section,style,children,node)
+			}
 			case "tbl":{
 				let cols=selector.select([node.children.find(a=>a.name=="w:tblGrid")]).tblGrid
 				let width=cols.reduce((w,a)=>w+a,0)

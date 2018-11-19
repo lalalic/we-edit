@@ -52,10 +52,4 @@ export default class Template extends Super{
     createComposed2Parent(page){
         return page
     }
-
-    children(){
-        const {named=[],children}=this.props
-        debugger
-        return [...named,...React.Children.toArray(children)]
-    }
 }
