@@ -159,6 +159,7 @@ export default class DocxType extends Input.Editable{
 					}
 					return false
 				}
+				const named=[]
 				const hf=cat=>node.children.filter(a=>a.name==`w:${cat}Reference`)
 					.reduce((hfs, a)=>{
 						let type=a.attribs["w:type"]
@@ -166,22 +167,29 @@ export default class DocxType extends Input.Editable{
 						let root=docx.officeDocument.getRel(rId).root().children().get(0)
 						if(!isEmpty(root)){
 							self.part=rId
-							//hfs[type]=createElement(components[`${cat.charAt(0).toUpperCase()}${cat.substr(1)}`],{type},root.children.map(a=>renderNode(a)),root)
 
-							children.splice(0,0,createElement(components[`${cat.charAt(0).toUpperCase()}${cat.substr(1)}`],{type},
+							named.push(createElement(components.Frame,{named:`${cat}.${type}`},
 								root.children.map(a=>renderNode(a)),
 								root
 							))
+							/*
+							children.splice(0,0,
+								createElement(components[`${cat.charAt(0).toUpperCase()}${cat.substr(1)}`],{type},
+									root.children.map(a=>renderNode(a)),
+									root
+								)
+							)
+							*/
 
 							delete self.part
 						}
 						return hfs
 					},{})
 
-				const headers=hf("header")
-				const footers=hf("footer")
+				hf("header")
+				hf("footer")
 
-				return createElement(components.Section,{...style, headers, footers},children,node)
+				return createElement(components.Section,{...style, named},children,node)
 			case "tbl":{
 				let cols=selector.select([node.children.find(a=>a.name=="w:tblGrid")]).tblGrid
 				let width=cols.reduce((w,a)=>w+a,0)

@@ -5,13 +5,12 @@ import {Group, Frame as ComposedFrame} from "./composed"
 import composable,{HasParentAndChild} from "./composable"
 import {models} from "we-edit"
 const {Anchor:Base}=models
-const Super=composable(HasParentAndChild(Base),{locatable:true,recomposable:true})
+const Super=HasParentAndChild(Base)
 
 class Anchor extends Super{
     static contextTypes={
         ...Super.contextTypes,
         currentPage: PropTypes.func,
-        notifyRecompose4Anchor: PropTypes.func
     }
     createComposed2Parent(content){
         return React.cloneElement(super.createComposed2Parent(...arguments),{anchor:this})
@@ -40,7 +39,6 @@ class Anchor extends Super{
         if(frame.page.isDirtyIn(rect)){
             frame.page.addAnchor(composed)
             //need recompose current page fully or partially
-            this.context.notifyRecompose4Anchor(this)
             return false
         }else{
             frame.page.addAnchor(composed)

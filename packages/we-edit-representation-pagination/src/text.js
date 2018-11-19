@@ -8,7 +8,7 @@ const {Text:Base}=models
 
 import {Text as ComposedText,  Group} from "./composed"
 
-const Super=composable(NoChild(Base),{locatable:true, recomposable:true})
+const Super=NoChild(Base)
 
 export default class Text extends Super{
     static contextTypes={

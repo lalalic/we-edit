@@ -14,12 +14,14 @@ import Cell from "./cell"
 import Frame from "./frame"
 import Anchor from "./anchor"
 import Shape from "./shape"
+import Template from "./template"
 
-export default Object.assign(Recomposable.enable(Locatable.enable(HasParentAndChild.enable(models,{}))),{
+export default HasParentAndChild.enable(models,{
 	Document,
 	Section,
 	Paragraph,
 	Text,
+	Template,
 
 	Header,
 	Footer,

@@ -12,11 +12,10 @@ import {Text as ComposedText,  Group, Line, Story} from "./composed"
 
 const {Info:LineInfo}=Story
 
-const Super=composable(HasParentAndChild(Base),{locatable:true, recomposable:true, stoppable:true})
+const Super=HasParentAndChild(Base)
 export class Paragraph extends Super{
 	static contextTypes={
 		...Super.contextTypes,
-		currentPage: PropTypes.func,
 		Measure: PropTypes.func,
 	}
     static childContextTypes={
@@ -161,22 +160,28 @@ export class Paragraph extends Super{
 		}
 	}
 
+	commitAnchored(anchor){
+		if(this.frame.appendComposed(content,this.currentLine)===false){
+			//need recompose for current page
+			//so stop here
+			return false
+		}else{
+			let i=0
+			if((i=this.refreshCurrentLine())===true){//to get line dirty areas
+				//placeholder already in this.currentLine.blocks
+			}else{
+				return i
+			}
+		}
+	}
+
 	commit(from=0){
 		const append=(content,il=0)=>{
 			const {width,minWidth=width,height,anchor}=content.props
-	        if(anchor && !this.context.currentPage().includes(anchor)){
-				if(this.context.parent.appendComposed(content,this.currentLine)===false){
-					//need recompose for current page
-					//so stop here
-				  	return false
-				}else{
-					let i=0
-					if((i=this.refreshCurrentLine())===true){//to get line dirty areas
-						//placeholder already in this.currentLine.blocks
-					}else{
-					  	return i
-					}
-				}
+	        if(anchor){
+				let anchoredReturn=this.commitAnchored(content)
+				if(anchoredReturn!=undefined)
+					return anchoredReturn
 			}
 
 			if(this.currentLine.availableHeight<height){
@@ -218,6 +223,18 @@ export class Paragraph extends Super{
 			}
 		}
 	}
+
+	get frame(){
+		let current=this.context.parent
+		while(current){
+			if(current.isFrame())
+				return current
+			current=current.context.parent
+		}
+		return current
+	}
+
+
 
     createComposed2Parent(line){
         const {height, width, ...others}=line

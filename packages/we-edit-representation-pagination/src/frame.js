@@ -8,7 +8,7 @@ const {Frame:Base}=models
 
 import {Frame as ComposedFrame, Group} from "./composed"
 
-const Super=composable(HasParentAndChild(Base),{locatable:true, recomposable:true})
+const Super=HasParentAndChild(Base)
 
 export default class Frame extends Super{
 	static contextTypes={
@@ -16,15 +16,15 @@ export default class Frame extends Super{
 		currentPage: PropTypes.func
 	}
 	nextAvailableSpace(required={}){
-		const {width:maxWidth,height:maxHeight}=this.props
+		const {width:maxWidth,height:maxHeight=Number.SAFE_INTEGER}=this.props
 		const {width:minRequiredW=0,height:minRequiredH=0}=required
 		const space={width:maxWidth,height:this.availableHeight}
-		const blocks=this.page.anchors
+		const blocks=this.blocks
 		if(blocks.length>0){
 			const {x0,y0}=(()=>{
-				const {margin:{left,top}}=this.page
-				const {x, y}=this.props
-				return {x0:left+x,y0:top+y}
+				//const {margin:{left,top}}=this.page
+				//const {x, y}=this.props
+				return {x0:0,y0:0}
 			})();
 			space.blocks=blocks
 				.map(a=>new ComposedFrame(a.props).intersects({
@@ -76,9 +76,9 @@ export default class Frame extends Super{
 	}
 
 	createComposed2Parent() {
-		let {width,height,wrap,margin, x,y,z,geometry}=this.props
+		let {width,height,wrap,margin, x,y,z,geometry,named}=this.props
 		return (
-			<ComposedFrame {...{width,height,wrap,margin,x,y,z,geometry}}>
+			<ComposedFrame {...{width,height,wrap,margin,x,y,z,geometry,named}}>
 				{this.computed.composed.reduce((state,a,i)=>{
 					if(a.props.y==undefined){
 						state.positioned.push(React.cloneElement(a,{y:state.y,key:i}))
@@ -93,6 +93,9 @@ export default class Frame extends Super{
     }
 
 	get availableHeight(){
+		if(this.props.height==undefined)
+			return Number.SAFE_INTEGER
+
 		const {props:{height},computed:{composed:children}}=this
 		return children.reduce((h, a)=>h-(a.props.y==undefined ? a.props.height : 0),height)
 	}
@@ -104,9 +107,5 @@ export default class Frame extends Super{
 
 	get blocks(){
 		return this.computed.composed.filter(({props:{x,y}})=>x!=undefined || y!=undefined)
-	}
-
-	get page(){
-		return this.context.currentPage()
 	}
 }

@@ -49,7 +49,6 @@ function Locatorize(A){
 			mount: PropTypes.func,
 			unmount: PropTypes.func,
 			getComposer: PropTypes.func,
-			notifyRecompose4Anchor: PropTypes.func,
 		}
 
 		constructor(){
@@ -58,16 +57,13 @@ function Locatorize(A){
 			this.mount=a=>composers.set(a.props.id,a)
 			this.unmount=a=>composers.delete(a.props.id)
 			this.getComposer=id=>composers.get(id)
-			this.notifyRecompose4Anchor=anchor=>{
-				this.computed.anchor=anchor
-			}
 		}
 
 		getChildContext(){
-			const {mount,unmount,getComposer,notifyRecompose4Anchor}=this
+			const {mount,unmount,getComposer}=this
 			return {
 				...super.getChildContext(),
-				mount,unmount,getComposer,notifyRecompose4Anchor
+				mount,unmount,getComposer
 			}
 		}
 

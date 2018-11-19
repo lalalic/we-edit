@@ -3,7 +3,110 @@ import PropTypes from "prop-types"
 
 import get from "lodash.get"
 
-export default ({Section,  Template,Frame})=>{
+export default ({Template,Frame})=>{
+
+	class Section extends Template{
+		createPageTemplate(){
+			const {pgSz:size,  pgMar:margin}=this.props
+	        const pageNo=this.computed.composed.length+1
+			const typed=type=>[(pageNo==1 ? "first" :false),(pageNo%2==0 ? "even" : "odd"),'default']
+				.filter(a=>!!a)
+				.reduce((found,a)=>found || this.computed.named[`${type}.${a}`],null)
+
+			const header=typed("header")
+			const footer=typed("footer")
+
+	        const headerAvailableHeight=margin.top-margin.header
+	        const footerAvailableHeight=margin.bottom-margin.footer
+	        const headerContentHeight=header ? header.props.height : 0
+	        const footerContentHeight=footer ? footer.props.height : 0
+	        const padding={top:0, bottom:0}
+	        if(headerContentHeight>headerAvailableHeight){
+	            padding.top=margin.header+headerContentHeight-margin.top
+	        }
+
+	        if(footerContentHeight>footerAvailableHeight){
+	            padding.bottom=margin.footer+footerContentHeight-margin.bottom
+	        }
+
+			const {width, height}=size
+			const {top, bottom, left, right}=margin
+			const {cols=[{space:0,width:width-left-right}],allowedColumns=cols ? cols.length : 1}=this.props
+
+	        const page={
+	            size,
+	            margin,
+	            padding,
+	            columns:[],
+				anchors:[],
+	            header,
+	            footer,
+	            isDirtyIn(rect){
+	                const isIntersect=(A,B)=>!(
+	                        ((A.x+A.width)<B.x) ||
+	                        (A.x>(B.x+B.width)) ||
+	                        (A.y>(B.y+B.height))||
+	                        ((A.y+A.height)<B.y)
+	                    )
+
+	                return !!this.anchors.find(({props:{x,y,width,height}})=>isIntersect(rect,{x,y,width,height}))
+	            },
+
+	            addAnchor(anchor){
+	                this.anchors.push(anchor)
+	            },
+
+	            includes(anchor){
+	                return !!this.anchors.find(a=>a.props["data-content"]==anchor.props["data-content"])
+	            },
+	            get currentColumn(){
+	                return this.columns[this.columns.length-1]
+	            },
+
+			    nextAvailableSpace(required={}){
+			        const {width:minRequiredW=0,height:minRequiredH=0}=required
+					if(minRequiredH-this.currentColumn.availableHeight>1){
+			            if(allowedColumns>this.columns.length){// new column
+			                this.createColumn()
+			            }else{
+			                return false
+			            }
+			        }
+			        return this.currentColumn.nextAvailableSpace(required)
+			    },
+
+			    appendComposed(line){
+			        const {height:contentHeight}=line.props
+
+					if(contentHeight-this.currentColumn.availableHeight>1){
+			            if(allowedColumns>this.columns.length){// new column
+			                this.createColumn()
+			            }else{
+			                return false
+			            }
+			        }
+
+					return this.currentColumn.appendComposed(line)
+			    },
+				createColumn(){
+			        const i=this.columns.length
+			        const columnFrame=new Frame({
+						y:0,
+						height:height-bottom-top-(padding.top||0)-(padding.bottom||0),
+			            children:[],
+						x: cols.reduce((p, a, j)=>(j<i ? p+a.width+a.space : p),0),
+						width: cols[i].width,
+			            type:"column",
+					},{parent:this})
+					this.columns.push(columnFrame)
+			    }
+	        }
+
+			page.createColumn()
+			return page
+		}
+	}
+
 
 	return class extends Component{
 		static displayName=`docx-section`
@@ -40,68 +143,12 @@ export default ({Section,  Template,Frame})=>{
 		}
 
 		render(){
-			const {headers, footers, pagMar:margin, pgSz:size, ...props}=this.props
-			
+			const {named=[],pgSz:{width,height},pgMar:{left,right,top,bottom}}=this.props
 			return (
-				<Section {...this.props} cols={this.cols} />
+				<Section {...this.props}
+					cols={this.cols}
+					named={named.map(a=>React.cloneElement(a,{width:width-left-right,key:a.props.named}))}/>
 			)
-		}
-		
-		template({pageNo, named}){
-			const {pgSz:size,  pgMar:margin}=this.props
-			const {header:headerStartAt=0, footer:footerEndAt=0,left,right,top,bottom}=margin
-			const header=named('header',pageNo)
-			const footer=named('footer',pageNo)
-			const headerAvailableHeight=top-margin.header
-			const footerAvailableHeight=bottom-margin.footer
-			const headerContentHeight=header ? header.props.height : 0
-			const footerContentHeight=footer ? footer.props.height : 0
-			const padding={top:0, bottom:0}
-			if(headerContentHeight>headerAvailableHeight){
-				padding.top=margin.header+headerContentHeight-margin.top
-			}
-
-			if(footerContentHeight>footerAvailableHeight){
-				padding.bottom=margin.footer+footerContentHeight-margin.bottom
-			}
-			
-			const contentSize={
-				width:size.width-left-right,
-				height:size.height-margin.top-margin.bottom-padding.top-padding.bottom
-			}
-			
-			const template=(
-				<Frame {...{size,margin}}>
-					<Frame className="header" x={left} y={margin.header}>
-						{header}
-					</Frame>
-					<Frame className="footer" x={left} y={size.height-footerEndAt-footerContentHeight}>
-						{footer}
-					</Frame>
-					<Frame className="content" x={left} y={size.height-margin.top-padding.top} 
-						size={content}
-						>
-						{this.cols.reduce((state, col)=>{
-							state.x+=col.space
-							state.frames.push(<Frame x={state.x-col.space} size={{width:col.width,height:contentSize.height}}/>)
-							state.x+=col.width
-							return state
-						},{x:0, frames:[]})}
-					</Frame>
-				</Frame>
-			)
-
-			const info={
-				size,
-				margin,
-				padding,
-				columns:[],
-				header,
-				footer,
-			}
-			info.columns[0]=this._newColumn(info)
-			this.context.parent.appendComposed(this.createComposed2Parent(info))
-			return info
 		}
 	}
 }

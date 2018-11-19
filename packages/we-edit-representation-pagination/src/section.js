@@ -13,39 +13,28 @@ import Header from "./header"
 import Footer from "./footer"
 import Frame from "./frame"
 
-const Super=composable(HasParentAndChild(Base),{locatable:true,recomposable:true})
+const Super=HasParentAndChild(Base)
 export default class Section extends Super{
-    static childContextTypes={
-        ...Super.childContextTypes,
-        currentPage: PropTypes.func,
-    }
     constructor(){
 		super(...arguments)
 		this.computed.headers={}
 		this.computed.footers={}
 	}
 
-    getChildContext(){
-        return {
-            ...super.getChildContext(),
-            currentPage:()=>this.currentPage
-        }
-    }
 
     _newColumn(){
         const i=this.currentPage.columns.length
         const {size:{width, height}, margin:{top, bottom, left, right},padding}=this.currentPage
 		const {cols=[{space:0,width:width-left-right}]}=this.props
 
-		const columnFrame=new Frame({
-			...Frame.defaultProps,
-            y:0,
+		const columnFrame=new Column({
+			y:0,
 			height:height-bottom-top-(padding.top||0)-(padding.bottom||0),
             children:[],
 			x: cols.reduce((p, a, j)=>(j<i ? p+a.width+a.space : p),0),
 			width: cols[i].width,
             type:"column",
-		},{parent:this, currentPage:()=>this.currentPage})
+		},{parent:this})
 		this.currentPage.columns.push(columnFrame)
     }
 
@@ -139,7 +128,7 @@ export default class Section extends Super{
 				break
 			}
         }
-        return this.currentColumn.nextAvailableSpace(required)//{width:this.currentColumn.props.width, height:this.currentColumn.availableHeight}
+        return this.currentColumn.nextAvailableSpace(required)
     }
 
     appendComposed(line){

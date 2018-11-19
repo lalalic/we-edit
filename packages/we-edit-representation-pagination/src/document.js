@@ -8,14 +8,9 @@ const {Document:Base}=models
 
 import {Document as ComposedDocument} from "./composed"
 
-const Super=composable(Locatable.Locatorize(HasChild(Base)),{continuable:true})
+const Super=Locatable.Locatorize(HasChild(Base))
 
 export default class Document extends Super{
-    constructor(){
-        super(...arguments)
-        this.state={...this.state,anchor:null}
-    }
-
     render(){
 		const {canvas=<Dummy/>}=this.props
         return (
@@ -26,42 +21,20 @@ export default class Document extends Super{
 		)
     }
 
-    shouldContinueCompose(a){
-        const should=!!!this.computed.anchor
-        if(!should){
-            this.notifyNotAllComposed(a)
-        }
-        return should
-    }
-
-	renderComposed(){
-        if(this.computed.anchor)
-            return null
-		return <ComposedDocument pages={this.computed.composed}/>
+    renderComposed(){
+        return <ComposedDocument pages={this.computed.composed}/>
 	}
 
 	appendComposed(page){
 		this.computed.composed.push(page)
 	}
 
-    recompose4Anchor(){
-        const anchor=this.computed.anchor
-        this.setState({anchor})
-        delete this.computed.anchor
-    }
-
-	componentDidMount(){
-        if(this.computed.anchor){
-            this.recompose4Anchor()
-        }
-		//this.dispatch(ACTION.Statistics({pages:this.computed.composed.length}))
+    componentDidMount(){
+        this.dispatch(ACTION.Statistics({pages:this.computed.composed.length}))
 	}
 
 	componentDidUpdate(){
-        if(this.computed.anchor){
-            this.recompose4Anchor()
-        }
-		//this.dispatch(ACTION.Statistics({pages:this.computed.composed.length}))
+        this.dispatch(ACTION.Statistics({pages:this.computed.composed.length}))
 	}
 }
 
