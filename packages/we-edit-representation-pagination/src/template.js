@@ -4,6 +4,7 @@ import PropTypes from "prop-types"
 import {HasParentAndChild} from "./composable"
 import Frame from "./frame"
 import {models} from "we-edit"
+import memoize from "memoize-one"
 const {Template:Base}=models
 
 const Super=HasParentAndChild(Base)
@@ -12,10 +13,28 @@ export default class Template extends Super{
         super(...arguments)
         this.computed.named={}
     }
+	
+	named(name){
+		return this.computed.named[name]
+	}
+	
     get currentPage(){
         if(this.computed.composed.length==0)
             this.createPage()
 		return this.computed.composed[this.computed.composed.length-1]
+	}
+	
+	getDocument=memoize(()=>{
+		var current=this.context.parent
+		while(current){
+			if(current.getComposerType()=="document")
+				return current
+		}
+		return current
+	})
+	
+	get total(){
+		return this.getDocument().computed.composed.length
 	}
 
     createPageTemplate(){
@@ -52,4 +71,18 @@ export default class Template extends Super{
     createComposed2Parent(page){
         return page
     }
+	
+	static Page=class extends Frame{
+		nextAvailableSpace(){
+			
+		}
+		
+		appendComposed(){
+			
+		}
+		
+		render(){
+			
+		}
+	}
 }

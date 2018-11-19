@@ -10,7 +10,7 @@ export default ({Template,Frame})=>{
 	        const pageNo=this.computed.composed.length+1
 			const typed=type=>[(pageNo==1 ? "first" :false),(pageNo%2==0 ? "even" : "odd"),'default']
 				.filter(a=>!!a)
-				.reduce((found,a)=>found || this.computed.named[`${type}.${a}`],null)
+				.reduce((found,a)=>found || this.named(`${type}.${a}`),null)
 
 			const header=typed("header")
 			const footer=typed("footer")
