@@ -91,14 +91,14 @@ export class Paragraph extends Super{
 	}
 
     _newLine({width,...space}){
-		const composableWidth=(()=>{
+		const composableWidth=(w=>{
 	        const {indent:{left=0,right=0,firstLine=0}}=this.props
-	        width-=(left+right)
+	        w-=(left+right)
 	        if(this.computed.composed.length==0)
-	            width-=firstLine
+	            w-=firstLine
 
-	        return width
-	    });
+	        return w
+	    })(width);
 
         let line=new LineInfo({...space, width:composableWidth})
 		if(this.props.numbering && this.computed.composed.length==0){
@@ -175,12 +175,30 @@ export class Paragraph extends Super{
 	}
 
 	commit(from=0){
+		const isEmptyFirstLine=()=>this.computed.composed.length==1 && this.currentLine.isEmpty()
+		const append=content=>{
+			switch(this.currentLine.appendComposed(content)){
+			case 0:
+			}
+			else{
+				if(isEmptyFirstLine()){
+					const [content0,content1]=this.split(content, availableWidth)
+					if(content0){
+						this.currentLine.push(content0)
+						content=content1
+					}
+				}
+				this.commitCurrentLine()
+				const {width,minWidth=width,height}=content.props
+				this.computed.composed.push(this._newLine(this.context.parent.nextAvailableSpace({width,height})))
+				return append(content)
+			}
+		}
+		
 		const append=(content,il=0)=>{
 			const {width,minWidth=width,height,anchor}=content.props
 	        if(anchor){
-				let anchoredReturn=this.commitAnchored(content)
-				if(anchoredReturn!=undefined)
-					return anchoredReturn
+				this.currentLine.appendComposed(content)
 			}
 
 			if(this.currentLine.availableHeight<height){

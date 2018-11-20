@@ -26,7 +26,7 @@ export default class Frame extends Super{
 		const {height:minHeight}=required
 		return {
 			width:maxWidth,
-			height:minHeight||this.availableHeight,
+			height:this.availableHeight,
 			blocks:this.exclusive(minHeight)
 		}
 	}
@@ -158,6 +158,16 @@ class Line extends Component{
 		})
 		this.availableHeight=height
 	}
+	
+	/**
+	* -2:avaialbeWidth
+	* -1:availableWidth not enough
+	* 0: appended
+	* 2: recompose full line 
+	*/
+	appendComposed(){
+		
+	}
 
 	appendAnchored(anchored){
 		const anchorHost=this.props.frame.anchorHost
@@ -228,7 +238,7 @@ class Line extends Component{
 	}
 
 	isEmpty(){
-		return !!this.content.find(({props:{x}})=>x!=undefined)
+		return !!this.first
 	}
 
 	get currentX(){
