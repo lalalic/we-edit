@@ -14,7 +14,7 @@ export default class Media extends Component{
 	}
 
 	render(){
-		const {children:pages, pgGap, width,
+		const {children:pages, pgGap, width:canvasWidth,
 			media=this.context.media,
 			paper=this.context.paper,
 			smart=true,
@@ -26,15 +26,15 @@ export default class Media extends Component{
 				return (
 					<Group y={pgGap} x={0}>
 						{pages.map((page,i)=>{
-							let {size,margin}=page.props
+							let {width,height,margin}=page.props
 
 							let newPage=(
-								<Group key={i} {...{y, x:(width-size.width)/2}}>
-									{paper!==false && <Paper {...{size,margin,fill:"white"}}/>}
+								<Group key={i} {...{y, x:(canvasWidth-width)/2}}>
+									{paper!==false && <Paper {...{width,height,margin,fill:"white"}}/>}
 									{smart ? <SmartShow {...{onPageHide,onPageShow,scrollableAncestor,children:page}}/> : page}
 								</Group>
 							)
-							y+=(size.height+pgGap)
+							y+=(height+pgGap)
 							return newPage
 						})}
 					</Group>
@@ -62,7 +62,7 @@ class SmartShow extends Component{
 	}
 }
 
-const Paper=({size:{width,height}, margin:{left,right,top,bottom},...props})=>(
+const Paper=({width,height, margin:{left,right,top,bottom},...props})=>(
        <Fragment>
 		   <rect {...props} {...{width,height}}/>
 		   <path d={`M0 0 L${width} 0 L${width} ${height} L0 ${height}Z`}

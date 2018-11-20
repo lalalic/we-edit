@@ -91,7 +91,15 @@ export class Paragraph extends Super{
 	}
 
     _newLine({width,...space}){
-		const composableWidth=this.composableWidth(width)
+		const composableWidth=(()=>{
+	        const {indent:{left=0,right=0,firstLine=0}}=this.props
+	        width-=(left+right)
+	        if(this.computed.composed.length==0)
+	            width-=firstLine
+
+	        return width
+	    });
+
         let line=new LineInfo({...space, width:composableWidth})
 		if(this.props.numbering && this.computed.composed.length==0){
 			let {numbering:{label}, indent:{firstLine}}=this.props
@@ -112,16 +120,7 @@ export class Paragraph extends Super{
 		return line
     }
 
-    composableWidth(width){
-        const {indent:{left=0,right=0,firstLine=0}}=this.props
-        width-=(left+right)
-        if(this.computed.composed.length==0)
-            width-=firstLine
-
-        return width
-    }
-
-    appendComposed(content){//@TODO: need consider availableSpace.height
+    appendComposed(content){
 		this.computed.atoms.push(content)
     }
 
@@ -233,8 +232,6 @@ export class Paragraph extends Super{
 		}
 		return current
 	}
-
-
 
     createComposed2Parent(line){
         const {height, width, ...others}=line

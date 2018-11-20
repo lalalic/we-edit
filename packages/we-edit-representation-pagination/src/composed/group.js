@@ -16,7 +16,7 @@ export default class Group extends Component{
 			rotate,
 			x=0,y=0,
 			children,
-			minWidth, width, height, index, childIndex, contentWidth,
+			margin,minWidth, width, height, index, childIndex, contentWidth,
 			className,
 			...others}=this.props
 
@@ -28,7 +28,7 @@ export default class Group extends Component{
 				</g>
 			)
 		}
-		
+
 		if(className){//type define,  such as line, <line><content.../></line>, so query can be more simplier
 			return (
 				<g className={className}>
@@ -36,17 +36,17 @@ export default class Group extends Component{
 				</g>
 			)
 		}
-		
+
 		let transform=""
 
 		if(x||y){
 			transform=`translate(${parseInt(x||0)} ${parseInt(y||0)})`
 		}
-		
+
 		if(rotate){
 			transform=`${transform} rotate(${rotate})`
 		}
-		
+
 		if(transform.length>0){
 			return (
 				<g transform={transform}>

@@ -13,7 +13,7 @@ import Frame from "./frame"
 import Anchor from "./anchor"
 import Shape from "./shape"
 
-export default HasParentAndChild.enable(models,{
+export default Locatable.enable(HasParentAndChild.enable(models,{
 	Document,
 	Template,
 	Paragraph,
@@ -26,4 +26,4 @@ export default HasParentAndChild.enable(models,{
 	Frame,
 	Shape,
 	Anchor,
-})
+}))

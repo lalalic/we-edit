@@ -18,7 +18,7 @@ export default ({Template,Frame})=>{
 			var y0=margin.top
 			if(header){
 			  	this.computed.composed.push(
-					React.cloneElement(header,{x:margin.left,y:margin.header})
+					React.cloneElement(header,{x:margin.left,y:margin.header, className:"header"})
 				)
 				y0=Math.max(y0, margin.header+header.props.height)
 			}
@@ -27,7 +27,7 @@ export default ({Template,Frame})=>{
 			if(footer){
 				let y=height-margin.footer-footer.props.height
 				this.computed.composed.push(
-					React.cloneElement(footer,{x:margin.left,y})
+					React.cloneElement(footer,{x:margin.left,y, className:"footer"})
 				)
 				y1=Math.min(y, y1)
 			}
@@ -54,7 +54,7 @@ export default ({Template,Frame})=>{
 		}
 
 		appendComposed(line){
-			const {height:contentHeight}=line.props
+			const {height:contentHeight, anchor}=line.props
 
 			if(contentHeight-this.currentColumn.availableHeight>1){
 				if(this.cols.length>this.columns.length){// new column
@@ -68,11 +68,11 @@ export default ({Template,Frame})=>{
 		}
 
 		createColumn(){
-			this.columns.push(new Frame({
+			this.columns.push(Object.assign(new Frame({
 				...this.cols[this.columns.length],
 				children:[],
-				type:"column",
-			},this.context))
+				className:"column"
+			},{anchorHost:this}),this.context))
 		}
 
 		get content(){
@@ -85,11 +85,7 @@ export default ({Template,Frame})=>{
 
 		createComposed2Parent(container){
 			const {i:key,width,height,margin}=this.props
-			return React.cloneElement(container,{key,children:this.content,size:this.size,width,height,margin})
-		}
-
-		get size(){
-			return {width:this.props.width,height:this.props.height}
+			return React.cloneElement(container,{key,children:this.content,width,height,margin})
 		}
 	}
 

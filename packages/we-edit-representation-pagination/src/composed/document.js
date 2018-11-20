@@ -23,7 +23,7 @@ export default class ComposedDocument extends Component{
 	}
 
 	getSize=memoize((pages,pgGap)=>{
-		return pages.reduce((size,{size:{width,height}})=>{
+		return pages.reduce((size,{props:{width,height}})=>{
 				return {
 					width:Math.max(size.width,width),
 					height:size.height+height+pgGap
