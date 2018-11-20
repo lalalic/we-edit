@@ -15,8 +15,19 @@ export default class Frame extends Super{
 		...Super.contextTypes,
 		currentPage: PropTypes.func
 	}
+	isDirtyIn(rect){
+		const isIntersect=(A,B)=>!(
+				((A.x+A.width)<B.x) ||
+				(A.x>(B.x+B.width)) ||
+				(A.y>(B.y+B.height))||
+				((A.y+A.height)<B.y)
+			)
+
+		return !!this.blocks.find(({props:{x,y,width,height}})=>isIntersect(rect,{x,y,width,height}))
+	}
+
 	nextAvailableSpace(required={}){
-		const {width:maxWidth,height:maxHeight=Number.SAFE_INTEGER}=this.props
+		const {width:maxWidth,height:maxHeight=Number.MAX_SAFE_INTEGER}=this.props
 		const {width:minRequiredW=0,height:minRequiredH=0}=required
 		const space={width:maxWidth,height:this.availableHeight}
 		const blocks=this.blocks
@@ -76,7 +87,7 @@ export default class Frame extends Super{
 	}
 
 	createComposed2Parent() {
-		let {width,height,wrap,margin, x,y,z,geometry,named}=this.props
+		let {width,height=this.currentY,wrap,margin, x,y,z,geometry,named}=this.props
 		return (
 			<ComposedFrame {...{width,height,wrap,margin,x,y,z,geometry,named}}>
 				{this.computed.composed.reduce((state,a,i)=>{
@@ -94,7 +105,7 @@ export default class Frame extends Super{
 
 	get availableHeight(){
 		if(this.props.height==undefined)
-			return Number.SAFE_INTEGER
+			return Number.MAX_SAFE_INTEGER
 
 		const {props:{height},computed:{composed:children}}=this
 		return children.reduce((h, a)=>h-(a.props.y==undefined ? a.props.height : 0),height)

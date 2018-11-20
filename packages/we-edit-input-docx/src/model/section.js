@@ -4,111 +4,97 @@ import PropTypes from "prop-types"
 import get from "lodash.get"
 
 export default ({Template,Frame})=>{
-	class Section extends Template{
-		createPageTemplate(){
-			const {pgSz:size,  pgMar:margin}=this.props
-	        const pageNo=this.computed.composed.length+1
-			const typed=type=>[(pageNo==1 ? "first" :false),(pageNo%2==0 ? "even" : "odd"),'default']
+	class Page extends Frame{
+		constructor(){
+			super(...arguments)
+			const {width,height,margin,cols,named,i}=this.props
+			const typed=type=>[(i==1 ? "first" :false),(i%2==0 ? "even" : "odd"),'default']
 				.filter(a=>!!a)
-				.reduce((found,a)=>found || this.named(`${type}.${a}`),null)
+				.reduce((found,a)=>found || named(`${type}.${a}`),null)
 
 			const header=typed("header")
 			const footer=typed("footer")
-			
-	        const headerAvailableHeight=margin.top-margin.header
-	        const footerAvailableHeight=margin.bottom-margin.footer
-	        const headerContentHeight=header ? header.props.height : 0
-	        const footerContentHeight=footer ? footer.props.height : 0
-	        const padding={top:0, bottom:0}
-	        if(headerContentHeight>headerAvailableHeight){
-	            padding.top=margin.header+headerContentHeight-margin.top
-	        }
 
-	        if(footerContentHeight>footerAvailableHeight){
-	            padding.bottom=margin.footer+footerContentHeight-margin.bottom
-	        }
+			var y0=margin.top
+			if(header){
+			  	this.computed.composed.push(
+					React.cloneElement(header,{x:margin.left,y:margin.header})
+				)
+				y0=Math.max(y0, margin.header+header.props.height)
+			}
 
-			const {width, height}=size
-			const {top, bottom, left, right}=margin
-			const {cols=[{space:0,width:width-left-right}],allowedColumns=cols ? cols.length : 1}=this.props
+			var y1=height-margin.bottom
+			if(footer){
+				let y=height-margin.footer-footer.props.height
+				this.computed.composed.push(
+					React.cloneElement(footer,{x:margin.left,y})
+				)
+				y1=Math.min(y, y1)
+			}
 
-	        const page={
-	            size,
-	            margin,
-	            padding,
-				columns:[],
-				anchors:[],
-	            header,
-	            footer,
-	            isDirtyIn(rect){
-	                const isIntersect=(A,B)=>!(
-	                        ((A.x+A.width)<B.x) ||
-	                        (A.x>(B.x+B.width)) ||
-	                        (A.y>(B.y+B.height))||
-	                        ((A.y+A.height)<B.y)
-	                    )
+			this.cols=cols.reduce((state,a)=>{
+					state.columns.push({x:state.x, y:state.y, width:a.width,height:state.height})
+					state.x+=(a.space+a.width)
+					return state
+				},{x:margin.left,y:y0,height:y1-y0,columns:[]}).columns
+			this.columns=[]
+			this.createColumn()
+		}
 
-	                return !!this.anchors.find(({props:{x,y,width,height}})=>isIntersect(rect,{x,y,width,height}))
-	            },
+		nextAvailableSpace(required={}){
+			const {width:minRequiredW=0,height:minRequiredH=0}=required
+			if(minRequiredH-this.currentColumn.availableHeight>1){
+				if(this.cols.length>this.columns.length){// new column
+					this.createColumn()
+				}else{
+					return false
+				}
+			}
+			return this.currentColumn.nextAvailableSpace(required)
+		}
 
-	            addAnchor(anchor){
-	                this.anchors.push(anchor)
-	            },
+		appendComposed(line){
+			const {height:contentHeight}=line.props
 
-	            includes(anchor){
-	                return !!this.anchors.find(a=>a.props["data-content"]==anchor.props["data-content"])
-	            },
-	            get currentColumn(){
-	                return this.columns[this.columns.length-1]
-	            },
+			if(contentHeight-this.currentColumn.availableHeight>1){
+				if(this.cols.length>this.columns.length){// new column
+					this.createColumn()
+				}else{
+					return false
+				}
+			}
 
-			    nextAvailableSpace(required={}){
-			        const {width:minRequiredW=0,height:minRequiredH=0}=required
-					if(minRequiredH-this.currentColumn.availableHeight>1){
-			            if(allowedColumns>this.columns.length){// new column
-			                this.createColumn()
-			            }else{
-			                return false
-			            }
-			        }
-			        return this.currentColumn.nextAvailableSpace(required)
-			    },
+			return this.currentColumn.appendComposed(line)
+		}
 
-			    appendComposed(line){
-			        const {height:contentHeight}=line.props
+		createColumn(){
+			this.columns.push(new Frame({
+				...this.cols[this.columns.length],
+				children:[],
+				type:"column",
+			},this.context))
+		}
 
-					if(contentHeight-this.currentColumn.availableHeight>1){
-			            if(allowedColumns>this.columns.length){// new column
-			                this.createColumn()
-			            }else{
-			                return false
-			            }
-			        }
+		get content(){
+			return [...this.computed.composed, ...this.columns.map(a=>a.createComposed2Parent())]
+		}
 
-					return this.currentColumn.appendComposed(line)
-			    },
-				createColumn(){
-			        const i=this.columns.length
-			        const columnFrame=new Frame({
-						y:0,
-						height:height-bottom-top-(padding.top||0)-(padding.bottom||0),
-			            children:[],
-						x: cols.reduce((p, a, j)=>(j<i ? p+a.width+a.space : p),0),
-						width: cols[i].width,
-			            type:"column",
-					},{parent:this})
-					this.columns.push(columnFrame)
-			    }
-	        }
+		get currentColumn(){
+			return this.columns[this.columns.length-1]
+		}
 
-			page.createColumn()
-			return page
+		createComposed2Parent(container){
+			const {i:key,width,height,margin}=this.props
+			return React.cloneElement(container,{key,children:this.content,size:this.size,width,height,margin})
+		}
+
+		get size(){
+			return {width:this.props.width,height:this.props.height}
 		}
 	}
 
-
 	return class extends Component{
-		static displayName=`docx-section`
+		static displayName=`section`
 		static propTypes={
 			cols: PropTypes.shape({
 				num: PropTypes.number.isRequired,
@@ -131,20 +117,11 @@ export default ({Template,Frame})=>{
 			evenAndOddHeaders: PropTypes.bool
 		}
 
-		constructor(){
-			super(...arguments)
-			this.componentWillReceiveProps(this.props)
-		}
-
-		componentWillReceiveProps({pgSz:{width},  pgMar:{left, right}, cols:{num=1, space=0, data}}){
-			let availableWidth=width-left-right
-			this.cols=data ? data : new Array(num).fill({width:(availableWidth-(num-1)*space)/num,space})
-		}
-
 		render(){
-			return (
-				<Section {...this.props} cols={this.cols}/>
-			)
+			var {pgSz:{width,height},  pgMar:margin, cols:{num=1, space=0, data}, ...props}=this.props
+			var availableWidth=width-margin.left-margin.right
+			var cols=data ? data : new Array(num).fill({width:(availableWidth-(num-1)*space)/num,space})
+			return <Template createPage={(props,context)=>new Page({width,height,margin,cols,...props},context)} {...props}/>
 		}
 	}
 }

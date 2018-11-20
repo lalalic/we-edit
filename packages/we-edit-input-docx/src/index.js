@@ -159,7 +159,7 @@ export default class DocxType extends Input.Editable{
 					}
 					return false
 				}
-				
+
 				const {pgSz:{width},pgMar:{left,right}}=style
 
 				const hf=cat=>node.children.filter(a=>a.name==`w:${cat}Reference`)
@@ -185,7 +185,7 @@ export default class DocxType extends Input.Editable{
 				hf("header")
 				hf("footer")
 
-				return createElement(components.Section,style,children,node)
+				return createElement(Transformers.Section(components),style,children,node)
 			}
 			case "tbl":{
 				let cols=selector.select([node.children.find(a=>a.name=="w:tblGrid")]).tblGrid

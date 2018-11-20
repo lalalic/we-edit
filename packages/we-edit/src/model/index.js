@@ -1,11 +1,9 @@
 import Unknown from "./component"
 import Container from "./container"
 import Document from "./document"
-import Section from "./section"
+import Template from "./template"
 import Paragraph from "./paragraph"
 import Text from "./text"
-import Header from "./header"
-import Footer from "./footer"
 import Image from "./image"
 import Table from "./table"
 import Row from "./row"
@@ -13,17 +11,14 @@ import Cell from "./cell"
 import Frame from "./frame"
 import Anchor from "./anchor"
 import Shape from "./shape"
-import Template from "./template"
 
 export default {
 	Unknown,
 	Container,
 	Document,
-	Section,
+	Template,
 	Paragraph,
 	Text,
-	Header,
-	Footer,
 	Image,
 	Table,
 	Row,
@@ -31,5 +26,4 @@ export default {
 	Frame,
 	Shape,
 	Anchor,
-	Template,
 }

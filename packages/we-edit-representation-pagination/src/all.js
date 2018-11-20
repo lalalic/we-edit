@@ -2,11 +2,9 @@ import {models} from "we-edit"
 import {HasParentAndChild,Locatable,Recomposable} from "./composable"
 
 import Document from "./document"
-import Section from "./section"
+import Template from "./template"
 import Paragraph from "./paragraph"
 import Text from "./text"
-import Header from "./header"
-import Footer from "./footer"
 import Image from "./image"
 import Table from "./table"
 import Row from "./row"
@@ -14,17 +12,13 @@ import Cell from "./cell"
 import Frame from "./frame"
 import Anchor from "./anchor"
 import Shape from "./shape"
-import Template from "./template"
 
 export default HasParentAndChild.enable(models,{
 	Document,
-	Section,
+	Template,
 	Paragraph,
 	Text,
-	Template,
 
-	Header,
-	Footer,
 	Image,
 	Table,
 	Row,

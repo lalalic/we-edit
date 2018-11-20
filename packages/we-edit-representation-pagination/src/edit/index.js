@@ -3,7 +3,7 @@ import Models from "../all"
 import editable from "./editable"
 
 import Document from "./document"
-import Section from "./section"
+//import Section from "./section"
 import Paragraph from "./paragraph"
 import Shape from "./shape"
 import Table from "./table"
@@ -14,7 +14,7 @@ import Image from "./image"
 
 export default editable.enable(Models,{
 	Document,
-	Section,
+	//Section,
 	Paragraph,
 	Shape,
 	Table,

@@ -13,37 +13,32 @@ export default class Template extends Super{
         super(...arguments)
         this.computed.named={}
     }
-	
+
 	named(name){
 		return this.computed.named[name]
 	}
-	
+
     get currentPage(){
         if(this.computed.composed.length==0)
             this.createPage()
 		return this.computed.composed[this.computed.composed.length-1]
 	}
-	
+
 	getDocument=memoize(()=>{
 		var current=this.context.parent
 		while(current){
-			if(current.getComposerType()=="document")
+			if(current.getComposeType()=="document")
 				return current
 		}
 		return current
 	})
-	
-	get total(){
+
+	get totalPages(){
 		return this.getDocument().computed.composed.length
 	}
 
-    createPageTemplate(){
-        const {size:{width,height},margin,padding}=this.props
-        return new Frame({width,height,margin,padding})
-    }
-
     createPage(){
-        const page=this.createPageTemplate()
+        const page=this.props.createPage({i:this.totalPages+1,named:this.named.bind(this)},{parent:this})
         this.computed.composed.push(page)
         this.context.parent.appendComposed(this.createComposed2Parent(page))
         return page
@@ -71,18 +66,4 @@ export default class Template extends Super{
     createComposed2Parent(page){
         return page
     }
-	
-	static Page=class extends Frame{
-		nextAvailableSpace(){
-			
-		}
-		
-		appendComposed(){
-			
-		}
-		
-		render(){
-			
-		}
-	}
 }

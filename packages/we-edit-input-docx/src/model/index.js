@@ -19,7 +19,8 @@ const createUnvisibleComponent=type=>{
 }
 
 export default {
-	Document, Section,
+	Document,
+	Section,
 	Paragraph,
 	Text,
 	Run,

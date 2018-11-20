@@ -1,6 +1,6 @@
 import {models} from "we-edit"
 import Document from "./document"
-import Section from "./section"
+//import Section from "./section"
 import Paragraph from "./paragraph"
 import Text from "./text"
 import Image from "./image"
@@ -11,9 +11,9 @@ import Cell from "./cell"
 
 export default {
 	...models,
-	Document, 
-	Section, 
-	Paragraph, 
+	Document,
+	//Section, 
+	Paragraph,
 	Text,
 	Image,
 	Table, Row, Cell
