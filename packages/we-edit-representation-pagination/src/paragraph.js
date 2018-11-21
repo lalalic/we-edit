@@ -9,7 +9,7 @@ const {Paragraph:Base}=models
 import opportunities from "./wordwrap/line-break"
 import LineBreaker from "linebreak"
 import {Text as ComposedText,  Group, Line, Story} from "./composed"
-
+import Frame from "./frame"
 const {Info:LineInfo}=Story
 
 const Super=HasParentAndChild(Base)
@@ -100,7 +100,7 @@ export class Paragraph extends Super{
 	        return w
 	    })(width);
 
-        let line=new LineInfo({...space, width:composableWidth})
+        let line=new Frame.Line({...space, width:composableWidth})
 		if(this.props.numbering && this.computed.composed.length==0){
 			let {numbering:{label}, indent:{firstLine}}=this.props
 			let {defaultStyle}=new this.context.Measure(label.props)
@@ -129,129 +129,31 @@ export class Paragraph extends Super{
     }
 
     onAllChildrenComposed(){//need append last non-full-width line to parent
-		let i=this.commit()
-		while(Number.isInteger(i)){
-			i=this.commit(i)
-		}
-
+		this.commit()
 		super.onAllChildrenComposed()
 		this.commitCurrentLine()
     }
 
-	/**@Todo
-	* frame dirty change, or current line height change, so refresh line
-	* i: need recompose line from atoms[i]
-	* true: not need recompose, continue compose
-	**/
-	refreshCurrentLine(height=this.currentLine.height){
-		const space=this.context.parent.nextAvailableSpace({width:this.currentLine.availableWidth, height})
-		if(this.currentLine.spaceEquals(space)){
-			return true
-		}else{
-			let first=this.currentLine.first
-			this.computed.composed.pop()
-			this.computed.composed.push(this._newLine(space))
-			if(!first){
-				return -1
-			}else{
-				return this.computed.atoms.indexOf(first)
-			}
-		}
-	}
 
-	commitAnchored(anchor){
-		if(this.frame.appendComposed(content,this.currentLine)===false){
-			//need recompose for current page
-			//so stop here
-			return false
-		}else{
-			let i=0
-			if((i=this.refreshCurrentLine())===true){//to get line dirty areas
-				//placeholder already in this.currentLine.blocks
-			}else{
-				return i
-			}
-		}
-	}
-
-	commit(from=0){
-		const isEmptyFirstLine=()=>this.computed.composed.length==1 && this.currentLine.isEmpty()
-		const append=content=>{
-			switch(this.currentLine.appendComposed(content)){
-			case 0:
-			}
-			else{
-				if(isEmptyFirstLine()){
-					const [content0,content1]=this.split(content, availableWidth)
-					if(content0){
-						this.currentLine.push(content0)
-						content=content1
-					}
-				}
+	commit(){
+		for(let i=0,len=this.computed.atoms.length;i<len;){
+			const appended=this.currentLine.append(content,i)
+			if(appended===false){
 				this.commitCurrentLine()
 				const {width,minWidth=width,height}=content.props
-				this.computed.composed.push(this._newLine(this.context.parent.nextAvailableSpace({width,height})))
-				return append(content)
+				this.computed.composed.push(this._newLine(this.context.parent.nextAvailableSpace({width:minWidth,height})))
+				continue
 			}
-		}
-		
-		const append=(content,il=0)=>{
-			const {width,minWidth=width,height,anchor}=content.props
-	        if(anchor){
-				this.currentLine.appendComposed(content)
+			if(Number.isInteger(appended)){
+				i=appended
+				continue
 			}
 
-			if(this.currentLine.availableHeight<height){
-				let i=0
-				if((i=this.refreshCurrentLine(height))===true){
-
-				}else{
-					return i
-				}
-			}
-
-	        const availableWidth=this.currentLine.availableWidth(minWidth)
-
-			if(availableWidth>=minWidth || il>1){
-				this.currentLine.push(content)
-	        }else{
-				if(this.computed.composed.length==1 && this.currentLine.isEmpty()){//empty first line
-					//split word or hyphen word for availableWidth, and leave left part to next line
-					const [content0,content1]=this.split(content, availableWidth)
-					if(content0){
-						this.currentLine.push(content0)
-						content=content1
-						il=0
-					}
-				}
-				this.commitCurrentLine()
-				this.computed.composed.push(this._newLine(this.context.parent.nextAvailableSpace({width,height})))
-				append(content,++il)
-	        }
-		}
-
-		for(let i=from,len=this.computed.atoms.length,b;i<len;i++){
-			if((b=append(this.computed.atoms[i]))===false){
-				return
-			}else if(Number.isInteger(b)){
-				if(b==-1)
-					return i
-				return b
-			}
+			i++
 		}
 	}
 
-	get frame(){
-		let current=this.context.parent
-		while(current){
-			if(current.isFrame())
-				return current
-			current=current.context.parent
-		}
-		return current
-	}
-
-    createComposed2Parent(line){
+	createComposed2Parent(line){
         const {height, width, ...others}=line
         let {
 			spacing:{lineHeight="100%",top=0, bottom=0},

@@ -44,9 +44,10 @@ export default class Frame extends Super{
 
 	exclusive(height){
 		const {x=0,y=0}=this.props
+		let y2=y+this.currentY, x2=x+this.props.width
+
 		return this.blocks.reduce((collected,a)=>{
 			let framed=new ComposedFrame(a.props)
-			let y2=y+this.currentY, x2=x+this.props.width
 			collected.push(framed.intersects({
 				x1:x,
 				x2,
@@ -87,11 +88,7 @@ export default class Frame extends Super{
 	}
 
 	appendComposed(content){
-		if(content.props.anchor){
-			return content.props.anchor.appendTo(this, React.cloneElement(content,{anchor:undefined}))
-		}else{
-			this.computed.composed.push(content)
-		}
+		this.computed.composed.push(content)
 	}
 
 	onAllChildrenComposed(){
@@ -134,114 +131,95 @@ export default class Frame extends Super{
 	get blocks(){
 		return this.computed.composed.filter(({props:{x,y}})=>x!=undefined || y!=undefined)
 	}
-}
 
-class Line extends Component{
-	constructor({width,height,blocks,frame}){
-		super(...arguments)
-		this.content=[]
-		Object.defineProperties(this,{
-			height:{
-				enumerable:true,
-				configurable:true,
-				get(){
-					return this.content.reduce((h,{props:{height}})=>Math.max(h,height),0)
-				}
-			},
-			children:{
-				enumerable:true,
-				configurable:true,
-				get(){
-					return this.content
-				}
-			}
-		})
-		this.availableHeight=height
-	}
-	
-	/**
-	* -2:avaialbeWidth
-	* -1:availableWidth not enough
-	* 0: appended
-	* 2: recompose full line 
-	*/
-	appendComposed(){
-		
-	}
 
-	appendAnchored(anchored){
-		const anchorHost=this.props.frame.anchorHost
-		const anchor=anchored.props.anchor
-		const {x,y}=anchor.xy()
-		const {width,height}=anchor.props
-		const dirty=anchorHost.isDirtyIn({x,y,height,width})
-		anchorHost.appendComposed(anchor)
-		if(dirty){
-			if(anchorHost.recompose(this)){//can hold in current page
-				//it can be recovered from here
-			}else{//can't hold in current page
-				//
+	static Group=Group
+	static Line=class extends Component{
+		constructor({width,height,blocks,frame}){
+			super(...arguments)
+			this.content=[]
+			Object.defineProperties(this,{
+				height:{
+					enumerable:true,
+					configurable:true,
+					get(){
+						return this.content.reduce((h,{props:{height}})=>Math.max(h,height),0)
+					}
+				},
+				children:{
+					enumerable:true,
+					configurable:true,
+					get(){
+						return this.content
+					}
+				}
+			})
+			this.availableHeight=height
+		}
+
+		appendComposed(atom,at){
+			const {width,minWidth=width,anchor,height}=atom.props
+			if(anchor){
+				const {x,y}=anchor.xy(this)
+				const dirty=this.frame.isDirtyIn({x,y,width,height})
+				this.frame.appendComposed(React.cloneElement(atom,{x,y,anchor:undefined}))
+				if(dirty){
+					const recomposed=this.frame.recompose()
+					if(recomposed){
+						this.frame.replaceComposedWith(recomposed)
+						return recomposed.to
+					}else{
+						const next=this.frame.next()
+						if(next){
+							this.frame=next
+							return this.appendComposed(...arguments)
+						}
+					}
+				}
+
+				const newBlocks=this.frame.exclusive(this.height)
+				if(this.shouldRecompose(newBlocks)){
+					at-=this.flowCount
+					this.content=[]
+					return at
+				}else{
+
+				}
+			}else if(minWidth==0 || this.availableWidth>=minWidth){
+				this.blocks=this.blocks.map((a,i)=>{
+					if((this.currentX+minWidth)>a.props.x){
+						this.content.push(a)
+						this.blocks[i]=null
+					}else{
+						return a
+					}
+				}).filter(a=>!!a)
+
+				this.content.push(atom)
+			}else{
+				return false
 			}
 		}
-		return dirty
-	}
 
-
-	get first(){
-		return this.content.find(a=>a.x===undefined)
-	}
-
-	spaceEquals({blocks=[]}){
-		const {blocks:myBlocks=[]}=this.space
-		return myBlocks.length==blocks.length && -1==blocks.findIndex((a,i)=>a.x!==myBlocks[i].x && a.width!==myBlocks[i].width)
-	}
-
-	availableWidth(min=0){
-		if(min==0)
-			return 1
-		this.blocks=this.blocks.map((a,i)=>{
-			if((this.currentX+min)>a.props.x){
-				this.content.push(a)
-				this.blocks[i]=null
-			}else{
-				return a
-			}
-		}).filter(a=>!!a)
-
-		let avW=this.width-this.currentX
-		if(avW>=min)
-			return avW
-		return 0
-	}
-
-	push(piece){
-		if(piece.props.x!=undefined){
-			if(piece.props.x<this.currentX){
-				const pops=[]
-				while(piece.props.x<this.currentX){
-					pops.unshift(this.content.pop())
-				}
-				this.content.push(piece)
-				this.content.splice(this.content.length,0,...pops)
-			}else{
-				this.content.push(piece)
-			}
-		}else{
-			this.content.push(piece)
+		shouldRecompose(newBlocks){
+			const applied=this.content.filter(a=>a.props.x!==undefined)
+			const notShould=applied.reduce((notShould,{props:{x,width}},i)=>notShould && !!(a=newBlocks[i]) && a.x==x && a.width==width, true)
+			this.blocks= notShould ? newBlocks.slice(applied.length) : newBlocks
+			return !notShould
 		}
-	}
 
-	commit(){
-		this.blocks.forEach(a=>this.content.push(a))
-		this.blocks=[]
-		return this
-	}
+		commit(){
+			this.blocks.forEach(a=>this.content.push(a))
+			this.blocks=[]
+			return this
+		}
 
-	isEmpty(){
-		return !!this.first
-	}
+		get flowCount(){
+			return this.content.reduce((count,a)=>a.props.x==undefined ? count++ : count,0)
+		}
 
-	get currentX(){
-		return this.content.reduce((x,{props:{width,x:x0}})=>x0!=undefined ? x0+width : x+width,0)
+		get currentX(){
+			return this.content.reduce((x,{props:{width,x:x0}})=>x0!=undefined ? x0+width : x+width,0)
+		}
 	}
 }

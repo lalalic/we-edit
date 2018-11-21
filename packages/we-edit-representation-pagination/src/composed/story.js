@@ -151,13 +151,11 @@ export default class Story extends Component{
 	}
 
 	static Info=class{
-		constructor({width,height,blocks=[],anchors=[]}){
-			this.space=arguments[0]
+		constructor({width,height,blocks=[],frame}){
 			this.width=width
 			this.availableHeight=height
 			this.content=[]
 			this.blocks=blocks.map(({x,width})=><Group {...{x,width,height:0}}/>)
-			this.anchors=anchors
 
 			Object.defineProperties(this,{
 				height:{
@@ -176,11 +174,11 @@ export default class Story extends Component{
 				}
 			})
 		}
-		
+
 		get first(){
 			return this.content.find(a=>a.x===undefined)
 		}
-		
+
 		spaceEquals({blocks=[]}){
 			const {blocks:myBlocks=[]}=this.space
 			return myBlocks.length==blocks.length && -1==blocks.findIndex((a,i)=>a.x!==myBlocks[i].x && a.width!==myBlocks[i].width)

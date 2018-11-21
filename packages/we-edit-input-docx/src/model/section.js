@@ -50,13 +50,21 @@ export default ({Template,Frame})=>{
 					return false
 				}
 			}
-			return this.currentColumn.nextAvailableSpace(required)
+
+			const {width,x,y}=this.currentColumn
+			return {
+				width,
+				height:minRequiredH||this.currentColumn.availableHeight,
+				blocks:this.exclusive(),
+				frame:this
+			}
 		}
 
 		appendComposed(line){
-			const {height:contentHeight, anchor}=line.props
-
-			if(contentHeight-this.currentColumn.availableHeight>1){
+			const {height:contentHeight, anchor, x, y}=line.props
+			if(x!=undefined || y!=undefined){
+				this.computed.composed.push(line)
+			}else if(contentHeight-this.currentColumn.availableHeight>1){
 				if(this.cols.length>this.columns.length){// new column
 					this.createColumn()
 				}else{
@@ -64,19 +72,40 @@ export default ({Template,Frame})=>{
 				}
 			}
 
-			return this.currentColumn.appendComposed(line)
+			return this.currentColumn.children.push(line)
 		}
 
 		createColumn(){
-			this.columns.push(Object.assign(new Frame({
+			const column={
 				...this.cols[this.columns.length],
 				children:[],
 				className:"column"
-			},{anchorHost:this}),this.context))
+			}
+			Object.defineProperties(column,{
+				availableHeight:{
+					enumerable:false,
+					configurable:false,
+					get(){
+						return column.children.reduce((h,a)=>h-a.props.height,column.height)
+					}
+				}
+			})
+			this.columns.push(column)
 		}
 
 		get content(){
-			return [...this.computed.composed, ...this.columns.map(a=>a.createComposed2Parent())]
+			return [
+				...this.computed.composed,
+				...this.columns.map(({children,...props},i)=>(
+					<Frame.Group {...props} key={i}>
+						{children.reduce((state,a,key)=>{
+							state.rows.push(React.cloneElement(a,{y:state.y,key}))
+							state.y+=a.props.height
+							return state
+						},{rows:[],y:0}).rows}
+					</Frame.Group>
+				))
+			]
 		}
 
 		get currentColumn(){
@@ -86,6 +115,18 @@ export default ({Template,Frame})=>{
 		createComposed2Parent(container){
 			const {i:key,width,height,margin}=this.props
 			return React.cloneElement(container,{key,children:this.content,width,height,margin})
+		}
+
+		recompose(){
+			throw new Error("not support yet")
+		}
+
+		replaceComposedWith(recomposed){
+			throw new Error("not support yet")
+		}
+
+		next(){
+			this.context.parent.createPage()
 		}
 	}
 

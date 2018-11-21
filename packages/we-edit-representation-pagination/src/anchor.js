@@ -75,9 +75,9 @@ class Anchor extends Super{
     }
 
 
-    xy(frame){
-        const x=new (this.constructor.Positioning[this.props.x.base])(frame,this).x(this.props.x)
-        const y=new (this.constructor.Positioning[this.props.y.base])(frame,this).y(this.props.y)
+    xy(line){
+        const x=new (this.constructor.Positioning[this.props.x.base])(line,this).x(this.props.x)
+        const y=new (this.constructor.Positioning[this.props.y.base])(line,this).y(this.props.y)
         return {x,y}
     }
 }
