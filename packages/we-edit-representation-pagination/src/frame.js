@@ -135,9 +135,10 @@ export default class Frame extends Super{
 
 	static Group=Group
 	static Line=class extends Component{
-		constructor({width,height,blocks,frame}){
+		constructor({width,height,blocks=[],frame}){
 			super(...arguments)
 			this.content=[]
+			this.blocks=blocks
 			Object.defineProperties(this,{
 				height:{
 					enumerable:true,
@@ -152,9 +153,23 @@ export default class Frame extends Super{
 					get(){
 						return this.content
 					}
+				},
+				availableHeight:{
+					enumerable:false,
+					configurable:false,
+					get(){
+						return height
+					}
+				},
+				width:{
+					enumerable:true,
+					configurable:false,
+					get(){
+						return width
+					}
 				}
+				
 			})
-			this.availableHeight=height
 		}
 
 		appendComposed(atom,at){
@@ -220,6 +235,10 @@ export default class Frame extends Super{
 
 		get currentX(){
 			return this.content.reduce((x,{props:{width,x:x0}})=>x0!=undefined ? x0+width : x+width,0)
+		}
+		
+		get availableWidth(){
+			return this.props.width-this.currentX
 		}
 	}
 }

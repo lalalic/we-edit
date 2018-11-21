@@ -136,11 +136,12 @@ export class Paragraph extends Super{
 
 
 	commit(){
-		for(let i=0,len=this.computed.atoms.length;i<len;){
-			const appended=this.currentLine.append(content,i)
+		for(let i=0,len=this.computed.atoms.length,content;i<len;){
+			content=this.computed.atoms[i]
+			var appended=this.currentLine.appendComposed(content,i)
 			if(appended===false){
 				this.commitCurrentLine()
-				const {width,minWidth=width,height}=content.props
+				var {width,minWidth=width,height}=content.props
 				this.computed.composed.push(this._newLine(this.context.parent.nextAvailableSpace({width:minWidth,height})))
 				continue
 			}
