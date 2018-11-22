@@ -17,7 +17,8 @@ export default class Frame extends Super{
 		return {
 			width:maxWidth,
 			height:this.availableHeight,
-			blocks:this.exclusive(minHeight)
+			blocks:this.exclusive(minHeight),
+			frame:this,
 		}
 	}
 
@@ -32,24 +33,14 @@ export default class Frame extends Super{
 		return !!this.blocks.find(({props:{x,y,width,height}})=>isIntersect(rect,{x,y,width,height}))
 	}
 
-	exclusive(height){
-		const {x=0,y=0}=this.props
-		let y2=y+this.currentY, x2=x+this.props.width
-
-		return this.blocks.reduce((collected,a)=>{
-			let framed=a.props.wrap
-			collected.push(framed.intersects({
-				x1:x,
-				x2,
-				y2,
-			}))
-			if(height){
-				collected.push(framed.intersects({
-					x1:x,
-					x2,
-					y2:y2+height
-				}))
-			}
+	exclusive(height,current){
+		current=current||(({x=0,y=0,width})=>({x1:x,x2:x+width,y2:y+this.currentY}))(this.props);
+		const lines=[current]
+		if(height)
+			lines.push({...current, y2:current.y2+height})
+		
+		return this.blocks.reduce((collected,{props:{wrap}})=>{
+			lines.forEach(line=>collected.push(wrap(line)))
 			return collected
 		},[])
 		.filter(a=>!!a)
@@ -91,7 +82,8 @@ export default class Frame extends Super{
 	createComposed2Parent() {
 		let {width,height=this.currentY,wrap, x,y,z,geometry=`M${x} ${y} h${width} v${height} h${-width} z`,named}=this.props
 		if(wrap){
-			wrap=new this.constructor.Wrap(wrap,geometry)
+			const wrapper=new this.constructor.Wrap(wrap,geometry)
+			wrap=wrapper.intersects.bind(wrapper)
 		}
 		return (
 			<Group {...{width,height,wrap,x,y,z,named, className:"frame"}}>
