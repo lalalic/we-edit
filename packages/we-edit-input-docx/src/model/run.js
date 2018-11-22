@@ -21,7 +21,7 @@ export default ({Container})=>class extends Component{
 			<Container {...props} type={this.constructor.displayName}>
 			{
 				React.Children.map(this.props.children,a=>{
-					if(a.type.displayName.endsWith("-text")){
+					if(a.type.displayName=="text"){
 						return React.cloneElement(a,style)
 					}else
 						return a

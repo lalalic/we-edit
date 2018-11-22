@@ -100,7 +100,7 @@ export class Paragraph extends Super{
 	        return w
 	    })(width);
 
-        let line=new Frame.Line({...space, width:composableWidth})
+        let line=new Frame.Line({...space, width:composableWidth},{parent:this})
 		if(this.props.numbering && this.computed.composed.length==0){
 			let {numbering:{label}, indent:{firstLine}}=this.props
 			let {defaultStyle}=new this.context.Measure(label.props)

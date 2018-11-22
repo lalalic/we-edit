@@ -74,7 +74,7 @@ export default class DocxType extends Input.Editable{
 		const styles=this.styles=this.constructor.createStyles()
 
 		const createStylesElement=()=>createElement(
-			Transformers.Styles(components),
+			components.Styles,
 			{styles:{...styles}},
 			null,
 			{id:"styles"}
@@ -185,7 +185,7 @@ export default class DocxType extends Input.Editable{
 				hf("header")
 				hf("footer")
 
-				return createElement(Transformers.Section(components),style,children,node)
+				return createElement(components.Section,style,children,node)
 			}
 			case "tbl":{
 				let cols=selector.select([node.children.find(a=>a.name=="w:tblGrid")]).tblGrid
@@ -221,7 +221,7 @@ export default class DocxType extends Input.Editable{
 			case "r":{
 				let style= !props.pr ? styles['*character'] : new Style.Character.Direct(props.pr,  styles, selector)
 
-				return createElement(Transformers.Run(components),{style},children,node)
+				return createElement(components.Run,{style},children,node)
 			}
 			case "t":
 				return createElement(components.Text,{},children[0]||"",node)

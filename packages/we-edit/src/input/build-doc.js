@@ -16,15 +16,14 @@ import ContextProvider from "./context-provider"
 
 export default function buildEditableDoc(doc,inputTypeInstance){
 	const id=uuid()
-	const Transformed=inputTypeInstance.transform(Components)
+	const transform=inputTypeInstance.transform
+	const TypedComponents=transform(Components)
 	inputTypeInstance.doc=doc
 	let store=null
 
 	const getDocStore=memoize((store,id)=>new LocalStore(store, "we-edit", state=>state['we-edit'].docs[id].state))
 
 	const editableDoc={
-		Transformed,
-
 		editable(){
 			return !!inputTypeInstance.onChange
 		},
@@ -55,7 +54,7 @@ export default function buildEditableDoc(doc,inputTypeInstance){
                     <ContextProvider
                         doc={editableDoc}
                         onQuit={release ? onQuit : null}
-                        transformer={inputTypeInstance.transform}
+                        transformer={transform}
                         {...props}
                         >
                         {children}
@@ -69,7 +68,7 @@ export default function buildEditableDoc(doc,inputTypeInstance){
 		buildReducer(extendReducer=a=>a){
 			let createElementFactory=createElementFactoryBuilder(inputTypeInstance)
 			let changeReducer=changeReducerBuilder(createElementFactory,inputTypeInstance)
-			let content=new Map().withMutations(a=>inputTypeInstance.render(createElementFactory(a),Components))
+			let content=new Map().withMutations(a=>inputTypeInstance.render(createElementFactory(a),TypedComponents))
 
 			let _reducer=undoable(changeReducer)
 			let INIT_STATE=createState(doc,content)

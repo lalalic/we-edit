@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 
 
 export default ({Cell})=>class extends Component{
-	static displayName="docx-cell"
+	static displayName="cell"
 	static childContextTypes={
 		p: PropTypes.object,
 		r: PropTypes.object

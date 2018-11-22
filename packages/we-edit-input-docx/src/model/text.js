@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 
 
 export default ({Text})=>class extends Component{
-	static displayName="docx-text"
+	static displayName="text"
 	static contextTypes={
 		r: PropTypes.object
 	}

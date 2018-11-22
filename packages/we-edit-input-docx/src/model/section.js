@@ -117,6 +117,10 @@ export default ({Template,Frame})=>{
 			return React.cloneElement(container,{key,children:this.content,width,height,margin})
 		}
 
+		paragraphY(id){
+			return 0
+		}
+
 		recompose(){
 			throw new Error("not support yet")
 		}
@@ -131,7 +135,7 @@ export default ({Template,Frame})=>{
 	}
 
 	return class extends Component{
-		static displayName=`section`
+		static displayName="section"
 		static propTypes={
 			cols: PropTypes.shape({
 				num: PropTypes.number.isRequired,

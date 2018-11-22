@@ -7,7 +7,7 @@ import Run from "./run"
 
 
 export default ({Text, Paragraph})=>class extends Component{
-	static displayName="docx-paragraph"
+	static displayName="paragraph"
 	static propTypes={
 		style: PropTypes.object.isRequired
 	}

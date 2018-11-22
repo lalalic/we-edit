@@ -2,7 +2,7 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 
 export default ({Document})=>class extends Component{
-	static displayName="docx-document"
+	static displayName="document"
 
 	static childContextTypes={
 		styles: PropTypes.object,

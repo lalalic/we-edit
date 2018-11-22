@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 
 
 export default ({Table})=>class extends Component{
-	static displayName="docx-table"
+	static displayName="table"
 	static namedStyle="*table"
 
 	static contextTypes={

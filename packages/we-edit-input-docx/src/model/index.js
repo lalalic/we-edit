@@ -8,6 +8,7 @@ import Run from "./run"
 
 import Table from "./table"
 import Cell from "./cell"
+import Anchor from "./anchor"
 
 const createUnvisibleComponent=type=>{
 	return class extends Component{
@@ -23,10 +24,10 @@ export default {
 	Section,
 	Paragraph,
 	Text,
+	Anchor,
 	Run,
 	Cell,
 	Table,
-	Template: Section,
 	Styles:()=>createUnvisibleComponent("styles"),
 	Style:()=>createUnvisibleComponent("style"),
 }
