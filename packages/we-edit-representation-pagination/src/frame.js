@@ -35,6 +35,7 @@ export default class Frame extends Super{
 
 	exclusive(height,current){
 		current=current||(({x=0,y=0,width})=>({x1:x,x2:x+width,y2:y+this.currentY}))(this.props);
+		const x0=current.x1
 		const lines=[current]
 		if(height)
 			lines.push({...current, y2:current.y2+height})
@@ -65,7 +66,7 @@ export default class Frame extends Super{
 			return state
 		},{merged:[],starts:[], ends:[]})
 		.merged
-		.map(a=>({x:a.x-x0, ...a}))
+		.map(a=>(a.x-=x0,a))
 	}
 
 	appendComposed(content){
@@ -123,6 +124,10 @@ export default class Frame extends Super{
 
 	get blocks(){
 		return this.computed.composed.filter(({props:{wrap}})=>!!wrap)
+	}
+	
+	composed(id){
+		return !!this.computed.composed.find(a=>a.props["data-content"]==id)
 	}
 
 	static Group=Group
@@ -182,10 +187,10 @@ export default class Frame extends Super{
 
 		appendComposed(atom,at){
 			const {width,minWidth=width,anchor,height}=atom.props
-			if(anchor){
+			if(anchor && !this.frame.composed(anchor.props.id)){
 				const {x,y}=anchor.xy(this)
 				const dirty=this.frame.isDirtyIn({x,y,width,height})
-				this.frame.appendComposed(React.cloneElement(atom,{x,y,anchor:undefined}))
+				this.frame.appendComposed(React.cloneElement(atom,{x,y,anchor:undefined,wrap:anchor.wrap({x,y})}))
 				if(dirty){
 					const recomposed=this.frame.recompose()
 					if(recomposed){
@@ -202,7 +207,8 @@ export default class Frame extends Super{
 
 				const newBlocks=this.frame.exclusive(this.height)
 				if(this.shouldRecompose(newBlocks)){
-					at-=(this.content.reduce((count,a)=>a.props.x==undefined ? count++ : count,0))
+					const flowCount=(this.content.reduce((count,a)=>a.props.x==undefined ? count+1 : count,0))
+					at=at-flowCount
 					this.content=[]
 					return at
 				}else{
@@ -210,8 +216,8 @@ export default class Frame extends Super{
 				}
 			}else if(minWidth==0 || this.availableWidth>=minWidth){
 				this.blocks=this.blocks.map((a,i)=>{
-					if((this.currentX+minWidth)>a.props.x){
-						this.content.push(a)
+					if((this.currentX+minWidth)>a.x){
+						this.content.push(<Group {...a} height={0}/>)
 						this.blocks[i]=null
 					}else{
 						return a
@@ -227,12 +233,23 @@ export default class Frame extends Super{
 		shouldRecompose(newBlocks){
 			const applied=this.content.filter(a=>a.props.x!==undefined)
 			const notShould=applied.reduce((notShould,{props:{x,width}},i)=>notShould && !!(a=newBlocks[i]) && a.x==x && a.width==width, true)
-			this.blocks= notShould ? newBlocks.slice(applied.length) : newBlocks
-			return !notShould
+			if(notShould){
+				let notApplied=newBlocks.slice(applied.length)
+				if(notApplied.slice(0,1).reduce((should,a)=>a.x<this.currentX,false)){
+					this.blocks=newBlocks
+					return true
+				}else{
+					this.bloks=notApplied
+				}
+				return false
+			}else{
+				this.blocks=newBlocks
+				return true
+			}
 		}
 
 		commit(){
-			this.blocks.forEach(a=>this.content.push(a))
+			this.blocks.forEach(a=>this.content.push(<Group {...a} height={0}/>))
 			this.blocks=[]
 			return this
 		}
