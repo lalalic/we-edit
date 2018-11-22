@@ -1,6 +1,6 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
-import SVGPath from "./tool/svg-path"
+
 
 import composable,{HasParentAndChild} from "./composable"
 import {models} from "we-edit"
@@ -80,13 +80,9 @@ export default class Frame extends Super{
 	}
 
 	createComposed2Parent() {
-		let {width,height=this.currentY,wrap, x,y,z,geometry=`M${x} ${y} h${width} v${height} h${-width} z`,named}=this.props
-		if(wrap){
-			const wrapper=new this.constructor.Wrap(wrap,geometry)
-			wrap=wrapper.intersects.bind(wrapper)
-		}
+		let {width,height=this.currentY, x,y,z,named}=this.props
 		return (
-			<Group {...{width,height,wrap,x,y,z,named, className:"frame"}}>
+			<Group {...{width,height,x,y,z,named, className:"frame"}}>
 				{this.computed.composed.reduce((state,a,i)=>{
 					if(a.props.y==undefined){
 						state.positioned.push(React.cloneElement(a,{y:state.y,key:i}))
@@ -130,37 +126,7 @@ export default class Frame extends Super{
 	}
 
 	static Group=Group
-	static Wrap=class{
-		constructor(type, geometry){
-			this.type=type
-			this.geometry=new SVGPath(geometry)
-		}
 
-		intersects(line){
-			return this[type](...arguments)
-		}
-
-	    square({x2,y2,x1=0,y1=y2}){
-			const points=this.geometry.intersects({x1,x2,y1,y2})
-			if(points.length>0){
-				let {x}=points[0]
-				let {x:x1}=points.pop()
-				return {x:Math.min(x,x1), width:Math.abs(x1-x)}
-			}
-	    }
-
-	    tight(){
-	        return this.square(...arguments)
-	    }
-
-	    throught(){
-	        return this.square(...arguments)
-	    }
-
-		topAndBottom(){
-	        return this.square(...arguments)
-	    }
-	}
 	static Line=class extends Component{
 		constructor({width,height,blocks=[],frame}){
 			super(...arguments)
