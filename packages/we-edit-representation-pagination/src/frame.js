@@ -11,16 +11,6 @@ import {Frame as ComposedFrame, Group} from "./composed"
 const Super=HasParentAndChild(Base)
 
 export default class Frame extends Super{
-	static contextTypes={
-		...Super.contextTypes,
-		currentPage: PropTypes.func
-	}
-
-	constructor(){
-		super(...arguments)
-		this.anchorHost=this
-	}
-
 	nextAvailableSpace(required={}){
 		const {width:maxWidth}=this.props
 		const {height:minHeight}=required
@@ -99,9 +89,9 @@ export default class Frame extends Super{
 	}
 
 	createComposed2Parent() {
-		let {width,height=this.currentY,wrap,margin, x,y,z,geometry,named}=this.props
+		let {width,height=this.currentY,wrap, x,y,z,geometry,named}=this.props
 		return (
-			<ComposedFrame {...{width,height,wrap,margin,x,y,z,geometry,named}}>
+			<Group {...{width,height,wrap,x,y,z,geometry,named}}>
 				{this.computed.composed.reduce((state,a,i)=>{
 					if(a.props.y==undefined){
 						state.positioned.push(React.cloneElement(a,{y:state.y,key:i}))
@@ -111,9 +101,21 @@ export default class Frame extends Super{
 					}
 					return state
 				},{y:0,positioned:[]}).positioned}
-			</ComposedFrame>
+			</Group>
 		)
     }
+
+	recompose(){
+		throw new Error("not support yet")
+	}
+
+	replaceComposedWith(recomposed){
+		throw new Error("not support yet")
+	}
+
+	next(){
+		throw new Error("not support yet")
+	}
 
 	get availableHeight(){
 		if(this.props.height==undefined)
@@ -161,6 +163,20 @@ export default class Frame extends Super{
 						return height
 					}
 				},
+				availableWidth:{
+					enumerable:false,
+					configurable:false,
+					get(){
+						return width-this.currentX
+					}
+				},
+				currentX:{
+					enumerable:false,
+					configurable:false,
+					get(){
+						return this.content.reduce((x,{props:{width,x:x0}})=>x0!=undefined ? x0+width : x+width,0)
+					}
+				},
 				width:{
 					enumerable:true,
 					configurable:false,
@@ -168,7 +184,7 @@ export default class Frame extends Super{
 						return width
 					}
 				}
-				
+
 			})
 		}
 
@@ -194,7 +210,7 @@ export default class Frame extends Super{
 
 				const newBlocks=this.frame.exclusive(this.height)
 				if(this.shouldRecompose(newBlocks)){
-					at-=this.flowCount
+					at-=(this.content.reduce((count,a)=>a.props.x==undefined ? count++ : count,0))
 					this.content=[]
 					return at
 				}else{
@@ -227,18 +243,6 @@ export default class Frame extends Super{
 			this.blocks.forEach(a=>this.content.push(a))
 			this.blocks=[]
 			return this
-		}
-
-		get flowCount(){
-			return this.content.reduce((count,a)=>a.props.x==undefined ? count++ : count,0)
-		}
-
-		get currentX(){
-			return this.content.reduce((x,{props:{width,x:x0}})=>x0!=undefined ? x0+width : x+width,0)
-		}
-		
-		get availableWidth(){
-			return this.props.width-this.currentX
 		}
 	}
 }

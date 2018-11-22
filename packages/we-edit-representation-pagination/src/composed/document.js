@@ -3,7 +3,6 @@ import PropTypes from "prop-types"
 import memoize from "memoize-one"
 
 import Group from "./group"
-import Page from "./page"
 import Media from "./media"
 
 export default class ComposedDocument extends Component{
