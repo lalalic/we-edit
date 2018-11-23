@@ -2,10 +2,7 @@ export default class{
     constructor(node, styles, selector){
         const find=name=>node.children.find(a=>a.name===name)
 
-        this.margin="Right,Left,Bottom,Top".split(",").reduce((margin,a)=>{
-                margin[a.toLowerCase()]=selector.docx.cm2Px(node.attribs[`dist${a[0]}`])
-                return margin
-            },{})
+        this.distance=selector.toDist(node)
 
         Object.assign(this,selector.selectValue(find("wp:extent")))//width,height
 
@@ -27,7 +24,7 @@ export default class{
     }
 
     flat(){
-        const {margin,x,y,wrap,width,height}=this
-        return {margin,x,y,wrap,width,height}
+        const {distance,x,y,wrap,width,height}=this
+        return {distance,x,y,wrap,width,height}
     }
 }

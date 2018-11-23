@@ -39,7 +39,7 @@ export default class Frame extends Super{
 		const lines=[current]
 		if(height)
 			lines.push({...current, y2:current.y2+height})
-		
+
 		return this.blocks.reduce((collected,{props:{wrap}})=>{
 			lines.forEach(line=>collected.push(wrap(line)))
 			return collected
@@ -125,9 +125,18 @@ export default class Frame extends Super{
 	get blocks(){
 		return this.computed.composed.filter(({props:{wrap}})=>!!wrap)
 	}
-	
+
+	belongsTo(a,id){
+		while(a && a.props){
+			if(a.props["data-content"]===id)
+				return true
+			a=React.Children.toArray(a.props.children)[0]
+		}
+		return false
+	}
+
 	composed(id){
-		return !!this.computed.composed.find(a=>a.props["data-content"]==id)
+		return !!this.computed.composed.find(a=>this.belongsTo(a,id))
 	}
 
 	static Group=Group
@@ -187,32 +196,41 @@ export default class Frame extends Super{
 
 		appendComposed(atom,at){
 			const {width,minWidth=width,anchor,height}=atom.props
-			if(anchor && !this.frame.composed(anchor.props.id)){
-				const {x,y}=anchor.xy(this)
-				const dirty=this.frame.isDirtyIn({x,y,width,height})
-				this.frame.appendComposed(React.cloneElement(atom,{x,y,anchor:undefined,wrap:anchor.wrap({x,y})}))
-				if(dirty){
-					const recomposed=this.frame.recompose()
-					if(recomposed){
-						this.frame.replaceComposedWith(recomposed)
-						return recomposed.to
-					}else{
-						const next=this.frame.next()
-						if(next){
-							this.frame=next
-							return this.appendComposed(...arguments)
+			if(anchor){
+				if(!this.frame.composed(anchor.props.id)){
+					const {x,y}=anchor.xy(this)
+					const geometry=anchor.wrapGeometry({x,y})
+					const dirty=this.frame.isDirtyIn(geometry)
+					const rect=anchor.bounds(geometry)
+
+					this.frame.appendComposed(
+						<Group {...rect} wrap={anchor.wrap(geometry)}>
+							{React.cloneElement(atom,{x:x-rect.x,y:y-rect.y,anchor:undefined})}
+						</Group>
+					)
+					if(dirty){
+						const recomposed=this.frame.recompose()
+						if(recomposed){
+							this.frame.replaceComposedWith(recomposed)
+							return recomposed.to
+						}else{
+							const next=this.frame.next()
+							if(next){
+								this.frame=next
+								return this.appendComposed(...arguments)
+							}
 						}
 					}
-				}
 
-				const newBlocks=this.frame.exclusive(this.height)
-				if(this.shouldRecompose(newBlocks)){
-					const flowCount=(this.content.reduce((count,a)=>a.props.x==undefined ? count+1 : count,0))
-					at=at-flowCount
-					this.content=[]
-					return at
-				}else{
+					const newBlocks=this.frame.exclusive(this.height)
+					if(this.shouldRecompose(newBlocks)){
+						const flowCount=(this.content.reduce((count,a)=>a.props.x==undefined ? count+1 : count,0))
+						at=at-flowCount
+						this.content=[]
+						return at
+					}else{
 
+					}
 				}
 			}else if(minWidth==0 || this.availableWidth>=minWidth){
 				this.blocks=this.blocks.map((a,i)=>{

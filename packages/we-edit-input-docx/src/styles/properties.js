@@ -5,7 +5,7 @@ export class Properties{
 		this.docx=docx
 		this.theme=getTheme(docx)
 		this.rStyle=this.pStyle=this.tblStyle=this._val
-		this.wrapTopAndBottom=this.wrapSquare=this.wrapTight=this.wrapThrough=this.wrap
+		this.wrapSquare=this.wrapTight=this.wrapThrough=this.wrapTopAndBottom=this.wrap
 		this.ext=this.extent
 		this.requireFonts=new Set()
 	}
@@ -369,8 +369,24 @@ export class Properties{
 		return props
 	}
 
+	wrapPolygon(x){
+		const xy=({attribs:{x,y}})=>({x:this.docx.cm2Px(x),y:this.docx.cm2Px(y)})
+		return x.children.map(a=>xy(a))
+	}
+
 	wrap(x){
-		return {mode:x.name.substring("wp:wrap".length),...x.attribs}
+		var props={
+			mode:x.name.substring("wp:wrap".length),
+			wrapText: x.attribs.wrapText,
+			distance: this.toDist(x),
+			...this.select(x.children,{wrapPolygon:"polygon"})
+		}
+
+		if(props.mode=="Square" && !props.distance){
+			let dt=this.docx.cm2Px(36000)
+			props.distance={left:dt,right:dt,top:dt,bottom:dt	}
+		}
+		return props
 	}
 /********************************/
 
@@ -394,6 +410,17 @@ export class Properties{
 		}
 	}
 
+	toDist(x,pre="dist"){
+		const dist="Right,Left,Bottom,Top".split(",").reduce((dist,a)=>{
+			if(x.attribs[`${pre}${a[0]}`]){
+	            dist[a.toLowerCase()]=this.docx.cm2Px(x.attribs[`${pre}${a[0]}`])
+			}
+            return dist
+        },{})
+
+		if(Object.keys(dist).length>0)
+			return dist
+	}
 
 
 	toSpacing(x){

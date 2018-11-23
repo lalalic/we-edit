@@ -58,18 +58,19 @@ export default ({Template,Frame})=>{
 				frame:this
 			}
 		}
-		
+
 		exclusive(height, current){
 			return super.exclusive(
-				height, 
+				height,
 				current||(({width,height,x,y})=>({x1:x,x2:x+width,y2:y+(height-this.currentColumn.availableHeight)}))(this.currentColumn)
 			)
 		}
 
 		appendComposed(line){
 			const {height:contentHeight, anchor, x, y}=line.props
-			if(x!=undefined || y!=undefined){
+			if(x!=undefined || y!=undefined){//anchored
 				this.computed.composed.push(line)
+				return
 			}else if(contentHeight-this.currentColumn.availableHeight>1){
 				if(this.cols.length>this.columns.length){// new column
 					this.createColumn()
@@ -125,40 +126,32 @@ export default ({Template,Frame})=>{
 
 		paragraphY(id){
 			let lastLine=this.columns.reduceRight((line,a)=>line ? line : a.children[a.children.length-1],null)
-			const belongsTo=(a,id)=>{
-				while(a && a.props){
-					if(a.props["data-content"]===id)
-						return true
-					a=React.Children.toArray(a.props.children)[0]
-				}
-				return false
-			}
-			
+
 			const findLastLineNotBelongTo=(id)=>{
 				for(let i=this.columns.length-1;i>=0;i--){
 					let lines=this.columns[i].children
 					for(let k=lines.length-1;k>=0;k--){
 						let line=lines[k]
-						if(!belongsTo(line,id)){
-							return line 
+						if(!this.belongsTo(line,id)){
+							return line
 						}
 					}
 				}
 			}
-			
-			if(lastLine && belongsTo(lastLine,id)){
+
+			if(lastLine && this.belongsTo(lastLine,id)){
 				lastLine=findLastLineNotBelongTo(id)
 			}
-			
+
 			if(!lastLine){
-				return this.props.margin.top||0
+				return this.currentColumn.y
 			}
-			
+
 			const lineEndY=line=>{
 				var {y,children:lines}=this.columns.find(a=>a.children.includes(line))
 				return y+lines.slice(0,lines.indexOf(line)+1).reduce((y,a)=>y+a.props.height,0)
 			}
-			
+
 			return lineEndY(lastLine)
 		}
 

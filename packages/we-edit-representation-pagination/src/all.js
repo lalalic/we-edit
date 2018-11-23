@@ -1,5 +1,5 @@
 import {models} from "we-edit"
-import {HasParentAndChild,Locatable,Recomposable} from "./composable"
+import {HasParentAndChild,Locatable} from "./composable"
 
 import Document from "./document"
 import Template from "./template"
@@ -12,6 +12,7 @@ import Cell from "./cell"
 import Frame from "./frame"
 import Anchor from "./anchor"
 import Shape from "./shape"
+import Container from "./container"
 
 export default Locatable.enable(HasParentAndChild.enable(models,{
 	Document,
@@ -26,4 +27,5 @@ export default Locatable.enable(HasParentAndChild.enable(models,{
 	Frame,
 	Shape,
 	Anchor,
+	Container,
 }))
