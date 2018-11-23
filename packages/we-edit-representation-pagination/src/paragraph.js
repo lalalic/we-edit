@@ -155,7 +155,7 @@ export class Paragraph extends Super{
 	}
 
 	createComposed2Parent(line){
-        const {height, width, ...others}=line
+        const {height, width, children, ...others}=line
         let {
 			spacing:{lineHeight="100%",top=0, bottom=0},
 			indent:{left=0,right=0,firstLine=0},
@@ -182,7 +182,7 @@ export class Paragraph extends Super{
         return (
             <Line height={lineHeight} width={width}>
                 <Group x={contentX} y={contentY} width={width} height={height}>
-                   <Story width={width} height={height} {...others} align={align}/>
+                   <Story width={width} height={height} children={children} align={align}/>
                 </Group>
             </Line>
         )

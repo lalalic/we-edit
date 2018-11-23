@@ -22,15 +22,23 @@ export default class Frame extends Super{
 		}
 	}
 
-	isDirtyIn(rect){
-		const isIntersect=(A,B)=>!(
-				((A.x+A.width)<B.x) ||
-				(A.x>(B.x+B.width)) ||
-				(A.y>(B.y+B.height))||
-				((A.y+A.height)<B.y)
-			)
+	isIntersect(A,B){
+		return !(
+			((A.x+A.width)<B.x) ||
+			(A.x>(B.x+B.width)) ||
+			(A.y>(B.y+B.height))||
+			((A.y+A.height)<B.y)
+		)
+	}
 
-		return !!this.blocks.find(({props:{x,y,width,height}})=>isIntersect(rect,{x,y,width,height}))
+	isDirtyIn(rect){
+		if(this.blocks.find(({props:{x,y,width,height}})=>this.isIntersect(rect,{x,y,width,height}))){
+			return true
+		}
+		if(this.isIntersect(rect,{x:0,y:0,width:this.props.width,height:this.currentY})){
+			return 1
+		}
+		return false
 	}
 
 	exclusive(height,current){
@@ -67,6 +75,25 @@ export default class Frame extends Super{
 		},{merged:[],starts:[], ends:[]})
 		.merged
 		.map(a=>(a.x-=x0,a))
+	}
+
+	rollbackCurrentParagraphUntilClean(pid,rect){
+		const {props:{x=0,y=0,width,height},currentY,computed:{composed:lines}}=this
+		const contentRect={x,y,width,height:currentY}
+
+		for(let i=lines.length-1;i>=0;i--){
+			let line=lines[i],pline
+			if((pline=this.belongsTo(line,pid))){
+				contentRect.y=contentRect.y-line.props.height
+				if(!this.isIntersect(rect,contentRect)){
+					let atom=pline.props.children.props.children.props.children.find(a=>a.props.x==undefined)
+					lines.splice(i)
+					return atom
+				}
+			}else{
+				return false
+			}
+		}
 	}
 
 	appendComposed(content){
@@ -129,7 +156,7 @@ export default class Frame extends Super{
 	belongsTo(a,id){
 		while(a && a.props){
 			if(a.props["data-content"]===id)
-				return true
+				return a
 			a=React.Children.toArray(a.props.children)[0]
 		}
 		return false
@@ -194,43 +221,62 @@ export default class Frame extends Super{
 			})
 		}
 
+		appendAnchor(atom,at){
+			const anchor=atom.props.anchor
+			const {x,y}=anchor.xy(this)
+			const geometry=anchor.wrapGeometry({x,y})
+			const dirty=this.frame.isDirtyIn(geometry)
+			const rect=anchor.bounds(geometry)
+
+			this.frame.appendComposed(
+				<Group {...rect} wrap={anchor.wrap(geometry)}>
+					{React.cloneElement(atom,{x:x-rect.x,y:y-rect.y,anchor:undefined})}
+				</Group>
+			)
+
+			if(dirty){
+				if(dirty==1){//possibly fixable in current paragraph
+					let backedAtom=this.frame.rollbackCurrentParagraphUntilClean(this.context.parent.props.id,rect)
+					if(backedAtom){
+						let backedAt=this.context.parent.computed.atoms.indexOf(backedAtom)
+						this.content=[]
+						this.blocks=this.frame.exclusive()
+						return backedAt
+					}
+				}
+				const recomposed=this.frame.recompose()
+				if(recomposed){
+					this.frame.replaceComposedWith(recomposed)
+					return recomposed.to
+				}else{
+					const next=this.frame.next()
+					if(next){
+						this.frame=next
+						return this.appendComposed(...arguments)
+					}
+				}
+			}
+
+			return this.updateExclusive(at)
+		}
+
+		updateExclusive(at){
+			const newBlocks=this.frame.exclusive(this.height)
+			if(this.shouldRecompose(newBlocks)){
+				const flowCount=(this.content.reduce((count,a)=>a.props.x==undefined ? count+1 : count,0))
+				at=at-flowCount
+				this.content=[]
+				return at
+			}else{
+
+			}
+		}
+
 		appendComposed(atom,at){
 			const {width,minWidth=width,anchor,height}=atom.props
 			if(anchor){
 				if(!this.frame.composed(anchor.props.id)){
-					const {x,y}=anchor.xy(this)
-					const geometry=anchor.wrapGeometry({x,y})
-					const dirty=this.frame.isDirtyIn(geometry)
-					const rect=anchor.bounds(geometry)
-
-					this.frame.appendComposed(
-						<Group {...rect} wrap={anchor.wrap(geometry)}>
-							{React.cloneElement(atom,{x:x-rect.x,y:y-rect.y,anchor:undefined})}
-						</Group>
-					)
-					if(dirty){
-						const recomposed=this.frame.recompose()
-						if(recomposed){
-							this.frame.replaceComposedWith(recomposed)
-							return recomposed.to
-						}else{
-							const next=this.frame.next()
-							if(next){
-								this.frame=next
-								return this.appendComposed(...arguments)
-							}
-						}
-					}
-
-					const newBlocks=this.frame.exclusive(this.height)
-					if(this.shouldRecompose(newBlocks)){
-						const flowCount=(this.content.reduce((count,a)=>a.props.x==undefined ? count+1 : count,0))
-						at=at-flowCount
-						this.content=[]
-						return at
-					}else{
-
-					}
+					return this.appendAnchor(...arguments)
 				}
 			}else if(minWidth==0 || this.availableWidth>=minWidth){
 				this.blocks=this.blocks.map((a,i)=>{
@@ -242,7 +288,11 @@ export default class Frame extends Super{
 					}
 				}).filter(a=>!!a)
 
+				let height=this.height
 				this.content.push(atom)
+				if(height<this.height){
+					return this.updateExclusive(at)
+				}
 			}else{
 				return false
 			}
@@ -250,14 +300,20 @@ export default class Frame extends Super{
 
 		shouldRecompose(newBlocks){
 			const applied=this.content.filter(a=>a.props.x!==undefined)
-			const notShould=applied.reduce((notShould,{props:{x,width}},i)=>notShould && !!(a=newBlocks[i]) && a.x==x && a.width==width, true)
+			const notShould=applied.reduce((notShould,{props:{x,width}},i)=>{
+				if(notShould){
+					let a=newBlocks[i]
+					return!!a && a.x==x && a.width==width
+				}
+				return false
+			}, true)
 			if(notShould){
 				let notApplied=newBlocks.slice(applied.length)
 				if(notApplied.slice(0,1).reduce((should,a)=>a.x<this.currentX,false)){
 					this.blocks=newBlocks
 					return true
 				}else{
-					this.bloks=notApplied
+					this.blocks=notApplied
 				}
 				return false
 			}else{

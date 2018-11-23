@@ -59,6 +59,39 @@ export default ({Template,Frame})=>{
 			}
 		}
 
+		isDirtyIn(rect){
+			if(this.computed.composed.find(({props:{x,y,width,height}})=>
+				this.isIntersect(rect,{x,y,width,height}))){
+				return true
+			}
+			const columnIntersect=({x,y,width,height,availableHeight})=>this.isIntersect(rect,{x,y,width,height:height-availableHeight})
+
+			if(columnIntersect(this.currentColumn)){
+				return 1
+			}
+
+			return !!this.columns.find(columnIntersect)
+		}
+
+		rollbackCurrentParagraphUntilClean(pid,rect){
+			const {x,y,width,height,availableHeight,children:lines}=this.currentColumn
+			const contentRect={x,y,width,height:height-availableHeight}
+
+			for(let i=lines.length-1;i>=0;i--){
+				let line=lines[i],pline
+				if((pline=this.belongsTo(line,pid))){
+					contentRect.y=contentRect.y-line.props.height
+					if(!this.isIntersect(rect,contentRect)){
+						let atom=pline.props.children.props.children.props.children.find(a=>a.props.x==undefined)
+						lines.splice(i)
+						return atom
+					}
+				}else{
+					return false
+				}
+			}
+		}
+
 		exclusive(height, current){
 			return super.exclusive(
 				height,
@@ -67,19 +100,24 @@ export default ({Template,Frame})=>{
 		}
 
 		appendComposed(line){
-			const {height:contentHeight, anchor, x, y}=line.props
+			const {height:contentHeight, anchor, x, y,width}=line.props
 			if(x!=undefined || y!=undefined){//anchored
 				this.computed.composed.push(line)
 				return
 			}else if(contentHeight-this.currentColumn.availableHeight>1){
 				if(this.cols.length>this.columns.length){// new column
 					this.createColumn()
+					if(this.currentColumn.width==width){
+						this.currentColumn.children.push(line)
+					}else{
+						return false
+					}
 				}else{
 					return false
 				}
+			}else{
+				this.currentColumn.children.push(line)
 			}
-
-			return this.currentColumn.children.push(line)
 		}
 
 		createColumn(){
