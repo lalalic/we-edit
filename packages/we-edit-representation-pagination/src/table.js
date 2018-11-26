@@ -3,6 +3,7 @@ import PropTypes from "prop-types"
 import {models} from "we-edit"
 
 import {HasParentAndChild} from "./composable"
+import {Group} from "./composed"
 const Super=HasParentAndChild(models.Table)
 
 export default class Table extends Super{
@@ -36,12 +37,11 @@ export default class Table extends Super{
 		return {width: this.props.width, height: availableSpace.height}
 	}
 
-	appendComposed(row){
-		this.context.parent.appendComposed(this.createComposed2Parent(row))
-	}
-
 	createComposed2Parent(row){
-		let tblInd=this.props.indent
-		return React.cloneElement(row,{x:tblInd-(this.computed.marginRight||0)})
+		return (
+			<Group width={this.props.width} height={row.props.height}>
+				{React.cloneElement(row,{x:this.props.indent-(this.computed.marginRight||0)})}
+			</Group>
+		)
 	}
 }

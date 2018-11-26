@@ -9,11 +9,11 @@ export default class Row extends Component{
 		height: PropTypes.number,
 		headers: PropTypes.number
 	}
-	
+
 	static defaultProps={
 		headers:0
 	}
-	
+
 	static contextTypes={
 		cols: PropTypes.arrayOf(PropTypes.number)
 	}

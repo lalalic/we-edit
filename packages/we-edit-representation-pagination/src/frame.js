@@ -15,6 +15,7 @@ export default class Frame extends Super{
 		const {width:maxWidth}=this.props
 		const {height:minHeight}=required
 		return {
+			maxWidth,
 			width:maxWidth,
 			height:this.availableHeight,
 			blocks:this.exclusive(minHeight),
@@ -166,11 +167,35 @@ export default class Frame extends Super{
 		return !!this.computed.composed.find(a=>this.belongsTo(a,id))
 	}
 
+	paragraphY(id){
+		const lines=this.computed.composed
+
+		const lastLineNotBelongTo=((id)=>{
+			for(let k=lines.length-1;k>=0;k--){
+				let line=lines[k]
+				if(line.props.y==undefined && !this.belongsTo(line,id)){
+					return line
+				}
+			}
+		})(id)
+
+		if(!lastLineNotBelongTo){
+			return 0
+		}
+
+		const lineEndY=line=>{
+			return lines.slice(0,lines.indexOf(line)+1).reduce((Y,{props:{y,height}})=>Y+(y==undefined ? height : 0),0)
+		}
+
+		return lineEndY(lastLineNotBelongTo)
+	}
+
 	static Group=Group
 
 	static Line=class extends Component{
-		constructor({width,height,blocks=[],frame}){
+		constructor({width,maxWidth,height,blocks=[],frame}){
 			super(...arguments)
+			this.maxWidth=maxWidth
 			this.content=[]
 			this.blocks=blocks
 			this.frame=frame
@@ -273,12 +298,12 @@ export default class Frame extends Super{
 		}
 
 		appendComposed(atom,at){
-			const {width,minWidth=width,anchor,height}=atom.props
+			const {width,minWidth=parseInt(width),anchor,height}=atom.props
 			if(anchor){
 				if(!this.frame.composed(anchor.props.id)){
 					return this.appendAnchor(...arguments)
 				}
-			}else if(minWidth==0 || this.availableWidth>=minWidth){
+			}else if(minWidth==0 || this.availableWidth>=minWidth || this.availableWidth==this.maxWidth){
 				this.blocks=this.blocks.map((a,i)=>{
 					if((this.currentX+minWidth)>a.x){
 						this.content.push(<Group {...a} height={0}/>)

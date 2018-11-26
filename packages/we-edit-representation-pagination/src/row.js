@@ -44,7 +44,7 @@ export default class extends Super{
 
 	nextAvailableSpace(){
 		const {cols}=this.context
-		return {width:cols[this.composedCells.length-1], height:Number.MAX_VALUE}
+		return {width:cols[this.composedCells.length-1], height:Number.MAX_SAFE_INTEGER}
 	}
 
 	appendComposed(line){
@@ -60,20 +60,25 @@ export default class extends Super{
 		const {height}=this.props
 		let indexes=new Array(this.composedCells.length).fill(0)
 
-		let isAllSent2Table=a=>indexes.reduce((prev,index, i)=>this.composedCells[i].length==index && prev, true)
+		let isAllSent2Table=a=>indexes.reduce((prev,index, i)=>this.getCell(i).lines.length==index && prev, true)
 
 		let counter=0
 		let minSpace={}
 		do{
 			let availableSpace=parent.nextAvailableSpace(minSpace)
 			let currentGroupedLines=new Array(this.composedCells.length)
-			this.composedCells.forEach((lines,iCol)=>{
-				let availableContentHeight=availableSpace.height-this.getCell(iCol).cellHeight(0)
+			this.composedCells.forEach((a,iCol)=>{
+				const cell=this.getCell(iCol)
+				const lines=cell.lines
+				let availableContentHeight=availableSpace.height-cell.cellHeight(0)
 
 				let index=indexes[iCol]
 				let start=index
 				for(let len=lines.length; index<len && availableContentHeight>0; index++){
 					let line=lines[index]
+					if(line.props.y!=undefined){
+						continue
+					}
 					availableContentHeight-=line.props.height
 					if(availableContentHeight<0){
 						break
@@ -89,9 +94,10 @@ export default class extends Super{
 			if(!currentGroupedLines.find(a=>a.length>0)){
 				//availableSpace is too small, need find a min available space
 				let minHeight=indexes.reduce((p,index,i)=>{
-					let line=this.composedCells[i][index]
+					const cell=this.getCell(i)
+					let line=cell.lines[index]
 					if(line){
-						return Math.max(p, this.getCell(i).cellHeight(line.props.height))
+						return Math.max(p, cell.cellHeight(line.props.height))
 					}else
 						return p
 				},0)
@@ -114,7 +120,7 @@ export default class extends Super{
 		let groupsWithXY=colGroups.map((linesWithStyle,iCol)=>{
 			let cell=this.getCell(iCol).createComposed2Parent(linesWithStyle)
 			cell=React.cloneElement(cell,{x, width:cols[iCol]})
-			
+
 			x+=cols[iCol]
 			height=Math.max(height,cell.props.height)
 			return cell
@@ -126,7 +132,7 @@ export default class extends Super{
 			width={width}
 			/>
 	}
-	
+
 	getCell(iCol){
 		return this.composedCells[iCol].composer
 	}

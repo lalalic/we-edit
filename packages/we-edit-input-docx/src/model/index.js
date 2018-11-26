@@ -24,7 +24,7 @@ export default {
 	Section,
 	Paragraph,
 	Text,
-	Anchor,
+	//Anchor,
 	Run,
 	Cell,
 	Table,

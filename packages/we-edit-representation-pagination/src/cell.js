@@ -3,36 +3,39 @@ import PropTypes from "prop-types"
 import {Group} from "./composed"
 
 import {HasParentAndChild} from "./composable"
+import Frame from "./frame"
 import {models} from "we-edit"
 const {Cell:Base}=models
 const Super=HasParentAndChild(Base)
 
+class CellFrame extends Frame{
+	currentColumn={x:0,y:0}
+	createComposed2Parent(){
+		return this
+	}
+}
+
 export default class extends Super{
+	static displayName=Frame.displayName.replace(/frame$/,"cell")
 	static contextTypes={
 		...Super.contextTypes,
 		composed1Cell: PropTypes.func
 	}
-	
-	nextAvailableSpace(required){
-		let {width,height}=super.nextAvailableSpace(...arguments)
-
-		let {margin}=this.props
-		width=width
-			-margin.right
-			-margin.left
-
-		height=height
-			-margin.top
-			-margin.bottom
-
-		return {width,height}
+	render(){
+		let {width}=this.context.parent.nextAvailableSpace(...arguments)
+		let {margin={right:0,left:0,top:0,bottom:0}}=this.props
+		return (
+			<CellFrame {...{width:width-margin.right-margin.left}}>
+				{super.render()}
+			</CellFrame>
+		)
 	}
 
 	onAllChildrenComposed(){
 		super.onAllChildrenComposed()
 		this.context.composed1Cell(this)
 	}
-	
+
 	cellHeight(contentHeight){
 		const {border, margin, spacing}=this.props
 		return contentHeight
@@ -42,7 +45,15 @@ export default class extends Super{
 				+margin.bottom
 				+spacing
 	}
-	
+
+	appendComposed(frame){
+		this.frame=frame
+	}
+
+	get lines(){
+		return this.frame.computed.composed
+	}
+
 	createComposed2Parent(lines){//called by row(after all cells of a row composed)
 		const {border, margin, spacing, background}=this.props
 		let height=0
@@ -62,11 +73,19 @@ export default class extends Super{
 				<Spacing x={spacing/2} y={spacing/2}>
 					<Border border={border} spacing={spacing}>
 						<Margin x={margin.left} y={margin.top}>
-							{grouped}
+							{lines.reduce((state,a,i)=>{
+								if(a.props.y==undefined){
+									state.positioned.push(React.cloneElement(a,{y:state.y,key:i}))
+									state.y+=a.props.height
+								}else{
+									state.positioned.push(React.cloneElement(a,{key:i}))
+								}
+								return state
+							},{y:0,positioned:[]}).positioned}
 						</Margin>
 					</Border>
 				</Spacing>
-			</Cell>		
+			</Cell>
 		)
 	}
 }
@@ -131,4 +150,3 @@ class Border extends Component{
 
 	}
 }
-

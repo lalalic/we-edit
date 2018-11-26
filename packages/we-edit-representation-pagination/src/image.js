@@ -18,34 +18,39 @@ export default class extends Super{
 	}
     createComposed2Parent(){
         const {src, size:{width,height}}=this.props
-		return this.transform(<Image {...{
-			width,
-			height,
-			xlinkHref: src,
-			preserveAspectRatio:"none"
-		}}/>)
+		return this.transform(
+			<Image {...{
+				width,
+				height,
+				xlinkHref: src,
+				preserveAspectRatio:"none",
+			}}/>
+		)
     }
 
 	transform(element){
 		const {rotate,scale}=this.props
-		if(rotate){
-			element=this.rotate(element)
-		}
-
 		if(scale){
 
 		}
 
-		return element
+		if(rotate){
+			element=this.rotate(element)
+		}
+
+
+		return React.cloneElement(element,{y:-element.props.height})
 	}
 
 	rotate(element){
-		const {rotate,width,height}=this.props
+		const {rotate}=this.props
+		const {width,height}=element.props
 		const radians=rotate*Math.PI/180
+		const rotatedHeight=height * Math.abs(Math.cos(radians)) + width * Math.abs(Math.sin(radians))
 		return (
 			<Group {...{
 				width:width * Math.abs(Math.cos(radians)) + height * Math.abs(Math.sin(radians)),
-				height:height * Math.abs(Math.cos(radians)) + width * Math.abs(Math.sin(radians)),
+				height:rotatedHeight,
 			}}>
 				<Group {...{x:height*Math.abs(Math.sin(radians)),rotate}}>
 					{element}
