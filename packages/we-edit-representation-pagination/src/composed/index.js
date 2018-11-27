@@ -1,6 +1,5 @@
 export {default as Document} from "./document"
 export {default as Group} from "./group"
-export {default as Line} from "./line"
 export {default as Text} from "./text"
 export {default as Image} from "./image"
-export {default as Story} from "./story"
+export {default as Shape} from "./shape"
