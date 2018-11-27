@@ -10,7 +10,9 @@ const Super=HasParentAndChild(Base)
 
 export default class extends Super{
     createComposed2Parent(content){
-        const {width,height}=this.props
+        const {width,height}=content.props
+        this.width=width
+        this.height=height
         return <Group {...{width,height,anchor:this}}>{super.createComposed2Parent(...arguments)}</Group>
     }
 
@@ -31,9 +33,10 @@ export default class extends Super{
 		}
 	}
 
-    wrapGeometry({x,y}){
+    wrapGeometry({x,y},content){
         const dft={left:0,right:0,top:0,bottom:0}
-        const {width,height,wrap}=this.props
+        const {width,height}=content.props
+        const {wrap}=this.props
         const distance=((a=dft,b=dft)=>{
             return "left,right,top,bottom"
                 .split(",")
@@ -118,7 +121,7 @@ class page extends Positioning{
     }
 
     y_bottom(){
-        return this.frame.props.height-this.anchor.props.height
+        return this.frame.props.height-this.anchor.height
     }
 }
 
@@ -164,7 +167,7 @@ class rightMargin extends page{
     constructor(){
         super(...arguments)
         const {margin:{right=0},width}=this.frame.props
-        this.x0=width-right-this.anchor.props.width
+        this.x0=width-right-this.anchor.width
     }
 }
 
@@ -188,7 +191,7 @@ class bottomMargin extends page{
     constructor(){
         super(...arguments)
         const {margin:{bottom=0},height}=this.frame.props
-        this.y0=height-bottom-this.anchor.props.height
+        this.y0=height-bottom-this.anchor.height
     }
 }
 

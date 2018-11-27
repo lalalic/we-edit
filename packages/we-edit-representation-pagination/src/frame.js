@@ -248,8 +248,8 @@ export default class Frame extends Super{
 		appendAnchor(atom,at){
 			const anchor=atom.props.anchor
 			const {x,y}=anchor.xy(this)
-			const geometry=anchor.wrapGeometry({x,y})
-			const dirty=false//this.frame.isDirtyIn(geometry)
+			const geometry=anchor.wrapGeometry({x,y},atom)
+			const dirty=this.frame.isDirtyIn(geometry)
 			const rect=anchor.bounds(geometry)
 
 			this.frame.appendComposed(
@@ -284,18 +284,6 @@ export default class Frame extends Super{
 			return this.updateExclusive(at)
 		}
 
-		updateExclusive(at){
-			const newBlocks=this.frame.exclusive(this.height)
-			if(this.shouldRecompose(newBlocks)){
-				const flowCount=(this.content.reduce((count,a)=>a.props.x==undefined ? count+1 : count,0))
-				at=at-flowCount
-				this.content=[]
-				return at
-			}else{
-
-			}
-		}
-
 		appendComposed(atom,at){
 			const {width,minWidth=parseInt(width),anchor,height}=atom.props
 			if(anchor){
@@ -326,6 +314,18 @@ export default class Frame extends Super{
 				}else{
 					return false
 				}
+			}
+		}
+
+		updateExclusive(at){
+			const newBlocks=this.frame.exclusive(this.height)
+			if(this.shouldRecompose(newBlocks)){
+				const flowCount=(this.content.reduce((count,a)=>a.props.x==undefined ? count+1 : count,0))
+				at=at-flowCount
+				this.content=[]
+				return at
+			}else{
+
 			}
 		}
 
