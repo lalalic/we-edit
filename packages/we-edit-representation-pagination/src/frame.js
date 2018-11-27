@@ -25,10 +25,7 @@ export default class Frame extends Super{
 	}
 
 	isIntersect(A,B){
-		const a=new Rect(A.x, A.y, A.width, A.height)
-		const b=new Rect(B.x, B.y, B.width, B.height)
-
-		return a.intersects(b)
+		return new Rect(A.x, A.y, A.width, A.height).intersects(new Rect(B.x, B.y, B.width, B.height))
 	}
 
 	isDirtyIn(rect){
