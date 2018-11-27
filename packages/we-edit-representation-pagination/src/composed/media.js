@@ -74,18 +74,18 @@ const Paper=({width,height, margin:{left,right,top,bottom},...props})=>(
        </Fragment>
 )
 
-const Margin=({margin:{left,top, right,bottom},marginWidth=20})=>(
+const Margin=({margin:{left,top, right,bottom},marginWidth=20*1000, strokeWidth=1000})=>(
        <Fragment>
-               <line x1={left} y1={top} x2={left-marginWidth} y2={top} strokeWidth={1} stroke="lightgray"/>
-               <line x1={left} y1={top} x2={left} y2={top-marginWidth} strokeWidth={1} stroke="lightgray"/>
+               <line x1={left} y1={top} x2={left-marginWidth} y2={top} strokeWidth={strokeWidth} stroke="lightgray"/>
+               <line x1={left} y1={top} x2={left} y2={top-marginWidth} strokeWidth={strokeWidth} stroke="lightgray"/>
 
-               <line x1={left} y1={bottom} x2={left-marginWidth} y2={bottom} strokeWidth={1} stroke="lightgray"/>
-               <line x1={left} y1={bottom} x2={left} y2={bottom+marginWidth} strokeWidth={1} stroke="lightgray"/>
+               <line x1={left} y1={bottom} x2={left-marginWidth} y2={bottom} strokeWidth={strokeWidth} stroke="lightgray"/>
+               <line x1={left} y1={bottom} x2={left} y2={bottom+marginWidth} strokeWidth={strokeWidth} stroke="lightgray"/>
 
-               <line x1={right} y1={bottom} x2={right+marginWidth} y2={bottom} strokeWidth={1} stroke="lightgray"/>
-               <line x1={right} y1={bottom} x2={right} y2={bottom+marginWidth} strokeWidth={1} stroke="lightgray"/>
+               <line x1={right} y1={bottom} x2={right+marginWidth} y2={bottom} strokeWidth={strokeWidth} stroke="lightgray"/>
+               <line x1={right} y1={bottom} x2={right} y2={bottom+marginWidth} strokeWidth={strokeWidth} stroke="lightgray"/>
 
-               <line x1={right} y1={top} x2={right+marginWidth} y2={top} strokeWidth={1} stroke="lightgray"/>
-               <line x1={right} y1={top} x2={right} y2={top-marginWidth} strokeWidth={1} stroke="lightgray"/>
+               <line x1={right} y1={top} x2={right+marginWidth} y2={top} strokeWidth={strokeWidth} stroke="lightgray"/>
+               <line x1={right} y1={top} x2={right} y2={top-marginWidth} strokeWidth={strokeWidth} stroke="lightgray"/>
        </Fragment>
 )

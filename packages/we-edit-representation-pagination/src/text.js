@@ -53,7 +53,12 @@ export default class Text extends Super{
 
         const measure=this.measure
 
-        const defaultStyle={...measure.defaultStyle, color, highlight,border,underline,strike}
+        const defaultStyle={
+                ...measure.defaultStyle,
+                height: measure.defaultStyle.height*1000,
+                descent:measure.defaultStyle.height*1000,
+                color, highlight,border,underline,strike
+            }
 
 		const whitespaceWidth=measure.stringWidth(" ")
 
@@ -63,11 +68,11 @@ export default class Text extends Super{
 				const isWhitespace=b==" "
 				this.appendComposed({
 					...defaultStyle,
-					color,
+                    color,
 					highlight,
                     className:isWhitespace ? "whitespace" : undefined,
-					width:isWhitespace ? whitespaceWidth : measure.stringWidth(b),
-					minWidth:isWhitespace ? 0 : undefined,
+					width:1000*(isWhitespace ? whitespaceWidth : measure.stringWidth(b)),
+					minWidth:1000*(isWhitespace ? 0 : undefined),
 					"data-endat":start+=b.length,
 					children: b
 				})

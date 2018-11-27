@@ -40,9 +40,9 @@ export default class ComposedDocument extends Component{
 				ref={innerRef}
 				preserveAspectRatio="xMidYMin"
 				viewBox={`0 0 ${width} ${height}`}
-				style={{background:"transparent", width:width*scale, height:height*scale, ...style}}
+				style={{background:"transparent", width:width*scale/1000, height:height*scale/1000, ...style}}
 				>
-				<Media {...{pgGap, width}}>
+				<Media {...{pgGap:pgGap*1000, width}}>
 					{pages.map((page,i)=>page.createComposed2Parent(<Group className="page"/>))}
 				</Media>
 				{children}

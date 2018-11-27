@@ -8,6 +8,19 @@ export class Properties{
 		this.wrapSquare=this.wrapTight=this.wrapThrough=this.wrapTopAndBottom=this.wrap
 		this.ext=this.extent
 		this.requireFonts=new Set()
+		this.factor=1000
+	}
+
+	cm2Px(){
+		return parseInt(this.docx.cm2Px(...arguments)*this.factor)
+	}
+
+	dxa2Px(){
+		return parseInt(this.docx.dxa2Px(...arguments)*this.factor)
+	}
+
+	pt2Px(){
+		return parseInt(this.docx.pt2Px(...arguments)*this.factor)
 	}
 
 	select(nodes, keyMap={}){
@@ -27,13 +40,13 @@ export class Properties{
 
 	pgSz(x){
 		return{
-			width:this.docx.dxa2Px(x.attribs['w:w']),
-			height:this.docx.dxa2Px(x.attribs['w:h'])
+			width:this.dxa2Px(x.attribs['w:w']),
+			height:this.dxa2Px(x.attribs['w:h'])
 		}
 	}
 	pgMar(x){
 		return Object.keys(x.attribs).reduce((value,a)=>{
-			value[a.split(':').pop()]=this.docx.dxa2Px(x.attribs[a])
+			value[a.split(':').pop()]=this.dxa2Px(x.attribs[a])
 			return value
 		},{})
 	}
@@ -52,12 +65,12 @@ export class Properties{
 			cols.num=parseInt(x.attribs['w:num'])
 
 		if(t=x.attribs['w:space'])
-			cols.space=this.docx.dxa2Px(x.attribs['w:space'])
+			cols.space=this.dxa2Px(x.attribs['w:space'])
 
 		let data=this.docx.officeDocument.content(x).find("w\\:col").toArray()
 			.map(col=>({
-				width:this.docx.dxa2Px(col.attribs['w:w']),
-				space:this.docx.dxa2Px(col.attribs['w:space'])
+				width:this.dxa2Px(col.attribs['w:w']),
+				space:this.dxa2Px(col.attribs['w:space'])
 			}))
 		if(data.length)
 			cols.data=data
@@ -76,7 +89,7 @@ export class Properties{
 	ind(x){
 		return Object.keys(x.attribs)
 		.reduce((props,a)=>{
-			props[a.split(":").pop()]=this.docx.dxa2Px(x.attribs[a])
+			props[a.split(":").pop()]=this.dxa2Px(x.attribs[a])
 			return props
 		},{})
 	}
@@ -179,7 +192,7 @@ export class Properties{
 	}
 
 	tblGrid(x){
-		return x.children.map(a=>this.docx.dxa2Px(a.attribs["w:w"]))
+		return x.children.map(a=>this.dxa2Px(a.attribs["w:w"]))
 	}
 
 	tcBorders(x){
@@ -195,7 +208,7 @@ export class Properties{
 
 	tblCellMar(x){
 		return x.children.reduce((p,a)=>{
-			p[a.name.split(":").pop()]=this.docx.dxa2Px(a.attribs["w:w"])
+			p[a.name.split(":").pop()]=this.dxa2Px(a.attribs["w:w"])
 			return p
 		},{})
 	}
@@ -208,11 +221,11 @@ export class Properties{
 	}
 
 	tblInd(x){
-		return this.docx.dxa2Px(x.attribs["w:w"])
+		return this.dxa2Px(x.attribs["w:w"])
 	}
 
 	tcW(x){
-		return this.docx.dxa2Px(x.attribs['w:w'])
+		return this.dxa2Px(x.attribs['w:w'])
 	}
 
 	shd(x){
@@ -220,7 +233,7 @@ export class Properties{
 	}
 
 	trHeight(x){
-		return this.docx.dxa2Px(x.attribs['w:val'])
+		return this.dxa2Px(x.attribs['w:val'])
 	}
 
 /**************drawingML********************/
@@ -230,7 +243,7 @@ export class Properties{
 			...x.children.reduce((props,a)=>{
 				switch(a.name.split(":").pop()){
 				case "posOffset":
-					props.offset=this.docx.cm2Px(a.children[0].data)
+					props.offset=this.cm2Px(a.children[0].data)
 				break
 				case "align":
 					props.align=a.children[0].data
@@ -249,20 +262,20 @@ export class Properties{
 		return {
 			x:{
 				base:"page",
-				offset:this.docx.cm2Px(x.attribs.x),
+				offset:this.cm2Px(x.attribs.x),
 			},
 			y:{
 				base:"page",
-				offset:this.docx.cm2Px(x.attribs.y)
+				offset:this.cm2Px(x.attribs.y)
 			}
 		}
 	}
 	extent(x){
-		return {width:this.docx.cm2Px(x.attribs.cx),height:this.docx.cm2Px(x.attribs.cy)}
+		return {width:this.cm2Px(x.attribs.cx),height:this.cm2Px(x.attribs.cy)}
 	}
 
 	off(x){
-		return {x:this.docx.cm2Px(x.attribs.x),y:this.docx.cm2Px(x.attribs.y)}
+		return {x:this.cm2Px(x.attribs.x),y:this.cm2Px(x.attribs.y)}
 	}
 
 	xfrm(x){
@@ -285,7 +298,7 @@ export class Properties{
 
 	custGeom(x){
 		let path=[]
-		let px=x=>this.docx.cm2Px(x)
+		let px=x=>this.cm2Px(x)
 
 		for(let a, children=x.children.find(a=>a.name=="a:pathLst").children[0].children, len=children.length,i=0;i<len;i++){
 			a=children[i]
@@ -353,7 +366,7 @@ export class Properties{
 
 	ln(x){
 		let props=this.select(x.children,{prstDash:"dash"})
-		props.width=this.docx.cm2Px(x.children.attribs.w)
+		props.width=this.cm2Px(x.children.attribs.w)
 		return props
 	}
 
@@ -362,7 +375,7 @@ export class Properties{
 		let props={}
 		props.margin="bottom,top,right,left".split(",").reduce((margin,a,t)=>{
 			if(t=x.attribs[`${a[0]}Ins`])
-				margin[a]=this.docx.cm2Px(t)
+				margin[a]=this.cm2Px(t)
 			return margin
 		},{})
 
@@ -370,7 +383,7 @@ export class Properties{
 	}
 
 	wrapPolygon(x){
-		const xy=({attribs:{x,y}})=>({x:this.docx.cm2Px(x),y:this.docx.cm2Px(y)})
+		const xy=({attribs:{x,y}})=>({x:this.cm2Px(x),y:this.cm2Px(y)})
 		return x.children.map(a=>xy(a))
 	}
 
@@ -383,7 +396,7 @@ export class Properties{
 		}
 
 		if(props.mode=="Square" && !props.distance){
-			//let dt=this.docx.cm2Px(36000)
+			//let dt=this.cm2Px(36000)
 			//props.distance={left:dt,right:dt,top:dt,bottom:dt}
 		}
 		return props
@@ -413,7 +426,7 @@ export class Properties{
 	toDist(x,pre="dist"){
 		const dist="Right,Left,Bottom,Top".split(",").reduce((dist,a)=>{
 			if(x.attribs[`${pre}${a[0]}`]){
-	            dist[a.toLowerCase()]=this.docx.cm2Px(x.attribs[`${pre}${a[0]}`])
+	            dist[a.toLowerCase()]=this.cm2Px(x.attribs[`${pre}${a[0]}`])
 			}
             return dist
         },{})
@@ -427,14 +440,14 @@ export class Properties{
 		let props={}, line, t
 
 		if(!x.attribs['w:beforeAutospacing'] && (t=x.attribs['w:beforeLines']))
-			props.top=this.docx.dxa2Px(t)
+			props.top=this.dxa2Px(t)
 		else if(t=x.attribs['w:before'])
-			props.top=this.docx.dxa2Px(t)
+			props.top=this.dxa2Px(t)
 
 		if(!x.attribs['w:afterAutospacing'] && (t=x.attribs['w:afterLines']))
-			props.bottom=this.docx.dxa2Px(t)
+			props.bottom=this.dxa2Px(t)
 		else if(t=x.attribs['w:after'])
-			props.bottom=this.docx.dxa2Px(t)
+			props.bottom=this.dxa2Px(t)
 
 		if(!(line=x.attribs['w:line']))
 			return props
@@ -442,7 +455,7 @@ export class Properties{
 		switch(props.lineRule=x.attribs['w:lineRule']){
 		case 'atLeast':
 		case 'exact':
-			props.lineHeight=this.docx.dxa2Px(line)
+			props.lineHeight=this.dxa2Px(line)
 			break
 		case 'auto':
 		default:
@@ -461,7 +474,7 @@ export class Properties{
 		}
 
 		if(t=x.attribs['w:sz'])
-			border.sz=this.docx.pt2Px(t/8)
+			border.sz=this.pt2Px(t/8)
 
 		if(t=x.attribs['w:color'])
 			border.color=this.docx.asColor(t)
