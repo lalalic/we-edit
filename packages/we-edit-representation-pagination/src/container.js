@@ -10,11 +10,11 @@ export default class extends HasParentAndChild(models.Container){
 
     appendComposed(element){
         const {id}=this.props
-        const {width,height,minWidth,anchor}=element.props
+        const {width,height,minWidth,wrap,anchor}=element.props
         super.appendComposed(React.createElement(Group,{
             "data-type":this.getComposeType(),
             "data-content":id,
-            width,height,minWidth,wrap,
+            width,height,minWidth,wrap,anchor,
             children:element
         }))
     }

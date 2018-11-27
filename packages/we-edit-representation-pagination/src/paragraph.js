@@ -136,7 +136,18 @@ export class Paragraph extends Super{
 
 
 	commit(){
-		for(let i=0,len=this.computed.atoms.length,content;i<len;){
+		const len=this.computed.atoms.length
+		var last=0, times=0
+		for(let i=0,content;i<len;){
+			if(i==last){
+				times++
+				if(times>3){
+					throw Error(`it may be dead loop on ${i}th atoms`)
+				}
+			}else{
+				last=i
+				times=0
+			}
 			content=this.computed.atoms[i]
 			var appended=this.currentLine.appendComposed(content,i)
 			if(appended===false){

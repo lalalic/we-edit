@@ -1,5 +1,6 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
+import {Rect} from "./tool/geometry"
 
 
 import composable,{HasParentAndChild} from "./composable"
@@ -24,12 +25,10 @@ export default class Frame extends Super{
 	}
 
 	isIntersect(A,B){
-		return !(
-			((A.x+A.width)<B.x) ||
-			(A.x>(B.x+B.width)) ||
-			(A.y>(B.y+B.height))||
-			((A.y+A.height)<B.y)
-		)
+		const a=new Rect(A.x, A.y, A.width, A.height)
+		const b=new Rect(B.x, B.y, B.width, B.height)
+
+		return a.intersects(b)
 	}
 
 	isDirtyIn(rect){
@@ -82,13 +81,16 @@ export default class Frame extends Super{
 		const {props:{x=0,y=0,width,height},currentY,computed:{composed:lines}}=this
 		const contentRect={x,y,width,height:currentY}
 
-		for(let i=lines.length-1;i>=0;i--){
-			let line=lines[i],pline
+		for(let i=lines.length-1,pline;i>=0;i--){
+			let line=lines[i]
+			if(line.props.y!=undefined)
+				continue
 			if((pline=this.belongsTo(line,pid))){
-				contentRect.y=contentRect.y-line.props.height
+				contentRect.height-=line.props.height
 				if(!this.isIntersect(rect,contentRect)){
 					let atom=pline.props.children.props.children.props.children.find(a=>a.props.x==undefined)
-					lines.splice(i)
+					const removed=lines.splice(i)
+					lines.splice(lines.length,0,...removed.filter(a=>a.props.y!=undefined))
 					return atom
 				}
 			}else{
@@ -250,7 +252,7 @@ export default class Frame extends Super{
 			const anchor=atom.props.anchor
 			const {x,y}=anchor.xy(this)
 			const geometry=anchor.wrapGeometry({x,y})
-			const dirty=this.frame.isDirtyIn(geometry)
+			const dirty=false//this.frame.isDirtyIn(geometry)
 			const rect=anchor.bounds(geometry)
 
 			this.frame.appendComposed(
@@ -303,23 +305,30 @@ export default class Frame extends Super{
 				if(!this.frame.composed(anchor.props.id)){
 					return this.appendAnchor(...arguments)
 				}
-			}else if(minWidth==0 || this.availableWidth>=minWidth || this.availableWidth==this.maxWidth){
-				this.blocks=this.blocks.map((a,i)=>{
-					if((this.currentX+minWidth)>a.x){
-						this.content.push(<Group {...a} height={0}/>)
-						this.blocks[i]=null
-					}else{
-						return a
-					}
-				}).filter(a=>!!a)
-
-				let height=this.height
-				this.content.push(atom)
-				if(height<this.height){
-					return this.updateExclusive(at)
-				}
 			}else{
-				return false
+				const containable=()=>minWidth==0 || this.availableWidth>=minWidth || this.availableWidth==this.maxWidth
+				if(containable()){
+					this.blocks=this.blocks.map((a,i)=>{
+						if((this.currentX+minWidth)>a.x){
+							this.content.push(<Group {...a} height={0}/>)
+							this.blocks[i]=null
+						}else{
+							return a
+						}
+					}).filter(a=>!!a)
+
+					if(containable()){
+						let height=this.height
+						this.content.push(atom)
+						if(height<this.height){
+							return this.updateExclusive(at)
+						}
+					}else{
+						return false
+					}
+				}else{
+					return false
+				}
 			}
 		}
 

@@ -80,7 +80,7 @@ export default ({Template,Frame})=>{
 			for(let i=lines.length-1;i>=0;i--){
 				let line=lines[i],pline
 				if((pline=this.belongsTo(line,pid))){
-					contentRect.y=contentRect.y-line.props.height
+					contentRect.height=contentRect.height-line.props.height
 					if(!this.isIntersect(rect,contentRect)){
 						let atom=pline.props.children.props.children.props.children.find(a=>a.props.x==undefined)
 						lines.splice(i)

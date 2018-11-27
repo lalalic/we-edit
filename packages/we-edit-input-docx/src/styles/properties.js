@@ -383,8 +383,8 @@ export class Properties{
 		}
 
 		if(props.mode=="Square" && !props.distance){
-			let dt=this.docx.cm2Px(36000)
-			props.distance={left:dt,right:dt,top:dt,bottom:dt	}
+			//let dt=this.docx.cm2Px(36000)
+			//props.distance={left:dt,right:dt,top:dt,bottom:dt}
 		}
 		return props
 	}
