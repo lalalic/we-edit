@@ -72,6 +72,7 @@ export default class Frame extends Super{
 		},{merged:[],starts:[], ends:[]})
 		.merged
 		.map(a=>(a.x-=x0,a))
+		.map(({x,width})=>({x:Math.floor(x), width:Math.floor(width)}))
 	}
 
 	rollbackCurrentParagraphUntilClean(pid,rect){
@@ -86,8 +87,9 @@ export default class Frame extends Super{
 				contentRect.height-=line.props.height
 				if(!this.isIntersect(rect,contentRect)){
 					const removed=lines.splice(i)
-					lines.splice(lines.length,0,...removed.filter(a=>a.props.y!=undefined))
-					return pline
+					const anchors=removed.filter(a=>a.props.y!=undefined)
+					lines.splice(lines.length,0,...anchors)
+					return removed.length-anchors.length
 				}
 			}else{
 				return false
@@ -260,13 +262,13 @@ export default class Frame extends Super{
 			if(dirty){
 				if(dirty==1){//possibly fixable in current paragraph
 					const p=this.context.parent
-					let backedLine=this.frame.rollbackCurrentParagraphUntilClean(p.props.id,rect)
-					if(backedLine){
-						let backedLineAt=p.computed.composed.indexOf(backedLine)
-						p.computed.composed.splice(backedLineAt,-1)
+					let backedLines=this.frame.rollbackCurrentParagraphUntilClean(p.props.id,rect)
+					if(backedLines){
+						const lines=p.computed.composed
+						const removed=lines.splice(-backedLines-1,backedLines)
 						this.content=[]
 						this.blocks=this.frame.exclusive()
-						let backedAtom=backedLine.props.children.props.children.props.children.find(a=>a.props.x==undefined)
+						let backedAtom=removed[0].children.find(a=>a.props.x==undefined)
 						return this.context.parent.computed.atoms.indexOf(backedAtom)
 					}
 				}
@@ -287,7 +289,7 @@ export default class Frame extends Super{
 		}
 
 		appendComposed(atom,at){
-			const {width,minWidth=parseInt(width),anchor,height}=atom.props
+			const {width,minWidth=parseInt(width),anchor}=atom.props
 			if(anchor){
 				if(!this.frame.composed(anchor.props.id)){
 					return this.appendAnchor(...arguments)
@@ -340,7 +342,7 @@ export default class Frame extends Super{
 			const notShould=applied.reduce((notShould,{props:{x,width}},i)=>{
 				if(notShould){
 					let a=newBlocks[i]
-					return!!a && a.x==x && a.width==width
+					return!!a && parseInt(Math.abs(a.x-x))==0 && a.width==width
 				}
 				return false
 			}, true)

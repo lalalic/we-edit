@@ -83,7 +83,8 @@ export default ({Template,Frame})=>{
 				if((pline=this.belongsTo(line,pid))){
 					contentRect.height=contentRect.height-line.props.height
 					if(!this.isIntersect(rect,contentRect)){
-						return pline
+						const removed=lines.splice(i)
+						return removed.length
 					}
 				}else{
 					return false

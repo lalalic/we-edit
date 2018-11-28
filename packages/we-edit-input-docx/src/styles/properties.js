@@ -12,7 +12,7 @@ export class Properties{
 	}
 
 	emu2Px(emu){
-		return parseInt(emu/914400*96*this.precision)
+		return parseInt(this.docx.cm2Px(...arguments)*this.precision)
 	}
 
 	dxa2Px(){
