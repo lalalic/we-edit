@@ -31,7 +31,7 @@ export default class ComposedDocument extends Component{
 	})
 
 	render(){
-		const {pages, pgGap, scale, style,children,innerRef, content, ...props}=this.props
+		const {pages, pgGap, scale, style,children,innerRef, content, precision=1, ...props}=this.props
 		const {width,height}=this.getSize(pages, pgGap)
 
 		return   (
@@ -40,9 +40,9 @@ export default class ComposedDocument extends Component{
 				ref={innerRef}
 				preserveAspectRatio="xMidYMin"
 				viewBox={`0 0 ${width} ${height}`}
-				style={{background:"transparent", width:width*scale/1000, height:height*scale/1000, ...style}}
+				style={{background:"transparent", width:width*scale/precision, height:height*scale/precision, ...style}}
 				>
-				<Media {...{pgGap:pgGap*1000, width}}>
+				<Media {...{pgGap:pgGap*precision, width,precision}}>
 					{pages.map((page,i)=>page.createComposed2Parent(<Group className="page"/>))}
 				</Media>
 				{children}

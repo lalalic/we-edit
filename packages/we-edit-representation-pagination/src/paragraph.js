@@ -81,9 +81,8 @@ export default class extends Super{
 	get currentLine(){
 		const {composed}=this.computed
 		if(composed.length==0){
-			let {context:{Measure,parent},props:{defaultStyle:{fonts,size,bold,italic}}}=this
-	        const measure=new Measure({fonts,size,bold,italic})
-			const line=this._newLine(parent.nextAvailableSpace({height:measure.defaultStyle.height}))
+			let {context:{parent},props:{defaultStyle:{fonts,size,bold,italic}}}=this
+	       const line=this._newLine(parent.nextAvailableSpace())
 			composed.push(line)
 		}
 		return composed[composed.length-1]
@@ -151,8 +150,7 @@ export default class extends Super{
 			var appended=this.currentLine.appendComposed(content,i)
 			if(appended===false){
 				this.commitCurrentLine()
-				var {width,minWidth=width,height}=content.props
-				this.computed.composed.push(this._newLine(this.context.parent.nextAvailableSpace({width:minWidth,height})))
+				this.computed.composed.push(this._newLine(this.context.parent.nextAvailableSpace()))
 				continue
 			}
 			if(Number.isInteger(appended)){
@@ -162,6 +160,15 @@ export default class extends Super{
 
 			i++
 		}
+	}
+
+	lineHeight(height){
+		var {spacing:{lineHeight="100%",top=0, bottom=0},}=this.props
+       	lineHeight=typeof(lineHeight)=='string' ? Math.ceil(height*parseInt(lineHeight)/100.0): lineHeight
+	   	if(this.computed.composed.length==1){//first line
+            lineHeight+=top
+        }
+		return lineHeight
 	}
 
 	createComposed2Parent(line){
@@ -192,7 +199,7 @@ export default class extends Super{
         return (
             <Group height={lineHeight} width={width} className="line">
                 <Group x={contentX} y={contentY} width={width} height={height}>
-					{new Story({width,height,children,align}).render()}
+					<Story {...{children,align}}/>
                 </Group>
             </Group>
         )

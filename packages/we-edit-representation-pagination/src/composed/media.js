@@ -14,7 +14,7 @@ export default class Media extends Component{
 	}
 
 	render(){
-		const {children:pages, pgGap, width:canvasWidth,
+		const {children:pages, pgGap, width:canvasWidth, precision,
 			media=this.context.media,
 			paper=this.context.paper,
 			smart=true,
@@ -30,7 +30,7 @@ export default class Media extends Component{
 
 							let newPage=(
 								<Group key={i} {...{y, x:(canvasWidth-width)/2}}>
-									{paper!==false && <Paper {...{width,height,margin,fill:"white"}}/>}
+									{paper!==false && <Paper {...{width,height,margin,fill:"white", precision}}/>}
 									{smart ? <SmartShow {...{onPageHide,onPageShow,scrollableAncestor,children:page}}/> : page}
 								</Group>
 							)
@@ -62,19 +62,19 @@ class SmartShow extends Component{
 	}
 }
 
-const Paper=({width,height, margin:{left,right,top,bottom},...props})=>(
+const Paper=({width,height, margin:{left,right,top,bottom},precision,...props})=>(
        <Fragment>
 		   <rect {...props} {...{width,height}}/>
 		   <path d={`M0 0 L${width} 0 L${width} ${height} L0 ${height}Z`}
 				   fill="none"
 				   strokeWidth={1} stroke="lightgray"/>
 			{left&&right&&top&&bottom&&
-				<Margin margin={{left,top,right:width-right,bottom:height-bottom}}/>
+				<Margin margin={{left,top,right:width-right,bottom:height-bottom}} precision={precision}/>
 			}
        </Fragment>
 )
 
-const Margin=({margin:{left,top, right,bottom},marginWidth=20*1000, strokeWidth=1000})=>(
+const Margin=({precision,margin:{left,top, right,bottom},marginWidth=20*precision, strokeWidth=1*precision})=>(
        <Fragment>
                <line x1={left} y1={top} x2={left-marginWidth} y2={top} strokeWidth={strokeWidth} stroke="lightgray"/>
                <line x1={left} y1={top} x2={left} y2={top-marginWidth} strokeWidth={strokeWidth} stroke="lightgray"/>

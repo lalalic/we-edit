@@ -26,12 +26,12 @@ export class Measure{
 	stringWidth(string){
 		return 200
 	}
-	
+
 	widthString(width,string){
 		return Array.prototype.reduce.call(string,(state,a)=>{
 			if(state.done)
 				return state
-			
+
 			let aWidth=this.stringWidth(a)
 			if(state.width+aWidth>width){
 				state.done=true

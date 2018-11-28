@@ -52,6 +52,7 @@ export default ({Template,Frame})=>{
 			}
 
 			return {
+				maxWidth:this.currentColumn.width,
 				width:this.currentColumn.width,
 				height:this.currentColumn.availableHeight,
 				blocks:this.exclusive(minRequiredH),
@@ -82,9 +83,7 @@ export default ({Template,Frame})=>{
 				if((pline=this.belongsTo(line,pid))){
 					contentRect.height=contentRect.height-line.props.height
 					if(!this.isIntersect(rect,contentRect)){
-						let atom=pline.props.children.props.children.props.children.find(a=>a.props.x==undefined)
-						lines.splice(i)
-						return atom
+						return pline
 					}
 				}else{
 					return false

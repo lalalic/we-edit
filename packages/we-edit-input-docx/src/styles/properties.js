@@ -1,26 +1,26 @@
 import getTheme from "./theme"
 
 export class Properties{
-	constructor(docx){
+	constructor(docx,precision=1){
 		this.docx=docx
 		this.theme=getTheme(docx)
 		this.rStyle=this.pStyle=this.tblStyle=this._val
 		this.wrapSquare=this.wrapTight=this.wrapThrough=this.wrapTopAndBottom=this.wrap
 		this.ext=this.extent
 		this.requireFonts=new Set()
-		this.factor=1000
+		this.precision=precision
 	}
 
-	cm2Px(){
-		return parseInt(this.docx.cm2Px(...arguments)*this.factor)
+	emu2Px(emu){
+		return parseInt(emu/914400*96*this.precision)
 	}
 
 	dxa2Px(){
-		return parseInt(this.docx.dxa2Px(...arguments)*this.factor)
+		return parseInt(this.docx.dxa2Px(...arguments)*this.precision)
 	}
 
 	pt2Px(){
-		return parseInt(this.docx.pt2Px(...arguments)*this.factor)
+		return parseInt(this.docx.pt2Px(...arguments)*this.precision)
 	}
 
 	select(nodes, keyMap={}){
@@ -243,7 +243,7 @@ export class Properties{
 			...x.children.reduce((props,a)=>{
 				switch(a.name.split(":").pop()){
 				case "posOffset":
-					props.offset=this.cm2Px(a.children[0].data)
+					props.offset=this.emu2Px(a.children[0].data)
 				break
 				case "align":
 					props.align=a.children[0].data
@@ -262,20 +262,20 @@ export class Properties{
 		return {
 			x:{
 				base:"page",
-				offset:this.cm2Px(x.attribs.x),
+				offset:this.emu2Px(x.attribs.x),
 			},
 			y:{
 				base:"page",
-				offset:this.cm2Px(x.attribs.y)
+				offset:this.emu2Px(x.attribs.y)
 			}
 		}
 	}
 	extent(x){
-		return {width:this.cm2Px(x.attribs.cx),height:this.cm2Px(x.attribs.cy)}
+		return {width:this.emu2Px(x.attribs.cx),height:this.emu2Px(x.attribs.cy)}
 	}
 
 	off(x){
-		return {x:this.cm2Px(x.attribs.x),y:this.cm2Px(x.attribs.y)}
+		return {x:this.emu2Px(x.attribs.x),y:this.emu2Px(x.attribs.y)}
 	}
 
 	xfrm(x){
@@ -298,7 +298,7 @@ export class Properties{
 
 	custGeom(x){
 		let path=[]
-		let px=x=>this.cm2Px(x)
+		let px=x=>this.emu2Px(x)
 
 		for(let a, children=x.children.find(a=>a.name=="a:pathLst").children[0].children, len=children.length,i=0;i<len;i++){
 			a=children[i]
@@ -366,7 +366,7 @@ export class Properties{
 
 	ln(x){
 		let props=this.select(x.children,{prstDash:"dash"})
-		props.width=this.cm2Px(x.children.attribs.w)
+		props.width=this.emu2Px(x.children.attribs.w)
 		return props
 	}
 
@@ -375,7 +375,7 @@ export class Properties{
 		let props={}
 		props.margin="bottom,top,right,left".split(",").reduce((margin,a,t)=>{
 			if(t=x.attribs[`${a[0]}Ins`])
-				margin[a]=this.cm2Px(t)
+				margin[a]=this.emu2Px(t)
 			return margin
 		},{})
 
@@ -383,7 +383,7 @@ export class Properties{
 	}
 
 	wrapPolygon(x){
-		const xy=({attribs:{x,y}})=>({x:this.cm2Px(x),y:this.cm2Px(y)})
+		const xy=({attribs:{x,y}})=>({x:this.emu2Px(x),y:this.emu2Px(y)})
 		return x.children.map(a=>xy(a))
 	}
 
@@ -396,8 +396,8 @@ export class Properties{
 		}
 
 		if(props.mode=="Square" && !props.distance){
-			//let dt=this.cm2Px(36000)
-			//props.distance={left:dt,right:dt,top:dt,bottom:dt}
+			let dt=this.emu2Px(36000)
+			props.distance={left:dt,right:dt,top:dt,bottom:dt}
 		}
 		return props
 	}
@@ -426,7 +426,7 @@ export class Properties{
 	toDist(x,pre="dist"){
 		const dist="Right,Left,Bottom,Top".split(",").reduce((dist,a)=>{
 			if(x.attribs[`${pre}${a[0]}`]){
-	            dist[a.toLowerCase()]=this.cm2Px(x.attribs[`${pre}${a[0]}`])
+	            dist[a.toLowerCase()]=this.emu2Px(x.attribs[`${pre}${a[0]}`])
 			}
             return dist
         },{})

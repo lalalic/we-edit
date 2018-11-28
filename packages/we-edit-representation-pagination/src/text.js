@@ -24,7 +24,8 @@ export default class Text extends Super{
     }
 
     createMeasure=memoize((fonts,size,bold,italic)=>{
-        const measure=new this.context.Measure({fonts,size,bold,italic})
+        const {Measure}=this.context
+        const measure=new Measure({fonts,size,bold,italic})
         const _stringWidth=measure.stringWidth.bind(measure)
         const cache=new Map()
         measure.stringWidth=word=>{
@@ -55,8 +56,6 @@ export default class Text extends Super{
 
         const defaultStyle={
                 ...measure.defaultStyle,
-                height: measure.defaultStyle.height*1000,
-                descent:measure.defaultStyle.height*1000,
                 color, highlight,border,underline,strike
             }
 
@@ -71,8 +70,8 @@ export default class Text extends Super{
                     color,
 					highlight,
                     className:isWhitespace ? "whitespace" : undefined,
-					width:1000*(isWhitespace ? whitespaceWidth : measure.stringWidth(b)),
-					minWidth:1000*(isWhitespace ? 0 : undefined),
+					width:isWhitespace ? whitespaceWidth : measure.stringWidth(b),
+					minWidth:isWhitespace ? 0 : undefined,
 					"data-endat":start+=b.length,
 					children: b
 				})

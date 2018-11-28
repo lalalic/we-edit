@@ -85,10 +85,9 @@ export default class Frame extends Super{
 			if((pline=this.belongsTo(line,pid))){
 				contentRect.height-=line.props.height
 				if(!this.isIntersect(rect,contentRect)){
-					let atom=pline.props.children.props.children.props.children.find(a=>a.props.x==undefined)
 					const removed=lines.splice(i)
 					lines.splice(lines.length,0,...removed.filter(a=>a.props.y!=undefined))
-					return atom
+					return pline
 				}
 			}else{
 				return false
@@ -260,12 +259,15 @@ export default class Frame extends Super{
 
 			if(dirty){
 				if(dirty==1){//possibly fixable in current paragraph
-					let backedAtom=this.frame.rollbackCurrentParagraphUntilClean(this.context.parent.props.id,rect)
-					if(backedAtom){
-						let backedAt=this.context.parent.computed.atoms.indexOf(backedAtom)
+					const p=this.context.parent
+					let backedLine=this.frame.rollbackCurrentParagraphUntilClean(p.props.id,rect)
+					if(backedLine){
+						let backedLineAt=p.computed.composed.indexOf(backedLine)
+						p.computed.composed.splice(backedLineAt,-1)
 						this.content=[]
 						this.blocks=this.frame.exclusive()
-						return backedAt
+						let backedAtom=backedLine.props.children.props.children.props.children.find(a=>a.props.x==undefined)
+						return this.context.parent.computed.atoms.indexOf(backedAtom)
 					}
 				}
 				const recomposed=this.frame.recompose()
@@ -303,9 +305,9 @@ export default class Frame extends Super{
 					}).filter(a=>!!a)
 
 					if(containable()){
-						let height=this.height
+						let height=this.lineHeight()
 						this.content.push(atom)
-						if(height<this.height){
+						if(height<this.lineHeight()){
 							return this.updateExclusive(at)
 						}
 					}else{
@@ -317,8 +319,12 @@ export default class Frame extends Super{
 			}
 		}
 
+		lineHeight(){
+			return this.context.parent.lineHeight(this.height)
+		}
+
 		updateExclusive(at){
-			const newBlocks=this.frame.exclusive(this.height)
+			const newBlocks=this.frame.exclusive(this.lineHeight())
 			if(this.shouldRecompose(newBlocks)){
 				const flowCount=(this.content.reduce((count,a)=>a.props.x==undefined ? count+1 : count,0))
 				at=at-flowCount

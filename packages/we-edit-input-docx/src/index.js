@@ -66,8 +66,9 @@ export default class DocxType extends Input.Editable{
 		const self=this
 		const identify=Docx.OfficeDocument.identify
 
+		const precision=1
 		const docx=this.doc
-		const selector=new Style.Properties(docx)
+		const selector=new Style.Properties(docx,precision)
 		const $=docx.officeDocument.content
 		const settings=docx.officeDocument.settings
 
@@ -138,6 +139,7 @@ export default class DocxType extends Input.Editable{
 					{
 						...selector.select(node.children.filter(a=>a.name!="w:body")),
 						evenAndOddHeaders,
+						precision,
 					},
 					[
 						createStylesElement(),
