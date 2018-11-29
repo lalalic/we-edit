@@ -7,7 +7,6 @@ import {models} from "we-edit"
 const {Paragraph:Base}=models
 
 import opportunities from "./wordwrap/line-break"
-import LineBreaker from "linebreak"
 import {Text as ComposedText,  Group} from "./composed"
 import Frame from "./frame"
 
@@ -28,37 +27,19 @@ export default class extends Super{
 		this.computed.lastText=""
 		this.computed.words=0
 		this.computed.atoms=[]
+		this.computed.needMerge=false
 	}
 
     getChildContext(){
         let self=this
         return {
             ...super.getChildContext(),
-			getLastText(){
-				return self.computed.lastText
-			},
-            getMyBreakOpportunities(text){
+			getMyBreakOpportunities(text,f){
 				const {lastText}=self.computed
 				if(!text){
 					if(text===null)
 						self.computed.lastText=""
-					return [""]
-				}
-
-				const opportunities=str=>{
-					let breaker=new LineBreaker(str)
-					let last=0
-					var op=[]
-					for (let bk;bk = breaker.nextBreak();) {
-					  op.push(str.slice(last, bk.position))
-
-					  if (bk.required) {
-					    //op.push("\n")
-					  }
-
-					  last = bk.position
-					}
-					return op
+					return []
 				}
 
 				const current=opportunities(self.computed.lastText=`${lastText}${text}`)
@@ -71,7 +52,11 @@ export default class extends Super{
 				const i=last.length-1
 
 				let possible=current.slice(i)
-				possible[0]=possible[0].substring(last.pop().length)
+				if((possible[0]=possible[0].substring(last.pop().length))==""){
+					possible.splice(0,1)
+				}else{
+					self.computed.needMerge=true
+				}
 				self.computed.words+=(possible.length-1)
 				return possible
             }
@@ -119,6 +104,20 @@ export default class extends Super{
     }
 
     appendComposed(content){
+		if(this.computed.needMerge){
+			let last=this.computed.atoms.pop()
+			let height=Math.max(last.props.height, content.props.height)
+			let descent=Math.max(last.props.descent, content.props.descent)
+			let width=last.props.width+content.props.width
+			this.computed.atoms.push(
+				<Group {...{width,height,descent}}>
+					{last}
+					{React.cloneElement(content,{x:last.props.width})}
+				</Group>
+			)
+			this.computed.needMerge=false
+			return
+		}
 		this.computed.atoms.push(content)
     }
 
@@ -147,7 +146,7 @@ export default class extends Super{
 				times=0
 			}
 			content=this.computed.atoms[i]
-			var appended=this.currentLine.appendComposed(content,i)
+			const appended=this.currentLine.appendComposed(content,i)
 			if(appended===false){
 				this.commitCurrentLine()
 				this.computed.composed.push(this._newLine(this.context.parent.nextAvailableSpace()))
@@ -176,7 +175,7 @@ export default class extends Super{
         let {
 			spacing:{lineHeight="100%",top=0, bottom=0},
 			indent:{left=0,right=0,firstLine=0},
-			align
+			align,
 			}=this.props
 
        lineHeight=typeof(lineHeight)=='string' ? Math.ceil(height*parseInt(lineHeight)/100.0): lineHeight
@@ -346,7 +345,9 @@ class Story extends Component{
 }
 
 
-function isWhitespace(a){
+function isWhitespace(a,/*$=new Query(a)*/){
+	//return $.prop("minWidth")==0 && $.findFirst(".whitespace")
+
 	if(a.props.minWidth==0){
 		while(a && a.props.className!="whitespace"){
 			try{

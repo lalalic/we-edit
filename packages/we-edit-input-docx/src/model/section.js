@@ -113,11 +113,28 @@ export default ({Template,Frame})=>{
 						return false
 					}
 				}else{
+
 					return false
 				}
 			}else{
 				this.currentColumn.children.push(line)
 			}
+		}
+
+		widowControl(){
+
+		}
+
+		orphanControl(){
+
+		}
+
+		keepLinesControl(){
+
+		}
+
+		keepWithNext(){
+
 		}
 
 		createColumn(){

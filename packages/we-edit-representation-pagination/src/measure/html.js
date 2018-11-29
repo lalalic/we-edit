@@ -18,7 +18,6 @@ export default class HtmlMeasure extends Measure{
 		let {height, top}=getClientRect(p)
 		let {top:baseline}=getClientRect(p.querySelector('div'))
 		document.body.removeChild(p)
-		let descent=height-(baseline-top)
 		return {height, descent: height-(baseline-top)}
 	}
 

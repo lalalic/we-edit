@@ -1,14 +1,33 @@
 import LineBreaker from "linebreak"
 
 /**
+* find opportunities from string
+*
+*/
+export default function opportunities(str){
+	let breaker=new LineBreaker(str)
+	let last=0
+	var op=[]
+	for (let bk;bk = breaker.nextBreak();) {
+	  op.push(str.slice(last, bk.position))
+
+	  if (bk.required) {
+		//op.push("\n")
+	  }
+
+	  last = bk.position
+	}
+	return op
+}
+/**
 * find opportunities from a structured texts
 *
 */
-export default function opportunities(items,getText=a=>a,reviver=a=>a){
+ function opportunitiesOfObjects(items,getText=a=>a,reviver=a=>a){
     let commit=(state,i)=>{
         if(state.text.length==0)
             return state
-        
+
         let {text,opportunities,indexes}=state
         let str=text.join("")
         let breaker=new LineBreaker(str)
@@ -19,7 +38,7 @@ export default function opportunities(items,getText=a=>a,reviver=a=>a){
                 a.i=a.i+op.position-a.indexOfStr
             else
                 a.i=op.position-a.indexOfStr
-                
+
             a.itemIndex=j
             a.indexOfStr=op.position
         }
@@ -32,7 +51,7 @@ export default function opportunities(items,getText=a=>a,reviver=a=>a){
                 }else {
                     if(j==start.itemIndex)
                         len=len-start.i
-                    
+
                     if(a.indexOfStr+len<op.position){
                         a.indexOfStr+=len
                     }else if(a.indexOfStr+len>op.position){
@@ -43,9 +62,9 @@ export default function opportunities(items,getText=a=>a,reviver=a=>a){
                         }
                     }else if(a.indexOfStr+len==op.position){
                         found(a,op,j)
-                    } 
+                    }
                 }
-                
+
                 return a
             },{...start})
 
@@ -54,11 +73,11 @@ export default function opportunities(items,getText=a=>a,reviver=a=>a){
                     end:{itemIndex:end.itemIndex,at:end.i},
                     word
                 }))
-			
+
 			start=end
-			
+
 			//end at item end, let next start from next item
-            if(start.itemIndex<text.length 
+            if(start.itemIndex<text.length
 				&& text[start.itemIndex].length==start.i){
 				start.itemIndex+=1
 				start.i=0

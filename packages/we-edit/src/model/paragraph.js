@@ -20,7 +20,9 @@ export default class Paragraph extends Component{
 		align:PropTypes.string,
 		numbering: PropTypes.shape({
 			label: PropTypes.node.isRequired
-		})
+		}),
+		widowOrphan:PropTypes.bool,
+		keepLines: PropTypes.bool,
 	}
 
 	static defaultProps={

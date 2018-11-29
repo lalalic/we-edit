@@ -15,7 +15,6 @@ export default class Text extends Super{
 		...Super.contextTypes,
 		Measure: PropTypes.func,
         getMyBreakOpportunities: PropTypes.func,
-        getLastText: PropTypes.func,
 	}
 
     get text(){
@@ -43,10 +42,10 @@ export default class Text extends Super{
         return this.createMeasure(fonts,size,bold,italic)
     }
 
-    getMyBreakOpportunities=memoize((text,last)=>this.context.getMyBreakOpportunities(text))
+    getMyBreakOpportunities=memoize(text=>this.context.getMyBreakOpportunities(text))
 
     render(){
-        const {parent,getLastText=a=>null}=this.context
+        const {parent}=this.context
 		const {color,highlight,vanish,border,underline,strike}=this.props
 		if(vanish){
 			return null
@@ -62,16 +61,17 @@ export default class Text extends Super{
 		const whitespaceWidth=measure.stringWidth(" ")
 
 		let start=0
-		this.getMyBreakOpportunities(this.text,getLastText()).forEach(a=>{
+		this.getMyBreakOpportunities(this.text).forEach(a=>{
 			a.split(/(\s)/).filter(a=>a.length).forEach((b,i)=>{
 				const isWhitespace=b==" "
+                const ending=b.endsWith(",") ? b.substring(0,b.length-1) : false
 				this.appendComposed({
 					...defaultStyle,
                     color,
 					highlight,
                     className:isWhitespace ? "whitespace" : undefined,
 					width:isWhitespace ? whitespaceWidth : measure.stringWidth(b),
-					minWidth:isWhitespace ? 0 : undefined,
+					minWidth:isWhitespace ? 0 : (ending ? measure.stringWidth(ending) : undefined),
 					"data-endat":start+=b.length,
 					children: b
 				})
