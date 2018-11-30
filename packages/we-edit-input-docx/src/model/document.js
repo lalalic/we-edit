@@ -31,6 +31,7 @@ export default ({Document})=>class extends Component{
 	}
 
 	render(){
+		//need to merge for continuous sections
 		const {children:[,...content],evenAndOddHeaders,...others}=this.props
 
 		this.resetNumbering()

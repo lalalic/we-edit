@@ -38,12 +38,13 @@ export default ({Text, Paragraph})=>class extends Component{
 	defaultStyle=memoize((direct,context)=>direct.flat4Character(context))
 
 	render(){
-		const {style, ...props}=this.props
+		const {style,widow,orphan=widow, ...props}=this.props
 
 		return (
 			<Paragraph
 				{...this.style(this.props.style,this.context.style)}
 				{...props}
+				{...{widow,orphan}}
 				defaultStyle={this.defaultStyle(this.props.style,this.context.style)}
 				/>
 		)

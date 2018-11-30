@@ -24,6 +24,12 @@ export default class Template extends Super{
 		return this.computed.composed[this.computed.composed.length-1]
 	}
 
+    get prevPage(){
+        if(totalPages>1)
+            return this.computed.composed[this.computed.composed.length-2]
+        return null
+    }
+
 	getDocument=memoize(()=>{
 		var current=this.context.parent
 		while(current){
@@ -57,9 +63,14 @@ export default class Template extends Super{
         if(named){
             this.computed.named[named]=arguments[0]
             return
-        }else if(this.currentPage.appendComposed(...arguments)===false){
-            this.createPage()
-            return this.appendComposed(...arguments)
+        }else{
+            const appended=this.currentPage.appendComposed(...arguments)
+            if(appended===false){
+                this.createPage()
+                return this.appendComposed(...arguments)
+            }else if(Number.isInteger(appended)){
+                return appended
+            }
         }
     }
 

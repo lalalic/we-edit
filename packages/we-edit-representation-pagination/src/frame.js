@@ -295,29 +295,45 @@ export default class Frame extends Super{
 					return this.appendAnchor(...arguments)
 				}
 			}else{
-				const containable=()=>minWidth==0 || this.availableWidth>=minWidth || this.availableWidth==this.maxWidth
-				if(containable()){
-					this.blocks=this.blocks.map((a,i)=>{
-						if((this.currentX+minWidth)>a.x){
-							this.content.push(<Group {...a} height={0}/>)
-							this.blocks[i]=null
-						}else{
-							return a
-						}
-					}).filter(a=>!!a)
-
+				//const needNewLine=()=>{
+					const containable=()=>minWidth==0 || this.availableWidth>=minWidth || this.availableWidth==this.maxWidth
 					if(containable()){
-						let height=this.lineHeight()
-						this.content.push(atom)
-						if(height<this.lineHeight()){
-							return this.updateExclusive(at)
+						this.blocks=this.blocks.map((a,i)=>{
+							if((this.currentX+minWidth)>a.x){
+								this.content.push(<Group {...a} height={0}/>)
+								this.blocks[i]=null
+							}else{
+								return a
+							}
+						}).filter(a=>!!a)
+
+						if(containable()){
+							let height=this.lineHeight()
+							this.content.push(atom)
+							if(height<this.lineHeight()){
+								return this.updateExclusive(at)
+							}
+						}else{
+							return false
 						}
 					}else{
+
 						return false
 					}
-				}else{
-					return false
+				//}
+				/*
+				if(needNewLine && this.frame.isEmpty()){
+					if(this.context.parent.props.orphan && this.isSecond(...arguments)){
+						this.frame.prev.rollbackLines(1)
+						//reset this line, and recompose from 0
+						return 0
+					}else if(this.context.parent.props.widow && this.isLast(...arguments)){
+						this.frame.prev.rollbackLines(1)
+
+					}
 				}
+*/
+				//return needNewLine
 			}
 		}
 

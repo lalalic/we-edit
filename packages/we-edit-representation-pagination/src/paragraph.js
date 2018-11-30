@@ -121,45 +121,73 @@ export default class extends Super{
 		this.computed.atoms.push(content)
     }
 
-    commitCurrentLine(){
-		this.context.parent.appendComposed(this.createComposed2Parent(this.currentLine.commit()))
-    }
-
     onAllChildrenComposed(){//need append last non-full-width line to parent
 		this.commit()
 		super.onAllChildrenComposed()
-		this.commitCurrentLine()
     }
 
+	rollback2(at){
+		let i=this.computed.composed.find(a=>this.computed.atoms.indexOf(a.first)==at)
+		this.computed.composed.splice(i)
+	}
 
 	commit(){
+		const {context:{parent}, computed:{composed:lines, atoms}}=this
+
+		const appendComposedLine=(isLast)=>{
+			return parent.appendComposed(this.createComposed2Parent(this.currentLine.commit(),isLast))
+	    }
+
+		const lineStartAt=i=>atoms.indexOf(lines(lines.length-i-1).first)
+
 		const len=this.computed.atoms.length
-		var last=0, times=0
-		for(let i=0,content;i<len;){
-			if(i==last){
-				times++
-				if(times>3){
-					throw Error(`it may be dead loop on ${i}th atoms`)
+		var nested=0
+
+		const commitFrom=(start=0)=>{
+			if(++nested>5)
+				throw Error(`it may be dead loop on since commit nested ${nested}`)
+
+			var last=0, times=0
+			var next, rollbackLines
+			for(let i=start,content;i<len;){
+				if(i==last){
+					times++
+					if(times>3){
+						throw Error(`it may be dead loop on ${i}th atoms`)
+					}
+				}else{
+					last=i
+					times=0
 				}
-			}else{
-				last=i
-				times=0
-			}
-			content=this.computed.atoms[i]
-			const appended=this.currentLine.appendComposed(content,i)
-			if(appended===false){
-				this.commitCurrentLine()
-				this.computed.composed.push(this._newLine(this.context.parent.nextAvailableSpace()))
-				continue
-			}
-			if(Number.isInteger(appended)){
-				i=appended
-				continue
+				content=this.computed.atoms[i]
+				next=this.currentLine.appendComposed(content,i)
+				if(next===false){
+					if(!Number.isInteger(rollbackLines=appendComposedLine())){
+						this.computed.composed.push(this._newLine(this.context.parent.nextAvailableSpace()))
+						continue
+					}else{
+						next=lineStartAt(rollbackLines)
+					}
+				}
+				if(Number.isInteger(next)){
+					this.rollback2(i=next)
+					continue
+				}
+
+				i++
 			}
 
-			i++
+			rollbackLines=appendComposedLine(true)
+			if(Number.isInteger(rollbackLines)){
+				this.rollback2(next=lineStartAt(rollbackLines))
+				commitFrom(next)
+			}
 		}
+
+		commitFrom(0)
 	}
+
+
 
 	lineHeight(height){
 		var {spacing:{lineHeight="100%",top=0, bottom=0},}=this.props
@@ -170,12 +198,13 @@ export default class extends Super{
 		return lineHeight
 	}
 
-	createComposed2Parent(line){
+	createComposed2Parent(line,last){
         const {height, width, children, ...others}=line
         let {
 			spacing:{lineHeight="100%",top=0, bottom=0},
 			indent:{left=0,right=0,firstLine=0},
 			align,
+			orphan,widow,keepWithNext,keepLines,//all recompose whole paragraph to simplify
 			}=this.props
 
        lineHeight=typeof(lineHeight)=='string' ? Math.ceil(height*parseInt(lineHeight)/100.0): lineHeight
@@ -188,15 +217,18 @@ export default class extends Super{
             contentX+=firstLine
         }
 
-        if(this.isAllChildrenComposed()){//the last line
+        if(last){//the last line
             lineHeight+=bottom
 			if(align=="justify" || align=="both"){//not justify the last line
 				align=undefined
 			}
         }
 
+		const pagination={orphan,widow,keepWithNext,keepLines, i:this.computed.composed.length,last}
+
+
         return (
-            <Group height={lineHeight} width={width} className="line">
+            <Group height={lineHeight} width={width} className="line" pagination={pagination}>
                 <Group x={contentX} y={contentY} width={width} height={height}>
 					<Story {...{children,align}}/>
                 </Group>

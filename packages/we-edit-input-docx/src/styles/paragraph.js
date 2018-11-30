@@ -5,7 +5,10 @@ const attribs={
 	"w:ind":"indent",
 	"w:numPr":"num",
 	"w:jc":"align",
-	"w:outlineLvl":"heading"
+	"w:outlineLvl":"heading",
+	"w:widoControl":"widow",
+	"w:keepWithNext":"keepWithNext",
+	"w:keepLines":"keepLines"
 }
 export default class Paragraph extends Base{
 	constructor(node,styles,selector){
@@ -26,8 +29,7 @@ export default class Paragraph extends Base{
 
 	flat(...inherits){
 		let targets=[this,...inherits]
-		return "spacing,indent,align,num,heading"
-				.split(",")
+		return Object.values(attribs)
 				.reduce((props, k)=>{
 					if(targets.find(a=>(props[k]=a.get(`p.${k}`))!==undefined)){
 						if(k==="num"){

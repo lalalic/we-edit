@@ -100,7 +100,7 @@ export default ({Template,Frame})=>{
 		}
 
 		appendComposed(line){
-			const {height:contentHeight, anchor, x, y,width}=line.props
+			const {height:contentHeight, anchor, x, y,width, pagination={}}=line.props
 			if(x!=undefined || y!=undefined){//anchored
 				this.computed.composed.push(line)
 				return
@@ -113,28 +113,111 @@ export default ({Template,Frame})=>{
 						return false
 					}
 				}else{
-
 					return false
 				}
 			}else{
+				if(this.isEmpty() && this.prev){
+					const {widow,orphan,keepLines,keepWithNext,i,last}=pagination
+					if(keepLines){
+						if(i!=1){
+							let lineCount=this.prev.lineCountOfLastParagraph(line)
+							if(this.prev.totalLines>lineCount){
+								this.prev.rollbackLines(lineCount)
+								return -lineCount
+							}
+						}
+					}else{
+						if(orphan){
+							if(i==2){
+								this.prev.rollbackLines(1)
+								return -1
+							}
+						}
+
+						if(widow){
+							if(last){
+								let lastLineInPrevPage=this.prev.rollbackLines(1)
+								if(lastLineInPrevPage.pagination.i==2){//can't leave orphan in prev page
+									this.prev.rollbackLines(1)
+									return -2
+								}else{
+									return -1
+								}
+							}
+						}
+					}
+				}
 				this.currentColumn.children.push(line)
 			}
 		}
 
-		widowControl(){
+		get prev(){
+			return this.context.parent.prevPage
+		}
+
+
+		lineCountOfLastParagraph(line){
+			const getParagraphId=l=>l.props["data-id"]
+			const pid=getParagraphId(line)
+			let count=0
+			for(let i=this.columns.length-1;i>-1;i--){
+				let lines=this.columns[i].children
+				for(let j=lines.length-1;j>-1;j--){
+					if(getParagraphId(lines[j])==pid){
+						++count
+					}else{
+						return count
+					}
+				}
+			}
+			return count
+		}
+
+		get totalLines(){
+			return this.columns.reduce((count,a)=>count+a.children.length,0)
+		}
+
+		rollbackLines(n){
+			var removedLines=[]
+			for(let i=this.columns.length-1;i>-1;i--){
+				let lines=this.columns[i].children
+				if(n<lines.length){
+					removedLines=removedLines.concat(lines.splice(-n))
+					break
+				}else if(n==lines.length){
+					removedLines=removedLines.concat(this.columns.splice(i)[0].children)
+					break
+				}else{
+					removedLines=removedLines.concat(this.columns.splice(i)[0].children)
+					n=n-lines.length
+				}
+			}
+			const extractAnchorsInLines=lines=>{
+				return lines.reduce((anchors,line)=>{
+					$(line).findFirst("anchor").prop("content")
+				},[])
+			}
+
+			const anchors=extractAnchorsInLines(removedLines)
+			anchors.forEach(a=>this.removeAnchor(a))
+			const intersectWithContent=!!anchors.find(a=>{
+				const {x=0,y=0,width,height}=a.props
+				return this.columns.find(a=>this.isInterset({x,y,width,height}, a))
+			})
+
+			if(intersectWithContent){
+				this.recompose()
+			}
 
 		}
 
-		orphanControl(){
-
+		removeAnchor(id){
+			let i=this.computed.composed.find(a=>a.props["data-content"]==id)
+			this.computed.composed.splice(i,1)
 		}
 
-		keepLinesControl(){
-
-		}
-
-		keepWithNext(){
-
+		isEmpty(){
+			return this.totalLines==0
 		}
 
 		createColumn(){

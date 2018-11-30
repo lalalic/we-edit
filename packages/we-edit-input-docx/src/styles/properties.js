@@ -96,6 +96,19 @@ export class Properties{
 	spacing(x){
 		return this.toSpacing(x)
 	}
+
+	widowControl(x){
+		return this._val(x)!=="0"
+	}
+
+	keepWithNext(x){
+		return true
+	}
+
+	keepLines(x){
+		return true	
+	}
+
 	pBdr(x){
 		return Object.keys(x.attribs).reduce((props,a)=>{
 			props[a.split(":").pop()]=this.toBorder(x[a][0])

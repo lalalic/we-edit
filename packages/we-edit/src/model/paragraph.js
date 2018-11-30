@@ -21,13 +21,17 @@ export default class Paragraph extends Component{
 		numbering: PropTypes.shape({
 			label: PropTypes.node.isRequired
 		}),
-		widowOrphan:PropTypes.bool,
+		widow:PropTypes.bool,
+		orphan: PropTypes.bool,
 		keepLines: PropTypes.bool,
+		keepWithNext: PropTypes.bool
 	}
 
 	static defaultProps={
 		spacing:{},
-		indent:{}
+		indent:{},
+		widow:true,
+		orphan:true
 	}
 
 	static End=String.fromCharCode(0xb6)
