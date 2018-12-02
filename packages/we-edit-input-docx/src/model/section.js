@@ -1,5 +1,6 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
+import {ReactQuery} from  "we-edit"
 
 import get from "lodash.get"
 
@@ -157,7 +158,7 @@ export default ({Template,Frame})=>{
 
 
 		lineCountOfLastParagraph(line){
-			const getParagraphId=l=>l.props["data-id"]
+			const getParagraphId=l=>new ReactQuery(l).find(`[data-type="paragraph"][data-content]`).attr("data-content")
 			const pid=getParagraphId(line)
 			let count=0
 			for(let i=this.columns.length-1;i>-1;i--){

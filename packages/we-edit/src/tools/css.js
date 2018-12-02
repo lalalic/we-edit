@@ -1,15 +1,13 @@
 
 //selector,selector
-export default function selectors(a,$){
+export default function selectors(a,$,selector=basic){
 	try{
-		let checks=a.split(",").map(k=>unionSelector(k.trim(),$))
-		return n=>!!checks.find(f=>f(n))
+		return n=>!!a.split(",").map(k=>unionSelector(k.trim(),$, selector)).find(f=>f(n))
 	}catch(error){
 		throw error
 	}
 }
 
-const UNION=/[\s\[,:<>+~]/
 export function isIdSelector(selector){
 	return typeof(selector)=="string" 
 		&& (selector=selector.trim())[0]=='#' 
@@ -24,7 +22,8 @@ const SCOPE={
 		"+":"prev",
 		"~":"next"
 	}
-function unionSelector(a,$){
+const UNION=/[\s\[,:<>+~]/
+function unionSelector(a,$, selector){
 	let selectors=a.replace(/\s?[><+~]\s?/g,">").split(/(?=[><+~\s])/g)
 	let scopes=selectors.slice(1).map(k=>SCOPE[k[0]])
 	selectors=selectors.map(k=>k.replace(/^[><+~]/,"")).map(k=>k.trim())
@@ -46,7 +45,7 @@ function unionSelector(a,$){
 }
 
 //p#id[k=v], any fail cause fail
-function selector(a){
+function basicSelectors(a,{id,attr,type,className}){
 	let checks=a.split(/(?=[#\[\]])/g)
 		.map(k=>{
 			if(k[0]=="]"){
@@ -82,3 +81,4 @@ function selector(a){
 		})
 	return n=>!checks.find(f=>!f(n))
 }
+

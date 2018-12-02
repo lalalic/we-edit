@@ -1,6 +1,8 @@
 import {Map,List} from "immutable"
 import {traverse, traverseNext, traversePrev}  from "."
-import cssSelect, {isIdSelector} from "./css"
+import cssSelect, {isIdSelector} from "../../tools/css"
+
+const isNode=a=>a instanceof Map
 
 export default class Query{
 	static fromContent(content,selector){
@@ -453,9 +455,6 @@ export default class Query{
 	}
 }
 
-
-const isNode=a=>a instanceof Map
-
 function asSelector(selector,$){
 	switch(typeof(selector)){
 		case "function":{
@@ -473,7 +472,7 @@ function asSelector(selector,$){
 			}
 		}
 		case "string":{
-			return cssSelect(selector,$)
+			return cssSelect(selector,$,basic)
 		}
 		default:
 			return a=>true
