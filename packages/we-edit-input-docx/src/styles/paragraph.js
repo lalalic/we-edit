@@ -7,7 +7,7 @@ const attribs={
 	"w:jc":"align",
 	"w:outlineLvl":"heading",
 	"w:widoControl":"widow",
-	"w:keepWithNext":"keepWithNext",
+	"w:keepNext":"keepWithNext",
 	"w:keepLines":"keepLines"
 }
 export default class Paragraph extends Base{

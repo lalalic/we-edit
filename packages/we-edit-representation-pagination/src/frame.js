@@ -382,5 +382,9 @@ export default class Frame extends Super{
 			this.blocks=[]
 			return this
 		}
+
+		get first(){
+			return this.content.find(a=>a.props.x===undefined)
+		}
 	}
 }

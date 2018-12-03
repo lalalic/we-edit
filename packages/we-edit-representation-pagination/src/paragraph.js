@@ -127,7 +127,7 @@ export default class extends Super{
     }
 
 	rollback2(at){
-		let i=this.computed.composed.find(a=>this.computed.atoms.indexOf(a.first)==at)
+		let i=this.computed.composed.findIndex(a=>this.computed.atoms.indexOf(a.first)==at)
 		this.computed.composed.splice(i)
 	}
 
@@ -138,7 +138,7 @@ export default class extends Super{
 			return parent.appendComposed(this.createComposed2Parent(this.currentLine.commit(),isLast))
 	    }
 
-		const lineStartAt=i=>atoms.indexOf(lines(lines.length-i-1).first)
+		const lineStartAt=i=>atoms.indexOf(lines[lines.length-i].first)
 
 		const len=this.computed.atoms.length
 		var nested=0

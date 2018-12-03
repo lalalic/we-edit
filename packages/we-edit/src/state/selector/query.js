@@ -472,7 +472,27 @@ function asSelector(selector,$){
 			}
 		}
 		case "string":{
-			return cssSelect(selector,$,basic)
+			return cssSelect(selector,$,{
+				"#":id=>n=>n.get("id")==id,
+				"[":(name,v)=>n=>{
+					if(n.hasIn(["props",name])){
+						if(typeof(v)=='undefined'){
+							return true
+						}else{
+							v=v.replace(/^['"]/).replace(/$['"]/)
+							return n.getIn(["props",name])==v
+						}
+					}
+					return false
+				},
+				".":className=>n=>{
+					if(n.hasIn(["props","className"])){
+						return n.getIn(["props","className"]).split(/\s+/).includes(className)
+					}
+					return false
+				},
+				type:type=>n=>n.get("type")==type
+			})
 		}
 		default:
 			return a=>true

@@ -101,12 +101,12 @@ export class Properties{
 		return this._val(x)!=="0"
 	}
 
-	keepWithNext(x){
+	keepNext(x){
 		return true
 	}
 
 	keepLines(x){
-		return true	
+		return true
 	}
 
 	pBdr(x){

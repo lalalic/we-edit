@@ -25,7 +25,7 @@ export default class Template extends Super{
 	}
 
     get prevPage(){
-        if(totalPages>1)
+        if(this.totalPages>1)
             return this.computed.composed[this.computed.composed.length-2]
         return null
     }

@@ -1,16 +1,15 @@
-
 //selector,selector
-export default function selectors(a,$,selector=basic){
+export default function selectors(a,$,basic){
 	try{
-		return n=>!!a.split(",").map(k=>unionSelector(k.trim(),$, selector)).find(f=>f(n))
+		return n=>!!a.split(",").map(k=>unionSelector(k.trim(),$, basic)).find(f=>f(n))
 	}catch(error){
 		throw error
 	}
 }
 
 export function isIdSelector(selector){
-	return typeof(selector)=="string" 
-		&& (selector=selector.trim())[0]=='#' 
+	return typeof(selector)=="string"
+		&& (selector=selector.trim())[0]=='#'
 		&& !UNION.test(selector)
 }
 
@@ -23,15 +22,15 @@ const SCOPE={
 		"~":"next"
 	}
 const UNION=/[\s\[,:<>+~]/
-function unionSelector(a,$, selector){
+function unionSelector(a,$, basic){
 	let selectors=a.replace(/\s?[><+~]\s?/g,">").split(/(?=[><+~\s])/g)
 	let scopes=selectors.slice(1).map(k=>SCOPE[k[0]])
 	selectors=selectors.map(k=>k.replace(/^[><+~]/,"")).map(k=>k.trim())
 	let nodeSelector=selectors.pop()
-	let nodeCheck=selector(nodeSelector)
+	let nodeCheck=basicSelectors(nodeSelector,basic)
 	let checks=selectors
 		.map((a,i)=>{
-			let check=selector(a)
+			let check=basicSelectors(a,basic)
 			return n=>$(n)[scopes[i]](check).length>0
 		})
 		.reverse()
@@ -45,8 +44,8 @@ function unionSelector(a,$, selector){
 }
 
 //p#id[k=v], any fail cause fail
-function basicSelectors(a,{id,attr,type,className}){
-	let checks=a.split(/(?=[#\[\]])/g)
+function basicSelectors(a,basic=basic){
+	let checks=a.split(/(?=[#\.\[\]])/g)
 		.map(k=>{
 			if(k[0]=="]"){
 				return k.substr(1)
@@ -56,29 +55,19 @@ function basicSelectors(a,{id,attr,type,className}){
 		.filter(a=>!!a)
 		.map(k=>{
 			switch(k[0]){
-				case '#':{
-					let id=k.substr(1)
-					return n=>n.get("id")==id
-				}
+				case '#':
+					return basic["#"](k.substr(1))
 				case '[':{
-					let [name,v]=k.substr(1).split("=")
-					return n=>{
-						if(n.hasIn(["props",name])){
-							if(typeof(v)=='undefined'){
-								return true
-							}else{
-								v=v.replace(/^['"]/).replace(/$['"]/)
-								return n.getIn(["props",name])==v
-							}
-						}
-						return false
-					}
+					const args=k.substr(1).split("=")
+					if(args.length==2)
+						args[1]=args[1].replace(/^['"]/,"").replace(/['"]$/,"")
+					return basic["["](...args)
 				}
-				default:{
-					return n=>n.get("type")==k
-				}
+				case ".":
+					return basic["."](k.substr(1))
+				default:
+					return basic.type(k)
 			}
 		})
 	return n=>!checks.find(f=>!f(n))
 }
-

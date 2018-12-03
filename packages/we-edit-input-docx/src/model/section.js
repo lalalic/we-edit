@@ -118,34 +118,41 @@ export default ({Template,Frame})=>{
 				}
 			}else{
 				if(this.isEmpty() && this.prev){
-					const {widow,orphan,keepLines,keepWithNext,i,last}=pagination
+					const {widow,orphan,keepLines,i,last}=pagination
 					if(keepLines){
 						if(i!=1){
-							let lineCount=this.prev.lineCountOfLastParagraph(line)
+							let lineCount=this.prev.lineCountOfLastParagraph()
 							if(this.prev.totalLines>lineCount){
 								this.prev.rollbackLines(lineCount)
-								return -lineCount
+								return lineCount
 							}
 						}
 					}else{
 						if(orphan){
 							if(i==2){
 								this.prev.rollbackLines(1)
-								return -1
+								return 1
 							}
 						}
 
 						if(widow){
 							if(last){
-								let lastLineInPrevPage=this.prev.rollbackLines(1)
-								if(lastLineInPrevPage.pagination.i==2){//can't leave orphan in prev page
+								let [lastLineInPrevPage]=this.prev.rollbackLines(1)
+								if(lastLineInPrevPage.props.pagination.i==2){//can't leave orphan in prev page
 									this.prev.rollbackLines(1)
-									return -2
+									return 2
 								}else{
-									return -1
+									return 1
 								}
 							}
 						}
+					}
+
+					if(i==1 && this.prev.keepWithNext){
+						let removedLines=this.prev.rollbackLines(this.prev.lineCountOfLastParagraph())
+						this.currentColumn.children=removedLines
+						this.recompose()
+						return 0
 					}
 				}
 				this.currentColumn.children.push(line)
@@ -156,15 +163,34 @@ export default ({Template,Frame})=>{
 			return this.context.parent.prevPage
 		}
 
+		get keepWithNext(){
+			return (this.lastLine.props.pagination||{}).keepWithNext &&
+				this.getParagraphId(this.firstLine)!==this.getParagraphId(this.lastLine)
+		}
 
-		lineCountOfLastParagraph(line){
-			const getParagraphId=l=>new ReactQuery(l).find(`[data-type="paragraph"][data-content]`).attr("data-content")
-			const pid=getParagraphId(line)
+		get lastLine(){
+			return this.currentColumn.children[this.currentColumn.children.length-1]
+		}
+
+		get firstLine(){
+			return this.columns[0].children[0]
+		}
+
+		get totalLines(){
+			return this.columns.reduce((count,a)=>count+a.children.length,0)
+		}
+
+		getParagraphId(line){
+			return new ReactQuery(line).findFirst(`[data-type="paragraph"][data-content]`).attr("data-content")
+		}
+
+		lineCountOfLastParagraph(){
+			const pid=this.getParagraphId(this.lastLine)
 			let count=0
 			for(let i=this.columns.length-1;i>-1;i--){
 				let lines=this.columns[i].children
 				for(let j=lines.length-1;j>-1;j--){
-					if(getParagraphId(lines[j])==pid){
+					if(this.getParagraphId(lines[j])==pid){
 						++count
 					}else{
 						return count
@@ -172,10 +198,6 @@ export default ({Template,Frame})=>{
 				}
 			}
 			return count
-		}
-
-		get totalLines(){
-			return this.columns.reduce((count,a)=>count+a.children.length,0)
 		}
 
 		rollbackLines(n){
@@ -194,9 +216,12 @@ export default ({Template,Frame})=>{
 				}
 			}
 			const extractAnchorsInLines=lines=>{
-				return lines.reduce((anchors,line)=>{
-					$(line).findFirst("anchor").prop("content")
-				},[])
+				return Array.from(
+					lines.reduce((anchors,line)=>{
+						anchors.add(new ReactQuery(line).findFirst('[data-type="anchor"][data-content]').attr("data-content"))
+						return anchors
+					},new Set())
+				).filter(a=>!!a)
 			}
 
 			const anchors=extractAnchorsInLines(removedLines)
@@ -210,6 +235,7 @@ export default ({Template,Frame})=>{
 				this.recompose()
 			}
 
+			return removedLines
 		}
 
 		removeAnchor(id){
