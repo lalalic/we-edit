@@ -152,7 +152,7 @@ export default ({Template,Frame})=>{
 						let removedLines=this.prev.rollbackLines(this.prev.lineCountOfLastParagraph())
 						this.currentColumn.children=removedLines
 						this.recompose()
-						return 0
+						return 1
 					}
 				}
 				this.currentColumn.children.push(line)
@@ -215,16 +215,25 @@ export default ({Template,Frame})=>{
 					n=n-lines.length
 				}
 			}
-			const extractAnchorsInLines=lines=>{
+
+			const anchors=(lines=>{
+				const pids=Array.from(
+					lines.reduce((ps, line)=>{
+						ps.add(this.getParagraphId(line))
+						return ps
+					},new Set())
+				)
+
 				return Array.from(
-					lines.reduce((anchors,line)=>{
-						anchors.add(new ReactQuery(line).findFirst('[data-type="anchor"][data-content]').attr("data-content"))
+					this.computed.composed.reduce((anchors,line)=>{
+						if(pids.includes(this.getParagraphId(line))){
+							anchors.add(new ReactQuery(line).findFirst('[data-type="anchor"][data-content]').attr("data-content"))
+						}
 						return anchors
 					},new Set())
 				).filter(a=>!!a)
-			}
-
-			const anchors=extractAnchorsInLines(removedLines)
+			})(removedLines);
+			
 			anchors.forEach(a=>this.removeAnchor(a))
 			const intersectWithContent=!!anchors.find(a=>{
 				const {x=0,y=0,width,height}=a.props
@@ -321,11 +330,14 @@ export default ({Template,Frame})=>{
 		}
 
 		recompose(){
-			throw new Error("not support yet")
+			if(this.computed.composed.length==0)
+				return
+			console.warn("Need implementation of page recompose")
+			//throw new Error("not support yet")
 		}
 
 		replaceComposedWith(recomposed){
-			throw new Error("not support yet")
+			console.warn("Need implementation of page recompose: replaceComposedWith")
 		}
 
 		next(){

@@ -295,7 +295,6 @@ export default class Frame extends Super{
 					return this.appendAnchor(...arguments)
 				}
 			}else{
-				//const needNewLine=()=>{
 					const containable=()=>minWidth==0 || this.availableWidth>=minWidth || this.availableWidth==this.maxWidth
 					if(containable()){
 						this.blocks=this.blocks.map((a,i)=>{
@@ -320,20 +319,7 @@ export default class Frame extends Super{
 
 						return false
 					}
-				//}
-				/*
-				if(needNewLine && this.frame.isEmpty()){
-					if(this.context.parent.props.orphan && this.isSecond(...arguments)){
-						this.frame.prev.rollbackLines(1)
-						//reset this line, and recompose from 0
-						return 0
-					}else if(this.context.parent.props.widow && this.isLast(...arguments)){
-						this.frame.prev.rollbackLines(1)
 
-					}
-				}
-*/
-				//return needNewLine
 			}
 		}
 
