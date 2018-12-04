@@ -1,10 +1,12 @@
 import React, {Component} from "react"
+import TestRenderer from 'react-test-renderer'
+
 import PropTypes from "prop-types"
-import {ReactQuery} from  "we-edit"
+import {ReactQuery, render} from  "we-edit"
 
 import get from "lodash.get"
 
-export default ({Template,Frame})=>{
+export default ({Template,Frame,Container})=>{
 	class Page extends Frame{
 		constructor(){
 			super(...arguments)
@@ -233,7 +235,7 @@ export default ({Template,Frame})=>{
 					},new Set())
 				).filter(a=>!!a)
 			})(removedLines);
-			
+
 			anchors.forEach(a=>this.removeAnchor(a))
 			const intersectWithContent=!!anchors.find(a=>{
 				const {x=0,y=0,width,height}=a.props
@@ -330,13 +332,66 @@ export default ({Template,Frame})=>{
 		}
 
 		recompose(){
-			if(this.computed.composed.length==0)
-				return
-			console.warn("Need implementation of page recompose")
-			//throw new Error("not support yet")
+			const route=(el,path=new Set())=>{
+				path.add(el.props["data-content"])
+				if(el.props["data-type"]!=="paragraph"){
+					route(React.Children.toArray(el.props.children)[0],path)
+				}
+				return Array.from(path)
+			}
+
+			const shrink=(element,path)=>{
+				if(path.length==0)
+					return element
+
+				const children=React.Children.toArray(element.props.children)
+				const i=children.findIndex(a=>a.props.id==path[0])
+				const [first,...scoped]=children.slice(i)
+				return React.cloneElement(element,{children:[shrink(first,path.slice(1)),...scoped]})
+			}
+
+			const shrinkRight=(element,path)=>{
+				if(path.length==0)
+					return element
+
+				const children=React.Children.toArray(element.props.children)
+				const i=children.findIndex(a=>a.props.id==path[0])
+				const scoped=children.slice(0,i+1)
+				const last=scoped.pop()
+				return React.cloneElement(element,{children:[...scoped,shrinkRight(last,path.slice(1))]})
+			}
+
+			const slice=(start,end)=>{
+				const {constructor:Type, props:{children, ...props}}=this.context.parent
+				var scoped=React.Children.toArray(children)
+				scoped=scoped.slice(scoped.findIndex(a=>a.props.id===start[0]),scoped.findIndex(a=>a.props.id==end[0])+1)
+				if(scoped.length==1){
+					return [shrink(shrinkRight(scoped[0],end.slice(1)),start.slice(1))]
+				}else{
+					return [
+						shrink(scoped[0],start.slice(1)),
+						...scoped.slice(1,-1),
+						shrinkRight(scoped[scoped.length-1],end.slice(1))
+					]
+				}
+
+			}
+
+			try{/*
+				const scoped=slice(route(this.firstLine),route(this.lastLine))
+				const render=TestRenderer.create(
+					<PageComposer {...this.props}>
+						{scoped}
+					</PageComposer>
+				)
+				this.computed=render.getInstance().computed
+			*/}catch(e){
+				console.warn(e)
+			}
 		}
 
 		replaceComposedWith(recomposed){
+			this.computed=recomposed.computed
 			console.warn("Need implementation of page recompose: replaceComposedWith")
 		}
 

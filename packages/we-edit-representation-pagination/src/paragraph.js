@@ -131,6 +131,10 @@ export default class extends Super{
 		this.computed.composed.splice(i)
 	}
 
+	/**
+	* line.appendComposed can rollback to a specified atom
+	* parent.appendComposed can rollback lines
+	**/
 	commit(){
 		const {context:{parent}, computed:{composed:lines, atoms}}=this
 
@@ -159,8 +163,7 @@ export default class extends Super{
 					last=i
 					times=0
 				}
-				content=this.computed.atoms[i]
-				next=this.currentLine.appendComposed(content,i)
+				next=this.currentLine.appendComposed(this.computed.atoms[i],i)
 				if(next===false){
 					if(!Number.isInteger(rollbackLines=appendComposedLine())){
 						this.computed.composed.push(this._newLine(this.context.parent.nextAvailableSpace()))
@@ -169,6 +172,7 @@ export default class extends Super{
 						next=lineStartAt(rollbackLines)
 					}
 				}
+
 				if(Number.isInteger(next)){
 					this.rollback2(i=next)
 					continue
@@ -186,8 +190,6 @@ export default class extends Super{
 
 		commitFrom(0)
 	}
-
-
 
 	lineHeight(height){
 		var {spacing:{lineHeight="100%",top=0, bottom=0},}=this.props

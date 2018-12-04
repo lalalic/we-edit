@@ -253,7 +253,15 @@ export default class Frame extends Super{
 			const dirty=this.frame.isDirtyIn(geometry)
 			const rect=anchor.bounds(geometry)
 
+			/*
 			this.frame.appendComposed(
+				<Group {...rect} wrap={anchor.wrap(geometry)}>
+					{React.cloneElement(atom,{x:x-rect.x,y:y-rect.y,anchor:undefined})}
+				</Group>
+			)
+			*/
+
+			this.context.parent.context.parent.appendComposed(
 				<Group {...rect} wrap={anchor.wrap(geometry)}>
 					{React.cloneElement(atom,{x:x-rect.x,y:y-rect.y,anchor:undefined})}
 				</Group>
