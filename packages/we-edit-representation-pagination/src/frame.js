@@ -262,9 +262,11 @@ export default class Frame extends Super{
 			*/
 
 			this.context.parent.context.parent.appendComposed(
-				<Group {...rect} wrap={anchor.wrap(geometry)}>
-					{React.cloneElement(atom,{x:x-rect.x,y:y-rect.y,anchor:undefined})}
-				</Group>
+				this.context.parent.createComposed2Parent(
+					<Group {...rect} wrap={anchor.wrap(geometry)}>
+						{React.cloneElement(atom,{x:x-rect.x,y:y-rect.y,anchor:undefined})}
+					</Group>
+				)
 			)
 
 			if(dirty){

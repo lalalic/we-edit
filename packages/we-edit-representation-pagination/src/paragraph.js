@@ -201,6 +201,9 @@ export default class extends Super{
 	}
 
 	createComposed2Parent(line,last){
+		if(React.isValidElement(line)){
+			return line
+		}
         const {height, width, children, ...others}=line
         let {
 			spacing:{lineHeight="100%",top=0, bottom=0},
