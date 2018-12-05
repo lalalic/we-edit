@@ -129,6 +129,7 @@ export default class extends Super{
 	rollback2(at){
 		let i=this.computed.composed.findIndex(a=>this.computed.atoms.indexOf(a.first)==at)
 		this.computed.composed.splice(i)
+		this.computed.composed.push(this._newLine(this.context.parent.nextAvailableSpace()))
 	}
 
 	/**
@@ -189,6 +190,11 @@ export default class extends Super{
 		}
 
 		commitFrom(0)
+	}
+
+	recommit(){
+		this.computed.composed=[]
+		this.commit()
 	}
 
 	lineHeight(height){

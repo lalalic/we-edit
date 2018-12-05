@@ -3,7 +3,7 @@ import ReactDOMServer from "react-dom/server.node"
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
 import Viewer from "./viewer"
-import {createWeDocument} from "./editor"
+import {createWeDocument, WeDocumentStub} from "./editor"
 import Representation from "./representation"
 import extendible from "../tools/extendible"
 
@@ -53,6 +53,11 @@ export default class Emitter extends Viewer{
 		domain:"view",
 	}
 
+	static contextTypes={
+		...Viewer.contextTypes,
+		activeDocStore: PropTypes.object,
+	}
+
 	render(){
 		if(!this.props.representation){
 			return <Fragment>{this.groupStreamFormat(this.props.children)}</Fragment>
@@ -61,10 +66,8 @@ export default class Emitter extends Viewer{
 		}
 	}
 
-
-
 	createDocument({canvasProps}){
-		return <WeDocumentStub {...canvasProps}/>
+		return <WeDocumentStub {...{canvasProps,scale:1}} content={this.context.activeDocStore.getState().get("content")}/>
 	}
 
 	groupStreamFormat=memoize(streams=>{
@@ -110,7 +113,16 @@ export default class Emitter extends Viewer{
 				const {media, style, children, ...props}=this.props
 				represents.push(
 					<Representation type={type} key={type}>
-						{this.createDocument({canvasProps:{canvas:<Wrapper children={streams}/>, ...props}})}
+						{this.createDocument({
+							canvasProps:{
+								canvas:(
+									<Fragment>
+										{Children.toArray(streams).map(a=>React.cloneElement(a,props))}
+									</Fragment>
+								),
+								...props
+							}
+						})}
 					</Representation>
 				)
 			}else{
@@ -208,37 +220,6 @@ export default class Emitter extends Viewer{
 			}
 			return (<Fragment>{children}</Fragment>)
 		}
-	}
-}
-
-const Wrapper=({children, ...props})=>(
-	<Fragment>
-		{Children.toArray(children).map(a=>React.cloneElement(a,props))}
-	</Fragment>
-)
-
-class WeDocumentStub extends PureComponent{
-	static contextTypes={
-		activeDocStore: PropTypes.object,
-		ModelTypes: PropTypes.object
-	}
-
-	static childContextTypes={
-		weDocument: PropTypes.node
-	}
-
-	constructor(props,{activeDocStore,ModelTypes}){
-		super(...arguments)
-		const content=activeDocStore.getState().get("content")
-		this.doc=content ? createWeDocument("root",content,ModelTypes) : null
-	}
-
-	getChildContext(){
-		return {weDocument:this.doc}
-	}
-
-	render(){
-		return this.doc ? React.cloneElement(this.doc,{scale:1,...this.props}) : null
 	}
 }
 

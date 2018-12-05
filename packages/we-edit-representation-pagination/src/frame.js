@@ -246,6 +246,10 @@ export default class Frame extends Super{
 			})
 		}
 
+		get paragraph(){
+			return this.context.parent
+		}
+
 		appendAnchor(atom,at){
 			const anchor=atom.props.anchor
 			const {x,y}=anchor.xy(this)
@@ -253,16 +257,8 @@ export default class Frame extends Super{
 			const dirty=this.frame.isDirtyIn(geometry)
 			const rect=anchor.bounds(geometry)
 
-			/*
-			this.frame.appendComposed(
-				<Group {...rect} wrap={anchor.wrap(geometry)}>
-					{React.cloneElement(atom,{x:x-rect.x,y:y-rect.y,anchor:undefined})}
-				</Group>
-			)
-			*/
-
-			this.context.parent.context.parent.appendComposed(
-				this.context.parent.createComposed2Parent(
+			this.paragraph.context.parent.appendComposed(
+				this.paragraph.createComposed2Parent(
 					<Group {...rect} wrap={anchor.wrap(geometry)}>
 						{React.cloneElement(atom,{x:x-rect.x,y:y-rect.y,anchor:undefined})}
 					</Group>
@@ -271,15 +267,14 @@ export default class Frame extends Super{
 
 			if(dirty){
 				if(dirty==1){//possibly fixable in current paragraph
-					const p=this.context.parent
-					let backedLines=this.frame.rollbackCurrentParagraphUntilClean(p.props.id,rect)
+					let backedLines=this.frame.rollbackCurrentParagraphUntilClean(this.paragraph.props.id,rect)
 					if(backedLines){
-						const lines=p.computed.composed
+						const lines=this.paragraph.computed.composed
 						const removed=lines.splice(-backedLines-1,backedLines)
 						this.content=[]
 						this.blocks=this.frame.exclusive()
 						let backedAtom=removed[0].children.find(a=>a.props.x==undefined)
-						return this.context.parent.computed.atoms.indexOf(backedAtom)
+						return this.paragraph.computed.atoms.indexOf(backedAtom)
 					}
 				}
 				const recomposed=this.frame.recompose()
@@ -329,12 +324,11 @@ export default class Frame extends Super{
 
 						return false
 					}
-
 			}
 		}
 
 		lineHeight(){
-			return this.context.parent.lineHeight(this.height)
+			return this.paragraph.lineHeight(this.height)
 		}
 
 		updateExclusive(at){

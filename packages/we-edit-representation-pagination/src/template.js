@@ -67,7 +67,7 @@ export default class Template extends Super{
             const appended=this.currentPage.appendComposed(...arguments)
             if(appended===false){
                 this.createPage()
-                return this.appendComposed(...arguments)
+                return 1//recompose current line
             }else if(Number.isInteger(appended)){
                 return appended
             }

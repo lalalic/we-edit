@@ -110,11 +110,7 @@ export default ({Template,Frame,Container})=>{
 			}else if(contentHeight-this.currentColumn.availableHeight>1){
 				if(this.cols.length>this.columns.length){// new column
 					this.createColumn()
-					if(this.currentColumn.width==width){
-						this.currentColumn.children.push(line)
-					}else{
-						return false
-					}
+					return 1
 				}else{
 					return false
 				}
@@ -152,8 +148,9 @@ export default ({Template,Frame,Container})=>{
 
 					if(i==1 && this.prev.keepWithNext){
 						let removedLines=this.prev.rollbackLines(this.prev.lineCountOfLastParagraph())
-						this.currentColumn.children=removedLines
-						this.recompose()
+						//re-submit last paragraph
+						const pid=this.getParagraphId(removedLines[0])
+						this.context.parent.context.getComposer(pid).recommit()
 						return 1
 					}
 				}
