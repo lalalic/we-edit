@@ -146,18 +146,16 @@ export default class extends Super{
 		const lineStartAt=i=>atoms.indexOf(lines[lines.length-i].first)
 
 		const len=this.computed.atoms.length
+		const DEAD=5
 		var nested=0
 
 		const commitFrom=(start=0)=>{
-			if(++nested>5)
-				throw Error(`it may be dead loop on since commit nested ${nested}`)
-
 			var last=0, times=0
 			var next, rollbackLines
 			for(let i=start,content;i<len;){
 				if(i==last){
 					times++
-					if(times>3){
+					if(times>DEAD){
 						throw Error(`it may be dead loop on ${i}th atoms`)
 					}
 				}else{
@@ -182,6 +180,10 @@ export default class extends Super{
 				i++
 			}
 
+			if(++nested>DEAD){
+				console.error(`it may be dead loop on since commit nested ${nested}, ignore and continue`)
+				return
+			}
 			rollbackLines=appendComposedLine(true)
 			if(Number.isInteger(rollbackLines)){
 				this.rollback2(next=lineStartAt(rollbackLines))

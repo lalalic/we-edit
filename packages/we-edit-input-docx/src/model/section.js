@@ -110,7 +110,7 @@ export default ({Template,Frame,Container})=>{
 			}else if(contentHeight-this.currentColumn.availableHeight>1){
 				if(this.cols.length>this.columns.length){// new column
 					this.createColumn()
-					return 1
+					return 0+1//recompose current line in case different available space, such as different column width, wrapper, etc
 				}else{
 					return false
 				}
@@ -118,18 +118,18 @@ export default ({Template,Frame,Container})=>{
 				if(this.isEmpty() && this.prev){
 					const {widow,orphan,keepLines,i,last}=pagination
 					if(keepLines){
-						if(i!=1){
+						if(this.getParagraphId(line)==this.getParagraphId(this.lastLine)){
 							let lineCount=this.prev.lineCountOfLastParagraph()
 							if(this.prev.totalLines>lineCount){
 								this.prev.rollbackLines(lineCount)
-								return lineCount
+								return lineCount+1
 							}
 						}
 					}else{
 						if(orphan){
 							if(i==2){
 								this.prev.rollbackLines(1)
-								return 1
+								return 1+1
 							}
 						}
 
@@ -138,9 +138,9 @@ export default ({Template,Frame,Container})=>{
 								let [lastLineInPrevPage]=this.prev.rollbackLines(1)
 								if(lastLineInPrevPage.props.pagination.i==2){//can't leave orphan in prev page
 									this.prev.rollbackLines(1)
-									return 2
+									return 2+1
 								}else{
-									return 1
+									return 1+1
 								}
 							}
 						}
@@ -151,7 +151,7 @@ export default ({Template,Frame,Container})=>{
 						//re-submit last paragraph
 						const pid=this.getParagraphId(removedLines[0])
 						this.context.parent.context.getComposer(pid).recommit()
-						return 1
+						return 0+1
 					}
 				}
 				this.currentColumn.children.push(line)
@@ -335,55 +335,6 @@ export default ({Template,Frame,Container})=>{
 					route(React.Children.toArray(el.props.children)[0],path)
 				}
 				return Array.from(path)
-			}
-
-			const shrink=(element,path)=>{
-				if(path.length==0)
-					return element
-
-				const children=React.Children.toArray(element.props.children)
-				const i=children.findIndex(a=>a.props.id==path[0])
-				const [first,...scoped]=children.slice(i)
-				return React.cloneElement(element,{children:[shrink(first,path.slice(1)),...scoped]})
-			}
-
-			const shrinkRight=(element,path)=>{
-				if(path.length==0)
-					return element
-
-				const children=React.Children.toArray(element.props.children)
-				const i=children.findIndex(a=>a.props.id==path[0])
-				const scoped=children.slice(0,i+1)
-				const last=scoped.pop()
-				return React.cloneElement(element,{children:[...scoped,shrinkRight(last,path.slice(1))]})
-			}
-
-			const slice=(start,end)=>{
-				const {constructor:Type, props:{children, ...props}}=this.context.parent
-				var scoped=React.Children.toArray(children)
-				scoped=scoped.slice(scoped.findIndex(a=>a.props.id===start[0]),scoped.findIndex(a=>a.props.id==end[0])+1)
-				if(scoped.length==1){
-					return [shrink(shrinkRight(scoped[0],end.slice(1)),start.slice(1))]
-				}else{
-					return [
-						shrink(scoped[0],start.slice(1)),
-						...scoped.slice(1,-1),
-						shrinkRight(scoped[scoped.length-1],end.slice(1))
-					]
-				}
-
-			}
-
-			try{/*
-				const scoped=slice(route(this.firstLine),route(this.lastLine))
-				const render=TestRenderer.create(
-					<PageComposer {...this.props}>
-						{scoped}
-					</PageComposer>
-				)
-				this.computed=render.getInstance().computed
-			*/}catch(e){
-				console.warn(e)
 			}
 		}
 
