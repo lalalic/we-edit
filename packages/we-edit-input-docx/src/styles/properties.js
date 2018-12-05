@@ -249,6 +249,10 @@ export class Properties{
 		return this.dxa2Px(x.attribs['w:val'])
 	}
 
+	cantSplit(x){
+		return true
+	}
+
 /**************drawingML********************/
 	positionH(x){
 		return {

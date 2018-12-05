@@ -57,7 +57,7 @@ export default class extends Super{
 		this.context.composed1Row(this)
 
 		const {parent}=this.context
-		const {height}=this.props
+		const {height, keepLines}=this.props
 		let indexes=new Array(this.composedCells.length).fill(0)
 
 		let isAllSent2Table=a=>indexes.reduce((prev,index, i)=>this.getCell(i).lines.length==index && prev, true)
@@ -66,6 +66,9 @@ export default class extends Super{
 		let minSpace={}
 		do{
 			let availableSpace=parent.nextAvailableSpace(minSpace)
+			if(keepLines)
+				availableSpace.height=Number.MAX_SAFE_INTEGER
+
 			let currentGroupedLines=new Array(this.composedCells.length)
 			this.composedCells.forEach((a,iCol)=>{
 				const cell=this.getCell(iCol)
@@ -102,8 +105,16 @@ export default class extends Super{
 						return p
 				},0)
 				minSpace.height=minHeight
-			}else
-				parent.appendComposed(this.createComposed2Parent({colGroups:currentGroupedLines,width:availableSpace.width}))
+			}else{
+				const row=this.createComposed2Parent({colGroups:currentGroupedLines,width:availableSpace.width})
+				let rollback=parent.appendComposed(row)
+				if(Number.isInteger(rollback)){
+					rollback=parent.appendComposed(row)
+					if(Number.isInteger(rollback)){
+						throw new Error("table doesn't support rollback, there may be a dead loop")
+					}
+				}
+			}
 
 			if(counter++>100)
 				throw new Error("there should be a infinite loop during row split, please check")

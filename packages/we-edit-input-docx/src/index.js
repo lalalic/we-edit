@@ -203,7 +203,7 @@ export default class DocxType extends Input.Editable{
 			case "tr":{
 				let style
 				if(props.pr)
-					style=selector.select(props.pr.children,{"w:tcBorders":"border", "w:trHeight":"height"})
+					style=selector.select(props.pr.children,{"w:tcBorders":"border", "w:trHeight":"height", "w:cantSplit":"keepLines"})
 
 				return createElement(components.Row,style,children,node)
 			}

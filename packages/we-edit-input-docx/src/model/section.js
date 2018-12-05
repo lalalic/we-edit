@@ -103,7 +103,7 @@ export default ({Template,Frame,Container})=>{
 		}
 
 		appendComposed(line){
-			const {height:contentHeight, anchor, x, y,width, pagination={}}=line.props
+			const {height:contentHeight, anchor, x, y,width}=line.props
 			if(x!=undefined || y!=undefined){//anchored
 				this.computed.composed.push(line)
 				return
@@ -116,9 +116,10 @@ export default ({Template,Frame,Container})=>{
 				}
 			}else{
 				if(this.isEmpty() && this.prev){
+					const {pagination={}}=line.props
 					const {widow,orphan,keepLines,i,last}=pagination
 					if(keepLines){
-						if(this.getParagraphId(line)==this.getParagraphId(this.lastLine)){
+						if(i!=1){
 							let lineCount=this.prev.lineCountOfLastParagraph()
 							if(this.prev.totalLines>lineCount){
 								this.prev.rollbackLines(lineCount)
@@ -146,7 +147,7 @@ export default ({Template,Frame,Container})=>{
 						}
 					}
 
-					if(i==1 && this.prev.keepWithNext){
+					if(i==1/*start of object[paragraph,table,frame]*/ && this.prev.keepWithNext){
 						let removedLines=this.prev.rollbackLines(this.prev.lineCountOfLastParagraph())
 						//re-submit last paragraph
 						const pid=this.getParagraphId(removedLines[0])
