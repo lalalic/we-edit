@@ -147,7 +147,7 @@ export default class extends Super{
 
 		return <Row
 			children={groupsWithXY}
-			height={Math.max(height, this.props.height||0)} contentHeight={height}
+			height={Math.max(height, this.props.height||0)}
 			width={width}
 			/>
 	}

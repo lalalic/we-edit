@@ -10,6 +10,7 @@ export default class Frame extends Component{
 		height:PropTypes.number,
 		named: PropTypes.string,
 		geometry: PropTypes.string,
-		blocks:PropTypes.arrayOf(PropTypes.element)
+		blocks:PropTypes.arrayOf(PropTypes.element),
+		vertAlign: PropTypes.oneOf(["top","middle","bottom"])
 	}
 }

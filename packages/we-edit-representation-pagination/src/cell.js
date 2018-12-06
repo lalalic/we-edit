@@ -11,7 +11,11 @@ const Super=HasParentAndChild(Base)
 class CellFrame extends Frame{
 	currentColumn={x:0,y:0}
 	createComposed2Parent(){
-		return this
+		const createComposed2Parent=args=>super.createComposed2Parent(...arguments)
+		return {
+			computed:this.computed,
+			createComposed2Parent,
+		}
 	}
 }
 
@@ -23,9 +27,9 @@ export default class extends Super{
 	}
 	render(){
 		let {width}=this.context.parent.nextAvailableSpace(...arguments)
-		let {margin={right:0,left:0,top:0,bottom:0}}=this.props
+		let {margin={right:0,left:0,top:0,bottom:0}, vertAlign}=this.props
 		return (
-			<CellFrame {...{width:width-margin.right-margin.left}}>
+			<CellFrame {...{width:width-margin.right-margin.left, vertAlign}}>
 				{super.render()}
 			</CellFrame>
 		)
@@ -56,32 +60,14 @@ export default class extends Super{
 
 	createComposed2Parent(lines){//called by row(after all cells of a row composed)
 		const {border, margin, spacing, background}=this.props
-		let height=0
-		let grouped=lines.map((line,i)=>{
-				let a=<Group y={height} key={i}>{line}</Group>
-				height+=line.props.height
-				return a
-			})
-		height+=(spacing*.5
-			+border.top.sz
-			+margin.top
-			+margin.bottom
-			+border.bottom.sz
-			+spacing*.5)
+		const contentHeight=lines.reduce((h,a)=>h+(a.props.height||0),0)
+		const height=this.cellHeight(contentHeight)
 		return (
 			<Cell height={height} background={background}>
 				<Spacing x={spacing/2} y={spacing/2}>
 					<Border border={border} spacing={spacing}>
 						<Margin x={margin.left} y={margin.top}>
-							{lines.reduce((state,a,i)=>{
-								if(a.props.y==undefined){
-									state.positioned.push(React.cloneElement(a,{y:state.y,key:i}))
-									state.y+=a.props.height
-								}else{
-									state.positioned.push(React.cloneElement(a,{key:i}))
-								}
-								return state
-							},{y:0,positioned:[]}).positioned}
+							{this.frame.createComposed2Parent(lines)}
 						</Margin>
 					</Border>
 				</Spacing>

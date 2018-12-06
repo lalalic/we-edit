@@ -108,11 +108,11 @@ export default class Frame extends Super{
 		super.onAllChildrenComposed()
 	}
 
-	createComposed2Parent() {
+	createComposed2Parent(lines=this.computed.composed) {
 		let {width,height=this.currentY, x,y,z,named}=this.props
 		return (
 			<Group {...{width,height,x,y,z,named, className:"frame"}}>
-				{this.computed.composed.reduce((state,a,i)=>{
+				{lines.reduce((state,a,i)=>{
 					if(a.props.y==undefined){
 						state.positioned.push(React.cloneElement(a,{y:state.y,key:i}))
 						state.y+=a.props.height

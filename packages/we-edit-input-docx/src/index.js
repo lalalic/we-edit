@@ -210,7 +210,7 @@ export default class DocxType extends Input.Editable{
 			case "tc":{
 				let style
 				if(props.pr)
-					style=selector.select(props.pr.children,{"w:tcBorders":"border"})
+					style=selector.select(props.pr.children,{"w:tcBorders":"border","w:vAlign":"vertAlign"})
 
 				return createElement(components.Cell,style,children,node)
 			}
