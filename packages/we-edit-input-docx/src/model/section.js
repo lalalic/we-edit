@@ -119,16 +119,14 @@ export default ({Template,Frame,Container})=>{
 					const {pagination={}}=line.props
 					const {widow,orphan,keepLines,i,last}=pagination
 					if(keepLines){
-						if(i!=1){
-							let lineCount=this.prev.lineCountOfLastParagraph()
-							if(this.prev.totalLines>lineCount){
-								this.prev.rollbackLines(lineCount)
-								return lineCount+1
-							}
+						if(this.prev.shouldKeepLinesWith(line)){//i!=1
+							let lineCount=this.prev.orphanCount()
+							this.prev.rollbackLines(lineCount)
+							return lineCount+1
 						}
 					}else{
 						if(orphan){
-							if(i==2){
+							if(this.prev.orphanCount(line)==1){
 								this.prev.rollbackLines(1)
 								return 1+1
 							}
@@ -136,21 +134,25 @@ export default ({Template,Frame,Container})=>{
 
 						if(widow){
 							if(last){
-								let [lastLineInPrevPage]=this.prev.rollbackLines(1)
-								if(lastLineInPrevPage.props.pagination.i==2){//can't leave orphan in prev page
+								const orphanCount=this.prev.orphanCount(line)
+								if(orphanCount>0){
 									this.prev.rollbackLines(1)
-									return 2+1
-								}else{
+									if(orphan){
+										if(orphanCount==2){
+											this.prev.rollbackLines(1)
+											return 2+1
+										}
+									}
 									return 1+1
 								}
 							}
 						}
 					}
 
-					if(i==1/*start of object[paragraph,table,frame]*/ && this.prev.keepWithNext){
-						let removedLines=this.prev.rollbackLines(this.prev.lineCountOfLastParagraph())
+					if(this.prev.shouldKeepWithNext(line)){
+						let removedLines=this.prev.rollbackLines(this.prev.orphanCount())
 						//re-submit last paragraph
-						const pid=this.getParagraphId(removedLines[0])
+						const pid=this.getFlowableComposerId(removedLines[0])
 						this.context.parent.context.getComposer(pid).recommit()
 						return 0+1
 					}
@@ -159,13 +161,22 @@ export default ({Template,Frame,Container})=>{
 			}
 		}
 
+		shouldKeepLinesWith(line){
+			const pid=this.getFlowableComposerId(line)
+			return this.getFlowableComposerId(this.lastLine)==pid &&
+				this.getFlowableComposerId(this.firstLine)!=pid
+		}
+
 		get prev(){
 			return this.context.parent.prevPage
 		}
 
-		get keepWithNext(){
-			return (this.lastLine.props.pagination||{}).keepWithNext &&
-				this.getParagraphId(this.firstLine)!==this.getParagraphId(this.lastLine)
+		shouldKeepWithNext(line){
+			const should=
+				(this.lastLine.props.pagination||{}).keepWithNext &&
+				this.orphanCount(line)==0 &&
+				this.getFlowableComposerId(this.firstLine)!==this.getFlowableComposerId(this.lastLine)
+			return should
 		}
 
 		get lastLine(){
@@ -180,17 +191,22 @@ export default ({Template,Frame,Container})=>{
 			return this.columns.reduce((count,a)=>count+a.children.length,0)
 		}
 
-		getParagraphId(line){
-			return new ReactQuery(line).findFirst(`[data-type="paragraph"][data-content]`).attr("data-content")
+		getFlowableComposerId(line,filter){
+			return new ReactQuery(line)
+				.findFirst(`[data-type="paragraph"],[data-type="table"]`)
+				.filter(filter)
+				.attr("data-content")
 		}
 
-		lineCountOfLastParagraph(){
-			const pid=this.getParagraphId(this.lastLine)
+		orphanCount(line=this.lastLine){
+			const pid=this.getFlowableComposerId(line,'[data-type="paragraph"]')
+			if(!pid)
+				return 0
 			let count=0
 			for(let i=this.columns.length-1;i>-1;i--){
 				let lines=this.columns[i].children
 				for(let j=lines.length-1;j>-1;j--){
-					if(this.getParagraphId(lines[j])==pid){
+					if(this.getFlowableComposerId(lines[j])==pid){
 						++count
 					}else{
 						return count
@@ -219,25 +235,26 @@ export default ({Template,Frame,Container})=>{
 			const anchors=(lines=>{
 				const pids=Array.from(
 					lines.reduce((ps, line)=>{
-						ps.add(this.getParagraphId(line))
+						ps.add(this.getFlowableComposerId(line))
 						return ps
 					},new Set())
 				)
 
-				return Array.from(
-					this.computed.composed.reduce((anchors,line)=>{
-						if(pids.includes(this.getParagraphId(line))){
-							anchors.add(new ReactQuery(line).findFirst('[data-type="anchor"][data-content]').attr("data-content"))
-						}
-						return anchors
-					},new Set())
-				).filter(a=>!!a)
+				return this.computed.composed
+					.filter(a=>pids.includes(this.getFlowableComposerId(a)))
+					.map(a=>{
+						this.computed.composed.splice(this.computed.composed.indexOf(a),1)
+						return a
+					})
 			})(removedLines);
 
-			anchors.forEach(a=>this.removeAnchor(a))
+			const asRect=({x=0,y=0,width,height,wrap},a={})=>({x,y,width,height,...a})
 			const intersectWithContent=!!anchors.find(a=>{
-				const {x=0,y=0,width,height}=a.props
-				return this.columns.find(a=>this.isInterset({x,y,width,height}, a))
+				if(!a.props.wrap)
+				 	return false
+
+				const wrapRect=asRect(a.props)
+				return !!this.columns.find(b=>this.isIntersect(wrapRect, asRect(b,{height:b.height-b.availableHeight})))
 			})
 
 			if(intersectWithContent){
@@ -245,11 +262,6 @@ export default ({Template,Frame,Container})=>{
 			}
 
 			return removedLines
-		}
-
-		removeAnchor(id){
-			let i=this.computed.composed.find(a=>a.props["data-content"]==id)
-			this.computed.composed.splice(i,1)
 		}
 
 		isEmpty(){

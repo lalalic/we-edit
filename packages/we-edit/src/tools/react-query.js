@@ -91,6 +91,11 @@ export default class Query{
         return !!this._nodes.find(el=>select(el))
     }
 
+    filter(selector){
+        const select=this._asSelector(selector)
+        return new this.constructor(this._nodes.filter(el=>!!select(el)))
+    }
+
 	find(selector){
 		const select=this._asSelector(selector)
 		let found=this._nodes.reduce((found,el)=>{

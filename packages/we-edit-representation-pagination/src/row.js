@@ -107,13 +107,21 @@ export default class extends Super{
 				minSpace.height=minHeight
 			}else{
 				const row=this.createComposed2Parent({colGroups:currentGroupedLines,width:availableSpace.width})
-				let rollback=parent.appendComposed(row)
-				if(Number.isInteger(rollback)){
-					rollback=parent.appendComposed(row)
+				let nested=0
+
+				const commit=()=>{
+					let rollback=parent.appendComposed(row)
 					if(Number.isInteger(rollback)){
-						throw new Error("table doesn't support rollback, there may be a dead loop")
+						if(++nested>4){
+							console.warn("there may be a dead loop in table row compose, ignore and continue")
+							return
+						}
+						commit()
 					}
 				}
+
+				commit()
+
 			}
 
 			if(counter++>100)
