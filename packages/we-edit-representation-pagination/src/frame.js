@@ -277,17 +277,9 @@ export default class Frame extends Super{
 						return this.paragraph.computed.atoms.indexOf(backedAtom)
 					}
 				}
-				const recomposed=this.frame.recompose()
-				if(recomposed){
-					this.frame.replaceComposedWith(recomposed)
-					return recomposed.to
-				}else{
-					const next=this.frame.next()
-					if(next){
-						this.frame=next
-						return this.appendComposed(...arguments)
-					}
-				}
+
+				this.frame.recompose()
+				return Number.MAX_SAFE_INTEGER
 			}
 
 			return this.updateExclusive(at)

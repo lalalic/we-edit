@@ -76,8 +76,8 @@ export default class Query{
         const filtered=this._nodes.slice(0,1).reduce((found,el)=>{
             Children.toArray(el.props.children)
                 .reduce((found,child)=>{
-                    if(select(el)){
-                        found.push(el)
+                    if(select(child)){
+                        found.push(child)
                     }
                     return found
                 },found)
@@ -124,6 +124,14 @@ export default class Query{
         }
         return new this.constructor(found)
     }
+
+    get(i){
+        return this._nodes[i]
+    }
+
+    toArray(){
+		return [...this._nodes]
+	}
 }
 
 function traverse(el, f, right=false){

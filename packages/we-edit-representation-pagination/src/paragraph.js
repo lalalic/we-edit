@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 
 
 import composable, {HasParentAndChild,} from "./composable"
-import {models} from "we-edit"
+import {models, ReactQuery} from "we-edit"
 const {Paragraph:Base}=models
 
 import opportunities from "./wordwrap/line-break"
@@ -136,7 +136,7 @@ export default class extends Super{
 	* line.appendComposed can rollback to a specified atom
 	* parent.appendComposed can rollback lines
 	**/
-	commit(){
+	commit(start=0){
 		const {context:{parent}, computed:{composed:lines, atoms}}=this
 
 		const appendComposedLine=(isLast)=>{
@@ -147,6 +147,7 @@ export default class extends Super{
 
 		const len=this.computed.atoms.length
 		const DEAD=5
+		const RECOMPOSED=Number.MAX_SAFE_INTEGER
 		var nested=0
 
 		const commitFrom=(start=0)=>{
@@ -163,7 +164,10 @@ export default class extends Super{
 					times=0
 				}
 				next=this.currentLine.appendComposed(this.computed.atoms[i],i)
-				if(next===false){
+
+				if(next==RECOMPOSED){
+					return
+				}else if(next===false){
 					if(!Number.isInteger(rollbackLines=appendComposedLine())){
 						this.computed.composed.push(this._newLine(this.context.parent.nextAvailableSpace()))
 						continue
@@ -184,19 +188,31 @@ export default class extends Super{
 				console.error(`it may be dead loop on since commit nested ${nested}, ignore and continue`)
 				return
 			}
+
+
 			rollbackLines=appendComposedLine(true)
 			if(Number.isInteger(rollbackLines)){
+				if(rollbackLines>this.computed.composed.length)
+					return
 				this.rollback2(next=lineStartAt(rollbackLines))
 				commitFrom(next)
 			}
+
 		}
 
-		commitFrom(0)
+		commitFrom(start)
 	}
 
-	recommit(){
-		this.computed.composed=[]
-		this.commit()
+	recommit(lastLines=[]){
+		const equal=(a,b)=>a.props.width==b.props.width && a.props.height==b.props.height
+		var startAtom=this.computed.atoms[0]
+		if(lastLines.length){
+			startAtom=new ReactQuery(lastLines[0]).findFirst(`story`).children().toArray().find(a=>a.props.x===undefined)
+		}
+		let i=this.computed.composed.findIndex(a=>equal(a.first,startAtom))
+		startAtom=this.computed.composed[i].first
+		this.computed.composed=this.computed.composed.slice(0,i)
+		this.commit(this.computed.atoms.indexOf(startAtom))
 	}
 
 	lineHeight(height){
@@ -251,6 +267,7 @@ export default class extends Super{
 }
 
 class Story extends Component{
+	static displayName="story"
 	render(){
 		const {children, align="left"}=this.props
 		const height=children.reduce((h,{props:{height}})=>Math.max(h,height),0)

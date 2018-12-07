@@ -58,16 +58,28 @@ export default class extends Super{
 		return this.frame.computed.composed
 	}
 
-	createComposed2Parent(lines){//called by row(after all cells of a row composed)
-		const {border, margin, spacing, background}=this.props
+	createComposed2Parent(lines, height){//called by row(after all cells of a row composed)
+		const {border, margin, spacing, background,vertAlign}=this.props
 		const contentHeight=lines.reduce((h,a)=>h+(a.props.height||0),0)
-		const height=this.cellHeight(contentHeight)
+		const alignY=(()=>{
+			switch(vertAlign){
+				case "bottom":
+					return height-this.cellHeight(contentHeight)
+				case "center":
+				case "middle":
+					return (height-this.cellHeight(contentHeight))/2
+				default:
+					return 0
+			}
+		})();
 		return (
 			<Cell height={height} background={background}>
 				<Spacing x={spacing/2} y={spacing/2}>
 					<Border border={border} spacing={spacing}>
 						<Margin x={margin.left} y={margin.top}>
-							{this.frame.createComposed2Parent(lines)}
+							<Group y={alignY}>
+								{this.frame.createComposed2Parent(lines).props.children}
+							</Group>
 						</Margin>
 					</Border>
 				</Spacing>

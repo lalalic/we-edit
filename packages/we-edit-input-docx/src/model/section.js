@@ -42,6 +42,7 @@ export default ({Template,Frame,Container})=>{
 				},{x:margin.left,y:y0,height:y1-y0,columns:[]}).columns
 			this.columns=[]
 			this.createColumn()
+			this.section=this.context.parent
 		}
 
 		nextAvailableSpace(required={}){
@@ -153,7 +154,7 @@ export default ({Template,Frame,Container})=>{
 						let removedLines=this.prev.rollbackLines(this.prev.orphanCount())
 						//re-submit last paragraph
 						const pid=this.getFlowableComposerId(removedLines[0])
-						this.context.parent.context.getComposer(pid).recommit()
+						this.section.context.getComposer(pid).recommit()
 						return 0+1
 					}
 				}
@@ -168,7 +169,7 @@ export default ({Template,Frame,Container})=>{
 		}
 
 		get prev(){
-			return this.context.parent.prevPage
+			return this.section.prevPage
 		}
 
 		shouldKeepWithNext(line){
@@ -342,13 +343,44 @@ export default ({Template,Frame,Container})=>{
 		}
 
 		recompose(){
-			const route=(el,path=new Set())=>{
-				path.add(el.props["data-content"])
-				if(el.props["data-type"]!=="paragraph"){
-					route(React.Children.toArray(el.props.children)[0],path)
+			const lastComposed={blocks:this.computed.composed,columns:this.columns}
+
+			this.columns=[]
+			this.createColumn()
+			this.computed.composed=[...lastComposed.blocks]
+
+			var currentParagraph=null
+			var currentParagraphLines=[]
+			for(let i=0;i<lastComposed.columns.length;i++){
+				const lines=lastComposed.columns[i].children
+				for(let j=0;j<lines.length;j++){
+					const linePID=this.getFlowableComposerId(lines[j],`[data-type="paragraph"]`)
+					if(!linePID){//not paragraph, then append directly
+						if(currentParagraph){
+							this.section.context.getComposer(currentParagraph).recommit(currentParagraphLines)
+							currentParagraph=null
+							currentParagraphLines=[]
+						}
+						this.appendComposed(lines[j])
+					}else{
+						if(!currentParagraph){
+							currentParagraph=linePID
+							currentParagraphLines.push(lines[j])
+						}else{
+							if(linePID!==currentParagraph){
+								this.section.context.getComposer(currentParagraph).recommit(currentParagraphLines)
+								currentParagraph=linePID
+								currentParagraphLines=[lines[j]]
+								continue
+							}else{
+								currentParagraphLines.push(lines[j])
+								continue
+							}
+						}
+					}
 				}
-				return Array.from(path)
 			}
+			this.section.context.getComposer(currentParagraph).recommit(currentParagraphLines)
 		}
 
 		replaceComposedWith(recomposed){
@@ -357,7 +389,7 @@ export default ({Template,Frame,Container})=>{
 		}
 
 		next(){
-			this.context.parent.createPage()
+			this.section.createPage()
 		}
 	}
 

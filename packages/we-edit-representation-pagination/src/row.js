@@ -133,21 +133,23 @@ export default class extends Super{
 
 	createComposed2Parent({colGroups,width}){
 		const {cols}=this.context
-		let height=0
+		const rowHeight=Math.max(
+				this.props.height||0,
+				...colGroups.map((lines,i)=>this.getCell(i).cellHeight(lines.reduce((h,a)=>h+(a.props.height||0),0)))
+			)
 
 		let x=0
 		let groupsWithXY=colGroups.map((linesWithStyle,iCol)=>{
-			let cell=this.getCell(iCol).createComposed2Parent(linesWithStyle)
+			let cell=this.getCell(iCol).createComposed2Parent(linesWithStyle,rowHeight)
 			cell=React.cloneElement(cell,{x, width:cols[iCol]})
 
 			x+=cols[iCol]
-			height=Math.max(height,cell.props.height)
 			return cell
 		})
 
 		return <Row
 			children={groupsWithXY}
-			height={Math.max(height, this.props.height||0)}
+			height={rowHeight}
 			width={width}
 			/>
 	}
