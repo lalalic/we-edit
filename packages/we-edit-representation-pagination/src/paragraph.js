@@ -165,13 +165,13 @@ export default class extends Super{
 				}
 				next=this.currentLine.appendComposed(this.computed.atoms[i],i)
 
-				if(next==RECOMPOSED){
-					return
-				}else if(next===false){
+				if(next===false){
 					if(!Number.isInteger(rollbackLines=appendComposedLine())){
 						this.computed.composed.push(this._newLine(this.context.parent.nextAvailableSpace()))
 						continue
 					}else{
+						if(rollbackLines>this.computed.composed.length)
+							return
 						next=lineStartAt(rollbackLines)
 					}
 				}
@@ -204,6 +204,7 @@ export default class extends Super{
 	}
 
 	recommit(lastLines=[]){
+		//@TODO:
 		const equal=(a,b)=>a.props.width==b.props.width && a.props.height==b.props.height
 		var startAtom=this.computed.atoms[0]
 		if(lastLines.length){
@@ -228,7 +229,7 @@ export default class extends Super{
 		if(React.isValidElement(line)){
 			return line
 		}
-        const {height, width, children, ...others}=line
+        const {height, width, children, anchor,...others}=line
         let {
 			spacing:{lineHeight="100%",top=0, bottom=0},
 			indent:{left=0,right=0,firstLine=0},
@@ -257,7 +258,7 @@ export default class extends Super{
 
 
         return (
-            <Group height={lineHeight} width={width} className="line" pagination={pagination}>
+            <Group height={lineHeight} width={width} className="line" pagination={pagination} anchor={anchor}>
                 <Group x={contentX} y={contentY} width={width} height={height}>
 					<Story {...{children,align}}/>
                 </Group>

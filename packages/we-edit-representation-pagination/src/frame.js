@@ -4,7 +4,7 @@ import {Rect} from "./tool/geometry"
 
 
 import composable,{HasParentAndChild} from "./composable"
-import {models} from "we-edit"
+import {models, ReactQuery} from "we-edit"
 const {Frame:Base}=models
 
 import {Frame as ComposedFrame, Group} from "./composed"
@@ -274,6 +274,7 @@ export default class Frame extends Super{
 						this.content=[]
 						this.blocks=this.frame.exclusive()
 						let backedAtom=removed[0].children.find(a=>a.props.x==undefined)
+						//HOw can I know if the anchor[at] will be composed at the same p
 						return this.paragraph.computed.atoms.indexOf(backedAtom)
 					}
 				}
@@ -289,7 +290,15 @@ export default class Frame extends Super{
 			const {width,minWidth=parseInt(width),anchor}=atom.props
 			if(anchor){
 				if(!this.frame.composed(anchor.props.id)){
-					return this.appendAnchor(...arguments)
+					this.anchor=anchor
+					return false
+					//return this.appendAnchor(...arguments)
+				}else{
+					this.content.push(React.cloneElement(
+						new ReactQuery(atom).findFirst('[data-type="anchor"]').get(0),
+						{children:null,width:0,height:0}
+					))
+					return
 				}
 			}else{
 					const containable=()=>minWidth==0 || this.availableWidth>=minWidth || this.availableWidth==this.maxWidth
