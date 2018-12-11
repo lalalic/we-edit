@@ -7,6 +7,7 @@ import {getClientRect} from "we-edit"
  */
 let tester=null
 export default class SVGMeasure extends HtmlMeasure{
+    /*
     lineHeight(){
 		if(!tester){
 			let container=document.createElement("div")
@@ -16,7 +17,7 @@ export default class SVGMeasure extends HtmlMeasure{
 			container.innerHTML=
 			`
 			<svg width="${screenX}" height="${screenY}" viewBox="0 0 ${screenX} ${screenY}" xmlns="http://www.w3.org/2000/svg">
-				<text>*</text>
+				<text>Ä</text>
 			</svg>
 			`
 			tester=container.querySelector('text')
@@ -29,7 +30,7 @@ export default class SVGMeasure extends HtmlMeasure{
             `
         return super.lineHeight()
     }
-	
+
 
     stringWidth(word){
 		tester.style=`white-space:pre;
@@ -41,4 +42,5 @@ export default class SVGMeasure extends HtmlMeasure{
         tester.firstChild.data=word
         return getClientRect(tester).width
     }
+    */
 }

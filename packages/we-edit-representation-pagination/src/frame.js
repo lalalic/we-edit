@@ -287,18 +287,18 @@ export default class Frame extends Super{
 		}
 
 		appendComposed(atom,at){
+			if(!atom){
+				debugger
+			}
 			const {width,minWidth=parseInt(width),anchor}=atom.props
 			if(anchor){
+				this.content.push(React.cloneElement(
+					new ReactQuery(atom).findFirst('[data-type="anchor"]').get(0),
+					{children:null,width:0,height:0, atom}
+				))
 				if(!this.frame.composed(anchor.props.id)){
-					this.anchor=anchor
+					this.anchor=atom
 					return false
-					//return this.appendAnchor(...arguments)
-				}else{
-					this.content.push(React.cloneElement(
-						new ReactQuery(atom).findFirst('[data-type="anchor"]').get(0),
-						{children:null,width:0,height:0}
-					))
-					return
 				}
 			}else{
 					const containable=()=>minWidth==0 || this.availableWidth>=minWidth || this.availableWidth==this.maxWidth
@@ -375,7 +375,10 @@ export default class Frame extends Super{
 		}
 
 		get first(){
-			return this.content.find(a=>a.props.x===undefined)
+			const first=this.content.find(a=>a.props.x===undefined)
+			if(first.props.atom)
+				return first.props.atom
+			return first
 		}
 	}
 }

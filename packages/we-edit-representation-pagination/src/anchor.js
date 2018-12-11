@@ -4,7 +4,7 @@ import {Group, Frame as ComposedFrame} from "./composed"
 import SVGPath from "./tool/svg-path"
 
 import composable,{HasParentAndChild} from "./composable"
-import {models} from "we-edit"
+import {models, ReactQuery} from "we-edit"
 const {Anchor:Base}=models
 const Super=HasParentAndChild(Base)
 
@@ -16,11 +16,11 @@ export default class extends Super{
         return <Group {...{width,height,anchor:this}}>{super.createComposed2Parent(...arguments)}</Group>
     }
 
-    xy(line){
+    xy(frame){
         const {x,y}=this.props
         return {
-            x:new (Types[x.base])(line,this).x(x),
-            y:new (Types[y.base])(line,this).y(y)
+            x:new (Types[x.base])(frame,this).x(x),
+            y:new (Types[y.base])(frame,this).y(y)
         }
     }
 
@@ -92,9 +92,8 @@ export default class extends Super{
 }
 
 class Positioning{
-    constructor(line,anchor){
-        this.line=line
-        this.frame=line.props.frame
+    constructor(frame,anchor){
+        this.frame=frame
         this.anchor=anchor
         this.x0=0
         this.y0=0
@@ -175,7 +174,7 @@ class rightMargin extends page{
 class paragraph extends column{
     constructor(){
         super(...arguments)
-        this.y0=this.frame.paragraphY(this.line.context.parent.props.id)
+        this.y0=this.frame.paragraphY(new ReactQuery(this.frame.lastLine).findFirst('[data-type="paragraph"]').attr("data-content"))
     }
 }
 

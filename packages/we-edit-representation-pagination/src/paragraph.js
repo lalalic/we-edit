@@ -208,8 +208,18 @@ export default class extends Super{
 		const equal=(a,b)=>a.props.width==b.props.width && a.props.height==b.props.height
 		var startAtom=this.computed.atoms[0]
 		if(lastLines.length){
-			startAtom=new ReactQuery(lastLines[0]).findFirst(`story`).children().toArray().find(a=>a.props.x===undefined)
+			startAtom=new ReactQuery(lastLines[0])
+				.findFirst(`story`)
+				.children()
+				.toArray()
+				.find(a=>a.props.x===undefined)
+			if(!startAtom){
+				debugger
+			}
+			if(startAtom.props.atom)
+				startAtom=startAtom.props.atom
 		}
+
 		let i=this.computed.composed.findIndex(a=>equal(a.first,startAtom))
 		startAtom=this.computed.composed[i].first
 		this.computed.composed=this.computed.composed.slice(0,i)
@@ -237,7 +247,7 @@ export default class extends Super{
 			orphan,widow,keepWithNext,keepLines,//all recompose whole paragraph to simplify
 			}=this.props
 
-       lineHeight=typeof(lineHeight)=='string' ? Math.ceil(height*parseInt(lineHeight)/100.0): lineHeight
+       lineHeight=typeof(lineHeight)=='string' ? height*parseInt(lineHeight)/100.0: lineHeight
 	   let contentY=(lineHeight-height)/2
 	   let contentX=left
 

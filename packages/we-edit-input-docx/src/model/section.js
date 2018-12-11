@@ -43,6 +43,7 @@ export default ({Template,Frame,Container})=>{
 			this.columns=[]
 			this.createColumn()
 			this.section=this.context.parent
+			this.DEAD=0
 		}
 
 		nextAvailableSpace(required={}){
@@ -95,6 +96,16 @@ export default ({Template,Frame,Container})=>{
 					this.createColumn()
 					return 0+1//recompose current line in case different available space, such as different column width, wrapper, etc
 				}else{
+					if(this.recomposing4Anchor){
+						if(!this.recomposing4Anchor.anchored){
+							//recover
+							this.computed.composed=this.recomposing4Anchor.composed
+							this.columns=this.recomposing4Anchor.columns
+							delete this.recomposing4Anchor
+							this.recompose()
+							return Number.MAX_SAFE_INTEGER
+						}
+					}
 					return false
 				}
 			}else{
@@ -105,18 +116,30 @@ export default ({Template,Frame,Container})=>{
 				}
 
 				if(line.props.anchor){
-					return this.appendComposedWithAnchors(line)
+					this.appendComposedWithAnchor(line)
 				}else{
 					this.currentColumn.children.push(line)
 				}
 			}
 		}
 
+		composed(id){
+			const composed=super.composed(id)
+			if(this.recomposing4Anchor && this.recomposing4Anchor.anchor==id){
+				this.recomposing4Anchor.anchored=true
+			}
+			return composed
+		}
+
 		appendComposedWithAnchor(line){
+			const lastComputed={
+				composed:[...this.computed.composed],
+				columns:this.columns.reduce((cloned,a)=>[...cloned,{...a,children:[...a.children]}],[]),
+			}
 			const {anchor:atom}=line.props
 			const {anchor}=atom.props
 
-			this.currentColumn.children.push(line)
+			this.currentColumn.children.push(React.cloneElement(line,{anchor:undefined}))
 
 			const {x,y}=anchor.xy(this)
 			const geometry=anchor.wrapGeometry({x,y},atom)
@@ -124,15 +147,17 @@ export default ({Template,Frame,Container})=>{
 			const rect=anchor.bounds(geometry)
 
 			this.computed.composed.push(
-				<Group {...rect} wrap={anchor.wrap(geometry)}>
+				<Frame.Group {...rect} wrap={anchor.wrap(geometry)}>
 					{React.cloneElement(atom,{x:x-rect.x,y:y-rect.y,anchor:undefined})}
-				</Group>
+				</Frame.Group>
 			)
 
 			if(dirty){
 				try{
-					this.recomposing4Anchor=true
+					this.recomposing4Anchor=lastComputed
+					this.recomposing4Anchor.anchor=anchor.props.id
 					this.recompose()
+					//then check if this anchor is in this page
 				}finally{
 					delete this.recomposing4Anchor
 				}
@@ -384,6 +409,10 @@ export default ({Template,Frame,Container})=>{
 		}
 
 		recompose(){
+			if(++this.DEAD>5){
+				console.warn(`a page is recomposed more than ${this.DEAD} times, ignore recomposing`)
+				return
+			}
 			const lastComposed={blocks:this.computed.composed,columns:this.columns}
 
 			this.columns=[]
