@@ -129,14 +129,6 @@ export default class Frame extends Super{
 		throw new Error("not support yet")
 	}
 
-	replaceComposedWith(recomposed){
-		throw new Error("not support yet")
-	}
-
-	next(){
-		throw new Error("not support yet")
-	}
-
 	get availableHeight(){
 		if(this.props.height==undefined)
 			return Number.MAX_SAFE_INTEGER

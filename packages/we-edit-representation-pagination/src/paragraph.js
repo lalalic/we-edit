@@ -136,7 +136,7 @@ export default class extends Super{
 	* line.appendComposed can rollback to a specified atom
 	* parent.appendComposed can rollback lines
 	**/
-	commit(start=0){
+	commit(start=0, end=Number.MAX_SAFE_INTEGER){
 		const {context:{parent}, computed:{composed:lines, atoms}}=this
 
 		const appendComposedLine=(isLast)=>{
@@ -154,6 +154,8 @@ export default class extends Super{
 			var last=0, times=0
 			var next, rollbackLines
 			for(let i=start,content;i<len;){
+				if(i>end)
+					return
 				if(i==last){
 					times++
 					if(times>DEAD){
@@ -171,7 +173,7 @@ export default class extends Super{
 						continue
 					}else{
 						if(rollbackLines>this.computed.composed.length)
-							return
+							return rollbackLines
 						next=lineStartAt(rollbackLines)
 					}
 				}
@@ -193,20 +195,22 @@ export default class extends Super{
 			rollbackLines=appendComposedLine(true)
 			if(Number.isInteger(rollbackLines)){
 				if(rollbackLines>this.computed.composed.length)
-					return
+					return rollbackLines
 				this.rollback2(next=lineStartAt(rollbackLines))
 				commitFrom(next)
 			}
 
 		}
 
-		commitFrom(start)
+		return commitFrom(start)
 	}
 
 	recommit(lastLines=[]){
+		const {atoms, composed}=this.computed
 		//@TODO:
-		const equal=(a,b)=>a.props.width==b.props.width && a.props.height==b.props.height
-		var startAtom=this.computed.atoms[0]
+		const equal=(a,b)=>a==b || a.props==b.props
+		var startAtom=atoms[0]
+		var endAtom=atoms[atoms.length-1]
 		if(lastLines.length){
 			startAtom=new ReactQuery(lastLines[0])
 				.findFirst(`story`)
@@ -216,14 +220,22 @@ export default class extends Super{
 			if(!startAtom){
 				debugger
 			}
-			if(startAtom.props.atom)
-				startAtom=startAtom.props.atom
+			startAtom=startAtom.props.atom || startAtom
+
+			endAtom=new ReactQuery(lastLines[lastLines.length-1])
+				.findFirst("story")
+				.children()
+				.toArray()
+				.reverse()
+				.find(a=>a.props.x===undefined)
+
+			endAtom=endAtom.props.atom || endAtom
 		}
 
-		let i=this.computed.composed.findIndex(a=>equal(a.first,startAtom))
-		startAtom=this.computed.composed[i].first
-		this.computed.composed=this.computed.composed.slice(0,i)
-		this.commit(this.computed.atoms.indexOf(startAtom))
+		this.computed.composed=composed.slice(0,composed.findIndex(a=>equal(a.first,startAtom)))
+		const start=atoms.findIndex(a=>equal(a,startAtom))
+		const end=atoms.slice(start+1).findIndex(a=>equal(a,endAtom))+start+1
+		return this.commit(start, end)
 	}
 
 	lineHeight(height){

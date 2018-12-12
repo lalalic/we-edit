@@ -98,11 +98,6 @@ export default ({Template,Frame,Container})=>{
 				}else{
 					if(this.recomposing4Anchor){
 						if(!this.recomposing4Anchor.anchored){
-							//recover
-							this.computed.composed=this.recomposing4Anchor.composed
-							this.columns=this.recomposing4Anchor.columns
-							delete this.recomposing4Anchor
-							this.recompose()
 							return Number.MAX_SAFE_INTEGER
 						}
 					}
@@ -116,7 +111,7 @@ export default ({Template,Frame,Container})=>{
 				}
 
 				if(line.props.anchor){
-					this.appendComposedWithAnchor(line)
+					return this.appendComposedWithAnchor(line)
 				}else{
 					this.currentColumn.children.push(line)
 				}
@@ -131,6 +126,12 @@ export default ({Template,Frame,Container})=>{
 			return composed
 		}
 
+		/**
+		* . can be placed in this page
+			>current paragraph composing process should be terminated
+		* . can't
+			>current paragraph composing process should continue by rollback line, and start next page
+		**/
 		appendComposedWithAnchor(line){
 			const lastComputed={
 				composed:[...this.computed.composed],
@@ -158,6 +159,15 @@ export default ({Template,Frame,Container})=>{
 					this.recomposing4Anchor.anchor=anchor.props.id
 					this.recompose()
 					//then check if this anchor is in this page
+					if(!this.recomposing4Anchor.anchored){
+						//recover
+						this.computed.composed=this.recomposing4Anchor.composed
+						this.columns=this.recomposing4Anchor.columns
+						this.recompose()
+						return false
+					}else{
+						return 0+1
+					}
 				}finally{
 					delete this.recomposing4Anchor
 				}
@@ -451,15 +461,6 @@ export default ({Template,Frame,Container})=>{
 				}
 			}
 			this.section.context.getComposer(currentParagraph).recommit(currentParagraphLines)
-		}
-
-		replaceComposedWith(recomposed){
-			this.computed=recomposed.computed
-			console.warn("Need implementation of page recompose: replaceComposedWith")
-		}
-
-		next(){
-			this.section.createPage()
 		}
 	}
 

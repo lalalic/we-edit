@@ -25,10 +25,9 @@ export default class extends Super{
     }
 
 	wrap(geometry){
-		var {wrap}=this.props
-        const {x,y,width,height}=this.bounds(geometry)
-		if(wrap){
-			let wrapper=new this.constructor.Wrap(wrap,`M${x} ${y} h${width} v${height} h${-width} z`)
+		const {wrap}=this.props
+        if(wrap){
+			let wrapper=new this.constructor.Wrap(wrap,geometry)
 			return line=>wrapper.intersects(line)
 		}
 	}
@@ -61,7 +60,7 @@ export default class extends Super{
 		constructor({mode:type, wrapText}, geometry){
 			this.type=type[0].toLowerCase()+type.substring(1)
 			this.wrapText=wrapText
-			this.geometry=new SVGPath(geometry)
+            this.geometry=new Rect(geometry)//["tight","throught"].includes(this.type) ? new SVGPath(geometry) : new Rect(geometry)
 		}
 
 		intersects(line){
@@ -89,6 +88,29 @@ export default class extends Super{
 	        return this.square(...arguments)
 	    }
 	}
+}
+
+class Rect{
+    constructor(geometry){
+        const {x,y,width,height}=this.bound(geometry)
+        Object.assign(this,{x,y,width,height})
+    }
+
+    bound(geometry){
+        return geometry
+    }
+
+    intersects({x1,x2,y1,y2}){
+        console.assert(y1==y2)
+        if(y1>=this.y && y1<=this.y+this.height){
+            if(x2<=this.x || x1>=this.x+this.width){
+
+            }else{
+                return [{x:Math.max(this.x, x1), y1}, {x:Math.min(this.x+this.width, x2),y1}]
+            }
+        }
+        return []
+    }
 }
 
 class Positioning{
