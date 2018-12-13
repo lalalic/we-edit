@@ -137,13 +137,13 @@ export default class extends Super{
 	* parent.appendComposed can rollback lines
 	**/
 	commit(start=0, end=Number.MAX_SAFE_INTEGER){
-		const {context:{parent}, computed:{composed:lines, atoms}}=this
+		const {context:{parent}, computed:{atoms}}=this
 
 		const appendComposedLine=(isLast)=>{
 			return parent.appendComposed(this.createComposed2Parent(this.currentLine.commit(),isLast))
 	    }
 
-		const lineStartAt=i=>atoms.indexOf(lines[lines.length-i].first)
+		const lineStartAt=i=>atoms.indexOf(this.computed.composed[this.computed.composed.length-i].first)
 
 		const len=this.computed.atoms.length
 		const DEAD=5
