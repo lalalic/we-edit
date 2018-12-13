@@ -126,11 +126,6 @@ export default class extends Super{
 		super.onAllChildrenComposed()
     }
 
-	rollback2(at){
-		let i=this.computed.composed.findIndex(a=>this.computed.atoms.indexOf(a.first)==at)
-		this.computed.composed.splice(i)
-		this.computed.composed.push(this._newLine(this.context.parent.nextAvailableSpace()))
-	}
 
 	/**
 	* line.appendComposed can rollback to a specified atom
@@ -139,15 +134,18 @@ export default class extends Super{
 	commit(start=0, end=Number.MAX_SAFE_INTEGER){
 		const {context:{parent}, computed:{atoms}}=this
 
-		const appendComposedLine=(isLast)=>{
-			return parent.appendComposed(this.createComposed2Parent(this.currentLine.commit(),isLast))
-	    }
+		const rollbackToLineWithFirstAtomIndex=at=>{
+			const lines=this.computed.composed
+			const i=lines.findIndex(a=>atoms.indexOf(a.first)==at)
+			lines.splice(i)
+			lines.push(this._newLine(parent.nextAvailableSpace()))
+		}
 
-		const lineStartAt=i=>atoms.indexOf(this.computed.composed[this.computed.composed.length-i].first)
+		const appendComposedLine=bLast=>parent.appendComposed(this.createComposed2Parent(this.currentLine.commit(),bLast))
+		const atomIndexOfLastNthLine=i=>atoms.indexOf(this.computed.composed[this.computed.composed.length-i].first)
 
 		const len=this.computed.atoms.length
 		const DEAD=5
-		const RECOMPOSED=Number.MAX_SAFE_INTEGER
 		var nested=0
 
 		const commitFrom=(start=0)=>{
@@ -165,21 +163,21 @@ export default class extends Super{
 					last=i
 					times=0
 				}
-				next=this.currentLine.appendComposed(this.computed.atoms[i],i)
+				next=this.currentLine.appendComposed(atoms[i],i)
 
 				if(next===false){
 					if(!Number.isInteger(rollbackLines=appendComposedLine())){
-						this.computed.composed.push(this._newLine(this.context.parent.nextAvailableSpace()))
+						this.computed.composed.push(this._newLine(parent.nextAvailableSpace()))
 						continue
 					}else{
-						if(rollbackLines>this.computed.composed.length)
-							return rollbackLines
-						next=lineStartAt(rollbackLines)
+						if(rollbackLines==Frame.IMMEDIATE_STOP)
+							return Frame.IMMEDIATE_STOP
+						next=atomIndexOfLastNthLine(rollbackLines)(rollbackLines)
 					}
 				}
 
 				if(Number.isInteger(next)){
-					this.rollback2(i=next)
+					rollbackToLineWithFirstAtomIndex(i=next)
 					continue
 				}
 
@@ -194,9 +192,10 @@ export default class extends Super{
 
 			rollbackLines=appendComposedLine(true)
 			if(Number.isInteger(rollbackLines)){
-				if(rollbackLines>this.computed.composed.length)
-					return rollbackLines
-				this.rollback2(next=lineStartAt(rollbackLines))
+				if(rollbackLines==Frame.IMMEDIATE_STOP)
+					return Frame.IMMEDIATE_STOP
+				next=atomIndexOfLastNthLine(rollbackLines)
+				rollbackToLineWithFirstAtomIndex(next)
 				commitFrom(next)
 			}
 
@@ -248,10 +247,7 @@ export default class extends Super{
 	}
 
 	createComposed2Parent(line,last){
-		if(React.isValidElement(line)){
-			return line
-		}
-        const {height, width, children, anchor,...others}=line
+		const {height, width, children, anchor,...others}=line
         let {
 			spacing:{lineHeight="100%",top=0, bottom=0},
 			indent:{left=0,right=0,firstLine=0},
@@ -277,7 +273,6 @@ export default class extends Super{
         }
 
 		const pagination={orphan,widow,keepWithNext,keepLines, i:this.computed.composed.length,last}
-
 
         return (
             <Group height={lineHeight} width={width} className="line" pagination={pagination} anchor={anchor}>

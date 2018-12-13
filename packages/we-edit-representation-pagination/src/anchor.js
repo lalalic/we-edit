@@ -44,16 +44,20 @@ export default class extends Super{
                     return o
                 },{})
         })(this.props.distance, wrap.distance);
-        return {
+        const geometry={
             x:x-distance.left,
             y:y-distance.top,
             width:width+distance.left+distance.right,
             height:height+distance.top+distance.bottom,
         }
-    }
 
-    bounds(geometry){
-        return geometry
+        const wrapper=wrap ? new this.constructor.Wrap(wrap,geometry) : undefined
+
+        return {
+            geometry,
+            rect:geometry,
+            wrap: wrapper ? line=>wrapper.intersects(line) : undefined
+        }
     }
 
 	static Wrap=class{

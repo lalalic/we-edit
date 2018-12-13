@@ -7,9 +7,61 @@ import {ReactQuery, render} from  "we-edit"
 import get from "lodash.get"
 
 export default ({Template,Frame,Container})=>{
-	class Page extends Frame{
+	class FlowablePage extends Frame{
 		constructor(){
 			super(...arguments)
+			Object.defineProperties(this,{
+				firstLine:{
+					enumerable:true,
+					configurable:true,
+					get(){
+						return this.columns[0].children[0]
+					}
+				},
+				lastLine:{
+					enumerable:true,
+					configurable:true,
+					get(){
+						return this.currentColumn.children[this.currentColumn.children.length-1]
+					}
+				},
+				totalLines:{
+					enumerable:true,
+					configurable:true,
+					get(){
+						return this.columns.reduce((count,a)=>count+a.children.length,0)
+					}
+				},
+				currentColumn:{
+					enumerable:true,
+					configurable:true,
+					get(){
+						return this.columns[this.columns.length-1]
+					}
+				},
+				content:{
+					enumerable:true,
+					configurable:true,
+					get(){
+						return [
+							...this.computed.composed,
+							...this.columns.map(({children,...props},i)=>(
+								<Frame.Group {...props} key={i}>
+									{children.reduce((state,a,key)=>{
+										state.rows.push(React.cloneElement(a,{y:state.y,key}))
+										state.y+=a.props.height
+										return state
+									},{rows:[],y:0}).rows}
+								</Frame.Group>
+							))
+						]
+					}
+				},
+			})
+			this.init()
+		}
+
+		init(){
 			const {width,height,margin,cols,named,i}=this.props
 			const typed=type=>[(i==1 ? "first" :false),(i%2==0 ? "even" : "odd"),'default']
 				.filter(a=>!!a)
@@ -43,7 +95,6 @@ export default ({Template,Frame,Container})=>{
 			this.columns=[]
 			this.createColumn()
 			this.section=this.context.parent
-			this.DEAD=0
 		}
 
 		nextAvailableSpace(required={}){
@@ -65,25 +116,9 @@ export default ({Template,Frame,Container})=>{
 			}
 		}
 
-		isDirtyIn(rect){
-			if(this.computed.composed.find(({props:{x,y,width,height}})=>
-				this.isIntersect(rect,{x,y,width,height}))){
-				return true
-			}
-			const columnIntersect=({x,y,width,height,availableHeight})=>this.isIntersect(rect,{x,y,width,height:height-availableHeight})
-
-			if(columnIntersect(this.currentColumn)){
-				return 1
-			}
-
-			return !!this.columns.find(columnIntersect)
-		}
-
-		exclusive(height, current){
-			return super.exclusive(
-				height,
-				current||(({width,height,x,y})=>({x1:x,x2:x+width,y2:y+(height-this.currentColumn.availableHeight)}))(this.currentColumn)
-			)
+		createComposed2Parent(container){
+			const {i:key,width,height,margin}=this.props
+			return React.cloneElement(container,{key,children:this.content,width,height,margin})
 		}
 
 		appendComposed(line){
@@ -96,186 +131,11 @@ export default ({Template,Frame,Container})=>{
 					this.createColumn()
 					return 0+1//recompose current line in case different available space, such as different column width, wrapper, etc
 				}else{
-					if(this.recomposing4Anchor){
-						if(!this.recomposing4Anchor.anchored){
-							return Number.MAX_SAFE_INTEGER
-						}
-					}
 					return false
 				}
 			}else{
-				if(this.isEmpty() && this.prev){
-					let rollbackLines=this.rollback4PaginationControl(line)
-					if(Number.isInteger(rollbackLines))
-						return rollbackLines
-				}
-
-				if(line.props.anchor){
-					return this.appendComposedWithAnchor(line)
-				}else{
-					this.currentColumn.children.push(line)
-				}
+				return this.appendLine(line)
 			}
-		}
-
-		composed(id){
-			const composed=super.composed(id)
-			if(this.recomposing4Anchor && this.recomposing4Anchor.anchor==id){
-				this.recomposing4Anchor.anchored=true
-			}
-			return composed
-		}
-
-		/**
-		* . can be placed in this page
-			>current paragraph composing process should be terminated
-		* . can't
-			>current paragraph composing process should continue by rollback line, and start next page
-		**/
-		appendComposedWithAnchor(line){
-			const lastComputed={
-				composed:[...this.computed.composed],
-				columns:this.columns.reduce((cloned,a)=>[...cloned,{...a,children:[...a.children]}],[]),
-			}
-			const {anchor:atom}=line.props
-			const {anchor}=atom.props
-
-			this.currentColumn.children.push(React.cloneElement(line,{anchor:undefined}))
-
-			const {x,y}=anchor.xy(this)
-			const geometry=anchor.wrapGeometry({x,y},atom)
-			const dirty=this.isDirtyIn(geometry)
-			const rect=anchor.bounds(geometry)
-
-			this.computed.composed.push(
-				<Frame.Group {...rect} wrap={anchor.wrap(geometry)}>
-					{React.cloneElement(atom,{x:x-rect.x,y:y-rect.y,anchor:undefined})}
-				</Frame.Group>
-			)
-
-			if(dirty){
-				try{
-					this.recomposing4Anchor=lastComputed
-					this.recomposing4Anchor.anchor=anchor.props.id
-					this.recompose()
-					//then check if this anchor is in this page
-					if(!this.recomposing4Anchor.anchored){
-						//recover
-						this.computed.composed=this.recomposing4Anchor.composed
-						this.columns=this.recomposing4Anchor.columns
-						this.recompose()
-						return false
-					}else{
-						return 0+1
-					}
-				}finally{
-					delete this.recomposing4Anchor
-				}
-			}else{
-
-			}
-		}
-
-		rollback4PaginationControl(line){
-			const {pagination={}}=line.props
-			const {widow,orphan,keepLines,i,last}=pagination
-			if(keepLines){
-				if(this.prev.shouldKeepLinesWith(line)){//i!=1
-					let lineCount=this.prev.orphanCount()
-					this.prev.rollbackLines(lineCount)
-					return lineCount+1
-				}
-			}else{
-				if(orphan){
-					if(this.prev.orphanCount(line)==1){
-						this.prev.rollbackLines(1)
-						return 1+1
-					}
-				}
-
-				if(widow){
-					if(last){
-						const orphanCount=this.prev.orphanCount(line)
-						if(orphanCount>0){
-							this.prev.rollbackLines(1)
-							if(orphan){
-								if(orphanCount==2){
-									this.prev.rollbackLines(1)
-									return 2+1
-								}
-							}
-							return 1+1
-						}
-					}
-				}
-			}
-
-			if(this.prev.shouldKeepWithNext(line)){
-				let removedLines=this.prev.rollbackLines(this.prev.orphanCount())
-				//re-submit last paragraph
-				const pid=this.getFlowableComposerId(removedLines[0])
-				this.section.context.getComposer(pid).recommit()
-				return 0+1
-			}
-		}
-
-		shouldKeepLinesWith(line){
-			const pid=this.getFlowableComposerId(line)
-			return this.getFlowableComposerId(this.lastLine)==pid &&
-				this.getFlowableComposerId(this.firstLine)!=pid
-		}
-
-		get prev(){
-			return this.section.prevPage
-		}
-
-		shouldKeepWithNext(line){
-			const should=
-				(this.lastLine.props.pagination||{}).keepWithNext &&
-				this.orphanCount(line)==0 &&
-				this.getFlowableComposerId(this.firstLine)!==this.getFlowableComposerId(this.lastLine)
-			return should
-		}
-
-		get lastLine(){
-			return this.currentColumn.children[this.currentColumn.children.length-1]
-		}
-
-		get firstLine(){
-			return this.columns[0].children[0]
-		}
-
-		get totalLines(){
-			return this.columns.reduce((count,a)=>count+a.children.length,0)
-		}
-
-		getFlowableComposerId(line,filter){
-			return new ReactQuery(line)
-				.findFirst(`[data-type="paragraph"],[data-type="table"]`)
-				.filter(filter)
-				.attr("data-content")
-		}
-
-		orphanCount(line=this.lastLine){
-			const pid=this.getFlowableComposerId(line,'[data-type="paragraph"]')
-			if(!pid)
-				return 0
-			let count=0
-			for(let i=this.columns.length-1;i>-1;i--){
-				let lines=this.columns[i].children
-				for(let j=lines.length-1;j>-1;j--){
-					if(this.getFlowableComposerId(lines[j])==pid){
-						++count
-					}else{
-						return count
-					}
-				}
-			}
-			return count
-		}
-
-		isEmpty(){
-			return this.totalLines==0
 		}
 
 		createColumn(){
@@ -296,28 +156,29 @@ export default ({Template,Frame,Container})=>{
 			this.columns.push(column)
 		}
 
-		get content(){
-			return [
-				...this.computed.composed,
-				...this.columns.map(({children,...props},i)=>(
-					<Frame.Group {...props} key={i}>
-						{children.reduce((state,a,key)=>{
-							state.rows.push(React.cloneElement(a,{y:state.y,key}))
-							state.y+=a.props.height
-							return state
-						},{rows:[],y:0}).rows}
-					</Frame.Group>
-				))
-			]
+		appendLine(line){
+			this.currentColumn.children.push(line)
 		}
 
-		get currentColumn(){
-			return this.columns[this.columns.length-1]
+		isDirtyIn(rect){
+			if(this.computed.composed.find(({props:{x,y,width,height}})=>
+				this.isIntersect(rect,{x,y,width,height}))){
+				return true
+			}
+			const columnIntersect=({x,y,width,height,availableHeight})=>this.isIntersect(rect,{x,y,width,height:height-availableHeight})
+
+			if(columnIntersect(this.currentColumn)){
+				return 1
+			}
+
+			return !!this.columns.find(columnIntersect)
 		}
 
-		createComposed2Parent(container){
-			const {i:key,width,height,margin}=this.props
-			return React.cloneElement(container,{key,children:this.content,width,height,margin})
+		exclusive(height, current){
+			return super.exclusive(
+				height,
+				current||(({width,height,x,y})=>({x1:x,x2:x+width,y2:y+(height-this.currentColumn.availableHeight)}))(this.currentColumn)
+			)
 		}
 
 		paragraphY(id){
@@ -350,74 +211,10 @@ export default ({Template,Frame,Container})=>{
 
 			return lineEndY(lastLine)
 		}
+	}
 
-		rollbackCurrentParagraphUntilClean(pid,rect){
-			const {x,y,width,height,availableHeight,children:lines}=this.currentColumn
-			const contentRect={x,y,width,height:height-availableHeight}
-
-			for(let i=lines.length-1;i>=0;i--){
-				let line=lines[i],pline
-				if((pline=this.belongsTo(line,pid))){
-					contentRect.height=contentRect.height-line.props.height
-					if(!this.isIntersect(rect,contentRect)){
-						const removed=lines.splice(i)
-						return removed.length
-					}
-				}else{
-					return false
-				}
-			}
-		}
-
-		rollbackLines(n){
-			var removedLines=[]
-			for(let i=this.columns.length-1;i>-1;i--){
-				let lines=this.columns[i].children
-				if(n<lines.length){
-					removedLines=removedLines.concat(lines.splice(-n))
-					break
-				}else if(n==lines.length){
-					removedLines=removedLines.concat(this.columns.splice(i)[0].children)
-					break
-				}else{
-					removedLines=removedLines.concat(this.columns.splice(i)[0].children)
-					n=n-lines.length
-				}
-			}
-
-			const anchors=(lines=>{
-				const getAnchorId=a=>new ReactQuery(a).findFirst('[data-type="anchor"]').attr("data-content")
-				const ids=Array.from(
-					lines.reduce((ps, line)=>{
-						ps.add(getAnchorId(line))
-						return ps
-					},new Set())
-				).filter(a=>!!a)
-
-				return this.computed.composed
-					.filter(a=>ids.includes(getAnchorId(a)))
-					.map(a=>{
-						this.computed.composed.splice(this.computed.composed.indexOf(a),1)
-						return a
-					})
-			})(removedLines);
-
-			const asRect=({x=0,y=0,width,height,wrap},a={})=>({x,y,width,height,...a})
-			const intersectWithContent=!!anchors.find(a=>{
-				if(!a.props.wrap)
-				 	return false
-
-				const wrapRect=asRect(a.props)
-				return !!this.columns.find(b=>this.isIntersect(wrapRect, asRect(b,{height:b.height-b.availableHeight})))
-			})
-
-			if(intersectWithContent){
-				this.recompose()
-			}
-
-			return removedLines
-		}
-
+	class RecomposablePage extends FlowablePage{
+		DEAD=0
 		recompose(){
 			if(++this.DEAD>5){
 				console.warn(`a page is recomposed more than ${this.DEAD} times, ignore recomposing`)
@@ -464,6 +261,232 @@ export default ({Template,Frame,Container})=>{
 		}
 	}
 
+	class PaginationControllablePage extends RecomposablePage{
+		get prev(){
+			return this.section.prevPage
+		}
+
+		orphanCount(line=this.lastLine){
+			const pid=this.getFlowableComposerId(line,'[data-type="paragraph"]')
+			if(!pid)
+				return 0
+			let count=0
+			for(let i=this.columns.length-1;i>-1;i--){
+				let lines=this.columns[i].children
+				for(let j=lines.length-1;j>-1;j--){
+					if(this.getFlowableComposerId(lines[j])==pid){
+						++count
+					}else{
+						return count
+					}
+				}
+			}
+			return count
+		}
+
+		appendLine(line){
+			if(this.isEmpty() && this.prev){
+				let rollbackLines=this.rollback4PaginationControl(line)
+				if(Number.isInteger(rollbackLines))
+					return rollbackLines
+			}
+
+			return super.appendLine(...arguments)
+		}
+
+
+		rollback4PaginationControl(line){
+			const {pagination={}}=line.props
+			const {widow,orphan,keepLines,last}=pagination
+			if(keepLines){
+				if(this.prev.shouldKeepLinesWith(line)){//i!=1
+					let lineCount=this.prev.orphanCount()
+					this.prev.rollbackLines(lineCount)
+					return lineCount+1
+				}
+			}else{
+				if(orphan){
+					if(this.prev.orphanCount(line)==1){
+						this.prev.rollbackLines(1)
+						return 1+1
+					}
+				}
+
+				if(widow){
+					if(last){
+						const orphanCount=this.prev.orphanCount(line)
+						if(orphanCount>0){
+							this.prev.rollbackLines(1)
+							if(orphan){
+								if(orphanCount==2){
+									this.prev.rollbackLines(1)
+									return 2+1
+								}
+							}
+							return 1+1
+						}
+					}
+				}
+			}
+
+			if(this.prev.shouldKeepWithNext(line)){
+				let removedLines=this.prev.rollbackLines(this.prev.orphanCount())
+				//re-submit last paragraph
+				const pid=this.getFlowableComposerId(removedLines[0])
+				this.section.context.getComposer(pid).recommit()
+				return 0+1
+			}
+		}
+
+		shouldKeepLinesWith(line){
+			const pid=this.getFlowableComposerId(line)
+			return this.getFlowableComposerId(this.lastLine)==pid &&
+				this.getFlowableComposerId(this.firstLine)!=pid
+		}
+
+		shouldKeepWithNext(line){
+			const should=
+				(this.lastLine.props.pagination||{}).keepWithNext &&
+				this.orphanCount(line)==0 &&
+				this.getFlowableComposerId(this.firstLine)!==this.getFlowableComposerId(this.lastLine)
+			return should
+		}
+
+
+		rollbackLines(n){
+			var removedLines=[]
+			for(let i=this.columns.length-1;i>-1;i--){
+				let lines=this.columns[i].children
+				if(n<lines.length){
+					removedLines=removedLines.concat(lines.splice(-n))
+					break
+				}else if(n==lines.length){
+					removedLines=removedLines.concat(this.columns.splice(i)[0].children)
+					break
+				}else{
+					removedLines=removedLines.concat(this.columns.splice(i)[0].children)
+					n=n-lines.length
+				}
+			}
+
+			const anchors=(lines=>{
+				const getAnchorId=a=>new ReactQuery(a).findFirst('[data-type="anchor"]').attr("data-content")
+				const ids=Array.from(
+					lines.reduce((ps, line)=>{
+						ps.add(getAnchorId(line))
+						return ps
+					},new Set())
+				).filter(a=>!!a)
+
+				return this.computed.composed
+					.filter(a=>ids.includes(getAnchorId(a)))
+					.map(a=>{
+						this.computed.composed.splice(this.computed.composed.indexOf(a),1)
+						return a
+					})
+			})(removedLines);
+
+			removedLines.anchors=anchors
+			return removedLines
+		}
+	}
+
+	class AnchorablePage extends PaginationControllablePage{
+		appendComposed(){
+			const appended=super.appendComposed(...arguments)
+			if(appended===false && //will create new page
+				this.recomposing4Anchor &&
+				!this.recomposing4Anchor.anchored){
+				return Frame.IMMEDIATE_STOP
+			}
+			return appended
+		}
+
+		/*bad but faster*/
+		composed(id){
+			const composed=super.composed(id)
+			if(this.recomposing4Anchor && this.recomposing4Anchor.anchor==id){
+				this.recomposing4Anchor.anchored=true
+			}
+			return composed
+		}
+
+		/**
+		* . can be placed in this page
+			>current paragraph composing process should be terminated
+		* . can't
+			>current paragraph composing process should continue by rollback line, and start next page
+		**/
+		appendLine(line){
+			if(!line.props.anchor){
+				return super.appendLine(...arguments)
+			}
+
+			const lastComputed={
+				composed:[...this.computed.composed],
+				columns:this.columns.reduce((cloned,a)=>[...cloned,{...a,children:[...a.children]}],[]),
+			}
+			const {anchor:atom}=line.props
+			const {anchor}=atom.props
+
+			this.currentColumn.children.push(React.cloneElement(line,{anchor:undefined}))
+			const {x,y}=anchor.xy(this)
+			const {geometry,wrap,rect}=anchor.wrapGeometry({x,y},atom)
+
+			this.appendComposed(
+				<Frame.Group {...rect} wrap={wrap}>
+					{React.cloneElement(atom,{x:x-rect.x,y:y-rect.y,anchor:undefined})}
+				</Frame.Group>
+			)
+
+			if(wrap){
+				if(this.isDirtyIn(geometry)){
+					try{
+						this.recomposing4Anchor=lastComputed
+						this.recomposing4Anchor.anchor=anchor.props.id
+						this.recompose()
+						//then check if this anchor is in this page
+						if(!this.recomposing4Anchor.anchored){
+							//recover
+							this.computed.composed=this.recomposing4Anchor.composed
+							this.columns=this.recomposing4Anchor.columns
+							this.recompose()
+							return false
+						}else{
+							return 0+1
+						}
+					}finally{
+						delete this.recomposing4Anchor
+					}
+				}else{
+
+				}
+			}else{
+				return 0+1
+			}
+		}
+
+		rollbackLines(n){
+			const removedLines=super.rollbackLines(...arguments)
+			if(removedLines.anchors){
+				const anchors=removedLines.anchors
+				const asRect=({x=0,y=0,width,height,wrap},a={})=>({x,y,width,height,...a})
+				const intersectWithContent=!!anchors.find(a=>{
+					if(!a.props.wrap)
+					 	return false
+
+					const wrapRect=asRect(a.props)
+					return !!this.columns.find(b=>this.isIntersect(wrapRect, asRect(b,{height:b.height-b.availableHeight})))
+				})
+
+				if(intersectWithContent){
+					this.recompose()
+				}
+			}
+			return removedLines
+		}
+	}
+
 	return class extends Component{
 		static displayName="section"
 		static propTypes={
@@ -492,7 +515,7 @@ export default ({Template,Frame,Container})=>{
 			var {pgSz:{width,height},  pgMar:margin, cols:{num=1, space=0, data}, ...props}=this.props
 			var availableWidth=width-margin.left-margin.right
 			var cols=data ? data : new Array(num).fill({width:(availableWidth-(num-1)*space)/num,space})
-			return <Template createPage={(props,context)=>new Page({width,height,margin,cols,...props},context)} {...props}/>
+			return <Template createPage={(props,context)=>new AnchorablePage({width,height,margin,cols,...props},context)} {...props}/>
 		}
 	}
 }

@@ -12,9 +12,46 @@ import {Frame as ComposedFrame, Group} from "./composed"
 const Super=HasParentAndChild(Base)
 
 export default class Frame extends Super{
+	static IMMEDIATE_STOP=Number.MAX_SAFE_INTEGER
+	constructor(){
+		super(...arguments)
+		Object.defineProperties(this,{
+			firstLine:{
+				enumerable:true,
+				configurable:true,
+				get(){
+					return this.computed.composed.find(a=>a.props.y==undefined)
+				}
+			},
+			lastLine:{
+				enumerable:true,
+				configurable:true,
+				get(){
+					return this.computed.composed.findLast(a=>a.props.y==undefined)
+				}
+			},
+			totalLines:{
+				enumerable:true,
+				configurable:true,
+				get(){
+					return this.computed.composed.reduce((count,a)=>count+(a.props.y==undefined?1:0),0)
+				}
+			}
+		})
+	}
+
+	get availableHeight(){
+		if(this.props.height==undefined)
+			return Number.MAX_SAFE_INTEGER
+
+		const {props:{height},computed:{composed:children}}=this
+		return children.reduce((h, a)=>h-(a.props.y==undefined ? a.props.height : 0),height)
+	}
+
 	nextAvailableSpace(required={}){
 		const {width:maxWidth}=this.props
 		const {height:minHeight}=required
+
 		return {
 			maxWidth,
 			width:maxWidth,
@@ -75,28 +112,6 @@ export default class Frame extends Super{
 		.map(({x,width})=>({x:Math.floor(x), width:Math.floor(width)}))
 	}
 
-	rollbackCurrentParagraphUntilClean(pid,rect){
-		const {props:{x=0,y=0,width,height},currentY,computed:{composed:lines}}=this
-		const contentRect={x,y,width,height:currentY}
-
-		for(let i=lines.length-1,pline;i>=0;i--){
-			let line=lines[i]
-			if(line.props.y!=undefined)
-				continue
-			if((pline=this.belongsTo(line,pid))){
-				contentRect.height-=line.props.height
-				if(!this.isIntersect(rect,contentRect)){
-					const removed=lines.splice(i)
-					const anchors=removed.filter(a=>a.props.y!=undefined)
-					lines.splice(lines.length,0,...anchors)
-					return removed.length-anchors.length
-				}
-			}else{
-				return false
-			}
-		}
-	}
-
 	appendComposed(content){
 		this.computed.composed.push(content)
 	}
@@ -104,7 +119,6 @@ export default class Frame extends Super{
 	onAllChildrenComposed(){
 		let composed=this.createComposed2Parent()
 		this.context.parent.appendComposed(composed)
-
 		super.onAllChildrenComposed()
 	}
 
@@ -127,14 +141,6 @@ export default class Frame extends Super{
 
 	recompose(){
 		throw new Error("not support yet")
-	}
-
-	get availableHeight(){
-		if(this.props.height==undefined)
-			return Number.MAX_SAFE_INTEGER
-
-		const {props:{height},computed:{composed:children}}=this
-		return children.reduce((h, a)=>h-(a.props.y==undefined ? a.props.height : 0),height)
 	}
 
 	get currentY(){
@@ -181,6 +187,18 @@ export default class Frame extends Super{
 
 		return lineEndY(lastLineNotBelongTo)
 	}
+
+	getFlowableComposerId(line,filter){
+		return new ReactQuery(line)
+			.findFirst(`[data-type="paragraph"],[data-type="table"]`)
+			.filter(filter)
+			.attr("data-content")
+	}
+
+	isEmpty(){
+		return this.totalLines==0
+	}
+
 
 	static Group=Group
 
@@ -234,54 +252,21 @@ export default class Frame extends Super{
 						return width
 					}
 				}
-
 			})
+		}
+
+		get first(){
+			const first=this.content.find(a=>a.props.x===undefined)
+			if(first.props.atom)
+				return first.props.atom
+			return first
 		}
 
 		get paragraph(){
 			return this.context.parent
 		}
 
-		appendAnchor(atom,at){
-			const anchor=atom.props.anchor
-			const {x,y}=anchor.xy(this)
-			const geometry=anchor.wrapGeometry({x,y},atom)
-			const dirty=this.frame.isDirtyIn(geometry)
-			const rect=anchor.bounds(geometry)
-
-			this.paragraph.context.parent.appendComposed(
-				this.paragraph.createComposed2Parent(
-					<Group {...rect} wrap={anchor.wrap(geometry)}>
-						{React.cloneElement(atom,{x:x-rect.x,y:y-rect.y,anchor:undefined})}
-					</Group>
-				)
-			)
-
-			if(dirty){
-				if(dirty==1){//possibly fixable in current paragraph
-					let backedLines=this.frame.rollbackCurrentParagraphUntilClean(this.paragraph.props.id,rect)
-					if(backedLines){
-						const lines=this.paragraph.computed.composed
-						const removed=lines.splice(-backedLines-1,backedLines)
-						this.content=[]
-						this.blocks=this.frame.exclusive()
-						let backedAtom=removed[0].children.find(a=>a.props.x==undefined)
-						//HOw can I know if the anchor[at] will be composed at the same p
-						return this.paragraph.computed.atoms.indexOf(backedAtom)
-					}
-				}
-
-				this.frame.recompose()
-				return Number.MAX_SAFE_INTEGER
-			}
-
-			return this.updateExclusive(at)
-		}
-
 		appendComposed(atom,at){
-			if(!atom){
-				debugger
-			}
 			const {width,minWidth=parseInt(width),anchor}=atom.props
 			if(anchor){
 				this.content.push(React.cloneElement(
@@ -364,13 +349,6 @@ export default class Frame extends Super{
 			this.blocks.forEach(a=>this.content.push(<Group {...a} height={0}/>))
 			this.blocks=[]
 			return this
-		}
-
-		get first(){
-			const first=this.content.find(a=>a.props.x===undefined)
-			if(first.props.atom)
-				return first.props.atom
-			return first
 		}
 	}
 }
