@@ -11,7 +11,7 @@ const Super=HasParentAndChild(Base)
 class CellFrame extends Frame{
 	currentColumn={x:0,y:0}
 	createComposed2Parent(){
-		const createComposed2Parent=args=>super.createComposed2Parent(...arguments)
+		const createComposed2Parent=(...args)=>super.createComposed2Parent(...args)
 		return {
 			computed:this.computed,
 			createComposed2Parent,

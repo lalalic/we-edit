@@ -172,7 +172,7 @@ export default class extends Super{
 					}else{
 						if(rollbackLines==Frame.IMMEDIATE_STOP)
 							return Frame.IMMEDIATE_STOP
-						next=atomIndexOfLastNthLine(rollbackLines)(rollbackLines)
+						next=atomIndexOfLastNthLine(rollbackLines)
 					}
 				}
 

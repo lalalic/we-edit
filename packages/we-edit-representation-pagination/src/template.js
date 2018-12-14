@@ -44,7 +44,10 @@ export default class Template extends Super{
 	}
 
     createPage(){
-        const page=this.props.createPage({i:this.totalPages+1,named:this.named.bind(this)},{parent:this})
+        const page=this.props.createPage(
+            {i:this.totalPages+1,named:this.named.bind(this)},
+            {parent:this,getComposer:id=>this.context.getComposer(id)}
+        )
         this.computed.composed.push(page)
         this.context.parent.appendComposed(this.createComposed2Parent(page))
         return page

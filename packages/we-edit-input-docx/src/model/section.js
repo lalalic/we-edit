@@ -7,7 +7,7 @@ import {ReactQuery, render} from  "we-edit"
 import get from "lodash.get"
 
 export default ({Template,Frame,Container})=>{
-	class FlowablePage extends Frame{
+	class Flowable extends Frame{
 		constructor(){
 			super(...arguments)
 			Object.defineProperties(this,{
@@ -160,27 +160,6 @@ export default ({Template,Frame,Container})=>{
 			this.currentColumn.children.push(line)
 		}
 
-		isDirtyIn(rect){
-			if(this.computed.composed.find(({props:{x,y,width,height}})=>
-				this.isIntersect(rect,{x,y,width,height}))){
-				return true
-			}
-			const columnIntersect=({x,y,width,height,availableHeight})=>this.isIntersect(rect,{x,y,width,height:height-availableHeight})
-
-			if(columnIntersect(this.currentColumn)){
-				return 1
-			}
-
-			return !!this.columns.find(columnIntersect)
-		}
-
-		exclusive(height, current){
-			return super.exclusive(
-				height,
-				current||(({width,height,x,y})=>({x1:x,x2:x+width,y2:y+(height-this.currentColumn.availableHeight)}))(this.currentColumn)
-			)
-		}
-
 		paragraphY(id){
 			let lastLine=this.columns.reduceRight((line,a)=>line ? line : a.children[a.children.length-1],null)
 
@@ -211,57 +190,19 @@ export default ({Template,Frame,Container})=>{
 
 			return lineEndY(lastLine)
 		}
-	}
 
-	class RecomposablePage extends FlowablePage{
-		DEAD=0
-		recompose(){
-			if(++this.DEAD>5){
-				console.warn(`a page is recomposed more than ${this.DEAD} times, ignore recomposing`)
-				return
-			}
-			const lastComposed={blocks:this.computed.composed,columns:this.columns}
+		reset4Recompose(){
+			const blocks=this.computed.composed
+			const columns=this.columns
 
 			this.columns=[]
 			this.createColumn()
-			this.computed.composed=[...lastComposed.blocks]
-
-			var currentParagraph=null
-			var currentParagraphLines=[]
-			for(let i=0;i<lastComposed.columns.length;i++){
-				const lines=lastComposed.columns[i].children
-				for(let j=0;j<lines.length;j++){
-					const linePID=this.getFlowableComposerId(lines[j],`[data-type="paragraph"]`)
-					if(!linePID){//not paragraph, then append directly
-						if(currentParagraph){
-							this.section.context.getComposer(currentParagraph).recommit(currentParagraphLines)
-							currentParagraph=null
-							currentParagraphLines=[]
-						}
-						this.appendComposed(lines[j])
-					}else{
-						if(!currentParagraph){
-							currentParagraph=linePID
-							currentParagraphLines.push(lines[j])
-						}else{
-							if(linePID!==currentParagraph){
-								this.section.context.getComposer(currentParagraph).recommit(currentParagraphLines)
-								currentParagraph=linePID
-								currentParagraphLines=[lines[j]]
-								continue
-							}else{
-								currentParagraphLines.push(lines[j])
-								continue
-							}
-						}
-					}
-				}
-			}
-			this.section.context.getComposer(currentParagraph).recommit(currentParagraphLines)
+			this.computed.composed=[...blocks]
+			return columns.reduce((lines,column)=>[...lines,...column.children],[])
 		}
 	}
 
-	class PaginationControllablePage extends RecomposablePage{
+	class PaginationControllable extends Flowable{
 		get prev(){
 			return this.section.prevPage
 		}
@@ -391,7 +332,28 @@ export default ({Template,Frame,Container})=>{
 		}
 	}
 
-	class AnchorablePage extends PaginationControllablePage{
+	class Anchorable extends PaginationControllable{
+		isDirtyIn(rect){
+			if(this.computed.composed.find(({props:{x,y,width,height}})=>
+				this.isIntersect(rect,{x,y,width,height}))){
+				return true
+			}
+			const columnIntersect=({x,y,width,height,availableHeight})=>this.isIntersect(rect,{x,y,width,height:height-availableHeight})
+
+			if(columnIntersect(this.currentColumn)){
+				return 1
+			}
+
+			return !!this.columns.find(columnIntersect)
+		}
+
+		exclusive(height, current){
+			return super.exclusive(
+				height,
+				current||(({width,height,x,y})=>({x1:x,x2:x+width,y2:y+(height-this.currentColumn.availableHeight)}))(this.currentColumn)
+			)
+		}
+
 		appendComposed(){
 			const appended=super.appendComposed(...arguments)
 			if(appended===false && //will create new page
@@ -515,7 +477,7 @@ export default ({Template,Frame,Container})=>{
 			var {pgSz:{width,height},  pgMar:margin, cols:{num=1, space=0, data}, ...props}=this.props
 			var availableWidth=width-margin.left-margin.right
 			var cols=data ? data : new Array(num).fill({width:(availableWidth-(num-1)*space)/num,space})
-			return <Template createPage={(props,context)=>new AnchorablePage({width,height,margin,cols,...props},context)} {...props}/>
+			return <Template createPage={(props,context)=>new Anchorable({width,height,margin,cols,...props},context)} {...props}/>
 		}
 	}
 }
