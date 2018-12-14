@@ -45,7 +45,7 @@ export default class Positioning{
 
     around(node, left, top){
         const {x,y}=this.asCanvasPoint({left,top})
-		
+
         const locateLine=(container,top=true)=>Array.from(container.querySelectorAll(LINE)).find(a=>{
             const {right,bottom,left,top}=a.getBoundingClientRect()
             const p1=this.asCanvasPoint({left:right,top:bottom})
@@ -55,7 +55,7 @@ export default class Positioning{
 			}
 			return false
         })
-		
+
 		const line=(()=>{
 			let container=locateLine(this.canvas)
 			while(container && container.querySelector(LINE)){
@@ -63,7 +63,7 @@ export default class Positioning{
 			}
 			return container
 		})();
-		
+
         return (()=>{
 			if(line){
 				const {left,right}=line.getBoundingClientRect()
@@ -88,7 +88,7 @@ export default class Positioning{
 					}
 				}
 			}
-			
+
             return {}
         })();
     }
@@ -127,20 +127,23 @@ export default class Positioning{
                 line:line!==undefined ? this.lines(column).indexOf(line): undefined
             }
         }
-		
-		const rect=this.getComposer(id).position(this,at)
+		const composer=this.getComposer(id)
+        
+        if(composer){
+    		const rect=composer.position(this,at)
 
-		if(rect){
-			const {x,y,width,node, ...position}=rect
+    		if(rect){
+    			const {x,y,width,node, ...position}=rect
 
-			return {
-				id,at,node,x,y,
-				...position,
-				...this.asViewportPoint({x,y}),
-				...paginate(node),
-			}
-		}
-		
+    			return {
+    				id,at,node,x,y,
+    				...position,
+    				...this.asViewportPoint({x,y}),
+    				...paginate(node),
+    			}
+    		}
+        }
+
 		return null
     }
 
@@ -276,7 +279,7 @@ export default class Positioning{
             const [p0,p1]=((start,end)=>{
 				if(!start || !end)
 					return []
-				
+
                 if(end.page<start.page ||
                     (end.page==start.page && end.column<start.column) ||
                     (end.page==start.page && end.column==start.column && end.line<start.line) ||
@@ -285,7 +288,7 @@ export default class Positioning{
                 }
                 return [start,end]
             })(this.position(start.id,start.at),this.position(end.id, end.at));
-			
+
 			if(p0 && p1){
 				if(p0.top==p1.top){
 					const {x:left, y:top, height, bottom=top+height}=p0
@@ -296,7 +299,7 @@ export default class Positioning{
 				}
 			}
         }
-		
+
 		return []
     }
 
@@ -316,7 +319,7 @@ export default class Positioning{
 				width:width/this.scale,height:height/this.scale
 			}
 		}
-		
+
 		return null
     }
 
@@ -362,11 +365,11 @@ export default class Positioning{
 							}
 						}
 					}
-					
+
 					return null
                 }
-				
-				
+
+
 				if(node){
 					let found=this.closest(node,[type],a=>a.dataset.type)
 					if(found){

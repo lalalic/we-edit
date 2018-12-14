@@ -10,6 +10,7 @@ export default ({Template,Frame,Container})=>{
 	class Flowable extends Frame{
 		constructor(){
 			super(...arguments)
+			this.init()
 			Object.defineProperties(this,{
 				firstLine:{
 					enumerable:true,
@@ -57,8 +58,19 @@ export default ({Template,Frame,Container})=>{
 						]
 					}
 				},
+				composedHeight:{
+					enumerable:false,
+					configurable:false,
+					get(){
+						if(this.section.isAllChildrenComposed()){
+							if(this==this.section.current){//last
+								return Math.max(...this.columns.map(column=>column.y+(column.height-column.availableHeight)))
+							}
+						}
+						return this.props.height
+					}
+				}
 			})
-			this.init()
 		}
 
 		init(){

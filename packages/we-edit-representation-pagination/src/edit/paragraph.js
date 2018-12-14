@@ -13,6 +13,7 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 	clearComposed(){
 		this.computed.lastText=""
 		this.computed.words=0
+		this.computed.atoms=[]
 		super.clearComposed(...arguments)
 	}
 

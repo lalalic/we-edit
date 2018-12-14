@@ -71,7 +71,7 @@ export default compose(
 	<ToolbarGroup>
 		<FontList label="font"
 			disabled={style==null}
-			value={style ? style.fonts.split(",")[0] : ""}
+			value={style&&style.fonts ? style.fonts.split(",")[0] : ""}
 			changeFont={changeFont}/>
 		<ComboBox label="font size"
 			disabled={style==null}

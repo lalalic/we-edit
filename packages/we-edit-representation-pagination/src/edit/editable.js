@@ -25,7 +25,7 @@ import composable,{enablify} from "../composable"
 
 
  export default function editable(A, enables={}){
-     return composable(A,{navigatable:true,recomposable:true,...enables})
+     return composable(A,{locatable:true,navigatable:true,recomposable:true,...enables})
  }
 
 editable.enable=enablify(editable)

@@ -127,31 +127,8 @@ export default class Document extends Super{
 
 	composedY(){
 		const {computed:{composed:pages}, props:{pageGap}}=this
-		if(pages.length==0)
-			return 0
-
-		const lastPageHeight=(({margin:{top},columns,size:{height}})=>{
-			if(this.getComposer(columns[0]["data-content"]).isAllChildrenComposed()){
-				return height
-			}
-
-			return Math.max(...
-				columns.map(({children:lines})=>{
-					let lastLine=lines[lines.length-1]
-					if(lastLine){
-						return lastLine.props.y+lastLine.props.height
-					}else{
-						return 0
-					}
-				})
-				.map(y=>y+top)
-			)
-		})(pages[pages.length-1])
-
-		return pages.slice(0,pages.length-1).reduce((w,{size:{height}})=>w+height+pageGap,lastPageHeight)
+		return pages.reduce((w,page)=>w+page.composedHeight+pageGap,0)
 	}
-
-
 
 	isSelectionComposed(selection){
 		const {end,start}=selection||getSelection(this.context.activeDocStore.getState())
