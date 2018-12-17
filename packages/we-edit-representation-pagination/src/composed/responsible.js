@@ -184,12 +184,12 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
     }
 
     componentDidUpdate({},state,snapshot){
-        this.positioning.reset(this.getComposer, this.getContent, this.canvas, this.props.scale)
+        this.positioning.reset(this.getComposer, this.getContent, this.canvas, this.props.pages,this.props.pgGap,this.props.scale)
         this.locator && this.locator.setState({content:this.props.content, canvas:this.canvas})
     }
 
     componentDidMount(){
-        this.positioning.reset(this.getComposer, this.getContent, this.canvas, this.props.scale)
+        this.positioning.reset(this.getComposer, this.getContent, this.canvas, this.props.pages,this.props.pgGap, this.props.scale)
         if(this.selection && !this.selection.id){
             const {id,at}=this.locate("next","Cursorable","root")
             this.dispatch(ACTION.Cursor.AT(id,at))

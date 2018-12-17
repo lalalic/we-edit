@@ -8,30 +8,26 @@ import editable from "./editable"
 
 export default Cacheable(class extends editable(Base,{stoppable:true}){
 	keepUntilLastAllChildrenComposed(){
-        const {id,pageIndex,columnIndex,lineIndex}=(id=>{
-			let pageIndex=-1, columnIndex=-1, lineIndex=-1
-			this.computed.composed.findLast(({columns},i)=>{
+        const {id,pageIndex,lineIndex}=(id=>{
+			let pageIndex=-1, lineIndex=-1
+			this.computed.lastComposed.findLast(({lines},i)=>{
 				pageIndex=i
-
-				return columns.findLast(({children:lines},i)=>{
-					columnIndex=i
-					return lines.findLast((line,i)=>{
-						lineIndex=i
-						if(id=this.findContentId(line)){
-							const composer=this.context.getComposer(id)
-							if(composer && composer.isAllChildrenComposed()){
-								return true
-							}
+				return lines.findLast((line,i)=>{
+					lineIndex=i
+					if(id=this.findContentId(line)){
+						const composer=this.context.getComposer(id)
+						if(composer && composer.isAllChildrenComposed()){
+							return true
 						}
-						return false
-					})
+					}
+					return false
 				})
 			})
-			return {id,pageIndex,columnIndex,lineIndex}
+			return {id,pageIndex,lineIndex}
 		})();
 
 		if(id){
-			this.keepComposedUntil(pageIndex,columnIndex,lineIndex+1)
+			this.keepComposedUntil(pageIndex,lineIndex+1)
 			return Children.toArray(this.props.children).findIndex(a=>a.props.id===id)
 		}
 		return -1
@@ -48,6 +44,7 @@ export default Cacheable(class extends editable(Base,{stoppable:true}){
 			return id
 		})(content)
 	}
+
 	removeChangedPart(changedChildIndex){
 		const children=Children.toArray(this.props.children)
 		const changed=children[changedChildIndex]
@@ -61,29 +58,19 @@ export default Cacheable(class extends editable(Base,{stoppable:true}){
 			return (id!==undefined && removedChildren.includes(id))
 		}
 
-		let pageIndex=-1, columnIndex=-1, lineIndex=-1
-		if((pageIndex=this.computed.composed.findIndex(({columns})=>{
-			return (columnIndex=columns.findIndex(({children:lines})=>{
-				return (lineIndex=lines.findIndex(line=>findChangedContentId(line)))!=-1
-			}))!=-1
+		let pageIndex=-1, lineIndex=-1
+		if((pageIndex=this.computed.lastComposed.findIndex(({lines})=>{
+			return (lineIndex=lines.findIndex(line=>findChangedContentId(line)))!=-1
 		}))!=-1){
-			this.keepComposedUntil(pageIndex,columnIndex,lineIndex)
+			this.keepComposedUntil(pageIndex,lineIndex)
 			return true
 		}
 
 		return false
 	}
 
-	keepComposedUntil(pageIndex,columnIndex,lineIndex){
-		const page=this.computed.composed[pageIndex]
-		this.computed.composed=this.computed.composed.slice(0,pageIndex)
-
-		const column=page.columns[columnIndex]
-		column.children=column.children.slice(0,lineIndex)
-
-		page.columns=page.columns.slice(0,columnIndex)
-		page.columns.push(column)
-
-		this.computed.composed.push(page)
+	keepComposedUntil(pageIndex,lineIndex){
+		this.computed.lastComposed=this.computed.lastComposed.slice(0,pageIndex+1)
+		this.computed.lastComposed[pageIndex].removeFrom(lineIndex)
 	}
 },true)

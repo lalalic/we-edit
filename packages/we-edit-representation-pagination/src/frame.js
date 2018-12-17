@@ -103,18 +103,9 @@ class Flowable extends Super{
 	}
 
 	paragraphY(id){
-		const lines=this.computed.composed
+		const lastLine=this.computed.composed.findLast(line=>line.props.y==undefined && !this.belongsTo(line,id))
 
-		const lastLineNotBelongTo=((id)=>{
-			for(let k=lines.length-1;k>=0;k--){
-				let line=lines[k]
-				if(line.props.y==undefined && !this.belongsTo(line,id)){
-					return line
-				}
-			}
-		})(id)
-
-		if(!lastLineNotBelongTo){
+		if(!lastLine){
 			return 0
 		}
 
@@ -122,7 +113,7 @@ class Flowable extends Super{
 			return lines.slice(0,lines.indexOf(line)+1).reduce((Y,{props:{y,height}})=>Y+(y==undefined ? height : 0),0)
 		}
 
-		return lineEndY(lastLineNotBelongTo)
+		return lineEndY(lastLine)
 	}
 
 	getFlowableComposerId(line,filter){

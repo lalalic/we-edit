@@ -2,18 +2,19 @@ import React from "react"
 import PropTypes from "prop-types"
 import {models,ACTION} from "we-edit"
 import editable from "./editable"
+import {NoChild} from "../composable"
 import {Text as ComposedText} from "../composed"
 
-export default editable(class extends models.Unknown{
+const Super=NoChild(models.Unknown)
+export default editable(class extends Super{
     static contextTypes={
-        ...models.Unknown.contextTypes,
+        ...Super.contextTypes,
         parent: PropTypes.object,
         Measure: PropTypes.func,
         activeDocStore: PropTypes.object,
     }
-		
+
     render(){
-        this.context.parent.nextAvailableSpace()
         this.context.parent.appendComposed(this.createComposed2Parent())
         return null
     }
@@ -24,13 +25,14 @@ export default editable(class extends models.Unknown{
         return (
             <ComposedText
                 {...measure.defaultStyle}
-                width={0}
+                width={measure.stringWidth(models.Paragraph.End)}
+                minWidth={0}
                 children={[models.Paragraph.End]}
 				className="ender"
                 />
         )
     }
-	
+
     distanceAt(){
         return 1
     }

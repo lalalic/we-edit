@@ -26,6 +26,13 @@ export default ({Template,Frame,Container})=>{
 						return this.currentColumn.children[this.currentColumn.children.length-1]
 					}
 				},
+				lines:{
+					enumerable:true,
+					configurable:true,
+					get(){
+						return this.columns.reduce((lines,a)=>[...lines,...a.children],[])
+					}
+				},
 				totalLines:{
 					enumerable:true,
 					configurable:true,
@@ -37,6 +44,8 @@ export default ({Template,Frame,Container})=>{
 					enumerable:true,
 					configurable:true,
 					get(){
+						if(this.columns.length==0)
+							this.createColumn()
 						return this.columns[this.columns.length-1]
 					}
 				},
@@ -105,7 +114,6 @@ export default ({Template,Frame,Container})=>{
 					return state
 				},{x:margin.left,y:y0,height:y1-y0,columns:[]}).columns
 			this.columns=[]
-			this.createColumn()
 			this.section=this.context.parent
 		}
 
@@ -173,23 +181,7 @@ export default ({Template,Frame,Container})=>{
 		}
 
 		paragraphY(id){
-			let lastLine=this.columns.reduceRight((line,a)=>line ? line : a.children[a.children.length-1],null)
-
-			const findLastLineNotBelongTo=(id)=>{
-				for(let i=this.columns.length-1;i>=0;i--){
-					let lines=this.columns[i].children
-					for(let k=lines.length-1;k>=0;k--){
-						let line=lines[k]
-						if(!this.belongsTo(line,id)){
-							return line
-						}
-					}
-				}
-			}
-
-			if(lastLine && this.belongsTo(lastLine,id)){
-				lastLine=findLastLineNotBelongTo(id)
-			}
+			const lastLine=this.lines.findLast(a=>!this.belongsTo(a,id))
 
 			if(!lastLine){
 				return this.currentColumn.y
@@ -308,6 +300,10 @@ export default ({Template,Frame,Container})=>{
 
 		rollbackLines(n){
 			var removedLines=[]
+			if(n==0){
+				removedLines.anchors=[]
+				return removedLines
+			}
 			for(let i=this.columns.length-1;i>-1;i--){
 				let lines=this.columns[i].children
 				if(n<lines.length){
@@ -461,6 +457,20 @@ export default ({Template,Frame,Container})=>{
 		}
 	}
 
+	class Locatable extends Anchorable{
+		includes(id,at){
+
+		}
+
+		position(id,at){
+
+		}
+
+		removeFrom(lineIndex){
+			return PaginationControllable.prototype.rollbackLines.call(this,this.lines.length-lineIndex)
+		}
+	}
+
 	return class extends Component{
 		static displayName="section"
 		static propTypes={
@@ -489,7 +499,7 @@ export default ({Template,Frame,Container})=>{
 			var {pgSz:{width,height},  pgMar:margin, cols:{num=1, space=0, data}, ...props}=this.props
 			var availableWidth=width-margin.left-margin.right
 			var cols=data ? data : new Array(num).fill({width:(availableWidth-(num-1)*space)/num,space})
-			return <Template createPage={(props,context)=>new Anchorable({width,height,margin,cols,...props},context)} {...props}/>
+			return <Template createPage={(props,context)=>new Locatable({width,height,margin,cols,...props},context)} {...props}/>
 		}
 	}
 }

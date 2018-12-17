@@ -20,7 +20,6 @@ function Locatable(A){
         constructor(){
             super(...arguments)
             this.splittable=true
-			console.log(this.getComposeType())
 			this.context.mount && this.context.mount(this)
         }
 

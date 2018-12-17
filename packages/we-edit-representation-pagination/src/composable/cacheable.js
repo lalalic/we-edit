@@ -24,12 +24,10 @@ export default (A,partable)=>class extends A{
             return
         }
 
-        if(partable){
-            const alreadyComposed=this.computed.composed
-            super.clearComposed(...arguments)
-            this.computed.composed=alreadyComposed
-        }else{
-            super.clearComposed(...arguments)
+        super.clearComposed(...arguments)
+
+        if(!partable){//keep last Composed for recovering
+            this.computed.lastComposed=[]
         }
     }
 
@@ -40,48 +38,53 @@ export default (A,partable)=>class extends A{
 
         const {changed}=this.props
         if(!changed && this.isAllChildrenComposed()){
-			this.computed.lastComposed.forEach(a=>this.context.parent.appendComposed(a))
-            return null
+            if(this.appendLastComposed()!==false){
+                return null
+            }
 		}
 
         if(partable){
+            const renderFrom=index=>{
+                if(this.appendLastComposed()===false){
+                    return super.render()
+                }
+                //only compose from changedIndex
+                let _children=this.children
+                this.children=()=>children.slice(index)
+                const rendered=super.render()
+                this.children=_children
+                return rendered
+            }
             const children=Children.toArray(this.props.children)
-            if(changed){
+            if(changed){//remove changed part, and continue compose left
                 const changedIndex=children.findIndex(a=>a.props.changed)
                 if(![-1,0].includes(changedIndex)){
                     if(this.removeChangedPart(changedIndex)){
-                        //then append left to parent
-                        this.computed.lastComposed=[]
-                        this.computed.composed.forEach(a=>this.context.parent.appendComposed(this.createComposed2Parent(a)))
-                        //only compose from changedIndex
-                        let _children=this.children
-                        this.children=()=>children.slice(changedIndex)
-                        const rendered=super.render()
-                        this.children=_children
-                        return rendered
+                        return renderFrom(changedIndex)
                     }
                 }
-            }else if(this.computed.composed.length>0){//(!this.isAllChildrenComposed())
+            }else if(this.computed.lastComposed.length>0){//(!this.isAllChildrenComposed())
                 const lastIndex=this.keepUntilLastAllChildrenComposed()
                 if(lastIndex!=-1){
-                    this.computed.lastComposed=[]
-                    this.computed.composed.forEach(a=>this.context.parent.appendComposed(this.createComposed2Parent(a)))
-                    //only compose from changedIndex
-                    let _children=this.children
-                    this.children=()=>children.slice(lastIndex+1)
-                    const rendered=super.render()
-                    this.children=_children
-                    return rendered
+                    return renderFrom(lastIndex+1)
                 }
             }
-
-            this.computed.composed=[]
         }
 
         //last safe
         this.computed.lastComposed=[]
         return super.render()
 	}
+
+    appendLastComposed(){
+        if(super.appendLastComposed){
+            return super.appendLastComposed(...arguments)
+        }
+        
+        const lastComposed=this.computed.lastComposed
+        this.computed.lastComposed=[]
+        lastComposed.forEach(a=>this.context.parent.appendComposed(this.createComposed2Parent(a)))
+    }
 
     removeChangedPart(changedChildIndex){
         if(super.removeChangedPart){

@@ -66,9 +66,7 @@ export default class extends Super{
 	get currentLine(){
 		const {composed}=this.computed
 		if(composed.length==0){
-			let {context:{parent},props:{defaultStyle:{fonts,size,bold,italic}}}=this
-	       const line=this._newLine(parent.nextAvailableSpace())
-			composed.push(line)
+			composed.push(this._newLine(this.context.parent.nextAvailableSpace()))
 		}
 		return composed[composed.length-1]
 	}
@@ -274,13 +272,17 @@ export default class extends Super{
 
 		const pagination={orphan,widow,keepWithNext,keepLines, i:this.computed.composed.length,last}
 
+		try{
         return (
             <Group height={lineHeight} width={width} className="line" pagination={pagination} anchor={anchor}>
                 <Group x={contentX} y={contentY} width={width} height={height}>
-					<Story {...{children,align}}/>
+					<Story {...{children:[...children],align}}/>
                 </Group>
             </Group>
         )
+	}catch(e){
+		debugger
+	}
     }
 }
 

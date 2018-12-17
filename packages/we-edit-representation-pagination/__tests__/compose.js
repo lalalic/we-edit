@@ -31,7 +31,12 @@ describe("compose", ()=>{
 
 				},
 				nextAvailableSpace(){
-					return {width,height}
+					return {
+						width,height,
+						execlusive(){
+							return []
+						}
+					}
 				},
 			},
 			Measure,
@@ -47,7 +52,7 @@ describe("compose", ()=>{
 
 			const renderer=TestRender.create(
 				<WithTextContext context={context}>
-					<Text fonts="arial" size={12}>{text}</Text>
+					<Text id="0" fonts="arial" size={12}>{text}</Text>
 				</WithTextContext>
 			)
 			expect(appendComposed).toHaveBeenCalled()
@@ -68,13 +73,20 @@ describe("compose", ()=>{
 		const WithParagraphContext=provider(Paragraph)
 		const test=(lineWidth=5,spacing={}, indent={})=>{
 			const context={parent:{}}
-			const nextAvailableSpace=context.parent.nextAvailableSpace=jest.fn(()=>({width:lineWidth,height:100}))
+			const nextAvailableSpace=context.parent.nextAvailableSpace=jest.fn(()=>({
+				width:lineWidth,height:100,
+				frame:{
+					exclusive(){
+						return []
+					}
+				}
+			}))
 			const appendComposed=context.parent.appendComposed=jest.fn()
 			const renderer=TestRender.create(
 				<WithParagraphContext context={context}>
 					<WithTextContext>
-						<Paragraph spacing={spacing} indent={indent}>
-							<Text fonts="arial" size={12}>hello world</Text>
+						<Paragraph id="1" spacing={spacing} indent={indent}>
+							<Text id="0" fonts="arial" size={12}>hello world</Text>
 						</Paragraph>
 					</WithTextContext>
 				</WithParagraphContext>
@@ -149,13 +161,13 @@ describe("compose", ()=>{
 		})
 
 		xdescribe("wordwrap",()=>{
-			
+
 		})
 	})
 	describe("table",()=>{
 
 	})
-	
+
 	describe("image",()=>{
 		const WithParagraphContext=provider(Paragraph)
 		xit("basic image", ()=>{

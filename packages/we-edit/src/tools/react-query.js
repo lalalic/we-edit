@@ -9,6 +9,7 @@ export default class Query{
         "[":(name,value)=>element=>{
             if(value===undefined)
                 return Object.keys(element.props).includes(name)
+
             return element.props[name]==value
         },
         ".":className=>element=>{
@@ -145,6 +146,9 @@ function traverse(el, f, right=false){
         return
 
     const children=Children.toArray(el.props.children)
+    if(typeof(children[0])=="string")
+        return
+
     if(children.length>0){
         return !!children[`find${right ? "Last" :""}`](child=>{
             let result=f(child)
