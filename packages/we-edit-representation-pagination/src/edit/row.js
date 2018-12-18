@@ -1,12 +1,13 @@
-import React,{Fragment,PureComponent} from "react"
-
-import {connect,ACTION} from "we-edit"
 import {Cacheable} from "../composable"
 import editable from "./editable"
 import Base from "../row"
 
+export default Cacheable(class extends editable(Base,{stoppable:true}){
+	appendLastComposed(){
+		this.computed.lastComposed=[]
+		this.onAllChildrenComposed()
+	}
 
-export default class extends editable(Base,{stoppable:true}){
 	nextSelectable(at){
         switch(at){
         case undefined:
@@ -26,4 +27,4 @@ export default class extends editable(Base,{stoppable:true}){
         }
         return false
     }
-}
+})

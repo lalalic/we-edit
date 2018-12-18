@@ -38,11 +38,6 @@ export default class extends Super{
 		)
 	}
 
-	onAllChildrenComposed(){
-		super.onAllChildrenComposed()
-		this.context.parent.appendComposed(this)
-	}
-
 	cellHeight(contentHeight){
 		const {border, margin, spacing}=this.props
 		return contentHeight
@@ -54,7 +49,12 @@ export default class extends Super{
 	}
 
 	appendComposed(frame){
-		this.frame=frame
+		this.computed.composed.push(frame)
+		this.context.parent.appendComposed(this)
+	}
+
+	get frame(){
+		return this.computed.composed[0]
 	}
 
 	get lines(){

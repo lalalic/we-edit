@@ -2,13 +2,16 @@ import React,{Fragment,PureComponent} from "react"
 
 import {connect,ACTION} from "we-edit"
 import editable from "./editable"
+import {Cacheable} from "../composable"
+
 import Base from "../table"
 import Resizable from "../composed/selection/resizable"
 import Top from "../composed/selection/top"
 import {Group} from "../composed"
 
 
-export default class extends editable(class extends Base{
+
+export default editable(class extends Base{
 	createComposed2Parent(row){
 		row=this.makeCellResizable(row)
 
@@ -125,9 +128,7 @@ export default class extends editable(class extends Base{
 
 		return React.cloneElement(row, {children:cells})
 	}
-},{stoppable:true}){
-
-}
+},{stoppable:true})
 
 const NoShow="transparent"
 const Resizer=connect()(class extends PureComponent{
