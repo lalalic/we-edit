@@ -7,29 +7,20 @@ import {Group} from "./composed"
 const Super=HasParentAndChild(models.Table)
 
 export default class Table extends Super{
-	static childContextTypes={
-		...Super.childContextTypes,
-		composed1Row:PropTypes.func,
+	get composedRows(){
+		return this.computed.composed
 	}
 
-	getChildContext(){
-		return {
-			...super.getChildContext(),
-			composed1Row:this.composed1Row
+	get marginRight(){
+		return this.composedRows[0].getCell(0).props.margin.right||0
+	}
+
+	appendComposed(row){
+		if(!React.isValidElement(row)){
+			this.composedRows.push(row)
+		}else{
+			return super.appendComposed(...arguments)
 		}
-	}
-
-	composed1Row=this.composed1Row.bind(this)
-	composed1Row(row){
-		this.computed.composedRows++
-		if(0==this.computed.composedRows){
-			this.computed.marginRight=row.getCell(0).props.margin.right
-		}
-	}
-
-	constructor(){
-		super(...arguments)
-		this.computed.composedRows=-1
 	}
 
 	nextAvailableSpace(required){
@@ -40,7 +31,7 @@ export default class Table extends Super{
 	createComposed2Parent(row){
 		return (
 			<Group width={this.props.width} height={row.props.height}>
-				{React.cloneElement(row,{x:this.props.indent-(this.computed.marginRight||0)})}
+				{React.cloneElement(row,{x:this.props.indent-this.marginRight})}
 			</Group>
 		)
 	}

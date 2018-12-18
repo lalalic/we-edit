@@ -5,24 +5,20 @@ import editable from "./editable"
 import Base from "../table"
 import Resizable from "../composed/selection/resizable"
 import Top from "../composed/selection/top"
-import {Group,Line} from "../composed"
+import {Group} from "../composed"
 
 
 export default class extends editable(class extends Base{
-	createComposed2Parent(){
-		let row=super.createComposed2Parent(...arguments)
-
+	createComposed2Parent(row){
 		row=this.makeCellResizable(row)
 
-		if(this.computed.composedRows==0){
+		if(this.composedRows==1){
 			row=this.makeColAdderNSelector(row)
 		}
 
 		row=this.makeRowAdderNSelector(row)
 
-		const {width,height}=row.props
-
-		return <Line width={width} height={height} children={row}/>
+		return super.createComposed2Parent(row)
 	}
 
 	makeColAdderNSelector(firstRow){
@@ -54,7 +50,7 @@ export default class extends editable(class extends Base{
 
 	makeRowAdderNSelector(row){
 		const {id}=this.props
-		const at=this.computed.composedRows
+		const at=this.composedRows.length-1
 
 		return React.cloneElement(row, {children:(
 				<Fragment>
@@ -78,9 +74,11 @@ export default class extends editable(class extends Base{
 		})
 	}
 
+
+
 	makeCellResizable(row){
 		const {id, cols}=this.props
-		const at=this.computed.composedRows
+		const at=this.composedRows.length-1
 		const {height,  contentHeight=height}=row.props
 		const minCellWidth=i=>10
 		const minRowHeight=()=>10
@@ -128,10 +126,7 @@ export default class extends editable(class extends Base{
 		return React.cloneElement(row, {children:cells})
 	}
 },{stoppable:true}){
-	clearComposed(){
-		this.computed.composedRows=-1
-		super.clearComposed(...arguments)
-	}
+
 }
 
 const NoShow="transparent"

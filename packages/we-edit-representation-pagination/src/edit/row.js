@@ -7,11 +7,6 @@ import Base from "../row"
 
 
 export default class extends editable(Base,{stoppable:true}){
-	clearComposed(){
-		super.clearComposed(...arguments)
-		this.composedCells.push([])
-	}
-
 	nextSelectable(at){
         switch(at){
         case undefined:

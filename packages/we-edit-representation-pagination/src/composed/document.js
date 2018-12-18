@@ -43,7 +43,7 @@ export default class ComposedDocument extends Component{
 				style={{background:"transparent", width:width*scale/precision, height:height*scale/precision, ...style}}
 				>
 				<Media {...{pgGap:pgGap*precision, width,precision}}>
-					{pages.map((page,i)=>page.createComposed2Parent(<Group className="page"/>))}
+					{pages.map((page,i)=>page.createComposed2Parent(<Group className="page frame"/>))}
 				</Media>
 				{children}
 			</svg>

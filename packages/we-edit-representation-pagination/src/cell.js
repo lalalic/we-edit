@@ -3,41 +3,44 @@ import PropTypes from "prop-types"
 import {Group} from "./composed"
 
 import {HasParentAndChild} from "./composable"
-import Frame from "./frame"
 import {models} from "we-edit"
 const {Cell:Base}=models
 const Super=HasParentAndChild(Base)
 
-class CellFrame extends Frame{
-	currentColumn={x:0,y:0}
-	createComposed2Parent(){
-		const createComposed2Parent=(...args)=>super.createComposed2Parent(...args)
-		return {
-			computed:this.computed,
-			createComposed2Parent,
-		}
-	}
-}
-
 export default class extends Super{
-	static displayName=Frame.displayName.replace(/frame$/,"cell")
 	static contextTypes={
 		...Super.contextTypes,
-		composed1Cell: PropTypes.func
+		ModelTypes: PropTypes.object,
 	}
+
+	constructor(props,{ModelTypes:{Frame}}){
+		super(...arguments)
+		if(!this.constructor.CellFrame){
+			this.constructor.CellFrame=class extends Frame{
+				createComposed2Parent(){
+					const createComposed2Parent=(...args)=>super.createComposed2Parent(...args)
+					return {
+						computed:this.computed,
+						createComposed2Parent,
+					}
+				}
+			}
+		}
+	}
+
 	render(){
 		let {width}=this.context.parent.nextAvailableSpace(...arguments)
-		let {margin={right:0,left:0,top:0,bottom:0}, vertAlign}=this.props
+		let {margin={right:0,left:0,top:0,bottom:0}, vertAlign, id}=this.props
 		return (
-			<CellFrame {...{width:width-margin.right-margin.left, vertAlign}}>
+			<this.constructor.CellFrame {...{width:width-margin.right-margin.left, vertAlign,id:`${id}-frame`}}>
 				{super.render()}
-			</CellFrame>
+			</this.constructor.CellFrame>
 		)
 	}
 
 	onAllChildrenComposed(){
 		super.onAllChildrenComposed()
-		this.context.composed1Cell(this)
+		this.context.parent.appendComposed(this)
 	}
 
 	cellHeight(contentHeight){
@@ -77,7 +80,7 @@ export default class extends Super{
 				<Spacing x={spacing/2} y={spacing/2}>
 					<Border border={border} spacing={spacing}>
 						<Margin x={margin.left} y={margin.top}>
-							<Group y={alignY}>
+							<Group y={alignY} className="frame">
 								{this.frame.createComposed2Parent(lines).props.children}
 							</Group>
 						</Margin>

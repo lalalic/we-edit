@@ -8,53 +8,25 @@ import {HasParentAndChild} from "./composable"
 const Super=HasParentAndChild(models.Row)
 
 export default class extends Super{
-	static contextTypes={
-		...Super.contextTypes,
-		composed1Row: PropTypes.func,
-	}
-
-	static childContextTypes={
-		...Super.childContextTypes,
-		composed1Cell: PropTypes.func,
-	}
-
-	getChildContext(){
-		return {
-			...super.getChildContext(),
-			composed1Cell: this.composed1Cell
-		}
-	}
-
-	constructor(){
-		super(...arguments)
-		this.composedCells.push([])
-		this.composed1Cell=this.composed1Cell.bind(this)
-	}
-
-	composed1Cell(a){
-		const currentCell=this.composedCells.pop()
-		currentCell.composer=a
-		this.composedCells.push(currentCell)
-		this.composedCells.push([])
-	}
-
 	get composedCells(){
 		return this.computed.composed
 	}
 
-	nextAvailableSpace(){
-		const {cols}=this.context
-		return {width:cols[this.composedCells.length-1], height:Number.MAX_SAFE_INTEGER}
+	appendComposed(cell){
+		if(!React.isValidElement(cell)){
+			this.composedCells.push(cell)
+		}else{
+			return super.appendComposed(...arguments)
+		}
 	}
 
-	appendComposed(line){
-		const currentCell=this.composedCells[this.composedCells.length-1]
-		currentCell.push(line)
+	nextAvailableSpace(){
+		const {cols}=this.context
+		return {width:cols[this.composedCells.length], height:Number.MAX_SAFE_INTEGER}
 	}
 
 	onAllChildrenComposed(){
-		this.composedCells.pop()//composed1Cell always add new cell, so remove last
-		this.context.composed1Row(this)
+		this.context.parent.appendComposed(this)
 
 		const {parent}=this.context
 		const {height, keepLines}=this.props
@@ -155,7 +127,7 @@ export default class extends Super{
 	}
 
 	getCell(iCol){
-		return this.composedCells[iCol].composer
+		return this.composedCells[iCol]
 	}
 }
 
