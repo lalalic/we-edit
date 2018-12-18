@@ -73,4 +73,9 @@ export default Cacheable(class extends editable(Base,{stoppable:true}){
 		this.computed.lastComposed=this.computed.lastComposed.slice(0,pageIndex+1)
 		this.computed.lastComposed[pageIndex].removeFrom(lineIndex)
 	}
+
+	appendLastComposed(){
+		this.computed.composed=[...this.computed.lastComposed]
+		this.computed.composed.forEach(a=>this.context.parent.appendComposed(a))
+	}
 },true)

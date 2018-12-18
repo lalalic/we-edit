@@ -18,10 +18,7 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 	}
 
 	appendLastComposed(){
-		const lastComposed=this.computed.lastComposed
-        this.computed.lastComposed=[]
-		const last=lastComposed.length-1
-        lastComposed.forEach((a,i)=>this.context.parent.appendComposed(this.createComposed2Parent(a,i==last)))
+		this.computed.lastComposed.forEach(a=>this.context.parent.appendComposed(a))
 	}
 
 	getDefaultMeasure(){

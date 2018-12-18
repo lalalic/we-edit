@@ -48,6 +48,7 @@ export default class Template extends Super{
             {i:this.totalPages+1,named:this.named.bind(this)},
             {parent:this,getComposer:id=>this.context.getComposer(id)}
         )
+        this.computed.composed.push(page)
         this.context.parent.appendComposed(this.createComposed2Parent(page))
         return page
     }
@@ -77,7 +78,6 @@ export default class Template extends Super{
     }
 
     createComposed2Parent(page){
-        this.computed.composed.push(page)
         return page
     }
 }

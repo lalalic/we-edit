@@ -80,10 +80,8 @@ export default (A,partable)=>class extends A{
         if(super.appendLastComposed){
             return super.appendLastComposed(...arguments)
         }
-        
-        const lastComposed=this.computed.lastComposed
-        this.computed.lastComposed=[]
-        lastComposed.forEach(a=>this.context.parent.appendComposed(this.createComposed2Parent(a)))
+
+        this.computed.lastComposed.forEach(a=>this.context.parent.appendComposed(a))
     }
 
     removeChangedPart(changedChildIndex){
