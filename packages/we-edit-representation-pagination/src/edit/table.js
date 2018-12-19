@@ -9,13 +9,11 @@ import Resizable from "../composed/selection/resizable"
 import Top from "../composed/selection/top"
 import {Group} from "../composed"
 
-
-
 export default editable(class extends Base{
 	createComposed2Parent(row){
 		row=this.makeCellResizable(row)
 
-		if(this.composedRows==1){
+		if(this.composedRows.length==1){
 			row=this.makeColAdderNSelector(row)
 		}
 
@@ -76,8 +74,6 @@ export default editable(class extends Base{
 			)
 		})
 	}
-
-
 
 	makeCellResizable(row){
 		const {id, cols}=this.props

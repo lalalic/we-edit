@@ -21,5 +21,5 @@ export default editable.enable(Models,{
 	Row,
 	Cell,
 	Text,
-//	Image,
+	Image,
 })

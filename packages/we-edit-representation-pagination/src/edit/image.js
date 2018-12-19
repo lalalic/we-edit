@@ -34,16 +34,4 @@ export default class extends editable(Base){
 	distanceAt(x,){
 		return 1
 	}
-	
-	createComposed2Parent(){
-		var frame=super.createComposed2Parent(...arguments)
-		return React.cloneElement(frame,{
-			"data-type":undefined, 
-			"data-content":undefined, 
-			children: React.cloneElement(frame.props.children, {
-				"data-type":frame.props["data-type"], 
-				"data-content":frame.props["data-content"], 
-			})
-		})
-	}
 }

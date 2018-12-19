@@ -105,10 +105,8 @@ export default class extends Super{
 
 	createComposed2Parent({colGroups,width}){
 		const {cols}=this.context
-		const rowHeight=Math.max(
-				this.props.height||0,
-				...colGroups.map((lines,i)=>this.getCell(i).cellHeight(lines.reduce((h,a)=>h+(a.props.height||0),0)))
-			)
+		const contentHeight=Math.max(...colGroups.map((lines,i)=>this.getCell(i).cellHeight(lines.reduce((h,a)=>h+(a.props.height||0),0))))
+		const rowHeight=Math.max(this.props.height||0,contentHeight)
 
 		let x=0
 		let groupsWithXY=colGroups.map((linesWithStyle,iCol)=>{
@@ -122,6 +120,7 @@ export default class extends Super{
 		return <Row
 			children={groupsWithXY}
 			height={rowHeight}
+			contentHeight={contentHeight}
 			width={width}
 			/>
 	}
