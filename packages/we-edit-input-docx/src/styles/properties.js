@@ -4,7 +4,7 @@ export class Properties{
 	constructor(docx,precision=1){
 		this.docx=docx
 		this.theme=getTheme(docx)
-		this.rStyle=this.pStyle=this.tblStyle=this._val
+		this.rStyle=this.pStyle=this.tblStyle=this.type=this._val
 		this.wrapSquare=this.wrapTight=this.wrapThrough=this.wrapTopAndBottom=this.wrap
 		this.vAlign=this.vertAlign
 		this.ext=this.extent

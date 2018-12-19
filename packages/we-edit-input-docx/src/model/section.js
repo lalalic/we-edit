@@ -71,8 +71,8 @@ export default ({Template,Frame,Container})=>{
 					enumerable:false,
 					configurable:false,
 					get(){
-						if(this.section.isAllChildrenComposed()){
-							if(this==this.section.current){//last
+						if(this==this.section.current){//last
+							if(!this.section.isAllChildrenComposed()){
 								return Math.max(...this.columns.map(column=>column.y+(column.height-column.availableHeight)))
 							}
 						}
@@ -208,25 +208,14 @@ export default ({Template,Frame,Container})=>{
 
 	class PaginationControllable extends Flowable{
 		get prev(){
-			return this.section.prevPage
+			return this.section.prev
 		}
 
 		orphanCount(line=this.lastLine){
 			const pid=this.getFlowableComposerId(line,'[data-type="paragraph"]')
 			if(!pid)
 				return 0
-			let count=0
-			for(let i=this.columns.length-1;i>-1;i--){
-				let lines=this.columns[i].children
-				for(let j=lines.length-1;j>-1;j--){
-					if(this.getFlowableComposerId(lines[j])==pid){
-						++count
-					}else{
-						return count
-					}
-				}
-			}
-			return count
+			return 1+this.lines.reverse().findIndex(a=>this.getFlowableComposerId(lines[i])!==pid)
 		}
 
 		appendLine(line){
@@ -499,7 +488,7 @@ export default ({Template,Frame,Container})=>{
 			var {pgSz:{width,height},  pgMar:margin, cols:{num=1, space=0, data}, ...props}=this.props
 			var availableWidth=width-margin.left-margin.right
 			var cols=data ? data : new Array(num).fill({width:(availableWidth-(num-1)*space)/num,space})
-			return <Template createPage={(props,context)=>new Locatable({width,height,margin,cols,...props},context)} {...props}/>
+			return <Template create={(props,context)=>new Locatable({width,height,margin,cols,...props},context)} {...props}/>
 		}
 	}
 }

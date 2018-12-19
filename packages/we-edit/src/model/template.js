@@ -6,6 +6,6 @@ import Component from "./component"
 export default class Template extends Component{
 	static displayName="template"
 	static propTypes={
-        createPage: PropTypes.func.isRequired
+        create: PropTypes.func.isRequired
     }
 }

@@ -414,4 +414,31 @@ class Anchorable extends Flowable{
 	}
 }
 
+class Factory extends Anchorable{
+	constructor(){
+		super(...arguments)
+
+	}
+
+	get current(){
+
+	}
+
+	get prev(){
+
+	}
+
+	appendComposed(line){
+		this.current.append(line)
+	}
+
+	nextAvailableSpace(){
+
+	}
+}
+
+class Columnable extends Factory{
+
+}
+
 export default Anchorable

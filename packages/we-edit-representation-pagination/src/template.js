@@ -18,14 +18,14 @@ export default class Template extends Super{
 		return this.computed.named[name]
 	}
 
-    get currentPage(){
+    get current(){
         if(this.computed.composed.length==0)
-            this.createPage()
+            this.create()
 		return this.computed.composed[this.computed.composed.length-1]
 	}
 
-    get prevPage(){
-        if(this.totalPages>1)
+    get prev(){
+        if(this.totals>1)
             return this.computed.composed[this.computed.composed.length-2]
         return null
     }
@@ -39,13 +39,13 @@ export default class Template extends Super{
 		return current
 	})
 
-	get totalPages(){
+	get totals(){
 		return this.getDocument().computed.composed.length
 	}
 
-    createPage(){
-        const page=this.props.createPage(
-            {i:this.totalPages+1,named:this.named.bind(this)},
+    create(){
+        const page=this.props.create(
+            {i:this.totals+1,named:this.named.bind(this)},
             {parent:this,getComposer:id=>this.context.getComposer(id)}
         )
         this.computed.composed.push(page)
@@ -54,9 +54,9 @@ export default class Template extends Super{
     }
 
     nextAvailableSpace(){
-        let space=this.currentPage.nextAvailableSpace(...arguments)
+        let space=this.current.nextAvailableSpace(...arguments)
         if(!space){
-            this.createPage()
+            this.create()
             return this.nextAvailableSpace(...arguments)
         }
         return space
@@ -67,9 +67,9 @@ export default class Template extends Super{
             this.computed.named[named]=arguments[0]
             return
         }else{
-            const appended=this.currentPage.appendComposed(...arguments)
+            const appended=this.current.appendComposed(...arguments)
             if(appended===false){
-                this.createPage()
+                this.create()
                 return 1//recompose current line in case different availableSpace
             }else if(Number.isInteger(appended)){
                 return appended
