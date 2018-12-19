@@ -30,11 +30,18 @@ class Flowable extends Super{
 					return this.computed.composed.findLast(a=>a.props.y==undefined)
 				}
 			},
+			lines:{
+				enumerable:true,
+				configurable:true,
+				get(){
+					return this.computed.composed.filter(a=>a.props.y==undefined)
+				}
+			},
 			totalLines:{
 				enumerable:true,
 				configurable:true,
 				get(){
-					return this.computed.composed.reduce((count,a)=>count+(a.props.y==undefined?1:0),0)
+					return this.lines.length
 				}
 			},
 			currentY:{
@@ -50,20 +57,13 @@ class Flowable extends Super{
 	}
 
 	nextAvailableSpace(required={}){
-		const {width:maxWidth}=this.props
+		const {width:maxWidth, height=Number.MAX_SAFE_INTEGER}=this.props
 		const {height:minHeight}=required
-		const availableHeight=(()=>{
-			if(this.props.height==undefined)
-				return Number.MAX_SAFE_INTEGER
-
-			const {props:{height},computed:{composed:children}}=this
-			return children.reduce((h, a)=>h-(a.props.y==undefined ? a.props.height : 0),height)
-		})();
 
 		return {
 			maxWidth,
 			width:maxWidth,
-			height:availableHeight,
+			height:height-this.currentY,
 			frame:this,
 		}
 	}

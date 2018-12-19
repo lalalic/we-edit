@@ -196,14 +196,12 @@ const Adder=connect()(class extends PureComponent{
 			<Group x={x} y={y}>
 				<Group x={-12} y={-22}>
 					<Group rotate={`${type=="row" ? "-90 12 22" : ""}`}>
-				   		<path
+						<use xlinkHref="#table.adder"
 							stroke={show ? "black" : NoShow}
-							strokeWidth={1}
 							onMouseOver={e=>this.setState({show:true})}
 							onMouseLeave={e=>this.setState({show:false})}
 							onClick={()=>onAdd(dispatch)}
-							fill="transparent"
-							d="M8,9h8M12,5v8 M12,2C8.13,2,5,5.13,5,9c0,5.25,7,13,7,13s7-7.75,7-13C19,5.13,15.87,2,12,2z"/>
+							/>
 				   	</Group>
 				</Group>
 			</Group>
