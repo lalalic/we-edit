@@ -302,7 +302,7 @@ class Story extends Component{
 		)
 	}
 
-	left(){
+	left0(){
 		return this.props.children.reduce((state,piece,key)=>{
 			const {width,x:x1}=piece.props
 			const x=x1!=undefined ? x1 : state.x
@@ -312,77 +312,59 @@ class Story extends Component{
 		},{pieces:[],x:0}).pieces
 	}
 
-	leftX(){
-		const len=this.props.children.length
+	left(){
 		return this.props.children.reduce((state,piece,key)=>{
-			const {width,x:x1}=piece.props
-			const x=x1!=undefined ? x1 : state.x
-			if(x1!=undefined){
-				state.pieces.push(React.cloneElement(piece,{x,key}))
-			}else if(!state.shouldMerge(piece)){
-				state.trunk.push(piece)
+			const {width}=piece.props
+			if(piece.props.x!=undefined){
+				state.pieces.push(React.cloneElement(piece,{key}))
+				state.x=piece.props.x+width
 			}else{
-				state.mergeTrunk(key)
-				state.trunk.push(piece)
-			}
-
-			if(key==len-1)
-				state.mergeTrunk(key)
-
-			state.x=x+width
-			return state
-		},{
-			pieces:[],x:0,trunk:[],trunkPath:"",
-			shouldMerge(piece){
 				const piecePath=path(piece)
-				const should=piecePath.join(",")!==this.trunkPath
-				if(should){
-					this.trunkPath=piecePath.join(",")
-				}
-				return should && this.trunk.length>0
-			},
-			mergeTrunk(key){
-				switch(this.trunk.length){
-					case 0:
-						break
-					case 1:
-						this.pieces.push(React.cloneElement(piece,{x:this.x,key}))
-						break
-					default:{
-						const extract=a=>{
-							while(React.isValidElement(a) && a.props["data-type"]!=="text"){
-								if(React.isValidElement(a.props.children)){
-									a=React.Children.only(a.props.children)
-									if(a.props["data-type"]=="text"){
-										return [a]
-									}
-								}else if(Array.isArray(a.props.children)){
-									return a.props.children.map(b=>extract(b)).reduce((as,b)=>[...as,...b],[])
-								}else {
-									throw new Error("should not be here")
-								}
-							}
-							return []
-						}
-						const texts=this.trunk.reduce((texts,a)=>[...texts,...extract(a)],[])
-
-						const props=texts.slice(0,-1)
-							.reduce((props,a)=>{
-								props.width+=a.props.width
-								props.children+=a.props.children
-								props["data-endat"]+=a.props.children.length
-								return props
-							},{...texts.slice(-1)[0].props,className:undefined})
-						const parents=path(this.trunk[0],[],a=>a)
-						parents.pop()
-						const merged=parents.reduceRight((child,a)=>React.cloneElement(a,{width:props.width},child),React.cloneElement(texts[0],props))
-						this.pieces.push(React.cloneElement(merged,{x:this.x}))
-						break
+				if(!piecePath.bText){
+					state.mergeTrunk(key)
+					state.pieces.push(React.cloneElement(piece,{x:state.x,key}))
+					state.x+=width
+				}else{
+					if(piecePath.join(",")==state.trunkPath){
+						state.trunk.push(piece)
+					}else {
+						state.mergeTrunk(key)
+						state.trunk.push(piece)
+						state.trunkPath=piecePath.join(",")
 					}
 				}
-				this.trunk=[]
 			}
-		}).pieces
+			return state
+		},{
+			pieces:[],x:0,trunk:[],trunkPath:null,
+			mergeTrunk(key=-1){
+				if(this.trunk.length==1){
+						const piece=this.trunk[0]
+						this.pieces.push(React.cloneElement(piece,{x:this.x,key}))
+						this.x+=piece.props.width
+				}else if(this.trunk.length>1){
+					const extract=a=>path(a,b=>b).pop()
+					const texts=this.trunk.map(extract)
+					const props=texts.reduce((props,a)=>{
+							props.width+=a.props.width
+							props.children+=a.props.children
+							return props
+						},{
+							width:0,
+							children:"",
+							"data-endat":texts[texts.length-1].props["data-endat"],
+							className:undefined,minWidth:undefined
+						})
+					const parents=path(this.trunk[0],a=>a,a=>true).slice(0,-1)
+					const merged=parents.reduceRight((child,a)=>React.cloneElement(a,{width:props.width},child),React.cloneElement(texts[0],props))
+					this.pieces.push(React.cloneElement(merged,{x:this.x,key}))
+					this.x+=props.width
+				}
+				this.trunk=[]
+				this.trunkPath=null
+				return this
+			}
+		}).mergeTrunk().pieces
 	}
 
 	group(right=false){
@@ -512,13 +494,14 @@ function isWhitespace(a,/*$=new Query(a)*/){
 	return false
 }
 
-function path(a,ids=[],info=a=>a.props["data-content"]){
+function path(a,info=a=>a.props["data-content"],test=a=>!!a.props["data-content"],ids=[]){
 	if(React.isValidElement(a)){
-		if(a.props["data-content"]){
+		if(test(a)){
 			ids.push(info(a))
+			ids.bText=a.props["data-type"]=="text"
 		}
 		if(React.isValidElement(a.props.children)){
-			path(React.Children.only(a.props.children),ids)
+			path(React.Children.only(a.props.children),info,test,ids)
 		}
 	}
 	return ids

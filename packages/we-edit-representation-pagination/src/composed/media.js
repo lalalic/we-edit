@@ -56,7 +56,7 @@ class SmartShow extends Component{
 				onEnter={e=>this.setState({display:true},onPageShow)}
 				onLeave={e=>this.setState({display:false},onPageHide)}>
 				<g>
-				{display ? children : <g className="page" />/*<g style={{visibility:"hidden"}}>{children}</g>*/}//40ms performance be
+				{display ? children : <g style={{visibility:"hidden"}}>{children}</g>}//40ms performance be
 				</g>
 			</Waypoint>
 		)

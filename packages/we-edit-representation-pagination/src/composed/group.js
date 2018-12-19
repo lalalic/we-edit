@@ -16,7 +16,7 @@ export default class Group extends Component{
 			rotate,
 			x=0,y=0,
 			children,
-			margin,minWidth, width, height, index, childIndex, contentWidth,wrap,
+			margin,minWidth, width, height, index, childIndex, contentWidth,wrap,pagination,anchor,
 			className,
 			...others}=this.props
 
