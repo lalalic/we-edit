@@ -20,7 +20,7 @@ export default class extends Super{
 				createComposed2Parent(){
 					const createComposed2Parent=(...args)=>super.createComposed2Parent(...args)
 					return {
-						computed:this.computed,
+						lines:this.lines,
 						createComposed2Parent,
 					}
 				}
@@ -32,7 +32,11 @@ export default class extends Super{
 		let {width}=this.context.parent.nextAvailableSpace(...arguments)
 		let {margin={right:0,left:0,top:0,bottom:0}, vertAlign, id}=this.props
 		return (
-			<this.constructor.CellFrame {...{width:width-margin.right-margin.left, vertAlign,id:`${id}-frame`}}>
+			<this.constructor.CellFrame {
+				...{width:width-margin.right-margin.left,
+					vertAlign,id:`${id}-frame`,
+					cols:[{x:0,width:width-margin.right-margin.left}]}
+				}>
 				{super.render()}
 			</this.constructor.CellFrame>
 		)
@@ -58,7 +62,7 @@ export default class extends Super{
 	}
 
 	get lines(){
-		return this.frame.computed.composed
+		return this.frame.lines
 	}
 
 	createComposed2Parent(lines, height){//called by row(after all cells of a row composed)

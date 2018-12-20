@@ -32,6 +32,14 @@ export default ({Document, Container,Frame})=>class extends Component{
 
 	getSections(){
 		const sections=React.Children.toArray(this.props.children)
+
+
+		this.cols=cols.reduce((state,a)=>{
+				state.columns.push({x:state.x, y:state.y, width:a.width,height:state.height})
+				state.x+=(a.space+a.width)
+				return state
+			},{x:margin.left,y:y0,height:y1-y0,columns:[]}).columns
+
 		return sections
 		return sections.reduce((merged,section)=>{
 			if(merged[0] && section.props.type=="continuous" && merged[0].props.type=="continuous"){
@@ -54,10 +62,10 @@ export default ({Document, Container,Frame})=>class extends Component{
 
 	render(){
 		//need to merge for continuous sections
-		const {evenAndOddHeaders,...others}=this.props
+		const {children,evenAndOddHeaders,...others}=this.props
 
 		this.resetNumbering()
 
-		return <Document {...others} children={this.getSections()}/>
+		return <Document {...others} children={children}/>
 	}
 }

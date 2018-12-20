@@ -10,6 +10,10 @@ export default class Frame extends Component{
 		height:PropTypes.number,
 		named: PropTypes.string,
 		geometry: PropTypes.string,
-		blocks:PropTypes.arrayOf(PropTypes.element)
+		blocks:PropTypes.arrayOf(PropTypes.element),
+		cols:PropTypes.arrayOf(PropTypes.shape({
+			x:PropTypes.number,
+			width:PropTypes.number.isRequired,
+		}))
 	}
 }
