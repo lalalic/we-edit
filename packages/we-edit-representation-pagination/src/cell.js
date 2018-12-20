@@ -13,32 +13,19 @@ export default class extends Super{
 		ModelTypes: PropTypes.object,
 	}
 
-	constructor(props,{ModelTypes:{Frame}}){
-		super(...arguments)
-		if(!this.constructor.CellFrame){
-			this.constructor.CellFrame=class extends Frame{
-				createComposed2Parent(){
-					const createComposed2Parent=(...args)=>super.createComposed2Parent(...args)
-					return {
-						lines:this.lines,
-						createComposed2Parent,
-					}
-				}
-			}
-		}
-	}
-
 	render(){
-		let {width}=this.context.parent.nextAvailableSpace(...arguments)
-		let {margin={right:0,left:0,top:0,bottom:0}, vertAlign, id}=this.props
+		const {width}=this.context.parent.nextAvailableSpace(...arguments)
+		const {margin={right:0,left:0,top:0,bottom:0}, vertAlign, id}=this.props
+		const Frame=this.context.ModelTypes.Frame
 		return (
-			<this.constructor.CellFrame {
-				...{width:width-margin.right-margin.left,
-					vertAlign,id:`${id}-frame`,
-					cols:[{x:0,width:width-margin.right-margin.left}]}
-				}>
+			<Frame {...{
+					REF:a=>this.frame=a,
+					width:width-margin.right-margin.left,
+					vertAlign,
+					id:`${id}-frame`
+			}}>
 				{super.render()}
-			</this.constructor.CellFrame>
+			</Frame>
 		)
 	}
 
@@ -52,15 +39,10 @@ export default class extends Super{
 				+spacing
 	}
 
-	appendComposed(frame){
-		this.computed.composed.push(frame)
+	appendComposed(){
 		this.context.parent.appendComposed(this)
 	}
-
-	get frame(){
-		return this.computed.composed[0]
-	}
-
+	
 	get lines(){
 		return this.frame.lines
 	}
@@ -85,7 +67,7 @@ export default class extends Super{
 					<Border border={border} spacing={spacing}>
 						<Margin x={margin.left} y={margin.top}>
 							<Group y={alignY} className="frame">
-								{this.frame.createComposed2Parent(lines).props.children}
+								{this.frame.positionLines(lines)}
 							</Group>
 						</Margin>
 					</Border>

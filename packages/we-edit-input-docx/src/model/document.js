@@ -31,30 +31,55 @@ export default ({Document, Container,Frame})=>class extends Component{
 	}
 
 	getSections(){
-		const sections=React.Children.toArray(this.props.children)
-
-
-		this.cols=cols.reduce((state,a)=>{
-				state.columns.push({x:state.x, y:state.y, width:a.width,height:state.height})
-				state.x+=(a.space+a.width)
-				return state
-			},{x:margin.left,y:y0,height:y1-y0,columns:[]}).columns
-
-		return sections
-		return sections.reduce((merged,section)=>{
-			if(merged[0] && section.props.type=="continuous" && merged[0].props.type=="continuous"){
-				/*
-				let {children, id, pgMar:{left=0,right=0}, pgSz:{width=0},cols={num=1, space=0, data}}=merged[0].props
-				var cols=data ? data : new Array(num).fill({width:(availableWidth-(num-1)*space)/num,space})
-				children.push(
-					<Container type="section" id={id} key={id}>
-						<Frame x={left} width={width-left-right} cols={cols} balance={true}>
-							{children}
-						</Frame>
-					</Container>
-				)*/
+		function hasSamePageSize(a,b){
+			return ((a,b)=>a.width==b.width && a.height==b.height)(a.props.pgSz,b.props.pgSz)
+		}
+		
+		function mergeHeaderFooter(current,prev){
+			function getHeaderFooter(a){
+				return a.props.children.reduce((named,child)=>{
+					if(named.go){
+						if(child.props.named){
+							named[child.props.named]=child
+						}else{
+							delete named.go
+						}
+					}
+					return named
+				},{go:true})
+			}
+			
+			return {
+				...getHeaderFooter(prev),
+				...getHeaderFooter(current),
+			}
+		} 
+		
+		return React.Children.toArray(this.props.children).reduce((merged,current)=>{
+			if(current.props.type=="continuous"){
+				const prev=merged[merged.length-1]
+				if(prev){
+					if(prev.props.type=="continuous"){
+						if(hasSamePageSize(current,prev)){
+							//different margin, columns
+						}else{
+							merged.push(
+								React.cloneElement(current,{
+									children:[
+										...mergeHeaderFooter(current,prev),
+										...current.props.children,
+									]
+								})
+							)
+						}
+					}else{
+						merged.push(current)
+					}
+				}else{
+					merged.push(current)
+				}
 			}else{
-				merged.push(section)
+				merged.push(current)
 			}
 			return merged
 		},[])

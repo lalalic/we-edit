@@ -15,6 +15,8 @@ class Flowable extends Super{
 	static IMMEDIATE_STOP=Number.MAX_SAFE_INTEGER
 	constructor(){
 		super(...arguments)
+		if(this.props.REF)
+			this.props.REF(this)
 		this.defineProperties()
 	}
 
@@ -116,22 +118,27 @@ class Flowable extends Super{
 		super.onAllChildrenComposed()
 	}
 
-	createComposed2Parent(lines=this.computed.composed) {
+	createComposed2Parent() {
 		let {width,height=this.contentHeight, x,y,z,named}=this.props
 		return (
 			<Group {...{width,height,x,y,z,named, className:"frame"}}>
-				{lines.reduce((state,a,i)=>{
-					if(a.props.y==undefined){
-						state.positioned.push(React.cloneElement(a,{y:state.y,key:i}))
-						state.y+=a.props.height
-					}else{
-						state.positioned.push(React.cloneElement(a,{key:i}))
-					}
-					return state
-				},{y:0,positioned:[]}).positioned}
+				{this.positionLines(this.computed.composed)}
 			</Group>
 		)
     }
+	
+	positionLines(lines){
+		return lines.reduce((state,a,i)=>{
+			if(a.props.y==undefined){
+				state.positioned.push(React.cloneElement(a,{y:state.y,key:i}))
+				state.y+=a.props.height
+			}else{
+				state.positioned.push(React.cloneElement(a,{key:i}))
+			}
+			return state
+		},{y:0,positioned:[]})
+		.positioned
+	}
 
 	belongsTo(a,id){
 		return new ReactQuery(a).findFirst(`[data-content="${id}"]`).get(0)
@@ -526,13 +533,9 @@ class Columnable extends Flowable{
 		return React.cloneElement(element,{
 			children:[
 				...this.anchors,
-				...this.columns.map(({children,...props},i)=>(
+				...this.columns.map(({children:lines,...props},i)=>(
 					<Group {...props} key={i}>
-						{children.reduce((state,a,key)=>{
-							state.rows.push(React.cloneElement(a,{y:state.y,key}))
-							state.y+=a.props.height
-							return state
-						},{rows:[],y:0}).rows}
+						{this.positionLines(lines)}
 					</Group>
 				))
 			]
@@ -620,7 +623,6 @@ class PaginationControllable extends Columnable{
 		if(!pid)
 			return 0
 		return Math.max(this.lines.reverse().findIndex(a=>this.getFlowableComposerId(a)!==pid),0)
-
 	}
 
 	appendLine(line){
