@@ -110,16 +110,52 @@ export default ({Template,Frame})=>{
 		}
 
 		render(){
-			var {pgSz:{width,height},  pgMar:margin, cols:{num=1, space=0, data}, ...props}=this.props
-			var availableWidth=width-margin.left-margin.right
-			const cols=(data ? data : new Array(num).fill({width:(availableWidth-(num-1)*space)/num,space}))
-				.reduce((state,{width,space})=>{
-					state.columns.push({x:state.x, width})
-					state.x+=(space+width)
-					return state
-				},{x:margin.left,columns:[]})
-				.columns
-			return <Template create={(props,context)=>new Locatable({width,height,margin,cols,...props},context)} {...props}/>
+			const {children, pgSz,  pgMar, cols:{num=1, space=0, data}, ...props}=this.props
+
+			const getLayout=(section=this)=>{
+				const {children, pgSz:{width,height},  pgMar:margin, cols:{num=1, space=0, data}, ...props}=section.props
+				const availableWidth=width-margin.left-margin.right
+				const cols=(data ? data : new Array(num).fill({width:(availableWidth-(num-1)*space)/num,space}))
+					.reduce((state,{width,space})=>{
+						state.columns.push({x:state.x, width})
+						state.x+=(space+width)
+						return state
+					},{x:margin.left,columns:[]})
+					.columns
+				return {
+					width:availableWidth,
+					cols
+				}
+			}
+
+			const create=(props,context)=>{
+				
+				return new Locatable({width,height,margin,cols,...props},context)
+			}
+
+			const frame=(<Frame {...getLayout(this)} children={[]} key={0}/>)
+			return(
+				<Template create={create} {...props}>
+				{
+					children.reduce((frames, child, i)=>{
+						if(child.type.displayName=="section"){
+							const {pgSz, pgMar, cols, ...props}=child.props
+							frames.push(React.cloneElement(frame,{
+								...getLayout(child),
+								key:frames.length+1,
+								...props,
+							}))
+							if(i!=children.lenght-1){
+								frames.push(React.cloneElement(frame,{key:frames.length+1}))
+							}
+						}else{
+							frames[frames.length-1].props.children.push(child)
+						}
+						return frames
+					},[frame])
+				}
+				</Template>
+			)
 		}
 	}
 }
