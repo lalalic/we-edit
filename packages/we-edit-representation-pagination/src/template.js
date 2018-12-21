@@ -35,6 +35,7 @@ export default class Template extends Super{
 		while(current){
 			if(current.getComposeType()=="document")
 				return current
+            current=current.context.parent
 		}
 		return current
 	})
@@ -44,13 +45,13 @@ export default class Template extends Super{
 	}
 
     create(){
-        const page=this.props.create(
+        const frame=this.props.create(
             {i:this.totals+1,named:this.named.bind(this)},
             {parent:this,getComposer:id=>this.context.getComposer(id)}
         )
-        this.computed.composed.push(page)
-        this.context.parent.appendComposed(this.createComposed2Parent(page))
-        return page
+        this.computed.composed.push(frame)
+        this.context.parent.appendComposed(this.createComposed2Parent(frame))
+        return frame
     }
 
     nextAvailableSpace(){
@@ -77,7 +78,10 @@ export default class Template extends Super{
         }
     }
 
-    createComposed2Parent(page){
-        return page
+    createComposed2Parent(frame){
+        if(this.props.createComposed2Parent){
+            return this.props.createComposed2Parent.call(this,...arguments)
+        }
+        return frame
     }
 }

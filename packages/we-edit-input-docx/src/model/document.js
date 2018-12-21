@@ -1,5 +1,6 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
+import {shallowEqual} from "we-edit"
 
 export default ({Document, Container,Frame})=>class extends Component{
 	static displayName="document"
@@ -31,55 +32,93 @@ export default ({Document, Container,Frame})=>class extends Component{
 	}
 
 	getSections(){
+		const {evenAndOddHeaders}=this.props
+		var headerfooters={}
+
 		function hasSamePageSize(a,b){
-			return ((a,b)=>a.width==b.width && a.height==b.height)(a.props.pgSz,b.props.pgSz)
+			return shallowEqual(a.props.pgSz,b.props.pgSz)
 		}
-		
-		function mergeHeaderFooter(current,prev){
-			function getHeaderFooter(a){
-				return a.props.children.reduce((named,child)=>{
-					if(named.go){
-						if(child.props.named){
-							named[child.props.named]=child
+
+		function hasSamePageLayout(a,b){
+			return shallowEqual(a.props.pgMar,a.props.pgMar) &&
+				(({data:aData,...a1},{data:bData,...b1})=>shallowEqual(a1,b1)&&shallowEqual(aData,bData))(a.props.cols,b.props.cols)
+		}
+
+		function getHeaderFooter({props:{children, titlePg}}){
+			return children.reduce((named,a)=>{
+				if(named.go){
+					if(a.props.named){
+						if(!evenAndOddHeaders &&
+							["even","odd"].find(key=>a.props.named.endsWith(key))){
+							//ignore
 						}else{
-							delete named.go
-						}
-					}
-					return named
-				},{go:true})
-			}
-			
-			return {
-				...getHeaderFooter(prev),
-				...getHeaderFooter(current),
-			}
-		} 
-		
-		return React.Children.toArray(this.props.children).reduce((merged,current)=>{
-			if(current.props.type=="continuous"){
-				const prev=merged[merged.length-1]
-				if(prev){
-					if(prev.props.type=="continuous"){
-						if(hasSamePageSize(current,prev)){
-							//different margin, columns
-						}else{
-							merged.push(
-								React.cloneElement(current,{
-									children:[
-										...mergeHeaderFooter(current,prev),
-										...current.props.children,
-									]
-								})
-							)
+							if(!titlePg && a.props.named.endsWith("first")){
+							//ignore
+							}else{
+								named[a.props.named]=a
+							}
 						}
 					}else{
-						merged.push(current)
+						delete named.go
 					}
-				}else{
-					merged.push(current)
 				}
-			}else{
+				return named
+			},{go:true})
+		}
+
+		function inheritHeaderFooter(current){
+			const mine=getHeaderFooter(current)
+			headerfooters={
+				...headerfooters,
+				...mine,
+			}
+
+			const children=current.props.children
+			current=React.cloneElement(current,{
+				children:Object.values(headerfooters)
+					.concat(withoutHeaderFooterChildren(children)) //remove own headers & footers
+			})
+
+			//first page of section can't be inherited
+			delete headerfooters["header.first"]
+			delete headerfooters["footer.first"]
+
+			return current
+		}
+
+		function withoutHeaderFooterChildren(children){
+			return children.slice(Math.max(0,children.findIndex(a=>!a.props.named)))
+		}
+
+		return React.Children.toArray(this.props.children).reduce((merged,current)=>{
+			if(current.type.displayName!=="section"){
 				merged.push(current)
+			}else{
+				if(current.props.type!=="continuous"){
+					merged.push(inheritHeaderFooter(current))
+				}else{
+					const prev=merged[merged.length-1]
+					if(!prev){
+						merged.push(inheritHeaderFooter(current))
+					}else{
+						if(prev.type.displayName!="section"){
+							merged.push(inheritHeaderFooter(current))
+						}else{//continous section would be composed as a part of last section
+							console.assert(hasSamePageSize(current,prev))
+							if(hasSamePageLayout(current,prev)){
+								withoutHeaderFooterChildren(current.props.children)
+									.forEach(a=>prev.props.children.push(a))
+							}else{
+								prev.props.children.push(
+									React.cloneElement(current,{
+										inline:true,
+										children:withoutHeaderFooterChildren(current.props.children)
+									})
+								)
+							}
+						}
+					}
+				}
 			}
 			return merged
 		},[])
@@ -91,6 +130,6 @@ export default ({Document, Container,Frame})=>class extends Component{
 
 		this.resetNumbering()
 
-		return <Document {...others} children={children}/>
+		return <Document {...others} children={this.getSections()}/>
 	}
 }
