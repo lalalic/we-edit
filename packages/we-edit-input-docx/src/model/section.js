@@ -6,82 +6,112 @@ import {ReactQuery, render} from  "we-edit"
 
 import get from "lodash.get"
 
-export default ({Template,Frame})=>{
-	class Page extends Frame{
-		defineProperties(){
-			this.section=this.context.parent
-			const {width,height,margin,cols,named,i}=this.props
-			const typed=type=>[(i==1 ? "first" :false),(i%2==0 ? "even" : "odd"),'default']
-				.filter(a=>!!a)
-				.reduce((found,a)=>found || named(`${type}.${a}`),null)
-
-			const header=typed("header")
-			const footer=typed("footer")
-
-			var y0=margin.top
-			if(header){
-			  	this.computed.composed.push(
-					React.cloneElement(header,{x:margin.left,y:margin.header, className:"header"})
-				)
-				y0=Math.max(y0, margin.header+header.props.height)
-			}
-
-			var y1=height-margin.bottom
-			if(footer){
-				let y=height-margin.footer-footer.props.height
-				this.computed.composed.push(
-					React.cloneElement(footer,{x:margin.left,y, className:"footer"})
-				)
-				y1=Math.min(y, y1)
-			}
-
-			this.createColumn=()=>Object.assign(super.createColumn(),{
-				height:y1-y0,
-				y:y0,
-			})
-
-
-			super.defineProperties()
-			Object.defineProperties(this,{
-				composedHeight:{
-					enumerable:false,
-					configurable:false,
-					get(){
-						if(this==this.section.current){//last
-							if(!this.section.isAllChildrenComposed()){
-								return Math.max(...this.columns.map(column=>column.y+(column.height-column.availableHeight)))
+export default ({Template,Frame, Container})=>{
+	var Locatable=null
+	if(!Locatable && Frame.Collective){
+		class Page extends Frame.Collective{
+			defineProperties(){
+				this.section=this.context.parent
+				super.defineProperties()
+				Object.defineProperties(this,{
+					prev:{
+						enumerable:true,
+						configurable:true,
+						get(){
+							return this.section.prev
+						}
+					},
+					currentLayout:{
+						enumerable:true,
+						configurable:true,
+						get(){
+							if(this.prev){
+								const id=this.prev.lastLine.props["data-content"]
+								return this.props.layouts.find(a=>a.id==id)
+							}else{
+								return this.props.layouts[0]
 							}
 						}
-						return this.props.height
+					},
+					layout:{
+						enumerable:true,
+						configurable:true,
+						get(){
+							return this.frames[0].props.margin
+						}
 					}
-				},
-				prev:{
-					enumerable:true,
-					configurable:true,
-					get(){
-						return this.section.prev
-					}
+				})
+
+				const {width,height,layouts,named,i}=this.props
+				const [{margin,cols}]=layouts
+				const typed=type=>[(i==1 ? "first" :false),(i%2==0 ? "even" : "odd"),'default']
+					.filter(a=>!!a)
+					.reduce((found,a)=>found || named(`${type}.${a}`),null)
+
+				const header=typed("header")
+				const footer=typed("footer")
+
+				var y0=margin.top
+				if(header){
+				  	this.computed.composed.push(
+						React.cloneElement(header,{x:margin.left,y:margin.header, className:"header"})
+					)
+					y0=Math.max(y0, margin.header+header.props.height)
 				}
-			})
+
+				var y1=height-margin.bottom
+				if(footer){
+					let y=height-margin.footer-footer.props.height
+					this.computed.composed.push(
+						React.cloneElement(footer,{x:margin.left,y, className:"footer"})
+					)
+					y1=Math.min(y, y1)
+				}
+				this.y0=y0
+				this.y1=y1
+
+				this.createFrame=()=>{
+					return new Frame(this.currentLayout, this.context)
+				}
+			}
 		}
 
-		createComposed2Parent(){
-			const {i:key,width,height,margin}=this.props
-			return React.cloneElement(super.createComposed2Parent(),{key,width,height,margin,className:"page frame"})
-		}
-	}
+		Locatable=class  extends Page{
+			defineProperties(){
+				super.defineProperties()
+				Object.defineProperties(this,{
+					composedHeight:{
+						enumerable:false,
+						configurable:false,
+						get(){
+							if(this==this.section.current){//last
+								if(!this.section.isAllChildrenComposed()){
+									return Math.max(...this.columns.map(column=>column.y+(column.height-column.availableHeight)))
+								}
+							}
+							return this.props.height
+						}
+					},
+				})
+			}
 
-	class Locatable extends Page{
-		includes(id,at){
+			createComposed2Parent(){
+				const {props:{i:key,width,height},layout:{margin}}=this
 
-		}
+				return React.cloneElement(super.createComposed2Parent(),{key,width,height,margin,className:"page frame"})
+			}
 
-		position(id,at){
+			includes(id,at){
 
-		}
+			}
 
-		removeFrom(lineIndex){
-			return super.rollbackLines(this.lines.length-lineIndex,false)
+			position(id,at){
+
+			}
+
+			removeFrom(lineIndex){
+				return super.rollbackLines(this.lines.length-lineIndex,false)
+			}
 		}
 	}
 
@@ -110,10 +140,10 @@ export default ({Template,Frame})=>{
 		}
 
 		render(){
-			const {children, pgSz,  pgMar, cols:{num=1, space=0, data}, ...props}=this.props
+			const {children, pgSz:{width,height},  pgMar, cols:{num=1, space=0, data}, ...props}=this.props
 
 			const getLayout=(section=this)=>{
-				const {children, pgSz:{width,height},  pgMar:margin, cols:{num=1, space=0, data}, ...props}=section.props
+				const {children, pgSz:{width,height},  pgMar:margin, cols:{num=1, space=0, data}, id,...props}=section.props
 				const availableWidth=width-margin.left-margin.right
 				const cols=(data ? data : new Array(num).fill({width:(availableWidth-(num-1)*space)/num,space}))
 					.reduce((state,{width,space})=>{
@@ -124,13 +154,14 @@ export default ({Template,Frame})=>{
 					.columns
 				return {
 					width:availableWidth,
-					cols
+					cols,
+					margin,
+					id,
 				}
 			}
-
+			const layouts=[getLayout(this)]
 			const create=(props,context)=>{
-				
-				return new Locatable({width,height,margin,cols,...props},context)
+				return new Locatable({width,height,layouts,...props},context)
 			}
 
 			const frame=(<Frame {...getLayout(this)} children={[]} key={0}/>)
@@ -139,20 +170,14 @@ export default ({Template,Frame})=>{
 				{
 					children.reduce((frames, child, i)=>{
 						if(child.type.displayName=="section"){
-							const {pgSz, pgMar, cols, ...props}=child.props
-							frames.push(React.cloneElement(frame,{
-								...getLayout(child),
-								key:frames.length+1,
-								...props,
-							}))
-							if(i!=children.lenght-1){
-								frames.push(React.cloneElement(frame,{key:frames.length+1}))
-							}
+							const {pgSz, pgMar, cols, type, ...props}=child.props
+							layouts.push({...getLayout(child),balance:true})
+							frames.push(<Container {...props}/>)
 						}else{
-							frames[frames.length-1].props.children.push(child)
+							frames.push(child)
 						}
 						return frames
-					},[frame])
+					},[])
 				}
 				</Template>
 			)

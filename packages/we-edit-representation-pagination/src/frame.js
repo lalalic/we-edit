@@ -11,7 +11,7 @@ import {Frame as ComposedFrame, Group} from "./composed"
 
 const Super=HasParentAndChild(Base)
 
-class Flowable extends Super{
+class Fixed extends Super{
 	static IMMEDIATE_STOP=Number.MAX_SAFE_INTEGER
 	constructor(){
 		super(...arguments)
@@ -26,14 +26,15 @@ class Flowable extends Super{
 				enumerable:true,
 				configurable:true,
 				get(){
-					return this.computed.composed.find(a=>a.props.y==undefined)
+					return this.lines[0]
 				}
 			},
 			lastLine:{
 				enumerable:true,
 				configurable:true,
 				get(){
-					return this.computed.composed.findLast(a=>a.props.y==undefined)
+					const lines=this.lines
+					return lines[lines.length-1]
 				}
 			},
 			lines:{
@@ -126,7 +127,7 @@ class Flowable extends Super{
 			</Group>
 		)
     }
-	
+
 	positionLines(lines){
 		return lines.reduce((state,a,i)=>{
 			if(a.props.y==undefined){
@@ -253,194 +254,23 @@ class Flowable extends Super{
 				}
 			}
 		}
-		this.context.getComposer(currentParagraph).recommit(currentParagraphLines)
-	}
-
-	static Line=class extends Component{
-		constructor({width,maxWidth,height,wrappees=[],frame}){
-			super(...arguments)
-			this.maxWidth=maxWidth
-			this.content=[]
-			this.wrappees=wrappees
-			this.frame=frame
-			Object.defineProperties(this,{
-				height:{
-					enumerable:true,
-					configurable:true,
-					get(){
-						return this.content.reduce((h,{props:{height}})=>Math.max(h,height),0)
-					}
-				},
-				children:{
-					enumerable:true,
-					configurable:true,
-					get(){
-						return this.content
-					}
-				},
-				availableHeight:{
-					enumerable:false,
-					configurable:false,
-					get(){
-						return height
-					}
-				},
-				availableWidth:{
-					enumerable:false,
-					configurable:false,
-					get(){
-						return width-this.currentX
-					}
-				},
-				currentX:{
-					enumerable:false,
-					configurable:false,
-					get(){
-						return this.content.reduce((x,{props:{width,x:x0}})=>x0!=undefined ? x0+width : x+width,0)
-					}
-				},
-				width:{
-					enumerable:true,
-					configurable:false,
-					get(){
-						return width
-					}
-				},
-				first:{
-					enumerable:false,
-					configurable:false,
-					get(){
-						const first=this.content.find(a=>a.props.x===undefined)
-						if(first.props.atom)
-							return first.props.atom
-						return first
-					}
-				},
-				paragraph:{
-					enumerable:false,
-					configurable:false,
-					get(){
-						return this.context.parent
-					}
-				}
-			})
-		}
-
-		appendComposed(atom,at){
-			const {width,minWidth=parseInt(width),anchor}=atom.props
-			if(anchor){
-				this.content.push(React.cloneElement(
-					new ReactQuery(atom).findFirst('[data-type="anchor"]').get(0),
-					{children:null,width:0,height:0, atom}
-				))
-				if(!this.frame.isAnchorComposed(anchor.props.id)){
-					this.anchor=atom
-					return false
-				}
-			}else{
-				const containable=()=>minWidth==0 || this.availableWidth>=minWidth || this.availableWidth==this.maxWidth
-				if(containable()){
-					this.wrappees=this.wrappees.map((a,i)=>{
-						if((this.currentX+minWidth)>a.x){
-							this.content.push(<Group {...a} height={0}/>)
-							this.wrappees[i]=null
-						}else{
-							return a
-						}
-					}).filter(a=>!!a)
-
-					if(containable()){
-						let height=this.lineHeight()
-						this.content.push(atom)
-						let newHeight=this.lineHeight()
-						if(height!=newHeight){
-							const newBlocks=this.frame.exclusive(newHeight)
-							if(this.shouldRecompose(newBlocks)){
-								const flowCount=this.content.reduce((count,a)=>a.props.x==undefined ? count+1 : count,0)
-								at=at-flowCount
-								this.content=[]
-								return at
-							}
-						}
-						return
-					}else{
-						return false
-					}
-				}else{
-
-					return false
-				}
-			}
-		}
-
-		lineHeight(){
-			return this.paragraph.lineHeight(this.height)
-		}
-
-		shouldRecompose(newBlocks){
-			const applied=this.content.filter(a=>a.props.x!==undefined)
-			const notShould=applied.reduce((notShould,{props:{x,width}},i)=>{
-				if(notShould){
-					let a=newBlocks[i]
-					return!!a && parseInt(Math.abs(a.x-x))==0 && a.width==width
-				}
-				return false
-			}, true)
-			if(notShould){
-				let notApplied=newBlocks.slice(applied.length)
-				if(notApplied.slice(0,1).reduce((should,a)=>a.x<this.currentX,false)){
-					this.wrappees=newBlocks
-					return true
-				}else{
-					this.wrappees=notApplied
-				}
-				return false
-			}else{
-				this.wrappees=newBlocks
-				return true
-			}
-		}
-
-		commit(){
-			this.wrappees.forEach(a=>this.content.push(<Group {...a} height={0}/>))
-			this.wrappees=[]
-			return this
+		if(currentParagraph){
+			this.context.getComposer(currentParagraph).recommit(currentParagraphLines)
 		}
 	}
 }
 
-class Columnable extends Flowable{
+class Columnable extends Fixed{
 	defineProperties(){
 		super.defineProperties()
 
 		this.columns=[]
 		Object.defineProperties(this,{
-			firstLine:{
-				enumerable:true,
-				configurable:true,
-				get(){
-					return this.columns[0].children[0]
-				}
-			},
-			lastLine:{
-				enumerable:true,
-				configurable:true,
-				get(){
-					return this.currentColumn.children[this.currentColumn.children.length-1]
-				}
-			},
 			lines:{
 				enumerable:true,
 				configurable:true,
 				get(){
 					return this.columns.reduce((lines,a)=>[...lines,...a.children],[])
-				}
-			},
-			totalLines:{
-				enumerable:true,
-				configurable:true,
-				get(){
-					return this.columns.reduce((count,a)=>count+a.children.length,0)
 				}
 			},
 			currentLine:{
@@ -595,7 +425,27 @@ class Columnable extends Flowable{
 	}
 }
 
-class PaginationControllable extends Columnable{
+class Balanceable extends Columnable{
+	onAllChildrenComposed(){
+		if(this.props.height==undefined && this.props.balance){
+			const width=this.cols[0].width
+			if(!this.cols.find(a=>width!==a.width)){
+				const lines=this.lines
+				const count=Math.ceil(lines.length/this.cols.length)
+				this.columns=[]
+				this.cols.reduce((lines,a)=>{
+					if(lines.length>0){
+						this.createColumn().children=lines.splice(0,count)
+					}
+					return lines
+				},lines)
+			}
+		}
+		super.onAllChildrenComposed(...arguments)
+	}
+}
+
+class PaginationControllable extends Balanceable{
 	defineProperties(){
 		super.defineProperties()
 		Object.defineProperties(this,{
@@ -832,5 +682,44 @@ class AnchorWrappable extends PaginationControllable{
 	}
 }
 
+class Collective extends Fixed{
+	defineProperties(){
+		super.defineProperties()
+		this.frames=[]
+		Object.defineProperties(this,{
+			current:{
+				enumerable:true,
+				configurable:true,
+				get(){
+					if(this.frames.length==0){
+						this.frames.push(this.createFrame())
+					}
+					return this.frames[this.frames.length-1]
+				}
+			},
+			lines:{
+				enumerable:true,
+				configurable:true,
+				get(){
+					return this.frames.reduce((lines,a)=>[...lines,...a.lines],[])
+				}
+			}
+		})
+	}
+
+	createFrame(){
+
+	}
+
+	nextAvailableSpace(){
+		return this.current.nextAvailableSpace(...arguments)
+	}
+
+	appendComposed(){
+		return this.current.appendComposed(...arguments)
+	}
+}
+
+AnchorWrappable.Collective=Collective
 
 export default AnchorWrappable

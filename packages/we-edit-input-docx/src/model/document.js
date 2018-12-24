@@ -105,13 +105,12 @@ export default ({Document, Container,Frame})=>class extends Component{
 							merged.push(inheritHeaderFooter(current))
 						}else{//continous section would be composed as a part of last section
 							console.assert(hasSamePageSize(current,prev))
-							if(hasSamePageLayout(current,prev)){
+							if(false && hasSamePageLayout(current,prev)){
 								withoutHeaderFooterChildren(current.props.children)
 									.forEach(a=>prev.props.children.push(a))
 							}else{
 								prev.props.children.push(
 									React.cloneElement(current,{
-										inline:true,
 										children:withoutHeaderFooterChildren(current.props.children)
 									})
 								)

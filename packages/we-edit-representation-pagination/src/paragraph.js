@@ -66,12 +66,12 @@ export default class extends Super{
 	get currentLine(){
 		const {composed}=this.computed
 		if(composed.length==0){
-			composed.push(this._newLine(this.context.parent.nextAvailableSpace()))
+			composed.push(this.createLine(this.context.parent.nextAvailableSpace()))
 		}
 		return composed[composed.length-1]
 	}
 
-    _newLine({width,...space}){
+    createLine({width,...space}){
 		const composableWidth=(w=>{
 	        const {indent:{left=0,right=0,firstLine=0}}=this.props
 	        w-=(left+right)
@@ -81,7 +81,7 @@ export default class extends Super{
 	        return w
 	    })(width);
 
-        let line=new Frame.Line({...space, width:composableWidth},{parent:this})
+        let line=new Line({...space, width:composableWidth},{parent:this})
 		if(this.props.numbering && this.computed.composed.length==0){
 			let {numbering:{label}, indent:{firstLine}}=this.props
 			let {defaultStyle}=new this.context.Measure(label.props)
@@ -136,7 +136,7 @@ export default class extends Super{
 			const lines=this.computed.composed
 			const i=lines.findIndex(a=>atoms.indexOf(a.first)==at)
 			lines.splice(i)
-			lines.push(this._newLine(parent.nextAvailableSpace()))
+			lines.push(this.createLine(parent.nextAvailableSpace()))
 		}
 
 		const appendComposedLine=bLast=>parent.appendComposed(this.createComposed2Parent(this.currentLine.commit(),bLast))
@@ -165,7 +165,7 @@ export default class extends Super{
 
 				if(next===false){
 					if(!Number.isInteger(rollbackLines=appendComposedLine())){
-						this.computed.composed.push(this._newLine(parent.nextAvailableSpace()))
+						this.computed.composed.push(this.createLine(parent.nextAvailableSpace()))
 						continue
 					}else{
 						if(rollbackLines==Frame.IMMEDIATE_STOP)
@@ -187,16 +187,16 @@ export default class extends Super{
 				return
 			}
 
-
-			rollbackLines=appendComposedLine(true)
-			if(Number.isInteger(rollbackLines)){
-				if(rollbackLines==Frame.IMMEDIATE_STOP)
-					return Frame.IMMEDIATE_STOP
-				next=atomIndexOfLastNthLine(rollbackLines)
-				rollbackToLineWithFirstAtomIndex(next)
-				commitFrom(next)
+			if(!this.currentLine.isEmpty()){
+				rollbackLines=appendComposedLine(true)
+				if(Number.isInteger(rollbackLines)){
+					if(rollbackLines==Frame.IMMEDIATE_STOP)
+						return Frame.IMMEDIATE_STOP
+					next=atomIndexOfLastNthLine(rollbackLines)
+					rollbackToLineWithFirstAtomIndex(next)
+					commitFrom(next)
+				}
 			}
-
 		}
 
 		return commitFrom(start)
@@ -280,6 +280,162 @@ export default class extends Super{
             </Group>
         )
     }
+}
+
+class Line extends Component{
+	constructor({width,maxWidth,height,wrappees=[],frame}){
+		super(...arguments)
+		this.maxWidth=maxWidth
+		this.content=[]
+		this.wrappees=wrappees
+		this.frame=frame
+		Object.defineProperties(this,{
+			height:{
+				enumerable:true,
+				configurable:true,
+				get(){
+					return this.content.reduce((h,{props:{height}})=>Math.max(h,height),0)
+				}
+			},
+			children:{
+				enumerable:true,
+				configurable:true,
+				get(){
+					return this.content
+				}
+			},
+			availableHeight:{
+				enumerable:false,
+				configurable:false,
+				get(){
+					return height
+				}
+			},
+			availableWidth:{
+				enumerable:false,
+				configurable:false,
+				get(){
+					return width-this.currentX
+				}
+			},
+			currentX:{
+				enumerable:false,
+				configurable:false,
+				get(){
+					return this.content.reduce((x,{props:{width,x:x0}})=>x0!=undefined ? x0+width : x+width,0)
+				}
+			},
+			width:{
+				enumerable:true,
+				configurable:false,
+				get(){
+					return width
+				}
+			},
+			first:{
+				enumerable:false,
+				configurable:false,
+				get(){
+					const first=this.content.find(a=>a.props.x===undefined)
+					if(first && first.props.atom)
+						return first.props.atom
+					return first
+				}
+			},
+			paragraph:{
+				enumerable:false,
+				configurable:false,
+				get(){
+					return this.context.parent
+				}
+			}
+		})
+	}
+
+	isEmpty(){
+		return this.children.length==0
+	}
+
+	appendComposed(atom,at){
+		const {width,minWidth=parseInt(width),anchor}=atom.props
+		if(anchor){
+			this.content.push(React.cloneElement(
+				new ReactQuery(atom).findFirst('[data-type="anchor"]').get(0),
+				{children:null,width:0,height:0, atom}
+			))
+			if(!this.frame.isAnchorComposed(anchor.props.id)){
+				this.anchor=atom
+				return false
+			}
+		}else{
+			const containable=()=>minWidth==0 || this.availableWidth>=minWidth || this.availableWidth==this.maxWidth
+			if(containable()){
+				this.wrappees=this.wrappees.map((a,i)=>{
+					if((this.currentX+minWidth)>a.x){
+						this.content.push(<Group {...a} height={0}/>)
+						this.wrappees[i]=null
+					}else{
+						return a
+					}
+				}).filter(a=>!!a)
+
+				if(containable()){
+					let height=this.lineHeight()
+					this.content.push(atom)
+					let newHeight=this.lineHeight()
+					if(height!=newHeight){
+						const newBlocks=this.frame.exclusive(newHeight)
+						if(this.shouldRecompose(newBlocks)){
+							const flowCount=this.content.reduce((count,a)=>a.props.x==undefined ? count+1 : count,0)
+							at=at-flowCount
+							this.content=[]
+							return at
+						}
+					}
+					return
+				}else{
+					return false
+				}
+			}else{
+
+				return false
+			}
+		}
+	}
+
+	lineHeight(){
+		return this.paragraph.lineHeight(this.height)
+	}
+
+	shouldRecompose(newBlocks){
+		const applied=this.content.filter(a=>a.props.x!==undefined)
+		const notShould=applied.reduce((notShould,{props:{x,width}},i)=>{
+			if(notShould){
+				let a=newBlocks[i]
+				return!!a && parseInt(Math.abs(a.x-x))==0 && a.width==width
+			}
+			return false
+		}, true)
+		if(notShould){
+			let notApplied=newBlocks.slice(applied.length)
+			if(notApplied.slice(0,1).reduce((should,a)=>a.x<this.currentX,false)){
+				this.wrappees=newBlocks
+				return true
+			}else{
+				this.wrappees=notApplied
+			}
+			return false
+		}else{
+			this.wrappees=newBlocks
+			return true
+		}
+	}
+
+	commit(){
+		this.wrappees.forEach(a=>this.content.push(<Group {...a} height={0}/>))
+		this.wrappees=[]
+		return this
+	}
 }
 
 class Story extends Component{
