@@ -202,36 +202,14 @@ export default class extends Super{
 		return commitFrom(start)
 	}
 
-	recommit(lastLines=[]){
+	recommit(lastLines=this.computed.composed){
 		const {atoms, composed}=this.computed
-		//@TODO:
-		const equal=(a,b)=>a==b || a.props==b.props
-		var startAtom=atoms[0]
-		var endAtom=atoms[atoms.length-1]
-		if(lastLines.length){
-			startAtom=new ReactQuery(lastLines[0])
-				.findFirst(`story`)
-				.children()
-				.toArray()
-				.find(a=>a.props.x===undefined)
-			if(!startAtom){
-				debugger
-			}
-			startAtom=startAtom.props.atom || startAtom
+		lastLines=composed.slice(-lastLines.length)
 
-			endAtom=new ReactQuery(lastLines[lastLines.length-1])
-				.findFirst("story")
-				.children()
-				.toArray()
-				.reverse()
-				.find(a=>a.props.x===undefined)
-
-			endAtom=endAtom.props.atom || endAtom
-		}
-
-		this.computed.composed=composed.slice(0,composed.findIndex(a=>equal(a.first,startAtom)))
-		const start=atoms.findIndex(a=>equal(a,startAtom))
-		const end=atoms.slice(start+1).findIndex(a=>equal(a,endAtom))+start+1
+		this.computed.composed=composed.slice(0,-lastLines.length)
+		const start=atoms.findIndex(a=>a==lastLines[0].first)
+		const end=atoms.slice(start+1).findIndex(a=>a==lastLines[lastLines.length-1].last)+start+1
+		this.computed.composed.push(this.createLine(this.context.parent.nextAvailableSpace()))
 		return this.commit(start, end)
 	}
 
@@ -340,6 +318,16 @@ class Line extends Component{
 					if(first && first.props.atom)
 						return first.props.atom
 					return first
+				}
+			},
+			last:{
+				enumerable:false,
+				configurable:false,
+				get(){
+					const last=this.content.findLast(a=>a.props.x===undefined)
+					if(last && last.props.atom)
+						return last.props.atom
+					return last
 				}
 			},
 			paragraph:{

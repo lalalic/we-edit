@@ -46,7 +46,7 @@ export default class Template extends Super{
 
     create(){
         const frame=this.props.create(
-            {i:this.totals+1,named:this.named.bind(this)},
+            {id:this.props.id, I:this.totals,i:this.computed.composed.length, named:this.named.bind(this)},
             {parent:this,getComposer:id=>this.context.getComposer(id)}
         )
         this.computed.composed.push(frame)

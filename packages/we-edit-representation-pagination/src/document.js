@@ -64,7 +64,9 @@ export default class Document extends Super{
 	}
 
 	appendComposed(page){
-		this.computed.composed.push(page)
+        if(this.computed.composed.indexOf(page)==-1){
+    		this.computed.composed.push(page)
+        }
 	}
 
     componentDidMount(){

@@ -31,18 +31,9 @@ export default ({Document, Container,Frame})=>class extends Component{
 			.forEach((k,t)=>(t=styles[k])&& t.reset && t.reset())
 	}
 
-	getSections(){
+	getContent(){
 		const {evenAndOddHeaders}=this.props
 		var headerfooters={}
-
-		function hasSamePageSize(a,b){
-			return shallowEqual(a.props.pgSz,b.props.pgSz)
-		}
-
-		function hasSamePageLayout(a,b){
-			return shallowEqual(a.props.pgMar,a.props.pgMar) &&
-				(({data:aData,...a1},{data:bData,...b1})=>shallowEqual(a1,b1)&&shallowEqual(aData,bData))(a.props.cols,b.props.cols)
-		}
 
 		function getHeaderFooter({props:{children, titlePg}}){
 			return children.reduce((named,a)=>{
@@ -90,36 +81,13 @@ export default ({Document, Container,Frame})=>class extends Component{
 			return children.slice(Math.max(0,children.findIndex(a=>!a.props.named)))
 		}
 
-		return React.Children.toArray(this.props.children).reduce((merged,current)=>{
+		return React.Children.toArray(this.props.children).reduce((content,current)=>{
 			if(current.type.displayName!=="section"){
-				merged.push(current)
+				content.push(current)
 			}else{
-				if(current.props.type!=="continuous"){
-					merged.push(inheritHeaderFooter(current))
-				}else{
-					const prev=merged[merged.length-1]
-					if(!prev){
-						merged.push(inheritHeaderFooter(current))
-					}else{
-						if(prev.type.displayName!="section"){
-							merged.push(inheritHeaderFooter(current))
-						}else{//continous section would be composed as a part of last section
-							console.assert(hasSamePageSize(current,prev))
-							if(false && hasSamePageLayout(current,prev)){
-								withoutHeaderFooterChildren(current.props.children)
-									.forEach(a=>prev.props.children.push(a))
-							}else{
-								prev.props.children.push(
-									React.cloneElement(current,{
-										children:withoutHeaderFooterChildren(current.props.children)
-									})
-								)
-							}
-						}
-					}
-				}
+				content.push(inheritHeaderFooter(current))
 			}
-			return merged
+			return content
 		},[])
 	}
 
@@ -129,6 +97,6 @@ export default ({Document, Container,Frame})=>class extends Component{
 
 		this.resetNumbering()
 
-		return <Document {...others} children={this.getSections()}/>
+		return <Document {...others} children={this.getContent()}/>
 	}
 }

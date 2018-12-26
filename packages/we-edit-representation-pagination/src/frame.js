@@ -58,14 +58,14 @@ class Fixed extends Super{
 					return this.lines.length
 				}
 			},
-			currentLine:{
+			dividing:{//current exclusive bounds line
 				enumerable:true,
 				configurable:true,
 				get(){
 					return (({x=0,y=0,width})=>({x1:x,x2:x+width,y2:y+this.currentY}))(this.props)
 				}
 			},
-			currentY:{
+			currentY:{//current composed y IN frame
 				enumerable:false,
 				configurable:true,
 				get(){
@@ -188,7 +188,7 @@ class Fixed extends Super{
 	}
 
 	exclusive(height){
-		const lines=[this.currentLine]
+		const lines=[this.dividing]
 		const x0=lines[0].x1
 		if(height){
 			lines.push({...lines[0], y2:lines[0].y2+height})
@@ -273,7 +273,7 @@ class Columnable extends Fixed{
 					return this.columns.reduce((lines,a)=>[...lines,...a.children],[])
 				}
 			},
-			currentLine:{
+			dividing:{
 				enumerable:true,
 				configurable:true,
 				get(){
@@ -291,11 +291,7 @@ class Columnable extends Fixed{
 				enumerable:false,
 				configurable:true,
 				get(){
-					if(this.columns.length==1){
-						return this.currentY
-					}else{
-						return Math.max(...this.columns.slice(0,-1).map(a=>a.height||a.currentY))
-					}
+					return Math.max(...this.columns.map(a=>a.height||a.currentY))
 				}
 			},
 			anchors: {
@@ -316,7 +312,7 @@ class Columnable extends Fixed{
 			},
 			cols:{
 				enumerable:false,
-				configurable:false,
+				configurable:true,
 				get(){
 					const {width,cols=[{x:0,width}]}=this.props
 					return cols
@@ -396,7 +392,7 @@ class Columnable extends Fixed{
 			this.computed.composed.push(line)
 			return
 		}else if(contentHeight-this.currentColumn.availableHeight>1){
-			if(this.props.cols.length>this.columns.length){// new column
+			if(this.cols.length>this.columns.length){// new column
 				this.createColumn()
 				return 0+1//recompose current line in case different available space, such as different column width, wrapper, etc
 			}else{
@@ -428,20 +424,57 @@ class Columnable extends Fixed{
 class Balanceable extends Columnable{
 	onAllChildrenComposed(){
 		if(this.props.height==undefined && this.props.balance){
-			const width=this.cols[0].width
-			if(!this.cols.find(a=>width!==a.width)){
-				const lines=this.lines
-				const count=Math.ceil(lines.length/this.cols.length)
-				this.columns=[]
-				this.cols.reduce((lines,a)=>{
-					if(lines.length>0){
-						this.createColumn().children=lines.splice(0,count)
-					}
-					return lines
-				},lines)
-			}
+			this.balance()
 		}
 		super.onAllChildrenComposed(...arguments)
+	}
+
+	balance(){
+		const width=this.cols[0].width
+		const lines=this.lines
+		if(!this.cols.find(a=>width!==a.width)){
+			this.columns=[]
+			this.equalBalance(lines, this.cols)
+		}else{
+			this.anyBalance(lines, this.cols)
+		}
+	}
+
+	equalBalance(lines,cols){
+		const totalHeight=lines.reduce((h,a)=>h+a.props.height,0)
+		const colHeight=totalHeight/cols.length-10
+		lines.reduce((state,line)=>{
+			if(state.h<colHeight){
+				state.cols[state.cols.length-1].push(line)
+				state.h+=line.props.height
+			}else{
+				state.cols.push([line])
+				state.h=line.props.height
+			}
+			return state
+		},{cols:[[]],h:0})
+			.cols
+			.forEach(lines=>Object.assign(this.createColumn(),{
+				children:lines
+			}))
+	}
+
+	anyBalance(lines, cols){
+		const createColumn=this.createColumn
+		const reset4Recompose=this.reset4Recompose
+		try{
+			//recompose into col with totalWidth to get total height
+			const totalWidth=cols.reduce((w,a)=>w+a.width,0)
+			this.createColumn=()=>Object.assign(createColumn.call(this),{width:totalWidth,height:Number.MAX_SAFE_INTEGER})
+			this.recompose()
+			const totalHeight=this.currentColumn.currentY
+
+			this.createColumn=()=>Object.assign(createColumn.call(this),{height:totalHeight})
+			this.recompose()
+		}finally{
+			this.createColumn=createColumn
+			this.reset4Recompose=reset4Recompose
+		}
 	}
 }
 
@@ -681,45 +714,5 @@ class AnchorWrappable extends PaginationControllable{
 		return removedLines
 	}
 }
-
-class Collective extends Fixed{
-	defineProperties(){
-		super.defineProperties()
-		this.frames=[]
-		Object.defineProperties(this,{
-			current:{
-				enumerable:true,
-				configurable:true,
-				get(){
-					if(this.frames.length==0){
-						this.frames.push(this.createFrame())
-					}
-					return this.frames[this.frames.length-1]
-				}
-			},
-			lines:{
-				enumerable:true,
-				configurable:true,
-				get(){
-					return this.frames.reduce((lines,a)=>[...lines,...a.lines],[])
-				}
-			}
-		})
-	}
-
-	createFrame(){
-
-	}
-
-	nextAvailableSpace(){
-		return this.current.nextAvailableSpace(...arguments)
-	}
-
-	appendComposed(){
-		return this.current.appendComposed(...arguments)
-	}
-}
-
-AnchorWrappable.Collective=Collective
 
 export default AnchorWrappable
