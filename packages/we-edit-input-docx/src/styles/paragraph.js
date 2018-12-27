@@ -6,7 +6,7 @@ const attribs={
 	"w:numPr":"num",
 	"w:jc":"align",
 	"w:outlineLvl":"heading",
-	"w:widoControl":"widow",
+	"w:widowControl":"widow",
 	"w:keepNext":"keepWithNext",
 	"w:keepLines":"keepLines"
 }
