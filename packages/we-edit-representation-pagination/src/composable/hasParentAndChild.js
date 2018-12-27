@@ -6,8 +6,7 @@ export default A=>{
     return class extends Super{
         static contextTypes = {
             ...Super.contextTypes,
-            parent: PropTypes.object,
-            prevSibling: PropTypes.func
+            parent: PropTypes.object
         }
         /**
          * children should call before composing line,

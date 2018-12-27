@@ -14,8 +14,7 @@ export default A=>class extends A{
 
     static childContextTypes = {
         ...(A.childContextTypes||{}),
-        parent: PropTypes.object,
-        prevSibling: PropTypes.func
+        parent: PropTypes.object
     }
 
     constructor(){
@@ -32,16 +31,7 @@ export default A=>class extends A{
         let superChildContext=super.getChildContext ? super.getChildContext() : {}
         return {
             ...superChildContext,
-            parent: this,
-            prevSibling(me) {
-                const {children: siblings} = self.computed
-                let found = siblings.indexOf(me)
-                if (found == -1) {//not found, current should not be composed
-                    return siblings[siblings.length - 1]
-                } else {
-                    return siblings[found - 1]
-                }
-            }
+            parent: this
         }
     }
 

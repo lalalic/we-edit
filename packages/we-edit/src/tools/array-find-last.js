@@ -6,3 +6,8 @@ if(!Array.prototype.findLast){
 		})
     }
 }
+if(!Array.prototype.findLastIndex){
+    Array.prototype.findLastIndex=function(f){
+		return this.indexOf(this.findLast(...arguments))
+    }
+}

@@ -245,7 +245,7 @@ class Fixed extends Super{
 					if(linePID!==currentParagraph){
 						this.context.getComposer(currentParagraph).recommit(currentParagraphLines)
 						currentParagraph=linePID
-						currentParagraphLines=line
+						currentParagraphLines=[line]
 						continue
 					}else{
 						currentParagraphLines.push(line)
@@ -595,11 +595,8 @@ class PaginationControllable extends Balanceable{
 		}
 		for(let i=this.columns.length-1;i>-1;i--){
 			let lines=this.columns[i].children
-			if(n<lines.length){
+			if(n<=lines.length){
 				removedLines=removedLines.concat(lines.splice(-n))
-				break
-			}else if(n==lines.length){
-				removedLines=removedLines.concat(this.columns.splice(i)[0].children)
 				break
 			}else{
 				removedLines=removedLines.concat(this.columns.splice(i)[0].children)
