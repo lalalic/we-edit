@@ -231,7 +231,8 @@ export default ({Template,Frame, Container})=>{
 		}
 
 		render(){
-			const {pgSz:{width,height},  pgMar:margin, cols:{num=1, space=0, data},type, ...props}=this.props
+			const {pgSz:{width,height},  pgMar:{left,right}, cols:{num=1, space=0, data},type, children, ...props}=this.props
+
 			const layout=this.getLayout(this)
 
 			const create=(props,context)=>{
@@ -244,12 +245,19 @@ export default ({Template,Frame, Container})=>{
 					}
 				}
 
-				console.log(`creating page for section=${props.id}`)
 				return new Locatable({width,height,...layout,...props},context)
 			}
 
 			return(
-				<Template create={create} {...props}/>
+				<Template create={create} {...props}>
+					{React.Children.toArray(children).map(a=>{
+						if(a.props.named){//header or footer
+							return <Frame {...a.props} width={width-left-right} key={a.props.id}/>
+						}else{
+							return a
+						}
+					})}
+				</Template>
 			)
 		}
 	}

@@ -11,11 +11,13 @@ import Row from "./row"
 import Cell from "./cell"
 import Text from "./text"
 import Image from "./image"
+import Frame from "./frame"
 
 export default editable.enable(Models,{
 	Document,
-	Template,
+	//Template,
 	Paragraph,
+	Frame,
 //	Shape,
 	Table,
 	Row,

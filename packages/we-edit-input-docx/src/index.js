@@ -162,8 +162,6 @@ export default class DocxType extends Input.Editable{
 					return false
 				}
 
-				const {pgSz:{width},pgMar:{left,right}}=style
-
 				const hf=cat=>node.children.filter(a=>a.name==`w:${cat}Reference`)
 					.reduce((hfs, a)=>{
 						let type=a.attribs["w:type"]
@@ -173,7 +171,7 @@ export default class DocxType extends Input.Editable{
 							self.part=rId
 
 							children.splice(0,0,
-								createElement(components.Frame,{named:`${cat}.${type}`,width:width-left-right},
+								createElement(components.Container,{named:`${cat}.${type}`,type:`${cat}.${type}`},
 									root.children.map(a=>renderNode(a)),
 									root
 								)

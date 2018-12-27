@@ -36,7 +36,8 @@ export default compose(
 		}
 	})),
 	withProps(({selection})=>{
-		if(!selection){
+		var section
+		if(!selection || !(section=selection.props("section"))){
 			return {
 				Ruler: a=>null
 			}
@@ -48,7 +49,7 @@ export default compose(
 					left:leftMargin,top:topMargin,right:rightMargin,bottom:bottomMargin,
 					header,footer,
 				}
-			}=selection.props("section")
+			}=section
 
 		let {
 			indent:{left:leftIndent,right:rightIndent,firstLine}={}

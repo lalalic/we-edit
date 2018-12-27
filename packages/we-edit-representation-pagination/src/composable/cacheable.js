@@ -97,4 +97,16 @@ export default (A,partable)=>class extends A{
         }
         return -1
     }
+
+    findContentId(content){
+		return ((line,id)=>{
+			const extract=a=>{
+				if((id=a.props["data-content"])!==undefined)
+					return true
+				return Children.toArray(a.props.children).findIndex(extract)!=-1
+			}
+			extract(line)
+			return id
+		})(content)
+	}
 }

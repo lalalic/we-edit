@@ -1,6 +1,5 @@
 import editable from "./editable"
 import Base from "../text"
-import Paragraph from "../paragraph"
 
 export default class extends editable(Base){
     nextCursorable(at=-1,locator){

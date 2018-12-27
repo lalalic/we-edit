@@ -264,7 +264,7 @@ class Columnable extends Fixed{
 	defineProperties(){
 		super.defineProperties()
 
-		this.columns=[]
+		this.computed.columns=[]
 		Object.defineProperties(this,{
 			lines:{
 				enumerable:true,
@@ -318,6 +318,16 @@ class Columnable extends Fixed{
 					return cols
 				}
 			},
+			columns:{
+				enumerable:true,
+				configurable:true,
+				get(){
+					return this.computed.columns
+				},
+				set(value){
+					return this.computed.columns=[]
+				}
+			}
 		})
 	}
 

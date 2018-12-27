@@ -33,18 +33,6 @@ export default Cacheable(class extends editable(Base,{stoppable:true}){
 		return -1
 	}
 
-	findContentId(content){
-		return ((line,id)=>{
-			const extract=a=>{
-				if((id=a.props["data-content"])!==undefined)
-					return true
-				return Children.toArray(a.props.children).findIndex(extract)!=-1
-			}
-			extract(line)
-			return id
-		})(content)
-	}
-
 	removeChangedPart(changedChildIndex){
 		const children=Children.toArray(this.props.children)
 		const changed=children[changedChildIndex]

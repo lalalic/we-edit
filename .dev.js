@@ -122,7 +122,7 @@ function testOffice(){
 	))
 
 	const VariantEditor=connect(state=>state[KEY])(({data,assemble, ...props})=>{
-		const editor=<Viewer {...props}/>
+		const editor=<Editor {...props}/>
 		if(data && assemble){
 			return (
 				<Provider value={data}>
