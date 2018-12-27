@@ -61,7 +61,7 @@ export default ({Template,Frame, Container})=>{
 				)
 				y1=Math.min(y, y1)
 			}
-
+			this.y0=y0
 			this.y1=y1
 
 			this.createColumn=()=>Object.assign(super.createColumn(),{
@@ -70,19 +70,22 @@ export default ({Template,Frame, Container})=>{
 				id
 			})
 		}
+		
+		createColumn(){
+			const id=this.layout.id
+			const i=this.columns.findIndex(a=>a.id==id)
+			const y=i==-1 ? Math.max(this.y0, ...this.columns.map(a=>a.y+a.currentY)) : this.columns[i].y
+			return Object.assign(super.createColumn(),{
+				height:this.y1-y,
+				y,
+				id,
+			})
+		}
 
 		appendLayout(layout){
 			const {cols, margin,id}=layout
 			const lastLayout=this.layout
 			function doLayout(page){
-				const createColumn=page.createColumn
-				const y=Math.max(...page.columns.map(a=>a.y+a.currentY))
-				const height=page.y1-y
-				page.createColumn=()=>Object.assign(createColumn.call(page),{
-					height,
-					y,
-					id,
-				})
 				page.layouts.push(layout)
 				page.createColumn()
 				return page
@@ -185,7 +188,13 @@ export default ({Template,Frame, Container})=>{
 		}
 
 		removeFrom(lineIndex){
-			return super.rollbackLines(this.lines.length-lineIndex,false)
+			const done=super.rollbackLines(this.lines.length-lineIndex,false)
+			const i=this.columns.length==0 ? 0 : this.layouts.findIndex(a=>a.id==this.currentColumn.id)
+			this.layouts.splice(0,i+1)
+			
+			//delete all pages in following continuous secions
+			
+			return done
 		}
 	}
 
@@ -232,7 +241,7 @@ export default ({Template,Frame, Container})=>{
 		}
 
 		render(){
-			const {pgSz:{width,height},  pgMar:{left,right}, cols:{num=1, space=0, data},type, children, ...props}=this.props
+			const {pgSz:{width,height},  pgMar:{left,right}, cols:{num=1, space=0, data},children, ...props}=this.props
 
 			const layout=this.getLayout(this)
 
