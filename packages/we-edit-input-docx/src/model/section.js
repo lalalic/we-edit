@@ -66,7 +66,8 @@ export default ({Template,Frame, Container})=>{
 
 			this.createColumn=()=>Object.assign(super.createColumn(),{
 				height:y1-y0,
-				y:y0
+				y:y0,
+				id
 			})
 		}
 
