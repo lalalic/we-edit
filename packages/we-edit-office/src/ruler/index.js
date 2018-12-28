@@ -36,24 +36,17 @@ export default compose(
 		}
 	})),
 	withProps(({selection})=>{
-		var section
-		if(!selection || !(section=selection.props("section"))){
-			return {
-				Ruler: a=>null
-			}
-		}
-
 		let {
-				pgSz:{width,height},
+				pgSz:{width,height}={},
 				pgMar:{
 					left:leftMargin,top:topMargin,right:rightMargin,bottom:bottomMargin,
 					header,footer,
-				}
-			}=section
+				}={}
+			}=(selection && selection.props("section")||{})
 
 		let {
 			indent:{left:leftIndent,right:rightIndent,firstLine}={}
-		}=(selection.props("paragraph",false)||{})
+		}=(selection && selection.props("paragraph",false)||{})
 
 		return {
 			width,height,leftMargin,topMargin,bottomMargin,rightMargin,leftIndent,rightIndent,firstLine,

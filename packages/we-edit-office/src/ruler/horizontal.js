@@ -3,7 +3,7 @@ import {SvgIcon} from "material-ui"
 
 import Movable from "../components/movable"
 
-export default ({width,scale,
+export default ({width=0,scale=1,
 	leftMargin=3, rightMargin=3, setLeftMargin, setRightMargin,
 	firstLine=0, leftIndent=0, rightIndent=0, setFirstLine, setLeftIndent, setRightIndent,
 	cm=scale*96/2.54, step=cm/8, trim=(x,dx)=>Math[dx>0 ? 'ceil' : 'floor']((x+dx)/step)*step
@@ -13,16 +13,16 @@ export default ({width,scale,
 			<div className="ruler horizontal" style={{width:width*scale,position:"relative"}}>
 				<Scale {...{width:width*scale,from:leftMargin*scale,cm}}/>
 
-				<Margin style={{position:"absolute", top:0,left:0,width:leftMargin*scale}} onMove={setLeftMargin}/>
+				{!!width && (<Margin style={{position:"absolute", top:0,left:0,width:leftMargin*scale}} onMove={setLeftMargin}/>)}
 
-				<Movable ref={a=>fl=a}
+				{!!width && (<Movable ref={a=>fl=a}
 					onAccept={dx=>setFirstLine((trim((leftIndent+firstLine)*scale,dx)-leftIndent*scale)/scale)}
 					onMove={dx=>({style:{position:"absolute", top:0,left:leftMargin*scale+trim((leftIndent+firstLine)*scale,dx)}})}
 					>
 					<FirstLine style={{position:"absolute", top:0,left:(leftMargin+leftIndent+firstLine)*scale}}/>
-				</Movable>
+				</Movable>)}
 
-				<Movable
+				{!!width && (<Movable
 					onAccept={dx=>{
 						fl.setState({move:false})
 						setLeftIndent(trim(leftIndent*scale,dx)/scale)
@@ -33,16 +33,16 @@ export default ({width,scale,
 					}}
 					>
 					<Indent style={{position:"absolute", top:0,left:(leftMargin+leftIndent)*scale}}/>
-				</Movable>
+				</Movable>)}
 
-				<Margin style={{position:"absolute", top:0,right:0,width:rightMargin*scale}} onMove={setRightMargin}/>
+				{!!width && (<Margin style={{position:"absolute", top:0,right:0,width:rightMargin*scale}} onMove={setRightMargin}/>)}
 
-				<Movable
+				{!!width && (<Movable
 					onAccept={dx=>setRightIndent(trim(rightIndent*scale,-dx)/scale)}
 					onMove={dx=>({style:{position:"absolute", top:0,right:rightMargin*scale+trim(rightIndent*scale,-dx)}})}
 					>
 					<Indent style={{position:"absolute", top:0,right:(rightMargin+rightIndent)*scale}}/>
-				</Movable>
+				</Movable>)}
 			</div>
 		)
 }
