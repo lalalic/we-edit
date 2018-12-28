@@ -166,7 +166,6 @@ describe("continuable", ()=>{
 			const doc=renderer.root.findByType(Document).instance
 			const pages=doc.computed.composed
 			expect(pages.length).toBe(n)
-			console.log($(pages).text())
 		})
 
 		compose2Id('1.0',1)
@@ -185,7 +184,7 @@ describe("continuable", ()=>{
 			const renderer=TestRender.create(root=
 				<StoreContext context={store(state)} key="test">
 					<TextContext>
-						<Document pageGap={pageGap} viewport={{width:500,height:size.height/2,node}} screenBuffer={0} scale={1}>
+						<Document id="root" pageGap={pageGap} viewport={{width:500,height:size.height/2,node}} screenBuffer={0} scale={1}>
 							{section(1,i)}
 							{section(2,i)}
 							{section(3,i)}
@@ -361,7 +360,6 @@ describe("continuable", ()=>{
 						return "1234"
 					}
 				}
-				Frame.prototype.removeFrom=jest.fn()
 				Template.prototype.render=jest.fn(Template.prototype.render)
 				Paragraph.prototype.render=jest.fn(Paragraph.prototype.render)
 				const doc=compose2(node,state,2)
@@ -406,66 +404,6 @@ describe("continuable", ()=>{
 				})
 			})
 
-			xit("change content with cache(all) compose",()=>{
-				const node={scrollTop:0}
-				const state={
-					equals(){
-						return false
-					},
-					toJS(){
-						return {start:{id:"2.2",at:0},end:{id:"2.2",at:0}}
-					},
-					hashCode(){
-						return "1234"
-					}
-				}
-				Template.prototype.render=jest.fn(Template.prototype.render)
-				Paragraph.prototype.render=jest.fn(Paragraph.prototype.render)
-				const doc=compose2(node,state)
-
-				const pages=doc.computed.composed
-				expect(pages.length).toBe(2)
-				expect($(pages).text()).toBe("hello1hello2")
-				expect(Template.prototype.render).toHaveBeenCalledTimes(3)
-				expect(Template.prototype.render).lastReturnedWith(null)
-				expect(Paragraph.prototype.render).toHaveBeenCalledTimes(2)
-
-
-				return new Promise((resolve, reject)=>{
-					Document.prototype.componentDidUpdate=jest.fn((a,b,c)=>{
-						doc.componentDidUpdate(a,b,c)
-
-						const pages=doc.computed.composed
-						expect(pages.length).toBe(2)
-						expect($(pages).text()).toBe("hello1ahello2")
-
-						/**section1&section2 should not be recomposed
-						1. section1/2.render should be return null
-						2. so paragraph1/2.render should not be called
-						*/
-						expect(Template.prototype.render).toHaveBeenCalledTimes(6)
-						expect(Paragraph.prototype.render).toHaveBeenCalledTimes(3)
-
-						expect(Template.prototype.render).nthReturnedWith(4,null)
-						expect(Template.prototype.render).nthReturnedWith(5,null)
-						expect(React.isValidElement(Section.prototype.render.mock.results[5].value)).toBe(true)
-						//expect(section2.render).lastReturnedWith(null)
-
-						resolve()
-					})
-
-					let [section1, section2, section3]=Children.toArray(doc.props.children)
-					let [p1]=Children.toArray(section2.props.children)
-					p1=React.cloneElement(p1,{changed:true})
-					section2=React.cloneElement(section2,{children:p1,changed:true})
-					const {renderer, root}=doc
-					renderer.update(React.cloneElement(root,{children:[section1,section2,section3],changed:true}))
-				})
-			})
-
-			xit("change content with cache(part)[section] compose",()=>{
-
-			})
 		})
 	})
 })
