@@ -5,7 +5,7 @@ import {Viewers, Editors} from "../src"
 import provider from "./context"
 
 describe("compose", ()=>{
-	const {Document, Section, Paragraph, Text, Image}=Viewers
+	const {Document, Template, Frame, Paragraph, Text, Image}=Viewers
 	const lineHeight=10
 	class Measure{
 		height=lineHeight
@@ -22,22 +22,14 @@ describe("compose", ()=>{
 		}
 	}
 	const WithTextContext=provider(Text,{Measure})
-
+	const WithParagraphContext=provider(Paragraph)
 
 	describe("text",()=>{
 		const contextFactory=({width=5,height=100})=>({
 			parent:{
 				appendComposed(){
 
-				},
-				nextAvailableSpace(){
-					return {
-						width,height,
-						execlusive(){
-							return []
-						}
-					}
-				},
+				}
 			},
 			Measure,
 			getMyBreakOpportunities(text){
@@ -60,18 +52,10 @@ describe("compose", ()=>{
 		}
 
 		it("basic process", test())
-
-		describe("text wrap",()=>{
-			const wrap=width=>it(`${Default}[${width}]`,test(width))
-
-			//wrap(1)
-			//wrap(5)
-		})
-
 	})
 	describe("paragraph",()=>{
-		const WithParagraphContext=provider(Paragraph)
-		const test=(lineWidth=5,spacing={}, indent={})=>{
+		const TEXT="hello world"
+		const test=(lineWidth=5,spacing={}, indent={},align)=>{
 			const context={parent:{}}
 			const nextAvailableSpace=context.parent.nextAvailableSpace=jest.fn(()=>({
 				width:lineWidth,height:100,
@@ -85,15 +69,15 @@ describe("compose", ()=>{
 			const renderer=TestRender.create(
 				<WithParagraphContext context={context}>
 					<WithTextContext>
-						<Paragraph id="1" spacing={spacing} indent={indent}>
-							<Text id="0" fonts="arial" size={12}>hello world</Text>
+						<Paragraph id="1" spacing={spacing} indent={indent} align={align}>
+							<Text id="0" fonts="arial" size={12}>{TEXT}</Text>
 						</Paragraph>
 					</WithTextContext>
 				</WithParagraphContext>
 			)
 			expect(nextAvailableSpace).toHaveBeenCalled()
 			expect(appendComposed).toHaveBeenCalled()
-			return appendComposed.mock.calls.map(([line])=>line)
+			return Object.assign(appendComposed.mock.calls.map(([line])=>line),{dom:renderer.root})
 		}
 
 		describe("indent",()=>{
@@ -104,8 +88,10 @@ describe("compose", ()=>{
 				lines.forEach(line=>expect(line.props.x).toBe(1))
 			})
 
-			xit("right",()=>{
-
+			it("right",()=>{
+				const lines=indent({right:2})
+				expect(lines.length>0).toBe(true)
+				lines.forEach(line=>expect(line.props.width).toBe(10-2))
 			})
 
 			it("firstLine",()=>{
@@ -147,11 +133,19 @@ describe("compose", ()=>{
 		})
 
 		xdescribe("align",()=>{
+			const align=(align,lineWidth=10)=>{
+				let lines=test(lineWidth,undefined,undefined,align)
+				const dom=lines.dom
+				lines=lines.map(line=>line.props.children)
+				expect(lines.length>0).toBe(true)
+				return Object.assign(lines,{dom})
+			}
 			it("left",()=>{
 
 			})
 
 			it("right",()=>{
+
 
 			})
 
@@ -164,6 +158,57 @@ describe("compose", ()=>{
 
 		})
 	})
+
+	describe("template",()=>{
+		const WithTemplateContext=provider(Template)
+
+		const document={
+			appendComposed(page){
+				this.computed.composed.push(page)
+			},
+			getComposeType(){
+				return "document"
+			},
+			computed:{
+				composed:[]
+			}
+		}
+		const template=(id=0)=>(
+			<Template create={(props,context)=>new Frame({...props,width:10,height:10},context)} id={`${id}.2`} key={id}>
+				<WithParagraphContext>
+					<WithTextContext>
+						<Paragraph id={`${id}.1`}>
+							<Text id={`${id}.0`} fonts="arial" size={12}>hello</Text>
+						</Paragraph>
+					</WithTextContext>
+				</WithParagraphContext>
+			</Template>
+		)
+
+		fit("template",()=>{
+			document.appendComposed=jest.fn()
+			const renderer=TestRender.create(
+				<WithTemplateContext context={{parent:document}}>
+					{template()}
+				</WithTemplateContext>
+			)
+			expect(document.appendComposed).toHaveBeenCalledTimes(1)
+		})
+
+		fit("template",()=>{
+			document.appendComposed=jest.fn()
+			const renderer=TestRender.create(
+				<WithTemplateContext context={{parent:document}}>
+					{[1,2,3,4,5].map(template)}
+				</WithTemplateContext>
+			)
+			expect(document.appendComposed).toHaveBeenCalledTimes(5)
+		})
+
+
+
+	})
+
 	describe("table",()=>{
 
 	})

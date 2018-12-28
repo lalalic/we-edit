@@ -465,16 +465,6 @@ class Story extends Component{
 		)
 	}
 
-	left0(){
-		return this.props.children.reduce((state,piece,key)=>{
-			const {width,x:x1}=piece.props
-			const x=x1!=undefined ? x1 : state.x
-			state.pieces.push(React.cloneElement(piece,{x,key}))
-			state.x=x+width
-			return state
-		},{pieces:[],x:0}).pieces
-	}
-
 	left(){
 		return this.props.children.reduce((state,piece,key)=>{
 			const {width}=piece.props

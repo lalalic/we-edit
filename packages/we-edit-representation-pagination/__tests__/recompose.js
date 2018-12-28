@@ -1,4 +1,4 @@
-import React,{Fragment,Children} from "react"
+import React,{Fragment,Children,Component} from "react"
 import TestRender from "react-test-renderer"
 import ReactDOMServer from 'react-dom/server'
 import cheerio from "cheerio"
@@ -35,6 +35,11 @@ describe("continuable", ()=>{
 		}
 		Locator.prototype.shouldComponentUpdate=jest.fn(a=>true)
 	})
+	const Page=class extends Frame{
+		removeFrom(){
+
+		}
+	}
 
 	const store=(state={
 			equals({start,end}){
@@ -73,17 +78,18 @@ describe("continuable", ()=>{
 				}
 			}
 		})
-	const size={width:816,height:1056}
-	const section=(id,ps=1)=>(<Section id={`${id}.0`} key={`${id}.0`}
-					pgSz={size}
-					pgMar={{
-						left: 96,
-						right: 120,
-						top: 120,
-						bottom: 96,
-
-						header: 48,
-						footer: 48
+	const size={
+		width:816,
+		height:1056,
+		composedHeight(){
+			return this.height
+		}
+	}
+	const section=(id,ps=1)=>(<Template id={`${id}.0`} key={`${id}.0`}
+					create={(props,context)=>{
+						let page=new Page({...props,...size},context)
+						page.composedHeight=size.composedHeight()
+						return page
 					}}
 				>
 					<Paragraph id={`${id}.1`} key={`${id}.1`}>
@@ -98,7 +104,7 @@ describe("continuable", ()=>{
 								</Paragraph>
 							)
 					}
-				</Section>
+				</Template>
 	)
 	const pageGap=12
 
@@ -125,16 +131,16 @@ describe("continuable", ()=>{
 		})
 
 		compose2Y(10,1)
-		//compose2Y(size.height,1)
-		//compose2Y(size.height+pageGap+1,2)
-		//compose2Y(size.height*1.9,2)
-		//compose2Y(size.height*2,2)
-		//compose2Y(size.height*2+2*pageGap+1,3)
-		//compose2Y(size.height*3,3)
-		//compose2Y(size.height*5,3)
+		compose2Y(size.height,1)
+		compose2Y(size.height+pageGap+1,2)
+		compose2Y(size.height*1.9,2)
+		compose2Y(size.height*2,2)
+		compose2Y(size.height*2+2*pageGap+1,3)
+		compose2Y(size.height*3,3)
+		compose2Y(size.height*5,3)
 	})
 
-	xdescribe("compose to id",()=>{
+	describe("compose to id",()=>{
 		const compose2Id=(id,n)=>it(`${id},pages=${n}`,()=>{
 			const renderer=TestRender.create(
 				<StoreContext context={store({
@@ -173,7 +179,7 @@ describe("continuable", ()=>{
 	})
 
 
-	xdescribe("compose to y/id then y/id",()=>{
+	describe("compose to y/id then y/id",()=>{
 		function compose2(node,state,i){
 			let root=null
 			const renderer=TestRender.create(root=
@@ -203,6 +209,7 @@ describe("continuable", ()=>{
 					return "1234"
 				}
 			}
+			size.composedHeight=jest.fn(()=>size.height/2)
 			const doc=compose2(node,state)
 			let pages=doc.computed.composed
 
@@ -302,15 +309,15 @@ describe("continuable", ()=>{
 						return "1234"
 					}
 				}
-				Section.prototype.render=jest.fn(Section.prototype.render)
+				Template.prototype.render=jest.fn(Template.prototype.render)
 				Paragraph.prototype.render=jest.fn(Paragraph.prototype.render)
 				const doc=compose2(node,state)
 
 				const pages=doc.computed.composed
 				expect(pages.length).toBe(2)
 				expect($(pages).text()).toBe("hello1hello2")
-				expect(Section.prototype.render).toHaveBeenCalledTimes(3)
-				expect(Section.prototype.render).lastReturnedWith(null)
+				expect(Template.prototype.render).toHaveBeenCalledTimes(3)
+				expect(Template.prototype.render).lastReturnedWith(null)
 				expect(Paragraph.prototype.render).toHaveBeenCalledTimes(2)
 
 
@@ -328,12 +335,12 @@ describe("continuable", ()=>{
 						1. section1/2.render should be return null
 						2. so paragraph1/2.render should not be called
 						*/
-						expect(Section.prototype.render).toHaveBeenCalledTimes(6)
+						expect(Template.prototype.render).toHaveBeenCalledTimes(6)
 						expect(Paragraph.prototype.render).toHaveBeenCalledTimes(3)
 
-						expect(Section.prototype.render).nthReturnedWith(4,null)
-						expect(Section.prototype.render).nthReturnedWith(5,null)
-						expect(React.isValidElement(Section.prototype.render.mock.results[5].value)).toBe(true)
+						expect(Template.prototype.render).nthReturnedWith(4,null)
+						expect(Template.prototype.render).nthReturnedWith(5,null)
+						expect(React.isValidElement(Template.prototype.render.mock.results[5].value)).toBe(true)
 						//expect(section2.render).lastReturnedWith(null)
 
 						resolve()
@@ -341,7 +348,7 @@ describe("continuable", ()=>{
 				})
 			})
 
-			it("scroll with cache(part)/section compose",()=>{
+			it("scroll with cache(part)/template compose",()=>{
 				const node={scrollTop:0}
 				const state={
 					equals(){
@@ -354,7 +361,8 @@ describe("continuable", ()=>{
 						return "1234"
 					}
 				}
-				Section.prototype.render=jest.fn(Section.prototype.render)
+				Frame.prototype.removeFrom=jest.fn()
+				Template.prototype.render=jest.fn(Template.prototype.render)
 				Paragraph.prototype.render=jest.fn(Paragraph.prototype.render)
 				const doc=compose2(node,state,2)
 
@@ -362,8 +370,8 @@ describe("continuable", ()=>{
 				//expect(pages.length).toBe(2)
 				expect($(pages).text()).toBe("hello1hello1.1hello2")
 				//section 3 render to null since selection is on section2.paragraph1
-				expect(Section.prototype.render).toHaveBeenCalledTimes(3)
-				expect(Section.prototype.render).lastReturnedWith(null)
+				expect(Template.prototype.render).toHaveBeenCalledTimes(3)
+				expect(Template.prototype.render).lastReturnedWith(null)
 
 				//section2.paragraph2 render to null since selection is on first paragraph
 				expect(Paragraph.prototype.render).toHaveBeenCalledTimes(4)
@@ -384,13 +392,13 @@ describe("continuable", ()=>{
 						1. section1/2.render should be return null
 						2. so paragraph1/2.render should not be called
 						*/
-						expect(Section.prototype.render).toHaveBeenCalledTimes(3+3)
+						expect(Template.prototype.render).toHaveBeenCalledTimes(3+3)
 						expect(Paragraph.prototype.render).toHaveBeenCalledTimes(4+3)
 
-						expect(Section.prototype.render).nthReturnedWith(4,null)
+						expect(Template.prototype.render).nthReturnedWith(4,null)
 						expect(Paragraph.prototype.render).nthReturnedWith(7,null)
 
-						expect(React.isValidElement(Section.prototype.render.mock.results[5].value)).toBe(true)
+						expect(React.isValidElement(Template.prototype.render.mock.results[5].value)).toBe(true)
 						//expect(section2.render).lastReturnedWith(null)
 
 						resolve()
@@ -411,15 +419,15 @@ describe("continuable", ()=>{
 						return "1234"
 					}
 				}
-				Section.prototype.render=jest.fn(Section.prototype.render)
+				Template.prototype.render=jest.fn(Template.prototype.render)
 				Paragraph.prototype.render=jest.fn(Paragraph.prototype.render)
 				const doc=compose2(node,state)
 
 				const pages=doc.computed.composed
 				expect(pages.length).toBe(2)
 				expect($(pages).text()).toBe("hello1hello2")
-				expect(Section.prototype.render).toHaveBeenCalledTimes(3)
-				expect(Section.prototype.render).lastReturnedWith(null)
+				expect(Template.prototype.render).toHaveBeenCalledTimes(3)
+				expect(Template.prototype.render).lastReturnedWith(null)
 				expect(Paragraph.prototype.render).toHaveBeenCalledTimes(2)
 
 
@@ -435,11 +443,11 @@ describe("continuable", ()=>{
 						1. section1/2.render should be return null
 						2. so paragraph1/2.render should not be called
 						*/
-						expect(Section.prototype.render).toHaveBeenCalledTimes(6)
+						expect(Template.prototype.render).toHaveBeenCalledTimes(6)
 						expect(Paragraph.prototype.render).toHaveBeenCalledTimes(3)
 
-						expect(Section.prototype.render).nthReturnedWith(4,null)
-						expect(Section.prototype.render).nthReturnedWith(5,null)
+						expect(Template.prototype.render).nthReturnedWith(4,null)
+						expect(Template.prototype.render).nthReturnedWith(5,null)
 						expect(React.isValidElement(Section.prototype.render.mock.results[5].value)).toBe(true)
 						//expect(section2.render).lastReturnedWith(null)
 

@@ -57,7 +57,6 @@ function Locatorize(A){
 			this.mount=a=>composers.set(a.props.id,a)
 			this.unmount=a=>composers.delete(a.props.id)
 			this.getComposer=id=>composers.get(id)
-			this.state.composers=this.composers
 		}
 
 		getChildContext(){

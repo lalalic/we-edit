@@ -503,6 +503,7 @@ class PaginationControllable extends Balanceable{
 						}else if(parent.context){
 							parent=parent.context.parent
 						}else{
+							return null
 							throw new Error("not here")
 						}
 					}
