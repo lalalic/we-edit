@@ -4,10 +4,6 @@ import Recomposable from "./recomposable"
 
 export default (A,partable)=>class extends A{
     static displayName=`cacheable(${partable ? "part" : "all"})-${A.displayName}`
-    static contextTypes={
-        ...A.contextTypes,
-        getComposer: PropTypes.func
-    }
     constructor(){
         super(...arguments)
         this.computed.lastComposed=[]

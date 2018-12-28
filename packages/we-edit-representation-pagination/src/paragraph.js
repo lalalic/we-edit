@@ -66,12 +66,13 @@ export default class extends Super{
 	get currentLine(){
 		const {composed}=this.computed
 		if(composed.length==0){
-			composed.push(this.createLine(this.context.parent.nextAvailableSpace()))
+			this.createLine()
 		}
 		return composed[composed.length-1]
 	}
 
-    createLine({width,...space}){
+    createLine(required){
+		const {width,...space}=this.context.parent.nextAvailableSpace(required)
 		const composableWidth=(w=>{
 	        const {indent:{left=0,right=0,firstLine=0}}=this.props
 	        w-=(left+right)
@@ -98,6 +99,7 @@ export default class extends Super{
 				</Group>
 			)
 		}
+		this.computed.composed.push(line)
 		return line
     }
 
@@ -124,6 +126,9 @@ export default class extends Super{
 		super.onAllChildrenComposed()
     }
 
+	rollbackLines(n){
+		this.computed.composed.splice(-n)
+	}
 
 	/**
 	* line.appendComposed can rollback to a specified atom
@@ -133,13 +138,13 @@ export default class extends Super{
 		const {context:{parent}, computed:{atoms}}=this
 
 		const rollbackToLineWithFirstAtomIndex=at=>{
-			const lines=this.computed.composed
+			const {composed:lines,atoms}=this.computed
 			const i=lines.findIndex(a=>atoms.indexOf(a.first)==at)
-			lines.splice(i)
-			lines.push(this.createLine(parent.nextAvailableSpace()))
+			this.rollbackLines(lines.length-i)
 		}
 
 		const appendComposedLine=bLast=>parent.appendComposed(this.createComposed2Parent(this.currentLine.commit(),bLast))
+
 		const atomIndexOfLastNthLine=i=>atoms.indexOf(this.computed.composed[this.computed.composed.length-i].first)
 
 		const len=this.computed.atoms.length
@@ -163,9 +168,9 @@ export default class extends Super{
 				}
 				next=this.currentLine.appendComposed(atoms[i],i)
 
-				if(next===false){
-					if(!Number.isInteger(rollbackLines=appendComposedLine())){
-						this.computed.composed.push(this.createLine(parent.nextAvailableSpace()))
+				if(next===false){//current line is full, atoms[i] not assembled
+					if(!Number.isInteger(rollbackLines=appendComposedLine(false))){
+						this.createLine()
 						continue
 					}else{
 						if(rollbackLines==Frame.IMMEDIATE_STOP)
@@ -175,7 +180,9 @@ export default class extends Super{
 				}
 
 				if(Number.isInteger(next)){
-					rollbackToLineWithFirstAtomIndex(i=next)
+					rollbackToLineWithFirstAtomIndex(next)
+					this.createLine()
+					i=next
 					continue
 				}
 
@@ -194,6 +201,7 @@ export default class extends Super{
 						return Frame.IMMEDIATE_STOP
 					next=atomIndexOfLastNthLine(rollbackLines)
 					rollbackToLineWithFirstAtomIndex(next)
+					this.createLine()
 					commitFrom(next)
 				}
 			}
@@ -206,10 +214,11 @@ export default class extends Super{
 		const {atoms, composed}=this.computed
 		lastLines=composed.slice(-lastLines.length)
 
-		this.computed.composed=composed.slice(0,-lastLines.length)
+		this.rollbackLines(lastLines.length)
+
 		const start=atoms.findIndex(a=>a==lastLines[0].first)
 		const end=atoms.slice(start+1).findIndex(a=>a==lastLines[lastLines.length-1].last)+start+1
-		this.computed.composed.push(this.createLine(this.context.parent.nextAvailableSpace()))
+		this.createLine()
 		return this.commit(start, end)
 	}
 
@@ -342,6 +351,16 @@ class Line extends Component{
 
 	isEmpty(){
 		return this.children.length==0
+	}
+
+	hasEqualSpace({width,maxWidth,wrappees=[]}){
+		return this.props.width==width &&
+			this.props.maxWidth==maxWidth &&
+			this.wrappees.length==wrappees.length &&
+			!!!this.wrappees.find((a,i)=>{
+				let b=wrappees[i]
+				return Math.abs(a.x-b.x)>1 && Math.abs(a.width-b.width)>1
+			})
 	}
 
 	appendComposed(atom,at){

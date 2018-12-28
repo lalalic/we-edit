@@ -15,7 +15,7 @@ import Frame from "./frame"
 
 export default editable.enable(Models,{
 	Document,
-	//Template,
+	Template,
 	Paragraph,
 	Frame,
 //	Shape,

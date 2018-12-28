@@ -17,8 +17,37 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 		super.clearComposed(...arguments)
 	}
 
+	rollbackLines(n){
+		super.rollbackLines(n)
+		if(this.computed.lastComposed){
+			this.computed.lastComposed.splice(-n)
+		}
+	}
+
 	appendLastComposed(){
-		this.computed.lastComposed.forEach(a=>this.context.parent.appendComposed(a))
+		const lines=this.computed.composed
+		this.computed.composed=[]
+		const spaceChangedAt=this.computed.lastComposed.findIndex((a,i)=>{
+			let line=lines[i]
+			let space=this.context.parent.nextAvailableSpace({height:line.lineHeight()})
+			if(line.hasEqualSpace(space)){
+				this.computed.composed.push(line)
+				this.context.parent.appendComposed(a)
+				return false
+			}else{
+				this.computed.lastComposed.splice(i)
+				return true
+			}
+		})
+
+		switch(spaceChangedAt){
+			case 0:
+				return false//fully recompose
+			case -1:
+				return
+			default:
+				this.commit(this.computed.atoms.indexOf(lines[spaceChangedAt].first))
+		}
 	}
 
 	getDefaultMeasure(){

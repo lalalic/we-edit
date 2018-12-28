@@ -59,15 +59,16 @@ export default ({Document, Container,Frame})=>class extends Component{
 
 		function inheritHeaderFooter(current){
 			const mine=getHeaderFooter(current)
-			headerfooters={
+			headerfooters=Object.values({
 				...headerfooters,
 				...mine,
-			}
+			})
 
-			const children=current.props.children
+			 //remove own headers & footers
+			const children=headerfooters.concat(withoutHeaderFooterChildren(current.props.children))
 			current=React.cloneElement(current,{
-				children:Object.values(headerfooters)
-					.concat(withoutHeaderFooterChildren(children)) //remove own headers & footers
+				children,
+				changed:current.props.selfChanged || !!children.find(a=>a.props.changed)
 			})
 
 			//first page of section can't be inherited
@@ -85,7 +86,14 @@ export default ({Document, Container,Frame})=>class extends Component{
 			if(current.type.displayName!=="section"){
 				content.push(current)
 			}else{
-				content.push(inheritHeaderFooter(current))
+				current=inheritHeaderFooter(current)
+				if(!current.props.changed && current.props.type=="continuous"){
+					const prev=content[content.length-1]
+					if(prev && prev.type.displayName=="section" && prev.props.changed){
+						current=React.cloneElement(current,{changed:true})
+					}
+				}
+				content.push(current)
 			}
 			return content
 		},[])

@@ -63,14 +63,8 @@ export default ({Template,Frame, Container})=>{
 			}
 			this.y0=y0
 			this.y1=y1
-
-			this.createColumn=()=>Object.assign(super.createColumn(),{
-				height:y1-y0,
-				y:y0,
-				id
-			})
 		}
-		
+
 		createColumn(){
 			const id=this.layout.id
 			const i=this.columns.findIndex(a=>a.id==id)
@@ -188,12 +182,25 @@ export default ({Template,Frame, Container})=>{
 		}
 
 		removeFrom(lineIndex){
+			//remove content
 			const done=super.rollbackLines(this.lines.length-lineIndex,false)
+			//remove layout
 			const i=this.columns.length==0 ? 0 : this.layouts.findIndex(a=>a.id==this.currentColumn.id)
-			this.layouts.splice(0,i+1)
-			
+			this.layouts.splice(i+1)
+
 			//delete all pages in following continuous secions
-			
+			const siblings=this.section.getDocument().props.children
+			const j=siblings.findIndex(a=>a.props.id==this.section.id)
+			siblings.slice(j+1).reduce((continuing,a)=>{
+				if(continuing &&
+					a.type.displayName=="section" &&
+					a.props.type=="continuous"){
+					this.context.getComposer(a.props.id)//Template
+						.clearComposed()
+					return true
+				}
+				return false
+			},true)
 			return done
 		}
 	}
