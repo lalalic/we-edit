@@ -1,6 +1,7 @@
 import editable from "./editable"
 import Base from "../text"
 
+//cache can't improve performance much
 export default class extends editable(Base){
     nextCursorable(at=-1,locator){
         if(this.text.length-1>at){

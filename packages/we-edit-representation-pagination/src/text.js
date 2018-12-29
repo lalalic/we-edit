@@ -42,7 +42,9 @@ export default class Text extends Super{
         return this.createMeasure(fonts,size,bold,italic)
     }
 
-    getMyBreakOpportunities=memoize(text=>this.context.getMyBreakOpportunities(text))
+    getMyBreakOpportunities(text){
+        return this.context.getMyBreakOpportunities(text)
+    }
 
     render(){
         const {parent}=this.context
