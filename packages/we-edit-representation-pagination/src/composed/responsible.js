@@ -109,7 +109,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
                     const {buttons, target, clientX:left,clientY:top}=e
 					if(!(buttons&0x1))
 						return
-                    const {id,x,node}=this.positioning.around(target, left,top)
+                    const {id,x,node}=this.positioning.around(left,top)
                     if(id){
                         const at=this.getComposer(id).distanceAt(x, node)
                         const end={id,at}
@@ -172,7 +172,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
                         range={
                             <Selection
                                 around={(target,left,top)=>{
-                                    const {id,x,node}=this.positioning.around(target, left, top)
+                                    const {id,x,node}=this.positioning.around(left, top)
                             		if(id){
                                         let at=null
                                         if(this.getComposer(id).nextCursorable(undefined,this.positioning)===false){
@@ -233,7 +233,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
     }
 
     onClick({shiftKey:selecting, target, clientX:left,clientY:top}){
-		const {id,x,node}=this.positioning.around(target, left, top)
+		const {id,x,node}=this.positioning.around(left, top)
 		if(id){
             if(this.getComposer(id).nextCursorable(undefined,this.positioning)===false){
                 this.dispatch(ACTION.Selection.SELECT(id))

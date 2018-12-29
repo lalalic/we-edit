@@ -1,5 +1,17 @@
 import memoize from "memoize-one"
 
+const Position={
+    create({id,at,left,top,x,y,page,line, ...props}){
+        return {
+            id,at,
+            page,line,
+            left,top,
+            x,y,
+            ...props,
+        }
+    }
+}
+
 class Positioning{
     constructor(){
         this.reset(...arguments)
@@ -14,26 +26,26 @@ class Positioning{
         this.gap=gap
     }
 
-    position(){
-        throw new Error(`Positioning.position must be implemented`)
+    position(id,at){
+        return {page:0}
     }
-    around(){
-        throw new Error(`Positioning.around must be implemented`)
+    around(left,top){
+        return {}
     }
-    lines(){
-        throw new Error(`Positioning.lines must be implemented`)
+    lines(n){
+        return []
     }
-    line(){
-        throw new Error(`Positioning.line must be implemented`)
+    line(id,at,offset){
+        return null
     }
-    getRangeRects(){
-        throw new Error(`Positioning.getRangeRects must be implemented`)
+    getRangeRects(start,end){
+        return []
     }
-    getClientRects(){
-        throw new Error(`Positioning.getClientRects must be implemented`)
+    getClientRects(id){
+        return []
     }
-    getClientRect(){
-        throw new Error(`Positioning.getClientRect must be implemented`)
+    getClientRect(id){
+        return null
     }
 
     getCursorSelection=memoize((content, selection,scale)=>{
@@ -74,10 +86,13 @@ class Positioning{
         return this.line(id,at,-1)
     }
 
+    pageXY(i=0){
+        const {left,top}=this.canvas.querySelectorAll(".page")[i].closest("[transform]").getBoundingClientRect()
+        return this.asCanvasPoint({left,top})
+    }
 
-    pageY(page){
-        const {left,top}=this.canvas.querySelectorAll(".page")[page].closest("[transform]").getBoundingClientRect()
-        return this.asCanvasPoint({left,top}).y
+    pageY(i){
+        return this.pageXY(...arguments).y
     }
 
     getSelectionStyle=memoize((content,selection,scale)=>{
@@ -144,7 +159,40 @@ class Positioning{
 **/
 class DOMPositioning extends Positioning{
     LINE=".line:not(:empty)"
-    around(node, left, top){
+    position(id,at){
+        const paginate=node=>{
+            if(!node){
+                return {page:0,column:0,line:0}
+            }
+            const page=node.closest(".page")
+            const line=node.closest(".line")
+            return {
+                page:Array.from(this.canvas.querySelectorAll(".page")).indexOf(page),
+                line:line!==undefined ? this.lines(page).indexOf(line): undefined
+            }
+        }
+        const composer=this.getComposer(id)
+
+        if(composer){
+            const rect=composer.position(this,at)
+
+            if(rect){
+                const {x,y,width,node, ...position}=rect
+
+                return {
+                    id,at,//node,
+                    x,y,
+                    ...position,
+                    ...this.asViewportPoint({x,y}),
+                    //...paginate(node),
+                }
+            }
+        }
+
+        return null
+    }
+
+    around(left, top){
         const {x,y}=this.asCanvasPoint({left,top})
 
         const locateLine=(container,top=true)=>Array.from(container.querySelectorAll(this.LINE)).find(a=>{
@@ -194,41 +242,9 @@ class DOMPositioning extends Positioning{
         })();
     }
 
-    lines(n){
-        const nested=Array.from(n.querySelectorAll(".line .line"))
-        return Array.from(n.querySelectorAll(this.LINE)).filter(a=>!nested.includes(a))
-    }
-
-    position(id,at){
-        const paginate=node=>{
-            if(!node){
-                return {page:0,column:0,line:0}
-            }
-            const page=node.closest(".page")
-            const line=node.closest(".line")
-            return {
-                page:Array.from(this.canvas.querySelectorAll(".page")).indexOf(page),
-                line:line!==undefined ? this.lines(page).indexOf(line): undefined
-            }
-        }
-		const composer=this.getComposer(id)
-
-        if(composer){
-    		const rect=composer.position(this,at)
-
-    		if(rect){
-    			const {x,y,width,node, ...position}=rect
-
-    			return {
-    				id,at,node,x,y,
-    				...position,
-    				...this.asViewportPoint({x,y}),
-    				...paginate(node),
-    			}
-    		}
-        }
-
-		return null
+    lines(node){
+        const nested=Array.from(node.querySelectorAll(".line .line"))
+        return Array.from(node.querySelectorAll(this.LINE)).filter(a=>!nested.includes(a))
     }
 
     line(id,at,offset){
@@ -367,29 +383,114 @@ class DOMPositioning extends Positioning{
 		return []
     }
 
-    getClientRects(id){
-        return Array.from(this.canvas.querySelectorAll(`[data-content="${id}"]`))
-            .map(a=>this.getClientRect(id,a))
-			.filter(a=>!!a)
-    }
-
     getClientRect(id, node){
         node=node||this.canvas.querySelector(`[data-content="${id}"]`)
 		if(node){
 			const {left,top,width,height}=node.getBoundingClientRect()
 			const {x,y}=this.asCanvasPoint({left,top})
 			return {
-				x,y,left,top,node,
+				x,y,left,top,
+                text:node.textContent,
+                endat:node.dataset.endat,
 				width:width/this.scale,height:height/this.scale
 			}
 		}
 
 		return null
     }
+
+    getClientRects(id){
+        return Array.from(this.canvas.querySelectorAll(`[data-content="${id}"]`))
+            .map(a=>this.getClientRect(id,a))
+			.filter(a=>!!a)
+    }
 }
 
-class ReactPositioning extends Positioning{
+class ReactPositioning extends DOMPositioning{
+    getPages(id){
+        return this.getContent(id).parents().toArray()
+            .slice(0,-1)//remove root
+            .reverse()//outer to inner
+            .reduce((pages,id)=>pages.filter(page=>page.includeContent(id)),this.pages)
+    }
 
+    position(id,at){
+        const composer=this.getComposer(id)
+        if(!composer){
+            return super.position(...arguments)
+        }
+
+        const {x,y,...position}=composer.position(this,at)
+        return {
+            id,at,
+            x,y,
+            ...this.asViewportPoint({x,y}),
+            ...position,
+        }
+    }
+
+    around(left,top){
+        const {page, x, y}=(()=>{
+            let {x,y}=this.asCanvasPoint({left,top}), xy
+            const page=this.pages.find(({props:{width,height}},i)=>{
+                xy=this.pageXY(i)
+                return x>=xy.x && x<=xy.x+width && y>=xy.y && y<=xy.y+height
+            })
+            return {page, x:x-xy.x, y:y-xy.y}
+        })();
+
+        page.elementFromPoint(x,y)
+
+
+
+        return (()=>{
+			if(line){
+				const {left,right}=line.getBoundingClientRect()
+				let contents=Array.from(line.querySelectorAll(`[data-content]:not(g)`))
+				if(contents.length==0){
+					contents=Array.from(line.querySelectorAll(`[data-content]`))
+				}
+				const rects=contents.map(a=>{
+					const {left,top}=a.getBoundingClientRect()
+					return this.asCanvasPoint({left,top}).x
+				})
+				const i=Math.max(0,Math.min(rects
+					.concat([x])
+					.sort((a,b)=>a-b)
+					.indexOf(x)-1,rects.length-1))
+				const node=contents[i]
+				if(node){
+					return {
+						id:node.dataset.content,
+						x:x-rects[i],
+						node
+					}
+				}
+			}
+
+            return {}
+        })();
+    }
+/*
+    lines(node){
+
+    }
+
+    line(id,at,offset){
+
+    }
+
+    getRangeRects(start,end){
+
+    }
+
+    getClientRect(id){
+        return this.getClientRects(id)[0]
+    }
+*/
+    getClientRects(id){
+        return this.getComposer(id).getClientRects(this)
+    }
 }
 
-export default DOMPositioning
+export default ReactPositioning

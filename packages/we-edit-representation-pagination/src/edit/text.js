@@ -3,18 +3,7 @@ import Base from "../text"
 import {Cacheable} from "../composable"
 
 //cache doesn't help on performance
-export default (class extends editable(Base){
-    getMyBreakOpportunities(text){
-        return this.computed.opportunities=this.context.getMyBreakOpportunities(text)
-    }
-
-    appendLastComposed(){
-        const lastOpportunities=this.computed.opportunities
-        if(this.getMyBreakOpportunities(this.text).find((a,i)=>a!=lastOpportunities[i])){
-            return false
-        }
-        this.computed.lastComposed.forEach(a=>this.context.parent.appendComposed(a))
-    }
+export default class extends editable(Base){
 
     nextCursorable(at=-1,locator){
         if(this.text.length-1>at){
@@ -85,12 +74,46 @@ export default (class extends editable(Base){
 		return offset+this.measure.widthString(Math.max(x,0),node.textContent)
 	}
 
-	position(canvas, at){
+    getClientRects(canvas){
+        const {height,descent}=this.measure.defaultStyle
+
+        return canvas.getPages(this.props.id)
+            .reduce((rects,page)=>{
+                const {x,y}=canvas.pageXY(canvas.pages.indexOf(page))
+                return [...rects,...page.getClientRects(this.props.id).map(a=>Object.assign(a,{x:a.x+x,y:a.y+y-(height-descent)}))]
+            },[])
+    }
+
+    position(canvas, at){
         const {id}=this.props
         const {fontSize, fontFamily,height,descent}=this.measure.defaultStyle
         const position={fontSize, fontFamily,height,x:0,y:0}
 		const rects=canvas.getClientRects(id)
-		const i=Math.max(0,Math.min(rects.map(a=>parseInt(a.node.dataset.endat))
+		const i=Math.max(0,Math.min(rects.map(a=>parseInt(a.endat))
+				.concat([at])
+				.sort((a,b)=>a-b)
+				.indexOf(at),rects.length-1))
+
+        const rect=rects[i]
+        if(rect){
+    		let {x,y,text,endat}=rect
+            position.y=y
+            if(text.length!==0){
+        		x+=this.measure.stringWidth(text.substring(0,at-(endat-text.length)))
+            }else{
+                position.y+=(height+descent)
+            }
+            position.x=x
+        }
+        return position
+	}
+
+	position0(canvas, at){
+        const {id}=this.props
+        const {fontSize, fontFamily,height,descent}=this.measure.defaultStyle
+        const position={fontSize, fontFamily,height,x:0,y:0}
+		const rects=canvas.getClientRects(id)
+		const i=Math.max(0,Math.min(rects.map(a=>parseInt(a.endat))
 				.concat([at])
 				.sort((a,b)=>a-b)
 				.indexOf(at),rects.length-1))
@@ -113,4 +136,4 @@ export default (class extends editable(Base){
         }
         return position
 	}
-})
+}

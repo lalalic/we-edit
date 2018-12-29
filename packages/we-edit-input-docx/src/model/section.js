@@ -173,12 +173,65 @@ export default ({Template,Frame, Container})=>{
 			return React.cloneElement(super.createComposed2Parent(),{key,width,height,margin,className:"page frame"})
 		}
 
-		includes(id,at){
+		includeContent(id){
+			if(!!this.columns.find(a=>a.id==id)){
+				return true
+			}
+			return !![...this.lines,...this.anchors].find(a=>this.belongsTo(a,id))
+		}
+
+		elementFromPoint(x,y){
+			return {id:"",x:0}
+			var column,line, X=0, Y=0
+			column=this.columns.find((children:lines, x, y)=>{
+				line=lines.find(line=>{
+
+				})
+			})
 
 		}
 
-		position(id,at){
+		getClientRects(id){
+			const RE_TRANSLATE=/translate\((.*)\s+(.*)\)/
+			const clean=(props,excludes=["undefined","object"])=>Object.keys(props).reduce((o,k)=>{
+				if(!excludes.includes(typeof(props[k]))){
+					o[k]=props[k]
+				}
+				if(k=="data-endat")
+					o.endat=parseInt(props[k])
+				return o
+			},{})
+			const rendered=TestRenderer.create(
+					React.cloneElement(this.createComposed2Parent(),{x:0,y:0})
+				).toJSON()
 
+			const traverse=({props:{transform="",x=0,y=0,...props},children=[]})=>{
+				if(props["data-content"]==id){
+					props=clean(props)
+					if(typeof(children)=="string"){
+						props.text=children
+					}else if(Array.isArray(children) && typeof(children[0])=="string"){
+						props.text=children.join("")
+					}
+
+					return [Object.assign(props,{x,y})]
+				}
+				if(Array.isArray(children) && typeof(children[0])!="string"){
+					let rects=children.map(traverse).filter(a=>!!a).reduce((rects,a)=>[...rects,...a],[])
+					if(rects.length){
+						if(transform){
+							let [,x=0,y=0]=transform.match(RE_TRANSLATE)
+							rects.forEach(a=>{
+								a.x+=parseFloat(x)
+								a.y+=parseFloat(y)
+							})
+						}
+					}
+					return rects
+				}
+			}
+
+			return traverse(rendered)
 		}
 
 		removeFrom(lineIndex){
