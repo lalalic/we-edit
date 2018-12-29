@@ -1,8 +1,21 @@
 import editable from "./editable"
 import Base from "../text"
+import {Cacheable} from "../composable"
 
-//cache can't improve performance much
-export default class extends editable(Base){
+//cache doesn't help on performance
+export default (class extends editable(Base){
+    getMyBreakOpportunities(text){
+        return this.computed.opportunities=this.context.getMyBreakOpportunities(text)
+    }
+
+    appendLastComposed(){
+        const lastOpportunities=this.computed.opportunities
+        if(this.getMyBreakOpportunities(this.text).find((a,i)=>a!=lastOpportunities[i])){
+            return false
+        }
+        this.computed.lastComposed.forEach(a=>this.context.parent.appendComposed(a))
+    }
+
     nextCursorable(at=-1,locator){
         if(this.text.length-1>at){
             return at+1
@@ -100,4 +113,4 @@ export default class extends editable(Base){
         }
         return position
 	}
-}
+})

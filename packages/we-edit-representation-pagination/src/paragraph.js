@@ -19,13 +19,11 @@ export default class extends Super{
     static childContextTypes={
         ...Super.childContextTypes,
         getMyBreakOpportunities: PropTypes.func,
-		getLastText: PropTypes.func
     }
 
 	constructor(){
 		super(...arguments)
 		this.computed.lastText=""
-		this.computed.words=0
 		this.computed.atoms=[]
 		this.computed.needMerge=false
 	}
@@ -34,7 +32,7 @@ export default class extends Super{
         let self=this
         return {
             ...super.getChildContext(),
-			getMyBreakOpportunities(text,f){
+			getMyBreakOpportunities(text){
 				const {lastText}=self.computed
 				if(!text){
 					if(text===null)
@@ -42,9 +40,9 @@ export default class extends Super{
 					return []
 				}
 
-				const current=opportunities(self.computed.lastText=`${lastText}${text}`)
+				const current=opportunities(`${lastText}${text}`)
 				if(!lastText){
-					self.computed.words+=current.length
+					self.computed.lastText=current[current.length-1]||""
 					return current
 				}
 
@@ -57,7 +55,7 @@ export default class extends Super{
 				}else{
 					self.computed.needMerge=true
 				}
-				self.computed.words+=(possible.length-1)
+				self.computed.lastText=possible[possible.length-1]||""
 				return possible
             }
         }
