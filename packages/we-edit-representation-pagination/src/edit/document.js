@@ -98,7 +98,9 @@ export default class Document extends Super{
 	}
 
 	composedWords(){
-		return this.composers.reduce((words,a)=>words+=(a.computed.atoms ? a.computed.atoms.length : 0),0)
+		return Array.from(this.composers.values())
+			.filter(a=>!!a)
+			.reduce((words,a)=>words+=(a.computed.atoms ? a.computed.atoms.length : 0),0)
 	}
 
 	/**
