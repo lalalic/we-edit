@@ -98,13 +98,8 @@ export default class Document extends Super{
 	}
 
 	composedWords(){
-		let  words=0
-		this.composers.forEach(a=>{
-			words+=(a.computed.words||0)
-		})
-		return words
+		return this.composers.reduce((words,a)=>words+=(a.computed.atoms ? a.computed.atoms.length : 0),0)
 	}
-
 
 	/**
 	* 1. selection end
