@@ -233,12 +233,11 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
     }
 
     onClick({shiftKey:selecting, target, clientX:left,clientY:top}){
-		const {id,x,node}=this.positioning.around(left, top)
+		const {id,at}=this.positioning.around(left, top)
 		if(id){
-            if(this.getComposer(id).nextCursorable(undefined,this.positioning)===false){
+            if(at==undefined){
                 this.dispatch(ACTION.Selection.SELECT(id))
             }else{
-    			const at=this.getComposer(id).distanceAt(x, node)
     			if(!selecting){
     				this.dispatch(ACTION.Cursor.AT(id,at))
     			}else{
@@ -261,8 +260,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 		if(id==undefined){
 			({id,at}=this.cursor)
 		}
-
-        const $=this.getContent(id)
+		
         const next=(id,at)=>{
             let composer=this.getComposer(id)
             if(composer){
@@ -270,7 +268,9 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
             }
             return false
         }
+		return next()
 
+        const $=this.getContent(id)
         const location=((_id,_at)=>{
     		const check=a=>(_at=next(_id=a.get("id")))!==false
             if(inclusive){

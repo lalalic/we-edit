@@ -176,6 +176,9 @@ class Fixed extends Super{
 			.filter(filter)
 			.attr("data-content")
 	}
+	getParagraph(line){
+		return new ReactQuery(line).findFirst(`[data-type="paragraph"]`).attr("data-content")
+	}
 
 	isEmpty(){
 		return this.totalLines==0

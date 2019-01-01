@@ -430,7 +430,6 @@ class ReactPositioning extends DOMPositioning{
     }
 
     around(left,top){
-		return  super.around(...arguments)
         const {page, x, y}=(()=>{
             let {x,y}=this.asCanvasPoint({left,top}), xy
             const page=this.pages.find(({props:{width,height}},i)=>{
@@ -441,36 +440,6 @@ class ReactPositioning extends DOMPositioning{
         })();
 
         return page.caretPositionFromPoint(x,y)
-
-
-
-        return (()=>{
-			if(line){
-				const {left,right}=line.getBoundingClientRect()
-				let contents=Array.from(line.querySelectorAll(`[data-content]:not(g)`))
-				if(contents.length==0){
-					contents=Array.from(line.querySelectorAll(`[data-content]`))
-				}
-				const rects=contents.map(a=>{
-					const {left,top}=a.getBoundingClientRect()
-					return this.asCanvasPoint({left,top}).x
-				})
-				const i=Math.max(0,Math.min(rects
-					.concat([x])
-					.sort((a,b)=>a-b)
-					.indexOf(x)-1,rects.length-1))
-				const node=contents[i]
-				if(node){
-					return {
-						id:node.dataset.content,
-						x:x-rects[i],
-						node
-					}
-				}
-			}
-
-            return {}
-        })();
     }
 /*
     lines(node){
@@ -488,10 +457,11 @@ class ReactPositioning extends DOMPositioning{
     getClientRect(id){
         return this.getClientRects(id)[0]
     }
-*/
+
     getClientRects(id){
         return this.getComposer(id).getClientRects(this)
     }
+	*/
 }
 
 export default ReactPositioning

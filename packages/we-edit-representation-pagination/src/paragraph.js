@@ -11,7 +11,7 @@ import {Text as ComposedText,  Group} from "./composed"
 import Frame from "./frame"
 
 const Super=HasParentAndChild(Base)
-export default class extends Super{
+export default class Paragraph extends Super{
 	static contextTypes={
 		...Super.contextTypes,
 		Measure: PropTypes.func,
@@ -80,7 +80,7 @@ export default class extends Super{
 	        return w
 	    })(width);
 
-        let line=new Line({...space, width:composableWidth},{parent:this})
+        let line=new this.constructor.Line({...space, width:composableWidth},{parent:this})
 		if(this.props.numbering && this.computed.composed.length==0){
 			let {numbering:{label}, indent:{firstLine}}=this.props
 			let {defaultStyle}=new this.context.Measure(label.props)
@@ -260,7 +260,7 @@ export default class extends Super{
         return (
             <Group height={lineHeight} width={width} className="line" pagination={pagination} anchor={anchor}>
                 <Group x={contentX} y={contentY} width={width} height={height}>
-					<Story {...{children,align}}/>
+					<this.constructor.Story {...{children,align}}/>
                 </Group>
             </Group>
         )
@@ -628,6 +628,8 @@ class Story extends Component{
 	}
 }
 
+Paragraph.Line=Line
+Paragraph.Story=Story
 
 function isWhitespace(a,/*$=new Query(a)*/){
 	//return $.prop("minWidth")==0 && $.findFirst(".whitespace")

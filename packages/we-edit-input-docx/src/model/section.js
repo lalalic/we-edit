@@ -181,13 +181,14 @@ export default ({Template,Frame, Container})=>{
 		}
 		
 		caretPositionFromPoint(x,y){
-			return {id:"",x:0}
 			const include=({x:x0=0,y:y0=0,width,height})=>x0<=x && y0<=y && (x0+width)>=x && (y0+height)>=y
-			
+			var lineX,lineY
 			var line=this.columns.filter(a=>include({x:a.x,y:a.y,width:a.width,height:a.currentY}))
-				.reduce((found,{children:lines,x,y,Y=y})=>{
-					return lines.find(({props:{width,height}})=>{
+				.reduce((found,{children:lines,x=0,y=0,Y=y})=>{
+					return found || lines.find(({props:{width,height}})=>{
 						if(include({x,y:Y,width,height})){
+							lineX=x
+							lineY=Y
 							return true
 						}
 						Y+=height
@@ -199,11 +200,11 @@ export default ({Template,Frame, Container})=>{
 			
 			if(line){
 				const lines=this.lines
-				const paragraph=this.getFlowableComposerId(line,'[data-type="paragraph"]')
+				const paragraphId=this.getParagraph(line)
 				const end=lines.indexOf(line)
-				const start=lines.slice(0,end).findLastIndex(a=>!this.belongsTo(paragraph))
-				const i=end-start
-				this.context.getComposer(paragraph).position(end-start,)
+				const start=Math.max(0,lines.slice(0,end).findLastIndex(a=>!this.getParagraph(a)==paragraphId))
+				
+				return this.context.getComposer(paragraphId).caretPositionFromPoint(end-start,x-lineX,y-lineY)
 			}
 			
 			return {}

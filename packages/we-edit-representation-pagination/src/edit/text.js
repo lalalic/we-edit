@@ -9,7 +9,12 @@ export default class extends Super{
     nextCursorable(at=-1,locator){
         if(this.text.length-1>at){
             return at+1
-        }else if(this.text.length-1==at){
+        }else{
+			const paragraph=this.query().closest("paragraph").attr('id')
+			return this.context.getComposer(paragraph).nextCursorable(this.props.id)
+		}
+		
+		if(this.text.length-1==at){
             const next=(()=>{
                 const {node}=locator.getClientRects(this.props.id).pop()
                 const p=node.closest(`[data-type="paragraph"]`)
