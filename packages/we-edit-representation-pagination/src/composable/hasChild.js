@@ -1,6 +1,7 @@
 
 import React, {Fragment} from "react"
 import PropTypes from "prop-types"
+import {ContentQuery} from "we-edit"
 
 const ComposedAllTrigger=({host})=>(host.onAllChildrenComposed(),null)
 
@@ -87,5 +88,9 @@ export default A=>class extends A{
 
 	dispatch(){
 		this.context.activeDocStore.dispatch(...arguments)
+	}
+	
+	query(selector=`#${this.props.id}`){
+		return new ContentQuery(this.context.activeDocStore.getState(),selector)
 	}
 }

@@ -100,8 +100,8 @@ export default class Query{
 	find(selector){
 		const select=this._asSelector(selector)
 		let found=this._nodes.reduce((found,el)=>{
-			traverse(el,a=>{
-				if(!!select(a)){
+			traverse(el,function(a){
+				if(!!select(...arguments)){
 					found.push(a)
 				}
 			},k)
@@ -115,8 +115,8 @@ export default class Query{
         var found=null
         for(let i=0,len=this._nodes.length;i<len;i++){
             if(!found){
-                traverse(this._nodes[i],a=>{
-                    if(!!select(a)){
+                traverse(this._nodes[i],function(a){
+                    if(!!select(...arguments)){
                         found=a
                         return true
                     }
@@ -151,7 +151,7 @@ function traverse(el, f, right=false){
 
     if(children.length>0){
         return !!children[`find${right ? "Last" :""}`](child=>{
-            let result=f(child)
+            let result=f(child,el)
             if(result===true){
                 return true
             }else if(result===false){

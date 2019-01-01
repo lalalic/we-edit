@@ -1,10 +1,11 @@
+
 import editable from "./editable"
 import Base from "../text"
 import {Cacheable} from "../composable"
 
 //cache doesn't help on performance
-export default class extends editable(Base){
-
+const Super=editable(Base)
+export default class extends Super{
     nextCursorable(at=-1,locator){
         if(this.text.length-1>at){
             return at+1
@@ -84,7 +85,24 @@ export default class extends editable(Base){
             },[])
     }
 
-    position(canvas, at){
+	position(canvas,at){
+		const {id}=this.props
+        const {fontSize, fontFamily,height,descent}=this.measure.defaultStyle
+        const paragraph=this.query().closest("paragraph").attr('id')
+		const {page,x,y,...position}=this.context.getComposer(paragraph).position(id,at)
+		const pageIndex=canvas.pages.indexOf(page)
+		const {x:x0,y:y0}=canvas.pageXY(pageIndex)
+		return {
+			id,at,
+			fontSize, fontFamily,height,descent,
+			x:x0+x,
+			y:y0+y,
+			page:pageIndex,
+			...position
+		}
+	}
+	
+    position1(canvas, at){
         const {id}=this.props
         const {fontSize, fontFamily,height,descent}=this.measure.defaultStyle
         const position={fontSize, fontFamily,height,x:0,y:0}

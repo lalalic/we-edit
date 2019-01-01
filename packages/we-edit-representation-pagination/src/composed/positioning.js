@@ -430,6 +430,7 @@ class ReactPositioning extends DOMPositioning{
     }
 
     around(left,top){
+		return  super.around(...arguments)
         const {page, x, y}=(()=>{
             let {x,y}=this.asCanvasPoint({left,top}), xy
             const page=this.pages.find(({props:{width,height}},i)=>{
@@ -439,7 +440,7 @@ class ReactPositioning extends DOMPositioning{
             return {page, x:x-xy.x, y:y-xy.y}
         })();
 
-        page.elementFromPoint(x,y)
+        return page.caretPositionFromPoint(x,y)
 
 
 
