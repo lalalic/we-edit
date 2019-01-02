@@ -167,9 +167,8 @@ export default ({Template,Frame, Container})=>{
 			})
 		}
 
-		createComposed2Parent(){
+		render(){
 			const {props:{i:key,width,height,margin}}=this
-
 			return React.cloneElement(super.createComposed2Parent(),{key,width,height,margin,className:"page frame"})
 		}
 

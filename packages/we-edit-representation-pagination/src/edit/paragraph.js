@@ -163,11 +163,7 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 						linesInNextPage-=lines.length
 					}
 				}else{
-					first=lines.findIndex(a=>
-						new ReactQuery(a)
-							.findFirst(`[data-type="paragraph"]`)
-							.attr("data-content")==this.props.id
-					)
+					first=lines.findIndex(a=>page.getParagraph(a)==this.props.id)
 					if(lines[lineIndexInPage=first+lineIndexOfParagraph]){
 						break
 					}else{
@@ -208,8 +204,8 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 		return position
 	}
 
-	static Line=class extends Base.Line{
-
+	getPages(){
+		return super.getPages().filter(page=>!!page.lines.find(a=>page.getParagraph(a)==this.props.id))
 	}
 
 	static Story=class extends Base.Story{

@@ -47,6 +47,10 @@ export default function Navigatable(A){
 			return this.navigatable('position',...arguments)
 		}
 
+		getClientRects(id){
+			return this.navigatable("getClientRects",...arguments)
+		}
+
 		getFocusShape(){
 			return this.navigatable('getFocusShape',...arguments)
 		}

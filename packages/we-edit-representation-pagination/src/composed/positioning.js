@@ -88,8 +88,13 @@ class Positioning{
     }
 
     pageXY(i=0){
-        const {left,top}=this.canvas.querySelectorAll(".page")[i].closest("[transform]").getBoundingClientRect()
-        return this.asCanvasPoint({left,top})
+        const pages=this.canvas.querySelectorAll(".page")
+        const page=pages[i]
+        if(page){
+            const {left,top}=page.closest("[transform]").getBoundingClientRect()
+            return this.asCanvasPoint({left,top})
+        }
+        return {x:0,y:0}
     }
 
     pageY(i){
@@ -491,11 +496,13 @@ class ReactPositioning extends Positioning{
     }
 
     getClientRect(id){
-        
+        return this.getClientRects(id)[0]
     }
 
     getClientRects(id){
-
+        return this.getComposer(id).getPages()
+            .reduce((rects,page)=>[...rects, ...page.getClientRects(id)],[])
+            .filter(a=>!!a)
     }
 }
 
