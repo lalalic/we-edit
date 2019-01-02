@@ -44,19 +44,13 @@ export default class extends Super{
             },[])
     }
 
-	position(canvas,at){
-		const {id}=this.props
-        const {fontSize, fontFamily,height,descent}=this.measure.defaultStyle
+	position(id,at){
+		const {fontSize, fontFamily,height,descent}=this.measure.defaultStyle
         const paragraph=this.query().closest("paragraph").attr('id')
-		const {page,x,y,...position}=this.context.getComposer(paragraph).position(id,at)
-		const pageIndex=canvas.pages.indexOf(page)
-		const {x:x0,y:y0}=canvas.pageXY(pageIndex)
+		const position=this.context.getComposer(paragraph).position(id,at)
 		return {
 			id,at,
 			fontSize, fontFamily,height,descent,
-			x:x0+x,
-			y:y0+y,
-			page:pageIndex,
 			...position
 		}
 	}

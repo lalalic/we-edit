@@ -414,11 +414,12 @@ class ReactPositioning extends Positioning{
             return super.position(...arguments)
         }
 
-        const {x,y,...position}=composer.position(this,at)
+        const {page, x,y,...position}=composer.position(id,at)
+        const {x:x0,y:y0}=this.pageXY(page)
         return {
             id,at,
-            x,y,
-            ...this.asViewportPoint({x,y}),
+            x:x0+x,y:y0+y,
+            ...this.asViewportPoint({x:x0+x,y:y0+y}),
             ...position,
         }
     }
@@ -490,11 +491,11 @@ class ReactPositioning extends Positioning{
     }
 
     getClientRect(id){
-        return this.getClientRects(id)[0]
+        
     }
 
     getClientRects(id){
-        return this.getComposer(id).getClientRects(this)
+
     }
 }
 

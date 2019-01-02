@@ -144,13 +144,8 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 		return super.prevSelectable(...arguments)
 	}
 
-	distanceAt(){
-		return 0
-	}
-
 	position(id,at){
-		var atom
-		const lineIndexOfParagraph=this.computed.composed.findIndex(line=>{
+		const lineIndexOfParagraph=((atom)=>this.computed.composed.findIndex(line=>{
 			return atom=line.children.find(atom=>{
 				let node=new ReactQuery(atom).findFirst(`[data-content="${id}"]`)
 				if(node.length>0){
@@ -158,39 +153,42 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 					return endat==undefined || endat>=at
 				}
 			})
-		})
+		}))();
 
-		const composed=this.computed.lastComposed[lineIndexOfParagraph]
-		const {x,y}=(({x:x0=0,y:y0=0,children:{type:Story, props}})=>{
+		const positionInLine=(({x:x0=0,y:y0=0,children:{type:Story, props}})=>{
 			let {x,y}=new Story(props).position(id,at,id=>this.context.getComposer(id))
 			x+=x0, y+=y0
 			return {x,y}
-		})(composed.props.children.props);
+		})(this.computed.lastComposed[lineIndexOfParagraph].props.children.props);
 
-		var page,lineIndexInPage
-		for(let pages=this.getPages(),first=-1,linesInNextPage=0,i=0;i<pages.length;i++){
-			page=pages[i]
-			let lines=page.lines
-			if(first!=-1){
-				if(lines[lineIndexInPage=linesInNextPage-1]){
-					break
+		const {page,pageIndex,lineIndexInPage}=((page,lineIndexInPage)=>{
+			const pages=this.getPages()
+			for(let first=-1,linesInNextPage=0,i=0;i<pages.length;i++){
+				page=pages[i]
+				let lines=page.lines
+				if(first!=-1){
+					if(lines[lineIndexInPage=linesInNextPage-1]){
+						break
+					}else{
+						linesInNextPage-=lines.length
+					}
 				}else{
-					linesInNextPage-=lines.length
-				}
-			}else{
-				first=lines.findIndex(a=>
-					new ReactQuery(a)
-						.findFirst(`[data-type="paragraph"]`)
-						.attr("data-content")==this.props.id
-				)
-				if(lines[lineIndexInPage=first+lineIndexOfParagraph]){
-					break
-				}else{
-					linesInNextPage=lines.length-1-first
+					first=lines.findIndex(a=>
+						new ReactQuery(a)
+							.findFirst(`[data-type="paragraph"]`)
+							.attr("data-content")==this.props.id
+					)
+					if(lines[lineIndexInPage=first+lineIndexOfParagraph]){
+						break
+					}else{
+						linesInNextPage=lines.length-1-first
+					}
 				}
 			}
-		}
-		const columnX=page.columns.reduce((state,a)=>{
+			return {page, pageIndex:pages.indexOf(page), lineIndexInPage}
+		})();
+
+		const x0=page.columns.reduce((state,a)=>{
 			if(!state.column){
 				if(a.children.length>=state.count){
 					state.column=a
@@ -201,12 +199,13 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 			return state
 		},{count:lineIndexInPage+1}).column.x
 
-		const lineY=page.lineY(page.lines[lineIndexInPage-1])
+		const y0=page.lineY(page.lines[lineIndexInPage-1])
+
 		return {
-			page,
+			page:pageIndex,
 			line:lineIndexInPage,
-			x:x+columnX,
-			y:y+lineY
+			x:x0+positionInLine.x,
+			y:y0+positionInLine.y
 		}
 	}
 
