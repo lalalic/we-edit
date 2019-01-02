@@ -66,4 +66,8 @@ export default Cacheable(class extends editable(Base,{stoppable:true}){
 		this.computed.composed=[...this.computed.lastComposed]
 		this.computed.composed.forEach(a=>this.context.parent.appendComposed(a))
 	}
+
+	getPages(){
+		return this.computed.composed
+	}
 },true)

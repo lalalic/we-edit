@@ -23,6 +23,10 @@ export default function Navigatable(A){
 			}
 		}
 
+		getPages(){
+			return this.navigatable("getPages",...arguments)
+		}
+
 		nextCursorable(){
 			return this.navigatable('nextCursorable',...arguments)
         }

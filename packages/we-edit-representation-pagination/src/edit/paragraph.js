@@ -65,16 +65,6 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 		]
 	}
 
-	getPages(){
-		var current=this
-		while(current){
-			if(current.context.parent && current.context.parent.getComposeType()=="document"){
-				return current.computed.composed
-			}
-			current=current.context.parent
-		}
-	}
-
 	nextCursorable(id,at){
 		const {atoms}=this.computed
 		if(id==undefined){//itself first cursorable position
@@ -161,7 +151,7 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 			return {x,y}
 		})(this.computed.lastComposed[lineIndexOfParagraph].props.children.props);
 
-		const {page,pageIndex,lineIndexInPage}=((page,lineIndexInPage)=>{
+		const {page,lineIndexInPage}=((page,lineIndexInPage)=>{
 			const pages=this.getPages()
 			for(let first=-1,linesInNextPage=0,i=0;i<pages.length;i++){
 				page=pages[i]
@@ -185,7 +175,7 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 					}
 				}
 			}
-			return {page, pageIndex:pages.indexOf(page), lineIndexInPage}
+			return {page, lineIndexInPage}
 		})();
 
 		const x0=page.columns.reduce((state,a)=>{
@@ -202,7 +192,7 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 		const y0=page.lineY(page.lines[lineIndexInPage-1])
 
 		return {
-			page:pageIndex,
+			page:page.props.I,
 			line:lineIndexInPage,
 			x:x0+positionInLine.x,
 			y:y0+positionInLine.y
