@@ -15,54 +15,36 @@ export default function Navigatable(A){
  			getComposer: PropTypes.func,
         }
 
+		navigatable(op, ...args){
+			if(this.props[op]){
+				return this.props[op](...args)
+			}else if(this.context.parent && this.context.parent[op]){
+				return this.context.parent[op](...args)
+			}
+		}
 
 		nextCursorable(){
-            if(this.props.nextCursorable){
-				return this.props.nextCursorable(...arguments)
-			}else if(this.context.parent && this.context.parent.nextCursorable){
-				return this.context.parent.nextCursorable(...arguments)
-			}
+			return this.navigatable('nextCursorable',...arguments)
         }
 
         prevCursorable(){
-            return this.props.prevCursorable ? this.props.prevCursorable() : false
+			return this.navigatable('prevCursorable',...arguments)
         }
 
 		nextSelectable(){
-            return this.props.nextSelectable ? this.props.nextSelectable(...arguments) : this.nextCursorable(...arguments)
+            return this.navigatable('nextSelectable',...arguments)
         }
 
         prevSelectable(){
-            return this.props.prevSelectable ? this.props.prevSelectable(...arguments) : this.prevCursorable(...arguments)
+            return this.navigatable('prevSelectable',...arguments)
         }
 
-		position(locator, at){
-			const {id}=this.props
-			if(at==0){
-				const rect=locator.getClientRect(id)
-				if(rect){
-					const {x,y,width,height,node}=rect
-					return {x,y,width,height,node}
-				}
-            }else{
-				const rect=locator.getClientRects(id).pop()
-				if(rect){
-					const {x,y,width,height,node}=rect
-					return {
-						x:x+width,
-						y,
-						width,
-						height,
-						node
-					}
-				}
-            }
-
-			return null
+		position(id, at){
+			return this.navigatable('position',...arguments)
 		}
 
 		getFocusShape(){
-			return null
+			return this.navigatable('getFocusShape',...arguments)
 		}
 	}
 }
