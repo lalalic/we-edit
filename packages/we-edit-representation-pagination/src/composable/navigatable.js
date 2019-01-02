@@ -15,9 +15,13 @@ export default function Navigatable(A){
  			getComposer: PropTypes.func,
         }
 
- 
+
 		nextCursorable(){
-            return this.props.nextCursorable ? this.props.nextCursorable() : false
+            if(this.props.nextCursorable){
+				return this.props.nextCursorable(...arguments)
+			}else if(this.context.parent && this.context.parent.nextCursorable){
+				return this.context.parent.nextCursorable(...arguments)
+			}
         }
 
         prevCursorable(){
@@ -53,7 +57,7 @@ export default function Navigatable(A){
 					}
 				}
             }
-			
+
 			return null
 		}
 

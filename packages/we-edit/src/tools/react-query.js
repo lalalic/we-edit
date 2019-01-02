@@ -135,11 +135,11 @@ export default class Query{
 	}
 }
 
-function traverse(el, f, right=false){
+function traverse(el, f, right=false,self=true){
     if(!React.isValidElement(el))
         return
 
-    if(f(el))
+    if(self && f(el))
         return el
 
     if(typeof(el.props.children)=="string")
@@ -157,7 +157,7 @@ function traverse(el, f, right=false){
             }else if(result===false){
                 return false
             }else{
-                return !!traverse(child,f,right)
+                return !!traverse(child,f,right, false)
             }
         })
     }

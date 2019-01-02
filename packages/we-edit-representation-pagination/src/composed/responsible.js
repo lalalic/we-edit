@@ -109,9 +109,8 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
                     const {buttons, target, clientX:left,clientY:top}=e
 					if(!(buttons&0x1))
 						return
-                    const {id,x,node}=this.positioning.around(left,top)
+                    const {id,at}=this.positioning.around(left,top)
                     if(id){
-                        const at=this.getComposer(id).distanceAt(x, node)
                         const end={id,at}
                         let {start=end}=this.selecting.current.state
 
@@ -172,15 +171,8 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
                         range={
                             <Selection
                                 around={(target,left,top)=>{
-                                    const {id,x,node}=this.positioning.around(left, top)
+                                    const {id,at}=this.positioning.around(left, top)
                             		if(id){
-                                        let at=null
-                                        if(this.getComposer(id).nextCursorable(undefined,this.positioning)===false){
-                                            at=1
-                                        }else{
-                                			at=this.getComposer(id).distanceAt(x, node)
-                                        }
-
                                         if(at!==null){
                                             return this.positioning.position(id,at)
                                         }
@@ -209,7 +201,8 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
     componentDidMount(){
         this.positioning.reset(this.getComposer, this.getContent, this.canvas, this.props.pages,this.props.pgGap, this.props.scale)
         if(this.selection && !this.selection.id){
-            const {id,at}=this.locate("next","Cursorable","root")
+            const page0=this.props.pages[0]
+            const {id,at}=this.getComposer(page0.getParagraph(page0.lines[0])).nextCursorable()
             this.dispatch(ACTION.Cursor.AT(id,at))
         }
         this.dispatch(ACTION.Cursor.ACTIVE(this.props.docId))
@@ -260,55 +253,18 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 		if(id==undefined){
 			({id,at}=this.cursor)
 		}
-		
-        const next=(id,at)=>{
-            let composer=this.getComposer(id)
-            if(composer){
-                return composer[`${nextOrprev}${CursorableOrSelectable}`](at,this.positioning)
-            }
-            return false
+        let composer=this.getComposer(id)
+        if(composer){
+            return composer[`${nextOrprev}${CursorableOrSelectable}`](id,at)
         }
-		return next()
-
-        const $=this.getContent(id)
-        const location=((_id,_at)=>{
-    		const check=a=>(_at=next(_id=a.get("id")))!==false
-            if(inclusive){
-    			$[`find${nextOrprev=="next" ? "First" :"Last"}`](check,true)
-    		}else{
-    			_at=next(_id,_at)
-    		}
-
-    		if(_at===false){
-                $[`${nextOrprev=="next" ? "forward" : "backward"}Until`](check)
-    		}
-    		return {id:_id,at:_at}
-        })(id,at);
-
-        if(location.at!==false){
-            const endingOrBegining=((id,at=false)=>{
-                const $1=this.getContent(location.id)
-                const differents=$.parentsUntil(a=>{
-                    return $1.parents().has(this.getContent(a.get("id")))
-                })
-                differents.toArray().find(a=>{
-                    return at=this.getComposer(id=a)[`${nextOrprev}${CursorableOrSelectable}`](-1,this.positioning)
-                })
-                if(at!==false){
-                    return {id,at}
-                }
-            })();
-
-            if(endingOrBegining)
-                return endingOrBegining
-
-            return location
-        }
-
         return this.cursor
 	}
+
 	onKeyArrowLeft({shiftKey:selecting}){
         const {id,at}=this.locate("prev",selecting ? "Selectable" :"Cursorable")
+        if(!id)
+            return
+
         if(!selecting){
             this.dispatch(ACTION.Cursor.AT(id,at))
         }else{
@@ -323,6 +279,8 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 
 	onKeyArrowRight({shiftKey:selecting}){
         const {id,at}=this.locate("next",selecting ? "Selectable" :"Cursorable")
+        if(!id)
+            return
         if(!selecting){
             this.dispatch(ACTION.Cursor.AT(id,at))
         }else{
@@ -337,21 +295,46 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 
 	locateLine(nextOrPrev, cursorableOrSelectable){
 		const cursor=this.cursor
-		let {id, x, node}=this.positioning[`${nextOrPrev}Line`](cursor.id, cursor.at)
-		let location=this.locate(nextOrPrev,cursorableOrSelectable,id,undefined,true)//inclusive
-		if(id!==location.id){
-			if(nextOrPrev=="next"){
-				node=this.positioning.getClientRect(location.id).node
-			}else{
-				node=this.positioning.getClientRects(location.id).pop().node
-			}
-		}
-		location.at=this.getComposer(location.id).distanceAt(x,node)
-		return location
+        var {page,line,x}=(({page:pageNo,line:lineNo,x,y})=>{
+            const page=this.props.pages[pageNo]
+            const lines=page.lines
+            if(nextOrPrev=="next"){
+                if(lineNo==lines.length-1){
+                    if(this.props.pages.length-1>pageNo){
+                        pageNo++
+                        lineNo=0
+                    }else{
+                        return {}
+                    }
+                }else{
+                    lineNo++
+                }
+            }else{
+                if(lineNo==0){
+                    if(pageNo>0){
+                        pageNo--
+                        lineNo=this.props.pages[pageNo].lines.length-1
+                    }else{
+                        return {}
+                    }
+                }else{
+                    lineNo--
+                }
+            }
+            const {x:x0}=this.positioning.pageXY(pageNo)
+            return {page:pageNo, line:lineNo, x:x-x0}
+        })(this.positioning.position(cursor.id, cursor.at))
+        if(page!=undefined){
+            return this.props.pages[page].caretPositionInLine(x,line)
+        }
+
+        return {}
 	}
 
-	onKeyArrowUp({shiftKey:selecting}){
+	onKeyArrowUp({shiftKey:selecting, clientX:left}){
 		const {id, at}=this.locateLine("prev", selecting ? "Selectable" : "Cursorable")
+        if(!id)
+            return
 		if(!selecting){
 			this.dispatch(ACTION.Cursor.AT(id,at))
 		}else{
@@ -378,8 +361,11 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 		}
 	}
 
-	onKeyArrowDown({shiftKey:selecting}){
+	onKeyArrowDown({shiftKey:selecting, clientX:left}){
 		const {id, at}=this.locateLine("next", selecting ? "Selectable" : "Cursorable")
+        if(!id){
+            return
+        }
 		if(!selecting){
 			this.dispatch(ACTION.Cursor.AT(id,at))
 		}else{

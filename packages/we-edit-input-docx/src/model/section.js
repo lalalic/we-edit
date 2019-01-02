@@ -179,7 +179,7 @@ export default ({Template,Frame, Container})=>{
 			}
 			return !![...this.lines,...this.anchors].find(a=>this.belongsTo(a,id))
 		}
-		
+
 		caretPositionFromPoint(x,y){
 			const include=({x:x0=0,y:y0=0,width,height})=>x0<=x && y0<=y && (x0+width)>=x && (y0+height)>=y
 			var lineX,lineY
@@ -197,17 +197,28 @@ export default ({Template,Frame, Container})=>{
 			if(!line){
 				//this.columns.filter()
 			}
-			
+
 			if(line){
-				const lines=this.lines
-				const paragraphId=this.getParagraph(line)
-				const end=lines.indexOf(line)
-				const start=Math.max(0,lines.slice(0,end).findLastIndex(a=>!this.getParagraph(a)==paragraphId))
-				
-				return this.context.getComposer(paragraphId).caretPositionFromPoint(end-start,x-lineX,y-lineY)
+				return this.caretPositionInLine(x,this.lines.indexOf(line))
 			}
-			
+
 			return {}
+		}
+
+		caretPositionInLine(x, line){
+			line=this.lines[line]
+			const lineX=this.columns.find(a=>a.children.includes(line)).x
+			const paragraphId=this.getParagraph(line)
+			const i=line.props.pagination.i-1
+
+			return this.context.getComposer(paragraphId).caretPositionFromPoint(i,x-lineX)
+		}
+
+		lineRect(line){
+			line=this.lines[line]
+			const left=this.columns.find(a=>a.children.includes(line)).x
+			const top=this.lineY(line)-line.props.height
+			return {left,top,width:line.props.width,height:line.props.height}
 		}
 
 		getClientRects(id){

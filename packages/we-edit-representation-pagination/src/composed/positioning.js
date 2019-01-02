@@ -39,6 +39,7 @@ class Positioning{
         return null
     }
     getRangeRects(start,end){
+
         return []
     }
     getClientRects(id){
@@ -332,7 +333,7 @@ class DOMPositioning extends Positioning{
                         }
 
                         const pages=Array.from(this.canvas.querySelectorAll(".page"))
-                        const query2Line=(page,line,node,at)=>{
+                        const query2Line=(page,line)=>{
                             return this.lines(pages[page])[line]
                         }
 
@@ -406,14 +407,7 @@ class DOMPositioning extends Positioning{
     }
 }
 
-class ReactPositioning extends DOMPositioning{
-    getPages(id){
-        return this.getContent(id).parents().toArray()
-            .slice(0,-1)//remove root
-            .reverse()//outer to inner
-            .reduce((pages,id)=>pages.filter(page=>page.includeContent(id)),this.pages)
-    }
-
+class ReactPositioning extends Positioning{
     position(id,at){
         const composer=this.getComposer(id)
         if(!composer){
@@ -441,17 +435,58 @@ class ReactPositioning extends DOMPositioning{
 
         return page.caretPositionFromPoint(x,y)
     }
-/*
-    lines(node){
-
-    }
-
-    line(id,at,offset){
-
-    }
 
     getRangeRects(start,end){
+        if(start.id==end.id && !this.getComposer(start.id).splittable){
+			const rect=this.getClientRect(start.id)
+			if(rect){
+				const {x,y,width,height}=rect
+				return [{
+					left:x,
+					top:y,
+					right:x+width,
+					bottom:y+height
+				}]
+			}
+        }else{
+            const [p0,p1]=((start,end)=>{
+				if(!start || !end)
+					return []
 
+                if(end.page<start.page ||
+                    (end.page==start.page && end.line<start.line) ||
+                    (end.page==start.page && end.line==start.line && end.left<start.left)){
+                    return [end,start]
+                }
+                return [start,end]
+            })(this.position(start.id,start.at),this.position(end.id, end.at));
+
+			if(p0 && p1){
+                const rects=[]
+                const lineRectsInPage=(page,start=0,end)=>{
+                    const {x,y}=this.pageXY(this.pages.indexOf(page))
+                    page.lines.slice(start,end).forEach((a,i)=>{
+                        const {left,top,width,height}=page.lineRect(start+i)
+                        rects.push({left:left+x,top:top+y,right:left+width+x,bottom:top+height+y})
+                    })
+                }
+
+                if(p0.page==p1.page){
+                    lineRectsInPage(this.pages[p0.page], p0.line, p1.line+1)
+                }else{
+                    lineRectsInPage(this.pages[p0.page], p0.line)
+                    this.pages.slice(p0.page+1, p1.page).forEach(page=>lineRects(page))
+                    lineRectsInPage(this.pages[p1.page],0,p1.line+1)
+                }
+
+                Object.assign(rects[0],{left:this.pageXY(p0.page).x+p0.x})
+
+                Object.assign(rects[rects.length-1], {right:this.pageXY(p1.page).x+p1.x})
+                return rects
+			}
+        }
+
+		return []
     }
 
     getClientRect(id){
@@ -461,7 +496,6 @@ class ReactPositioning extends DOMPositioning{
     getClientRects(id){
         return this.getComposer(id).getClientRects(this)
     }
-	*/
 }
 
 export default ReactPositioning

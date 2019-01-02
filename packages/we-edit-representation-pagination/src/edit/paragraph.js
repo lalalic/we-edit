@@ -64,7 +64,7 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 				/>
 		]
 	}
-		
+
 	getPages(){
 		var current=this
 		while(current){
@@ -74,33 +74,47 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 			current=current.context.parent
 		}
 	}
-	
-	
 
-	nextCursorable(id, locator){
-		this.query(`#${id}`)
-			.parentsUntil(`#${this.props.id`)
-			.toArray()
-			.reverse()
-			.filer()
-		
-		const {node}=locator.getClientRect(this.props.id)
-		const hasText=node.querySelector(`[data-type="text"]`)
-		if(!hasText){
-			if(at===undefined)
-				return 0
+	nextCursorable(id,at){
+		const {atoms}=this.computed
+		if(id==undefined){//itself first cursorable position
+			if(atoms.find(a=>id=new ReactQuery(a).findFirst(`[data-type="text"]`).attr("data-content"))){
+				return {id,at:0}
+			}else{
+				//throw new Error("no text in paragraph")
+			}
+		}else{
+			 const i=atoms.findLastIndex(a=>new ReactQuery(a).findFirst(`[data-content="${id}"]`).length>0)
+			 let nextId
+			 atoms.slice(i+1).find(a=>nextId=new ReactQuery(a).findFirst(`[data-type="text"]`).attr("data-content"))
+			 if(nextId){
+				 return {id:nextId, at:0}
+			 }else{
+				 //
+			 }
 		}
 		return super.nextCursorable(...arguments)
 	}
 
-	prevCursorable(at, locator){
-		const {node}=locator.getClientRect(this.props.id)
-		const hasText=node.querySelector(`[data-type="text"]`)
-		if(!hasText){
-			if(at===undefined)
-				return 0
+	prevCursorable(id,at){
+		if(id==undefined){
+			let textNode
+			if(this.computed.atoms.findLast(a=>textNode=new ReactQuery(a).findFirst(`[data-type="text"]`).get(0))){
+				return {id:textNode.props["data-content"],at:textNode.props["data-endat"]}
+			}else{
+				//throw new Error("no text in paragraph")
+			}
+		}else{
+			const i=this.atoms.findIndex(a=>new ReactQuery(a).findFirst(`[data-content="${id}"]`).length>0)
+			let nextTextNode
+			this.atoms.slice(0,i).findLast(a=nextTextNode=new ReactQuery(a).findFirst(`[data-type="text"]`).get(0))
+			if(nextTextNode){
+				return {id:nextTextNode.props["data-content"], at:nextTextNode.props["data-endat"]}
+			}else{
+				//
+			}
 		}
-		return super.nextCursorable(...arguments)
+		return super.prevCursorable(...arguments)
 	}
 
 	nextSelectable(at,locator){
@@ -133,7 +147,7 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 	distanceAt(){
 		return 0
 	}
-	
+
 	position(id,at){
 		var atom
 		const lineIndexOfParagraph=this.computed.composed.findIndex(line=>{
@@ -145,14 +159,14 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 				}
 			})
 		})
-		
+
 		const composed=this.computed.lastComposed[lineIndexOfParagraph]
 		const {x,y}=(({x:x0=0,y:y0=0,children:{type:Story, props}})=>{
 			let {x,y}=new Story(props).position(id,at,id=>this.context.getComposer(id))
 			x+=x0, y+=y0
 			return {x,y}
 		})(composed.props.children.props);
-		
+
 		var page,lineIndexInPage
 		for(let pages=this.getPages(),first=-1,linesInNextPage=0,i=0;i<pages.length;i++){
 			page=pages[i]
@@ -186,7 +200,7 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 			}
 			return state
 		},{count:lineIndexInPage+1}).column.x
-		
+
 		const lineY=page.lineY(page.lines[lineIndexInPage-1])
 		return {
 			page,
@@ -195,22 +209,22 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 			y:y+lineY
 		}
 	}
-	
-	caretPositionFromPoint(lineIndex,x,y){
+
+	caretPositionFromPoint(lineIndex,x){
 		const composedLine=this.computed.lastComposed[lineIndex]
-		const position=(({x:x0=0,y:y0=0,children:{type:Story,props}})=>{
+		const position=(({x:x0=0,children:{type:Story,props}})=>{
 			return new Story(props)
-				.caretPositionFromPoint(x-x0,y-y0,id=>this.context.getComposer(id))
+				.caretPositionFromPoint(x-x0,id=>this.context.getComposer(id))
 		})(composedLine.props.children.props);
 		return position
 	}
-	
+
 	static Line=class extends Base.Line{
-		
+
 	}
-	
+
 	static Story=class extends Base.Story{
-		caretPositionFromPoint(x,y,getComposer){
+		caretPositionFromPoint(x,getComposer){
 			const content=this.render()
 			const node=content.props.children.findLast(a=>a.props.x<=x)
 			const offset=x-node.props.x
@@ -224,7 +238,7 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 				return {id:node.props.id}
 			}
 		}
-		
+
 		position(id,at,getComposer){
 			const line=this.render()
 			let endat, parents=[]
@@ -232,22 +246,18 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 				if(node.props["data-content"]==id){
 					endat=node.props["data-endat"]
 					if(endat==undefined || endat>=at){
-						parents=parents.slice(-
-							parents.findLastIndex(a=>{
-								if(React.Children.toArray(a.props.children).includes(parent)){
-									parent=a
-								}else{
-									return  true
-								}
-							})
-						)
-						return true	
+						parents.push(parent)
+						return true
 					}
 				}
-				if(parent)
+				if(parent){
+					let i=parents.indexOf(parent)
+					if(i!=-1)
+						parents.splice(-i)
 					parents.push(parent)
+				}
 			}).get(0)
-			
+
 			let x=parents.reduce((X,{props:{x=0}})=>X+x,0)
 			let y=(({y=0},{height=0,descent=0})=>y-(height-descent))(line.props,node.props);
 			const composer=getComposer(id)
@@ -259,7 +269,7 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 					x+=offset
 				}
 			}
-			
+
 			return {x,y}
 		}
 	}
