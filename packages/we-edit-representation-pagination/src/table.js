@@ -27,7 +27,7 @@ export default class Table extends Super{
 		)
 	}
 
-	replaceable(a,b){
+	replaceable(replacing,replaced){
 		const info=(a)=>{
 			if(a){
 				const table=new ReactQuery(a).findFirst(`[data-type="table"]`)
@@ -38,13 +38,11 @@ export default class Table extends Super{
 			}
 		}
 
-		const A=info(a), B=info(b)
+		const A=info(replacing), B=info(replaced)
 
-		return (
-			A && B &&
-			A.table.attr("data-content")==B.table.attr("data-content") &&
-			A.row.attr("data-content")==B.row.attr("data-content") &&
-			A.row.children().length!=B.row.children().length
-		)
+		const sameTable=(A && B &&A.table.attr("data-content")==B.table.attr("data-content"))
+		const sameRow=sameTable && A.row.attr("data-content")==B.row.attr("data-content")
+		const replaceable=sameRow && A.row.children().length>B.row.children().length
+		return replaceable
 	}
 }

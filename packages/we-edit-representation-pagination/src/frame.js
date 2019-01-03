@@ -727,16 +727,14 @@ class Replaceable extends AnchorWrappable{
 	}
 
 	replace(line){
-		if(this.prev){
-			if(this.prev.replace(line)){
-				return true
-			}
-		}else{
-			if(line.props.replaceable(line,this.lastLine)){
-				this.columns[this.columns.length-1].children.splice(-1,1,line)
-				return true
-			}
+		if(this.prev&&this.prev.replace(line)){
+			return true
 		}
+		
+		if(line.props.replaceable(line,this.lastLine)){
+			this.columns[this.columns.length-1].children.splice(-1,1,line)
+			return true
+		}	
 	}
 }
 

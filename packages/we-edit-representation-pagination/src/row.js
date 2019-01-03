@@ -34,7 +34,9 @@ export default class extends Super{
 	nextAvailableSpace(required){
 		var height
 		const {cols}=this.context
-		if(!this.currentColumn[0]){
+		if(this.props.keepLines){
+			height=Number.MAX_SAFE_INTEGER
+		}else if(!this.currentColumn[0]){
 			height=super.nextAvailableSpace(...arguments).height
 		}else if(this.cellId(this.currentColumn[0])==required.id){
 			const columnWithMorePage=this.computed.composed.find(column=>column.length>this.currentColumn.length)
@@ -53,6 +55,19 @@ export default class extends Super{
 		return {width:cols[this.computed.composed.length%cols.length], height}
 	}
 
+	onAllChildrenComposed(){
+		var unappendedCount=this.computed
+			.composed.reduce((max,column)=>Math.max(max,column.length),0)
+			-this.currentColumn.length
+		if(unappendedCount>0){
+			new Array(unappendedCount).fill(1).forEach(()=>{
+				this.currentColumn.push(null)
+				this.context.parent.appendComposed(this.createComposed2Parent())
+			})
+			this.currentColumn.splice(-unappendedCount)
+		}
+		super.onAllChildrenComposed()
+	}
 	createComposed2Parent(){
 		const {context:{cols}, computed:{composed:columns}}=this
 		const i=this.currentColumn.length-1
@@ -65,7 +80,17 @@ export default class extends Super{
 		return (
 			<Group height={height} width={width}>
 			{
-				unappendedCells.map((a,i)=>!a ? null : React.cloneElement(a,{height,key:i,x:cols.slice(0,i).reduce((w,a)=>w+a,0)}))
+				unappendedCells.map((a,i)=>{
+					let props={
+						x:cols.slice(0,i).reduce((w,a)=>w+a,0),
+						height,key:i,
+					}
+					if(a){
+						return React.cloneElement(a,props)
+					}else{
+						return React.cloneElement(columns[i][0],Object.assign(props,{children:null}))	
+					} 
+				})
 			}
 			</Group>
 		)

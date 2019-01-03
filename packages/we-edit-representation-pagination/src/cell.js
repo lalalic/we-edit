@@ -54,7 +54,11 @@ export default class extends Super{
 	appendComposed(line){
 		const appended=this.current.appendComposed(...arguments)
 		if(appended===false){
-			this.context.parent.appendComposed(this.createComposed2Parent())
+			if(this.current.isEmpty()){
+				this.computed.composed.pop()
+			}else{
+				this.context.parent.appendComposed(this.createComposed2Parent())
+			}
 			this.create({height:line.props.height})
 			return this.appendComposed(...arguments)
 		}else if(Number.isInteger(appended)){
