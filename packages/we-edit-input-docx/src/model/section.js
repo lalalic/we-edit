@@ -16,7 +16,10 @@ export default ({Template,Frame, Container})=>{
 					enumerable:false,
 					configurable:true,
 					get(){
-						return this.section.prev
+						const i=this.section.computed.composed.indexOf(this)
+						if(i==0)
+							return null
+						return this.section.computed.composed[i-1]
 					}
 				},
 				layout:{

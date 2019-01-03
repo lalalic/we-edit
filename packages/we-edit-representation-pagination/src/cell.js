@@ -1,77 +1,81 @@
 import React,{PureComponent as Component} from "react"
 import PropTypes from "prop-types"
 import {Group} from "./composed"
+import Frame from "./frame"
 
 import {HasParentAndChild} from "./composable"
 import {models} from "we-edit"
 const {Cell:Base}=models
 const Super=HasParentAndChild(Base)
 
-export default class extends Super{
-	static contextTypes={
-		...Super.contextTypes,
-		ModelTypes: PropTypes.object,
-	}
-
+class CellFrame extends Frame{
 	render(){
-		const {width}=this.context.parent.nextAvailableSpace(...arguments)
-		const {margin={right:0,left:0,top:0,bottom:0}, vertAlign, id}=this.props
-		const Frame=this.context.ModelTypes.Frame
-		return (
-			<Frame {...{
-					REF:a=>this.frame=a,
-					width:width-margin.right-margin.left,
-					vertAlign,
-					id:`${id}-frame`
-			}}>
-				{super.render()}
-			</Frame>
-		)
+		return this.createComposed2Parent()
+	}
+}
+
+export default class extends Super{
+	get current(){
+		if(this.computed.composed.length==0){
+			return this.create()
+		}
+		return this.computed.composed[this.computed.composed.length-1]
 	}
 
-	cellHeight(contentHeight){
-		const {border, margin, spacing}=this.props
-		return contentHeight
+	get nonContentHeight(){
+		const {margin={right:0,left:0,top:0,bottom:0}, border, spacing}=this.props
+		return spacing
 				+border.top.sz
 				+border.bottom.sz
 				+margin.top
 				+margin.bottom
-				+spacing
 	}
 
-	appendComposed(){
-		this.context.parent.appendComposed(this)
-	}
-	
-	get lines(){
-		return this.frame.lines
+	nextAvailableSpace(){
+        let space=this.current.nextAvailableSpace(...arguments)
+        if(!space){
+            this.create()
+            return this.nextAvailableSpace(...arguments)
+        }
+        return space
+    }
+
+	create(required={}){
+		const {height,width}=this.context.parent.nextAvailableSpace({...required,id:this.props.id})
+		const {margin={right:0,left:0,top:0,bottom:0}}=this.props
+		const frame=new CellFrame({
+			width:width-margin.right-margin.left,
+			height: height-this.nonContentHeight
+		},{parent:this,getComposer:id=>this.context.getComposer(id)})
+		this.computed.composed.push(frame)
+		return frame
 	}
 
-	createComposed2Parent(lines, height){//called by row(after all cells of a row composed)
+	appendComposed(line){
+		const appended=this.current.appendComposed(...arguments)
+		if(appended===false){
+			this.context.parent.appendComposed(this.createComposed2Parent())
+			this.create({height:line.props.height})
+			return this.appendComposed(...arguments)
+		}else if(Number.isInteger(appended)){
+			return appended
+		}
+	}
+
+	onAllChildrenComposed(){
+		this.context.parent.appendComposed(this.createComposed2Parent())
+		super.onAllChildrenComposed()
+	}
+
+	createComposed2Parent(){
 		const {border, margin, spacing, background,vertAlign}=this.props
-		const contentHeight=lines.reduce((h,a)=>h+(a.props.height||0),0)
-		const alignY=(()=>{
-			switch(vertAlign){
-				case "bottom":
-					return height-this.cellHeight(contentHeight)
-				case "center":
-				case "middle":
-					return (height-this.cellHeight(contentHeight))/2
-				default:
-					return 0
-			}
-		})();
+		const contentHeight=this.current.currentY
+		const spaceHeight=this.current.props.height+this.nonContentHeight
+		const height=contentHeight+this.nonContentHeight
+		const width=this.current.props.width+margin.left+margin.right
 		return (
-			<Cell height={height} background={background}>
-				<Spacing x={spacing/2} y={spacing/2}>
-					<Border border={border} spacing={spacing}>
-						<Margin x={margin.left} y={margin.top}>
-							<Group y={alignY} className="frame">
-								{this.frame.positionLines(lines)}
-							</Group>
-						</Margin>
-					</Border>
-				</Spacing>
+			<Cell {...{border, margin, spacing, background,vertAlign,contentHeight,height,width,spaceHeight}}>
+				{React.cloneElement(this.current.render(),{height:contentHeight})}
 			</Cell>
 		)
 	}
@@ -82,29 +86,31 @@ const Spacing=Group
 const Margin=Group
 
 class Cell extends Component{
-	static contextTypes={
-		cellSize: PropTypes.object
-	}
-
-	static childContextTypes={
-		cellSize:PropTypes.object
-	}
-
-	getChildContext(){
-		return {
-			cellSize: {
-				width: this.props.width,
-				height: this.props.height
-			}
-		}
-	}
-
 	render(){
-		const {width,height, background, children, ...others}=this.props
+		const {border, margin, spacing, background,vertAlign,width,height, contentHeight, children, ...others}=this.props
+		const alignY=(()=>{
+			switch(vertAlign){
+				case "bottom":
+					return height-contentHeight
+				case "center":
+				case "middle":
+					return (height-contentHeight)/2
+				default:
+					return 0
+			}
+		})();
 		return (
 			<Group {...others}>
 				{background&&background!="transparent" ? (<rect width={width} height={height} fill={background}/>)  : null}
-				{children}
+				<Spacing x={spacing/2} y={spacing/2}>
+					<Border border={border} spacing={spacing} width={width} height={height}>
+						<Margin x={margin.left} y={margin.top}>
+							<Group y={alignY} className="frame">
+								{children}
+							</Group>
+						</Margin>
+					</Border>
+				</Spacing>
 			</Group>
 		)
 	}
@@ -114,13 +120,8 @@ class Cell extends Component{
 
 
 class Border extends Component{
-	static contextTypes={
-		rowSize: PropTypes.object,
-		cellSize: PropTypes.object
-	}
 	render(){
-		const {spacing,border:{left,right,bottom,top}, children, ...others}=this.props
-		let {rowSize:{height}, cellSize:{width}}=this.context
+		var {width,height,spacing,border:{left,right,bottom,top}, children, ...others}=this.props
 		width-=spacing
 		height-=spacing
 		return (

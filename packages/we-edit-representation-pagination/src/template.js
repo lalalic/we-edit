@@ -24,13 +24,7 @@ export default class Template extends Super{
 		return this.computed.composed[this.computed.composed.length-1]
 	}
 
-    get prev(){
-        if(this.totals>1)
-            return this.computed.composed[this.computed.composed.length-2]
-        return null
-    }
-
-	getDocument=memoize(()=>{
+    getDocument=memoize(()=>{
 		var current=this.context.parent
 		while(current){
 			if(current.getComposeType()=="document")
@@ -79,9 +73,6 @@ export default class Template extends Super{
     }
 
     createComposed2Parent(frame){
-        if(this.props.createComposed2Parent){
-            return this.props.createComposed2Parent.call(this,...arguments)
-        }
         return frame
     }
 }

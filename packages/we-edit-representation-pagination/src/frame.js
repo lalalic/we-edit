@@ -499,17 +499,7 @@ class PaginationControllable extends Balanceable{
 				enumerable:true,
 				configurable:true,
 				get(){
-					var parent=this.context.parent
-					while(parent){
-						if(parent.hasOwnProperty("prev")){
-							return parent.prev
-						}else if(parent.context){
-							parent=parent.context.parent
-						}else{
-							return null
-							throw new Error("not here")
-						}
-					}
+					return null
 				}
 			}
 		})
@@ -726,4 +716,28 @@ class AnchorWrappable extends PaginationControllable{
 	}
 }
 
-export default AnchorWrappable
+class Replaceable extends AnchorWrappable{
+	appendComposed(line){
+		if(line.props.replaceable){
+			if(this.replace(line)){
+				return
+			}
+		}
+		return super.appendComposed(...arguments)
+	}
+
+	replace(line){
+		if(this.prev){
+			if(this.prev.replace(line)){
+				return true
+			}
+		}else{
+			if(line.props.replaceable(line,this.lastLine)){
+				this.columns[this.columns.length-1].children.splice(-1,1,line)
+				return true
+			}
+		}
+	}
+}
+
+export default Replaceable
