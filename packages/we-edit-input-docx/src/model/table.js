@@ -1,13 +1,16 @@
-import React, {Component} from "react"
+import React, {Component,Fragment} from "react"
 import PropTypes from "prop-types"
+import {ReactQuery,ContentQuery} from "we-edit"
+import memoize from "memoize-one"
 
 
-export default ({Table})=>class extends Component{
+export default ({Table,Container})=>class extends Component{
 	static displayName="table"
 	static namedStyle="*table"
 
 	static contextTypes={
-		styles: PropTypes.object
+		styles: PropTypes.object,
+		activeDocStore: PropTypes.object,
 	}
 
 	constructor(){
@@ -55,7 +58,18 @@ export default ({Table})=>class extends Component{
 		this.style={...tblStyle, ...direct, children:rows}
 	}
 
+	getIndent=memoize((id,indent,children)=>{
+		const query=new ContentQuery(this.context.activeDocStore.getState(),`#${id}`)
+		if(query.parents("table").length>0){
+			return indent
+		}
+		const firstCell=new ReactQuery(<Fragment>{children}</Fragment>).findFirst("cell")
+		const {right=0}=firstCell.attr("margin")||{}
+		return indent+right
+	})
+
 	render(){
-		return <Table {...this.style}/>
+		const {id, indent=0,children}=this.props
+		return <Table {...this.style} indent={this.getIndent(id, indent,children)}/>
 	}
 }

@@ -166,7 +166,7 @@ class outsideMargin extends page{
 class column extends page{
     constructor(){
         super(...arguments)
-        const {x,y}=this.frame.currentColumn
+        const {x=0,y=0}=this.frame.currentColumn
         this.x0=x
         this.y0=y
     }

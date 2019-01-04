@@ -6,7 +6,6 @@ import {ReactQuery} from "we-edit"
 
 import Base from "../paragraph"
 import Text from "./text"
-import ParagraphEnd from "./paragraph-end"
 import editable from "./editable"
 
 import {Text as ComposedText} from "../composed"
@@ -53,16 +52,6 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 
 	getDefaultMeasure(){
 		return new this.context.Measure(this.props.defaultStyle)
-	}
-
-	children(){
-		return [
-			...Children.toArray(this.props.children),
-			<ParagraphEnd {...this.props.defaultStyle}
-				key="end"
-				id={`${this.props.id}-end`}
-				/>
-		]
 	}
 
 	nextCursorable(id,at){

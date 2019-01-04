@@ -1,9 +1,9 @@
 import React from "react"
 import PropTypes from "prop-types"
 import {models,ACTION} from "we-edit"
-import editable from "./editable"
-import {NoChild} from "../composable"
-import {Text as ComposedText} from "../composed"
+import editable from "./edit/editable"
+import {NoChild} from "./composable"
+import {Text as ComposedText} from "./composed"
 
 const Super=NoChild(models.Unknown)
 export default editable(class extends Super{
@@ -27,9 +27,13 @@ export default editable(class extends Super{
                 {...measure.defaultStyle}
                 width={measure.stringWidth(models.Paragraph.End)}
                 minWidth={0}
-                children={[models.Paragraph.End]}
+                children={[" "]}
 				className="ender"
                 />
         )
+    }
+
+    distanceAt(){
+        return 1
     }
 },{locatable:false})

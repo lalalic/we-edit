@@ -34,13 +34,20 @@ export default class extends Super{
 	nextAvailableSpace(){
         let space=this.current.nextAvailableSpace(...arguments)
         if(!space){
-            this.create()
+            this.create(...arguments)
             return this.nextAvailableSpace(...arguments)
         }
         return space
     }
 
 	create(required={}){
+		if(this.computed.composed.length>0){
+			if(this.current.isEmpty()){
+				this.computed.composed.pop()
+			}else{
+				this.context.parent.appendComposed(this.createComposed2Parent())
+			}
+		}
 		const {height,width}=this.context.parent.nextAvailableSpace({...required,id:this.props.id})
 		const {margin={right:0,left:0,top:0,bottom:0}}=this.props
 		const frame=new CellFrame({
@@ -54,13 +61,8 @@ export default class extends Super{
 	appendComposed(line){
 		const appended=this.current.appendComposed(...arguments)
 		if(appended===false){
-			if(this.current.isEmpty()){
-				this.computed.composed.pop()
-			}else{
-				this.context.parent.appendComposed(this.createComposed2Parent())
-			}
 			this.create({height:line.props.height})
-			return this.appendComposed(...arguments)
+			return 1
 		}else if(Number.isInteger(appended)){
 			return appended
 		}
@@ -109,7 +111,7 @@ class Cell extends Component{
 				<Spacing x={spacing/2} y={spacing/2}>
 					<Border border={border} spacing={spacing} width={width} height={height}>
 						<Margin x={margin.left} y={margin.top}>
-							<Group y={alignY} className="frame">
+							<Group y={alignY}>
 								{children}
 							</Group>
 						</Margin>

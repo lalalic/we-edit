@@ -8,12 +8,6 @@ import {Group} from "./composed"
 const Super=HasParentAndChild(models.Table)
 
 export default class Table extends Super{
-	getMarginRight=memoize(children=>{
-		const firstCell=new ReactQuery(<Group>{children}</Group>).findFirst("cell")
-		const {right=0}=firstCell.attr("margin")||{}
-		return right
-	})
-
 	nextAvailableSpace(){
 		let availableSpace=this.context.parent.nextAvailableSpace(...arguments)
 		return {width: this.props.width, height: availableSpace.height}
@@ -22,7 +16,7 @@ export default class Table extends Super{
 	createComposed2Parent(row){
 		return (
 			<Group width={this.props.width} height={row.props.height} replaceable={this.replaceable.bind(this)}>
-				{React.cloneElement(row,{x:this.props.indent-this.getMarginRight(this.props.children)})}
+				{React.cloneElement(row,{x:this.props.indent})}
 			</Group>
 		)
 	}

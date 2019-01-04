@@ -12,16 +12,6 @@ export default ({Template,Frame, Container})=>{
 			this.section=this.context.parent
 			super.defineProperties()
 			Object.defineProperties(this,{
-				prev:{
-					enumerable:false,
-					configurable:true,
-					get(){
-						const i=this.section.computed.composed.indexOf(this)
-						if(i==0)
-							return null
-						return this.section.computed.composed[i-1]
-					}
-				},
 				layout:{
 					enumerable:false,
 					configurable:false,

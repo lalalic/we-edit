@@ -1,7 +1,7 @@
 import React, {Children,Component} from "react"
 import PropTypes from "prop-types"
 
-
+import memoize from "memoize-one"
 import composable, {HasParentAndChild,} from "./composable"
 import {models, ReactQuery} from "we-edit"
 const {Paragraph:Base}=models
@@ -9,6 +9,7 @@ const {Paragraph:Base}=models
 import opportunities from "./wordwrap/line-break"
 import {Text as ComposedText,  Group} from "./composed"
 import Frame from "./frame"
+import ParagraphEnd from "./paragraph-end"
 
 const Super=HasParentAndChild(Base)
 export default class Paragraph extends Super{
@@ -100,6 +101,16 @@ export default class Paragraph extends Super{
 		this.computed.composed.push(line)
 		return line
     }
+
+	children(){
+		return [
+			...Children.toArray(this.props.children),
+			<ParagraphEnd {...this.props.defaultStyle}
+				key="end"
+				id={`${this.props.id}-end`}
+				/>
+		]
+	}
 
     appendComposed(content){
 		if(this.computed.needMerge){
@@ -258,9 +269,9 @@ export default class Paragraph extends Super{
 		const pagination={orphan,widow,keepWithNext,keepLines, i:this.computed.composed.length,last}
 
         return (
-            <Group height={lineHeight} width={width} className="line" pagination={pagination} anchor={anchor}>
+            <Group height={lineHeight} width={contentX+width} className="line" pagination={pagination} anchor={anchor}>
                 <Group x={contentX} y={contentY} width={width} height={height}>
-					<this.constructor.Story {...{children,align}}/>
+					<this.constructor.Story {...{children,align,width}}/>
                 </Group>
             </Group>
         )
@@ -368,7 +379,7 @@ class Line extends Component{
 				new ReactQuery(atom).findFirst('[data-type="anchor"]').get(0),
 				{children:null,width:0,height:0, atom}
 			))
-			if(!this.frame.isAnchorComposed(anchor.props.id)){
+			if(!this.frame.isAnchored(anchor.props.id)){
 				this.anchor=atom
 				return false
 			}
@@ -443,56 +454,42 @@ class Line extends Component{
 	}
 }
 
-class Story extends Component{
-	static displayName="story"
+class Merge extends Component{
 	render(){
-		const {children, align="left"}=this.props
-		const height=children.reduce((h,{props:{height}})=>Math.max(h,height),0)
-		const descent=children.reduce((h,a,i)=>{
-			const {props:{descent}}=a
-			if(descent==undefined){
-				children[i]=React.cloneElement(a,{y:-a.props.height})
-			}
-			return Math.max(h,descent||0)
-		},0)
-		const baseline=height-descent
+		const {children,...props}=this.props
 		return (
-			<Group y={baseline}>
-				{this[align]()}
+			<Group {...props}>
+				{this.getMerged(children)}
 			</Group>
 		)
 	}
-
-	left(){
-		return this.props.children.reduce((state,piece,key)=>{
-			const {width}=piece.props
-			if(piece.props.x!=undefined){
-				state.pieces.push(React.cloneElement(piece,{key}))
-				state.x=piece.props.x+width
+	getMerged=memoize((children)=>{
+		return React.Children.toArray(children)
+		.reduce((state,piece,key)=>{
+			const piecePath=path(piece)
+			if(!piecePath.bText){
+				state.mergeTrunk(key)
+				state.pieces.push(React.cloneElement(piece,{x:state.x,key}))
+				state.x+=piece.props.width
 			}else{
-				const piecePath=path(piece)
-				if(!piecePath.bText){
+				if(piecePath.join(",")==state.trunkPath){
+					state.trunk.push(piece)
+				}else {
 					state.mergeTrunk(key)
-					state.pieces.push(React.cloneElement(piece,{x:state.x,key}))
-					state.x+=width
-				}else{
-					if(piecePath.join(",")==state.trunkPath){
-						state.trunk.push(piece)
-					}else {
-						state.mergeTrunk(key)
-						state.trunk.push(piece)
-						state.trunkPath=piecePath.join(",")
-					}
+					state.trunk.push(piece)
+					state.trunkPath=piecePath.join(",")
 				}
 			}
 			return state
-		},{
-			pieces:[],x:0,trunk:[],trunkPath:null,
+		},{	pieces:[],
+			x:0,
+			trunk:[],
+			trunkPath:null,
 			mergeTrunk(key=-1){
 				if(this.trunk.length==1){
-						const piece=this.trunk[0]
-						this.pieces.push(React.cloneElement(piece,{x:this.x,key}))
-						this.x+=piece.props.width
+					const piece=this.trunk[0]
+					this.pieces.push(React.cloneElement(piece,{x:this.x,key}))
+					this.x+=piece.props.width
 				}else if(this.trunk.length>1){
 					const extract=a=>path(a,b=>b).pop()
 					const texts=this.trunk.map(extract)
@@ -515,7 +512,49 @@ class Story extends Component{
 				this.trunkPath=null
 				return this
 			}
-		}).mergeTrunk().pieces
+		})
+		.mergeTrunk()
+		.pieces
+	})
+}
+class Story extends Component{
+	static displayName="story"
+	render(){
+		const {children, align="left"}=this.props
+		const height=children.reduce((h,{props:{height}})=>Math.max(h,height),0)
+		const descent=children.reduce((h,a,i)=>{
+			const {props:{descent}}=a
+			if(descent==undefined){
+				children[i]=React.cloneElement(a,{y:-a.props.height})
+			}
+			return Math.max(h,descent||0)
+		},0)
+		const baseline=height-descent
+		const aligned=this[align]()
+		return (
+			<Group y={baseline}>
+				{aligned}
+			</Group>
+		)
+	}
+
+	left(){
+		return this.group()
+			.reduce((state, {words, endingWhitespaces,located})=>{
+				state.aligned.push(
+					<Merge x={state.x} key={state.aligned.length}>
+					{
+						[...words,...endingWhitespaces].map((a,key)=>React.cloneElement(a,{key}))
+					}
+					</Merge>
+				)
+				if(located){
+					state.aligned.push(React.cloneElement(located,{key:state.aligned.length}))
+					state.x=located.props.x+located.props.width
+				}
+				return state
+			},{x:0, aligned:[]})
+			.aligned
 	}
 
 	group(right=false){
@@ -548,24 +587,27 @@ class Story extends Component{
 	right(){
 		return this.group(true)
 			.reduceRight((state, {located,words,endingWhitespaces})=>{
-				const i=state.righted.length
-				endingWhitespaces.reduce((x,whitespace)=>{
-					state.righted.push(React.cloneElement(whitespace,{x}))
-					return x+whitespace.props.width
-				},state.x)
+				state.aligned.push(
+					<Merge x={state.x} key={state.aligned.length}>
+						{endingWhitespaces.map((a,key)=>React.cloneElement(a,{key}))}
+					</Merge>
+				)
 
-				words.reduceRight((x,word)=>{
-					x=x-word.props.width
-					state.righted.splice(i,0,React.cloneElement(word,{x}))
-					return x
-				},state.x)
+				state.x=words.reduce((x,a)=>x-a.props.width,state.x)
+				state.aligned.push(
+					<Merge x={state.x} key={state.aligned.length}>
+						{words.map((a,key)=>React.cloneElement(a,{key}))}
+					</Merge>
+				)
 
 				if(located){
-					state.righted.splice(i,0,located)
+					state.aligned.push(React.cloneElement(located,{key:state.aligned.length}))
 					state.x=located.props.x
 				}
 				return state
-			},{x:this.props.width,righted:[]}).righted
+			},{x:this.props.width,aligned:[]})
+			.aligned
+			.reverse()
 	}
 
 	center(){
@@ -575,24 +617,18 @@ class Story extends Component{
 			.reduce((state, {words, endingWhitespaces,located})=>{
 				const width=(located ? located.props.x : this.props.width)-state.x
 				const wordsWidth=contentWidth(words)
-				state.centerized.push(
-					<Group x={state.x+(width-wordsWidth)/2} key={state.centerized.length}>
-						{
-							words.concat(endingWhitespaces).reduce((status,word,key)=>{
-								status.pieces.push(React.cloneElement(word,{x:status.x,key}))
-								status.x+=word.props.width
-								return status
-							},{x:0,pieces:[]}).pieces
-						}
-					</Group>
+				state.aligned.push(
+					<Merge x={state.x+(width-wordsWidth)/2} key={state.aligned.length}>
+						{words.concat(endingWhitespaces).map((a,key)=>React.cloneElement(a,{key}))}
+					</Merge>
 				)
 
 				if(located){
-					state.centerized.push(React.cloneElement(located,{key:state.centerized.length}))
+					state.aligned.push(React.cloneElement(located,{key:state.aligned.length}))
 					state.x=located.props.x+located.props.width
 				}
 				return state
-			},{x:0, centerized:[]}).centerized
+			},{x:0, aligned:[]}).aligned
 	}
 
 	justify(){

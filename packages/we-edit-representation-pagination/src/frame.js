@@ -145,7 +145,7 @@ class Fixed extends Super{
 		return new ReactQuery(a).findFirst(`[data-content="${id}"]`).get(0)
 	}
 
-	isAnchorComposed(id){
+	isAnchored(id){
 		return !!this.anchors.find(a=>this.belongsTo(a,id))
 	}
 
@@ -162,7 +162,11 @@ class Fixed extends Super{
 	}
 
 	paragraphY(id){
-		return this.lineY(this.lines.findLast(line=>!this.belongsTo(line,id)))
+		const prevLineOfThisParagraph=this.lines.findLast(line=>this.getParagraph(line)!=id)
+		if(prevLineOfThisParagraph){
+			return this.lineY(prevLineOfThisParagraph)
+		}
+		return 0
 	}
 
 	lineY(line){
@@ -177,7 +181,9 @@ class Fixed extends Super{
 			.attr("data-content")
 	}
 	getParagraph(line){
-		return new ReactQuery(line).findFirst(`[data-type="paragraph"]`).attr("data-content")
+		return new ReactQuery(line)
+			.findFirst(`[data-type="paragraph"]`)
+			.attr("data-content")
 	}
 
 	isEmpty(){
@@ -280,7 +286,7 @@ class Columnable extends Fixed{
 				enumerable:true,
 				configurable:true,
 				get(){
-					return (({width,x,y})=>({x1:x,x2:x+width,y2:y+this.currentY}))(this.currentColumn)
+					return (({width,x=0,y=0})=>({x1:x,x2:x+width,y2:y+this.currentY}))(this.currentColumn)
 				}
 			},
 			currentY:{
@@ -421,8 +427,9 @@ class Columnable extends Fixed{
 	}
 
 	reset4Recompose(){
+		const lines=super.reset4Recompose(...arguments)
 		this.columns=[]
-		return super.reset4Recompose(...arguments)
+		return lines
 	}
 
 	isDirtyIn(rect){
@@ -496,10 +503,11 @@ class PaginationControllable extends Balanceable{
 		super.defineProperties()
 		Object.defineProperties(this,{
 			prev:{
-				enumerable:true,
+				enumerable:false,
 				configurable:true,
 				get(){
-					return null
+					const siblings=this.context.parent.computed.composed
+					return siblings[siblings.indexOf(this)-1]
 				}
 			}
 		})
@@ -632,8 +640,8 @@ class AnchorWrappable extends PaginationControllable{
 	}
 
 	/*bad but faster*/
-	composed(id){
-		const composed=super.composed(id)
+	isAnchored(id){
+		const composed=super.isAnchored(id)
 		if(this.recomposing4Anchor && this.recomposing4Anchor.anchor==id){
 			this.recomposing4Anchor.anchored=true
 		}
@@ -663,9 +671,9 @@ class AnchorWrappable extends PaginationControllable{
 		const {geometry,wrap,rect}=anchor.wrapGeometry({x,y},atom)
 
 		this.appendComposed(
-			<Frame.Group {...rect} wrap={wrap}>
+			<Group {...rect} wrap={wrap}>
 				{React.cloneElement(atom,{x:x-rect.x,y:y-rect.y,anchor:undefined})}
-			</Frame.Group>
+			</Group>
 		)
 
 		if(wrap){
@@ -730,11 +738,11 @@ class Replaceable extends AnchorWrappable{
 		if(this.prev&&this.prev.replace(line)){
 			return true
 		}
-		
+
 		if(line.props.replaceable(line,this.lastLine)){
 			this.columns[this.columns.length-1].children.splice(-1,1,line)
 			return true
-		}	
+		}
 	}
 }
 
