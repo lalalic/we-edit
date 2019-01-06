@@ -10,12 +10,12 @@ const Super=HasParentAndChild(models.Table)
 export default class Table extends Super{
 	nextAvailableSpace(){
 		let availableSpace=this.context.parent.nextAvailableSpace(...arguments)
-		return {width: this.props.width, height: availableSpace.height}
+		return {...availableSpace, width: this.props.width}
 	}
 
 	createComposed2Parent(row){
 		return (
-			<Group width={this.props.width} height={row.props.height} replaceable={this.replaceable.bind(this)}>
+			<Group width={this.props.width} height={row.props.height}>
 				{React.cloneElement(row,{x:this.props.indent})}
 			</Group>
 		)

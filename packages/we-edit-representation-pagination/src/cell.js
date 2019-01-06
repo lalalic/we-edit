@@ -76,13 +76,14 @@ export default class extends Super{
 	createComposed2Parent(){
 		const {border, margin, spacing, background,vertAlign}=this.props
 		const contentHeight=this.current.currentY
-		const spaceHeight=this.current.props.height+this.nonContentHeight
 		const height=contentHeight+this.nonContentHeight
 		const width=this.current.props.width+margin.left+margin.right
 		return (
-			<Cell {...{border, margin, spacing, background,vertAlign,contentHeight,height,width,spaceHeight}}>
-				{React.cloneElement(this.current.render(),{height:contentHeight})}
-			</Cell>
+			<Cell {...{
+				border, margin, spacing, background,vertAlign,width,
+				nonContentHeight:this.nonContentHeight,
+				frame:this.current
+			}}/>
 		)
 	}
 }
@@ -93,7 +94,15 @@ const Margin=Group
 
 class Cell extends Component{
 	render(){
-		const {border, margin, spacing, background,vertAlign,width,height, contentHeight, children, ...others}=this.props
+		var {border, margin, spacing, background,vertAlign,width,frame,
+			height,
+			nonContentHeight,
+			...others}=this.props
+			
+		const contentHeight=frame ? frame.currentY : 0
+		if(height==undefined)
+			height=contentHeight+nonContentHeight
+		
 		const alignY=(()=>{
 			switch(vertAlign){
 				case "bottom":
@@ -112,7 +121,7 @@ class Cell extends Component{
 					<Border border={border} spacing={spacing} width={width} height={height}>
 						<Margin x={margin.left} y={margin.top}>
 							<Group y={alignY}>
-								{children}
+								{frame ? frame.render() : null}
 							</Group>
 						</Margin>
 					</Border>
