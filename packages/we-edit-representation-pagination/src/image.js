@@ -38,8 +38,8 @@ export default class extends Super{
 			element=this.rotate(element)
 		}
 
-
-		return element
+		const {width,height}=element.props
+		return <Group {...{width,height,y:-height}}>{element}</Group>
 	}
 
 	rotate(element){

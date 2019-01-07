@@ -94,13 +94,13 @@ const Margin=Group
 
 class Cell extends Component{
 	render(){
-		var {border, margin, spacing, background,vertAlign,width,frame,
+		var {border, margin, spacing,vertAlign,width,frame,
 			height,
 			nonContentHeight,
 			...others}=this.props
 
 		const contentHeight=frame ? frame.contentHeight : 0
-		if(height==undefined)
+		if(height==undefined || (frame && height>contentHeight+nonContentHeight))
 			height=contentHeight+nonContentHeight
 
 		const alignY=(()=>{
@@ -116,7 +116,6 @@ class Cell extends Component{
 		})();
 		return (
 			<Group {...others}>
-				{background&&background!="transparent" ? (<rect width={width} height={height} fill={background}/>)  : null}
 				<Spacing x={spacing/2} y={spacing/2}>
 					<Border border={border} spacing={spacing} width={width} height={height}>
 						<Margin x={margin.left} y={margin.top}>
@@ -141,10 +140,10 @@ class Border extends Component{
 		height-=spacing
 		return (
 			<Group {...others}>
-				{top.sz && <path strokeWidth={top.sz} stroke={top.color} d={`M0 0 L${width} 0`}/> || null}
-				{bottom.sz && <path strokeWidth={bottom.sz} stroke={bottom.color} d={`M0 ${height} L${width} ${height}`}/>  || null}
-				{right.sz && <path strokeWidth={right.sz} stroke={right.color} d={`M${width} 0 L${width} ${height}`}/>  || null}
-				{left.sz && <path strokeWidth={left.sz} stroke={left.color} d={`M0 0 L0 ${height}`}/>  || null}
+				{top.sz && ((_5)=><path strokeWidth={top.sz} stroke={top.color} d={`M${_5} ${_5} L${width-_5} ${_5}`}/>)(top.sz/2)}
+				{bottom.sz && ((_5)=><path strokeWidth={bottom.sz} stroke={bottom.color} d={`M${_5} ${height-_5} L${width-_5} ${height-_5}`}/>)(bottom.sz/2)}
+				{right.sz && ((_5)=><path strokeWidth={right.sz} stroke={right.color} d={`M${width-_5} ${_5} L${width-_5} ${height-_5}`}/>)(right.sz/2)}
+				{left.sz && ((_5)=><path strokeWidth={left.sz} stroke={left.color} d={`M${_5} ${_5} L${_5} ${height-_5}`}/>)(left.sz/2)}
 				<Group x={left.sz} y={top.sz}>
 					{children}
 				</Group>

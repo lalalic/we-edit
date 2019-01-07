@@ -16,6 +16,7 @@ export default class Group extends Component{
 			rotate,
 			x=0,y=0,
 			children,
+			background,
 			margin,minWidth, width, height, index, childIndex, contentWidth,wrap,pagination,anchor,currentY,named,descent,replaceable, spaceHeight,
 			className,
 			...others}=this.props
@@ -48,6 +49,7 @@ export default class Group extends Component{
 				{Children.toArray(children).map((a,i)=>{
 					return React.cloneElement(a,{key:i})
 				})}
+				{background&&background!="transparent"&& (<rect width={width} height={height} fill={background} key="background"/>)}
 			</g>
 		)
     }

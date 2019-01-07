@@ -544,7 +544,7 @@ class PaginationControllable extends Balanceable{
 			}
 		}else{
 			if(orphan){
-				if(this.prev.orphanCount(line)==1){
+				if(this.prev.orphanCount(line)==1 && this.prev.lines.length>1){
 					this.prev.rollbackLines(1)
 					return 1+1
 				}
@@ -553,7 +553,7 @@ class PaginationControllable extends Balanceable{
 			if(widow){
 				if(last){
 					const orphanCount=this.prev.orphanCount(line)
-					if(orphanCount>0){
+					if(orphanCount>0 && this.prev.lines.length>orphanCount){
 						this.prev.rollbackLines(1)
 						if(orphan){
 							if(orphanCount==2){

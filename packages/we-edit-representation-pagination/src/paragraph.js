@@ -521,15 +521,7 @@ class Story extends Component{
 	static displayName="story"
 	render(){
 		const {children, align="left"}=this.props
-		const height=children.reduce((h,{props:{height}})=>Math.max(h,height),0)
-		const descent=children.reduce((h,a,i)=>{
-			const {props:{descent}}=a
-			if(descent==undefined){
-				children[i]=React.cloneElement(a,{y:-a.props.height})
-			}
-			return Math.max(h,descent||0)
-		},0)
-		const baseline=height-descent
+		const baseline=children.reduce((h,{props:{height,descent=0}})=>Math.max(h,height-descent),0)
 		const aligned=this[align]()
 		return (
 			<Group y={baseline}>
