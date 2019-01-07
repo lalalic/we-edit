@@ -58,7 +58,7 @@ export default ({Table,Container})=>class extends Component{
 		this.style={...tblStyle, ...direct, children:rows}
 	}
 
-	getIndent=memoize((id,indent,children)=>{
+	getIndent=memoize((id,indent=0,children)=>{
 		const query=new ContentQuery(this.context.activeDocStore.getState(),`#${id}`)
 		if(query.parents("table").length>0){
 			return indent
