@@ -724,26 +724,4 @@ class AnchorWrappable extends PaginationControllable{
 	}
 }
 
-class Replaceable extends AnchorWrappable{
-	appendComposed(line){
-		if(line.props.replaceable){
-			if(this.replace(line)){
-				return
-			}
-		}
-		return super.appendComposed(...arguments)
-	}
-
-	replace(line){
-		if(this.prev&&this.prev.replace(line)){
-			return true
-		}
-
-		if(line.props.replaceable(line,this.lastLine)){
-			this.columns[this.columns.length-1].children.splice(-1,1,line)
-			return true
-		}
-	}
-}
-
-export default Replaceable
+export default AnchorWrappable

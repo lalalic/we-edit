@@ -20,23 +20,4 @@ export default class Table extends Super{
 			</Group>
 		)
 	}
-
-	replaceable(replacing,replaced){
-		const info=(a)=>{
-			if(a){
-				const table=new ReactQuery(a).findFirst(`[data-type="table"]`)
-				const row=table.findFirst(`[data-type="row"]`)
-				if(row.length){
-					return {table,row}
-				}
-			}
-		}
-
-		const A=info(replacing), B=info(replaced)
-
-		const sameTable=(A && B &&A.table.attr("data-content")==B.table.attr("data-content"))
-		const sameRow=sameTable && A.row.attr("data-content")==B.row.attr("data-content")
-		const replaceable=sameRow && A.row.children().length>B.row.children().length
-		return replaceable
-	}
 }
