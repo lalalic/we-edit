@@ -65,11 +65,10 @@ export default ({Table,Container})=>class extends Component{
 		}
 		const firstCell=new ReactQuery(<Fragment>{children}</Fragment>).findFirst("cell")
 		const {right=0}=firstCell.attr("margin")||{}
-		return indent+right
+		return indent-right
 	})
 
 	render(){
-		const {id, indent=0,children}=this.props
-		return <Table {...this.style} indent={this.getIndent(id, indent,children)}/>
+		return <Table {...this.style} indent={this.getIndent(this.props.id, this.style.tblInd,this.style.children)}/>
 	}
 }
