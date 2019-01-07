@@ -250,7 +250,7 @@ export default class Paragraph extends Super{
 			}=this.props
 
        lineHeight=typeof(lineHeight)=='string' ? height*parseInt(lineHeight)/100.0: lineHeight
-	   let contentY=(lineHeight-height)/2
+	   let contentY=0
 	   let contentX=left
 
         if(this.computed.composed.length==1){//first line

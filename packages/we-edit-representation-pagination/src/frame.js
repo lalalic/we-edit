@@ -517,7 +517,9 @@ class PaginationControllable extends Balanceable{
 		const pid=this.getFlowableComposerId(line,'[data-type="paragraph"]')
 		if(!pid)
 			return 0
-		return Math.max(this.lines.reverse().findIndex(a=>this.getFlowableComposerId(a)!==pid),0)
+		const lines=this.lines
+		const i=lines.findLastIndex(a=>this.getFlowableComposerId(a)!==pid)
+		return i==-1 ? lines.length : i+1
 	}
 
 	appendLine(line){
