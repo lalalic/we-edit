@@ -8,6 +8,10 @@ import Frame from "./frame"
 import {HasParentAndChild} from "./composable"
 const Super=HasParentAndChild(models.Row)
 
+/**
+create rank only when cell request next availableSpace
+rank's height is not always correct, how to fix it??? when add new cell, the height should be fixed
+*/
 export default class extends Super{
 	constructor(){
 		super(...arguments)
@@ -31,11 +35,30 @@ export default class extends Super{
 		}else{
 			this.computed.composed.push([cell])
 		}
+		if(!this.currentSpace)
+			return
 
-		const lastLine=this.currentSpace.frame.lastLine
-		const cells=new ReactQuery(lastLine).findFirst(`[data-content=${this.props.id}]`).attr("cells")
+		const lastLine=new ReactQuery(this.currentSpace.frame.lastLine)
+		const parents=[], rank=lastLine.findFirst((node,parent)=>{
+			if(node.props["data-content"]==this.props.id){
+				return true
+			}else{
+				parents.push(parent||lastLine.get(0))
+			}
+		})
+		const cells=rank.attr("cells")
 		if(cells){
 			cells[this.computed.composed.length-1]=cell
+
+			const height=this.getHeight(cells)
+			if(height>rank.attr("height")){
+				const fixedLastLine=parents.reduceRight(
+					(child,parent)=>React.cloneElement(parent,{height},child),
+					React.cloneElement(rank.get(0),{height})
+				)
+				this.currentSpace.frame.currentColumn.children.splice(-1,1,fixedLastLine)
+			}
+
 		}
 	}
 
@@ -54,14 +77,13 @@ export default class extends Super{
 	}
 
 	nextAvailableSpace(required){
-		var height
+		var height,width
 		const {cols}=this.context
-		if(this.props.keepLines){
-			height=Number.MAX_SAFE_INTEGER
-		}else if(!this.currentColumn[0]){
+		if(!this.currentColumn[0]){
 			const space=super.nextAvailableSpace(...arguments)
 			this.computed.spaces.push(space)
 			height=space.height
+			width=cols[0]
 		}else if(this.cellId(this.currentColumn[0])==required.id){
 			if(this.ranks<this.currentColumn.length+1){
 				this.context.parent.appendComposed(this.createComposed2Parent())
@@ -69,12 +91,17 @@ export default class extends Super{
 				this.computed.spaces.push(space)
 				height=space.height
 			}else{
-				height=this.computed.spaces[this.currentColumn.length]
+				height=this.computed.spaces[this.currentColumn.length].height
 			}
+			width=cols[this.computed.composed.length-1]
 		}else{//next column
 			height=this.computed.spaces[0].height
+			width=cols[this.computed.composed.length]
 		}
-		return {width:cols[this.computed.composed.length%cols.length], height}
+		if(this.props.keepLines){
+			height=Number.MAX_SAFE_INTEGER
+		}
+		return {width, height}
 	}
 
 	onAllChildrenComposed(){
@@ -105,19 +132,23 @@ export default class extends Super{
 	createComposed2Parent(){
 		const {context:{cols}, computed:{composed:columns}}=this
 		const i=this.currentColumn.length-1
-		const unappendedCells=columns.map(column=>column[i])
-
-		const height=this.props.height!=undefined ?
-				this.props.height :
-				Math.max(...unappendedCells.filter(a=>!!a).map(a=>a.props.nonContentHeight+a.props.frame.currentY))
+		const cells=columns.map(column=>column[i])
+		const height=this.getHeight(cells)
 		const width=cols.reduce((w,a)=>w+a,0)
 		return (
-			<Rank cells={unappendedCells} cols={cols} width={width} height={height} space={this.currentSpace}/>
+			<Rank cells={cells} cols={cols} width={width} height={height} space={this.currentSpace}/>
 		)
+	}
+
+	getHeight(cells){
+		return this.props.height!=undefined ?
+				this.props.height :
+				Math.max(...cells.filter(a=>!!a).map(a=>a.props.nonContentHeight+a.props.frame.currentY))
 	}
 }
 
 class Rank extends Component{
+	static displayName="rank"
 	render(){
 		const {space,cells=[],cols, ...props}=this.props
 		const height=Math.max(...cells

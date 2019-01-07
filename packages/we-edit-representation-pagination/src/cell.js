@@ -98,11 +98,11 @@ class Cell extends Component{
 			height,
 			nonContentHeight,
 			...others}=this.props
-			
-		const contentHeight=frame ? frame.currentY : 0
+
+		const contentHeight=frame ? frame.contentHeight : 0
 		if(height==undefined)
 			height=contentHeight+nonContentHeight
-		
+
 		const alignY=(()=>{
 			switch(vertAlign){
 				case "bottom":

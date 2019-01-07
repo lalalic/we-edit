@@ -389,7 +389,7 @@ class Columnable extends Fixed{
 
 	nextAvailableSpace(required={}){
 		const {width:minRequiredW=0,height:minRequiredH=0}=required
-		if(minRequiredH-this.currentColumn.availableHeight>1){
+		if(minRequiredH-this.currentColumn.availableHeight>1 && this.currentColumn.children.length>0){
 			if(this.cols.length>this.columns.length){// new column
 				this.createColumn()
 			}else{
@@ -410,7 +410,7 @@ class Columnable extends Fixed{
 		if(x!=undefined || y!=undefined){//anchored
 			this.computed.composed.push(line)
 			return
-		}else if(contentHeight-this.currentColumn.availableHeight>1){
+		}else if(contentHeight-this.currentColumn.availableHeight>1 && this.currentColumn.children.length>0){
 			if(this.cols.length>this.columns.length){// new column
 				this.createColumn()
 				return 0+1//recompose current line in case different available space, such as different column width, wrapper, etc

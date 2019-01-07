@@ -19,16 +19,22 @@ export default class Query{
             return typeof(element.type)=="string" ? element.type===type : element.type.displayName===type
         }
     }
-    constructor(element,selector){
-        if(selector instanceof Query)
-			return selector
-
+    constructor(element,selector,root){
         this._nodes=[]
 
 		if(Array.isArray(element)){
             this._nodes=element.filter(a=>React.isValidElement(a))
-        }else if(React.isValidElement(element))
+        }else if(React.isValidElement(element)){
             this._nodes.push(element)
+            if(!root){
+                root=element
+            }
+        }
+        this.root=root
+
+        if(selector){
+            return this.find(selector)
+        }
     }
 
     _asSelector(selector){
@@ -84,7 +90,7 @@ export default class Query{
                 },found)
             return found
         },[])
-		return new this.constructor(filtered)
+		return new this.constructor(filtered,null,this.root)
 	}
 
     has(selector){
@@ -94,7 +100,7 @@ export default class Query{
 
     filter(selector){
         const select=this._asSelector(selector)
-        return new this.constructor(this._nodes.filter(el=>!!select(el)))
+        return new this.constructor(this._nodes.filter(el=>!!select(el)), null,this.root)
     }
 
 	find(selector){
@@ -107,7 +113,7 @@ export default class Query{
 			},k)
 			return found
 		},[])
-		return new this.constructor(found)
+		return new this.constructor(found,null,this.root)
 	}
 
     findFirst(selector){
@@ -123,7 +129,7 @@ export default class Query{
                 })
             }
         }
-        return new this.constructor(found)
+        return new this.constructor(found,null,this.root)
     }
 
     get(i){

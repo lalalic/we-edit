@@ -1,24 +1,21 @@
 import React from "react"
 import TestRender from "react-test-renderer"
-
+import {ReactQuery} from "we-edit"
 import {Viewers, Editors} from "../src"
 import provider from "./context"
 
 describe("compose", ()=>{
-	const {Document, Template, Frame, Paragraph, Text, Image}=Viewers
-	const lineHeight=10
+	const {Document, Template, Frame, Paragraph, Text, Image,Table,Row,Cell}=Viewers
 	class Measure{
-		height=lineHeight
-		defaultStyle={height:this.height}
+		constructor({size}){
+			this.defaultStyle={height:size}
+		}
+
 		widthString(x,text){
 			return text.substring(0,x)
 		}
 		stringWidth(text){
 			return text.length
-		}
-
-		static factory=height=>class extends Measure{
-			height=height
 		}
 	}
 	const WithTextContext=provider(Text,{Measure})
@@ -69,8 +66,8 @@ describe("compose", ()=>{
 			const renderer=TestRender.create(
 				<WithParagraphContext context={context}>
 					<WithTextContext>
-						<Paragraph id="1" spacing={spacing} indent={indent} align={align}>
-							<Text id="0" fonts="arial" size={12}>{TEXT}</Text>
+						<Paragraph id="1" spacing={spacing} indent={indent} align={align} defaultStyle={{fonts:"arial",size:10}}>
+							<Text id="0" fonts="arial" size={10}>{TEXT}</Text>
 						</Paragraph>
 					</WithTextContext>
 				</WithParagraphContext>
@@ -108,6 +105,7 @@ describe("compose", ()=>{
 		})
 
 		describe("spacing",()=>{
+			const lineHeight=10
 			it("line height(number)",()=>{
 				const lines=test(5,{lineHeight:11})
 				expect(lines.length>0).toBe(true)
@@ -178,14 +176,14 @@ describe("compose", ()=>{
 				<WithParagraphContext>
 					<WithTextContext>
 						<Paragraph id={`${id}.1`}>
-							<Text id={`${id}.0`} fonts="arial" size={12}>hello</Text>
+							<Text id={`${id}.0`} fonts="arial" size={10}>hello</Text>
 						</Paragraph>
 					</WithTextContext>
 				</WithParagraphContext>
 			</Template>
 		)
 
-		fit("template",()=>{
+		it("template",()=>{
 			document.appendComposed=jest.fn()
 			const renderer=TestRender.create(
 				<WithTemplateContext context={{parent:document}}>
@@ -195,7 +193,7 @@ describe("compose", ()=>{
 			expect(document.appendComposed).toHaveBeenCalledTimes(1)
 		})
 
-		fit("template",()=>{
+		it("template",()=>{
 			document.appendComposed=jest.fn()
 			const renderer=TestRender.create(
 				<WithTemplateContext context={{parent:document}}>
@@ -206,11 +204,184 @@ describe("compose", ()=>{
 		})
 
 
+		describe("table",()=>{
+			let u=0
+			const template=table=>(
+				<Template create={(props,context)=>new Frame({...props,width:10,height:20},context)} id={0} key={0}>
+					<WithParagraphContext>
+						<WithTextContext>
+							{table}
+						</WithTextContext>
+					</WithParagraphContext>
+				</Template>
+			)
 
-	})
+			describe("one column",()=>{
+				fit("basic",()=>{
+					let page
+					document.appendComposed=jest.fn(a=>page=a)
+					const rendered=TestRender.create(
+						<WithTemplateContext context={{parent:document}}>
+							{template(
+								<Table id={u++} cols={[6]} width={8}>
+									<Row id={u++}>
+										<Cell id={u++}>
+											<Paragraph id={u++} defaultStyle={{size:10}}>
+												<Text id={u++} fonts="arial" size={10}>hello</Text>
+											</Paragraph>
+										</Cell>
+									</Row>
+								</Table>
+							)}
+						</WithTemplateContext>
+					)
+					expect(document.appendComposed).toHaveBeenCalledTimes(1)
+					expect(page.lastLine).toBeDefined()
+					debugger
+					const table=new ReactQuery(page.lastLine)
+						.findFirst(`[data-type="table"]`)
+						.get(0)
+					expect(table).toBeDefined()
+					expect(table.props.height).toBe(12)
+				})
 
-	describe("table",()=>{
+				it("cell can be splitted into pages",()=>{
+					document.appendComposed=jest.fn()
+					const rendered=TestRender.create(
+						<WithTemplateContext context={{parent:document}}>
+							{template(
+								<Table id={u++} cols={[7]} width={8}>
+									<Row id={u++}>
+										<Cell id={u++}>
+											<Paragraph id={u++} defaultStyle={{size:10}}>
+												<Text id={u++} fonts="arial" size={10}>hello hello hello</Text>
+											</Paragraph>
+										</Cell>
+									</Row>
+								</Table>
+							)}
+						</WithTemplateContext>
+					)
+					expect(document.appendComposed).toHaveBeenCalledTimes(3)
+				})
 
+				it("nested cell can be splitted into pages",()=>{
+					document.appendComposed=jest.fn()
+					const rendered=TestRender.create(
+						<WithTemplateContext context={{parent:document}}>
+							{template(
+								<Table id={u++} cols={[7]} width={10}>
+									<Row id={u++}>
+										<Cell id={u++}>
+											<Table id={u++} cols={[7]} width={8}>
+												<Row id={u++}>
+													<Cell id={u++}>
+														<Paragraph id={u++} defaultStyle={{size:10}}>
+															<Text id={u++} fonts="arial" size={10}>hello hello hello</Text>
+														</Paragraph>
+													</Cell>
+												</Row>
+											</Table>
+										</Cell>
+									</Row>
+								</Table>
+							)}
+						</WithTemplateContext>
+					)
+					expect(document.appendComposed).toHaveBeenCalledTimes(3)
+				})
+			})
+
+			describe("two columns",()=>{
+				it("[[hello ][hello],[hello]]",()=>{
+					let u=0
+					const pages=[]
+					document.appendComposed=jest.fn(page=>pages.push(page))
+					const rendered=TestRender.create(
+						<WithTemplateContext context={{parent:document}}>
+							{template(
+								<Table id={u++} cols={[5,5]} width={10}>
+									<Row id={u++}>
+										<Cell id={u++}>
+											<Paragraph id={u++} defaultStyle={{size:10}}>
+												<Text id={u++} fonts="arial" size={15}>hello hello</Text>
+											</Paragraph>
+										</Cell>
+										<Cell id={u++}>
+											<Paragraph id={u++} defaultStyle={{size:10}}>
+												<Text id={u++} fonts="arial" size={10}>hello</Text>
+											</Paragraph>
+										</Cell>
+									</Row>
+								</Table>
+							)}
+						</WithTemplateContext>
+					)
+					expect(document.appendComposed).toHaveBeenCalledTimes(2)
+				})
+				it("[[hello],[hello ][hello]]",()=>{
+					const pages=[]
+					document.appendComposed=jest.fn(page=>pages.push(page))
+					const rendered=TestRender.create(
+						<WithTemplateContext context={{parent:document}}>
+							{template(
+								<Table id={u++} cols={[5,5]} width={10}>
+									<Row id={u++}>
+										<Cell id={u++}>
+											<Paragraph id={u++} defaultStyle={{size:10}}>
+												<Text id={u++} fonts="arial" size={10}>hello</Text>
+											</Paragraph>
+										</Cell>
+										<Cell id={u++}>
+											<Paragraph id={u++} defaultStyle={{size:10}}>
+												<Text id={u++} fonts="arial" size={15}>hello hello</Text>
+											</Paragraph>
+										</Cell>
+
+									</Row>
+								</Table>
+							)}
+						</WithTemplateContext>
+					)
+					expect(document.appendComposed).toHaveBeenCalledTimes(2)
+				})
+
+				it("[[hello],[[hello ][hello]]]",()=>{
+					const pages=[]
+					document.appendComposed=jest.fn(page=>pages.push(page))
+					const rendered=TestRender.create(
+						<WithTemplateContext context={{parent:document}}>
+							{template(
+								<Table id={u++} cols={[5,5]} width={10}>
+									<Row id={u++}>
+										<Cell id={u++}>
+											<Paragraph id={u++} defaultStyle={{size:10}}>
+												<Text id={u++} fonts="arial" size={10}>hello</Text>
+											</Paragraph>
+										</Cell>
+
+										<Cell id={u++}>
+											<Table id={u++} cols={[5,5]} width={10}>
+												<Row id={u++}>
+													<Cell id={u++}>
+														<Paragraph id={u++} defaultStyle={{size:10}}>
+															<Text id={u++} fonts="arial" size={15}>hello hello</Text>
+														</Paragraph>
+													</Cell>
+													<Cell id={u++}/>
+												</Row>
+											</Table>
+										</Cell>
+
+									</Row>
+								</Table>
+							)}
+						</WithTemplateContext>
+					)
+					expect(document.appendComposed).toHaveBeenCalledTimes(2)
+				})
+			})
+		})
 	})
 
 	describe("image",()=>{
