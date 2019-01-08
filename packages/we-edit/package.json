@@ -11,11 +11,13 @@
     "office"
   ],
   "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
     "extend": "^3.0.2",
     "fetch-any": "^1.0.0",
     "immutable": "^3.8.1",
     "is-node": "^1.0.2",
     "lodash.get": "^4.4.2",
+    "memoize-one": "^4.0.2",
     "prop-types": "^15.6.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
@@ -25,8 +27,7 @@
     "recompose": "^0.26.0",
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0",
-    "shortid": "^2.2.8",
-	"memoize-one": "^4.0.2"
+    "shortid": "^2.2.8"
   },
   "optionalDependencies": {
     "get-system-fonts": "^1.0.0",

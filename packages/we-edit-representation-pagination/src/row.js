@@ -27,7 +27,6 @@ export default class extends Super{
 	}
 
 	appendComposed(cell){
-		const lastRanks=this.ranks
 		if(!this.currentColumn[0]){
 			this.currentColumn.push(cell)
 		}else if(this.cellId(this.currentColumn[0])==this.cellId(cell)){
@@ -38,6 +37,10 @@ export default class extends Super{
 		if(!this.currentSpace)
 			return
 
+		this.injectIntoRank(cell)
+	}
+
+	injectIntoRank(cell){
 		const lastLine=new ReactQuery(this.currentSpace.frame.lastLine)
 		const parents=[], rank=lastLine.findFirst((node,parent)=>{
 			if(node.props["data-content"]==this.props.id){
@@ -46,10 +49,11 @@ export default class extends Super{
 				parents.push(parent||lastLine.get(0))
 			}
 		})
-		const cells=rank.attr("cells")
+		const cells=rank.attr("children")
 		if(cells){
 			cells[this.computed.composed.length-1]=cell
 
+			//fix rank's height
 			const height=this.getHeight(cells)
 			if(height>rank.attr("height")){
 				const fixedLastLine=parents.reduceRight(
@@ -58,7 +62,6 @@ export default class extends Super{
 				)
 				this.currentSpace.frame.currentColumn.children.splice(-1,1,fixedLastLine)
 			}
-
 		}
 	}
 
@@ -105,6 +108,7 @@ export default class extends Super{
 	}
 
 	onAllChildrenComposed(){
+		//append the last rank
 		const unappendedCount=this.ranks-this.currentColumn.length
 		for(let i=unappendedCount;i>0;i--){
 			this.currentColumn.push(null)
@@ -112,11 +116,11 @@ export default class extends Super{
 		this.context.parent.appendComposed(this.createComposed2Parent())
 		this.currentColumn.splice(-unappendedCount)
 
-
+		//fill empty cell for each rank
 		const len=this.context.cols.length
 		this.computed.spaces.forEach(({frame},i)=>{
 			const lastLine=frame.lastLine
-			const cells=new ReactQuery(lastLine).findFirst(`[data-content=${this.props.id}]`).attr("cells")
+			const cells=new ReactQuery(lastLine).findFirst(`[data-content=${this.props.id}]`).attr("children")
 			if(cells){
 				cells.splice(cells.length,0,...new Array(len-cells.length).fill(null))
 				cells.forEach((a,j)=>{
@@ -136,7 +140,7 @@ export default class extends Super{
 		const height=this.getHeight(cells)
 		const width=cols.reduce((w,a)=>w+a,0)
 		return (
-			<Rank cells={cells} cols={cols} width={width} height={height} space={this.currentSpace}/>
+			<Rank children={cells} cols={cols} width={width} height={height} space={this.currentSpace}/>
 		)
 	}
 
@@ -150,12 +154,12 @@ export default class extends Super{
 class Rank extends Component{
 	static displayName="rank"
 	render(){
-		const {space,cells=[],cols, ...props}=this.props
-		const height=Math.max(...cells
+		const {space,children:cells=[],cols, ...props}=this.props
+		const height=Math.max(...cells.filter(a=>!!a)
 				.map(a=>{
 					const cell=new ReactQuery(a).findFirst('[data-type="cell"]')
 					const frame=cell.attr("frame")
-					return a.props.nonContentHeight+ (frame ? frame.currentY : 0)
+					return a.props.nonContentHeight+ (frame ? frame.currentY : 0)//content height
 				})
 			)
 

@@ -425,6 +425,7 @@ class ReactPositioning extends Positioning{
             id,at,
             x:x0+x,y:y0+y,
             ...this.asViewportPoint({x:x0+x,y:y0+y}),
+            page,
             ...position,
         }
     }

@@ -1,4 +1,5 @@
 import editable from "./editable"
+import {ReactQuery} from "we-edit"
 import TestRenderer from 'react-test-renderer'
 import {Cacheable} from "../composable"
 import Base from "../frame"
@@ -56,19 +57,61 @@ export default Cacheable(class extends editable(Base){
 		}
 
 		if(line){
-			return this.caretPositionInLine(x,this.lines.indexOf(line))
+			return this.caretPositionInLine(this.lines.indexOf(line),x,y)
 		}
 
 		return {}
 	}
 
-	caretPositionInLine(x, line){
-		line=this.lines[line]
-		const lineX=this.columns.find(a=>a.children.includes(line)).x
-		const paragraphId=this.getParagraph(line)
-		const i=line.props.pagination.i-1
+	caretPositionInLine(line,x,y){
+        line=this.lines[line]
+        const lineY=this.lineY(line)-line.props.height
+        const lineX=this.columns.find(a=>a.children.includes(line)).x
+        const hasFrame=a=>new ReactQuery(a).findFirst(`[frame]`).length
+        x-=lineX
+        y-=lineY
+        const include=({x:x0=0,y:y0=0,width,height})=>x0<=x && y0<=y && (x0+width)>=x && (y0+height)>=y
 
-		return this.context.getComposer(paragraphId).caretPositionFromPoint(i,x-lineX)
+        if(!hasFrame(line)){
+    		const paragraphId=this.getParagraph(line)
+    		const i=line.props.pagination.i-1
+
+    		return this.context.getComposer(paragraphId).caretPositionFromPoint(i,x, y)
+        }else{
+            const parents=[]
+            const offset={x:0,y:0}
+            const found=new ReactQuery(line).findFirst((node,parent)=>{
+                const {width,height,x=0,y=0,frame}=node.props
+                if(width && height){
+                    if(!include({x:offset.x+x,y:offset.y+y,width,height})){
+                        return false//don't continue
+                    }
+                    offset.x+=x
+                    offset.y+=y
+                }
+                if(frame || !hasFrame(node)){
+                    return true
+                }
+
+                if(parent){
+                    let i=parents.indexOf(parent)
+                    if(i!=-1){
+                        parents.splice(i).reduce((offset,{props:{x=0,y=0}})=>{
+                            offset.x-=x
+                            offset.y-=y
+                            return offset
+                        },offset)
+                    }
+                    parents.push(parent)
+                }
+            })
+            if(found.attr("frame")){
+                return found.attr("frame").caretPositionFromPoint(x-offset.x, y-offset.y)
+            }else{
+                return {id:node.attr("data-content"),at:0}
+            }
+            return {}
+        }
 	}
 
 	lineRect(line){
@@ -125,5 +168,4 @@ export default Cacheable(class extends editable(Base){
 		//remove content
 		return super.rollbackLines(this.lines.length-lineIndex,false)
 	}
-
 })

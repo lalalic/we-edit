@@ -171,7 +171,7 @@ class Fixed extends Super{
 
 	lineY(line){
 		return this.lines.slice(0,this.lines.indexOf(line)+1)
-			.reduce((Y,a)=>Y+a.props.height,0)
+			.reduce((Y,{props:{height=0}})=>Y+height,0)
 	}
 
 	getFlowableComposerId(line,filter){
@@ -369,7 +369,7 @@ class Columnable extends Fixed{
 	}
 
 	lineY(line){
-		var {y,children:lines}=this.columns.find(a=>a.children.includes(line))||this.currentColumn
+		var {y=0,children:lines}=this.columns.find(a=>a.children.includes(line))||this.currentColumn
 		return lines.slice(0,lines.indexOf(line)+1).reduce((y,a)=>y+a.props.height,y)
 	}
 

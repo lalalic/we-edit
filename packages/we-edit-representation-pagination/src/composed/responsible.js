@@ -325,7 +325,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
             return {page:pageNo, line:lineNo, x:x-x0}
         })(this.positioning.position(cursor.id, cursor.at))
         if(page!=undefined){
-            return this.props.pages[page].caretPositionInLine(x,line)
+            return this.props.pages[page].caretPositionInLine(line,x)
         }
 
         return {}

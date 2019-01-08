@@ -140,41 +140,15 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 			return {x,y}
 		})(this.computed.lastComposed[lineIndexOfParagraph].props.children.props);
 
-		const {page,lineIndexInPage}=((page,lineIndexInPage)=>{
+		const {page,line,parents}=((page,lineIndexInPage)=>{
 			const pages=this.getPages()
-			for(let first=-1,linesInNextPage=0,i=0;i<pages.length;i++){
-				page=pages[i]
-				let lines=page.lines
-				if(first!=-1){
-					if(lines[lineIndexInPage=linesInNextPage-1]){
-						break
-					}else{
-						linesInNextPage-=lines.length
-					}
-				}else{
-					first=lines.findIndex(a=>page.getParagraph(a)==this.props.id)
-					if(lines[lineIndexInPage=first+lineIndexOfParagraph]){
-						break
-					}else{
-						linesInNextPage=lines.length-1-first
-					}
-				}
-			}
-			return {page, lineIndexInPage}
+			
+			}).get(0)
+
+			return {page:parents[0],parents,line}
 		})();
 
-		const x0=page.columns.reduce((state,a)=>{
-			if(!state.column){
-				if(a.children.length>=state.count){
-					state.column=a
-				}else{
-					state.count-=a.children.length
-				}
-			}
-			return state
-		},{count:lineIndexInPage+1}).column.x
 
-		const y0=page.lineY(page.lines[lineIndexInPage-1])
 
 		return {
 			page:page.props.I,

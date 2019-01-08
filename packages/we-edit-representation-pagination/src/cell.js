@@ -1,20 +1,27 @@
 import React,{PureComponent as Component} from "react"
 import PropTypes from "prop-types"
 import {Group} from "./composed"
-import Frame from "./frame"
 
 import {HasParentAndChild} from "./composable"
 import {models} from "we-edit"
 const {Cell:Base}=models
 const Super=HasParentAndChild(Base)
 
-class CellFrame extends Frame{
-	render(){
-		return this.createComposed2Parent()
-	}
-}
-
 export default class extends Super{
+	static contextTypes={
+		...Super.contextTypes,
+		ModelTypes: PropTypes.object,
+	}
+	constructor(props,{ModelTypes:{Frame}}){
+		super(...arguments)
+		if(!this.constructor.CellFrame){
+			this.constructor.CellFrame=class extends Frame{
+				render(){
+					return this.createComposed2Parent()
+				}
+			}
+		}
+	}
 	get current(){
 		if(this.computed.composed.length==0){
 			return this.create()
@@ -50,7 +57,7 @@ export default class extends Super{
 		}
 		const {height,width}=this.context.parent.nextAvailableSpace({...required,id:this.props.id})
 		const {margin={right:0,left:0,top:0,bottom:0}}=this.props
-		const frame=new CellFrame({
+		const frame=new this.constructor.CellFrame({
 			width:width-margin.right-margin.left,
 			height: height-this.nonContentHeight
 		},{parent:this,getComposer:id=>this.context.getComposer(id)})
