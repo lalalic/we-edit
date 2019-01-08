@@ -530,25 +530,6 @@ class Story extends Component{
 		)
 	}
 
-	left(){
-		return this.group()
-			.reduce((state, {words, endingWhitespaces,located})=>{
-				state.aligned.push(
-					<Merge x={state.x} key={state.aligned.length}>
-					{
-						[...words,...endingWhitespaces].map((a,key)=>React.cloneElement(a,{key}))
-					}
-					</Merge>
-				)
-				if(located){
-					state.aligned.push(React.cloneElement(located,{key:state.aligned.length}))
-					state.x=located.props.x+located.props.width
-				}
-				return state
-			},{x:0, aligned:[]})
-			.aligned
-	}
-
 	group(right=false){
 		return this.props.children
 			.reduce((groups,a)=>{
@@ -576,20 +557,49 @@ class Story extends Component{
 			})
 	}
 
+
+	left(){
+		return this.group()
+			.reduce((state, {words, endingWhitespaces,located})=>{
+				state.aligned.push(
+					React.cloneElement(
+						new Merge({
+							x:state.x,
+							children:[...words,...endingWhitespaces].map((a,key)=>React.cloneElement(a,{key}))
+						}).render(),
+						{key:state.aligned.length}
+					)
+				)
+				if(located){
+					state.aligned.push(React.cloneElement(located,{key:state.aligned.length}))
+					state.x=located.props.x+located.props.width
+				}
+				return state
+			},{x:0, aligned:[]})
+			.aligned
+	}
 	right(){
 		return this.group(true)
 			.reduceRight((state, {located,words,endingWhitespaces})=>{
 				state.aligned.push(
-					<Merge x={state.x} key={state.aligned.length}>
-						{endingWhitespaces.map((a,key)=>React.cloneElement(a,{key}))}
-					</Merge>
+					React.cloneElement(
+						new Merge({
+							x:state.x,
+							children:endingWhitespaces.map((a,key)=>React.cloneElement(a,{key}))
+						}).render(),
+						{key:state.aligned.length}
+					)
 				)
 
 				state.x=words.reduce((x,a)=>x-a.props.width,state.x)
 				state.aligned.push(
-					<Merge x={state.x} key={state.aligned.length}>
-						{words.map((a,key)=>React.cloneElement(a,{key}))}
-					</Merge>
+					React.cloneElement(
+						new Merge({
+							x:state.x,
+							children:words.map((a,key)=>React.cloneElement(a,{key}))
+						}).render(),
+						{key:state.aligned.length}
+					)
 				)
 
 				if(located){
@@ -610,9 +620,13 @@ class Story extends Component{
 				const width=(located ? located.props.x : this.props.width)-state.x
 				const wordsWidth=contentWidth(words)
 				state.aligned.push(
-					<Merge x={state.x+(width-wordsWidth)/2} key={state.aligned.length}>
-						{words.concat(endingWhitespaces).map((a,key)=>React.cloneElement(a,{key}))}
-					</Merge>
+					React.cloneElement(
+						new Merge({
+							x:state.x+(width-wordsWidth)/2,
+							children:words.concat(endingWhitespaces).map((a,key)=>React.cloneElement(a,{key}))
+						}).render(),
+						{key:state.aligned.length}
+					)
 				)
 
 				if(located){

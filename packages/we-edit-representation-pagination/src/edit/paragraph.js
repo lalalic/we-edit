@@ -198,9 +198,25 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 	}
 
 	static Story=class extends Base.Story{
+		flat(content){
+			const parents=[], atoms=[]
+			new ReactQuery(content).find((el,parent)=>{
+				if(el.props["data-content"]){
+					atoms.push({el,parents:[...parents]})
+					return true
+				}else if(parent){
+					let i=parents.indexOf(parent)
+					if(i!=-1){
+						parents.splice(i)
+					}
+					parents.push(parent)
+				}
+			})
+			return atoms.map(({el:{props:{x=0}},parents},i)=>React.cloneElement(atoms[i].el,{x:parents.reduce((X,{props:{x=0}})=>X+x,0)+x}))
+		}
+
 		caretPositionFromPoint(x,getComposer){
-			const content=this.render()
-			const node=content.props.children.findLast(a=>a.props.x<=x)
+			const node=this.flat(this.render()).findLast(a=>a.props.x<=x)
 			const offset=x-node.props.x
 			if(node.props.descent!=undefined){//text
 				const textNode=new ReactQuery(node).findFirst(`[data-type="text"]`).get(0)

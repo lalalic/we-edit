@@ -107,10 +107,12 @@ export default class Query{
 		const select=this._asSelector(selector)
 		let found=this._nodes.reduce((found,el)=>{
 			traverse(el,function(a){
-				if(!!select(...arguments)){
+                const result=select(...arguments)
+				if(!!result){
 					found.push(a)
 				}
-			},k)
+                return result
+			})
 			return found
 		},[])
 		return new this.constructor(found,null,this.root)
