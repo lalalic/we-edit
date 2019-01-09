@@ -43,6 +43,14 @@ export default function Navigatable(A){
             return this.navigatable('prevSelectable',...arguments)
         }
 
+		nextLine(){
+			return this.navigatable('nextLine',...arguments)
+		}
+
+		prevLine(){
+			return this.navigatable('prevLine',...arguments)
+		}
+
 		position(id, at){
 			return this.navigatable('position',...arguments)
 		}

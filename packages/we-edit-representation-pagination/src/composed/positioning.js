@@ -419,15 +419,25 @@ class ReactPositioning extends Positioning{
             return super.position(...arguments)
         }
 
-        const {page, x,y,...position}=composer.position(id,at)
-        const {x:x0,y:y0}=this.pageXY(page)
-        return {
-            id,at,
-            x:x0+x,y:y0+y,
-            ...this.asViewportPoint({x:x0+x,y:y0+y}),
-            page,
-            ...position,
+        const {page, x,y,...position}=composer.position(id,at)||{}
+        if(page!=undefined){
+            const {x:x0,y:y0}=this.pageXY(page)
+            return {
+                id,at,
+                x:x0+x,y:y0+y,
+                ...this.asViewportPoint({x:x0+x,y:y0+y}),
+                page,
+                ...position,
+            }
         }
+    }
+
+    nextLine(id,at){
+        return this.getComposer(id).nextLine(id,at)||{}
+    }
+
+    prevLine(id,at){
+        return this.getComposer(id).prevLine(id,at)||{}
     }
 
     around(left,top){

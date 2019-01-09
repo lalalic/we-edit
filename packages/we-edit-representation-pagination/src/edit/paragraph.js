@@ -123,38 +123,134 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 		return super.prevSelectable(...arguments)
 	}
 
-	position(id,at){
-		const lineIndexOfParagraph=((atom)=>this.computed.composed.findIndex(line=>{
-			return atom=line.children.find(atom=>{
+	lineIndexOf(id,at){
+		return this.computed.composed.findIndex(line=>line.children.find(atom=>{
 				let node=new ReactQuery(atom).findFirst(`[data-content="${id}"]`)
 				if(node.length>0){
 					let endat=node.attr("data-endat")
 					return endat==undefined || endat>=at
 				}
 			})
-		}))();
+		)
+	}
 
-		const positionInLine=(({x:x0=0,y:y0=0,children:{type:Story, props}})=>{
+	xyInLine(id,at,i=this.lineIndexOf(id,at)){
+		return (({x:x0=0,y:y0=0,children:{type:Story, props}})=>{
 			let {x,y}=new Story(props).position(id,at,id=>this.context.getComposer(id))
 			x+=x0, y+=y0
 			return {x,y}
-		})(this.computed.lastComposed[lineIndexOfParagraph].props.children.props);
+		})(this.computed.lastComposed[i].props.children.props)
+	}
 
-		const {page,line,parents}=((page,lineIndexInPage)=>{
-			const pages=this.getPages()
-			
-			}).get(0)
+	getPageLine(lineIndexOfParagraph,test,right=false){
+		if(!test){
+			test=({props:{"data-content":id,"data-type":type,pagination={}}})=>{
+				if(id==this.props.id && pagination.i==lineIndexOfParagraph+1){
+					return true
+				}
+				if(type=="paragraph"){
+					return false
+				}
+			}
+		}
+		var parents,line
+		const pages=this.getPages()
+		const page=pages[`find${right ? "Last" : ""}`](page=>{
+			parents=[]
+			line=new ReactQuery(page.render())[`find${right ? "Last" :"First"}`]((a,parent)=>{
+					if(parent){
+						let i=parents.indexOf(parent)
+						if(i!=-1)
+							parents.splice(i)
+						parents.push(parent)
+					}
+					return test(a,parents)
+				})
+			if(line.length){
+				return true
+			}
+		})
+		return {page,line,parents}
+	}
 
-			return {page:parents[0],parents,line}
-		})();
+	position(id,at){
+		const lineIndexOfParagraph=this.lineIndexOf(id,at)
+		const xyInLine=this.xyInLine(id,at,lineIndexOfParagraph)
 
+		const {page, line, parents}=this.getPageLine(lineIndexOfParagraph)
+		if(page){
+			return {
+				page:page.props.I,
+				...[...parents,line.get(0)].reduce((xy,{props:{x=0,y=0}})=>{
+					xy.x+=x
+					xy.y+=y
+					return xy
+				},xyInLine)
+			}
+		}
 
+		return {}
+	}
 
-		return {
-			page:page.props.I,
-			line:lineIndexInPage,
-			x:x0+positionInLine.x,
-			y:y0+positionInLine.y
+	nextLine(id,at){
+		var lineIndexOfParagraph=this.lineIndexOf(id,at)
+		const {x}=this.xyInLine(id,at,lineIndexOfParagraph)
+		if(lineIndexOfParagraph<this.computed.composed.length-1){
+			return this.caretPositionFromPoint(lineIndexOfParagraph+1,x)
+		}else{
+			let selfLine, selfParents
+			const {page, line, parents}=this.getPageLine(lineIndexOfParagraph,(node,parents)=>{
+				const {props:{"data-content":id,"data-type":type,pagination={}}}=node
+				if(id==this.props.id && pagination.i==lineIndexOfParagraph+1){
+					selfLine=node
+					selfParents=[...parents]
+					return false
+				}
+				if(type=="paragraph"){
+					if(selfLine){
+						return true
+					}
+					return false
+				}
+			})
+
+			if(line.length){
+				const x1=[...selfParents,selfLine].reduce((X,{props:{x=0}})=>X+x,x)
+				const x2=[...parents,line.get(0)].reduce((X,{props:{x=0}})=>X+x,0)
+				const composer=this.context.getComposer(line.attr("data-content"))
+				return composer.caretPositionFromPoint(line.attr("pagination").i-1,x1-x2)
+			}
+		}
+	}
+
+	prevLine(id,at){
+		var lineIndexOfParagraph=this.lineIndexOf(id,at)
+		const {x}=this.xyInLine(id,at,lineIndexOfParagraph)
+		if(lineIndexOfParagraph>0){
+			return this.caretPositionFromPoint(lineIndexOfParagraph-1,x)
+		}else{
+			let selfLine, selfParents
+			const {page, line, parents}=this.getPageLine(lineIndexOfParagraph,(node,parents)=>{
+				const {props:{"data-content":id,"data-type":type,pagination={}}}=node
+				if(id==this.props.id && pagination.i==lineIndexOfParagraph+1){
+					selfLine=node
+					selfParents=[...parents]
+					return false
+				}
+				if(type=="paragraph"){
+					if(selfLine){
+						return true
+					}
+					return false
+				}
+			},true)
+
+			if(line.length){
+				const x1=[...selfParents,selfLine].reduce((X,{props:{x=0}})=>X+x,x)
+				const x2=[...parents,line.get(0)].reduce((X,{props:{x=0}})=>X+x,0)
+				const composer=this.context.getComposer(line.attr("data-content"))
+				return composer.caretPositionFromPoint(line.attr("pagination").i-1,x1-x2)
+			}
 		}
 	}
 
@@ -164,26 +260,26 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 			return new Story(props)
 				.caretPositionFromPoint(x-x0,id=>this.context.getComposer(id))
 		})(composedLine.props.children.props);
-		return position
+		return position||{id:this.props.id,at:0}
 	}
 
 	getPages(){
-		return super.getPages().filter(page=>!!page.lines.find(a=>page.getParagraph(a)==this.props.id))
+		return super.getPages()
 	}
 
 	static Story=class extends Base.Story{
 		flat(content){
 			const parents=[], atoms=[]
 			new ReactQuery(content).find((el,parent)=>{
+				if(parent){
+					let i=parents.indexOf(parent)
+					if(i!=-1)
+						parents.splice(i)
+					parents.push(parent)
+				}
 				if(el.props["data-content"]){
 					atoms.push({el,parents:[...parents]})
 					return true
-				}else if(parent){
-					let i=parents.indexOf(parent)
-					if(i!=-1){
-						parents.splice(i)
-					}
-					parents.push(parent)
 				}
 			})
 			return atoms.map(({el:{props:{x=0}},parents},i)=>React.cloneElement(atoms[i].el,{x:parents.reduce((X,{props:{x=0}})=>X+x,0)+x}))
@@ -191,15 +287,17 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 
 		caretPositionFromPoint(x,getComposer){
 			const node=this.flat(this.render()).findLast(a=>a.props.x<=x)
-			const offset=x-node.props.x
-			if(node.props.descent!=undefined){//text
-				const textNode=new ReactQuery(node).findFirst(`[data-type="text"]`).get(0)
-				const text=textNode.props.children
-				const composer=getComposer(textNode.props["data-content"])
-				const i=composer.measure.widthString(offset,text)
-				return {id:textNode.props["data-content"], at:textNode.props["data-endat"]-text.length+i}
-			}else{
-				return {id:node.props.id}
+			if(node){
+				const offset=x-node.props.x
+				if(node.props.descent!=undefined){//text
+					const textNode=new ReactQuery(node).findFirst(`[data-type="text"]`).get(0)
+					const text=textNode.props.children
+					const composer=getComposer(textNode.props["data-content"])
+					const i=composer.measure.widthString(offset,text)
+					return {id:textNode.props["data-content"], at:textNode.props["data-endat"]-text.length+i}
+				}else{
+					return {id:node.props.id}
+				}
 			}
 		}
 
@@ -207,18 +305,18 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 			const line=this.render()
 			let endat, parents=[]
 			const node=new ReactQuery(line).findFirst((node,parent)=>{
-				if(node.props["data-content"]==id){
-					endat=node.props["data-endat"]
-					if(endat==undefined || endat>=at){
-						parents.push(parent)
-						return true
-					}
-				}
 				if(parent){
 					let i=parents.indexOf(parent)
 					if(i!=-1)
 						parents.splice(-i)
 					parents.push(parent)
+				}
+
+				if(node.props["data-content"]==id){
+					endat=node.props["data-endat"]
+					if(endat==undefined || endat>=at){
+						return true
+					}
 				}
 			}).get(0)
 

@@ -123,11 +123,29 @@ export default class Query{
         for(let i=0,len=this._nodes.length;i<len;i++){
             if(!found){
                 traverse(this._nodes[i],function(a){
-                    if(!!select(...arguments)){
+                    let result=select(...arguments)
+                    if(!!result){
                         found=a
-                        return true
                     }
+                    return result
                 })
+            }
+        }
+        return new this.constructor(found,null,this.root)
+    }
+
+    findLast(selector){
+        const select=this._asSelector(selector)
+        var found=null
+        for(let len=this._nodes.length,i=len-1;i>=0;i--){
+            if(!found){
+                traverse(this._nodes[i],function(a){
+                    let result=select(...arguments)
+                    if(!!result){
+                        found=a
+                    }
+                    return result
+                },true)
             }
         }
         return new this.constructor(found,null,this.root)

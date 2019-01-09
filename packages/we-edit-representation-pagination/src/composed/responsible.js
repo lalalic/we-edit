@@ -294,41 +294,8 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 	}
 
 	locateLine(nextOrPrev, cursorableOrSelectable){
-		const cursor=this.cursor
-        var {page,line,x}=(({page:pageNo,line:lineNo,x,y})=>{
-            const page=this.props.pages[pageNo]
-            const lines=page.lines
-            if(nextOrPrev=="next"){
-                if(lineNo==lines.length-1){
-                    if(this.props.pages.length-1>pageNo){
-                        pageNo++
-                        lineNo=0
-                    }else{
-                        return {}
-                    }
-                }else{
-                    lineNo++
-                }
-            }else{
-                if(lineNo==0){
-                    if(pageNo>0){
-                        pageNo--
-                        lineNo=this.props.pages[pageNo].lines.length-1
-                    }else{
-                        return {}
-                    }
-                }else{
-                    lineNo--
-                }
-            }
-            const {x:x0}=this.positioning.pageXY(pageNo)
-            return {page:pageNo, line:lineNo, x:x-x0}
-        })(this.positioning.position(cursor.id, cursor.at))
-        if(page!=undefined){
-            return this.props.pages[page].caretPositionInLine(line,x)
-        }
-
-        return {}
+		const {id,at}=this.cursor
+        return this.positioning[`${nextOrPrev}Line`](id,at)
 	}
 
 	onKeyArrowUp({shiftKey:selecting, clientX:left}){

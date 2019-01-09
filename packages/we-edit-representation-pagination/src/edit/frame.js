@@ -1,3 +1,4 @@
+import React from "react"
 import editable from "./editable"
 import {ReactQuery} from "we-edit"
 import TestRenderer from 'react-test-renderer'
@@ -39,79 +40,52 @@ export default Cacheable(class extends editable(Base){
 	}
 
 	caretPositionFromPoint(x,y){
-		const include=({x:x0=0,y:y0=0,width,height})=>x0<=x && y0<=y && (x0+width)>=x && (y0+height)>=y
-		var lineX,lineY
-		var line=this.columns.filter(a=>include({x:a.x,y:a.y,width:a.width,height:a.currentY}))
-			.reduce((found,{children:lines,x=0,y=0,Y=y})=>{
-				return found || lines.find(({props:{width,height}})=>{
-					if(include({x,y:Y,width,height})){
-						lineX=x
-						lineY=Y
-						return true
-					}
-					Y+=height
-				})
-			},null)
-		if(!line){
-			//this.columns.filter()
-		}
-
-		if(line){
-			return this.caretPositionInLine(this.lines.indexOf(line),x,y)
-		}
-
-		return {}
-	}
-
-	caretPositionInLine(line,x,y){
-        line=this.lines[line]
-        const lineY=this.lineY(line)-line.props.height
-        const lineX=this.columns.find(a=>a.children.includes(line)).x
-        const hasFrame=a=>new ReactQuery(a).findFirst(`[frame]`).length
-        x-=lineX
-        y-=lineY
         const include=({x:x0=0,y:y0=0,width,height})=>x0<=x && y0<=y && (x0+width)>=x && (y0+height)>=y
-
-        if(!hasFrame(line)){
-    		const paragraphId=this.getParagraph(line)
-    		const i=line.props.pagination.i-1
-
-    		return this.context.getComposer(paragraphId).caretPositionFromPoint(i,x, y)
-        }else{
-            const parents=[]
-            const offset={x:0,y:0}
-            const found=new ReactQuery(line).findFirst((node,parent)=>{
-                const {width,height,x=0,y=0,frame}=node.props
-                if(width && height){
-                    if(!include({x:offset.x+x,y:offset.y+y,width,height})){
-                        return false//don't continue
-                    }
-                    offset.x+=x
-                    offset.y+=y
-                }
-                if(frame || !hasFrame(node)){
-                    return true
-                }
-
-                if(parent){
-                    let i=parents.indexOf(parent)
-                    if(i!=-1){
-                        parents.splice(i).reduce((offset,{props:{x=0,y=0}})=>{
-                            offset.x-=x
-                            offset.y-=y
-                            return offset
-                        },offset)
-                    }
-                    parents.push(parent)
-                }
-            })
-            if(found.attr("frame")){
-                return found.attr("frame").caretPositionFromPoint(x-offset.x, y-offset.y)
-            }else{
-                return {id:node.attr("data-content"),at:0}
+        const parents=[]
+        const rendered=this.render()
+        const found=new ReactQuery(rendered).findFirst((node,parent)=>{
+            if(parent){
+                let i=parents.indexOf(parent)
+                if(i!=-1)
+                    parents.splice(i)
+                parents.push(parent)
             }
-            return {}
+
+            const {width,height,x=0,y=0,children,"data-type":type}=node.props
+            if(width && height){
+                let xy=parents.reduceRight((p,{props:{x=0,y=0}})=>(p.x+=x,p.y+=y,p),{x,y})
+                if(!include({...xy,width,height})){
+                    return false//don't continue
+                }
+            }
+
+            if(type=="paragraph"){
+                return true
+            }
+
+            if(typeof(node.type)=="string")
+                return false
+
+            if(React.Children.toArray(children).length==0){
+                return true
+            }
+
+        })
+        if(found.length>0){
+            if(found.attr("data-type")=="paragraph"){
+                const paragraphId=found.attr("data-content")
+        		const i=found.attr("pagination").i-1
+                let xy=parents.reduceRight((p,{props:{x=0,y=0}})=>(p.x+=x,p.y+=y,p),{x:found.attr("x")||0,y:found.attr("y")||0})
+        		return this.context.getComposer(paragraphId).caretPositionFromPoint(i,x-xy.x, y-xy.y)
+            }
+            parents.push(found.get(0))
         }
+        const lastChance=parents.findLast(a=>!!a.props["data-content"])
+        if(lastChance){
+            return {id:lastChance.props["data-content"],at:0}
+        }
+
+        return {}
 	}
 
 	lineRect(line){

@@ -100,6 +100,7 @@ const Spacing=Group
 const Margin=Group
 
 class Cell extends Component{
+	static displayName="cell"
 	render(){
 		var {border, margin, spacing,vertAlign,width,frame,
 			height,
@@ -124,21 +125,23 @@ class Cell extends Component{
 		return (
 			<Group {...others}>
 				<Spacing x={spacing/2} y={spacing/2}>
-					<Border border={border} spacing={spacing} width={width} height={height}>
-						<Margin x={margin.left} y={margin.top}>
-							<Group y={alignY}>
-								{frame ? frame.render() : null}
-							</Group>
-						</Margin>
-					</Border>
+					{new Border({//must render to composed for positioning later
+							border,spacing,width,height,
+							children:(
+								<Margin x={margin.left} y={margin.top}>
+									<Group y={alignY}>
+										{frame ? frame.render() : null}
+									</Group>
+								</Margin>
+							)
+						}).render()
+					}
 				</Spacing>
 			</Group>
 		)
 	}
 
 }
-
-
 
 class Border extends Component{
 	render(){
