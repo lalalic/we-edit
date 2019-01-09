@@ -172,13 +172,49 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 		})
 		return {page,line,parents}
 	}
+	
+	positionSelfAtStart(){
+		const {page, line, parents}=this.getPageLine(0)
+		if(page){
+			const {x=0,y=0}=this.computed.lastComposed[0].props.children.props
+			let fontSize, fontFamily,height,descent
+			const first=this.computed.atoms[0]
+			if(first){
+				if(first.props.descent!=undefined){//text
+					;({fontSize, fontFamily,height,descent}=new ReactQuery(first).findFirst('[data-type="text"]').get(0).props);	
+				}
+			}
+			
+			;({fontSize, fontFamily,height,descent}=this.getDefaultMeasure().defaultStyle);
+			return {
+				id:this.props.id,at:0,
+				fontSize, fontFamily,height,descent,
+				page:page.props.I,
+				...[...parents,line.get(0)].reduce((xy,{props:{x=0,y=0}})=>{
+					xy.x+=x
+					xy.y+=y
+					return xy
+				},{x,y})
+			}
+		}
+	}
+	
+	positionSelfAtEnd(){
+		
+	}
 
 	position(id,at){
+		if(id==this.props.id){
+			if(at==0){
+				return positionSelfAtStart()
+			}else{
+				return positionSelfAtEnd()
+			}
+		}
 		const lineIndexOfParagraph=this.lineIndexOf(id,at)
-		const xyInLine=this.xyInLine(id,at,lineIndexOfParagraph)
-
 		const {page, line, parents}=this.getPageLine(lineIndexOfParagraph)
 		if(page){
+			const xyInLine=this.xyInLine(id,at,lineIndexOfParagraph)
 			return {
 				page:page.props.I,
 				...[...parents,line.get(0)].reduce((xy,{props:{x=0,y=0}})=>{
@@ -188,69 +224,60 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 				},xyInLine)
 			}
 		}
-
-		return {}
 	}
 
 	nextLine(id,at){
-		var lineIndexOfParagraph=this.lineIndexOf(id,at)
+		const lineIndexOfParagraph=this.lineIndexOf(id,at)
 		const {x}=this.xyInLine(id,at,lineIndexOfParagraph)
-		if(lineIndexOfParagraph<this.computed.composed.length-1){
-			return this.caretPositionFromPoint(lineIndexOfParagraph+1,x)
-		}else{
-			let selfLine, selfParents
-			const {page, line, parents}=this.getPageLine(lineIndexOfParagraph,(node,parents)=>{
-				const {props:{"data-content":id,"data-type":type,pagination={}}}=node
-				if(id==this.props.id && pagination.i==lineIndexOfParagraph+1){
-					selfLine=node
-					selfParents=[...parents]
-					return false
-				}
-				if(type=="paragraph"){
-					if(selfLine){
-						return true
-					}
-					return false
-				}
-			})
-
-			if(line.length){
-				const x1=[...selfParents,selfLine].reduce((X,{props:{x=0}})=>X+x,x)
-				const x2=[...parents,line.get(0)].reduce((X,{props:{x=0}})=>X+x,0)
-				const composer=this.context.getComposer(line.attr("data-content"))
-				return composer.caretPositionFromPoint(line.attr("pagination").i-1,x1-x2)
+		
+		let selfLine, selfParents
+		const {page, line, parents}=this.getPageLine(lineIndexOfParagraph,(node,parents)=>{
+			const {props:{"data-content":id,"data-type":type,pagination={}}}=node
+			if(id==this.props.id && pagination.i==lineIndexOfParagraph+1){
+				selfLine=node
+				selfParents=[...parents]
+				return false
 			}
+			if(type=="paragraph"){
+				if(selfLine){
+					return true
+				}
+				return false
+			}
+		})
+
+		if(line.length){
+			const x1=[...selfParents,selfLine].reduce((X,{props:{x=0}})=>X+x,x)
+			const x2=[...parents,line.get(0)].reduce((X,{props:{x=0}})=>X+x,0)
+			const composer=this.context.getComposer(line.attr("data-content"))
+			return composer.caretPositionFromPoint(line.attr("pagination").i-1,x1-x2)
 		}
 	}
 
 	prevLine(id,at){
-		var lineIndexOfParagraph=this.lineIndexOf(id,at)
+		const lineIndexOfParagraph=this.lineIndexOf(id,at)
 		const {x}=this.xyInLine(id,at,lineIndexOfParagraph)
-		if(lineIndexOfParagraph>0){
-			return this.caretPositionFromPoint(lineIndexOfParagraph-1,x)
-		}else{
-			let selfLine, selfParents
-			const {page, line, parents}=this.getPageLine(lineIndexOfParagraph,(node,parents)=>{
-				const {props:{"data-content":id,"data-type":type,pagination={}}}=node
-				if(id==this.props.id && pagination.i==lineIndexOfParagraph+1){
-					selfLine=node
-					selfParents=[...parents]
-					return false
-				}
-				if(type=="paragraph"){
-					if(selfLine){
-						return true
-					}
-					return false
-				}
-			},true)
-
-			if(line.length){
-				const x1=[...selfParents,selfLine].reduce((X,{props:{x=0}})=>X+x,x)
-				const x2=[...parents,line.get(0)].reduce((X,{props:{x=0}})=>X+x,0)
-				const composer=this.context.getComposer(line.attr("data-content"))
-				return composer.caretPositionFromPoint(line.attr("pagination").i-1,x1-x2)
+		let selfLine, selfParents
+		const {page, line, parents}=this.getPageLine(lineIndexOfParagraph,(node,parents)=>{
+			const {props:{"data-content":id,"data-type":type,pagination={}}}=node
+			if(id==this.props.id && pagination.i==lineIndexOfParagraph+1){
+				selfLine=node
+				selfParents=[...parents]
+				return false
 			}
+			if(type=="paragraph"){
+				if(selfLine){
+					return true
+				}
+				return false
+			}
+		},true)
+
+		if(line.length){
+			const x1=[...selfParents,selfLine].reduce((X,{props:{x=0}})=>X+x,x)
+			const x2=[...parents,line.get(0)].reduce((X,{props:{x=0}})=>X+x,0)
+			const composer=this.context.getComposer(line.attr("data-content"))
+			return composer.caretPositionFromPoint(line.attr("pagination").i-1,x1-x2)
 		}
 	}
 

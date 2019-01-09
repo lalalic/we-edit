@@ -241,7 +241,7 @@ export default class Paragraph extends Super{
 	}
 
 	createComposed2Parent(line,last){
-		const {height, width, children, anchor,...others}=line
+		const {height, width, children, anchor,currentX:contentWidth,...others}=line
         let {
 			spacing:{lineHeight="100%",top=0, bottom=0},
 			indent:{left=0,right=0,firstLine=0},
@@ -271,7 +271,7 @@ export default class Paragraph extends Super{
         return (
             <Group height={lineHeight} width={contentX+width} className="line" pagination={pagination} anchor={anchor}>
                 <Group x={contentX} y={contentY} width={width} height={height}>
-					<this.constructor.Story {...{children,align,width}}/>
+					<this.constructor.Story {...{children,align,width,contentWidth}}/>
                 </Group>
             </Group>
         )
