@@ -10,7 +10,7 @@ import Top from "../composed/selection/top"
 import {Group} from "../composed"
 
 export default editable(class extends Base{
-	createComposed2Parent(row){
+	createComposed2Parent1(row){
 		row=this.makeCellResizable(row)
 
 		if(this.composedRows.length==1){
