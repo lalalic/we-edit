@@ -131,6 +131,21 @@ export default class Query{
         }
         return new this.constructor(found,null,this.root)
     }
+	
+	findFirstAndParents(test){
+		const parents=[]
+		const first=this.findFirst((a,parent)=>{
+			if(parent){
+				let i=parents.indexOf(parent)
+				if(i!=-1)
+					parents.splice(i)
+				parents.push(parent)
+			}
+			
+			return test(a,parents)
+		})
+		return {first, parents}
+	}
 
     findLast(selector){
         const select=this._asSelector(selector)

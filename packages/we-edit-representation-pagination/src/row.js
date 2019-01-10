@@ -40,20 +40,10 @@ export default class extends Super{
 		this.injectIntoRank(cell)
 	}
 
-	queryRankAndParents(line){
-		const parents=[line]
-		const rank=new ReactQuery(line).findFirst((node,parent)=>{
-			if(node.props["data-content"]==this.props.id){
-				return true
-			}else if(parent){
-				parents.push(parent)
-			}
-		})
-		return {rank,parents}
-	}
-
 	injectIntoRank(cell){
-		const {rank,parents}=this.queryRankAndParents(this.currentSpace.frame.lastLine)
+		const {first:rank,parents}=new ReactQuery(this.currentSpace.frame.lastLine)
+			.findFirstAndParents(a=>a.props["data-content"]==this.props.id || undefined)
+			
 		const cells=rank.attr("children")
 		if(cells){
 			cells[this.computed.composed.length-1]=cell
@@ -119,40 +109,31 @@ export default class extends Super{
 			this.currentColumn.push(null)
 		}
 		this.context.parent.appendComposed(this.createComposed2Parent())
-		this.currentColumn.splice(-unappendedCount)
+		if(unappendedCount>0){
+			this.currentColumn.splice(-unappendedCount)
+		}
 
 		//fill empty cell for each rank
 		const len=this.context.cols.length
 		this.computed.spaces.forEach(({frame},i)=>{
-			const {rank,parents}=this.queryRankAndParents(frame.lastLine)
+			const {first:rank,parents}=new ReactQuery(frame.lastLine).findFirstAndParents(a=>a.props["data-content"]==this.props.id || undefined)
 			const cells=rank.attr("children")||[]
 
 			cells.splice(cells.length,0,...new Array(len-cells.length).fill(null))
 			cells.forEach((a,j)=>{
 				if(!cells[j]){
-					cells[j]=React.cloneElement(this.computed.composed[j][0],{height:0,frame:undefined})
+					if(this.computed.composed[j][0]){
+						cells[j]=React.cloneElement(this.computed.composed[j][0],{height:0,frame:undefined})
+					}else{
+						debugger
+					}
 				}
 			})
-
-			//render cells to composed
-			const queryCellAndParents=a=>{
-				const parents=[]
-				const cell=new ReactQuery(a).findFirst((node,parent)=>{
-					if(node.props["data-type"]=="cell"){
-						return true
-					}else if(parent){
-						parents.push(parent)
-					}
-				})
-				if(a!==cell.get(0))
-					parents.unshift(a)
-				return {cell,parents}
-			}
 
 			const height=rank.attr("height")
 			//rander cell to composed from positioning
 			cells.forEach((a,j)=>{
-				const {cell,parents}=queryCellAndParents(a)
+				const {first:cell,parents}=new ReactQuery(a).findFirstAndParents(n=>n.props["data-type"]=="cell"||undefined)
 				cells[j]=parents.reduceRight(
 					(child,parent)=>React.cloneElement(parent,{height},child),
 					(({type,props})=>new type({...props,height}).render())(cell.get(0))
