@@ -144,6 +144,8 @@ export default class Query{
 			
 			return test(a,parents)
 		})
+		if(first.length==0)
+			parents.splice(0)
 		return {first, parents}
 	}
 
