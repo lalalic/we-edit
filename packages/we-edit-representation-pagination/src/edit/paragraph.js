@@ -54,43 +54,145 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 		return new this.context.Measure(this.props.defaultStyle)
 	}
 
+	nextParagraphCursorable(){
+		const nextParagraphId=this.query().forwardFirst('paragraph').attr("id")
+		if(nextParagraphId){
+			const composer=this.context.getComposer(nextParagraphId)
+			if(composer){
+				return composer.nextCursorable()
+			}else{
+				return {id:nextParagraphId,at:0}
+			}
+		}
+	}
+
 	nextCursorable(id,at){
 		const {atoms}=this.computed
-		if(id==undefined){//itself first cursorable position
-			if(atoms.find(a=>id=new ReactQuery(a).findFirst(`[data-type="text"]`).attr("data-content"))){
-				return {id,at:0}
-			}else{
-				//throw new Error("no text in paragraph")
+		const resolve2FirstAtom=(success,failure)=>{
+			const firstAtom=new ReactQuery(atoms[0])
+			const firstAtomText=firstAtom.findFirst('[data-type="text"]')
+			if(firstAtomText.length){
+				return success(firstAtomText.attr("data-content"))
+			}
+
+			return failure()
+		}
+
+		if(id==undefined){
+			return resolve2FirstAtom(
+				textId=>({id:textId,at:0}),
+				()=>({id:this.props.id,at:0})
+			)
+		}else if(id==this.props.id){//itself first cursorable position
+			if(at==0){
+				return resolve2FirstAtom(
+					textId=>this.context.getComposer(textId).nextCursorable(textId,0),
+					()=>this.nextCursorable(id,1)
+				)
+			}else if(at==1){
+				return this.nextParagraphCursorable()
 			}
 		}else{
 			 const i=atoms.findLastIndex(a=>new ReactQuery(a).findFirst(`[data-content="${id}"]`).length>0)
-			 let nextId
-			 atoms.slice(i+1).find(a=>nextId=new ReactQuery(a).findFirst(`[data-type="text"]`).attr("data-content"))
-			 if(nextId){
-				 return {id:nextId, at:0}
-			 }else{
-				 //
+			 const iAtom=new ReactQuery(atoms[i])
+			 if(iAtom.findFirst('[data-type="text"]').length){//text
+				 const nextAtom=new ReactQuery(atoms[i+1])
+				 const nextAtomText=nextAtom.findFirst('[data-type="text"]')
+				 if(nextAtomText.length==0){//not text
+					 if(this.context.getComposer(id).text.length>at){//at end of text
+						 return {id,at:at+1}
+					 }else{
+						 if(atoms.length>i+2){
+							 let nextText
+							 atoms.slice(i+2)
+							 	.find(a=>(nextText=new ReactQuery(a).findFirst('[data-type="text"]')).length>0)
+							if(nextText.length>0){
+								return {id:nextText.attr("data-content"),at:0}
+							}else{
+								return {id:this.props.id,at:1}//paragraph end
+							}
+						}else{
+							return this.nextParagraphCursorable()
+						}
+					 }
+				 }else{
+					 return {
+						 id:nextAtomText.attr("data-content"),
+						 at:0
+					 }
+				 }
 			 }
 		}
 		return super.nextCursorable(...arguments)
 	}
 
-	prevCursorable(id,at){
-		if(id==undefined){
-			let textNode
-			if(this.computed.atoms.findLast(a=>textNode=new ReactQuery(a).findFirst(`[data-type="text"]`).get(0))){
-				return {id:textNode.props["data-content"],at:textNode.props["data-endat"]}
+	prevParagraphCursorable(){
+		const prevParagraphId=this.query().backwardFirst('paragraph').attr("id")
+		if(prevParagraphId){
+			const composer=this.context.getComposer(prevParagraphId)
+			if(composer){
+				return composer.prevCursorable()
 			}else{
-				//throw new Error("no text in paragraph")
+				return {id:prevParagraphId,at:1}
+			}
+		}
+	}
+
+	prevCursorable(id,at){
+		const {atoms}=this.computed
+		const resolve2LastAtom=(success, failure=()=>({id:this.props.id,at:0}))=>{
+			const lastAtom=new ReactQuery(atoms[atoms.length-2])
+			const lastAtomText=lastAtom.findFirst('[data-type="text"]')
+			if(lastAtomText.length){
+				return success(lastAtomText)
+			}
+
+			return failure()
+		}
+
+		if(id==undefined){
+			return resolve2LastAtom(
+				text=>({id:text.attr("data-content"), at:text.attr("data-endat")}),
+				()=>({id:this.props.id,at:1})
+			)
+		}else if(id==this.props.id){//itself first cursorable position
+			if(at==0){
+				return this.prevParagraphCursorable()
+			}else if(at==1){
+				return resolve2LastAtom(
+					text=>({id:text.attr("data-content"), at:text.attr("data-endat").length-1}),
+					()=>this.prevCursorable(id,0)
+				)
 			}
 		}else{
-			const i=this.atoms.findIndex(a=>new ReactQuery(a).findFirst(`[data-content="${id}"]`).length>0)
-			let nextTextNode
-			this.atoms.slice(0,i).findLast(a=nextTextNode=new ReactQuery(a).findFirst(`[data-type="text"]`).get(0))
-			if(nextTextNode){
-				return {id:nextTextNode.props["data-content"], at:nextTextNode.props["data-endat"]}
-			}else{
-				//
+			 const i=atoms.findIndex(a=>new ReactQuery(a).findFirst(`[data-content="${id}"]`).length>0)
+			 const iAtom=new ReactQuery(atoms[i])
+			 if(iAtom.findFirst('[data-type="text"]').length){//text
+				 if(i>0){
+					 const prevAtom=new ReactQuery(atoms[i-1])
+					 const prevAtomText=prevAtom.findFirst('[data-type="text"]')
+					 if(prevAtomText.length>0){//text
+						 return {id:prevAtomText.attr("data-content"),at:prevAtomText.length-1}
+					 }else{//not text
+						 let prevText
+						 atoms.slice(0,i)
+							.findLast(a=>(prevText=new ReactQuery(a).findFirst('[data-type="text"]')).length>0)
+						if(prevText.length>0){
+							let prevTextId=prevText.attr("data-content")
+							let len=this.query(`#${prevTextId}`).text().length
+							if(len>0){
+								return {id:prevTextId,at:len}
+							}else{
+								return this.context.composer(prevTextId).prevCursorable(prevTextId,0)
+							}
+						}else{
+							return {id:this.props.id,at:0}
+						}
+					}
+
+				}else if(i==0){
+					return this.prevParagraphCursorable()
+				}
 			}
 		}
 		return super.prevCursorable(...arguments)
@@ -124,11 +226,23 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 	}
 
 	lineIndexOf(id,at){
-		return this.computed.composed.findIndex(line=>line.children.find(atom=>{
+		return this.computed.composed.findIndex(line=>line.children.find((atom,i)=>{
 				let node=new ReactQuery(atom).findFirst(`[data-content="${id}"]`)
 				if(node.length>0){
 					let endat=node.attr("data-endat")
-					return endat==undefined || endat>=at
+					if(endat==undefined){
+						return true
+					}else if(endat>at){
+						return true
+					}else if(endat==at){
+						if(line.children.length-1==i){//last
+							if(this.context.getComposer(node.attr('data-content')).text.length==endat){
+								return true
+							}
+						}else{
+							return true
+						}
+					}
 				}
 			})
 		)
@@ -172,50 +286,30 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 		})
 		return {page,line,parents}
 	}
-	
+
 	positionSelfAtStart(){
 		const {page, line, parents}=this.getPageLine(0)
 		if(page){
-			const {x=0,y=0}=this.computed.lastComposed[0].props.children.props
 			let fontSize, fontFamily,height,descent
 			const first=this.computed.atoms[0]
 			if(first){
-				if(first.props.descent!=undefined){//text
-					;({fontSize, fontFamily,height,descent}=new ReactQuery(first).findFirst('[data-type="text"]').get(0).props);	
+				const firstText=new ReactQuery(first).findFirst('[data-type="text"]')
+				if(firstText.length>0){//text
+					;({fontSize, fontFamily,height,descent}=firstText.get(0).props);
 				}
 			}
-			
-			;({fontSize, fontFamily,height,descent}=this.getDefaultMeasure().defaultStyle);
+
+			if(!fontFamily){
+				;({fontSize, fontFamily,height,descent}=this.getDefaultMeasure().defaultStyle);
+			}
+
+			const xyInLine=(({x,y:y0=0,children:{type:Story, props}})=>{
+				return {x,y:y0+new Story(props).render().props.y-(height-descent)}
+			})(this.computed.lastComposed[0].props.children.props);
+
 			return {
 				id:this.props.id,at:0,
 				fontSize, fontFamily,height,descent,
-				page:page.props.I,
-				...[...parents,line.get(0)].reduce((xy,{props:{x=0,y=0}})=>{
-					xy.x+=x
-					xy.y+=y
-					return xy
-				},{x,y})
-			}
-		}
-	}
-	
-	positionSelfAtEnd(){
-		
-	}
-
-	position(id,at){
-		if(id==this.props.id){
-			if(at==0){
-				return positionSelfAtStart()
-			}else{
-				return positionSelfAtEnd()
-			}
-		}
-		const lineIndexOfParagraph=this.lineIndexOf(id,at)
-		const {page, line, parents}=this.getPageLine(lineIndexOfParagraph)
-		if(page){
-			const xyInLine=this.xyInLine(id,at,lineIndexOfParagraph)
-			return {
 				page:page.props.I,
 				...[...parents,line.get(0)].reduce((xy,{props:{x=0,y=0}})=>{
 					xy.x+=x
@@ -226,10 +320,39 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 		}
 	}
 
+	positionSelfAtEnd(){
+
+	}
+
+	position(id,at){
+		if(id==this.props.id){
+			if(at==0){
+				return this.positionSelfAtStart()
+			}else{
+				return this.positionSelfAtEnd()
+			}
+		}
+		const lineIndexOfParagraph=this.lineIndexOf(id,at)
+		if(lineIndexOfParagraph>=0){
+			const {page, line, parents}=this.getPageLine(lineIndexOfParagraph)
+			if(page){
+				const xyInLine=this.xyInLine(id,at,lineIndexOfParagraph)
+				return {
+					page:page.props.I,
+					...[...parents,line.get(0)].reduce((xy,{props:{x=0,y=0}})=>{
+						xy.x+=x
+						xy.y+=y
+						return xy
+					},xyInLine)
+				}
+			}
+		}
+	}
+
 	nextLine(id,at){
 		const lineIndexOfParagraph=this.lineIndexOf(id,at)
 		const {x}=this.xyInLine(id,at,lineIndexOfParagraph)
-		
+
 		let selfLine, selfParents
 		const {page, line, parents}=this.getPageLine(lineIndexOfParagraph,(node,parents)=>{
 			const {props:{"data-content":id,"data-type":type,pagination={}}}=node
@@ -306,7 +429,7 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 				}
 				if(el.props["data-content"]){
 					atoms.push({el,parents:[...parents]})
-					return true
+					return false
 				}
 			})
 			return atoms.map(({el:{props:{x=0}},parents},i)=>React.cloneElement(atoms[i].el,{x:parents.reduce((X,{props:{x=0}})=>X+x,0)+x}))
@@ -335,7 +458,7 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 				if(parent){
 					let i=parents.indexOf(parent)
 					if(i!=-1)
-						parents.splice(-i)
+						parents.splice(i)
 					parents.push(parent)
 				}
 
@@ -348,10 +471,10 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 			}).get(0)
 
 			let x=parents.reduce((X,{props:{x=0}})=>X+x,0)
-			let y=(({y=0},{height=0,descent=0})=>y-(height-descent))(line.props,node.props);
+			let y=(({y=0},{height=0,descent=0})=>y-(height-descent))(line.props,node ? node.props : {});
 			const composer=getComposer(id)
 			if(composer.getComposeType()=="text"){
-				if(endat>at){
+				if(endat>=at){
 					const text=node.props.children
 					const len=at-(endat-text.length)
 					const offset=composer.measure.stringWidth(text.substring(0,len))

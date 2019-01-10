@@ -17,7 +17,7 @@ export default class extends Super{
         if(at>0){
             return {id,at:at-1}
         }
-        return super.nextCursorable(...arguments)
+        return super.prevCursorable(...arguments)
     }
 
     nextSelectable(id,at=0){

@@ -1,6 +1,4 @@
 import React, {Children} from "react"
-import cheerio from "cheerio"
-import TestRenderer from "react-test-renderer"
 import cssSelector from "./css"
 
 export default class Query{
@@ -158,22 +156,6 @@ export default class Query{
     toArray(){
 		return [...this._nodes]
 	}
-
-    toDom(){
-        const makeDom=({type:name,props:attribs,children=[]},parent)=>{
-            const node={
-                type:"tag",
-                name,
-                attribs,
-                prev:null,
-                next:null,
-                parent
-            }
-            node.children=children.map(a=>makeDom(a,node)).map(function(a,i,me){a.prev=me[i-1];a.next=me[i+1];return a})
-            return node
-        }
-        return cheerio.load(this._nodes.map(a=>makeDom(TestRenderer.create(a).toJSON())),{xmlMode:true})
-    }
 }
 
 function traverse(el, f, right=false,self=true){

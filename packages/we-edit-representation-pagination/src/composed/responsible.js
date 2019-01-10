@@ -255,7 +255,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 		}
         let composer=this.getComposer(id)
         if(composer){
-            return composer[`${nextOrprev}${CursorableOrSelectable}`](id,at)
+            return composer[`${nextOrprev}${CursorableOrSelectable}`](id,at)||{}
         }
         return this.cursor
 	}
@@ -295,7 +295,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 
 	locateLine(nextOrPrev, cursorableOrSelectable){
 		const {id,at}=this.cursor
-        return this.positioning[`${nextOrPrev}Line`](id,at)
+        return this.positioning[`${nextOrPrev}Line`](id,at)||{}
 	}
 
 	onKeyArrowUp({shiftKey:selecting, clientX:left}){

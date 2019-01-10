@@ -1,7 +1,7 @@
 //selector,selector
 export default function selectors(a,$,basic){
 	try{
-		return n=>!!a.split(",").map(k=>unionSelector(k.trim(),$, basic)).find(f=>f(n))
+		return n=>!!a.split(",").map(k=>unionSelector(k.trim(),$, basic)).find(f=>f(n)) ? true : undefined
 	}catch(error){
 		throw error
 	}
