@@ -131,7 +131,7 @@ export default class Query{
         }
         return new this.constructor(found,null,this.root)
     }
-	
+
 	findFirstAndParents(test){
 		const parents=[]
 		const first=this.findFirst((a,parent)=>{
@@ -141,7 +141,7 @@ export default class Query{
 					parents.splice(i)
 				parents.push(parent)
 			}
-			
+
 			return test(a,parents)
 		})
 		if(first.length==0)
@@ -164,6 +164,23 @@ export default class Query{
             }
         }
         return new this.constructor(found,null,this.root)
+    }
+
+    findLastAndParents(test){
+        const parents=[]
+		const last=this.findLast((a,parent)=>{
+			if(parent){
+				let i=parents.indexOf(parent)
+				if(i!=-1)
+					parents.splice(i)
+				parents.push(parent)
+			}
+
+			return test(a,parents)
+		})
+		if(last.length==0)
+			parents.splice(0)
+		return {last, parents}
     }
 
     get(i){

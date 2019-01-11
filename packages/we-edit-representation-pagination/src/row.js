@@ -45,7 +45,7 @@ export default class extends Super{
 			.findFirstAndParents(a=>a.props["data-content"]==this.props.id || undefined)
 		if(!rank.length)
 			return
-		
+
 		const cells=rank.attr("children")
 		cells[this.computed.composed.length-1]=cell
 
@@ -57,7 +57,7 @@ export default class extends Super{
 				React.cloneElement(rank.get(0),{height})
 			)
 			this.currentSpace.frame.currentColumn.children.splice(-1,1,fixedLastLine)
-		}	
+		}
 	}
 
 	get currentColumn(){
@@ -85,7 +85,7 @@ export default class extends Super{
 		}else if(this.cellId(this.currentColumn[0])==required.id){
 			if(this.ranks<this.currentColumn.length+1){
 				const appended=this.context.parent.appendComposed(this.createComposed2Parent())
-				if(appended==1){//rollback since can't hold, can it happen
+				if(appended==1){//rollback since can't hold, can it happen,
 					console.error(`row[$[this.props.id]] can't be appended with rollback`)
 				}
 				const space=super.nextAvailableSpace(...arguments)
@@ -121,7 +121,7 @@ export default class extends Super{
 				console.error(`row[${this.props.id}] can't be appended with rollback again, ignore`)
 			}
 		}
-		
+
 		if(unappendedCount>0){
 			this.currentColumn.splice(-unappendedCount)
 		}
@@ -134,7 +134,7 @@ export default class extends Super{
 				console.warn(`last line is not for this row[${this.props.id}], something was wrong`)
 				return
 			}
-				
+
 			const cells=rank.attr("children")
 
 			cells.splice(cells.length,0,...new Array(len-cells.length).fill(null))
@@ -167,7 +167,7 @@ export default class extends Super{
 		})
 		//render
 		super.onAllChildrenComposed()
-		
+
 		console.log(`${this.props.id} row done`)
 	}
 

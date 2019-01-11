@@ -268,19 +268,10 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 			}
 		}
 		var parents,line
-		const pages=this.getPages()
-		const page=pages[`find${right ? "Last" : ""}`](page=>{
-			parents=[]
-			line=new ReactQuery(page.render())[`find${right ? "Last" :"First"}`]((a,parent)=>{
-					if(parent){
-						let i=parents.indexOf(parent)
-						if(i!=-1)
-							parents.splice(i)
-						parents.push(parent)
-					}
-					return test(a,parents)
-				})
-			if(line.length){
+		const page=this.getPages()[`find${right ? "Last" : ""}`](page=>{
+			let found=new ReactQuery(page.render())[`find${right ? "Last" :"First"}AndParents`](test)
+			if((line=found.first||found.last).length){
+				parents=found.parents
 				return true
 			}
 		})
@@ -452,30 +443,23 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 		}
 
 		position(id,at,getComposer){
+			let endat
 			const line=this.render()
-			let endat, parents=[]
-			const node=new ReactQuery(line).findFirst((node,parent)=>{
-				if(parent){
-					let i=parents.indexOf(parent)
-					if(i!=-1)
-						parents.splice(i)
-					parents.push(parent)
-				}
-
+			const {node,parents}=new ReactQuery(line).findFirstAndParents(node=>{
 				if(node.props["data-content"]==id){
 					endat=node.props["data-endat"]
 					if(endat==undefined || endat>=at){
 						return true
 					}
 				}
-			}).get(0)
+			})
 
 			let x=parents.reduce((X,{props:{x=0}})=>X+x,0)
-			let y=(({y=0},{height=0,descent=0})=>y-(height-descent))(line.props,node ? node.props : {});
+			let y=(({y=0},{height=0,descent=0})=>y-(height-descent))(line.props,node.get(0).props);
 			const composer=getComposer(id)
 			if(composer.getComposeType()=="text"){
 				if(endat>=at){
-					const text=node.props.children
+					const text=node.attr("children")
 					const len=at-(endat-text.length)
 					const offset=composer.measure.stringWidth(text.substring(0,len))
 					x+=offset

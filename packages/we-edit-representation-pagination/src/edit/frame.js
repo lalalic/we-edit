@@ -41,16 +41,8 @@ export default Cacheable(class extends editable(Base){
 
 	caretPositionFromPoint(x,y){
         const include=({x:x0=0,y:y0=0,width,height})=>x0<=x && y0<=y && (x0+width)>=x && (y0+height)>=y
-        const parents=[]
         const rendered=this.render()
-        const found=new ReactQuery(rendered).findFirst((node,parent)=>{
-            if(parent){
-                let i=parents.indexOf(parent)
-                if(i!=-1)
-                    parents.splice(i)
-                parents.push(parent)
-            }
-
+        const {found,parents}=new ReactQuery(rendered).findFirstAndParents((node,parents)=>{
             const {width,height,x=0,y=0,children,"data-type":type}=node.props
             if(width && height){
                 let xy=parents.reduceRight((p,{props:{x=0,y=0}})=>(p.x+=x,p.y+=y,p),{x,y})
@@ -69,7 +61,6 @@ export default Cacheable(class extends editable(Base){
             if(React.Children.toArray(children).length==0){
                 return true
             }
-
         })
         if(found.length>0){
             if(found.attr("data-type")=="paragraph"){
