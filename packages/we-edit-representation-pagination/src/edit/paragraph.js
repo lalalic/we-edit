@@ -328,8 +328,9 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 				selfParents=[...parents]
 				selfPage=page
 				isSelfInTable=selfParents.findLast(a=>a.props["data-type"]=="cell")
-				selfY=selfParents.reduce((Y,{props:{y=0}})=>Y+y,y)
-				selfX=[...selfParents,selfLine].reduce((X,{props:{x=0}})=>X+x,x)
+				const xy=[...selfParents,selfLine].reduce((xy,{props:{x=0,y=0}})=>(xy.x+=x,xy.y+=y,xy),{x,y})
+				selfX=xy.x
+				selfY=xy.y
 				return false
 			}
 			if(type=="paragraph"){
@@ -345,12 +346,15 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 
 					let isInTable=parents.findLast(a=>a.props["data-type"]=="cell")
 					if(isInTable && selfLine.props.pagination.last && pagination.i==1){
-
-						if(selfX<=[...parents,node].reduce((X,{props:{x=0}})=>X+x,node.props.width||0)){
+						let cell=isInTable
+						let cellX=(i=>parents.slice(0,i+1).reduce((X,{props:{x=0}})=>X+x,cell.props.width))(parents.indexOf(cell))
+						if(selfX<=cellX){
 							return true
 						}
-
-						return this.isLastCell(parents)
+						
+						let row=parents.findLast(a=>a.props["data-type"]=="row")
+						let lastCell=new ReactQuery(row).find(`[data-type="cell"]`).toArray().pop()
+						return lastCell.props["data-content"]==cell.props["data-content"]
 					}
 
 					return true
@@ -378,8 +382,9 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 				selfParents=[...parents]
 				selfPage=page
 				isSelfInTable=selfParents.findLast(a=>a.props["data-type"]=="cell")
-				selfY=selfParents.reduce((Y,{props:{y=0}})=>Y+y,y)
-				selfX=[...selfParents,selfLine].reduce((X,{props:{x=0}})=>X+x,x)
+				const xy=[...selfParents,selfLine].reduce((xy,{props:{x=0,y=0}})=>(xy.x+=x,xy.y+=y,xy),{x,y})
+				selfX=xy.x
+				selfY=xy.y
 				return false
 			}
 			if(type=="paragraph"){
@@ -395,10 +400,16 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 
 					let isInTable=parents.findLast(a=>a.props["data-type"]=="cell")
 					if(isInTable && selfLine.props.pagination.i==1 && pagination.last){
-						if(selfX<=[...parents,node].reduce((X,{props:{x=0}})=>X+x,node.props.width||0)){
+						let cell=isInTable
+						let cellX=(i=>parents.slice(0,i+1).reduce((X,{props:{x=0}})=>X+x,0))(parents.indexOf(cell))
+						
+						if(selfX>=cellX){
 							return true
 						}
-						return this.isLastCell(parents)
+						
+						let row=parents.findLast(a=>a.props["data-type"]=="row")
+						let firstCell=new ReactQuery(row).findFirst(`[data-type="cell"]`).get(0)
+						return firstCell.props["data-content"]==cell.props["data-content"]
 					}
 					return true
 				}
@@ -415,10 +426,7 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 	}
 
 	isLastCell(parents){
-		let cell=parents.findLast(a=>a.props["data-type"]=="cell")
-		let row=parents.findLast(a=>a.props["data-type"]=="row")
-		let last=new ReactQuery(row).find(`[data-type="cell"]`).toArray().pop()
-		return last.props["data-content"]==cell.props["data-content"]
+		
 	}
 
 	isSameColumnTableLine(node,parents,selfLine,selfParents){

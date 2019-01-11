@@ -137,7 +137,7 @@ class Cell extends Component{
 			}
 		})();
 		return (
-			<Group {...others} height={height}>
+			<Group {...others} height={height} width={width}>
 				<Spacing x={spacing/2} y={spacing/2}>
 					{new Border({//must render to composed for positioning later
 							border,spacing,width,height,
