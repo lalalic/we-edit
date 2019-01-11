@@ -108,7 +108,6 @@ export default class Query{
 				if(!!result){
 					found.push(a)
 				}
-                return result
 			})
 			return found
 		},[])

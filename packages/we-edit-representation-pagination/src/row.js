@@ -37,10 +37,10 @@ export default class extends Super{
 		if(!this.currentSpace)
 			return
 
-		this.injectIntoRank(cell)
+		this.injectCellIntoRank(cell)
 	}
 
-	injectIntoRank(cell){
+	injectCellIntoRank(cell){
 		const {first:rank,parents}=new ReactQuery(this.currentSpace.frame.lastLine)
 			.findFirstAndParents(a=>a.props["data-content"]==this.props.id || undefined)
 		if(!rank.length)
@@ -74,29 +74,37 @@ export default class extends Super{
 		return this.computed.spaces[this.currentColumn.length-1]
 	}
 
-	nextAvailableSpace(required){
+	nextAvailableSpace({height:minHeight=0,id:requiredId}){
 		var height,width
 		const {cols}=this.context
 		if(!this.currentColumn[0]){
 			const space=super.nextAvailableSpace(...arguments)
-			this.computed.spaces.push(space)
+			this.computed.spaces=[space]
 			height=space.height
 			width=cols[0]
-		}else if(this.cellId(this.currentColumn[0])==required.id){
+		}else if(this.cellId(this.currentColumn[0])==requiredId){
 			if(this.ranks<this.currentColumn.length+1){
-				const appended=this.context.parent.appendComposed(this.createComposed2Parent())
-				if(appended==1){//rollback since can't hold, can it happen,
-					console.error(`row[$[this.props.id]] can't be appended with rollback`)
+				if(1==this.context.parent.appendComposed(this.createComposed2Parent())){
+					//could it happen?
+					console.error(`row[${this.props.id}] can't be appended with rollback again, ignore`)
 				}
 				const space=super.nextAvailableSpace(...arguments)
 				this.computed.spaces.push(space)
 				height=space.height
 			}else{
 				height=this.computed.spaces[this.currentColumn.length].height
+				if(height<minHeight){
+					this.computed.spaces[this.currentColumn.length]=super.nextAvailableSpace(...arguments)
+					height=this.computed.spaces[this.currentColumn.length].height
+				}
 			}
 			width=cols[this.computed.composed.length-1]
 		}else{//next column
 			height=this.computed.spaces[0].height
+			if(height<minHeight){
+				this.computed.spaces[0]=super.nextAvailableSpace(...arguments)
+				height=this.computed.spaces[0].height
+			}
 			width=cols[this.computed.composed.length]
 		}
 		if(this.props.keepLines){
@@ -105,70 +113,49 @@ export default class extends Super{
 		return {width, height}
 	}
 
+	injectEmptyCellIntoRank(rank,parents){
+		const height=rank.attr("height")
+		const cells=rank.attr("children")
+		cells.splice(cells.length,0,...new Array(this.context.cols.length-cells.length).fill(null))
+		cells.forEach((a,j)=>{
+			cells[j]=a||React.cloneElement(this.computed.composed[j][0],{height,frame:undefined})
+		})
+
+		//fix height of each cell
+		cells.forEach((a,j)=>{
+			const {first:cell,parents}=new ReactQuery(a).findFirstAndParents(n=>n.props["data-type"]=="cell"||undefined)
+			cells[j]=parents.reduceRight(
+				(child,parent)=>React.cloneElement(parent,{height},child),
+				React.cloneElement(cell.get(0),{height})
+			)
+		})
+	}
+
 	onAllChildrenComposed(){
-		console.log(`${this.props.id} row doing`)
-		//append the last rank
-		const unappendedCount=this.ranks-this.currentColumn.length
-		for(let i=unappendedCount;i>0;i--){
-			this.currentColumn.push(null)
-		}
-		const appending=this.createComposed2Parent()
-		var appended=this.context.parent.appendComposed(appending)
-		if(appended==1){//rollback since can't hold, can it happen
-		//space is wrong, frame is not correct
-			appended=this.context.parent.appendComposed(appending)
-			if(appended==1){
+		(()=>{//append the last rank
+			const unappendedCount=this.ranks-this.currentColumn.length
+			for(let i=unappendedCount;i>0;i--)
+				this.currentColumn.push(null)
+
+			if(1==this.context.parent.appendComposed(this.createComposed2Parent())){
+				//could it happen?
 				console.error(`row[${this.props.id}] can't be appended with rollback again, ignore`)
 			}
-		}
-
-		if(unappendedCount>0){
-			this.currentColumn.splice(-unappendedCount)
-		}
-
-		//fill empty cell for each rank
-		const len=this.context.cols.length
-		this.computed.spaces.forEach(({frame},i)=>{
-			const {first:rank,parents}=new ReactQuery(frame.lastLine).findFirstAndParents(a=>a.props["data-content"]==this.props.id || undefined)
-			if(!rank.length){
-				console.warn(`last line is not for this row[${this.props.id}], something was wrong`)
-				return
+			if(unappendedCount>0){
+				this.currentColumn.splice(-unappendedCount)
 			}
+		})();
 
-			const cells=rank.attr("children")
-
-			cells.splice(cells.length,0,...new Array(len-cells.length).fill(null))
-			cells.forEach((a,j)=>{
-				if(!cells[j]){
-					if(this.computed.composed[j][0]){
-						cells[j]=React.cloneElement(this.computed.composed[j][0],{height:0,frame:undefined})
-					}else{
-						debugger
-					}
-				}
-			})
-
-			const height=rank.attr("height")
-			//rander cell to composed from positioning
-			cells.forEach((a,j)=>{
-				const {first:cell,parents}=new ReactQuery(a).findFirstAndParents(n=>n.props["data-type"]=="cell"||undefined)
-				cells[j]=parents.reduceRight(
-					(child,parent)=>React.cloneElement(parent,{height},child),
-					(({type,props})=>new type({...props,height}).render())(cell.get(0))
-				)
-			})
-
-			//render rank to composed for positioning
-			const renderedRank=parents.reduceRight(
-				(child,parent)=>React.cloneElement(parent,{},child),
-				(({type,props})=>new type(props).render())(rank.get(0))
-			)
-			frame.currentColumn.children.splice(-1,1,renderedRank)
+		//fill empty cell for each rank, and
+		this.computed.spaces.forEach(({frame})=>{
+			const {first:rank,parents}=new ReactQuery(frame.lastLine)
+				.findFirstAndParents(a=>a.props["data-content"]==this.props.id || undefined)
+			if(!rank.length){
+				throw new Error("weired")
+			}
+			this.injectEmptyCellIntoRank(rank,parents,frame)
 		})
-		//render
 		super.onAllChildrenComposed()
-
-		console.log(`${this.props.id} row done`)
 	}
 
 	createComposed2Parent(){

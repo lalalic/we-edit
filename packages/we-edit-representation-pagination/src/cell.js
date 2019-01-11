@@ -16,6 +16,20 @@ export default class extends Super{
 		super(...arguments)
 		if(!this.constructor.CellFrame){
 			this.constructor.CellFrame=class extends Frame{
+				resetHeight(height){
+					this.props.height=height
+					this.columns[0].height=height
+				}
+
+				appendLine({props:{height:contentHeight}}){
+					if(contentHeight-this.currentColumn.availableHeight>1){//can't hold
+						if(this.currentColumn.children.length==0){
+							return false
+						}
+					}
+					return super.appendLine(...arguments)
+				}
+
 				render(){
 					return this.createComposed2Parent()
 				}
@@ -106,10 +120,10 @@ class Cell extends Component{
 			height,
 			nonContentHeight,
 			...others}=this.props
+		if(frame)
+			frame.resetHeight(height)
 
 		const contentHeight=frame ? frame.contentHeight : 0
-		if(height==undefined || (frame && height>contentHeight+nonContentHeight))
-			height=contentHeight+nonContentHeight
 
 		const alignY=(()=>{
 			switch(vertAlign){
@@ -123,14 +137,14 @@ class Cell extends Component{
 			}
 		})();
 		return (
-			<Group {...others}>
+			<Group {...others} height={height}>
 				<Spacing x={spacing/2} y={spacing/2}>
 					{new Border({//must render to composed for positioning later
 							border,spacing,width,height,
 							children:(
 								<Margin x={margin.left} y={margin.top}>
 									<Group y={alignY}>
-										{frame ? frame.render() : null}
+										{frame ? frame.render().props.children : null}
 									</Group>
 								</Margin>
 							)

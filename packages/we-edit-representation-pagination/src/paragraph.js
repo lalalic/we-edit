@@ -105,10 +105,7 @@ export default class Paragraph extends Super{
 	children(){
 		return [
 			...Children.toArray(this.props.children),
-			<ParagraphEnd {...this.props.defaultStyle}
-				key="end"
-				id={`${this.props.id}-end`}
-				/>
+			<this.constructor.End {...this.props.defaultStyle} key={`${this.props.id}-end`} id={`${this.props.id}-end`}/>
 		]
 	}
 
@@ -672,21 +669,10 @@ class Story extends Component{
 
 Paragraph.Line=Line
 Paragraph.Story=Story
+Paragraph.End=ParagraphEnd
 
-function isWhitespace(a,/*$=new Query(a)*/){
-	//return $.prop("minWidth")==0 && $.findFirst(".whitespace")
-
-	if(a.props.minWidth==0){
-		while(a && a.props.className!="whitespace"){
-			try{
-				a=React.Children.only(a.props.children)
-			}catch(e){
-				return false
-			}
-		}
-		return !!a
-	}
-	return false
+function isWhitespace(a){
+	return new ReactQuery(a).findFirst(`.whitespace`).length>0
 }
 
 function path(a,info=a=>a.props["data-content"],test=a=>!!a.props["data-content"],ids=[]){
