@@ -336,7 +336,7 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 			if(type=="paragraph"){
 				if(selfLine){
 					if(selfPage.props.I==page.props.I &&
-						selfY>[...parents,node].reduce((Y,{props:{y=0}})=>Y+y,0)){//make sure under current line
+						selfY>=[...parents,node].reduce((Y,{props:{y=0}})=>Y+y,0)){//make sure under current line
 						return false
 					}
 
@@ -390,7 +390,7 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 			if(type=="paragraph"){
 				if(selfLine){
 					if(selfPage.props.I==page.props.I &&
-						selfY<[...parents,node].reduce((Y,{props:{y=0}})=>Y+y,0)){//make sure above current line
+						selfY<=[...parents,node].reduce((Y,{props:{y=0}})=>Y+y,0)){//make sure above current line
 						return false
 					}
 
@@ -424,11 +424,7 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 			return composer.caretPositionFromPoint(line.attr("pagination").i-1,x1-x2)
 		}
 	}
-
-	isLastCell(parents){
-		
-	}
-
+	
 	isSameColumnTableLine(node,parents,selfLine,selfParents){
 		const same=(type,i=selfParents.findLastIndex(a=>a.props["data-type"]==type))=>selfParents[i]==parents[i]
 		if(same("cell")){
