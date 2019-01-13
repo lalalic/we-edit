@@ -1,8 +1,8 @@
 import Base from "./base"
 
 export default class extends Base{
-	constructor(node, selector){
-		super(node,null,selector)
+	constructor(node, styles, selector){
+		super(...arguments)
 		this.id='*'
 		this.basedOn=null
 		this.cache=null

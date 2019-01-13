@@ -103,35 +103,87 @@ types.band1Vert=BandVStyle
 types.row=RowStyle
 types.cell=CellStyle
 
+const attribs={
+	tbl:{
+		"w:tblInd":"indent",
+		"w:tblCellMar":"margin",
+		"w:tblBorders":"border",
+		"w:tblW":"width",
+		"w:shd":"background",
+		"w:jc":"align",
+		"w:tblStyleColBandSize":"cellSpan",
+		"w:tblStyleRowBandSize":"rowSpan",
+		"w:tblLook":"conditional",
+	},
+
+	tr:{
+		"w:tblInd":"indent",
+		"w:tblCellMar":"margin",
+		"w:tblBorders":"border",
+		"w:cnfStyle":"conditional",
+		"w:trHeight":"height",
+		"w:cantSplit":"keepLines",
+	},
+
+	tc:{
+		"w:tblInd":"indent",
+		"w:tblCellMar":"margin",
+		"w:tblBorders":"border",
+		"w:cnfStyle":"conditional",	
+		"w:vAlign": "vertAlign",
+	}
+}
 export default class TableStyle extends WithBorder{
 	constructor(node,styles,selector){
 		super(...arguments)
 
-		this.tbl=this._convert(node,"w:tblPr",{
-			"w:tblInd":"indent",
-			"w:tblCellMar":"margin",
-			"w:tblBorders":"border"
-		},selector)
+		this.tbl=this._convert(node,"w:tblPr",attribs.tbl,selector)
 
-		this.tc=this._convert(node,"w:tcPr",{
-			"w:tblInd":"indent",
-			"w:tblCellMar":"margin",
-			"w:tblBorders":"border"
-		},selector)
+		this.tc=this._convert(node,"w:tcPr",attribs.tc,selector)
 
-		this.tr=this._convert(node,"w:tblPrEx",{
-			"w:tblInd":"indent",
-			"w:tblCellMar":"margin",
-			"w:tblBorders":"border"
-		},selector)
+		this.tr=this._convert(node,"w:tblPrEx",attribs.tr,selector)
 
-		node.children.filter(a=>a.name=="w:tblStylePr")
-		.forEach(a=>{
+		node.children.filter(a=>a.name=="w:tblStylePr").forEach(a=>{
 			let type=a.attribs["w:type"]
 			this[type]=new types[type](a,styles,selector)
 		})
 	}
-
+	
+	static Direct=class extends TableStyle{
+		constructor(node,styles,selector){
+			super(...arguments)
+			const type=node.name.split(":").pop().replace("Pr","")
+			this[type]=this._convert(node, null, attribs[type],selector)
+		}
+	}
+	
+	flat4Table(...inherits){
+		let targets=[this,...inherits]
+		return "indent,background,width,conditional".split(",")
+			.reduce((props,k)=>{
+				targets.find(a=>(props[k]=a.get(`tbl.${k}`))!==undefined)
+				return props
+			},{})
+	}
+	
+	flat4Row(...inherits){
+		let targets=[this,...inherits]
+		return "height,cantSplit,keepLines,conditional".split(",")
+			.reduce((props,k)=>{
+				targets.find(a=>(props[k]=a.get(`tr.${k}`))!==undefined)
+				return props
+			},{})
+	}
+	
+	flat4Cell(...inherits){
+		let targets=[this,...inherits]
+		return "margin,spacing,background,conditional".split(",")
+			.reduce((props,k)=>{
+				targets.find(a=>(props[k]=a.get(`tc.${k}`))!==undefined)
+				return props
+			},{})
+	}
+	
 	get(path, conditions=[]){
 		let value=conditions.reduce((found, condition)=>{
 			if(found!=undefined)

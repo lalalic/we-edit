@@ -9,16 +9,30 @@ export default ({Table,Container})=>class extends Component{
 	static namedStyle="*table"
 
 	static contextTypes={
+		style: PropTypes.object,
 		styles: PropTypes.object,
 		activeDocStore: PropTypes.object,
 	}
-
-	constructor(){
-		super(...arguments)
-		this.componentWillReceiveProps(this.props,this.context)
+	
+	static childContextTypes={
+		style: PropTypes.object,
+		setTableIndent: PropTypes.func,
+	}
+	
+	childStyle=memoize((direct,context)=>{
+		return direct ? direct.inherit(context) : context
+	})
+	
+	getChildContext(){
+		return {
+			style: this.childStyle(this.props.style, this.context.style),
+			setTableIndent({right=0}={}){
+				return this.indent=this.style(this.props.style, this.context.style).indent||0-right
+			}
+		}	
 	}
 
-	componentWillReceiveProps({children,...direct},{styles}){
+	componentWillReceiveProps1({children,...direct},{styles}){
 		let style=styles[direct.namedStyle||this.constructor.namedStyle]
 
 		let tblStyle="indent".split(",")
@@ -58,17 +72,22 @@ export default ({Table,Container})=>class extends Component{
 		this.style={...tblStyle, ...direct, children:rows}
 	}
 
-	getIndent=memoize((id,indent=0,children)=>{
-		const query=new ContentQuery(this.context.activeDocStore.getState(),`#${id}`)
+	getIndent=memoize((indent=0, tblMargin, children)=>{
+		const query=new ContentQuery(this.context.activeDocStore.getState(),`#${this.props.id}`)
 		if(query.parents("table").length>0){
 			return indent
 		}
 		const firstCell=new ReactQuery(<Fragment>{children}</Fragment>).findFirst("cell")
-		const {right=0}=firstCell.attr("margin")||{}
+		const {right=0}=firstCell.attr("margin")||tblMargin||{}
 		return indent-right
 	})
 
 	render(){
-		return <Table {...this.style} indent={this.getIndent(this.props.id, this.style.tblInd,this.style.children)}/>
+		const {cols,width=cols.reduce((w,a)=>w+a,0),children,  ...props}=this.props
+		const childStyle=this.childStyle(this.props.style, this.context.style)
+		const {indent:tblInd,...style}=childStyle.flat4Table()
+		
+		const indent=this.getIndent(tblInd,childStyle.get("tbl.margin"), children)
+		return <Table {...{...props,...style,indent,width, cols,children}}/>
 	}
 }

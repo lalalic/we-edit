@@ -64,7 +64,7 @@ class SmartShow extends Component{
 }
 
 const Paper=({width,height, margin:{left,right,top,bottom},precision,...props})=>(
-       <Fragment>
+       <g className="paper">
 		   <rect {...props} {...{width,height}}/>
 		   <path d={`M0 0 L${width} 0 L${width} ${height} L0 ${height}Z`}
 				   fill="none"
@@ -72,7 +72,7 @@ const Paper=({width,height, margin:{left,right,top,bottom},precision,...props})=
 			{left&&right&&top&&bottom&&
 				<Margin margin={{left,top,right:width-right,bottom:height-bottom}} precision={precision}/>
 			}
-       </Fragment>
+       </g>
 )
 
 const Margin=({precision,margin:{left,top, right,bottom},marginWidth=20*precision, strokeWidth=1*precision})=>(

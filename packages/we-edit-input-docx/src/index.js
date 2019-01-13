@@ -95,7 +95,7 @@ export default class DocxType extends Input.Editable{
 			case "style":{
 				let style=null
 				if(!props.id){
-					style=new Style.Default(node, selector)
+					style=new Style.Default(node, styles,selector)
 				}else{
 					let type=node.attribs["w:type"]
 					switch(type){
@@ -189,28 +189,16 @@ export default class DocxType extends Input.Editable{
 			}
 			case "tbl":{
 				let cols=selector.select([node.children.find(a=>a.name=="w:tblGrid")]).tblGrid
-				let width=cols.reduce((w,a)=>w+a,0)
-				let style
-				if(props.pr)
-					style=selector.select(props.pr.children, {
-						tblStyle:"namedStyle"
-					})
-
-				return createElement(components.Table,{cols,width,...style},children,node)
+				let style=!props.pr ? styles['*table'] : new Style.Table.Direct(props.pr,styles,selector)
+				return createElement(components.Table,{cols,style},children,node)
 			}
 			case "tr":{
-				let style
-				if(props.pr)
-					style=selector.select(props.pr.children,{"w:tcBorders":"border", "w:trHeight":"height", "w:cantSplit":"keepLines"})
-
-				return createElement(components.Row,style,children,node)
+				let style=!props.pr ? undefined : new Style.Table.Direct(props.pr,styles,selector)
+				return createElement(components.Row,{style},children,node)
 			}
 			case "tc":{
-				let style
-				if(props.pr)
-					style=selector.select(props.pr.children,{"w:tcBorders":"border","w:vAlign":"vertAlign"})
-
-				return createElement(components.Cell,style,children,node)
+				let style=!props.pr ? undefined : new Style.Table.Direct(props.pr,styles,selector)
+				return createElement(components.Cell,{style},children,node)
 			}
 			case "list":
 			case "heading":

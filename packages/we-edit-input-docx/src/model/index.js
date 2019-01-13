@@ -7,6 +7,7 @@ import Text from "./text"
 import Run from "./run"
 
 import Table from "./table"
+import Row from "./row"
 import Cell from "./cell"
 
 const createUnvisibleComponent=type=>{
@@ -25,6 +26,7 @@ export default {
 	Text,
 	Run,
 	Cell,
+	Row,
 	Table,
 	Styles:()=>createUnvisibleComponent("styles"),
 	Style:()=>createUnvisibleComponent("style"),

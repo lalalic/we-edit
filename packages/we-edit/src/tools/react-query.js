@@ -60,19 +60,61 @@ export default class Query{
         return this._nodes.length
     }
 
-	attr(k){
-		if(this.length){
-			const element=this._nodes[0]
-            switch(k){
-            case "type":
-                return element.type
-            break
-            default:
-                return element.props[k]
-            }
-		}else{
-			return null
+	attr(k,v){
+		switch(arguments.length){
+		case 2:{
+			if(this.length){
+				const element=this._nodes[0]
+				switch(k){
+				case "type":
+					return this
+				break
+				default:
+					return this.replace(element,React.cloneElement(element,{[k]:v}))
+				}
+			}else{
+				return this
+			}
 		}
+		default:
+			if(this.length){
+				const element=this._nodes[0]
+				switch(k){
+				case "type":
+					return element.type
+				break
+				default:
+					return element.props[k]
+				}
+			}else{
+				return null
+			}
+		}
+	}
+	
+	replace(element, changed){
+		console.assert(React.isValidElement(element))
+		console.assert(Ract.isValidElement(changed))
+		const {parents}=new this.constructor(this.root).findFirstAndParents(a=>a==element||undefined)
+		const root=parents.reduce(({raw,cloned},parent)=>{
+			const children=React.Children.toArray(parent.props.children)
+			switch(children.length){
+			case 1:
+				return {
+					cloned:React.cloneElement(parent,{},cloned),
+					raw:parent,
+				}
+			default:
+				let i=children.indexOf(raw)
+				children.splice(i,1,React.cloneElement(cloned,{key:i}))
+				return {
+					raw:parent,
+					cloned:React.cloneElement(parent,{children}),
+				}
+			}
+			
+		},{raw:element,cloned:changed}).cloned
+		return new this.constructor(changed,null,root)
 	}
 
 	children(selector){

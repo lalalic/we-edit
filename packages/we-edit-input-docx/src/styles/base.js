@@ -22,10 +22,8 @@ export class Getable{
 	}
 
 	_getFromBasedOn(path){
-		let t
-		if(this.basedOn && (t=this.styles[this.basedOn]))
-			return t.get(...arguments)
-		return undefined
+		const parent=this.parent
+		return parent ? parent.get(...arguments) : undefined
 	}
 
 	invoke(path){
@@ -36,18 +34,14 @@ export class Getable{
 	}
 
 	_invokeOnBasedOn(path){
-		let t
-		if(this.basedOn && (t=this.styles[this.basedOn]))
-			return t.invoke(...arguments)
-		return undefined
+		const parent=this.parent
+		return parent ? parent.invoke(...arguments) : undefined
 	}
 
 	get parent(){
-		let t
-		if(this.basedOn && (t=this.styles[this.basedOn]))
-			return t
+		return this.styles[this.basedOn]||this.basedOn||undefined
 	}
-	
+		
 	toJSON(){
 		return undefined
 	}
@@ -72,6 +66,27 @@ export default class Style extends Getable{
 			;//this.basedOn="*"
 		else
 			this.cache=new Map()
+	}
+	
+	inherit(next){
+		const cloned=Object.create(this)
+		if(next){
+			let current=cloned,parent
+			while(current.parent){
+				parent=current
+				current=current.parent
+			}
+			
+			if(current.id=="*"){
+				next=Object.create(next)
+				next.basedOn='*'
+				parent.basedOn=next.id||next
+			}else{
+				current.basedOn=next.id||next	
+			}
+		}
+		
+		return cloned
 	}
 
 	_convert(node, target, map, selector){

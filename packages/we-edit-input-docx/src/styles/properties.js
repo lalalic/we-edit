@@ -201,10 +201,7 @@ export class Properties{
 		return this.toBorder(x)
 	}
 
-	tblLook(x){
-		return this._val(x)
-	}
-
+/************table********************/
 	tblGrid(x){
 		return x.children.map(a=>this.dxa2Px(a.attribs["w:w"]))
 	}
@@ -233,6 +230,14 @@ export class Properties{
 			return props
 		},{})
 	}
+	
+	tblStyleColBandSize(x){
+		return parseInt(this._val(x))
+	}
+	
+	tblStyleRowBandSize(x){
+		return parseInt(this._val(x))
+	}
 
 	tblInd(x){
 		return this.dxa2Px(x.attribs["w:w"])
@@ -252,6 +257,10 @@ export class Properties{
 
 	cantSplit(x){
 		return true
+	}
+	
+	cnfStyle(x){
+		return this._val(x)
 	}
 
 /**************drawingML********************/
