@@ -14,12 +14,15 @@ export default class extends editable(Base){
     }
 
     getRangeRects(p0,p1,pageXY){
+		if(p0.id==this.props.id && p1.id==this.props.id){
+			return super.getRangeRects(...arguments)
+		}
         const pages=this.getPages()
         p0.page=pages.find(a=>a.props.I==p0.page)
         p1.page=pages.find(a=>a.props.I==p1.page)
 
-        p0.frame=this.computed.composed.findIndex(a=>(p0.line=a.lineIndexOf(p0)!=-1))
-        p1.frame=this.computed.composed.findLastIndex(a=>(p1.line=a.lineIndexOf(p1)!=-1))
+        p0.frame=this.computed.composed.findIndex(a=>(p0.line=a.lineIndexOf(p0))!=-1)
+        p1.frame=this.computed.composed.findLastIndex(a=>(p1.line=a.lineIndexOf(p1))!=-1)
 
         const frameXY=page=>{
             const {x,y}=pageXY(page)
