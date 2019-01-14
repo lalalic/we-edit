@@ -129,7 +129,7 @@ const attribs={
 		"w:tblInd":"indent",
 		"w:tblCellMar":"margin",
 		"w:tblBorders":"border",
-		"w:cnfStyle":"conditional",	
+		"w:cnfStyle":"conditional",
 		"w:vAlign": "vertAlign",
 	}
 }
@@ -148,7 +148,7 @@ export default class TableStyle extends WithBorder{
 			this[type]=new types[type](a,styles,selector)
 		})
 	}
-	
+
 	static Direct=class extends TableStyle{
 		constructor(node,styles,selector){
 			super(...arguments)
@@ -156,7 +156,7 @@ export default class TableStyle extends WithBorder{
 			this[type]=this._convert(node, null, attribs[type],selector)
 		}
 	}
-	
+
 	flat4Table(...inherits){
 		let targets=[this,...inherits]
 		return "indent,background,width,conditional".split(",")
@@ -165,7 +165,7 @@ export default class TableStyle extends WithBorder{
 				return props
 			},{})
 	}
-	
+
 	flat4Row(...inherits){
 		let targets=[this,...inherits]
 		return "height,cantSplit,keepLines,conditional".split(",")
@@ -174,16 +174,61 @@ export default class TableStyle extends WithBorder{
 				return props
 			},{})
 	}
-	
-	flat4Cell(...inherits){
-		let targets=[this,...inherits]
-		return "margin,spacing,background,conditional".split(",")
-			.reduce((props,k)=>{
-				targets.find(a=>(props[k]=a.get(`tc.${k}`))!==undefined)
-				return props
-			},{})
+
+	flat4Cell(conditional, edges=[]){
+		const conditions=Array.from(("000000000000"+(conditional>>>0).toString(2)).substr(-12))
+				.map((a,i)=>a=="1"&&CNF[i]).filter(a=>a)
+				.sort((a,b)=>PRIORIZED.indexOf(a)-PRIORIZED.indexOf(b))
+
+		let margin="left,right,top,bottom".split(",").reduce((margin,a)=>{
+			let v=this.get(`margin.${a}`)
+			if(v==undefined)
+				v=this.get(`tbl.margin.${a}`,conditions)
+			if(v!==undefined)
+				margin[a]=v
+			return margin
+		},{})
+
+		let border="left,right,top,bottom".split(",").reduce((border,a)=>{
+			let v=this.get(`border.${a}`)
+			if(v==undefined)
+				v=this[a](conditions,edges)
+
+			if(v!==undefined)
+				border[a]=v
+			else
+				border[a]={sz:0}
+			return border
+		},{})
+
+		let p="spacing,indent".split(",").reduce((p,k)=>{
+			let v=this.get(`p.${k}`,conditions)
+			if(v!==undefined)
+				p[k]=v
+			return p
+		},{})
+
+		let r="fonts,size,color".split(",").reduce((r,k)=>{
+			let v=this.get(`r.${k}`,conditions)
+			if(v!==undefined)
+				r[k]=v
+			return r
+		},"bold,italic,vanish".split(",").reduce((r,k)=>{
+			let v=this.get(`r.${k}`,conditions)
+			if(v!==undefined)
+				r[k]=!!v
+			return r
+		},{}))
+
+		let background=this.get('tbl.background',conditions)
+
+		const clean=a=>Object.keys(a).length==0 ? undefined : a
+
+		[margin,border,p,r]=[clean(margin),clean(border),clean(p),clean(r)]
+
+		return {margin,border,background,p,r}
 	}
-	
+
 	get(path, conditions=[]){
 		let value=conditions.reduce((found, condition)=>{
 			if(found!=undefined)
@@ -309,60 +354,5 @@ export default class TableStyle extends WithBorder{
 		}
 
 		return value
-	}
-
-	merge(style, edges){
-		let {cnfStyle}=style
-		cnfStyle=Array.from(("000000000000"+(cnfStyle>>>0).toString(2)).substr(-12))
-				.map((a,i)=>a=="1"&&CNF[i]).filter(a=>a)
-				.sort((a,b)=>PRIORIZED.indexOf(a)-PRIORIZED.indexOf(b))
-
-		let margin="left,right,top,bottom".split(",").reduce((margin,a)=>{
-			let v=get(style,`margin.${a}`)
-			if(v==undefined)
-				v=this.get(`tbl.margin.${a}`,cnfStyle)
-			if(v!==undefined)
-				margin[a]=v
-			return margin
-		},{})
-
-		let border="left,right,top,bottom".split(",").reduce((border,a)=>{
-			let v=get(style,`border.${a}`)
-			if(v==undefined)
-				v=this[a](cnfStyle,edges)
-
-			if(v!==undefined)
-				border[a]=v
-			else
-				border[a]={sz:0}
-			return border
-		},{})
-
-		let p="spacing,indent".split(",").reduce((p,k)=>{
-			let v=this.get(`p.${k}`,cnfStyle)
-			if(v!==undefined)
-				p[k]=v
-			return p
-		},{})
-
-		let r="fonts,size,color".split(",").reduce((r,k)=>{
-			let v=this.get(`r.${k}`,cnfStyle)
-			if(v!==undefined)
-				r[k]=v
-			return r
-		},"bold,italic,vanish".split(",").reduce((r,k)=>{
-			let v=this.get(`r.${k}`,cnfStyle)
-			if(v!==undefined)
-				r[k]=!!v
-			return r
-		},{}))
-
-		let background=this.get('tbl.background',cnfStyle)
-
-		const clean=a=>Object.keys(a).length==0 ? undefined : a
-
-		[margin,border,p,r]=[clean(margin),clean(border),clean(p),clean(r)]
-
-		return {margin,border,background,p,r}
 	}
 }

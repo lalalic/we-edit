@@ -6,7 +6,7 @@ export class Getable{
 	constructor(node, styles, selector){
 		this.styles=styles
 	}
-	
+
 	get(path){
 		if(this.cache && this.cache.has(path))
 			return this.cache.get(path)
@@ -41,13 +41,51 @@ export class Getable{
 	get parent(){
 		return this.styles[this.basedOn]||this.basedOn||undefined
 	}
-		
+
 	toJSON(){
 		return undefined
 	}
 }
 
-export default class Style extends Getable{
+
+class Linkable extends Getable{
+	constructor(){
+		super(...arguments)
+		this.next=[]
+	}
+
+	_getFromBasedOn(path){
+		let value=super._getFromBasedOn(...arguments)
+		if(value==undefined){
+			value=this.next.reduce((r,a)=>(r==undefined ? a.get(...arguments) : r),undefined)
+		}
+
+		return value
+	}
+
+	_invokeOnBasedOn(path){
+		let value=super._invokeFromBasedOn(...arguments)
+		if(value==undefined){
+			value=this.next.reduce((r,a)=>(r==undefined ? a.invoke(...arguments) : r),undefined)
+		}
+
+		return value
+	}
+
+	inherit(...next){
+		if(next.length==0)
+			return this
+		let cloned=Object.create(this)
+		cloned.next=next
+		var i=cloned.next.findIndex(a=>a.id=="*")
+		if(i!=-1){
+			cloned.next.push(cloned.next.splice(i,1)[0])
+		}
+		return cloned
+	}
+}
+
+export default class Style extends Linkable{
 	constructor(node, styles, selector){
 		super(...arguments)
 		this.id=node.attribs["w:styleId"]
@@ -67,27 +105,6 @@ export default class Style extends Getable{
 		else
 			this.cache=new Map()
 	}
-	
-	inherit(next){
-		const cloned=Object.create(this)
-		if(next){
-			let current=cloned,parent
-			while(current.parent){
-				parent=current
-				current=current.parent
-			}
-			
-			if(current.id=="*"){
-				next=Object.create(next)
-				next.basedOn='*'
-				parent.basedOn=next.id||next
-			}else{
-				current.basedOn=next.id||next	
-			}
-		}
-		
-		return cloned
-	}
 
 	_convert(node, target, map, selector){
 		let pr=target ? node.children.find(a=>a.name==target) : node
@@ -101,4 +118,3 @@ export default class Style extends Getable{
 		}
 	}
 }
-

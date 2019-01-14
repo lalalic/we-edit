@@ -13,23 +13,20 @@ export default ({Table,Container})=>class extends Component{
 		styles: PropTypes.object,
 		activeDocStore: PropTypes.object,
 	}
-	
+
 	static childContextTypes={
 		style: PropTypes.object,
 		setTableIndent: PropTypes.func,
 	}
-	
+
 	childStyle=memoize((direct,context)=>{
 		return direct ? direct.inherit(context) : context
 	})
-	
+
 	getChildContext(){
 		return {
-			style: this.childStyle(this.props.style, this.context.style),
-			setTableIndent({right=0}={}){
-				return this.indent=this.style(this.props.style, this.context.style).indent||0-right
-			}
-		}	
+			style: this.childStyle(this.props.style, this.context.style)
+		}
 	}
 
 	componentWillReceiveProps1({children,...direct},{styles}){
@@ -82,12 +79,20 @@ export default ({Table,Container})=>class extends Component{
 		return indent-right
 	})
 
+	getConditionalChildren=memoize((condition,children)=>{
+		return children
+	})
+
 	render(){
-		const {cols,width=cols.reduce((w,a)=>w+a,0),children,  ...props}=this.props
+		var {cols,width=cols.reduce((w,a)=>w+a,0),children, style:$1, ...props}=this.props
 		const childStyle=this.childStyle(this.props.style, this.context.style)
 		const {indent:tblInd,...style}=childStyle.flat4Table()
-		
 		const indent=this.getIndent(tblInd,childStyle.get("tbl.margin"), children)
+
+		const condition=this.props.style.get("conditional")
+		if(undefined!=condition){
+			children=this.getConditionalChildren(condition,children)
+		}
 		return <Table {...{...props,...style,indent,width, cols,children}}/>
 	}
 }
