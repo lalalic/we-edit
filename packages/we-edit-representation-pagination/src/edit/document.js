@@ -162,4 +162,31 @@ export default class Document extends Super{
 	get viewport(){
 		return this.state.viewport
 	}
+
+	getRangeRects(p0,p1, pageXY){
+		const pages=this.computed.composed
+		p0.line=pages[p0.page].lineIndexOf(p0)
+		p1.line=pages[p1.page].lineIndexOf(p1)
+		const rects=[]
+		const lineRectsInPage=(page,start=0,end)=>{
+			const {x,y}=pageXY(page)
+			page.lines.slice(start,end).forEach((a,i)=>{
+				const {left,top,width,height}=page.lineRect(start+i)
+				rects.push({left:left+x,top:top+y,right:left+width+x,bottom:top+height+y})
+			})
+		}
+
+		if(p0.page==p1.page){
+			lineRectsInPage(pages[p0.page], p0.line, p1.line+1)
+		}else{
+			lineRectsInPage(pages[p0.page], p0.line)
+			pages.slice(p0.page+1, p1.page).forEach(page=>lineRects(page))
+			lineRectsInPage(pages[p1.page],0,p1.line+1)
+		}
+
+		Object.assign(rects[0],{left:pageXY(p0.page).x+p0.x})
+
+		Object.assign(rects[rects.length-1], {right:pageXY(p1.page).x+p1.x})
+		return rects
+	}
 }

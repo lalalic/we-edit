@@ -210,7 +210,7 @@ export default ({Template,Frame, Container})=>{
 			const availableWidth=width-margin.left-margin.right
 			const cols=(data ? data : new Array(num).fill({width:(availableWidth-(num-1)*space)/num,space}))
 				.reduce((state,{width,space})=>{
-					state.columns.push({x:state.x, width})
+					state.columns.push({x:state.x, width,"data-content":section.props.id, "data-type":"section"})
 					state.x+=(space+width)
 					return state
 				},{x:margin.left,columns:[]})

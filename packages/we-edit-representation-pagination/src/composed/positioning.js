@@ -429,6 +429,8 @@ class ReactPositioning extends Positioning{
                 page,
                 ...position,
             }
+        }else{
+
         }
     }
 
@@ -453,57 +455,34 @@ class ReactPositioning extends Positioning{
         return page.caretPositionFromPoint(x,y)
     }
 
-    getRangeRects(start,end){
-        if(start.id==end.id && !this.getComposer(start.id).splittable){
-			const rect=this.getClientRect(start.id)
-			if(rect){
-				const {x,y,width,height}=rect
-				return [{
-					left:x,
-					top:y,
-					right:x+width,
-					bottom:y+height
-				}]
-			}
-        }else{
-            const [p0,p1]=((start,end)=>{
-				if(!start || !end)
-					return []
-
-                if(end.page<start.page ||
-                    (end.page==start.page && end.line<start.line) ||
-                    (end.page==start.page && end.line==start.line && end.left<start.left)){
-                    return [end,start]
-                }
-                return [start,end]
-            })(this.position(start.id,start.at),this.position(end.id, end.at));
-
-			if(p0 && p1){
-                const rects=[]
-                const lineRectsInPage=(page,start=0,end)=>{
-                    const {x,y}=this.pageXY(this.pages.indexOf(page))
-                    page.lines.slice(start,end).forEach((a,i)=>{
-                        const {left,top,width,height}=page.lineRect(start+i)
-                        rects.push({left:left+x,top:top+y,right:left+width+x,bottom:top+height+y})
-                    })
-                }
-
-                if(p0.page==p1.page){
-                    lineRectsInPage(this.pages[p0.page], p0.line, p1.line+1)
-                }else{
-                    lineRectsInPage(this.pages[p0.page], p0.line)
-                    this.pages.slice(p0.page+1, p1.page).forEach(page=>lineRects(page))
-                    lineRectsInPage(this.pages[p1.page],0,p1.line+1)
-                }
-
-                Object.assign(rects[0],{left:this.pageXY(p0.page).x+p0.x})
-
-                Object.assign(rects[rects.length-1], {right:this.pageXY(p1.page).x+p1.x})
-                return rects
-			}
+    extendSelection(start, end){
+        if(start.id==end.id)
+            return {start,end}
+        const framesA=this.getComposer(start.id).composeFrames()
+        const framesB=this.getComposer(end.id).composeFrames()
+        const i=framesA.findIndex((a,i)=>a==framesB[i])
+        if(i!=-1){
+            framesA.splice(0,i+1)
+            framesB.splice(0,i+1)
         }
 
-		return []
+        if(framesA[0]){
+            start={id:framesA[0],at:1}
+        }
+
+        if(framesB[0]){
+            end={id:framesB[0],at:1}
+        }
+
+        return {start,end}
+    }
+
+    getRangeRects(start,end){
+        const p0=this.position(start.id, start.at)
+        const p1=this.position(end.id, end.at)
+        const frame=this.getComposer(start.id).composeFrames().pop()
+        const composer=this.getComposer(frame||"root")
+        return composer.getRangeRects(p0,p1, page=>this.pageXY(this.pages.indexOf(page)))
     }
 
     getClientRect(id){

@@ -32,6 +32,29 @@ export default Cacheable(class extends editable(Base){
     }
 
     //locatable
+
+    lineIndexOf(position){
+        const lines=this.lines
+        const {lineIndexOfParagraph,paragraph,id,at}=position
+        if(paragraph){
+            return lines.findIndex(a=>new ReactQuery(a)
+                .findFirst(({props:{"data-content":content,"data-type":type,pagination:{i}={}}})=>{
+                    if(content==paragraph && i==lineIndexOfParagraph+1){
+                        return true
+                    }
+                    if(type=="paragraph"){
+                        return false
+                    }
+                }).length)
+        }else{
+            const index=lines[`find${at==0?"":"Last"}Index`](a=>new ReactQuery(a)[at==0 ? "findFirst" : "findLast"](`[data-content="${id}"]`).length)
+            if(index==-1){//line container
+                return at==0 ? 0 : lines.length-1
+            }
+            return index
+        }
+    }
+
 	includeContent(id){
 		if(!!this.columns.find(a=>a.id==id)){
 			return true
@@ -133,4 +156,8 @@ export default Cacheable(class extends editable(Base){
 		//remove content
 		return super.rollbackLines(this.lines.length-lineIndex,false)
 	}
+
+    composeFrames(){
+        return [...super.composeFrames(),this.props.id]
+    }
 })

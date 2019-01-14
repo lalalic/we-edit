@@ -29,4 +29,8 @@ export default class extends editable(Base,{stoppable:false}){
 		)
 		frame.currentColumn.children.splice(-1,1,renderedRank)
 	}
+
+	composeFrames(){
+        return [...super.composeFrames(),this.props.id]
+    }
 }

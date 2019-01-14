@@ -299,7 +299,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 	}
 
 	onKeyArrowUp({shiftKey:selecting, clientX:left}){
-		const {id, at}=this.locateLine("prev", selecting ? "Selectable" : "Cursorable")
+		const {id, at}=this.locateLine("prev")
         if(!id)
             return
 		if(!selecting){
@@ -329,15 +329,19 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 	}
 
 	onKeyArrowDown({shiftKey:selecting, clientX:left}){
-		const {id, at}=this.locateLine("next", selecting ? "Selectable" : "Cursorable")
+		const {id, at}=this.locateLine("next")
         if(!id){
             return
         }
 		if(!selecting){
 			this.dispatch(ACTION.Cursor.AT(id,at))
-		}else{
-			const {start,end,cursorAt}=this.selection
-			if(start.id==end.id && start.at==end.at){
+		}else{//extends start and end to at outest frame
+            const {start,end,cursorAt}=this.selection
+            const extended=this.positioning.extendSelection(start, {id,at})
+
+            ;(({start,end})=>this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at)))(extended);
+            return
+            if(start.id==end.id && start.at==end.at){
 				this.dispatch(ACTION.Selection.END_AT(id,at))
 			}else{
 				if(cursorAt=="end")

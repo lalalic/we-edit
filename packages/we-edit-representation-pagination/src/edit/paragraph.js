@@ -285,7 +285,7 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 			}
 		}
 		var parents,line
-		const page=this.getPages()[`find${right ? "Last" : ""}`](page=>{
+		const page=this.getPages(false)[`find${right ? "Last" : ""}`](page=>{
 			let found=new ReactQuery(page.render())[`find${right ? "Last" :"First"}AndParents`]((a,b)=>test(a,b,page))
 			if((line=found.first||found.last).length){
 				parents=found.parents
@@ -306,6 +306,8 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 				const xyInLine=this.xyInLine(id,at,lineIndexOfParagraph)
 				return {
 					page:page.props.I,
+					paragraph:this.props.id,
+					lineIndexOfParagraph,
 					...[...parents,line.get(0)].reduce((xy,{props:{x=0,y=0}})=>{
 						xy.x+=x
 						xy.y+=y
@@ -351,7 +353,7 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 						if(selfX<=cellX){
 							return true
 						}
-						
+
 						let row=parents.findLast(a=>a.props["data-type"]=="row")
 						let lastCell=new ReactQuery(row).find(`[data-type="cell"]`).toArray().pop()
 						return lastCell.props["data-content"]==cell.props["data-content"]
@@ -402,11 +404,11 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 					if(isInTable && selfLine.props.pagination.i==1 && pagination.last){
 						let cell=isInTable
 						let cellX=(i=>parents.slice(0,i+1).reduce((X,{props:{x=0}})=>X+x,0))(parents.indexOf(cell))
-						
+
 						if(selfX>=cellX){
 							return true
 						}
-						
+
 						let row=parents.findLast(a=>a.props["data-type"]=="row")
 						let firstCell=new ReactQuery(row).findFirst(`[data-type="cell"]`).get(0)
 						return firstCell.props["data-content"]==cell.props["data-content"]
@@ -424,7 +426,7 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 			return composer.caretPositionFromPoint(line.attr("pagination").i-1,x1-x2)
 		}
 	}
-	
+
 	isSameColumnTableLine(node,parents,selfLine,selfParents){
 		const same=(type,i=selfParents.findLastIndex(a=>a.props["data-type"]==type))=>selfParents[i]==parents[i]
 		if(same("cell")){
@@ -458,8 +460,36 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 		return position||this.nextCursorable()
 	}
 
-	getPages(){
-		return super.getPages()
+	getPages(scoped=true){
+		const pages=super.getPages()
+		if(!scoped)
+			return pages
+		return pages.reduce((state,page,i)=>{
+			if(state.start!=-1 && state.end!=-1)
+				return state
+			let found=new ReactQuery(page.render()).findFirst(({props:{"data-content":id, "data-type":type}})=>{
+				if(id==this.props.id){
+					return true
+				}
+				if(type=="paragraph"){
+					return false
+				}
+			})
+			if(found.length){
+				if(state.start==-1){
+					state.start=i
+				}
+			}else{
+				if(state.start!=-1){
+					state.end=i
+				}
+			}
+			return state
+		},{start:-1,end:-1,
+			extract(){
+				return this.start==-1 ? [] : (pages.slice(this.start, this.end==-1 ? undefined : this.end))
+			}
+		}).extract()
 	}
 
 	static End=class extends Base.End{

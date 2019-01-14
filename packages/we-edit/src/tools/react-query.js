@@ -91,7 +91,7 @@ export default class Query{
 			}
 		}
 	}
-	
+
 	replace(element, changed){
 		console.assert(React.isValidElement(element))
 		console.assert(Ract.isValidElement(changed))
@@ -112,7 +112,7 @@ export default class Query{
 					cloned:React.cloneElement(parent,{children}),
 				}
 			}
-			
+
 		},{raw:element,cloned:changed}).cloned
 		return new this.constructor(changed,null,root)
 	}
@@ -237,8 +237,14 @@ function traverse(el, f, right=false,self=true){
     if(!React.isValidElement(el))
         return
 
-    if(self && f(el))
-        return el
+    if(self){
+        let result=f(el)
+        if(result===true){
+            return true
+        }else if(result===false){
+            return false
+        }
+    }
 
     if(typeof(el.props.children)=="string")
         return
