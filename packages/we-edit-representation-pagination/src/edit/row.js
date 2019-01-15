@@ -12,6 +12,10 @@ export default class extends editable(Base,{stoppable:false}){
 
 	injectEmptyCellIntoRank(rank,parents,frame){
 		super.injectEmptyCellIntoRank(...arguments)
+		this.render2Composed(...arguments)
+	}
+
+	render2Composed(rank,parents,frame){
 		const cells=rank.attr("children")
 		//render cell into composed for positioning
 		cells.forEach((a,j)=>{

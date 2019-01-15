@@ -62,7 +62,7 @@ export default Cacheable(class extends editable(Base){
 		return !![...this.lines,...this.anchors].find(a=>this.belongsTo(a,id))
 	}
 
-	caretPositionFromPoint(x,y){
+	positionFromPoint(x,y){
         const include=({x:x0=0,y:y0=0,width,height})=>x0<=x && y0<=y && (x0+width)>=x && (y0+height)>=y
         const rendered=this.render()
         const {first:found,parents}=new ReactQuery(rendered).findFirstAndParents((node,parents)=>{
@@ -90,7 +90,7 @@ export default Cacheable(class extends editable(Base){
                 const paragraphId=found.attr("data-content")
         		const i=found.attr("pagination").i-1
                 let xy=parents.reduceRight((p,{props:{x=0,y=0}})=>(p.x+=x,p.y+=y,p),{x:found.attr("x")||0,y:found.attr("y")||0})
-        		return this.context.getComposer(paragraphId).caretPositionFromPoint(i,x-xy.x, y-xy.y)
+        		return this.context.getComposer(paragraphId).positionFromPoint(i,x-xy.x, y-xy.y)
             }
             parents.push(found.get(0))
         }

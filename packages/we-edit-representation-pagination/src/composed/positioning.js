@@ -452,7 +452,7 @@ class ReactPositioning extends Positioning{
             return {page, x:x-xy.x, y:y-xy.y}
         })();
 
-        return page.caretPositionFromPoint(x,y)
+        return page.positionFromPoint(x,y)
     }
 
     extendSelection(start, end){

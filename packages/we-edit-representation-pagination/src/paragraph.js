@@ -268,7 +268,7 @@ export default class Paragraph extends Super{
         return (
             <Group height={lineHeight} width={contentX+width} className="line" pagination={pagination} anchor={anchor}>
                 <Group x={contentX} y={contentY} width={width} height={height}>
-					<this.constructor.Story {...{children,align,width,contentWidth}}/>
+					{new this.constructor.Story({children,align,width,contentWidth}).render()}
                 </Group>
             </Group>
         )
@@ -521,7 +521,7 @@ class Story extends Component{
 		const baseline=children.reduce((h,{props:{height,descent=0}})=>Math.max(h,height-descent),0)
 		const aligned=this[align]()
 		return (
-			<Group y={baseline}>
+			<Group y={baseline} className="story">
 				{aligned}
 			</Group>
 		)

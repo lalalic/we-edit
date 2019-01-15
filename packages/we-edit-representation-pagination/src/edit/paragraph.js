@@ -10,7 +10,7 @@ import editable from "./editable"
 
 import {Text as ComposedText} from "../composed"
 
-const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
+const Editable=Cacheable(class extends editable(Base,{stoppable:true}){
 	clearComposed(){
 		this.computed.lastText=""
 		this.computed.atoms=[]
@@ -54,6 +54,215 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 		return new this.context.Measure(this.props.defaultStyle)
 	}
 
+	static End=class extends Base.End{
+		createComposed2Parent(){
+			return React.cloneElement(super.createComposed2Parent(...arguments),{
+				children:[models.Paragraph.End],
+			})
+		}
+	}
+})
+class Positionable extends Editable{
+	getPages(scoped=true){
+		const pages=super.getPages()
+		if(!scoped)
+			return pages
+		return pages.reduce((state,page,i)=>{
+			if(state.start!=-1 && state.end!=-1)
+				return state
+			let found=new ReactQuery(page.render()).findFirst(({props:{"data-content":id, "data-type":type}})=>{
+				if(id==this.props.id){
+					return true
+				}
+				if(type=="paragraph"){
+					return false
+				}
+			})
+			if(found.length){
+				if(state.start==-1){
+					state.start=i
+				}
+			}else{
+				if(state.start!=-1){
+					state.end=i
+				}
+			}
+			return state
+		},{start:-1,end:-1,
+			extract(){
+				return this.start==-1 ? [] : (pages.slice(this.start, this.end==-1 ? undefined : this.end))
+			}
+		}).extract()
+	}
+
+	lineIndexOf(id,at){
+		if(id==this.props.id){
+			return at==0 ? 0 : this.computed.composed.length-1
+		}
+		return this.computed.composed.findIndex(line=>line.children.find((atom,i)=>{
+				let node=new ReactQuery(atom).findFirst(`[data-content="${id}"]`)
+				if(node.length>0){
+					let endat=node.attr("data-endat")
+					if(endat==undefined){
+						return true
+					}else if(endat>at){
+						return true
+					}else if(endat==at){
+						if(line.children.length-1==i){//last
+							if(this.context.getComposer(node.attr('data-content')).text.length==endat){
+								return true
+							}
+						}else{
+							return true
+						}
+					}
+				}
+			})
+		)
+	}
+
+	xyInLine(id,at,i=this.lineIndexOf(id,at)){
+		const {first,parents}=new ReactQuery(this.computed.lastComposed[i])
+			.findFirstAndParents(a=>a.props.className=="story"||undefined)
+		const story=first.get(0)
+		if(id==this.props.id){
+			const {fontSize, fontFamily,height,descent}=this.getDefaultMeasure().defaultStyle
+			const xy={x:0,y:story.props.y-(height-descent),fontSize, fontFamily,height,descent}
+
+			if(at==1){
+				xy.x=new ReactQuery(story)
+					.findFirstAndParents(a=>a.props.className=="ender"||undefined)
+					.parents.reduce((X,{props:{x=0}})=>X+x,xy.x)
+			}
+			return xy
+		}else{
+			return parents.reduce((xy,{props:{x=0,y=0}})=>(xy.x+x,xy.y+y,xy),this.xyInStory(id,at,story))
+		}
+	}
+
+	xyInStory(id,at,story){
+		let endat
+		const line=story
+		const {first:node,parents}=new ReactQuery(line).findFirstAndParents(a=>{
+			if(a.props["data-content"]==id){
+				endat=a.props["data-endat"]
+				if(endat==undefined || endat>=at){
+					return true
+				}
+			}
+		})
+
+		let x=parents.reduce((X,{props:{x=0}})=>X+x,0)
+		let y=(({y=0},{height=0,descent=0})=>y-(height-descent))(line.props,node.get(0).props);
+		const composer=this.context.getComposer(id)
+		if(composer.getComposeType()=="text"){
+			if(endat>=at){
+				const text=node.attr("children")
+				const len=at-(endat-text.length)
+				const offset=composer.measure.stringWidth(text.substring(0,len))
+				x+=offset
+			}
+		}
+
+		return {x,y}
+	}
+
+	getPageLineAndParents(lineIndexOfParagraph,test,right=false){
+		if(!test){
+			test=({props:{"data-content":id,"data-type":type,pagination={}}})=>{
+				if(id==this.props.id && pagination.i==lineIndexOfParagraph+1){
+					return true
+				}
+				if(type=="paragraph"){
+					return false
+				}
+			}
+		}
+		var parents,line
+		const page=this.getPages(false)[`find${right ? "Last" : ""}`](page=>{
+			let found=new ReactQuery(page.render())[`find${right ? "Last" :"First"}AndParents`]((a,b)=>test(a,b,page))
+			if((line=found.first||found.last).length){
+				parents=found.parents
+				return true
+			}
+		})
+		return {page,line,parents}
+	}
+
+	getSiblingLine(id,at,test,backward=false){
+		const lineIndexOfParagraph=this.lineIndexOf(id,at)
+		const {x,y}=this.xyInLine(id,at,lineIndexOfParagraph)
+
+		let self
+		const {page, line, parents}=this.getPageLineAndParents(lineIndexOfParagraph,(node,parents,page)=>{
+			const {props:{"data-content":id,"data-type":type,pagination={}}}=node
+			if(id==this.props.id && pagination.i==lineIndexOfParagraph+1){
+				self=new LinePosition(page,node,parents,{x,y})
+				return false
+			}
+			if(type=="paragraph"){
+				if(self){
+					const tested=test(self, page,node,parents)
+					if(tested==undefined)
+						return true
+					return tested
+				}
+				return false
+			}
+		},backward)
+
+		if(line.length){
+			const x1=self.x
+			const x2=[...parents,line.get(0)].reduce((X,{props:{x=0}})=>X+x,0)
+			const composer=this.context.getComposer(line.attr("data-content"))
+			return composer.positionFromPoint(line.attr("pagination").i-1,x1-x2)
+		}
+	}
+
+	flatStory(story){
+		const parents=[], atoms=[]
+		new ReactQuery(story).find((el,parent)=>{
+			if(parent){
+				let i=parents.indexOf(parent)
+				if(i!=-1)
+					parents.splice(i)
+				parents.push(parent)
+			}
+			if(el.props["data-content"]){
+				atoms.push({el,parents:[...parents]})
+				return false
+			}
+		})
+		return atoms.map(({el:{props:{x=0}},parents},i)=>
+			React.cloneElement(atoms[i].el,{x:parents.reduce((X,{props:{x=0}})=>X+x,0)+x})
+		)
+	}
+
+	isSameColumnTableLine(node,parents,selfLine,selfParents){
+		const same=(type,i=selfParents.findLastIndex(a=>a.props["data-type"]==type))=>selfParents[i]==parents[i]
+		if(same("cell")){
+			return true
+		}else if(same("row")){
+			return false
+		}else{//same row
+			let cell=parents.findLast(a=>a.props["data-type"]=="cell")
+			if(cell){//still in table
+				//same column
+				let selfCell=selfParents.findLast(a=>a.props["data-type"]=="cell")
+				let selfRow=selfParents.findLast(a=>a.props["data-type"]=="row")
+				let row=parents.findLast(a=>a.props["data-type"]=="row")
+				const cellIndex=(row,cell)=>{
+					const cells=new ReactQuery(row).find(`[data-type="cell"]`).toArray()
+					return cells.findIndex(a=>a.props["data-content"]==cell.props["data-content"])
+				}
+				return cellIndex(row,cell)==cellIndex(selfRow,selfCell)
+			}else{
+				return true
+			}
+		}
+	}
+}
+class Navigatable extends Positionable{
 	nextParagraphCursorable(){
 		const nextParagraphId=this.query().forwardFirst('paragraph').attr("id")
 		if(nextParagraphId){
@@ -198,103 +407,6 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 		return super.prevCursorable(...arguments)
 	}
 
-	nextSelectable(at,locator){
-		const {node}=locator.getClientRect(this.props.id)
-		const hasText=node.querySelector(`[data-type="text"]`)
-		if(!hasText){
-			if(at===undefined)
-				return 1
-		}else if(at==-1){
-			return 1
-		}
-		return super.nextSelectable(...arguments)
-	}
-
-	prevSelectable(at, locator){
-		const {node}=locator.getClientRect(this.props.id)
-		const hasText=node.querySelector(`[data-type="text"]`)
-		if(!hasText){
-			if(at===undefined)
-				return 1
-			else if(at===1){
-				return 0
-			}
-		}else if(at===-1){
-			return 0
-		}
-		return super.prevSelectable(...arguments)
-	}
-
-	lineIndexOf(id,at){
-		if(id==this.props.id){
-			return at==0 ? 0 : this.computed.composed.length-1
-		}
-		return this.computed.composed.findIndex(line=>line.children.find((atom,i)=>{
-				let node=new ReactQuery(atom).findFirst(`[data-content="${id}"]`)
-				if(node.length>0){
-					let endat=node.attr("data-endat")
-					if(endat==undefined){
-						return true
-					}else if(endat>at){
-						return true
-					}else if(endat==at){
-						if(line.children.length-1==i){//last
-							if(this.context.getComposer(node.attr('data-content')).text.length==endat){
-								return true
-							}
-						}else{
-							return true
-						}
-					}
-				}
-			})
-		)
-	}
-
-	xyInLine(id,at,i=this.lineIndexOf(id,at)){
-		const {first,parents}=new ReactQuery(this.computed.lastComposed[i])
-			.findFirstAndParents(a=>a.type.displayName=="story"||undefined)
-		const {type:Story, props}=first.get(0)
-		const story=new Story(props)
-		if(id==this.props.id){
-			const {fontSize, fontFamily,height,descent}=this.getDefaultMeasure().defaultStyle
-			const renderedStory=story.render()
-			const xy={x:0,y:renderedStory.props.y-(height-descent),fontSize, fontFamily,height,descent}
-
-			if(at==1){
-				xy.x=new ReactQuery(renderedStory)
-					.findFirstAndParents(a=>a.props.className=="ender"||undefined)
-					.parents.reduce((X,{props:{x=0}})=>X+x,xy.x)
-			}
-			return xy
-		}else{
-			const xy=story.position(id,at,id=>this.context.getComposer(id))
-			return parents.reduce((xy,{props:{x=0,y=0}})=>(xy.x+x,xy.y+y,xy),xy)
-		}
-	}
-
-	getPageLine(lineIndexOfParagraph,test,right=false){
-		if(!test){
-			test=({props:{"data-content":id,"data-type":type,pagination={}}})=>{
-				if(id==this.props.id && pagination.i==lineIndexOfParagraph+1){
-					return true
-				}
-				if(type=="paragraph"){
-					return false
-				}
-			}
-		}
-		var parents,line
-		const page=this.getPages(false)[`find${right ? "Last" : ""}`](page=>{
-			let found=new ReactQuery(page.render())[`find${right ? "Last" :"First"}AndParents`]((a,b)=>test(a,b,page))
-			if((line=found.first||found.last).length){
-				parents=found.parents
-				return true
-			}
-		})
-		return {page,line,parents}
-	}
-
 	position(id,at){
 		if(id==this.props.id){
 			({id,at}=this[`${at==0 ? "next" :"prev"}Cursorable`]());
@@ -319,247 +431,90 @@ const Paragraph=Cacheable(class extends editable(Base,{stoppable:true}){
 	}
 
 	nextLine(id,at){
-		const lineIndexOfParagraph=this.lineIndexOf(id,at)
-		const {x,y}=this.xyInLine(id,at,lineIndexOfParagraph)
-
-		let selfPage, selfLine, selfParents, selfY=0,selfX=0, isSelfInTable=false
-		const {page, line, parents}=this.getPageLine(lineIndexOfParagraph,(node,parents,page)=>{
-			const {props:{"data-content":id,"data-type":type,pagination={}}}=node
-			if(id==this.props.id && pagination.i==lineIndexOfParagraph+1){
-				selfLine=node
-				selfParents=[...parents]
-				selfPage=page
-				isSelfInTable=selfParents.findLast(a=>a.props["data-type"]=="cell")
-				const xy=[...selfParents,selfLine].reduce((xy,{props:{x=0,y=0}})=>(xy.x+=x,xy.y+=y,xy),{x,y})
-				selfX=xy.x
-				selfY=xy.y
+		return this.getSiblingLine(id,at,(self,page,node,parents)=>{
+			const {props:{pagination={}}}=node
+			if(self.page.props.I==page.props.I &&
+				self.y>=[...parents,node].reduce((Y,{props:{y=0}})=>Y+y,0)){//make sure under current line
 				return false
 			}
-			if(type=="paragraph"){
-				if(selfLine){
-					if(selfPage.props.I==page.props.I &&
-						selfY>=[...parents,node].reduce((Y,{props:{y=0}})=>Y+y,0)){//make sure under current line
-						return false
-					}
 
-					if(isSelfInTable && selfLine.props.pagination.last && pagination.i==1){
-						return this.isSameColumnTableLine(node,parents,selfLine,selfParents)
-					}
+			if(self.isInTable && self.line.props.pagination.last && pagination.i==1){
+				return this.isSameColumnTableLine(node,parents,self.line,self.parents)
+			}
 
-					let isInTable=parents.findLast(a=>a.props["data-type"]=="cell")
-					if(isInTable && selfLine.props.pagination.last && pagination.i==1){
-						let cell=isInTable
-						let cellX=(i=>parents.slice(0,i+1).reduce((X,{props:{x=0}})=>X+x,cell.props.width))(parents.indexOf(cell))
-						if(selfX<=cellX){
-							return true
-						}
-
-						let row=parents.findLast(a=>a.props["data-type"]=="row")
-						let lastCell=new ReactQuery(row).find(`[data-type="cell"]`).toArray().pop()
-						return lastCell.props["data-content"]==cell.props["data-content"]
-					}
-
+			let isInTable=parents.findLast(a=>a.props["data-type"]=="cell")
+			if(isInTable && self.line.props.pagination.last && pagination.i==1){
+				let cell=isInTable
+				let cellX=(i=>parents.slice(0,i+1).reduce((X,{props:{x=0}})=>X+x,cell.props.width))(parents.indexOf(cell))
+				if(self.x<=cellX){
 					return true
 				}
-				return false
+
+				let row=parents.findLast(a=>a.props["data-type"]=="row")
+				let lastCell=new ReactQuery(row).find(`[data-type="cell"]`).toArray().pop()
+				return lastCell.props["data-content"]==cell.props["data-content"]
 			}
 		})
-
-		if(line.length){
-			const x1=[...selfParents,selfLine].reduce((X,{props:{x=0}})=>X+x,x)
-			const x2=[...parents,line.get(0)].reduce((X,{props:{x=0}})=>X+x,0)
-			const composer=this.context.getComposer(line.attr("data-content"))
-			return composer.caretPositionFromPoint(line.attr("pagination").i-1,x1-x2)
-		}
 	}
 
 	prevLine(id,at){
-		const lineIndexOfParagraph=this.lineIndexOf(id,at)
-		const {x,y}=this.xyInLine(id,at,lineIndexOfParagraph)
-		let selfPage, selfLine, selfParents,selfX,selfY, isSelfInTable=false
-		const {page, line, parents}=this.getPageLine(lineIndexOfParagraph,(node,parents,page)=>{
-			const {props:{"data-content":id,"data-type":type,pagination={}}}=node
-			if(id==this.props.id && pagination.i==lineIndexOfParagraph+1){
-				selfLine=node
-				selfParents=[...parents]
-				selfPage=page
-				isSelfInTable=selfParents.findLast(a=>a.props["data-type"]=="cell")
-				const xy=[...selfParents,selfLine].reduce((xy,{props:{x=0,y=0}})=>(xy.x+=x,xy.y+=y,xy),{x,y})
-				selfX=xy.x
-				selfY=xy.y
+		return this.getSiblingLine(id,at,(self,page,node,parents)=>{
+			if(self.page.props.I==page.props.I &&
+				self.y<=[...parents,node].reduce((Y,{props:{y=0}})=>Y+y,0)){//make sure above current line
 				return false
 			}
-			if(type=="paragraph"){
-				if(selfLine){
-					if(selfPage.props.I==page.props.I &&
-						selfY<=[...parents,node].reduce((Y,{props:{y=0}})=>Y+y,0)){//make sure above current line
-						return false
-					}
 
-					if(isSelfInTable && selfLine.props.pagination.i==1 && pagination.last){
-						return this.isSameColumnTableLine(node,parents,selfLine,selfParents)
-					}
+			if(self.isInTable && self.line.props.pagination.i==1 && pagination.last){
+				return this.isSameColumnTableLine(node,parents,self.line,self.parents)
+			}
 
-					let isInTable=parents.findLast(a=>a.props["data-type"]=="cell")
-					if(isInTable && selfLine.props.pagination.i==1 && pagination.last){
-						let cell=isInTable
-						let cellX=(i=>parents.slice(0,i+1).reduce((X,{props:{x=0}})=>X+x,0))(parents.indexOf(cell))
+			let isInTable=parents.findLast(a=>a.props["data-type"]=="cell")
+			if(isInTable && self.line.props.pagination.i==1 && pagination.last){
+				let cell=isInTable
+				let cellX=(i=>parents.slice(0,i+1).reduce((X,{props:{x=0}})=>X+x,0))(parents.indexOf(cell))
 
-						if(selfX>=cellX){
-							return true
-						}
-
-						let row=parents.findLast(a=>a.props["data-type"]=="row")
-						let firstCell=new ReactQuery(row).findFirst(`[data-type="cell"]`).get(0)
-						return firstCell.props["data-content"]==cell.props["data-content"]
-					}
+				if(self.x>=cellX){
 					return true
 				}
-				return false
+
+				let row=parents.findLast(a=>a.props["data-type"]=="row")
+				let firstCell=new ReactQuery(row).findFirst(`[data-type="cell"]`).get(0)
+				return firstCell.props["data-content"]==cell.props["data-content"]
 			}
 		},true)
-
-		if(line.length){
-			const x1=[...selfParents,selfLine].reduce((X,{props:{x=0}})=>X+x,x)
-			const x2=[...parents,line.get(0)].reduce((X,{props:{x=0}})=>X+x,0)
-			const composer=this.context.getComposer(line.attr("data-content"))
-			return composer.caretPositionFromPoint(line.attr("pagination").i-1,x1-x2)
-		}
 	}
 
-	isSameColumnTableLine(node,parents,selfLine,selfParents){
-		const same=(type,i=selfParents.findLastIndex(a=>a.props["data-type"]==type))=>selfParents[i]==parents[i]
-		if(same("cell")){
-			return true
-		}else if(same("row")){
-			return false
-		}else{//same row
-			let cell=parents.findLast(a=>a.props["data-type"]=="cell")
-			if(cell){//still in table
-				//same column
-				let selfCell=selfParents.findLast(a=>a.props["data-type"]=="cell")
-				let selfRow=selfParents.findLast(a=>a.props["data-type"]=="row")
-				let row=parents.findLast(a=>a.props["data-type"]=="row")
-				const cellIndex=(row,cell)=>{
-					const cells=new ReactQuery(row).find(`[data-type="cell"]`).toArray()
-					return cells.findIndex(a=>a.props["data-content"]==cell.props["data-content"])
-				}
-				return cellIndex(row,cell)==cellIndex(selfRow,selfCell)
-			}else{
-				return true
-			}
-		}
-	}
-
-	caretPositionFromPoint(lineIndex,x){
+	positionFromPoint(lineIndex,x){
 		const composedLine=this.computed.lastComposed[lineIndex]
-		const position=(({x:x0=0,children:{type:Story,props}})=>{
-			return new Story(props)
-				.caretPositionFromPoint(x-x0,id=>this.context.getComposer(id))
-		})(composedLine.props.children.props);
-		return position||this.nextCursorable()
-	}
-
-	getPages(scoped=true){
-		const pages=super.getPages()
-		if(!scoped)
-			return pages
-		return pages.reduce((state,page,i)=>{
-			if(state.start!=-1 && state.end!=-1)
-				return state
-			let found=new ReactQuery(page.render()).findFirst(({props:{"data-content":id, "data-type":type}})=>{
-				if(id==this.props.id){
-					return true
-				}
-				if(type=="paragraph"){
-					return false
-				}
-			})
-			if(found.length){
-				if(state.start==-1){
-					state.start=i
-				}
-			}else{
-				if(state.start!=-1){
-					state.end=i
-				}
-			}
-			return state
-		},{start:-1,end:-1,
-			extract(){
-				return this.start==-1 ? [] : (pages.slice(this.start, this.end==-1 ? undefined : this.end))
-			}
-		}).extract()
-	}
-
-	static End=class extends Base.End{
-		createComposed2Parent(){
-			return React.cloneElement(super.createComposed2Parent(...arguments),{children:[models.Paragraph.End]})
-		}
-	}
-	static Story=class extends Base.Story{
-		flat(content){
-			const parents=[], atoms=[]
-			new ReactQuery(content).find((el,parent)=>{
-				if(parent){
-					let i=parents.indexOf(parent)
-					if(i!=-1)
-						parents.splice(i)
-					parents.push(parent)
-				}
-				if(el.props["data-content"]){
-					atoms.push({el,parents:[...parents]})
-					return false
-				}
-			})
-			return atoms.map(({el:{props:{x=0}},parents},i)=>React.cloneElement(atoms[i].el,{x:parents.reduce((X,{props:{x=0}})=>X+x,0)+x}))
-		}
-
-		caretPositionFromPoint(x,getComposer){
-			const node=this.flat(this.render()).findLast(a=>a.props.x<=x)
-			if(node){
-				const offset=x-node.props.x
-				if(node.props.descent!=undefined){//text
-					const textNode=new ReactQuery(node).findFirst(`[data-type="text"]`).get(0)
-					const text=textNode.props.children
-					const composer=getComposer(textNode.props["data-content"])
-					const i=composer.measure.widthString(offset,text)
-					return {id:textNode.props["data-content"], at:textNode.props["data-endat"]-text.length+i}
-				}else{
-					return {id:node.props.id}
-				}
-			}
-		}
-
-		position(id,at,getComposer){
-			let endat
-			const line=this.render()
-			const {first:node,parents}=new ReactQuery(line).findFirstAndParents(a=>{
-				if(a.props["data-content"]==id){
-					endat=a.props["data-endat"]
-					if(endat==undefined || endat>=at){
-						return true
+		const position=(({x:x0=0,children:story})=>
+			(x=>{
+				const node=this.flatStory(story).findLast(a=>a.props.x<=x)
+				if(node){
+					const offset=x-node.props.x
+					if(node.props.descent!=undefined){//text
+						const textNode=new ReactQuery(node).findFirst(`[data-type="text"]`).get(0)
+						const text=textNode.props.children
+						const composer=this.context.getComposer(textNode.props["data-content"])
+						const i=composer.measure.widthString(offset,text)
+						return {id:textNode.props["data-content"], at:textNode.props["data-endat"]-text.length+i}
+					}else{
+						return {id:node.props.id}
 					}
 				}
-			})
-
-			let x=parents.reduce((X,{props:{x=0}})=>X+x,0)
-			let y=(({y=0},{height=0,descent=0})=>y-(height-descent))(line.props,node.get(0).props);
-			const composer=getComposer(id)
-			if(composer.getComposeType()=="text"){
-				if(endat>=at){
-					const text=node.attr("children")
-					const len=at-(endat-text.length)
-					const offset=composer.measure.stringWidth(text.substring(0,len))
-					x+=offset
-				}
-			}
-
-			return {x,y}
-		}
+			})(x-x0)
+		)(composedLine.props.children.props);
+		return position||this.nextCursorable()
 	}
-})
+}
 
+class LinePosition{
+	constructor(page,line,parents,{x,y}){
+		Object.assign(this,{page,line,parents})
+		this.isInTable=parents.findLast(a=>a.props["data-type"]=="cell")
+		Object.assign(this,[...parents,line].reduce((xy,{props:{x=0,y=0}})=>(xy.x+=x,xy.y+=y,xy),{x,y}))
+	}
+}
+
+const Paragraph=Navigatable
 Paragraph.propTypes.defaultStyle=PropTypes.object.isRequired
-
 export default Paragraph
