@@ -323,10 +323,6 @@ export default class Query{
 	}
 
 	find(selector){
-		if(isIdSelector(selector)){
-			return this.findFirst(...arguments)
-		}
-
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,k)=>{
 			traverse(this._content,node=>{
@@ -367,7 +363,7 @@ export default class Query{
 	}
 
 	findLast(selector, includeSelf){
-		return this.find(selector, includeSelf, true)
+		return this.find(selector, includeSelf, true).last()
 	}
 
 	filter(selector){

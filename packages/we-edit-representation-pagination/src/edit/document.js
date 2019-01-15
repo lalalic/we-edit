@@ -189,4 +189,18 @@ export default class Document extends Super{
 		Object.assign(rects[rects.length-1], {right:pageXY(p1.page).x+p1.x})
 		return rects
 	}
+
+	nextLine(id,at){
+		const lastParagraph=this.query(`#${id}`).findLast("paragraph").attr("id")
+		if(lastParagraph){
+			return this.getComposer(lastParagraph).nextLine(lastParagraph,1)
+		}
+	}
+
+	prevLine(id,at){
+		const lastParagraph=this.query(`#${id}`).findFirst("paragraph").attr("id")
+		if(lastParagraph){
+			return this.getComposer(lastParagraph).prevLine(lastParagraph,1)
+		}
+	}
 }

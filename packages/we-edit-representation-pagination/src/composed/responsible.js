@@ -114,14 +114,15 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
                         const end={id,at}
                         let {start=end}=this.selecting.current.state
 
-                        const rects=start==end ? [] : this.positioning.getRangeRects(start, end)
+                        const rects=start==end ? [] : (({start,end})=>this.positioning.getRangeRects(start, end))(this.positioning.extendSelection(start,end))
                         this.selecting.current.setState(({start})=>({start:start||end, end, rects, selecting:true}))
                     }
 				}}
                 onMouseUp={e=>{
-                    const {start,end}=this.selecting.current.state
+                    var {start,end}=this.selecting.current.state
                     if(start && end){
                         this.selecting.current.setState({start:undefined, end:undefined, rects:undefined,selecting:false})
+                        ;({start,end}=this.positioning.extendSelection(start,end));
                         this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))
                         this.selected=true
                     }
@@ -255,7 +256,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 		}
         let composer=this.getComposer(id)
         if(composer){
-            return composer[`${nextOrprev}${CursorableOrSelectable}`](id,at)||{}
+            return composer[`${nextOrprev}Cursorable`](id,at)||{}
         }
         return this.cursor
 	}

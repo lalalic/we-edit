@@ -18,7 +18,7 @@ export default class SelectionShape extends Component{
 				shapeProps.x=rects[0].left
 				shapeProps.y=rects[0].top
 			}
-			
+
 			return React.cloneElement(shape,shapeProps)
 		}else{
 			return (
@@ -32,6 +32,7 @@ export default class SelectionShape extends Component{
 	static getDerivedStateFromProps({rects},{selecting}){
 		if(!selecting)
 			return {rects}
+		return null
 	}
 
 	onShrink({buttons, clientX:left, clientY: top}){

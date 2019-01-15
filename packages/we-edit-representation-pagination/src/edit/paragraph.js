@@ -413,7 +413,7 @@ class Navigatable extends Positionable{
 		}
 		const lineIndexOfParagraph=this.lineIndexOf(id,at)
 		if(lineIndexOfParagraph>=0){
-			const {page, line, parents}=this.getPageLine(lineIndexOfParagraph)
+			const {page, line, parents}=this.getPageLineAndParents(lineIndexOfParagraph)
 			if(page){
 				const xyInLine=this.xyInLine(id,at,lineIndexOfParagraph)
 				return {
@@ -432,13 +432,13 @@ class Navigatable extends Positionable{
 
 	nextLine(id,at){
 		return this.getSiblingLine(id,at,(self,page,node,parents)=>{
-			const {props:{pagination={}}}=node
+			const {pagination={}}=node.props
 			if(self.page.props.I==page.props.I &&
 				self.y>=[...parents,node].reduce((Y,{props:{y=0}})=>Y+y,0)){//make sure under current line
 				return false
 			}
 
-			if(self.isInTable && self.line.props.pagination.last && pagination.i==1){
+			if(self.isInTable && self.line.props.pagination.last /*&& pagination.i==1 cross page can't meet*/){
 				return this.isSameColumnTableLine(node,parents,self.line,self.parents)
 			}
 
@@ -459,6 +459,7 @@ class Navigatable extends Positionable{
 
 	prevLine(id,at){
 		return this.getSiblingLine(id,at,(self,page,node,parents)=>{
+			const {pagination={}}=node.props
 			if(self.page.props.I==page.props.I &&
 				self.y<=[...parents,node].reduce((Y,{props:{y=0}})=>Y+y,0)){//make sure above current line
 				return false
@@ -491,14 +492,15 @@ class Navigatable extends Positionable{
 				const node=this.flatStory(story).findLast(a=>a.props.x<=x)
 				if(node){
 					const offset=x-node.props.x
-					if(node.props.descent!=undefined){//text
-						const textNode=new ReactQuery(node).findFirst(`[data-type="text"]`).get(0)
+					const $node=new ReactQuery(node)
+					const textNode=$node.findFirst(`[data-type="text"]`).get(0)
+					if(textNode){//text
 						const text=textNode.props.children
 						const composer=this.context.getComposer(textNode.props["data-content"])
 						const i=composer.measure.widthString(offset,text)
 						return {id:textNode.props["data-content"], at:textNode.props["data-endat"]-text.length+i}
 					}else{
-						return {id:node.props.id}
+						return {id:$node.findFirst(`[data-content]`).attr("data-content")}
 					}
 				}
 			})(x-x0)

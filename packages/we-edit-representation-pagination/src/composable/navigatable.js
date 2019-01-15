@@ -36,14 +36,6 @@ export default function Navigatable(A){
 			return this.navigatable('prevCursorable',...arguments)
         }
 
-		nextSeletable(){
-			return this.navigatable('nextSeletable',...arguments)
-        }
-
-        prevSelectable(){
-			return this.navigatable('prevSelectable',...arguments)
-        }
-
 		nextLine(){
 			return this.navigatable('nextLine',...arguments)
 		}
