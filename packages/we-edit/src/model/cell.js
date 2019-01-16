@@ -29,7 +29,7 @@ export default class Cell extends Component{
 		}),
 		spacing: PropTypes.number,
 		background: PropTypes.string,
-		vertAlign: PropTypes.oneOf(["top","middle","center","bottom"])		
+		vertAlign: PropTypes.oneOf(["top","middle","center","bottom"])
 	}
 
 	static defaultProps={

@@ -29,9 +29,9 @@ export default class Media extends Component{
 							let {width,height,margin}=page.props
 
 							let newPage=(
-								<Group key={i} {...{y, x:(canvasWidth-width)/2}}>
+								<Group key={i} {...{y, x:(canvasWidth-width)/2}} className="page">
 									{paper!==false && <Paper {...{width,height,margin,fill:"white", precision}}/>}
-									{smart ? <SmartShow {...{onPageHide,onPageShow,scrollableAncestor,children:page}}/> : page}
+									{smart ? <SmartShow {...{onPageHide,onPageShow,scrollableAncestor,children:page,i,width,height,margin}}/> : page}
 								</Group>
 							)
 							y+=(height+pgGap)
@@ -50,14 +50,12 @@ class SmartShow extends Component{
 	state={display:false}
 	render(){
 		const {display}=this.state
-		const {children, onPageShow, onPageHide, scrollableAncestor}=this.props
+		const {children,i,width,height}=this.props
 		return (
-			<Waypoint fireOnRapidScroll={false}   scrollableAncestor={scrollableAncestor}
-				onEnter={e=>this.setState({display:true},onPageShow)}
-				onLeave={e=>this.setState({display:false},onPageHide)}>
-				<g>
-				{display ? children : <g style={{visibility:"hidden"}}>{children}</g>}
-				</g>
+			<Waypoint fireOnRapidScroll={false}
+				onEnter={e=>{this.setState({display:true})}}
+				onLeave={e=>this.setState({display:false})}>
+				<g style={{visibility:display?undefined:"none"}}>{children}</g>
 			</Waypoint>
 		)
 	}
@@ -69,24 +67,15 @@ const Paper=({width,height, margin:{left,right,top,bottom},precision,...props})=
 		   <path d={`M0 0 L${width} 0 L${width} ${height} L0 ${height}Z`}
 				   fill="none"
 				   strokeWidth={1} stroke="lightgray"/>
-			{left&&right&&top&&bottom&&
-				<Margin margin={{left,top,right:width-right,bottom:height-bottom}} precision={precision}/>
-			}
+			<Margin margin={{left,top,right:width-right,bottom:height-bottom}} precision={precision}/>
        </g>
 )
 
 const Margin=({precision,margin:{left,top, right,bottom},marginWidth=20*precision, strokeWidth=1*precision})=>(
-       <Fragment>
-               <line x1={left} y1={top} x2={left-marginWidth} y2={top} strokeWidth={strokeWidth} stroke="lightgray"/>
-               <line x1={left} y1={top} x2={left} y2={top-marginWidth} strokeWidth={strokeWidth} stroke="lightgray"/>
-
-               <line x1={left} y1={bottom} x2={left-marginWidth} y2={bottom} strokeWidth={strokeWidth} stroke="lightgray"/>
-               <line x1={left} y1={bottom} x2={left} y2={bottom+marginWidth} strokeWidth={strokeWidth} stroke="lightgray"/>
-
-               <line x1={right} y1={bottom} x2={right+marginWidth} y2={bottom} strokeWidth={strokeWidth} stroke="lightgray"/>
-               <line x1={right} y1={bottom} x2={right} y2={bottom+marginWidth} strokeWidth={strokeWidth} stroke="lightgray"/>
-
-               <line x1={right} y1={top} x2={right+marginWidth} y2={top} strokeWidth={strokeWidth} stroke="lightgray"/>
-               <line x1={right} y1={top} x2={right} y2={top-marginWidth} strokeWidth={strokeWidth} stroke="lightgray"/>
-       </Fragment>
+	<path strokeWidth={strokeWidth} stroke="lightgray" fill="none" d={`
+		M${left-marginWidth} ${top} h${marginWidth} v${-marginWidth}
+		M${left-marginWidth} ${bottom} h${marginWidth} v${marginWidth}
+		M${right+marginWidth} ${bottom} h${-marginWidth} v${marginWidth}
+		M${right+marginWidth} ${top} h${-marginWidth} v${-marginWidth}
+	`}/>
 )

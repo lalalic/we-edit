@@ -180,7 +180,7 @@ export default class Document extends Super{
 			lineRectsInPage(pages[p0.page], p0.line, p1.line+1)
 		}else{
 			lineRectsInPage(pages[p0.page], p0.line)
-			pages.slice(p0.page+1, p1.page).forEach(page=>lineRects(page))
+			pages.slice(p0.page+1, p1.page).forEach(page=>lineRectsInPage(page))
 			lineRectsInPage(pages[p1.page],0,p1.line+1)
 		}
 

@@ -276,12 +276,11 @@ export default class Paragraph extends Super{
 }
 
 class Line extends Component{
-	constructor({width,maxWidth,height,wrappees=[],frame}){
+	constructor({width,maxWidth,height,wrappees=[]}){
 		super(...arguments)
 		this.maxWidth=maxWidth
 		this.content=[]
 		this.wrappees=wrappees
-		this.frame=frame
 		Object.defineProperties(this,{
 			height:{
 				enumerable:true,
@@ -376,7 +375,7 @@ class Line extends Component{
 				new ReactQuery(atom).findFirst('[data-type="anchor"]').get(0),
 				{children:null,width:0,height:0, atom}
 			))
-			if(!this.frame.isAnchored(anchor.props.id)){
+			if(!this.context.parent.context.isAnchored(anchor.props.id)){
 				this.anchor=atom
 				return false
 			}
@@ -397,7 +396,7 @@ class Line extends Component{
 					this.content.push(atom)
 					let newHeight=this.lineHeight()
 					if(height!=newHeight){
-						const newBlocks=this.frame.exclusive(newHeight)
+						const newBlocks=this.context.parent.context.exclusive(newHeight)
 						if(this.shouldRecompose(newBlocks)){
 							const flowCount=this.content.reduce((count,a)=>a.props.x==undefined ? count+1 : count,0)
 							at=at-flowCount

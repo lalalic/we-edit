@@ -53,14 +53,6 @@ const Editable=Cacheable(class extends editable(Base,{stoppable:true}){
 	getDefaultMeasure(){
 		return new this.context.Measure(this.props.defaultStyle)
 	}
-
-	static End=class extends Base.End{
-		createComposed2Parent(){
-			return React.cloneElement(super.createComposed2Parent(...arguments),{
-				children:[models.Paragraph.End],
-			})
-		}
-	}
 })
 class Positionable extends Editable{
 	getPages(scoped=true){

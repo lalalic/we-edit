@@ -154,7 +154,7 @@ export default ({Template,Frame, Container})=>{
 
 		render(){
 			const {props:{i:key,width,height,margin}}=this
-			return React.cloneElement(super.createComposed2Parent(),{key,width,height,margin,className:"page frame"})
+			return React.cloneElement(super.createComposed2Parent(),{key,width,height,margin})
 		}
 
 		removeFrom(lineIndex){

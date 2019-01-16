@@ -24,8 +24,8 @@ export default class extends Super{
                 {...measure.defaultStyle}
                 width={0}
                 minWidth={0}
-                children={[" "]}
-				className="ender"
+                children={[models.Paragraph.End]}
+                className="ender"
                 />
         )
     }

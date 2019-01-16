@@ -9,6 +9,11 @@ const {Template:Base}=models
 
 const Super=HasParentAndChild(Base)
 export default class Template extends Super{
+    static childContextTypes={
+        ...Super.childContextTypes,
+        isAnchored:PropTypes.func,
+        exclusive: PropTypes.func,
+    }
     constructor(){
         super(...arguments)
         this.computed.named={}
@@ -37,6 +42,20 @@ export default class Template extends Super{
 	get totals(){
 		return this.getDocument().computed.composed.length
 	}
+
+    getChildContext(){
+        const me=this
+        function isAnchored(){
+            return me.current.isAnchored(...arguments)
+        }
+        function exclusive(){
+            return me.current.exclusive(...arguments)
+        }
+        return Object.assign(super.getChildContext(),{
+            isAnchored,
+            exclusive,
+        })
+    }
 
     create(){
         const frame=this.props.create(

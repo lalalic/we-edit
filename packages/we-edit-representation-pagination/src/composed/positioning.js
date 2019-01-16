@@ -91,7 +91,7 @@ class Positioning{
         const pages=this.canvas.querySelectorAll(".page")
         const page=pages[i]
         if(page){
-            const {left,top}=page.closest("[transform]").getBoundingClientRect()
+            const {left,top}=page.getBoundingClientRect()
             return this.asCanvasPoint({left,top})
         }
         return {x:0,y:0}

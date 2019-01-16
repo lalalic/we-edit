@@ -34,5 +34,10 @@ export default class Paragraph extends Component{
 		orphan:true
 	}
 
+	static contextTypes={
+		isAnchored: PropTypes.func,
+		exclusive: PropTypes.func,
+	}
+
 	static End=String.fromCharCode(0xb6)
 }

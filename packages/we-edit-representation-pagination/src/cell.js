@@ -12,6 +12,13 @@ export default class extends Super{
 		...Super.contextTypes,
 		ModelTypes: PropTypes.object,
 	}
+
+	static childContextTypes={
+        ...Super.childContextTypes,
+        isAnchored:PropTypes.func,
+        exclusive: PropTypes.func,
+    }
+
 	constructor(props,{ModelTypes:{Frame}}){
 		super(...arguments)
 		if(!this.constructor.CellFrame){
@@ -51,6 +58,20 @@ export default class extends Super{
 				+margin.top
 				+margin.bottom
 	}
+
+	getChildContext(){
+		const me=this
+        function isAnchored(){
+            return me.current.isAnchored(...arguments)
+        }
+        function exclusive(){
+            return me.current.exclusive(...arguments)
+        }
+        return Object.assign(super.getChildContext(),{
+            isAnchored,
+            exclusive,
+        })
+    }
 
 	nextAvailableSpace(){
         let space=this.current.nextAvailableSpace(...arguments)
