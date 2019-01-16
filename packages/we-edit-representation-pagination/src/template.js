@@ -9,12 +9,6 @@ const {Template:Base}=models
 
 const Super=Fissionable(HasParentAndChild(Base))
 export default class Template extends Super{
-    static childContextTypes={
-        ...Super.childContextTypes,
-        isAnchored:PropTypes.func,
-        exclusive: PropTypes.func,
-    }
- 
     getDocument=memoize(()=>{
 		var current=this.context.parent
 		while(current){
@@ -29,21 +23,14 @@ export default class Template extends Super{
 		return this.getDocument().computed.composed.length
 	}
 
-    getChildContext(){
-        const me=this
-        function isAnchored(){
-            return me.current.isAnchored(...arguments)
-        }
-        function exclusive(){
-            return me.current.exclusive(...arguments)
-        }
-        return Object.assign(super.getChildContext(),{
-            isAnchored,
-            exclusive,
-        })
-    }
 
     create(){
-        return super.create({I:this.totals})
+        const page=super.create({I:this.totals})
+		this.context.parent.appendComposed(this.createComposed2Parent(page))
+		return page
     }
+	
+	createComposed2Parent(page){
+		return page
+	}
 }

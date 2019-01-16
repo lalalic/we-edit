@@ -3,10 +3,38 @@ import PropTypes from "prop-types"
 import Recomposable from "./recomposable"
 
 export default (A)=>class extends A{
+	static contextTypes={
+		...A.contextTypes,
+		ModelTypes: PropTypes.object,
+	}
+	static childContextTypes={
+        ...A.childContextTypes,
+        isAnchored:PropTypes.func,
+        exclusive: PropTypes.func,
+    }
+	
 	constructor(){
 		super(...arguments)
 		this.computed.named={}
 	}
+	
+	get Frame(){
+		return this.context.ModelTypes.Frame
+	}
+	
+    getChildContext(){
+        const me=this
+        function isAnchored(){
+            return me.current.isAnchored(...arguments)
+        }
+        function exclusive(){
+            return me.current.exclusive(...arguments)
+        }
+        return Object.assign(super.getChildContext(),{
+            isAnchored,
+            exclusive,
+        })
+    }	
 
 	named(name){
 		return this.computed.named[name]
@@ -18,21 +46,20 @@ export default (A)=>class extends A{
 		return this.computed.composed[this.computed.composed.length-1]
 	}
 	
-    create(props={},context={}){
+    create(props={},context={},requiredSpace){
         const a=this.props.create(
             {...props,id:this.props.id, i:this.computed.composed.length, named:this.named.bind(this)},
             {...context,parent:this,getComposer:id=>this.context.getComposer(id)}
         )
         this.computed.composed.push(a)
-        this.context.parent.appendComposed(this.createComposed2Parent(a))
         return a
     }	
 	
 
-    nextAvailableSpace(){
+    nextAvailableSpace(required){
         let space=this.current.nextAvailableSpace(...arguments)
         if(!space){
-            this.create()
+            this.create(undefined,undefined,required)
             return this.nextAvailableSpace(...arguments)
         }
         return space
@@ -51,9 +78,5 @@ export default (A)=>class extends A{
                 return appended
             }
         }
-    }	
-	
-	createComposed2Parent(frame){
-        return frame
     }
 }

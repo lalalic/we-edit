@@ -2,27 +2,22 @@ import React,{PureComponent as Component} from "react"
 import PropTypes from "prop-types"
 import {Group} from "./composed"
 
-import {HasParentAndChild} from "./composable"
+import {HasParentAndChild, Fissionable} from "./composable"
 import {models} from "we-edit"
-const {Cell:Base}=models
-const Super=HasParentAndChild(Base)
 
-export default class extends Super{
-	static contextTypes={
-		...Super.contextTypes,
-		ModelTypes: PropTypes.object,
+const Super=Fissionable(HasParentAndChild(models.Cell))
+export default class Cell extends Super{
+	static defaultProps={
+		...Super.defaultProps,
+		create(){
+			return new Cell.Frame(...arguments)
+		}
 	}
 
-	static childContextTypes={
-        ...Super.childContextTypes,
-        isAnchored:PropTypes.func,
-        exclusive: PropTypes.func,
-    }
-
-	constructor(props,{ModelTypes:{Frame}}){
+	constructor(){
 		super(...arguments)
-		if(!this.constructor.CellFrame){
-			this.constructor.CellFrame=class extends Frame{
+		if(!Cell.Frame){
+			Cell.Frame=class extends this.Frame{
 				resetHeight(height){
 					this.props.height=height
 					this.columns[0].height=height
@@ -43,12 +38,6 @@ export default class extends Super{
 			}
 		}
 	}
-	get current(){
-		if(this.computed.composed.length==0){
-			return this.create()
-		}
-		return this.computed.composed[this.computed.composed.length-1]
-	}
 
 	get nonContentHeight(){
 		const {margin={right:0,left:0,top:0,bottom:0}, border, spacing}=this.props
@@ -59,30 +48,7 @@ export default class extends Super{
 				+margin.bottom
 	}
 
-	getChildContext(){
-		const me=this
-        function isAnchored(){
-            return me.current.isAnchored(...arguments)
-        }
-        function exclusive(){
-            return me.current.exclusive(...arguments)
-        }
-        return Object.assign(super.getChildContext(),{
-            isAnchored,
-            exclusive,
-        })
-    }
-
-	nextAvailableSpace(){
-        let space=this.current.nextAvailableSpace(...arguments)
-        if(!space){
-            this.create(...arguments)
-            return this.nextAvailableSpace(...arguments)
-        }
-        return space
-    }
-
-	create(required={}){
+	create(props,context,required={}){
 		if(this.computed.composed.length>0){
 			if(this.current.isEmpty()){
 				this.computed.composed.pop()
@@ -92,22 +58,10 @@ export default class extends Super{
 		}
 		const {height,width}=this.context.parent.nextAvailableSpace({...required,id:this.props.id})
 		const {margin={right:0,left:0,top:0,bottom:0}}=this.props
-		const frame=new this.constructor.CellFrame({
+		return super.create({
 			width:width-margin.right-margin.left,
 			height: height-this.nonContentHeight
-		},{parent:this,getComposer:id=>this.context.getComposer(id)})
-		this.computed.composed.push(frame)
-		return frame
-	}
-
-	appendComposed(line){
-		const appended=this.current.appendComposed(...arguments)
-		if(appended===false){
-			this.create({height:line.props.height})
-			return 1
-		}else if(Number.isInteger(appended)){
-			return appended
-		}
+		})
 	}
 
 	onAllChildrenComposed(){
@@ -121,7 +75,7 @@ export default class extends Super{
 		const height=contentHeight+this.nonContentHeight
 		const width=this.current.props.width+margin.left+margin.right
 		return (
-			<Cell {...{
+			<ComposedCell {...{
 				border, margin, spacing, background,vertAlign,width,
 				nonContentHeight:this.nonContentHeight,
 				frame:this.current
@@ -134,7 +88,7 @@ export default class extends Super{
 const Spacing=Group
 const Margin=Group
 
-class Cell extends Component{
+class ComposedCell extends Component{
 	static displayName="cell"
 	render(){
 		var {border, margin, spacing,vertAlign,width,frame,
