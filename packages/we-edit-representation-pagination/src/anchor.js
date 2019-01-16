@@ -200,7 +200,7 @@ class rightMargin extends page{
 class paragraph extends column{
     constructor(){
         super(...arguments)
-        this.y0=this.frame.paragraphY(new ReactQuery(this.frame.lastLine).findFirst('[data-type="paragraph"]').attr("data-content"))
+        this.y0+=this.frame.paragraphY(new ReactQuery(this.frame.lastLine).findFirst('[data-type="paragraph"]').attr("data-content"))
     }
 }
 
@@ -220,10 +220,10 @@ class bottomMargin extends page{
     }
 }
 
-class line extends paragraph{
+class line extends column{
     constructor(){
         super(...arguments)
-        this.y0=this.frame.currentY
+        this.y0+=this.frame.currentY
     }
 }
 

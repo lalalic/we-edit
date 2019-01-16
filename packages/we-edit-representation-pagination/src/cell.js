@@ -185,10 +185,12 @@ class Border extends Component{
 		height-=spacing
 		return (
 			<Group {...others}>
-				{top.sz && ((_5)=><path strokeWidth={top.sz} stroke={top.color} d={`M${_5} ${_5} L${width-_5} ${_5}`}/>)(top.sz/2)}
-				{bottom.sz && ((_5)=><path strokeWidth={bottom.sz} stroke={bottom.color} d={`M${_5} ${height-_5} L${width-_5} ${height-_5}`}/>)(bottom.sz/2)}
-				{right.sz && ((_5)=><path strokeWidth={right.sz} stroke={right.color} d={`M${width-_5} ${_5} L${width-_5} ${height-_5}`}/>)(right.sz/2)}
-				{left.sz && ((_5)=><path strokeWidth={left.sz} stroke={left.color} d={`M${_5} ${_5} L${_5} ${height-_5}`}/>)(left.sz/2)}
+				<Group className="border">
+					{top.sz && ((_5)=><path strokeWidth={top.sz} stroke={top.color} d={`M${_5} ${_5} L${width-_5} ${_5}`}/>)(top.sz/2)}
+					{bottom.sz && ((_5)=><path strokeWidth={bottom.sz} stroke={bottom.color} d={`M${_5} ${height-_5} L${width-_5} ${height-_5}`}/>)(bottom.sz/2)}
+					{right.sz && ((_5)=><path strokeWidth={right.sz} stroke={right.color} d={`M${width-_5} ${_5} L${width-_5} ${height-_5}`}/>)(right.sz/2)}
+					{left.sz && ((_5)=><path strokeWidth={left.sz} stroke={left.color} d={`M${_5} ${_5} L${_5} ${height-_5}`}/>)(left.sz/2)}
+				</Group>
 				<Group x={left.sz} y={top.sz}>
 					{children}
 				</Group>

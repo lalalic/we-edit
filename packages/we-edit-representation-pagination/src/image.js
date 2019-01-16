@@ -39,6 +39,7 @@ export default class extends Super{
 		}
 
 		const {width,height}=element.props
+		//@TODO:what if it's anchored, y is not neccesary
 		return <Group {...{width,height,y:-height}}>{element}</Group>
 	}
 
