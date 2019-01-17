@@ -2,7 +2,7 @@ import React, {Fragment,Children} from "react"
 import PropTypes from "prop-types"
 
 import {Cacheable} from "../composable"
-import Base from "../template"
+import Base from "../section"
 
 import editable from "./editable"
 

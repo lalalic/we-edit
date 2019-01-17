@@ -40,9 +40,8 @@ export default class Cell extends Super{
 	}
 
 	get nonContentHeight(){
-		const {margin={right:0,left:0,top:0,bottom:0}, border, spacing}=this.props
-		return spacing
-				+border.top.sz
+		const {margin={right:0,left:0,top:0,bottom:0}, border}=this.props
+		return 	border.top.sz
 				+border.bottom.sz
 				+margin.top
 				+margin.bottom
@@ -70,13 +69,13 @@ export default class Cell extends Super{
 	}
 
 	createComposed2Parent(){
-		const {border, margin, spacing, background,vertAlign}=this.props
+		const {border, margin, background,vertAlign}=this.props
 		const contentHeight=this.current.currentY
 		const height=contentHeight+this.nonContentHeight
 		const width=this.current.props.width+margin.left+margin.right
 		return (
 			<ComposedCell {...{
-				border, margin, spacing, background,vertAlign,width,
+				border, margin, background,vertAlign,width,
 				nonContentHeight:this.nonContentHeight,
 				frame:this.current
 			}}/>
@@ -91,7 +90,7 @@ const Margin=Group
 class ComposedCell extends Component{
 	static displayName="cell"
 	render(){
-		var {border, margin, spacing,vertAlign,width,frame,
+		var {border, margin, vertAlign,width,frame,
 			height,
 			nonContentHeight,
 			...others}=this.props
@@ -113,9 +112,8 @@ class ComposedCell extends Component{
 		})();
 		return (
 			<Group {...others} height={height} width={width}>
-				<Spacing x={spacing/2} y={spacing/2}>
-					{new Border({//must render to composed for positioning later
-							border,spacing,width,height,
+				{new Border({//must render to composed for positioning later
+							border,width,height,
 							children:(
 								<Margin x={margin.left} y={margin.top}>
 									<Group y={alignY}>
@@ -125,7 +123,6 @@ class ComposedCell extends Component{
 							)
 						}).render()
 					}
-				</Spacing>
 			</Group>
 		)
 	}
@@ -134,18 +131,16 @@ class ComposedCell extends Component{
 
 class Border extends Component{
 	render(){
-		var {width,height,spacing,border:{left,right,bottom,top}, children, ...others}=this.props
-		width-=spacing
-		height-=spacing
+		var {width,height,border:{left,right,bottom,top}, children, ...others}=this.props
 		return (
 			<Group {...others}>
 				<Group className="border">
-					{top.sz && ((_5)=><path strokeWidth={top.sz} stroke={top.color} d={`M${_5} ${_5} L${width-_5} ${_5}`}/>)(top.sz/2)}
-					{bottom.sz && ((_5)=><path strokeWidth={bottom.sz} stroke={bottom.color} d={`M${_5} ${height-_5} L${width-_5} ${height-_5}`}/>)(bottom.sz/2)}
-					{right.sz && ((_5)=><path strokeWidth={right.sz} stroke={right.color} d={`M${width-_5} ${_5} L${width-_5} ${height-_5}`}/>)(right.sz/2)}
-					{left.sz && ((_5)=><path strokeWidth={left.sz} stroke={left.color} d={`M${_5} ${_5} L${_5} ${height-_5}`}/>)(left.sz/2)}
+					{top.sz && <path strokeWidth={top.sz} stroke={top.color} d={`M0 0 h${width}`}/>}
+					{bottom.sz && <path strokeWidth={bottom.sz} stroke={bottom.color} d={`M0 ${height} h${width}`}/>}
+					{right.sz && <path strokeWidth={right.sz} stroke={right.color} d={`M${width} 0 v${height}`}/>}
+					{left.sz && <path strokeWidth={left.sz} stroke={left.color} d={`M0 0 v${height}`}/>}
 				</Group>
-				<Group x={left.sz} y={top.sz}>
+				<Group x={left.sz/2} y={top.sz/2}>
 					{children}
 				</Group>
 			</Group>

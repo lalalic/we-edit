@@ -27,7 +27,6 @@ export default class Cell extends Component{
 			top: PropTypes.number,
 			bottom: PropTypes.number
 		}),
-		spacing: PropTypes.number,
 		background: PropTypes.string,
 		vertAlign: PropTypes.oneOf(["top","middle","center","bottom"])
 	}
@@ -45,7 +44,6 @@ export default class Cell extends Component{
 			top:0,
 			bottom:0
 		},
-		spacing:0,
 		background:"transparent"
 	}
 }

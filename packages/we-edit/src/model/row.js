@@ -10,14 +10,14 @@ export default class Row extends Component{
 		headers: PropTypes.number,
 		footers: PropTypes.number,
 		keepLines: PropTypes.bool,
+		cols: PropTypes.arrayOf(PropTypes.shape({
+			x: PropTypes.number,
+			width:PropTypes.number
+		})).isRequired
 	}
 
 	static defaultProps={
 		headers:0,
 		footers:0,
-	}
-
-	static contextTypes={
-		cols: PropTypes.arrayOf(PropTypes.number)
 	}
 }

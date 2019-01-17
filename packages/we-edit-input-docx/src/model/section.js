@@ -6,7 +6,7 @@ import {ReactQuery, render} from  "we-edit"
 
 import get from "lodash.get"
 
-export default ({Template,Frame, Container})=>{
+export default ({Section,Frame, Container})=>{
 	class Page extends Frame{
 		defineProperties(){
 			this.section=this.context.parent
@@ -241,7 +241,7 @@ export default ({Template,Frame, Container})=>{
 			}
 
 			return(
-				<Template create={create} {...props}>
+				<Section create={create} {...props}>
 					{React.Children.toArray(children).map(a=>{
 						if(a.props.named){//header or footer
 							return <Frame {...a.props} width={width-left-right} key={a.props.id}/>
@@ -249,7 +249,7 @@ export default ({Template,Frame, Container})=>{
 							return a
 						}
 					})}
-				</Template>
+				</Section>
 			)
 		}
 	}

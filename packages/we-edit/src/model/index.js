@@ -1,7 +1,7 @@
 import Unknown from "./component"
 import Container from "./container"
 import Document from "./document"
-import Template from "./template"
+import Section from "./section"
 import Paragraph from "./paragraph"
 import Text from "./text"
 import Image from "./image"
@@ -16,7 +16,7 @@ export default {
 	Unknown,
 	Container,
 	Document,
-	Template,
+	Section,
 	Paragraph,
 	Text,
 	Image,

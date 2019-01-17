@@ -16,7 +16,7 @@ export default ({Table,Container})=>class extends Component{
 
 	static childContextTypes={
 		style: PropTypes.object,
-		setTableIndent: PropTypes.func,
+		cols: PropTypes.arrayOf(PropTypes.number)
 	}
 
 	childStyle=memoize((direct,context)=>{
@@ -25,7 +25,8 @@ export default ({Table,Container})=>class extends Component{
 
 	getChildContext(){
 		return {
-			style: this.childStyle(this.props.style, this.context.style)
+			style: this.childStyle(this.props.style, this.context.style),
+			cols:this.props.cols
 		}
 	}
 
@@ -93,6 +94,6 @@ export default ({Table,Container})=>class extends Component{
 		if(undefined!=condition){
 			children=this.getConditionalChildren(condition,children)
 		}
-		return <Table {...{...props,...style,indent,width, cols,children}}/>
+		return <Table {...{...props,...style,indent,width, children}}/>
 	}
 }

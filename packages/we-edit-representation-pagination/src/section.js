@@ -5,10 +5,9 @@ import {HasParentAndChild,Fissionable} from "./composable"
 import Frame from "./frame"
 import {models} from "we-edit"
 import memoize from "memoize-one"
-const {Template:Base}=models
 
-const Super=Fissionable(HasParentAndChild(Base))
-export default class Template extends Super{
+const Super=Fissionable(HasParentAndChild(models.Section))
+export default class extends Super{
     getDocument=memoize(()=>{
 		var current=this.context.parent
 		while(current){
@@ -29,7 +28,7 @@ export default class Template extends Super{
 		this.context.parent.appendComposed(this.createComposed2Parent(page))
 		return page
     }
-	
+
 	createComposed2Parent(page){
 		return page
 	}

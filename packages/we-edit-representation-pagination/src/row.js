@@ -76,12 +76,12 @@ export default class extends Super{
 
 	nextAvailableSpace({height:minHeight=0,id:requiredId}){
 		var height,width
-		const {cols}=this.context
+		const {cols}=this.props
 		if(!this.currentColumn[0]){
 			const space=super.nextAvailableSpace(...arguments)
 			this.computed.spaces=[space]
 			height=space.height
-			width=cols[0]
+			width=cols[0].width
 		}else if(this.cellId(this.currentColumn[0])==requiredId){
 			if(this.ranks<this.currentColumn.length+1){
 				if(1==this.context.parent.appendComposed(this.createComposed2Parent())){
@@ -98,14 +98,14 @@ export default class extends Super{
 					height=this.computed.spaces[this.currentColumn.length].height
 				}
 			}
-			width=cols[this.computed.composed.length-1]
+			width=cols[this.computed.composed.length-1].width
 		}else{//next column
 			height=this.computed.spaces[0].height
 			if(height<minHeight){
 				this.computed.spaces[0]=super.nextAvailableSpace(...arguments)
 				height=this.computed.spaces[0].height
 			}
-			width=cols[this.computed.composed.length]
+			width=cols[this.computed.composed.length].width
 		}
 		if(this.props.keepLines){
 			height=Number.MAX_SAFE_INTEGER
@@ -116,7 +116,7 @@ export default class extends Super{
 	injectEmptyCellIntoRank(rank,parents){
 		const height=rank.attr("height")
 		const cells=rank.attr("children")
-		cells.splice(cells.length,0,...new Array(this.context.cols.length-cells.length).fill(null))
+		cells.splice(cells.length,0,...new Array(this.props.cols.length-cells.length).fill(null))
 		cells.forEach((a,j)=>{
 			cells[j]=a||React.cloneElement(this.computed.composed[j][0],{height,frame:undefined})
 		})
@@ -159,11 +159,10 @@ export default class extends Super{
 	}
 
 	createComposed2Parent(){
-		const {context:{cols}, computed:{composed:columns}}=this
+		const {props:{cols,width}, computed:{composed:columns}}=this
 		const i=this.currentColumn.length-1
 		const cells=columns.map(column=>column[i])
 		const height=this.getHeight(cells)
-		const width=cols.reduce((w,a)=>w+a,0)
 		return (
 			<Rank children={cells} cols={cols} width={width} height={height}/>
 		)
@@ -184,14 +183,11 @@ class Rank extends Component{
 		return (
 				<Group height={height} {...props} >
 				{
-					cells.map((a,i)=>{
-						let props={
-							x:cols.slice(0,i).reduce((w,a)=>w+a,0),
-							height,
-							key:i,
-						}
-						return  React.cloneElement(a,props)
-					})
+					cells.map((a,i)=>React.cloneElement(a,{
+						...cols[i],
+						height,
+						key:i,
+					}))
 				}
 				</Group>
 			)

@@ -3,8 +3,8 @@ import PropTypes from "prop-types"
 
 import Component from "./component"
 
-export default class Template extends Component{
-	static displayName="template"
+export default class extends Component{
+	static displayName="section"
 	static propTypes={
         create: PropTypes.func.isRequired
     }
