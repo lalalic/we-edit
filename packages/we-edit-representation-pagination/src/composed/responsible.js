@@ -307,7 +307,10 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 			this.dispatch(ACTION.Cursor.AT(id,at))
 		}else{
 			const {start,end,cursorAt}=this.selection
+            const extended=this.positioning.extendSelection(start, {id,at})
 
+            ;(({start,end})=>this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at)))(extended);
+return 
 			if(start.id==end.id && start.at==end.at){
 				this.dispatch(ACTION.Selection.START_AT(id,at))
 			}else{

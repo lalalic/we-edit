@@ -460,7 +460,7 @@ class ReactPositioning extends Positioning{
             return {start,end}
         const framesA=this.getComposer(start.id).composeFrames()
         const framesB=this.getComposer(end.id).composeFrames()
-        const i=framesA.findIndex((a,i)=>a==framesB[i])
+        const i=framesA.findLastIndex((a,i)=>a==framesB[i])
         if(i!=-1){
             framesA.splice(0,i+1)
             framesB.splice(0,i+1)
