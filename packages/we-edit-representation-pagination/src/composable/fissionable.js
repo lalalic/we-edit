@@ -12,16 +12,19 @@ export default (A)=>class extends A{
         isAnchored:PropTypes.func,
         exclusive: PropTypes.func,
     }
-	
+
 	constructor(){
 		super(...arguments)
 		this.computed.named={}
+		if(!this.constructor.Frame && this.constructor.extendsFrame){
+			this.constructor.Frame=this.constructor.extendsFrame(this.context.ModelTypes.Frame)
+		}
 	}
-	
+
 	get Frame(){
 		return this.context.ModelTypes.Frame
 	}
-	
+
     getChildContext(){
         const me=this
         function isAnchored(){
@@ -34,7 +37,7 @@ export default (A)=>class extends A{
             isAnchored,
             exclusive,
         })
-    }	
+    }
 
 	named(name){
 		return this.computed.named[name]
@@ -45,7 +48,7 @@ export default (A)=>class extends A{
             this.create()
 		return this.computed.composed[this.computed.composed.length-1]
 	}
-	
+
     create(props={},context={},requiredSpace){
         const a=this.props.create(
             {...props,id:this.props.id, i:this.computed.composed.length, named:this.named.bind(this)},
@@ -53,8 +56,8 @@ export default (A)=>class extends A{
         )
         this.computed.composed.push(a)
         return a
-    }	
-	
+    }
+
 
     nextAvailableSpace(required){
         let space=this.current.nextAvailableSpace(...arguments)
@@ -65,14 +68,14 @@ export default (A)=>class extends A{
         return space
     }
 
-    appendComposed({props:{named}}){
+    appendComposed({props:{named,height}}){
         if(named){
             this.computed.named[named]=arguments[0]
             return
         }else{
             const appended=this.current.appendComposed(...arguments)
             if(appended===false){
-                this.create()
+                this.create(undefined, undefined,{height})
                 return 1//recompose current line in case different availableSpace
             }else if(Number.isInteger(appended)){
                 return appended
