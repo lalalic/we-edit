@@ -44,7 +44,9 @@ export default class SelectionShape extends Component{
 
 		let i=rects.findIndex(({left,top,right,bottom})=>y<=bottom && left<=x && x<=right)
 		let newRects=rects.slice(0,i+1)
-		newRects[newRects.length-1].right=x-2
+		if(i!=-1){
+			newRects[newRects.length-1].right=x-2
+		}
 		this.setState({rects:newRects})
 	}
 }

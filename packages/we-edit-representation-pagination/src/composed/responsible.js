@@ -113,8 +113,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
                     if(id){
                         const end={id,at}
                         let {start=end}=this.selecting.current.state
-
-                        const rects=start==end ? [] : (({start,end})=>this.positioning.getRangeRects(start, end))(this.positioning.extendSelection(start,end))
+                        const rects=start==end ? [] : this.positioning.getRangeRects(start, end)
                         this.selecting.current.setState(({start})=>({start:start||end, end, rects, selecting:true}))
                     }
 				}}
@@ -122,7 +121,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
                     var {start,end}=this.selecting.current.state
                     if(start && end){
                         this.selecting.current.setState({start:undefined, end:undefined, rects:undefined,selecting:false})
-                        ;({start,end}=this.positioning.extendSelection(start,end));
+                        //;({start,end}=this.positioning.extendSelection(start,end));
                         this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))
                         this.selected=true
                     }
