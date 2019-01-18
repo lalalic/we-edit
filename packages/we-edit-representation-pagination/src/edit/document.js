@@ -176,17 +176,29 @@ export default class Document extends Super{
 			})
 		}
 
-		if(p0.page==p1.page){
-			lineRectsInPage(pages[p0.page], p0.line, p1.line+1)
+		const [start,end]=(()=>{
+            if(p0.page>p1.page){
+                return [p1,p0]
+            }else if(p0.page==p1.page){
+                if(p0.line>p1.line){
+                    return [p1,p0]
+                }
+            }
+            return [p0,p1]
+        })();
+
+		if(start.page==end.page){
+			lineRectsInPage(pages[start.page], start.line, end.line+1)
 		}else{
-			lineRectsInPage(pages[p0.page], p0.line)
-			pages.slice(p0.page+1, p1.page).forEach(page=>lineRectsInPage(page))
-			lineRectsInPage(pages[p1.page],0,p1.line+1)
+			lineRectsInPage(pages[start.page], start.line)
+			pages.slice(start.page+1, end.page).forEach(page=>lineRectsInPage(page))
+			lineRectsInPage(pages[end.page],0,end.line+1)
 		}
+		if(rects.length){
+			Object.assign(rects[0],{left:pageXY(start.page).x+start.x})
 
-		Object.assign(rects[0],{left:pageXY(p0.page).x+p0.x})
-
-		Object.assign(rects[rects.length-1], {right:pageXY(p1.page).x+p1.x})
+			Object.assign(rects[rects.length-1], {right:pageXY(end.page).x+end.x})
+		}
 		return rects
 	}
 
@@ -202,5 +214,9 @@ export default class Document extends Super{
 		if(lastParagraph){
 			return this.getComposer(lastParagraph).prevLine(lastParagraph,1)
 		}
+	}
+
+	composeFrames(){
+		return [this.props.id]
 	}
 }

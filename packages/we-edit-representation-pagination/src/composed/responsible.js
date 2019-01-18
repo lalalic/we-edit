@@ -263,33 +263,28 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 
 	onKeyArrowLeft({shiftKey:selecting}){
         const {id,at}=this.locate("prev",selecting ? "Selectable" :"Cursorable")
-        if(!id)
-            return
-
-        if(!selecting){
-            this.dispatch(ACTION.Cursor.AT(id,at))
-        }else{
-            const {cursorAt}=this.selection
-            if(cursorAt=="end"){
-                this.dispatch(ACTION.Selection.END_AT(id,at))
+        if(id){
+            if(!selecting){
+                this.dispatch(ACTION.Cursor.AT(id,at))
             }else{
-                this.dispatch(ACTION.Selection.START_AT(id,at))
+                const {cursorAt,...a}=this.selection
+                a[cursorAt]={id,at}
+                const {start,end}=a
+                this.dispatch(ACTION.Selection.SELECT(start.id, start.at, end.id,end.at))
             }
         }
 	}
 
 	onKeyArrowRight({shiftKey:selecting}){
         const {id,at}=this.locate("next",selecting ? "Selectable" :"Cursorable")
-        if(!id)
-            return
-        if(!selecting){
-            this.dispatch(ACTION.Cursor.AT(id,at))
-        }else{
-            const {cursorAt}=this.selection
-            if(cursorAt=="start"){
-                this.dispatch(ACTION.Selection.START_AT(id,at))
+        if(id){
+            if(!selecting){
+                this.dispatch(ACTION.Cursor.AT(id,at))
             }else{
-                this.dispatch(ACTION.Selection.END_AT(id,at))
+                const {cursorAt,...a}=this.selection
+                a[cursorAt]={id,at}
+                const {start,end}=a
+                this.dispatch(ACTION.Selection.SELECT(start.id, start.at, end.id,end.at))
             }
         }
 	}
@@ -301,67 +296,30 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 
 	onKeyArrowUp({shiftKey:selecting, clientX:left}){
 		const {id, at}=this.locateLine("prev")
-        if(!id)
-            return
-		if(!selecting){
-			this.dispatch(ACTION.Cursor.AT(id,at))
-		}else{
-			const {start,end,cursorAt}=this.selection
-            const extended=this.positioning.extendSelection(start, {id,at})
-
-            ;(({start,end})=>this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at)))(extended);
-return 
-			if(start.id==end.id && start.at==end.at){
-				this.dispatch(ACTION.Selection.START_AT(id,at))
-			}else{
-				if(cursorAt=="start")
-					this.dispatch(ACTION.Selection.START_AT(id,at))
-				else if(cursorAt=="end"){
-					let {left,top}=this.positioning.position(id,at)
-					let {left:left0,top:top0}=this.positioning.position(start.id, start.at)
-					if((top0==top && left<left0) //same line, new point is on the left of start
-						|| (top<top0)) //above start point line
-						{
-						this.dispatch(ACTION.Selection.SELECT(id,at,start.id,start.at))
-						this.dispatch(ACTION.Selection.START_AT(id,at))
-					}else{
-						this.dispatch(ACTION.Selection.END_AT(id,at))
-					}
-				}
-			}
-		}
+        if(id){
+    		if(!selecting){
+    			this.dispatch(ACTION.Cursor.AT(id,at))
+    		}else{
+    			const {cursorAt,...a}=this.selection
+                a[cursorAt]={id,at}
+                const {start,end}=a
+                this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))
+    		}
+        }
 	}
 
 	onKeyArrowDown({shiftKey:selecting, clientX:left}){
 		const {id, at}=this.locateLine("next")
-        if(!id){
-            return
+        if(id){
+    		if(!selecting){
+    			this.dispatch(ACTION.Cursor.AT(id,at))
+    		}else{//extends start and end to at outest frame
+                const {cursorAt,...a}=this.selection
+                a[cursorAt]={id,at}
+                const {start,end}=a
+                this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))
+    		}
         }
-		if(!selecting){
-			this.dispatch(ACTION.Cursor.AT(id,at))
-		}else{//extends start and end to at outest frame
-            const {start,end,cursorAt}=this.selection
-            const extended=this.positioning.extendSelection(start, {id,at})
-
-            ;(({start,end})=>this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at)))(extended);
-            return
-            if(start.id==end.id && start.at==end.at){
-				this.dispatch(ACTION.Selection.END_AT(id,at))
-			}else{
-				if(cursorAt=="end")
-					this.dispatch(ACTION.Selection.END_AT(id,at))
-				else if(cursorAt=="start"){
-					let {left,top}=this.positioning.position(id,at)
-					let {left:left1, top:top1}=this.positioning.position(end.id, end.at)
-					if((top==top1 && left>left1) || (top>top1)){
-						this.dispatch(ACTION.Selection.SELECT(end.id,end.at,id,at))
-						this.dispatch(ACTION.Selection.END_AT(id,at))
-					}else{
-						this.dispatch(ACTION.Selection.START_AT(id,at))
-					}
-				}
-			}
-		}
 	}
 })
 
