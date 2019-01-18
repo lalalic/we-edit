@@ -1,7 +1,7 @@
 import {Cacheable} from "../composable"
 import editable from "./editable"
 import Base from "../cell"
-import {ReactQuery} from "we-edit"
+import {ReactQuery,connect,ACTION} from "we-edit"
 
 export default class extends editable(Base){
     appendLastComposed(){
@@ -26,7 +26,8 @@ export default class extends editable(Base){
 
         const frameXY=page=>{
             const {x,y}=pageXY(page)
-            const {first,parents}=new ReactQuery(page.render()).findFirstAndParents(a=>a.props["data-content"]==this.props.id||undefined)
+            const {first,parents}=new ReactQuery(page.render())
+                .findFirstAndParents(a=>a.props["data-content"]==this.props.id||undefined)
 			return parents.reduce((p,{props:{x=0,y=0}})=>(p.x+=x,p.y+=y,p),{x,y})
         }
 
@@ -38,7 +39,6 @@ export default class extends editable(Base){
 				const {left,top,width,height}=frame.lineRect(start+i)
 				rects.push({left:left+x,top:top+y,right:left+width+x,bottom:top+height+y})
 			})
-
 		}
 
         const [start,end]=(()=>{
@@ -65,6 +65,5 @@ export default class extends editable(Base){
     		Object.assign(rects[rects.length-1], {right:pageXY(end.page).x+end.x})
         }
 		return rects
-
     }
 }

@@ -10,18 +10,49 @@ import Top from "../composed/selection/top"
 import {Group} from "../composed"
 
 export default editable(class extends Base{
-	createComposed2Parent1(row){
-		row=this.makeCellResizable(row)
+	createComposed2Parent(row){
+		const isFirstRowInPage=this.isFirstRowInPage(row)
+		const cells=[]
+		new ReactQuery(row).findFirst((node)=>{
+			const {"data-type":type}=node.props
+			if(type=="cell"){
+				cells.push(node)
+				return false
+			}
+		})
 
-		if(this.composedRows.length==1){
-			row=this.makeColAdderNSelector(row)
-		}
-
-		row=this.makeRowAdderNSelector(row)
-
+		cells.forEach(cell=>{
+			const border=new ReactQuery(cell)
+				.findFirst(".border")
+				.attr("children")
+			const edges=[...border]
+			border.splice(0,1,
+				<EditableEdges key="edges"
+					{...{
+						isFirstRowInPage,
+						children:edges,
+						height:cell.props.height,
+						width:cell.props.width,
+					}}
+					/>
+			)
+		})
 		return super.createComposed2Parent(row)
 	}
 
+	isFirstRowInPage(row){
+		if(this.computed.lastComposed.length==0){
+			return true
+		}else{
+			const rowId=r=>new ReactQuery(r).findFirst('[data-type="row"]').attr("data-content")
+			const last=this.computed.lastComposed[this.computed.lastComposed.length-1]
+			if(rowId(last)==rowId(row)){
+				return true
+			}
+		}
+	}
+
+/*
 	makeColAdderNSelector(firstRow){
 		const {id}=this.props
 		return React.cloneElement(firstRow, {children:firstRow.props.children.map((a,i)=>{
@@ -124,7 +155,50 @@ export default editable(class extends Base{
 
 		return React.cloneElement(row, {children:cells})
 	}
+	*/
 },{stoppable:true})
+
+class EditableEdges extends Component{
+	render(){
+		var {children:[top,bottom,right,left],isFirstRowInPage,width,height}=this.props
+		return (
+			<Fragment>
+				{this.top(top}
+				{this.bottom(bottom)}
+				{this.right(right)}
+				{this.left(left)}
+			</Fragment>
+		)
+	}
+
+	top(top){
+		const {isFirstRowInPage}=this.props
+		return (
+			<Fragment>
+				{top}
+				{isFirstRowInPage ? <ColSelector/> : <RowResizer/>}
+			</Fragment>
+		)
+	}
+
+	bottom(bottom){
+		const {isLastOfPage}=this.props
+		return (
+			<Fragment>
+				{bottom}
+				{!isLastOfPage && <RowResizer/>}
+			</Fragment>
+		)
+	}
+
+	right(){
+
+	}
+
+	left(){
+
+	}
+}
 
 const NoShow="transparent"
 const Resizer=connect()(class extends PureComponent{

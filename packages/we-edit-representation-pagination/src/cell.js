@@ -74,7 +74,7 @@ export default class Cell extends Super{
 		const height=contentHeight+this.nonContentHeight
 		const width=this.current.props.width+margin.left+margin.right
 		return (
-			<ComposedCell {...{
+			<this.constructor.ComposedCell {...{
 				border, margin, background,vertAlign,width,
 				nonContentHeight:this.nonContentHeight,
 				frame:this.current
@@ -87,7 +87,7 @@ export default class Cell extends Super{
 const Spacing=Group
 const Margin=Group
 
-class ComposedCell extends Component{
+Cell.ComposedCell=class extends Component{
 	static displayName="cell"
 	render(){
 		var {border, margin, vertAlign,width,frame,
@@ -126,7 +126,6 @@ class ComposedCell extends Component{
 			</Group>
 		)
 	}
-
 }
 
 class Border extends Component{
@@ -134,17 +133,26 @@ class Border extends Component{
 		var {width,height,border:{left,right,bottom,top}, children, ...others}=this.props
 		return (
 			<Group {...others}>
-				<Group className="border">
-					{top.sz && <path strokeWidth={top.sz} stroke={top.color} d={`M0 0 h${width}`}/>}
-					{bottom.sz && <path strokeWidth={bottom.sz} stroke={bottom.color} d={`M0 ${height} h${width}`}/>}
-					{right.sz && <path strokeWidth={right.sz} stroke={right.color} d={`M${width} 0 v${height}`}/>}
-					{left.sz && <path strokeWidth={left.sz} stroke={left.color} d={`M0 0 v${height}`}/>}
-				</Group>
+				<Group className="border"
+					children={[
+						<Edge key="top" type="top" size={top.sz} color={top.color} d={`M0 0 h${width}`}/>
+						<Edge key="bottom" type="bottom" size={bottom.sz} color={top.color} d={`M0 ${height} h${width}`}/>
+						<Edge key="right" type="right" size={right.sz} color={top.color} d={`M${width} 0 v${height}`}/>
+						<Edge key="left" type="left" size={left.sz} color={top.color} d={`M0 0 v${height}`}/>
+					]}
+				/>
 				<Group x={left.sz/2} y={top.sz/2}>
 					{children}
 				</Group>
 			</Group>
 		)
 
+	}
+}
+
+class Edge extends Component{
+	render(){
+		const {size,color,d}=this.props
+		return <path strokeWidth={size} stroke={color} d={d}/>
 	}
 }
