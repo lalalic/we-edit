@@ -19,7 +19,7 @@ export default editable.enable(Models,{
 	Paragraph,
 	Frame,
 //	Shape,
-	Table,
+//	Table,
 	Row,
 	Cell,
 	Text,

@@ -25,8 +25,8 @@ export class Table extends Base{
             .append(cols.map(w=>`<w:gridCol w:w="${w}"/>`).join(""))
 	}
 
-	rowHeight({at, height}){
-        let tr=this.node.find("w\\:tr").eq(at)
+	height({value:height, row, cell}){
+        let tr=this.node.find(`#${row}`)
         let pr=tr.find("w\\:trPr")
         if(pr.length==0){
             tr.prepend("<w:trPr/>")
@@ -43,8 +43,19 @@ export class Table extends Base{
 
         trHeight.attr("w:val",height)
 	}
-
-
+	
+	width({value:width, row, cell,i}){
+		const tr=this.node.find(`#${row}`)
+		const tc=tr.find(`#${cell}`)
+		const tcW=tc.find("w\\:tcPr>w\\:tcW")
+		width=this.px2dxa(width)
+		const changed=width-parseInt(tcw.attr("w:w"))
+		tcW.attr("w:w",width)
+		
+		this.node.find("w\\:tr").each(a=>{
+			this.$(a).find(`#`)
+		})
+	}
 
 	col({at}){
 		let grid=this.node.first("w\\:tblGrid")

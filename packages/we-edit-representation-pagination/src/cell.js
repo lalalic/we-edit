@@ -135,10 +135,10 @@ class Border extends Component{
 			<Group {...others}>
 				<Group className="border"
 					children={[
-						<Edge key="top" type="top" size={top.sz} color={top.color} d={`M0 0 h${width}`}/>
-						<Edge key="bottom" type="bottom" size={bottom.sz} color={top.color} d={`M0 ${height} h${width}`}/>
-						<Edge key="right" type="right" size={right.sz} color={top.color} d={`M${width} 0 v${height}`}/>
-						<Edge key="left" type="left" size={left.sz} color={top.color} d={`M0 0 v${height}`}/>
+						<Edge key="top" type="top" size={top.sz} color={top.color} d={`M0 0 h${width}`}/>,
+						<Edge key="bottom" type="bottom" size={bottom.sz} color={top.color} d={`M0 ${height} h${width}`}/>,
+						<Edge key="right" type="right" size={right.sz} color={top.color} d={`M${width} 0 v${height}`}/>,
+						<Edge key="left" type="left" size={left.sz} color={top.color} d={`M0 0 v${height}`}/>,
 					]}
 				/>
 				<Group x={left.sz/2} y={top.sz/2}>
