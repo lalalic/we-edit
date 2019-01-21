@@ -11,11 +11,24 @@ import {Group} from "../composed"
 export default Cacheable(class extends editable(Base,{stoppable:false}){
 	clearComposed(){
 		this.computed.spaces=[]
+		this.computed.composed=[]
 		super.clearComposed()
 	}
 
 	appendLastComposed(){
 		return false
+	}
+
+	onAllChildrenComposed(){
+		super.onAllChildrenComposed()
+		this.query().find("paragraph").each((i,a)=>{
+			let composer=this.context.getComposer(a.get("id"))
+			if(composer){
+				if(composer.computed.composed.length!=composer.computed.lastComposed.length){
+					debugger
+				}
+			}
+		})
 	}
 
 	injectEmptyCellIntoRank(rank,parents,frame){
@@ -39,6 +52,7 @@ export default Cacheable(class extends editable(Base,{stoppable:false}){
 		})();
 
 		const table=parents.find(a=>a.props["data-type"]=="table").props["data-content"]
+		const isLastRankOfRow=!!rank.attr("last")
 
 		cells.forEach((cell,i)=>{
 			const $cell=new ReactQuery(cell)
@@ -55,6 +69,7 @@ export default Cacheable(class extends editable(Base,{stoppable:false}){
 						children:edges,
 						height:cell.props.height,
 						width:cell.props.width,
+						isLastRankOfRow,
 					}}
 					/>
 			)
@@ -76,7 +91,7 @@ export default Cacheable(class extends editable(Base,{stoppable:false}){
 
 class EditableEdges extends PureComponent{
 	render(){
-		var {children:[top,bottom,right,left], isFirstRow, table,row, cell,i,width,height,dispatch}=this.props
+		var {children:[top,bottom,right,left], isFirstRow, isLastRankOfRow, table,row, cell,i,width,height,dispatch}=this.props
 		return (
 			<Fragment>
 				{top}
@@ -84,16 +99,19 @@ class EditableEdges extends PureComponent{
 
 				{bottom}
 
-				<RowResizer x1={0} x2={width} y1={height} y2={height}
+				{isLastRankOfRow && <RowResizer x1={0} x2={width} y1={height} y2={height}
 					onResize={({y},dispatch)=>{
 						dispatch(ACTION.Entity.UPDATE({id:table, height:{value:height+y,row,cell,i}}))
 					}}
-					/>
+					/> || null
+				}
 
 				{right}
+				{i==0  && <RowSelector x1={0} x2={0} y1={0} y2={height}
+					onSelect={dispatch=>dispatch(ACTION.Selection.SELECT(row))}/>}
+
 				<ColResizer x1={width} y1={0} x2={width} y2={height}
 					onResize={({x},dispatch)=>{
-						console.log(x)
 						dispatch(ACTION.Entity.UPDATE({id:table,width:{value:width+x, row, cell,i}}))
 					}}
 					/>

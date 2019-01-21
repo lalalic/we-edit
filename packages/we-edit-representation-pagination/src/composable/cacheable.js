@@ -68,6 +68,7 @@ export default (A,partable)=>class extends A{
         }
 
         //last safe
+        this.clearComposed({changed:true})
         this.computed.lastComposed=[]
         return super.render()
 	}

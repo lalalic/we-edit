@@ -137,7 +137,7 @@ export default class extends Super{
 			for(let i=unappendedCount;i>0;i--)
 				this.currentColumn.push(null)
 
-			if(1==this.context.parent.appendComposed(this.createComposed2Parent())){
+			if(1==this.context.parent.appendComposed(this.createComposed2Parent(true))){
 				//could it happen?
 				console.error(`row[${this.props.id}] can't be appended with rollback again, ignore`)
 			}
@@ -158,13 +158,13 @@ export default class extends Super{
 		super.onAllChildrenComposed()
 	}
 
-	createComposed2Parent(){
+	createComposed2Parent(bLast=false){
 		const {props:{cols,width}, computed:{composed:columns}}=this
 		const i=this.currentColumn.length-1
 		const cells=columns.map(column=>column[i])
 		const height=this.getHeight(cells)
 		return (
-			<Rank children={cells} cols={cols} width={width} height={height}/>
+			<Rank children={cells} cols={cols} width={width} height={height} last={bLast}/>
 		)
 	}
 
@@ -178,7 +178,7 @@ export default class extends Super{
 class Rank extends Component{
 	static displayName="rank"
 	render(){
-		const {children:cells=[],cols,height, ...props}=this.props
+		const {children:cells=[],cols,height,last, ...props}=this.props
 
 		return (
 				<Group height={height} {...props} >

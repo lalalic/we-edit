@@ -11,5 +11,3 @@ export default Cacheable(class extends editable(Base){
 		return false
 	}
 })
-
-   
