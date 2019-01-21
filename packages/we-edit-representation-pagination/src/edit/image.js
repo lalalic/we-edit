@@ -30,8 +30,4 @@ export default class extends editable(Base){
 			/>
 		)
 	}
-
-	distanceAt(x,){
-		return 1
-	}
 }

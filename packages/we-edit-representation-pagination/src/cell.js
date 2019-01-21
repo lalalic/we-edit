@@ -117,7 +117,9 @@ Cell.ComposedCell=class extends Component{
 							children:(
 								<Margin x={margin.left} y={margin.top}>
 									<Group y={alignY}>
-										{frame ? frame.render().props.children : null}
+										<Group className="frame">
+											{frame ? frame.render().props.children : null}
+										</Group>
 									</Group>
 								</Margin>
 							)

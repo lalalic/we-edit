@@ -37,10 +37,8 @@ export default class extends Super{
 		if(rotate){
 			element=this.rotate(element)
 		}
-
-		const {width,height}=element.props
-		//@TODO:what if it's anchored, y is not neccesary
-		return <Group {...{width,height,y:-height}}>{element}</Group>
+		
+		return element
 	}
 
 	rotate(element){

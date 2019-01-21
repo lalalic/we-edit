@@ -30,7 +30,9 @@ export default class extends editable(Base){
             const {x,y}=pageXY(page)
             const {first,parents}=new ReactQuery(page.render())
                 .findFirstAndParents(a=>a.props["data-content"]==this.props.id||undefined)
-			return [...parents,first.get(0)].reduce((p,{props:{x=0,y=0}})=>(p.x+=x,p.y+=y,p),{x,y})
+			const frame=new ReactQuery(first.get(0))
+                .findFirstAndParents(a=>a.props["className"]=="frame"||undefined)
+			return [...parents,...frame.parents].reduce((p,{props:{x=0,y=0}})=>(p.x+=x,p.y+=y,p),{x,y})
         }
 
         const rects=[]

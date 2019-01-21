@@ -118,10 +118,9 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
                     }
 				}}
                 onMouseUp={e=>{
-                    var {start,end}=this.selecting.current.state
+					var {start,end}=this.selecting.current.state
                     if(start && end){
                         this.selecting.current.setState({start:undefined, end:undefined, rects:undefined,selecting:false})
-                        //;({start,end}=this.positioning.extendSelection(start,end));
                         this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))
                         this.selected=true
                     }
