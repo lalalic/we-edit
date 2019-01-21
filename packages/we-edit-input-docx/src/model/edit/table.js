@@ -43,17 +43,36 @@ export class Table extends Base{
 
         trHeight.attr("w:val",height)
 	}
-	
+
 	width({value:width, row, cell,i}){
+        if(width<=0){
+            return 
+        }
 		const tr=this.node.find(`#${row}`)
 		const tc=tr.find(`#${cell}`)
 		const tcW=tc.find("w\\:tcPr>w\\:tcW")
 		width=this.px2dxa(width)
-		const changed=width-parseInt(tcw.attr("w:w"))
-		tcW.attr("w:w",width)
-		
-		this.node.find("w\\:tr").each(a=>{
-			this.$(a).find(`#`)
+		const changed=width-parseInt(tcW.attr("w:w"))
+
+        //change col width
+        const gridCol=this.node.find("w\\:tblGrid").first().find("w\\:gridCol")
+        const cols=gridCol.map((j,a)=>parseInt(a.attribs["w:w"]))
+        if(cols.length>i+1){
+            if(cols[i+1]-changed>0){
+                cols[i+1]=cols[i+1]-changed
+            }else{
+                return
+            }
+        }
+        cols[i]=cols[i]+changed
+        gridCol.each((j,col)=>{
+            col.attribs["w:w"]=cols[j]
+        })
+
+		//change each row's {i}th col's width
+		const trs=this.node.find("w\\:tr")
+        trs.toArray().forEach((a,j)=>{
+			trs.eq(j).find(`w\\:tc`).eq(i).find("w\\:tcPr>w\\:tcW").attr("w:w",width)
 		})
 	}
 

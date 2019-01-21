@@ -3,6 +3,10 @@ export default class Editor{
         this.file=file
     }
 
+    $(){
+        return this.file.officeDocument.content(...arguments)
+    }
+
 	//find pr, if no,create it
 	got(nodeName,tagContent, tagPr){
 		let contentSelector=tagContent.replace(":", "\\:")
