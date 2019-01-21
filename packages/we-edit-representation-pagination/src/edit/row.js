@@ -13,7 +13,7 @@ export default Cacheable(class extends editable(Base,{stoppable:false}){
 		this.computed.spaces=[]
 		super.clearComposed()
 	}
-	
+
 	appendLastComposed(){
 		return false
 	}
@@ -33,13 +33,13 @@ export default Cacheable(class extends editable(Base,{stoppable:false}){
 				(({type,props})=>new type(props).render())(cell.get(0))
 			)
 		})
-		
+
 		const isFirstRow=(()=>{
 			return false
 		})();
-		
+
 		const table=parents.find(a=>a.props["data-type"]=="table").props["data-content"]
-		
+
 		cells.forEach((cell,i)=>{
 			const $cell=new ReactQuery(cell)
 			const border=$cell.findFirst(".border").attr("children")
@@ -59,7 +59,7 @@ export default Cacheable(class extends editable(Base,{stoppable:false}){
 					/>
 			)
 		})
-		
+
 		//render rank to composed for positioning
 		const renderedRank=parents.reduceRight(
 			(child,parent)=>React.cloneElement(parent,{},child),
@@ -81,18 +81,19 @@ class EditableEdges extends PureComponent{
 			<Fragment>
 				{top}
 				{isFirstRow && <ColSelector/>}
-	
+
 				{bottom}
-				
+
 				<RowResizer x1={0} x2={width} y1={height} y2={height}
 					onResize={({y},dispatch)=>{
 						dispatch(ACTION.Entity.UPDATE({id:table, height:{value:height+y,row,cell,i}}))
 					}}
 					/>
-				
+
 				{right}
 				<ColResizer x1={width} y1={0} x2={width} y2={height}
 					onResize={({x},dispatch)=>{
+						console.log(x)
 						dispatch(ACTION.Entity.UPDATE({id:table,width:{value:width+x, row, cell,i}}))
 					}}
 					/>

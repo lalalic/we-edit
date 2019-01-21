@@ -46,25 +46,27 @@ export class Table extends Base{
 
 	width({value:width, row, cell,i}){
         if(width<=0){
-            return 
+            return
         }
 		const tr=this.node.find(`#${row}`)
 		const tc=tr.find(`#${cell}`)
 		const tcW=tc.find("w\\:tcPr>w\\:tcW")
 		width=this.px2dxa(width)
-		const changed=width-parseInt(tcW.attr("w:w"))
+		const delta=width-parseInt(tcW.attr("w:w"))
 
         //change col width
         const gridCol=this.node.find("w\\:tblGrid").first().find("w\\:gridCol")
-        const cols=gridCol.map((j,a)=>parseInt(a.attribs["w:w"]))
+        const cols=gridCol.map((j,a)=>parseInt(a.attribs["w:w"])).toArray()
+        console.log(`${delta}===>${cols.join(",")}==>`)
         if(cols.length>i+1){
-            if(cols[i+1]-changed>0){
-                cols[i+1]=cols[i+1]-changed
+            if(cols[i+1]-delta>0){
+                cols[i+1]=cols[i+1]-delta
             }else{
                 return
             }
         }
-        cols[i]=cols[i]+changed
+        cols[i]=width
+        console.log(cols.join(","))
         gridCol.each((j,col)=>{
             col.attribs["w:w"]=cols[j]
         })
@@ -72,7 +74,11 @@ export class Table extends Base{
 		//change each row's {i}th col's width
 		const trs=this.node.find("w\\:tr")
         trs.toArray().forEach((a,j)=>{
-			trs.eq(j).find(`w\\:tc`).eq(i).find("w\\:tcPr>w\\:tcW").attr("w:w",width)
+			let tcs=trs.eq(j).find(`w\\:tc`)
+            tcs.eq(i).find("w\\:tcPr>w\\:tcW").attr("w:w",cols[i])
+            if(cols.length>i+1){
+                tcs.eq(i+1).find("w\\:tcPr>w\\:tcW").attr("w:w",cols[i+1])
+            }
 		})
 	}
 
