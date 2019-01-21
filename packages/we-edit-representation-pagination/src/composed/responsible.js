@@ -95,34 +95,45 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 
     render(){
         const {children,docId, continueCompose, getComposer,dispatch, ...props}=this.props
+		var down
+		const flagEvent=({clientX,clientY})=>down={clientX,clientY}
+		const shouldIgnore=({clientX,clientY})=>clientX==down.clientX && clientY==down.clientY
         return (
             <ComposedDocument {...props}
 				innerRef={a=>{this.canvas=a}}
                 onClick={e=>{
-                    if(this.selected){
-                        this.selected=false
-                    }else{
                         this.onClick(e)
-                    }
                 }}
+				onMouseDown={flagEvent}
 				onMouseMove={e=>{
-                    const {buttons, target, clientX:left,clientY:top}=e
-					if(!(buttons&0x1))
+					if(!(e.buttons&0x1)){
+						console.log("left button not pressing,return")
 						return
-                    const {id,at}=this.positioning.around(left,top)
+					}
+                    if(shouldIgnore(e)){
+						console.log("same down event,return")
+						return
+					}
+					
+					const {id,at}=this.positioning.around(e.clientX,e.clientY)
                     if(id){
                         const end={id,at}
                         let {start=end}=this.selecting.current.state
                         const rects=start==end ? [] : this.positioning.getRangeRects(start, end)
-                        this.selecting.current.setState(({start})=>({start:start||end, end, rects, selecting:true}))
+                        this.selecting.current.setState({start:start||end, end, rects, selecting:true})
                     }
 				}}
                 onMouseUp={e=>{
+					if(shouldIgnore(e)){
+						console.log("same down event,return to click")
+						return
+					}
 					var {start,end}=this.selecting.current.state
                     if(start && end){
+						console.dir(start)
+						console.dir(end)
                         this.selecting.current.setState({start:undefined, end:undefined, rects:undefined,selecting:false})
                         this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))
-                        this.selected=true
                     }
 				}}
 				>
