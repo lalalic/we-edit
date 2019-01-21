@@ -30,8 +30,13 @@ export default class Media extends Component{
 
 							let newPage=(
 								<Group key={i} {...{y, x:(canvasWidth-width)/2}} className="page">
-									{paper!==false && <Paper {...{width,height,margin,fill:"white", precision}}/>}
-									{smart ? <SmartShow {...{onPageHide,onPageShow,scrollableAncestor,children:page,i,width,height,margin}}/> : page}
+									{smart ? <SmartShow {...{
+										onPageHide,onPageShow,scrollableAncestor,
+										children:page,i,
+										width,height,margin,
+										paper,
+										precision,
+									}}/> : page}
 								</Group>
 							)
 							y+=(height+pgGap)
@@ -50,12 +55,15 @@ class SmartShow extends Component{
 	state={display:false}
 	render(){
 		const {display}=this.state
-		const {children,i,width,height}=this.props
+		const {children,i,width,height,margin,paper,precision}=this.props
 		return (
 			<Waypoint fireOnRapidScroll={false}
 				onEnter={e=>{this.setState({display:true})}}
 				onLeave={e=>this.setState({display:false})}>
-				<g style={{visibility:display?undefined:"none"}}>{children}</g>
+				<g>
+					{paper!==false && <Paper {...{width,height,margin,fill:"white", precision}}/>}
+					{display ? children : null}
+				</g>
 			</Waypoint>
 		)
 	}
