@@ -24,15 +24,7 @@ const Editable=Cacheable(class extends editable(Base,{stoppable:true}){
 		}
 	}
 
-	commit(){
-		super.commit(...arguments)
-		console.assert(this.computed.lastComposed.length==this.computed.composed.length)
-	}
-
 	appendLastComposed(){
-		if(this.props.id=="3"){
-			debugger
-		}
 		const lines=this.computed.composed
 		this.computed.composed=[]
 		const spaceChangedAt=this.computed.lastComposed.findIndex((a,i)=>{

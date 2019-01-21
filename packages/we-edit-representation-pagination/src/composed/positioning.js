@@ -214,11 +214,11 @@ class ReactPositioning extends Positioning{
         }
 
         if(framesA[0]){
-            start={id:framesA[0],at:0}
+            start={id:framesA[0],at:1}
         }
 
         if(framesB[0]){
-            end={id:framesB[0],at:0}
+            end={id:framesB[0],at:1}
         }
 
         return {start,end}

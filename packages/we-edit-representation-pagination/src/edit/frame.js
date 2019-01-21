@@ -4,6 +4,7 @@ import {ReactQuery} from "we-edit"
 import TestRenderer from 'react-test-renderer'
 import {Cacheable} from "../composable"
 import Base from "../frame"
+import {Group} from "../composed"
 
 export default Cacheable(class extends editable(Base){
     clearComposed(){
@@ -78,12 +79,8 @@ export default Cacheable(class extends editable(Base){
                 return true
             }
 
-            if(typeof(node.type)=="string")
+            if(node.type!=Group)
                 return false
-
-            if(React.Children.toArray(children).length==0){
-                return true
-            }
         })
         if(found.length>0){
             if(found.attr("data-type")=="paragraph"){
