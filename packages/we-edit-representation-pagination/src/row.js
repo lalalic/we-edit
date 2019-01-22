@@ -151,7 +151,7 @@ export default class extends Super{
 			const {first:rank,parents}=new ReactQuery(frame.lastLine)
 				.findFirstAndParents(a=>a.props["data-content"]==this.props.id || undefined)
 			if(!rank.length){
-				throw new Error("weired")
+				throw new Error("weired table row without rank")
 			}
 			this.injectEmptyCellIntoRank(rank,parents,frame)
 		})

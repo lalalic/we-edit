@@ -8,7 +8,7 @@ import Resizable from "../composed/selection/resizable"
 import Top from "../composed/selection/top"
 import {Group} from "../composed"
 
-export default Cacheable(class extends editable(Base,{stoppable:false}){
+export default Cacheable(class extends editable(Base,{stoppable:true,continuable:true}){
 	clearComposed(){
 		this.computed.spaces=[]
 		this.computed.composed=[]
@@ -16,22 +16,36 @@ export default Cacheable(class extends editable(Base,{stoppable:false}){
 	}
 
 	appendLastComposed(){
+		if(this.computed.spaces.length!=this.computed.lastComposed.length){
+			console.warn("something wrong for this row")
+			return false
+		}
+		const space=this.context.parent.nextAvailableSpace()
+		if(this.computed.spaces.length==1){
+			const rank=this.computed.lastComposed[0]
+			if(space.height>=rank.props.height){
+				this.context.parent.appendComposed(rank)
+				this.computed.spaces=[space]
+				return
+			}
+		}else if(this.computed.spaces.length>1){
+			if(space.height==this.computed.spaces[0].height){
+				this.computed.spaces=[]
+				this.computed.lastComposed.forEach(rank=>{
+					this.computed.spaces.push(this.context.parent.nextAvailableSpace({height:rank.props.height}))
+					this.context.parent.appendComposed(rank)
+				})
+				return
+			}
+		}
 		return false
 	}
 
-	onAllChildrenComposed(){
-		super.onAllChildrenComposed()
-		this.query().find("paragraph").each((i,a)=>{
-			let composer=this.context.getComposer(a.get("id"))
-			if(composer){
-				if(composer.computed.composed.length!=composer.computed.lastComposed.length){
-					debugger
-				}
-			}
-		})
-	}
-
 	injectEmptyCellIntoRank(rank,parents,frame){
+		if(this.computed.spaces[0].frame==frame
+			&& this.computed.lastComposed.length>0){//the initial rank can't be used as cache
+			this.computed.lastComposed=[]
+		}
 		super.injectEmptyCellIntoRank(...arguments)
 		this.render2Composed(...arguments)
 	}
@@ -76,11 +90,17 @@ export default Cacheable(class extends editable(Base,{stoppable:false}){
 		})
 
 		//render rank to composed for positioning
-		const renderedRank=parents.reduceRight(
+		const renderedRank=(({type,props})=>new type(props).render())(rank.get(0));
+		const tableRow=parents.reduceRight(
 			(child,parent)=>React.cloneElement(parent,{},child),
-			(({type,props})=>new type(props).render())(rank.get(0))
+			renderedRank
 		)
-		frame.currentColumn.children.splice(-1,1,renderedRank)
+		frame.currentColumn.children.splice(-1,1,tableRow)
+		this.computed.lastComposed.push(renderedRank)
+	}
+
+	shouldContinueCompose(a){
+		return true
 	}
 
 	composeFrames(){

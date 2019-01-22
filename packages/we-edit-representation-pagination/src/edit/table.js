@@ -43,8 +43,4 @@ export default Cacheable(class extends editable(Base){
 			return false
 		}
 	}
-
-	createComposed2Parent(){
-		return super.createComposed2Parent(...arguments)
-	}
 })
