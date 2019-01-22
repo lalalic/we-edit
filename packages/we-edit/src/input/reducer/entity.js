@@ -70,7 +70,16 @@ export class entity extends Content{
 		return this
 	}
 
-	move({id,at}){
+	move(dest){
+		const {start:{id}}=this.selection
+		const content=this.$('#'+id)
+		const paragraph=content.closest("paragraph")
+		content.remove()
+		const [to]=this.splitAtUpto(dest)
+		const newContent=this.file.construct(id,paragraph.attr("id"))
+		newContent.insertAfter(to)
+		this.renderChanged(paragraph.attr("id"))
+		this.renderChanged(to.closest("paragraph").attr("id"))
 		return this
 	}
 }
