@@ -101,20 +101,16 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
         return (
             <ComposedDocument {...props}
 				innerRef={a=>{this.canvas=a}}
-                onClick={e=>{
-                        this.onClick(e)
-                }}
+                onClick={e=>this.onClick(e)}
 				onMouseDown={flagEvent}
 				onMouseMove={e=>{
 					if(!(e.buttons&0x1)){
-						console.log("left button not pressing,return")
 						return
 					}
                     if(shouldIgnore(e)){
-						console.log("same down event,return")
 						return
 					}
-					
+
 					const {id,at}=this.positioning.around(e.clientX,e.clientY)
                     if(id){
                         const end={id,at}
@@ -125,14 +121,11 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 				}}
                 onMouseUp={e=>{
 					if(shouldIgnore(e)){
-						console.log("same down event,return to click")
 						return
 					}
 					var {start,end}=this.selecting.current.state
                     if(start && end){
-						console.dir(start)
-						console.dir(end)
-                        this.selecting.current.setState({start:undefined, end:undefined, rects:undefined,selecting:false})
+						this.selecting.current.setState({start:undefined, end:undefined, rects:undefined,selecting:false})
                         this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))
                     }
 				}}
@@ -270,64 +263,47 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
         return this.cursor
 	}
 
+    locateLine(nextOrPrev, cursorableOrSelectable){
+		const {id,at}=this.cursor
+        return this.positioning[`${nextOrPrev}Line`](id,at)||{}
+	}
+
+    onKeyArrow(id,at,selecting){
+        if(!selecting){
+            this.dispatch(ACTION.Cursor.AT(id,at))
+        }else{
+            const {cursorAt,...a}=this.selection
+            a[cursorAt]={id,at}
+            const {start,end}=a
+            this.dispatch(ACTION.Selection.SELECT(start.id, start.at, end.id,end.at))
+        }
+    }
+
 	onKeyArrowLeft({shiftKey:selecting}){
         const {id,at}=this.locate("prev",selecting ? "Selectable" :"Cursorable")
         if(id){
-            if(!selecting){
-                this.dispatch(ACTION.Cursor.AT(id,at))
-            }else{
-                const {cursorAt,...a}=this.selection
-                a[cursorAt]={id,at}
-                const {start,end}=a
-                this.dispatch(ACTION.Selection.SELECT(start.id, start.at, end.id,end.at))
-            }
+            this.onKeyArrow(id,at,selecting)
         }
 	}
 
 	onKeyArrowRight({shiftKey:selecting}){
         const {id,at}=this.locate("next",selecting ? "Selectable" :"Cursorable")
         if(id){
-            if(!selecting){
-                this.dispatch(ACTION.Cursor.AT(id,at))
-            }else{
-                const {cursorAt,...a}=this.selection
-                a[cursorAt]={id,at}
-                const {start,end}=a
-                this.dispatch(ACTION.Selection.SELECT(start.id, start.at, end.id,end.at))
-            }
+            this.onKeyArrow(id,at,selecting)
         }
 	}
 
-	locateLine(nextOrPrev, cursorableOrSelectable){
-		const {id,at}=this.cursor
-        return this.positioning[`${nextOrPrev}Line`](id,at)||{}
-	}
-
-	onKeyArrowUp({shiftKey:selecting, clientX:left}){
+	onKeyArrowUp({shiftKey:selecting}){
 		const {id, at}=this.locateLine("prev")
         if(id){
-    		if(!selecting){
-    			this.dispatch(ACTION.Cursor.AT(id,at))
-    		}else{
-    			const {cursorAt,...a}=this.selection
-                a[cursorAt]={id,at}
-                const {start,end}=a
-                this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))
-    		}
+    		this.onKeyArrow(id,at,selecting)
         }
 	}
 
-	onKeyArrowDown({shiftKey:selecting, clientX:left}){
+	onKeyArrowDown({shiftKey:selecting}){
 		const {id, at}=this.locateLine("next")
         if(id){
-    		if(!selecting){
-    			this.dispatch(ACTION.Cursor.AT(id,at))
-    		}else{//extends start and end to at outest frame
-                const {cursorAt,...a}=this.selection
-                a[cursorAt]={id,at}
-                const {start,end}=a
-                this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))
-    		}
+            this.onKeyArrow(id,at,selecting)
         }
 	}
 })

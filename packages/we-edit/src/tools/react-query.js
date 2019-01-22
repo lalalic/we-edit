@@ -1,5 +1,8 @@
 import React, {Children} from "react"
+import "./array-find-last"
 import cssSelector from "./css"
+
+const toArray=children=>Array.isArray(children) ? children : [children]
 
 export default class Query{
     static Selector={
@@ -93,28 +96,36 @@ export default class Query{
 	}
 
 	replace(element, changed){
+        if(element instanceof Query){
+            element=element.get(0)
+        }
+        if(changed instanceof Query){
+            changed=changed.get(0)
+        }
 		console.assert(React.isValidElement(element))
-		console.assert(Ract.isValidElement(changed))
-		const {parents}=new this.constructor(this.root).findFirstAndParents(a=>a==element||undefined)
-		const root=parents.reduce(({raw,cloned},parent)=>{
-			const children=React.Children.toArray(parent.props.children)
+		console.assert(React.isValidElement(changed))
+		const {first,parents}=new this.constructor(this.root).findFirstAndParents(a=>a==element||undefined)
+        console.assert(first.get(0)==element)
+        console.assert(parents.length>0)
+        const root=parents.reduceRight(({origin,cloned},parent)=>{
+            const children=[...toArray(parent.props.children)]
 			switch(children.length){
 			case 1:
 				return {
 					cloned:React.cloneElement(parent,{},cloned),
-					raw:parent,
+					origin:parent,
 				}
 			default:
-				let i=children.indexOf(raw)
-				children.splice(i,1,React.cloneElement(cloned,{key:i}))
+				let i=children.indexOf(origin)
+				children.splice(i,1,cloned)
 				return {
-					raw:parent,
+					origin:parent,
 					cloned:React.cloneElement(parent,{children}),
 				}
 			}
 
-		},{raw:element,cloned:changed}).cloned
-		return new this.constructor(changed,null,root)
+		},{origin:element,cloned:changed}).cloned
+		return new this.constructor(root)
 	}
 
 	children(selector){
@@ -249,7 +260,7 @@ function traverse(el, f, right=false,self=true){
     if(typeof(el.props.children)=="string")
         return
 
-    const children=Children.toArray(el.props.children)
+    const children=toArray(el.props.children).filter(a=>!!a)
     if(typeof(children[0])=="string")
         return
 

@@ -12,7 +12,7 @@ import ComposedDocument from "../src/composed/document"
 import provider from "./context"
 import Waypoint from "react-waypoint"
 
-const {Document, Template, Frame,Paragraph, Text, Image}=Editors
+const {Document, Section, Frame,Paragraph, Text, Image}=Editors
 Document.defaultProps.id="root"
 
 const $=pages=>{
@@ -35,7 +35,12 @@ describe("continuable", ()=>{
 		}
 		Locator.prototype.shouldComponentUpdate=jest.fn(a=>true)
 	})
+	var u=1
 	const Page=class extends Frame{
+		render(){
+			const {props:{i:key,width,height,margin}}=this
+			return React.cloneElement(super.createComposed2Parent(),{key:u++,width,height,margin})
+		}
 		removeFrom(){
 
 		}
@@ -68,7 +73,7 @@ describe("continuable", ()=>{
 	const TextContext=provider(Text,{
 			Measure:class{
 				height=10
-				defaultStyle={height:10}
+				defaultStyle={height:10,descent:1}
 				widthString(x,text){
 					return text.substring(0,x)
 				}
@@ -85,7 +90,7 @@ describe("continuable", ()=>{
 			return this.height
 		}
 	}
-	const section=(id,ps=1)=>(<Template id={`${id}.0`} key={`${id}.0`}
+	const section=(id,ps=1)=>(<Section id={`${id}.0`} key={`${id}.0`}
 					create={(props,context)=>{
 						let page=new Page({...props,...size},context)
 						page.composedHeight=size.composedHeight()
@@ -104,7 +109,7 @@ describe("continuable", ()=>{
 								</Paragraph>
 							)
 					}
-				</Template>
+				</Section>
 	)
 	const pageGap=12
 
@@ -308,15 +313,15 @@ describe("continuable", ()=>{
 						return "1234"
 					}
 				}
-				Template.prototype.render=jest.fn(Template.prototype.render)
+				Section.prototype.render=jest.fn(Section.prototype.render)
 				Paragraph.prototype.render=jest.fn(Paragraph.prototype.render)
 				const doc=compose2(node,state)
 
 				const pages=doc.computed.composed
 				expect(pages.length).toBe(2)
 				expect($(pages).text()).toBe("hello1hello2")
-				expect(Template.prototype.render).toHaveBeenCalledTimes(3)
-				expect(Template.prototype.render).lastReturnedWith(null)
+				expect(Section.prototype.render).toHaveBeenCalledTimes(3)
+				expect(Section.prototype.render).lastReturnedWith(null)
 				expect(Paragraph.prototype.render).toHaveBeenCalledTimes(2)
 
 
@@ -334,12 +339,12 @@ describe("continuable", ()=>{
 						1. section1/2.render should be return null
 						2. so paragraph1/2.render should not be called
 						*/
-						expect(Template.prototype.render).toHaveBeenCalledTimes(6)
+						expect(Section.prototype.render).toHaveBeenCalledTimes(6)
 						expect(Paragraph.prototype.render).toHaveBeenCalledTimes(3)
 
-						expect(Template.prototype.render).nthReturnedWith(4,null)
-						expect(Template.prototype.render).nthReturnedWith(5,null)
-						expect(React.isValidElement(Template.prototype.render.mock.results[5].value)).toBe(true)
+						expect(Section.prototype.render).nthReturnedWith(4,null)
+						expect(Section.prototype.render).nthReturnedWith(5,null)
+						expect(React.isValidElement(Section.prototype.render.mock.results[5].value)).toBe(true)
 						//expect(section2.render).lastReturnedWith(null)
 
 						resolve()
@@ -360,7 +365,7 @@ describe("continuable", ()=>{
 						return "1234"
 					}
 				}
-				Template.prototype.render=jest.fn(Template.prototype.render)
+				Section.prototype.render=jest.fn(Section.prototype.render)
 				Paragraph.prototype.render=jest.fn(Paragraph.prototype.render)
 				const doc=compose2(node,state,2)
 
@@ -368,8 +373,8 @@ describe("continuable", ()=>{
 				//expect(pages.length).toBe(2)
 				expect($(pages).text()).toBe("hello1hello1.1hello2")
 				//section 3 render to null since selection is on section2.paragraph1
-				expect(Template.prototype.render).toHaveBeenCalledTimes(3)
-				expect(Template.prototype.render).lastReturnedWith(null)
+				expect(Section.prototype.render).toHaveBeenCalledTimes(3)
+				expect(Section.prototype.render).lastReturnedWith(null)
 
 				//section2.paragraph2 render to null since selection is on first paragraph
 				expect(Paragraph.prototype.render).toHaveBeenCalledTimes(4)
@@ -380,7 +385,6 @@ describe("continuable", ()=>{
 					state.toJS=jest.fn(()=>{
 						return {start:{id:"3.2",at:0},end:{id:"3.2",at:0}}
 					})
-					debugger
 					doc.setState({mode:"selection",time:Date.now()},()=>{
 						const pages=doc.computed.composed
 						expect(pages.length).toBe(3)
@@ -390,13 +394,13 @@ describe("continuable", ()=>{
 						1. section1/2.render should be return null
 						2. so paragraph1/2.render should not be called
 						*/
-						expect(Template.prototype.render).toHaveBeenCalledTimes(3+3)
+						expect(Section.prototype.render).toHaveBeenCalledTimes(3+3)
 						expect(Paragraph.prototype.render).toHaveBeenCalledTimes(4+3)
 
-						expect(Template.prototype.render).nthReturnedWith(4,null)
+						expect(Section.prototype.render).nthReturnedWith(4,null)
 						expect(Paragraph.prototype.render).nthReturnedWith(7,null)
 
-						expect(React.isValidElement(Template.prototype.render.mock.results[5].value)).toBe(true)
+						expect(React.isValidElement(Section.prototype.render.mock.results[5].value)).toBe(true)
 						//expect(section2.render).lastReturnedWith(null)
 
 						resolve()

@@ -331,6 +331,8 @@ class Line extends Component{
 					const first=this.content.find(a=>a.props.x===undefined)
 					if(first && first.props.atom)
 						return first.props.atom
+					if(first && first.props.descent==undefined)
+						return first.props.children
 					return first
 				}
 			},

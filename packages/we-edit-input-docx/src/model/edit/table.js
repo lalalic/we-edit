@@ -57,7 +57,6 @@ export class Table extends Base{
         //change col width
         const gridCol=this.node.find("w\\:tblGrid").first().find("w\\:gridCol")
         const cols=gridCol.map((j,a)=>parseInt(a.attribs["w:w"])).toArray()
-        console.log(`${delta}===>${cols.join(",")}==>`)
         if(cols.length>i+1){
             if(cols[i+1]-delta>0){
                 cols[i+1]=cols[i+1]-delta
@@ -66,7 +65,6 @@ export class Table extends Base{
             }
         }
         cols[i]=width
-        console.log(cols.join(","))
         gridCol.each((j,col)=>{
             col.attribs["w:w"]=cols[j]
         })

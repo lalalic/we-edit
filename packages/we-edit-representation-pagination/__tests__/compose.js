@@ -5,10 +5,10 @@ import {Viewers, Editors} from "../src"
 import provider from "./context"
 
 describe("compose", ()=>{
-	const {Document, Template, Frame, Paragraph, Text, Image,Table,Row,Cell}=Viewers
+	const {Document, Section, Frame, Paragraph, Text, Image,Table,Row,Cell}=Viewers
 	class Measure{
 		constructor({size}){
-			this.defaultStyle={height:size}
+			this.defaultStyle={height:size,descent:1}
 		}
 
 		widthString(x,text){
@@ -53,14 +53,12 @@ describe("compose", ()=>{
 	describe("paragraph",()=>{
 		const TEXT="hello world"
 		const test=(lineWidth=5,spacing={}, indent={},align)=>{
-			const context={parent:{}}
+			const context={
+				parent:{},
+				exclusive:()=>[],
+			}
 			const nextAvailableSpace=context.parent.nextAvailableSpace=jest.fn(()=>({
-				width:lineWidth,height:100,
-				frame:{
-					exclusive(){
-						return []
-					}
-				}
+				width:lineWidth,height:100
 			}))
 			const appendComposed=context.parent.appendComposed=jest.fn()
 			const renderer=TestRender.create(
@@ -157,8 +155,8 @@ describe("compose", ()=>{
 		})
 	})
 
-	describe("template",()=>{
-		const WithTemplateContext=provider(Template)
+	describe("Section",()=>{
+		const WithSectionContext=provider(Section,{ModelTypes:Viewers})
 
 		const document={
 			appendComposed(page){
@@ -171,8 +169,8 @@ describe("compose", ()=>{
 				composed:[]
 			}
 		}
-		const template=(id=0)=>(
-			<Template create={(props,context)=>new Frame({...props,width:10,height:10},context)} id={`${id}.2`} key={id}>
+		const section=(id=0)=>(
+			<Section create={(props,context)=>new Frame({...props,width:10,height:10},context)} id={`${id}.2`} key={id}>
 				<WithParagraphContext>
 					<WithTextContext>
 						<Paragraph id={`${id}.1`}>
@@ -180,51 +178,51 @@ describe("compose", ()=>{
 						</Paragraph>
 					</WithTextContext>
 				</WithParagraphContext>
-			</Template>
+			</Section>
 		)
 
-		it("template",()=>{
+		it("basic",()=>{
 			document.appendComposed=jest.fn()
 			const renderer=TestRender.create(
-				<WithTemplateContext context={{parent:document}}>
-					{template()}
-				</WithTemplateContext>
+				<WithSectionContext context={{parent:document}}>
+					{section()}
+				</WithSectionContext>
 			)
 			expect(document.appendComposed).toHaveBeenCalledTimes(1)
 		})
 
-		it("template",()=>{
+		it("a few sections",()=>{
 			document.appendComposed=jest.fn()
 			const renderer=TestRender.create(
-				<WithTemplateContext context={{parent:document}}>
-					{[1,2,3,4,5].map(template)}
-				</WithTemplateContext>
+				<WithSectionContext context={{parent:document}}>
+					{[1,2,3,4,5].map(section)}
+				</WithSectionContext>
 			)
 			expect(document.appendComposed).toHaveBeenCalledTimes(5)
 		})
 
 
 		describe("table",()=>{
-			let u=0
-			const template=table=>(
-				<Template create={(props,context)=>new Frame({...props,width:10,height:20},context)} id={0} key={0}>
+			let u=1
+			const section=table=>(
+				<Section create={(props,context)=>new Frame({...props,width:10,height:20},context)} id={0} key={0}>
 					<WithParagraphContext>
 						<WithTextContext>
 							{table}
 						</WithTextContext>
 					</WithParagraphContext>
-				</Template>
+				</Section>
 			)
 
 			describe("one column",()=>{
-				fit("basic",()=>{
+				it("basic",()=>{
 					let page
 					document.appendComposed=jest.fn(a=>page=a)
 					const rendered=TestRender.create(
-						<WithTemplateContext context={{parent:document}}>
-							{template(
-								<Table id={u++} cols={[6]} width={8}>
-									<Row id={u++}>
+						<WithSectionContext context={{parent:document}}>
+							{section(
+								<Table id={u++} width={8}>
+									<Row id={u++} cols={[{x:0,width:6}]} >
 										<Cell id={u++}>
 											<Paragraph id={u++} defaultStyle={{size:10}}>
 												<Text id={u++} fonts="arial" size={10}>hello</Text>
@@ -233,11 +231,11 @@ describe("compose", ()=>{
 									</Row>
 								</Table>
 							)}
-						</WithTemplateContext>
+						</WithSectionContext>
 					)
 					expect(document.appendComposed).toHaveBeenCalledTimes(1)
+
 					expect(page.lastLine).toBeDefined()
-					debugger
 					const table=new ReactQuery(page.lastLine)
 						.findFirst(`[data-type="table"]`)
 						.get(0)
@@ -248,10 +246,10 @@ describe("compose", ()=>{
 				it("cell can be splitted into pages",()=>{
 					document.appendComposed=jest.fn()
 					const rendered=TestRender.create(
-						<WithTemplateContext context={{parent:document}}>
-							{template(
-								<Table id={u++} cols={[7]} width={8}>
-									<Row id={u++}>
+						<WithSectionContext context={{parent:document}}>
+							{section(
+								<Table id={u++} width={8}>
+									<Row id={u++} cols={[{x:0,width:7}]} >
 										<Cell id={u++}>
 											<Paragraph id={u++} defaultStyle={{size:10}}>
 												<Text id={u++} fonts="arial" size={10}>hello hello hello</Text>
@@ -260,7 +258,7 @@ describe("compose", ()=>{
 									</Row>
 								</Table>
 							)}
-						</WithTemplateContext>
+						</WithSectionContext>
 					)
 					expect(document.appendComposed).toHaveBeenCalledTimes(3)
 				})
@@ -268,13 +266,13 @@ describe("compose", ()=>{
 				it("nested cell can be splitted into pages",()=>{
 					document.appendComposed=jest.fn()
 					const rendered=TestRender.create(
-						<WithTemplateContext context={{parent:document}}>
-							{template(
-								<Table id={u++} cols={[7]} width={10}>
-									<Row id={u++}>
+						<WithSectionContext context={{parent:document}}>
+							{section(
+								<Table id={u++} width={10}>
+									<Row id={u++} cols={[{x:0,width:7}]} >
 										<Cell id={u++}>
-											<Table id={u++} cols={[7]} width={8}>
-												<Row id={u++}>
+											<Table id={u++} width={8}>
+												<Row id={u++} cols={[{x:0,width:7}]}>
 													<Cell id={u++}>
 														<Paragraph id={u++} defaultStyle={{size:10}}>
 															<Text id={u++} fonts="arial" size={10}>hello hello hello</Text>
@@ -286,7 +284,7 @@ describe("compose", ()=>{
 									</Row>
 								</Table>
 							)}
-						</WithTemplateContext>
+						</WithSectionContext>
 					)
 					expect(document.appendComposed).toHaveBeenCalledTimes(3)
 				})
@@ -298,10 +296,10 @@ describe("compose", ()=>{
 					const pages=[]
 					document.appendComposed=jest.fn(page=>pages.push(page))
 					const rendered=TestRender.create(
-						<WithTemplateContext context={{parent:document}}>
-							{template(
-								<Table id={u++} cols={[5,5]} width={10}>
-									<Row id={u++}>
+						<WithSectionContext context={{parent:document}}>
+							{section(
+								<Table id={u++} width={10}>
+									<Row id={u++} cols={[{x:0,width:5},{x:5,width:5}]} >
 										<Cell id={u++}>
 											<Paragraph id={u++} defaultStyle={{size:10}}>
 												<Text id={u++} fonts="arial" size={15}>hello hello</Text>
@@ -315,7 +313,7 @@ describe("compose", ()=>{
 									</Row>
 								</Table>
 							)}
-						</WithTemplateContext>
+						</WithSectionContext>
 					)
 					expect(document.appendComposed).toHaveBeenCalledTimes(2)
 				})
@@ -323,10 +321,10 @@ describe("compose", ()=>{
 					const pages=[]
 					document.appendComposed=jest.fn(page=>pages.push(page))
 					const rendered=TestRender.create(
-						<WithTemplateContext context={{parent:document}}>
-							{template(
-								<Table id={u++} cols={[5,5]} width={10}>
-									<Row id={u++}>
+						<WithSectionContext context={{parent:document}}>
+							{section(
+								<Table id={u++} width={10}>
+									<Row id={u++} cols={[{x:0,width:5},{x:5,width:5}]} >
 										<Cell id={u++}>
 											<Paragraph id={u++} defaultStyle={{size:10}}>
 												<Text id={u++} fonts="arial" size={10}>hello</Text>
@@ -341,7 +339,7 @@ describe("compose", ()=>{
 									</Row>
 								</Table>
 							)}
-						</WithTemplateContext>
+						</WithSectionContext>
 					)
 					expect(document.appendComposed).toHaveBeenCalledTimes(2)
 				})
@@ -350,10 +348,10 @@ describe("compose", ()=>{
 					const pages=[]
 					document.appendComposed=jest.fn(page=>pages.push(page))
 					const rendered=TestRender.create(
-						<WithTemplateContext context={{parent:document}}>
-							{template(
-								<Table id={u++} cols={[5,5]} width={10}>
-									<Row id={u++}>
+						<WithSectionContext context={{parent:document}}>
+							{section(
+								<Table id={u++} width={10}>
+									<Row id={u++} cols={[{x:0,width:5},{x:5,width:5}]} >
 										<Cell id={u++}>
 											<Paragraph id={u++} defaultStyle={{size:10}}>
 												<Text id={u++} fonts="arial" size={10}>hello</Text>
@@ -361,8 +359,8 @@ describe("compose", ()=>{
 										</Cell>
 
 										<Cell id={u++}>
-											<Table id={u++} cols={[5,5]} width={10}>
-												<Row id={u++}>
+											<Table id={u++} width={10}>
+												<Row id={u++} cols={[{x:0,width:5},{x:5,width:5}]}>
 													<Cell id={u++}>
 														<Paragraph id={u++} defaultStyle={{size:10}}>
 															<Text id={u++} fonts="arial" size={15}>hello hello</Text>
@@ -376,7 +374,7 @@ describe("compose", ()=>{
 									</Row>
 								</Table>
 							)}
-						</WithTemplateContext>
+						</WithSectionContext>
 					)
 					expect(document.appendComposed).toHaveBeenCalledTimes(2)
 				})
