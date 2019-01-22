@@ -101,7 +101,12 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
         return (
             <ComposedDocument {...props}
 				innerRef={a=>{this.canvas=a}}
-                onClick={e=>this.onClick(e)}
+                onClick={e=>{
+                    if(!down.selected){
+                        down.selected=false
+                        this.onClick(e)
+                    }
+                }}
 				onMouseDown={flagEvent}
 				onMouseMove={e=>{
 					if(!(e.buttons&0x1)){
@@ -121,12 +126,13 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
 				}}
                 onMouseUp={e=>{
 					if(shouldIgnore(e)){
-						return
+                        return
 					}
 					var {start,end}=this.selecting.current.state
                     if(start && end){
 						this.selecting.current.setState({start:undefined, end:undefined, rects:undefined,selecting:false})
                         this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))
+                        down.selected=true
                     }
 				}}
 				>
