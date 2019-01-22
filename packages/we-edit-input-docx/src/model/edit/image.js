@@ -40,6 +40,13 @@ export class Image extends Base{
         update(width,"cx")
         update(height,"cy")
     }
+	
+	rotate(degree){
+		const rot=parseInt(degree*60000)
+		const xfrm=this.node.find("a\\:xfrm")
+		
+		xfrm.attr("rot",rot)
+	}
 
     effectExtent(props){
         return null

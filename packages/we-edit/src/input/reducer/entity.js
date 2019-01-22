@@ -56,6 +56,17 @@ export class entity extends Content{
 	}
 
 	rotate({x,y}){
+		let {start:{id}}=this.selection
+		let content=this.$('#'+id)
+		const {width,height}=content.attr("size").toJS()
+		
+		this.save4undo(id)
+		
+		const degree=(Math.asin(x/height)+Math.asin(y/width))*180/Math.PI
+		
+		content.attr("rotate",(content.attr("rotate")||0)+degree)
+		
+		this.renderChanged(id)
 		return this
 	}
 
