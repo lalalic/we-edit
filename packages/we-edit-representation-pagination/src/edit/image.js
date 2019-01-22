@@ -2,6 +2,7 @@ import React from "react"
 import editable from "./editable"
 import Base from "../image"
 import Entity from "../composed/selection/entity"
+import {Group} from "../composed"
 
 export default class extends editable(Base){
 	splittable=false
@@ -27,6 +28,7 @@ export default class extends editable(Base){
 					x:(left+right)/2,
 					y:top-20
 				}}
+				transform={a=>this.transform(<Group width={right} height={bottom}>{a}</Group>)}
 			/>
 		)
 	}
