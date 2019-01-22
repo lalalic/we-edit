@@ -32,21 +32,10 @@ class Positioning{
     around(left,top){
         return {}
     }
-    lines(n){
-        return []
-    }
-    line(id,at,offset){
-        return null
-    }
+
     getRangeRects(start,end){
 
         return []
-    }
-    getClientRects(id){
-        return []
-    }
-    getClientRect(id){
-        return null
     }
 
     getCursorSelection=memoize((content, selection,scale)=>{
@@ -231,16 +220,6 @@ class ReactPositioning extends Positioning{
         const p1=this.position(end.id, end.at)
         const composer=this.getComposer(this.getComposer(start.id).composeFrames().pop())
         return composer.getRangeRects(p0,p1, page=>this.pageXY(this.pages.indexOf(page)))
-    }
-
-    getClientRect(id){
-        return this.getClientRects(id)[0]
-    }
-
-    getClientRects(id){
-        return this.getComposer(id).getPages()
-            .reduce((rects,page)=>[...rects, ...page.getClientRects(id)],[])
-            .filter(a=>!!a)
     }
 }
 

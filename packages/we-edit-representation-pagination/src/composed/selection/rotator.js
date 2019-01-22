@@ -15,46 +15,61 @@ export default class Rotator extends Component{
 	state={rotating:false}
 
 	render(){
-		const {r,x,y,onRotate}=this.props
+		const {r,x,y,onEnd}=this.props
 		const style={
 			fill:"white",
 			stroke:"lightgray",
 			strokeWidth:1
 		}
-		let props={
+		const props={
 			width:2*r,
 			height:2*r,
 			style,
 			x:x-r,
 			y:y-r
 		}
-		props.onMouseDown=e=>this.onStartResize(e)
-
 		const {rotating}=this.state
-		let overlay=null
 		if(rotating){
-			overlay=<Overlay cursor="crosshair"
-				onMouseUp={e=>this.setState({rotating:false})}
-				onMouseMove={e=>{
-					let x=e.clientX-this.left
-					let y=e.clientY-this.top
-					x && y && onRotate(x,y)
-					this.left=e.clientX
-					this.top=e.clientY
-				}}
-				/>
-		}
-		return (
-			<Group>
+			return (
+				<Overlay cursor="crosshair"
+					onMouseUp={e=>{
+						this.setState({rotating:undefined})
+						if(onEnd)
+							onEnd()
+						e.stopPropagation()
+					}}
+					onMouseMove={e=>{
+						this.rotate(e.clientX, e.clientY)
+						e.stopPropagation()
+					}}
+					>
+					<use xlinkHref="#rotator" {...props}/>
+				</Overlay>
+			)
+		}else{
+			props.onMouseDown=e=>this.onStartResize(e)
+			return (
 				<use xlinkHref="#rotator" {...props}/>
-				{overlay}
-			</Group>
-		)
+			)
+		}
 	}
 
 	onStartResize(e){
 		this.setState({rotating:true})
 		this.left=e.clientX
 		this.top=e.clientY
+		const {onStart}=this.props
+		if(onStart)
+			onStart()
+	}
+	
+	rotate(left,top){
+		const {onRotate}=this.props
+		let x=left-this.left
+		let y=top-this.top
+		if(false!==onRotate({x,y})){
+			this.left=left
+			this.top=top
+		}
 	}
 }
