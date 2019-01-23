@@ -19,6 +19,12 @@ export class Image extends Base{
         return this.node.closest("w\\:drawing")
     }
 
+    remove({id}){
+        const drawing=this.node.closest("w\\:r")
+        drawing.remove()
+        return drawing
+    }
+
     size({width,height}){
         let ext0=this.node.find("a\\:xfrm>a\\:ext")
         let inline=this.node.closest("wp\\:inline")
@@ -40,11 +46,11 @@ export class Image extends Base{
         update(width,"cx")
         update(height,"cy")
     }
-	
+
 	rotate(degree){
 		const rot=parseInt(degree*60000)
 		const xfrm=this.node.find("a\\:xfrm")
-		
+
 		xfrm.attr("rot",rot)
 	}
 
@@ -70,18 +76,18 @@ export class Image extends Base{
             .attr("id", rid)
             .attr("name", name)
     }
-	
+
 	create(props,reducer,target){
 		let r=target.constructUp("run")
 		const [p0,p1]=reducer.splitAtUpto(reducer.selection.start,"run")
 		let createdNode=super.create(...arguments)
-		
+
 		this.file.getNode(r.attr('id'))
 			.find("w\\:t")
 			.replaceWith(createdNode)
-		
+
 		r.insertAfter(p0)
-		
+
 		reducer.renderChanged(p0.parent().attr('id'))
 
 		let cursor=p1.findFirst('text').attr('id')

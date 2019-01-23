@@ -4,7 +4,7 @@ export  class Remove extends IChange{
 	splitAtUpto({id,at},to="paragraph"){
 		const target=this.$('#'+id)
 		const text=target.text()
-		to=target.closest(to)
+		to=typeof(to)=="string" ? target.closest(to) : to
 		const parent=to.parent()
 
 		this.save4undo(to.attr('id'))

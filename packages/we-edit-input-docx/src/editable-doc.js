@@ -12,7 +12,7 @@ const defineId=(target,id)=>Object.defineProperty(target,"id",{
 })
 
 const Type=type=>type[0].toUpperCase()+type.substr(1)
-	
+
 export default class EditableDocument extends docx4js{
 	static get URL(){
 		if(!this.__cachedData){
@@ -20,15 +20,15 @@ export default class EditableDocument extends docx4js{
 		}
 		return this.__cachedData
 	}
-	
+
 	createObjectURL(data,type){
 		return EditableDocument.URL.createObjectURL(...arguments)
 	}
-	
+
 	revokeObjectURL(url){
 		return EditableDocument.URL.revokeObjectURL(...arguments)
 	}
-	
+
 	getDataPartAsUrl(name,type="*/*"){
 		let part=this.parts[name]
 		let crc32=part._data.crc32
@@ -43,7 +43,7 @@ export default class EditableDocument extends docx4js{
 			this.revokeObjectURL(url)
 		}
 	}
-	
+
 	makeId(node, uid){
 		if(uid){
 			defineId(node.attribs,uid)
@@ -88,14 +88,21 @@ export default class EditableDocument extends docx4js{
 		let editor=new editors[Type(type)](this)
 		return editor.create(arguments[0],reducer, target)
 	}
-	
+
 	updateNode({id,type},changing, query){
 		let editor=new editors[Type(type)](this)
+		editor.node=this.getNode(id)
 		return editor.update(arguments[0],changing)
 	}
 
-	removeNode({id}){
-		return this.getNode(id).remove()
+	removeNode({id,type}){
+		if(type && !!editors[Type(type)]){
+			let editor=new editors[Type(type)](this)
+			editor.node=this.getNode(id)
+			return editor.remove(arguments[0])
+		}else{
+			return this.getNode(id).remove()
+		}
 	}
 
 	insertNodeBefore(newNode,referenceNode,parentNode){
@@ -147,7 +154,7 @@ export default class EditableDocument extends docx4js{
 	px2cm(px){
 		return Math.ceil(px*72/96*360000/28.3464567)
 	}
-	
+
 	px2Pt(px){
 		return px*72/96
 	}
@@ -155,10 +162,8 @@ export default class EditableDocument extends docx4js{
 	toString(id){
 		return this.officeDocument.content.xml(this.getNode(id))
 	}
-	
+
 	toXml(node){
 		return this.officeDocument.content.xml(node)
 	}
 }
-
-

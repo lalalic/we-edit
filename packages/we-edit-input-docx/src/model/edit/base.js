@@ -43,8 +43,11 @@ export default class Editor{
     }
 
     update({id},changing,query){
-        this.node=this.file.getNode(id)
         return this.apply({id, ...changing},query)
+    }
+
+    remove({id,type}){
+        return this.node.remove()
     }
 
     apply(changing){
