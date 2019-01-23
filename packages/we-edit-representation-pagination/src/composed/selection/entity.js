@@ -25,7 +25,6 @@ export default class Extent extends Component{
 
 	render(){
 		const {path, resizeSpots, onResize, onMove, around, onRotate, rotate, x, y,transform=a=>a}=this.props
-
 		return transform(
 			<Group x={x} y={y}>
 				{onMove && (

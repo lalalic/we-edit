@@ -19,11 +19,6 @@ const CursorShape=({y=0,x=0,height=0,color="black"})=>(
 export default connect(null,null,null,{withRef:true})(class Responsible extends Component{
     static displayName="composed-document-with-cursor"
 
-	static childContextTypes={
-        onPageHide: PropTypes.func,
-		onPageShow: PropTypes.func,
-	}
-
     scale=this.props.scale
     onMove=this.onMove.bind(this)
     onResize=this.onResize.bind(this)
@@ -32,13 +27,6 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
     positioning=new Positioning()
     getComposer=this.getComposer.bind(this)
     getContent=this.getContent.bind(this)
-
-	getChildContext(){
-		return {
-			onPageHide:e=>e,
-            onPageShow:e=>e,
-		}
-	}
 
     get locator(){
         if(this.refs.locator)

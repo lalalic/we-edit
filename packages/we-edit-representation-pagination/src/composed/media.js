@@ -8,9 +8,6 @@ export default class Media extends Component{
 	static contextTypes={
 		media: PropTypes.string,
 		paper: PropTypes.bool,
-		onPageHide: PropTypes.func,
-		onPageShow: PropTypes.func,
-		scrollableAncestor: PropTypes.any,
 	}
 
 	render(){
@@ -31,7 +28,6 @@ export default class Media extends Component{
 							let newPage=(
 								<Group key={i} {...{y, x:(canvasWidth-width)/2}} className="page">
 									{smart ? <SmartShow {...{
-										onPageHide,onPageShow,scrollableAncestor,
 										children:page,i,
 										width,height,margin,
 										paper,

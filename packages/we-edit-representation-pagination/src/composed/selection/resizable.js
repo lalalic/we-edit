@@ -19,18 +19,14 @@ export default class Resizable extends Component{
 			return (
 				<Overlay
 					onMouseUp={e=>{
-						if(resizing){
-							this.setState({resizing:undefined})
-							if(onEnd)
-								onEnd()
-							e.stopPropagation()
-						}
+						this.setState({resizing:undefined})
+						if(onEnd)
+							onEnd()
+						e.stopPropagation()
 					}}
 					onMouseMove={e=>{
-						if(resizing){
-							this.resize(e.clientX, e.clientY)
-							e.stopPropagation()
-						}
+						this.resize(e.clientX, e.clientY)
+						e.stopPropagation()
 					}}
 					style={{cursor}}
 					>

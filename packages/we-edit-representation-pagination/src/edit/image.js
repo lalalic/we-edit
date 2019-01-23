@@ -8,11 +8,20 @@ export default class extends editable(Base){
 	splittable=false
 
 	getFocusShape(){
-		const {width:right, height:bottom}=this.props.size
+		const {size:{width:right, height:bottom},rotate,dispatch}=this.props
 		const left=0, top=0
+		const transform=a=>{
+			if(rotate){
+				const {x=0,y=0}=a.props
+				const rotated=this.rotate(<Group width={right} height={bottom}/>).props.children
+				const {x:x0=0,y:y0=0}=rotated.props
+				return React.cloneElement(a,{x:x+x0,y:y+y0,rotate})
+			}
+			return a
+		}
 		return (
 			<Entity
-				path={`M${left} ${top} L${right} ${top} L${right} ${bottom} L${left} ${bottom} Z`}
+				path={`M${left} ${top} h${right-left} v${bottom-top} h${left-right} Z`}
 				resizeSpots={[
 						{x:left,y:top,resize:"nwse"},
 						{x:(left+right)/2,y:top,resize:"ns",},
@@ -28,7 +37,7 @@ export default class extends editable(Base){
 					x:(left+right)/2,
 					y:top-20
 				}}
-				transform={a=>this.transform(<Group width={right} height={bottom}>{a}</Group>)}
+				transform={transform}
 			/>
 		)
 	}
