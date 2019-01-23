@@ -131,7 +131,6 @@ export const Selection={
 	START_AT:(id,at)=>({type:"we-edit/selection/STARTAT",payload:{id,at}}),
 	END_AT: (id,at)=>({type:"we-edit/selection/ENDAT",payload:{id,at}}),
 	REMOVE: ()=>({type:"we-edit/selection/REMOVE"}),
-	MOVE: (id,at)=>({type:"we-edit/selection/MOVE",payload:{id,at}}),
 	COPY: ()=>({type:"we-edit/selection/COPY"}),
 	PASTE: (id,at)=>({type:"we-edit/selection/PASTE",payload:{id,at}}),
 	CUT: ()=>({type:"we-edit/selection/CUT"}),
@@ -140,7 +139,8 @@ export const Selection={
 
 export const Entity={
 	RESIZE: deltaXY=>({type:"we-edit/entity/RESIZE",payload:deltaXY}),
-	ROTATE: a=>({type:"we-edit/entity/ROTATE",payload:a}),
+	ROTATE: degree=>({type:"we-edit/entity/ROTATE",payload:degree}),
+	MOVE: payload=>({type:"we-edit/selection/MOVE",payload}),
 	CREATE: element=>({type:"we-edit/entity/CREATE", payload:element}),
 	UPDATE: changing=>({type:"we-edit/entity/UPDATE", payload:changing}),
 }

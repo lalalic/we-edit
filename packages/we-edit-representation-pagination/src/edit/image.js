@@ -21,6 +21,7 @@ export default class extends editable(Base){
 		}
 		return (
 			<Entity
+				id={this.props.id}
 				path={`M${left} ${top} h${right-left} v${bottom-top} h${left-right} Z`}
 				resizeSpots={[
 						{x:left,y:top,resize:"nwse"},

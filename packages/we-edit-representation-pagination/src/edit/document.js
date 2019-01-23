@@ -165,6 +165,16 @@ export default class Document extends Super{
 
 	getRangeRects(p0,p1, pageXY){
 		const pages=this.computed.composed
+
+		const composer0=this.getComposer(p0.id)
+		p0=composer0.position(p0.id,p0.at)
+		p1=this.getComposer(p1.id).position(p1.id,p1.at)
+		if(p0.id==p1.id && p0.page==p1.page && !composer0.splittable){
+			const [start,end]=[p0,p1].sort((a,b)=>a.at-b.at);
+			const {x,y}=pageXY(pages[start.page])
+			return [{left:x+start.x,top:y+start.y,right:x+end.x,bottom:y+end.y}]
+		}
+
 		p0.line=pages[p0.page].lineIndexOf(p0)
 		p1.line=pages[p1.page].lineIndexOf(p1)
 		const rects=[]
@@ -195,9 +205,9 @@ export default class Document extends Super{
 			lineRectsInPage(pages[end.page],0,end.line+1)
 		}
 		if(rects.length){
-			Object.assign(rects[0],{left:pageXY(start.page).x+start.x})
+			Object.assign(rects[0],{left:pageXY(pages[start.page]).x+start.x})
 
-			Object.assign(rects[rects.length-1], {right:pageXY(end.page).x+end.x})
+			Object.assign(rects[rects.length-1], {right:pageXY(pages[end.page]).x+end.x})
 		}
 		return rects
 	}

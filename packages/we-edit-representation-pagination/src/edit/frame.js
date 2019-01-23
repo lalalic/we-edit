@@ -79,6 +79,10 @@ export default Cacheable(class extends editable(Base){
                 return true
             }
 
+            if(type=="anchor"){
+                return true
+            }
+
             if(node.type!=Group)
                 return false
         })
@@ -93,7 +97,7 @@ export default Cacheable(class extends editable(Base){
         }
         const lastChance=parents.findLast(a=>!!a.props["data-content"])
         if(lastChance){
-            return {id:lastChance.props["data-content"],at:0}
+            return {id:lastChance.props["data-content"]}
         }
 
         return {}

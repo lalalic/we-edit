@@ -12,6 +12,7 @@ import Cell from "./cell"
 import Text from "./text"
 import Image from "./image"
 import Frame from "./frame"
+import Anchor from "./anchor"
 
 export default editable.enable(Models,{
 	Document,
@@ -24,4 +25,5 @@ export default editable.enable(Models,{
 	Cell,
 	Text,
 	Image,
+	Anchor,
 })

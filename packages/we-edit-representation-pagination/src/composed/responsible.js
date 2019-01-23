@@ -167,7 +167,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
                         }
                         range={
                             <Selection
-                                around={(target,left,top)=>{
+                                around={(left,top)=>{
                                     const {id,at}=this.positioning.around(left, top)
                             		if(id){
                                         if(at!==null){
@@ -218,8 +218,15 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
         this.dispatch(ACTION.Entity.RESIZE(e))
     }
 
-    onMove(id,at){
-        this.dispatch(ACTION.Selection.MOVE(id,at))
+    onMove(e){
+        if(e.absolute){
+            const xy=this.positioning.asCanvasPoint(e.dest)
+            return
+            const {line,x,y,paragraph}=this.positioning.getPage(xy)
+            this.dispatch(ACTION.Entity.MOVE({dest:{id,at}}))
+        }else{
+            this.dispatch(ACTION.Entity.MOVE(e))
+        }
     }
 
     onClick({shiftKey:selecting, target, clientX:left,clientY:top}){

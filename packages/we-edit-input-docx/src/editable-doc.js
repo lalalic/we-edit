@@ -70,7 +70,9 @@ export default class EditableDocument extends docx4js{
 			node=this.officeDocument.content(`#${id}`)
 		else
 			node=this.officeDocument.getRel(part)(`#${id}`)
-		console.assert(node.length<2)
+		if(node.length>1){
+			throw new Error(`file node[${id}] not unique`)
+		}
 		return node
 	}
 

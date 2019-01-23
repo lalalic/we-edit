@@ -6,10 +6,6 @@ import Overlay from "./overlay"
 import {Group} from "../../composed"
 
 export default class Movable extends Component{
-	static contextTypes={
-        query: PropTypes.func
-    }
-
 	static propTypes={
 		onMove: PropTypes.func.isRequired
 	}
@@ -26,7 +22,7 @@ export default class Movable extends Component{
 					 	onMouseUp={e=>this.onEndMove(e)}
 						onMouseMove={e=>this.moving(e)}
 						>
-						<Mover ref={a=>this.mover=a} cursor="default"/>
+						<Mover ref={a=>this.mover=a} cursor="default" />
 					</Overlay>)
 				}
 				{React.cloneElement(children,{onMouseMove:e=>{
@@ -41,25 +37,25 @@ export default class Movable extends Component{
 
     onEndMove(e){
 		if(!this.state.moving)
-			return 
-			
+			return
+
 		let {id,at}=this.mover.state
 		this.setState({moving:false},()=>{
 			if(id){
-				this.props.onMove(id,at)
+				this.props.onMove({dest:{id,at}})
 			}
 		})
 		e.stopPropagation()
-		
+
     }
 
     moving(e){
-		if(!this.state.moving)
-			return 
-		const {target,clientX:left, clientY:top}=e
-		let pos=this.props.around(target,left,top)
-		if(pos){
-			this.mover.setState(pos)
+		if(this.state.moving){
+			const {clientX:left, clientY:top}=e
+			let pos=this.props.around(left,top)
+			if(pos){
+				this.mover.setState(pos)
+			}
 		}
 		e.stopPropagation()
     }

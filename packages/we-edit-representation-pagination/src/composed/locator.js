@@ -28,8 +28,8 @@ export default compose(
         this.state={content:null,canvas:null}
     }
 
-    get positioning(){
-        return this.props.positioning
+    get canvas(){
+        return this.state.canvas
     }
 
     render(){
@@ -59,22 +59,20 @@ export default compose(
             return false
 
         if(content.equals(state.content)){
-            this.makeCursorSelection(arguments[0])
-            this.style=positioning.getSelectionStyle(content,selection,scale)
+            const {position,rects}=this.getRangeAndPosition(positioning,selection)
+            this.makeCursorSelection(position,rects,arguments[0])
+            this.style=new SelectionStyle(position,positioning)
             return true
         }
 
         return false
     }
 
-    makeCursorSelection(props){
+    makeCursorSelection(position,rects,{cursor, range, selection,getComposer}){
         this.cursor=null
         this.range=null
         try{
-			let {cursor, range, selection, scale, content,getComposer,positioning}=props
-			const {position,rects}=positioning.getCursorSelection(content, selection, scale)
-
-            this.range=range
+			this.range=range
             if(!!position){
                 const {x,y,left,top,height,fontFamily,fontSize}=position
                 this.cursor=React.cloneElement(cursor, {x,y,left,top,height,fontFamily,fontSize})
@@ -82,16 +80,25 @@ export default compose(
 
             if(range && rects && rects.length){
 				const {start, end}=selection.toJS()
-				let shape=null
-				if(start.id==end.id){
-					shape=getComposer(start.id).getFocusShape()
-				}
-				this.range=React.cloneElement(range,{rects,shape})
+				this.range=React.cloneElement(range,{
+                    rects,
+                    shape: start.id==end.id && getComposer(start.id).getFocusShape()
+                })
+
                 this.cursor=React.cloneElement(this.cursor||cursor,{height:0.1})
 			}
 		}catch(e){
 
 		}
+    }
+
+    getRangeAndPosition(positioning,selection){
+        const {cursorAt, ...a}=selection.toJS()
+        const {id,at}=a[cursorAt]
+        return {
+            position:positioning.position(id, at),
+            rects:a.start.id!=a.end.id || a.start.at!=a.end.at ? positioning.getRangeRects(a.start,a.end) :[]
+        }
     }
 
     componentDidUpdate({selection}){
@@ -119,3 +126,46 @@ export default compose(
         return this.state.canvas
     }
 })
+
+class SelectionStyle{
+    constructor(position,positioning){
+        this.position=position
+        this.positioning=positioning
+        this.getComposer=a=>positioning.getComposer(a)
+        this.getContent=a=>positioning.getContent(a)
+    }
+
+    props(type, getFromContent=true){
+        if(getFromContent){
+            return this.content(type).props
+        }
+
+        if(type.toLowerCase()=="page"){
+            return this.pageProps()
+        }
+
+        const {id:typed}=this.content(type)
+        if(typed){
+            const composer=this.getComposer(typed)
+            if(composer){
+                return composer.props
+            }
+        }
+    }
+
+    pageProps(){
+        const pageY=()=>this.positioning.pageXY(this.position.page).y
+        return {
+            ...this.position,
+            get pageY(){
+                return pageY()
+            }
+        }
+    }
+
+    content(type){
+        let $=this.getContent(this.position.id)
+        let props=$.is(type) ? $.props() : $.closest(type).props()
+        return props ? props.toJS() : {props:null}
+    }
+}

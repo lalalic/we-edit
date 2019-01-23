@@ -19,7 +19,16 @@ export default class extends editable(Base){
     }
 
     getRangeRects(p0,p1,pageXY){
-		const pages=this.getPages()
+        const pages=this.getPages()
+        const composer0=this.getComposer(p0.id)
+		p0=composer0.position(p0.id,p0.at)
+		p1=this.getComposer(p1.id).position(p1.id,p1.at)
+		if(p0.id==p1.id && p0.page==p1.page && !composer0.splittable){
+			const [start,end]=[p0,p1].sort((a,b)=>a.at-b.at);
+			const {x,y}=pageXY(pages.find(a=>a.props.I==start.page))
+			return [{left:x+start.x,top:y+start.y,right:x+end.x,bottom:y+end.y}]
+		}
+
         p0.page=pages.find(a=>a.props.I==p0.page)
         p1.page=pages.find(a=>a.props.I==p1.page)
 

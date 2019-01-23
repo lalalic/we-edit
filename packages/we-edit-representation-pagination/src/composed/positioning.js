@@ -34,21 +34,17 @@ class Positioning{
     }
 
     getRangeRects(start,end){
-
         return []
     }
 
-    getCursorSelection=memoize((content, selection,scale)=>{
-        const {cursorAt, ...a}=selection.toJS()
-        const {id,at}=a[cursorAt]
-        let rects=[]
-        if(a.start.id!=a.end.id || a.start.at!=a.end.at){
-            rects=this.getRangeRects(a.start,a.end)
-        }
 
-        const position=this.position(id, at)
-        return {position,rects}
-    })
+    nextLine(id,at){
+
+    }
+
+    prevLine(id,at){
+
+    }
 
     getBoundingClientRect(){
         return this.canvas.getBoundingClientRect()
@@ -68,14 +64,6 @@ class Positioning{
         return {left:location.x, top:location.y}
     }
 
-    nextLine(id,at){
-        return this.line(id,at,1)
-    }
-
-    prevLine(id,at){
-        return this.line(id,at,-1)
-    }
-
     pageXY(i=0){
         const pages=this.canvas.querySelectorAll(".page")
         const page=pages[i]
@@ -89,63 +77,6 @@ class Positioning{
     pageY(i){
         return this.pageXY(...arguments).y
     }
-
-    getSelectionStyle=memoize((content,selection,scale)=>{
-        var position=0,page,column,line,node,id
-        const fromContent=type=>{
-            let $=this.getContent(id)
-            let props=$.is(type) ? $.props() : $.closest(type).props()
-            return props ? props.toJS().props : null
-        }
-        const self=this
-        return {
-            version:"1.0.0",
-            props:memoize((type,bContent=true)=>{
-                if(position===0){
-                    ({position}=this.getCursorSelection(content,selection, scale));
-					if(position){
-						({page,column,line,node,id}=position);
-					}else{
-						const {cursorAt, ...a}=selection.toJS()
-						id=a[cursorAt].id
-					}
-                }
-
-                if(bContent){//from content in state
-                    return fromContent(type)
-                }
-
-                let reType=new RegExp(type,"i")
-                if(reType.test("page")){
-					if(position){
-						return {
-							page,
-							column,
-							line,
-							get pageY(){
-								return self.pageY(page)
-							}
-						}
-					}
-
-					return null
-                }
-
-
-				if(node){
-					let found=node.closest(`[data-type="${type}"]`)
-					if(found){
-						let composer=self.getComposer(found.dataset.content)
-						if(composer){
-							return composer.props
-						}
-					}
-				}
-
-                return fromContent(type)
-            })
-        }
-    })
 }
 
 class ReactPositioning extends Positioning{
@@ -216,11 +147,20 @@ class ReactPositioning extends Positioning{
     getRangeRects(start,end){
         ({start,end}=this.extendSelection(start,end));
 
-        const p0=this.position(start.id, start.at)
-        const p1=this.position(end.id, end.at)
         const composer=this.getComposer(this.getComposer(start.id).composeFrames().pop())
-        return composer.getRangeRects(p0,p1, page=>this.pageXY(this.pages.indexOf(page)))
+        return composer.getRangeRects(start,end, page=>this.pageXY(this.pages.indexOf(page)))
     }
+}
+
+class SelectionStyle{
+    props(type,isFromContent){
+
+    }
+
+    contentProps(type){
+
+    }
+
 }
 
 export default ReactPositioning

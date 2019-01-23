@@ -4,6 +4,7 @@ import PropTypes from "prop-types"
 import Spot from "./spot"
 
 import Movable from "./movable"
+import AbsoluteMovable from "./absolute-movable"
 import Resizable from "./resizable"
 import Rotatable from "./rotatable"
 
@@ -20,26 +21,29 @@ export default class Extent extends Component{
 			r:PropTypes.number,
 			x:PropTypes.number.isRequired,
 			y:PropTypes.number.isRequired
-		})
+		}),
+		id:PropTypes.string,
+		absolute:PropTypes.bool,
 	}
 
 	render(){
-		const {path, resizeSpots, onResize, onMove, around, onRotate, rotate, x, y,transform=a=>a}=this.props
+		const {path, resizeSpots, onResize, onMove, around, onRotate, rotate, x, y,transform=a=>a,id,absolute}=this.props
+		const Mover=absolute ? AbsoluteMovable : Movable
 		return transform(
 			<Group x={x} y={y}>
 				{onMove && (
-					<Movable onMove={onMove} around={around}>
+					<Mover onMove={e=>onMove({...e,id,absolute})} around={around}>
 						<path d={path} fill="white" fillOpacity={0.01} cursor="move"/>
-					</Movable>
+					</Mover>
 				)}
 
 				{onResize && (
-					<Resizable onResize={onResize}>
+					<Resizable onResize={e=>onResize({...e,id})}>
 						{resizeSpots.map((a,i)=><Spot key={i} {...a}/>)}
 					</Resizable>
 				)}
 
-				{onRotate && <Rotatable onRotate={onRotate} {...rotate}/>}
+				{onRotate && <Rotatable onRotate={e=>onRotate({...e,id})} {...rotate}/>}
 			</Group>
 		)
 	}

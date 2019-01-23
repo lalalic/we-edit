@@ -30,8 +30,8 @@ export class entity extends Content{
 		return this
 	}
 
-	resize({x,y}){
-		let {start:{id}}=this.selection
+	resize({x,y,id}){
+		id=id||this.selection.start.id
 		let content=this.$('#'+id)
 		const {width,height}=content.attr("size").toJS()
 
@@ -55,8 +55,8 @@ export class entity extends Content{
 		return this
 	}
 
-	rotate({x,y}){
-		let {start:{id}}=this.selection
+	rotate({x,y,id}){
+		id=id||this.selection.start.id
 		let content=this.$('#'+id)
 		const {width,height}=content.attr("size").toJS()
 
@@ -70,8 +70,8 @@ export class entity extends Content{
 		return this
 	}
 
-	move(dest){
-		const {start:{id}}=this.selection
+	move({dest,id}){
+		id=this.selection.start.id
 		const target=this.$('#'+dest.id)
 		const [to]=this.splitAtUpto(dest,target.parent())
 

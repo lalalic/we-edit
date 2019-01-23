@@ -48,12 +48,12 @@ export default class Rotator extends Component{
 			)
 		}else{
 			return (
-				<use xlinkHref="#rotator" {...props} onMouseDown={e=>this.onStartResize(e)}/>
+				<use xlinkHref="#rotator" {...props} onMouseDown={e=>this.onStartRotate(e)}/>
 			)
 		}
 	}
 
-	onStartResize(e){
+	onStartRotate(e){
 		this.setState({rotating:true})
 		this.left=e.clientX
 		this.top=e.clientY
@@ -61,7 +61,7 @@ export default class Rotator extends Component{
 		if(onStart)
 			onStart()
 	}
-	
+
 	rotate(left,top){
 		const {onRotate}=this.props
 		let x=left-this.left
