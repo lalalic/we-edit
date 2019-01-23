@@ -51,6 +51,7 @@ export default class Document extends Super{
 		const pages=this.computed.composed
 		return (
 				<Responsible
+					dispatch={this.context.activeDocStore.dispatch}
 					docId={docId}
 					content={content}
 					getComposer={this.getComposer}

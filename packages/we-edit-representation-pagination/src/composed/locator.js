@@ -4,20 +4,14 @@ import {connect,ACTION, ContentQuery} from "we-edit"
 import {compose} from "recompose"
 import memoize from "memoize-one"
 
+//update when content recomposed, and selection changed
 export default compose(
     connect(
         state=>({
             content:state.get("content"),
             selection:state.get("selection"),
         }),
-        (dispatch)=>{
-            return {
-                updateSelectionStyle(style){
-                    dispatch(ACTION.Selection.STYLE(style))
-                },
-                dispatch
-            }
-        },
+        undefined,
         undefined,
         {withRef:true}
     ),
@@ -31,6 +25,10 @@ export default compose(
     get canvas(){
         return this.state.canvas
     }
+	
+	updateSelectionStyle(style){
+		this.props.dispatch(ACTION.Selection.STYLE(style))
+	}
 
     render(){
         const {range=this.props.range, cursor=this.props.cursor}=this
@@ -45,24 +43,14 @@ export default compose(
         )
     }
 
-    shouldComponentUpdate({content,selection,scale,getComposer,getContent,positioning},state){
-        if(selection && !selection.equals(this.props.selection)){
-            this.newSelection=true
-        }
-
-        if(this.newSelection===false){
-            delete this.newSelection
-            return false
-        }
-
-        if(!state.canvas)
-            return false
-
-        if(content.equals(state.content)){
-            const {position,rects}=this.getRangeAndPosition(positioning,selection)
-            this.makeCursorSelection(position,rects,arguments[0])
-            this.style=new SelectionStyle(position,positioning)
-            return true
+    shouldComponentUpdate({content,selection,positioning},state){
+		if(content.equals(state.content)){
+			if(!content.equals(this.props.content) || !selection.equals(this.props.selection)){
+				const {position,rects}=this.getRangeAndPosition(positioning,selection)
+				this.makeCursorSelection(position,rects,arguments[0])
+				this.style=new SelectionStyle(position,positioning)
+				return true
+			}
         }
 
         return false
@@ -101,14 +89,11 @@ export default compose(
         }
     }
 
-    componentDidUpdate({selection}){
-        if(this.canvas){
-            if(this.newSelection){
-                this.scrollCursorIntoView()
-                this.props.updateSelectionStyle(this.style)
-                this.newSelection=false
-            }
-        }
+    componentDidUpdate({selection,content}){
+		if(!this.props.selection.equals(selection)||!this.props.content.equals(content)){
+			this.scrollCursorIntoView()
+			this.updateSelectionStyle(this.style)
+		}
     }
 
 	scrollCursorIntoView(){
@@ -121,10 +106,6 @@ export default compose(
 			viewporter.scrollTop+=(cursor.bottom-bottom+cursor.height)
 		}
 	}
-
-    get canvas(){
-        return this.state.canvas
-    }
 })
 
 class SelectionStyle{

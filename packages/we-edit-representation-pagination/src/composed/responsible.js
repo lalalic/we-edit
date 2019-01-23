@@ -16,7 +16,7 @@ const CursorShape=({y=0,x=0,height=0,color="black"})=>(
     <Cursor.Flash color={color}><path d={`M${x} ${y} v${height}`} strokeWidth={1}/></Cursor.Flash>
 )
 
-export default connect(null,null,null,{withRef:true})(class Responsible extends Component{
+export default class Responsible extends Component{
     static displayName="composed-document-with-cursor"
 
     scale=this.props.scale
@@ -307,7 +307,7 @@ export default connect(null,null,null,{withRef:true})(class Responsible extends 
             this.onKeyArrow(id,at,selecting)
         }
 	}
-})
+}
 
 const ComposeMoreTrigger=compose(
 	setDisplayName("More"),
