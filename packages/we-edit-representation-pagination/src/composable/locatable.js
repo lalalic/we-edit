@@ -24,7 +24,7 @@ function Locatable(A){
         }
 
         componentWillUnmount(){
-            //this.context.unmount(this)
+            this.context.unmount && this.context.unmount(this)
         }
 
 		createComposed2Parent(){

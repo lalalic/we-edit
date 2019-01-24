@@ -29,36 +29,37 @@ export default class Paragraph extends Super{
 		this.computed.needMerge=false
 	}
 
+	getBreakOpportunities(text){
+		const {lastText}=this.computed
+		if(!text){
+			if(text===null)
+				this.computed.lastText=""
+			return []
+		}
+
+		const current=opportunities(`${lastText}${text}`)
+		if(!lastText){
+			this.computed.lastText=current[current.length-1]||""
+			return current
+		}
+
+		const last=opportunities(lastText)
+		const i=last.length-1
+
+		let possible=current.slice(i)
+		if((possible[0]=possible[0].substring(last.pop().length))==""){
+			possible.splice(0,1)
+		}else{
+			this.computed.needMerge=true
+		}
+		this.computed.lastText=possible[possible.length-1]||""
+		return possible
+	}
+
     getChildContext(){
-        let self=this
         return {
             ...super.getChildContext(),
-			getMyBreakOpportunities(text){
-				const {lastText}=self.computed
-				if(!text){
-					if(text===null)
-						self.computed.lastText=""
-					return []
-				}
-
-				const current=opportunities(`${lastText}${text}`)
-				if(!lastText){
-					self.computed.lastText=current[current.length-1]||""
-					return current
-				}
-
-				const last=opportunities(lastText)
-				const i=last.length-1
-
-				let possible=current.slice(i)
-				if((possible[0]=possible[0].substring(last.pop().length))==""){
-					possible.splice(0,1)
-				}else{
-					self.computed.needMerge=true
-				}
-				self.computed.lastText=possible[possible.length-1]||""
-				return possible
-            }
+			getMyBreakOpportunities:this.getBreakOpportunities.bind(this)
         }
     }
 

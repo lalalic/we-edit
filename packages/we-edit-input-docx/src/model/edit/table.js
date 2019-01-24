@@ -105,14 +105,14 @@ export class Table extends Base{
 			rows.eq(i)
 				.find("w\\:tc")
 				.eq(at)
-				.after(`<w:tc><w:p></w:p></w:tc>`)
+				.after(this.template_tc(width))
 		}
 	}
 
 	row({at}){
 		let cols=this.node.first("w\\:tblGrid").find("w\\:gridCol").length
         this.node.find("w\\:tr").eq(at)
-            .after("<w:tr>"+new Array(cols).fill(0).map(a=>`<w:tc><w:p></w:p></w:tc>`)+"</w:tr>")
+            .after("<w:tr>"+new Array(cols).fill(0).map(w=>this.template_tc(w))+"</w:tr>")
 	}
 
     rows(rows,{cols}){
@@ -124,12 +124,7 @@ export class Table extends Base{
                 .map(a=>{
                     return [
                         "<w:tr>",
-                        cols.map(w=>`
-                			<w:tc>
-                				<w:p>
-								</w:p>
-                			</w:tc>
-                		`).join(""),
+                        cols.map(w=>this.template_tc(w)).join(""),
                         "</w:tr>"
                     ].join("")
                 }
@@ -137,6 +132,9 @@ export class Table extends Base{
         this.node.append(this.trim(elRows.join("")))
     }
 
+    template_tc(w){
+        return `<w:tc><w:p><w:r><w:t></w:t></w:r></w:p></w:tc>`
+    }
     template(props){
         return `
             <w:tbl>

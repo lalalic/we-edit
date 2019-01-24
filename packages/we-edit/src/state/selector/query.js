@@ -323,6 +323,9 @@ export default class Query{
 	}
 
 	find(selector){
+		if(isIdSelector(selector)){
+			return this.findFirst(selector)
+		}
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,k)=>{
 			traverse(this._content,node=>{
@@ -337,7 +340,7 @@ export default class Query{
 	}
 
 	findFirst(selector, includeSelf=false, right=false){
-		if(isIdSelector(selector)){
+		if(isIdSelector(selector) && this._nodes.includes("root")){
 			let id=selector.substr(1)
 			return new this.constructor(this.state, this._content.has(id) ?[id] : [])
 		}

@@ -57,9 +57,8 @@ const RCSize=compose(
 	mapProps(({onAction,selection,dispatch})=>({
 		create(rows, col){
 			let layoutWidth=(()=>{
-				let {cols}=selection.props("section",false)
-				let {column}=selection.props("page",false)
-				return cols[0].width
+				let {column=0,cols}=selection.props("page")
+				return cols[column].width
 			})();
 
 			let cols=new Array(col-1).fill(parseInt(layoutWidth/col))

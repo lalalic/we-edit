@@ -11,6 +11,12 @@ import editable from "./editable"
 import {Text as ComposedText} from "../composed"
 
 const Editable=Cacheable(class extends editable(Base,{stoppable:true}){
+	getBreakOpportunities(text){
+		if(text=="")
+			return [""]
+		return super.getBreakOpportunities(text)
+	}
+
 	clearComposed(){
 		this.computed.lastText=""
 		this.computed.atoms=[]

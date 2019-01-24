@@ -18,7 +18,7 @@ const DL=connect(state=>{
 	render(){
 		let {name,id, children, isFocus, focus, dispatch, textContent,
 			onClick=a=>{
-				if(textContent){
+				if(typeof(textContent)=="string"){
 					dispatch(Selection.SELECT(id,0,id,textContent.length))
 				}else{
 					dispatch(Selection.SELECT(id))

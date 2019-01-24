@@ -25,7 +25,7 @@ export default compose(
     get canvas(){
         return this.state.canvas
     }
-	
+
 	updateSelectionStyle(style){
 		this.props.dispatch(ACTION.Selection.STYLE(style))
 	}
@@ -45,10 +45,11 @@ export default compose(
 
     shouldComponentUpdate({content,selection,positioning},state){
 		if(content.equals(state.content)){
-			if(!content.equals(this.props.content) || !selection.equals(this.props.selection)){
+			if(!content.equals(this.props.content) || !selection.equals(this.props.selection)
+                || !content.equals(this.last.content) || !selection.equals(this.last.selection)){
 				const {position,rects}=this.getRangeAndPosition(positioning,selection)
 				this.makeCursorSelection(position,rects,arguments[0])
-				this.style=new SelectionStyle(position,positioning)
+				this.style=position ? new SelectionStyle(position,positioning) : null
 				return true
 			}
         }
@@ -56,7 +57,13 @@ export default compose(
         return false
     }
 
-    makeCursorSelection(position,rects,{cursor, range, selection,getComposer}){
+    componentDidUpdate({selection,content}){
+        this.scrollCursorIntoView()
+        this.updateSelectionStyle(this.style)
+        this.last={content:this.props.content, selection:this.props.selection}
+    }
+
+    makeCursorSelection(position,rects,{cursor, range, selection,positioning}){
         this.cursor=null
         this.range=null
         try{
@@ -70,7 +77,7 @@ export default compose(
 				const {start, end}=selection.toJS()
 				this.range=React.cloneElement(range,{
                     rects,
-                    shape: start.id==end.id && getComposer(start.id).getFocusShape()
+                    shape: start.id==end.id && positioning.getComposer(start.id).getFocusShape()
                 })
 
                 this.cursor=React.cloneElement(this.cursor||cursor,{height:0.1})
@@ -87,13 +94,6 @@ export default compose(
             position:positioning.position(id, at),
             rects:a.start.id!=a.end.id || a.start.at!=a.end.at ? positioning.getRangeRects(a.start,a.end) :[]
         }
-    }
-
-    componentDidUpdate({selection,content}){
-		if(!this.props.selection.equals(selection)||!this.props.content.equals(content)){
-			this.scrollCursorIntoView()
-			this.updateSelectionStyle(this.style)
-		}
     }
 
 	scrollCursorIntoView(){
@@ -116,13 +116,17 @@ class SelectionStyle{
         this.getContent=a=>positioning.getContent(a)
     }
 
-    props(type, getFromContent=true){
-        if(getFromContent){
-            return this.content(type).props
-        }
+    toJSON(){
+        return "Selection.Style"
+    }
 
+    props=memoize((type, getFromContent=true)=>{
         if(type.toLowerCase()=="page"){
             return this.pageProps()
+        }
+
+        if(getFromContent){
+            return this.content(type).props
         }
 
         const {id:typed}=this.content(type)
@@ -132,15 +136,28 @@ class SelectionStyle{
                 return composer.props
             }
         }
-    }
+    })
 
     pageProps(){
+        const page=this.positioning.pages[this.position.page]
         const pageY=()=>this.positioning.pageXY(this.position.page).y
+        const line=()=>page.lineIndexOf(this.position)
+        const column=()=>page.columnIndexOf(line())
+        const cols=()=>[...page.cols]
         return {
             ...this.position,
             get pageY(){
                 return pageY()
-            }
+            },
+            get line(){
+                return line()
+            },
+            get column(){
+                return column()
+            },
+            get cols(){
+                return cols()
+            },
         }
     }
 

@@ -13,17 +13,30 @@ const Position={
 }
 
 class Positioning{
-    constructor(){
-        this.reset(...arguments)
+    constructor(responsible){
+        this.responsible=responsible
     }
 
-    reset(getComposer, getContent, canvas, pages, gap, scale=1){
-        this.getComposer=getComposer
-        this.getContent=getContent
-        this.canvas=canvas
-        this.scale=scale
-        this.pages=pages
-        this.gap=gap
+    getComposer(){
+        return this.responsible.getComposer(...arguments)
+    }
+    getContent(){
+        return this.responsible.getContent(...arguments)
+    }
+    get canvas(){
+        return this.responsible.canvas
+    }
+
+    get pages(){
+        return this.responsible.props.pages
+    }
+
+    get gap(){
+        return this.responsible.props.gap
+    }
+
+    get scale(){
+        return this.responsible.props.scale
     }
 
     position(id,at){
@@ -151,16 +164,4 @@ class ReactPositioning extends Positioning{
         return composer.getRangeRects(start,end, page=>this.pageXY(this.pages.indexOf(page)))
     }
 }
-
-class SelectionStyle{
-    props(type,isFromContent){
-
-    }
-
-    contentProps(type){
-
-    }
-
-}
-
 export default ReactPositioning

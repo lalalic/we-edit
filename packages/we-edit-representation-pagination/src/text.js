@@ -64,7 +64,7 @@ export default class Text extends Super{
 
 		let start=0
 		this.getMyBreakOpportunities(this.text).forEach(a=>{
-			a.split(/(\s)/).filter(a=>a.length).forEach((b,i)=>{
+			a.split(/(\s)/).forEach((b,i)=>{
 				const isWhitespace=b==" "
                 const ending=b.endsWith(",") ? b.substring(0,b.length-1) : false
 				this.appendComposed({

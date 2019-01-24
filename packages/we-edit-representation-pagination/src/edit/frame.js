@@ -56,6 +56,16 @@ export default Cacheable(class extends editable(Base){
         }
     }
 
+    columnIndexOf(line){
+        return this.columns.reduce((c,column,i)=>{
+            if(c.count>0){
+                c.count-=column.children.length
+                c.i=i
+            }
+            return c
+        },{count:line+1,i:0}).i
+    }
+
 	includeContent(id){
 		if(!!this.columns.find(a=>a.id==id)){
 			return true
@@ -90,6 +100,7 @@ export default Cacheable(class extends editable(Base){
             if(found.attr("data-type")=="paragraph"){
                 const paragraphId=found.attr("data-content")
         		const i=found.attr("pagination").i-1
+
                 let xy=parents.reduceRight((p,{props:{x=0,y=0}})=>(p.x+=x,p.y+=y,p),{x:found.attr("x")||0,y:found.attr("y")||0})
         		return this.context.getComposer(paragraphId).positionFromPoint(i,x-xy.x, y-xy.y)
             }
@@ -108,49 +119,6 @@ export default Cacheable(class extends editable(Base){
 		const left=this.columns.find(a=>a.children.includes(line)).x
 		const top=this.lineY(line)-line.props.height
 		return {left,top,width:line.props.width,height:line.props.height}
-	}
-
-	getClientRects(id){
-		const RE_TRANSLATE=/translate\((.*)\s+(.*)\)/
-		const clean=(props,excludes=["undefined","object"])=>Object.keys(props).reduce((o,k)=>{
-			if(!excludes.includes(typeof(props[k]))){
-				o[k]=props[k]
-			}
-			if(k=="data-endat")
-				o.endat=parseInt(props[k])
-			return o
-		},{})
-		const rendered=TestRenderer.create(
-				React.cloneElement(this.createComposed2Parent(),{x:0,y:0})
-			).toJSON()
-
-		const traverse=({props:{transform="",x=0,y=0,...props},children=[]})=>{
-			if(props["data-content"]==id){
-				props=clean(props)
-				if(typeof(children)=="string"){
-					props.text=children
-				}else if(Array.isArray(children) && typeof(children[0])=="string"){
-					props.text=children.join("")
-				}
-
-				return [Object.assign(props,{x,y})]
-			}
-			if(Array.isArray(children) && typeof(children[0])!="string"){
-				let rects=children.map(traverse).filter(a=>!!a).reduce((rects,a)=>[...rects,...a],[])
-				if(rects.length){
-					if(transform){
-						let [,x=0,y=0]=transform.match(RE_TRANSLATE)
-						rects.forEach(a=>{
-							a.x+=parseFloat(x)
-							a.y+=parseFloat(y)
-						})
-					}
-				}
-				return rects
-			}
-		}
-
-		return traverse(rendered)
 	}
 
 	removeFrom(lineIndex){

@@ -69,7 +69,7 @@ describe("continuable", ()=>{
 			}
 		})
 
-	const StoreContext=provider(Responsible,store())
+	const StoreContext=provider(Document,store())
 	const TextContext=provider(Text,{
 			Measure:class{
 				height=10

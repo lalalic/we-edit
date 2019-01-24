@@ -24,7 +24,7 @@ export default class Responsible extends Component{
     onResize=this.onResize.bind(this)
     onRotate=this.onRotate.bind(this)
     selecting=React.createRef()
-    positioning=new Positioning()
+    positioning=new Positioning(this)
     getComposer=this.getComposer.bind(this)
     getContent=this.getContent.bind(this)
 
@@ -191,12 +191,10 @@ export default class Responsible extends Component{
     }
 
     componentDidUpdate({},state,snapshot){
-        this.positioning.reset(this.getComposer, this.getContent, this.canvas, this.props.pages,this.props.pgGap,this.props.scale)
         this.locator && this.locator.setState({content:this.props.content, canvas:this.canvas})
     }
 
     componentDidMount(){
-        this.positioning.reset(this.getComposer, this.getContent, this.canvas, this.props.pages,this.props.pgGap, this.props.scale)
         if(this.selection && !this.selection.id){
             const page0=this.props.pages[0]
             const {id,at}=this.getComposer(page0.getParagraph(page0.lines[0])).nextCursorable()
