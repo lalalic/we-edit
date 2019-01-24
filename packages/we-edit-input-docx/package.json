@@ -10,7 +10,7 @@
     "email": "lalalic@139.com"
   },
   "dependencies": {
-    "docx4js": "^3.1.12",
+    "docx4js": "^3.1.16",
     "fetchable": "^1.0.4",
     "lodash.get": "^4.4.2",
     "lodash.invoke": "^4.5.2",
@@ -27,7 +27,7 @@
     "node": ">=0.10.0"
   },
   "we-office": {
-	"name":"input-docx",
+    "name": "input-docx",
     "type": [
       "Input"
     ]

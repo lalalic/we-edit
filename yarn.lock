@@ -2267,18 +2267,18 @@ dns-txt@^2.0.2:
   dependencies:
     buffer-indexof "^1.0.0"
 
-docx4js@^3.1.12:
-  version "3.1.12"
-  resolved "https://registry.yarnpkg.com/docx4js/-/docx4js-3.1.12.tgz#1721b23d9d40b097f332efbe195a6a620203becd"
+docx4js@^3.1.13:
+  version "3.1.13"
+  resolved "https://registry.yarnpkg.com/docx4js/-/docx4js-3.1.13.tgz#78f69673d7ddb9ea908981d1de163fb0782cd07b"
   dependencies:
     cfb "^0.12.1"
     cheerio "^0.22.0"
     htmlparser2 "^3.9.2"
     jszip "^2.6.0"
 
-docx4js@^3.1.13:
-  version "3.1.13"
-  resolved "https://registry.yarnpkg.com/docx4js/-/docx4js-3.1.13.tgz#78f69673d7ddb9ea908981d1de163fb0782cd07b"
+docx4js@^3.1.16:
+  version "3.1.16"
+  resolved "https://registry.yarnpkg.com/docx4js/-/docx4js-3.1.16.tgz#1d34b99a6e260cfe7d56c315188263d5ac95322d"
   dependencies:
     cfb "^0.12.1"
     cheerio "^0.22.0"

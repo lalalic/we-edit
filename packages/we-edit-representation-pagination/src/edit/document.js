@@ -170,6 +170,9 @@ export default class Document extends Super{
 		const composer0=this.getComposer(p0.id)
 		p0=composer0.position(p0.id,p0.at)
 		p1=this.getComposer(p1.id).position(p1.id,p1.at)
+		if(!p0 || !p1){
+			return []
+		}
 		if(p0.id==p1.id && p0.page==p1.page && !composer0.splittable){
 			const [start,end]=[p0,p1].sort((a,b)=>a.at-b.at);
 			const {x,y}=pageXY(pages[start.page])
