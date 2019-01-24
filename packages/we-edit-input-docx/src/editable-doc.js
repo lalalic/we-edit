@@ -4,7 +4,7 @@ import Fetchable from "fetchable"
 
 const uuid=(_uuid=>()=>`${_uuid++}`)(0)
 
-const defineId=(target,id)=>Object.defineProperty(target,"id",{
+const defineId=(target,id)=>Object.defineProperty(target,"xxid",{
 	enumerable: false,
 	configurable: false,
 	writable: false,
@@ -50,9 +50,10 @@ export default class EditableDocument extends docx4js{
 			return uid
 		}
 
-		if(node.attribs.id!=undefined)
-			return node.attribs.id
-
+		if(node.attribs.xxid){
+			return node.attribs.xxid
+		}
+		
 		let id=uid||(node.name=="w:document"&&"root")||uuid()
 		defineId(node.attribs,id)
 
@@ -67,9 +68,9 @@ export default class EditableDocument extends docx4js{
 		let node=null
 
 		if(!part)
-			node=this.officeDocument.content(`#${id}`)
+			node=this.officeDocument.content(`[xxid="${id}"]`)
 		else
-			node=this.officeDocument.getRel(part)(`#${id}`)
+			node=this.officeDocument.getRel(part)(`[xxid="${id}"]`)
 		if(node.length>1){
 			throw new Error(`file node[${id}] not unique`)
 		}
@@ -77,9 +78,9 @@ export default class EditableDocument extends docx4js{
 	}
 
 	cloneNode(node, autoAttach=true){
-		let withIds=node.find("[id]").each((i,el)=>el.attribs._id=el.attribs.id)
+		let withIds=node.find("[xxid]").each((i,el)=>el.attribs._xxid=el.attribs.xxid)
 		let cloned=node.clone()
-		withIds.removeAttr("_id")
+		withIds.removeAttr("_xxid")
 		if(autoAttach)
 			return this.attach(cloned)
 		else

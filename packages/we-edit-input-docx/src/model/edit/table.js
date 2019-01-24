@@ -26,7 +26,7 @@ export class Table extends Base{
 	}
 
 	height({value:height, row, cell}){
-        let tr=this.node.find(`#${row}`)
+        let tr=this.node.find(`[xxid="${row}"]`)
         let pr=tr.find("w\\:trPr")
         if(pr.length==0){
             tr.prepend("<w:trPr/>")
@@ -48,8 +48,8 @@ export class Table extends Base{
         if(width<=0){
             return
         }
-		const tr=this.node.find(`#${row}`)
-		const tc=tr.find(`#${cell}`)
+		const tr=this.node.find(`[xxid="${row}"]`)
+		const tc=tr.find(`[xxid="${cell}"]`)
 		const tcW=tc.find("w\\:tcPr>w\\:tcW")
 		width=this.px2dxa(width)
 		const delta=width-parseInt(tcW.attr("w:w"))

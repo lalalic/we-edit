@@ -83,7 +83,7 @@ export default class Responsible extends Component{
 
     render(){
         const {children,docId, continueCompose, getComposer,dispatch, ...props}=this.props
-		var down
+		var down={}
 		const flagEvent=({clientX,clientY})=>down={clientX,clientY}
 		const shouldIgnore=({clientX,clientY})=>clientX==down.clientX && clientY==down.clientY
         return (
