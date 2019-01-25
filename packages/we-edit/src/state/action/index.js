@@ -134,13 +134,13 @@ export const Selection={
 	COPY: ()=>({type:"we-edit/selection/COPY"}),
 	PASTE: (id,at)=>({type:"we-edit/selection/PASTE",payload:{id,at}}),
 	CUT: ()=>({type:"we-edit/selection/CUT"}),
+	MOVE: payload=>({type:"we-edit/selection/MOVE",payload}),
 	STYLE: payload=>({type:"we-edit/selection/STYLE",payload}),
 }
 
 export const Entity={
 	RESIZE: deltaXY=>({type:"we-edit/entity/RESIZE",payload:deltaXY}),
 	ROTATE: degree=>({type:"we-edit/entity/ROTATE",payload:degree}),
-	MOVE: payload=>({type:"we-edit/selection/MOVE",payload}),
 	CREATE: element=>({type:"we-edit/entity/CREATE", payload:element}),
 	UPDATE: changing=>({type:"we-edit/entity/UPDATE", payload:changing}),
 }

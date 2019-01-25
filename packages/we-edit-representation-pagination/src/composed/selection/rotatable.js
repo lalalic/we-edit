@@ -9,13 +9,14 @@ export default class Rotator extends Component{
 	static propTypes={
 		x:PropTypes.number.isRequired,
 		y:PropTypes.number.isRequired,
-		r:PropTypes.number
+		r:PropTypes.number,
+		degree: PropTypes.number,
 	}
 
 	state={rotating:false}
 
 	render(){
-		const {r,x,y,onEnd}=this.props
+		const {r,x,y,onEnd, degree}=this.props
 		const style={
 			fill:"white",
 			stroke:"lightgray",
@@ -43,6 +44,7 @@ export default class Rotator extends Component{
 						e.stopPropagation()
 					}}
 					>
+					<text x={x+2*r} y={y}>{degree}</text>
 					<use xlinkHref="#rotator" {...props}/>
 				</Overlay>
 			)

@@ -13,7 +13,7 @@ import IconUndo from "material-ui/svg-icons/content/undo"
 import {ACTION, getUndos, getRedos, Input, getActive} from "we-edit"
 
 export default compose(
-	setDisplayName("clipboard"),
+	setDisplayName("history"),
 	connect(state=>{
 		state=getActive(state).state
 		let redos=getRedos(state)

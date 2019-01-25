@@ -181,7 +181,7 @@ export default class xQuery extends Query{
 	}
 
 	constructUp(to){
-		let docNode=this._doc.construct(this.attr("id"), new this.constructor(this.state,to).attr("id"))
+		let docNode=this._doc.construct(this.attr("id"), this.closest(to).attr("id"))
         let {id}=this._doc.renderChanged(docNode)
         return new this.constructor(this.state, [id])
 	}

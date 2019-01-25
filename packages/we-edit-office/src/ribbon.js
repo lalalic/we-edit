@@ -11,6 +11,7 @@ import Text from "./text"
 import Paragraph from "./paragraph"
 import File from "./file"
 import History from "./history"
+import Clipboard from "./clipboard"
 
 import * as Table from "./table"
 import * as Picture from "./picture"
@@ -71,7 +72,8 @@ const Ribbon=compose(
 				return merged
 			},{
 			home:{
-				file: <File/>,
+				file: <File><ToolbarSeparator/></File>,
+				clipboard:<Clipboard><ToolbarSeparator/></Clipboard>,
 				history: <History><ToolbarSeparator/></History>,
 				text: <Text><ToolbarSeparator/></Text>,
 				paragraph: <Paragraph><ToolbarSeparator/></Paragraph>
@@ -116,6 +118,8 @@ const Ribbon=compose(
 					{home && <Tab label="Home" buttonStyle={buttonStyle} style={tabStyle}>
 						<Toolbar>
 							{home.file}
+
+							{home.clipboard}
 
 							{home.history}
 

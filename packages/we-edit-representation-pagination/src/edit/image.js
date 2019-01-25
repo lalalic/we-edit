@@ -36,7 +36,8 @@ export default class extends editable(Base){
 				rotate={{
 					r:12,
 					x:(left+right)/2,
-					y:top-20
+					y:top-20,
+					degree: rotate,
 				}}
 				transform={transform}
 			/>

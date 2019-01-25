@@ -14,7 +14,7 @@ export class Viewable{
 	static support(file){
 		return false
 	}
-	
+
 	static propTypes={
 		type: PropTypes.string.isRequired,
 		name: PropTypes.string.isRequired,
@@ -23,7 +23,7 @@ export class Viewable{
 	}
 
 	static getType(){
-		return this.defaultProps.type	
+		return this.defaultProps.type
 	}
 
 	static getTypeName(){
@@ -53,7 +53,7 @@ export class Viewable{
 	getTypeMimeType(){
 		return this.constructor.getTypeMimeType()
 	}
-	
+
 	makeId(node){
 		return i++
 	}
@@ -141,6 +141,7 @@ export class Editable extends Viewable{
 				return new reducer.content(...params)
 					.update(payload)
 					.state()
+
 			case "we-edit/entity/RESIZE":
 				return new reducer.entity(...params)
 					.resize(payload)
@@ -157,6 +158,11 @@ export class Editable extends Viewable{
 				return new reducer.entity(...params)
 					.update(payload)
 					.state()
+			case "we-edit/entity/MOVE":
+				return new reducer.entity(...params)
+					.move(payload)
+					.state()
+
 			case 'we-edit/selection/COPY':
 				return new reducer.clipboard(...params)
 					.copy(payload)
@@ -170,7 +176,7 @@ export class Editable extends Viewable{
 					.cut(payload)
 					.state()
 			case "we-edit/selection/MOVE":
-				return new reducer.entity(...params)
+				return new reducer.clipboard(...params)
 					.move(payload)
 					.state()
 		}

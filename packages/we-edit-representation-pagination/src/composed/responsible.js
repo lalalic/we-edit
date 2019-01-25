@@ -223,7 +223,7 @@ export default class Responsible extends Component{
             const {line,x,y,paragraph}=this.positioning.getPage(xy)
             this.dispatch(ACTION.Entity.MOVE({dest:{id,at}}))
         }else{
-            this.dispatch(ACTION.Entity.MOVE(e))
+            this.dispatch(ACTION.Selection.MOVE(e))
         }
     }
 

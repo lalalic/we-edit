@@ -2,7 +2,7 @@ import {getSelection,getFile} from "../../state/selector"
 import ACTION from "../../state/action"
 import xQuery from "./xquery"
 
-export default class Reducer{
+export default class Base{
 	constructor(state){
 		this._state=state
 		this._undoables={}
@@ -64,4 +64,55 @@ export default class Reducer{
 		this._selection={...this._selection,start:{id,at}, end:{id:endId, at:endAt}}
 		return this._selection
 	}
+}
+
+
+class Content extends Base{
+	create(){
+
+	}
+
+	insert(){
+
+	}
+
+	update(){
+
+	}
+
+	remove(){
+
+	}
+}
+
+class Action extends Content{
+	move(){
+
+	}
+
+	rotate(){
+
+	}
+
+	resize(){
+
+	}
+}
+
+class Clipboard extends Action{
+	cut(){
+		this.clipboard=this.remove()
+	}
+
+	copy(){
+		this.clipboard=this.selection
+	}
+
+	paste(){
+		
+	}
+}
+
+class Reducer extends Clipboard{
+
 }
