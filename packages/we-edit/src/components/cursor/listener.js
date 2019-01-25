@@ -26,25 +26,25 @@ export default class Listener extends Component{
 			type="text"
 			value={this.state.value}
 			{...others}
-					{...reactComposition({
-							onChange:e=>{
-								let value = e.target.value
-								if(e.reactComposition.composition === false){
-									dispatch(ACTION.Text.INSERT(value))
-									this.setState({value:""})
-								}else
-									this.setState({value})
-							}
-					})}
 
-					onKeyDown={e=>{
-						const control=keys[e.keyCode]
-						if(control){
-							e.preventDefault()
-							control(e)
-						}
-					}}
+			{...reactComposition({
+					onChange:e=>{
+						let value = e.target.value
+						if(e.reactComposition.composition === false){
+							dispatch(ACTION.Text.INSERT(value))
+							this.setState({value:""})
+						}else
+							this.setState({value})
+					}
+			})}
 
+			onKeyDown={e=>{
+				const control=keys[e.keyCode]
+				if(control){
+					e.preventDefault()
+					control(e)
+				}
+			}}
 		/>
 	}
 

@@ -159,6 +159,12 @@ export default class Responsible extends Component{
 									39:e=>this.onKeyArrowRight(e),//move right
 									40:e=>this.onKeyArrowDown(e),//move down
 								}}
+
+                                onCopy={e=>this.onCopy(e)}
+
+                                onPaste={e=>this.onPaste(e)}
+
+                                onCut={e=>this.onCut(e)}
 								>
 
 								<CursorShape/>
@@ -225,6 +231,18 @@ export default class Responsible extends Component{
         }else{
             this.dispatch(ACTION.Selection.MOVE(e))
         }
+    }
+
+    onCopy({clipboardData}){
+        this.dispatch(ACTION.Clipboard.COPY())
+    }
+
+    onCut({clipboardData}){
+        this.dispatch(ACTION.Clipboard.CUT())
+    }
+
+    onPaste({clipboardData}){
+        this.dispatch(ACTION.Clipboard.PASTE())
     }
 
     onClick({shiftKey:selecting, target, clientX:left,clientY:top}){
