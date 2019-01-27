@@ -63,6 +63,10 @@ export default class Editor{
     template(props){
         return ``
     }
+	
+	tailer(from,to){
+		return this.file.clone(this.node)
+	}
 
     px2dxa(w){
         return w*72*20/96
