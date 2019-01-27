@@ -25,12 +25,12 @@ export default compose(
 	mapProps(({dispatch,children,selection})=>({
 		children,
 		style:selection&&selection.props("paragraph",false)||null,
-		align:align=>dispatch(ACTION.Style.update({paragraph:{align}})),
+		align:align=>dispatch(ACTION.Selection.UPDATE({paragraph:{align}})),
 		bullet: numFmt=>{
-			dispatch(ACTION.Style.update({paragraph:{numFmt}}))
+			dispatch(ACTION.Selection.UPDATE({paragraph:{numFmt}}))
 		},
 		numbering: numFmt=>{
-			dispatch(ACTION.Style.update({paragraph:{numFmt}}))
+			dispatch(ACTION.Selection.UPDATE({paragraph:{numFmt}}))
 		}
 	})),
 )(({style, align,number, bullet, children})=>(

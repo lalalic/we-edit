@@ -28,13 +28,13 @@ export default compose(
 	setDisplayName("TextStyle"),
 	connect(state=>({selection:getSelectionStyle(state)})),
 	withProps(({dispatch,selection, style=(selection ? selection.props("text",false) : null)})=>{
-		let changeSize=size=>dispatch(ACTION.Style.update({text:{size}}))
+		let changeSize=size=>dispatch(ACTION.Selection.UPDATE({text:{size}}))
 		return {
 			style,
-			toggleB:b=>dispatch(ACTION.Style.update({text:{bold:b}})),
-			toggleI:b=>dispatch(ACTION.Style.update({text:{italic:b}})),
-			toggleU:b=>dispatch(ACTION.Style.update({text:{underline:b}})),
-			changeFont:fonts=>dispatch(ACTION.Style.update({text:{fonts}})),
+			toggleB:b=>dispatch(ACTION.Selection.UPDATE({text:{bold:b}})),
+			toggleI:b=>dispatch(ACTION.Selection.UPDATE({text:{italic:b}})),
+			toggleU:b=>dispatch(ACTION.Selection.UPDATE({text:{underline:b}})),
+			changeFont:fonts=>dispatch(ACTION.Selection.UPDATE({text:{fonts}})),
 			changeSize,
 			smaller(){
 				changeSize(Math.max(style.size-Math.ceil(Math.abs((style.size-8)/5)),8))
@@ -43,22 +43,22 @@ export default compose(
 				changeSize(style.size+2)
 			},
 			changeHightlight(highlight){
-				dispatch(ACTION.Style.update({text:{highlight}}))
+				dispatch(ACTION.Selection.UPDATE({text:{highlight}}))
 			},
 			changeColor(color){
-				dispatch(ACTION.Style.update({text:{color}}))
+				dispatch(ACTION.Selection.UPDATE({text:{color}}))
 			},
 			clear(_clear=true){
-				dispatch(ACTION.Style.update({text:{_clear}}))
+				dispatch(ACTION.Selection.UPDATE({text:{_clear}}))
 			},
 			toggleBorder(border={}){
-				dispatch(ACTION.Style.update({text:{border}}))
+				dispatch(ACTION.Selection.UPDATE({text:{border}}))
 			},
 			underline(underline){
-				dispatch(ACTION.Style.update({text:{underline}}))
+				dispatch(ACTION.Selection.UPDATE({text:{underline}}))
 			},
 			toggleStrike(strike){
-				dispatch(ACTION.Style.update({text:{strike}}))
+				dispatch(ACTION.Selection.UPDATE({text:{strike}}))
 			}
 		}
 	})

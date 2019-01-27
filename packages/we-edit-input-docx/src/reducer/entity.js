@@ -23,50 +23,11 @@ export class entity extends Content{
 		const target=this.$(`#${id}`)
 		const type=target.attr("type")
 
+		this.save4undo(id)
 		this.file.updateNode({id,type},changing)
 
 		this.renderChanged(id)
 
-		return this
-	}
-
-	resize({x,y,id}){
-		id=id||this.selection.start.id
-		let content=this.$('#'+id)
-		const {width,height}=content.attr("size").toJS()
-
-		let changing={}
-
-		this.save4undo(id)
-
-		if(y===undefined){
-			changing={width:width+x}
-		}else if(x===undefined){
-			changing={height:height+y}
-		}else{
-			let scale=1+Math.max(Math.abs(x)/width,Math.abs(y)/height)*x/Math.abs(x)
-			changing={width:width*scale, height:height*scale}
-		}
-
-		content.attr("size",changing)
-
-		this.renderChanged(id)
-
-		return this
-	}
-
-	rotate({x,y,id}){
-		id=id||this.selection.start.id
-		let content=this.$('#'+id)
-		const {width,height}=content.attr("size").toJS()
-
-		this.save4undo(id)
-
-		const degree=(Math.asin(x/height)+Math.asin(y/width))*180/Math.PI
-
-		content.attr("rotate",(content.attr("rotate")||0)+degree)
-
-		this.renderChanged(id)
 		return this
 	}
 

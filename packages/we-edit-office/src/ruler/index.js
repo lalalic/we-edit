@@ -14,25 +14,25 @@ export default compose(
 	connect(state=>({selection:getSelectionStyle(state)})),
 	withProps(({dispatch})=>({
 		setLeftMargin(left){
-			dispatch(ACTION.Style.update({section:{pgMar:{left}}}))
+			dispatch(ACTION.Selection.UPDATE({section:{pgMar:{left}}}))
 		},
 		setRightMargin(right){
-			dispatch(ACTION.Style.update({section:{pgMar:{right}}}))
+			dispatch(ACTION.Selection.UPDATE({section:{pgMar:{right}}}))
 		},
 		setBottomMargin(bottom){
-			dispatch(ACTION.Style.update({section:{pgMar:{bottom}}}))
+			dispatch(ACTION.Selection.UPDATE({section:{pgMar:{bottom}}}))
 		},
 		setTopMargin(top){
-			dispatch(ACTION.Style.update({section:{pgMar:{top}}}))
+			dispatch(ACTION.Selection.UPDATE({section:{pgMar:{top}}}))
 		},
 		setFirstLine(firstLine){
-			dispatch(ACTION.Style.update({paragraph:{indent:{firstLine}}}))
+			dispatch(ACTION.Selection.UPDATE({paragraph:{indent:{firstLine}}}))
 		},
 		setLeftIndent(left){
-			dispatch(ACTION.Style.update({paragraph:{indent:{left}}}))
+			dispatch(ACTION.Selection.UPDATE({paragraph:{indent:{left}}}))
 		},
 		setRightIndent(right){
-			dispatch(ACTION.Style.update({paragraph:{indent:{right}}}))
+			dispatch(ACTION.Selection.UPDATE({paragraph:{indent:{right}}}))
 		}
 	})),
 	withProps(({selection})=>{

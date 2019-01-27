@@ -2,8 +2,6 @@ import {getContent, nextCursorable, nextSelectable, prevCursorable, prevSelectab
 import {ACTION as History} from "../undoable"
 import Query from "../selector/query"
 
-import Style from "./style"
-
 function isInSameParagraph(state,id1,id2){
 	return new Query(state,[id1])
 		.parents("paragraph")
@@ -135,18 +133,17 @@ export const Selection={
 	PASTE: (id,at)=>({type:"we-edit/selection/PASTE",payload:{id,at}}),
 	CUT: ()=>({type:"we-edit/selection/CUT"}),
 	MOVE: payload=>({type:"we-edit/selection/MOVE",payload}),
+	UPDATE: payload=>({type:"we-edit/selection/UPDATE", payload}),
 	STYLE: payload=>({type:"we-edit/selection/STYLE",payload}),
 }
 
 export const Entity={
-	RESIZE: deltaXY=>({type:"we-edit/entity/RESIZE",payload:deltaXY}),
-	ROTATE: degree=>({type:"we-edit/entity/ROTATE",payload:degree}),
 	CREATE: element=>({type:"we-edit/entity/CREATE", payload:element}),
 	UPDATE: changing=>({type:"we-edit/entity/UPDATE", payload:changing}),
 }
 
 export const Statistics=stat=>({type:"we-edit/statistics",payload:stat})
 
-export const ACTION={Cursor, Text, Selection,Entity,History,Style,Statistics}
+export const ACTION={Cursor, Text, Selection,Entity,History,Statistics}
 
 export default ACTION

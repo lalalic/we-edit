@@ -111,6 +111,10 @@ export class Editable extends Viewable{
 	renderNode(node, createElement/*(TYPE, props, children, rawcontent)*/){
 
 	}
+	
+	getReducer(type, ...args){
+		
+	}
 
 	/**
 	*return:
@@ -123,60 +127,49 @@ export class Editable extends Viewable{
 	- any else: reduce selection action
 	*/
 	onChange(state,{type,payload},createElement){
-		let params=[state]
+		const params=[state]
+		const reducer=this.getReducer(type,state)
 		switch(type){
 			case `we-edit/text/RETURN`:
-				return new reducer.content(...params)
+				return reducer
 					.insert("\r")
 					.state()
 			case `we-edit/text/INSERT`:
-				return new reducer.content(...params)
+				return reducer
 					.insert(payload)
 					.state()
 			case `we-edit/text/REMOVE`:
-				return new reducer.content(...params)
+				return reducer
 					.remove(payload)
 					.state()
-			case `we-edit/content/update`:
-				return new reducer.content(...params)
-					.update(payload)
-					.state()
 
-			case "we-edit/entity/RESIZE":
-				return new reducer.entity(...params)
-					.resize(payload)
-					.state()
-			case "we-edit/entity/ROTATE":
-				return new reducer.entity(...params)
-					.rotate(payload)
-					.state()
 			case "we-edit/entity/CREATE":
-				return new reducer.entity(...params)
+				return reducer
 					.create(payload)
 					.state()
 			case "we-edit/entity/UPDATE":
-				return new reducer.entity(...params)
+				return reducer
 					.update(payload)
 					.state()
-			case "we-edit/entity/MOVE":
-				return new reducer.entity(...params)
-					.move(payload)
-					.state()
 
+			case `we-edit/selection/UPDATE`:
+				return reducer
+					.update(payload)
+					.state()					
 			case 'we-edit/selection/COPY':
-				return new reducer.clipboard(...params)
+				return reducer
 					.copy(payload)
 					.state()
 			case 'we-edit/selection/PASTE':
-				return new reducer.clipboard(...params)
+				return reducer
 					.paste(payload)
 					.state()
 			case 'we-edit/selection/CUT':
-				return new reducer.clipboard(...params)
+				return reducer
 					.cut(payload)
 					.state()
 			case "we-edit/selection/MOVE":
-				return new reducer.clipboard(...params)
+				return reducer
 					.move(payload)
 					.state()
 		}

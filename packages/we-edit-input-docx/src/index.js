@@ -5,6 +5,7 @@ import {Readable} from 'stream'
 
 import Style from "./styles"
 import Transformers from "./model"
+import Reducer from "./reducer"
 
 export default class DocxType extends Input.Editable{
 	static support(file){
@@ -283,5 +284,9 @@ export default class DocxType extends Input.Editable{
 
 	getFontList(){
 		//injected implementation by render
+	}
+	
+	getReducer(type, ...params){
+		return new  Reducer(...params)
 	}
 }

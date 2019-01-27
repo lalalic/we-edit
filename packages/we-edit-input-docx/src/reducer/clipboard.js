@@ -34,7 +34,7 @@ export default class extends Base{
 
 		const cloned=top0.nextUntil(top1).clone().toArray()
 		
-		const clonedTop0=this.file.cloneNodeFrom(top0,{...start,type:this.$(`#${start.id}`}).attr("type")})
+		const clonedTop0=this.file.cloneNodeFrom(top0,{...start,type:this.$(`#${start.id}`).attr("type")})
 		const clonedTop1=this.file.cloneNodeTo(top1,{...end,type:this.$(`#${end.id}}`).attr("type")})
 		
         return [clonedTop0, ...cloned, clonedTop1]

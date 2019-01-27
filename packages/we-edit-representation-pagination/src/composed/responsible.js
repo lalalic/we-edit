@@ -214,12 +214,28 @@ export default class Responsible extends Component{
 		this.dispatch(ACTION.Cursor.ACTIVE(this.props.docId))
     }
 
-    onRotate(e){
-        this.dispatch(ACTION.Entity.ROTATE(e))
+    onRotate({x,y,id}){
+		id=id||this.selection.start.id
+		const {width,height}=this.getContent(id).attr("size").toJS()
+		const degree=(Math.asin(x/height)+Math.asin(y/width))*180/Math.PI
+		this.dispatch(ACTION.Entity.UPDATE({id,rotate:(content.attr("rotate")||0)+degree}))
     }
 
-    onResize(e){
-        this.dispatch(ACTION.Entity.RESIZE(e))
+    onResize({x,y,id}){
+		id=id||this.selection.start.id
+		const {width,height}=this.getContent(id).attr("size").toJS()
+
+		let size=null
+
+		if(y===undefined){
+			size={width:width+x}
+		}else if(x===undefined){
+			size={height:height+y}
+		}else{
+			let scale=1+Math.max(Math.abs(x)/width,Math.abs(y)/height)*x/Math.abs(x)
+			size={width:width*scale, height:height*scale}
+		}
+        this.dispatch(ACTION.Entity.UPDATE({id,size}))
     }
 
     onMove(e){
@@ -234,15 +250,15 @@ export default class Responsible extends Component{
     }
 
     onCopy({clipboardData}){
-        this.dispatch(ACTION.Clipboard.COPY())
+        this.dispatch(ACTION.Clipboard.COPY({clipboardData}))
     }
 
     onCut({clipboardData}){
-        this.dispatch(ACTION.Clipboard.CUT())
+        this.dispatch(ACTION.Clipboard.CUT({clipboardData}))
     }
 
     onPaste({clipboardData}){
-        this.dispatch(ACTION.Clipboard.PASTE())
+        this.dispatch(ACTION.Clipboard.PASTE({clipboardData}))
     }
 
     onClick({shiftKey:selecting, target, clientX:left,clientY:top}){
