@@ -2,7 +2,7 @@ import Base from "./content"
 
 export default class extends Base{
     copy(payload){
-        this.clipboard=this.clone()
+        this.clipboard=this.file.clone()
         return this
     }
 
@@ -33,17 +33,10 @@ export default class extends Base{
 		const top1=ancestors1.last()
 
 		const cloned=top0.nextUntil(top1).clone().toArray()
-
-        const clonedTop0=ancestors0.not(top0).reduce((node,a)=>node.find(a).prevAll().remove(), top0.clone())
-		const clonedTop1=ancestors1.not(top1).reduce((node,a)=>node.find(a).nextAll().remove(),top1.clone())
-        
-
-		let text=target0.text()
-		target0.text(text.substring(0,start.at))
-
-		text=target1.text()
-		target1.text(text.substr(end.at))
-
-        return cloned
+		
+		const clonedTop0=this.file.cloneNodeFrom(top0,{...start,type:this.$(`#${start.id}`}).attr("type")})
+		const clonedTop1=this.file.cloneNodeTo(top1,{...end,type:this.$(`#${end.id}}`).attr("type")})
+		
+        return [clonedTop0, ...cloned, clonedTop1]
     }
 }
