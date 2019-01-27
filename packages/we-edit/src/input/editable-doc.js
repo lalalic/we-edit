@@ -21,6 +21,14 @@ export default class {
 		
 	}
 	
+	cloneNodeTo(node, to){
+		
+	}
+	
+	cloneNodeFrom(node, from){
+		
+	}
+	
 	createNode(element, reducer){
 		
 	}
@@ -42,6 +50,10 @@ export default class {
 	}
 	
 	construct(fromId,toId){
+		
+	}
+	
+	cloneRange(start,end){
 		
 	}
 	

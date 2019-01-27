@@ -86,6 +86,38 @@ export default class EditableDocument extends docx4js{
 		else
 			return cloned
 	}
+	
+	cloneNodeTo(node, to={type,id,at}){
+		const withIds=node.find("[xxid]").each((i,el)=>el.attribs._xxid=el.attribs.xxid)
+		const cloned=node.clone()
+		
+		const editor=new editors[Type(type)](this)
+		editor.node=cloned.find(`[_xxid="${id}"]`)
+		editor.node.parents().each(parent=>{
+			cloned.find(parent).nextAll().remove()
+		})
+		
+		const tailored=editor.tailor(0,at)
+		editor.node.replaceWith(tailored)
+		withIds.removeAttr("_xxid")
+		return clone
+	}
+	
+	cloneNodeFrom(node,from={type,id,at}){
+		const withIds=node.find("[xxid]").each((i,el)=>el.attribs._xxid=el.attribs.xxid)
+		const cloned=node.clone()
+		
+		const editor=new editors[Type(type)](this)
+		editor.node=cloned.find(`[_xxid="${id}"]`)
+		editor.node.parents().each(parent=>{
+			cloned.find(parent).nextAll().remove()
+		})
+		
+		const tailored=editor.tailor(at)
+		editor.node.replaceWith(tailored)
+		withIds.removeAttr("_xxid")
+		return clone
+	}
 
 	createNode({type},reducer, target){
 		let editor=new editors[Type(type)](this)
@@ -141,15 +173,15 @@ export default class EditableDocument extends docx4js{
 		path.splice(path.length,0,nodeTo.get(0))
 
 		let xml=path.reduce((constructed,node)=>{
-				switch(node.name.split(":").pop()){
-				case "r":
-					return `<w:r>${$.xml($(node).find("w\\:rPr"))}${constructed}</w:r>`
-				break
-				case "p":
-					return `<w:p>${$.xml($(node).find("w\\:pPr"))}${constructed}</w:p>`
-				break
-				}
-			},`<${nodeFrom.get(0).name}/>`)
+			switch(node.name.split(":").pop()){
+			case "r":
+				return `<w:r>${$.xml($(node).find("w\\:rPr"))}${constructed}</w:r>`
+			break
+			case "p":
+				return `<w:p>${$.xml($(node).find("w\\:pPr"))}${constructed}</w:p>`
+			break
+			}
+		},`<${nodeFrom.get(0).name}/>`)
 
 		return this.attach(xml)
 	}
