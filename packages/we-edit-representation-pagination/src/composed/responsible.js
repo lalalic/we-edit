@@ -250,15 +250,15 @@ export default class Responsible extends Component{
     }
 
     onCopy({clipboardData}){
-        this.dispatch(ACTION.Clipboard.COPY({clipboardData}))
+        this.dispatch(ACTION.Selection.COPY({clipboardData}))
     }
 
     onCut({clipboardData}){
-        this.dispatch(ACTION.Clipboard.CUT({clipboardData}))
+        this.dispatch(ACTION.Selection.CUT({clipboardData}))
     }
 
     onPaste({clipboardData}){
-        this.dispatch(ACTION.Clipboard.PASTE({clipboardData}))
+        this.dispatch(ACTION.Selection.PASTE({clipboardData}))
     }
 
     onClick({shiftKey:selecting, target, clientX:left,clientY:top}){

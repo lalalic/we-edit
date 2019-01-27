@@ -1,7 +1,7 @@
 import React from "react"
 import PropTypes from "prop-types"
 
-import * as reducer from "./reducer"
+import {default as Reducer} from "./reducer"
 import Components from "../model"
 import {getSelection, getContent} from "../state/selector"
 var i=0
@@ -99,6 +99,8 @@ export class Editable extends Viewable{
 	static createStyles(){
 		return {}
 	}
+	
+	static  Reducer=Reducer
 
 	stream(option){
 		throw new Error("not support")
@@ -112,10 +114,6 @@ export class Editable extends Viewable{
 
 	}
 	
-	getReducer(type, ...args){
-		
-	}
-
 	/**
 	*return:
 	- false: no state change
@@ -128,7 +126,7 @@ export class Editable extends Viewable{
 	*/
 	onChange(state,{type,payload},createElement){
 		const params=[state]
-		const reducer=this.getReducer(type,state)
+		const reducer=new this.constructor.Reducer(...params)
 		switch(type){
 			case `we-edit/text/RETURN`:
 				return reducer

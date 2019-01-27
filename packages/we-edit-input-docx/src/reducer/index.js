@@ -1,35 +1,5 @@
 import {Input} from "we-edit"
 
-export default class extends Input.Reducer{
-	create(){
-		
-	}
+export default class extends Input.Editable.Reducer{
 	
-	insert(){
-		
-	}
-	
-	update(){
-		
-	}
-	
-	remove(){
-		
-	}
-	
-	move(){
-		
-	}
-	
-	cut(){
-		
-	}
-	
-	copy(){
-		
-	}
-	
-	paste(){
-		
-	}
 }
