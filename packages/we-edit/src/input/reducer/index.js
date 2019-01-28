@@ -2,7 +2,7 @@ import {getSelection,getFile} from "../../state/selector"
 import ACTION from "../../state/action"
 import xQuery from "./xquery"
 
- class Base{
+class Base{
 	constructor(state){
 		this._state=state
 		this._undoables={}
@@ -67,7 +67,7 @@ import xQuery from "./xquery"
 }
 
 class Reducer extends Base{
-	IsEntityAction({id}={}){
+	isEntityAction({id}={}){
 		if(id!=undefined){
 			return id
 		}
@@ -193,7 +193,7 @@ class Reducer extends Base{
 
 class Content extends Reducer{
 	create(element){
-		if(this.IsEntityAction()===false){
+		if(this.isEntityAction()===false){
 			this.remove()
 		}
 
@@ -208,7 +208,7 @@ class Content extends Reducer{
 	}
 
 	insert(data){
-		if(this.IsEntityAction()===false){
+		if(this.isEntityAction()===false){
 			this.remove()
 		}
 
@@ -221,7 +221,7 @@ class Content extends Reducer{
 	}
 
 	update({id,type,...changing}){
-		var targets=[]
+        var targets=[]
 		if((id=this.isEntityAction(arguments[0]))!==false){
 			targets.push(id)
 			type=type||this.$(`#${id}`).attr("type")
@@ -284,27 +284,28 @@ class Content extends Reducer{
 	}
 }
 
+var clipboard
 class Clipboard extends Content{
 	move(dest){
 		const cloned=this.clone(true)
-		return this.insert(cloned, dest)
+		this.insert(cloned, dest)
+        return this
 	}
 
 	cut({clipboardData}){
-		clipboardData.setData("application/we-edit",this.clone())
-		return this.remove()
+		clipboard=this.clone()
+		this.remove()
+        return this
 	}
 
 	copy({clipboardData}){
-		clipboardData.setData("application/we-edit",this.clone())
+		clipboard=this.clone()
+        return this
 	}
 
 	paste({clipboardData}){
-		const data=clipboardData.getData("application")||clipboardData.getData("text")
+		const data=clipboard||clipboardData.getData("text")
 		if(data){
-			if(this.isEntityAction()===false){
-				this.remove()
-			}
 			this.insert(data)
 		}
 
