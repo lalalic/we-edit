@@ -75,16 +75,16 @@ class Reducer extends Base{
 		if(start.id==end.id && start.at==end.at){
 			return start.id
 		}
-		
+
 		return false
 	}
-	
+
 	clone(keepId=false){
 		return this.selection
 		const {start,end}=this.selection
 		return this.file.clone(start,end, keepId)
 	}
-	
+
 	splitAtUpto({id,at},to="paragraph"){
 		const target=this.$('#'+id)
 		const text=target.text()
@@ -111,77 +111,83 @@ class Reducer extends Base{
 
 		return [to,to1]
 	}
-	
+
 	getTyped(type){
 		const {start,end}=this.selection
 		const target0=this.$('#'+start.id)
 		const target1=this.$("#"+end.id)
 		const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
-		
+
 		const ancestors0=target0.parentsUntil(ancestor)
 		const ancestors1=target1.parentsUntil(ancestor)
 		return []
 	}
-	
+
 	insert_text_at(inserting,{id,at}){
-		const target=this.$('#'+id)
-		const p=target.closest("paragraph")
+        const target=this.$('#'+id)
+        const text=target.text()
+        if(inserting.indexOf("\r")==-1 && inserting.indexOf("\n")==-1){
+    		this.save4undo(id)
+    		target.text(text.substring(0,at)+inserting+text.substr(at))
+    		this.cursorAt(id,at+inserting.length)
+            return
+        }else{
+    		const p=target.closest("paragraph")
+    		const pieces=inserting.split(/[\r\n]+/g)
+    		const FIRST=0
+    		const LAST=pieces.length-1
+    		this.save4undo(p.attr("id"))
+    		pieces.reduceRight((b,piece,i)=>{
+    			switch(i){
+    				case FIRST:{//first piece merged into
+    					target.text(text.substring(0,at)+piece)
+    					this.renderChanged(p.attr("id"))
+    					break
+    				}
+    				case LAST:{
+    					let p0=target.constructUp(p)
+    						.insertAfter(p)
 
-		const pieces=inserting.split(/[\r\n]+/g)
-		const FIRST=0
-		const LAST=pieces.length-1
+    					let t0=p0.findFirst("text")
+    						.text(piece+text.substr(at))
 
-		this.save4undo(p.attr("id"))
+    					target.parentsUntil(p).each(function(i,node,$){
+    						this.eq(i).after($(node).nextAll())
+    					},t0.parentsUntil(p0))
 
-		let text=target.text()
-
-		pieces.reduceRight((b,piece,i)=>{
-			switch(i){
-				case FIRST:{//first piece merged into
-					target.text(text.substring(0,at)+piece)
-					this.renderChanged(p.attr("id"))
-					break
-				}
-				case LAST:{
-					let p0=target.constructUp(p)
-						.insertAfter(p)
-
-					let t0=p0.findFirst("text")
-						.text(piece+text.substr(at))
-
-					target.parentsUntil(p).each(function(i,node,$){
-						this.eq(i).after($(node).nextAll())
-					},t0.parentsUntil(p0))
-
-					this.cursorAt(t0.attr("id"), piece.length)
-					break
-				}
-				default:{
-					target.constructUp(p)
-						.insertAfter(p)
-						.findFirst("text")
-						.text(piece)
-					break
-				}
-			}
-		},1)
+    					this.cursorAt(t0.attr("id"), piece.length)
+    					break
+    				}
+    				default:{
+    					target.constructUp(p)
+    						.insertAfter(p)
+    						.findFirst("text")
+    						.text(piece)
+    					break
+    				}
+    			}
+    		},1)
+        }
 	}
-	
+
 	merge_content_at(content,{id,at}){
-		
+
 	}
-	
+
 	remove_object_at({id,at}){
 		const target=this.$(`#${id}`)
-		if(target.attr("type")=="text"){
-			
-		}else{
-			
-		}
+
 	}
-	
+
 	backspace_object_at({id,at}){
-		const target=this.$(`#${id}`)
+        let target=this.$('#'+id)
+
+		this.save4undo(id)
+
+		let text=target.text()
+		target.text(text.substring(0,at-1)+text.substr(at))
+
+		this.renderChanged(id)
 	}
 }
 
@@ -190,7 +196,7 @@ class Content extends Reducer{
 		if(this.IsEntityAction()===false){
 			this.remove()
 		}
-		
+
 		const {start:{id,at}}=this.selection
 		const target=this.$(`#${id}`)
 
@@ -205,7 +211,7 @@ class Content extends Reducer{
 		if(this.IsEntityAction()===false){
 			this.remove()
 		}
-		
+
 		if(typeof(data)=="string"){
 			this.insert_text_at(data,this.selection.start)
 		}else{
@@ -222,31 +228,36 @@ class Content extends Reducer{
 		}else{
 			targets=this.getTyped(type)
 		}
-		
+
 		targets.forEach(target=>{
 			target=this.file.getNode(target)
 			this.file.updateNode({id:target,type},changing)
 			this.renderChanged(target)
 		})
-		
+
 		return this
 	}
 
-	remove(at){
-		if(this.isEntityAction()!==false){
-			if(at==1){
-				this.remove_object_at(start)
-			}else if(at=-1){
-				this.backspace_object_at(start)
-			}
-			return this 
-		}
-		
-		const {start,end}=this.selection
+	remove({backspace,cursor}){
+        const {start,end}=this.selection
 		const target0=this.$('#'+start.id)
+		if(start.id==end.id){
+            if(!backspace){
+				this.remove_object_at(start)
+			}else{
+                if(cursor.id==start.id){
+    				this.backspace_object_at(start)
+                }else{
+                    
+                }
+			}
+            this.cursorAt(cursor.id, cursor.at)
+			return this
+		}
+
 		const target1=this.$("#"+end.id)
 		const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
-		
+
 		const ancestors0=target0.parentsUntil(ancestor)
 		const ancestors1=target1.parentsUntil(ancestor)
 		const top0=ancestors0.last()
@@ -255,17 +266,17 @@ class Content extends Reducer{
 		top0.nextUntil(top1).remove()
 		ancestors0.not(top0).each((i,a)=>$(a).nextAll().remove())
 		ancestors1.not(top1).each((i,a)=>$(a).prevAll().remove())
-		
+
 		if(target0.attr("type")=="text"){
 			const text=target0.text()
 			target0.text(text.substring(0,start.at))
 		}
-		
+
 		if(target1.attr("type")=="text"){
 			const text=target1.text()
 			target1.text(text.substr(end.at))
 		}
-		
+
 		this.renderChanged(ancestor.attr("id"))
 		this.cursorAt(start.id,start.at)
 		return this
@@ -295,11 +306,11 @@ class Clipboard extends Content{
 			}
 			this.insert(data)
 		}
-		
+
 		return  this
 	}
 }
 
 export default class extends Clipboard{
-	
+
 }

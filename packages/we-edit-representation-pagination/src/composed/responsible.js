@@ -158,6 +158,9 @@ export default class Responsible extends Component{
 									38:e=>this.onKeyArrowUp(e),//move up
 									39:e=>this.onKeyArrowRight(e),//move right
 									40:e=>this.onKeyArrowDown(e),//move down
+                                    46:e=>this.onKeyDelete(),//delete
+                                    8:e=>this.onKeyBackspace(),//backspace
+
 								}}
 
                                 onCopy={e=>this.onCopy(e)}
@@ -283,6 +286,22 @@ export default class Responsible extends Component{
 		}
 
         this.active()
+    }
+
+    onKeyDelete(){
+        const {end}=this.selection
+        const composer=this.getComposer(end.id)
+        const {id,at}=composer.nextCursorable(end.id,end.at)||{}
+        this.dispatch(ACTION.Text.REMOVE({backspace:false,cursor:{id,at}}))
+    }
+
+    onKeyBackspace(){
+        const {start}=this.selection
+        const composer=this.getComposer(start.id)
+        const {id,at}=composer.prevCursorable(start.id,start.at)||{}
+        if(id){
+            this.dispatch(ACTION.Text.REMOVE({backspace:true,cursor:{id,at}}))//backspace
+        }
     }
 
 	locate(nextOrprev, CursorableOrSelectable, id, at, inclusive=false){

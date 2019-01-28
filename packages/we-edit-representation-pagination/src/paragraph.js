@@ -37,6 +37,11 @@ export default class Paragraph extends Super{
 			return []
 		}
 
+		if(text==" "){
+			this.computed.lastText=""
+			return [text]
+		}
+
 		const current=opportunities(`${lastText}${text}`)
 		if(!lastText){
 			this.computed.lastText=current[current.length-1]||""

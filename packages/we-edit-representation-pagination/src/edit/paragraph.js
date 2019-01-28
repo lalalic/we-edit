@@ -374,7 +374,7 @@ class Navigatable extends Positionable{
 		}else{
 			 const i=atoms.findIndex(a=>new ReactQuery(a).findFirst(`[data-content="${id}"]`).length>0)
 			 const iAtom=new ReactQuery(atoms[i])
-			 if(iAtom.findFirst('[data-type="text"]').length){//text
+			 if(iAtom.findLast('[data-type="text"]').length){//text
 				 if(i>0){
 					 const prevAtom=new ReactQuery(atoms[i-1])
 					 const prevAtomText=prevAtom.findFirst('[data-type="text"]')
