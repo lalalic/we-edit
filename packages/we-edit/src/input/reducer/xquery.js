@@ -163,13 +163,16 @@ export default class xQuery extends Query{
 
 	remove(deep=true){
 		const clear=k=>{//clear the tree
-			this._content.remove(k)
-			if(!deep)
-				return
+			if(!deep){
+                this._content.remove(k)
+                return
+            }
+
 			let children=this._content.getIn([k,"children"])
 			if(children instanceof List){
 				children.forEach(id=>clear(id))
 			}
+            this._content.remove(k)
 		}
 		this._nodes.forEach(k=>{
 			let node=this._content.get(k)

@@ -248,7 +248,7 @@ class Content extends Reducer{
                 if(cursor.id==start.id){
     				this.backspace_object_at(start)
                 }else{
-                    
+
                 }
 			}
             this.cursorAt(cursor.id, cursor.at)
@@ -264,8 +264,8 @@ class Content extends Reducer{
 		const top1=ancestors1.last()
 
 		top0.nextUntil(top1).remove()
-		ancestors0.not(top0).each((i,a)=>$(a).nextAll().remove())
-		ancestors1.not(top1).each((i,a)=>$(a).prevAll().remove())
+		ancestors0.not(top0).each((i,a)=>this.$('#'+a.get("id")).nextAll().remove())
+		ancestors1.not(top1).each((i,a)=>this.$('#'+a.get("id")).prevAll().remove())
 
 		if(target0.attr("type")=="text"){
 			const text=target0.text()
@@ -277,7 +277,8 @@ class Content extends Reducer{
 			target1.text(text.substr(end.at))
 		}
 
-		this.renderChanged(ancestor.attr("id"))
+		this.renderChanged(top0.attr("id"))
+        this.renderChanged(top1.attr("id"))
 		this.cursorAt(start.id,start.at)
 		return this
 	}

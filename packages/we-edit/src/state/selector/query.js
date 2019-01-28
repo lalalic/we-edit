@@ -248,7 +248,7 @@ export default class Query{
 				let siblings=this._content.getIn([node.get("parent"),"children"])
 				for(let i=0,end=siblings.indexOf(id);i<end;i++){
 					if(select(this._content.get(siblings.get(i)))){
-						found.push(siblings(i))
+						found.push(siblings.get(i))
 					}
 				}
 			}
@@ -267,7 +267,7 @@ export default class Query{
 					if(select(this._content.get(siblings.get(i)))){
 						break
 					}else{
-						found.push(siblings(i))
+						found.push(siblings.get(i))
 					}
 				}
 			}
