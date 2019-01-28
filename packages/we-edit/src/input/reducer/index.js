@@ -114,14 +114,19 @@ class Reducer extends Base{
 
 	getTyped(type){
 		const {start,end}=this.selection
-		const target0=this.$('#'+start.id)
-		const target1=this.$("#"+end.id)
-		const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
-
-		const ancestors0=target0.parentsUntil(ancestor)
-		const ancestors1=target1.parentsUntil(ancestor)
-		return []
+		var targets=this.$(`#${start.id}`)
+			
+		if(start.id!=end.id){
+			targets=targets
+				.forwardUntil(`#${end.id}`)
+				.add(this.$(`#${end.id}`).parents())
+		}
+		return targets
+			.add(this.$(`#${start.id}`).parents())
+			.filter(type)
+			.toArray()
 	}
+
 
 	insert_text_at(inserting,{id,at}){
         const target=this.$('#'+id)
@@ -221,20 +226,17 @@ class Content extends Reducer{
 	}
 
 	update({id,type,...changing}){
-        var targets=[]
-		if((id=this.isEntityAction(arguments[0]))!==false){
-			targets.push(id)
-			type=type||this.$(`#${id}`).attr("type")
-		}else{
-			targets=this.getTyped(type)
+		if(!type){
+			type=Object.keys(changing)[0]
+			changing=changing[type]
 		}
-
+		const targets=id ? [id] : this.getTyped(type)
+		
 		targets.forEach(target=>{
-			target=this.file.getNode(target)
 			this.file.updateNode({id:target,type},changing)
 			this.renderChanged(target)
 		})
-
+		
 		return this
 	}
 

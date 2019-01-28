@@ -219,14 +219,16 @@ export default class Responsible extends Component{
 
     onRotate({x,y,id}){
 		id=id||this.selection.start.id
-		const {width,height}=this.getContent(id).attr("size").toJS()
+		const content=this.getContent(id)
+		const {width,height}=content.attr("size").toJS()
 		const degree=(Math.asin(x/height)+Math.asin(y/width))*180/Math.PI
-		this.dispatch(ACTION.Entity.UPDATE({id,rotate:(content.attr("rotate")||0)+degree}))
+		this.dispatch(ACTION.Entity.UPDATE({id,type:content.attr("type"),rotate:(content.attr("rotate")||0)+degree}))
     }
 
     onResize({x,y,id}){
 		id=id||this.selection.start.id
-		const {width,height}=this.getContent(id).attr("size").toJS()
+		const content=this.getContent(id)
+		const {width,height}=content.attr("size").toJS()
 
 		let size=null
 
@@ -238,7 +240,7 @@ export default class Responsible extends Component{
 			let scale=1+Math.max(Math.abs(x)/width,Math.abs(y)/height)*x/Math.abs(x)
 			size={width:width*scale, height:height*scale}
 		}
-        this.dispatch(ACTION.Entity.UPDATE({id,size}))
+        this.dispatch(ACTION.Entity.UPDATE({id,type:content.attr("type"),size}))
     }
 
     onMove(e){
