@@ -1,6 +1,22 @@
+describe("cursor",()=>{
+	it("text(0,length)",()=>{
 
+	})
 
-	xdescribe("locating cursor/selection",()=>{
+	it("text(0,length)text(1,length)",()=>{
+
+	})
+
+	it("paragraph(0,1)",()=>{
+
+	})
+
+	it("image(0,1)",()=>{
+
+	})
+})
+
+	xdescribe("prev cursorable",()=>{
 		it("only when content composed",()=>{
 
 		})

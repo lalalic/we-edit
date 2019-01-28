@@ -11,12 +11,6 @@ import editable from "./editable"
 import {Text as ComposedText} from "../composed"
 
 const Editable=Cacheable(class extends editable(Base,{stoppable:true}){
-	getBreakOpportunities(text){
-		if(text=="")
-			return [""]
-		return super.getBreakOpportunities(text)
-	}
-
 	clearComposed(){
 		this.computed.lastText=""
 		this.computed.atoms=[]
@@ -372,33 +366,33 @@ class Navigatable extends Positionable{
 				)
 			}
 		}else{
-			 const i=atoms.findIndex(a=>new ReactQuery(a).findFirst(`[data-content="${id}"]`).length>0)
-			 const iAtom=new ReactQuery(atoms[i])
-			 if(iAtom.findLast('[data-type="text"]').length){//text
-				 if(i>0){
-					 const prevAtom=new ReactQuery(atoms[i-1])
-					 const prevAtomText=prevAtom.findFirst('[data-type="text"]')
-					 if(prevAtomText.length>0){//text
-						 return {id:prevAtomText.attr("data-content"),at:prevAtomText.length-1}
-					 }else{//not text
-						 let prevText
-						 atoms.slice(0,i)
-							.findLast(a=>(prevText=new ReactQuery(a).findFirst('[data-type="text"]')).length>0)
-						if(prevText.length>0){
-							let prevTextId=prevText.attr("data-content")
-							let len=this.query(`#${prevTextId}`).text().length
-							if(len>0){
-								return {id:prevTextId,at:len}
-							}else{
-								return this.context.composer(prevTextId).prevCursorable(prevTextId,0)
-							}
-						}else{
-							return this.nextCursorable()
-						}
-					}
-
-				}else if(i==0){
-					return this.prevParagraphCursorable()
+			if(at==0){//prev atom's last index
+				 const i=atoms.findIndex(a=>new ReactQuery(a).findFirst(`[data-content="${id}"]`).length>0)
+				 if(i==0){
+					 return this.prevParagraphCursorable()
+				 }else{
+					 const last=new ReactQuery(atoms.slice(0,i))
+					 	.findLast('[data-type="text"],[data-type="image"]')
+					 const lastId=last.attr("data-content")
+					 if(last.attr("data-type")=="text"){
+						 return {id:lastId,at:this.context.getComposer(lastId).text.length-1}
+					 }else{
+						 return {id:lastId, at:1}
+					 }
+				 }
+			}else{//end of object/text
+				const i=atoms.findLastIndex(a=>new ReactQuery(a).findLast(`[data-content="${id}"]`).length>0)
+				if(i==atoms.length-2){
+					return this.prevCursorable(this.props.id,1)
+				}else{
+					const last=new ReactQuery(atoms.slice(0,i+1))
+					   .findLast('[data-type="text"],[data-type="image"]')
+					const lastId=last.attr("data-content")
+  					if(last.attr("data-type")=="text"){
+  						return {id:lastId,at:this.context.getComposer(lastId).text.length-1}
+  					}else{
+  						return {id:lastId, at:0}
+  					}
 				}
 			}
 		}
