@@ -82,7 +82,17 @@ class Reducer extends Base{
 	clone(keepId=false){
 		return this.selection
 		const {start,end}=this.selection
-		return this.file.clone(start,end, keepId)
+		const target0=this.$(`#${start.id}`)
+		const target1=this.$("#"+end.id)
+		const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
+
+		const ancestors0=target0.parentsUntil(ancestor)
+		const ancestors1=target1.parentsUntil(ancestor)
+		const top0=ancestors0.last()
+		const top1=ancestors1.last()
+
+		const cloned=top0.nextUntil(top1).toArray().map(a=>this.file.cloneNode(a,false,keepId))
+
 	}
 
 	splitAtUpto({id,at},to="paragraph"){
