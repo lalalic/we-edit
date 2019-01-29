@@ -134,8 +134,8 @@ class Reducer extends Base{
 
 		target.text(text.substr(0,at))
 
-		this.renderChanged(to1.attr('id'))
-		this.renderChanged(to.attr('id'))
+		this.renderChanged(parent.attr('id'))
+		//this.renderChanged(to.attr('id'))
 
 		return [to,to1]
 	}
@@ -146,21 +146,26 @@ class Reducer extends Base{
 		var to=this.$(`#${end.id}`)
 
 		if(type=="text"){
-			if(from.attr('type')==type){
-				const [p0,p1]=this.splitAtUpto(start,from.parent().attr("type"))
+			if(from.attr('type')==type && start.at>0){
+				const [p0,p1]=this.splitAtUpto(start,from.parent())
 				from=this.$(`#${p1.attr("id")}`)
 				if(!from.is("text"))
-					from=from.find("text")
+					from=from.find("text").eq(0)
+				if(end.id==start.id){
+					end.id=from.attr("id")
+					end.at=end.at-start.at
+					to=from
+				}
 				start.id=from.attr("id")
 				start.at=0
 				this.cursorAt(start.id,start.at, end.id, end.at)
 			}
 
-			if(to.attr('type')==type){
-				const [p0,p1]=this.splitAtUpto(end,to.parent().attr("type"))
+			if(to.attr('type')==type && end.at<to.text().length){
+				const [p0,p1]=this.splitAtUpto(end,to.parent())
 				to=this.$(`#${p0.attr("id")}`)
 				if(!to.is("text"))
-					to=to.find("text")
+					to=to.find("text").eq(0)
 				end.id=to.attr("id")
 				end.at=to.text().length
 				this.cursorAt(start.id,start.at, end.id, end.at)
