@@ -53,7 +53,7 @@ export default class EditableDocument extends docx4js{
 		if(node.attribs.xxid){
 			return node.attribs.xxid
 		}
-		
+
 		let id=uid||(node.name=="w:document"&&"root")||uuid()
 		defineId(node.attribs,id)
 
@@ -77,46 +77,47 @@ export default class EditableDocument extends docx4js{
 		return node
 	}
 
-	cloneNode(node, autoAttach=true){
-		let withIds=node.find("[xxid]").each((i,el)=>el.attribs._xxid=el.attribs.xxid)
-		let cloned=node.clone()
-		withIds.removeAttr("_xxid")
-		if(autoAttach)
+	cloneNode(node, autoAttach=true, keepId=false){
+		const cloned=(()=>{
+			if(!keepId){
+				return node.clone()
+			}
+			const withIds=node.find("[xxid]").each((i,el)=>el.attribs._xxid=el.attribs.xxid)
+			const cloned=node.clone()
+			withIds.removeAttr("_xxid")
+
+			cloned.find("[_xxid]").each((i,el)=>{
+				this.makeId(el,el.attribs._xxid)
+				delete el.attribs._xxid
+			})
+
+			return cloned
+		})();
+
+		if(autoAttach && !keepId)
 			return this.attach(cloned)
 		else
 			return cloned
 	}
-	
-	cloneNodeTo(node, to={type,id,at}){
-		const withIds=node.find("[xxid]").each((i,el)=>el.attribs._xxid=el.attribs.xxid)
-		const cloned=node.clone()
-		
-		const editor=new editors[Type(type)](this)
-		editor.node=cloned.find(`[_xxid="${id}"]`)
-		editor.node.parents().each(parent=>{
-			cloned.find(parent).nextAll().remove()
-		})
-		
-		const tailored=editor.tailor(0,at)
-		editor.node.replaceWith(tailored)
-		withIds.removeAttr("_xxid")
-		return clone
+
+	extendNode(node){
+		switch(node.get(0).name.split(":")[1]){
+			case "t":
+				return node.closest("w\\:r")
+			default:
+				return node
+		}
 	}
-	
-	cloneNodeFrom(node,from={type,id,at}){
-		const withIds=node.find("[xxid]").each((i,el)=>el.attribs._xxid=el.attribs.xxid)
-		const cloned=node.clone()
-		
-		const editor=new editors[Type(type)](this)
-		editor.node=cloned.find(`[_xxid="${id}"]`)
-		editor.node.parents().each(parent=>{
-			cloned.find(parent).nextAll().remove()
-		})
-		
-		const tailored=editor.tailor(at)
-		editor.node.replaceWith(tailored)
-		withIds.removeAttr("_xxid")
-		return clone
+
+	tailorNode(node, from , to){
+		switch(node.get(0).name.split(":")[1]){
+			case "r":
+				return node.find("w\\:t").text(node.text().substring(from,to))
+			case "t":
+				return node.text(node.text().substring(from,to))
+			default:
+				return node
+		}
 	}
 
 	createNode({type},reducer, target){

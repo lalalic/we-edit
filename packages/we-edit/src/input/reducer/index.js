@@ -80,19 +80,37 @@ class Reducer extends Base{
 	}
 
 	clone(keepId=false){
-		return this.selection
+		const cloned=[]
 		const {start,end}=this.selection
-		const target0=this.$(`#${start.id}`)
-		const target1=this.$("#"+end.id)
-		const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
 
-		const ancestors0=target0.parentsUntil(ancestor)
-		const ancestors1=target1.parentsUntil(ancestor)
-		const top0=ancestors0.last()
-		const top1=ancestors1.last()
+		const clonedTarget0=this.file.cloneNode(this.file.extendNode(this.file.getNode(start.id)),false,keepId)
+		cloned.push(clonedTarget0)
 
-		const cloned=top0.nextUntil(top1).toArray().map(a=>this.file.cloneNode(a,false,keepId))
+		if(start.id==end.id){
+			this.file.tailorNode(clonedTarget0,start.at,end.at)
+		}else{
+			const target0=this.$("#"+start.id)
+			const target1=this.$("#"+end.id)
 
+			const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
+			const ancestors0=target0.parentsUntil(ancestor)
+			const ancestors1=target1.parentsUntil(ancestor)
+
+			ancestors0.last().nextUntil(ancestors1.last())
+				.each((i,a)=>cloned.push(
+					this.file.cloneNode(
+						this.file.extendNode(this.file.getNode(a.get("id"))),
+						false,
+						keepId
+					)
+				))
+
+			const clonedTarget1=this.file.cloneNode(this.file.extendNode(this.file.getNode(end.id)),false,keepId)
+			this.file.tailorNode(clonedTarget1,0, end.at)
+			cloned.push(clonedTarget1)
+		}
+
+		return cloned
 	}
 
 	splitAtUpto({id,at},to="paragraph"){
@@ -124,15 +142,42 @@ class Reducer extends Base{
 
 	getTyped(type){
 		const {start,end}=this.selection
-		var targets=this.$(`#${start.id}`)
-			
+		var from=this.$(`#${start.id}`)
+		var to=this.$(`#${end.id}`)
+
+		if(type=="text"){
+			if(from.attr('type')==type){
+				const [p0,p1]=this.splitAtUpto(start,from.parent().attr("type"))
+				from=this.$(`#${p1.attr("id")}`)
+				if(!from.is("text"))
+					from=from.find("text")
+				start.id=from.attr("id")
+				start.at=0
+				this.cursorAt(start.id,start.at, end.id, end.at)
+			}
+
+			if(to.attr('type')==type){
+				const [p0,p1]=this.splitAtUpto(end,to.parent().attr("type"))
+				to=this.$(`#${p0.attr("id")}`)
+				if(!to.is("text"))
+					to=to.find("text")
+				end.id=to.attr("id")
+				end.at=to.text().length
+				this.cursorAt(start.id,start.at, end.id, end.at)
+			}
+		}
+		var targets=from
+
 		if(start.id!=end.id){
 			targets=targets
-				.forwardUntil(`#${end.id}`)
-				.add(this.$(`#${end.id}`).parents())
+				.forwardUntil(to)
+				.add(to.parents())
+				.add(from)
+				.add(to)
 		}
+
 		return targets
-			.add(this.$(`#${start.id}`).parents())
+			.add(from.parents())
 			.filter(type)
 			.toArray()
 	}
@@ -185,8 +230,14 @@ class Reducer extends Base{
         }
 	}
 
-	merge_content_at(content,{id,at}){
-
+	merge_content_at(contents,{id,at}){
+		const renderedContents=contents.map(a=>this.renderChanged(this.file.attach(a)))
+		renderedContents.reverse().forEach((a,i)=>{
+			const aNode=this.$(`#${a.id}`)
+			const type=aNode.attr('type')
+			const [part0]=this.splitAtUpto({id,at},type)
+			part0.after(aNode)
+		})
 	}
 
 	remove_object_at({id,at}){
@@ -241,12 +292,13 @@ class Content extends Reducer{
 			changing=changing[type]
 		}
 		const targets=id ? [id] : this.getTyped(type)
-		
+
 		targets.forEach(target=>{
 			this.file.updateNode({id:target,type},changing)
-			this.renderChanged(target)
+			const rerenderTarget=this.$('#'+target).closest("paragraph").attr("id")||target
+			this.renderChanged(rerenderTarget)
 		})
-		
+
 		return this
 	}
 

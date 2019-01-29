@@ -8,55 +8,55 @@ export default class {
 	/*create/asign uid for node*/
 	//root node's id must be "root"
 	makeId(node,id){
-		
+
 	}
-	
+
 	/*find node by id*/
 	getNode(id){
-		
+
 	}
-	
+
 	/*clone node without all ids*/
-	cloneNode(node, autoAttach=true){
-		
+	cloneNode(node, autoAttach=true, keepId=false){
+
 	}
-	
-	cloneNodeTo(node, to){
-		
+
+	extendNode(node){
+		return node
 	}
-	
-	cloneNodeFrom(node, from){
-		
+
+	tailer(node, from, to){
+
 	}
-	
+
 	createNode(element, reducer){
-		
+
 	}
-	
+
 	updateNode(element, changing, query){
-		
+
 	}
-	
+
 	removeNode(element){
-		
+
 	}
 
 	insertNodeBefore(newNode,referenceNode,parentNode){
-		
+
 	}
-	
+
 	insertNodeAfter(newNode,referenceNode,parentNode){
-		
+
 	}
-	
+
 	construct(fromId,toId){
-		
+
 	}
-	
+
 	cloneRange(start,end){
-		
+
 	}
-	
+
 	toString(id){
 		return `[${id}]`
 	}
