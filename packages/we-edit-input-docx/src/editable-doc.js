@@ -109,14 +109,11 @@ export default class EditableDocument extends docx4js{
 		}
 	}
 
-	tailorNode(node, from , to){
-		switch(node.get(0).name.split(":")[1]){
-			case "r":
-				return node.find("w\\:t").text(node.text().substring(from,to))
-			case "t":
-				return node.text(node.text().substring(from,to))
-			default:
-				return node
+	tailorNode({id,type}, from , to){
+		if(type && !!editors[Type(type)]){
+			let editor=new editors[Type(type)](this)
+			editor.node=this.getNode(id)
+			return editor.tailor(from,to)
 		}
 	}
 

@@ -287,8 +287,4 @@ export default class DocxType extends Input.Editable{
 	getFontList(){
 		//injected implementation by render
 	}
-	
-	getReducer(type, ...params){
-		return new  Reducer(...params)
-	}
 }

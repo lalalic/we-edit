@@ -161,7 +161,7 @@ class Reducer extends Base{
 				this.cursorAt(start.id,start.at, end.id, end.at)
 			}
 
-			if(to.attr('type')==type && end.at<to.text().length){
+			if(to.attr('type')==type && end.at<to.text().length-1){
 				const [p0,p1]=this.splitAtUpto(end,to.parent())
 				to=this.$(`#${p0.attr("id")}`)
 				if(!to.is("text"))
@@ -309,13 +309,13 @@ class Content extends Reducer{
 
 	remove({backspace,cursor}){
         const {start,end}=this.selection
-		const target0=this.$('#'+start.id)
 		if(start.id==end.id){
             if(!backspace){
 				this.remove_object_at(start)
 			}else{
+				this.backspace_object_at(start)
                 if(cursor.id==start.id){
-    				this.backspace_object_at(start)
+    				
                 }else{
 
                 }
@@ -324,6 +324,7 @@ class Content extends Reducer{
 			return this
 		}
 
+		const target0=this.$('#'+start.id)
 		const target1=this.$("#"+end.id)
 		const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
 
@@ -336,12 +337,12 @@ class Content extends Reducer{
 		ancestors0.not(top0).each((i,a)=>this.$('#'+a.get("id")).nextAll().remove())
 		ancestors1.not(top1).each((i,a)=>this.$('#'+a.get("id")).prevAll().remove())
 
-		if(target0.attr("type")=="text"){
+		if(target0.attr("type")=="text" && start.at>0){
 			const text=target0.text()
 			target0.text(text.substring(0,start.at))
 		}
 
-		if(target1.attr("type")=="text"){
+		if(target1.attr("type")=="text" && end.at<target1.text().length-1){
 			const text=target1.text()
 			target1.text(text.substr(end.at))
 		}

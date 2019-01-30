@@ -16,16 +16,11 @@ export default class {
 
 	}
 
-	/*clone node without all ids*/
-	cloneNode(node, autoAttach=true, keepId=false){
+	cloneNode(element, autoAttach=true, keepId=false){
 
 	}
 
-	extendNode(node){
-		return node
-	}
-
-	tailer(node, from, to){
+	tailerNode(element, from, to){
 
 	}
 
