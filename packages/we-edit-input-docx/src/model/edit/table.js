@@ -2,10 +2,9 @@ import Base from "./base"
 
 //{type:"entity/CREATE", payload:{type:"table", rows:3, cols:3}}
 export class Table extends Base{
-    apply({rows, ...props}, $){
+    apply({rows, cols, ...props}, $){
         if(rows){
-			delete props.cols
-			this.rows(rows, arguments[0])
+			this.make(rows, cols)
 		}
         return super.apply(props)
     }
@@ -48,15 +47,16 @@ export class Table extends Base{
         if(width<=0){
             return
         }
-		const tr=this.node.find(`[xxid="${row}"]`)
-		const tc=tr.find(`[xxid="${cell}"]`)
-		const tcW=tc.find("w\\:tcPr>w\\:tcW")
-		width=this.px2dxa(width)
-		const delta=width-parseInt(tcW.attr("w:w"))
-
         //change col width
         const gridCol=this.node.find("w\\:tblGrid").first().find("w\\:gridCol")
         const cols=gridCol.map((j,a)=>parseInt(a.attribs["w:w"])).toArray()
+
+        const tr=this.node.find(`[xxid="${row}"]`)
+		const tc=tr.find(`[xxid="${cell}"]`)
+		const tcW=tc.find("w\\:tcPr>w\\:tcW")
+		width=this.px2dxa(width)
+		const delta=width-parseInt(tcW.attr("w:w")||cols[i])
+
         if(cols.length>i+1){
             if(cols[i+1]-delta>0){
                 cols[i+1]=cols[i+1]-delta
@@ -80,7 +80,10 @@ export class Table extends Base{
 		})
 	}
 
-	col({at}){
+	col({cell,where}){
+        cell=this.file.getNode(cell)
+        const at=cell.closest("w\\:tr").find("w\\:tc").index(cell)
+
 		let grid=this.node.first("w\\:tblGrid")
 		let cols=grid.find("w\\:gridCol")
 		let len=cols.length
@@ -104,18 +107,52 @@ export class Table extends Base{
 		for(let i=0;i<rows.length;i++){
 			rows.eq(i)
 				.find("w\\:tc")
-				.eq(at)
-				.after(this.template_tc(width))
+				.eq(at)[where](this.template_tc(width))
 		}
 	}
 
-	row({at}){
-		let cols=this.node.first("w\\:tblGrid").find("w\\:gridCol").length
-        this.node.find("w\\:tr").eq(at)
-            .after("<w:tr>"+new Array(cols).fill(0).map(w=>this.template_tc(w))+"</w:tr>")
+	row({at,where}){
+        const row=this.file.getNode(at)
+        if(row.length==1){
+            const cols=this.node.first("w\\:tblGrid").find("w\\:gridCol")
+            const tds=new Array(cols.length).fill(0).map((w,i)=>this.template_tc(w))
+            row[where]("<w:tr>"+tds.join("")+"</w:tr>")
+        }else{
+            console.warn(`can't find row[${at}],ignore the command`)
+        }
 	}
 
-    rows(rows,{cols}){
+    remove({at}){
+        const target=this.file.getNode(at)
+        if(target.get(0).name!=="w:tc"){
+            target.remove()
+        }
+
+        const cell=target
+        at=cell.closest("w\\:tr").find("w\\:tc").index(cell)
+        let grid=this.node.first("w\\:tblGrid")
+		let cols=grid.find("w\\:gridCol")
+		let len=cols.length
+		let width=cols.toArray().reduce((w,a)=>w+parseInt(a.attribs["w:w"]),0)
+		let ratio=len/(len-1)
+		for(let i=0;i<len;i++){
+			let col=cols.eq(i)
+			let w=parseInt(parseInt(col.attr("w:w"))*ratio)
+			col.attr("w:w",w)
+			width-=w
+		}
+
+        cols.eq(at).remove()
+
+		let rows=this.node.find("w\\:tr")
+		for(let i=0;i<rows.length;i++){
+			rows.eq(i)
+				.find("w\\:tc")
+				.eq(at).remove()
+		}
+    }
+
+    make(rows,cols){
 		cols=cols.map(w=>this.px2dxa(w))
 		this.node.find("w\\:tblGrid").empty()
             .append(cols.map(w=>`<w:gridCol w:w="${w}"/>`).join(""))
@@ -133,7 +170,7 @@ export class Table extends Base{
     }
 
     template_tc(w){
-        return `<w:tc><w:p><w:r><w:t></w:t></w:r></w:p></w:tc>`
+        return `<w:tc>${w!=undefined ? `<w:tcPr><w:tcW w:w="${w}" w:type="dxa"/></w:tcPr>` : ""}<w:p><w:r><w:t></w:t></w:r></w:p></w:tc>`
     }
     template(props){
         return `

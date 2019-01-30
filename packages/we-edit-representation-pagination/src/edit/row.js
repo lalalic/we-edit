@@ -121,7 +121,7 @@ class EditableEdges extends PureComponent{
 
 				{isLastRankOfRow && <RowResizer x1={0} x2={width} y1={height} y2={height}
 					onResize={({y},dispatch)=>{
-						dispatch(ACTION.Entity.UPDATE({id:table, height:{value:height+y,row,cell,i}}))
+						dispatch(ACTION.Entity.UPDATE({id:table, type:"table",height:{value:height+y,row,cell,i}}))
 					}}
 					/> || null
 				}
@@ -132,7 +132,7 @@ class EditableEdges extends PureComponent{
 
 				<ColResizer x1={width} y1={0} x2={width} y2={height}
 					onResize={({x},dispatch)=>{
-						dispatch(ACTION.Entity.UPDATE({id:table,width:{value:width+x, row, cell,i}}))
+						dispatch(ACTION.Entity.UPDATE({id:table, type:"table", width:{value:width+x, row, cell,i}}))
 					}}
 					/>
 				{left}

@@ -134,9 +134,9 @@ class Reducer extends Base{
 
 		target.text(text.substr(0,at))
 
+		this.renderChanged(to.attr('id'))
+		this.renderChanged(to1.attr('id'))
 		this.renderChanged(parent.attr('id'))
-		//this.renderChanged(to.attr('id'))
-
 		return [to,to1]
 	}
 
