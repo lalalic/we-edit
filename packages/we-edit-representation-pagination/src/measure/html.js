@@ -12,7 +12,7 @@ export default class HtmlMeasure extends Measure{
 
 		var p=document.createElement('p')
 		document.body.appendChild(p)
-		tester.style=p.style=`${DEFAULT_STYLE};font-family:${this.fontFamily};font-size:${this.size}pt`
+		tester.style=p.style=this.inlineStyle
 		p.style.vertialAlign="baseline"
 		p.innerHTML=`<span style="${DEFAULT_STYLE}">Ä</span><div style="display: inline-block; width: 1px; height: 0px;"></div>`
 		let {height, top}=getClientRect(p)
@@ -21,9 +21,13 @@ export default class HtmlMeasure extends Measure{
 		return {height, descent: height-(baseline-top)}
 	}
 
+	get inlineStyle(){
+		return `${DEFAULT_STYLE};font-family:${this.defaultStyle.fontFamily};font-size:${this.defaultStyle.fontSize};font-weight:${this.defaultStyle.fontWeight};`
+	}
+
 
     stringWidth(word){
-		tester.style=`${DEFAULT_STYLE};font-family:${this.fontFamily};font-size:${this.size}pt`
+		tester.style=this.inlineStyle
         tester.innerHTML=word
         return getClientRect(tester).width
     }

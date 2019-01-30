@@ -254,16 +254,16 @@ export default class Responsible extends Component{
         }
     }
 
-    onCopy({clipboardData}){
-        this.dispatch(ACTION.Selection.COPY({clipboardData}))
+    onCopy(e){
+        this.dispatch(ACTION.Selection.COPY(e))
     }
 
-    onCut({clipboardData}){
-        this.dispatch(ACTION.Selection.CUT({clipboardData}))
+    onCut(e){
+        this.dispatch(ACTION.Selection.CUT(e))
     }
 
-    onPaste({clipboardData}){
-        this.dispatch(ACTION.Selection.PASTE({clipboardData}))
+    onPaste(e){
+        this.dispatch(ACTION.Selection.PASTE(e))
     }
 
     onClick({shiftKey:selecting, target, clientX:left,clientY:top}){
@@ -291,14 +291,16 @@ export default class Responsible extends Component{
     }
 
     onKeyDelete(){
-        const {end}=this.selection
+        const {start,end}=this.selection
         const composer=this.getComposer(end.id)
         const {id,at}=composer.nextCursorable(end.id,end.at)||{}
-        this.dispatch(ACTION.Text.REMOVE({backspace:false,cursor:{id,at}}))
+        if(id){
+            this.dispatch(ACTION.Text.REMOVE({backspace:false,cursor:{id,at}}))
+        }
     }
 
     onKeyBackspace(){
-        const {start}=this.selection
+        const {start,end}=this.selection
         const composer=this.getComposer(start.id)
         const {id,at}=composer.prevCursorable(start.id,start.at)||{}
         if(id){

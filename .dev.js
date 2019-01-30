@@ -26,9 +26,9 @@ Variant.install()
 
 import React,{PureComponent,Fragment} from "react"
 import PropTypes from "prop-types"
-import {Editor, Viewer,DocumentTree} from  "we-edit"
+import {Editor, Viewer,DocumentTree, models} from  "we-edit"
 import {Office,Workspace, Ribbon} from "we-edit-office"
-import {Tabs, Tab} from "material-ui"
+import {Tabs, Tab, ToolbarGroup, SvgIcon} from "material-ui"
 import {connect} from  "react-redux"
 import minimatch from "minimatch"
 
@@ -96,7 +96,7 @@ function testOffice(){
 
 	}
 
-	const FileSelector=connect(state=>state[KEY])(({dispatch,assemble,data,...props})=>(
+	const FileSelector=connect(state=>state[KEY])(({dispatch,assemble,data, pilcrow, ...props})=>(
 		<div>
 			<center>
 				<input {...props} type="file" accept=".json" onChange={({target})=>{
@@ -121,8 +121,9 @@ function testOffice(){
 		</div>
 	))
 
-	const VariantEditor=connect(state=>state[KEY])(({data,assemble, ...props})=>{
-		const editor=<Editor {...props}/>
+	const VariantEditor=connect(state=>state[KEY])(({data,assemble, pilcrow, ...props})=>{
+		var editor=<Editor {...props}/>
+		
 		if(data && assemble){
 			return (
 				<Provider value={data}>
@@ -134,18 +135,40 @@ function testOffice(){
 		return editor
 	})
 
+	const Pilcrow=connect(state=>state[KEY])(({dispatch,pilcrow})=>(
+		<Ribbon.Components.CheckIconButton
+			onClick={e=>dispatch({type:`${KEY}/pilcrow`})}
+			status={pilcrow ? "checked" : "unchecked"}
+			children={
+				<SvgIcon>
+					<g transform="translate(0 4)">
+						<path d="M9 10v5h2V4h2v11h2V4h2V2H9C6.79 2 5 3.79 5 6s1.79 4 4 4z"/>
+					</g>
+				</SvgIcon>
+			}
+			/>
+	))
 	const myWorksapce=(
 		<Workspace
 			debug={true}
 			accept="*"
 			key={KEY}
-			toolBar={<Ribbon.Ribbon commands={{layout:false}}/>}
-			reducer={(state={assemble:false, data:null},{type,payload})=>{
+			toolBar={
+				<Ribbon.Ribbon commands={{
+						layout:false,
+						home:{
+							more:(<ToolbarGroup><Pilcrow/></ToolbarGroup>)
+						}
+				}}/>
+			}
+			reducer={(state={assemble:false, data:null, pilcrow:false},{type,payload})=>{
 				switch(type){
 					case `${KEY}/data`:
 						return {...state,  data:payload}
 					case `${KEY}/assemble`:
 						return {...state, assemble:!state.assemble}
+					case `${KEY}/pilcrow`:
+						return {...state, pilcrow:!state.pilcrow}
 				}
 				return state
 			}}

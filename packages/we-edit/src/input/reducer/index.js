@@ -361,18 +361,18 @@ class Clipboard extends Content{
         return this
 	}
 
-	cut({clipboardData}){
+	cut({clipboardData}={}){
 		clipboard=this.clone()
 		this.remove()
         return this
 	}
 
-	copy({clipboardData}){
+	copy({clipboardData}={}){
 		clipboard=this.clone()
         return this
 	}
 
-	paste({clipboardData}){
+	paste({clipboardData}={}){
 		const data=clipboard||clipboardData.getData("text")
 		if(data){
 			this.insert(data)

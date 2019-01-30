@@ -1,4 +1,5 @@
 
+import React from "react"
 import editable from "./editable"
 import Base from "../text"
 import {Cacheable} from "../composable"
@@ -6,6 +7,13 @@ import {Cacheable} from "../composable"
 //cache doesn't help on performance
 const Super=editable(Base)
 export default class extends Super{
+    appendComposed(props){
+        if(props.children==" "){
+            props={...props,children:String.fromCharCode(0x00b7)}
+        }
+        return super.appendComposed(props)
+    }
+
     nextCursorable(id,at){
         if(this.text.length-1>at){
             return {id,at:at+1}

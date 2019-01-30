@@ -4,19 +4,17 @@ export class Measure{
 		this.style=style
 		this.fontFamily=fonts.split(",").map(a=>a.trim()).filter(a=>!!a)[0]
 		this.size=size
-		const {height, descent}=this.lineHeight()
-        this.height=Math.ceil(height)
-		this.descent=Math.ceil(descent)
-
-		this.defaultStyle={
+        this.defaultStyle={
 			whiteSpace:'pre',
 			fontSize:`${size}pt`,
 			fontWeight:style.bold ? 700 : 400,
 			fontStyle:style.italic ? "italic" : "normal",
-			height: this.height,
-			descent: this.descent,
 			fontFamily:this.fontFamily
 		}
+
+		const {height, descent}=this.lineHeight()
+        this.defaultStyle.height=this.height=Math.ceil(height)
+		this.defaultStyle.descent=this.descent=Math.ceil(descent)
     }
 
 	lineHeight(){
