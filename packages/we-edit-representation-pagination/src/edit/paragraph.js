@@ -274,7 +274,7 @@ class Navigatable extends Positionable{
 		const resolve2FirstAtom=(success,failure)=>{
 			const cursorable=new ReactQuery(atoms).findFirst(Cursorable)
 			if(cursorable.length){
-				return success(cursorable.attr("data-content"))
+				return success(cursorable)
 			}
 
 			return failure()
@@ -282,13 +282,13 @@ class Navigatable extends Positionable{
 
 		if(id==undefined){
 			return resolve2FirstAtom(
-				textId=>({id:textId,at:0}),
+				cursorable=>({id:cursorable.attr("data-content"),at:0}),
 				()=>({id:this.props.id,at:0})
 			)
 		}else if(id==this.props.id){//itself first cursorable position
 			if(at==0){
 				return resolve2FirstAtom(
-					textId=>this.context.getComposer(textId).nextCursorable(textId,0),
+					cursorable=>this.context.getComposer(cursorable.attr("data-content")).nextCursorable(),
 					()=>this.nextCursorable(id,1)
 				)
 			}else if(at==1){
@@ -322,18 +322,17 @@ class Navigatable extends Positionable{
 	prevCursorable(id,at){
 		const {atoms}=this.computed
 		const resolve2LastAtom=(success, failure=()=>({id:this.props.id,at:0}))=>{
-			const lastAtom=new ReactQuery(atoms[atoms.length-2])
-			const lastAtomText=lastAtom.findFirst('[data-type="text"]')
-			if(lastAtomText.length){
-				return success(lastAtomText)
+			const cursorable=new ReactQuery(atoms).findLast(Cursorable)
+			if(cursorable.length){
+				return success(cursorable)
 			}
 
 			return failure()
 		}
-
+		
 		if(id==undefined){
 			return resolve2LastAtom(
-				text=>({id:text.attr("data-content"), at:text.attr("data-endat")}),
+				cursorable=>({id:cursorable.attr("data-content"), at:(cursorable.attr("type")=="text" ? text.attr("data-endat")-1 : 0)}),
 				()=>({id:this.props.id,at:1})
 			)
 		}else if(id==this.props.id){//itself first cursorable position
@@ -356,7 +355,7 @@ class Navigatable extends Positionable{
 					 if(cursorable.attr("data-type")=="text"){
 						 return {id,at:this.context.getComposer(id).text.length-1}
 					 }else{
-						 return {id, at:1}
+						 return {id, at:0}
 					 }
 				 }
 			}else{//end of object/text
