@@ -40,7 +40,7 @@ export default compose(
         remove(type){
             type=type=="column" ? "cell" : type
             const target=selection.props(type,false)
-            dispatch(ACTION.Selection.UPDATE({table:{remove:{at:target.id}}}))
+            dispatch(ACTION.Selection.UPDATE({table:{remove:{id:target.id}}}))
         }
     }))
 )(({addRowAbove, addRowBelow, addColLeft, addColRight, remove})=>{

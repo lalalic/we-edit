@@ -24,6 +24,19 @@ export class Text extends Base{
 		return super.got(nodeName,"w:r", "w:rPr")
 	}
 
+	tailor(from=0,to){
+		const text=this.node.text()
+		from=from<0 ? text.length+from : from
+		to=to==undefined ? text.length-1 : (to<0 ? text.length+to : to)
+		this.node.text(text.substring(0,from)+text.substring(to))
+		if(this.node.text().length==0)
+			this.remove()
+	}
+
+	remove(){
+		this.node.closest("w\\:r").remove()
+	}
+
 	fonts(fonts){
 		this.got("w:rFonts").attr("w:ascii",fonts)
 	}

@@ -10,6 +10,8 @@ import editable from "./editable"
 
 import {Text as ComposedText} from "../composed"
 
+const Cursorable=`[data-type="text"],[data-type="image"]`
+
 const Editable=Cacheable(class extends editable(Base,{stoppable:true}){
 	clearComposed(){
 		this.computed.lastText=""
@@ -270,10 +272,9 @@ class Navigatable extends Positionable{
 	nextCursorable(id,at){
 		const {atoms}=this.computed
 		const resolve2FirstAtom=(success,failure)=>{
-			const firstAtom=new ReactQuery(atoms[0])
-			const firstAtomText=firstAtom.findFirst('[data-type="text"]')
-			if(firstAtomText.length){
-				return success(firstAtomText.attr("data-content"))
+			const cursorable=new ReactQuery(atoms).findFirst(Cursorable)
+			if(cursorable.length){
+				return success(cursorable.attr("data-content"))
 			}
 
 			return failure()
@@ -294,35 +295,14 @@ class Navigatable extends Positionable{
 				return this.nextParagraphCursorable()
 			}
 		}else{
-			 const i=atoms.findLastIndex(a=>new ReactQuery(a).findFirst(`[data-content="${id}"]`).length>0)
-			 const iAtom=new ReactQuery(atoms[i])
-			 if(iAtom.findFirst('[data-type="text"]').length){//text
-				 const nextAtom=new ReactQuery(atoms[i+1])
-				 const nextAtomText=nextAtom.findFirst('[data-type="text"]')
-				 if(nextAtomText.length==0){//not text
-					 if(this.context.getComposer(id).text.length>at){//at end of text
-						 return {id,at:at+1}
-					 }else{
-						 if(atoms.length>i+2){
-							 let nextText
-							 atoms.slice(i+2)
-							 	.find(a=>(nextText=new ReactQuery(a).findFirst('[data-type="text"]')).length>0)
-							if(nextText.length>0){
-								return {id:nextText.attr("data-content"),at:0}
-							}else{
-								return {id:this.props.id,at:1}//paragraph end
-							}
-						}else{
-							return this.nextParagraphCursorable()
-						}
-					 }
-				 }else{
-					 return {
-						 id:nextAtomText.attr("data-content"),
-						 at:0
-					 }
-				 }
-			 }
+			const i=atoms.findLastIndex(a=>new ReactQuery(a).findLast(`[data-content="${id}"]`).length>0)
+			const cursorable=new ReactQuery(atoms.slice(i+1)).findFirst(Cursorable)
+
+			if(cursorable.length){
+				return {id:cursorable.attr("data-content"),at:0}
+			}else{
+				return {id:this.props.id, at:1}
+			}
 		}
 		return super.nextCursorable(...arguments)
 	}
@@ -368,30 +348,28 @@ class Navigatable extends Positionable{
 		}else{
 			if(at==0){//prev atom's last index
 				 const i=atoms.findIndex(a=>new ReactQuery(a).findFirst(`[data-content="${id}"]`).length>0)
-				 if(i==0){
+				 const cursorable=new ReactQuery(atoms.slice(0,i)).findLast(Cursorable)
+				 if(cursorable.length==0){
 					 return this.prevParagraphCursorable()
 				 }else{
-					 const last=new ReactQuery(atoms.slice(0,i))
-					 	.findLast('[data-type="text"],[data-type="image"]')
-					 const lastId=last.attr("data-content")
-					 if(last.attr("data-type")=="text"){
-						 return {id:lastId,at:this.context.getComposer(lastId).text.length-1}
+					 const id=cursorable.attr("data-content")
+					 if(cursorable.attr("data-type")=="text"){
+						 return {id,at:this.context.getComposer(id).text.length-1}
 					 }else{
-						 return {id:lastId, at:1}
+						 return {id, at:1}
 					 }
 				 }
 			}else{//end of object/text
 				const i=atoms.findLastIndex(a=>new ReactQuery(a).findLast(`[data-content="${id}"]`).length>0)
-				if(i==atoms.length-2){
+				const cursorable=new ReactQuery(atoms.slice(0,i+1)) .findLast(Cursorable)
+				if(cursorable.length==0){
 					return this.prevCursorable(this.props.id,1)
 				}else{
-					const last=new ReactQuery(atoms.slice(0,i+1))
-					   .findLast('[data-type="text"],[data-type="image"]')
-					const lastId=last.attr("data-content")
-  					if(last.attr("data-type")=="text"){
-  						return {id:lastId,at:this.context.getComposer(lastId).text.length-1}
+					const id=cursorable.attr("data-content")
+  					if(cursorable.attr("data-type")=="text"){
+  						return {id,at:this.context.getComposer(id).text.length-1}
   					}else{
-  						return {id:lastId, at:0}
+  						return {id, at:0}
   					}
 				}
 			}

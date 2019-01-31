@@ -33,7 +33,7 @@ class Base{
 	}
 
 	save4undo(id){
-		this._undoables[id]=this.file.cloneNode(this.file.getNode(id),false)
+		//this._undoables[id]=this.file.cloneNode(this.file.getNode(id),false)
 	}
 
 	renderChanged(id){
@@ -80,16 +80,18 @@ class Reducer extends Base{
 	}
 
 	clone(keepId=false){
+		const element=id=>({id,type:this.$('#'+id).attr("type")})
+
 		const cloned=[]
 		const {start,end}=this.selection
+		const target0=this.$("#"+start.id)
 
-		const clonedTarget0=this.file.cloneNode(this.file.extendNode(this.file.getNode(start.id)),false,keepId)
+		const clonedTarget0=this.file.cloneNode(element(start.id),false,keepId)
 		cloned.push(clonedTarget0)
 
 		if(start.id==end.id){
-			this.file.tailorNode(clonedTarget0,start.at,end.at)
+			this.file.tailorNode({node:clonedTarget0,type:target0.attr("type")},start.at,end.at)
 		}else{
-			const target0=this.$("#"+start.id)
 			const target1=this.$("#"+end.id)
 
 			const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
@@ -97,16 +99,10 @@ class Reducer extends Base{
 			const ancestors1=target1.parentsUntil(ancestor)
 
 			ancestors0.last().nextUntil(ancestors1.last())
-				.each((i,a)=>cloned.push(
-					this.file.cloneNode(
-						this.file.extendNode(this.file.getNode(a.get("id"))),
-						false,
-						keepId
-					)
-				))
+				.each((i,a)=>cloned.push(this.file.cloneNode(element(a.get("id")),false,keepId)))
 
-			const clonedTarget1=this.file.cloneNode(this.file.extendNode(this.file.getNode(end.id)),false,keepId)
-			this.file.tailorNode(clonedTarget1,0, end.at)
+			const clonedTarget1=this.file.cloneNode(element(end.id),false,keepId)
+			this.file.tailorNode({node:clonedTarget1,type:target1.attr("type")},0, end.at)
 			cloned.push(clonedTarget1)
 		}
 
@@ -245,21 +241,6 @@ class Reducer extends Base{
 		})
 	}
 
-	remove_object_at({id,at}){
-		const target=this.$(`#${id}`)
-
-	}
-
-	backspace_object_at({id,at}){
-        let target=this.$('#'+id)
-
-		this.save4undo(id)
-
-		let text=target.text()
-		target.text(text.substring(0,at-1)+text.substr(at))
-
-		this.renderChanged(id)
-	}
 }
 
 class Content extends Reducer{
@@ -307,49 +288,77 @@ class Content extends Reducer{
 		return this
 	}
 
-	remove({backspace,cursor}){
-        const {start,end}=this.selection
+	remove({backspace,responsible},i=0){
+		if(i>5){
+			console.error("there's inifinte loop during removing things")
+			return
+		}
+		const element=id=>({id,type:this.$('#'+id).attr("type")})
+		const {start,end}=this.selection
+
 		if(start.id==end.id){
-            if(!backspace){
-				this.remove_object_at(start)
+			if(start.at!=end.at){
+				this.file.tailorNode(element(start.id),start.at,end.at)
 			}else{
-				this.backspace_object_at(start)
-                if(cursor.id==start.id){
-    				
-                }else{
-
-                }
+				if(backspace){
+					const {id,at}=responsible.getComposer(start.id).prevCursorable(start.id, start.at)
+					if(start.at>0){
+						this.file.tailorNode(element(start.id),start.at-1,start.at)
+						this.renderChanged(id)
+						this.cursorAt(id, at)
+					}else if(this.$(`#${start.id}`).attr("type")=="text"){//remove prev.last
+						this.file.tailorNode(element(start.id),-1)
+						if(start.id!==id){
+							this.renderChanged(this.$('#'+id).parent().attr("id"))
+							this.cursorAt(id,at)
+						}else{
+							this.renderChanged(start.id)
+						}
+					}else{
+						this.cursorAt(id,at)
+						return this.remove({backspace:false,responsible},++i)
+					}
+				}else{
+					const {id,at}=responsible.getComposer(start.id).nextCursorable(start.id, start.at)
+					if(start.at==0){
+						this.file.tailorNode(element(start.id),0,1)
+						if(start.id!==id){
+							this.renderChanged(this.$('#'+id).parent().attr("id"))
+							this.cursorAt(id,at)
+						}else{
+							this.renderChanged(start.id)
+						}
+					}else if(this.$(`#${start.id}`).attr("type")=="text"){
+						this.file.tailorNode(element(start.id),start.at,start.at+1)
+						this.renderChanged(start.id)
+					}else{
+						this.cursorAt(id,at)
+						return this.remove({backspace:true,responsible},++i)
+					}
+				}
 			}
-            this.cursorAt(cursor.id, cursor.at)
-			return this
+		}else{
+			const removeNode=id=>this.file.removeNode(element(id))
+			const target0=this.$('#'+start.id)
+			const target1=this.$("#"+end.id)
+
+			const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
+
+			const ancestors0=target0.parentsUntil(ancestor)
+			const ancestors1=target1.parentsUntil(ancestor)
+			const top0=ancestors0.last()
+			const top1=ancestors1.last()
+
+			top0.nextUntil(top1).each((i,id)=>removeNode(id))
+			ancestors0.not(top0).each((i,a)=>this.$('#'+a.get("id")).nextAll().each((i,id)=>removeNode(id)))
+			ancestors1.not(top1).each((i,a)=>this.$('#'+a.get("id")).prevAll().each((i,id)=>removeNode(id)))
+
+			this.file.tailorNode(element(end.id),0,end.at)
+			this.file.tailorNode(element(start.id),start.at)
+			this.renderChanged(top0.attr("id"))
+	        this.renderChanged(top1.attr("id"))
 		}
 
-		const target0=this.$('#'+start.id)
-		const target1=this.$("#"+end.id)
-		const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
-
-		const ancestors0=target0.parentsUntil(ancestor)
-		const ancestors1=target1.parentsUntil(ancestor)
-		const top0=ancestors0.last()
-		const top1=ancestors1.last()
-
-		top0.nextUntil(top1).remove()
-		ancestors0.not(top0).each((i,a)=>this.$('#'+a.get("id")).nextAll().remove())
-		ancestors1.not(top1).each((i,a)=>this.$('#'+a.get("id")).prevAll().remove())
-
-		if(target0.attr("type")=="text" && start.at>0){
-			const text=target0.text()
-			target0.text(text.substring(0,start.at))
-		}
-
-		if(target1.attr("type")=="text" && end.at<target1.text().length-1){
-			const text=target1.text()
-			target1.text(text.substr(end.at))
-		}
-
-		this.renderChanged(top0.attr("id"))
-        this.renderChanged(top1.attr("id"))
-		this.cursorAt(start.id,start.at)
 		return this
 	}
 }

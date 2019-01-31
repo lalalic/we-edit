@@ -122,14 +122,15 @@ export class Table extends Base{
         }
 	}
 
-    remove({at}){
-        const target=this.file.getNode(at)
+    remove({id}){
+        const target=this.file.getNode(id)
         if(target.get(0).name!=="w:tc"){
             target.remove()
         }
 
+        //remove column
         const cell=target
-        at=cell.closest("w\\:tr").find("w\\:tc").index(cell)
+        const at=cell.closest("w\\:tr").find("w\\:tc").index(cell)
         let grid=this.node.first("w\\:tblGrid")
 		let cols=grid.find("w\\:gridCol")
 		let len=cols.length

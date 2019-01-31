@@ -19,7 +19,7 @@ export class Image extends Base{
         return this.node.closest("w\\:drawing")
     }
 
-    remove({id}){
+    remove(){
         const drawing=this.node.closest("w\\:r")
         drawing.remove()
         return drawing

@@ -191,7 +191,7 @@ export default class xQuery extends Query{
 
     clone(){
 		let nodes=this._nodes.map(a=>{
-			let node=this._doc.cloneNode(this._doc.getNode(a))
+			let node=this._doc.cloneNode({id:a,type:this._content.getIn([a,"type"])})
 			let {id}=this._doc.renderChanged(node)
 			return id
 		})

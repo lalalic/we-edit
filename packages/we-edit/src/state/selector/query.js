@@ -375,6 +375,10 @@ export default class Query{
 		return new this.constructor(this.state,found)
 	}
 
+	slice(from,to){
+		return new this.constructor(this.state,this._nodes.slice(from,to))
+	}
+
 	not(selector){
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.filter(k=>!select(this._content.get(k)))

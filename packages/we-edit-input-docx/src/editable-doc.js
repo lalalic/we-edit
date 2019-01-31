@@ -77,65 +77,47 @@ export default class EditableDocument extends docx4js{
 		return node
 	}
 
-	cloneNode(node, autoAttach=true, keepId=false){
-		const cloned=(()=>{
-			if(!keepId){
-				return node.clone()
-			}
-			const withIds=node.find("[xxid]").each((i,el)=>el.attribs._xxid=el.attribs.xxid)
-			const cloned=node.clone()
-			withIds.removeAttr("_xxid")
+	cloneNode({id,type}, autoAttach=true, keepId=false){
+		const editor=new editors[Type(type)](this)
+		editor.node=this.getNode(id)
 
+		const cloned=editor.clone()
+
+		if(!keepId){
+			clone.find("[_xxid]").removeAttr("_xxid")
+			if(autoAttach){
+				return this.attach(cloned)
+			}
+		}else{
 			cloned.find("[_xxid]").each((i,el)=>{
 				this.makeId(el,el.attribs._xxid)
 				delete el.attribs._xxid
 			})
-
-			return cloned
-		})();
-
-		if(autoAttach && !keepId)
-			return this.attach(cloned)
-		else
-			return cloned
+		}
+		return cloned
 	}
 
-	extendNode(node){
-		switch(node.get(0).name.split(":")[1]){
-			case "t":
-				return node.closest("w\\:r")
-			default:
-				return node
-		}
-	}
-
-	tailorNode({id,type}, from , to){
-		if(type && !!editors[Type(type)]){
-			let editor=new editors[Type(type)](this)
-			editor.node=this.getNode(id)
-			return editor.tailor(from,to)
-		}
+	tailorNode({id,type, node}, from , to){
+		const editor=new editors[Type(type)](this)
+		editor.node=node||this.getNode(id)
+		return editor.tailor(from,to)
 	}
 
 	createNode({type},reducer, target){
-		let editor=new editors[Type(type)](this)
+		const editor=new editors[Type(type)](this)
 		return editor.create(arguments[0],reducer, target)
 	}
 
 	updateNode({id,type},changing, query){
-		let editor=new editors[Type(type)](this)
+		const editor=new editors[Type(type)](this)
 		editor.node=this.getNode(id)
 		return editor.update(arguments[0],changing)
 	}
 
 	removeNode({id,type}){
-		if(type && !!editors[Type(type)]){
-			let editor=new editors[Type(type)](this)
-			editor.node=this.getNode(id)
-			return editor.remove(arguments[0])
-		}else{
-			return this.getNode(id).remove()
-		}
+		const editor=new editors[Type(type)](this)
+		editor.node=this.getNode(id)
+		return editor.remove(arguments[0])
 	}
 
 	insertNodeBefore(newNode,referenceNode,parentNode){

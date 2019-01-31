@@ -50,6 +50,17 @@ export default class Editor{
         return this.node.remove()
     }
 
+    tailor(from=0,to){
+        return this.node.remove()
+    }
+
+    clone(){
+        const withIds=this.node.find("[xxid]").each((i,el)=>el.attribs._xxid=el.attribs.xxid)
+        const cloned=this.node.clone()
+        withIds.removeAttr("_xxid")
+        return cloned
+    }
+
     apply(changing){
         Object.keys(changing)
             .forEach(k=>{
@@ -63,7 +74,7 @@ export default class Editor{
     template(props){
         return ``
     }
-	
+
 	tailer(from,to){
 		return this.file.clone(this.node)
 	}

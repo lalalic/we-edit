@@ -291,21 +291,11 @@ export default class Responsible extends Component{
     }
 
     onKeyDelete(){
-        const {start,end}=this.selection
-        const composer=this.getComposer(end.id)
-        const {id,at}=composer.nextCursorable(end.id,end.at)||{}
-        if(id){
-            this.dispatch(ACTION.Text.REMOVE({backspace:false,cursor:{id,at}}))
-        }
+        this.dispatch(ACTION.Text.REMOVE({backspace:false,responsible:this}))
     }
 
     onKeyBackspace(){
-        const {start,end}=this.selection
-        const composer=this.getComposer(start.id)
-        const {id,at}=composer.prevCursorable(start.id,start.at)||{}
-        if(id){
-            this.dispatch(ACTION.Text.REMOVE({backspace:true,cursor:{id,at}}))//backspace
-        }
+        this.dispatch(ACTION.Text.REMOVE({backspace:true,responsible:this}))
     }
 
 	locate(nextOrprev, CursorableOrSelectable, id, at, inclusive=false){
