@@ -331,16 +331,13 @@ class Navigatable extends Positionable{
 		}
 		
 		if(id==undefined){
-			return resolve2LastAtom(
-				cursorable=>({id:cursorable.attr("data-content"), at:(cursorable.attr("type")=="text" ? text.attr("data-endat")-1 : 0)}),
-				()=>({id:this.props.id,at:1})
-			)
+			return {id:this.props.id,at:1}
 		}else if(id==this.props.id){//itself first cursorable position
 			if(at==0){
 				return this.prevParagraphCursorable()
 			}else if(at==1){
 				return resolve2LastAtom(
-					text=>({id:text.attr("data-content"), at:text.attr("data-endat").length-1}),
+					cursorable=>({id:cursorable.attr("data-content"), at:cursorable.attr("type")=="text" ? cursorable.attr("data-endat")-1 : 0}),
 					()=>this.prevCursorable(id,0)
 				)
 			}

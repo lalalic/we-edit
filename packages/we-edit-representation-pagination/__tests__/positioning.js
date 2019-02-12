@@ -3,6 +3,7 @@ import TestRender from "react-test-renderer"
 
 import {Viewers, Editors} from "../src"
 import Responsible from "../src/composed/responsible"
+import Positioning from "../src/composed/positioning"
 import Locator from "../src/composed/locator"
 import provider from "./context"
 import ReactDOM from "react-dom"
@@ -78,13 +79,15 @@ describe("positioning",()=>{
 			}
 		})
 	var uuid=0
+	const size={width:20,height:500}
+	const pgGap=12
     describe("Navigatable", ()=>{
         const render=(content,state)=>{
                 const renderer=TestRender.create(
                     <StoreContext context={store(state)}>
                         <TextContext>
                             <Document id="root" viewport={{width:500,height:500,node:{scrollTop:0}}}>
-                                <Section id={++uuid} create={(a,b)=>new Page({...a,width:20,height:500},b)}>
+                                <Section id={++uuid} create={(a,b)=>new Page({...a,...size},b)}>
                                 {content}
                                 </Section>
                             </Document>
@@ -93,127 +96,131 @@ describe("positioning",()=>{
                 )
 
                 const doc=renderer.root.findByType(Document).instance
-                return {
+				return {
+					renderer,
+					doc,
                     get(id){
                         return doc.getComposer(id)
                     }
                 }
         }
+		
+		describe("cursor",()=>{
 
-        describe("next cursorable", ()=>{
-            it("text",()=>{
-                const p=render(<Paragraph id={"-1"}><Text id={"0"}>text</Text></Paragraph>).get("-1")
-                expect(p.nextCursorable()).toEqual({id:"0",at:0})
-            })
+			describe("next cursorable", ()=>{
+				it("text",()=>{
+					const p=render(<Paragraph id={"-1"}><Text id={"0"}>text</Text></Paragraph>).get("-1")
+					expect(p.nextCursorable()).toEqual({id:"0",at:0})
+				})
 
-            it("image",()=>{
-                const p=render(<Paragraph id={"-1"}><Image id={"0"}/></Paragraph>).get("-1")
-                expect(p.nextCursorable()).toEqual({id:"0",at:0})
-            })
+				it("image",()=>{
+					const p=render(<Paragraph id={"-1"}><Image id={"0"}/></Paragraph>).get("-1")
+					expect(p.nextCursorable()).toEqual({id:"0",at:0})
+				})
 
-            it("t|ext",()=>{
-                const p=render(<Paragraph id={++uuid}><Text id={"0"}>text</Text></Paragraph>)
-                    .get("0")
-                    .nextCursorable("0",1)
-                expect(p).toEqual({id:"0",at:2})
-            })
+				it("t|ext",()=>{
+					const p=render(<Paragraph id={++uuid}><Text id={"0"}>text</Text></Paragraph>)
+						.get("0")
+						.nextCursorable("0",1)
+					expect(p).toEqual({id:"0",at:2})
+				})
 
-            it("|text",()=>{
-                const p=render(<Paragraph id={++uuid}><Text id={"0"}>text</Text></Paragraph>)
-                    .get("0")
-                    .nextCursorable("0",0)
-                expect(p).toEqual({id:"0",at:1})
-            })
+				it("|text",()=>{
+					const p=render(<Paragraph id={++uuid}><Text id={"0"}>text</Text></Paragraph>)
+						.get("0")
+						.nextCursorable("0",0)
+					expect(p).toEqual({id:"0",at:1})
+				})
 
-            it("tex|tImage",()=>{
-                const p=render(<Paragraph id={++uuid}><Text id={"0"}>text</Text><Image id="-1"/></Paragraph>)
-                    .get("0")
-                    .nextCursorable("0",3)
-                expect(p).toEqual({id:"-1",at:0})
-            })
+				it("tex|tImage",()=>{
+					const p=render(<Paragraph id={++uuid}><Text id={"0"}>text</Text><Image id="-1"/></Paragraph>)
+						.get("0")
+						.nextCursorable("0",3)
+					expect(p).toEqual({id:"-1",at:0})
+				})
 
-            it("|imageText",()=>{
-                const p=render(<Paragraph id={++uuid}><Image id="-1"/><Text id={"0"}>text</Text></Paragraph>)
-                    .get("-1")
-                    .nextCursorable("-1",0)
-                expect(p).toEqual({id:"0",at:0})
-            })
+				it("|imageText",()=>{
+					const p=render(<Paragraph id={++uuid}><Image id="-1"/><Text id={"0"}>text</Text></Paragraph>)
+						.get("-1")
+						.nextCursorable("-1",0)
+					expect(p).toEqual({id:"0",at:0})
+				})
 
-            it("|imageImage",()=>{
-                const p=render(<Paragraph id={++uuid}><Image id="-1"/><Image id="-2"/></Paragraph>)
-                    .get("-1")
-                    .nextCursorable("-1",0)
-                expect(p).toEqual({id:"-2",at:0})
-            })
+				it("|imageImage",()=>{
+					const p=render(<Paragraph id={++uuid}><Image id="-1"/><Image id="-2"/></Paragraph>)
+						.get("-1")
+						.nextCursorable("-1",0)
+					expect(p).toEqual({id:"-2",at:0})
+				})
 
-            it("tex|t<container/>Image",()=>{
-                const p=render(<Paragraph id={++uuid}><Text id={"0"}>text</Text><Container id="-2"/><Image id="-1"/></Paragraph>)
-                    .get("0")
-                    .nextCursorable("0",3)
-                expect(p).toEqual({id:"-1",at:0})
-            })
+				it("tex|t<container/>Image",()=>{
+					const p=render(<Paragraph id={++uuid}><Text id={"0"}>text</Text><Container id="-2"/><Image id="-1"/></Paragraph>)
+						.get("0")
+						.nextCursorable("0",3)
+					expect(p).toEqual({id:"-1",at:0})
+				})
 
-            it("tex|t<container/><container/>Image",()=>{
-                const p=render(
-                            <Paragraph id={++uuid}>
-                              <Text id={"0"}>text</Text>
-                              <Container id="-2"/>
-                              <Container id="-3"/>
-                              <Image id="-1"/>
-                            </Paragraph>
-                        )
-                    .get("0")
-                    .nextCursorable("0",3)
-                expect(p).toEqual({id:"-1",at:0})
-            })
+				it("tex|t<container/><container/>Image",()=>{
+					const p=render(
+								<Paragraph id={++uuid}>
+								  <Text id={"0"}>text</Text>
+								  <Container id="-2"/>
+								  <Container id="-3"/>
+								  <Image id="-1"/>
+								</Paragraph>
+							)
+						.get("0")
+						.nextCursorable("0",3)
+					expect(p).toEqual({id:"-1",at:0})
+				})
 
-            it("tex|t<container><container/></container>Image",()=>{
-                const p=render(
-                    <Paragraph id={++uuid}>
-                          <Text id={"0"}>text</Text>
-                          <Container id="-2">
-                            <Container id="-3"/>
-                          </Container>
-                          <Image id="-1"/>
-                    </Paragraph>
-                    )
-                    .get("0")
-                    .nextCursorable("0",3)
-                expect(p).toEqual({id:"-1",at:0})
-            })
+				it("tex|t<container><container/></container>Image",()=>{
+					const p=render(
+						<Paragraph id={++uuid}>
+							  <Text id={"0"}>text</Text>
+							  <Container id="-2">
+								<Container id="-3"/>
+							  </Container>
+							  <Image id="-1"/>
+						</Paragraph>
+						)
+						.get("0")
+						.nextCursorable("0",3)
+					expect(p).toEqual({id:"-1",at:0})
+				})
 
-            it("<paragraph>tex|t</paragraph>",()=>{
-                const p=render(<Paragraph id={"1"}><Text id={"0"}>text</Text></Paragraph>)
-                    .get("0")
-                    .nextCursorable("0",3)
-                expect(p).toEqual({id:"1",at:1})
-            })
+				it("<paragraph>tex|t</paragraph>",()=>{
+					const p=render(<Paragraph id={"1"}><Text id={"0"}>text</Text></Paragraph>)
+						.get("0")
+						.nextCursorable("0",3)
+					expect(p).toEqual({id:"1",at:1})
+				})
 
-            it("<paragraph>|image</paragraph>",()=>{
-                const p=render(<Paragraph id={"1"}><Image id={"0"}/></Paragraph>)
-                    .get("0")
-                    .nextCursorable("0",0)
-                expect(p).toEqual({id:"1",at:1})
-            })
+				it("<paragraph>|image</paragraph>",()=>{
+					const p=render(<Paragraph id={"1"}><Image id={"0"}/></Paragraph>)
+						.get("0")
+						.nextCursorable("0",0)
+					expect(p).toEqual({id:"1",at:1})
+				})
 
-            it("<paragraph>text|</paragraph><paragraph>text</paragraph>",()=>{
-                const nextParagraphCursorable=Paragraph.prototype.nextParagraphCursorable=jest.fn()
-                const p=render(
-                    <Container id={++uuid}>
-                        <Paragraph id={"-1"}><Text id={"0"}>text</Text></Paragraph>
-                        <Paragraph id={"-2"}><Text id={"-3"}>text</Text></Paragraph>
-                    </Container>
-                )
-                    .get("-1")
-                    .nextCursorable("-1",1)
-                expect(nextParagraphCursorable).toBeCalled()
-            })
+				it("<paragraph>text|</paragraph><paragraph>text</paragraph>",()=>{
+					const nextParagraphCursorable=Paragraph.prototype.nextParagraphCursorable=jest.fn()
+					const p=render(
+						<Container id={++uuid}>
+							<Paragraph id={"-1"}><Text id={"0"}>text</Text></Paragraph>
+							<Paragraph id={"-2"}><Text id={"-3"}>text</Text></Paragraph>
+						</Container>
+					)
+						.get("-1")
+						.nextCursorable("-1",1)
+					expect(nextParagraphCursorable).toBeCalled()
+				})
 
 
-        })
+			})
 
-        describe("prev cursorable", ()=>{
-			fit("text",()=>{
+			describe("prev cursorable", ()=>{
+			it("text",()=>{
                 const p=render(<Paragraph id={"-1"}><Text id={"0"}>text</Text></Paragraph>).get("-1")
                 expect(p.prevCursorable()).toEqual({id:"-1",at:1})
             })
@@ -303,18 +310,71 @@ describe("positioning",()=>{
                 expect(p).toEqual({id:"0",at:0})
             })
 
-            it("<paragraph>text|</paragraph><paragraph>text</paragraph>",()=>{
+            it("<paragraph>|text</paragraph>",()=>{
                 const prevParagraphCursorable=Paragraph.prototype.prevParagraphCursorable=jest.fn()
-                const p=render(
+                const paragraph=render(
                     <Container id={++uuid}>
                         <Paragraph id={"-2"}><Text id={"-3"}>text</Text></Paragraph>
                     </Container>
                 )
                     .get("-3")
-                    .prevCursorable("-3",0)
-                expect(prevParagraphCursorable).toBeCalled()
+                paragraph.prevCursorable("-3",0)
+                expect(prevParagraphCursorable).toHaveBeenCalledTimes(1)
+				paragraph.prevCursorable("-2",0)
+				expect(prevParagraphCursorable).toHaveBeenCalledTimes(2)
+				
             })
 
         })
-    })
+    
+			describe("position",()=>{
+				const test=a=>{
+					Positioning.prototype.pageXY=jest.fn(()=>({x:0,y:0}))
+					Positioning.prototype.asViewportPoint=jest.fn(p=>p)
+					
+					const {renderer}=render(a)
+					const responsible=renderer.root.findByType(Responsible).instance
+					return {
+						position(){
+							return responsible.positioning.position(...arguments)
+						}
+					}
+				}
+				it("t|ext at=0,1,4",()=>{
+					const p=test(<Paragraph id={++uuid}><Text id="0">text</Text></Paragraph>)
+					expect(p.position("0",0)).toMatchObject({x:0,y:0})	
+					expect(p.position("0",1)).toMatchObject({x:1,y:0})
+					expect(p.position("0",4)).toMatchObject({x:4,y:0})
+				})
+				
+				fit("hello</Text>T|ext at=0,1,4",()=>{
+					const p=test(<Paragraph id={++uuid}><Text id="0">hello</Text><Text id="0">text</Text></Paragraph>)
+					expect(p.position("0",0)).toMatchObject({x:5+0,y:0})	
+					expect(p.position("0",1)).toMatchObject({x:5+1,y:0})
+					expect(p.position("0",4)).toMatchObject({x:5+4,y:0})
+				})
+				
+				it("image at=0,1",()=>{
+					const p=test(<Paragraph id={++uuid}><Image id="0"/></Paragraph>)
+					expect(p.position("0",0)).toMatchObject({x:0,y:0})	
+					expect(p.position("0",1)).toMatchObject({x:1,y:0})
+					expect(p.position("0",4)).toMatchObject({x:4,y:0})
+				})
+				
+				it("paragraph end:{id,at:1}",()=>{
+					
+				})	
+				
+				it("paragraph start:{id,at:0}",()=>{
+					
+				})
+				
+				
+				
+				
+			})
+		})
+		
+		
+	})
 })

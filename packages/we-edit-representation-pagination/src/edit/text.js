@@ -30,7 +30,7 @@ export default class extends Super{
 
 	position(id,at){
 		const {fontSize, fontFamily,height,descent}=this.measure.defaultStyle
-        const paragraph=this.query().closest("paragraph").attr('id')
+        const paragraph=this.closest("paragraph").props.id
 		const position=this.context.getComposer(paragraph).position(id,at)
 		return {
 			id,at,
