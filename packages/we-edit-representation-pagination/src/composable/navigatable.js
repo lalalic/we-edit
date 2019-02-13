@@ -74,10 +74,9 @@ export default function Navigatable(A){
 
 			if(target){
 				const {x=0,y=0,width=0,height=0}=target.props
-				const position=parents.reduce((p,{props:{x=0,y=0}})=>(p.x+=x,p.y+=y,p),{x,y,id,at,page:page.props.I})
+				const position=parents.reduce((p,{props:{x=0,y=0}})=>(p.x+=x,p.y+=y,p),{x,y,width,height,id,at,page:page.props.I})
 				if(at==1){
 					position.x+=width
-					position.y+=height
 				}
 				return position
 			}

@@ -146,7 +146,7 @@ class Positionable extends Editable{
 			}
 		})
 
-		let x=parents.reduce((X,{props:{x=0}})=>X+x,0)
+		let x=parents.reduce((X,{props:{x=0}})=>X+x,(node.get(0).props.x||0))
 		let y=(({y=0},{height=0,descent=0})=>y-(height-descent))(line.props,node.get(0).props);
 		const composer=this.context.getComposer(id)
 		if(composer.getComposeType()=="text"){
@@ -329,7 +329,7 @@ class Navigatable extends Positionable{
 
 			return failure()
 		}
-		
+
 		if(id==undefined){
 			return {id:this.props.id,at:1}
 		}else if(id==this.props.id){//itself first cursorable position
