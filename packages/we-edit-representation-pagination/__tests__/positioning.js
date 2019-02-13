@@ -13,9 +13,6 @@ const {Document, Section, Container,Frame, Paragraph, Text, Image}=Editors
 
 describe("positioning",()=>{
     beforeAll(()=>{
-		Paragraph.prototype.children=jest.fn(function(){
-			return this.props.children
-		})
 		Paragraph.defaultProps.defaultStyle={
 			fonts:"arial",
 			size:12
@@ -104,7 +101,7 @@ describe("positioning",()=>{
                 }
             }
     }
-    
+
     describe("Navigatable", ()=>{
 		describe("cursor",()=>{
 
@@ -336,6 +333,7 @@ describe("positioning",()=>{
             const responsible=renderer.root.findByType(Responsible).instance
             return {
                 position(){
+                    //debugger
                     return responsible.positioning.position(...arguments)
                 }
             }
@@ -375,12 +373,10 @@ describe("positioning",()=>{
             expect(p.position("0",1)).toMatchObject({x:2,y:0})
         })
 
-        it("paragraph end:{id,at:1}",()=>{
-
-        })
-
-        it("paragraph start:{id,at:0}",()=>{
-
+        it("paragraph start/end",()=>{
+            const p=test(<Paragraph id="0"><Text id="1">text</Text></Paragraph>)
+            //expect(p.position("0",0)).toMatchObject({x:0,y:0})
+            expect(p.position("0",1)).toMatchObject({x:4,y:0})
         })
 	})
 })
