@@ -791,14 +791,14 @@ describe("positioning",()=>{
                         new Array(4).fill(0).forEach((a,i)=>expect(p.nextLine("0",i)).toMatchObject({id:"1",at:i}))
                     })
 
-                    fit("paragraph=>table(3 cells)",()=>{
+                    it("paragraph=>table(3 cells)",()=>{
                         const p=test(
                             <Fragment>
                                 <Paragraph id={uuid++}>
                                     <Text id={"0"}>texttexttext</Text>
                                 </Paragraph>
                                 <Table id={uuid++} width={10}>
-                                    <Row id={uuid++} cols={[{x:0,width:4},{x:4,width:8},{x:8,width:12}]}>
+                                    <Row id={uuid++} cols={[{x:0,width:4},{x:4,width:4},{x:8,width:4}]}>
                                         <Cell id={uuid++} border={border}>
                                             <Paragraph id={uuid++}>
                                                 <Text id={"1"}>text</Text>
