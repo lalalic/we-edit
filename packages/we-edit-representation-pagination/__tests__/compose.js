@@ -12,7 +12,7 @@ describe("compose", ()=>{
 		}
 
 		widthString(x,text){
-			return text.substring(0,x)
+			return x
 		}
 		stringWidth(text){
 			return text.length
@@ -151,7 +151,9 @@ describe("compose", ()=>{
 		})
 
 		xdescribe("wordwrap",()=>{
+			it("atom width>line width",()=>{
 
+			})
 		})
 	})
 

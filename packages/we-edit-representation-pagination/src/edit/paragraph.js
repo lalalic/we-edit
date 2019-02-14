@@ -124,9 +124,9 @@ class Positionable extends Editable{
 			const xy={x:0,y:story.props.y-(height-descent),fontSize, fontFamily,height,descent}
 
 			if(at==1){
-				xy.x=new ReactQuery(story)
+				const ender=new ReactQuery(story)
 					.findFirstAndParents(a=>a.props.className=="ender"||undefined)
-					.parents.reduce((X,{props:{x=0}})=>X+x,xy.x)
+				xy.x=ender.parents.reduce((X,{props:{x=0}})=>X+x,xy.x+(ender.first.get(0).props.x||0))
 			}
 			return xy
 		}else{
@@ -272,7 +272,7 @@ class Navigatable extends Positionable{
 	nextCursorable(id,at){
 		const {atoms}=this.computed
 		const resolve2FirstAtom=(success,failure)=>{
-			const cursorable=new ReactQuery(atoms).findFirst(Cursorable)
+			const cursorable=new ReactQuery(atoms.filter(a=>!a.props.anchor)).findFirst(Cursorable)
 			if(cursorable.length){
 				return success(cursorable)
 			}
@@ -296,7 +296,7 @@ class Navigatable extends Positionable{
 			}
 		}else{
 			const i=atoms.findLastIndex(a=>new ReactQuery(a).findLast(`[data-content="${id}"]`).length>0)
-			const cursorable=new ReactQuery(atoms.slice(i+1)).findFirst(Cursorable)
+			const cursorable=new ReactQuery(atoms.slice(i+1).filter(a=>!a.props.anchor)).findFirst(Cursorable)
 
 			if(cursorable.length){
 				return {id:cursorable.attr("data-content"),at:0}
@@ -322,7 +322,7 @@ class Navigatable extends Positionable{
 	prevCursorable(id,at){
 		const {atoms}=this.computed
 		const resolve2LastAtom=(success, failure=()=>({id:this.props.id,at:0}))=>{
-			const cursorable=new ReactQuery(atoms).findLast(Cursorable)
+			const cursorable=new ReactQuery(atoms.filter(a=>!a.props.anchor)).findLast(Cursorable)
 			if(cursorable.length){
 				return success(cursorable)
 			}
@@ -337,14 +337,14 @@ class Navigatable extends Positionable{
 				return this.prevParagraphCursorable()
 			}else if(at==1){
 				return resolve2LastAtom(
-					cursorable=>({id:cursorable.attr("data-content"), at:cursorable.attr("type")=="text" ? cursorable.attr("data-endat")-1 : 0}),
+					cursorable=>({id:cursorable.attr("data-content"), at:cursorable.attr("data-type")=="text" ? cursorable.attr("data-endat")-1 : 0}),
 					()=>this.prevCursorable(id,0)
 				)
 			}
 		}else{
 			if(at==0){//prev atom's last index
 				 const i=atoms.findIndex(a=>new ReactQuery(a).findFirst(`[data-content="${id}"]`).length>0)
-				 const cursorable=new ReactQuery(atoms.slice(0,i)).findLast(Cursorable)
+				 const cursorable=new ReactQuery(atoms.slice(0,i).filter(a=>!a.props.anchor)).findLast(Cursorable)
 				 if(cursorable.length==0){
 					 return this.prevParagraphCursorable()
 				 }else{
@@ -357,7 +357,7 @@ class Navigatable extends Positionable{
 				 }
 			}else{//end of object/text
 				const i=atoms.findLastIndex(a=>new ReactQuery(a).findLast(`[data-content="${id}"]`).length>0)
-				const cursorable=new ReactQuery(atoms.slice(0,i+1)) .findLast(Cursorable)
+				const cursorable=new ReactQuery(atoms.slice(0,i+1).filter(a=>!a.props.anchor)).findLast(Cursorable)
 				if(cursorable.length==0){
 					return this.prevCursorable(this.props.id,1)
 				}else{
@@ -397,6 +397,7 @@ class Navigatable extends Positionable{
 	}
 
 	nextLine(id,at){
+		debugger
 		return this.getSiblingLine(id,at,(self,page,node,parents)=>{
 			const {pagination={}}=node.props
 			if(self.page.props.I==page.props.I &&
@@ -466,7 +467,7 @@ class Navigatable extends Positionable{
 						const i=composer.measure.widthString(offset,text)
 						return {id:textNode.props["data-content"], at:textNode.props["data-endat"]-text.length+i}
 					}else{
-						return {id:$node.findFirst(`[data-content]`).attr("data-content")}
+						return {id:$node.findFirst(`[data-content]`).attr("data-content"),at:0}
 					}
 				}
 			})(x-x0)

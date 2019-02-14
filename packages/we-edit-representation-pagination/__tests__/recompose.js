@@ -75,7 +75,7 @@ describe("continuable", ()=>{
 				height=10
 				defaultStyle={height:10,descent:1}
 				widthString(x,text){
-					return text.substring(0,x)
+					return x
 				}
 
 				stringWidth(text){

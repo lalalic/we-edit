@@ -1,5 +1,5 @@
-descript("content query",()=>{
+describe("content query",()=>{
     it("backwardFirst",()=>{
-        
+
     })
 })
