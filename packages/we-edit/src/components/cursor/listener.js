@@ -18,10 +18,10 @@ export default class Listener extends Component{
 	}
 
 	render(){
-		let {dispatch,keys={},...others}=this.props
+		let {dispatch,keys={},inputRef,...others}=this.props
 		keys={...this.KEYs, ...keys}
 		return <input
-			ref={a=>this.input=a}
+			ref={inputRef}
 			className="cursor"
 			type="text"
 			value={this.state.value}
@@ -49,6 +49,6 @@ export default class Listener extends Component{
 	}
 
 	componentDidUpdate(){
-		this.input.focus()
+		this.props.inputRef.current.focus()
 	}
 }

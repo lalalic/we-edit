@@ -4,7 +4,12 @@ import PropTypes from "prop-types"
 export default class Flash extends Component{
 	state={}
 	componentDidMount(){
-		this.timer=setInterval(()=>this.setState({visibility:this.state.visibility ? undefined : "hidden"}),500)
+		this.timer=setInterval(()=>{
+			if(document.activeElement!==this.props.input.current)
+				this.setState({visibility:"hidden"})
+			else
+				this.setState({visibility:this.state.visibility ? undefined : "hidden"})
+		},500)
 	}
 
 	render(){
