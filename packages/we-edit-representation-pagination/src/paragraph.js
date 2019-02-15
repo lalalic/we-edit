@@ -29,6 +29,10 @@ export default class Paragraph extends Super{
 		this.computed.needMerge=false
 	}
 
+	get enderWidth(){
+		return this.computed.atoms[this.computed.atoms.length-1].props.width
+	}
+
 	getBreakOpportunities(text){
 		const {lastText}=this.computed
 		if(!text){

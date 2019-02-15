@@ -158,10 +158,22 @@ class ReactPositioning extends Positioning{
     }
 
     getRangeRects(start,end){
-        ({start,end}=this.extendSelection(start,end));
+        try{
+            ({start,end}=this.extendSelection(start,end));
 
-        const composer=this.getComposer(this.getComposer(start.id).composeFrames().pop())
-        return composer.getRangeRects(start,end, page=>this.pageXY(this.pages.indexOf(page)))
+            const composer=this.getComposer(this.getComposer(start.id).composeFrames().pop())
+            const rects=composer.getRangeRects(start,end, page=>this.pageXY(this.pages.indexOf(page)))
+            if(end.at==1){
+                const endComposer=this.getComposer(end.id)
+                if(endComposer.getComposeType()=="paragraph"){
+                    rects[rects.length-1].right+=endComposer.enderWidth    
+                }
+            }
+
+            return rects
+        }catch(e){
+            return []
+        }
     }
 }
 export default ReactPositioning

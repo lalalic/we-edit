@@ -97,9 +97,11 @@ describe("positioning",()=>{
             )
 
             const doc=renderer.root.findByType(Document).instance
+            const responsible=renderer.root.findByType(Responsible).instance
             return {
                 renderer,
                 doc,
+                responsible,
                 get(id){
                     debugger
                     return doc.getComposer(id)
@@ -108,6 +110,7 @@ describe("positioning",()=>{
     }
 
     describe("Navigatable", ()=>{
+
 		describe("cursor",()=>{
 
 			describe("next cursorable", ()=>{
@@ -928,7 +931,8 @@ describe("positioning",()=>{
                 })
             })
         })
-	})
+
+    })
 
     describe("position",()=>{
         const test=a=>{
@@ -939,7 +943,6 @@ describe("positioning",()=>{
             const responsible=renderer.root.findByType(Responsible).instance
             return {
                 position(){
-                    debugger
                     return responsible.positioning.position(...arguments)
                 }
             }
@@ -989,4 +992,43 @@ describe("positioning",()=>{
 
         })
 	})
+
+    describe("range", ()=>{
+        const test=content=>{
+            const {responsible}=render(content)
+            responsible.positioning.pageXY=jest.fn(()=>({x:0,y:0}))
+            return {
+                responsible,
+                getRangeRects(){
+                    return responsible.positioning.getRangeRects(...arguments)
+                }
+            }
+        }
+
+        it("text",()=>{
+            const doc=test(<Paragraph id={"1"}><Text id={"0"}>text</Text></Paragraph>)
+            new Array(5).fill(0).forEach((a,i)=>
+                expect(doc.getRangeRects({id:"0",at:0},{id:"0",at:i})).toMatchObject([{left:0,top:0,right:i,bottom:10}]))
+
+                new Array(4).fill(0).forEach((a,i)=>
+                    expect(doc.getRangeRects({id:"0",at:1},{id:"0",at:i+1})).toMatchObject([{left:1,top:0,right:i+1,bottom:10}]))
+        })
+
+        it("no error",()=>{
+            const doc=test(<Paragraph id={"1"}><Text id={"0"}>text</Text></Paragraph>)
+            expect(doc.getRangeRects({id:"0",at:0},{id:"0",at:-1})).toMatchObject([{left:0,top:0,right:0,bottom:10}])
+            expect(doc.getRangeRects({id:"0",at:-3},{id:"0",at:0})).toMatchObject([{left:0,top:0,right:0,bottom:10}])
+            expect(doc.getRangeRects({id:"0",at:0},{id:"0",at:10})).toMatchObject([])
+
+            expect(doc.getRangeRects({id:"notexist",at:-3},{id:"0",at:0})).toMatchObject([])
+        })
+
+        fit("paragraph",()=>{
+            const doc=test(<Paragraph id={"1"}><Text id={"0"}>text</Text></Paragraph>)
+            expect(doc.getRangeRects({id:"1",at:0},{id:"1",at:1})).toMatchObject([{left:0,top:0,right:5,bottom:10}])
+            expect(doc.getRangeRects({id:"0",at:2},{id:"1",at:1})).toMatchObject([{left:2,top:0,right:5,bottom:10}])
+        })
+
+
+    })
 })
