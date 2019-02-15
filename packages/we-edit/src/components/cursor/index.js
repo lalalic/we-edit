@@ -6,16 +6,19 @@ import Flash from "./flash"
 import Input from "./input"
 
 export default class Cursor extends Component{
+	static propTypes={
+		editable:PropTypes.bool
+	}
+
 	input=React.createRef()
 	render(){
-		const {active,children,editable, ...props}=this.props
+		const {children,editable, ...props}=this.props
 		return (
 			<Fragment>
 				{createPortal(
 					<Input {...props}
 						inputRef={this.input}
 						height={children ? 1 : props.height}
-						editable={editable}
 						/>,
 					document.body
 				)}

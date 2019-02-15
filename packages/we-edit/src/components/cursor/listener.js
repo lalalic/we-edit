@@ -18,17 +18,24 @@ export default class Listener extends Component{
 	}
 
 	render(){
-		let {dispatch,keys={},inputRef,...others}=this.props
+		let {dispatch,keys={},inputRef,editable,...others}=this.props
 		keys={...this.KEYs, ...keys}
+		if(editable==false){
+			delete others.onPaste
+			delete others.onCut
+		}
 		return <input
 			ref={inputRef}
 			className="cursor"
 			type="text"
 			value={this.state.value}
+
 			{...others}
 
 			{...reactComposition({
 					onChange:e=>{
+						if(editable==false)
+							return
 						let value = e.target.value
 						if(e.reactComposition.composition === false){
 							dispatch(ACTION.Text.INSERT(value))
@@ -39,6 +46,10 @@ export default class Listener extends Component{
 			})}
 
 			onKeyDown={e=>{
+				if(editable==false && ![37,38,39,40].includes(e.keyCode)){
+					e.preventDefault()
+					return
+				}
 				const control=keys[e.keyCode]
 				if(control){
 					e.preventDefault()
