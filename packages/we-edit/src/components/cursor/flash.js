@@ -2,16 +2,14 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 
 export default class Flash extends Component{
-	state={color:"black"}
+	state={}
 	componentDidMount(){
-		this.timer=setInterval(()=>this.setState({color:this.state.color=="transparent" ? this.props.color : "transparent"}),500)
+		this.timer=setInterval(()=>this.setState({visibility:this.state.visibility ? undefined : "hidden"}),500)
 	}
 
 	render(){
-		const {children, toProps=color=>({stroke:color})}=this.props
-		const {color}=this.state
-		let props=toProps(color)
-		return React.cloneElement(children,props)
+		const {props:{children}, state:{visibility}}=this
+		return React.cloneElement(children,{style:{...(children.props.style||{}),visibility}})
 	}
 
 	componentWillUnmount(){

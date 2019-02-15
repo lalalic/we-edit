@@ -12,8 +12,8 @@ import SelectionShape from "./selection"
 import Locator from "./locator"
 import Positioning from "./positioning"
 
-const CursorShape=({y=0,x=0,height=0,color="black"})=>(
-    <Cursor.Flash color={color}><path d={`M${x} ${y} v${height}`} strokeWidth={1}/></Cursor.Flash>
+const CursorShape=({y=0,x=0,height=0,color="black", style})=>(
+    <path d={`M${x} ${y} v${height}`} strokeWidth={1} stroke={color} style={style}/>
 )
 
 export default class Responsible extends Component{
@@ -168,7 +168,8 @@ export default class Responsible extends Component{
                                 onPaste={e=>this.onPaste(e)}
 
                                 onCut={e=>this.onCut(e)}
-								>
+
+                                >
 
 								<CursorShape/>
 
