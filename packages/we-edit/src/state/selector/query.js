@@ -124,13 +124,17 @@ export default class Query{
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,id)=>{
 			let node=this._content.get(id)
-			while(node && node.has("parent")){
+			while(node){
 				if(select(node)){
 					found.push(node.get("id"))
 					break
 				}
-				id=node.get("parent")
-				node=this._content.get(id)
+				if(node.has("parent")){
+					id=node.get("parent")
+					node=this._content.get(id)
+				}else{
+					break
+				}
 			}
 			return found
 		},[])

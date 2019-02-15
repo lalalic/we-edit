@@ -1023,12 +1023,10 @@ describe("positioning",()=>{
             expect(doc.getRangeRects({id:"notexist",at:-3},{id:"0",at:0})).toMatchObject([])
         })
 
-        fit("paragraph",()=>{
+        it("paragraph",()=>{
             const doc=test(<Paragraph id={"1"}><Text id={"0"}>text</Text></Paragraph>)
             expect(doc.getRangeRects({id:"1",at:0},{id:"1",at:1})).toMatchObject([{left:0,top:0,right:5,bottom:10}])
             expect(doc.getRangeRects({id:"0",at:2},{id:"1",at:1})).toMatchObject([{left:2,top:0,right:5,bottom:10}])
         })
-
-
     })
 })
