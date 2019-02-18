@@ -134,6 +134,30 @@ describe("reducer",()=>{
                 expect(doc.updateNode).toHaveBeenCalledTimes(3)
 				expect(reducer.selection).toMatchObject(selection)
 			})
+			xit("<paragraph/>",()=>{
+				const doc={}
+                const selection={start:{id:"2",at:0},end:{id:"2",at:1},cursorAt:"end"}
+                const state=makeState({
+                    "1":{type:"paragraph",children:["1.1","1.2","1.3"]},
+                    "1.1":{type:"text",children:"hello",parent:"1",props:{size:1}},
+					"1.2":{type:"image",parent:"1"},
+					"1.3":{type:"text",children:"hello",parent:"1",props:{size:2}},
+					
+                    "2":{type:"paragraph",children:["2.1"]},
+                    "2.1":{type:"text",children:"hello",parent:"2",props:{size:1}},
+                },doc).set("selection",immutable.fromJS(selection))
+
+                const reducer=new Reducer(state)
+                expect(reducer.selection).toMatchObject(selection)
+				
+                doc.updateNode=jest.fn()
+                reducer.renderChanged=jest.fn()
+
+				reducer.update({text:{size:5}})
+				
+				expect(doc.updateNode).toHaveBeenCalledTimes(1)
+				expect(reducer.selection).toMatchObject(selection)
+			})
         })
     })
 
