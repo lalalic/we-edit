@@ -763,9 +763,9 @@ describe("positioning",()=>{
                         </Paragraph>
                     )
                     expect(p.lines.length).toBe(3)
-                    expect(p.nextLine("0",0)).toMatchObject({id:"2",at:0})
-                    expect(p.nextLine("0",1)).toMatchObject({id:"2",at:0})
-                    expect(p.nextLine("0",2)).toMatchObject({id:"2",at:0})
+                    expect(p.nextLine("0",0)).toMatchObject({id:"2"})
+                    expect(p.nextLine("0",1)).toMatchObject({id:"2"})
+                    expect(p.nextLine("0",2)).toMatchObject({id:"2"})
 
                     expect(p.nextLine("2",0)).toMatchObject({id:"1",at:0})
                     expect(p.nextLine("2",1)).toMatchObject({id:"1",at:0})
@@ -869,9 +869,9 @@ describe("positioning",()=>{
                     expect(p.prevLine("2",0)).toMatchObject({id:"0",at:0})
                     expect(p.prevLine("2",1)).toMatchObject({id:"0",at:0})
 
-                    expect(p.prevLine("1",0)).toMatchObject({id:"2",at:0})
-                    expect(p.prevLine("1",1)).toMatchObject({id:"2",at:0})
-                    expect(p.prevLine("1",5)).toMatchObject({id:"2",at:0})
+                    expect(p.prevLine("1",0)).toMatchObject({id:"2"})
+                    expect(p.prevLine("1",1)).toMatchObject({id:"2"})
+                    expect(p.prevLine("1",5)).toMatchObject({id:"2"})
                 })
 
                 describe("table",()=>{
@@ -1029,4 +1029,45 @@ describe("positioning",()=>{
             expect(doc.getRangeRects({id:"0",at:2},{id:"1",at:1})).toMatchObject([{left:2,top:0,right:5,bottom:10}])
         })
     })
+
+	describe("around",()=>{
+		beforeEach(()=>{
+			Positioning.prototype.asCanvasPoint=jest.fn(({left,top})=>({x:left,y:top}))
+		})
+		const test=content=>{
+            const {responsible}=render(content)
+            responsible.positioning.pageXY=jest.fn(()=>({x:0,y:0}))
+            return {
+                responsible,
+                click(clientX,clientY,shiftKey=false){
+                    responsible.onClick({clientX,clientY,shiftKey})
+                }
+            }
+        }
+		it("image",()=>{
+			const doc=test(
+				<Paragraph id={"1"}>
+					<Text id={"0"}>text</Text>
+					<Image id="2" size={{width:5,height:20}}/>
+					<Text id={"3"}>text</Text>
+				</Paragraph>
+			)
+			const around=jest.spyOn(doc.responsible.positioning,"around")
+			new Array(5).fill(0).forEach((a,x)=>{
+				new Array(20).fill(0).forEach((a,y)=>{
+					doc.click(4+x,y)
+					expect(around).toHaveLastReturnedWith({id:"2"})
+				})					
+			})
+			
+			
+			doc.click(1,10)
+			expect(around).toHaveLastReturnedWith({id:"0",at:1})
+			
+			doc.click(10,10)
+			expect(around).toHaveLastReturnedWith({id:"3",at:1})
+			
+		})
+		
+	})	
 })

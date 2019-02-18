@@ -271,7 +271,7 @@ export default class Responsible extends Component{
 		const {id,at}=this.positioning.around(left, top)
 		if(id){
             if(at==undefined){
-                this.dispatch(ACTION.Selection.SELECT(id))
+                this.dispatch(ACTION.Selection.SELECT(id,0,id,1))
             }else{
     			if(!selecting){
     				this.dispatch(ACTION.Cursor.AT(id,at))

@@ -397,7 +397,6 @@ class Navigatable extends Positionable{
 	}
 
 	nextLine(id,at){
-		debugger
 		return this.getSiblingLine(id,at,(self,page,node,parents)=>{
 			const {pagination={}}=node.props
 			if(self.page.props.I==page.props.I &&
@@ -467,7 +466,7 @@ class Navigatable extends Positionable{
 						const i=composer.measure.widthString(offset,text)
 						return {id:textNode.props["data-content"], at:textNode.props["data-endat"]-text.length+i}
 					}else{
-						return {id:$node.findFirst(`[data-content]`).attr("data-content"),at:0}
+						return {id:$node.findFirst(`[data-content]`).attr("data-content")}
 					}
 				}
 			})(x-x0)

@@ -150,10 +150,10 @@ class Reducer extends Base{
 			const [,{id,at}]=this.file.splitNode(element(start.id),start.at,this)
 			if(end.id==start.id){
 				end.id=id
-				end.at=end.at-start.at
+				end.at=end.at-(start.at-at)
 			}
 			start.id=id
-			start.at=0
+			start.at=at
 			this.cursorAt(start.id,start.at, end.id, end.at)
 		})();
 
