@@ -142,11 +142,15 @@ class Reducer extends Base{
 		var to=this.$(`#${end.id}`)
 
 		if(type=="text"){
+			if(start.id==end.id && start.at==end.at){
+				return from.closest(type).toArray()
+			}
+
 			if(from.attr('type')==type && start.at>0){
 				const [p0,p1]=this.splitAtUpto(start,from.parent())
 				from=this.$(`#${p1.attr("id")}`)
 				if(!from.is("text"))
-					from=from.find("text").eq(0)
+					from=from.findFirst("text")
 				if(end.id==start.id){
 					end.id=from.attr("id")
 					end.at=end.at-start.at
@@ -161,7 +165,7 @@ class Reducer extends Base{
 				const [p0,p1]=this.splitAtUpto(end,to.parent())
 				to=this.$(`#${p0.attr("id")}`)
 				if(!to.is("text"))
-					to=to.find("text").eq(0)
+					to=to.findFirst("text")
 				end.id=to.attr("id")
 				end.at=to.text().length
 				this.cursorAt(start.id,start.at, end.id, end.at)
@@ -182,7 +186,6 @@ class Reducer extends Base{
 			.filter(type)
 			.toArray()
 	}
-
 
 	insert_text_at(inserting,{id,at}){
         const target=this.$('#'+id)
