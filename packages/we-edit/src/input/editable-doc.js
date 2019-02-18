@@ -20,6 +20,10 @@ export default class {
 
 	}
 
+	splitNode(element,at){
+
+	}
+
 	tailerNode(element, from, to){
 
 	}
@@ -45,10 +49,6 @@ export default class {
 	}
 
 	construct(fromId,toId){
-
-	}
-
-	cloneRange(start,end){
 
 	}
 

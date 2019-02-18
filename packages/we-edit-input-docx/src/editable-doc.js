@@ -97,6 +97,12 @@ export default class EditableDocument extends docx4js{
 		return cloned
 	}
 
+	splitNode({id,type, node},at, reducer){
+		const editor=new editors[Type(type)](this)
+		editor.node=node||this.getNode(id)
+		return editor.split(at,reducer)
+	}
+
 	tailorNode({id,type, node}, from , to){
 		const editor=new editors[Type(type)](this)
 		editor.node=node||this.getNode(id)

@@ -54,6 +54,11 @@ export default class Editor{
         return this.node.remove()
     }
 
+    split(at,reducer){
+        const id=this.node.attr("xxid")
+        return [{id,at},{id,at}]
+    }
+
     clone(){
         const withIds=this.node.find("[xxid]").each((i,el)=>el.attribs._xxid=el.attribs.xxid)
         const cloned=this.node.clone()

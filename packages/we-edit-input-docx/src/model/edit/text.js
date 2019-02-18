@@ -33,8 +33,27 @@ export class Text extends Base{
 			this.remove()
 	}
 
+	split(at,reducer){
+		const text=this.node.text()
+		at=at<0 ? text.length+at : at
+		if(at>=text.length || at==0){
+			return [{id:this.node.attr('xxid'),at:at},{id:this.node.attr('xxid'),at:at}]
+		}
+		this.node.text(text.substring(0,at))
+		const r0=this.node.closest("w\\:r")
+		const r1=r0.clone().empty()
+			.append(this.node.clone().text(text.substring(at)))
+			.insertAfter(r0)
+		reducer.renderChanged(r0.parent())
+		return [{id:this.node.attr('xxid'),at:at},{id:r1.find("w\\:t").attr('xxid'), at:0}]
+	}
+
 	remove(){
-		this.node.closest("w\\:r").remove()
+		const r=this.node.closest("w\\:r")
+		this.node.remove()
+		if(r.children.length==0 || (r.children.length==1 && r.firstChild.name=="w:rPr")){
+			r.remove()
+		}
 	}
 
 	fonts(fonts){

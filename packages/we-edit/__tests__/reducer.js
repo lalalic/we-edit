@@ -60,13 +60,13 @@ describe("reducer",()=>{
                 expect(reducer.selection).toMatchObject(selection)
 
                 doc.updateNode=jest.fn()
+                doc.splitNode=jest.fn(()=>[{},{}])
                 reducer.renderChanged=jest.fn()
-                reducer.splitAtUpto=jest.fn()
 
                 reducer.update({text:{size:5}})
 
-                expect(reducer.splitAtUpto).toHaveBeenCalledTimes(2)
-                return 
+                expect(doc.splitNode).toHaveBeenCalledTimes(2)
+                expect(doc.splitNode).toHaveBeenNthCalledWith(1,{id:"1.1"},1)
 
                 expect(doc.updateNode).toHaveBeenCalledTimes(1)
 

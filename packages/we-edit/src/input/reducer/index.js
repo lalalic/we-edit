@@ -138,39 +138,27 @@ class Reducer extends Base{
 
 	getTyped(type){
 		const {start,end}=this.selection
+		if(start.id==end.id && start.at==end.at){
+			return this.$(`#${start.id}`).closest(type).toArray()
+		}
+
+		const element=id=>({id,type:this.$('#'+id).attr("type")})
+
+		this.file.splitNode(element(end.id),end.at,this)
+
+		;(()=>{
+			const [,{id,at}]=this.file.splitNode(element(start.id),start.at,this)
+			if(end.id==start.id){
+				end.id=id
+				end.at=end.at-start.at
+			}
+			start.id=id
+			start.at=0
+			this.cursorAt(start.id,start.at, end.id, end.at)
+		})();
+
 		var from=this.$(`#${start.id}`)
 		var to=this.$(`#${end.id}`)
-
-		if(type=="text"){
-			if(start.id==end.id && start.at==end.at){
-				return from.closest(type).toArray()
-			}
-
-			if(from.attr('type')==type && start.at>0){
-				const [p0,p1]=this.splitAtUpto(start,from.parent())
-				from=this.$(`#${p1.attr("id")}`)
-				if(!from.is("text"))
-					from=from.findFirst("text")
-				if(end.id==start.id){
-					end.id=from.attr("id")
-					end.at=end.at-start.at
-					to=from
-				}
-				start.id=from.attr("id")
-				start.at=0
-				this.cursorAt(start.id,start.at, end.id, end.at)
-			}
-
-			if(to.attr('type')==type && end.at<to.text().length-1){
-				const [p0,p1]=this.splitAtUpto(end,to.parent())
-				to=this.$(`#${p0.attr("id")}`)
-				if(!to.is("text"))
-					to=to.findFirst("text")
-				end.id=to.attr("id")
-				end.at=to.text().length
-				this.cursorAt(start.id,start.at, end.id, end.at)
-			}
-		}
 		var targets=from
 
 		if(start.id!=end.id){
