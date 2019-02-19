@@ -9,7 +9,7 @@ const Input=extendible({
 		install(conf){
 			Input.install(this,conf)
 		},
-		
+
 		uninstall(){
 			Input.uninstall(this)
 		}
@@ -18,7 +18,7 @@ const Input=extendible({
 		install(conf){
 			Input.install(this,conf)
 		},
-		
+
 		uninstall(){
 			Input.uninstall(this)
 		}
@@ -34,12 +34,12 @@ const Input=extendible({
 			throw new Error(`we cannot edit ${file}`)
 		}
 	},
-	
+
 	resolveFileType({data, type, mimeType, ext, name}){
 		if(type){
 			return type
 		}
-		
+
 		if(name && !ext){
 			ext=name.split(".").pop().trim()
 		}
@@ -48,19 +48,19 @@ const Input=extendible({
 			.reduce((foundType, a)=>{
 				if(foundType)
 					return foundType
-				
+
 				const Type=this.get(a)
 				if(Type){
 					if(ext){
 						if(Type.getTypeExt()==ext)
 							return Type.getType()
 					}
-					
+
 					if(mimeType){
 						if(Type.getTypeMimeType()==mimeType)
 							return Type.getType()
 					}
-					
+
 					if(Type.support &&  Type.support(arguments[0]))
 						return Type.getType()
 				}

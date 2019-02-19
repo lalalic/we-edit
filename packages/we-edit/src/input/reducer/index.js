@@ -136,17 +136,13 @@ class Reducer extends Base{
 		return [to,to1]
 	}
 
-	getTyped(type){
+	/*start at beginning of node, end at ending of node*/
+	split4Operation(){
 		const {start,end}=this.selection
-		if(start.id==end.id && start.at==end.at){
-			return this.$(`#${start.id}`).closest(type).toArray()
-		}
+		if(!(start.id==end.id && start.at==end.at)){
+			const element=id=>({id,type:this.$('#'+id).attr("type")})
+			this.file.splitNode(element(end.id),end.at,this)
 
-		const element=id=>({id,type:this.$('#'+id).attr("type")})
-
-		this.file.splitNode(element(end.id),end.at,this)
-
-		;(()=>{
 			const [,{id,at}]=this.file.splitNode(element(start.id),start.at,this)
 			if(end.id==start.id){
 				end.id=id
@@ -155,31 +151,13 @@ class Reducer extends Base{
 			start.id=id
 			start.at=at
 			this.cursorAt(start.id,start.at, end.id, end.at)
-		})();
-
-		var from=this.$(`#${start.id}`)
-		var to=this.$(`#${end.id}`)
-		var targets=from
-
-		if(start.id!=end.id){
-			targets=targets
-				.forwardUntil(to)
-				.add(to.parents())
-				.add(from)
-				.add(to)
 		}
-
-		return targets
-			.add(from.parents())
-			.filter(type)
-			.toArray()
 	}
 
 	insert_text_at(inserting,{id,at}){
         const target=this.$('#'+id)
         const text=target.text()
         if(inserting.indexOf("\r")==-1 && inserting.indexOf("\n")==-1){
-    		this.save4undo(id)
     		target.text(text.substring(0,at)+inserting+text.substr(at))
     		this.cursorAt(id,at+inserting.length)
             return
@@ -188,7 +166,6 @@ class Reducer extends Base{
     		const pieces=inserting.split(/[\r\n]+/g)
     		const FIRST=0
     		const LAST=pieces.length-1
-    		this.save4undo(p.attr("id"))
     		pieces.reduceRight((b,piece,i)=>{
     			switch(i){
     				case FIRST:{//first piece merged into
@@ -252,7 +229,7 @@ class Content extends Reducer{
 
 	insert(data){
 		if(this.isEntityAction()===false){
-			this.remove()
+			this.remove({})
 		}
 
 		if(typeof(data)=="string"){
@@ -268,7 +245,24 @@ class Content extends Reducer{
 			type=Object.keys(changing)[0]
 			changing=changing[type]
 		}
-		const targets=id ? [id] : this.getTyped(type)
+
+		this.split4Operation()
+
+		const targets=id ? [id] : (()=>{
+			const {start,end}=this.selection
+			const from=this.$(`#${start.id}`)
+			const targets=((from,to)=>start.id==end.id ? from : from
+				.add(from.forwardUntil(to))
+				.add(to.parents())
+				.add(to)
+			)(from,this.$(`#${end.id}`))
+
+			return targets//self
+				.add(from.parents())//ancestors
+				.filter(type)
+				.add(targets.find(type))//descendents
+				.toArray()
+		})();
 
 		targets.forEach(target=>{
 			this.file.updateNode({id:target,type},changing)
@@ -285,11 +279,14 @@ class Content extends Reducer{
 			return
 		}
 		const element=id=>({id,type:this.$('#'+id).attr("type")})
+		this.split4Operation()
+
 		const {start,end}=this.selection
 
 		if(start.id==end.id){
 			if(start.at!=end.at){
-				this.file.tailorNode(element(start.id),start.at,end.at)
+				this.file.tailorNode(element(start.id), start.at, end.at)
+				this.renderChanged(start.id)
 			}else{
 				if(backspace){
 					const {id,at}=responsible.getComposer(start.id).prevCursorable(start.id, start.at)

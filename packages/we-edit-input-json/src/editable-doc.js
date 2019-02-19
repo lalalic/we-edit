@@ -55,6 +55,35 @@ export default class EditableDocument extends Input.Editable{
 		return this.attach(JSON.parse(JSON.stringify(node,(k,v)=>k=="id" ? undefined : v)))
 	}
 
+	tailorNode({id,type,node},from,to){
+		if(type=="text"){
+			const origin=this.getNode(id)
+
+			const text=origin.children
+			from=from<0 ? text.length+from : from
+			to=to==undefined ? text.length-1 : (to<0 ? text.length+to : to)
+			origin.children=text.substring(0,from)+text.substring(to)
+			this.renderNode(origin)
+		}
+	}
+
+	splitNode({id,type},at){
+		if(type=="text"){
+			const origin=this.getNode(id)
+			const text=origin.children
+			at=at<0 ? text.length+at : at
+			if(at>0 && at<text.length){
+				const cloned=this.cloneNode(origin)
+				origin.children=text.substring(0,at)
+				cloned.children=text.substring(at)
+				this.insertNodeAfter(cloned,origin)
+				this.renderNode(this._getParentNode(id))
+				return [{id,at},{id:cloned.id,at:0}]
+			}
+		}
+		return [{id,at},{id,at}]
+	}
+
 	createNode(nodeTmpl){
 		return this.attach({...nodeTmpl})
 	}

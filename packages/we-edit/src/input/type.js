@@ -99,7 +99,7 @@ export class Editable extends Viewable{
 	static createStyles(){
 		return {}
 	}
-	
+
 	static  Reducer=Reducer
 
 	stream(option){
@@ -113,7 +113,7 @@ export class Editable extends Viewable{
 	renderNode(node, createElement/*(TYPE, props, children, rawcontent)*/){
 
 	}
-	
+
 	/**
 	*return:
 	- false: no state change
@@ -125,7 +125,7 @@ export class Editable extends Viewable{
 	- any else: reduce selection action
 	*/
 	onChange(state,{type,payload},createElement){
-		const params=[state]
+		const params=[state,this]
 		const reducer=new this.constructor.Reducer(...params)
 		switch(type){
 			case `we-edit/text/RETURN`:
@@ -153,7 +153,7 @@ export class Editable extends Viewable{
 			case `we-edit/selection/UPDATE`:
 				return reducer
 					.update(payload)
-					.state()					
+					.state()
 			case 'we-edit/selection/COPY':
 				return reducer
 					.copy(payload)
