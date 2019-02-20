@@ -5,7 +5,7 @@ import {getFile} from "../../state/selector"
 export default class xQuery extends Query{
     constructor(){
         super(...arguments)
-        this._doc=getFile(this.state)
+        this.file=getFile(this.state)
     }
 
 	//override
@@ -34,7 +34,7 @@ export default class xQuery extends Query{
     				path.push("props")
     				path.push(k)
 					this._content.setIn(path,Immutable.fromJS(value))
-					this._doc.updateNode(this._content.get(path[0]).toJS(),{[k]:value}, this)
+					this.file.updateNode(this._content.get(path[0]).toJS(),{[k]:value}, this)
     			}
 
 
@@ -53,7 +53,7 @@ export default class xQuery extends Query{
 				._nodes
 				.reduce((c,id)=>{
                     c.setIn([id,"children"],value)
-                    this._doc.updateNode(c.get(id).toJS(),{children:value},this)
+                    this.file.updateNode(c.get(id).toJS(),{children:value},this)
                     return c
                 },this._content)
 			return this
@@ -62,7 +62,7 @@ export default class xQuery extends Query{
 
 	append(nodes){
 		let id0=this.attr("id")
-		let docNode=this._doc.getNode(id0);
+		let docNode=this.file.getNode(id0);
 		(new this.constructor(this.state,nodes))._nodes
 		.forEach(id=>{
 			//append to this's children
@@ -79,7 +79,7 @@ export default class xQuery extends Query{
 			if(this._content.has(id)){
 				this._content.setIn([id,"parent"],id0)
 			}
-			this._doc.insertNodeBefore(this._doc.getNode(id),null,docNode)
+			this.file.insertNodeBefore(this.file.getNode(id),null,docNode)
 		})
 		return this
 	}
@@ -91,7 +91,7 @@ export default class xQuery extends Query{
 
 	prepend(nodes){
 		let id0=this.attr("id")
-		let docNode=this._doc.getNode(id0);
+		let docNode=this.file.getNode(id0);
 		(new this.constructor(this.state,nodes))._nodes.reverse()
 		.forEach(id=>{
 			if(this._content.hasIn([id0,"children"]))
@@ -104,7 +104,7 @@ export default class xQuery extends Query{
 			if(this._content.has(id))
 				this._content.setIn([id,"parent"],id0)
 
-			this._doc.insertNodeBefore(this._doc.getNode(id),null,docNode)
+			this.file.insertNodeBefore(this.file.getNode(id),null,docNode)
 		})
 		return this
 	}
@@ -117,7 +117,7 @@ export default class xQuery extends Query{
 	after(nodes){
 		let parent=this.parent()
 		let pid=parent.attr("id")
-		let docNode=this._doc.getNode(this.attr("id"))
+		let docNode=this.file.getNode(this.attr("id"))
 		let index=parent.get(0).get("children").indexOf(this.attr("id"))+1
 		new this.constructor(this.state,nodes)._nodes
     		.forEach((k,i)=>{
@@ -127,7 +127,7 @@ export default class xQuery extends Query{
     			this._content.setIn([k,"parent"],pid)
     			this._content.updateIn([pid,"children"],c=>c.insert(index+i,k))
 
-				this._doc.insertNodeAfter(this._doc.getNode(k),docNode)
+				this.file.insertNodeAfter(this.file.getNode(k),docNode)
     		})
 		return this
 	}
@@ -140,7 +140,7 @@ export default class xQuery extends Query{
 	before(nodes){
 		let parent=this.parent()
 		let pid=parent.attr("id")
-		let docNode=this._doc.getNode(this.attr("id"))
+		let docNode=this.file.getNode(this.attr("id"))
 		let index=parent.get(0).get("children").indexOf(this.attr("id"))
 		new this.constructor(this.state,nodes)
 		._nodes.reverse()
@@ -151,7 +151,7 @@ export default class xQuery extends Query{
 			this._content.setIn([k,"parent"],pid)
 			this._content.updateIn([pid,"children"],c=>c.insert(index,k))
 
-			this._doc.insertNodeBefore(this._doc.getNode(k),docNode)
+			this.file.insertNodeBefore(this.file.getNode(k),docNode)
 		})
 		return this
 	}
@@ -176,7 +176,7 @@ export default class xQuery extends Query{
 		}
 		this._nodes.forEach(k=>{
 			let node=this._content.get(k)
-			this._doc.removeNode(node.toJS())
+			this.file.removeNode(node.toJS())
 			this._content.updateIn([node.get("parent"),"children"],c=>c.delete(c.indexOf(k)))
 			clear(k)
 		})
@@ -184,21 +184,21 @@ export default class xQuery extends Query{
 	}
 
 	constructUp(to){
-		let docNode=this._doc.construct(this.attr("id"), this.closest(to).attr("id"))
-        let {id}=this._doc.renderChanged(docNode)
+		let docNode=this.file.construct(this.attr("id"), this.closest(to).attr("id"))
+        let {id}=this.file.renderChanged(docNode)
         return new this.constructor(this.state, [id])
 	}
 
     clone(){
 		let nodes=this._nodes.map(a=>{
-			let node=this._doc.cloneNode({id:a,type:this._content.getIn([a,"type"])})
-			let {id}=this._doc.renderChanged(node)
+			let node=this.file.cloneNode({id:a,type:this._content.getIn([a,"type"])})
+			let {id}=this.file.renderChanged(node)
 			return id
 		})
 		return new this.constructor(this.state,nodes)
 	}
 
 	toString(){
-		return this._nodes.map(id=>this._doc.toString(id)).join("\r\n")
+		return this._nodes.map(id=>this.file.toString(id)).join("\r\n")
 	}
 }

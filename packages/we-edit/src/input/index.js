@@ -1,7 +1,6 @@
 import buildDoc from "./build-doc"
 
 import {Viewable, Editable} from "./type"
-import EditableDocument from "./editable-doc"
 import extendible from "../tools/extendible"
 
 const Input=extendible({
@@ -23,7 +22,6 @@ const Input=extendible({
 			Input.uninstall(this)
 		}
 	}),
-	EditableDocument,
 	parse(file){
 		const type=this.resolveFileType(file)
 		let Found=this.get(type)

@@ -2,7 +2,6 @@ import React from "react"
 import Docx from "./docx"
 import {Input} from "we-edit"
 import {Readable} from 'stream'
-import editors from "./model/edit"
 
 import Style from "./styles"
 import Transformers from "./model"
@@ -277,4 +276,8 @@ export default class extends Input.Editable{
 	getFontList(){
 		//injected implementation by render
 	}
+
+    refreshStyles(){
+        //injected implementation by render
+    }
 }

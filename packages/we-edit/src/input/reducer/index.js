@@ -3,11 +3,12 @@ import ACTION from "../../state/action"
 import xQuery from "./xquery"
 
 class Base{
-	constructor(state){
+	constructor(state,doc){
 		this._state=state
 		this._undoables={}
 		this._selection=getSelection(state)
 		this._file=getFile(state)
+		console.assert(doc===getFile(state))
 
 		this.$=context=>new xQuery(state,context)
 	}
@@ -34,27 +35,6 @@ class Base{
 
 	save4undo(id){
 		//this._undoables[id]=this.file.cloneNode(this.file.getNode(id),false)
-	}
-
-	renderChanged(id){
-		let docNode=typeof(id)=="string" ? this.file.getNode(id) : id
-
-		try{
-			docNode=docNode.get(0)
-		}catch(e){
-
-		}
-
-		let rendered=this.file.renderChanged(docNode)
-
-		id=rendered.id
-
-		if(this._state.hasIn(["content",id])){
-			this._state.setIn(["_content",id,"parent"],
-				this._state.getIn(["content",id,"parent"]))
-		}
-
-		return rendered
 	}
 
 	cursorAt(id,at, endId=id, endAt=at, cursorAt){
@@ -130,9 +110,9 @@ class Reducer extends Base{
 
 		target.text(text.substr(0,at))
 
-		this.renderChanged(to.attr('id'))
-		this.renderChanged(to1.attr('id'))
-		this.renderChanged(parent.attr('id'))
+		this.file.renderChanged(this.file.getNode(to.attr('id')))
+		this.file.renderChanged(this.file.getNode(to1.attr('id')))
+		this.file.renderChanged(this.file.getNode(parent.attr('id')))
 		return [to,to1]
 	}
 
@@ -285,8 +265,7 @@ class Content extends Reducer{
 
 		if(start.id==end.id){
 			if(start.at!=end.at){
-				this.file.tailorNode(element(start.id), start.at, end.at)
-				this.renderChanged(start.id)
+				this.file.removeNode(element(start.id))
 			}else{
 				if(backspace){
 					const {id,at}=responsible.getComposer(start.id).prevCursorable(start.id, start.at)
@@ -311,15 +290,16 @@ class Content extends Reducer{
 					if(start.at==0){
 						this.file.tailorNode(element(start.id),0,1)
 						if(start.id!==id){
-							this.renderChanged(this.$('#'+id).parent().attr("id"))
+							this.file.renderChanged(this.file.getNode(this.$('#'+id).parent().attr("id")))
 							this.cursorAt(id,at)
 						}else{
-							this.renderChanged(start.id)
+							this.file.renderChanged(this.file.getNode(start.id))
 						}
 					}else if(this.$(`#${start.id}`).attr("type")=="text"){
 						this.file.tailorNode(element(start.id),start.at,start.at+1)
-						this.renderChanged(start.id)
+						this.file.renderChanged(this.file.getNode(start.id))
 					}else{
+						const {id,at}=responsible.getComposer(start.id).nextCursorable(start.id, start.at)
 						this.cursorAt(id,at)
 						return this.remove({backspace:true,responsible},++i)
 					}
@@ -341,8 +321,8 @@ class Content extends Reducer{
 			ancestors0.not(top0).each((i,a)=>this.$('#'+a.get("id")).nextAll().each((i,id)=>removeNode(id)))
 			ancestors1.not(top1).each((i,a)=>this.$('#'+a.get("id")).prevAll().each((i,id)=>removeNode(id)))
 
-			this.file.tailorNode(element(end.id),0,end.at)
-			this.file.tailorNode(element(start.id),start.at)
+			this.file.removeNode(element(end.id))
+			this.file.removeNode(element(start.id))
 			this.renderChanged(top0.attr("id"))
 	        this.renderChanged(top1.attr("id"))
 		}

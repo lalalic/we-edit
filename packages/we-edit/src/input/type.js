@@ -142,7 +142,7 @@ export class Editable extends Viewable{
 		throw new Error("make your own uuid")
 	}
 
-	renderNode(node, createElement/*(TYPE, props, children, rawcontent)*/){
+	renderNode(node, createElement/*(TYPE, props, children, rawcontent)*/,models){
 
 	}
 
@@ -156,7 +156,7 @@ export class Editable extends Viewable{
 	}: all these changes will be applied on state
 	- any else: reduce selection action
 	*/
-	onChange(state,{type,payload},createElement){
+	onChange(state,{type,payload}){
 		const params=[state,this]
 		const reducer=new this.constructor.Reducer(...params)
 		switch(type){
@@ -204,6 +204,53 @@ export class Editable extends Viewable{
 					.state()
 		}
 		return true
+	}
+}
+
+export class Serializable extends Editable{
+	/*find node by id*/
+	getNode(id){
+
+	}
+
+	cloneNode(element, autoAttach=true, keepId=false){
+
+	}
+
+	splitNode(element,at){
+
+	}
+
+	tailerNode(element, from, to){
+
+	}
+
+	createNode(element, reducer){
+
+	}
+
+	updateNode(element, changing, query){
+
+	}
+
+	removeNode(element){
+
+	}
+
+	insertNodeBefore(newNode,referenceNode,parentNode){
+
+	}
+
+	insertNodeAfter(newNode,referenceNode,parentNode){
+
+	}
+
+	construct(fromId,toId){
+
+	}
+
+	toString(id){
+		return `[${id}]`
 	}
 }
 

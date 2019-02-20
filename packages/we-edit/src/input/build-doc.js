@@ -25,11 +25,11 @@ export default function buildDoc(doc,inputTypeInstance){
 
 	const buildReducer=(extendReducer=a=>a)=>{
 		let createElementFactory=createElementFactoryBuilder(inputTypeInstance)
-		let changeReducer=changeReducerBuilder(createElementFactory,inputTypeInstance)
+		let changeReducer=changeReducerBuilder(createElementFactory,inputTypeInstance,TypedComponents)
 		let content=new Map().withMutations(a=>inputTypeInstance.render(createElementFactory(a),TypedComponents))
 
 		let _reducer=undoable(changeReducer)
-		let INIT_STATE=createState(doc,content)
+		let INIT_STATE=createState(inputTypeInstance,content)
 
 		return (state=INIT_STATE,action={})=>{
 			state=_reducer(state,action)
@@ -75,7 +75,7 @@ export default function buildDoc(doc,inputTypeInstance){
 /*
 the builder to create reducer
 */
-const changeReducerBuilder=(createElementFactory,inputTypeInstance)=>
+const changeReducerBuilder=(createElementFactory,inputTypeInstance,TypedComponents)=>
 	(state,action,historyEntry)=>{
 	switch(action.type){
 	case "@@refresh":
@@ -89,11 +89,10 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance)=>
 
 	const createElement=createElementFactory(changedContent)
 
-	inputTypeInstance.doc.renderChanged=node=>inputTypeInstance.renderNode(node,createElement)
+	inputTypeInstance.renderChanged=node=>inputTypeInstance.renderNode(node,createElement,TypedComponents)
 	let changed=inputTypeInstance.onChange(
 		state.set("_content", changedContent),
 		action,
-		createElement
 	)
 
 	if(changed===false){
@@ -123,7 +122,7 @@ node prototype: {type:string,props:{},children:[...id],parent:string}
 */
 const createElementFactoryBuilder=inputTypeInstance=>content=>(type, props, children, raw)=>{
 	console.assert(!!type)
-	let id=inputTypeInstance.makeId(raw)
+	let id=raw.id||inputTypeInstance.makeId(raw)
 
 	content.set(id, Immutable.fromJS({
 		type:type.displayName,
