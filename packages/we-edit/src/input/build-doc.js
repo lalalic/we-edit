@@ -14,111 +14,63 @@ import * as reducer from "../state/reducer"
 import uuid from "../tools/uuid"
 import ContextProvider from "./context-provider"
 
-export default function buildEditableDoc(doc,inputTypeInstance){
+export default function buildDoc(doc,inputTypeInstance){
 	const id=uuid()
 	const transform=inputTypeInstance.transform
 	const TypedComponents=transform(Components)
-	inputTypeInstance.doc=doc
-	let store=null
+
+	var store=null
 
 	const getDocStore=memoize((store,id)=>new LocalStore(store, "we-edit", state=>state['we-edit'].docs[id].state))
 
-	const editableDoc={
-		editable(){
-			return !!inputTypeInstance.onChange
-		},
+	const buildReducer=(extendReducer=a=>a)=>{
+		let createElementFactory=createElementFactoryBuilder(inputTypeInstance)
+		let changeReducer=changeReducerBuilder(createElementFactory,inputTypeInstance)
+		let content=new Map().withMutations(a=>inputTypeInstance.render(createElementFactory(a),TypedComponents))
 
-		toJSON(){
-			return this.name
-		},
+		let _reducer=undoable(changeReducer)
+		let INIT_STATE=createState(doc,content)
 
-		getFontList(){
-			return inputTypeInstance.getFontList()
-		},
-
-		Store:compose(
-				setDisplayName("DocStore"),
-				getContext({store:PropTypes.object}),
-			)(({children,store:passedStore,release=true,reducer,...props})=>{
-
-			let onQuit=null
-			if(passedStore){
-				store=getDocStore(passedStore,id)
-			}else{
-				store=createStore(editableDoc.buildReducer(reducer))
-				onQuit=()=>inputTypeInstance.release()
-			}
-
-			return (
-				<Provider store={store}>
-                    <ContextProvider
-                        doc={editableDoc}
-                        onQuit={release ? onQuit : null}
-                        transformer={transform}
-                        {...props}
-                        >
-                        {children}
-                    </ContextProvider>
-				</Provider>
-			)
-		}),
-
-
-
-		buildReducer(extendReducer=a=>a){
-			let createElementFactory=createElementFactoryBuilder(inputTypeInstance)
-			let changeReducer=changeReducerBuilder(createElementFactory,inputTypeInstance)
-			let content=new Map().withMutations(a=>inputTypeInstance.render(createElementFactory(a),TypedComponents))
-
-			let _reducer=undoable(changeReducer)
-			let INIT_STATE=createState(doc,content)
-
-			return (state=INIT_STATE,action={})=>{
-				state=_reducer(state,action)
-				state=state.set("statistics", reducer.statistics(state.get("statistics"),action))
-				state=state.set("ui", reducer.ui(state.get("ui"),action))
-				return extendReducer(state,action)
-			}
-		},
-
-		get name(){
-			return inputTypeInstance.name||(inputTypeInstance.props && inputTypeInstance.props.name)
-		},
-
-		get id(){
-			return id
-		},
-
-		get type(){
-			return inputTypeInstance.getType()
-		},
-
-		get typeName(){
-			return inputTypeInstance.getTypeName()
-		},
-
-		get typeExt(){
-			return inputTypeInstance.getTypeExt()
-		},
-
-		get mimeType(){
-			return inputTypeInstance.getTypeMimeType()
-		},
-
-		stream(option){
-			return inputTypeInstance.stream(option)
-		},
-
-		release(){
-			return inputTypeInstance.release()
-		},
-
-		isTypeOf(InputType){
-			return inputTypeInstance instanceof InputType
+		return (state=INIT_STATE,action={})=>{
+			state=_reducer(state,action)
+			state=state.set("statistics", reducer.statistics(state.get("statistics"),action))
+			state=state.set("ui", reducer.ui(state.get("ui"),action))
+			return extendReducer(state,action)
 		}
 	}
 
-	return editableDoc
+	const Store=compose(
+			setDisplayName("DocStore"),
+			getContext({store:PropTypes.object}),
+		)(({children,store:passedStore,release=true,reducer,...props})=>{
+		let onQuit=null
+		if(passedStore){
+			store=getDocStore(passedStore,id)
+		}else{
+			store=createStore(buildReducer(reducer))
+			onQuit=()=>inputTypeInstance.release()
+		}
+
+		return (
+			<Provider store={store}>
+				<ContextProvider
+					doc={inputTypeInstance}
+					onQuit={release ? onQuit : null}
+					transformer={transform}
+					{...props}
+					>
+					{children}
+				</ContextProvider>
+			</Provider>
+		)
+	})
+
+	return Object.assign(inputTypeInstance,{
+		id,doc,buildReducer,Store,
+		toJSON(){
+			return this.name
+		}
+	})
 }
 /*
 the builder to create reducer

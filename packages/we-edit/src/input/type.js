@@ -2,8 +2,6 @@ import React from "react"
 import PropTypes from "prop-types"
 
 import {default as Reducer} from "./reducer"
-import Components from "../model"
-import {getSelection, getContent} from "../state/selector"
 var i=0
 
 export class Viewable{
@@ -38,6 +36,26 @@ export class Viewable{
 		return this.defaultProps.mimeType
 	}
 
+	get name(){
+		return this.props && this.props.name
+	}
+
+	get type(){
+		return this.getType()
+	}
+
+	get typeName(){
+		return this.getTypeName()
+	}
+
+	get typeExt(){
+		return this.getTypeExt()
+	}
+
+	get mimeType(){
+		return this.getTypeMimeType()
+	}
+
 	getType(){
 		return this.constructor.getType()
 	}
@@ -53,6 +71,16 @@ export class Viewable{
 	getTypeMimeType(){
 		return this.constructor.getTypeMimeType()
 	}
+
+	isTypeOf(InputType){
+		return this instanceof InputType
+	}
+
+	editable(){
+		return false
+	}
+
+	//////////////////
 
 	makeId(node){
 		return i++
@@ -72,15 +100,15 @@ export class Viewable{
 	* components may be model/html, model/pagination, model/pagination/edit depending on
 	* outer component[editor, html, viewer, pagination, plain]
 	*/
-	transform(representations){
-		return representations
+	transform(models){
+		return models
 	}
 
 	/**
 	* render a loaded/created doc, loaded by this._loadFile, with models in domain to a element tree,
 	* whose element is created with createElement
 	*/
-	render(createElement/*(TYPE, props, children, rawcontent)*/,components){
+	render(createElement/*(TYPE, props, children, rawcontent)*/,models){
 		return "Input.render should be implemented"
 	}
 
@@ -101,6 +129,10 @@ export class Editable extends Viewable{
 	}
 
 	static  Reducer=Reducer
+
+	editable(){
+		return true
+	}
 
 	stream(option){
 		throw new Error("not support")

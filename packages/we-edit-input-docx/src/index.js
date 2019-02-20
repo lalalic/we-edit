@@ -32,12 +32,10 @@ export default class DocxType extends Input.Editable{
 		ext: "docx",
 		mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 	}
-	
+
 	static Reducer=Reducer
 
-	parse({data, name, ...props}){
-		if(name)
-			this.name=name
+	parse({data, ...props}){
 		this.props=props
 		return Docx.load(data)
 	}
