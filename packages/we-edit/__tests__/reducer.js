@@ -115,6 +115,7 @@ describe("reducer",()=>{
                 composer.nextCursorable=jest.fn(()=>({id:"1.1",at:2}))
                 reducer.remove({responsible})
                 expect(reducer.$(`#1.1`).text()).toBe("txt")
+                expect(reducer.file.getNode("1.1").text()).toBe("txt")
                 expect(reducer.selection).toMatchObject({start:{id:"1.1",at:1},end:{id:"1.1",at:1}})
             })
 
