@@ -1,288 +1,161 @@
-import React from "react"
-import Docx from "./editable-doc"
-import {Input} from "we-edit"
-import {Readable} from 'stream'
 
-import Style from "./styles"
-import Transformers from "./model"
-import Reducer from "./reducer"
+import editors from "./model/edit"
+import EditableDocx from "./editable"
 
-export default class DocxType extends Input.Editable{
-	static support(file){
-		if(arguments.length==0){//for installer
-			return true
+export default class SerializableDocx extends EditableDocx{
+	makeId(node, uid){
+		if(uid){
+			defineId(node.attribs,uid)
+			return uid
 		}
 
-		const {data, name, type}=file
-		if(name && name.toLowerCase().endsWith(".docx"))
-			return true
+		if(node.attribs.xxid){
+			return node.attribs.xxid
+		}
 
-		if(type && type=="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
-			return true
+		let id=uid||(node.name=="w:document"&&"root")||uuid()
+		defineId(node.attribs,id)
 
-		if(arguments[0] instanceof Docx || data instanceof Docx)
-			return true
+		if(this.doc.part)
+			return `${id}[${this.doc.part}]`
 
-		return false
+		return id
 	}
 
-	static defaultProps={
-		type: "docx",
-		name: "Word Document",
-		ext: "docx",
-		mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+	getNode(uid){
+		let [id,part]=uid.split(/[\[\]]/g)
+		let node=null
+
+		if(!part)
+			node=this.doc.officeDocument.content(`[xxid="${id}"]`)
+		else
+			node=this.doc.officeDocument.getRel(part)(`[xxid="${id}"]`)
+		if(node.length>1){
+			throw new Error(`file node[${id}] not unique`)
+		}
+		return node
 	}
 
-	static Reducer=Reducer
+	cloneNode({id,type}, autoAttach=true, keepId=false){
+		const editor=new editors[Type(type)](this)
+		editor.node=this.getNode(id)
 
-	parse({data, ...props}){
-		this.props=props
-		return Docx.load(data)
-	}
+		const cloned=editor.clone()
 
-	release(){
-		this.doc.release()
-	}
-
-	stream(option){
-		let data=this.doc.serialize(option)
-			.generate({
-				...option,
-				type:"uint8array",
-				mimeType:this.doc.mime,
+		if(!keepId){
+			clone.find("[_xxid]").removeAttr("_xxid")
+			if(autoAttach){
+				return this.attach(cloned)
+			}
+		}else{
+			cloned.find("[_xxid]").each((i,el)=>{
+				this.makeId(el,el.attribs._xxid)
+				delete el.attribs._xxid
 			})
-		let stream=new Readable({objectMode: true})
-		stream.push(data,"uint8array")
-		return stream
-	}
-
-	transform(components){
-		return Object.keys(Transformers).reduce((transformed,k)=>{
-			transformed[k]=Transformers[k](components)
-			return transformed
-		},{...components})
-	}
-
-	render(createElement,components){
-		const self=this
-		const identify=Docx.OfficeDocument.identify
-
-		const precision=1
-		const docx=this.doc
-		const selector=new Style.Properties(docx,precision)
-		const $=docx.officeDocument.content
-		const settings=docx.officeDocument.settings
-
-		const styles=this.styles=this.constructor.createStyles()
-
-		const createStylesElement=()=>createElement(
-			components.Styles,
-			{styles:{...styles}},
-			null,
-			{id:"styles"}
-		)
-
-		const buildFactory=createElement=>(type,props,children)=>{
-			let node=props.node
-			children=children.reduce((merged,a)=>{
-				if(Array.isArray(a))
-					merged.splice(merged.length,0, ...a)
-				else
-					merged.push(a)
-				return merged
-			},[])
-
-			switch(type){
-			case "style":{
-				let style=null
-				if(!props.id){
-					style=new Style.Default(node, styles,selector)
-				}else{
-					let type=node.attribs["w:type"]
-					switch(type){
-					case "paragraph":
-						style=new Style.Paragraph(node,styles,selector)
-					break
-					case "character":
-						style=new Style.Character(node,styles,selector)
-					break
-					case "numbering":
-						style=new Style.Numbering(node,styles,selector)
-					break
-					case "table":
-						style=new Style.Table(node,styles,selector)
-					break
-					}
-
-					if(node.attribs["w:default"]=="1")
-						styles[`*${type}`]=style
-				}
-				if(style){
-					styles[style.id]=style
-					return createStylesElement()
-				}
-				return null
-			}
-			case "num":{
-				let style=new Style.Num(node,styles,selector)
-				styles[style.id]=style
-				return createStylesElement()
-			}
-			case "abstractNum":{
-				let style=new Style.AbstractNum(node,styles,selector)
-				styles[style.id]=style
-				return createStylesElement()
-			}
-			case "document":{
-				let evenAndOddHeaders=settings("w\\:evenAndOddHeaders").length>0
-				return createElement(
-					components.Document,
-					{
-						...selector.select(node.children.filter(a=>a.name!="w:body")),
-						evenAndOddHeaders,
-						precision,
-					},
-					[
-						createStylesElement(),
-						...children
-					],
-					node
-				)
-			}
-			case "section":{
-				let style=selector.select(node.children)
-				const isEmpty=a=>{
-					if(a.children.length==1){
-						const p=a.children[0]
-						if(!p.children
-							|| p.children.length==0
-							|| (p.children.length==1 && p.name=="w:p" && p.children[0].name=="w:pPr")){
-							return true
-						}
-					}
-					return false
-				}
-
-				const hf=cat=>node.children.filter(a=>a.name==`w:${cat}Reference`)
-					.reduce((hfs, a)=>{
-						let type=a.attribs["w:type"]
-						let rId=a.attribs["r:id"]
-						let root=docx.officeDocument.getRel(rId).root().children().get(0)
-						if(!isEmpty(root)){
-							self.part=rId
-
-							children.splice(0,0,
-								createElement(components.Container,{named:`${cat}.${type}`,type:`${cat}.${type}`},
-									root.children.map(a=>renderNode(a)),
-									root
-								)
-							)
-
-							delete self.part
-						}
-						return hfs
-					},{})
-
-				hf("header")
-				hf("footer")
-
-				return createElement(components.Section,style,children,node)
-			}
-			case "tbl":{
-				let cols=selector.select([node.children.find(a=>a.name=="w:tblGrid")]).tblGrid
-				let style=!props.pr ? styles['*table'] : new Style.Table.Direct(props.pr,styles,selector)
-				return createElement(components.Table,{cols,style},children,node)
-			}
-			case "tr":{
-				let style=!props.pr ? undefined : new Style.Table.Direct(props.pr,styles,selector)
-				return createElement(components.Row,{style},children,node)
-			}
-			case "tc":{
-				let style=!props.pr ? undefined : new Style.Table.Direct(props.pr,styles,selector)
-				return createElement(components.Cell,{style},children,node)
-			}
-			case "list":
-			case "heading":
-			case "p":{
-				let style= !props.pr ? styles['*paragraph'] : new Style.Paragraph.Direct(props.pr,styles,selector);
-				return createElement(components.Paragraph,{style},children,node)
-			}
-			case "r":{
-				let style= !props.pr ? styles['*character'] : new Style.Character.Direct(props.pr,  styles, selector)
-				return createElement(components.Run,{style},children,node)
-			}
-			case "t":
-				return createElement(components.Text,{},children[0]||"",node)
-
-			case "picture":{
-				let style=selector.select($(node).find("a\\:xfrm").toArray())
-				return createElement(components.Image,{...style.xfrm,src:props.url},null,node)
-			}
-			case "drawing.inline":{
-				return createElement(components.Container,{},children,node)
-			}
-			case "drawing.anchor":{
-				const style=new Style.Anchor(node,styles,selector)
-				return createElement(components.Anchor,style.flat(),children,node)
-			}
-			case "shape":{
-				let {xfrm:{size,position},...others}=selector.select($(node).find("wps\\:spPr").children().toArray(),{
-						custGeom:"path",
-						prstGeom:"shape",
-						ln:"outline",
-						solidFill:"fill",
-						blipFill:"image"
-					})
-				let content=selector.select($(node).find("wps\\:bodyPr").toArray(),{})
-				let style=selector.select($(node).find("wps\\:style").children().toArray(),{
-						lnRef:"outline",
-						fillRef:"fill",
-						fontRef:"font",
-						effectRef:"effect"
-					})
-
-				return createElement(components.Shape,{...style,...others,...size,position, ...content.bodyPr},children,node)
-			}
-			case "bookmarkStart":
-			case "bookmarkEnd":
-				return null
-			default:
-				if(children.length==1)
-					return children[0]
-				return children
-			}
 		}
-
-		let build=buildFactory(createElement)
-		let renderNode=node=>docx.officeDocument.renderNode(node,build,identify)
-
-		let rendered=docx.render(build)
-
-
-		//implement loader.renderChangedNode
-		this.renderNode=(node,createElement)=>{
-			build=buildFactory(createElement)
-			return docx.officeDocument.renderNode(node,build,identify)
-		}
-
-		this.refreshStyles=createStylesElement
-
-		this.getFontList=()=>Array.from(selector.requireFonts)
-
-		return rendered
+		return cloned
 	}
 
-	makeId(node){
-		if(node && node.id)
-			return node.id
-		return Docx.prototype.makeId.call(this,...arguments)
+	splitNode({id,type, node},at, reducer){
+		const editor=new editors[Type(type)](this)
+		editor.node=node||this.getNode(id)
+		return editor.split(at,reducer)
 	}
 
-	renderNode(node, createElement){
-		//injected implementation by render
+	tailorNode({id,type, node}, from , to){
+		const editor=new editors[Type(type)](this)
+		editor.node=node||this.getNode(id)
+		return editor.tailor(from,to)
 	}
 
-	getFontList(){
-		//injected implementation by render
+	createNode({type},reducer, target){
+		const editor=new editors[Type(type)](this)
+		return editor.create(arguments[0],reducer, target)
+	}
+
+	updateNode({id,type},changing, query){
+		const editor=new editors[Type(type)](this)
+		editor.node=this.getNode(id)
+		return editor.update(arguments[0],changing)
+	}
+
+	removeNode({id,type}){
+		const editor=new editors[Type(type)](this)
+		editor.node=this.getNode(id)
+		return editor.remove(arguments[0])
+	}
+
+	insertNodeBefore(newNode,referenceNode,parentNode){
+		if(referenceNode)
+			referenceNode.before(newNode)
+		else if(parentNode)
+			parentNode.append(newNode)
+		else
+			throw new Error("not support")
+	}
+
+	insertNodeAfter(newNode,referenceNode,parentNode){
+		if(referenceNode)
+			referenceNode.after(newNode)
+		else if(parentNode)
+			parentNode.prepend(newNode)
+		else
+			throw new Error("not support")
+	}
+
+	attach(xml){
+		xml=this.doc.officeDocument.content(xml)
+		this.doc.officeDocument.content("w\\:body").append(xml)
+		this.makeId(xml.get(0))
+		return xml.get(0)
+	}
+
+	construct(from,to){
+		let $=this.doc.officeDocument.content
+		let nodeFrom=this.getNode(from)
+		let nodeTo=this.getNode(to)
+		let path=nodeFrom.parentsUntil(nodeTo).toArray()
+		path.splice(path.length,0,nodeTo.get(0))
+
+		let xml=path.reduce((constructed,node)=>{
+			switch(node.name.split(":").pop()){
+			case "r":
+				return `<w:r>${$.xml($(node).find("w\\:rPr"))}${constructed}</w:r>`
+			break
+			case "p":
+				return `<w:p>${$.xml($(node).find("w\\:pPr"))}${constructed}</w:p>`
+			break
+			}
+		},`<${nodeFrom.get(0).name}/>`)
+
+		return this.attach(xml)
+	}
+
+    toString(id){
+		return this.doc.officeDocument.content.xml(this.getNode(id))
+	}
+
+	toXml(node){
+		return this.doc.officeDocument.content.xml(node)
+	}
+
+	px2cm(px){
+		return Math.ceil(px*72/96*360000/28.3464567)
+	}
+
+	px2Pt(px){
+		return px*72/96
 	}
 }
+
+
+const uuid=(_uuid=>()=>`${_uuid++}`)(0)
+
+const defineId=(target,id)=>Object.defineProperty(target,"xxid",{
+	enumerable: false,
+	configurable: false,
+	writable: false,
+	value: id
+})
+
+const Type=type=>type[0].toUpperCase()+type.substr(1)
