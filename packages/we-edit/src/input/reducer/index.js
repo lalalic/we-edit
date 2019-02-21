@@ -197,7 +197,6 @@ class Reducer extends Base{
 			}
 		}else{
 			this.split4Operation()
-			const removeNode=id=>this.file.removeNode(element(start.id))
 			const target0=this.$('#'+start.id)
 			const target1=this.$("#"+end.id)
 
@@ -208,12 +207,13 @@ class Reducer extends Base{
 			const top0=ancestors0.last()
 			const top1=ancestors1.last()
 
+			const removeNode=id=>this.$('#'+id).remove()
 			top0.nextUntil(top1).each((i,id)=>removeNode(id))
 			ancestors0.not(top0).each((i,a)=>this.$('#'+a.get("id")).nextAll().each((i,id)=>removeNode(id)))
 			ancestors1.not(top1).each((i,a)=>this.$('#'+a.get("id")).prevAll().each((i,id)=>removeNode(id)))
 
-			this.file.removeNode(element(end.id))
-			this.file.removeNode(element(start.id))
+			target0.remove()
+			target1.remove()
 			this.cursorAt(start.id,start.at)
 		}
 	}
