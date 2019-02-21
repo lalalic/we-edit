@@ -198,6 +198,19 @@ export default class xQuery extends Query{
 		return new this.constructor(this.state,nodes)
 	}
 
+    tailor(from=0,to){
+        if(this.attr('type')=="text"){
+            const text=this.text()
+            from=from<0 ? text.length+from : from
+    		to=to==undefined ? text.length-1 : (to<0 ? text.length+to : to)
+			if(!(from==0 && to>=text.length-1)){
+				this.text(text.substring(0,from)+text.substring(to))
+				return this
+			}
+        }
+        return this.remove()
+    }
+
 	toString(){
 		return this._nodes.map(id=>this.file.toString(id)).join("\r\n")
 	}

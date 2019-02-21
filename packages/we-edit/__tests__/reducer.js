@@ -5,52 +5,96 @@ import Input from "../src/input"
 import {selection} from "../src/state/reducer"
 
 describe("reducer",()=>{
+    var uuid=1
     class StateDocument extends Input.Editable{
-        constructor(content){
+        constructor(content,_content){
             super()
-            this.doc=content.toJS()
+            this.content=content.toJS()
+            this._content=_content
         }
 
-        render(){
-
+        makeId(){
+            return `0${uuid++}`
         }
 
-        renderNode(){
-
+        renderNode({id}){
+            const node=this.getNode(id)
+            this._content.set(id,immutable.fromJS(node))
+            if(Array.isArray(node.children)){
+                node.children.forEach(a=>this.renderNode({id:a}))
+            }
         }
 
-        renderChanged(id){
-
+        renderChanged(){
+            this.renderNode(...arguments)
         }
 
         getNode(id){
-            return this.doc[id]
+            return this.content[id]
         }
 
         cloneNode({id}){
-            const {children,...cloned}=this.getNode(id)
-
-        }
-
-        updateNode(){
-
-        }
-
-        splitNode(node){
-
-        }
-
-        tailorNode({id},from,to){
-            const node=this.getNode(id)
-            switch(node.type){
-                case "text":
-                    node.children=node.children.substring(0,from)+node.children.substring(to)
-                    this.renderChanged(node)
-                    break
-                default:
-                    this.removeNode(arguments[0])
-                    this.renderChanged(node.parent)
+            const {id:_,...cloned}=this.getNode(id)
+            cloned.id=this.makeId()
+            if(Array.isArray(cloned.children)){
+                clone.children.map(a=>this.cloneNode({id:a}))
             }
+            return cloned
+        }
+
+        updateNode({id},changing){
+            const node=this.getNode(id)
+            this.content[id]={...node,...changing}
+            this.renderChanged({id})
+        }
+
+        splitNode({id},at){
+            const node=this.getNode(id)
+            if(node.type=="text"){
+                const text=node.children
+                const cloned=this.cloneNode(node)
+                this.updateNode(node,{children:text.substring(0,at)})
+                cloned.children=text.substring(at)
+                this.insertNodeAfter(cloned,node,{id:node.parent})
+                return [{id:cloned.id,at:0},{id:cloned.id,at:0}]
+            }else{
+                throw new Error("not support")
+            }
+        }
+
+        removeNode({id}){
+            const node=this.getNode(id)
+            const remove=id=>{
+                const {children=[]}=this.getNode(id)
+                if(Array.isArray(children)){
+                    children.forEach(remove)
+                }
+                delete this.content[id]
+            }
+            remove(id)
+
+            const parent=this.getNode(node.parent)
+            parent.children=parent.children.filter(a=>a!=id)
+            this.renderChanged(parent)
+        }
+
+        insertNodeBefore(newNode,referenceNode,parentNode){
+            parentNode=this.getNode(parentNode.id)
+            const i=referenceNode ? parentNode.children.indexOf(referenceNode.id) : parentNode.children.length
+            newNode.id=newNode.id||this.makeId()
+            if(this.content[newNode.id]){
+                this.removeNode(newNode)
+            }
+            newNode.parent=parentNode.id
+            this.content[newNode.id]=newNode
+            parentNode.children.splice(i,0,newNode.id)
+            this.renderChanged(parentNode)
+        }
+
+        insertNodeAfter(newNode,referenceNode,parentNode){
+            const {children:siblings=[]}=this.getNode(parentNode.id)
+            const beforeNode=!referenceNode ? siblings[0] : siblings[siblings.indexOf(referenceNode.id)+1]
+            this.insertNodeBefore(newNode,{id:beforeNode},parentNode)
         }
     }
 
@@ -60,8 +104,9 @@ describe("reducer",()=>{
             new Map()
                 .set("root",immutable.fromJS({id:"root",type:"document",children:["1","2","3"]}))
         )
-        const doc=new StateDocument(content)
-        return createState(doc,content).set("_content",content.asMutable())
+        const _content=content.asMutable()
+        const doc=new StateDocument(content,_content)
+        return createState(doc,content).set("_content",_content)
     }
 
     describe("utils",()=>{
@@ -106,7 +151,7 @@ describe("reducer",()=>{
             return {selection,reducer,responsible,composer,doc:reducer.file}
         }
         describe("forward",()=>{
-            fit("t|ext",()=>{
+            it("t|ext",()=>{
                 const {reducer,composer,responsible}=test({
                     "1":{type:"paragraph",children:["1.1"]},
                     "1.1":{type:"text",children:"text",parent:"1"}
@@ -115,20 +160,21 @@ describe("reducer",()=>{
                 composer.nextCursorable=jest.fn(()=>({id:"1.1",at:2}))
                 reducer.remove({responsible})
                 expect(reducer.$(`#1.1`).text()).toBe("txt")
-                expect(reducer.file.getNode("1.1").text()).toBe("txt")
+                expect(reducer.file.getNode("1.1").children).toBe("txt")
                 expect(reducer.selection).toMatchObject({start:{id:"1.1",at:1},end:{id:"1.1",at:1}})
             })
 
-            it("text|",()=>{
+            it("<p>text|</p>",()=>{
                 const {reducer,composer,responsible}=test({
                     "1":{type:"paragraph",children:["1.1"]},
                     "1.1":{type:"text",children:"text",parent:"1"}
                 })
-                reducer.cursorAt("1.1",4)
-                composer.nextCursorable=jest.fn(()=>({id:"1.1",at:4}))
+                reducer.cursorAt("1",1)
+                composer.nextCursorable=jest.fn(()=>({id:"1",at:1}))
                 reducer.remove({responsible})
                 expect(reducer.$(`#1.1`).text()).toBe("text")
-                expect(reducer.selection).toMatchObject({start:{id:"1.1",at:4},end:{id:"1.1",at:4}})
+                expect(reducer.file.getNode("1.1").children).toBe("text")
+                expect(reducer.selection).toMatchObject({start:{id:"1",at:1},end:{id:"1",at:1}})
             })
 
             it("tex|tHello",()=>{
@@ -141,6 +187,7 @@ describe("reducer",()=>{
                 composer.nextCursorable=jest.fn(()=>({id:"1.2",at:0}))
                 reducer.remove({responsible})
                 expect(reducer.$(`#1.1`).text()).toBe("tex")
+                expect(reducer.file.getNode(`1.1`).children).toBe("tex")
                 expect(reducer.selection).toMatchObject({start:{id:"1.2",at:0},end:{id:"1.2",at:0}})
             })
 
@@ -152,9 +199,9 @@ describe("reducer",()=>{
                 })
                 reducer.cursorAt("1.1",0)
                 composer.nextCursorable=jest.fn(()=>({id:"1.2",at:0}))
-                doc.removeNode=jest.fn()
                 reducer.remove({responsible})
-                expect(doc.removeNode.mock.calls[0][0]).toMatchObject({id:"1.1"})
+                expect(reducer.$('#1.1').length).toBe(0)
+                expect(reducer.file.getNode('1.1')).toBeFalsy()
                 expect(reducer.selection).toMatchObject({start:{id:"1.2",at:0},end:{id:"1.2",at:0}})
             })
 
@@ -167,24 +214,60 @@ describe("reducer",()=>{
                 })
                 reducer.cursorAt("1.1",0)
                 composer.nextCursorable=jest.fn(()=>({id:"1.2",at:0}))
-                doc.removeNode=jest.fn()
                 reducer.remove({responsible})
-                expect(doc.removeNode.mock.calls[0][0]).toMatchObject({id:"1.1"})
+                expect(reducer.$('#1.1,#1.1.1').length).toBe(0)
+                expect(reducer.file.getNode('1.1')).toBeFalsy()
+                expect(reducer.file.getNode('1.1.1')).toBeFalsy()
                 expect(reducer.selection).toMatchObject({start:{id:"1.2",at:0},end:{id:"1.2",at:0}})
             })
 
-            xit("t(ex)t",()=>{
-                const {reducer,composer,responsible}=test({
+            it("<p>|</p><p/>",()=>{
+                const {reducer,composer,responsible,doc}=test({
                     "1":{type:"paragraph",children:["1.1"]},
-                    "1.1":{type:"text",children:"text",parent:"1"}
+                    "1.1":{type:"text",children:"text",parent:"1"},
+                    "2":{type:"paragraph",children:["2.1"]},
+                    "2.1":{type:"text",children:"text",parent:"2"},
                 })
-                reducer.cursorAt("1.1",1,"1.1",3)
-                composer.nextCursorable()
+                reducer.cursorAt("1",1)
+                composer.nextCursorable=jest.fn(()=>({id:"2.1",at:0}))
                 reducer.remove({responsible})
+                expect(reducer.$('#2').length).toBe(0)
+                expect(reducer.file.getNode('2')).toBeFalsy()
+                expect(reducer.$('#1').children().toArray()).toMatchObject(["1.1","2.1"])
+                expect(reducer.selection).toMatchObject({start:{id:"2.1",at:0},end:{id:"2.1",at:0}})
+            })
+
+            describe("selection",()=>{
+                it("t(ex)t",()=>{
+                    const {reducer,composer,responsible}=test({
+                        "1":{type:"paragraph",children:["1.1"]},
+                        "1.1":{type:"text",children:"text",parent:"1"}
+                    })
+                    reducer.cursorAt("1.1",1,"1.1",3)
+                    reducer.remove({responsible})
+                    expect(reducer.$('#1.1').text()).toBe("tt")
+                    expect(reducer.file.getNode('1.1').children).toBe("tt")
+                    expect(reducer.selection).toMatchObject({start:{id:"1.1",at:1},end:{id:"1.1",at:1}})
+                })
+
+                fit("t(ext)Hello",()=>{
+                    const {reducer,composer,responsible}=test({
+                        "1":{type:"paragraph",children:["1.1","1.2"]},
+                        "1.1":{type:"text",children:"text",parent:"1"},
+                        "1.2":{type:"text",children:"hello",parent:"1"}
+                    })
+                    reducer.cursorAt("1.1",1,"1.2",0)
+                    debugger
+                    reducer.remove({responsible})
+                    expect(reducer.$('#1.1').text()).toBe("t")
+                    expect(reducer.file.getNode('1.1').children).toBe("t")
+                    expect(reducer.selection).toMatchObject({start:{id:"1.2",at:0},end:{id:"1.2",at:0}})
+                })
+
             })
         })
 
-        xdescribe("backword",()=>{
+        describe("backword",()=>{
             it("t|ext",()=>{
                 const {reducer,composer,responsible}=test({
                     "1":{type:"paragraph",children:["1.1"]},
@@ -192,60 +275,61 @@ describe("reducer",()=>{
                 })
                 reducer.cursorAt("1.1",1)
                 composer.prevCursorable=jest.fn(()=>({id:"1.1",at:0}))
-                reducer.remove({responsible})
+                reducer.remove({backspace:true,responsible})
                 expect(reducer.$(`#1.1`).text()).toBe("ext")
+                expect(reducer.file.getNode(`1.1`).children).toBe("ext")
                 expect(reducer.selection).toMatchObject({start:{id:"1.1",at:0},end:{id:"1.1",at:0}})
             })
 
-            it("text|",()=>{
+            it("|text",()=>{
                 const {reducer,composer,responsible}=test({
                     "1":{type:"paragraph",children:["1.1"]},
                     "1.1":{type:"text",children:"text",parent:"1"}
                 })
-                reducer.cursorAt("1.1",4)
-                composer.nextCursorable=jest.fn(()=>({id:"1.1",at:4}))
-                reducer.remove({responsible})
+                reducer.cursorAt("1.1",0)
+                composer.prevCursorable=jest.fn(()=>({id:"1.1",at:0}))
+                reducer.remove({backspace:true,responsible})
                 expect(reducer.$(`#1.1`).text()).toBe("text")
-                expect(reducer.selection).toMatchObject({start:{id:"1.1",at:4},end:{id:"1.1",at:4}})
+                expect(reducer.file.getNode(`1.1`).children).toBe("text")
+                expect(reducer.selection).toMatchObject({start:{id:"1.1",at:0},end:{id:"1.1",at:0}})
             })
 
-            it("|image",()=>{
+            it("image|Text",()=>{
                 const {reducer,composer,responsible,doc}=test({
                     "1":{type:"paragraph",children:["1.1","1.2"]},
                     "1.1":{type:"image",parent:"1"},
                     "1.2":{type:"text",children:"text",parent:"1"}
                 })
-                reducer.cursorAt("1.1",0)
-                composer.nextCursorable=jest.fn(()=>({id:"1.2",at:0}))
-                doc.removeNode=jest.fn()
-                reducer.remove({responsible})
-                expect(doc.removeNode.mock.calls[0][0]).toMatchObject({id:"1.1"})
+                reducer.cursorAt("1.2",0)
+                composer.prevCursorable=jest.fn(()=>({id:"1.1",at:0}))
+                composer.nextCursorable=jest.fn(()=>{
+                    expect(reducer.selection).toMatchObject({start:{id:"1.1",at:0}})
+                    return {id:"1.2",at:0}
+                })
+                reducer.remove({backspace:true,responsible})
+                expect(reducer.$('#1.1').length).toBe(0)
+                expect(reducer.file.getNode('1.1')).toBeFalsy()
                 expect(reducer.selection).toMatchObject({start:{id:"1.2",at:0},end:{id:"1.2",at:0}})
             })
 
-            it("|<anchor>image</anchor>",()=>{
+            it("<p/><p>|</p>",()=>{
                 const {reducer,composer,responsible,doc}=test({
-                    "1":{type:"paragraph",children:["1.1","1.2"]},
-                    "1.1":{type:"anchor",parent:"1",children:["1.1.1"]},
-                    "1.1.1":{type:"image",parent:"1.1"},
-                    "1.2":{type:"text",children:"text",parent:"1"}
-                })
-                reducer.cursorAt("1.1",0)
-                composer.nextCursorable=jest.fn(()=>({id:"1.2",at:0}))
-                doc.removeNode=jest.fn()
-                reducer.remove({responsible})
-                expect(doc.removeNode.mock.calls[0][0]).toMatchObject({id:"1.1"})
-                expect(reducer.selection).toMatchObject({start:{id:"1.2",at:0},end:{id:"1.2",at:0}})
-            })
-
-            xit("t(ex)t",()=>{
-                const {reducer,composer,responsible}=test({
                     "1":{type:"paragraph",children:["1.1"]},
-                    "1.1":{type:"text",children:"text",parent:"1"}
+                    "1.1":{type:"text",children:"text",parent:"1"},
+                    "2":{type:"paragraph",children:["2.1"]},
+                    "2.1":{type:"text",children:"text",parent:"2"},
                 })
-                reducer.cursorAt("1.1",1,"1.1",3)
-                composer.nextCursorable()
-                reducer.remove({responsible})
+                reducer.cursorAt("2.1",0)
+                composer.prevCursorable=jest.fn(()=>({id:"1",at:1}))
+                composer.nextCursorable=jest.fn(()=>{
+                    expect(reducer.selection).toMatchObject({start:{id:"1",at:1}})
+                    return {id:"2.1",at:0}
+                })
+                reducer.remove({backspace:true,responsible})
+                expect(reducer.$('#2').length).toBe(0)
+                expect(reducer.file.getNode('2')).toBeFalsy()
+                expect(reducer.$('#1').children().toArray()).toMatchObject(["1.1","2.1"])
+                expect(reducer.selection).toMatchObject({start:{id:"2.1",at:0},end:{id:"2.1",at:0}})
             })
         })
     })

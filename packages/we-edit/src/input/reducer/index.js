@@ -8,7 +8,6 @@ class Base{
 		this._undoables={}
 		this._selection=getSelection(state)
 		this._file=getFile(state)
-		console.assert(doc===getFile(state))
 
 		this.$=context=>new xQuery(state,context)
 	}
@@ -70,7 +69,7 @@ class Reducer extends Base{
 		cloned.push(clonedTarget0)
 
 		if(start.id==end.id){
-			this.file.tailorNode({node:clonedTarget0,type:target0.attr("type")},start.at,end.at)
+			this.tailor({node:clonedTarget0,type:target0.attr("type")},start.at,end.at)
 		}else{
 			const target1=this.$("#"+end.id)
 
@@ -82,7 +81,7 @@ class Reducer extends Base{
 				.each((i,a)=>cloned.push(this.file.cloneNode(element(a.get("id")),false,keepId)))
 
 			const clonedTarget1=this.file.cloneNode(element(end.id),false,keepId)
-			this.file.tailorNode({node:clonedTarget1,type:target1.attr("type")},0, end.at)
+			this.tailor({node:clonedTarget1,type:target1.attr("type")},0, end.at)
 			cloned.push(clonedTarget1)
 		}
 
@@ -121,9 +120,9 @@ class Reducer extends Base{
 		const {start,end}=this.selection
 		if(!(start.id==end.id && start.at==end.at)){
 			const element=id=>({id,type:this.$('#'+id).attr("type")})
-			this.file.splitNode(element(end.id),end.at,this)
+			this.file.splitNode(element(end.id),end.at)
 
-			const [,{id,at}]=this.file.splitNode(element(start.id),start.at,this)
+			const [,{id,at}]=this.file.splitNode(element(start.id),start.at)
 			if(end.id==start.id){
 				end.id=id
 				end.at=end.at-(start.at-at)
@@ -189,14 +188,40 @@ class Reducer extends Base{
 		})
 	}
 
+	removeSelection(){
+		const {start,end}=this.selection
+		if(start.id==end.id){
+			if(start.at!=end.at){
+				this.$(`#${start.id}`).tailor(start.at,end.at)
+				this.cursorAt(start.id,start.at)
+			}
+		}else{
+			this.split4Operation()
+			const removeNode=id=>this.file.removeNode(element(start.id))
+			const target0=this.$('#'+start.id)
+			const target1=this.$("#"+end.id)
+
+			const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
+
+			const ancestors0=target0.parentsUntil(ancestor)
+			const ancestors1=target1.parentsUntil(ancestor)
+			const top0=ancestors0.last()
+			const top1=ancestors1.last()
+
+			top0.nextUntil(top1).each((i,id)=>removeNode(id))
+			ancestors0.not(top0).each((i,a)=>this.$('#'+a.get("id")).nextAll().each((i,id)=>removeNode(id)))
+			ancestors1.not(top1).each((i,a)=>this.$('#'+a.get("id")).prevAll().each((i,id)=>removeNode(id)))
+
+			this.file.removeNode(element(end.id))
+			this.file.removeNode(element(start.id))
+			this.cursorAt(start.id,start.at)
+		}
+	}
 }
 
 class Content extends Reducer{
 	create(element){
-		if(this.isEntityAction()===false){
-			this.remove()
-		}
-
+		this.removeSelection()
 		const {start:{id,at}}=this.selection
 		const target=this.$(`#${id}`)
 
@@ -208,9 +233,7 @@ class Content extends Reducer{
 	}
 
 	insert(data){
-		if(this.isEntityAction()===false){
-			this.remove({})
-		}
+		this.removeSelection()
 
 		if(typeof(data)=="string"){
 			this.insert_text_at(data,this.selection.start)
@@ -254,77 +277,47 @@ class Content extends Reducer{
 	}
 
 	remove({backspace,responsible},i=0){
-		if(i>5){
+		if(i>1){
 			console.error("there's inifinte loop during removing things")
 			return
 		}
-		const element=id=>({id,type:this.$('#'+id).attr("type")})
-		this.split4Operation()
-
 		const {start,end}=this.selection
-
-		if(start.id==end.id){
-			if(start.at!=end.at){
-				this.file.removeNode(element(start.id))
+		if(start.id==end.id && start.at==end.at){
+			if(backspace){
+				const {id,at}=responsible.getComposer(start.id).prevCursorable(start.id, start.at)
+				if(start.id==id && start.at==at)
+					return this
+				if(start.at>0){
+					this.$(`#${start.id}`).tailor(start.at-1,start.at)
+					this.cursorAt(id,at)
+				}else{
+					this.cursorAt(id,at)
+					return this.remove({backspace:false,responsible},++i)
+				}
 			}else{
-				if(backspace){
-					const {id,at}=responsible.getComposer(start.id).prevCursorable(start.id, start.at)
-					if(start.at>0){
-						this.file.tailorNode(element(start.id),start.at-1,start.at)
-						this.renderChanged(id)
-						this.cursorAt(id, at)
-					}else if(this.$(`#${start.id}`).attr("type")=="text"){//remove prev.last
-						this.file.tailorNode(element(start.id),-1)
-						if(start.id!==id){
-							this.renderChanged(this.$('#'+id).parent().attr("id"))
-							this.cursorAt(id,at)
-						}else{
-							this.renderChanged(start.id)
-						}
-					}else{
+				const {id,at}=responsible.getComposer(start.id).nextCursorable(start.id, start.at)
+				if(start.id==id && start.at==at)
+					return this
+				const target=this.$(`#${start.id}`)
+				if(start.at==0 || target.attr("type")=="text"){
+					target.tailor(start.at,start.at+1)
+					if(start.id!==id){
 						this.cursorAt(id,at)
-						return this.remove({backspace:false,responsible},++i)
+					}
+				}else if(start.at==1 && target.attr("type")=="paragraph"){
+					const next=target.next()
+					if(next.attr("type")=="paragraph"){
+						target.append(next.children())
+						next.remove()
+						this.cursorAt(id,at)
 					}
 				}else{
-					const {id,at}=responsible.getComposer(start.id).nextCursorable(start.id, start.at)
-					if(start.at==0){
-						this.file.tailorNode(element(start.id),0,1)
-						if(start.id!==id){
-							this.file.renderChanged(this.file.getNode(this.$('#'+id).parent().attr("id")))
-							this.cursorAt(id,at)
-						}else{
-							this.file.renderChanged(this.file.getNode(start.id))
-						}
-					}else if(this.$(`#${start.id}`).attr("type")=="text"){
-						this.file.tailorNode(element(start.id),start.at,start.at+1)
-						this.file.renderChanged(this.file.getNode(start.id))
-					}else{
-						const {id,at}=responsible.getComposer(start.id).nextCursorable(start.id, start.at)
-						this.cursorAt(id,at)
-						return this.remove({backspace:true,responsible},++i)
-					}
+					this.cursorAt(id,at)
+					return this.remove({backspace:true,responsible},++i)
 				}
 			}
 		}else{
-			const removeNode=id=>this.file.removeNode(element(id))
-			const target0=this.$('#'+start.id)
-			const target1=this.$("#"+end.id)
-
-			const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
-
-			const ancestors0=target0.parentsUntil(ancestor)
-			const ancestors1=target1.parentsUntil(ancestor)
-			const top0=ancestors0.last()
-			const top1=ancestors1.last()
-
-			top0.nextUntil(top1).each((i,id)=>removeNode(id))
-			ancestors0.not(top0).each((i,a)=>this.$('#'+a.get("id")).nextAll().each((i,id)=>removeNode(id)))
-			ancestors1.not(top1).each((i,a)=>this.$('#'+a.get("id")).prevAll().each((i,id)=>removeNode(id)))
-
-			this.file.removeNode(element(end.id))
-			this.file.removeNode(element(start.id))
-			this.renderChanged(top0.attr("id"))
-	        this.renderChanged(top1.attr("id"))
+			this.removeSelection()
 		}
 
 		return this
