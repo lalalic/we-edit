@@ -175,9 +175,7 @@ export default class xQuery extends Query{
             this._content.remove(k)
 		}
 		this._nodes.forEach(k=>{
-			let node=this._content.get(k)
-			this.file.removeNode(node.toJS())
-			this._content.updateIn([node.get("parent"),"children"],c=>c.delete(c.indexOf(k)))
+			this.file.removeNode(this._content.get(k).toJS())
 			clear(k)
 		})
 		return this
@@ -203,10 +201,8 @@ export default class xQuery extends Query{
             const text=this.text()
             from=from<0 ? text.length+from : from
     		to=to==undefined ? text.length-1 : (to<0 ? text.length+to : to)
-			if(!(from==0 && to>=text.length-1)){
-				this.text(text.substring(0,from)+text.substring(to))
-				return this
-			}
+            this.text(text.substring(0,from)+text.substring(to))
+            return this
         }
         return this.remove()
     }

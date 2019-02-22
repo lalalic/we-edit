@@ -157,51 +157,33 @@ export class Editable extends Viewable{
 	- any else: reduce selection action
 	*/
 	onChange(state,{type,payload}){
-		const params=[state,this]
+		const params=[state]
 		const reducer=new this.constructor.Reducer(...params)
 		switch(type){
 			case `we-edit/text/RETURN`:
-				return reducer
-					.insert("\r")
-					.state()
+				return reducer.insert("\r").state()
 			case `we-edit/text/INSERT`:
-				return reducer
-					.insert(payload)
-					.state()
+				return reducer.insert(payload).state()
 			case `we-edit/text/REMOVE`:
-				return reducer
-					.remove(payload)
-					.state()
-
+				return reducer.remove(payload).state()
 			case "we-edit/entity/CREATE":
-				return reducer
-					.create(payload)
-					.state()
+				return reducer.create(payload).state()
 			case "we-edit/entity/UPDATE":
-				return reducer
-					.update(payload)
-					.state()
-
+				return reducer.update(payload).state()
 			case `we-edit/selection/UPDATE`:
-				return reducer
-					.update(payload)
-					.state()
+				return reducer.update(payload).state()
 			case 'we-edit/selection/COPY':
-				return reducer
-					.copy(payload)
-					.state()
+				return reducer.copy(payload).state()
 			case 'we-edit/selection/PASTE':
-				return reducer
-					.paste(payload)
-					.state()
+				return reducer.paste(payload).state()
 			case 'we-edit/selection/CUT':
-				return reducer
-					.cut(payload)
-					.state()
+				return reducer.cut(payload).state()
 			case "we-edit/selection/MOVE":
-				return reducer
-					.move(payload)
-					.state()
+				return reducer.move(payload).state()
+			case "we-edit/history/UNDO":
+				return reducer.undo(payload).state()
+			case "we-edit/history/REDO":
+				return reducer.redo(payload).state()
 		}
 		return true
 	}

@@ -145,10 +145,24 @@ describe("positioning",()=>{
 					expect(p).toEqual({id:"-1",at:0})
 				})
 
+                it("text|->Image",()=>{
+					const p=render(<Paragraph id={++uuid}><Text id={"0"}>text</Text><Image id="-1"/></Paragraph>)
+						.get("0")
+						.nextCursorable("0",4)
+					expect(p).toEqual({id:"-1",at:0})
+				})
+
 				it("|imageText",()=>{
 					const p=render(<Paragraph id={++uuid}><Image id="-1"/><Text id={"0"}>text</Text></Paragraph>)
 						.get("-1")
 						.nextCursorable("-1",0)
+					expect(p).toEqual({id:"0",at:0})
+				})
+
+                it("image|=>Text",()=>{
+					const p=render(<Paragraph id={++uuid}><Image id="-1"/><Text id={"0"}>text</Text></Paragraph>)
+						.get("-1")
+						.nextCursorable("-1",1)
 					expect(p).toEqual({id:"0",at:0})
 				})
 
@@ -1057,17 +1071,17 @@ describe("positioning",()=>{
 				new Array(20).fill(0).forEach((a,y)=>{
 					doc.click(4+x,y)
 					expect(around).toHaveLastReturnedWith({id:"2"})
-				})					
+				})
 			})
-			
-			
+
+
 			doc.click(1,10)
 			expect(around).toHaveLastReturnedWith({id:"0",at:1})
-			
+
 			doc.click(10,10)
 			expect(around).toHaveLastReturnedWith({id:"3",at:1})
-			
+
 		})
-		
-	})	
+
+	})
 })

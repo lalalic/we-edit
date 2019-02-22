@@ -37,7 +37,7 @@ describe("reducer",()=>{
             const {id:_,...cloned}=this.getNode(id)
             cloned.id=this.makeId()
             if(Array.isArray(cloned.children)){
-                clone.children.map(a=>this.cloneNode({id:a}))
+                cloned.children.map(a=>this.cloneNode({id:a}))
             }
             return cloned
         }
@@ -48,15 +48,22 @@ describe("reducer",()=>{
             this.renderChanged({id})
         }
 
-        splitNode({id},at){
+        splitNode({id},at, firstKeepId=true){
             const node=this.getNode(id)
             if(node.type=="text"){
                 const text=node.children
                 const cloned=this.cloneNode(node)
-                this.updateNode(node,{children:text.substring(0,at)})
-                cloned.children=text.substring(at)
-                this.insertNodeAfter(cloned,node,{id:node.parent})
-                return [{id:cloned.id,at:0},{id:cloned.id,at:0}]
+                if(firstKeepId){
+                    this.updateNode(node,{children:text.substring(0,at)})
+                    cloned.children=text.substring(at)
+                    this.insertNodeAfter(cloned,node,{id:node.parent})
+                    return [{id:node.id,at},{id:cloned.id,at:0}]
+                }else{
+                    this.updateNode(node,{children:text.substring(at)})
+                    cloned.children=text.substring(0,at)
+                    this.insertNodeBefore(cloned,node,{id:node.parent})
+                    return [{id:cloned.id,at},{id:node.id,at:0},]
+                }
             }else{
                 throw new Error("not support")
             }
@@ -94,7 +101,7 @@ describe("reducer",()=>{
         insertNodeAfter(newNode,referenceNode,parentNode){
             const {children:siblings=[]}=this.getNode(parentNode.id)
             const beforeNode=!referenceNode ? siblings[0] : siblings[siblings.indexOf(referenceNode.id)+1]
-            this.insertNodeBefore(newNode,{id:beforeNode},parentNode)
+            this.insertNodeBefore(newNode,beforeNode ? {id:beforeNode} : null,parentNode)
         }
     }
 
@@ -122,6 +129,47 @@ describe("reducer",()=>{
             const {reducer}=test()
             expect(reducer.cursorAt("1",1)).toMatchObject({start:{id:"1",at:1},end:{id:"1",at:1}})
             expect(reducer.cursorAt("1",2,"2",3)).toMatchObject({start:{id:"1",at:2},end:{id:"2",at:3}})
+        })
+
+        it("split T(ex)t",()=>{
+            const {reducer}=test({
+                "1":{type:"paragraph",children:["1.1"]},
+                "1.1":{type:"text",children:"text",parent:"1"},
+            })
+            reducer.cursorAt("1.1",1, "1.1",3)
+            reducer.split4Operation()
+            const texts=reducer.$('text')
+            expect(texts.length).toBe(3)
+            expect(texts.eq(0).text()).toBe('t')
+            expect(texts.eq(1).text()).toBe('ex')
+            expect(texts.eq(2).text()).toBe('t')
+
+            const id=texts.eq(1).attr('id')
+            expect(reducer.selection).toMatchObject({start:{id,at:0},end:{id,at:2}})
+        })
+
+        it("split T(extHe)llo",()=>{
+            const {reducer}=test({
+                "1":{type:"paragraph",children:["1.1","1.2"]},
+                "1.1":{type:"text",children:"text",parent:"1"},
+                "1.2":{type:"text",children:"Hello",parent:"1"},
+            })
+            reducer.cursorAt("1.1",1, "1.2",2)
+            debugger
+            reducer.split4Operation()
+            const texts=reducer.$('text')
+            expect(texts.length).toBe(4)
+
+            expect(texts.eq(0).text()).toBe('t')
+            expect(texts.eq(1).text()).toBe('ext')
+            expect(texts.eq(2).text()).toBe('He')
+            expect(texts.eq(3).text()).toBe('llo')
+            expect(texts.eq(3).attr('id')).toBe("1.2")
+
+
+            const start=texts.eq(1)
+            const end=texts.eq(2)
+            expect(reducer.selection).toMatchObject({start:{id:start.attr("id"),at:0},end:{id:end.attr('id'),at:2}})
         })
 
 
@@ -236,35 +284,6 @@ describe("reducer",()=>{
                 expect(reducer.$('#1').children().toArray()).toMatchObject(["1.1","2.1"])
                 expect(reducer.selection).toMatchObject({start:{id:"2.1",at:0},end:{id:"2.1",at:0}})
             })
-
-            describe("selection",()=>{
-                it("t(ex)t",()=>{
-                    const {reducer,composer,responsible}=test({
-                        "1":{type:"paragraph",children:["1.1"]},
-                        "1.1":{type:"text",children:"text",parent:"1"}
-                    })
-                    reducer.cursorAt("1.1",1,"1.1",3)
-                    reducer.remove({responsible})
-                    expect(reducer.$('#1.1').text()).toBe("tt")
-                    expect(reducer.file.getNode('1.1').children).toBe("tt")
-                    expect(reducer.selection).toMatchObject({start:{id:"1.1",at:1},end:{id:"1.1",at:1}})
-                })
-
-                fit("t(ext)Hello",()=>{
-                    const {reducer,composer,responsible}=test({
-                        "1":{type:"paragraph",children:["1.1","1.2"]},
-                        "1.1":{type:"text",children:"text",parent:"1"},
-                        "1.2":{type:"text",children:"hello",parent:"1"}
-                    })
-                    reducer.cursorAt("1.1",1,"1.2",0)
-                    debugger
-                    reducer.remove({responsible})
-                    expect(reducer.$('#1.1').text()).toBe("t")
-                    expect(reducer.file.getNode('1.1').children).toBe("t")
-                    expect(reducer.selection).toMatchObject({start:{id:"1.2",at:0},end:{id:"1.2",at:0}})
-                })
-
-            })
         })
 
         describe("backword",()=>{
@@ -332,6 +351,58 @@ describe("reducer",()=>{
                 expect(reducer.selection).toMatchObject({start:{id:"2.1",at:0},end:{id:"2.1",at:0}})
             })
         })
+
+        describe("selection",()=>{
+            it("t(ex)t",()=>{
+                const {reducer,composer,responsible}=test({
+                    "1":{type:"paragraph",children:["1.1"]},
+                    "1.1":{type:"text",children:"text",parent:"1"}
+                })
+                reducer.cursorAt("1.1",1,"1.1",3)
+                composer.nextCursorable=jest.fn(()=>({id:"1",at:1}))
+                reducer.remove({responsible})
+                expect(reducer.$('#1.1').text()).toBe("tt")
+                expect(reducer.file.getNode('1.1').children).toBe("tt")
+                expect(reducer.selection).toMatchObject({start:{id:"1.1",at:1},end:{id:"1.1",at:1}})
+            })
+
+            it("t(ext)Hello",()=>{
+                const {reducer,composer,responsible}=test({
+                    "1":{type:"paragraph",children:["1.1","1.2"]},
+                    "1.1":{type:"text",children:"text",parent:"1"},
+                    "1.2":{type:"text",children:"hello",parent:"1"}
+                })
+                reducer.cursorAt("1.1",1,"1.2",0)
+                composer.prevCursorable=jest.fn(()=>({id:"1.1",at:3}))
+                composer.nextCursorable=jest.fn(()=>({id:"1.2",at:0}))
+                reducer.remove({responsible})
+
+                expect(reducer.$('#1.1').text()).toBe("t")
+                expect(reducer.file.getNode('1.1').children).toBe("t")
+                expect(reducer.selection).toMatchObject({start:{id:"1.2",at:0},end:{id:"1.2",at:0}})
+            })
+
+            it("t(extHe)llo",()=>{
+                const {reducer,composer,responsible}=test({
+                    "1":{type:"paragraph",children:["1.1","1.2"]},
+                    "1.1":{type:"text",children:"text",parent:"1"},
+                    "1.2":{type:"text",children:"hello",parent:"1"}
+                })
+                reducer.cursorAt("1.1",1,"1.2",2)
+                composer.nextCursorable=jest.fn(()=>({id:"1.2",at:0}))
+                reducer.remove({responsible})
+                const texts=reducer.$('text')
+                expect(texts.length).toBe(2)
+
+                expect(reducer.$('#1.1').text()).toBe("t")
+                expect(reducer.file.getNode('1.1').children).toBe("t")
+                const cursor=texts.eq(1)
+                expect(cursor.text()).toBe("llo")
+                expect(reducer.file.getNode(cursor.attr('id')).children).toBe("llo")
+                const id=cursor.attr('id')
+                expect(reducer.selection).toMatchObject({start:{id,at:0},end:{id,at:0}})
+            })
+        })
     })
 
 
@@ -339,7 +410,7 @@ describe("reducer",()=>{
 
     })
 
-    xdescribe("insert",()=>{
+    describe("insert",()=>{
         describe("text",()=>{
             const test=(content,selectionx)=>{
                 const selection={cursorAt:"end",...selectionx}
@@ -348,24 +419,52 @@ describe("reducer",()=>{
                 expect(reducer.selection).toMatchObject(selection)
                 return {selection,reducer}
             }
-            it("hello =>|",()=>{
-                const {doc,reducer,selection}=test({
+            fit("hello =>|",()=>{
+                const {reducer}=test({
                     "1":{type:"paragraph",children:["1.1"]},
-                    "1.1":{type:"text",children:"hello",parent:"1",props:{size:1}}
-                },{start:{id:"1.1",at:1},end:{id:"1.1",at:1}})
-                const updateNode=StateDocument.prototype.updateNode=jest.fn()
+                    "1.1":{type:"text",children:"hello",parent:"1"}
+                })
+                reducer.cursorAt("1.1",1)
                 reducer.insert("hello")
-                expect(updateNode.mock.calls[0][0]).toMatchObject({id:"1.1",type:"text",children:"hhelloello"})
                 expect(reducer.$('#1.1').text()).toBe("hhelloello")
+                expect(reducer.file.getNode('1.1').children).toBe("hhelloello")
+                const cursor={id:"1.1",at:1+5}
+                expect(reducer.selection).toMatchObject({start:cursor,end:cursor})
             })
 
-            it("hello =>{selection}",()=>{
-                const {reducer,selection}=test({
+            fit("hello =>h(el)lo",()=>{
+                const {reducer}=test({
                     "1":{type:"paragraph",children:["1.1"]},
-                    "1.1":{type:"text",children:"hello",parent:"1",props:{size:1}}
-                },{start:{id:"1.1",at:1},end:{id:"1.1",at:3}})
+                    "1.1":{type:"text",children:"hello",parent:"1"}
+                })
+                reducer.cursorAt("1.1",1,"1.1",3)
                 reducer.insert("hello")
+
                 expect(reducer.$(`#${1.1}`).text()).toBe("hhellolo")
+                expect(reducer.file.getNode('1.1').children).toBe("hhellolo")
+                const cursor={id:"1.1",at:1+5}
+                expect(reducer.selection).toMatchObject({start:cursor,end:cursor})
+            })
+
+            fit("hello => h(elloTe)xt",()=>{
+                const {reducer}=test({
+                    "1":{type:"paragraph",children:["1.1","1.2"]},
+                    "1.1":{type:"text",children:"hello",parent:"1"},
+                    "1.2":{type:"text",children:"Text",parent:"1"},
+                })
+                reducer.cursorAt("1.1",1,"1.2",2)
+                debugger
+                reducer.insert("hello")
+
+                expect(reducer.$('text').length).toBe(2)
+
+                expect(reducer.$(`#${1.1}`).text()).toBe("h")
+                expect(reducer.file.getNode('1.1').children).toBe("h")
+                expect(reducer.$('#1.2').text()).toBe("helloxt")
+                expect(reducer.file.getNode('1.2').children).toBe("helloxt")
+
+                const cursor={id:"1.2",at:5}
+                expect(reducer.selection).toMatchObject({start:cursor,end:cursor})
             })
         })
     })

@@ -32,8 +32,35 @@ class Base{
 		return this._file
 	}
 
+	get position(){
+		const {start,end}=this.selection
+		if(start.id==end.id){
+			const target=this.$('#'+start.id)
+			if(start.at==end.at){
+				if(target.attr('type')=="text"){
+					const text=target.text()
+					if(start.at==0){
+						return "at_text_beginning"
+					}else if(start.at==text.length){
+						return "at_text_end"
+					}else{
+						return "in_text"
+					}
+				}
+				if(start.at==0){
+					return `at_${target.attr("type")}_beginning`
+				}else if(start.at==1){
+					return `at_${target.attr("type")}_end`
+				}
+				return "carot"
+			}
+		}else{
+			return "range"
+		}
+	}
+
 	save4undo(id){
-		//this._undoables[id]=this.file.cloneNode(this.file.getNode(id),false)
+		this._undoables[id]=this.file.cloneNode(this.file.getNode(id),false)
 	}
 
 	cursorAt(id,at, endId=id, endAt=at, cursorAt){
@@ -43,7 +70,39 @@ class Base{
 		this._selection={...this._selection,start:{id,at}, end:{id:endId, at:endAt}}
 		return this._selection
 	}
+
+	undo({action,changed,selection}){
+		//recover changed to this.file
+		//render changed
+		//recover selection
+	}
+
+	redo({action,changed,selection}){
+
+	}
 }
+
+class Action extends Base{
+	insert_text_in_text(text){
+
+	}
+
+	insert_text_at_end(){
+
+	}
+
+	insert_text_at_beginning(){
+
+	}
+
+	insert_text_lines(lines){
+		const first=lines.unshift(),last=lines.pop()
+		this.splitAtUpto(this.selection.start,"paragraph")
+		this[`insert_text_${this.position}`](first)
+	}
+}
+
+
 
 class Reducer extends Base{
 	isEntityAction({id}={}){
@@ -120,7 +179,9 @@ class Reducer extends Base{
 		const {start,end}=this.selection
 		if(!(start.id==end.id && start.at==end.at)){
 			const element=id=>({id,type:this.$('#'+id).attr("type")})
-			this.file.splitNode(element(end.id),end.at)
+			const [newEnd]=this.file.splitNode(element(end.id),end.at, start.id==end.id)
+			end.id=newEnd.id
+			end.at=newEnd.at
 
 			const [,{id,at}]=this.file.splitNode(element(start.id),start.at)
 			if(end.id==start.id){
@@ -149,7 +210,6 @@ class Reducer extends Base{
     			switch(i){
     				case FIRST:{//first piece merged into
     					target.text(text.substring(0,at)+piece)
-    					this.renderChanged(p.attr("id"))
     					break
     				}
     				case LAST:{
@@ -190,6 +250,7 @@ class Reducer extends Base{
 
 	removeSelection(){
 		const {start,end}=this.selection
+		const endId=end.id
 		if(start.id==end.id){
 			if(start.at!=end.at){
 				this.$(`#${start.id}`).tailor(start.at,end.at)
@@ -197,24 +258,27 @@ class Reducer extends Base{
 			}
 		}else{
 			this.split4Operation()
+			const {start,end}=this.selection
 			const target0=this.$('#'+start.id)
 			const target1=this.$("#"+end.id)
 
 			const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
+			if(ancestor.length>0){
+				const removeNode=id=>this.$('#'+id).remove()
+				const ancestors0=target0.parentsUntil(ancestor)
+				const ancestors1=target1.parentsUntil(ancestor)
+				const top0=ancestors0.last()
+				const top1=ancestors1.last()
 
-			const ancestors0=target0.parentsUntil(ancestor)
-			const ancestors1=target1.parentsUntil(ancestor)
-			const top0=ancestors0.last()
-			const top1=ancestors1.last()
-
-			const removeNode=id=>this.$('#'+id).remove()
-			top0.nextUntil(top1).each((i,id)=>removeNode(id))
-			ancestors0.not(top0).each((i,a)=>this.$('#'+a.get("id")).nextAll().each((i,id)=>removeNode(id)))
-			ancestors1.not(top1).each((i,a)=>this.$('#'+a.get("id")).prevAll().each((i,id)=>removeNode(id)))
+				top0.nextUntil(top1).each((i,id)=>removeNode(id))
+				ancestors0.not(top0).each((i,a)=>this.$('#'+a.get("id")).nextAll().each((i,id)=>removeNode(id)))
+				ancestors1.not(top1).each((i,a)=>this.$('#'+a.get("id")).prevAll().each((i,id)=>removeNode(id)))
+			}
 
 			target0.remove()
 			target1.remove()
-			this.cursorAt(start.id,start.at)
+
+			this.cursorAt(endId,0)
 		}
 	}
 }
@@ -317,7 +381,18 @@ class Content extends Reducer{
 				}
 			}
 		}else{
+			if(end.at==0){
+				const {id,at}=responsible.getComposer(end.id).prevCursorable(end.id,end.at)
+				this.cursorAt(start.id, start.at, id,at+1)
+			}
 			this.removeSelection()
+			{
+				const {start}=this.selection
+				const {id,at}=responsible.getComposer(start.id).nextCursorable(start.id,start.at)
+				if(start.id!=id && at==0){
+					this.cursorAt(id,at)
+				}
+			}
 		}
 
 		return this
