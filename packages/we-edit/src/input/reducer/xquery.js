@@ -118,6 +118,7 @@ export default class xQuery extends Query{
 		let parent=this.parent()
 		let pid=parent.attr("id")
 		let docNode=this.file.getNode(this.attr("id"))
+		const docParentNode=this.file.getNode(pid)
 		let index=parent.get(0).get("children").indexOf(this.attr("id"))+1
 		new this.constructor(this.state,nodes)._nodes
     		.forEach((k,i)=>{
@@ -127,7 +128,7 @@ export default class xQuery extends Query{
     			this._content.setIn([k,"parent"],pid)
     			this._content.updateIn([pid,"children"],c=>c.insert(index+i,k))
 
-				this.file.insertNodeAfter(this.file.getNode(k),docNode)
+				this.file.insertNodeAfter(this.file.getNode(k),docNode,docParentNode)
     		})
 		return this
 	}
@@ -141,6 +142,7 @@ export default class xQuery extends Query{
 		let parent=this.parent()
 		let pid=parent.attr("id")
 		let docNode=this.file.getNode(this.attr("id"))
+		let docParentNode=this.file.getNode(pid)
 		let index=parent.get(0).get("children").indexOf(this.attr("id"))
 		new this.constructor(this.state,nodes)
 		._nodes.reverse()
@@ -151,7 +153,7 @@ export default class xQuery extends Query{
 			this._content.setIn([k,"parent"],pid)
 			this._content.updateIn([pid,"children"],c=>c.insert(index,k))
 
-			this.file.insertNodeBefore(this.file.getNode(k),docNode)
+			this.file.insertNodeBefore(this.file.getNode(k),docNode,docParentNode)
 		})
 		return this
 	}
@@ -183,6 +185,7 @@ export default class xQuery extends Query{
 
 	constructUp(to){
 		let docNode=this.file.construct(this.attr("id"), this.closest(to).attr("id"))
+		debugger
         let {id}=this.file.renderChanged(docNode)
         return new this.constructor(this.state, [id])
 	}

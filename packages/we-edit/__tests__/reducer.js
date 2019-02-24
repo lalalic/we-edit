@@ -23,10 +23,11 @@ describe("reducer",()=>{
             if(Array.isArray(node.children)){
                 node.children.forEach(a=>this.renderNode({id:a}))
             }
+			return node
         }
 
         renderChanged(){
-            this.renderNode(...arguments)
+            return this.renderNode(...arguments)
         }
 
         getNode(id){
@@ -36,16 +37,38 @@ describe("reducer",()=>{
         cloneNode({id}){
             const {id:_,...cloned}=this.getNode(id)
             cloned.id=this.makeId()
+			this.content[cloned.id]=cloned
             if(Array.isArray(cloned.children)){
                 cloned.children.map(a=>this.cloneNode({id:a}))
             }
             return cloned
         }
+		
+		construct(from,to){
+			var  constructed
+			const up=id=>{
+				var {id:_,children,parent,...cloned}=this.getNode(id)
+				cloned.children=cloned.type=="text" ? "" : []
+				cloned.id=this.makeId()
+				this.content[cloned.id]=cloned
+				if(id!=to){
+					const parentNode=up(parent)
+					cloned.parent=parentNode.id
+					parentNode.children.push(cloned.id)
+				}else{
+					constructed=cloned
+				}
+				return cloned
+			}
+			up(from)
+			return constructed
+		}
 
         updateNode({id},changing){
             const node=this.getNode(id)
             this.content[id]={...node,...changing}
             this.renderChanged({id})
+			return this.content[id]
         }
 
         splitNode({id},at, firstKeepId=true){
@@ -137,6 +160,7 @@ describe("reducer",()=>{
                 "1.1":{type:"text",children:"text",parent:"1"},
             })
             reducer.cursorAt("1.1",1, "1.1",3)
+			debugger
             reducer.split4Operation()
             const texts=reducer.$('text')
             expect(texts.length).toBe(3)
@@ -155,7 +179,6 @@ describe("reducer",()=>{
                 "1.2":{type:"text",children:"Hello",parent:"1"},
             })
             reducer.cursorAt("1.1",1, "1.2",2)
-            debugger
             reducer.split4Operation()
             const texts=reducer.$('text')
             expect(texts.length).toBe(4)
@@ -419,7 +442,7 @@ describe("reducer",()=>{
                 expect(reducer.selection).toMatchObject(selection)
                 return {selection,reducer}
             }
-            fit("hello =>|",()=>{
+            it("hello =>|",()=>{
                 const {reducer}=test({
                     "1":{type:"paragraph",children:["1.1"]},
                     "1.1":{type:"text",children:"hello",parent:"1"}
@@ -432,7 +455,7 @@ describe("reducer",()=>{
                 expect(reducer.selection).toMatchObject({start:cursor,end:cursor})
             })
 
-            fit("hello =>h(el)lo",()=>{
+            it("hello =>h(el)lo",()=>{
                 const {reducer}=test({
                     "1":{type:"paragraph",children:["1.1"]},
                     "1.1":{type:"text",children:"hello",parent:"1"}
@@ -446,14 +469,13 @@ describe("reducer",()=>{
                 expect(reducer.selection).toMatchObject({start:cursor,end:cursor})
             })
 
-            fit("hello => h(elloTe)xt",()=>{
+            it("hello => h(ello</>Te)xt",()=>{
                 const {reducer}=test({
                     "1":{type:"paragraph",children:["1.1","1.2"]},
                     "1.1":{type:"text",children:"hello",parent:"1"},
                     "1.2":{type:"text",children:"Text",parent:"1"},
                 })
                 reducer.cursorAt("1.1",1,"1.2",2)
-                debugger
                 reducer.insert("hello")
 
                 expect(reducer.$('text').length).toBe(2)
@@ -466,6 +488,19 @@ describe("reducer",()=>{
                 const cursor={id:"1.2",at:5}
                 expect(reducer.selection).toMatchObject({start:cursor,end:cursor})
             })
+			
+			xit("hello\rworld=>t|ext",()=>{
+				const {reducer}=test({
+                    "1":{type:"paragraph",children:["1.1"]},
+                    "1.1":{type:"text",children:"hello",parent:"1"},
+                })
+				const p0=reducer.$('paragraph')
+                reducer.cursorAt("1.1",1)
+				//const construct=reducer.file.construct=jest.fn()
+				reducer.insert("hello\rworld")
+				const p1=reducer.$('paragraph')
+				expect(p1.length-p0.length).toBe(1)
+			})
         })
     })
 

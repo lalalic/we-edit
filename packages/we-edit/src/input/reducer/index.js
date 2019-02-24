@@ -202,6 +202,7 @@ class Reducer extends Base{
     		this.cursorAt(id,at+inserting.length)
             return
         }else{
+			debugger
     		const p=target.closest("paragraph")
     		const pieces=inserting.split(/[\r\n]+/g)
     		const FIRST=0
