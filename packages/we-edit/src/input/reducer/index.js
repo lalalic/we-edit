@@ -195,14 +195,13 @@ class Reducer extends Base{
 	}
 
 	insert_text_at(inserting,{id,at}){
-        const target=this.$('#'+id)
-        const text=target.text()
+		const target=this.$('#'+id)
+		const text=target.text()
         if(inserting.indexOf("\r")==-1 && inserting.indexOf("\n")==-1){
     		target.text(text.substring(0,at)+inserting+text.substr(at))
     		this.cursorAt(id,at+inserting.length)
             return
         }else{
-			debugger
     		const p=target.closest("paragraph")
     		const pieces=inserting.split(/[\r\n]+/g)
     		const FIRST=0
@@ -301,6 +300,13 @@ class Content extends Reducer{
 		this.removeSelection()
 
 		if(typeof(data)=="string"){
+			let {start:{id}}=this.selection
+			const target=this.$('#'+id)
+			if(target.attr('type')!="text"){
+				const cursor=this.file.createNode({type:"text"},this,target)
+				this.cursorAt(cursor.id,cursor.at)
+			}
+			
 			this.insert_text_at(data,this.selection.start)
 		}else{
 			this.merge_content_at(data, this.selection.start)
