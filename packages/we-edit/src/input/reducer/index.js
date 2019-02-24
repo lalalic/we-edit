@@ -303,7 +303,7 @@ class Content extends Reducer{
 			let {start:{id}}=this.selection
 			const target=this.$('#'+id)
 			if(target.attr('type')!="text"){
-				const cursor=this.file.createNode({type:"text"},this,target)
+				const cursor=this.file.createNode({type:"text",children:""},this,target)
 				this.cursorAt(cursor.id,cursor.at)
 			}
 			

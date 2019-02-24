@@ -539,8 +539,8 @@ describe("reducer",()=>{
 				})
 			})
 			
-			describe("at beginning",()=>{
-				fit("hello=>|imageHello",()=>{
+			describe("at object beginning",()=>{
+				it("hello=>|imageHello",()=>{
 					const {reducer}=test({
 						"1":{type:"paragraph",children:["1.0","1.1"]},
 						"1.0":{type:"image",parent:"1"},
@@ -552,9 +552,27 @@ describe("reducer",()=>{
 					expect(texts.length).toBe(2)
 					expect(texts.eq(0).text()).toBe("hello")
 					expect(reducer.$('#1').children().toArray()).toMatchObject([texts.eq(0).attr('id'),"1.0","1.1"])
-					const cursor={id:"1.",at:1+5}
+					const cursor={id:texts.eq(0).attr('id'),at:5}
 					expect(reducer.selection).toMatchObject({start:cursor,end:cursor})
 				})
+				
+				it("hello=>|<shape/>Hello",()=>{
+					const {reducer}=test({
+						"1":{type:"paragraph",children:["1.0","1.1"]},
+						"1.0":{type:"shape",parent:"1"},
+						"1.1":{type:"text",children:"hello",parent:"1"},
+					})
+					reducer.cursorAt("1.0",0)
+					reducer.insert("hello")
+					const texts=reducer.$('text')
+					expect(texts.length).toBe(2)
+					expect(texts.eq(0).text()).toBe("hello")
+					expect(reducer.$('#1').children().toArray()).toMatchObject([texts.eq(0).attr('id'),"1.0","1.1"])
+					const cursor={id:texts.eq(0).attr('id'),at:5}
+					expect(reducer.selection).toMatchObject({start:cursor,end:cursor})
+				})
+				
+				
 			})
 			
         })
