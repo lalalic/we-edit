@@ -46,17 +46,19 @@ describe("reducer",()=>{
             }
             return cloned
         }
-		
-		createNode(node,reducer,target){
-			const id=target.attr('id')
-			const reference=this.getNode(id)
+
+		createNode(node,{id,at=0}){
+            const reference=this.getNode(id)
 			const parent=this.getNode(reference.parent)
-			this.insertNodeBefore(node,reference,parent)
+            if(at==0){
+    			this.insertNodeBefore(node,reference,parent)
+            }else if(at==1){
+                this.insertNodeAfter(node,reference,parent)
+            }
 			return {id:node.id,at:0}
 		}
-		
+
 		construct(from,to){
-			debugger
 			var  constructed
 			const up=id=>{
 				var {id:_,children,parent,...cloned}=this.getNode(id)
@@ -100,7 +102,7 @@ describe("reducer",()=>{
                     return [{id:cloned.id,at},{id:node.id,at:0},]
                 }
             }else{
-                throw new Error("not support")
+                return [{id,at},{id,at}]
             }
         }
 
@@ -126,6 +128,7 @@ describe("reducer",()=>{
 			}
         }
 
+        /*append when referenceNode is falsy */
         insertNodeBefore(newNode,referenceNode,parentNode){
             parentNode=this.getNode(parentNode.id)
             const i=referenceNode ? parentNode.children.indexOf(referenceNode.id) : parentNode.children.length
@@ -140,6 +143,7 @@ describe("reducer",()=>{
 			return newNode
         }
 
+        //prepend when referenceNode is falsy
         insertNodeAfter(newNode,referenceNode,parentNode){
             const {children:siblings=[]}=this.getNode(parentNode.id)
             const beforeNode=!referenceNode ? siblings[0] : siblings[siblings.indexOf(referenceNode.id)+1]
@@ -158,62 +162,213 @@ describe("reducer",()=>{
         return createState(doc,content).set("_content",_content)
     }
 
-    describe("utils",()=>{
-        const test=(content,selectionx={})=>{
-            const selection={cursorAt:"end",...selectionx}
-            const state=makeState(content).set("selection",immutable.fromJS(selection))
-            const reducer=new Reducer(state)
-            expect(reducer.selection).toMatchObject(selection)
-            return {selection,reducer}
-        }
+    const test=(content,selectionx={})=>{
+        const selection={cursorAt:"end",...selectionx}
+        const state=makeState(content).set("selection",immutable.fromJS(selection))
+        const reducer=new Reducer(state)
+        expect(reducer.selection).toMatchObject(selection)
+        return {selection,reducer}
+    }
 
+    describe("utils",()=>{
         it("cursorAt",()=>{
             const {reducer}=test()
             expect(reducer.cursorAt("1",1)).toMatchObject({start:{id:"1",at:1},end:{id:"1",at:1}})
             expect(reducer.cursorAt("1",2,"2",3)).toMatchObject({start:{id:"1",at:2},end:{id:"2",at:3}})
         })
 
-        it("split T(ex)t",()=>{
-            const {reducer}=test({
-                "1":{type:"paragraph",children:["1.1"]},
-                "1.1":{type:"text",children:"text",parent:"1"},
+        describe("clone",()=>{
+            it("t(ex)t",()=>{
+                const {reducer}=test({
+                    "1":{type:"paragraph",children:["1.1"]},
+                    "1.1":{type:"text",children:"text",parent:"1"},
+                })
+                reducer.cursorAt("1.1",1,"1.1",3)
+                const cloned=reducer.clone()
+                expect(cloned.attr('type')).toBe('text')
+                expect(cloned.text()).toBe("ex")
             })
-            reducer.cursorAt("1.1",1, "1.1",3)
-            reducer.split4Operation()
-            const texts=reducer.$('text')
-            expect(texts.length).toBe(3)
-            expect(texts.eq(0).text()).toBe('t')
-            expect(texts.eq(1).text()).toBe('ex')
-            expect(texts.eq(2).text()).toBe('t')
 
-            const id=texts.eq(1).attr('id')
-            expect(reducer.selection).toMatchObject({start:{id,at:0},end:{id,at:2}})
+            it("image",()=>{
+                const {reducer}=test({
+                    "1":{type:"paragraph",children:["1.1"]},
+                    "1.1":{type:"image",parent:"1"},
+                })
+                reducer.cursorAt("1.1",0,"1.1",1)
+                expect(reducer.clone().attr('type')).toBe('image')
+
+                reducer.cursorAt("1.1",0)
+                expect(reducer.clone().attr('type')).toBe('image')
+            })
+
+            it("<p><r><d><t>hello</t></d></r><t>(world</t></p><p><r><d><t>hello</t></d></r><t>)world</t></p>",()=>{
+                const {reducer}=test({
+                    "1":{type:"paragraph",children:["1.1","1.2"]},
+                    "1.1":{type:"run",children:["1.1.1"],parent:"1"},
+                    "1.1.1":{type:"sdt", children:["1.1.1.1"],parent:"1.1"},
+                    "1.1.1.1":{type:"text",children:"hello",parent:"1.1.1"},
+                    "1.2":{type:"text",children:"world",parent:"1"},
+
+                    "2":{type:"paragraph",children:["2.1","2.2"]},
+                    "2.1":{type:"run",children:["2.1.1"],parent:"2"},
+                    "2.1.1":{type:"sdt", children:["2.1.1.1"],parent:"2.1"},
+                    "2.1.1.1":{type:"text",children:"hello",parent:"2.1.1"},
+                    "2.2":{type:"text",children:"world",parent:"2"},
+                })
+
+                reducer.cursorAt("1.1.1.1",0,"2.2",0)
+                const cloned=reducer.clone()
+                expect(cloned.length).toBe(2)
+
+                expect(cloned.eq(0).text()).toBe("helloworld")
+                expect(cloned.eq(1).text()).toBe("hello")
+
+                expect(cloned.eq(0).attr('type')).toBe('paragraph')
+                expect(cloned.eq(0).find("run,sdt").length).toBe(2)
+
+                expect(cloned.eq(1).attr('type')).toBe('paragraph')
+                expect(cloned.eq(0).find("run,sdt").length).toBe(2)
+            })
+
+            it("<p><r><d><t>hello</t></d></r><t>w(orld</t></p><p><r><d><t>hello</t></d></r><t>w)orld</t></p>",()=>{
+                const {reducer}=test({
+                    "1":{type:"paragraph",children:["1.1","1.2"]},
+                    "1.1":{type:"run",children:["1.1.1"],parent:"1"},
+                    "1.1.1":{type:"sdt", children:["1.1.1.1"],parent:"1.1"},
+                    "1.1.1.1":{type:"text",children:"hello",parent:"1.1.1"},
+                    "1.2":{type:"text",children:"world",parent:"1"},
+
+                    "2":{type:"paragraph",children:["2.1","2.2"]},
+                    "2.1":{type:"run",children:["2.1.1"],parent:"2"},
+                    "2.1.1":{type:"sdt", children:["2.1.1.1"],parent:"2.1"},
+                    "2.1.1.1":{type:"text",children:"hello",parent:"2.1.1"},
+                    "2.2":{type:"text",children:"world",parent:"2"},
+                })
+
+                reducer.cursorAt("1.1.1.1",1,"2.2",1)
+                const cloned=reducer.clone()
+                expect(cloned.length).toBe(2)
+
+                expect(cloned.eq(0).text()).toBe("elloworld")
+                expect(cloned.eq(1).text()).toBe("hellow")
+
+                expect(cloned.eq(0).attr('type')).toBe('paragraph')
+                expect(cloned.eq(0).find("run,sdt").length).toBe(2)
+
+                expect(cloned.eq(1).attr('type')).toBe('paragraph')
+                expect(cloned.eq(0).find("run,sdt").length).toBe(2)
+            })
+
+            it("<p><r><d><t>hello</t></d></r><t>w(orld</t></p><p/><p><r><d><t>hello</t></d></r><t>w)orld</t></p>",()=>{
+                const {reducer}=test({
+                    "1":{type:"paragraph",children:["1.1","1.2"]},
+                    "1.1":{type:"run",children:["1.1.1"],parent:"1"},
+                    "1.1.1":{type:"sdt", children:["1.1.1.1"],parent:"1.1"},
+                    "1.1.1.1":{type:"text",children:"hello",parent:"1.1.1"},
+                    "1.2":{type:"text",children:"world",parent:"1"},
+
+                    "2":{type:"paragraph",children:["2.1"]},
+                    "2.1":{type:"text",children:"world",parent:"2"},
+
+
+                    "3":{type:"paragraph",children:["3.1","3.2"]},
+                    "3.1":{type:"run",children:["3.1.1"],parent:"3"},
+                    "3.1.1":{type:"sdt", children:["3.1.1.1"],parent:"3.1"},
+                    "3.1.1.1":{type:"text",children:"hello",parent:"3.1.1"},
+                    "3.2":{type:"text",children:"world",parent:"3"},
+                })
+
+                reducer.cursorAt("1.1.1.1",1,"3.2",1)
+                const cloned=reducer.clone()
+                expect(cloned.length).toBe(3)
+                expect(cloned.filter('paragraph').length).toBe(3)
+
+                expect(cloned.eq(0).text()).toBe("elloworld")
+                expect(cloned.eq(2).text()).toBe("hellow")
+
+                expect(cloned.eq(0).attr('type')).toBe('paragraph')
+                expect(cloned.eq(0).find("run,sdt").length).toBe(2)
+
+                expect(cloned.eq(2).attr('type')).toBe('paragraph')
+                expect(cloned.eq(0).find("run,sdt").length).toBe(2)
+            })
         })
 
-        it("split T(extHe)llo",()=>{
-            const {reducer}=test({
-                "1":{type:"paragraph",children:["1.1","1.2"]},
-                "1.1":{type:"text",children:"text",parent:"1"},
-                "1.2":{type:"text",children:"Hello",parent:"1"},
+        describe("merge",()=>{
+            fit("<t>hello</t> -> Te|xt",()=>{
+
             })
-            reducer.cursorAt("1.1",1, "1.2",2)
-            reducer.split4Operation()
-            const texts=reducer.$('text')
-            expect(texts.length).toBe(4)
-
-            expect(texts.eq(0).text()).toBe('t')
-            expect(texts.eq(1).text()).toBe('ext')
-            expect(texts.eq(2).text()).toBe('He')
-            expect(texts.eq(3).text()).toBe('llo')
-            expect(texts.eq(3).attr('id')).toBe("1.2")
 
 
-            const start=texts.eq(1)
-            const end=texts.eq(2)
-            expect(reducer.selection).toMatchObject({start:{id:start.attr("id"),at:0},end:{id:end.attr('id'),at:2}})
         })
 
+        describe("seperateSelection",()=>{
+            it("T(ex)t",()=>{
+                const {reducer}=test({
+                    "1":{type:"paragraph",children:["1.1"]},
+                    "1.1":{type:"text",children:"text",parent:"1"},
+                })
+                reducer.cursorAt("1.1",1, "1.1",3)
+                reducer.seperateSelection()
+                const texts=reducer.$('text')
+                expect(texts.length).toBe(3)
+                expect(texts.eq(0).text()).toBe('t')
+                expect(texts.eq(1).text()).toBe('ex')
+                expect(texts.eq(2).text()).toBe('t')
 
+                const id=texts.eq(1).attr('id')
+                expect(reducer.selection).toMatchObject({start:{id,at:0},end:{id,at:2}})
+            })
+
+            it("T(extHe)llo",()=>{
+                const {reducer}=test({
+                    "1":{type:"paragraph",children:["1.1","1.2"]},
+                    "1.1":{type:"text",children:"text",parent:"1"},
+                    "1.2":{type:"text",children:"Hello",parent:"1"},
+                })
+                reducer.cursorAt("1.1",1, "1.2",2)
+                reducer.seperateSelection()
+                const texts=reducer.$('text')
+                expect(texts.length).toBe(4)
+
+                expect(texts.eq(0).text()).toBe('t')
+                expect(texts.eq(1).text()).toBe('ext')
+                expect(texts.eq(2).text()).toBe('He')
+                expect(texts.eq(3).text()).toBe('llo')
+                expect(texts.eq(3).attr('id')).toBe("1.2")
+
+
+                const start=texts.eq(1)
+                const end=texts.eq(2)
+                expect(reducer.selection).toMatchObject({start:{id:start.attr("id"),at:0},end:{id:end.attr('id'),at:2}})
+            })
+
+            it("<run><text>T(ext</text></run><run><text>He)llo</text></run>",()=>{
+                const {reducer}=test({
+                    "1":{type:"paragraph",children:["1.1","1.2"]},
+                    "1.1":{type:"run",children:["1.1.0"],parent:"1"},
+                    "1.1.0":{type:"text",children:"text",parent:"1.1"},
+                    "1.2":{type:"run",children:["1.2.0"],parent:"1"},
+                    "1.2.0":{type:"text",children:"Hello",parent:"1.2"},
+                })
+                reducer.cursorAt("1.1.0",1, "1.2.0",2)
+                reducer.seperateSelection()
+                const texts=reducer.$('text')
+                expect(texts.length).toBe(4)
+                expect(reducer.$('run').length).toBe(2)
+
+                expect(texts.eq(0).text()).toBe('t')
+                expect(texts.eq(1).text()).toBe('ext')
+                expect(texts.eq(2).text()).toBe('He')
+                expect(texts.eq(3).text()).toBe('llo')
+                expect(texts.eq(3).attr('id')).toBe("1.2.0")
+
+
+                const start=texts.eq(1)
+                const end=texts.eq(2)
+                expect(reducer.selection).toMatchObject({start:{id:start.attr("id"),at:0},end:{id:end.attr('id'),at:2}})
+            })
+        })
     })
 
 
@@ -237,7 +392,7 @@ describe("reducer",()=>{
                 }
             }
 
-            return {selection,reducer,responsible,composer,doc:reducer.file}
+            return {reducer,responsible,composer}
         }
         describe("forward",()=>{
             it("t|ext",()=>{
@@ -443,23 +598,90 @@ describe("reducer",()=>{
                 const id=cursor.attr('id')
                 expect(reducer.selection).toMatchObject({start:{id,at:0},end:{id,at:0}})
             })
+
+            it("(text)Hello",()=>{
+                const {reducer,composer,responsible}=test({
+                    "1":{type:"paragraph",children:["1.1","1.2"]},
+                    "1.1":{type:"text",children:"text",parent:"1"},
+                    "1.2":{type:"text",children:"hello",parent:"1"}
+                })
+                reducer.cursorAt("1.1",0,"1.2",0)
+                composer.prevCursorable=jest.fn(()=>({id:"1.1",at:3}))
+                composer.nextCursorable=jest.fn(()=>({id:"1.2",at:0}))
+                reducer.remove({responsible})
+
+                expect(reducer.$('#1.1').text()).toBe("")
+                expect(reducer.file.getNode('1.1').children).toBe("")
+                expect(reducer.selection).toMatchObject({start:{id:"1.2",at:0},end:{id:"1.2",at:0}})
+            })
+
+            it("(Image)Hello",()=>{
+                const {reducer,composer,responsible}=test({
+                    "1":{type:"paragraph",children:["1.1","1.2"]},
+                    "1.1":{type:"image",parent:"1"},
+                    "1.2":{type:"text",children:"hello",parent:"1"}
+                })
+                reducer.cursorAt("1.1",0,"1.1",1)
+                composer.nextCursorable=jest.fn(()=>({id:"1.2",at:0}))
+                reducer.remove({responsible})
+
+                expect(reducer.$('#1.1').length).toBe(0)
+                expect(reducer.file.getNode('1.1')).toBeFalsy()
+                expect(reducer.selection).toMatchObject({start:{id:"1.2",at:0},end:{id:"1.2",at:0}})
+            })
         })
     })
 
 
     describe("create",()=>{
+        it("image on |text",()=>{
+            const {reducer}=test({
+                "1":{type:"paragraph",children:["1.1"]},
+                "1.1":{type:"text",children:"hello",parent:"1"}
+            })
+            reducer.cursorAt("1.1",0)
+            reducer.create({type:'image'})
+            const children=reducer.$('#1').children()
+            expect(children.length).toBe(2)
+            expect(children.eq(0).attr('type')).toBe("image")
+            expect(children.eq(1).text()).toBe("hello")
+            const cursor={id:children.eq(0).attr('id'),at:0}
+            expect(reducer.selection).toMatchObject({start:cursor,end:cursor})
+        })
 
+        it("image on T|ext",()=>{
+            const {reducer}=test({
+                "1":{type:"paragraph",children:["1.1"]},
+                "1.1":{type:"text",children:"hello",parent:"1"}
+            })
+            reducer.cursorAt("1.1",1)
+            reducer.create({type:'image'})
+            const children=reducer.$('#1').children()
+            expect(children.eq(0).text()).toBe("h")
+            expect(children.eq(2).text()).toBe("ello")
+            expect(children.eq(1).attr('type')).toBe("image")
+            const cursor={id:children.eq(1).attr('id'),at:0}
+            expect(reducer.selection).toMatchObject({start:cursor,end:cursor})
+        })
+
+        it("image on T(ex)t",()=>{
+            const {reducer}=test({
+                "1":{type:"paragraph",children:["1.1"]},
+                "1.1":{type:"text",children:"Text",parent:"1"}
+            })
+            reducer.cursorAt("1.1",1,"1.1",3)
+            reducer.create({type:'image'})
+            const children=reducer.$('#1').children()
+            expect(children.eq(0).text()).toBe("T")
+            expect(children.eq(2).text()).toBe("t")
+            expect(children.eq(1).attr('type')).toBe("image")
+            const cursor={id:children.eq(1).attr('id'),at:0}
+            expect(reducer.selection).toMatchObject({start:cursor,end:cursor})
+        })
     })
 
     describe("insert",()=>{
         describe("text",()=>{
-            const test=(content,selectionx)=>{
-                const selection={cursorAt:"end",...selectionx}
-                const state=makeState(content).set("selection",immutable.fromJS(selection))
-                const reducer=new Reducer(state)
-                expect(reducer.selection).toMatchObject(selection)
-                return {selection,reducer}
-            }
 			describe("on text",()=>{
 				it("hello =>h|ello",()=>{
 					const {reducer}=test({
@@ -473,8 +695,8 @@ describe("reducer",()=>{
 					const cursor={id:"1.1",at:1+5}
 					expect(reducer.selection).toMatchObject({start:cursor,end:cursor})
 				})
-				
-				
+
+
 				it("hello =>h(el)lo",()=>{
 					const {reducer}=test({
 						"1":{type:"paragraph",children:["1.1"]},
@@ -508,7 +730,7 @@ describe("reducer",()=>{
 					const cursor={id:"1.2",at:5}
 					expect(reducer.selection).toMatchObject({start:cursor,end:cursor})
 				})
-				
+
 				it("hello\\rworld=>t|ext",()=>{
 					const {reducer}=test({
 						"1":{type:"paragraph",children:["1.1"]},
@@ -522,7 +744,7 @@ describe("reducer",()=>{
 					expect(p1.eq(0).find('text').text()).toBe('thello')
 					expect(p1.eq(1).find('text').text()).toBe('worldext')
 				})
-				
+
 				it("hello\\rmy\\rworld=>t|ext",()=>{
 					const {reducer}=test({
 						"1":{type:"paragraph",children:["1.1"]},
@@ -537,8 +759,26 @@ describe("reducer",()=>{
 					expect(p1.eq(1).find('text').text()).toBe('my')
 					expect(p1.eq(2).find('text').text()).toBe('worldext')
 				})
+
+                it("hello\\rmy\\rworld=>t|ext with structure",()=>{
+					const {reducer}=test({
+						"1":{type:"paragraph",children:["1.0"]},
+                        "1.0":{type:"run", children:["1.1"],parent:"1"},
+						"1.1":{type:"text",children:"text",parent:"1.0"},
+					})
+					const p0=reducer.$('paragraph')
+					reducer.cursorAt("1.1",1)
+					reducer.insert("hello\rmy\rworld")
+					const p1=reducer.$('paragraph')
+					expect(p1.length-p0.length).toBe(2)
+					expect(p1.eq(0).find('text').text()).toBe('thello')
+					expect(p1.eq(1).find('text').text()).toBe('my')
+					expect(p1.eq(2).find('text').text()).toBe('worldext')
+
+                    p1.toArray().forEach(p=>expect(reducer.$('#'+p).find('run').length).toBe(1))
+				})
 			})
-			
+
 			describe("at object beginning",()=>{
 				it("hello=>|imageHello",()=>{
 					const {reducer}=test({
@@ -555,7 +795,7 @@ describe("reducer",()=>{
 					const cursor={id:texts.eq(0).attr('id'),at:5}
 					expect(reducer.selection).toMatchObject({start:cursor,end:cursor})
 				})
-				
+
 				it("hello=>|<shape/>Hello",()=>{
 					const {reducer}=test({
 						"1":{type:"paragraph",children:["1.0","1.1"]},
@@ -571,72 +811,106 @@ describe("reducer",()=>{
 					const cursor={id:texts.eq(0).attr('id'),at:5}
 					expect(reducer.selection).toMatchObject({start:cursor,end:cursor})
 				})
-				
-				
 			})
-			
+
+            describe("at end of paragraph",()=>{
+                it("h=><p><text>hello|</text></p>",()=>{
+                    const {reducer,selection}=test({
+                        "1":{type:"paragraph",children:["1.1"]},
+                        "1.1":{type:"text",children:"hello",parent:"1",props:{size:1}}
+                    })
+
+                    reducer.cursorAt("1.1",5)
+                    reducer.insert("a")
+                    expect(reducer.$('#1.1').text()).toBe("helloa")
+                    expect(reducer.selection).toMatchObject({start:{id:"1.1",at:6}})
+                })
+
+                it("h=><p>hello|</p>",()=>{
+                    const {reducer,selection}=test({
+                        "1":{type:"paragraph",children:["1.1"]},
+                        "1.1":{type:"text",children:"hello",parent:"1",props:{size:1}}
+                    })
+
+                    reducer.cursorAt("1",1)
+                    reducer.insert("a")
+                    expect(reducer.$('#1.1').text()).toBe("helloa")
+                    expect(reducer.selection).toMatchObject({start:{id:"1.1",at:6}})
+                })
+
+                it("** h=><p><image>|</p>",()=>{
+                    const {reducer,selection}=test({
+                        "1":{type:"paragraph",children:["1.1"]},
+                        "1.1":{type:"image",parent:"1"}
+                    })
+
+                    reducer.cursorAt("1",1)
+                    reducer.insert("a")
+                    const text=reducer.$('text')
+                    expect(text.length).toBe(1)
+                    expect(text.text()).toBe("a")
+                    //expect(reducer.$('#1').children().toArray()).toMatchObject(["1.1",text.attr('id')])
+                    expect(reducer.selection).toMatchObject({start:{id:text.attr('id'),at:1}})
+                })
+            })
         })
+
+
     })
 
-    xdescribe("update",()=>{
+    describe("update",()=>{
         describe("text",()=>{
-            const test=(content,selectionx,doc={})=>{
-                const selection={cursorAt:"end",...selectionx}
-                const state=makeState(content,doc).set("selection",immutable.fromJS(selection))
-
-                const reducer=new Reducer(state)
-                expect(reducer.selection).toMatchObject(selection)
-                doc.updateNode=jest.fn()
-                doc.splitNode=jest.fn(({id},at)=>[{id,at},{id,at}])
-                reducer.renderChanged=jest.fn()
-                reducer.update({text:{size:5}})
-                return {doc,selection,reducer}
-            }
             it("cursor",()=>{
-                const {doc,reducer,selection}=test({
+                const {reducer,selection}=test({
                     "1":{type:"paragraph",children:["1.1"]},
-                    "1.1":{type:"text",children:"hello",parent:"1",props:{size:1}},
-                    "2":{type:"paragraph",children:["2.1"]},
-                    "2.1":{type:"text",children:"hello",parent:"2",props:{size:1}},
-                },{start:{id:"1.1",at:1},end:{id:"1.1",at:1}})
+                    "1.1":{type:"text",children:"hello",parent:"1",props:{size:1}}
+                })
 
-                expect(doc.updateNode).toHaveBeenCalledTimes(1)
-                expect(doc.updateNode).toHaveBeenCalledWith({id:"1.1",type:"text"},{size:5})
-                expect(reducer.renderChanged).toHaveBeenCalledWith("1")
+                reducer.cursorAt("1.1",1)
+                reducer.update({text:{props:{size:5}}})
+                expect(reducer.$('#1.1').attr('size')).toBe(5)
                 expect(reducer.selection).toMatchObject(selection)
             })
 
             it("inline text selection",()=>{
-                const {doc,reducer,selection}=test({
+                const {reducer,selection}=test({
                     "1":{type:"paragraph",children:["1.1"]},
-                    "1.1":{type:"text",children:"hello",parent:"1",props:{size:1}},
-                    "2":{type:"paragraph",children:["2.1"]},
-                    "2.1":{type:"text",children:"hello",parent:"2",props:{size:1}},
-                },{start:{id:"1.1",at:1},end:{id:"1.1",at:3}})
+                    "1.1":{type:"text",children:"hello",parent:"1",props:{size:1}}
+                })
 
-                expect(doc.updateNode).toHaveBeenCalledTimes(1)
-                expect(doc.updateNode).toHaveBeenCalledWith({id:"1.1",type:"text"},{size:5})
-                expect(reducer.renderChanged).toHaveBeenCalledWith("1")
+                reducer.cursorAt("1.1",1,"1.1",3)
+                reducer.update({text:{props:{size:5}}})
+                const texts=reducer.$('text')
+                expect(texts.length).toBe(3)
+                expect(texts.eq(0).attr('size')).toBe(1)
+                expect(texts.eq(1).attr('size')).toBe(5)
+                expect(texts.eq(2).attr('size')).toBe(1)
 
-                expect(reducer.selection).toMatchObject(selection)
+                expect(reducer.selection).toMatchObject({start:{id:texts.eq(1).attr('id'),at:0}})
             })
 
             it("cross text selection",()=>{
-                const {doc,selection,reducer}=test({
+                const {reducer}=test({
                     "1":{type:"paragraph",children:["1.1"]},
                     "1.1":{type:"text",children:"hello",parent:"1",props:{size:1}},
                     "2":{type:"paragraph",children:["2.1"]},
                     "2.1":{type:"text",children:"hello",parent:"2",props:{size:1}},
-                },{start:{id:"1.1",at:1},end:{id:"2.1",at:3},cursorAt:"end"})
+                })
 
-                expect(doc.updateNode.mock.calls.map(([{id}])=>id)).toEqual(expect.arrayContaining(["1.1","2.1"]))
-                expect(reducer.renderChanged.mock.calls.map(([id])=>id)).toEqual(expect.arrayContaining(["1","2"]))
+                reducer.cursorAt("1.1",1,"2.1",3)
+                reducer.update({text:{props:{size:5}}})
+                const texts=reducer.$('text')
+                expect(texts.length).toBe(4)
+                expect(texts.eq(0).attr('size')).toBe(1)
+                expect(texts.eq(1).attr('size')).toBe(5)
+                expect(texts.eq(2).attr('size')).toBe(5)
+                expect(texts.eq(3).attr('size')).toBe(1)
 
-                expect(reducer.selection).toMatchObject(selection)
+                expect(reducer.selection).toMatchObject({start:{id:texts.eq(1).attr('id'),at:0}, end:{id:texts.eq(2).attr('id'),at:3}})
             })
 
 			it("textImagetext",()=>{
-				const {doc,reducer,selection}=test({
+				const {reducer}=test({
                     "1":{type:"paragraph",children:["1.1","1.2","1.3"]},
                     "1.1":{type:"text",children:"hello",parent:"1",props:{size:1}},
 					"1.2":{type:"image",parent:"1"},
@@ -644,15 +918,22 @@ describe("reducer",()=>{
 
                     "2":{type:"paragraph",children:["2.1"]},
                     "2.1":{type:"text",children:"hello",parent:"2",props:{size:1}},
-                },{start:{id:"1.1",at:1},end:{id:"2.1",at:3}})
+                })
 
-                expect(doc.updateNode.mock.calls.map(([{id}])=>id)).toEqual(expect.arrayContaining(["1.1","1.3","2.1"]))
-                expect(reducer.renderChanged.mock.calls.map(([id])=>id)).toEqual(expect.arrayContaining(["1","2"]))
+                reducer.cursorAt("1.1",1,"2.1",3)
+                reducer.update({text:{props:{size:5}}})
+                const texts=reducer.$('text')
+                expect(texts.length).toBe(5)
+                expect(texts.eq(0).attr('size')).toBe(1)
+                expect(texts.eq(1).attr('size')).toBe(5)
+                expect(texts.eq(2).attr('size')).toBe(5)
+                expect(texts.eq(3).attr('size')).toBe(5)
+                expect(texts.eq(4).attr('size')).toBe(1)
 
-				expect(reducer.selection).toMatchObject(selection)
+                expect(reducer.selection).toMatchObject({start:{id:texts.eq(1).attr('id'),at:0}, end:{id:texts.eq(3).attr('id'),at:3}})
 			})
 			it("<paragraph/>",()=>{
-				const {doc,selection,reducer}=test({
+				const {reducer}=test({
                     "1":{type:"paragraph",children:["1.1","1.2","1.3"]},
                     "1.1":{type:"text",children:"hello",parent:"1",props:{size:1}},
 					"1.2":{type:"image",parent:"1"},
@@ -660,21 +941,17 @@ describe("reducer",()=>{
 
                     "2":{type:"paragraph",children:["2.1"]},
                     "2.1":{type:"text",children:"hello",parent:"2",props:{size:1}},
-                },{start:{id:"2",at:0},end:{id:"2",at:1}})
+                })
 
-                expect(doc.updateNode).toHaveBeenCalledTimes(1)
-                expect(doc.updateNode.mock.calls[0][0]).toMatchObject({id:"2.1"})
-                expect(reducer.renderChanged).toHaveBeenCalledWith("2")
-                expect(reducer.selection).toMatchObject(selection)
+                reducer.cursorAt("1",0,"1",1)
+                debugger
+                reducer.update({text:{props:{size:5}}})
+                expect(reducer.$('#1 text').length).toBe(2)
+                expect(reducer.$('#1.1').attr('size')).toBe(5)
+                expect(reducer.$('#1.3').attr('size')).toBe(5)
+                expect(reducer.$('#2.1').attr('size')).toBe(1)
+                expect(reducer.selection).toMatchObject({start:{id:"1",at:0},end:{id:"1",at:1}})
 			})
         })
-    })
-
-    describe("copy/paste",()=>{
-
-    })
-
-    describe("cut/paste",()=>{
-
     })
 })

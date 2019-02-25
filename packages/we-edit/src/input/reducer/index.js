@@ -105,48 +105,6 @@ class Action extends Base{
 
 
 class Reducer extends Base{
-	isEntityAction({id}={}){
-		if(id!=undefined){
-			return id
-		}
-		const {start,end}=this.selection
-		if(start.id==end.id && start.at==end.at){
-			return start.id
-		}
-
-		return false
-	}
-
-	clone(keepId=false){
-		const element=id=>({id,type:this.$('#'+id).attr("type")})
-
-		const cloned=[]
-		const {start,end}=this.selection
-		const target0=this.$("#"+start.id)
-
-		const clonedTarget0=this.file.cloneNode(element(start.id),false,keepId)
-		cloned.push(clonedTarget0)
-
-		if(start.id==end.id){
-			this.tailor({node:clonedTarget0,type:target0.attr("type")},start.at,end.at)
-		}else{
-			const target1=this.$("#"+end.id)
-
-			const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
-			const ancestors0=target0.parentsUntil(ancestor)
-			const ancestors1=target1.parentsUntil(ancestor)
-
-			ancestors0.last().nextUntil(ancestors1.last())
-				.each((i,a)=>cloned.push(this.file.cloneNode(element(a.get("id")),false,keepId)))
-
-			const clonedTarget1=this.file.cloneNode(element(end.id),false,keepId)
-			this.tailor({node:clonedTarget1,type:target1.attr("type")},0, end.at)
-			cloned.push(clonedTarget1)
-		}
-
-		return cloned
-	}
-
 	splitAtUpto({id,at},to="paragraph"){
 		const target=this.$('#'+id)
 		const text=target.text()
@@ -175,7 +133,7 @@ class Reducer extends Base{
 	}
 
 	/*start at beginning of node, end at ending of node*/
-	split4Operation(){
+	seperateSelection(){
 		const {start,end}=this.selection
 		if(!(start.id==end.id && start.at==end.at)){
 			const element=id=>({id,type:this.$('#'+id).attr("type")})
@@ -253,26 +211,28 @@ class Reducer extends Base{
 		const endId=end.id
 		if(start.id==end.id){
 			if(start.at!=end.at){
-				this.$(`#${start.id}`).tailor(start.at,end.at)
-				this.cursorAt(start.id,start.at)
+				const target=this.$(`#${start.id}`)
+				target.tailor(start.at,end.at)
+				if(this.$(`#${start.id}`).length>0){
+					this.cursorAt(start.id,start.at)
+				}
 			}
 		}else{
-			this.split4Operation()
+			this.seperateSelection()
 			const {start,end}=this.selection
 			const target0=this.$('#'+start.id)
 			const target1=this.$("#"+end.id)
 
 			const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
 			if(ancestor.length>0){
-				const removeNode=id=>this.$('#'+id).remove()
 				const ancestors0=target0.parentsUntil(ancestor)
 				const ancestors1=target1.parentsUntil(ancestor)
 				const top0=ancestors0.last()
 				const top1=ancestors1.last()
 
-				top0.nextUntil(top1).each((i,id)=>removeNode(id))
-				ancestors0.not(top0).each((i,a)=>this.$('#'+a.get("id")).nextAll().each((i,id)=>removeNode(id)))
-				ancestors1.not(top1).each((i,a)=>this.$('#'+a.get("id")).prevAll().each((i,id)=>removeNode(id)))
+				top0.nextUntil(top1).remove()
+				ancestors0.not(top0).each((i,a)=>this.$('#'+a.get("id")).nextAll().remove())
+				ancestors1.not(top1).each((i,a)=>this.$('#'+a.get("id")).prevAll().remove())
 			}
 
 			target0.remove()
@@ -281,18 +241,78 @@ class Reducer extends Base{
 			this.cursorAt(endId,0)
 		}
 	}
+
+	clone(keepId){
+		const {start,end}=this.selection
+		const endId=end.id
+		if(start.id==end.id){
+			const target=this.$(`#${start.id}`)
+			if(start.at!=end.at){
+				const cloned=target.clone()
+				if(target.attr('type')=="text")
+					return cloned.text(target.text().substring(start.at,end.at))
+				else
+					return cloned
+			}else if(target.attr('type')!="text"){
+				return target.clone()
+			}else{
+				return target.eq(1)//empty
+			}
+		}else{
+			this.seperateSelection()
+			const {start,end}=this.selection
+			const target0=this.$('#'+start.id)
+			const target1=this.$("#"+end.id)
+
+			const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
+			if(ancestor.length>0){
+				const ancestors0=target0.parentsUntil(ancestor)
+				const ancestors1=target1.parentsUntil(ancestor)
+				const top0=ancestors0.last()
+				const top1=ancestors1.last()
+
+				const clonedSiblings=top0.nextUntil(top1).clone()
+				const cloneOutter=node=>{
+					return node.constructUp(node)
+				}
+
+				const clonedTop0=target0.add(ancestors0.not(top0)).toArray()
+					.reduce((clonedA,a)=>{
+					 	const target=this.$('#'+a)
+						const parent=cloneOutter(target.parent())
+						parent.append(clonedA)
+						parent.append(target.nextAll().clone())
+						return parent
+					},target0.clone())
+
+				const clonedTop1=target1.add(ancestors1.not(top1)).toArray()
+					.reduce((clonedA,a)=>{
+					 	const target=this.$('#'+a)
+						const parent=cloneOutter(target.parent())
+						parent.prepend(clonedA)
+						parent.prepend(target.prevAll().clone())
+						return parent
+					},target1.clone())
+
+				return clonedTop0.add(clonedSiblings).add(clonedTop1)
+			}else{
+				throw new Error("not support yet")
+			}
+		}
+	}
+
 }
 
 class Content extends Reducer{
 	create(element){
 		this.removeSelection()
-		const {start:{id,at}}=this.selection
-		const target=this.$(`#${id}`)
-
-		const cursor=this.file.createNode(element, this, target)
-
+		var {start:{id,at}}=this.selection
+		const target=this.$('#'+id)
+		if(at>0){
+			([,{id,at}]=this.file.splitNode({id},at))
+		}
+		const cursor=this.file.createNode(element,{id,at})
 		this.cursorAt(cursor.id, cursor.at)
-
 		return this
 	}
 
@@ -300,13 +320,18 @@ class Content extends Reducer{
 		this.removeSelection()
 
 		if(typeof(data)=="string"){
-			let {start:{id}}=this.selection
+			let {start:{id,at}}=this.selection
 			const target=this.$('#'+id)
 			if(target.attr('type')!="text"){
-				const cursor=this.file.createNode({type:"text",children:""},this,target)
-				this.cursorAt(cursor.id,cursor.at)
+				const last=target.findLast(node=>node.children==undefined || typeof(node.children)=="string")
+				if(last.attr('type')=="text"){
+					this.cursorAt(last.attr('id'),last.text().length)
+				}else{
+					const cursor=this.file.createNode({type:"text",children:""},{id,at})
+					this.cursorAt(cursor.id,cursor.at)
+				}
 			}
-			
+
 			this.insert_text_at(data,this.selection.start)
 		}else{
 			this.merge_content_at(data, this.selection.start)
@@ -320,28 +345,27 @@ class Content extends Reducer{
 			changing=changing[type]
 		}
 
-		this.split4Operation()
+		this.seperateSelection()
 
 		const targets=id ? [id] : (()=>{
 			const {start,end}=this.selection
 			const from=this.$(`#${start.id}`)
+			const to=this.$(`#${end.id}`)
 			const targets=((from,to)=>start.id==end.id ? from : from
 				.add(from.forwardUntil(to))
 				.add(to.parents())
 				.add(to)
-			)(from,this.$(`#${end.id}`))
+			)(from,to)
 
 			return targets//self
 				.add(from.parents())//ancestors
 				.filter(type)
-				.add(targets.find(type))//descendents
+				.add(from.add(to).find(type))//descendents
 				.toArray()
 		})();
 
 		targets.forEach(target=>{
 			this.file.updateNode({id:target,type},changing)
-			const rerenderTarget=this.$('#'+target).closest("paragraph").attr("id")||target
-			this.renderChanged(rerenderTarget)
 		})
 
 		return this
@@ -392,7 +416,7 @@ class Content extends Reducer{
 				const {id,at}=responsible.getComposer(end.id).prevCursorable(end.id,end.at)
 				this.cursorAt(start.id, start.at, id,at+1)
 			}
-			this.removeSelection()
+			this.removeSelection(true)
 			{
 				const {start}=this.selection
 				const {id,at}=responsible.getComposer(start.id).nextCursorable(start.id,start.at)
@@ -415,7 +439,7 @@ class Clipboard extends Content{
 	}
 
 	cut({clipboardData}={}){
-		clipboard=this.clone()
+		clipboard=this.clone(true)
 		this.remove()
         return this
 	}
@@ -430,7 +454,6 @@ class Clipboard extends Content{
 		if(data){
 			this.insert(data)
 		}
-
 		return  this
 	}
 }

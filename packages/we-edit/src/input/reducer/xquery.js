@@ -104,7 +104,7 @@ export default class xQuery extends Query{
 			if(this._content.has(id))
 				this._content.setIn([id,"parent"],id0)
 
-			this.file.insertNodeBefore(this.file.getNode(id),null,docNode)
+			this.file.insertNodeAfter(this.file.getNode(id),null,docNode)
 		})
 		return this
 	}
@@ -207,6 +207,14 @@ export default class xQuery extends Query{
             return this
         }
         return this.remove()
+    }
+
+    nextCursorable(){
+        return this.forwardFirst(node=>node.children==undefined || typeof(node.children)=="string")
+    }
+
+    prevCursorable(){
+        return this.backwardFirst(node=>node.children==undefined || typeof(node.children)=="string")
     }
 
 	toString(){

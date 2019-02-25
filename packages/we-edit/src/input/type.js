@@ -199,19 +199,16 @@ export class Serializable extends Editable{
 
 	}
 
-	splitNode(element,at){
+	//return [/*cursor at first part*/{id,at},/*cursor at second part*/{id,at}]
+	splitNode(element,at, firstKeepId=true){
 
 	}
 
-	tailerNode(element, from, to){
+	createNode(element, cursor/*{id,at=0}*/){
 
 	}
 
-	createNode(element, reducer){
-
-	}
-
-	updateNode(element, changing, query){
+	updateNode(element, changing){
 
 	}
 
@@ -219,14 +216,17 @@ export class Serializable extends Editable{
 
 	}
 
+	/*append when referenceNode is falsy */
 	insertNodeBefore(newNode,referenceNode,parentNode){
 
 	}
-
+	//prepend when referenceNode is falsy
 	insertNodeAfter(newNode,referenceNode,parentNode){
 
 	}
 
+	//return constructed node
+	//fromId==toId should be supported
 	construct(fromId,toId){
 
 	}
