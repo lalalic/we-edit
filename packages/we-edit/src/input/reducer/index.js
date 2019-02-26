@@ -105,14 +105,15 @@ class Action extends Base{
 
 
 class Reducer extends Base{
+	element(id){
+		return {id,type:this.$('#'+id).attr('type')}
+	}
+
 	splitAtUpto({id,at},to="paragraph"){
 		const target=this.$('#'+id)
 		const text=target.text()
 		to=typeof(to)=="string" ? target.closest(to) : to
 		const parent=to.parent()
-
-		this.save4undo(to.attr('id'))
-		this.save4undo(parent.attr('id'))
 
 		let to1=target.constructUp(to)
 			.insertAfter(to)
@@ -125,10 +126,6 @@ class Reducer extends Base{
 		},t0.parentsUntil(to1))
 
 		target.text(text.substr(0,at))
-
-		this.file.renderChanged(this.file.getNode(to.attr('id')))
-		this.file.renderChanged(this.file.getNode(to1.attr('id')))
-		this.file.renderChanged(this.file.getNode(parent.attr('id')))
 		return [to,to1]
 	}
 
@@ -136,12 +133,11 @@ class Reducer extends Base{
 	seperateSelection(){
 		const {start,end}=this.selection
 		if(!(start.id==end.id && start.at==end.at)){
-			const element=id=>({id,type:this.$('#'+id).attr("type")})
-			const [newEnd]=this.file.splitNode(element(end.id),end.at, start.id==end.id)
+			const [newEnd]=this.file.splitNode(this.element(end.id),end.at, start.id==end.id)
 			end.id=newEnd.id
 			end.at=newEnd.at
 
-			const [,{id,at}]=this.file.splitNode(element(start.id),start.at)
+			const [,{id,at}]=this.file.splitNode(this.element(start.id),start.at)
 			if(end.id==start.id){
 				end.id=id
 				end.at=end.at-(start.at-at)
@@ -152,7 +148,8 @@ class Reducer extends Base{
 		}
 	}
 
-	insert_text_at(inserting,{id,at}){
+	insert_text(inserting){
+		const {start:{id,at}}=this.selection
 		const target=this.$('#'+id)
 		const text=target.text()
         if(inserting.indexOf("\r")==-1 && inserting.indexOf("\n")==-1){
@@ -196,14 +193,62 @@ class Reducer extends Base{
         }
 	}
 
-	merge_content_at(contents,{id,at}){
-		const renderedContents=contents.map(a=>this.renderChanged(this.file.attach(a)))
-		renderedContents.reverse().forEach((a,i)=>{
-			const aNode=this.$(`#${a.id}`)
-			const type=aNode.attr('type')
-			const [part0]=this.splitAtUpto({id,at},type)
-			part0.after(aNode)
-		})
+	merge(contents){
+		const {start:{id,at}}=this.selection
+		var target=this.$('#'+id)
+		const renderedContents=contents.map(a=>this.file.attach(a))
+		if(renderedContents.length==1){
+			const single=this.$('#'+renderedContents[0])
+			if(single.attr('type')=="paragraph"){
+				renderedContents.splice(0,1,...single.children().toArray())
+			}
+		}
+		const isInline=this.$(renderedContents.map(a=>a.id)).filter("paragraph,table,frame").length==0
+		if(isInline){
+			const inParagraphTopParentId=target.parentsUntil("paragraph").toArray().pop()
+			if(inParagraphTopParentId){
+				const topParent=this.$('#'+inParagraphTopParentId)
+				this.splitAtUpto({id,at},topParent)
+				renderedContents.reverse().forEach((a,i)=>{
+					topParent.after(this.$(`#${a.id}`))
+				})
+			}else{
+				if(at>0){
+					const [,second]=this.file.splitNode(this.element(id),at)
+					target=this.$('#'+second.id)
+				}
+				renderedContents.reverse().forEach((a,i)=>{
+					target.before(this.$(`#${a.id}`))
+				})
+			}
+		}else{
+			const p=target.closest("paragraph")
+			this.splitAtUpto({id,at},p)
+			const firstId=renderedContents.unshift()
+			const lastId=renderedContents.pop()
+
+
+			const last=this.$('#'+lastId)
+			if(last.attr('type')=="paragraph"){
+				p.next().prepend(last.children)
+			}else{
+				p.next().before(last)
+			}
+
+			renderedContents.reverse().forEach(a=>p.after(this.$('#')+a))
+
+			const first=this.$('#'+firstId)
+			if(first.attr('type')=="paragraph"){
+				p.append(first.children())
+			}else{
+				p.after(first)
+			}
+
+
+
+
+		}
+
 	}
 
 	removeSelection(){
@@ -332,9 +377,9 @@ class Content extends Reducer{
 				}
 			}
 
-			this.insert_text_at(data,this.selection.start)
+			this.insert_text(data)
 		}else{
-			this.merge_content_at(data, this.selection.start)
+			this.merge(data)
 		}
 		return this
 	}

@@ -5,24 +5,25 @@ import Input from "../src/input"
 import {selection} from "../src/state/reducer"
 
 describe("reducer",()=>{
-    var uuid=1
     class StateDocument extends Input.Editable{
+        static uuid=1
         constructor(content,_content){
             super()
             this.content=content.toJS()
             this._content=_content
         }
 
-        makeId(){
-            return `0${uuid++}`
+        makeId(node){
+            if(node){
+                node.id=node.id||`0${StateDocument.uuid++}`
+            }else{
+                return `0${StateDocument.uuid++}`
+            }
         }
 
         renderNode({id}){
             const node=this.getNode(id)
-			if(!node){
-				debugger
-			}
-            this._content.set(id,immutable.fromJS(node))
+			this._content.set(id,immutable.fromJS(node))
             if(Array.isArray(node.children)){
                 node.children.forEach(a=>this.renderNode({id:a}))
             }
@@ -39,7 +40,7 @@ describe("reducer",()=>{
 
         cloneNode({id}){
             const {id:_,...cloned}=this.getNode(id)
-            cloned.id=this.makeId()
+            this.makeId(cloned)
 			this.content[cloned.id]=cloned
             if(Array.isArray(cloned.children)){
                 cloned.children.map(a=>this.cloneNode({id:a}))
@@ -47,15 +48,22 @@ describe("reducer",()=>{
             return cloned
         }
 
-		createNode(node,{id,at=0}){
-            const reference=this.getNode(id)
-			const parent=this.getNode(reference.parent)
-            if(at==0){
-    			this.insertNodeBefore(node,reference,parent)
-            }else if(at==1){
-                this.insertNodeAfter(node,reference,parent)
+		createNode(node,position){
+            this.makeId(node)
+            if(position){
+                const {id,at=0}=position
+                const reference=this.getNode(id)
+    			const parent=this.getNode(reference.parent)
+                if(at==0){
+        			this.insertNodeBefore(node,reference,parent)
+                }else if(at==1){
+                    this.insertNodeAfter(node,reference,parent)
+                }
+            }else{
+                this.attach(node)
             }
-			return {id:node.id,at:0}
+
+            return {id:node.id,at:0}
 		}
 
 		construct(from,to){
@@ -63,7 +71,7 @@ describe("reducer",()=>{
 			const up=id=>{
 				var {id:_,children,parent,...cloned}=this.getNode(id)
 				cloned.children=cloned.type=="text" ? "" : []
-				cloned.id=this.makeId()
+				this.makeId(cloned)
 				this.content[cloned.id]=cloned
 				if(id!=to){
 					const parentNode=up(parent)
@@ -78,9 +86,16 @@ describe("reducer",()=>{
 			return constructed
 		}
 
-        updateNode({id},changing){
+        updateNode({id},{children,parent,type,...props}){
             const node=this.getNode(id)
-            this.content[id]={...node,...changing}
+            const updated={...node,props:{...node.props,...props}}
+            if(children!==undefined)
+                updated.children=children
+            if(parent!=undefined)
+                updated.parent=parent
+            if(type!=undefined)
+                updated.type=type
+            this.content[id]=updated
             this.renderChanged({id})
 			return this.content[id]
         }
@@ -132,7 +147,7 @@ describe("reducer",()=>{
         insertNodeBefore(newNode,referenceNode,parentNode){
             parentNode=this.getNode(parentNode.id)
             const i=referenceNode ? parentNode.children.indexOf(referenceNode.id) : parentNode.children.length
-            newNode.id=newNode.id||this.makeId()
+            this.makeId(newNode)
             if(this.content[newNode.id]){
                 this.removeNode(newNode,false)
             }
@@ -148,6 +163,12 @@ describe("reducer",()=>{
             const {children:siblings=[]}=this.getNode(parentNode.id)
             const beforeNode=!referenceNode ? siblings[0] : siblings[siblings.indexOf(referenceNode.id)+1]
             return this.insertNodeBefore(newNode,beforeNode ? {id:beforeNode} : null,parentNode)
+        }
+
+        attach(node){
+            this.makeId(node)
+            this.content[node.id]=node
+            return this.renderChanged({id:node.id})
         }
     }
 
@@ -184,6 +205,7 @@ describe("reducer",()=>{
                     "1.1":{type:"text",children:"text",parent:"1"},
                 })
                 reducer.cursorAt("1.1",1,"1.1",3)
+                debugger
                 const cloned=reducer.clone()
                 expect(cloned.attr('type')).toBe('text')
                 expect(cloned.text()).toBe("ex")
@@ -292,14 +314,6 @@ describe("reducer",()=>{
                 expect(cloned.eq(2).attr('type')).toBe('paragraph')
                 expect(cloned.eq(0).find("run,sdt").length).toBe(2)
             })
-        })
-
-        describe("merge",()=>{
-            fit("<t>hello</t> -> Te|xt",()=>{
-
-            })
-
-
         })
 
         describe("seperateSelection",()=>{
@@ -855,6 +869,66 @@ describe("reducer",()=>{
             })
         })
 
+        describe("contents",()=>{
+            describe('at beginning',()=>{
+                it("<t>hello</t> -> |Text",()=>{
+                    const {reducer}=test({
+                        "1":{type:"paragraph",children:["1.1"]},
+                        "1.1":{type:"text",children:"text",parent:"1"},
+                    })
+                    reducer.cursorAt("1.1",0)
+                    reducer.insert([{type:"text",children:"hello"}])
+                    const texts=reducer.$('#1 text')
+                    expect(texts.length).toBe(2)
+                    expect(texts.eq(0).text()).toBe("hello")
+                    expect(texts.eq(1).text()).toBe("text")
+                })
+
+                it("<t>hello</t> -> |<image/>",()=>{
+                    const {reducer}=test({
+                        "1":{type:"paragraph",children:["1.1"]},
+                        "1.1":{type:"image",parent:"1"},
+                    })
+                    reducer.cursorAt("1.1",0)
+                    reducer.insert([{type:"text",children:"hello"}])
+                    const texts=reducer.$('#1 text')
+                    expect(texts.length).toBe(1)
+                    expect(reducer.$('#1').children().toArray()).toMatchObject([texts.eq(0).attr('id'),"1.1"])
+                })
+            })
+
+            describe("inline text",()=>{
+                it("<t>hello</t> -> <t>T|ext</t>",()=>{
+                    const {reducer}=test({
+                        "1":{type:"paragraph",children:["1.1"]},
+                        "1.1":{type:"text",children:"text",parent:"1"},
+                    })
+                    reducer.cursorAt("1.1",1)
+                    reducer.insert([{type:"text",children:"hello"}])
+                    const texts=reducer.$('#1 text')
+                    expect(texts.length).toBe(3)
+                    expect(texts.eq(0).text()).toBe("t")
+                    expect(texts.eq(1).text()).toBe("hello")
+                    expect(texts.eq(2).text()).toBe("ext")
+                })
+
+                it("<t>hello</t> -> <r><t>T|ext</t></r>",()=>{
+                    const {reducer}=test({
+                        "1":{type:"paragraph",children:["1.1"]},
+                        "1.1":{type:"run",children:["1.1.1"],parent:"1"},
+                        "1.1.1":{type:"text",children:"text",parent:"1.1"},
+                    })
+                    reducer.cursorAt("1.1.1",1)
+                    reducer.insert([{type:"text",children:"hello"}])
+                    const texts=reducer.$('#1 text')
+                    expect(texts.length).toBe(3)
+                    expect(texts.eq(0).text()).toBe("t")
+                    expect(texts.eq(1).text()).toBe("hello")
+                    expect(texts.eq(2).text()).toBe("ext")
+                    expect(reducer.$('#1 run').length).toBe(2)
+                })
+            })
+        })
 
     })
 
@@ -867,7 +941,7 @@ describe("reducer",()=>{
                 })
 
                 reducer.cursorAt("1.1",1)
-                reducer.update({text:{props:{size:5}}})
+                reducer.update({text:{size:5}})
                 expect(reducer.$('#1.1').attr('size')).toBe(5)
                 expect(reducer.selection).toMatchObject(selection)
             })
@@ -879,7 +953,7 @@ describe("reducer",()=>{
                 })
 
                 reducer.cursorAt("1.1",1,"1.1",3)
-                reducer.update({text:{props:{size:5}}})
+                reducer.update({text:{size:5}})
                 const texts=reducer.$('text')
                 expect(texts.length).toBe(3)
                 expect(texts.eq(0).attr('size')).toBe(1)
@@ -898,7 +972,7 @@ describe("reducer",()=>{
                 })
 
                 reducer.cursorAt("1.1",1,"2.1",3)
-                reducer.update({text:{props:{size:5}}})
+                reducer.update({text:{size:5}})
                 const texts=reducer.$('text')
                 expect(texts.length).toBe(4)
                 expect(texts.eq(0).attr('size')).toBe(1)
@@ -921,7 +995,7 @@ describe("reducer",()=>{
                 })
 
                 reducer.cursorAt("1.1",1,"2.1",3)
-                reducer.update({text:{props:{size:5}}})
+                reducer.update({text:{size:5}})
                 const texts=reducer.$('text')
                 expect(texts.length).toBe(5)
                 expect(texts.eq(0).attr('size')).toBe(1)
@@ -944,8 +1018,7 @@ describe("reducer",()=>{
                 })
 
                 reducer.cursorAt("1",0,"1",1)
-                debugger
-                reducer.update({text:{props:{size:5}}})
+                reducer.update({text:{size:5}})
                 expect(reducer.$('#1 text').length).toBe(2)
                 expect(reducer.$('#1.1').attr('size')).toBe(5)
                 expect(reducer.$('#1.3').attr('size')).toBe(5)
