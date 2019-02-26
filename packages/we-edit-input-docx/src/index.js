@@ -36,7 +36,8 @@ export default class SerializableDocx extends EditableDocx{
 		return node
 	}
 
-	cloneNode({id,type}, autoAttach=true, keepId=false){
+	cloneNode({id,type}, keepId=false){
+		const autoAttach=true//always
 		const editor=new editors[Type(type)](this)
 		editor.node=this.getNode(id)
 
@@ -53,27 +54,20 @@ export default class SerializableDocx extends EditableDocx{
 				delete el.attribs._xxid
 			})
 		}
-		return cloned
 	}
 
-	splitNode({id,type, node},at, reducer){
+	splitNode({id,type, node},at){
 		const editor=new editors[Type(type)](this)
 		editor.node=node||this.getNode(id)
-		return editor.split(at,reducer)
+		return editor.split(at)
 	}
 
-	tailorNode({id,type, node}, from , to){
+	createNode({type},position){
 		const editor=new editors[Type(type)](this)
-		editor.node=node||this.getNode(id)
-		return editor.tailor(from,to)
+		return editor.create(arguments[0],position)
 	}
 
-	createNode({type},reducer, target){
-		const editor=new editors[Type(type)](this)
-		return editor.create(arguments[0],reducer, target)
-	}
-
-	updateNode({id,type},changing, query){
+	updateNode({id,type},changing){
 		const editor=new editors[Type(type)](this)
 		editor.node=this.getNode(id)
 		return editor.update(arguments[0],changing)
@@ -138,6 +132,10 @@ export default class SerializableDocx extends EditableDocx{
 	toXml(node){
 		return this.doc.officeDocument.content.xml(node)
 	}
+
+    px2dxa(w){
+        return w*72*20/96
+    }
 
 	px2cm(px){
 		return Math.ceil(px*72/96*360000/28.3464567)

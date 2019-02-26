@@ -24,16 +24,7 @@ export class Text extends Base{
 		return super.got(nodeName,"w:r", "w:rPr")
 	}
 
-	tailor(from=0,to){
-		const text=this.node.text()
-		from=from<0 ? text.length+from : from
-		to=to==undefined ? text.length-1 : (to<0 ? text.length+to : to)
-		this.node.text(text.substring(0,from)+text.substring(to))
-		if(this.node.text().length==0)
-			this.remove()
-	}
-
-	split(at,reducer){
+	split(at){
 		const text=this.node.text()
 		at=at<0 ? text.length+at : at
 		if(at>=text.length || at==0){
@@ -44,7 +35,7 @@ export class Text extends Base{
 		const r1=r0.clone().empty()
 			.append(this.node.clone().text(text.substring(at)))
 			.insertAfter(r0)
-		reducer.renderChanged(r0.parent())
+		this.file.renderChanged(r0.parent())
 		return [{id:this.node.attr('xxid'),at:at},{id:r1.find("w\\:t").attr('xxid'), at:0}]
 	}
 

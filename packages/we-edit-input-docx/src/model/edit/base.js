@@ -37,24 +37,20 @@ export default class Editor{
         return $.root().children().first()
     }
 
-    create(props, reducer, target){
+    create(props,position){
         this.node=this.parseXml(this.template(props))
-        return this.file.attach(this.apply(props, reducer))
+        return this.file.attach(this.apply(props))
     }
 
-    update({id},changing,query){
-        return this.apply({id, ...changing},query)
+    update({id},changing){
+        return this.apply({id, ...changing})
     }
 
     remove({id,type}){
         return this.node.remove()
     }
 
-    tailor(from=0,to){
-        return this.node.remove()
-    }
-
-    split(at,reducer){
+    split(at){
         const id=this.node.attr("xxid")
         return [{id,at},{id,at}]
     }
@@ -78,13 +74,5 @@ export default class Editor{
 
     template(props){
         return ``
-    }
-
-	tailer(from,to){
-		return this.file.clone(this.node)
-	}
-
-    px2dxa(w){
-        return w*72*20/96
     }
 }

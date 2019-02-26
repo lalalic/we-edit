@@ -19,7 +19,7 @@ export class Table extends Base{
     }
 
 	cols(cols){
-		cols=cols.map(w=>this.px2dxa(w))
+		cols=cols.map(w=>this.file.px2dxa(w))
 		this.node.find("w\\:tblGrid").empty()
             .append(cols.map(w=>`<w:gridCol w:w="${w}"/>`).join(""))
 	}
@@ -38,7 +38,7 @@ export class Table extends Base{
             trHeight=pr.find("w\\:trHeight")
         }
 
-		height=this.px2dxa(height)
+		height=this.file.px2dxa(height)
 
         trHeight.attr("w:val",height)
 	}
@@ -54,7 +54,7 @@ export class Table extends Base{
         const tr=this.node.find(`[xxid="${row}"]`)
 		const tc=tr.find(`[xxid="${cell}"]`)
 		const tcW=tc.find("w\\:tcPr>w\\:tcW")
-		width=this.px2dxa(width)
+		width=this.file.px2dxa(width)
 		const delta=width-parseInt(tcW.attr("w:w")||cols[i])
 
         if(cols.length>i+1){
@@ -154,7 +154,7 @@ export class Table extends Base{
     }
 
     make(rows,cols){
-		cols=cols.map(w=>this.px2dxa(w))
+		cols=cols.map(w=>this.file.px2dxa(w))
 		this.node.find("w\\:tblGrid").empty()
             .append(cols.map(w=>`<w:gridCol w:w="${w}"/>`).join(""))
 
@@ -187,10 +187,11 @@ export class Table extends Base{
         `
     }
 
-	create(props,reducer,target){
-		const [p0,p1]=reducer.splitAtUpto(reducer.selection.start,"paragraph")
+	create(props,{id,at}){
+        const [p0,p1]=this.file.splitNodeUpto({id},at,"paragraph")
 		const createdNode=super.create(...arguments)
-		const {id:createdId}=reducer.renderChanged(createdNode)
+        p0.after(createdNode)
+        const {id:createdId}=this.file.renderChanged(createdNode)
 
 		let created=reducer.$(`#${createdId}`).insertAfter(p0)
 

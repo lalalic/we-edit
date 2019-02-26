@@ -88,23 +88,26 @@ class Reducer extends Base{
 		return {id,type:this.$('#'+id).attr('type')}
 	}
 
-	splitAtUpTo({id,at},to="paragraph"){
+	splitAtUpTo({id,at},to){
 		const target=this.$('#'+id)
-		const text=target.text()
 		to=typeof(to)=="string" ? target.closest(to) : to
 		const parent=to.parent()
 
-		let to1=target.constructUp(to)
-			.insertAfter(to)
+		let to1=target.constructUp(to).insertAfter(to)
 
-		let t0=to1.findFirst("text")
-			.text(text.substr(at))
+		let t0=to1.findFirst(a=>this.$('#'+a).children().length==0)
+		
+		if(target.attr('type')=="text"){
+			const text=target.text()
+			t0.text(text.substr(at))
+			target.text(text.substr(0,at))
+		}
 
 		target.parentsUntil(to).each(function(i,node,$){
 			this.eq(i).after($(node).nextAll())
 		},t0.parentsUntil(to1))
 
-		target.text(text.substr(0,at))
+
 		return [to,to1]
 	}
 
