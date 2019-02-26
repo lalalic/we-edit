@@ -59,16 +59,16 @@ class Base{
 		}
 	}
 
-	save4undo(id){
-		this._undoables[id]=this.file.cloneNode(this.file.getNode(id),false)
-	}
-
 	cursorAt(id,at, endId=id, endAt=at, cursorAt){
 		if(cursorAt=="start" || cursorAt=="end")
 			this._selection.cursorAt=cursorAt
 
 		this._selection={...this._selection,start:{id,at}, end:{id:endId, at:endAt}}
 		return this._selection
+	}
+
+	save4undo(id){
+
 	}
 
 	undo({action,changed,selection}){
@@ -82,34 +82,13 @@ class Base{
 	}
 }
 
-class Action extends Base{
-	insert_text_in_text(text){
-
-	}
-
-	insert_text_at_end(){
-
-	}
-
-	insert_text_at_beginning(){
-
-	}
-
-	insert_text_lines(lines){
-		const first=lines.unshift(),last=lines.pop()
-		this.splitAtUpto(this.selection.start,"paragraph")
-		this[`insert_text_${this.position}`](first)
-	}
-}
-
-
 
 class Reducer extends Base{
 	element(id){
 		return {id,type:this.$('#'+id).attr('type')}
 	}
 
-	splitAtUpto({id,at},to="paragraph"){
+	splitAtUpTo({id,at},to="paragraph"){
 		const target=this.$('#'+id)
 		const text=target.text()
 		to=typeof(to)=="string" ? target.closest(to) : to
@@ -208,7 +187,7 @@ class Reducer extends Base{
 			const inParagraphTopParentId=target.parentsUntil("paragraph").toArray().pop()
 			if(inParagraphTopParentId){
 				const topParent=this.$('#'+inParagraphTopParentId)
-				this.splitAtUpto({id,at},topParent)
+				this.splitAtUpTo({id,at},'#'+inParagraphTopParentId)
 				renderedContents.reverse().forEach((a,i)=>{
 					topParent.after(this.$(`#${a.id}`))
 				})
@@ -223,7 +202,7 @@ class Reducer extends Base{
 			}
 		}else{
 			const p=target.closest("paragraph")
-			this.splitAtUpto({id,at},p)
+			this.splitAtUpTo({id,at},"paragraph")
 			const firstId=renderedContents.unshift()
 			const lastId=renderedContents.pop()
 
@@ -484,7 +463,7 @@ class Clipboard extends Content{
 	}
 
 	cut({clipboardData}={}){
-		clipboard=this.clone(true)
+		clipboard=this.clone()
 		this.remove()
         return this
 	}

@@ -195,7 +195,8 @@ export class Serializable extends Editable{
 
 	}
 
-	cloneNode(element, autoAttach=true, keepId=false){
+	//always attached
+	cloneNode(element, keepId=false){
 
 	}
 
@@ -204,7 +205,12 @@ export class Serializable extends Editable{
 
 	}
 
-	createNode(element, cursor/*{id,at=0}*/){
+	/*
+	at=0:before node{id},
+	at=1:after node{id},
+	create and attached when poisiton is falsy
+	*/
+	createNode(element, position/*{id,at=0}*/){
 
 	}
 
