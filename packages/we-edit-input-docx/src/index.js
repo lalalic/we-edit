@@ -30,7 +30,8 @@ export default class SerializableDocx extends EditableDocx{
 			node=this.doc.officeDocument.content(`[xxid="${id}"]`)
 		else
 			node=this.doc.officeDocument.getRel(part)(`[xxid="${id}"]`)
-		if(node.length>1){
+		if(node.length!=1){
+			debugger
 			throw new Error(`file node[${id}] not unique`)
 		}
 		return node
@@ -44,16 +45,13 @@ export default class SerializableDocx extends EditableDocx{
 		const cloned=editor.clone()
 
 		if(!keepId){
-			clone.find("[_xxid]").removeAttr("_xxid")
+			cloned.find("[xxid]").add(cloned.filter("[xxid]")).removeAttr("xxid")
 			if(autoAttach){
 				return this.attach(cloned)
 			}
-		}else{
-			cloned.find("[_xxid]").each((i,el)=>{
-				this.makeId(el,el.attribs._xxid)
-				delete el.attribs._xxid
-			})
 		}
+
+		return cloned
 	}
 
 	splitNode({id,type, node},at){

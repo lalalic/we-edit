@@ -62,7 +62,7 @@ export default class extends Input.Editable{
 
 	render(createElement,components){
 		const self=this
-		const identify=Docx.OfficeDocument.identify
+		const identify=this.doc.constructor.OfficeDocument.identify
 
 		const precision=1
 		const docx=this.doc
@@ -259,6 +259,8 @@ export default class extends Input.Editable{
 		//implement loader.renderChangedNode
 		this.renderNode=(node,createElement)=>{
 			build=buildFactory(createElement)
+			if(node.cheerio)
+				node=node.get(0)
 			return docx.officeDocument.renderNode(node,build,identify)
 		}
 

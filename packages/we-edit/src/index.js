@@ -18,3 +18,5 @@ export {default as models} from "./model"
 export {default as editify} from "./model/edit"
 
 export {default as render} from "./render"
+
+export * from "./tck"
