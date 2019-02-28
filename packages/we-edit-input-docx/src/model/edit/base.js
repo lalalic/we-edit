@@ -59,6 +59,10 @@ export default class Editor{
         return this.node.clone()
     }
 
+    empty(){
+        this.node.empty()
+    }
+
     apply(changing){
         Object.keys(changing)
             .forEach(k=>{

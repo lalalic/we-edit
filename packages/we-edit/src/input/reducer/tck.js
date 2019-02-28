@@ -11,7 +11,7 @@ export default function(TypedDocument){
                 .set("root",immutable.fromJS({id:"root",type:"document",children:["1","2","3"]}))
         )
         const _content=content.asMutable()
-        const doc=new TypedDocument(content,_content,{immutable})
+        const doc=new TypedDocument(content,_content,{immutable,test})
         return createState(doc,content).set("_content",_content)
     }
 
@@ -67,7 +67,7 @@ export default function(TypedDocument){
                 expect(reducer.clone().attr('type')).toBe('image')
             })
 
-            fit("<p><r><d><t>hello</t></d></r><t>(world</t></p><p><r><d><t>hello</t></d></r><t>)world</t></p>",()=>{
+            it("<p><r><d><t>hello</t></d></r><t>(world</t></p><p><r><d><t>hello</t></d></r><t>)world</t></p>",()=>{
                 const {reducer}=test({
                     "1":{type:"paragraph",children:["1_1","1_2"]},
                     "1_1":{type:"container0",children:["1_1_1"],parent:"1"},
@@ -96,7 +96,7 @@ export default function(TypedDocument){
                 expect(cloned.eq(0).find("container0,container1").length).toBe(2)
             })
 
-            it("<p><r><d><t>hello</t></d></r><t>w(orld</t></p><p><r><d><t>hello</t></d></r><t>w)orld</t></p>",()=>{
+            fit("<p><r><d><t>hello</t></d></r><t>w(orld</t></p><p><r><d><t>hello</t></d></r><t>w)orld</t></p>",()=>{
                 const {reducer}=test({
                     "1":{type:"paragraph",children:["1_1","1_2"]},
                     "1_1":{type:"container0",children:["1_1_1"],parent:"1"},

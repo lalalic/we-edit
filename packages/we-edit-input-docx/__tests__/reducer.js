@@ -1,3 +1,4 @@
+import Editors from "../src/model/edit"
 import {testEditableDocument, models} from "we-edit"
 import docx4js from "../src/docx"
 import DocxDocument from "../src"
@@ -9,6 +10,14 @@ describe("reduce docx",()=>{
             docx.officeDocument.content('w\\:p').remove()
             doc=docx
         })
+    })
+
+    beforeEach(()=>{
+        Editors.Container1=Editors.Container0=class extends Editors.Unknown{
+            empty(){
+                this.node.find("w\\:sdtContent").empty()
+            }
+        }
     })
 
     testEditableDocument(class extends DocxDocument{
@@ -69,10 +78,21 @@ describe("reduce docx",()=>{
                         ${node.props && node.props.size!=undefined ? `<w:sz val="${node.props.size*2}"/>` : ""}
                     </w:rPr>
                     <w:t xxid="${node.id}">${node.children||""}</w:t>
-                <w:r>
+                </w:r>
                 `
+            case "container0":
+            case "container1":
+                return `
+                <w:sdt type="${node.type}" xxid="${node.id}">
+                    <w:sdtPr>
+                        <w:${node.type}/>
+                    </w:sdtPr>
+                    <w:sdtContent>
+                        ${(node.children||[]).map(a=>this.createContent(content,a)).join('')}
+                    </w:sdtContent>
+                </w:sdt>`
             default:
-                return `<w:sdt type="${node.type}" xxid="${node.id}">${(node.children||[]).map(a=>this.createContent(content,a)).join('')}</w:sdt>`
+                return ""
             }
         }
         constructor(content,_content, {immutable}){
@@ -98,10 +118,6 @@ describe("reduce docx",()=>{
 
             const identify=this.doc.constructor.OfficeDocument.identify
             this.doc.constructor.OfficeDocument.identify=jest.fn(function(wXml){
-                if(wXml.name=="w:sdt"){
-                    const {attribs:{type,...props}}=wXml
-                    return {type:type, xxid:wXml.attribs,children:wXml.children}
-                }
                 return identify(...arguments)
             })
 
@@ -111,8 +127,10 @@ describe("reduce docx",()=>{
 
             const createElement=(type,props, children,raw)=>{
                 let node={type:type.displayName,props,children:!Array.isArray(children) ? children : children.map(a=>a.id)}
-                const id=this.makeId(raw)
-                node.id=id
+                if(node.type=="container"){
+                    node.type=raw.attribs.type
+                }
+                const id=node.id=this.makeId(raw)
                 _content.set(id,immutable.fromJS(node))
                 return node
             }
@@ -120,7 +138,6 @@ describe("reduce docx",()=>{
             this.renderChanged=node=>{
                 if(node.cheerio)
                     node=node.get(0)
-                    
                 return this.renderNode(node,createElement,components)
             }
         }

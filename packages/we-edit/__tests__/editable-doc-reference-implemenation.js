@@ -63,7 +63,7 @@ class StateDocument extends Input.Editable{
         return {id:node.id,at:0}
     }
 
-    construct(from,to){
+    construct({id:from},to){
         var  constructed
         const up=id=>{
             var {id:_,children,parent,...cloned}=this.getNode(id)

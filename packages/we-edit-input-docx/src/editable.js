@@ -243,6 +243,9 @@ export default class extends Input.Editable{
 			case "bookmarkStart":
 			case "bookmarkEnd":
 				return null
+			case "inline":
+			case "block":
+				return createElement(components.Container,{},children,node)
 			default:
 				if(children.length==1)
 					return children[0]

@@ -28,13 +28,18 @@ export class Text extends Base{
 		const text=this.node.text()
 		at=at<0 ? text.length+at : at
 		if(at>=text.length || at==0){
+			throw new Error("should not be here")
 			return [{id:this.node.attr('xxid'),at:at},{id:this.node.attr('xxid'),at:at}]
 		}
 		this.node.text(text.substring(0,at))
 		const r0=this.node.closest("w\\:r")
-		const r1=r0.clone().empty()
-			.append(this.node.clone().text(text.substring(at)))
+		var r1=r0.clone()
+		r1.find("w\\:t").remove()
+		r1=r1.append(this.node.clone().text(text.substring(at)))
 			.insertAfter(r0)
+			.removeAttr('xxid')
+		r1.find('[xxid]').removeAttr('xxid')
+
 		this.file.renderChanged(r0.parent())
 		return [{id:this.node.attr('xxid'),at:at},{id:r1.find("w\\:t").attr('xxid'), at:0}]
 	}

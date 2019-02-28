@@ -4,6 +4,9 @@ import EditableDocx from "./editable"
 
 export default class SerializableDocx extends EditableDocx{
 	makeId(node, uid){
+		if(!node){
+			debugger
+		}
 		if(uid){
 			defineId(node.attribs,uid)
 			return uid
@@ -102,25 +105,27 @@ export default class SerializableDocx extends EditableDocx{
 		return xml.get(0)
 	}
 
-	construct(from,to){
-		let $=this.doc.officeDocument.content
-		let nodeFrom=this.getNode(from)
-		let nodeTo=this.getNode(to)
-		let path=nodeFrom.parentsUntil(nodeTo).toArray()
-		path.splice(path.length,0,nodeTo.get(0))
+	construct({id:from,type},to){
+		const $=this.doc.officeDocument.content
+		const cloned=this.getNode(to).clone()
+		var clonedFrom=$(cloned).find(`[xxid="${from}"]`)
+		if(clonedFrom.length==0){
+			console.assert(from==to)
+			clonedFrom=cloned
+		}
 
-		let xml=path.reduce((constructed,node)=>{
-			switch(node.name.split(":").pop()){
-			case "r":
-				return `<w:r>${$.xml($(node).find("w\\:rPr"))}${constructed}</w:r>`
-			break
-			case "p":
-				return `<w:p>${$.xml($(node).find("w\\:pPr"))}${constructed}</w:p>`
-			break
-			}
-		},`<${nodeFrom.get(0).name}/>`)
+		const editor=new editors[Type(type)](this)
+		editor.node=clonedFrom
+		editor.empty()
 
-		return this.attach(xml)
+		var current=clonedFrom
+		while(current.length){
+			current.prevAll().remove()
+			current.nextAll().remove()
+			current.removeAttr('xxid')
+			current=current.closest(`[xxid]`)
+		}
+		return this.attach(cloned)
 	}
 
     toString(id){
@@ -145,11 +150,11 @@ export default class SerializableDocx extends EditableDocx{
 }
 
 
-const uuid=(_uuid=>()=>`${_uuid++}`)(0)
+const uuid=(_uuid=>()=>`${_uuid++}`)(100)
 
 const defineId=(target,id)=>Object.defineProperty(target,"xxid",{
-	enumerable: false,
-	configurable: false,
+	enumerable: true,
+	configurable: true,
 	writable: false,
 	value: id
 })

@@ -25,6 +25,10 @@ export class Image extends Base{
         return drawing
     }
 
+    empty(){
+        
+    }
+
     size({width,height}){
         let ext0=this.node.find("a\\:xfrm>a\\:ext")
         let inline=this.node.closest("wp\\:inline")

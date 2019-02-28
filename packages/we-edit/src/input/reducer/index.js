@@ -96,7 +96,7 @@ class Reducer extends Base{
 		let to1=target.constructUp(to).insertAfter(to)
 
 		let t0=to1.findFirst(a=>this.$('#'+a).children().length==0)
-		
+
 		if(target.attr('type')=="text"){
 			const text=target.text()
 			t0.text(text.substr(at))
@@ -114,6 +114,24 @@ class Reducer extends Base{
 	/*start at beginning of node, end at ending of node*/
 	seperateSelection(){
 		const {start,end}=this.selection
+		if(end.at==0){
+			const ender=this.$('#'+end.id)
+			const newEnder=ender.backwardFirst()
+			end.id=newEnder.attr('id')
+			end.at=newEnder.attr('type')=="text" ? newEnder.text().length : 1
+			this.cursorAt(start.id,start.at, end.id,end.at)
+		}
+		if(start.id==end.id){
+			const starter=this.$('#'+start.id)
+			if(starter.type=="text"){
+				if(start.at==0 && end.at>=starter.text().length){
+					return
+				}
+			}else if(start.at==0 && end.at==1){
+				return
+			}
+		}
+
 		if(!(start.id==end.id && start.at==end.at)){
 			const [newEnd]=this.file.splitNode(this.element(end.id),end.at, start.id==end.id)
 			end.id=newEnd.id
@@ -286,6 +304,7 @@ class Reducer extends Base{
 				return target.eq(1)//empty
 			}
 		}else{
+			debugger
 			this.seperateSelection()
 			const {start,end}=this.selection
 			const target0=this.$('#'+start.id)
@@ -323,6 +342,7 @@ class Reducer extends Base{
 
 				return clonedTop0.add(clonedSiblings).add(clonedTop1)
 			}else{
+				debugger
 				throw new Error("not support yet")
 			}
 		}
