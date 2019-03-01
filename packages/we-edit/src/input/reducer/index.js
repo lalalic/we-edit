@@ -197,6 +197,7 @@ class Reducer extends Base{
 	merge(contents){
 		const {start:{id,at}}=this.selection
 		var target=this.$('#'+id)
+		debugger
 		const renderedContents=contents.map(a=>this.file.attach(a))
 		if(renderedContents.length==1){
 			const single=this.$('#'+renderedContents[0])
@@ -204,14 +205,14 @@ class Reducer extends Base{
 				renderedContents.splice(0,1,...single.children().toArray())
 			}
 		}
-		const isInline=this.$(renderedContents.map(a=>a.id)).filter("paragraph,table,frame").length==0
+		const isInline=this.$(renderedContents).filter("paragraph,table,frame").length==0
 		if(isInline){
 			const inParagraphTopParentId=target.parentsUntil("paragraph").toArray().pop()
 			if(inParagraphTopParentId){
 				const topParent=this.$('#'+inParagraphTopParentId)
 				this.splitAtUpTo({id,at},'#'+inParagraphTopParentId)
 				renderedContents.reverse().forEach((a,i)=>{
-					topParent.after(this.$(`#${a.id}`))
+					topParent.after(this.$(`#${a}`))
 				})
 			}else{
 				if(at>0){
@@ -219,7 +220,7 @@ class Reducer extends Base{
 					target=this.$('#'+second.id)
 				}
 				renderedContents.reverse().forEach((a,i)=>{
-					target.before(this.$(`#${a.id}`))
+					target.before(this.$(`#${a}`))
 				})
 			}
 		}else{

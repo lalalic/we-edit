@@ -47,7 +47,7 @@ export default function(TypedDocument){
             it("t(ex)t",()=>{
                 const {reducer}=test({
                     "1":{type:"paragraph",children:["1_1"]},
-                    "1_1":{type:"text",children:"text",parent:"1"},
+                    "1_1":{type:"text",children:"text",parent:"1"}
                 })
                 reducer.cursorAt("1_1",1,"1_1",3)
                 const cloned=reducer.clone()
@@ -671,7 +671,7 @@ export default function(TypedDocument){
 
         describe("contents",()=>{
             describe('at beginning',()=>{
-                fit("<t>hello</t> -> |Text",()=>{
+                it("<t>hello</t> -> |Text",()=>{
                     const {reducer}=test({
                         "1":{type:"paragraph",children:["1_1"]},
                         "1_1":{type:"text",children:"text",parent:"1"},

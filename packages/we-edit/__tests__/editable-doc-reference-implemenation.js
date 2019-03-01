@@ -171,7 +171,8 @@ class StateDocument extends Input.Editable{
     attach(node){
         this.makeId(node)
         this.content[node.id]=node
-        return this.renderChanged({id:node.id})
+        this.renderChanged({id:node.id})
+        return node.id
     }
 }
 
