@@ -50,7 +50,8 @@ export default class SerializableDocx extends EditableDocx{
 		if(!keepId){
 			cloned.find("[xxid]").add(cloned.filter("[xxid]")).removeAttr("xxid")
 			if(autoAttach){
-				return this.attach(cloned)
+				this.attach(cloned)
+				return cloned.get(0)
 			}
 		}
 
@@ -101,8 +102,8 @@ export default class SerializableDocx extends EditableDocx{
 	attach(xml){
 		xml=this.doc.officeDocument.content(xml)
 		this.doc.officeDocument.content("w\\:body").append(xml)
-		this.makeId(xml.get(0))
-		return xml.get(0)
+		const {id}=this.renderChanged(xml)
+		return id
 	}
 
 	construct({id:from,type},to){
@@ -125,7 +126,8 @@ export default class SerializableDocx extends EditableDocx{
 			current.removeAttr('xxid')
 			current=current.closest(`[xxid]`)
 		}
-		return this.attach(cloned)
+		this.attach(cloned)
+		return cloned.get(0)
 	}
 
     toString(id){

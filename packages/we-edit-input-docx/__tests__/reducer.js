@@ -6,6 +6,15 @@ import DocxDocument from "../src"
 describe("reduce docx",()=>{
     let doc=null
     beforeAll(()=>{
+        const insert=DocxDocument.Reducer.prototype.insert
+        DocxDocument.Reducer.prototype.insert=jest.fn(function(inserting){
+            const createContent=this.file.constructor.createContent
+            if(Array.isArray(inserting)){//merge content
+                inserting=inserting.map(node=>createContent({},null,node))
+            }
+            return insert.bind(this)(inserting)
+        })
+        
         return docx4js.create().then(docx=>{
             docx.officeDocument.content('w\\:p').remove()
             doc=docx
@@ -21,79 +30,80 @@ describe("reduce docx",()=>{
     })
 
     testEditableDocument(class extends DocxDocument{
-        static createContent(content, id){
-            const node=content[id]
+        static createContent(content, id, node=content[id]){
             if(!node)
                 return ""
-            switch(node.type){
-            case "paragraph":
-                return `<w:p xxid="${id}">${(node.children||[]).map(a=>this.createContent(content,a)).join('')}</w:p>`
-            case "image":
-                return `
-                <w:r w:rsidR="00D76211">
-                  <w:rPr>
-                    <w:noProof/>
-                  </w:rPr>
-                  <w:drawing>
-                    <wp:inline distT="0" distB="0" distL="0" distR="0" wp14:anchorId="10F53B14" wp14:editId="13558A84">
-                      <wp:extent cx="1565507" cy="978535"/>
-                      <wp:effectExtent l="0" t="0" r="0" b="0"/>
-                      <wp:docPr id="2" name="Picture 2"/>
-                      <wp:cNvGraphicFramePr>
-                        <a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/>
-                      </wp:cNvGraphicFramePr>
-                      <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
-                        <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
-                          <pic:pic xxid="${node.id}" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
-                            <pic:nvPicPr>
-                              <pic:cNvPr id="2" name="NatGeo01.jpg"/>
-                              <pic:cNvPicPr/>
-                            </pic:nvPicPr>
-                            <pic:blipFill>
-                              <a:blip r:embed="rId9"/>
-                              <a:stretch>
-                                <a:fillRect/>
-                              </a:stretch>
-                            </pic:blipFill>
-                            <pic:spPr>
-                              <a:xfrm>
-                                <a:off x="0" y="0"/>
-                                <a:ext cx="1575846" cy="984997"/>
-                              </a:xfrm>
-                              <a:prstGeom prst="rect">
-                                <a:avLst/>
-                              </a:prstGeom>
-                            </pic:spPr>
-                          </pic:pic>
-                        </a:graphicData>
-                      </a:graphic>
-                    </wp:inline>
-                  </w:drawing>
-                </w:r>
-                `
-            case "text":
-                return `
-                <w:r>
-                    <w:rPr>
-                        ${node.props && node.props.size!=undefined ? `<w:sz w:val="${node.props.size*2}"/>` : ""}
-                    </w:rPr>
-                    <w:t xxid="${node.id}">${node.children||""}</w:t>
-                </w:r>
-                `
-            case "container0":
-            case "container1":
-                return `
-                <w:sdt type="${node.type}" xxid="${node.id}">
-                    <w:sdtPr>
-                        <w:${node.type}/>
-                    </w:sdtPr>
-                    <w:sdtContent>
-                        ${(node.children||[]).map(a=>this.createContent(content,a)).join('')}
-                    </w:sdtContent>
-                </w:sdt>`
-            default:
-                return ""
-            }
+            return (()=>{
+                switch(node.type){
+                case "paragraph":
+                    return `<w:p ${node.id ? `xxid="${node.id}"` : ""}>${(node.children||[]).map(a=>this.createContent(content,a)).join('')}</w:p>`
+                case "image":
+                    return `
+                    <w:r w:rsidR="00D76211">
+                      <w:rPr>
+                        <w:noProof/>
+                      </w:rPr>
+                      <w:drawing>
+                        <wp:inline distT="0" distB="0" distL="0" distR="0" wp14:anchorId="10F53B14" wp14:editId="13558A84">
+                          <wp:extent cx="1565507" cy="978535"/>
+                          <wp:effectExtent l="0" t="0" r="0" b="0"/>
+                          <wp:docPr id="2" name="Picture 2"/>
+                          <wp:cNvGraphicFramePr>
+                            <a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/>
+                          </wp:cNvGraphicFramePr>
+                          <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+                            <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
+                              <pic:pic xxid="${node.id}" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
+                                <pic:nvPicPr>
+                                  <pic:cNvPr id="2" name="NatGeo01.jpg"/>
+                                  <pic:cNvPicPr/>
+                                </pic:nvPicPr>
+                                <pic:blipFill>
+                                  <a:blip r:embed="rId9"/>
+                                  <a:stretch>
+                                    <a:fillRect/>
+                                  </a:stretch>
+                                </pic:blipFill>
+                                <pic:spPr>
+                                  <a:xfrm>
+                                    <a:off x="0" y="0"/>
+                                    <a:ext cx="1575846" cy="984997"/>
+                                  </a:xfrm>
+                                  <a:prstGeom prst="rect">
+                                    <a:avLst/>
+                                  </a:prstGeom>
+                                </pic:spPr>
+                              </pic:pic>
+                            </a:graphicData>
+                          </a:graphic>
+                        </wp:inline>
+                      </w:drawing>
+                    </w:r>
+                    `
+                case "text":
+                    return `
+                    <w:r>
+                        <w:rPr>
+                            ${node.props && node.props.size!=undefined ? `<w:sz w:val="${node.props.size*2}"/>` : ""}
+                        </w:rPr>
+                        <w:t ${node.id ? `xxid="${node.id}"` : ""}>${node.children||""}</w:t>
+                    </w:r>
+                    `
+                case "container0":
+                case "container1":
+                    return `
+                    <w:sdt type="${node.type}" ${node.id ? `xxid="${node.id}"` : ""}>
+                        <w:sdtPr>
+                            <w:${node.type}/>
+                        </w:sdtPr>
+                        <w:sdtContent>
+                            ${(node.children||[]).map(a=>this.createContent(content,a)).join('')}
+                        </w:sdtContent>
+                    </w:sdt>`
+                default:
+                    return ""
+                }
+            })().replace(/>\s+/g,">").replace(/\s+</g,"<")
         }
         constructor(content,_content, {immutable}){
             super()
@@ -102,7 +112,7 @@ describe("reduce docx",()=>{
             content=content.toJS()
             content.root.children.reverse()
                 .forEach(id=>{
-                    body.prepend(this.constructor.createContent(content,id).replace(/>\s+/g,">").replace(/\s+</g,"<"))
+                    body.prepend(this.constructor.createContent(content,id))
                 })
 
             const components=this.transform(models)

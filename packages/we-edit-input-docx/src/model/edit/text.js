@@ -5,13 +5,23 @@ export class Text extends Base{
 		return `<w:t></w:t>`
 	}
 
+	update({id},changing){
+		this.apply({id, ...changing})
+		const container=this.node.parent().closest('[xxid]')
+		if(container.length){
+	        this.file.renderChanged(container)
+		}else{
+			//in process
+		}
+	}
+
 	create(props,{id,at=0}){
 		const target=this.file.getNode(id)
         var r=target.closest("w\\:r")
         if(r.length==0){
             r=target.find("w\\:r").eq(0)
         }
-		
+
 		var container=r.clone()
 		container.children().not("w\\:rPr").remove()
 
@@ -57,7 +67,7 @@ export class Text extends Base{
 			r.find('[xxid]').removeAttr('xxid')
 		})(firstKeepId ? r1 : r0);
 
-		this.file.renderChanged(r0.closest(`[xxid]`))
+		this.file.renderChanged(r0.parent().closest(`[xxid]`))
 		return [{id:this.node.attr('xxid'),at:at},{id:r1.find("w\\:t").attr('xxid'), at:0}]
 	}
 

@@ -99,7 +99,7 @@ export class Image extends Base{
             container=container.insertAfter(r)
         }
 
-		this.file.renderChanged(r.closest(`[xxid]`))
+		this.file.renderChanged(r.parent().closest(`[xxid]`))
 
 		return {id:container.find(`[xxid]`).attr('xxid'),at:0}
 	}
