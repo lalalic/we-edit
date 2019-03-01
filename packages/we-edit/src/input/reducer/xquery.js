@@ -177,7 +177,15 @@ export default class xQuery extends Query{
             this._content.remove(k)
 		}
 		this._nodes.forEach(k=>{
-			this.file.removeNode(this._content.get(k).toJS())
+            this.file.removeNode(this._content.get(k).toJS())
+            let parentId=this._content.getIn([k,"parent"])
+            let children=this._content.getIn([parentId,"children"])
+            if(children instanceof List){
+                let i=children.indexOf(k)
+                if(i!=-1){
+                    this._content.removeIn([parentId,"children",i])
+                }
+            }
 			clear(k)
 		})
 		return this

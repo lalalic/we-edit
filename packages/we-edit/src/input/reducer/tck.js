@@ -96,7 +96,7 @@ export default function(TypedDocument){
                 expect(cloned.eq(0).find("container0,container1").length).toBe(2)
             })
 
-            fit("<p><r><d><t>hello</t></d></r><t>w(orld</t></p><p><r><d><t>hello</t></d></r><t>w)orld</t></p>",()=>{
+            it("<p><r><d><t>hello</t></d></r><t>w(orld</t></p><p><r><d><t>hello</t></d></r><t>w)orld</t></p>",()=>{
                 const {reducer}=test({
                     "1":{type:"paragraph",children:["1_1","1_2"]},
                     "1_1":{type:"container0",children:["1_1_1"],parent:"1"},
@@ -241,7 +241,7 @@ export default function(TypedDocument){
                 composer.nextCursorable=jest.fn(()=>({id:"1_1",at:2}))
                 reducer.remove({responsible})
                 expect(reducer.$("#1_1").text()).toBe("txt")
-                expect(reducer.file.getNode("1_1").children).toBe("txt")
+                expect(reducer.file.getNode("1_1").text()).toBe("txt")
                 expect(reducer.selection).toMatchObject({start:{id:"1_1",at:1},end:{id:"1_1",at:1}})
             })
 
@@ -254,7 +254,7 @@ export default function(TypedDocument){
                 composer.nextCursorable=jest.fn(()=>({id:"1",at:1}))
                 reducer.remove({responsible})
                 expect(reducer.$("#1_1").text()).toBe("text")
-                expect(reducer.file.getNode("1_1").children).toBe("text")
+                expect(reducer.file.getNode("1_1").text()).toBe("text")
                 expect(reducer.selection).toMatchObject({start:{id:"1",at:1},end:{id:"1",at:1}})
             })
 
@@ -268,7 +268,7 @@ export default function(TypedDocument){
                 composer.nextCursorable=jest.fn(()=>({id:"1_2",at:0}))
                 reducer.remove({responsible})
                 expect(reducer.$("#1_1").text()).toBe("tex")
-                expect(reducer.file.getNode("1_1").children).toBe("tex")
+                expect(reducer.file.getNode("1_1").text()).toBe("tex")
                 expect(reducer.selection).toMatchObject({start:{id:"1_2",at:0},end:{id:"1_2",at:0}})
             })
 
@@ -282,14 +282,13 @@ export default function(TypedDocument){
                 composer.nextCursorable=jest.fn(()=>({id:"1_2",at:0}))
                 reducer.remove({responsible})
                 expect(reducer.$("#1_1").length).toBe(0)
-                expect(reducer.file.getNode("1_1")).toBeFalsy()
                 expect(reducer.selection).toMatchObject({start:{id:"1_2",at:0},end:{id:"1_2",at:0}})
             })
 
             it("|<anchor>image</anchor>",()=>{
                 const {reducer,composer,responsible,doc}=test({
                     "1":{type:"paragraph",children:["1_1","1_2"]},
-                    "1_1":{type:"anchor",parent:"1",children:["1_1_1"]},
+                    "1_1":{type:"container0",parent:"1",children:["1_1_1"]},
                     "1_1_1":{type:"image",parent:"1_1"},
                     "1_2":{type:"text",children:"text",parent:"1"}
                 })
@@ -297,8 +296,6 @@ export default function(TypedDocument){
                 composer.nextCursorable=jest.fn(()=>({id:"1_2",at:0}))
                 reducer.remove({responsible})
                 expect(reducer.$("#1_1,#1_1_1").length).toBe(0)
-                expect(reducer.file.getNode("1_1")).toBeFalsy()
-                expect(reducer.file.getNode("1_1_1")).toBeFalsy()
                 expect(reducer.selection).toMatchObject({start:{id:"1_2",at:0},end:{id:"1_2",at:0}})
             })
 
@@ -313,7 +310,6 @@ export default function(TypedDocument){
                 composer.nextCursorable=jest.fn(()=>({id:"2_1",at:0}))
                 reducer.remove({responsible})
                 expect(reducer.$('#2').length).toBe(0)
-                expect(reducer.file.getNode('2')).toBeFalsy()
                 expect(reducer.$('#1').children().toArray()).toMatchObject(["1_1","2_1"])
                 expect(reducer.selection).toMatchObject({start:{id:"2_1",at:0},end:{id:"2_1",at:0}})
             })
@@ -329,7 +325,7 @@ export default function(TypedDocument){
                 composer.prevCursorable=jest.fn(()=>({id:"1_1",at:0}))
                 reducer.remove({backspace:true,responsible})
                 expect(reducer.$("#1_1").text()).toBe("ext")
-                expect(reducer.file.getNode("1_1").children).toBe("ext")
+                expect(reducer.file.getNode("1_1").text()).toBe("ext")
                 expect(reducer.selection).toMatchObject({start:{id:"1_1",at:0},end:{id:"1_1",at:0}})
             })
 
@@ -342,7 +338,7 @@ export default function(TypedDocument){
                 composer.prevCursorable=jest.fn(()=>({id:"1_1",at:0}))
                 reducer.remove({backspace:true,responsible})
                 expect(reducer.$("#1_1").text()).toBe("text")
-                expect(reducer.file.getNode("1_1").children).toBe("text")
+                expect(reducer.file.getNode("1_1").text()).toBe("text")
                 expect(reducer.selection).toMatchObject({start:{id:"1_1",at:0},end:{id:"1_1",at:0}})
             })
 
@@ -360,7 +356,6 @@ export default function(TypedDocument){
                 })
                 reducer.remove({backspace:true,responsible})
                 expect(reducer.$("#1_1").length).toBe(0)
-                expect(reducer.file.getNode("1_1")).toBeFalsy()
                 expect(reducer.selection).toMatchObject({start:{id:"1_2",at:0},end:{id:"1_2",at:0}})
             })
 
@@ -379,7 +374,6 @@ export default function(TypedDocument){
                 })
                 reducer.remove({backspace:true,responsible})
                 expect(reducer.$("#2").length).toBe(0)
-                expect(reducer.file.getNode("2")).toBeFalsy()
                 expect(reducer.$("#1").children().toArray()).toMatchObject(["1_1","2_1"])
                 expect(reducer.selection).toMatchObject({start:{id:"2_1",at:0},end:{id:"2_1",at:0}})
             })
@@ -395,7 +389,7 @@ export default function(TypedDocument){
                 composer.nextCursorable=jest.fn(()=>({id:"1",at:1}))
                 reducer.remove({responsible})
                 expect(reducer.$('#1_1').text()).toBe("tt")
-                expect(reducer.file.getNode("1_1").children).toBe("tt")
+                expect(reducer.file.getNode("1_1").text()).toBe("tt")
                 expect(reducer.selection).toMatchObject({start:{id:"1_1",at:1},end:{id:"1_1",at:1}})
             })
 
@@ -411,7 +405,7 @@ export default function(TypedDocument){
                 reducer.remove({responsible})
 
                 expect(reducer.$('#1_1').text()).toBe("t")
-                expect(reducer.file.getNode("1_1").children).toBe("t")
+                expect(reducer.file.getNode("1_1").text()).toBe("t")
                 expect(reducer.selection).toMatchObject({start:{id:"1_2",at:0},end:{id:"1_2",at:0}})
             })
 
@@ -428,10 +422,10 @@ export default function(TypedDocument){
                 expect(texts.length).toBe(2)
 
                 expect(reducer.$('#1_1').text()).toBe("t")
-                expect(reducer.file.getNode("1_1").children).toBe("t")
+                expect(reducer.file.getNode("1_1").text()).toBe("t")
                 const cursor=texts.eq(1)
                 expect(cursor.text()).toBe("llo")
-                expect(reducer.file.getNode(cursor.attr('id')).children).toBe("llo")
+                expect(reducer.file.getNode(cursor.attr('id')).text()).toBe("llo")
                 const id=cursor.attr('id')
                 expect(reducer.selection).toMatchObject({start:{id,at:0},end:{id,at:0}})
             })
@@ -448,7 +442,7 @@ export default function(TypedDocument){
                 reducer.remove({responsible})
 
                 expect(reducer.$('#1_1').text()).toBe("")
-                expect(reducer.file.getNode("1_1").children).toBe("")
+                expect(reducer.file.getNode("1_1").text()).toBe("")
                 expect(reducer.selection).toMatchObject({start:{id:"1_2",at:0},end:{id:"1_2",at:0}})
             })
 
@@ -463,7 +457,6 @@ export default function(TypedDocument){
                 reducer.remove({responsible})
 
                 expect(reducer.$('#1_1').length).toBe(0)
-                expect(reducer.file.getNode("1_1")).toBeFalsy()
                 expect(reducer.selection).toMatchObject({start:{id:"1_2",at:0},end:{id:"1_2",at:0}})
             })
         })
@@ -528,7 +521,7 @@ export default function(TypedDocument){
 					reducer.cursorAt("1_1",1)
 					reducer.insert("hello")
 					expect(reducer.$('#1_1').text()).toBe("hhelloello")
-					expect(reducer.file.getNode("1_1").children).toBe("hhelloello")
+					expect(reducer.file.getNode("1_1").text()).toBe("hhelloello")
 					const cursor={id:"1_1",at:1+5}
 					expect(reducer.selection).toMatchObject({start:cursor,end:cursor})
 				})
@@ -543,7 +536,7 @@ export default function(TypedDocument){
 					reducer.insert("hello")
 
 					expect(reducer.$("#1_1").text()).toBe("hhellolo")
-					expect(reducer.file.getNode("1_1").children).toBe("hhellolo")
+					expect(reducer.file.getNode("1_1").text()).toBe("hhellolo")
 					const cursor={id:"1_1",at:1+5}
 					expect(reducer.selection).toMatchObject({start:cursor,end:cursor})
 				})
@@ -560,9 +553,9 @@ export default function(TypedDocument){
 					expect(reducer.$('text').length).toBe(2)
 
 					expect(reducer.$("#1_1").text()).toBe("h")
-					expect(reducer.file.getNode("1_1").children).toBe("h")
+					expect(reducer.file.getNode("1_1").text()).toBe("h")
 					expect(reducer.$('#1_2').text()).toBe("helloxt")
-					expect(reducer.file.getNode('1_2').children).toBe("helloxt")
+					expect(reducer.file.getNode('1_2').text()).toBe("helloxt")
 
 					const cursor={id:"1_2",at:5}
 					expect(reducer.selection).toMatchObject({start:cursor,end:cursor})
@@ -632,22 +625,6 @@ export default function(TypedDocument){
 					const cursor={id:texts.eq(0).attr('id'),at:5}
 					expect(reducer.selection).toMatchObject({start:cursor,end:cursor})
 				})
-
-				it("hello=>|<shape/>Hello",()=>{
-					const {reducer}=test({
-						"1":{type:"paragraph",children:["1_0","1_1"]},
-						"1_0":{type:"shape",parent:"1"},
-						"1_1":{type:"text",children:"hello",parent:"1"},
-					})
-					reducer.cursorAt("1_0",0)
-					reducer.insert("hello")
-					const texts=reducer.$('text')
-					expect(texts.length).toBe(2)
-					expect(texts.eq(0).text()).toBe("hello")
-					expect(reducer.$('#1').children().toArray()).toMatchObject([texts.eq(0).attr('id'),"1_0","1_1"])
-					const cursor={id:texts.eq(0).attr('id'),at:5}
-					expect(reducer.selection).toMatchObject({start:cursor,end:cursor})
-				})
 			})
 
             describe("at end of paragraph",()=>{
@@ -694,7 +671,7 @@ export default function(TypedDocument){
 
         describe("contents",()=>{
             describe('at beginning',()=>{
-                it("<t>hello</t> -> |Text",()=>{
+                fit("<t>hello</t> -> |Text",()=>{
                     const {reducer}=test({
                         "1":{type:"paragraph",children:["1_1"]},
                         "1_1":{type:"text",children:"text",parent:"1"},
@@ -764,8 +741,9 @@ export default function(TypedDocument){
                 })
 
                 reducer.cursorAt("1_1",1)
+                const updateNode=reducer.file.updateNode=jest.fn()
                 reducer.update({text:{size:5}})
-                expect(reducer.$('#1_1').attr('size')).toBe(5)
+                expect(updateNode).toBeCalledWith({id:"1_1",type:"text"},{size:5})
                 expect(reducer.selection).toMatchObject(selection)
             })
 
@@ -776,17 +754,18 @@ export default function(TypedDocument){
                 })
 
                 reducer.cursorAt("1_1",1,"1_1",3)
+                const updateNode=reducer.file.updateNode=jest.fn()
                 reducer.update({text:{size:5}})
                 const texts=reducer.$('text')
                 expect(texts.length).toBe(3)
-                expect(texts.eq(0).attr('size')).toBe(1)
-                expect(texts.eq(1).attr('size')).toBe(5)
-                expect(texts.eq(2).attr('size')).toBe(1)
+                expect(updateNode).not.toBeCalledWith({id:texts.eq(0).attr('id'),type:"text"},{size:5})
+                expect(updateNode).not.toBeCalledWith({id:texts.eq(2).attr('id'),type:"text"},{size:5})
+                expect(updateNode).toBeCalledWith({id:texts.eq(1).attr('id'),type:"text"},{size:5})
 
                 expect(reducer.selection).toMatchObject({start:{id:texts.eq(1).attr('id'),at:0}})
             })
 
-            it("cross text selection",()=>{
+                it("cross text selection",()=>{
                 const {reducer}=test({
                     "1":{type:"paragraph",children:["1_1"]},
                     "1_1":{type:"text",children:"hello",parent:"1",props:{size:1}},
@@ -795,13 +774,14 @@ export default function(TypedDocument){
                 })
 
                 reducer.cursorAt("1_1",1,"2_1",3)
+                const updateNode=reducer.file.updateNode=jest.fn()
                 reducer.update({text:{size:5}})
                 const texts=reducer.$('text')
                 expect(texts.length).toBe(4)
-                expect(texts.eq(0).attr('size')).toBe(1)
-                expect(texts.eq(1).attr('size')).toBe(5)
-                expect(texts.eq(2).attr('size')).toBe(5)
-                expect(texts.eq(3).attr('size')).toBe(1)
+                expect(updateNode).toBeCalledWith({id:texts.eq(1).attr('id'),type:"text"},{size:5})
+                expect(updateNode).toBeCalledWith({id:texts.eq(2).attr('id'),type:"text"},{size:5})
+                expect(updateNode).not.toBeCalledWith({id:texts.eq(0).attr('id'),type:"text"},{size:5})
+                expect(updateNode).not.toBeCalledWith({id:texts.eq(3).attr('id'),type:"text"},{size:5})
 
                 expect(reducer.selection).toMatchObject({start:{id:texts.eq(1).attr('id'),at:0}, end:{id:texts.eq(2).attr('id'),at:3}})
             })
@@ -818,14 +798,16 @@ export default function(TypedDocument){
                 })
 
                 reducer.cursorAt("1_1",1,"2_1",3)
+                const updateNode=reducer.file.updateNode=jest.fn()
                 reducer.update({text:{size:5}})
                 const texts=reducer.$('text')
                 expect(texts.length).toBe(5)
-                expect(texts.eq(0).attr('size')).toBe(1)
-                expect(texts.eq(1).attr('size')).toBe(5)
-                expect(texts.eq(2).attr('size')).toBe(5)
-                expect(texts.eq(3).attr('size')).toBe(5)
-                expect(texts.eq(4).attr('size')).toBe(1)
+
+                expect(updateNode).toBeCalledWith({id:texts.eq(1).attr('id'),type:"text"},{size:5})
+                expect(updateNode).toBeCalledWith({id:texts.eq(2).attr('id'),type:"text"},{size:5})
+                expect(updateNode).toBeCalledWith({id:texts.eq(3).attr('id'),type:"text"},{size:5})
+                expect(updateNode).not.toBeCalledWith({id:texts.eq(0).attr('id'),type:"text"},{size:5})
+                expect(updateNode).not.toBeCalledWith({id:texts.eq(4).attr('id'),type:"text"},{size:5})
 
                 expect(reducer.selection).toMatchObject({start:{id:texts.eq(1).attr('id'),at:0}, end:{id:texts.eq(3).attr('id'),at:3}})
 			})
@@ -841,11 +823,13 @@ export default function(TypedDocument){
                 })
 
                 reducer.cursorAt("1",0,"1",1)
+                const updateNode=reducer.file.updateNode=jest.fn()
                 reducer.update({text:{size:5}})
                 expect(reducer.$('#1 text').length).toBe(2)
-                expect(reducer.$('#1_1').attr('size')).toBe(5)
-                expect(reducer.$('#1_3').attr('size')).toBe(5)
-                expect(reducer.$('#2_1').attr('size')).toBe(1)
+                expect(updateNode).toBeCalledWith({id:'1_1',type:"text"},{size:5})
+                expect(updateNode).toBeCalledWith({id:'1_3',type:"text"},{size:5})
+                expect(updateNode).not.toBeCalledWith({id:'2_1',type:"text"},{size:5})
+
                 expect(reducer.selection).toMatchObject({start:{id:"1",at:0},end:{id:"1",at:1}})
 			})
         })

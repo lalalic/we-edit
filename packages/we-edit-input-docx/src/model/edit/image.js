@@ -26,7 +26,7 @@ export class Image extends Base{
     }
 
     empty(){
-        
+
     }
 
     size({width,height}){
@@ -81,21 +81,27 @@ export class Image extends Base{
             .attr("name", name)
     }
 
-	create(props,reducer,target){
-		let r=target.constructUp("run")
-		const [p0,p1]=reducer.splitAtUpto(reducer.selection.start,"run")
-		let createdNode=super.create(...arguments)
+	create(props,{id,at=0}){
+        const target=this.file.getNode(id)
+        var r=target.closest("w\\:r")
+        if(r.length==0){
+            r=target.find("w\\:r").eq(0)
+        }
+        var container=r.clone().empty()
 
-		this.file.getNode(r.attr('id'))
-			.find("w\\:t")
-			.replaceWith(createdNode)
+		this.node=this.parseXml(this.template(props))
 
-		r.insertAfter(p0)
+        container.append(this.node)
 
-		reducer.renderChanged(p0.parent().attr('id'))
+        if(at==0){
+            container=container.insertBefore(r)
+        }else{
+            container=container.insertAfter(r)
+        }
 
-		let cursor=p1.findFirst('text').attr('id')
-		return {id:cursor,at:0}
+		this.file.renderChanged(r.closest(`[xxid]`))
+
+		return {id:container.find(`[xxid]`).attr('xxid'),at:0}
 	}
 
     template(props){
@@ -116,7 +122,7 @@ export class Image extends Base{
                     <pic:cNvPicPr/>
                   </pic:nvPicPr>
                   <pic:blipFill>
-                    <a:blip r:embed="rId8">
+                    <a:blip r:embed="rId9">
                       <a:extLst>
                         <a:ext uri="{28A0092B-C50C-407E-A947-70E740481C1C}">
                           <a14:useLocalDpi xmlns:a14="http://schemas.microsoft.com/office/drawing/2010/main" val="0"/>

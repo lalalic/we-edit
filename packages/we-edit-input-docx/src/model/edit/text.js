@@ -2,15 +2,32 @@ import Base from "./base"
 
 export class Text extends Base{
 	template(){
-		return `<w:r><w:t></w:t></w:r>`
+		return `<w:t></w:t>`
 	}
 
-	create(props,reducer,target){
-		const createdNode=super.create(...arguments)
-		const {id:createdId}=reducer.renderChanged(createdNode)
-		let created=reducer.$(`#${createdId}`).appendTo(target)
-		let cursor=created.findFirst('text').attr('id')
-		return {id:cursor,at:0}
+	create(props,{id,at=0}){
+		const target=this.file.getNode(id)
+        var r=target.closest("w\\:r")
+        if(r.length==0){
+            r=target.find("w\\:r").eq(0)
+        }
+		
+		var container=r.clone()
+		container.children().not("w\\:rPr").remove()
+
+		this.node=this.parseXml(this.template(props))
+
+		container.append(this.node)
+
+		if(at==0){
+            container=container.insertBefore(r)
+        }else{
+            container=container.insertAfter(r)
+        }
+
+		this.file.renderChanged(r.closest(`[xxid]`))
+
+		return {id:container.find(`[xxid]`).attr('xxid'),at:(props.children||"").length}
 	}
 
 	children(text){
@@ -24,32 +41,28 @@ export class Text extends Base{
 		return super.got(nodeName,"w:r", "w:rPr")
 	}
 
-	split(at){
+	split(at,firstKeepId=true){
 		const text=this.node.text()
 		at=at<0 ? text.length+at : at
 		if(at>=text.length || at==0){
-			throw new Error("should not be here")
 			return [{id:this.node.attr('xxid'),at:at},{id:this.node.attr('xxid'),at:at}]
 		}
 		this.node.text(text.substring(0,at))
 		const r0=this.node.closest("w\\:r")
 		var r1=r0.clone()
 		r1.find("w\\:t").remove()
-		r1=r1.append(this.node.clone().text(text.substring(at)))
-			.insertAfter(r0)
-			.removeAttr('xxid')
-		r1.find('[xxid]').removeAttr('xxid')
+		r1=r1.append(this.node.clone().text(text.substring(at))).insertAfter(r0)
+		;((r)=>{
+			r.removeAttr('xxid')
+			r.find('[xxid]').removeAttr('xxid')
+		})(firstKeepId ? r1 : r0);
 
-		this.file.renderChanged(r0.parent())
+		this.file.renderChanged(r0.closest(`[xxid]`))
 		return [{id:this.node.attr('xxid'),at:at},{id:r1.find("w\\:t").attr('xxid'), at:0}]
 	}
 
 	remove(){
-		const r=this.node.closest("w\\:r")
 		this.node.remove()
-		if(r.children.length==0 || (r.children.length==1 && r.firstChild.name=="w:rPr")){
-			r.remove()
-		}
 	}
 
 	fonts(fonts){

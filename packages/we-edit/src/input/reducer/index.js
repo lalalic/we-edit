@@ -116,11 +116,12 @@ class Reducer extends Base{
 		const {start,end}=this.selection
 		if(end.at==0){
 			const ender=this.$('#'+end.id)
-			const newEnder=ender.backwardFirst()
+			const newEnder=ender.prevCursorable()
 			end.id=newEnder.attr('id')
 			end.at=newEnder.attr('type')=="text" ? newEnder.text().length : 1
 			this.cursorAt(start.id,start.at, end.id,end.at)
 		}
+
 		if(start.id==end.id){
 			const starter=this.$('#'+start.id)
 			if(starter.type=="text"){
@@ -304,7 +305,6 @@ class Reducer extends Base{
 				return target.eq(1)//empty
 			}
 		}else{
-			debugger
 			this.seperateSelection()
 			const {start,end}=this.selection
 			const target0=this.$('#'+start.id)
@@ -356,7 +356,7 @@ class Content extends Reducer{
 		var {start:{id,at}}=this.selection
 		const target=this.$('#'+id)
 		if(at>0){
-			([,{id,at}]=this.file.splitNode({id},at))
+			([,{id,at}]=this.file.splitNode(this.element(id),at))
 		}
 		const cursor=this.file.createNode(element,{id,at})
 		this.cursorAt(cursor.id, cursor.at)
@@ -411,8 +411,8 @@ class Content extends Reducer{
 				.toArray()
 		})();
 
-		targets.forEach(target=>{
-			this.file.updateNode({id:target,type},changing)
+		targets.forEach(id=>{
+			this.file.updateNode(this.element(id),changing)
 		})
 
 		return this

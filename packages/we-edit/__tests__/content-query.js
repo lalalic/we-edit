@@ -14,151 +14,154 @@ describe("content query",()=>{
         return createState({},content).set("_content",content.asMutable())//make it work for xQuery
     }
 
-    const testQuery=(Query,type)=>{
-        describe(type,()=>{
-            describe("can query by",()=>{
-                it("[prop]",()=>{
-                    const $=new Query(state({
-                        "1":{props:{style:1}},
-                        "2":{props:{style:2}}
-                    }))
-                    expect($.find("[style]").length).toBe(2)
-                    expect($.find("[style=1]").length).toBe(1)
-                    expect($.find("[style=2]").length).toBe(1)
-                })
-
-                it("type",()=>{
-                    const $=new Query(state({
-                        "1":{type:"paragraph"},
-                        "2":{type:"text"},
-                        "3":{type:"paragraph"},
-                    }))
-                    expect($.find("paragraph").length).toBe(2)
-                    expect($.find("text").length).toBe(1)
-
-                })
-
-                it("#id",()=>{
-                    const $=new Query(state({
-                        "1":{type:"paragraph"},
-                        "2":{type:"text"},
-                        "3":{type:"paragraph"},
-                    }))
-                    "1,2,3".split(",").forEach(a=>expect($.find(`#${a}`).length).toBe(1))
-                })
-
-                it(".className",()=>{
-                    const $=new Query(state({
-                        "1":{props:{className:"paragraph"}},
-                        "2":{props:{className:"text"}},
-                        "3":{props:{className:"paragraph"}},
-                    }))
-                    expect($.find(".paragraph").length).toBe(2)
-                    expect($.find(".text").length).toBe(1)
-                })
-
-                it(",,",()=>{
-                    const $=new Query(state({
-                        "1":{props:{className:"paragraph"}},
-                        "2":{props:{className:"text"}},
-                        "3":{props:{className:"paragraph"}},
-                    }))
-                    expect($.find(".paragraph,.text").length).toBe(3)
-                    expect($.find(".paragraph,.text,#2").length).toBe(3)
-                    expect($.find(".text,#2").length).toBe(1)
-                    expect($.find(".text,#1").length).toBe(2)
-                })
-            })
-
-            describe("new Query(state,selector)",()=>{
-                it("(state,#1)",()=>{
-                    const $=new Query(state(),"#1")
-                    expect($.length).toBe(1)
-                    expect($.get(0).get("id")).toBe("1")
-                })
-
-                it("(state,'#1,#2')",()=>{
-                    const $=new Query(state(),"#1,#3")
-                    expect($.length).toBe(2)
-                    expect($.get(0).get("id")).toBe("1")
-                    expect($.get(1).get("id")).toBe("3")
-                })
-
-            })
-
-            describe(".attr()",()=>{
-                it("*",()=>{
-                    expect(new Query(state({"1":{props:{x:1}}}),"#1").attr("x")).toBe(1)
-                })
-
-                it("children",()=>{
-                    expect(new Query(state({
-                        "1":{children:["f","g"]},
-                        "f":{},
-                        "g":{}
-                    }),"#1").attr("children").toJS()).toMatchObject(["f","g"])
-                })
-
-                it("type",()=>{
-                    expect(new Query(state({"1":{type:"good"}}),"#1").attr("type")).toBe("good")
-                })
-
-                it("parent",()=>{
-                    expect(new Query(state(),"#1").attr("parent")).toBe("root")
-                })
-
-                it("id",()=>{
-                    expect(new Query(state(),"#1").attr("id")).toBe("1")
-                    expect(new Query(state()).attr("id")).toBe("root")
-                })
-            })
-
-            it("parent([selector]), parents([selector])",()=>{
+    describe.each([["Query", QueryContent],["Mutable Query", xQueryContent]])("%s",(name,Query)=>{
+        describe("can query by",()=>{
+            it("[prop]",()=>{
                 const $=new Query(state({
-                    "1":{children:["a","b"]},
-                    "a":{parent:"1"},
-                    "b":{parent:'1'}
-                }),"#a")
-                expect($.parent().length).toBe(1)
-                expect($.parent().attr("id")).toBe("1")
-                expect($.parent("notype").length).toBe(0)
-
-                expect($.parents().length).toBe(2)
-                expect($.parents().toArray()).toMatchObject(["1","root"])
-                expect($.parents("#root").length).toBe(1)
+                    "1":{props:{style:1}},
+                    "2":{props:{style:2}}
+                }))
+                expect($.find("[style]").length).toBe(2)
+                expect($.find("[style=1]").length).toBe(1)
+                expect($.find("[style=2]").length).toBe(1)
             })
 
-            it("closest([selector])(from self)",()=>{
-                const $=new Query(state({
-                    "1":{children:["a","b"],type:"run"},
-                    "a":{parent:"1"},
-                    "b":{parent:"1"}
-                }),"#a")
-
-                expect($.closest().length).toBe(1)
-                expect($.closest().attr("id")).toBe("a")
-                expect($.closest("run").length).toBe(1)
-                expect($.closest("run").attr("id")).toBe("1")
-                expect($.closest("document").length).toBe(1)
-                expect($.closest("#root").attr("id")).toBe("root")
-            })
-
-            it("findFirst/Last",()=>{
+            it("type",()=>{
                 const $=new Query(state({
                     "1":{type:"paragraph"},
                     "2":{type:"text"},
                     "3":{type:"paragraph"},
                 }))
-                expect($.findFirst("paragraph").length).toBe(1)
-                expect($.findLast("paragraph").length).toBe(1)
+                expect($.find("paragraph").length).toBe(2)
+                expect($.find("text").length).toBe(1)
 
-                expect($.findFirst("paragraph").attr("id")).toBe("1")
-                expect($.findLast("paragraph").attr("id")).toBe("3")
+            })
+
+            it("#id",()=>{
+                const $=new Query(state({
+                    "1":{type:"paragraph"},
+                    "2":{type:"text"},
+                    "3":{type:"paragraph"},
+                }))
+                "1,2,3".split(",").forEach(a=>expect($.find(`#${a}`).length).toBe(1))
+            })
+
+            it("non-existance #id",()=>{
+                const $=new Query(state({
+                    "1":{type:"paragraph"},
+                    "2":{type:"text"},
+                    "3":{type:"paragraph"},
+                }))
+                expect($.find(`#8_1`).length).toBe(0)
+            })
+
+            it(".className",()=>{
+                const $=new Query(state({
+                    "1":{props:{className:"paragraph"}},
+                    "2":{props:{className:"text"}},
+                    "3":{props:{className:"paragraph"}},
+                }))
+                expect($.find(".paragraph").length).toBe(2)
+                expect($.find(".text").length).toBe(1)
+            })
+
+            it(",,",()=>{
+                const $=new Query(state({
+                    "1":{props:{className:"paragraph"}},
+                    "2":{props:{className:"text"}},
+                    "3":{props:{className:"paragraph"}},
+                }))
+                expect($.find(".paragraph,.text").length).toBe(3)
+                expect($.find(".paragraph,.text,#2").length).toBe(3)
+                expect($.find(".text,#2").length).toBe(1)
+                expect($.find(".text,#1").length).toBe(2)
             })
         })
-    }
 
-    testQuery(QueryContent, "query")
+        describe("new Query(state,selector)",()=>{
+            it("(state,#1)",()=>{
+                const $=new Query(state(),"#1")
+                expect($.length).toBe(1)
+                expect($.get(0).get("id")).toBe("1")
+            })
 
-    testQuery(xQueryContent, "xQuery")
+            it("(state,'#1,#2')",()=>{
+                const $=new Query(state(),"#1,#3")
+                expect($.length).toBe(2)
+                expect($.get(0).get("id")).toBe("1")
+                expect($.get(1).get("id")).toBe("3")
+            })
+
+        })
+
+        describe(".attr()",()=>{
+            it("*",()=>{
+                expect(new Query(state({"1":{props:{x:1}}}),"#1").attr("x")).toBe(1)
+            })
+
+            it("children",()=>{
+                expect(new Query(state({
+                    "1":{children:["f","g"]},
+                    "f":{},
+                    "g":{}
+                }),"#1").attr("children").toJS()).toMatchObject(["f","g"])
+            })
+
+            it("type",()=>{
+                expect(new Query(state({"1":{type:"good"}}),"#1").attr("type")).toBe("good")
+            })
+
+            it("parent",()=>{
+                expect(new Query(state(),"#1").attr("parent")).toBe("root")
+            })
+
+            it("id",()=>{
+                expect(new Query(state(),"#1").attr("id")).toBe("1")
+                expect(new Query(state()).attr("id")).toBe("root")
+            })
+        })
+
+        it("parent([selector]), parents([selector])",()=>{
+            const $=new Query(state({
+                "1":{children:["a","b"]},
+                "a":{parent:"1"},
+                "b":{parent:'1'}
+            }),"#a")
+            expect($.parent().length).toBe(1)
+            expect($.parent().attr("id")).toBe("1")
+            expect($.parent("notype").length).toBe(0)
+
+            expect($.parents().length).toBe(2)
+            expect($.parents().toArray()).toMatchObject(["1","root"])
+            expect($.parents("#root").length).toBe(1)
+        })
+
+        it("closest([selector])(from self)",()=>{
+            const $=new Query(state({
+                "1":{children:["a","b"],type:"run"},
+                "a":{parent:"1"},
+                "b":{parent:"1"}
+            }),"#a")
+
+            expect($.closest().length).toBe(1)
+            expect($.closest().attr("id")).toBe("a")
+            expect($.closest("run").length).toBe(1)
+            expect($.closest("run").attr("id")).toBe("1")
+            expect($.closest("document").length).toBe(1)
+            expect($.closest("#root").attr("id")).toBe("root")
+        })
+
+        it("findFirst/Last",()=>{
+            const $=new Query(state({
+                "1":{type:"paragraph"},
+                "2":{type:"text"},
+                "3":{type:"paragraph"},
+            }))
+            expect($.findFirst("paragraph").length).toBe(1)
+            expect($.findLast("paragraph").length).toBe(1)
+
+            expect($.findFirst("paragraph").attr("id")).toBe("1")
+            expect($.findLast("paragraph").attr("id")).toBe("3")
+        })
+    })
 })

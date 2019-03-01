@@ -75,7 +75,7 @@ describe("reduce docx",()=>{
                 return `
                 <w:r>
                     <w:rPr>
-                        ${node.props && node.props.size!=undefined ? `<w:sz val="${node.props.size*2}"/>` : ""}
+                        ${node.props && node.props.size!=undefined ? `<w:sz w:val="${node.props.size*2}"/>` : ""}
                     </w:rPr>
                     <w:t xxid="${node.id}">${node.children||""}</w:t>
                 </w:r>
@@ -118,7 +118,12 @@ describe("reduce docx",()=>{
 
             const identify=this.doc.constructor.OfficeDocument.identify
             this.doc.constructor.OfficeDocument.identify=jest.fn(function(wXml){
-                return identify(...arguments)
+                const element=identify(...arguments)
+                if(element && typeof(element)=="object" &&
+                    !"p,t,picture,inline,block".split(",").includes(element.type)){
+                    element.type="ignored"
+                }
+                return element
             })
 
 
@@ -131,7 +136,12 @@ describe("reduce docx",()=>{
                     node.type=raw.attribs.type
                 }
                 const id=node.id=this.makeId(raw)
+                node.parent=_content.getIn([id,"parent"])||"root"
                 _content.set(id,immutable.fromJS(node))
+                if(Array.isArray(children)){
+            		//set parent make map as a double direction tree structure
+            		children.forEach(k=>_content.mergeIn([k.id],{parent:id}))
+            	}
                 return node
             }
 

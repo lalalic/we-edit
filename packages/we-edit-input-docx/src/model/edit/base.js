@@ -33,7 +33,7 @@ export default class Editor{
 	}
 
     parseXml(xml){
-        let $=this.file.constructor.parseXml(this.trim(xml))
+        let $=this.file.doc.constructor.parseXml(this.trim(xml))
         return $.root().children().first()
     }
 
@@ -43,14 +43,15 @@ export default class Editor{
     }
 
     update({id},changing){
-        return this.apply({id, ...changing})
+        this.apply({id, ...changing})
+        this.file.renderChanged(this.node)
     }
 
     remove({id,type}){
         return this.node.remove()
     }
 
-    split(at){
+    split(at,firstKeepId){
         const id=this.node.attr("xxid")
         return [{id,at},{id,at}]
     }

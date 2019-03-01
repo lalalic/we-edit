@@ -128,6 +128,7 @@ const createElementFactoryBuilder=inputTypeInstance=>content=>(type, props, chil
 		type:type.displayName,
 		id,
 		props,
+		parent:content.getIn([id,"parent"])||"root",
 		children: !Array.isArray(children) ? children : children.map(a=>a.id)
 	}))
 

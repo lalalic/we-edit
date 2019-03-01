@@ -32,7 +32,11 @@ class StateDocument extends Input.Editable{
     }
 
     getNode(id){
-        return this.content[id]
+        const node=this.content[id]
+        if(node && node.type=="text"){
+            node.text=()=>node.children
+        }
+        return node
     }
 
     cloneNode({id}){
