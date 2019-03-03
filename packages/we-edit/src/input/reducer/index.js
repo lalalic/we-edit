@@ -111,7 +111,9 @@ class Reducer extends Base{
 		return [to,to1]
 	}
 
-	/*start at beginning of node, end at ending of node*/
+	/*start at beginning of node, end at ending of node
+	seperated to </>(<|/></|>)</>
+	*/
 	seperateSelection(){
 		const {start,end}=this.selection
 		if(end.at==0){
@@ -121,8 +123,9 @@ class Reducer extends Base{
 			end.at=newEnder.attr('type')=="text" ? newEnder.text().length : 1
 			this.cursorAt(start.id,start.at, end.id,end.at)
 		}
+		
 
-		if(start.id==end.id){
+		if(start.id==end.id){//entity
 			const starter=this.$('#'+start.id)
 			if(starter.type=="text"){
 				if(start.at==0 && end.at>=starter.text().length){
@@ -134,17 +137,32 @@ class Reducer extends Base{
 		}
 
 		if(!(start.id==end.id && start.at==end.at)){
-			const [newEnd]=this.file.splitNode(this.element(end.id),end.at, start.id==end.id)
-			end.id=newEnd.id
-			end.at=newEnd.at
-
-			const [,{id,at}]=this.file.splitNode(this.element(start.id),start.at)
-			if(end.id==start.id){
-				end.id=id
-				end.at=end.at-(start.at-at)
+			if(atEnd(end)){
+				//do nothing	
+			}else{
+				const [newEnd]=this.file.splitNode(this.element(end.id),end.at, start.id==end.id)
+				end.id=newEnd.id
+				end.at=newEnd.at
 			}
-			start.id=id
-			start.at=at
+			
+			if(isAtBeginngin(start)){
+				//do nothing
+			}else if(atEnd(start)){
+				//go to beginning of next cusorable
+				const starter=this.$('#'+starter.id)
+				const newStarter=starter.nextCursorable()
+				start.id=newStarter.attr('id')
+				start.at=0
+				this.cursorAt(start.id,start.at, end.id,end.at)
+			}else{
+				const [,{id,at}]=this.file.splitNode(this.element(start.id),start.at)
+				if(end.id==start.id){
+					end.id=id
+					end.at=end.at-(start.at-at)
+				}
+				start.id=id
+				start.at=at
+			}
 			this.cursorAt(start.id,start.at, end.id, end.at)
 		}
 	}

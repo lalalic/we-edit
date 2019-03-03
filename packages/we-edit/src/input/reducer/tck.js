@@ -173,9 +173,60 @@ export default function(TypedDocument){
                 expect(texts.eq(0).text()).toBe('t')
                 expect(texts.eq(1).text()).toBe('ex')
                 expect(texts.eq(2).text()).toBe('t')
+				expect(texts.eq(0).attr('id')).toBe("1_1")
 
                 const id=texts.eq(1).attr('id')
                 expect(reducer.selection).toMatchObject({start:{id,at:0},end:{id,at:2}})
+
+            })
+			
+			it("(Text)",()=>{
+                const {reducer}=test({
+                    "1":{type:"paragraph",children:["1_1"]},
+                    "1_1":{type:"text",children:"text",parent:"1"},
+                })
+				const id="1_1"
+                reducer.cursorAt(id,0, id,4)
+                reducer.seperateSelection()
+                const texts=reducer.$('text')
+                expect(texts.length).toBe(1)
+                expect(texts.eq(0).text()).toBe('text')
+				
+                expect(reducer.selection).toMatchObject({start:{id,at:0},end:{id,at:4}})
+            })
+			
+			it("(ImageTex)t",()=>{
+                const {reducer}=test({
+                    "1":{type:"paragraph",children:["1_0","1_1"]},
+					"1_0":{type:"image",parent:"1"},
+                    "1_1":{type:"text",children:"text",parent:"1"},
+                })
+				reducer.cursorAt("1_0",0, "1_1",3)
+                reducer.seperateSelection()
+                const texts=reducer.$('text')
+                expect(texts.length).toBe(2)
+                expect(texts.eq(0).text()).toBe('tex')
+				expect(texts.eq(1).text()).toBe('t')
+				expect(texts.eq(1).attr('id')).toBe("1_1")
+                expect(reducer.selection).toMatchObject({start:{id:"1_0",at:0},end:{id:texts.eq(0).attr('id'),at:3}})
+            })
+			
+			fit("Image(Tex)t",()=>{
+                const {reducer}=test({
+                    "1":{type:"paragraph",children:["1_0","1_1"]},
+					"1_0":{type:"image",parent:"1"},
+                    "1_1":{type:"text",children:"text",parent:"1"},
+                })
+				reducer.cursorAt("1_0",1, "1_1",3)
+				debugger
+                reducer.seperateSelection()
+                const texts=reducer.$('text')
+                expect(texts.length).toBe(2)
+                expect(texts.eq(0).text()).toBe('tex')
+				expect(texts.eq(1).text()).toBe('t')
+				expect(texts.eq(1).attr('id')).toBe("1_1")
+				const id=texts.eq(0).attr('id')
+                expect(reducer.selection).toMatchObject({start:{id,at:0},end:{id,at:3}})
             })
 
             it("T(extHe)llo",()=>{
@@ -193,6 +244,7 @@ export default function(TypedDocument){
                 expect(texts.eq(1).text()).toBe('ext')
                 expect(texts.eq(2).text()).toBe('He')
                 expect(texts.eq(3).text()).toBe('llo')
+				expect(texts.eq(0).attr('id')).toBe("1_1")
                 expect(texts.eq(3).attr('id')).toBe("1_2")
 
 
