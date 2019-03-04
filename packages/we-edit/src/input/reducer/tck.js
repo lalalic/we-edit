@@ -179,7 +179,7 @@ export default function(TypedDocument){
                 expect(reducer.selection).toMatchObject({start:{id,at:0},end:{id,at:2}})
 
             })
-			
+
 			it("(Text)",()=>{
                 const {reducer}=test({
                     "1":{type:"paragraph",children:["1_1"]},
@@ -191,10 +191,10 @@ export default function(TypedDocument){
                 const texts=reducer.$('text')
                 expect(texts.length).toBe(1)
                 expect(texts.eq(0).text()).toBe('text')
-				
+
                 expect(reducer.selection).toMatchObject({start:{id,at:0},end:{id,at:4}})
             })
-			
+
 			it("(ImageTex)t",()=>{
                 const {reducer}=test({
                     "1":{type:"paragraph",children:["1_0","1_1"]},
@@ -210,23 +210,21 @@ export default function(TypedDocument){
 				expect(texts.eq(1).attr('id')).toBe("1_1")
                 expect(reducer.selection).toMatchObject({start:{id:"1_0",at:0},end:{id:texts.eq(0).attr('id'),at:3}})
             })
-			
-			fit("Image(Tex)t",()=>{
+
+			it("Image(Tex)t",()=>{
                 const {reducer}=test({
                     "1":{type:"paragraph",children:["1_0","1_1"]},
 					"1_0":{type:"image",parent:"1"},
                     "1_1":{type:"text",children:"text",parent:"1"},
                 })
 				reducer.cursorAt("1_0",1, "1_1",3)
-				debugger
-                reducer.seperateSelection()
+				reducer.seperateSelection()
                 const texts=reducer.$('text')
                 expect(texts.length).toBe(2)
                 expect(texts.eq(0).text()).toBe('tex')
 				expect(texts.eq(1).text()).toBe('t')
-				expect(texts.eq(1).attr('id')).toBe("1_1")
-				const id=texts.eq(0).attr('id')
-                expect(reducer.selection).toMatchObject({start:{id,at:0},end:{id,at:3}})
+				expect(texts.eq(0).attr('id')).toBe("1_1")
+				expect(reducer.selection).toMatchObject({start:{id:"1_1",at:0},end:{id:"1_1",at:3}})
             })
 
             it("T(extHe)llo",()=>{
@@ -644,12 +642,12 @@ export default function(TypedDocument){
 
                 it("hello\\rmy\\rworld=>t|ext with structure",()=>{
 					const {reducer}=test({
-						"1":{type:"paragraph",children:["1_0"]},
-                        "1_0":{type:"container0", children:["1_1"],parent:"1"},
-						"1_1":{type:"text",children:"text",parent:"1_0"},
+						"1":{type:"paragraph",children:["1_1"]},
+                        "1_1":{type:"container0", children:["1_1_1"],parent:"1"},
+						"1_1_1":{type:"text",children:"text",parent:"1_1"},
 					})
 					const p0=reducer.$('paragraph')
-					reducer.cursorAt("1_1",1)
+					reducer.cursorAt("1_1_1",1)
 					reducer.insert("hello\rmy\rworld")
 					const p1=reducer.$('paragraph')
 					expect(p1.length-p0.length).toBe(2)
@@ -659,7 +657,67 @@ export default function(TypedDocument){
 
                     p1.toArray().forEach(p=>expect(reducer.$('#'+p).find("container0").length).toBe(1))
 				})
+
+                it("\\r=>paragraph end will create new paragraph",()=>{
+                    const {reducer}=test({
+						"1":{type:"paragraph",children:["1_1"]},
+						"1_1":{type:"text",children:"text",parent:"1"},
+					})
+					const p0=reducer.$('paragraph')
+					reducer.cursorAt("1",1)
+					reducer.insert("\r")
+					const p1=reducer.$('paragraph')
+					expect(p1.length-p0.length).toBe(1)
+                    const newP=reducer.$('#1').next("paragraph")
+                    const texts=newP.find("text")
+                    expect(texts.length).toBe(1)
+                    expect(newP.text()).toBe("")
+                    const id=texts.eq(0).attr('id')
+                    expect(reducer.selection).toMatchObject({start:{id,at:0},end:{id,at:0}})
+                })
 			})
+
+            describe("on paragraph",()=>{
+                it("empty paragraph:<p/>",()=>{
+                    const {reducer}=test({
+                        "1":{type:"paragraph",children:[]}
+                    })
+                    reducer.cursorAt("1",0)
+                    reducer.insert("h")
+                    expect(reducer.$('#1 text').length).toBe(1)
+                    expect(reducer.$('#1').text()).toBe("h")
+                    const cursor={id:reducer.$('#1 text').attr('id'),at:1}
+                    expect(reducer.selection).toMatchObject({start:cursor,end:cursor})
+                })
+                it("empty paragraph:<p><t/></p>",()=>{
+                    const {reducer}=test({
+                        "1":{type:"paragraph",children:["1_1"]},
+                        "1_1":{type:"text",children:"",parent:"1"}
+                    })
+                    reducer.cursorAt("1_1",0)
+                    reducer.insert("hello")
+                    expect(reducer.$('#1_1').text()).toBe("hello")
+                    expect(reducer.file.getNode("1_1").text()).toBe("hello")
+                    const cursor={id:"1_1",at:5}
+                    expect(reducer.selection).toMatchObject({start:cursor,end:cursor})
+                })
+
+                it("empty paragraph:<p><t/></p>",()=>{
+                    const {reducer}=test({
+                        "1":{type:"paragraph",children:["1_1"]},
+                        "1_1":{type:"container0",children:["1_1_1"],parent:"1"},
+                        "1_1_1":{type:"text",children:"",parent:"1_1"},
+                    })
+                    reducer.cursorAt("1_1_1",0)
+                    reducer.insert("hello")
+                    expect(reducer.$('#1_1_1').text()).toBe("hello")
+                    expect(reducer.file.getNode("1_1_1").text()).toBe("hello")
+                    const cursor={id:"1_1_1",at:5}
+                    expect(reducer.selection).toMatchObject({start:cursor,end:cursor})
+                })
+
+
+            })
 
 			describe("at object beginning",()=>{
 				it("hello=>|imageHello",()=>{

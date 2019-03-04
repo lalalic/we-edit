@@ -7,6 +7,22 @@ import {Cacheable} from "../composable"
 //cache doesn't help on performance
 const Super=editable(Base)
 export default class extends Super{
+    render(){
+        if(this.text.length==0){
+            this.appendComposed({
+                ...this.defaultStyle,
+                width:0,
+                minWidth:0,
+                "data-endat":0,
+                children: ""
+            })
+
+            this.onAllChildrenComposed()
+            return null
+        }
+        return super.render()
+    }
+
     appendComposed(props){
         if(props.children==" "){
             props={...props,children:String.fromCharCode(0x00b7)}

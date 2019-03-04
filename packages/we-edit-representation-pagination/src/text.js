@@ -18,7 +18,7 @@ export default class Text extends Super{
 	}
 
     get text(){
-        let {children}=this.props
+        let {children=""}=this.props
         return Array.isArray(children) ? children.join("") : children
     }
 
@@ -42,35 +42,36 @@ export default class Text extends Super{
         return this.createMeasure(fonts,size,bold,italic)
     }
 
-    getMyBreakOpportunities(text){
-        return this.context.getMyBreakOpportunities(text)
+    get defaultStyle(){
+        const {color,highlight,vanish,border,underline,strike}=this.props
+        return {
+            ...this.measure.defaultStyle,
+            color, highlight,border,underline,strike
+        }
+    }
+
+    getMyBreakOpportunities(){
+        return this.context.getMyBreakOpportunities(this.text)
     }
 
     render(){
-        const {parent}=this.context
-		const {color,highlight,vanish,border,underline,strike}=this.props
-		if(vanish){
+        if(this.props.vanish){
 			return null
 		}
 
         const measure=this.measure
 
-        const defaultStyle={
-                ...measure.defaultStyle,
-                color, highlight,border,underline,strike
-            }
+        const defaultStyle=this.defaultStyle
 
 		const whitespaceWidth=measure.stringWidth(" ")
 
 		let start=0
-		this.getMyBreakOpportunities(this.text).forEach(a=>{
+		this.getMyBreakOpportunities().forEach(a=>{
 			a.split(/(\s)/).filter(a=>!!a).forEach((b,i)=>{
 				const isWhitespace=b==" "
                 const ending=b.endsWith(",") ? b.substring(0,b.length-1) : false
 				this.appendComposed({
 					...defaultStyle,
-                    color,
-					highlight,
                     className:isWhitespace ? "whitespace" : undefined,
 					width:isWhitespace ? whitespaceWidth : measure.stringWidth(b),
 					minWidth:isWhitespace ? 0 : (ending ? measure.stringWidth(ending) : undefined),

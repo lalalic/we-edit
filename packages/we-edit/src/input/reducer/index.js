@@ -93,19 +93,22 @@ class Reducer extends Base{
 		to=typeof(to)=="string" ? target.closest(to) : to
 		const parent=to.parent()
 
-		let to1=target.constructUp(to).insertAfter(to)
+		const to1=target.constructUp(to).insertAfter(to)
 
-		let t0=to1.findFirst(a=>this.$('#'+a).children().length==0)
+		const target1=to1.findLast(a=>this.$('#'+a).children().length==0)
 
 		if(target.attr('type')=="text"){
 			const text=target.text()
-			t0.text(text.substr(at))
+			target1.text(text.substr(at))
 			target.text(text.substr(0,at))
 		}
 
-		target.parentsUntil(to).each(function(i,node,$){
-			this.eq(i).after($(node).nextAll())
-		},t0.parentsUntil(to1))
+		const ancestors=target.parentsUntil(to)
+		const ancestors1=target1.parentsUntil(to1)
+		console.assert(ancestors.length==ancestors1.length)
+		ancestors.each(i=>{
+			ancestors1.eq(i).after(ancestors.eq(i).nextAll())
+		})
 
 
 		return [to,to1]
@@ -116,14 +119,28 @@ class Reducer extends Base{
 	*/
 	seperateSelection(){
 		const {start,end}=this.selection
-		if(end.at==0){
-			const ender=this.$('#'+end.id)
-			const newEnder=ender.prevCursorable()
+		console.assert(start.id!=end.id||start.at!=end.at)
+
+		const isAtStart=({id,at=0})=>at==0
+		const isAtEnd=({id,at=0})=>{
+			const target=this.$('#'+id)
+			const type=target.attr('type')
+			return (type=="text" && at>=target.text().length) || (type!="text" && at==1)
+		}
+
+		if(isAtStart(end)){//go to end of prev cursorable
+			const newEnder=this.$('#'+end.id).prevCursorable()
 			end.id=newEnder.attr('id')
 			end.at=newEnder.attr('type')=="text" ? newEnder.text().length : 1
 			this.cursorAt(start.id,start.at, end.id,end.at)
 		}
-		
+
+		if(isAtEnd(start)){
+			start.id=this.$('#'+start.id).nextCursorable().attr('id')
+			start.at=0
+			this.cursorAt(start.id,start.at,end.id,end.at)
+		}
+
 
 		if(start.id==end.id){//entity
 			const starter=this.$('#'+start.id)
@@ -137,23 +154,17 @@ class Reducer extends Base{
 		}
 
 		if(!(start.id==end.id && start.at==end.at)){
-			if(atEnd(end)){
-				//do nothing	
+			if(isAtEnd(end)){
+				//do nothing
 			}else{
 				const [newEnd]=this.file.splitNode(this.element(end.id),end.at, start.id==end.id)
 				end.id=newEnd.id
 				end.at=newEnd.at
+				this.cursorAt(start.id,start.at,end.id,end.at)
 			}
-			
-			if(isAtBeginngin(start)){
+
+			if(isAtStart(start)){
 				//do nothing
-			}else if(atEnd(start)){
-				//go to beginning of next cusorable
-				const starter=this.$('#'+starter.id)
-				const newStarter=starter.nextCursorable()
-				start.id=newStarter.attr('id')
-				start.at=0
-				this.cursorAt(start.id,start.at, end.id,end.at)
 			}else{
 				const [,{id,at}]=this.file.splitNode(this.element(start.id),start.at)
 				if(end.id==start.id){
@@ -162,8 +173,8 @@ class Reducer extends Base{
 				}
 				start.id=id
 				start.at=at
+				this.cursorAt(start.id,start.at, end.id, end.at)
 			}
-			this.cursorAt(start.id,start.at, end.id, end.at)
 		}
 	}
 
@@ -176,46 +187,23 @@ class Reducer extends Base{
     		this.cursorAt(id,at+inserting.length)
             return
         }else{
-    		const p=target.closest("paragraph")
-    		const pieces=inserting.split(/[\r\n]+/g)
-    		const FIRST=0
-    		const LAST=pieces.length-1
-    		pieces.reduceRight((b,piece,i)=>{
-    			switch(i){
-    				case FIRST:{//first piece merged into
-    					target.text(text.substring(0,at)+piece)
-    					break
-    				}
-    				case LAST:{
-    					let p0=target.constructUp(p)
-    						.insertAfter(p)
-
-    					let t0=p0.findFirst("text")
-    						.text(piece+text.substr(at))
-
-    					target.parentsUntil(p).each(function(i,node,$){
-    						this.eq(i).after($(node).nextAll())
-    					},t0.parentsUntil(p0))
-
-    					this.cursorAt(t0.attr("id"), piece.length)
-    					break
-    				}
-    				default:{
-    					target.constructUp(p)
-    						.insertAfter(p)
-    						.findFirst("text")
-    						.text(piece)
-    					break
-    				}
-    			}
-    		},1)
+			const pieces=inserting.split(/[\r\n]+/g)
+    		const [p,p1]=this.splitAtUpTo({id,at},"paragraph")
+			target.text(text.substring(0,at)+pieces.shift())
+			p1.findFirst("text").text(pieces.pop()+text.substr(at))
+			pieces.reverse().forEach(piece=>{
+				target.constructUp(p)
+					.insertAfter(p)
+					.findFirst("text")
+					.text(piece)
+			})
+			this.cursorAt(p1.findFirst("text").attr("id"),0)
         }
 	}
 
 	merge(contents){
 		const {start:{id,at}}=this.selection
 		var target=this.$('#'+id)
-		debugger
 		const renderedContents=contents.map(a=>this.file.attach(a))
 		if(renderedContents.length==1){
 			const single=this.$('#'+renderedContents[0])
@@ -273,7 +261,6 @@ class Reducer extends Base{
 
 	removeSelection(){
 		const {start,end}=this.selection
-		const endId=end.id
 		if(start.id==end.id){
 			if(start.at!=end.at){
 				const target=this.$(`#${start.id}`)
@@ -287,6 +274,7 @@ class Reducer extends Base{
 			const {start,end}=this.selection
 			const target0=this.$('#'+start.id)
 			const target1=this.$("#"+end.id)
+			const cursorAfterRemove=target1.nextCursorable().add(target0.prevCursorable()).eq(0)
 
 			const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
 			if(ancestor.length>0){
@@ -303,13 +291,12 @@ class Reducer extends Base{
 			target0.remove()
 			target1.remove()
 
-			this.cursorAt(endId,0)
+			this.cursorAt(cursorAfterRemove.attr('id'),0)//it's not correct if the original end at entity end
 		}
 	}
 
 	clone(keepId){
 		const {start,end}=this.selection
-		const endId=end.id
 		if(start.id==end.id){
 			const target=this.$(`#${start.id}`)
 			if(start.at!=end.at){

@@ -8,9 +8,9 @@ export class Image extends Base{
 
         if(data){
             if(typeof(data)=='string'){//file name
-                props.rid=this.file.officeDocument.addExternalImage(data)
+                props.rid=this.file.doc.officeDocument.addExternalImage(data)
             }else{
-                props.rid=this.file.officeDocument.addImage(data)
+                props.rid=this.file.doc.officeDocument.addImage(data)
             }
         }
 
@@ -87,17 +87,19 @@ export class Image extends Base{
         if(r.length==0){
             r=target.find("w\\:r").eq(0)
         }
-        var container=r.clone().empty()
+        var container=r.clone().empty().removeAttr('xxid')
 
-		this.node=this.parseXml(this.template(props))
-
-        container.append(this.node)
+		container.append(this.parseXml(this.template(props)))
 
         if(at==0){
             container=container.insertBefore(r)
         }else{
             container=container.insertAfter(r)
         }
+
+        this.node=container.find("pic\\:pic")
+
+        this.apply(props)
 
 		this.file.renderChanged(r.parent().closest(`[xxid]`))
 
@@ -107,10 +109,10 @@ export class Image extends Base{
     template(props){
         return `
         <w:drawing>
-          <wp:inline distT="0" distB="0" distL="0" distR="0" wp14:anchorId="38FBBD73" wp14:editId="2CF6FDD6">
+          <wp:inline distT="0" distB="0" distL="0" distR="0">
             <wp:extent cx="1636295" cy="920416"/>
             <wp:effectExtent l="0" t="0" r="0" b="0"/>
-            <wp:docPr id="1" name="Picture 1"/>
+            <wp:docPr/>
             <wp:cNvGraphicFramePr>
               <a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/>
             </wp:cNvGraphicFramePr>
@@ -118,17 +120,11 @@ export class Image extends Base{
               <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
                 <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
                   <pic:nvPicPr>
-                    <pic:cNvPr id="0" name="20160313_142032.jpg"/>
+                    <pic:cNvPr/>
                     <pic:cNvPicPr/>
                   </pic:nvPicPr>
                   <pic:blipFill>
-                    <a:blip r:embed="rId9">
-                      <a:extLst>
-                        <a:ext uri="{28A0092B-C50C-407E-A947-70E740481C1C}">
-                          <a14:useLocalDpi xmlns:a14="http://schemas.microsoft.com/office/drawing/2010/main" val="0"/>
-                        </a:ext>
-                      </a:extLst>
-                    </a:blip>
+                    <a:blip r:embed="rId9"/>
                     <a:stretch>
                       <a:fillRect/>
                     </a:stretch>

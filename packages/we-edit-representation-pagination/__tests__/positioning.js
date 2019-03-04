@@ -1002,6 +1002,19 @@ describe("positioning",()=>{
             expect(p.position("0",1)).toMatchObject({x:4,y:0})
         })
 
+        it("empty paragraph start/end",()=>{
+            const p=test(<Paragraph id="0"></Paragraph>)
+            expect(p.position("0",0)).toMatchObject({x:0,y:0})
+            expect(p.position("0",1)).toMatchObject({x:0,y:0})
+        })
+
+        it("empty paragraph start/end",()=>{
+            const p=test(<Paragraph id="0"><Container id="2"><Text id="1"></Text></Container></Paragraph>)
+            expect(p.position("0",0)).toMatchObject({x:0,y:0})
+            expect(p.position("0",1)).toMatchObject({x:0,y:0})
+            expect(p.position("1",0)).toMatchObject({x:0,y:0})
+        })
+
         xit("line start/end",()=>{
 
         })

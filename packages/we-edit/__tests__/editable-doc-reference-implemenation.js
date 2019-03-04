@@ -54,11 +54,16 @@ class StateDocument extends Input.Editable{
         if(position){
             const {id,at=0}=position
             const reference=this.getNode(id)
-            const parent=this.getNode(reference.parent)
-            if(at==0){
-                this.insertNodeBefore(node,reference,parent)
-            }else if(at==1){
-                this.insertNodeAfter(node,reference,parent)
+            if(reference.type=="paragraph" && node.type=="text"){
+                this.insertNodeAfter(node,null,reference)
+            }else{
+                const parent=this.getNode(reference.parent)
+
+                if(at==0){
+                    this.insertNodeBefore(node,reference,parent)
+                }else if(at==1){
+                    this.insertNodeAfter(node,reference,parent)
+                }
             }
         }else{
             this.attach(node)

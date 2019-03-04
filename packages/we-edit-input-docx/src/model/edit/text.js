@@ -22,20 +22,25 @@ export class Text extends Base{
             r=target.find("w\\:r").eq(0)
         }
 
-		var container=r.clone()
+		let container=r.length>0 ? r.clone() : this.parseXml(`<w:r></w:r>`)
 		container.children().not("w\\:rPr").remove()
 
-		this.node=this.parseXml(this.template(props))
+		container.append(this.parseXml(this.template(props)))
 
-		container.append(this.node)
+		if(r.length>0){
+			if(at==0){
+				container=container.insertBefore(r)
+			}else{
+				container=container.insertAfter(r)
+			}
+		}else{
+			container=container.appendTo(target)
+		}
 
-		if(at==0){
-            container=container.insertBefore(r)
-        }else{
-            container=container.insertAfter(r)
-        }
+		this.node=container.find("w\\:t")
+		this.apply(props)
 
-		this.file.renderChanged(r.closest(`[xxid]`))
+		this.file.renderChanged(container.closest(`[xxid]`))
 
 		return {id:container.find(`[xxid]`).attr('xxid'),at:(props.children||"").length}
 	}
