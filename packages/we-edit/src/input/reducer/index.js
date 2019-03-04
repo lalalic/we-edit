@@ -91,6 +91,9 @@ class Reducer extends Base{
 	splitAtUpTo({id,at},to){
 		const target=this.$('#'+id)
 		to=typeof(to)=="string" ? target.closest(to) : to
+		if(to.attr('id')==id){
+			return [to]
+		}
 		const parent=to.parent()
 
 		const to1=target.constructUp(to).insertAfter(to)
@@ -114,6 +117,16 @@ class Reducer extends Base{
 		return [to,to1]
 	}
 
+	isAtStart({id,at=0}){
+		return at==0
+	}
+
+	isAtEnd({id,at=0}){
+		const target=this.$('#'+id)
+		const type=target.attr('type')
+		return (type=="text" && at>=target.text().length) || (type!="text" && at==1)
+	}
+
 	/*start at beginning of node, end at ending of node
 	seperated to </>(<|/></|>)</>
 	*/
@@ -121,21 +134,14 @@ class Reducer extends Base{
 		const {start,end}=this.selection
 		console.assert(start.id!=end.id||start.at!=end.at)
 
-		const isAtStart=({id,at=0})=>at==0
-		const isAtEnd=({id,at=0})=>{
-			const target=this.$('#'+id)
-			const type=target.attr('type')
-			return (type=="text" && at>=target.text().length) || (type!="text" && at==1)
-		}
-
-		if(isAtStart(end)){//go to end of prev cursorable
+		if(this.isAtStart(end)){//go to end of prev cursorable
 			const newEnder=this.$('#'+end.id).prevCursorable()
 			end.id=newEnder.attr('id')
 			end.at=newEnder.attr('type')=="text" ? newEnder.text().length : 1
 			this.cursorAt(start.id,start.at, end.id,end.at)
 		}
 
-		if(isAtEnd(start)){
+		if(this.isAtEnd(start)){
 			start.id=this.$('#'+start.id).nextCursorable().attr('id')
 			start.at=0
 			this.cursorAt(start.id,start.at,end.id,end.at)
@@ -154,18 +160,14 @@ class Reducer extends Base{
 		}
 
 		if(!(start.id==end.id && start.at==end.at)){
-			if(isAtEnd(end)){
-				//do nothing
-			}else{
+			if(!this.isAtEnd(end)){
 				const [newEnd]=this.file.splitNode(this.element(end.id),end.at, start.id==end.id)
 				end.id=newEnd.id
 				end.at=newEnd.at
 				this.cursorAt(start.id,start.at,end.id,end.at)
 			}
 
-			if(isAtStart(start)){
-				//do nothing
-			}else{
+			if(!this.isAtStart(start)){
 				const [,{id,at}]=this.file.splitNode(this.element(start.id),start.at)
 				if(end.id==start.id){
 					end.id=id
@@ -221,7 +223,7 @@ class Reducer extends Base{
 					topParent.after(this.$(`#${a}`))
 				})
 			}else{
-				if(at>0){
+				if(!this.isAtStart({id,at}) && !this.isAtEnd({id,at})){
 					const [,second]=this.file.splitNode(this.element(id),at)
 					target=this.$('#'+second.id)
 				}
@@ -361,10 +363,10 @@ class Content extends Reducer{
 		this.removeSelection()
 		var {start:{id,at}}=this.selection
 		const target=this.$('#'+id)
-		if(at>0){
+		if(!this.isAtEnd({id,at}) && !this.isAtStart({id,at})){
 			([,{id,at}]=this.file.splitNode(this.element(id),at))
 		}
-		const cursor=this.file.createNode(element,{id,at})
+		const cursor=this.file.createNode(element,{id,at},this)
 		this.cursorAt(cursor.id, cursor.at)
 		return this
 	}

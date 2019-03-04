@@ -66,19 +66,19 @@ export default class SerializableDocx extends EditableDocx{
 
 	createNode({type},position){
 		const editor=new editors[Type(type)](this)
-		return editor.create(arguments[0],position)
+		return editor.create(...arguments)
 	}
 
 	updateNode({id,type},changing){
 		const editor=new editors[Type(type)](this)
 		editor.node=this.getNode(id)
-		return editor.update(arguments[0],changing)
+		return editor.update(...arguments)
 	}
 
 	removeNode({id,type}){
 		const editor=new editors[Type(type)](this)
 		editor.node=this.getNode(id)
-		return editor.remove(arguments[0])
+		return editor.remove(...arguments)
 	}
 
 	insertNodeBefore(newNode,referenceNode,parentNode){

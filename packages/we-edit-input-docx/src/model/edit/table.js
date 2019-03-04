@@ -187,15 +187,14 @@ export class Table extends Base{
         `
     }
 
-	create(props,{id,at}){
-        const [p0,p1]=this.file.splitNodeUpto({id},at,"paragraph")
-		const createdNode=super.create(...arguments)
-        p0.after(createdNode)
-        const {id:createdId}=this.file.renderChanged(createdNode)
+	create(props,{id,at},reducer){
+        const [p0]=reducer.splitAtUpTo({id,at},"paragraph")
 
-		let created=reducer.$(`#${createdId}`).insertAfter(p0)
+		const tableId=super.create(...arguments)
+        this.file.renderChanged(this.file.getNode(tableId))
+		const created=reducer.$(`#${tableId}`).insertAfter(p0)
+		const cursor=created.findFirst('text').attr('id')
 
-		let cursor=created.findFirst('text').attr('id')
 		return {id:cursor,at:0}
 	}
 }
