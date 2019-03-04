@@ -1,11 +1,13 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
-import {connect} from "react-redux"
 
 import reactComposition from "../../tools/react-composition"
-import {ACTION} from "../../state/action"
+import {ACTION, connect} from "../../state"
+import {getSelection} from "../../state/selector"
 
-export default class Listener extends Component{
+export default connect(
+	state=>({actived:getSelection(state).actived})
+)(class Listener extends Component{
 	state={value:""}
 	KEYs={
 		13:e=>this.props.dispatch(ACTION.Text.RETURN()),
@@ -62,4 +64,4 @@ export default class Listener extends Component{
 	componentDidUpdate(){
 		this.props.inputRef.current.focus()
 	}
-}
+})

@@ -82,7 +82,7 @@ export default class Responsible extends Component{
 	}
 
     render(){
-        const {children,docId, continueCompose, getComposer,dispatch, ...props}=this.props
+        const {children,canvasId, continueCompose, getComposer,dispatch, ...props}=this.props
 		var down={}
 		const flagEvent=({clientX,clientY})=>down={clientX,clientY}
 		const shouldIgnore=({clientX,clientY})=>clientX==down.clientX && clientY==down.clientY
@@ -146,7 +146,7 @@ export default class Responsible extends Component{
                     {children}
 					{this.getComposeTrigger()}
 					<Locator
-                        docId={docId}
+                        canvasId={canvasId}
                         scale={this.props.scale}
                         positioning={this.positioning}
                         ref="locator"
@@ -160,7 +160,6 @@ export default class Responsible extends Component{
 									40:e=>this.onKeyArrowDown(e),//move down
                                     46:e=>this.onKeyDelete(),//delete
                                     8:e=>this.onKeyBackspace(),//backspace
-
 								}}
 
                                 onCopy={e=>this.onCopy(e)}
@@ -210,12 +209,12 @@ export default class Responsible extends Component{
             const {id,at}=this.getComposer(page0.getParagraph(page0.lines[0])).nextCursorable()
             this.dispatch(ACTION.Cursor.AT(id,at))
         }
-        this.dispatch(ACTION.Cursor.ACTIVE(this.props.docId))
+        this.active()
         this.locator && this.locator.setState({content:this.props.content, canvas:this.canvas})
     }
 
     active(){
-		this.dispatch(ACTION.Cursor.ACTIVE(this.props.docId))
+		this.dispatch(ACTION.Cursor.ACTIVE(this.props.canvasId))
     }
 
     onRotate({x,y,id}){

@@ -36,17 +36,16 @@ export class Editor extends PureComponent{
 
 	static childContextTypes={
 		media:PropTypes.string,
-		docId: PropTypes.string,
 	}
 
 	constructor(){
 		super(...arguments)
-		this.docId=`${uuid()}`
+		this.canvasId=`${uuid()}`
 	}
 
 	getChildContext(){
 		const {media}=this.props
-		return {media, docId:this.docId}
+		return {media}
 	}
 
 	render(){
@@ -58,7 +57,7 @@ export class Editor extends PureComponent{
 		return React.cloneElement(
 			representation,
 			{domain:this.constructor.domain},
-			this.createDocument({docId:this.docId, canvasProps:{canvas, scale, screenBuffer,viewport, ...props}})
+			this.createDocument({canvasId:this.canvasId, canvasProps:{canvas, scale, screenBuffer,viewport, ...props}})
 		)
 	}
 
@@ -133,7 +132,7 @@ export class WeDocumentStub extends PureComponent{
 		return {weDocument:this.doc}
 	}
 
-	componentWillReceiveProps({content,canvasProps},{ModelTypes}){
+	componentWillReceiveProps({content,canvasProps,canvasId},{ModelTypes}){
 		if(!ModelTypes)
 			return
 		if(!this.doc){
@@ -142,7 +141,7 @@ export class WeDocumentStub extends PureComponent{
 			this.doc=createWeDocument("root",content,ModelTypes,this.props.content)
 		}
 
-		this.doc=React.cloneElement(this.doc,  {...canvasProps, content})
+		this.doc=React.cloneElement(this.doc,  {...canvasProps, content,canvasId})
 	}
 
 	render(){

@@ -2,7 +2,7 @@ import {getContent, nextCursorable, nextSelectable, prevCursorable, prevSelectab
 import {ACTION as History} from "../undoable"
 
 export const Cursor={
-	ACTIVE: docId=>({type:"we-edit/selection/DOC",payload:docId}),
+	ACTIVE: canvasId=>({type:"we-edit/selection/CANVAS",payload:canvasId}),
 	AT: (contentId, at)=>Selection.SELECT(contentId, at)
 }
 

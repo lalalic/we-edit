@@ -47,12 +47,12 @@ export default class Document extends Super{
     }
 
 	renderComposed(){
-		const {canvas,scale,pageGap,docId,content}=this.props
+		const {canvas,scale,pageGap,canvasId,content}=this.props
 		const pages=this.computed.composed
 		return (
 				<Responsible
 					dispatch={this.context.activeDocStore.dispatch}
-					docId={docId}
+					canvasId={canvasId}
 					content={content}
 					getComposer={this.getComposer}
 					scale={scale}
