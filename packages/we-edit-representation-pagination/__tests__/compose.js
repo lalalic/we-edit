@@ -397,16 +397,39 @@ describe("compose", ()=>{
 
 	describe("image",()=>{
 		const test=props=>{
-
-		}
-		xit("basic image", ()=>{
-			const rendered=TestRender.create(
-				<WithParagraphContext>
-					<Paragraph>
-						<Image/>
-					</Paragraph>
+			const context={
+				parent:{},
+				exclusive:()=>[],
+			}
+			const nextAvailableSpace=context.parent.nextAvailableSpace=jest.fn(()=>({
+				width:10,height:100
+			}))
+			const appendComposed=context.parent.appendComposed=jest.fn()
+			const renderer=TestRender.create(
+				<WithParagraphContext context={context}>
+					<WithTextContext>
+						<Paragraph id="2">
+							<Image id="1" {...props}/>
+						</Paragraph>
+					</WithTextContext>
 				</WithParagraphContext>
 			)
+			return Object.assign(appendComposed.mock.calls.map(([line])=>line),{dom:renderer.root})
+		}
+		it("containable image", ()=>{
+			const [line]=test({size:{width:8,height:50}})
+			const image=new ReactQuery(line).findFirst("[xlinkHref]")
+			expect(image.length).toBe(1)
+			expect(line.props.width).toBe(10)
+			expect(image.attr('width')).toBe(8)
+		})
+
+		xit("containable image", ()=>{
+			const [line]=test({size:{width:11,height:50}})
+			const image=new ReactQuery(line).findFirst("[xlinkHref]")
+			expect(image.length).toBe(1)
+			expect(line.props.width).toBe(10)
+			expect(image.attr('width')).toBe(11)
 		})
 	})
 
