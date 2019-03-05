@@ -128,8 +128,9 @@ describe("compose", ()=>{
 			})
 		})
 
-		xdescribe("align",()=>{
-			const align=(align,lineWidth=10)=>{
+		describe("align",()=>{
+			const LineWidth=20
+			const align=(align,lineWidth=LineWidth)=>{
 				let lines=test(lineWidth,undefined,undefined,align)
 				const dom=lines.dom
 				lines=lines.map(line=>line.props.children)
@@ -137,16 +138,26 @@ describe("compose", ()=>{
 				return Object.assign(lines,{dom})
 			}
 			it("left",()=>{
-
+				[align(),align("left")].forEach(([line])=>{
+					const story=new ReactQuery(line).find(".story")
+					expect(story.children().length).toBe(1)
+					expect(story.children().eq(0).attr('x')).toBe(0)
+				})
 			})
 
 			it("right",()=>{
-
+				const [line]=align("right")
+				const story=new ReactQuery(line).find(".story")
+				expect(story.children().length).toBe(1)
+				expect(story.children().eq(0).attr('x')).toBe(LineWidth-TEXT.length)
 
 			})
 
 			it("center",()=>{
-
+				const [line]=align("center")
+				const story=new ReactQuery(line).find(".story")
+				expect(story.children().length).toBe(1)
+				expect(story.children().eq(0).attr('x')).toBe((LineWidth-TEXT.length)/2)
 			})
 		})
 
@@ -385,7 +396,9 @@ describe("compose", ()=>{
 	})
 
 	describe("image",()=>{
-		const WithParagraphContext=provider(Paragraph)
+		const test=props=>{
+
+		}
 		xit("basic image", ()=>{
 			const rendered=TestRender.create(
 				<WithParagraphContext>

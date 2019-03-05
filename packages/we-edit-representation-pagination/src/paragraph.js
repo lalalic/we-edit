@@ -534,6 +534,16 @@ class Story extends Component{
 		const {children, align="left"}=this.props
 		const baseline=children.reduce((h,{props:{height,descent=0}})=>Math.max(h,height-descent),0)
 		const aligned=this[align]()
+		const ender=children.find(a=>a.props.className=="ender")
+		if(ender){
+			const {children}=aligned[aligned.length-1].props
+			if(children.length>0){
+				const {x=0,width=0}=children[children.length-1].props
+				children.push(React.cloneElement(ender,{key:"ender",x:x+width}))
+			}else{
+				children.push(React.cloneElement(ender,{key:"ender"}))
+			}
+		}
 		return (
 			<Group y={baseline} className="story">
 				{aligned}
@@ -542,7 +552,7 @@ class Story extends Component{
 	}
 
 	group(right=false){
-		return this.props.children
+		return this.props.children.filter(a=>a.props.className!="ender")
 			.reduce((groups,a)=>{
 				if(a.props.x!=undefined){
 					if(right){
@@ -592,15 +602,17 @@ class Story extends Component{
 	right(){
 		return this.group(true)
 			.reduceRight((state, {located,words,endingWhitespaces})=>{
-				state.aligned.push(
-					React.cloneElement(
-						new Merge({
-							x:state.x,
-							children:endingWhitespaces.map((a,key)=>React.cloneElement(a,{key}))
-						}).render(),
-						{key:state.aligned.length}
+				if(endingWhitespaces.length>0){
+					state.aligned.push(
+						React.cloneElement(
+							new Merge({
+								x:state.x,
+								children:endingWhitespaces.map((a,key)=>React.cloneElement(a,{key}))
+							}).render(),
+							{key:state.aligned.length}
+						)
 					)
-				)
+				}
 
 				state.x=words.reduce((x,a)=>x-a.props.width,state.x)
 				state.aligned.push(

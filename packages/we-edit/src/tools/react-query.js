@@ -235,6 +235,10 @@ export default class Query{
 		return {last, parents}
     }
 
+    eq(i){
+        return new this.constructor([this._nodes[i]],null,this.root)
+    }
+
     get(i){
         return this._nodes[i]
     }
