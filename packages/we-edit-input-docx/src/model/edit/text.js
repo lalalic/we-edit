@@ -16,33 +16,21 @@ export class Text extends Base{
 	}
 
 	create(props,{id,at=0}){
-		const target=this.file.getNode(id)
-        var r=target.closest("w\\:r")
-        if(r.length==0){
-            r=target.find("w\\:r").eq(0)
-        }
+		var cursor
+        super.create(props)
+        const r=this.node.wrap("<w:r></w:r>").parent()
+        this.file.renderChanged(r,($,el)=>{
+            const r0=this.file.getNode(id).closest("w\\:r")
+            if(r0.length){
+                r0[`${at==0 ? "before" : "after"}`](r)
+            }else{
+                r.appendTo(this.file.getNode(id))
+            }
+            this.file.renderChanged(r.parent().closest(`[xxid]`))
+            cursor=this.node.attr("xxid")
+        })
 
-		let container=r.length>0 ? r.clone() : this.parseXml(`<w:r></w:r>`)
-		container.children().not("w\\:rPr").remove()
-
-		container.append(this.parseXml(this.template(props)))
-
-		if(r.length>0){
-			if(at==0){
-				container=container.insertBefore(r)
-			}else{
-				container=container.insertAfter(r)
-			}
-		}else{
-			container=container.appendTo(target)
-		}
-
-		this.node=container.find("w\\:t")
-		this.apply(props)
-
-		this.file.renderChanged(container.closest(`[xxid]`))
-
-		return {id:container.find(`[xxid]`).attr('xxid'),at:(props.children||"").length}
+		return {id:cursor,at:(props.children||"").length}
 	}
 
 	children(text){

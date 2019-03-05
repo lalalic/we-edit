@@ -99,11 +99,10 @@ export default class SerializableDocx extends EditableDocx{
 			throw new Error("not support")
 	}
 
-	attach(xml){
+	attach(xml, needRender=true){
 		xml=this.doc.officeDocument.content(xml)
 		this.doc.officeDocument.content("w\\:body").append(xml)
-		const {id}=this.renderChanged(xml)
-		return id
+		return needRender ? this.renderChanged(xml).id : this.makeId(xml.get(0))
 	}
 
 	construct({id:from,type},to){
@@ -126,8 +125,7 @@ export default class SerializableDocx extends EditableDocx{
 			current.removeAttr('xxid')
 			current=current.closest(`[xxid]`)
 		}
-		this.attach(cloned)
-		return cloned.get(0)
+		return this.attach(cloned)
 	}
 
     toString(id){

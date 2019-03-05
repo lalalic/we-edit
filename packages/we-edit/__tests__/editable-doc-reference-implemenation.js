@@ -91,7 +91,7 @@ class StateDocument extends Input.Editable{
             return cloned
         }
         up(from)
-        return constructed
+        return constructed.id
     }
 
     updateNode({id},{children,parent,type,...props}){

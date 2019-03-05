@@ -82,28 +82,21 @@ export class Image extends Base{
     }
 
 	create(props,{id,at=0}){
-        const target=this.file.getNode(id)
-        var r=target.closest("w\\:r")
-        if(r.length==0){
-            r=target.find("w\\:r").eq(0)
-        }
-        var container=r.clone().empty().removeAttr('xxid')
+        var cursor
+        super.create(props)
+        const r=this.node.closest("w\\:drawing").wrap("<w:r></w:r>").parent()
+        this.file.renderChanged(r,($,el)=>{
+            const r0=this.file.getNode(id).closest("w\\:r")
+            if(r0.length){
+                r0[`${at==0 ? "before" : "after"}`](r)
+            }else{
+                r.appendTo(this.file.getNode(id))
+            }
+            this.file.renderChanged(r.parent().closest(`[xxid]`))
+            cursor=this.node.attr("xxid")
+        })
 
-		container.append(this.parseXml(this.template(props)))
-
-        if(at==0){
-            container=container.insertBefore(r)
-        }else{
-            container=container.insertAfter(r)
-        }
-
-        this.node=container.find("pic\\:pic")
-
-        this.apply(props)
-
-		this.file.renderChanged(r.parent().closest(`[xxid]`))
-
-		return {id:container.find(`[xxid]`).attr('xxid'),at:0}
+		return {id:cursor,at:0}
 	}
 
     template(props){

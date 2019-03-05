@@ -10,6 +10,7 @@ import {createStore, createState, isState, Provider} from "../state"
 import {getSelection} from "../state/selector"
 import undoable from "../state/undoable"
 import * as reducer from "../state/reducer"
+import xQuery from "./reducer/xquery"
 
 import uuid from "../tools/uuid"
 import ContextProvider from "./context-provider"
@@ -85,15 +86,21 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance,TypedComponen
 		break
 	}
 
-	let changedContent=state.get("content").asMutable()
+	const changedContent=state.get("content").asMutable()
+	const changeableState=state.set("_content", changedContent)
+	const $=selector=>new xQuery(changeableState,selector)
 
 	const createElement=createElementFactory(changedContent)
 
-	inputTypeInstance.renderChanged=node=>inputTypeInstance.renderNode(node,createElement,TypedComponents)
-	let changed=inputTypeInstance.onChange(
-		state.set("_content", changedContent),
-		action,
-	)
+	inputTypeInstance.renderChanged=(node,callback)=>{
+		const element=inputTypeInstance.renderNode(node,createElement,TypedComponents)
+		if(callback){
+			callback($,element,changedContent)
+		}
+		return element
+	}
+
+	const changed=inputTypeInstance.onChange(changeableState,action)
 
 	if(changed===false){
 		return state

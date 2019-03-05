@@ -1,6 +1,7 @@
 import {createState} from "../../state"
 import immutable,{Map} from "immutable"
 import Reducer from "."
+import xQuery from "./xquery"
 
 //Technology Compatibility Kit for document reducer
 export default function(TypedDocument){
@@ -11,8 +12,10 @@ export default function(TypedDocument){
                 .set("root",immutable.fromJS({id:"root",type:"document",children:["1","2","3"]}))
         )
         const _content=content.asMutable()
-        const doc=new TypedDocument(content,_content,{immutable,test})
-        return createState(doc,content).set("_content",_content)
+        const $=selector=>new xQuery(state,selector)
+        const doc=new TypedDocument(content,_content,{immutable,test, $})
+        const state=createState(doc,content).set("_content",_content)
+        return state
     }
 
     const test=(content,selectionx={})=>{

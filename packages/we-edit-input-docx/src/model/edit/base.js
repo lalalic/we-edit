@@ -39,7 +39,7 @@ export default class Editor{
 
     create(props,position){
         this.node=this.parseXml(this.template(props))
-        return this.file.attach(this.apply(props))
+        return this.file.attach(this.apply(props),false)
     }
 
     update({id},changing){

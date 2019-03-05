@@ -193,9 +193,42 @@ export default class xQuery extends Query{
 
 	constructUp(to){
 		let docNode=this.file.construct({id:this.attr("id"),type:this.attr('type')}, this.closest(to).attr("id"))
-        let {id}=this.file.renderChanged(docNode)
+        let {id}=this.file.renderChanged(this.file.getNode(docNode))
         return new this.constructor(this.state, [id])
 	}
+
+    splitUpTo(to,at=0){
+        to=this.closest(to)
+
+		if(to.length==0){
+			return []
+		}
+
+		if(to.attr('id')==this.attr('id')){
+			return [to]
+		}
+
+		const parent=to.parent()
+
+		const to1=this.constructUp(to).insertAfter(to)
+
+		const target1=to1.findLast(a=>new this.constructor(this.state, [a]).children().length==0)
+
+		if(this.attr('type')=="text"){
+			const text=this.text()
+			target1.text(text.substr(at))
+			this.text(text.substr(0,at))
+		}
+
+		const ancestors=this.parentsUntil(to)
+		const ancestors1=target1.parentsUntil(to1)
+		console.assert(ancestors.length==ancestors1.length)
+		ancestors.each(i=>{
+			ancestors1.eq(i).after(ancestors.eq(i).nextAll())
+		})
+
+        return [to,to1]
+    }
 
     clone(){
 		let nodes=this._nodes.map(a=>{

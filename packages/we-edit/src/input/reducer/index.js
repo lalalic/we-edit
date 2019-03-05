@@ -88,35 +88,6 @@ class Reducer extends Base{
 		return {id,type:this.$('#'+id).attr('type')}
 	}
 
-	splitAtUpTo({id,at},to){
-		const target=this.$('#'+id)
-		to=typeof(to)=="string" ? target.closest(to) : to
-		if(to.attr('id')==id){
-			return [to]
-		}
-		const parent=to.parent()
-
-		const to1=target.constructUp(to).insertAfter(to)
-
-		const target1=to1.findLast(a=>this.$('#'+a).children().length==0)
-
-		if(target.attr('type')=="text"){
-			const text=target.text()
-			target1.text(text.substr(at))
-			target.text(text.substr(0,at))
-		}
-
-		const ancestors=target.parentsUntil(to)
-		const ancestors1=target1.parentsUntil(to1)
-		console.assert(ancestors.length==ancestors1.length)
-		ancestors.each(i=>{
-			ancestors1.eq(i).after(ancestors.eq(i).nextAll())
-		})
-
-
-		return [to,to1]
-	}
-
 	isAtStart({id,at=0}){
 		return at==0
 	}
@@ -132,7 +103,9 @@ class Reducer extends Base{
 	*/
 	seperateSelection(){
 		const {start,end}=this.selection
-		console.assert(start.id!=end.id||start.at!=end.at)
+		if(start.id==end.id&&start.at==end.at){
+			return
+		}
 
 		if(this.isAtStart(end)){//go to end of prev cursorable
 			const newEnder=this.$('#'+end.id).prevCursorable()
@@ -190,7 +163,7 @@ class Reducer extends Base{
             return
         }else{
 			const pieces=inserting.split(/[\r\n]+/g)
-    		const [p,p1]=this.splitAtUpTo({id,at},"paragraph")
+    		const [p,p1]=target.splitUpTo("paragraph",at)
 			target.text(text.substring(0,at)+pieces.shift())
 			p1.findFirst("text").text(pieces.pop()+text.substr(at))
 			pieces.reverse().forEach(piece=>{
@@ -218,7 +191,7 @@ class Reducer extends Base{
 			const inParagraphTopParentId=target.parentsUntil("paragraph").toArray().pop()
 			if(inParagraphTopParentId){
 				const topParent=this.$('#'+inParagraphTopParentId)
-				this.splitAtUpTo({id,at},'#'+inParagraphTopParentId)
+				target.splitUpTo('#'+inParagraphTopParentId,at)
 				renderedContents.reverse().forEach((a,i)=>{
 					topParent.after(this.$(`#${a}`))
 				})
@@ -233,7 +206,7 @@ class Reducer extends Base{
 			}
 		}else{
 			const p=target.closest("paragraph")
-			this.splitAtUpTo({id,at},"paragraph")
+			target.splitUpTo("paragraph",at)
 			const firstId=renderedContents.unshift()
 			const lastId=renderedContents.pop()
 
@@ -366,7 +339,7 @@ class Content extends Reducer{
 		if(!this.isAtEnd({id,at}) && !this.isAtStart({id,at})){
 			([,{id,at}]=this.file.splitNode(this.element(id),at))
 		}
-		const cursor=this.file.createNode(element,{id,at},this)
+		const cursor=this.file.createNode(element,{id,at})
 		this.cursorAt(cursor.id, cursor.at)
 		return this
 	}
