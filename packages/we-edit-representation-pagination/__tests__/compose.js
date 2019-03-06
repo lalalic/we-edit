@@ -9,9 +9,7 @@ describe.each([
 	["editor", Editors,{shouldContinueCompose:()=>true}]
 ])("%s",(testing,Composers,CONTEXT={})=>{
 	const {Document, Section, Frame, Paragraph, Text, Image,Table,Row,Cell}=Composers
-	if(testing=="editor"){
-		Paragraph.defaultProps.defaultStyle={}
-	}
+	Paragraph.defaultProps.defaultStyle={fonts:"arial",size:10}
 
 	class Measure{
 		constructor({size}){
