@@ -65,6 +65,7 @@ export default Cacheable(class extends editable(Base,{stoppable:true,continuable
 			return false
 		})();
 
+		debugger
 		const table=parents.find(a=>a.props["data-type"]=="table").props["data-content"]
 		const isLastRankOfRow=!!rank.attr("last")
 

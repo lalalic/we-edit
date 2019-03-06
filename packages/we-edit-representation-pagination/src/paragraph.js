@@ -392,7 +392,7 @@ class Line extends Component{
 				return false
 			}
 		}else{
-			const containable=()=>minWidth==0 || this.availableWidth>=minWidth || this.availableWidth==this.maxWidth
+			const containable=()=>minWidth==0 || this.content.length==0 || this.availableWidth>=minWidth || this.availableWidth==this.maxWidth
 			if(containable()){
 				this.wrappees=this.wrappees.map((a,i)=>{
 					if((this.currentX+minWidth)>a.x){

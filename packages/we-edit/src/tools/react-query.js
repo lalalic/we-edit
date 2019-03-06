@@ -185,6 +185,7 @@ export default class Query{
     }
 
 	findFirstAndParents(test){
+        test=this._asSelector(test)
 		const parents=[]
 		const first=this.findFirst((a,parent)=>{
 			if(parent){
@@ -219,6 +220,7 @@ export default class Query{
     }
 
     findLastAndParents(test){
+        test=this._asSelector(test)
         const parents=[]
 		const last=this.findLast((a,parent)=>{
 			if(parent){

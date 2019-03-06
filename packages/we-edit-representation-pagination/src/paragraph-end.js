@@ -23,6 +23,7 @@ export default class extends Super{
             <ComposedText
                 {...measure.defaultStyle}
                 width={measure.stringWidth(models.Paragraph.End)}
+                height={0}
                 minWidth={0}
                 children={[models.Paragraph.End]}
                 className="ender"
