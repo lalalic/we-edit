@@ -320,6 +320,38 @@ describe.each([
 					expect(table).toBeDefined()
 					expect(table.props.height).toBe(12)
 				})
+				
+				it("row height can be enlarged when content height>setting height",()=>{
+					let page
+					document.appendComposed=jest.fn(a=>page=a)
+					const rendered=TestRender.create(
+						<WithSectionContext context={context}>
+							{section(
+								<Table id={`${u++}`} width={8}>
+									<Row id={`${u++}`} height={2} cols={[{x:0,width:6}]} >
+										<Cell id={`${u++}`}>
+											<Paragraph id={`${u++}`} defaultStyle={{size:10}}>
+												<Text id={`${u++}`} fonts="arial" size={10}>hello</Text>
+											</Paragraph>
+										</Cell>
+									</Row>
+								</Table>
+							)}
+						</WithSectionContext>
+					)
+					expect(document.appendComposed).toHaveBeenCalledTimes(1)
+
+					expect(page.lastLine).toBeDefined()
+					const row=new ReactQuery(page.lastLine)
+						.findFirst(`[data-type="row"]`)
+					expect(row.length).toBe(1)
+					expect(row.attr('height')).toBe(10+2)
+				})
+
+				it("column width can be enlarged when content width>setting width",()=>{
+
+				})
+				
 
 				it("cell can be splitted into pages",()=>{
 					document.appendComposed=jest.fn()
@@ -458,13 +490,6 @@ describe.each([
 				})
 			})
 
-			it("row height can be enlarged when content height>setting height",()=>{
-
-			})
-
-			it("column width can be enlarged when content width>setting width",()=>{
-
-			})
 			describe("editing",()=>{
 				it("row can't be resized smaller than content height",()=>{
 
