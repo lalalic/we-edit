@@ -229,7 +229,7 @@ export default class Query{
 					parents.splice(i)
 				parents.push(parent)
 			}
-
+            
 			return test(a,parents)
 		})
 		if(last.length==0)

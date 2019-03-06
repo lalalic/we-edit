@@ -116,16 +116,14 @@ class Positionable extends Editable{
 	}
 
 	xyInLine(id,at,i=this.lineIndexOf(id,at)){
-		const {first,parents}=new ReactQuery(this.computed.lastComposed[i])
-			.findFirstAndParents(a=>a.props.className=="story"||undefined)
+		const {first,parents}=new ReactQuery(this.computed.lastComposed[i]).findFirstAndParents(".story")
 		const story=first.get(0)
 		if(id==this.props.id){
 			const {fontSize, fontFamily,height,descent}=this.getDefaultMeasure().defaultStyle
 			const xy={x:0,y:story.props.y-(height-descent),fontSize, fontFamily,height,descent}
 
 			if(at==1){
-				const ender=new ReactQuery(story)
-					.findFirstAndParents(a=>a.props.className=="ender"||undefined)
+				const ender=new ReactQuery(story).findFirstAndParents(".ender")
 				xy.x=ender.parents.reduce((X,{props:{x=0}})=>X+x,xy.x+(ender.first.get(0).props.x||0))
 			}
 			return xy

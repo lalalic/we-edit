@@ -42,7 +42,7 @@ export default class extends Super{
 
 	injectCellIntoRank(cell){
 		const {first:rank,parents}=new ReactQuery(this.currentSpace.frame.lastLine)
-			.findFirstAndParents(a=>a.props["data-content"]==this.props.id || undefined)
+			.findFirstAndParents(`[data-content="${this.props.id}"]`)
 		if(!rank.length)
 			return
 
@@ -123,7 +123,7 @@ export default class extends Super{
 
 		//fix height of each cell
 		cells.forEach((a,j)=>{
-			const {first:cell,parents}=new ReactQuery(a).findFirstAndParents(n=>n.props["data-type"]=="cell"||undefined)
+			const {first:cell,parents}=new ReactQuery(a).findFirstAndParents(`[data-type="cell"]`)
 			cells[j]=parents.reduceRight(
 				(child,parent)=>React.cloneElement(parent,{height},child),
 				React.cloneElement(cell.get(0),{height})
@@ -149,7 +149,7 @@ export default class extends Super{
 		//fill empty cell for each rank, and
 		this.computed.spaces.forEach(({frame})=>{
 			const {first:rank,parents}=new ReactQuery(frame.lastLine)
-				.findFirstAndParents(a=>a.props["data-content"]==this.props.id || undefined)
+				.findFirstAndParents(`[data-content="${this.props.id}"]`)
 			if(!rank.length){
 				throw new Error("weired table row without rank")
 			}

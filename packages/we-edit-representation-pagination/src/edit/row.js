@@ -54,7 +54,7 @@ export default Cacheable(class extends editable(Base,{stoppable:true,continuable
 		const cells=rank.attr("children")
 		//render cell into composed for positioning
 		cells.forEach((a,j)=>{
-			const {first:cell,parents}=new ReactQuery(a).findFirstAndParents(n=>n.props["data-type"]=="cell"||undefined)
+			const {first:cell,parents}=new ReactQuery(a).findFirstAndParents(`[data-type="cell"]`)
 			cells[j]=parents.reduceRight(
 				(child,parent)=>React.cloneElement(parent,{},child),
 				(({type,props})=>new type(props).render())(cell.get(0))

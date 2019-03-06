@@ -95,10 +95,12 @@ describe("react query", ()=>{
             })
 
             it("{first,parents}",()=>{
-                const {first,parents}=new ReactQuery(<div><span className="good"><i className="good">hello</i></span><i className="good2">good</i></div>)
-                    .findFirstAndParents(a=>a.type=="i"&&a.props.className=="good"||undefined)
-                expect(first.length).toBe(1)
-                expect(parents.length).toBe(2)
+                const $=new ReactQuery(<div><span className="good"><i className="good">hello</i></span><i className="good2">good</i></div>)
+                Array.from(["i.good",a=>a.type=="i"&&a.props.className=="good"||undefined]).forEach(test=>{
+                    const {first,parents}=$.findFirstAndParents(test)
+                    expect(first.length).toBe(1)
+                    expect(parents.length).toBe(2)
+                })
             })
         })
     })
@@ -164,10 +166,15 @@ describe("react query", ()=>{
             })
 
             it("{last,parents}",()=>{
-                const {last,parents}=new ReactQuery(<div><span className="good"><i className="good">hello</i></span><i className="good2">good</i></div>)
-                    .findLastAndParents(a=>a.type=="i"&&a.props.className=="good"||undefined)
-                expect(last.length).toBe(1)
-                expect(parents.length).toBe(2)
+                const $=new ReactQuery(<div><span className="good"><i className="good">hello</i></span><i className="good2">good</i></div>)
+                Array.from([
+                    "i.good",
+                    a=>a.type=="i"&&a.props.className=="good"||undefined,
+                ]).forEach(test=>{
+                    const {last,parents}=$.findLastAndParents(test)
+                    expect(last.length).toBe(1)
+                    expect(parents.length).toBe(2)
+                })
             })
         })
     })
