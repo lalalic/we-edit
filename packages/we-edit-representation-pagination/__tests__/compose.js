@@ -457,6 +457,23 @@ describe.each([
 					expect(document.appendComposed).toHaveBeenCalledTimes(2)
 				})
 			})
+
+			it("row height can be enlarged when content height>setting height",()=>{
+
+			})
+
+			it("column width can be enlarged when content width>setting width",()=>{
+
+			})
+			describe("editing",()=>{
+				it("row can't be resized smaller than content height",()=>{
+
+				})
+
+				it("column can't be resized smaller than content width",()=>{
+
+				})
+			})
 		})
 	})
 
