@@ -41,7 +41,7 @@ export default class Paragraph extends Base{
 							}
 
 							props.numbering={
-								label:numStyle.level(level).invoke(`next`),
+								label:numStyle.level(level).nextValue(),
 								style:super.flat(numStyle.get(`${level}`),...inherits),
 								format:numStyle.parent[level].numFmt,
 								numId,
