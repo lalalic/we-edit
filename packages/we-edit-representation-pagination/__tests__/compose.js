@@ -55,7 +55,7 @@ describe.each([
 
 	describe("paragraph",()=>{
 		const TEXT="hello world"
-		const test=(lineWidth=5,spacing={}, indent={},align, text=TEXT)=>{
+		const test=(lineWidth=5,spacing={}, indent={},align, text=TEXT, numbering)=>{
 			const context={...Context,exclusive:()=>[],...CONTEXT}
 			const nextAvailableSpace=context.parent.nextAvailableSpace=jest.fn(()=>({
 				width:lineWidth,height:100
@@ -64,7 +64,7 @@ describe.each([
 			const renderer=TestRender.create(
 				<WithParagraphContext context={context}>
 					<WithTextContext>
-						<Paragraph id="1" spacing={spacing} indent={indent} align={align} defaultStyle={{fonts:"arial",size:10}}>
+						<Paragraph id="1" {...{spacing,indent,align, numbering}} defaultStyle={{fonts:"arial",size:10}}>
 							<Text id="0" fonts="arial" size={10}>{text}</Text>
 						</Paragraph>
 					</WithTextContext>
@@ -230,6 +230,30 @@ describe.each([
 				expect(new ReactQuery(lines[1]).findFirst(`[data-type="text"]`).attr("children")).toBe("world")
 			})
 		})
+
+		describe("numbering",()=>{
+			const numbering=label=>test(TEXT.length+10,undefined,undefined,undefined,undefined,{label})
+			it("*",()=>{
+				const lines=numbering(<Text id="numbering" fonts="arial" size={10}>*</Text>)
+				expect(lines.length).toBe(1)
+				const line=new ReactQuery(lines[0])
+				const label=line.find(".numbering")
+				expect(label.length).toBe(1)
+				expect(label.findFirst(`[children="*"]`).length).toBe(1)
+			})
+
+			it("label baseline same with first line",()=>{
+				const lines=numbering(<Text id="numbering" fonts="arial" size={20}>*</Text>)
+				const line=new ReactQuery(lines[0])
+				const label=line.findFirstAndParents(`[children="*"]`)
+				const text=line.findFirstAndParents(`[data-type="text"]`)
+				expect(label.first.length).toBe(1)
+				expect(text.first.length).toBe(1)
+
+				expect([label.first.get(0),...label.parents].reduce((Y,{props:{y=0}})=>Y+y,0))
+					.toBe([text.first.get(0),...text.parents].reduce((Y,{props:{y=0}})=>Y+y,0))
+			})
+		})
 	})
 
 	describe("Section",()=>{
@@ -320,7 +344,7 @@ describe.each([
 					expect(table).toBeDefined()
 					expect(table.props.height).toBe(12)
 				})
-				
+
 				it("row height can be enlarged when content height>setting height",()=>{
 					let page
 					document.appendComposed=jest.fn(a=>page=a)
@@ -351,7 +375,7 @@ describe.each([
 				it("column width can be enlarged when content width>setting width",()=>{
 
 				})
-				
+
 
 				it("cell can be splitted into pages",()=>{
 					document.appendComposed=jest.fn()
@@ -487,16 +511,6 @@ describe.each([
 						</WithSectionContext>
 					)
 					expect(document.appendComposed).toHaveBeenCalledTimes(2)
-				})
-			})
-
-			describe("editing",()=>{
-				it("row can't be resized smaller than content height",()=>{
-
-				})
-
-				it("column can't be resized smaller than content width",()=>{
-
 				})
 			})
 		})

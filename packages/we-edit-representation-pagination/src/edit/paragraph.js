@@ -128,14 +128,13 @@ class Positionable extends Editable{
 			}
 			return xy
 		}else{
-			return parents.reduce((xy,{props:{x=0,y=0}})=>(xy.x+x,xy.y+y,xy),this.xyInStory(id,at,story))
+			return parents.reduce((xy,{props:{x=0,y=0}})=>(xy.x+=x,xy.y+=y,xy),this.xyInStory(id,at,story))
 		}
 	}
 
 	xyInStory(id,at,story){
 		let endat
-		const line=story
-		const {first:node,parents}=new ReactQuery(line).findFirstAndParents(a=>{
+		const {first:node,parents}=new ReactQuery(story).findFirstAndParents(a=>{
 			if(a.props["data-content"]==id){
 				endat=a.props["data-endat"]
 				if(endat==undefined || endat>=at){
@@ -145,7 +144,7 @@ class Positionable extends Editable{
 		})
 
 		let x=parents.reduce((X,{props:{x=0}})=>X+x,(node.get(0).props.x||0))
-		let y=(({y=0},{height=0,descent=0})=>y-(height-descent))(line.props,node.get(0).props);
+		let y=(({y=0},{height=0,descent=0})=>y-(height-descent))(story.props,node.get(0).props);
 		const composer=this.context.getComposer(id)
 		if(composer.getComposeType()=="text"){
 			if(endat>=at){

@@ -949,11 +949,11 @@ describe("positioning",()=>{
     })
 
     describe("position",()=>{
-        const test=a=>{
+        const test=(a,b)=>{
             Positioning.prototype.pageXY=jest.fn(()=>({x:0,y:0}))
             Positioning.prototype.asViewportPoint=jest.fn(p=>p)
 
-            const {renderer}=render(a)
+            const {renderer}=render(a,b)
             const responsible=renderer.root.findByType(Responsible).instance
             return {
                 position(){
@@ -1015,6 +1015,40 @@ describe("positioning",()=>{
             expect(p.position("1",0)).toMatchObject({x:0,y:0})
         })
 
+        it("paragraph with indent",()=>{
+            expect(test(
+                <Paragraph id={++uuid} indent={{left:1}}>
+                    <Text id="0">hello world</Text>
+                </Paragraph>
+            ).position("0",7)).toMatchObject({x:1+7,y:0})
+
+            expect(test(
+                <Paragraph id={++uuid} indent={{right:5}}>
+                    <Text id="0">hello world</Text>
+                </Paragraph>,
+                {page:{width:10}}
+            ).position("0",7)).toMatchObject({x:1,y:10})
+
+            expect(test(
+                <Paragraph id={++uuid} indent={{firstLine:3}}>
+                    <Text id="0">hello world</Text>
+                </Paragraph>,
+                {page:{width:10}}
+            ).position("0",1)).toMatchObject({x:1+3,y:0})
+        })
+
+        it("paragraph with numbering",()=>{
+            expect(test(
+                <Paragraph id={++uuid}
+                    numbering={{
+                        label:<Text id="numbering">*</Text>
+                    }}
+                    indent={{left:1}}>
+                    <Text id="0">hello world</Text>
+                </Paragraph>
+            ).position("0",7)).toMatchObject({x:1+7,y:0})
+        })
+
         xit("line start/end",()=>{
 
         })
@@ -1054,6 +1088,13 @@ describe("positioning",()=>{
             const doc=test(<Paragraph id={"1"}><Text id={"0"}>text</Text></Paragraph>)
             expect(doc.getRangeRects({id:"1",at:0},{id:"1",at:1})).toMatchObject([{left:0,top:0,right:5,bottom:10}])
             expect(doc.getRangeRects({id:"0",at:2},{id:"1",at:1})).toMatchObject([{left:2,top:0,right:5,bottom:10}])
+        })
+
+        fit("paragraph with indent",()=>{
+            const doc=test(<Paragraph id={"1"} indent={{left:2}}><Text id={"0"}>text</Text></Paragraph>)
+            debugger
+            expect(doc.getRangeRects({id:"1",at:0},{id:"1",at:1})).toMatchObject([{left:0+2,top:0,right:5+2,bottom:10}])
+            expect(doc.getRangeRects({id:"0",at:2},{id:"1",at:1})).toMatchObject([{left:2+2,top:0,right:5+2,bottom:10}])
         })
     })
 

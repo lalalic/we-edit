@@ -91,23 +91,7 @@ export default class Paragraph extends Super{
 	        return w
 	    })(width);
 
-        let line=new this.constructor.Line({...space, width:composableWidth},{parent:this})
-		if(this.props.numbering && this.computed.composed.length==0){
-			let {numbering:{label}, indent:{firstLine}}=this.props
-			let {defaultStyle}=new this.context.Measure(label.props)
-			let hanging=-firstLine
-			line.children.push(
-				<Group
-					descent={defaultStyle.descent}
-					width={hanging}
-					height={0}>
-					<ComposedText {...defaultStyle}
-						width={hanging}
-						contentWidth={hanging}
-						children={[label.props.children]}/>
-				</Group>
-			)
-		}
+        const line=new this.constructor.Line({...space, width:composableWidth},{parent:this})
 		this.computed.composed.push(line)
 		return line
     }
@@ -247,8 +231,21 @@ export default class Paragraph extends Super{
 		return lineHeight
 	}
 
+	getNumberingAtom(){
+		const {numbering:{label:{props:{children:label, ...props}}}, indent:{firstLine=0}}=this.props
+		const {defaultStyle}=new this.context.Measure(props)
+
+		return <ComposedText
+			{...defaultStyle}
+			className="numbering"
+			width={-firstLine}
+			children={label}
+		/>
+	}
+	
 	createComposed2Parent(line,last){
 		const {height, width, children, anchor,currentX:contentWidth,...others}=line
+		const content=[...children]
         let {
 			spacing:{lineHeight="100%",top=0, bottom=0},
 			indent:{left=0,right=0,firstLine=0},
@@ -264,6 +261,10 @@ export default class Paragraph extends Super{
             lineHeight+=top
             contentY+=top
             contentX+=firstLine
+
+			if(this.props.numbering){
+				content.unshift(this.getNumberingAtom())
+			}
         }
 
         if(last){//the last line
@@ -278,7 +279,7 @@ export default class Paragraph extends Super{
         return (
             <Group height={lineHeight} width={contentX+width} className="line" pagination={pagination} anchor={anchor}>
                 <Group x={contentX} y={contentY} width={width} height={height}>
-					{new this.constructor.Story({children,align,width,contentWidth}).render()}
+					{new this.constructor.Story({children:content,align,width,contentWidth}).render()}
                 </Group>
             </Group>
         )

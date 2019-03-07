@@ -45,6 +45,7 @@ export default class extends Super{
     }
 
 	position(id,at){
+        debugger
 		const {fontSize, fontFamily,height,descent}=this.measure.defaultStyle
         const paragraph=this.closest("paragraph").props.id
 		const position=this.context.getComposer(paragraph).position(id,at)
