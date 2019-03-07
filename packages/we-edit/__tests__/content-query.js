@@ -55,6 +55,26 @@ describe("content query",()=>{
                 expect($.find(`#8_1`).length).toBe(0)
             })
 
+            it("paragraph text, >",()=>{
+                const $=new Query(state({
+                    "1":{type:"paragraph", children:["2"]},
+                    "2":{type:"span",parent:"1",children:["2_1","2_2","2_3"]},
+                    "2_1":{type:"text",parent:"2"},
+                    "2_2":{type:"text1",parent:"2"},
+                    "2_3":{type:"text",parent:"2"},
+
+                    "3":{type:"span",parent:"1",children:["3_1","3_2","3_3"]},
+                    "3_1":{type:"text",parent:"3"},
+                    "3_2":{type:"text1",parent:"3"},
+                    "3_3":{type:"text",parent:"3"}
+                }))
+                expect($.find(`paragraph text`).length).toBe(4)
+                expect($.find(`paragraph text1`).length).toBe(2)
+                expect($.find(`#1 #3_3`).length).toBe(1)
+                expect($.find(`paragraph>text`).length).toBe(0)
+                expect($.find(`paragraph>span`).length).toBe(2)
+            })
+
             it(".className",()=>{
                 const $=new Query(state({
                     "1":{props:{className:"paragraph"}},
