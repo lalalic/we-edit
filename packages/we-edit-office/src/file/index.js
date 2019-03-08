@@ -2,6 +2,7 @@ import React, {PureComponent} from "react"
 import PropTypes from "prop-types"
 import {ToolbarGroup} from "material-ui"
 import IconSave from "material-ui/svg-icons/content/save"
+import IconRefresh from "material-ui/svg-icons/navigation/refresh"
 
 import {getActive} from "we-edit"
 
@@ -17,6 +18,15 @@ export default class File extends PureComponent{
 		const {children}=this.props
 		return (
 			<ToolbarGroup>
+				<CheckIconButton
+					status="unchecked"
+					onClick={e=>{
+						const {store}=this.context
+						const {doc,state}=getActive(store.getState())
+						Save.save(state,doc)({})
+					}}>
+					<IconRefresh/>
+				</CheckIconButton>
 				<CheckIconButton
 					status="unchecked"
 					onClick={e=>{

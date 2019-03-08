@@ -168,10 +168,6 @@ export class Reader extends Loader.Base{
     componentDidMount(){
         this.refs.input.click()
     }
-
-	componentDidUpdate(){
-		this.refs.input.click()
-	}
 }
 
 export default {

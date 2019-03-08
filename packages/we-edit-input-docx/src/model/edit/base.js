@@ -4,7 +4,7 @@ export default class Editor{
     }
 
     $(){
-        return this.file.officeDocument.content(...arguments)
+        return this.file.doc.officeDocument.content(...arguments)
     }
 
 	//find pr, if no,create it

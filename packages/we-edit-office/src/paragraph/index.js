@@ -33,7 +33,7 @@ export default compose(
 			dispatch(ACTION.Selection.UPDATE({paragraph:{numFmt}}))
 		}
 	})),
-)(({style, align,number, bullet, children})=>(
+)(({style, align,numbering, bullet, children})=>(
 	<ToolbarGroup>
 		<CheckIconButton
 			status={!style ? "disabled" : (!style.align ||style.align=="left")?"checked":"unchecked"}
