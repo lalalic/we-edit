@@ -120,8 +120,8 @@ export default class SerializableDocx extends EditableDocx{
 
 		var current=clonedFrom
 		while(current.length){
-			current.prevAll().remove()
-			current.nextAll().remove()
+			current.prevAll().filter((i,a)=>!a.name.endsWith("Pr")).remove()
+			current.nextAll().filter((i,a)=>!a.name.endsWith("Pr")).remove()
 			current.removeAttr('xxid')
 			current=current.closest(`[xxid]`)
 		}
