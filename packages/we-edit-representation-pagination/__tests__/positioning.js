@@ -949,8 +949,8 @@ describe("positioning",()=>{
     })
 
     describe("position",()=>{
-        const test=(a,b)=>{
-            Positioning.prototype.pageXY=jest.fn(()=>({x:0,y:0}))
+        const test=(a,b,pageXY={x:0,y:0})=>{
+            Positioning.prototype.pageXY=jest.fn(()=>pageXY)
             Positioning.prototype.asViewportPoint=jest.fn(p=>p)
 
             const {renderer}=render(a,b)
@@ -967,6 +967,13 @@ describe("positioning",()=>{
             expect(p.position("0",0)).toMatchObject({x:0,y:0})
             expect(p.position("0",1)).toMatchObject({x:1,y:0})
             expect(p.position("0",4)).toMatchObject({x:4,y:0})
+        })
+
+        it("t|ext at=0,1,4 in second page",()=>{
+            const p=test(<Paragraph id={`${++uuid}`}><Text id="0">text</Text></Paragraph>,undefined,{x:30,y:10})
+            expect(p.position("0",0)).toMatchObject({x:30+0,y:10})
+            expect(p.position("0",1)).toMatchObject({x:30+1,y:10})
+            expect(p.position("0",4)).toMatchObject({x:30+4,y:10})
         })
 
         it("hello</Text>T|ext at=0,1,4",()=>{
@@ -1061,9 +1068,9 @@ describe("positioning",()=>{
 	})
 
     describe("range", ()=>{
-        const test=content=>{
+        const test=(content,pageXY={x:0,y:0})=>{
             const {responsible}=render(content)
-            responsible.positioning.pageXY=jest.fn(()=>({x:0,y:0}))
+            responsible.positioning.pageXY=jest.fn(()=>pageXY)
             return {
                 responsible,
                 getRangeRects(){
@@ -1079,6 +1086,16 @@ describe("positioning",()=>{
 
                 new Array(4).fill(0).forEach((a,i)=>
                     expect(doc.getRangeRects({id:"0",at:1},{id:"0",at:i+1})).toMatchObject([{left:1,top:0,right:i+1,bottom:10}]))
+        })
+
+        it("text in second page",()=>{
+            const doc=test(<Paragraph id={"1"}><Text id={"0"}>text</Text></Paragraph>,{x:10,y:20})
+            new Array(5).fill(0).forEach((a,i)=>
+                expect(doc.getRangeRects({id:"0",at:0},{id:"0",at:i})).toMatchObject([{left:10+0,top:20+0,right:10+i,bottom:20+10}]))
+
+                new Array(4).fill(0).forEach((a,i)=>
+                    expect(doc.getRangeRects({id:"0",at:1},{id:"0",at:i+1})).toMatchObject([{left:10+1,top:20+0,right:10+i+1,bottom:20+10}]))
+
         })
 
         it("no error",()=>{
@@ -1100,6 +1117,12 @@ describe("positioning",()=>{
             const doc=test(<Paragraph id={"1"} indent={{left:2}}><Text id={"0"}>text</Text></Paragraph>)
             expect(doc.getRangeRects({id:"1",at:0},{id:"1",at:1})).toMatchObject([{left:0+2,top:0,right:5+2,bottom:10}])
             expect(doc.getRangeRects({id:"0",at:2},{id:"1",at:1})).toMatchObject([{left:2+2,top:0,right:5+2,bottom:10}])
+        })
+
+        it("paragraph with indent in second page",()=>{
+            const doc=test(<Paragraph id={"1"} indent={{left:2}}><Text id={"0"}>text</Text></Paragraph>, {x:10,y:20})
+            expect(doc.getRangeRects({id:"1",at:0},{id:"1",at:1})).toMatchObject([{left:10+0+2,top:20+0,right:10+5+2,bottom:20+10}])
+            expect(doc.getRangeRects({id:"0",at:2},{id:"1",at:1})).toMatchObject([{left:10+2+2,top:20+0,right:10+5+2,bottom:20+10}])
         })
     })
 
