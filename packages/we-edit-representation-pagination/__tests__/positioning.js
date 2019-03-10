@@ -1054,7 +1054,8 @@ describe("positioning",()=>{
             expect(test(
                 <Paragraph id={`${++uuid}`}
                     numbering={{
-                        label:<Text id="numbering">*</Text>
+						style:{fonts:"arial",size:10},
+                        label:'*'
                     }}
                     indent={{left:1}}>
                     <Text id="0">hello world</Text>

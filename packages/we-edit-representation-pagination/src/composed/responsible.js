@@ -95,6 +95,13 @@ export default class Responsible extends Component{
                         this.onClick(e)
                     }
                 }}
+				
+				onDoubleClick={e=>{
+					if(!down.selected){
+						down.selected=false
+						this.onClick(e,true)
+					}	
+				}}
 				onMouseDown={flagEvent}
 				onMouseMove={e=>{
 					if(!(e.buttons&0x1)){
@@ -266,7 +273,7 @@ export default class Responsible extends Component{
         this.dispatch(ACTION.Selection.PASTE(e))
     }
 
-    onClick({shiftKey:selecting, target, clientX:left,clientY:top}){
+    onClick({shiftKey:selecting, target, clientX:left,clientY:top}, doubleClicked=false){
 		const {id,at}=this.positioning.around(left, top)
 		if(id){
             if(at==undefined){
@@ -289,7 +296,7 @@ export default class Responsible extends Component{
 
         this.active()
     }
-
+	
     onKeyDelete(){
         this.dispatch(ACTION.Text.REMOVE({backspace:false,responsible:this}))
     }

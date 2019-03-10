@@ -64,7 +64,7 @@ describe.each([
 			const renderer=TestRender.create(
 				<WithParagraphContext context={context}>
 					<WithTextContext>
-						<Paragraph id="1" {...{spacing,indent,align, numbering}} defaultStyle={{fonts:"arial",size:10}}>
+						<Paragraph id="1" {...{spacing,indent,align, numbering}}>
 							<Text id="0" fonts="arial" size={10}>{text}</Text>
 						</Paragraph>
 					</WithTextContext>
@@ -232,9 +232,9 @@ describe.each([
 		})
 
 		describe("numbering",()=>{
-			const numbering=label=>test(TEXT.length+10,undefined,undefined,undefined,undefined,{label})
+			const numbering=numbering=>test(TEXT.length+10,undefined,undefined,undefined,undefined,numbering)
 			it("*",()=>{
-				const lines=numbering(<Text id="numbering" fonts="arial" size={10}>*</Text>)
+				const lines=numbering({label:'*', style:{fonts:"arial",size:10}})
 				expect(lines.length).toBe(1)
 				const line=new ReactQuery(lines[0])
 				const label=line.find(".numbering")
@@ -243,7 +243,7 @@ describe.each([
 			})
 
 			it("label baseline same with first line",()=>{
-				const lines=numbering(<Text id="numbering" fonts="arial" size={20}>*</Text>)
+				const lines=numbering({label:'*', style:{fonts:"arial",size:10}})
 				const line=new ReactQuery(lines[0])
 				const label=line.findFirstAndParents(`[children="*"]`)
 				const text=line.findFirstAndParents(`[data-type="text"]`)
@@ -326,7 +326,7 @@ describe.each([
 								<Table id={`${u++}`} width={8}>
 									<Row id={`${u++}`} cols={[{x:0,width:6}]} >
 										<Cell id={`${u++}`}>
-											<Paragraph id={`${u++}`} defaultStyle={{size:10}}>
+											<Paragraph id={`${u++}`}>
 												<Text id={`${u++}`} fonts="arial" size={10}>hello</Text>
 											</Paragraph>
 										</Cell>
@@ -354,7 +354,7 @@ describe.each([
 								<Table id={`${u++}`} width={8}>
 									<Row id={`${u++}`} height={2} cols={[{x:0,width:6}]} >
 										<Cell id={`${u++}`}>
-											<Paragraph id={`${u++}`} defaultStyle={{size:10}}>
+											<Paragraph id={`${u++}`}>
 												<Text id={`${u++}`} fonts="arial" size={10}>hello</Text>
 											</Paragraph>
 										</Cell>
@@ -385,7 +385,7 @@ describe.each([
 								<Table id={`${u++}`} width={8}>
 									<Row id={`${u++}`} cols={[{x:0,width:7}]} >
 										<Cell id={`${u++}`}>
-											<Paragraph id={`${u++}`} defaultStyle={{size:10}}>
+											<Paragraph id={`${u++}`}>
 												<Text id={`${u++}`} fonts="arial" size={10}>hello hello hello</Text>
 											</Paragraph>
 										</Cell>
@@ -408,7 +408,7 @@ describe.each([
 											<Table id={`${u++}`} width={8}>
 												<Row id={`${u++}`} cols={[{x:0,width:7}]}>
 													<Cell id={`${u++}`}>
-														<Paragraph id={`${u++}`} defaultStyle={{size:10}}>
+														<Paragraph id={`${u++}`}>
 															<Text id={`${u++}`} fonts="arial" size={10}>hello hello hello</Text>
 														</Paragraph>
 													</Cell>
@@ -435,12 +435,12 @@ describe.each([
 								<Table id={`${`${u++}`}`} width={10}>
 									<Row id={`${u++}`} cols={[{x:0,width:5},{x:5,width:5}]} >
 										<Cell id={`${u++}`}>
-											<Paragraph id={`${u++}`} defaultStyle={{size:10}}>
+											<Paragraph id={`${u++}`}>
 												<Text id={`${u++}`} fonts="arial" size={15}>hello hello</Text>
 											</Paragraph>
 										</Cell>
 										<Cell id={`${u++}`}>
-											<Paragraph id={`${u++}`} defaultStyle={{size:10}}>
+											<Paragraph id={`${u++}`}>
 												<Text id={`${u++}`} fonts="arial" size={10}>hello</Text>
 											</Paragraph>
 										</Cell>
@@ -460,12 +460,12 @@ describe.each([
 								<Table id={`${u++}`} width={10}>
 									<Row id={`${u++}`} cols={[{x:0,width:5},{x:5,width:5}]} >
 										<Cell id={`${u++}`}>
-											<Paragraph id={`${u++}`} defaultStyle={{size:10}}>
+											<Paragraph id={`${u++}`}>
 												<Text id={`${u++}`} fonts="arial" size={10}>hello</Text>
 											</Paragraph>
 										</Cell>
 										<Cell id={`${u++}`}>
-											<Paragraph id={`${u++}`} defaultStyle={{size:10}}>
+											<Paragraph id={`${u++}`}>
 												<Text id={`${u++}`} fonts="arial" size={15}>hello hello</Text>
 											</Paragraph>
 										</Cell>
@@ -487,7 +487,7 @@ describe.each([
 								<Table id={`${u++}`} width={10}>
 									<Row id={`${u++}`} cols={[{x:0,width:5},{x:5,width:5}]} >
 										<Cell id={`${u++}`}>
-											<Paragraph id={`${u++}`} defaultStyle={{size:10}}>
+											<Paragraph id={`${u++}`}>
 												<Text id={`${u++}`} fonts="arial" size={10}>hello</Text>
 											</Paragraph>
 										</Cell>
@@ -496,7 +496,7 @@ describe.each([
 											<Table id={`${u++}`} width={10}>
 												<Row id={`${u++}`} cols={[{x:0,width:5},{x:5,width:5}]}>
 													<Cell id={`${u++}`}>
-														<Paragraph id={`${u++}`} defaultStyle={{size:10}}>
+														<Paragraph id={`${u++}`}>
 															<Text id={`${u++}`} fonts="arial" size={15}>hello hello</Text>
 														</Paragraph>
 													</Cell>

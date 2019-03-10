@@ -115,8 +115,7 @@ export default Cacheable(class extends editable(Base){
 	}
 
 	lineRect(line){
-        debugger
-		line=this.lines[line]
+        line=this.lines[line]
 		const left=this.columns.find(a=>a.children.includes(line)).x
 		const top=this.lineY(line)-line.props.height
 		return {left,top,width:line.props.width,height:line.props.height}

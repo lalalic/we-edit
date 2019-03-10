@@ -25,9 +25,10 @@ export default ({Text, Paragraph})=>class extends Component{
 		}
 
 		if(style.numbering){
-			let {label, numId, level, style:props,format}=style.numbering
+			let {nextValue, numId, level, style:props,format}=style.numbering
 			style.numbering={
-				label:<Text {...props} id={`${numId}_${level}`} children={label}/>,
+				style:props,
+				label:nextValue(),
 				format
 			}
 		}

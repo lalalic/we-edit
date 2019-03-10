@@ -232,8 +232,8 @@ export default class Paragraph extends Super{
 	}
 
 	getNumberingAtom(){
-		const {numbering:{label:{props:{children:label, ...props}}}, indent:{firstLine=0}}=this.props
-		const {defaultStyle}=new this.context.Measure(props)
+		const {numbering:{style, label}, indent:{firstLine=0}}=this.props
+		const {defaultStyle}=new this.context.Measure(style)
 
 		return <ComposedText
 			{...defaultStyle}

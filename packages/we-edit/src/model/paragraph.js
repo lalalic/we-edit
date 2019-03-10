@@ -19,7 +19,19 @@ export default class Paragraph extends Component{
 		}).isRequired,
 		align:PropTypes.string,
 		numbering: PropTypes.shape({
-			label: PropTypes.node.isRequired
+			style: PropTypes.shape({
+				fonts:PropTypes.string.isRequired,
+				size:PropTypes.number.isRequired,
+				bold: PropTypes.bool,
+				italic: PropTypes.bool,
+			}).isRequired,
+			label: PropTypes.string.isRequired,
+		}),
+		defaultStyle:PropTypes.shape({
+			fonts:PropTypes.string.isRequired,
+			size:PropTypes.number.isRequired,
+			bold: PropTypes.bool,
+			italic: PropTypes.bool,
 		}),
 		widow:PropTypes.bool,
 		orphan: PropTypes.bool,
