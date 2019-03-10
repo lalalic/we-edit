@@ -24,7 +24,7 @@ function Locatable(A){
         }
 
         componentWillUnmount(){
-            //this.context.unmount && this.context.unmount(this)
+            this.context.unmount && this.context.unmount(this)
         }
 
 		createComposed2Parent(){
@@ -56,7 +56,11 @@ function Locatorize(A){
 			super(...arguments)
 			const composers=this.composers=new Map([[this.props.id,this]])
 			this.mount=a=>composers.set(a.props.id,a)
-			this.unmount=a=>composers.delete(a.props.id)
+			this.unmount=a=>{
+				if(composers.get(a.props.id)==a){
+					composers.delete(a.props.id)
+				}
+			}
 			this.getComposer=id=>composers.get(id)
 		}
 
@@ -67,8 +71,6 @@ function Locatorize(A){
 				mount,unmount,getComposer
 			}
 		}
-
-
 	}
 }
 
