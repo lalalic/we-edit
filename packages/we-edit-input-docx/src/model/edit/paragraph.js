@@ -92,6 +92,30 @@ export default class extends Editor{
 		}
 	}
 
+	numDemote(){
+		if(isFirstOfList()){
+			getAllParagraphsOfList().
+		}else{
+			
+		}
+		const numPr=this.got("w:numPr")
+		const nLevel=numPr.children("w\\:ilvl")
+		const level=parseInt(nLevel.attr("w:val"))
+		nLevel.attr("w:val",level+1)
+	}
+	
+	numPromote(){
+		if(isFirstOfList()){
+			
+		}else{
+			
+		}
+		const numPr=this.got("w:numPr")
+		const nLevel=numPr.children("w\\:ilvl")
+		const level=parseInt(nLevel.attr("w:val"))
+		nLevel.attr("w:val",Math.max(0,level-1))	
+	}
+	
 	indent({left,right,firstLine}){
 		let node=this.got("w:ind")
 

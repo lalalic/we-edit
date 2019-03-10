@@ -144,6 +144,31 @@ describe('edit',()=>{
                     expect($(`w\\:abstractNum[w\\:abstractNumId="1"]>w\\:lvl[w\\:ilvl="0"]>w\\:numFmt`).attr("w:val")).toBe("bullet")
                     expect($(`w\\:abstractNum[w\\:abstractNumId="1"]>w\\:lvl[w\\:ilvl="0"]>w\\:lvlText`).attr("w:val")).toBe(">")
                 })
+				
+				describe("tab numbering p",()=>{
+					it("demote all numbering p if the p  is the first numbering",()=>{
+						const weDoc=createDocument(`
+							<w:p><w:r><w:t>hello</w:t></w:r></w:p>
+							<w:p><w:r><w:t>hello</w:t></w:r></w:p>
+							<w:p><w:r><w:t>hello</w:t></w:r></w:p>
+						`)
+						const numbering=(n=0,char=".")=>{
+							const p=new Paragraph(weDoc)
+							p.node=p.$('w\\:p').eq(n)
+							p.numFmt(char)
+							return p
+						}
+						
+						const p0=numbering(0)
+						numbering(1)
+						numbering(2)
+
+						
+					})
+					
+					it("demote only target numbering p if the p  is not the first numbering",()=>{
+					})
+				})
             })
         })
 
