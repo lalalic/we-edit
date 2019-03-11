@@ -1,6 +1,6 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
-import {shallowEqual} from "we-edit"
+import {shallowEqual,ContentQuery} from "we-edit"
 
 export default ({Document, Container,Frame})=>class extends Component{
 	static displayName="document"
@@ -29,6 +29,10 @@ export default ({Document, Container,Frame})=>class extends Component{
 		//reset for numbering
 		Object.keys(styles)
 			.forEach((k,t)=>(t=styles[k])&& t.reset && t.reset())
+	}
+	
+	numberingContext(){
+			.
 	}
 
 	getContent(){

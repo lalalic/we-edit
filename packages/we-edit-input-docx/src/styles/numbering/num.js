@@ -70,6 +70,10 @@ class NumLevel extends Level{
 				return this.num.level(level).nextValue()
 		})
 	}
+	
+	value(index){
+		
+	}
 
 	reset(){
 		this.current=0
