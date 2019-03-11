@@ -242,7 +242,7 @@ export default class Paragraph extends Super{
 			children={label}
 		/>
 	}
-	
+
 	createComposed2Parent(line,last){
 		const {height, width, children, anchor,currentX:contentWidth,...others}=line
 		const content=[...children]
@@ -372,8 +372,7 @@ class Line extends Component{
 	}
 
 	hasEqualSpace({width,maxWidth,wrappees=[]}){
-		return this.props.width==width &&
-			this.props.maxWidth==maxWidth &&
+		return this.props.maxWidth==maxWidth &&
 			this.wrappees.length==wrappees.length &&
 			!!!this.wrappees.find((a,i)=>{
 				let b=wrappees[i]
