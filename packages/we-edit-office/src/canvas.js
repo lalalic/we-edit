@@ -27,8 +27,10 @@ const VerticalRuler=compose(
 })
 
 export default class Canvas extends Component{
+	state={}
 	render(){
 		const {scale=100,ruler={vertical:true}, style={}, children}=this.props
+		const {error}=this.state
 		const horizontalRulerHeight=20
 		return (
 			<div style={{
@@ -51,12 +53,16 @@ export default class Canvas extends Component{
 					)}
 
 					<div ref={b=>this.b=b} style={{flex:"1 100%"}}>
-						{children}
+						{error ?  error.stack : children}
 					</div>
 				</div>
 
 			</div>
 		)
+	}
+
+	componentDidCatch(error){
+		this.setState({error})
 	}
 
 	componentDiDMount(){

@@ -105,7 +105,7 @@ export default class extends Editor{
 		targets.each((i,p)=>{
 			const numPr=this.$(p).children("w\\:pPr").children("w\\:numPr")
 			const nLevel=numPr.children("w\\:ilvl")
-			nLevel.attr("w:val",parseInt(level(nLevel.attr("w:val"), isFirstOfList, numId))+"")
+			nLevel.attr("w:val",level(parseInt(nLevel.attr("w:val")), isFirstOfList, numId)+"")
 			this.file.renderChanged(p)
 		})
 	}
@@ -132,8 +132,20 @@ export default class extends Editor{
 		})
 	}
 
-	tab(){
-
+	tab({shiftKey}){
+		if(!shiftKey){
+			if(this.node.has("w\\:numPr")){
+				this.numDemote()
+			}else{
+				this.got("w:ind").attr("w:left","360")
+			}
+		}else{
+			if(this.node.has("w\\:numPr")){
+				this.numPromote()
+			}else{
+				this.got("w:ind").attr("w:left","0")
+			}
+		}
 	}
 
 	indent({left,right,firstLine}){

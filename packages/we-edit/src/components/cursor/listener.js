@@ -13,6 +13,7 @@ export default connect(
 		13:e=>this.props.dispatch(ACTION.Text.RETURN()),
 		46:e=>this.props.dispatch(ACTION.Text.REMOVE(-1)),//delete
 		8:e=>this.props.dispatch(ACTION.Text.REMOVE(1)),//backspace
+		9:e=>this.props.dispatch(ACTION.Text.INSERT(String.fromCharCode(9),e.shiftKey)),//tab
 		37:e=>this.props.dispatch(ACTION.Cursor.MOVE_LEFT(e.shiftKey)),//move left
 		38:e=>this.props.dispatch(ACTION.Cursor.MOVE_LEFT(e.shiftKey)),//move up
 		39:e=>this.props.dispatch(ACTION.Cursor.MOVE_RIGHT(e.shiftKey)),//move right

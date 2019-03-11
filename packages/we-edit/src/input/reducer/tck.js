@@ -572,7 +572,7 @@ export default function(TypedDocument){
 						"1_1":{type:"text",children:"hello",parent:"1"}
 					})
 					reducer.cursorAt("1_1",1)
-					reducer.insert("hello")
+					reducer.insert({data:"hello"})
 					expect(reducer.$('#1_1').text()).toBe("hhelloello")
 					expect(reducer.file.getNode("1_1").text()).toBe("hhelloello")
 					const cursor={id:"1_1",at:1+5}
@@ -586,7 +586,7 @@ export default function(TypedDocument){
 						"1_1":{type:"text",children:"hello",parent:"1"}
 					})
 					reducer.cursorAt("1_1",1,"1_1",3)
-					reducer.insert("hello")
+					reducer.insert({data:"hello"})
 
 					expect(reducer.$("#1_1").text()).toBe("hhellolo")
 					expect(reducer.file.getNode("1_1").text()).toBe("hhellolo")
@@ -601,7 +601,7 @@ export default function(TypedDocument){
 						"1_2":{type:"text",children:"Text",parent:"1"},
 					})
 					reducer.cursorAt("1_1",1,"1_2",2)
-					reducer.insert("hello")
+					reducer.insert({data:"hello"})
 
 					expect(reducer.$('text').length).toBe(2)
 
@@ -621,7 +621,7 @@ export default function(TypedDocument){
 					})
 					const p0=reducer.$('paragraph')
 					reducer.cursorAt("1_1",1)
-					reducer.insert("hello\rworld")
+					reducer.insert({data:"hello\rworld"})
 					const p1=reducer.$('paragraph')
 					expect(p1.length-p0.length).toBe(1)
 					expect(p1.eq(0).find('text').text()).toBe('thello')
@@ -635,7 +635,7 @@ export default function(TypedDocument){
 					})
 					const p0=reducer.$('paragraph')
 					reducer.cursorAt("1_1",1)
-					reducer.insert("hello\rmy\rworld")
+					reducer.insert({data:"hello\rmy\rworld"})
 					const p1=reducer.$('paragraph')
 					expect(p1.length-p0.length).toBe(2)
 					expect(p1.eq(0).find('text').text()).toBe('thello')
@@ -651,7 +651,7 @@ export default function(TypedDocument){
 					})
 					const p0=reducer.$('paragraph')
 					reducer.cursorAt("1_1_1",1)
-					reducer.insert("hello\rmy\rworld")
+					reducer.insert({data:"hello\rmy\rworld"})
 					const p1=reducer.$('paragraph')
 					expect(p1.length-p0.length).toBe(2)
 					expect(p1.eq(0).find('text').text()).toBe('thello')
@@ -668,7 +668,7 @@ export default function(TypedDocument){
 					})
 					const p0=reducer.$('paragraph')
 					reducer.cursorAt("1",1)
-					reducer.insert("\r")
+					reducer.insert({data:"\r"})
 					const p1=reducer.$('paragraph')
 					expect(p1.length-p0.length).toBe(1)
                     const newP=reducer.$('#1').next("paragraph")
@@ -686,7 +686,7 @@ export default function(TypedDocument){
                         "1":{type:"paragraph",children:[]}
                     })
                     reducer.cursorAt("1",0)
-                    reducer.insert("h")
+                    reducer.insert({data:"h"})
                     expect(reducer.$('#1 text').length).toBe(1)
                     expect(reducer.$('#1').text()).toBe("h")
                     const cursor={id:reducer.$('#1 text').attr('id'),at:1}
@@ -698,7 +698,7 @@ export default function(TypedDocument){
                         "1_1":{type:"text",children:"",parent:"1"}
                     })
                     reducer.cursorAt("1_1",0)
-                    reducer.insert("hello")
+                    reducer.insert({data:"hello"})
                     expect(reducer.$('#1_1').text()).toBe("hello")
                     expect(reducer.file.getNode("1_1").text()).toBe("hello")
                     const cursor={id:"1_1",at:5}
@@ -712,7 +712,7 @@ export default function(TypedDocument){
                         "1_1_1":{type:"text",children:"",parent:"1_1"},
                     })
                     reducer.cursorAt("1_1_1",0)
-                    reducer.insert("hello")
+                    reducer.insert({data:"hello"})
                     expect(reducer.$('#1_1_1').text()).toBe("hello")
                     expect(reducer.file.getNode("1_1_1").text()).toBe("hello")
                     const cursor={id:"1_1_1",at:5}
@@ -730,7 +730,7 @@ export default function(TypedDocument){
 						"1_1":{type:"text",children:"hello",parent:"1"},
 					})
 					reducer.cursorAt("1_0",0)
-					reducer.insert("hello")
+					reducer.insert({data:"hello"})
 					const texts=reducer.$('text')
 					expect(texts.length).toBe(2)
 					expect(texts.eq(0).text()).toBe("hello")
@@ -748,7 +748,7 @@ export default function(TypedDocument){
                     })
 
                     reducer.cursorAt("1_1",5)
-                    reducer.insert("a")
+                    reducer.insert({data:"a"})
                     expect(reducer.$('#1_1').text()).toBe("helloa")
                     expect(reducer.selection).toMatchObject({start:{id:"1_1",at:6}})
                 })
@@ -760,7 +760,7 @@ export default function(TypedDocument){
                     })
 
                     reducer.cursorAt("1",1)
-                    reducer.insert("a")
+                    reducer.insert({data:"a"})
                     expect(reducer.$('#1_1').text()).toBe("helloa")
                     expect(reducer.selection).toMatchObject({start:{id:"1_1",at:6}})
                 })
@@ -772,7 +772,7 @@ export default function(TypedDocument){
                     })
 
                     reducer.cursorAt("1",1)
-                    reducer.insert("a")
+                    reducer.insert({data:"a"})
                     const text=reducer.$('text')
                     expect(text.length).toBe(1)
                     expect(text.text()).toBe("a")
@@ -790,7 +790,8 @@ export default function(TypedDocument){
                         "1_1":{type:"text",children:"text",parent:"1"},
                     })
                     reducer.cursorAt("1_1",0)
-                    reducer.insert([{type:"text",children:"hello"}])
+                    debugger
+                    reducer.insert({data:[{type:"text",children:"hello"}]})
                     const texts=reducer.$('#1 text')
                     expect(texts.length).toBe(2)
                     expect(texts.eq(0).text()).toBe("hello")
@@ -803,7 +804,7 @@ export default function(TypedDocument){
                         "1_1":{type:"image",parent:"1"},
                     })
                     reducer.cursorAt("1_1",0)
-                    reducer.insert([{type:"text",children:"hello"}])
+                    reducer.insert({data:[{type:"text",children:"hello"}]})
                     const texts=reducer.$('#1 text')
                     expect(texts.length).toBe(1)
                     expect(reducer.$('#1').children().toArray()).toMatchObject([texts.eq(0).attr('id'),"1_1"])
@@ -817,7 +818,7 @@ export default function(TypedDocument){
                         "1_1":{type:"text",children:"text",parent:"1"},
                     })
                     reducer.cursorAt("1_1",1)
-                    reducer.insert([{type:"text",children:"hello"}])
+                    reducer.insert({data:[{type:"text",children:"hello"}]})
                     const texts=reducer.$('#1 text')
                     expect(texts.length).toBe(3)
                     expect(texts.eq(0).text()).toBe("t")
@@ -832,7 +833,7 @@ export default function(TypedDocument){
                         "1_1_1":{type:"text",children:"text",parent:"1_1"},
                     })
                     reducer.cursorAt("1_1_1",1)
-                    reducer.insert([{type:"text",children:"hello"}])
+                    reducer.insert({data:[{type:"text",children:"hello"}]})
                     const texts=reducer.$('#1 text')
                     expect(texts.length).toBe(3)
                     expect(texts.eq(0).text()).toBe("t")

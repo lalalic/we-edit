@@ -7,12 +7,12 @@ describe("reduce docx",()=>{
     let doc=null
     beforeAll(()=>{
         const insert=DocxDocument.Reducer.prototype.insert
-        DocxDocument.Reducer.prototype.insert=jest.fn(function(inserting){
+        DocxDocument.Reducer.prototype.insert=jest.fn(function({data:inserting}){
             const createContent=this.file.constructor.createContent
             if(Array.isArray(inserting)){//merge content
                 inserting=inserting.map(node=>createContent({},null,node))
             }
-            return insert.bind(this)(inserting)
+            return insert.bind(this)({data:inserting})
         })
 
         return docx4js.create().then(docx=>{
@@ -158,10 +158,12 @@ describe("reduce docx",()=>{
             this.renderChanged=(node,callback)=>{
                 if(node.cheerio)
                     node=node.get(0)
+                debugger
                 const element=this.renderNode(node,createElement,components)
                 if(callback){
                     callback($,element,_content)
                 }
+                debugger
                 return element
             }
         }

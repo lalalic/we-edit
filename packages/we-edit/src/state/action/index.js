@@ -7,7 +7,7 @@ export const Cursor={
 }
 
 export const Text={
-	INSERT: t=>({type:"we-edit/text/INSERT",payload:t}),
+	INSERT: (t,shiftKey)=>({type:"we-edit/text/INSERT",payload:{data:t,shiftKey}}),
 	REMOVE: n=>({type:"we-edit/text/REMOVE",payload:n}),
 	RETURN: n=>({type:"we-edit/text/RETURN"}),
 }

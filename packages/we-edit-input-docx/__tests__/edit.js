@@ -212,6 +212,9 @@ describe('edit',()=>{
                             expect(levels.eq(0).attr('w:val')).toBe("0")
                             expect(levels.eq(1).attr('w:val')).toBe("1")
                             expect(levels.eq(2).attr('w:val')).toBe("0")
+
+                            p2.numDemote()
+                            expect(levels.eq(1).attr('w:val')).toBe("2")
     					})
                     })
                 })

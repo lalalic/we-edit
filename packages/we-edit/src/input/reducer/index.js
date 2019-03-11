@@ -159,9 +159,9 @@ class Reducer extends Base{
 		const text=target.text()
         if(inserting.indexOf("\r")==-1 && inserting.indexOf("\n")==-1){
 			if(inserting.length==1 && inserting.charCodeAt(0)==9){//tab
-				const atBeginningOfP=a==0 && target.closest("p").findFirst(a=>!a.props.children || typeof(a.props.children)=="string").is(target)
+				const atBeginningOfP=at==0 && target.closest("p").findFirst(a=>!a.props.children || typeof(a.props.children)=="string").is(target)
 				if(atBeginningOfP){
-					this.file.updateNode(this.element(target.closest("p").attr("id")),{tab:{shiftKey}})
+					this.file.updateNode(this.element(target.closest("paragraph").attr("id")),{tab:{shiftKey}})
 					return
 				}else if(at>0 && text.length>at){
 					const [,end]=this.file.splitNode(this.element(id), at)
@@ -359,7 +359,7 @@ class Content extends Reducer{
 		return this
 	}
 
-	insert(data){
+	insert({data,shiftKey}){
 		this.removeSelection()
 
 		if(typeof(data)=="string"){
@@ -375,9 +375,9 @@ class Content extends Reducer{
 				}
 			}
 
-			this.insert_text(data)
+			this.insert_text(data,shiftKey)
 		}else{
-			this.merge(data)
+			this.merge(data,shiftKey)
 		}
 		return this
 	}
