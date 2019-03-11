@@ -153,13 +153,28 @@ class Reducer extends Base{
 		}
 	}
 
-	insert_text(inserting){
+	insert_text(inserting, shiftKey){
 		const {start:{id,at}}=this.selection
 		const target=this.$('#'+id)
 		const text=target.text()
         if(inserting.indexOf("\r")==-1 && inserting.indexOf("\n")==-1){
-    		target.text(text.substring(0,at)+inserting+text.substr(at))
-    		this.cursorAt(id,at+inserting.length)
+			if(inserting.length==1 && inserting.charCodeAt(0)==9){//tab
+				const atBeginningOfP=a==0 && target.closest("p").findFirst(a=>!a.props.children || typeof(a.props.children)=="string").is(target)
+				if(atBeginningOfP){
+					this.file.updateNode(this.element(target.closest("p").attr("id")),{tab:{shiftKey}})
+					return
+				}else if(at>0 && text.length>at){
+					const [,end]=this.file.splitNode(this.element(id), at)
+					this.cursorAt(end.id,0)
+					this.file.updateNode(this.element(end.id),{tab:{shiftKey}})
+				}else{
+					this.file.updateNode(this.element(id),{tab:{shiftKey,at}})
+				}
+
+			}else{
+				target.text(text.substring(0,at)+inserting+text.substr(at))
+	    		this.cursorAt(id,at+inserting.length)
+			}
             return
         }else{
 			const pieces=inserting.split(/[\r\n]+/g)

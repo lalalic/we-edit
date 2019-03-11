@@ -144,31 +144,77 @@ describe('edit',()=>{
                     expect($(`w\\:abstractNum[w\\:abstractNumId="1"]>w\\:lvl[w\\:ilvl="0"]>w\\:numFmt`).attr("w:val")).toBe("bullet")
                     expect($(`w\\:abstractNum[w\\:abstractNumId="1"]>w\\:lvl[w\\:ilvl="0"]>w\\:lvlText`).attr("w:val")).toBe(">")
                 })
-				
-				describe("tab numbering p",()=>{
-					it("demote all numbering p if the p  is the first numbering",()=>{
-						const weDoc=createDocument(`
-							<w:p><w:r><w:t>hello</w:t></w:r></w:p>
-							<w:p><w:r><w:t>hello</w:t></w:r></w:p>
-							<w:p><w:r><w:t>hello</w:t></w:r></w:p>
-						`)
-						const numbering=(n=0,char=".")=>{
-							const p=new Paragraph(weDoc)
-							p.node=p.$('w\\:p').eq(n)
-							p.numFmt(char)
-							return p
-						}
-						
-						const p0=numbering(0)
-						numbering(1)
-						numbering(2)
 
-						
-					})
-					
-					it("demote only target numbering p if the p  is not the first numbering",()=>{
-					})
-				})
+				describe("tab numbering p",()=>{
+                    const test=()=>{
+                        const weDoc=createDocument(`
+                            <w:p><w:r><w:t>hello</w:t></w:r></w:p>
+                            <w:p><w:r><w:t>hello</w:t></w:r></w:p>
+                            <w:p><w:r><w:t>hello</w:t></w:r></w:p>
+                            <w:p><w:r><w:t>hello</w:t></w:r></w:p>
+                        `)
+                        const numbering=(n=0,char=".")=>{
+                            const p=new Paragraph(weDoc)
+                            p.node=p.$('w\\:p').eq(n)
+                            p.numFmt(char)
+                            return p
+                        }
+                        return {weDoc, numbering}
+                    }
+                    describe("demote",()=>{
+                        it("all numbering p if the p  is the first numbering, and first of document",()=>{
+    						const {numbering}=test()
+    						const p0=numbering(0)
+    						numbering(1)
+    						numbering(2)
+                            numbering(3,'*')
+
+                            const levels=p0.$('w\\:p w\\:numPr w\\:ilvl')
+                            expect(levels.length).toBe(4)
+
+                            p0.numDemote()
+
+                            expect(levels.eq(0).attr('w:val')).toBe("1")
+                            expect(levels.eq(1).attr('w:val')).toBe("1")
+                            expect(levels.eq(2).attr('w:val')).toBe("1")
+                            expect(levels.eq(3).attr('w:val')).toBe("0")
+    					})
+
+                        it("all numbering p if the p  is the first numbering",()=>{
+    						const {numbering}=test()
+
+    						const p1=numbering(1)
+    						numbering(2)
+                            numbering(3,'*')
+
+                            const levels=p1.$('w\\:p w\\:numPr w\\:ilvl')
+                            expect(levels.length).toBe(3)
+
+                            p1.numDemote()
+
+                            expect(levels.eq(0).attr('w:val')).toBe("1")
+                            expect(levels.eq(1).attr('w:val')).toBe("1")
+                            expect(levels.eq(2).attr('w:val')).toBe("0")
+    					})
+
+    					it("only target numbering p if the p  is not the first numbering",()=>{
+                            const {numbering}=test()
+
+    						numbering(1)
+                            const p2=numbering(2)
+                            numbering(3,'*')
+
+                            const levels=p2.$('w\\:p w\\:numPr w\\:ilvl')
+                            expect(levels.length).toBe(3)
+
+                            p2.numDemote()
+
+                            expect(levels.eq(0).attr('w:val')).toBe("0")
+                            expect(levels.eq(1).attr('w:val')).toBe("1")
+                            expect(levels.eq(2).attr('w:val')).toBe("0")
+    					})
+                    })
+                })
             })
         })
 

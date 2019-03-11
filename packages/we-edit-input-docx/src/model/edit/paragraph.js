@@ -92,30 +92,50 @@ export default class extends Editor{
 		}
 	}
 
+	_numLevelify(level){
+		const numPr=this.got("w:numPr")
+		const numId=numPr.children("w\\:numId").attr("w:val")
+		var targets=this.node
+		const isFirstOfList=(prev=>prev.length==0 || !(prev.is("w\\:p") && prev.find("w\\:numPr>w\\:numId").attr("w:val")==numId))(this.node.prev())
+
+		if(isFirstOfList){
+			targets=targets.add(this.node.nextUntil(`:not(:has(w\\:numPr>w\\:numId[w\\:val="${numId}"]))`,`:has(w\\:numPr>w\\:numId[w\\:val="${numId}"])`))
+		}
+
+		targets.each((i,p)=>{
+			const numPr=this.$(p).children("w\\:pPr").children("w\\:numPr")
+			const nLevel=numPr.children("w\\:ilvl")
+			nLevel.attr("w:val",parseInt(level(nLevel.attr("w:val"), isFirstOfList, numId))+"")
+			this.file.renderChanged(p)
+		})
+	}
+
 	numDemote(){
-		if(isFirstOfList()){
-			getAllParagraphsOfList().
-		}else{
-			
-		}
-		const numPr=this.got("w:numPr")
-		const nLevel=numPr.children("w\\:ilvl")
-		const level=parseInt(nLevel.attr("w:val"))
-		nLevel.attr("w:val",level+1)
+		this._numLevelify(l=>l+1)
 	}
-	
+
 	numPromote(){
-		if(isFirstOfList()){
-			
-		}else{
-			
-		}
-		const numPr=this.got("w:numPr")
-		const nLevel=numPr.children("w\\:ilvl")
-		const level=parseInt(nLevel.attr("w:val"))
-		nLevel.attr("w:val",Math.max(0,level-1))	
+		this._numLevelify((level,isFirstOfList,numId)=>{
+			if(level==0){
+				if(isFirstOfList){//change level=0's indent as 0
+					const $=this.file.doc.officeDocument.numbering
+					const aNumId=$(`w\\:num[w\\:numId="${numId}"]>w\\:abstractNumId`).attr("w:val")
+					const nLevel=$(`w\\:abstractNum[w\\:abstractNumId="${aNumId}"]>w\\:lvl[w\\:ilvl="0"]`)
+					const nIndent=nLevel.children("w\\:pPr").children("w\\:ind")
+					nIndent.attr("w:left",nIndent.attr("w:hanging"))
+					this.file.renderChanged($(`w\\:abstractNum[w\\:abstractNumId="${aNumId}"]>w\\:lvl[w\\:ilvl="0"]`))
+				}
+				return 0
+			}else if(level>0){
+				return level-1
+			}
+		})
 	}
-	
+
+	tab(){
+
+	}
+
 	indent({left,right,firstLine}){
 		let node=this.got("w:ind")
 

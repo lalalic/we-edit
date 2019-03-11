@@ -124,6 +124,10 @@ export class Text extends Base{
 		this._toggle("w:strike",b)
 	}
 
+	tab({shiftKey,at=0}){
+
+	}
+
 	_toggle(k,b){
 		let node=this.got(k)
 		if(b){

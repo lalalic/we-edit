@@ -40,7 +40,7 @@ export default connect(
 							return
 						let value = e.target.value
 						if(e.reactComposition.composition === false){
-							dispatch(ACTION.Text.INSERT(value))
+							dispatch(ACTION.Text.INSERT(value, e.shiftKey))
 							this.setState({value:""})
 						}else
 							this.setState({value})
