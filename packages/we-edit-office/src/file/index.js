@@ -4,7 +4,7 @@ import {ToolbarGroup} from "material-ui"
 import IconSave from "material-ui/svg-icons/content/save"
 import IconRefresh from "material-ui/svg-icons/navigation/refresh"
 
-import {getActive} from "we-edit"
+import {getActive, ACTION} from "we-edit"
 
 import Save from "./save"
 import CheckIconButton from "../components/check-icon-button"
@@ -21,9 +21,7 @@ export default class File extends PureComponent{
 				<CheckIconButton
 					status="unchecked"
 					onClick={e=>{
-						const {store}=this.context
-						const {doc,state}=getActive(store.getState())
-						Save.save(state,doc)({})
+						this.context.store.dispatch(ACTION.Refresh())
 					}}>
 					<IconRefresh/>
 				</CheckIconButton>

@@ -47,6 +47,8 @@ export const Entity={
 
 export const Statistics=stat=>({type:"we-edit/statistics",payload:stat})
 
-export const ACTION={Cursor, Text, Selection,Entity,History,Statistics}
+export const Refresh=()=>({type:"we-edit/refresh"})
+
+export const ACTION={Cursor, Text, Selection,Entity,History,Statistics, Refresh}
 
 export default ACTION

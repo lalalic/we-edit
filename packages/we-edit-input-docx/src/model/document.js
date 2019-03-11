@@ -102,7 +102,7 @@ export default ({Document, Container,Frame})=>class extends Component{
 	render(){
 		//need to merge for continuous sections
 		const {children,evenAndOddHeaders,...others}=this.props
-
+		this.resetNumbering()
 		return <Document {...others} children={this.getContent()}/>
 	}
 }

@@ -79,9 +79,8 @@ the builder to create reducer
 const changeReducerBuilder=(createElementFactory,inputTypeInstance,TypedComponents)=>
 	(state,action,historyEntry)=>{
 	switch(action.type){
-	case "@@refresh":
-		state.get("violent").changing=null
-		return state.setIn(["content","refreshAt"],Date.now())
+	case "we-edit/refresh":
+		return state.setIn(["content","root","props","key"],Date.now())
 	default:
 		break
 	}
@@ -127,7 +126,7 @@ the builder to create a factory function
 the factory function is to build content state as map and tree
 node prototype: {type:string,props:{},children:[...id],parent:string}
 */
-const createElementFactoryBuilder=inputTypeInstance=>content=>(type, props, children, raw)=>{
+const createElementFactoryBuilder=inputTypeInstance=>content=>(type, children, raw)=>{
 	console.assert(!!type)
 	const id=raw.id||inputTypeInstance.makeId(raw)
 	const node={
