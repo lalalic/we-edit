@@ -161,7 +161,7 @@ export class Editable extends Viewable{
 		const reducer=new this.constructor.Reducer(...params)
 		switch(type){
 			case `we-edit/text/RETURN`:
-				return reducer.insert("\r").state()
+				return reducer.insert({data:"\r"}).state()
 			case `we-edit/text/INSERT`:
 				return reducer.insert(payload).state()
 			case `we-edit/text/REMOVE`:
