@@ -126,7 +126,7 @@ the builder to create a factory function
 the factory function is to build content state as map and tree
 node prototype: {type:string,props:{},children:[...id],parent:string}
 */
-const createElementFactoryBuilder=inputTypeInstance=>content=>(type, children, raw)=>{
+const createElementFactoryBuilder=inputTypeInstance=>content=>(type, props, children, raw)=>{
 	console.assert(!!type)
 	const id=raw.id||inputTypeInstance.makeId(raw)
 	const node={
