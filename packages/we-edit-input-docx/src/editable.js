@@ -70,11 +70,11 @@ export default class extends Input.Editable{
 		const $=docx.officeDocument.content
 		const settings=docx.officeDocument.settings
 
-		const styles=this.styles=this.constructor.createStyles()
+		const styles=new (class{})();//keep as raw object in state
 
 		const createStylesElement=()=>createElement(
 			components.Styles,
-			{styles:{...styles}},
+			{styles, updatedAt: Date.now()},
 			null,
 			{id:"styles"}
 		)
@@ -201,8 +201,9 @@ export default class extends Input.Editable{
 			case "list":
 			case "heading":
 			case "p":{
+				const {key,node,pr,type, ...pProps}=props
 				let style= !props.pr ? styles['*paragraph'] : new Style.Paragraph.Direct(props.pr,styles,selector);
-				return createElement(components.Paragraph,{style},children,node)
+				return createElement(components.Paragraph,{style,...pProps},children,node)
 			}
 			case "r":{
 				let style= !props.pr ? styles['*character'] : new Style.Character.Direct(props.pr,  styles, selector)
