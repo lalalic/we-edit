@@ -26,11 +26,8 @@ export default compose(
 		children,
 		style:selection&&selection.props("paragraph",false)||null,
 		align:align=>dispatch(ACTION.Selection.UPDATE({paragraph:{align}})),
-		bullet: numFmt=>{
-			dispatch(ACTION.Selection.UPDATE({paragraph:{numFmt}}))
-		},
-		numbering: numFmt=>{
-			dispatch(ACTION.Selection.UPDATE({paragraph:{numFmt}}))
+		numbering: numbering=>{
+			dispatch(ACTION.Selection.UPDATE({paragraph:{numbering}}))
 		}
 	})),
 )(({style, align,numbering, bullet, children})=>(
@@ -62,8 +59,8 @@ export default compose(
 			onClick={()=>bullet("")}
 			icon={<IconListBullet/>}
 			>
-			<MenuItem primaryText="bullet" onClick={e=>bullet(".")}/>
-			<MenuItem primaryText="circle" onClick={e=>bullet("o")}/>
+			<MenuItem primaryText="." onClick={e=>numbering({type:"bullet",text:"."})}/>
+			<MenuItem primaryText="*" onClick={e=>numbering({type:"bullet",text:"*"})}/>
 
 		</DropDownButton>
 		<DropDownButton
@@ -71,9 +68,9 @@ export default compose(
 			onClick={()=>bullet("")}
 			icon={<IconListNumber/>}
 			>
-			<MenuItem primaryText="1." onClick={e=>numbering("decimal")}/>
-			<MenuItem primaryText="a." onClick={e=>numbering("lowerLetter")}/>
-			<MenuItem primaryText="一" onClick={e=>numbering("chinese")}/>
+			<MenuItem primaryText="1." onClick={e=>numbering({type:"decimal",text:"%1."})}/>
+			<MenuItem primaryText="a." onClick={e=>numbering({type:"lowerLetter",text:"%1."})}/>
+			<MenuItem primaryText="一" onClick={e=>numbering({type:"chinese", text:"%1"})}/>
 		</DropDownButton>
 
 		{children}

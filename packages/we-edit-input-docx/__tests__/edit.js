@@ -21,6 +21,75 @@ describe('edit',()=>{
 
     describe("paragraph",()=>{
         describe("numbering",()=>{
+            const test=(content=1)=>{
+                const weDoc=createDocument(
+                    typeof(content)=="string" ? content : new Array(content).fill('<w:p><w:r><w:t>hello</w:t></w:r></w:p>').join("")
+                )
+                const numbering=(n=0, props)=>{
+                    const p=new Paragraph(weDoc)
+                    p.node=p.$('w\\:p').eq(n)
+                    p.numbering(props)
+                    return p
+                }
+
+                const level=(p,numPr=p.got("w:numPr"))=>{
+                    const $=p.file.doc.officeDocument.numbering
+                    const numId=numPr.children("w\\:numId").attr("w:val")
+                    const level=parseInt(numPr.children("w\\:ilvl").attr("w:val")||0)
+                    const aNumId=$(`w\\:num[w\\:numId="${numId}"]>w\\:abstractNumId`).attr("w:val")
+                    return $(`w\\:abstractNum[w\\:abstractNumId="${aNumId}"]>w\\:lvl[w\\:ilvl="${level}"]`)
+                }
+
+                return {numbering, level}
+            }
+
+            fit.each([
+                ["bullet",{type:"bullet",text:"."}],
+                ["bullet",{type:"bullet",text:"*"}],
+                ["decimal",{type:"decimal",text:"%1."}],
+                ["chinese",{type:"chinese",text:"%1",start:5}],
+            ])("create %s",(name,props)=>{
+                const {numbering,level}=test()
+                const p0=numbering(0,props)
+                expect(level(p0).find("w\\:lvlText").attr("w:val")).toBe(props.text)
+                expect(level(p0).find("w\\:numFmt").attr("w:val")).toBe(props.type)
+                if(props.start){
+                    expect(parseInt(level(p0).find("w\\:start").attr("w:val"))).toBe(props.start)
+                }
+            })
+
+            fit.each([
+                ["bullet(.-->*)",{type:"bullet",text:"."}, {text:"*"}],
+                ["bullet-->decimal",{type:"bullet",text:"*"}, {type:"decimal",text:"%1."}],
+                ["decimal-->bullet",{type:"decimal",text:"%1."},{type:"bullet",text:"*"}],
+                ["chinese-->decimal",{type:"chinese",text:"%1",start:5}, {type:"decimal",text:"%1."}],
+            ])("change %s",(name,origin, props)=>{
+                const {numbering,level}=test()
+                const p0=numbering(0,origin)
+                numbering(0,props)
+                expect(level(p0).find("w\\:lvlText").attr("w:val")).toBe(props.text)
+                expect(level(p0).find("w\\:numFmt").attr("w:val")).toBe(props.type||origin.type)
+                if(props.start||origin.start){
+                    expect(parseInt(level(p0).find("w\\:start").attr("w:val"))).toBe(props.start||origin.start)
+                }
+            })
+
+
+
+            describe("bullet",()=>{
+
+            })
+
+            describe("numeric",()=>{
+
+            })
+
+            describe("change",()=>{
+                it.each([[".","*"],[".","decimal"],["decimal","*"]])("",()=>{
+
+                })
+            })
+
             it.each([".","decimal"])("numbering paragraph with %s",type=>{
                 const weDoc=createDocument()
                 const p=new Paragraph(weDoc)
