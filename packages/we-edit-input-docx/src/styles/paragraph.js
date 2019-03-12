@@ -33,7 +33,7 @@ export default class Paragraph extends Base{
 				.reduce((props, k)=>{
 					if(targets.find(a=>(props[k]=a.get(`p.${k}`))!==undefined)){
 						if(k==="num"){
-							let {numId,ilvl:level}=props.num
+							let {numId,ilvl:level=0}=props.num
 							let numStyle=this.styles[`_num_${numId}`]
 							props.indent={
 								...props.indent,

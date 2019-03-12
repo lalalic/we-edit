@@ -67,12 +67,21 @@ class NumLevel extends Level{
 			if(level==this.level){
 				return (NUMFMT[numFmt]||NUMFMT['decimal'])(start+this.current++)
 			}else
-				return this.num.level(level).nextValue()
+				return this.num.level(level).currentValue()
 		})
 	}
-	
+
+	currentValue(){
+		const {start,numFmt,lvlText}="start,numFmt,lvlText".split(",")
+			.reduce((p,k)=>{
+				p[k]=this[k]||this.num.parent.get(`${this.level}.${k}`)
+				return p
+			},{})
+		return (NUMFMT[numFmt]||NUMFMT['decimal'])(start+this.current-1)
+	}
+
 	value(index){
-		
+
 	}
 
 	reset(){

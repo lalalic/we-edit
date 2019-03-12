@@ -15,14 +15,14 @@ export default class Character extends Base{
 		super(...arguments)
 		this.r=this._convert(node, "w:rPr",attribs, selector)
 	}
-	
+
 	static Direct=class extends Character{
 		constructor(node, styles, selector){
 			super(...arguments)
 			this.r=this._convert(node, null,attribs, selector)
 		}
 	}
-	
+
 	flat(...inherits){
 		let targets=[this,...inherits]
 		return "fonts,size,color,highlight,border,underline,bold,italic,vanish,strike"

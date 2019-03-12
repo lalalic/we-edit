@@ -30,9 +30,9 @@ export default ({Document, Container,Frame})=>class extends Component{
 		Object.keys(styles)
 			.forEach((k,t)=>(t=styles[k])&& t.reset && t.reset())
 	}
-	
+
 	numberingContext(){
-			.
+			
 	}
 
 	getContent(){
