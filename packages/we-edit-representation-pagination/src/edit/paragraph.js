@@ -13,6 +13,19 @@ import {Text as ComposedText} from "../composed"
 const Cursorable=`[data-type="text"],[data-type="image"]`
 
 const Editable=Cacheable(class extends editable(Base,{stoppable:true}){
+
+	getNumberingAtom(){
+		const {numbering:{style}, indent:{firstLine=0}}=this.props
+		const {defaultStyle}=new this.context.Measure(style)
+
+		return <ComposedText
+			{...defaultStyle}
+			className="numbering"
+			width={-firstLine}
+			children={this.context.numbering(this.props.id)}
+		/>
+	}
+
 	clearComposed(){
 		this.computed.lastText=""
 		this.computed.atoms=[]
@@ -34,6 +47,10 @@ const Editable=Cacheable(class extends editable(Base,{stoppable:true}){
 			let space=this.context.parent.nextAvailableSpace({height:line.lineHeight()})
 			if(line.hasEqualSpace(space)){
 				this.computed.composed.push(line)
+				if(i==0 && this.props.numbering){
+					const $=new ReactQuery(a)
+					a=$.replace($.findFirst(".numbering"),this.getNumberingAtom()).root
+				}
 				this.context.parent.appendComposed(a)
 				return false
 			}else{
@@ -486,4 +503,5 @@ class LinePosition{
 
 const Paragraph=Navigatable
 Paragraph.propTypes.defaultStyle=PropTypes.object.isRequired
+Paragraph.contextTypes.numbering=PropTypes.func
 export default Paragraph

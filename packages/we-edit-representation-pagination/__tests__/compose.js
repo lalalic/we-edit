@@ -57,6 +57,9 @@ describe.each([
 		const TEXT="hello world"
 		const test=(lineWidth=5,spacing={}, indent={},align, text=TEXT, numbering)=>{
 			const context={...Context,exclusive:()=>[],...CONTEXT}
+			if(testing=="editor"){
+				context.numbering=()=>'*'
+			}
 			const nextAvailableSpace=context.parent.nextAvailableSpace=jest.fn(()=>({
 				width:lineWidth,height:100
 			}))

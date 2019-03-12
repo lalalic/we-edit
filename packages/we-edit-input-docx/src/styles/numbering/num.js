@@ -71,16 +71,31 @@ class NumLevel extends Level{
 		})
 	}
 
-	currentValue(){
+	currentValue(i=this.current-1){
 		const {start,numFmt,lvlText}="start,numFmt,lvlText".split(",")
 			.reduce((p,k)=>{
 				p[k]=this[k]||this.num.parent.get(`${this.level}.${k}`)
 				return p
 			},{})
-		return (NUMFMT[numFmt]||NUMFMT['decimal'])(start+Math.max(0,this.current-1))
+		return (NUMFMT[numFmt]||NUMFMT['decimal'])(start+Math.max(0,i))
+	}
+
+	label(levels){
+		const {start,numFmt,lvlText}="start,numFmt,lvlText".split(",")
+			.reduce((p,k)=>{
+				p[k]=this[k]||this.num.parent.get(`${this.level}.${k}`)
+				return p
+			},{})
+
+
+		return lvlText.replace(/%(\d+)/g, (a,level)=>{
+			level=parseInt(level)-1
+			return this.num.level(level).currentValue((levels.get(level)||0)-1)
+		})
 	}
 
 	reset(){
 		this.current=0
+		this.content=[]
 	}
 }

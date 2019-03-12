@@ -77,6 +77,9 @@ describe("positioning",()=>{
 				}
 			}
 		})
+    const ParagraphContext=provider(Paragraph,{
+        numbering:()=>'*'
+    })
 	var uuid=10000
 	const size={width:20,height:500}
 	const pgGap=12
@@ -84,15 +87,17 @@ describe("positioning",()=>{
     const render=(content,{state,page={}}={})=>{
             const renderer=TestRender.create(
                 <StoreContext context={store(state)}>
-                    <TextContext>
-                        <Document id="root" viewport={{width:500,height:500,node:{scrollTop:0}}}>
-                            <SectionContext>
-                                <Section id={`${++uuid}`} create={(a,b)=>new Page({...a,...size,...page},b)}>
-                                {content}
-                                </Section>
-                            </SectionContext>
-                        </Document>
-                    </TextContext>
+                    <ParagraphContext>
+                        <TextContext>
+                            <Document id="root" viewport={{width:500,height:500,node:{scrollTop:0}}}>
+                                <SectionContext>
+                                    <Section id={`${++uuid}`} create={(a,b)=>new Page({...a,...size,...page},b)}>
+                                    {content}
+                                    </Section>
+                                </SectionContext>
+                            </Document>
+                        </TextContext>
+                    </ParagraphContext>
                 </StoreContext>
             )
 

@@ -70,4 +70,4 @@ export default Cacheable(class extends editable(Base,{stoppable:true}){
 	getPages(){
 		return this.computed.composed
 	}
-})//,true)//numbering can't work
+},true)//numbering can't work

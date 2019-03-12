@@ -1,6 +1,7 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
-import {shallowEqual} from "we-edit"
+import memoize from "memoize-one"
+import {shallowEqual, ContentQuery} from "we-edit"
 
 export default ({Document, Container,Frame})=>class extends Component{
 	static displayName="document"
@@ -8,7 +9,8 @@ export default ({Document, Container,Frame})=>class extends Component{
 	static childContextTypes={
 		styles: PropTypes.object,
 		evenAndOddHeaders: PropTypes.bool,
-		style: PropTypes.object
+		style: PropTypes.object,
+		numbering: PropTypes.func,
 	}
 
 	get styles(){
@@ -19,7 +21,8 @@ export default ({Document, Container,Frame})=>class extends Component{
 		return {
 			styles:this.styles,
 			evenAndOddHeaders: !!this.props.evenAndOddHeaders,
-			style: this.styles['*']
+			style: this.styles['*'],
+			numbering: id=>this.numberingContext(this.props.content).numbering(id)
 		}
 	}
 
@@ -30,6 +33,39 @@ export default ({Document, Container,Frame})=>class extends Component{
 		Object.keys(styles)
 			.forEach((k,t)=>(t=styles[k])&& t.reset && t.reset())
 	}
+
+	numberingContext=memoize(content=>{
+		var list=null
+		const styles=this.styles
+		return {
+			numbering(id){
+				if(!list){
+					list={}
+					ContentQuery
+						.fromContent(content)
+						.findFirst(a=>{
+							if(a.get('type')=="paragraph"){
+								if(a.hasIn(["props","numId"])){
+									const numId=a.getIn(["props","numId"])
+									const level=a.getIn(["props","level"])
+									;(list[numId]=list[numId]||[]).push([a.get("id"),level])
+								}
+								return false
+							}
+						})
+				}
+				const {numId,level}=content.getIn([id,"props"]).toJS()
+				const i=list[numId].findIndex(a=>a[0]==id)
+
+				const levelCount=list[numId].slice(0,i+1).reduce((db,[id,level])=>{
+					db.set(level,(db.get(level)||0)+1)
+					return db
+				},new Map())
+
+				return styles[`_num_${numId}`].level(level).label(levelCount)
+			}
+		}
+	})
 
 	getContent(){
 		const {evenAndOddHeaders}=this.props
