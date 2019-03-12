@@ -9,7 +9,10 @@ import Run from "./run"
 export default ({Text, Paragraph})=>class extends Component{
 	static displayName="paragraph"
 	static propTypes={
-		style: PropTypes.object.isRequired
+		style: PropTypes.object.isRequired,
+		numId: PropTypes.string,
+		level: PropTypes.number,
+		outline: PropTypes.number,
 	}
 
 	static contextTypes={
