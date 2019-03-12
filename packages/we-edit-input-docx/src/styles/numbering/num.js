@@ -77,11 +77,7 @@ class NumLevel extends Level{
 				p[k]=this[k]||this.num.parent.get(`${this.level}.${k}`)
 				return p
 			},{})
-		return (NUMFMT[numFmt]||NUMFMT['decimal'])(start+this.current-1)
-	}
-
-	value(index){
-
+		return (NUMFMT[numFmt]||NUMFMT['decimal'])(start+Math.max(0,this.current-1))
 	}
 
 	reset(){
