@@ -33,10 +33,10 @@ export default class extends Editor{
 				const prevNumbering=this.node.prev(`w\\:p:has(w\\:numPr>w\\:numId)`)
 				if(prevNumbering.length==1){
 					const prev=numIdLevel(prevNumbering.children("w\\:pPr").children("w\\:numPr"))
-					const canFollowPrev=(({type,char},{numId,level})=>{
+					const canFollowPrev=(({type,text},{numId,level})=>{
 						const nLevel=getLevelNode(numId,level)
-						if(nLevel.has(`w\\:numFmt[w\\:val="${type}"]`)){
-							return type=="bullet" ? nLevel.has(`w\\:lvlText[w\\:val="${char}"]`) : true
+						if(nLevel.is(`:has(w\\:numFmt[w\\:val="${type}"])`)){
+							return text ? nLevel.is(`:has(w\\:lvlText[w\\:val="${text}"])`) : true
 						}
 						return false
 					})(props,prev);
@@ -91,146 +91,83 @@ export default class extends Editor{
 		}
 	}
 
-	numFmt(x){
-		const numPr=this.got("w:numPr")
-		if(!x){
-			numPr.remove()
-		}else{
-			if(!this.file.doc.officeDocument.numbering){
-				this.file.doc.officeDocument.addNumberingPart()
-			}
-
-			const $=this.file.doc.officeDocument.numbering
-			const type=typeof(x)=="string" && x.length==1 ? "Bullet" : "Numeric"
-
-			if(numPr.children("w\\:ilvl,w\\:numId").length==0){
-				const prevParagraphHasSameNumFmt=(prev)=>{
-					const numPr=prev.find("w\\:numPr")
-					if(numPr.length>0){
-						const numId=numPr.children("w\\:numId").attr("w:val")
-						const aNumId=$(`w\\:num[w\\:numId="${numId}"]>w\\:abstractNumId`).attr("w:val")
-						const level=numPr.children("w\\:ilvl").attr("w:val")
-
-						const nLevel=$(`w\\:abstractNum[w\\:abstractNumId="${aNumId}"]>w\\:lvl[w\\:ilvl="${level}"]`)
-						const numFmt=nLevel.children("w\\:numFmt").attr("w:val")
-						if(numFmt=="bullet" && type=="Bullet"){
-							if(nLevel.children("w\\:lvlText").attr("w:val")==x){
-								return {numId, level}
-							}
-						}else if(numFmt==x){
-							return {numId, level}
-						}
-					}
-				}
-
-				const prev=prevParagraphHasSameNumFmt(this.node.prev())
-
-				if(prev){
-					numPr.append(`<w:ilvl w:val="${prev.level}"/>`)
-					numPr.append(`<w:numId w:val="${prev.numId}"/>`)
-				}else{
-					const aNums=$("w\\:abstractNum")
-					const aNumId=Math.max(-1,...(aNums.map((i,a)=>parseInt(a.attribs["w:abstractNumId"]))))+1
-					const aNum=$(this.trim(Numbering[type](aNumId)))
-					if(aNums.length>0){
-						aNum.insertAfter(aNums.last())
-					}else{
-						aNum.appendTo($("w\\:numbering"))
-					}
-
-					const level=0
-					const numId=Math.max(-1,...($("w\\:num").map((i,a)=>parseInt(a.attribs["w:numId"]))))+1
-					const num=$(this.trim(Numbering.Template(numId, aNumId))).appendTo($("w\\:numbering"))
-
-					numPr.append(`<w:ilvl w:val="${level}"/>`)
-					numPr.append(`<w:numId w:val="${numId}"/>`)
-
-					if(type=="Bullet"){
-						$(`w\\:abstractNum[w\\:abstractNumId="${aNumId}"]>w\\:lvl[w\\:ilvl="${level}"]>w\\:lvlText`).attr("w:val",x)
-					}else{
-						$(`w\\:abstractNum[w\\:abstractNumId="${aNumId}"]>w\\:lvl[w\\:ilvl="${level}"]>w\\:numFmt`).attr("w:val",x)
-					}
-					debugger
-					this.file.renderChanged($(`w\\:abstractNum[w\\:abstractNumId="${aNumId}"]`))
-					this.file.renderChanged($(`w\\:num[w\\:numId="${numId}"]`))
-				}
-			}else{
-				const numId=numPr.children("w\\:numId").attr("w:val")
-				const aNumId=$(`w\\:num[w\\:numId="${numId}"]>w\\:abstractNumId`).attr("w:val")
-				const level=numPr.children("w\\:ilvl").attr("w:val")
-
-				const nLevel=$(`w\\:abstractNum[w\\:abstractNumId="${aNumId}"]>w\\:lvl[w\\:ilvl="${level}"]`)
-				const numFmt=nLevel.children("w\\:numFmt").attr("w:val")
-
-				if(type=="Bullet"){
-					nLevel.children("w\\:numFmt").attr("w:val","bullet")
-					nLevel.children("w\\:lvlText").attr("w:val",x)
-					this.file.renderChanged($(`w\\:abstractNum[w\\:abstractNumId="${aNumId}"]`))
-				}else if(type=="Numeric"){
-					const numFmt=nLevel.children("w\\:numFmt").attr("w:val",x)
-					nLevel.children("w\\:lvlText").attr("w:val",`%${level}.`)
-					this.file.renderChanged($(`w\\:abstractNum[w\\:abstractNumId="${aNumId}"]`))
-				}else{
-					debugger
-					numPr.empty()
-					this.numFmt(x)
-				}
-			}
-		}
-	}
-
-	_numLevelify(level){
+	numDemote(){
 		const numPr=this.got("w:numPr")
 		const numId=numPr.children("w\\:numId").attr("w:val")
-		var targets=this.node
-		const isFirstOfList=(prev=>prev.length==0 || !(prev.is("w\\:p") && prev.find("w\\:numPr>w\\:numId").attr("w:val")==numId))(this.node.prev())
+		const isFirstOfList=!this.node.prev().is(`w\\:p:has(w\\:numPr>w\\:numId[w\\:val="${numId}"])`)
+		const $=this.file.doc.officeDocument.numbering
+		const aNumId=$(`w\\:num[w\\:numId="${numId}"]>w\\:abstractNumId`).attr("w:val")
+		const aNum=$(`w\\:abstractNum[w\\:abstractNumId="${aNumId}"]`)
+		const levels=aNum.find(`w\\:lvl`)
 
-		if(isFirstOfList){
-			targets=targets.add(this.node.nextUntil(`:not(:has(w\\:numPr>w\\:numId[w\\:val="${numId}"]))`,`:has(w\\:numPr>w\\:numId[w\\:val="${numId}"])`))
-		}
-
-		targets.each((i,p)=>{
-			const numPr=this.$(p).children("w\\:pPr").children("w\\:numPr")
+		if(isFirstOfList){//change indent
+			const len=levels.length
+			new Array(levels.length-1).fill(0)
+				.forEach((a,i)=>levels.eq(i).find("w\\:ind").replaceWith(levels.eq(i+1).find("w\\:ind").clone()))
+			const last=levels.eq(len-1).find("w\\:ind")
+			last.attr("w:left",String(parseInt(last.attr("w:left"))+2*parseInt(last.attr("w:hanging"))))
+			this.file.renderChanged(aNum)
+		}else{
 			const nLevel=numPr.children("w\\:ilvl")
-			nLevel.attr("w:val",level(parseInt(nLevel.attr("w:val")), isFirstOfList, numId)+"")
-			this.file.renderChanged(p)
-		})
-	}
+			const level=parseInt(nLevel.attr("w:val"))
+			if(level<8){
+				nLevel.attr("w:val",String(level+1))
+			}
 
-	numDemote(){
-		this._numLevelify(l=>l+1)
+			if(levels.length-1<level+1){
+				const type=levels.eq(0).find("w\\:numFmt").attr("w:val")
+				$(this.trim(Numbering[type=="bullet" ? "Bullet" : "Numeric"](aNumId)))
+					.find('w\\:lvl')
+					.slice(level+1)
+					.insertAfter(levels.last())
+				aNum.find("w\\:multiLevelType").attr("w:val","hybridMultilevel")
+				this.file.renderChanged(aNum)
+			}
+		}
 	}
 
 	numPromote(){
-		this._numLevelify((level,isFirstOfList,numId)=>{
-			if(level==0){
-				if(isFirstOfList){//change level=0's indent as 0
-					const $=this.file.doc.officeDocument.numbering
-					const aNumId=$(`w\\:num[w\\:numId="${numId}"]>w\\:abstractNumId`).attr("w:val")
-					const nLevel=$(`w\\:abstractNum[w\\:abstractNumId="${aNumId}"]>w\\:lvl[w\\:ilvl="0"]`)
-					const nIndent=nLevel.children("w\\:pPr").children("w\\:ind")
-					nIndent.attr("w:left",nIndent.attr("w:hanging"))
-					this.file.renderChanged($(`w\\:abstractNum[w\\:abstractNumId="${aNumId}"]>w\\:lvl[w\\:ilvl="0"]`))
-				}
-				return 0
-			}else if(level>0){
-				return level-1
+		const numPr=this.got("w:numPr")
+		const numId=numPr.children("w\\:numId").attr("w:val")
+		const isFirstOfList=!this.node.prev().is(`w\\:p:has(w\\:numPr>w\\:numId[w\\:val="${numId}"])`)
+		if(isFirstOfList){//change indent
+			const $=this.file.doc.officeDocument.numbering
+			const aNumId=$(`w\\:num[w\\:numId="${numId}"]>w\\:abstractNumId`).attr("w:val")
+			const aNum=$(`w\\:abstractNum[w\\:abstractNumId="${aNumId}"]`)
+			const inds=aNum.find(`w\\:lvl w\\:ind`)
+			const first=inds.eq(0)
+			const firstHanging=parseInt(first.attr("w:hanging"))
+			if(parseInt(first.attr("w:left"))!=firstHanging){
+				inds.each((i,a)=>{
+					a.attribs["w:left"]=String(parseInt(a.attribs["w:left"])-firstHanging)
+				})
+				first.attr("w:left",String(firstHanging))
 			}
-		})
+			this.file.renderChanged(aNum)
+		}else{
+			const nLevel=numPr.children("w\\:ilvl")
+			const level=parseInt(nLevel.attr("w:val"))
+			if(level>0){
+				nLevel.attr("w:val",String(level-1))
+			}
+		}
 	}
 
 	tab({shiftKey}){
-		if(!shiftKey){
-			if(this.node.has("w\\:numPr")){
-				this.numDemote()
-			}else{
-				this.got("w:ind").attr("w:left","360")
-			}
+		if(this.node.is(":has(w\\:numPr)")){
+			this[`num${shiftKey ? "Pro" :"De"}mote`]()
 		}else{
-			if(this.node.has("w\\:numPr")){
-				this.numPromote()
-			}else{
-				this.got("w:ind").attr("w:left","0")
+			const heading=parseInt((/^Heading(\d)$/.exec(this.node.find(`w\\:pStyle`).attr("w:val"))||[])[1])||0
+			if(heading){
+				if(!shiftKey && heading<9){
+					this.node.find(`w\\:pStyle`).attr("w:val",`Heading${heading+1}`)
+				}else if(shiftKey && heading>1){
+					this.node.find(`w\\:pStyle`).attr("w:val",`Heading${heading-1}`)
+				}
+			}else {
+				const ind=this.got("w:ind")
+				const left=parseInt(ind.attr("w:left"))||0
+				ind.attr("w:left",String(shiftKey ? Math.max(0,left-360) : left+360))
 			}
 		}
 	}

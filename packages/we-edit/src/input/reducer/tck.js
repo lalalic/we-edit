@@ -780,6 +780,10 @@ export default function(TypedDocument){
                     expect(reducer.selection).toMatchObject({start:{id:text.attr('id'),at:1}})
                 })
             })
+
+            describe("tab",()=>{
+
+            })
         })
 
         describe("contents",()=>{
