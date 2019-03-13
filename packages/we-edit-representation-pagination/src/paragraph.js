@@ -83,10 +83,13 @@ export default class Paragraph extends Super{
     createLine(required){
 		const {width,...space}=this.context.parent.nextAvailableSpace(required)
 		const composableWidth=(w=>{
-	        const {indent:{left=0,right=0,firstLine=0}}=this.props
+	        const {indent:{left=0,right=0,firstLine=0}, numbering}=this.props
 	        w-=(left+right)
-	        if(this.computed.composed.length==0)
-	            w-=firstLine
+	        if(this.computed.composed.length==0){
+				if(!numbering){
+		            w-=firstLine
+				}
+			}
 
 	        return w
 	    })(width);
