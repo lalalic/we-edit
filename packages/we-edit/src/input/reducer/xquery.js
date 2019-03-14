@@ -250,15 +250,47 @@ export default class xQuery extends Query{
         return this.remove()
     }
 
-    nextCursorable(){
-        return this.forwardFirst(node=>node.children==undefined || typeof(node.children)=="string")
+    nextCursorable(at){
+        if(arguments.length>0){
+            if(this.attr('type')=="text"){
+                if(at<this.text().length-1){
+                    return {id:this.attr('id'),at:at+1}
+                }else{
+                    const next=this.forwardFirst(Cursorable)
+                    if(next.length){
+                        return {id:next.attr('id'), at:0}
+                    }
+                }
+            }
+            return {id:this.attr('id'),at}
+        }
+
+        return this.forwardFirst(Cursorable)
     }
 
-    prevCursorable(){
-        return this.backwardFirst(node=>node.children==undefined || typeof(node.children)=="string")
+    prevCursorable(at){
+        if(arguments.length>0){
+            if(this.attr('type')=="text"){
+                if(at>0){
+                    return {id:this.attr('id'),at:at-1}
+                }else{
+                    const prev=this.backwardFirst(Cursorable)
+                    if(prev.length){
+                        if(prev.attr('type')=="text"){
+                            return {id:prev.attr('id'),at:Math.max(0,prev.text().length-1)}
+                        }else{
+                            return {id:prev.attr('id'),at:1}
+                        }
+                    }
+                }
+            }
+            return {id:this.attr('id'), at}
+        }
+        return this.backwardFirst(Cursorable)
     }
 
 	toString(){
 		return this._nodes.map(id=>this.file.toString(id)).join("\r\n")
 	}
 }
+const Cursorable=node=>node.children==undefined || typeof(node.children)=="string"

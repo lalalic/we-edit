@@ -422,7 +422,7 @@ class Content extends Reducer{
 		const {start,end}=this.selection
 		if(start.id==end.id && start.at==end.at){
 			if(backspace){
-				const {id,at}=responsible.getComposer(start.id).prevCursorable(start.id, start.at)
+				const {id,at}=this.$(`#${start.id}`).prevCursorable(start.at)
 				if(start.id==id && start.at==at)
 					return this
 				if(start.at>0){
@@ -433,7 +433,7 @@ class Content extends Reducer{
 					return this.remove({backspace:false,responsible},++i)
 				}
 			}else{
-				const {id,at}=responsible.getComposer(start.id).nextCursorable(start.id, start.at)
+				const {id,at}=this.$(`#${start.id}`).nextCursorable(start.at)
 				if(start.id==id && start.at==at)
 					return this
 				const target=this.$(`#${start.id}`)
@@ -456,13 +456,13 @@ class Content extends Reducer{
 			}
 		}else{
 			if(end.at==0){
-				const {id,at}=responsible.getComposer(end.id).prevCursorable(end.id,end.at)
+				const {id,at}=this.$(`#${end.id}`).prevCursorable(end.at)
 				this.cursorAt(start.id, start.at, id,at+1)
 			}
 			this.removeSelection(true)
 			{
 				const {start}=this.selection
-				const {id,at}=responsible.getComposer(start.id).nextCursorable(start.id,start.at)
+				const {id,at}=this.$(`#${start.id}`).nextCursorable(start.at)
 				if(start.id!=id && at==0){
 					this.cursorAt(id,at)
 				}

@@ -95,12 +95,12 @@ export default class Responsible extends Component{
                         this.onClick(e)
                     }
                 }}
-				
+
 				onDoubleClick={e=>{
 					if(!down.selected){
 						down.selected=false
 						this.onClick(e,true)
-					}	
+					}
 				}}
 				onMouseDown={flagEvent}
 				onMouseMove={e=>{
@@ -296,13 +296,13 @@ export default class Responsible extends Component{
 
         this.active()
     }
-	
+
     onKeyDelete(){
-        this.dispatch(ACTION.Text.REMOVE({backspace:false,responsible:this}))
+        this.dispatch(ACTION.Text.REMOVE({backspace:false}))
     }
 
     onKeyBackspace(){
-        this.dispatch(ACTION.Text.REMOVE({backspace:true,responsible:this}))
+        this.dispatch(ACTION.Text.REMOVE({backspace:true}))
     }
 
 	locate(nextOrprev, CursorableOrSelectable, id, at, inclusive=false){

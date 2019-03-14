@@ -23,7 +23,7 @@ export default function(TypedDocument){
         const state=makeState(content).set("selection",immutable.fromJS(selection))
         const reducer=new Reducer(state)
         expect(reducer.selection).toMatchObject(selection)
-        const composer={
+        const $query={
             nextCursorable(){
 
             },
@@ -31,12 +31,25 @@ export default function(TypedDocument){
 
             }
         }
-        const responsible={
-            getComposer(){
-                return composer
+
+        const nextCursorable=xQuery.prototype.nextCursorable
+        xQuery.prototype.nextCursorable=jest.fn(function(at){
+            if(arguments.length>0){
+                return $query.nextCursorable(at)
             }
-        }
-        return {selection,reducer, composer,responsible}
+            return nextCursorable.call(this,...arguments)
+        })
+
+        const prevCursorable=xQuery.prototype.prevCursorable
+        xQuery.prototype.prevCursorable=jest.fn(function(at){
+            if(arguments.length>0){
+                return $query.prevCursorable(at)
+            }
+            return prevCursorable.call(this,...arguments)
+        })
+
+
+        return {selection,reducer, $query}
     }
 
     describe("utils",()=>{
@@ -286,82 +299,82 @@ export default function(TypedDocument){
     describe("remove",()=>{
         describe("forward",()=>{
             it("t|ext",()=>{
-                const {reducer,composer,responsible}=test({
+                const {reducer,$query}=test({
                     "1":{type:"paragraph",children:["1_1"]},
                     "1_1":{type:"text",children:"text",parent:"1"}
                 })
                 reducer.cursorAt("1_1",1)
-                composer.nextCursorable=jest.fn(()=>({id:"1_1",at:2}))
-                reducer.remove({responsible})
+                $query.nextCursorable=jest.fn(()=>({id:"1_1",at:2}))
+                reducer.remove({})
                 expect(reducer.$("#1_1").text()).toBe("txt")
                 expect(reducer.file.getNode("1_1").text()).toBe("txt")
                 expect(reducer.selection).toMatchObject({start:{id:"1_1",at:1},end:{id:"1_1",at:1}})
             })
 
             it("<p>text|</p>",()=>{
-                const {reducer,composer,responsible}=test({
+                const {reducer,$query}=test({
                     "1":{type:"paragraph",children:["1_1"]},
                     "1_1":{type:"text",children:"text",parent:"1"}
                 })
                 reducer.cursorAt("1",1)
-                composer.nextCursorable=jest.fn(()=>({id:"1",at:1}))
-                reducer.remove({responsible})
+                $query.nextCursorable=jest.fn(()=>({id:"1",at:1}))
+                reducer.remove({})
                 expect(reducer.$("#1_1").text()).toBe("text")
                 expect(reducer.file.getNode("1_1").text()).toBe("text")
                 expect(reducer.selection).toMatchObject({start:{id:"1",at:1},end:{id:"1",at:1}})
             })
 
             it("tex|tHello",()=>{
-                const {reducer,composer,responsible}=test({
+                const {reducer,$query}=test({
                     "1":{type:"paragraph",children:["1_1","1_2"]},
                     "1_1":{type:"text",children:"text",parent:"1"},
                     "1_2":{type:"text",children:"Hello",parent:"1"}
                 })
                 reducer.cursorAt("1_1",3)
-                composer.nextCursorable=jest.fn(()=>({id:"1_2",at:0}))
-                reducer.remove({responsible})
+                $query.nextCursorable=jest.fn(()=>({id:"1_2",at:0}))
+                reducer.remove({})
                 expect(reducer.$("#1_1").text()).toBe("tex")
                 expect(reducer.file.getNode("1_1").text()).toBe("tex")
                 expect(reducer.selection).toMatchObject({start:{id:"1_2",at:0},end:{id:"1_2",at:0}})
             })
 
             it("|image",()=>{
-                const {reducer,composer,responsible,doc}=test({
+                const {reducer,$query,doc}=test({
                     "1":{type:"paragraph",children:["1_1","1_2"]},
                     "1_1":{type:"image",parent:"1"},
                     "1_2":{type:"text",children:"text",parent:"1"}
                 })
                 reducer.cursorAt("1_1",0)
-                composer.nextCursorable=jest.fn(()=>({id:"1_2",at:0}))
-                reducer.remove({responsible})
+                $query.nextCursorable=jest.fn(()=>({id:"1_2",at:0}))
+                reducer.remove({})
                 expect(reducer.$("#1_1").length).toBe(0)
                 expect(reducer.selection).toMatchObject({start:{id:"1_2",at:0},end:{id:"1_2",at:0}})
             })
 
             it("|<anchor>image</anchor>",()=>{
-                const {reducer,composer,responsible,doc}=test({
+                const {reducer,$query,doc}=test({
                     "1":{type:"paragraph",children:["1_1","1_2"]},
                     "1_1":{type:"container0",parent:"1",children:["1_1_1"]},
                     "1_1_1":{type:"image",parent:"1_1"},
                     "1_2":{type:"text",children:"text",parent:"1"}
                 })
                 reducer.cursorAt("1_1",0)
-                composer.nextCursorable=jest.fn(()=>({id:"1_2",at:0}))
-                reducer.remove({responsible})
+                $query.nextCursorable=jest.fn(()=>({id:"1_2",at:0}))
+                reducer.remove({})
                 expect(reducer.$("#1_1,#1_1_1").length).toBe(0)
                 expect(reducer.selection).toMatchObject({start:{id:"1_2",at:0},end:{id:"1_2",at:0}})
             })
 
             it("<p>|</p><p/>",()=>{
-                const {reducer,composer,responsible,doc}=test({
+                const {reducer,$query,doc}=test({
                     "1":{type:"paragraph",children:["1_1"]},
                     "1_1":{type:"text",children:"text",parent:"1"},
                     "2":{type:"paragraph",children:["2_1"]},
                     "2_1":{type:"text",children:"text",parent:"2"},
                 })
                 reducer.cursorAt("1",1)
-                composer.nextCursorable=jest.fn(()=>({id:"2_1",at:0}))
-                reducer.remove({responsible})
+                $query.nextCursorable=jest.fn(()=>({id:"2_1",at:0}))
+                reducer.remove({})
                 expect(reducer.$('#2').length).toBe(0)
                 expect(reducer.$('#1').children().toArray()).toMatchObject(["1_1","2_1"])
                 expect(reducer.selection).toMatchObject({start:{id:"2_1",at:0},end:{id:"2_1",at:0}})
@@ -370,62 +383,62 @@ export default function(TypedDocument){
 
         describe("backword",()=>{
             it("t|ext",()=>{
-                const {reducer,composer,responsible}=test({
+                const {reducer,$query}=test({
                     "1":{type:"paragraph",children:["1_1"]},
                     "1_1":{type:"text",children:"text",parent:"1"}
                 })
                 reducer.cursorAt("1_1",1)
-                composer.prevCursorable=jest.fn(()=>({id:"1_1",at:0}))
-                reducer.remove({backspace:true,responsible})
+                $query.prevCursorable=jest.fn(()=>({id:"1_1",at:0}))
+                reducer.remove({backspace:true})
                 expect(reducer.$("#1_1").text()).toBe("ext")
                 expect(reducer.file.getNode("1_1").text()).toBe("ext")
                 expect(reducer.selection).toMatchObject({start:{id:"1_1",at:0},end:{id:"1_1",at:0}})
             })
 
             it("|text",()=>{
-                const {reducer,composer,responsible}=test({
+                const {reducer,$query}=test({
                     "1":{type:"paragraph",children:["1_1"]},
                     "1_1":{type:"text",children:"text",parent:"1"}
                 })
                 reducer.cursorAt("1_1",0)
-                composer.prevCursorable=jest.fn(()=>({id:"1_1",at:0}))
-                reducer.remove({backspace:true,responsible})
+                $query.prevCursorable=jest.fn(()=>({id:"1_1",at:0}))
+                reducer.remove({backspace:true})
                 expect(reducer.$("#1_1").text()).toBe("text")
                 expect(reducer.file.getNode("1_1").text()).toBe("text")
                 expect(reducer.selection).toMatchObject({start:{id:"1_1",at:0},end:{id:"1_1",at:0}})
             })
 
             it("image|Text",()=>{
-                const {reducer,composer,responsible,doc}=test({
+                const {reducer,$query,doc}=test({
                     "1":{type:"paragraph",children:["1_1","1_2"]},
                     "1_1":{type:"image",parent:"1"},
                     "1_2":{type:"text",children:"text",parent:"1"}
                 })
                 reducer.cursorAt("1_2",0)
-                composer.prevCursorable=jest.fn(()=>({id:"1_1",at:0}))
-                composer.nextCursorable=jest.fn(()=>{
+                $query.prevCursorable=jest.fn(()=>({id:"1_1",at:0}))
+                $query.nextCursorable=jest.fn(()=>{
                     expect(reducer.selection).toMatchObject({start:{id:"1_1",at:0}})
                     return {id:"1_2",at:0}
                 })
-                reducer.remove({backspace:true,responsible})
+                reducer.remove({backspace:true})
                 expect(reducer.$("#1_1").length).toBe(0)
                 expect(reducer.selection).toMatchObject({start:{id:"1_2",at:0},end:{id:"1_2",at:0}})
             })
 
             it("<p/><p>|</p>",()=>{
-                const {reducer,composer,responsible,doc}=test({
+                const {reducer,$query,doc}=test({
                     "1":{type:"paragraph",children:["1_1"]},
                     "1_1":{type:"text",children:"text",parent:"1"},
                     "2":{type:"paragraph",children:["2_1"]},
                     "2_1":{type:"text",children:"text",parent:"2"},
                 })
                 reducer.cursorAt("2_1",0)
-                composer.prevCursorable=jest.fn(()=>({id:"1",at:1}))
-                composer.nextCursorable=jest.fn(()=>{
+                $query.prevCursorable=jest.fn(()=>({id:"1",at:1}))
+                $query.nextCursorable=jest.fn(()=>{
                     expect(reducer.selection).toMatchObject({start:{id:"1",at:1}})
                     return {id:"2_1",at:0}
                 })
-                reducer.remove({backspace:true,responsible})
+                reducer.remove({backspace:true})
                 expect(reducer.$("#2").length).toBe(0)
                 expect(reducer.$("#1").children().toArray()).toMatchObject(["1_1","2_1"])
                 expect(reducer.selection).toMatchObject({start:{id:"2_1",at:0},end:{id:"2_1",at:0}})
@@ -434,28 +447,28 @@ export default function(TypedDocument){
 
         describe("selection",()=>{
             it("t(ex)t",()=>{
-                const {reducer,composer,responsible}=test({
+                const {reducer,$query}=test({
                     "1":{type:"paragraph",children:["1_1"]},
                     "1_1":{type:"text",children:"text",parent:"1"}
                 })
                 reducer.cursorAt("1_1",1,"1_1",3)
-                composer.nextCursorable=jest.fn(()=>({id:"1",at:1}))
-                reducer.remove({responsible})
+                $query.nextCursorable=jest.fn(()=>({id:"1",at:1}))
+                reducer.remove({})
                 expect(reducer.$('#1_1').text()).toBe("tt")
                 expect(reducer.file.getNode("1_1").text()).toBe("tt")
                 expect(reducer.selection).toMatchObject({start:{id:"1_1",at:1},end:{id:"1_1",at:1}})
             })
 
             it("t(ext)Hello",()=>{
-                const {reducer,composer,responsible}=test({
+                const {reducer,$query}=test({
                     "1":{type:"paragraph",children:["1_1","1_2"]},
                     "1_1":{type:"text",children:"text",parent:"1"},
                     "1_2":{type:"text",children:"hello",parent:"1"}
                 })
                 reducer.cursorAt("1_1",1,"1_2",0)
-                composer.prevCursorable=jest.fn(()=>({id:"1_1",at:3}))
-                composer.nextCursorable=jest.fn(()=>({id:"1_2",at:0}))
-                reducer.remove({responsible})
+                $query.prevCursorable=jest.fn(()=>({id:"1_1",at:3}))
+                $query.nextCursorable=jest.fn(()=>({id:"1_2",at:0}))
+                reducer.remove({})
 
                 expect(reducer.$('#1_1').text()).toBe("t")
                 expect(reducer.file.getNode("1_1").text()).toBe("t")
@@ -463,14 +476,14 @@ export default function(TypedDocument){
             })
 
             it("t(extHe)llo",()=>{
-                const {reducer,composer,responsible}=test({
+                const {reducer,$query}=test({
                     "1":{type:"paragraph",children:["1_1","1_2"]},
                     "1_1":{type:"text",children:"text",parent:"1"},
                     "1_2":{type:"text",children:"hello",parent:"1"}
                 })
                 reducer.cursorAt("1_1",1,"1_2",2)
-                composer.nextCursorable=jest.fn(()=>({id:"1_2",at:0}))
-                reducer.remove({responsible})
+                $query.nextCursorable=jest.fn(()=>({id:"1_2",at:0}))
+                reducer.remove({})
                 const texts=reducer.$('text')
                 expect(texts.length).toBe(2)
 
@@ -484,15 +497,15 @@ export default function(TypedDocument){
             })
 
             it("(text)Hello",()=>{
-                const {reducer,composer,responsible}=test({
+                const {reducer,$query}=test({
                     "1":{type:"paragraph",children:["1_1","1_2"]},
                     "1_1":{type:"text",children:"text",parent:"1"},
                     "1_2":{type:"text",children:"hello",parent:"1"}
                 })
                 reducer.cursorAt("1_1",0,"1_2",0)
-                composer.prevCursorable=jest.fn(()=>({id:"1_1",at:3}))
-                composer.nextCursorable=jest.fn(()=>({id:"1_2",at:0}))
-                reducer.remove({responsible})
+                $query.prevCursorable=jest.fn(()=>({id:"1_1",at:3}))
+                $query.nextCursorable=jest.fn(()=>({id:"1_2",at:0}))
+                reducer.remove({})
 
                 expect(reducer.$('#1_1').text()).toBe("")
                 expect(reducer.file.getNode("1_1").text()).toBe("")
@@ -500,14 +513,14 @@ export default function(TypedDocument){
             })
 
             it("(Image)Hello",()=>{
-                const {reducer,composer,responsible}=test({
+                const {reducer,$query}=test({
                     "1":{type:"paragraph",children:["1_1","1_2"]},
                     "1_1":{type:"image",parent:"1"},
                     "1_2":{type:"text",children:"hello",parent:"1"}
                 })
                 reducer.cursorAt("1_1",0,"1_1",1)
-                composer.nextCursorable=jest.fn(()=>({id:"1_2",at:0}))
-                reducer.remove({responsible})
+                $query.nextCursorable=jest.fn(()=>({id:"1_2",at:0}))
+                reducer.remove({})
 
                 expect(reducer.$('#1_1').length).toBe(0)
                 expect(reducer.selection).toMatchObject({start:{id:"1_2",at:0},end:{id:"1_2",at:0}})
