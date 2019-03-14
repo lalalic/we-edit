@@ -138,9 +138,20 @@ class Reducer extends Base{
 				end.id=newEnd.id
 				end.at=newEnd.at
 				this.cursorAt(start.id,start.at,end.id,end.at)
+			}else{//extend to closest parent ending()
+				const parents=this.$('#'+end.id).parentsUntil(this.$('#'+start.id).parents())
+				if(parents.length>0){
+					const i=parents.toArray().findIndex(id=>this.$('#'+id).parent().children().last().attr('id')!=id)
+					if(i>0){
+						this.cursorAt(start.id, start.at, parents.eq(i-1).attr('id'), 1)
+					}else if(i==-1){
+						this.cursorAt(start.id, start.at, parents.last().attr('id'), 1)
+					}
+				}
 			}
 
 			if(!this.isAtStart(start)){
+				const end=this.selection.end
 				const [,{id,at}]=this.file.splitNode(this.element(start.id),start.at)
 				if(end.id==start.id){
 					end.id=id
@@ -149,6 +160,17 @@ class Reducer extends Base{
 				start.id=id
 				start.at=at
 				this.cursorAt(start.id,start.at, end.id, end.at)
+			}else{//extend to closest parent beginning
+				const end=this.selection.end
+				const parents=this.$('#'+start.id).parentsUntil(this.$('#'+end.id).parents())
+				if(parents.length>0){
+					const i=parents.toArray().findIndex(id=>this.$('#'+id).parent().children().first().attr('id')!=id)
+					if(i>0){
+						this.cursorAt(parents.eq(i-1).attr('id'), 0, end.id, end.at)
+					}else if(i==-1){
+						this.cursorAt(parents.last().attr('id'), 0, end.id, end.at)
+					}
+				}
 			}
 		}
 	}
@@ -268,14 +290,20 @@ class Reducer extends Base{
 
 			const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
 			if(ancestor.length>0){
-				const ancestors0=target0.parentsUntil(ancestor)
-				const ancestors1=target1.parentsUntil(ancestor)
+				let ancestors0=target0.parentsUntil(ancestor)
+				if(ancestors0.length==0){
+					ancestors0=ancestors0.add(target0)
+				}
+				let ancestors1=target1.parentsUntil(ancestor)
+				if(ancestors1.length==0){
+					ancestors1=ancestors1.add(target1)
+				}
 				const top0=ancestors0.last()
 				const top1=ancestors1.last()
 
 				top0.nextUntil(top1).remove()
-				ancestors0.not(top0).each((i,a)=>this.$('#'+a.get("id")).nextAll().remove())
-				ancestors1.not(top1).each((i,a)=>this.$('#'+a.get("id")).prevAll().remove())
+				ancestors0.not(target0).not(top0).each((i,a)=>this.$('#'+a.get("id")).nextAll().remove())
+				ancestors1.not(target1).not(top1).each((i,a)=>this.$('#'+a.get("id")).prevAll().remove())
 			}
 
 			target0.remove()
@@ -283,6 +311,10 @@ class Reducer extends Base{
 
 			this.cursorAt(cursorAfterRemove.attr('id'),0)//it's not correct if the original end at entity end
 		}
+	}
+
+	backspaceParagraph(){
+
 	}
 
 	clone(keepId){
@@ -303,38 +335,50 @@ class Reducer extends Base{
 		}else{
 			this.seperateSelection()
 			const {start,end}=this.selection
+			if(start.id==end.id){
+				return this.clone(keepId)
+			}
 			const target0=this.$('#'+start.id)
 			const target1=this.$("#"+end.id)
 
-			const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
+			const ancestor=target0.closest(target1.parents())
 			if(ancestor.length>0){
-				const ancestors0=target0.parentsUntil(ancestor)
-				const ancestors1=target1.parentsUntil(ancestor)
+				let ancestors0=target0.parentsUntil(ancestor)
+				if(ancestors0.length==0){
+					ancestors0=ancestors0.add(target0)
+				}
+				let ancestors1=target1.parentsUntil(ancestor)
+				if(ancestors1.length==0){
+					ancestors1=ancestors1.add(target1)
+				}
 				const top0=ancestors0.last()
 				const top1=ancestors1.last()
 
 				const clonedSiblings=top0.nextUntil(top1).clone()
+
 				const cloneOutter=node=>{
 					return node.constructUp(node)
 				}
 
-				const clonedTop0=target0.add(ancestors0.not(top0)).toArray()
-					.reduce((clonedA,a)=>{
-					 	const target=this.$('#'+a)
-						const parent=cloneOutter(target.parent())
+				const cloneTop=(top, target, ancestors,atEnd)=>{
+					const parents=ancestors.not(target)
+					if(parents.length==0)
+					 	return target.clone()
+					return target.add(parents.not(top)).toArray().reduce((clonedA,a)=>{
+					 	const A=this.$('#'+a)
+						const parent=cloneOutter(A.parent())
 						parent.append(clonedA)
-						parent.append(target.nextAll().clone())
+						if(atEnd){
+							parent.append(A.nextAll().clone())
+						}else{
+							parent.prepend(A.prevAll().clone())
+						}
 						return parent
-					},target0.clone())
+					},target.clone())
+				}
 
-				const clonedTop1=target1.add(ancestors1.not(top1)).toArray()
-					.reduce((clonedA,a)=>{
-					 	const target=this.$('#'+a)
-						const parent=cloneOutter(target.parent())
-						parent.prepend(clonedA)
-						parent.prepend(target.prevAll().clone())
-						return parent
-					},target1.clone())
+				const clonedTop0=cloneTop(top0, target0, ancestors0,true)
+				const clonedTop1=cloneTop(top1, target1, ancestors1,false)
 
 				return clonedTop0.add(clonedSiblings).add(clonedTop1)
 			}else{
@@ -414,7 +458,7 @@ class Content extends Reducer{
 		return this
 	}
 
-	remove({backspace,responsible},i=0){
+	remove({backspace},i=0){
 		if(i>1){
 			console.error("there's inifinte loop during removing things")
 			return
@@ -422,6 +466,11 @@ class Content extends Reducer{
 		const {start,end}=this.selection
 		if(start.id==end.id && start.at==end.at){
 			if(backspace){
+				if(start.at==0&&this.$(`#${start.id}`).closestStart("paragraph").length){
+					this.backspaceParagraph()
+					return
+				}
+				
 				const {id,at}=this.$(`#${start.id}`).prevCursorable(start.at)
 				if(start.id==id && start.at==at)
 					return this
@@ -430,7 +479,7 @@ class Content extends Reducer{
 					this.cursorAt(id,at)
 				}else{
 					this.cursorAt(id,at)
-					return this.remove({backspace:false,responsible},++i)
+					return this.remove({backspace:false},++i)
 				}
 			}else{
 				const {id,at}=this.$(`#${start.id}`).nextCursorable(start.at)
@@ -451,7 +500,7 @@ class Content extends Reducer{
 					}
 				}else{
 					this.cursorAt(id,at)
-					return this.remove({backspace:true,responsible},++i)
+					return this.remove({backspace:true},++i)
 				}
 			}
 		}else{

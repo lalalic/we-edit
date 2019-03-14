@@ -18,6 +18,7 @@ export default connect(
 		38:e=>this.props.dispatch(ACTION.Cursor.MOVE_LEFT(e.shiftKey)),//move up
 		39:e=>this.props.dispatch(ACTION.Cursor.MOVE_RIGHT(e.shiftKey)),//move right
 		40:e=>this.props.dispatch(ACTION.Cursor.MOVE_RIGHT(e.shiftKey)),//move down
+		116:e=>this.props.dispatch(ACTION.Refresh()),//F5: refresh move down
 	}
 
 	render(){

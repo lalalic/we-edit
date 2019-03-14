@@ -102,14 +102,15 @@ export default function(TypedDocument){
                 const cloned=reducer.clone()
                 expect(cloned.length).toBe(2)
 
-                expect(cloned.eq(0).text()).toBe("helloworld")
-                expect(cloned.eq(1).text()).toBe("hello")
-
                 expect(cloned.eq(0).attr('type')).toBe('paragraph')
                 expect(cloned.eq(0).find("container0,container1").length).toBe(2)
 
                 expect(cloned.eq(1).attr('type')).toBe('paragraph')
                 expect(cloned.eq(0).find("container0,container1").length).toBe(2)
+
+                expect(cloned.eq(0).text()).toBe("helloworld")
+                expect(cloned.eq(1).text()).toBe("hello")
+
             })
 
             it("<p><r><d><t>hello</t></d></r><t>w(orld</t></p><p><r><d><t>hello</t></d></r><t>w)orld</t></p>",()=>{
@@ -292,6 +293,30 @@ export default function(TypedDocument){
                 const end=texts.eq(2)
                 expect(reducer.selection).toMatchObject({start:{id:start.attr("id"),at:0},end:{id:end.attr('id'),at:2}})
             })
+
+            it("extend to parent start, end",()=>{
+                const {reducer}=test({
+                    "1":{type:"paragraph",children:["1_1","1_2"]},
+                    "1_1":{type:"container0",children:["1_1_0"],parent:"1"},
+                    "1_1_0":{type:"text",children:"text",parent:"1_1"},
+                    "1_2":{type:"container0",children:["1_2_0"],parent:"1"},
+                    "1_2_0":{type:"container0",children:["1_2_0_0"],parent:"1_2"},
+                    "1_2_0_0":{type:"text",children:"Hello",parent:"1_2_0"},
+                })
+                reducer.cursorAt("1_1_0",0, "1_2_0_0",2)
+
+                debugger
+                reducer.seperateSelection()
+                expect(reducer.selection).toMatchObject({start:{id:"1_1",at:0}})
+
+                reducer.cursorAt("1_1_0",1, "1_2_0_0",5)
+                reducer.seperateSelection()
+                expect(reducer.selection).toMatchObject({end:{id:"1_2",at:1}})
+
+                reducer.cursorAt("1_1_0",0, "1_2_0_0",5)
+                reducer.seperateSelection()
+                expect(reducer.selection).toMatchObject({start:{id:"1_1",at:0},end:{id:"1_2",at:1}})
+            })
         })
     })
 
@@ -381,7 +406,7 @@ export default function(TypedDocument){
             })
         })
 
-        describe("backword",()=>{
+        describe("backward",()=>{
             it("t|ext",()=>{
                 const {reducer,$query}=test({
                     "1":{type:"paragraph",children:["1_1"]},
@@ -408,7 +433,7 @@ export default function(TypedDocument){
                 expect(reducer.selection).toMatchObject({start:{id:"1_1",at:0},end:{id:"1_1",at:0}})
             })
 
-            it("image|Text",()=>{
+            fit("image|Text",()=>{
                 const {reducer,$query,doc}=test({
                     "1":{type:"paragraph",children:["1_1","1_2"]},
                     "1_1":{type:"image",parent:"1"},
@@ -420,6 +445,7 @@ export default function(TypedDocument){
                     expect(reducer.selection).toMatchObject({start:{id:"1_1",at:0}})
                     return {id:"1_2",at:0}
                 })
+                debugger
                 reducer.remove({backspace:true})
                 expect(reducer.$("#1_1").length).toBe(0)
                 expect(reducer.selection).toMatchObject({start:{id:"1_2",at:0},end:{id:"1_2",at:0}})
@@ -442,6 +468,30 @@ export default function(TypedDocument){
                 expect(reducer.$("#2").length).toBe(0)
                 expect(reducer.$("#1").children().toArray()).toMatchObject(["1_1","2_1"])
                 expect(reducer.selection).toMatchObject({start:{id:"2_1",at:0},end:{id:"2_1",at:0}})
+            })
+
+            xit.each([
+                [{id:"2_1",at:0}],
+                [{id:"2",at:0}]
+            ])("paragraph start(indent, numbering, ...)",(cursor, )=>{
+                const {reducer,$query,doc}=test({
+                    "1":{type:"paragraph",children:["1_1"]},
+                    "1_1":{type:"text",children:"text",parent:"1"},
+                    "2":{type:"paragraph",children:["2_1"], props:{indent:{left:10}, numbering:{}}},
+                    "2_1":{type:"text",children:"text",parent:"2"},
+                })
+                reducer.cursorAt(cursor.id,cursor.at)
+                $query.prevCursorable=jest.fn()
+                $query.nextCursorable=jest.fn()
+
+                $query.prevCursorable.mockReturnValueOnce({id:"2",at:0})
+                $query.nextCursorable.mockReturnValueOnce({id:"2_1",at:1})
+                reducer.remove({backspace:true})
+                expect(reducer.$('#2').attr('numbering')).toBe(undefined)
+                reducer.remove({backspace:true})
+                expect(reducer.$('#2').attr('indent').left).toBe(undefined)
+                reducer.remove({backspace:true})
+                expect(reducer.$('#2').length).toBe(0)
             })
         })
 
@@ -807,7 +857,7 @@ export default function(TypedDocument){
                         "1_1":{type:"text",children:"text",parent:"1"},
                     })
                     reducer.cursorAt("1_1",0)
-                    debugger
+
                     reducer.insert({data:[{type:"text",children:"hello"}]})
                     const texts=reducer.$('#1 text')
                     expect(texts.length).toBe(2)

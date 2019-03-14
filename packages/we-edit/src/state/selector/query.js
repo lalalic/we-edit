@@ -415,6 +415,36 @@ export default class Query{
 		return this._nodes.findIndex(k=>!select(this._content.get(k)))==-1
 	}
 
+	firstChild(){
+
+	}
+
+	lastChild(){
+
+	}
+
+	closestEnd(to){
+		const top=this.closest(to)
+		const parents=this.parentsUntil(top).add(top)
+		const i=parents.toArray().findIndex(id=>this._$('#'+id).parent().children().last().attr('id')!=id)
+		if(i>0){
+			return parents.eq(i-1)
+		}else{
+			return this
+		}
+	}
+
+	closestStart(to){
+		const top=this.closest(to)
+		const parents=this.parentsUntil(top).add(top)
+		const i=parents.toArray().findIndex(id=>this._$('#'+id).parent().children().first().attr('id')!=id)
+		if(i>0){
+			return parents.eq(i-1)
+		}else{
+			return this
+		}
+	}
+
 	each(f,context){
 		this._nodes.forEach((id,i)=>{
 			let node=this._content.get(id)

@@ -126,6 +126,7 @@ export default class Responsible extends Component{
 					var {start,end}=this.selecting.current.state
                     if(start && end){
 						this.selecting.current.setState({start:undefined, end:undefined, rects:undefined,selecting:false})
+                        ;({start,end}=this.positioning.extendSelection(start,end))
                         this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))
                         down.selected=true
                     }
@@ -288,7 +289,8 @@ export default class Responsible extends Component{
     				if(top<top1 || (top==top1 && left<=left1)){
     					this.dispatch(ACTION.Selection.START_AT(id,at))
     				}else{
-    					this.dispatch(ACTION.Selection.SELECT(end.id, end.at, id, at))
+                        const a=this.positioning.extendSelection(a.end,{id,at})
+    					this.dispatch(ACTION.Selection.SELECT(a.start.id,a.start.at, a.end.id, a.end.at))
     				}
     			}
             }
@@ -305,18 +307,16 @@ export default class Responsible extends Component{
         this.dispatch(ACTION.Text.REMOVE({backspace:true}))
     }
 
-	locate(nextOrprev, CursorableOrSelectable, id, at, inclusive=false){
-		if(id==undefined){
-			({id,at}=this.cursor)
-		}
-        let composer=this.getComposer(id)
+	locate(nextOrprev){
+		const {id,at}=this.cursor
+        const composer=this.getComposer(id)
         if(composer){
             return composer[`${nextOrprev}Cursorable`](id,at)||{}
         }
         return this.cursor
 	}
 
-    locateLine(nextOrPrev, cursorableOrSelectable){
+    locateLine(nextOrPrev){
 		const {id,at}=this.cursor
         return this.positioning[`${nextOrPrev}Line`](id,at)||{}
 	}
@@ -327,20 +327,20 @@ export default class Responsible extends Component{
         }else{
             const {cursorAt,...a}=this.selection
             a[cursorAt]={id,at}
-            const {start,end}=a
+            const {start,end}=this.positioning.extendSelection(a.start,a.end)
             this.dispatch(ACTION.Selection.SELECT(start.id, start.at, end.id,end.at))
         }
     }
 
 	onKeyArrowLeft({shiftKey:selecting}){
-        const {id,at}=this.locate("prev",selecting ? "Selectable" :"Cursorable")
+        const {id,at}=this.locate("prev")
         if(id){
             this.onKeyArrow(id,at,selecting)
         }
 	}
 
 	onKeyArrowRight({shiftKey:selecting}){
-        const {id,at}=this.locate("next",selecting ? "Selectable" :"Cursorable")
+        const {id,at}=this.locate("next")
         if(id){
             this.onKeyArrow(id,at,selecting)
         }
