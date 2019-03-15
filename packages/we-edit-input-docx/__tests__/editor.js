@@ -158,12 +158,12 @@ describe("reduce docx",()=>{
             this.renderChanged=(node,callback)=>{
                 if(node.cheerio)
                     node=node.get(0)
-                debugger
+
                 const element=this.renderNode(node,createElement,components)
                 if(callback){
                     callback($,element,_content)
                 }
-                debugger
+
                 return element
             }
         }

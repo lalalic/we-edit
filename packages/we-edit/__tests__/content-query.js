@@ -171,6 +171,28 @@ describe("content query",()=>{
             expect($.closest("#root").attr("id")).toBe("root")
         })
 
+        it("closestStart",()=>{
+            const $=new Query(state({
+                "1":{children:["a","b"],type:"run"},
+                "a":{parent:"1"},
+                "b":{parent:"1"}
+            }))
+            expect($.find('#a').closestStart("run").is("run")).toBe(true)
+            expect($.find('#a').closestStart().is("#root")).toBe(true)
+            expect($.find('#b').closestStart().is("#b")).toBe(true)
+        })
+
+        it("closestEnd",()=>{
+            const $=new Query(state({
+                "1":{children:["a","b"],type:"run"},
+                "a":{parent:"1"},
+                "b":{parent:"1"}
+            }))
+            expect($.find('#b').closestEnd("run").is("run")).toBe(true)
+            expect($.find('#b').closestEnd().is("#1")).toBe(true)
+            expect($.find('#a').closestEnd().is("#a")).toBe(true)
+        })
+
         it("findFirst/Last",()=>{
             const $=new Query(state({
                 "1":{type:"paragraph"},

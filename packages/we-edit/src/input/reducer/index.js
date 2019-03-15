@@ -314,7 +314,9 @@ class Reducer extends Base{
 	}
 
 	backspaceParagraph(){
-
+		const {start:{id}}=this.selection
+		const paragraph=this.$(`#${id}`).closest('paragraph').attr('id')
+		this.file.updateNode(this.element(paragraph),{onBackspace:true})
 	}
 
 	clone(keepId){
@@ -466,11 +468,11 @@ class Content extends Reducer{
 		const {start,end}=this.selection
 		if(start.id==end.id && start.at==end.at){
 			if(backspace){
-				if(start.at==0&&this.$(`#${start.id}`).closestStart("paragraph").length){
+				if(start.at==0&&this.$(`#${start.id}`).closestStart("paragraph").is("paragraph")){
 					this.backspaceParagraph()
-					return
+					return this
 				}
-				
+
 				const {id,at}=this.$(`#${start.id}`).prevCursorable(start.at)
 				if(start.id==id && start.at==at)
 					return this

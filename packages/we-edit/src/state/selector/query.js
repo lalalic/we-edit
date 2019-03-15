@@ -424,25 +424,34 @@ export default class Query{
 	}
 
 	closestEnd(to){
+		debugger
 		const top=this.closest(to)
-		const parents=this.parentsUntil(top).add(top)
-		const i=parents.toArray().findIndex(id=>this._$('#'+id).parent().children().last().attr('id')!=id)
-		if(i>0){
-			return parents.eq(i-1)
-		}else{
-			return this
-		}
+		const parents=this.add(this.parentsUntil(top)).add(top)
+		const i=parents.toArray().findIndex(id=>{
+			const parent=this._content.getIn([id,"parent"])
+			if(parent){
+				const children=this._content.getIn([parent,"children"]).toJS()
+				return children[children.length-1]!=id
+			}
+			return false
+		})
+
+		return i==-1 ? parents.last() : parents.eq(i)
 	}
 
 	closestStart(to){
 		const top=this.closest(to)
-		const parents=this.parentsUntil(top).add(top)
-		const i=parents.toArray().findIndex(id=>this._$('#'+id).parent().children().first().attr('id')!=id)
-		if(i>0){
-			return parents.eq(i-1)
-		}else{
-			return this
-		}
+		const parents=this.add(this.parentsUntil(top)).add(top)
+		const i=parents.toArray().findIndex(id=>{
+			const parent=this._content.getIn([id,"parent"])
+			if(parent){
+				const children=this._content.getIn([parent,"children"]).toJS()
+				return children[0]!=id
+			}
+			return false
+		})
+
+		return i==-1 ? parents.last() : parents.eq(i)
 	}
 
 	each(f,context){

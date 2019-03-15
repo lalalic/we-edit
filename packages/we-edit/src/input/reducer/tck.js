@@ -433,7 +433,7 @@ export default function(TypedDocument){
                 expect(reducer.selection).toMatchObject({start:{id:"1_1",at:0},end:{id:"1_1",at:0}})
             })
 
-            fit("image|Text",()=>{
+            it("image|Text",()=>{
                 const {reducer,$query,doc}=test({
                     "1":{type:"paragraph",children:["1_1","1_2"]},
                     "1_1":{type:"image",parent:"1"},
@@ -464,34 +464,9 @@ export default function(TypedDocument){
                     expect(reducer.selection).toMatchObject({start:{id:"1",at:1}})
                     return {id:"2_1",at:0}
                 })
+                reducer.backspaceParagraph=jest.fn()
                 reducer.remove({backspace:true})
-                expect(reducer.$("#2").length).toBe(0)
-                expect(reducer.$("#1").children().toArray()).toMatchObject(["1_1","2_1"])
-                expect(reducer.selection).toMatchObject({start:{id:"2_1",at:0},end:{id:"2_1",at:0}})
-            })
-
-            xit.each([
-                [{id:"2_1",at:0}],
-                [{id:"2",at:0}]
-            ])("paragraph start(indent, numbering, ...)",(cursor, )=>{
-                const {reducer,$query,doc}=test({
-                    "1":{type:"paragraph",children:["1_1"]},
-                    "1_1":{type:"text",children:"text",parent:"1"},
-                    "2":{type:"paragraph",children:["2_1"], props:{indent:{left:10}, numbering:{}}},
-                    "2_1":{type:"text",children:"text",parent:"2"},
-                })
-                reducer.cursorAt(cursor.id,cursor.at)
-                $query.prevCursorable=jest.fn()
-                $query.nextCursorable=jest.fn()
-
-                $query.prevCursorable.mockReturnValueOnce({id:"2",at:0})
-                $query.nextCursorable.mockReturnValueOnce({id:"2_1",at:1})
-                reducer.remove({backspace:true})
-                expect(reducer.$('#2').attr('numbering')).toBe(undefined)
-                reducer.remove({backspace:true})
-                expect(reducer.$('#2').attr('indent').left).toBe(undefined)
-                reducer.remove({backspace:true})
-                expect(reducer.$('#2').length).toBe(0)
+                expect(reducer.backspaceParagraph).toHaveBeenCalled()
             })
         })
 

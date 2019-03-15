@@ -10,6 +10,25 @@ export default class extends Editor{
 		this.got("w:jc").attr("w:val",type)
 	}
 
+	onBackspace(){
+		const pPr=this.node.children("w\\:pPr")
+		let temp
+		if((temp=pPr.find("w\\:numPr")).length>0){
+			temp.remove()
+		}else if((temp=pPr.find("w\\:ind")).length){
+			temp.remove()
+		}else if(this.file.doc.officeDocument
+			.styles(`w\\:style[w\\:styleId="${(temp=pPr.find('w\\:pStyle')).attr("w:val")}"]`)
+			.basest(":has(w\\:numPr,w\\:ind)")
+			.length>0){
+			temp.remove()
+		}else if((temp=this.node.prev()).is("w\\:p")){
+			const target=this.node
+			this.node=temp
+			this.node.append(target.children().not("w\\:pPr"))
+		}
+	}
+
 	numbering(props){
 		const numPr=this.got("w:numPr")
 		if(!props){
