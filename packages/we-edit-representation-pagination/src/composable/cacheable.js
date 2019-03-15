@@ -15,7 +15,7 @@ export default (A,partable)=>class extends A{
         return composed
     }
 
-    clearComposed({changed}){
+    clearComposed({changed,children}){
         if(!changed && this.isAllChildrenComposed()){
             return
         }
@@ -24,6 +24,22 @@ export default (A,partable)=>class extends A{
 
         if(!partable){//keep last Composed for recovering
             this.computed.lastComposed=[]
+        }else if(changed){
+            const next=Children.toArray(children)
+            const last=Children.toArray(this.props.children)
+            const changedIndex=next.findIndex((a, i)=>{
+                if(a.props.changed)
+                    return true
+                const b=last[i]
+                if(!b || a.props.id!=b.props.id)
+                    return true
+            })
+            this.shouldRenderFrom={
+                changedIndex,
+                removedChildren:last.slice( changedIndex==-1 ? next.length : changedIndex)
+                    .map(a=>a.props.id)
+                    .filter(a=>a!==undefined)
+            }
         }
     }
 
@@ -53,11 +69,13 @@ export default (A,partable)=>class extends A{
             }
             const children=Children.toArray(this.props.children)
             if(changed){//remove changed part, and continue compose left
-                const changedIndex=children.findIndex(a=>a.props.changed)
-                if(![-1,0].includes(changedIndex)){
-                    if(this.removeChangedPart(changedIndex)){
-                        return renderFrom(changedIndex)
-                    }
+                const {changedIndex, removedChildren}=this.shouldRenderFrom
+                let canPartRender=true
+                if(removedChildren.length){
+                    canPartRender=this.removeChangedPart(removedChildren)
+                }
+                if(canPartRender){
+                    return renderFrom(changedIndex==-1 ? children.length : changedIndex)
                 }
             }else if(this.computed.lastComposed.length>0){//(!this.isAllChildrenComposed())
                 const lastIndex=this.keepUntilLastAllChildrenComposed()

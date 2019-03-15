@@ -92,6 +92,11 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance,TypedComponen
 	const createElement=createElementFactory(changedContent)
 
 	inputTypeInstance.renderChanged=(node,callback)=>{
+		if(typeof(node)=="function"){
+			callback=node
+			callback($,undefined,changedContent)
+			return
+		}
 		const element=inputTypeInstance.renderNode(node,createElement,TypedComponents)
 		if(callback){
 			callback($,element,changedContent)

@@ -104,7 +104,7 @@ export default ({Document, Container,Frame})=>class extends Component{
 			const children=headerfooters.concat(withoutHeaderFooterChildren(current.props.children))
 			current=React.cloneElement(current,{
 				children,
-				changed:current.props.selfChanged || !!children.find(a=>a.props.changed)
+				changed:current.props.changed || !!children.find(a=>a.props.changed)
 			})
 
 			//first page of section can't be inherited

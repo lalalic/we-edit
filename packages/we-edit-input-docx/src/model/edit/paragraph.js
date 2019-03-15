@@ -26,6 +26,9 @@ export default class extends Editor{
 			const target=this.node
 			this.node=temp
 			this.node.append(target.children().not("w\\:pPr"))
+			this.file.renderChanged($=>{
+				$('#'+target.attr('xxid')).remove()
+			})
 		}
 	}
 

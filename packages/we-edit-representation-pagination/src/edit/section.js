@@ -33,14 +33,7 @@ export default Cacheable(class extends editable(Base,{stoppable:true}){
 		return -1
 	}
 
-	removeChangedPart(changedChildIndex){
-		const children=Children.toArray(this.props.children)
-		const changed=children[changedChildIndex]
-		if(changed.props.id===undefined)
-			return false
-
-		const removedChildren=children.slice(changedChildIndex).map(a=>a.props.id).filter(a=>a!==undefined)
-
+	removeChangedPart(removedChildren){
 		const findChangedContentId=line=>{
 			const id=this.findContentId(line)
 			return (id!==undefined && removedChildren.includes(id))

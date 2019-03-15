@@ -90,16 +90,10 @@ export function createWeDocument(id,content,ModelTypes,lastContent){
 	if(lastContent){
 		let last=lastContent.get(id)
 
-		if(current!=last){
-			changed=true
-		}else if(Array.isArray(children)){
-			changed=!!elChildren.find(({props:{changed}})=>changed)
-		}
+		changed=!current.equals(last)
 
-		if(Array.isArray(children)){
-			selfChanged=last && current.get("props")!=last.get("props")
-		}else{
-			selfChanged=changed
+		if(!changed && Array.isArray(children)){
+			changed=!!elChildren.find(({props:{changed}})=>changed)
 		}
 	}
 
@@ -109,7 +103,6 @@ export function createWeDocument(id,content,ModelTypes,lastContent){
 			{...props}
 			children={elChildren}
 			changed={changed}
-			selfChanged={selfChanged}
 		/>)
 }
 

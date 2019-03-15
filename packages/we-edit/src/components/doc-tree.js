@@ -138,15 +138,20 @@ export default compose(
 
 	static createDocument(content, filter, createNode){
 		const createElement=id=>{
-			let current=content.get(id).toJS()
-			let {type, props, children}=current
-			if(id=="root" || filter(current)){
-				return createNode(
-					id, type, props,
-					Array.isArray(children) ? create4Children(children) : children
-				)
+			if(content.has(id)){
+				let current=content.get(id).toJS()
+				let {type, props, children}=current
+				if(id=="root" || filter(current)){
+					return createNode(
+						id, type, props,
+						Array.isArray(children) ? create4Children(children) : children
+					)
+				}else{
+					return Array.isArray(children) ? create4Children(children) : null
+				}
 			}else{
-				return Array.isArray(children) ? create4Children(children) : null
+				debugger
+				return null
 			}
 		}
 
