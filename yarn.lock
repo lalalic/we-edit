@@ -2267,9 +2267,9 @@ dns-txt@^2.0.2:
   dependencies:
     buffer-indexof "^1.0.0"
 
-docx4js@^3.1.23:
-  version "3.1.23"
-  resolved "https://registry.yarnpkg.com/docx4js/-/docx4js-3.1.23.tgz#445b9043d16b1e7ea103694cd0959c63be864055"
+docx4js@^3.1.24:
+  version "3.1.24"
+  resolved "https://registry.yarnpkg.com/docx4js/-/docx4js-3.1.24.tgz#c38960fbd303027f9ec7a3d24740697f1821f9f0"
   dependencies:
     cfb "^0.12.1"
     cheerio "^0.22.0"
