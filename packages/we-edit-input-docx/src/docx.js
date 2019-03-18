@@ -1,5 +1,6 @@
 import docx4js from "docx4js"
 import Fetchable from "fetchable"
+import {transactifyCheerio} from "we-edit"
 export default class Document extends docx4js{
 	static get URL(){
 		if(!this.__cachedData){
@@ -31,7 +32,47 @@ export default class Document extends docx4js{
 		}
 	}
 
+	startTransaction(){
+		this.officeDocument.content.startTransaction()
+		this.officeDocument.numbering.startTransaction()
+		this.officeDocument.styles.startTransaction()
+	}
+
+	commit(){
+		return {
+			content:this.officeDocument.content.commit(),
+			numbering:this.officeDocument.numbering.commit(),
+			styles:this.officeDocument.styles.commit()
+		}
+	}
+
+	rollback(){
+		this.officeDocument.content.rollback()
+		this.officeDocument.numbering.rollback()
+		this.officeDocument.styles.rollback()
+	}
+
 	static OfficeDocument=class extends docx4js.OfficeDocument{
+		_init(){
+			super._init(...arguments)
+			if(!this.numbering){
+				this.addNumberingPart()
+			}
+
+			const trap={
+				save(action){
+
+				},
+				patch(patches){
+
+				}
+			}
+
+			transactifyCheerio(this.content,trap)
+			transactifyCheerio(this.numbering,trap)
+			transactifyCheerio(this.styles,trap)
+		}
+
 		addNumberingPart(){
 			const rId=this.add(
 				"http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering",

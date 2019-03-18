@@ -146,6 +146,25 @@ export class Editable extends Viewable{
 
 	}
 
+
+	startTransaction(){
+		if(this.doc.transaction){
+			return this.doc.transaction(...arguments)
+		}
+	}
+
+	commit(){
+		if(this.doc.commit){
+			return this.doc.commit(...arguments)
+		}
+	}
+
+	rollback(){
+		if(this.doc.rollback){
+			this.doc.rollback(...arguments)
+		}
+	}
+
 	/**
 	*return:
 	- false: no state change

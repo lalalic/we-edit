@@ -11,7 +11,6 @@
     "office"
   ],
   "dependencies": {
-    "cheerio": "^1.0.0-rc.2",
     "extend": "^3.0.2",
     "fetch-any": "^1.0.0",
     "immutable": "^3.8.1",
@@ -38,6 +37,7 @@
     "ttfjs": "^0.4.0"
   },
   "devDependencies": {
+    "cheerio": "^1.0.0-rc.2",
     "brfs": "^1.4.3",
     "transform-loader": "^0.2.4"
   },

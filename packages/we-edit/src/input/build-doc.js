@@ -103,29 +103,29 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance,TypedComponen
 		}
 		return element
 	}
-	
+
 	try{
-		return inputTypeInstance.transaction((patches)=>{
-			const changed=inputTypeInstance.onChange(changeableState,action)
+		inputTypeInstance.startTransaction()
 
-			if(changed===false){
-				return state
-			}else if(isState(changed)){
-				return changed.remove("_content")
-			}else if(typeof(changed)=="object"){
-				let {selection,updated,undoables}=changed
+		const changed=inputTypeInstance.onChange(changeableState,action)
+		if(changed===false){
+			return state
+		}else if(isState(changed)){
+			state=changed.remove("_content")
+		}else if(typeof(changed)=="object"){
+			historyEntry.changed=patches
+			const {selection,updated}=changed
+			state=(selection ? state.mergeIn(["selection"], selection) : state)
+				.setIn(["content"],changedContent.asImmutable())
+		}else{
+			state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))
+		}
 
-				if(undoables)
-					historyEntry.changed=undoables
-
-				return (selection ? state.mergeIn(["selection"], selection) : state)
-					.setIn(["content"],changedContent.asImmutable())
-			}else{
-				return state.mergeIn(["selection"],reducer.selection(getSelection(state),action))
-			}
-		})
+		historyEntry.patches=
+			inputTypeInstance.commit()
 	}catch(e){
 		inputTypeInstance.rollback()
+	}finally{
 		return state
 	}
 }

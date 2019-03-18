@@ -51,15 +51,17 @@ export default function undoable(reducer){
 			}
 			default:{
 				Object.freeze(action)
-				let entry={
+				const entry={
 					action,
-					selection:getSelection(state)
+					selection:state.get("selection"),
+					content: state.get("content"),
+					patches: null//injected later in reducer, undo patch for doc file
 				}
 				let changedState=reducer(state,action,entry)
 				if(changedState.get("content")!==state.get("content")){
-					let undos=getUndos(state)
+					const undos=getUndos(state)
 					undos.push(entry)
-					let redos=[]
+					const redos=[]
 					changedState=changedState.set('redos',[...redos])
 					changedState=changedState.set('undos',[...undos])
 				}
