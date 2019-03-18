@@ -17,34 +17,38 @@ export default function undoable(reducer){
 	return function(state,action){
 		switch(action.type){
 			case "we-edit/history/CLEAR":{
-				state=state.set('redos',[])
-				state=state.set('undos',[])
 				return state
+					.set('redos',[])
+					.set('undos',[])
 			}
 			case "we-edit/history/UNDO":{
-				let undos=getUndos(state)
+				const undos=getUndos(state)
 				if(undos.length){
-					let entry=undos.pop()
-					let changedState=reducer(state,ACTION.undo(entry),{})
-					let redos=getRedos(state)
+					const redos=getRedos(state)
+					const entry=undos.pop()
+					const {selection,content,action,patches}=entry
+					const doc=state.get("doc")
+					doc.rollback(patches)
 					redos.push(entry)
-					changedState=changedState.set('redos',[...redos])
-					changedState=changedState.set('undos',[...undos])
-					return changedState
+					return state
+						.set("content",content)
+						.set("selection",selection)
+						.set('redos',[...redos])
+						.set('undos',[...undos])
 				}else{
 					return state
 				}
 			}
 			case "we-edit/history/REDO":{
-				let redos=getRedos(state)
+				const redos=getRedos(state)
 				if(redos.length){
-					let entry=redos.pop()
-					let changedState=reducer(state.mergeDeepIn(["selection"],entry.selection),entry.action,{})
-					let undos=getUndos(state)
+					const entry=redos.pop()
+					const {selection,action}=entry
+					const undos=getUndos(state)
 					undos.push(entry)
-					changedState=changedState.set('redos',[...redos])
-					changedState=changedState.set('undos',[...undos])
-					return changedState
+					return reducer(state.set("selection",selection),action,{})
+						.set('redos',[...redos])
+						.set('undos',[...undos])
 				}else{
 					return state
 				}

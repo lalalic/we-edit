@@ -46,10 +46,10 @@ export default class Document extends docx4js{
 		}
 	}
 
-	rollback(){
-		this.officeDocument.content.rollback()
-		this.officeDocument.numbering.rollback()
-		this.officeDocument.styles.rollback()
+	rollback({content,numbering,styles}={}){
+		this.officeDocument.content.rollback(content)
+		this.officeDocument.numbering.rollback(numbering)
+		this.officeDocument.styles.rollback(styles)
 	}
 
 	static OfficeDocument=class extends docx4js.OfficeDocument{
@@ -61,10 +61,17 @@ export default class Document extends docx4js{
 
 			const trap={
 				save(action){
-
+					return [{op:"replaceWith",$:this.closest('[xxid]').clone()}]
 				},
-				patch(patches){
-
+				patch(patches=[]){
+					patches.forEach(({op,$})=>{
+						const root=$.root()
+						$.each(i=>{
+							const $this=$.eq(i)
+							const id=$this.attr('xxid')
+							root.find(`[xxid="${id}"]`).replaceWith($this)
+						})
+					})
 				}
 			}
 

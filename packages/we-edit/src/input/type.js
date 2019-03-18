@@ -149,7 +149,7 @@ export class Editable extends Viewable{
 
 	startTransaction(){
 		if(this.doc.transaction){
-			return this.doc.transaction(...arguments)
+			return this.doc.startTransaction(...arguments)
 		}
 	}
 
@@ -201,8 +201,6 @@ export class Editable extends Viewable{
 				return reducer.move(payload).state()
 			case "we-edit/history/UNDO":
 				return reducer.undo(payload).state()
-			case "we-edit/history/REDO":
-				return reducer.redo(payload).state()
 		}
 		return true
 	}

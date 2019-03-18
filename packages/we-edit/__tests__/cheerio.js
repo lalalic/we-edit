@@ -19,11 +19,12 @@ describe("transactify cheerio",()=>{
 
     it("transaction functions",()=>{
         const $=transactify(load())
-        expect($.startTransaction&&$.commit&&$.rollback&&$.patch).toBeTruthy()
+        expect($.startTransaction&&$.commit&&$.rollback).toBeTruthy()
     })
 
     it('save only within transaction',()=>{
-        const $=transactify(load())
+		const trap={}
+        const $=transactify(load(),trap)
         expect($('div').save).toBeUndefined()
 
         $.startTransaction()
@@ -33,7 +34,7 @@ describe("transactify cheerio",()=>{
 
         $.startTransaction()
         expect($('div').save).toBeDefined()
-        const patch=$.patch=jest.fn()
+        const patch=trap.patch=jest.fn()
         $.rollback()
         expect(patch).toHaveBeenCalled()
         expect($('div').save).toBeUndefined()
@@ -48,7 +49,7 @@ describe("transactify cheerio",()=>{
         const trap={}
         const $=transactify(load(),trap)
         const $div=$('div')
-        $.startTransaction()
+		$.startTransaction()
         trap.save=jest.fn()
         trap.patch=jest.fn()
 
@@ -57,7 +58,22 @@ describe("transactify cheerio",()=>{
 
         $('div').save()
         expect(trap.save).toHaveBeenCalledTimes(2)
-        $.patch()
-        expect(trap.patch).toHaveBeenCalled()
     })
+	
+	it("manipuating still works",()=>{
+		const trap={}
+		const $=transactify(load(),trap)
+		const save=trap.save=jest.fn()
+        const $div=$('div')
+		$div.attr('x',"1")
+		expect($div.attr('x')).toBe("1")
+		expect(save).not.toHaveBeenCalled()
+		
+		$.startTransaction()
+		$div.attr('x',"2")
+		expect($div.attr('x')).toBe("2")
+		expect(save).toHaveBeenCalledTimes(1)
+		
+		
+	})
 })

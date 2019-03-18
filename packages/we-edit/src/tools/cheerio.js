@@ -104,18 +104,11 @@ export default function($, trap={}){
             return patches.splice(0,patches.length)
         },
 
-        rollback(){
+        rollback(myPatches){
             inTransaction=false
-            $.patch(patches)
-            return patches.splice(0,patches.length)
-        },
-
-        patch(patches){
-            if(!trap.patch){
-                console.warn(`patching has no implementation`)
-                return
-            }
-            return trap.patch.call($, ...arguments)
+			myPatches=myPatches||patches
+            trap.patch.call($, myPatches)
+            return myPatches.splice(0,myPatches.length)
         }
     })
 }
