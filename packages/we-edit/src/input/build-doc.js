@@ -103,28 +103,31 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance,TypedComponen
 		}
 		return element
 	}
+	
+	try{
+		return inputTypeInstance.transaction((patches)=>{
+			const changed=inputTypeInstance.onChange(changeableState,action)
 
-	const changed=inputTypeInstance.onChange(changeableState,action)
+			if(changed===false){
+				return state
+			}else if(isState(changed)){
+				return changed.remove("_content")
+			}else if(typeof(changed)=="object"){
+				let {selection,updated,undoables}=changed
 
-	if(changed===false){
+				if(undoables)
+					historyEntry.changed=undoables
+
+				return (selection ? state.mergeIn(["selection"], selection) : state)
+					.setIn(["content"],changedContent.asImmutable())
+			}else{
+				return state.mergeIn(["selection"],reducer.selection(getSelection(state),action))
+			}
+		})
+	}catch(e){
+		inputTypeInstance.rollback()
 		return state
-	}else if(isState(changed)){
-		return changed.remove("_content")
-	}else if(typeof(changed)=="object"){
-		let {selection,updated,undoables}=changed
-
-		if(selection)
-			state=state.mergeIn(["selection"], selection)
-
-		if(undoables)
-			historyEntry.changed=undoables
-
-		state=state.setIn(["content"],changedContent.asImmutable())
-	}else{
-		state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))
 	}
-
-	return state
 }
 /*
 the builder to create a factory function
