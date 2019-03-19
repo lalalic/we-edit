@@ -28,16 +28,16 @@ export const SizeIconButton=compose(
 	}
 	if(!padding)
 		padding=2
-		
+
 	if(size){
 		style.width=style.height=size
 		iconStyle.width=iconStyle.height=size-padding*2
 		style.padding=padding
 	}
-	
+
 	style={...style, ...styles[status]}
-	
-	return <IconButton {...props} {...{style,iconStyle}} tooltip={hint}/>
+
+	return <IconButton {...props} {...{style,iconStyle, disabled}} tooltip={hint}/>
 })
 
 export default SizeIconButton

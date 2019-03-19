@@ -36,6 +36,7 @@ export default class SerializableDocx extends EditableDocx{
 
 		if(node.length!=1){
 			debugger
+			throw new Error(`can't find node[id=${uid}]`)
 		}
 		return node
 	}

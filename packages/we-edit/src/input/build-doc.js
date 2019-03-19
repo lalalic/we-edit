@@ -113,7 +113,6 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance,TypedComponen
 		}else if(isState(changed)){
 			state=changed.remove("_content")
 		}else if(typeof(changed)=="object"){
-			historyEntry.changed=patches
 			const {selection,updated}=changed
 			state=(selection ? state.mergeIn(["selection"], selection) : state)
 				.setIn(["content"],changedContent.asImmutable())
@@ -124,6 +123,7 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance,TypedComponen
 		historyEntry.patches=
 			inputTypeInstance.commit()
 	}catch(e){
+		console.error(e)
 		inputTypeInstance.rollback()
 	}finally{
 		return state

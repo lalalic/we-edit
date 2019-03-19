@@ -148,7 +148,7 @@ export class Editable extends Viewable{
 
 
 	startTransaction(){
-		if(this.doc.transaction){
+		if(this.doc.startTransaction){
 			return this.doc.startTransaction(...arguments)
 		}
 	}

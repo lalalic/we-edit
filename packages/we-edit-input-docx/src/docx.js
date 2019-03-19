@@ -59,25 +59,9 @@ export default class Document extends docx4js{
 				this.addNumberingPart()
 			}
 
-			const trap={
-				save(action){
-					return [{op:"replaceWith",$:this.closest('[xxid]').clone()}]
-				},
-				patch(patches=[]){
-					patches.forEach(({op,$})=>{
-						const root=$.root()
-						$.each(i=>{
-							const $this=$.eq(i)
-							const id=$this.attr('xxid')
-							root.find(`[xxid="${id}"]`).replaceWith($this)
-						})
-					})
-				}
-			}
-
-			transactifyCheerio(this.content,trap)
-			transactifyCheerio(this.numbering,trap)
-			transactifyCheerio(this.styles,trap)
+			transactifyCheerio(this.content)
+			transactifyCheerio(this.numbering)
+			transactifyCheerio(this.styles)
 		}
 
 		addNumberingPart(){
