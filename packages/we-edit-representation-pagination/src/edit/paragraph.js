@@ -134,7 +134,7 @@ class Positionable extends Editable{
 
 	contentRect(i){
 		const line=this.computed.composed[i]
-		const {indent:{left,firstLine=0}, numbering}=this.props
+		const {indent:{left=0,firstLine=0}, numbering}=this.props
 		return {
 			left:left+(i==0 ? (numbering ? 0 : firstLine) : 0),
 			top:0,

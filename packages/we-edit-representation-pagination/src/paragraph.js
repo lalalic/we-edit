@@ -247,8 +247,9 @@ export default class Paragraph extends Super{
 	}
 
 	createComposed2Parent(line,last){
-		const {height, width, children, anchor,currentX:contentWidth,...others}=line
+		var {height, width, children, anchor,currentX,...others}=line
 		const content=[...children]
+		let contentWidth=currentX
         let {
 			spacing:{lineHeight="100%",top=0, bottom=0},
 			indent:{left=0,right=0,firstLine=0},
@@ -266,7 +267,10 @@ export default class Paragraph extends Super{
             contentX+=firstLine
 
 			if(this.props.numbering){
-				content.unshift(this.getNumberingAtom())
+				const numbering=this.getNumberingAtom()
+				content.unshift(numbering)
+				contentWidth+=numbering.props.width
+				width+=numbering.props.width
 			}
         }
 

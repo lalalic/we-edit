@@ -218,7 +218,6 @@ export default function($, trap=DefaultTrap){
                 case "attr":
                     return function(){
                         if(arguments.length==2){
-                            debugger
                             save(ctx, key, ...arguments)
                         }
                         return got.call(ctx,...arguments)

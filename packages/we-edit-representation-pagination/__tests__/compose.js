@@ -133,8 +133,8 @@ describe.each([
 
 		describe("align",()=>{
 			const LineWidth=20
-			const align=(align,lineWidth=LineWidth)=>{
-				let lines=test(lineWidth,undefined,undefined,align)
+			const align=(align,lineWidth=LineWidth,text)=>{
+				let lines=test(lineWidth,undefined,undefined,align,text)
 				const dom=lines.dom
 				lines=lines.map(line=>line.props.children)
 				expect(lines.length>0).toBe(true)
@@ -161,6 +161,17 @@ describe.each([
 				const story=new ReactQuery(line).find(".story")
 				expect(story.children().length).toBe(1)
 				expect(story.children().eq(0).attr('x')).toBe((LineWidth-TEXT.length)/2)
+			})
+
+			it("justify: ^hello world$, last line not justify",()=>{
+				const [line,last]=align("justify", 12, "hello world cool stuff")
+				const story=new ReactQuery(line).find(".story")
+				expect(story.children().length).toBe(4)
+				expect(story.children().eq(0).attr('x')).toBe(0)
+				expect(story.children().eq(1).attr('x')).toBe(5)
+				expect(story.children().eq(2).attr('x')).toBe(12-5)
+				//last line not justify
+				expect(new ReactQuery(last).find(".story").children().length).toBe(1)
 			})
 
 			describe("<Text>  hello  world  </Text>",()=>{
@@ -255,6 +266,66 @@ describe.each([
 
 				expect([label.first.get(0),...label.parents].reduce((Y,{props:{y=0}})=>Y+y,0))
 					.toBe([text.first.get(0),...text.parents].reduce((Y,{props:{y=0}})=>Y+y,0))
+			})
+
+			describe("align", ()=>{
+				const LineWidth=20
+				const align=(align,lineWidth=LineWidth,text,numbering={label:'*', style:{fonts:"arial",size:10}})=>{
+					let lines=test(lineWidth,undefined,{firstLine:-2},align,text,numbering)
+					const dom=lines.dom
+					lines=lines.map(line=>line.props.children)
+					expect(lines.length>0).toBe(true)
+					return Object.assign(lines,{dom})
+				}
+				it("left",()=>{
+					[align(),align("left")].forEach(([line])=>{
+						const story=new ReactQuery(line).find(".story")
+						expect(story.children().length).toBe(1)
+						expect(story.children().eq(0).attr('x')).toBe(0)
+					})
+				})
+
+				it("right",()=>{
+					const [line]=align("right")
+					const $line=new ReactQuery(line)
+					const numbering=$line.findFirstAndParents(".numbering")
+					expect(numbering.first.length).toBe(1)
+					expect([numbering.first.get(0), ...numbering.parents].reduce((X,{props:{x=0}})=>X+x,0)).toBe(LineWidth-TEXT.length-2)
+
+					const text=$line.findLastAndParents(`[data-type="text"]`)
+					expect(text.last.length).toBe(1)
+					const len=text.last.attr("children").length
+					expect([text.last.get(0), ...text.parents].reduce((X,{props:{x=0}})=>X+x,0)).toBe(LineWidth-len)
+
+				})
+
+				xit("center",()=>{
+					const [line]=align("center")
+					const $line=new ReactQuery(line)
+					const numbering=$line.findFirstAndParents(".numbering")
+					expect(numbering.first.length).toBe(1)
+					expect([numbering.first.get(0), ...numbering.parents].reduce((X,{props:{x=0}})=>X+x,0)).toBe((LineWidth-TEXT.length-2)/2)
+
+					const text=$line.findLastAndParents(`[data-type="text"]`)
+					expect(text.last.length).toBe(1)
+					const len=text.last.attr("children").length
+					expect([text.last.get(0), ...text.parents].reduce((X,{props:{x=0}})=>X+x,0)).toBe(LineWidth-len)
+				})
+
+				xit.each([[12], [14], [15]])("justify with line width %d",(lineWidth)=>{
+					const [line,last]=align("justify", lineWidth, "hello world cool stuff")
+					expect(!!last).toBe(true)
+					const story=new ReactQuery(line).find(".story")
+
+					expect(story.children().length).toBe(5)
+					expect(story.children().eq(0).attr('x')).toBe(0)//*
+					expect(story.children().eq(1).attr('x')).toBe(2)//hello
+					expect(story.children().eq(2).attr('x')).toBe(2+5)//whitespace
+					expect(story.children().eq(3).attr('x')).toBe(lineWidth-5)//world
+					expect(story.children().eq(4).attr('x')).toBe(lineWidth)//whitesapce
+					//last line not justify
+					expect(new ReactQuery(last).find(".story").children().length).toBe(1)
+				})
 			})
 		})
 	})
