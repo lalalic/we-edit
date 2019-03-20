@@ -108,7 +108,6 @@ describe("positioning",()=>{
                 doc,
                 responsible,
                 get(id){
-                    debugger
                     return doc.getComposer(id)
                 }
             }
@@ -1125,10 +1124,45 @@ describe("positioning",()=>{
             expect(doc.getRangeRects({id:"0",at:2},{id:"1",at:1})).toMatchObject([{left:2+2,top:0,right:5+2,bottom:10}])
         })
 
+        it("paragraph with indent&firstLine",()=>{
+            const doc=test(<Paragraph id={"1"} indent={{left:2, firstLine:2}}><Text id={"0"}>text</Text></Paragraph>)
+            expect(doc.getRangeRects({id:"1",at:0},{id:"1",at:1})).toMatchObject([{left:0+2+2,top:0,right:5+2+2,bottom:10}])
+            expect(doc.getRangeRects({id:"0",at:2},{id:"1",at:1})).toMatchObject([{left:2+2+2,top:0,right:5+2+2,bottom:10}])
+        })
+
         it("paragraph with indent in second page",()=>{
             const doc=test(<Paragraph id={"1"} indent={{left:2}}><Text id={"0"}>text</Text></Paragraph>, {x:10,y:20})
             expect(doc.getRangeRects({id:"1",at:0},{id:"1",at:1})).toMatchObject([{left:10+0+2,top:20+0,right:10+5+2,bottom:20+10}])
             expect(doc.getRangeRects({id:"0",at:2},{id:"1",at:1})).toMatchObject([{left:10+2+2,top:20+0,right:10+5+2,bottom:20+10}])
+        })
+
+        it("paragraph with indent, second line should always starts from indent",()=>{
+            const doc=test(
+                <Paragraph id={`${++uuid}`} indent={{left:9}}>
+                    <Text id="0">hello world cool</Text>
+                </Paragraph>
+            ,{x:0,y:0})
+            const rects=doc.getRangeRects({id:"0",at:1},{id:"0",at:13})
+            expect(rects.length).toBe(2)
+            expect(rects[0]).toMatchObject({left:9+1,right:9+12})
+            expect(rects[1]).toMatchObject({left:9,right:9+1})
+        })
+
+        it("paragraph with numbering, first line should not start from numbering label",()=>{
+            const doc=test(
+                <Paragraph id={`${++uuid}`}
+                    numbering={{
+                        style:{fonts:"arial",size:10},
+                        label:'*'
+                    }}
+                    indent={{left:9, firstLine:-5}}>
+                    <Text id="0">hello world cool</Text>
+                </Paragraph>
+            ,{x:0,y:0})
+            const rects=doc.getRangeRects({id:"0",at:1},{id:"0",at:13})
+            expect(rects.length).toBe(2)
+            expect(rects[0]).toMatchObject({left:9+1,right:9+12})
+            expect(rects[1]).toMatchObject({left:9,right:9+1})
         })
     })
 
@@ -1170,6 +1204,20 @@ describe("positioning",()=>{
 			expect(around).toHaveLastReturnedWith({id:"3",at:1})
 
 		})
+
+        it("ignore when out of range",()=>{
+            const doc=test(
+				<Paragraph id={"1"}>
+					<Text id={"0"}>text</Text>
+				</Paragraph>
+			)
+            const around=jest.spyOn(doc.responsible.positioning,"around")
+            doc.click(1000,1000)
+            expect(around).toHaveLastReturnedWith({})
+
+            doc.click(-1000,-1000)
+            expect(around).toHaveLastReturnedWith({})
+        })
 
 	})
 })

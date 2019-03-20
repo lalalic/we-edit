@@ -116,9 +116,13 @@ export default Cacheable(class extends editable(Base){
 
 	lineRect(line){
         line=this.lines[line]
-		const left=this.columns.find(a=>a.children.includes(line)).x
-		const top=this.lineY(line)-line.props.height
-		return {left,top,width:line.props.width,height:line.props.height}
+        const p=new ReactQuery(line).findFirst(`[data-type="paragraph"]`)
+        const rect=this.context.getComposer(p.attr('data-content'))
+                                .contentRect(p.attr("pagination").i-1)
+        rect.left=this.columns.find(a=>a.children.includes(line)).x+rect.left
+        rect.height=line.props.height
+        rect.top=this.lineY(line)-rect.height
+        return rect
 	}
 
 	removeFrom(lineIndex){

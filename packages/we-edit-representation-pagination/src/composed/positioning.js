@@ -131,8 +131,7 @@ class ReactPositioning extends Positioning{
             })
             return {page, x:x-xy.x, y:y-xy.y}
         })();
-
-        return page.positionFromPoint(x,y)
+        return page ? page.positionFromPoint(x,y) : {}
     }
 
     extendSelection(start, end){
@@ -166,7 +165,7 @@ class ReactPositioning extends Positioning{
             if(end.at==1){
                 const endComposer=this.getComposer(end.id)
                 if(endComposer.getComposeType()=="paragraph"){
-                    rects[rects.length-1].right+=endComposer.enderWidth    
+                    rects[rects.length-1].right+=endComposer.enderWidth
                 }
             }
 
