@@ -108,6 +108,7 @@ describe("reduce docx",()=>{
         constructor(content,_content, {immutable, $}){
             super()
             this.doc=doc.clone()
+            this.doc.officeDocument.content("w\\:document").attr('xxid','root')
             const body=this.doc.officeDocument.content("w\\:body")
             content=content.toJS()
             content.root.children.reverse()
