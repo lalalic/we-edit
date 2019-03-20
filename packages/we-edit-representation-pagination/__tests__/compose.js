@@ -271,7 +271,7 @@ describe.each([
 			describe("align", ()=>{
 				const LineWidth=20
 				const align=(align,lineWidth=LineWidth,text,numbering={label:'*', style:{fonts:"arial",size:10}})=>{
-					let lines=test(lineWidth,undefined,{firstLine:-2},align,text,numbering)
+					let lines=test(lineWidth,undefined,{left:2,firstLine:-2},align,text,numbering)
 					const dom=lines.dom
 					lines=lines.map(line=>line.props.children)
 					expect(lines.length>0).toBe(true)
@@ -290,33 +290,49 @@ describe.each([
 					const $line=new ReactQuery(line)
 					const numbering=$line.findFirstAndParents(".numbering")
 					expect(numbering.first.length).toBe(1)
-					expect([numbering.first.get(0), ...numbering.parents].reduce((X,{props:{x=0}})=>X+x,0)).toBe(LineWidth-TEXT.length-2)
+					expect([numbering.first.get(0), ...numbering.parents]
+						.reduce((X,{props:{x=0}})=>X+x,0))
+						.toBe(LineWidth-TEXT.length-2)
 
 					const text=$line.findLastAndParents(`[data-type="text"]`)
 					expect(text.last.length).toBe(1)
 					const len=text.last.attr("children").length
-					expect([text.last.get(0), ...text.parents].reduce((X,{props:{x=0}})=>X+x,0)).toBe(LineWidth-len)
+					expect([text.last.get(0), ...text.parents]
+						.reduce((X,{props:{x=0}})=>X+x,0))
+						.toBe(LineWidth-len)
 
 				})
 
-				xit("center",()=>{
+				it("center",()=>{
 					const [line]=align("center")
 					const $line=new ReactQuery(line)
 					const numbering=$line.findFirstAndParents(".numbering")
 					expect(numbering.first.length).toBe(1)
-					expect([numbering.first.get(0), ...numbering.parents].reduce((X,{props:{x=0}})=>X+x,0)).toBe((LineWidth-TEXT.length-2)/2)
+					const leftSpace=(LineWidth-TEXT.length-2)/2
+					expect([numbering.first.get(0), ...numbering.parents]
+						.reduce((X,{props:{x=0}})=>X+x,0))
+						.toBe(leftSpace)
 
 					const text=$line.findLastAndParents(`[data-type="text"]`)
 					expect(text.last.length).toBe(1)
 					const len=text.last.attr("children").length
-					expect([text.last.get(0), ...text.parents].reduce((X,{props:{x=0}})=>X+x,0)).toBe(LineWidth-len)
+					expect([text.last.get(0), ...text.parents]
+						.reduce((X,{props:{x=0}})=>X+x,0))
+						.toBe(LineWidth-leftSpace-len)
 				})
 
-				xit.each([[12], [14], [15]])("justify with line width %d",(lineWidth)=>{
+				it.each([
+					[14], 
+					[15], 
+					[16]
+					])("justify with line width %d",(lineWidth)=>{
 					const [line,last]=align("justify", lineWidth, "hello world cool stuff")
 					expect(!!last).toBe(true)
 					const story=new ReactQuery(line).find(".story")
-
+					expect(story.find(`[data-type="text"]`)
+						.toArray()
+						.map(a=>a.props.children)
+						.join("")).toMatch(/^hello.world.$/)
 					expect(story.children().length).toBe(5)
 					expect(story.children().eq(0).attr('x')).toBe(0)//*
 					expect(story.children().eq(1).attr('x')).toBe(2)//hello
