@@ -217,7 +217,7 @@ describe("positioning",()=>{
 					const p=render(<Paragraph id={"1"}><Text id={"0"}>text</Text></Paragraph>)
 						.get("0")
 						.nextCursorable("0",3)
-					expect(p).toEqual({id:"1",at:1})
+					expect(p).toEqual({id:"0",at:4})
 				})
 
 				it("<paragraph>|image</paragraph>",()=>{
@@ -247,6 +247,7 @@ describe("positioning",()=>{
                         }
                     })
 					expect(doc.get("-1").nextCursorable("-1",1)).toMatchObject({id:"-3",at:0})
+					expect(doc.get("0").nextCursorable("0",4)).toMatchObject({id:"-3",at:0})
 				})
 
                 it("tex|t<AnchorImage/>text",()=>{
@@ -368,6 +369,7 @@ describe("positioning",()=>{
                             </Table>
                         )
                         expect(doc.get("-0").nextCursorable("-0",1)).toMatchObject({id:"1",at:0})
+						expect(doc.get("0").nextCursorable("0",4)).toMatchObject({id:"1",at:0})
                     })
                     it("Row->Row",()=>{
                         const doc=render(
@@ -550,7 +552,7 @@ describe("positioning",()=>{
                 })
 
                 describe("table",()=>{
-                    const prevParagraphId="-1"
+                    const prevParagraphId="-10xc"
                     beforeEach(()=>{
                         Paragraph.prototype.query=jest.fn(()=>{
                             return {
@@ -640,14 +642,21 @@ describe("positioning",()=>{
                                         </Paragraph>
                                     </Cell>
                                     <Cell id={uuid++}>
-                                        <Paragraph id={uuid++}>
-                                            <Text id={"1"}>text</Text>
+                                        <Paragraph id={"-1"}>
+                                            <Container id="-2">
+												<Text id={"1"}>text</Text>
+											</Container>
                                         </Paragraph>
                                     </Cell>
                                 </Row>
                             </Table>
                         )
-                        expect(doc.get("1").prevCursorable("1",0)).toMatchObject({id:prevParagraphId,at:1})
+                        expect(doc.get("1").prevCursorable("1",0))
+							.toMatchObject({id:prevParagraphId,at:1})
+						expect(doc.get("-1").prevCursorable("-1",0))
+							.toMatchObject({id:prevParagraphId,at:1})
+						expect(doc.get("-2").prevCursorable("-2",0))
+							.toMatchObject({id:prevParagraphId,at:1})
                     })
                     it("Row->Row",()=>{
                         const doc=render(

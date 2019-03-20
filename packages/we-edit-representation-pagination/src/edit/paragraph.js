@@ -298,7 +298,7 @@ class Navigatable extends Positionable{
 		}
 	}
 
-	nextCursorable(id,at){
+	nextCursorable(id,at,iLoop=0){
 		const {atoms}=this.computed
 		const resolve2FirstAtom=(success,failure)=>{
 			const cursorable=new ReactQuery(atoms.filter(a=>!a.props.anchor)).findFirst(Cursorable)
@@ -325,12 +325,22 @@ class Navigatable extends Positionable{
 			}
 		}else{
 			const i=atoms.findLastIndex(a=>new ReactQuery(a).findLast(`[data-content="${id}"]`).length>0)
-			const cursorable=new ReactQuery(atoms.slice(i+1).filter(a=>!a.props.anchor)).findFirst(Cursorable)
+			const cursorable=new ReactQuery(atoms.slice(i+1).filter(a=>!a.props.anchor))
+				.findFirst(Cursorable)
 
 			if(cursorable.length){
 				return {id:cursorable.attr("data-content"),at:0}
 			}else{
-				return {id:this.props.id, at:1}
+				const target=this.context.getComposer(id)
+				if(target.getComposeType()=="text"){
+					if(target.text.length-1==at){
+						return {id,at:at+1}
+					}
+				}else if(at==0){
+					return {id:this.props.id, at:1}
+				}
+				
+				return this.nextCursorable(this.props.id, 1)
 			}
 		}
 		return super.nextCursorable(...arguments)
