@@ -162,7 +162,7 @@ describe("transactify cheerio",()=>{
             expect($input.val()).toBe(value)
         })
 
-        it("append, prepend, after, before",()=>{
+        it("append, prepend",()=>{
             const $=transactify(load())
             var patches=null
 
@@ -181,22 +181,74 @@ describe("transactify cheerio",()=>{
             expect(patches.length).toBe(1)
             $.rollback(patches)
             expect($('div b').length).toBe(0)
+        })
+
+        it("appendTo, prependTo",()=>{
+            const $=transactify(load())
+            var patches=null
+            const html=$.html()
 
             $.startTransaction()
-            $('ul').after("<b/>")
+            $("<b/>").appendTo($('ul'))
+            expect($('ul').contents().last().is("b")).toBe(true)
+            patches=$.commit()
+            expect(patches.length).toBe(1)
+            $.rollback(patches)
+            expect($.html()).toBe(html)
+
+            $.startTransaction()
+            $("<b/>").prependTo($('ul'))
+            expect($('ul').contents().first().is("b")).toBe(true)
+            patches=$.commit()
+            expect(patches.length).toBe(1)
+            $.rollback(patches)
+            expect($.html()).toBe(html)
+        })
+
+        it("after, before",()=>{
+            const $=transactify(load())
+            var patches=null
+            const html=$.html()
+
+            $.startTransaction()
+            $('ul').after("<b/>","<b/>")
+            expect($('ul').next().next().is("b")).toBe(true)
+            patches=$.commit()
+            expect(patches.length).toBe(1)
+            $.rollback(patches)
+            expect($('div b').length).toBe(0)
+            expect($.html()).toBe(html)
+
+            $.startTransaction()
+            $('ul').before("<b/>","<b/>")
+            expect($('ul').prev().prev().is("b")).toBe(true)
+            patches=$.commit()
+            expect(patches.length).toBe(1)
+            $.rollback(patches)
+            expect($.html()).toBe(html)
+        })
+
+        it("insertAfter, insertBefore",()=>{
+            const $=transactify(load())
+            var patches=null
+            const html=$.html()
+
+            $.startTransaction()
+            $("<b/>").insertAfter($('ul'))
             expect($('ul').next().is("b")).toBe(true)
             patches=$.commit()
             expect(patches.length).toBe(1)
             $.rollback(patches)
             expect($('div b').length).toBe(0)
+            expect($.html()).toBe(html)
 
             $.startTransaction()
-            $('ul').before("<b/>")
+            $("<b/>").insertBefore($('ul'))
             expect($('ul').prev().is("b")).toBe(true)
             patches=$.commit()
             expect(patches.length).toBe(1)
             $.rollback(patches)
-            expect($('div b').length).toBe(0)
+            expect($.html()).toBe(html)
         })
 
         it("replaceWith, empty, html, wrap",()=>{
@@ -283,13 +335,6 @@ describe("transactify cheerio",()=>{
             $.rollback(patches)
             expect($('div').html()).toBe(html)
         })
-
-        xit("insertAfter, insertBefore, appendTo, prependTo",()=>{
-
-        })
-
-        
-
     })
 
 

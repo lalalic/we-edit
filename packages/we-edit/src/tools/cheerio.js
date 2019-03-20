@@ -86,33 +86,43 @@ const DefaultTrap={
     },
 
     appendPatch(value){
-        return this.map((i,el)=>{
-            return {op:"remove",path:path(el,[(el.children||[]).length])}
-        }).get()
+        return this.map((i,el)=>({op:"splice",path:path(el,[(el.children||[]).length])})).get()
     },
 
-    removeApplyPatch({path}){
-        this.path(path).remove()
+    spliceApplyPatch({path, from=path.pop(), value:to}){
+        const target=this.path(path).contents()
+        target.slice(from,typeof(to)=="function" ? to(target.length) : to)
+            .remove()
     },
 
     prependPatch(){
-        return this.map((i,el)=>{
-            return {op:"remove",path:path(el,[0])}
-        }).get()
+        return this.map((i,el)=>({op:"splice",path:path(el,[0]), value:-(el.children||[]).length})).get()
     },
 
     afterPatch(){
         return this.map((i,el)=>{
             const route=path(el)
-            route[route.length-1]=route[route.length-1]+1
-            return {op:"remove",path:route}
+            const from=route[route.length-1]=route[route.length-1]+1
+            const length=this.eq(i).parent().contents().length
+            return {op:"splice",path:route, value:postLength=>from+postLength-length}
         }).get()
     },
 
     beforePatch(){
         return this.map((i,el)=>{
-            return {op:"remove",path:path(el)}
+            const route=path(el)
+            const from=route[route.length-1]
+            const length=this.eq(i).parent().contents().length
+            return {op:"splice",path:route, value:postLength=>from+postLength-length}
         }).get()
+    },
+
+    insertAfterPatch(target){
+        return DefaultTrap.afterPatch.bind(this.constructor(target))()
+    },
+
+    insertBeforePatch(target){
+        return DefaultTrap.beforePatch.bind(this.constructor(target))()
     },
 
     replaceWithPatch(){
@@ -133,7 +143,7 @@ const DefaultTrap={
         return DefaultTrap.replaceWithPatch.bind(this)()
     },
 
-    wrapPatch(){
+    wrapPatch(originalParents){
         return DefaultTrap.replaceWithPatch.bind(this)()
     },
 
@@ -159,8 +169,9 @@ const DefaultTrap={
 export default function($, trap=DefaultTrap){
     const patches=[]
     var inTransaction=false
-
+    const removed=el=>el.parent ? removed(el.parent) : $.root().contents().index(el)==-1
     const save=(ctx, op, ...args)=>{
+        ctx=ctx.filter((i,el)=>!removed(el))//don't record patch for removed elements
         var patch=null
         if(trap[`${op}Patch`]){
             patch=trap[`${op}Patch`].call(ctx, ...args)||[]
@@ -207,58 +218,49 @@ export default function($, trap=DefaultTrap){
                 case "attr":
                     return function(){
                         if(arguments.length==2){
+                            debugger
                             save(ctx, key, ...arguments)
                         }
                         return got.call(ctx,...arguments)
                     }
+                //index would not be changed, so path would not be changed
                 case "text":
                 case "val":
-                    return function(){
-                        if(arguments.length==1){
-                            save(ctx, key,...arguments)
-                        }
-                        return got.call(ctx,...arguments)
-                    }
                 case 'removeAttr':
-                case 'removeClass': case 'addClass':case 'toggleClass':
-                return function(){
-                    save(ctx, key,...arguments)
-                    return got.call(ctx, ...arguments)
-                }
+                case 'removeClass':
+                case 'addClass':
+                case 'toggleClass':
+                case 'html':
+                case 'wrap':
+                case 'replaceWith':
                 case 'append':
                 case 'prepend':
                 case 'after':
                 case 'before':
-                case 'replaceWith':
+                case 'insertAfter':
+                case 'insertBefore':
+                    return function(){
+                        if(arguments.length){
+                            save(ctx, key,...arguments)
+                        }
+                        return got.call(ctx, ...arguments)
+                    }
                 case 'empty':
-                case 'html':
-                case 'wrap':
+                    return function(){
+                        save(ctx, key,...arguments)
+                        return got.call(ctx, ...arguments)
+                    }
                 case 'remove':
                     return function(){
-                        return ctx.map((i,el)=>{
-                            const $el=$(el)
-                            save($el, key,...arguments)
-                            return got.call($el, ...arguments)
-                        })
-                    }
-                case 'appendTo':
-                    return function(target){
-                        $(target).append(ctx)
-                        return ctx
-                    }
-                case 'prependTo':
-                    return function(target){
-                        $(target).prepend(ctx)
-                        return ctx
-                    }
-                case 'insertAfter':
-                    return function(target){
-                        $(target).after(ctx)
-                        return ctx
-                    }
-                case 'insertBefore':
-                    return function(target){
-                        $(target).before(ctx)
+                        if(arguments.length){
+                            ctx.filter(...arguments).remove()
+                        }else{
+                            ctx.each((i,el)=>{
+                                const $el=ctx.eq(i)
+                                save($el, key)
+                                return got.call($el)
+                            })
+                        }
                         return ctx
                     }
                 default:{
