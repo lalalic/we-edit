@@ -788,7 +788,7 @@ describe("positioning",()=>{
                     expect(p.nextLine("0",4)).toMatchObject({id:"1",at:4})
                 })
 
-                xit("Text->Image(width=2)->Text",()=>{
+                it("Text->Image(width=2)->Text",()=>{
                     const p=test(
                         <Paragraph id={uuid++}>
                             <Text id="0">text </Text>
@@ -797,12 +797,12 @@ describe("positioning",()=>{
                         </Paragraph>
                     )
                     expect(p.lines.length).toBe(3)
-                    expect(p.nextLine("0",0)).toMatchObject({id:"2",at:0})
-                    expect(p.nextLine("0",1)).toMatchObject({id:"2",at:0})
-                    expect(p.nextLine("0",2)).toMatchObject({id:"2",at:1})
+                    expect(p.nextLine("0",0)).toMatchObject({id:"2"})
+                    expect(p.nextLine("0",1)).toMatchObject({id:"2"})
+                    expect(p.nextLine("0",2)).toMatchObject({id:"2"})
 
                     expect(p.nextLine("2",0)).toMatchObject({id:"1",at:0})
-                    expect(p.nextLine("2",1)).toMatchObject({id:"1",at:0})
+                    expect(p.nextLine("2",1)).toMatchObject({id:"1",at:2})
                 })
 
                 it("Text->Image(width=7)->Text",()=>{
@@ -819,7 +819,7 @@ describe("positioning",()=>{
                     expect(p.nextLine("0",2)).toMatchObject({id:"2"})
 
                     expect(p.nextLine("2",0)).toMatchObject({id:"1",at:0})
-                    expect(p.nextLine("2",1)).toMatchObject({id:"1",at:0})
+                    expect(p.nextLine("2",1)).toMatchObject({id:"1",at:5})
                 })
 
                 describe("table",()=>{
@@ -878,18 +878,18 @@ describe("positioning",()=>{
                         expect(p.nextLine("0",4+4+1)).toMatchObject({id:"3",at:1})
                     })
 
-                    fit("row cell-> row cell",()=>{
+                    it("row cell-> row cell",()=>{
                         const p=test(
                             <Fragment>
                                 <Table id={uuid++} width={10}>
                                     <Row id={uuid++} cols={[{x:0,width:4},{x:4,width:4}]}>
-                                        <Cell id={uuid++} border={border}>
-                                            <Paragraph id={uuid++}>
+                                        <Cell id={"1.1.1"} border={border}>
+                                            <Paragraph id={"1.1"}>
                                                 <Text id={"1"}>text</Text>
                                             </Paragraph>
                                         </Cell>
-                                        <Cell id={uuid++} border={border}>
-                                            <Paragraph id={uuid++}>
+                                        <Cell id={"2.1.1"} border={border}>
+                                            <Paragraph id={"2.1"}>
                                                 <Text id={"2"}>text</Text>
                                             </Paragraph>
                                         </Cell>
@@ -898,13 +898,13 @@ describe("positioning",()=>{
 
                                 <Table id={uuid++} width={10}>
                                     <Row id={uuid++} cols={[{x:0,width:4},{x:4,width:4}]}>
-                                        <Cell id={uuid++} border={border}>
-                                            <Paragraph id={uuid++}>
+                                        <Cell id={"3.1.1"} border={border}>
+                                            <Paragraph id={"3.1"}>
                                                 <Text id={"3"}>text</Text>
                                             </Paragraph>
                                         </Cell>
-                                        <Cell id={uuid++} border={border}>
-                                            <Paragraph id={uuid++}>
+                                        <Cell id={"4.1.1"} border={border}>
+                                            <Paragraph id={"4.1"}>
                                                 <Text id={"4"}>text</Text>
                                             </Paragraph>
                                         </Cell>
@@ -913,6 +913,7 @@ describe("positioning",()=>{
                             </Fragment>
                         )
                         expect(p.nextLine("2",1)).toMatchObject({id:"4",at:1})
+						expect(p.nextLine("1",1)).toMatchObject({id:"3",at:1})
                     })
                 })
             })
@@ -954,12 +955,14 @@ describe("positioning",()=>{
                         </Paragraph>
                     )
                     expect(p.lines.length).toBe(3)
-                    expect(p.prevLine("2",0)).toMatchObject({id:"0",at:0})
-                    expect(p.prevLine("2",1)).toMatchObject({id:"0",at:0})
-
-                    expect(p.prevLine("1",0)).toMatchObject({id:"2"})
+					expect(p.prevLine("1",0)).toMatchObject({id:"2"})
                     expect(p.prevLine("1",1)).toMatchObject({id:"2"})
                     expect(p.prevLine("1",5)).toMatchObject({id:"2"})
+					
+                    expect(p.prevLine("2",0)).toMatchObject({id:"0",at:0})
+                    expect(p.prevLine("2",1)).toMatchObject({id:"0",at:5})
+
+
                 })
 
                 describe("table",()=>{
@@ -983,6 +986,44 @@ describe("positioning",()=>{
                             </Fragment>
                         )
                         new Array(4).fill(0).forEach((a,i)=>expect(p.prevLine("1",i)).toMatchObject({id:"0",at:i}))
+                    })
+					
+					it("row cell<- row cell",()=>{
+                        const p=test(
+                            <Fragment>
+                                <Table id={uuid++} width={10}>
+                                    <Row id={uuid++} cols={[{x:0,width:4},{x:4,width:4}]}>
+                                        <Cell id={"1.1.1"} border={border}>
+                                            <Paragraph id={"1.1"}>
+                                                <Text id={"1"}>text</Text>
+                                            </Paragraph>
+                                        </Cell>
+                                        <Cell id={"2.1.1"} border={border}>
+                                            <Paragraph id={"2.1"}>
+                                                <Text id={"2"}>text</Text>
+                                            </Paragraph>
+                                        </Cell>
+                                    </Row>
+                                </Table>
+
+                                <Table id={uuid++} width={10}>
+                                    <Row id={uuid++} cols={[{x:0,width:4},{x:4,width:4}]}>
+                                        <Cell id={"3.1.1"} border={border}>
+                                            <Paragraph id={"3.1"}>
+                                                <Text id={"3"}>text</Text>
+                                            </Paragraph>
+                                        </Cell>
+                                        <Cell id={"4.1.1"} border={border}>
+                                            <Paragraph id={"4.1"}>
+                                                <Text id={"4"}>text</Text>
+                                            </Paragraph>
+                                        </Cell>
+                                    </Row>
+                                </Table>
+                            </Fragment>
+                        )
+                        expect(p.prevLine("4",1)).toMatchObject({id:"2",at:1})
+						expect(p.prevLine("3",1)).toMatchObject({id:"1",at:1})
                     })
 
                     it("paragraph=>table",()=>{

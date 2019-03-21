@@ -185,6 +185,8 @@ class Positionable extends Editable{
 				const offset=composer.measure.stringWidth(text.substring(0,len))
 				x+=offset
 			}
+		}else if(at==1){
+			return {x:x+node.attr('width')||0,y}
 		}
 
 		return {x,y}
@@ -220,7 +222,7 @@ class Positionable extends Editable{
 		const {page, line, parents}=this.getPageLineAndParents(lineIndexOfParagraph,(node,parents,page)=>{
 			const {props:{"data-content":id,"data-type":type,pagination={}}}=node
 			if(id==this.props.id && pagination.i==lineIndexOfParagraph+1){
-				self=new LinePosition(page,node,parents,{x,y})
+				self=new LinePosition(page,node,[...parents],{x,y})
 				return false
 			}
 			if(type=="paragraph"){
@@ -363,7 +365,8 @@ class Navigatable extends Positionable{
 		const resolve2LastAtom=(success, failure=()=>({id:this.props.id,at:0}))=>{
 			const cursorable=new ReactQuery(atoms.filter(a=>!a.props.anchor)).findLast(Cursorable)
 			if(cursorable.length){
-				if(cursorable.attr(`data-type`)=="text" && cursorable.attr("children").length>0){
+				if(cursorable.attr(`data-type`)!=="text" ||
+					(cursorable.attr(`data-type`)=="text" && cursorable.attr("children").length>0)){
 					return success(cursorable)
 				}
 			}
@@ -504,7 +507,7 @@ class Navigatable extends Positionable{
 					if(textNode){//text
 						const text=textNode.props.children
 						const composer=this.context.getComposer(textNode.props["data-content"])
-						const i=composer.measure.widthString(offset,text)
+						const i=offset<text.length ? composer.measure.widthString(offset,text) : text.length
 						return {id:textNode.props["data-content"], at:textNode.props["data-endat"]-text.length+i}
 					}else{
 						return {id:$node.findFirst(`[data-content]`).attr("data-content")}
