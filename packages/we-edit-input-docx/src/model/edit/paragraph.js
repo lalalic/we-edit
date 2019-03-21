@@ -16,7 +16,13 @@ export default class extends Editor{
 		if((temp=pPr.find("w\\:numPr")).length>0){
 			temp.remove()
 		}else if((temp=pPr.find("w\\:ind")).length){
-			temp.remove()
+			if(parseInt(temp.attr("w:hanging")||0)>0 || 
+				parseInt(temp.attr("w:firstLine")||0)>0){
+				temp.attr("w:hanging","0")
+				temp.attr("w:firstLine","0")
+			}else{
+				temp.remove()
+			}
 		}else if(this.file.doc.officeDocument
 			.styles(`w\\:style[w\\:styleId="${(temp=pPr.find('w\\:pStyle')).attr("w:val")}"]`)
 			.basest(":has(w\\:numPr,w\\:ind)")
