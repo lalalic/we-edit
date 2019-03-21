@@ -84,6 +84,20 @@ describe("positioning",()=>{
 	const size={width:20,height:500}
 	const pgGap=12
 
+    const mockQuery=(key,value)=>{
+            Paragraph.prototype.query=jest.fn(()=>{
+                return {
+                    [key]:()=>{
+                        return {
+                            attr(){
+                                return value
+                            }
+                        }
+                    }
+                }
+            })
+    }
+
     const render=(content,{state,page={}}={})=>{
             const renderer=TestRender.create(
                 <StoreContext context={store(state)}>
@@ -371,6 +385,7 @@ describe("positioning",()=>{
                         expect(doc.get("-0").nextCursorable("-0",1)).toMatchObject({id:"1",at:0})
 						expect(doc.get("0").nextCursorable("0",4)).toMatchObject({id:"1",at:0})
                     })
+
                     it("Row->Row",()=>{
                         const doc=render(
                             <Fragment>
@@ -520,17 +535,7 @@ describe("positioning",()=>{
                             <Paragraph id={"-2"}><Text id={"-3"}>text</Text></Paragraph>
                         </Container>
                     )
-                    Paragraph.prototype.query=jest.fn(()=>{
-                        return {
-                            backwardFirst(){
-                                return {
-                                    attr(){
-                                        return "-1"
-                                    }
-                                }
-                            }
-                        }
-                    })
+                    mockQuery("backwardFirst", "-1")
                     expect(doc.get("-3").prevCursorable("-3",0)).toMatchObject({id:"-1",at:1})
                 })
 
@@ -549,6 +554,25 @@ describe("positioning",()=>{
                         .get("1")
                         .prevCursorable("1",0)
                     expect(p).toEqual({id:"0",at:3})
+                })
+
+                describe("empty paragraph",()=>{
+                    it("p<- empty p",()=>{
+                        const p=render(
+                            <Container id="0">
+                                <Paragraph id={"1"}>
+                                    <Text id={"2"}></Text>
+                                </Paragraph>
+                                <Paragraph id={"3"}>
+                                    <Text id={"4"}></Text>
+                                </Paragraph>
+                            </Container>
+                        )
+                        mockQuery("backwardFirst","1")
+                        expect(p.get("3").prevCursorable("3",0)).toEqual({id:"1",at:1})
+                        expect(p.get("3").prevCursorable("3",1)).toEqual({id:"1",at:1})
+                        expect(p.get("4").prevCursorable("4",0)).toEqual({id:"1",at:1})
+                    })
                 })
 
                 describe("table",()=>{
@@ -658,7 +682,7 @@ describe("positioning",()=>{
 						expect(doc.get("-2").prevCursorable("-2",0))
 							.toMatchObject({id:prevParagraphId,at:1})
                     })
-                    it("Row->Row",()=>{
+                    it("Row<-Row",()=>{
                         const doc=render(
                             <Fragment>
                                 <Table id={uuid++} width={10}>
@@ -852,6 +876,43 @@ describe("positioning",()=>{
                         expect(p.nextLine("0",1)).toMatchObject({id:"1",at:1})
                         expect(p.nextLine("0",4+1)).toMatchObject({id:"2",at:1})
                         expect(p.nextLine("0",4+4+1)).toMatchObject({id:"3",at:1})
+                    })
+
+                    fit("row cell-> row cell",()=>{
+                        const p=test(
+                            <Fragment>
+                                <Table id={uuid++} width={10}>
+                                    <Row id={uuid++} cols={[{x:0,width:4},{x:4,width:4}]}>
+                                        <Cell id={uuid++} border={border}>
+                                            <Paragraph id={uuid++}>
+                                                <Text id={"1"}>text</Text>
+                                            </Paragraph>
+                                        </Cell>
+                                        <Cell id={uuid++} border={border}>
+                                            <Paragraph id={uuid++}>
+                                                <Text id={"2"}>text</Text>
+                                            </Paragraph>
+                                        </Cell>
+                                    </Row>
+                                </Table>
+
+                                <Table id={uuid++} width={10}>
+                                    <Row id={uuid++} cols={[{x:0,width:4},{x:4,width:4}]}>
+                                        <Cell id={uuid++} border={border}>
+                                            <Paragraph id={uuid++}>
+                                                <Text id={"3"}>text</Text>
+                                            </Paragraph>
+                                        </Cell>
+                                        <Cell id={uuid++} border={border}>
+                                            <Paragraph id={uuid++}>
+                                                <Text id={"4"}>text</Text>
+                                            </Paragraph>
+                                        </Cell>
+                                    </Row>
+                                </Table>
+                            </Fragment>
+                        )
+                        expect(p.nextLine("2",1)).toMatchObject({id:"4",at:1})
                     })
                 })
             })

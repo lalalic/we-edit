@@ -245,18 +245,17 @@ module.exports=function($, trap=DefaultTrap){
                 case 'removeClass':
                 case 'addClass':
                 case 'toggleClass':
-
                 case 'wrap':
-                return function(){
-                    if(arguments.length){
-                        save(ctx, key,...arguments)
+                    return function(){
+                        if(arguments.length){
+                            save(ctx, key,...arguments)
+                        }
+                        return got.call(ctx, ...arguments)
                     }
-                    return got.call(ctx, ...arguments)
-                }
+
                 case 'html':
                 case 'append':
                 case 'prepend':
-
                 case 'after':
                 case 'before':
                     return function(){

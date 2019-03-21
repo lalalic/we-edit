@@ -339,7 +339,7 @@ class Navigatable extends Positionable{
 				}else if(at==0){
 					return {id:this.props.id, at:1}
 				}
-				
+
 				return this.nextCursorable(this.props.id, 1)
 			}
 		}
@@ -363,7 +363,9 @@ class Navigatable extends Positionable{
 		const resolve2LastAtom=(success, failure=()=>({id:this.props.id,at:0}))=>{
 			const cursorable=new ReactQuery(atoms.filter(a=>!a.props.anchor)).findLast(Cursorable)
 			if(cursorable.length){
-				return success(cursorable)
+				if(cursorable.attr(`data-type`)=="text" && cursorable.attr("children").length>0){
+					return success(cursorable)
+				}
 			}
 
 			return failure()
