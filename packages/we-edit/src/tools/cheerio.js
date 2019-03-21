@@ -26,11 +26,14 @@ const DefaultTrap={
     },
 
     cssPatch(key, value){
-        return this.map((i,el)=>({op:"css",path:path(el,[key]), value:this.eq(i).css(key)})).get()
+        return this.map((i,el)=>({op:"css",path:path(el,[key]), value:typeof(key)=="string" && this.eq(i).css(key)})).get()
     },
 
     cssApplyPatch({path,value="",key=path.pop()}){
-        this.path(path).css(key,value)
+        const args=[key]
+        if(typeof(key)=="string")
+            args.push(value)
+        this.path(path).css(...args)
     },
 
     propPatch(key,value){
@@ -70,7 +73,7 @@ const DefaultTrap={
 
 
     removeAttrPatch(key){
-        return DefaultTrap.attrPatch.call(this,key)
+        return DefaultTrap.attrPatch.call(this,key, null)
     },
 
     removeClassPatch(value){
@@ -102,8 +105,9 @@ const DefaultTrap={
     afterPatch(){
         return this.map((i,el)=>{
             const route=path(el)
+            const isRootChild=route.length==1
             const from=route[route.length-1]=route[route.length-1]+1
-            const length=this.eq(i).parent().contents().length
+            const length=(isRootChild ? this.constructor.root() : this.eq(i).parent()).contents().length
             return {op:"splice",path:route, value:postLength=>from+postLength-length}
         }).get()
     },
@@ -111,28 +115,39 @@ const DefaultTrap={
     beforePatch(){
         return this.map((i,el)=>{
             const route=path(el)
+            const isRootChild=route.length==1
             const from=route[route.length-1]
-            const length=this.eq(i).parent().contents().length
+            const length=(isRootChild ? this.constructor.root() : this.eq(i).parent()).contents().length
             return {op:"splice",path:route, value:postLength=>from+postLength-length}
         }).get()
     },
 
     insertAfterPatch(target){
-        return DefaultTrap.afterPatch.bind(this.constructor(target))()
+        const removed=el=>el.parent ? removed(el.parent) : this.constructor.root().contents().index(el)==-1
+        return DefaultTrap.afterPatch.call(this.constructor(target).filter((i,el)=>!removed(el)))
     },
 
     insertBeforePatch(target){
-        return DefaultTrap.beforePatch.bind(this.constructor(target))()
+        const removed=el=>el.parent ? removed(el.parent) : this.constructor.root().contents().index(el)==-1
+        return DefaultTrap.beforePatch.call(this.constructor(target).filter((i,el)=>!removed(el)))
     },
 
-    replaceWithPatch(){
+    replaceWithPatch(len){
         return this.map((i,el)=>{
-            return {op:"replaceWith",path:path(el), value: this.eq(i).clone()}
+            return {op:"replaceWith",path:path(el), value: this.eq(i).clone(), len}
         }).get()
     },
 
-    replaceWithApplyPatch({path, value}){
-        this.path(path).replaceWith(value)
+    replaceWithApplyPatch({path, value, len=1}){
+        const target=this.path(path)
+        if(len>1){
+            new Array(len-1).fill(0)
+                .forEach(i=>{
+                    target.next().remove()
+                })
+        }
+        target.replaceWith(value)
+
     },
 
     emptyPatch(){
@@ -143,7 +158,8 @@ const DefaultTrap={
         return DefaultTrap.replaceWithPatch.bind(this)()
     },
 
-    wrapPatch(originalParents){
+    wrapPatch(fn){
+
         return DefaultTrap.replaceWithPatch.bind(this)()
     },
 
@@ -166,7 +182,7 @@ const DefaultTrap={
     }
 }
 
-export default function($, trap=DefaultTrap){
+module.exports=function($, trap=DefaultTrap){
     const patches=[]
     var inTransaction=false
     const removed=el=>el.parent ? removed(el.parent) : $.root().contents().index(el)==-1
@@ -192,11 +208,6 @@ export default function($, trap=DefaultTrap){
         }
     }
 
-    $.path=route=>{
-        if(!route || route.length==0)
-            return $.root().filter(true)
-        return route.reduce((current, i)=>current.contents().eq(i), $.root())
-    }
 
     Object.assign($.prototype,{
         path(){
@@ -216,8 +227,13 @@ export default function($, trap=DefaultTrap){
                 case "data":
                 case "prop":
                 case "attr":
-                    return function(){
-                        if(arguments.length==2){
+                    return function(name,value){
+                        if(value===undefined && typeof(name)=="object" && !Array.isArray(name)){
+                            Object.keys(name).forEach(k=>ctx[key](k, name[k]))
+                            return ctx
+                        }
+
+                        if(value!=undefined){
                             save(ctx, key, ...arguments)
                         }
                         return got.call(ctx,...arguments)
@@ -229,18 +245,69 @@ export default function($, trap=DefaultTrap){
                 case 'removeClass':
                 case 'addClass':
                 case 'toggleClass':
-                case 'html':
+
                 case 'wrap':
-                case 'replaceWith':
+                return function(){
+                    if(arguments.length){
+                        save(ctx, key,...arguments)
+                    }
+                    return got.call(ctx, ...arguments)
+                }
+                case 'html':
                 case 'append':
                 case 'prepend':
+
                 case 'after':
                 case 'before':
+                    return function(){
+                        if(arguments.length){
+                            $(arguments[0]).remove()
+                            if(ctx.length==1){
+                                save(ctx, key,...arguments)
+                            }else if(ctx.length>1){
+                                save(ctx.parent(),"replaceWith",...arguments)
+                            }
+                        }
+                        return got.call(ctx, ...arguments)
+                    }
+                case 'replaceWith':
+                    return function(){
+                        if(arguments.length){
+                            const len=$(arguments[0]).remove().length
+                            if(ctx.length==1){
+                                save(ctx, key,len)
+                            }else if(ctx.length>1){
+                                save(ctx.parent(),"replaceWith",...arguments)
+                            }
+                        }
+                        return got.call(ctx, ...arguments)
+                    }
+
                 case 'insertAfter':
+                    return function(){
+                        if(arguments.length){
+                            const len=ctx.length
+                            const target=$(arguments[0])
+                            target.after(ctx)
+                            return $(target.map(i=>
+                                new Array(len-1).fill(0)
+                                    .reduce((c,i)=>c.add(c.last().next()),target.eq(i).next())
+                                    .toArray()
+                            ).get())
+                        }
+                        return got.call(ctx, ...arguments)
+                    }
                 case 'insertBefore':
                     return function(){
                         if(arguments.length){
-                            save(ctx, key,...arguments)
+                            const len=ctx.length
+                            const target=$(arguments[0])
+                            target.before(ctx)
+                            return $(target.map(i=>
+                                new Array(len-1).fill(0)
+                                    .reduce((c,i)=>c.add(c.last().prev()),target.eq(i).prev())
+                                    .toArray()
+                            ).get())
                         }
                         return got.call(ctx, ...arguments)
                     }
@@ -269,8 +336,13 @@ export default function($, trap=DefaultTrap){
         }
     })
 
-
     return Object.assign($,{
+        path(route){
+            if(!route || route.length==0)
+                return $.root()
+            return route.reduce((current, i)=>current.contents().eq(i), $.root())
+        },
+
         startTransaction(){
             inTransaction=true
         },
