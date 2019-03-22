@@ -1,4 +1,3 @@
-
 import editors from "./model/edit"
 import EditableDocx from "./editable"
 
@@ -16,7 +15,7 @@ export default class SerializableDocx extends EditableDocx{
 			return node.attribs.xxid
 		}
 
-		let id=uid||(node.name=="w:document"&&"root")||uuid()
+		let id=uid||(node.name=="w:document"&&"root")||super.makeId()
 		defineId(node.attribs,id)
 
 		if(this.doc.part)
@@ -149,9 +148,6 @@ export default class SerializableDocx extends EditableDocx{
 		return px*72/96
 	}
 }
-
-
-const uuid=(_uuid=>()=>`${_uuid++}`)(100)
 
 const defineId=(target,id)=>Object.defineProperty(target,"xxid",{
 	enumerable: true,

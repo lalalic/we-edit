@@ -32,53 +32,12 @@ class Base{
 		return this._file
 	}
 
-	get position(){
-		const {start,end}=this.selection
-		if(start.id==end.id){
-			const target=this.$('#'+start.id)
-			if(start.at==end.at){
-				if(target.attr('type')=="text"){
-					const text=target.text()
-					if(start.at==0){
-						return "at_text_beginning"
-					}else if(start.at==text.length){
-						return "at_text_end"
-					}else{
-						return "in_text"
-					}
-				}
-				if(start.at==0){
-					return `at_${target.attr("type")}_beginning`
-				}else if(start.at==1){
-					return `at_${target.attr("type")}_end`
-				}
-				return "carot"
-			}
-		}else{
-			return "range"
-		}
-	}
-
 	cursorAt(id,at, endId=id, endAt=at, cursorAt){
 		if(cursorAt=="start" || cursorAt=="end")
 			this._selection.cursorAt=cursorAt
 
 		this._selection={...this._selection,start:{id,at}, end:{id:endId, at:endAt}}
 		return this._selection
-	}
-
-	save4undo(id){
-
-	}
-
-	undo({action,changed,selection}){
-		//recover changed to this.file
-		//render changed
-		//recover selection
-	}
-
-	redo({action,changed,selection}){
-
 	}
 }
 

@@ -21,7 +21,7 @@ export default function(TypedDocument){
     const test=(content,selectionx={})=>{
         const selection={cursorAt:"end",...selectionx}
         const state=makeState(content).set("selection",immutable.fromJS(selection))
-        const reducer=new Reducer(state)
+        const reducer=new TypedDocument.Reducer(state)
         expect(reducer.selection).toMatchObject(selection)
         const $query={
             nextCursorable(){
@@ -60,7 +60,7 @@ export default function(TypedDocument){
         })
 
         describe("clone",()=>{
-            it("t(ex)t",()=>{
+            fit("t(ex)t",()=>{
                 const {reducer}=test({
                     "1":{type:"paragraph",children:["1_1"]},
                     "1_1":{type:"text",children:"text",parent:"1"}
@@ -305,7 +305,7 @@ export default function(TypedDocument){
                 })
                 reducer.cursorAt("1_1_0",0, "1_2_0_0",2)
 
-                debugger
+
                 reducer.seperateSelection()
                 expect(reducer.selection).toMatchObject({start:{id:"1_1",at:0}})
 
@@ -445,7 +445,7 @@ export default function(TypedDocument){
                     expect(reducer.selection).toMatchObject({start:{id:"1_1",at:0}})
                     return {id:"1_2",at:0}
                 })
-                debugger
+
                 reducer.remove({backspace:true})
                 expect(reducer.$("#1_1").length).toBe(0)
                 expect(reducer.selection).toMatchObject({start:{id:"1_2",at:0},end:{id:"1_2",at:0}})

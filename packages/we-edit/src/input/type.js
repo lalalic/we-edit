@@ -1,8 +1,8 @@
 import React from "react"
 import PropTypes from "prop-types"
 
+import uuid from "../tools/uuid"
 import {default as Reducer} from "./reducer"
-var i=0
 
 export class Viewable{
 	static get isWeEditType(){
@@ -83,7 +83,7 @@ export class Viewable{
 	//////////////////
 
 	makeId(node){
-		return i++
+		return uuid()
 	}
 
 	//doc=null//injected from load/create
@@ -136,10 +136,6 @@ export class Editable extends Viewable{
 
 	stream(option){
 		throw new Error("not support")
-	}
-
-	makeId(content){
-		throw new Error("make your own uuid")
 	}
 
 	renderNode(node, createElement/*(TYPE, props, children, rawcontent)*/,models){

@@ -1,64 +1,77 @@
-import React,{Fragment} from "react"
-import {Input} from "we-edit"
-import {Readable} from 'stream'
-import EditableDocument from "./editable-doc"
+import {uuid} from "we-edit"
+import EditableDocument from "./editable"
 
-export default class JSONType extends Input.Editable{
-	static support(file){
-		if(!file)//for installer
-			return true
-
-		const {data, name, ext, type}=file
-		if(ext && ext=="wed.json")
-			return true
-
-		if(name && name.endsWith(".wed.json"))
-			return true
-
-		if(type && type=="document")
-			return true
-		return false
+export default class SerializableDocument extends EditableDocument{
+	makeId(node,uid){
+		const id=uid||node.id||super.makeId()
+		node.set("id",uid||node.id||super.makeId())
+		return id
 	}
 
-	static defaultProps={
-		type:"json",
-		ext:"json",
-		name:"We-Edit document",
-		mimeType:"application/json"
+	/*find node by id*/
+	getNode(id){
+		return this.doc.get(id)
 	}
 
-	parse({data, ...props}){
-		this.props=props
-		data=String.fromCharCode.apply(null, new Uint8Array(data))
-		return new EditableDocument(eval(`(a=>a)(${data})`))
-	}
-
-	stream(options){
-		let data=this.doc.serialize(options)
-		let stream=new Readable({objectMode: true})
-		stream.push(data,"uint8array")
-		return stream
-	}
-
-
-	render(createElement, components){
-		const renderNode=(node,createElement)=>{
-			let {type,props,children=[]}=node
-			let Type=components[type[0].toUpperCase()+type.substr(1)]
-			if(!Type){
-				Type=class{static displayName=type}
-			}
-			return createElement(Type,props,
-				children.map ? children.map(a=>renderNode(a,createElement)).filter(a=>!!a) : children,
-				node)
+	//always attached
+	cloneNode({id}, keepId=false){
+		const node=this.getNode(id)
+		if(keepId){
+			return node
+		}else{
+			const cloned=node
+				.set("id",super.makeId())
+				.updateIn(["children"],list=>{
+					if(typeof(list)!=="string" && list){
+						return list.map(a=>this.cloneNode({id:a},false).get("id"))
+					}
+					return list
+				})
+			this.attach(cloned)
+			return cloned
 		}
-
-		this.renderNode=renderNode
-
-		return renderNode(this.doc.root,createElement)
 	}
 
-	makeId(node){
-		return this.doc.makeId(node)
+	//return [/*cursor at first part*/{id,at},/*cursor at second part*/{id,at}]
+	splitNode({id,type},at, firstKeepId=true){
+
+	}
+
+	/*
+	at=0:before node{id},
+	at=1:after node{id},
+	create and attached when poisiton is falsy
+	*/
+	createNode(element, position/*{id,at=0}*/){
+
+	}
+
+	updateNode(element, changing){
+
+	}
+
+	removeNode(element){
+
+	}
+
+	/*append when referenceNode is falsy */
+	insertNodeBefore(newNode,referenceNode,parentNode){
+
+	}
+	//prepend when referenceNode is falsy
+	insertNodeAfter(newNode,referenceNode,parentNode){
+
+	}
+
+	//return constructed node
+	//fromId==toId should be supported
+	construct(fromId,toId){
+
+	}
+
+	attach(node){
+		const id=this.makeId(node)
+		this.doc.set(id,node)
+		return id
 	}
 }
