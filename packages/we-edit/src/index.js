@@ -15,8 +15,7 @@ export {default as transactifyCheerio} from "./tools/cheerio"
 export {default as ContentQuery} from "./state/selector/query"
 export {default as Input} from "./input"
 
-export {default as models} from "./model"
-export {default as editify} from "./model/edit"
+export {default as dom} from "./dom"
 
 export {default as render} from "./render"
 

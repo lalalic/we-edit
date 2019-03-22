@@ -5,7 +5,7 @@ import Immutable, {Map,Collection} from "immutable"
 import {compose, setDisplayName, getContext,withContext} from "recompose"
 import memoize from "memoize-one"
 
-import Components from "../model"
+import Dom from "../dom"
 import {createStore, createState, isState, Provider} from "../state"
 import {getSelection} from "../state/selector"
 import undoable from "../state/undoable"
@@ -18,7 +18,7 @@ import ContextProvider from "./context-provider"
 export default function buildDoc(doc,inputTypeInstance){
 	const id=uuid()
 	const transform=inputTypeInstance.transform
-	const TypedComponents=transform(Components)
+	const TypedComponents=transform(Dom)
 
 	var store=null
 
