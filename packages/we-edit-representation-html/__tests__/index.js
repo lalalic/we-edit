@@ -1,10 +1,10 @@
 import React from "react"
 import TestRenderer from "react-test-renderer"
 
-import Document from "../src/document"
-//import Section from "../src/section"
-import Paragraph from "../src/paragraph"
-import Text from "../src/text"
+import Document from "../src/dom/document"
+//import Section from "../src/dom/section"
+import Paragraph from "../src/dom/paragraph"
+import Text from "../src/dom/text"
 
 const render=element=>TestRenderer.create(element).root
 const TEXT={fonts:"arial",size:11}

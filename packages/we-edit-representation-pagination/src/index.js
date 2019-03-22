@@ -4,15 +4,16 @@ import PropTypes from "prop-types"
 import isNode from "is-node"
 import {Representation} from "we-edit"
 
-import Viewers from "./all"
-import Editors from "./edit"
+import Viewers from "./dom"
+import Editors from "./dom/edit"
+import editable from "./dom/edit/editable"
+
 import Fonts from "./fonts"
 import * as Composed from "./composed"
 import * as Measure from "./measure"
 import Output from "./output"
 
 import * as composable from "./composable"
-import editable from "./edit/editable"
 
 const {FontMeasure, SVGMeasure}=Measure
 

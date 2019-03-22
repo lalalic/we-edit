@@ -3,8 +3,8 @@ import PropTypes from "prop-types"
 import {Representation} from "we-edit"
 import Pagination from "we-edit-representation-pagination"
 
-import Viewers from "./all"
-import Editors from "./edit"
+import Viewers from "./dom"
+import Editors from "./dom/edit"
 
 import Output from "./output"
 

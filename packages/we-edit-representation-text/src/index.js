@@ -4,8 +4,8 @@ import {Representation} from "we-edit"
 
 import Html from "we-edit-representation-pagination"
 
-import Viewers from "./all"
-import Editors from "./edit"
+import Viewers from "./dom"
+import Editors from "./dom/edit"
 
 import Output from "./output"
 
@@ -18,9 +18,9 @@ export default class Text extends Representation.Base{
 	static defaultProps={
 		type:"text"
 	}
-	
+
 	static Output=Output
-	
+
 	render(){
 		const {ViewerTypes=Viewers, EditorTypes=Editors, ...props}=this.props
 		return <Html {...{ViewerTypes,EditorTypes,...props}}/>
@@ -33,7 +33,7 @@ export default class Text extends Representation.Base{
 		install(...arguments)
 		A.Output.install()
 	}
-	
+
 	let uninstall=A.uninstall.bind(A)
 	A.uninstall=function(){
 		uninstall(...arguments)
