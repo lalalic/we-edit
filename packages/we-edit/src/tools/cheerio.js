@@ -6,15 +6,46 @@ function path(el,routes=[]){
     return routes
 }
 
+function canIgnore(A, B){
+    debugger
+    if(A.path.join(",")==B.path.join(",")){
+        if(A.op==B.op){
+            switch(A.op){
+                case "attr":
+                case "data":
+                case "css":
+                case "prop":
+                case "val":
+                case "text":
+                case "replaceWith":
+                    return true
+            }
+        }
+    }
+    return false
+}
+
 const DefaultTrap={
     save(){
 
     },
 
     applyPatch(patches){
-        (patches||[]).forEach(({op, path, value})=>{
 
-        })
+    },
+
+    mergePatches(patch, patches){
+        if(!Array.isArray(patch)){
+            patch=[patch]
+        }
+        if(patch.length==1){
+            if(patches.length>0){
+                if(canIgnore(patch[0], patches[patches.length-1])){
+                    return
+                }
+            }
+        }
+        patches.splice(patches.length, 0, ...patch)
     },
 
     attrPatch(key,value){
@@ -63,7 +94,7 @@ const DefaultTrap={
     },
 
 
-    valPatch(value){
+    valPatch(value){//val() actually use attr() at backend, so it can be ignored
         return this.map((i,el)=>({op:"val",path:path(el), value:this.eq(i).val()})).get()
     },
 
@@ -194,10 +225,10 @@ module.exports=function($, trap=DefaultTrap){
         }else{
             patch=trap.save.call(ctx, op, ...args)||[]
         }
-        if(!Array.isArray(patch)){
-            patch=[patch]
+
+        if(trap.mergePatches){
+            trap.mergePatches(patch, patches)
         }
-        patches.splice(patches.length, 0, ...patch)
     }
 
     const applyPatch=function({op}){
@@ -234,13 +265,36 @@ module.exports=function($, trap=DefaultTrap){
                         }
 
                         if(value!=undefined){
+                            debugger
                             save(ctx, key, ...arguments)
+                            if("css,data,prop".split(",").includes(key)){
+                                try{//to avoid save attr op
+                                    inTransaction=false
+                                    debugger
+                                    return got.call(ctx,...arguments)
+                                }finally{
+                                    inTransaction=true
+                                }
+                            }
                         }
+
                         return got.call(ctx,...arguments)
                     }
-                //index would not be changed, so path would not be changed
-                case "text":
                 case "val":
+                    return function(){
+                        if(arguments.length){
+                            save(ctx, key,...arguments)
+                            try{//to avoid save attr op
+                                inTransaction=false
+                                return got.call(ctx,...arguments)
+                            }finally{
+                                inTransaction=true
+                            }
+                        }
+                        return got.call(ctx, ...arguments)
+                    }
+                    //index would not be changed, so path would not be changed
+                case "text":
                 case 'removeAttr':
                 case 'removeClass':
                 case 'addClass':

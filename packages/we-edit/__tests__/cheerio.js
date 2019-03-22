@@ -10,9 +10,10 @@ describe("transactify cheerio",()=>{
                     <li class="tomato" good="ok">hello</li>
                 </ul>
                 <p>
-                    <span>hello world</span>
+                    <span style="">hello world</span>
                     <i>I like it!</i>
                 </p>
+                <input type="text" value=""></input>
             </div>
         `,{xmlMode:true})
     }
@@ -353,5 +354,53 @@ describe("transactify cheerio",()=>{
         })
     })
 
+    describe("compress patches in a transaction", ()=>{
+        describe("action on same path",()=>{
+            it.each([
+                ["text",$=>$("span").text("god").text("good").text("yuk")],
+                ["val",$=>$("input").val("god").val("good").val("yuk")],
+                ["replaceWith",$=>($("span").replaceWith("<b>god</b>"),$("b").replaceWith("<strong>he</strong>"))],
+                ["html",$=>($("span").html("<b>god</b>").html("<strong>he</strong>"))],
+                ["wrap",$=>($("span").wrap("<b>god</b>"), $("b").wrap("<strong>he</strong>"))],
+                ["empty",$=>($("span").empty("<b>god</b>"), $("b").empty("<strong>he</strong>"))],
+                ["any order of replaceWith,wrap,empty,html", $=>{
+                    $("span").replaceWith("<b/>")
+                    $("b").wrap("<span/>")
+                    $("span").html("hello god")
+                    $("span").empty()
+                }],
+                ["attr on same key",$=>$("span").attr("x",1).attr("x",2).attr("x",3)],
+                ["css on same key",$=>$("span").css("size",1).css("size",2).css("size",3)],
+                ["data on same key", $=>$("span").data("arial",1).data("arial",2).data("arial",3)],
+                ["prop on same key",$=>$("span").prop("g",1).prop("g",2).prop("g",3)],
+            ])("%s",(name, actions)=>{
+                const $=transactify(load())
+                const html=$.html()
+                $.startTransaction()
 
+                actions($)
+
+                const patches=$.commit()
+                expect(patches.length).toBe(1)
+                $.rollback(patches)
+                expect($.html()).toBe(html)
+            })
+        })
+
+        fit("anything can be ignore, if parent was ever replaced",()=>{
+            const $=transactify(load())
+            const html=$.html()
+            $.startTransaction()
+
+            $("div").wrap("body")
+            $("span").attr("x",1).css("x",1).data("x",1).prop("g",1)
+            $("ul").remove()
+            $('i').html("<b/>")
+
+            const patches=$.commit()
+            expect(patches.length).toBe(1)
+            $.rollback(patches)
+            expect($.html()).toBe(html)
+        })
+    })
 })
