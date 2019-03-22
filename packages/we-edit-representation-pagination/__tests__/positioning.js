@@ -69,7 +69,7 @@ describe("positioning",()=>{
 				height=10
 				defaultStyle={height:10,descent:1}
 				widthString(x,text){
-					return x
+					return Math.min(x,text.length)
 				}
 
 				stringWidth(text){

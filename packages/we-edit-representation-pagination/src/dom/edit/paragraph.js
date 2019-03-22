@@ -507,7 +507,7 @@ class Navigatable extends Positionable{
 					if(textNode){//text
 						const text=textNode.props.children
 						const composer=this.context.getComposer(textNode.props["data-content"])
-						const i=offset<text.length ? composer.measure.widthString(offset,text) : text.length
+						const i=composer.measure.widthString(offset,text)
 						return {id:textNode.props["data-content"], at:textNode.props["data-endat"]-text.length+i}
 					}else{
 						return {id:$node.findFirst(`[data-content]`).attr("data-content")}

@@ -1,5 +1,5 @@
 import Editors from "../src/model/edit"
-import {testEditableDocument, models} from "we-edit"
+import {testEditableDocument, dom} from "we-edit"
 import docx4js from "../src/docx"
 import DocxDocument from "../src"
 
@@ -116,7 +116,7 @@ describe("reduce docx",()=>{
                     body.prepend(this.constructor.createContent(content,id))
                 })
 
-            const components=this.transform(models)
+            const components=this.transform(dom)
 
 
             const getRel=this.doc.officeDocument.getRel.bind(this.doc.officeDocument)
