@@ -958,7 +958,7 @@ describe("positioning",()=>{
 					expect(p.prevLine("1",0)).toMatchObject({id:"2"})
                     expect(p.prevLine("1",1)).toMatchObject({id:"2"})
                     expect(p.prevLine("1",5)).toMatchObject({id:"2"})
-					
+
                     expect(p.prevLine("2",0)).toMatchObject({id:"0",at:0})
                     expect(p.prevLine("2",1)).toMatchObject({id:"0",at:5})
 
@@ -987,7 +987,7 @@ describe("positioning",()=>{
                         )
                         new Array(4).fill(0).forEach((a,i)=>expect(p.prevLine("1",i)).toMatchObject({id:"0",at:i}))
                     })
-					
+
 					it("row cell<- row cell",()=>{
                         const p=test(
                             <Fragment>

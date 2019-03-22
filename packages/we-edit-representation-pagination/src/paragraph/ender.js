@@ -1,8 +1,9 @@
 import React from "react"
 import PropTypes from "prop-types"
-import {models,ACTION} from "we-edit"
-import {NoChild} from "./composable"
-import {Text as ComposedText} from "./composed"
+import {models} from "we-edit"
+
+import {NoChild} from "../composable"
+import {Text as ComposedText} from "../composed"
 
 const Super=NoChild(models.Unknown)
 export default class extends Super{

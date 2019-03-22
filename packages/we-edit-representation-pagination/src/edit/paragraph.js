@@ -1,9 +1,10 @@
 import React,{Children} from "react"
 import PropTypes from "prop-types"
-import {Cacheable} from "../composable"
+import memoize from "memoize-one"
 
 import {ReactQuery, models} from "we-edit"
 
+import {Cacheable} from "../composable"
 import Base from "../paragraph"
 import Text from "./text"
 import editable from "./editable"
@@ -13,7 +14,6 @@ import {Text as ComposedText} from "../composed"
 const Cursorable=`[data-type="text"],[data-type="image"]`
 
 const Editable=Cacheable(class extends editable(Base,{stoppable:true}){
-
 	getNumberingAtom(){
 		const {numbering:{style}, indent:{firstLine=0}}=this.props
 		const {defaultStyle}=new this.context.Measure(style)
@@ -69,9 +69,9 @@ const Editable=Cacheable(class extends editable(Base,{stoppable:true}){
 		}
 	}
 
-	getDefaultMeasure(){
-		return new this.context.Measure(this.props.defaultStyle)
-	}
+	getDefaultMeasure=memoize((style=this.props.defaultStyle)=>{
+		return new this.context.Measure(style)
+	})
 })
 class Positionable extends Editable{
 	getPages(scoped=true){
