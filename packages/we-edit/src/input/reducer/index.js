@@ -222,10 +222,6 @@ class Reducer extends Base{
 			}else{
 				p.after(first)
 			}
-
-
-
-
 		}
 
 	}
@@ -343,8 +339,7 @@ class Reducer extends Base{
 
 				return clonedTop0.add(clonedSiblings).add(clonedTop1)
 			}else{
-				debugger
-				throw new Error("not support yet")
+				throw new Error(`something wrong: can't find range(${start} to ${end}) ancestor`)
 			}
 		}
 	}

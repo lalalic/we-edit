@@ -10,7 +10,18 @@ describe("native json doc",()=>{
 
         }
         renderChanged(node){
+			if(!node){
+				debugger
+			}
             return node.toJS()
         }
+		
+		getNode(){
+			return Object.assign(super.getNode(...arguments),{
+				text(){
+					return this.get('children')
+				}
+			})
+		}
     })
 })

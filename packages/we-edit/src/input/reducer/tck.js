@@ -60,7 +60,7 @@ export default function(TypedDocument){
         })
 
         describe("clone",()=>{
-            fit("t(ex)t",()=>{
+            it("t(ex)t",()=>{
                 const {reducer}=test({
                     "1":{type:"paragraph",children:["1_1"]},
                     "1_1":{type:"text",children:"text",parent:"1"}
@@ -131,7 +131,7 @@ export default function(TypedDocument){
                 reducer.cursorAt("1_1_1_1",1,"2_2",1)
                 const cloned=reducer.clone()
                 expect(cloned.length).toBe(2)
-
+				
                 expect(cloned.eq(0).text()).toBe("elloworld")
                 expect(cloned.eq(1).text()).toBe("hellow")
 
@@ -877,6 +877,7 @@ export default function(TypedDocument){
                     reducer.cursorAt("1_1_1",1)
                     reducer.insert({data:[{type:"text",children:"hello"}]})
                     const texts=reducer.$('#1 text')
+					
                     expect(texts.length).toBe(3)
                     expect(texts.eq(0).text()).toBe("t")
                     expect(texts.eq(1).text()).toBe("hello")
@@ -921,7 +922,7 @@ export default function(TypedDocument){
                 expect(reducer.selection).toMatchObject({start:{id:texts.eq(1).attr('id'),at:0}})
             })
 
-                it("cross text selection",()=>{
+            it("cross text selection",()=>{
                 const {reducer}=test({
                     "1":{type:"paragraph",children:["1_1"]},
                     "1_1":{type:"text",children:"hello",parent:"1",props:{size:1}},

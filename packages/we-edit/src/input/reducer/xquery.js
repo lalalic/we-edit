@@ -122,9 +122,15 @@ export default class xQuery extends Query{
 		let index=parent.get(0).get("children").indexOf(this.attr("id"))+1
 		new this.constructor(this.state,nodes)._nodes
     		.forEach((k,i)=>{
-    			if(this._content.hasIn([k,"parent"]))
-    				this._content.updateIn([this._content.getIn([k,"parent"]),"children"],c=>c.delete(c.indexOf(k)))
-
+    			if(this._content.hasIn([k,"parent"])){
+    				this._content.updateIn([this._content.getIn([k,"parent"]),"children"],c=>{
+						if(c){
+							return c.delete(c.indexOf(k))
+						}
+						return c
+					})
+				}
+				
     			this._content.setIn([k,"parent"],pid)
     			this._content.updateIn([pid,"children"],c=>c.insert(index+i,k))
 
@@ -198,6 +204,7 @@ export default class xQuery extends Query{
 	}
 
     splitUpTo(to,at=0){
+		debugger
         to=this.closest(to)
 
 		if(to.length==0){

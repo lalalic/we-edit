@@ -147,11 +147,13 @@ export default class Query{
 			let node=this._content.get(id)
 			if(node && node.has("parent")){
 				let siblings=this._content.getIn([node.get("parent"),"children"])
-				let index=siblings.indexOf(id)
-				if(index<siblings.size-1){
-					++index
-					if(select(this._content.get(siblings.get(index)))){
-						found.add(siblings.get(index))
+				if(siblings){
+					let index=siblings.indexOf(id)
+					if(index<siblings.size-1){
+						++index
+						if(select(this._content.get(siblings.get(index)))){
+							found.add(siblings.get(index))
+						}
 					}
 				}
 			}
@@ -166,9 +168,11 @@ export default class Query{
 			let node=this._content.get(id)
 			if(node && node.has("parent")){
 				let siblings=this._content.getIn([node.get("parent"),"children"])
-				for(let i=siblings.indexOf(id)+1;i<siblings.size;i++){
-					if(select(this._content.get(siblings.get(i)))){
-						found.add(siblings.get(i))
+				if(siblings){
+					for(let i=siblings.indexOf(id)+1;i<siblings.size;i++){
+						if(select(this._content.get(siblings.get(i)))){
+							found.add(siblings.get(i))
+						}
 					}
 				}
 			}
@@ -183,11 +187,13 @@ export default class Query{
 			let node=this._content.get(id)
 			if(node && node.has("parent")){
 				let siblings=this._content.getIn([node.get("parent"),"children"])
-				for(let i=siblings.indexOf(id)+1;i<siblings.size;i++){
-					if(select(this._content.get(siblings.get(i)))){
-						break
-					}else{
-						found.add(siblings.get(i))
+				if(siblings){
+					for(let i=siblings.indexOf(id)+1;i<siblings.size;i++){
+						if(select(this._content.get(siblings.get(i)))){
+							break
+						}else{
+							found.add(siblings.get(i))
+						}
 					}
 				}
 			}
@@ -231,11 +237,13 @@ export default class Query{
 			let node=this._content.get(id)
 			if(node && node.has("parent")){
 				let siblings=this._content.getIn([node.get("parent"),"children"])
-				let index=siblings.indexOf(id)
-				if(index>0){
-					--index
-					if(select(this._content.get(siblings.get(index)))){
-						found.add(siblings.get(index))
+				if(siblings){
+					let index=siblings.indexOf(id)
+					if(index>0){
+						--index
+						if(select(this._content.get(siblings.get(index)))){
+							found.add(siblings.get(index))
+						}
 					}
 				}
 			}
@@ -250,9 +258,11 @@ export default class Query{
 			let node=this._content.get(id)
 			if(node && node.has("parent")){
 				let siblings=this._content.getIn([node.get("parent"),"children"])
-				for(let i=0,end=siblings.indexOf(id);i<end;i++){
-					if(select(this._content.get(siblings.get(i)))){
-						found.add(siblings.get(i))
+				if(siblings){
+					for(let i=0,end=siblings.indexOf(id);i<end;i++){
+						if(select(this._content.get(siblings.get(i)))){
+							found.add(siblings.get(i))
+						}
 					}
 				}
 			}
@@ -267,11 +277,13 @@ export default class Query{
 			let node=this._content.get(id)
 			if(node && node.has("parent")){
 				let siblings=this._content.getIn([node.get("parent"),"children"])
-				for(let i=0,end=siblings.indexOf(id);i<end;i++){
-					if(select(this._content.get(siblings.get(i)))){
-						break
-					}else{
-						found.add(siblings.get(i))
+				if(siblings){
+					for(let i=0,end=siblings.indexOf(id);i<end;i++){
+						if(select(this._content.get(siblings.get(i)))){
+							break
+						}else{
+							found.add(siblings.get(i))
+						}
 					}
 				}
 			}
