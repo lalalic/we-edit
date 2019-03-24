@@ -8,6 +8,18 @@ import memoize from "memoize-one"
 
 const Super=Fissionable(HasParentAndChild(dom.Section))
 export default class extends Super{
+	static defaultProps={
+		...Super.defaultProps,
+		create(props,context){
+			const {page}=this.props
+			if(page){
+				return new Page({...page, ...props},context)
+			}else{
+				throw new Error("section has no create")
+			}
+		}
+	}
+	
     getDocument=memoize(()=>{
 		var current=this.context.parent
 		while(current){
@@ -31,5 +43,12 @@ export default class extends Super{
 
 	createComposed2Parent(page){
 		return page
+	}
+}
+
+class Page extends Frame{
+	render(){
+		const {props:{i:key,width,height,margin}}=this
+		return React.cloneElement(super.createComposed2Parent(),{key,width,height,margin})
 	}
 }

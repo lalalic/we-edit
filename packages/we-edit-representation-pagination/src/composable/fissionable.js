@@ -50,7 +50,7 @@ export default (A)=>class extends A{
 	}
 
     create(props={},context={},requiredSpace){
-        const a=this.props.create(
+        const a=this.props.create.bind(this)(
             {...props,id:this.props.id, i:this.computed.composed.length, named:this.named.bind(this)},
             {...context,parent:this,getComposer:id=>this.context.getComposer(id)}
         )
