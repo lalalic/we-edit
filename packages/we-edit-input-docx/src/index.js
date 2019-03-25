@@ -1,4 +1,4 @@
-import editors from "./model/edit"
+import editors from "./dom/edit"
 import EditableDocx from "./editable"
 
 export default class SerializableDocx extends EditableDocx{
