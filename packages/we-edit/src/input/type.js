@@ -100,8 +100,15 @@ export class Viewable{
 	* components may be model/html, model/pagination, model/pagination/edit depending on
 	* outer component[editor, html, viewer, pagination, plain]
 	*/
-	transform(models){
-		return models
+	transform(components){
+		if(this.constructor.HOCs){
+			const HOCs=this.constructor.HOCs
+			return Object.keys(HOCs).reduce((transformed,k)=>{
+				transformed[k]=HOCs[k](components)
+				return transformed
+			},{...components})
+		}
+		return {...components}
 	}
 
 	/**

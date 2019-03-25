@@ -4,7 +4,7 @@ import {Input} from "we-edit"
 import {Readable} from 'stream'
 
 import Style from "./styles"
-import Transformers from "./dom"
+import HOCs from "./dom"
 
 export default class extends Input.Editable{
 	static support(file){
@@ -32,6 +32,8 @@ export default class extends Input.Editable{
 		mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 	}
 
+	static HOCs=HOCs
+
 	parse({data, ...props}){
 		this.props=props
 		return Docx.load(data)
@@ -51,13 +53,6 @@ export default class extends Input.Editable{
 		let stream=new Readable({objectMode: true})
 		stream.push(data,"uint8array")
 		return stream
-	}
-
-	transform(components){
-		return Object.keys(Transformers).reduce((transformed,k)=>{
-			transformed[k]=Transformers[k](components)
-			return transformed
-		},{...components})
 	}
 
 	render(createElement,components){

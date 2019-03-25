@@ -1,6 +1,6 @@
 import React, {PureComponent} from "react"
 import PropTypes from "prop-types"
-import {Emitter, Stream, getActive, ACTION as weACTION, render} from "we-edit"
+import {Emitter, Stream, getActive, ACTION as weACTION, render, Provider} from "we-edit"
 import {TextField, RaisedButton} from "material-ui"
 
 import ComboBox from "../components/combo-box"
@@ -11,7 +11,7 @@ export default class Saver extends PureComponent{
         store:PropTypes.object
     }
 
-    static save=(state, doc)=>({format, stream})=>{
+    static save=(state, doc, store)=>({format, stream})=>{
         if(!stream){
             stream=Saver.getEmitterStream(state,doc).stream
         }
@@ -20,32 +20,34 @@ export default class Saver extends PureComponent{
             format={type:doc.type}
 
     	let Format=doc.type==format.type ? Emitter.Format.OutputInput : Emitter.get(format.type)
-		
+
     	return render(
-    		<doc.Store readonly={true} release={false}>
-    			<Emitter>
-    				<Stream {...stream}>
-    					<Format {...format}/>
-    				</Stream>
-    			</Emitter>
-    		</doc.Store>
+            <Provider store={store}>
+        		<doc.Store readonly={true} release={false}>
+        			<Emitter>
+        				<Stream {...stream}>
+        					<Format {...format}/>
+        				</Stream>
+        			</Emitter>
+        		</doc.Store>
+            </Provider>
         )
     }
 
     static getEmitterStream(state, doc){
         let {
-			format={type:doc.type}, 
+			format={type:doc.type},
 			stream={type:"browser",name:doc.name},
 			loader
 		}=state.get("office")
-		
+
         if(format.type!=doc.type){
             if(loader && Emitter.supports[loader.type]){
                 stream={...loader}
             }else{
                 stream={type:"browser", name:doc.name}
             }
-			
+
 			format={type:doc.type}
         }
         if(!stream.type)
@@ -97,7 +99,7 @@ export default class Saver extends PureComponent{
 		let {format, stream}=this.state
 		let supportedStreams=this.getSupportedStreams()
 		let supportedFormats=this.getSupportedFormats()
-		
+
         let noTypedStream=false
         let typedStreamUI=(({type, ...streamProps})=>{
 			let Type=Stream.get(type)
@@ -117,7 +119,7 @@ export default class Saver extends PureComponent{
 				)
 			}
 		})(stream);
-		
+
 		let typedFormatUI=(({type, ...formatProps})=>{
 			let Type=Emitter.get(type)
 			if(Type){
@@ -126,9 +128,9 @@ export default class Saver extends PureComponent{
 				return null
 			}
 		})(format);
-			
-		
-		
+
+
+
         return (
             <div style={{display:"flex", flexDirection:"column"}}>
 				<div>
@@ -142,12 +144,12 @@ export default class Saver extends PureComponent{
 						</center>)
 					}
 				</div>
-				
+
 				<div>
 					{typedStreamUI}
 				</div>
 
-               
+
 				<div style={{flex:"1 100%"}}>
 					 {supportedFormats.length>0 && (
 						<center>
@@ -161,19 +163,19 @@ export default class Saver extends PureComponent{
 						</center>
 					 )}
 				</div>
-				
+
 				<div>
 					{typedFormatUI}
 				</div>
 
                 <center>
-                    <RaisedButton 
+                    <RaisedButton
 						label="Cancel"
                         style={{marginRight:5}}
                         onClick={onCancel}
 						/>
 
-                    <RaisedButton 
+                    <RaisedButton
 						label="Save"
                         disabled={noTypedStream}
                         primary={true}
@@ -192,7 +194,7 @@ export default class Saver extends PureComponent{
         stream={...stream, ...(this.refs.stream && this.refs.stream.state || {})}
 		format={...format, ...(this.refs.format && this.refs.format.state || {})}
         onSave()
-        Saver.save(state,doc)({format,stream})
+        Saver.save(state,doc,store)({format,stream})
             .then(()=>{
                 store.dispatch(ACTION.stream(stream))
                 store.dispatch(ACTION.format(format))

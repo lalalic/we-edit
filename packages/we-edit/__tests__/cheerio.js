@@ -387,7 +387,7 @@ describe("transactify cheerio",()=>{
             })
         })
 
-        fit("anything can be ignore, if parent was ever replaced",()=>{
+        xit("anything can be ignore, if parent was ever replaced",()=>{
             const $=transactify(load())
             const html=$.html()
             $.startTransaction()

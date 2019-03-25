@@ -1,5 +1,6 @@
 import {Readable} from 'stream'
-import {Input} from "we-edit"
+import {Input, ContentQuery} from "we-edit"
+import HOCs from "./dom"
 
 
 export default class EditableDocument extends Input.Editable{
@@ -26,6 +27,8 @@ export default class EditableDocument extends Input.Editable{
 		mimeType:"application/json"
 	}
 
+	static HOCs=HOCs
+
 	parse({data, ...props}){
 		this.props=props
 		data=String.fromCharCode.apply(null, new Uint8Array(data))
@@ -35,25 +38,30 @@ export default class EditableDocument extends Input.Editable{
 	}
 
 	stream(options){
-		let data=JSON.stringify(this.doc, (k,v)=>k=="id" ? undefined : v, "\t")
+		let data=JSON.stringify(ContentQuery.fromContent(this.doc,"#root").toJS(),null,4)
 		let stream=new Readable({objectMode: true})
 		stream.push(data,"uint8array")
+		stream.push(null)
 		return stream
 	}
 
 	render(createElement, components){
+		const UnknownComponents={}
 		const renderNode=(node,createElement)=>{
-			let {type,props,children=[]}=node
-			let Type=components[type[0].toUpperCase()+type.substr(1)]
+			let {children=[], type=typeof(children)=="string"&&"text", props={},}=node
+			let TYPE=type[0].toUpperCase()+type.substr(1)
+			let Type=components[TYPE]||UnknownComponents[TYPE]
 			if(!Type){
-				Type=class{static displayName=type}
+				UnknownComponents[TYPE]=Type=class{static displayName=type}
 			}
 			return createElement(Type,props,
 				children.map ? children.map(a=>renderNode(a,createElement)).filter(a=>!!a) : children,
 				node)
 		}
 
-		this.renderNode=renderNode
+		this.renderNode=function(node, ...args){
+			return renderNode(node.toJS(), ...args)
+		}
 
 		return renderNode(this.data,createElement)
 	}

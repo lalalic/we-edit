@@ -7,7 +7,7 @@ export default class extends Component{
 	static displayName="section"
 	static propTypes={
         create: PropTypes.func.isRequired,
-		
+
 		page:PropTypes.shape({
 			width:PropTypes.number,
 			height:PropTypes.number,
@@ -16,13 +16,19 @@ export default class extends Component{
 				right:PropTypes.number,
 				top:PropTypes.number,
 				bottom:PropTypes.number,
-				header:PropTypes.number,
-				footer:PropTypes.number,
 			}),
-			cols:PropTypes.arrayOf(PropTypes.shape({
-				x:PropTypes.number,
-				width:PropTypes.number,
-			}))
+			cols:PropTypes.oneOfType([
+				PropTypes.arrayOf(PropTypes.shape({
+					x:PropTypes.number,
+					y:PropTypes.number,
+					width:PropTypes.number,
+				})),
+				PropTypes.shape({
+					num: PropTypes.number,
+					space: PropTypes.number,
+					y: PropTypes.number,
+				})
+			])
 		})
 	}
 }

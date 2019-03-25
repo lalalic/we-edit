@@ -27,18 +27,31 @@ export default (A,partable)=>class extends A{
         }else if(changed){
             const next=Children.toArray(children)
             const last=Children.toArray(this.props.children)
-            const changedIndex=next.findIndex((a, i)=>{
-                if(a.props.changed)
-                    return true
-                const b=last[i]
-                if(!b || a.props.id!=b.props.id)
-                    return true
+            const changedIndex=last.findIndex((a,i)=>{
+                let b
+                if(b=next[i]){
+                    if(b.props.id==a.props.id){
+                        if(!b.props.changed){
+                            return false
+                        }
+                    }
+                }
+                return true
             })
-            this.shouldRenderFrom={
-                changedIndex,
-                removedChildren:last.slice( changedIndex==-1 ? next.length : changedIndex)
-                    .map(a=>a.props.id)
-                    .filter(a=>a!==undefined)
+
+            this.renderChangedPart=function(renderFrom){
+                switch(changedIndex){
+                    case 0:
+                        return false
+                    case -1:
+                        return renderFrom(last.length)
+                    default:{
+                        if(this.removeChangedPart(last.slice(changedIndex).map(a=>a.props.id))){
+                            return renderFrom(changedIndex)
+                        }
+                        return false
+                    }
+                }
             }
         }
     }
@@ -69,13 +82,9 @@ export default (A,partable)=>class extends A{
             }
             const children=Children.toArray(this.props.children)
             if(changed){//remove changed part, and continue compose left
-                const {changedIndex, removedChildren}=this.shouldRenderFrom
-                let canPartRender=true
-                if(removedChildren.length){
-                    canPartRender=this.removeChangedPart(removedChildren)
-                }
-                if(canPartRender){
-                    return renderFrom(changedIndex==-1 ? children.length : changedIndex)
+                const changedRendered=this.renderChangedPart(renderFrom)
+                if(changedRendered!==false){
+                    return changedRendered
                 }
             }else if(this.computed.lastComposed.length>0){//(!this.isAllChildrenComposed())
                 const lastIndex=this.keepUntilLastAllChildrenComposed()

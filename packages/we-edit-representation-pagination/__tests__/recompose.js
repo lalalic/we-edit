@@ -83,6 +83,9 @@ describe("continuable", ()=>{
 				}
 			}
 		})
+
+	const WithSectionContext=provider(Section,{ModelTypes:Editors})
+
 	const size={
 		width:816,
 		height:1056,
@@ -90,7 +93,9 @@ describe("continuable", ()=>{
 			return this.height
 		}
 	}
-	const section=(id,ps=1)=>(<Section id={`${id}.0`} key={`${id}.0`}
+	const section=(id,ps=1)=>(
+		<WithSectionContext>
+			<Section id={`${id}.0`} key={`${id}.0`}
 					create={(props,context)=>{
 						let page=new Page({...props,...size},context)
 						page.composedHeight=size.composedHeight()
@@ -110,6 +115,7 @@ describe("continuable", ()=>{
 							)
 					}
 				</Section>
+		</WithSectionContext>
 	)
 	const pageGap=12
 

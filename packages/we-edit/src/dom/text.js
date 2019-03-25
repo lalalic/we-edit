@@ -12,7 +12,7 @@ export default class Text extends Component{
 		bold: PropTypes.bool,
 		italic: PropTypes.bool,
 		vanish: PropTypes.bool,
-		hightlight: PropTypes.string,
+		highlight: PropTypes.string,
 		border: PropTypes.object,
 		underline: PropTypes.string,
 		strike: PropTypes.bool

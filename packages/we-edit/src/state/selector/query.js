@@ -426,15 +426,6 @@ export default class Query{
 		let select=asSelector(selector,this._$)
 		return this._nodes.findIndex(k=>!select(this._content.get(k)))==-1
 	}
-
-	firstChild(){
-
-	}
-
-	lastChild(){
-
-	}
-
 	closestEnd(to){
 		debugger
 		const top=this.closest(to)
@@ -535,6 +526,32 @@ export default class Query{
 		}
 		const prev=current.forwardFirst(a=>["undefined","string"].includes(typeof(a.children)))
 		return prev.length ? {id:prev.attr('id'),at:0} : {}
+	}
+
+	toJS(){
+		const content=this._getContent()
+		const extract=id=>{
+			if(content.has(id)){
+				const {id:_, parent, children, ...node}=content.get(id).toJS()
+				if(Array.isArray(children)){
+					node.children=children.map(a=>extract(a)).filter(a=>!!a)
+				}else{
+					node.children=children
+				}
+				return node
+			}
+			return null
+		}
+
+		if(this._nodes.length>0){
+			return extract(this._nodes[0])
+		}
+
+		return {}
+	}
+
+	toString(){
+		return JSON.stringify(this.map((i,node,$)=>$(node).toJS()),null, 4)
 	}
 }
 

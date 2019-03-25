@@ -17,7 +17,7 @@ import ContextProvider from "./context-provider"
 
 export default function buildDoc(doc,inputTypeInstance){
 	const id=uuid()
-	const transform=inputTypeInstance.transform
+	const transform=inputTypeInstance.transform.bind(inputTypeInstance)
 	const TypedComponents=transform(Dom)
 
 	var store=null

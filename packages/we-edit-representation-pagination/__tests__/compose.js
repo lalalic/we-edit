@@ -322,8 +322,8 @@ describe.each([
 				})
 
 				it.each([
-					[14], 
-					[15], 
+					[14],
+					[15],
 					[16]
 					])("justify with line width %d",(lineWidth)=>{
 					const [line,last]=align("justify", lineWidth, "hello world cool stuff")
@@ -361,6 +361,7 @@ describe.each([
 			}
 		}
 		const context={parent:document,...CONTEXT}
+
 		const section=(id=0)=>(
 			<Section create={(props,context)=>new Frame({...props,width:10,height:10},context)} id={`${id}.2`} key={id}>
 				<WithParagraphContext>

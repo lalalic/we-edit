@@ -30,7 +30,7 @@ export default class File extends PureComponent{
 					onClick={e=>{
 						const {store}=this.context
 						const {doc,state}=getActive(store.getState())
-						Save.save(state,doc)({})
+						Save.save(state,doc,store)({})
 					}}>
 					<IconSave/>
 				</CheckIconButton>
