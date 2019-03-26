@@ -72,10 +72,10 @@ export default compose(
 	toggleB, toggleI, underline,
 	changeFont,changeSize})=>(
 	<ToolbarGroup>
-		<FontList label="font"
+		<FontList
 			value={style&&style.fonts ? style.fonts.split(",")[0] : ""}
 			changeFont={changeFont}/>
-		<ComboBox label="font size"
+		<ComboBox
 			style={{width:50}}
 			inputStyle={{border:"1px solid lightgray"}}
 			value={style ? style.size: 11}

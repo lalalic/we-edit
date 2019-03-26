@@ -15,15 +15,19 @@ const Cursorable=`[data-type="text"],[data-type="image"]`
 
 const Editable=Cacheable(class extends editable(Base,{stoppable:true}){
 	getNumberingAtom(){
-		const {numbering:{style}, indent:{firstLine=0}}=this.props
-		const {defaultStyle}=new this.context.Measure(style)
+		if(this.context.numbering){
+			const {numbering:{style}, indent:{firstLine=0}}=this.props
+			const {defaultStyle}=new this.context.Measure(style)
 
-		return <ComposedText
-			{...defaultStyle}
-			className="numbering"
-			width={-firstLine}
-			children={this.context.numbering(this.props.id)}
-		/>
+			return <ComposedText
+				{...defaultStyle}
+				className="numbering"
+				width={-firstLine}
+				children={this.context.numbering(this.props.id)}
+			/>
+		}else{
+			return super.getNumberingAtom()
+		}
 	}
 
 	clearComposed(){
