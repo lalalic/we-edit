@@ -20,8 +20,6 @@ export default function buildDoc(doc,inputTypeInstance){
 	const transform=inputTypeInstance.transform.bind(inputTypeInstance)
 	const TypedComponents=transform(Dom)
 
-	var store=null
-
 	const getDocStore=memoize((store,id)=>new LocalStore(store, "we-edit", state=>state['we-edit'].docs[id].state))
 
 	const buildReducer=(extendReducer=a=>a)=>{
@@ -42,11 +40,11 @@ export default function buildDoc(doc,inputTypeInstance){
 
 	const Store=compose(
 			setDisplayName("DocStore"),
-			getContext({store:PropTypes.object}),
-		)(({children,store:passedStore,release=true,reducer,...props})=>{
+			getContext({store:PropTypes.any}),
+		)(({children,store,release=true,reducer,...props})=>{
 		let onQuit=null
-		if(passedStore){
-			store=getDocStore(passedStore,id)
+		if(store){
+			store=getDocStore(store,id)
 		}else{
 			store=createStore(buildReducer(reducer))
 			onQuit=()=>inputTypeInstance.release()

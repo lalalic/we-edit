@@ -1,6 +1,8 @@
 import React, {PureComponent} from "react"
 import PropTypes from "prop-types"
-import {Emitter, Stream, getActive, ACTION as weACTION, render, Provider} from "we-edit"
+import {Provider} from "react-redux"
+
+import {Emitter, Stream, getActive, ACTION as weACTION, render} from "we-edit"
 import {TextField, RaisedButton} from "material-ui"
 
 import ComboBox from "../components/combo-box"
@@ -9,29 +11,6 @@ import ACTION from "../state/action"
 export default class Saver extends PureComponent{
     static contextTypes={
         store:PropTypes.object
-    }
-
-    static save=(state, doc, store)=>({format, stream})=>{
-        if(!stream){
-            stream=Saver.getEmitterStream(state,doc).stream
-        }
-
-    	if(!format)
-            format={type:doc.type}
-
-    	let Format=doc.type==format.type ? Emitter.Format.OutputInput : Emitter.get(format.type)
-
-    	return render(
-            <Provider store={store}>
-        		<doc.Store readonly={true} release={false}>
-        			<Emitter>
-        				<Stream {...stream}>
-        					<Format {...format}/>
-        				</Stream>
-        			</Emitter>
-        		</doc.Store>
-            </Provider>
-        )
     }
 
     static getEmitterStream(state, doc){
@@ -189,15 +168,40 @@ export default class Saver extends PureComponent{
 	save(){
         const {store}=this.context
         const {onSave}=this.props
-        const {doc,state}=getActive(store.getState())
-		let {format,stream}=this.state
+		var {format,stream}=this.state
         stream={...stream, ...(this.refs.stream && this.refs.stream.state || {})}
 		format={...format, ...(this.refs.format && this.refs.format.state || {})}
-        onSave()
-        Saver.save(state,doc,store)({format,stream})
+        Saver.save(store)({format,stream})
             .then(()=>{
                 store.dispatch(ACTION.stream(stream))
                 store.dispatch(ACTION.format(format))
-            }).catch(e=>store.dispatch(weACTION.MESSAGE({type:"error", message:e.message})))
+            })
+            .catch(e=>store.dispatch(weACTION.MESSAGE({type:"error", message:e.message})))
+            .then(onSave)
 	}
+
+    static save=store=>({format, stream})=>{
+        const {state,doc}=getActive(store.getState())
+
+        if(!stream){
+            stream=Saver.getEmitterStream(state,doc).stream
+        }
+
+    	if(!format)
+            format={type:doc.type}
+
+    	let Format=doc.type==format.type ? Emitter.Format.OutputInput : Emitter.get(format.type)
+
+    	return render(
+            <Provider store={store}>
+        		<doc.Store readonly={true} release={false}>
+        			<Emitter>
+        				<Stream {...stream}>
+        					<Format {...format}/>
+        				</Stream>
+        			</Emitter>
+        		</doc.Store>
+            </Provider>
+        )
+    }
 }

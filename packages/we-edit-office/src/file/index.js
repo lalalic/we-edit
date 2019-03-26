@@ -28,9 +28,7 @@ export default class File extends PureComponent{
 				<CheckIconButton
 					status="unchecked"
 					onClick={e=>{
-						const {store}=this.context
-						const {doc,state}=getActive(store.getState())
-						Save.save(state,doc,store)({})
+						Save.save(this.context.store)({})
 					}}>
 					<IconSave/>
 				</CheckIconButton>
