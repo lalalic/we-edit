@@ -67,7 +67,7 @@ export default class Document extends Component{
 			key={this.state.resize}
 			{...this.props}
 			pageGap={0}
-			canvas={<Canvas canvas={canvas}/>}
+			canvas1={<Canvas canvas={canvas}/>}
 			/>
 	}
 }

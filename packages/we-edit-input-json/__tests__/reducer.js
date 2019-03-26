@@ -1,6 +1,6 @@
 import {testEditableDocument, dom} from "we-edit"
 
-import Document from "../src"
+import Document from "../src/json"
 
 describe("native json doc",()=>{
     testEditableDocument(class extends Document{

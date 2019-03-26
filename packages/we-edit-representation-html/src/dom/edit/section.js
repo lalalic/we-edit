@@ -15,13 +15,17 @@ export default class extends Component{
 
 	render(){
 		const {wrap=true,margin,parent}=this.context
-		const {pgSz,pgMar, cols, ...props}=this.props
+		const {page, create, ...props}=this.props
 		const size={
 			height:Number.MAX_SAFE_INTEGER,
 			width:wrap ? parent.viewport.width : Number.MAX_SAFE_INTEGER
 		}
 
-		return <Editors.Section {...props} pgSz={size}
-			pgMar={{top:0,bottom:0,left:0,right:0,header:0,footer:0,...margin}} />
+		return <Editors.Section
+			{...props}
+			page={{
+				...size,
+				margin:{top:0,bottom:0,left:0,right:0,...margin}
+			}}/>
 	}
 }

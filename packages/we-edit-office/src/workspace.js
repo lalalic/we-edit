@@ -33,7 +33,7 @@ export default class Workspace extends PureComponent{
 		toolBar: (<Ribbon/>),
 		statusBar:(<Status/>)
 	}
-	
+
 	static contextTypes={
 		store: PropTypes.object
 	}
@@ -61,7 +61,7 @@ export default class Workspace extends PureComponent{
 			.map(({props:{channel,icon}})=>channel ? {channel,icon:icon||<span title={{channel}}/>} : null)
 			.filter(a=>!!a)
 	})
-	
+
 	getCurrent=memoize((children,channel)=>{
 		children=Children.toArray(children)
 		const current=children.find(({props})=>props.channel==channel)
@@ -80,7 +80,7 @@ export default class Workspace extends PureComponent{
 				</div>
 			)
 		}
-		
+
 		let {doc, children, toolBar, statusBar, ruler=true, layout, reducer}=this.props
 		const channels=this.getChannels(children)
 		let {current,uncontrolled}=this.getCurrent(children, channel)
@@ -92,8 +92,8 @@ export default class Workspace extends PureComponent{
 			layout=typeof(current.props.layout)=="undefined"? layout : current.props.layout
 			current=React.cloneElement(current,{scale:scale/100})
 		}
-		
-		
+
+
 		const canvas=(
 			<Canvas scale={scale} ruler={ruler}>
 				{current}
@@ -105,9 +105,9 @@ export default class Workspace extends PureComponent{
 			<doc.Store reducer={reducer}>
 				<div style={{flex:1, display:"flex", flexDirection:"column"}} key={channel}>
 					{toolBar}
-					
-					{layout ? React.cloneElement(layout, {canvas, children:layout.props.children||canvas}) : canvas}			
-					
+
+					{layout ? React.cloneElement(layout, {canvas, children:layout.props.children||canvas}) : canvas}
+
 					{statusBar && React.cloneElement(statusBar,{
 						channel:{
 							items:this.getChannels(this.props.children),
@@ -133,7 +133,7 @@ export default class Workspace extends PureComponent{
 			{React.cloneElement(children,props)}
 		</Fragment>
 	))
-	
+
 	static Layout=pure(({canvas, left,  right})=>(
 		<div style={{flex:"1 100%", display:"flex",  flexDirection:"row"}}>
 			{left && <div style={{overflow:"auto"}}>{left}</div>}

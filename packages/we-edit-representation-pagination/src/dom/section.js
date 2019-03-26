@@ -29,7 +29,6 @@ export default class Section extends Super{
 							},{x:left,columns:[]})
 							.columns
 				}
-
 				return new Section.Page({width, height, margin:{left,right,top,bottom},cols:columns, ...props},context)
 			}else{
 				throw new Error("section has no create")
@@ -41,6 +40,7 @@ export default class Section extends Super{
 		super(...arguments)
 		if(!Section.Page){
 			Section.Page=class extends this.Frame{
+				static dispatchName="PageFrame"
 				defineProperties(){
 					this.section=this.context.parent
 					super.defineProperties()
@@ -59,13 +59,11 @@ export default class Section extends Super{
 						},
 					})
 				}
-				
+
 				render(){
 					const {props:{i:key,width,height,margin}}=this
 					return React.cloneElement(super.createComposed2Parent(),{key,width,height,margin})
 				}
-
-
 			}
 		}
 	}

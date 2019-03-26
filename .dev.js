@@ -32,7 +32,7 @@ import {Tabs, Tab, ToolbarGroup, SvgIcon} from "material-ui"
 import {connect} from  "react-redux"
 import minimatch from "minimatch"
 
-function testOffice(){
+function testOffice(representation="pagination"){
 	const KEY="test"
 
 	const Tree=({data, filter="*", node})=>{
@@ -154,6 +154,7 @@ function testOffice(){
 			debug={true}
 			accept="*"
 			key={KEY}
+			ruler={false}
 			toolBar={
 				<Ribbon.Ribbon commands={{
 						layout:false,
@@ -178,7 +179,7 @@ function testOffice(){
 				layout={
 					<Workspace.Layout
 						right={
-							<div style={{width:200,}}>
+							<div style={{width:210}}>
 								<Tabs>
 									<Tab label="Document">
 										<DocumentTree
@@ -194,7 +195,7 @@ function testOffice(){
 						}
 						/>
 				}
-				children={<VariantEditor representation="pagination"/>}
+				children={<VariantEditor representation={representation}/>}
 				/>
 		</Workspace>
 	)
@@ -203,4 +204,4 @@ function testOffice(){
 }
 
 
-testOffice()
+testOffice("html")
