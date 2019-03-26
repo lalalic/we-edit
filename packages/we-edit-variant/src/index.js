@@ -3,7 +3,7 @@ import {Representation} from "we-edit"
 
 import Provider from "./variant-provider"
 
-import * as variants from "./all"
+import * as variants from "./dom"
 
 export function withVariant(Components={}){
 	let Variants=Object.keys(variants).reduce((transformed,k)=>{

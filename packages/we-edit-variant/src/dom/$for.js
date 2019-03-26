@@ -1,7 +1,7 @@
 import React, {Fragment} from "react"
 import PropTypes from "prop-types"
 
-import VariantProvider from "./variant-provider"
+import VariantProvider from "../variant-provider"
 
 import Component from "./$"
 
