@@ -19,6 +19,8 @@ export default connect(
 		39:e=>this.props.dispatch(ACTION.Cursor.MOVE_RIGHT(e.shiftKey)),//move right
 		40:e=>this.props.dispatch(ACTION.Cursor.MOVE_RIGHT(e.shiftKey)),//move down
 		116:e=>this.props.dispatch(ACTION.Refresh()),//F5: refresh move down
+		metaz:e=>this.props.dispatch(ACTION.History.undo()),//meta +z,
+		metay:e=>this.props.dispatch(ACTION.History.redo()),//meta +y,
 	}
 
 	render(){
@@ -54,7 +56,7 @@ export default connect(
 					e.preventDefault()
 					return
 				}
-				const control=keys[e.keyCode]
+				const control=keys[e.keyCode]||(({key,metaKey,ctrlKey,fnx=metaKey||ctrlKey ? "meta" :""})=>keys[`${fnx}${key.toLowerCase()}`])(e);
 				if(control){
 					e.preventDefault()
 					control(e)
