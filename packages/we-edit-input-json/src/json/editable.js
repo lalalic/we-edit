@@ -23,7 +23,7 @@ export default class EditableDocument extends Input.Editable{
 	static defaultProps={
 		type:"json",
 		ext:"json",
-		name:"We-Edit document",
+		name:"We-Edit json document",
 		mimeType:"application/json"
 	}
 
@@ -38,7 +38,17 @@ export default class EditableDocument extends Input.Editable{
 	}
 
 	stream(options){
-		let data=JSON.stringify(ContentQuery.fromContent(this.doc,"#root").toJS(),null,4)
+		let data=JSON.stringify(ContentQuery.fromContent(this.doc,"#root").toJS(),(key,value)=>{
+			if(key=="type" && value=="text"){
+				return undefined
+			}
+			if(key=="props"){
+				if(Object.keys(value).length==0){
+					return undefined
+				}
+			}
+			return value
+		},4)
 		let stream=new Readable({objectMode: true})
 		stream.push(data,"uint8array")
 		stream.push(null)

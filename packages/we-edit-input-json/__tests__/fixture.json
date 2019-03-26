@@ -1,0 +1,227 @@
+{
+    "type": "document",
+    "props": {
+        "defaultStyle": {
+            "fonts": "arial",
+            "size": 12,
+            "color": "black"
+        }
+    },
+    "children": [
+        {
+            "type": "section",
+            "props": {
+                "page": {
+                    "width": 613,
+                    "height": 868,
+                    "margin": {
+                        "left": 49,
+                        "right": 44,
+                        "top": 96,
+                        "bottom": 96
+                    }
+                }
+            },
+            "children": [
+                {
+                    "type": "paragraph",
+                    "children": [
+                        {
+                            "children": "hello raymond Video provides a powerful way to help you prove your point. When you click Online Video, you can paste in the embed code for the video you want to add. "
+                        }
+                    ]
+                },
+
+                {
+                    "type":"paragraph",
+                    "children":[
+                        {
+                            "type":"$for",
+                            "props":{
+                                "init":"var i=children.length-1",
+                                "test":"i>=0",
+                                "update":"i--"
+                            },
+                            "children":[
+                                {
+                                    "type":"$exp",
+                                    "props":{
+                                        "expression":"children[i].name+','"
+                                    },
+                                    "children":[
+                                        {
+                                            "props":{
+                                                "color":"red"
+                                            },
+                                            "children":""
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+
+                {
+                    "type":"paragraph",
+                    "children":[
+                        {
+                            "type":"$for",
+                            "props":{
+                                "init":"var i=0",
+                                "test":"i<4",
+                                "update":"i++"
+                            },
+                            "children":[
+                                {
+                                    "props":{
+                                        "color":"blue"
+                                    },
+                                    "children":"hello "
+                                },
+                                {
+                                    "type":"$exp",
+                                    "props":{
+                                        "expression":"`${lastName} ${i},`",
+                                    },
+                                    "children":[
+                                        {
+                                            "props":{
+                                                "color":"blue"
+                                            },
+                                            "children":""
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+
+                {
+                    "type":"$for",
+                    "props":{
+                        "init":"var i=0",
+                        "test":"i<5",
+                        "update":"i++"
+                    },
+                    "children":[
+                        {
+                            "type":"paragraph",
+                            "props":{
+                                "numbering":{
+                                    "style":{
+                                        "fonts":"arial",
+                                        "size":12
+                                    },
+                                    "label":">"
+                                },
+                                "indent":{
+                                    "left": 50,
+                                    "firstLine": -20
+                                }
+                            },
+                            "children":[
+                                {
+                                    "type":"$for",
+                                    "props":{
+                                        "init":"var i=0",
+                                        "test":"i<4",
+                                        "update":"i++"
+                                    },
+                                    "children":[
+                                        {
+                                            "props":{
+                                                "color":"blue"
+                                            },
+                                            "children":"hello "
+                                        },
+                                        {
+                                            "type":"$exp",
+                                            "props":{
+                                                "expression":"`${lastName} ${i},`"
+                                            },
+                                            "children":[
+                                                {
+                                                    "props":{
+                                                        "color":"blue"
+                                                    },
+                                                    "children":""
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type":"$exp",
+                                    "props":{
+                                        "expression":"`----${i+''}`"
+                                    },
+                                    "children":[
+                                        {
+                                            "props":{
+                                                "fonts":"arial",
+                                                "size":12,
+                                                "color":"blue",
+                                                "bold":true,
+                                            },
+                                            "children":""
+                                        }
+                                    ]
+                                },
+                            ]
+                        }
+                    ]
+                },
+
+                {
+                    "type":"paragraph",
+                    "children":[
+                        {
+                            "type":"$if",
+                            "props":{
+                                "condition":"isEmployee"
+                            },
+                            "children":[
+                                {
+                                    "type":"text",
+                                    "props":{
+                                        "fonts":"arial",
+                                        "size":12,
+                                        "color":"red"
+                                    },
+                                    "children":"hello raymond Video provides a powerful way to help you prove your point. When you click Online Video, you can paste in the embed code for the video you want to add. "
+                                },
+                                {
+                                    "type":"text",
+                                    "props":{
+                                        "fonts":"arial",
+                                        "size":12,
+                                        "color":"yellow"
+                                    },
+                                    "children":"hello raymond Video provides a powerful way to help you prove your point. When you click Online Video, you can paste in the embed code for the video you want to add. "
+                                }
+                            ]
+                        },
+
+                        {
+                            "type":"$exp",
+                            "props":{
+                                "expression":"lastName+' '+firstName",
+                                "name":"name",
+                            },
+                            "children":[
+                                {
+                                    "props":{
+                                        "color":"red"
+                                    },
+                                    "children":""
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
