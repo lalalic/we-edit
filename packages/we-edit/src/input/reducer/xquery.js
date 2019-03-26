@@ -130,7 +130,7 @@ export default class xQuery extends Query{
 						return c
 					})
 				}
-				
+
     			this._content.setIn([k,"parent"],pid)
     			this._content.updateIn([pid,"children"],c=>c.insert(index+i,k))
 
@@ -204,7 +204,7 @@ export default class xQuery extends Query{
 	}
 
     splitUpTo(to,at=0){
-		debugger
+
         to=this.closest(to)
 
 		if(to.length==0){

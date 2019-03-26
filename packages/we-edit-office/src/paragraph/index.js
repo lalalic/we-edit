@@ -33,29 +33,29 @@ export default compose(
 )(({style, align,numbering, bullet, children})=>(
 	<ToolbarGroup>
 		<CheckIconButton
-			status={!style ? "disabled" : (!style.align ||style.align=="left")?"checked":"unchecked"}
+			status={style &&(!style.align ||style.align=="left")?"checked":"unchecked"}
 			onClick={()=>align("left")}
 			children={<IconAlignLeft/>}
 			/>
 		<CheckIconButton
-			status={!style ? "disabled" : style.align=="center"?"checked":"unchecked"}
+			status={style&&style.align=="center"?"checked":"unchecked"}
 			onClick={()=>align("center")}
 			children={<IconAlignCenter/>}
 			/>
 		<CheckIconButton
-			status={!style ? "disabled" : style.align=="right"?"checked":"unchecked"}
+			status={style &&style.align=="right"?"checked":"unchecked"}
 			onClick={()=>align("right")}
 			children={<IconAlignRight/>}
 			/>
 		<CheckIconButton
-			status={!style ? "disabled" : style.align=="justify"?"checked":"unchecked"}
+			status={style&&style.align=="justify"?"checked":"unchecked"}
 			onClick={()=>align("justify")}
 			children={<IconAlignJustify/>}
 			/>
 		<ToolbarSeparator/>
 
 		<DropDownButton
-			status={!style||!style.numbering ? "disabled" : style.numbering.format=="bullet" ?"checked":"unchecked"}
+			status={style&&style.numbering&&style.numbering.format=="bullet" ?"checked":"unchecked"}
 			onClick={()=>bullet("")}
 			icon={<IconListBullet/>}
 			>
@@ -64,7 +64,7 @@ export default compose(
 
 		</DropDownButton>
 		<DropDownButton
-			status={!style||!style.numbering ? "disabled" : style.numbering.format!=="bullet" ?"checked":"unchecked"}
+			status={style&&style.numbering&&style.numbering.format!=="bullet" ?"checked":"unchecked"}
 			onClick={()=>bullet("")}
 			icon={<IconListNumber/>}
 			>

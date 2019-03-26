@@ -123,6 +123,8 @@ class SelectionStyle{
     props=memoize((type, getFromContent=true)=>{
         if(type.toLowerCase()=="page"){
             return this.pageProps()
+        }else if(type.toLowerCase()=="layout"){
+            return this.layoutProps()
         }
 
         if(getFromContent){
@@ -138,7 +140,16 @@ class SelectionStyle{
         }
     })
 
+    layoutProps(){
+        if(!this.positioning.canvas)
+            return null
+        const page=this.positioning.pages[this.position.page]
+        return page.layoutOf(page.columnIndexOf(page.lineIndexOf(this.position)))
+    }
+
     pageProps(){
+        if(!this.positioning.canvas)
+            return null
         const page=this.positioning.pages[this.position.page]
         const pageY=()=>this.positioning.pageXY(this.position.page).y
         const line=()=>page.lineIndexOf(this.position)
@@ -157,7 +168,7 @@ class SelectionStyle{
             },
             get cols(){
                 return cols()
-            },
+            }
         }
     }
 

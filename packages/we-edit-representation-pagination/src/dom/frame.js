@@ -268,6 +268,11 @@ class Fixed extends Super{
 		}
 	}
 
+	layoutOf(){
+		const {width,height,margin}=this.props
+		return {width,height,margin}
+	}
+
 	lineIndexOf(position){
         const lines=this.lines
         const {lineIndexOfParagraph,paragraph,id,at}=position
@@ -473,6 +478,10 @@ class Columnable extends Fixed{
 			}
 			return c
 		},{count:line+1,i:0}).i
+	}
+
+	layoutOf(){
+		return Object.assign(super.layoutOf(),{cols:this.cols})
 	}
 
 	includeContent(id){

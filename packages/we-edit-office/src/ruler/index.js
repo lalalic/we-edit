@@ -37,12 +37,13 @@ export default compose(
 	})),
 	withProps(({selection})=>{
 		let {
-				pgSz:{width,height}={},
-				pgMar:{
+				width,height,
+				margin:{
 					left:leftMargin,top:topMargin,right:rightMargin,bottom:bottomMargin,
 					header,footer,
-				}={}
-			}=(selection && selection.props("section")||{})
+				}={},
+				cols=[{x:leftMargin,width:width-leftMargin-rightMargin}]
+			}=(selection && selection.props("layout")||{})
 
 		let {
 			indent:{left:leftIndent,right:rightIndent,firstLine}={}
@@ -50,6 +51,7 @@ export default compose(
 
 		return {
 			width,height,leftMargin,topMargin,bottomMargin,rightMargin,leftIndent,rightIndent,firstLine,
+			cols,
 			header,footer
 		}
 	}),

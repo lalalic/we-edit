@@ -157,6 +157,10 @@ export default ({Section,Frame, Container})=>{
 			return React.cloneElement(super.createComposed2Parent(),{key,width,height,margin})
 		}
 
+		layoutOf(columnIndex,i=0){
+			return Object.assign(super.layoutOf(columnIndex),this.layouts.find(a=>(i+=a.cols.length)>=columnIndex)||{})
+		}
+
 		removeFrom(lineIndex){
 			//remove content
 			const done=super.removeFrom(...arguments)
@@ -164,7 +168,7 @@ export default ({Section,Frame, Container})=>{
 			const i=this.columns.length==0 ? 0 : this.layouts.findIndex(a=>a.id==this.currentColumn.id)
 			this.layouts.splice(i+1)
 
-			//delete all pages in following continuous secions
+			//delete all pages in following continuous sections
 			const siblings=this.section.getDocument().props.children
 			const j=siblings.findIndex(a=>a.props.id==this.section.id)
 			siblings.slice(j+1).reduce((continuing,a)=>{
