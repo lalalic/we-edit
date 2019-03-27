@@ -1181,6 +1181,31 @@ describe("positioning",()=>{
         xit("line start/end",()=>{
 
         })
+
+        it("text is empty",()=>{
+            const p=test(
+                <Paragraph id={`${++uuid}`}>
+                    <Text id="1">hello</Text>
+                    <Text id="2"></Text>
+                    <Text id="0">text</Text>
+                </Paragraph>)
+            expect(p.position("1",1)).toMatchObject({x:1,y:0,height:10})
+            expect(p.position("2",0)).toMatchObject({x:5+0,y:0,height:10})
+        })
+
+        it("empty container",()=>{
+            const p=test(
+                <Paragraph id={`${++uuid}`}>
+                    <Text id="1">hello</Text>
+                    <Container id="2">
+                        <Text id="3"></Text>
+                    </Container>
+                    <Text id="0">text</Text>
+                </Paragraph>)
+            expect(p.position("1",1)).toMatchObject({x:1,y:0,height:10})
+            expect(p.position("3",0)).toMatchObject({x:5+0,y:0,height:10})
+            expect(p.position("2",0)).toMatchObject({x:5+0,y:0})
+        })
 	})
 
     describe("range", ()=>{
@@ -1274,6 +1299,18 @@ describe("positioning",()=>{
             expect(rects.length).toBe(2)
             expect(rects[0]).toMatchObject({left:9+1,right:9+12})
             expect(rects[1]).toMatchObject({left:9,right:9+1})
+        })
+
+        it("paragraph in container",()=>{
+            const doc=test(
+                <Container id="2">
+                    <Paragraph id={"1"}>
+                        <Text id={"0"}>text</Text>
+                    </Paragraph>
+                </Container>
+            )
+            expect(doc.getRangeRects({id:"1",at:0},{id:"1",at:1})).toMatchObject([{left:0,top:0,right:5,bottom:10}])
+            expect(doc.getRangeRects({id:"2",at:0},{id:"2",at:1})).toMatchObject([{left:0,top:0,bottom:10}])
         })
     })
 

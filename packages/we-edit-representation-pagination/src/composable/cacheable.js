@@ -39,15 +39,15 @@ export default (A,partable)=>class extends A{
                 return true
             })
 
-            this.renderChangedPart=function(renderFrom){
+            this.renderChangedPart=function(){
                 switch(changedIndex){
                     case 0:
                         return false
                     case -1:
-                        return renderFrom(last.length)
+                        return this.renderFrom(last.length)
                     default:{
                         if(this.removeChangedPart(last.slice(changedIndex).map(a=>a.props.id))){
-                            return renderFrom(changedIndex)
+                            return this.renderFrom(changedIndex)
                         }
                         return false
                     }
@@ -69,27 +69,17 @@ export default (A,partable)=>class extends A{
 		}
 
         if(partable){
-            const renderFrom=index=>{
-                if(this.appendLastComposed()===false){
-                    return super.render()
-                }
-                //only compose from changedIndex
-                let _children=this.children
-                this.children=()=>children.slice(index)
-                const rendered=super.render()
-                this.children=_children
-                return rendered
-            }
-            const children=Children.toArray(this.props.children)
             if(changed){//remove changed part, and continue compose left
-                const changedRendered=this.renderChangedPart(renderFrom)
-                if(changedRendered!==false){
-                    return changedRendered
+                if(this.renderChangedPart){
+                    const changedRendered=this.renderChangedPart()
+                    if(changedRendered!==false){
+                        return changedRendered
+                    }
                 }
             }else if(this.computed.lastComposed.length>0){//(!this.isAllChildrenComposed())
                 const lastIndex=this.keepUntilLastAllChildrenComposed()
                 if(lastIndex!=-1){
-                    return renderFrom(lastIndex+1)
+                    return this.renderFrom(lastIndex+1)
                 }
             }
         }
@@ -99,6 +89,21 @@ export default (A,partable)=>class extends A{
         this.computed.lastComposed=[]
         return super.render()
 	}
+
+    renderFrom(index){
+        if(this.appendLastComposed()===false){
+            return super.render()
+        }
+        //only compose from changedIndex
+        const _children=this.children
+        try{
+            this.children=()=>Children.toArray(this.props.children).slice(index)
+            const rendered=super.render()
+            return rendered
+        }finally{
+            this.children=_children
+        }
+    }
 
     appendLastComposed(){
         if(super.appendLastComposed){

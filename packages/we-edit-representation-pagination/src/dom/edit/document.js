@@ -48,9 +48,11 @@ export default class Document extends Super{
 
 	renderComposed(){
 		const {canvas,scale,pageGap,canvasId,content}=this.props
+		const {viewport}=this.state
 		const pages=this.computed.composed
 		return (
 				<Responsible
+					viewport={viewport}
 					dispatch={this.context.activeDocStore.dispatch}
 					canvasId={canvasId}
 					content={content}

@@ -294,6 +294,11 @@ class Fixed extends Super{
             return index
         }
     }
+
+	clone(props){
+		const {computed}=this
+		return Object.assign(new this.constructor({...this.props, ...props},this.context),{computed})
+	}
 }
 
 class Columnable extends Fixed{

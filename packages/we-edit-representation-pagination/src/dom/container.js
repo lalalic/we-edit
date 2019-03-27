@@ -12,7 +12,7 @@ export default class extends HasParentAndChild(dom.Container){
         const {width,height,minWidth,x,y,wrap,anchor,descent,pagination,replaceable, ...props}=element.props
         return super.appendComposed(React.createElement(Group,{
             width,height,minWidth,wrap,anchor,descent,pagination,x,y,replaceable,
-            children:React.cloneElement(element,{x:undefined, y:undefined,wrap:undefined,anchor:undefined,pagination:undefined,replaceable:undefined})
+            children:React.cloneElement(element,{x:undefined, y:undefined,wrap:undefined,anchor:undefined,replaceable:undefined})
         }))
     }
 }

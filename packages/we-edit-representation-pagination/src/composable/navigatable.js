@@ -59,11 +59,8 @@ export default function Navigatable(A){
 			const pages=this.getPages()
 			var target,parents
 			const page=pages[`find${at==0?"":"Last"}`](a=>{
-				let found=new ReactQuery(a.render())[`find${at==0 ? "First" :"Last"}AndParents`](a=>{
-					if(a.props["data-content"]==id){
-						return true
-					}
-				})
+				const FirstOrLast=at==0 ? "First" : "Last"
+				const found=new ReactQuery(a.render())[`find${FirstOrLast}AndParents`](`[data-content="${id}"]`)
 				target=(found.first||found.last).get(0)
 				if(target){
 					parents=found.parents
@@ -73,7 +70,12 @@ export default function Navigatable(A){
 			})
 
 			if(target){
-				const {x=0,y=0,width=0,height=0}=target.props
+				const {x=0,width=0,height=0,descent}=target.props
+				let y=target.props.y||0
+				if(descent){
+					y=y-(height-descent)
+				}
+
 				const position=parents.reduce((p,{props:{x=0,y=0}})=>(p.x+=x,p.y+=y,p),{x,y,width,height,id,at,page:page.props.I})
 				if(at==1){
 					position.x+=width
