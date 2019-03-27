@@ -355,7 +355,7 @@ class Columnable extends Fixed{
 				enumerable:false,
 				configurable:true,
 				get(){
-					const {width,cols=[{x:0,width}]}=this.props
+					const {width,margin:{left=0,top=0}={}, cols=[{x:left,y:top,width}]}=this.props
 					return cols
 				}
 			},

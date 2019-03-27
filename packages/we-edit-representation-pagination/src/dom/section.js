@@ -13,7 +13,7 @@ export default class Section extends Super{
 			const {page}=this.props
 			if(page){
 				const {
-					width,height,margin:{left=0,right=0,top=0,bottom=0,header=0,footer=0},
+					width,height,margin:{left=0,right=0,top=0,bottom=0,header=0,footer=0}={},
 					cols
 				}=page
 				const availableWidth=width-left-right
