@@ -7,7 +7,12 @@ import {Group} from "../composed"
 export default class Media extends Component{
 	static contextTypes={
 		media: PropTypes.string,
-		paper: PropTypes.bool,
+		paper: PropTypes.oneOfType([
+			PropTypes.bool,
+			PropTypes.shape({
+				border:PropTypes.bool
+			})
+		])
 	}
 
 	render(){
@@ -57,7 +62,7 @@ class SmartShow extends Component{
 				onEnter={e=>{this.setState({display:true})}}
 				onLeave={e=>this.setState({display:false})}>
 				<g>
-					{paper!==false && <Paper {...{width,height,margin,fill:"white", precision}}/>}
+					{paper && <Paper {...{width,height,margin,fill:"white", precision,...paper}}/>}
 					{display ? children : null}
 				</g>
 			</Waypoint>
@@ -65,21 +70,17 @@ class SmartShow extends Component{
 	}
 }
 
-const Paper=({width,height, margin:{left,right,top,bottom},precision,...props})=>(
-       <g className="paper">
-		   <rect {...props} {...{width,height}}/>
-		   <path d={`M0 0 L${width} 0 L${width} ${height} L0 ${height}Z`}
-				   fill="none"
-				   strokeWidth={1} stroke="lightgray"/>
-			<Margin margin={{left,top,right:width-right,bottom:height-bottom}} precision={precision}/>
-       </g>
-)
-
-const Margin=({precision,margin:{left,top, right,bottom},marginWidth=20*precision, strokeWidth=1*precision})=>(
-	<path strokeWidth={strokeWidth} stroke="lightgray" fill="none" d={`
-		M${left-marginWidth} ${top} h${marginWidth} v${-marginWidth}
-		M${left-marginWidth} ${bottom} h${marginWidth} v${marginWidth}
-		M${right+marginWidth} ${bottom} h${-marginWidth} v${marginWidth}
-		M${right+marginWidth} ${top} h${-marginWidth} v${-marginWidth}
-	`}/>
+const Paper=({width,height, margin:{left,right,top,bottom}, precision, border=true,
+	strokeWidth=1*precision, marginWidth=20*precision, ...props})=>(
+   <g className="paper">
+	   <rect {...props} {...{width,height}}/>
+	   {border && <path strokeWidth={strokeWidth} stroke="lightgray" fill="none" d={`
+		   		M0 0 h${width} v${height} h${-width}z
+				M${left-Math.min(left,marginWidth)} ${top} h${Math.min(left,marginWidth)} v${-Math.min(top,marginWidth)}
+				M${left-Math.min(left,marginWidth)} ${height-bottom} h${Math.min(left,marginWidth)} v${Math.min(bottom,marginWidth)}
+				M${width-right+Math.min(right,marginWidth)} ${height-bottom} h${-Math.min(right,marginWidth)} v${Math.min(bottom,marginWidth)}
+				M${width-right+Math.min(right,marginWidth)} ${top} h${-Math.min(right,marginWidth)} v${-Math.min(top,marginWidth)}
+			`}/>
+		}
+   </g>
 )

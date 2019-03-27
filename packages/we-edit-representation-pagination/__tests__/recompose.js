@@ -10,7 +10,6 @@ import Responsible from "../src/composed/responsible"
 import Locator from "../src/composed/locator"
 import ComposedDocument from "../src/composed/document"
 import provider from "./context"
-import Waypoint from "react-waypoint"
 
 const {Document, Section, Frame,Paragraph, Text, Image}=Editors
 Document.defaultProps.id="root"
@@ -22,7 +21,6 @@ const $=pages=>{
 }
 
 jest.mock("../src/composed/locator")
-jest.mock("react-waypoint")
 
 describe("continuable", ()=>{
 	beforeAll(()=>{

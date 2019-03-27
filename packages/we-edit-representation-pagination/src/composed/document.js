@@ -6,6 +6,7 @@ import Group from "./group"
 import Media from "./media"
 
 export default class ComposedDocument extends Component{
+	static displayName="composed"
 	static propTypes={
 		pages: PropTypes.arrayOf(PropTypes.object).isRequired,
 		pgGap: PropTypes.number.isRequired,
