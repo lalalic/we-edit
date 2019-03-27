@@ -3,16 +3,19 @@ import PropTypes from "prop-types"
 import {withContext} from "recompose"
 import TestRenderer from "react-test-renderer"
 
+jest.mock("../../we-edit-representation-pagination/src/composed/locator")
+
 import dom from "../src/dom/edit"
 
 var uuid=10
 
 describe("html", ()=>{
+
 	const {Document, Section, Paragraph, Text}=dom
 
 	Paragraph.defaultProps.defaultStyle={fonts:"arial",size:12}
 	Text.defaultProps=Object.assign(Text.defaultProps||{},{fonts:"arial",size:12})
-	
+
 	const provider=(A,Default={})=>withContext(A.contextTypes,({context})=>({...Default,...context}))(({children})=><Fragment>{children}</Fragment>)
 	const store=(state={
 			equals({start,end}){
@@ -35,14 +38,7 @@ describe("html", ()=>{
 					}
 				}
 			},
-			ModelTypes:dom
-		})
-
-	const StoreContext=provider({contextTypes:{
-		activeDocStore:PropTypes.any,
-		ModelTypes:PropTypes.any,
-	}},store())
-	const TextContext=provider(Text,{
+			ModelTypes:dom,
 			Measure:class{
 				height=10
 				defaultStyle={height:10,descent:1}
@@ -56,56 +52,68 @@ describe("html", ()=>{
 			}
 		})
 
-	const WithSectionContext=provider(Section,{ModelTypes:dom})
+	const StoreContext=provider({contextTypes:{
+		activeDocStore:PropTypes.any,
+		ModelTypes:PropTypes.any,
+		Measure: PropTypes.any,
+	}},store())
 
-	const size={
-		width:816,
-		height:1056,
-		composedHeight(){
-			return this.height
-		}
-	}
+	const viewport={width:100,height:200,node:{scrollTop:0}}
+	const margin={left:10,right:20,top:10,bottom:10}
 
-	fit("basic",function(){
-		let node=TestRenderer.create(
+
+	const render=(content,docProps={margin})=>{
+		const renderer=TestRenderer.create(
 			<StoreContext>
 				<Document
 					id="root"
-					viewport={{width:100,height:200,node:{scrollTop:0}}}
+					viewport={viewport}
 					screenBuffer={0}
 					scale={1}
+					{...docProps}
 					>
-					<Section id={`${uuid++}`}page={{width:100,height:200}}>
-						<Paragraph id={`${uuid++}`}>
-							<Text id={`${uuid++}`}>Hello</Text>
-						</Paragraph>
-					</Section>
+					<Fragment>
+						{content ||
+						<Section id={`${uuid++}`}>
+							<Paragraph id={`${uuid++}`}>
+								<Text id={`${uuid++}`}>Hello</Text>
+							</Paragraph>
+						</Section>
+						}
+					</Fragment>
 				</Document>
 			</StoreContext>
 		)
+		const doc=renderer.root.find(a=>a.type.displayName && a.type.displayName.endsWith("composable-document")).instance
+		const composedDoc=renderer.root.find(a=>a.type.displayName=="composed").instance
+		const pages=composedDoc.props.pages
+		return {renderer, doc, pages, page:pages[0],composed:composedDoc}
+	}
+
+	it("basic editor compose",function(){
+		const {page, pages}=render(undefined, {margin})
+		expect(pages.length).toBe(1)
+		expect(page.props.margin).toMatchObject(margin)
+		expect(page.props.height).toBe(viewport.height)
 	})
 
-	it("basic",()=>{
-		let node=render(
-			<Document>
-				<Section>
-					<Paragraph>
-						<Text {...TEXT}>Hello0</Text>
+
+	it("two section, two pages, sum(height)>=viewport.height",()=>{
+		const {pages}=render(
+			<Fragment>
+				<Section id={`${++uuid}`}>
+					<Paragraph id={`${++uuid}`}>
+						<Text id={`${++uuid}`}>Hello</Text>
 					</Paragraph>
 				</Section>
-				<Section>
-					<Paragraph>
-						<Text {...TEXT}>Hello1</Text>
+				<Section id={`${++uuid}`}>
+					<Paragraph id={`${++uuid}`}>
+						<Text id={`${++uuid}`}>Hello</Text>
 					</Paragraph>
 				</Section>
-			</Document>
+			</Fragment>
 		)
-		expect(node.findAllByType("article").length).toBe(1)
-		"p,span"
-			.split(",")
-			.forEach(a=>expect(node.findAllByType(a).length).toBe(2))
-		node.findAllByType("span")
-			.forEach((a,i)=>expect(a.props.children).toBe(`Hello${i}`))
+		expect(pages.length).toBe(2)
+		expect(pages.reduce((X,a)=>X+a.props.height,0)==viewport.height).toBe(true)
 	})
-
 })

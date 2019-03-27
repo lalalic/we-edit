@@ -183,6 +183,11 @@ export default ({Section,Frame, Container})=>{
 			},true)
 			return done
 		}
+
+		clone(){
+			const {layouts,y0,y1}=this
+			return Object.assign(super.clone(...arguments),{layouts,y0,y1})
+		}
 	}
 
 	return class extends Component{

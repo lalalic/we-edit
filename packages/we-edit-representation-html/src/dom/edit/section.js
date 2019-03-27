@@ -7,10 +7,7 @@ export default class extends Component{
 	static contextTypes={
 		parent: PropTypes.object,
 		wrap: PropTypes.bool,
-		margin: PropTypes.shape({
-			left: PropTypes.number,
-			right: PropTypes.number
-		})
+		margin: PropTypes.object
 	}
 
 	render(){
@@ -25,7 +22,7 @@ export default class extends Component{
 			{...props}
 			page={{
 				...size,
-				margin:{top:0,bottom:0,left:0,right:0,...margin}
+				margin,
 			}}/>
 	}
 }
