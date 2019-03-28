@@ -13,11 +13,8 @@ const Super=HasParentAndChild(Base)
 
 class Fixed extends Super{
 	static IMMEDIATE_STOP=Number.MAX_SAFE_INTEGER
-	static Fixed=Fixed
 	constructor(){
 		super(...arguments)
-		if(this.props.REF)
-			this.props.REF(this)
 		this.defineProperties()
 	}
 
@@ -501,6 +498,43 @@ class Columnable extends Fixed{
 		return !![...this.lines,...this.anchors].find(a=>this.belongsTo(a,id))
 	}
 
+	rollbackLines(n){
+		var removedLines=[]
+		if(n==0){
+			removedLines.anchors=[]
+			return removedLines
+		}
+		for(let i=this.columns.length-1;i>-1;i--){
+			let lines=this.columns[i].children
+			if(n<=lines.length){
+				removedLines=removedLines.concat(lines.splice(-n))
+				break
+			}else{
+				removedLines=removedLines.concat(this.columns.splice(i)[0].children)
+				n=n-lines.length
+			}
+		}
+
+		const anchors=(lines=>{
+			const getAnchorId=a=>new ReactQuery(a).findFirst('[data-type="anchor"]').attr("data-content")
+			const ids=Array.from(
+				lines.reduce((ps, line)=>{
+					ps.add(getAnchorId(line))
+					return ps
+				},new Set())
+			).filter(a=>!!a)
+
+			return this.computed.composed
+				.filter(a=>ids.includes(getAnchorId(a)))
+				.map(a=>{
+					this.computed.composed.splice(this.computed.composed.indexOf(a),1)
+					return a
+				})
+		})(removedLines);
+
+		removedLines.anchors=anchors
+		return removedLines
+	}
 }
 
 class Balanceable extends Columnable{
@@ -652,45 +686,6 @@ class PaginationControllable extends Balanceable{
 			this.orphanCount(line)==0 &&
 			this.getFlowableComposerId(this.firstLine)!==this.getFlowableComposerId(this.lastLine)
 		return should
-	}
-
-
-	rollbackLines(n){
-		var removedLines=[]
-		if(n==0){
-			removedLines.anchors=[]
-			return removedLines
-		}
-		for(let i=this.columns.length-1;i>-1;i--){
-			let lines=this.columns[i].children
-			if(n<=lines.length){
-				removedLines=removedLines.concat(lines.splice(-n))
-				break
-			}else{
-				removedLines=removedLines.concat(this.columns.splice(i)[0].children)
-				n=n-lines.length
-			}
-		}
-
-		const anchors=(lines=>{
-			const getAnchorId=a=>new ReactQuery(a).findFirst('[data-type="anchor"]').attr("data-content")
-			const ids=Array.from(
-				lines.reduce((ps, line)=>{
-					ps.add(getAnchorId(line))
-					return ps
-				},new Set())
-			).filter(a=>!!a)
-
-			return this.computed.composed
-				.filter(a=>ids.includes(getAnchorId(a)))
-				.map(a=>{
-					this.computed.composed.splice(this.computed.composed.indexOf(a),1)
-					return a
-				})
-		})(removedLines);
-
-		removedLines.anchors=anchors
-		return removedLines
 	}
 }
 
