@@ -3,13 +3,15 @@ import PropTypes from "prop-types"
 import {Editors} from  "we-edit-representation-html"
 
 
-export default class Paragraph extends Component{
+export default class extends Component{
 	static contextTypes={
-		lineHeight: PropTypes.string
+		lineHeight: PropTypes.string,
+		fonts: PropTypes.string,
+		size: PropTypes.number,
 	}
 	render(){
-		let {id,children, changed, selfChanged}=this.props
-		let {lineHeight="140%"}=this.context
-		return (<Editors.Paragraph {...{spacing:{lineHeight},children,id,changed,selfChanged}}/>)
+		const {lineHeight="140%", fonts, size}=this.context
+		const {spacing={}, numbering, ...props}=this.props
+		return (<Editors.Paragraph {...props} spacing={{...spacing,lineHeight}} defaultStyle={{fonts,size}}/>)
 	}
 }

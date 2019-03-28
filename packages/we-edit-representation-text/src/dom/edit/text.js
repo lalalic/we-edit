@@ -10,11 +10,11 @@ export default class Text extends Component{
 	}
 
 	render(){
-		let {color, vanish,id,children, changed, selfChanged}=this.props
+		const {color, vanish,id,children, changed}=this.props
 
-		let {fonts, size,colorful}=this.context
+		const {fonts, size,colorful}=this.context
 
-		let props={fonts, size, vanish, id, children,changed, selfChanged}
+		const props={fonts, size, vanish, id, children,changed}
 		if(colorful){
 			props.color=color
 		}
