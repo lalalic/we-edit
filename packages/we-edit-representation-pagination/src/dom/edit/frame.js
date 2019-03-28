@@ -6,7 +6,11 @@ import {Cacheable} from "../../composable"
 import Base from "../frame"
 import {Group} from "../../composed"
 
-export default Cacheable(class extends editable(Base){
+const factory=base=>Cacheable(class extends editable(base){
+    static editableLike(A){
+        return factory(A)
+    }
+
     clearComposed(){
         this.columns=[]
         return super.clearComposed(...arguments)
@@ -95,3 +99,5 @@ export default Cacheable(class extends editable(Base){
         return [...super.composeFrames(),this.props.id]
     }
 })
+
+export default factory(Base)

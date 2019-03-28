@@ -56,7 +56,7 @@ class SmartShow extends Component{
 	state={display:false}
 	render(){
 		const {display}=this.state
-		const {children,i,width,height,margin,paper,precision}=this.props
+		const {children,i,width,height,margin,paper=true,precision}=this.props
 		return (
 			<Waypoint fireOnRapidScroll={false}
 				onEnter={e=>{this.setState({display:true})}}

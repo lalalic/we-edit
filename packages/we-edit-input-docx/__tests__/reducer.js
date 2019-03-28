@@ -116,8 +116,8 @@ describe("reduce docx",()=>{
                     body.prepend(this.constructor.createContent(content,id))
                 })
 
+            dom.Section.fissureLike=jest.fn(()=>class{})
             const components=this.transform(dom)
-
 
             const getRel=this.doc.officeDocument.getRel.bind(this.doc.officeDocument)
             this.doc.officeDocument.getRel=jest.fn(function(rid){

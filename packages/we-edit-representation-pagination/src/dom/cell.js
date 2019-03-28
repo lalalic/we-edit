@@ -1,41 +1,28 @@
 import React,{PureComponent as Component} from "react"
 import PropTypes from "prop-types"
-import {Group} from "../composed"
-
-import {HasParentAndChild, Fissionable} from "../composable"
 import {dom} from "we-edit"
 
-const Super=Fissionable(HasParentAndChild(dom.Cell))
-export default class Cell extends Super{
-	static defaultProps={
-		...Super.defaultProps,
-		create(){
-			return new Cell.Frame(...arguments)
+import {Group} from "../composed"
+import {HasParentAndChild, Fissionable} from "../composable"
+
+export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
+	static fissureLike=Frame=>class extends Frame{
+		resetHeight(height){
+			this.props.height=height
+			this.columns[0].height=height
 		}
-	}
 
-	constructor(){
-		super(...arguments)
-		if(!Cell.Frame){
-			Cell.Frame=class extends this.Frame{
-				resetHeight(height){
-					this.props.height=height
-					this.columns[0].height=height
-				}
-
-				appendLine({props:{height:contentHeight}}){
-					if(contentHeight-this.currentColumn.availableHeight>1){//can't hold
-						if(this.currentColumn.children.length==0){
-							return false
-						}
-					}
-					return super.appendLine(...arguments)
-				}
-
-				render(){
-					return this.createComposed2Parent()
+		appendLine({props:{height:contentHeight}}){
+			if(contentHeight-this.currentColumn.availableHeight>1){//can't hold
+				if(this.currentColumn.children.length==0){
+					return false
 				}
 			}
+			return super.appendLine(...arguments)
+		}
+
+		render(){
+			return this.createComposed2Parent()
 		}
 	}
 

@@ -30,12 +30,7 @@ describe("positioning",()=>{
         Document.prototype.shouldContinueCompose=jest.fn(a=>true)
 	})
 
-    const Page=class extends Frame{
-		render(){
-			const {props:{i:key,width,height,margin}}=this
-			return React.cloneElement(super.createComposed2Parent(),{key:`${++uuid}`,width,height,margin})
-		}
-	}
+    const Page=Section.fissureLike(Frame)
 
 	const store=(state)=>({
             activeDocStore:{

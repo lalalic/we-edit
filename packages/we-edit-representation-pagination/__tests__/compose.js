@@ -17,7 +17,7 @@ describe.each([
 		}
 
 		widthString(x,text){
-			return x
+			return Math.min(x,text.length)
 		}
 		stringWidth(text){
 			return text.length

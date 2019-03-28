@@ -13,6 +13,7 @@ const Super=HasParentAndChild(Base)
 
 class Fixed extends Super{
 	static IMMEDIATE_STOP=Number.MAX_SAFE_INTEGER
+	static Fixed=Fixed
 	constructor(){
 		super(...arguments)
 		if(this.props.REF)
@@ -302,6 +303,7 @@ class Fixed extends Super{
 }
 
 class Columnable extends Fixed{
+	static Columnable=Columnable
 	defineProperties(){
 		super.defineProperties()
 
@@ -355,7 +357,10 @@ class Columnable extends Fixed{
 				enumerable:false,
 				configurable:true,
 				get(){
-					const {width,margin:{left=0,top=0}={}, cols=[{x:left,y:top,width}]}=this.props
+					const {
+						width,margin:{left=0,top=0,right=0,bottom=0}={},
+						cols=[{x:left,y:top,width:width-left-right}]
+					}=this.props
 					return cols
 				}
 			},
@@ -499,6 +504,7 @@ class Columnable extends Fixed{
 }
 
 class Balanceable extends Columnable{
+	static Balanceable=Balanceable
 	onAllChildrenComposed(){
 		if(this.props.height==undefined && this.props.balance){
 			this.balance()
@@ -556,6 +562,7 @@ class Balanceable extends Columnable{
 }
 
 class PaginationControllable extends Balanceable{
+	static PaginationControllable=PaginationControllable
 	defineProperties(){
 		super.defineProperties()
 		Object.defineProperties(this,{
@@ -688,6 +695,7 @@ class PaginationControllable extends Balanceable{
 }
 
 class AnchorWrappable extends PaginationControllable{
+	static AnchorWrappable=AnchorWrappable
 	appendComposed(){
 		const appended=super.appendComposed(...arguments)
 		if(appended===false && //will create new page

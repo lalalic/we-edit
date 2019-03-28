@@ -1,8 +1,17 @@
 import React, {Children} from "react"
 import PropTypes from "prop-types"
+import memoize from "memoize-one"
+
 import Recomposable from "./recomposable"
 
+
 export default (A)=>class extends A{
+	static defaultProps={
+		...A.defaultProps,
+		create(){
+			return new this.Fission(...arguments)
+		}
+	}
 	static contextTypes={
 		...A.contextTypes,
 		ModelTypes: PropTypes.object,
@@ -13,16 +22,17 @@ export default (A)=>class extends A{
         exclusive: PropTypes.func,
     }
 
+	static fissureLike(){
+		throw new Error("Fission should be implemented in static fissureLike()")
+	}
+
 	constructor(){
 		super(...arguments)
 		this.computed.named={}
-		if(!this.constructor.Frame && this.constructor.extendsFrame){
-			this.constructor.Frame=this.constructor.extendsFrame(this.context.ModelTypes.Frame)
-		}
 	}
 
-	get Frame(){
-		return this.context.ModelTypes.Frame
+	get Fission(){
+		return memoize((Base)=>this.constructor.fissureLike(Base))(this.context.ModelTypes.Frame)
 	}
 
     getChildContext(){

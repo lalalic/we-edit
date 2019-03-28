@@ -7,6 +7,33 @@ import memoize from "memoize-one"
 
 const Super=Fissionable(HasParentAndChild(dom.Section))
 export default class Section extends Super{
+	static fissureLike=Frame=>class extends Frame{
+		static dispatchName="PageFrame"
+		defineProperties(){
+			super.defineProperties()
+			Object.defineProperties(this,{
+				composedHeight:{
+					enumerable:false,
+					configurable:true,
+					get(){
+						const parent=this.context.parent
+						if(this==parent.current){//last
+							if(!parent.isAllChildrenComposed()){
+								return Math.max(...this.columns.map(column=>column.y+(column.height-column.availableHeight)))
+							}
+						}
+						return this.props.height
+					}
+				},
+			})
+		}
+
+		render(){
+			const {props:{i:key,width,height,margin}}=this
+			return React.cloneElement(super.createComposed2Parent(),{key,width,height,margin})
+		}
+	}
+
 	static defaultProps={
 		...Super.defaultProps,
 		create(props,context){
@@ -29,41 +56,9 @@ export default class Section extends Super{
 							},{x:left,columns:[]})
 							.columns
 				}
-				return new Section.Page({width, height, margin:{left,right,top,bottom},cols:columns, ...props},context)
+				return new this.Fission({width, height, margin:{left,right,top,bottom},cols:columns, ...props},context)
 			}else{
 				throw new Error("section has no create")
-			}
-		}
-	}
-
-	constructor(){
-		super(...arguments)
-		if(!Section.Page){
-			Section.Page=class extends this.Frame{
-				static dispatchName="PageFrame"
-				defineProperties(){
-					this.section=this.context.parent
-					super.defineProperties()
-					Object.defineProperties(this,{
-						composedHeight:{
-							enumerable:false,
-							configurable:false,
-							get(){
-								if(this==this.section.current){//last
-									if(!this.section.isAllChildrenComposed()){
-										return Math.max(...this.columns.map(column=>column.y+(column.height-column.availableHeight)))
-									}
-								}
-								return this.props.height
-							}
-						},
-					})
-				}
-
-				render(){
-					const {props:{i:key,width,height,margin}}=this
-					return React.cloneElement(super.createComposed2Parent(),{key,width,height,margin})
-				}
 			}
 		}
 	}
