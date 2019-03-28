@@ -50,7 +50,6 @@ export default ({Section,Frame, Container})=>class extends Component{
 
 	render(){
 		const {pgSz:{width,height},  pgMar:{left,right}, cols:{num=1, space=0, data},children, ...props}=this.props
-		const Page=this.constructor.Page
 		const layout=this.getLayout(this)
 
 		const create=(props,context)=>{
@@ -63,7 +62,7 @@ export default ({Section,Frame, Container})=>class extends Component{
 				}
 			}
 
-			return new Page({width,height,...layout,...props},context)
+			return new this.constructor.Page({width,height,...layout,...props},context)
 		}
 
 		return(

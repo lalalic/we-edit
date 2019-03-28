@@ -7,7 +7,7 @@ function path(el,routes=[]){
 }
 
 function canIgnore(A, B){
-    debugger
+
     if(A.path.join(",")==B.path.join(",")){
         if(A.op==B.op){
             switch(A.op){
@@ -265,12 +265,12 @@ module.exports=function($, trap=DefaultTrap){
                         }
 
                         if(value!=undefined){
-                            debugger
+
                             save(ctx, key, ...arguments)
                             if("css,data,prop".split(",").includes(key)){
                                 try{//to avoid save attr op
                                     inTransaction=false
-                                    debugger
+
                                     return got.call(ctx,...arguments)
                                 }finally{
                                     inTransaction=true
