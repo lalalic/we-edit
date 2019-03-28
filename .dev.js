@@ -204,4 +204,4 @@ function testOffice(representation="pagination"){
 }
 
 
-testOffice("html")
+testOffice("text")
