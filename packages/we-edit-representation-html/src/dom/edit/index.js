@@ -1,14 +1,15 @@
 import {Editors} from "we-edit-representation-pagination"
-
 import Document from "./document"
-import Section from "./section"
-import Table from "./table"
+
+const dom=Object.keys(Editors).reduce((My,k)=>{
+    My[k]=class extends Editors[k]{}
+    return My
+},{})
 
 export default {
-    ...Editors,
+    ...dom,
 	Document,
-	Section,
-	Table,
-	Header:props=><Editors.Header {...props} children={null}/>,
-	Footer:props=><Editors.Footer {...props} children={null}/>,
+	Section:dom.Container,
+    Header:props=><Editors.Header {...props} children={null}/>,
+    Footer:props=><Editors.Footer {...props} children={null}/>
 }
