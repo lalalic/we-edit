@@ -1,69 +1,19 @@
 import React,{Fragment} from "react"
-import PropTypes from "prop-types"
-import {withContext} from "recompose"
-
-import TestRenderer from "react-test-renderer"
-
-jest.mock("../../we-edit-representation-pagination/src/composed/locator")
+import {render as testRender, context, defaultProps} from "../../we-edit-representation-pagination/__tests__/context"
 
 import dom from "../src/dom/edit"
 
-var uuid=10
-
 describe("text", ()=>{
-
+	var uuid=10
 	const {Document, Section, Paragraph, Text, Table, Row, Cell}=dom
-
-	const provider=(A,Default={})=>withContext(A.contextTypes,({context})=>({...Default,...context}))(({children})=><Fragment>{children}</Fragment>)
-	const store=(state={
-			equals({start,end}){
-				return false
-			},
-			toJS(){
-				return {start:{},end:{}}
-			},
-			hashCode(){
-				return "1234"
-			}
-		})=>({activeDocStore:{
-				subscribe(){},
-				dispatch(){},
-				getState(){
-					return {
-						get(){
-							return state
-						}
-					}
-				}
-			},
-			ModelTypes:dom,
-			Measure:class{
-				height=10
-				defaultStyle={height:10,descent:1}
-				widthString(x,text){
-					return Math.min(x,text.length)
-				}
-
-				stringWidth(text){
-					return text.length
-				}
-			}
-		})
-
-	const StoreContext=provider({contextTypes:{
-		activeDocStore:PropTypes.any,
-		ModelTypes:PropTypes.any,
-		Measure: PropTypes.any,
-	}},store())
-
+	const StoreContext=context({dom})
 	const viewport={width:100,height:200,node:{scrollTop:0}}
 	const margin={left:10,right:20,top:10,bottom:10}
     const lineHeight=1.4
 	const render=(content,docProps={margin})=>{
-		const renderer=TestRenderer.create(
+		const renderer=testRender(
 			<StoreContext>
 				<Document
-					id="root"
 					viewport={viewport}
 					screenBuffer={0}
 					scale={1}
@@ -88,6 +38,10 @@ describe("text", ()=>{
 
 		return {renderer, dom:doc,doc:doc.instance, pages, page:pages[0],composed:composedDoc,responsible}
 	}
+
+	beforeAll(()=>{
+		defaultProps(dom)()
+	})
 
 	it("basic editor compose",function(){
 		const {page, pages}=render(undefined, {margin})
@@ -143,7 +97,7 @@ describe("text", ()=>{
 
 		it("range rect",()=>{
 			expect(test().getRangeRects({id:"2",at:0},{id:"2",at:3}))
-				.toMatchObject([{...margin, right:margin.left+3, bottom:margin.top*lineHeight+10}])
+				.toMatchObject([{left:margin.left, right:margin.left+3, bottom:margin.top+(10+1)*lineHeight}])
 		})
 
 		it("next line in a section",()=>{
@@ -231,9 +185,8 @@ describe("text", ()=>{
 		)
 	})
 
-    fit("lineNo=true can show line no", ()=>{
-        const {dom}=render(undefined, {lineNo:true})
-        expect(dom.find(a=>a.type.displayName && a.type.displayName=="ActiveLine")).toBeTruth()
+    it("lineNo control displaying line no", ()=>{
+        expect(render(undefined, {lineNo:true}).dom.findByProps({className:"activeLine"})).toBeDefined()
+		expect(()=>render(undefined, {lineNo:false}).dom.findByProps({className:"activeLine"})).toThrow()
     })
-
 })

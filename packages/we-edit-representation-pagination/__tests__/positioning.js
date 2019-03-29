@@ -1,84 +1,18 @@
 import React,{Fragment} from "react"
-import TestRender from "react-test-renderer"
+import PropTypes from "prop-types"
+import {context,State,render as testRender, defaultProps} from "./context"
 
 import {Viewers, Editors} from "../src"
 import Responsible from "../src/composed/responsible"
 import Positioning from "../src/composed/positioning"
-import Locator from "../src/composed/locator"
-import provider from "./context"
-import ReactDOM from "react-dom"
-ReactDOM.createPortal=jest.fn()
 
 const {Document, Section, Container,Frame, Paragraph, Text, Image,Anchor, Table, Row, Cell}=Editors
 
 describe("positioning",()=>{
-    beforeAll(()=>{
-		Paragraph.defaultProps.defaultStyle={
-			fonts:"arial",
-			size:12
-		}
-        Text.defaultProps=Object.assign(
-            Text.defaultProps||{},
-            {
-                fonts:"arial",
-                size:12
-            }
-        )
-
-		Locator.prototype.shouldComponentUpdate=jest.fn(a=>true)
-        Locator.prototype.render=jest.fn()
-        Document.prototype.shouldContinueCompose=jest.fn(a=>true)
-	})
-
-    const Page=Section.fissureLike(Frame)
-
-	const store=(state)=>({
-            activeDocStore:{
-				subscribe(){},
-				dispatch(){},
-				getState(){
-					return {
-						get(){
-							return {
-                        			equals({start,end}){
-                        				return false
-                        			},
-                        			toJS(){
-                        				return {start:{},end:{}}
-                        			},
-                        			hashCode(){
-                        				return "1234"
-                        			},
-                                    ...state
-                        		}
-						}
-					}
-				}
-			}
-		})
-
-	const StoreContext=provider(Document,store())
-    const SectionContext=provider(Section,{ModelTypes:Editors})
-	const TextContext=provider(Text,{
-			Measure:class{
-				height=10
-				defaultStyle={height:10,descent:1}
-				widthString(x,text){
-					return Math.min(x,text.length)
-				}
-
-				stringWidth(text){
-					return text.length
-				}
-			}
-		})
-    const ParagraphContext=provider(Paragraph,{
-        numbering:()=>'*'
-    })
-	var uuid=10000
-	const size={width:20,height:500}
+    var uuid=10000
+	const Page=Section.fissureLike(Frame)
+    const size={width:20,height:500}
 	const pgGap=12
-
     const mockQuery=(key,value)=>{
             Paragraph.prototype.query=jest.fn(()=>{
                 return {
@@ -92,30 +26,24 @@ describe("positioning",()=>{
                 }
             })
     }
-
     const render=(content,{state,page={}}={}, byCreate=true)=>{
             var sectionProps={}
             if(byCreate){
-                debugger
                 sectionProps.create=(a,b)=>new Page({...a,...size,...page},b)
             }else{
                 sectionProps={page:{...size,...page}}
             }
 
-            const renderer=TestRender.create(
-                <StoreContext context={store(state)}>
-                    <ParagraphContext>
-                        <TextContext>
-                            <Document id="root" viewport={{width:500,height:500,node:{scrollTop:0}}}>
-                                <SectionContext>
-                                    <Section id={`${++uuid}`} {...sectionProps}>
-                                    {content}
-                                    </Section>
-                                </SectionContext>
-                            </Document>
-                        </TextContext>
-                    </ParagraphContext>
-                </StoreContext>
+            const Context=context({dom:Editors,state,contextTypes:{numbering:PropTypes.func}, context:{numbering:()=>'*'}})
+
+            const renderer=testRender(
+                <Context>
+                    <Document viewport={{width:500,height:500,node:{scrollTop:0}}}>
+                        <Section id={`${++uuid}`} {...sectionProps}>
+                        {content}
+                        </Section>
+                    </Document>
+                </Context>
             )
 
             const doc=renderer.root.findByType(Document).instance
@@ -129,6 +57,13 @@ describe("positioning",()=>{
                 }
             }
     }
+
+    beforeAll(()=>{
+        defaultProps(Editors)()
+		Document.prototype.shouldContinueCompose=jest.fn(a=>true)
+	})
+
+
     describe.each([
         ["create provided to section", render],
         ["page provided to section", (a,b)=>render(a,b,false)]

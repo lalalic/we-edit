@@ -1,5 +1,6 @@
 import React,{Component,Fragment} from "react"
 import PropTypes from "prop-types"
+import {connect,getSelectionStyle} from "we-edit"
 import {compose, setDisplayName,getContext} from "recompose"
 import memoize from "memoize-one"
 
@@ -49,7 +50,7 @@ export default class  extends Component{
 	}
 
 	render(){
-		const {wrap,lineNo=true, colorful, fonts, size, lineHeight, background,activeColor, ...props}=this.props
+		const {wrap,lineNo, colorful, fonts, size, lineHeight, background,activeColor, ...props}=this.props
 		var canvas=props.canvas
 		var {left=0, ...margin}=props.margin||{left:Editors.Document.defaultProps.margin.left}
 		if(lineNo){
@@ -64,45 +65,60 @@ export default class  extends Component{
 }
 
 class TextCanvas extends Component{
-	getPageWithLineNo(){
+	renderLines(){
 		const {width,measure,activeColor}=this.props
 		const {viewport, pages, page=pages[0]}=this.props.content.props
 		const {margin:{left=0,right=0,top=0,bottom=0}}=page.props
 		const lines=page.columns[0].children
 		const lineHeight=lines[0].props.height
-
-		const render=page.render.bind(page)
-		page.render=()=>{
-			const raw=render()
-			return React.cloneElement(raw, {children: [
-				<Lines {...{activeColor, width,measure,lineHeight,key:"lines",count:lines.length}}/>,
-				raw.props.children
-			]})
-		}
-		return page
+		return <Lines {...{activeColor, width,measure,lineHeight,key:"lines",count:lines.length}}/>
 	}
 
 	render(){
 		var {content,canvas,wrap,...props}=this.props
-		content=React.cloneElement(content, {pages:[this.getPageWithLineNo()]})
+		content=React.cloneElement(content, {children:[
+			content.props.children,
+			this.renderLines(),
+		]})
 		return canvas ? React.cloneElement(canvas, {content,...props}) : content
 	}
 }
 
-const Lines=({active=0, activeColor, count, lineHeight, width, measure,
-	baseline=measure.defaultStyle.height-measure.defaultStyle.descent})=>(
-	<g style={{opacity:0.5}}>
-		<rect width={99999} height={lineHeight} fill={activeColor}/>
-		<rect width={width} height={count*lineHeight} fill="lightgray"/>
-		{new Array(count)
-			.fill(0)
-			.map((a,i)=>{
-				const I=`${i+1}`
-				return (
-					<g key={i} transform={`translate(0 ${i*lineHeight+baseline})`}>
-						<text x={width-measure.stringWidth(I)-2}>{I}</text>
-					</g>
+const Lines=connect(state=>{
+	const selection=getSelectionStyle(state)
+	if(selection){
+		const page=selection.props("page")
+		if(page){
+			return {active:page.line}
+		}
+	}
+	return {}
+})(
+	class extends Component{
+		render(){
+			const {active=0, activeColor, count, lineHeight, width, measure,
+					baseline=measure.defaultStyle.height-measure.defaultStyle.descent
+				}=this.props
+			return (
+					<Fragment>
+						<rect width={99999} height={lineHeight} className="activeLine"
+							style={{opacity:0.5, cursor:"text"}}
+							y={active*lineHeight} fill={activeColor}/>
+						<g style={{opacity:0.5}}>
+							<rect width={width} height={count*lineHeight} fill="lightgray"/>
+							{new Array(count)
+								.fill(0)
+								.map((a,i)=>{
+									const I=`${i+1}`
+									return (
+										<g key={i} transform={`translate(0 ${i*lineHeight+baseline})`}>
+											<text x={width-measure.stringWidth(I)-2}>{I}</text>
+										</g>
+									)
+								})}
+						</g>
+					</Fragment>
 				)
-			})}
-	</g>
+		}
+	}
 )

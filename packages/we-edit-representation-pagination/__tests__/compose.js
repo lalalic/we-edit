@@ -1,41 +1,35 @@
 import React from "react"
-import TestRender from "react-test-renderer"
 import {ReactQuery} from "we-edit"
+
+import {render, provider, Measure, defaultProps} from "./context"
+
 import {Viewers, Editors} from "../src"
-import provider from "./context"
 
 describe.each([
 	["viewer",Viewers],
 	["editor", Editors,{shouldContinueCompose:()=>true}]
 ])("%s",(testing,Composers,CONTEXT={})=>{
 	const {Document, Section, Frame, Paragraph, Text, Image,Table,Row,Cell}=Composers
-	Paragraph.defaultProps.defaultStyle={fonts:"arial",size:10}
-
-	class Measure{
-		constructor({size}){
-			this.defaultStyle={height:size,descent:1}
-		}
-
-		widthString(x,text){
-			return Math.min(x,text.length)
-		}
-		stringWidth(text){
-			return text.length
-		}
-	}
+	
 	const WithTextContext=provider(Text,{Measure})
 	const WithParagraphContext=provider(Paragraph)
 	const Context={
 		parent:{},
 		Measure,
 	}
+
+	beforeAll(()=>{
+		defaultProps(Composers)()
+	})
+
+
 	describe("text",()=>{
 		const test=(text,expects=a=>a)=>()=>{
 			const context={...Context,getMyBreakOpportunities:text=>text.split(/\s+/)}
 			const getMyBreakOpportunities=context.getMyBreakOpportunities=jest.fn(context.getMyBreakOpportunities)
 			const appendComposed=context.parent.appendComposed=jest.fn()
 
-			const renderer=TestRender.create(
+			const renderer=render(
 				<WithTextContext context={context}>
 					<Text id="0" fonts="arial" size={12}>{text}</Text>
 				</WithTextContext>
@@ -64,7 +58,7 @@ describe.each([
 				width:lineWidth,height:100
 			}))
 			const appendComposed=context.parent.appendComposed=jest.fn()
-			const renderer=TestRender.create(
+			const renderer=render(
 				<WithParagraphContext context={context}>
 					<WithTextContext>
 						<Paragraph id="1" {...{spacing,indent,align, numbering}}>
@@ -376,7 +370,7 @@ describe.each([
 
 		it("basic",()=>{
 			document.appendComposed=jest.fn()
-			const renderer=TestRender.create(
+			const renderer=render(
 				<WithSectionContext context={context}>
 					{section()}
 				</WithSectionContext>
@@ -386,7 +380,7 @@ describe.each([
 
 		it("a few sections",()=>{
 			document.appendComposed=jest.fn()
-			const renderer=TestRender.create(
+			const renderer=render(
 				<WithSectionContext context={context}>
 					{[1,2,3,4,5].map(section)}
 				</WithSectionContext>
@@ -411,7 +405,7 @@ describe.each([
 				it("basic",()=>{
 					let page
 					document.appendComposed=jest.fn(a=>page=a)
-					const rendered=TestRender.create(
+					const rendered=render(
 						<WithSectionContext context={context}>
 							{section(
 								<Table id={`${u++}`} width={8}>
@@ -439,7 +433,7 @@ describe.each([
 				it("row height can be enlarged when content height>setting height",()=>{
 					let page
 					document.appendComposed=jest.fn(a=>page=a)
-					const rendered=TestRender.create(
+					const rendered=render(
 						<WithSectionContext context={context}>
 							{section(
 								<Table id={`${u++}`} width={8}>
@@ -470,7 +464,7 @@ describe.each([
 
 				it("cell can be splitted into pages",()=>{
 					document.appendComposed=jest.fn()
-					const rendered=TestRender.create(
+					const rendered=render(
 						<WithSectionContext context={context}>
 							{section(
 								<Table id={`${u++}`} width={8}>
@@ -490,7 +484,7 @@ describe.each([
 
 				it("nested cell can be splitted into pages",()=>{
 					document.appendComposed=jest.fn()
-					const rendered=TestRender.create(
+					const rendered=render(
 						<WithSectionContext context={context}>
 							{section(
 								<Table id={`${u++}`} width={10}>
@@ -520,7 +514,7 @@ describe.each([
 					let u=0
 					const pages=[]
 					document.appendComposed=jest.fn(page=>pages.push(page))
-					const rendered=TestRender.create(
+					const rendered=render(
 						<WithSectionContext context={context}>
 							{section(
 								<Table id={`${`${u++}`}`} width={10}>
@@ -545,7 +539,7 @@ describe.each([
 				it("[[hello],[hello ][hello]]",()=>{
 					const pages=[]
 					document.appendComposed=jest.fn(page=>pages.push(page))
-					const rendered=TestRender.create(
+					const rendered=render(
 						<WithSectionContext context={context}>
 							{section(
 								<Table id={`${u++}`} width={10}>
@@ -572,7 +566,7 @@ describe.each([
 				it("[[hello],[[hello ][hello]]]",()=>{
 					const pages=[]
 					document.appendComposed=jest.fn(page=>pages.push(page))
-					const rendered=TestRender.create(
+					const rendered=render(
 						<WithSectionContext context={context}>
 							{section(
 								<Table id={`${u++}`} width={10}>
@@ -614,7 +608,7 @@ describe.each([
 				width:10,height:100
 			}))
 			const appendComposed=context.parent.appendComposed=jest.fn()
-			const renderer=TestRender.create(
+			const renderer=render(
 				<WithParagraphContext context={context}>
 					<WithTextContext>
 						<Paragraph id="2">
@@ -663,5 +657,20 @@ describe.each([
 		describe("rotate",()=>{
 
 		})
+	})
+})
+
+
+describe("editor", ()=>{
+	it("paragraph end should be at end",()=>{
+
+	})
+
+	it("whitespace can be shown as dot",()=>{
+
+	})
+
+	it("picow mode to should paragraph end and whitespace as dot",()=>{
+
 	})
 })

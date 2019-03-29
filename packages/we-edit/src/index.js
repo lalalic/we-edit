@@ -20,5 +20,3 @@ export {default as Input} from "./input"
 export {default as dom} from "./dom"
 
 export {default as render} from "./render"
-
-export * from "./tck"
