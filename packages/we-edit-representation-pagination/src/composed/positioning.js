@@ -42,6 +42,15 @@ class Positioning{
     position(id,at){
         return {page:0}
     }
+
+    extendWord(id,at){
+        const p=this.getComposer(id).closest("paragraph")
+        if(p){
+            return p.extendAtom(id,at)
+        }
+        return {}
+    }
+
     around(left,top){
         return {}
     }

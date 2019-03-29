@@ -1014,9 +1014,13 @@ describe("positioning",()=>{
                 return {
                     position(){
                         return responsible.positioning.position(...arguments)
+                    },
+                    extendWord(){
+                        return responsible.positioning.extendWord(...arguments)
                     }
                 }
             }
+
             it("t|ext at=0,1,4",()=>{
                 const MarginLeft=10
                 const p=test(<Paragraph id={`${++uuid}`}><Text id="0">text</Text></Paragraph>,{page:{margin:{left:MarginLeft}}})
@@ -1147,7 +1151,26 @@ describe("positioning",()=>{
                 expect(p.position("3",0)).toMatchObject({x:5+0,y:0,height:10})
                 expect(p.position("2",0)).toMatchObject({x:5+0,y:0})
             })
+
+            describe("extend word",()=>{
+                it("extend single word",()=>{
+                    expect(test(<Paragraph id={`${++uuid}`}><Text id="1">hello</Text></Paragraph>)
+                            .extendWord("1",0)
+                        ).toMatchObject({start:{id:"1",at:0},end:{id:"1",at:5}})
+                })
+
+                it("extend two word",()=>{
+                    const p=test(
+                        <Paragraph id={`${++uuid}`}>
+                            <Text id="1">hello world</Text>
+                        </Paragraph>
+                    )
+                    expect(p.extendWord("1",0)).toMatchObject({start:{id:"1",at:0},end:{id:"1",at:5}})
+                    expect(p.extendWord("1",7)).toMatchObject({start:{id:"1",at:6},end:{id:"1",at:11}})
+                })
+            })
     	})
+
 
         describe("range", ()=>{
             const test=(content,pageXY={x:0,y:0})=>{

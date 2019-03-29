@@ -292,6 +292,37 @@ class Positionable extends Editable{
 	}
 }
 class Navigatable extends Positionable{
+	extendAtom(id,at){
+		debugger
+		const atom=this.computed.atoms.find(a=>{
+			const $a=new ReactQuery(a)
+			const found=$a.findFirst(({props:{"data-content":xid, "data-endat":end=0}})=>{
+				return (xid==id && end>=at)||undefined
+			})
+			return found.length>0
+		})
+		if(atom){
+			const target=new ReactQuery(atom)
+			const first=target.findFirst(`[data-content="${id}"][data-type="text"]`)
+			if(first.length){
+				const last=target.findLast(`[data-content="${id}"][data-type="text"]`)
+				if(last.length){
+					return {
+						start:{
+							id:first.attr('data-content'),
+							at:parseInt(first.attr('data-endat'))-first.attr("children").length
+						},
+						end:{
+							id:last.attr('data-content'),
+							at:parseInt(last.attr('data-endat'))
+						}
+					}
+				}
+			}
+		}
+		return {}
+	}
+
 	nextParagraphCursorable(){
 		const nextParagraphId=this.query().forwardFirst('paragraph').attr("id")
 		if(nextParagraphId){

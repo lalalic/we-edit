@@ -89,6 +89,11 @@ export default class Responsible extends Component{
         return (
             <ComposedDocument {...props}
 				innerRef={a=>{this.canvas=a}}
+
+                onContextMenu={e=>{
+                    this.onClick(e)
+                }}
+
                 onClick={e=>{
                     if(!down.selected){
                         down.selected=false
@@ -281,7 +286,16 @@ export default class Responsible extends Component{
                 this.dispatch(ACTION.Selection.SELECT(id,0,id,1))
             }else{
     			if(!selecting){
-    				this.dispatch(ACTION.Cursor.AT(id,at))
+                    if(doubleClicked){
+                        const {start,end}=this.positioning.extendWord(id,at)
+                        if(start && end){
+                            this.dispatch(ACTION.Selection.SELECT(start.id,start.at, end.id, end.at))
+                        }else{
+                            this.dispatch(ACTION.Cursor.AT(id,at))
+                        }
+                    }else{
+        				this.dispatch(ACTION.Cursor.AT(id,at))
+                    }
     			}else{
     				let {end}=this.selection
     				let {left,top}=this.positioning.position(id,at)

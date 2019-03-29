@@ -87,6 +87,11 @@ export default compose(
 		return null
 	})
 
+	rejectContextMenu(e){
+		e.preventDefault()
+		return false
+	}
+
 	render(){
 		let {children,active, titleBar, dashboard, style, dispatch, titleBarProps, ...others}=this.props
 		let activeWorkspace=null
@@ -106,7 +111,7 @@ export default compose(
 
 		return (
 			<MuiThemeProvider muiTheme={this.theme}>
-				<div style={{...styles.root,...style}}>
+				<div style={{...styles.root,...style}} onContextMenu={this.rejectContextMenu}>
 					{titleBar && React.cloneElement(titleBar,{
 						...titleBarProps,
 						active,

@@ -1,7 +1,11 @@
 const path=require("path")
 const webpack=require("webpack")
 const nodeExternals=require("webpack-node-externals")
-
+/**
+*NOTE: since all plugins are with in we-edit project,
+you should set dependencies of plugin as optionalDependencies of packages/we-edit,
+so project depends on we-edit can use built plugin without big bundle into built plugin 
+*/
 module.exports=base=>{
     return require("fs")
 		.readdirSync("./packages")

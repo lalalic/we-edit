@@ -17,9 +17,7 @@
     "opentype.js": "^0.6.9",
     "parse-svg-path": "^0.1.2",
     "prop-types": "^15.6.0",
-    "react-redux": "^5.0.6",
     "react-waypoint": "^7.3.1",
-    "recompose": "^0.26.0",
     "simplify-path": "^1.1.0",
     "svg-path-contours": "^2.0.0",
     "ttfjs": "^0.4.0"
@@ -27,7 +25,8 @@
   "peerDependencies": {
     "react": "^16.2.0",
     "react-dom": "^16.1.1",
-    "we-edit": "^3.0.0"
+    "we-edit": "^3.0.0",
+    "recompose": "^0.26.0"
   },
   "keywords": [
     "we-edit"
