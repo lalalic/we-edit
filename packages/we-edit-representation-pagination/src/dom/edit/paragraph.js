@@ -303,9 +303,9 @@ class Navigatable extends Positionable{
 		})
 		if(atom){
 			const target=new ReactQuery(atom)
-			const first=target.findFirst(`[data-content="${id}"][data-type="text"]`)
+			const first=target.findFirst(`[data-type="text"]`)
 			if(first.length){
-				const last=target.findLast(`[data-content="${id}"][data-type="text"]`)
+				const last=target.findLast(`[data-type="text"]`)
 				if(last.length){
 					return {
 						start:{

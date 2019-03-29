@@ -1168,6 +1168,19 @@ describe("positioning",()=>{
                     expect(p.extendWord("1",0)).toMatchObject({start:{id:"1",at:0},end:{id:"1",at:5}})
                     expect(p.extendWord("1",7)).toMatchObject({start:{id:"1",at:6},end:{id:"1",at:11}})
                 })
+
+                it("extend two word",()=>{
+                    const p=test(
+                        <Paragraph id={`${++uuid}`}>
+                            <Text id="1">hello wor</Text>
+                            <Text id="2">ld good night</Text>
+                            <Container id={`${++uuid}`}><Text id="3">hello wor</Text></Container>
+                            <Container id={`${++uuid}`}><Text id="4">ld good night</Text></Container>
+                        </Paragraph>
+                    )
+                    expect(p.extendWord("1",7)).toMatchObject(p.extendWord("2",0))
+                    expect(p.extendWord("3",7)).toMatchObject(p.extendWord("4",0))
+                })
             })
     	})
 
