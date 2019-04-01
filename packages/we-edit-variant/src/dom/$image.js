@@ -1,10 +1,10 @@
 import React from "react"
 import PropTypes from "prop-types"
 
-import Component from "./$"
+import $ from "./$"
 
 
-export default Components=>class extends Component{
+export default Components=>class extends ${
     static displayName="$picture"
     static propTypes={
 
@@ -12,5 +12,5 @@ export default Components=>class extends Component{
 
     static defaultProps={
 
-    }    
+    }
 }

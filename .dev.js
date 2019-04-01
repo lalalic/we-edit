@@ -55,7 +55,7 @@ function testOffice(representation="pagination"){
 			if(key=="root" || filter(key,value)){
 				return React.cloneElement(
 					node,
-					{name:key, value},
+					{name:key, value, key},
 					Array.isArray(children) ? create4Children(children) : children
 				)
 			}else{
@@ -195,7 +195,10 @@ function testOffice(representation="pagination"){
 						}
 						/>
 				}
-				children={<VariantEditor representation={representation}/>}
+				children={<VariantEditor representation={representation}
+					onContextMenu={e=>console.log("context menu")}
+					onKeyDown={e=>console.log("key down")}
+					/>}
 				/>
 		</Workspace>
 	)

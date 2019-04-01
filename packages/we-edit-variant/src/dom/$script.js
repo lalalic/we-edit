@@ -1,10 +1,10 @@
 import React from "react"
 import PropTypes from "prop-types"
 
-import Component from "./$"
+import $ from "./$"
 
 
-export default Components=>class extends Component{
+export default Components=>class extends ${
     static displayName="$script"
     static propTypes={
         script: PropTypes.string.isRequired
@@ -17,7 +17,7 @@ export default Components=>class extends Component{
 
     render(){
         if(this.canAssemble){
-
+            this.eval(this.props.script, this.context.variantContext)
         }
 
         return null

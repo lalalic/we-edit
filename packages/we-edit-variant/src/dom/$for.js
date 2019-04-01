@@ -1,12 +1,15 @@
 import React, {Fragment} from "react"
 import PropTypes from "prop-types"
+import memoize from "memoize-one"
+import {shallowEqual} from "we-edit"
+import vm from "vm"
 
 import VariantProvider from "../variant-provider"
 
-import Component from "./$"
+import $ from "./$"
 
 
-export default ({Container})=>class extends Component{
+export default ({Container})=>class extends ${
     static displayName="$for"
     static propTypes={
         init: PropTypes.string.isRequired,
@@ -21,23 +24,28 @@ export default ({Container})=>class extends Component{
     }
 
     render(){
-        const {init, test, update, children,...props}=this.props
+        const {init, test, update, children,changed,...props}=this.props
         let content=children
         if(this.canAssemble){
-            const {variantContext}=this.context
-            const forContext={...variantContext}
-            let loops=[]
-            this.eval(init,forContext)
-            for(let i=0; this.eval(test,forContext); this.eval(update,forContext), i++){
-                loops.push(
-                    <VariantProvider value={{...forContext}} key={i}>
-                        {children}
-                    </VariantProvider>
-                )
-            }
-            content=loops
+            content=this.getLoopContent(changed&&Date.now())
         }
 
-        return <Container {...props} type={this.constructor.displayName}>{content}</Container>
+        return <Container {...props} changed={changed} type={this.constructor.displayName}>{content}</Container>
     }
+
+    getLoopContent=memoize(changed=>{
+        const {init, test, update, children,...props}=this.props
+
+        const forContext=vm.createContext({...this.context.variantContext})
+        const loops=[]
+        this.eval(init,forContext)
+        for(let i=0; this.eval(test,forContext); this.eval(update,forContext), i++){
+            loops.push(
+                <VariantProvider value={{...forContext}} key={i}>
+                    {children}
+                </VariantProvider>
+            )
+        }
+        return loops
+    })
 }

@@ -23,13 +23,6 @@ export default class extends Super{
         return super.render()
     }
 
-    appendComposed(props){
-        if(props.children==" "){
-            props={...props,children:String.fromCharCode(0x00b7)}
-        }
-        return super.appendComposed(props)
-    }
-
     nextCursorable(id,at){
         if(this.text.length-1>at){
             return {id,at:at+1}

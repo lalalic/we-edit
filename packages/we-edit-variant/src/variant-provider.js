@@ -1,5 +1,6 @@
 import React, {PureComponent, Fragment} from "react"
 import PropTypes from "prop-types"
+import vm from "vm"
 
 export default class extends PureComponent{
 	static displayName="VariantProvider"
@@ -9,7 +10,7 @@ export default class extends PureComponent{
 
     getChildContext(){
         return {
-            variantContext:this.props.value
+            variantContext:vm.createContext(this.props.value)
         }
     }
 

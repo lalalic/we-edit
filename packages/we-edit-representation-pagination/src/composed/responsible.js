@@ -17,6 +17,10 @@ const CursorShape=({y=0,x=0,height=0,color="black", style})=>(
 )
 
 export default class Responsible extends Component{
+    static contextTypes={
+        onContextMenu: PropTypes.func
+    }
+
     static displayName="composed-document-with-cursor"
 
     scale=this.props.scale
@@ -92,6 +96,9 @@ export default class Responsible extends Component{
 
                 onContextMenu={e=>{
                     this.onClick(e)
+                    if(this.context.onContextMenu){
+                        this.context.onContextMenu(e)
+                    }
                 }}
 
                 onClick={e=>{

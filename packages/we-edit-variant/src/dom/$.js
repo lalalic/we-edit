@@ -8,16 +8,16 @@ export default class extends Component{
 		parent: PropTypes.object,
 	}
 
+	scripts=new Map()
+
 	get canAssemble(){
 		return !!this.context.variantContext
 	}
 
-	eval(expression, context){
-		const {variantContext}=this.context
+	eval(code, context){
 		try{
-			return vm.runInNewContext(expression, context||{...variantContext})
+			return vm.runInContext(code, context)
 		}catch(e){
-			console.error(e)
 			return ""
 		}
 	}

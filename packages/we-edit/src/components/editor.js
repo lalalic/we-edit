@@ -22,7 +22,11 @@ export class Editor extends PureComponent{
 		viewport: PropTypes.shape({
 			width: PropTypes.number,
 			height: PropTypes.number
-		})
+		}),
+
+		//events
+		onKeyDown: PropTypes.func,
+		onContextMenu: PropTypes.func,
 	}
 
 	static contextTypes={
@@ -36,6 +40,8 @@ export class Editor extends PureComponent{
 
 	static childContextTypes={
 		media:PropTypes.string,
+		onKeyDown: PropTypes.func,
+		onContextMenu: PropTypes.func,
 	}
 
 	constructor(){
@@ -44,8 +50,8 @@ export class Editor extends PureComponent{
 	}
 
 	getChildContext(){
-		const {media}=this.props
-		return {media}
+		const {media,onKeyDown, onContextMenu}=this.props
+		return {media,onKeyDown, onContextMenu}
 	}
 
 	render(){

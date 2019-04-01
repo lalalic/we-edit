@@ -1,11 +1,15 @@
 import React, {Fragment} from "react"
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
+import {shallowEqual} from "we-edit"
+import vm from "vm"
 
-import Component from "./$"
+import VariantProvider from "../variant-provider"
+
+import $ from "./$"
 
 
-export default ({Container})=>class extends Component{
+export default ({Container})=>class extends ${
     static displayName="$if"
     static propTypes={
 		condition: PropTypes.string.isRequired
@@ -19,12 +23,18 @@ export default ({Container})=>class extends Component{
         const {condition, children, ...props}=this.props
         let content=children
         if(this.canAssemble){
-            if(!this.meet(this.context.variantContext,condition))
+            if(!this.meet({variantContext:this.context.variantContext,condition}))
                 content=null
         }
 
-        return <Container {...props} type={this.constructor.displayName}>{content}</Container>
+        return (
+            <Container {...props} type={this.constructor.displayName}>
+                <VariantProvider value={{...this.context.variantContext}}>
+                    {content}
+                </VariantProvider>
+            </Container>
+        )
     }
 
-    meet=memoize((variantContext, condition)=>!!this.eval(condition))
+    meet=memoize(({variantContext, condition})=>!!this.eval(condition,variantContext), shallowEqual)
 }

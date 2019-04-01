@@ -8,6 +8,10 @@ import {getSelection} from "../../state/selector"
 export default connect(
 	state=>({actived:getSelection(state).actived})
 )(class Listener extends Component{
+	static contextTypes={
+		onKeyDown:PropTypes.func,
+	}
+
 	state={value:""}
 	KEYs={
 		13:e=>this.props.dispatch(ACTION.Text.RETURN()),
@@ -60,6 +64,10 @@ export default connect(
 				if(control){
 					e.preventDefault()
 					control(e)
+				}
+
+				if(this.context.onKeyDown){
+					this.context.onKeyDown(e)
 				}
 			}}
 		/>
