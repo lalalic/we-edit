@@ -112,7 +112,7 @@ class Loader extends PureComponent{
     		}
         }
 
-		return (<Fragment>{children}</Fragment>)
+		return (<Fragment>{children||null}</Fragment>)
     }
 
     onLoad({error, ...file}){
