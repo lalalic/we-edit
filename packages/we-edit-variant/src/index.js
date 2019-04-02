@@ -16,7 +16,7 @@ export function withVariant(Components={}){
 
 export const VariantRepresentation=({variants, transformer=a=>a, ...props})=>(
 	<Provider value={variants}>
-		<Representation {...props} transformer={a=> a && transformer(withVariant(a))}/>
+		<Representation {...props} transformer={a=> a && withVariant(transformer(a))}/>
 	</Provider>
 )
 

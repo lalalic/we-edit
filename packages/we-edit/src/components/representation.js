@@ -10,9 +10,9 @@ class  Representation extends PureComponent{
 		ViewerTypes: PropTypes.object,
 		transformer: PropTypes.func,
 	}
-	
+
 	static defaultProps={
-		
+
 	}
 
 	static contextTypes={
@@ -37,7 +37,7 @@ class  Representation extends PureComponent{
 		const {domain, EditorTypes, ViewerTypes, transformer=a=>a}=this.props
 		const models=domain=="edit" ? EditorTypes : ViewerTypes
 		return {
-			ModelTypes: models ? this.context.transformer(transformer(models)) : undefined,
+			ModelTypes: models ? transformer(this.context.transformer(models)) : undefined,
 		}
 	}
 
