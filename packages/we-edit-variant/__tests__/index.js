@@ -101,7 +101,7 @@ describe("variant",()=>{
                     <Text children="hello"/>
                 </$type>
 
-                <$type src="$(url)" size="$({width, height})">
+                <$type src="$(url)" size="$({width, height})" id="10" key="good">
                     <Image size={{width:0,height:0}}/>
                 </$type>
             </div>
