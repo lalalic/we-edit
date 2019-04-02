@@ -33,7 +33,7 @@ export default ({Container})=>class extends ${
         return <Container {...props} changed={changed} type={this.constructor.displayName}>{content}</Container>
     }
 
-    getLoopContent=memoize(changed=>{
+    getLoopContent(changed){
         const {init, test, update, children,...props}=this.props
 
         const forContext=vm.createContext({...this.context.variantContext})
@@ -47,5 +47,5 @@ export default ({Container})=>class extends ${
             )
         }
         return loops
-    })
+    }
 }

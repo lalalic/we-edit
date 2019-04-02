@@ -24,9 +24,8 @@ PDF.install()
 Variant.install()
 
 
-import React,{PureComponent,Fragment} from "react"
-import PropTypes from "prop-types"
-import {Editor, Viewer,DocumentTree, models} from  "we-edit"
+import React,{Fragment} from "react"
+import {Editor, Viewer,DocumentTree} from  "we-edit"
 import {Office,Workspace, Ribbon} from "we-edit-office"
 import {Tabs, Tab, ToolbarGroup, SvgIcon} from "material-ui"
 import {connect} from  "react-redux"

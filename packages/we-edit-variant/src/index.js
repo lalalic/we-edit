@@ -28,5 +28,8 @@ export default {
 	},
 	uninstall(){
 		Representation.defaultProps.transformer=undefined
-	}
+	},
+	Provider,
+	VariantRepresentation,
+	withVariant
 }
