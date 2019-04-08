@@ -34,6 +34,8 @@ export function getParentId(content,id){
 
 export function traverse(content, f, start="root", right=false){
 	let [id,node]=[start,content.get(start)]
+	if(!node)
+		return null
 	let children=node.get("children")
 	if(children instanceof List){
 		return !!children[`find${right ? "Last" :""}`](k=>{

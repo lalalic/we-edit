@@ -293,7 +293,7 @@ class Fixed extends Super{
         }
     }
 
-	clone(props){
+	clone(props={}){
 		const {computed}=this
 		return Object.assign(new this.constructor({...this.props, ...props},this.context),{computed})
 	}

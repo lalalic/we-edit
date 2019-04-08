@@ -11,6 +11,7 @@ import Cell from "./cell"
 import Frame from "./frame"
 import Anchor from "./anchor"
 import Shape from "./shape"
+import Page from "./page"
 
 export default {
 	Unknown,
@@ -26,4 +27,5 @@ export default {
 	Frame,
 	Shape,
 	Anchor,
+	Page,
 }

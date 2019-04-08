@@ -85,7 +85,7 @@ class Positionable extends Editable{
 		return pages.reduce((state,page,i)=>{
 			if(state.start!=-1 && state.end!=-1)
 				return state
-			let found=new ReactQuery(page.render()).findFirst(({props:{"data-content":id, "data-type":type}})=>{
+			let found=new ReactQuery(page.render(true)).findFirst(({props:{"data-content":id, "data-type":type}})=>{
 				if(id==this.props.id){
 					return true
 				}
@@ -209,7 +209,7 @@ class Positionable extends Editable{
 		}
 		var parents,line
 		const page=this.getPages(false)[`find${right ? "Last" : ""}`](page=>{
-			let found=new ReactQuery(page.render())[`find${right ? "Last" :"First"}AndParents`]((a,b)=>test(a,b,page))
+			let found=new ReactQuery(page.render(true))[`find${right ? "Last" :"First"}AndParents`]((a,b)=>test(a,b,page))
 			if((line=found.first||found.last).length){
 				parents=found.parents
 				return true

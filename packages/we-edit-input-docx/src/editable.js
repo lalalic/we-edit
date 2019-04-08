@@ -13,10 +13,10 @@ export default class extends Input.Editable{
 		}
 
 		const {data, name, type}=file
-		if(name && name.toLowerCase().endsWith(".docx"))
+		if(name && name.toLowerCase().endsWith("."+this.defaultProps.ext))
 			return true
 
-		if(type && type=="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+		if(type && type==this.defaultProps.mimeType)
 			return true
 
 		if(arguments[0] instanceof Docx || data instanceof Docx)

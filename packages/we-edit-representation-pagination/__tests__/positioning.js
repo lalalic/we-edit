@@ -39,9 +39,9 @@ describe("positioning",()=>{
             const renderer=testRender(
                 <Context>
                     <Document viewport={{width:500,height:500,node:{scrollTop:0}}}>
-                        <Section id={`${++uuid}`} {...sectionProps}>
+                        <Editors.Section id={`${++uuid}`} {...sectionProps}>
                         {content}
-                        </Section>
+                        </Editors.Section>
                     </Document>
                 </Context>
             )
@@ -65,17 +65,31 @@ describe("positioning",()=>{
 
 
     describe.each([
-        ["create provided to section", render],
-        ["page provided to section", (a,b)=>render(a,b,false)]
+        //["create provided to section", render],
+        //["page provided to section", (a,b)=>render(a,b,false)],
+        ["pagination",(a,b)=>render(a,b,false)]
     ])("%s",(name, render)=>{
+        if(name=="pagination"){
+            beforeAll(()=>{
+                Editors.Section=class extends React.Component{
+                    render(){
+                        const {page, ...props}=this.props
+                        return <Editors.Page {...props} {...page} i={0} I={0}/>
+                    }
+                }
+            })
 
+            afterAll(()=>{
+                Editors.Section=Section
+            })
+        }
         describe("Navigatable", ()=>{
 
     		describe("cursor",()=>{
 
     			describe("next cursorable", ()=>{
-    				it("text",()=>{
-    					const p=render(<Paragraph id={"-1"}><Text id={"0"}>text</Text></Paragraph>).get("-1")
+    				fit("text",()=>{
+                        const p=render(<Paragraph id={"-1"}><Text id={"0"}>text</Text></Paragraph>).get("-1")
     					expect(p.nextCursorable()).toEqual({id:"0",at:0})
     				})
 
