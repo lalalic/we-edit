@@ -65,8 +65,8 @@ describe("positioning",()=>{
 
 
     describe.each([
-        //["create provided to section", render],
-        //["page provided to section", (a,b)=>render(a,b,false)],
+        ["create provided to section", render],
+        ["page provided to section", (a,b)=>render(a,b,false)],
         ["pagination",(a,b)=>render(a,b,false)]
     ])("%s",(name, render)=>{
         if(name=="pagination"){
@@ -88,7 +88,7 @@ describe("positioning",()=>{
     		describe("cursor",()=>{
 
     			describe("next cursorable", ()=>{
-    				fit("text",()=>{
+    				it("text",()=>{
                         const p=render(<Paragraph id={"-1"}><Text id={"0"}>text</Text></Paragraph>).get("-1")
     					expect(p.nextCursorable()).toEqual({id:"0",at:0})
     				})
@@ -727,20 +727,23 @@ describe("positioning",()=>{
                         expect(p.nextLine("0",1)).toMatchObject({id:"1",at:1})
                         expect(p.nextLine("0",4)).toMatchObject({id:"1",at:4})
                     })
-
+					
+					
                     it("Text-><page>Text</page>",()=>{
-                        const p=test(
-                            <Paragraph id={uuid++}>
-                                <Text id="0">text </Text>
-                                <Text id="1">hello</Text>
-                            </Paragraph>,
-                            {page:{width:5,height:10}}
-                        )
-                        expect(p.pages.length).toBe(2)
-                        expect(p.lines.length).toBe(1)
-                        expect(p.nextLine("0",0)).toMatchObject({id:"1",at:0})
-                        expect(p.nextLine("0",1)).toMatchObject({id:"1",at:1})
-                        expect(p.nextLine("0",4)).toMatchObject({id:"1",at:4})
+						if(name!="pagination"){
+							const p=test(
+								<Paragraph id={uuid++}>
+									<Text id="0">text </Text>
+									<Text id="1">hello</Text>
+								</Paragraph>,
+								{page:{width:5,height:10}}
+							)
+							expect(p.pages.length).toBe(2)
+							expect(p.lines.length).toBe(1)
+							expect(p.nextLine("0",0)).toMatchObject({id:"1",at:0})
+							expect(p.nextLine("0",1)).toMatchObject({id:"1",at:1})
+							expect(p.nextLine("0",4)).toMatchObject({id:"1",at:4})
+						}
                     })
 
                     it("Text->Image(width=2)->Text",()=>{
@@ -888,17 +891,19 @@ describe("positioning",()=>{
                     })
 
                     it("Text<-<page>Text</page>",()=>{
-                        const p=test(
-                            <Paragraph id={uuid++}>
-                                <Text id="0">text </Text>
-                                <Text id="1">hello</Text>
-                            </Paragraph>,
-                            {page:{width:5,height:10}}
-                        )
-                        expect(p.pages.length).toBe(2)
-                        expect(p.prevLine("1",0)).toMatchObject({id:"0",at:0})
-                        expect(p.prevLine("1",1)).toMatchObject({id:"0",at:1})
-                        expect(p.prevLine("1",4)).toMatchObject({id:"0",at:4})
+						if(name!="pagination"){
+							const p=test(
+								<Paragraph id={uuid++}>
+									<Text id="0">text </Text>
+									<Text id="1">hello</Text>
+								</Paragraph>,
+								{page:{width:5,height:10}}
+							)
+							expect(p.pages.length).toBe(2)
+							expect(p.prevLine("1",0)).toMatchObject({id:"0",at:0})
+							expect(p.prevLine("1",1)).toMatchObject({id:"0",at:1})
+							expect(p.prevLine("1",4)).toMatchObject({id:"0",at:4})
+						}
                     })
 
                     it("Text<-Image(width=7)<-Text",()=>{

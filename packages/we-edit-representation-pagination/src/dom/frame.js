@@ -13,6 +13,7 @@ const Super=HasParentAndChild(Base)
 
 class Fixed extends Super{
 	static IMMEDIATE_STOP=Number.MAX_SAFE_INTEGER
+	
 	constructor(){
 		super(...arguments)
 		this.defineProperties()

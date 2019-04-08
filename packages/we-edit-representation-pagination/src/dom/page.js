@@ -1,7 +1,30 @@
 import React from "react"
+import PropTypes from "prop-types"
 import Frame from "./frame"
+import memoize from "memoize-one"
 
-export default class extends Frame{
+const factory=MyFrame=>class extends MyFrame{
+	static factory=factory
+	static childContextTypes={
+		...MyFrame.childContextTypes,
+		isAnchored:PropTypes.func,
+        exclusive: PropTypes.func,
+	}
+	
+	getChildContext(){
+        const me=this
+        function isAnchored(){
+            return me.isAnchored(...arguments)
+        }
+        function exclusive(){
+            return me.exclusive(...arguments)
+        }
+        return Object.assign(super.getChildContext(),{
+            isAnchored,
+            exclusive,
+        })
+    }
+	
 	defineProperties(){
 		super.defineProperties()
 		Object.defineProperties(this,{
@@ -15,16 +38,18 @@ export default class extends Frame{
 		})
 	}
 
-	createComposed2Parent(){
-		debugger
-		const {props:{i:key,width,height,margin}}=this
-		const rendered=React.cloneElement(super.createComposed2Parent(),{key,width,height,margin})
-
+	createComposed2Parent=memoize(()=>{
+		const render=()=>{
+			const {props:{i:key,width,height,margin}}=this
+			return React.cloneElement(super.createComposed2Parent(),{key,width,height,margin})
+		}
+		
 		return Object.assign(this.clone(),{
 			render(){
-				debugger
-				return rendered
+				return render()
 			}
 		})
-	}
+	})
 }
+
+export default factory(Frame)
