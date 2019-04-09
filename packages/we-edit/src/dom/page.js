@@ -4,6 +4,8 @@ import PropTypes from "prop-types"
 import Component from "./component"
 
 export default class Page extends Component{
+    static displayName="page"
+    
     static propTypes={
         width: PropTypes.number.isRequired,
         height: PropTypes.number.isRequired,
