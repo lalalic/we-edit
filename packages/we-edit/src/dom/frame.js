@@ -14,6 +14,7 @@ export default class Frame extends Component{
 		cols:PropTypes.arrayOf(PropTypes.shape({
 			x:PropTypes.number,
 			width:PropTypes.number.isRequired,
-		}))
+		})),
+		vertAlign: PropTypes.oneOf(["top","middle","center","bottom"])
 	}
 }

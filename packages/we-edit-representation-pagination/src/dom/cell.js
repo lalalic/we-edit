@@ -7,9 +7,12 @@ import {HasParentAndChild, Fissionable} from "../composable"
 
 export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 	static fissureLike=Frame=>class extends Frame{
-		resetHeight(height){
-			this.props.height=height
-			this.columns[0].height=height
+		clone({height,...props}){
+			const cloned=super.clone(...arguments)
+			if(height!=undefined){
+				this.columns[0].height=height
+			}
+			return cloned
 		}
 
 		appendLine({props:{height:contentHeight}}){
@@ -22,7 +25,7 @@ export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 		}
 
 		render(){
-			return this.createComposed2Parent()
+			return <Group children={this.createComposed2Parent().props.children} className="frame"/>
 		}
 	}
 
@@ -43,10 +46,11 @@ export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 			}
 		}
 		const {height,width}=this.context.parent.nextAvailableSpace({...required,id:this.props.id})
-		const {margin={right:0,left:0,top:0,bottom:0}}=this.props
+		const {margin={right:0,left:0,top:0,bottom:0}, vertAlign}=this.props
 		return super.create({
 			width:width-margin.right-margin.left,
-			height: height-this.nonContentHeight
+			height: height-this.nonContentHeight,
+			vertAlign,
 		})
 	}
 
@@ -81,33 +85,13 @@ Cell.ComposedCell=class extends Component{
 			height,
 			nonContentHeight,
 			...others}=this.props
-		if(frame)
-			frame.resetHeight(height)
-
-		const contentHeight=frame ? frame.contentHeight : 0
-
-		const alignY=(()=>{
-			switch(vertAlign){
-				case "bottom":
-					return height-contentHeight
-				case "center":
-				case "middle":
-					return (height-contentHeight)/2
-				default:
-					return 0
-			}
-		})();
 		return (
 			<Group {...others} height={height} width={width}>
 				{new Border({//must render to composed for positioning later
 							border,width,height,
 							children:(
 								<Margin x={margin.left} y={margin.top}>
-									<Group y={alignY}>
-										<Group className="frame">
-											{frame ? frame.render().props.children : null}
-										</Group>
-									</Group>
+									{frame ? frame.clone({height}).render() : null}
 								</Margin>
 							)
 						}).render()

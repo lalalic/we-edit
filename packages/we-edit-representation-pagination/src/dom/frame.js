@@ -13,7 +13,7 @@ const Super=HasParentAndChild(Base)
 
 class Fixed extends Super{
 	static IMMEDIATE_STOP=Number.MAX_SAFE_INTEGER
-	
+
 	constructor(){
 		super(...arguments)
 		this.defineProperties()
@@ -128,7 +128,7 @@ class Fixed extends Super{
     }
 
 	positionLines(lines){
-		return lines.reduce((state,a,i)=>{
+		const {positioned}=lines.reduce((state,a,i)=>{
 			if(a.props.y==undefined){
 				state.positioned.push(React.cloneElement(a,{y:state.y,key:i}))
 				state.y+=a.props.height
@@ -137,7 +137,7 @@ class Fixed extends Super{
 			}
 			return state
 		},{y:0,positioned:[]})
-		.positioned
+		return positioned
 	}
 
 	belongsTo(a,id){
@@ -409,15 +409,32 @@ class Columnable extends Fixed{
 	}
 
 	createComposed2Parent(){
+		const alignY=contentHeight=>{
+			const {height=contentHeight, vertAlign}=this.props
+			switch(vertAlign){
+				case "bottom":
+					return height-contentHeight
+				case "center":
+				case "middle":
+					return (height-contentHeight)/2
+				default:
+					return 0
+			}
+		};
 		const element=super.createComposed2Parent([])
 		return React.cloneElement(element,{
 			children:[
 				...this.anchors,
-				...this.columns.map(({children:lines,...props},i)=>(
-					<Group {...props} key={i}>
-						{this.positionLines(lines)}
-					</Group>
-				))
+				...this.columns.map((column,i)=>{
+					const {children:lines,...props}=column
+					return (
+						<Group {...props} key={i}>
+							<Group y={alignY(column.currentY)}>
+								{this.positionLines(lines)}
+							</Group>
+						</Group>
+					)
+				})
 			]
 		})
 	}
