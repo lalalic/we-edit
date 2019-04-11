@@ -14,6 +14,13 @@ import {Text as ComposedText} from "../../composed"
 const Cursorable=`[data-type="text"],[data-type="image"]`
 
 const Editable=Cacheable(class extends editable(Base,{stoppable:true}){
+	createEnder(){
+        return <this.constructor.End {...this.props.defaultStyle}
+			End={this.props.End} 
+			key={`${this.props.id}-end`}
+			id={`${this.props.id}-end`}/>
+    }
+
 	getNumberingAtom(){
 		if(this.context.numbering){
 			const {numbering:{style}, indent:{firstLine=0}}=this.props

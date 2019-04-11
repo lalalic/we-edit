@@ -7,6 +7,11 @@ import {Text as ComposedText} from "../../composed"
 
 const Super=NoChild(dom.Unknown)
 export default class extends Super{
+    static propTypes={
+        ...Super.propsTypes,
+        End:PropTypes.string
+    }
+
     static contextTypes={
         ...Super.contextTypes,
         Measure: PropTypes.func,
@@ -18,14 +23,14 @@ export default class extends Super{
     }
 
     createComposed2Parent(){
-        const {context:{Measure},props:{fonts,size,bold,italic}}=this
+        const {context:{Measure},props:{fonts,size,bold,italic, End=""}}=this
         const measure=new Measure({fonts:fonts,size,bold,italic})
         return (
             <ComposedText
                 {...measure.defaultStyle}
-                width={measure.stringWidth(dom.Paragraph.End)}
+                width={measure.stringWidth(End)}
                 minWidth={0}
-                children={[dom.Paragraph.End]}
+                children={[End]}
                 className="ender"
                 />
         )

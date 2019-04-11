@@ -108,9 +108,13 @@ export default class Paragraph extends Super{
 	children(){
 		return [
 			...Children.toArray(this.props.children),
-			<this.constructor.End {...this.props.defaultStyle} key={`${this.props.id}-end`} id={`${this.props.id}-end`}/>
+            this.createEnder(),
 		]
 	}
+
+    createEnder(){
+        return null
+    }
 
     appendComposed(content){
 		if(this.computed.needMerge){

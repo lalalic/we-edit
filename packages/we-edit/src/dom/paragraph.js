@@ -36,20 +36,20 @@ export default class Paragraph extends Component{
 		widow:PropTypes.bool,
 		orphan: PropTypes.bool,
 		keepLines: PropTypes.bool,
-		keepWithNext: PropTypes.bool
+		keepWithNext: PropTypes.bool,
+		End:PropTypes.string,
 	}
 
 	static defaultProps={
 		spacing:{},
 		indent:{},
 		widow:true,
-		orphan:true
+		orphan:true,
+		End:String.fromCharCode(0xb6),
 	}
 
 	static contextTypes={
 		isAnchored: PropTypes.func,
 		exclusive: PropTypes.func,
 	}
-
-	static End=String.fromCharCode(0xb6)
 }

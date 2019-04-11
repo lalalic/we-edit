@@ -13,7 +13,7 @@ export class Properties{
 	}
 
 	emu2Px(emu){
-		return parseInt(this.docx.cm2Px(...arguments)*this.precision)
+		return parseInt(this.docx.pt2Px(parseInt(emu)/12700)*this.precision)
 	}
 
 	dxa2Px(){
@@ -230,11 +230,11 @@ export class Properties{
 			return props
 		},{})
 	}
-	
+
 	tblStyleColBandSize(x){
 		return parseInt(this._val(x))
 	}
-	
+
 	tblStyleRowBandSize(x){
 		return parseInt(this._val(x))
 	}
@@ -258,7 +258,7 @@ export class Properties{
 	cantSplit(x){
 		return true
 	}
-	
+
 	cnfStyle(x){
 		return this._val(x)
 	}

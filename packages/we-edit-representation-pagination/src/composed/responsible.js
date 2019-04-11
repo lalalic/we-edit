@@ -226,8 +226,11 @@ export default class Responsible extends Component{
     componentDidMount(){
         if(this.selection && !this.selection.id){
             const page0=this.props.pages[0]
-            const {id,at}=this.getComposer(page0.getParagraph(page0.lines[0])).nextCursorable()
-            this.dispatch(ACTION.Cursor.AT(id,at))
+            const firstParagraph=this.getComposer(page0.getParagraph(page0.lines[0]))
+            if(firstParagraph){
+                const {id,at}=firstParagraph.nextCursorable()
+                this.dispatch(ACTION.Cursor.AT(id,at))
+            }
         }
         this.active()
         this.locator && this.locator.setState({content:this.props.content, canvas:this.canvas})
