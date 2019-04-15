@@ -68,7 +68,6 @@ export default (A)=>class extends A{
         return a
     }
 
-
     nextAvailableSpace(required){
         let space=this.current.nextAvailableSpace(...arguments)
         if(!space){

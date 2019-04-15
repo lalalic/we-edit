@@ -1,13 +1,12 @@
 import React,{Component} from "react"
 import PropTypes from "prop-types"
-
+import {dom} from "we-edit"
+import memoize from "memoize-one"
 
 import {Group} from "../composed"
+import {HasParentAndChild, Fissionable} from "../composable"
 
-import {HasParentAndChild} from "../composable"
-import {dom} from "we-edit"
-const {Shape:Base}=dom
-const Super=HasParentAndChild(Base)
+const Super=Fissionable(HasParentAndChild(dom.Shape))
 
 class custom extends Component{
 	availableSpace(){
@@ -72,56 +71,39 @@ class circle extends ellipse{
 }
 
 export default class Shape extends Super{
-	constructor(){
-		super(...arguments)
-		const {geometry="rect"}=this.props
-		if(this.constructor[geometry]){
-			this.geometry=new this.constructor[geometry](...arguments)
-		}else{
-
+	static fissureLike=Frame=>class extends Frame{
+		static dispatchName="ShapeFrame"
+		render(){
+			const {props:{I:key,width,height,margin}}=this
+			return React.cloneElement(super.createComposed2Parent(),{key,width,height,margin})
 		}
 	}
 
-	nextAvailableSpace(){
-		return this.geometry.availableSpace()
+	get geometry(){
+		return memoize(()=>{
+			const {geometry="rect"}=this.props
+			const Geometry=this.constructor[geometry]||this.constructor.custom
+			return new Geometry(this.props, this.context)
+		})()
 	}
 
-	appendComposed(content){
-		return this.computed.composed.push(content)
-	}
-
-	onAllChildrenComposed(){
-		let composed=this.createComposed2Parent()
-		this.context.parent.appendComposed(composed)
-
-		super.onAllChildrenComposed()
-	}
-
-	children(){
-		const children=React.Children.toArray(this.props.children)
-		if(children.length){
-			return React.cloneElement(children[0],this.nextAvailableSpace())
-		}
-		return null
+	create(props={},...others){
+		const {width,height}=this.geometry.availableSpace()
+		return super.create({...props,width,height},...others)
 	}
 
 	createComposed2Parent(){
 		const {width,height,margin,x,y}=this.props
-		this.context.parent.nextAvailableSpace({width,height})
-		let Y=0
-		const content=this.computed.composed.map((a,i)=>{
-			if(Y+a.props.height>height)
-				return null
-			let r=<Group y={Y} key={i} children={a}/>
-			Y+=a.props.height
-			return r
-		})
-
 		return (
 			<Group {...{width,height,x,y}}>
-				{this.transform(this.geometry.createComposedShape(content))}
+				{this.transform(this.geometry.createComposedShape(this.current.render()))}
 			</Group>
 		)
+	}
+
+	onAllChildrenComposed(){
+		this.context.parent.appendComposed(this.createComposed2Parent())
+		super.onAllChildrenComposed()
 	}
 
 	transform(element){
