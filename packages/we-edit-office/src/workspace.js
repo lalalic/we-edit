@@ -134,8 +134,8 @@ export default class Workspace extends PureComponent{
 		</Fragment>
 	))
 
-	static Layout=pure(({canvas, left,  right})=>(
-		<div style={{flex:"1 100%", display:"flex",  flexDirection:"row"}}>
+	static Layout=pure(({canvas, left,  right, style})=>(
+		<div style={{flex:"1 100%", display:"flex",  flexDirection:"row", overflow:"auto",...style}}>
 			{left && <div style={{overflow:"auto"}}>{left}</div>}
 			{canvas}
 			{right && <div style={{overflow:"auto"}}>{right}</div>}
