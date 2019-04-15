@@ -46,10 +46,10 @@ export default class Group extends Component{
 
 		return (
 			<g {...others}>
+				{background&&background!="transparent"&& (<rect width={width} height={height} fill={background} key="background"/>)}
 				{Children.toArray(children).map((a,i)=>{
 					return React.cloneElement(a,{key:i})
 				})}
-				{background&&background!="transparent"&& (<rect width={width} height={height} fill={background} key="background"/>)}
 			</g>
 		)
     }
