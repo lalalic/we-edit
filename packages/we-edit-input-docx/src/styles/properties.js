@@ -393,7 +393,7 @@ export class Properties{
 
 	ln(x){
 		let props=this.select(x.children,{prstDash:"dash"})
-		props.width=this.emu2Px(x.children.attribs.w)
+		props.width=this.emu2Px(x.attribs.w)
 		return props
 	}
 

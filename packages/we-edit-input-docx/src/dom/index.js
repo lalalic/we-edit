@@ -9,6 +9,8 @@ import Run from "./run"
 import Table from "./table"
 import Row from "./row"
 import Cell from "./cell"
+import Image from "./image"
+import Shape from "./shape"
 
 const createUnvisibleComponent=type=>{
 	return class extends Component{
@@ -28,6 +30,8 @@ export default {
 	Cell,
 	Row,
 	Table,
+	Image,
+	Shape,
 	Styles:()=>createUnvisibleComponent("styles"),
 	Style:()=>createUnvisibleComponent("style"),
 }

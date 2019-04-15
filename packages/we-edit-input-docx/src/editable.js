@@ -74,8 +74,7 @@ export default class extends Input.Editable{
 			{id:"styles"}
 		)
 
-		const buildFactory=createElement=>(type,props,children)=>{
-			let node=props.node
+		const buildFactory=createElement=>(type,{node,key:_1,type:_2, ...props},children)=>{
 			children=children.reduce((merged,a)=>{
 				if(Array.isArray(a))
 					merged.splice(merged.length,0, ...a)
@@ -196,7 +195,7 @@ export default class extends Input.Editable{
 			case "list":
 			case "heading":
 			case "p":{
-				const {key,node,pr,type, ...pProps}=props
+				const {pr, ...pProps}=props
 				let style= !props.pr ? styles['*paragraph'] : new Style.Paragraph.Direct(props.pr,styles,selector);
 				return createElement(components.Paragraph,{style,...pProps},children,node)
 			}
@@ -207,10 +206,6 @@ export default class extends Input.Editable{
 			case "t":
 				return createElement(components.Text,{},children[0]||"",node)
 
-			case "picture":{
-				let style=selector.select($(node).find("a\\:xfrm").toArray())
-				return createElement(components.Image,{...style.xfrm,src:props.url},null,node)
-			}
 			case "drawing.inline":{
 				return createElement(components.Container,{},children,node)
 			}
@@ -218,24 +213,12 @@ export default class extends Input.Editable{
 				const style=new Style.Anchor(node,styles,selector)
 				return createElement(components.Anchor,style.flat(),children,node)
 			}
-			case "shape":{
-				let {xfrm:{size,position},...others}=selector.select($(node).find("wps\\:spPr").children().toArray(),{
-						custGeom:"path",
-						prstGeom:"shape",
-						ln:"outline",
-						solidFill:"fill",
-						blipFill:"image"
-					})
-				let content=selector.select($(node).find("wps\\:bodyPr").toArray(),{})
-				let style=selector.select($(node).find("wps\\:style").children().toArray(),{
-						lnRef:"outline",
-						fillRef:"fill",
-						fontRef:"font",
-						effectRef:"effect"
-					})
-
-				return createElement(components.Shape,{...style,...others,...size,position, ...content.bodyPr},children,node)
-			}
+			case "picture":
+			debugger
+				return createElement(components.Image,props,children,node)
+			case "shape":
+			debugger
+				return createElement(components.Shape,props,children,node)
 			case "bookmarkStart":
 			case "bookmarkEnd":
 				return null

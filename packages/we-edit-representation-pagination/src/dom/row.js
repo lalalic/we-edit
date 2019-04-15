@@ -41,22 +41,25 @@ export default class extends Super{
 	}
 
 	injectCellIntoRank(cell){
-		const {first:rank,parents}=new ReactQuery(this.currentSpace.frame.lastLine)
-			.findFirstAndParents(`[data-content="${this.props.id}"]`)
-		if(!rank.length)
-			return
+		const lastLine=this.currentSpace.frame.lastLine
+		if(lastLine){
+			const $lastLine=new ReactQuery(lastLine)
+			const {first:rank,parents}=$lastLine.findFirstAndParents(`[data-content="${this.props.id}"]`)
+			if(!rank.length)
+				return
 
-		const cells=rank.attr("children")
-		cells[this.computed.composed.length-1]=cell
+			const cells=rank.attr("children")
+			cells[this.computed.composed.length-1]=cell
 
-		//fix rank's height
-		const height=this.getHeight(cells)
-		if(height>rank.attr("height")){
-			const fixedLastLine=parents.reduceRight(
-				(child,parent)=>React.cloneElement(parent,{height},child),
-				React.cloneElement(rank.get(0),{height})
-			)
-			this.currentSpace.frame.currentColumn.children.splice(-1,1,fixedLastLine)
+			//fix rank's height
+			const height=this.getHeight(cells)
+			if(height>rank.attr("height")){
+				const fixedLastLine=parents.reduceRight(
+					(child,parent)=>React.cloneElement(parent,{height},child),
+					React.cloneElement(rank.get(0),{height})
+				)
+				this.currentSpace.frame.currentColumn.children.splice(-1,1,fixedLastLine)
+			}
 		}
 	}
 

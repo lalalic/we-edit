@@ -1,16 +1,17 @@
 import React from "react"
+import PropTypes from "prop-types"
 import {ReactQuery} from "we-edit"
 
-import {render, provider, Measure, defaultProps} from "./context"
+import {render, provider, Measure, defaultProps,context,$} from "./context"
 
 import {Viewers, Editors} from "../src"
 
 describe.each([
 	["viewer",Viewers],
 	["editor", Editors,{shouldContinueCompose:()=>true}]
-])("%s",(testing,Composers,CONTEXT={})=>{
-	const {Document, Section, Frame, Paragraph, Text, Image,Table,Row,Cell}=Composers
-	
+])("%s",(testing,dom,CONTEXT={})=>{
+	const {Document, Section, Frame, Paragraph, Text, Image,Table,Row,Cell, Shape}=dom
+
 	const WithTextContext=provider(Text,{Measure})
 	const WithParagraphContext=provider(Paragraph)
 	const Context={
@@ -19,7 +20,7 @@ describe.each([
 	}
 
 	beforeAll(()=>{
-		defaultProps(Composers)()
+		defaultProps(dom)()
 	})
 
 
@@ -338,6 +339,13 @@ describe.each([
 				})
 			})
 		})
+
+		describe("empty paragraph should also append line to parent",()=>{
+			it("no error",()=>{
+				const [line]=test(undefined,undefined,undefined,"left","")
+				expect(line.props.height).toBe(10)
+			})
+		})
 	})
 
 	describe("Section",()=>{
@@ -414,6 +422,32 @@ describe.each([
 											<Paragraph id={`${u++}`}>
 												<Text id={`${u++}`} fonts="arial" size={10}>hello</Text>
 											</Paragraph>
+										</Cell>
+									</Row>
+								</Table>
+							)}
+						</WithSectionContext>
+					)
+					expect(document.appendComposed).toHaveBeenCalledTimes(1)
+
+					expect(page.lastLine).toBeDefined()
+					const table=new ReactQuery(page.lastLine)
+						.findFirst(`[data-type="table"]`)
+						.get(0)
+					expect(table).toBeDefined()
+					expect(table.props.height).toBe(12)
+				})
+
+				it("empty cell should be ok",()=>{
+					let page
+					document.appendComposed=jest.fn(a=>page=a)
+					const rendered=render(
+						<WithSectionContext context={context}>
+							{section(
+								<Table id={`${u++}`} width={8}>
+									<Row id={`${u++}`} cols={[{x:0,width:6}]} >
+										<Cell id={`${u++}`}>
+											<Paragraph id={`${u++}`}/>
 										</Cell>
 									</Row>
 								</Table>
@@ -656,6 +690,71 @@ describe.each([
 
 		describe("rotate",()=>{
 
+		})
+	})
+
+	describe("shape",()=>{
+		const parent={}
+		const Context=context({
+			contextTypes:{
+				parent:PropTypes.any,
+				ModelTypes:PropTypes.any,
+				shouldContinueCompose: PropTypes.fun,
+			},
+			context:{
+				parent,
+				ModelTypes:{Frame},
+				shouldContinueCompose:()=>true
+			}
+		})
+
+		beforeEach(()=>{
+			parent.nextAvailableSpace=jest.fn()
+			parent.appendComposed=jest.fn()
+		})
+
+		it("can be empty",()=>{
+			parent.nextAvailableSpace.mockReturnValueOnce({width:100,height:100})
+			const {}=render(<Context><Shape {...{width:100,height:100,id:"shape"}}/></Context>)
+		})
+
+		it("with text",()=>{
+			var composed
+			parent.nextAvailableSpace.mockReturnValueOnce({width:100,height:100})
+			parent.appendComposed.mockImplementationOnce(a=>composed=a)
+			render(
+				<Context>
+					<Shape {...{width:100,height:100,id:"shape"}}>
+						<Paragraph id="p">
+							<Text children="hello" id="text"/>
+						</Paragraph>
+					</Shape>
+				</Context>)
+			expect(parent.appendComposed).toHaveBeenCalledTimes(1)
+			expect(new ReactQuery(composed).find(`[data-type="text"]`).attr("children")).toBe("hello")
+		})
+
+		it("with table",()=>{
+			var u=9
+			var composed
+			parent.nextAvailableSpace.mockReturnValueOnce({width:100,height:100})
+			parent.appendComposed.mockImplementationOnce(a=>composed=a)
+			render(
+				<Context>
+					<Shape {...{width:100,height:100,id:"shape"}}>
+						<Table id={`${u++}`} width={8}>
+							<Row id={`${u++}`} cols={[{x:0,width:6}]} >
+								<Cell id={`${u++}`}>
+									<Paragraph id={`${u++}`}>
+										<Text id={`${u++}`}>hello</Text>
+									</Paragraph>
+								</Cell>
+							</Row>
+						</Table>
+					</Shape>
+				</Context>)
+			expect(parent.appendComposed).toHaveBeenCalledTimes(1)
+			expect($([{render:()=><Context>{React.cloneElement(composed,{key:1})}</Context>}]).text().startsWith("hello")).toBe(true)
 		})
 	})
 })
