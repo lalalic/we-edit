@@ -106,14 +106,17 @@ export default class Paragraph extends Super{
     }
 
 	children(){
-		return [
+        return [
 			...Children.toArray(this.props.children),
             this.createEnder(),
 		]
 	}
 
     createEnder(){
-        return null
+        return <this.constructor.End {...this.props.defaultStyle}
+            End={""}
+            key={`${this.props.id}-end`}
+            id={`${this.props.id}-end`}/>
     }
 
     appendComposed(content){
@@ -148,7 +151,7 @@ export default class Paragraph extends Super{
 	* parent.appendComposed can rollback lines
 	**/
 	commit(start=0, end=Number.MAX_SAFE_INTEGER){
-		const {context:{parent}, computed:{atoms}}=this
+        const {context:{parent}, computed:{atoms}}=this
 
 		const rollbackToLineWithFirstAtomIndex=at=>{
 			const {composed:lines,atoms}=this.computed
@@ -163,6 +166,8 @@ export default class Paragraph extends Super{
 		const len=this.computed.atoms.length
 		const DEAD=5
 		var nested=0
+
+        this.createLine()
 
 		const commitFrom=(start=0)=>{
 			var last=0, times=0
@@ -207,7 +212,7 @@ export default class Paragraph extends Super{
 				return
 			}
 
-			if(!this.currentLine.isEmpty()){
+			if(this.computed.composed.length==1 || !this.currentLine.isEmpty()){
 				rollbackLines=appendComposedLine(true)
 				if(Number.isInteger(rollbackLines)){
 					if(rollbackLines==Frame.IMMEDIATE_STOP)
@@ -231,7 +236,7 @@ export default class Paragraph extends Super{
 
 		const start=atoms.findIndex(a=>a==lastLines[0].first)
 		const end=atoms.slice(start+1).findIndex(a=>a==lastLines[lastLines.length-1].last)+start+1
-		this.createLine()
+		//this.createLine()
 		return this.commit(start, end)
 	}
 
