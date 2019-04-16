@@ -214,10 +214,8 @@ export default class extends Input.Editable{
 				return createElement(components.Anchor,style.flat(),children,node)
 			}
 			case "picture":
-			debugger
-				return createElement(components.Image,props,children,node)
+				return createElement(components.Image,props,null,node)
 			case "shape":
-			debugger
 				return createElement(components.Shape,props,children,node)
 			case "bookmarkStart":
 			case "bookmarkEnd":

@@ -28,9 +28,11 @@ class custom extends Component{
 			<path key="shape"
 				d={this.getPath()}
 				style={{...outline, ...fill}} />,
+
 			url&&(<image key="image"
 				{...{width,height,xlinkHref: url, preserveAspectRatio:"none"}} />),
-			<Group key="content"
+
+			content && <Group key="content"
 				x={margin.left}
 				y={margin.top}
 				children={content}/>
@@ -74,6 +76,8 @@ export default class Shape extends Super{
 	static fissureLike=Frame=>class extends Frame{
 		static dispatchName="ShapeFrame"
 		render(){
+			if(this.isEmpty())
+				return null
 			const {props:{I:key,width,height,margin}}=this
 			return React.cloneElement(super.createComposed2Parent(),{key,width,height,margin})
 		}

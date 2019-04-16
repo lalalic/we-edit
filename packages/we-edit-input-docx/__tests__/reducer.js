@@ -5,6 +5,7 @@ import testEditableDocument from "../../we-edit/__tests__/input-reducer-tck"
 
 import docx4js from "../src/docx"
 import DocxDocument from "../src"
+import Part from "docx4js/lib/openxml/part"
 
 describe("reduce docx",()=>{
     let doc=null
@@ -122,15 +123,15 @@ describe("reduce docx",()=>{
             dom.Section.fissureLike=jest.fn(()=>class{})
             const components=this.transform(dom)
 
-            const getRel=this.doc.officeDocument.getRel.bind(this.doc.officeDocument)
-            this.doc.officeDocument.getRel=jest.fn(function(rid){
+            const getRel=Part.prototype.getRel
+            Part.prototype.getRel=jest.fn(function(rid){
                 if(rid=="rId9"){
                     return {url:""}
                 }
-                return getRel(...arguments)
+                return getRel.call(this, ...arguments)
             })
-
-            const identify=this.doc.constructor.OfficeDocument.identify
+            const OfficeDocument=this.doc.constructor.OfficeDocument
+            const identify=OfficeDocument.identify.bind(OfficeDocument)
             this.doc.constructor.OfficeDocument.identify=jest.fn(function(wXml){
                 const element=identify(...arguments)
                 if(element && typeof(element)=="object" &&

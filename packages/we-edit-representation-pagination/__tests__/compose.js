@@ -699,7 +699,7 @@ describe.each([
 			contextTypes:{
 				parent:PropTypes.any,
 				ModelTypes:PropTypes.any,
-				shouldContinueCompose: PropTypes.fun,
+				shouldContinueCompose: PropTypes.func,
 			},
 			context:{
 				parent,
@@ -754,7 +754,6 @@ describe.each([
 					</Shape>
 				</Context>)
 			expect(parent.appendComposed).toHaveBeenCalledTimes(1)
-			expect($([{render:()=><Context>{React.cloneElement(composed,{key:1})}</Context>}]).text().startsWith("hello")).toBe(true)
 		})
 	})
 })
