@@ -227,7 +227,7 @@ describe("positioning",()=>{
                                     <Anchor id={"2"}
                                         wrap={{mode:"Square"}}
                                         x={{base:"page",offset:0}} y={{base:"page",offset:0}}>
-                                        <Image id={"3"} size={{width:2,height:10}}/>
+                                        <Image id={"3"} {...{width:2,height:10}}/>
                                     </Anchor>
                                     <Text id={"1"}>text</Text>
                                 </Paragraph>
@@ -530,7 +530,7 @@ describe("positioning",()=>{
                                     <Anchor id={"2"}
                                         wrap={{mode:"Square"}}
                                         x={{base:"page",offset:0}} y={{base:"page",offset:0}}>
-                                        <Image id={"3"} size={{width:2,height:10}}/>
+                                        <Image id={"3"} {...{width:2,height:10}}/>
                                     </Anchor>
                                     <Text id={"1"}>text</Text>
                                 </Paragraph>
@@ -792,7 +792,7 @@ describe("positioning",()=>{
                         const p=test(
                             <Paragraph id={uuid++}>
                                 <Text id="0">text </Text>
-                                <Image id="2" size={{width:2,height:2}}/>
+                                <Image id="2" {...{width:2,height:2}}/>
                                 <Text id="1">hello</Text>
                             </Paragraph>
                         )
@@ -802,6 +802,7 @@ describe("positioning",()=>{
                         expect(p.nextLine("0",2)).toMatchObject({id:"2"})
 
                         expect(p.nextLine("2",0)).toMatchObject({id:"1",at:0})
+                        debugger
                         expect(p.nextLine("2",1)).toMatchObject({id:"1",at:2})
                     })
 
@@ -809,7 +810,7 @@ describe("positioning",()=>{
                         const p=test(
                             <Paragraph id={uuid++}>
                                 <Text id="0">text </Text>
-                                <Image id="2" size={{width:7,height:2}}/>
+                                <Image id="2" {...{width:7,height:2}}/>
                                 <Text id="1">hello</Text>
                             </Paragraph>
                         )
@@ -952,7 +953,7 @@ describe("positioning",()=>{
                         const p=test(
                             <Paragraph id={uuid++}>
                                 <Text id="0">text </Text>
-                                <Image id="2" size={{width:7,height:2}}/>
+                                <Image id="2" {...{width:7,height:2}}/>
                                 <Text id="1">hello</Text>
                             </Paragraph>
                         )
@@ -1106,21 +1107,21 @@ describe("positioning",()=>{
                 })
 
                 it("Text|image(lower than text)Text",()=>{
-                    const p=test(<Paragraph id={`${++uuid}`}><Text id="1">text</Text><Image id="0" size={{width:2,height:2}}/><Text id="2">text</Text></Paragraph>)
+                    const p=test(<Paragraph id={`${++uuid}`}><Text id="1">text</Text><Image id="0" {...{width:2,height:2}}/><Text id="2">text</Text></Paragraph>)
                     const y=10-1-2//y=line.height-descent-image.height
                     expect(p.position("0",0)).toMatchObject({x:4+0,y})
                     expect(p.position("0",1)).toMatchObject({x:4+2,y})
                 })
 
                 it("Text|image(heigher than text)Text",()=>{
-                    const p=test(<Paragraph id={`${++uuid}`}><Text id="1">text</Text><Image id="0" size={{width:2,height:12}}/><Text id="2">text</Text></Paragraph>)
+                    const p=test(<Paragraph id={`${++uuid}`}><Text id="1">text</Text><Image id="0" {...{width:2,height:12}}/><Text id="2">text</Text></Paragraph>)
                     const y=0
                     expect(p.position("0",0)).toMatchObject({x:4+0,y})//y=line.height-descent-image.height
                     expect(p.position("0",1)).toMatchObject({x:4+2,y})
                 })
 
                 it("image",()=>{
-                    const p=test(<Paragraph id={`${++uuid}`}><Image id="0" size={{width:2,height:20}}/></Paragraph>)
+                    const p=test(<Paragraph id={`${++uuid}`}><Image id="0" {...{width:2,height:20}}/></Paragraph>)
                     expect(p.position("0",0)).toMatchObject({x:0,y:0})
                     expect(p.position("0",1)).toMatchObject({x:2,y:0})
                 })
@@ -1398,7 +1399,7 @@ describe("positioning",()=>{
     			const doc=test(
     				<Paragraph id={"1"}>
     					<Text id={"0"}>text</Text>
-    					<Image id="2" size={{width:5,height:20}}/>
+    					<Image id="2" {...{width:5,height:20}}/>
     					<Text id={"3"}>text</Text>
     				</Paragraph>
     			)

@@ -23,20 +23,17 @@ class custom extends Component{
 				outline={strokeWidth:0,stroke:"black"},
 				fill={fill:solidFill}
 			}=this.props
+		const children=[<path key="outline" d={this.getPath()} style={{...outline, ...fill}} />]
+		if(url)
+			children.push(<image key="background" {...{width,height,xlinkHref: url, preserveAspectRatio:"none"}} />)
+		if(content)
+			children.push(<Group key="content" x={margin.left} y={margin.top} children={content}/>)
 
-		return [
-			<path key="shape"
-				d={this.getPath()}
-				style={{...outline, ...fill}} />,
-
-			url&&(<image key="image"
-				{...{width,height,xlinkHref: url, preserveAspectRatio:"none"}} />),
-
-			content && <Group key="content"
-				x={margin.left}
-				y={margin.top}
-				children={content}/>
-		]
+		return (
+			<Group {...{width,height}}>
+				{children}
+			</Group>
+		)
 	}
 
 	getPath(){
@@ -96,11 +93,13 @@ export default class Shape extends Super{
 		return super.create({...props,width,height},...others)
 	}
 
-	createComposed2Parent(){
+	createComposed2Parent(content=this.current.render()){
 		const {width,height,margin,x,y}=this.props
 		return (
-			<Group {...{width,height,x,y}}>
-				{this.transform(this.geometry.createComposedShape(this.current.render()))}
+			<Group {...{width,height}}>
+				<Group {...{x,y}}>
+					{this.transform(this.geometry.createComposedShape(content))}
+				</Group>
 			</Group>
 		)
 	}

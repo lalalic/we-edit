@@ -3,14 +3,12 @@ import React, {Component} from "react"
 
 export default ({Shape})=>class extends Component{
     static displayName="shape"
-    toShapeStyle(){
-        return new ShapeStyle(this.props).flat()
+    render(){
+        return (<Shape {...this.props}/>)
     }
 
-    render(){
-        const {id, children, changed, ...props}=this.props
-        const shapePr=this.toShapeStyle(this.props)
-        return (<Shape {...{id,children,changed}} {...shapePr}/>)
+    static asStyle(props){
+        return new ShapeStyle(props).flat()
     }
 }
 

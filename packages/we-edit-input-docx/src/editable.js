@@ -57,7 +57,7 @@ export default class extends Input.Editable{
 
 	render(createElement,components){
 		const self=this
-		const identify=this.doc.constructor.OfficeDocument.identify
+		const identify=this.doc.constructor.OfficeDocument.identify.bind(this.doc.constructor.OfficeDocument)
 
 		const precision=1
 		const docx=this.doc
@@ -214,9 +214,9 @@ export default class extends Input.Editable{
 				return createElement(components.Anchor,style.flat(),children,node)
 			}
 			case "picture":
-				return createElement(components.Image,props,null,node)
+				return createElement(components.Image,components.Image.asStyle(props),null,node)
 			case "shape":
-				return createElement(components.Shape,props,children,node)
+				return createElement(components.Shape,components.Shape.asStyle(props),children,node)
 			case "bookmarkStart":
 			case "bookmarkEnd":
 				return null

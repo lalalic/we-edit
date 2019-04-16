@@ -654,7 +654,7 @@ describe.each([
 			return Object.assign(appendComposed.mock.calls.map(([line])=>line),{dom:renderer.root})
 		}
 		it("image(size<=capacitty)", ()=>{
-			const [line]=test({size:{width:8,height:50}})
+			const [line]=test({width:8,height:50})
 			const image=new ReactQuery(line).findFirst("[xlinkHref]")
 			expect(image.length).toBe(1)
 			expect(line.props.width).toBe(10)
@@ -663,7 +663,7 @@ describe.each([
 		})
 
 		it("image(size.width>capacity)", ()=>{
-			const lines=test({size:{width:11,height:50}})
+			const lines=test({width:11,height:50})
 			const line=new ReactQuery(lines[0])
 			const image=line.find("[xlinkHref]")
 			expect(image.length).toBe(1)
@@ -673,7 +673,7 @@ describe.each([
 		})
 
 		it("image(size.height>capacity)", ()=>{
-			const lines=test({size:{width:5,height:110}})
+			const lines=test({width:5,height:110})
 			expect(lines.length).toBe(1)
 			const line=new ReactQuery(lines[0])
 			const image=line.find("[xlinkHref]")

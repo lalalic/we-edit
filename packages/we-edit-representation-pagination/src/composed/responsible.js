@@ -243,7 +243,9 @@ export default class Responsible extends Component{
     onRotate({x,y,id}){
 		id=id||this.selection.start.id
 		const content=this.getContent(id)
-		const {width,height}=content.attr("size").toJS()
+        const width=content.attr('width')
+        const height=content.attr('height')
+
 		const degree=(Math.asin(x/height)+Math.asin(y/width))*180/Math.PI
 		this.dispatch(ACTION.Entity.UPDATE({id,type:content.attr("type"),rotate:(content.attr("rotate")||0)+degree}))
     }
@@ -251,7 +253,9 @@ export default class Responsible extends Component{
     onResize({x,y,id}){
 		id=id||this.selection.start.id
 		const content=this.getContent(id)
-		const {width,height}=content.attr("size").toJS()
+		//const {width,height}=content.attr("size").toJS()
+        const width=content.attr('width')
+        const height=content.attr('height')
 
 		let size=null
 
