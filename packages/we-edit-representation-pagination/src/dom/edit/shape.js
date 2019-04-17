@@ -31,7 +31,7 @@ export default class Shape extends Super{
 	}
 
 	getFocusShape(){
-		return this.transform(this.geometry.getFocusShape())
+		return this.geometry.getFocusShape()
 	}
 
 	static rect=class extends Super.rect{
