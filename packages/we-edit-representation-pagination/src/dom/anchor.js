@@ -8,12 +8,16 @@ import {dom, ReactQuery} from "we-edit"
 const {Anchor:Base}=dom
 const Super=HasParentAndChild(Base)
 
+/**
+* xy for Positioning
+* wrap boundary must be provided by children content, and then pass to frame
+*/
 export default class extends Super{
     createComposed2Parent(content){
         const {width,height}=content.props
         this.width=width
         this.height=height
-        return <Group {...{width,height,anchor:this}}>{super.createComposed2Parent(...arguments)}</Group>
+        return <Group {...{width,height, anchor:this}}>{super.createComposed2Parent(...arguments)}</Group>
     }
 
     xy(frame){

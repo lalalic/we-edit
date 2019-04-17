@@ -700,11 +700,13 @@ describe.each([
 				parent:PropTypes.any,
 				ModelTypes:PropTypes.any,
 				shouldContinueCompose: PropTypes.func,
+				getMyBreakOpportunities:PropTypes.func,
 			},
 			context:{
 				parent,
 				ModelTypes:{Frame},
-				shouldContinueCompose:()=>true
+				shouldContinueCompose:()=>true,
+				getMyBreakOpportunities:jest.fn(),
 			}
 		})
 
@@ -754,6 +756,34 @@ describe.each([
 					</Shape>
 				</Context>)
 			expect(parent.appendComposed).toHaveBeenCalledTimes(1)
+		})
+
+		describe("size",()=>{
+			const test=(props={width:100,height:100})=>{
+				var composed
+				parent.nextAvailableSpace.mockReturnValueOnce({width:100,height:100})
+				parent.appendComposed.mockImplementationOnce(a=>composed=a)
+				render(<Context><Shape {...{...props,id:"shape"}}/></Context>)
+				expect(parent.appendComposed).toHaveBeenCalledTimes(1)
+				return new ReactQuery(composed)
+			}
+
+			it("without outline",()=>{
+				const composed=test()
+				expect(composed.attr("width")).toBe(100)
+				expect(composed.attr("height")).toBe(100)
+			})
+
+			it("outline should be counted",()=>{
+				const width=10
+				const composed=test({width:100,height:100, outline:{width}})
+				expect(composed.attr("width")).toBe(100+width)
+				expect(composed.attr("height")).toBe(100+width)
+			})
+
+			xit("rotate",()=>{
+
+			})
 		})
 	})
 })

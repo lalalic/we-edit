@@ -6,7 +6,7 @@ import {Viewers, Editors} from "../src"
 import Responsible from "../src/composed/responsible"
 import Positioning from "../src/composed/positioning"
 
-const {Document, Section, Container,Frame, Paragraph, Text, Image,Anchor, Table, Row, Cell}=Editors
+const {Document, Section, Container,Frame, Paragraph, Text, Image,Anchor, Table, Row, Cell, Shape}=Editors
 
 describe("positioning",()=>{
     var uuid=10000
@@ -66,8 +66,8 @@ describe("positioning",()=>{
 
     describe.each([
         ["create provided to section", render],
-        ["page provided to section", (a,b)=>render(a,b,false)],
-        ["pagination",(a,b)=>render(a,b,false)]
+        //["page provided to section", (a,b)=>render(a,b,false)],
+        //["pagination",(a,b)=>render(a,b,false)]
     ])("%s",(name, render)=>{
         if(name=="pagination"){
             beforeAll(()=>{
@@ -113,17 +113,9 @@ describe("positioning",()=>{
     				})
 
     				it("tex|tImage",()=>{
-    					const p=render(<Paragraph id={`${++uuid}`}><Text id={"0"}>text</Text><Image id="-1"/></Paragraph>)
-    						.get("0")
-    						.nextCursorable("0",3)
-    					expect(p).toEqual({id:"-1",at:0})
-    				})
-
-                    it("text|->Image",()=>{
-    					const p=render(<Paragraph id={`${++uuid}`}><Text id={"0"}>text</Text><Image id="-1"/></Paragraph>)
-    						.get("0")
-    						.nextCursorable("0",4)
-    					expect(p).toEqual({id:"-1",at:0})
+    					const doc=render(<Paragraph id={`${++uuid}`}><Text id={"0"}>text</Text><Image id="-1"/></Paragraph>)
+    					expect(doc.get("0").nextCursorable("0",4)).toMatchObject({id:"-1",at:0})
+                        expect(doc.get("0").nextCursorable("0",3)).toMatchObject({id:"-1",at:0})
     				})
 
     				it("|imageText",()=>{
@@ -196,6 +188,16 @@ describe("positioning",()=>{
     						.nextCursorable("0",0)
     					expect(p).toEqual({id:"1",at:1})
     				})
+
+                    it("shape",()=>{
+                        const doc=render(
+                                <Paragraph id={"1"}>
+                                    <Shape id={"0"} {...{width:5,height:5, outline:{width:4}}}/>
+                                    <Text id={"2"}>text</Text>
+                                </Paragraph>)
+    					expect(doc.get("0").nextCursorable("0",0)).toMatchObject({id:"2",at:0})
+                        expect(doc.get("0").nextCursorable("0",1)).toMatchObject({id:"2",at:0})
+                    })
 
     				it("<paragraph>text|</paragraph><paragraph>text</paragraph>",()=>{
     					const doc=render(
@@ -1215,6 +1217,19 @@ describe("positioning",()=>{
                     expect(p.position("2",0)).toMatchObject({x:5+0,y:0})
                 })
             })
+
+            it("shape",()=>{
+                const doc=test(
+                        <Paragraph id={"1"}>
+                            <Shape id={"0"} {...{width:3,height:5, outline:{width:4}}}/>
+                            <Text id={"2"}>text</Text>
+                        </Paragraph>)
+                const y=10-1-(5+4)//line.height-descent-image.height
+                expect(doc.position("0",0)).toMatchObject({x:0,y,height:5+4})
+                expect(doc.position("0",1)).toMatchObject({x:3+4,y,height:5+4})
+                expect(doc.position("2",0)).toMatchObject({x:3+4,y:0,height:10})
+            })
+
 
             describe("in frame",()=>{
                 it("without anchored",()=>{

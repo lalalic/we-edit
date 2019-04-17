@@ -41,8 +41,8 @@ class ShapeStyle extends Style{
     constructor(style){
         super(style,{
             anchor:"vertAlign",
-
-        },"geometry","solidFill")
+            ln:"outline",
+        },"geometry","solidFill","rotate")
     }
 
     anchor(v){
@@ -52,4 +52,8 @@ class ShapeStyle extends Style{
     xfrm=(a, props)=>Object.assign(props, a)
 
     blipFill=({blip, ...props})=>({...blip, ...props})
+
+    ln({w:width,...props}){
+        return {width,...props}
+    }
 }

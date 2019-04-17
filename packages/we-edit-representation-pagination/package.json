@@ -20,13 +20,14 @@
     "react-waypoint": "^7.3.1",
     "simplify-path": "^1.1.0",
     "svg-path-contours": "^2.0.0",
+    "svgpath": "^2.2.1",
     "ttfjs": "^0.4.0"
   },
   "peerDependencies": {
     "react": "^16.2.0",
     "react-dom": "^16.1.1",
-    "we-edit": "^3.0.0",
-    "recompose": "^0.26.0"
+    "recompose": "^0.26.0",
+    "we-edit": "^3.0.0"
   },
   "keywords": [
     "we-edit"

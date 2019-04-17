@@ -11,12 +11,12 @@ import editable from "./editable"
 
 import {Text as ComposedText} from "../../composed"
 
-const Cursorable=`[data-type="text"],[data-type="image"]`
+const Cursorable=`[data-type="text"],[data-type="image"],[data-type="shape"]`
 
 const Editable=Cacheable(class extends editable(Base,{stoppable:true}){
 	createEnder(){
         return <this.constructor.End {...this.props.defaultStyle}
-			End={this.props.End} 
+			End={this.props.End}
 			key={`${this.props.id}-end`}
 			id={`${this.props.id}-end`}/>
     }

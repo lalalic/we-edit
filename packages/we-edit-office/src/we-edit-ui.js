@@ -88,8 +88,8 @@ export default compose(
 	})
 
 	rejectContextMenu(e){
-		e.preventDefault()
-		return false
+		//e.preventDefault()
+		//return false
 	}
 
 	render(){

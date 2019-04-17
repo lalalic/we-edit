@@ -10,19 +10,21 @@ const {Image:Base}=dom
 
 const Super=NoChild(Base)
 export default class extends Super{
-	getOutline(){
+	getShape(){
 		const {outline,width,height}=this.props
-		return new Shape({width,height,...outline, margin:{},children:null}, this.context)
+		return new Shape({width,height,outline, margin:{},children:null}, this.context)
 	}
 
 	createComposed2Parent(){
-		const {src, width,height, outline}=this.props
+		const shape=this.getShape()
+		const {width,height}=shape.geometry.contentBox
+		const {src}=this.props
 		const image=<Image {...{
 			width,
 			height,
 			xlinkHref: src,
 			preserveAspectRatio:"none",
 		}}/>
-		return this.getOutline().createComposed2Parent(image)
+		return shape.createComposed2Parent(image)
     }
 }

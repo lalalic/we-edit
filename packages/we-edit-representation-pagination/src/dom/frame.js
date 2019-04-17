@@ -746,10 +746,12 @@ class AnchorWrappable extends PaginationControllable{
 		const {anchor:atom}=line.props
 		const {anchor}=atom.props
 
+		//anchor placeholder in paragraph
 		this.currentColumn.children.push(React.cloneElement(line,{anchor:undefined}))
-		const {x,y}=anchor.xy(this)
-		const {geometry,wrap,rect}=anchor.wrapGeometry({x,y},atom)
 
+		//anchored content positioned in frame
+		const {x,y}=anchor.xy(this)
+		const {geometry, wrap,rect}=anchor.wrapGeometry({x,y},atom)
 		this.appendComposed(
 			<Group {...rect} wrap={wrap}>
 				{React.cloneElement(atom,{x:x-rect.x,y:y-rect.y,anchor:undefined})}

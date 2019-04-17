@@ -3,6 +3,9 @@ import PropTypes from "prop-types"
 
 import Component from "./component"
 
+/**
+anchor can be positioned seperatedly x and y, and also can be wrapped
+*/
 export default class extends Component{
     static displayName="anchor"
     static propTypes={
