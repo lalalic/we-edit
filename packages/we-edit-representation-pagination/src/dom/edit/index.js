@@ -20,7 +20,7 @@ export default editable.enable(dom,{
 	Section,
 	Paragraph,
 	Frame,
-//	Shape,
+	Shape,
 	Table,
 	Row,
 	Cell,

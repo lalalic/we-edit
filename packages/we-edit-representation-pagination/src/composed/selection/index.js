@@ -3,30 +3,30 @@ import React, {Component,Fragment} from "react"
 import Movable from "./movable"
 
 export default class SelectionShape extends Component{
-	state={}
-	onShrink=this.onShrink.bind(this)
+	constructor(){
+		super(...arguments)
+		this.state={}
+		this.onShrink=this.onShrink.bind(this)
+	}
+
 	render(){
-		const {rects=[], selecting}=this.state
-		if(selecting){
-			return <Area rects={this.state.rects} onMouseMove={this.onShrink} />
-		}
-
 		const {onMove,onResize,onRotate,shape,around}=this.props
-		if(shape){
-			const shapeProps={onMove,onResize,onRotate,around}
-			if(rects[0]){
-				shapeProps.x=rects[0].left
-				shapeProps.y=rects[0].top
-			}
+		const {rects=[], selecting}=this.state
+		var range=null, focus=null
 
-			return React.cloneElement(shape,shapeProps)
+		if(selecting){
+			range=<Area rects={rects} onMouseMove={this.onShrink} />
 		}else{
-			return (
-				<Movable onMove={onMove} around={around}>
-					<Area rects={rects}/>
-				</Movable>
-			)
+			range=<Area rects={rects}/>
+			if(onMove)
+				range=<Movable onMove={onMove} around={around} children={range}/>
 		}
+
+		if(shape){
+			focus=React.cloneElement(shape,{onMove,onResize,onRotate,around, ...shape.props})
+		}
+
+		return (<Fragment>{range}{focus}</Fragment>)
 	}
 
 	static getDerivedStateFromProps({rects},{selecting}){

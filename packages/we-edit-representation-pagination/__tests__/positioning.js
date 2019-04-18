@@ -1066,6 +1066,16 @@ describe("positioning",()=>{
                 })
             })
 
+            describe("in shape",()=>{
+                fit("text",()=>{
+                    const p=render(
+                        <Shape {...{width:100,height:100,key:"shape"}}>
+                            <Paragraph id={"-1"}><Text id={"0"}>text</Text></Paragraph>
+                        </Shape>
+                    ).get("-1")
+                    expect(p.nextCursorable()).toEqual({id:"0",at:0})
+                })
+            })
         })
 
         describe("position",()=>{

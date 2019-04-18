@@ -42,13 +42,6 @@ export class custom extends Component{
 						...fill
 					}}
 					/>
-					<path d={this.getPath().toString()}
-						style={{
-							strokeWidth:1,
-							stroke:"black",
-							fill:"none"
-						}}
-						/>
 			</Group>
 		)
 

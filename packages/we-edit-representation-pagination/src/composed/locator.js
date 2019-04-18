@@ -43,13 +43,47 @@ export default compose(
         )
     }
 
-    shouldComponentUpdate({content,selection,positioning},state){
+    shouldComponentUpdate({content,selection,positioning, cursor, range},state){
 		if(content.equals(state.content)){
 			if(!content.equals(this.props.content) || !selection.equals(this.props.selection)
                 || !content.equals(this.last.content) || !selection.equals(this.last.selection)){
-				const {position,rects}=this.getRangeAndPosition(positioning,selection)
-				this.makeCursorSelection(position,rects,arguments[0])
-				this.style=position ? new SelectionStyle(position,positioning) : null
+				const {cursorAt, ...a}=selection.toJS()
+                const {id,at}=a[cursorAt]
+                const cursorPosition=positioning.position(id, at)
+                const isCursor=a.start.id==a.end.id && a.start.at==a.end.at
+                var rangeRects=!isCursor ? positioning.getRangeRects(a.start,a.end) : []
+                var focusShape=positioning.getComposer(id).getFocusShape()
+                if(focusShape){
+                    const {id:fid, x:x0=0, y:y0=0}=focusShape.props
+                    const isSelfSelected=a.start.id==a.end.id && fid==id && a.start.at!=a.end.at
+                    const isContentSelected=!!positioning.getContent(id).parents(`#${fid}`).length
+                    if(isSelfSelected || isContentSelected){
+                        const {x=0,y=0}=positioning.position(fid, 0)||{}
+                        const props={x:x+x0,y:y+y0}
+                        if(isContentSelected){
+                            props.onMove=null
+                        }
+                        focusShape=React.cloneElement(focusShape,props)
+                        if(isSelfSelected){
+                            rangeRects=[]
+                        }
+                    }else{
+                        focusShape=null
+                    }
+                }
+
+                this.cursor=null
+                this.range=null
+                if(cursor && cursorPosition && isCursor){
+                    const {x,y,left,top,height,fontFamily,fontSize}=cursorPosition
+                    this.cursor=React.cloneElement(cursor, {x,y,left,top,height,fontFamily,fontSize})
+                }
+
+                if(range && (rangeRects && rangeRects.length || focusShape)){
+                    this.range=React.cloneElement(range,{rects:rangeRects,shape:focusShape})
+                }
+
+				this.style=cursorPosition ? new SelectionStyle(cursorPosition,positioning) : null
 				return true
 			}
         }
@@ -61,39 +95,6 @@ export default compose(
         this.scrollCursorIntoView()
         this.updateSelectionStyle(this.style)
         this.last={content:this.props.content, selection:this.props.selection}
-    }
-
-    makeCursorSelection(position,rects,{cursor, range, selection,positioning}){
-        this.cursor=null
-        this.range=null
-        try{
-			this.range=range
-            if(!!position){
-                const {x,y,left,top,height,fontFamily,fontSize}=position
-                this.cursor=React.cloneElement(cursor, {x,y,left,top,height,fontFamily,fontSize})
-            }
-
-            if(range && rects && rects.length){
-				const {start, end}=selection.toJS()
-				this.range=React.cloneElement(range,{
-                    rects,
-                    shape: start.id==end.id && positioning.getComposer(start.id).getFocusShape()
-                })
-
-                this.cursor=React.cloneElement(this.cursor||cursor,{height:0.1})
-			}
-		}catch(e){
-
-		}
-    }
-
-    getRangeAndPosition(positioning,selection){
-        const {cursorAt, ...a}=selection.toJS()
-        const {id,at}=a[cursorAt]
-        return {
-            position:positioning.position(id, at),
-            rects:a.start.id!=a.end.id || a.start.at!=a.end.at ? positioning.getRangeRects(a.start,a.end) :[]
-        }
     }
 
 	scrollCursorIntoView(){

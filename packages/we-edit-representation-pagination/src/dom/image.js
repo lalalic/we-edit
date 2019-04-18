@@ -11,8 +11,8 @@ const {Image:Base}=dom
 const Super=NoChild(Base)
 export default class extends Super{
 	getShape(){
-		const {outline,width,height}=this.props
-		return new Shape({width,height,outline, margin:{},children:null}, this.context)
+		const {width,height}=this.props
+		return new Shape({width, height,...this.props.outline, margin:{},children:null}, this.context)
 	}
 
 	createComposed2Parent(){

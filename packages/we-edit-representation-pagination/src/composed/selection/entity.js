@@ -31,6 +31,7 @@ export default class Extent extends Component{
 		const Mover=absolute ? AbsoluteMovable : Movable
 		return transform(
 			<Group x={x} y={y}>
+				<path d={path} fill="none" stroke="lightgray"/>
 				{onMove && (
 					<Mover onMove={e=>onMove({...e,id,absolute})} around={around}>
 						<path d={path} fill="white" fillOpacity={0.01} cursor="move"/>

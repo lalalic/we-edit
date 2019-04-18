@@ -53,7 +53,9 @@ class ShapeStyle extends Style{
 
     blipFill=({blip, ...props})=>({...blip, ...props})
 
-    ln({w:width,...props}){
+    ln({w:width,noFill,...props}){
+        if(noFill)
+            return undefined
         return {width,...props}
     }
 }
