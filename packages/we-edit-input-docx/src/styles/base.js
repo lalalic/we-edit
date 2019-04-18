@@ -86,7 +86,7 @@ class Linkable extends Getable{
 }
 
 export default class Style extends Linkable{
-	constructor(node, styles, selector){
+	constructor(node={attribs:{},children:[]}, styles, selector){
 		super(...arguments)
 		this.id=node.attribs["w:styleId"]
 		node.children.filter(a=>a.type!="text").forEach(a=>{
@@ -106,7 +106,7 @@ export default class Style extends Linkable{
 			this.cache=new Map()
 	}
 
-	_convert(node, target, map, selector){
+	_convert(node={attribs:{},children:[]}, target, map, selector){
 		let pr=target ? node.children.find(a=>a.name==target) : node
 		if(pr){
 			return pr.children.reduce((style,a)=>{

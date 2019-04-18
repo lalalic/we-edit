@@ -67,9 +67,11 @@ describe("positioning",()=>{
     describe.each([
         ["create provided to section", render],
         //["page provided to section", (a,b)=>render(a,b,false)],
-        //["pagination",(a,b)=>render(a,b,false)]
+        //["pagination",(a,b)=>render(a,b,false)],
+        //["in shape", (a,...args)=>render(<Paragraph id={uuid++} children={<Shape {...{children:a, width:100,height:100,id:uuid++}}/>}/>)]
     ])("%s",(name, render)=>{
         if(name=="pagination"){
+
             beforeAll(()=>{
                 Editors.Section=class extends React.Component{
                     render(){
@@ -83,6 +85,8 @@ describe("positioning",()=>{
                 Editors.Section=Section
             })
         }
+
+
         describe("Navigatable", ()=>{
 
     		describe("cursor",()=>{
@@ -749,6 +753,9 @@ describe("positioning",()=>{
                         get lines(){
                             return pages[0].lines
                         },
+                        position(){
+                            return responsible.positioning.position(...arguments)
+                        },
                         nextLine(){
                             return responsible.positioning.nextLine(...arguments)
                         },
@@ -767,6 +774,27 @@ describe("positioning",()=>{
                             </Paragraph>
                         )
                         expect(p.lines.length).toBe(2)
+                        expect(p.nextLine("0",0)).toMatchObject({id:"1",at:0})
+                        expect(p.nextLine("0",1)).toMatchObject({id:"1",at:1})
+                        expect(p.nextLine("0",4)).toMatchObject({id:"1",at:4})
+                    })
+
+                    xit("Text->Text in shape",()=>{
+                        const p=test(
+                            <Paragraph id={uuid++}>
+                                <Shape id={uuid++} {...{width:5,height:100}}>
+                                    <Paragraph id={uuid++}>
+                                        <Text id="0">text </Text>
+                                        <Text id="1">hello</Text>
+                                    </Paragraph>
+                                </Shape>
+                            </Paragraph>
+                        )
+                        expect(p.lines.length).toBe(1)
+                        expect(p.position("0",0)).toMatchObject({x:0})
+                        expect(p.position("0",2)).toMatchObject({x:2})
+                        expect(p.position("1",2)).toMatchObject({x:2,y:10})
+
                         expect(p.nextLine("0",0)).toMatchObject({id:"1",at:0})
                         expect(p.nextLine("0",1)).toMatchObject({id:"1",at:1})
                         expect(p.nextLine("0",4)).toMatchObject({id:"1",at:4})
@@ -804,7 +832,6 @@ describe("positioning",()=>{
                         expect(p.nextLine("0",2)).toMatchObject({id:"2"})
 
                         expect(p.nextLine("2",0)).toMatchObject({id:"1",at:0})
-                        debugger
                         expect(p.nextLine("2",1)).toMatchObject({id:"1",at:2})
                     })
 
@@ -1066,12 +1093,15 @@ describe("positioning",()=>{
                 })
             })
 
-            describe("in shape",()=>{
-                fit("text",()=>{
+            xdescribe("in shape",()=>{
+
+                it("text",()=>{
                     const p=render(
-                        <Shape {...{width:100,height:100,key:"shape"}}>
-                            <Paragraph id={"-1"}><Text id={"0"}>text</Text></Paragraph>
-                        </Shape>
+                        <Paragraph id="container">
+                            <Shape {...{width:100,height:100,id:"shape"}}>
+                                <Paragraph id={"-1"}><Text id={"0"}>text</Text></Paragraph>
+                            </Shape>
+                        </Paragraph>
                     ).get("-1")
                     expect(p.nextCursorable()).toEqual({id:"0",at:0})
                 })
@@ -1238,6 +1268,25 @@ describe("positioning",()=>{
                 expect(doc.position("0",0)).toMatchObject({x:0,y,height:5+4})
                 expect(doc.position("0",1)).toMatchObject({x:3+4,y,height:5+4})
                 expect(doc.position("2",0)).toMatchObject({x:3+4,y:0,height:10})
+            })
+
+            xdescribe("in shape",()=>{
+                it("text",()=>{
+                    const MarginLeft=10
+                    const p=test(
+                        <Paragraph id={`${++uuid}`}>
+                            <Shape {...{width:100,height:100,key:"shape"}}>
+                                <Paragraph id={"-1"}>
+                                    <Text id="0">text</Text>
+                                </Paragraph>
+                            </Shape>
+                        </Paragraph>,
+                        {page:{margin:{left:MarginLeft}}}
+                    )
+                    expect(p.position("0",0)).toMatchObject({x:MarginLeft+0,y:0})
+                    expect(p.position("0",1)).toMatchObject({x:MarginLeft+1,y:0})
+                    expect(p.position("0",4)).toMatchObject({x:MarginLeft+4,y:0})
+                })
             })
 
 
@@ -1442,7 +1491,28 @@ describe("positioning",()=>{
 
     			doc.click(10,10)
     			expect(around).toHaveLastReturnedWith({id:"3",at:1})
+    		})
 
+            fit("in shape",()=>{
+    			const doc=test(
+                    <Paragraph id={uuid++}>
+                        <Shape id={uuid++} {...{width:5,height:100}}>
+            				<Paragraph id={"1"}>
+            					<Text id={"0"}>text</Text>
+            					<Image id="2" {...{width:5,height:20}}/>
+            					<Text id={"3"}>text</Text>
+            				</Paragraph>
+                        </Shape>
+                    </Paragraph>
+    			)
+    			const around=jest.spyOn(doc.responsible.positioning,"around")
+
+                debugger
+                doc.click(1,10)
+    			expect(around).toHaveLastReturnedWith({id:"0",at:1})
+
+    			doc.click(10,10)
+    			expect(around).toHaveLastReturnedWith({id:"3",at:1})
     		})
 
             it("ignore when out of range",()=>{

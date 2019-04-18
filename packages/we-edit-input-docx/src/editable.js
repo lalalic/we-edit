@@ -215,8 +215,12 @@ export default class extends Input.Editable{
 			}
 			case "picture":
 				return createElement(components.Image,components.Image.asStyle(props),null,node)
-			case "shape":
-				return createElement(components.Shape,components.Shape.asStyle(props),children,node)
+			case "shape":{
+				const {textStyle, ...style}=components.Shape.asStyle(props)
+				const prStyle=new Style.Paragraph.Direct(undefined,styles,selector)
+				prStyle.r=textStyle
+				return createElement(components.Shape,{...style, textStyle:prStyle},children,node)
+			}
 			case "bookmarkStart":
 			case "bookmarkEnd":
 				return null

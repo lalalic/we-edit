@@ -1,14 +1,33 @@
 import React, {Component} from "react"
-
+import memoize from "memoize-one"
+import PropTypes from "prop-types"
 
 export default ({Shape})=>class extends Component{
     static displayName="shape"
+    static childContextTypes={
+        //style: PropTypes.object,
+    }
+
+    static childContextTypes={
+        style: PropTypes.object,
+    }
+
+    childStyle=memoize((direct,context)=>{
+		return direct ? direct.inherit(context) : context
+	})
+
+    getChildContext(){
+        return {
+            //style:this.props.textStyle
+        }
+    }
+
     render(){
         return (<Shape {...this.props}/>)
     }
 
     static asStyle(props){
-        return new ShapeStyle(props).flat()
+        return Object.assign(new ShapeStyle(props).flat(),{_raw:props})
     }
 }
 
@@ -42,7 +61,19 @@ class ShapeStyle extends Style{
         super(style,{
             anchor:"vertAlign",
             ln:"outline",
+            bodyPr:"textBox",
         },"geometry","solidFill","rotate")
+        const _flat=this.flat.bind(this)
+        this.flat=()=>{
+            const props=_flat()
+            if(props.outline && props.outline.noFill){
+                const {width=0,half=width/2}=props.outline
+                const {left=0,right=0,bottom=0,top=0}=this.got(props,"margin")
+                props.margin={left:left+half,right:right+half,bottom:bottom+half,top:top+half}
+                delete props.outline
+            }
+            return props
+        }
     }
 
     anchor(v){
@@ -53,9 +84,27 @@ class ShapeStyle extends Style{
 
     blipFill=({blip, ...props})=>({...blip, ...props})
 
-    ln({w:width,noFill,...props}){
-        if(noFill)
-            return undefined
+    ln({w:width,...props}){
         return {width,...props}
+    }
+
+    bodyPr(style, props){
+        const {margin}=new TextBoxStyle(style).flat()
+        props.margin=margin
+    }
+
+
+}
+
+class TextBoxStyle extends Style{
+    constructor(style){
+        super(style,{
+
+        })
+        const margin=k=>((v,props)=>{this.got(props,"margin")[k]=v})
+        this.rIns=margin("right")
+        this.tIns=margin("top")
+        this.lIns=margin("left")
+        this.bIns=margin("bottom")
     }
 }

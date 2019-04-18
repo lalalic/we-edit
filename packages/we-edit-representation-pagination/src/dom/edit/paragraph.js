@@ -210,12 +210,12 @@ class Positionable extends Editable{
 					return true
 				}
 				if(type=="paragraph"){
-					return false
+					//return false//@TODO: performance improvement, don't support nested paragraph
 				}
 			}
 		}
 		var parents,line
-		const page=this.getPages(false)[`find${right ? "Last" : ""}`](page=>{
+		const page=this.getPages(false)[`find${right ? "Last" : ""}`](page=>{/*@TODO:improvement performance by useing true*/
 			let found=new ReactQuery(page.render())[`find${right ? "Last" :"First"}AndParents`]((a,b)=>test(a,b,page))
 			if((line=found.first||found.last).length){
 				parents=found.parents
