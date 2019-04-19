@@ -45,12 +45,18 @@ export default function Navigatable(A){
 		}
 
 		composeFrames(){
+			if(super.composeFrames)
+				return super.composeFrames(...arguments)
+				
 			if(this.context && this.context.parent)
-				return this.context.parent.composeFrames()
+				return this.context.parent.composeFrames(...arguments)
 			return []
 		}
 
 		getRangeRects(){
+			if(super.getRangeRects)
+				return super.getRangeRects(...arguments)
+
 			if(this.context && this.context.parent)
 				return this.context.parent.getRangeRects(...arguments)
 		}
@@ -59,6 +65,7 @@ export default function Navigatable(A){
 			const pages=this.getPages()
 			var target,parents
 			const page=pages[`find${at==0?"":"Last"}`](a=>{
+				debugger
 				const FirstOrLast=at==0 ? "First" : "Last"
 				const found=new ReactQuery(a.render())[`find${FirstOrLast}AndParents`](`[data-content="${id}"]`)
 				target=(found.first||found.last).get(0)

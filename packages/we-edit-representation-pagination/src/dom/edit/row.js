@@ -103,8 +103,8 @@ export default Cacheable(class extends editable(Base,{stoppable:true,continuable
 		return true
 	}
 
-	composeFrames(){
-        return [...super.composeFrames(),this.props.id]
+	composeFrames(excludeTable=false){
+        return !excludeTable ? [...super.composeFrames(...arguments),this.props.id] : super.composeFrames(...arguments)
     }
 })
 

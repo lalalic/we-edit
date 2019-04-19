@@ -33,17 +33,26 @@ export default class Paragraph extends Super{
 		this.computed.lastText=""
 		this.computed.atoms=[]
 		this.computed.needMerge=false
+        this.computed.hasFrame=false
 	}
 
 	get enderWidth(){
 		return this.computed.atoms[this.computed.atoms.length-1].props.width
 	}
 
-	getBreakOpportunities(text){
+    hasFrame(){
+        return this.computed.hasFrame
+    }
+
+	getBreakOpportunities(text,isFrame){
 		const {lastText}=this.computed
 		if(!text){
 			if(text===null)
 				this.computed.lastText=""
+
+            if(isFrame){
+                this.computed.hasFrame=true
+            }
 			return []
 		}
 

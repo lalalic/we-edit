@@ -40,6 +40,7 @@ const Editable=Cacheable(class extends editable(Base,{stoppable:true}){
 	clearComposed(){
 		this.computed.lastText=""
 		this.computed.atoms=[]
+		this.computed.hasFrame=false
 		super.clearComposed(...arguments)
 	}
 
@@ -96,8 +97,10 @@ class Positionable extends Editable{
 				if(id==this.props.id){
 					return true
 				}
-				if(type=="paragraph"){
-					return false
+				if(this.isSameFrameStack(id,(a,b)=>a.length==b.length)){
+					if(type=="paragraph"){
+						return false
+					}
 				}
 			})
 			if(found.length){
@@ -203,20 +206,38 @@ class Positionable extends Editable{
 		return {x,y}
 	}
 
+	isSameFrameStack(id, limit=(mine,current)=>true){
+		if(!id){
+			return true
+		}
+		const mine=this.composeFrames(true)
+		const composer=this.context.getComposer(id)
+		const current=composer.composeFrames(true)
+		return current.reduce((can,a,i)=>can && a==mine[i],limit(mine,current))
+	}
+
 	getPageLineAndParents(lineIndexOfParagraph,test,right=false){
 		if(!test){
 			test=({props:{"data-content":id,"data-type":type,pagination={}}})=>{
 				if(id==this.props.id && pagination.i==lineIndexOfParagraph+1){
 					return true
 				}
-				if(type=="paragraph"){
-					//return false//@TODO: performance improvement, don't support nested paragraph
+				if(this.isSameFrameStack(id, (a,b)=>a.length==b.length)){
+					if(type=="paragraph"){
+						return false//@TODO: performance improvement, don't support nested paragraph
+					}
 				}
 			}
 		}
 		var parents,line
 		const page=this.getPages(false)[`find${right ? "Last" : ""}`](page=>{/*@TODO:improvement performance by useing true*/
-			let found=new ReactQuery(page.render())[`find${right ? "Last" :"First"}AndParents`]((a,b)=>test(a,b,page))
+			const found=new ReactQuery(page.render())[`find${right ? "Last" :"First"}AndParents`]((a,b)=>{
+				const {props:{"data-content":id,"data-type":type}}=a
+				if(!this.isSameFrameStack(id)){
+					return false
+				}
+				return test(a,b,page)
+			})
 			if((line=found.first||found.last).length){
 				parents=found.parents
 				return true
@@ -236,15 +257,19 @@ class Positionable extends Editable{
 				self=new LinePosition(page,node,[...parents],{x,y})
 				return false
 			}
-			if(type=="paragraph"){
-				if(self){
-					const tested=test(self, page,node,parents)
-					if(tested==undefined)
-						return true
-					return tested
+
+			if(this.isSameFrameStack(id,(a,b)=>a.length==b.length)){
+				if(type=="paragraph"){
+					if(self){
+						const tested=test(self, page,node,parents)
+						if(tested==undefined)
+							return true
+						return tested
+					}
+					return false
 				}
-				return false
 			}
+
 		},backward)
 
 		if(line.length){
@@ -300,7 +325,6 @@ class Positionable extends Editable{
 }
 class Navigatable extends Positionable{
 	extendAtom(id,at){
-		debugger
 		const atom=this.computed.atoms.find(a=>{
 			const $a=new ReactQuery(a)
 			const found=$a.findFirst(({props:{"data-content":xid, "data-endat":end=0}})=>{
@@ -484,6 +508,7 @@ class Navigatable extends Positionable{
 
 	nextLine(id,at){
 		return this.getSiblingLine(id,at,(self,page,node,parents)=>{
+			debugger
 			const {pagination={}}=node.props
 			if(self.page.props.I==page.props.I &&
 				self.y>=[...parents,node].reduce((Y,{props:{y=0}})=>Y+y,0)){//make sure under current line

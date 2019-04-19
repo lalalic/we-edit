@@ -34,7 +34,7 @@ export default class Shape extends Super{
 	}
 
 	render(){
-		this.context.getMyBreakOpportunities(null)
+		this.context.getMyBreakOpportunities(null,true)
 		return super.render()
 	}
 
@@ -77,7 +77,7 @@ export default class Shape extends Super{
 		this.context.parent.appendComposed(this.createComposed2Parent())
 		super.onAllChildrenComposed()
 	}
-
+	
 	static custom=custom
 
 	static rect=rect

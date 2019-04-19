@@ -403,6 +403,10 @@ class Columnable extends Fixed{
 		return column
 	}
 
+	isEmpty(){
+		return this.totalLines==0 && this.anchors.length==0
+	}
+
 	lineY(line){
 		var {y=0,children:lines}=this.columns.find(a=>a.children.includes(line))||this.currentColumn
 		return lines.slice(0,lines.indexOf(line)+1).reduce((y,a)=>y+a.props.height,y)

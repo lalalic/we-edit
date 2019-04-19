@@ -42,7 +42,7 @@ const factory=base=>Cacheable(class extends editable(base){
         const include=({x:x0=0,y:y0=0,width,height})=>x0<=x && y0<=y && (x0+width)>=x && (y0+height)>=y
         const rendered=this.render()
         const {first:found,parents}=new ReactQuery(rendered).findFirstAndParents((node,parents)=>{
-            const {width,height,x=0,y=0,children,"data-type":type}=node.props||{}
+            const {width,height,x=0,y=0,children,"data-type":type, "data-content":id}=node.props||{}
             if(width && height){
                 let xy=parents.reduceRight((p,{props:{x=0,y=0}})=>(p.x+=x,p.y+=y,p),{x,y})
                 if(!include({...xy,width,height})){
@@ -51,7 +51,9 @@ const factory=base=>Cacheable(class extends editable(base){
             }
 
             if(type=="paragraph"){
-                return true
+                if(!this.context.getComposer(id).hasFrame()){
+                    return true
+                }
             }
 
             if(type=="anchor"){
@@ -96,7 +98,7 @@ const factory=base=>Cacheable(class extends editable(base){
 	}
 
     composeFrames(){
-        return [...super.composeFrames(),this.props.id]
+        return [...super.composeFrames(...arguments),this.props.id]
     }
 })
 

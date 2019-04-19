@@ -166,23 +166,33 @@ export default class Document extends Super{
 		return this.state.viewport
 	}
 
-	getRangeRects(p0,p1, pageXY){
-		const pages=this.computed.composed
+	getPages(){
+		return this.computed.composed
+	}
 
-		const composer0=this.getComposer(p0.id)
+	getRangeRects(p0,p1, pageXY){
+		const getComposer=id=>this.getComposer && this.getComposer(id) || this.context.getComposer && this.context.getComposer(id)
+		const pages=this.getPages()
+
+		const composer0=getComposer(p0.id)
 		p0=composer0.position(p0.id,p0.at)
-		p1=this.getComposer(p1.id).position(p1.id,p1.at)
+		p1=getComposer(p1.id).position(p1.id,p1.at)//no context
 		if(!p0 || !p1){
 			return []
 		}
 		if(p0.id==p1.id && p0.page==p1.page && !composer0.splittable){
 			const [start,end]=[p0,p1].sort((a,b)=>a.at-b.at);
-			const {x,y}=pageXY(pages[start.page])
+			const {x,y}=pageXY(pages.find(a=>a.props.I==start.page))
 			return [{left:x+start.x,top:y+start.y,right:x+end.x,bottom:y+end.y}]
 		}
 
-		p0.line=pages[p0.page].lineIndexOf(p0)
-		p1.line=pages[p1.page].lineIndexOf(p1)
+		p0.page=pages.find(a=>a.props.I==p0.page)
+		p1.page=pages.find(a=>a.props.I==p1.page)
+
+		//convert paragraph line index to page line index
+		p0.line=p0.page.lineIndexOf(p0)
+		p1.line=p1.page.lineIndexOf(p1)
+
 		const rects=[]
 		const lineRectsInPage=(page,start=0,end)=>{
 			const {x,y}=pageXY(page)
@@ -193,9 +203,9 @@ export default class Document extends Super{
 		}
 
 		const [start,end]=(()=>{
-            if(p0.page>p1.page){
+            if(p0.page.props.I>p1.page.props.I){
                 return [p1,p0]
-            }else if(p0.page==p1.page){
+            }else if(p0.page.props.I==p1.page.props.I){
                 if(p0.line>p1.line){
                     return [p1,p0]
                 }
@@ -204,16 +214,17 @@ export default class Document extends Super{
         })();
 
 		if(start.page==end.page){
-			lineRectsInPage(pages[start.page], start.line, end.line+1)
+			lineRectsInPage(start.page, start.line, end.line+1)
 		}else{
-			lineRectsInPage(pages[start.page], start.line)
-			pages.slice(start.page+1, end.page).forEach(page=>lineRectsInPage(page))
-			lineRectsInPage(pages[end.page],0,end.line+1)
+			lineRectsInPage(start.page, start.line)
+			pages.slice(start.page.props.I+1, end.page.props.I).forEach(page=>lineRectsInPage(page))
+			lineRectsInPage(end.page,0,end.line+1)
 		}
-		if(rects.length){
-			Object.assign(rects[0],{left:pageXY(pages[start.page]).x+start.x})
 
-			Object.assign(rects[rects.length-1], {right:pageXY(pages[end.page]).x+end.x})
+		if(rects.length){
+			Object.assign(rects[0],{left:pageXY(start.page).x+start.x})
+
+			Object.assign(rects[rects.length-1], {right:pageXY(end.page).x+end.x})
 		}
 		return rects
 	}

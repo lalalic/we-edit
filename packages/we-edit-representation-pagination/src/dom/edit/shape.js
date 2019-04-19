@@ -1,5 +1,6 @@
 import React from "react"
 import PropTypes from "prop-types"
+import {ReactQuery} from "we-edit"
 
 import Base from "../shape"
 
@@ -17,14 +18,13 @@ export default class Shape extends Super{
 	}
 
 	composeFrames(){
-        return [...super.composeFrames(),this.props.id]
+        return [...super.composeFrames(...arguments),this.props.id]
     }
 
 	getFocusShape(){
 		return this.geometry.getFocusShape()
 	}
-
-	static rect=class extends Super.rect{
+    static rect=class extends Super.rect{
 		getFocusShape(){
 			const x=this.strokeWidth/2, y=x
 			const {width:right, height:bottom,rotate,dispatch}=this.props
