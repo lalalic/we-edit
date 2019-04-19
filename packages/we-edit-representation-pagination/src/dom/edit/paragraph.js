@@ -508,7 +508,6 @@ class Navigatable extends Positionable{
 
 	nextLine(id,at){
 		return this.getSiblingLine(id,at,(self,page,node,parents)=>{
-			debugger
 			const {pagination={}}=node.props
 			if(self.page.props.I==page.props.I &&
 				self.y>=[...parents,node].reduce((Y,{props:{y=0}})=>Y+y,0)){//make sure under current line

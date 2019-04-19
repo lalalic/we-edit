@@ -1337,8 +1337,6 @@ describe("positioning",()=>{
 
             it("text",()=>{
                 const doc=test(<Paragraph id={"1"}><Text id={"0"}>text</Text></Paragraph>)
-                //debugger
-                //expect(doc.getRangeRects({id:"0",at:0},{id:"0",at:1})).toMatchObject([{left:0,top:0,right:1,bottom:10}])
 
                 new Array(5).fill(0).forEach((a,i)=>
                     expect(doc.getRangeRects({id:"0",at:0},{id:"0",at:i})).toMatchObject([{left:0,top:0,right:i,bottom:10}]))
@@ -1470,20 +1468,29 @@ describe("positioning",()=>{
     			expect(around).toHaveLastReturnedWith({id:"3",at:1})
     		})
 
-            it("ignore when out of range",()=>{
+            it("ignore when out of content range, but shape should be selected when click on blank area ",()=>{
                 const doc=test(
     				<Paragraph id={"1"}>
     					<Text id={"0"}>text</Text>
     				</Paragraph>
     			)
                 const around=jest.spyOn(doc.responsible.positioning,"around")
+
                 doc.click(1000,1000)
                 expect(around).toHaveLastReturnedWith({})
 
                 doc.click(-1000,-1000)
                 expect(around).toHaveLastReturnedWith({})
-            })
 
+                if(TESTING!=="in shape"){
+                    doc.click(50,50)
+                    expect(around).toHaveLastReturnedWith({})
+                }else{
+                    return //@TODO
+                    doc.click(10,50)
+                    expect(around).toHaveLastReturnedWith({at:0})
+                }
+            })
     	})
 
     })
