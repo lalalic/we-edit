@@ -124,7 +124,7 @@ export default class Line extends Component{
 
 				if(containable()){
 					let height=this.lineHeight()
-					if(atom.props.descent==undefined){
+					if(false && atom.props.descent==undefined){
 						atom=<Group width={width} height={atom.props.height} y={-atom.props.height}>{atom}</Group>
 					}
 					this.content.push(atom)

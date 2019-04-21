@@ -68,7 +68,7 @@ describe("positioning",()=>{
 
     describe.each([
         ["create provided to section", render],
-
+/*
         ["page provided to section", (a,b)=>render(a,b,false)],
         ["pagination",(a,b)=>render(a,b,false)],
 
@@ -82,7 +82,7 @@ describe("positioning",()=>{
                 ...args
             )
         }]
-
+*/
     ])("%s",(TESTING, render)=>{
         if(TESTING=="pagination"){
 
@@ -1115,7 +1115,7 @@ describe("positioning",()=>{
             }
 
             describe("in page paragraph",()=>{
-                it("t|ext at=0,1,4",()=>{
+                fit("t|ext at=0,1,4",()=>{
                     const MarginLeft=10
                     const p=test(
                         <Paragraph id={`${++uuid}`}>

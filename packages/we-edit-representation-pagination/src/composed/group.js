@@ -10,6 +10,7 @@ export default class Group extends Component{
 		x:PropTypes.number,
 		y:PropTypes.number,
 	}
+	
     render(){
 		let {
 			innerRef, //for waypoint

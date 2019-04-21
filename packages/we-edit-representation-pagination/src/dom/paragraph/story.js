@@ -2,7 +2,7 @@ import React, {Children,Component} from "react"
 import PropTypes from "prop-types"
 import {ReactQuery} from "we-edit"
 
-import {Group} from "../../composed"
+import {Group,Text} from "../../composed"
 
 import Merge from "./merge"
 
@@ -11,7 +11,6 @@ export default class Story extends Component{
 	static displayName="story"
 	render(){
 		const {children, align="left"}=this.props
-		const baseline=children.reduce((h,{props:{height,descent=0}})=>Math.max(h,height-descent),0)
 		const aligned=this[align]()
 		const ender=children.find(a=>a.props.className=="ender")
 		if(ender){
@@ -23,11 +22,29 @@ export default class Story extends Component{
 				children.push(React.cloneElement(ender,{key:"ender"}))
 			}
 		}
-		return (
-			<Group y={baseline} className="story">
-				{aligned}
-			</Group>
-		)
+		
+		return <Group className="story" children={this.baseline(aligned)}/>
+	}
+	
+	baseline(content){
+		const baseline=this.props.children.reduce((h,{props:{height,descent=0}})=>Math.max(h,height-descent),0)
+		const setBaseline=a=>{
+			if(a.props.className=="story"){
+				return a
+			}
+			if(a.type==Text){
+				return React.cloneElement(a,{y:baseline})
+			}else if(Array.isArray(a.props.children)){
+				return React.cloneElement(a, {children:a.props.children.reduce((children,b,i)=>{
+					children[i]=setBaseline(b)
+					return children
+				},[])})
+			}else if(a.props.children){
+				return React.cloneElement(a, {children:setBaseline(a.props.children)})
+			}
+			return a
+		}
+		return setBaseline(<Group children={content}/>).props.children
 	}
 
 	group(right=false){
@@ -175,3 +192,4 @@ export default class Story extends Component{
 function isWhitespace(a){
 	return new ReactQuery(a).findFirst(`.whitespace`).length>0
 }
+

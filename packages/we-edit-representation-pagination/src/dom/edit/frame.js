@@ -39,55 +39,52 @@ const factory=base=>Cacheable(class extends editable(base){
     //locatable
 
 	positionFromPoint(x,y){
+		const bounds=nodes=>{
+			return nodes.reduce((bound, a)=>{
+				const {width,height,x=0,y=0,"data-type":type,"data-content":id}=a.props||{}
+				bound.x+=x
+				bound.y+=y
+				if(type=="paragraph"){
+					bound.height=height
+				}
+				return bound
+			},{x:0,y:0})
+		}
         const include=({x:x0=0,y:y0=0,width,height})=>x0<=x && y0<=y && (x0+width)>=x && (y0+height)>=y
         const rendered=this.render()
-        var includes=new Set(), lastChance=null
+		var bound
         const {first:found,parents}=new ReactQuery(rendered).findFirstAndParents((node,parents)=>{
-            const {width,height,x=0,y=0,children,"data-type":type, "data-content":id}=node.props||{}
-            if(width && height){
-                let xy=parents.reduceRight((p,{props:{x=0,y=0}})=>(p.x+=x,p.y+=y,p),{x,y})
-                if(!include({...xy,width,height})){
-                    if(lastChance=parents.findLast(a=>includes.has(a.props["data-content"]))){
-                        return true
-                    }
+            const {width,height,"data-type":type, "data-content":id}=node.props||{}
+            bound={width,height,...bounds(parents)}
+            if(bound.width && bound.height){
+				if(!include(bound)){
                     return false//don't continue
                 }
             }
 
-            if(type=="paragraph"){
-                if(!this.context.getComposer(id).hasFrame()){
-                    return true
-                }
-            }
-
-            if(id && !this.context.getComposer(id).splittable){
-                return true
+            if(id){
+				const composer=this.context.getComposer(id)
+				if(!composer.splittable){
+					bound.id=id
+					bound.at=0
+					return true
+				}
+				if(type=="text"){
+					const {children:text,"data-endat":endat}=node.props
+					bound.at=endat-text.length+composer.measure.widthString(x-bound.x,text)
+					bound.id=id
+					return true
+				}
             }
 
             if(node.type!=Group)
                 return false
-
-            if(id && id!=="root"){
-                //includes.add(id)
-            }
         })
         if(found.length>0){
-            if(lastChance){
-                parents.splice(parents.indexOf(lastChance)+1)
-            }else {
-                if(found.attr("data-type")=="paragraph"){
-                    const paragraphId=found.attr("data-content")
-            		const i=found.attr("pagination").i-1
-
-                    let xy=parents.reduceRight((p,{props:{x=0,y=0}})=>(p.x+=x,p.y+=y,p),{x:found.attr("x")||0,y:found.attr("y")||0})
-            		return this.context.getComposer(paragraphId).positionFromPoint(i,x-xy.x, y-xy.y)
-                }
-
-                parents.push(found.get(0))
-            }
+            return bound
         }
 
-        lastChance=parents.findLast(a=>!!a.props["data-content"])
+        var lastChance=parents.findLast(a=>!!a.props["data-content"])
         if(lastChance){
             return {id:lastChance.props["data-content"]}
         }

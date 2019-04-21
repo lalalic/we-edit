@@ -659,7 +659,6 @@ describe.each([
 			expect(image.length).toBe(1)
 			expect(line.props.width).toBe(10)
 			expect(image.attr('width')).toBe(8)
-			expect(new ReactQuery(line).findFirst(".story").findFirst("[y]").attr('y')).toBe(50)
 		})
 
 		it("image(size.width>capacity)", ()=>{

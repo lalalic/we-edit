@@ -190,7 +190,7 @@ class Positionable extends Editable{
 		})
 
 		let x=[node.get(0),...parents].reduce((X,{props:{x=0}})=>X+x,0)
-		let y=(({y=0},{height=0,descent=0})=>y-(height-descent))(story.props,node.get(0).props);
+		let y=(({y=0,height=0,descent=0})=>y-(height-descent))(node.get(0).props);
 		const composer=this.context.getComposer(id)
 		if(composer.getComposeType()=="text"){
 			if(endat>=at){
