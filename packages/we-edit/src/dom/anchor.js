@@ -19,6 +19,12 @@ export default class extends Component{
             offset: PropTypes.number,
             align: PropTypes.string
         }).isRequired,
+		margin:PropTypes.shape({
+			left:PropTypes.number,
+			right:PropTypes.number,
+			top:PropTypes.number,
+			bottom:PropTypes.number,
+		}),
         wrap:PropTypes.shape({
             mode:PropTypes.oneOf("TopAndBottom,Square,Tight,Through".split(",")),
             wrapText: PropTypes.oneOf("bothSides,left,right,largest".split(","))

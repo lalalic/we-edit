@@ -38,22 +38,13 @@ export default class extends Super{
         }
     }
 
-    wrapGeometry({x,y,width,height},content){
-        const dft={left:0,right:0,top:0,bottom:0}
-        const {wrap}=this.props
-        const distance=((a=dft,b=dft)=>{
-            return "left,right,top,bottom"
-                .split(",")
-                .reduce((o,k)=>{
-                    o[k]=Math.max(a[k]||0,b[k]||0)
-                    return o
-                },{})
-        })(this.props.distance, wrap.distance);
+    wrapGeometry({x,y,width,height}){
+        const {wrap,margin:{left=0,right=0,top=0,bottom=0}={}}=this.props
         const geometry={
-            x:x-distance.left,
-            y:y-distance.top,
-            width:width+distance.left+distance.right,
-            height:height+distance.top+distance.bottom,
+            x:x-left,
+            y:y-top,
+            width:width+left+right,
+            height:height+top+bottom,
         }
 
         const wrapper=wrap ? new this.constructor.Wrap(wrap,geometry) : undefined

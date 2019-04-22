@@ -69,9 +69,9 @@ describe("positioning",()=>{
     describe.each([
         ["create provided to section", render],
 
-        //["page provided to section", (a,b)=>render(a,b,false)],
-        //["pagination",(a,b)=>render(a,b,false)],
-/*
+        ["page provided to section", (a,b)=>render(a,b,false)],
+        ["pagination",(a,b)=>render(a,b,false)],
+
         ["in shape", (a,...args)=>{
             const {page:{width=size.width,height=size.height}={}}=args[0]||{}
             const shape=(<Shape {...{children:a,id:uuid++, ...size,width,height}}/>)
@@ -82,7 +82,7 @@ describe("positioning",()=>{
                 ...args
             )
         }]
-*/
+
     ])("%s",(TESTING, render)=>{
         if(TESTING=="pagination"){
 

@@ -11,6 +11,7 @@ import Row from "./row"
 import Cell from "./cell"
 import Image from "./image"
 import Shape from "./shape"
+import Anchor from "./anchor"
 
 const createUnvisibleComponent=type=>{
 	return class extends Component{
@@ -32,6 +33,7 @@ export default {
 	Table,
 	Image,
 	Shape,
+	Anchor,
 	Styles:()=>createUnvisibleComponent("styles"),
 	Style:()=>createUnvisibleComponent("style"),
 }
