@@ -76,13 +76,8 @@ export default function Navigatable(A){
 			})
 
 			if(target){
-				const {x=0,width=0,height=0,descent}=target.props
-				let y=target.props.y||0
-				if(descent){
-					y=y-(height-descent)
-				}
-
-				const position=parents.reduce((p,{props:{x=0,y=0}})=>(p.x+=x,p.y+=y,p),{x,y,width,height,id,at,page:page.props.I})
+				const {width=0,height=0}=target.props
+				const position={...this.getBound([...parents,target]),width,height,id,at,page:page.props.I}
 				if(at==1){
 					position.x+=width
 				}
@@ -92,6 +87,20 @@ export default function Navigatable(A){
 
 		getFocusShape(){
 			return this.navigatable('getFocusShape',...arguments)
+		}
+
+		getBound(parents){
+			return parents.reduce((bound, a)=>{
+				const {width,height,x=0,y=0,"data-type":type,"data-content":id}=a.props||{}
+				bound.x+=x
+				if(type!=="text"){
+					bound.y+=y
+				}
+				if(type=="paragraph"){
+					bound.height=height
+				}
+				return bound
+			},{x:0,y:0})
 		}
 	}
 }

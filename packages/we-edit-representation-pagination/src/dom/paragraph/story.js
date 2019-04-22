@@ -11,6 +11,7 @@ export default class Story extends Component{
 	static displayName="story"
 	render(){
 		const {children, align="left"}=this.props
+		const baseline=children.reduce((h,{props:{height,descent=0}})=>Math.max(h,height-descent),0)
 		const aligned=this[align]()
 		const ender=children.find(a=>a.props.className=="ender")
 		if(ender){
@@ -22,12 +23,11 @@ export default class Story extends Component{
 				children.push(React.cloneElement(ender,{key:"ender"}))
 			}
 		}
-		
-		return <Group className="story" children={this.baseline(aligned)}/>
+
+		return <Group className="story" baseline={baseline} children={this.baseline(aligned,baseline)}/>
 	}
-	
-	baseline(content){
-		const baseline=this.props.children.reduce((h,{props:{height,descent=0}})=>Math.max(h,height-descent),0)
+
+	baseline(content,baseline){
 		const setBaseline=a=>{
 			if(a.props.className=="story"){
 				return a
@@ -192,4 +192,3 @@ export default class Story extends Component{
 function isWhitespace(a){
 	return new ReactQuery(a).findFirst(`.whitespace`).length>0
 }
-

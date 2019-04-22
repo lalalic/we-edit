@@ -68,10 +68,10 @@ describe("positioning",()=>{
 
     describe.each([
         ["create provided to section", render],
-/*
-        ["page provided to section", (a,b)=>render(a,b,false)],
-        ["pagination",(a,b)=>render(a,b,false)],
 
+        //["page provided to section", (a,b)=>render(a,b,false)],
+        //["pagination",(a,b)=>render(a,b,false)],
+/*
         ["in shape", (a,...args)=>{
             const {page:{width=size.width,height=size.height}={}}=args[0]||{}
             const shape=(<Shape {...{children:a,id:uuid++, ...size,width,height}}/>)
@@ -1115,7 +1115,7 @@ describe("positioning",()=>{
             }
 
             describe("in page paragraph",()=>{
-                fit("t|ext at=0,1,4",()=>{
+                it("t|ext at=0,1,4",()=>{
                     const MarginLeft=10
                     const p=test(
                         <Paragraph id={`${++uuid}`}>
@@ -1144,16 +1144,14 @@ describe("positioning",()=>{
 
                 it("Text|image(lower than text)Text",()=>{
                     const p=test(<Paragraph id={`${++uuid}`}><Text id="1">text</Text><Image id="0" {...{width:2,height:2}}/><Text id="2">text</Text></Paragraph>)
-                    const y=10-1-2//y=line.height-descent-image.height
-                    expect(p.position("0",0)).toMatchObject({x:4+0,y})
-                    expect(p.position("0",1)).toMatchObject({x:4+2,y})
+                    expect(p.position("0",0)).toMatchObject({x:4+0,y:0})
+                    expect(p.position("0",1)).toMatchObject({x:4+2,y:0})
                 })
 
                 it("Text|image(heigher than text)Text",()=>{
                     const p=test(<Paragraph id={`${++uuid}`}><Text id="1">text</Text><Image id="0" {...{width:2,height:12}}/><Text id="2">text</Text></Paragraph>)
-                    const y=0
-                    expect(p.position("0",0)).toMatchObject({x:4+0,y})//y=line.height-descent-image.height
-                    expect(p.position("0",1)).toMatchObject({x:4+2,y})
+                    expect(p.position("0",0)).toMatchObject({x:4+0,y:0})
+                    expect(p.position("0",1)).toMatchObject({x:4+2,y:0})
                 })
 
                 it("image",()=>{
@@ -1258,7 +1256,7 @@ describe("positioning",()=>{
                             <Shape id={"0"} {...{width:3,height:5, outline:{width:4}}}/>
                             <Text id={"2"}>text</Text>
                         </Paragraph>)
-                const y=10-1-(5+4)//line.height-descent-image.height
+                const y=0
                 expect(doc.position("0",0)).toMatchObject({x:0,y,height:5+4})
                 expect(doc.position("0",1)).toMatchObject({x:3+4,y,height:5+4})
                 expect(doc.position("2",0)).toMatchObject({x:3+4,y:0,height:10})
@@ -1453,19 +1451,19 @@ describe("positioning",()=>{
     				</Paragraph>
     			)
     			const around=jest.spyOn(doc.responsible.positioning,"around")
-    			new Array(5).fill(0).forEach((a,x)=>{
+
+                new Array(5).fill(0).forEach((a,x)=>{
     				new Array(20).fill(0).forEach((a,y)=>{
-    					doc.click(4+x,y)
-    					expect(around).toHaveLastReturnedWith({id:"2"})
+                        doc.click(4+x,y)
+    					expect(around).toHaveLastReturnedWith(expect.objectContaining({id:"2"}))
     				})
     			})
 
-
-    			doc.click(1,10)
-    			expect(around).toHaveLastReturnedWith({id:"0",at:1})
+                doc.click(1,10)
+    			expect(around).toHaveLastReturnedWith(expect.objectContaining({id:"0",at:1}))
 
     			doc.click(10,10)
-    			expect(around).toHaveLastReturnedWith({id:"3",at:1})
+    			expect(around).toHaveLastReturnedWith(expect.objectContaining({id:"3",at:1}))
     		})
 
             it("ignore when out of content range, but shape should be selected when click on blank area ",()=>{
@@ -1482,13 +1480,12 @@ describe("positioning",()=>{
                 doc.click(-1000,-1000)
                 expect(around).toHaveLastReturnedWith({})
 
-                if(TESTING!=="in shape"){
-                    doc.click(50,50)
-                    expect(around).toHaveLastReturnedWith({})
+
+                doc.click(5,5)
+                if(TESTING=="in shape"){//shape should be selected
+                    expect(around).toHaveLastReturnedWith(expect.objectContaining({at:0}))
                 }else{
-                    return //@TODO
-                    doc.click(10,50)
-                    expect(around).toHaveLastReturnedWith({at:0})
+                    expect(around).toHaveLastReturnedWith({id:"1",at:1})
                 }
             })
     	})

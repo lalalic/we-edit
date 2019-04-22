@@ -163,7 +163,7 @@ class Positionable extends Editable{
 		const xy=(()=>{
 			if(id==this.props.id){
 				const {fontSize, fontFamily,height,descent}=this.getDefaultMeasure().defaultStyle
-				const xy={x:0,y:story.props.y-(height-descent),fontSize, fontFamily,height,descent}
+				const xy={x:0,y:story.props.baseline-(height-descent),fontSize, fontFamily,height,descent}
 
 				if(at==1){
 					const {first,parents}=new ReactQuery(story).findFirstAndParents(".ender")
@@ -565,6 +565,13 @@ class Navigatable extends Positionable{
 		const composedLine=this.computed.lastComposed[lineIndex]
 		const position=(({x:x0=0,children:story})=>
 			(x=>{
+				/*
+				const {}=new ReactQuery(story).findLastAndParents((a,parents)=>{
+					if(a.props.className=="frame")
+						return false
+					return this.getBound([...parents,a]).x<=x
+				})
+				*/
 				const node=this.flatStory(story).findLast(a=>a.props.x<=x)
 				if(node){
 					const offset=x-node.props.x

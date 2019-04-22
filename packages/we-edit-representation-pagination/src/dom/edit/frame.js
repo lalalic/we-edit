@@ -39,54 +39,69 @@ const factory=base=>Cacheable(class extends editable(base){
     //locatable
 
 	positionFromPoint(x,y){
-		const bounds=nodes=>{
-			return nodes.reduce((bound, a)=>{
-				const {width,height,x=0,y=0,"data-type":type,"data-content":id}=a.props||{}
-				bound.x+=x
-				bound.y+=y
-				if(type=="paragraph"){
-					bound.height=height
-				}
-				return bound
-			},{x:0,y:0})
-		}
         const include=({x:x0=0,y:y0=0,width,height})=>x0<=x && y0<=y && (x0+width)>=x && (y0+height)>=y
+        const isLastContent=nodes=>nodes.reduceRight(function(bLast,a,i){
+            if(bLast){
+                if(i==0){
+                    return bLast
+                }else{
+                    const children=nodes[i-1].props.children
+                    if(Array.isArray(children)){
+                        return children[children.length-1]==a
+                    }else{
+                        return children==a
+                    }
+                }
+            }
+            return false
+        },true)
         const rendered=this.render()
-		var bound
+		var bound,last
         const {first:found,parents}=new ReactQuery(rendered).findFirstAndParents((node,parents)=>{
             const {width,height,"data-type":type, "data-content":id}=node.props||{}
-            bound={width,height,...bounds(parents)}
+            bound={width,height,...this.getBound([...parents,node])}
             if(bound.width && bound.height){
-				if(!include(bound)){
+                if(!include(bound)){
+                    if(parents.includes(last)){
+                        if(isLastContent([...parents.slice(parents.indexOf(last)),node])){
+                            bound={id:last.props["data-content"]}
+                            if(last.props["data-type"]!="shape")
+                                bound.at=1
+
+                            return true
+                        }
+                    }
                     return false//don't continue
                 }
             }
 
             if(id){
-				const composer=this.context.getComposer(id)
+                const composer=this.context.getComposer(id)
 				if(!composer.splittable){
-					bound.id=id
+                    bound.id=id
 					bound.at=0
 					return true
 				}
+
 				if(type=="text"){
-					const {children:text,"data-endat":endat}=node.props
-					bound.at=endat-text.length+composer.measure.widthString(x-bound.x,text)
+                    const paragraph=parents.findLast(a=>a.props["data-type"]=="paragraph")
+                    const lineIndex=paragraph.props.pagination.i
+                    const {id,at}=composer.closest("paragraph")
+                        .positionFromPoint(lineIndex-1,x-this.getBound(parents.slice(0,parents.indexOf(paragraph)+1)).x)
+                    bound.at=at
 					bound.id=id
 					return true
 				}
+
+                last=node
             }
 
             if(node.type!=Group)
                 return false
         })
-        if(found.length>0){
-            return bound
-        }
 
-        var lastChance=parents.findLast(a=>!!a.props["data-content"])
-        if(lastChance){
-            return {id:lastChance.props["data-content"]}
+        if(found.length>0){
+            return {id:bound.id, at:bound.at}
         }
 
         return {}
