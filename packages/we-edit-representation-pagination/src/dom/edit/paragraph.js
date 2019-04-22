@@ -565,13 +565,6 @@ class Navigatable extends Positionable{
 		const composedLine=this.computed.lastComposed[lineIndex]
 		const position=(({x:x0=0,children:story})=>
 			(x=>{
-				/*
-				const {}=new ReactQuery(story).findLastAndParents((a,parents)=>{
-					if(a.props.className=="frame")
-						return false
-					return this.getBound([...parents,a]).x<=x
-				})
-				*/
 				const node=this.flatStory(story).findLast(a=>a.props.x<=x)
 				if(node){
 					const offset=x-node.props.x

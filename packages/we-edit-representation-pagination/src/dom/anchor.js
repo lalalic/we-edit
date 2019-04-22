@@ -1,7 +1,6 @@
 import React,{PureComponent as Component} from "react"
 import PropTypes from "prop-types"
 import {Group, Frame as ComposedFrame} from "../composed"
-import SVGPath from "../tool/svg-path"
 
 import composable,{HasParentAndChild} from "../composable"
 import {dom, ReactQuery} from "we-edit"
@@ -15,9 +14,20 @@ const Super=HasParentAndChild(Base)
 export default class extends Super{
     createComposed2Parent(content){
         const {width,height}=content.props
-        this.width=width
-        this.height=height
-        return <Group {...{width,height, anchor:this}}>{super.createComposed2Parent(...arguments)}</Group>
+        return (
+            <Group width={0} height={0}
+                anchor={frame=>{
+                    const {x,y}=this.xy(frame)
+                    const {geometry,wrap}=this.wrapGeometry({...this.xy(frame),width,height})
+                    return (
+                        <Group {...{...geometry,wrap,geometry,"data-content":this.props.id,"data-type":this.getComposeType()}}>
+                            {content}
+                        </Group>
+                    )
+                }
+            }
+            />
+        )
     }
 
     xy(frame){
@@ -28,17 +38,8 @@ export default class extends Super{
         }
     }
 
-	wrap(geometry){
-		const {wrap}=this.props
-        if(wrap){
-			let wrapper=new this.constructor.Wrap(wrap,geometry)
-			return line=>wrapper.intersects(line)
-		}
-	}
-
-    wrapGeometry({x,y},content){
+    wrapGeometry({x,y,width,height},content){
         const dft={left:0,right:0,top:0,bottom:0}
-        const {width,height}=content.props
         const {wrap}=this.props
         const distance=((a=dft,b=dft)=>{
             return "left,right,top,bottom"
@@ -59,7 +60,6 @@ export default class extends Super{
 
         return {
             geometry,
-            rect:geometry,
             wrap: wrapper ? line=>wrapper.intersects(line) : undefined
         }
     }

@@ -102,12 +102,11 @@ export default class Line extends Component{
 	appendComposed(atom,at){
 		const {width,minWidth=parseInt(width),anchor}=atom.props
 		if(anchor){
-			this.content.push(React.cloneElement(
-				new ReactQuery(atom).findFirst('[data-type="anchor"]').get(0),
-				{children:null,width:0,height:0, atom}
-			))
-			if(!this.context.parent.context.isAnchored(anchor.props.id)){
-				this.anchor=atom
+			const $anchor=new ReactQuery(atom).findFirst('[data-type="anchor"]')
+			const anchorId=$anchor.attr("data-content")
+			this.content.push(React.cloneElement($anchor.get(0),{atom}))//atom is the key
+			if(!this.context.parent.context.isAnchored(anchorId)){
+				this.anchor=anchor
 				return false
 			}
 		}else{
@@ -124,9 +123,6 @@ export default class Line extends Component{
 
 				if(containable()){
 					let height=this.lineHeight()
-					if(false && atom.props.descent==undefined){
-						atom=<Group width={width} height={atom.props.height} y={-atom.props.height}>{atom}</Group>
-					}
 					this.content.push(atom)
 					let newHeight=this.lineHeight()
 					if(height!=newHeight){

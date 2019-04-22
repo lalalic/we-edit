@@ -299,7 +299,7 @@ class Fixed extends Super{
 		return Object.assign(new this.constructor({...this.props, ...props},this.context),{computed})
 	}
 }
-
+//<Frame cols={[{x,width},{x,width}]}/>
 class Columnable extends Fixed{
 	static Columnable=Columnable
 	defineProperties(){
@@ -559,6 +559,7 @@ class Columnable extends Fixed{
 	}
 }
 
+//<Frame balance={true}/>
 class Balanceable extends Columnable{
 	static Balanceable=Balanceable
 	onAllChildrenComposed(){
@@ -616,7 +617,7 @@ class Balanceable extends Columnable{
 		}
 	}
 }
-
+//<line pagination={orphan,widow,keepWithNext,keepLines, [i:line no within paragraph]}/>
 class PaginationControllable extends Balanceable{
 	static PaginationControllable=PaginationControllable
 	defineProperties(){
@@ -711,6 +712,21 @@ class PaginationControllable extends Balanceable{
 	}
 }
 
+/*
+<line anchor={{
+	xy(frame){
+		return {x,y}
+	},
+	wrapGeometry({x,y}, atom){
+		return {
+		rect, //content position and bound
+		geometry,//wrap boundary
+		wrap,//wrap(line) function to give wrap area during following content wrapping
+	}
+	}
+}}
+/>
+*/
 class AnchorWrappable extends PaginationControllable{
 	static AnchorWrappable=AnchorWrappable
 	appendComposed(){
@@ -747,26 +763,22 @@ class AnchorWrappable extends PaginationControllable{
 			composed:[...this.computed.composed],
 			columns:this.columns.reduce((cloned,a)=>[...cloned,{...a,children:[...a.children]}],[]),
 		}
-		const {anchor:atom}=line.props
-		const {anchor}=atom.props
+
+		const anchored=line.props.anchor(this)
 
 		//anchor placeholder in paragraph
 		this.currentColumn.children.push(React.cloneElement(line,{anchor:undefined}))
 
 		//anchored content positioned in frame
-		const {x,y}=anchor.xy(this)
-		const {geometry, wrap,rect}=anchor.wrapGeometry({x,y},atom)
-		this.appendComposed(
-			<Group {...rect} wrap={wrap}>
-				{React.cloneElement(atom,{x:x-rect.x,y:y-rect.y,anchor:undefined})}
-			</Group>
-		)
+		this.appendComposed(anchored)
 
+		const {wrap,geometry,"data-content":anchorId}=anchored.props
+		
 		if(wrap){
 			if(this.isDirtyIn(geometry)){
 				try{
 					this.recomposing4Anchor=lastComputed
-					this.recomposing4Anchor.anchor=anchor.props.id
+					this.recomposing4Anchor.anchor=anchorId
 					this.recompose()
 					//then check if this anchor is in this page
 					if(!this.recomposing4Anchor.anchored){

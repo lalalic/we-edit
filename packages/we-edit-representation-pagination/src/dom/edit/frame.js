@@ -64,11 +64,16 @@ const factory=base=>Cacheable(class extends editable(base){
                 if(!include(bound)){
                     if(parents.includes(last)){
                         if(isLastContent([...parents.slice(parents.indexOf(last)),node])){
-                            bound={id:last.props["data-content"]}
-                            if(last.props["data-type"]!="shape")
-                                bound.at=1
+                            if(last.props["data-type"]=="shape"){
+                                bound.id=last.props["data-content"]
+                                return true
+                            }
 
-                            return true
+                            if(last.props["data-type"]=="paragraph"){
+                                bound.at=1
+                                bound.id=last.props["data-content"]
+                                return true
+                            }
                         }
                     }
                     return false//don't continue

@@ -4,6 +4,10 @@ import contours from "svg-path-contours"
 import memoize from "memoize-one"
 
 export default class extends Path{
+    static fromRect({x,y,width:w,height:h}){
+        return new this(`M${x} ${y} h${w} v${h} h${-w}z`)    
+    }
+
     toString(){
         this.__evaluateStack()
         return memoize(d=>super.toString())(this.segments.map(a=>a.join("")).join(""))

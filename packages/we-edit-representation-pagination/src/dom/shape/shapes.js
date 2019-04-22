@@ -1,7 +1,7 @@
 import React,{Component} from "react"
 import {Group} from "../../composed"
 
-import Path from "./path"
+import Path from "../../tool/path"
 
 export class custom extends Component{
 	get strokeWidth(){
