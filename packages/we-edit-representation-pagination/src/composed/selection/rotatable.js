@@ -68,7 +68,7 @@ export default class Rotator extends Component{
 		const {onRotate}=this.props
 		let x=left-this.left
 		let y=top-this.top
-		if(false!==onRotate({x,y})){
+		if(false!==onRotate({left,top, x,y})){
 			this.left=left
 			this.top=top
 		}

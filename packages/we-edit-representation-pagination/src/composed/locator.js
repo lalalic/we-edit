@@ -59,7 +59,7 @@ export default compose(
                     const isContentSelected=!!positioning.getContent(id).parents(`#${fid}`).length
                     if(isSelfSelected || isContentSelected){
                         const {x=0,y=0}=positioning.position(fid, 0)||{}
-                        const props={x:x+x0,y:y+y0}
+                        const props={x:x+x0,y:y+y0,positioning}
                         if(isContentSelected){
                             props.onMove=null
                         }

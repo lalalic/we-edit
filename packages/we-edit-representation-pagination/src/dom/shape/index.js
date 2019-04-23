@@ -44,26 +44,28 @@ export default class Shape extends Super{
 	}
 
 	createComposed2Parent(content=this.current.render()){
+		return this.transform(this.geometry.createComposedShape(content))
+	}
+
+	transform(shape, path=shape.props.geometry, strokeWidth=this.geometry.strokeWidth){
 		var {rotate, scale}=this.props
 		const translate={}
-		const shape=this.geometry.createComposedShape(content)
-		const path=shape.props.geometry.clone()
 		if(rotate){
 			const {x,y}=path.center()
 			const a=path.bounds()
 			path.rotate(rotate, x, y)
 			rotate=`${rotate} ${x} ${y}`
-			debugger
+
 			const b=path.bounds()
-			translate.x=a.left-b.left
-			translate.y=a.top-b.top
+			translate.x=parseInt(a.left-b.left)
+			translate.y=parseInt(a.top-b.top)
 		}
 
 		if(scale){
 			path.scale(scale)
 		}
 
-		const {width,height}=path.size(this.geometry.strokeWidth)
+		const {width,height}=path.size(strokeWidth)
 		return (
 			<Group {...{width,height, geometry:path}}>
 				<Group {...{scale, rotate, ...translate}}>

@@ -8,6 +8,7 @@ import editable from "./editable"
 import {Cacheable} from "../../composable"
 import Entity from "../../composed/selection/entity"
 import {Group} from "../../composed"
+import Path from "../../tool/path"
 
 const Super=editable(Base)
 
@@ -22,7 +23,9 @@ export default class Shape extends Super{
     }
 
 	getFocusShape(){
-		return this.geometry.getFocusShape()
+		const shape=this.geometry.getFocusShape()
+		const path=shape.props.path
+		return React.cloneElement(shape,{transform:el=>this.transform(el,new Path(path),1)})
 	}
 
 	positionFromPoint(x,y){
@@ -32,7 +35,7 @@ export default class Shape extends Super{
     static rect=class extends Super.rect{
 		getFocusShape(){
 			const x=this.strokeWidth/2, y=x
-			const {width:right, height:bottom,rotate,dispatch}=this.props
+			const {width:right, height:bottom,rotate}=this.props
 			const left=0, top=0
 			return (<Entity
 				id={this.props.id}

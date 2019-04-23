@@ -4,6 +4,11 @@ import Base from "../image"
 import Shape from "./shape"
 
 export default class extends editable(Base){
+	constructor(){
+		super(...arguments)
+		this.splittable=false
+	}
+	
 	getOutline(){
 		const {outline,width,height}=this.props
 		return new Shape({width,height,...outline, margin:{},children:null}, this.context)

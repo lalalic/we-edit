@@ -241,14 +241,10 @@ export default class Responsible extends Component{
 		this.dispatch(ACTION.Cursor.ACTIVE(this.props.canvasId))
     }
 
-    onRotate({x,y,id}){
+    onRotate({degree,id}){
 		id=id||this.selection.start.id
 		const content=this.getContent(id)
-        const width=content.attr('width')
-        const height=content.attr('height')
-
-		const degree=(Math.asin(x/height)+Math.asin(y/width))*180/Math.PI
-		this.dispatch(ACTION.Entity.UPDATE({id,type:content.attr("type"),rotate:(content.attr("rotate")||0)+degree}))
+        this.dispatch(ACTION.Entity.UPDATE({id,type:content.attr("type"),rotate:degree}))
     }
 
     onResize({x,y,id}){
