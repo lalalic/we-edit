@@ -40,7 +40,7 @@ export default class Shape extends Super{
 
 	create(props={},...others){
 		const {width,height}=this.geometry.availableSpace()
-		return super.create({...props,width,height},...others)
+		return super.create({...props,width,height:Number.MAX_SAFE_INTEGER},...others)
 	}
 
 	createComposed2Parent(content=this.current.render()){

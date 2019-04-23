@@ -62,9 +62,10 @@ export default class extends Input.Editable{
 		const precision=1
 		const docx=this.doc
 		const selector=new Style.Properties(docx,precision)
-		const $=docx.officeDocument.content
-		const settings=docx.officeDocument.settings
-
+		const officeDocument=docx.officeDocument
+		const $=officeDocument.content
+		const settings=officeDocument.settings
+		
 		const styles=new (class{})();//keep as raw object in state
 
 		const createStylesElement=()=>createElement(

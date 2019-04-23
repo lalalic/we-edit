@@ -1,24 +1,6 @@
 import Base from "./base"
 
-export class Image extends Base{
-    apply({id, data, ...props}){
-        if(this.node.prop('name')!=='pic:pic'){
-            this.node=this.node.find("pic\\:pic")
-        }
-
-        if(data){
-            if(typeof(data)=='string'){//file name
-                props.rid=this.file.doc.officeDocument.addExternalImage(data)
-            }else{
-                props.rid=this.file.doc.officeDocument.addImage(data)
-            }
-        }
-
-        super.apply(props)
-
-        return this.node.closest("w\\:drawing")
-    }
-
+export default class extends Base{
     remove(){
         const drawing=this.node.closest("w\\:r")
         drawing.remove()
