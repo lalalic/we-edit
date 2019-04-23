@@ -28,7 +28,7 @@ export default class Shape extends Super{
 	positionFromPoint(x,y){
 		return {id:this.props.id}
 	}
-	
+
     static rect=class extends Super.rect{
 		getFocusShape(){
 			const x=this.strokeWidth/2, y=x

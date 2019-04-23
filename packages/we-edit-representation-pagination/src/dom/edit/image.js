@@ -4,13 +4,12 @@ import Base from "../image"
 import Shape from "./shape"
 
 export default class extends editable(Base){
-	splittable=false
 	getOutline(){
-		const {outline,width,height,id}=this.props
-		return new Shape({width,height,...outline,id, margin:{},children:null}, this.context)
+		const {outline,width,height}=this.props
+		return new Shape({width,height,...outline, margin:{},children:null}, this.context)
 	}
 
 	getFocusShape(){
-		return this.getOutline().getFocusShape()
+		return React.cloneElement(this.getOutline().getFocusShape(),{id:this.props.id})
 	}
 }

@@ -9,6 +9,11 @@ export default A=>{
             getMyBreakOpportunities: PropTypes.func
         }
 
+        constructor(){
+            super(...arguments)
+            this.splittable=false
+        }
+
         render() {
             this.context.getMyBreakOpportunities(null)
             this.appendComposed()
