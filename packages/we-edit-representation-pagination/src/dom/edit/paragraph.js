@@ -275,8 +275,8 @@ class Positionable extends Editable{
 		if(line.length){
 			const x1=self.x
 			const x2=[...parents,line.get(0)].reduce((X,{props:{x=0}})=>X+x,0)
-			const composer=this.context.getComposer(line.attr("data-content"))
-			return composer.positionFromPoint(x1-x2,line.attr("pagination").i-1)
+			const paragraph=this.context.getComposer(line.attr("data-content"))
+			return paragraph.positionFromPoint(x1-x2,undefined, line.attr("pagination").i-1)
 		}
 	}
 
@@ -561,7 +561,7 @@ class Navigatable extends Positionable{
 		},true)
 	}
 
-	positionFromPoint(x,lineIndex){
+	positionFromPoint(x,y,lineIndex=this.computed.lastComposed.length-1){//not support y
 		const composedLine=this.computed.lastComposed[lineIndex]
 		const position=(({x:x0=0,children:story})=>
 			(x=>{

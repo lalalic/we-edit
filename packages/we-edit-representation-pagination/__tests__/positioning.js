@@ -1482,7 +1482,7 @@ describe("positioning",()=>{
 
 
                 doc.click(5,5)
-                expect(around).toHaveLastReturnedWith({id:"1",at:1})
+                expect(around).toHaveLastReturnedWith({id:"0",at:4})
 
                 doc.click(5,11)
                 if(TESTING=="in shape"){//shape should be selected
