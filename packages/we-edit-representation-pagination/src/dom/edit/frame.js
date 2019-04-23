@@ -40,41 +40,17 @@ const factory=base=>Cacheable(class extends editable(base){
 
 	positionFromPoint(x,y){
         const include=({x:x0=0,y:y0=0,width,height})=>x0<=x && y0<=y && (x0+width)>=x && (y0+height)>=y
-        const isLastContent=nodes=>nodes.reduceRight(function(bLast,a,i){
-            if(bLast){
-                if(i==0){
-                    return bLast
-                }else{
-                    const children=nodes[i-1].props.children
-                    if(Array.isArray(children)){
-                        return children[children.length-1]==a
-                    }else{
-                        return children==a
-                    }
-                }
-            }
-            return false
-        },true)
-        const rendered=this.render()
-		var bound,last
-        const {first:found,parents}=new ReactQuery(rendered).findFirstAndParents((node,parents)=>{
+        const chosen=new Set()
+        var bound
+        const {first:found,parents}=new ReactQuery(this.render()).findFirstAndParents((node,parents)=>{
             const {width,height,"data-type":type, "data-content":id}=node.props||{}
             bound={width,height,...this.getBound([...parents,node])}
             if(bound.width && bound.height){
                 if(!include(bound)){
-                    if(parents.includes(last)){
-                        if(isLastContent([...parents.slice(parents.indexOf(last)),node])){
-                            if(last.props["data-type"]=="shape"){
-                                bound.id=last.props["data-content"]
-								return true
-                            }
-
-                            if(last.props["data-type"]=="paragraph"){
-                                bound.at=1
-                                bound.id=last.props["data-content"]
-                                return true
-                            }
-                        }
+                    //inline level container should be selected, such as paragraph,shape
+                    const paragraphIndex=parents.findIndex(a=>a.props["data-type"]=="paragraph")
+                    if(paragraphIndex!=-1){
+                        return positionClosestInlineContainer([...parents.slice(paragraphIndex),node],chosen, bound)
                     }
                     return false//don't continue
                 }
@@ -83,22 +59,19 @@ const factory=base=>Cacheable(class extends editable(base){
             if(id){
                 const composer=this.context.getComposer(id)
 				if(!composer.splittable){
-                    bound.id=id
-					bound.at=0
+                    bound={id}
 					return true
 				}
 
 				if(type=="text"){
                     const paragraph=parents.findLast(a=>a.props["data-type"]=="paragraph")
                     const lineIndex=paragraph.props.pagination.i
-                    const {id,at}=composer.closest("paragraph")
-                        .positionFromPoint(lineIndex-1,x-this.getBound(parents.slice(0,parents.indexOf(paragraph)+1)).x)
-                    bound.at=at
-					bound.id=id
-					return true
+                    const dx=x-this.getBound(parents.slice(0,parents.indexOf(paragraph)+1)).x
+                    bound=composer.closest("paragraph").positionFromPoint(dx,lineIndex-1)
+                    return true
 				}
 
-                last=node
+                chosen.add(id)
             }
 
             if(node.type!=Group)
@@ -132,5 +105,41 @@ const factory=base=>Cacheable(class extends editable(base){
         return [...super.composeFrames(...arguments),this.props.id]
     }
 })
+const isLastContent=nodes=>nodes.reduceRight(function(bLast,a,i){
+    if(bLast){
+        if(i==0){
+            return bLast
+        }else{
+            const children=nodes[i-1].props.children
+            if(Array.isArray(children)){
+                return children[children.length-1]==a
+            }else{
+                return children==a
+            }
+        }
+    }
+    return false
+},true)
+
+const positionClosestInlineContainer=(nodes, chosen, bound,last)=>{
+    if(last=nodes.findLast(a=>chosen.has(a.props["data-content"]))){
+        const i=nodes.indexOf(last)
+        if(isLastContent(nodes.slice(i))){
+            //@TODO: container'd better implement its own positionFromPoint(x,y),document,section,paragraph, shape, cell,...
+            /*
+            const composer=this.context.getComposer(last.props["data-content"])
+            composer.positionFromPoint()
+            */
+            bound.id=last.props["data-content"]
+            if(last.props["data-type"]=="paragraph"){
+                bound.at=1
+            }
+            return true
+        }else{
+            return false
+        }
+    }
+    return false
+}
 
 export default factory(Base)

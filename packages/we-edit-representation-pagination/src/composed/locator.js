@@ -72,8 +72,8 @@ export default compose(
                     }
                 }
 
-                this.cursor=null
-                this.range=null
+                this.cursor=cursor
+                this.range=range
                 if(cursor && cursorPosition && isCursor){
                     const {x,y,left,top,height,fontFamily,fontSize}=cursorPosition
                     this.cursor=React.cloneElement(cursor, {x,y,left,top,height,fontFamily,fontSize})

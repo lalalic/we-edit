@@ -786,18 +786,3 @@ describe.each([
 		})
 	})
 })
-
-
-describe("editor", ()=>{
-	it("paragraph end should be at end",()=>{
-
-	})
-
-	it("whitespace can be shown as dot",()=>{
-
-	})
-
-	it("picow mode to should paragraph end and whitespace as dot",()=>{
-
-	})
-})

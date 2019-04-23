@@ -85,6 +85,10 @@ export default function Navigatable(A){
 			}
 		}
 
+		positionFromPoint(){
+			return {}
+		}
+
 		getFocusShape(){
 			return this.navigatable('getFocusShape',...arguments)
 		}

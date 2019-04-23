@@ -74,7 +74,7 @@ describe("positioning",()=>{
 
         ["in shape", (a,...args)=>{
             const {page:{width=size.width,height=size.height}={}}=args[0]||{}
-            const shape=(<Shape {...{children:a,id:uuid++, ...size,width,height}}/>)
+            const shape=(<Shape {...{children:a,id:"shape", ...size,width,height}}/>)
             return render(
                 <Paragraph id={uuid++}>
                     {shape}
@@ -1455,15 +1455,15 @@ describe("positioning",()=>{
                 new Array(5).fill(0).forEach((a,x)=>{
     				new Array(20).fill(0).forEach((a,y)=>{
                         doc.click(4+x,y)
-    					expect(around).toHaveLastReturnedWith(expect.objectContaining({id:"2"}))
+    					expect(around).toHaveLastReturnedWith({id:"2"})
     				})
     			})
 
                 doc.click(1,10)
-    			expect(around).toHaveLastReturnedWith(expect.objectContaining({id:"0",at:1}))
+    			expect(around).toHaveLastReturnedWith({id:"0",at:1})
 
     			doc.click(10,10)
-    			expect(around).toHaveLastReturnedWith(expect.objectContaining({id:"3",at:1}))
+    			expect(around).toHaveLastReturnedWith({id:"3",at:1})
     		})
 
             it("ignore when out of content range, but shape should be selected when click on blank area ",()=>{
@@ -1482,10 +1482,13 @@ describe("positioning",()=>{
 
 
                 doc.click(5,5)
+                expect(around).toHaveLastReturnedWith({id:"1",at:1})
+
+                doc.click(5,11)
                 if(TESTING=="in shape"){//shape should be selected
-                    expect(around).toHaveLastReturnedWith(expect.objectContaining({at:0}))
+                    expect(around).toHaveLastReturnedWith({id:"shape"})
                 }else{
-                    expect(around).toHaveLastReturnedWith({id:"1",at:1})
+                    expect(around).toHaveLastReturnedWith({})
                 }
             })
     	})
