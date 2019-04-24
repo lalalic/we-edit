@@ -55,6 +55,55 @@ export default class extends Input.Editable{
 		return stream
 	}
 
+	style(officeDocument, node){
+		const same=(keys,fx)=>keys.reduce((props,k)=>(props[k]=fx,props),{})
+		return officeDocument.$(node).props({
+			tidy_rPrDefault:({rPr})=>rPr,
+			tidy_pPrDefault:({pPr})=>pPr,
+			...same("ascii,eastAsia,hAnsi,cs".split(",").map(a=>a+'Theme'),v=>officeDocument.theme.fontx(v)),
+			...same("sz,szCs,kern".split(",").map(a=>'tidy_'+a),({val})=>parseInt(val)/2),
+			tidy_rFonts:({ascii,eastAsia,hAnsi,cs})=>[ascii,eastAsia,hAnsi,cs].filter(a=>a).join(","),
+
+			//themeShade:v=>officeDocument.theme.
+			themeColor:v=>officeDocument.theme.colorx(v),
+			tidy_color:({themeColor,val,...effects})=>officeDocument.doc.asColor(val||themeColor,...effects),
+
+
+			...same("beforeLines,before,afterLines,after".split(","),v=>officeDocument.doc.dxa2Px(v)),
+			tidy_spacing:({beforeAutospacing,beforeLines,before,afterAutospacing,afterLines,after,line,lineRule,val,...props})=>{
+				if(val!=undefined){
+					return vale
+				}
+
+				props.top=!beforeAutospacing&&beforeLines||before
+				props.bottom=!afterAutospacing&&afterLines||after
+
+				if(line){
+					switch (lineRule) {
+						case 'atLeast':
+						case 'exact':
+							props.line=officeDocument.doc.dxa2Px(line)
+							break
+						default:
+							props.line=parseInt(line)*100/240.0
+					}
+				}
+				return props
+			},
+			...same("basedOn,name,link".split(",").map(a=>'tidy_'+a),({val})=>val),
+
+			names:{
+				asciiTheme:"ascii",
+				eastAsiaTheme:"eastAsia",
+				hAnsiTheme:'hAnsi',
+				themeShade:'shade',
+				rFonts:"fonts",
+				rPrDefault:"rPr",
+				pPrDefault:"pPr",
+			},
+		})
+	}
+
 	render(createElement,components){
 		const self=this
 		const identify=this.doc.constructor.OfficeDocument.identify.bind(this.doc.constructor.OfficeDocument)
@@ -65,7 +114,9 @@ export default class extends Input.Editable{
 		const officeDocument=docx.officeDocument
 		const $=officeDocument.content
 		const settings=officeDocument.settings
-		
+
+		const stylexs={}
+
 		const styles=new (class{})();//keep as raw object in state
 
 		const createStylesElement=()=>createElement(
@@ -86,6 +137,8 @@ export default class extends Input.Editable{
 
 			switch(type){
 			case "style":{
+				debugger
+				let stylex=this.style(officeDocument,node)
 				let style=null
 				if(!props.id){
 					style=new Style.Default(node, styles,selector)
@@ -111,6 +164,7 @@ export default class extends Input.Editable{
 				}
 				if(style){
 					styles[style.id]=style
+					stylexs[style.id]=stylex
 					return createStylesElement()
 				}
 				return null
@@ -133,6 +187,7 @@ export default class extends Input.Editable{
 						...selector.select(node.children.filter(a=>a.name!="w:body")),
 						evenAndOddHeaders,
 						precision,
+						stylexs,
 					},
 					[
 						createStylesElement(),

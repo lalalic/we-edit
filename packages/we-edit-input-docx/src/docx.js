@@ -1,6 +1,7 @@
 import docx4js from "docx4js"
 import Fetchable from "fetchable"
 import {transactifyCheerio} from "we-edit"
+import theme from "./styles/theme"
 export default class Document extends docx4js{
 	static get URL(){
 		if(!this.__cachedData){
@@ -55,6 +56,28 @@ export default class Document extends docx4js{
 	static OfficeDocument=class extends docx4js.OfficeDocument{
 		_init(){
 			super._init(...arguments)
+			const officeDocument=this
+			Object.assign(this.theme,{
+				fontx(name){
+					debugger
+					var [first,...second]=name.split(/(?=[A-Z])/g)
+					second={HAnsi:'latin',Ascii:'latin',Bidi:'cs',EastAsia:'ea'}[second.join("")]
+					const font=this(`a\\:fontScheme>a\\:${first}Font>a\\:${second}`).attr("typeface")
+					if(!font && (second=='cs' || second=='ea')){
+						const lang=officeDocument.settings("w\\:themeFontLang").attr(`w:${{cs:'bidi',ea:'eastAsia'}[second]}`)
+						if(lang){
+							return this(`a\\:fontScheme>a\\:${first}Font>a\\:font[script=${{'zh-CN':'Hans'}[lang]}]`).attr("typeface")
+						}
+					}
+					return font
+				},
+				colorx(name){
+					if(name=='phClr')
+						return name
+					return this.color(officeDocument.settings("w\\:clrSchemeMapping").attr(`w:${name}`)||name)
+				},
+			})
+
 			if(!this.numbering){
 				this.addNumberingPart()
 			}

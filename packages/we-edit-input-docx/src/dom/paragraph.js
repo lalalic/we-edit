@@ -20,6 +20,7 @@ export default ({Text, Paragraph})=>class extends Component{
 	}
 
 	style=memoize((direct,context)=>{
+		debugger
 		let style=direct.flat(context)
 		if(style.indent){
 			if(style.indent.hanging){
