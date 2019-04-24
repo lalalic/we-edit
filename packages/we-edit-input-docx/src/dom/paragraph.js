@@ -18,9 +18,12 @@ export default ({Text, Paragraph})=>class extends Component{
 	static contextTypes={
 		style: PropTypes.object
 	}
+	
+	static childContextTypes={
+		style: PropTypes.object
+	}
 
 	style=memoize((direct,context)=>{
-		debugger
 		let style=direct.flat(context)
 		if(style.indent){
 			if(style.indent.hanging){
@@ -39,6 +42,12 @@ export default ({Text, Paragraph})=>class extends Component{
 
 		return style
 	})
+	
+	getChildContext(){
+		return {
+			style:Object.assign(this.props.style.clone(),{r:{}}).inherit(this.context.style)
+		}
+	}
 
 	defaultStyle=memoize((direct,context)=>direct.flat4Character(context))
 

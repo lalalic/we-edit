@@ -117,4 +117,10 @@ export default class Style extends Linkable{
 			},{})
 		}
 	}
+	
+	clone(){
+		const {styles, name, basedOn, id, next, p,  r}=this
+		const cloned=new this.constructor(undefined,styles)
+		return Object.assign(cloned,{basedOn, p, r, next})
+	}
 }

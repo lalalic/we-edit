@@ -4,8 +4,8 @@ import PropTypes from "prop-types"
 
 export default ({Shape})=>class extends Component{
     static displayName="shape"
-    static childContextTypes={
-        //style: PropTypes.object,
+    static contextTypes={
+		style: PropTypes.object,
     }
 
     static childContextTypes={
@@ -18,7 +18,7 @@ export default ({Shape})=>class extends Component{
 
     getChildContext(){
         return {
-            //style:this.props.textStyle
+            style:this.props.textStyle.inherit(this.context.style)
         }
     }
 
@@ -61,8 +61,8 @@ class ShapeStyle extends Style{
         super(style,{
             anchor:"vertAlign",
             ln:"outline",
-            bodyPr:"textBox",
-        },"geometry","solidFill","rotate")
+            bodyPr:"textStyle",
+        },"geometry","solidFill","rotate", "textStyle")
         const _flat=this.flat.bind(this)
         this.flat=()=>{
             const props=_flat()
@@ -89,18 +89,20 @@ class ShapeStyle extends Style{
     }
 
     bodyPr(style, props){
-        const {margin}=new TextBoxStyle(style).flat()
+		const {margin,}=new TextBoxStyle(style).flat()
         props.margin=margin
     }
+	
+	textStyle(style,props){
+		Object.assign(this.got(props,"textStyle"),style)
+	}
 
 
 }
 
 class TextBoxStyle extends Style{
     constructor(style){
-        super(style,{
-
-        })
+        super(style,{})
         const margin=k=>((v,props)=>{this.got(props,"margin")[k]=v})
         this.rIns=margin("right")
         this.tIns=margin("top")

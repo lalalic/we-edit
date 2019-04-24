@@ -57,9 +57,25 @@ export default class extends Input.Editable{
 
 	style(officeDocument, node){
 		const same=(keys,fx)=>keys.reduce((props,k)=>(props[k]=fx,props),{})
+		const eachAttrib=({attribs},fx)=>Object.keys(attribs).reduce((props,a)=>{
+			props[a.split(":").pop()]=fx(attribs[a])
+			return props
+		},{})
+		
 		return officeDocument.$(node).props({
-			tidy_rPrDefault:({rPr})=>rPr,
 			tidy_pPrDefault:({pPr})=>pPr,
+			...same("keepNext,keepLines,contextualSpacing,cantSplit".split(","),()=>true),
+			tidy_outlineLvl:({val})=>parseInt(val),
+			...same("w,h,space,trHeight".split(","),v=>officeDocument.doc.dxa2Px(v)),
+			titlePg:({"w:val":val})=>val!="false",
+			widowControl:({"w:val":val})=>val!="0",
+			cnfStyle:({"w:val":val})=>parseInt(val,2),
+			ind:x=>eachAttrib(x,a=>officeDocument.doc.dxa2Px(a)),
+			//...same("tblInd,tcW,left,right,top,bottom".split(","),({"w:w":val})=>officeDocument.doc.dxa2Px(val)),
+			
+			...same("jc,tblStyleColBandSize,tblStyleRowBandSize".split(","),({"w:val":val})=>val),
+			
+			tidy_rPrDefault:({rPr})=>rPr,
 			...same("ascii,eastAsia,hAnsi,cs".split(",").map(a=>a+'Theme'),v=>officeDocument.theme.fontx(v)),
 			...same("sz,szCs,kern".split(",").map(a=>'tidy_'+a),({val})=>parseInt(val)/2),
 			tidy_rFonts:({ascii,eastAsia,hAnsi,cs})=>[ascii,eastAsia,hAnsi,cs].filter(a=>a).join(","),
@@ -72,7 +88,7 @@ export default class extends Input.Editable{
 			...same("beforeLines,before,afterLines,after".split(","),v=>officeDocument.doc.dxa2Px(v)),
 			tidy_spacing:({beforeAutospacing,beforeLines,before,afterAutospacing,afterLines,after,line,lineRule,val,...props})=>{
 				if(val!=undefined){
-					return vale
+					return val
 				}
 
 				props.top=!beforeAutospacing&&beforeLines||before
@@ -100,6 +116,8 @@ export default class extends Input.Editable{
 				rFonts:"fonts",
 				rPrDefault:"rPr",
 				pPrDefault:"pPr",
+				w:"width",
+				h:"height",
 			},
 		})
 	}
@@ -114,8 +132,6 @@ export default class extends Input.Editable{
 		const officeDocument=docx.officeDocument
 		const $=officeDocument.content
 		const settings=officeDocument.settings
-
-		const stylexs={}
 
 		const styles=new (class{})();//keep as raw object in state
 
@@ -137,8 +153,6 @@ export default class extends Input.Editable{
 
 			switch(type){
 			case "style":{
-				debugger
-				let stylex=this.style(officeDocument,node)
 				let style=null
 				if(!props.id){
 					style=new Style.Default(node, styles,selector)
@@ -164,7 +178,6 @@ export default class extends Input.Editable{
 				}
 				if(style){
 					styles[style.id]=style
-					stylexs[style.id]=stylex
 					return createStylesElement()
 				}
 				return null
@@ -187,7 +200,6 @@ export default class extends Input.Editable{
 						...selector.select(node.children.filter(a=>a.name!="w:body")),
 						evenAndOddHeaders,
 						precision,
-						stylexs,
 					},
 					[
 						createStylesElement(),
