@@ -713,19 +713,7 @@ class PaginationControllable extends Balanceable{
 }
 
 /*
-<line anchor={{
-	xy(frame){
-		return {x,y}
-	},
-	wrapGeometry({x,y}, atom){
-		return {
-		rect, //content position and bound
-		geometry,//wrap boundary
-		wrap,//wrap(line) function to give wrap area during following content wrapping
-	}
-	}
-}}
-/>
+<line anchor={}/>
 */
 class AnchorWrappable extends PaginationControllable{
 	static AnchorWrappable=AnchorWrappable
@@ -765,39 +753,40 @@ class AnchorWrappable extends PaginationControllable{
 		}
 
 		const anchored=line.props.anchor(this)
-
-		//anchor placeholder in paragraph
-		this.currentColumn.children.push(React.cloneElement(line,{anchor:undefined}))
-
-		//anchored content positioned in frame
-		this.appendComposed(anchored)
-
 		const {wrap,geometry,"data-content":anchorId}=anchored.props
-		
-		if(wrap){
-			if(this.isDirtyIn(geometry)){
-				try{
-					this.recomposing4Anchor=lastComputed
-					this.recomposing4Anchor.anchor=anchorId
-					this.recompose()
-					//then check if this anchor is in this page
-					if(!this.recomposing4Anchor.anchored){
-						//recover
-						this.computed.composed=this.recomposing4Anchor.composed
-						this.columns=this.recomposing4Anchor.columns
+
+		try{
+			if(wrap){
+				if(this.isDirtyIn(geometry)){
+					try{
+						this.recomposing4Anchor=lastComputed
+						this.recomposing4Anchor.anchor=anchorId
 						this.recompose()
-						return false
-					}else{
-						return 0+1
+						//then check if this anchor is in this page
+						if(!this.recomposing4Anchor.anchored){
+							//recover
+							this.computed.composed=this.recomposing4Anchor.composed
+							this.columns=this.recomposing4Anchor.columns
+							this.recompose()
+							return false
+						}else{
+							return 0+1
+						}
+					}finally{
+						delete this.recomposing4Anchor
 					}
-				}finally{
-					delete this.recomposing4Anchor
+				}else{
+					return 0+1
 				}
 			}else{
-
+				return 0+1
 			}
-		}else{
-			return 0+1
+		}finally{
+			//anchor placeholder in paragraph
+			debugger
+			this.currentColumn.children.push(React.cloneElement(line,{anchor:undefined}))
+			//anchored content positioned in frame
+			this.appendComposed(anchored)		
 		}
 	}
 

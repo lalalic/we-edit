@@ -15,14 +15,16 @@ const Super=HasParentAndChild(Base)
 */
 export default class extends Super{
     createComposed2Parent(content){
-        var {width,height}=content.props
+        var {width,height,geometry}=content.props
+        const {margin:{left=0,right=0,top=0,bottom=0}={}, wrap:{mode}}=this.props
+        width+=(left+right), height+=(top+bottom)
+            
         return (
-            <Group width={0} height={0}
+            <Group width={0} height={mode=="TopAndBottom" ? height : 0}
                 anchor={frame=>{
                     var {x,y}=this.xy(frame)
-                    const {margin:{left=0,right=0,top=0,bottom=0}={}, wrap:{mode}}=this.props
-                    x=x-left, y=y-top, width+=(left+right), height+=(top+bottom)
-
+                    x=x-left, y=y-top 
+                    
                     const wrap=(fn=>{
                         if(fn){
                             if(mode=="Square" || mode=="TopAndBottom"){

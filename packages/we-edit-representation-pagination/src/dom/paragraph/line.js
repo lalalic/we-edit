@@ -104,10 +104,13 @@ export default class Line extends Component{
 		if(anchor){
 			const $anchor=new ReactQuery(atom).findFirst('[data-type="anchor"]')
 			const anchorId=$anchor.attr("data-content")
-			this.content.push(React.cloneElement($anchor.get(0),{atom}))//atom is the key
+			const placeholder=React.cloneElement($anchor.get(0),{atom})
+			this.content.push(placeholder)//atom is the key
 			if(!this.context.parent.context.isAnchored(anchorId)){
 				this.anchor=anchor
 				return false
+			}else if(placeholder.props.height){
+				return  false
 			}
 		}else{
 			const containable=()=>minWidth==0 || this.content.length==0 || this.availableWidth>=minWidth || this.availableWidth==this.maxWidth
