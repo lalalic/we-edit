@@ -20,7 +20,7 @@ export default class extends Super{
         width+=(left+right), height+=(top+bottom)
             
         return (
-            <Group width={0} height={mode=="TopAndBottom" ? height : 0}
+            <Group width={0} height={0}
                 anchor={frame=>{
                     var {x,y}=this.xy(frame)
                     x=x-left, y=y-top 
@@ -104,7 +104,7 @@ export default class extends Super{
     wrapClear({x1,x2,y2:y},geometry){
         const {left,top,right,bottom}=geometry.bounds()
         if(y>=top && y<=bottom){
-            return {x:x1,width:x2-x1}
+            return {x:x1,width:x2-x1,height:bottom-top}
         }
     }
 
