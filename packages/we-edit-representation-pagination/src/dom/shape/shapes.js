@@ -69,7 +69,7 @@ export class custom extends Component{
 	}
 
 	getPath(){
-		return new Path(this.props.geometry)
+		return memoize((geometry)=>new Path(geometry))(this.props.geometry)
 	}
 }
 

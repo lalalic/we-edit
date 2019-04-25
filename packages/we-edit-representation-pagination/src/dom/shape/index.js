@@ -59,12 +59,14 @@ export default class Shape extends Super{
 			const b=path.bounds()
 			translate.x=parseInt(a.left-b.left)
 			translate.y=parseInt(a.top-b.top)
+			path.translate(translate.x, translate.y)
 		}
 
 		if(scale){
 			path.scale(scale)
 		}
 
+		path.strokeWidth=strokeWidth
 		const {width,height}=path.size(strokeWidth)
 		return (
 			<Group {...{width,height, geometry:path}}>

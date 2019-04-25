@@ -4,8 +4,10 @@ import {Group, Frame as ComposedFrame} from "../composed"
 
 import composable,{HasParentAndChild} from "../composable"
 import {dom, ReactQuery} from "we-edit"
+import Path from "../tool/path"
 const {Anchor:Base}=dom
 const Super=HasParentAndChild(Base)
+
 
 /**
 * xy for Positioning
@@ -13,15 +15,32 @@ const Super=HasParentAndChild(Base)
 */
 export default class extends Super{
     createComposed2Parent(content){
-        const {width,height}=content.props
+        var {width,height}=content.props
         return (
             <Group width={0} height={0}
                 anchor={frame=>{
-                    const {x,y}=this.xy(frame)
-                    const {geometry,wrap}=this.wrapGeometry({...this.xy(frame),width,height})
+                    var {x,y}=this.xy(frame)
+                    const {margin:{left=0,right=0,top=0,bottom=0}={}, wrap:{mode}}=this.props
+                    x=x-left, y=y-top, width+=(left+right), height+=(top+bottom)
+
+                    const wrap=(fn=>{
+                        if(fn){
+                            if(mode=="Square" || mode=="TopAndBottom"){
+                                return line=>fn.call(this, line, {bounds:()=>({left:x,top:y,right:x+width,bottom:y+height})})
+                            }
+                            return line=>fn.call(this, line, Object.create(geometry).translate(x,y))
+                        }
+                    })(this[`wrap${mode}`]);
+
                     return (
-                        <Group {...{...geometry,wrap,geometry,"data-content":this.props.id,"data-type":this.getComposeType()}}>
-                            {content}
+                        <Group {...{
+                            x,y,
+                            wrap,
+                            geometry:{x,y,width,height},
+                            "data-content":this.props.id,"data-type":this.getComposeType()}}>
+                            <Group x={left} y={top}>
+                                {content}
+                            </Group>
                         </Group>
                     )
                 }
@@ -38,77 +57,57 @@ export default class extends Super{
         }
     }
 
-    wrapGeometry({x,y,width,height}){
-        const {wrap,margin:{left=0,right=0,top=0,bottom=0}={}}=this.props
-        const geometry={
-            x:x-left,
-            y:y-top,
-            width:width+left+right,
-            height:height+top+bottom,
-        }
-
-        const wrapper=wrap ? new this.constructor.Wrap(wrap,geometry) : undefined
-
-        return {
-            geometry,
-            wrap: wrapper ? line=>wrapper.intersects(line) : undefined
-        }
-    }
-
-	static Wrap=class{
-		constructor({mode:type, wrapText}, geometry){
-			this.type=type[0].toLowerCase()+type.substring(1)
-			this.wrapText=wrapText
-            this.geometry=new Rect(geometry)//["tight","throught"].includes(this.type) ? new SVGPath(geometry) : new Rect(geometry)
-		}
-
-		intersects(line){
-			return this[this.type](...arguments)
-		}
-
-	    square({x2,y2,x1=0,y1=y2}){
-			const points=this.geometry.intersects({x1,x2,y1,y2})
-			if(points.length>0){
-				let {x}=points[0]
-				let {x:x1}=points.pop()
-				return {x:Math.min(x,x1), width:Math.abs(x1-x)}
-			}
-	    }
-
-	    tight(){
-	        return this.square(...arguments)
-	    }
-
-	    throught(){
-	        return this.square(...arguments)
-	    }
-
-		topAndBottom(){
-	        return this.square(...arguments)
-	    }
-	}
-}
-
-class Rect{
-    constructor(geometry){
-        const {x,y,width,height}=this.bound(geometry)
-        Object.assign(this,{x,y,width,height})
-    }
-
-    bound(geometry){
-        return geometry
-    }
-
-    intersects({x1,x2,y1,y2}){
-        console.assert(y1==y2)
-        if(y1>=this.y && y1<=this.y+this.height){
-            if(x2<=this.x || x1>=this.x+this.width){
-
-            }else{
-                return [{x:Math.max(this.x, x1), y1}, {x:Math.min(this.x+this.width, x2),y1}]
+    applyWrapText(x1,x2, x, X){
+        const {wrap:{wrapText}}=this.props
+        const get=type=>{
+            switch(wrapText){
+            case "left":
+                return {x,width:x2-x}
+            case "right":
+                return {x:X,width:x2-X}
+            case "largest":
+                return get((x-x1)>=(x2-X) ? "left" : "right")
+            default:
+                return {x, width:X-x}
             }
         }
-        return []
+
+        return get(wrapText)
+    }
+
+    wrapSquare({x1,x2,y2:y},geometry){
+        const {wrap:{mode, wrapText},margin:{}}=this.props
+        const {left,top,right,bottom}=geometry.bounds()
+        if(y>=top && y<=bottom){
+            if(!(x2<=left || x1>=right)){
+                return this.applyWrapText(x1,x2,Math.max(x1,left),Math.min(x2,right))
+            }
+        }
+    }
+
+    wrapTight({x1,x2},geometry){
+        const points=geometry.intersects(line)
+        if(points.length>2){
+            points.splice(1,points.length-1-1)
+        }
+        if(points.length>0){
+            return this.applyWrapText(x1,x2,points[0].x,points.pop().x)
+        }
+    }
+
+    wrapThrough(line,geometry){
+        return this.wrapTight(...arguments)
+    }
+
+    wrapClear({x1,x2,y2:y},geometry){
+        const {left,top,right,bottom}=geometry.bounds()
+        if(y>=top && y<=bottom){
+            return {x:x1,width:x2-x1}
+        }
+    }
+
+    wrapTopAndBottom(){
+        return this.wrapClear(...arguments)
     }
 }
 
