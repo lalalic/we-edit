@@ -521,42 +521,4 @@ export class Properties{
 	}
 }
 
-/*
-
-				docx.officeDocument
-					.$(node)
-					.props({
-						tidy_docDefaults:({rPrDefault:{rPr},pPrDefault:{pPr}})=>({rPr,pPr}),
-						...same("ascii,eastAsia,hAnsi".split(",").map(a=>a+'Theme'),v=>officeDocument.theme.font(v)),
-						...same("sz,szCs,kern".split(","),({val})=>parseInt(val)/2),
-						
-						//themeShade:v=>officeDocument.theme.
-						themeColor:v=>officeDocument.theme.color(v),
-						tidy_color:({themeColor,val,...effects})=>docx.asColor(val||themeColor,...effects),
-						
-						
-						...same("beforeLines,before,afterLines,after".split(","),v=>docx.dxa2px(v)),
-						tidy_spacing:({beforeAutospacing,beforeLines,before,afterAutospacing,afterLines,after,line,lineRule,val})=>{
-							if(val!=undefined){
-								return vale
-							}
-							const props={
-								top:!beforeAutospacing&&beforeLines||before,
-								bottom:!afterAutospacin&&afterLines||after,
-							}
-							if(line){
-								props.lineHeight=lineRule
-							}
-							return props
-						},
-						names:{
-							asciiTheme:"ascii",
-							eastAsiaTheme:"eastAsia",
-							hAnsiTheme:'hAnsi',
-							themeShade:'shade',
-						},
-					})
-*/
-
-
 export default Properties

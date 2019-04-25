@@ -15,8 +15,7 @@ export default ({Container})=>class extends Component{
 	style=(direct, context)=>direct.flat(context)
 
 	render(){
-		debugger
-		let {style, ...props}=this.props
+		var {style, ...props}=this.props
 		style=this.style(style, this.context.style)
 		return (
 			<Container {...props} type={this.constructor.displayName}>

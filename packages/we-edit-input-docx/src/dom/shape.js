@@ -18,7 +18,7 @@ export default ({Shape})=>class extends Component{
 
     getChildContext(){
         return {
-            style:this.props.textStyle.inherit(this.context.style)
+            style:this.props.textStyle?this.props.textStyle.inherit(this.context.style):this.context.style
         }
     }
 
@@ -92,7 +92,7 @@ class ShapeStyle extends Style{
 		const {margin,}=new TextBoxStyle(style).flat()
         props.margin=margin
     }
-	
+
 	textStyle(style,props){
 		Object.assign(this.got(props,"textStyle"),style)
 	}
