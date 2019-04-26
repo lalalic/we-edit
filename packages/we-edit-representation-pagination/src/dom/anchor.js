@@ -18,17 +18,17 @@ export default class extends Super{
         var {width,height,geometry}=content.props
         const {margin:{left=0,right=0,top=0,bottom=0}={}, wrap:{mode}}=this.props
         width+=(left+right), height+=(top+bottom)
-            
+
         return (
             <Group width={0} height={0}
                 anchor={frame=>{
-                    var {x,y}=this.xy(frame)
-                    x=x-left, y=y-top 
-                    
+                    let {x,y}=this.xy(frame)
+                    x=x-left, y=y-top
                     const wrap=(fn=>{
                         if(fn){
                             if(mode=="Square" || mode=="TopAndBottom"){
-                                return line=>fn.call(this, line, {bounds:()=>({left:x,top:y,right:x+width,bottom:y+height})})
+                                const rect={left:x,top:y,right:x+width,bottom:y+height}
+                                return line=>fn.call(this, line, {bounds:()=>rect})
                             }
                             return line=>fn.call(this, line, Object.create(geometry).translate(x,y))
                         }
@@ -78,7 +78,6 @@ export default class extends Super{
     }
 
     wrapSquare({x1,x2,y2:y},geometry){
-        const {wrap:{mode, wrapText},margin:{}}=this.props
         const {left,top,right,bottom}=geometry.bounds()
         if(y>=top && y<=bottom){
             if(!(x2<=left || x1>=right)){
@@ -104,7 +103,7 @@ export default class extends Super{
     wrapClear({x1,x2,y2:y},geometry){
         const {left,top,right,bottom}=geometry.bounds()
         if(y>=top && y<=bottom){
-            return {x:x1,width:x2-x1,height:bottom-top}
+            return {x:x1,width:x2-x1,y:bottom}
         }
     }
 

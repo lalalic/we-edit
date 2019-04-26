@@ -195,7 +195,13 @@ export default class Paragraph extends Super{
 				}
 				next=this.currentLine.appendComposed(atoms[i],i)
 
-				if(next===false){//current line is full, atoms[i] not assembled
+                if(Number.isInteger(next)){
+                    const currentLine=this.currentLine
+					this.rollbackLines(1)//rollbackToLineWithFirstAtomIndex(next)
+					this.createLine({height:currentLine.lineHeight()})
+					i=next
+					continue
+				}else if(next===false){//current line is full, atoms[i] not assembled
 					if(!Number.isInteger(rollbackLines=appendComposedLine(false))){
 						this.createLine()
 						continue
@@ -203,14 +209,13 @@ export default class Paragraph extends Super{
 						if(rollbackLines==Frame.IMMEDIATE_STOP)
 							return Frame.IMMEDIATE_STOP
 						next=atomIndexOfLastNthLine(rollbackLines)
+                        if(Number.isInteger(next)){
+        					rollbackToLineWithFirstAtomIndex(next)
+        					this.createLine()
+        					i=next
+        					continue
+        				}
 					}
-				}
-
-				if(Number.isInteger(next)){
-					rollbackToLineWithFirstAtomIndex(next)
-					this.createLine()
-					i=next
-					continue
 				}
 
 				i++
@@ -245,7 +250,6 @@ export default class Paragraph extends Super{
 
 		const start=atoms.findIndex(a=>a==lastLines[0].first)
 		const end=atoms.slice(start+1).findIndex(a=>a==lastLines[lastLines.length-1].last)+start+1
-		//this.createLine()
 		return this.commit(start, end)
 	}
 

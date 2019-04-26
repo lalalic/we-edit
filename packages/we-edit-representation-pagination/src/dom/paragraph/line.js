@@ -109,6 +109,7 @@ export default class Line extends Component{
 				this.anchor=anchor
 				return false
 			}
+			debugger
 		}else{
 			const containable=()=>minWidth==0 || this.content.length==0 || this.availableWidth>=minWidth || this.availableWidth==this.maxWidth
 			if(containable()){
@@ -127,10 +128,9 @@ export default class Line extends Component{
 					let newHeight=this.lineHeight()
 					if(height!=newHeight){
 						const newBlocks=this.context.parent.context.exclusive(newHeight)
-						if(this.shouldRecompose(newBlocks)){
+						if(newBlocks && newBlocks.length>0 && this.shouldRecompose(newBlocks)){
 							const flowCount=this.content.reduce((count,a)=>a.props.x==undefined ? count+1 : count,0)
 							at=at-flowCount
-							this.content=[]
 							return at
 						}
 					}
@@ -149,8 +149,12 @@ export default class Line extends Component{
 		return this.paragraph.lineHeight(this.height)
 	}
 
+	//1.merge, 2.then dirty check
 	shouldRecompose(newBlocks){
 		const applied=this.content.filter(a=>a.props.x!==undefined)
+
+		newBlocks=this.mergeWrappees(newBlocks)
+
 		const notShould=applied.reduce((notShould,{props:{x,width}},i)=>{
 			if(notShould){
 				let a=newBlocks[i]
@@ -158,6 +162,7 @@ export default class Line extends Component{
 			}
 			return false
 		}, true)
+
 		if(notShould){
 			let notApplied=newBlocks.slice(applied.length)
 			if(notApplied.slice(0,1).reduce((should,a)=>a.x<this.currentX,false)){
@@ -171,6 +176,29 @@ export default class Line extends Component{
 			this.wrappees=newBlocks
 			return true
 		}
+	}
+
+	mergeWrappees(segments){
+		const all=[...this.wrappees,...segments].sort((a,b)=>a.x-b.x)
+		if(all.length<2){
+			return all
+		}
+		all.forEach(a=>a.x2=a.x+a.width)
+		const wrappees=[]
+		for(let i=0;i<all.length;){
+			let {x,x2}=all[i]
+			for(let j=i+1;j<all.length;j++){
+				const b=all[j]
+				if(b.x<=x2){
+					x2=Math.max(b.x2,x2)
+				}else{
+					i=j
+					break
+				}
+			}
+			wrappees.push({x,width:x2-x})
+		}
+		return wrappees
 	}
 
 	commit(){
