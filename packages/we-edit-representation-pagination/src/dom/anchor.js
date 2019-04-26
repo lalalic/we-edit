@@ -18,13 +18,13 @@ export default class extends Super{
         var {width,height,geometry}=content.props
         const {margin:{left=0,right=0,top=0,bottom=0}={}, wrap:{mode}}=this.props
         width+=(left+right), height+=(top+bottom)
-            
+
         return (
             <Group width={0} height={0}
                 anchor={frame=>{
                     var {x,y}=this.xy(frame)
-                    x=x-left, y=y-top 
-                    
+                    x=x-left, y=y-top
+
                     const wrap=(fn=>{
                         if(fn){
                             if(mode=="Square" || mode=="TopAndBottom"){
@@ -78,7 +78,7 @@ export default class extends Super{
     }
 
     wrapSquare({x1,x2,y2:y},geometry){
-        const {wrap:{mode, wrapText},margin:{}}=this.props
+        const {wrap:{mode, wrapText}}=this.props
         const {left,top,right,bottom}=geometry.bounds()
         if(y>=top && y<=bottom){
             if(!(x2<=left || x1>=right)){
