@@ -178,11 +178,11 @@ export default class Line extends Component{
 		   if(all.length<2){
 				   return all
 		   }
-		   all.forEach(a=>a.x2=a.xa.width)
+		   all.forEach(a=>a.x2=a.x.width)
 		   const wrappees=[]
 		   for(let i=0;i<all.length;){
 				   let {x,x2}=all[i]
-				   for(let j=i1;j<all.length;j){
+				   for(let j=i+1;j<all.length;j){
 						   const b=all[j]
 						   if(b.x<=x2){
 								   x2=Math.max(b.x2,x2)
