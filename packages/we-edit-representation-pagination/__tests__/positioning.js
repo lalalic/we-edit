@@ -1320,7 +1320,7 @@ describe("positioning",()=>{
             })
 
             describe("wrap", ()=>{
-                fit("TopAndBottom",()=>{
+                it("TopAndBottom",()=>{
                     const doc=test(
                             <Paragraph id={uuid++}>
                                 <Text id={"0"}>text</Text>
@@ -1333,7 +1333,7 @@ describe("positioning",()=>{
                             </Paragraph>
                         )
                         debugger
-                    expect(doc.position("0",0)).toMatchObject({x:0,y:20})
+                    expect(doc.position("0",1)).toMatchObject({x:1,y:10})
                 })
             })
         })
