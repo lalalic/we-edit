@@ -126,7 +126,7 @@ export default class Line extends Component{
 					this.content.push(atom)
 					let newHeight=this.lineHeight()
 					if(height!=newHeight){
-						const newBlocks=this.context.parent.context.exclusive(newHeight)
+						const newBlocks=this.context.parent.nextAvailableSpace({height:newHeight}).wrappees
 						if(this.shouldRecompose(newBlocks)){
 							const flowCount=this.content.reduce((count,a)=>a.props.x==undefined ? count+1 : count,0)
 							at=at-flowCount

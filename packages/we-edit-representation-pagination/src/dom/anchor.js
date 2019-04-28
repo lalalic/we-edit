@@ -104,7 +104,7 @@ export default class extends Super{
     wrapClear({x1,x2,y2:y},geometry){
         const {left,top,right,bottom}=geometry.bounds()
         if(y>=top && y<=bottom){
-            return {x:x1,width:x2-x1,height:bottom-top}
+            return {x:x1,width:x2-x1,y:bottom}
         }
     }
 

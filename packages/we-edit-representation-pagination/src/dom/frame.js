@@ -96,19 +96,6 @@ class Fixed extends Super{
 		})
 	}
 
-	nextAvailableSpace(required={}){
-		const {width:maxWidth, height=Number.MAX_SAFE_INTEGER}=this.props
-		const {height:minHeight}=required
-
-		return {
-			maxWidth,
-			width:maxWidth,
-			height:height-this.currentY,
-			wrappees:this.exclusive(minHeight),
-			frame:this,
-		}
-	}
-
 	appendComposed(content){
 		this.computed.composed.push(content)
 	}
@@ -195,40 +182,24 @@ class Fixed extends Super{
 		return lines
 	}
 
-	exclusive(height){
-		const lines=[this.dividing]
-		const x0=lines[0].x1
-		if(height){
-			lines.push({...lines[0], y2:lines[0].y2+height})
+	exclusive(y,height){
+		const line=this.dividing
+		if(y!=undefined)
+			line.y2=y
+		else if(height!=undefined)
+			line.y2+=height
+
+		const blocks=this.wrappees.reduce((collected,{props:{wrap}})=>{
+			const blocks=wrap(line)
+			collected.splice(collected.length,0,...(Array.isArray(blocks) ? blocks : [blocks]))
+			return collected
+		},[]).filter(a=>!!a).map(a=>(a.x-=line.x1,a))
+ 		const clears=blocks.filter(a=>a.y!=undefined).map(a=>a.y)
+		if(clears && clears.length){
+			blocks.y=Math.max(line.y2, ...clears)
 		}
 
-		return this.wrappees.reduce((collected,{props:{wrap}})=>{
-			lines.forEach(line=>collected.push(wrap(line)))
-			return collected
-		},[]).filter(a=>!!a)
-		.sort((a,b)=>a.x-b.x)
-		.reduce((all,{x,width},key)=>{
-			all.push({key,pos:"start",x})
-			all.push({key,pos:"end",x:x+width})
-			return all
-		},[])
-		.sort((a,b)=>a.x-b.x)
-		.reduce((state,a,i)=>{
-			state[`${a.pos}s`].push(a)
-			if(a.pos=="end"){
-				if(state.ends.reduce((inclusive,end)=>inclusive && !!state.starts.find(start=>start.key==end.key),true)){
-					let x0=state.starts[0].x
-					let x1=a.x
-					state.merged.push({x:x0, width:x1-x0})
-					state.starts=[]
-					state.ends=[]
-				}
-			}
-			return state
-		},{merged:[],starts:[], ends:[]})
-		.merged
-		.map(a=>(a.x-=x0,a))
-		.map(({x,width})=>({x:Math.floor(x), width:Math.floor(width)}))
+		return blocks
 	}
 
 	recompose(){
@@ -444,22 +415,43 @@ class Columnable extends Fixed{
 	}
 
 	nextAvailableSpace(required={}){
-		const {width:minRequiredW=0,height:minRequiredH=0}=required
-		if(minRequiredH-this.currentColumn.availableHeight>1){//can't hold
+		const {width:minRequiredW=0,height:minRequiredH=0,y=this.currentY}=required
+		if((y+minRequiredH)-this.currentColumn.height>1){//can't hold
 			if(this.currentColumn.children.length>0){//is not empty
 				if(this.cols.length>this.columns.length){// new column
 					this.createColumn()
+					return this.nextAvailableSpace(required)
 				}else{
 					return false
 				}
 			}
 		}
 
+		const wrappees=this.exclusive(y+minRequiredH)
+		if(y==wrappees.y){
+			delete wrappees.y
+		}
+
+		if(wrappees.y){
+
+			if(wrappees.y>this.currentColumn.y+this.currentColumn.height){
+				if(this.cols.length>this.columns.length){// new column
+					this.createColumn()
+					return this.nextAvailableSpace(required)
+				}else{
+					return false
+				}
+			}else{
+				return this.nextAvailableSpace({...required,y:wrappees.y})
+			}
+		}
+
 		return {
-			...super.nextAvailableSpace(...arguments),
 			maxWidth:this.currentColumn.width,
 			width:this.currentColumn.width,
 			height:this.currentColumn.availableHeight,
+			frame:this,
+			wrappees
 		}
 	}
 
@@ -478,6 +470,7 @@ class Columnable extends Fixed{
 				}
 			}
 		}
+
 		return this.appendLine(line)
 	}
 
@@ -744,6 +737,11 @@ class AnchorWrappable extends PaginationControllable{
 	**/
 	appendLine(line){
 		if(!line.props.anchor){
+			const {y}=this.exclusive(this.currentY+line.props.height)
+			if(y!=undefined){
+				return this.appendComposed(React.cloneElement(line, {height:y-this.currentY}))
+			}
+
 			return super.appendLine(...arguments)
 		}
 
@@ -782,9 +780,6 @@ class AnchorWrappable extends PaginationControllable{
 				return 0+1
 			}
 		}finally{
-			//anchor placeholder in paragraph
-			debugger
-			this.currentColumn.children.push(React.cloneElement(line,{anchor:undefined}))
 			//anchored content positioned in frame
 			this.appendComposed(anchored)
 		}
