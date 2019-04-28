@@ -36,7 +36,7 @@ export default class extends Super{
 
                     return (
                         <Group {...{
-                            x,y,
+                            x,y,width,height,
                             wrap,
                             geometry:{x,y,width,height},
                             "data-content":this.props.id,"data-type":this.getComposeType()}}>
