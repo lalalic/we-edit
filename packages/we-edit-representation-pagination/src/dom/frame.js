@@ -69,7 +69,7 @@ class Fixed extends Super{
 				configurable:true,
 				get(){
 					const {props:{height},computed:{composed:children}}=this
-					return children.reduce((y, a)=>y+(a.props.y==undefined ? a.props.height : 0),0)
+					return children.reduce((Y, {props:{height,y=Y}})=>y+height,0)
 				}
 			},
 			anchors: {
@@ -318,14 +318,14 @@ class Columnable extends Fixed{
 				enumerable:true,
 				configurable:true,
 				get(){
-					return (({width,x=0,y=0})=>({x1:x,x2:x+width,y2:y+this.currentY}))(this.currentColumn)
+					return (({width,x=0,y=0})=>({x1:x,x2:x+width,y2:this.currentY}))(this.currentColumn)
 				}
 			},
 			currentY:{
 				enumerable:false,
 				configurable:true,
 				get(){
-					return this.currentColumn.currentY
+					return (this.currentColumn.y||0)+this.currentColumn.currentY
 				}
 			},
 			contentHeight:{
@@ -388,14 +388,14 @@ class Columnable extends Fixed{
 				get(){
 					if(this.height==undefined)
 						return Number.MAX_SAFE_INTEGER
-					return this.children.reduce((h,a)=>h-a.props.height,this.height)
+					return this.height-this.currentY
 				}
 			},
 			currentY:{
 				enumerable:true,
 				configurable:false,
 				get(){
-					return this.children.reduce((y,a)=>y+a.props.height,0)
+					return this.children.reduce((Y,{props:{height,y=Y}})=>Y+height,0)
 				}
 			}
 		})
@@ -408,8 +408,8 @@ class Columnable extends Fixed{
 	}
 
 	lineY(line){
-		var {y=0,children:lines}=this.columns.find(a=>a.children.includes(line))||this.currentColumn
-		return lines.slice(0,lines.indexOf(line)+1).reduce((y,a)=>y+a.props.height,y)
+		var {y:y0=0,children:lines}=this.columns.find(a=>a.children.includes(line))||this.currentColumn
+		return lines.slice(0,lines.indexOf(line)+1).reduce((Y,{props:{height,y=Y}})=>y+height,y0)
 	}
 
 	createComposed2Parent(){
@@ -581,7 +581,7 @@ class Balanceable extends Columnable{
 	}
 
 	equalBalance(lines,cols){
-		const totalHeight=lines.reduce((h,a)=>h+a.props.height,0)
+		const totalHeight=lines.reduce((h,{height,y=h})=>y+height,0)
 		const colHeight=totalHeight/cols.length-10
 		lines.reduce((state,line)=>{
 			if(state.h<colHeight){
@@ -786,7 +786,7 @@ class AnchorWrappable extends PaginationControllable{
 			debugger
 			this.currentColumn.children.push(React.cloneElement(line,{anchor:undefined}))
 			//anchored content positioned in frame
-			this.appendComposed(anchored)		
+			this.appendComposed(anchored)
 		}
 	}
 
