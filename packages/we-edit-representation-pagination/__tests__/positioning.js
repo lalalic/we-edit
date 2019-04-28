@@ -68,7 +68,7 @@ describe("positioning",()=>{
 
     describe.each([
         ["create provided to section", render],
-
+/*
         ["page provided to section", (a,b)=>render(a,b,false)],
         ["pagination",(a,b)=>render(a,b,false)],
 
@@ -82,7 +82,7 @@ describe("positioning",()=>{
                 ...args
             )
         }]
-
+*/
     ])("%s",(TESTING, render)=>{
         if(TESTING=="pagination"){
 
@@ -1318,7 +1318,25 @@ describe("positioning",()=>{
                     expect(p.extendWord("3",7)).toMatchObject(p.extendWord("4",0))
                 })
             })
-    	})
+
+            describe("wrap", ()=>{
+                fit("TopAndBottom",()=>{
+                    const doc=test(
+                            <Paragraph id={uuid++}>
+                                <Text id={"0"}>text</Text>
+                                <Anchor id={"2"}
+                                    wrap={{mode:"TopAndBottom"}}
+                                    x={{base:"page",offset:0}} y={{base:"page",offset:0}}>
+                                    <Image id={"3"} {...{width:2,height:10}}/>
+                                </Anchor>
+                                <Text id={"1"}>text</Text>
+                            </Paragraph>
+                        )
+                        debugger
+                    expect(doc.position("0",0)).toMatchObject({x:0,y:20})
+                })
+            })
+        })
 
 
         describe("range", ()=>{

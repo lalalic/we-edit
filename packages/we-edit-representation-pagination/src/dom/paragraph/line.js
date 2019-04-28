@@ -130,7 +130,6 @@ export default class Line extends Component{
 						if(this.shouldRecompose(newBlocks)){
 							const flowCount=this.content.reduce((count,a)=>a.props.x==undefined ? count+1 : count,0)
 							at=at-flowCount
-							this.content=[]
 							return at
 						}
 					}

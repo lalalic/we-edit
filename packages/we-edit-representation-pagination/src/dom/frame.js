@@ -182,12 +182,12 @@ class Fixed extends Super{
 		return lines
 	}
 
-	exclusive(y,height){
+	exclusive(y1,y2){
 		const line=this.dividing
-		if(y!=undefined)
-			line.y2=y
-		else if(height!=undefined)
-			line.y2+=height
+		if(y2!=undefined)
+			line.y2=y2
+		if(y1!=undefined)
+			line.y1=y1
 
 		const blocks=this.wrappees.reduce((collected,{props:{wrap}})=>{
 			const blocks=wrap(line)
@@ -427,31 +427,12 @@ class Columnable extends Fixed{
 			}
 		}
 
-		const wrappees=this.exclusive(y+minRequiredH)
-		if(y==wrappees.y){
-			delete wrappees.y
-		}
-
-		if(wrappees.y){
-
-			if(wrappees.y>this.currentColumn.y+this.currentColumn.height){
-				if(this.cols.length>this.columns.length){// new column
-					this.createColumn()
-					return this.nextAvailableSpace(required)
-				}else{
-					return false
-				}
-			}else{
-				return this.nextAvailableSpace({...required,y:wrappees.y})
-			}
-		}
-
 		return {
 			maxWidth:this.currentColumn.width,
 			width:this.currentColumn.width,
 			height:this.currentColumn.availableHeight,
 			frame:this,
-			wrappees
+			wrappees: this.exclusive(y, y+minRequiredH)
 		}
 	}
 
@@ -710,6 +691,16 @@ class PaginationControllable extends Balanceable{
 */
 class AnchorWrappable extends PaginationControllable{
 	static AnchorWrappable=AnchorWrappable
+
+	nextAvailableSpace(required={}){
+		const {height:minHeight=0,y=this.currentY}=required
+		const blocks=this.exclusive(y,y+minHeight)
+		if(blocks.y){
+			return this.nextAvailableSpace({...required,y:blocks.y})
+		}
+		return super.nextAvailableSpace(...arguments)
+	}
+
 	appendComposed(){
 		const appended=super.appendComposed(...arguments)
 		if(appended===false && //will create new page
@@ -737,9 +728,18 @@ class AnchorWrappable extends PaginationControllable{
 	**/
 	appendLine(line){
 		if(!line.props.anchor){
-			const {y}=this.exclusive(this.currentY+line.props.height)
-			if(y!=undefined){
-				return this.appendComposed(React.cloneElement(line, {height:y-this.currentY}))
+			const blocks=this.exclusive(this.currentY,this.currentY+line.props.height)
+			if(blocks.y){
+				const dy=blocks.y-this.currentY
+				if(this.currentColumn.children.length>0){
+					const last=this.currentColumn.children.pop()
+					this.currentColumn.children.push(React.cloneElement(last,{height:last.props.height+dy}))
+				}else{
+					return super.appendLine(React.cloneElement(line,{
+						height:line.props.height+dy,
+						children:<Group y={dy}>{line.props.children}</Group>
+					}))
+				}
 			}
 
 			return super.appendLine(...arguments)
