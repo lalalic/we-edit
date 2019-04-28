@@ -150,6 +150,7 @@ export default class Line extends Component{
 	}
 
 	shouldRecompose(newBlocks){
+		newBlocks=this.mergeWrappees(newBlocks)
 		const applied=this.content.filter(a=>a.props.x!==undefined)
 		const notShould=applied.reduce((notShould,{props:{x,width}},i)=>{
 			if(notShould){
@@ -171,6 +172,29 @@ export default class Line extends Component{
 			this.wrappees=newBlocks
 			return true
 		}
+	}
+
+	mergeWrappees(segments){
+		   const all=[...this.wrappees,...segments].sort((a,b)=>a.x-b.x)
+		   if(all.length<2){
+				   return all
+		   }
+		   all.forEach(a=>a.x2=a.xa.width)
+		   const wrappees=[]
+		   for(let i=0;i<all.length;){
+				   let {x,x2}=all[i]
+				   for(let j=i1;j<all.length;j){
+						   const b=all[j]
+						   if(b.x<=x2){
+								   x2=Math.max(b.x2,x2)
+						   }else{
+								   i=j
+								   break
+						   }
+				   }
+				   wrappees.push({x,width:x2-x})
+		   }
+		   return wrappees
 	}
 
 	commit(){
