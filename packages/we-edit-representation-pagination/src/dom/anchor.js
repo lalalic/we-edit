@@ -5,8 +5,7 @@ import {Group, Frame as ComposedFrame} from "../composed"
 import composable,{HasParentAndChild} from "../composable"
 import {dom, ReactQuery} from "we-edit"
 import Path from "../tool/path"
-const {Anchor:Base}=dom
-const Super=HasParentAndChild(Base)
+const Super=HasParentAndChild(dom.Anchor)
 
 
 /**
@@ -17,7 +16,8 @@ export default class extends Super{
     createComposed2Parent(content){
         var {width,height,geometry}=content.props
         const {margin:{left=0,right=0,top=0,bottom=0}={}, wrap:{mode}}=this.props
-        width+=(left+right), height+=(top+bottom)
+        this.width=width+=(left+right)
+        this.height=height+=(top+bottom)
 
         return (
             <Group width={0} height={0}
@@ -149,7 +149,13 @@ class page extends Positioning{
 }
 
 class margin extends page{
+    x({align,...val}){
+        return new Types[align+`Margin`](this.frame,this.anchor).x(val)
+    }
 
+    y({align,...val}){
+        return new Types[align+`Margin`](this.frame,this.anchor).y(val)
+    }
 }
 
 class insideMargin extends page{
@@ -192,6 +198,13 @@ class rightMargin extends page{
         const {margin:{right=0},width}=this.frame.props
         this.x0=width-right-this.anchor.width
     }
+
+    x({align,offset}){
+        if(!align && offset!=undefined){
+            return this.x0-offset
+        }
+        return super.x(...arguments)
+    }
 }
 
 //y only
@@ -215,6 +228,13 @@ class bottomMargin extends page{
         super(...arguments)
         const {margin:{bottom=0},height}=this.frame.props
         this.y0=height-bottom-this.anchor.height
+    }
+
+    y({align,offset}){
+        if(!align && offset!=undefined){
+            return this.y0-offset
+        }
+        return this.y(...arguments)
     }
 }
 
