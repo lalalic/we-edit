@@ -25,7 +25,15 @@ define("section compose",
     })
     const size={width:10,height:10}
     const pg={width:100,height:100, margin:{left:10,right:10,top:10,bottom:10}}
-    const test=(props,content)=>{
+    const test=(props,content=(
+            <Paragraph {...{id:uuid++}}>
+                <Text id={uuid++}>hello</Text>
+                <Anchor {...{id:"anchor",wrap:{}, x:{base:"page"}, y:{base:"page"}, ...props}}>
+                    <Shape {...{...size, id:uuid++}}/>
+                </Anchor>
+                <Text id={uuid++}>world</Text>
+            </Paragraph>)
+        )=>{
         var page
         document.appendComposed=jest.fn(p=>page=p)
         const rendered=render(
@@ -33,14 +41,7 @@ define("section compose",
                 <Page {...{...pg, id:uuid++}}>
                     <WithParagraphContext>
                         <WithTextContext>
-                            <Paragraph {...{id:uuid++}}>
-                                <Text id={uuid++}>hello</Text>
-                                <Anchor {...{id:"anchor",wrap:{}, x:{base:"page"}, y:{base:"page"}, ...props}}>
-                                    <Shape {...{...size, id:uuid++}}/>
-                                </Anchor>
-                                <Text id={uuid++}>world</Text>
-                                {content}
-                            </Paragraph>
+                            {content}
                         </WithTextContext>
                     </WithParagraphContext>
                 </Page>
