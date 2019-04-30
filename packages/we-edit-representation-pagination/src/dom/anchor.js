@@ -21,8 +21,8 @@ export default class extends Super{
 
         return (
             <Group width={0} height={0}
-                anchor={frame=>{
-                    var {x,y}=this.xy(frame)
+                anchor={(frame,line)=>{
+                    var {x,y}=this.xy(frame,line)
                     x=x-left, y=y-top
 
                     const wrap=(fn=>{
@@ -51,11 +51,21 @@ export default class extends Super{
         )
     }
 
-    xy(frame){
-        const {x,y}=this.props
+    xy(frame,line){
+        const {x,y, xy}=this.props
+        if(xy){
+            return xy(this.props, frame, line)
+        }
+        const PositionX=Types[x.base]
+        const PositionY=Types[y.base]
+        if(!PositionX || !PositionY){
+            console.error(`anchor[x.base="${x.base}",y.base="${y.base}"] is not supported`)
+            return {x:0,y:0}
+        }
+
         return {
-            x:new (Types[x.base])(frame,this).x(x),
-            y:new (Types[y.base])(frame,this).y(y)
+            x:new PositionX(frame,this,line).x(x),
+            y:new PositionY(frame,this,line).y(y)
         }
     }
 
@@ -123,14 +133,14 @@ class Positioning{
         this.y0=0
     }
 
-    x({align, offset}){
+    x({align, offset=0}){
         if(align)
             return this[`x_${align}`]()
         else
             return this.x0+offset
     }
 
-    y({align, offset}){
+    y({align, offset=0}){
         if(align)
             return this[`y_${align}`]()
         else
@@ -158,14 +168,6 @@ class margin extends page{
     }
 }
 
-class insideMargin extends page{
-
-}
-
-class outsideMargin extends page{
-
-}
-
 //x only
 class column extends page{
     constructor(){
@@ -178,9 +180,12 @@ class column extends page{
 
 
 class character extends column{
-    constructor(){
+    constructor(frame,anchor,line){
         super(...arguments)
-        this.y0+=this.frame.currentY
+        const {first,parents}=new ReactQuery(line).findFirstAndParents(`[data-content="${this.anchor.props.id}"]`)
+        debugger
+        const dx=[...parents,first.get(0)].reduce((X,{props:{x=0}})=>X+x,0)
+        this.x0+=dx
     }
 }
 
@@ -209,9 +214,9 @@ class rightMargin extends page{
 
 //y only
 class paragraph extends column{
-    constructor(){
+    constructor(frame,anchor, line){
         super(...arguments)
-        this.y0+=this.frame.paragraphY(new ReactQuery(this.frame.lastLine).findFirst('[data-type="paragraph"]').attr("data-content"))
+        this.y0+=this.frame.paragraphY(new ReactQuery(line).findFirst('[data-type="paragraph"]').attr("data-content"))
     }
 }
 
@@ -241,12 +246,12 @@ class bottomMargin extends page{
 class line extends column{
     constructor(){
         super(...arguments)
-        this.y0+=this.frame.currentY
+        this.y0=this.frame.currentY
     }
 }
 
 const Types={
-    page,column,paragraph,line,character,
-    margin, leftMargin, rightMargin, topMargin, bottomMargin,
-    outsideMargin, insideMargin
+    page,margin,//both x and y
+    column,character,leftMargin, rightMargin, //only x
+    paragraph,line,topMargin, bottomMargin, //only y
 }

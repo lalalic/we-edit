@@ -23,39 +23,43 @@ define("section compose",
             getMyBreakOpportunities:jest.fn(),
         }
     })
-    describe("position",()=>{
-        const size={width:10,height:10}
-        const pg={width:100,height:100, margin:{left:10,right:10,top:10,bottom:10}}
-        const test=(props,content)=>{
-            var page
-            document.appendComposed=jest.fn(p=>page=p)
-            const rendered=render(
-                <Context>
-                    <Page {...{...pg, id:uuid++}}>
-                        <WithParagraphContext>
-                            <WithTextContext>
-                                <Paragraph {...{id:uuid++}}>
-                                    <Anchor {...{id:"anchor",wrap:{}, x:{base:"page"}, y:{base:"page"}, ...props}}>
-                                        <Shape {...{...size, id:uuid++}}/>
-                                    </Anchor>
-                                    {content}
-                                </Paragraph>
-                            </WithTextContext>
-                        </WithParagraphContext>
-                    </Page>
-                </Context>
-            )
+    const size={width:10,height:10}
+    const pg={width:100,height:100, margin:{left:10,right:10,top:10,bottom:10}}
+    const test=(props,content)=>{
+        var page
+        document.appendComposed=jest.fn(p=>page=p)
+        const rendered=render(
+            <Context>
+                <Page {...{...pg, id:uuid++}}>
+                    <WithParagraphContext>
+                        <WithTextContext>
+                            <Paragraph {...{id:uuid++}}>
+                                <Text id={uuid++}>hello</Text>
+                                <Anchor {...{id:"anchor",wrap:{}, x:{base:"page"}, y:{base:"page"}, ...props}}>
+                                    <Shape {...{...size, id:uuid++}}/>
+                                </Anchor>
+                                <Text id={uuid++}>world</Text>
+                                {content}
+                            </Paragraph>
+                        </WithTextContext>
+                    </WithParagraphContext>
+                </Page>
+            </Context>
+        )
 
-            expect(document.appendComposed).toHaveBeenCalled()
-            expect(page).toBeDefined()
-            const {first,parents}=new ReactQuery(page.render()).findFirstAndParents('[data-type="anchor"]')
-            expect(first.length).toBe(1)
-            return {
-                x:()=>([...parents,first.get(0)].reduce((X,{props:{x=0}})=>X+x,0)),
-                y:()=>([...parents,first.get(0)].reduce((Y,{props:{y=0}})=>Y+y,0)),
-            }
-
+        expect(document.appendComposed).toHaveBeenCalled()
+        expect(page).toBeDefined()
+        const renderedPage=page.render()
+        const {first,parents}=new ReactQuery(renderedPage).findFirstAndParents('[data-type="anchor"]')
+        expect(first.length).toBe(1)
+        return {
+            page:renderedPage,
+            x:()=>([...parents,first.get(0)].reduce((X,{props:{x=0}})=>X+x,0)),
+            y:()=>([...parents,first.get(0)].reduce((Y,{props:{y=0}})=>Y+y,0)),
         }
+
+    }
+    describe("position",()=>{
         describe("x",()=>{
             it("{base:'page', offset:1} should anchored at offset",()=>{
                 expect(test({x:{base:"page",offset:1}}).x()).toBe(1)
@@ -66,12 +70,18 @@ define("section compose",
                 expect(test({x:{base:"margin",align:"right",offset:1}}).x()).toBe(pg.width-pg.margin.right-size.width-1)
             })
 
-            it("{base:'column', offset:1} should anchored at x=1",()=>{
-
+            it("{base:'column', offset:1} should anchored at x=col.x+1",()=>{
+                try{
+                    const col={x:20,width:40}
+                    pg.cols=[col]
+                    expect(test({x:{base:"column",offset:1}}).x()).toBe(col.x+1)
+                }finally{
+                    delete pg.cols
+                }
             })
 
             it("{base:'character', offset:1} should anchored at x=1",()=>{
-
+                expect(test({x:{base:"character",offset:1}}).x()).toBe(pg.margin.left+"hello".length+1)
             })
 
             it("{base:'leftMargin', offset:1} should anchored at leftMargin+offset",()=>{
@@ -82,8 +92,9 @@ define("section compose",
                 expect(test({x:{base:"rightMargin",offset:1}}).x()).toBe(pg.width-pg.margin.right-size.width-1)
             })
 
-            it("unsupported base should not anchor",()=>{
-
+            it("unsupported base would always anchor at 0",()=>{
+                console.error=jest.fn()
+                expect(test({x:{base:"unknown",offset:1}}).x()).toBe(0)
             })
         })
 
@@ -97,12 +108,12 @@ define("section compose",
                 expect(test({y:{base:"margin",align:"bottom",offset:1}}).y()).toBe(pg.height-pg.margin.bottom-size.height-1)
             })
 
-            it("{base:'paragraph', offset:1} should anchored",()=>{
-
+            it("{base:'paragraph', offset:1} should anchored at the first paragraph line of current page",()=>{
+                expect(test({y:{base:"paragraph",offset:1}}).y()).toBe(pg.margin.top+1)
             })
 
-            it("{base:'line', offset:1} should anchored",()=>{
-
+            it("{base:'line', offset:1} should anchored at current line y",()=>{
+                expect(test({y:{base:"line",offset:1}}).y()).toBe(pg.margin.top+1)
             })
 
             it("{base:'topMargin', offset:1} should anchored",()=>{
@@ -114,14 +125,17 @@ define("section compose",
             })
 
             it("unsupported base should not anchor",()=>{
-
+                console.error=jest.fn()
+                expect(test({y:{base:"unknown",offset:1}}).y()).toBe(0)
             })
         })
     })
 
     describe("wrap",()=>{
-        it("Square should around rect boundary",()=>{
-            
+        xit("Square should around rect boundary",()=>{
+            const {x,y,page}=test({x:{base:"character"},y:{base:"line"},wrap:{mode:"Square"}})
+            expect(x()).toBe(pg.margin.left+"hello".length)
+            expect(y()).toBe(pg.margin.top)
         })
 
         it("Tight should around geometry right and left boundary",()=>{

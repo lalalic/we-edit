@@ -46,6 +46,7 @@ export default class AnchorWrappable extends PaginationControllable{
 		>current paragraph composing process should continue by rollback line, and start next page
 	**/
 	appendLine(line){
+		debugger
 		if(!line.props.anchor){
 			const blocks=this.exclusive(this.currentY,this.currentY+line.props.height)
 			if(blocks.y){
@@ -67,7 +68,7 @@ export default class AnchorWrappable extends PaginationControllable{
 			columns:this.columns.reduce((cloned,a)=>[...cloned,{...a,children:[...a.children]}],[]),
 		}
 
-		const anchored=line.props.anchor(this)
+		const anchored=line.props.anchor(this,line)
 		const {wrap,geometry,"data-content":anchorId}=anchored.props
 
 		try{
