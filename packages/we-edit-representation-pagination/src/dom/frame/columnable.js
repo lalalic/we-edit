@@ -166,13 +166,14 @@ export default class Columnable extends Fixed{
 			width:this.currentColumn.width,
 			height:this.currentColumn.availableHeight,
 			frame:this,
-			wrappees: this.exclusive(y, y+minRequiredH)
+			wrappees: this.exclusive(y, y+minRequiredH),
+			y
 		}
 	}
 
 	appendComposed(line){
 		const {height:contentHeight, x, y,width}=line.props
-		if(x!=undefined || y!=undefined){//anchored
+		if(x!=undefined && y!=undefined){//anchored
 			this.computed.composed.push(line)
 			return
 		}else if(contentHeight-this.currentColumn.availableHeight>1){//can't hold

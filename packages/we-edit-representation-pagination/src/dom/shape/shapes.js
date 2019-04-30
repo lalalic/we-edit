@@ -1,4 +1,5 @@
 import React,{Component} from "react"
+import memoize from "memoize-one"
 import {Group} from "../../composed"
 
 import Path from "../../tool/path"

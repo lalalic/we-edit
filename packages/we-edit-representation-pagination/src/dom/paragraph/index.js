@@ -197,7 +197,7 @@ export default class Paragraph extends Super{
                 if(Number.isInteger(next)){//current line compose is not correct for avaiable space
                     const current=this.currentLine
                     this.rollbackLines(1)
-                    this.createLine({height:current.lineHeight()})
+                    this.createLine(current.required)
                     i=next
                     continue
                 }else if(next===false){//current line is full, atoms[i] not assembled, try to commit line
@@ -275,7 +275,7 @@ export default class Paragraph extends Super{
 	}
 
 	createComposed2Parent(line,last){
-		var {height, width, children, anchor,currentX,...others}=line
+		var {height, width, children, anchor,composedAt, currentX,...others}=line
 		const content=[...children]
 		let contentWidth=currentX
         let {
@@ -312,7 +312,8 @@ export default class Paragraph extends Super{
 		const pagination={orphan,widow,keepWithNext,keepLines, i:this.computed.composed.length,last}
 
         return (
-            <Group height={lineHeight} width={contentX+width} className="line" pagination={pagination} anchor={anchor}>
+            <Group height={lineHeight} width={contentX+width} className="line"
+                pagination={pagination} anchor={anchor} composedAt={composedAt}>
                 <Group x={contentX} y={contentY} width={width} height={height}>
 					{new this.constructor.Story({children:content,align,width,contentWidth}).render()}
                 </Group>

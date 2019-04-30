@@ -186,17 +186,14 @@ export default class Fixed extends Super{
 		if(y1!=undefined)
 			line.y1=y1
 
-		const blocks=this.wrappees.reduce((collected,{props:{wrap}})=>{
+		return this.wrappees.reduce((collected,{props:{wrap}})=>{
 			const blocks=wrap(line)
 			collected.splice(collected.length,0,...(Array.isArray(blocks) ? blocks : [blocks]))
 			return collected
-		},[]).filter(a=>!!a).map(a=>(a.x-=line.x1,a))
- 		const clears=blocks.filter(a=>a.y!=undefined).map(a=>a.y)
-		if(clears && clears.length){
-			blocks.y=Math.max(line.y2, ...clears)
-		}
-
-		return blocks
+		},[])
+			.filter(a=>!!a)
+			.filter(a=>a.width>0)
+			.map(a=>(a.x-=line.x1,a))
 	}
 
 	recompose(){

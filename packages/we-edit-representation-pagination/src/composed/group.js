@@ -10,7 +10,7 @@ export default class Group extends Component{
 		x:PropTypes.number,
 		y:PropTypes.number,
 	}
-	
+
     render(){
 		let {
 			innerRef, //for waypoint
@@ -18,7 +18,8 @@ export default class Group extends Component{
 			x=0,y=0,
 			children,
 			background,
-			margin,minWidth, width, height, index, childIndex, contentWidth,wrap,pagination,anchor,currentY,named,descent,replaceable, spaceHeight,
+			margin,minWidth, width, height, index, childIndex,
+			contentWidth,wrap,pagination,anchor,currentY,named,descent,replaceable, spaceHeight,composedAt,
 			className,
 			...others}=this.props
 

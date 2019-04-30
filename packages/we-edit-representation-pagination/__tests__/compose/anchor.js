@@ -8,7 +8,7 @@ import {define} from "./index"
 define("section compose",
 ({dom, testing, WithTextContext, WithParagraphContext, uuid=0})=>{
     const {Page,Frame, Paragraph, Text, Anchor, Shape}=dom
-    const document={}
+    const document={get computed(){}}
     const Context=context({
         contextTypes:{
             parent:PropTypes.any,
@@ -25,6 +25,7 @@ define("section compose",
     })
     const size={width:10,height:10}
     const pg={width:100,height:100, margin:{left:10,right:10,top:10,bottom:10}}
+    const baseline=9
     const test=(props,content=(
             <Paragraph {...{id:uuid++}}>
                 <Text id={uuid++}>hello</Text>
@@ -51,12 +52,18 @@ define("section compose",
         expect(document.appendComposed).toHaveBeenCalled()
         expect(page).toBeDefined()
         const renderedPage=page.render()
-        const {first,parents}=new ReactQuery(renderedPage).findFirstAndParents('[data-type="anchor"]')
-        expect(first.length).toBe(1)
+        const $page=new ReactQuery(renderedPage)
+        const xy=(selector)=>{
+            const {first,parents}=$page.findFirstAndParents(selector)
+            expect(first.length).toBe(1)
+            return [...parents,first.get(0)].reduce((xy,{props:{x=0,y=0}})=>(xy.x+=x,xy.y+=y,xy),{x:0,y:0})
+        }
+        const anchorXY=xy('[data-type="anchor"]')
         return {
-            page:renderedPage,
-            x:()=>([...parents,first.get(0)].reduce((X,{props:{x=0}})=>X+x,0)),
-            y:()=>([...parents,first.get(0)].reduce((Y,{props:{y=0}})=>Y+y,0)),
+            $page,
+            xy,
+            x:()=>anchorXY.x,
+            y:()=>anchorXY.y,
         }
 
     }
@@ -133,14 +140,52 @@ define("section compose",
     })
 
     describe("wrap",()=>{
-        xit("Square should around rect boundary",()=>{
-            const {x,y,page}=test({x:{base:"character"},y:{base:"line"},wrap:{mode:"Square"}})
-            expect(x()).toBe(pg.margin.left+"hello".length)
-            expect(y()).toBe(pg.margin.top)
+        it("Square should around rect boundary",()=>{
+            const props={x:{base:"page",offset:16},y:{base:"page",offset:12},wrap:{mode:"Square"}}
+
+            const doc1=test(props)
+            expect(doc1.xy(`[children="hello"]`).x).toBe(pg.margin.left)
+            expect(doc1.xy(`[children="world"]`).x).toBe(props.x.offset+size.width)
+
+            const doc2=test({...props, x:{base:"page",offset:2}})
+            expect(doc2.xy(`[children="hello"]`).x).toBe(12)
+            expect(doc2.xy(`[children="world"]`).x).toBe(12+5)
+
+            const doc3=test({...props, x:{base:"character"}, y:{base:"line"}})
+            expect(doc3.xy(`[children="hello"]`).x).toBe(pg.margin.left)
+            expect(doc3.xy(`[children="world"]`).x).toBe(pg.margin.left+"hello".length+size.width)
         })
 
-        it("Tight should around geometry right and left boundary",()=>{
+        it("anchor content bigger than line/column/page should work like TopAndBottom",()=>{
+            try{
+                size.width=90
+                const props={x:{base:"page",offset:12},y:{base:"page",offset:12},wrap:{mode:"Square"}}
+                const doc1=test(props)
+                const y=props.y.offset+size.height+baseline
+                expect(doc1.xy(`[children="hello"]`)).toMatchObject({y,x:pg.margin.left})
+                expect(doc1.xy(`[children="world"]`)).toMatchObject({y,x:pg.margin.left+"hello".length})
+            }finally{
+                size.width=10
+            }
+        })
 
+        xit("Tight should around geometry right and left boundary",()=>{
+            const computed=jest.spyOn(document,'computed','get')
+            computed.mockReturnValue({composed:[]})
+            const content=(x,y)=>(
+                <Paragraph {...{id:uuid++}}>
+                    <Text id={uuid++}>hello</Text>
+                    <Anchor {...{id:"anchor",x:{base:"page",x},y:{base:"page",y},wrap:{mode:"Tight"}}}>
+                        <Shape {...{width:20,height:20, geometry:"M10 0L0 20 20 20Z", id:uuid++}}/>
+                    </Anchor>
+                    <Text id={uuid++}>world</Text>
+                </Paragraph>
+            )
+            const doc1=test(undefined,content(10,10))
+            expect(doc1.xy(`[children="hello"]`)).toMatchObject({x:pg.margin.left,y:pg.margin.top+baseline})
+
+            const doc2=test(undefined,content(0,5))
+            expect(doc2.xy(`[children="hello"]`)).toMatchObject({x:pg.margin.left,y:pg.margin.top+baseline})
         })
 
         it("Through should around geometry boundary including inside of left and right margin",()=>{
@@ -148,6 +193,12 @@ define("section compose",
         })
 
         it("TopAndBottom should occupy whole line",()=>{
+            const props={x:{base:"page",offset:16},y:{base:"page",offset:12},wrap:{mode:"TopAndBottom"}}
+
+            const doc1=test(props)
+            expect(doc1.xy(`[children="hello"]`).x).toBe(pg.margin.left)
+            expect(doc1.xy(`[children="world"]`).x).toBe(pg.margin.left+"hello".length)
+            expect(doc1.xy(`[children="hello"]`).y).toBe(props.y.offset+size.height+baseline)
 
         })
 
@@ -160,20 +211,35 @@ define("section compose",
         })
 
         describe("text",()=>{
-            it("right",()=>{
-
-            })
-
             it("left",()=>{
-
+                const doc1=test({wrap:{wrapText:"left", mode:"Square"},x:{base:"page",offset:16},y:{base:"page",offset:12}})
+                expect(doc1.xy(`[children="hello"]`)).toMatchObject({x:pg.margin.left,y:pg.margin.top+baseline})
+                expect(doc1.xy(`[children="world"]`)).toMatchObject({x:pg.margin.left,y:pg.margin.top+10+baseline})
             })
 
             it("both",()=>{
-
+                const doc1=test({wrap:{wrapText:"both", mode:"Square"},x:{base:"page",offset:16},y:{base:"page",offset:12}})
+                expect(doc1.xy(`[children="hello"]`)).toMatchObject({x:pg.margin.left,y:pg.margin.top+baseline})
+                expect(doc1.xy(`[children="world"]`)).toMatchObject({x:16+size.width,y:pg.margin.top+baseline})
             })
 
-            it("largest",()=>{
 
+            it("right",()=>{
+                const doc1=test({wrap:{wrapText:"right", mode:"Square"},x:{base:"page",offset:16},y:{base:"page",offset:12}})
+                expect(doc1.xy(`[children="hello"]`)).toMatchObject({x:16+size.width,y:pg.margin.top+baseline})
+                expect(doc1.xy(`[children="world"]`)).toMatchObject({x:16+size.width+"hello".length,y:pg.margin.top+baseline})
+            })
+
+            it("largest at right",()=>{
+                const doc1=test({wrap:{wrapText:"largest", mode:"Square"},x:{base:"page",offset:16},y:{base:"page",offset:12}})
+                expect(doc1.xy(`[children="hello"]`)).toMatchObject({x:16+size.width,y:pg.margin.top+baseline})
+                expect(doc1.xy(`[children="world"]`)).toMatchObject({x:16+size.width+"hello".length,y:pg.margin.top+baseline})
+            })
+
+            it("largest at left",()=>{
+                const doc1=test({wrap:{wrapText:"largest", mode:"Square"},x:{base:"page",offset:50},y:{base:"page",offset:12}})
+                expect(doc1.xy(`[children="hello"]`)).toMatchObject({x:pg.margin.left,y:pg.margin.top+baseline})
+                expect(doc1.xy(`[children="world"]`)).toMatchObject({x:pg.margin.left+"hello".length,y:pg.margin.top+baseline})
             })
         })
     })

@@ -6,7 +6,7 @@ export class Text extends Component{
 	render(){
 		const {
 			children, whiteSpace, color:fill, highlight,border,underline,strike,
-			descent,minWidth, height, width, //ignore
+			descent,minWidth, height, width, composedAt,//ignore
 			y,
 			...others}=this.props
 
@@ -48,9 +48,9 @@ export class Text extends Component{
 				{background}
 				{strikeline}
 				{decoration}
-				<text style={{userSelect:"none",whiteSpace:"pre",cursor:"text"}} 
+				<text style={{userSelect:"none",whiteSpace:"pre",cursor:"text"}}
 					y={y}
-					{...others} 
+					{...others}
 					fill={fill}>
 					{children}
 				</text>

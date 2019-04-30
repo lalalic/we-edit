@@ -72,11 +72,11 @@ export default class extends Super{
     applyWrapText(x1,x2, x, X){
         const {wrap:{wrapText}}=this.props
         const get=type=>{
-            switch(wrapText){
+            switch(type){
             case "left":
                 return {x,width:x2-x}
             case "right":
-                return {x:X,width:x2-X}
+                return {x:x1,width:X-x1}
             case "largest":
                 return get((x-x1)>=(x2-X) ? "left" : "right")
             default:
@@ -87,18 +87,21 @@ export default class extends Super{
         return get(wrapText)
     }
 
-    wrapSquare({x1,x2,y2:y},geometry){
+    wrapSquare({x1,x2,y2:y,y1=y},geometry){
         const {wrap:{mode, wrapText}}=this.props
         const {left,top,right,bottom}=geometry.bounds()
         if(y>=top && y<=bottom){
             if(!(x2<=left || x1>=right)){
-                return this.applyWrapText(x1,x2,Math.max(x1,left),Math.min(x2,right))
+                if(y1!==bottom){
+                    return Object.assign(this.applyWrapText(x1,x2,left, right),{y:bottom})
+                }
             }
         }
     }
 
-    wrapTight({x1,x2},geometry){
-        const points=geometry.intersects(line)
+    wrapTight(line,geometry){
+        const {x1,x2, y2}=line
+        const points=geometry.intersects({x1,x2,y2,y1:y2}).sort((a,b)=>a.x-b.x)
         if(points.length>2){
             points.splice(1,points.length-1-1)
         }
@@ -115,7 +118,7 @@ export default class extends Super{
         const {left,top,right,bottom}=geometry.bounds()
         if(y>=top && y<=bottom){
             if(y1!==bottom){
-                return {x:x1,width:x2-x1,y:bottom}
+                return {x:x1,width:x2-x1,y:bottom,type:"clear"}
             }
         }
     }
@@ -183,7 +186,6 @@ class character extends column{
     constructor(frame,anchor,line){
         super(...arguments)
         const {first,parents}=new ReactQuery(line).findFirstAndParents(`[data-content="${this.anchor.props.id}"]`)
-        debugger
         const dx=[...parents,first.get(0)].reduce((X,{props:{x=0}})=>X+x,0)
         this.x0+=dx
     }

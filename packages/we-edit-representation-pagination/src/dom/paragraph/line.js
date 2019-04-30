@@ -6,11 +6,12 @@ import {ReactQuery} from "we-edit"
 import {Group} from "../../composed"
 
 export default class Line extends Component{
-	constructor({width,maxWidth,height,wrappees=[]}){
+	constructor({width,maxWidth,height,wrappees=[],y}){
 		super(...arguments)
 		this.maxWidth=maxWidth
 		this.content=[]
 		this.wrappees=wrappees
+		this.composedAt=y
 		Object.defineProperties(this,{
 			height:{
 				enumerable:true,
@@ -87,7 +88,7 @@ export default class Line extends Component{
 	}
 
 	isEmpty(){
-		return this.children.length==0
+		return !!!this.first
 	}
 
 	hasEqualSpace({width,maxWidth,wrappees=[]}){
@@ -101,6 +102,7 @@ export default class Line extends Component{
 
 	appendComposed(atom,at){
 		const {width,minWidth=parseInt(width),anchor}=atom.props
+		debugger
 		if(anchor){
 			const $anchor=new ReactQuery(atom).findFirst('[data-type="anchor"]')
 			const anchorId=$anchor.attr("data-content")
@@ -126,14 +128,20 @@ export default class Line extends Component{
 					this.content.push(atom)
 					let newHeight=this.lineHeight()
 					if(height!=newHeight){
-						const newBlocks=this.context.parent.nextAvailableSpace({height:newHeight}).wrappees
-						if(newBlocks && newBlocks.length>0 && this.shouldRecompose(newBlocks)){
+						const {wrappees,y}=this.context.parent.nextAvailableSpace({height:newHeight,y:this.composedAt})
+						this.composedAt=y
+						if(wrappees && wrappees.length>0 && this.shouldRecompose(wrappees)){
 							const flowCount=this.content.reduce((count,a)=>a.props.x==undefined ? count+1 : count,0)
-							at=at-flowCount
+							at=at-flowCount+1
+							this.required={height:newHeight}
 							return at
 						}
 					}
 					return
+				}else if(this.isEmpty()){
+					this.content.push(atom)
+					this.required={width:minWidth,height:this.lineHeight()}
+					return at
 				}else{
 					return false
 				}
@@ -174,26 +182,25 @@ export default class Line extends Component{
 	}
 
 	mergeWrappees(segments){
-		   const all=[...this.wrappees,...segments].sort((a,b)=>a.x-b.x)
-		   if(all.length<2){
-				   return all
+	   const all=[...this.wrappees,...segments].sort((a,b)=>a.x-b.x)
+	   if(all.length<2){
+		   return all
+	   }
+	   all.forEach(a=>a.x2=a.x+a.width)
+	   const wrappees=[]
+	   for(let i=0;i<all.length;){
+		   let {x,x2}=all[i]
+		   for(let j=++i;j<all.length;j++,i++){
+			   const b=all[j]
+			   if(b.x<=x2){
+				   x2=Math.max(b.x2,x2)
+			   }else{
+				   break
+			   }
 		   }
-		   all.forEach(a=>a.x2=a.x.width)
-		   const wrappees=[]
-		   for(let i=0;i<all.length;){
-				   let {x,x2}=all[i]
-				   for(let j=i+1;j<all.length;j){
-						   const b=all[j]
-						   if(b.x<=x2){
-								   x2=Math.max(b.x2,x2)
-						   }else{
-								   i=j
-								   break
-						   }
-				   }
-				   wrappees.push({x,width:x2-x})
-		   }
-		   return wrappees
+		   wrappees.push({x,width:x2-x})
+	   }
+	   return wrappees
 	}
 
 	commit(){
