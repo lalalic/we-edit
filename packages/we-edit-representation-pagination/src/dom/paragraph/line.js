@@ -102,7 +102,6 @@ export default class Line extends Component{
 
 	appendComposed(atom,at){
 		const {width,minWidth=parseInt(width),anchor}=atom.props
-		debugger
 		if(anchor){
 			const $anchor=new ReactQuery(atom).findFirst('[data-type="anchor"]')
 			const anchorId=$anchor.attr("data-content")

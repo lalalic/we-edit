@@ -64,7 +64,6 @@ export default class AnchorWrappable extends PaginationControllable{
 		>current paragraph composing process should continue by rollback line, and start next page
 	**/
 	appendLine(line){
-		debugger
 		if(!line.props.anchor){
 			if(line.props.composedAt!=undefined){
 				const dy=line.props.composedAt-this.currentY

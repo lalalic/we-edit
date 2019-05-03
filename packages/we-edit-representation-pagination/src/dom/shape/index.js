@@ -53,6 +53,7 @@ export default class Shape extends Super{
 		if(rotate){
 			const {x,y}=path.center()
 			const a=path.bounds()
+			
 			path.rotate(rotate, x, y)
 			rotate=`${rotate} ${x} ${y}`
 
@@ -60,6 +61,7 @@ export default class Shape extends Super{
 			translate.x=parseInt(a.left-b.left)
 			translate.y=parseInt(a.top-b.top)
 			path.translate(translate.x, translate.y)
+			path.origin={x:translate.x,y:translate.y}
 		}
 
 		if(scale){
@@ -70,6 +72,8 @@ export default class Shape extends Super{
 		const {width,height}=path.size(strokeWidth)
 		return (
 			<Group {...{width,height, geometry:path}}>
+				{/*<path d={`M0 0L${width}  0 ${width} ${height} 0 ${height}Z`} 
+					stroke="red" strokeWidth="2" fill="none"/>*/}
 				<Group {...{scale, rotate, ...translate}}>
 					{shape}
 				</Group>

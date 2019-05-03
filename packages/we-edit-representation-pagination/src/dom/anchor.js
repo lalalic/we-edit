@@ -24,19 +24,23 @@ export default class extends Super{
                 anchor={(frame,line)=>{
                     var {x,y}=this.xy(frame,line)
                     x=x-left, y=y-top
+                    if(geometry && geometry.origin){
+                        x-=geometry.origin.x
+                        y-=geometry.origin.y
+                    }
 
                     const wrap=(fn=>{
                         if(fn){
                             if(mode=="Square" || mode=="TopAndBottom"){
                                 return line=>fn.call(this, line, {bounds:()=>({left:x,top:y,right:x+width,bottom:y+height})})
                             }
-                            return line=>fn.call(this, line, Object.create(geometry).translate(x,y))
+                            return line=>fn.call(this, line, geometry.clone().translate(x,y))
                         }
                     })(this[`wrap${mode}`]);
 
                     return (
                         <Group {...{
-                            x,y,width,height,
+                            x,y,
                             wrap,
                             geometry:{x,y,width,height},
                             "data-content":this.props.id,"data-type":this.getComposeType()}}>
@@ -88,25 +92,26 @@ export default class extends Super{
     }
 
     wrapSquare({x1,x2,y2:y,y1=y},geometry){
-        const {wrap:{mode, wrapText}}=this.props
+        const {wrap:{mode, wrapText},margin:{right:mr=0, left:ml=0}}=this.props
         const {left,top,right,bottom}=geometry.bounds()
         if(y>=top && y<=bottom){
             if(!(x2<=left || x1>=right)){
                 if(y1!==bottom){
-                    return Object.assign(this.applyWrapText(x1,x2,left, right),{y:bottom})
+                    return Object.assign(this.applyWrapText(x1,x2,left-ml, right+mr),{y:bottom})
                 }
             }
         }
     }
 
     wrapTight(line,geometry){
+        const {margin:{left=0,right=0}}=this.props
         const {x1,x2, y2}=line
         const points=geometry.intersects({x1,x2,y2,y1:y2}).sort((a,b)=>a.x-b.x)
         if(points.length>2){
             points.splice(1,points.length-1-1)
         }
         if(points.length>0){
-            return this.applyWrapText(x1,x2,points[0].x,points.pop().x)
+            return this.applyWrapText(x1,x2,points[0].x-left,points.pop().x+right)
         }
     }
 

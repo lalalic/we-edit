@@ -70,6 +70,9 @@ function line_line_intersect(line1, line2) {
 	var pt_x_num = (x1*y2 - y1*x2) * (x3 - x4) - (x1 - x2) * (x3*y4 - y3*x4);
 	var pt_y_num = (x1*y2 - y1*x2) * (y3 - y4) - (y1 - y2) * (x3*y4 - y3*x4);
 	if (pt_denom == 0) {
+		if(pt_x_num==0 && pt_y_num==0){//overlapped
+			
+		}
 		//return "parallel"
 	}else{
 		var pt = {
