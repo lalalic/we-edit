@@ -13,7 +13,11 @@ export default class AnchorWrappable extends PaginationControllable{
 
 	nextAvailableSpace(required={}){
 		const {width:minWidth=0, height:minHeight=0}=required
-		const {wrappees, width, ...space}=super.nextAvailableSpace(...arguments)
+		const availableSpace=super.nextAvailableSpace(...arguments)
+		if(availableSpace==false){
+			return false
+		}
+		const {wrappees, width, ...space}=availableSpace
 		if(Array.isArray(wrappees) && wrappees.length>0){
 			const clears=wrappees.filter(a=>a.type=="clear")
 			if(clears.length){

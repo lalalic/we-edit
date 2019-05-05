@@ -87,9 +87,13 @@ export default class extends Super{
 			width=cols[0].width
 		}else if(this.cellId(this.currentColumn[0])==requiredId){
 			if(this.ranks<this.currentColumn.length+1){
-				if(1==this.context.parent.appendComposed(this.createComposed2Parent())){
-					//could it happen?
-					console.error(`row[${this.props.id}] can't be appended with rollback again, ignore`)
+				debugger
+				const rank=this.createComposed2Parent()
+				if(1==this.context.parent.appendComposed(rank)){
+					if(1==this.context.parent.appendComposed(rank)){
+						//could it happen?
+						console.error(`row[${this.props.id}] can't be appended with rollback again, ignore`)
+					}
 				}
 				const space=super.nextAvailableSpace(...arguments)
 				this.computed.spaces.push(space)
@@ -140,9 +144,12 @@ export default class extends Super{
 			for(let i=unappendedCount;i>0;i--)
 				this.currentColumn.push(null)
 
-			if(1==this.context.parent.appendComposed(this.createComposed2Parent(true))){
-				//could it happen?
-				console.error(`row[${this.props.id}] can't be appended with rollback again, ignore`)
+			const lastRank=this.createComposed2Parent(true)
+			if(1==this.context.parent.appendComposed(lastRank)){
+				if(1==this.context.parent.appendComposed(lastRank)){
+					//could it happen?
+					console.error(`row[${this.props.id}] can't be appended with rollback again, ignore`)
+				}
 			}
 			if(unappendedCount>0){
 				this.currentColumn.splice(-unappendedCount)

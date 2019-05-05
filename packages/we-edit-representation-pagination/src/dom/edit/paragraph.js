@@ -305,7 +305,7 @@ class Positionable extends Editable{
 			return true
 		}else if(same("row")){
 			return false
-		}else{//same row
+		}else{//next row
 			let cell=parents.findLast(a=>a.props["data-type"]=="cell")
 			if(cell){//still in table
 				//same column

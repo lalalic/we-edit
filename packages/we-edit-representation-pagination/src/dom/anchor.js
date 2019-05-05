@@ -92,7 +92,7 @@ export default class extends Super{
     }
 
     wrapSquare({x1,x2,y2:y,y1=y},geometry){
-        const {wrap:{mode, wrapText},margin:{right:mr=0, left:ml=0}}=this.props
+        const {wrap:{mode, wrapText},margin:{right:mr=0, left:ml=0}={}}=this.props
         const {left,top,right,bottom}=geometry.bounds()
         if(y>=top && y<=bottom){
             if(!(x2<=left || x1>=right)){
