@@ -7,7 +7,7 @@ export default dom=>{
         static displayName="image"
 
         static asStyle(){
-            const {blipFill:{url}, width,height,id,changed,children,...outline}=Super.asStyle(...arguments)
+            const {blipFill:{url}={}, width,height,id,changed,children,...outline}=Super.asStyle(...arguments)
             return {src:url,width,height, outline:{...outline, width,height}}
         }
 

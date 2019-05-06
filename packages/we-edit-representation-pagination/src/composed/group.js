@@ -21,14 +21,14 @@ export default class Group extends Component{
 			margin,minWidth, width, height, index, childIndex,geometry,
 			contentWidth,wrap,pagination,anchor,currentY,named,descent,replaceable, spaceHeight,composedAt,
 			className,
-			...others}=this.props
-
+			}=this.props
+		const others={}
 
 		if(innerRef){
 			others.ref=innerRef
 		}
 
-		if(className){//type define,  such as line, <line><content.../></line>, so query can be more simplier
+		if(className=="page"){//type define,  such as line, <line><content.../></line>, so query can be more simplier
 			others.className=className
 		}
 
@@ -46,13 +46,23 @@ export default class Group extends Component{
 			others.transform=transform
 		}
 
-		return (
-			<g {...others}>
+		const content=(
+			<Fragment>
 				{background&&background!="transparent"&& (<rect width={width} height={height} fill={background} key="background"/>)}
 				{Children.toArray(children).map((a,i)=>{
 					return React.cloneElement(a,{key:i})
 				})}
-			</g>
+			</Fragment>
 		)
+
+		if(Object.keys(others).length){
+			return (
+				<g {...others}>
+					{content}
+				</g>
+			)
+		}
+
+		return content
     }
 }

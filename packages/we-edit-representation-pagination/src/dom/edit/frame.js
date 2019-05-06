@@ -39,7 +39,6 @@ const factory=base=>Cacheable(class extends editable(base){
     //locatable
 
 	positionFromPoint(x,y){
-        debugger
         const include=({x:x0=0,y:y0=0,width,height})=>x0<=x && y0<=y && (x0+width)>=x && (y0+height)>=y
         const chosen=new Set()
         var bound
