@@ -4,6 +4,10 @@ import {shallowEqual} from "we-edit"
 import memoize from "memoize-one"
 
 export default class Group extends Component{
+	static contextTypes={
+		debug: PropTypes.bool
+	}
+
 	static propTypes={
 		width: PropTypes.number,
 		height: PropTypes.number,
@@ -21,15 +25,15 @@ export default class Group extends Component{
 			margin,minWidth, width, height, index, childIndex,geometry,
 			contentWidth,wrap,pagination,anchor,currentY,named,descent,replaceable, spaceHeight,composedAt,
 			className,
-			}=this.props
-		const others={}
+			...others}=this.props
+		const props={}
 
 		if(innerRef){
-			others.ref=innerRef
+			props.ref=innerRef
 		}
 
 		if(className=="page"){//type define,  such as line, <line><content.../></line>, so query can be more simplier
-			others.className=className
+			props.className=className
 		}
 
 		let transform=""
@@ -43,7 +47,7 @@ export default class Group extends Component{
 		}
 
 		if(transform.length>0){
-			others.transform=transform
+			props.transform=transform
 		}
 
 		const content=(
@@ -55,9 +59,17 @@ export default class Group extends Component{
 			</Fragment>
 		)
 
-		if(Object.keys(others).length){
+		if(this.context.debug){
 			return (
-				<g {...others}>
+				<g {...others} {...props}>
+					{content}
+				</g>
+			)
+		}
+
+		if(Object.keys(props).length){
+			return (
+				<g {...props}>
 					{content}
 				</g>
 			)

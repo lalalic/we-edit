@@ -1,7 +1,7 @@
 import React, {PureComponent, Component, Fragment} from "react"
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
-import {getContent,getSelection,getClientRect, ACTION, ContentQuery,connect} from "we-edit"
+import {getContent,getSelection, ACTION, ContentQuery,connect} from "we-edit"
 
 import Base from "../document"
 import Responsible from "../../composed/responsible"

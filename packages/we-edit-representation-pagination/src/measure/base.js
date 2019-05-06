@@ -13,8 +13,8 @@ export class Measure{
 		}
 
 		const {height, descent}=this.lineHeight()
-        this.defaultStyle.height=this.height=Math.ceil(height)
-		this.defaultStyle.descent=this.descent=Math.ceil(descent)
+        this.defaultStyle.height=this.height=height
+		this.defaultStyle.descent=this.descent=descent
     }
 
 	lineHeight(){

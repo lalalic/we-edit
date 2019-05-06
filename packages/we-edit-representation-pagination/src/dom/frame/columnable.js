@@ -135,7 +135,7 @@ export default class Columnable extends Fixed{
 			children:[
 				...this.anchors,
 				...this.columns.map((column,i)=>{
-					const {children:lines,...props}=column
+					const {children:lines,currentY,...props}=column
 					return (
 						<Group {...props} key={i}>
 							<Group y={alignY(column.currentY)}>
@@ -150,7 +150,7 @@ export default class Columnable extends Fixed{
 
 	nextAvailableSpace(required={}){
 		const {width:minRequiredW=0,height:minRequiredH=0,y=this.currentY}=required
-		if((y+minRequiredH)-this.currentColumn.height>1){//can't hold
+		if((y+minRequiredH)-(this.currentColumn.height+(this.currentColumn.y||0))>1){//can't hold
 			if(this.currentColumn.children.length>0){//is not empty
 				if(this.cols.length>this.columns.length){// new column
 					this.createColumn()

@@ -1,6 +1,6 @@
-import html from "we-edit-representation-html"
-import pagination from "we-edit-representation-pagination"
-import text from "we-edit-representation-text"
+import Html from "we-edit-representation-html"
+import Pagination from "we-edit-representation-pagination"
+import Text from "we-edit-representation-text"
 
 import iDocx from "we-edit-input-docx"
 import iJson from "we-edit-input-json"

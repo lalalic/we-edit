@@ -58,7 +58,7 @@ const Page=compose(
 				status.current=props.page
 			}
 		}
-		
+
 		return status
 	})
 )(({current=0,total=0,allComposed})=>(
@@ -85,6 +85,7 @@ const Scale=({
 		<Slider style={{width:100, display:"inline-block"}}
 			sliderStyle={{top:-13}}
 			step={step}
+			onChange={(e,newValue)=>onChange(newValue)}
 			value={current} min={min} max={max}
 			/>
 		<FlatButton label="+" onClick={()=>onChange(Math.min(current+step,max))}
