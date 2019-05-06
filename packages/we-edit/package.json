@@ -1,7 +1,7 @@
 {
   "name": "we-edit",
   "description": "a text editor framework based on React",
-  "version": "3.4.13",
+  "version": "3.4.14",
   "author": {
     "name": "Raymond Li",
     "email": "lalalic@139.com"
@@ -39,7 +39,7 @@
     "parse-svg-path": "^0.1.2",
     "simplify-path": "^1.1.0",
     "svg-path-contours": "^2.0.0",
-    "docx4js": "^3.1.30",
+    "docx4js": "^3.1.31",
     "fetchable": "^1.0.4",
     "lodash.invoke": "^4.5.2",
     "vm-browserify": "^1.1.0"
