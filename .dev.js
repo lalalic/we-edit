@@ -181,10 +181,12 @@ function testOffice(representation="pagination"){
 							<div style={{width:210}}>
 								<Tabs>
 									<Tab label="Document">
-										<DocumentTree
-											filter={({type})=>type!="styles"}
+										{
+											<DocumentTree
+											filter={({type})=>type=="section"}
 											toNodeProps={({id,type,props})=>({name:`${type}(${id})`})}
 											/>
+										}
 									</Tab>
 									<Tab label="Assemble">
 										<FileSelector />

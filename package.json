@@ -13,8 +13,8 @@
   },
   "dependencies": {
     "docx4js": "^3.1.31",
-    "react": "^16.2.0",
-    "react-dom": "^16.1.1"
+    "react": "16.5.1",
+    "react-dom": "16.5.1"
   },
   "devDependencies": {
     "babel-cli": "^6.6.5",

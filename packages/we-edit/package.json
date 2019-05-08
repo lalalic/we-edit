@@ -1,7 +1,7 @@
 {
   "name": "we-edit",
   "description": "a text editor framework based on React",
-  "version": "3.4.16",
+  "version": "3.4.17",
   "author": {
     "name": "Raymond Li",
     "email": "lalalic@139.com"
@@ -17,37 +17,37 @@
     "is-node": "^1.0.2",
     "lodash.get": "^4.4.2",
     "memoize-one": "^4.0.2",
+    "minimatch": "^3.0.4",
     "prop-types": "^15.6.0",
-    "react": "^16.2.0",
-    "react-dom": "^16.2.0",
+    "react": "16.5.1",
+    "react-dom": "16.5.1",
     "react-redux": "^5.0.6",
     "react-test-renderer": "^16.3.1",
     "react-waypoint": "^7.3.1",
     "recompose": "^0.26.0",
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0",
-    "shortid": "^2.2.8",
-    "minimatch": "^3.0.4"
+    "shortid": "^2.2.8"
   },
   "optionalDependencies": {
+    "docx4js": "^3.1.31",
+    "fetchable": "^1.0.4",
     "get-system-fonts": "^1.0.0",
     "htmlparser2": "^3.9.2",
     "linebreak": "^0.3.0",
+    "lodash.invoke": "^4.5.2",
     "mouse-event-offset": "^3.0.2",
     "opentype.js": "^0.6.9",
-    "ttfjs": "^0.4.0",
     "parse-svg-path": "^0.1.2",
     "simplify-path": "^1.1.0",
     "svg-path-contours": "^2.0.0",
     "svgpath": "^2.2.1",
-    "docx4js": "^3.1.31",
-    "fetchable": "^1.0.4",
-    "lodash.invoke": "^4.5.2",
+    "ttfjs": "^0.4.0",
     "vm-browserify": "^1.1.0"
   },
   "devDependencies": {
-    "cheerio": "^1.0.0-rc.2",
     "brfs": "^1.4.3",
+    "cheerio": "^1.0.0-rc.2",
     "transform-loader": "^0.2.4"
   },
   "engines": {
