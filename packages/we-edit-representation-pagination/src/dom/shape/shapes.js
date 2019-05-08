@@ -82,19 +82,9 @@ export class rect extends custom{
 }
 
 export class ellipse extends custom{
-	createComposedShape(content){
-		const {
-				width,height,margin,solidFill="none",
-				outline={strokeWidth:1,stroke:"black"},
-				fill={fill:solidFill}
-			}=this.props
-		const composed=super.createComposedShape(...argument)
-		composed.splice(0,1,
-			<ellipse key="shape"
-			cx={width/2} cy={height/2}
-			rx={width/2} ry={height/2}
-			style={{...outline, ...fill}} />)
-		return composed
+	getPath(){
+		const {width,height,cx=width/2,cy=height/2,rx=cx,ry=cy}=this.props
+		return new Path(`M${cx-rx},${cy}a${rx},${ry} 0 1,0 ${rx*2},0a${rx},${ry} 0 1,0 -${rx*2},0`)
 	}
 }
 

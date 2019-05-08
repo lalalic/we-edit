@@ -21,6 +21,10 @@ const Editable=Cacheable(class extends editable(Base,{stoppable:true}){
 			id={`${this.props.id}-end`}/>
     }
 
+	shouldComponentUpdate(){
+		return super.shouldComponentUpdate(...arguments) && this.context.shouldContinueCompose(this)
+	}
+
 	getNumberingAtom(){
 		if(this.context.numbering){
 			const {numbering:{style}, indent:{firstLine=0}}=this.props

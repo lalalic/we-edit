@@ -6,7 +6,27 @@ import Base from "../section"
 
 import editable from "./editable"
 
-export default Cacheable(class extends editable(Base,{stoppable:true}){
+const Super=editable(Base,{stoppable:true})
+
+export default Cacheable(class extends Super{
+	static childContextTypes={
+		...Super.childContextTypes,
+		shouldContinueCompose:PropTypes.func,
+	}
+
+	getChildContext(){
+		const ctx=super.getChildContext()
+		ctx.shouldContinueCompose=this.shouldContinueCompose.bind(this)
+		return ctx
+	}
+
+	shouldContinueCompose(){
+		if(this.computed.allComposed===false){
+			return false
+		}
+		return this.context.parent.shouldContinueCompose(...arguments)
+	}
+
 	keepUntilLastAllChildrenComposed(){
         const {id,pageIndex,lineIndex}=(id=>{
 			let pageIndex=-1, lineIndex=-1

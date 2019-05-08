@@ -119,7 +119,7 @@ export default class Document extends Super{
 
 		const should=aboveViewableBottom() || !this.isSelectionComposed()
 
-		if(!should){
+		if(!should  && a){
 			this.notifyNotAllComposed(a)
 		}
 		return should

@@ -16,9 +16,10 @@ export default ({Text, Paragraph})=>class extends Component{
 	}
 
 	static contextTypes={
-		style: PropTypes.object
+		style: PropTypes.object,
+		shouldContinueCompose: PropTypes.func
 	}
-	
+
 	static childContextTypes={
 		style: PropTypes.object
 	}
@@ -42,14 +43,20 @@ export default ({Text, Paragraph})=>class extends Component{
 
 		return style
 	})
-	
+
 	getChildContext(){
 		return {
-			style:Object.assign(this.props.style.clone(),{r:{}}).inherit(this.context.style)
+			style:this.childStyle(this.props.style, this.context.style)
 		}
 	}
 
+	childStyle=memoize((direct,context)=>Object.assign(direct.clone(),{r:{}}).inherit(context))
+
 	defaultStyle=memoize((direct,context)=>direct.flat4Character(context))
+
+	shouldComponentUpdate(){
+		return this.context.shouldContinueCompose()
+	}
 
 	render(){
 		const {style:$1, ...props}=this.props
