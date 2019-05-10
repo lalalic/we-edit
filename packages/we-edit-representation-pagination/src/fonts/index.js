@@ -1,141 +1,170 @@
-import opentype from "opentype.js"
+import FontKit from "fontkit"
 
-var fonts={}
+const fonts=new (class{
+    constructor(){
+        this.families={}
+    }
+
+    get(name,{bold,italic}={}){
+        const found=this.families[name.toLowerCase()]
+        if(found){
+            if(found.length==1)
+                return found[0]
+
+            found.sort((a,b)=>a.bold||0+a.italic||0-b.bold||0-b.italic||0)
+
+            let bolds=found.filter(a=>a.bold)
+            let italics=found.filter(a=>a.italic)
+
+            if(bold && italic){
+                const bi=bolds.find(a=>italics.includes(a))
+                if(bi){
+                    return bi
+                }
+            }
+
+            if(bold){
+                if(!italic){
+                    bolds=bolds.filter(a=>!italics.includes(a))
+                }
+                if(bolds.length){
+                    return bolds[0]
+                }
+            }
+
+            if(italic){
+                if(!bold){
+                    italics=italics.filter(a=>!bolds.includes(a))
+                }
+                if(italics.length){
+                    return italics[0]
+                }
+            }
+
+
+            return found[0]
+        }
+    }
+
+    put(font,props){
+        if(font.familyName){
+            font=extend(font,props)
+            const {fullName="",familyName="",subfamilyName=""}=font
+            const uuid=`${fullName},${familyName},${subfamilyName}`
+            if(/bold/i.test(uuid))
+                font.bold=1
+            if(/italic/i.test(uuid))
+                font.italic=1
+            const name=font.familyName.toLowerCase()
+            const family=(this.families[name]=this.families[name]||[])
+            if(!family.find(a=>a.fullName==font.fullName)){
+                family.push(font)
+            }
+            return font
+        }
+    }
+
+    names(){
+        return Object.keys(this.families)
+			.map(k=>this.families[k][0].familyName)
+			.filter(a=>!!a)
+    }
+})()
 
 const FontManager={
     get(name){
-		name=FontManager.toId(name)
-		if(fonts[name]){
-			return fonts[name]
-		}else if(fonts[name]==null){
+        const found=fonts.get(...arguments)
+		if(found){
+			return found
+		}else if(found==null){
 			throw new Error(`font[${name}] loaded with error`)
         }else{
 			throw new Error(`font[${name}] not loaded`)
 		}
     },
-	get names(){
-		return Object.keys(fonts)
-			.filter(a=>!!fonts[a])
-			.map(a=>fonts[a].names.fontFamily.en)
+
+    get names(){
+		return fonts.names().sort()
 	},
-	toId(name){
-		return name.toLowerCase()
-	},
+
+    release(){
+        fonts.families={}
+        return this
+    },
+
 	fromBrowser(loader, needed){
-		if(needed)
-			needed=needed.map(a=>FontManager.toId(a))
-
-		return new Promise((resolve, reject)=>{
-			let loaded=[], files=loader.files
-			for(let i=0, file, len=files.length;i<len;i++){
-				file=files[i]
-				let name=file.name
-				let id=FontManager.toId(name.split(".")[0])
-				if(needed && !needed.includes(id)){
-					continue
-				}
-
-				if(typeof(fonts[id])!=="undefined")
-					continue
-
-				loaded.push(new Promise((resolve, reject)=>{
-					let reader=new FileReader()
-					reader.onload=e=>{
-						try{
-							let data=reader.result
-							fonts[id]=extend(opentype.parse(data))
-							console.log(`${name} font loaded`)
-							resolve(fonts[id])
+        const load1=file=>{
+            return new Promise(resolve=>{
+                Object.assign(new FileReader(),{
+                    onload({target:{result:data}}){
+                        try{
+                            const font=FontKit.create(Buffer.from(data))
+                            if(!font){
+                                resolve()
+                            }else if(font.fonts){
+                                resolve(Array.from(font.fonts).map(font=>fonts.put(font,{path:file.name})))
+                            } else{
+    							resolve(fonts.put(font,{path:file.name}))
+                            }
 						}catch(e){
-							console.error(`${name} font loaded fail with error: ${e.message}`)
-							fonts[id]=null
-							resolve(id)
+							resolve()
 						}
-					}
-
-					reader.onerror=e=>resolve()
-					reader.readAsArrayBuffer(file)
-				}))
-			}
-			loader.value=""
-			Promise.all([...loaded,Promise.resolve()]).then(resolve, reject)
-		})
+                    },
+                    onerror:e=>resolve()
+                }).readAsArrayBuffer(file)
+            })
+        }
+		return Promise.all(Array.from(loader.files).map(load1)).then(fonts=>{
+            loader.value=""
+            return flat(fonts)
+        })
 	},
 
-	fromPath(path, needed){
-		const fs=require("fs")
-        if(needed)
-			needed=needed.map(a=>FontManager.toId(a))
-		const load1=file=>{
-            let id=FontManager.toId(require("path").basename(file,".ttf"))
-            if(needed && !needed.includes(id)){
-                return null
-            }
-
-            if(typeof(fonts[id])!=="undefined")
-                return null
-
-            return new Promise((r,j)=>{
-                fs.readFile(file,(err, data)=>{
+    fromPath(path){
+        const load1=file=>{
+            return new Promise(resolve=>{
+                FontKit.open(file,(err, font)=>{
                     if(err){
-                        console.log(err.message)
-                        fonts[id]=null
-                        r(file)
+                        resolve()
+                    }else if(font.fonts){
+                        resolve(Array.from(font.fonts).map(font=>fonts.put(font,{path:file})))
                     }else{
-                        try{
-                            let buffer=nodeBufferToArrayBuffer(data)
-                            let font=opentype.parse(buffer)
-
-                            if(font.supported){
-                                r(fonts[id]=extend(font))
-                            }else{
-                                console.log(`${file} format is not supported,discard it`)
-                                fonts[id]=null
-                                r(file)
-                            }
-                        }catch(e){
-                            console.log(e.message)
-                            fonts[id]=null
-                            r(file)
-                        }
+                        resolve(fonts.put(font,{path:file}))
                     }
                 })
             })
         }
 
         return new Promise((resolve, reject)=>{
-            if(path){
-    			fs.readdir(path, (err, files)=>{
-    				if(err){
-    					reject(err)
-    				} else {
-    					Promise.all(
-                            files
-                            .filter(a=>a.endsWith(".ttf"))
-                            .map(file=>load1(`${path}/${file}`))
-                            .filter(a=>!!a)
-                        )
-                        .then(resolve,reject)
-    				}
-    			})
-            }else{
-                require("get-system-fonts")()
-                    .then(fonts=>fonts.filter(a=>a.endsWith(".ttf")))
-                    //.then(a=>(console.dir(a),a))
-                    .then(fonts=>Promise.all(fonts.map(load1).filter(a=>!!a)))
-                    .then(resolve,reject)
-            }
-		})
-	},
+                if(path){
+                    require("fs").readdir(path, (err, files)=>{
+                        if(err){
+                            reject(err)
+                        } else {
+                            Promise.all(files.map(file=>load1(`${path}/${file}`)))
+                            .then(fonts=>resolve(flat(fonts)),reject)
+                        }
+                    })
+                }else{
+                    require("get-system-fonts")()
+                        .then(fonts=>Promise.all(fonts.map(load1).filter(a=>!!a)))
+                        .then(fonts=>resolve(flat(fonts)),reject)
+                }
+            })
+    },
 
 	load(service,id){
-		id=FontManager.toId(id)
-		if(typeof(fonts[id])!="undefined")
-			return Promise.resolve(fonts[id])
+        try{
+            const found=this.get(id)
+    		if(typeof(found)!="undefined")
+    			return Promise.resolve(found)
+        }catch(e){
 
-		let dataRetrieved
+        }
+
+		let dataRetrieved,props={}
 		if(typeof(service)=="string"){
-			dataRetrieved=fetch(`${service}/${id}`)
+            dataRetrieved=fetch(props.path=`${service}/${id}`)
 				.then(res=>{
 					if(!res.ok){
 						throw new Error(res.statusText)
@@ -145,12 +174,11 @@ const FontManager={
 		}else{
 			dataRetrieved=service(id)
 		}
-		
+
 		return dataRetrieved
-			.then(buffer=>fonts[id]=extend(opentype.parse(buffer)))
+			.then(buffer=>fonts.put(FontKit.create(Buffer.from(buffer)),props))
 			.catch((e)=>{
 				console.error(`font[${id}]:${e.message}`)
-				fonts[id]=null
 				return id
 			})
 	}
@@ -158,49 +186,30 @@ const FontManager={
 
 export default FontManager
 
+function flat(fonts){
+    return fonts.reduce((clt,a)=>{
+        if(Array.isArray(a)){
+            clt.splice(clt.length,0,...a)
+        }else if(a){
+            clt.push(a)
+        }
+        return clt
+    },[])
+}
+
 function extend(font){
 	return Object.assign(font,{
 		lineHeight(fontSize){
 			const scale = 1 / this.unitsPerEm * fontSize
-			return scale*(this.ascender-this.descender)
+			return scale*(this.ascent-this.descent+this.lineGap)
 		},
 		lineDescent(fontSize){
 			const scale = 1 / this.unitsPerEm * fontSize;
-			return -this.descender*scale
-		}
+			return -this.descent*scale
+		},
+
+        stringWidth(string,fontSize){
+            return this.layout(string).advanceWidth/this.unitsPerEm * fontSize
+        }
 	})
-}
-
-
-function nodeBufferToArrayBuffer(buffer) {
-	var ab = new ArrayBuffer(buffer.length);
-	var view = new Uint8Array(ab);
-	for (var i = 0; i < buffer.length; ++i) {
-		view[i] = buffer[i];
-	}
-	return ab;
-}
-
-
-class Font{
-	Font(){
-		this.unitsPerEm=0
-		this.ascender=0
-		this.descender=0
-		
-	}
-	
-	stringToGlyphs(text){
-		return [/*Glyph*/]
-	}
-	
-	getKerningValue(glyphA, glyphB){
-		return 0
-	}
-}
-
-class Glyph{
-	Glyph(){
-		this.advanceWidth=0
-	}
 }

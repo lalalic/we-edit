@@ -5,7 +5,6 @@ import {Loader, Emitter, Stream, render} from "we-edit"
 import Pagination from "we-edit-representation-pagination"
 
 import SVG from "we-edit-output-svg"
-import PDF from "we-edit-output-pdf"
 import File from "we-edit-loader-stream-file"
 import iDocx from "we-edit-input-docx"
 
@@ -40,7 +39,6 @@ xdescribe("we-edit integration", function(){
 
 	afterAll(()=>{
 		SVG.uninstall()
-		PDF.uninstall()
 		File.uninstall()
 		iDocx.uninstall()
 		Pagination.defaultProps.measure=undefined
@@ -64,9 +62,5 @@ xdescribe("we-edit integration", function(){
 
 	it("svg",()=>{
 		return render(template())
-	})
-
-	it("pdf", ()=>{
-		return render(template("pdf"))
 	})
 })

@@ -55,7 +55,13 @@ export default compose(
 
 	state={}
 
-	theme=getMuiTheme(styles.theme,this.props.theme, {fonts:this.props.fonts})
+	theme=memoize(active=>{
+		const uiTheme=getMuiTheme(styles.theme,this.props.theme)
+		if(active && active.props.theme){
+			return getMuiTheme(uiTheme,active.props.theme)
+		}
+		return uiTheme
+	})
 
 	componentDidCatch(error, info){
 		this.setState({error:error.message})
@@ -108,9 +114,10 @@ export default compose(
 		}
 
 		const {error}=this.state
+		const theme=this.theme(activeWorkspace)
 
 		return (
-			<MuiThemeProvider muiTheme={this.theme}>
+			<MuiThemeProvider muiTheme={theme}>
 				<div style={{...styles.root,...style}} onContextMenu={this.rejectContextMenu}>
 					{titleBar && React.cloneElement(titleBar,{
 						...titleBarProps,
@@ -122,7 +129,7 @@ export default compose(
 						ref:"dashboard",
 						active,
 						dispatch,
-						zIndex:this.theme.zIndex.popover
+						zIndex:theme.zIndex.popover
 					})}
 
 					{activeWorkspace}

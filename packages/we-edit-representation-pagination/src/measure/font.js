@@ -4,7 +4,7 @@ import {default as isNode} from "is-node"
 
 export default class FontMeasure extends Measure{
 	getFont(){
-		return Fonts.get(this.fontFamily)
+		return Fonts.get(this.fontFamily, this.style)
 	}
 
     lineHeight(){
@@ -16,20 +16,7 @@ export default class FontMeasure extends Measure{
     }
 
     stringWidth(input){
-		let fontSize=this.size
-        const glyphs = this.font.stringToGlyphs(input);
-		const scale = 1 / this.font.unitsPerEm * fontSize;
-		let width = 0;
-		for (let i=0; i<glyphs.length; i++) {
-			let glyph = glyphs[i];
-			if (glyph.advanceWidth) {
-				width += glyph.advanceWidth * scale;
-			}
-			if (i < glyphs.length - 1) {
-				width += this.font.getKerningValue(glyph, glyphs[i + 1]) * scale;
-			}
-		}
-		return width*96/72;
+		return this.font.stringWidth(input,this.size)*96/72
     }
 
 	static requireFonts(fonts, service){
@@ -45,7 +32,7 @@ export default class FontMeasure extends Measure{
 			if(errors.length)
 				return Promise.reject(errors)
 		}
-		
+
 		if(isNode){
 			return Fonts
 				.fromPath(service,fonts)

@@ -1,5 +1,5 @@
 import Html from "we-edit-representation-html"
-import Pagination from "we-edit-representation-pagination"
+import Pagination,{FontManager} from "we-edit-representation-pagination"
 import Text from "we-edit-representation-text"
 
 import iDocx from "we-edit-input-docx"
@@ -7,7 +7,6 @@ import iJson from "we-edit-input-json"
 import ioFile from "we-edit-loader-stream-file"
 import ioBrowser from "we-edit-loader-stream-browser"
 import SVG from "we-edit-output-svg"
-import PDF from "we-edit-output-pdf"
 
 import Variant, {Provider} from "we-edit-variant"
 
@@ -19,7 +18,6 @@ iJson.install()
 ioFile.install()
 ioBrowser.install()
 SVG.install()
-PDF.install()
 
 Variant.install()
 
@@ -196,7 +194,7 @@ function testOffice(representation="pagination"){
 						}
 						/>
 				}
-				children={<VariantEditor representation={representation}
+				children={<VariantEditor representation={representation/*<Pagination fonts="fonts"/>*/}
 					onContextMenu={e=>console.log("context menu")}
 					onKeyDown={e=>console.log("key down")}
 					/>}

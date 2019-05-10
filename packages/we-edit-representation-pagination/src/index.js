@@ -8,7 +8,7 @@ import Viewers from "./dom"
 import Editors from "./dom/edit"
 import editable from "./dom/edit/editable"
 
-import Fonts from "./fonts"
+import FontManager from "./fonts"
 import * as Composed from "./composed"
 import * as Measure from "./measure"
 import Output from "./output"
@@ -68,7 +68,7 @@ export default class Pagination extends Representation.Base{
 				this.Measure=createFontMeasureWithDefault(defaultFont)
 				const requiredFonts=this.context.doc.getFontList()
 				const fontsLoaded=errors=>{
-					let loaded=Fonts.names
+					let loaded=FontManager.names
 					if(loaded && loaded.length){
 						if(!loaded.find(a=>a.toLowerCase()==defaultFont.toLowerCase())){
 							console.warn(`default font[${defaultFont}] can't be loaded, set ${loaded[0]} as default`)
@@ -79,7 +79,6 @@ export default class Pagination extends Representation.Base{
 					if(errors.length){
 						console.warn("the following fonts with loading erorr: "+errors.join(","))
 					}
-
 					this.setState({fontsLoaded:true})
 				}
 				FontMeasure
@@ -117,4 +116,4 @@ export default class Pagination extends Representation.Base{
 
 Pagination.install()
 
-export {Viewers, Editors, Fonts, Measure, Composed, composable, editable}
+export {Viewers, Editors, FontManager, Measure, Composed, composable, editable}

@@ -7,6 +7,7 @@
     "email": "lalalic@139.com"
   },
   "dependencies": {
+    "fontkit": "^1.8.0",
     "get-system-fonts": "^1.0.0",
     "htmlparser2": "^3.9.2",
     "is-node": "^1.0.2",
@@ -14,18 +15,16 @@
     "lodash.get": "^4.4.2",
     "memoize-one": "^4.0.2",
     "mouse-event-offset": "^3.0.2",
-    "opentype.js": "^0.6.9",
     "parse-svg-path": "^0.1.2",
     "prop-types": "^15.6.0",
     "react-waypoint": "^7.3.1",
     "simplify-path": "^1.1.0",
     "svg-path-contours": "^2.0.0",
-    "svgpath": "^2.2.1",
-    "ttfjs": "^0.4.0"
+    "svgpath": "^2.2.1"
   },
   "peerDependencies": {
-    "react": "^16.2.0",
-    "react-dom": "^16.1.1",
+    "react": "^16.5.1",
+    "react-dom": "^16.5.1",
     "recompose": "^0.26.0",
     "we-edit": "^3.0.0"
   },

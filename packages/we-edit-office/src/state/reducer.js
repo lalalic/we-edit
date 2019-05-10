@@ -7,7 +7,7 @@ function reducer(state={loader:{},stream:{}},{type,payload}){
             return {...state, stream:payload}
         case `${DOMAIN}/office/FORMAT`:
             return {...state, format:payload}
-        default:
+		default:
             return state
     }
 }

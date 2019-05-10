@@ -22,13 +22,13 @@ var myOffice=[
 			key={KEY}
 			channel="print"
 			>
-			
-			<Workspace.Desk 
+
+			<Workspace.Desk
 				channel="print"
 				icon={<IconPrint/>}
 				children={<Editor representation="pagination"/>}
 				/>
-			
+
 
 			<Workspace.Desk
 				channel="web"
@@ -64,7 +64,7 @@ export default class Office extends PureComponent{
 	static defaultProps={
 		installable:true,
 	}
-	
+
 	static install(...workspaces){
 		workspaces.reverse().forEach(a=>myOffice.unshift(a))
 		event.emit("change", [...myOffice])
@@ -113,13 +113,12 @@ export default class Office extends PureComponent{
 
 	render(){
 		const {workspaces}=this.state
-		let {titleBarProps,children, titleBar, dashboard, reducers={},
-			fonts=["Arial", "Calibri", "Cambria"]}=this.props
+		let {titleBarProps,children, titleBar, dashboard, reducers={}}=this.props
 		reducers=this.getReducers(workspaces,reducers)
 
 		return (
 			<WeEdit reducers={reducers}>
-				<WeEditUI {...{titleBarProps, fonts, titleBar,dashboard}}>
+				<WeEditUI {...{titleBarProps, titleBar,dashboard}}>
 					{workspaces.map(a=>a.props.reducer ? React.cloneElement(a,{reducer:undefined}) : a)}
 					{children}
 				</WeEditUI>

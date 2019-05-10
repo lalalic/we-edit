@@ -25,7 +25,7 @@ module.exports=(env,args)=>{
 				test: /\.js?$/,
 				use: ["transform-loader/cacheable?brfs"],
 				enforce:"post",
-				include: /(linebreak|unicode-properties|fontkit|pdfkit)/
+				include: /(linebreak|unicode-properties|fontkit)/
 			},{
 				test:/\.less?$/,
 				use: [

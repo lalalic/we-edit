@@ -2,7 +2,8 @@ export class Measure{
     constructor(style){
 		const {fonts, size}=style
 		this.style=style
-		this.fontFamily=fonts.split(",").map(a=>a.trim()).filter(a=>!!a)[0]
+		this.fontFamilys=fonts.split(",").map(a=>a.trim()).filter(a=>!!a)
+        this.fontFamily=this.fontFamilys[0]
 		this.size=size
         this.defaultStyle={
 			whiteSpace:'pre',
