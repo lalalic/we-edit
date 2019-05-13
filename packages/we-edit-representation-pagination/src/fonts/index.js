@@ -6,7 +6,7 @@ const fonts=new (class{
     }
 
     get(name,{bold,italic}={}){
-        const found=this.families[name.toLowerCase()]
+        const found=this.family(name)
         if(found){
             if(found.length==1)
                 return found[0]
@@ -47,21 +47,26 @@ const fonts=new (class{
     }
 
     put(font,props){
-        if(font.familyName){
-            font=extend(font,props)
-            const {fullName="",familyName="",subfamilyName=""}=font
-            const uuid=`${fullName},${familyName},${subfamilyName}`
-            if(/bold/i.test(uuid))
-                font.bold=1
-            if(/italic/i.test(uuid))
-                font.italic=1
-            const name=font.familyName.toLowerCase()
-            const family=(this.families[name]=this.families[name]||[])
-            if(!family.find(a=>a.fullName==font.fullName)){
-                family.push(font)
-            }
-            return font
+        if(!font.familyName){
+            return
         }
+        const key=font.familyName.toLowerCase()
+        const family=(this.families[key]=this.families[key]||[])
+        if(family.find(a=>a.fullName==font.fullName)){
+            return
+        }
+
+        font=extend(font,props)
+        const {fullName="",familyName="",subfamilyName=""}=font
+        const uuid=`${fullName},${familyName},${subfamilyName}`
+        if(/bold/i.test(uuid))
+            font.bold=1
+        if(/italic/i.test(uuid))
+            font.italic=1
+        const name=font.familyName.toLowerCase()
+        console.log(`font[${font.familyName}] loaded`)
+        family.push(font)
+        return font
     }
 
     names(){
@@ -69,18 +74,15 @@ const fonts=new (class{
 			.map(k=>this.families[k][0].familyName)
 			.filter(a=>!!a)
     }
+
+    family(name){
+        return this.families[name.toLowerCase()]
+    }
 })()
 
 const FontManager={
-    get(name){
-        const found=fonts.get(...arguments)
-		if(found){
-			return found
-		}else if(found==null){
-			throw new Error(`font[${name}] loaded with error`)
-        }else{
-			throw new Error(`font[${name}] not loaded`)
-		}
+    get(){
+        return fonts.get(...arguments)
     },
 
     get names(){
@@ -88,13 +90,25 @@ const FontManager={
 	},
 
     release(){
+        this.iterateLocal(a=>URL.releaseObjectURL(a.src))
         fonts.families={}
         return this
     },
 
-	fromBrowser(loader, needed){
+    iterateLocal(f){
+        fonts.names().forEach(k=>{
+            fonts.family(k).forEach(a=>{
+                if(a.src && a.src.startsWith("blob:")){
+                    f(a)
+                }
+            })
+        })
+    },
+
+	fromBrowser(loader){
         const load1=file=>{
             return new Promise(resolve=>{
+                const src=URL.createObjectURL(file)
                 Object.assign(new FileReader(),{
                     onload({target:{result:data}}){
                         try{
@@ -102,9 +116,9 @@ const FontManager={
                             if(!font){
                                 resolve()
                             }else if(font.fonts){
-                                resolve(Array.from(font.fonts).map(font=>fonts.put(font,{path:file.name})))
+                                resolve(Array.from(font.fonts).map(font=>fonts.put(font,{src})))
                             } else{
-    							resolve(fonts.put(font,{path:file.name}))
+    							resolve(fonts.put(font,{src}))
                             }
 						}catch(e){
 							resolve()
@@ -117,7 +131,7 @@ const FontManager={
 		return Promise.all(Array.from(loader.files).map(load1)).then(fonts=>{
             loader.value=""
             return flat(fonts)
-        })
+        }).finally(makeWebFont)
 	},
 
     fromPath(path){
@@ -127,9 +141,9 @@ const FontManager={
                     if(err){
                         resolve()
                     }else if(font.fonts){
-                        resolve(Array.from(font.fonts).map(font=>fonts.put(font,{path:file})))
+                        resolve(Array.from(font.fonts).map(font=>fonts.put(font,{src:file})))
                     }else{
-                        resolve(fonts.put(font,{path:file}))
+                        resolve(fonts.put(font,{src:file}))
                     }
                 })
             })
@@ -153,6 +167,34 @@ const FontManager={
             })
     },
 
+    fromRemote(service){
+        return fetch(service)
+            .then(res=>res.text())
+            .then(list=>{
+                let fonts
+                try{
+                    fonts=JSON.parse(list)
+                }catch(e){
+                    fonts=list.split(",")
+                }
+                return fonts.filter(a=>!!a).map(a=>a.trim())
+            })
+            .then(list=>{
+                return Promise.all(
+                    list.map(a=>{
+                        const src=`${service}/${a}`
+                        return fetch(src).then(res=>{
+            					if(res.ok){
+            						return res.arrayBuffer().then(buffer=>fonts.put(FontKit.create(Buffer.from(buffer)),{src}))
+            					}
+            				})
+
+                    })
+                )
+            })
+            .finally(makeWebFont)
+    },
+
 	load(service,id){
         try{
             const found=this.get(id)
@@ -164,7 +206,7 @@ const FontManager={
 
 		let dataRetrieved,props={}
 		if(typeof(service)=="string"){
-            dataRetrieved=fetch(props.path=`${service}/${id}`)
+            dataRetrieved=fetch(props.src=`${service}/${id}`)
 				.then(res=>{
 					if(!res.ok){
 						throw new Error(res.statusText)
@@ -177,11 +219,34 @@ const FontManager={
 
 		return dataRetrieved
 			.then(buffer=>fonts.put(FontKit.create(Buffer.from(buffer)),props))
-			.catch((e)=>{
-				console.error(`font[${id}]:${e.message}`)
-				return id
-			})
-	}
+			.catch()
+	},
+
+    asService(sw="/font-service.js",scope=""){
+        if (typeof(navigator)!="undefined" && 'serviceWorker' in navigator) {
+            var service
+            const _fromBrowser=FontManager.fromBrowser
+            FontManager.fromBrowser=function(){
+                return _fromBrowser.call(FontManager,...arguments)
+                  .finally(()=>FontManager.iterateLocal(({familyName, src})=>{
+                      try{
+                          service.active.postMessage({familyName, src, scope})
+                      }catch(e){
+                          console.error(e)
+                      }
+                  }))
+            }
+
+            navigator.serviceWorker.register(`${sw}`, { scope: `${scope}/` }).then(function(reg) {
+                service=reg
+                if(reg.active) {
+                    console.log(`Font Service[${sw}] worker active`);
+                }
+            }).catch(function(error) {
+                console.log(`Font Service[${sw}] failed with ` + error);
+            });
+        }
+    },
 }
 
 export default FontManager
@@ -197,7 +262,7 @@ function flat(fonts){
     },[])
 }
 
-function extend(font){
+function extend(font, props={}){
 	return Object.assign(font,{
 		lineHeight(fontSize){
 			const scale = 1 / this.unitsPerEm * fontSize
@@ -210,6 +275,25 @@ function extend(font){
 
         stringWidth(string,fontSize){
             return this.layout(string).advanceWidth/this.unitsPerEm * fontSize
-        }
+        },
+        ...props
 	})
+}
+
+var webFonts=null
+function makeWebFont(){
+    if(!webFonts){
+        webFonts=document.createElement("style")
+        webFonts.id="we_edit_web_fonts"
+        document.body.appendChild(webFonts)
+    }
+    const loaded=Array.from(webFonts.sheet.rules).map(a=>a.style.fontFamily)
+    fonts.names().filter(a=>!loaded.includes(a))
+        .forEach(k=>{
+            const font=fonts.get(k)
+            const {familyName, src}=font
+            if(src && familyName){
+                webFonts.sheet.addRule('@font-face',`font-family:"${familyName}";src: local("${familyName}"), url("${src}");`)
+            }
+        })
 }

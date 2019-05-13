@@ -10,7 +10,6 @@ export {default as Canvas} from "./canvas"
 export {default as TitleBar} from "./title-bar"
 export {default as Dashboard} from "./dashboard"
 
-
 export {Ribbon,Office}
 
 export function create(container, office=<Office/>){

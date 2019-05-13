@@ -20,6 +20,7 @@ ioBrowser.install()
 SVG.install()
 
 Variant.install()
+FontManager.asService("/font-service.js")
 
 
 import React,{Fragment} from "react"
@@ -28,6 +29,7 @@ import {Office,Workspace, Ribbon} from "we-edit-office"
 import {Tabs, Tab, ToolbarGroup, SvgIcon} from "material-ui"
 import {connect} from  "react-redux"
 import minimatch from "minimatch"
+
 
 function testOffice(representation="pagination"){
 	const KEY="test"
@@ -194,7 +196,7 @@ function testOffice(representation="pagination"){
 						}
 						/>
 				}
-				children={<VariantEditor representation={representation/*<Pagination fonts="fonts"/>*/}
+				children={<VariantEditor representation={<Pagination fonts="fonts"/>}
 					onContextMenu={e=>console.log("context menu")}
 					onKeyDown={e=>console.log("key down")}
 					/>}

@@ -20,17 +20,7 @@ const {FontMeasure, SVGMeasure}=Measure
 const createFontMeasureWithDefault=defaultFont=>{
 	return class extends FontMeasure{
 		getFont(){
-			let font=null
-			try{
-				font=super.getFont()
-			}catch(e){
-
-			}
-			if(!font && this.fontFamily!=defaultFont){
-				this.fontFamily=defaultFont
-				font=super.getFont()
-			}
-			return font
+			return super.getFont()||FontManager.get(defaultFont)
 		}
 	}
 }
@@ -67,22 +57,23 @@ export default class Pagination extends Representation.Base{
 			case FontMeasure:{
 				this.Measure=createFontMeasureWithDefault(defaultFont)
 				const requiredFonts=this.context.doc.getFontList()
-				const fontsLoaded=errors=>{
+				const fontsLoaded=error=>{
 					let loaded=FontManager.names
 					if(loaded && loaded.length){
-						if(!loaded.find(a=>a.toLowerCase()==defaultFont.toLowerCase())){
+						if(!FontManager.get(defaultFont)){
 							console.warn(`default font[${defaultFont}] can't be loaded, set ${loaded[0]} as default`)
 							this.Measure=createFontMeasureWithDefault(loaded[0])
 						}
 					}
 
-					if(errors.length){
-						console.warn("the following fonts with loading erorr: "+errors.join(","))
+					if(error){
+						console.error(error.message)
 					}
+
 					this.setState({fontsLoaded:true})
 				}
 				FontMeasure
-					.requireFonts([defaultFont,...requiredFonts],fonts)
+					.requireFonts(fonts,[defaultFont,...requiredFonts])
 					.then(fontsLoaded, fontsLoaded)
 				break
 			}
