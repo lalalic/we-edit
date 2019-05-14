@@ -33,6 +33,12 @@ module.exports=(base, packages)=>{
 			//disableHostCheck:true,
 			inline:true,
 			hot:false,
+			before(app){
+				app.get("/font-service.js", (req,res)=>{
+					res.set({ 'Content-Type': 'application/javascript; charset=utf-8' });
+                	res.send(require("fs").readFileSync(path.join(__dirname, 'packages/we-edit-representation-pagination/src/fonts/font-service.js')));
+				})
+			},
 		}
 	}
 }

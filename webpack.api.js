@@ -4,7 +4,7 @@ const nodeExternals=require("webpack-node-externals")
 /**
 *NOTE: since all plugins are with in we-edit project,
 you should set dependencies of plugin as optionalDependencies of packages/we-edit,
-so project depends on we-edit can use built plugin without big bundle into built plugin 
+so project depends on we-edit can use built plugin without big bundle into built plugin
 */
 module.exports=base=>{
     return require("fs")
@@ -21,7 +21,8 @@ module.exports=base=>{
             plugins:[
                 ...base.plugins,
                 new LocalReference(),
-            ],
+                a=="we-edit-representation-pagination" ? new CopyFontService() : null
+            ].filter(a=>a),
             target:"node",
             externals:[nodeExternals()]
         }))
@@ -44,6 +45,18 @@ class LocalReference{
                     }
                 }
             }
+            done()
+        })
+    }
+}
+
+class CopyFontService{
+    apply(compiler){
+        compiler.plugin("emit", function(compilation,done){
+            const fs=require("fs")
+            const src=path.resolve(__dirname, 'packages/we-edit-representation-pagination/src/fonts/font-service.js')
+            const dest=path.resolve(compilation.options.output.path,"font-service.js")
+            fs.createReadStream(src).pipe(fs.createWriteStream(dest))
             done()
         })
     }
