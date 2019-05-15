@@ -21,6 +21,8 @@ self.addEventListener("fetch", function(e){
                 if(!response.ok){
                     if(cached){
                         return cached.clone().text()
+                    }else{
+                        return Promise.resolve("")
                     }
                 }
                 return response.text()

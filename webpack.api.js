@@ -54,9 +54,11 @@ class CopyFontService{
     apply(compiler){
         compiler.plugin("emit", function(compilation,done){
             const fs=require("fs")
-            const src=path.resolve(__dirname, 'packages/we-edit-representation-pagination/src/fonts/font-service.js')
-            const dest=path.resolve(compilation.options.output.path,"font-service.js")
-            fs.createReadStream(src).pipe(fs.createWriteStream(dest))
+            fs.createReadStream(path.resolve(__dirname, 'packages/we-edit-representation-pagination/src/fonts/font-service.js'))
+                .pipe(fs.createWriteStream(path.resolve(compilation.options.output.path,"font-service.js")))
+
+            fs.createReadStream(path.resolve(__dirname, 'packages/we-edit-representation-pagination/src/fonts/Arial'))
+                .pipe(fs.createWriteStream(path.resolve(compilation.options.output.path,"Arial")))
             done()
         })
     }
