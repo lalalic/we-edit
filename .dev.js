@@ -183,7 +183,6 @@ function testOffice(representation="pagination"){
 									<Tab label="Document">
 										{
 											<DocumentTree
-											filter={({type})=>type=="section"}
 											toNodeProps={({id,type,props})=>({name:`${type}(${id})`})}
 											/>
 										}

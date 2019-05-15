@@ -22,41 +22,63 @@ const ToolbarSeparator=props=><ToolbarSeparator0 style={{marginRight:2, marginLe
 export default compose(
 	setDisplayName("ParagraphStyle"),
 	connect(state=>({selection:getSelectionStyle(state)})),
-	mapProps(({dispatch,children,selection})=>({
-		children,
-		style:selection&&selection.props("paragraph",false)||null,
-		align:align=>dispatch(ACTION.Selection.UPDATE({paragraph:{align}})),
-		numbering: numbering=>{
-			dispatch(ACTION.Selection.UPDATE({paragraph:{numbering}}))
+	mapProps(({dispatch,children,selection})=>{
+		const style=selection&&selection.props("paragraph",false)||null
+
+		return {
+			children,
+			style,
+			toggleAlign(align){
+				const {align:current="left"}=style||{}
+				if(current==align){
+					align=null
+				}
+				dispatch(ACTION.Selection.UPDATE({paragraph:{align}}))
+			},
+			numbering: numbering=>{
+				dispatch(ACTION.Selection.UPDATE({paragraph:{numbering}}))
+			},
+			toggleBullet(numbering){
+				if(style&&style.numbering&&style.numbering.format=="bullet"){
+					numbering=null
+				}
+				dispatch(ACTION.Selection.UPDATE({paragraph:{numbering}}))
+			},
+			toggleNumbering(numbering){
+				if(style&&style.numbering&&style.numbering.format!=="bullet"){
+					numbering=null
+				}
+				dispatch(ACTION.Selection.UPDATE({paragraph:{numbering}}))
+			},
 		}
-	})),
-)(({style, align,numbering, bullet, children})=>(
+	}),
+)(({style, toggleAlign,numbering, bullet, toggleBullet, toggleNumbering, children})=>(
 	<ToolbarGroup>
 		<CheckIconButton
 			status={style &&(!style.align ||style.align=="left")?"checked":"unchecked"}
-			onClick={()=>align("left")}
+			onClick={()=>toggleAlign("left")}
 			children={<IconAlignLeft/>}
 			/>
 		<CheckIconButton
 			status={style&&style.align=="center"?"checked":"unchecked"}
-			onClick={()=>align("center")}
+			onClick={()=>toggleAlign("center")}
 			children={<IconAlignCenter/>}
 			/>
 		<CheckIconButton
 			status={style &&style.align=="right"?"checked":"unchecked"}
-			onClick={()=>align("right")}
+			onClick={()=>toggleAlign("right")}
 			children={<IconAlignRight/>}
 			/>
 		<CheckIconButton
 			status={style&&style.align=="justify"?"checked":"unchecked"}
-			onClick={()=>align("justify")}
+			onClick={()=>toggleAlign("justify")}
 			children={<IconAlignJustify/>}
 			/>
 		<ToolbarSeparator/>
 
 		<DropDownButton
 			status={style&&style.numbering&&style.numbering.format=="bullet" ?"checked":"unchecked"}
-			onClick={()=>bullet("")}
+			onClick={()=>toggleBullet({type:"bullet",text:"."})}
 			icon={<IconListBullet/>}
 			>
 			<MenuItem primaryText="." onClick={e=>numbering({type:"bullet",text:"."})}/>
@@ -65,7 +87,7 @@ export default compose(
 		</DropDownButton>
 		<DropDownButton
 			status={style&&style.numbering&&style.numbering.format!=="bullet" ?"checked":"unchecked"}
-			onClick={()=>bullet("")}
+			onClick={()=>toggleNumbering({type:"decimal",text:"%1."})}
 			icon={<IconListNumber/>}
 			>
 			<MenuItem primaryText="1." onClick={e=>numbering({type:"decimal",text:"%1."})}/>

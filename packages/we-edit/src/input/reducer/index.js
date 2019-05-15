@@ -41,7 +41,6 @@ class Base{
 	}
 }
 
-
 class Reducer extends Base{
 	element(id){
 		return {id,type:this.$('#'+id).attr('type')}
