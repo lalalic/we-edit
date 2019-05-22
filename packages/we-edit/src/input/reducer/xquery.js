@@ -13,6 +13,10 @@ export default class xQuery extends Query{
 		return this.state.get("_content")
 	}
 
+    toNode(){
+        return this._content.get(this._nodes[0])
+    }
+
     attr(k,value){
         if(k==undefined){
             if(this.length){

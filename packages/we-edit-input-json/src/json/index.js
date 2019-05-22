@@ -2,7 +2,7 @@ import {uuid} from "we-edit"
 import {fromJS, Map} from "immutable"
 import EditableDocument from "./editable"
 
-export default class SerializableDocument extends EditableDocument{
+class SerializableDocument extends EditableDocument{
 	/*find node by id*/
 	getNode(id){
 		return this.doc.get(id)
@@ -171,4 +171,9 @@ export default class SerializableDocument extends EditableDocument{
 		return id
 	}
 }
+
 const Attacher="Container4Clone"
+
+export default class extends EditableDocument{
+	static Reducer=require("./reducer")
+}

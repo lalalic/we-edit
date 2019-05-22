@@ -13,7 +13,6 @@ export {default as uuid} from "./tools/uuid"
 export {default as transactifyCheerio} from "./tools/cheerio"
 
 export {default as ContentQuery} from "./state/selector/query"
-export {default as MutableContentQuery} from "./input/reducer/xquery"
 
 export {default as Input} from "./input"
 

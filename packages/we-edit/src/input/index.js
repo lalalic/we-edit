@@ -1,9 +1,11 @@
 import buildDoc from "./build-doc"
 
-import {Viewable, Editable} from "./type"
+import {Viewable, Editable, Serializable} from "./type"
 import extendible from "../tools/extendible"
+import {DOMReducer, EventReducer} from "./reducer"
 
 const Input=extendible({
+	DOMReducer,EventReducer,
 	Viewable:Object.assign(Viewable,{
 		install(conf){
 			Input.install(this,conf)
@@ -13,7 +15,7 @@ const Input=extendible({
 			Input.uninstall(this)
 		}
 	}),
-	Editable: Object.assign(Editable,{
+	Editable: Object.assign(Serializable,{
 		install(conf){
 			Input.install(this,conf)
 		},

@@ -76,7 +76,7 @@ export default class EditableDocument extends Input.Editable{
 	}
 
 	getFontList(){
-
+		return []
 	}
 
 	static Reducer=class extends Input.Editable.Reducer{

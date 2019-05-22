@@ -2,7 +2,7 @@ import React from "react"
 import PropTypes from "prop-types"
 
 import uuid from "../tools/uuid"
-import {default as Reducer} from "./reducer"
+import {DOMReducer as Reducer} from "./reducer"
 
 export class Viewable{
 	static get isWeEditType(){

@@ -1,7 +1,7 @@
-import {createState} from "../../state"
 import immutable,{Map} from "immutable"
-import Reducer from "."
+import Reducer from "./dom"
 import xQuery from "./xquery"
+import {createState} from "../../state"
 
 //Technology Compatibility Kit for document reducer
 export default function(TypedDocument){
@@ -131,7 +131,7 @@ export default function(TypedDocument){
                 reducer.cursorAt("1_1_1_1",1,"2_2",1)
                 const cloned=reducer.clone()
                 expect(cloned.length).toBe(2)
-				
+
                 expect(cloned.eq(0).text()).toBe("elloworld")
                 expect(cloned.eq(1).text()).toBe("hellow")
 
@@ -877,7 +877,7 @@ export default function(TypedDocument){
                     reducer.cursorAt("1_1_1",1)
                     reducer.insert({data:[{type:"text",children:"hello"}]})
                     const texts=reducer.$('#1 text')
-					
+
                     expect(texts.length).toBe(3)
                     expect(texts.eq(0).text()).toBe("t")
                     expect(texts.eq(1).text()).toBe("hello")
