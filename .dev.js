@@ -195,7 +195,7 @@ function testOffice(representation="pagination"){
 						}
 						/>
 				}
-				children={<VariantEditor representation={<Pagination fonts="fonts"/>}
+				children={<VariantEditor representation={representation}
 					onContextMenu={e=>console.log("context menu")}
 					onKeyDown={e=>console.log("key down")}
 					/>}

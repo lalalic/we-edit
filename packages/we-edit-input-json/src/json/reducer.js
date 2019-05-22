@@ -21,16 +21,22 @@ export default class extends Input.EventReducer{
         })
 
         this.cursorAt(t1.get("id"),0)
-        this.enter_at_beginning_of(...arguments)
+        try{
+            this.insert(...arguments)
+        }finally{
+            this.cursorAt(t1.get("id"),0)
+        }
     }
 
     enter_at_beginning_of(){
         const {parent:pId,id,type}=this.targetNode.toJS()
-        this.content.updateIn([pId,"children"],children=>children.slice(0,children.indexOf(id)))
+        var parent=this.content.get(pId)
+        this.content.updateIn([pId,"children"],children=>{
+            return children.slice(0,children.indexOf(id))
+        })
 
         const p1Id=this.file.makeId()
-        const parent=this.content.get(pId)
-            .set("id",p1Id)
+        parent=parent.set("id",p1Id)
             .updateIn(["children"], children=>{
                 children=children.slice(children.indexOf(id))
                 children.forEach(a=>this.content.setIn([a,"parent"],p1Id))
@@ -38,13 +44,14 @@ export default class extends Input.EventReducer{
             })
         this.content.set(p1Id,parent)
 
-        this.content.updateIn([parent.get("parent"),"children"],children=>
-            children.insert(children.indexOf(pId)+1,parent.get("parent"))
-        )
+        this.content.updateIn([parent.get("parent"),"children"],children=>{
+            return children.insert(children.indexOf(pId)+1,p1Id)
+        })
 
-        this.cursorAt(parent.get("id"),0)
-
-        this.enter_at_beginning_of(...arguments)
+        this.cursorAt(pId,0)
+        if(parent.get("type")!=="paragraph"){
+            this.insert(...arguments)
+        }
     }
 
     enter_at_beginning_of_paragraph(){
