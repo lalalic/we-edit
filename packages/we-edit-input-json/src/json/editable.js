@@ -69,8 +69,7 @@ export default class EditableDocument extends Input.Editable{
 				node)
 		}
 
-		//since state is file, don't need render changed
-		this.renderNode=node=>node.toJS()
+		this.renderNode=node=>renderNode(node,createElement)
 
 		return renderNode(this.data,createElement)
 	}

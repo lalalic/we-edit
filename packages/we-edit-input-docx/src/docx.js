@@ -53,6 +53,20 @@ export default class Document extends docx4js{
 		this.officeDocument.styles.rollback(styles)
 	}
 
+	static parseXml=function(){
+		const initialize=docx4js.parseXml(...arguments)
+		initialize.prototype.afterOrPrepend=function(dom,selector){
+			const selected=this.children(selector)
+			if(selected.length){
+				selected.after(dom)
+			}else{
+				this.prepend(dom)
+			}
+			return this
+		}
+		return initialize
+	}
+
 	static OfficeDocument=class extends docx4js.OfficeDocument{
 		_init(){
 			super._init(...arguments)

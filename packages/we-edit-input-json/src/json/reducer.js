@@ -50,7 +50,11 @@ export default class extends Input.EventReducer{
 
         this.cursorAt(pId,0)
         if(parent.get("type")!=="paragraph"){
-            this.insert(...arguments)
+            try{
+                this.insert(...arguments)
+            }finally{
+                this.cursorAt(pId,0)
+            }
         }
     }
 

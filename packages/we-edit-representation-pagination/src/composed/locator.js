@@ -52,23 +52,27 @@ export default compose(
                 const cursorPosition=positioning.position(id, at)
                 const isCursor=a.start.id==a.end.id && a.start.at==a.end.at
                 var rangeRects=!isCursor ? positioning.getRangeRects(a.start,a.end) : []
-                var focusShape=positioning.getComposer(id).getFocusShape()
-                if(focusShape){
-                    const {id:fid, x:x0=0, y:y0=0}=focusShape.props
-                    const isSelfSelected=a.start.id==a.end.id && fid==id && a.start.at!=a.end.at
-                    const isContentSelected=!!positioning.getContent(id).parents(`#${fid}`).length
-                    if(isSelfSelected || isContentSelected){
-                        const {x=0,y=0}=positioning.position(fid, 0)||{}
-                        const props={x:x+x0,y:y+y0,positioning}
-                        if(isContentSelected){
-                            props.onMove=null
+                var focusShape=null
+                const composer=positioning.getComposer(id)
+                if(composer){
+                    focusShape=composer.getFocusShape()
+                    if(focusShape){
+                        const {id:fid, x:x0=0, y:y0=0}=focusShape.props
+                        const isSelfSelected=a.start.id==a.end.id && fid==id && a.start.at!=a.end.at
+                        const isContentSelected=!!positioning.getContent(id).parents(`#${fid}`).length
+                        if(isSelfSelected || isContentSelected){
+                            const {x=0,y=0}=positioning.position(fid, 0)||{}
+                            const props={x:x+x0,y:y+y0,positioning}
+                            if(isContentSelected){
+                                props.onMove=null
+                            }
+                            focusShape=React.cloneElement(focusShape,props)
+                            if(isSelfSelected){
+                                rangeRects=[]
+                            }
+                        }else{
+                            focusShape=null
                         }
-                        focusShape=React.cloneElement(focusShape,props)
-                        if(isSelfSelected){
-                            rangeRects=[]
-                        }
-                    }else{
-                        focusShape=null
                     }
                 }
 

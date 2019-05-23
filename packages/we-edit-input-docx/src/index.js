@@ -147,10 +147,12 @@ export default class SerializableDocx extends EditableDocx{
 	px2Pt(px){
 		return px*72/96
 	}
+
+	static Reducer=require("./reducer")
 }
 
 const defineId=(target,id)=>Object.defineProperty(target,"xxid",{
-	enumerable: true,
+	enumerable: false,
 	configurable: true,
 	writable: false,
 	value: id
