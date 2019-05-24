@@ -43,6 +43,14 @@ export default class Base{
 		return this._selection
 	}
 
+	cursorAtEnd(id){
+		if(this.content.getIn([id,"type"])=="text"){
+			return this.cursorAt(id, this.content.getIn([id,"children"]).length)
+		}else{
+			return this.cursorAt(id,1)
+		}
+	}
+
 
 	insert({data,shiftKey}){
 

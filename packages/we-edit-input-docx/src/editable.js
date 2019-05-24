@@ -61,7 +61,7 @@ export default class extends Input.Editable{
 			props[a.split(":").pop()]=fx(attribs[a])
 			return props
 		},{})
-		
+
 		return officeDocument.$(node).props({
 			tidy_pPrDefault:({pPr})=>pPr,
 			...same("keepNext,keepLines,contextualSpacing,cantSplit".split(","),()=>true),
@@ -72,9 +72,9 @@ export default class extends Input.Editable{
 			cnfStyle:({"w:val":val})=>parseInt(val,2),
 			ind:x=>eachAttrib(x,a=>officeDocument.doc.dxa2Px(a)),
 			//...same("tblInd,tcW,left,right,top,bottom".split(","),({"w:w":val})=>officeDocument.doc.dxa2Px(val)),
-			
+
 			...same("jc,tblStyleColBandSize,tblStyleRowBandSize".split(","),({"w:val":val})=>val),
-			
+
 			tidy_rPrDefault:({rPr})=>rPr,
 			...same("ascii,eastAsia,hAnsi,cs".split(",").map(a=>a+'Theme'),v=>officeDocument.theme.fontx(v)),
 			...same("sz,szCs,kern".split(",").map(a=>'tidy_'+a),({val})=>parseInt(val)/2),
@@ -135,12 +135,15 @@ export default class extends Input.Editable{
 
 		const styles=new (class{})();//keep as raw object in state
 
-		const createStylesElement=()=>createElement(
-			components.Styles,
-			{styles, updatedAt: Date.now()},
-			null,
-			{id:"styles"}
-		)
+		const createStylesElement=()=>{
+			return null
+			createElement(
+				components.Styles,
+				{styles, updatedAt: Date.now()},
+				null,
+				{id:"styles"}
+			)
+		}
 
 		const buildFactory=createElement=>(type,{node,key:_1,type:_2, ...props},children)=>{
 			children=children.reduce((merged,a)=>{
@@ -200,11 +203,9 @@ export default class extends Input.Editable{
 						...selector.select(node.children.filter(a=>a.name!="w:body")),
 						evenAndOddHeaders,
 						precision,
+						styles,
 					},
-					[
-						createStylesElement(),
-						...children
-					],
+					children,
 					node
 				)
 			}
@@ -311,9 +312,7 @@ export default class extends Input.Editable{
 		//implement loader.renderChangedNode
 		this.renderNode=(node,createElement)=>{
 			build=buildFactory(createElement)
-			if(node.cheerio)
-				node=node.get(0)
-			return docx.officeDocument.renderNode(node,build,identify)
+			return docx.officeDocument.renderNode(this._unwrap(node),build,identify)
 		}
 
 		this.refreshStyles=createStylesElement
@@ -334,4 +333,8 @@ export default class extends Input.Editable{
     refreshStyles(){
         //injected implementation by render
     }
+
+	_unwrap(n){
+		return n && ("cheerio" in n) && n.get(0) || n
+	}
 }

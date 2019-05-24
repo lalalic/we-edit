@@ -6,6 +6,9 @@ export default class SerializableDocx extends EditableDocx{
 		if(!node){
 			debugger
 		}
+
+		node=this._unwrap(node)
+
 		if(uid){
 			defineId(node.attribs,uid)
 			return uid
@@ -148,7 +151,7 @@ export default class SerializableDocx extends EditableDocx{
 		return px*72/96
 	}
 
-	static Reducer=require("./reducer")
+	static Reducer=require("./actions")
 }
 
 const defineId=(target,id)=>Object.defineProperty(target,"xxid",{

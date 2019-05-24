@@ -1,6 +1,10 @@
 import {Input} from "we-edit"
 
 export default class extends Input.EventReducer{
+    get targetNode(){
+        return this.$target.get(0)
+    }
+
     text_in_text({data}){
         const {start:{id,at}}=this.selection
         const src=this.targetNode.get("children")

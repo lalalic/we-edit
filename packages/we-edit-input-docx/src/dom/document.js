@@ -14,7 +14,7 @@ export default ({Document, Container,Frame})=>class extends Component{
 	}
 
 	get styles(){
-		return this.props.children[0].props.styles
+		return this.props.styles
 	}
 
 	getChildContext(){
