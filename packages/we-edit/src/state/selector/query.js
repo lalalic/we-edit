@@ -322,6 +322,43 @@ export default class Query{
 		return new this.constructor(this.state,Array.from(found))
 	}
 
+	
+	to(dest){
+		const target0=this, target1=this._$(dest)
+		const targets=[]
+        
+        const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
+        if(ancestor.length>0){
+            let ancestors0=target0.parentsUntil(ancestor)
+            if(ancestors0.length==0){
+                ancestors0=ancestors0.add(target0)
+            }
+            let ancestors1=target1.parentsUntil(ancestor)
+            if(ancestors1.length==0){
+                ancestors1=ancestors1.add(target1)
+            }
+            const top0=ancestors0.last()
+            const top1=ancestors1.last()
+
+			
+			
+            ancestors0.not(target0).not(top0).each((i,a)=>{
+                targets.splice(targets.length,0,...this._$('#'+a.get("id")).nextAll().toArray())
+			})
+
+			targets.splice(targets.length,0,...top0.nextUntil(top1).toArray())
+			
+            ancestors1.not(target1).not(top1).each((i,a)=>{
+                targets.splice(targets.length,0,...this.$('#'+a.get("id")).prevAll().toArray())
+            })
+		}
+		targets.splice(0,0,target0.attr("id"))
+
+        targets.splice(targets.length,0, target1.attr("id"))
+		
+		return this._$(Array.from(new Set(targets)))
+	}
+
 	children(selector){
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,k)=>{

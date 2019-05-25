@@ -1,6 +1,6 @@
-import Seperate from "./seperate"
+import Base from "./base"
 const PR="w\\:rPr,w\\:pPr,w\\:tblPr,w\\:sdtPr,w\\:tcPr,w\\:trPr"
-export default class Type extends Seperate{
+export default class Type extends Base{
     constructor(){
         super(...arguments)
         this.PR=PR
