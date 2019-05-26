@@ -17,7 +17,7 @@ export default class extends Base{
     }
         
     emit(action,conds, ...payload){
-        const event=conds.find(pos=>`${action}_${cond}` in this)
+        const event=conds.find(cond=>`${action}_${cond}` in this)
         if(event){
             console.log(`${action}_${event}`)
             this[`${action}_${event}`](...payload,conds)
@@ -27,7 +27,7 @@ export default class extends Base{
     }
 
     isEmpty(){
-        const {type,children}=this.target.toJS()
+        const {type,children}=this.content.get(this.selection.start.id).toJS()
         return (this.isContainer(type) || type=="text") && (!children || children.length==0)
     }
     
@@ -115,7 +115,7 @@ export default class extends Base{
 	}
 
 	get conds(){
-        const target=this.target
+        const target=this.content.get(this.selection.start.id)
         const {type,children,parent}=target.toJS()
         const parentType=this.content.getIn([parent,"type"])
         const {id,at=0}=this.selection.start
