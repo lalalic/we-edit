@@ -7,12 +7,33 @@ export default class extends Input.EventReducer{
         const src=target.text()
         
         target.text(src.substring(0,at))
-        const cloned=target.clone().text(src.substring(at))
+        const cloned=target.clone()
+            .text(src.substring(at))
+            .insertAfter(target)
         
         this.file.renderChanged(this.file.getNode(this.$target.parent().attr("id")))
 
         this.cursorAtEnd(id)
     }
+
+    seperate_at_text_for_start(){
+        const {start:{id,at},end}=this.selection
+        const target=this.target
+        const src=target.text()
+        
+        target.text(src.substring(0,at))
+        const cloned=target.clone()
+            .text(src.substring(at))
+            .insertAfter(target)
+        const clonedId=this.file.makeId(cloned)
+        this.file.renderChanged(this.file.getNode(this.$target.parent().attr("id")))
+
+        if(end.id==id){
+            this.cursorAt(clonedId,0,clonedId,src.length-at)
+        }else{
+            this.cursorAt(clonedId,0)
+        }
+    }    
 
     seperate_at_beginning_for_end(){
         var current=this.$target, prevId
@@ -27,19 +48,6 @@ export default class extends Input.EventReducer{
 
     seperate_at_empty_for_end(){
         this.cursorAtEnd(this.selection.start.id)
-    }
-
-    seperate_at_text_for_start(){
-        const {id,at}=this.selection.start
-        const target=this.target
-        const src=target.text()
-        
-        target.text(src.substring(0,at))
-        const cloned=target.clone().text(src.substring(at))
-        const clonedId=this.file.makeId(cloned)
-        this.file.renderChanged(this.file.getNode(this.$target.parent().attr("id")))
-
-        this.cursorAt(clonedId,0)
     }
 
     seperate_at_empty_for_start(){

@@ -53,30 +53,30 @@ export default class Base{
 
 
 	insert({data,shiftKey}){
-
+		return this
 	}
 
 	create({type}){
-
+		return this
 	}
 
 	update({id,type,...changing}){
-
+		return this
 	}
 
 	remove({backspace}){
-
+		return this
 	}
 
 	copy(){
-
+		return this
 	}
 
 	cut(){
-
+		return this
 	}
 
 	paste(){
-
+		return this
 	}
 }

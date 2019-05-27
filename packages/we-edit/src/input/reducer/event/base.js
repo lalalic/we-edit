@@ -62,14 +62,11 @@ export default class extends Base{
         }
         end=this.selection.start
 
-        this.cursorAt(start.id,start.at)
+        this.cursorAt(start.id,start.at,end.id,end.at)
         conds=this.conds
         if(!(conds.includes("at_beginning"))){
-            this.emit(action,this.conds.map(a=>a+"_for_beginning"))
+            this.emit(action,this.conds.map(a=>a+"_for_start"))
         }
-        start=this.selection.start
-
-        this.cursorAt(start.id,start.at,end.id,end.at)
     }
 
 
@@ -209,6 +206,7 @@ export default class extends Base{
 
     update({id,type,...changing}){
         this.seperateSelection()
+        return this
         const {start,end}=this.selection
         if(!type){
 			type=Object.keys(changing)[0]
@@ -239,5 +237,6 @@ export default class extends Base{
         }finally{
             this.cursorAt(start.id,start.at,end.id,end.at)
         }
+        return this
 	}
 }
