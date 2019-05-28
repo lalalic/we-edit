@@ -4,6 +4,9 @@ import PropTypes from "prop-types"
 import uuid from "../tools/uuid"
 import {DOMReducer as Reducer} from "./reducer"
 
+import {getSelection} from "../state/selector"
+import {selection} from "../state/reducer"
+
 export class Viewable{
 	static get isWeEditType(){
 		return true
@@ -178,7 +181,8 @@ export class Editable extends Viewable{
 	}: all these changes will be applied on state
 	- any else: reduce selection action
 	*/
-	onChange(state,{type,payload}){
+	onChange(state,action){
+		const {type,payload}=action
 		const params=[state]
 		const reducer=new this.constructor.Reducer(...params)
 		switch(type){
@@ -204,6 +208,12 @@ export class Editable extends Viewable{
 				return reducer.move(payload).state()
 			case "we-edit/history/UNDO":
 				return reducer.undo(payload).state()
+			case "we-edit/selection/SELECTED":
+			case "we-edit/selection/STARTEDAT":{
+				const {start, end, cursorAt}=selection(getSelection(state),action)
+				reducer.cursorAt(start.id, start.at, end.id, end.at, cursorAt)
+				return reducer.state()
+			}
 		}
 		return true
 	}

@@ -104,7 +104,7 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance,TypedComponen
 
 	try{
 		inputTypeInstance.startTransaction()
-
+		
 		const changed=inputTypeInstance.onChange(changeableState,action)
 		if(changed===false){
 			return state
@@ -112,8 +112,10 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance,TypedComponen
 			state=changed.remove("_content")
 		}else if(typeof(changed)=="object"){
 			const {selection,updated}=changed
-			state=(selection ? state.mergeIn(["selection"], selection) : state)
-				.setIn(["content"],changedContent.asImmutable())
+			if(selection){
+				state=state.mergeIn(["selection"], selection)
+			}
+			state=state.setIn(["content"],changedContent.asImmutable())
 		}else{
 			state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))
 		}

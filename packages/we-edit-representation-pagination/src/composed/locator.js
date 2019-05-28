@@ -87,7 +87,7 @@ export default compose(
                     this.range=React.cloneElement(range,{rects:rangeRects,shape:focusShape})
                 }
 
-				this.style=cursorPosition ? new SelectionStyle(cursorPosition,positioning) : null
+				this.style=cursorPosition ? new SelectionStyle(cursorPosition,positioning, a.start, a.end) : null
 				return true
 			}
         }
@@ -114,11 +114,19 @@ export default compose(
 })
 
 class SelectionStyle{
-    constructor(position,positioning){
+    constructor(position,positioning, start, end){
         this.position=position
         this.positioning=positioning
         this.getComposer=a=>positioning.getComposer(a)
         this.getContent=a=>positioning.getContent(a)
+        this.start=start.id
+        this.end=end.id
+        if(start.id!=end.id){
+            if(this.getContent(start.id).forwardFirst(`#${end.id}`).length==0){
+                this.start=end.id
+                this.end=start.id
+            }
+        }
     }
 
     toJSON(){
@@ -178,8 +186,19 @@ class SelectionStyle{
     }
 
     content(type){
-        let $=this.getContent(this.position.id)
-        let props=$.is(type) ? $.props() : $.closest(type).props()
-        return props ? props.toJS() : {props:null}
+        if(this.start!=this.end){
+            var targets=this.getContent(this.start).forwardUntil(`#${this.end}`)
+            targets=targets.add('#'+this.end).add('#'+this.start,"unshift")
+            targets=targets.filter(type)
+            if(targets.length>0){
+                return targets.props().toJS()
+            }else{
+                return {props:null}
+            }
+        }else{
+            let $=this.getContent(this.position.id)
+            let props=$.is(type) ? $.props() : $.closest(type).props()
+            return props ? props.toJS() : {props:null}
+        }
     }
 }

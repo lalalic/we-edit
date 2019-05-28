@@ -21,8 +21,8 @@ export const Selection={
 				start:{
 					id:start,
 					at
-				}
-				,end:{
+				},
+				end:{
 					id:end,
 					at:endAt
 				}
@@ -30,8 +30,7 @@ export const Selection={
 		}
 	},
 	START_AT:(id,at)=>({type:"we-edit/selection/STARTAT",payload:{id,at}}),
-	END_AT: (id,at)=>({type:"we-edit/selection/ENDAT",payload:{id,at}}),
-	REMOVE: ()=>({type:"we-edit/selection/REMOVE"}),
+	
 	COPY: payload=>({type:"we-edit/selection/COPY",payload}),
 	PASTE: payload=>({type:"we-edit/selection/PASTE",payload}),
 	CUT: payload=>({type:"we-edit/selection/CUT",payload}),

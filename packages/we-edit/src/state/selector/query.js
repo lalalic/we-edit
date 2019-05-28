@@ -1,6 +1,7 @@
 import {Map,List} from "immutable"
 import {traverse, traverseNext, traversePrev}  from "."
 import cssSelect, {isIdSelector} from "../../tools/css"
+import { timingSafeEqual } from "crypto";
 
 const isNode=a=>a instanceof Map
 
@@ -13,7 +14,7 @@ export default class Query{
 		this.state=state
 		this._content=this._getContent()
 		this._nodes=[]
-		this._$=n=>new this.constructor(state,[n])
+		this._$=n=>new this.constructor(state,n)
 		if(!selector){
 			this._nodes.push('root')
 			return this
@@ -349,7 +350,7 @@ export default class Query{
 			targets.splice(targets.length,0,...top0.nextUntil(top1).toArray())
 			
             ancestors1.not(target1).not(top1).each((i,a)=>{
-                targets.splice(targets.length,0,...this.$('#'+a.get("id")).prevAll().toArray())
+                targets.splice(targets.length,0,...this._$('#'+a.get("id")).prevAll().toArray())
             })
 		}
 		targets.splice(0,0,target0.attr("id"))
@@ -534,6 +535,10 @@ export default class Query{
 					.map((i,node)=>node.get("children"))
 					.join("")
 		}).join("")
+	}
+
+	indexOf(selector){
+		return this._nodes.indexOf(this._$(selector)._nodes[0])
 	}
 
 	toArray(){
