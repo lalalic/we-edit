@@ -31,3 +31,5 @@ node_modules
 dist/*.js
 
 *-win32-x64/
+
+dist/fonts

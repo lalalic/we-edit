@@ -103,7 +103,7 @@ export default class Responsible extends Component{
                 }}
 
                 onClick={e=>{
-                    if(!this.down.selected || this.down.selected!=e.timeStamp){
+                    if(!this.down.selected){
                         console.log("on click")
                         this.down.selected=false
                         this.onClick(e)
@@ -111,7 +111,7 @@ export default class Responsible extends Component{
                 }}
 
 				onDoubleClick={e=>{
-					if(!this.down.selected || this.down.selected!=e.timeStamp){
+					if(!this.down.selected){
 						this.down.selected=false
 						this.onClick(e,true)
 					}
@@ -142,7 +142,7 @@ export default class Responsible extends Component{
 						this.selecting.current.setState({start:undefined, end:undefined, rects:undefined,selecting:false})
                         ;({start,end}=this.positioning.extendSelection(start,end))
                         this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))
-                        e.preventDefault()
+                        this.down.selected=true
                     }
 				}}
 				>

@@ -88,10 +88,8 @@ export default class Base{
 				}
 				
 				//start should be ahead of end
-				if(start.id!=end.id && this.$('#${start.id}').forwardFirst(`#${end.id}`).length==0){
-					temp=end
-					end=start
-					start=end
+				if(start.id!=end.id && this.$(`#${start.id}`).forwardFirst(`#${end.id}`).length==0){
+					;({start,end}={start:end,end:start});
 					this.selection.cursorAt=this.selection.cursorAt=="start" ? "end" : "start"
 				}
 

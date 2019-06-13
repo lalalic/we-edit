@@ -263,11 +263,17 @@ export default class extends Base{
         try{
             targets.forEach(id=>{
                 this.cursorAt(id,0)
-                this.emit("update",this.conds,{id,type,...changing})
+                this.emit("update",this.conds,{id,...changing})
             })
         }finally{
             this.cursorAt(start.id,start.at,end.id,end.at)
         }
         return this
-	}
+    }
+    
+    create({type,...props}){
+        this.removeSelection()
+        this.emit("create_"+type.toLowerCase(),this.conds,props)
+		return this
+    }
 }
