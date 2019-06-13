@@ -31,4 +31,6 @@ export default class extends Backspace{
         editor.node=this.file.getNode(id)
         editor.update({id},changing)
     }
+
+    
 }

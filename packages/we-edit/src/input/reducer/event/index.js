@@ -52,7 +52,7 @@ export default class extends Base{
             }else{
                 if(this.content.getIn([start.id,"type"])!="text"){
                     return
-                }else if(start.at==0 && end.at>=this.content.getIn([id,"children"]).length-1){
+                }else if(start.at==0 && end.at>=this.content.getIn([start.id,"children"]).length-1){
                     return
                 }
             }

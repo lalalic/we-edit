@@ -17,7 +17,7 @@ const CursorShape=({y=0,x=0,height=0,color="black", style})=>(
 )
 CursorShape.displayName="CursorShape"
 
-export default class Responsible extends Component{
+export default class Responsible extends Component{  
     static contextTypes={
         onContextMenu: PropTypes.func
     }
@@ -87,10 +87,10 @@ export default class Responsible extends Component{
 	}
 
     render(){
+        console.log("render")
         const {children,canvasId, continueCompose, getComposer,dispatch, viewport, ...props}=this.props
-		var down={}
-		const flagEvent=({clientX,clientY})=>down={clientX,clientY}
-		const shouldIgnore=({clientX,clientY})=>clientX==down.clientX && clientY==down.clientY
+		const flagEvent=({clientX,clientY})=>this.down={clientX,clientY}
+		const shouldIgnore=({clientX,clientY})=>clientX==this.down.clientX && clientY==this.down.clientY
         return (
             <ComposedDocument {...props}
 				innerRef={a=>{this.canvas=a}}
@@ -103,15 +103,16 @@ export default class Responsible extends Component{
                 }}
 
                 onClick={e=>{
-                    if(!down.selected){
-                        down.selected=false
+                    if(!this.down.selected || this.down.selected!=e.timeStamp){
+                        console.log("on click")
+                        this.down.selected=false
                         this.onClick(e)
                     }
                 }}
 
 				onDoubleClick={e=>{
-					if(!down.selected){
-						down.selected=false
+					if(!this.down.selected || this.down.selected!=e.timeStamp){
+						this.down.selected=false
 						this.onClick(e,true)
 					}
 				}}
@@ -141,7 +142,7 @@ export default class Responsible extends Component{
 						this.selecting.current.setState({start:undefined, end:undefined, rects:undefined,selecting:false})
                         ;({start,end}=this.positioning.extendSelection(start,end))
                         this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))
-                        down.selected=true
+                        e.preventDefault()
                     }
 				}}
 				>
