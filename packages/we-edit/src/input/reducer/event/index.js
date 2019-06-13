@@ -19,7 +19,7 @@ export default class extends Base{
     emit(action,conds, ...payload){
         const event=conds.find(cond=>`${action}_${cond}` in this)
         if(event){
-            console.log(`${action}_${event}`)
+            console.warn({message:"event with handler",action,conds,payload})
             this[`${action}_${event}`](...payload,conds)
         }else{
             console.warn({message:"event without handler",action,conds,payload})
@@ -29,6 +29,10 @@ export default class extends Base{
     isEmpty(){
         const {type,children}=this.content.get(this.selection.start.id).toJS()
         return (this.isContainer(type) || type=="text") && (!children || children.length==0)
+    }
+
+    isWhole(){
+        return false
     }
     
     isContainer(type){
@@ -144,6 +148,8 @@ export default class extends Base{
         const pos=[], conds=[]
         if(this.isEmpty()){
             pos.push("at_empty")
+        }else if(this.isWhole()){
+            pos.push("at_whole")
         }else{
             if(at==0){
                 pos.push("at_beginning_of")
@@ -171,10 +177,10 @@ export default class extends Base{
         pos.forEach(a=>{
             let current=target,parent
             switch(a){
-                case "at_empty":{
-                    conds.push("at_empty")
+                case "at_whole":
+                case "at_empty":
+                    conds.push(a)
                     break
-                }
                 case "at_beginning_of":{
                     while(parent=this.content.get(current.get("parent"))){
                         if(parent.get("children").first()!==current.get("id")){
@@ -231,7 +237,7 @@ export default class extends Base{
 
     update({id,type,...changing}){
         this.seperateSelection()
-        return this
+        
         const {start,end}=this.selection
         if(!type){
 			type=Object.keys(changing)[0]
