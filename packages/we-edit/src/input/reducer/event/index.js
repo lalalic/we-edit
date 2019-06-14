@@ -146,6 +146,50 @@ export default class extends Base{
         const {type,children,parent}=target.toJS()
         const parentType=this.content.getIn([parent,"type"])
         const {id,at=0}=this.selection.start
+        const pos=
+            (this.isEmpty()&&"empty")||
+            (this.isWhole()&&"whole")||
+            (at==0 && "beginning")||
+            (type=="text" ? (at>=children.length && "end") : (at==1)&&"end")
+        
+        const up2Parents=((current,parent,conds)=>{
+                switch(pos){
+                case "whole":
+                        current=this.content.get(current.get("parent"))
+                case "empty":
+                    while(parent=this.content.get(current.get("parent"))){
+                        let children=parent.get("children")
+                        if(children.size()==1 && children.first()==current.get("id")){
+                            break
+                        }
+                        conds.unshift(parent.get("type"))
+                        current=parent
+                    }
+                break
+                case "beginning":
+                    while(parent=this.content.get(current.get("parent"))){
+                        if(parent.get("children").first()!==current.get("id")){
+                            break
+                        }
+                        conds.unshift(parent.get("type"))
+                        current=parent
+                    }
+                break
+                case "end":
+                    while(parent=this.content.get(current.get("parent"))){
+                        if(parent.get("children").last()!==current.get("id")){
+                            break
+                        }
+                        conds.unshift(parent.get("type"))
+                        current=parent
+                    }
+                break
+                }
+                return 
+            })(target);
+
+        
+
         const pos=[], conds=[]
         if(this.isEmpty()){
             pos.push("at_empty")
