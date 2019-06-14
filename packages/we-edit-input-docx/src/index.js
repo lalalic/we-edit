@@ -43,6 +43,10 @@ export default class SerializableDocx extends EditableDocx{
 		return node
 	}
 
+	$(){
+		return this.doc.officeDocument.content(...arguments)
+	}
+
 	cloneNode({id,type}, keepId=false){
 		const autoAttach=true//always
 		const editor=new editors[Type(type)](this)

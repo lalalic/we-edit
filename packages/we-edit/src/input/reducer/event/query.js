@@ -37,4 +37,42 @@ export default class xQuery extends Query{
 	toString(){
 		return this._nodes.map(id=>this.file.toString(id)).join("\r\n")
 	}
+
+	before(node){
+		const grandId=this.parent().attr("id")
+		const id0=new this.constructor(this.state,node).attr('id')
+		const id1=this.attr('id')
+		this._content.updateIn([grandId,"children"],children=>
+			children.splice(children.indexOf(id1),0,id0)
+		)
+
+		this._content.updateIn([id0,"parent"],parent=>{
+			if(parent && this._content.has(parent)){
+				this._content.updateIn([parent,"children"],children=>
+					children.splice(children.indexOf(id0),1)
+				)
+			}
+			return grandId
+		})
+		return this
+	}
+
+	after(node){
+		const grandId=this.parent().attr("id")
+		const id1=new this.constructor(this.state,node).attr('id')
+		const id0=this.attr('id')
+		this._content.updateIn([grandId,"children"],children=>
+			children.splice(children.indexOf(id0)+1,0,id1)
+		)
+
+		this._content.updateIn([id1,"parent"],parent=>{
+			if(parent && this._content.has(parent)){
+				this._content.updateIn([parent,"children"],children=>
+					children.splice(children.indexOf(id1),1)
+				)
+			}
+			return grandId
+		})
+		return this
+	}
 }

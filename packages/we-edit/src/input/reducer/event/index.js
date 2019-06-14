@@ -138,8 +138,9 @@ export default class extends Base{
                 
             }
         }
-	}
+    }
 
+    //at [empty|whole|beginning_of|end_of|''] [type|''] [in $parentType|''] [up_to_($parentsType)], 5*2*2*5
 	get conds(){
         const target=this.content.get(this.selection.start.id)
         const {type,children,parent}=target.toJS()
@@ -171,33 +172,39 @@ export default class extends Base{
         if(parentType){
             pos.forEach(a=>conds.push(`${a}_${type}_in_${parentType}`))
         }
+        
         pos.forEach(a=>conds.push(`${a}_${type}`))
-        pos.forEach(a=>conds.push(`${a}_in_${parentType}`))
+        
+        if(parentType){
+            pos.forEach(a=>conds.push(`${a}_in_${parentType}`))
+        }
 
         pos.forEach(a=>{
-            let current=target,parent
+            let current=target,parent, i
             switch(a){
                 case "at_whole":
                 case "at_empty":
                     conds.push(a)
                     break
                 case "at_beginning_of":{
+                    i=conds.length
                     while(parent=this.content.get(current.get("parent"))){
                         if(parent.get("children").first()!==current.get("id")){
                             break
                         }
-                        conds.push(`${a}_up_to_${parent.get("type")}`)
+                        conds.splice(i,0,`${a}_up_to_${parent.get("type")}`)
                         current=parent
                     }
                     conds.push("at_beginning")
                     break
                 }
                 case "at_end_of":{
+                    i=conds.length
                     while(parent=this.content.get(current.get("parent"))){
                         if(parent.get("children").last()!==current.get("id")){
                             break
                         }
-                        conds.push(`${a}_up_to_${parent.get("type")}`)
+                        conds.splice(i,0,`${a}_up_to_${parent.get("type")}`)
                         current=parent
                     }
                     conds.push("at_end")
@@ -273,7 +280,7 @@ export default class extends Base{
     
     create({type,...props}){
         this.removeSelection()
-        this.emit("create_"+type.toLowerCase(),this.conds,props)
+        this.emit("create_"+type.toLowerCase(),this.conds,...arguments)
 		return this
     }
 }

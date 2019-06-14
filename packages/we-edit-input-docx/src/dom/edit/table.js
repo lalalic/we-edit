@@ -186,24 +186,4 @@ export class Table extends Base{
             </w:tbl>
         `
     }
-
-	create(props,{id,at}){
-        var cursor
-        super.create(props)
-        this.file.renderChanged(this.node,($,el)=>{
-            const [p0]=$('#'+id).splitUpTo("paragraph",at)
-            cursor=$(`#${el.id}`)
-                .insertAfter(p0)
-                .findFirst('text')
-                .attr('id')
-
-            if($(`#${el.id}`).next().length==0){
-                const nextP=this.$("<w:p/>").insertAfter(this.file.getNode(el.id))
-                const {nextPId}=this.file.renderChanged(nextP)
-                $('#'+nextPId).insertAfter(`#${el.id}`)
-            }
-        })
-
-		return {id:cursor,at:0}
-	}
 }

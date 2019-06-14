@@ -2,59 +2,112 @@ import Update from "./update"
 import {Text,Paragraph,Image,Section,Table} from "../dom/edit"
 
 export default class Create extends Update{
-    create_table_at_text(){
+    create_table_at_text(props){
         const {start:{id,at}}=this.selection
-        const target=this.target.attr('pos','1')
+        const target=this.target
         const text=target.text()
-        const containers="w\\:r,w\\:sdt"
-        try{
-            const $=target.prototype.constructor
-            const p=target.closest("w\\:p")
+        const clonedTarget=target.clone()
+        clonedTarget.text(text.substring(0,at))
+        target.text(text.substring(at))
+        target.before(clonedTarget)
+        const a=this.file.renderChanged(clonedTarget)
+        this.$target.before('#'+a.id)
+        this.cursorAt(id,0)
+        this.create(props)
+    }
 
-            const clonedP=p.clone()
-            const clonedTarget=clonedP.find('[pos="1"]')
-            clonedTarget.text(text.substring(0,at))
-            clonedTarget.nextAll().remove()
-            clonedTarget.parents(containers).forEach((i,el)=>{
-                $(el).nextAll(`:not(${this.PR})`).remove()
-            })
+    create_table_at_beginning_of_text(props){
+        this.create_table_at_beginning(props)
+    }
 
-            p.before(clonedP)
-            
-            target.text(text.substring(at))
-            target.prevAll().remove()
-            target.parents(containers).forEach((i,el)=>{
-                $(el).prevAll(`:not(${this.PR})`).remove()
-            })
+    create_table_at_end_of_text(props){
+        this.create_table_at_end(props)
+    }
 
-            const {id:clonedPId}=this.file.renderChanged(clonedP)
-            const $paragraph=this.$target.closest("paragraph")
-            const grandId=$paragraph.parent().attr('id')
-            this.content.updateIn([grandId,"children"],children=>{
-                return children.splice(children.indexOf(this.selection.start.id),0,clonedPId)
-            })
-            this.content.setIn([clonedPId,"parent"],grandId)
-
-            this.file.renderChanged(p)
-            this.cursorAt($paragraph.attr('id'),0)
-            this.create_table_at_beginning_of_paragraph(...arguments)
-        }finally{
-            target.attr('pos',null)
+    create_table_at_end(props){
+        const $target=this.$target
+        const next=$target.next()
+        if(next.length>0){
+            this.cursorAt(next.attr('id'),0)
+        }else{
+            const $parent=$target.parent()
+            if($parent.length>0 && $parent.attr('type')!="paragraph"){
+                this.cursorAt($parent.attr('id'),1)
+            }
         }
+        this.create(props) 
     }
+    
+    
+    create_table_at_beginning(props){
+        const MARKER="_creating"
+        const containers="w\\:r,w\\:sdt"
+        const target=this.target.attr(MARKER,1)
 
-    create_table_at_beginning_of_paragraph(element){
-        const editor=new Table(this.file)
-        editor.node=this.file.getNode(id)
-        editor.create(element)
+        const p=target.closest("w\\:p")
+        //update file
+        const clonedP=p.clone()
+        const clonedTarget=clonedP.find('[_creating=1]')
+        clonedTarget.parents(containers).each((i,el)=>{
+            this.file.$(el).nextAll(`:not(${this.PR})`).remove()
+        })
+        clonedTarget.nextAll().add(clonedTarget).remove()
         
+        p.before(clonedP)
+        
+        target.parents(containers).each((i,el)=>{
+            this.file.$(el).prevAll(`:not(${this.PR})`).remove()
+        })
+        target.prevAll().remove()
+        this.target.removeAttr(MARKER)
+
+        //update state.content
+        const a=this.file.renderChanged(clonedP)
+        const $paragraph=this.$target.closest("paragraph")
+        $paragraph.before('#'+a.id)
+
+        this.file.renderChanged(p)
+
+        this.cursorAt($paragraph.attr('id'),0)
+        this.create(props)
     }
 
-    create_table_at_end_of_paragraph(){
-
+    create_table_at_beginning_of_up_to_paragraph(props){
+        this.cursorAt(this.$target.closest("paragraph").attr('id'),0)
+        this.create(props)
     }
 
-    create_image_at_text(){
+    create_table_at_end_of_up_to_paragraph(props){
+        this.cursorAt(this.$target.closest("paragraph").attr('id'),1)
+        this.create(props)
+    }
 
+    create_table_at_end_of_up_to_document(props){
+        const p=this.target.closest("w\\:p")
+        const clonedP=p.clone()
+        clonedP.children(`:not(${this.PR})`).remove()
+        clonedP.append(`<w:r><w:t/></w:r>`)
+        p.after(clonedP)
+        const a=this.file.renderChanged(clonedP)
+        this.$target.closest("paragraph").after('#'+a.id)
+        this.create(props)
+    }
+
+    create_table_at_beginning_of_paragraph(props){
+        const editor=new Table(this.file)
+        editor.create(props)
+        this.target.before(editor.node)
+        const {id}=this.file.renderChanged(editor.node)
+        this.$target.before('#'+id)
+        this.cursorAt(this.$('#'+id).first("text").attr('id'),0)
+    }
+
+    create_table_at_end_of_paragraph(props){
+        const editor=new Table(this.file)
+        editor.create(props)
+        this.target.before(editor.node)
+        const {id}=this.file.renderChanged(editor.node)
+        this.$target.after('#'+id)
+        this.cursorAt(this.$('#'+id).first("text").attr('id'),0)
     }
 }
