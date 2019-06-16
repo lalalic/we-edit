@@ -1,3 +1,16 @@
+describe("seperation",()=>{
+    it("seperation text at end should create two text, and cursor should not be change",()=>{
+        const reducer=new Reducer()
+        reducer.cusorAt(text,)
+        reducer.seperateSelection()
+        const {start,end}=reducer.selection
+    })
+})
+
+describe("remove selection",()=>{
+
+})
+
 describe("editor actions", ()=>{
     describe("type",()=>{
         describe("character",()=>{

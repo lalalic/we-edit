@@ -139,7 +139,21 @@ export default class extends Base{
             }
         }
     }
-
+    /*
+        at_beginning_of_text_up_to_document_in_run
+        at_beginning_of_text_up_to_section_in_run
+        at_beginning_of_text_up_to_paragraph_in_run
+        at_beginning_of_text_up_to_document
+        at_beginning_of_text_up_to_section
+        at_beginning_of_text_up_to_paragraph
+        at_beginning_of_text_in_run
+        at_beginning_of_text
+        at_text
+        at_beginning_of_up_to_document
+        at_beginning_of_up_to_section
+        at_beginning_of_up_to_paragraph
+        at_beginning
+    */
     //at [empty|whole|beginning_of|end_of|''] [type|''] [in $parentType|''] [up_to_($parentsType)], 5*2*2*5
 	get conds(){
         const target=this.content.get(this.selection.start.id)
@@ -149,115 +163,60 @@ export default class extends Base{
         const pos=
             (this.isEmpty()&&"empty")||
             (this.isWhole()&&"whole")||
-            (at==0 && "beginning")||
-            (type=="text" ? (at>=children.length && "end") : (at==1)&&"end")
+            (at==0 && "beginning_of")||
+            (type=="text" ? (at>=children.length && "end_of") : (at==1)&&"end_of")||
+            ""
         
-        const up2Parents=((current,parent,conds)=>{
+        const up2Parents=((current,parent,types=[])=>{
                 switch(pos){
                 case "whole":
                         current=this.content.get(current.get("parent"))
                 case "empty":
                     while(parent=this.content.get(current.get("parent"))){
                         let children=parent.get("children")
-                        if(children.size()==1 && children.first()==current.get("id")){
+                        if(children.size==1 && children.first()==current.get("id")){
                             break
                         }
-                        conds.unshift(parent.get("type"))
+                        types.unshift(parent.get("type"))
                         current=parent
                     }
                 break
-                case "beginning":
+                case "beginning_of":
                     while(parent=this.content.get(current.get("parent"))){
                         if(parent.get("children").first()!==current.get("id")){
                             break
                         }
-                        conds.unshift(parent.get("type"))
+                        types.unshift(parent.get("type"))
                         current=parent
                     }
                 break
-                case "end":
+                case "end_of":
                     while(parent=this.content.get(current.get("parent"))){
                         if(parent.get("children").last()!==current.get("id")){
                             break
                         }
-                        conds.unshift(parent.get("type"))
+                        types.unshift(parent.get("type"))
                         current=parent
                     }
                 break
                 }
-                return 
+                return types
             })(target);
-
         
-
-        const pos=[], conds=[]
-        if(this.isEmpty()){
-            pos.push("at_empty")
-        }else if(this.isWhole()){
-            pos.push("at_whole")
-        }else{
-            if(at==0){
-                pos.push("at_beginning_of")
-            }
-
-            if(type=="text"){
-                if(at>=children.length){
-                    pos.push("at_end_of")
-                }
-            }else{
-                if(at==1){
-                    pos.push("at_end_of")
-                }
-            }
-        }
-
-        pos.push("at")
-
+        var conds=up2Parents.map(a=>`up_to_${a}`)
         if(parentType){
-            pos.forEach(a=>conds.push(`${a}_${type}_in_${parentType}`))
+            conds=[...conds.map(a=>`${a}_in_${parentType}`),...conds,`in_${parentType}`]
         }
-        
-        pos.forEach(a=>conds.push(`${a}_${type}`))
-        
-        if(parentType){
-            pos.forEach(a=>conds.push(`${a}_in_${parentType}`))
-        }
-
-        pos.forEach(a=>{
-            let current=target,parent, i
-            switch(a){
-                case "at_whole":
-                case "at_empty":
-                    conds.push(a)
-                    break
-                case "at_beginning_of":{
-                    i=conds.length
-                    while(parent=this.content.get(current.get("parent"))){
-                        if(parent.get("children").first()!==current.get("id")){
-                            break
-                        }
-                        conds.splice(i,0,`${a}_up_to_${parent.get("type")}`)
-                        current=parent
-                    }
-                    conds.push("at_beginning")
-                    break
-                }
-                case "at_end_of":{
-                    i=conds.length
-                    while(parent=this.content.get(current.get("parent"))){
-                        if(parent.get("children").last()!==current.get("id")){
-                            break
-                        }
-                        conds.splice(i,0,`${a}_up_to_${parent.get("type")}`)
-                        current=parent
-                    }
-                    conds.push("at_end")
-                    break
-                }
-            }
-        })
-
-        return conds
+        //pos+type+parents
+        conds=conds.map(a=>`${pos}_${type}_${a}`)
+        //pos+type
+        conds.push(`${pos}_${type}`)
+        //+type
+        conds.push(type)
+        //+pos+grand
+        return [...conds,...up2Parents.map(a=>`${pos}_up_to_${a}`),pos.replace(/_of$/,'')]
+            .filter(a=>!!a).map(a=>a.replace(/^_/g,""))
+            .map(a=>'at_'+a)
     }
 
     insert({data}){
