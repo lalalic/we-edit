@@ -75,4 +75,37 @@ export default class xQuery extends Query{
 		})
 		return this
 	}
+
+	prepend(node){
+		const id=new this.constructor(this.state,node).attr('id')
+		this._content.updateIn([this.attr('id'),'children'],children=>
+			children.splice(0,0,id)
+		)
+
+		this._content.updateIn([id,'parent'],parent=>{
+			if(parent && this._content.has(parent)){
+				this._content.updateIn([parent,"children"],children=>
+					children.splice(children.indexOf(id),1)
+				)
+			}
+			return this.attr('id')
+		})
+	}
+
+	append(node){
+		const id=new this.constructor(this.state,node).attr('id')
+
+		this._content.updateIn([this.attr('id'),'children'],children=>
+			children.splice(children.length-1,0,id)
+		)
+
+		this._content.updateIn([id,'parent'],parent=>{
+			if(parent && this._content.has(parent)){
+				this._content.updateIn([parent,"children"],children=>
+					children.splice(children.indexOf(id),1)
+				)
+			}
+			return this.attr('id')
+		})
+	}
 }

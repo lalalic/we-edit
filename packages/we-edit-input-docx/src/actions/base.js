@@ -91,9 +91,9 @@ export default class extends Input.EventReducer{
     }
 
     create_first_paragraph(){
-        this.file.$('w\\:body').prepend(`<w:p><w:r><w:t/></w:r></w:p>`)
-        const a=this.file.renderChanged(this.file.$('w\\:p'))
-        this.$().findFirst('section').append(`#${a.id}`)
+        const $body=this.file.$('w\\:body').prepend(`<w:p><w:r><w:t/></w:r></w:p>`)
+        const a=this.file.renderChanged($body.children().first())
+        this.$().findFirst('section').prepend(`#${a.id}`)
         this.cursorAt(a.id,0)
     }
 }

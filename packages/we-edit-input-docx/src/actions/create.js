@@ -105,9 +105,52 @@ export default class Create extends Update{
     create_table_at_end_of_paragraph(props){
         const editor=new Table(this.file)
         editor.create(props)
-        this.target.before(editor.node)
+        this.target.after(editor.node)
         const {id}=this.file.renderChanged(editor.node)
         this.$target.after('#'+id)
         this.cursorAt(this.$('#'+id).first("text").attr('id'),0)
+    }
+
+    create_image_at_text(){
+        //split text to run
+        const {start:{at}}=this.selection
+        const target=this.target
+        const text=target.text()
+        target.after(target.clone().text(text.substring(at)))
+        target.text(text.substring(0,at))
+
+        const r=target.closest('w\\:r')
+        const clonedR=r.clone()
+        clonedR.children(`:not(${this.PR})`).remove()
+        clonedR.append(target.nextAll())
+        r.after(clonedR)
+
+        this.file.renderChanged(r)
+        const a=this.file.renderChanged(clonedR)
+        this.$target.closest("run").after(`#${a.id}`)
+        this.cursorAt(this.$target.parent().attr('id'),1)
+        this.create(...arguments)
+    }
+
+    create_image_at_beginning_of_run(props){
+        const editor=new Image(this.file)
+        editor.create(props)
+        this.target.before(`<w:r/>`)
+        const r=this.target.prev()
+        r.append(editor.node)
+        const {id}=this.file.renderChanged(r)
+        this.$target.before('#'+id)
+        this.cursorAt(this.$('#'+id).first().attr('id'),0)
+    }
+
+    create_image_at_end_of_run(props){
+        const editor=new Image(this.file)
+        editor.create(props)
+        this.target.after(`<w:r/>`)
+        const r=this.target.next()
+        r.append(editor.node)
+        const {id}=this.file.renderChanged(r)
+        this.$target.after('#'+id)
+        this.cursorAt(this.$('#'+id).first().attr('id'),0)
     }
 }

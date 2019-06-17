@@ -24,6 +24,23 @@ export default class Enter extends Type{
         this.enter_at_beginning(e)
     }
 
+    enter_at_empty_up_to_cell(e){
+        this.enter_at_beginning_of_up_to_table(e)
+    }
+
+    enter_at_beginning_of_table(e){
+        this.enter_at_beginning_of_up_to_table(e)
+    }
+
+    enter_at_beginning_of_up_to_table(e){
+        const $container=this.$target.closest("table,paragraph")
+        if($container.backwardFirst("paragraph").length==0){
+            this.create_first_paragraph()
+        }else{
+            this.enter_at_beginning(e)
+        }
+    }
+
     //clone parent and hold target
     enter_at_beginning(e){
         const cursor=this.selection.start

@@ -94,6 +94,13 @@ export default class Base{
 				}
 
 				this.cursorAt(start.id, start.at, end.id,end.at)
+			}else{
+				if(this.$target.closest("paragraph").length==0){
+					const p=this.$target.findFirst('paragraph')
+					if(p.length==1){
+						this.cursorAt(p.attr('id'),0)
+					}
+				}
 			}
 		}finally{
 			this.fixSelection=fixSelection
