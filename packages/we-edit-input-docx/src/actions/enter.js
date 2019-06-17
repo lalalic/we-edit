@@ -57,9 +57,16 @@ export default class Enter extends Type{
     }
 
     enter_at_empty_paragraph(){
+        this.enter_at_empty_up_to_paragraph()
+    }
+
+    enter_at_empty_up_to_paragraph(){
         this.enter_at_end_of_up_to_paragraph()
     }
 
+    enter_at_beginning_of_paragraph(){
+        this.enter_at_beginning_of_up_to_paragraph()
+    }
     enter_at_beginning_of_up_to_paragraph(){
         const p=this.target.closest("w\\:p")
         const cloned=p.clone().insertBefore(p)
@@ -72,6 +79,10 @@ export default class Enter extends Type{
             this.content.setIn([a.id,"parent"],$container.attr("id"))
             return children.insert(children.indexOf($p.attr('id')), a.id)
         })
+    }
+
+    enter_at_end_of_paragraph(){
+        this.enter_at_end_of_up_to_paragraph()
     }
 
     enter_at_end_of_up_to_paragraph(){
