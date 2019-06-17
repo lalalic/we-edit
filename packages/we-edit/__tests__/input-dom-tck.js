@@ -1,7 +1,6 @@
+import {createState} from "../src/state"
 import immutable,{Map} from "immutable"
-import Reducer from "./dom"
-import xQuery from "./xquery"
-import {createState} from "../../state"
+import xQuery from "../src/input/reducer/xquery"
 
 //Technology Compatibility Kit for document reducer
 export default function(TypedDocument){
@@ -992,3 +991,5 @@ export default function(TypedDocument){
         })
     })
 }
+
+xit("",()=>{})

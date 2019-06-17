@@ -5,8 +5,8 @@ export default class extends Base{
     constructor(state){
         super(...arguments)
         this.$=context=>new xQuery(state, context)
+        this.debug=true
     }
-
 
     get $target(){
         return this.$(`#${this.selection.start.id}`)
@@ -19,9 +19,11 @@ export default class extends Base{
     emit(action,conds, ...payload){
         const event=conds.find(cond=>`${action}_${cond}` in this)
         if(event){
-            console.warn({message:"event with handler",action,conds,payload})
+            if(this.debug){
+                console.debug({message:`${action}_${event}`,action,conds,payload})
+            }
             this[`${action}_${event}`](...payload,conds)
-        }else{
+        }else if(this.debug){
             console.warn({message:"event without handler",action,conds,payload})
         }
     }
@@ -90,7 +92,7 @@ export default class extends Base{
                     //remove whole object
                     this.emit("remove", wholifyConds())
                     return
-                }else if(start.at==0 && end.at>=this.content.getIn([id,"children"]).length-1){
+                }else if(start.at==0 && end.at>=this.content.getIn([start.id,"children"]).length-1){
                     //remove whole text
                     this.emit("remove", wholifyConds())
                     return
@@ -114,22 +116,32 @@ export default class extends Base{
             })
 
             //join
-            this.cursorAtEnd(prev.attr("id"))
-            this.cursorAt(this.selection.start.id, this.selection.start.at, next.attr("id"),0)
-            {
-                const {start,end}=this.selection
-                const parentsOfEnd=this.$('#'+end.id).parents()
-                const grandParent=this.$target.closest(parentsOfEnd)
-                const inParagraph=parentsOfEnd.slice(0,parentsOfEnd.indexOf(grandParent)).filter("paragraph").length>0
+            if(prev.length==0 && next.length==0){
+                this.create_first_paragraph()
+                return 
+            }else{
+                 if(prev.length>0){
+                    this.cursorAtEnd(prev.attr("id"))
+                    if(next.length>0){
+                        this.cursorAt(this.selection.start.id, this.selection.start.at, next.attr("id"),0)
 
-                const type=grandParent.attr("type")
-                const conds=[]
-                if(inParagraph){
-                    conds.push("in_paragraph")
+                        const {end}=this.selection
+                        const parentsOfEnd=this.$('#'+end.id).parents()
+                        const grandParent=this.$target.closest(parentsOfEnd)
+                        const inParagraph=parentsOfEnd.slice(0,parentsOfEnd.indexOf(grandParent)+1).filter("paragraph").length>0
+        
+                        const type=grandParent.attr("type")
+                        const conds=[]
+                        if(inParagraph){
+                            conds.push("in_paragraph")
+                        }
+                        conds.push(`up_to_${type}`)
+                        conds.push("up_to_same_grand_parent")
+                        this.emit("merge",conds)
+                    }
+                }else if(next.length>0){
+                    this.cursorAt(next.attr("id"),0)
                 }
-                conds.push(`up_to_${type}`)
-                conds.push("up_to_same_grand_parent")
-                this.emit("merge",conds)
             }
         }finally{
             if(this.content.has(start.id)){
@@ -147,11 +159,11 @@ export default class extends Base{
         at_beginning_of_text_up_to_section
         at_beginning_of_text_up_to_paragraph
         at_beginning_of_text_in_run
-        at_beginning_of_text
-        at_text
         at_beginning_of_up_to_document
         at_beginning_of_up_to_section
         at_beginning_of_up_to_paragraph
+        at_beginning_of_text
+        at_text
         at_beginning
     */
     //at [empty|whole|beginning_of|end_of|''] [type|''] [in $parentType|''] [up_to_($parentsType)], 5*2*2*5
@@ -174,7 +186,7 @@ export default class extends Base{
                 case "empty":
                     while(parent=this.content.get(current.get("parent"))){
                         let children=parent.get("children")
-                        if(children.size==1 && children.first()==current.get("id")){
+                        if(children.size!=1 || children.first()!=current.get("id")){
                             break
                         }
                         types.unshift(parent.get("type"))
@@ -209,12 +221,14 @@ export default class extends Base{
         }
         //pos+type+parents
         conds=conds.map(a=>`${pos}_${type}_${a}`)
-        //pos+type
-        conds.push(`${pos}_${type}`)
-        //+type
-        conds.push(type)
-        //+pos+grand
-        return [...conds,...up2Parents.map(a=>`${pos}_up_to_${a}`),pos.replace(/_of$/,'')]
+        //pos+parents
+        conds=[...conds, ...up2Parents.map(a=>`${pos}_up_to_${a}`)]
+        return [
+            ...conds,
+            `${pos}_${type}`,
+            type,
+            pos.replace(/_of$/,'')
+        ]
             .filter(a=>!!a).map(a=>a.replace(/^_/g,""))
             .map(a=>'at_'+a)
     }
@@ -234,7 +248,7 @@ export default class extends Base{
         return this
     }
 
-    remove({backspace}){
+    remove({backspace}={}){
         const {start,end}=this.selection
         if(start.id==end.id && start.at==end.at){
             const action=backspace ? "backspace" : "delete";

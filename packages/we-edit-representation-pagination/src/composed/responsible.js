@@ -87,7 +87,6 @@ export default class Responsible extends Component{
 	}
 
     render(){
-        console.log("render")
         const {children,canvasId, continueCompose, getComposer,dispatch, viewport, ...props}=this.props
 		const flagEvent=({clientX,clientY})=>this.down={clientX,clientY}
 		const shouldIgnore=({clientX,clientY})=>clientX==this.down.clientX && clientY==this.down.clientY
@@ -104,7 +103,6 @@ export default class Responsible extends Component{
 
                 onClick={e=>{
                     if(!this.down.selected){
-                        console.log("on click")
                         this.down.selected=false
                         this.onClick(e)
                     }

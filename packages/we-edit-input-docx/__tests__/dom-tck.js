@@ -1,7 +1,7 @@
 import Editors from "../src/dom/edit"
 import {dom} from "we-edit"
 
-import testEditableDocument from "../../we-edit/__tests__/input-reducer-tck"
+import testEditableDocument from "../../we-edit/__tests__/input-dom-tck"
 
 import docx4js from "../src/docx"
 import DocxDocument from "../src"

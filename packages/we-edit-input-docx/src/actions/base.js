@@ -36,14 +36,10 @@ export default class extends Input.EventReducer{
     }    
 
     seperate_at_beginning_for_end(){
-        var current=this.$target, prevId
-        while(current.length && !(prevId=current.prev().attr("id"))){
-            current=current.parent()
+        const prevId=this.$target.backwardFirst().attr('id')
+        if(prevId){
+            this.cursorAtEnd(prevId)
         }
-        if(!prevId){
-            return
-        }
-        this.cursorAtEnd(prevId)
     }
 
     seperate_at_empty_for_end(){
@@ -57,14 +53,10 @@ export default class extends Input.EventReducer{
 
     seperate_at_end_for_start(){
         const {end}=this.selection
-        var current=this.$target, nextId
-        while(current.length && !(nextId=current.next().attr("id"))){
-            current=current.parent()
+        const nextId=this.$target.forwardFirst().attr('id')
+        if(nextId){
+            this.cursorAt(nextId,0,end.id,end.at)
         }
-        if(!nextId){
-            return
-        }
-        this.cursorAt(nextId,0,end.id,end.at)
     }
 
     remove_whole(){
@@ -82,16 +74,26 @@ export default class extends Input.EventReducer{
         this.cursorAt(id,start)
     }
 
+    merge_in_paragraph(){
+        const {start,end}=this.selection
+        this.cursorAt(start.id, start.at)
+    }
+
     merge_up_to_same_grand_parent(){
         const {start,end}=this.selection
-        const grandParent=this.$target.closest(this.$('#'+end.id).parents())
-        const parentOfStart=this.$target.parentsUntil(grandParent).last()
-        const parentOfEnd=this.$('#'+end.id).parentsUntil(grandParent).last()
-        const nodeOfEnd=this.file.getNode(parentOfEnd.attr('id'))
-        const nodeOfStart=this.file.getNode(parentOfStart.attr("id"))
-        nodeOfStart.append(nodeOfEnd.contents())
-        parentOfEnd.remove()
-        this.file.renderChanged(nodeOfStart)
+        const p0=this.target.closest("w\\:p")
+        const p1=this.file.getNode(end.id).closest("w\\:p")
+        p0.append(p1.children(`:not(${this.PR})`))
+        this.$(`#${end.id}`).remove()
+        p1.remove()
+        this.file.renderChanged(p0)
         this.cursorAt(start.id, start.at)
+    }
+
+    create_first_paragraph(){
+        this.file.$('w\\:body').prepend(`<w:p><w:r><w:t/></w:r></w:p>`)
+        const a=this.file.renderChanged(this.file.$('w\\:p'))
+        this.$().findFirst('section').append(`#${a.id}`)
+        this.cursorAt(a.id,0)
     }
 }
