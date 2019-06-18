@@ -1,6 +1,4 @@
-import Type from "./type"
-
-export default class Enter extends Type{
+export default {
     enter_at_text(){
         this.seperate_at_text_for_end()
         const $next=this.$target.forwardFirst()
@@ -10,7 +8,7 @@ export default class Enter extends Type{
         }finally{
             this.cursorAt($next.attr("id"),0)
         }
-    }
+    },
 
     //cons: may left empty r
     //can't remove it, otherwise dead loop
@@ -21,15 +19,15 @@ export default class Enter extends Type{
         }else{
             this.enter_at_beginning(e)
         }
-    }
+    },
 
     enter_at_empty_up_to_cell(e){
         this.enter_at_beginning_of_up_to_table(e)
-    }
+    },
 
     enter_at_beginning_of_table(e){
         this.enter_at_beginning_of_up_to_table(e)
-    }
+    },
 
     enter_at_beginning_of_up_to_table(e){
         const $container=this.$target.closest("table,paragraph")
@@ -38,24 +36,24 @@ export default class Enter extends Type{
         }else{
             this.enter_at_beginning(e)
         }
-    }
+    },
 
     //clone parent and hold target
     enter_at_beginning(e){
         this.seperate_up_to_paragraph_at_beginning()
-    }
+    },
 
     enter_at_empty_paragraph(){
         this.enter_at_empty_up_to_paragraph()
-    }
+    },
 
     enter_at_empty_up_to_paragraph(){
         this.enter_at_end_of_up_to_paragraph()
-    }
+    },
 
     enter_at_beginning_of_paragraph(){
         this.enter_at_beginning_of_up_to_paragraph()
-    }
+    },
     
     enter_at_beginning_of_up_to_paragraph(){
         const p=this.target.closest("w\\:p")
@@ -69,11 +67,11 @@ export default class Enter extends Type{
             this.content.setIn([a.id,"parent"],$container.attr("id"))
             return children.insert(children.indexOf($p.attr('id')), a.id)
         })
-    }
+    },
 
     enter_at_end_of_paragraph(){
         this.enter_at_end_of_up_to_paragraph()
-    }
+    },
 
     enter_at_end_of_up_to_paragraph(){
         const p=this.target.closest("w\\:p")
@@ -89,5 +87,5 @@ export default class Enter extends Type{
         })
 
         this.cursorAt(a.id,0)
-    }
+    },
 }

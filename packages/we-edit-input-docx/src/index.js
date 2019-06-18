@@ -5,6 +5,7 @@ import {Readable} from 'stream'
 import Docx from "./docx"
 import Style from "./render/styles"
 import HOCs from "./render/dom"
+import Reducer from "./event"
 
 class DocxType extends Input.Editable{
 	static support(file){
@@ -411,7 +412,7 @@ export default class Editable extends DocxType{
 		return px*72/96
 	}
 
-	static Reducer=require("./event")
+	static Reducer=Reducer
 }
 
 const defineId=(target,id)=>Object.defineProperty(target,"xxid",{

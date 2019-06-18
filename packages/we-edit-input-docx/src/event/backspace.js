@@ -1,6 +1,4 @@
-import Enter from "./enter"
-
-export default class Backspace extends Enter{
+export default {
     backspace_at_text(){
         const {start:{id,at}}=this.selection
         const target=this.target
@@ -8,7 +6,7 @@ export default class Backspace extends Enter{
         target.text(src.substring(0,at-1)+src.substring(at))
         this.file.renderChanged(target)
         this.cursorAt(id,at-1)
-    }
+    },
 
     backspace_at_beginning_of_up_to_paragraph(){
         const $p=this.$target.closest("paragraph")
@@ -24,7 +22,7 @@ export default class Backspace extends Enter{
                 return children.remove(children.indexOf(prevId)+1)
             })
         }
-    }
+    },
     
     backspace_at_beginning(){
         const cursor=this.selection.start
@@ -40,7 +38,7 @@ export default class Backspace extends Enter{
         }finally{
             this.cursorAt(cursor.id, cursor.at)
         }
-    }
+    },
 
     backspace_at_end(){
         const cursor=this.selection.start
@@ -50,11 +48,11 @@ export default class Backspace extends Enter{
         }finally{
             this.cursorAt(cursor.id, cursor.at)
         }
-    }
+    },
 
     backspace_at_empty(){
         this.backspace_at_beginning(...arguments)
-    }
+    },
 
     backspace_at_empty_run(){
         const {id}=this.selection.start
@@ -64,11 +62,11 @@ export default class Backspace extends Enter{
             this.file.getNode(id).remove()
             this.$('#'+id).remove()
         }
-    }
+    },
 
     backspace_at_empty_up_to_paragraph(){
         this.backspace_at_empty_paragraph()
-    }
+    },
 
     backspace_at_empty_paragraph(){
         const prev=this.$target.backwardFirst("table,paragraph")
@@ -77,21 +75,21 @@ export default class Backspace extends Enter{
             this.target.remove()
             this.cursorAt(prev.attr('id'),1)
         }
-    }
+    },
     
     backspace_at_empty_up_to_document(){
 
-    }
+    },
 
     backspace_at_beginning_of_up_to_document(){
         
-    }    
+    }, 
 
     backspace_at_empty_up_to_cell(){
 
-    }
+    },
 
     backspace_at_beginning_of_up_to_cell(){
        
-    }
+    },
 }

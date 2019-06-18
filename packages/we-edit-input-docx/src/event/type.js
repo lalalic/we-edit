@@ -1,10 +1,4 @@
-import Base from "./base"
-const PR="w\\:rPr,w\\:pPr,w\\:tblPr,w\\:sdtPr,w\\:tcPr,w\\:trPr"
-export default class Type extends Base{
-    constructor(){
-        super(...arguments)
-        this.PR=PR
-    }
+export default {
     type_at_text({data}){
         const target=this.target
         const {start:{id,at}}=this.selection
@@ -12,26 +6,26 @@ export default class Type extends Base{
         target.text(src.substring(0,at)+data+src.substring(at))
         this.file.renderChanged(target)
         this.cursorAt(id,at+data.length)
-    }
+    },
 
     type_at_beginning_of_text_in_run(e){
         this.type_at_text(e)
-    }
+    },
 
     type_at_empty_text({data}){
         this.file.renderChanged(this.target.text(data))
         this.cursorAt(this.selection.start.id,data.length)
-    }
+    },
 
     type_at_empty_run({data}){
         this.file.renderChanged(this.target.append(`<w:t>${data}</w:t>`))
         this.cursorAt(this.$target.children("text").attr("id"),data.length)
-    }
+    },
 
     type_at_empty_paragraph({data}){
         this.file.renderChanged(this.target.append(`<w:r><w:t>${data}</w:t></w:r>`))
         this.cursorAt(this.$target.find("text").attr("id"),data.length)
-    }
+    },
 
     //clone run to hold data
     type_at_beginning_of_run({data}){
@@ -45,25 +39,25 @@ export default class Type extends Base{
         const $r=this.$target.closest("run")
         $r.before(`#${a.id}`)
         this.cursorAt(this.$(`#${a.id} text`).attr("id"),data.length)
-    }
+    },
 
     //clone run to hold data
     type_at_beginning_of_up_to_run(e){
         this.type_at_beginning_of_run(e)
-    }
+    },
 
     type_at_beginning_of_paragraph({data}){
         this.file.renderChanged(this.target.afterOrPrepend(`<w:r><w:t>${data}</w:t></w:r>`,"w\\:pPr"))
         this.cursorAt(this.$target.find("text").first().attr("id"),data.length)
-    }
+    },
 
     type_at_end_of_run({data}){
         this.file.renderChanged(this.target.append(`<w:t>${data}</w:t>`))
         this.cursorAt(this.$target.children("text").last().attr("id"),data.length)
-    }
+    },
 
     type_at_end_of_paragraph({data}){
         this.file.renderChanged(this.target.append(`<w:r><w:t>${data}</w:t></w:r>`))
         this.cursorAt(this.$target.find("text").last().attr("id"),data.length)
-    }
+    },
 }

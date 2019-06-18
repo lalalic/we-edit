@@ -1,7 +1,6 @@
-import Backspace from "./backspace"
 import {Text,Paragraph,Image,Section,Table} from "./dom"
 
-export default class extends Backspace{
+export default {
     update_at_text({id,...changing}){
         const target=this.target
         const r=target.closest("w\\:r")
@@ -30,29 +29,29 @@ export default class extends Backspace{
         const editor=new Text(this.file)
         editor.node=this.file.getNode(id)
         editor.update({id},changing)
-    }
+    },
 
     update_at_paragraph({id, ...changing}){
         const editor=new Paragraph(this.file)
         editor.node=this.file.getNode(id)
         editor.update({id},changing)
-    }
+    },
 
     update_at_image({id, ...changing}){
         const editor=new Image(this.file)
         editor.node=this.file.getNode(id)
         editor.update({id},changing)
-    }
+    },
 
     update_at_table({id,  ...changing}){
         const editor=new Table(this.file)
         editor.node=this.file.getNode(id)
         editor.update({id},changing)
-    }
+    },
 
     update_at_section({id, ...changing}){
         const editor=new Section(this.file)
         editor.node=this.file.getNode(id)
         editor.update({id},changing)
-    }
+    },
 }
