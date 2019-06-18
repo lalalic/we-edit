@@ -247,4 +247,8 @@ define("position", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Cont
         })
     })
 
+    it("cursor at beginning of numbering paragraph should behind numbering",()=>{
+        
+    })
+
 })

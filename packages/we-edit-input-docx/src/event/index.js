@@ -17,8 +17,20 @@ export default class Actions extends Input.EventReducer{
     }
 
     remove_whole(){
-        this.$target.remove()
+        const $target=this.$target
+        const $prev=$target.backwardFirst()
+        const $next=$target.forwardFirst()
+        
+        $target.remove()
         this.target.remove()
+
+        if($prev.length>0){
+            this.cursorAtEnd($prev.attr("id"))
+        }else if($next.length>0){
+            this.cursorAt($next.attr('id'),0)
+        }else{
+            this.create_first_paragraph()
+        }
     }
 
     remove_whole_at_beginning_of_up_to_paragraph(){

@@ -21,6 +21,10 @@ export default {
         }
     },
 
+    enter_at_empty_text(){
+        this.enter_at_beginning()
+    },
+
     enter_at_empty_up_to_cell(e){
         this.enter_at_beginning_of_up_to_table(e)
     },
