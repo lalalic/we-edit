@@ -1,6 +1,6 @@
 import docx4js from "docx4js"
 
-import Properties from "../src/styles/properties"
+import Properties from "../src/render/styles/properties"
 
 describe("styles",function(){
 	let styles

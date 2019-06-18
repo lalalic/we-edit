@@ -4,6 +4,7 @@ import xQuery from "../src/input/reducer/xquery"
 
 //Technology Compatibility Kit for document reducer
 export default function(TypedDocument){
+    return 
     const makeState=(data={})=>{
         const content=Object.keys({"1":{},"2":{},"3":{},...data}).reduce(
             (content,k)=>content.set(k,immutable.fromJS({id:k,parent:"root",props:{},...(data[k]||{})})),

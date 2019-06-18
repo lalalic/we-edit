@@ -1,5 +1,5 @@
 import Backspace from "./backspace"
-import {Text,Paragraph,Image,Section,Table} from "../dom/edit"
+import {Text,Paragraph,Image,Section,Table} from "./dom"
 
 export default class extends Backspace{
     update_at_text({id,...changing}){

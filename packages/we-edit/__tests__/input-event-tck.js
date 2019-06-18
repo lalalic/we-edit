@@ -1,5 +1,4 @@
 import Input from "../src/input/index"
-import edit from "../../we-edit-input-docx/src/dom/edit";
 
 export default function tck(TypedDocument,file){
     const data=require("fs").readFileSync(file)
@@ -141,7 +140,7 @@ export default function tck(TypedDocument,file){
                 expect(editor.$(`#${id}`).length).toBe(0)
             })
 
-            remove("remove the only paragraph should leave an empty paragraph",()=>{
+            it("remove the only paragraph should leave an empty paragraph",()=>{
 
             })
         })
@@ -152,6 +151,16 @@ export default function tck(TypedDocument,file){
             })
 
             it("backspace at beginning of text should remove prev's content",()=>{
+
+            })
+        })
+
+        describe("enter",()=>{
+            it("enter at first table cell and the table is the first of document should create new paragraph before table",()=>{
+
+            })
+
+            it("enter at text should split text up to paragraph",()=>{
 
             })
         })

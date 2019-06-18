@@ -1,7 +1,7 @@
 
 import immutable,{Map} from "immutable"
 import Input from "../src/input"
-import testEditableDocument from "./input-reducer-tck"
+import testEditableDocument from "./input-dom-tck"
 class StateDocument extends Input.Editable{
     static uuid=1
     constructor(content,_content){

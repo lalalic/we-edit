@@ -1,4 +1,4 @@
-import Style from "../../styles/numbering"
+import Style from "../../render/styles/numbering"
 export default class{
     static Template=(id,aid)=>`
         <w:num w:numId="${id}">

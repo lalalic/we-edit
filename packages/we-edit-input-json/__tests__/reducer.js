@@ -1,5 +1,4 @@
-import {dom} from "we-edit"
-import testEditableDocument from "../../we-edit/__tests__/input-reducer-tck"
+import testEditableDocument from "../../we-edit/__tests__/input-dom-tck"
 
 import Document from "../src/json"
 

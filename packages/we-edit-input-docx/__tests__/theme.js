@@ -1,5 +1,5 @@
 import docx4js from "docx4js"
-import getTheme from "../src/styles/theme"
+import getTheme from "../src/render/styles/theme"
 
 describe("theme retriever", function(){
 	let theme=null

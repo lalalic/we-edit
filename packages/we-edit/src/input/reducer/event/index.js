@@ -5,7 +5,7 @@ export default class extends Base{
     constructor(state){
         super(...arguments)
         this.$=context=>new xQuery(state, context)
-        this.debug=true
+        this.debug=false
     }
 
     get $target(){
@@ -166,8 +166,7 @@ export default class extends Base{
         at_text
         at_beginning
     */
-    //at [empty|whole|beginning_of|end_of|''] [type|''] [in $parentType|''] [up_to_($parentsType)], 5*2*2*5
-	get conds(){
+    get conds(){
         const target=this.content.get(this.selection.start.id)
         const {type,children,parent}=target.toJS()
         const parentType=this.content.getIn([parent,"type"])

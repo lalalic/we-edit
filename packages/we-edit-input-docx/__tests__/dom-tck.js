@@ -1,4 +1,4 @@
-import Editors from "../src/dom/edit"
+import Editors from "../src/event/dom"
 import {dom} from "we-edit"
 
 import testEditableDocument from "../../we-edit/__tests__/input-dom-tck"

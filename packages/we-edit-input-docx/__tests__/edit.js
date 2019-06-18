@@ -1,6 +1,5 @@
 import docx4js from "../src/docx"
-import DocxDocument from "../src"
-import {Paragraph} from "../src/dom/edit"
+import {Paragraph} from "../src/event/dom"
 
 describe('edit',()=>{
     let doc=null

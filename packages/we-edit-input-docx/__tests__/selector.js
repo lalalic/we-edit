@@ -1,4 +1,4 @@
-import Selector from "../src/styles/properties"
+import Selector from "../src/render/styles/properties"
 import docx4js from "docx4js"
 
 describe("model properties selector", function(){

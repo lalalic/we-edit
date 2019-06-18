@@ -1,5 +1,5 @@
 import Update from "./update"
-import {Text,Paragraph,Image,Section,Table} from "../dom/edit"
+import {Text,Paragraph,Image,Section,Table} from "./dom"
 
 export default class Create extends Update{
     create_table_at_text(props){

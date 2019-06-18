@@ -1,7 +1,7 @@
 import docx4js from "docx4js"
 import Fetchable from "fetchable"
 import {transactifyCheerio} from "we-edit"
-import theme from "./styles/theme"
+import theme from "./render/styles/theme"
 export default class Document extends docx4js{
 	static get URL(){
 		if(!this.__cachedData){
