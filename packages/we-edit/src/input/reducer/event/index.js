@@ -78,7 +78,7 @@ export default class extends Base{
 
 	removeSelection(){
         const wholifyConds=()=>{
-            const conds=this.conds.map(a=>a.replace(/at_/,"whole_").replace(/^whole_(beginning|end)/),'whole_at_$1')
+            const conds=this.conds.map(a=>a.replace(/at_/,"whole_").replace(/^whole_(beginning|end)/,'whole_at_$1'))
             conds.push("whole")
             return conds
         }
@@ -286,7 +286,7 @@ export default class extends Base{
         
         try{
             targets.forEach(id=>{
-                this.cursorAt(id,0)
+                this.cursorAt(id,0,id,0,undefined, false)
                 this.emit("update",this.conds,{id,...changing})
             })
         }finally{

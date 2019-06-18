@@ -14,6 +14,10 @@ export default class Type extends Base{
         this.cursorAt(id,at+data.length)
     }
 
+    type_at_beginning_of_text_in_run(e){
+        this.type_at_text(e)
+    }
+
     type_at_empty_text({data}){
         this.file.renderChanged(this.target.text(data))
         this.cursorAt(this.selection.start.id,data.length)
@@ -32,21 +36,20 @@ export default class Type extends Base{
     //clone run to hold data
     type_at_beginning_of_run({data}){
         const target=this.target
-        const clonedR=target.closest("w\\:r").clone()
+        const r=target.closest("w\\:r")
+        const clonedR=r.clone()
         clonedR.children(":not(w\\:rPr)").remove()
-        cloneR.append(`<w:t>${data}</w:t>`).before(target)
-        this.file.renderChanged(target.parent())
-        this.cursorAt(this.$target.prev().children("text").first().attr("id"),data.length)
+        clonedR.append(`<w:t>${data}</w:t>`)
+        r.before(clonedR)
+        const a=this.file.renderChanged(clonedR)
+        const $r=this.$target.closest("run")
+        $r.before(`#${a.id}`)
+        this.cursorAt(this.$(`#${a.id} text`).attr("id"),data.length)
     }
 
     //clone run to hold data
-    type_at_beginning_of_up_to_run({data}){
-        const target=this.target
-        const clonedR=target.closest("w\\:r").clone()
-        clonedR.children(":not(w\\:rPr)").remove()
-        clonedR.append(`<w:t>${data}</w:t>`).before(target)
-        this.file.renderChanged(target.parent())
-        this.cursorAt(this.$target.next().children("text").first().attr("id"),data.length)
+    type_at_beginning_of_up_to_run(e){
+        this.type_at_beginning_of_run(e)
     }
 
     type_at_beginning_of_paragraph({data}){

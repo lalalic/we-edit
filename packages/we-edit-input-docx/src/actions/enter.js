@@ -2,14 +2,8 @@ import Type from "./type"
 
 export default class Enter extends Type{
     enter_at_text(){
-        const {at}=this.selection.start
-        const target=this.target
-        const src=target.text()
-        const next=target.clone()
-        target.text(src.substring(0,at))
-        next.text(src.substring(at)).insertAfter(target)
-        this.file.renderChanged(target.parent())
-        const $next=this.$target.next()
+        this.seperate_at_text_for_end()
+        const $next=this.$target.forwardFirst()
         this.cursorAt($next.attr("id"),0)
         try{
             this.insert(...arguments)
@@ -21,7 +15,12 @@ export default class Enter extends Type{
     //cons: may left empty r
     //can't remove it, otherwise dead loop
     enter_at_beginning_of_text(e){
-        this.enter_at_beginning(e)
+        if(this.$target.prev().length==0){
+            this.cursorAt(this.$target.parent().attr('id'),0)
+            this.insert(e)
+        }else{
+            this.enter_at_beginning(e)
+        }
     }
 
     enter_at_empty_up_to_cell(e){
@@ -43,34 +42,7 @@ export default class Enter extends Type{
 
     //clone parent and hold target
     enter_at_beginning(e){
-        const cursor=this.selection.start
-        const target=this.target
-        const $parent=this.$target.parent()
-        const parent=this.file.getNode($parent.attr("id"))
-        const cloned=parent.clone().insertAfter(parent)
-        cloned.children(`:not(${this.PR})`).remove()
-
-        cloned.append(target.nextAll())
-        cloned.afterOrPrepend(target,this.PR)
-
-        const clonedId=this.file.makeId(cloned)
-        this.file.renderChanged(parent)
-        this.file.renderChanged(cloned)
-
-        const $container=$parent.parent()
-
-        this.content.updateIn([$container.attr("id"),"children"],children=>{
-            this.content.setIn([clonedId,"parent"],$container.attr("id"))
-            return children.insert(children.indexOf($parent.attr("id"))+1, clonedId)
-        })
-        try{
-            if($parent.attr('type')!="paragraph"){
-                this.cursorAt(clonedId,0)
-                this.insert(e)
-            }
-        }finally{
-            this.cursorAt(cursor.id,cursor.at)
-        }
+        this.seperate_up_to_paragraph_at_beginning()
     }
 
     enter_at_empty_paragraph(){
@@ -84,6 +56,7 @@ export default class Enter extends Type{
     enter_at_beginning_of_paragraph(){
         this.enter_at_beginning_of_up_to_paragraph()
     }
+    
     enter_at_beginning_of_up_to_paragraph(){
         const p=this.target.closest("w\\:p")
         const cloned=p.clone().insertBefore(p)

@@ -35,12 +35,14 @@ export default class Base{
 		return this._content
 	}
 
-	cursorAt(id,at, endId=id, endAt=at, cursorAt){
+	cursorAt(id,at, endId=id, endAt=at, cursorAt,fix=true){
 		if(cursorAt=="start" || cursorAt=="end")
 			this._selection.cursorAt=cursorAt
 
 		this._selection={...this._selection,start:{id,at}, end:{id:endId, at:endAt}}
-		this.fixSelection()
+		if(fix){
+			this.fixSelection()
+		}
 		return this._selection
 	}
 

@@ -59,9 +59,60 @@ export default class extends Input.EventReducer{
         }
     }
 
+    seperate_up_to_paragraph_at_beginning(){
+        const MARKER="_creating"
+        const containers="w\\:r,w\\:sdt"
+        const target=this.target.attr(MARKER,1)
+
+        const p=target.closest("w\\:p")
+        //update file
+        const clonedP=p.clone()
+        const clonedTarget=clonedP.find(`[${MARKER}=1]`)
+        clonedTarget.parents(containers).each((i,el)=>{
+            this.file.$(el).nextAll(`:not(${this.PR})`).remove()
+        })
+        clonedTarget.nextAll().add(clonedTarget).remove()
+        
+        p.before(clonedP)
+        
+        target.parents(containers).each((i,el)=>{
+            this.file.$(el).prevAll(`:not(${this.PR})`).remove()
+        })
+        target.prevAll().remove()
+        this.target.removeAttr(MARKER)
+
+        //update state.content
+        const a=this.file.renderChanged(clonedP)
+        const $paragraph=this.$target.closest("paragraph")
+        $paragraph.before('#'+a.id)
+
+        this.file.renderChanged(p)
+
+        this.cursorAt($paragraph.attr('id'),0)
+    }
+
+    seperate_up_to_run_at_end_of_text(){
+        const target=this.target
+        const r=target.closest('w\\:r')
+        const clonedR=r.clone()
+        clonedR.children(`:not(${this.PR})`).remove()
+        clonedR.append(target.nextAll())
+        r.after(clonedR)
+
+        this.file.renderChanged(r)
+        const a=this.file.renderChanged(clonedR)
+        this.$target.closest("run").after(`#${a.id}`)
+    }
+
     remove_whole(){
         this.$target.remove()
         this.target.remove()
+    }
+
+    remove_whole_at_beginning_of_up_to_paragraph(){
+        const $p=this.$target.closest("paragraph")
+        this.remove_whole()
+        this.cursorAt($p.attr('id'),0)
     }
 
     shrink_text(){

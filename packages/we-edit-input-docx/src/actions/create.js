@@ -3,16 +3,7 @@ import {Text,Paragraph,Image,Section,Table} from "../dom/edit"
 
 export default class Create extends Update{
     create_table_at_text(props){
-        const {start:{id,at}}=this.selection
-        const target=this.target
-        const text=target.text()
-        const clonedTarget=target.clone()
-        clonedTarget.text(text.substring(0,at))
-        target.text(text.substring(at))
-        target.before(clonedTarget)
-        const a=this.file.renderChanged(clonedTarget)
-        this.$target.before('#'+a.id)
-        this.cursorAt(id,0)
+        this.seperate_at_text_for_end()
         this.create(props)
     }
 
@@ -25,50 +16,15 @@ export default class Create extends Update{
     }
 
     create_table_at_end(props){
-        const $target=this.$target
-        const next=$target.next()
-        if(next.length>0){
+        const next=this.$target.forwardFirst()
+        if(next.length>0 && next.attr('type')!='paragraph'){
             this.cursorAt(next.attr('id'),0)
-        }else{
-            const $parent=$target.parent()
-            if($parent.length>0 && $parent.attr('type')!="paragraph"){
-                this.cursorAt($parent.attr('id'),1)
-            }
         }
         this.create(props) 
     }
-    
-    
+      
     create_table_at_beginning(props){
-        const MARKER="_creating"
-        const containers="w\\:r,w\\:sdt"
-        const target=this.target.attr(MARKER,1)
-
-        const p=target.closest("w\\:p")
-        //update file
-        const clonedP=p.clone()
-        const clonedTarget=clonedP.find('[_creating=1]')
-        clonedTarget.parents(containers).each((i,el)=>{
-            this.file.$(el).nextAll(`:not(${this.PR})`).remove()
-        })
-        clonedTarget.nextAll().add(clonedTarget).remove()
-        
-        p.before(clonedP)
-        
-        target.parents(containers).each((i,el)=>{
-            this.file.$(el).prevAll(`:not(${this.PR})`).remove()
-        })
-        target.prevAll().remove()
-        this.target.removeAttr(MARKER)
-
-        //update state.content
-        const a=this.file.renderChanged(clonedP)
-        const $paragraph=this.$target.closest("paragraph")
-        $paragraph.before('#'+a.id)
-
-        this.file.renderChanged(p)
-
-        this.cursorAt($paragraph.attr('id'),0)
+        this.seperate_up_to_paragraph_at_beginning()
         this.create(props)
     }
 
@@ -111,24 +67,25 @@ export default class Create extends Update{
         this.cursorAt(this.$('#'+id).first("text").attr('id'),0)
     }
 
+    create_table_at_empty_paragraph(){
+        this.create_table_at_beginning_of_paragraph(...arguments)
+    }
+
     create_image_at_text(){
         //split text to run
-        const {start:{at}}=this.selection
-        const target=this.target
-        const text=target.text()
-        target.after(target.clone().text(text.substring(at)))
-        target.text(text.substring(0,at))
-
-        const r=target.closest('w\\:r')
-        const clonedR=r.clone()
-        clonedR.children(`:not(${this.PR})`).remove()
-        clonedR.append(target.nextAll())
-        r.after(clonedR)
-
-        this.file.renderChanged(r)
-        const a=this.file.renderChanged(clonedR)
-        this.$target.closest("run").after(`#${a.id}`)
+        this.seperate_at_text_for_end()
+        this.seperate_up_to_run_at_end_of_text()
         this.cursorAt(this.$target.parent().attr('id'),1)
+        this.create(...arguments)
+    }
+
+    create_image_at_beginning_of_up_to_run(){
+        this.cursorAt(this.$target.closest('run').attr('id'),0)
+        this.create(...arguments)
+    }
+
+    create_image_at_end_of_up_to_run(){
+        this.cursorAt(this.$target.closest('run').attr('id'),1)
         this.create(...arguments)
     }
 
@@ -152,5 +109,22 @@ export default class Create extends Update{
         const {id}=this.file.renderChanged(r)
         this.$target.after('#'+id)
         this.cursorAt(this.$('#'+id).first().attr('id'),0)
+    }
+
+    create_image_at_empty_run(props){
+        const editor=new Image(this.file)
+        editor.create(props)
+        const r=this.target
+        r.append(editor.node)
+        const {id}=this.file.renderChanged(r)
+        this.$target.after('#'+id)
+        this.cursorAt(this.$('#'+id).first().attr('id'),0)
+    }
+
+    create_image_at_empty_paragraph(){
+        this.target.append(`<w:r/>`)
+        this.file.renderChanged(this.target)
+        this.cursorAt(this.$target.children("run").attr('id'),0)
+        this.create(...arguments)
     }
 }
