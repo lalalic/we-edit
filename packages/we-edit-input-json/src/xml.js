@@ -3,6 +3,7 @@ import cheer from "cheerio"
 import {Parser, DomHandler} from "htmlparser2"
 import {transactifyCheerio,Input} from "we-edit"
 import Reducer from "./event"
+import Dom from "./render"
 
 export default class extends Input.Editable{
     static support(file){
@@ -26,7 +27,10 @@ export default class extends Input.Editable{
 		ext:"xml",
 		name:"We-Edit XML document",
 		mimeType:"application/xml"
-    }
+	}
+	
+	static Reducer=Reducer
+	static HOCs=Dom
     
     dataToDom(data){
         const handler=new ContentDomHandler({xmlMode:true,decodeEntities: false})
@@ -62,14 +66,14 @@ export default class extends Input.Editable{
 				UnknownComponents[TYPE]=Type=class{static displayName=type}
 			}
 			return createElement(Type,props||{},
-				isText ? children.data : 
+				isText ? (!Array.isArray(children) ? children.data : children[0].data) : 
 					(Array.isArray(children) ? children.map(a=>renderNode(a,createElement)).filter(a=>!!a) : 
 						(!!children ? renderNode(a,createElement) : children)
 					),
 				node)
 		}
 
-		this.renderNode=node=>renderNode(node,createElement)
+		this.renderNode=(node,createElement)=>renderNode(this._unwrap(node),createElement)
 
 		return renderNode(this.doc.root().children().get(0),createElement)
 	}
@@ -109,8 +113,6 @@ export default class extends Input.Editable{
 		}
 		return node
 	}
-    
-    static Reducer=Reducer
 }
 
 class ContentDomHandler extends DomHandler{
