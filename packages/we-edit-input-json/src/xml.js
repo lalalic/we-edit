@@ -1,7 +1,7 @@
 import {Readable} from 'stream'
 import cheer from "cheerio"
 import {Parser, DomHandler} from "htmlparser2"
-import {transactifyCheerio,Input} from "./json/node_modules/we-edit"
+import {transactifyCheerio,Input} from "we-edit"
 import Reducer from "./event"
 
 export default class extends Input.Editable{
@@ -40,7 +40,7 @@ export default class extends Input.Editable{
 
     parse({data, ...props}){
 		this.props=props
-		const doc=cheer.load(this.dataToDom(),{xmlMode:true,decodeEntities: false})
+		const doc=cheer.load(this.dataToDom(data),{xmlMode:true,decodeEntities: false})
 		transactifyCheerio(doc)
 		return doc
 	}
@@ -55,21 +55,60 @@ export default class extends Input.Editable{
 	render(createElement, components){
 		const UnknownComponents={}
 		const renderNode=(node,createElement)=>{
-			let {children=[], type=typeof(children)=="string"&&"text", props={},}=node
-			let TYPE=type[0].toUpperCase()+type.substr(1)
+			const {children, name:type, attribs:props, isText=type=="text"}=node
+			const TYPE=isText ? "Text" : type[0].toUpperCase()+type.substr(1)
 			let Type=components[TYPE]||UnknownComponents[TYPE]
 			if(!Type){
 				UnknownComponents[TYPE]=Type=class{static displayName=type}
 			}
-			return createElement(Type,props,
-				children.map ? children.map(a=>renderNode(a,createElement)).filter(a=>!!a) : children,
+			return createElement(Type,props||{},
+				isText ? children.data : 
+					(Array.isArray(children) ? children.map(a=>renderNode(a,createElement)).filter(a=>!!a) : 
+						(!!children ? renderNode(a,createElement) : children)
+					),
 				node)
 		}
 
 		this.renderNode=node=>renderNode(node,createElement)
 
-		return renderNode(this.doc,createElement)
-    }
+		return renderNode(this.doc.root().children().get(0),createElement)
+	}
+
+	_unwrap(n){
+		return n && ("cheerio" in n) && n.get(0) || n
+	}
+	
+	makeId(node, uid){
+		if(!node){
+			debugger
+		}
+
+		node=this._unwrap(node)
+
+		if(uid){
+			defineId(node.attribs,uid)
+			return uid
+		}
+
+		if(node.attribs.xxid){
+			return node.attribs.xxid
+		}
+
+		const id=uid||(node.name=="document"&&"root")||super.makeId()
+		defineId(node.attribs,id)
+
+		return id
+	}
+
+	getNode(id){
+		const node=this.doc(`[xxid="${id}"]`)
+
+		if(node.length!=1){
+			debugger
+			throw new Error(`can't find node[id=${uid}]`)
+		}
+		return node
+	}
     
     static Reducer=Reducer
 }
@@ -82,3 +121,11 @@ class ContentDomHandler extends DomHandler{
 			return super._addDomElement(el)
 	}
 }
+
+
+const defineId=(target,id)=>Object.defineProperty(target,"xxid",{
+	enumerable: false,
+	configurable: true,
+	writable: false,
+	value: id
+})

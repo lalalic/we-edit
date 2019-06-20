@@ -26,30 +26,46 @@ export default class extends XMLDocument{
     }
 
     dataToDom(data){
-        data=String.fromCharCode.apply(null, new Uint8Array(data))
+        if(typeof(data)!="string"){
+            data=String.fromCharCode.apply(null, new Uint8Array(data))
+        }
         data=eval(`(a=>a)(${data})`)
-        const toNode=({children,type:name, props:attribs={}})=>{
-            return {attribs, name, children:children.map(toNode)}
+        
+        const toNode=({children,type:name="text", props})=>{
+            return {
+                attribs:props||{}, 
+                name, 
+                type:"tag", 
+                children:
+                    name=="text" ? [{data:children||"",type:"text"}] : 
+                        (Array.isArray(children) ? children : 
+                            (!!children ? [children] : [])
+                        ).map(toNode)
+            }
         }
         
         const root=toNode(data)
 
         const connect=(a,parent)=>{
-            const siblings=parent.children
+            const siblings=parent ? parent.children : []
             const i=siblings.indexOf(a)
             return Object.assign(a, {
                 parent,
-                prev:siblings[i-1],
-                next:siblings[i+1],
-                children:a.children.map(b=>connect(b,a))
+                prev:siblings[i-1]||null,
+                next:siblings[i+1]||null,
+                children:a.type=="text" ? a.children : a.children.map(b=>connect(b,a))
             })
         }
-        return connect(dom)
+        return connect(root)
     }
 
     nodeToString(node){
         const toObject=({name:type,attribs:props,children})=>{
-            return {type,props,children:children.map(toObject)}
+            return {
+                type,
+                props,
+                children:type=="text" ? (children||{}).data : (children||[]).map(toObject)
+            }
         }
         const data=toObject(node)
         return JSON.stringify(data,(key,value)=>{
