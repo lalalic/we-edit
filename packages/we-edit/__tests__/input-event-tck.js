@@ -3,7 +3,24 @@ import Input from "../src/input/index"
 export default function tck(TypedDocument,file){
     const data=require("fs").readFileSync(file)
     describe("event based reducer", ()=>{
-        var editor=null, conditions=null
+        var editor=null
+
+        function getBlocks(){
+            const tables=editor.$("table")
+            const ps=editor.$("paragraph").not(tables.find("paragraph"))
+            return tables.add(ps)
+        }
+        function leaveOnlyFirst(a){
+            const blocks=getBlocks()
+            const first=editor.$().findFirst(a)
+            blocks.not(first).toArray().forEach(id=>{
+                editor.file.getNode(id).remove()
+                editor.$(`#${id}`).remove()
+            })
+            expect(getBlocks().length).toBe(1)
+            return first
+        }
+
         beforeEach(()=>{
             Input.get=jest.fn(()=>TypedDocument)
             return Input.parse({data}).then(doc=>{
@@ -141,27 +158,104 @@ export default function tck(TypedDocument,file){
             })
 
             it("remove the only paragraph should leave an empty paragraph",()=>{
-
+                const p=leaveOnlyFirst("paragraph")
+                expect(p.length).toBe(1)
+                expect(editor.$("paragraph").text().length>0).toBe(true)
+                const id=p.attr('id')
+                editor.cursorAt(id,0,id,1,undefined,false)
+                editor.remove()
+                expect(editor.$("paragraph").length).toBe(1)
+                expect(editor.$("paragraph").text().length).toBe(0)
             })
         })
 
         describe("backspace",()=>{
-            it("backspace at beginning of anything up to document should do anything",()=>{
+            const backspace=()=>editor.remove({backspace:true})
+            it("backspace text should remove a char",()=>{
+                const first=editor.$().findFirst("text")
+                const len=first.text().length
+                editor.cursorAt(first.attr('id'), 2)
+                backspace()
+                expect(first.text().length).toBe(len-1)
+                expect(editor.selection.start).toMatchObject({id:first.attr('id'),at:1})
+            })
 
+            it("backspace at beginning of anything up to document should do anything",()=>{
+                const first=leaveOnlyFirst("paragraph").findFirst("text")
+                const text=first.text()
+                editor.cursorAt(first.attr('id'),0)
+                backspace()
+                expect(first.text()).toBe(text)
             })
 
             it("backspace at beginning of text should remove prev's content",()=>{
+                const first=editor.$().findFirst("text")
+                const len=first.text().length
+                expect(len>1).toBe(true)
+                const second=first.forwardFirst("text")
+                expect(second.closest("paragraph").attr('id')).toBe(first.closest("paragraph").attr("id"))
+                editor.cursorAt(second.attr('id'),0)
+                backspace()
+                expect(first.text().length).toBe(len-1)
+            })
 
+            it("backspace at end of image should remove image",()=>{
+                const images=editor.$("image")
+                expect(images.length>0).toBe(true)
+                const image=images.first()
+                editor.cursorAt(image.attr('id'),1)
+                backspace()
+                expect(editor.$("image").length).toBe(images.length-1)
+            })
+
+            it("backspace at first up to to cell should do nothing",()=>{
+                const table=editor.$().findFirst('table')
+                expect(table.length).toBe(1)
+                const first=table.findFirst("cell text")
+                expect(first.length).toBe(1)
+                editor.cursorAt(first.attr('id'),0)
+                const selection=editor.selection
+                backspace()
+                expect(editor.selection).toMatchObject(selection)
             })
         })
 
         describe("enter",()=>{
-            it("enter at first table cell and the table is the first of document should create new paragraph before table",()=>{
+            const enter=()=>editor.insert({data:"\r"})
+            it("enter at text should split text up to paragraph",()=>{
+                const ps=editor.$("paragraph")
+                const first=editor.$().findFirst("text")
+                expect(first.text().length>5).toBe(true)
+                editor.cursorAt(first.attr('id'),2)
+                enter()
+                expect(editor.$("paragraph").length).toBe(ps.length+1)
+                expect(editor.$().findFirst("text").text().length).toBe(2)
 
             })
 
-            it("enter at text should split text up to paragraph",()=>{
+            it("enter at first table cell and the table is the first of document should create new paragraph before table",()=>{
+                expect(editor.$('table').length>0).toBe(true)
+                const table=leaveOnlyFirst('table')
+                const first=table.findFirst('cell paragraph text')
+                expect(first.length).toBe(1)
+                editor.cursorAt(first.attr('id'),0)
+                enter()
+                const blocks=getBlocks()
+                expect(blocks.length).toBe(2)
+                expect(editor.$target.forwardFirst(table).attr('id')).toBe(table.attr('id'))
+            })
 
+            it("enter at end of image should put image at first paragraph,cursor at second paragraph",()=>{
+                const ps=editor.$('paragraph')
+                const image=editor.$().findFirst("image")
+                expect(image.length).toBe(1)
+                editor.cursorAt(image.attr('id'),1)
+                const $p=editor.$target.closest("paragraph")
+                enter()
+                expect(editor.$("paragraph").length).toBe(ps.length+1)
+                expect(editor.$(image).length).toBe(1)
+                expect(editor.selection.start.id).not.toBe(image.attr('id'))
+                expect(editor.$target.closest("paragraph").findFirst(image).length).toBe(0)
             })
         })
     }) 

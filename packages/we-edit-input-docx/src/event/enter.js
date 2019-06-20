@@ -73,6 +73,14 @@ export default {
         })
     },
 
+    enter_at_end(){
+        const next=this.$target.forwardFirst()
+        if(next.closest("paragraph").is(this.$target.closest("paragraph"))){
+            this.cursorAt(next.attr('id'),0)
+            this.insert(...arguments)
+        }
+    },
+
     enter_at_end_of_paragraph(){
         this.enter_at_end_of_up_to_paragraph()
     },
