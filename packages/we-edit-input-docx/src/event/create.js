@@ -1,43 +1,7 @@
 import {Image,Section,Table} from "./dom"
 
 export default{
-    create_table_at_text(props){
-        this.seperate_at_text_for_end()
-        this.create(props)
-    },
-
-    create_table_at_beginning_of_text(props){
-        this.create_table_at_beginning(props)
-    },
-
-    create_table_at_end_of_text(props){
-        this.create_table_at_end(props)
-    },
-
-    create_table_at_end(props){
-        const next=this.$target.forwardFirst()
-        if(next.length>0 && next.attr('type')!='paragraph'){
-            this.cursorAt(next.attr('id'),0)
-        }
-        this.create(props) 
-    },
-      
-    create_table_at_beginning(props){
-        this.seperate_up_to_paragraph_at_beginning()
-        this.create(props)
-    },
-
-    create_table_at_beginning_of_up_to_paragraph(props){
-        this.cursorAt(this.$target.closest("paragraph").attr('id'),0)
-        this.create(props)
-    },
-
-    create_table_at_end_of_up_to_paragraph(props){
-        this.cursorAt(this.$target.closest("paragraph").attr('id'),1)
-        this.create(props)
-    },
-
-    create_table_at_end_of_up_to_document(props){
+    create_table_at_end_of_up_to_document(){
         const p=this.target.closest("w\\:p")
         const clonedP=p.clone()
         clonedP.children(`:not(${this.PR})`).remove()
@@ -45,31 +9,28 @@ export default{
         p.after(clonedP)
         const a=this.file.renderChanged(clonedP)
         this.$target.closest("paragraph").after('#'+a.id)
-        this.create(props)
+        this.create(...arguments)
     },
 
-    create_table_at_beginning_of_paragraph(props){
+    create_table_at_beginning_of_paragraph(){
         const editor=new Table(this.file)
-        editor.create(props)
+        editor.create(...arguments)
         this.target.before(editor.node)
         const {id}=this.file.renderChanged(editor.node)
         this.$target.before('#'+id)
         this.cursorAt(this.$('#'+id).first("text").attr('id'),0)
     },
 
-    create_table_at_end_of_paragraph(props){
+    create_table_at_end_of_paragraph(){
         const editor=new Table(this.file)
-        editor.create(props)
+        editor.create(...arguments)
         this.target.after(editor.node)
         const {id}=this.file.renderChanged(editor.node)
         this.$target.after('#'+id)
         this.cursorAt(this.$('#'+id).first("text").attr('id'),0)
     },
 
-    create_table_at_empty_paragraph(){
-        this.create_table_at_beginning_of_paragraph(...arguments)
-    },
-
+    
     create_image_at_text(){
         //split text to run
         this.seperate_at_text_for_end()
@@ -88,9 +49,9 @@ export default{
         this.create(...arguments)
     },
 
-    create_image_at_beginning_of_run(props){
+    create_image_at_beginning_of_run(){
         const editor=new Image(this.file)
-        editor.create(props)
+        editor.create(...arguments)
         this.target.before(`<w:r/>`)
         const r=this.target.prev()
         r.append(editor.node)
@@ -99,9 +60,9 @@ export default{
         this.cursorAt(this.$('#'+id).first().attr('id'),0)
     },
 
-    create_image_at_end_of_run(props){
+    create_image_at_end_of_run(){
         const editor=new Image(this.file)
-        editor.create(props)
+        editor.create(...arguments)
         this.target.after(`<w:r/>`)
         const r=this.target.next()
         r.append(editor.node)
@@ -110,9 +71,9 @@ export default{
         this.cursorAt(this.$('#'+id).first().attr('id'),0)
     },
 
-    create_image_at_empty_run(props){
+    create_image_at_empty_run(){
         const editor=new Image(this.file)
-        editor.create(props)
+        editor.create(...arguments)
         const r=this.target
         r.append(editor.node)
         const {id}=this.file.renderChanged(r)
