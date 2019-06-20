@@ -1,6 +1,6 @@
 import Input from "../src/input/index"
 
-export default function tck(TypedDocument,file){
+export default function tck(TypedDocument,file, debug=false){
     const data=require("fs").readFileSync(file)
     describe("event based reducer", ()=>{
         var editor=null
@@ -28,6 +28,7 @@ export default function tck(TypedDocument,file){
                 const state=reducer()
                 doc.onChange=jest.fn(function(){
                     editor=new TypedDocument.Reducer(...arguments)
+                    editor.debug=debug
                 })
                 reducer(state,{})
             }).catch(e=>{
@@ -149,6 +150,7 @@ export default function tck(TypedDocument,file){
                 const textLength=texts.length
                 expect(textLength>0).toBe(true)
                 const $first=texts.first().parent()
+                expect($first.attr('type')).not.toBe("paragraph")
                 const id=$first.attr('id'), text=$first.text()
                 expect(text.length>5).toBe(true)
                 editor.cursorAt(id,0,id,1)
@@ -227,6 +229,7 @@ export default function tck(TypedDocument,file){
                 const first=editor.$().findFirst("text")
                 expect(first.text().length>5).toBe(true)
                 editor.cursorAt(first.attr('id'),2)
+                debugger
                 enter()
                 expect(editor.$("paragraph").length).toBe(ps.length+1)
                 expect(editor.$().findFirst("text").text().length).toBe(2)

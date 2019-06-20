@@ -60,13 +60,14 @@ export default class extends Input.Editable{
 		const UnknownComponents={}
 		const renderNode=(node,createElement)=>{
 			const {children, name:type, attribs:props, isText=type=="text"}=node
+			debugger
 			const TYPE=isText ? "Text" : type[0].toUpperCase()+type.substr(1)
 			let Type=components[TYPE]||UnknownComponents[TYPE]
 			if(!Type){
 				UnknownComponents[TYPE]=Type=class{static displayName=type}
 			}
 			return createElement(Type,props||{},
-				isText ? (!Array.isArray(children) ? children.data : children[0].data) : 
+				isText ? (!Array.isArray(children) ? children.data : (children[0]||{}).data) : 
 					(Array.isArray(children) ? children.map(a=>renderNode(a,createElement)).filter(a=>!!a) : 
 						(!!children ? renderNode(a,createElement) : children)
 					),
@@ -112,6 +113,10 @@ export default class extends Input.Editable{
 			throw new Error(`can't find node[id=${uid}]`)
 		}
 		return node
+	}
+
+	$(){
+		return this.doc(...arguments)
 	}
 }
 
