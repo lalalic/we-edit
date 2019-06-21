@@ -299,4 +299,14 @@ export default class extends Base{
         this.emit("create_"+type.toLowerCase(),this.conds,...arguments)
 		return this
     }
+
+    forward(){
+        this.emit("forward",this.conds,...arguments)
+        return this
+    }
+
+    backward(){
+        this.emit("backward",this.conds,...arguments)
+        return this
+    }
 }

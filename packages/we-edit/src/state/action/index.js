@@ -3,7 +3,9 @@ import {ACTION as History} from "../undoable"
 
 export const Cursor={
 	ACTIVE: canvasId=>({type:"we-edit/selection/CANVAS",payload:canvasId}),
-	AT: (contentId, at)=>Selection.SELECT(contentId, at)
+	AT: (contentId, at)=>Selection.SELECT(contentId, at),
+	BACKWARD: payload=>({type:"we-edit/cursor/BACKWARD",payload}),
+	FORWARD: payload=>({type:"we-edit/cursor/FORWARD",payload}),
 }
 
 export const Text={

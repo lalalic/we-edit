@@ -18,9 +18,9 @@ export default connect(
 		46:e=>this.props.dispatch(ACTION.Text.REMOVE(-1)),//delete
 		8:e=>this.props.dispatch(ACTION.Text.REMOVE(1)),//backspace
 		9:e=>this.props.dispatch(ACTION.Text.INSERT(String.fromCharCode(9),e.shiftKey)),//tab
-		37:e=>this.props.dispatch(ACTION.Cursor.MOVE_LEFT(e.shiftKey)),//move left
+		37:({shiftKey})=>this.props.dispatch(ACTION.Cursor.BACKWARD({shiftKey})),//move left
 		38:e=>this.props.dispatch(ACTION.Cursor.MOVE_LEFT(e.shiftKey)),//move up
-		39:e=>this.props.dispatch(ACTION.Cursor.MOVE_RIGHT(e.shiftKey)),//move right
+		39:({shiftKey})=>this.props.dispatch(ACTION.Cursor.FORWARD({shiftKey})),//move right
 		40:e=>this.props.dispatch(ACTION.Cursor.MOVE_RIGHT(e.shiftKey)),//move down
 		116:e=>this.props.dispatch(ACTION.Refresh()),//F5: refresh move down
 		metaz:e=>this.props.dispatch(ACTION.History.undo()),//meta +z,

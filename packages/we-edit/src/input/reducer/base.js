@@ -137,4 +137,12 @@ export default class Base{
 	paste(){
 		return this
 	}
+
+	backward(){
+		return this
+	}
+
+	forward(){
+		return this
+	}
 }

@@ -174,9 +174,9 @@ export default class Responsible extends Component{
                             <Cursor
                                 dispatch={dispatch}
                                 keys={{
-									37:e=>this.onKeyArrowLeft(e),//move left
+									//37:e=>this.onKeyArrowLeft(e),//move left
 									38:e=>this.onKeyArrowUp(e),//move up
-									39:e=>this.onKeyArrowRight(e),//move right
+									//39:e=>this.onKeyArrowRight(e),//move right
 									40:e=>this.onKeyArrowDown(e),//move down
                                     46:e=>this.onKeyDelete(),//delete
                                     8:e=>this.onKeyBackspace(),//backspace
