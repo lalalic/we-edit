@@ -27,10 +27,61 @@
                     "type": "paragraph",
                     "children": [
                         {
-                            "children": "hello raymond"
+                            "type":"inline",
+                            "children":[
+                            {
+                                "children": "hello"
+                            }
+                            ]
                         },
                         {
                             "children": " Video provides a powerful way to help you prove your point. When you click Online Video, you can paste in the embed code for the video you want to add. "
+                        }
+                    ]
+                },
+                {
+                    "type":"table",
+                    "children":[
+                        {
+                            "type":"row",
+                            "children":[
+                                {
+                                    "type":"cell",
+                                    "children":[
+                                        {
+                                            "type": "paragraph",
+                                            "children": [
+                                                {
+                                                    "children": "hello"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "paragraph",
+                    "children": [
+                        {
+                            "children": "hello"
+                        },
+                        {
+                            "children": " Video provides a powerful way to help you prove your point. When you click Online Video, you can paste in the embed code for the video you want to add. "
+                        },
+                        {
+                            "type":"image",
+                            "src":"",
+                            "width":50,
+                            "height":50
+                        },
+                        {
+                            "children": "hello"
+                        },
+                        {
+                            "children": "hello"
                         }
                     ]
                 }

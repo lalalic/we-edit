@@ -99,22 +99,9 @@ export default function tck(TypedDocument,file, debug=false){
             })
 
             describe("inline container",()=>{
-                let container
-                beforeEach(()=>{
-                    //container=editor.$().findFirst("text").parent()
-                    //expect(container.attr('type')).not.toBe("paragraph")
-                })
-
-                function hasInlineContainer(){
-                    debugger
-                    return editor.$("paragraph * text").length>0    
-                }
-
-                fit("seperate whole inline container should not change anyting",()=>{
-                    if(!hasInlineContainer()){
-                        console.warn("no inline container, tests ignored")
-                        return
-                    }
+                it("seperate whole inline container should not change anyting",()=>{
+                    const container=editor.$().findFirst("paragraph * text").parent()
+                    expect(container.length>0).toBe(true)
                     const id=container.attr('id')
                     editor.cursorAt(id,0, id,1)
                     const sel0=editor.selection
@@ -134,7 +121,7 @@ export default function tck(TypedDocument,file, debug=false){
                 expect(textLength>0).toBe(true)
                 const $first=texts.first()
                 const id=$first.attr('id'), text=$first.text()
-                expect(text.length>5).toBe(true)
+                expect(text.length>3).toBe(true)
                 editor.cursorAt(id,1,id,2)
                 editor.remove()
                 expect(editor.$('text').length).toBe(textLength)
@@ -148,7 +135,7 @@ export default function tck(TypedDocument,file, debug=false){
                 expect(textLength>0).toBe(true)
                 const $first=texts.first()
                 const id=$first.attr('id'), text=$first.text()
-                expect(text.length>5).toBe(true)
+                expect(text.length>3).toBe(true)
                 editor.cursorAt(id,0,id,text.length)
                 editor.remove()
                 expect(editor.$('text').length).toBe(textLength-1)
@@ -156,16 +143,11 @@ export default function tck(TypedDocument,file, debug=false){
             })
 
             it("remove inline container",()=>{
-                const texts=editor.$("text")
-                const textLength=texts.length
-                expect(textLength>0).toBe(true)
-                const $first=texts.first().parent()
-                expect($first.attr('type')).not.toBe("paragraph")
-                const id=$first.attr('id'), text=$first.text()
-                expect(text.length>5).toBe(true)
+                const $container=editor.$().findFirst("paragraph * text").parent()
+                expect($container.length>0).toBe(true)
+                const id=$container.attr('id')
                 editor.cursorAt(id,0,id,1)
                 editor.remove()
-                expect(editor.$('text').length).toBe(textLength-1)
                 expect(editor.$(`#${id}`).length).toBe(0)
             })
 
@@ -237,13 +219,11 @@ export default function tck(TypedDocument,file, debug=false){
             it("enter at text should split text up to paragraph",()=>{
                 const ps=editor.$("paragraph")
                 const first=editor.$().findFirst("text")
-                expect(first.text().length>5).toBe(true)
+                expect(first.text().length>3).toBe(true)
                 editor.cursorAt(first.attr('id'),2)
-                debugger
                 enter()
                 expect(editor.$("paragraph").length).toBe(ps.length+1)
                 expect(editor.$().findFirst("text").text().length).toBe(2)
-
             })
 
             it("enter at first table cell and the table is the first of document should create new paragraph before table",()=>{
