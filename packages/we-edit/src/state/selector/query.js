@@ -1,7 +1,6 @@
 import {Map,List} from "immutable"
 import {traverse, traverseNext, traversePrev}  from "."
 import cssSelect, {isIdSelector} from "../../tools/css"
-import { timingSafeEqual } from "crypto";
 
 const isNode=a=>a instanceof Map
 

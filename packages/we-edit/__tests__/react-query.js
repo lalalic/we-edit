@@ -4,9 +4,8 @@ import ReactQuery from "../src/tools/react-query"
 describe("react query", ()=>{
     describe("can query by ",()=>{
         it("any prop",()=>{
-            const first=new ReactQuery(<div><span>hello</span><i d="1">good</i></div>)
-                .findFirst(`[d="1"]`)
-            expect(first.length).toBe(1)
+            const $=new ReactQuery(<div><span>hello</span><i d="1">good</i></div>)   
+            expect($.findFirst(`[d="1"]`).length).toBe(1)
         })
 
         it(".className", ()=>{
@@ -31,6 +30,15 @@ describe("react query", ()=>{
             const first=new ReactQuery(<div><span className="good">hello</span><i d="1">good</i></div>)
                 .findFirst(`span.good`)
             expect(first.length).toBe(1)
+        })
+
+        it("*", ()=>{
+            const $=new ReactQuery(<div><i d="1">good</i><span className="good"><span>hello</span><i>bad</i></span></div>)
+            expect($.findFirst("*").attr('type')).toBe('div')  
+        })
+
+        xit("unions not supported yet: >< +~",()=>{
+            expect("unions supported").toBe(true)
         })
     })
 

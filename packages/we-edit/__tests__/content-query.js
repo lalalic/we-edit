@@ -116,7 +116,7 @@ describe("content query",()=>{
 
         describe(".attr()",()=>{
             it("*",()=>{
-                expect(new Query(state({"1":{props:{x:1}}}),"#1").attr("x")).toBe(1)
+                expect(new Query(state({"1":{props:{x:1}}}),"*").attr("x")).toBe(1)
             })
 
             it("children",()=>{

@@ -24,16 +24,14 @@ const SCOPE={
 const UNION=/[\s\[,:<>+~]/
 function unionSelector(a,$, basic){
 	let selectors=a.replace(/\s?[><+~]\s?/g,">").split(/(?=[><+~\s])/g)
-	let scopes=selectors.slice(1).map(k=>SCOPE[k[0]])
+	const scopes=selectors.slice(1).map(k=>SCOPE[k[0]])
 	selectors=selectors.map(k=>k.replace(/^[><+~]/,"")).map(k=>k.trim())
-	let nodeSelector=selectors.pop()
-	let nodeCheck=basicSelectors(nodeSelector,basic)
-	let checks=selectors
-		.map((a,i)=>{
-			let check=basicSelectors(a,basic)
-			return n=>$(n)[scopes[i]](check).length>0
-		})
-		.reverse()
+	const nodeSelector=selectors.pop()
+	const nodeCheck=basicSelectors(nodeSelector,basic)
+	const checks=selectors.map((a,i)=>{
+		const check=basicSelectors(a,basic)
+		return n=>$(n)[scopes[i]](check).length>0
+	}).reverse()
 	return n=>{
 		if(nodeCheck(n)){
 			if(!checks.find(f=>!f(n))){
@@ -65,6 +63,10 @@ function basicSelectors(a,basic=basic){
 				}
 				case ".":
 					return basic["."](k.substr(1))
+				case "*":
+					if(k=="*"){
+						return n=>!!n
+					}
 				default:
 					return basic.type(k)
 			}
