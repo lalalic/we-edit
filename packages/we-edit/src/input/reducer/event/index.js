@@ -5,7 +5,7 @@ export default class extends Base{
     constructor(state){
         super(...arguments)
         this.$=context=>new xQuery(state, context)
-        this.debug=false
+        this.cursorable=this.cursorable.bind(this)
     }
 
     get $target(){
@@ -308,5 +308,15 @@ export default class extends Base{
     backward(){
         this.emit("backward",this.conds,...arguments)
         return this
+    }
+
+    cursorable(n){
+        const type=n.get('type')
+        const children=n.get('children')
+        if(type=="text"){
+            return (children||"").length>0
+        }else{
+            return !!!children
+        }
     }
 }

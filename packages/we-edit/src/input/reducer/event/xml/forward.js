@@ -1,9 +1,10 @@
 export default {
     forward_at_text(){
         const {start:{id,at}}=this.selection
-        this.cursorAt(id,at+1)
         if(at==this.$target.text().length-1){
-            this.forward(...arguments)    
+            this.forward_at_end_of_text()       
+        }else{
+            this.cursorAt(id,at+1)
         }
     },
 
@@ -12,9 +13,10 @@ export default {
     },
 
     forward_at_end(){
-        const forward=this.$target.forwardFirst()
-        this.cursorAt(forward.attr('id'),0)
-        this.forward(...arguments)
+        const forward=this.$target.forwardFirst(this.cursorable)
+        if(forward.length>0){
+            this.cursorAt(forward.attr('id'),0)
+        }
     },
 
     forward_at_end_of_text_up_to_document(){
@@ -26,7 +28,6 @@ export default {
     },
 
     forward_at_beginning(){
-        const first=this.$target.children().first()
-        this.cursorAt(first.attr('id'),0)
+        this.forward_at_end()    
     }
 }
