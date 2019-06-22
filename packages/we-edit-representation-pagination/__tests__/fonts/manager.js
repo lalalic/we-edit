@@ -13,7 +13,7 @@ describe("font manager",()=>{
             .then(fonts=>{
                 expect(fonts.length>0).toBe(true)
             })
-    })
+    },2000)
 
 
 

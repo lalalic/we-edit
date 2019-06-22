@@ -14,7 +14,6 @@ const {Format}=Emitter
 xdescribe("we-edit integration", function(){
 	beforeAll(()=>{
 		SVG.install()
-		PDF.install()
 		File.install()
 		iDocx.install()
 

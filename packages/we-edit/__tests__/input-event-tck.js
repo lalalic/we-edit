@@ -251,6 +251,23 @@ export default function tck(TypedDocument,file, debug=false){
                 expect(editor.$target.closest("paragraph").findFirst(image).length).toBe(0)
             })
         })
+
+        describe("cursor move",()=>{
+            it("forward in text should move cursor at next char",()=>{
+                const first=editor.$().findFirst("text")
+                editor.cursorAt(first.attr('id'),0)
+                editor.forward()
+                expect(editor.selection.start).toMatchObject({at:1})
+            })
+
+            it("forward at end of text should move to first of next cursorable",()=>{
+                
+            })
+
+            it("forward at  end of  paragraph's last should go to end of paragraph",()=>{
+                
+            })
+        })
     }) 
 }
 
