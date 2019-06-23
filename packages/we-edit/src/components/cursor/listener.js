@@ -12,19 +12,31 @@ export default connect(
 		onKeyDown:PropTypes.func,
 	}
 
-	state={value:""}
-	KEYs={
-		13:e=>this.props.dispatch(ACTION.Text.RETURN()),
-		46:e=>this.props.dispatch(ACTION.Text.REMOVE(-1)),//delete
-		8:e=>this.props.dispatch(ACTION.Text.REMOVE(1)),//backspace
-		9:e=>this.props.dispatch(ACTION.Text.INSERT(String.fromCharCode(9),e.shiftKey)),//tab
-		37:({shiftKey})=>this.props.dispatch(ACTION.Cursor.BACKWARD({shiftKey})),//move left
-		38:e=>this.props.dispatch(ACTION.Cursor.MOVE_LEFT(e.shiftKey)),//move up
-		39:({shiftKey})=>this.props.dispatch(ACTION.Cursor.FORWARD({shiftKey})),//move right
-		40:e=>this.props.dispatch(ACTION.Cursor.MOVE_RIGHT(e.shiftKey)),//move down
-		116:e=>this.props.dispatch(ACTION.Refresh()),//F5: refresh move down
-		metaz:e=>this.props.dispatch(ACTION.History.undo()),//meta +z,
-		metay:e=>this.props.dispatch(ACTION.History.redo()),//meta +y,
+	constructor(){
+		super(...arguments)
+		this.state={value:""}
+		const {dispatch}=this.props
+		this.KEYs={
+			13:e=>dispatch(ACTION.Text.ENTER(e)),
+			46:e=>dispatch(ACTION.Text.DELETE(e)),
+			8:e=>dispatch(ACTION.Text.BACKSPACE(e)),
+			9:e=>dispatch(ACTION.Text.TAB(e)),
+			
+			37:e=>dispatch(ACTION.Cursor.BACKWARD(e)),//move left
+			39:e=>dispatch(ACTION.Cursor.FORWARD(e)),//move right
+			
+			38:e=>dispatch(ACTION.Cursor.BACKWARD(e)),//move up
+			40:e=>dispatch(ACTION.Cursor.FORWARD(e)),//move down
+
+			116:e=>dispatch(ACTION.Refresh(e)),//F5: refresh move down
+
+			//ctrl+,or meta+ on mac
+			"c":e=>dispatch(ACTION.Selection.COPY(e)),
+			"x":e=>dispatch(ACTION.Selection.CUT(e)),
+			"v":e=>dispatch(ACTION.Selection.PASTE(e)),
+			"z":e=>dispatch(ACTION.History.undo(e)),
+			"y":e=>dispatch(ACTION.History.redo(e)),
+		}
 	}
 
 	render(){
@@ -48,7 +60,7 @@ export default connect(
 							return
 						let value = e.target.value
 						if(e.reactComposition.composition === false){
-							dispatch(ACTION.Text.INSERT(value, e.shiftKey))
+							dispatch(ACTION.Text.INSERT(value))
 							this.setState({value:""})
 						}else
 							this.setState({value})
@@ -60,14 +72,20 @@ export default connect(
 					e.preventDefault()
 					return
 				}
-				const control=keys[e.keyCode]||(({key,metaKey,ctrlKey,fnx=metaKey||ctrlKey ? "meta" :""})=>keys[`${fnx}${key.toLowerCase()}`])(e);
+
+				const onMac=navigator.userAgent.indexOf("Mac OS") != -1
+				const {key,keyCode,ctrlKey,metaKey}=e
+				const control=keys[keyCode]|| (((onMac && metaKey) ||ctrlKey) && keys[key])
 				if(control){
 					e.preventDefault()
-					control(e)
+					control(toMyEvent(e))
+					return 
 				}
 
 				if(this.context.onKeyDown){
-					this.context.onKeyDown(e)
+					if(this.context.onKeyDown(e)!==false){
+						dispatch(ACTION.Text.CONTROL(toMyEvent(e)))
+					}
 				}
 			}}
 		/>
@@ -77,3 +95,12 @@ export default connect(
 		this.props.inputRef.current.focus()
 	}
 })
+
+const toMyEvent=e=>{
+	return Object.keys(e).reduce((keys,k)=>{
+		if(k.endsWith("Key")){
+			keys[k]=e[k]
+		}
+		return keys
+	},{keyCode:e.keyCode})
+}

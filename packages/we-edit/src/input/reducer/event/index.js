@@ -232,18 +232,21 @@ export default class extends Base{
             .map(a=>'at_'+a)
     }
 
-    insert({data}){
+    insert(){
         this.removeSelection()
-        const action=(t=>{
-                if(t.length==1){
-                    return ({
-                        "9":"tab",
-                        "13":"enter"
-                    })[`${t.charCodeAt(0)}`]
-                }
-            })(data)||"type";
+        this.emit("type",this.conds,...arguments)
+        return this
+    }
 
-        this.emit(action,this.conds,...arguments)
+    enter(){
+        this.removeSelection()
+        this.emit("enter",this.conds,...arguments)
+        return this
+    }
+
+    tab(){
+        this.removeSelection()
+        this.emit("tab",this.conds,...arguments)
         return this
     }
 
@@ -252,6 +255,26 @@ export default class extends Base{
         if(start.id==end.id && start.at==end.at){
             const action=backspace ? "backspace" : "delete";
             this.emit(action,this.conds,...arguments)
+        }else{
+            this.removeSelection(...arguments)
+        }
+        return this
+    }
+
+    delete(){
+        const {start,end}=this.selection
+        if(start.id==end.id && start.at==end.at){
+            this.emit("delete",this.conds,...arguments)
+        }else{
+            this.removeSelection(...arguments)
+        }
+        return this
+    }
+
+    backspace(){
+        const {start,end}=this.selection
+        if(start.id==end.id && start.at==end.at){
+            this.emit("backspace",this.conds,...arguments)
         }else{
             this.removeSelection(...arguments)
         }

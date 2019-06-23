@@ -174,20 +174,9 @@ export default class Responsible extends Component{
                             <Cursor
                                 dispatch={dispatch}
                                 keys={{
-									//37:e=>this.onKeyArrowLeft(e),//move left
 									38:e=>this.onKeyArrowUp(e),//move up
-									//39:e=>this.onKeyArrowRight(e),//move right
 									40:e=>this.onKeyArrowDown(e),//move down
-                                    46:e=>this.onKeyDelete(),//delete
-                                    8:e=>this.onKeyBackspace(),//backspace
 								}}
-
-                                onCopy={e=>this.onCopy(e)}
-
-                                onPaste={e=>this.onPaste(e)}
-
-                                onCut={e=>this.onCut(e)}
-
                                 >
 
 								<CursorShape/>
@@ -277,18 +266,6 @@ export default class Responsible extends Component{
         }
     }
 
-    onCopy(e){
-        this.dispatch(ACTION.Selection.COPY(e))
-    }
-
-    onCut(e){
-        this.dispatch(ACTION.Selection.CUT(e))
-    }
-
-    onPaste(e){
-        this.dispatch(ACTION.Selection.PASTE(e))
-    }
-
     onClick({shiftKey:selecting, target, clientX:left,clientY:top}, doubleClicked=false){
 		const {id,at}=this.positioning.around(left, top)
 		if(id){
@@ -323,28 +300,6 @@ export default class Responsible extends Component{
         this.active()
     }
 
-    onKeyDelete(){
-        this.dispatch(ACTION.Text.REMOVE({backspace:false}))
-    }
-
-    onKeyBackspace(){
-        this.dispatch(ACTION.Text.REMOVE({backspace:true}))
-    }
-
-	locate(nextOrprev){
-		const {id,at}=this.cursor
-        const composer=this.getComposer(id)
-        if(composer){
-            return composer[`${nextOrprev}Cursorable`](id,at)||{}
-        }
-        return this.cursor
-	}
-
-    locateLine(nextOrPrev){
-		const {id,at}=this.cursor
-        return this.positioning[`${nextOrPrev}Line`](id,at)||{}
-	}
-
     onKeyArrow(id,at,selecting){
         if(!selecting){
             this.dispatch(ACTION.Cursor.AT(id,at))
@@ -356,20 +311,11 @@ export default class Responsible extends Component{
         }
     }
 
-	onKeyArrowLeft({shiftKey:selecting}){
-        const {id,at}=this.locate("prev")
-        if(id){
-            this.onKeyArrow(id,at,selecting)
-        }
-	}
-
-	onKeyArrowRight({shiftKey:selecting}){
-        const {id,at}=this.locate("next")
-        if(id){
-            this.onKeyArrow(id,at,selecting)
-        }
-	}
-
+    locateLine(nextOrPrev){
+		const {id,at}=this.cursor
+        return this.positioning[`${nextOrPrev}Line`](id,at)||{}
+    }
+    
 	onKeyArrowUp({shiftKey:selecting}){
 		const {id, at}=this.locateLine("prev")
         if(id){

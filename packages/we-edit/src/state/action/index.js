@@ -9,9 +9,13 @@ export const Cursor={
 }
 
 export const Text={
-	INSERT: (t,shiftKey)=>({type:"we-edit/text/INSERT",payload:{data:t,shiftKey}}),
-	REMOVE: n=>({type:"we-edit/text/REMOVE",payload:n}),
-	RETURN: n=>({type:"we-edit/text/RETURN"}),
+	INSERT: payload=>({type:"we-edit/text/INSERT",payload}),
+	DELETE: payload=>({type:"we-edit/text/DELETE",payload}),
+	BACKSPACE:payload=>({type:"we-edit/text/BACKSPACE",payload}),
+	TAB:payload=>({type:"we-edit/text/TAB",payload}),
+	ENTER: payload=>({type:"we-edit/text/ENTER",payload}),
+	
+	CONTROL: payload=>({type:"we-edit/text/CONTROL",payload}),
 }
 
 export const Selection={

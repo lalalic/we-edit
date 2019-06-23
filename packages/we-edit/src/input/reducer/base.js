@@ -114,7 +114,23 @@ export default class Base{
     }
 
 
-	insert({data,shiftKey}){
+	insert(char){
+		return this
+	}
+
+	delete(event){
+		return this
+	}
+
+	backspace(event){
+		return this
+	}
+
+	enter(event){
+		return this
+	}
+
+	tab(event){
 		return this
 	}
 

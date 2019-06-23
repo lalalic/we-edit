@@ -186,12 +186,17 @@ export class Editable extends Viewable{
 		const params=[state]
 		const reducer=new this.constructor.Reducer(...params)
 		switch(type){
-			case `we-edit/text/RETURN`:
-				return reducer.insert({data:"\r"}).state()
 			case `we-edit/text/INSERT`:
 				return reducer.insert(payload).state()
-			case `we-edit/text/REMOVE`:
-				return reducer.remove(payload).state()
+			case `we-edit/text/DELETE`:
+				return reducer.delete(payload).state()
+			case `we-edit/text/BACKSPACE`:
+				return reducer.backspace(payload).state()
+			case `we-edit/text/TAB`:
+				return reducer.tab(payload).state()
+			case `we-edit/text/ENTER`:
+				return reducer.enter(payload).state()
+			
 			case "we-edit/entity/CREATE":
 				return reducer.create(payload).state()
 			case "we-edit/entity/UPDATE":

@@ -4,7 +4,7 @@ export default {
         const $next=this.$target.forwardFirst()
         this.cursorAt($next.attr("id"),0)
         try{
-            this.insert(...arguments)
+            this.enter()
         }finally{
             this.cursorAt($next.attr("id"),0)
         }
@@ -12,12 +12,12 @@ export default {
 
     //cons: may left empty r
     //can't remove it, otherwise dead loop
-    enter_at_beginning_of_text(e){
+    enter_at_beginning_of_text(){
         if(this.$target.prev().length==0){
             this.cursorAt(this.$target.parent().attr('id'),0)
-            this.insert(e)
+            this.enter()
         }else{
-            this.enter_at_beginning(e)
+            this.enter_at_beginning()
         }
     },
 
@@ -25,25 +25,25 @@ export default {
         this.enter_at_beginning()
     },
 
-    enter_at_empty_up_to_cell(e){
-        this.enter_at_beginning_of_up_to_table(e)
+    enter_at_empty_up_to_cell(){
+        this.enter_at_beginning_of_up_to_table()
     },
 
-    enter_at_beginning_of_table(e){
-        this.enter_at_beginning_of_up_to_table(e)
+    enter_at_beginning_of_table(){
+        this.enter_at_beginning_of_up_to_table()
     },
 
-    enter_at_beginning_of_up_to_table(e){
+    enter_at_beginning_of_up_to_table(){
         const $container=this.$target.closest("table,paragraph")
         if($container.backwardFirst("paragraph").length==0){
             this.create_first_paragraph()
         }else{
-            this.enter_at_beginning(e)
+            this.enter_at_beginning()
         }
     },
 
     //clone parent and hold target
-    enter_at_beginning(e){
+    enter_at_beginning(){
         this.seperate_up_to_paragraph_at_beginning()
     },
 
@@ -77,7 +77,7 @@ export default {
         const next=this.$target.forwardFirst()
         if(next.closest("paragraph").is(this.$target.closest("paragraph"))){
             this.cursorAt(next.attr('id'),0)
-            this.insert(...arguments)
+            this.enter()
         }
     },
 

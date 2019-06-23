@@ -1,5 +1,5 @@
 export default {
-    type_at_text({data}){
+    type_at_text(data){
         const target=this.target
         const {start:{id,at}}=this.selection
         const src=target.text()
@@ -8,7 +8,7 @@ export default {
         this.cursorAt(id,at+data.length)
     },
 
-    type_at_empty_text({data}){
+    type_at_empty_text(data){
         this.file.renderChanged(this.target.text(data))
         this.cursorAt(this.selection.start.id,data.length)
     },
