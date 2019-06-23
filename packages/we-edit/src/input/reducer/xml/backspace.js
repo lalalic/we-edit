@@ -12,7 +12,7 @@ export default {
         const $prev=this.$target.backwardFirst()
         if($prev.length){
             this.cursorAtEnd($prev.attr('id'))
-            this.remove(...arguments)
+            this.backspace(...arguments)
         }
     },
 
@@ -53,7 +53,7 @@ export default {
         const prevId=$prev.attr('id')
         try{
             this.cursorAtEnd(prevId)
-            this.remove(...arguments)
+            this.backspace(...arguments)
         }finally{
             this.cursorAt(cursor.id, cursor.at)
         }
@@ -61,10 +61,10 @@ export default {
 
     backspace_at_end(){
         const cursor=this.selection.start
-        const last=this.$target.children().last().attr("id")
+        const last=this.$target.findLast(this.cursorable)
         if(last){
             this.cursorAtEnd(last)
-            this.remove(...arguments)
+            this.backspace(...arguments)
         }else{
             this.cursorAt(cursor.id,0, cursor.id,1, undefined, false)
             this.removeSelection() 

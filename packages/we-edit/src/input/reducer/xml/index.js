@@ -6,6 +6,7 @@ import update from "./update"
 import enter from "./enter"
 import type from "./type"
 import backspace from "./backspace"
+import Delete from "./delete"
 import tab from "./tab"
 import forward from "./forward"
 import backward from "./backward"
@@ -17,7 +18,7 @@ export default class extends Base{
         this.PARAGRAPH=""
         this.TEXT=""
         this.InlineContainers=""
-        Object.assign(this,seperate,create,update,enter,type,backspace,tab,forward,backward)
+        Object.assign(this,seperate,create,update,enter,type,backspace,Delete,tab,forward,backward)
     }
 
     get TEXT_(){
