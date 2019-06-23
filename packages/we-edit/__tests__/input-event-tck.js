@@ -215,7 +215,7 @@ export default function tck(TypedDocument,file, debug=false){
         })
 
         describe("enter",()=>{
-            const enter=()=>editor.insert({data:"\r"})
+            const enter=()=>editor.enter()
             it("enter at text should split text up to paragraph",()=>{
                 const ps=editor.$("paragraph")
                 const first=editor.$().findFirst("text")
