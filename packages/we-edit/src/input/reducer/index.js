@@ -1,8 +1,5 @@
-import {default as DOMReducer} from "./dom"
 import {default as EventReducer} from "./event"
-import xml from "./event/xml"
+import xml from "./xml"
 EventReducer.xml=xml
 
-export {
-    DOMReducer, EventReducer
-}
+export default EventReducer

@@ -3,7 +3,7 @@ import {Input} from "we-edit"
 import type from "./type"
 import backspace from "./backspace"
 
-export default class extends Input.EventReducer.xml{
+export default class extends Input.Editable.EventHandler.xml{
     constructor(){
         super(...arguments)
         this.PR=""

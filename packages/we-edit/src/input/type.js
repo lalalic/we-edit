@@ -2,7 +2,7 @@ import React from "react"
 import PropTypes from "prop-types"
 
 import uuid from "../tools/uuid"
-import {DOMReducer as Reducer} from "./reducer"
+import Reducer from "./reducer"
 
 import {getSelection} from "../state/selector"
 import {selection} from "../state/reducer"
@@ -138,7 +138,7 @@ export class Editable extends Viewable{
 		return {}
 	}
 
-	static  Reducer=Reducer
+	static  EventHandler=Reducer
 
 	editable(){
 		return true
@@ -225,59 +225,6 @@ export class Editable extends Viewable{
 			}
 		}
 		return true
-	}
-}
-
-export class Serializable extends Editable{
-	/*find node by id*/
-	getNode(id){
-
-	}
-
-	//always attached
-	cloneNode(element, keepId=false){
-
-	}
-
-	//return [/*cursor at first part*/{id,at},/*cursor at second part*/{id,at}]
-	splitNode(element,at, firstKeepId=true){
-
-	}
-
-	/*
-	at=0:before node{id},
-	at=1:after node{id},
-	create and attached when poisiton is falsy
-	*/
-	createNode(element, position/*{id,at=0}*/){
-
-	}
-
-	updateNode(element, changing){
-
-	}
-
-	removeNode(element){
-
-	}
-
-	/*append when referenceNode is falsy */
-	insertNodeBefore(newNode,referenceNode,parentNode){
-
-	}
-	//prepend when referenceNode is falsy
-	insertNodeAfter(newNode,referenceNode,parentNode){
-
-	}
-
-	//return constructed node
-	//fromId==toId should be supported
-	construct(fromId,toId){
-
-	}
-
-	toString(id){
-		return `[${id}]`
 	}
 }
 

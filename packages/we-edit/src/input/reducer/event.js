@@ -1,5 +1,5 @@
-import xQuery from "./query"
-import Base from "../base"
+import xQuery from "./xquery"
+import Base from "./base"
 
 export default class extends Base{
     constructor(state){

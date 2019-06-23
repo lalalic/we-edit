@@ -1,4 +1,4 @@
-import Base from "../index"
+import Base from "../event"
 
 import seperate from "./seperate"
 import create from "./create"

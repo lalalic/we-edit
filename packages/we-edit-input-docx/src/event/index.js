@@ -8,7 +8,7 @@ import type from "./type"
 import backspace from "./backspace"
 import tab from "./tab"
 
-export default class Actions extends Input.EventReducer.xml{
+export default class Actions extends Input.Editable.EventHandler.xml{
     constructor(){
         super(...arguments)
         this.debug=true
