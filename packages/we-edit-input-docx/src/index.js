@@ -386,18 +386,29 @@ export default class Editable extends DocxType{
 		return this.doc.officeDocument.content(...arguments)
 	}
 
-	attach(xml, needRender=true){
-		xml=this.doc.officeDocument.content(xml)
-		this.doc.officeDocument.content("w\\:body").append(xml)
-		return needRender ? this.renderChanged(xml).id : this.makeId(xml.get(0))
+	get attacher(){
+		if(!this._attacher){
+			this._attacher=this.doc.officeDocument.content("<w:_attacher\>")
+			this._attacher.prependTo(this.doc.officeDocument.content("w\\:body"))
+		}
+
+		return this._attacher
 	}
 
-    toString(id){
-		return this.doc.officeDocument.content.xml(this.getNode(id))
+	attach(xml){
+		return this.attacher.append(xml).children()
 	}
 
-	toXml(node){
-		return this.doc.officeDocument.content.xml(node)
+	trim(xml){
+		return xml.replace(/>\s+/g,">").replace(/\s+</g,"<")
+	}
+
+	serialize(id){
+		if(typeof(id)=="string"){
+			return this.doc.officeDocument.content.xml(this.getNode(id))
+		}else{
+			return this.doc.officeDocument.content.xml(id)
+		}
 	}
 
     px2dxa(w){

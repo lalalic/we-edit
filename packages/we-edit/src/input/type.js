@@ -186,8 +186,8 @@ export class Editable extends Viewable{
 		const params=[state]
 		const reducer=new this.constructor.Reducer(...params)
 		switch(type){
-			case `we-edit/text/INSERT`:
-				return reducer.insert(payload).state()
+			case `we-edit/text/TYPE`:
+				return reducer.type(payload).state()
 			case `we-edit/text/DELETE`:
 				return reducer.delete(payload).state()
 			case `we-edit/text/BACKSPACE`:

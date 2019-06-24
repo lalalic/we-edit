@@ -22,7 +22,7 @@ export default class extends Base{
             if(this.debug){
                 console.debug({message:`${action}_${event}`,action,conds,payload})
             }
-            this[`${action}_${event}`](...payload,conds)
+            return this[`${action}_${event}`](...payload,conds)
         }else if(this.debug){
             console.warn({message:"event without handler",action,conds,payload})
         }
@@ -67,10 +67,6 @@ export default class extends Base{
             }
         }
     }
-
-    serializeSelection(){
-        
-	}
 
     //the result should be [element], or [el1,...,el2]
 	seperateSelection(){
@@ -259,7 +255,7 @@ export default class extends Base{
             .map(a=>'at_'+a)
     }
 
-    insert(){
+    type(){
         this.removeSelection()
         this.emit("type",this.conds,...arguments)
         return this
@@ -348,6 +344,64 @@ export default class extends Base{
 
     backward(){
         this.emit("backward",this.conds,...arguments)
+        return this
+    }
+
+    copy(){
+        const {start,end}=this.selection
+        if(start.id==end.id && start.at==end.at){
+            return this
+        }
+
+        if(start.id==end.id){
+            this.clipboard=this.emit("serialize", this.conds)
+        }else{
+            const targets=this.$target.to("#"+end.id).toArray()
+            this.cursorAt(start.id,start.at, start.id, this.cursorAtEnd(start.id).end.at)
+            const first=this.emit("serialize",this.conds)
+
+            const contents=targets.slice(1,targets.length-1).map(id=>{
+                this.selectWhole(id)
+                return this.emit("serialize",[...this.conds,"any"])
+            })
+
+            this.cursorAt(end.id, 0, end.id, end.at)
+            const last=this.emit("serialize",this.conds)
+
+            this.clipboard=[first, ...contents, last].join("")
+            this.cursorAt(start.id, start.at, end.id, end.at)
+        }
+        
+        return this
+    }
+
+    cut(){
+        const {start,end}=this.selection
+        if(start.id==end.id && start.at==end.at){
+            return this
+        }
+
+        if(start.id==end.id){
+            this.clipboard=this.emit("serialize", this.conds)
+        }else{   
+            this.seperateSelection()
+            this.clipboard=this.$target.to("#"+end.id).toArray().map(id=>{
+                this.selectWhole(id)
+                return this.emit("serialize",this.conds)
+            }).join("")
+        }
+        this.removeSelection()
+        return this
+    }
+
+    paste(){
+        this.removeSelection()
+        this.file.attach(this.clipboard).each((i,a)=>{
+            const {id}=this.file.renderChanged(a)
+            const $b=this.$(`#${id}`)
+            this.emit("paste_"+$b.attr('type'),this.conds,$b)
+        })
+
         return this
     }
 

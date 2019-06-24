@@ -29,7 +29,7 @@ export function createState(doc, content){
 		ui:{},
 		statistics:{},
 		undos:[],
-		redos:[],
+		redos:[]
 	})
 }
 

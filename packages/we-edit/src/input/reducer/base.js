@@ -23,6 +23,14 @@ export default class Base{
 		return state
 	}
 
+	get clipboard(){
+		return window._clipboard
+	}
+
+	set clipboard(v){
+		return window._clipboard=v
+	}
+
 	get selection(){
 		return this._selection
 	}
@@ -51,6 +59,14 @@ export default class Base{
 			return this.cursorAt(id, this.content.getIn([id,"children"]).length)
 		}else{
 			return this.cursorAt(id,1)
+		}
+	}
+
+	selectWhole(id){
+		if(this.content.getIn([id,"type"])=="text"){
+			return this.cursorAt(id, 0, id, this.content.getIn([id,"children"]).length)
+		}else{
+			return this.cursorAt(id,0,id, 1)
 		}
 	}
 
@@ -114,7 +130,7 @@ export default class Base{
     }
 
 
-	insert(char){
+	type(char){
 		return this
 	}
 

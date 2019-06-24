@@ -86,7 +86,7 @@ export default {
     },
 
     enter_at_end_of_up_to_paragraph(){
-        const p=this.target.closest(PARAGRAPH_)
+        const p=this.target.closest(this.PARAGRAPH_)
         const cloned=p.clone().insertAfter(p)
         cloned.children(`:not(${this.PR})`).remove()
         const a=this.file.renderChanged(cloned)

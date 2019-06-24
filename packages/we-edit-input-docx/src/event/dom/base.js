@@ -29,39 +29,20 @@ export default class Editor{
 	}
 
 	trim(xml){
-		return xml.replace(/>\s+/g,">").replace(/\s+</g,"<")
+		return this.file.trim(xml)
 	}
 
-    parseXml(xml){
-        let $=this.file.doc.constructor.parseXml(this.trim(xml))
-        return $.root().children().first()
-    }
-
-    create(props,position){
-        this.node=this.parseXml(this.template(props))
-        return this.file.attach(this.apply(props),false)
+    create(props){
+        const content=this.template(props)
+        const $=this.file.doc.constructor.parseXml(this.trim(content))
+        this.node=$.root().children().first()
+        this.apply(props)
+        return this.file.attach(this.node)
     }
 
     update({id},changing){
         this.apply({id, ...changing})
         this.file.renderChanged(this.node)
-    }
-
-    remove({id,type}){
-        return this.node.remove()
-    }
-
-    split(at,firstKeepId){
-        const id=this.node.attr("xxid")
-        return [{id,at},{id,at}]
-    }
-
-    clone(){
-        return this.node.clone()
-    }
-
-    empty(){
-        this.node.empty()
     }
 
     apply(changing){

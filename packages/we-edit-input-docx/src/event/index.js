@@ -7,6 +7,8 @@ import enter from "./enter"
 import type from "./type"
 import backspace from "./backspace"
 import tab from "./tab"
+import paste from "./paste"
+import serialize from "./serialize"
 
 export default class Actions extends Input.Editable.EventHandler.xml{
     constructor(){
@@ -17,18 +19,7 @@ export default class Actions extends Input.Editable.EventHandler.xml{
         this.TEXT="w:t"
         this.InlineContainers="w\\:r, w\\:sdt"
         
-        Object.assign(this,seperate,create,update,enter,type,backspace,tab)
-    }
-
-    state(){
-        const clean=(i,a)=>{
-            this.file.getNode(a.get('id')).remove()
-            this.$(a).remove()
-        }
-        const $p=this.$target.closest("paragraph")
-        $p.find(`text`).filter(a=>a.get("children").length==0).each(clean)
-        $p.find('run').filter(a=>a.get("children").length==0).each(clean)
-        return super.state()
+        Object.assign(this,seperate,create,update,enter,type,backspace,tab,paste,serialize)
     }
 
     create_first_paragraph(){
