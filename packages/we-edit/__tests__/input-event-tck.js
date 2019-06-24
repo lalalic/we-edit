@@ -215,6 +215,54 @@ export default function tck(TypedDocument,file, debug=false){
             })
         })
 
+        describe("delete",()=>{
+            it("delete at text should remove char at cursor,and cursor postion should not be changed",()=>{
+                const first=editor.$().findFirst("text")
+                const len=first.text().length
+                editor.cursorAt(first.attr('id'), 2)
+                editor.delete()
+                expect(first.text().length).toBe(len-1)
+                expect(editor.selection.start).toMatchObject({id:first.attr('id'),at:2})
+            })
+
+            it("delete at end of up to paragraph should merge next paragraph",()=>{
+                const ps=editor.$("paragraph")
+                const $next=editor.$().findFirst("paragraph+paragraph")
+                expect($next.length>0).toBe(true)
+                const $p=$next.prev("paragraph")
+                const text=$p.findLast(editor.cursorable)
+                expect(text.is("text")).toBe(true)
+                editor.cursorAtEnd(text.attr('id'))
+                editor.delete()
+                expect(editor.$("paragraph").length).toBe(ps.length-1)
+            })
+
+            it("delete at end of paragraph should merge next paragraph",()=>{
+                const ps=editor.$("paragraph")
+                const $next=editor.$().findFirst("paragraph+paragraph")
+                expect($next.length>0).toBe(true)
+                const $p=$next.prev("paragraph")
+                editor.cursorAt($p.attr('id'),1)
+                editor.delete()
+                expect(editor.$("paragraph").length).toBe(ps.length-1)
+            })
+
+            it("delete at end of last paragraph should do nothing",()=>{
+                
+            })
+
+            it("delete at end of text should delete forward",()=>{
+                const first=editor.$().findFirst("text")
+                editor.cursorAtEnd(first.attr('id'))
+                const $next=editor.$target.forwardFirst(editor.cursorable)
+                expect($next.attr('type')).toBe("text")
+                const text=$next.text()
+                editor.delete()
+                expect($next.text().length).toBe(text.length-1)
+                expect(editor.selection.start).toMatchObject({id:$next.attr('id'),at:0})
+            })
+        })
+
         describe("enter",()=>{
             const enter=()=>editor.enter()
             it("enter at text should split text up to paragraph",()=>{

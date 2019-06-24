@@ -1,19 +1,11 @@
 export default {
     forward_at_text(){
         const {start:{id,at}}=this.selection
-        if(at==this.$target.text().length-1){
-            this.forward_at_end_of_text()       
-        }else{
-            this.cursorAt(id,at+1)
-        }
+        this.cursorAt(id,at+1)
     },
 
     forward_at_end_of_text(){
         this.forward_at_end()
-    },
-
-    forward_at_end_of_up_to_paragraph(){
-        this.cursorAt(this.$target.closest("paragraph").attr('id'),1)
     },
 
     forward_at_end_of_paragraph_up_to_document(){

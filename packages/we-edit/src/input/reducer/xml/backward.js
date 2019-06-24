@@ -48,4 +48,13 @@ export default {
     backward_at_empty_up_to_document(){
         
     },
+
+    backward_at_end_of_paragraph(){
+        const $last=this.$target.findLast(this.cursorable)
+        if($last.attr('type')=="text"){
+            this.cursorAt($last.attr('id'),$last.text().length-1)
+        }else{
+            this.cursorAt($last.attr('id'),0)
+        }
+    }
 }

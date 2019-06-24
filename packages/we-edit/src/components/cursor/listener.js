@@ -18,8 +18,8 @@ export default connect(
 		const {dispatch}=this.props
 		this.KEYs={
 			13:e=>dispatch(ACTION.Text.ENTER(e)),
-			46:e=>dispatch(ACTION.Text.DELETE(e)),
-			8:e=>dispatch(ACTION.Text.BACKSPACE(e)),
+			8:e=>dispatch(ACTION.Text.DELETE(e)),//delet on window, 
+			//8:e=>dispatch(ACTION.Text.BACKSPACE(e)),//backspace on window, delete on mac
 			9:e=>dispatch(ACTION.Text.TAB(e)),
 			
 			37:e=>dispatch(ACTION.Cursor.BACKWARD(e)),//move left

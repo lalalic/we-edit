@@ -48,7 +48,7 @@ export default class Base{
 
 	cursorAtEnd(id){
 		if(this.content.getIn([id,"type"])=="text"){
-			return this.cursorAt(id, this.content.getIn([id,"children"]).length-1)
+			return this.cursorAt(id, this.content.getIn([id,"children"]).length)
 		}else{
 			return this.cursorAt(id,1)
 		}

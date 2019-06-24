@@ -3,21 +3,12 @@ export default {
         const {start:{id,at}}=this.selection
         const target=this.target
         const src=target.text()
-        if(at==src.length-1){
-            this.forward()
-        }        
         target.text(src.substring(0,at)+src.substring(at+1))
         this.file.renderChanged(target)
     },
 
-    delete_at_end_of_text_up_to_paragraph(){
-        this.delete_at_end_of_text_up_to_paragraph(...arguments)
-    },
-
-    delete_at_end_of_text_up_to_paragraph(){
-        const $p=this.$target.closest("paragraph")
-        this.delete_at_text(...arguments)
-        this.cursorAt($p.attr('id'),1)
+    delete_at_end_of_text(){
+        this.delete_at_end(...arguments)
     },
 
     delete_at_empty_text(){
@@ -67,6 +58,12 @@ export default {
 
     delete_at_empty_up_to_document(){
 
+    },
+
+    delete_at_beginning(){
+        const {start:{id}}=this.selection
+        this.cursorAt(id,0,id,1)
+        this.removeSelection()
     },
 
 }

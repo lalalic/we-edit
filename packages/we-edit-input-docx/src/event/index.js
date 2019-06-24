@@ -20,10 +20,33 @@ export default class Actions extends Input.Editable.EventHandler.xml{
         Object.assign(this,seperate,create,update,enter,type,backspace,tab)
     }
 
+    state(){
+        const clean=(i,a)=>{
+            this.file.getNode(a.get('id')).remove()
+            this.$(a).remove()
+        }
+        const $p=this.$target.closest("paragraph")
+        $p.find(`text`).filter(a=>a.get("children").length==0).each(clean)
+        $p.find('run').filter(a=>a.get("children").length==0).each(clean)
+        return super.state()
+    }
+
     create_first_paragraph(){
         const $body=this.file.$('w\\:body').prepend(`<w:p><w:r><w:t/></w:r></w:p>`)
         const a=this.file.renderChanged($body.children().first())
         this.$().findFirst('section').prepend(`#${a.id}`)
         this.cursorAt(a.id,0)
+    }
+
+    clean(){
+        super.clean(()=>{
+            this.$target.closest('paragraph')
+                .find("run")
+                .filter(a=>this.$(a).findFirst(this.cursorable).length==0)
+                .each((i,a)=>{
+                    this.$(a).remove()
+                    this.file.getNode(a.get('id')).remove()
+                })
+        })
     }
 }

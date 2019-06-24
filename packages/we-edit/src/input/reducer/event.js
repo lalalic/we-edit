@@ -41,6 +41,33 @@ export default class extends Base{
         return !["image","text"].includes(type)
     }
 
+    clean(f){
+        const $next=this.$target.forwardFirst(this.cursorable)
+        const $prev=this.$target.backwardFirst(this.cursorable)
+        if($next.length==0 && $prev.length==0){
+            return 
+        }
+
+        f&&f();
+        
+        const $p=this.$target.closest("paragraph")
+        $p.find("text").filter(a=>this.$(a).text().length==0).each((i,a)=>{
+            const parents=this.$(a).parentsUntil($p).not($p)
+            const k=((parents.toArray().findIndex(b=>this.$('#'+b).length>1)+1)||parents.length)-1
+            const target=parents.eq(k).attr('id')||a.get('id')
+            this.$(`#${target}`).remove()
+            this.file.getNode(target).remove()
+        })
+
+        if(this.$target.length==0){
+            if($next.length==1){
+                this.cursorAt($next.attr('id'),0)
+            }else if($prev.length==1){
+                this.cursorAtEnd($prev.attr('id'))
+            }
+        }
+    }
+
     serializeSelection(){
         
 	}
@@ -106,8 +133,8 @@ export default class extends Base{
         try{
             this.seperateSelection()
             const {start,end}=this.selection
-            const prev=this.$("#"+start.id).backwardFirst()
-            const next=this.$('#'+end.id).forwardFirst()
+            const prev=this.$("#"+start.id).backwardFirst(this.cursorable)
+            const next=this.$('#'+end.id).forwardFirst(this.cursorable)
 
             const targets=this.$target.to("#"+end.id)
             targets.toArray().forEach(id=>{
@@ -250,17 +277,6 @@ export default class extends Base{
         return this
     }
 
-    remove({backspace}={}){
-        const {start,end}=this.selection
-        if(start.id==end.id && start.at==end.at){
-            const action=backspace ? "backspace" : "delete";
-            this.emit(action,this.conds,...arguments)
-        }else{
-            this.removeSelection(...arguments)
-        }
-        return this
-    }
-
     delete(){
         const {start,end}=this.selection
         if(start.id==end.id && start.at==end.at){
@@ -268,6 +284,7 @@ export default class extends Base{
         }else{
             this.removeSelection(...arguments)
         }
+        this.clean()
         return this
     }
 
@@ -278,6 +295,7 @@ export default class extends Base{
         }else{
             this.removeSelection(...arguments)
         }
+        this.clean()
         return this
     }
 
