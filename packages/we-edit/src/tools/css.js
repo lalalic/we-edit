@@ -23,7 +23,7 @@ const SCOPE={
 	}
 const UNION=/[\s\[,:<>+~]/
 function unionSelector(a,$, basic){
-	let selectors=a.replace(/\s?[><+~]\s?/g,">").split(/(?=[><+~\s])/g)
+	let selectors=a.split(/(?=[><+~\s])/g)
 	const scopes=selectors.slice(1).map(k=>SCOPE[k[0]])
 	selectors=selectors.map(k=>k.replace(/^[><+~]/,"")).map(k=>k.trim())
 	const nodeSelector=selectors.pop()

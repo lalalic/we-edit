@@ -1,4 +1,3 @@
-import React from "react"
 import immutable,{Map} from "immutable"
 import {createState} from "../src/state"
 import {default as QueryContent} from "../src/state/selector/query"
@@ -95,6 +94,23 @@ describe("content query",()=>{
                 expect($.find(".paragraph,.text,#2").length).toBe(3)
                 expect($.find(".text,#2").length).toBe(1)
                 expect($.find(".text,#1").length).toBe(2)
+            })
+
+            it("+",()=>{
+                const $=new Query(state({
+                    "1":{type:"table"},
+                    "2":{type:"paragraph"},
+                    "3":{type:"paragraph"}
+                }))
+                expect($.find("paragraph+paragraph").length).toBe(1)
+                expect($.findFirst("paragraph+paragraph").attr('id')).toBe("3")
+
+                const $1=new Query(state({
+                    "1":{type:"paragraph"},
+                    "2":{type:"table"},
+                    "3":{type:"paragraph"}
+                }))
+                expect($1.find("paragraph+paragraph").length).toBe(0)
             })
         })
 
