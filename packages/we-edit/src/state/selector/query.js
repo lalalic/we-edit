@@ -340,8 +340,6 @@ export default class Query{
             const top0=ancestors0.last()
             const top1=ancestors1.last()
 
-			
-			
             ancestors0.not(target0).not(top0).each((i,a)=>{
                 targets.splice(targets.length,0,...this._$('#'+a.get("id")).nextAll().toArray())
 			})
@@ -542,31 +540,6 @@ export default class Query{
 
 	toArray(){
 		return [...this._nodes]
-	}
-
-	prevCursor(at){
-		const current=new this.constructor(this.state,this._nodes.slice(0,1))
-		if(current.attr('type')=="text" && at>0){
-			return {id:current.attr('id'),at:at-1}
-		}
-		const prev=current.backwardFirst(a=>["undefined","string"].includes(typeof(a.children)))
-		if(prev.length){
-			if(prev.attr('type')=="text"){
-				return {id:prev.attr('id'),at:prev.text().length-1}
-			}else{
-				return {id:prev.attr('id'),at:0}
-			}
-		}
-		return {}
-	}
-
-	nextCursor(at){
-		const current=new this.constructor(this.state,this._nodes.slice(0,1))
-		if(current.attr('type')=="text" && at<current.text().length-1){
-			return {id:current.attr('id'),at:at+1}
-		}
-		const prev=current.forwardFirst(a=>["undefined","string"].includes(typeof(a.children)))
-		return prev.length ? {id:prev.attr('id'),at:0} : {}
 	}
 
 	toJS(){

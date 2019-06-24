@@ -9,7 +9,7 @@ export const Cursor={
 }
 
 export const Text={
-	INSERT: payload=>({type:"we-edit/text/INSERT",payload}),
+	TYPE: payload=>({type:"we-edit/text/TYPE",payload}),
 	DELETE: payload=>({type:"we-edit/text/DELETE",payload}),
 	BACKSPACE:payload=>({type:"we-edit/text/BACKSPACE",payload}),
 	TAB:payload=>({type:"we-edit/text/TAB",payload}),

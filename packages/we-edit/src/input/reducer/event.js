@@ -399,7 +399,7 @@ export default class extends Base{
         this.file.attach(this.clipboard).each((i,a)=>{
             const {id}=this.file.renderChanged(a)
             const $b=this.$(`#${id}`)
-            this.emit("paste_"+$b.attr('type'),this.conds,$b)
+            this.emit("paste_"+$b.attr('type'),this.conds,$b,a)
         })
 
         return this
