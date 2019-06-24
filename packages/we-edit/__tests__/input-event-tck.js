@@ -115,6 +115,7 @@ export default function tck(TypedDocument,file, debug=false){
         })
 
         describe("remove selection",()=>{
+            const removeSelection=()=>editor.removeSelection()
             it("remove text should not change structure",()=>{
                 const texts=editor.$("text")
                 const textLength=texts.length
@@ -123,7 +124,7 @@ export default function tck(TypedDocument,file, debug=false){
                 const id=$first.attr('id'), text=$first.text()
                 expect(text.length>3).toBe(true)
                 editor.cursorAt(id,1,id,2)
-                editor.remove()
+                removeSelection()
                 expect(editor.$('text').length).toBe(textLength)
                 expect(editor.selection).toMatchObject({start:{id,at:1}, end:{id,at:1}})
                 expect(editor.$target.text()).toBe(text.substring(0,1)+text.substring(1+1))
@@ -137,7 +138,7 @@ export default function tck(TypedDocument,file, debug=false){
                 const id=$first.attr('id'), text=$first.text()
                 expect(text.length>3).toBe(true)
                 editor.cursorAt(id,0,id,text.length)
-                editor.remove()
+                removeSelection()
                 expect(editor.$('text').length).toBe(textLength-1)
                 expect(editor.$(`#${id}`).length).toBe(0)
             })
@@ -147,7 +148,7 @@ export default function tck(TypedDocument,file, debug=false){
                 expect($container.length>0).toBe(true)
                 const id=$container.attr('id')
                 editor.cursorAt(id,0,id,1)
-                editor.remove()
+                removeSelection()
                 expect(editor.$(`#${id}`).length).toBe(0)
             })
 
@@ -157,14 +158,14 @@ export default function tck(TypedDocument,file, debug=false){
                 expect(editor.$("paragraph").text().length>0).toBe(true)
                 const id=p.attr('id')
                 editor.cursorAt(id,0,id,1,undefined,false)
-                editor.remove()
+                removeSelection()
                 expect(editor.$("paragraph").length).toBe(1)
                 expect(editor.$("paragraph").text().length).toBe(0)
             })
         })
 
         describe("backspace",()=>{
-            const backspace=()=>editor.remove({backspace:true})
+            const backspace=()=>editor.backspace()
             it("backspace text should remove a char",()=>{
                 const first=editor.$().findFirst("text")
                 const len=first.text().length

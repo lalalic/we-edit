@@ -14,9 +14,9 @@ import backward from "./backward"
 export default class extends Base{
     constructor(){
         super(...arguments)
-        this.PR=""
-        this.PARAGRAPH=""
-        this.TEXT=""
+        this.PR="__unknown"
+        this.PARAGRAPH="paragraph"
+        this.TEXT="text"
         this.InlineContainers=""
         Object.assign(this,seperate,create,update,enter,type,backspace,Delete,tab,forward,backward)
     }
@@ -84,7 +84,10 @@ export default class extends Base{
 
     cursorable(n){
         if(super.cursorable(n)){
-            return !this.$(n).is(this.InlineContainers)
+            if(this.InlineContainers){
+                return !this.$(n).is(this.InlineContainers)
+            }
+            return true
         }
         return false
     }

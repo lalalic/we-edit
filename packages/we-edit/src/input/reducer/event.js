@@ -175,7 +175,7 @@ export default class extends Base{
             (this.isEmpty()&&"empty")||
             (this.isWhole()&&"whole")||
             (at==0 && "beginning_of")||
-            (type=="text" ? (at>=children.length-1 && "end_of") : (at==1)&&"end_of")||
+            (type=="text" ? (at>=children.length && "end_of") : (at==1)&&"end_of")||
             ""
         
         const up2Parents=((current,parent,types=[])=>{

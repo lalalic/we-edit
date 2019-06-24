@@ -35,10 +35,6 @@ export default class xQuery extends Query{
 		return this
 	}
 
-	toString(){
-		return this._nodes.map(id=>this.file.toString(id)).join("\r\n")
-	}
-
 	before(node){
 		const grandId=this.parent().attr("id")
 		const id0=new this.constructor(this.state,node).attr('id')

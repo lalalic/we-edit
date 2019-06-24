@@ -34,7 +34,7 @@ export default {
     },   
 
     seperate_at_beginning_for_end(){
-        const prevId=this.$target.backwardFirst().attr('id')
+        const prevId=this.$target.backwardFirst(this.cursorable).attr('id')
         if(prevId){
             this.cursorAtEnd(prevId)
         }

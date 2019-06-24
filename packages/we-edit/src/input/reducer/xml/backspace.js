@@ -9,7 +9,7 @@ export default {
     },
 
     backspace_at_empty_text(){
-        const $prev=this.$target.backwardFirst()
+        const $prev=this.$target.backwardFirst(this.cursorable)
         if($prev.length){
             this.cursorAtEnd($prev.attr('id'))
             this.backspace(...arguments)
@@ -45,7 +45,7 @@ export default {
     
     backspace_at_beginning(){
         const cursor=this.selection.start
-        const $prev=this.$target.backwardFirst()
+        const $prev=this.$target.backwardFirst(this.cursorable)
         if($prev.length==0){
             return
         }
@@ -60,10 +60,11 @@ export default {
     },
 
     backspace_at_end(){
+        debugger
         const cursor=this.selection.start
         const last=this.$target.findLast(this.cursorable)
-        if(last){
-            this.cursorAtEnd(last)
+        if(last.length>0){
+            this.cursorAtEnd(last.attr('id'))
             this.backspace(...arguments)
         }else{
             this.cursorAt(cursor.id,0, cursor.id,1, undefined, false)
