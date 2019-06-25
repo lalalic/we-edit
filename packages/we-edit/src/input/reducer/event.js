@@ -176,7 +176,7 @@ export default class extends Base{
 
 	remove({type}={}){
         if(type){
-            this.emit("remove_"+type, [...this.conds,""], ...arguments)
+            this.emit("remove", [...this.conds,""].map(a=>type+(a&&'_')+a), ...arguments)
             return this
         }
 

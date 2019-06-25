@@ -35,4 +35,28 @@ export default {
         this.remove_whole()
         this.cursorAt($p.attr('id'),0)
     },
+
+    remove_row(){
+        const cell=this.$target.closest("cell")
+        if(row.length>0){
+            this.selectWhole(cell.attr('id'))
+            this.remove_at_whole()
+        }
+    },
+
+    remove_row(){
+        const row=this.$target.closest("row")
+        if(row.length>0){
+            this.selectWhole(row.attr('id'))
+            this.remove_at_whole()
+        }
+    },
+
+    remove_table(){
+        const table=this.$target.closest("table")
+        if(table.length>0){
+            this.selectWhole(table.attr('id'))
+            this.remove_at_whole()
+        }
+    }
 }
