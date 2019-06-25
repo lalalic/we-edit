@@ -63,7 +63,7 @@ export default {
     delete_at_beginning(){
         const {start:{id}}=this.selection
         this.cursorAt(id,0,id,1)
-        this.removeSelection()
+        this.remove()
     },
 
 }

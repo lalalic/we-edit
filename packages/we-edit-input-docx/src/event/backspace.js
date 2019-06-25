@@ -37,7 +37,7 @@ export default {
     backspace_at_end_of_image(){
         const rId=this.$target.closest('run').attr('id')
         this.cursorAt(rId,0, rId,1, undefined, false)
-        this.removeSelection()   
+        this.remove()   
     },
 
     backspace_at_empty_run(){

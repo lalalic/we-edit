@@ -35,10 +35,12 @@ export const Selection={
 		}
 	},
 	START_AT:(id,at)=>({type:"we-edit/selection/STARTAT",payload:{id,at}}),
+	EXTEND: payload=>({type:"we-edit/selection/EXTEND",payload}),
 	
 	COPY: payload=>({type:"we-edit/selection/COPY",payload}),
 	PASTE: payload=>({type:"we-edit/selection/PASTE",payload}),
 	CUT: payload=>({type:"we-edit/selection/CUT",payload}),
+	REMOVE: (payload={})=>({type:"we-edit/text/DELETE",payload}),
 	MOVE: payload=>({type:"we-edit/selection/MOVE",payload}),
 	UPDATE: payload=>({type:"we-edit/selection/UPDATE", payload}),
 	STYLE: payload=>({type:"we-edit/selection/STYLE",payload}),

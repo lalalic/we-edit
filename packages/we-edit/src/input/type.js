@@ -211,12 +211,18 @@ export class Editable extends Viewable{
 				return reducer.cut(payload).state()
 			case "we-edit/selection/MOVE":
 				return reducer.move(payload).state()
+			case "we-edit/selection/REMOVE":
+				return reducer.remove(payload).state()
+			case "we-edit/selection/EXTEND":
+				return reducer.extend(payload).state()
+
 			case "we-edit/history/UNDO":
 				return reducer.undo(payload).state()
 			case "we-edit/cursor/FORWARD":
 				return reducer.forward(payload).state()
 			case "we-edit/cursor/BACKWARD":
 				return reducer.backward(payload).state()
+
 			case "we-edit/selection/SELECTED":
 			case "we-edit/selection/STARTEDAT":{
 				const {start, end, cursorAt}=selection(getSelection(state),action)

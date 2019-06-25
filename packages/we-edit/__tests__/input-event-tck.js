@@ -69,7 +69,7 @@ export default function tck(TypedDocument,file, debug=false){
                     expect(prev.text()).toBe(text.substring(0,start))
                 })
     
-                it("seperate a text at beginning should create 1 more text forward",()=>{
+                fit("seperate a text at beginning should create 1 more text forward",()=>{
                     const start=0, end=2
                     const {textLength,text}=seperate(start,end)
                     expect(editor.$('text').length).toBe(textLength+1)

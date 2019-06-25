@@ -133,7 +133,7 @@ class SelectionStyle{
         return "Selection.Style"
     }
 
-    props=memoize((type, getFromContent=true)=>{
+    props(type, getFromContent=true){
         if(type.toLowerCase()=="page"){
             return this.pageProps()
         }else if(type.toLowerCase()=="layout"){
@@ -151,7 +151,7 @@ class SelectionStyle{
                 return composer.props
             }
         }
-    })
+    }
 
     layoutProps(){
         if(!this.positioning.canvas)

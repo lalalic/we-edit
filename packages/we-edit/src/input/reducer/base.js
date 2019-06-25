@@ -9,6 +9,7 @@ export default class Base{
 		this._file=getFile(state)
 		this._content=state.get("_content")
 		this.$=context=>new xQuery(state,context)
+		this.cursorable=this.cursorable.bind(this)
 	}
 
 	state(){
@@ -43,6 +44,14 @@ export default class Base{
 		return this._content
 	}
 
+    get $target(){
+        return this.$(`#${this.selection.start.id}`)
+    }
+
+    get target(){
+        return this.file.getNode(this.selection.start.id)
+    }	
+
 	cursorAt(id,at, endId=id, endAt=at, cursorAt,fix=true){
 		if(cursorAt=="start" || cursorAt=="end")
 			this._selection.cursorAt=cursorAt
@@ -69,6 +78,19 @@ export default class Base{
 			return this.cursorAt(id,0,id, 1)
 		}
 	}
+
+    cursorable(n){
+        const type=n.get('type')
+        const children=n.get('children')
+        switch(type){
+            case "text":
+                return (children||"").length>0
+            case "paragraph":
+                return this.$(n).findFirst(this.cursorable).length==0 || undefined
+            default:
+                return !!!children || undefined
+        }
+    }
 
 	fixSelection(){
 		const fixSelection=this.fixSelection
@@ -116,7 +138,7 @@ export default class Base{
 				}
 
 				this.cursorAt(start.id, start.at, end.id,end.at)
-			}else{
+			}else if(start.id==end.id && start.at==end.at){
 				if(this.$target.closest("paragraph").length==0){
 					const p=this.$target.findFirst('paragraph')
 					if(p.length==1){
@@ -158,7 +180,7 @@ export default class Base{
 		return this
 	}
 
-	remove({backspace}){
+	remove(){
 		return this
 	}
 
@@ -181,4 +203,12 @@ export default class Base{
 	forward(){
 		return this
 	}
+
+    extend(type){
+        const typed=this.$target.closest(type)
+        if(typed.length>0){
+            this.selectWhole(typed.attr('id'))
+        }
+        return this
+    }
 }

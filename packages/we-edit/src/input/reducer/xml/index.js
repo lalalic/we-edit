@@ -10,6 +10,7 @@ import Delete from "./delete"
 import tab from "./tab"
 import forward from "./forward"
 import backward from "./backward"
+import remove from "./remove"
 
 export default class extends Base{
     constructor(){
@@ -18,7 +19,7 @@ export default class extends Base{
         this.PARAGRAPH="paragraph"
         this.TEXT="text"
         this.InlineContainers=""
-        Object.assign(this,seperate,create,update,enter,type,backspace,Delete,tab,forward,backward)
+        Object.assign(this,seperate,create,update,enter,type,backspace,Delete,tab,forward,backward,remove)
     }
 
     get TEXT_(){
@@ -27,39 +28,6 @@ export default class extends Base{
 
     get PARAGRAPH_(){
         return this.PARAGRAPH.replace(":","\\:")
-    }
-
-    remove_whole(){
-        const $target=this.$target
-        const $prev=$target.backwardFirst()
-        const $next=$target.forwardFirst()
-        
-        $target.remove()
-        this.target.remove()
-
-        if($prev.length>0){
-            this.cursorAtEnd($prev.attr("id"))
-        }else if($next.length>0){
-            this.cursorAt($next.attr('id'),0)
-        }else{
-            this.create_first_paragraph()
-        }
-    }
-
-    remove_whole_at_beginning_of_up_to_paragraph(){
-        const $p=this.$target.closest("paragraph")
-        this.remove_whole()
-        this.cursorAt($p.attr('id'),0)
-    }
-
-    shrink_text(){
-        const {start:{id, at:at0}, end:{at:at1}}=this.selection
-        const start=Math.min(at0,at1), end=Math.max(at0,at1)
-        const target=this.target
-        const src=target.text()
-        target.text(src.substring(0,start)+src.substring(end))
-        this.file.renderChanged(this.file.getNode(id))
-        this.cursorAt(id,start)
     }
 
     merge_in_paragraph(){

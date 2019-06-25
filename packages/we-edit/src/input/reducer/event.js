@@ -1,21 +1,103 @@
-import xQuery from "./xquery"
 import Base from "./base"
 
 export default class extends Base{
-    constructor(state){
-        super(...arguments)
-        this.$=context=>new xQuery(state, context)
-        this.cursorable=this.cursorable.bind(this)
+    /* whole|empty|beginning_of|end_of|type
+        at_beginning_of_text_up_to_document_in_run
+        at_beginning_of_text_up_to_section_in_run
+        at_beginning_of_text_up_to_paragraph_in_run
+        at_beginning_of_text_up_to_document
+        at_beginning_of_text_up_to_section
+        at_beginning_of_text_up_to_paragraph
+        at_beginning_of_text_in_run
+        at_beginning_of_up_to_document
+        at_beginning_of_up_to_section
+        at_beginning_of_up_to_paragraph
+        at_beginning_of_text
+        at_text
+        at_beginning
+    */
+    get conds(){
+        const target=this.content.get(this.selection.start.id)
+        const {type,children,parent}=target.toJS()
+        const parentType=this.content.getIn([parent,"type"])
+        const {id,at=0}=this.selection.start
+        const pos=
+            (this.isWhole()&&"whole")||
+            (this.isEmpty()&&"empty")||
+            (at==0 && "beginning_of")||
+            (type=="text" ? (at>=children.length && "end_of") : (at==1)&&"end_of")||
+            ""
+
+        const up2Parents=((current,parent,types=[])=>{
+                switch(pos){
+                case "whole":
+                        current=this.content.get(current.get("parent"))
+                case "empty":
+                    while(parent=this.content.get(current.get("parent"))){
+                        let children=parent.get("children")
+                        if(children.size!=1 || children.first()!=current.get("id")){
+                            break
+                        }
+                        types.unshift(parent.get("type"))
+                        current=parent
+                    }
+                break
+                case "beginning_of":
+                    while(parent=this.content.get(current.get("parent"))){
+                        if(parent.get("children").first()!==current.get("id")){
+                            break
+                        }
+                        types.unshift(parent.get("type"))
+                        current=parent
+                    }
+                break
+                case "end_of":
+                    while(parent=this.content.get(current.get("parent"))){
+                        if(parent.get("children").last()!==current.get("id")){
+                            break
+                        }
+                        types.unshift(parent.get("type"))
+                        current=parent
+                    }
+                break
+                }
+                return types
+            })(target);
+
+        var conds=up2Parents.map(a=>`up_to_${a}`)
+        if(parentType){
+            conds=[...conds.map(a=>`${a}_in_${parentType}`),...conds,`in_${parentType}`]
+        }
+        //pos+type+parents
+        conds=conds.map(a=>`${pos}_${type}_${a}`)
+        //pos+parents
+        conds=[...conds, ...up2Parents.map(a=>`${pos}_up_to_${a}`)]
+        return [
+            ...conds,
+            `${pos}_${type}`,
+            type,
+            pos.replace(/_of$/,'')
+        ]
+            .filter(a=>!!a).map(a=>a.replace(/^_/g,""))
+            .map(a=>'at_'+a)
+    }  
+
+    isEmpty(){
+        return this.$target.findFirst(this.cursorable).length==0
     }
 
-    get $target(){
-        return this.$(`#${this.selection.start.id}`)
+    isWhole(){
+        const {start,end}=this.selection
+        if(start.id==end.id && start.at==0 && end.at!=0){
+            if(this.$target.attr('type')=="text"){
+                return end.at>=this.$target.text().length
+            }else{
+                return end.at>=1
+            }
+        }
+        return false
     }
-
-    get target(){
-        return this.file.getNode(this.selection.start.id)
-    }
-        
+    
     emit(action,conds, ...payload){
         const event=conds.find(cond=>`${action}_${cond}` in this)
         if(event){
@@ -26,19 +108,6 @@ export default class extends Base{
         }else if(this.debug){
             console.warn({message:"event without handler",action,conds,payload})
         }
-    }
-
-    isEmpty(){
-        const {type,children}=this.content.get(this.selection.start.id).toJS()
-        return (this.isContainer(type) || type=="text") && (!children || children.length==0)
-    }
-
-    isWhole(){
-        return false
-    }
-    
-    isContainer(type){
-        return !["image","text"].includes(type)
     }
 
     clean(f){
@@ -99,33 +168,15 @@ export default class extends Base{
     }
 
 
-	removeSelection(){
-        const wholifyConds=()=>{
-            const conds=this.conds.map(a=>a.replace(/at_/,"whole_").replace(/^whole_(beginning|end)/,'whole_at_$1'))
-            conds.push("whole")
-            return conds
-        }
+	remove(){
         const {start,end}=this.selection
         if(start.id==end.id){
-            if(start.at==end.at){
-                return
-            }else{
-                const type=this.content.getIn([start.id,"type"])
-                if(type!="text"){
-                    //remove whole object
-                    this.emit("remove", wholifyConds())
-                    return
-                }else if(start.at==0 && end.at>=this.content.getIn([start.id,"children"]).length-1){
-                    //remove whole text
-                    this.emit("remove", wholifyConds())
-                    return
-                }else{//text,some
-                    //remove some from text
-                    this.emit("shrink", ["text"])
-                    return 
-                }
+            if(start.at!==end.at){
+                this.emit("remove", this.conds, ...arguments)
             }
+            return this
         }
+
         try{
             this.seperateSelection()
             const {start,end}=this.selection
@@ -134,8 +185,8 @@ export default class extends Base{
 
             const targets=this.$target.to("#"+end.id)
             targets.toArray().forEach(id=>{
-                this.cursorAt(id,0)
-                this.emit("remove",wholifyConds())
+                this.selectWhole(id)
+                this.emit("remove",this.conds, ...arguments)
             })
 
             //join
@@ -169,106 +220,24 @@ export default class extends Base{
         }finally{
             if(this.content.has(start.id)){
                 this.cursorAt(start.id, start.at)
-            }else{
-                
             }
         }
     }
-    /*
-        at_beginning_of_text_up_to_document_in_run
-        at_beginning_of_text_up_to_section_in_run
-        at_beginning_of_text_up_to_paragraph_in_run
-        at_beginning_of_text_up_to_document
-        at_beginning_of_text_up_to_section
-        at_beginning_of_text_up_to_paragraph
-        at_beginning_of_text_in_run
-        at_beginning_of_up_to_document
-        at_beginning_of_up_to_section
-        at_beginning_of_up_to_paragraph
-        at_beginning_of_text
-        at_text
-        at_beginning
-    */
-    get conds(){
-        const target=this.content.get(this.selection.start.id)
-        const {type,children,parent}=target.toJS()
-        const parentType=this.content.getIn([parent,"type"])
-        const {id,at=0}=this.selection.start
-        const pos=
-            (this.isEmpty()&&"empty")||
-            (this.isWhole()&&"whole")||
-            (at==0 && "beginning_of")||
-            (type=="text" ? (at>=children.length && "end_of") : (at==1)&&"end_of")||
-            ""
-        
-        const up2Parents=((current,parent,types=[])=>{
-                switch(pos){
-                case "whole":
-                        current=this.content.get(current.get("parent"))
-                case "empty":
-                    while(parent=this.content.get(current.get("parent"))){
-                        let children=parent.get("children")
-                        if(children.size!=1 || children.first()!=current.get("id")){
-                            break
-                        }
-                        types.unshift(parent.get("type"))
-                        current=parent
-                    }
-                break
-                case "beginning_of":
-                    while(parent=this.content.get(current.get("parent"))){
-                        if(parent.get("children").first()!==current.get("id")){
-                            break
-                        }
-                        types.unshift(parent.get("type"))
-                        current=parent
-                    }
-                break
-                case "end_of":
-                    while(parent=this.content.get(current.get("parent"))){
-                        if(parent.get("children").last()!==current.get("id")){
-                            break
-                        }
-                        types.unshift(parent.get("type"))
-                        current=parent
-                    }
-                break
-                }
-                return types
-            })(target);
-        
-        var conds=up2Parents.map(a=>`up_to_${a}`)
-        if(parentType){
-            conds=[...conds.map(a=>`${a}_in_${parentType}`),...conds,`in_${parentType}`]
-        }
-        //pos+type+parents
-        conds=conds.map(a=>`${pos}_${type}_${a}`)
-        //pos+parents
-        conds=[...conds, ...up2Parents.map(a=>`${pos}_up_to_${a}`)]
-        return [
-            ...conds,
-            `${pos}_${type}`,
-            type,
-            pos.replace(/_of$/,'')
-        ]
-            .filter(a=>!!a).map(a=>a.replace(/^_/g,""))
-            .map(a=>'at_'+a)
-    }
 
     type(){
-        this.removeSelection()
+        this.remove()
         this.emit("type",this.conds,...arguments)
         return this
     }
 
     enter(){
-        this.removeSelection()
+        this.remove()
         this.emit("enter",this.conds,...arguments)
         return this
     }
 
     tab(){
-        this.removeSelection()
+        this.remove()
         this.emit("tab",this.conds,...arguments)
         return this
     }
@@ -278,7 +247,7 @@ export default class extends Base{
         if(start.id==end.id && start.at==end.at){
             this.emit("delete",this.conds,...arguments)
         }else{
-            this.removeSelection(...arguments)
+            this.remove(...arguments)
         }
         this.clean()
         return this
@@ -289,7 +258,7 @@ export default class extends Base{
         if(start.id==end.id && start.at==end.at){
             this.emit("backspace",this.conds,...arguments)
         }else{
-            this.removeSelection(...arguments)
+            this.remove(...arguments)
         }
         this.clean()
         return this
@@ -332,7 +301,7 @@ export default class extends Base{
     }
     
     create({type,...props}){
-        this.removeSelection()
+        this.remove()
         this.emit("create_"+type.toLowerCase(),this.conds,...arguments)
 		return this
     }
@@ -390,12 +359,12 @@ export default class extends Base{
                 return this.emit("serialize",this.conds)
             }).join("")
         }
-        this.removeSelection()
+        this.remove()
         return this
     }
 
     paste(){
-        this.removeSelection()
+        this.remove()
         this.file.attach(this.clipboard).each((i,a)=>{
             const {id}=this.file.renderChanged(a)
             const $b=this.$(`#${id}`)
@@ -403,18 +372,5 @@ export default class extends Base{
         })
 
         return this
-    }
-
-    cursorable(n){
-        const type=n.get('type')
-        const children=n.get('children')
-        switch(type){
-            case "text":
-                return (children||"").length>0
-            case "paragraph":
-                return this.$(n).findFirst(this.cursorable).length==0 || undefined
-            default:
-                return !!!children || undefined
-        }
     }
 }

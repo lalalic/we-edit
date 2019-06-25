@@ -68,7 +68,7 @@ export default {
             this.backspace(...arguments)
         }else{
             this.cursorAt(cursor.id,0, cursor.id,1, undefined, false)
-            this.removeSelection() 
+            this.remove() 
         }
     },
 
