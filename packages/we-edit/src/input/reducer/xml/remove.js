@@ -9,7 +9,11 @@ export default {
         this.cursorAt(id,start)
     },
 
-    remove_whole(){
+    remove_at_whole_text(){
+        this.remove_at_whole(...arguments)
+    },
+
+    remove_at_whole(){
         const $target=this.$target
         const $prev=$target.backwardFirst(this.cursorable)
         const $next=$target.forwardFirst(this.cursorable)
@@ -26,7 +30,7 @@ export default {
         }
     },
 
-    remove_whole_at_beginning_of_up_to_paragraph(){
+    remove_at_beginning_of_up_to_paragraph(){
         const $p=this.$target.closest("paragraph")
         this.remove_whole()
         this.cursorAt($p.attr('id'),0)

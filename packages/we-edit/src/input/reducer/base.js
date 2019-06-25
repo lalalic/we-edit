@@ -84,7 +84,9 @@ export default class Base{
         const children=n.get('children')
         switch(type){
             case "text":
-                return (children||"").length>0
+				return (children||"").length>0
+			case "image":
+				return true
             case "paragraph":
                 return this.$(n).findFirst(this.cursorable).length==0 || undefined
             default:

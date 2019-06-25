@@ -69,7 +69,7 @@ export default function tck(TypedDocument,file, debug=false){
                     expect(prev.text()).toBe(text.substring(0,start))
                 })
     
-                fit("seperate a text at beginning should create 1 more text forward",()=>{
+                it("seperate a text at beginning should create 1 more text forward",()=>{
                     const start=0, end=2
                     const {textLength,text}=seperate(start,end)
                     expect(editor.$('text').length).toBe(textLength+1)
@@ -115,7 +115,7 @@ export default function tck(TypedDocument,file, debug=false){
         })
 
         describe("remove selection",()=>{
-            const removeSelection=()=>editor.removeSelection()
+            const removeSelection=()=>editor.remove()
             it("remove text should not change structure",()=>{
                 const texts=editor.$("text")
                 const textLength=texts.length
@@ -138,6 +138,7 @@ export default function tck(TypedDocument,file, debug=false){
                 const id=$first.attr('id'), text=$first.text()
                 expect(text.length>3).toBe(true)
                 editor.cursorAt(id,0,id,text.length)
+                debugger
                 removeSelection()
                 expect(editor.$('text').length).toBe(textLength-1)
                 expect(editor.$(`#${id}`).length).toBe(0)
@@ -199,6 +200,7 @@ export default function tck(TypedDocument,file, debug=false){
                 expect(images.length>0).toBe(true)
                 const image=images.first()
                 editor.cursorAt(image.attr('id'),1)
+                debugger
                 backspace()
                 expect(editor.$("image").length).toBe(images.length-1)
             })

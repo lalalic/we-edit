@@ -83,7 +83,9 @@ export default class extends Base{
     }  
 
     isEmpty(){
-        return this.$target.findFirst(this.cursorable).length==0
+        const $target=this.$target
+        return $target.findFirst(this.cursorable).length==0 && 
+            ($target.is("paragraph") || !this.cursorable($target.get(0)))
     }
 
     isWhole(){
@@ -162,6 +164,10 @@ export default class extends Base{
 
         this.cursorAt(start.id,start.at,end.id,end.at)
         conds=this.conds
+        if(conds.includes("at_whole")){
+            return 
+        }
+
         if(!(conds.includes("at_beginning"))){
             this.emit(action,this.conds.map(a=>a+"_for_start"))
         }
