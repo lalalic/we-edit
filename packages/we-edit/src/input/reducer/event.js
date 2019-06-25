@@ -174,7 +174,12 @@ export default class extends Base{
     }
 
 
-	remove(){
+	remove({type}={}){
+        if(type){
+            this.emit("remove_"+type, [...this.conds,""], ...arguments)
+            return this
+        }
+
         const {start,end}=this.selection
         if(start.id==end.id){
             if(start.at!==end.at){
@@ -228,6 +233,7 @@ export default class extends Base{
                 this.cursorAt(start.id, start.at)
             }
         }
+        return this
     }
 
     type(){

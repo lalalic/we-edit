@@ -111,7 +111,7 @@ export class Table extends Base{
 		}
 	}
 
-	row({at,where}){
+	row({id:at,where}){
         const row=this.file.getNode(at)
         if(row.length==1){
             const cols=this.node.first("w\\:tblGrid").find("w\\:gridCol")

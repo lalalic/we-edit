@@ -35,8 +35,4 @@ export default {
         this.remove_whole()
         this.cursorAt($p.attr('id'),0)
     },
-
-    remove_column(){
-
-    }
 }

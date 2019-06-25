@@ -200,7 +200,6 @@ export default function tck(TypedDocument,file, debug=false){
                 expect(images.length>0).toBe(true)
                 const image=images.first()
                 editor.cursorAt(image.attr('id'),1)
-                debugger
                 backspace()
                 expect(editor.$("image").length).toBe(images.length-1)
             })

@@ -40,7 +40,8 @@ export const Selection={
 	COPY: payload=>({type:"we-edit/selection/COPY",payload}),
 	PASTE: payload=>({type:"we-edit/selection/PASTE",payload}),
 	CUT: payload=>({type:"we-edit/selection/CUT",payload}),
-	REMOVE: (payload={})=>({type:"we-edit/text/DELETE",payload}),
+
+	REMOVE: (payload={})=>({type:"we-edit/selection/REMOVE",payload}),
 	MOVE: payload=>({type:"we-edit/selection/MOVE",payload}),
 	UPDATE: payload=>({type:"we-edit/selection/UPDATE", payload}),
 	STYLE: payload=>({type:"we-edit/selection/STYLE",payload}),

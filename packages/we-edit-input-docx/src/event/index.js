@@ -9,6 +9,7 @@ import backspace from "./backspace"
 import tab from "./tab"
 import paste from "./paste"
 import serialize from "./serialize"
+import remove from "./remove"
 
 export default class Actions extends Input.Editable.EventHandler.xml{
     constructor(){
@@ -19,7 +20,7 @@ export default class Actions extends Input.Editable.EventHandler.xml{
         this.TEXT="w:t"
         this.InlineContainers="w\\:r, w\\:sdt"
         
-        Object.assign(this,seperate,create,update,enter,type,backspace,tab,paste,serialize)
+        Object.assign(this,seperate,create,update,enter,type,backspace,tab,paste,serialize,remove)
     }
 
     create_first_paragraph(){
