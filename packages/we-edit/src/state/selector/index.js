@@ -106,63 +106,13 @@ export function traverseNext(content, f, start="root"){
 	}
 }
 
-const cursorables=["text","image"]
 export function firstCursorable(content){
-	const excludes=["header","footer"]
-	let found
-	traverse(content,(n,k=n.get("id"),type=n.get("type"))=>{
-		if(excludes.includes(type)){
-			return false
-		}
-		if(cursorables.includes(type)){
-			found=k
+	var found
+	traverseNext(content, n=>{
+		if(n.get('type')=="paragraph"){
+			found=n.get('id')
 			return true
 		}
 	})
 	return found
-}
-
-export function nextCursorable(state,id){
-	let found
-	traverseNext(state.get("content"),(n,k=n.get("id"),type=n.get("type"))=>{
-		if(cursorables.includes(type)){
-			if(type=="text"){
-				if(n.get("children").length>0){
-					found=k
-					return true
-				}
-			}else{
-				found=k
-				return true
-			}
-		}
-	},id)
-	return found
-}
-
-export function prevCursorable(state,id){
-	let found
-	traversePrev(state.get("content"),(n,k=n.get("id"),type=n.get("type"))=>{
-		if(cursorables.includes(type)){
-			if(type=="text"){
-				if(n.get("children").length>0){
-					found=k
-					return true
-				}
-			}else{
-				found=k
-				return true
-			}
-		}
-	},id)
-	return found
-}
-
-
-export function nextSelectable(state,id){
-	return nextCursorable(...arguments)
-}
-
-export function prevSelectable(state,id){
-	return prevSelectable(...arguments)
 }

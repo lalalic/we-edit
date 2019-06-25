@@ -40,4 +40,13 @@ export default class Actions extends Input.Editable.EventHandler.xml{
                 })
         })
     }
+
+    cursorable(n){
+        if(super.cursorable(n)){
+            if(this.InlineContainers){
+                return !this.file.getNode(n.get('id')).is(this.InlineContainers)||undefined
+            }
+            return true
+        }
+    }
 }

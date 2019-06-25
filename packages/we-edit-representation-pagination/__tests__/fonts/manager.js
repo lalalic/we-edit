@@ -1,6 +1,10 @@
 import FontManager from "../../src/fonts"
 
 describe("font manager",()=>{
+    beforeAll(()=>{
+        console.log=console.error=console.warn=jest.fn()
+    })
+
 	it("can load all fonts from a folder",()=>{
         return FontManager.fromPath(__dirname)
             .then(fonts=>{
@@ -13,7 +17,7 @@ describe("font manager",()=>{
             .then(fonts=>{
                 expect(fonts.length>0).toBe(true)
             })
-    },2000)
+    },5000)
 
 
 

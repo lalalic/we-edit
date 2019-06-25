@@ -1,4 +1,3 @@
-import {getContent, nextCursorable, nextSelectable, prevCursorable, prevSelectable, getSelection} from "../selector"
 import {ACTION as History} from "../undoable"
 
 export const Cursor={

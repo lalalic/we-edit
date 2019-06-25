@@ -13,7 +13,7 @@ describe("content query",()=>{
         return createState({},content).set("_content",content.asMutable())//make it work for xQuery
     }
 
-    describe.each([["Query", QueryContent],["Mutable Query", xQueryContent]])("%s",(name,Query)=>{
+    describe.each([["Query", QueryContent],/*["Mutable Query", xQueryContent]*/])("%s",(name,Query)=>{
         describe("can query by",()=>{
             it("[prop]",()=>{
                 const $=new Query(state({
@@ -187,28 +187,6 @@ describe("content query",()=>{
             expect($.closest("#root").attr("id")).toBe("root")
         })
 
-        it("closestStart",()=>{
-            const $=new Query(state({
-                "1":{children:["a","b"],type:"run"},
-                "a":{parent:"1"},
-                "b":{parent:"1"}
-            }))
-            expect($.find('#a').closestStart("run").is("run")).toBe(true)
-            expect($.find('#a').closestStart().is("#root")).toBe(true)
-            expect($.find('#b').closestStart().is("#b")).toBe(true)
-        })
-
-        it("closestEnd",()=>{
-            const $=new Query(state({
-                "1":{children:["a","b"],type:"run"},
-                "a":{parent:"1"},
-                "b":{parent:"1"}
-            }))
-            expect($.find('#b').closestEnd("run").is("run")).toBe(true)
-            expect($.find('#b').closestEnd().is("#1")).toBe(true)
-            expect($.find('#a').closestEnd().is("#a")).toBe(true)
-        })
-
         it("findFirst/Last",()=>{
             const $=new Query(state({
                 "1":{type:"paragraph"},
@@ -220,6 +198,47 @@ describe("content query",()=>{
 
             expect($.findFirst("paragraph").attr("id")).toBe("1")
             expect($.findLast("paragraph").attr("id")).toBe("3")
+        })
+
+        describe("path, $.to()",()=>{
+            it("can find path in same container",()=>{
+                expect(new Query(state({
+                    "1":{children:["a","b","c"],type:"run"},
+                    "a":{parent:"1"},
+                    "b":{parent:"1"},
+                    "c":{parent:"1"},
+                }),"#a").to('#c').toArray()).toMatchObject("a,b,c".split(","))
+            })
+
+            it("can find path cross container",()=>{
+                expect(new Query(state({
+                    "1":{children:["a","b","c"],type:"run"},
+                    "a":{parent:"1"},
+                    "b":{parent:"1"},
+                    "c":{parent:"1"},
+                    "2":{children:["a2","b2","c2"],type:"run"},
+                    "a2":{parent:"2"},
+                    "b2":{parent:"2"},
+                    "c2":{parent:"2"},
+                }),"#b").to('#b2').toArray()).toMatchObject("b,c,a2,b2".split(","))
+            })
+
+            it("can find path cross container",()=>{
+                expect(new Query(state({
+                    "1":{children:["a","b","c"],type:"run"},
+                    "a":{parent:"1"},
+                    "b":{parent:"1"},
+                    "c":{parent:"1"},
+                    "2":{children:["a2","b2","c2"],type:"run"},
+                    "a2":{parent:"2"},
+                    "b2":{parent:"2"},
+                    "c2":{parent:"2"},
+                    "3":{children:["a3","b3","c3"],type:"run"},
+                    "a3":{parent:"3"},
+                    "b3":{parent:"3"},
+                    "c3":{parent:"3"},
+                }),"#b").to('#b3').toArray()).toMatchObject("b,c,2,a3,b3".split(","))
+            })
         })
     })
 })

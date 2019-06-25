@@ -409,12 +409,12 @@ export default class extends Base{
         const type=n.get('type')
         const children=n.get('children')
         switch(type){
-        case "text":
-            return (children||"").length>0
-        case "paragraph":
-            return this.$(n).findFirst(this.cursorable).length==0
-        default:
-            return !!!children
+            case "text":
+                return (children||"").length>0
+            case "paragraph":
+                return this.$(n).findFirst(this.cursorable).length==0 || undefined
+            default:
+                return !!!children || undefined
         }
     }
 }

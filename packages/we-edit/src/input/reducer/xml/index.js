@@ -80,15 +80,5 @@ export default class extends Base{
 
     create_first_paragraph(){
         throw new Error("create_first_paragraph")
-    } 
-
-    cursorable(n){
-        if(super.cursorable(n)){
-            if(this.InlineContainers){
-                return !this.$(n).is(this.InlineContainers)
-            }
-            return true
-        }
-        return false
     }
 }

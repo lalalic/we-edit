@@ -206,9 +206,13 @@ export default class Query{
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,k)=>{
 			traverseNext(this._content,node=>{
-				if(!!select(node)){
+				const r=select(node)
+				if(!!r){
 					found.add(node.get("id"))
 					return true
+				}
+				if(r===false){
+					return false
 				}
 			},k)
 			return found
@@ -220,10 +224,14 @@ export default class Query{
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,k)=>{
 			traverseNext(this._content,node=>{
-				if(!!select(node)){
+				const r=select(node)
+				if(!!r){
 					return true
 				}else{
 					found.add(node.get("id"))
+				}
+				if(r===false){
+					return false
 				}
 			},k)
 			return found
@@ -296,9 +304,13 @@ export default class Query{
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,k)=>{
 			traversePrev(this._content,node=>{
-				if(!!select(node)){
+				const r=select(node)
+				if(!!r){
 					found.add(node.get("id"))
 					return true
+				}
+				if(r===false){
+					return false
 				}
 			},k)
 			return found
@@ -311,10 +323,14 @@ export default class Query{
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,k)=>{
 			traversePrev(this._content,node=>{
-				if(!!select(node)){
+				const r=select(node)
+				if(!!r){
 					return true
 				}else{
 					found.add(node.get("id"))
+				}
+				if(r===false){
+					return false
 				}
 			},k)
 			return found
@@ -324,37 +340,22 @@ export default class Query{
 
 	
 	to(dest){
-		const target0=this, target1=this._$(dest)
-		const targets=[]
-        
-        const ancestor=target0.parentsUntil(target1.parentsUntil()).last().parent()
-        if(ancestor.length>0){
-            let ancestors0=target0.parentsUntil(ancestor)
-            if(ancestors0.length==0){
-                ancestors0=ancestors0.add(target0)
-            }
-            let ancestors1=target1.parentsUntil(ancestor)
-            if(ancestors1.length==0){
-                ancestors1=ancestors1.add(target1)
-            }
-            const top0=ancestors0.last()
-            const top1=ancestors1.last()
+		const $dest=this._$(dest)
+		const path=[this.attr('id')]
+		const found=this.forwardUntil(n=>{
+			if($dest.is(n)){
+				return true
+			}else if(this._$(n).findFirst($dest).length==0){
+				path.push(n.get('id'))
+				return false
+			}
+		}).length>0
 
-            ancestors0.not(target0).not(top0).each((i,a)=>{
-                targets.splice(targets.length,0,...this._$('#'+a.get("id")).nextAll().toArray())
-			})
-
-			targets.splice(targets.length,0,...top0.nextUntil(top1).toArray())
-			
-            ancestors1.not(target1).not(top1).each((i,a)=>{
-                targets.splice(targets.length,0,...this._$('#'+a.get("id")).prevAll().toArray())
-            })
+		if(!found){
+			return this._$([])
 		}
-		targets.splice(0,0,target0.attr("id"))
-
-        targets.splice(targets.length,0, target1.attr("id"))
-		
-		return this._$(Array.from(new Set(targets)))
+		path.push($dest.attr('id'))
+		return this._$(Array.from(new Set(path)))	
 	}
 
 	children(selector){
@@ -460,36 +461,6 @@ export default class Query{
 	is(selector){
 		let select=asSelector(selector,this._$)
 		return this._nodes.findIndex(k=>!select(this._content.get(k)))==-1
-	}
-	closestEnd(to){
-		debugger
-		const top=this.closest(to)
-		const parents=this.add(this.parentsUntil(top)).add(top)
-		const i=parents.toArray().findIndex(id=>{
-			const parent=this._content.getIn([id,"parent"])
-			if(parent){
-				const children=this._content.getIn([parent,"children"]).toJS()
-				return children[children.length-1]!=id
-			}
-			return false
-		})
-
-		return i==-1 ? parents.last() : parents.eq(i)
-	}
-
-	closestStart(to){
-		const top=this.closest(to)
-		const parents=this.add(this.parentsUntil(top)).add(top)
-		const i=parents.toArray().findIndex(id=>{
-			const parent=this._content.getIn([id,"parent"])
-			if(parent){
-				const children=this._content.getIn([parent,"children"]).toJS()
-				return children[0]!=id
-			}
-			return false
-		})
-
-		return i==-1 ? parents.last() : parents.eq(i)
 	}
 
 	each(f,context){

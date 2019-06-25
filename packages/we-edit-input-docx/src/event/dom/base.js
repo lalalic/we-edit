@@ -29,7 +29,7 @@ export default class Editor{
 	}
 
 	trim(xml){
-		return this.file.trim(xml)
+		return xml.replace(/>\s+/g,">").replace(/\s+</g,"<")
 	}
 
     create(props){

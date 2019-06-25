@@ -18,7 +18,7 @@ export function createStore(reducer,INIT_STATE){
 }
 
 export function createState(doc, content){
-	let id=firstCursorable(content)
+	const id=firstCursorable(content)
 	doc.toJSON=()=>undefined
 
 	return Map({

@@ -399,10 +399,6 @@ export default class Editable extends DocxType{
 		return this.attacher.append(xml).children()
 	}
 
-	trim(xml){
-		return xml.replace(/>\s+/g,">").replace(/\s+</g,"<")
-	}
-
 	serialize(id){
 		if(typeof(id)=="string"){
 			return this.doc.officeDocument.content.xml(this.getNode(id))
