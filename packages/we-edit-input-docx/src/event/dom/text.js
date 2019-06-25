@@ -5,32 +5,14 @@ export class Text extends Base{
 		return `<w:t></w:t>`
 	}
 
-	update({id},changing){
-		this.apply({id, ...changing})
+	update(changing){
+		this.apply(changing)
 		const container=this.node.parent().closest('[xxid]')
 		if(container.length){
 	        this.file.renderChanged(container)
 		}else{
 			//in process
 		}
-	}
-
-	create(props,{id,at=0}){
-		var cursor
-        super.create(props)
-        const r=this.node.wrap("<w:r></w:r>").parent()
-        this.file.renderChanged(r,($,el)=>{
-            const r0=this.file.getNode(id).closest("w\\:r")
-            if(r0.length){
-                r0[`${at==0 ? "before" : "after"}`](r)
-            }else{
-                r.appendTo(this.file.getNode(id))
-            }
-            this.file.renderChanged(r.parent().closest(`[xxid]`))
-            cursor=this.node.attr("xxid")
-        })
-
-		return {id:cursor,at:(props.children||"").length}
 	}
 
 	children(text){

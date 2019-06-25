@@ -109,10 +109,10 @@ export class Table extends Base{
 				.find("w\\:tc")
 				.eq(at)[where](this.template_tc(width))
 		}
-	}
+    }
 
-	row({id:at,where}){
-        const row=this.file.getNode(at)
+	row({row,where,at=row}){
+        row=this.file.getNode(row)
         if(row.length==1){
             const cols=this.node.first("w\\:tblGrid").find("w\\:gridCol")
             const tds=new Array(cols.length).fill(0).map((w,i)=>this.template_tc(w))

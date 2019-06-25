@@ -24,11 +24,11 @@ export default compose(
         return {
             addRowAbove(){
                 const row=selection.props("row",false)
-                dispatch(ACTION.Selection.UPDATE({table:{row:{id:row.id,where:"before"}}}))
+                dispatch(ACTION.Selection.UPDATE({table:{row:{row:row.id,where:"before"}}}))
             },
             addRowBelow(){
                 const row=selection.props("row",false)
-                dispatch(ACTION.Selection.UPDATE({table:{row:{id:row.id, where:"after"}}}))
+                dispatch(ACTION.Selection.UPDATE({table:{row:{row:row.id, where:"after"}}}))
             },
 
             addColRight(){

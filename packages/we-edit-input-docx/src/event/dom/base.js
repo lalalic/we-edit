@@ -40,8 +40,8 @@ export default class Editor{
         return this.file.attach(this.node)
     }
 
-    update({id},changing){
-        this.apply({id, ...changing})
+    update(changing){
+        this.apply(changing)
         this.file.renderChanged(this.node)
     }
 

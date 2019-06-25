@@ -1,7 +1,7 @@
 import Base from "./base"
 
 export class Image extends Base{
-    apply({id, data, ...props}){
+    apply({data, ...props}){
         if(this.node.prop('name')!=='pic:pic'){
             this.node=this.node.find("pic\\:pic")
         }
@@ -17,16 +17,6 @@ export class Image extends Base{
         super.apply(props)
 
         return this.node.closest("w\\:drawing")
-    }
-
-    remove(){
-        const drawing=this.node.closest("w\\:r")
-        drawing.remove()
-        return drawing
-    }
-
-    empty(){
-
     }
 
     size({width,height}){

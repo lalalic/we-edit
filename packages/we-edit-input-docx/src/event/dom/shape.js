@@ -1,16 +1,6 @@
 import Base from "./base"
 
 export default class extends Base{
-    remove(){
-        const drawing=this.node.closest("w\\:r")
-        drawing.remove()
-        return drawing
-    }
-
-    empty(){
-
-    }
-
     size({width,height}){
         let ext0=this.node.find("a\\:xfrm>a\\:ext")
         let inline=this.node.closest("wp\\:inline")
@@ -62,24 +52,6 @@ export default class extends Base{
             .attr("id", rid)
             .attr("name", name)
     }
-
-	create(props,{id,at=0}){
-        var cursor
-        super.create(props)
-        const r=this.node.closest("w\\:drawing").wrap("<w:r></w:r>").parent()
-        this.file.renderChanged(r,($,el)=>{
-            const r0=this.file.getNode(id).closest("w\\:r")
-            if(r0.length){
-                r0[`${at==0 ? "before" : "after"}`](r)
-            }else{
-                r.appendTo(this.file.getNode(id))
-            }
-            this.file.renderChanged(r.parent().closest(`[xxid]`))
-            cursor=this.node.attr("xxid")
-        })
-
-		return {id:cursor,at:0}
-	}
 
     template(props){
         return `

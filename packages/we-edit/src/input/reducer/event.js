@@ -304,7 +304,7 @@ export default class extends Base{
         try{
             targets.forEach(id=>{
                 this.cursorAt(id,0,id,0,undefined, false)
-                this.emit("update",this.conds,{id,...changing})
+                this.emit("update",this.conds,changing)
             })
         }finally{
             this.cursorAt(start.id,start.at,end.id,end.at)

@@ -1,7 +1,7 @@
 import {Text,Paragraph,Image,Section,Table} from "./dom"
 
 export default {
-    update_at_text({id,...changing}){
+    update_at_text(props){
         const target=this.target
         const r=target.closest("w\\:r")
         const next=target.nextAll("w\\:t")
@@ -27,31 +27,31 @@ export default {
         }
 
         const editor=new Text(this.file)
-        editor.node=this.file.getNode(id)
-        editor.update({id},changing)
+        editor.node=this.target
+        editor.update(props)
     },
 
-    update_at_paragraph({id, ...changing}){
+    update_at_paragraph({id, ...props}){
         const editor=new Paragraph(this.file)
-        editor.node=this.file.getNode(id)
-        editor.update({id},changing)
+        editor.node=this.target
+        editor.update({id},props)
     },
 
-    update_at_image({id, ...changing}){
+    update_at_image(props){
         const editor=new Image(this.file)
-        editor.node=this.file.getNode(id)
-        editor.update({id},changing)
+        editor.node=this.target
+        editor.update(props)
     },
 
-    update_at_table({id,  ...changing}){
+    update_at_table(props){
         const editor=new Table(this.file)
-        editor.node=this.file.getNode(id)
-        editor.update({id},changing)
+        editor.node=this.target
+        editor.update(props)
     },
 
-    update_at_section({id, ...changing}){
+    update_at_section(props){
         const editor=new Section(this.file)
-        editor.node=this.file.getNode(id)
-        editor.update({id},changing)
+        editor.node=this.target
+        editor.update(props)
     },
 }

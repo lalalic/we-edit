@@ -1,8 +1,11 @@
+import {Table} from "./dom"
 export default {
     remove_column(){
         const cell=this.$target.closest("cell")
         if(cell.length>0){
-            this.update_at_table({id: this.$target.closest("table").attr("id"),remove:{id:cell.attr('id')}})
+            const editor=new Table(this.file)
+            editor.node=this.target.closest("w\\:tbl")
+            editor.update({remove:{id:cell.attr('id')}})
         }
     },
 }
