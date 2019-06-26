@@ -1,7 +1,7 @@
 export default {
     remove({type}={}){
         if(type){
-            this.emit("remove", [...this.conds,""].map(a=>type+(a&&'_')+a), ...arguments)
+            this.emit("remove", [...this.conds,""].map(a=>type.toLowerCase()+(a&&'_')+a), ...arguments)
             return this
         }
 
@@ -99,18 +99,23 @@ export default {
     },
 
     remove_cell(){
-        const cell=this.$target.closest("cell")
-        if(row.length>0){
-            this.selectWhole(cell.attr('id'))
-            this.remove_at_whole()
-        }
+
+    },
+
+    remove_column(){
+        
     },
 
     remove_row(){
-        const row=this.$target.closest("row")
-        if(row.length>0){
-            this.selectWhole(row.attr('id'))
-            this.remove_at_whole()
+        const $row=this.$target.closest("row")
+        if($row.length>0){
+            const $table=$row.closest('table')
+            if($table.find("row").length==1){
+                this.remove_table()
+            }else{
+                this.selectWhole($row.attr('id'))
+                this.remove_at_whole()
+            }
         }
     },
 
