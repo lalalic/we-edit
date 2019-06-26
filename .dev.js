@@ -156,7 +156,7 @@ function testOffice(representation="pagination"){
 			ruler={true}
 			toolBar={
 				<Ribbon.Ribbon commands={{
-						layout:false,
+						layout:true,
 						home:{
 							more:(<ToolbarGroup><Pilcrow/></ToolbarGroup>)
 						}

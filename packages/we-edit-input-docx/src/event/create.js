@@ -1,4 +1,4 @@
-import {Image,Section,Table} from "./dom"
+import {Image,Section,Paragraph,Table} from "./dom"
 
 export default{
     create_table_at_end_of_up_to_document(){
@@ -140,5 +140,44 @@ export default{
                 .eq(at)[where](editor.template_tc(width))
         }
         this.file.renderChanged(table)
-    }
+    },
+
+    create_section({kind}){
+        this.enter()
+
+        const $p=this.$target.closest('paragraph')
+        const $section=this.$target.closest('section')
+        const section=this.file.getNode($section.attr('id'))
+        const editor=new Paragraph(this.file)
+        editor.node=this.file.getNode($p.attr('id'))
+        const clonedSection=section.clone()
+        clonedSection.appendTo(editor.got("w:pPr"))
+        if(kind){
+            clonedSection.prepend(`<w:type w:val="${kind}"/>`)
+        }
+        const a=this.file.renderChanged(clonedSection)
+        const $clonedSection=this.$(`#${a.id}`)
+        $section.after($clonedSection)
+        $clonedSection.append($p.nextAll())
+        $clonedSection.prepend($p)
+    },
+
+    create_pagebreak(){
+        this.enter()
+        const $p=this.$target.closest('paragraph').prev('paragraph')
+        const p=this.file.getNode($p.attr('id'))
+        const $r=this.file.$(`<w:r><w:br w:type="page"/></w:r>`).appendTo(p)
+        const a=this.file.renderChanged($r)
+        $p.append(`#${a.id}`)
+    },
+
+    create_columnbreak(){
+        this.enter()
+        const $p=this.$target.closest('paragraph').prev('paragraph')
+        const p=this.file.getNode($p.attr('id'))
+        const $r=this.file.$(`<w:r><w:br w:type="column"/></w:r>`).appendTo(p)
+        const a=this.file.renderChanged($r)
+        $p.append(`#${a.id}`)
+    },
+    
 }

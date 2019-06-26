@@ -1,34 +1,69 @@
 import Base from "./base"
 
 export class Section extends Base{
-	create({kind}, reducer, target){
-		const source=target.closest("section")
-		this.template=a=>`<w:p><w:pPr>${source}</w:pPr></w:p>`
-		
-		const [p0,p1]=reducer.splitAtUpto(reducer.selection.start,"paragraph")
-		
-		super.create(...arguments)
-		
-		this.node.remove("w\\:sectPr>w\\:type")
-		
-		this.file
-			.getNode(p0.attr('id'))
-			.after(this.node)
-			
-		if(kind){
-			this.file.getNode(source.attr('id'))
-				.prepend(`<w:type w:val="${kind}"/>`)
-		}
-			
-		reducer.renderChanged('root')
-		
-		
-		let cursor=p1.findFirst('text').attr('id')
-		return {id:cursor,at:0}
+	got(nodeName){
+		return this.node.children(nodeName.replace(":", "\\:"))
 	}
-	
-	
-	
+
+	cols(cols){
+		if(cols.length>1 && new Set(cols).size==1){
+			cols=[cols.length]
+		}
+
+		if(cols.length==1 && cols[0]==1){
+			cols=[]
+		}
+
+		const wCols=this.got("w:cols")
+		const space=720
+		switch(cols.length){
+		case 0:
+			wCols.removeAttr('w:num').removeAttr('w:equalWidth').children().remove()
+		break	
+		case 1:
+			wCols.attr('w:num',cols[0]).attr('w:space',space).children().remove()
+		break
+		default:
+			wCols.empty()
+			wCols.attr('w:equalWidth',"0")
+			wCols.attr('w:num',cols.length)
+			const w=parseInt(this.node.children("w\\:pgSz").attr('w:w'))
+			const {"w:left":l, "w:right":r, left=parseInt(l), right=parseInt(r)}=this.node.children("w\\:pgMar")[0].attribs
+			const w1=(w-right-left-(cols.length-1)*720)/cols.reduce((n,i)=>n+i,0)
+			wCols.append(cols.map(i=>`<w:col w:w="${parseInt(w1*i)}" w:space="${space}"/>`))
+			wCols.children().last().removeAttr("w:space")
+		break
+		}
+	}
+
+	size({width,height}){
+		this.got("w:pgSz").attr('w:w',this.file.cm2dxa(width)).attr('w:h',this.file.cm2dxa(height))
+	}
+
+	margin([top,right=top,bottom=top,left=right]){
+		this.got("w:pgMar")
+			.attr('w:top',this.file.cm2dxa(top))
+			.attr('w:right',this.file.cm2dxa(right))
+			.attr('w:bottom',this.file.cm2dxa(bottom))
+			.attr('w:left',this.file.cm2dxa(left))
+	}
+
+	orientation(o){
+		const $sz=this.got("w:pgSz")
+		const {"w:w":w, "w:h":h}=$sz[0].attribs
+		if((parseInt(w)<parseInt(h) && o=="landscape")||(parseInt(w)>parseInt(h) && o=="portrait")){
+			if(o=="portrait"){
+				$sz.removeAttr("w:orient")
+			}else{
+				$sz.attr("w:orient",o)
+			}
+			$sz.attr("w:h",w).attr("w:w",h)
+			const $mar=this.got("w:pgMar")
+			const {"w:top":t,"w:bottom":b,"w:left":l,"w:right":r}=$mar[0].attribs
+			$mar.attr("w:top",r).attr("w:right",b).attr("w:bottom",l).attr("w:left",t)
+		}
+	}
+
 	template(props){
 		return `
 		<w:p>
