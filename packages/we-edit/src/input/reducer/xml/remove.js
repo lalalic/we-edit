@@ -1,4 +1,66 @@
 export default {
+    remove({type}={}){
+        if(type){
+            this.emit("remove", [...this.conds,""].map(a=>type+(a&&'_')+a), ...arguments)
+            return this
+        }
+
+        const {start,end}=this.selection
+        if(start.id==end.id){
+            if(start.at!==end.at){
+                this.emit("remove", this.conds, ...arguments)
+            }
+            return this
+        }
+
+        try{
+            this.seperateSelection()
+            const {start,end}=this.selection
+            const prev=this.$("#"+start.id).backwardFirst(this.cursorable)
+            const next=this.$('#'+end.id).forwardFirst(this.cursorable)
+
+            const targets=this.$target.to("#"+end.id)
+            targets.toArray().forEach(id=>{
+                this.selectWhole(id)
+                this.emit("remove",this.conds, ...arguments)
+            })
+
+            //join
+            if(prev.length==0 && next.length==0){
+                this.create_first_paragraph()
+                return 
+            }else{
+                 if(prev.length>0){
+                    this.cursorAtEnd(prev.attr("id"))
+                    if(next.length>0){
+                        this.cursorAt(this.selection.start.id, this.selection.start.at, next.attr("id"),0)
+
+                        const {end}=this.selection
+                        const parentsOfEnd=this.$('#'+end.id).parents()
+                        const grandParent=this.$target.closest(parentsOfEnd)
+                        const inParagraph=parentsOfEnd.slice(0,parentsOfEnd.indexOf(grandParent)+1).filter("paragraph").length>0
+        
+                        const type=grandParent.attr("type")
+                        const conds=[]
+                        if(inParagraph){
+                            conds.push("in_paragraph")
+                        }
+                        conds.push(`up_to_${type}`)
+                        conds.push("up_to_same_grand_parent")
+                        this.emit("merge",conds)
+                    }
+                }else if(next.length>0){
+                    this.cursorAt(next.attr("id"),0)
+                }
+            }
+        }finally{
+            if(this.content.has(start.id)){
+                this.cursorAt(start.id, start.at)
+            }
+        }
+        return this
+    },
+       
     remove_at_text(){
         const {start:{id, at:at0}, end:{at:at1}}=this.selection
         const start=Math.min(at0,at1), end=Math.max(at0,at1)
@@ -36,7 +98,7 @@ export default {
         this.cursorAt($p.attr('id'),0)
     },
 
-    remove_row(){
+    remove_cell(){
         const cell=this.$target.closest("cell")
         if(row.length>0){
             this.selectWhole(cell.attr('id'))

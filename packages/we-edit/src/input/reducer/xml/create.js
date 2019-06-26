@@ -1,4 +1,10 @@
 export default{
+    create({type,...props}){
+        this.remove()
+        this.emit("create_"+type.toLowerCase(),this.conds,...arguments)
+		return this
+    },
+   
     create_table_at_text(){
         this.seperate_at_text_for_end()
         this.create(...arguments)

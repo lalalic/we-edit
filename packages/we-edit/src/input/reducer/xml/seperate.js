@@ -1,4 +1,39 @@
 export default {
+
+    //the result should be [element], or [el1,...,el2]
+	seperateSelection(){
+        var {start,end}=this.selection
+        if(start.id==end.id){
+            if(start.at==end.at){
+                return
+            }else{
+                if(this.content.getIn([start.id,"type"])!="text"){
+                    return
+                }else if(start.at==0 && end.at>=this.content.getIn([start.id,"children"]).length-1){
+                    return
+                }
+            }
+        }
+
+        const action="seperate"
+        this.cursorAt(end.id, end.at)
+        var conds=this.conds
+        if(!(conds.includes("at_end"))){
+            this.emit(action,conds.map(a=>a+"_for_end"))
+        }
+        end=this.selection.start
+
+        this.cursorAt(start.id,start.at,end.id,end.at)
+        conds=this.conds
+        if(conds.includes("at_whole")){
+            return 
+        }
+
+        if(!(conds.includes("at_beginning"))){
+            this.emit(action,this.conds.map(a=>a+"_for_start"))
+        }
+    },
+
     seperate_at_text_for_end(){
         const {id,at}=this.selection.start
         const target=this.target
