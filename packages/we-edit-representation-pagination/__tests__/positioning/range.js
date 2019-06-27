@@ -13,6 +13,7 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
         return {
             responsible,
             getRangeRects(){
+                debugger
                 return responsible.positioning.getRangeRects(...arguments)
             }
         }
@@ -112,4 +113,57 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
         expect(doc.getRangeRects({id:"2",at:0},{id:"2",at:1})).toMatchObject([{left:0,top:0,bottom:10}])
     })
 
+    fdescribe("table",()=>{
+        var doc
+        const zero={sz:0}
+        const border={left:zero,right:zero,top:zero,bottom:zero}
+        beforeEach(()=>{
+            doc=test(
+                <Table id="table" width={100}>
+                    <Row id={`row`} cols={[{x:0,width:40},{x:60,width:40}]}>
+                        <Cell  id={`${uuid++}c`} border={border}>
+                            <Paragraph id={`${uuid++}p`}>
+                                <Text id={`${uuid++}t`}>text</Text>
+                            </Paragraph>
+                        </Cell>
+                        <Cell  id={`cell`} border={border}>
+                            <Paragraph id={`${uuid++}p`}>
+                                <Text id={`${uuid++}t`}>text</Text>
+                            </Paragraph>
+                        </Cell>
+                    </Row>
+                    <Row id={`row1`} cols={[{x:0,width:40},{x:60,width:40}]}>
+                        <Cell  id={`${uuid++}c`} border={border}>
+                            <Paragraph id={`${uuid++}p`}>
+                                <Text id={`${uuid++}t`}>text</Text>
+                            </Paragraph>
+                        </Cell>
+                        <Cell  id={`${uuid++}c`} border={border}>
+                            <Paragraph id={`${uuid++}p`}>
+                                <Text id={`${uuid++}t`}>text</Text>
+                            </Paragraph>
+                        </Cell>
+                    </Row>
+                </Table>
+            )
+        })
+
+        it("table",()=>{
+            expect(doc.getRangeRects({id:"table",at:0},{id:"table",at:1}))
+                .toMatchObject([
+                    {left:0,top:0,right:100,bottom:10},
+                    {left:0,top:10,right:100,bottom:20},
+                ])
+        })
+
+        it("cell", ()=>{
+            expect(doc.getRangeRects({id:"cell",at:0},{id:"cell",at:1}))
+                .toMatchObject( [{left:60,top:0,right:100,bottom:10}])
+        })
+    
+        it("row ",()=>{
+            expect(doc.getRangeRects({id:"row",at:0},{id:"row",at:1}))
+                .toMatchObject([ {left:0,top:0,right:100,bottom:10}])
+        })    
+    })
 })
