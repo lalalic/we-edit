@@ -106,5 +106,12 @@ export default function Navigatable(A){
 				return bound
 			},{x:0,y:0})
 		}
+
+		rectInLine(composedLine){
+			const {first,parents}=new ReactQuery(composedLine).findFirstAndParents(`[data-content=${this.props.id}]`)
+			const target=[...parents,first.get(0)].find(({props:{"data-content":id,width}})=>id && width)
+			const {x=0,y=0,width=0,height=0}=target.props
+			return {left:x,top:y,width,height}
+		}
 	}
 }

@@ -1,7 +1,5 @@
-import {Cacheable} from "../../composable"
 import editable from "./editable"
 import Base from "../cell"
-import {ReactQuery,connect,ACTION} from "we-edit"
 
 export default class extends editable(Base){
     clearComposed(){

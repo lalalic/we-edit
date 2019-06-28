@@ -1,6 +1,4 @@
 import React,{Fragment} from "react"
-import PropTypes from "prop-types"
-import {ReactQuery} from "we-edit"
 
 import define from "./index"
 
@@ -21,6 +19,9 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
 
     it("text",()=>{
         const doc=test(<Paragraph id={"1"}><Text id={"0"}>text</Text></Paragraph>)
+        const i=0
+        debugger
+        expect(doc.getRangeRects({id:"0",at:0},{id:"0",at:i})).toMatchObject([{left:0,top:0,right:i,bottom:10}])
 
         new Array(5).fill(0).forEach((a,i)=>
             expect(doc.getRangeRects({id:"0",at:0},{id:"0",at:i})).toMatchObject([{left:0,top:0,right:i,bottom:10}]))
@@ -113,57 +114,64 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
         expect(doc.getRangeRects({id:"2",at:0},{id:"2",at:1})).toMatchObject([{left:0,top:0,bottom:10}])
     })
 
-    fdescribe("table",()=>{
+    describe("table",()=>{
         var doc
         const zero={sz:0}
         const border={left:zero,right:zero,top:zero,bottom:zero}
         beforeEach(()=>{
+            //if(TESTING=="section")
             doc=test(
-                <Table id="table" width={100}>
-                    <Row id={`row`} cols={[{x:0,width:40},{x:60,width:40}]}>
-                        <Cell  id={`${uuid++}c`} border={border}>
-                            <Paragraph id={`${uuid++}p`}>
-                                <Text id={`${uuid++}t`}>text</Text>
-                            </Paragraph>
-                        </Cell>
-                        <Cell  id={`cell`} border={border}>
-                            <Paragraph id={`${uuid++}p`}>
-                                <Text id={`${uuid++}t`}>text</Text>
-                            </Paragraph>
-                        </Cell>
-                    </Row>
-                    <Row id={`row1`} cols={[{x:0,width:40},{x:60,width:40}]}>
-                        <Cell  id={`${uuid++}c`} border={border}>
-                            <Paragraph id={`${uuid++}p`}>
-                                <Text id={`${uuid++}t`}>text</Text>
-                            </Paragraph>
-                        </Cell>
-                        <Cell  id={`${uuid++}c`} border={border}>
-                            <Paragraph id={`${uuid++}p`}>
-                                <Text id={`${uuid++}t`}>text</Text>
-                            </Paragraph>
-                        </Cell>
-                    </Row>
-                </Table>
+                <Fragment>
+                    <Paragraph id={`${uuid++}`}><Text id={`${uuid++}`}>hello</Text></Paragraph>
+                    <Table id="table" width={100}>
+                        <Row id={`row`} cols={[{x:0,width:40},{x:60,width:40}]}>
+                            <Cell  id={`${uuid++}c`} border={border}>
+                                <Paragraph id={`${uuid++}p`}>
+                                    <Text id={`${uuid++}t`}>text</Text>
+                                </Paragraph>
+                            </Cell>
+                            <Cell  id={`cell`} border={border}>
+                                <Paragraph id={`${uuid++}p`}>
+                                    <Text id={`${uuid++}t`}>text</Text>
+                                </Paragraph>
+                            </Cell>
+                        </Row>
+                        <Row id={`row1`} cols={[{x:0,width:40},{x:60,width:40}]}>
+                            <Cell  id={`${uuid++}c`} border={border}>
+                                <Paragraph id={`${uuid++}p`}>
+                                    <Text id={`${uuid++}t`}>text</Text>
+                                </Paragraph>
+                            </Cell>
+                            <Cell  id={`${uuid++}c`} border={border}>
+                                <Paragraph id={`${uuid++}p`}>
+                                    <Text id={`${uuid++}t`}>text</Text>
+                                </Paragraph>
+                            </Cell>
+                        </Row>
+                    </Table>
+                </Fragment>
             )
         })
 
-        it("table",()=>{
+        it("table",()=>{ 
+            //if(TESTING=="section")
             expect(doc.getRangeRects({id:"table",at:0},{id:"table",at:1}))
                 .toMatchObject([
-                    {left:0,top:0,right:100,bottom:10},
                     {left:0,top:10,right:100,bottom:20},
+                    {left:0,top:20,right:100,bottom:30},
                 ])
         })
 
         it("cell", ()=>{
+            //if(TESTING=="section")
             expect(doc.getRangeRects({id:"cell",at:0},{id:"cell",at:1}))
-                .toMatchObject( [{left:60,top:0,right:100,bottom:10}])
+                .toMatchObject( [{left:60,top:10,right:100,bottom:20}])
         })
     
         it("row ",()=>{
+            //if(TESTING=="section")
             expect(doc.getRangeRects({id:"row",at:0},{id:"row",at:1}))
-                .toMatchObject([ {left:0,top:0,right:100,bottom:10}])
+                .toMatchObject([ {left:0,top:10,right:100,bottom:20}])
         })    
     })
 })

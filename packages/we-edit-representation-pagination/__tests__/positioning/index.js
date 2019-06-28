@@ -97,7 +97,8 @@ export default function define(feature, tests){
             )
         }]
 
-    ])("%s",(TESTING, render)=>{
+    ].filter(a=>a[0]=="in shape")
+    )("%s",(TESTING, render)=>{
         if(TESTING=="pagination"){
 
             beforeAll(()=>{

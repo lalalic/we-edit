@@ -5,7 +5,7 @@ import {ReactQuery} from "we-edit"
 import define from "./index"
 
 define("cursor", ({dom:{Paragraph, Text, Image, Table, Row, Cell,Container, Frame,Anchor,Shape}, render, mockQuery,size,uuid})=>{
-    describe("next", ()=>{
+    xdescribe("next", ()=>{
         it("text",()=>{
             const p=render(<Paragraph id={"-1"}><Text id={"0"}>text</Text></Paragraph>).get("-1")
             expect(p.nextCursorable()).toEqual({id:"0",at:0})
@@ -342,7 +342,7 @@ define("cursor", ({dom:{Paragraph, Text, Image, Table, Row, Cell,Container, Fram
         })
     })
 
-    describe("prev", ()=>{
+    xdescribe("prev", ()=>{
         it("text",()=>{
             const p=render(<Paragraph id={"-1"}><Text id={"0"}>text</Text></Paragraph>).get("-1")
             expect(p.prevCursorable()).toEqual({id:"-1",at:1})

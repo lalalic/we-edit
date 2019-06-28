@@ -1,7 +1,5 @@
-import React, {Component} from "react"
-import PropTypes from "prop-types"
-import {dom, ReactQuery} from "we-edit"
-import memoize from "memoize-one"
+import React from "react"
+import {dom} from "we-edit"
 
 import {HasParentAndChild} from "../composable"
 import {Group} from "../composed"
@@ -10,7 +8,7 @@ const Super=HasParentAndChild(dom.Table)
 
 export default class Table extends Super{
 	nextAvailableSpace(){
-		let availableSpace=this.context.parent.nextAvailableSpace(...arguments)
+		const availableSpace=this.context.parent.nextAvailableSpace(...arguments)
 		return {...availableSpace, width: this.props.width}
 	}
 

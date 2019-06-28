@@ -1,9 +1,7 @@
 import React,{PureComponent as Component} from "react"
-import PropTypes from "prop-types"
 import {dom, ReactQuery} from "we-edit"
 
 import {Group} from "../composed"
-import Frame from "./frame"
 
 import {HasParentAndChild} from "../composable"
 const Super=HasParentAndChild(dom.Row)
@@ -16,6 +14,10 @@ export default class extends Super{
 	constructor(){
 		super(...arguments)
 		this.computed.spaces=[]
+	}
+
+	get width(){
+		return this.closest("table").props.width
 	}
 
 	cellId(cell){
@@ -169,7 +171,7 @@ export default class extends Super{
 	}
 
 	createComposed2Parent(bLast=false){
-		const {props:{cols,width}, computed:{composed:columns}}=this
+		const {props:{cols}, width, computed:{composed:columns}}=this
 		const i=this.currentColumn.length-1
 		const cells=columns.map(column=>column[i])
 		const height=this.getHeight(cells)

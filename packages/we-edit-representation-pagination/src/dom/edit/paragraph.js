@@ -150,7 +150,8 @@ class Positionable extends Editable{
 		)
 	}
 
-	contentRect(i){
+	rectInLine(composedLine){
+		const i=new ReactQuery(composedLine).findFirst(`[data-content="${this.props.id}"]`).attr('pagination').i-1
 		const line=this.computed.composed[i]
 		const {indent:{left=0,firstLine=0}, numbering}=this.props
 		return {
