@@ -119,32 +119,31 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
         const zero={sz:0}
         const border={left:zero,right:zero,top:zero,bottom:zero}
         beforeEach(()=>{
-            //if(TESTING=="section")
             doc=test(
                 <Fragment>
-                    <Paragraph id={`${uuid++}`}><Text id={`${uuid++}`}>hello</Text></Paragraph>
+                    <Paragraph id={`${++uuid}p0`}><Text id={`${++uuid}t0`}>hello</Text></Paragraph>
                     <Table id="table" width={100}>
                         <Row id={`row`} cols={[{x:0,width:40},{x:60,width:40}]}>
-                            <Cell  id={`${uuid++}c`} border={border}>
-                                <Paragraph id={`${uuid++}p`}>
-                                    <Text id={`${uuid++}t`}>text</Text>
+                            <Cell  id={`${++uuid}c`} border={border}>
+                                <Paragraph id={`${++uuid}p`}>
+                                    <Text id={`${++uuid}t`}>text</Text>
                                 </Paragraph>
                             </Cell>
                             <Cell  id={`cell`} border={border}>
-                                <Paragraph id={`${uuid++}p`}>
-                                    <Text id={`${uuid++}t`}>text</Text>
+                                <Paragraph id={`${++uuid}p`}>
+                                    <Text id={`${++uuid}t`}>text</Text>
                                 </Paragraph>
                             </Cell>
                         </Row>
                         <Row id={`row1`} cols={[{x:0,width:40},{x:60,width:40}]}>
-                            <Cell  id={`${uuid++}c`} border={border}>
-                                <Paragraph id={`${uuid++}p`}>
-                                    <Text id={`${uuid++}t`}>text</Text>
+                            <Cell  id={`${++uuid}c`} border={border}>
+                                <Paragraph id={`${++uuid}p`}>
+                                    <Text id={`${++uuid}t`}>text</Text>
                                 </Paragraph>
                             </Cell>
-                            <Cell  id={`${uuid++}c`} border={border}>
-                                <Paragraph id={`${uuid++}p`}>
-                                    <Text id={`${uuid++}t`}>text</Text>
+                            <Cell  id={`${++uuid}c`} border={border}>
+                                <Paragraph id={`${++uuid}p`}>
+                                    <Text id={`${++uuid}t`}>text</Text>
                                 </Paragraph>
                             </Cell>
                         </Row>
@@ -154,7 +153,6 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
         })
 
         it("table",()=>{ 
-            //if(TESTING=="section")
             expect(doc.getRangeRects({id:"table",at:0},{id:"table",at:1}))
                 .toMatchObject([
                     {left:0,top:10,right:100,bottom:20},
@@ -163,13 +161,12 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
         })
 
         it("cell", ()=>{
-            //if(TESTING=="section")
             expect(doc.getRangeRects({id:"cell",at:0},{id:"cell",at:1}))
                 .toMatchObject( [{left:60,top:10,right:100,bottom:20}])
         })
     
         it("row ",()=>{
-            //if(TESTING=="section")
+            debugger
             expect(doc.getRangeRects({id:"row",at:0},{id:"row",at:1}))
                 .toMatchObject([ {left:0,top:10,right:100,bottom:20}])
         })    

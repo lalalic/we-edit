@@ -75,7 +75,7 @@ export default function define(feature, tests){
             const {page:{width=size.width,height=size.height}={}}=args[0]||{}
             const shape=(<Shape {...{children:a,id:"container", ...size,width,height}}/>)
             return render(
-                <Paragraph id={uuid++}>
+                <Paragraph id={++uuid}>
                     {shape}
                 </Paragraph>,
                 ...args
@@ -86,8 +86,8 @@ export default function define(feature, tests){
             const Zero={sz:0}
             const {page:{width=size.width,height=size.height}={}}=args[0]||{}
             return render(
-                <Table id={uuid++} width={width}>
-                    <Row id={uuid++} cols={[{x:0,width}]}>
+                <Table id={++uuid} width={width}>
+                    <Row id={++uuid} cols={[{x:0,width}]}>
                         <Cell id={"container"} border={{left:Zero,right:Zero,top:Zero,bottom:Zero}}>
                             {a}
                         </Cell>
@@ -97,24 +97,8 @@ export default function define(feature, tests){
             )
         }]
 
-    ].filter(a=>a[0]=="in shape")
+    ]//.filter(([a])=>a=="section")
     )("%s",(TESTING, render)=>{
-        if(TESTING=="pagination"){
-
-            beforeAll(()=>{
-                Editors.Section=class extends React.Component{
-                    render(){
-                        const {page, ...props}=this.props
-                        return <Editors.Page {...props} {...page} i={0} I={0}/>
-                    }
-                }
-            })
-
-            afterAll(()=>{
-                Editors.Section=Section
-            })
-        }
-
         describe(feature, ()=>{
             tests({dom:Editors,TESTING, render, mockQuery, pgGap, size, uuid,Responsible, Positioning})
         })

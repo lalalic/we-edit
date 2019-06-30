@@ -8,7 +8,7 @@ import memoize from "memoize-one"
 const Super=Fissionable(HasParentAndChild(dom.Section))
 export default class Section extends Super{
 	static fissureLike=Frame=>class extends Frame{
-		static dispatchName="PageFrame"
+		static displayName="PagedFrame-section"
 		defineProperties(){
 			super.defineProperties()
 			Object.defineProperties(this,{
@@ -30,7 +30,11 @@ export default class Section extends Super{
 
 		render(){
 			const {props:{I:key,width,height,margin}}=this
-			return React.cloneElement(super.createComposed2Parent(),{key,width,height,margin, "data-content":undefined, "data-type":undefined})
+			return React.cloneElement(super.createComposed2Parent(),{
+				key,width,height,margin, 
+				//"data-content":undefined,//why set them as undefined???
+				//"data-type":undefined,//why set them as undefined???
+			})
 		}
 	}
 
