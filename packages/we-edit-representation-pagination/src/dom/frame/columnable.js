@@ -135,7 +135,9 @@ export default class Columnable extends Fixed{
 			children:[
 				...this.anchors,
 				...this.columns.map((column,i)=>{
-					const {children:lines,currentY,...props}=column
+					const {children:lines,currentY,
+						"data-content":_1, "data-type":_2,id:_3, 
+						...props}=column
 					return (
 						<Group {...props} key={i}>
 							<Group y={alignY(column.currentY)}>

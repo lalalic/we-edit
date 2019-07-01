@@ -8,10 +8,14 @@ import {HasParentAndChild, Fissionable} from "../../composable"
 
 import {custom, rect, ellipse, circle} from "./shapes"
 
-const Super=Fissionable(HasParentAndChild(dom.Shape))
+const Super=Fissionable(HasParentAndChild(dom.Shape))//why shape is fissionable
 export default class Shape extends Super{
 	static fissureLike=Frame=>class extends Frame{
-		static dispatchName="ShapeFrame"
+		static dispatchName="frame-shape"
+		getComposeType(){
+			return Shape.getType()
+		}
+
 		render(){
 			if(this.isEmpty())
 				return null

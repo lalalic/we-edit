@@ -21,7 +21,6 @@ export default class Media extends Component{
 			paper=this.context.paper,
 			smart=true,
 		}=this.props
-		const {onPageHide,onPageShow,scrollableAncestor}=this.context
 		switch(media){
 			case "screen":{
 				let y=0
