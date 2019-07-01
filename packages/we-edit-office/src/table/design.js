@@ -7,7 +7,6 @@ import {MenuItem,SvgIcon,ToolbarGroup} from "material-ui"
 import DropDownButton from "../components/drop-down-button"
 
 import IconSelect from "material-ui/svg-icons/action/open-with"
-import IconInsert from "material-ui/svg-icons/action/open-with"
 
 import IconNotChecked from "material-ui/svg-icons/toggle/check-box-outline-blank"
 import IconChecked from "material-ui/svg-icons/toggle/check-box"
@@ -20,25 +19,21 @@ import IconRight from "material-ui/svg-icons/navigation/last-page"
 export default compose(
     setDisplayName("TableDesigner"),
     connect(state=>({selection:getSelectionStyle(state)})),
-    mapProps(({dispatch,selection})=>{
+    mapProps(({dispatch})=>{
         return {
             addRowAbove(){
-                const row=selection.props("row",false)
-                dispatch(ACTION.Selection.UPDATE({table:{row:{row:row.id,where:"before"}}}))
+                dispatch(ACTION.Entity.CREATE({type:"row", where:"before"}))
             },
             addRowBelow(){
-                const row=selection.props("row",false)
-                dispatch(ACTION.Selection.UPDATE({table:{row:{row:row.id, where:"after"}}}))
+                dispatch(ACTION.Entity.CREATE({type:"row", where:"after"}))
             },
 
             addColRight(){
-                const cell=selection.props("cell",false)
-                dispatch(ACTION.Selection.UPDATE({table:{col:{cell:cell.id,where:"after"}}}))
+                dispatch(ACTION.Entity.CREATE({type:"column", where:"after"}))
             },
 
             addColLeft(){
-                const cell=selection.props("cell",false)
-                dispatch(ACTION.Selection.UPDATE({table:{col:{cell:cell.id, where:"before"}}}))
+                dispatch(ACTION.Entity.CREATE({type:"column", where:"before"}))
             },
             remove(type){
                 dispatch(ACTION.Selection.EXTEND(type))

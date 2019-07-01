@@ -408,7 +408,7 @@ export default class Editable extends DocxType{
 	}
 
     px2dxa(w){
-        return w*72*20/96
+        return parseInt(w*72*20/96)
     }
 
 	px2cm(px){
@@ -417,6 +417,26 @@ export default class Editable extends DocxType{
 
 	px2Pt(px){
 		return px*72/96
+	}
+
+	dxa2Px(a){
+		return this.pt2Px(parseInt(a)/20.0)
+	}
+
+	emu2Px(a){
+		return this.pt2Px(parseInt(a)/12700)
+	}
+
+	pt2Px(pt){
+		return Math.ceil(pt*96/72)
+	}
+
+	cm2Px(cm){
+		return parseFloat(cm)*28.3464567/360000*96/72
+	}
+
+	cm2dxa(w){
+		return parseInt(parseFloat(w)*11900/21.59)
 	}
 
 	static Reducer=Reducer

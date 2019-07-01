@@ -1,4 +1,15 @@
 export default {
+    backspace(){
+        const {start,end}=this.selection
+        if(start.id==end.id && start.at==end.at){
+            this.emit("backspace",this.conds,...arguments)
+        }else{
+            this.remove(...arguments)
+        }
+        this.clean()
+        return this
+    },
+        
     backspace_at_text(){
         const {start:{id,at}}=this.selection
         const target=this.target

@@ -1,4 +1,10 @@
 export default{
+    create({type}){
+        this.remove()
+        this.emit("create",[...this.conds,""].map(a=>type.toLowerCase()+(a&&"_")+a),...arguments)
+		return this
+    },
+   
     create_table_at_text(){
         this.seperate_at_text_for_end()
         this.create(...arguments)
@@ -37,5 +43,13 @@ export default{
 
     create_table_at_empty_paragraph(){
         this.create_table_at_beginning_of_paragraph(...arguments)
+    },
+
+    create_row({where}){
+        this.emit("create_row",[where],...arguments)    
+    },
+
+    create_column({where}){
+        this.emit("create_column",[where],...arguments)
     },
 }
