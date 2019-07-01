@@ -170,6 +170,7 @@ export default class Document extends Super{
 		return this.computed.composed
 	}
 
+	//when it can be used???
 	getRangeRects(p0,p1, pageXY){
 		const getComposer=id=>this.getComposer && this.getComposer(id) || this.context.getComposer && this.context.getComposer(id)
 		const pages=this.getPages()

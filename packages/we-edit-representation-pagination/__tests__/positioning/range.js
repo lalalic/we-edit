@@ -11,7 +11,6 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
         return {
             responsible,
             getRangeRects(){
-                debugger
                 return responsible.positioning.getRangeRects(...arguments)
             }
         }
@@ -19,15 +18,23 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
 
     it("text",()=>{
         const doc=test(<Paragraph id={"1"}><Text id={"0"}>text</Text></Paragraph>)
-        const i=0
-        debugger
-        expect(doc.getRangeRects({id:"0",at:0},{id:"0",at:i})).toMatchObject([{left:0,top:0,right:i,bottom:10}])
-
+        
         new Array(5).fill(0).forEach((a,i)=>
             expect(doc.getRangeRects({id:"0",at:0},{id:"0",at:i})).toMatchObject([{left:0,top:0,right:i,bottom:10}]))
 
             new Array(4).fill(0).forEach((a,i)=>
                 expect(doc.getRangeRects({id:"0",at:1},{id:"0",at:i+1})).toMatchObject([{left:1,top:0,right:i+1,bottom:10}]))
+    })
+
+    it("inline container",()=>{
+        const doc=test(
+            <Paragraph id={"1"}>
+                <Container id="inline">
+                    <Text id={"0"}>text</Text>
+                </Container>
+                <Text id={"2"}>text</Text>
+            </Paragraph>)
+        expect(doc.getRangeRects({id:"inline",at:0},{id:"inline",at:1})).toMatchObject([{left:0,top:0,right:4,bottom:10}])
     })
 
     it("text in second page",()=>{
@@ -148,6 +155,7 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
                             </Cell>
                         </Row>
                     </Table>
+                    <Paragraph id={`${++uuid}p0`}><Text id={`${++uuid}t0`}>hello</Text></Paragraph>
                 </Fragment>
             )
         })
@@ -166,7 +174,6 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
         })
     
         it("row ",()=>{
-            debugger
             expect(doc.getRangeRects({id:"row",at:0},{id:"row",at:1}))
                 .toMatchObject([ {left:0,top:10,right:100,bottom:20}])
         })    

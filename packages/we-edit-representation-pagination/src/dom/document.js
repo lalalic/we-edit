@@ -1,8 +1,8 @@
-import React, {Children, Component, Fragment} from "react"
+import React, {Fragment} from "react"
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
 
-import composable,{HasChild, Locatable,} from "../composable"
+import {HasChild, Locatable,} from "../composable"
 import {dom,ACTION} from "we-edit"
 const {Document:Base}=dom
 

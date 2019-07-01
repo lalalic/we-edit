@@ -53,14 +53,6 @@ export default function Navigatable(A){
 			return []
 		}
 
-		getRangeRects(){
-			if(super.getRangeRects)
-				return super.getRangeRects(...arguments)
-
-			if(this.context && this.context.parent)
-				return this.context.parent.getRangeRects(...arguments)
-		}
-
 		position(id, at){
 			const pages=this.getPages()
 			var target,parents

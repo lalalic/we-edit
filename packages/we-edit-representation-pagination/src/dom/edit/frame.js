@@ -91,6 +91,7 @@ const factory=base=>Cacheable(class extends editable(base){
         return {}
 	}
 
+    //only paragraph would be shrinked
 	lineRect(line){
         line=this.lines[line]
         const {first,parents}=new ReactQuery(line).findFirstAndParents(`[data-type="paragraph"]`)
@@ -100,15 +101,6 @@ const factory=base=>Cacheable(class extends editable(base){
 
         rect.left=this.columns.find(a=>a.children.includes(line)).x+rect.left
         rect.height=line.props.height
-        rect.top=this.lineY(line)-rect.height
-        return rect
-    }
-
-    rectInLine(line){
-        debugger
-        const {x:left=0,y:top=0,width=0,height=0}=line.props
-        const rect={left,top,width,height}
-        rect.left=this.columns.find(a=>a.children.includes(line)).x+rect.left
         rect.top=this.lineY(line)-rect.height
         return rect
     }

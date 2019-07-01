@@ -1,8 +1,7 @@
-import React,{Fragment} from "react"
+import React from "react"
 import PropTypes from "prop-types"
-import {ReactQuery} from "we-edit"
 
-import {context,State,render as testRender, defaultProps} from "../context"
+import {context,render as testRender, defaultProps} from "../context"
 
 import {Editors} from "../../src"
 import Responsible from "../../src/composed/responsible"

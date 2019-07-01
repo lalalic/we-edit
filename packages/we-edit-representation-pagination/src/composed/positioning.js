@@ -169,8 +169,8 @@ class ReactPositioning extends Positioning{
         try{
             ({start,end}=this.extendSelection(start,end));
 
-            const composer=this.getComposer(this.getComposer(start.id).composeFrames().pop())
-            const rects=composer.getRangeRects(start,end, page=>this.pageXY(this.pages.indexOf(page)))
+            const frame=this.getComposer(start.id).closest(a=>!!a.getRangeRects && a.props.id!=start.id)
+            const rects=frame.getRangeRects(start,end, page=>this.pageXY(this.pages.indexOf(page)))
             if(end.at==1){
                 const endComposer=this.getComposer(end.id)
                 if(endComposer.getComposeType()=="paragraph"){

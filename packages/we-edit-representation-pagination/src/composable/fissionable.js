@@ -114,8 +114,6 @@ export default (A)=>class extends A{
         p0.fissionIndex=this.computed.composed.findIndex(a=>(p0.line=a.lineIndexOf(p0))!=-1)
         p1.fissionIndex=this.computed.composed.findLastIndex(a=>(p1.line=a.lineIndexOf(p1))!=-1)
 
-        const isMyself=(p0.id==p1.id && p0.id==this.props.id && p0.at==0 && p1.at==1)
-
         const fissionFrameXY=page=>{
             const {x,y}=pageXY(page)
             const {first,parents}=new ReactQuery(page.render()).findFirstAndParents(`[data-content="${this.props.id}"]`)
@@ -128,7 +126,7 @@ export default (A)=>class extends A{
             const fission=this.computed.composed[fissionIndex]
             if(fission){
                 fission.lines.slice(start,end).forEach((a,i)=>{
-                    const {left,top,width,height}=isMyself ? fission.rectInLine(fission.lines[start+i]) : fission.lineRect(start+i)
+                    const {left,top,width,height}=fission.lineRect(start+i)
                     rects.push({left:left+x,top:top+y,right:left+width+x,bottom:top+height+y})
                 })
             }

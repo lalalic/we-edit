@@ -23,15 +23,5 @@ export default A=>{
         appendComposed() {
             return this.context.parent.appendComposed(this.createComposed2Parent(...arguments))
         }
-		
-		closest(type){
-			var current=this
-			while(current){
-				if(current.getComposeType()==type)
-					return current
-				if(current.context)
-					current=current.context.parent
-			}
-		}
     }
 }

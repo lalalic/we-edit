@@ -38,6 +38,17 @@ export default class Section extends Super{
 				key,width,height,margin,
 			})
 		}
+
+		lineIndexOf({page}){
+			if(page){
+				if(page==this){
+					return super.lineIndexOf(...arguments)
+				}
+				return -1
+			}else{
+				return super.lineIndexOf(...arguments)
+			}
+		}
 	}
 
 	static defaultProps={

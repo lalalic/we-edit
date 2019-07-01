@@ -251,11 +251,7 @@ export default class Fixed extends Super{
                     }
                 }).length)
         }else{
-            const index=lines[`find${at==0?"":"Last"}Index`](a=>new ReactQuery(a)[at==0 ? "findFirst" : "findLast"](`[data-content="${id}"]`).length)
-            if(index==-1){//line container
-                return at==0 ? 0 : lines.length-1
-            }
-            return index
+            return lines[`find${at==0?"":"Last"}Index`](a=>new ReactQuery(a)[at==0 ? "findFirst" : "findLast"](`[data-content="${id}"]`).length)
         }
     }
 

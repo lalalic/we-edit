@@ -92,5 +92,19 @@ export default A=>class extends A{
 	
 	query(selector=`#${this.props.id}`){
 		return new ContentQuery(this.context.activeDocStore.getState(),selector)
-	}
+    }
+    
+    closest(type){
+        var fn=type
+        if(typeof(type)=="string")
+            fn=a=>a.getComposeType()==type
+
+        var current=this
+        while(current){
+            if(!!fn(current))
+                return current
+            if(current.context)
+                current=current.context.parent
+        }
+    }    
 }
