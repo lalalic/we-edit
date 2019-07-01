@@ -54,10 +54,6 @@ export default ({Text, Paragraph})=>class extends Component{
 
 	defaultStyle=memoize((direct,context)=>direct.flat4Character(context))
 
-	shouldComponentUpdate(){
-		return this.context.shouldContinueCompose()
-	}
-
 	render(){
 		const {style:$1, ...props}=this.props
 		const {widow,orphan=widow, ...style}=this.style(this.props.style,this.context.style)
