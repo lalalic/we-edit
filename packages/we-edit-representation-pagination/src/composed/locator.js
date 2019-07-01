@@ -168,6 +168,7 @@ class SelectionStyle{
         const line=()=>page.lineIndexOf(this.position)
         const column=()=>page.columnIndexOf(line())
         const cols=()=>[...page.cols]
+        const {margin, width,height}=page.props
         return {
             ...this.position,
             get pageY(){
@@ -181,6 +182,13 @@ class SelectionStyle{
             },
             get cols(){
                 return cols()
+            },
+            get size(){
+                return {width,height}
+            },
+
+            get margin(){
+                return margin
             }
         }
     }
