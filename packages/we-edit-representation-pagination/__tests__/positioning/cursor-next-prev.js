@@ -1,6 +1,4 @@
 import React,{Fragment} from "react"
-import PropTypes from "prop-types"
-import {ReactQuery} from "we-edit"
 
 import define from "./index"
 

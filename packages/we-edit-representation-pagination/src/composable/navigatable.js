@@ -28,10 +28,12 @@ export default function Navigatable(A){
 			return this.navigatable("getPages",...arguments)
 		}
 
+		//@deprecated, please refer to InputType.Reducer.forward
 		nextCursorable(){
 			return this.navigatable('nextCursorable',...arguments)
         }
 
+		//@deprecated please refer to InputType.Reducer.backward
         prevCursorable(){
 			return this.navigatable('prevCursorable',...arguments)
         }
@@ -84,10 +86,10 @@ export default function Navigatable(A){
 		getFocusShape(){
 			return this.navigatable('getFocusShape',...arguments)
 		}
-
+		
 		getBound(parents){
 			return parents.reduce((bound, a)=>{
-				const {width,height,x=0,y=0,"data-type":type,"data-content":id}=a.props||{}
+				const {height,x=0,y=0,"data-type":type}=a.props||{}
 				bound.x+=x
 				if(type!=="text"){
 					bound.y+=y
@@ -99,6 +101,10 @@ export default function Navigatable(A){
 			},{x:0,y:0})
 		}
 
+		/**
+		 * bound react of node in a line 
+		 * @param {*} composedLine 
+		 */
 		rectInLine(composedLine){
 			const {first,parents}=new ReactQuery(composedLine).findFirstAndParents(`[data-content=${this.props.id}]`)
 			const target=[...parents,first.get(0)].find(({props:{"data-content":id,width}})=>id && width)
