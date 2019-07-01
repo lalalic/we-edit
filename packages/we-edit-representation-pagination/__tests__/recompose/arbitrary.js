@@ -1,12 +1,6 @@
-import React,{Fragment,Children,Component} from "react"
-
-import {ACTION} from "we-edit"
-
-import {context, $, State, render, defaultProps} from "./context"
-
-import {Editors} from "../src"
-import Responsible from "../src/composed/responsible"
-import ComposedDocument from "../src/composed/document"
+import React from "react"
+import {context, $, State, render, defaultProps} from "../context"
+import {Editors} from "../../src"
 
 
 describe("continuable", ()=>{
