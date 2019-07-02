@@ -155,55 +155,55 @@ export default class Base{
 
 
 	type(char){
-		return this
+		
 	}
 
 	delete(event){
-		return this
+		
 	}
 
 	backspace(event){
-		return this
+		
 	}
 
 	enter(event){
-		return this
+		
 	}
 
 	tab(event){
-		return this
+		
 	}
 
 	create({type}){
-		return this
+		
 	}
 
 	update({id,type,...changing}){
-		return this
+		
 	}
 
 	remove(){
-		return this
+		
 	}
 
 	copy(){
-		return this
+		
 	}
 
 	cut(){
-		return this
+		
 	}
 
 	paste(){
-		return this
+		
 	}
 
 	backward(){
-		return this
+		
 	}
 
 	forward(){
-		return this
+		
 	}
 
     extend(type){
@@ -211,6 +211,5 @@ export default class Base{
         if(typed.length>0){
             this.selectWhole(typed.attr('id'))
         }
-        return this
     }
 }

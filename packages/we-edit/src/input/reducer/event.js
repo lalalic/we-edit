@@ -149,37 +149,32 @@ export default class extends Base{
     type(){
         this.remove()
         this.emit("type",this.conds,...arguments)
-        return this
     }
 
     enter(){
         this.remove()
         this.emit("enter",this.conds,...arguments)
-        return this
     }
 
     tab(){
         this.remove()
         this.emit("tab",this.conds,...arguments)
-        return this
     }
 
     
 
     forward(){
         this.emit("forward",this.conds,...arguments)
-        return this
     }
 
     backward(){
         this.emit("backward",this.conds,...arguments)
-        return this
     }
 
     copy(){
         const {start,end}=this.selection
         if(start.id==end.id && start.at==end.at){
-            return this
+            return
         }
 
         if(start.id==end.id){
@@ -200,14 +195,12 @@ export default class extends Base{
             this.clipboard=[first, ...contents, last].join("")
             this.cursorAt(start.id, start.at, end.id, end.at)
         }
-        
-        return this
     }
 
     cut(){
         const {start,end}=this.selection
         if(start.id==end.id && start.at==end.at){
-            return this
+            return 
         }
 
         if(start.id==end.id){
@@ -220,7 +213,6 @@ export default class extends Base{
             }).join("")
         }
         this.remove()
-        return this
     }
 
     paste(){
@@ -230,7 +222,5 @@ export default class extends Base{
             const $b=this.$(`#${id}`)
             this.emit("paste_"+$b.attr('type'),this.conds,$b,a)
         })
-
-        return this
     }
 }

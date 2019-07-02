@@ -187,50 +187,66 @@ export class Editable extends Viewable{
 		const reducer=new this.constructor.Reducer(...params)
 		switch(type){
 			case `we-edit/text/TYPE`:
-				return reducer.type(payload).state()
+				reducer.type(payload)
+				break
 			case `we-edit/text/DELETE`:
-				return reducer.delete(payload).state()
+				reducer.delete(payload)
+				break
 			case `we-edit/text/BACKSPACE`:
-				return reducer.backspace(payload).state()
+				reducer.backspace(payload)
+				break
 			case `we-edit/text/TAB`:
-				return reducer.tab(payload).state()
+				reducer.tab(payload)
+				break
 			case `we-edit/text/ENTER`:
-				return reducer.enter(payload).state()
-			
+				reducer.enter(payload)
+				break
 			case "we-edit/entity/CREATE":
-				return reducer.create(payload).state()
+				reducer.create(payload)
+				break
 			case "we-edit/entity/UPDATE":
-				return reducer.update(payload).state()
+				reducer.update(payload)
+				break
 			case `we-edit/selection/UPDATE`:
-				return reducer.update(payload).state()
+				reducer.update(payload)
+				break
 			case 'we-edit/selection/COPY':
-				return reducer.copy(payload).state()
+				reducer.copy(payload)
+				break
 			case 'we-edit/selection/PASTE':
-				return reducer.paste(payload).state()
+				reducer.paste(payload)
+				break
 			case 'we-edit/selection/CUT':
-				return reducer.cut(payload).state()
+				reducer.cut(payload)
+				break
 			case "we-edit/selection/MOVE":
-				return reducer.move(payload).state()
+				reducer.move(payload)
+				break
 			case "we-edit/selection/REMOVE":
-				return reducer.remove(payload).state()
+				reducer.remove(payload)
+				break
 			case "we-edit/selection/EXTEND":
-				return reducer.extend(payload).state()
-
+				reducer.extend(payload)
+				break
 			case "we-edit/history/UNDO":
-				return reducer.undo(payload).state()
+				reducer.undo(payload)
+				break
 			case "we-edit/cursor/FORWARD":
-				return reducer.forward(payload).state()
+				reducer.forward(payload)
+				break
 			case "we-edit/cursor/BACKWARD":
-				return reducer.backward(payload).state()
-
+				reducer.backward(payload)
+				break
 			case "we-edit/selection/SELECTED":
 			case "we-edit/selection/STARTEDAT":{
 				const {start, end, cursorAt}=selection(getSelection(state),action)
 				reducer.cursorAt(start.id, start.at, end.id, end.at, cursorAt)
-				return reducer.state()
+				break
 			}
+			default:
+				return true
 		}
-		return true
+		return reducer.state()
 	}
 }
 

@@ -43,13 +43,19 @@ export default {
                 const prevId=$prevP.attr('id')
                 const prev=this.file.getNode(prevId)
                 const $container=$p.parent()
+                const last=$prevP.children().length-1
                 prev.append(this.target.closest(this.PARAGRAPH_).remove().children(`:not(${this.PR})`))
                 this.file.renderChanged(prev)
 
                 this.content.updateIn([$container.attr("id"),"children"],children=>{
                     return children.remove(children.indexOf(prevId)+1)
                 })
-                this.cursorAtEnd(prevId)
+                const $cursor=$prevP.children().eq(last+1)
+                if($cursor.length){
+                    this.cursorAt($cursor.attr('id'),0)
+                }else{
+                    this.cursorAtEnd(prevId)
+                }
             }
         }
     },
