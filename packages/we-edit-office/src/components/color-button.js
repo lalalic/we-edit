@@ -7,7 +7,7 @@ import IconMore from 'material-ui/svg-icons/navigation/arrow-drop-down'
 
 import ColorSelector from "./select-color"
 
-export default class extends Component{
+export default class ColorButton extends Component{
 	constructor({value}){
 		super(...arguments)
 		this.state={open:false,color:value||"black"}
@@ -36,7 +36,7 @@ export default class extends Component{
 		const toggle=e=>this.setState({open:!open,anchor:e.currentTarget.parentNode})
 		
 		return (
-			<span>
+			<span style={{whiteSpace:"nowrap"}}>
 				<SizeIconButton {...props} onClick={e=>props.status=="checked" ? onChange("") : toggle(e)}/>
 				<IconMore style={{height:24,width:6}} viewBox="6 -12 18 36" onClick={toggle}/>
 				{colorSelector}

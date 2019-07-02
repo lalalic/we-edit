@@ -101,7 +101,7 @@ export class ComboBox extends PureComponent{
 		}
 
 		return (
-			<span>
+			<span style={{whiteSpace:"nowrap"}}>
 				<AutoComplete
 					name={name}
 					searchText={searchText}

@@ -3,7 +3,7 @@ import {FlatButton,FontIcon} from "material-ui"
 
 import IconColor from "material-ui/svg-icons/image/color-lens"
 
-export default class extends Component{
+export default class ColorSelector extends Component{
 	render(){
 		const titleStyle={fontWeight:700, marginTop:4}
 		const {onChange}=this.props

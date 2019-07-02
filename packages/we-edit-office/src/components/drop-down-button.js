@@ -4,7 +4,7 @@ import Popover from "material-ui/Popover"
 import SizeIconButton from "../components/size-icon-button"
 import IconMore from 'material-ui/svg-icons/navigation/arrow-drop-down'
 
-export default class extends Component{
+export default class DropdownButton extends Component{
 	state={open:false}
 	render(){
 		const {open,anchor}=this.state
@@ -27,7 +27,7 @@ export default class extends Component{
 			)
 		}
 		return (
-			<span>
+			<span style={{whiteSpace:"nowrap"}}>
 				<SizeIconButton onClick={onClick} {...props} status={status}>
 					{icon}
 				</SizeIconButton>
