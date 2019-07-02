@@ -112,6 +112,10 @@ export default class extends Base{
         }
     }
 
+    /**
+     * clean current paragraph
+     * @param {*} f 
+     */
     clean(f){
         const $next=this.$target.forwardFirst(this.cursorable)
         const $prev=this.$target.backwardFirst(this.cursorable)
@@ -119,9 +123,10 @@ export default class extends Base{
             return 
         }
 
+        const $p=this.$target.closest("paragraph")
+        
         f&&f();
         
-        const $p=this.$target.closest("paragraph")
         $p.find("text").filter(a=>this.$(a).text().length==0).each((i,a)=>{
             const parents=this.$(a).parentsUntil($p).not($p)
             const k=((parents.toArray().findIndex(b=>this.$('#'+b).length>1)+1)||parents.length)-1
@@ -131,10 +136,12 @@ export default class extends Base{
         })
 
         if(this.$target.length==0){
-            if($next.length==1){
+            if($next.closest($p).length>0){
                 this.cursorAt($next.attr('id'),0)
-            }else if($prev.length==1){
+            }else if($prev.closest($p).length>0){
                 this.cursorAtEnd($prev.attr('id'))
+            }else{
+                this.cursorAtEnd($p.attr('id'))
             }
         }
     }
