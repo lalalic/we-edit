@@ -467,6 +467,8 @@ class Navigatable extends Positionable{
 					}else{
 						return {id:$node.findFirst(`[data-content]`).attr("data-content")}
 					}
+				}else{//empty line
+					return {id:this.props.id,at:0}
 				}
 			})(x-x0)
 		)(composedLine.props.children.props);

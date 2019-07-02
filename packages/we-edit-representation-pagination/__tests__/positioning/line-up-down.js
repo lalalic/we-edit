@@ -44,7 +44,6 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
                 </Paragraph>
             )
             expect(p.lines.length).toBe(2)
-            debugger
             expect(p.nextLine("0",0)).toMatchObject({id:"1",at:0})
             expect(p.nextLine("0",1)).toMatchObject({id:"1",at:1})
             expect(p.nextLine("0",4)).toMatchObject({id:"1",at:4})
@@ -65,6 +64,18 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
                 expect(p.nextLine("0",1)).toMatchObject({id:"1",at:1})
                 expect(p.nextLine("0",4)).toMatchObject({id:"1",at:4})
             }
+        })
+
+        it("line down to empty paragraph should at beginning of paragraph",()=>{
+            const p=test(
+                <Fragment>
+                    <Paragraph id={"3"}>
+                        <Text id="0">text </Text>
+                    </Paragraph>
+                    <Paragraph id="1"/>
+                </Fragment>
+            )
+            expect(p.nextLine("0",3)).toMatchObject({id:"1",at:0})
         })
 
         it("Text->Image(width=2)->Text",()=>{
@@ -233,6 +244,19 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
                 expect(p.prevLine("1",4)).toMatchObject({id:"0",at:4})
             }
         })
+
+        it("line up to empty paragraph should at beginning of paragraph",()=>{
+            const p=test(
+                <Fragment>
+                    <Paragraph id="1"/>
+                    <Paragraph id={"3"}>
+                        <Text id="0">text </Text>
+                    </Paragraph>
+                </Fragment>
+            )
+            expect(p.prevLine("0",3)).toMatchObject({id:"1",at:0})
+        })
+
 
         it("Text<-Image(width=7)<-Text",()=>{
             const p=test(
