@@ -18,9 +18,6 @@ export default class{
             <w:pPr>
               <w:ind w:left="720" w:hanging="360"/>
             </w:pPr>
-            <w:rPr>
-              <w:sz w:val="44"/>
-            </w:rPr>
           </w:lvl>
           <w:lvl w:ilvl="1" w:tplc="04090019" w:tentative="1">
             <w:start w:val="1"/>

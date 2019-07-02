@@ -33,9 +33,9 @@ export default ({Text, Paragraph})=>class extends Component{
 		}
 
 		if(style.numbering){
-			let {nextValue, numId, level, style:props,format}=style.numbering
+			let {nextValue, style:props,format}=style.numbering
 			style.numbering={
-				style:props,
+				style:{...props, ...this.defaultStyle(direct,context)},
 				label:nextValue(),
 				format
 			}
