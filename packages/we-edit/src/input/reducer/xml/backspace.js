@@ -31,6 +31,10 @@ export default {
         throw new Error("paragraphHasIndentSetting implementation")
     },
 
+    backspace_at_beginning_of_paragraph(){
+        this.backspace_at_beginning_of_up_to_paragraph()
+    },
+
     backspace_at_beginning_of_up_to_paragraph(){
         const $p=this.$target.closest("paragraph")
         if($p.attr('numId')){

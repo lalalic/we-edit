@@ -81,4 +81,4 @@ export const defaultProps=({Document,Paragraph,Text})=>()=>{
     Text.defaultProps=Object.assign(Text.defaultProps||{},defaultStyle)
 }
 
-xit("",()=>{})
+it("compose context loaded",()=>{})

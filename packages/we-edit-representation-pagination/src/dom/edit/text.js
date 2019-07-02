@@ -23,20 +23,6 @@ export default class extends Super{
         return super.render()
     }
 
-    nextCursorable(id,at){
-        if(this.text.length-1>at){
-            return {id,at:at+1}
-        }
-		return super.nextCursorable(...arguments)
-    }
-
-    prevCursorable(id, at){
-        if(at>0){
-            return {id,at:at-1}
-        }
-        return super.prevCursorable(...arguments)
-    }
-
 	position(id,at){
         const {fontSize, fontFamily,height,descent}=this.measure.defaultStyle
         const paragraph=this.closest("paragraph").props.id

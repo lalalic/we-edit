@@ -103,7 +103,6 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance,TypedComponen
 			}
 			state=state.setIn(["content"],mutableContent.asImmutable())
 		}else{
-			debugger
 			state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))
 		}
 

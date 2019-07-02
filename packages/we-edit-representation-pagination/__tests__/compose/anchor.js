@@ -188,7 +188,7 @@ define("section compose",
             expect(doc2.xy(`[children="hello"]`)).toMatchObject({x:pg.margin.left,y:pg.margin.top+baseline})
         })
 
-        it("Through should around geometry boundary including inside of left and right margin",()=>{
+        xit("Through should around geometry boundary including inside of left and right margin",()=>{
 
         })
 
@@ -202,11 +202,11 @@ define("section compose",
 
         })
 
-        it("multiple TopAndBottom can intersect line space",()=>{
+        xit("multiple TopAndBottom can intersect line space",()=>{
 
         })
 
-        it("multiple different mode of anhors should be supported",()=>{
+        xit("multiple different mode of anhors should be supported",()=>{
 
         })
 

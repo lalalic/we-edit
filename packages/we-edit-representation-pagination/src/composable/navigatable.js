@@ -28,16 +28,6 @@ export default function Navigatable(A){
 			return this.navigatable("getPages",...arguments)
 		}
 
-		//@deprecated, please refer to InputType.Reducer.forward
-		nextCursorable(){
-			return this.navigatable('nextCursorable',...arguments)
-        }
-
-		//@deprecated please refer to InputType.Reducer.backward
-        prevCursorable(){
-			return this.navigatable('prevCursorable',...arguments)
-        }
-
 		nextLine(){
 			return this.navigatable('nextLine',...arguments)
 		}

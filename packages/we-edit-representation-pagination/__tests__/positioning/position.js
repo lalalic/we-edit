@@ -129,7 +129,7 @@ define("position", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Cont
             ).position("0",7)).toMatchObject({x:1+7,y:0})
         })
 
-        fit("cursor at beginning of empty numbering paragraph should behind numbering",()=>{
+        it("cursor at beginning of empty numbering paragraph should behind numbering",()=>{
             const doc=test(
                 <Paragraph id={`paragraph`}
                     numbering={{

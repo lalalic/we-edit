@@ -375,139 +375,7 @@ class Navigatable extends Positionable{
 		return {}
 	}
 
-	nextParagraphCursorable(){
-		const nextParagraphId=this.query().forwardFirst('paragraph').attr("id")
-		if(nextParagraphId){
-			const composer=this.context.getComposer(nextParagraphId)
-			if(composer){
-				return composer.nextCursorable()
-			}else{
-				return {id:nextParagraphId,at:0}
-			}
-		}
-	}
-
-	nextCursorable(id,at,iLoop=0){
-		const {atoms}=this.computed
-		const resolve2FirstAtom=(success,failure)=>{
-			const cursorable=new ReactQuery(atoms.filter(a=>!a.props.anchor)).findFirst(Cursorable)
-			if(cursorable.length){
-				return success(cursorable)
-			}
-
-			return failure()
-		}
-
-		if(id==undefined){
-			return resolve2FirstAtom(
-				cursorable=>({id:cursorable.attr("data-content"),at:0}),
-				()=>({id:this.props.id,at:0})
-			)
-		}else if(id==this.props.id){//itself first cursorable position
-			if(at==0){
-				return resolve2FirstAtom(
-					cursorable=>this.context.getComposer(cursorable.attr("data-content")).nextCursorable(),
-					()=>this.nextCursorable(id,1)
-				)
-			}else if(at==1){
-				return this.nextParagraphCursorable()
-			}
-		}else{
-			const i=atoms.findLastIndex(a=>new ReactQuery(a).findLast(`[data-content="${id}"]`).length>0)
-			const cursorable=new ReactQuery(atoms.slice(i+1).filter(a=>!a.props.anchor))
-				.findFirst(Cursorable)
-
-			if(cursorable.length){
-				return {id:cursorable.attr("data-content"),at:0}
-			}else{
-				const target=this.context.getComposer(id)
-				if(target.getComposeType()=="text"){
-					if(target.text.length-1==at){
-						return {id,at:at+1}
-					}
-				}else if(at==0){
-					return {id:this.props.id, at:1}
-				}
-
-				return this.nextCursorable(this.props.id, 1)
-			}
-		}
-		return super.nextCursorable(...arguments)
-	}
-
-	prevParagraphCursorable(){
-		const prevParagraphId=this.query().backwardFirst('paragraph').attr("id")
-		if(prevParagraphId){
-			const composer=this.context.getComposer(prevParagraphId)
-			if(composer){
-				return composer.prevCursorable()
-			}else{
-				return {id:prevParagraphId,at:1}
-			}
-		}
-	}
-
-	prevCursorable(id,at){
-		const {atoms}=this.computed
-		const resolve2LastAtom=(success, failure=()=>({id:this.props.id,at:0}))=>{
-			const cursorable=new ReactQuery(atoms.filter(a=>!a.props.anchor)).findLast(Cursorable)
-			if(cursorable.length){
-				if(cursorable.attr(`data-type`)!=="text" ||
-					(cursorable.attr(`data-type`)=="text" && cursorable.attr("children").length>0)){
-					return success(cursorable)
-				}
-			}
-
-			return failure()
-		}
-
-		if(id==undefined){
-			return {id:this.props.id,at:1}
-		}else if(id==this.props.id){//itself first cursorable position
-			if(at==0){
-				return this.prevParagraphCursorable()
-			}else if(at==1){
-				return resolve2LastAtom(
-					cursorable=>({id:cursorable.attr("data-content"), at:cursorable.attr("data-type")=="text" ? cursorable.attr("data-endat")-1 : 0}),
-					()=>this.prevCursorable(id,0)
-				)
-			}
-		}else{
-			if(at==0){//prev atom's last index
-				 const i=atoms.findIndex(a=>new ReactQuery(a).findFirst(`[data-content="${id}"]`).length>0)
-				 const cursorable=new ReactQuery(atoms.slice(0,i).filter(a=>!a.props.anchor)).findLast(Cursorable)
-				 if(cursorable.length==0){
-					 return this.prevParagraphCursorable()
-				 }else{
-					 const id=cursorable.attr("data-content")
-					 if(cursorable.attr("data-type")=="text"){
-						 return {id,at:this.context.getComposer(id).text.length-1}
-					 }else{
-						 return {id, at:0}
-					 }
-				 }
-			}else{//end of object/text
-				const i=atoms.findLastIndex(a=>new ReactQuery(a).findLast(`[data-content="${id}"]`).length>0)
-				const cursorable=new ReactQuery(atoms.slice(0,i+1).filter(a=>!a.props.anchor)).findLast(Cursorable)
-				if(cursorable.length==0){
-					return this.prevCursorable(this.props.id,1)
-				}else{
-					const id=cursorable.attr("data-content")
-  					if(cursorable.attr("data-type")=="text"){
-  						return {id,at:this.context.getComposer(id).text.length-1}
-  					}else{
-  						return {id, at:0}
-  					}
-				}
-			}
-		}
-		return super.prevCursorable(...arguments)
-	}
-
 	position(id,at){
-		if(id==this.props.id){
-			({id,at}=this[`${at==0 ? "next" :"prev"}Cursorable`]());
-		}
 		const lineIndexOfParagraph=this.lineIndexOf(id,at)
 		if(lineIndexOfParagraph>=0){
 			const {page, line, parents}=this.getPageLineAndParents(lineIndexOfParagraph)
@@ -602,7 +470,7 @@ class Navigatable extends Positionable{
 				}
 			})(x-x0)
 		)(composedLine.props.children.props);
-		return position||this.nextCursorable()
+		return position
 	}
 }
 
