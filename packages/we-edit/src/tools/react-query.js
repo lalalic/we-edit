@@ -95,7 +95,7 @@ export default class Query{
 		}
 	}
 
-	replace(element, changed){
+	replace(element, changed, props){
         if(element instanceof Query){
             element=element.get(0)
         }
@@ -112,7 +112,7 @@ export default class Query{
 			switch(children.length){
 			case 1:
 				return {
-					cloned:React.cloneElement(parent,{},cloned),
+					cloned:React.cloneElement(parent,{...props},cloned),
 					origin:parent,
 				}
 			default:
@@ -120,7 +120,7 @@ export default class Query{
 				children.splice(i,1,cloned)
 				return {
 					origin:parent,
-					cloned:React.cloneElement(parent,{children}),
+					cloned:React.cloneElement(parent,{children,...props}),
 				}
 			}
 
