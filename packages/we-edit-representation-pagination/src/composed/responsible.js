@@ -5,7 +5,6 @@ import {setDisplayName,compose, getContext} from "recompose"
 import Waypoint from "react-waypoint"
 
 import {getSelection, ACTION, Cursor, Selection,connect,ContentQuery} from "we-edit"
-import offset from "mouse-event-offset"
 
 import {Document as ComposedDocument,Group} from "../composed"
 import SelectionShape from "./selection"
@@ -48,8 +47,8 @@ export default class Responsible extends Component{
 	}
 
 	get cursor(){
-		const {cursorAt, ...a}=this.selection
-        return a[cursorAt]
+		const {cursorAt, x, ...a}=this.selection
+        return {...a[cursorAt],x}
 	}
 
 	getComposer(id){
@@ -304,8 +303,8 @@ export default class Responsible extends Component{
     }
 
     locateLine(nextOrPrev){
-		const {id,at}=this.cursor
-        return this.positioning[`${nextOrPrev}Line`](id,at)||{}
+		const {id,at,x}=this.cursor
+        return this.positioning[`${nextOrPrev}Line`](id,at,x)||{}
     }
     
 	onKeyArrowUp({shiftKey:selecting}){

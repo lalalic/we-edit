@@ -10,3 +10,5 @@ editing
 
 compose
 >layer
+
+cursor up/down to x

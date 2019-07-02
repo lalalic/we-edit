@@ -184,7 +184,7 @@ export default class extends Base{
 
             const contents=targets.slice(1,targets.length-1).map(id=>{
                 this.selectWhole(id)
-                return this.emit("serialize",[...this.conds,"any"])
+                return this.emit("serialize",this.conds)
             })
 
             this.cursorAt(end.id, 0, end.id, end.at)

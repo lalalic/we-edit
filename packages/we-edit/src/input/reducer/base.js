@@ -151,7 +151,34 @@ export default class Base{
 		}finally{
 			this.fixSelection=fixSelection
 		}
-    }
+	}
+	
+	safeCursor(f){
+		const $target=this.$target
+		const $parents=$target.parents()
+		const parents=$parents.toArray()
+		const indexes=[$target.attr('id'), ...parents].reduce((indexes, id, i, arr)=>{
+			if(i<arr.length-1){
+				const siblings=this.content.getIn(arr[i+1],'children')
+				indexes.push(siblings.indexOf(id))
+			}
+			return indexes
+		},[])
+
+		f && f();
+
+		const i=parents.findIndex(id=>this.content.has(id))
+		const index=indexes[i]
+		const $parent=this.$(`#${parents[i]}`)
+		const $children=$parent.children()
+		if($children.length>index){
+			this.cursorAt($children.eq(index).attr('id'),0)
+		}else if($children.length>0){
+			this.cursorAtEnd($children.last().attr('id'))
+		}else{
+			this.cursorAtEnd($parent.attr('id'))
+		}
+	}
 
 	init(){
 		const $p=this.$().findFirst('paragraph')
