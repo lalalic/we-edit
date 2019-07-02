@@ -55,6 +55,14 @@ const Editable=Cacheable(class extends editable(Base,{stoppable:true}){
 		}
 	}
 
+	recalcNumbering(composedLine){
+		const $=new ReactQuery(composedLine)
+		const last=$.findFirst(".numbering").get(0)
+		const current=this.getNumberingAtom()
+		const {x,y}=last.props
+		return $.replace(last,React.cloneElement(current,{x,y})).root
+	}
+
 	appendLastComposed(){
 		const lines=this.computed.composed
 		this.computed.composed=[]
@@ -64,8 +72,7 @@ const Editable=Cacheable(class extends editable(Base,{stoppable:true}){
 			if(line.hasEqualSpace(space)){
 				this.computed.composed.push(line)
 				if(i==0 && this.props.numbering){
-					const $=new ReactQuery(a)
-					a=$.replace($.findFirst(".numbering"),this.getNumberingAtom()).root
+					a=this.recalcNumbering(a)
 				}
 				this.context.parent.appendComposed(a)
 				return false
