@@ -153,6 +153,14 @@ export default class Base{
 		}
     }
 
+	init(){
+		const $p=this.$().findFirst('paragraph')
+		if($p.length>0){
+			this.cursorAt($p.attr('id'),0)
+			this.forward()
+			this.backward()
+		}
+	}
 
 	type(char){
 		

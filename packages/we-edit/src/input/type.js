@@ -186,6 +186,9 @@ export class Editable extends Viewable{
 		const params=[state]
 		const reducer=new this.constructor.Reducer(...params)
 		switch(type){
+			case `we-edit/init`:
+				reducer.init(payload)
+				break
 			case `we-edit/text/TYPE`:
 				reducer.type(payload)
 				break

@@ -161,8 +161,6 @@ export default class extends Base{
         this.emit("tab",this.conds,...arguments)
     }
 
-    
-
     forward(){
         this.emit("forward",this.conds,...arguments)
     }

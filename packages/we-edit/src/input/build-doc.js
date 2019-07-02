@@ -1,8 +1,8 @@
-import React, {Component, Fragment} from "react"
+import React from "react"
 import PropTypes from "prop-types"
 
-import Immutable, {Map,Collection} from "immutable"
-import {compose, setDisplayName, getContext,withContext} from "recompose"
+import Immutable, {Map} from "immutable"
+import {compose, setDisplayName, getContext} from "recompose"
 import memoize from "memoize-one"
 
 import Dom from "../dom"
@@ -10,7 +10,6 @@ import {createStore, createState, isState, Provider} from "../state"
 import {getSelection} from "../state/selector"
 import undoable from "../state/undoable"
 import * as reducer from "../state/reducer"
-import xQuery from "./reducer/xquery"
 
 import uuid from "../tools/uuid"
 import ContextProvider from "./context-provider"
@@ -30,7 +29,7 @@ export default function buildDoc(doc,inputTypeInstance){
 		let _reducer=undoable(changeReducer)
 		let INIT_STATE=createState(inputTypeInstance,content)
 
-		return (state=INIT_STATE,action={})=>{
+		return (state=INIT_STATE,action={type:"we-edit/init"})=>{
 			state=_reducer(state,action)
 			state=state.set("statistics", reducer.statistics(state.get("statistics"),action))
 			state=state.set("ui", reducer.ui(state.get("ui"),action))
@@ -74,8 +73,7 @@ export default function buildDoc(doc,inputTypeInstance){
 /*
 the builder to create reducer
 */
-const changeReducerBuilder=(createElementFactory,inputTypeInstance,TypedComponents)=>
-	(state,action,historyEntry)=>{
+const changeReducerBuilder=(createElementFactory,inputTypeInstance,TypedComponents)=>(state,action,historyEntry)=>{
 	switch(action.type){
 	case "we-edit/refresh":
 		return state.setIn(["content","root","props","key"],Date.now())
@@ -83,45 +81,33 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance,TypedComponen
 		break
 	}
 
-	const changedContent=state.get("content").asMutable()
-	const changeableState=state.set("_content", changedContent)
-	const $=selector=>new xQuery(changeableState,selector)
+	const mutableContent=state.get("content").asMutable()
+	const mutableState=state.set("_content", mutableContent)
 
-	const createElement=createElementFactory(changedContent)
+	const createElement=createElementFactory(mutableContent)
 
-	inputTypeInstance.renderChanged=(node,callback)=>{
-		if(typeof(node)=="function"){
-			callback=node
-			callback($,undefined,changedContent)
-			return
-		}
-		const element=inputTypeInstance.renderNode(node,createElement,TypedComponents)
-		if(callback){
-			callback($,element,changedContent)
-		}
-		return element
-	}
+	inputTypeInstance.renderChanged=node=>inputTypeInstance.renderNode(node,createElement,TypedComponents)
 
 	try{
 		inputTypeInstance.startTransaction()
 		
-		const changed=inputTypeInstance.onChange(changeableState,action)
+		const changed=inputTypeInstance.onChange(mutableState,action)
 		if(changed===false){
 			return state
 		}else if(isState(changed)){
 			state=changed.remove("_content")
 		}else if(typeof(changed)=="object"){
-			const {selection,updated}=changed
+			const {selection}=changed
 			if(selection){
 				state=state.mergeIn(["selection"], selection)
 			}
-			state=state.setIn(["content"],changedContent.asImmutable())
+			state=state.setIn(["content"],mutableContent.asImmutable())
 		}else{
+			debugger
 			state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))
 		}
 
-		historyEntry.patches=
-			inputTypeInstance.commit()
+		historyEntry.patches=inputTypeInstance.commit()
 	}catch(e){
 		console.error(e)
 		inputTypeInstance.rollback()
