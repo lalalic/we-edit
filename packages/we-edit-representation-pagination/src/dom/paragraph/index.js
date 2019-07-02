@@ -263,7 +263,7 @@ export default class Paragraph extends Super{
 	}
 
 	getNumberingAtom(){
-		const {numbering:{style, label}, indent:{firstLine=0}}=this.props
+		const {numbering:{style, label}, indent:{firstLine=0},}=this.props
 		const {defaultStyle}=new this.context.Measure(style)
 
 		return <ComposedText
@@ -275,9 +275,9 @@ export default class Paragraph extends Super{
 	}
 
 	createComposed2Parent(line,last){
-		var {height, width, children, anchor,composedAt, currentX,...others}=line
+		var {height,width, children, anchor,composedAt, currentX}=line
 		const content=[...children]
-		let contentWidth=currentX
+		let contentWidth=currentX, extraHeight=0
         let {
 			spacing:{lineHeight="100%",top=0, bottom=0},
 			indent:{left=0,right=0,firstLine=0},
@@ -285,29 +285,31 @@ export default class Paragraph extends Super{
 			orphan,widow,keepWithNext,keepLines,//all recompose whole paragraph to simplify
 			}=this.props
 
-       lineHeight=typeof(lineHeight)=='string' ? height*parseInt(lineHeight)/100.0: lineHeight
-	   let contentY=0
+       let contentY=0
 	   let contentX=left
 
         if(this.computed.composed.length==1){//first line
-            lineHeight+=top
+            extraHeight+=top
             contentY+=top
             contentX+=firstLine
 
 			if(this.props.numbering){
 				const numbering=this.getNumberingAtom()
 				content.unshift(numbering)
+				height=Math.max(height, numbering.props.height)
 				contentWidth+=numbering.props.width
 				width+=numbering.props.width
 			}
         }
 
         if(last){//the last line
-            lineHeight+=bottom
+            extraHeight+=bottom
 			if(align=="justify" || align=="both"){//not justify the last line
 				align=undefined
 			}
-        }
+		}
+		
+		lineHeight=(typeof(lineHeight)=='string' ? height*parseInt(lineHeight)/100.0: lineHeight)+extraHeight
 
 		const pagination={orphan,widow,keepWithNext,keepLines, i:this.computed.composed.length,last}
 
