@@ -31,10 +31,10 @@ export default {
         editor.update(props)
     },
 
-    update_at_paragraph({id, ...props}){
+    update_at_paragraph(props){
         const editor=new Paragraph(this.file)
         editor.node=this.target
-        editor.update({id},props)
+        editor.update(props)
     },
 
     update_at_image(props){
