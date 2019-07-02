@@ -123,10 +123,23 @@ define("position", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Cont
 						style:{fonts:"arial",size:10},
                         label:'*'
                     }}
-                    indent={{left:1}}>
+                    indent={{left:1,}}>
                     <Text id="0">hello world</Text>
                 </Paragraph>
             ).position("0",7)).toMatchObject({x:1+7,y:0})
+        })
+
+        fit("cursor at beginning of empty numbering paragraph should behind numbering",()=>{
+            const doc=test(
+                <Paragraph id={`paragraph`}
+                    numbering={{
+						style:{fonts:"arial",size:10},
+                        label:'*'
+                    }}
+                    indent={{left:2,hanging:1,firstLine:-1}}/>
+            )
+            debugger
+            expect(doc.position("paragraph",0)).toMatchObject({x:2,y:0})
         })
 
         xit("line start/end",()=>{
@@ -246,9 +259,4 @@ define("position", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Cont
             expect(doc.position("0",1)).toMatchObject({x:1,y:10})
         })
     })
-
-    it("cursor at beginning of numbering paragraph should behind numbering",()=>{
-        
-    })
-
 })

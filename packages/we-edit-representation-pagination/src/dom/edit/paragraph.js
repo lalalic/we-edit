@@ -177,10 +177,19 @@ class Positionable extends Editable{
 				const {fontSize, fontFamily,height,descent}=this.getDefaultMeasure().defaultStyle
 				const xy={x:0,y:story.props.baseline-(height-descent),fontSize, fontFamily,height,descent}
 
-				if(at==1){
+				if(at==0){
+					const {first,parents}=new ReactQuery(story).findFirstAndParents("[data-content]")
+					if(first.length==1){
+						xy.x=[first.get(0),...parents].reduce((X,{props:{x=0}})=>X+x,0)
+					}else{
+						const {first,parents}=new ReactQuery(story).findFirstAndParents(".ender")
+						xy.x=[first.get(0),...parents].reduce((X,{props:{x=0}})=>X+x,0)
+					}
+				}else if(at==1){
 					const {first,parents}=new ReactQuery(story).findFirstAndParents(".ender")
 					xy.x=[first.get(0),...parents].reduce((X,{props:{x=0}})=>X+x,0)
 				}
+
 				return xy
 			}else{
 				return this.xyInStory(id,at,story)
