@@ -20,6 +20,7 @@ export default class File extends PureComponent{
 			<ToolbarGroup>
 				<CheckIconButton
 					status="unchecked"
+					hint="refresh"
 					onClick={e=>{
 						this.context.store.dispatch(ACTION.Refresh())
 					}}>
@@ -27,6 +28,7 @@ export default class File extends PureComponent{
 				</CheckIconButton>
 				<CheckIconButton
 					status="unchecked"
+					hint="save"
 					onClick={e=>{
 						Save.save(this.context.store)({})
 					}}>

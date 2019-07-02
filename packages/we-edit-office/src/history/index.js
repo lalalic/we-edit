@@ -35,11 +35,13 @@ export default compose(
 )(({undo,redo, canUndo, canRedo,children})=>(
 	<ToolbarGroup>
 		<CheckIconButton
+			hint="undo"
 			status={canUndo ? "uncheck" : "disabled"}
 			children={<IconUndo/>}
 			onClick={undo}
 			/>
 		<CheckIconButton
+			hint="redo"
 			status={canRedo ? "uncheck" : "disabled"}
 			children={<IconRedo/>}
 			onClick={redo}
