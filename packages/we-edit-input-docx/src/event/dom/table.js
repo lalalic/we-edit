@@ -95,11 +95,27 @@ export class Table extends Base{
                 }
             )
         this.node.append(this.trim(elRows.join("")))
+
+        this.makeStyleReady()
+    }
+
+    makeStyleReady(){
+        const $=this.file.doc.officeDocument.styles
+		if($('w\\:style[w\\:styleId="TableNormal"]').length==0){
+            const styleNode=$(this.trim(TABLE_STYLE_Normal)).insertAfter($(`w\\:style[w\\:default="1"]`).last())
+            this.file.renderChanged(styleNode)
+        }
+
+        if($(`w\\:style[w\\:styleId="TableGrid"]`).length==0){
+            const styleNode=$(this.trim(TABLE_STYLE_Grid)).appendTo($(`w\\:styles`))
+            this.file.renderChanged(styleNode)
+        }
     }
 
     template_tc(w){
         return `<w:tc>${w!=undefined ? `<w:tcPr><w:tcW w:w="${w}" w:type="dxa"/></w:tcPr>` : ""}<w:p><w:r><w:t></w:t></w:r></w:p></w:tc>`
     }
+
     template(props){
         return `
             <w:tbl>
@@ -114,3 +130,40 @@ export class Table extends Base{
         `
     }
 }
+
+const TABLE_STYLE_Normal=`
+    <w:style w:type="table" w:default="1" w:styleId="TableNormal">
+        <w:name w:val="Normal Table"/>
+        <w:uiPriority w:val="99"/>
+        <w:semiHidden/>
+        <w:unhideWhenUsed/>
+        <w:tblPr>
+            <w:tblInd w:w="0" w:type="dxa"/>
+            <w:tblCellMar>
+                <w:top w:w="0" w:type="dxa"/>
+                <w:left w:w="108" w:type="dxa"/>
+                <w:bottom w:w="0" w:type="dxa"/>
+                <w:right w:w="108" w:type="dxa"/>
+            </w:tblCellMar>
+        </w:tblPr>
+    </w:style>
+`
+
+const TABLE_STYLE_Grid=`
+    <w:style w:type="table" w:styleId="TableGrid">
+        <w:name w:val="Table Grid"/>
+        <w:basedOn w:val="TableNormal"/>
+        <w:uiPriority w:val="39"/>
+        <w:rsid w:val="000164E0"/>
+        <w:tblPr>
+            <w:tblBorders>
+                <w:top w:val="single" w:sz="4" w:space="0" w:color="auto"/>
+                <w:left w:val="single" w:sz="4" w:space="0" w:color="auto"/>
+                <w:bottom w:val="single" w:sz="4" w:space="0" w:color="auto"/>
+                <w:right w:val="single" w:sz="4" w:space="0" w:color="auto"/>
+                <w:insideH w:val="single" w:sz="4" w:space="0" w:color="auto"/>
+                <w:insideV w:val="single" w:sz="4" w:space="0" w:color="auto"/>
+            </w:tblBorders>
+        </w:tblPr>
+    </w:style>
+`

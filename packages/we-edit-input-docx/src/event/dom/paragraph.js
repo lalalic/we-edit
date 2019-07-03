@@ -18,6 +18,9 @@ export default class extends Editor{
 			if(!this.file.doc.officeDocument.numbering){
 				this.file.doc.officeDocument.addNumberingPart()
 			}
+			
+			this.makeStyleReady()
+
 			const $=this.file.doc.officeDocument.numbering
 
 			const numIdLevel=numPr=>({
@@ -192,4 +195,21 @@ export default class extends Editor{
 		}
 
 	}
+
+	makeStyleReady(){
+        const $=this.file.doc.officeDocument.styles
+		if($('w\\:style[w\\:styleId="NoList"]').length==0){
+            const styleNode=$(this.trim(STYLE_NoList)).insertAfter($(`w\\:style[w\\:default="1"]`).last())
+            this.file.renderChanged(styleNode)
+        }
+    }
 }
+
+const STYLE_NoList=`
+	<w:style w:type="numbering" w:default="1" w:styleId="NoList">
+        <w:name w:val="No List"/>
+        <w:uiPriority w:val="99"/>
+        <w:semiHidden/>
+        <w:unhideWhenUsed/>
+	</w:style>
+`
