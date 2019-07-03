@@ -55,6 +55,9 @@
                     "children":[
                         {
                             "type":"row",
+                            "props":{
+                                "cols":[{"width":"80"}]
+                            },
                             "children":[
                                 {
                                     "type":"cell",
