@@ -9,6 +9,8 @@ export default {
     },
 
     type_at_empty_paragraph(data){
+        this.target.children(`:not(${this.PR})`).remove()
+        this.$target.children().remove()
         this.file.renderChanged(this.target.append(`<w:r><w:t>${data}</w:t></w:r>`))
         this.cursorAt(this.$target.find("text").attr("id"),data.length)
     },

@@ -82,6 +82,12 @@ export default {
         })
     },
 
+    remove_at_whole_paragraph_up_to_document(){
+        this.$target.remove()
+        this.target.remove()
+        this.create_first_paragraph()
+    },
+
     remove_at_beginning_of_up_to_paragraph(){
         const $p=this.$target.closest("paragraph")
         this.remove_whole()
