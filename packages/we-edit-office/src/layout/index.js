@@ -9,7 +9,6 @@ import DropDownButton from "../components/drop-down-button"
 import IconChecked from "material-ui/svg-icons/action/done"
 
 import {ACTION,connect,getSelectionStyle} from "we-edit"
-import { equal } from "assert";
 
 export const Tools=compose(
 	setDisplayName("Page Layout"),

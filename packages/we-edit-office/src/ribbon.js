@@ -88,7 +88,7 @@ const Ribbon=compose(
 			},
 			when:{
 				table:<Table.Ribbon/>,
-				picture: <Picture.Ribbon/>,
+				image: <Picture.Ribbon/>,
 			}
 		})
 	return (

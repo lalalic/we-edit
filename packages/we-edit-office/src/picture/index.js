@@ -8,16 +8,13 @@ import IconPicture from "material-ui/svg-icons/editor/insert-photo"
 import SizeIconButton from "../components/size-icon-button"
 import selectFile from "../components/file-select"
 
-import {ACTION} from "we-edit"
+import {ACTION, connect} from "we-edit"
 
 export {default as Ribbon} from "./ribbon"
 
 export const Tools=compose(
-	getContext({
-		//selection: PropTypes.object,
-		store: PropTypes.object
-	}),
-	mapProps(({children,store})=>({
+	connect(),
+	mapProps(({children,dispatch})=>({
 		children,
 		insert(url){
 			fetch(url)
@@ -30,7 +27,7 @@ export const Tools=compose(
 				.then(data=>{
 					data=new Uint8Array(data)
 					data.crc32=url
-					store.dispatch(ACTION.Entity.CREATE({type:"image",data}))
+					dispatch(ACTION.Entity.CREATE({type:"image",data}))
 				})
 		}
 	})),

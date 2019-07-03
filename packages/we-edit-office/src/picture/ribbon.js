@@ -1,8 +1,21 @@
 import React from "react"
-import {Toolbar,ToolbarSeparator,Tab} from "material-ui"
+import {Toolbar,ToolbarGroup,Tab} from "material-ui"
 
-export default ({style,selection})=>(
-	<Tab label="Format">
-		
+import Size from "./size"
+import Border from "./border"
+import Position from "./position"
+import Effect from "./effect"
+
+export default ({children})=>(
+	<Tab label="Picture Format">
+		<Toolbar>
+			<ToolbarGroup>
+				<Effect/>
+				<Border/>
+				<Position/>
+				<Size/>	
+				{children}
+			</ToolbarGroup>
+		</Toolbar>
 	</Tab>
 )
