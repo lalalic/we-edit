@@ -105,6 +105,21 @@ export default class Pagination extends Representation.Base{
 	}
 }
 
+
+(function(A){
+	let install=A.install.bind(A)
+	A.install=function(){
+		install(...arguments)
+		A.Output.install()
+	}
+
+	let uninstall=A.uninstall.bind(A)
+	A.uninstall=function(){
+		uninstall(...arguments)
+		A.Output.uninstall()
+	}
+})(Pagination);
+
 Pagination.install()
 
 export {Viewers, Editors, FontManager, Measure, Composed, composable, editable}

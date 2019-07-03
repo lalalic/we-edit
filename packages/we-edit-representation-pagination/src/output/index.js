@@ -1,9 +1,6 @@
-import React, {PureComponent, Children} from "react"
-import PropTypes from "prop-types"
 import {Emitter} from "we-edit"
 import ReactDOMServer from "react-dom/server.node"
 import Parser from "htmlparser2"
-import {Page} from "../composed"
 
 const RE_TRANSLATE=/translate\((.*)\s+(.*)\)/
 export default class Output extends Emitter.Format.Base{

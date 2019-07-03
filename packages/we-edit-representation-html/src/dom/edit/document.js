@@ -1,4 +1,4 @@
-import React, {PureComponent as Component,Fragment} from "react"
+import React, {Component} from "react"
 import PropTypes from "prop-types"
 import {Editors} from "we-edit-representation-pagination"
 
@@ -64,6 +64,10 @@ export default class extends Component{
 		return {
 			paper:{border:false},
 		}
+	}
+
+	shouldComponentUpdate({changed}){
+		return true
 	}
 
 	render(){

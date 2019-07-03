@@ -1,5 +1,5 @@
 import PropTypes from "prop-types"
-import {Emitter, Representation} from "we-edit"
+import {Representation} from "we-edit"
 
 export default class SVG extends Representation.Output.Pagination{
 	static displayName="SVG"
@@ -124,6 +124,5 @@ export default class SVG extends Representation.Output.Pagination{
 		this.stream.write("\r\n")
 		this.stream.write(new Array(this.depth).fill("\t").join(""))
 		this.depth--
-
 	}
 }
