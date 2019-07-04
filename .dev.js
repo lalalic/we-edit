@@ -24,7 +24,7 @@ FontManager.asService("/font-service.js")
 
 
 import React,{Fragment} from "react"
-import {Editor, Viewer,DocumentTree} from  "we-edit"
+import {Editor, Viewer,Input, DocumentTree, ACTION} from  "we-edit"
 import {Office,Workspace, Ribbon} from "we-edit-office"
 import {Tabs, Tab, ToolbarGroup, SvgIcon} from "material-ui"
 import {connect} from  "react-redux"
@@ -148,7 +148,7 @@ function testOffice(representation="pagination"){
 			/>
 	))
 
-	const myWorksapce=(
+	const myWorkspace=(
 		<Workspace
 			debug={true}
 			accept="*"
@@ -203,8 +203,16 @@ function testOffice(representation="pagination"){
 		</Workspace>
 	)
 
-	Office.install(myWorksapce)
+	Office.install(myWorkspace,dispatch=>{
+		fetch("/basic.docx")
+			.then(res=>res.blob())
+			.then(data=>{
+				const file={data,name:"basic.docx",ext:"docx", src:"/basic.docx"}
+				return Input.parse(file)
+			})
+			.then(doc=>dispatch(ACTION.ADD(doc)))
+	})
 }
 
 
-testOffice("html")
+testOffice()

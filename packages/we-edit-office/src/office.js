@@ -1,14 +1,14 @@
 import React, {PureComponent} from "react"
 import PropTypes from "prop-types"
 
-import {DOMAIN, WeEdit, Viewer, Editor, Emitter,Stream, Representation} from "we-edit"
+import {WeEdit, Editor} from "we-edit"
 import memoize from "memoize-one"
 
 import EventEmitter from "events"
 
 import WeEditUI from "./we-edit-ui"
 import Workspace from "./workspace"
-import Ribbon, {Tab} from "./ribbon"
+import Ribbon from "./ribbon"
 
 import IconPrint from "material-ui/svg-icons/action/view-module"
 import IconWeb from "material-ui/svg-icons/editor/format-align-justify"
@@ -52,8 +52,32 @@ var myOffice=[
 				/>
 		</Workspace>
 ]
-const event=new EventEmitter()
+const event=new (class OfficeEvent extends EventEmitter{
+	constructor(){
+		super(...arguments)
+		var inits=[]
+		var onReady=(workspaces,init)=>{
+			if(init){
+				inits.push(init)
+			}
+		}
 
+		this.on("change",onReady)
+		
+		this.once('office ready',dispatch=>{
+			this.removeListener("change", onReady)
+			try{
+				inits.forEach(init=>init(dispatch))
+			}catch(e){
+				console.error(e)
+			}
+		})
+	}
+
+	ready(){
+		this.emit("office ready", ...arguments)
+	}
+})()
 
 export default class Office extends PureComponent{
 	static propTypes={
@@ -65,12 +89,14 @@ export default class Office extends PureComponent{
 		installable:true,
 	}
 
-	static install(...workspaces){
+	static install(workspaces,init){
+		workspaces=Array.isArray(workspaces) && workspaces || [workspaces]
 		workspaces.reverse().forEach(a=>myOffice.unshift(a))
-		event.emit("change", [...myOffice])
+		event.emit("change", [...myOffice], init)
 	}
 
-	static uninstall(...workspaces){
+	static uninstall(workspaces){
+		workspaces=Array.isArray(workspaces) && workspaces || [workspaces]
 		workspaces.forEach(a=>myOffice.splice(myOffice.indexOf(a),1))
 		event.emit("change",[...myOffice])
 	}
@@ -87,8 +113,11 @@ export default class Office extends PureComponent{
 			return {workspaces}
 		}
 	}
-
-	state={}
+	constructor(){
+		super(...arguments)
+		this.state={}
+		this.wedit=React.createRef()
+	}
 
 	getReducers=memoize((workspaces,reducers)=>{
 		return workspaces.reduce((collected,a)=>{
@@ -105,8 +134,12 @@ export default class Office extends PureComponent{
 	componentDidMount(){
 		const {installable}=this.props
 		if(installable){
-			event.on("change", this.updateWorkspaces=workspaces=>{
-				this.setState({workspaces})
+			const dispatch=this.wedit.current.store.dispatch
+			event.ready(dispatch)
+			event.on("change", this.updateWorkspaces=(workspaces,init)=>{
+				this.setState({workspaces}, init && (()=>{
+					init(dispatch)
+				}))
 			})
 		}
 	}
@@ -117,7 +150,7 @@ export default class Office extends PureComponent{
 		reducers=this.getReducers(workspaces,reducers)
 
 		return (
-			<WeEdit reducers={reducers}>
+			<WeEdit reducers={reducers} ref={this.wedit}>
 				<WeEditUI {...{titleBarProps, titleBar,dashboard}}>
 					{workspaces.map(a=>a.props.reducer ? React.cloneElement(a,{reducer:undefined}) : a)}
 					{children}
