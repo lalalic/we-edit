@@ -136,7 +136,7 @@ export class WeDocumentStub extends PureComponent{
 			return
 		if(!this.doc){
 			this.doc=createWeDocument("root",content,ModelTypes)
-		}else if(this.props.content!=content){
+		}else if(!content.equals(this.props.content)){
 			this.doc=createWeDocument("root",content,ModelTypes,this.props.content)
 		}
 
