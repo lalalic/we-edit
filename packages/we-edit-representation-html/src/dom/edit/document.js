@@ -2,7 +2,7 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 import {Editors} from "we-edit-representation-pagination"
 
-const {Document, Section, Frame}=Editors
+const {Document, Section, Frame, Page}=Editors
 const FixPageSize=({content, canvas, ...props})=>{
 	const {height}=content.props.viewport
 	const pages=content.props.pages.map(page=>{
@@ -25,11 +25,13 @@ export default class extends Component{
 			bottom:10
 		}
 	}
+
 	static contextTypes={
-		wrap: PropTypes.bool
+		wrap: PropTypes.bool,
 	}
 
 	static childContextTypes={
+		margin: PropTypes.object,
 		paper: PropTypes.oneOfType([
 			PropTypes.bool,
 			PropTypes.shape({
@@ -63,45 +65,66 @@ export default class extends Component{
 	getChildContext(){
 		return {
 			paper:{border:false},
+			margin:this.props.margin
 		}
 	}
 
-	shouldComponentUpdate({changed}){
-		return true
-	}
-
 	render(){
-		const {wrap=true}=this.context
-		const {canvas, children, margin, ...props}=this.props
-		return 	<Document key={this.state.resize} {...props} pageGap={0}
-					canvas={<FixPageSize canvas={canvas}/>}>
-					<Section id="section" key="section"
-						changed={!!React.Children.toArray(children).find(a=>a.props.changed)}
-						create={(a,b)=>{
-							const {width}=b.parent.getDocument().viewport
-							return new this.constructor.Page({
-								...a,margin,
-								width:wrap ? width : Number.MAX_SAFE_INTEGER,
-								height:Number.MAX_SAFE_INTEGER
-							},b)
-						}}>
-						{children}
-					</Section>
-				</Document>
+		const {canvas, children, ...props}=this.props
+		return 	<ViewportDocument key={this.state.resize} {...props} pageGap={0} wrap={this.context.wrap}>
+					{children}
+				</ViewportDocument>
+	}
+}
+
+class ViewportDocument extends Document{
+	static childContextTypes={
+		...Document.childContextTypes,
+		viewport: PropTypes.object,
 	}
 
-	static Page=class extends Section.fissureLike(Frame.editableLike(Frame.Columnable)){
-		defineProperties(){
-			super.defineProperties()
-			Object.defineProperties(this,{
-				composedHeight:{
-					enumerable:false,
-					configurable:true,
-					get(){
-						return this.columns[0].currentY
-					}
-				}
-			})
+	getChildContext(){
+		return Object.assign(super.getChildContext(),{
+			viewport: this.state.viewport
+		})
+	}
+
+	appendComposed(frame){
+		if(!frame)
+			return 
+		const {wrap=true,margin}=this.props
+		const {viewport}=this.state
+		if(this.computed.composed.length==0){
+			this.computed.composed.push(
+				new ViewportDocument.Page({
+					I:0,
+					margin,
+					width:wrap ? viewport.width : Number.MAX_SAFE_INTEGER,
+                	height:Number.MAX_SAFE_INTEGER 
+				},{
+					parent:this,
+					getComposer:this.getComposer.bind(this)
+				})
+			)
+		}
+		const page=this.computed.composed[0]
+		page.appendComposed(frame)
+	}
+
+	componentDidUpdate(){
+		const page=this.computed.composed[0]
+		if(page){
+			page.props.height=page.composedHeight
+		}
+		super.componentDidUpdate(...arguments)
+	}
+
+
+	static Page=class extends Page.factory(Frame.editableLike(Frame.Columnable)){
+		render(){
+			const {props:{width,margin}}=this
+			const height=this.composedHeight
+			return React.cloneElement(super.createComposed2Parent(),{key:0,width,height,margin})
 		}
 	}
 }

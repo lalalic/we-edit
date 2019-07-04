@@ -22,18 +22,19 @@ export default class ComposedDocument extends Component{
 		events: PropTypes.shape({emit:PropTypes.func.isRequired}),
 	}
 
-	getSize=memoize((pages,pgGap)=>{
-		return pages.reduce((size,{props:{width,height}})=>{
-				return {
+	getComposed=memoize((pages,pgGap)=>{
+		const content=pages.map((page,i)=>page.render())
+		return content.reduce((size,{props:{width,height}})=>{
+				return Object.assign(size,{
 					width:Math.max(size.width,width),
-					height:size.height+height+pgGap
-				}
-			},{width:0,height:pgGap})
+					height:size.height+height+pgGap,
+				})
+			},{width:0,height:pgGap,composed:content})
 	})
 
 	render(){
 		const {pages, pgGap, scale, style,children,innerRef, content, precision=1, ...props}=this.props
-		const {width,height}=this.getSize(pages, pgGap)
+		const {width,height,composed}=this.getComposed(pages, pgGap)
 
 		return   (
 			<svg
@@ -44,7 +45,7 @@ export default class ComposedDocument extends Component{
 				style={{background:"transparent", width:width*scale/precision, height:height*scale/precision, ...style}}
 				>
 				<Media {...{pgGap:pgGap*precision, width,precision}}>
-					{pages.map((page,i)=>page.render())}
+					{composed}
 				</Media>
 				{children}
 			</svg>
