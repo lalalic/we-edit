@@ -153,10 +153,10 @@ function testOffice(representation="pagination"){
 			debug={true}
 			accept="*"
 			key={KEY}
-			ruler={true}
+			ruler={false}
 			toolBar={
 				<Ribbon.Ribbon commands={{
-						layout:true,
+						layout:false,
 						home:{
 							more:(<ToolbarGroup><Pilcrow/></ToolbarGroup>)
 						}
@@ -215,4 +215,4 @@ function testOffice(representation="pagination"){
 }
 
 
-testOffice("html")
+testOffice("text")

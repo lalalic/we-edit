@@ -67,9 +67,8 @@ export default class  extends Component{
 class TextCanvas extends Component{
 	renderLines(){
 		const {width,measure,activeColor}=this.props
-		const {viewport, pages, page=pages[0]}=this.props.content.props
-		const {margin:{left=0,right=0,top=0,bottom=0}}=page.props
-		const lines=page.columns[0].children
+		const {pages, page=pages[0]}=this.props.content.props
+		const lines=page.lines
 		const lineHeight=lines[0].props.height
 		return <Lines {...{activeColor, width,measure,lineHeight,key:"lines",count:lines.length}}/>
 	}

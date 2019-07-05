@@ -2,18 +2,7 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 import {Editors} from "we-edit-representation-pagination"
 
-const {Document, Section, Frame, Page}=Editors
-const FixPageSize=({content, canvas, ...props})=>{
-	const {height}=content.props.viewport
-	const pages=content.props.pages.map(page=>{
-		const {margin:{top=0,bottom=0}}=page.props
-		return page.clone({height:Math.max(page.columns[0].currentY+top+bottom,height)})
-	})
-
-	content=React.cloneElement(content,{pages})
-
-	return canvas ? React.cloneElement(canvas, {content,...props}) : content
-}
+const {Document, Frame, Page}=Editors
 
 export default class extends Component{
 	static displayName="html-document"
@@ -70,7 +59,7 @@ export default class extends Component{
 	}
 
 	render(){
-		const {canvas, children, ...props}=this.props
+		const {children, ...props}=this.props
 		return 	<ViewportDocument key={this.state.resize} {...props} pageGap={0} wrap={this.context.wrap}>
 					{children}
 				</ViewportDocument>

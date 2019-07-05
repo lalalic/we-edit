@@ -12,6 +12,6 @@ export default class extends Component{
 	render(){
 		const {lineHeight="140%", fonts, size}=this.context
 		const {spacing={}, numbering, ...props}=this.props
-		return (<Editors.Paragraph {...props} spacing={{...spacing,lineHeight}} defaultStyle={{fonts,size}}/>)
+		return (<Editors.Paragraph {...props} spacing={{lineHeight}} defaultStyle={{fonts,size}}/>)
 	}
 }
