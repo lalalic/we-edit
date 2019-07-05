@@ -83,7 +83,7 @@ export default class Document extends Super{
 		}
 		return state
 	}
-
+	
 	componentDidMount(){
 		if(!this.state.viewport){
 			this.initViewport(this.refs.viewporter)

@@ -26,11 +26,7 @@ export default compose(
         return this.state.canvas
     }
 
-	updateSelectionStyle(style){
-		this.props.dispatch(ACTION.Selection.STYLE(style))
-	}
-
-    render(){
+	render(){
         const {range=this.props.range, cursor=this.props.cursor}=this
 
         return (
@@ -97,7 +93,7 @@ export default compose(
 
     componentDidUpdate({selection,content}){
         this.scrollCursorIntoView()
-        this.updateSelectionStyle(this.style)
+        this.props.dispatch(ACTION.Selection.STYLE(this.style))
         this.last={content:this.props.content, selection:this.props.selection}
     }
 

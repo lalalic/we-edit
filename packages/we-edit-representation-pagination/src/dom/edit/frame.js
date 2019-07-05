@@ -16,13 +16,8 @@ const factory=base=>Cacheable(class extends editable(base){
         return super.clearComposed(...arguments)
     }
 
-    removeChangedPart(changedChildIndex){
-        const children=Children.toArray(this.props.children)
-		const changed=children[changedChildIndex]
-
-		const removedChildren=children.slice(changedChildIndex).map(a=>a.props.id).filter(a=>a!==undefined)
-
-		const findChangedContentId=line=>{
+    removeChangedPart(removedChildren){
+        const findChangedContentId=line=>{
 			const id=this.findContentId(line)
 			return (id!==undefined && removedChildren.includes(id))
 		}
@@ -171,7 +166,7 @@ const factory=base=>Cacheable(class extends editable(base){
 		}
 		return rects
 	}
-})
+},true)
 const isLastContent=nodes=>nodes.reduceRight(function(bLast,a,i){
     if(bLast){
         if(i==0){
@@ -186,7 +181,7 @@ const isLastContent=nodes=>nodes.reduceRight(function(bLast,a,i){
         }
     }
     return false
-},true)
+})
 
 
 export default factory(Base)
