@@ -50,7 +50,7 @@ export default class  extends Component{
 	}
 
 	render(){
-		const {wrap,lineNo, colorful, fonts, size, lineHeight, background,activeColor, ...props}=this.props
+		const {wrap,lineNo=true, colorful, fonts, size, lineHeight, background,activeColor, ...props}=this.props
 		var canvas=props.canvas
 		var {left=0, ...margin}=props.margin||{left:Editors.Document.defaultProps.margin.left}
 		if(lineNo){
