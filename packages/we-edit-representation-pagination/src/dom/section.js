@@ -12,6 +12,19 @@ export default class Section extends Super{
 		defineProperties(){
 			super.defineProperties()
 			Object.defineProperties(this,{
+				cols:{
+					enumerable:false,
+					configurable:true,
+					get(){
+						const {
+							width,
+							height,
+							margin:{left=0,right=0,top=0,bottom=0}={},
+							cols=[{x:left,y:top,width:width-left-right,height:height-top-bottom}]
+						}=this.props
+						return cols
+					}
+				},
 				composedHeight:{
 					enumerable:false,
 					configurable:true,
