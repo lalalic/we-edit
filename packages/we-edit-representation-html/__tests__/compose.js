@@ -46,7 +46,7 @@ describe("html", ()=>{
 		const {page, pages}=render(undefined, {margin})
 		expect(pages.length).toBe(1)
 		expect(page.props.margin).toMatchObject(margin)
-		expect(page.props.height).toBe(viewport.height)
+		expect(page.render().props.height).toBe(viewport.height)
 	})
 
 	it("doument always has only 1 page",()=>{
@@ -95,6 +95,7 @@ describe("html", ()=>{
 		})
 
 		it("range rect",()=>{
+			debugger
 			expect(test().getRangeRects({id:"2",at:0},{id:"2",at:3}))
 				.toMatchObject([{...margin, right:margin.left+3, bottom:margin.top+10}])
 		})

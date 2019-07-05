@@ -102,8 +102,9 @@ class ViewportDocument extends Document{
 
 	componentDidUpdate(){
 		const page=this.computed.composed[0]
+		const {viewport}=this.state
 		if(page){
-			page.props.height=page.composedHeight
+			page.props.height=Math.max(page.composedHeight,viewport.height)
 		}
 		super.componentDidUpdate(...arguments)
 	}
@@ -112,7 +113,7 @@ class ViewportDocument extends Document{
 	static Page=class extends Page.factory(Frame.editableLike(Frame.Columnable)){
 		render(){
 			const {props:{width,margin}}=this
-			const height=this.composedHeight
+			const height=Math.max(this.context.parent.state.viewport.height,this.composedHeight)
 			return React.cloneElement(super.createComposed2Parent(),{key:0,width,height,margin})
 		}
 	}

@@ -61,8 +61,8 @@ export default class Columnable extends Fixed{
 				configurable:true,
 				get(){
 					const {
-						width,margin:{left=0,top=0,right=0,bottom=0}={},
-						cols=[{x:left,y:top,width:width-left-right}]
+						width,
+						cols=[{x:0,y:0,width}]
 					}=this.props
 					return cols
 				}

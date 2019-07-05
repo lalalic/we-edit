@@ -233,8 +233,8 @@ export default class Fixed extends Super{
 	}
 
 	layoutOf(){
-		const {width,height,margin}=this.props
-		return {width,height,margin}
+		const {width,height}=this.props
+		return {width,height}
 	}
 
 	lineIndexOf(position){
