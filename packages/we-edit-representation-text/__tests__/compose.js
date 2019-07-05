@@ -10,7 +10,7 @@ describe("text", ()=>{
 	const viewport={width:100,height:200,node:{scrollTop:0}}
 	const margin={left:10,right:20,top:10,bottom:10}
     const lineHeight=1.4
-	const render=(content,docProps={margin})=>{
+	const render=(content,docProps={margin,lineNo:false})=>{
 		const renderer=testRender(
 			<StoreContext>
 				<Document
@@ -44,10 +44,16 @@ describe("text", ()=>{
 	})
 
 	it("basic editor compose",function(){
-		const {page, pages}=render(undefined, {margin})
+		const {page, pages}=render(undefined, {margin,lineNo:false})
 		expect(pages.length).toBe(1)
 		expect(page.props.margin).toMatchObject(margin)
-		expect(page.props.height).toBe(viewport.height)
+		expect(page.render().props.height).toBe(viewport.height)
+	})
+
+	it("{lineNo:true}",function(){
+		const {page, pages}=render(undefined, {margin,lineNo:true})
+		expect(pages.length).toBe(1)
+		expect(page.props.margin).toMatchObject({...margin,left:margin.left+5})
 	})
 
 	it("doument always has only 1 page",()=>{
