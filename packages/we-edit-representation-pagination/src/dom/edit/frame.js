@@ -1,7 +1,6 @@
 import React from "react"
 import editable from "./editable"
 import {ReactQuery} from "we-edit"
-import TestRenderer from 'react-test-renderer'
 import {Cacheable} from "../../composable"
 import Base from "../frame"
 import {Group} from "../../composed"
@@ -166,7 +165,8 @@ const factory=base=>Cacheable(class extends editable(base){
 		}
 		return rects
 	}
-},true)
+})
+
 const isLastContent=nodes=>nodes.reduceRight(function(bLast,a,i){
     if(bLast){
         if(i==0){
