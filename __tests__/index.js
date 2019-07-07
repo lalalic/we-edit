@@ -4,16 +4,14 @@ import {Loader, Emitter, Stream, render} from "we-edit"
 
 import Pagination from "we-edit-representation-pagination"
 
-import SVG from "we-edit-output-svg"
 import File from "we-edit-loader-stream-file"
 import iDocx from "we-edit-input-docx"
 
 
 const {Format}=Emitter
 
-xdescribe("we-edit integration", function(){
+describe("we-edit integration", function(){
 	beforeAll(()=>{
-		SVG.install()
 		File.install()
 		iDocx.install()
 
@@ -37,7 +35,6 @@ xdescribe("we-edit integration", function(){
 	})
 
 	afterAll(()=>{
-		SVG.uninstall()
 		File.uninstall()
 		iDocx.uninstall()
 		Pagination.defaultProps.measure=undefined

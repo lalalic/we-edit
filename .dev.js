@@ -6,7 +6,6 @@ import iDocx from "we-edit-input-docx"
 import iJson from "we-edit-input-json"
 import ioFile from "we-edit-loader-stream-file"
 import ioBrowser from "we-edit-loader-stream-browser"
-import SVG from "we-edit-output-svg"
 
 import Variant, {Provider} from "we-edit-variant"
 
@@ -17,15 +16,14 @@ iDocx.install({
 iJson.install()
 ioFile.install()
 ioBrowser.install()
-SVG.install()
 
 Variant.install()
 FontManager.asService("/font-service.js")
 
 
 import React,{Fragment} from "react"
-import {Editor, Viewer,Input, DocumentTree, ACTION} from  "we-edit"
-import {Office,Workspace, Ribbon} from "we-edit-office"
+import {Viewer,Editor,Input, DocumentTree, ACTION} from  "we-edit"
+import {Office,Workspace, Ribbon,reducer} from "we-edit-office"
 import {Tabs, Tab, ToolbarGroup, SvgIcon} from "material-ui"
 import {connect} from  "react-redux"
 import minimatch from "minimatch"
@@ -210,9 +208,9 @@ function testOffice(representation="pagination"){
 				const file={data,name:"basic.docx",ext:"docx", src:"/basic.docx"}
 				return Input.parse(file)
 			})
-			.then(doc=>dispatch(ACTION.ADD(doc)))
+			.then(doc=>dispatch(ACTION.ADD(doc,reducer)))
 	})
 }
 
 
-testOffice("text")
+testOffice()

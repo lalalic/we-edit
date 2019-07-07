@@ -9,6 +9,7 @@ export {default as StatusBar} from "./status"
 export {default as Canvas} from "./canvas"
 export {default as TitleBar} from "./title-bar"
 export {default as Dashboard} from "./dashboard"
+export {default as reducer} from "./state/reducer"
 
 export {Ribbon,Office}
 

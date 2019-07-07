@@ -12,6 +12,7 @@ import FontManager from "./fonts"
 import * as Composed from "./composed"
 import * as Measure from "./measure"
 import Output from "./output"
+import SVG from "./output/svg"
 
 import * as composable from "./composable"
 
@@ -110,13 +111,13 @@ export default class Pagination extends Representation.Base{
 	let install=A.install.bind(A)
 	A.install=function(){
 		install(...arguments)
-		A.Output.install()
+		SVG.install()
 	}
 
 	let uninstall=A.uninstall.bind(A)
 	A.uninstall=function(){
 		uninstall(...arguments)
-		A.Output.uninstall()
+		SVG.uninstall()
 	}
 })(Pagination);
 
