@@ -22,5 +22,9 @@ export default class Output extends Emitter.Format.Base{
 		content.on("end",()=>{
 			this.stream.end(wrapperEnd)
 		})
+
+		content.on('error',e=>{	
+			this.stream.end(wrapperEnd)
+		})
 	}
 }

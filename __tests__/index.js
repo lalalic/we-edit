@@ -3,6 +3,9 @@ import Path from "path"
 import {Loader, Emitter, Stream, render} from "we-edit"
 
 import Pagination from "we-edit-representation-pagination"
+import Html from "we-edit-representation-html"
+import Text from "we-edit-representation-text"
+
 
 import File from "we-edit-loader-stream-file"
 import iDocx from "we-edit-input-docx"
@@ -59,4 +62,11 @@ describe("we-edit integration", function(){
 	it("svg",()=>{
 		return render(template())
 	})
+
+	it("html",()=>{
+		return render(template("html"))
+			.then(r=>{
+				console.log(r)
+			})
+	},100000)
 })

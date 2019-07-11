@@ -66,11 +66,8 @@ export default class Emitter extends Viewer{
 		}
 	}
 
-	createDocument({canvasProps}){
-		return <WeDocumentStub {...{canvasProps,scale:1}} content={this.context.activeDocStore.getState().get("content")}/>
-	}
-
 	groupStreamFormat=memoize(streams=>{
+		const content=this.context.activeDocStore.getState().get("content")
 		const createGroup=()=>{
 			let collected=new Map()
 			collected.set=function(k,v){
@@ -113,16 +110,14 @@ export default class Emitter extends Viewer{
 				const {media, style, children, ...props}=this.props
 				represents.push(
 					<Representation type={type} key={type}>
-						{this.createDocument({
-							canvasProps:{
-								canvas:(
-									<Fragment>
-										{Children.toArray(streams).map(a=>React.cloneElement(a,props))}
-									</Fragment>
-								),
-								...props
-							}
-						})}
+						<WeDocumentStub {...{canvasProps:{
+							canvas:(
+								<CanvasWrapper>
+									{Children.toArray(streams).map(a=>React.cloneElement(a,props))}
+								</CanvasWrapper>
+							),
+							...props
+						},scale:1,content}}/>
 					</Representation>
 				)
 			}else{
@@ -196,7 +191,8 @@ export default class Emitter extends Viewer{
 			}
 
 			emit(){
-				this.output(ReactDOMServer.renderToStaticNodeStream(this.context.weDocument))
+				const noCanvasWeDocument=React.cloneElement(this.context.weDocument,{canvas:undefined})
+				this.output(ReactDOMServer.renderToStaticNodeStream(noCanvasWeDocument))
 			}
 
 			output(content){
@@ -242,6 +238,8 @@ class OutputInput extends Emitter.Format.Base{
 		docStream.push(null)
 	}
 }
+
+const CanvasWrapper=({children, content})=>React.Children.toArray(children).map(a=>React.cloneElement(a,{content}))
 
 extendible(Emitter, "output format")
 

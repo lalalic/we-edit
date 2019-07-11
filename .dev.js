@@ -22,7 +22,7 @@ FontManager.asService("/font-service.js")
 
 
 import React,{Fragment} from "react"
-import {Viewer,Editor,Input, DocumentTree, ACTION} from  "we-edit"
+import {Viewer as Editor,Input, DocumentTree, ACTION} from  "we-edit"
 import {Office,Workspace, Ribbon,reducer} from "we-edit-office"
 import {Tabs, Tab, ToolbarGroup, SvgIcon} from "material-ui"
 import {connect} from  "react-redux"
@@ -213,4 +213,4 @@ function testOffice(representation="pagination"){
 }
 
 
-testOffice()
+testOffice("html")
