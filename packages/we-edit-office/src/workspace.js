@@ -101,9 +101,16 @@ export default class Workspace extends PureComponent{
 			</Canvas>
 		)
 
+		const rootStyle={
+			flex:1, 
+			display:"flex", 
+			flexDirection:"column", 
+			overflow:"hidden"/**can't remove, otherwise editor  scroll would be destroied */
+		}
+
 		return (
 			<doc.Store reducer={reducer}>
-				<div style={{flex:1, display:"flex", flexDirection:"column"}} key={channel}>
+				<div style={rootStyle} key={channel}>
 					{toolBar}
 
 					{layout ? React.cloneElement(layout, {canvas, children:layout.props.children||canvas}) : canvas}
