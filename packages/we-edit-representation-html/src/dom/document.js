@@ -1,15 +1,13 @@
-import React,{Fragment} from "react"
-import PropTypes from "prop-types"
+import React from "react"
 
 import {dom} from "we-edit"
 const {Document:Base}=dom
 
 export default class Document extends Base{
 	render(){
-		const {canvas=<Dummy/>}=this.props
+		const {canvas}=this.props
 		return React.cloneElement(canvas,{
-			content:<article style={{whiteSpace:"pre-wrap"}}>{this.props.children}</article>
+			content:<article style={{whiteSpace:"pre-wrap",textAlign:"initial"}}>{this.props.children}</article>
 		})
 	}
 }
-const Dummy=({content})=>content

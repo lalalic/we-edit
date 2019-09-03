@@ -33,14 +33,14 @@ const factory=base=>Cacheable(class extends editable(base){
     //locatable
 
 	positionFromPoint(x,y){
-        const include=({x:x0=0,y:y0=0,width,height})=>x0<=x && y0<=y && (x0+width)>=x && (y0+height)>=y
+        const pointIsInside=({x:x0=0,y:y0=0,width,height})=>x0<=x && y0<=y && (x0+width)>=x && (y0+height)>=y
         const chosen=new Set()
         var bound
         const {first:found,parents}=new ReactQuery(this.render()).findFirstAndParents((node,parents)=>{
             const {width,height,"data-type":type, "data-content":id}=node.props||{}
             bound={width,height,...this.getBound([...parents,node])}
             if(bound.width && bound.height){
-                if(!include(bound)){
+                if(!pointIsInside(bound)){
                     const nodes=[...parents,node]
                     let last=nodes.findLast(a=>chosen.has(a.props["data-content"]))
                     if(last){

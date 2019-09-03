@@ -17,7 +17,7 @@ export default class Paragraph extends Base{
 		lineHeight && (style.lineHeight=lineHeight);
 		
 		return (
-			<p style={style}>hello</p>
+			<p style={style}>{this.props.children}</p>
 		)
 	}
 }

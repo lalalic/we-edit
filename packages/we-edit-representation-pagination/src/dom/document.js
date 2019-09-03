@@ -1,4 +1,4 @@
-import React, {Fragment,Component} from "react"
+import React, {Fragment} from "react"
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
 
@@ -49,14 +49,11 @@ export default class Document extends Super{
     })
 
     render(){
-		const {canvas=<Dummy/>}=this.props
+		const {canvas}=this.props
         return (
 			<Fragment>
                 {super.render()}
-
-                <CanvasRender>
-                {()=>React.cloneElement(canvas, {content: this.renderComposed()})}
-                </CanvasRender>
+                {React.cloneElement(canvas, {content: this.renderComposed()})}
 			</Fragment>
 		)
     }
@@ -75,13 +72,5 @@ export default class Document extends Super{
     componentDidMount(){
         this.dispatch(ACTION.Statistics({pages:this.computed.composed.length}))
 	}
-
-	componentDidUpdate(){
-        this.dispatch(ACTION.Statistics({pages:this.computed.composed.length}))
-	}
 }
-
-const Dummy=({content})=>content
-
-const CanvasRender=({children})=>children()
 

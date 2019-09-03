@@ -12,3 +12,6 @@ compose
 >layer
 
 cursor up/down to x
+
+docx:
+> continuous section not supportting editing yet

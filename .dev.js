@@ -22,14 +22,14 @@ FontManager.asService("/font-service.js")
 
 
 import React,{Fragment} from "react"
-import {Viewer as Editor,Input, DocumentTree, ACTION} from  "we-edit"
+import {Viewer, Editor,Input, DocumentTree, ACTION} from  "we-edit"
 import {Office,Workspace, Ribbon,reducer} from "we-edit-office"
 import {Tabs, Tab, ToolbarGroup, SvgIcon} from "material-ui"
 import {connect} from  "react-redux"
 import minimatch from "minimatch"
 
 
-function testOffice(representation="pagination"){
+function testOffice(Target, representation="pagination"){
 	const KEY="test"
 
 	const Tree=({data, filter="*", node})=>{
@@ -119,7 +119,7 @@ function testOffice(representation="pagination"){
 	))
 
 	const VariantEditor=connect(state=>state[KEY])(({data,assemble, pilcrow, ...props})=>{
-		var editor=<Editor {...props}/>
+		var editor=<Target {...props}/>
 
 		if(data && assemble){
 			return (
@@ -213,4 +213,4 @@ function testOffice(representation="pagination"){
 }
 
 
-testOffice("html")
+testOffice(Editor)

@@ -1,12 +1,8 @@
-import React, {Fragment, Children, PureComponent, Component} from "react"
+import React, {PureComponent, Fragment} from "react"
 import PropTypes from "prop-types"
 
 import {connect} from "../state"
-
 import Representation from "./representation"
-import {getContent, getParentId} from "../state/selector"
-import Cursor from "./cursor"
-import Input from "../input"
 import uuid from "../tools/uuid"
 
 export class Editor extends PureComponent{
@@ -140,7 +136,12 @@ export class WeDocumentStub extends PureComponent{
 			this.doc=createWeDocument("root",content,ModelTypes,this.props.content)
 		}
 
-		this.doc=React.cloneElement(this.doc,  {...canvasProps, content,canvasId})
+		this.doc=React.cloneElement(this.doc,  {
+			canvasId,
+			...canvasProps,
+			canvas:canvasProps.canvas||<Dummy/>,//default empty canvas to 
+			content,
+		})
 	}
 
 	render(){
@@ -156,5 +157,7 @@ export class WeDocumentStub extends PureComponent{
 const Root=connect((state)=>{
 	return {content:state.get("content")}
 })(WeDocumentStub)
+
+const Dummy=({content})=><Fragment>{content}</Fragment>
 
 export default Editor
