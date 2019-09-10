@@ -224,6 +224,7 @@ export default ({Section,Frame, Container})=>class extends Component{
 				this.layouts.splice(i+1)
 
 				//delete all pages in following continuous sections
+				/*
 				const siblings=this.section.getDocument().props.children
 				const j=siblings.findIndex(a=>a.props.id==this.section.id)
 				siblings.slice(j+1).reduce((continuing,a)=>{
@@ -236,6 +237,7 @@ export default ({Section,Frame, Container})=>class extends Component{
 					}
 					return false
 				},true)
+				*/
 				return done
 			}
 

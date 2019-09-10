@@ -38,20 +38,24 @@ const factory=base=>Cacheable(class extends editable(base){
         var bound
         const {first:found,parents}=new ReactQuery(this.render()).findFirstAndParents((node,parents)=>{
             const {width,height,"data-type":type, "data-content":id}=node.props||{}
+            
             bound={width,height,...this.getBound([...parents,node])}
             if(bound.width && bound.height){
+                
                 if(!pointIsInside(bound)){
+                    /*
                     const nodes=[...parents,node]
-                    let last=nodes.findLast(a=>chosen.has(a.props["data-content"]))
-                    if(last){
-                        const i=nodes.indexOf(last)
+                    const closestParent=nodes.findLast(a=>chosen.has(a.props["data-content"]))
+                    if(closestParent){
+                        const i=nodes.indexOf(closestParent)
                         if(isLastContent(nodes.slice(i))){
-                            const composer=this.context.getComposer(last.props["data-content"])
+                            const composer=this.context.getComposer(closestParent.props["data-content"])
                             const xy=this.getBound(nodes.slice(0,i))
                             bound=composer.positionFromPoint(x-xy.x,y-xy.y)
                             return true
                         }
                     }
+                    */
                     return false//don't continue
                 }
             }

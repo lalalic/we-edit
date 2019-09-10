@@ -10,13 +10,16 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
 	beforeEach(()=>{
 		Positioning.prototype.asCanvasPoint=jest.fn(({left,top})=>({x:left,y:top}))
 	})
-	const test=content=>{
-        const {responsible}=render(content)
+	const test=(content,state)=>{
+        const {responsible, doc}=render(content,state)
         responsible.positioning.pageXY=jest.fn(()=>({x:0,y:0}))
         return {
             responsible,
             click(clientX,clientY,shiftKey=false){
                 responsible.onClick({clientX,clientY,shiftKey})
+            },
+            get lines(){
+                return doc.computed.composed[0].lines
             }
         }
     }
@@ -42,9 +45,29 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
 
 		doc.click(10,10)
 		expect(around).toHaveLastReturnedWith({id:"3",at:1})
-	})
+    })
+    
+    it("second line of paragraph can be located",()=>{
+        if(!(TESTING=="page"))
+            return 
+        const doc=test(
+			<Paragraph id={"0"}>
+				<Text id="1">text </Text>
+                <Text id="2">hello</Text>
+            </Paragraph>,
+            {page:{width:5}}
+		)
+        expect(doc.lines.length).toBe(2)
+        const around=jest.spyOn(doc.responsible.positioning,"around")
+        
+        doc.click(1,1)
+        expect(around).toHaveLastReturnedWith({id:"1",at:1})
 
-    it("ignore when out of content range, but shape should be selected when click on blank area ",()=>{
+        doc.click(1,12)
+        expect(around).toHaveLastReturnedWith({id:"2",at:1})
+    })
+
+    xit("ignore when out of content range, but shape should be selected when click on blank area ",()=>{
         const doc=test(
 			<Paragraph id={"1"}>
 				<Text id={"0"}>text</Text>
@@ -58,7 +81,7 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
         doc.click(-1000,-1000)
         expect(around).toHaveLastReturnedWith({})
 
-
+debugger
         doc.click(5,5)
         expect(around).toHaveLastReturnedWith({id:"0",at:4})
 
