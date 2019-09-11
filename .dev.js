@@ -213,4 +213,4 @@ function testOffice(Target, representation="pagination"){
 }
 
 
-testOffice(Editor)
+testOffice(Editor,"text")

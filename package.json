@@ -11,10 +11,9 @@
     "name": "Raymond Li",
     "email": "lalalic@139.com"
   },
-  "dependencies": {
-    "docx4js": "^3.1.31",
-    "react": "16.5.1",
-    "react-dom": "16.5.1"
+  "resolutions": {
+    "*/react": "16.7.0",
+    "*/react-dom": "16.7.0"
   },
   "devDependencies": {
     "babel-cli": "^6.6.5",
@@ -64,5 +63,9 @@
   "engines": {
     "node": ">=0.10.0"
   },
-  "readme": "README.md"
+  "readme": "README.md",
+  "dependencies": {
+    "prop-types": "^15.7.2",
+    "recompose": "^0.30.0"
+  }
 }
