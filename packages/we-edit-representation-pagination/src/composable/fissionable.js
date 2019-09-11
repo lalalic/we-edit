@@ -6,8 +6,8 @@ import {ReactQuery} from "we-edit"
 export default (A)=>class extends A{
 	static defaultProps={
 		...A.defaultProps,
-		create(){
-			return new this.Fission(...arguments)
+		create(...args){
+			return new this.Fission(...args)
 		}
 	}
 	static contextTypes={

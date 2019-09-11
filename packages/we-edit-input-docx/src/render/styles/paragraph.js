@@ -12,13 +12,13 @@ const attribs={
 }
 export default class Paragraph extends Base{
 	constructor(node,styles,selector){
-		super(...arguments)
+		super(node, styles, selector)
 		this.p=this._convert(node, "w:pPr",attribs, selector)
 	}
 
 	static Direct=class extends Paragraph{
 		constructor(node,styles,selector){
-			super(...arguments)
+			super(node, styles, selector)
 			this.p=this._convert(node, null,attribs, selector)
 		}
 	}

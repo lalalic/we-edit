@@ -1,7 +1,5 @@
 const path=require("path")
-const nodeExternals=require("webpack-node-externals")
-const {ContextReplacementPlugin, DefinePlugin, IgnorePlugin} = require("webpack")
-const UglifyJsPlugin = require("uglifyjs-webpack-plugin")
+const {DefinePlugin} = require("webpack")
 
 module.exports=base=>{
     return "input-docx,input-json,variant".split(",")

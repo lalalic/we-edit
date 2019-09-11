@@ -1,5 +1,4 @@
 const path = require('path');
-const webpack = require("webpack");
 const packages=(function(){
 	let ps=require("fs")
 		.readdirSync("./packages")

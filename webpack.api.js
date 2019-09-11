@@ -1,5 +1,4 @@
 const path=require("path")
-const webpack=require("webpack")
 const nodeExternals=require("webpack-node-externals")
 /**
 *NOTE: since all plugins are with in we-edit project,

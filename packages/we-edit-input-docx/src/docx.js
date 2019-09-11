@@ -68,8 +68,8 @@ export default class Document extends docx4js{
 	}
 
 	static OfficeDocument=class extends docx4js.OfficeDocument{
-		_init(){
-			super._init(...arguments)
+		_init(...args){
+			super._init(...args)
 			const officeDocument=this
 			Object.assign(this.theme,{
 				fontx(name){

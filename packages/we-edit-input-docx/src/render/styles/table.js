@@ -15,7 +15,7 @@ const PRIORIZED='seCell,swCell,neCell,nwCell,lastCol,firstCol,lastRow,firstRow,b
 const CNF='firstRow,lastRow,firstCol,lastCol,band1Vert,band2Vert,band1Horz,band2Horz,nwCell,neCell,swCell,seCell'.split(",")
 class WithBorder extends Paragraph{
 	constructor(node,styles,selector){
-		super(...arguments)
+		super(node, styles, selector)
 		this.tbl=this._convert(node,"w:tcPr",{
 			"w:tcMargin":"margin",
 			"w:tcBorders":"border",
@@ -151,7 +151,7 @@ export default class TableStyle extends WithBorder{
 
 	static Direct=class extends TableStyle{
 		constructor(node,styles,selector){
-			super(...arguments)
+			super(node, styles, selector)
 			const type=node.name.split(":").pop().replace("Pr","")
 			this[type]=this._convert(node, null, attribs[type],selector)
 		}

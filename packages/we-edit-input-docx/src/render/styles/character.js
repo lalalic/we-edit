@@ -12,13 +12,13 @@ const attribs={
 }
 export default class Character extends Base{
 	constructor(node, styles, selector){
-		super(...arguments)
+		super(node, styles, selector)
 		this.r=this._convert(node, "w:rPr",attribs, selector)
 	}
 
 	static Direct=class extends Character{
 		constructor(node, styles, selector){
-			super(...arguments)
+			super(node, styles, selector)
 			this.r=this._convert(node, null,attribs, selector)
 		}
 	}

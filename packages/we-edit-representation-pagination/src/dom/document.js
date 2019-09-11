@@ -34,16 +34,16 @@ export default class Document extends Super{
             return this.context.Measure
 
         return class extends this.context.Measure{
-            lineHeight(){
-                const {height,descent}=super.lineHeight(...arguments)
+            lineHeight(...args){
+                const {height,descent}=super.lineHeight(...args)
                 return {
                     height:height*precision,
                     descent:descent*precision
                 }
             }
 
-            stringWidth(){
-                return precision*super.stringWidth(...arguments)
+            stringWidth(...args){
+                return precision*super.stringWidth(...args)
             }
         }
     })
