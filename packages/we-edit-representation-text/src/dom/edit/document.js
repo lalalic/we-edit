@@ -1,7 +1,6 @@
 import React,{Component,Fragment} from "react"
 import PropTypes from "prop-types"
 import {connect,getSelectionStyle} from "we-edit"
-import {compose, setDisplayName,getContext} from "recompose"
 import memoize from "memoize-one"
 
 import {Editors} from "we-edit-representation-html"
@@ -52,12 +51,12 @@ export default class  extends Component{
 	render(){
 		const {wrap,lineNo=true, colorful, fonts, size, lineHeight, background,activeColor, ...props}=this.props
 		var canvas=props.canvas
-		var {left=0, ...margin}=props.margin||{left:Editors.Document.defaultProps.margin.left}
+		var {left=0, ...margin}=props.margin||Editors.Document.defaultProps.margin
 		if(lineNo){
 			const childCtx=this.getChildContext()
 			const measure=this.getMeasure(this.context.Measure, childCtx.fonts, childCtx.size)
 			const lineNoWidth=measure.stringWidth("999")+2
-			canvas=<TextCanvas wrap={wrap} canvas={props.canvas} width={lineNoWidth} measure={measure} activeColor={childCtx.activeColor}/>
+			canvas=<TextCanvas margin={{...margin, left}} wrap={wrap} canvas={props.canvas} width={lineNoWidth} measure={measure} activeColor={childCtx.activeColor}/>
 			left+=lineNoWidth
 		}
 		return (<Editors.Document key={wrap} {...props} {...{canvas, wrap}} margin={{...margin, left}}/>)
@@ -66,11 +65,11 @@ export default class  extends Component{
 
 class TextCanvas extends Component{
 	renderLines(){
-		const {width,measure,activeColor}=this.props
+		const {width,measure,activeColor,margin}=this.props
 		const {pages, page=pages[0]}=this.props.content.props
 		const lines=page.lines
 		const lineHeight=lines[0].props.height
-		return <Lines {...{activeColor, width,measure,lineHeight,key:"lines",count:lines.length}}/>
+		return <Lines {...{activeColor, width,measure,lineHeight,key:"lines",count:lines.length,margin}}/>
 	}
 
 	render(){
@@ -94,27 +93,34 @@ const Lines=connect(state=>{
 	return {}
 })(
 	class extends Component{
+		static context={
+			fonts: PropTypes.string,
+			size: PropTypes.number,	
+		}
 		render(){
-			const {active=0, activeColor, count, lineHeight, width, measure,
+			const {active=0, activeColor, count, lineHeight, width, measure,margin:{top=0}={},
 					baseline=measure.defaultStyle.height-measure.defaultStyle.descent
 				}=this.props
+			const {fonts, size}=this.context
 			return (
 					<Fragment>
 						<rect width={99999} height={lineHeight} className="activeLine"
 							style={{opacity:0.5, cursor:"text"}}
-							y={active*lineHeight} fill={activeColor}/>
-						<g style={{opacity:0.5}}>
-							<rect width={width} height={count*lineHeight} fill="lightgray"/>
-							{new Array(count)
-								.fill(0)
-								.map((a,i)=>{
-									const I=`${i+1}`
-									return (
-										<g key={i} transform={`translate(0 ${i*lineHeight+baseline})`}>
-											<text x={width-measure.stringWidth(I)-2}>{I}</text>
-										</g>
-									)
-								})}
+							y={active*lineHeight+top} fill={activeColor}/>
+						<g style={{opacity:0.5}} fontFamily={fonts} fontSize={`${size}pt`}>
+							<rect width={width} height={count*lineHeight+top} fill="lightgray"/>
+							<g  transform={`translate(0 ${top})`}>
+								{new Array(count)
+									.fill(0)
+									.map((a,i)=>{
+										const I=`${i+1}`
+										return (
+											<g key={i} transform={`translate(0 ${i*lineHeight+baseline})`}>
+												<text x={width-measure.stringWidth(I)-2}>{I}</text>
+											</g>
+										)
+									})}
+							</g>
 						</g>
 					</Fragment>
 				)

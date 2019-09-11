@@ -67,6 +67,7 @@ export default class extends Component{
 }
 
 class ViewportDocument extends Document{
+	static displayName="html-composed-document"
 	static childContextTypes={
 		...Document.childContextTypes,
 		viewport: PropTypes.object,
@@ -81,6 +82,10 @@ class ViewportDocument extends Document{
 	appendComposed(frame){
 		if(!frame)
 			return 
+		this.page.appendComposed(frame)
+	}
+
+	get page(){
 		const {wrap=true,margin}=this.props
 		const {viewport}=this.state
 		if(this.computed.composed.length==0){
@@ -96,8 +101,7 @@ class ViewportDocument extends Document{
 				})
 			)
 		}
-		const page=this.computed.composed[0]
-		page.appendComposed(frame)
+		return this.computed.composed[0]
 	}
 
 	componentDidUpdate(){
@@ -109,8 +113,19 @@ class ViewportDocument extends Document{
 		super.componentDidUpdate(...arguments)
 	}
 
+	nextAvailableSpace(){
+		return this.page.nextAvailableSpace()
+	}
 
 	static Page=class extends Page.factory(Frame.editableLike(Frame.Columnable)){
+		static displayName="html-page"
+
+		nextAvailableSpace(){
+			debugger
+			return super.nextAvailableSpace(...arguments)
+
+		}
+
 		render(){
 			const {props:{width,margin}}=this
 			const height=Math.max(this.context.parent.state.viewport.height,this.composedHeight)

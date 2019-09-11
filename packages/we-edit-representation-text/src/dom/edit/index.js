@@ -1,5 +1,3 @@
-import React,{Fragment, Component} from "react"
-
 import {Editors} from "we-edit-representation-html"
 import Document from "./document"
 import Paragraph from "./paragraph"
