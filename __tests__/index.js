@@ -65,16 +65,15 @@ describe("we-edit integration", function(){
 				process.nextTick(cb)
 			}
 		})).then(([{stream}])=>{
-			const output=svg.join("")
-			expect(output).toEqual(expect.stringContaining("Video provides a powerful way to help you prove your point"))
+			expect(svg.join("")).toEqual(expect.stringContaining("Video provides a powerful way to help you prove your point"))
 		})
 	})
 
-	it("svg",()=>{
+	xit("svg",()=>{
 		return render(template("svg",{
 			type :"file",
 			path :Path.resolve(__dirname),
-			name :({format})=>`test.${format}`
+			name :({format})=>`${Date.now()}.${format}`
 		})).then(([{stream}])=>{
 			const path=stream.path
 			expect(fs.existsSync(path)).toBe(true)
@@ -82,16 +81,27 @@ describe("we-edit integration", function(){
 		})
 	})
 
-	fit("html",()=>{
-		var html=[]
+	it("html",()=>{
+		const html=[]
 		return render(template("html",{
 			write(chunk,encoding,cb){
 				html.push(chunk.toString())
 				process.nextTick(cb)
 			}
 		})).then(()=>{
-			html=html.join("")
-			console.log(html)
+			expect(html.join("")).toEqual(expect.stringContaining("Video provides a powerful way to help you prove your point"))
 		})
-	},100000)
+	})
+
+	it("text",()=>{
+		const output=[]
+		return render(template("text",{
+			write(chunk,encoding,cb){
+				output.push(chunk.toString())
+				process.nextTick(cb)
+			}
+		})).then(()=>{
+			expect(output.join("")).toEqual(expect.stringContaining("Video provides a powerful way to help you prove your point"))
+		})
+	})
 })

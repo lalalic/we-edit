@@ -3,7 +3,7 @@ import ReactDOMServer from "react-dom/server.node"
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
 import Viewer from "./viewer"
-import {createWeDocument, WeDocumentStub} from "./editor"
+import {WeDocumentStub} from "./editor"
 import Representation from "./representation"
 import extendible from "../tools/extendible"
 
@@ -36,7 +36,20 @@ import extendible from "../tools/extendible"
 		<PlainText/>
 	</Stream>
 </emiter>
+
+<doc>
+	<emiter>
+		<PDF stream>
+			<representation>
+				<memoryDoc>
+					<outputDoc>
+			</representation>
+		</PDF>
+		<PCL stream/>
+	</emiter>
+</doc>
 */
+var emitterID=0
 export default class Emitter extends Viewer{
 	static displayName="emitter"
 
@@ -191,8 +204,28 @@ export default class Emitter extends Viewer{
 			}
 
 			emit(){
-				const noCanvasWeDocument=React.cloneElement(this.context.weDocument,{canvas:undefined})
-				this.output(ReactDOMServer.renderToStaticNodeStream(noCanvasWeDocument))
+				if(!"__reactInternalMemoizedUnmaskedChildContext" in this){
+					throw new Error("Format.Base implementation has problem because of no global context")
+				}
+				
+				const {content}=this.props
+				const context=this.__reactInternalMemoizedUnmaskedChildContext
+
+				const childContextTypes=Object.keys(context).reduce((ctx,k)=>{
+					ctx[k]=PropTypes.any
+					return ctx
+				},{})
+
+				class AllContext extends Component{
+					static childContextTypes=childContextTypes
+					getChildContext(){
+						return context
+					}
+					render(){
+						return <Fragment>{this.props.children}</Fragment>
+					}
+				}
+				this.output(ReactDOMServer.renderToStaticNodeStream(<AllContext>{content}</AllContext>))
 			}
 
 			output(content){

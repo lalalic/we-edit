@@ -4,7 +4,7 @@ import PropTypes from "prop-types"
 import {Stream} from "./components/stream"
 
 export default function render(element){
-	let promises=[]
+	const promises=[]
 	function inject(a){
 		if(!React.isValidElement(a))
 			return a
@@ -34,7 +34,7 @@ export default function render(element){
 
 	let ErrorContainer=null
 
-	let overall=new Promise((resolve,reject)=>{
+	const overall=new Promise((resolve,reject)=>{
 		ErrorContainer=class  extends PureComponent{
 			static childContextTypes={
 				inRender: PropTypes.bool,
@@ -44,7 +44,7 @@ export default function render(element){
 			getChildContext(){
 				return {
 					inRender:true,
-					muiTheme:{}
+					muiTheme:{},
 				}
 			}
 
@@ -58,7 +58,7 @@ export default function render(element){
 	})
 
 
-    let render=TestRenderer.create(<ErrorContainer>{inject(element)}</ErrorContainer>)
+    const render=TestRenderer.create(<ErrorContainer>{inject(element)}</ErrorContainer>)
 
 	return new Promise((resolve,reject)=>{
 		overall

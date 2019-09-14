@@ -9,10 +9,6 @@ export default class Output extends Emitter.Format.Base{
 		representation: "pagination"
 	}
 
-	emit(){
-		this.output(ReactDOMServer.renderToStaticNodeStream(this.props.content))
-	}
-
 	output(stream){
 		stream.pipe(new Parser.WritableStream(this,{xmlMode:true}))
 	}

@@ -1,4 +1,3 @@
-import ReactDOMServer from "react-dom/server.node"
 import {Emitter} from "we-edit"
 
 export default class Output extends Emitter.Format.Base{	
@@ -10,10 +9,6 @@ export default class Output extends Emitter.Format.Base{
 		ext:"html",
 		wrapperStart:"<html><body>",
 		wrapperEnd:"</body></html>"
-	}
-	emit(){
-		super.emit(...arguments)
-		//this.output(ReactDOMServer.renderToStaticNodeStream(this.props.content))
 	}
 
 	output(content){
