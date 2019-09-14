@@ -1,5 +1,5 @@
 import TestRenderer from 'react-test-renderer'
-import React, {PureComponent, Children} from "react"
+import React, {PureComponent, Fragment, Children} from "react"
 import PropTypes from "prop-types"
 import {Stream} from "./components/stream"
 
@@ -49,11 +49,10 @@ export default function render(element){
 			}
 
 			componentDidCatch(error,info){
-				//console.debug(error)
 				reject(error)
 			}
 			render(){
-				return Children.only(this.props.children)
+				return <Fragment>{this.props.children}</Fragment>
 			}
 		}
 	})

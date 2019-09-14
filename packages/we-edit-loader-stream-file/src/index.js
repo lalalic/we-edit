@@ -1,4 +1,3 @@
-import {PureComponent} from "react"
 import PropTypes from "prop-types"
 import {Stream,Loader} from "we-edit"
 import {createWriteStream, readFile} from "fs"
@@ -36,7 +35,10 @@ export class Writer extends Stream.Base{
 	
 	create(){
 		const {path,name}=resolvePathName(this.props)
-		return createWriteStream(resolve(path,name))
+		const file=resolve(path,name)
+		const stream=createWriteStream(file)
+		debugger
+		return stream
 	}
 }
 

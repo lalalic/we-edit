@@ -1,4 +1,4 @@
-import PropTypes from "prop-types"
+import ReactDOMServer from "react-dom/server.node"
 import {Emitter} from "we-edit"
 
 export default class Output extends Emitter.Format.Base{	
@@ -11,7 +11,11 @@ export default class Output extends Emitter.Format.Base{
 		wrapperStart:"<html><body>",
 		wrapperEnd:"</body></html>"
 	}
-	
+	emit(){
+		super.emit(...arguments)
+		//this.output(ReactDOMServer.renderToStaticNodeStream(this.props.content))
+	}
+
 	output(content){
 		const {wrapperStart, wrapperEnd}=this.props
 		if(wrapperStart){
@@ -24,6 +28,7 @@ export default class Output extends Emitter.Format.Base{
 		})
 
 		content.on('error',e=>{	
+			this.stream.write(`<pre>${e.stack}</pre>`)
 			this.stream.end(wrapperEnd)
 		})
 	}

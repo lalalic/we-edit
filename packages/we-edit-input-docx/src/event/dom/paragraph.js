@@ -1,7 +1,7 @@
 import Editor from "./base"
 import Numbering from "./numbering"
 
-export default class extends Editor{
+export default class Paragraph extends Editor{
 	got(nodeName){
 		return super.got(nodeName, "w:p", "w:pPr")
 	}
@@ -56,7 +56,7 @@ export default class extends Editor{
 				}
 				{//createNumbering(props)
 					const aNums=$("w\\:abstractNum")
-					const aNumId=Math.max(-1,...(aNums.map((i,a)=>parseInt(a.attribs["w:abstractNumId"]))))+1
+					const aNumId=Math.max(-1,...(aNums.map((i,a)=>parseInt(a.attribs["w:abstractNumId"])).get()))+1
 					const aNum=$(this.trim(Numbering[props.type=="bullet" ? "Bullet" : "Numeric"](aNumId)))
 					if(aNums.length>0){
 						aNum.insertAfter(aNums.last())
@@ -65,7 +65,7 @@ export default class extends Editor{
 					}
 
 					const level=0
-					const numId=Math.max(-1,...($("w\\:num").map((i,a)=>parseInt(a.attribs["w:numId"]))))+1
+					const numId=Math.max(-1,...($("w\\:num").map((i,a)=>parseInt(a.attribs["w:numId"])).get()))+1
 					const num=$(this.trim(Numbering.Template(numId, aNumId))).appendTo($("w\\:numbering"))
 
 					numPr.append(`<w:ilvl w:val="${level}"/>`)

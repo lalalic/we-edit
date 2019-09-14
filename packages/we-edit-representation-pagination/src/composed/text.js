@@ -49,7 +49,7 @@ export class Text extends Component{
 				{strikeline}
 				{decoration}
 				<text style={{userSelect:"none",whiteSpace:"pre",cursor:"text"}}
-					y={y}
+					y={y||0}
 					{...others}
 					fill={fill}>
 					{children}

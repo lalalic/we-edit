@@ -7,7 +7,7 @@ before_install:
 
 install:
  - yarn install
- - yarn build
+ - yarn build -p 
  - yarn info we-edit --json > info.json
  - export LATEST=$(node -p "require('./info.json').data['dist-tags'].latest")
  - export CURRENT=$(node -p "require('./packages/we-edit/package.json').version")

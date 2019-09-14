@@ -24,7 +24,8 @@ export class Stream extends Component{
 
 		static propTypes={
 			onFinish: PropTypes.func,
-			onError: PropTypes.func
+			onError: PropTypes.func,
+			write: PropTypes.func,
 		}
 
 		static contextTypes={
@@ -52,19 +53,19 @@ export class Stream extends Component{
 				.resolve(this.create())
 				.then(stream=>{
 					const {onFinish, onError, onReady}=this.props
-					stream.on("finish",onFinish)
-					stream.on("error",onError)
+					stream.on("finish",()=>onFinish(stream))
+					stream.on("error",e=>onError(stream,e))
 					onReady(stream)
 					return stream
 				})
 		}
 
 		create(){
-			return new Writable({
-				write(){
-					
-				}
-			})
+			const {write=(chunk, encoding, cb)=>{
+				console.debug(chunk.toString())
+				process.nextTick(cb)
+			}}=this.props
+			return new Writable({write,autoDestroy:true})
 		}
 	}
 
@@ -75,25 +76,34 @@ export class Stream extends Component{
 	render(){
 		const {type, children, onFinish, ...props}=this.props
 		const {path,name,...formatProps}=props
-		const Type=this.constructor.get(type)||ConsoleStream
+		const TypedStream=this.constructor.get(type)||Stream.Base
 		const jobs=[]
-		let rendered=(
+		const rendered=(
 			<Fragment>
 			{
 				Children.toArray(children).map((format,key)=>{
-					let onFinish, onError
+					let onFinish1, onError1
 					jobs.push(
 						new Promise((resolve)=>{
-							onFinish=resolve
-							onError=resolve
+							onFinish1=resolve
+							onError1=resolve
 						})
 					)
-
-					let stream=(<Type
-								{...{...props,format:format.props.type,onFinish,onError}}
-								/>)
-
-					return React.cloneElement(format,{key,...formatProps,stream})
+					return React.cloneElement(format,{
+						key,
+						...formatProps,
+						stream:(<TypedStream
+							{...{...props,
+								format:format.props.type,
+								onFinish(stream){
+									onFinish1({type,format:{...format.props},stream})
+								},
+								onError(stream,error){
+									onError1({type,format:{...format.props},stream,error})
+								}
+							}}
+							/>)
+					})
 				})
 			}
 			</Fragment>
@@ -111,20 +121,3 @@ export class Stream extends Component{
 }
 
 extendible(Stream, "output stream")
-
-class ConsoleStream extends Stream.Base{
-	static defaultProps={
-		...Stream.Base.defaultProps,
-		type:""
-	}
-
-	create(){
-		return new Writable({
-			write(){
-				console.log(chunk)
-			}
-		})
-	}
-}
-
-Stream.install(ConsoleStream)

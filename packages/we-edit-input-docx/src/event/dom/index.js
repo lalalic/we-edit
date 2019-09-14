@@ -7,4 +7,4 @@ import Shape from "./shape"
 import {default as Paragraph} from "./paragraph"
 
 
-export default {Unknown, Image, Table, Text, Section, Paragraph,Shape}
+export {Unknown, Image, Table, Text, Section, Paragraph,Shape}

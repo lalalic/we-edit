@@ -34,7 +34,6 @@ export default class SVG extends Base{
 		const [,,width,height]=viewBox.trim().split(/\s+/g)
 		this.width=pgGap+parseInt(width)+pgGap
 		this.height=parseInt(height)
-
 		this.stream.write(`<svg
 	style="background:lightgray"
 	width="${this.width}" height="${this.height}"
