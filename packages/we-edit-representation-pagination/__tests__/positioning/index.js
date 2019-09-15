@@ -5,7 +5,7 @@ import {context,render as testRender, defaultProps} from "../context"
 
 import {Editors} from "../../src"
 import Responsible from "../../src/composed/responsible"
-import Positioning from "../../src/composed/positioning"
+import Positioning from "../../src/composed/responsible/positioning"
 
 
 export default function define(feature, tests){

@@ -2,8 +2,7 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
 
-import Group from "./group"
-import Media from "./media"
+import Media from "./responsible/media"
 
 export default class ComposedDocument extends Component{
 	static displayName="composed"

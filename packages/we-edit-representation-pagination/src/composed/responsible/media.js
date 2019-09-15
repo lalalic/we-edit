@@ -2,7 +2,7 @@ import React, {Component, Fragment} from "react"
 import PropTypes from "prop-types"
 
 import Waypoint from "react-waypoint"
-import {Group} from "../composed"
+import Group from "../group"
 
 export default class Media extends Component{
 	static contextTypes={

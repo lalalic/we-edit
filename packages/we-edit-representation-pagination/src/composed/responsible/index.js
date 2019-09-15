@@ -6,8 +6,9 @@ import Waypoint from "react-waypoint"
 
 import {getSelection, ACTION, Cursor, Selection,connect,ContentQuery} from "we-edit"
 
-import {Document as ComposedDocument,Group} from "../composed"
-import SelectionShape from "./selection"
+import ComposedDocument from "../document"
+import Group from "../group"
+import SelectionShape from "../selection"
 import Locator from "./locator"
 import Positioning from "./positioning"
 

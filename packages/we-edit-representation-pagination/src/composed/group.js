@@ -1,7 +1,5 @@
 import React, {Component, Children, Fragment} from "react"
 import PropTypes from "prop-types"
-import {shallowEqual} from "we-edit"
-import memoize from "memoize-one"
 
 export default class Group extends Component{
 	static contextTypes={
