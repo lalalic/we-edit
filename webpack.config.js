@@ -43,6 +43,7 @@ module.exports=(env,args)=>{
 			stream: true,
 		},
 		stats:"errors-only",
+		mode:"development",
 	}
 
 	if(env){

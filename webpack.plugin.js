@@ -1,6 +1,3 @@
-const path=require("path")
-const {DefinePlugin} = require("webpack")
-
 module.exports=base=>{
     return "input-docx,input-json,variant".split(",")
 		.map(a=>`we-edit-${a}`)
@@ -9,14 +6,9 @@ module.exports=base=>{
             entry:`./packages/${a}/src/index.js`,
     		output:{
     			filename:`index.js`,
-    			path:path.resolve(__dirname, `packages/${a}`)
-    		},
-			plugins:[
-				new DefinePlugin({
-					'process.env.NODE_ENV': JSON.stringify('production')
-				}),
-				...base.plugins
-			],
+				path:`${__dirname}/packages/${a}`
+			},
+			//devtool:"source-map",
             externals:"react,react-dom,material-ui,prop-types,we-edit,react-redux,recompose"
 				.split(",")
 				.reduce((cols,a)=>{

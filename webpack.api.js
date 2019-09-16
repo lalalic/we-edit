@@ -23,7 +23,8 @@ module.exports=base=>{
                 a=="we-edit-representation-pagination" ? new CopyFontService() : null
             ].filter(a=>a),
             target:"node",
-            externals:[nodeExternals()]
+            externals:[nodeExternals()],
+            mode:"development"
         }))
 }
 
