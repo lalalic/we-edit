@@ -6,7 +6,7 @@ import Component from "./component"
 /**
 anchor can be positioned seperatedly x and y, and also can be wrapped
 */
-export default class extends Component{
+export default class __$1 extends Component{
     static displayName="anchor"
     static propTypes={
         x: PropTypes.shape({

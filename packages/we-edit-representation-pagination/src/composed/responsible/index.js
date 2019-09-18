@@ -327,7 +327,7 @@ const ComposeMoreTrigger=compose(
 	setDisplayName("More"),
 	getContext({debug: PropTypes.bool}),
 	connect(state=>({selection:getSelection(state)})),
-)(class extends Component{
+)(class __$1 extends Component{
 	shouldComponentUpdate({selection,isSelectionComposed,compose4Selection}){
 		if(!isSelectionComposed(selection)){
 			compose4Selection()

@@ -151,7 +151,7 @@ function testOffice(Target, representation="pagination"){
 			debug={true}
 			accept="*"
 			key={KEY}
-			ruler={false}
+			ruler={true}
 			toolBar={
 				<Ribbon.Ribbon commands={{
 						layout:false,
@@ -213,4 +213,4 @@ function testOffice(Target, representation="pagination"){
 }
 
 
-testOffice(Editor,"text")
+testOffice(Editor,"pagination")

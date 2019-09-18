@@ -4,7 +4,7 @@ import memoize from "memoize-one"
 import {Paragraph,Character} from "../styles"
 
 
-export default ({Row})=>class extends Component{
+export default ({Row})=>class __$1 extends Component{
 	static displayName="row"
 	static contextTypes={
 		style: PropTypes.object,

@@ -5,7 +5,7 @@ import {dom} from "we-edit"
 import Frame from "./frame"
 import memoize from "memoize-one"
 
-const factory=MyFrame=>class extends MyFrame{
+const factory=MyFrame=>class __$1 extends MyFrame{
 	static displayName=MyFrame.displayName.replace("-frame","-"+dom.Page.displayName)
 
 	static factory=factory

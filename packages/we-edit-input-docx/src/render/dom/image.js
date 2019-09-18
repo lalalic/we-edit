@@ -3,7 +3,7 @@ import Shape from "./shape"
 
 export default dom=>{
     const Super=Shape(dom)
-    return class extends Super{
+    return class __$1 extends Super{
         static displayName="image"
 
         static asStyle(){

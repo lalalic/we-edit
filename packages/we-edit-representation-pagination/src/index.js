@@ -19,7 +19,7 @@ import * as composable from "./composable"
 const {FontMeasure, SVGMeasure}=Measure
 
 const createFontMeasureWithDefault=defaultFont=>{
-	return class extends FontMeasure{
+	return class __$1 extends FontMeasure{
 		getFont(){
 			return super.getFont()||FontManager.get(defaultFont)
 		}

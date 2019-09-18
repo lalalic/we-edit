@@ -8,7 +8,7 @@ import VariantProvider from "../variant-provider"
 import $ from "./$"
 
 
-export default Components=>class extends ${
+export default Components=>class __$1 extends ${
     static displayName="$sub"
     static propTypes={
         transform:PropTypes.func,

@@ -92,7 +92,7 @@ const Lines=connect(state=>{
 	}
 	return {}
 })(
-	class extends Component{
+	class __$1 extends Component{
 		static context={
 			fonts: PropTypes.string,
 			size: PropTypes.number,	

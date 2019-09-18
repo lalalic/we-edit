@@ -1,4 +1,4 @@
-export default A=>class extends A{
+export default A=>class __$1 extends A{
     static displayName=`recomposable-${A.displayName}`
 
     shouldComponentUpdate({changed}){

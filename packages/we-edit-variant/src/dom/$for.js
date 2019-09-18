@@ -9,7 +9,7 @@ import VariantProvider from "../variant-provider"
 import $ from "./$"
 
 
-export default ({Container})=>class extends ${
+export default ({Container})=>class __$1 extends ${
     static displayName="$for"
     static propTypes={
         init: PropTypes.string.isRequired,

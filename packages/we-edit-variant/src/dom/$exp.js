@@ -6,7 +6,7 @@ import vm from "vm"
 
 import $ from "./$"
 
-export default ({Text,Container})=>class extends ${
+export default ({Text,Container})=>class __$1 extends ${
     static displayName="$exp"
     static propTypes={
         expression:PropTypes.string.isRequired,

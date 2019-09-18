@@ -1,7 +1,7 @@
 import {Readable} from 'stream'
 import XMLDocument from "./xml"
 
-export default class extends XMLDocument{
+export default class __$1 extends XMLDocument{
     static support(file){
 		if(!file)//for installer
 			return true

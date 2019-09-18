@@ -42,7 +42,7 @@ const styles={
 export default compose(
 	setDisplayName("We-Edit-UI"),
 	connect(state=>({active:(getActive(state)||{}).doc})),
-)(class extends PureComponent{
+)(class __$1 extends PureComponent{
 	static propTypes={
 		titleBar:PropTypes.node,
 		dashboard: PropTypes.node,

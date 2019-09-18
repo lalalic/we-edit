@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 
 import Component from "./component"
 
-export default class extends Component{
+export default class __$1 extends Component{
 	static displayName="section"
 	static propTypes={
         create: PropTypes.func,

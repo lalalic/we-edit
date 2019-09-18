@@ -6,7 +6,7 @@ import {NoChild} from "../../composable"
 import {Text as ComposedText} from "../../composed"
 
 const Super=NoChild(dom.Unknown)
-export default class extends Super{
+export default class __$1 extends Super{
     static propTypes={
         ...Super.propsTypes,
         End:PropTypes.string

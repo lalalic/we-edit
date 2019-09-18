@@ -6,7 +6,7 @@ import ComboBox from "../components/combo-box"
 import reducer from "../state/reducer"
 import ACTION from "../state/action"
 
-export default class extends PureComponent{
+export default class __$1 extends PureComponent{
     static contextTypes={
         store: PropTypes.object
     }

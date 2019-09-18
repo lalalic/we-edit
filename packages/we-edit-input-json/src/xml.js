@@ -5,7 +5,7 @@ import {transactifyCheerio,Input} from "we-edit"
 import Reducer from "./event"
 import Dom from "./render"
 
-export default class extends Input.Editable{
+export default class __$1 extends Input.Editable{
     static support(file){
 		if(!file)//for installer
 			return true

@@ -10,7 +10,7 @@ import {custom, rect, ellipse, circle} from "./shapes"
 
 const Super=Fissionable(HasParentAndChild(dom.Shape))//why shape is fissionable
 export default class Shape extends Super{
-	static fissureLike=Frame=>class extends Frame{
+	static fissureLike=Frame=>class __$1 extends Frame{
 		static dispatchName="frame-shape"
 		getComposeType(){
 			return Shape.getType()

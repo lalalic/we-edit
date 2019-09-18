@@ -4,7 +4,7 @@ import {Editors} from "we-edit-representation-pagination"
 
 const {Document, Frame, Page}=Editors
 
-export default class extends Component{
+export default class __$1 extends Component{
 	static displayName="html-document"
 	static defaultProps={
 		margin:{
@@ -116,7 +116,7 @@ class ViewportDocument extends Document{
 		return this.page.nextAvailableSpace()
 	}
 
-	static Page=class extends Page.factory(Frame.editableLike(Frame.Columnable)){
+	static Page=class __$1 extends Page.factory(Frame.editableLike(Frame.Columnable)){
 		render(){
 			const {props:{width,margin}}=this
 			const height=Math.max(this.context.parent.state.viewport.height,this.composedHeight)

@@ -23,7 +23,7 @@ class  Representation extends PureComponent{
 		ModelTypes: PropTypes.object,
 	}
 
-	static Base=class extends Component{
+	static Base=class __$1 extends Component{
 		static install(conf){
 			Representation.install(this,conf)
 		}

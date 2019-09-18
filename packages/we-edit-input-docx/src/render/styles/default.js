@@ -1,6 +1,6 @@
 import Base from "./base"
 
-export default class extends Base{
+export default class __$1 extends Base{
 	constructor(node, styles, selector){
 		super(...arguments)
 		this.id='*'

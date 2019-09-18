@@ -147,7 +147,7 @@ export default class Emitter extends Viewer{
 			media:PropTypes.string
 		}
 
-		static Base=class extends Component{
+		static Base=class __$1 extends PureComponent{
 			static install(conf){
 				Emitter.install(this,conf)
 			}
@@ -172,7 +172,7 @@ export default class Emitter extends Viewer{
 
 			}
 
-			static Setting=class extends PureComponent{
+			static Setting=class __$1 extends PureComponent{
 				render(){
 					return null
 				}
@@ -195,7 +195,7 @@ export default class Emitter extends Viewer{
 				}
 
 
-				let emitted=this.emit()
+				const emitted=this.emit()
 				if(emitted && React.isValidElement(emitted)){
 					return emitted
 				}
@@ -203,20 +203,17 @@ export default class Emitter extends Viewer{
 				return null
 			}
 
-			emit(){
+			getAllContext=memoize(context=>{
 				if(!"__reactInternalMemoizedUnmaskedChildContext" in this){
 					throw new Error("Format.Base implementation has problem because of no global context")
 				}
 				
-				const {content}=this.props
-				const context=this.__reactInternalMemoizedUnmaskedChildContext
-
 				const childContextTypes=Object.keys(context).reduce((ctx,k)=>{
 					ctx[k]=PropTypes.any
 					return ctx
 				},{})
 
-				class AllContext extends Component{
+				return class AllContext extends Component{
 					static childContextTypes=childContextTypes
 					getChildContext(){
 						return context
@@ -225,7 +222,12 @@ export default class Emitter extends Viewer{
 						return <Fragment>{this.props.children}</Fragment>
 					}
 				}
-				this.output(ReactDOMServer.renderToStaticNodeStream(<AllContext>{content}</AllContext>))
+			})
+
+			emit(){
+				const AllContext=this.getAllContext(this.__reactInternalMemoizedUnmaskedChildContext)
+				const contentStream=ReactDOMServer.renderToStaticNodeStream(<AllContext>{this.props.content}</AllContext>)
+				this.output(contentStream)
 			}
 
 			output(content){

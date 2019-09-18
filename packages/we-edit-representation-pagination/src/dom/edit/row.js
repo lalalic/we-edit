@@ -8,7 +8,7 @@ import Resizable from "../../composed/selection/resizable"
 import Top from "../../composed/selection/top"
 import {Group} from "../../composed"
 
-export default Cacheable(class extends editable(Base,{stoppable:true,continuable:true}){
+export default Cacheable(class __$1 extends editable(Base,{stoppable:true,continuable:true}){
 	clearComposed(){
 		this.computed.spaces=[]
 		this.computed.composed=[]
@@ -142,7 +142,7 @@ class EditableEdges extends PureComponent{
 }
 
 const NoShow="transparent"
-const Resizer=connect()(class extends PureComponent{
+const Resizer=connect()(class __$1 extends PureComponent{
 	constructor(){
 		super(...arguments)
 		this.state={resizing:false}
@@ -184,7 +184,7 @@ const ColResizer=props=><Resizer {...props} direction="ew" cursor="col-resize"/>
 const RowResizer=props=><Resizer {...props} direction="-ns" cursor="row-resize"/>
 
 
-const Selector=connect()(class extends PureComponent{
+const Selector=connect()(class __$1 extends PureComponent{
 	render(){
 		const {dispatch, onSelect, cursor, size=5,...props}=this.props
 		return <line {...props}
@@ -198,7 +198,7 @@ const Selector=connect()(class extends PureComponent{
 const RowSelector=props=><Selector {...props} cursor="e-resize"/>
 const ColSelector=props=><Selector {...props} cursor="s-resize"/>
 
-const Adder=connect()(class extends PureComponent{
+const Adder=connect()(class __$1 extends PureComponent{
 	state={show:false}
 	render(){
 		const {show}=this.state

@@ -3,7 +3,7 @@ import memoize from "memoize-one"
 import {ReactQuery} from "we-edit"
 
 
-export default (A)=>class extends A{
+export default (A)=>class __$1 extends A{
 	static defaultProps={
 		...A.defaultProps,
 		create(...args){

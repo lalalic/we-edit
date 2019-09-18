@@ -30,7 +30,7 @@ class Loader extends PureComponent{
         onLoad: PropTypes.func
     }
 
-	static Base=class extends Component{
+	static Base=class __$1 extends Component{
 		static install(conf){
 			Loader.install(this,conf)
 		}

@@ -1,6 +1,6 @@
 import Base from "./base"
 
-export default class extends Base{
+export default class __$1 extends Base{
     size({width,height}){
         let ext0=this.node.find("a\\:xfrm>a\\:ext")
         let inline=this.node.closest("wp\\:inline")

@@ -1,5 +1,5 @@
 import React,{Component} from "react"
-export default ({Anchor})=>class extends Component{
+export default ({Anchor})=>class __$1 extends Component{
 	static displayName="anchor"
 	render(){
 		const {distance, wrap, ...props}=this.props

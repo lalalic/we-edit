@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 import {Writable} from "stream"
 import {Stream, Loader, Input} from "we-edit"
 
-import {TextField} from "material-ui"
+import TextField from "material-ui/TextField"
 
 const support=()=>{
 	try{

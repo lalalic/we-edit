@@ -4,7 +4,7 @@ import PropTypes from "prop-types"
 import $ from "./$"
 
 
-export default Components=>class extends ${
+export default Components=>class __$1 extends ${
     static displayName="$script"
     static propTypes={
         script: PropTypes.string.isRequired

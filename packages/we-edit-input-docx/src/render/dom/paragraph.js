@@ -6,7 +6,7 @@ import memoize from "memoize-one"
 import Run from "./run"
 
 
-export default ({Text, Paragraph})=>class extends Component{
+export default ({Text, Paragraph})=>class __$1 extends Component{
 	static displayName="paragraph"
 	static propTypes={
 		style: PropTypes.object.isRequired,

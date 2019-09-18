@@ -1,5 +1,5 @@
 import PropTypes from "prop-types"
-export default A=>class extends A{
+export default A=>class __$1 extends A{
     static displayName=`stoppable-${A.displayName}`
     static contextTypes={
         ...A.contextTypes,

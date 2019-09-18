@@ -5,7 +5,7 @@ import {connect} from 'react-redux'
 import {FontManager} from "we-edit-representation-pagination"
 
 
-export default connect()(class extends PureComponent{
+export default connect()(class __$1 extends PureComponent{
     constructor(){
         super(...arguments)
         this.state={}

@@ -1,4 +1,5 @@
 import Unknown from "./component"
+import Ignore from "./ignore"
 import Container from "./container"
 import Document from "./document"
 import Section from "./section"
@@ -15,6 +16,7 @@ import Page from "./page"
 
 export default {
 	Unknown,
+	Ignore,
 	Container,
 	Document,
 	Section,

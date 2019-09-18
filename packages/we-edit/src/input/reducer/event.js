@@ -1,6 +1,6 @@
 import Base from "./base"
 
-export default class extends Base{
+export default class __$1 extends Base{
     /* whole|empty|beginning_of|end_of|type
         at_beginning_of_text_up_to_document_in_run
         at_beginning_of_text_up_to_section_in_run

@@ -3,7 +3,7 @@ import simplify from "simplify-path"
 import contours from "svg-path-contours"
 import memoize from "memoize-one"
 
-export default class extends Path{
+export default class __$1 extends Path{
     static fromRect({x,y,width:w,height:h}){
         return new this(`M${x} ${y} h${w} v${h} h${-w}z`)    
     }

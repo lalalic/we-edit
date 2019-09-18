@@ -149,7 +149,7 @@ export default class TableStyle extends WithBorder{
 		})
 	}
 
-	static Direct=class extends TableStyle{
+	static Direct=class __$1 extends TableStyle{
 		constructor(node,styles,selector){
 			super(node, styles, selector)
 			const type=node.name.split(":").pop().replace("Pr","")

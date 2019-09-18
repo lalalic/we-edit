@@ -12,7 +12,7 @@ const Super=HasParentAndChild(dom.Anchor)
 * xy for Positioning
 * wrap boundary must be provided by children content, and then pass to frame
 */
-export default class extends Super{
+export default class __$1 extends Super{
     createComposed2Parent(content){
         var {width,height,geometry}=content.props
         const {margin:{left=0,right=0,top=0,bottom=0}={}, wrap:{mode}}=this.props

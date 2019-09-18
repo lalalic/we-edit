@@ -65,6 +65,7 @@ describe("we-edit integration", function(){
 				process.nextTick(cb)
 			}
 		})).then(([{stream}])=>{
+			console.log(svg.join(""))
 			expect(svg.join("")).toEqual(expect.stringContaining("Video provides a powerful way to help you prove your point"))
 		})
 	})

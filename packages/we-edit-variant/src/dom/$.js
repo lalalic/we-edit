@@ -2,7 +2,7 @@ import React, {Component, Fragment} from "react"
 import PropTypes from "prop-types"
 import vm from "vm"
 
-export default class extends Component{
+export default class __$1 extends Component{
 	static contextTypes={
 		variantContext:PropTypes.object,
 		parent: PropTypes.object,

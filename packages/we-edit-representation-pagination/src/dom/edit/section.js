@@ -8,7 +8,7 @@ import editable from "./editable"
 
 const Super=editable(Base,{stoppable:true})
 
-export default Cacheable(class extends Super{
+export default Cacheable(class __$1 extends Super{
 	static childContextTypes={
 		...Super.childContextTypes,
 		shouldContinueCompose:PropTypes.func,

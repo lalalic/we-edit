@@ -69,7 +69,7 @@ export default compose(
 		const content=state.get("content")
 		return {content}
 	}),
-)(class extends PureComponent{
+)(class __$1 extends PureComponent{
 	static propTypes={
 		content: PropTypes.any,
 		node: PropTypes.element,

@@ -6,7 +6,7 @@ import {Cacheable} from "../../composable"
 
 //cache doesn't help on performance
 const Super=editable(Base)
-export default class extends Super{
+export default class __$1 extends Super{
     render(){
         if(this.text.length==0){
             this.appendComposed({

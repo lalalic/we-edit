@@ -8,7 +8,7 @@ module.exports=base=>{
     			filename:`index.js`,
 				path:`${__dirname}/packages/${a}`
 			},
-			//devtool:"source-map",
+			devtool:"source-map",
             externals:"react,react-dom,material-ui,prop-types,we-edit,react-redux,recompose"
 				.split(",")
 				.reduce((cols,a)=>{

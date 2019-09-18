@@ -33,7 +33,7 @@ export default class Document extends Super{
         if(precision==1)
             return this.context.Measure
 
-        return class extends this.context.Measure{
+        return class __$1 extends this.context.Measure{
             lineHeight(...args){
                 const {height,descent}=super.lineHeight(...args)
                 return {

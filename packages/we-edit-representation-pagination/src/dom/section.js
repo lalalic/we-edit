@@ -7,7 +7,7 @@ import memoize from "memoize-one"
 
 const Super=Fissionable(HasParentAndChild(dom.Section))
 export default class Section extends Super{
-	static fissureLike=Frame=>class extends Frame{
+	static fissureLike=Frame=>class __$1 extends Frame{
 		static displayName="frame-section"
 		defineProperties(){
 			super.defineProperties()

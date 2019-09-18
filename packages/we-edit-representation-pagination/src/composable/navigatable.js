@@ -4,7 +4,7 @@ import PropTypes from "prop-types"
 import {ReactQuery} from "we-edit"
 
 export default function Navigatable(A){
-	return class extends A{
+	return class __$1 extends A{
 		static displayName=`navigatable-${A.displayName}`
 		static propTypes={
 			...A.propTypes,

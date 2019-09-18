@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 import {Provider} from "react-redux"
 
 import {Emitter, Stream, getActive, ACTION as weACTION, render} from "we-edit"
-import {TextField, RaisedButton} from "material-ui"
+import RaisedButton from "material-ui/RaisedButton"
 
 import ComboBox from "../components/combo-box"
 import ACTION from "../state/action"

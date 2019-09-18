@@ -10,7 +10,7 @@ const Super=HasParentAndChild(dom.Row)
 create rank only when cell request next availableSpace
 rank's height is not always correct, how to fix it??? when add new cell, the height should be fixed
 */
-export default class extends Super{
+export default class __$1 extends Super{
 	constructor(){
 		super(...arguments)
 		this.computed.spaces=[]

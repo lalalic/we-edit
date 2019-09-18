@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 import {Editors} from  "we-edit-representation-html"
 
 const {Paragraph}=Editors
-export default class extends Component{
+export default class __$1 extends Component{
 	static contextTypes={
 		lineHeight: PropTypes.string,
 		fonts: PropTypes.string,

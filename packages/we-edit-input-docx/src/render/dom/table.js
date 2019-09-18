@@ -4,7 +4,7 @@ import {ReactQuery,ContentQuery} from "we-edit"
 import memoize from "memoize-one"
 
 
-export default ({Table,Container})=>class extends Component{
+export default ({Table,Container})=>class __$1 extends Component{
 	static displayName="table"
 	static namedStyle="*table"
 

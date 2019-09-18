@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 import memoize from "memoize-one"
 import {shallowEqual, ContentQuery} from "we-edit"
 
-export default ({Document, Container,Frame})=>class extends Component{
+export default ({Document, Container,Frame})=>class __$1 extends Component{
 	static displayName="document"
 
 	static childContextTypes={

@@ -13,7 +13,7 @@ export class Stream extends Component{
 		onFinish:a=>a
 	}
 
-	static Base=class extends Component{
+	static Base=class __$1 extends Component{
 		static install(conf){
 			Stream.install(this,conf)
 		}

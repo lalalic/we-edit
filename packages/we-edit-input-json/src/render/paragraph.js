@@ -1,7 +1,7 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 
-export default ({Paragraph})=>class extends Component{
+export default ({Paragraph})=>class __$1 extends Component{
     static displayName="paragraph"
     static contextTypes={
         defaultStyle:PropTypes.shape({

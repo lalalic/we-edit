@@ -1,5 +1,4 @@
 import {Emitter} from "we-edit"
-import ReactDOMServer from "react-dom/server.node"
 import Parser from "htmlparser2"
 
 const RE_TRANSLATE=/translate\((.*)\s+(.*)\)/
@@ -9,8 +8,9 @@ export default class Output extends Emitter.Format.Base{
 		representation: "pagination"
 	}
 
-	output(stream){
-		stream.pipe(new Parser.WritableStream(this,{xmlMode:true}))
+	output(content){
+		debugger
+		content.pipe(new Parser.WritableStream(this,{xmlMode:true}))
 	}
 
 	onopentag(name,attrs){

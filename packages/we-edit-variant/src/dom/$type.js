@@ -6,7 +6,7 @@ import vm from "vm"
 
 import $ from "./$"
 
-export default ()=>class extends ${
+export default ()=>class __$1 extends ${
     render(){
         const {children,...props}=this.props
         const child=React.Children.only(children)

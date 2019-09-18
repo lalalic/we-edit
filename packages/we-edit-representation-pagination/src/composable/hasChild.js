@@ -5,7 +5,7 @@ import {ContentQuery} from "we-edit"
 
 const ComposedAllTrigger=({host})=>(host.onAllChildrenComposed(),null)
 
-export default A=>class extends A{
+export default A=>class __$1 extends A{
     static displayName=`composable-${A.displayName}`
 	static contextTypes={
 		...A.contextTypes,

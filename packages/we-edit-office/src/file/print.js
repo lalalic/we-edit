@@ -2,7 +2,7 @@ import React, {PureComponent} from "react"
 import {Emitter, Stream} from "we-edit"
 const {Format}=Emitter
 
-export default class extends PureComponent{
+export default class __$1 extends PureComponent{
 	render(){
 		const {doc}=this.props
 		return (

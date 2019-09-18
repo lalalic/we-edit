@@ -14,7 +14,7 @@ import Shape from "./shape"
 import Anchor from "./anchor"
 
 const createUnvisibleComponent=type=>{
-	return class extends Component{
+	return class __$1 extends Component{
 		static displayName=`${type}`
 		render(){
 			return null

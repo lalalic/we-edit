@@ -3,7 +3,7 @@ import {Cacheable} from "../../composable"
 import Base from "../table"
 
 
-export default Cacheable(class extends editable(Base){
+export default Cacheable(class __$1 extends editable(Base){
 	constructor(){
 		super(...arguments)
 		this.computed.spaces=[]

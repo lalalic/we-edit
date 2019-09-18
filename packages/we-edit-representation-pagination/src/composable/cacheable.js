@@ -2,7 +2,7 @@ import React, {Children} from "react"
 import PropTypes from "prop-types"
 import Recomposable from "./recomposable"
 
-export default (A,partable)=>class extends A{
+export default (A,partable)=>class __$1 extends A{
     static displayName=`cacheable(${partable ? "part" : "all"})-${A.displayName}`
     constructor(){
         super(...arguments)

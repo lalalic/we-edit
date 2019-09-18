@@ -2,7 +2,7 @@ import React, {Component} from "react"
 import memoize from "memoize-one"
 import PropTypes from "prop-types"
 
-export default ({Shape})=>class extends Component{
+export default ({Shape})=>class __$1 extends Component{
     static displayName="shape"
     static contextTypes={
 		style: PropTypes.object,

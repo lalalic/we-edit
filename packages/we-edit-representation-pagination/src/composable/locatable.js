@@ -3,7 +3,7 @@ import React from "react"
 import PropTypes from "prop-types"
 
 function Locatable(A){
-	return class extends A{
+	return class __$1 extends A{
 		static displayName=`locatable-${A.displayName}`
 		static propTypes={
 			...A.propTypes,
@@ -43,7 +43,7 @@ function Locatable(A){
 }
 
 function Locatorize(A){
-	return class extends A{
+	return class __$1 extends A{
 		static displayName=`locator-${A.displayName}`
 		static childContextTypes={
 			...A.childContextTypes,

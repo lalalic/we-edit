@@ -16,7 +16,7 @@ export default class Paragraph extends Base{
 		this.p=this._convert(node, "w:pPr",attribs, selector)
 	}
 
-	static Direct=class extends Paragraph{
+	static Direct=class __$1 extends Paragraph{
 		constructor(node,styles,selector){
 			super(node, styles, selector)
 			this.p=this._convert(node, null,attribs, selector)

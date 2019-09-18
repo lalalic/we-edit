@@ -16,7 +16,7 @@ export default class Character extends Base{
 		this.r=this._convert(node, "w:rPr",attribs, selector)
 	}
 
-	static Direct=class extends Character{
+	static Direct=class __$1 extends Character{
 		constructor(node, styles, selector){
 			super(node, styles, selector)
 			this.r=this._convert(node, null,attribs, selector)

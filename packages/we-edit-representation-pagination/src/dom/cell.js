@@ -6,7 +6,7 @@ import {Group} from "../composed"
 import {HasParentAndChild, Fissionable} from "../composable"
 
 export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
-	static fissureLike=Frame=>class extends Frame{
+	static fissureLike=Frame=>class __$1 extends Frame{
 		static displayName="frame-cell"
 		clone({height,...props}){
 			const cloned=super.clone(...arguments)
@@ -83,7 +83,7 @@ export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 const Spacing=Group
 const Margin=Group
 
-Cell.ComposedCell=class extends Component{
+Cell.ComposedCell=class __$1 extends Component{
 	static displayName="cell"
 	render(){
 		var {border, margin, vertAlign,width,frame,

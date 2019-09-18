@@ -16,7 +16,8 @@ module.exports=base=>{
     			filename:`${a.substr("we-edit".length+1)||"index"}.js`,
     			path:path.resolve(__dirname, 'packages/we-edit'),
                 libraryTarget:"commonjs2"
-    		},
+            },
+            devtool:"source-map",
             plugins:[
                 ...base.plugins,
                 new LocalReference(),

@@ -9,7 +9,7 @@ import Shape from "./shape"
 const {Image:Base}=dom
 
 const Super=NoChild(Base)
-export default class extends Super{
+export default class __$1 extends Super{
 	getShape(){
 		const {width,height}=this.props
 		return new Shape({width, height,...this.props.outline, margin:{},children:null}, this.context)

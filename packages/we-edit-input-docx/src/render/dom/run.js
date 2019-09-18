@@ -2,7 +2,7 @@ import React, {Component, Fragment} from "react"
 import PropTypes from "prop-types"
 
 
-export default ({Container})=>class extends Component{
+export default ({Container})=>class __$1 extends Component{
 	static displayName="run"
 	static propTypes={
 		style: PropTypes.object.isRequired

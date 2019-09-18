@@ -3,7 +3,7 @@ import HasChild from "./hasChild"
 
 export default A=>{
 	const Super=HasChild(A)
-    return class extends Super{
+    return class __$1 extends Super{
         static contextTypes = {
             ...Super.contextTypes,
             parent: PropTypes.object

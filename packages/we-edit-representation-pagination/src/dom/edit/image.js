@@ -3,7 +3,7 @@ import editable from "./editable"
 import Base from "../image"
 import Shape from "./shape"
 
-export default class extends editable(Base){
+export default class __$1 extends editable(Base){
 	constructor(){
 		super(...arguments)
 		this.splittable=false

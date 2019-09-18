@@ -3,7 +3,7 @@ import {HasParentAndChild} from "../composable"
 import {dom} from "we-edit"
 import {Group} from "../composed"
 
-export default class extends HasParentAndChild(dom.Container){
+export default class __$1 extends HasParentAndChild(dom.Container){
     getComposeType(){
         return this.props.type || super.getComposeType()
     }

@@ -7,7 +7,7 @@ import memoize from "memoize-one"
 
 import get from "lodash.get"
 
-export default ({Section,Frame, Container})=>class extends Component{
+export default ({Section,Frame, Container})=>class __$1 extends Component{
 	static displayName="section"
 	static propTypes={
 		cols: PropTypes.shape({
@@ -79,7 +79,7 @@ export default ({Section,Frame, Container})=>class extends Component{
 	}
 
 	static get Page(){
-		return memoize(()=>class extends Section.fissureLike(Frame){
+		return memoize(()=>class __$1 extends Section.fissureLike(Frame){
 			defineProperties(){
 				this.section=this.context.parent
 				super.defineProperties()

@@ -12,7 +12,7 @@ import forward from "./forward"
 import backward from "./backward"
 import remove from "./remove"
 
-export default class extends Base{
+export default class __$1 extends Base{
     constructor(){
         super(...arguments)
         this.PR="__unknown"

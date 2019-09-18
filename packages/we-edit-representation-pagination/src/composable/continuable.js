@@ -1,6 +1,6 @@
 import PropTypes from "prop-types"
 
-export default A=>class extends A{
+export default A=>class __$1 extends A{
     static displayName=`continuable-${A.displayName}`
 
     static childContextTypes={

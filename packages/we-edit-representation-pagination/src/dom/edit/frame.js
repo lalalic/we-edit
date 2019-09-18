@@ -5,7 +5,7 @@ import {Cacheable} from "../../composable"
 import Base from "../frame"
 import {Group} from "../../composed"
 
-const factory=base=>Cacheable(class extends editable(base){
+const factory=base=>Cacheable(class __$1 extends editable(base){
     static editableLike(A){
         return factory(A)
     }

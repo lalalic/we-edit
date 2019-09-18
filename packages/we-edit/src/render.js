@@ -48,11 +48,14 @@ export default function render(element){
 				}
 			}
 
-			componentDidCatch(error,info){
-				reject(error)
-			}
 			render(){
 				return <Fragment>{this.props.children}</Fragment>
+			}
+
+			static getDerivedStateFromError(error){
+				console.error(error)
+				reject(error)
+				return null
 			}
 		}
 	})
