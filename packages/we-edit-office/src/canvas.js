@@ -52,7 +52,7 @@ export default class Canvas extends Component{
 						</div>
 					)}
 
-					<div ref={b=>this.b=b} style={{flex:"1 100%"}}>
+					<div ref={b=>this.b=b} style={{flex:"1 100%",textAlign:"center"}}>
 						{error ?  error.stack : children}
 					</div>
 				</div>
@@ -64,11 +64,12 @@ export default class Canvas extends Component{
 	componentDidCatch(error){
 		this.setState({error})
 	}
-
+/*
 	componentDiDMount(){
 		this.a.style.minHeight=this.b.getBoundingClientRect().height+'px'
 	}
 	componentDidUpdate(){
 		this.a.style.minHeight=this.b.getBoundingClientRect().height+'px'
 	}
+	*/
 }

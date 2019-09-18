@@ -98,11 +98,7 @@ export default class Pagination extends Representation.Base{
 
 		const {defaultFont,measure,fonts, type, ViewerTypes=Viewers, EditorTypes=Editors, ...props}=this.props
 
-		return (
-			<div style={{textAlign:"center"}}>
-				<Representation {...{ViewerTypes,EditorTypes,...props,type:undefined} }/>
-			</div>
-		)
+		return (<Representation {...{ViewerTypes,EditorTypes,...props,type:undefined} }/>)
 	}
 }
 

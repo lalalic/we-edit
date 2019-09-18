@@ -134,7 +134,7 @@ export default compose(
 
 					{activeWorkspace}
 
-					{nonWorkspaces}
+					{nonWorkspaces && nonWorkspaces.map(a=>React.cloneElement(a,{hasActiveWorkspace:!!activeWorkspace}))}
 
 					<Snackbar
 						open={!!error}

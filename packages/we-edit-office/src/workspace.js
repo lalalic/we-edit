@@ -1,7 +1,6 @@
 import React, {PureComponent, Children, Fragment} from "react"
 import PropTypes from "prop-types"
-import {compose,setDisplayName,getContext,withProps, pure}  from "recompose"
-import {Provider} from "react-redux"
+import {pure}  from "recompose"
 import EventEmitter from "events"
 import memoize from "memoize-one"
 

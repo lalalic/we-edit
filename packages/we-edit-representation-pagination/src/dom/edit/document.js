@@ -140,7 +140,7 @@ export default class Document extends Super{
 	initViewport(viewporter){
 		const container=(function getFrameParent(node){
 			const {overflowY,width,height} = window.getComputedStyle(node);
-			if(width>0 && height>0)
+			if(parseInt(width)>0 && parseInt(height)>0)
 				return node
 			const isScrollable = overflowY !== 'visible' && overflowY !== 'hidden';
 			if(isScrollable)

@@ -2,8 +2,7 @@ module.exports={
     "presets": [
       ["@babel/preset-env",{
         targets:{
-          esmodules:true,
-          browsers:"> 5%, not dead, node 10",
+          esmodules:true
         }
       }],
       "@babel/preset-react",
