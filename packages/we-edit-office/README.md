@@ -7,7 +7,7 @@ It would create a default office for quick playaround if
 
 ##components
 * DefaultOffice
-* WeEditUI
+* WeEditUI : hasActiveWorkspace will be injected into non-workspace children
 * Workspace
 * Dashboard
 
