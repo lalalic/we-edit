@@ -1,9 +1,10 @@
-import React, {PureComponent, Fragment} from "react"
+import React, {PureComponent, Component,Fragment} from "react"
 import PropTypes from "prop-types"
 
 import {connect} from "../state"
 import Representation from "./representation"
 import uuid from "../tools/uuid"
+import shallowEqual from "../tools/shallow-equal"
 
 export class Editor extends PureComponent{
 	static displayName="editor"
@@ -109,7 +110,7 @@ export function createWeDocument(id,content,ModelTypes,lastContent){
 }
 
 
-export class WeDocumentStub extends PureComponent{
+export class WeDocumentStub extends Component{
 	static contextTypes={
 		ModelTypes: PropTypes.object
 	}
@@ -127,6 +128,20 @@ export class WeDocumentStub extends PureComponent{
 		return {weDocument:this.doc}
 	}
 
+	shouldComponentUpdate(props){
+		if(shallowEqual(props, this.props)){
+			return false
+		}else{
+			const {content,...next}=props
+			const {content:last, ...current}=this.props
+			if(shallowEqual(next,current) && content.equals(last)){
+				return false
+			}
+		}
+		
+		return true
+	}
+
 	componentWillReceiveProps({content,canvasProps,canvasId},{ModelTypes}){
 		if(!ModelTypes)
 			return
@@ -134,6 +149,8 @@ export class WeDocumentStub extends PureComponent{
 			this.doc=createWeDocument("root",content,ModelTypes)
 		}else if(!content.equals(this.props.content)){
 			this.doc=createWeDocument("root",content,ModelTypes,this.props.content)
+		}else{
+			content=this.props.content//make shallowEquals works for descandents
 		}
 
 		this.doc=React.cloneElement(this.doc,  {
