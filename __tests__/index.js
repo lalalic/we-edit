@@ -55,7 +55,7 @@ describe("we-edit integration", function(){
 			</Emitter>
 		</Loader>
 	);
-
+	const TEXT="Video provides a powerful way to help you prove your point"
 
 	it("svg",()=>{
 		const svg=[]
@@ -65,8 +65,7 @@ describe("we-edit integration", function(){
 				process.nextTick(cb)
 			}
 		})).then(([{stream}])=>{
-			console.log(svg.join(""))
-			expect(svg.join("")).toEqual(expect.stringContaining("Video provides a powerful way to help you prove your point"))
+			expect(svg.join("")).toEqual(expect.stringContaining(TEXT))
 		})
 	})
 
@@ -90,7 +89,7 @@ describe("we-edit integration", function(){
 				process.nextTick(cb)
 			}
 		})).then(()=>{
-			expect(html.join("")).toEqual(expect.stringContaining("Video provides a powerful way to help you prove your point"))
+			expect(html.join("")).toEqual(expect.stringContaining(TEXT))
 		})
 	})
 
@@ -102,7 +101,7 @@ describe("we-edit integration", function(){
 				process.nextTick(cb)
 			}
 		})).then(()=>{
-			expect(output.join("")).toEqual(expect.stringContaining("Video provides a powerful way to help you prove your point"))
+			expect(output.join("")).toEqual(expect.stringContaining(TEXT))
 		})
 	})
 })
