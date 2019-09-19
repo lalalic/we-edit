@@ -24,7 +24,7 @@ export default class Shape extends Super{
 
 	getFocusShape(){
 		const x=this.geometry.strokeWidth/2, y=x
-		const {width:right, height:bottom,rotate,id}=this.props
+		const {width:right, height:bottom,rotate=0,id}=this.props
 		const left=0, top=0
 		const path=`M${left} ${top} h${right-left} v${bottom-top} h${left-right} Z`
 		return (<Entity
