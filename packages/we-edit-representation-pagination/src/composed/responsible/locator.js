@@ -74,9 +74,12 @@ export default compose(
 
                 this.cursor=cursor
                 this.range=range
-                if(cursor && cursorPosition && isCursor){
+                if(cursor && cursorPosition){
                     const {x,y,left,top,height,fontFamily,fontSize}=cursorPosition
-                    this.cursor=React.cloneElement(cursor, {x,y,left,top,height,fontFamily,fontSize})
+                    this.cursor=React.cloneElement(cursor, {
+                        x,y,left,top,fontFamily,fontSize,
+                        height: isCursor ? height : 0,
+                    })
                 }
 
                 if(range && (rangeRects && rangeRects.length || focusShape)){
