@@ -5,7 +5,7 @@ import {Cacheable} from "../../composable"
 import Base from "../frame"
 import {Group} from "../../composed"
 
-const factory=base=>Cacheable(class __$1 extends editable(base){
+const factory=base=>Cacheable(class Frame extends editable(base){
     static editableLike(A){
         return factory(A)
     }
@@ -34,29 +34,24 @@ const factory=base=>Cacheable(class __$1 extends editable(base){
 
 	positionFromPoint(x,y){
         const pointIsInside=({x:x0=0,y:y0=0,width,height})=>x0<=x && y0<=y && (x0+width)>=x && (y0+height)>=y
+        const pointIsInExtendedLine=({y:y0=0,height})=>y0<=y && (y0+height)>=y
         const chosen=new Set()
+        const extendedLines=[]
+        const lines=[]
         var bound
-        const {first:found,parents}=new ReactQuery(this.render()).findFirstAndParents((node,parents)=>{
-            const {width,height,"data-type":type, "data-content":id}=node.props||{}
-            
+        const {first:found}=new ReactQuery(this.render()).findFirstAndParents((node,parents)=>{
+            const {width,height,"data-type":type, "data-content":id, className}=node.props||{}
             bound={width,height,...this.getBound([...parents,node])}
             if(bound.width && bound.height){
-                
                 if(!pointIsInside(bound)){
-                    /*
-                    const nodes=[...parents,node]
-                    const closestParent=nodes.findLast(a=>chosen.has(a.props["data-content"]))
-                    if(closestParent){
-                        const i=nodes.indexOf(closestParent)
-                        if(isLastContent(nodes.slice(i))){
-                            const composer=this.context.getComposer(closestParent.props["data-content"])
-                            const xy=this.getBound(nodes.slice(0,i))
-                            bound=composer.positionFromPoint(x-xy.x,y-xy.y)
-                            return true
+                    if(className=="line"){
+                        if(pointIsInExtendedLine(bound)){
+                            extendedLines.push({node,parents,bound})
                         }
                     }
-                    */
                     return false//don't continue
+                }else if(className=="line"){
+                    lines.push({node,parents,bound})
                 }
             }
 
@@ -84,6 +79,21 @@ const factory=base=>Cacheable(class __$1 extends editable(base){
 
         if(found.length>0){
             return {id:bound.id, at:bound.at}
+        }else if(extendedLines.length || lines.length){
+            const {bound,node,parents}=[...extendedLines,...lines].pop()
+            const paragraph=[...parents,node].findLast(a=>a.props["data-type"]=="paragraph")
+            const lineIndex=paragraph.props.pagination.i
+            const composer=this.context.getComposer(paragraph.props["data-content"])
+            let pos
+            if(x>=bound.x){//end of line
+                const width=paragraph.props.width
+                pos=composer.positionFromPoint(width,undefined,lineIndex-1)
+            }else if(x<bound.x){//beginning of line
+                pos=composer.positionFromPoint(0,undefined,lineIndex-1)
+            }
+            if(pos){
+                return {id:pos.id, at:pos.at}
+            }
         }
 
         return {}
