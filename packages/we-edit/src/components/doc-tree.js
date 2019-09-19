@@ -1,11 +1,12 @@
-import React,{PureComponent, Fragment} from "react"
+import React,{PureComponent, Component, Fragment} from "react"
 import PropTypes from "prop-types"
 import {getContext,compose,setDisplayName} from "recompose"
 import minimatch from "minimatch"
-import memoize from "memoize-one"
+import memoize ,{EqualityFn} from "memoize-one"
 import {connect} from "../state"
 import {getSelection,getParentId} from "../state/selector"
 import {Selection} from "../state/action"
+import shallowEqual from "../tools/shallow-equal"
 
 
 const DL=connect(state=>{
@@ -63,17 +64,34 @@ const DL=connect(state=>{
 	}
 })
 
+const withContentEquals=(a,b)=>{
+	return a===b || (a.equals && a.equals(b))
+}
 export default compose(
 	setDisplayName("DocumentTree"),
 	connect((state)=>{
 		const content=state.get("content")
 		return {content}
 	}),
-)(class __$1 extends PureComponent{
+)(class __$1 extends Component{
 	static propTypes={
 		content: PropTypes.any,
 		node: PropTypes.element,
 		toNodeProps: PropTypes.func
+	}
+
+	shouldComponentUpdate(props){
+		if(shallowEqual(props, this.props)){
+			return false
+		}else{
+			const {content,...next}=props
+			const {content:last, ...current}=this.props
+			if(shallowEqual(next,current) && content.equals(last)){
+				return false
+			}
+		}
+		
+		return true
 	}
 
 	render(){
@@ -99,7 +117,7 @@ export default compose(
 		}
 
 		return null
-	})
+	},withContentEquals)
 
 	getDocument=memoize((content, filter,  node, toNodeProps)=>{
 		node=node||<this.constructor.Node/>
@@ -122,7 +140,7 @@ export default compose(
 			})
 		}
 		return this.constructor.createDocument(content, this.getFilter(filter),createNode)
-	})
+	},withContentEquals)
 
 	getFilter=memoize(filter=>{
 		if(typeof(filter)=="string"){
