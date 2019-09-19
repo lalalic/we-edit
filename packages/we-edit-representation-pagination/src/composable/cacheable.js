@@ -1,12 +1,11 @@
-import React, {Children} from "react"
-import PropTypes from "prop-types"
-import Recomposable from "./recomposable"
+import {Children} from "react"
 
 export default (A,partable)=>class __$1 extends A{
     static displayName=`cacheable(${partable ? "part" : "all"})-${A.displayName}`
     constructor(){
         super(...arguments)
         this.computed.lastComposed=[]
+        this.computed.hash=null
     }
 
     createComposed2Parent(){
@@ -15,26 +14,25 @@ export default (A,partable)=>class __$1 extends A{
         return composed
     }
 
-    clearComposed({changed,children}){
+    clearComposed({id, hash, changed=hash!==this.props.hash,children}){
+        //console.debug(`${this.constructor.getType()}[${id}] -- ${changed}`)
+        
         if(!changed && this.isAllChildrenComposed()){
             return
         }
 
         super.clearComposed(...arguments)
-
+        this.computed.hash=null
+        
         if(!partable){//keep last Composed for recovering
             this.computed.lastComposed=[]
         }else if(changed){
             const next=Children.toArray(children)
             const last=Children.toArray(this.props.children)
             const changedIndex=last.findIndex((a,i)=>{
-                let b
-                if(b=next[i]){
-                    if(b.props.id==a.props.id){
-                        if(!b.props.changed){
-                            return false
-                        }
-                    }
+                let b=next[i]
+                if( b && b.props.id===a.props.id && b.props.hash===a.props.hash){
+                    return false
                 }
                 return true
             })
@@ -57,38 +55,43 @@ export default (A,partable)=>class __$1 extends A{
     }
 
     render(){
-        if(this.context.shouldContinueCompose && !this.context.shouldContinueCompose(this)){
-            return null
-        }
-
-        const {changed}=this.props
-        if(!changed && this.isAllChildrenComposed()){
-            if(this.appendLastComposed()!==false){
+        try{
+            if(this.context.shouldContinueCompose && !this.context.shouldContinueCompose(this)){
                 return null
             }
-		}
 
-        if(partable){
-            if(changed){//remove changed part, and continue compose left
-                if(this.renderChangedPart){
-                    const changedRendered=this.renderChangedPart()
-                    if(changedRendered!==false){
-                        return changedRendered
-                    }
-                }
-            }else if(this.computed.lastComposed.length>0){//(!this.isAllChildrenComposed())
-                const lastIndex=this.keepUntilLastAllChildrenComposed()
-                if(lastIndex!=-1){
-                    return this.renderFrom(lastIndex+1)
+            const {hash, changed=hash!==this.computed.hash}=this.props
+            if(!changed && this.isAllChildrenComposed()){
+                if(this.appendLastComposed()!==false){
+                    return null
                 }
             }
-        }
 
-        //last safe
-        this.clearComposed({changed:true})
-        this.computed.lastComposed=[]
-        return super.render()
-	}
+            if(partable){
+                if(changed){//remove changed part, and continue compose left
+                    if(this.renderChangedPart){
+                        const changedRendered=this.renderChangedPart()
+                        if(changedRendered!==false){
+                            return changedRendered
+                        }
+                    }
+                }else if(this.computed.lastComposed.length>0){//(!this.isAllChildrenComposed())
+                    const lastIndex=this.keepUntilLastAllChildrenComposed()
+                    if(lastIndex!=-1){
+                        return this.renderFrom(lastIndex+1)
+                    }
+                }
+            }
+
+            //last safe
+            super.clearComposed(this.props)
+            this.computed.hash=null
+            this.computed.lastComposed=[]
+            return super.render()
+        }finally{
+            this.computed.hash=this.props.hash
+        }
+    }
 
     renderFrom(index){
         if(this.appendLastComposed()===false){

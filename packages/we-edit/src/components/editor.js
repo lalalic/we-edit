@@ -70,7 +70,9 @@ export class Editor extends PureComponent{
 
 }
 
-export function createWeDocument(id,content,ModelTypes,lastContent){
+const hashCode=ints=>ints.reduce((s,a)=>s+a,0)
+
+export function createWeDocument(id,content,ModelTypes){
 	let current=content.get(id)
 	let {type, props, children}=current.toJS()
 	if(!type){
@@ -81,23 +83,12 @@ export function createWeDocument(id,content,ModelTypes,lastContent){
 		Child=ModelTypes.Unknown
 		console.warn(`[${type}] not found`)
 	}
+
 	let elChildren=children
-
-	if(Array.isArray(children))
-		elChildren=children.map(a=>{
-			return createWeDocument(a,content,ModelTypes,lastContent)
-		})
-
-	let changed=false, selfChanged=false
-
-	if(lastContent){
-		let last=lastContent.get(id)
-
-		changed=!current.equals(last)
-
-		if(!changed && Array.isArray(children)){
-			changed=!!elChildren.find(({props:{changed}})=>changed)
-		}
+	const hashCodes=[current.hashCode()]
+	if(Array.isArray(children)){
+		elChildren=children.map(a=>createWeDocument(a,content,ModelTypes))
+		elChildren.every(a=>hashCodes.push(a.props.hash))
 	}
 
 	return(<Child
@@ -105,7 +96,7 @@ export function createWeDocument(id,content,ModelTypes,lastContent){
 			id={id}
 			{...props}
 			children={elChildren}
-			changed={changed}
+			hash={hashCode(hashCodes)}
 		/>)
 }
 

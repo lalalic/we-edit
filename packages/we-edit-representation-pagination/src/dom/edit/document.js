@@ -72,16 +72,15 @@ export default class Document extends Super{
 		)
 	}
 
-	static getDerivedStateFromProps({changed,content},{mode,y}){
-		let state={}
+	static getDerivedStateFromProps({content},state){
 		if(content && !content.equals(state.content)){
-			state.content=content
-			if(changed){
-				state.mode="content"
-				state.y=0
+			return {
+				content,
+				mode:"content",
+				y:0
 			}
 		}
-		return state
+		return null
 	}
 	
 	componentDidMount(){

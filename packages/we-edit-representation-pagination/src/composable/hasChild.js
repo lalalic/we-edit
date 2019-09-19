@@ -49,9 +49,13 @@ export default A=>class __$1 extends A{
         )
     }
 
+    /** NOTE: React.Children.toArray changes key, so 
+     * in order to make first/normal render with the same key on children, always use toArray on children 
+     */
     children(){
-        return this.props.children
+        return React.Children.toArray(this.props.children)
     }
+
 
     /**
      * children should call after a line composed out

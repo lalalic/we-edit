@@ -1,11 +1,9 @@
 import React, {Component} from "react"
-import TestRenderer from 'react-test-renderer'
 
 import PropTypes from "prop-types"
-import {ReactQuery, render} from  "we-edit"
 import memoize from "memoize-one"
+import {shallowEqual} from "recompose"
 
-import get from "lodash.get"
 
 export default ({Section,Frame, Container})=>class __$1 extends Component{
 	static displayName="section"
@@ -31,12 +29,11 @@ export default ({Section,Frame, Container})=>class __$1 extends Component{
 		evenAndOddHeaders: PropTypes.bool
 	}
 
-	getLayout(section=this){
-		const {children, pgSz:{width,height},  pgMar:margin, cols:{num=1, space=0, data}, id,...props}=section.props
+	getLayout=memoize((width,margin,{num=1, space=0, data},id)=>{
 		const availableWidth=width-margin.left-margin.right
 		const cols=(data ? data : new Array(num).fill({width:(availableWidth-(num-1)*space)/num,space}))
 			.reduce((state,{width,space})=>{
-				state.columns.push({x:state.x, width,"data-content":section.props.id, "data-type":"section"})
+				state.columns.push({x:state.x, width,"data-content":id, "data-type":"section"})
 				state.x+=(space+width)
 				return state
 			},{x:margin.left,columns:[]})
@@ -46,14 +43,11 @@ export default ({Section,Frame, Container})=>class __$1 extends Component{
 			cols,
 			margin,
 		}
-	}
+	}, (a,b)=>a===b||shallowEqual(a,b))
 
-	render(){
-		const {pgSz:{width,height},  pgMar:{left,right}, cols:{num=1, space=0, data},children, ...props}=this.props
-		const layout=this.getLayout(this)
-
-		const create=(props,context)=>{
-			if(this.props.type=="continuous"){
+	getCreate=memoize((layout,type,width,height)=>{
+		return (props,context)=>{
+			if(type=="continuous"){
 				if(props.i==0){
 					if(props.I!=0){
 						const pages=context.parent.getDocument().computed.composed
@@ -64,6 +58,13 @@ export default ({Section,Frame, Container})=>class __$1 extends Component{
 
 			return new this.constructor.Page({width,height,...layout,...props},context)
 		}
+	},(a,b)=>a===b||shallowEqual(a,b))
+
+	render(){
+		const {pgSz:{width,height},  pgMar, cols,children, ...props}=this.props
+		const {left,right}=pgMar
+		const layout=this.getLayout(width,pgMar,cols,this.props.id)
+		const create=this.getCreate(layout,this.props.type,width,height)
 
 		return(
 			<Section create={create} {...props}>

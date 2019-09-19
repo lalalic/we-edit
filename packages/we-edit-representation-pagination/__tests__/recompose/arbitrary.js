@@ -285,10 +285,10 @@ describe("continuable", ()=>{
 						2. so paragraph1/2.render should not be called
 						*/
 						expect(Section.prototype.render).toHaveBeenCalledTimes(3+3)
-						expect(Paragraph.prototype.render).toHaveBeenCalledTimes(4+3)
-
 						expect(Section.prototype.render).nthReturnedWith(4,null)
-						expect(Paragraph.prototype.render).nthReturnedWith(7,null)
+						
+						expect(Paragraph.prototype.render).toHaveBeenCalledTimes(4+4)
+						expect(Paragraph.prototype.render).nthReturnedWith(5,null)
 
 						expect(React.isValidElement(Section.prototype.render.mock.results[5].value)).toBe(true)
 						//expect(section2.render).lastReturnedWith(null)

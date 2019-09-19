@@ -102,10 +102,7 @@ export default ({Document, Container,Frame})=>class __$1 extends Component{
 
 			 //remove own headers & footers
 			const children=headerfooters.concat(withoutHeaderFooterChildren(current.props.children))
-			current=React.cloneElement(current,{
-				children,
-				changed:current.props.changed || !!children.find(a=>a.props.changed)
-			})
+			current=React.cloneElement(current,{children})
 
 			//first page of section can't be inherited
 			delete headerfooters["header.first"]
@@ -123,12 +120,6 @@ export default ({Document, Container,Frame})=>class __$1 extends Component{
 				content.push(current)
 			}else{
 				current=inheritHeaderFooter(current)
-				if(!current.props.changed && current.props.type=="continuous"){
-					const prev=content[content.length-1]
-					if(prev && prev.type.displayName=="section" && prev.props.changed){
-						current=React.cloneElement(current,{changed:true})
-					}
-				}
 				content.push(current)
 			}
 			return content

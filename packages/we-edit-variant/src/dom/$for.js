@@ -24,16 +24,16 @@ export default ({Container})=>class __$1 extends ${
     }
 
     render(){
-        const {init, test, update, children,changed,...props}=this.props
+        const {init, test, update, children,...props}=this.props
         let content=children
         if(this.canAssemble){
-            content=this.getLoopContent(changed&&Date.now())
+            content=this.getLoopContent()
         }
 
-        return <Container {...props} changed={changed} type={this.constructor.displayName}>{content}</Container>
+        return <Container {...props} type={this.constructor.displayName}>{content}</Container>
     }
 
-    getLoopContent(changed){
+    getLoopContent(){
         const {init, test, update, children,...props}=this.props
 
         const forContext=vm.createContext({...this.context.variantContext})

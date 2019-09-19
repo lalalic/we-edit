@@ -1,7 +1,7 @@
 export default A=>class __$1 extends A{
     static displayName=`recomposable-${A.displayName}`
 
-    shouldComponentUpdate({changed}){
+    shouldComponentUpdate(){
         this.clearComposed(...arguments)
         return true
     }
