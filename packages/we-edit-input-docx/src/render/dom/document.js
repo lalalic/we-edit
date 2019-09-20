@@ -1,7 +1,7 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
-import {shallowEqual, ContentQuery} from "we-edit"
+import {ContentQuery} from "we-edit"
 
 export default ({Document, Container,Frame})=>class __$1 extends Component{
 	static displayName="document"
@@ -65,7 +65,7 @@ export default ({Document, Container,Frame})=>class __$1 extends Component{
 				return styles[`_num_${numId}`].level(level).label(levelCount)
 			}
 		}
-	})
+	},(a,b)=>a.equals(b))
 
 	getContent(){
 		const {evenAndOddHeaders}=this.props

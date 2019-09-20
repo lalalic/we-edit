@@ -60,7 +60,8 @@ export default (A,partable)=>class __$1 extends A{
                 return null
             }
 
-            const {hash, changed=hash!==this.computed.hash}=this.props
+            const {id, hash, changed=hash!==this.computed.hash}=this.props
+            //console.debug(`${this.constructor.getType()}[${id}] -- ${changed}`)
             if(!changed && this.isAllChildrenComposed()){
                 if(this.appendLastComposed()!==false){
                     return null

@@ -1,15 +1,11 @@
 import React, {PureComponent, Component, Fragment} from "react"
 import PropTypes from "prop-types"
-import memoize from "memoize-one"
-import {getContent,getSelection, ACTION, ContentQuery,connect} from "we-edit"
+import {getSelection, ACTION} from "we-edit"
 
 import Base from "../document"
 import Responsible from "../../composed/responsible"
-import {Document as ComposedDocument} from "../../composed"
 
 import editable from "./editable"
-
-import offset from "mouse-event-offset"
 
 const Super=editable(Base,{continuable:true})
 export default class Document extends Super{

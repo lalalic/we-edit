@@ -1,3 +1,9 @@
 import {shallowEqual} from "recompose"
 
-export default shallowEqual
+function my(){
+    return shallowEqual(...arguments)
+}
+
+my.equals=(a,b)=>'equals' in a && 'equals' in b && a.equals(b)
+
+export default my

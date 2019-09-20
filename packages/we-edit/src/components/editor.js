@@ -4,6 +4,7 @@ import PropTypes from "prop-types"
 import {connect} from "../state"
 import Representation from "./representation"
 import uuid from "../tools/uuid"
+import memoize from "memoize-one"
 import shallowEqual from "../tools/shallow-equal"
 
 export class Editor extends PureComponent{
@@ -32,7 +33,7 @@ export class Editor extends PureComponent{
 
 	static defaultProps={
 		media:"screen",
-		scale:1,
+		scale:1
 	}
 
 	static childContextTypes={
@@ -72,33 +73,37 @@ export class Editor extends PureComponent{
 
 const hashCode=ints=>ints.reduce((s,a)=>s+a,0)
 
-export function createWeDocument(id,content,ModelTypes){
-	let current=content.get(id)
-	let {type, props, children}=current.toJS()
-	if(!type){
-		debugger
-	}
-	let Child=ModelTypes[type[0].toUpperCase()+type.substr(1)]
-	if(!Child){
-		Child=ModelTypes.Unknown
-		console.warn(`[${type}] not found`)
+export const createWeDocument=memoize(function(content,ModelTypes){
+	function createNode(id){
+		let current=content.get(id)
+		let {type, props, children}=current.toJS()
+		if(!type){
+			debugger
+		}
+		let Child=ModelTypes[type[0].toUpperCase()+type.substr(1)]
+		if(!Child){
+			Child=ModelTypes.Unknown
+			console.warn(`[${type}] not found`)
+		}
+
+		let elChildren=children
+		const hashCodes=[current.hashCode()]
+		if(Array.isArray(children)){
+			elChildren=children.map(a=>createNode(a))
+			elChildren.every(a=>hashCodes.push(a.props.hash))
+		}
+
+		return(<Child
+				key={id}
+				id={id}
+				{...props}
+				children={elChildren}
+				hash={hashCode(hashCodes)}
+			/>)
 	}
 
-	let elChildren=children
-	const hashCodes=[current.hashCode()]
-	if(Array.isArray(children)){
-		elChildren=children.map(a=>createWeDocument(a,content,ModelTypes))
-		elChildren.every(a=>hashCodes.push(a.props.hash))
-	}
-
-	return(<Child
-			key={id}
-			id={id}
-			{...props}
-			children={elChildren}
-			hash={hashCode(hashCodes)}
-		/>)
-}
+	return createNode("root")
+}, (a,b)=>a===b || shallowEqual.equals(a,b))
 
 
 export class WeDocumentStub extends Component{
@@ -110,13 +115,8 @@ export class WeDocumentStub extends Component{
 		weDocument: PropTypes.node
 	}
 
-	constructor(){
-		super(...arguments)
-		this.componentWillReceiveProps(this.props,this.context)
-	}
-
 	getChildContext(){
-		return {weDocument:this.doc}
+		return {weDocument:this.getDoc()}
 	}
 
 	shouldComponentUpdate(props){
@@ -125,7 +125,7 @@ export class WeDocumentStub extends Component{
 		}else{
 			const {content,...next}=props
 			const {content:last, ...current}=this.props
-			if(shallowEqual(next,current) && content.equals(last)){
+			if(shallowEqual.equals(content,last) && shallowEqual(next,current)){
 				return false
 			}
 		}
@@ -133,31 +133,27 @@ export class WeDocumentStub extends Component{
 		return true
 	}
 
-	componentWillReceiveProps({content,canvasProps,canvasId},{ModelTypes}){
-		if(!ModelTypes)
-			return
-		if(!this.doc){
-			this.doc=createWeDocument("root",content,ModelTypes)
-		}else if(!content.equals(this.props.content)){
-			this.doc=createWeDocument("root",content,ModelTypes,this.props.content)
-		}else{
-			content=this.props.content//make shallowEquals works for descandents
-		}
-
-		this.doc=React.cloneElement(this.doc,  {
+	createDocument=memoize((canvasId, content, canvasProps,ModelTypes)=>{
+		return React.cloneElement(createWeDocument(content,ModelTypes),{
 			canvasId,
 			...canvasProps,
-			canvas:canvasProps.canvas||<Dummy/>,//default empty canvas to 
+			canvas:canvasProps.canvas||defaultCanvas,//default empty canvas to 
 			content,
 		})
+	},(a,b)=>a===b || shallowEqual.equals(a,b) || shallowEqual(a,b))
+
+	getDoc(){
+		const {ModelTypes}=this.context
+		const {content, canvasProps, canvasId}=this.props
+		return this.createDocument(canvasId,content,canvasProps,ModelTypes)
 	}
 
 	render(){
-		if(!this.context.ModelTypes){
+		const {ModelTypes}=this.context
+		if(!ModelTypes){
 			return <div style={{color:"red", marginTop:100}}>Representation is not installed</div>
 		}
-		return this.doc
-
+		return this.getDoc()
 	}
 }
 
@@ -167,5 +163,6 @@ const Root=connect((state)=>{
 })(WeDocumentStub)
 
 const Dummy=({content})=><Fragment>{content}</Fragment>
+const defaultCanvas=<Dummy/>
 
 export default Editor
