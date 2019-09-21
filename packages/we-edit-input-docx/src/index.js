@@ -52,7 +52,7 @@ class DocxType extends Input.Editable{
 				mimeType:this.doc.mime,
 			})
 		const stream=new Readable({objectMode: true})
-		stream.push(data,"ascii")
+		stream.push(data)
 		return stream
 	}
 

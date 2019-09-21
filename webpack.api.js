@@ -31,7 +31,7 @@ module.exports=base=>{
 
 class LocalReference{
     apply(compiler){
-        compiler.plugin("emit",function(compilation,done){
+        compiler.hooks.emit.tap("localize we-edit-", compilation=>{
             let fileName=compilation.options.output.filename
             let asset=compilation.assets[fileName]
             let content=asset.source()
@@ -46,21 +46,19 @@ class LocalReference{
                     }
                 }
             }
-            done()
         })
     }
 }
 
 class CopyFontService{
     apply(compiler){
-        compiler.plugin("emit", function(compilation,done){
+        compiler.hooks.emit.tap("copy font service", function(compilation){
             const fs=require("fs")
             fs.createReadStream(path.resolve(__dirname, 'packages/we-edit-representation-pagination/src/fonts/font-service.js'))
                 .pipe(fs.createWriteStream(path.resolve(compilation.options.output.path,"font-service.js")))
 
             fs.createReadStream(path.resolve(__dirname, 'packages/we-edit-representation-pagination/src/fonts/Arial'))
                 .pipe(fs.createWriteStream(path.resolve(compilation.options.output.path,"Arial")))
-            done()
         })
     }
 }
