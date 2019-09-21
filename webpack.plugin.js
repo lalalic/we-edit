@@ -9,7 +9,8 @@ module.exports=base=>{
 				path:`${__dirname}/packages/${a}`
 			},
 			devtool:"source-map",
-            externals:"react,react-dom,material-ui,prop-types,we-edit,react-redux,recompose"
+			
+            externals:"react,react-dom,material-ui,prop-types,we-edit,react-redux,recompose,stream, readable-stream"
 				.split(",")
 				.reduce((cols,a)=>{
 					cols[a]="commonjs2 "+a

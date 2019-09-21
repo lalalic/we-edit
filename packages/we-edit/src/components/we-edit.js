@@ -1,15 +1,14 @@
-import React,{PureComponent, Fragment} from "react"
+import React,{PureComponent} from "react"
 import PropTypes from "prop-types"
 
 import {combineReducers} from "redux"
 import {Provider} from "react-redux"
 
 import memoize from "memoize-one"
-import {Map} from "immutable"
 
 import {ACTION as EditorAction} from "../state/action"
 import {createStore} from "../state"
-import Input from "../input"
+import shallowEqual from "../tools/shallow-equal"
 
 /**
 # example
@@ -43,9 +42,7 @@ export class WeEdit extends PureComponent{
 		}else{
 			return createStore(combineReducers({[DOMAIN]:reducer, ...reducers}))
 		}
-	},(a1, a0)=>{
-		return a0==a1 || Map(a0||{}).equals(Map(a1||{}))
-	})
+	},(a,b)=>a===b || shallowEqual(a,b))
 
 	render(){
 		return (

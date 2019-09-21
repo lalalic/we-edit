@@ -268,7 +268,7 @@ class OutputInput extends Emitter.Format.Base{
 	}
 
 	emit(){
-		let docStream=this.context.doc.stream()
+		const docStream=this.context.doc.stream()
 		docStream.pipe(this.stream)
 		docStream.push(null)
 	}

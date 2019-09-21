@@ -1,7 +1,7 @@
 import React, {PureComponent} from "react"
 import PropTypes from "prop-types"
 
-import {WeEdit, Editor} from "we-edit"
+import {WeEdit, Editor,shallowEqual} from "we-edit"
 import memoize from "memoize-one"
 
 import EventEmitter from "events"
@@ -77,7 +77,9 @@ const event=new (class OfficeEvent extends EventEmitter{
 	ready(){
 		this.emit("office ready", ...arguments)
 	}
-})()
+})();
+
+const excludeReducer=(state={})=>state
 
 export default class Office extends PureComponent{
 	static propTypes={
@@ -102,20 +104,12 @@ export default class Office extends PureComponent{
 	}
 
 	static getDerivedStateFromProps({workspaces,installable},state){
-		workspaces=workspaces||[...myOffice]
-		if(installable){
-			if(state.workspaces){
-				return null
-			}else{
-				return {workspaces}
-			}
-		}else{
-			return {workspaces}
-		}
+		return {workspaces: (installable && state.workspaces)||workspaces||[...myOffice]}
 	}
+
 	constructor(){
 		super(...arguments)
-		this.state={}
+		this.state={workspaces:null,excludes:{}}
 		this.wedit=React.createRef()
 	}
 
@@ -129,7 +123,7 @@ export default class Office extends PureComponent{
 			}
 			return collected
 		},{...reducers})
-	})
+	},(a,b)=>a===b || shallowEqual(a,b))
 
 	componentDidMount(){
 		const {installable}=this.props
@@ -137,7 +131,16 @@ export default class Office extends PureComponent{
 			const dispatch=this.wedit.current.store.dispatch
 			event.ready(dispatch)
 			event.on("change", this.updateWorkspaces=(workspaces,init)=>{
-				this.setState({workspaces}, init && (()=>{
+				this.setState(({workspaces:current})=>{
+					return {
+						workspaces,
+						excludes:current.filter(a=>!workspaces.find(b=>b.key===a.key))
+									.reduce((excludes,a)=>{
+										excludes[a.key]=excludeReducer
+										return excludes
+									},{})
+					}
+				}, init && (()=>{
 					init(dispatch)
 				}))
 			})
@@ -145,9 +148,9 @@ export default class Office extends PureComponent{
 	}
 
 	render(){
-		const {workspaces}=this.state
+		const {workspaces, excludes}=this.state
 		let {titleBarProps,children, titleBar, dashboard, reducers={}}=this.props
-		reducers=this.getReducers(workspaces,reducers)
+		reducers=this.getReducers(workspaces,{...excludes,...reducers})
 
 		return (
 			<WeEdit reducers={reducers} ref={this.wedit}>
@@ -164,5 +167,4 @@ export default class Office extends PureComponent{
 			event.removeListener("change",this.updateWorkspaces)
 		}
 	}
-
 }

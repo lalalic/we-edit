@@ -1,6 +1,5 @@
-import React, {PureComponent} from "react"
-import PropTypes from "prop-types"
-import {Writable} from "stream"
+import React from "react"
+import {Writable} from "readable-stream"
 import {Stream, Loader, Input} from "we-edit"
 
 import TextField from "material-ui/TextField"
@@ -70,12 +69,17 @@ export class Writer extends Stream.Base{
 	}
 
 	create(){
-		let data=this.data=[]
-		let stream=new Writable({
+		const data=this.data=[]
+		const stream=new Writable({
 			write(chunk,enc, next){
+				debugger
 				data.push(chunk)
 				next()
 			}
+		})
+
+		stream.on("error",function(e){
+			console.error(e)
 		})
 
 		const {name,format,target,windowFeatures}=this.props

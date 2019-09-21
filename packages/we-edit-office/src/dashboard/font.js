@@ -1,6 +1,4 @@
 import React,{PureComponent,Fragment} from "react"
-import PropTypes from "prop-types"
-import {DOMAIN} from "we-edit"
 import {connect} from 'react-redux'
 import {FontManager} from "we-edit-representation-pagination"
 

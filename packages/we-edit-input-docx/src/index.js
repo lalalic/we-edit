@@ -1,6 +1,6 @@
 
 import {Input} from "we-edit"
-import {Readable} from 'stream'
+import {Readable} from "readable-stream"
 
 import Docx from "./docx"
 import Style from "./render/styles"
@@ -45,14 +45,14 @@ class DocxType extends Input.Editable{
 	}
 
 	stream(option){
-		let data=this.doc.serialize(option)
+		const data=this.doc.serialize(option)
 			.generate({
 				...option,
-				type:"uint8array",
+				type:"nodebuffer",
 				mimeType:this.doc.mime,
 			})
-		let stream=new Readable({objectMode: true})
-		stream.push(data,"uint8array")
+		const stream=new Readable({objectMode: true})
+		stream.push(data,"ascii")
 		return stream
 	}
 

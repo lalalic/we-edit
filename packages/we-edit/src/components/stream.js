@@ -1,7 +1,7 @@
 import React,{Component, Fragment, Children} from "react"
 import PropTypes from "prop-types"
 import extendible from "../tools/extendible"
-import {Writable} from "stream"
+import {Writable} from "readable-stream"
 
 export class Stream extends Component{
 	static propTypes={

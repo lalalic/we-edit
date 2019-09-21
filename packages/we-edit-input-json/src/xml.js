@@ -1,4 +1,4 @@
-import {Readable} from 'stream'
+import {Readable} from "readable-stream"
 import cheer from "cheerio"
 import {Parser, DomHandler} from "htmlparser2"
 import {transactifyCheerio,Input} from "we-edit"

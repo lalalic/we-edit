@@ -14,7 +14,8 @@
     "fetchable": "^1.0.4",
     "lodash.get": "^4.4.2",
     "lodash.invoke": "^4.5.2",
-    "memoize-one": "^4.0.0"
+    "memoize-one": "^4.0.0",
+    "readable-stream": "^3.4.0"
   },
   "peerDependencies": {
     "prop-types": "^15.6.0",

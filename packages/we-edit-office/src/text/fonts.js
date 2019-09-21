@@ -1,8 +1,6 @@
-import React, {Component} from "react"
-import PropTypes from "prop-types"
-import {compose,setDisplayName,getContext,withProps} from "recompose"
+import React from "react"
+import {compose,setDisplayName} from "recompose"
 
-import {SelectField,MenuItem,Subheader} from 'material-ui'
 import {FontManager} from "we-edit-representation-pagination"
 import ComboBox from "../components/combo-box"
 

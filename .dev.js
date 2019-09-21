@@ -179,11 +179,11 @@ function testOffice(Target, representation="pagination"){
 							<div style={{width:210}}>
 								<Tabs>
 									<Tab label="Document">
-										{/*
+										{
 											<DocumentTree
 											toNodeProps={({id,type,props})=>({name:`${type}(${id})`})}
 											/>
-										*/}
+										}
 									</Tab>
 									<Tab label="Assemble">
 										<FileSelector />

@@ -1,6 +1,6 @@
 import React, {Component,PureComponent,Fragment} from "react"
 import PropTypes from "prop-types"
-import {Readable} from "stream"
+import {Readable} from "readable-stream"
 import {DOMAIN, ACTION} from "./we-edit"
 import Input from "../input"
 import extendible from "../tools/extendible"

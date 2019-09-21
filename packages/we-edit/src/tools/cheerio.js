@@ -213,7 +213,7 @@ const DefaultTrap={
     }
 }
 
-module.exports=function($, trap=DefaultTrap){
+export default function($, trap=DefaultTrap){
     const patches=[]
     var inTransaction=false
     const removed=el=>el.parent ? removed(el.parent) : $.root().contents().index(el)==-1
