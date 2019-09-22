@@ -89,27 +89,34 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance,TypedComponen
 	inputTypeInstance.renderChanged=node=>inputTypeInstance.renderNode(node,createElement,TypedComponents)
 
 	try{
-		inputTypeInstance.startTransaction()
-		
-		const changed=inputTypeInstance.onChange(mutableState,action)
-		if(changed===false){
-			return state
-		}else if(isState(changed)){
-			state=changed.remove("_content")
-		}else if(typeof(changed)=="object"){
-			const {selection}=changed
-			if(selection){
-				state=state.mergeIn(["selection"], selection)
-			}
-			state=state.setIn(["content"],mutableContent.asImmutable())
-		}else{
-			state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))
+		if(typeof(inputTypeInstance.startTransaction)=="function"){
+			inputTypeInstance.startTransaction()
 		}
-
-		historyEntry.patches=inputTypeInstance.commit()
+		
+		if(typeof(inputTypeInstance.onChange)=="function"){
+			const changed=inputTypeInstance.onChange(mutableState,action)
+			if(changed===false){
+				return state
+			}else if(isState(changed)){
+				state=changed.remove("_content")
+			}else if(typeof(changed)=="object"){
+				const {selection}=changed
+				if(selection){
+					state=state.mergeIn(["selection"], selection)
+				}
+				state=state.setIn(["content"],mutableContent.asImmutable())
+			}else{
+				state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))
+			}
+			if(typeof(inputTypeInstance.commit)=="function"){
+				historyEntry.patches=inputTypeInstance.commit()
+			}
+		}
 	}catch(e){
 		console.error(e)
-		inputTypeInstance.rollback()
+		if(typeof(inputTypeInstance.rollback)=="function"){
+			inputTypeInstance.rollback()
+		}
 	}finally{
 		return state
 	}
