@@ -56,15 +56,15 @@ export default class Workspace extends PureComponent{
 	}
 
 	getChannels=memoize(children=>{
-		return Children.toArray(children)
+		return Children.toArray(children).filter(a=>a.props)
 			.map(({props:{channel,icon}})=>channel ? {channel,icon:icon||<span title={{channel}}/>} : null)
 			.filter(a=>!!a)
 	})
 
 	getCurrent=memoize((children,channel)=>{
 		children=Children.toArray(children)
-		const current=children.find(({props})=>props.channel==channel)
-		const uncontrolled=children.filter(({props})=>!props.channel).filter(a=>a!=current)
+		const current=children.filter(a=>a.props).find(({props})=>props.channel==channel)
+		const uncontrolled=children.filter(({props})=>!props || !props.channel).filter(a=>a!=current)
 		return {current, uncontrolled}
 	})
 
