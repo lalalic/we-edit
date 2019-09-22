@@ -143,21 +143,21 @@ export class Reader extends Loader.Base{
 	static support=support
 
     render(){
+		const {onLoad}=this.props
 		const supports=Input.supports
-		let types=Object.keys(supports)
+		const types=Object.keys(supports)
 			.map(a=>supports[a].defaultProps.ext)
-			.filter(a=>!!a)
+			.filter(a=>!!a).join(",").split(",")
 			.map(a=>"."+a)
         return <input
-			key={Date.now()}
 			ref="input"
             type="file"
 			accept={types.join(",")}
             onChange={({target})=>{
-				let file=target.files[0]
-                let reader=new FileReader()
+				const file=target.files[0]
+                const reader=new FileReader()
 				reader.onload=e=>{
-					this.props.onLoad({
+					onLoad({
 						data:e.target.result,
 						mimeType:file.type,
 						name:file.name
@@ -170,8 +170,8 @@ export class Reader extends Loader.Base{
     }
 
     componentDidMount(){
-        this.refs.input.click()
-    }
+		this.refs.input.click()
+	}
 }
 
 export default {

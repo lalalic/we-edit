@@ -14,12 +14,11 @@ import IconPrint from "material-ui/svg-icons/action/view-module"
 import IconWeb from "material-ui/svg-icons/editor/format-align-justify"
 import IconText from "material-ui/svg-icons/content/text-format"
 
-const KEY="default(accept=*)"
 var myOffice=[
 		<Workspace
 			debug={true}
-			accept="*"
-			key={KEY}
+			accept="docx"
+			key="default(accept=docx)"
 			channel="print"
 			>
 
@@ -50,6 +49,25 @@ var myOffice=[
 				icon={<IconText/>}
 				children={<Editor representation="text"/>}
 				/>
+		</Workspace>,
+
+		<Workspace
+			debug={true}
+			accept="*"
+			key="default(accept=*)"
+			ruler={false}
+			toolBar={<Ribbon commands={{
+				home:{
+					text:false,
+					paragraph:false,
+					clipboard:false,
+				},
+				insert:false,
+				layout:false,
+				when:false,
+			}}/>}
+			>
+			<Editor representation="plain"/>
 		</Workspace>
 ]
 const event=new (class OfficeEvent extends EventEmitter{

@@ -42,7 +42,7 @@ const Input=extendible({
 			ext=name.split(".").pop().trim()
 		}
 
-		return Object.keys(this.supports)
+		return Object.keys(this.supports).reverse()
 			.reduce((foundType, a)=>{
 				if(foundType)
 					return foundType

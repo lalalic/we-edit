@@ -1,6 +1,7 @@
 import Html from "we-edit-representation-html"
 import Pagination,{FontManager} from "we-edit-representation-pagination"
 import Text from "we-edit-representation-text"
+import Plain from "we-edit-representation-plain"
 
 import iDocx from "we-edit-input-docx"
 import iJson from "we-edit-input-json"
@@ -149,7 +150,7 @@ function testOffice(Target, representation="pagination"){
 	const myWorkspace=(
 		<Workspace
 			debug={true}
-			accept="*"
+			accept="*.docx"
 			key={KEY}
 			ruler={true}
 			toolBar={
@@ -172,6 +173,7 @@ function testOffice(Target, representation="pagination"){
 				return state
 			}}
 			>
+				
 			<Workspace.Desk
 				layout={
 					<Workspace.Layout
@@ -198,6 +200,7 @@ function testOffice(Target, representation="pagination"){
 					onKeyDown={e=>console.log("key down")}
 					/>}
 				/>
+			
 		</Workspace>
 	)
 
