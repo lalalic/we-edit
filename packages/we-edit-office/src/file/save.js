@@ -21,7 +21,7 @@ export default class Saver extends PureComponent{
 		}=state.get("office")
 
         if(format.type!=doc.type){
-            if(loader && Emitter.supports[loader.type]){
+            if(loader && Emitter.supports.has(loader.type)){
                 stream={...loader}
             }else{
                 stream={type:"browser", name:doc.name}
@@ -44,12 +44,12 @@ export default class Saver extends PureComponent{
 
     getSupportedFormats(){
         let supports=Emitter.supports
-        let formats=Object.keys(supports).filter(a=>!!a)
+        let formats=Array.from(supports.keys()).filter(a=>!!a)
             .map(type=>{
-                const {ext,name}=supports[type].defaultProps
+                const {ext,name}=supports.get(type).defaultProps
                 return {text:`${name} (*.${ext})`,value:type}
             })
-        if(!supports[this.doc.type]){
+        if(!supports.has(this.doc.type)){
             formats.unshift({
 				text:`${this.doc.typeName} (*.${this.doc.typeExt})`,
 				value:this.doc.type,
@@ -59,8 +59,7 @@ export default class Saver extends PureComponent{
     }
 
 	getSupportedStreams(){
-		let supports=Stream.supports
-		return Object.keys(supports).filter(a=>!!a)
+		return Array.from(Stream.supports.keys()).filter(a=>!!a)
 	}
 
     fixName(format,name){

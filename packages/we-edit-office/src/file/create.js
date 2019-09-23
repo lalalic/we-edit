@@ -16,11 +16,7 @@ export default class Create extends PureComponent{
 	}
 
     getSupportedFormats(){
-        return Object.keys(Input.supports)
-				.reduce((collected,k)=>{
-					collected.push(Input.get(k))
-					return collected
-				},[])
+        return Array.from(Input.supports.values())
 			.filter(Type=>Type.prototype.onChange && Type.defaultProps.template)
             .map(({defaultProps})=>{
 				let {template, type}=defaultProps

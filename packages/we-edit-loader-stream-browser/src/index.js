@@ -145,8 +145,8 @@ export class Reader extends Loader.Base{
     render(){
 		const {onLoad}=this.props
 		const supports=Input.supports
-		const types=Object.keys(supports)
-			.map(a=>supports[a].defaultProps.ext)
+		const types=Array.from(supports.values())
+			.map(a=>a.defaultProps.ext)
 			.filter(a=>!!a).join(",").split(",")
 			.map(a=>"."+a)
         return <input

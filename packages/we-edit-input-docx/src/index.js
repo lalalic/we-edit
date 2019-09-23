@@ -36,7 +36,7 @@ class DocxType extends Input.Editable{
 	static HOCs=HOCs
 
 	parse({data, ...props}){
-		this.props=props
+		this.props={...props,supportPagination:true}
 		return Docx.load(data)
 	}
 

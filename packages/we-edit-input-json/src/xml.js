@@ -34,7 +34,7 @@ export default class __$1 extends Input.Editable{
     
     dataToDom(data){
         const handler=new ContentDomHandler({xmlMode:true,decodeEntities: false})
-        new Parser(handler,opt).end(data)
+        new Parser(handler,{}).end(data)
         return handler.dom
     }
 
@@ -43,7 +43,7 @@ export default class __$1 extends Input.Editable{
     }
 
     parse({data, ...props}){
-		this.props=props
+		this.props={...props,supportPagination:true}
 		const doc=cheer.load(this.dataToDom(data),{xmlMode:true,decodeEntities: false})
 		transactifyCheerio(doc)
 		return doc

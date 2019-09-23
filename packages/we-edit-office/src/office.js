@@ -14,11 +14,15 @@ import IconPrint from "material-ui/svg-icons/action/view-module"
 import IconWeb from "material-ui/svg-icons/editor/format-align-justify"
 import IconText from "material-ui/svg-icons/content/text-format"
 
-var myOffice=[
+const myOffice=[
 		<Workspace
 			debug={true}
-			accept="docx"
-			key="default(accept=docx)"
+			accept={
+				function({props:{supportPagination},name}){
+					return supportPagination
+				}
+			}
+			key="default(accept=[supportPagination])"
 			channel="print"
 			>
 

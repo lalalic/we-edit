@@ -1,5 +1,5 @@
 export default function extendible(Type, Category, ProxiedProp){
-    var supports={}
+    var supports=new Map()
 	
 	Type.install=function(New, props){
 		let defaultProps=New.defaultProps
@@ -15,20 +15,20 @@ export default function extendible(Type, Category, ProxiedProp){
 		
 		New.defaultProps=defaultProps
 
-        supports[type]=New
+        supports.set(type,New)
         console.debug(`${Category}[${type}] installed`)
     }
 
     Type.uninstall=function(New){
         const type=New.defaultProps ? New.defaultProps.type : New.type
-        if(supports[type]){
-            delete supports[type]
+        if(supports.has(type)){
+            supports.delete(type)
             console.debug(`${Category}[${type}] uninstalled`)
         }
     }
 
     Type.get=function(type, notFoundMessage=false){
-		let Typed=supports[type]
+		let Typed=supports.get(type)
 		if(notFoundMessage && !Typed){
 			console.error(`${Category}[${type}] not supported`)
 		}
@@ -38,16 +38,16 @@ export default function extendible(Type, Category, ProxiedProp){
     Object.defineProperty(Type, "supports", {
 		configurable:true,
 		get(){
-			return Object.freeze({...supports})
+			return new Map(supports)
 		}
 	})	
 	
 	if(ProxiedProp){
-		let proxy=new Proxy(supports, {
+		const proxy=new Proxy(supports, {
 			get(o, prop){
-				let name=prop[0].toLowerCase()+prop.substr(1)
-				if(o[name]){
-					return o[name][ProxiedProp]
+				const type=prop[0].toLowerCase()+prop.substr(1)
+				if(o.has(type)){
+					return o.get(type)[ProxiedProp]
 				}
 				
 				throw new Error()

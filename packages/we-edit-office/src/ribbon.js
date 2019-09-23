@@ -22,7 +22,7 @@ const Toolbar=props=><Toolbar0 style={{justifyContent:"initial"}} {...props}/>
 const ToolbarSeparator=props=><ToolbarSeparator0 style={{marginRight:2, marginLeft:2}} {...props}/>
 const NoTabIfOnly1=({children:tab})=>{
 	const content=Children.toArray(tab.props.children).filter(a=>!!a)
-	if(content.length>2){
+	if(content.length>1){
 		const tabs=content.filter(a=>a.type==Tab)
 		if(tabs.length==2){
 			return <Fragment>{tabs[0].props.children}</Fragment>
@@ -120,49 +120,47 @@ const Ribbon=compose(
 				toolbar:{
 					height:30
 				}
-			})}>
-				<NoTabIfOnly1>
-					<Tabs
-						contentContainerStyle={{height:30}}
-						inkBarStyle={{display:"none"}}
-						>
-						{home && <Tab label="Home" buttonStyle={buttonStyle} style={tabStyle}>
-							<Toolbar>
-								{home.file}
+				})}>
+				<Tabs
+					contentContainerStyle={{height:30}}
+					inkBarStyle={{display:"none"}}
+					>
+					{home && <Tab label="Home" buttonStyle={buttonStyle} style={tabStyle}>
+						<Toolbar>
+							{home.file}
 
-								{home.clipboard}
+							{home.clipboard}
 
-								{home.history}
+							{home.history}
 
-								{home.text}
+							{home.text}
 
-								{home.paragraph}
+							{home.paragraph}
 
-								{home.more}
-							</Toolbar>
-						</Tab>}
-						{insert && <Tab label="Insert"  buttonStyle={buttonStyle} style={tabStyle}>
-							<Toolbar>
-								{insert.table}
-								{insert.picture}
-								{insert.more}
-							</Toolbar>
-						</Tab>}
+							{home.more}
+						</Toolbar>
+					</Tab>}
+					{insert && <Tab label="Insert"  buttonStyle={buttonStyle} style={tabStyle}>
+						<Toolbar>
+							{insert.table}
+							{insert.picture}
+							{insert.more}
+						</Toolbar>
+					</Tab>}
 
-						{layout && <Tab label="Page Layout"  buttonStyle={buttonStyle} style={tabStyle}>
-							<Toolbar>
-								{layout.basic}
-								{layout.more}
-							</Toolbar>
-						</Tab>}
-						{React.Children.toArray(children).map(a=>React.cloneElement(a,{buttonStyle, style:tabStyle,key:a.props.label}))}
-						{when}
-						<Tab label="beautifier"
-							buttonStyle={buttonStyle}
-							style={{visibility:"hidden", flex:"1 100%",...tabStyle}}
-							/>
-					</Tabs>
-				</NoTabIfOnly1>
+					{layout && <Tab label="Page Layout"  buttonStyle={buttonStyle} style={tabStyle}>
+						<Toolbar>
+							{layout.basic}
+							{layout.more}
+						</Toolbar>
+					</Tab>}
+					{React.Children.toArray(children).map(a=>React.cloneElement(a,{buttonStyle, style:tabStyle,key:a.props.label}))}
+					{when}
+					<Tab label="beautifier"
+						buttonStyle={buttonStyle}
+						style={{visibility:"hidden", flex:"1 100%",...tabStyle}}
+						/>
+				</Tabs>
 			</MuiThemeProvider>
 		</div>
 	)

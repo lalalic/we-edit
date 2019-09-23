@@ -13,7 +13,7 @@ export default class __$1 extends PureComponent{
 	
     state={}
     getSupportedLoaders(){
-        return Object.keys(Loader.supports)
+        return Array.from(Loader.supports.keys())
     }
 
     render(){
