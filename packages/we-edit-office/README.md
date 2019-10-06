@@ -1,55 +1,114 @@
 # we-edit-office
 
-It provide an example to create document editor with all we-edit parts.
+It provide an example to create an office suites with all we-edit parts.
 It would create a default office for quick playaround if 
-* process.env.NODE_ENV!=="production", or 
+* document.title==="test", or 
 * an element with id=OfficeContainer in html page
 
-##components
-* DefaultOffice
-* WeEditUI : hasActiveWorkspace will be injected into non-workspace children
-* Workspace
-* Dashboard
+## components
+* WeEditUI : setup UI
+* Office: a default office to manage workspaces  
+* Workspace: a workspace for a type/group of document, such as *.doc
+  * Workspace.Desk: to define a uniform workspace desk style[layout,toolbar,...]
+  * Workspace.Layout: to define layout of workspace[left,canvas,right]
 
-## exported domains for development
-* weedit
-* React
-* ReactDOM
+* Ribbon: a domain to help create ribbons
+  * Ribbon, 
+  * Toolbar, 
+  * ToolbarSeparator, 
+  * Text : text content toolbar, 
+  * Paragraph: paragraph content toolbar,
+  * File: file functional toolbar,
+  * History: undo/redo toolbar,
+  * Table: table content toolbar,
+  * Picture: picture content toolbar,
+  * Layout: layout toolbar, 
+  * Tabs, Tab, 
+  * CheckIconButton,
+  * DropDownButton
+* Dashboard:  
 
-## function
-* create(container, office=<DefaultOffice/>)
+## short-cut function
+* create(container, office=<Office/>)
 
+
+## install
+```bash
+    npm install we-edit
+```
 
 ## example
 ```jsx
-	<WeEdit>
-        <WeEditUI fonts={["Arial", "Calibri", "Cambria"]}>
-            <Workspace accept="*.docx" layout="print" debug={false}>
-                <Viewer
-                    toolBar={null} 
-					ruler={false}
-                    layout="read" 
-					icon={<IconRead/>}
-                    representation={<Representation type="pagination"/>}>
+import {WeEdit,Viewer, Editor} from "we-edit"
+import {WeEditUI, Office, Workspace } from "we-edit/office"
+import iDocx from "we-edit/input-docx"
 
-                </Viewer>
+    iDocx.install()
 
-                <Editor
-                    layout="print"
-					icon={<IconPrint/>}
-                    representation={<Representation type="pagination"/>}
-					>
+    const IconRead=props=><span/>
+    const IconPrint=props=><span/>
+    const IconWeb=props=><span/>
 
-                </Editor>
+    const docxWorkspace=(
+        <Workspace accept="*.docx" layout="print" debug={false}>
+            <Viewer
+                toolBar={null} 
+                ruler={false}
+                layout="read" 
+                icon={<IconRead/>}
+                representation="pagination">
 
-                <Editor 
-					ruler={false}
-                    layout="web" 
-					icon={<IconWeb/>}
-                    representation={<Representation type="html"/>}>
+            </Viewer>
 
-                </Editor>
-            </Workspace>
-        </WeEditUI>
-    </WeEdit>
+            <Editor
+                layout="print"
+                icon={<IconPrint/>}
+                representation="pagination"
+                >
+
+            </Editor>
+
+            <Editor 
+                ruler={false}
+                layout="web" 
+                icon={<IconWeb/>}
+                representation="html">
+
+            </Editor>
+        </Workspace>
+    )
+    const inddWorkspace=(
+        <Workspace accept="*.indd">
+            <Viewer
+                layout="print"
+                icon={<IconPrint/>}
+                representation="pagination"
+                />
+        </Workspace>
+    )
+
+    const notSupported=(
+        <Workspace accept="*">
+            not supported content
+        </Workspace>
+    )
+
+    //you can manage office by yourself as following
+    const myOffice=(
+        <WeEdit>{/*manage multiple document state*/}
+            <WeEditUI fonts={["Arial", "Calibri", "Cambria"]}>{/* setup UI and manage workspaces*/}
+                {docxWorkspace}
+                {inddWorkspace}
+                {notSupported}
+            </WeEditUI>
+        </WeEdit>
+    )
+    ReactDOM.render(myOffice, document.querySelector("#officeContainer"))
+    /* //or you can use default office to install/uninstall workspace
+        //install order is critical, first in, last chance
+        Office.install(notSupported)
+        Office.insall(inddWorkspace)
+        ReactDOM.render(<Office/>, document.querySelector("#officeContainer"))
+        Office.install(docxWorkspace)
+    */  
 ```

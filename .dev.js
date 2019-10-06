@@ -134,7 +134,7 @@ function testOffice(Target, representation="pagination"){
 	})
 
 	const Pilcrow=connect(state=>state[KEY])(({dispatch,pilcrow})=>(
-		<Ribbon.Components.CheckIconButton
+		<Ribbon.CheckIconButton
 			onClick={e=>dispatch({type:`${KEY}/pilcrow`})}
 			status={pilcrow ? "checked" : "unchecked"}
 			children={

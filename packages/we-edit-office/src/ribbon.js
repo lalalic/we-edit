@@ -16,7 +16,7 @@ import Clipboard from "./clipboard"
 import * as Table from "./table"
 import * as Picture from "./picture"
 import * as Layout from "./layout"
-import * as Components from "./components"
+import {CheckIconButton,DropDownButton} from "./components"
 
 const Toolbar=props=><Toolbar0 style={{justifyContent:"initial"}} {...props}/>
 const ToolbarSeparator=props=><ToolbarSeparator0 style={{marginRight:2, marginLeft:2}} {...props}/>
@@ -168,4 +168,4 @@ const Ribbon=compose(
 
 export default Ribbon
 
-export {Ribbon, Text, Paragraph,File,History,Table,Picture,Layout, Toolbar, ToolbarSeparator, Tab, Components}
+export {Ribbon, Text, Paragraph,File,History,Table,Picture,Layout, Toolbar, ToolbarSeparator, Tabs, Tab, CheckIconButton,DropDownButton}

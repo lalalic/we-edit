@@ -1,6 +1,5 @@
 import React from "react"
-import Path from "path"
-import {Loader, Emitter, Stream, render} from "we-edit"
+import {Loader, Emitter, Stream, render, Editor, Viewer} from "we-edit"
 
 import Pagination from "we-edit-representation-pagination"
 import Html from "we-edit-representation-html"
@@ -9,8 +8,8 @@ import Text from "we-edit-representation-text"
 
 import File from "we-edit-loader-stream-file"
 import iDocx from "we-edit-input-docx"
-import fs from "fs"
 
+import TestRenderer from 'react-test-renderer'
 
 const {Format}=Emitter
 
@@ -43,65 +42,76 @@ describe("we-edit integration", function(){
 		iDocx.uninstall()
 		Pagination.defaultProps.measure=undefined
 	})
-	const template=(format="svg", props={})=>(
-		<Loader type="file"
-			path={require.resolve("./basic.docx")}
-			readonly={true}
-			release={true}>
-			<Emitter>
-				<Stream {...props}>
-					<Format type={format}/>
-				</Stream>
-			</Emitter>
-		</Loader>
-	);
-	const TEXT="Video provides a powerful way to help you prove your point"
 
-	it("svg",()=>{
-		const svg=[]
-		return render(template("svg",{
-			write(chunk, encoding, cb){
-				svg.push(chunk.toString())
-				process.nextTick(cb)
-			}
-		})).then(([{stream}])=>{
-			expect(svg.join("")).toEqual(expect.stringContaining(TEXT))
+	xdescribe("editor",()=>{
+		beforeAll(()=>{
+			global.document={}
+		})
+		const template=(format="pagination", props={})=>(
+			<Loader type="file"
+				path={require.resolve("./basic.docx")}
+				>
+				<Editor representation={format}/>
+			</Loader>
+		)
+
+		it("pagination", ()=>{
+			const render=TestRenderer.create(template("pagination"))
+			console.log(render.toJSON())
+			const representation=render.root.findByType(Editor)
+			expect(representation).toBe(defined)
 		})
 	})
 
-	xit("svg",()=>{
-		return render(template("svg",{
-			type :"file",
-			path :Path.resolve(__dirname),
-			name :({format})=>`${Date.now()}.${format}`
-		})).then(([{stream}])=>{
-			const path=stream.path
-			expect(fs.existsSync(path)).toBe(true)
-			fs.unlinkSync(path)
+	describe("emitter", ()=>{
+		const TEXT="Video provides a powerful way to help you prove your point"
+		const template=(format="svg", props={})=>(
+			<Loader type="file"
+				path={require.resolve("./basic.docx")}
+				readonly={true}
+				>
+				<Emitter>
+					<Stream {...props}>
+						<Format type={format}/>
+					</Stream>
+				</Emitter>
+			</Loader>
+		)
+		
+		it("svg",()=>{
+			const svg=[]
+			return render(template("svg",{
+				write(chunk, encoding, cb){
+					svg.push(chunk.toString())
+					process.nextTick(cb)
+				}
+			})).then(([{stream}])=>{
+				expect(svg.join("")).toEqual(expect.stringContaining(TEXT))
+			})
 		})
-	})
 
-	it("html",()=>{
-		const html=[]
-		return render(template("html",{
-			write(chunk,encoding,cb){
-				html.push(chunk.toString())
-				process.nextTick(cb)
-			}
-		})).then(()=>{
-			expect(html.join("")).toEqual(expect.stringContaining(TEXT))
+		it("html",()=>{
+			const html=[]
+			return render(template("html",{
+				write(chunk,encoding,cb){
+					html.push(chunk.toString())
+					process.nextTick(cb)
+				}
+			})).then(()=>{
+				expect(html.join("")).toEqual(expect.stringContaining(TEXT))
+			})
 		})
-	})
 
-	it("text",()=>{
-		const output=[]
-		return render(template("text",{
-			write(chunk,encoding,cb){
-				output.push(chunk.toString())
-				process.nextTick(cb)
-			}
-		})).then(()=>{
-			expect(output.join("")).toEqual(expect.stringContaining(TEXT))
+		it("text",()=>{
+			const output=[]
+			return render(template("text",{
+				write(chunk,encoding,cb){
+					output.push(chunk.toString())
+					process.nextTick(cb)
+				}
+			})).then(()=>{
+				expect(output.join("")).toEqual(expect.stringContaining(TEXT))
+			})
 		})
 	})
 })
