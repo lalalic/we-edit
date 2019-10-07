@@ -1,4 +1,5 @@
 # we-edit
+a document editing library
 
 ## install
 ```sh
