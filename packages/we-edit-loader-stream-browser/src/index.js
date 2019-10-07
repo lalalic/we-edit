@@ -142,16 +142,24 @@ export class Reader extends Loader.Base{
 
 	static support=support
 
+	constructor(){
+		super(...arguments)
+		this.state={}
+	}
+
     render(){
+		const {done}=this.state
+		if(done)
+			return null
 		const {onLoad}=this.props
 		const supports=Input.supports
 		const types=Array.from(supports.values())
 			.map(a=>a.defaultProps.ext)
 			.filter(a=>!!a).join(",").split(",")
 			.map(a=>"."+a)
-        return <input
-			ref="input"
-            type="file"
+		return <InputOnce
+			key={Date.now()}
+			type="file"
 			accept={types.join(",")}
             onChange={({target})=>{
 				const file=target.files[0]
@@ -165,9 +173,16 @@ export class Reader extends Loader.Base{
 				}
 				reader.readAsArrayBuffer(file)
 				target.value=""
+				this.setState({done:true})
             }}
             style={{position:"fixed", left:-9999}}/>
     }
+}
+
+class InputOnce extends React.Component{
+	render(){
+		return <input ref="input" {...this.props}/>
+	}
 
     componentDidMount(){
 		this.refs.input.click()
