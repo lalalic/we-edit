@@ -35,7 +35,7 @@
     "source-map-loader": "^0.2.4",
     "style-loader": "^1.0.0",
     "transform-loader": "^0.2.4",
-    "we-office-cli": "^0.0.15",
+    "we-office-cli": "^0.0.18",
     "webpack": "^4.39.3",
     "webpack-cli": "^3.3.7",
     "webpack-dev-server": "^3.8.0",

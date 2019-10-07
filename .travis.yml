@@ -14,10 +14,9 @@ install:
 
 #script:
 # - yarn webpack --env=plugin
-# - yarn sync-input-docx --service $WO --contact "$CONTACT" --token "$TOKEN"
-# - yarn sync-input-json
-# - yarn sync-output-html
-# - yarn sync-output-pdf
+# - yarn sync-input-docx --service "$WO_SERVICE" --contact "$CONTACT" --token "$TOKEN"
+# - yarn sync-input-json --service "$WO_SERVICE" --contact "$CONTACT" --token "$TOKEN" 
+# - yarn sync-variant --service "$WO_SERVICE" --contact "$CONTACT" --token "$TOKEN"
 
 before_deploy:
  - cd packages/we-edit
