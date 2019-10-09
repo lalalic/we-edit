@@ -16,6 +16,10 @@ module.exports=(env,args)=>{
 		},
 		module:{
 			rules:[{
+				test: /.js?$/,
+				use: 'source-map-loader',
+				enforce:"pre",
+			},{
 				test: /\.js?$/,
 				use: ['babel-loader'],
 				exclude: /node_modules/,
@@ -43,7 +47,7 @@ module.exports=(env,args)=>{
 			stream: true,
 		},
 		stats:"errors-only",
-		mode:"development",
+		mode:"production",
 	}
 
 	if(env){

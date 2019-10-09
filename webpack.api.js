@@ -17,15 +17,14 @@ module.exports=base=>{
     			path:path.resolve(__dirname, 'packages/we-edit'),
                 libraryTarget:"commonjs2"
             },
-            devtool:"source-map",
+            devtool:"inline-source-map",
             plugins:[
                 ...base.plugins,
                 new LocalReference(),
                 a=="we-edit-representation-pagination" ? new CopyFontService() : null
             ].filter(a=>a),
             target:"node",
-            externals:[nodeExternals()],
-            mode:"development"
+            externals:[nodeExternals()]
         }))
 }
 

@@ -6,10 +6,10 @@ module.exports=base=>{
             entry:`./packages/${a}/src/index.js`,
     		output:{
     			filename:`index.js`,
-				path:`${__dirname}/packages/${a}`
+				path:`${__dirname}/packages/${a}`,
+				libraryTarget:"commonjs2"//important
 			},
-			devtool:"source-map",
-			
+			devtool:"inline-source-map",
             externals:"react,react-dom,material-ui,prop-types,we-edit,react-redux,recompose,stream, readable-stream"
 				.split(",")
 				.reduce((cols,a)=>{
