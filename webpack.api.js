@@ -1,12 +1,13 @@
 const path=require("path")
 const nodeExternals=require("webpack-node-externals")
+const fs=require('fs')
 /**
 *NOTE: since all plugins are with in we-edit project,
 you should set dependencies of plugin as optionalDependencies of packages/we-edit,
 so project depends on we-edit can use built plugin without big bundle into built plugin
 */
 module.exports=base=>{
-    return require("fs")
+    return fs
 		.readdirSync("./packages")
 		.filter(a=>a.startsWith("we-edit"))
         .map(a=>({
@@ -21,6 +22,7 @@ module.exports=base=>{
             plugins:[
                 ...base.plugins,
                 new LocalReference(),
+                a!=="we-edit" ? new CopyReadme() : null,
                 a=="we-edit-representation-pagination" ? new CopyFontService() : null
             ].filter(a=>a),
             target:"node",
@@ -52,7 +54,8 @@ class LocalReference{
 class CopyFontService{
     apply(compiler){
         compiler.hooks.emit.tap("copy font service", function(compilation){
-            const fs=require("fs")
+            if(compilation.options.mode!=="production")
+                return
             fs.createReadStream(path.resolve(__dirname, 'packages/we-edit-representation-pagination/src/fonts/font-service.js'))
                 .pipe(fs.createWriteStream(path.resolve(compilation.options.output.path,"font-service.js")))
 
@@ -61,3 +64,16 @@ class CopyFontService{
         })
     }
 }
+
+class CopyReadme{
+    apply(compiler){
+        compiler.hooks.emit.tap("copy readme", function(compilation){
+            if(compilation.options.mode!=="production")
+                return 
+            const project=compilation.options.entry.split("/").reverse()[2]
+            fs.createReadStream(path.resolve(__dirname, `packages/${project}/README.md`))
+                .pipe(fs.createWriteStream(path.resolve(compilation.options.output.path,project.replace("we-edit-","")+".md")))
+        })
+    }
+}
+
