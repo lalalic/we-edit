@@ -27,7 +27,7 @@ module.exports=base=>{
             ].filter(a=>a),
             target:"node",
             externals:[nodeExternals({
-                whitelist:[/codemirror\/theme/, /codemirror\/mode/]
+                whitelist:[/codemirror/]
             })]
         }))
 }
