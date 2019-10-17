@@ -205,10 +205,10 @@ function testOffice(Target, representation="pagination"){
 	)
 
 	Office.install(myWorkspace,dispatch=>{
-		fetch("/basic.docx")
-			.then(res=>res.blob())
+		fetch("/basic.txt")
+			.then(res=>res.text())
 			.then(data=>{
-				const file={data,name:"basic.docx",ext:"docx", src:"/basic.docx"}
+				const file={data,name:"basic.txt",ext:"txt", src:"/basic.txt"}
 				return Input.parse(file)
 			})
 			.then(doc=>dispatch(ACTION.ADD(doc,reducer)))

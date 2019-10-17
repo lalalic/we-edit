@@ -1,79 +1,17 @@
 import React, {PureComponent} from "react"
 import PropTypes from "prop-types"
-
-import {WeEdit, Editor,shallowEqual} from "we-edit"
+import {WeEdit,shallowEqual} from "we-edit"
 import memoize from "memoize-one"
-
 import EventEmitter from "events"
 
-import WeEditUI from "./we-edit-ui"
-import Workspace from "./workspace"
-import Ribbon from "./ribbon"
+import WeEditUI from "../we-edit-ui"
 
-import IconPrint from "material-ui/svg-icons/action/view-module"
-import IconWeb from "material-ui/svg-icons/editor/format-align-justify"
-import IconText from "material-ui/svg-icons/content/text-format"
-
-const myOffice=[
-		<Workspace
-			debug={true}
-			accept={
-				function({props:{supportPagination},name}){
-					return supportPagination
-				}
-			}
-			key="default(accept=[supportPagination])"
-			channel="print"
-			>
-
-			<Workspace.Desk
-				channel="print"
-				icon={<IconPrint/>}
-				children={<Editor representation="pagination"/>}
-				/>
+import PaginationOffice from "./pagination"
+import PlainOffice from "./plain"
 
 
-			<Workspace.Desk
-				channel="web"
-				ruler={{vertical:false}}
-				icon={<IconWeb/>}
-				children={<Editor representation="html"/>}
-				/>
+const myOffice=[PaginationOffice,PlainOffice]
 
-			<Workspace.Desk
-				channel="plain text"
-				ruler={false}
-				toolBar={<Ribbon commands={{
-					home:{
-						text:false,
-						paragraph:false
-					},
-					insert:false,layout:false,when:false,
-				}}/>}
-				icon={<IconText/>}
-				children={<Editor representation="text"/>}
-				/>
-		</Workspace>,
-
-		<Workspace
-			debug={true}
-			accept="*"
-			key="default(accept=*)"
-			ruler={false}
-			toolBar={<Ribbon commands={{
-				home:{
-					text:false,
-					paragraph:false,
-					clipboard:false,
-				},
-				insert:false,
-				layout:false,
-				when:false,
-			}}/>}
-			>
-			<Editor representation="plain"/>
-		</Workspace>
-]
 const event=new (class OfficeEvent extends EventEmitter{
 	constructor(){
 		super(...arguments)
@@ -172,6 +110,7 @@ export default class Office extends PureComponent{
 	render(){
 		const {workspaces, excludes}=this.state
 		let {titleBarProps,children, titleBar, dashboard, reducers={}}=this.props
+		
 		reducers=this.getReducers(workspaces,{...excludes,...reducers})
 
 		return (

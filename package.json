@@ -32,6 +32,7 @@
     "jest": "^24.9.0",
     "less": "^2.7.3",
     "less-loader": "^5.0.0",
+    "raw-loader": "^3.1.0",
     "source-map-loader": "^0.2.4",
     "style-loader": "^1.0.0",
     "transform-loader": "^0.2.4",

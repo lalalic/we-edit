@@ -16,6 +16,7 @@ module.exports=(base, packages)=>{
 			]
 		},
 		devtool: 'source-map',
+		mode:"development",
 		resolve:{
 			alias: packages.reduce((alias,p)=>(alias[p]=path.resolve(__dirname, `packages/${p}/src/`),alias),{})
 		},
@@ -30,7 +31,6 @@ module.exports=(base, packages)=>{
 			compress: true,
 			port: 9091,
 			host:"0.0.0.0",
-			//disableHostCheck:true,
 			inline:true,
 			hot:false,
 			before(app){
@@ -39,6 +39,9 @@ module.exports=(base, packages)=>{
                 	res.send(require("fs").readFileSync(path.join(__dirname, 'packages/we-edit-representation-pagination/src/fonts/font-service.js')));
 				})
 			},
+		},
+		watchOptions:{
+			ignored: /node_modules/
 		}
 	}
 }

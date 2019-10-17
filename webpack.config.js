@@ -31,7 +31,7 @@ module.exports=(env,args)=>{
 				enforce:"post",
 				include: /(linebreak|unicode-properties|fontkit)/
 			},{
-				test:/\.less?$/,
+				test:/\.(css|less)$/,
 				use: [
 					'style-loader',
 					{ loader: 'css-loader', options: { importLoaders: 1 } },
