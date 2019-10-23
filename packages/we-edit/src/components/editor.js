@@ -75,12 +75,16 @@ const hashCode=ints=>ints.reduce((s,a)=>s+a,0)
 
 export const createWeDocument=memoize(function(content,ModelTypes){
 	function createNode(id){
-		let current=content.get(id)
-		let {type, props, children}=current.toJS()
+		const current=content.get(id)
+		if(!current){
+			debugger
+			console.error(`content[id=${id}] doesn't exist`)
+		}
+		const {type, props, children}=current.toJS()
 		if(!type){
 			debugger
 		}
-		let Child=ModelTypes[type[0].toUpperCase()+type.substr(1)]
+		const Child=ModelTypes[type[0].toUpperCase()+type.substr(1)]
 		if(!Child){
 			Child=ModelTypes.Unknown
 			console.warn(`[${type}] not found`)

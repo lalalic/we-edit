@@ -1,7 +1,7 @@
 {
   "name": "we-edit",
   "description": "a text editor framework based on React",
-  "version": "3.4.46",
+  "version": "3.4.47",
   "author": {
     "name": "Raymond Li",
     "email": "lalalic@139.com"
@@ -32,7 +32,7 @@
   },
   "optionalDependencies": {
     "cheerio": "^1.0.0-rc.2",
-    "docx4js": "^3.1.31",
+    "docx4js": "latest",
     "fetchable": "^1.0.4",
     "fontkit": "^1.8.0",
     "get-system-fonts": "^1.0.0",
@@ -44,7 +44,9 @@
     "simplify-path": "^1.1.0",
     "svg-path-contours": "^2.0.0",
     "svgpath": "^2.2.1",
-    "vm-browserify": "^1.1.0"
+    "vm-browserify": "^1.1.0",
+    "material-ui": "^0.19.4",
+    "minimatch": "^3.0.4"
   },
   "devDependencies": {
     "brfs": "^1.4.3",

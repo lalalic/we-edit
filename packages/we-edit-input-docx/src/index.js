@@ -8,22 +8,19 @@ import HOCs from "./render/dom"
 import Reducer from "./event"
 
 class DocxType extends Input.Editable{
+	static FileType=Docx
 	static support(file){
 		if(arguments.length==0){//for installer
 			return true
 		}
 
-		const {data, name, type}=file
-		if(name && name.toLowerCase().endsWith("."+this.defaultProps.ext))
-			return true
-
-		if(type && type==this.defaultProps.mimeType)
-			return true
-
-		if(arguments[0] instanceof Docx || data instanceof Docx)
-			return true
-
-		return false
+		const {data, ext,name="",mimeType}=file
+		const defaultProps=this.defaultProps
+        return ext===defaultProps.ext 
+            || mimeType===defaultProps.mimeType 
+            || name.endsWith("."+defaultProps.ext)
+            || (file instanceof this.FileType)
+            || (data instanceof this.FileType)
 	}
 
 	static defaultProps={
@@ -37,7 +34,7 @@ class DocxType extends Input.Editable{
 
 	parse({data, ...props}){
 		this.props={...props,supportPagination:true}
-		return Docx.load(data)
+		return this.constructor.FileType.load(data)
 	}
 
 	release(){
