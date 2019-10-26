@@ -9,8 +9,9 @@ import {Frame as ComposedFrame, Group} from "../../composed"
 const Super=HasParentAndChild(dom.Frame)
 
 export default class Fixed extends Super{
+	static Fixed=Fixed
 	static IMMEDIATE_STOP=Number.MAX_SAFE_INTEGER
-
+	
 	constructor(){
 		super(...arguments)
 		this.defineProperties()

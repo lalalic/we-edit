@@ -104,13 +104,13 @@ export default class Pagination extends Representation.Base{
 
 
 (function(A){
-	let install=A.install.bind(A)
+	const install=A.install.bind(A)
 	A.install=function(){
 		install(...arguments)
 		SVG.install()
 	}
 
-	let uninstall=A.uninstall.bind(A)
+	const uninstall=A.uninstall.bind(A)
 	A.uninstall=function(){
 		uninstall(...arguments)
 		SVG.uninstall()

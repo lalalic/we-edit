@@ -54,12 +54,14 @@ export default (A)=>class __$1 extends A{
 	}
 
     get current(){
+        debugger
         if(this.computed.composed.length==0)
             this.create()
 		return this.computed.composed[this.computed.composed.length-1]
 	}
 
     create(props={},context={},requiredSpace){
+        debugger
         const a=this.props.create.bind(this)(
             {...props,id:this.props.id, i:this.computed.composed.length, named:this.named.bind(this)},
             {...context,parent:this,getComposer:id=>this.context.getComposer(id)}
@@ -69,6 +71,7 @@ export default (A)=>class __$1 extends A{
     }
 
     nextAvailableSpace(required){
+        debugger
         let space=this.current.nextAvailableSpace(...arguments)
         if(!space){
             this.create(undefined,undefined,required)

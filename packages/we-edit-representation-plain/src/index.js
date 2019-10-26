@@ -3,7 +3,7 @@ import {Representation,connect,ACTION} from "we-edit"
 import {Controlled as CodeMirror} from "react-codemirror2"
 import CodeMirror_Style from "!!raw-loader!codemirror/lib/codemirror.css"
 
-import PlainType, {modes} from "./type"
+import Type, {modes} from "./type"
 
 export const themes=(ctx=>{
     const keys=ctx.keys()
@@ -77,8 +77,8 @@ export default class Plain extends Representation.Base{
         return <Representation {...{ViewerTypes,EditorTypes,...props}}/>
 	}
 }
+const 
+export {modes, Type}
 
-export {modes}
-
-PlainType.install()
+Type.install()
 Plain.install()
