@@ -43,9 +43,12 @@ export default class Document extends Super{
     }
 
 	renderComposed(){
-		const {canvas,scale,pageGap,canvasId,content}=this.props
+		const {scale,pageGap,canvasId,content,editable}=this.props
 		const {viewport}=this.state
 		const pages=this.computed.composed
+		if(editable && editable.cursor===false){
+			return super.renderComposed()
+		}
 		return (
 				<Responsible
 					viewport={viewport}
@@ -56,6 +59,7 @@ export default class Document extends Super{
 					scale={scale}
 					pgGap={pageGap}
 					pages={pages}
+					editable={editable}
 					continueCompose={{
 						isAllComposed: ()=>this.isAllChildrenComposed(),
 						isSelectionComposed:selection=>this.isSelectionComposed(selection),

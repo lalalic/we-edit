@@ -22,6 +22,13 @@ export class Editor extends PureComponent{
 			height: PropTypes.number
 		}),
 
+		editable: PropTypes.oneOfType([
+			PropTypes.bool,
+			PropTypes.shape({
+				cursor:PropTypes.bool
+			})
+		]),
+
 		//events
 		onKeyDown: PropTypes.func,
 		onContextMenu: PropTypes.func,

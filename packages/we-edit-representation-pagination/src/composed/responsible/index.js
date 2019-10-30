@@ -87,63 +87,68 @@ export default class Responsible extends Component{
 	}
 
     render(){
-        const {children,canvasId, continueCompose, getComposer,dispatch, viewport, ...props}=this.props
+        const {children,canvasId, continueCompose, getComposer,dispatch, viewport, editable=true,...props}=this.props
 		const flagEvent=({clientX,clientY})=>this.down={clientX,clientY}
-		const shouldIgnore=({clientX,clientY})=>clientX==this.down.clientX && clientY==this.down.clientY
-        return (
-            <ComposedDocument {...props}
-				innerRef={a=>{this.canvas=a}}
-
-                onContextMenu={e=>{
+        const shouldIgnore=({clientX,clientY})=>clientX==this.down.clientX && clientY==this.down.clientY
+        const noCursor=editable && editable.cursor===false
+        var events={}
+        if(!noCursor){
+            events={
+                onContextMenu:e=>{
                     this.onClick(e)
                     if(this.context.onContextMenu){
                         this.context.onContextMenu(e)
                     }
-                }}
+                },
 
-                onClick={e=>{
+                onClick:e=>{
                     if(!this.down.selected){
                         this.down.selected=false
                         this.onClick(e)
                     }
-                }}
+                },
 
-				onDoubleClick={e=>{
-					if(!this.down.selected){
-						this.down.selected=false
-						this.onClick(e,true)
-					}
-				}}
-				onMouseDown={flagEvent}
-				onMouseMove={e=>{
-					if(!(e.buttons&0x1)){
-						return
-					}
+                onDoubleClick:e=>{
+                    if(!this.down.selected){
+                        this.down.selected=false
+                        this.onClick(e,true)
+                    }
+                },
+
+                onMouseDown:flagEvent,
+
+                onMouseMove:e=>{
+                    if(!(e.buttons&0x1)){
+                        return
+                    }
                     if(shouldIgnore(e)){
-						return
-					}
+                        return
+                    }
 
-					const {id,at}=this.positioning.around(e.clientX,e.clientY)
+                    const {id,at}=this.positioning.around(e.clientX,e.clientY)
                     if(id){
                         const end={id,at}
                         let {start=end}=this.selecting.current.state
                         const rects=start==end ? [] : this.positioning.getRangeRects(start, end)
                         this.selecting.current.setState({start:start||end, end, rects, selecting:true})
                     }
-				}}
-                onMouseUp={e=>{
-					if(shouldIgnore(e)){
+                },
+                onMouseUp:e=>{
+                    if(shouldIgnore(e)){
                         return
-					}
-					var {start,end}=this.selecting.current.state
+                    }
+                    var {start,end}=this.selecting.current.state
                     if(start && end){
-						this.selecting.current.setState({start:undefined, end:undefined, rects:undefined,selecting:false})
+                        this.selecting.current.setState({start:undefined, end:undefined, rects:undefined,selecting:false})
                         ;({start,end}=this.positioning.extendSelection(start,end))
                         this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))
                         this.down.selected=true
                     }
-				}}
-				>
+                },
+            }
+        }
+        return (
+            <ComposedDocument {...props} innerRef={a=>{this.canvas=a}} {...events}>
                 <Fragment>
                     <defs>
                         <path id="table.adder"
@@ -165,7 +170,7 @@ export default class Responsible extends Component{
 				<Fragment>
                     {children}
 					{this.getComposeTrigger()}
-					<Locator
+					{!noCursor && <Locator
                         canvasId={canvasId}
                         scale={this.props.scale}
                         positioning={this.positioning}
@@ -176,7 +181,8 @@ export default class Responsible extends Component{
                                 keys={{
 									38:e=>this.onKeyArrowUp(e),//move up
 									40:e=>this.onKeyArrowDown(e),//move down
-								}}
+                                }}
+                                editable={!!editable}
                                 >
 
 								<CursorShape/>
@@ -194,15 +200,16 @@ export default class Responsible extends Component{
                                     }
                                 }}
 
-                                onMove={this.onMove}
-                                onResize={this.onResize}
-                                onRotate={this.onRotate}>
+                                onMove={editable && this.onMove}
+                                onResize={editable && this.onResize}
+                                onRotate={editable && this.onRotate}>
         						<SelectionShape ref={this.selecting}
 									asCanvasPoint={a=>this.positioning.asCanvasPoint(a)}
 									/>
         					</Selection>
                         }
                         getComposer={getComposer}/>
+                    }
 				</Fragment>
             </ComposedDocument>
         )

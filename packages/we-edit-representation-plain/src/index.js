@@ -77,7 +77,6 @@ export default class Plain extends Representation.Base{
         return <Representation {...{ViewerTypes,EditorTypes,...props}}/>
 	}
 }
-const 
 export {modes, Type}
 
 Type.install()

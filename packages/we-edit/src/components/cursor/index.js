@@ -12,7 +12,7 @@ export default class Cursor extends Component{
 
 	input=React.createRef()
 	render(){
-		const {children,editable, ...props}=this.props
+		const {children, ...props}=this.props
 		return (
 			<Fragment>
 				{createPortal(

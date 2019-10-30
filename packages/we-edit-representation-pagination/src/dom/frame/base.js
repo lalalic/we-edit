@@ -99,7 +99,9 @@ export default class Fixed extends Super{
 	}
 
 	onAllChildrenComposed(){
-		this.context.parent.appendComposed(this.createComposed2Parent())
+		debugger
+		const content=this.createComposed2Parent()
+		this.context.parent.appendComposed(content)
 		super.onAllChildrenComposed()
 	}
 
@@ -236,6 +238,11 @@ export default class Fixed extends Super{
 	layoutOf(){
 		const {width,height}=this.props
 		return {width,height}
+	}
+
+	//to make caller simple
+	columnIndexOf(){
+		return 0
 	}
 
 	lineIndexOf(position){

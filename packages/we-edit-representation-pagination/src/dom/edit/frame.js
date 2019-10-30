@@ -1,4 +1,4 @@
-import React from "react"
+import {Fragment} from "react"
 import editable from "./editable"
 import {ReactQuery} from "we-edit"
 import {Cacheable} from "../../composable"
@@ -73,8 +73,9 @@ const factory=base=>Cacheable(class Frame extends editable(base){
                 chosen.add(id)
             }
 
-            if(node.type!=Group)
+            if(node.type!=Group && node.type!=Fragment){
                 return false
+            }
         })
 
         if(found.length>0){
@@ -180,22 +181,5 @@ const factory=base=>Cacheable(class Frame extends editable(base){
 		return rects
 	}
 })
-
-const isLastContent=nodes=>nodes.reduceRight(function(bLast,a,i){
-    if(bLast){
-        if(i==0){
-            return bLast
-        }else{
-            const children=nodes[i-1].props.children
-            if(Array.isArray(children)){
-                return children[children.length-1]==a
-            }else{
-                return children==a
-            }
-        }
-    }
-    return false
-})
-
 
 export default factory(Base)

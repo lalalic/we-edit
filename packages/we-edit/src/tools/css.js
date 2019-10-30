@@ -43,7 +43,7 @@ function unionSelector(a,$, basic){
 
 //p#id[k=v], any fail cause fail
 function basicSelectors(a,basic=basic){
-	let checks=a.split(/(?=[#\.\[\]])/g)
+	const checks=(/^\[.*\]$/.test(a) ? [a] : a.split(/(?=[#\.\[\]])/g))
 		.map(k=>{
 			if(k[0]=="]"){
 				return k.substr(1)
@@ -56,7 +56,7 @@ function basicSelectors(a,basic=basic){
 				case '#':
 					return basic["#"](k.substr(1))
 				case '[':{
-					const args=k.substr(1).split("=")
+					const args=k.substr(1,k.length-2).split("=")
 					if(args.length==2)
 						args[1]=args[1].replace(/^['"]/,"").replace(/['"]$/,"")
 					return basic["["](...args)

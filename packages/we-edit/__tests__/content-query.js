@@ -1,7 +1,6 @@
 import immutable,{Map} from "immutable"
 import {createState} from "../src/state"
 import {default as QueryContent} from "../src/state/selector/query"
-import {default as xQueryContent} from "../src/input/reducer/xquery"
 
 describe("content query",()=>{
     const state=(data={})=>{
@@ -18,11 +17,13 @@ describe("content query",()=>{
             it("[prop]",()=>{
                 const $=new Query(state({
                     "1":{props:{style:1}},
-                    "2":{props:{style:2}}
+                    "2":{props:{style:2, xxid:"213{a/b/c.xml}"}}
                 }))
                 expect($.find("[style]").length).toBe(2)
                 expect($.find("[style=1]").length).toBe(1)
                 expect($.find("[style=2]").length).toBe(1)
+                expect($.find(`[style="2"]`).length).toBe(1)
+                expect($.find(`[xxid="213{a/b/c.xml}"]`).length).toBe(1)
             })
 
             it("type",()=>{
@@ -40,9 +41,11 @@ describe("content query",()=>{
                 const $=new Query(state({
                     "1":{type:"paragraph"},
                     "2":{type:"text"},
-                    "3":{type:"paragraph"},
+                    "3":{type:"paragraph",children:["213{a/b/c.xml}"]},
+                    "213{a/b/c.xml}":{type:"text",parent:"3"}
                 }))
                 "1,2,3".split(",").forEach(a=>expect($.find(`#${a}`).length).toBe(1))
+                expect($.find(`#213{a/b/c.xml}`).length).toBe(1)
             })
 
             it("non-existance #id",()=>{
