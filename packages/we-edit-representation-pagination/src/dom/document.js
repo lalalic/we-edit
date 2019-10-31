@@ -4,10 +4,10 @@ import memoize from "memoize-one"
 
 import {HasChild, Locatable,} from "../composable"
 import {dom,ACTION} from "we-edit"
-const {Document:Base}=dom
-
+import Template from "./template"
 import {Document as ComposedDocument} from "../composed"
 
+const {Document:Base}=dom
 const Super=Locatable.Locatorize(HasChild(Base))
 
 export default class Document extends Super{
@@ -18,13 +18,23 @@ export default class Document extends Super{
 
     static childContextTypes={
         ...Super.childContextTypes,
-        Measure: PropTypes.func
+        Measure: PropTypes.func,
+        getComposedTemplate:PropTypes.func
+    }
+
+    constructor(){
+        super(...arguments)
+        this.computed.templates=[]
     }
 
     getChildContext(){
+        const self=this
         return {
             ...super.getChildContext(),
             Measure: this.getMeasure(),
+            getComposedTemplate(id){
+                return self.computed.templates.find(a=>a.props.id===id)||{props:{children:null}}
+            }
         }
     }
 
@@ -64,8 +74,10 @@ export default class Document extends Super{
 	}
 
 	appendComposed(page){
-        if(this.computed.composed.indexOf(page)==-1){
-    		this.computed.composed.push(page)
+        if(Template.isTemplate(page)){
+            this.computed.templates.push(page)
+        }else if(this.computed.composed.indexOf(page)==-1){
+            this.computed.composed.push(page)
         }
 	}
 

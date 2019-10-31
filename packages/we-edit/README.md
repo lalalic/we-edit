@@ -190,3 +190,4 @@ npm install we-edit
 * Shape,
 * Anchor,
 * Page,
+* Template,

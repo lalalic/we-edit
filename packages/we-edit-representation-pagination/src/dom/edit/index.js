@@ -14,6 +14,7 @@ import Image from "./image"
 import Frame from "./frame"
 import Anchor from "./anchor"
 import Page from "./page"
+import Template from "./template"
 
 export default editable.enable(dom,{
 	Document,
@@ -28,4 +29,5 @@ export default editable.enable(dom,{
 	Image,
 	Anchor,
 	Page,
+	Template,
 })

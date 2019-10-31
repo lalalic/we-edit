@@ -1,0 +1,41 @@
+
+import React, {Component, Fragment} from "react"
+import PropTypes from "prop-types"
+import Frame from "./frame"
+
+const factory=Frame=>{
+    return class Template extends Frame{
+        static factory=factory
+        static Use=Use
+        createComposed2Parent(){
+            const {id,master}=this.props
+            return (
+                <symbol id={id}>
+                    {master ? <Use template={master}/> : null}
+                    {super.createComposed2Parent(...arguments)}
+                </symbol>
+            )
+        } 
+        static isTemplate(a){
+            return a && a.type==="symbol"
+        }
+    }
+}
+
+class Use extends Component{
+    static contextTypes={
+        getComposedTemplate:PropTypes.func.isRequired
+    }
+
+    render(){
+        const composedTemplate=this.context.getComposedTemplate(this.props.template)
+        if(!composedTemplate)
+            return null
+
+        return (<NotPositionable>{composedTemplate.props.children}</NotPositionable>)
+    }
+} 
+
+const NotPositionable=({children})=><Fragment>{children}</Fragment>
+
+export default factory(Frame)

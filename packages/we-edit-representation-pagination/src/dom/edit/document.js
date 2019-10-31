@@ -34,6 +34,11 @@ export default class Document extends Super{
 		return this.props.screenBuffer*this.state.viewport.height
 	}
 
+	clearComposed(){
+        super.clearComposed(...arguments)
+        this.computed.templates=[]
+    }
+
 	render(){
 		if(!this.state.viewport){//to find container width, height
 			return <div ref="viewporter" />
