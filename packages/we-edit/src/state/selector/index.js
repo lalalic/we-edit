@@ -16,6 +16,11 @@ export function getSelectionStyle(state){
 	return state.get("ui").selectionStyle
 }
 
+export function getUI(state){
+	const {selectionStyle, ...ui}=state.get("ui")
+	return ui
+}
+
 export function getStatistics(state){
 	return state.get("statistics")
 }

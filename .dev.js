@@ -10,6 +10,13 @@ import ioBrowser from "we-edit-loader-stream-browser"
 
 import Variant, {Provider} from "we-edit-variant"
 
+import React,{Fragment} from "react"
+import {Viewer, Editor,Input, DocumentTree, ACTION} from  "we-edit"
+import {Office,Workspace, Ribbon,reducer} from "we-edit-office"
+import {Tabs, Tab, ToolbarGroup, SvgIcon} from "material-ui"
+import {connect} from  "react-redux"
+import minimatch from "minimatch"
+
 
 iDocx.install({
 	template:"/templates/normal.docx"
@@ -21,13 +28,6 @@ ioBrowser.install()
 Variant.install()
 FontManager.asService("/font-service.js")
 
-
-import React,{Fragment} from "react"
-import {Viewer, Editor,Input, DocumentTree, ACTION} from  "we-edit"
-import {Office,Workspace, Ribbon,reducer} from "we-edit-office"
-import {Tabs, Tab, ToolbarGroup, SvgIcon} from "material-ui"
-import {connect} from  "react-redux"
-import minimatch from "minimatch"
 
 
 function testOffice(Target, representation="pagination"){
@@ -133,42 +133,19 @@ function testOffice(Target, representation="pagination"){
 		return editor
 	})
 
-	const Pilcrow=connect(state=>state[KEY])(({dispatch,pilcrow})=>(
-		<Ribbon.CheckIconButton
-			onClick={e=>dispatch({type:`${KEY}/pilcrow`})}
-			status={pilcrow ? "checked" : "unchecked"}
-			children={
-				<SvgIcon>
-					<g transform="translate(0 4)">
-						<path d="M9 10v5h2V4h2v11h2V4h2V2H9C6.79 2 5 3.79 5 6s1.79 4 4 4z"/>
-					</g>
-				</SvgIcon>
-			}
-			/>
-	))
-
 	const myWorkspace=(
 		<Workspace
 			debug={true}
 			accept="*.docx"
 			key={KEY}
 			ruler={true}
-			toolBar={
-				<Ribbon.Ribbon commands={{
-						layout:false,
-						home:{
-							more:(<ToolbarGroup><Pilcrow/></ToolbarGroup>)
-						}
-				}}/>
-			}
+			toolBar={<Ribbon.Ribbon commands={{layout:false,}}/>}
 			reducer={(state={assemble:false, data:null, pilcrow:false},{type,payload})=>{
 				switch(type){
 					case `${KEY}/data`:
 						return {...state,  data:payload}
 					case `${KEY}/assemble`:
 						return {...state, assemble:!state.assemble}
-					case `${KEY}/pilcrow`:
-						return {...state, pilcrow:!state.pilcrow}
 				}
 				return state
 			}}
