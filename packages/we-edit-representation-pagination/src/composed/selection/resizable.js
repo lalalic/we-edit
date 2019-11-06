@@ -1,14 +1,58 @@
-import React, {Component} from "react"
+import React, {PureComponent, Component,Fragment} from "react"
 import PropTypes from "prop-types"
+import {connect} from "we-edit"
 
 import {Group} from "../../composed"
 import Overlay from "./overlay"
+import Top from "./top"
 
+const NoShow="transparent"
+const Resizer=connect()(class __$1 extends PureComponent{
+	constructor(){
+		super(...arguments)
+		this.state={resizing:false}
+		this.resize=a=>this.props.onResize(a,this.props.dispatch)
+	}
+	render(){
+		const {resizing}=this.state
+		const {dispatch,onResize,direction="ew", cursor="col-resize", top={x:0,y:0},...props}=this.props
+		const y=direction=="ew" ? 'y' :'x'
+		const topLine={[y+'1']:"-100%", [y+'2']:"100%"}
+		return (
+			<Fragment>
+				{resizing &&
+					<Top {...top}>
+						<line {...props} {...topLine}
+							stroke="lightgray"
+							strokeWidth={1}
+							strokeDasharray="5,5"/>
+					</Top>
+				}
+				<Resizable
+					direction={direction}
+					onStart={e=>this.setState({resizing:true})}
+					onEnd={e=>this.setState({resizing:false})}
+					onResize={this.resize}>
+					<line {...props}
+						stroke={NoShow}
+						strokeWidth={5}
+						style={{cursor}}
+						/>
+				</Resizable>
+			</Fragment>
+		)
+	}
+})
+	
 export default class Resizable extends Component{
 	static propTypes={
 		onResize: PropTypes.func.isRequired,
 		direction: PropTypes.oneOf("ew,ns,nwse,nesw".split(",").reduce((all,a)=>(all.splice(0,0,a,"-"+a),all),[]))
 	}
+
+	static ColResizer=props=><Resizer {...props} direction="ew" cursor="col-resize"/>
+	static RowResizer=props=><Resizer {...props} direction="-ns" cursor="row-resize"/>
+	
 	state={}
 	onStartResize=this.onStartResize.bind(this)
 
@@ -113,3 +157,5 @@ export default class Resizable extends Component{
 		this.top=top
 	}
 }
+
+

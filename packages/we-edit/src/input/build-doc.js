@@ -128,7 +128,7 @@ node prototype: {type:string,props:{},children:[...id],parent:string}
 */
 const createElementFactoryBuilder=inputTypeInstance=>content=>(type, props, children, raw)=>{
 	console.assert(!!type)
-	const id=raw.id||inputTypeInstance.makeId(raw)
+	const id=inputTypeInstance.makeId(raw)
 	const node={
 		type:type.displayName,
 		id,
@@ -141,6 +141,11 @@ const createElementFactoryBuilder=inputTypeInstance=>content=>(type, props, chil
 	}
 
 	content.set(id, Immutable.fromJS(node))
+
+	if(!id){
+		console.error(node)
+	}
+	
 
 	if(Array.isArray(children)){
 		//set parent make map as a double direction tree structure

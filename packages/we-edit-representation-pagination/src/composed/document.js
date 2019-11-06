@@ -41,7 +41,7 @@ export default class ComposedDocument extends Component{
 				ref={innerRef}
 				preserveAspectRatio="xMidYMin"
 				viewBox={`0 0 ${width} ${height}`}
-				style={{background:"transparent", width:width*scale/precision, height:height*scale/precision, ...style}}
+				style={{background:"transparent", width:width*scale*precision, height:height*scale*precision, ...style}}
 				>
 				<Media {...{pgGap:pgGap*precision, width,precision}}>
 					{composed}

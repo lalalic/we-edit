@@ -10,7 +10,7 @@ export default class Top extends Component{
     render(){
 		const {x=0, y=0, svg}=this.state
 		const content=(
-			<Group innerRef={a=>this.el=a} transform={`translate(${x} ${y})`}>
+			<Group innerRef={a=>this.el=a} x={x} y={y}>
                 {this.props.children}
             </Group>
 		)

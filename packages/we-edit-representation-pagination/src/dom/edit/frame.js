@@ -1,4 +1,4 @@
-import {Fragment} from "react"
+import React,{Fragment} from "react"
 import editable from "./editable"
 import {ReactQuery} from "we-edit"
 import {Cacheable} from "../../composable"
@@ -13,6 +13,14 @@ const factory=base=>Cacheable(class Frame extends editable(base){
     clearComposed(){
         this.columns=[]
         return super.clearComposed(...arguments)
+    }
+
+    appendLastComposed(){
+        const lastComposed=[...this.computed.lastComposed]
+        this.computed.lastComposed=[]
+        lastComposed.forEach(a=>{
+            this.context.parent.appendComposed(this.createComposed2Parent())
+        })
     }
 
     removeChangedPart(removedChildren){
@@ -180,6 +188,6 @@ const factory=base=>Cacheable(class Frame extends editable(base){
 		}
 		return rects
 	}
-})
+},undefined,["hash","width"])
 
 export default factory(Base)

@@ -46,6 +46,7 @@ describe("content query",()=>{
                 }))
                 "1,2,3".split(",").forEach(a=>expect($.find(`#${a}`).length).toBe(1))
                 expect($.find(`#213{a/b/c.xml}`).length).toBe(1)
+                expect($.find(`text#213{a/b/c.xml}`).length).toBe(1)
             })
 
             it("non-existance #id",()=>{

@@ -74,8 +74,8 @@ export default connect(
 				}
 
 				const onMac=navigator.userAgent.indexOf("Mac OS") != -1
-				const {key,keyCode,ctrlKey,metaKey}=e
-				const control=keys[keyCode]|| (((onMac && metaKey) ||ctrlKey) && keys[key])
+				const {key,keyCode,ctrlKey,metaKey,shiftKey}=e
+				const control=keys[keyCode]|| (((onMac && metaKey) ||ctrlKey ||shiftKey) && keys[key])
 				if(control){
 					e.preventDefault()
 					control(toMyEvent(e))

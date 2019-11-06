@@ -338,39 +338,38 @@ class DocxType extends Input.Editable{
 }
 
 export default class Editable extends DocxType{
-	makeId(node, uid){
-		if(!node){
-			debugger
+    makeId(node, root="w:document"){
+        if(!node){
+            return "null"
 		}
-
-		node=this._unwrap(node)
-
-		if(uid){
-			defineId(node.attribs,uid)
-			return uid
-		}
+        
+       node=this._unwrap(node)
 
 		if(node.attribs.xxid){
 			return node.attribs.xxid
 		}
 
-		let id=uid||(node.name=="w:document"&&"root")||super.makeId()
-		defineId(node.attribs,id)
+        const id=node.name.endsWith(root) ? "root" : `${super.makeId(...arguments)}{${this.doc.$(node).part()}}`
 
-		if(this.doc.part)
-			return `${id}[${this.doc.part}]`
+        Object.defineProperty(node.attribs,"xxid",{
+            enumerable: false,
+            configurable: true,
+            writable: false,
+            value: id
+        })
+        return id
+    }
 
-		return id
-	}
-
-	getNode(uid){
-		let [id,part]=uid.split(/[\[\]]/g)
+    getNode(uid){
+		const [id,part]=uid.split(/[\{\}]/g)
 		let node=null
 
 		if(!part)
-			node=this.doc.officeDocument.content(`[xxid="${id}"]`)
-		else
-			node=this.doc.officeDocument.getRel(part)(`[xxid="${id}"]`)
+			node=this.doc.officeDocument.content(`[xxid="${uid}"]`)
+		else{
+            const $=this.doc.getObjectPart(part)
+            node=$(`[xxid="${uid}"]`)
+        }
 
 		if(node.length!=1){
 			debugger

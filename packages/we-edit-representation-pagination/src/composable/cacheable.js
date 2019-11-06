@@ -1,6 +1,6 @@
 import {Children} from "react"
 
-export default (A,partable)=>class __$1 extends A{
+export default (A,partable, composedOnlyForFields=["hash"])=>class __$1 extends A{
     static displayName=`cacheable(${partable ? "part" : "all"})-${A.displayName}`
     constructor(){
         super(...arguments)
@@ -14,15 +14,21 @@ export default (A,partable)=>class __$1 extends A{
         return composed
     }
 
-    clearComposed({id, hash, changed=hash!==this.props.hash,children}){
-        //console.debug(`${this.constructor.getType()}[${id}] -- ${changed}`)
-        
+    isChanged(current,last){
+        return composedOnlyForFields.reduce((changed,k)=>{
+            return changed || current[k]!=last[k]
+        },false)
+    }
+
+    clearComposed({id, hash,children}){
+        const changed=this.isChanged(arguments[0],this.props)
+        console.debug(`${this.constructor.getType()}[${id}] -- ${changed}`)
         if(!changed && this.isAllChildrenComposed()){
             return
         }
 
         super.clearComposed(...arguments)
-        this.computed.hash=null
+        composedOnlyForFields.forEach(k=>this.computed[k]=null)
         
         if(!partable){//keep last Composed for recovering
             this.computed.lastComposed=[]
@@ -60,8 +66,9 @@ export default (A,partable)=>class __$1 extends A{
                 return null
             }
 
-            const {id, hash, changed=hash!==this.computed.hash}=this.props
-            //console.debug(`${this.constructor.getType()}[${id}] -- ${changed}`)
+            const {id, }=this.props
+            const changed=this.isChanged(this.props,this.computed)
+            console.debug(`${this.constructor.getType()}[${id}] -- ${changed}`)
             if(!changed && this.isAllChildrenComposed()){
                 if(this.appendLastComposed()!==false){
                     return null
@@ -86,11 +93,13 @@ export default (A,partable)=>class __$1 extends A{
 
             //last safe
             super.clearComposed(this.props)
-            this.computed.hash=null
             this.computed.lastComposed=[]
             return super.render()
         }finally{
-            this.computed.hash=this.props.hash
+            composedOnlyForFields.forEach(k=>{
+                this.computed[k]=this.props[k]
+            })
+            
         }
     }
 

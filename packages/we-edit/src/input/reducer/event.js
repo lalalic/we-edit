@@ -161,12 +161,36 @@ export default class __$1 extends Base{
         this.emit("tab",this.conds,...arguments)
     }
 
-    forward(){
-        this.emit("forward",this.conds,...arguments)
+    forward({shiftKey}={}){
+        const {cursorAt="end", ...a}=this.selection
+        this.cursorAt(a[cursorAt].id, a[cursorAt].at)
+        if(shiftKey){
+            this.emit("forward",this.conds,...arguments)
+            const {end:current}=this.selection
+            if(cursorAt=="start"){
+                this.cursorAt(current.id,current.at,a.end.id,a.end.at,cursorAt)
+            }else{
+                this.cursorAt(a.start.id, a.start.at, current.id,current.at,cursorAt)
+            }
+        }else{
+            this.emit("forward",this.conds,...arguments)
+        }
     }
 
-    backward(){
-        this.emit("backward",this.conds,...arguments)
+    backward({shiftKey}={}){
+        const {cursorAt="end", ...a}=this.selection
+        this.cursorAt(a[cursorAt].id, a[cursorAt].at)
+        if(shiftKey){
+            this.emit("backward",this.conds,...arguments)
+            const {end:current}=this.selection
+            if(cursorAt=="start"){
+                this.cursorAt(current.id,current.at,a.end.id,a.end.at,cursorAt)
+            }else{
+                this.cursorAt(a.start.id, a.start.at, current.id,current.at,cursorAt)
+            }
+        }else{
+            this.emit("backward",this.conds,...arguments)
+        }
     }
 
     copy(){

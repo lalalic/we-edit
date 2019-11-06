@@ -3,6 +3,7 @@ export default function selectors(a,$,basic){
 	try{
 		return n=>!!a.split(",").map(k=>unionSelector(k.trim(),$, basic)).find(f=>f(n)) ? true : undefined
 	}catch(error){
+		debugger
 		throw error
 	}
 }
@@ -23,34 +24,49 @@ const SCOPE={
 	}
 const UNION=/[\s\[,:<>+~]/
 function unionSelector(a,$, basic){
-	let selectors=a.split(/(?=[><+~\s])/g)
-	const scopes=selectors.slice(1).map(k=>SCOPE[k[0]])
-	selectors=selectors.map(k=>k.replace(/^[><+~]/,"")).map(k=>k.trim())
-	const nodeSelector=selectors.pop()
-	const nodeCheck=basicSelectors(nodeSelector,basic)
-	const checks=selectors.map((a,i)=>{
-		const check=basicSelectors(a,basic)
-		return n=>$(n)[scopes[i]](check).length>0
-	}).reverse()
-	return n=>{
-		if(nodeCheck(n)){
-			if(!checks.find(f=>!f(n))){
-				return true
+	try{
+		let selectors=a.split(/(?=[><+~\s])/g)
+		const scopes=selectors.slice(1).map(k=>SCOPE[k[0]])
+		selectors=selectors.map(k=>k.replace(/^[><+~]/,"")).map(k=>k.trim())
+		const nodeSelector=selectors.pop()
+		const nodeCheck=basicSelectors(nodeSelector,basic)
+		const checks=selectors.map((a,i)=>{
+			const check=basicSelectors(a,basic)
+			return n=>$(n)[scopes[i]](check).length>0
+		}).reverse()
+		return n=>{
+			if(nodeCheck(n)){
+				if(!checks.find(f=>!f(n))){
+					return true
+				}
 			}
 		}
+	}catch(e){
+		console.log({e,a})
+		debugger
 	}
 }
 
 //p#id[k=v], any fail cause fail
+//id=\w{.*}
+//[k="vddd.*H"]
 function basicSelectors(a,basic=basic){
-	const checks=(/^\[.*\]$/.test(a) ? [a] : a.split(/(?=[#\.\[\]])/g))
-		.map(k=>{
-			if(k[0]=="]"){
-				return k.substr(1)
-			}
-			return k
-		})
+	//[a=""],#23{god.sidd,ck}
+	const checks=a.split(/(?<![\{\[][^\{\}\[\]]*)(?=[#.\[\*])/g)
 		.filter(a=>!!a)
+		.reduce((ds,a)=>{//flat
+			let i=0
+			if(a[0]=="[" && (i=a.lastIndexOf("]"))!=-1 && !a.endsWith("]")){
+				ds.push(a.substring(0,i+1))	
+				ds.push(a.substring(i+1))
+			}else if(a[0]=="#" && (i=a.lastIndexOf("}"))!=-1 && !a.endsWith("}")){
+				ds.push(a.substring(0,i+1))	
+				ds.push(a.substring(i+1))
+			}else{
+				ds.push(a)
+			}
+			return ds
+		},[])
 		.map(k=>{
 			switch(k[0]){
 				case '#':
@@ -58,7 +74,7 @@ function basicSelectors(a,basic=basic){
 				case '[':{
 					const args=k.substr(1,k.length-2).split("=")
 					if(args.length==2)
-						args[1]=args[1].replace(/^['"]/,"").replace(/['"]$/,"")
+						args[1]=args[1].replace(/^[`'"]/,"").replace(/[`'"]$/,"")
 					return basic["["](...args)
 				}
 				case ".":
@@ -73,3 +89,4 @@ function basicSelectors(a,basic=basic){
 		})
 	return n=>!checks.find(f=>!f(n))
 }
+

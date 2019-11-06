@@ -98,18 +98,36 @@ export default class Fixed extends Super{
 		this.computed.composed.push(content)
 	}
 
+	nextAvailableSpace(){
+		const {width}=this.props
+		return {width}
+	}
+
 	onAllChildrenComposed(){
-		debugger
 		const content=this.createComposed2Parent()
 		this.context.parent.appendComposed(content)
 		super.onAllChildrenComposed()
 	}
 
 	createComposed2Parent() {
-		let {width,height=this.contentHeight, x,y,z,named}=this.props
+		const {width,height=this.contentHeight, x,y,z,named}=this.props
+		const alignY=contentHeight=>{
+			const {height=contentHeight, vertAlign}=this.props
+			switch(vertAlign){
+				case "bottom":
+					return height-contentHeight
+				case "center":
+				case "middle":
+					return (height-contentHeight)/2
+				default:
+					return 0
+			}
+		}
 		return (
 			<Group {...{width,height,x,y,z,named, className:"frame"}}>
-				{this.positionLines(this.computed.composed)}
+				<Group y={alignY(this.currentY)}>
+					{this.positionLines(this.computed.composed)}
+				</Group>
 			</Group>
 		)
     }

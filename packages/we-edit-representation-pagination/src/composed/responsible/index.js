@@ -265,7 +265,7 @@ export default class Responsible extends Component{
         }
     }
 
-    onClick({shiftKey:selecting, target, clientX:left,clientY:top}, doubleClicked=false){
+    onClick({shiftKey:selecting, clientX:left,clientY:top}, doubleClicked=false){
 		const {id,at}=this.positioning.around(left, top)
 		if(id){
             if(at==undefined){
@@ -327,7 +327,7 @@ export default class Responsible extends Component{
         if(id){
             this.onKeyArrow(id,at,selecting)
         }
-	}
+    }
 }
 
 const ComposeMoreTrigger=compose(
@@ -349,7 +349,7 @@ const ComposeMoreTrigger=compose(
 		return (
 			<Waypoint onEnter={()=>compose4Scroll(y)} >
                 <Group y={y-100}>
-                    <line x1="0" y1="0" x2="2" y2="0" strokeWidth="2" stroke={debug ? "red" : "transparent"}/>
+                    <line className="composeTrigger" x1="0" y1="0" x2="2" y2="0" strokeWidth="2" stroke={debug ? "red" : "transparent"}/>
                 </Group>
 			</Waypoint>
 		)

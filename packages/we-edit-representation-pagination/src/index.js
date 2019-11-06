@@ -14,6 +14,12 @@ import * as Measure from "./measure"
 import Output from "./output"
 import SVG from "./output/svg"
 
+import Resizable from "./composed/selection/resizable"
+import Movable from "./composed/selection/movable"
+import Rotatable from "./composed/selection/rotatable"
+import Top from "./composed/selection/top"
+
+
 import * as composable from "./composable"
 
 const {FontMeasure, SVGMeasure}=Measure
@@ -119,4 +125,4 @@ export default class Pagination extends Representation.Base{
 
 Pagination.install()
 
-export {Viewers, Editors, FontManager, Measure, Composed, composable, editable}
+export {Viewers, Editors, FontManager, Measure, Composed, composable, editable, Resizable, Movable, Rotatable,Top}
