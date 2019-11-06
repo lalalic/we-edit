@@ -61,7 +61,7 @@ export default class Responsible extends Component{
 	}
 
 	getComposeTrigger(){
-		const {continueCompose:{isAllComposed, isSelectionComposed, compose4Selection, compose4Scroll,composedY}, pages, pgGap}=this.props
+		const {continueCompose:{isAllComposed, isSelectionComposed, compose4Selection, compose4Scroll,composedY}, pages, pageGap}=this.props
 		const notifyLocator=callback=>{
 			if(this.locator){
 				this.locator.setState({content:null,canvas:null},callback)

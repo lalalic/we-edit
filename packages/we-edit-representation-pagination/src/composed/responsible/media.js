@@ -16,7 +16,7 @@ export default class Media extends Component{
 	}
 
 	render(){
-		const {children:pages, pgGap, width:canvasWidth, precision,
+		const {children:pages, pageGap, width:canvasWidth, precision,
 			media=this.context.media,
 			paper=this.context.paper,
 			smart=true,
@@ -25,12 +25,12 @@ export default class Media extends Component{
 			case "screen":{
 				let y=0
 				return (
-					<Group y={pgGap} x={0}>
+					<Group y={pageGap} x={0}>
 						{pages.map((page,i)=>{
-							let {width,height,margin}=page.props
+							let {width,height,margin,I}=page.props
 
 							let newPage=(
-								<Group key={i} {...{y, x:(canvasWidth-width)/2}} className="page">
+								<Group key={i} {...{y, x:(canvasWidth-width)/2}} className={"page"+I}>
 									{smart ? <SmartShow {...{
 										children:page,i,
 										width,height,margin,
@@ -39,7 +39,7 @@ export default class Media extends Component{
 									}}/> : page}
 								</Group>
 							)
-							y+=(height+pgGap)
+							y+=(height+pageGap)
 							return newPage
 						})}
 					</Group>

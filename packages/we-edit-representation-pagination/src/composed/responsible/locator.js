@@ -155,14 +155,20 @@ class SelectionStyle{
     layoutProps(){
         if(!this.positioning.canvas)
             return null
-        const page=this.positioning.pages[this.position.page]
+        const page=this.positioning.pages.find(a=>a.props.I==this.position.page)
+        if(!page){
+            return null
+        }
         return page.layoutOf(page.columnIndexOf(page.lineIndexOf(this.position)))
     }
 
     pageProps(){
         if(!this.positioning.canvas)
             return null
-        const page=this.positioning.pages[this.position.page]
+        const page=this.positioning.pages.find(a=>a.props.I==this.position.page)
+        if(!page){
+            return null
+        }
         const pageY=()=>this.positioning.pageXY(this.position.page).y
         const line=()=>page.lineIndexOf(this.position)
         const column=()=>page.columnIndexOf(line())

@@ -12,7 +12,7 @@ export default function define(feature, tests){
     const {Document, Section, Container,Frame, Paragraph, Text, Image,Anchor, Table, Row, Cell, Shape}=Editors
     var uuid=10000
 	const size={width:20,height:500}
-	const pgGap=12
+	const pageGap=12
     const mockQuery=(key,value)=>{
             Paragraph.prototype.query=jest.fn(()=>{
                 return {
@@ -99,7 +99,7 @@ export default function define(feature, tests){
     ]//.filter(([a])=>a=="section")
     )("%s",(TESTING, render)=>{
         describe(feature, ()=>{
-            tests({dom:Editors,TESTING, render, mockQuery, pgGap, size, uuid,Responsible, Positioning})
+            tests({dom:Editors,TESTING, render, mockQuery, pageGap, size, uuid,Responsible, Positioning})
         })
     })
 }

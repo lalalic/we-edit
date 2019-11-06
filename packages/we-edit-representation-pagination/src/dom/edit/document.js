@@ -25,6 +25,8 @@ export default class Document extends Super{
 		activeDocStore: PropTypes.any,
 	}
 
+	static Responsible=Responsible
+
 	constructor({screenBuffer,viewport}){
 		super(...arguments)
 		this.state={mode:"content",viewport, ...this.state}
@@ -55,14 +57,14 @@ export default class Document extends Super{
 			return super.renderComposed()
 		}
 		return (
-				<Responsible
+				<this.constructor.Responsible
 					viewport={viewport}
 					dispatch={this.context.activeDocStore.dispatch}
 					canvasId={canvasId}
 					content={content}
 					getComposer={this.getComposer}
 					scale={scale}
-					pgGap={pageGap}
+					pageGap={pageGap}
 					pages={pages}
 					editable={editable}
 					continueCompose={{

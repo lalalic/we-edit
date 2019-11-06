@@ -87,8 +87,7 @@ class Positioning{
     }
 
     pageXY(i=0){
-        const pages=this.canvas.querySelectorAll(".page")
-        const page=pages[i]
+        const page=this.canvas.querySelector(".page"+i)
         if(page){
             const {left,top}=page.getBoundingClientRect()
             return this.asCanvasPoint({left,top})
@@ -134,8 +133,8 @@ class ReactPositioning extends Positioning{
     around(left,top){
         const {page, x, y}=(()=>{
             let {x,y}=this.asCanvasPoint({left,top}), xy
-            const page=this.pages.find(({props:{width,height}},i)=>{
-                xy=this.pageXY(i)
+            const page=this.pages.find(({props:{width,height}},I)=>{
+                xy=this.pageXY(I)
                 return x>=xy.x && x<=xy.x+width && y>=xy.y && y<=xy.y+height
             })
             return {page, x:x-xy.x, y:y-xy.y}

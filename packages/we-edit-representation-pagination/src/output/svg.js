@@ -4,7 +4,7 @@ export default class SVG extends Base{
 	static displayName="SVG"
 	static propTypes={
 		...Base.propTypes,
-		pgGap: PropTypes.number,
+		pageGap: PropTypes.number,
 		pgColor: PropTypes.string,
 	}
 
@@ -14,7 +14,7 @@ export default class SVG extends Base{
 		ext:"svg",
 		representation: "pagination",
 
-		pgGap:24,
+		pageGap:24,
 		pgColor:"white"
 	}
 
@@ -30,9 +30,9 @@ export default class SVG extends Base{
 	}
 
 	onDocument({viewBox}){
-		const {pgGap}=this.props
+		const {pageGap}=this.props
 		const [,,width,height]=viewBox.trim().split(/\s+/g)
-		this.width=pgGap+parseInt(width)+pgGap
+		this.width=pageGap+parseInt(width)+pageGap
 		this.height=parseInt(height)
 		this.stream.write(`<svg
 	style="background:lightgray"
@@ -40,7 +40,7 @@ export default class SVG extends Base{
 	xmlns="http://www.w3.org/2000/svg"
 	xmlns:xlink="http://www.w3.org/1999/xlink">
 		`)
-		this.stream.write(`<g transform="translate(${pgGap},0)">`)
+		this.stream.write(`<g transform="translate(${pageGap},0)">`)
 	}
 
 	onDocumentEnd(e){
@@ -50,8 +50,8 @@ export default class SVG extends Base{
 	onPage({width,height}){
 		width=parseInt(width)
 		height=parseInt(height)
-		this.y+=this.props.pgGap
-		const { pgGap, pgColor}=this.props
+		this.y+=this.props.pageGap
+		const { pageGap, pgColor}=this.props
 		this.stream.write(`<g transform="translate(${(this.width-width)/2} ${this.y})">`)
 		if(pgColor)
 			this.stream.write(`<rect width="${width}" height="${height}" fill="${pgColor}"/>`)

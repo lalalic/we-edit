@@ -8,12 +8,12 @@ export default class ComposedDocument extends Component{
 	static displayName="composed"
 	static propTypes={
 		pages: PropTypes.arrayOf(PropTypes.object).isRequired,
-		pgGap: PropTypes.number.isRequired,
+		pageGap: PropTypes.number.isRequired,
 		scale: PropTypes.number.isRequired,
 	}
 
 	static defaultProps={
-		pgGap:24,
+		pageGap:24,
 		scale:1,
 	}
 
@@ -21,19 +21,19 @@ export default class ComposedDocument extends Component{
 		events: PropTypes.shape({emit:PropTypes.func.isRequired}),
 	}
 
-	getComposed=memoize((pages,pgGap)=>{
+	getComposed=memoize((pages,pageGap)=>{
 		const content=pages.map((page,i)=>page.render())
 		return content.reduce((size,{props:{width,height}})=>{
 				return Object.assign(size,{
 					width:Math.max(size.width,width),
-					height:size.height+height+pgGap,
+					height:size.height+height+pageGap,
 				})
-			},{width:0,height:pgGap,composed:content})
+			},{width:0,height:pageGap,composed:content})
 	})
 
 	render(){
-		const {pages, pgGap, scale, style,children,innerRef, content, precision=1, ...props}=this.props
-		const {width,height,composed}=this.getComposed(pages, pgGap)
+		const {pages, pageGap, scale, style,children,innerRef, content, precision=1, ...props}=this.props
+		const {width,height,composed}=this.getComposed(pages, pageGap)
 
 		return   (
 			<svg
@@ -43,7 +43,7 @@ export default class ComposedDocument extends Component{
 				viewBox={`0 0 ${width} ${height}`}
 				style={{background:"transparent", width:width*scale*precision, height:height*scale*precision, ...style}}
 				>
-				<Media {...{pgGap:pgGap*precision, width,precision}}>
+				<Media {...{pageGap:pageGap*precision, width,precision}}>
 					{composed}
 				</Media>
 				{children}
