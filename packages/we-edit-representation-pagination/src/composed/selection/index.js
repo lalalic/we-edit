@@ -54,6 +54,7 @@ export default class SelectionShape extends Component{
 export const Area=({rects, ...props})=>(
 	<path
 		fill="#3297FD"
+		className="selectionShape"
 		style={{fillOpacity:0.5}}
 		d={
 			rects.map(({left,top,right,bottom})=>`M${left} ${top} L${right} ${top} L${right} ${bottom} L${left} ${bottom} Z`).join(" ")

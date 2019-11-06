@@ -86,8 +86,8 @@ class Positioning{
         return {left:location.x, top:location.y}
     }
 
-    pageXY(i=0){
-        const page=this.canvas.querySelector(".page"+i)
+    pageXY(I=0){
+        const page=this.canvas.querySelector(".page"+I)
         if(page){
             const {left,top}=page.getBoundingClientRect()
             return this.asCanvasPoint({left,top})
@@ -169,7 +169,7 @@ class ReactPositioning extends Positioning{
             ({start,end}=this.extendSelection(start,end));
 
             const frame=this.getComposer(start.id).closest(a=>!!a.getRangeRects && a.props.id!=start.id)
-            const rects=frame.getRangeRects(start,end, page=>this.pageXY(this.pages.indexOf(page)))
+            const rects=frame.getRangeRects(start,end, page=>this.pageXY(page.props.I))
             if(end.at==1){
                 const endComposer=this.getComposer(end.id)
                 if(endComposer.getComposeType()=="paragraph"){
