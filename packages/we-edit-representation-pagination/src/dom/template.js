@@ -11,7 +11,7 @@ const factory=Frame=>{
             const {xhref,master}=this.props
             return (
                 <symbol id={xhref}>
-                    {master ? <Use template={master}/> : null}
+                    {master ? <Use xhref={master}/> : null}
                     {super.createComposed2Parent(...arguments)}
                 </symbol>
             )
@@ -28,7 +28,7 @@ class Use extends Component{
     }
 
     render(){
-        const composedTemplate=this.context.getComposedTemplate(this.props.template)
+        const composedTemplate=this.context.getComposedTemplate(this.props.xhref)
         if(!composedTemplate)
             return null
 

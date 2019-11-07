@@ -33,7 +33,7 @@ export default class Document extends Super{
             ...super.getChildContext(),
             Measure: this.getMeasure(),
             getComposedTemplate(id){
-                return self.computed.templates.find(a=>a.props.xhref===id)||{props:{children:null}}
+                return self.computed.templates.find(a=>a.props.id===id)||{props:{children:null}}
             }
         }
     }

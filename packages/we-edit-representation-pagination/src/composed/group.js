@@ -23,6 +23,7 @@ export default class Group extends Component{
 			margin,minWidth, width, height, index, childIndex,geometry,
 			contentWidth,wrap,pagination,anchor,currentY,named,descent,replaceable, spaceHeight,composedAt,
 			className,
+			I,
 			...others}=this.props
 		const props={}
 

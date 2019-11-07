@@ -133,7 +133,7 @@ class ReactPositioning extends Positioning{
     around(left,top){
         const {page, x, y}=(()=>{
             let {x,y}=this.asCanvasPoint({left,top}), xy
-            const page=this.pages.find(({props:{width,height}},I)=>{
+            const page=this.pages.find(({props:{width,height,I}})=>{
                 xy=this.pageXY(I)
                 return x>=xy.x && x<=xy.x+width && y>=xy.y && y<=xy.y+height
             })
