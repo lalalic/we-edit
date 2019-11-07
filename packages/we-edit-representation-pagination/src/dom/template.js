@@ -8,9 +8,9 @@ const factory=Frame=>{
         static factory=factory
         static Use=Use
         createComposed2Parent(){
-            const {id,master}=this.props
+            const {xhref,master}=this.props
             return (
-                <symbol id={id}>
+                <symbol id={xhref}>
                     {master ? <Use template={master}/> : null}
                     {super.createComposed2Parent(...arguments)}
                 </symbol>

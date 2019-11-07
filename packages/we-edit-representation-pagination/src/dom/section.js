@@ -48,7 +48,7 @@ export default class Section extends Super{
 		render(){
 			const {props:{I:key,width,height,margin}}=this
 			return React.cloneElement(super.createComposed2Parent(),{
-				key,width,height,margin,
+				key,width,height,margin,I:key
 			})
 		}
 

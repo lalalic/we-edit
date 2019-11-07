@@ -30,7 +30,7 @@ export default class Group extends Component{
 			props.ref=innerRef
 		}
 
-		if(className=="page"){//type define,  such as line, <line><content.../></line>, so query can be more simplier
+		if(className && className.startsWith("page")){//type define,  such as line, <line><content.../></line>, so query can be more simplier
 			props.className=className
 		}
 

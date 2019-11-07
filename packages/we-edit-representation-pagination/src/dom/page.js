@@ -62,7 +62,7 @@ const factory=MyFrame=>class __$1 extends MyFrame{
 	createComposed2Parent=memoize(()=>{
 		const render=()=>{
 			const {props:{I:key,width,height,margin}}=this
-			return React.cloneElement(super.createComposed2Parent(),{key,width,height,margin})
+			return React.cloneElement(super.createComposed2Parent(),{key,width,height,margin,I:key})
 		}
 
 		return new Proxy(this,{

@@ -7,7 +7,7 @@ export default class Template extends Unknown{
     static Use=({template})=>null
     
     static propTypes={
-        id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+        xhref: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
         master: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     }
 }

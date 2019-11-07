@@ -20,7 +20,7 @@ export default class Shape extends Super{
 			if(this.isEmpty())
 				return null
 			const {props:{I:key,width,height,margin}}=this
-			return React.cloneElement(super.createComposed2Parent(),{key,width,height,margin})
+			return React.cloneElement(super.createComposed2Parent(),{key,width,height,margin,I:key})
 		}
 	}
 
