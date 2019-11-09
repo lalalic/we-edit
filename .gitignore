@@ -35,3 +35,4 @@ dist/*.js
 dist/fonts
 
 *.map
+.worc
