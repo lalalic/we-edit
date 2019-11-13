@@ -241,6 +241,10 @@ export default class Base{
 		
 	}
 
+	move(){
+		
+	}
+
     extend(type){
         const typed=this.$target.closest(type)
         if(typed.length>0){

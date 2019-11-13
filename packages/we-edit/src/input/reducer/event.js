@@ -245,4 +245,12 @@ export default class __$1 extends Base{
             this.emit("paste_"+$b.attr('type'),this.conds,$b,a)
         })
     }
+
+    move(){
+        console.log(arguments)
+        const {start,end}=this.selection
+        if(start.id==end.id && start.at==end.at){
+            return 
+        }
+    }
 }

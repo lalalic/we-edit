@@ -4,10 +4,12 @@ import PropTypes from "prop-types"
 import Top from "./top"
 import Overlay from "./overlay"
 import {Group} from "../../composed"
+import { posix } from "path"
 
 export default class Movable extends Component{
 	static propTypes={
-		onMove: PropTypes.func.isRequired
+		onMove: PropTypes.func.isRequired,
+		onMoving: PropTypes.func,
 	}
 
 	state={moving:false}
@@ -22,7 +24,7 @@ export default class Movable extends Component{
 					 	onMouseUp={e=>this.onEndMove(e)}
 						onMouseMove={e=>this.moving(e)}
 						>
-						<Mover ref={a=>this.mover=a} cursor="default" />
+						<Mover ref={a=>this.mover=a} cursor="default" show={!!!this.props.onMoving}/>
 					</Overlay>)
 				}
 				{React.cloneElement(children,{onMouseMove:e=>{
@@ -39,10 +41,10 @@ export default class Movable extends Component{
 		if(!this.state.moving)
 			return
 
-		let {id,at}=this.mover.state
+		const dest=this.mover.state
 		this.setState({moving:false},()=>{
-			if(id){
-				this.props.onMove({dest:{id,at}})
+			if(dest.id){
+				this.props.onMove({dest})
 			}
 		})
 		e.stopPropagation()
@@ -52,9 +54,13 @@ export default class Movable extends Component{
     moving(e){
 		if(this.state.moving){
 			const {clientX:left, clientY:top}=e
-			let pos=this.props.around(left,top)
+			const pos=this.props.around(left,top)
 			if(pos){
-				this.mover.setState(pos)
+				this.mover.setState(({x=pos.x,y=pos.y,...state})=>{
+					return {...state, ...pos, dx:x-pos.x, dy:y-pos.y}
+				},()=>{
+					this.props.onMoving && this.props.onMoving({dest:this.mover.state})
+				})
 			}
 		}
 		e.stopPropagation()
@@ -62,22 +68,18 @@ export default class Movable extends Component{
 }
 
 class Mover extends Component{
-    state={}
+	state={}
     render(){
-        const {x,y, id}=this.state
-        let caret=null, placeholder=null
-        if(id)
-            caret=<rect x={x} y={y} width={2} height={20} fill="black"/>
-
-		if(x!=undefined && y!=undefined)
-			placeholder=<rect x={x+5} y={y+20} width={10} height={5}
-					fill="transparent"
-					stroke="gray"
-					strokeWidth="1"/>
+        const {x,y,id}=this.state
         return (
-            <Top x={0} y={0}>
-				{placeholder}
-                {caret}
+            <Top x={x} y={y}>
+				{ x!=undefined && y!=undefined && (
+					<rect x={5} y={20} width={10} height={5}
+						fill="transparent"
+						stroke={this.props.show ? "gray" : "transparent"}
+						strokeWidth="1"/>
+				)}
+                {id && <rect width={2} height={20} fill={this.props.show ? "black" : "transparent"}/>}
             </Top>
         )
     }
