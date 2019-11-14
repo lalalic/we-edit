@@ -53,15 +53,13 @@ export default class Movable extends Component{
 
     moving(e){
 		if(this.state.moving){
-			const {clientX:left, clientY:top}=e
-			const pos=this.props.around(left,top)
-			if(pos){
-				this.mover.setState(({x=pos.x,y=pos.y,...state})=>{
-					return {...state, ...pos, dx:x-pos.x, dy:y-pos.y}
-				},()=>{
-					this.props.onMoving && this.props.onMoving({dest:this.mover.state})
-				})
-			}
+			const {clientX, clientY}=e
+			const pos=this.props.around(clientX,clientY)||{}
+			this.mover.setState(({clientX:x=clientX,clientY:y=clientY,...state})=>{
+				return {...state, ...pos, clientX, clientY, dx:clientX-x, dy:clientY-y}
+			},()=>{
+				this.props.onMove({dest:this.mover.state,moving:true})
+			})
 		}
 		e.stopPropagation()
     }

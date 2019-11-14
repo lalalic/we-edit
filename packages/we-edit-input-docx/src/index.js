@@ -435,6 +435,10 @@ export default class Editable extends DocxType{
 		return parseInt(parseFloat(w)*11900/21.59)
 	}
 
+	px2emu(a){
+		return this.px2Pt(a)*12700
+	}
+
 	static Reducer=Reducer
 }
 

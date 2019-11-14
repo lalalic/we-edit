@@ -255,14 +255,7 @@ export default class Responsible extends Component{
     }
 
     onMove(e){
-        if(e.absolute){
-            const xy=this.positioning.asCanvasPoint(e.dest)
-            return
-            const {line,x,y,paragraph}=this.positioning.getPage(xy)
-            this.dispatch(ACTION.Entity.MOVE({dest:{id,at}}))
-        }else{
-            this.dispatch(ACTION.Selection.MOVE(e))
-        }
+        this.dispatch(ACTION.Selection.MOVE(e))
     }
 
     onClick({shiftKey:selecting, clientX:left,clientY:top}, doubleClicked=false){

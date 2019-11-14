@@ -246,11 +246,49 @@ export default class __$1 extends Base{
         })
     }
 
-    move(){
-        console.log(arguments)
+    move({moving,dest}){
         const {start,end}=this.selection
         if(start.id==end.id && start.at==end.at){
             return 
+        }
+
+        if(this.isWhole()){
+            const $parent=this.$target.parent()
+            if($parent.attr('type')=="anchor" && (dest.dx || dest.dy)){
+                this.selectWhole($parent.attr('id'))
+                this.emit("move",this.conds, dest)
+                this.selectWhole(start.id)
+                return 
+            }
+        }
+
+        if(!this.moving){
+            try{
+                if(start.id==end.id){
+                    this.moving=this.emit("serialize", this.conds)
+                }else{   
+                    this.seperateSelection()
+                    this.moving=this.$target.to("#"+end.id).toArray().map(id=>{
+                        this.selectWhole(id)
+                        return this.emit("serialize",this.conds)
+                    }).join("")
+                }
+            }catch(e){
+                delete this.moving
+            }
+        }
+
+        if(!moving && this.moving){
+            try{
+                this.remove()
+                this.file.attach(this.moving).each((i,a)=>{
+                    const {id}=this.file.renderChanged(a)
+                    const $b=this.$(`#${id}`)
+                    this.emit("paste_"+$b.attr('type'),this.conds,$b,a)
+                })
+            }catch(e){
+                delete this.moving
+            }
         }
     }
 }
