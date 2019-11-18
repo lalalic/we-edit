@@ -111,6 +111,10 @@ class Block extends HasParentAndChild(dom.Container){
 		this.computed.composed.push(content)
 	}
 
+	getSpace(){
+		return this.props.space
+	}
+
 	/**
      * anchors with wrap can affect exclusives, so it need re-layout
      * anchor need know anchor host to position itself
@@ -120,7 +124,7 @@ class Block extends HasParentAndChild(dom.Container){
     nextAvailableSpace({height:requiredBlockSize=0}={}){
 		const {space={}, inheritExclusives,allowOverflow=false}=this.props
         var mySpace=Space.create({
-            ...space,
+            ...this.getSpace(),
 			height:allowOverflow ? Number.MAX_SAFE_INTEGER : space.height||Number.MAX_SAFE_INTEGER,
 			blockOffset:this.blockOffset,
             frame:this,
@@ -492,7 +496,7 @@ class OrphanControlable extends Anchorable{
  */
 class MultiBlocks extends OrphanControlable{
 	isMultiBlocks(){
-		const {space:{cols}}=this.props
+		const {cols}=this.getSpace()
 		if(!cols || cols.length==0){
 			return false
 		}
@@ -500,7 +504,7 @@ class MultiBlocks extends OrphanControlable{
 	}
 
 	get cols(){//normalize props.cols
-		const {space:{height:H,cols}}=this.props
+		const {height:H,cols}=this.getSpace()
 		return cols.map(({height=H,x=0,y=0,...a})=>({height,x,y,...a}))
 	}
 
@@ -668,7 +672,8 @@ class BalanceableMultiBlocks extends MultiBlocks{
     }
     
     positionLines(lines){
-        const {space:{cols},balance}=this.props
+		const {balance}=this.props
+		const {cols}=this.getSpace()
 		if(!(balance && this.isMultiBlocks())){
 			return super.positionLines(...arguments)
         }
