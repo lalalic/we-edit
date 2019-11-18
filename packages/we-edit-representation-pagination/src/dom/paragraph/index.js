@@ -5,7 +5,7 @@ import memoize from "memoize-one"
 import {dom, ReactQuery} from "we-edit"
 
 import composable, {HasParentAndChild,} from "../../composable"
-import opportunities from "../../wordwrap/line-break"
+import breakOpportunities from "../../wordwrap/line-break"
 import {Text as ComposedText,  Group} from "../../composed"
 import Frame from "../frame"
 
@@ -14,6 +14,35 @@ import Line from "./line"
 import Story from "./story"
 
 const Super=HasParentAndChild(dom.Paragraph)
+const isText=a=>new ReactQuery(a).findFirst(`[data-type="text"]`).length==1
+const getText=a=>{
+	const $=new ReactQuery(a).find(`[data-type="text"]`)
+	let text=""
+	for(let i=0,len=$.length;i<len;i++){
+		text+=$.eq(i).attr("children")
+		console.log(text)
+	}
+	return text
+}
+const shouldAtomMerge=(a,b)=>{
+	if(!a || !b){
+		return false
+	}
+	a=new ReactQuery(a).findLast(`[data-type="text"]`)
+	b=new ReactQuery(b).findLast(`[data-type="text"]`)
+	if(a.length==0 || b.length==0){
+		return false
+	}
+	if([a,b].find(a=>a.attr("className"))){//special control
+		return false
+	}
+
+	if(a.attr('data-content')!=b.attr('data-content')){
+		return true
+	}
+	return false
+}
+
 export default class Paragraph extends Super{
     static Line=Line
     static Story=Story
@@ -23,69 +52,14 @@ export default class Paragraph extends Super{
 		...Super.contextTypes,
 		Measure: PropTypes.func,
 	}
-    static childContextTypes={
-        ...Super.childContextTypes,
-        getMyBreakOpportunities: PropTypes.func,
-    }
-
-	constructor(){
+   constructor(){
 		super(...arguments)
-		this.computed.lastText=""
 		this.computed.atoms=[]
-		this.computed.needMerge=false
-        this.computed.hasFrame=false
 	}
 
 	get enderWidth(){
 		return this.computed.atoms[this.computed.atoms.length-1].props.width
 	}
-
-    hasFrame(){
-        return this.computed.hasFrame
-    }
-
-	getBreakOpportunities(text,isFrame){
-		const {lastText}=this.computed
-		if(!text){
-			if(text===null)
-				this.computed.lastText=""
-
-            if(isFrame){
-                this.computed.hasFrame=true
-            }
-			return []
-		}
-
-		if(text==" "){
-			this.computed.lastText=""
-			return [text]
-		}
-
-		const current=opportunities(`${lastText}${text}`)
-		if(!lastText){
-			this.computed.lastText=current[current.length-1]||""
-			return current
-		}
-
-		const last=opportunities(lastText)
-		const i=last.length-1
-
-		let possible=current.slice(i)
-		if((possible[0]=possible[0].substring(last.pop().length))==""){
-			possible.splice(0,1)
-		}else{
-			this.computed.needMerge=true
-		}
-		this.computed.lastText=possible[possible.length-1]||""
-		return possible
-	}
-
-    getChildContext(){
-        return {
-            ...super.getChildContext(),
-			getMyBreakOpportunities:this.getBreakOpportunities.bind(this)
-        }
-    }
 
 	get currentLine(){
 		const {composed}=this.computed
@@ -128,23 +102,46 @@ export default class Paragraph extends Super{
             id={`${this.props.id}-end`}/>
     }
 
+    /**
+	 * to collect atomic inline items
+	 * a text start may merge with last text to compute break opportunity
+	 * `${lastText}${text}` should be good enough
+	 * @param {*} content
+	 */
     appendComposed(content){
-		if(this.computed.needMerge){
-			let last=this.computed.atoms.pop()
-			let height=Math.max(last.props.height, content.props.height)
-			let descent=Math.max(last.props.descent, content.props.descent)
-			let width=last.props.width+content.props.width
-			this.computed.atoms.push(
-				<Group {...{width,height,descent}}>
-					{last}
-					{React.cloneElement(content,{x:last.props.width})}
-				</Group>
-			)
-			this.computed.needMerge=false
-			return
+		const last=this.computed.atoms[this.computed.atoms.length-1]
+		if(shouldAtomMerge(last,content)){//possible merge with last if last is text
+			if( isText(last)){
+				const lastText=getText(last)
+				const text=getText(content)
+				const ops=breakOpportunities(`${lastText}${text}`)
+				switch(ops.length){
+				case 1:{//merge content into last atom
+					const height=Math.max(last.props.height, content.props.height)
+					const descent=Math.max(last.props.descent, content.props.descent)
+					const width=last.props.width+content.props.width
+					this.computed.atoms.pop()
+					this.computed.atoms.push(
+						<Group {...{width,height,descent}}>
+							{last}
+							{React.cloneElement(content,{x:last.props.width})}
+						</Group>
+					)
+					return 
+				}
+				case 2:
+					if(lastText===ops[0]){
+						break
+					}
+				default:
+					console.warn(`error: "${lastText}${text}" break opportunities: [${ops.join(",")}]`)
+				}
+			}
 		}
+		
 		this.computed.atoms.push(content)
-    }
+	}
+
 
     onAllChildrenComposed(){//need append last non-full-width line to parent
 		this.commit()

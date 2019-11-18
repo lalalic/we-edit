@@ -6,8 +6,7 @@ import {define} from "./index"
 
 define("text compose", ({dom:{Text},testing,Context, WithTextContext})=>{
     const test=text=>{
-        const context={...Context,getMyBreakOpportunities:text=>text.split(/\s+/)}
-        const getMyBreakOpportunities=context.getMyBreakOpportunities=jest.fn(context.getMyBreakOpportunities)
+        const context={...Context}
         const appendComposed=context.parent.appendComposed=jest.fn()
 
         const renderer=render(

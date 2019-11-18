@@ -24,24 +24,12 @@ export default class Shape extends Super{
 		}
 	}
 
-	static contextTypes={
-		...Super.contextTypes,
-		getMyBreakOpportunities: PropTypes.func
-	}
-
 	get geometry(){
 		return memoize(()=>{
 			const {geometry="rect"}=this.props
 			const Geometry=this.constructor[geometry]||this.constructor.custom
 			return new Geometry(this.props, this.context)
 		})()
-	}
-
-	render(){
-		if(this.context.getMyBreakOpportunities){
-			this.context.getMyBreakOpportunities(null,true)
-		}
-		return super.render()
 	}
 
 	create(props={},...others){

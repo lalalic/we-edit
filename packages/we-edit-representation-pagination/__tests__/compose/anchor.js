@@ -14,13 +14,11 @@ define("section compose",
             parent:PropTypes.any,
             ModelTypes:PropTypes.any,
             shouldContinueCompose: PropTypes.func,
-            getMyBreakOpportunities:PropTypes.func,
         },
         context:{
             parent:document,
             ModelTypes:{Frame},
             shouldContinueCompose:()=>true,
-            getMyBreakOpportunities:jest.fn(),
         }
     })
     const size={width:10,height:10}

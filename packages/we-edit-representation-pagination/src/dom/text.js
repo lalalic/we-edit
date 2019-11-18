@@ -2,11 +2,12 @@ import React from "react"
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
 
-import composable,{NoChild} from "../composable"
+import {NoChild} from "../composable"
 import {dom} from "we-edit"
+import breakOpportunities from "../wordwrap/line-break"
 const {Text:Base}=dom
 
-import {Text as ComposedText,  Group} from "../composed"
+import {Text as ComposedText} from "../composed"
 
 const Super=NoChild(Base)
 
@@ -14,7 +15,6 @@ export default class Text extends Super{
     static contextTypes={
 		...Super.contextTypes,
 		Measure: PropTypes.func,
-        getMyBreakOpportunities: PropTypes.func,
 	}
 
     get text(){
@@ -50,10 +50,6 @@ export default class Text extends Super{
         }
     }
 
-    getMyBreakOpportunities(){
-        return this.context.getMyBreakOpportunities(this.text)
-    }
-
     render(){
         if(this.props.vanish){
 			return null
@@ -66,7 +62,7 @@ export default class Text extends Super{
 		const whitespaceWidth=measure.stringWidth(" ")
 
 		let start=0
-		this.getMyBreakOpportunities().forEach(a=>{
+		breakOpportunities(this.text).forEach(a=>{
 			a.split(/(\s)/).filter(a=>!!a).forEach((b,i)=>{
 				const isWhitespace=b==" "
                 const ending=b.endsWith(",") ? b.substring(0,b.length-1) : false
