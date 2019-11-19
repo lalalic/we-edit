@@ -1,31 +1,23 @@
 import React, {Children,Component} from "react"
 import PropTypes from "prop-types"
-import {Layout} from "../../composable"
 
 import {ReactQuery} from "we-edit"
 
 import {Group} from "../../composed"
 
 export default class Line extends Component{
-	constructor({width,maxWidth,height,exclude, wrappees=[],y}){
+	constructor({width,maxWidth,height,wrappees=[],y}){
 		super(...arguments)
 		this.maxWidth=maxWidth
-		const self=this
-		this.content=Object.assign([],{
-			push(){
-				self.box.push(...arguments)
-				Array.prototype.push.call(this,...arguments)
-			}
-		})
-		this.wrappees=exclude(y,0).wrappees
-		this.box=Layout.InlineSegments.create({wrappees:[...this.wrappees,{x:width}]})
+		this.content=[]
+		this.wrappees=wrappees
 		this.composedAt=y
 		Object.defineProperties(this,{
 			height:{
 				enumerable:true,
 				configurable:true,
 				get(){
-					return this.items.reduce((h,{props:{height}})=>Math.max(h,height),0)
+					return this.content.reduce((h,{props:{height}})=>Math.max(h,height),0)
 				}
 			},
 			children:{
@@ -33,6 +25,27 @@ export default class Line extends Component{
 				configurable:true,
 				get(){
 					return this.content
+				}
+			},
+			availableHeight:{
+				enumerable:false,
+				configurable:false,
+				get(){
+					return height
+				}
+			},
+			availableWidth:{
+				enumerable:false,
+				configurable:false,
+				get(){
+					return width-this.currentX
+				}
+			},
+			currentX:{
+				enumerable:false,
+				configurable:false,
+				get(){
+					return this.content.reduce((x,{props:{width,x:x0}})=>x0!=undefined ? x0+width : x+width,0)
 				}
 			},
 			width:{
@@ -46,7 +59,7 @@ export default class Line extends Component{
 				enumerable:false,
 				configurable:false,
 				get(){
-					const first=this.items[0]
+					const first=this.content.find(a=>a.props.x===undefined)
 					if(first && first.props.atom)
 						return first.props.atom
 					if(first && first.props.descent==undefined)
@@ -58,7 +71,7 @@ export default class Line extends Component{
 				enumerable:false,
 				configurable:false,
 				get(){
-					const last=this.items.pop()
+					const last=this.content.findLast(a=>a.props.x===undefined)
 					if(last && last.props.atom)
 						return last.props.atom
 					return last
@@ -92,32 +105,12 @@ export default class Line extends Component{
 		if(anchor){
 			const $anchor=new ReactQuery(atom).findFirst('[data-type="anchor"]')
 			const anchorId=$anchor.attr("data-content")
-			this.content.push(React.cloneElement($anchor.get(0),{atom,width:0}))//atom is the key
+			this.content.push(React.cloneElement($anchor.get(0),{atom}))//atom is the key
 			if(!this.context.parent.context.isAnchored(anchorId)){
 				this.anchor=anchor
 				return false
 			}
 		}else{
-			const height=this.lineHeight()
-			if(this.box.push(atom)==false){
-				return false
-			}
-			const newHeight=this.lineHeight()
-			if(height!=newHeight){
-				const {wrappees,y}=this.props.exclude(this.composedAt, newHeight)
-				this.composedAt=y
-				const newBlocks=this.mergeWrappees(wrappees)
-				const box=Layout.InlineSegments.create({wrappees:[...newBlocks,{x:this.props.width}]})
-				if(box.hold(this.box.items)===false){
-					return false
-				}else{
-					this.box=box
-					//return false
-				}
-			}
-			return 
-
-
 			const containable=()=>minWidth==0 || this.content.length==0 || this.availableWidth>=minWidth || this.availableWidth==this.maxWidth
 			if(containable()){
 				this.wrappees=this.wrappees.map((a,i)=>{
@@ -134,7 +127,7 @@ export default class Line extends Component{
 					this.content.push(atom)
 					let newHeight=this.lineHeight()
 					if(height!=newHeight){
-						const {wrappees,y}=this.props.exclude(this.composedAt, newHeight)
+						const {wrappees,y}=this.context.parent.nextAvailableSpace({height:newHeight,y:this.composedAt})
 						this.composedAt=y
 						if(wrappees && wrappees.length>0 && this.shouldRecompose(wrappees)){
 							const flowCount=this.content.reduce((count,a)=>a.props.x==undefined ? count+1 : count,0)
@@ -164,13 +157,6 @@ export default class Line extends Component{
 
 	shouldRecompose(newBlocks){
 		newBlocks=this.mergeWrappees(newBlocks)
-		const box=new Layout.InlineSegments.create({segments:newBlocks})
-		if(box.hold(this.box.items)===false){
-			//return true
-		}else{
-			this.box=box
-			//return false
-		}
 		const applied=this.content.filter(a=>a.props.x!==undefined)
 		const notShould=applied.reduce((notShould,{props:{x,width}},i)=>{
 			if(notShould){
@@ -217,9 +203,8 @@ export default class Line extends Component{
 	}
 
 	commit(){
-		//this.wrappees.forEach(a=>this.content.push(<Group {...a} height={0}/>))
-		//this.wrappees=[]
-		this.content=this.box.render()
+		this.wrappees.forEach(a=>this.content.push(<Group {...a} height={0}/>))
+		this.wrappees=[]
 		return this
 	}
 }

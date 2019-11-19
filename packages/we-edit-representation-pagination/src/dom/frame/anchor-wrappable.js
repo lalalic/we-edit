@@ -41,7 +41,7 @@ export default class AnchorWrappable extends PaginationControllable{
 				}
 			}
 
-			return {wrappees, width, exclude: myExclude, y, ...space}
+			return {wrappees, width, exclude: myExclude, y:y==this.currentY ? undefined : y, ...space}
 		}
 
 		return myExclude(y, minHeight)
