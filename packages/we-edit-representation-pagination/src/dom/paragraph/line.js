@@ -4,20 +4,24 @@ import PropTypes from "prop-types"
 import {ReactQuery} from "we-edit"
 
 import {Group} from "../../composed"
+import {Layout} from "../../composable"
 
 export default class Line extends Component{
-	constructor({width,maxWidth,height,wrappees=[],y}){
+	constructor({width,maxWidth,height,wrappees=[], exclude=a=>({wrappees:[]}), y}){
 		super(...arguments)
 		this.maxWidth=maxWidth
 		this.content=[]
+		this.exclude=exclude
 		this.wrappees=wrappees
+		//this.wrappees=this.exclude().wrappees||[]
+		this.box=Layout.InlineSegments.create({wrappees:[...wrappees,{x:width}]})
 		this.composedAt=y
 		Object.defineProperties(this,{
 			height:{
 				enumerable:true,
 				configurable:true,
 				get(){
-					return this.content.reduce((h,{props:{height}})=>Math.max(h,height),0)
+					return this.getLineHeight()
 				}
 			},
 			children:{
@@ -123,11 +127,11 @@ export default class Line extends Component{
 				}).filter(a=>!!a)
 
 				if(containable()){
-					let height=this.lineHeight()
+					let height=this.getLineHeight()
 					this.content.push(atom)
-					let newHeight=this.lineHeight()
+					let newHeight=this.getLineHeight()
 					if(height!=newHeight){
-						const {wrappees,y}=this.context.parent.nextAvailableSpace({height:newHeight,y:this.composedAt})
+						const {wrappees,y}=this.exclude(this.composedAt, newHeight)
 						this.composedAt=y
 						if(wrappees && wrappees.length>0 && this.shouldRecompose(wrappees)){
 							const flowCount=this.content.reduce((count,a)=>a.props.x==undefined ? count+1 : count,0)
@@ -139,7 +143,7 @@ export default class Line extends Component{
 					return
 				}else if(this.isEmpty()){
 					this.content.push(atom)
-					this.required={width:minWidth,height:this.lineHeight()}
+					this.required={width:minWidth,height:this.getLineHeight()}
 					return at
 				}else{
 					return false
@@ -151,12 +155,27 @@ export default class Line extends Component{
 		}
 	}
 
-	lineHeight(){
-		return this.paragraph.lineHeight(this.height)
+	get contentHeight() {
+		return this.content.reduce((H, { props: { height = 0 } }) => Math.max(H, height), 0);
+    }
+
+    get textHeight(){
+        return this.content.reduce((H, { props: { height = 0, descent:isText } }) => Math.max(H, isText ? height : 0), 0);
+	}
+	
+	getLineHeight(contentHeight=this.contentHeight){
+		const {lineHeight}=this.props
+        return contentHeight+(typeof(lineHeight)=='string' ? Math.ceil(this.textHeight*(parseInt(lineHeight)-100)/100.0): 0)
 	}
 
 	shouldRecompose(newBlocks){
 		newBlocks=this.mergeWrappees(newBlocks)
+		const box=Layout.InlineSegments.create({wrappees:[...newBlocks,{x:this.props.width}]})
+		if(box.hold(this.box.items)){
+			this.box=box
+		}else{
+
+		}
 		const applied=this.content.filter(a=>a.props.x!==undefined)
 		const notShould=applied.reduce((notShould,{props:{x,width}},i)=>{
 			if(notShould){

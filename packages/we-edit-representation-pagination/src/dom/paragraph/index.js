@@ -20,7 +20,6 @@ const getText=a=>{
 	let text=""
 	for(let i=0,len=$.length;i<len;i++){
 		text+=$.eq(i).attr("children")
-		console.log(text)
 	}
 	return text
 }

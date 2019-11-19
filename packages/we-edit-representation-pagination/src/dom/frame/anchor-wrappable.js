@@ -17,35 +17,31 @@ export default class AnchorWrappable extends PaginationControllable{
 		if(availableSpace==false){
 			return false
 		}
-		const {wrappees, exclude,width,y=this.currentY, ...space}=availableSpace
-
-		const myExclude=(y=y, requiredHeight=minHeight)=>{
-			const {wrappees}=exclude(y,requiredHeight)
-			if(Array.isArray(wrappees) && wrappees.length>0){
-				const clears=wrappees.filter(a=>a.type=="clear")
-				if(clears.length){
-					return this.nextAvailableSpace({...required,y:Math.max(...clears.map(a=>a.y))})
-				}
-
-				const spaces=this.mergeWrappees([...wrappees,{x:width}])
-					.map(a=>(a.x2=a.x+a.width,a))
-					.map((a,i,self)=>a.x-(i>0 ? self[i-1].x2 : 0))
-				const hasMinWidth=Math.max(...spaces)>=minWidth
-				if(!hasMinWidth){
-					const untils=wrappees.filter(a=>a.y!=undefined)
-					if(untils){
-						return this.nextAvailableSpace({...required,y:Math.min(...untils.map(a=>a.y))})
-					}else{
-						return this.nextAvailableSpace({...required, height:minHeight+10})
-					}
-				}
+		const {wrappees,width, ...space}=availableSpace
+		if(Array.isArray(wrappees) && wrappees.length>0){
+			const clears=wrappees.filter(a=>a.type=="clear")
+			if(clears.length){
+				return this.nextAvailableSpace({...required,y:Math.max(...clears.map(a=>a.y))})
 			}
 
-			return {wrappees, width, exclude: myExclude, y:y==this.currentY ? undefined : y, ...space}
+			const spaces=this.mergeWrappees([...wrappees,{x:width}])
+				.map(a=>(a.x2=a.x+a.width,a))
+				.map((a,i,self)=>a.x-(i>0 ? self[i-1].x2 : 0))
+			const hasMinWidth=Math.max(...spaces)>=minWidth
+			if(!hasMinWidth){
+				const untils=wrappees.filter(a=>a.y!=undefined)
+				if(untils){
+					return this.nextAvailableSpace({...required,y:Math.min(...untils.map(a=>a.y))})
+				}else{
+					return this.nextAvailableSpace({...required, height:minHeight+10})
+				}
+			}
 		}
 
-		return myExclude(y, minHeight)
-		
+		if(space.y==this.currentY)
+			delete space.y
+
+		return {wrappees, width, ...space, exclude: (y,height)=>this.nextAvailableSpace({y,height})}
 		
 	}
 

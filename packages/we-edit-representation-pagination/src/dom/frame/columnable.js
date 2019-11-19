@@ -169,7 +169,7 @@ export default class Columnable extends Fixed{
 			height:this.currentColumn.availableHeight,
 			frame:this,
 			wrappees: this.exclusive(y, y+minRequiredH),
-			exclude:(y,minRequiredH)=>({wrappees:this.exclusive(y, y+minRequiredH),y}),
+			exclude:(y=y,height=minRequiredH)=>this.nextAvailableSpace({y,height}),
 			y
 		}
 	}
