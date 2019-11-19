@@ -99,8 +99,8 @@ export default class Fixed extends Super{
 	}
 
 	nextAvailableSpace(){
-		const {width}=this.props
-		return {width}
+		const {width,height}=this.props
+		return {width,height}
 	}
 
 	onAllChildrenComposed(){
@@ -216,6 +216,29 @@ export default class Fixed extends Super{
 			.filter(a=>a.width>0)
 			.map(a=>(a.x-=line.x1,a))
 	}
+
+
+	mergeWrappees(segments){
+		const all=[...segments].sort((a,b)=>a.x-b.x)
+		if(all.length<2){
+			return all
+		}
+		all.forEach(a=>a.x2=a.x+a.width)
+		const wrappees=[]
+		for(let i=0;i<all.length;){
+			let {x,x2}=all[i]
+			for(let j=++i;j<all.length;j++,i++){
+				const b=all[j]
+				if(b.x<=x2){
+					x2=Math.max(b.x2,x2)
+				}else{
+					break
+				}
+			}
+			wrappees.push({x,width:x2-x})
+		}
+		return wrappees
+	 }
 
 	recompose(){
 		const lines=this.reset4Recompose()

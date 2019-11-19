@@ -17,29 +17,36 @@ export default class AnchorWrappable extends PaginationControllable{
 		if(availableSpace==false){
 			return false
 		}
-		const {wrappees, width, ...space}=availableSpace
-		if(Array.isArray(wrappees) && wrappees.length>0){
-			const clears=wrappees.filter(a=>a.type=="clear")
-			if(clears.length){
-				return this.nextAvailableSpace({...required,y:Math.max(...clears.map(a=>a.y))})
-			}
+		const {wrappees, exclude,width,y=this.currentY, ...space}=availableSpace
 
-			const spaces=this.mergeWrappees([...wrappees,{x:width}])
-				.map(a=>(a.x2=a.x+a.width,a))
-				.map((a,i,self)=>a.x-(i>0 ? self[i-1].x2 : 0))
-			const hasMinWidth=Math.max(...spaces)>=minWidth
-			if(!hasMinWidth){
-				const untils=wrappees.filter(a=>a.y!=undefined)
-				if(untils){
-					return this.nextAvailableSpace({...required,y:Math.min(...untils.map(a=>a.y))})
-				}else{
-					return this.nextAvailableSpace({...required, height:minHeight+10})
+		const myExclude=(y=y, requiredHeight=minHeight)=>{
+			const {wrappees}=exclude(y,requiredHeight)
+			if(Array.isArray(wrappees) && wrappees.length>0){
+				const clears=wrappees.filter(a=>a.type=="clear")
+				if(clears.length){
+					return this.nextAvailableSpace({...required,y:Math.max(...clears.map(a=>a.y))})
+				}
+
+				const spaces=this.mergeWrappees([...wrappees,{x:width}])
+					.map(a=>(a.x2=a.x+a.width,a))
+					.map((a,i,self)=>a.x-(i>0 ? self[i-1].x2 : 0))
+				const hasMinWidth=Math.max(...spaces)>=minWidth
+				if(!hasMinWidth){
+					const untils=wrappees.filter(a=>a.y!=undefined)
+					if(untils){
+						return this.nextAvailableSpace({...required,y:Math.min(...untils.map(a=>a.y))})
+					}else{
+						return this.nextAvailableSpace({...required, height:minHeight+10})
+					}
 				}
 			}
+
+			return {wrappees, width, exclude: myExclude, y, ...space}
 		}
-		if(space.y==this.currentY)
-			delete space.y
-		return {wrappees, width, ...space}
+
+		return myExclude(y, minHeight)
+		
+		
 	}
 
 	appendComposed(){
@@ -141,27 +148,5 @@ export default class AnchorWrappable extends PaginationControllable{
 			}
 		}
 		return removedLines
-	}
-
-	mergeWrappees(segments){
-	   const all=[...segments].sort((a,b)=>a.x-b.x)
-	   if(all.length<2){
-		   return all
-	   }
-	   all.forEach(a=>a.x2=a.x+a.width)
-	   const wrappees=[]
-	   for(let i=0;i<all.length;){
-		   let {x,x2}=all[i]
-		   for(let j=++i;j<all.length;j++,i++){
-			   const b=all[j]
-			   if(b.x<=x2){
-				   x2=Math.max(b.x2,x2)
-			   }else{
-				   break
-			   }
-		   }
-		   wrappees.push({x,width:x2-x})
-	   }
-	   return wrappees
 	}
 }

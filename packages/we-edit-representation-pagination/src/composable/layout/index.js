@@ -1,5 +1,5 @@
 import Block from "./block"
 import Inline from "./inline"
-import ConstraintSpace from "./space"
+import ConstraintSpace, {InlineSegments} from "./space"
 
-export default {Block, Inline, ConstraintSpace}
+export default {Block, Inline, ConstraintSpace, InlineSegments}
