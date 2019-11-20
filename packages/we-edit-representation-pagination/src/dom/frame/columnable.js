@@ -3,6 +3,7 @@ import PropTypes from "prop-types"
 import {ReactQuery} from "we-edit"
 import {Group} from "../../composed"
 import Fixed from "./base"
+import { Layout } from "../../composable"
 
 //<Frame cols={[{x,width},{x,width}]}/>
 export default class Columnable extends Fixed{
@@ -163,20 +164,19 @@ export default class Columnable extends Fixed{
 			}
 		}
 		const exclusive=this.exclusive.bind(this)
-
+		const width=this.currentColumn.width
 		return {
 			maxWidth:this.currentColumn.width,
-			width:this.currentColumn.width,
+			width,
 			height:this.currentColumn.availableHeight,
 			frame:this,
 			wrappees: this.exclusive(blockOffset, blockOffset+minRequiredH),
 			exclude:(blockOffset=blockOffset,height=minRequiredH)=>this.nextAvailableSpace({blockOffset,height}),
 			blockOffset:this.blockOffset,
 			top:blockOffset-this.blockOffset,
-			getInlineSegments(blockOffset,minRequiredH){
+			getInlineSegments(blockOffset,minRequiredH=0){
 				const wrappees=exclusive(blockOffset, blockOffset+minRequiredH)
-				
-
+				return Layout.InlineSegments.create([...wrappees,{x:this.currentColumn.width}])
 			}
 		}
 	}

@@ -112,7 +112,7 @@ import Group from "../../composed/group"
 
     static create({segments,wrappees,...props}){
         if(wrappees){
-            segments=wrappees.reduce(({X, segs},{x,width})=>{
+            segments=wrappees.filter(a=>!!a).reduce(({X, segs},{x,width})=>{
                 return {segs:[...segs, {x:X,width:x-X}],X:x+width}
             },{X:0,segs:[]}).segs
         }
@@ -130,6 +130,11 @@ import Group from "../../composed/group"
 
     get current(){
         return this.segments.findLast((a,i)=>a.items.length>0||i==0)
+    }
+
+    get currentX(){
+        const {x=0,items}=this.current
+        return items.reduce((X,{props:{width=0}})=>X+width,x)
     }
 
     hold(items){
@@ -150,10 +155,10 @@ import Group from "../../composed/group"
         }
     }
 
-    push(atom){
+    push(){
         const i=this.segments.findLastIndex((a,i)=>a.items.length>0||i==0)
         return !!this.segments.slice(i).find(a=>{
-                if(a.push(atom)!==false){
+                if(a.push(...arguments)!==false){
                     return true
                 }
             })
@@ -206,8 +211,13 @@ class InlineSegment extends Component{
         return this.props.width-this.contentWidth
     }
 
-    push(atom){
-        if(this.availableWidth>=(atom.props.width||0)){
+    push(atom,must){
+        if(must){
+            this.items.push(atom)
+            return
+        }
+        const {width=0, minWidth=width}=atom.props
+        if(minWidth==0 || this.availableWidth>=minWidth){
             this.items.push(atom)
         }else{
             return false

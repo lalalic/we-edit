@@ -137,7 +137,7 @@ define("section compose",
         })
     })
 
-    describe("wrap",()=>{
+    xdescribe("wrap",()=>{
         it("Square should around rect boundary",()=>{
             const props={x:{base:"page",offset:16},y:{base:"page",offset:12},wrap:{mode:"Square"}}
 
