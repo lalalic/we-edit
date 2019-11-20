@@ -70,8 +70,9 @@ export default class Paragraph extends Super{
 
     createLine(required){
 		const {width,...space}=this.context.parent.nextAvailableSpace(required)
+		const {indent:{left=0,right=0,firstLine=0}, numbering, spacing:{lineHeight}}=this.props
+
 		const composableWidth=(w=>{
-	        const {indent:{left=0,right=0,firstLine=0}, numbering}=this.props
 	        w-=(left+right)
 	        if(this.computed.composed.length==0){
 				if(!numbering){
@@ -82,7 +83,7 @@ export default class Paragraph extends Super{
 	        return w
 	    })(width);
 
-        const line=new this.constructor.Line({...space, width:composableWidth},{parent:this})
+        const line=new this.constructor.Line({...space, width:composableWidth,lineHeight},{parent:this})
 		this.computed.composed.push(line)
 		return line
     }
@@ -275,7 +276,7 @@ export default class Paragraph extends Super{
 		const content=[...children]
 		let contentWidth=currentX, extraHeight=0
         let {
-			spacing:{lineHeight="100%",top=0, bottom=0},
+			spacing:{top=0, bottom=0},
 			indent:{left=0,right=0,firstLine=0},
 			align,
 			orphan,widow,keepWithNext,keepLines,//all recompose whole paragraph to simplify
@@ -283,7 +284,7 @@ export default class Paragraph extends Super{
 
        let contentY=0
 	   let contentX=left
-
+	   
         if(this.computed.composed.length==1){//first line
             extraHeight+=top
             contentY+=top
@@ -305,10 +306,8 @@ export default class Paragraph extends Super{
 			}
 		}
 		
-		lineHeight=(typeof(lineHeight)=='string' ? height*parseInt(lineHeight)/100.0: lineHeight)+extraHeight
-
+		const lineHeight=height+extraHeight
 		const pagination={orphan,widow,keepWithNext,keepLines, i:this.computed.composed.length,last}
-
         return (
             <Group height={lineHeight} width={contentX+width} className="line"
                 pagination={pagination} anchor={anchor} composedAt={composedAt}>

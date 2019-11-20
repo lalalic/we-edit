@@ -165,8 +165,16 @@ export default class Line extends Component{
 	
 	getLineHeight(contentHeight=this.contentHeight){
 		const {lineHeight}=this.props
-        return contentHeight+(typeof(lineHeight)=='string' ? Math.ceil(this.textHeight*(parseInt(lineHeight)-100)/100.0): 0)
+		if(typeof(lineHeight)=='string'){
+			return contentHeight+(typeof(lineHeight)=='string' ? this.textHeight*(parseInt(lineHeight)-100)/100.0: 0)
+		}else if(typeof(lineHeight)=="number"){
+			return lineHeight
+		}
+		return contentHeight
+        
 	}
+
+
 
 	shouldRecompose(newBlocks){
 		newBlocks=this.mergeWrappees(newBlocks)
