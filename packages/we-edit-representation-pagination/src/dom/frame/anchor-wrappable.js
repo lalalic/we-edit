@@ -37,10 +37,7 @@ export default class AnchorWrappable extends PaginationControllable{
 				}
 			}
 		}
-
-		if(space.blockOffset==this.blockOffset)
-			delete space.blockOffset
-
+		
 		return {wrappees, width, ...space, exclude: (blockOffset,height)=>this.nextAvailableSpace({blockOffset,height})}
 		
 	}

@@ -100,7 +100,15 @@ export default class Fixed extends Super{
 
 	nextAvailableSpace(){
 		const {width,height}=this.props
-		return {width,height}
+		return {
+			width,
+			height,
+			getInlineSegments(){
+
+			},
+			blockOffset:this.blockOffset,
+			top:0,
+		}
 	}
 
 	onAllChildrenComposed(){

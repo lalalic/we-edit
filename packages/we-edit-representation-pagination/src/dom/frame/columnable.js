@@ -162,6 +162,7 @@ export default class Columnable extends Fixed{
 				}
 			}
 		}
+		const exclusive=this.exclusive.bind(this)
 
 		return {
 			maxWidth:this.currentColumn.width,
@@ -170,7 +171,13 @@ export default class Columnable extends Fixed{
 			frame:this,
 			wrappees: this.exclusive(blockOffset, blockOffset+minRequiredH),
 			exclude:(blockOffset=blockOffset,height=minRequiredH)=>this.nextAvailableSpace({blockOffset,height}),
-			blockOffset
+			blockOffset:this.blockOffset,
+			top:blockOffset-this.blockOffset,
+			getInlineSegments(blockOffset,minRequiredH){
+				const wrappees=exclusive(blockOffset, blockOffset+minRequiredH)
+				
+
+			}
 		}
 	}
 
