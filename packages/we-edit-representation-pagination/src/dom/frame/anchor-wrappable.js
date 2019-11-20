@@ -72,16 +72,13 @@ export default class AnchorWrappable extends PaginationControllable{
 	**/
 	appendLine(line){
 		if(!line.props.anchor){
+			
 			if(line.props.composedAt!=undefined){
 				const dy=line.props.composedAt-this.currentY
-				if(this.currentColumn.children.length>0){
-					const last=this.currentColumn.children.pop()
-					this.currentColumn.children.push(React.cloneElement(last,{height:last.props.height+dy}))
-				}else{
-                    const {height,width,pagination}=line.props
-                    return super.appendLine(<Group {...{width,height:height+dy,pagination}}><Group y={dy}>{line}</Group></Group>)
-				}
+				const {height,width,pagination}=line.props
+				return super.appendLine(<Group {...{width,height:height+dy,pagination}}><Group y={dy}>{line}</Group></Group>)
 			}
+			
 
 			return super.appendLine(...arguments)
 		}
