@@ -19,25 +19,25 @@ export default class Columnable extends Fixed{
 					return this.columns.reduce((lines,a)=>[...lines,...a.children],[])
 				}
 			},
-			dividing:{
+			block:{
 				enumerable:true,
 				configurable:true,
 				get(){
-					return (({width,x=0,y=0})=>({x1:x,x2:x+width,y2:this.currentY}))(this.currentColumn)
+					return (({width,x=0,y=0})=>({x1:x,x2:x+width,y2:this.blockOffset}))(this.currentColumn)
 				}
 			},
-			currentY:{
+			blockOffset:{
 				enumerable:false,
 				configurable:true,
 				get(){
-					return (this.currentColumn.y||0)+this.currentColumn.currentY
+					return (this.currentColumn.y||0)+this.currentColumn.blockOffset
 				}
 			},
 			contentHeight:{
 				enumerable:false,
 				configurable:true,
 				get(){
-					return Math.max(...this.columns.map(a=>a.height||a.currentY))
+					return Math.max(...this.columns.map(a=>a.height||a.blockOffset))
 				}
 			},
 			anchors: {
@@ -93,10 +93,10 @@ export default class Columnable extends Fixed{
 				get(){
 					if(this.height==undefined)
 						return Number.MAX_SAFE_INTEGER
-					return this.height-this.currentY
+					return this.height-this.blockOffset
 				}
 			},
-			currentY:{
+			blockOffset:{
 				enumerable:true,
 				configurable:false,
 				get(){
@@ -135,12 +135,12 @@ export default class Columnable extends Fixed{
 			children:[
 				...this.anchors,
 				...this.columns.map((column,i)=>{
-					const {children:lines,currentY,
+					const {children:lines,blockOffset,
 						"data-content":_1, "data-type":_2,id:_3, 
 						...props}=column
 					return (
 						<Group {...props} key={i}>
-							<Group y={alignY(column.currentY)}>
+							<Group y={alignY(column.blockOffset)}>
 								{this.positionLines(lines)}
 							</Group>
 						</Group>
@@ -151,7 +151,7 @@ export default class Columnable extends Fixed{
 	}
 
 	nextAvailableSpace(required={}){
-		const {width:minRequiredW=0,height:minRequiredH=0,y=this.currentY}=required
+		const {width:minRequiredW=0,height:minRequiredH=0,y=this.blockOffset}=required
 		if((y+minRequiredH)-(this.currentColumn.height+(this.currentColumn.y||0))>1){//can't hold
 			if(this.currentColumn.children.length>0){//is not empty
 				if(this.cols.length>this.columns.length){// new column
@@ -208,7 +208,7 @@ export default class Columnable extends Fixed{
 			return true
 		}
 
-		return !!this.columns.find(({x=0,y=0,width,currentY:height})=>this.isIntersect(rect,{x,y,width,height}))
+		return !!this.columns.find(({x=0,y=0,width,blockOffset:height})=>this.isIntersect(rect,{x,y,width,height}))
 	}
 
 	columnIndexOf(line){

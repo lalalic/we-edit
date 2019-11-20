@@ -38,7 +38,7 @@ export default class AnchorWrappable extends PaginationControllable{
 			}
 		}
 
-		if(space.y==this.currentY)
+		if(space.y==this.blockOffset)
 			delete space.y
 
 		return {wrappees, width, ...space, exclude: (y,height)=>this.nextAvailableSpace({y,height})}
@@ -73,8 +73,8 @@ export default class AnchorWrappable extends PaginationControllable{
 	appendLine(line){
 		if(!line.props.anchor){
 			
-			if(line.props.composedAt!=undefined){
-				const dy=line.props.composedAt-this.currentY
+			if(line.props.blockOffset!=undefined){
+				const dy=line.props.blockOffset-this.blockOffset
 				const {height,width,pagination}=line.props
 				return super.appendLine(<Group {...{width,height:height+dy,pagination}}><Group y={dy}>{line}</Group></Group>)
 			}

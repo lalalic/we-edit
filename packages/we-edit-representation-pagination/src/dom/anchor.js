@@ -253,7 +253,7 @@ class bottomMargin extends page{
 class line extends column{
     constructor(){
         super(...arguments)
-        this.y0=this.frame.currentY
+        this.y0=this.frame.blockOffset
     }
 }
 

@@ -6,7 +6,7 @@ export class Text extends Component{
 	render(){
 		const {
 			children, whiteSpace, color:fill, highlight,border,underline,strike,
-			descent,minWidth, height, width, composedAt,//ignore
+			descent,minWidth, height, width, blockOffset,//ignore
 			y,
 			...others}=this.props
 

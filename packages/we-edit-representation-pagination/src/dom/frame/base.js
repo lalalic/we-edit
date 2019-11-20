@@ -55,14 +55,14 @@ export default class Fixed extends Super{
 					return this.lines.length
 				}
 			},
-			dividing:{//current exclusive bounds line
+			block:{//current exclusive bounds line
 				enumerable:true,
 				configurable:true,
 				get(){
-					return (({x=0,y=0,width})=>({x1:x,x2:x+width,y2:y+this.currentY}))(this.props)
+					return (({x=0,y=0,width})=>({x1:x,x2:x+width,y2:y+this.blockOffset}))(this.props)
 				}
 			},
-			currentY:{//current composed y IN frame
+			blockOffset:{//current composed y IN frame
 				enumerable:false,
 				configurable:true,
 				get(){
@@ -88,7 +88,7 @@ export default class Fixed extends Super{
 				enumerable:true,
 				configurable:true,
 				get(){
-					return this.currentY
+					return this.blockOffset
 				}
 			}
 		})
@@ -125,7 +125,7 @@ export default class Fixed extends Super{
 		}
 		return (
 			<Group {...{width,height,x,y,z,named, className:"frame"}}>
-				<Group y={alignY(this.currentY)}>
+				<Group y={alignY(this.blockOffset)}>
 					{this.positionLines(this.computed.composed)}
 				</Group>
 			</Group>
@@ -162,7 +162,7 @@ export default class Fixed extends Super{
 			return true
 		}
 
-		return this.isIntersect(rect,{x:0,y:0,width,height:this.currentY})
+		return this.isIntersect(rect,{x:0,y:0,width,height:this.blockOffset})
 	}
 
 	paragraphY(id){
@@ -201,7 +201,7 @@ export default class Fixed extends Super{
 	}
 
 	exclusive(y1,y2){
-		const line=this.dividing
+		const line=this.block
 		if(y2!=undefined)
 			line.y2=y2
 		if(y1!=undefined)

@@ -9,10 +9,10 @@ export default class __$1 extends HasParentAndChild(dom.Container){
     }
 
     appendComposed(element){
-        const {width,height,minWidth,x,y,wrap, anchor,composedAt, descent,pagination,replaceable, ...props}=element.props
+        const {width,height,minWidth,x,y,wrap, anchor,blockOffset, descent,pagination,replaceable, ...props}=element.props
         return super.appendComposed(React.createElement(Group,{
-            width,height,minWidth,wrap, anchor,descent,pagination,x,y,replaceable,composedAt,
-            children:React.cloneElement(element,{x:undefined, y:undefined,wrap:undefined,anchor:undefined,replaceable:undefined,composedAt:undefined})
+            width,height,minWidth,wrap, anchor,descent,pagination,x,y,replaceable,blockOffset,
+            children:React.cloneElement(element,{x:undefined, y:undefined,wrap:undefined,anchor:undefined,replaceable:undefined,blockOffset:undefined})
         }))
     }
 }

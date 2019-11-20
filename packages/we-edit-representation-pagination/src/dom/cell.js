@@ -66,7 +66,7 @@ export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 
 	createComposed2Parent(){
 		const {border, margin, background,vertAlign}=this.props
-		const contentHeight=this.current.currentY
+		const contentHeight=this.current.blockOffset
 		const height=contentHeight+this.nonContentHeight
 		const width=this.current.props.width+margin.left+margin.right
 		return (

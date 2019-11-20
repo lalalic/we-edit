@@ -181,7 +181,7 @@ export default class __$1 extends Super{
 	}
 
 	getHeight(cells){
-		return Math.max(this.props.height||0,...cells.filter(a=>!!a).map(a=>a.props.nonContentHeight+a.props.frame.currentY))
+		return Math.max(this.props.height||0,...cells.filter(a=>!!a).map(a=>a.props.nonContentHeight+a.props.frame.blockOffset))
 	}
 }
 
