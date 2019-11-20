@@ -151,8 +151,8 @@ export default class Columnable extends Fixed{
 	}
 
 	nextAvailableSpace(required={}){
-		const {width:minRequiredW=0,height:minRequiredH=0,y=this.blockOffset}=required
-		if((y+minRequiredH)-(this.currentColumn.height+(this.currentColumn.y||0))>1){//can't hold
+		const {width:minRequiredW=0,height:minRequiredH=0,blockOffset=this.blockOffset}=required
+		if((blockOffset+minRequiredH)-(this.currentColumn.height+(this.currentColumn.y||0))>1){//can't hold
 			if(this.currentColumn.children.length>0){//is not empty
 				if(this.cols.length>this.columns.length){// new column
 					this.createColumn()
@@ -168,9 +168,9 @@ export default class Columnable extends Fixed{
 			width:this.currentColumn.width,
 			height:this.currentColumn.availableHeight,
 			frame:this,
-			wrappees: this.exclusive(y, y+minRequiredH),
-			exclude:(y=y,height=minRequiredH)=>this.nextAvailableSpace({y,height}),
-			y
+			wrappees: this.exclusive(blockOffset, blockOffset+minRequiredH),
+			exclude:(blockOffset=blockOffset,height=minRequiredH)=>this.nextAvailableSpace({blockOffset,height}),
+			blockOffset
 		}
 	}
 

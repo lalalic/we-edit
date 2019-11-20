@@ -21,7 +21,7 @@ export default class AnchorWrappable extends PaginationControllable{
 		if(Array.isArray(wrappees) && wrappees.length>0){
 			const clears=wrappees.filter(a=>a.type=="clear")
 			if(clears.length){
-				return this.nextAvailableSpace({...required,y:Math.max(...clears.map(a=>a.y))})
+				return this.nextAvailableSpace({...required,blockOffset:Math.max(...clears.map(a=>a.y))})
 			}
 
 			const spaces=this.mergeWrappees([...wrappees,{x:width}])
@@ -31,17 +31,17 @@ export default class AnchorWrappable extends PaginationControllable{
 			if(!hasMinWidth){
 				const untils=wrappees.filter(a=>a.y!=undefined)
 				if(untils){
-					return this.nextAvailableSpace({...required,y:Math.min(...untils.map(a=>a.y))})
+					return this.nextAvailableSpace({...required,blockOffset:Math.min(...untils.map(a=>a.y))})
 				}else{
 					return this.nextAvailableSpace({...required, height:minHeight+10})
 				}
 			}
 		}
 
-		if(space.y==this.blockOffset)
-			delete space.y
+		if(space.blockOffset==this.blockOffset)
+			delete space.blockOffset
 
-		return {wrappees, width, ...space, exclude: (y,height)=>this.nextAvailableSpace({y,height})}
+		return {wrappees, width, ...space, exclude: (blockOffset,height)=>this.nextAvailableSpace({blockOffset,height})}
 		
 	}
 

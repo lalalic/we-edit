@@ -7,15 +7,14 @@ import {Group} from "../../composed"
 import {Layout} from "../../composable"
 
 export default class Line extends Component{
-	constructor({width,maxWidth,height,wrappees=[], exclude=a=>({wrappees:[]}), y}){
+	constructor({width,maxWidth,height,wrappees=[], exclude=a=>({wrappees:[]}), blockOffset}){
 		super(...arguments)
 		this.maxWidth=maxWidth
 		this.content=[]
 		this.exclude=exclude
 		this.wrappees=wrappees
-		//this.wrappees=this.exclude().wrappees||[]
 		this.box=Layout.InlineSegments.create({wrappees:[...wrappees,{x:width}]})
-		this.blockOffset=y
+		this.blockOffset=blockOffset
 		Object.defineProperties(this,{
 			height:{
 				enumerable:true,
@@ -131,8 +130,8 @@ export default class Line extends Component{
 					this.content.push(atom)
 					let newHeight=this.getLineHeight()
 					if(height!=newHeight){
-						const {wrappees,y}=this.exclude(this.blockOffset, newHeight)
-						this.blockOffset=y
+						const {wrappees,blockOffset}=this.exclude(this.blockOffset, newHeight)
+						this.blockOffset=blockOffset
 						if(wrappees && wrappees.length>0 && this.shouldRecompose(wrappees)){
 							const flowCount=this.content.reduce((count,a)=>a.props.x==undefined ? count+1 : count,0)
 							at=at-flowCount+1
