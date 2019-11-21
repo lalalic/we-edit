@@ -14,7 +14,21 @@ import React,{Component} from "react"
 import PropTypes from "prop-types"
 import Group from "../../composed/group"
 
- export default class Space extends Component{
+ export default class MySpace{
+    static create(){
+        return new MySpace(...arguments)
+    }
+
+     constructor(props={}){
+        Object.assign(this,props)
+     }
+
+     clone(props){
+        return new MySpace({...this.props, ...props})
+     }
+ }
+ 
+ class Space extends Component{
     static create({width,height,geometry,...props}){
         return new Rect(...arguments)
     }
