@@ -11,37 +11,6 @@ import PaginationControllable from "./pagination-controllable"
 export default class AnchorWrappable extends PaginationControllable{
 	static AnchorWrappable=AnchorWrappable
 
-	nextAvailableSpace(required={}){
-		const {width:minWidth=0, height:minHeight=0}=required
-		const availableSpace=super.nextAvailableSpace(...arguments)
-		if(availableSpace==false){
-			return false
-		}
-		const {wrappees,width, ...space}=availableSpace
-		if(Array.isArray(wrappees) && wrappees.length>0){
-			const clears=wrappees.filter(a=>a.type=="clear")
-			if(clears.length){
-				return this.nextAvailableSpace({...required,blockOffset:Math.max(...clears.map(a=>a.y))})
-			}
-
-			const spaces=this.mergeWrappees([...wrappees,{x:width}])
-				.map(a=>(a.x2=a.x+a.width,a))
-				.map((a,i,self)=>a.x-(i>0 ? self[i-1].x2 : 0))
-			const hasMinWidth=Math.max(...spaces)>=minWidth
-			if(!hasMinWidth){
-				const untils=wrappees.filter(a=>a.y!=undefined)
-				if(untils){
-					return this.nextAvailableSpace({...required,blockOffset:Math.min(...untils.map(a=>a.y))})
-				}else{
-					return this.nextAvailableSpace({...required, height:minHeight+10})
-				}
-			}
-		}
-		
-		return {wrappees, width, ...space, exclude: (blockOffset,height)=>this.nextAvailableSpace({blockOffset,height})}
-		
-	}
-
 	appendComposed(){
 		const appended=super.appendComposed(...arguments)
 		if(appended===false && //will create new page

@@ -55,13 +55,6 @@ export default class Fixed extends Super{
 					return this.lines.length
 				}
 			},
-			block:{//current exclusive bounds line
-				enumerable:true,
-				configurable:true,
-				get(){
-					return (({width})=>({x1:0,x2:width,y2:this.blockOffset}))(this.props)
-				}
-			},
 			blockOffset:{//current composed y IN frame
 				enumerable:false,
 				configurable:true,
@@ -208,10 +201,19 @@ export default class Fixed extends Super{
 		return lines
 	}
 
+	/**
+	 * @param {*} y1 
+	 * @param {*} y2 
+	 * @param {*} x1 
+	 * @param {*} x2 
+	 * @returns 
+	 * 	[{x,width},...]: exclude areas
+	 * 	number: there's opportunity until the value
+	 */
 	exclusive(y1,y2,x1=0,x2=this.props.width){
 		const line={x1,x2,y1,y2}
 		
-		return this.wrappees.reduce((collected,{props:{wrap}})=>{
+		var excludes=this.wrappees.reduce((collected,{props:{wrap}})=>{
 			const blocks=wrap(line)
 			collected.splice(collected.length,0,...(Array.isArray(blocks) ? blocks : [blocks]))
 			return collected
@@ -219,34 +221,33 @@ export default class Fixed extends Super{
 			.filter(a=>!!a)
 			.filter(a=>a.width>0)
 			.map(a=>(a.x-=line.x1,a))
-	}
-
-	inlineOpportunities(y1,y2,x1=0,x2=this.props.width){
+			.sort((a,b)=>a.x-b.x)
 		
-	}
-
-
-	mergeWrappees(segments){
-		const all=[...segments].sort((a,b)=>a.x-b.x)
-		if(all.length<2){
-			return all
+		const clears=excludes.filter(a=>a.type=="clear")
+		if(clears.length>0){
+			return Math.max(...clears.map(a=>a.y))
 		}
-		all.forEach(a=>a.x2=a.x+a.width)
-		const wrappees=[]
-		for(let i=0;i<all.length;){
-			let {x,x2}=all[i]
-			for(let j=++i;j<all.length;j++,i++){
-				const b=all[j]
-				if(b.x<=x2){
-					x2=Math.max(b.x2,x2)
-				}else{
-					break
+
+		if(excludes.length>1){
+			//merge such as [{x:3,width:5},{x:4,width:6}]=>[{x:3,width:7}]
+			excludes.forEach(a=>a.x2=a.x+a.width)
+			excludes=excludes.reduce((wrapees,a)=>{
+				const b=wrapees[wrapees.length-1]
+				if(a.x2>b.x2){
+					if(a.x>b.x2){//seperated
+						wrapees.push(a)
+					}else{//intersect
+						b.x2=a.x2
+						b.width=b.x2-b.x
+					}
 				}
-			}
-			wrappees.push({x,width:x2-x})
+				return wrapees
+			},[excludes[0]])
+			excludes.forEach(a=>delete a.x2)
 		}
-		return wrappees
-	 }
+
+		return excludes
+	}
 
 	recompose(){
 		const lines=this.reset4Recompose()

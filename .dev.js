@@ -154,7 +154,7 @@ function testOffice(Target, representation="pagination"){
 			<Workspace.Desk
 				layout={
 					<Workspace.Layout
-						right={
+						right={null/*
 							<div style={{width:210}}>
 								<Tabs>
 									<Tab label="Document">
@@ -169,7 +169,7 @@ function testOffice(Target, representation="pagination"){
 									</Tab>
 								</Tabs>
 							</div>
-						}
+									*/}
 						/>
 				}
 				children={<VariantEditor representation={representation}

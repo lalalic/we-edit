@@ -151,29 +151,40 @@ export default class Columnable extends Fixed{
 		})
 	}
 
+	inlineOpportunities(wrappees){
+		return wrappees.reduce((ops,{x,width})=>{
+				const [last]=ops.splice(-1)
+				return [...ops, {x:last.x,width:x-last.x},{x:x+width,width:x2-x-width}]
+			},[{x:x1,width:x2-x1}])
+	}
+
 	nextAvailableSpace(required={}){
-		const {width:minRequiredW=0,height:minRequiredH=0,blockOffset=this.blockOffset}=required
+		const {height:minRequiredH=0,blockOffset=this.blockOffset}=required
 		if((blockOffset+minRequiredH)-(this.currentColumn.height+(this.currentColumn.y||0))>1){//can't hold
 			if(this.currentColumn.children.length>0){//is not empty
 				if(this.cols.length>this.columns.length){// new column
 					this.createColumn()
-					return this.nextAvailableSpace(required)
+					return this.nextAvailableSpace({...required,blockOffset:undefined})
 				}else{
 					return false
 				}
 			}
 		}
 		const exclusive=this.exclusive.bind(this)
-		const width=this.currentColumn.width
+		const {height,width,x}=this.currentColumn
+		const wrappees=this.exclusive(blockOffset, blockOffset+minRequiredH, x, x+width)
+		if(typeof(wrappees)=="number"){
+			return this.nextAvailableSpace({...required,blockOffset:wrappees})
+		}
+
 		return {
-			maxWidth:this.currentColumn.width,
 			width,
-			height:this.currentColumn.availableHeight,
-			frame:this,
-			wrappees: this.exclusive(blockOffset, blockOffset+minRequiredH),
-			exclude:(blockOffset=blockOffset,height=minRequiredH)=>this.nextAvailableSpace({blockOffset,height}),
+			height,
 			blockOffset:this.blockOffset,
 			top:blockOffset-this.blockOffset,
+			frame:this,
+			wrappees,
+			exclude:(blockOffset=blockOffset,height=minRequiredH)=>this.nextAvailableSpace({blockOffset,height}),
 			getInlineSegments(blockOffset,minRequiredH=0){
 				const wrappees=exclusive(blockOffset, blockOffset+minRequiredH)
 				return Layout.InlineSegments.create([...wrappees,{x:this.currentColumn.width}])
