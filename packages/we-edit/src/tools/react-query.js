@@ -7,19 +7,19 @@ const toArray=children=>Array.isArray(children) ? children : [children]
 export default class Query{
     static Selector={
         "#":id=>element=>{
-            return element.props["id"]==id
+            return React.isValidElement(element)&&element.props["id"]==id
         },
         "[":(name,value)=>element=>{
             if(value===undefined)
-                return Object.keys(element.props).includes(name)
+                return React.isValidElement(element)&&Object.keys(element.props).includes(name)
 
-            return element.props[name]==value
+            return React.isValidElement(element)&&element.props[name]==value
         },
         ".":className=>element=>{
-            return (element.props.className||"").split(/\s+/).includes(className)
+            return React.isValidElement(element)&&(element.props.className||"").split(/\s+/).includes(className)
         },
         type:type=>element=>{
-            return typeof(element.type)=="string" ? element.type===type : element.type.displayName===type
+            return React.isValidElement(element)&&(typeof(element.type)=="string" ? element.type===type : element.type.displayName===type)
         }
     }
     constructor(element,selector,root){
