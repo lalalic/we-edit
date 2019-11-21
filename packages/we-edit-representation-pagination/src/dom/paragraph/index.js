@@ -68,29 +68,6 @@ export default class Paragraph extends Super{
 		return composed[composed.length-1]
 	}
 
-    createLine(required){
-		const {width,...space}=this.context.parent.nextAvailableSpace(required)
-		const {indent:{left=0,right=0,firstLine=0}, numbering, spacing:{lineHeight}}=this.props
-
-		const positioned=[]
-		const composableWidth=(w=>{
-	        w-=(left+right)
-	        if(this.computed.composed.length==0){
-				if(!numbering){
-		            w-=firstLine
-				}else{
-					positioned.push(this.getNumberingAtom())
-				}
-			}
-
-	        return w
-	    })(width);
-
-        const line=new this.constructor.Line({...space, posi:[], width:composableWidth,lineHeight},{parent:this})
-		this.computed.composed.push(line)
-		return line
-    }
-
 	children(){
         return [
 			...Children.toArray(this.props.children),
@@ -253,30 +230,44 @@ export default class Paragraph extends Super{
 		return this.commit(start, end)
 	}
 
-	lineHeight(height){
-		var {spacing:{lineHeight="100%",top=0, bottom=0},}=this.props
-       	lineHeight=typeof(lineHeight)=='string' ? Math.ceil(height*parseInt(lineHeight)/100.0): lineHeight
-	   	if(this.computed.composed.length==1){//first line
-            lineHeight+=top
-        }
-		return lineHeight
-	}
-
 	getNumberingAtom(){
 		const {numbering:{style, label}, indent:{firstLine=0},}=this.props
 		const {defaultStyle}=new this.context.Measure(style)
 
 		return <ComposedText
 			{...defaultStyle}
+			key="numbering"
 			className="numbering"
+			x={firstLine}
 			width={-firstLine}
 			children={label}
 		/>
 	}
 
+	createLine(required){
+		const {width,...space}=this.context.parent.nextAvailableSpace(required)
+		const {indent:{left=0,right=0,firstLine=0}, numbering, spacing:{lineHeight}}=this.props
+
+		const positioned=[]
+		const composableWidth=(w=>{
+	        w-=(left+right)
+	        if(this.computed.composed.length==0){
+				if(!numbering){
+		            w-=firstLine
+				}else{
+					positioned.push(this.getNumberingAtom())
+				}
+			}
+
+	        return w
+	    })(width);
+
+        const line=new this.constructor.Line({...space, positioned, width:composableWidth,lineHeight},{parent:this})
+		this.computed.composed.push(line)
+		return line
+    }
 	createComposed2Parent(line,last){
-		var {height,width, children, anchor,blockOffset}=line
-		const content=[...children]
+		var {height,width, children:content,  anchor,blockOffset}=line
 		let extraHeight=0
         let {
 			spacing:{top=0, bottom=0},
@@ -291,13 +282,15 @@ export default class Paragraph extends Super{
         if(this.computed.composed.length==1){//first line
             extraHeight+=top
             contentY+=top
-            contentX+=firstLine
+            
 
 			if(this.props.numbering){
-				const numbering=this.getNumberingAtom()
-				content.unshift(numbering)
-				height=Math.max(height, numbering.props.height)
-				width+=numbering.props.width
+				//const numbering=this.getNumberingAtom()
+				//content.unshift(numbering)
+				//height=Math.max(height, numbering.props.height)
+				//width+=numbering.props.width
+			}else{
+				contentX+=firstLine
 			}
         }
 
@@ -311,7 +304,7 @@ export default class Paragraph extends Super{
 		const lineHeight=height+extraHeight
 		const pagination={orphan,widow,keepWithNext,keepLines, i:this.computed.composed.length,last}
         return (
-            <Group height={lineHeight} width={contentX+width} className="line"
+            <Group height={lineHeight} width={contentX+width+right} className="line"
                 pagination={pagination} anchor={anchor} blockOffset={blockOffset}>
                 <Group x={contentX} y={contentY} width={width} height={height}>
 					{new this.constructor.Story({children:content,align,width}).render()}

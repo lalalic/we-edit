@@ -60,7 +60,7 @@ const Editable=Cacheable(class __$1 extends editable(Base,{stoppable:true}){
 		this.computed.composed=[]
 		const spaceChangedAt=this.computed.lastComposed.findIndex((a,i)=>{
 			let line=lines[i]
-			let space=this.context.parent.nextAvailableSpace({height:line.lineHeight()})
+			let space=this.context.parent.nextAvailableSpace({height:line.height})
 			if(line.hasEqualSpace(space)){
 				this.computed.composed.push(line)
 				if(i==0 && this.props.numbering){

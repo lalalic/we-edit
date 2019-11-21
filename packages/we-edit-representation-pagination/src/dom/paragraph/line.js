@@ -7,7 +7,7 @@ import {Group} from "../../composed"
 import {Layout} from "../../composable"
 
 export default class Line extends Component{
-	constructor({width,wrappees=[], exclude=a=>({wrappees:[]}),top=0}){
+	constructor({width,wrappees=[],exclude=a=>({wrappees:[]}),top=0}){
 		super(...arguments)
 		this.exclude=exclude
 		this.wrappees=wrappees
@@ -64,6 +64,13 @@ export default class Line extends Component{
 					return this.box.items.filter(a=>a.props.x===undefined)
 				}
 			},
+			items:{
+				enumerable:false,
+				configurable:false,
+				get(){
+					return [...this.props.positioned,...this.box.items]
+				}
+			}
 		})
 	}
 
@@ -75,7 +82,8 @@ export default class Line extends Component{
 		return !!!this.first
 	}
 
-	hasEqualSpace({width,maxWidth,wrappees=[]}){
+	hasEqualSpace({width,wrappees=[]}){
+		return false
 		return this.props.maxWidth==maxWidth &&
 			this.wrappees.length==wrappees.length &&
 			!!!this.wrappees.find((a,i)=>{
@@ -126,11 +134,11 @@ export default class Line extends Component{
 	}
 
 	get contentHeight() {
-		return this.box.items.reduce((H, { props: { height = 0 } }) => Math.max(H, height), 0);
+		return this.items.reduce((H, { props: { height = 0 } }) => Math.max(H, height), 0);
     }
 
     get textHeight(){
-        return this.box.items.reduce((H, { props: { height = 0, descent:isText } }) => Math.max(H, isText ? height : 0), 0);
+        return this.items.reduce((H, { props: { height = 0, descent:isText } }) => Math.max(H, isText ? height : 0), 0);
 	}
 	
 	getLineHeight(contentHeight=this.contentHeight){
@@ -146,6 +154,11 @@ export default class Line extends Component{
 
 	commit(){
 		this.children=this.box.render()
+		this.children.splice(0,0,...this.props.positioned)
 		return this
+	}
+
+	render(){
+
 	}
 }

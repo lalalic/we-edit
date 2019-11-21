@@ -78,15 +78,17 @@ export default class Story extends Component{
 	left(){
 		return this.group()
 			.reduce((state, {words, endingWhitespaces,located})=>{
-				state.aligned.push(
-					React.cloneElement(
-						new Merge({
-							x:state.x,
-							children:[...words,...endingWhitespaces].map((a,key)=>React.cloneElement(a,{key}))
-						}).render(),
-						{key:state.aligned.length}
+				if(words.length+endingWhitespaces.length){
+					state.aligned.push(
+						React.cloneElement(
+							new Merge({
+								x:state.x,
+								children:[...words,...endingWhitespaces].map((a,key)=>React.cloneElement(a,{key}))
+							}).render(),
+							{key:state.aligned.length}
+						)
 					)
-				)
+				}
 				if(located){
 					state.aligned.push(React.cloneElement(located,{key:state.aligned.length}))
 					state.x=located.props.x+located.props.width
@@ -109,18 +111,18 @@ export default class Story extends Component{
 						)
 					)
 				}
-
-				state.x=words.reduce((x,a)=>x-a.props.width,state.x)
-				state.aligned.push(
-					React.cloneElement(
-						new Merge({
-							x:state.x,
-							children:words.map((a,key)=>React.cloneElement(a,{key}))
-						}).render(),
-						{key:state.aligned.length}
+				if(words.length){
+					state.x=words.reduce((x,a)=>x-a.props.width,state.x)
+					state.aligned.push(
+						React.cloneElement(
+							new Merge({
+								x:state.x,
+								children:words.map((a,key)=>React.cloneElement(a,{key}))
+							}).render(),
+							{key:state.aligned.length}
+						)
 					)
-				)
-
+				}
 				if(located){
 					state.aligned.push(React.cloneElement(located,{key:state.aligned.length}))
 					state.x=located.props.x
@@ -136,18 +138,19 @@ export default class Story extends Component{
 		return this
 			.group()
 			.reduce((state, {words, endingWhitespaces,located})=>{
-				const width=(located ? located.props.x : this.props.width)-state.x
-				const wordsWidth=contentWidth(words)
-				state.aligned.push(
-					React.cloneElement(
-						new Merge({
-							x:state.x+(width-wordsWidth)/2,
-							children:words.concat(endingWhitespaces).map((a,key)=>React.cloneElement(a,{key}))
-						}).render(),
-						{key:state.aligned.length}
+				if(words.length+endingWhitespaces.length){
+					const width=(located ? located.props.x : this.props.width)-state.x
+					const wordsWidth=contentWidth(words)
+					state.aligned.push(
+						React.cloneElement(
+							new Merge({
+								x:state.x+(width-wordsWidth)/2,
+								children:[...words,...endingWhitespaces].map((a,key)=>React.cloneElement(a,{key}))
+							}).render(),
+							{key:state.aligned.length}
+						)
 					)
-				)
-
+				}
 				if(located){
 					state.aligned.push(React.cloneElement(located,{key:state.aligned.length}))
 					state.x=located.props.x+located.props.width
@@ -170,8 +173,8 @@ export default class Story extends Component{
 					}
 					return status
 				},{contentWidth:0,whitespaces:[]})
-				const whitespaceWidth=whitespaces.length>0 ? (width-contentWidth)/whitespaces.length : 0
-				words.concat(endingWhitespaces).reduce((x,word,i)=>{
+				const whitespaceWidth=whitespaces.length>0 ? (width-contentWidth)/whitespaces.length : 0;
+				[...words,...endingWhitespaces].reduce((x,word,i)=>{
 					state.justified.push(React.cloneElement(word,{x,key:len++}))
 					return x+(whitespaces.includes(i) ? whitespaceWidth : word.props.width)
 				},state.x)
