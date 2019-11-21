@@ -59,7 +59,7 @@ export default class Fixed extends Super{
 				enumerable:true,
 				configurable:true,
 				get(){
-					return (({x=0,y=0,width})=>({x1:x,x2:x+width,y2:y+this.blockOffset}))(this.props)
+					return (({width})=>({x1:0,x2:width,y2:this.blockOffset}))(this.props)
 				}
 			},
 			blockOffset:{//current composed y IN frame
@@ -208,13 +208,9 @@ export default class Fixed extends Super{
 		return lines
 	}
 
-	exclusive(y1,y2){
-		const line=this.block
-		if(y2!=undefined)
-			line.y2=y2
-		if(y1!=undefined)
-			line.y1=y1
-
+	exclusive(y1,y2,x1=0,x2=this.props.width){
+		const line={x1,x2,y1,y2}
+		
 		return this.wrappees.reduce((collected,{props:{wrap}})=>{
 			const blocks=wrap(line)
 			collected.splice(collected.length,0,...(Array.isArray(blocks) ? blocks : [blocks]))
@@ -223,6 +219,10 @@ export default class Fixed extends Super{
 			.filter(a=>!!a)
 			.filter(a=>a.width>0)
 			.map(a=>(a.x-=line.x1,a))
+	}
+
+	inlineOpportunities(y1,y2,x1=0,x2=this.props.width){
+		
 	}
 
 
