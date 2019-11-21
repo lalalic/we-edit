@@ -72,18 +72,21 @@ export default class Paragraph extends Super{
 		const {width,...space}=this.context.parent.nextAvailableSpace(required)
 		const {indent:{left=0,right=0,firstLine=0}, numbering, spacing:{lineHeight}}=this.props
 
+		const positioned=[]
 		const composableWidth=(w=>{
 	        w-=(left+right)
 	        if(this.computed.composed.length==0){
 				if(!numbering){
 		            w-=firstLine
+				}else{
+					positioned.push(this.getNumberingAtom())
 				}
 			}
 
 	        return w
 	    })(width);
 
-        const line=new this.constructor.Line({...space, width:composableWidth,lineHeight},{parent:this})
+        const line=new this.constructor.Line({...space, posi:[], width:composableWidth,lineHeight},{parent:this})
 		this.computed.composed.push(line)
 		return line
     }

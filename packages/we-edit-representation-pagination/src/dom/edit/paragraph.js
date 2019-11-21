@@ -26,19 +26,11 @@ const Editable=Cacheable(class __$1 extends editable(Base,{stoppable:true}){
 	}
 
 	getNumberingAtom(){
+		const numbering=super.getNumberingAtom()
 		if(this.context.numbering){
-			const {numbering:{style}, indent:{firstLine=0}}=this.props
-			const {defaultStyle}=new this.context.Measure(style)
-
-			return <ComposedText
-				{...defaultStyle}
-				className="numbering"
-				width={-firstLine}
-				children={this.context.numbering(this.props.id)}
-			/>
-		}else{
-			return super.getNumberingAtom()
+			return React.cloneElement(numbering,{children:this.context.numbering(this.props.id)})
 		}
+		return numbering
 	}
 
 	clearComposed(){
