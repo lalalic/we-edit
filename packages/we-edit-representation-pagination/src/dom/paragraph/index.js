@@ -230,6 +230,10 @@ export default class Paragraph extends Super{
 		return this.commit(start, end)
 	}
 
+	/**
+	 * Story can handle it, so it can be in Line as normal atom
+	 * firstLine is usually minus for numbering
+	 */
 	getNumberingAtom(){
 		const {numbering:{style, label}, indent:{firstLine=0},}=this.props
 		const {defaultStyle}=new this.context.Measure(style)
@@ -285,10 +289,6 @@ export default class Paragraph extends Super{
             
 
 			if(this.props.numbering){
-				//const numbering=this.getNumberingAtom()
-				//content.unshift(numbering)
-				//height=Math.max(height, numbering.props.height)
-				//width+=numbering.props.width
 			}else{
 				contentX+=firstLine
 			}

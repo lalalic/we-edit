@@ -6,27 +6,29 @@ import {Group,Text} from "../../composed"
 
 import Merge from "./merge"
 
-
+/**
+ * 1. align
+ * 2. set baseline
+ * 3. merge to simplify dom structure for performance
+ */
 export default class Story extends Component{
 	static displayName="story"
 	render(){
 		const {children, align="left"}=this.props
-		const baseline=children.reduce((h,{props:{height,descent=0}})=>Math.max(h,height-descent),0)
+		const baseline=children.reduce((h,{props:{height=0,descent=0}})=>Math.max(h,height-descent),0)
 		const aligned=this[align]()
-		const ender=children.find(a=>a.props.className=="ender")
-		if(ender){
-			const {children}=aligned[aligned.length-1].props
-			if(children.length>0){
-				const {x=0,width=0}=children[children.length-1].props
-				children.push(React.cloneElement(ender,{key:"ender",x:x+width}))
-			}else{
-				children.push(React.cloneElement(ender,{key:"ender"}))
-			}
-		}
-
-		return <Group className="story" baseline={baseline} children={this.baseline(aligned,baseline)}/>
+		return (
+			<Group className="story" 
+				baseline={baseline} 
+				children={this.baseline(aligned,baseline)}
+				/>
+		)
 	}
-
+	/**
+	 * deeply set baseline for each text content
+	 * @param {} content 
+	 * @param {*} baseline 
+	 */
 	baseline(content,baseline){
 		const setBaseline=a=>{
 			if(a.props.className=="story"){
@@ -47,8 +49,13 @@ export default class Story extends Component{
 		return setBaseline(<Group children={content}/>).props.children
 	}
 
+	/**
+	 * Group unpositioned for each positioned
+	 * *** last group should ignore minWidth==0 element for alignment
+	 * @param {*} right 
+	 */
 	group(right=false){
-		return this.props.children.filter(a=>a.props.className!="ender")
+		return this.props.children
 			.reduce((groups,a)=>{
 				if(a.props.x!=undefined){
 					if(right){
@@ -62,18 +69,17 @@ export default class Story extends Component{
 				}
 				return groups
 			},[{words:[]}])
-			.map(group=>{
+			.map((group,_i,_a,isLast=_i==_a.length-1)=>{
 				let i=group.words.length-
 						Array.from(group.words)
 							.reverse()
-							.findIndex(a=>!isWhitespace(a))
+							.findIndex(a=>isLast ? a.props.minWidth!==0 : !isWhitespace(a) )
 
 				group.endingWhitespaces=group.words.slice(i)
 				group.words=group.words.slice(0,i)
 				return group
 			})
 	}
-
 
 	left(){
 		return this.group()

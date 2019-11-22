@@ -1,16 +1,18 @@
-import React, {Children,Component} from "react"
-import PropTypes from "prop-types"
+import React, {Component} from "react"
 import memoize from "memoize-one"
 
-import {ReactQuery} from "we-edit"
 import {Group} from "../../composed"
 
 
 export default class Merge extends Component{
 	render(){
-		const {children,...props}=this.props
+		const {children,x}=this.props
+		const merged=this.getMerged(children)
+		if(merged.length==1){
+			return React.cloneElement(merged[0],{x})
+		}
 		return (
-			<Group {...props}>
+			<Group x={x}>
 				{this.getMerged(children)}
 			</Group>
 		)

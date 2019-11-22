@@ -104,7 +104,6 @@ define("paragraph compose",
         it("right",()=>{
             const [line]=align("right")
             const story=new ReactQuery(line).find(".story")
-            expect(story.children().length).toBe(1)
             expect(story.children().eq(0).attr('x')).toBe(LineWidth-TEXT.length)
 
         })
@@ -233,8 +232,8 @@ define("paragraph compose",
             it("left",()=>{
                 [align(),align("left")].forEach(([line])=>{
                     const story=new ReactQuery(line).find(".story")
-                    expect(story.children().length).toBe(1)
-                    expect(story.children().eq(0).attr('x')).toBe(0)
+                    expect(story.children().length).toBe(2)
+                    expect(story.children().eq(1).attr('x')).toBe(0)
                 })
             })
 
@@ -243,9 +242,10 @@ define("paragraph compose",
                 const $line=new ReactQuery(line)
                 const numbering=$line.findFirstAndParents(".numbering")
                 expect(numbering.first.length).toBe(1)
+                
                 expect([numbering.first.get(0), ...numbering.parents]
                     .reduce((X,{props:{x=0}})=>X+x,0))
-                    .toBe(LineWidth-TEXT.length-2)
+                    .toBe(0)
 
                 const text=$line.findLastAndParents(`[data-type="text"]`)
                 expect(text.last.length).toBe(1)
@@ -261,10 +261,12 @@ define("paragraph compose",
                 const $line=new ReactQuery(line)
                 const numbering=$line.findFirstAndParents(".numbering")
                 expect(numbering.first.length).toBe(1)
+                
                 const leftSpace=(LineWidth-TEXT.length-2)/2
+                
                 expect([numbering.first.get(0), ...numbering.parents]
                     .reduce((X,{props:{x=0}})=>X+x,0))
-                    .toBe(leftSpace)
+                    .toBe(0)
 
                 const text=$line.findLastAndParents(`[data-type="text"]`)
                 expect(text.last.length).toBe(1)
@@ -287,11 +289,11 @@ define("paragraph compose",
                     .map(a=>a.props.children)
                     .join("")).toMatch(/^hello.world.$/)
                 expect(story.children().length).toBe(5)
-                expect(story.children().eq(0).attr('x')).toBe(0)//*
-                expect(story.children().eq(1).attr('x')).toBe(2)//hello
-                expect(story.children().eq(2).attr('x')).toBe(2+5)//whitespace
-                expect(story.children().eq(3).attr('x')).toBe(lineWidth-5)//world
-                expect(story.children().eq(4).attr('x')).toBe(lineWidth)//whitesapce
+                expect(story.children().eq(0).attr('x')).toBe(-2)//*
+                expect(story.children().eq(1).attr('x')).toBe(0)//hello
+                expect(story.children().eq(2).attr('x')).toBe(0+5)//whitespace
+                expect(story.children().eq(3).attr('x')).toBe(lineWidth-2-5)//world
+                expect(story.children().eq(4).attr('x')).toBe(lineWidth-2)//whitesapce
                 //last line not justify
                 expect(new ReactQuery(last).find(".story").children().length).toBe(1)
             })

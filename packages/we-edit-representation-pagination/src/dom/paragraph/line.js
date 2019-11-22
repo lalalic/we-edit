@@ -157,8 +157,4 @@ export default class Line extends Component{
 		this.children.splice(0,0,...this.props.positioned)
 		return this
 	}
-
-	render(){
-
-	}
 }
