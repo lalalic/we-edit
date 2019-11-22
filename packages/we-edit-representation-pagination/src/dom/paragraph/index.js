@@ -1,10 +1,9 @@
 import React, {Children,Component} from "react"
 import PropTypes from "prop-types"
 
-import memoize from "memoize-one"
 import {dom, ReactQuery} from "we-edit"
 
-import composable, {HasParentAndChild,} from "../../composable"
+import {HasParentAndChild,} from "../../composable"
 import breakOpportunities from "../../wordwrap/line-break"
 import {Text as ComposedText,  Group} from "../../composed"
 import Frame from "../frame"
@@ -218,6 +217,11 @@ export default class Paragraph extends Super{
 		return commitFrom(start)
 	}
 
+	/**
+	 * re-commit lastLines
+	 * default re-commit all already layouted lines
+	 * @param {} lastLines 
+	 */
 	recommit(lastLines=this.computed.composed){
 		const {atoms, composed}=this.computed
 		lastLines=composed.slice(-lastLines.length)
@@ -226,7 +230,6 @@ export default class Paragraph extends Super{
 
 		const start=atoms.findIndex(a=>a==lastLines[0].first)
 		const end=atoms.slice(start+1).findIndex(a=>a==lastLines[lastLines.length-1].last)+start+1
-		//this.createLine()
 		return this.commit(start, end)
 	}
 
@@ -248,62 +251,83 @@ export default class Paragraph extends Super{
 		/>
 	}
 
-	createLine(required){
-		const {width,...space}=this.context.parent.nextAvailableSpace(required)
-		const {indent:{left=0,right=0,firstLine=0}, numbering, spacing:{lineHeight,top}}=this.props
+	/**
+	 * Block offset/top must be decided, so the following must be handled here
+	 * top, firstLine, numbering 
+	 * paragraph bottom doesn't affect current line's block offset, so don't handle it here
+	 * *** every created line is appended IMMEDIATELY into composed, so the line index is from 1 in createComposed2Parent 
+	 */
+    createLine(required){
+		const {width,positioned=[],left=0,right=width,...space}=this.nextAvailableSpace(required)
+		const {
+			indent:{left:indentLeft=0,right:indentRight=0,firstLine=0}, 
+			numbering, 
+			spacing:{lineHeight,top}
+		}=this.props
+		const bFirstLine=this.computed.composed.length==0
 
-		const positioned=[]
-		const composableWidth=(w=>{
-	        w-=(left+right)
-	        if(this.computed.composed.length==0){
-				if(!numbering){
-		            w-=firstLine
-				}else{
-					positioned.push(this.getNumberingAtom())
-				}
-			}
-
-	        return w
-	    })(width);
-
-        const line=new this.constructor.Line({...space, positioned, top, width:composableWidth,lineHeight},{parent:this})
-		this.computed.composed.push(line)
-		return line
-    }
-	createComposed2Parent(line,last){
-		var {height,width, children:content,  anchor,blockOffset,props:{top=0}}=line
-		let {
-			spacing:{bottom=0},
-			indent:{left=0,right=0,firstLine=0},
-			align,
-			orphan,widow,keepWithNext,keepLines,//all recompose whole paragraph to simplify
-			}=this.props
-
-       let contentX=left
-	   
-        if(this.computed.composed.length==1){//first line
-            if(!this.props.numbering){
-				contentX+=firstLine
-			}
-        }
-
-        if(last){//the last line
-            if(align=="justify" || align=="both"){//not justify the last line
-				align=undefined
-			}
+		if(bFirstLine&&numbering){
+			positioned.push(this.getNumberingAtom())
 		}
 		
-		const pagination={orphan,widow,keepWithNext,keepLines, i:this.computed.composed.length,last}
+		const line=new this.constructor.Line({
+			...space, 
+			positioned, 
+			top, 
+			left:left+indentLeft+(bFirstLine&&!numbering&&firstLine||0), 
+			right:right-indentRight,
+			lineHeight
+		},{parent:this})
+
+		this.computed.composed.push(line)
+		return line
+	}
+	
+	/**
+	 * | spacing left | line box | spacing right|
+	 * spacing bottom doesn't affect line block offset, so it's ok here
+	 * Story: helps 
+	 * 1. merge, for performance on view, simpler dom
+	 * 2. set baseline
+	 * 3. align
+	 * 4. justify
+	 * @param {*} line 
+	 * @param {*} last 
+	 */
+	createComposed2Parent(line,bLastLine){
+		const {height,width, children, anchor,blockOffset,props:{top=0}}=line
+		const {
+			numbering,
+			indent:{left=0,right=0, firstLine=0},
+			spacing:{bottom=0},
+			align,
+			orphan,widow,keepWithNext,keepLines,
+			}=this.props
+		
+		const bFirstLine=this.computed.composed.length==1
 		
 		return (
 			<Group className="line"
-				height={height+(last&&bottom||0)+top} 
-				width={contentX+width+right} 
-				pagination={pagination} 
+				height={top+height+(bLastLine&&bottom||0)} 
+				width={left+width+right} 
+				pagination={{
+					orphan,widow,keepWithNext,keepLines, 
+					i:this.computed.composed.length,
+					last:bLastLine
+				}} 
 				anchor={anchor} 
-				blockOffset={blockOffset}>
-                <Group x={contentX} y={top} width={width} height={height}>
-					{new this.constructor.Story({children:content,align,width}).render()}
+				blockOffset={blockOffset}
+				>
+				<Group 
+					x={left+(bFirstLine&&!numbering&&firstLine||0)} 
+					y={top} 
+					width={width} 
+					height={height}>
+					{new this.constructor.Story({
+						children,
+						align:bLastLine && ["justify","both"].includes(align) ? undefined : align,
+						width,
+					}).render()}
                 </Group>
             </Group>
         )

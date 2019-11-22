@@ -1,19 +1,15 @@
-import React, {Children,Component} from "react"
-import PropTypes from "prop-types"
-
+import React, {Component} from "react"
 import {ReactQuery} from "we-edit"
 
-import {Group} from "../../composed"
 import {Layout} from "../../composable"
 
+/**
+ * 
+ */
 export default class Line extends Component{
-	constructor({width,blockOffset, exclude=a=>({wrappees:[]})}){
+	constructor({blockOffset,exclude=a=>({wrappees:[]})}){
 		super(...arguments)
 		this.exclude=exclude
-		const {wrappees=[],top=0}=this.exclude(blockOffset, 0)
-		this.wrappees=wrappees
-		this.box=Layout.InlineSegments.create({wrappees:[...wrappees,{x:width}]})
-		this.top=top
 		Object.defineProperties(this,{
 			height:{
 				enumerable:true,
@@ -33,7 +29,8 @@ export default class Line extends Component{
 				enumerable:true,
 				configurable:false,
 				get(){
-					return width
+					const {left=0, right=width,width}=this.props
+					return right-left
 				}
 			},
 			first:{
@@ -73,6 +70,10 @@ export default class Line extends Component{
 				}
 			}
 		})
+		const {wrappees=[],top=0}=this.exclude(blockOffset, 0)
+		this.wrappees=wrappees
+		this.top=top
+		this.box=Layout.InlineSegments.create({wrappees:[...wrappees,{x:this.width}]})
 	}
 
 	get blockOffset(){
@@ -112,7 +113,7 @@ export default class Line extends Component{
 				if((newHeight-height)>1){
 					const {wrappees,top}=this.exclude(this.blockOffset, newHeight)
 					if(!this.wrappees.reduce((same,a,i,t,b=wrappees[i])=>b && a.x==b.x && a.width==b.width,true)){
-						const box=Layout.InlineSegments.create({wrappees:[...wrappees,{x:this.props.width}]})
+						const box=Layout.InlineSegments.create({wrappees:[...wrappees,{x:this.width}]})
 						if(box.hold([...this.box.items,atom])!==false){
 							this.top=top
 							this.box=box
