@@ -13,16 +13,11 @@ export default class Line extends Component{
 		const {top=0,segments=[]}=this.findInlineSegments(blockOffset, 0,left,right)
 		this.segments=segments
 		this.top=top
-		this.inlineSegments=Layout.InlineSegments.create({segments:this.toSegments(segments)})
+		this.inlineSegments=Layout.InlineSegments.create({left,segments})
 	}
 
 	isAnchored(){
 		return this.props.isAnchored(...arguments)
-	}
-
-	toSegments(ops){
-		const {left=0}=this.props
-		return ops.map(a=>({...a, x:a.x-left}))
 	}
 
 	get height(){
@@ -126,7 +121,7 @@ export default class Line extends Component{
 				const {top,segments}=this.findInlineSegments(this.blockOffset, newHeight,left,right)
 				const bSame= segments && !this.segments.find((a,i,c,b=segments[i])=>!(b && a.x==b.x && a.width==b.width))
 				if(segments && !bSame){
-					const inlineSegments=Layout.InlineSegments.create({segments:this.toSegments(inlineOpportunities)})
+					const inlineSegments=Layout.InlineSegments.create({left,segments})
 					if(inlineSegments.hold([...this.inlineSegments.items,atom])!==false){
 						this.top=top
 						this.inlineSegments=inlineSegments
@@ -168,8 +163,8 @@ export default class Line extends Component{
 	}
 
 	freeze(){
-		this.children=this.inlineSegments.render()
-		this.children.splice(0,0,...this.props.positioned)
+		const {props:{children}}=this.inlineSegments.render()
+		this.children=[...this.props.positioned,...children]
 		return this
 	}
 }

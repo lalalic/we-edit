@@ -120,6 +120,7 @@ import Group from "../../composed/group"
 
  export class InlineSegments extends Component{
     static propTypes={
+        left: PropTypes.number,
         segments:PropTypes.arrayOf(InlineSegment)
     }
 
@@ -189,14 +190,13 @@ import Group from "../../composed/group"
     }
 
     render(){
-        const {children,x}=this.segments.reduce((rendered,{items,props:{x=0,width=0}},i)=>{
-            if(rendered.x!=x){
-                return {x:x+width,children:[...rendered.children, <Group x={rendered.x} width={x-rendered.x}/>,...items]}
-            }else{
-                return {x:x+width,children:[...rendered.children,...items]}
-            }
-        },{children:[],x:0})
-        return children
+        const {left=0}=this.props
+        const {flat}=this.segments
+            .reduce(({X,flat},{items,props:{x=0,width=0}},i)=>{
+                flat.splice(flat.length,0,...(X!=x ? [<Group x={X-left} width={x-X}/>,...items] : items))
+                return {x:x+width,flat}
+            },{flat:[],X:left})
+        return <Group {...{x:left,children:flat}}/>
     }
 }
 

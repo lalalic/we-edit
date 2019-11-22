@@ -189,7 +189,7 @@ export default class Columnable extends Fixed{
 						top,
 						segments:wrappees.reduce((ops,{x,width})=>{
 							const [last]=ops.splice(-1)
-							return [...ops, {x:last.x,width:x-last.x},{x:x+width,width:x2-x-width}]
+							return [...ops, {x:last.x,width:x-last.x},{x:x+width,width:right-x-width}]
 						},[{x:left,width:right-left}])
 					}
 				}
