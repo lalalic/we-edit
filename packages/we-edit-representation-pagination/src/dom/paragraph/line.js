@@ -7,9 +7,10 @@ import {Group} from "../../composed"
 import {Layout} from "../../composable"
 
 export default class Line extends Component{
-	constructor({width,wrappees=[],exclude=a=>({wrappees:[]}),top=0}){
+	constructor({width,blockOffset, exclude=a=>({wrappees:[]})}){
 		super(...arguments)
 		this.exclude=exclude
+		const {wrappees=[],top=0}=this.exclude(blockOffset, 0)
 		this.wrappees=wrappees
 		this.box=Layout.InlineSegments.create({wrappees:[...wrappees,{x:width}]})
 		this.top=top
