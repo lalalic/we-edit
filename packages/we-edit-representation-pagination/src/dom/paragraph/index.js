@@ -250,7 +250,7 @@ export default class Paragraph extends Super{
 
 	createLine(required){
 		const {width,...space}=this.context.parent.nextAvailableSpace(required)
-		const {indent:{left=0,right=0,firstLine=0}, numbering, spacing:{lineHeight}}=this.props
+		const {indent:{left=0,right=0,firstLine=0}, numbering, spacing:{lineHeight,top}}=this.props
 
 		const positioned=[]
 		const composableWidth=(w=>{
@@ -266,47 +266,43 @@ export default class Paragraph extends Super{
 	        return w
 	    })(width);
 
-        const line=new this.constructor.Line({...space, positioned, width:composableWidth,lineHeight},{parent:this})
+        const line=new this.constructor.Line({...space, positioned, top, width:composableWidth,lineHeight},{parent:this})
 		this.computed.composed.push(line)
 		return line
     }
 	createComposed2Parent(line,last){
-		var {height,width, children:content,  anchor,blockOffset}=line
-		let extraHeight=0
-        let {
-			spacing:{top=0, bottom=0},
+		var {height,width, children:content,  anchor,blockOffset,props:{top=0}}=line
+		let {
+			spacing:{bottom=0},
 			indent:{left=0,right=0,firstLine=0},
 			align,
 			orphan,widow,keepWithNext,keepLines,//all recompose whole paragraph to simplify
 			}=this.props
 
-       let contentY=0
-	   let contentX=left
+       let contentX=left
 	   
         if(this.computed.composed.length==1){//first line
-            extraHeight+=top
-            contentY+=top
-            
-
-			if(this.props.numbering){
-			}else{
+            if(!this.props.numbering){
 				contentX+=firstLine
 			}
         }
 
         if(last){//the last line
-            extraHeight+=bottom
-			if(align=="justify" || align=="both"){//not justify the last line
+            if(align=="justify" || align=="both"){//not justify the last line
 				align=undefined
 			}
 		}
 		
-		const lineHeight=height+extraHeight
 		const pagination={orphan,widow,keepWithNext,keepLines, i:this.computed.composed.length,last}
-        return (
-            <Group height={lineHeight} width={contentX+width+right} className="line"
-                pagination={pagination} anchor={anchor} blockOffset={blockOffset}>
-                <Group x={contentX} y={contentY} width={width} height={height}>
+		
+		return (
+			<Group className="line"
+				height={height+(last&&bottom||0)+top} 
+				width={contentX+width+right} 
+				pagination={pagination} 
+				anchor={anchor} 
+				blockOffset={blockOffset}>
+                <Group x={contentX} y={top} width={width} height={height}>
 					{new this.constructor.Story({children:content,align,width}).render()}
                 </Group>
             </Group>
