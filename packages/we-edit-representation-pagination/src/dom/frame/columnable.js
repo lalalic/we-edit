@@ -181,8 +181,8 @@ export default class Columnable extends Fixed{
 			right,
 			wrappees,
 			frame:this,
-			findInlineSegments:(blockOffset=blockOffset,height=minRequiredH,left,right)=>{
-				const space=this.nextAvailableSpace({blockOffset,height})
+			findInlineSegments:(height,left,right)=>{
+				const space=this.nextAvailableSpace({blockOffset:this.blockOffset,height})
 				if(space){
 					const {top,wrappees}=space
 					return {

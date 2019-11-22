@@ -43,9 +43,9 @@ import Group from "../../composed/group"
      * an inline rect may be intersected with exclusives,
      * so the rect would be splitted to a set of segments like 
      * [{x,width},{x,width},...]
-     * @param {*} blockSize 
+     * @param {*} blockOffset 
      */
-    getInlineSegements(blockSize=0){
+    getInlineSegements(height,left,right){
         return 
     }
 
@@ -146,7 +146,17 @@ import Group from "../../composed/group"
         return items.reduce((X,{props:{width=0}})=>X+width,x)
     }
 
-    hold(items){
+    shouldRelayout(segments){
+        const bSame=segments 
+            &&this.segments.length==segments.length 
+            &&!this.segments.find(({props:a},i,c,b=segments[i])=>!(b && a.x==b.x && a.width==b.width))
+
+        return segments && !bSame
+    }
+
+    relayout(props,...atoms){
+        const relayout=this.constructor.create({...this.props,...props})
+        const items=[...this.items,...atoms]
         let i=0,len=items.length
         for(let j=0,l=this.segments.length;j<l;j++){
             let segment=this.segments[j]
@@ -162,6 +172,7 @@ import Group from "../../composed/group"
         if(i<len){
             return false
         }
+        return relayout
     }
 
     push(){
@@ -194,7 +205,7 @@ import Group from "../../composed/group"
         const {flat}=this.segments
             .reduce(({X,flat},{items,props:{x=0,width=0}},i)=>{
                 flat.splice(flat.length,0,...(X!=x ? [<Group x={X-left} width={x-X}/>,...items] : items))
-                return {x:x+width,flat}
+                return {X:x+width,flat}
             },{flat:[],X:left})
         return <Group {...{x:left,children:flat}}/>
     }

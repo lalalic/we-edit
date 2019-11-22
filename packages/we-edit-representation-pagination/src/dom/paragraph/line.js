@@ -7,10 +7,10 @@ import {Layout} from "../../composable"
  * 
  */
 export default class Line extends Component{
-	constructor({blockOffset,left, right, findInlineSegments}){
+	constructor({left, right, findInlineSegments}){
 		super(...arguments)
 		this.findInlineSegments=findInlineSegments||(()=>({segments:[{x:left, width:this.width}]}));
-		const {top=0,segments=[]}=this.findInlineSegments(blockOffset, 0,left,right)
+		const {top=0,segments=[]}=this.findInlineSegments(0,left,right)
 		this.segments=segments
 		this.top=top
 		this.inlineSegments=Layout.InlineSegments.create({left,segments})
@@ -118,13 +118,12 @@ export default class Line extends Component{
 				 * get opportunities again
 				 */
 				const {left,right}=this.props
-				const {top,segments}=this.findInlineSegments(this.blockOffset, newHeight,left,right)
-				const bSame= segments && !this.segments.find((a,i,c,b=segments[i])=>!(b && a.x==b.x && a.width==b.width))
-				if(segments && !bSame){
-					const inlineSegments=Layout.InlineSegments.create({left,segments})
-					if(inlineSegments.hold([...this.inlineSegments.items,atom])!==false){
+				const {top,segments}=this.findInlineSegments(newHeight+this.top,left,right)
+				if(this.inlineSegments.shouldRelayout(segments)){
+					const relayouted=this.inlineSegments.relayout({segments},atom)
+					if(relayouted!==false){
 						this.top=top
-						this.inlineSegments=inlineSegments
+						this.inlineSegments=relayouted
 						//new inline opportunities can hold layouted and atom, replace inlineSegments, and top
 						//not full, continue next atom
 						return 
