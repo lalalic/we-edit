@@ -151,14 +151,6 @@ export default class Columnable extends Fixed{
 		})
 	}
 
-	inlineOpportunities(wrappees,x1,x2){
-		return wrappees.reduce((ops,{x,width})=>{
-				const [last]=ops.splice(-1)
-				return [...ops, {x:last.x,width:x-last.x},{x:x+width,width:x2-x-width}]
-			},[{x:x1,width:x2-x1}])
-			//.map(({x,width})=>({width,x:x-x1}))
-	}
-
 	nextAvailableSpace(required={}){
 		const {height:minRequiredH=0,blockOffset=this.blockOffset}=required
 		if((blockOffset+minRequiredH)-(this.currentColumn.height+(this.currentColumn.y||0))>1){//can't hold
@@ -189,12 +181,17 @@ export default class Columnable extends Fixed{
 			right,
 			wrappees,
 			frame:this,
-			exclude:(blockOffset=blockOffset,height=minRequiredH,left,right)=>{
+			findInlineSegments:(blockOffset=blockOffset,height=minRequiredH,left,right)=>{
 				const space=this.nextAvailableSpace({blockOffset,height})
 				if(space){
 					const {top,wrappees}=space
-					const inlineOpportunities=this.inlineOpportunities(wrappees,left, right)
-					return {wrappees,top,inlineOpportunities}
+					return {
+						top,
+						segments:wrappees.reduce((ops,{x,width})=>{
+							const [last]=ops.splice(-1)
+							return [...ops, {x:last.x,width:x-last.x},{x:x+width,width:x2-x-width}]
+						},[{x:left,width:right-left}])
+					}
 				}
 				return space
 			},

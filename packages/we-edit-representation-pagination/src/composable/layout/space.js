@@ -120,16 +120,10 @@ import Group from "../../composed/group"
 
  export class InlineSegments extends Component{
     static propTypes={
-        offset: PropTypes.number,
         segments:PropTypes.arrayOf(InlineSegment)
     }
 
-    static create({segments,wrappees,...props}){
-        if(wrappees){
-            segments=wrappees.filter(a=>!!a).reduce(({X, segs},{x,width})=>{
-                return {segs:[...segs, {x:X,width:x-X}],X:x+width}
-            },{X:0,segs:[]}).segs
-        }
+    static create({segments,...props}){
         return new InlineSegments({segments:segments.map(a=>new InlineSegment(a)),...props})
     }
 

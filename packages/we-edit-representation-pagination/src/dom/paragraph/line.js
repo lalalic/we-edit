@@ -7,13 +7,13 @@ import {Layout} from "../../composable"
  * 
  */
 export default class Line extends Component{
-	constructor({blockOffset,left, right, exclude}){
+	constructor({blockOffset,left, right, findInlineSegments}){
 		super(...arguments)
-		this.exclude=exclude||(()=>({inlineOpportunities:[{x:left, width:this.width}]}));
-		const {top=0,inlineOpportunities=[]}=this.exclude(blockOffset, 0,left,right)
-		this.inlineOpportunities=inlineOpportunities
+		this.findInlineSegments=findInlineSegments||(()=>({segments:[{x:left, width:this.width}]}));
+		const {top=0,segments=[]}=this.findInlineSegments(blockOffset, 0,left,right)
+		this.segments=segments
 		this.top=top
-		this.inlineSegments=Layout.InlineSegments.create({segments:this.toSegments(inlineOpportunities)})
+		this.inlineSegments=Layout.InlineSegments.create({segments:this.toSegments(segments)})
 	}
 
 	isAnchored(){
@@ -123,9 +123,9 @@ export default class Line extends Component{
 				 * get opportunities again
 				 */
 				const {left,right}=this.props
-				const {top,inlineOpportunities}=this.exclude(this.blockOffset, newHeight,left,right)
-				const bSame= inlineOpportunities && !this.inlineOpportunities.find((a,i,c,b=inlineOpportunities[i])=>!(b && a.x==b.x && a.width==b.width))
-				if(inlineOpportunities && !bSame){
+				const {top,segments}=this.findInlineSegments(this.blockOffset, newHeight,left,right)
+				const bSame= segments && !this.segments.find((a,i,c,b=segments[i])=>!(b && a.x==b.x && a.width==b.width))
+				if(segments && !bSame){
 					const inlineSegments=Layout.InlineSegments.create({segments:this.toSegments(inlineOpportunities)})
 					if(inlineSegments.hold([...this.inlineSegments.items,atom])!==false){
 						this.top=top
