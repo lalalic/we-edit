@@ -10,72 +10,49 @@ export default class Line extends Component{
 	constructor({blockOffset,exclude=a=>({wrappees:[]})}){
 		super(...arguments)
 		this.exclude=exclude
-		Object.defineProperties(this,{
-			height:{
-				enumerable:true,
-				configurable:true,
-				get(){
-					return this.getLineHeight()
-				}
-			},
-			currentX:{//used by range
-				enumerable:false,
-				configurable:false,
-				get(){
-					return this.box.currentX
-				}
-			},
-			width:{
-				enumerable:true,
-				configurable:false,
-				get(){
-					const {left=0, right=width,width}=this.props
-					return right-left
-				}
-			},
-			first:{
-				enumerable:false,
-				configurable:false,
-				get(){
-					const first=this.box.items.find(a=>a.props.x===undefined)
-					if(first && first.props.atom)
-						return first.props.atom
-					if(first && first.props.descent==undefined)
-						return first.props.children
-					return first
-				}
-			},
-			last:{
-				enumerable:false,
-				configurable:false,
-				get(){
-					const last=this.box.items.findLast(a=>a.props.x===undefined)
-					if(last && last.props.atom)
-						return last.props.atom
-					return last
-				}
-			},
-			atoms:{
-				enumerable:false,
-				configurable:false,
-				get(){
-					return this.box.items.filter(a=>a.props.x===undefined)
-				}
-			},
-			items:{
-				enumerable:false,
-				configurable:false,
-				get(){
-					return [...this.props.positioned,...this.box.items]
-				}
-			}
-		})
 		const {wrappees=[],top=0}=this.exclude(blockOffset, 0)
 		this.wrappees=wrappees
 		this.top=top
 		this.box=Layout.InlineSegments.create({wrappees:[...wrappees,{x:this.width}]})
 	}
 
+	get height(){
+		return this.getLineHeight()
+	}
+
+	get currentX(){
+		return this.box.currentX
+	}
+	
+	get width(){
+		const {width=0,left=0, right=width}=this.props
+		return right-left
+	}
+		
+	get first(){
+		const first=this.atoms[0]
+		if(first && first.props.atom)
+			return first.props.atom
+		if(first && first.props.descent==undefined)
+			return first.props.children
+		return first
+	}
+
+	get last(){
+		const last=this.atoms.pop()
+		if(last && last.props.atom)
+			return last.props.atom
+		return last
+	}
+
+	get atoms(){
+		return this.box.items.filter(a=>a.props.x===undefined)
+	}
+
+	get items(){
+		return [...this.props.positioned,...this.box.items]
+	}
+	
 	get blockOffset(){
 		return this.top+this.props.blockOffset
 	}
