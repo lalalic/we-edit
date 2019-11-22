@@ -7,17 +7,22 @@ import {Layout} from "../../composable"
  * 
  */
 export default class Line extends Component{
-	constructor({blockOffset,exclude=a=>({wrappees:[]})}){
+	constructor({blockOffset,left, right, exclude}){
 		super(...arguments)
-		this.exclude=exclude
-		const {wrappees=[],top=0}=this.exclude(blockOffset, 0)
-		this.wrappees=wrappees
+		this.exclude=exclude||(()=>({inlineOpportunities:[{x:left, width:this.width}]}));
+		const {top=0,inlineOpportunities=[]}=this.exclude(blockOffset, 0,left,right)
+		this.inlineOpportunities=inlineOpportunities
 		this.top=top
-		this.inlineSegments=Layout.InlineSegments.create({wrappees:[...wrappees,{x:this.width}]})
+		this.inlineSegments=Layout.InlineSegments.create({segments:this.toSegments(inlineOpportunities)})
 	}
 
 	isAnchored(){
 		return this.props.isAnchored(...arguments)
+	}
+
+	toSegments(ops){
+		const {left=0}=this.props
+		return ops.map(a=>({...a, x:a.x-left}))
 	}
 
 	get height(){
@@ -117,9 +122,11 @@ export default class Line extends Component{
 				 * line rect change may lead to different inline opportunities and top
 				 * get opportunities again
 				 */
-				const {wrappees,top}=this.exclude(this.blockOffset, newHeight)
-				if(!this.wrappees.reduce((same,a,i,t,b=wrappees[i])=>same && b && a.x==b.x && a.width==b.width,true)){
-					const inlineSegments=Layout.InlineSegments.create({wrappees:[...wrappees,{x:this.width}]})
+				const {left,right}=this.props
+				const {top,inlineOpportunities}=this.exclude(this.blockOffset, newHeight,left,right)
+				const bSame= inlineOpportunities && !this.inlineOpportunities.find((a,i,c,b=inlineOpportunities[i])=>!(b && a.x==b.x && a.width==b.width))
+				if(inlineOpportunities && !bSame){
+					const inlineSegments=Layout.InlineSegments.create({segments:this.toSegments(inlineOpportunities)})
 					if(inlineSegments.hold([...this.inlineSegments.items,atom])!==false){
 						this.top=top
 						this.inlineSegments=inlineSegments

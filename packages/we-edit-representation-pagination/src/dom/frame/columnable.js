@@ -140,7 +140,7 @@ export default class Columnable extends Fixed{
 						"data-content":_1, "data-type":_2,id:_3, 
 						...props}=column
 					return (
-						<Group {...props} key={i}>
+						<Group {...props} key={i} className="column">
 							<Group y={alignY(column.blockOffset)}>
 								{this.positionLines(lines)}
 							</Group>
@@ -151,11 +151,12 @@ export default class Columnable extends Fixed{
 		})
 	}
 
-	inlineOpportunities(wrappees){
+	inlineOpportunities(wrappees,x1,x2){
 		return wrappees.reduce((ops,{x,width})=>{
 				const [last]=ops.splice(-1)
 				return [...ops, {x:last.x,width:x-last.x},{x:x+width,width:x2-x-width}]
 			},[{x:x1,width:x2-x1}])
+			//.map(({x,width})=>({width,x:x-x1}))
 	}
 
 	nextAvailableSpace(required={}){
@@ -173,7 +174,8 @@ export default class Columnable extends Fixed{
 		const exclusive=this.exclusive.bind(this)
 		const isAnchored=id=>this.isAnchored(id)
 		const {height,width,x}=this.currentColumn
-		const wrappees=this.exclusive(blockOffset, blockOffset+minRequiredH, x, x+width)
+		const left=x, right=x+width
+		const wrappees=this.exclusive(blockOffset, blockOffset+minRequiredH, left, right)
 		if(typeof(wrappees)=="number"){
 			return this.nextAvailableSpace({...required,blockOffset:wrappees})
 		}
@@ -183,12 +185,18 @@ export default class Columnable extends Fixed{
 			height,
 			blockOffset:this.blockOffset,
 			top:blockOffset-this.blockOffset,
-			frame:this,
+			left,
+			right,
 			wrappees,
-			exclude:(blockOffset=blockOffset,height=minRequiredH)=>this.nextAvailableSpace({blockOffset,height}),
-			getInlineSegments(blockOffset,minRequiredH=0){
-				const wrappees=exclusive(blockOffset, blockOffset+minRequiredH)
-				return Layout.InlineSegments.create([...wrappees,{x:this.currentColumn.width}])
+			frame:this,
+			exclude:(blockOffset=blockOffset,height=minRequiredH,left,right)=>{
+				const space=this.nextAvailableSpace({blockOffset,height})
+				if(space){
+					const {top,wrappees}=space
+					const inlineOpportunities=this.inlineOpportunities(wrappees,left, right)
+					return {wrappees,top,inlineOpportunities}
+				}
+				return space
 			},
 			isAnchored
 		}

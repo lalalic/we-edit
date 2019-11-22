@@ -177,7 +177,12 @@ export default class Paragraph extends Super{
 					times=0
 				}
 				next=this.currentLine.appendAtom(atoms[i],i)
-                if(next!==false){
+				if(typeof(next)=="number"){
+					//discard current line, and next is requiredHeight
+					this.rollbackLines(1)
+					this.createLine({height:next})
+					continue
+				}else if(next!==false){
 					i++
 					continue
 				}else{
@@ -191,7 +196,7 @@ export default class Paragraph extends Super{
 						//fail committed, and rollback lines
 						if(rollbackLines==Frame.IMMEDIATE_STOP)
 							return Frame.IMMEDIATE_STOP
-							
+
 						next=atomIndexOfLastNthLine(rollbackLines)
                         if(Number.isInteger(next)){
         					rollbackToLineWithFirstAtomIndex(next)

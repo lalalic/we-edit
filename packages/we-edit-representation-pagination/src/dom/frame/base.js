@@ -220,7 +220,6 @@ export default class Fixed extends Super{
 		},[])
 			.filter(a=>!!a)
 			.filter(a=>a.width>0)
-			.map(a=>(a.x-=line.x1,a))
 			.sort((a,b)=>a.x-b.x)
 		
 		const clears=excludes.filter(a=>a.type=="clear")
