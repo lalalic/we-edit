@@ -11,7 +11,6 @@ export default class Line extends Component{
 		super(...arguments)
 		this.findInlineSegments=findInlineSegments||(()=>({segments:[{x:left, width:this.width}]}));
 		const {top=0,segments=[]}=this.findInlineSegments(0,left,right)
-		this.segments=segments
 		this.top=top
 		this.inlineSegments=Layout.InlineSegments.create({left,segments})
 	}
