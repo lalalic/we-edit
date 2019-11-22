@@ -171,6 +171,7 @@ export default class Columnable extends Fixed{
 			}
 		}
 		const exclusive=this.exclusive.bind(this)
+		const isAnchored=id=>this.isAnchored(id)
 		const {height,width,x}=this.currentColumn
 		const wrappees=this.exclusive(blockOffset, blockOffset+minRequiredH, x, x+width)
 		if(typeof(wrappees)=="number"){
@@ -188,7 +189,8 @@ export default class Columnable extends Fixed{
 			getInlineSegments(blockOffset,minRequiredH=0){
 				const wrappees=exclusive(blockOffset, blockOffset+minRequiredH)
 				return Layout.InlineSegments.create([...wrappees,{x:this.currentColumn.width}])
-			}
+			},
+			isAnchored
 		}
 	}
 

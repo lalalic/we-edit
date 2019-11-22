@@ -80,7 +80,7 @@ const Editable=Cacheable(class __$1 extends editable(Base,{stoppable:true}){
 			case -1:
 				return
 			default:
-				this.commit(this.computed.atoms.indexOf(lines[spaceChangedAt].first))
+				this.commit(this.computed.atoms.indexOf(lines[spaceChangedAt].firstAtom))
 		}
 	}
 

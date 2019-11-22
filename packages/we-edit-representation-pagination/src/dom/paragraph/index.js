@@ -140,24 +140,31 @@ export default class Paragraph extends Super{
 
 		const rollbackToLineWithFirstAtomIndex=at=>{
 			const {composed:lines,atoms}=this.computed
-			const i=lines.findIndex(a=>atoms.indexOf(a.first)==at)
+			const i=lines.findIndex(a=>atoms.indexOf(a.firstAtom)==at)
 			this.rollbackLines(lines.length-i)
 		}
 
-		const appendComposedLine=bLast=>parent.appendComposed(this.createComposed2Parent(this.currentLine.commit(),bLast))
+		const appendComposedLine=bLastLine=>{
+			this.currentLine.freeze()
+			return parent.appendComposed(this.createComposed2Parent(this.currentLine,bLastLine))
+		}
 
-		const atomIndexOfLastNthLine=i=>atoms.indexOf(this.computed.composed[this.computed.composed.length-i].first)
+		const atomIndexOfLastNthLine=i=>{
+			const lines=this.computed.composed
+			const lastNthLine=lines[lines.length-i]
+			return atoms.indexOf(lastNthLine.firstAtom)
+		}
 
-		const len=this.computed.atoms.length
+		const len=atoms.length
 		const DEAD=5
 		var nested=0
 
         this.createLine()
 
 		const commitFrom=(start=0)=>{
-			var last=0, times=0
-			var next, rollbackLines
-			for(let i=start,content;i<len;){
+			let last=0, times=0
+			let next, rollbackLines
+			for(let i=start;i<len;){
 				if(i>end)
 					return
 				if(i==last){
@@ -169,20 +176,22 @@ export default class Paragraph extends Super{
 					last=i
 					times=0
 				}
-				next=this.currentLine.appendComposed(atoms[i],i)
-                if(Number.isInteger(next)){//current line compose is not correct for avaiable space
-                    const current=this.currentLine
-                    this.rollbackLines(1)
-                    this.createLine(current.required)
-                    i=next
-                    continue
-                }else if(next===false){//current line is full, atoms[i] not assembled, try to commit line
-					if(!Number.isInteger(rollbackLines=appendComposedLine(false))){//line committed
+				next=this.currentLine.appendAtom(atoms[i],i)
+                if(next!==false){
+					i++
+					continue
+				}else{
+					//current line is full, atoms[i] not assembled, commit to block layout
+					rollbackLines=appendComposedLine(false)
+					if(!Number.isInteger(rollbackLines)){
+						//line committed
 						this.createLine()
 						continue
-					}else{//fail committed, and rollback lines
+					}else{
+						//fail committed, and rollback lines
 						if(rollbackLines==Frame.IMMEDIATE_STOP)
 							return Frame.IMMEDIATE_STOP
+							
 						next=atomIndexOfLastNthLine(rollbackLines)
                         if(Number.isInteger(next)){
         					rollbackToLineWithFirstAtomIndex(next)
@@ -192,8 +201,6 @@ export default class Paragraph extends Super{
         				}
 					}
 				}
-
-				i++
 			}
 
 			if(++nested>DEAD){
@@ -228,8 +235,8 @@ export default class Paragraph extends Super{
 
 		this.rollbackLines(lastLines.length)
 
-		const start=atoms.findIndex(a=>a==lastLines[0].first)
-		const end=atoms.slice(start+1).findIndex(a=>a==lastLines[lastLines.length-1].last)+start+1
+		const start=atoms.findIndex(a=>a==lastLines[0].firstAtom)
+		const end=atoms.slice(start+1).findIndex(a=>a==lastLines[lastLines.length-1].lastAtom)+start+1
 		return this.commit(start, end)
 	}
 
