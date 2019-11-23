@@ -11,8 +11,7 @@ export default class Line extends Component{
 		super(...arguments)
 		this.findInlineSegments=findInlineSegments||(()=>({segments:[{x:left, width:this.width}]}));
 		const {top=0,segments=[]}=this.findInlineSegments(0,left,right)
-		this.top=top
-		this.inlineSegments=Layout.InlineSegments.create({left,segments})
+		this.inlineSegments=Layout.InlineSegments.create({left,top,segments})
 	}
 
 	isAnchored(){
@@ -61,7 +60,7 @@ export default class Line extends Component{
 	}
 	
 	get blockOffset(){
-		return this.top+this.props.blockOffset
+		return this.inlineSegments.props.top+this.props.blockOffset
 	}
 
 	isEmpty(){
@@ -119,9 +118,8 @@ export default class Line extends Component{
 				const {left,right}=this.props
 				const {top,segments}=this.findInlineSegments(newHeight+this.top,left,right)
 				if(this.inlineSegments.shouldRelayout(segments)){
-					const relayouted=this.inlineSegments.relayout({segments},atom)
+					const relayouted=this.inlineSegments.relayout({segments,top},atom)
 					if(relayouted!==false){
-						this.top=top
 						this.inlineSegments=relayouted
 						//new inline opportunities can hold layouted and atom, replace inlineSegments, and top
 						//not full, continue next atom
