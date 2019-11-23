@@ -116,7 +116,7 @@ export default class Line extends Component{
 				 * get opportunities again
 				 */
 				const {left,right}=this.props
-				const {top,segments}=this.findInlineSegments(newHeight+this.top,left,right)
+				const {top,segments}=this.findInlineSegments(newHeight+this.inlineSegments.props.top,left,right)
 				if(this.inlineSegments.shouldRelayout(segments)){
 					const relayouted=this.inlineSegments.relayout({segments,top},atom)
 					if(relayouted!==false){
