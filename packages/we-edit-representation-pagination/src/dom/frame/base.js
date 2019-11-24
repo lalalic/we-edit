@@ -142,6 +142,7 @@ export default class Fixed extends Super{
 	positionLines(lines){
 		var y=0
 		const content=lines.map((a,i,me,{props:{height=0}}=a)=>{
+			debugger
 			const b=React.cloneElement(a,{key:i,y})
 			y+=height
 			return b
@@ -309,6 +310,44 @@ export default class Fixed extends Super{
 			return rollback
 		}
 	}
+
+	/**
+	 * to re-layout last n lines
+	 * anchors in line should be removed too
+	 * @param {number} n 
+	 * @returns [...removed line].anchros=[...removed anchor id]
+	 */
+	rollbackLines(n){
+		if(n==0){
+			return Object.assign([],{anchors:[]})
+		}
+		const  removedLines=this.lines.splice(-n)
+
+		const removedAnchors=(lines=>{
+			const remove=a=>this.anchors.splice(this.anchors.indexOf(a),1)[0]
+			const anchorId=a=>new ReactQuery(a).findFirst('[data-type="anchor"]').attr("data-content")
+			const removingAnchorIds=Array.from(lines.reduce((ps, a)=>(ps.add(anchorId(a)),ps),new Set())).filter(a=>!!a)
+			return this.anchors.filter(a=>removingAnchorIds.includes(anchorId(a))).map(remove)
+		})(removedLines);
+
+		/**
+		 * @TODO: should consider recompose?
+		const asRect=({x=0,y=0,width,height,wrap},a={})=>({x,y,width,height,...a})
+		const intersectWithContent=!!removedAnchors.find(a=>{
+			if(!a.props.wrap)
+				return false
+
+			const wrapRect=asRect(a.props)
+			return !!this.columns.find(b=>this.isIntersect(wrapRect, asRect(b,{height:b.height-b.availableHeight})))
+		})
+
+		if(intersectWithContent){
+			this.recompose()
+		}
+		*/
+
+		return Object.assign(removedLines,{anchors:removedAnchors})
+	}	
 
 	layoutOf(){
 		const {width,height}=this.props

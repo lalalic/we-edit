@@ -4,6 +4,7 @@ import {ReactQuery} from "we-edit"
 import {Group} from "../../composed"
 import Fixed from "./base"
 import { Layout } from "../../composable"
+import ColumnChildren from "./column-children"
 
 //<Frame cols={[{x,width},{x,width}]}/>
 export default class Columnable extends Fixed{
@@ -13,13 +14,6 @@ export default class Columnable extends Fixed{
 
 		this.computed.columns=[]
 		Object.defineProperties(this,{
-			lines:{
-				enumerable:true,
-				configurable:true,
-				get(){
-					return this.columns.reduce((lines,a)=>[...lines,...a.children],[])
-				}
-			},
 			blockOffset:{
 				enumerable:false,
 				configurable:true,
@@ -31,7 +25,7 @@ export default class Columnable extends Fixed{
 				enumerable:false,
 				configurable:true,
 				get(){
-					return Math.max(...this.columns.map(a=>a.height||a.blockOffset))
+					return Math.max(...this.columns.map(a=>a.height))
 				}
 			},
 			currentColumn:{
@@ -71,7 +65,7 @@ export default class Columnable extends Fixed{
 		const column=Object.defineProperties({
 			height:this.props.height,
 			...this.cols[this.columns.length],
-			children:[],
+			children:ColumnChildren.create(this),
 			className:"column"
 		},{
 			availableHeight:{
@@ -97,7 +91,7 @@ export default class Columnable extends Fixed{
 
 	lineY(line){
 		var {y:y0=0,children:lines}=this.columns.find(a=>a.children.includes(line))||this.currentColumn
-		return lines.slice(0,lines.indexOf(line)+1).reduce((Y,{props:{height,y=Y}})=>y+height,y0)
+		return lines.slice(0,lines.indexOf(line)+1).reduce((Y,{props:{height=0}})=>Y+height,y0)
 	}
 
 	positionLines(){
@@ -215,43 +209,5 @@ export default class Columnable extends Fixed{
 			return true
 		}
 		return !![...this.lines,...this.anchors].find(a=>this.belongsTo(a,id))
-	}
-
-	rollbackLines(n){
-		var removedLines=[]
-		if(n==0){
-			removedLines.anchors=[]
-			return removedLines
-		}
-		for(let i=this.columns.length-1;i>-1;i--){
-			let lines=this.columns[i].children
-			if(n<=lines.length){
-				removedLines=removedLines.concat(lines.splice(-n))
-				break
-			}else{
-				removedLines=removedLines.concat(this.columns.splice(i)[0].children)
-				n=n-lines.length
-			}
-		}
-
-		const anchors=(lines=>{
-			const getAnchorId=a=>new ReactQuery(a).findFirst('[data-type="anchor"]').attr("data-content")
-			const ids=Array.from(
-				lines.reduce((ps, line)=>{
-					ps.add(getAnchorId(line))
-					return ps
-				},new Set())
-			).filter(a=>!!a)
-
-			return this.anchors
-				.filter(a=>ids.includes(getAnchorId(a)))
-				.map(a=>{
-					this.anchors.splice(this.anchors.indexOf(a),1)
-					return a
-				})
-		})(removedLines);
-
-		removedLines.anchors=anchors
-		return removedLines
 	}
 }

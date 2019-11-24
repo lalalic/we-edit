@@ -79,24 +79,4 @@ export default class AnchorWrappable extends PaginationControllable{
 			this.appendComposed(anchored)
 		}
 	}
-
-	rollbackLines(n,handleAnchor=true){
-		const removedLines=super.rollbackLines(...arguments)
-		if(removedLines.anchors){
-			const anchors=removedLines.anchors
-			const asRect=({x=0,y=0,width,height,wrap},a={})=>({x,y,width,height,...a})
-			const intersectWithContent=!!anchors.find(a=>{
-				if(!a.props.wrap)
-					return false
-
-				const wrapRect=asRect(a.props)
-				return !!this.columns.find(b=>this.isIntersect(wrapRect, asRect(b,{height:b.height-b.availableHeight})))
-			})
-
-			if(intersectWithContent){
-				this.recompose()
-			}
-		}
-		return removedLines
-	}
 }
