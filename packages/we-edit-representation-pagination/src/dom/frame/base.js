@@ -113,6 +113,8 @@ export default class Fixed extends Super{
 	createComposed2Parent() {
 		const {width,height=this.contentHeight, x,y,z,named}=this.props
 		const alignY=contentHeight=>{
+			if(contentHeight==undefined)
+				return undefined
 			const {height=contentHeight, vertAlign}=this.props
 			switch(vertAlign){
 				case "bottom":
@@ -128,7 +130,7 @@ export default class Fixed extends Super{
 		return (
 			<Group {...{width,height,x,y,z,named, className:"frame"}}>
 				{this.anchors.map((a,i)=>React.cloneElement(a,{key:i}))}
-				{React.cloneElement(content,{y:alignY(content.props.height||0)})}
+				{React.cloneElement(content,{y:alignY(content.props.height)})}
 			</Group>
 		)
     }

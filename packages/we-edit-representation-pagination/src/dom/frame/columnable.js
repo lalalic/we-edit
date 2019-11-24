@@ -1,4 +1,4 @@
-import React, {Component} from "react"
+import React, {Fragment} from "react"
 import PropTypes from "prop-types"
 import {ReactQuery} from "we-edit"
 import {Group} from "../../composed"
@@ -111,37 +111,14 @@ export default class Columnable extends Fixed{
 		return lines.slice(0,lines.indexOf(line)+1).reduce((Y,{props:{height,y=Y}})=>y+height,y0)
 	}
 
-	createComposed2Parent(){
-		const alignY=contentHeight=>{
-			const {height=contentHeight, vertAlign}=this.props
-			switch(vertAlign){
-				case "bottom":
-					return height-contentHeight
-				case "center":
-				case "middle":
-					return (height-contentHeight)/2
-				default:
-					return 0
-			}
-		};
-		const element=super.createComposed2Parent([])
-		return React.cloneElement(element,{
-			children:[
-				...this.anchors,
-				...this.columns.map((column,i)=>{
-					const {children:lines,blockOffset,
-						"data-content":_1, "data-type":_2,id:_3, 
-						...props}=column
-					return (
-						<Group {...props} key={i} className="column">
-							<Group y={alignY(column.blockOffset)}>
-								{this.positionLines(lines)}
-							</Group>
-						</Group>
-					)
-				})
-			]
-		})
+	positionLines(){
+		return (
+			<Fragment>
+				{this.columns.map(({x,y,width,height,children:lines},i)=>{
+					return React.cloneElement(super.positionLines(lines),{x,y,width,height,key:i,className:"column"})
+				})}
+			</Fragment>
+		)
 	}
 
 	nextAvailableSpace(required={}){
