@@ -81,7 +81,7 @@ export default class Fixed extends Super{
 				enumerable:true,
 				configurable:true,
 				get(){
-					return this.blockOffset
+					return this.lines.reduce((H,{props:{height:h=0}})=>h+H,0)
 				}
 			}
 		})
