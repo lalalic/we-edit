@@ -153,6 +153,10 @@ export default class Fixed extends Super{
 		return new ReactQuery(a).findFirst(`[data-content="${id}"]`).get(0)
 	}
 
+	isEmpty(){
+		return this.lines.length==0 && this.anchors.length==0
+	}
+
 	isAnchored(id){
 		return !!this.anchors.find(a=>this.belongsTo(a,id))
 	}

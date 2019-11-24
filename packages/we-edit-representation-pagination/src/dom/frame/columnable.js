@@ -102,10 +102,6 @@ export default class Columnable extends Fixed{
 		return column
 	}
 
-	isEmpty(){
-		return this.totalLines==0 && this.anchors.length==0
-	}
-
 	lineY(line){
 		var {y:y0=0,children:lines}=this.columns.find(a=>a.children.includes(line))||this.currentColumn
 		return lines.slice(0,lines.indexOf(line)+1).reduce((Y,{props:{height,y=Y}})=>y+height,y0)
@@ -114,8 +110,8 @@ export default class Columnable extends Fixed{
 	positionLines(){
 		return (
 			<Fragment>
-				{this.columns.map(({x,y,width,height,children:lines},i)=>{
-					return React.cloneElement(super.positionLines(lines),{x,y,width,height,key:i,className:"column"})
+				{this.columns.map(({x,y,width,children:lines},i)=>{
+					return React.cloneElement(super.positionLines(lines),{x,y,width,key:i,className:"column"})
 				})}
 			</Fragment>
 		)
