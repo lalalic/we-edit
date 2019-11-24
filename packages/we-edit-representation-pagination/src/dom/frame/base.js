@@ -124,12 +124,11 @@ export default class Fixed extends Super{
 					return 0
 			}
 		}
+		const content=this.positionLines(this.lines)
 		return (
 			<Group {...{width,height,x,y,z,named, className:"frame"}}>
 				{this.anchors.map((a,i)=>React.cloneElement(a,{key:i}))}
-				<Group y={alignY(this.blockOffset)}>
-					{this.positionLines(this.lines)}
-				</Group>
+				{React.cloneElement(content,{y:alignY(content.props.height||0)})}
 			</Group>
 		)
     }
