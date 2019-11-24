@@ -67,7 +67,7 @@ export default class Fixed extends Super{
 				enumerable:true,
 				configurable:true,
 				get(){
-					return this.computed.composed.filter(a=>a.props.y!==undefined)
+					return this.computed.composed.filter(a=>a.props.y!=undefined)
 				}
 			},
 			wrappees: {
@@ -196,10 +196,6 @@ export default class Fixed extends Super{
 		return new ReactQuery(line)
 			.findFirst(`[data-type="paragraph"]`)
 			.attr("data-content")
-	}
-
-	isEmpty(){
-		return this.totalLines==0
 	}
 
 	reset4Recompose(){
