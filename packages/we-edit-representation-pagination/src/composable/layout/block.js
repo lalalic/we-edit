@@ -157,23 +157,22 @@ class Block extends HasParentAndChild(dom.Container){
         const content=this.positionLines(this.lines)
 		return (
 			<Group height={content.props.height}>
-                {this.wrappees.map((a,i)=>React.cloneElement(a,{key:`wrap${i}`}))}
+                {this.anchros}
                 {content}
             </Group>
 		)
     }
 
 	positionLines(lines){
+		var y=0
+		const content=lines.map((a,i,me,{props:{height=0}}=a)=>{
+			const b=React.cloneElement(a,{key:i,y})
+			y+=height
+			return b
+		})
         return (
-            <Group height={this.blockOffset}>
-                {
-                    lines.reduce((state,a,i)=>{
-                        state.positioned.push(React.cloneElement(a,{y:state.y,key:i}))
-                        state.y+=a.props.height
-                        return state
-                    },{y:0,positioned:[]})
-                    .positioned
-                }
+            <Group height={y}>
+                {content}
             </Group>    
         )
 	}
