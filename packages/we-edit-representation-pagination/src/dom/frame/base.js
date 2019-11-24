@@ -126,24 +126,26 @@ export default class Fixed extends Super{
 		}
 		return (
 			<Group {...{width,height,x,y,z,named, className:"frame"}}>
+				{this.anchors.map((a,i)=>React.cloneElement(a,{key:i}))}
 				<Group y={alignY(this.blockOffset)}>
-					{this.positionLines(this.computed.composed)}
+					{this.positionLines(this.lines)}
 				</Group>
 			</Group>
 		)
     }
 
 	positionLines(lines){
-		const {positioned}=lines.reduce((state,a,i)=>{
-			if(a.props.y==undefined){
-				state.positioned.push(React.cloneElement(a,{y:state.y,key:i}))
-				state.y+=a.props.height
-			}else{
-				state.positioned.push(React.cloneElement(a,{key:i}))
-			}
-			return state
-		},{y:0,positioned:[]})
-		return positioned
+		var y=0
+		const content=lines.map((a,i,me,{props:{height=0}}=a)=>{
+			const b=React.cloneElement(a,{key:i,y})
+			y+=height
+			return b
+		})
+        return (
+            <Group height={y}>
+                {content}
+            </Group>    
+        )
 	}
 
 	belongsTo(a,id){
