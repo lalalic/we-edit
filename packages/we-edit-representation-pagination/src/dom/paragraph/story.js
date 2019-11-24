@@ -31,6 +31,9 @@ export default class Story extends Component{
 	 */
 	baseline(content,baseline){
 		const setBaseline=a=>{
+			if(Array.isArray(a)){
+				return a.map(a=>setBaseline(a))
+			}
 			if(a.props.className=="story"){
 				return a
 			}
