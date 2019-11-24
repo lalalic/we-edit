@@ -12,6 +12,7 @@ const factory=base=>Cacheable(class Frame extends editable(base){
 
     clearComposed(){
         this.columns=[]
+        this.computed.anchors=[]
         return super.clearComposed(...arguments)
     }
 

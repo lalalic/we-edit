@@ -265,7 +265,7 @@ class Block extends HasParentAndChild(dom.Container){
 		const removedAnchors=(lines=>{
 			const anchorId=a=>new ReactQuery(a).findFirst('[data-type="anchor"]').attr("data-content")
 			const removingAnchorIds=Array.from(lines.reduce((ps, a)=>(ps.add(anchorId(a)),ps),new Set())).filter(a=>!!a)
-			return this.computed.composed.filter(a=>removingAnchorIds.includes(anchorId(a))).map(remove)
+			return this.anchors.filter(a=>removingAnchorIds.includes(anchorId(a))).map(remove)
 		})(removedLines);
 
 		return Object.assign(removedLines,{anchors:removedAnchors})

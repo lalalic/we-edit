@@ -14,6 +14,7 @@ export default class Fixed extends Super{
 	
 	constructor(){
 		super(...arguments)
+		this.computed.anchors=[]
 		this.defineProperties()
 	}
 
@@ -38,11 +39,11 @@ export default class Fixed extends Super{
 				enumerable:true,
 				configurable:true,
 				get(){
-					return this.computed.composed.filter(a=>a.props.y==undefined)
+					return this.computed.composed//.filter(a=>a.props.y==undefined)
 				},
 				set(values){
 					if(!values || values.length==0){
-						return this.computed.composed=this.anchors
+						return this.computed.composed=values//this.anchors
 					}else{
 						throw new Error("not support")
 					}
@@ -59,15 +60,14 @@ export default class Fixed extends Super{
 				enumerable:false,
 				configurable:true,
 				get(){
-					const {props:{height},computed:{composed:children}}=this
-					return children.reduce((Y, {props:{height,y=Y}})=>y+height,0)
+					return this.lines.reduce((Y, {props:{height,y=Y}})=>y+height,0)
 				}
 			},
 			anchors: {
 				enumerable:true,
 				configurable:true,
 				get(){
-					return this.computed.composed.filter(a=>a.props.y!=undefined)
+					return this.computed.anchors//composed.filter(a=>a.props.y!=undefined)
 				}
 			},
 			wrappees: {
@@ -88,7 +88,11 @@ export default class Fixed extends Super{
 	}
 
 	appendComposed(content){
-		this.computed.composed.push(content)
+		if(content.props.y!=undefined){
+			this.computed.anchors.push(content)
+		}else{
+			this.computed.composed.push(content)
+		}
 	}
 
 	nextAvailableSpace(){

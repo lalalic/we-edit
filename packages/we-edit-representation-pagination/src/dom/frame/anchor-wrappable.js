@@ -50,7 +50,7 @@ export default class AnchorWrappable extends PaginationControllable{
 		}
 
 		const lastComputed={
-			composed:[...this.computed.composed],
+			anchors:[...this.anchors],
 			columns:this.columns.reduce((cloned,a)=>[...cloned,{...a,children:[...a.children]}],[]),
 		}
 
@@ -67,7 +67,7 @@ export default class AnchorWrappable extends PaginationControllable{
 						//then check if this anchor is in this page
 						if(!this.recomposing4Anchor.anchored){
 							//recover
-							this.computed.composed=this.recomposing4Anchor.composed
+							this.computed.anchors=this.recomposing4Anchor.anchors
 							this.columns=this.recomposing4Anchor.columns
 							this.recompose()
 							return false

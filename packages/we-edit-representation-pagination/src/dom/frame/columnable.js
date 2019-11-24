@@ -34,13 +34,6 @@ export default class Columnable extends Fixed{
 					return Math.max(...this.columns.map(a=>a.height||a.blockOffset))
 				}
 			},
-			anchors: {
-				enumerable:true,
-				configurable:true,
-				get(){
-					return this.computed.composed
-				}
-			},
 			currentColumn:{
 				enumerable:true,
 				configurable:true,
@@ -166,11 +159,12 @@ export default class Columnable extends Fixed{
 	}
 
 	appendComposed(line){
-		const {height:contentHeight, x, y,width}=line.props
-		if(x!=undefined && y!=undefined){//anchored
-			this.computed.composed.push(line)
-			return
-		}else if(contentHeight-this.currentColumn.availableHeight>1){//can't hold
+		const {height:contentHeight, y}=line.props
+		if(y!=undefined){//anchored
+			return super.appendComposed(line)
+		}
+		
+		if(contentHeight-this.currentColumn.availableHeight>1){//can't hold
 			if(this.currentColumn.children.length>0){//is not empty
 				if(this.cols.length>this.columns.length){// new column
 					this.createColumn()
@@ -249,10 +243,10 @@ export default class Columnable extends Fixed{
 				},new Set())
 			).filter(a=>!!a)
 
-			return this.computed.composed
+			return this.anchors
 				.filter(a=>ids.includes(getAnchorId(a)))
 				.map(a=>{
-					this.computed.composed.splice(this.computed.composed.indexOf(a),1)
+					this.anchors.splice(this.anchors.indexOf(a),1)
 					return a
 				})
 		})(removedLines);
