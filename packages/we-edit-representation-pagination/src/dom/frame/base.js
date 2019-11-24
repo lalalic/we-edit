@@ -7,8 +7,13 @@ import composable,{HasParentAndChild} from "../../composable"
 import {Frame as ComposedFrame, Group} from "../../composed"
 
 const Super=HasParentAndChild(dom.Frame)
+class Block extends Super{
 
-export default class Fixed extends Super{
+}
+
+
+
+export default class Fixed extends Block{
 	static Fixed=Fixed
 	static IMMEDIATE_STOP=Number.MAX_SAFE_INTEGER
 	
@@ -39,14 +44,10 @@ export default class Fixed extends Super{
 				enumerable:true,
 				configurable:true,
 				get(){
-					return this.computed.composed//.filter(a=>a.props.y==undefined)
+					return this.computed.composed
 				},
 				set(values){
-					if(!values || values.length==0){
-						return this.computed.composed=values//this.anchors
-					}else{
-						throw new Error("not support")
-					}
+					this.computed.composed=values
 				}
 			},
 			totalLines:{
@@ -63,11 +64,22 @@ export default class Fixed extends Super{
 					return this.lines.reduce((Y, {props:{height,y=Y}})=>y+height,0)
 				}
 			},
+			availableBlockSize:{
+				enumerable:true,
+				configurable:true,
+				get(){
+					const {height=Number.MAX_SAFE_INTEGER}=this.props
+					return height-this.blockOffset
+				}
+			},
 			anchors: {
 				enumerable:true,
 				configurable:true,
 				get(){
-					return this.computed.anchors//composed.filter(a=>a.props.y!=undefined)
+					return this.computed.anchors
+				},
+				set(values){
+					this.computed.anchors=values
 				}
 			},
 			wrappees: {
@@ -203,12 +215,6 @@ export default class Fixed extends Super{
 			.attr("data-content")
 	}
 
-	reset4Recompose(){
-		const lines=this.lines
-		this.lines=[]
-		return lines
-	}
-
 	/**
 	 * @param {*} y1 
 	 * @param {*} y2 
@@ -257,19 +263,18 @@ export default class Fixed extends Super{
 	}
 
 	recompose(pre){
-		const lastLines=[...this.computed.composed]
-		const lastAnchors=[...this.computed.anchors]
+		const lastLines=[...this.lines]
+		const lastAnchors=[...this.anchors]
 
 		const rollback=()=>{
-			this.computed.composed=lastLines
-			this.computed.anchors=lastAnchors
+			this.lines=lastLines
+			this.anchors=lastAnchors
 		}
 
-		const recomposing=pre()
 		try{
-			this.computed.recomposing=true
-			this.computed.composed=[]
-			this.computed.anchors=[]
+			this.computed.recomposing=pre()
+			this.lines=[]
+			this.anchors=[]
 			const lines=[...lastLines]
 			var currentParagraph=null
 			var currentParagraphLines=[]
@@ -338,7 +343,7 @@ export default class Fixed extends Super{
 				return false
 
 			const wrapRect=asRect(a.props)
-			return !!this.columns.find(b=>this.isIntersect(wrapRect, asRect(b,{height:b.height-b.availableHeight})))
+			return !!this.columns.find(b=>this.isIntersect(wrapRect, asRect(b,{height:b.height-b.availableBlockSize})))
 		})
 
 		if(intersectWithContent){

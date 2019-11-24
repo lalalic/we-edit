@@ -20,8 +20,8 @@ export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 			return Cell.getType()
 		}
 
-		appendLine({props:{height:contentHeight}}){
-			if(contentHeight-this.currentColumn.availableHeight>1){//can't hold
+		appendLine({props:{height:requiredBlockSize}}){
+			if(requiredBlockSize-this.currentColumn.availableBlockSize>1){//can't hold
 				if(this.currentColumn.children.length==0){
 					return false
 				}

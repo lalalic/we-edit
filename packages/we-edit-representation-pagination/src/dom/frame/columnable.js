@@ -21,6 +21,13 @@ export default class Columnable extends Fixed{
 					return this.currentColumn.blockOffset
 				}
 			},
+			availableBlockSize:{
+				enumerable:true,
+				configurable:true,
+				get(){
+					this.currentColumn.availableBlockSize
+				}
+			},
 			contentHeight:{
 				enumerable:false,
 				configurable:true,
@@ -54,8 +61,8 @@ export default class Columnable extends Fixed{
 				get(){
 					return this.computed.columns
 				},
-				set(value){
-					return this.computed.columns=[]
+				set(values){
+					return this.computed.columns=values
 				}
 			}
 		})
@@ -68,13 +75,13 @@ export default class Columnable extends Fixed{
 			children:ColumnChildren.create(this),
 			className:"column"
 		},{
-			availableHeight:{
+			availableBlockSize:{
 				enumerable:false,
 				configurable:false,
 				get(){
 					if(this.height==undefined)
 						return Number.MAX_SAFE_INTEGER
-					return this.height-this.blockOffset
+					return this.height-(this.blockOffset-this.y||0)
 				}
 			},
 			blockOffset:{
@@ -158,7 +165,7 @@ export default class Columnable extends Fixed{
 			return super.appendComposed(line)
 		}
 		
-		if(contentHeight-this.currentColumn.availableHeight>1){//can't hold
+		if(contentHeight-this.currentColumn.availableBlockSize>1){//can't hold
 			if(this.currentColumn.children.length>0){//is not empty
 				if(this.cols.length>this.columns.length){// new column
 					this.createColumn()
@@ -174,12 +181,6 @@ export default class Columnable extends Fixed{
 
 	appendLine(line){
 		this.currentColumn.children.push(line)
-	}
-
-	reset4Recompose(){
-		const lines=super.reset4Recompose(...arguments)
-		this.columns=[]
-		return lines
 	}
 
 	isDirtyIn(rect){

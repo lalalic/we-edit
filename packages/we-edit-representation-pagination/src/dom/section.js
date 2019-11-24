@@ -32,7 +32,7 @@ export default class Section extends Super{
 						const parent=this.context.parent
 						if(this==parent.current){//last
 							if(!parent.isAllChildrenComposed()){
-								return Math.max(...this.columns.map(column=>column.y+(column.height-column.availableHeight)))
+								return Math.max(...this.columns.map(column=>column.y+(column.height-column.availableBlockSize)))
 							}
 						}
 						return this.props.height

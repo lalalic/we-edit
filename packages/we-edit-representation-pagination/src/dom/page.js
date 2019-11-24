@@ -53,7 +53,7 @@ const factory=MyFrame=>class __$1 extends MyFrame{
 				enumerable:false,
 				configurable:false,
 				get(){
-					return Math.max(...this.columns.map(column=>column.y+(column.height-column.availableHeight)))
+					return Math.max(...this.columns.map(column=>column.y+(column.height-column.availableBlockSize)))
 				}
 			},
 		})

@@ -14,7 +14,7 @@ export default class AnchorWrappable extends PaginationControllable{
 	appendComposed(){
 		const appended=super.appendComposed(...arguments)
 		if(appended===false && //will create new page
-			this.recomposing4Anchor){// &&
+			this.recomposing){// &&
 			return Frame.IMMEDIATE_STOP
 		}
 		return appended
@@ -42,41 +42,34 @@ export default class AnchorWrappable extends PaginationControllable{
 		const anchored=line.props.anchor(this,line)
 		const {wrap,geometry,"data-content":anchorId}=anchored.props
 
+		this.appendComposed(anchored)
+		if( !(wrap && this.isDirtyIn(geometry))){
+			return 1
+		}
+		let rollback
 		try{
-			if(wrap){
-				if(this.isDirtyIn(geometry)){
-					try{
-						this.recomposing4Anchor={
-							anchors:[...this.anchors],
-							columns:this.columns.reduce((cloned,a)=>[...cloned,{...a,children:[...a.children]}],[]),
-						}
-						this.recompose()
-						/**
-						 * then check if this anchor is in this page
-						 * data-anchor is placeholder specification in inline layout
-						 * */
-						const anchorPlaced=!!this.lines.findLast(a=>new ReactQuery(a).findFirst(`[data-anchor="${anchorId}]`).length==1)
-						if(anchorPlaced){
-							return 0+1
-						}else{
-							//recover
-							this.computed.anchors=this.recomposing4Anchor.anchors
-							this.columns=this.recomposing4Anchor.columns
-							this.recompose()
-							return false
-						}
-					}finally{
-						delete this.recomposing4Anchor
-					}
-				}else{
-					return 0+1
-				}
-			}else{
+			const lastColumns=[...this.columns]
+			rollback=this.recompose(()=>{
+				this.lines.push(line)
+				return anchorId
+			})
+			/**
+			 * then check if this anchor is in this page
+			 * data-anchor is placeholder specification in inline layout
+			 * */
+			const anchorPlaced=!!this.lines.findLast(a=>new ReactQuery(a).findFirst(`[data-anchor="${anchorId}]`).length==1)
+			if(anchorPlaced){
 				return 0+1
+			}else{
+				//recover
+				rollback()
+				this.columns=lastColumns
+				return false
 			}
-		}finally{
-			//anchored content positioned in frame
-			this.appendComposed(anchored)
+		}catch(e){
+			rollback()
+			this.columns=lastColumns
+			return false
 		}
 	}
 }
