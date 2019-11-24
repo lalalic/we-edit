@@ -11,3 +11,16 @@ if(!Array.prototype.findLastIndex){
 		return this.indexOf(this.findLast(...arguments))
     }
 }
+
+if(!Array.prototype.flat){
+  Array.prototype.flat=function(){
+    return this.reduce((flat,a)=>{
+      if(Array.isArray(a)){
+        flat.splice(flat.length,0,...a.flat())
+      }else{
+        flat.push(a)
+      }
+      return flat
+    },[])
+  }
+}

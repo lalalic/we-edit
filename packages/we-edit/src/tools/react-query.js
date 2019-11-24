@@ -2,7 +2,7 @@ import React, {Children} from "react"
 import "./array-find-last"
 import cssSelector from "./css"
 
-const toArray=children=>Array.isArray(children) ? children : [children]
+const toArray=children=>Array.isArray(children) ? children.flat() : [children]
 
 export default class Query{
     static Selector={
