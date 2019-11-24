@@ -20,18 +20,11 @@ export default class Columnable extends Fixed{
 					return this.columns.reduce((lines,a)=>[...lines,...a.children],[])
 				}
 			},
-			block:{
-				enumerable:true,
-				configurable:true,
-				get(){
-					return (({width,x=0,y=0})=>({x1:x,x2:x+width,y2:this.blockOffset}))(this.currentColumn)
-				}
-			},
 			blockOffset:{
 				enumerable:false,
 				configurable:true,
 				get(){
-					return (this.currentColumn.y||0)+this.currentColumn.blockOffset
+					return this.currentColumn.blockOffset
 				}
 			},
 			contentHeight:{
@@ -101,7 +94,7 @@ export default class Columnable extends Fixed{
 				enumerable:true,
 				configurable:false,
 				get(){
-					return this.children.reduce((Y,{props:{height,y=Y}})=>Y+height,0)
+					return this.children.reduce((Y=0,{props:{height=0}})=>Y+height,this.y)
 				}
 			}
 		})
