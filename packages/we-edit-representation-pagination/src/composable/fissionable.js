@@ -12,7 +12,8 @@ export default (A)=>class __$1 extends A{
 	}
 	static contextTypes={
 		...A.contextTypes,
-		ModelTypes: PropTypes.object,
+        ModelTypes: PropTypes.object,
+        prevLayout: PropTypes.func,
 	}
 	static childContextTypes={
         ...A.childContextTypes,

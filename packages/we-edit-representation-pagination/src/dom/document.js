@@ -19,7 +19,8 @@ export default class Document extends Super{
     static childContextTypes={
         ...Super.childContextTypes,
         Measure: PropTypes.func,
-        getComposedTemplate:PropTypes.func
+        getComposedTemplate:PropTypes.func,
+        prevLayout: PropTypes.func,
     }
 
     constructor(){
@@ -34,6 +35,11 @@ export default class Document extends Super{
             Measure: this.getMeasure(),
             getComposedTemplate(id){
                 return self.computed.templates.find(a=>a.props.id===id)||{props:{children:null}}
+            },
+            prevLayout(ref){
+                const pages=self.computed.composed
+                const i=pages.indexOf(ref)
+                return pages[i-1]
             }
         }
     }
