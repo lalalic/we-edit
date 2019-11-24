@@ -255,39 +255,58 @@ export default class Fixed extends Super{
 		return excludes
 	}
 
-	recompose(){
-		const lines=this.reset4Recompose()
-		var currentParagraph=null
-		var currentParagraphLines=[]
-		for(let i=0, line;i<lines.length;i++){
-			line=lines[i]
-			const linePID=this.getFlowableComposerId(line,`[data-type="paragraph"]`)
-			if(!linePID){//not paragraph, then append directly
-				if(currentParagraph){
-					this.context.getComposer(currentParagraph).recommit(currentParagraphLines)
-					currentParagraph=null
-					currentParagraphLines=[]
-				}
-				this.appendComposed(line)
-			}else{
-				if(!currentParagraph){
-					currentParagraph=linePID
-					currentParagraphLines.push(line)
-				}else{
-					if(linePID!==currentParagraph){
+	recompose(pre){
+		const lastLines=[...this.computed.composed]
+		const lastAnchors=[...this.computed.anchors]
+
+		const rollback=()=>{
+			this.computed.composed=lastLines
+			this.computed.anchors=lastAnchors
+		}
+
+		const recomposing=pre()
+		try{
+			this.computed.recomposing=true
+			this.computed.composed=[]
+			this.computed.anchors=[]
+			const lines=[...lastLines]
+			var currentParagraph=null
+			var currentParagraphLines=[]
+			for(let i=0, line;i<lines.length;i++){
+				line=lines[i]
+				const linePID=this.getFlowableComposerId(line,`[data-type="paragraph"]`)
+				if(!linePID){//not paragraph, then append directly
+					if(currentParagraph){
 						this.context.getComposer(currentParagraph).recommit(currentParagraphLines)
+						currentParagraph=null
+						currentParagraphLines=[]
+					}
+					this.appendComposed(line)
+				}else{
+					if(!currentParagraph){
 						currentParagraph=linePID
-						currentParagraphLines=[line]
-						continue
-					}else{
 						currentParagraphLines.push(line)
-						continue
+					}else{
+						if(linePID!==currentParagraph){
+							this.context.getComposer(currentParagraph).recommit(currentParagraphLines)
+							currentParagraph=linePID
+							currentParagraphLines=[line]
+							continue
+						}else{
+							currentParagraphLines.push(line)
+							continue
+						}
 					}
 				}
 			}
-		}
-		if(currentParagraph){
-			this.context.getComposer(currentParagraph).recommit(currentParagraphLines)
+			if(currentParagraph){
+				this.context.getComposer(currentParagraph).recommit(currentParagraphLines)
+			}
+		}catch(e){
+			console.error(e)
+		}finally{
+			delete this.computed.recomposing
+			return rollback
 		}
 	}
 

@@ -14,20 +14,10 @@ export default class AnchorWrappable extends PaginationControllable{
 	appendComposed(){
 		const appended=super.appendComposed(...arguments)
 		if(appended===false && //will create new page
-			this.recomposing4Anchor &&
-			!this.recomposing4Anchor.anchored){
+			this.recomposing4Anchor){// &&
 			return Frame.IMMEDIATE_STOP
 		}
 		return appended
-	}
-
-	/*bad but faster*/
-	isAnchored(id){
-		const composed=super.isAnchored(id)
-		if(this.recomposing4Anchor && this.recomposing4Anchor.anchor==id){
-			this.recomposing4Anchor.anchored=true
-		}
-		return composed
 	}
 
 	/**
@@ -49,11 +39,6 @@ export default class AnchorWrappable extends PaginationControllable{
 			return super.appendLine(...arguments)
 		}
 
-		const lastComputed={
-			anchors:[...this.anchors],
-			columns:this.columns.reduce((cloned,a)=>[...cloned,{...a,children:[...a.children]}],[]),
-		}
-
 		const anchored=line.props.anchor(this,line)
 		const {wrap,geometry,"data-content":anchorId}=anchored.props
 
@@ -61,18 +46,24 @@ export default class AnchorWrappable extends PaginationControllable{
 			if(wrap){
 				if(this.isDirtyIn(geometry)){
 					try{
-						this.recomposing4Anchor=lastComputed
-						this.recomposing4Anchor.anchor=anchorId
+						this.recomposing4Anchor={
+							anchors:[...this.anchors],
+							columns:this.columns.reduce((cloned,a)=>[...cloned,{...a,children:[...a.children]}],[]),
+						}
 						this.recompose()
-						//then check if this anchor is in this page
-						if(!this.recomposing4Anchor.anchored){
+						/**
+						 * then check if this anchor is in this page
+						 * data-anchor is placeholder specification in inline layout
+						 * */
+						const anchorPlaced=!!this.lines.findLast(a=>new ReactQuery(a).findFirst(`[data-anchor="${anchorId}]`).length==1)
+						if(anchorPlaced){
+							return 0+1
+						}else{
 							//recover
 							this.computed.anchors=this.recomposing4Anchor.anchors
 							this.columns=this.recomposing4Anchor.columns
 							this.recompose()
 							return false
-						}else{
-							return 0+1
 						}
 					}finally{
 						delete this.recomposing4Anchor
