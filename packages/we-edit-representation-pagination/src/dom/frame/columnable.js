@@ -64,6 +64,20 @@ export default class Columnable extends Fixed{
 					return this.computed.columns=values
 				}
 			},
+			lines:{
+				enumerable:true,
+				configurable:true,
+				get(){
+					return this.computed.composed
+				},
+				set(values){
+					if(values.length==0){
+						/**to Normalize clean of this.columns */
+						this.columns=[]
+					}
+					this.computed.composed=values
+				}
+			},
 			isMultiBlocks:{
 				enumerable:true,
 				configurable:true,
