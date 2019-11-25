@@ -10,8 +10,8 @@ export default class Line extends Component{
 	constructor({left, right, findInlineSegments}){
 		super(...arguments)
 		this.findInlineSegments=findInlineSegments||(()=>({segments:[{x:left, width:this.width}]}));
-		const {top=0,segments=[]}=this.findInlineSegments(0,left,right)
-		this.inlineSegments=Layout.InlineSegments.create({left,top,segments})
+		const segments=this.findInlineSegments(0,left,right)
+		this.inlineSegments=Layout.InlineSegments.create({left,...segments})
 	}
 
 	isAnchored(){
@@ -116,9 +116,9 @@ export default class Line extends Component{
 				 * get opportunities again
 				 */
 				const {left,right}=this.props
-				const {top,segments}=this.findInlineSegments(newHeight+this.inlineSegments.props.top,left,right)
+				const segments=this.findInlineSegments(newHeight+this.inlineSegments.props.top,left,right)
 				if(this.inlineSegments.shouldRelayout(segments)){
-					const relayouted=this.inlineSegments.relayout({segments,top},atom)
+					const relayouted=this.inlineSegments.relayout(segments,atom)
 					if(relayouted!==false){
 						this.inlineSegments=relayouted
 						//new inline opportunities can hold layouted and atom, replace inlineSegments, and top

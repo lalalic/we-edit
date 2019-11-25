@@ -146,7 +146,7 @@ import Group from "../../composed/group"
         return items.reduce((X,{props:{width=0}})=>X+width,x)
     }
 
-    shouldRelayout(segments){
+    shouldRelayout({segments}){
         const bSame=segments 
             &&this.segments.length==segments.length 
             &&!this.segments.find(({props:a},i,c,b=segments[i])=>!(b && a.x==b.x && a.width==b.width))
