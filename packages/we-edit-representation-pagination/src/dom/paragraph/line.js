@@ -7,10 +7,10 @@ import {Layout} from "../../composable"
  * 
  */
 export default class Line extends Component{
-	constructor({left, right, findInlineSegments}){
+	constructor({left, right, top=0,findInlineSegments}){
 		super(...arguments)
 		this.findInlineSegments=findInlineSegments||(()=>({segments:[{x:left, width:this.width}]}));
-		const segments=this.findInlineSegments(0,left,right)
+		const segments=this.findInlineSegments(this.topToBlockOffset,left,right)
 		this.inlineSegments=Layout.InlineSegments.create({left,...segments})
 	}
 
@@ -60,7 +60,13 @@ export default class Line extends Component{
 	}
 	
 	get blockOffset(){
-		return this.inlineSegments.props.top+this.props.blockOffset
+		const {props:{blockOffset=0}}=this
+		return blockOffset+this.topToBlockOffset
+	}
+
+	get topToBlockOffset(){
+		const {props:{top:lineTop=0}, inlineSegments:{props:{top:opportunityTop=0}}={props:{}}}=this
+		return opportunityTop+lineTop
 	}
 
 	isEmpty(){
@@ -115,8 +121,8 @@ export default class Line extends Component{
 				 * line rect change may lead to different inline opportunities and top
 				 * get opportunities again
 				 */
-				const {left,right}=this.props
-				const segments=this.findInlineSegments(newHeight+this.inlineSegments.props.top,left,right)
+				const {left,right,top=0}=this.props
+				const segments=this.findInlineSegments(this.topToBlockOffset+newHeight,left,right)
 				if(this.inlineSegments.shouldRelayout(segments)){
 					const relayouted=this.inlineSegments.relayout(segments,atom)
 					if(relayouted!==false){

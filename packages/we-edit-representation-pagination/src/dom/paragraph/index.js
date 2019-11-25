@@ -285,7 +285,7 @@ export default class Paragraph extends Super{
 		const line=new this.constructor.Line({
 			...space, 
 			positioned, 
-			top, 
+			top:bFirstLine ? top : undefined, 
 			left:left+indentLeft+(bFirstLine&&!numbering&&firstLine||0), 
 			right:right-indentRight,
 			lineHeight
@@ -307,7 +307,7 @@ export default class Paragraph extends Super{
 	 * @param {*} last 
 	 */
 	createComposed2Parent(line,bLastLine){
-		const {height,width, children, anchor,blockOffset,props:{top=0}}=line
+		const {height,width, children, anchor,blockOffset, props:{top=0}}=line
 		const {
 			numbering,
 			indent:{left=0,right=0, firstLine=0},
