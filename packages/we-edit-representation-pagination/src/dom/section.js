@@ -24,20 +24,7 @@ export default class Section extends Super{
 						}=this.props
 						return cols
 					}
-				},
-				composedHeight:{
-					enumerable:false,
-					configurable:true,
-					get(){
-						const parent=this.context.parent
-						if(this==parent.current){//last
-							if(!parent.isAllChildrenComposed()){
-								return Math.max(...this.columns.map(column=>column.y+(column.height-column.availableBlockSize)))
-							}
-						}
-						return this.props.height
-					}
-				},
+				}
 			})
 		}
 
@@ -69,24 +56,7 @@ export default class Section extends Super{
 		create(props,context){
 			const {page}=this.props
 			if(page){
-				const {
-					width,height,margin:{left=0,right=0,top=0,bottom=0,header=0,footer=0}={},
-					cols
-				}=page
-				const availableWidth=width-left-right
-				let columns=cols
-				if(!Array.isArray(cols)){
-					const {num=1, space=0, y=top}=cols||{}
-					columns=new Array(num)
-							.fill({width:(availableWidth-(num-1)*space)/num,space})
-							.reduce((state,{width,space})=>{
-								state.columns.push({x:state.x, width, y})
-								state.x+=(space+width)
-								return state
-							},{x:left,columns:[]})
-							.columns
-				}
-				return new this.Fission({width, height, margin:{left,right,top,bottom},cols:columns, ...props},context)
+				return new this.Fission({...page, ...props},context)
 			}else{
 				throw new Error("section has no create")
 			}

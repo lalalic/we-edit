@@ -70,7 +70,15 @@ export default class Columnable extends Fixed{
 				get(){
 					return this.cols.length>1
 				}
+			},
+			composedHeight:{
+				enumerable:true,
+				configurable:true,
+				get(){
+					return Math.max(...this.columns.map(a=>a.y+(a.height-a.availableBlockSize)))
+				}
 			}
+
 		})
 	}
 

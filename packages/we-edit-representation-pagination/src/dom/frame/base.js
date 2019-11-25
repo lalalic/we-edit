@@ -115,6 +115,12 @@ class Block extends Super{
 		})
 	}
 
+	onAllChildrenComposed(){
+		const content=this.createComposed2Parent()
+		this.context.parent.appendComposed(content)
+		super.onAllChildrenComposed()
+	}
+
 	appendComposed(line){
 		const {props:{y:positioned}}=line
 		if(positioned!=undefined){
@@ -535,11 +541,19 @@ class OrphanControlable extends Anchorable{
 class Fixed extends OrphanControlable{
 	static Fixed=Fixed
 	
-	onAllChildrenComposed(){
-		const content=this.createComposed2Parent()
-		this.context.parent.appendComposed(content)
-		super.onAllChildrenComposed()
+	defineProperties(){
+		super.defineProperties()
+		Object.defineProperties(this,{
+			composedHeight:{
+				enumerable:true,
+				configurable:true,
+				get(){
+					return this.blockOffset
+				}
+			}
+		})
 	}
+	
 
 	createComposed2Parent() {
 		const {width,height=this.contentHeight, x,y,z,named}=this.props
