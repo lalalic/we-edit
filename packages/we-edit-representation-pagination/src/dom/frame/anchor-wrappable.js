@@ -14,7 +14,7 @@ export default class AnchorWrappable extends PaginationControllable{
 	appendComposed(){
 		const appended=super.appendComposed(...arguments)
 		if(appended===false){
-			if(this.recomposing){
+			if(this.computed.recomposing){
 				return Frame.IMMEDIATE_STOP
 			}
 			return false
