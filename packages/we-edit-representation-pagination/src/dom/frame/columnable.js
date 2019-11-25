@@ -123,7 +123,6 @@ export default class Columnable extends Fixed{
 				}
 			}
 		}
-		const exclusive=this.exclusive.bind(this)
 		const isAnchored=id=>this.isAnchored(id)
 		const {height,width,x}=this.currentColumn
 		const left=x, right=x+width
@@ -160,20 +159,14 @@ export default class Columnable extends Fixed{
 	}
 
 	appendComposed(line){
-		const {height:contentHeight, y}=line.props
+		const {height:requiredBlockSize, y}=line.props
 		if(y!=undefined){//anchored
 			return super.appendComposed(line)
 		}
-		
-		if(contentHeight-this.currentColumn.availableBlockSize>1){//can't hold
-			if(this.currentColumn.children.length>0){//is not empty
-				if(this.cols.length>this.columns.length){// new column
-					this.createColumn()
-					return 0+1//recompose current line in case different available space, such as different column width, wrapper, etc
-				}else{
-					return false
-				}
-			}
+
+		const space=this.nextAvailableSpace({height:requiredBlockSize})
+		if(space==false){
+			return false
 		}
 
 		return this.appendLine(line)

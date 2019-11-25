@@ -13,12 +13,14 @@ export default class AnchorWrappable extends PaginationControllable{
 
 	appendComposed(){
 		const appended=super.appendComposed(...arguments)
-		if(appended===false && //will create new page
-			this.recomposing){// &&
-			return Frame.IMMEDIATE_STOP
+		if(appended===false){
+			if(this.recomposing){
+				return Frame.IMMEDIATE_STOP
+			}
+			return false
 		}
 		return appended
-	}
+	}	
 
 	/**
 	* . can be placed in this page

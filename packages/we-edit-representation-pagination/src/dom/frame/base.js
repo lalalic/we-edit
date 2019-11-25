@@ -7,13 +7,8 @@ import composable,{HasParentAndChild} from "../../composable"
 import {Frame as ComposedFrame, Group} from "../../composed"
 
 const Super=HasParentAndChild(dom.Frame)
-class Block extends Super{
 
-}
-
-
-
-export default class Fixed extends Block{
+export default class Fixed extends Super{
 	static Fixed=Fixed
 	static IMMEDIATE_STOP=Number.MAX_SAFE_INTEGER
 	
@@ -107,17 +102,17 @@ export default class Fixed extends Block{
 		}
 	}
 
-	nextAvailableSpace(){
+	nextAvailableSpace({height:requiredBlockSize}={}){
 		const {width,height}=this.props
-		return {
-			width,
-			height,
-			getInlineSegments(){
-
-			},
-			blockOffset:this.blockOffset,
-			top:0,
+		if(this.availableBlockSize>=requiredBlockSize){
+			return {
+				width,
+				height,
+				blockOffset:this.blockOffset,
+				top:0,
+			}
 		}
+		return false
 	}
 
 	onAllChildrenComposed(){
