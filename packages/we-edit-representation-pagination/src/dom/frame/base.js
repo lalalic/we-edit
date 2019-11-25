@@ -76,15 +76,16 @@ class Block extends Super{
 				enumerable:false,
 				configurable:true,
 				get(){
-					return this.lines.reduce((Y, {props:{height,y=Y}})=>y+height,0)
+					const {margin:{top=0}={}}=this.props
+					return this.lines.reduce((Y, {props:{height=0}})=>Y+height,top)
 				}
 			},
 			availableBlockSize:{
 				enumerable:true,
 				configurable:true,
 				get(){
-					const {height=Number.MAX_SAFE_INTEGER}=this.props
-					return height-this.blockOffset
+					const {height=Number.MAX_SAFE_INTEGER, margin:{top=0,bottom=0}={}}=this.props
+					return height-this.blockOffset-bottom
 				}
 			},
 			anchors: {
@@ -123,15 +124,35 @@ class Block extends Super{
 		}
 	}
 
-	nextAvailableSpace({height:requiredBlockSize}={}){
-		const {width,height}=this.props
+	nextAvailableSpace({height:requiredBlockSize=0}={}){
+		const {width,height,margin:{left=0,right=0}={}}=this.props
 		if(this.isEmpty()||this.availableBlockSize>=requiredBlockSize){
 			return {
-				width,
-				height,
-				left:0,
-				right:width,
+				left,
+				right:width-right,
 				blockOffset:this.blockOffset,
+				frame:this,
+				findInlineSegments:(requiredBlockSize,left,right)=>{
+					const blockOffset=this.blockOffset
+					var wrappees=this.exclusive(blockOffset,blockOffset+requiredBlockSize,left,right)
+					var top=0
+					while(typeof(wrappees)=="number"){
+						top=wrappees
+						wrappees=this.exclusive(top,top+requiredBlockSize,left,right)
+					}
+					const space=this.nextAvailableSpace({height:top-blockOffset+requiredBlockSize})
+					if(space){
+						return {
+							top,
+							segments:wrappees.reduce((ops,{x,width})=>{
+								const [last]=ops.splice(-1)
+								return [...ops, {x:last.x,width:x-last.x},{x:x+width,width:right-x-width}]
+							},[{x:left,width:right-left}])
+						}
+					}
+					return space
+				},
+				isAnchored:id=>this.isAnchored(id)
 			}
 		}
 		return false
@@ -564,7 +585,7 @@ class Fixed extends OrphanControlable{
 	}
 
 	isEmpty(){
-		return this.lines.length==0 && this.anchors.length==0
+		return (this.lines.length+this.anchors.length)==0
 	}
 
 	isAnchored(id){

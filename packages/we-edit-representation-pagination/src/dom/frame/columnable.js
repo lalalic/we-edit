@@ -11,7 +11,6 @@ export default class Columnable extends Fixed{
 	static Columnable=Columnable
 	defineProperties(){
 		super.defineProperties()
-
 		this.computed.columns=[]
 		Object.defineProperties(this,{
 			blockOffset:{
@@ -163,7 +162,7 @@ export default class Columnable extends Fixed{
 			isAnchored
 		}
 	}
-	
+
 	isDirtyIn(rect){
 		if(this.wrappees.find(({props:{x,y,width,height}})=>this.isIntersect(rect,{x,y,width,height}))){
 			return true
