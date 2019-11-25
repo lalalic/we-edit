@@ -631,6 +631,10 @@ class Fixed extends OrphanControlable{
 			.reduce((Y,{props:{height=0}})=>Y+height,0)
 	}
 
+	lineX(line){
+		return 0
+	}
+
 	getFlowableComposerId(line,filter){
 		return new ReactQuery(line)
 			.findFirst(`[data-type="paragraph"],[data-type="table"]`)

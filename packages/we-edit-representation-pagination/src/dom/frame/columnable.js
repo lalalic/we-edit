@@ -114,6 +114,10 @@ export default class Columnable extends Fixed{
 		return lines.slice(0,lines.indexOf(line)+1).reduce((Y,{props:{height=0}})=>Y+height,y0)
 	}
 
+	lineX(line){
+		return this.columns.find(a=>a.children.includes(line)).x
+	}
+
 	positionLines(){
 		return (
 			<Fragment>

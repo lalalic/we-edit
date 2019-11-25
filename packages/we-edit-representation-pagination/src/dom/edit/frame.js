@@ -117,7 +117,7 @@ const factory=base=>Cacheable(class Frame extends editable(base){
         const composer=this.context.getComposer(target.props['data-content'])
         const rect=composer.rectInLine(line)
 
-        rect.left=this.columns.find(a=>a.children.includes(line)).x+rect.left
+        rect.left=this.lineX(line)+rect.left
         rect.height=line.props.height
         rect.top=this.lineY(line)-rect.height
         return rect
