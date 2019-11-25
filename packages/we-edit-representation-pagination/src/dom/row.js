@@ -60,7 +60,7 @@ export default class __$1 extends Super{
 					(child,parent)=>React.cloneElement(parent,{height},child),
 					React.cloneElement(rank.get(0),{height})
 				)
-				this.currentSpace.frame.currentColumn.children.splice(-1,1,fixedLastLine)
+				this.currentSpace.frame.lines.splice(-1,1,fixedLastLine)
 			}
 		}
 	}

@@ -72,8 +72,7 @@ export default class Columnable extends Fixed{
 		const column=Object.defineProperties({
 			height:this.props.height,
 			...this.cols[this.columns.length],
-			children:ColumnChildren.create(this),
-			className:"column"
+			children:ColumnChildren.create(this)
 		},{
 			availableBlockSize:{
 				enumerable:false,

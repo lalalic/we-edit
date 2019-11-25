@@ -95,7 +95,8 @@ export default Cacheable(class __$1 extends editable(Base,{stoppable:true,contin
 			(child,parent)=>React.cloneElement(parent,{},child),
 			renderedRank
 		)
-		frame.currentColumn.children.splice(-1,1,tableRow)
+		/**replace last line */
+		frame.lines.splice(-1,1,tableRow)
 		this.computed.lastComposed.push(renderedRank)
 	}
 

@@ -21,10 +21,9 @@ export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 		}
 
 		appendLine({props:{height:requiredBlockSize}}){
-			if(requiredBlockSize-this.currentColumn.availableBlockSize>1){//can't hold
-				if(this.currentColumn.children.length==0){
-					return false
-				}
+			/**cell is allowed to be empty in a fissure */
+			if(requiredBlockSize>this.availableBlockSize && this.isEmpty()){//can't hold
+				return false
 			}
 			return super.appendLine(...arguments)
 		}

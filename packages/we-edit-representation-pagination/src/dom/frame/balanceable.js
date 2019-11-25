@@ -53,7 +53,7 @@ export default class Balanceable extends Columnable{
 			const totalWidth=cols.reduce((w,a)=>w+a.width,0)
 			this.createColumn=()=>Object.assign(createColumn.call(this),{width:totalWidth,height:Number.MAX_SAFE_INTEGER})
 			this.recompose()
-			const totalHeight=this.currentColumn.blockOffset
+			const totalHeight=this.blockOffset
 
 			this.createColumn=()=>Object.assign(createColumn.call(this),{height:totalHeight})
 			this.recompose()
