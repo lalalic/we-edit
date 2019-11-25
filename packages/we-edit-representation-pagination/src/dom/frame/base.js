@@ -149,7 +149,6 @@ export default class Fixed extends Super{
 	positionLines(lines){
 		var y=0
 		const content=lines.map((a,i,me,{props:{height=0}}=a)=>{
-			debugger
 			const b=React.cloneElement(a,{key:i,y})
 			y+=height
 			return b
@@ -258,6 +257,14 @@ export default class Fixed extends Super{
 	}
 
 	recompose(pre){
+		/**
+		 * if it's empty frame, recompose would not happen
+		 */
+		if((this.lines.length+this.anchors.length)==0){
+			pre()
+			return void 0
+		}
+
 		const lastLines=[...this.lines]
 		const lastAnchors=[...this.anchors]
 

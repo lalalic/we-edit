@@ -30,28 +30,37 @@ export default class AnchorWrappable extends PaginationControllable{
 	**/
 	appendLine(line){
 		if(!line.props.anchor){
-			
+			if(this.computed.recomposing){
+				const anchorPlaced=new ReactQuery(line).findFirst(`[data-anchor="${this.computed.recomposing}]`).length==1
+				if(anchorPlaced){
+					return Frame.IMMEDIATE_STOP
+				}
+			}
+
 			if(line.props.blockOffset!=undefined){
 				const dy=line.props.blockOffset-this.blockOffset
-				const {height,width,pagination}=line.props
-				return super.appendLine(<Group {...{width,height:height+dy,pagination}}><Group y={dy}>{line}</Group></Group>)
+				if(dy>0){
+					debugger
+					const {height,width,pagination}=line.props
+					return super.appendLine(<Group {...{width,height:height+dy,pagination}}><Group y={dy}>{line}</Group></Group>)
+				}
 			}
 			
-
 			return super.appendLine(...arguments)
 		}
 
 		const anchored=line.props.anchor(this,line)
 		const {wrap,geometry,"data-content":anchorId}=anchored.props
 
-		this.appendComposed(anchored)
 		if( !(wrap && this.isDirtyIn(geometry))){
+			this.appendComposed(anchored)
 			return 1
 		}
 		let rollback
 		try{
 			const lastColumns=[...this.columns]
 			rollback=this.recompose(()=>{
+				this.anchors.push(anchored)
 				this.lines.push(line)
 				return anchorId
 			})
