@@ -163,25 +163,7 @@ export default class Columnable extends Fixed{
 			isAnchored
 		}
 	}
-
-	appendComposed(line){
-		const {height:requiredBlockSize, y}=line.props
-		if(y!=undefined){//anchored
-			return super.appendComposed(line)
-		}
-
-		const space=this.nextAvailableSpace({height:requiredBlockSize})
-		if(space==false){
-			return false
-		}
-
-		return this.appendLine(line)
-	}
-
-	appendLine(line){
-		this.currentColumn.children.push(line)
-	}
-
+	
 	isDirtyIn(rect){
 		if(this.wrappees.find(({props:{x,y,width,height}})=>this.isIntersect(rect,{x,y,width,height}))){
 			return true
