@@ -307,7 +307,7 @@ export default class Paragraph extends Super{
 	 * @param {*} last 
 	 */
 	createComposed2Parent(line,bLastLine){
-		const {height,width, children, anchor,blockOffset, props:{top=0}}=line
+		const {height,width, children, anchor, topToBlockOffset}=line
 		const {
 			numbering,
 			indent:{left=0,right=0, firstLine=0},
@@ -317,10 +317,9 @@ export default class Paragraph extends Super{
 			}=this.props
 		
 		const bFirstLine=this.computed.composed.length==1
-		
 		return (
 			<Group className="line"
-				height={top+height+(bLastLine&&bottom||0)} 
+				height={topToBlockOffset+height+(bLastLine&&bottom||0)} 
 				width={left+width+right} 
 				pagination={{
 					orphan,widow,keepWithNext,keepLines, 
@@ -328,11 +327,10 @@ export default class Paragraph extends Super{
 					last:bLastLine
 				}} 
 				anchor={anchor} 
-				blockOffset={blockOffset}
 				>
 				<Group 
 					x={left+(bFirstLine&&!numbering&&firstLine||0)} 
-					y={top} 
+					y={topToBlockOffset} 
 					width={width} 
 					height={height}>
 					{new this.constructor.Story({

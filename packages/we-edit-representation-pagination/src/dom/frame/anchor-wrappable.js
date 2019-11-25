@@ -36,16 +36,6 @@ export default class AnchorWrappable extends PaginationControllable{
 					return Frame.IMMEDIATE_STOP
 				}
 			}
-
-			if(line.props.blockOffset!=undefined){
-				const dy=line.props.blockOffset-this.blockOffset
-				if(dy>0){
-					debugger
-					const {height,width,pagination}=line.props
-					return super.appendLine(<Group {...{width,height:height+dy,pagination}}><Group y={dy}>{line}</Group></Group>)
-				}
-			}
-			
 			return super.appendLine(...arguments)
 		}
 

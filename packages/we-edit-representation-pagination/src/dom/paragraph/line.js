@@ -4,10 +4,14 @@ import {ReactQuery} from "we-edit"
 import {Layout} from "../../composable"
 
 /**
+ * height: line box height
+ * contentHeight: max of all atoms' height
+ * textHeight: max of text atoms' height, percentage line box height should be based on textHeight
+ * line block height: topToBlockOffset + height (content height), parent can add its own logic to change line height
  * 
  */
 export default class Line extends Component{
-	constructor({left, right, top=0,findInlineSegments}){
+	constructor({left, right, findInlineSegments}){
 		super(...arguments)
 		this.findInlineSegments=findInlineSegments||(()=>({segments:[{x:left, width:this.width}]}));
 		const segments=this.findInlineSegments(this.topToBlockOffset,left,right)
@@ -18,22 +22,25 @@ export default class Line extends Component{
 		return this.props.isAnchored(...arguments)
 	}
 
+	/** inline box height, considering props.lineHeight, content/text height */
 	get height(){
 		return this.getLineHeight()
 	}
-
+	/**max of all atoms' height */
 	get contentHeight() {
 		return this.items.reduce((H, { props: { height = 0 } }) => Math.max(H, height), 0);
     }
 
+	/**max of text atoms' height, percentage line box height should be based on textHeight */
     get textHeight(){
         return this.items.reduce((H, { props: { height = 0, descent:isText } }) => Math.max(H, isText ? height : 0), 0);
 	}	
 
+	/**where does last atom end with in inline size, for positioning only */
 	get currentX(){
 		return this.inlineSegments.currentX
 	}
-	
+	/** inline layout width */
 	get width(){
 		const {width=0,left=0, right=width}=this.props
 		return right-left
@@ -58,12 +65,8 @@ export default class Line extends Component{
 	get items(){
 		return [...this.props.positioned,...this.inlineSegments.items]
 	}
-	
-	get blockOffset(){
-		const {props:{blockOffset=0}}=this
-		return blockOffset+this.topToBlockOffset
-	}
 
+	/** the distance between line blockOffset  and line content top*/
 	get topToBlockOffset(){
 		const {props:{top:lineTop=0}, inlineSegments:{props:{top:opportunityTop=0}}={props:{}}}=this
 		return opportunityTop+lineTop
