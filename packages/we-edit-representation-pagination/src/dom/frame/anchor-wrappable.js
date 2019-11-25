@@ -50,14 +50,11 @@ export default class AnchorWrappable extends PaginationControllable{
 		/**
 		 * could normalize only to lines and anchors????
 		 */
-		const rollback=((rollback0,lastColumns)=>()=>{
-			rollback0()
-			this.columns=lastColumns
-		})(this.recompose(()=>{
+		const rollback=this.recompose(()=>{
 			this.anchors.push(anchored)
 			this.lines.push(line)
 			return anchorId
-		}), [...this.columns]);
+		})
 
 		/**
 		 * then check if this anchor is in this page

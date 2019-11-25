@@ -268,10 +268,13 @@ export default class Fixed extends Super{
 
 		const lastLines=[...this.lines]
 		const lastAnchors=[...this.anchors]
+		const lastColumns=this.isMultiBlocks ? [...this.columns] : undefined
 
 		const rollback=()=>{
 			this.lines=lastLines
 			this.anchors=lastAnchors
+			if(lastColumns)
+				this.columns=lastColumns
 		}
 
 		try{
