@@ -155,7 +155,6 @@ export default class Columnable extends Fixed{
 	}
 
 	nextAvailableSpace(required={}){
-		const {height:minRequiredH=0,blockOffset=this.blockOffset}=required
 		const space=super.nextAvailableSpace(...arguments)
 		if(space==false){
 			const isCurrentColumnEmpty=this.currentColumn.children.length==0
