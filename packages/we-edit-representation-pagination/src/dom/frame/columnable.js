@@ -24,7 +24,7 @@ export default class Columnable extends Fixed{
 				enumerable:true,
 				configurable:true,
 				get(){
-					this.currentColumn.availableBlockSize
+					return this.currentColumn.availableBlockSize
 				}
 			},
 			contentHeight:{
@@ -142,51 +142,33 @@ export default class Columnable extends Fixed{
 		)
 	}
 
-	nextAvailableSpace(required={}){
-		const {height:minRequiredH=0,blockOffset=this.blockOffset}=required
-		if((blockOffset+minRequiredH)-(this.currentColumn.height+(this.currentColumn.y||0))>1){//can't hold
-			if(this.currentColumn.children.length>0){//is not empty
-				if(this.cols.length>this.columns.length){// new column
-					this.createColumn()
-					return this.nextAvailableSpace({...required,blockOffset:undefined})
-				}else{
-					return false
-				}
-			}
-		}
-		const isAnchored=id=>this.isAnchored(id)
-		const {height,width,x}=this.currentColumn
+	getSpace(){
+		const {height,width,x,y}=this.currentColumn
 		const left=x, right=x+width
-		const wrappees=this.exclusive(blockOffset, blockOffset+minRequiredH, left, right)
-		if(typeof(wrappees)=="number"){
-			return this.nextAvailableSpace({...required,blockOffset:wrappees})
-		}
-
 		return {
+			x,y,
 			width,
 			height,
-			blockOffset:this.blockOffset,
-			top:blockOffset-this.blockOffset,
 			left,
 			right,
-			wrappees,
-			frame:this,
-			findInlineSegments:(height,left,right)=>{
-				const space=this.nextAvailableSpace({blockOffset:this.blockOffset,height})
-				if(space){
-					const {top,wrappees}=space
-					return {
-						top,
-						segments:wrappees.reduce((ops,{x,width})=>{
-							const [last]=ops.splice(-1)
-							return [...ops, {x:last.x,width:x-last.x},{x:x+width,width:right-x-width}]
-						},[{x:left,width:right-left}])
-					}
-				}
-				return space
-			},
-			isAnchored
 		}
+	}
+
+	nextAvailableSpace(required={}){
+		const {height:minRequiredH=0,blockOffset=this.blockOffset}=required
+		const space=super.nextAvailableSpace(...arguments)
+		if(space==false){
+			const isCurrentColumnEmpty=this.currentColumn.children.length==0
+			if(isCurrentColumnEmpty){
+				return super.nextAvailableSpace()
+			}
+			const hasMoreColumn=this.cols.length>this.columns.length
+			if(hasMoreColumn){
+				this.createColumn()
+				return super.nextAvailableSpace()
+			}
+		}
+		return space
 	}
 
 	isDirtyIn(rect){

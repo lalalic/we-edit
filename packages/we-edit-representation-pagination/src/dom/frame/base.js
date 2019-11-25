@@ -130,12 +130,14 @@ class Block extends Super{
 		}
 	}
 
+	getSpace(){
+		return this.props.space
+	}
+
 	nextAvailableSpace({height:requiredBlockSize=0}={}){
-		const {width,height,margin:{left=0,right=0}={}}=this.props
 		if(this.isEmpty()||this.availableBlockSize>=requiredBlockSize){
 			return {
-				left,
-				right:width-right,
+				...this.getSpace(),
 				blockOffset:this.blockOffset,
 				frame:this,
 				findInlineSegments:(requiredBlockSize,left,right)=>{
@@ -540,7 +542,15 @@ class OrphanControlable extends Anchorable{
 
 class Fixed extends OrphanControlable{
 	static Fixed=Fixed
-	
+	getSpace(){
+		const {width,height,margin:{left=0,right=0}={},x,y}=this.props
+		return {
+			x,y,
+			left,
+			right:width-right,
+			blockSize:height,
+		}
+	}
 	defineProperties(){
 		super.defineProperties()
 		Object.defineProperties(this,{
