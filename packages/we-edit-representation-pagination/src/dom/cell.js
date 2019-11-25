@@ -20,12 +20,17 @@ export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 			return Cell.getType()
 		}
 
-		appendLine({props:{height:requiredBlockSize}}){
-			/**cell is allowed to be empty in a fissure */
-			if(requiredBlockSize>this.availableBlockSize && this.isEmpty()){//can't hold
-				return false
+		nextAvailableSpace(required){
+			const space=super.nextAvailableSpace(...arguments)
+			if(space==false){
+				/**cell is allowed to be empty in a fissure, but normal frame is not allowed */
+				const {height:requiredBlockSize}=required
+				if(requiredBlockSize>this.blockOffset && this.isEmpty){
+					return false
+				}
 			}
-			return super.appendLine(...arguments)
+
+			return space
 		}
 
 		render(){
