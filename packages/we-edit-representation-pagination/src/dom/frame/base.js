@@ -104,12 +104,13 @@ export default class Fixed extends Super{
 
 	nextAvailableSpace({height:requiredBlockSize}={}){
 		const {width,height}=this.props
-		if(this.availableBlockSize>=requiredBlockSize){
+		if(this.isEmpty()||this.availableBlockSize>=requiredBlockSize){
 			return {
 				width,
 				height,
+				left:0,
+				right:width,
 				blockOffset:this.blockOffset,
-				top:0,
 			}
 		}
 		return false
@@ -262,7 +263,7 @@ export default class Fixed extends Super{
 		 */
 		if((this.lines.length+this.anchors.length)==0){
 			pre()
-			return void 0
+			return a=>a
 		}
 
 		const lastLines=[...this.lines]

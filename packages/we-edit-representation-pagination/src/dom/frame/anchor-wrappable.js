@@ -43,33 +43,40 @@ export default class AnchorWrappable extends PaginationControllable{
 		const {wrap,geometry,"data-content":anchorId}=anchored.props
 
 		if( !(wrap && this.isDirtyIn(geometry))){
-			this.appendComposed(anchored)
+			this.anchors.push(anchored)
 			return 1
 		}
-		let rollback
-		try{
-			const lastColumns=[...this.columns]
-			rollback=this.recompose(()=>{
-				this.anchors.push(anchored)
-				this.lines.push(line)
-				return anchorId
-			})
-			/**
-			 * then check if this anchor is in this page
-			 * data-anchor is placeholder specification in inline layout
-			 * */
-			const anchorPlaced=!!this.lines.findLast(a=>new ReactQuery(a).findFirst(`[data-anchor="${anchorId}]`).length==1)
-			if(anchorPlaced){
-				return 0+1
-			}else{
-				//recover
-				rollback()
-				this.columns=lastColumns
-				return false
-			}
-		}catch(e){
-			rollback()
+
+		/**
+		 * could normalize only to lines and anchors????
+		 */
+		const rollback=((rollback0,lastColumns)=>()=>{
+			rollback0()
 			this.columns=lastColumns
+		})(this.recompose(()=>{
+			this.anchors.push(anchored)
+			this.lines.push(line)
+			return anchorId
+		}), [...this.columns]);
+
+		/**
+		 * then check if this anchor is in this page
+		 * data-anchor is placeholder specification in inline layout
+		 * */
+		const anchorPlaced=!!this.lines.findLast(a=>new ReactQuery(a).findFirst(`[data-anchor="${anchorId}]`).length==1)
+		if(anchorPlaced){
+			/**
+			 * anchor and placeholder can be on same frame, so keep anchor, 
+			 * and re-layout the line
+			 */
+			rollback()
+			this.anchors.push(anchored)
+			return 0+1
+		}else{
+			/**
+			 * anchor and placeholder can NOT be on same frame, so throw to parent
+			 */
+			rollback()
 			return false
 		}
 	}
