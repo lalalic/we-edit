@@ -13,7 +13,8 @@ import {Layout} from "../../composable"
 export default class Line extends Component{
 	constructor({left, right, findInlineSegments}){
 		super(...arguments)
-		this.findInlineSegments=findInlineSegments||(()=>({segments:[{x:left, width:this.width}]}));
+		this.findInlineSegments=findInlineSegments
+			||(()=>({segments:[{x:left, width:this.width}]}));//@TODO: why is there no findInlineSegments some times? TEST ???
 		const segments=this.findInlineSegments(this.topToBlockOffset,left,right)
 		this.inlineSegments=Layout.InlineSegments.create({left,...segments})
 	}

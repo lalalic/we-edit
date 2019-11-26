@@ -270,7 +270,6 @@ export default class Paragraph extends Super{
 	 * *** every created line is appended IMMEDIATELY into composed, so the line index is from 1 in createComposed2Parent 
 	 */
     createLine(required){
-		debugger
 		const {width,positioned=[],left=0,right=width,...space}=this.nextAvailableSpace(required)
 		const {
 			indent:{left:indentLeft=0,right:indentRight=0,firstLine=0}, 
