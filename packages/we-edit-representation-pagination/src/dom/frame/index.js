@@ -1,3 +1,3 @@
-import AnchorWrappable from "./anchor-wrappable"
+import Balanceable from "./balanceable"
 
-export default AnchorWrappable
+export default Balanceable

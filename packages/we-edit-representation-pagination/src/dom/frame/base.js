@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 import {dom, ReactQuery} from "we-edit"
 
 import {Rect} from "../../tool/geometry"
-import composable,{HasParentAndChild} from "../../composable"
+import composable,{HasParentAndChild, Layout} from "../../composable"
 import {Frame as ComposedFrame, Group} from "../../composed"
 
 const Super=HasParentAndChild(dom.Frame)
