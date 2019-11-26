@@ -9,7 +9,7 @@ import Columnable from "./columnable"
 export default class Balanceable extends Columnable{
 	static Balanceable=Balanceable
 	onAllChildrenComposed(){
-		if(this.props.height==undefined && this.props.balance){
+		if(this.isMultiBlocks && this.props.balance){
 			this.balance()
 		}
 		super.onAllChildrenComposed(...arguments)

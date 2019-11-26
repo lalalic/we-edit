@@ -546,6 +546,186 @@ class OrphanControlable extends Anchorable{
 	static Fixed=OrphanControlable
 }
 
+class Columnable extends OrphanControlable{
+	defineProperties(){
+		super.defineProperties()
+		this.computed.columns=[]
+		Object.defineProperties(this,{
+			blockOffset:{
+				enumerable:false,
+				configurable:true,
+				get(){
+					return this.currentColumn.blockOffset
+				}
+			},
+			availableBlockSize:{
+				enumerable:true,
+				configurable:true,
+				get(){
+					return this.currentColumn.availableBlockSize
+				}
+			},
+			contentHeight:{
+				enumerable:false,
+				configurable:true,
+				get(){
+					return Math.max(...this.columns.map(a=>a.height))
+				}
+			},
+			currentColumn:{
+				enumerable:true,
+				configurable:true,
+				get(){
+					const columns=this.columns
+					if(columns.length==0)
+						this.createColumn()
+					return columns[columns.length-1]
+				}
+			},
+			cols:{
+				enumerable:false,
+				configurable:true,
+				get(){
+					const {
+						width,
+						cols=[{x:0,y:0,width}]
+					}=this.props
+					return cols
+				}
+			},
+			columns:{
+				enumerable:true,
+				configurable:true,
+				get(){
+					return this.computed.columns
+					/*
+					const cols=this.cols
+					const indexes=this.lines.reduce((cs,{props:{colEnd}},i)=>(colEnd ? [...cs,i+1] : cs),[0])
+					return indexes.map((startIndex,i)=>{
+							return Object.defineProperties({
+								height:this.props.height,
+								...cols[i],
+								children:ColumnChildren.create(this,startIndex)
+							},{
+								availableBlockSize:{
+									enumerable:false,
+									configurable:false,
+									get(){
+										if(this.height==undefined)
+											return Number.MAX_SAFE_INTEGER
+										return this.height-(this.blockOffset-this.y||0)
+									}
+								},
+								blockOffset:{
+									enumerable:true,
+									configurable:false,
+									get(){
+										return this.children.reduce((Y=0,{props:{height=0}})=>Y+height,this.y)
+									}
+								}
+							})
+						})
+						*/
+				},
+				set(values){
+					return this.computed.columns=values
+				}
+			},
+			lines:{
+				enumerable:true,
+				configurable:true,
+				get(){
+					return this.computed.composed
+				},
+				set(values){
+					if(values.length==0){
+						/**to Normalize clean of this.columns */
+						this.columns=[]
+					}
+					this.computed.composed=values
+				}
+			},
+			isMultiBlocks:{
+				enumerable:true,
+				configurable:true,
+				get(){
+					return this.cols.length>1
+				}
+			},
+			composedHeight:{
+				enumerable:true,
+				configurable:true,
+				get(){
+					return Math.max(...this.columns.map(a=>a.y+(a.height-a.availableBlockSize)))
+				}
+			}
+		})
+	}
+
+	createColumn(){
+		/**@TODO: remove column object to normalize columnable
+		const last=this.lines.pop()
+		if(last){
+			this.lines.push(React.cloneElement(last, {colEnd:true}))
+		}
+		*/
+		const column=Object.defineProperties({
+			height:this.props.height,
+			...this.cols[this.columns.length],
+			children:ColumnChildren.create(this)
+		},{
+			availableBlockSize:{
+				enumerable:false,
+				configurable:false,
+				get(){
+					if(this.height==undefined)
+						return Number.MAX_SAFE_INTEGER
+					return this.height-(this.blockOffset-this.y||0)
+				}
+			},
+			blockOffset:{
+				enumerable:true,
+				configurable:false,
+				get(){
+					return this.children.reduce((Y=0,{props:{height=0}})=>Y+height,this.y)
+				}
+			}
+		})
+		this.columns.push(column)
+		return column
+	}
+
+	getSpace(){
+		const {height,width,x,y}=this.currentColumn
+		const left=x, right=x+width
+		return {
+			x,y,
+			width,
+			height,
+			left,
+			right,
+		}
+	}
+
+	nextAvailableSpace(){
+		const space=super.nextAvailableSpace(...arguments)
+		if(space==false && this.isMultiBlocks){
+			const isCurrentColumnEmpty=this.currentColumn.children.length==0
+			if(isCurrentColumnEmpty){
+				/** not allow empty column, so ignore required*/
+				return super.nextAvailableSpace()
+			}
+			const hasMoreColumn=this.cols.length>this.columns.length
+			if(hasMoreColumn){
+				this.createColumn()
+				/** ignore required on a new column*/
+				return super.nextAvailableSpace()
+			}
+		}
+		return space
+	}
+}
+
 class Fixed extends OrphanControlable{
 	static Fixed=Fixed
 	getSpace(){

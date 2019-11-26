@@ -121,7 +121,6 @@ export default class Columnable extends Fixed{
 					return Math.max(...this.columns.map(a=>a.y+(a.height-a.availableBlockSize)))
 				}
 			}
-
 		})
 	}
 
@@ -178,7 +177,7 @@ export default class Columnable extends Fixed{
 	}
 
 	getSpace(){
-		const {height,width,x,y}=this.currentColumn
+		const {height,width,x,y}=this.isMultiBlocks ? this.currentColumn : this.cols[0]
 		const left=x, right=x+width
 		return {
 			x,y,
@@ -191,7 +190,7 @@ export default class Columnable extends Fixed{
 
 	nextAvailableSpace(){
 		const space=super.nextAvailableSpace(...arguments)
-		if(space==false){
+		if(space==false && this.isMultiBlocks){
 			const isCurrentColumnEmpty=this.currentColumn.children.length==0
 			if(isCurrentColumnEmpty){
 				/** not allow empty column, so ignore required*/
