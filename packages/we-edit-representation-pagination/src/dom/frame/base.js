@@ -134,8 +134,14 @@ class Block extends Super{
 		return this.props.space
 	}
 
+	/**
+	 * only when there are avaialable block 
+	 * Not allow empty frame
+	 * @param {*} param0 
+	 */
 	nextAvailableSpace({height:requiredBlockSize=0}={}){
-		if(this.isEmpty()||this.availableBlockSize>=requiredBlockSize){
+		if(this.isEmpty()
+			||this.availableBlockSize>=requiredBlockSize){
 			return {
 				...this.getSpace(),
 				blockOffset:this.blockOffset,

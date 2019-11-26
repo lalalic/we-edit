@@ -154,16 +154,18 @@ export default class Columnable extends Fixed{
 		}
 	}
 
-	nextAvailableSpace(required={}){
+	nextAvailableSpace(){
 		const space=super.nextAvailableSpace(...arguments)
 		if(space==false){
 			const isCurrentColumnEmpty=this.currentColumn.children.length==0
 			if(isCurrentColumnEmpty){
+				/** not allow empty column, so ignore required*/
 				return super.nextAvailableSpace()
 			}
 			const hasMoreColumn=this.cols.length>this.columns.length
 			if(hasMoreColumn){
 				this.createColumn()
+				/** ignore required on a new column*/
 				return super.nextAvailableSpace()
 			}
 		}
