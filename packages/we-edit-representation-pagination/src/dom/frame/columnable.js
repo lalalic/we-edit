@@ -38,9 +38,10 @@ export default class Columnable extends Fixed{
 				enumerable:true,
 				configurable:true,
 				get(){
-					if(this.columns.length==0)
+					const columns=this.columns
+					if(columns.length==0)
 						this.createColumn()
-					return this.columns[this.columns.length-1]
+					return columns[columns.length-1]
 				}
 			},
 			cols:{
@@ -59,6 +60,34 @@ export default class Columnable extends Fixed{
 				configurable:true,
 				get(){
 					return this.computed.columns
+					/*
+					const cols=this.cols
+					const indexes=this.lines.reduce((cs,{props:{colEnd}},i)=>(colEnd ? [...cs,i+1] : cs),[0])
+					return indexes.map((startIndex,i)=>{
+							return Object.defineProperties({
+								height:this.props.height,
+								...cols[i],
+								children:ColumnChildren.create(this,startIndex)
+							},{
+								availableBlockSize:{
+									enumerable:false,
+									configurable:false,
+									get(){
+										if(this.height==undefined)
+											return Number.MAX_SAFE_INTEGER
+										return this.height-(this.blockOffset-this.y||0)
+									}
+								},
+								blockOffset:{
+									enumerable:true,
+									configurable:false,
+									get(){
+										return this.children.reduce((Y=0,{props:{height=0}})=>Y+height,this.y)
+									}
+								}
+							})
+						})
+						*/
 				},
 				set(values){
 					return this.computed.columns=values
@@ -97,6 +126,12 @@ export default class Columnable extends Fixed{
 	}
 
 	createColumn(){
+		/**@TODO: remove column object to normalize columnable
+		const last=this.lines.pop()
+		if(last){
+			this.lines.push(React.cloneElement(last, {colEnd:true}))
+		}
+		*/
 		const column=Object.defineProperties({
 			height:this.props.height,
 			...this.cols[this.columns.length],

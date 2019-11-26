@@ -1,10 +1,4 @@
 //export default 
-class ProxyArray extends Array{
-    constructor(){
-        super()
-    }
-}
-
 
 export default class ColumnChildren{
     constructor(frame,startIndex=frame.computed.composed.length){
