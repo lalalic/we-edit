@@ -177,14 +177,10 @@ export default class Columnable extends Fixed{
 	}
 
 	getSpace(){
-		const {height,width,x,y}=this.isMultiBlocks ? this.currentColumn : this.cols[0]
-		const left=x, right=x+width
+		const {width,x}=this.isMultiBlocks ? this.currentColumn : this.cols[0]
 		return {
-			x,y,
-			width,
-			height,
-			left,
-			right,
+			left:x,
+			right:x+width,
 		}
 	}
 

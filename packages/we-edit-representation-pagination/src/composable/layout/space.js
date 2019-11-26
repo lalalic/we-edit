@@ -1,14 +1,15 @@
 /**
  * it's to describe space that layout engine use
- * width: inline size
- * height: block size
+ * left <--> right: inline size
  * blockOffset: current block offset
- * exclusives: excluded areas in a space
+ * bottom: last block layout opportunities
+ * wrappees: excluded areas in a space
+ * blockOffset <---> bottom: block size
  */
 
 /**
- * space can be constrained by inline size, block size, or both
- * exclusives affected
+ * space can be constrained by inline size, block size, or both, 
+ * and exclusive wrappees
  */
 import React,{Component} from "react"
 import PropTypes from "prop-types"

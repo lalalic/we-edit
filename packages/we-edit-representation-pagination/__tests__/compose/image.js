@@ -6,12 +6,12 @@ import {render} from "../context"
 import {define} from "./index"
 
 define("paragraph compose",
-({dom:{Paragraph, Text, Image}, testing, CONTEXT, Context, WithTextContext, WithParagraphContext})=>{
+({dom:{Paragraph, Text, Image}, testing, CONTEXT, Context, WithTextContext, WithParagraphContext,ConstraintSpace})=>{
     const test=props=>{
         const context={...Context,exclusive:()=>[],...CONTEXT}
-        const nextAvailableSpace=context.parent.nextAvailableSpace=jest.fn(()=>({
+        const nextAvailableSpace=context.parent.nextAvailableSpace=jest.fn(()=>(ConstraintSpace.create({
             width:10,height:100
-        }))
+        })))
         const appendComposed=context.parent.appendComposed=jest.fn()
         const renderer=render(
             <WithParagraphContext context={context}>

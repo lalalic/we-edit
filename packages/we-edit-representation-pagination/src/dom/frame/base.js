@@ -131,7 +131,8 @@ class Block extends Super{
 	}
 
 	getSpace(){
-		return this.props.space
+		const {width,height,space={left:0,right:width}}=this.props
+		return space
 	}
 
 	/**
@@ -142,9 +143,10 @@ class Block extends Super{
 	nextAvailableSpace({height:requiredBlockSize=0}={}){
 		if(this.isEmpty()
 			||this.availableBlockSize>=requiredBlockSize){
-			return {
+			return Layout.ConstraintSpace.create({
 				...this.getSpace(),
 				blockOffset:this.blockOffset,
+				height:this.availableBlockSize,
 				frame:this,
 				findInlineSegments:(requiredBlockSize,left,right)=>{
 					const blockOffset=this.blockOffset
@@ -167,7 +169,7 @@ class Block extends Super{
 					return space
 				},
 				isAnchored:id=>this.isAnchored(id)
-			}
+			})
 		}
 		return false
 	}

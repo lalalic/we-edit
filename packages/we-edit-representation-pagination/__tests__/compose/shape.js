@@ -6,7 +6,7 @@ import {render,context} from "../context"
 import {define} from "./index"
 
 define("paragraph compose",
-({dom:{Paragraph, Text,Shape,Frame,Table,Row,Cell}, testing, WithTextContext, WithParagraphContext})=>{
+({dom:{Paragraph, Text,Shape,Frame,Table,Row,Cell}, testing, WithTextContext, WithParagraphContext,ConstraintSpace})=>{
     const parent={}
     const Context=context({
         contextTypes:{
@@ -27,13 +27,13 @@ define("paragraph compose",
     })
 
     it("can be empty",()=>{
-        parent.nextAvailableSpace.mockReturnValueOnce({width:100,height:100})
+        parent.nextAvailableSpace.mockReturnValueOnce(ConstraintSpace.create({width:100,height:100}))
         const {}=render(<Context><Shape {...{width:100,height:100,id:"shape"}}/></Context>)
     })
 
     it("with text",()=>{
         var composed
-        parent.nextAvailableSpace.mockReturnValueOnce({width:100,height:100})
+        parent.nextAvailableSpace.mockReturnValueOnce(ConstraintSpace.create({width:100,height:100}))
         parent.appendComposed.mockImplementationOnce(a=>composed=a)
         render(
             <Context>
@@ -50,7 +50,7 @@ define("paragraph compose",
     it("with table",()=>{
         var u=9
         var composed
-        parent.nextAvailableSpace.mockReturnValueOnce({width:100,height:100})
+        parent.nextAvailableSpace.mockReturnValueOnce(ConstraintSpace.create({width:100,height:100}))
         parent.appendComposed.mockImplementationOnce(a=>composed=a)
         render(
             <Context>
@@ -72,7 +72,7 @@ define("paragraph compose",
     describe("size",()=>{
         const test=(props={width:100,height:100})=>{
             var composed
-            parent.nextAvailableSpace.mockReturnValueOnce({width:100,height:100})
+            parent.nextAvailableSpace.mockReturnValueOnce(ConstraintSpace.create({width:100,height:100}))
             parent.appendComposed.mockImplementationOnce(a=>composed=a)
             render(<Context><Shape {...{...props,id:"shape"}}/></Context>)
             expect(parent.appendComposed).toHaveBeenCalledTimes(1)

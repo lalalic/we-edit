@@ -5,6 +5,7 @@ import {ReactQuery} from "we-edit"
 import {render, provider, Measure, defaultProps,context,$} from "../context"
 
 import {Viewers, Editors} from "../../src"
+import ConstraintSpace from "../../src/composable/layout/space"
 
 export function define(feature, tests){
     describe.each([
@@ -22,7 +23,7 @@ export function define(feature, tests){
     	})
 
         describe(feature, ()=>{
-            tests({dom, CONTEXT, Context, WithTextContext, WithParagraphContext, testing})
+            tests({dom, CONTEXT, Context, WithTextContext, WithParagraphContext, testing,ConstraintSpace })
         })
     })
 }

@@ -270,7 +270,8 @@ export default class Paragraph extends Super{
 	 * *** every created line is appended IMMEDIATELY into composed, so the line index is from 1 in createComposed2Parent 
 	 */
     createLine(required){
-		const {width,positioned=[],left=0,right=width,...space}=this.nextAvailableSpace(required)
+		const space=this.nextAvailableSpace(required)
+		const {width,positioned=[],left=0,right=width}=space
 		const {
 			indent:{left:indentLeft=0,right:indentRight=0,firstLine=0}, 
 			numbering, 
@@ -282,14 +283,14 @@ export default class Paragraph extends Super{
 			positioned.push(this.getNumberingAtom())
 		}
 		
-		const line=new this.constructor.Line({
+		const line=new this.constructor.Line(space.clone({
 			...space, 
 			positioned, 
 			top:bFirstLine ? top : undefined, 
 			left:left+indentLeft+(bFirstLine&&!numbering&&firstLine||0), 
 			right:right-indentRight,
 			lineHeight
-		},{parent:this})
+		}),{parent:this})
 
 		this.computed.composed.push(line)
 		return line

@@ -6,16 +6,16 @@ import {render} from "../context"
 import {define} from "./index"
 
 define("paragraph compose",
-({dom:{Paragraph, Text}, testing, CONTEXT, Context, WithTextContext, WithParagraphContext})=>{
+({dom:{Paragraph, Text}, testing, CONTEXT, Context, WithTextContext, WithParagraphContext,ConstraintSpace})=>{
     const TEXT="hello world"
     const test=(lineWidth=5,spacing={}, indent={},align, text=TEXT, numbering)=>{
         const context={...Context,exclusive:()=>[],...CONTEXT}
         if(testing=="editor"){
             context.numbering=()=>'*'
         }
-        const nextAvailableSpace=context.parent.nextAvailableSpace=jest.fn(()=>({
+        const nextAvailableSpace=context.parent.nextAvailableSpace=jest.fn(()=>(ConstraintSpace.create({
             width:lineWidth,height:100
-        }))
+        })))
         const appendComposed=context.parent.appendComposed=jest.fn()
         const renderer=render(
             <WithParagraphContext context={context}>
