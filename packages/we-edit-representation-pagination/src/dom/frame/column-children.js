@@ -7,13 +7,13 @@ class ProxyArray extends Array{
 
 
 export default class ColumnChildren{
-    constructor(frame){
+    constructor(frame,startIndex=frame.computed.composed.length){
 		this.frame=frame
-        this.startIndex=frame.computed.composed.length
+        this.startIndex=startIndex
     }
     
-    static create(frame){
-        return new Proxy(new ColumnChildren(frame),{
+    static create(){
+        return new Proxy(new ColumnChildren(...arguments),{
             get(obj, prop){
                 switch(prop){
                 case Symbol.isConcatSpreadable:
