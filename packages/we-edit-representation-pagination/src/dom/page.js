@@ -13,26 +13,6 @@ const factory=MyFrame=>class __$1 extends MyFrame{
 	static propTypes=dom.Page.propTypes||{}
 	static defaultProps=dom.Page.defaultProps||{}
 
-	static childContextTypes={
-		...MyFrame.childContextTypes,
-		isAnchored:PropTypes.func,
-        exclusive: PropTypes.func,
-	}
-
-	getChildContext(){
-        const me=this
-        function isAnchored(){
-            return me.isAnchored(...arguments)
-        }
-        function exclusive(){
-            return me.exclusive(...arguments)
-        }
-        return Object.assign(super.getChildContext(),{
-            isAnchored,
-            exclusive,
-        })
-    }
-
 	defineProperties(){
 		super.defineProperties()
 		Object.defineProperties(this,{

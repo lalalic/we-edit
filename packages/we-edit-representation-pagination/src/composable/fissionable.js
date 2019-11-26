@@ -15,11 +15,6 @@ export default (A)=>class __$1 extends A{
         ModelTypes: PropTypes.object,
         prevLayout: PropTypes.func,
 	}
-	static childContextTypes={
-        ...A.childContextTypes,
-        isAnchored:PropTypes.func,
-        exclusive: PropTypes.func,
-    }
 
     static displayName=`fissionable-${A.displayName}`
 
@@ -35,20 +30,6 @@ export default (A)=>class __$1 extends A{
 	get Fission(){
 		return memoize((Base)=>this.constructor.fissureLike(Base))(this.context.ModelTypes.Frame)
 	}
-
-    getChildContext(){
-        const me=this
-        function isAnchored(){
-            return me.current.isAnchored(...arguments)
-        }
-        function exclusive(){
-            return me.current.exclusive(...arguments)
-        }
-        return Object.assign(super.getChildContext(),{
-            isAnchored,
-            exclusive,
-        })
-    }
 
 	named(name){
 		return this.computed.named[name]
