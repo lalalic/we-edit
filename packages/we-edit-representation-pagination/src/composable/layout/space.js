@@ -124,7 +124,7 @@ import Group from "../../composed/group"
         segments:PropTypes.arrayOf(InlineSegment)
     }
 
-    static create({segments,...props}){
+    static create({segments=[],...props}){
         return new InlineSegments({segments:segments.map(a=>new InlineSegment(a)),...props})
     }
 
