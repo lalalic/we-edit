@@ -7,16 +7,38 @@ import {HasParentAndChild} from "../composable"
 const Super=HasParentAndChild(dom.Row)
 
 /**
-create rank only when cell request next availableSpace
-rank's height is not always correct, how to fix it??? when add new cell, the height should be fixed
+ * terms:
+ * Rank: a composed line, a row may have more than one rank, rank apply vertAlign
+ * Slot: a composed cell segment, 
+ * create rank only when cell request next availableSpace
+ * when add rank to parent layout?
+ * 2. all children composed, then blockOffset can't be determined, so it's not possible
+ * 1. first cell segment
+ * ***
+ * >rank's height is not always correct, how to fix it??? 
+ * ***every time new cell segment appended, the height can be fixed
+ * >why rank's height must be fixed? 
+ * ***border
+ * 
+ * 
+ * Row defines each cell height and width
+ * 
+ * computed.composed is 2-d matrix, [col][slot,slot,...]
+ * compued.spaces is [rank space,...]
+ * rank		space\col	col1	col2 	...
+ * rank1	space1		slot11	slot21	
+ * rank2	space2		slot12	slot22
+ * ...		...	 		...	 	...
+ * 
 */
 export default class __$1 extends Super{
 	constructor(){
 		super(...arguments)
 		this.computed.spaces=[]
+		this.computed.slots=[]
 	}
 
-	get width(){
+	get width(){//used by calc row range
 		return this.closest("table").props.width
 	}
 
@@ -28,7 +50,12 @@ export default class __$1 extends Super{
 		}
 	}
 
+	/**
+	 * 
+	 * @param {*} cell 
+	 */
 	appendComposed(cell){
+		this.computed.slots.push(cell)
 		if(!this.currentColumn[0]){
 			this.currentColumn.push(cell)
 		}else if(this.cellId(this.currentColumn[0])==this.cellId(cell)){
@@ -79,7 +106,43 @@ export default class __$1 extends Super{
 		return this.computed.spaces[this.currentColumn.length-1]
 	}
 
-	nextAvailableSpace({height:minHeight=0,id:requiredId}){
+	/**
+	 * request a rank space from up, and then
+	 * create space for each cell
+	 * when a cell request space, we need at first determin which rank, then we can determin 
+	 * 1. request rank space from up
+	 * 2. or calc cell space from rank space
+	 * How to determin which rank when cell request space???
+	 * ** use cellId to query rank
+	 * 
+	 * don't use required height, since later cell may fit in
+	 * if there's no cell slot fit in, we can delete the whole rank later 
+	 * 
+	 * 
+	 * @param {*} param0 
+	 */
+	nextAvailableSpace({height:minHeight=0,id:cellId}){
+		/*
+		const {cols}=this.props
+		const colIndex=getColIndexForCell(cellId)
+		const rankIndex=getRankIndexForCell(cellId)
+		let rankSpace=this.rankSpaces[rankIndex]
+		if(!rankSpace){
+			/**request new rank space
+			this.rankSpaces.push(rankSpace=super.nextAvailableSpace())
+
+		}else if(rankSpace.height<minHeight){
+			/**rankSpace can't meet required
+			//use next rank
+			if(!(rankSpace=this.rankSpaces[rankIndex+1])){
+				this.rankSpaces.push(rankSpace=super.nextAvailableSpace())
+			}
+		}
+		console.assert(rankSpace,"can't request rank space ????")
+
+		return rankSpace.clone(cols[colIndex])
+
+*/
 		var height,width
 		const {cols}=this.props
 		if(!this.currentColumn[0]){
@@ -87,7 +150,7 @@ export default class __$1 extends Super{
 			this.computed.spaces=[space]
 			height=space.height
 			width=cols[0].width
-		}else if(this.cellId(this.currentColumn[0])==requiredId){
+		}else if(this.cellId(this.currentColumn[0])==cellId){
 			if(this.ranks<this.currentColumn.length+1){
 				debugger
 				const rank=this.createComposed2Parent()

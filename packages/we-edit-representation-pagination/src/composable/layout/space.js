@@ -2,9 +2,8 @@
  * it's to describe space that layout engine use
  * left <--> right: inline size
  * blockOffset: current block offset
- * bottom: last block layout opportunities
+ * height: available block size, blockOffset <--->last block layout opportunities
  * wrappees: excluded areas in a space
- * blockOffset <---> bottom: block size
  */
 
 /**

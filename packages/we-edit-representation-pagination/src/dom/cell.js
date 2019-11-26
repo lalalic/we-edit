@@ -5,6 +5,10 @@ import {dom} from "we-edit"
 import {Group} from "../composed"
 import {HasParentAndChild, Fissionable} from "../composable"
 
+/**
+ * Cell is fissionable
+ * commit all when all composed????
+ */
 export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 	static fissureLike=Frame=>class __$1 extends Frame{
 		static displayName="frame-cell"
@@ -45,9 +49,19 @@ export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 				+margin.bottom
 	}
 
+	/**
+	 * space is defined by row->table->parent space, so it has to require space up
+	 * when current cell space is full, it's called to create new cell space by require space up AFTER
+	 * *** commit current composed to parent, 
+	 * Or commit all when all composed???? No, blockOffset can't be determined from second segment
+	 * @param {*} props 
+	 * @param {*} context 
+	 * @param {*} required 
+	 */
 	create(props,context,required={}){
 		if(this.computed.composed.length>0){
 			if(this.current.isEmpty()){
+				/**???? */
 				this.computed.composed.pop()
 			}else{
 				this.context.parent.appendComposed(this.createComposed2Parent())
@@ -69,8 +83,6 @@ export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 
 	createComposed2Parent(){
 		const {border, margin, background,vertAlign}=this.props
-		const contentHeight=this.current.blockOffset
-		const height=contentHeight+this.nonContentHeight
 		const width=this.current.props.width+margin.left+margin.right
 		return (
 			<this.constructor.ComposedCell {...{

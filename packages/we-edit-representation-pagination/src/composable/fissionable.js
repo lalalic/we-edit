@@ -40,7 +40,13 @@ export default (A)=>class __$1 extends A{
             this.create()
 		return this.computed.composed[this.computed.composed.length-1]
 	}
-
+    /**
+     * create a block layout engine with a ensured space {left,right,blockOffset,height,wrappees}
+     * when current space is full, it would be called
+     * @param {*} props 
+     * @param {*} context 
+     * @param {*} requiredSpace 
+     */
     create(props={},context={},requiredSpace){
         const a=this.props.create.bind(this)(
             {...props,id:this.props.id, i:this.computed.composed.length, named:this.named.bind(this)},
