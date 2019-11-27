@@ -15,16 +15,19 @@ const Super=HasParentAndChild(dom.Table)
 export default class Table extends Super{
 	/** table defines row width, but block size is ensured by parent space */
 	//***simplified: not consider wrappees
-	nextAvailableSpace(){
-		const availableSpace=this.context.parent.nextAvailableSpace(...arguments)
-		return {...availableSpace, width: this.props.width}
+	//if table height is specified, it should be considered to require space
+	//table width has nothing to do with cell layout since row has cols to constraint cell layout space
+	nextAvailableSpace({height:requiredBlockSize=0}={}){
+		const {width,height=0}=this.props
+		return this.context.parent.nextAvailableSpace({height:Math.max(height,requiredBlockSize)})
 	}
 
 	/**row call it to append a block of row*/
 	createComposed2Parent(row){
+		const {width,indent}=this.props
 		return (
-			<Group width={this.props.width} height={row.props.height}>
-				{React.cloneElement(row,{x:this.props.indent})}
+			<Group width={width} height={row.props.height}>
+				{React.cloneElement(row,{x:indent})}
 			</Group>
 		)
 	}
