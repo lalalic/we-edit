@@ -20,23 +20,23 @@ export default Cacheable(class __$1 extends editable(Base,{stoppable:true,contin
 	 * thinking: request space may change space, so should only checking requesting space be allowed not to change space
 	 */
 	appendLastComposed(){
-		if(this.computed.spaces.length!=this.computed.lastComposed.length){
+		if(this.spaces.length!=this.computed.lastComposed.length){
 			console.warn("something wrong for this row")
 			return false
 		}
 		const space=this.context.parent.nextAvailableSpace()
-		if(this.computed.spaces.length==1){
+		if(this.spaces.length==1){
 			const rank=this.computed.lastComposed[0]
 			if(space.height>=rank.props.height){
 				this.context.parent.appendComposed(rank)
-				this.computed.spaces=[space]
+				this.spaces=[space]
 				return
 			}
-		}else if(this.computed.spaces.length>1){
-			if(space.height==this.computed.spaces[0].height){
-				this.computed.spaces=[]
+		}else if(this.spaces.length>1){
+			if(space.height==this.spaces[0].height){
+				this.spaces=[]
 				this.computed.lastComposed.forEach(rank=>{
-					this.computed.spaces.push(this.context.parent.nextAvailableSpace({height:rank.props.height}))
+					this.spaces.push(this.context.parent.nextAvailableSpace({height:rank.props.height}))
 					this.context.parent.appendComposed(rank)
 				})
 				return
@@ -46,7 +46,7 @@ export default Cacheable(class __$1 extends editable(Base,{stoppable:true,contin
 	}
 
 	injectEmptyCellIntoRank(rank,parents,frame){
-		if(this.computed.spaces[0].frame==frame
+		if(this.spaces[0].frame==frame
 			&& this.computed.lastComposed.length>0){//the initial rank can't be used as cache
 			this.computed.lastComposed=[]
 		}

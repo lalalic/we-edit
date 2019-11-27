@@ -39,22 +39,43 @@ const Super=HasParentAndChild(dom.Row)
 export default class __$1 extends Super{
 	constructor(){
 		super(...arguments)
-		this.rankSpaces=this.computed.spaces=[]
+		this.computed.spaces=[]
 		this.slots=this.computed.slots=[]
-		this.columns=this.computed.composed
+		Object.defineProperties(this,{
+			columns:{
+				enumerable:true,
+				configurable:true,
+				get(){
+					return this.computed.composed
+				},
+				set(value){
+					this.computed.composed=value
+				}
+			},
+			spaces:{
+				enumerable:true,
+				configurable:true,
+				get(){
+					return this.computed.spaces
+				},
+				set(value){
+					this.computed.spaces=value
+				}
+			}
+		})
 	}
 	get currentColumn(){
-		if(this.computed.composed.length==0)
-			this.computed.composed.push([])
-		return this.computed.composed[this.computed.composed.length-1]
+		if(this.columns.length==0)
+			this.columns.push([])
+		return this.columns[this.columns.length-1]
 	}
 
 	get ranks(){
-		return this.computed.composed.reduce((c,a)=>Math.max(c,a.length),0)
+		return this.columns.reduce((c,a)=>Math.max(c,a.length),0)
 	}
 
 	get currentSpace(){
-		return this.computed.spaces[this.currentColumn.length-1]
+		return this.spaces[this.currentColumn.length-1]
 	}
 	
 	get width(){//used by calc row range
@@ -98,7 +119,7 @@ export default class __$1 extends Super{
 		}else if(this.cellId(this.currentColumn[0])==this.cellId(cell)){
 			this.currentColumn.push(cell)
 		}else{
-			this.computed.composed.push([cell])
+			this.columns.push([cell])
 		}
 		if(!this.currentSpace)
 			return
@@ -115,7 +136,7 @@ export default class __$1 extends Super{
 				return
 
 			const cells=rank.attr("children")
-			cells[this.computed.composed.length-1]=cell
+			cells[this.columns.length-1]=cell
 
 			//fix rank's height
 			const height=this.getHeight(cells)
@@ -171,7 +192,7 @@ export default class __$1 extends Super{
 		var space=this.currentSpace, col
 		const {cols,keepLines}=this.props
 		if(!this.currentColumn[0]){
-			this.computed.spaces=[space=super.nextAvailableSpace(...arguments)]
+			this.spaces=[space=super.nextAvailableSpace(...arguments)]
 			col=cols[0]
 		}else if(this.cellId(this.currentColumn[0])==cellId){
 			if(this.ranks<this.currentColumn.length+1){
@@ -182,18 +203,18 @@ export default class __$1 extends Super{
 						console.error(`row[${this.props.id}] can't be appended with rollback again, ignore`)
 					}
 				}
-				this.computed.spaces.push(space=super.nextAvailableSpace(...arguments))
+				this.spaces.push(space=super.nextAvailableSpace(...arguments))
 			}else{
 				if(this.currentColumn.height<minHeight){
-					space=this.computed.spaces[this.currentColumn.length]=super.nextAvailableSpace(...arguments)
+					space=this.spaces[this.currentColumn.length]=super.nextAvailableSpace(...arguments)
 				}
 			}
-			col=cols[this.computed.composed.length-1]
+			col=cols[this.columns.length-1]
 		}else{//next column
-			if(this.computed.spaces[0].height<minHeight){
-				space=this.computed.spaces[0]=super.nextAvailableSpace(...arguments)
+			if(this.spaces[0].height<minHeight){
+				space=this.spaces[0]=super.nextAvailableSpace(...arguments)
 			}
-			col=cols[this.computed.composed.length]
+			col=cols[this.columns.length]
 		}
 		
 		const {left}=space
@@ -210,7 +231,7 @@ export default class __$1 extends Super{
 		const cells=rank.attr("children")
 		cells.splice(cells.length,0,...new Array(this.props.cols.length-cells.length).fill(null))
 		cells.forEach((a,j)=>{
-			cells[j]=a||React.cloneElement(this.computed.composed[j][0],{height,frame:undefined})
+			cells[j]=a||React.cloneElement(this.columns[j][0],{height,frame:undefined})
 		})
 
 		//fix height of each cell
@@ -242,7 +263,7 @@ export default class __$1 extends Super{
 		})();
 
 		//fill empty cell for each rank, and
-		this.computed.spaces.forEach(({frame})=>{
+		this.spaces.forEach(({frame})=>{
 			const {first:rank,parents}=new ReactQuery(frame.lastLine)
 				.findFirstAndParents(`[data-content="${this.props.id}"]`)
 			if(!rank.length){
