@@ -192,12 +192,15 @@ export default class __$1 extends Super{
 		*/
 
 		var space=this.currentSpace, col
-		const {cols,keepLines}=this.props
+		const {cols,keepLines,height}=this.props
 		if(!this.currentColumn[0]){
-			this.spaces.push(space=super.nextAvailableSpace(...arguments))
+			//requesting for first slot, request space
+			this.spaces[0]=space=super.nextAvailableSpace({height})
 			col=cols[0]
 		}else if(this.cellId(this.currentColumn[0])==cellId){
-			if(this.totalRank<this.currentColumn.length+1){
+			//requesting for current column
+			if(this.currentColumn.length+1>this.totalRank){
+				//no rank space, commit last rank, and request space
 				const rank=this.createComposed2Parent()
 				if(1==this.context.parent.appendComposed(rank)){
 					if(1==this.context.parent.appendComposed(rank)){
@@ -205,16 +208,24 @@ export default class __$1 extends Super{
 						console.error(`row[${this.props.id}] can't be appended with rollback again, ignore`)
 					}
 				}
-				this.spaces.push(space=super.nextAvailableSpace(...arguments))
+				//use requested rank space
+				this.spaces.push(space=super.nextAvailableSpace({height}))
 			}else{
-				if(this.currentColumn.height<minHeight){
-					space=this.spaces[this.currentColumn.length]=super.nextAvailableSpace(...arguments)
+				//rank space exists, use existing rank space
+				space=this.spaces[this.currentColumn.length]
+				if(space.height<minHeight){
+					//space can't meet required, request space up
+					//REPACE exist ??? valid ONLY WHEN rank has not been appended to space ??? valid
+					space=this.spaces[this.currentColumn.length]=super.nextAvailableSpace({height})
 				}
 			}
 			col=cols[this.columns.length-1]
 		}else{//next column
-			if(this.spaces[0].height<minHeight){
-				space=this.spaces[0]=super.nextAvailableSpace(...arguments)
+			space=this.spaces[0]
+			if(space.height<minHeight){
+				//space can't meet required, request space up
+				//REPACE exist ??? valid ONLY WHEN rank has not been appended to space ??? valid
+				space=this.spaces[0]=super.nextAvailableSpace({height})
 			}
 			col=cols[this.columns.length]
 		}
