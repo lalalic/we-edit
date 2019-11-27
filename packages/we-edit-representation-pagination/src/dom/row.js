@@ -26,18 +26,37 @@ const Super=HasParentAndChild(dom.Row)
  * computed.composed is 2-d matrix, [col][slot,slot,...]
  * compued.spaces is [rank space,...]
  * rank		space\col	col1	col2 	...
- * rank1	space1		slot11	slot21	
- * rank2	space2		slot12	slot22
+ * rank1	space1		slot11		
+ * rank2	space2		slot12	slot21
  * ...		...	 		...	 	...
  * 
+ * 
+ * when append Rank to space, #1 is simple and chosen
+ * 1> request rank space, then add empty Rank placeholder, then adjust rank every time a slot committed
+ * 2> before requesting rank space, commit last Rank placeholder, do what #1 would do
+ * 3> all children composed : affect blockOffset, so it's NOT possible
 */
 export default class __$1 extends Super{
 	constructor(){
 		super(...arguments)
-		this.computed.spaces=[]
-		this.computed.slots=[]
+		this.rankSpaces=this.computed.spaces=[]
+		this.slots=this.computed.slots=[]
+		this.columns=this.computed.composed
+	}
+	get currentColumn(){
+		if(this.computed.composed.length==0)
+			this.computed.composed.push([])
+		return this.computed.composed[this.computed.composed.length-1]
 	}
 
+	get ranks(){
+		return this.computed.composed.reduce((c,a)=>Math.max(c,a.length),0)
+	}
+
+	get currentSpace(){
+		return this.computed.spaces[this.currentColumn.length-1]
+	}
+	
 	get width(){//used by calc row range
 		return this.closest("table").props.width
 	}
@@ -50,12 +69,30 @@ export default class __$1 extends Super{
 		}
 	}
 
+	getColIndexForCell(id){
+
+	}
+
+	getRankIndexForCell(id){
+
+	}
+
 	/**
+	 * rank space must already be ready
+	 * put it into correct column[i].push(cell)
 	 * 
 	 * @param {*} cell 
 	 */
 	appendComposed(cell){
+		/*
 		this.computed.slots.push(cell)
+		const colIndex=this.getColIndexForCell(cellId)
+		const rankIndex=this.getRankIndexForCell(cellId)
+		this.columns[colIndex].push(cell)
+		this.rankSpaces[rankIndex].frame.lastLine.rank.children[colIndex]=cell
+		
+		this.computed.slots.push(cell)
+		*/
 		if(!this.currentColumn[0]){
 			this.currentColumn.push(cell)
 		}else if(this.cellId(this.currentColumn[0])==this.cellId(cell)){
@@ -92,20 +129,6 @@ export default class __$1 extends Super{
 		}
 	}
 
-	get currentColumn(){
-		if(this.computed.composed.length==0)
-			this.computed.composed.push([])
-		return this.computed.composed[this.computed.composed.length-1]
-	}
-
-	get ranks(){
-		return this.computed.composed.reduce((c,a)=>Math.max(c,a.length),0)
-	}
-
-	get currentSpace(){
-		return this.computed.spaces[this.currentColumn.length-1]
-	}
-
 	/**
 	 * request a rank space from up, and then
 	 * create space for each cell
@@ -115,34 +138,36 @@ export default class __$1 extends Super{
 	 * How to determin which rank when cell request space???
 	 * ** use cellId to query rank
 	 * 
-	 * don't use required height, since later cell may fit in
+	 * don't use required height to request space, since later cell slot may fit in
+	 * but use row height to request block size space if height defined
 	 * if there's no cell slot fit in, we can delete the whole rank later 
 	 * 
-	 * 
+	 * **every time requesting space, a rank placeholder height=0 would be appended to take the space
+	 * **then height will be corrected every time a slot appended
 	 * @param {*} param0 
 	 */
 	nextAvailableSpace({height:minHeight=0,id:cellId}){
 		/*
-		const {cols}=this.props
-		const colIndex=getColIndexForCell(cellId)
-		const rankIndex=getRankIndexForCell(cellId)
+		const {cols,height}=this.props
+		const colIndex=this.getColIndexForCell(cellId)
+		const rankIndex=this.getRankIndexForCell(cellId)
 		let rankSpace=this.rankSpaces[rankIndex]
 		if(!rankSpace){
-			/**request new rank space
-			this.rankSpaces.push(rankSpace=super.nextAvailableSpace())
-
+			//**request new rank space
+			this.rankSpaces.push(rankSpace=super.nextAvailableSpace({height}))
+			this.context.parent.appendComposed(this.createComposed2Parent())
+			//append a rank placeholder
 		}else if(rankSpace.height<minHeight){
-			/**rankSpace can't meet required
+			//**rankSpace can't meet required
 			//use next rank
 			if(!(rankSpace=this.rankSpaces[rankIndex+1])){
-				this.rankSpaces.push(rankSpace=super.nextAvailableSpace())
+				this.rankSpaces.push(rankSpace=super.nextAvailableSpace({height}))
+				this.context.parent.appendComposed(this.createComposed2Parent())
 			}
 		}
-		console.assert(rankSpace,"can't request rank space ????")
-
 		return rankSpace.clone(cols[colIndex])
+		*/
 
-*/
 		var height,width
 		const {cols}=this.props
 		if(!this.currentColumn[0]){
@@ -183,6 +208,7 @@ export default class __$1 extends Super{
 			height=Number.MAX_SAFE_INTEGER
 		}
 		return {width, height}
+
 	}
 
 	injectEmptyCellIntoRank(rank,parents){
@@ -233,13 +259,15 @@ export default class __$1 extends Super{
 		super.onAllChildrenComposed()
 	}
 
-	createComposed2Parent(bLast=false){
-		const {props:{cols}, width, computed:{composed:columns}}=this
+	createComposed2Parent(last=false){
+		const {props:{cols}, width, computed:{composed:columns, spaces}}=this
+		//const {height}=spaces[spaces.length-1]
+		//return <Rank {...{children:[],cols,width,height,last}}/>
 		const i=this.currentColumn.length-1
 		const cells=columns.map(column=>column[i])
 		const height=this.getHeight(cells)
 		return (
-			<Rank children={cells} cols={cols} width={width} height={height} last={bLast}/>
+			<Rank children={cells} cols={cols} width={width} height={height} last={last}/>
 		)
 	}
 
