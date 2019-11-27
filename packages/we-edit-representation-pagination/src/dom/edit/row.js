@@ -45,21 +45,35 @@ export default Cacheable(class __$1 extends editable(Base,{stoppable:true,contin
 		return false
 	}
 
+	/**
+	 * since every rank would be touched by this function, 
+	 * overriding it to add responsible edges for each slot in each rank
+	 * @param {} rank 
+	 * @param {*} parents 
+	 * @param {*} frame 
+	 */
 	injectEmptyCellIntoRank(rank,parents,frame){
 		if(this.spaces[0].frame==frame
-			&& this.computed.lastComposed.length>0){//the initial rank can't be used as cache
+			&& this.computed.lastComposed.length>0){//the initial rank can't be used as cache????
 			this.computed.lastComposed=[]
 		}
 		super.injectEmptyCellIntoRank(...arguments)
 		this.render2Composed(...arguments)
 	}
 
+	/**
+	 * composing phase need each block has height
+	 * it's to render unresolved block size for border, ...
+	 * @param {} rank 
+	 * @param {*} parents 
+	 * @param {*} frame 
+	 */
 	render2Composed(rank,parents,frame){
-		const cells=rank.attr("children")
+		const slots=rank.attr("children")
 		//render cell into composed for positioning
-		cells.forEach((a,j)=>{
+		slots.forEach((a,j)=>{
 			const {first:cell,parents}=new ReactQuery(a).findFirstAndParents(`[data-type="cell"]`)
-			cells[j]=parents.reduceRight(
+			slots[j]=parents.reduceRight(
 				(child,parent)=>React.cloneElement(parent,{},child),
 				(({type,props})=>new type(props,{}).render())(cell.get(0))
 			)
@@ -72,7 +86,7 @@ export default Cacheable(class __$1 extends editable(Base,{stoppable:true,contin
 		const table=parents.find(a=>a.props["data-type"]=="table").props["data-content"]
 		const isLastRankOfRow=!!rank.attr("last")
 
-		cells.forEach((cell,i)=>{
+		slots.forEach((cell,i)=>{
 			const $cell=new ReactQuery(cell)
 			const border=$cell.findFirst(".border").attr("children")
 			const edges=[...border]
@@ -113,7 +127,9 @@ export default Cacheable(class __$1 extends editable(Base,{stoppable:true,contin
     }
 })
 
-
+/**
+ * it make table be responsible when editing, such as select/resize column/row
+ */
 class EditableEdges extends PureComponent{
 	render(){
 		var {children:[top,bottom,right,left], isFirstRow, isLastRankOfRow, table,row, cell,i,width,height,dispatch}=this.props

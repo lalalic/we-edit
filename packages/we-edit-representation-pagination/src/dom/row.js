@@ -285,15 +285,15 @@ export default class __$1 extends Super{
 		//const {height}=spaces[spaces.length-1]
 		//return <Rank {...{children:[],cols,width,height,last}}/>
 		const i=this.currentColumn.length-1
-		const cells=columns.map(column=>column[i])
-		const height=this.getHeight(cells)
+		const slots=columns.map(column=>column[i])
+		const height=this.getHeight(slots)
 		return (
-			<Rank children={cells} cols={cols} width={width} height={height} last={last}/>
+			<Rank children={slots} cols={cols} width={width} height={height} last={last}/>
 		)
 	}
 
-	getHeight(cells){
-		return Math.max(this.props.height||0,...cells.filter(a=>!!a).map(a=>a.props.nonContentHeight+a.props.frame.blockOffset))
+	getHeight(slots){
+		return Math.max(this.props.height||0,...slots.filter(a=>!!a).map(a=>a.props.nonContentHeight+a.props.frame.blockOffset))
 	}
 }
 
@@ -304,12 +304,12 @@ class Rank extends Component{
 	}
 
 	render(){
-		const {children:cells=[],cols,height,last, ...props}=this.props
+		const {children:slots=[],cols,height,last, ...props}=this.props
 
 		return (
 				<Group height={height} {...props} >
 				{
-					cells.map((a,i)=>React.cloneElement(a,{
+					slots.map((a,i)=>React.cloneElement(a,{
 						...cols[i],
 						height,
 						key:i,
