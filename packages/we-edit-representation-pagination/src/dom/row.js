@@ -195,7 +195,7 @@ export default class __$1 extends Super{
 		const {cols,keepLines,height}=this.props
 		if(!this.currentColumn[0]){
 			//requesting for first slot, request space
-			this.spaces[0]=space=super.nextAvailableSpace({height})
+			this.spaces[0]=space=super.nextAvailableSpace(...arguments)
 			col=cols[0]
 		}else if(this.cellId(this.currentColumn[0])==cellId){
 			//requesting for current column
@@ -209,14 +209,14 @@ export default class __$1 extends Super{
 					}
 				}
 				//use requested rank space
-				this.spaces.push(space=super.nextAvailableSpace({height}))
+				this.spaces.push(space=super.nextAvailableSpace(...arguments))
 			}else{
 				//rank space exists, use existing rank space
 				space=this.spaces[this.currentColumn.length]
 				if(space.height<minHeight){
 					//space can't meet required, request space up
 					//REPACE exist ??? valid ONLY WHEN rank has not been appended to space ??? valid
-					space=this.spaces[this.currentColumn.length]=super.nextAvailableSpace({height})
+					space=this.spaces[this.currentColumn.length]=super.nextAvailableSpace(...arguments)
 				}
 			}
 			col=cols[this.columns.length-1]
@@ -225,7 +225,7 @@ export default class __$1 extends Super{
 			if(space.height<minHeight){
 				//space can't meet required, request space up
 				//REPACE exist ??? valid ONLY WHEN rank has not been appended to space ??? valid
-				space=this.spaces[0]=super.nextAvailableSpace({height})
+				space=this.spaces[0]=super.nextAvailableSpace(...arguments)
 			}
 			col=cols[this.columns.length]
 		}
