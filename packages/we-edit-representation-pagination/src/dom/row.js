@@ -70,7 +70,7 @@ export default class __$1 extends Super{
 		return this.columns[this.columns.length-1]
 	}
 
-	get ranks(){
+	get totalRank(){
 		return this.columns.reduce((c,a)=>Math.max(c,a.length),0)
 	}
 
@@ -124,30 +124,32 @@ export default class __$1 extends Super{
 		if(!this.currentSpace)
 			return
 
-		this.injectCellIntoRank(cell)
+		this.injectCellIntoRankAndResetRankHeight(cell)
 	}
 
-	injectCellIntoRank(cell){
+	/**
+	 * as name explained
+	 * it's based on Rank render structure
+	 * > rendered rank's children is mutable array
+	 * 
+	 * @param {*} slot 
+	 */
+	injectCellIntoRankAndResetRankHeight(slot){
 		const lastLine=this.currentSpace.frame.lastLine
-		if(lastLine){
-			const $lastLine=new ReactQuery(lastLine)
-			const {first:rank,parents}=$lastLine.findFirstAndParents(`[data-content="${this.props.id}"]`)
-			if(!rank.length)
-				return
-
-			const cells=rank.attr("children")
-			cells[this.columns.length-1]=cell
-
-			//fix rank's height
-			const height=this.getHeight(cells)
-			if(height>rank.attr("height")){
-				const fixedLastLine=parents.reduceRight(
-					(child,parent)=>React.cloneElement(parent,{height},child),
-					React.cloneElement(rank.get(0),{height})
-				)
-				this.currentSpace.frame.lines.splice(-1,1,fixedLastLine)
-			}
+		if(!lastLine){
+			return 
 		}
+		const {first:rank,parents}=new ReactQuery(lastLine).findFirstAndParents(`[data-content="${this.props.id}"]`)
+		if(!rank.length)
+			return
+		
+		const slots=rank.attr("children")
+		//inject 
+		slots[this.columns.length-1]=slot
+
+		/** set height changes from rank to block line*/
+		const rankWithNewHeight=changeHeightUp(this.getHeight(slots),rank.get(0),parents)
+		this.currentSpace.frame.lines.splice(-1,1,rankWithNewHeight)
 	}
 
 	/**
@@ -195,7 +197,7 @@ export default class __$1 extends Super{
 			this.spaces=[space=super.nextAvailableSpace(...arguments)]
 			col=cols[0]
 		}else if(this.cellId(this.currentColumn[0])==cellId){
-			if(this.ranks<this.currentColumn.length+1){
+			if(this.totalRank<this.currentColumn.length+1){
 				const rank=this.createComposed2Parent()
 				if(1==this.context.parent.appendComposed(rank)){
 					if(1==this.context.parent.appendComposed(rank)){
@@ -226,21 +228,25 @@ export default class __$1 extends Super{
 		})
 	}
 
-	injectEmptyCellIntoRank(rank,parents){
+	/**
+	 * insert empty slot for borders in rank
+	 * @param {*} rank 
+	 * @param {*} parents 
+	 */
+	injectEmptyCellIntoRank(rank){
 		const height=rank.attr("height")
-		const cells=rank.attr("children")
-		cells.splice(cells.length,0,...new Array(this.props.cols.length-cells.length).fill(null))
-		cells.forEach((a,j)=>{
-			cells[j]=a||React.cloneElement(this.columns[j][0],{height,frame:undefined})
+		const slots=rank.attr("children")
+		//fill null for unfilled slot seat
+		slots.splice(slots.length,0,...new Array(this.props.cols.length-slots.length).fill(null))
+		//replace null with each column's first slot ???
+		slots.forEach((a,j)=>{
+			!a && (slots[j]=React.cloneElement(this.columns[j][0],{height,frame:undefined}))
 		})
 
-		//fix height of each cell
-		cells.forEach((a,j)=>{
+		//fix height of each cell to correctly show borders
+		slots.forEach((a,j)=>{
 			const {first:cell,parents}=new ReactQuery(a).findFirstAndParents(`[data-type="cell"]`)
-			cells[j]=parents.reduceRight(
-				(child,parent)=>React.cloneElement(parent,{height},child),
-				React.cloneElement(cell.get(0),{height})
-			)
+			slots[j]=changeHeightUp(height, cell.get(0), parents)
 		})
 	}
 
@@ -293,6 +299,10 @@ export default class __$1 extends Super{
 
 class Rank extends Component{
 	static displayName="rank"
+	static adjustHeight(rendered){
+
+	}
+
 	render(){
 		const {children:cells=[],cols,height,last, ...props}=this.props
 
@@ -309,3 +319,21 @@ class Rank extends Component{
 			)
 	}
 }
+function changeHeightUp(height, rank, parents, ) {
+	const delta=height-rank.props.height
+	if(delta==0)
+		return parents[0]
+	return parents.reduceRight((child, parent) => {
+		const { props: { height, children } } = parent;
+			if (React.Children.count(children) == 1) {
+			if (typeof (height) == "number") {
+				return React.cloneElement(parent, { height: height + delta }, child);
+			}
+		}
+		else {
+			throw new Error("row's offspring should only has one child");
+		}
+		return parent;
+	}, React.cloneElement(rank, { height }));
+}
+

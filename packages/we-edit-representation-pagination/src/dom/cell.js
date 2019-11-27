@@ -67,10 +67,10 @@ export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 				this.context.parent.appendComposed(this.createComposed2Parent())
 			}
 		}
-		const {height,width}=this.context.parent.nextAvailableSpace({...required,id:this.props.id})
-		//console.dir({width,height})
+		const {width,height}=this.context.parent.nextAvailableSpace({...required,id:this.props.id})
 		const {margin={right:0,left:0,top:0,bottom:0}, vertAlign}=this.props
 		return super.create({
+			margin,
 			width:width-margin.right-margin.left,
 			height: height-this.nonContentHeight,
 			vertAlign,
