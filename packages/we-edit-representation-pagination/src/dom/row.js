@@ -194,7 +194,7 @@ export default class __$1 extends Super{
 		var space=this.currentSpace, col
 		const {cols,keepLines}=this.props
 		if(!this.currentColumn[0]){
-			this.spaces=[space=super.nextAvailableSpace(...arguments)]
+			this.spaces.push(space=super.nextAvailableSpace(...arguments))
 			col=cols[0]
 		}else if(this.cellId(this.currentColumn[0])==cellId){
 			if(this.totalRank<this.currentColumn.length+1){
