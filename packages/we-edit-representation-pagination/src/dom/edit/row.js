@@ -57,7 +57,7 @@ export default Cacheable(class __$1 extends editable(Base,{stoppable:true,contin
 			const {first:cell,parents}=new ReactQuery(a).findFirstAndParents(`[data-type="cell"]`)
 			cells[j]=parents.reduceRight(
 				(child,parent)=>React.cloneElement(parent,{},child),
-				(({type,props})=>new type(props).render())(cell.get(0))
+				(({type,props})=>new type(props,{}).render())(cell.get(0))
 			)
 		})
 
@@ -90,7 +90,7 @@ export default Cacheable(class __$1 extends editable(Base,{stoppable:true,contin
 		})
 
 		//render rank to composed for positioning
-		const renderedRank=(({type,props})=>new type(props).render())(rank.get(0));
+		const renderedRank=(({type,props})=>new type(props,{}).render())(rank.get(0));
 		const tableRow=parents.reduceRight(
 			(child,parent)=>React.cloneElement(parent,{},child),
 			renderedRank
