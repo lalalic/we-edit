@@ -21,6 +21,7 @@ import Group from "../../composed/group"
 
      constructor(props={}){
         Object.assign(this,props)
+        this.props=props
      }
 
      clone(props){
