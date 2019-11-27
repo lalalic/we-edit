@@ -15,6 +15,10 @@ export default Cacheable(class __$1 extends editable(Base,{stoppable:true,contin
 		super.clearComposed()
 	}
 
+	/**
+	 * @TODO: it's disabled to refactor layout engine
+	 * thinking: request space may change space, so should only checking requesting space be allowed not to change space
+	 */
 	appendLastComposed(){
 		if(this.computed.spaces.length!=this.computed.lastComposed.length){
 			console.warn("something wrong for this row")

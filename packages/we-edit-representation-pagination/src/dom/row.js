@@ -168,16 +168,13 @@ export default class __$1 extends Super{
 		return rankSpace.clone(cols[colIndex])
 		*/
 
-		var height,width
-		const {cols}=this.props
+		var space=this.currentSpace, col
+		const {cols,keepLines}=this.props
 		if(!this.currentColumn[0]){
-			const space=super.nextAvailableSpace(...arguments)
-			this.computed.spaces=[space]
-			height=space.height
-			width=cols[0].width
+			this.computed.spaces=[space=super.nextAvailableSpace(...arguments)]
+			col=cols[0]
 		}else if(this.cellId(this.currentColumn[0])==cellId){
 			if(this.ranks<this.currentColumn.length+1){
-				debugger
 				const rank=this.createComposed2Parent()
 				if(1==this.context.parent.appendComposed(rank)){
 					if(1==this.context.parent.appendComposed(rank)){
@@ -185,30 +182,27 @@ export default class __$1 extends Super{
 						console.error(`row[${this.props.id}] can't be appended with rollback again, ignore`)
 					}
 				}
-				const space=super.nextAvailableSpace(...arguments)
-				this.computed.spaces.push(space)
-				height=space.height
+				this.computed.spaces.push(space=super.nextAvailableSpace(...arguments))
 			}else{
-				height=this.computed.spaces[this.currentColumn.length].height
-				if(height<minHeight){
-					this.computed.spaces[this.currentColumn.length]=super.nextAvailableSpace(...arguments)
-					height=this.computed.spaces[this.currentColumn.length].height
+				if(this.currentColumn.height<minHeight){
+					space=this.computed.spaces[this.currentColumn.length]=super.nextAvailableSpace(...arguments)
 				}
 			}
-			width=cols[this.computed.composed.length-1].width
+			col=cols[this.computed.composed.length-1]
 		}else{//next column
-			height=this.computed.spaces[0].height
-			if(height<minHeight){
-				this.computed.spaces[0]=super.nextAvailableSpace(...arguments)
-				height=this.computed.spaces[0].height
+			if(this.computed.spaces[0].height<minHeight){
+				space=this.computed.spaces[0]=super.nextAvailableSpace(...arguments)
 			}
-			width=cols[this.computed.composed.length].width
+			col=cols[this.computed.composed.length]
 		}
-		if(this.props.keepLines){
-			height=Number.MAX_SAFE_INTEGER
-		}
-		return {width, height}
-
+		
+		const {left}=space
+		const {x=0,width}=col
+		return space.clone({
+			left:left+x,
+			right:left+x+width,
+			height:keepLines ? Number.MAX_SAFE_INTEGER : space.height,
+		})
 	}
 
 	injectEmptyCellIntoRank(rank,parents){

@@ -19,7 +19,7 @@ import Group from "../../composed/group"
         return new MySpace(...arguments)
     }
 
-     constructor({width,...props}={}){
+     constructor({width,left=0,right,...props}={}){
         Object.assign(this,props)
         this.props=arguments[0]
      }
@@ -27,6 +27,16 @@ import Group from "../../composed/group"
      get width(){
         const {left,right,width=right-left}=this.props
         return width
+     }
+
+     get left(){
+         const {left=0}=this.props
+         return left
+     }
+
+     get right(){
+         const {width,right=width}=this.props
+         return right
      }
 
      clone(props){

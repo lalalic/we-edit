@@ -68,6 +68,7 @@ export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 			}
 		}
 		const {height,width}=this.context.parent.nextAvailableSpace({...required,id:this.props.id})
+		//console.dir({width,height})
 		const {margin={right:0,left:0,top:0,bottom:0}, vertAlign}=this.props
 		return super.create({
 			width:width-margin.right-margin.left,
