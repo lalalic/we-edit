@@ -284,7 +284,6 @@ export default class Paragraph extends Super{
 		}
 		
 		const line=new this.constructor.Line(space.clone({
-			...space, 
 			positioned, 
 			top:bFirstLine ? top : undefined, 
 			left:left+indentLeft+(bFirstLine&&!numbering&&firstLine||0), 
