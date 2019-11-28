@@ -1,5 +1,3 @@
-//export default 
-
 export default class ColumnChildren{
     constructor(frame,startIndex=frame.computed.composed.length){
 		this.frame=frame
@@ -56,36 +54,6 @@ export default class ColumnChildren{
     }
     
     splice(i,j,...as){
-        if(i<0){
-            return  this.frame.computed.composed.splice(this.endIndex+i,j,...as)
-        }else{
-            return this.frame.computed.composed.splice(this.startIndex+i,j,...as)
-        }
+        throw new Error("not supported")
     }
-
- /*   
-	reduce(){
-		return this.items.reduce(...arguments)
-	}
-	
-	map(){
-		return this.items.map(...arguments)
-	}
-
-	forEach(){
-		return this.items.forEach(...arguments)
-    }
-    
-    includes(){
-        return this.items.includes(...arguments)
-    }
-
-    indexOf(){
-        return this.items.indexOf(...arguments)
-    }
-
-    slice(){
-        return this.items.slice(...arguments)
-    }
-    */
 }

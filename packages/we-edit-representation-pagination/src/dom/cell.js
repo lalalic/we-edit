@@ -26,13 +26,10 @@ export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 
 		nextAvailableSpace({height:requiredBlockSize=0}={}){
 			const space=super.nextAvailableSpace(...arguments)
-			if(space==false){
-				/**cell is allowed to be empty in a fissure, but normal frame is not allowed */
-				if(requiredBlockSize>this.blockOffset && this.isEmpty()){
-					return false
-				}
+			/**cell is allowed to be empty, but normal frame is not allowed */
+			if(space && this.isEmpty() && requiredBlockSize>this.availableBlockSize){
+				return false
 			}
-
 			return space
 		}
 

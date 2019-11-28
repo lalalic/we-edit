@@ -9,12 +9,6 @@ import Top from "../../composed/selection/top"
 import {Group} from "../../composed"
 
 export default Cacheable(class __$1 extends editable(Base,{stoppable:true,continuable:true}){
-	clearComposed(){
-		this.computed.spaces=[]
-		this.computed.composed=[]
-		super.clearComposed()
-	}
-
 	/**
 	 * @TODO: it's disabled to refactor layout engine
 	 * thinking: request space may change space, so should only checking requesting space be allowed not to change space
@@ -54,68 +48,11 @@ export default Cacheable(class __$1 extends editable(Base,{stoppable:true,contin
 	 */
 	injectEmptyCellIntoRank(rank,parents,frame){
 		if(this.spaces[0].frame==frame
-			&& this.computed.lastComposed.length>0){//the initial rank can't be used as cache????
+			&& this.computed.lastComposed.length>0){//??????the initial rank can't be used as cache????
 			this.computed.lastComposed=[]
 		}
 		super.injectEmptyCellIntoRank(...arguments)
 		this.render2Composed(...arguments)
-	}
-
-	/**
-	 * composing phase need each block has height
-	 * it's to render unresolved block size for border, ...
-	 * @param {} rank 
-	 * @param {*} parents 
-	 * @param {*} frame 
-	 */
-	render2Composed(rank,parents,frame){
-		const slots=rank.attr("children")
-		//render cell into composed for positioning
-		slots.forEach((a,j)=>{
-			const {first:cell,parents}=new ReactQuery(a).findFirstAndParents(`[data-type="cell"]`)
-			slots[j]=parents.reduceRight(
-				(child,parent)=>React.cloneElement(parent,{},child),
-				(({type,props})=>new type(props,{}).render())(cell.get(0))
-			)
-		})
-
-		const isFirstRow=(()=>{
-			return false
-		})();
-
-		const table=parents.find(a=>a.props["data-type"]=="table").props["data-content"]
-		const isLastRankOfRow=!!rank.attr("last")
-
-		slots.forEach((cell,i)=>{
-			const $cell=new ReactQuery(cell)
-			const border=$cell.findFirst(".border").attr("children")
-			const edges=[...border]
-			border.splice(0,1,
-				<EditableEdges key="edges"
-					{...{
-						table,
-						row:this.props.id,
-						cell:$cell.attr("data-content"),
-						i,
-						isFirstRowInPage:false,
-						children:edges,
-						height:cell.props.height,
-						width:cell.props.width,
-						isLastRankOfRow,
-					}}
-					/>
-			)
-		})
-
-		//render rank to composed for positioning
-		const renderedRank=(({type,props})=>new type(props,{}).render())(rank.get(0));
-		const tableRow=parents.reduceRight(
-			(child,parent)=>React.cloneElement(parent,{},child),
-			renderedRank
-		)
-		/**replace last line */
-		frame.lines.splice(-1,1,tableRow)
-		this.computed.lastComposed.push(renderedRank)
 	}
 
 	shouldContinueCompose(a){
@@ -124,7 +61,60 @@ export default Cacheable(class __$1 extends editable(Base,{stoppable:true,contin
 
 	composeFrames(excludeTable=false){
         return !excludeTable ? [...super.composeFrames(...arguments),this.props.id] : super.composeFrames(...arguments)
-    }
+	}
+	
+	static Rank=class extends Base.Rank{
+		resetHeight(height, isLastRank, row){
+			super.resetHeight(height, isLastRank, row) 
+			
+			//render cell into composed for positioning
+			this.slots.forEach((a,i,slots)=>{
+				const {first:cell,parents}=new ReactQuery(a).findFirstAndParents(`[data-type="cell"]`)
+				//replace each slot with positioned slot
+				const positionedSlot=parents.reduceRight(
+					(child,parent)=>React.cloneElement(parent,{},child),
+					(({type,props})=>new type(props,{}).render())(cell.get(0))
+				)
+				slots[i]=positionedSlot
+			})
+
+			const {first:$rank,parents}=new ReactQuery(this.layouted).findFirstAndParents(`[data-type="row"]`)
+			
+			const table=parents.find(a=>a.props["data-type"]=="table").props["data-content"]
+			const isLastRankOfRow=!!$rank.attr("last")
+			
+			//add editable edges
+			this.slots.forEach((slot,i)=>{
+				const {props:{width,height}}=slot
+				const $slot=new ReactQuery(slot)
+				//in-place update
+				const border=$slot.findFirst(".border").attr("children")
+				border.splice(0,1,
+					<EditableEdges key="edges"
+						{...{
+							i,
+							table,
+							row:$rank.attr("data-content"),
+							cell:$slot.attr("data-content"),
+							isFirstRowInPage:false,
+							children:[...border],
+							height,
+							width,
+							isLastRankOfRow,
+						}}
+						/>
+				)
+			})
+
+			//render rank to composed for positioning
+			const positionedRank=(({type,props})=>new type(props,{}).render())($rank.get(0));
+			row.computed.lastComposed.push(positionedRank)
+
+			const positionedTableBlock=parents.reduceRight((child,parent)=>React.cloneElement(parent,{},child),positionedRank)
+			/**replace last line */
+			this.layouted.replaceWith(positionedTableBlock)
+		}
+	}
 })
 
 /**

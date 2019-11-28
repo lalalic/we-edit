@@ -47,12 +47,23 @@ class Block extends Super{
 					return this.lines[0]
 				}
 			},
+			/**it provides replaceWith and detach */
 			lastLine:{
 				enumerable:true,
 				configurable:true,
 				get(){
 					const lines=this.lines
-					return lines[lines.length-1]
+					const me=this
+					return new Proxy(lines[lines.length-1],{
+						get(line,prop){
+							if(prop=="replaceWith"){
+								return replacement=>me.lines.splice(-1,1,replacement)	
+							}else if(prop=="detach"){
+								return ()=>me.lines.splice(-1,1)	
+							}
+							return line[prop]
+						}
+					})
 				}
 			},
 			lines:{
@@ -140,7 +151,7 @@ class Block extends Super{
 	 * Not allow empty frame
 	 * @param {*} param0 
 	 */
-	nextAvailableSpace({height:requiredBlockSize=0}={}){
+	nextAvailableSpace({height:requiredBlockSize=1}={}){
 		if(this.isEmpty()
 			||this.availableBlockSize>=requiredBlockSize){
 			return Layout.ConstraintSpace.create({
