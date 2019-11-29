@@ -35,6 +35,27 @@ const Super=HasParentAndChild(dom.Frame)
  * constraint space:{left,right, height, blockOffset}
  */
 class Block extends Super{
+	static IMMEDIATE_STOP=Number.MAX_SAFE_INTEGER
+	static propTypes={
+		balance:PropTypes.oneOfType([PropTypes.bool,PropTypes.func]),
+		balanceThreshold:PropTypes.number, 
+		space:PropTypes.shape({
+			left:PropTypes.number,
+			right:PropTypes.number,
+			blockOffset: PropTypes.number,
+			height: PropTypes.number,	
+			wrappees: PropTypes.arrayOf(PropTypes.object)
+		}),
+		cols:PropTypes.arrayOf(PropTypes.shape({
+			x:PropTypes.number,
+			y:PropTypes.number,
+			width: PropTypes.number,
+			height: PropTypes.number,
+		})),
+		inheritExclusives:PropTypes.bool,
+		allowOverflow:PropTypes.bool,
+	}
+
 	constructor(){
 		super(...arguments)
 		this.computed.anchors=[]
@@ -168,12 +189,13 @@ class Block extends Super{
 	 * @param {*} param0 
 	 */
 	nextAvailableSpace({height:requiredBlockSize=1}={}){
+		const {allowOverflow=false}=this.props
 		if(this.isEmpty()
 			||this.availableBlockSize>=requiredBlockSize){
 			return Layout.ConstraintSpace.create({
 				...this.getSpace(),
 				blockOffset:this.blockOffset,
-				height:this.availableBlockSize,
+				height:!allowOverflow ? this.availableBlockSize : Number.MAX_SAFE_INTEGER,
 				frame:this,
 				findInlineSegments:(requiredBlockSize,left,right)=>{
 					const blockOffset=this.blockOffset
@@ -642,7 +664,7 @@ class Columnable extends OrphanControlable{
 	createColumn(){
 		const column={
 			...this.cols[this.columns.length],
-			children:ColumnChildren.create(this),
+			children:ColumnChildren.create(this,...arguments),
 			get isEmpty(){
 				return this.children.length==0
 			},
@@ -707,48 +729,54 @@ class Columnable extends OrphanControlable{
 
 class Balanceable extends Columnable{
 	onAllChildrenComposed(){
-		if(this.cols && this.cols.length>1 && this.props.balance){
+		if(this.cols && this.cols.length>1 && this.props.balance && !this.isEmpty()){
 			this.balance()
 		}
 		super.onAllChildrenComposed(...arguments)
 	}
 
 	balance(){
+		const {balance}=this.props
+		if(typeof(balance)=="function"){
+			return balance.call(this)
+		}
+
+		const {balanceThreshold=1}=this.props
 		const width=this.cols[0].width
-		const lines=this.lines
-		if(!this.cols.find(a=>width!==a.width)){
-			this.columns=[]
-			this.equalBalance(lines, this.cols)
+		if(!this.cols.find(a=>Math.abs(width-a.width)<=balanceThreshold)){
+			this.equalBalance()
 		}else{
-			this.anyBalance(lines, this.cols)
+			this.anyBalance()
 		}
 	}
-
-	equalBalance(lines,cols){
-		const totalHeight=lines.reduce((h,{height,y=h})=>y+height,0)
-		const colHeight=totalHeight/cols.length-10
-		lines.reduce((state,line)=>{
+	/**
+	*just relocate lines between all columns
+	*/
+	equalBalance(){
+		const totalHeight=this.lines.reduce((h,{height,y=h})=>y+height,0)
+		const colHeight=totalHeight/this.cols.length-10
+		this.columns=[]
+		this.lines.reduce((state,{props:{height=0}},i)=>{
 			if(state.h<colHeight){
-				state.cols[state.cols.length-1].push(line)
-				state.h+=line.props.height
+				state.h+=height
 			}else{
-				state.cols.push([line])
-				state.h=line.props.height
+				columns.push(i+1)
+				state.h=height
 			}
 			return state
-		},{cols:[[]],h:0})
-			.cols
-			.forEach(lines=>Object.assign(this.createColumn(),{
-				children:lines
-			}))
+		},{columns:[0],h:0})
+			.columns
+			.forEach(startIndex=>this.createColumn(startIndex))
 	}
-
-	anyBalance(lines, cols){
+	/**
+	 * re-layout by total cols' width to get layout height
+	 * then use it as each block height to re-layout again
+	 */
+	anyBalance(){
 		const createColumn=this.createColumn
-		const reset4Recompose=this.reset4Recompose
 		try{
 			//recompose into col with totalWidth to get total height
-			const totalWidth=cols.reduce((w,a)=>w+a.width,0)
+			const totalWidth=this.cols.reduce((w,a)=>w+a.width,0)
 			this.createColumn=()=>Object.assign(createColumn.call(this),{width:totalWidth,height:Number.MAX_SAFE_INTEGER})
 			this.recompose()
 			const totalHeight=this.blockOffset
@@ -756,8 +784,7 @@ class Balanceable extends Columnable{
 			this.createColumn=()=>Object.assign(createColumn.call(this),{height:totalHeight})
 			this.recompose()
 		}finally{
-			this.createColumn=createColumn
-			this.reset4Recompose=reset4Recompose
+			delete this.createColumn
 		}
 	}
 }
@@ -835,14 +862,6 @@ class Fixed extends Balanceable{
 		return new Rect(A.x, A.y, A.width, A.height).intersects(new Rect(B.x, B.y, B.width, B.height))
 	}
 
-	isDirtyIn(rect){
-		if(this.wrappees.find(({props:{x,y,width,height}})=>this.isIntersect(rect,{x,y,width,height}))){
-			return true
-		}
-		const {props:{width}}=this
-		return this.isIntersect(rect,{x:0,y:0,width,height:this.blockOffset})
-	}
-
 	paragraphY(id){
 		const prevLineOfThisParagraph=this.lines.findLast(line=>this.getParagraph(line)!=id)
 		if(prevLineOfThisParagraph){
@@ -852,13 +871,68 @@ class Fixed extends Balanceable{
 	}
 
 	lineY(line){
-		return this.lines.slice(0,this.lines.indexOf(line)+1)
-			.reduce((Y,{props:{height=0}})=>Y+height,0)
+		if(!this.cols){
+			return this.lines.slice(0,this.lines.indexOf(line)+1).reduce((Y,{props:{height=0}})=>Y+height,0)
+		}
+
+		const {y:y0=0,children:lines}=this.columns.find(a=>a.children.includes(line))||this.currentColumn
+		return lines.slice(0,lines.indexOf(line)+1).reduce((Y,{props:{height=0}})=>Y+height,y0)
 	}
 
 	lineX(line){
-		return 0
+		if(!this.cols)
+			return 0
+		return this.columns.find(a=>a.children.includes(line)).x
 	}
+
+	isDirtyIn(rect){
+		//wrappee already take up
+		if(this.wrappees.find(({props:{x,y,width,height}})=>this.isIntersect(rect,{x,y,width,height}))){
+			return true
+		}
+
+		//content already take up
+		if(this.isIntersect(rect,{x:0,y:0,width:this.props.width,height:this.blockOffset})){
+			return true
+		}
+
+		if(this.cols){
+			//if any non-current column content already take up
+			return !!this.columns
+				.filter(a=>a!=this.currentColumn)//current block has already checked in super as normal space
+				.find(({x=0,y=0,width,blockOffset:height})=>this.isIntersect(rect,{x,y,width,height}))
+		}
+
+		return false
+	}
+
+	columnIndexOf(line){
+		if(!this.cols)
+			return 0
+		return this.columns.reduce((c,column,i)=>{
+			if(c.count>0){
+				c.count-=column.children.length
+				c.i=i
+			}
+			return c
+		},{count:line+1,i:0}).i
+	}
+
+	layoutOf(){
+		const {width,height}=this.props
+		if(!this.cols)
+			return {width,height}
+		return {width,height,cols:this.cols}
+	}
+
+	includeContent(id){
+		if(this.cols && !!this.columns.find(a=>a.id==id)){
+			return true
+		}
+		return !![...this.lines,...this.anchors].find(a=>this.belongsTo(a,id))
+	}
+
+	
 
 	getFlowableComposerId(line,filter){
 		return new ReactQuery(line)
@@ -870,16 +944,6 @@ class Fixed extends Balanceable{
 		return new ReactQuery(line)
 			.findFirst(`[data-type="paragraph"]`)
 			.attr("data-content")
-	}
-
-	layoutOf(){
-		const {width,height}=this.props
-		return {width,height}
-	}
-
-	//to make caller simple
-	columnIndexOf(){
-		return 0
 	}
 
 	lineIndexOf(position){

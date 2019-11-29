@@ -1,3 +1,3 @@
-import Balanceable from "./balanceable"
+import base from "./base"
 
-export default Balanceable
+export default base
