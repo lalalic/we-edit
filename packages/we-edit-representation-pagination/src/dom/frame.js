@@ -1,7 +1,6 @@
 import React from "react"
 import {dom, ReactQuery} from "we-edit"
 
-import {Rect} from "../tool/geometry"
 import {Layout, HasParentAndChild} from "../composable"
 import {Group} from "../composed"
 
@@ -34,7 +33,9 @@ export default class Frame extends Layout.Block{
 		})
 	}
 	
-
+	/**
+	 * always use space to locate since layout using it 
+	 */
 	createComposed2Parent() {
 		const {width,height=this.contentHeight, margin:{left=0,top=0,bottom=0,right=0}={}, x,y,z,named}=this.props
 		const alignY=contentHeight=>{
@@ -51,7 +52,7 @@ export default class Frame extends Layout.Block{
 					return 0
 			}
 		}
-		const content=this.positionLines(this.lines)
+		var content=this.positionLines(this.lines)
 		return (
 			<Group {...{width,height,x,y,z,named, className:"frame"}}>
 				{this.anchors.map((a,i)=>React.cloneElement(a,{key:i}))}

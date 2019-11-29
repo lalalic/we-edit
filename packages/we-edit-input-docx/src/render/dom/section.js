@@ -5,7 +5,7 @@ import memoize from "memoize-one"
 import {shallowEqual} from "recompose"
 
 
-export default ({Section,Frame, Container})=>class __$1 extends Component{
+export default ({Section,Frame})=>class __$1 extends Component{
 	static displayName="section"
 	static propTypes={
 		cols: PropTypes.shape({
@@ -29,6 +29,17 @@ export default ({Section,Frame, Container})=>class __$1 extends Component{
 		evenAndOddHeaders: PropTypes.bool
 	}
 
+	static childContextTypes={
+		headerFooterWidth: PropTypes.number
+	}
+
+	getChildContext(){
+		const {pgSz:{width},  pgMar:{left=0,right=0}={}}=this.props
+		return {
+			headerFooterWidth:width-left-right
+		}
+	}
+
 	getLayout=memoize((width,margin,{num=1, space=0, data},id)=>{
 		const availableWidth=width-margin.left-margin.right
 		const cols=(data ? data : new Array(num).fill({width:(availableWidth-(num-1)*space)/num,space}))
@@ -36,13 +47,8 @@ export default ({Section,Frame, Container})=>class __$1 extends Component{
 				state.columns.push({x:state.x, width,"data-content":id, "data-type":"section"})
 				state.x+=(space+width)
 				return state
-			},{x:margin.left,columns:[]})
-			.columns
-		return {
-			id,
-			cols,
-			margin,
-		}
+			},{x:0,columns:[]}).columns
+		return {id,cols,margin,}
 	}, (a,b)=>a===b||shallowEqual(a,b))
 
 	getCreate=memoize((layout,type,width,height)=>{
@@ -61,26 +67,15 @@ export default ({Section,Frame, Container})=>class __$1 extends Component{
 	},(a,b)=>a===b||shallowEqual(a,b))
 
 	render(){
-		const {pgSz:{width,height},  pgMar, cols,children, ...props}=this.props
-		const {left,right}=pgMar
+		const {pgSz:{width,height},  pgMar, cols, ...props}=this.props
 		const layout=this.getLayout(width,pgMar,cols,this.props.id)
 		const create=this.getCreate(layout,this.props.type,width,height)
 
-		return(
-			<Section create={create} {...props}>
-				{React.Children.toArray(children).map(a=>{
-					if(a.props.named){//header or footer
-						return <Frame {...a.props} width={width-left-right} key={a.props.id}/>
-					}else{
-						return a
-					}
-				})}
-			</Section>
-		)
+		return(<Section create={create} {...props}/>)
 	}
 
 	static get Page(){
-		return memoize(()=>class __$1 extends Section.fissureLike(Frame){
+		return memoize(()=>Section.fissureLike(class Page extends Frame{
 			defineProperties(){
 				this.section=this.context.parent
 				super.defineProperties()
@@ -134,7 +129,7 @@ export default ({Section,Frame, Container})=>class __$1 extends Component{
 			createColumn(){
 				const id=this.layout.id
 				const i=this.columns.findIndex(a=>a.id==id)
-				const y=i==-1 ? Math.max(this.y0, ...this.columns.map(a=>a.y+a.currentY)) : this.columns[i].y
+				const y=i==-1 ? Math.max(this.y0, ...this.columns.map(a=>a.y+a.composedHeight)) : this.columns[i].y
 				return Object.assign(super.createColumn(),{
 					height:this.y1-y,
 					y,
@@ -246,6 +241,6 @@ export default ({Section,Frame, Container})=>class __$1 extends Component{
 				const {layouts,y0,y1}=this
 				return Object.assign(super.clone(...arguments),{layouts,y0,y1})
 			}
-		})();
+		}))();
 	}
 }

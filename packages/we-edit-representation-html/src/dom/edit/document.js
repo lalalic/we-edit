@@ -116,7 +116,7 @@ class ViewportDocument extends Document{
 		return this.page.nextAvailableSpace()
 	}
 
-	static Page=class __$1 extends Page.factory(Frame.editableLike(Frame.Columnable)){
+	static Page=class __$1 extends Page.factory(Frame.editableLike(Frame)){
 		render(){
 			const {props:{width,margin}}=this
 			const height=Math.max(this.context.parent.state.viewport.height,this.composedHeight)

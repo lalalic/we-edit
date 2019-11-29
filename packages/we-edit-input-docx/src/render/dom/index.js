@@ -12,6 +12,7 @@ import Cell from "./cell"
 import Image from "./image"
 import Shape from "./shape"
 import Anchor from "./anchor"
+import HeaderFooter from "./header-footer"
 
 const createUnvisibleComponent=type=>{
 	return class __$1 extends Component{
@@ -34,6 +35,7 @@ export default {
 	Image,
 	Shape,
 	Anchor,
+	HeaderFooter,
 	Styles:()=>createUnvisibleComponent("styles"),
 	Style:()=>createUnvisibleComponent("style"),
 }

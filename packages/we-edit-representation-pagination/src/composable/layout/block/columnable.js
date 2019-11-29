@@ -77,27 +77,22 @@ export default class Columnable extends OrphanControlable {
 			get blockOffset() {
 				const { y = 0 } = this;
 				return this.children.reduce((Y, { props: { height = 0 } }) => Y + height, y);
+			},
+			get contentHeight() {
+				return this.lines.reduce((H, { props: { height: h = 0 } }) => h + H, 0);
 			}
 		};
 		this.columns.push(column);
 		return column;
 	}
-	positionLines() {
-		if (!this.cols)
-			return super.positionLines(...arguments);
-		return (<Fragment>
-			{this.columns.map(({ x, y, width, children: lines }, i) => {
-				return React.cloneElement(super.positionLines(lines), { x, y, width, key: i, className: "column" });
-			})}
-		</Fragment>);
-	}
+
 	/**check class explaination */
-	getSpace() {
+	getSpace(column) {
 		const space = super.getSpace(...arguments);
 		if (!this.cols)
 			return space;
 		const { left = 0, right = 0, blockOffset = 0, height: H } = space || {};
-		const { width = right - left, x = left, height = H, y = blockOffset } = this.currentColumn;
+		const { width = right - left, x = left, height = H, y = blockOffset } = column||this.currentColumn;
 		return {
 			...space,
 			left: x,

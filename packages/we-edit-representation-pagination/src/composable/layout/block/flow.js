@@ -166,9 +166,7 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 			y += height;
 			return b;
 		});
-		return (<Group height={y}>
-			{content}
-		</Group>);
+		return (<Group height={y}>{content}</Group>);
 	}
     /**
      * only when there are avaialable block

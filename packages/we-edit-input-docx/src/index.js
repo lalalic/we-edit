@@ -230,7 +230,7 @@ class DocxType extends Input.Editable{
 							self.part=rId
 
 							children.splice(0,0,
-								createElement(components.Container,{named:`${cat}.${type}`,type:`${cat}.${type}`},
+								createElement(components.HeaderFooter,{named:`${cat}.${type}`,type:`${cat}.${type}`},
 									root.children.map(a=>renderNode(a)),
 									root
 								)
