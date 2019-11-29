@@ -30,15 +30,14 @@ export default class ColumnChildren{
     }
 
 	get endIndex(){
-		const {composed}=this.frame.computed
 		const columns=this.frame.columns
 		const i=columns.findIndex(a=>a.children.target==this)
 		const nextColumn=columns[i+1]
-		return nextColumn ? nextColumn.startIndex : composed.length
+		return nextColumn ? nextColumn.startIndex : this.frame.lines.length
     }
     
     get items(){
-        return this.frame.computed.composed.slice(this.startIndex,this.endIndex)
+        return this.frame.lines.slice(this.startIndex,this.endIndex)
     }
 
     get length(){
@@ -50,7 +49,7 @@ export default class ColumnChildren{
     }
 
     push(){
-		this.frame.computed.composed.splice(this.endIndex,0,...arguments)
+		this.frame.lines.splice(this.endIndex,0,...arguments)
     }
     
     splice(i,j,...as){

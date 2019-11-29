@@ -6,7 +6,6 @@ import Fixed from "./base"
 import { Layout } from "../../composable"
 import ColumnChildren from "./column-children"
 
-//<Frame cols={[{x,width},{x,width}]}/>
 export default class Columnable extends Fixed{
 	static Columnable=Columnable
 	defineProperties(){
@@ -17,6 +16,11 @@ export default class Columnable extends Fixed{
 				enumerable:false,
 				configurable:true,
 				get(){
+					console.log(super.blockOffset)
+					if(this.cols.length==0){
+						
+						return super.blockOffset
+					}
 					return this.currentColumn.blockOffset
 				}
 			},
@@ -45,14 +49,10 @@ export default class Columnable extends Fixed{
 				}
 			},
 			cols:{
-				enumerable:false,
+				enumerable:true,
 				configurable:true,
 				get(){
-					const {
-						width,
-						cols=[{x:0,y:0,width}]
-					}=this.props
-					return cols
+					return this.props.cols||[]
 				}
 			},
 			columns:{
@@ -60,58 +60,9 @@ export default class Columnable extends Fixed{
 				configurable:true,
 				get(){
 					return this.computed.columns
-					/*
-					const cols=this.cols
-					const indexes=this.lines.reduce((cs,{props:{colEnd}},i)=>(colEnd ? [...cs,i+1] : cs),[0])
-					return indexes.map((startIndex,i)=>{
-							return Object.defineProperties({
-								height:this.props.height,
-								...cols[i],
-								children:ColumnChildren.create(this,startIndex)
-							},{
-								availableBlockSize:{
-									enumerable:false,
-									configurable:false,
-									get(){
-										if(this.height==undefined)
-											return Number.MAX_SAFE_INTEGER
-										return this.height-(this.blockOffset-this.y||0)
-									}
-								},
-								blockOffset:{
-									enumerable:true,
-									configurable:false,
-									get(){
-										return this.children.reduce((Y=0,{props:{height=0}})=>Y+height,this.y)
-									}
-								}
-							})
-						})
-						*/
 				},
 				set(values){
 					return this.computed.columns=values
-				}
-			},
-			lines:{
-				enumerable:true,
-				configurable:true,
-				get(){
-					return this.computed.composed
-				},
-				set(values){
-					if(values.length==0){
-						/**to Normalize clean of this.columns */
-						this.columns=[]
-					}
-					this.computed.composed=values
-				}
-			},
-			isMultiBlocks:{
-				enumerable:true,
-				configurable:true,
-				get(){
-					return this.cols.length>1
 				}
 			},
 			composedHeight:{
@@ -125,45 +76,23 @@ export default class Columnable extends Fixed{
 	}
 
 	createColumn(){
-		/**@TODO: remove column object to normalize columnable
-		const last=this.lines.pop()
-		if(last){
-			this.lines.push(React.cloneElement(last, {colEnd:true}))
-		}
-		*/
-		const column=Object.defineProperties({
-			height:this.props.height,
+		const column={
 			...this.cols[this.columns.length],
-			children:ColumnChildren.create(this)
-		},{
-			availableBlockSize:{
-				enumerable:false,
-				configurable:false,
-				get(){
-					if(this.height==undefined)
-						return Number.MAX_SAFE_INTEGER
-					return this.height-(this.blockOffset-this.y||0)
-				}
+			children:ColumnChildren.create(this),
+			get isEmpty(){
+				return this.children.length==0
 			},
-			blockOffset:{
-				enumerable:true,
-				configurable:false,
-				get(){
-					return this.children.reduce((Y=0,{props:{height=0}})=>Y+height,this.y)
-				}
+			get availableBlockSize(){
+				const {height=Number.MAX_SAFE_INTEGER,y=0}=this
+				return height-(this.blockOffset-y)
+			},
+			get blockOffset(){
+				const {y=0}=this
+				return this.children.reduce((Y,{props:{height=0}})=>Y+height,y)
 			}
-		})
+		}
 		this.columns.push(column)
 		return column
-	}
-
-	lineY(line){
-		var {y:y0=0,children:lines}=this.columns.find(a=>a.children.includes(line))||this.currentColumn
-		return lines.slice(0,lines.indexOf(line)+1).reduce((Y,{props:{height=0}})=>Y+height,y0)
-	}
-
-	lineX(line){
-		return this.columns.find(a=>a.children.includes(line)).x
 	}
 
 	positionLines(){
@@ -177,7 +106,9 @@ export default class Columnable extends Fixed{
 	}
 
 	getSpace(){
-		const {width,x}=this.isMultiBlocks ? this.currentColumn : this.cols[0]
+		if(this.cols.length==0)
+			return super.getSpace()
+		const {width,x}=this.currentColumn
 		return {
 			left:x,
 			right:x+width,
@@ -187,30 +118,46 @@ export default class Columnable extends Fixed{
 	nextAvailableSpace(){
 		const space=super.nextAvailableSpace(...arguments)
 		if(space==false && this.isMultiBlocks){
-			const isCurrentColumnEmpty=this.currentColumn.children.length==0
-			if(isCurrentColumnEmpty){
+			if(this.currentColumn.isEmpty){
 				/** not allow empty column, so ignore required*/
 				return super.nextAvailableSpace()
 			}
 			const hasMoreColumn=this.cols.length>this.columns.length
 			if(hasMoreColumn){
 				this.createColumn()
-				/** ignore required on a new column*/
+				/** ignore required for a new column*/
 				return super.nextAvailableSpace()
 			}
 		}
 		return space
 	}
+	lineY(line){
+		if(this.cols.length==0)
+			return super.lineY()
+		var {y:y0=0,children:lines}=this.columns.find(a=>a.children.includes(line))||this.currentColumn
+		return lines.slice(0,lines.indexOf(line)+1).reduce((Y,{props:{height=0}})=>Y+height,y0)
+	}
+
+	lineX(line){
+		if(this.cols.length==0)
+			return 0
+		return this.columns.find(a=>a.children.includes(line)).x
+	}
 
 	isDirtyIn(rect){
-		if(this.wrappees.find(({props:{x,y,width,height}})=>this.isIntersect(rect,{x,y,width,height}))){
-			return true
+		const dirty=super.isDirtyIn(...arguments)
+		if(this.cols.length>1 && !dirty){
+			return !!this.columns
+				.filter(a=>a!=this.currentColumn)//current block has already checked in super as normal space
+				.find(({x=0,y=0,width,blockOffset:height})=>this.isIntersect(rect,{x,y,width,height}))
 		}
 
-		return !!this.columns.find(({x=0,y=0,width,blockOffset:height})=>this.isIntersect(rect,{x,y,width,height}))
+		return dirty
 	}
 
 	columnIndexOf(line){
+		if(this.cols.length==0)
+			return 0
 		return this.columns.reduce((c,column,i)=>{
 			if(c.count>0){
 				c.count-=column.children.length
@@ -221,11 +168,13 @@ export default class Columnable extends Fixed{
 	}
 
 	layoutOf(){
+		if(this.cols.length==0)
+			return super.layoutOf()
 		return Object.assign(super.layoutOf(),{cols:this.cols})
 	}
 
 	includeContent(id){
-		if(!!this.columns.find(a=>a.id==id)){
+		if(this.cols.length && !!this.columns.find(a=>a.id==id)){
 			return true
 		}
 		return !![...this.lines,...this.anchors].find(a=>this.belongsTo(a,id))
