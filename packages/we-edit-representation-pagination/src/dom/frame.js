@@ -1,11 +1,12 @@
 import React from "react"
-import {ReactQuery} from "we-edit"
+import {dom, ReactQuery} from "we-edit"
 
 import {Rect} from "../tool/geometry"
-import {Layout} from "../composable"
+import {Layout, HasParentAndChild} from "../composable"
 import {Group} from "../composed"
 
 export default class Frame extends Layout.Block{
+	static displayName=HasParentAndChild(dom.Frame).displayName
 	getSpace(){
 		if(this.cols)
 			return super.getSpace()

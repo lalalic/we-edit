@@ -154,9 +154,11 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 			this.lines.push(line);
 		}
 	}
+	//default use props.space
 	getSpace() {
 		return this.props.space;
 	}
+
 	positionLines(lines) {
 		var y = 0;
 		const content = lines.map((a, i, me, ctx, { props: { height = 0 } } = a) => {
@@ -267,7 +269,7 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 		}
 		const lastLines = [...this.lines];
 		const lastAnchors = [...this.anchors];
-		const lastColumns = this.isMultiBlocks ? [...this.columns] : undefined;
+		const lastColumns = this.cols ? [...this.columns] : undefined;
 		const rollback = () => {
 			this.lines = lastLines;
 			this.anchors = lastAnchors;
@@ -356,5 +358,12 @@ export default class Flow extends HasParentAndChild(dom.Container) {
         }
         */
 		return Object.assign(removedLines, { anchors: removedAnchors });
+	}
+
+	getFlowableComposerId(line,filter){
+		return new ReactQuery(line)
+			.findFirst(`[data-type="paragraph"],[data-type="table"]`)
+			.filter(filter)
+			.attr("data-content")
 	}
 }
