@@ -62,22 +62,6 @@ export default class Frame extends Layout.Block{
 		)
     }
 
-	belongsTo(a,id){
-		return new ReactQuery(a).findFirst(`[data-content="${id}"]`).get(0)
-	}
-
-	isEmpty(){
-		return (this.lines.length+this.anchors.length)==0
-	}
-
-	isAnchored(id){
-		return !!this.anchors.find(a=>this.belongsTo(a,id))
-	}
-
-	isIntersect(A,B){
-		return new Rect(A.x, A.y, A.width, A.height).intersects(new Rect(B.x, B.y, B.width, B.height))
-	}
-
 	paragraphY(id){
 		const prevLineOfThisParagraph=this.lines.findLast(line=>this.getParagraph(line)!=id)
 		if(prevLineOfThisParagraph){
@@ -148,14 +132,6 @@ export default class Frame extends Layout.Block{
 		return !![...this.lines,...this.anchors].find(a=>this.belongsTo(a,id))
 	}
 
-	
-
-	getFlowableComposerId(line,filter){
-		return new ReactQuery(line)
-			.findFirst(`[data-type="paragraph"],[data-type="table"]`)
-			.filter(filter)
-			.attr("data-content")
-	}
 	getParagraph(line){
 		return new ReactQuery(line)
 			.findFirst(`[data-type="paragraph"]`)

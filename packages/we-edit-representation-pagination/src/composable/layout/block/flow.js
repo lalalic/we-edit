@@ -366,4 +366,20 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 			.filter(filter)
 			.attr("data-content")
 	}
+
+	isEmpty(){
+		return (this.lines.length+this.anchors.length)==0
+	}
+	
+	belongsTo(a,id){
+		return new ReactQuery(a).findFirst(`[data-content="${id}"]`).get(0)
+	}
+
+	isAnchored(id){
+		return !!this.anchors.find(a=>this.belongsTo(a,id))
+	}
+
+	isIntersect(A,B){
+		return new Rect(A.x, A.y, A.width, A.height).intersects(new Rect(B.x, B.y, B.width, B.height))
+	}
 }

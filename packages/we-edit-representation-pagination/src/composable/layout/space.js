@@ -42,6 +42,8 @@ import Group from "../../composed/group"
      clone(props){
         return new MySpace({...this.props, ...props})
      }
+
+     
  }
  
  class Space extends Component{
