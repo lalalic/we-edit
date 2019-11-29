@@ -47,7 +47,7 @@ export default ({Section,Frame})=>class __$1 extends Component{
 				state.columns.push({x:state.x, width,"data-content":id, "data-type":"section"})
 				state.x+=(space+width)
 				return state
-			},{x:0,columns:[]}).columns
+			},{x:margin.left,columns:[]}).columns
 		return {id,cols,margin,}
 	}, (a,b)=>a===b||shallowEqual(a,b))
 

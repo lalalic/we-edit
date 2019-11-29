@@ -77,10 +77,10 @@ export default class Columnable extends OrphanControlable {
 			},
 			get blockOffset() {
 				const { y = 0 } = this;
-				return this.children.reduce((Y, { props: { height = 0 } }) => Y + height, y);
+				return y+this.contentHeight;
 			},
 			get contentHeight() {
-				return this.lines.reduce((H, { props: { height: h = 0 } }) => h + H, 0);
+				return this.children.reduce((H, { props: { height: h = 0 } }) => h + H, 0);
 			}
 		};
 		this.columns.push(column);
@@ -168,7 +168,7 @@ class ColumnChildren{
 		const columns=this.frame.columns
 		const i=columns.findIndex(a=>a.children.target==this)
 		const nextColumn=columns[i+1]
-		return nextColumn ? nextColumn.startIndex : this.frame.lines.length
+		return nextColumn ? nextColumn.children.startIndex : this.frame.lines.length
     }
     
     get items(){
