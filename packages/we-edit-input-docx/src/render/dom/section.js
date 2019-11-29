@@ -1,4 +1,4 @@
-import React, {Component} from "react"
+import React, {Component,Fragment} from "react"
 
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
@@ -108,22 +108,34 @@ export default ({Section,Frame})=>class __$1 extends Component{
 
 				var y0=margin.top
 				if(header){
-				  	this.computed.composed.push(
-						React.cloneElement(header,{x:margin.left,y:margin.header, className:"header"})
-					)
+				  	this.header=React.cloneElement(header,{x:margin.left,y:margin.header, className:"header"})
 					y0=Math.max(y0, margin.header+header.props.height)
 				}
 
 				var y1=height-margin.bottom
 				if(footer){
 					let y=height-margin.footer-footer.props.height
-					this.computed.composed.push(
-						React.cloneElement(footer,{x:margin.left,y, className:"footer"})
-					)
+					this.footer=React.cloneElement(footer,{x:margin.left,y, className:"footer"})
 					y1=Math.min(y, y1)
 				}
 				this.y0=y0
 				this.y1=y1
+			}
+
+			createComposed2Parent(){
+				const content=super.createComposed2Parent(...arguments)
+				if(!this.footer && !this.header)
+					return content
+				const {type:Group}=content
+				return (
+					<Fragment>
+						<Group z={-1}>
+							{this.header}
+							{this.footer}
+						</Group>
+						{content}
+					</Fragment>
+				)
 			}
 
 			createColumn(){

@@ -2,7 +2,7 @@ import React,{Component} from "react"
 import PropTypes from "prop-types"
 
 export default ({Frame})=>class HeaderFooter extends Component{
-    static displayName="headerfooter"
+    static displayName="headerFooter"
     
     static contextTypes={
         headerFooterWidth: PropTypes.number
