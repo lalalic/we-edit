@@ -1,116 +1,161 @@
-import React, { Component } from "react"
-import PropTypes from "prop-types"
+import React, {Component} from "react"
 import {ReactQuery} from "we-edit"
+import {InlineSegments} from "./space"
+
 /**
+ * height: line box height
+ * contentHeight: max of all atoms' height
+ * textHeight: max of text atoms' height, percentage line box height should be based on textHeight
+ * line block height: topToBlockOffset + height (content height), parent can add its own logic to change line height
  * 
  */
-export default class ExcludableLine extends Component {
-    static propTypes={
-        space:PropTypes.object.isRequired,
-        presets:PropTypes.arrayOf(PropTypes.object),
-    }
-	constructor({ space, presets=[],top=0}) {
-		super(...arguments);
-		this.space = space;
-        this.segments = space.getInlineSegements(top);
-        this.segments.hold(presets)
-        this.frame=space.props.frame
+export default class Inline extends Component{
+	constructor({left, right, findInlineSegments}){
+		super(...arguments)
+		this.findInlineSegments=findInlineSegments
+			||(()=>({segments:[{x:left, width:this.width}]}));//@TODO: why is there no findInlineSegments some times? TEST ???
+		const segments=this.findInlineSegments(this.topToBlockOffset,left,right)
+		this.inlineSegments=InlineSegments.create({left,...segments})
 	}
-	get currentX() {
-        const {x=0,items=[]}=this.segments.current
-		return items.reduce((X,{props:{width}})=>X+width, x)
-    }
-    
-	get first() {
-		return this.segments.items[0];
+
+	isAnchored(){
+		return this.props.isAnchored(...arguments)
 	}
-	get last() {
-		return this.segments.items.pop();
-    }
 
-    get width(){
-        return this.space.width
-    }
-
+	/** inline box height, considering props.lineHeight, content/text height */
+	get height(){
+		return this.getLineHeight()
+	}
+	/**max of all atoms' height */
 	get contentHeight() {
-		return this.segments.items.reduce((H, { props: { height = 0 } }) => Math.max(H, height), 0);
+		return this.items.reduce((H, { props: { height = 0 } }) => Math.max(H, height), 0);
     }
 
+	/**max of text atoms' height, percentage line box height should be based on textHeight */
     get textHeight(){
-        return this.segments.items.reduce((H, { props: { height = 0, descent:isText } }) => Math.max(H, isText ? height : 0), 0);
-    }
+        return this.items.reduce((H, { props: { height = 0, descent:isText } }) => Math.max(H, isText ? height : 0), 0);
+	}	
 
-    get lineHeight(){
-        return this.getLineHeight()
-    }
+	/** inline layout width */
+	get width(){
+		const {width=0,left=0, right=width}=this.props
+		return right-left
+	}
+		
+	get firstAtom(){
+		const first=this.inlineSegments.items.find(a=>a.props.x===undefined)
+		if(first && first.props.atom)
+			return first.props.atom
+		if(first && first.props.descent==undefined)
+			return first.props.children
+		return first
+	}
 
-    isEmpty(){
-        return this.segments.items.length==0
-    }
-    /**
-     * 1. has more space to continue layout
-     * 2. has no space for current atom, then commit
-     * 3. need block layout
-     * @param {*} atom
-     * @param {*} at
-     * @returns
-     * false: stop and commit this line immediately
-     * int: rollback current line, start new line at atom index
-     * else: continue
-     */
-	appendComposed(atom, at) {
-        if (atom.props.anchor) {
-            /**
-             * anchor content may alreay anchored, or may not
-             * if already anchored, continue
-             * if not, let parent block layout it since it possibly affect layout space, block offset
-             */
-            const $anchor=new ReactQuery(atom).findFirst('[data-type="anchor"]')
-            const anchorId=$anchor.attr("data-content")
-            this.segments.push(<Group {...{atom,width:0,"data-anchor":anchorId}}/>)
-            
-            if (!this.frame.isAnchored(anchorId)) { //let frame anchor this atom first
-                /**
-                 * anchor position MAY not decided, so it's NOT sure if space can hold anchor
-                 * to Let it simply, let block/parent layout engine layout it immediatly 
-                 */
-                this.anchor = atom.props.anchor;
-                //commit for anchor, this line should be rollback
-				return false
-            }else{
-                //not full, continue
-            }
-        }else if ((atom.props.height - this.contentHeight) > 0) {
-            /**
-             * inline layout doesn't consider block layout capacity,
-             * leave it to block layout engine decide how to handle overflow block size
-             */
-            const blockSize=(this.props.top||0)+this.getLineHeight(atom.props.height)
-            const inlineSegments = this.space.getInlineSegements(blockSize);
-            if (inlineSegments.hold([...this.segments.items, atom]) !== false) {
-                //new line box is ok for already layouted and this one
-                this.segments = inlineSegments;
-                //not full, continue
-            }else{
-                //new line box has no valid space from atom
-                //not full, but commit current line box
-                return false
-            }
-		}else if (this.segments.push(atom) !== false) {
-			//not full, continue
-		}else {
-            //full, commit
-			return false;
+	get lastAtom(){
+		const last=this.inlineSegments.items.findLast(a=>a.props.x===undefined)
+		if(last && last.props.atom)
+			return last.props.atom
+		return last
+	}
+
+	get items(){
+		return [...this.props.positioned,...this.inlineSegments.items]
+	}
+
+	/** the distance between line blockOffset  and line content top*/
+	get topToBlockOffset(){
+		const {props:{top:lineTop=0}, inlineSegments:{props:{top:opportunityTop=0}}={props:{}}}=this
+		return opportunityTop+lineTop
+	}
+
+	isEmpty(){
+		return !!!this.firstAtom
+	}
+
+	/**
+	 * anchor content may alreay anchored, or may not
+	 * if already anchored, continue next atom
+	 * if not, let parent block layout it since it possibly affect layout space, block offset
+	 */
+	appendAnchorAtom(atom){
+		const $anchor=new ReactQuery(atom).findFirst('[data-type="anchor"]')
+		const anchorId=$anchor.attr("data-content")
+		const placeholder=React.cloneElement($anchor.get(0),{atom,width:0,"data-anchor":anchorId})
+		this.inlineSegments.push(placeholder)
+		if(!this.isAnchored(anchorId)){//let frame anchor this atom first
+			/**
+			 * anchor position MAY not decided, so it's NOT sure if space can hold anchor
+			 * to Let it simply, let block/parent layout engine layout it immediatly 
+			 */
+			this.anchor=atom.props.anchor
+			//commit for anchor, this line should be rollback
+			return false
+		}else{
+			//not full, continue next atom
 		}
 	}
-    
-    getLineHeight(contentHeight = this.contentHeight) {
-        const {lineHeight}=this.props
-        return contentHeight+(typeof(lineHeight)=='string' ? Math.ceil(this.textHeight*(parseInt(lineHeight)-100)/100.0): 0)
-    }
-    
-	commit() {
-        this.children = this.segments.render();
-        return this
-    }
+
+	/**
+	 * inline layout doesn't consider block layout capacity,
+	 * leave it to block layout engine decide how to handle overflow block size
+	 */
+	appendAtom(atom){
+		if(atom.props.anchor){
+			return this.appendAnchorAtom(atom)
+		}
+		
+		const appended=(newHeight=>{
+			if((newHeight-this.height)>1){
+				/**
+				 * line rect change may lead to different inline opportunities and top
+				 * get opportunities again
+				 */
+				const {left,right,top=0}=this.props
+				const segments=this.findInlineSegments(this.topToBlockOffset+newHeight,left,right)
+				if(this.inlineSegments.shouldRelayout(segments)){
+					const relayouted=this.inlineSegments.relayout(segments,atom)
+					if(relayouted!==false){
+						this.inlineSegments=relayouted
+						//new inline opportunities can hold layouted and atom, replace inlineSegments, and top
+						//not full, continue next atom
+						return 
+					}else{
+						//new inline opportunities can NOT hold atom, commit to block layout
+						return false
+					}
+				}else{
+					//same inline opportunities, continue normal inline layout later 
+				}
+			}else{
+				//line rect doesn't change, continue normal inline layout later 
+			}
+			
+			return this.inlineSegments.push(atom)
+		})(this.getLineHeight(atom.props.height));
+
+		if(appended===false && this.isEmpty()){
+			//empty inline layout is not allowed
+			this.inlineSegments.push(atom,true/*append atom without considering inline size*/)
+			return
+		}
+
+		return appended
+	}
+	
+	getLineHeight(contentHeight=this.contentHeight){
+		const {lineHeight}=this.props
+		if(typeof(lineHeight)=='string'){
+			return contentHeight+(typeof(lineHeight)=='string' ? this.textHeight*(parseInt(lineHeight)-100)/100.0: 0)
+		}else if(typeof(lineHeight)=="number"){
+			return lineHeight
+		}
+		return contentHeight
+        
+	}
+
+	freeze(){
+		const {props:{children}}=this.inlineSegments.render()
+		this.children=[...this.props.positioned,...children]
+		return this
+	}
 }

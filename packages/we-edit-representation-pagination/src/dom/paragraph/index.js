@@ -3,13 +3,12 @@ import PropTypes from "prop-types"
 
 import {dom, ReactQuery} from "we-edit"
 
-import {HasParentAndChild,} from "../../composable"
+import {HasParentAndChild,Layout} from "../../composable"
 import breakOpportunities from "../../wordwrap/line-break"
 import {Text as ComposedText,  Group} from "../../composed"
 import Frame from "../frame"
 
 import ParagraphEnd from "./ender"
-import Line from "./line"
 import Story from "./story"
 
 const Super=HasParentAndChild(dom.Paragraph)
@@ -42,7 +41,6 @@ const shouldAtomMerge=(a,b)=>{
 }
 
 export default class Paragraph extends Super{
-    static Line=Line
     static Story=Story
     static End=ParagraphEnd
 
@@ -194,8 +192,8 @@ export default class Paragraph extends Super{
 						continue
 					}else{
 						//fail committed, and rollback lines
-						if(rollbackLines==Frame.IMMEDIATE_STOP)
-							return Frame.IMMEDIATE_STOP
+						if(rollbackLines==Layout.IMMEDIATE_STOP)
+							return Layout.IMMEDIATE_STOP
 
 						next=atomIndexOfLastNthLine(rollbackLines)
                         if(Number.isInteger(next)){
@@ -341,5 +339,26 @@ export default class Paragraph extends Super{
                 </Group>
             </Group>
         )
-    }
+	}
+	
+	static Line=class Line extends Layout.Inline{
+		/**where does last atom end with in inline size, for positioning only */
+		get currentX(){
+			return this.inlineSegments.currentX
+		}
+		
+	
+		hasEqualSpace({width,wrappees=[]}){
+			return false
+			return this.props.maxWidth==maxWidth &&
+				this.wrappees.length==wrappees.length &&
+				!!!this.wrappees.find((a,i)=>{
+					let b=wrappees[i]
+					return Math.abs(a.x-b.x)>1 && Math.abs(a.width-b.width)>1
+				})
+		}
+	}
+    
 }
+
+

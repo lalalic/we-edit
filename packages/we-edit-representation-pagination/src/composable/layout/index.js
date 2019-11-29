@@ -1,5 +1,5 @@
-import Block from "./block"
+import Block from "./block/balanceable"
 import Inline from "./inline"
-import ConstraintSpace, {InlineSegments} from "./space"
+import ConstraintSpace from "./space"
 
-export default {Block, Inline, ConstraintSpace, InlineSegments}
+export default {Block, Inline, ConstraintSpace, IMMEDIATE_STOP:Block.IMMEDIATE_STOP}
