@@ -1,5 +1,6 @@
-import React, { Fragment } from "react"
+import React from "react"
 import OrphanControlable from "./orphan-controlable"
+import {Group} from "../../../composed"
 /**
  * {props:{space, cols=[{x,width,[y,height]}, ...]}}
  * space is shared by cols, including wrappees, left,right, blockOffset, and height
@@ -116,6 +117,19 @@ export default class Columnable extends OrphanControlable {
 			}
 		}
 		return space;
+	}
+
+	positionLines() {
+		if(!this.cols)
+			return super.positionLines(...arguments)
+		const height=Math.max(...this.columns.map(({height=0})=>height))
+		return (
+			<Group height={height}>
+				{this.columns.map(({x,y,width,height,children},i)=>{
+					return React.cloneElement(super.positionLines(children),{x,y,width,height,key:i})
+				})}
+			</Group>
+		)
 	}
 }
 

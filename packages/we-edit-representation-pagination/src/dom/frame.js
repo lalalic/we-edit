@@ -53,15 +53,17 @@ export default class Frame extends Layout.Block{
 			}
 		}
 		var content=this.positionLines(this.lines)
+		content=React.cloneElement(content,{y:alignY(content.props.height)})
+		if(!this.cols && (left||top)){
+			content=(<Group x={left} y={top}>{content}</Group>)
+		}
 		return (
 			<Group {...{width,height,x,y,z,named, className:"frame"}}>
 				{this.anchors.map((a,i)=>React.cloneElement(a,{key:i}))}
-				<Group x={left} y={right}>
-					{React.cloneElement(content,{y:alignY(content.props.height)})}
-				</Group>
+				{content}
 			</Group>
 		)
-    }
+	}
 
 	paragraphY(id){
 		const prevLineOfThisParagraph=this.lines.findLast(line=>this.getParagraph(line)!=id)

@@ -1,7 +1,10 @@
 import Columnable from "./columnable"
 export default class Balanceable extends Columnable {
+	get balanceable(){
+		return this.cols && this.cols.length > 1 && this.props.balance && !this.isEmpty()
+	}
 	onAllChildrenComposed() {
-		if (this.cols && this.cols.length > 1 && this.props.balance && !this.isEmpty()) {
+		if (this.balanceable) {
 			this.balance();
 		}
 		super.onAllChildrenComposed(...arguments);
@@ -59,5 +62,19 @@ export default class Balanceable extends Columnable {
 		finally {
 			delete this.createColumn;
 		}
+	}
+
+	positionLines() {
+		if(!this.balanceable)
+			return super.positionLines(...arguments)
+
+		const height=Math.max(...this.columns.map(({contentHeight:h=0})=>h))
+		return (
+			<Group height={height}>
+				{this.columns.map(({x,y,width,contentHeight:height,children},i)=>{
+					return React.cloneElement(super.positionLines(children),{x,y,width,height,key:i})
+				})}
+			</Group>
+		)
 	}
 }
