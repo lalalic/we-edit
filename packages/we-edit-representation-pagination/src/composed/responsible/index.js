@@ -87,7 +87,7 @@ export default class Responsible extends Component{
 	}
 
     render(){
-        const {children,canvasId, continueCompose, getComposer,dispatch, viewport, editable=true,...props}=this.props
+        const {children,canvasId, continueCompose, getComposer,dispatch, editable=true,...props}=this.props
 		const flagEvent=({clientX,clientY})=>this.down={clientX,clientY}
         const shouldIgnore=({clientX,clientY})=>clientX==this.down.clientX && clientY==this.down.clientY
         const noCursor=editable && editable.cursor===false

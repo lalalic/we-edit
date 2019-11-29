@@ -27,9 +27,9 @@ export default class Document extends Super{
 
 	static Responsible=Responsible
 
-	constructor({screenBuffer,viewport}){
+	constructor(){
 		super(...arguments)
-		this.state={mode:"content",viewport, ...this.state}
+		this.state={mode:"content", ...this.state}
 	}
 
 	get bufferHeight(){
@@ -41,24 +41,14 @@ export default class Document extends Super{
         this.computed.templates=[]
     }
 
-	render(){
-		if(!this.state.viewport){//to find container width, height
-			return <div ref="viewporter" />
-		}
-
-        return super.render()
-    }
-
 	renderComposed(){
 		const {scale,pageGap,canvasId,content,editable}=this.props
-		const {viewport}=this.state
 		const pages=this.computed.composed
 		if(editable && editable.cursor===false){
 			return super.renderComposed()
 		}
 		return (
 				<this.constructor.Responsible
-					viewport={viewport}
 					dispatch={this.context.activeDocStore.dispatch}
 					canvasId={canvasId}
 					content={content}
@@ -79,23 +69,16 @@ export default class Document extends Super{
 		)
 	}
 
-	static getDerivedStateFromProps({content},state){
+	static getDerivedStateFromProps({content,viewport},state){
 		if(content && !content.equals(state.content)){
 			return {
 				content,
 				mode:"content",
-				y:0
+				y:0,
+				viewport
 			}
 		}
-		return null
-	}
-	
-	componentDidMount(){
-		if(!this.state.viewport){
-			this.initViewport(this.refs.viewporter)
-		}
-
-		super.componentDidMount()
+		return {viewport}
 	}
 
 	componentDidUpdate(){
@@ -141,35 +124,6 @@ export default class Document extends Super{
 		return !start.id ? true :
 			this.composers.has(start.id) && this.getComposer(start.id).isAllChildrenComposed() &&
 			this.composers.has(end.id) && this.getComposer(end.id).isAllChildrenComposed()
-	}
-
-	initViewport(viewporter){
-		const container=(function getFrameParent(node){
-			const {overflowY,width,height} = window.getComputedStyle(node);
-			if(parseInt(width)>0 && parseInt(height)>0)
-				return node
-			const isScrollable = overflowY !== 'visible' && overflowY !== 'hidden';
-			if(isScrollable)
-				return node
-
-			if (!node) {
-				return null;
-			}
-
-			return getFrameParent(node.closest('[style*="overflow"]')) || document.body;
-		})(viewporter);
-
-		const {height}=container.getBoundingClientRect()
-
-		let a=viewporter, width
-		while((width=a.getBoundingClientRect().width)==0){
-			a=a.parentNode
-		}
-		this.setState({viewport:{width:parseInt(width),height:parseInt(height||1056),node:container}})
-	}
-
-	get viewport(){
-		return this.state.viewport
 	}
 
 	getPages(){

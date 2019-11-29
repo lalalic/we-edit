@@ -19,7 +19,8 @@ export class Editor extends PureComponent{
 		screenBuffer: PropTypes.oneOfType([PropTypes.func, PropTypes.number]),
 		viewport: PropTypes.shape({
 			width: PropTypes.number,
-			height: PropTypes.number
+			height: PropTypes.number,
+			node: PropTypes.instanceOf(Element),
 		}),
 
 		editable: PropTypes.oneOfType([
@@ -49,9 +50,14 @@ export class Editor extends PureComponent{
 		onContextMenu: PropTypes.func,
 	}
 
+	static getDerivedStateFromProps({viewport},state={}){
+		return {viewport,...state}
+	}
+
 	constructor(){
 		super(...arguments)
 		this.canvasId=`${uuid()}`
+		this.state={}
 	}
 
 	getChildContext(){
@@ -60,7 +66,12 @@ export class Editor extends PureComponent{
 	}
 
 	render(){
-		let {media, representation, scale, screenBuffer, children:canvas, viewport, ...props}=this.props
+		const {viewport}=this.state
+		if(!viewport){//to find container width, height
+			return <div ref="viewporter" />
+		}
+
+		let {media, representation, scale, screenBuffer, children:canvas,viewport:_1, ...props}=this.props
 		if(typeof(representation)=="string"){
 			representation=<Representation type={representation}/>
 		}
@@ -76,6 +87,40 @@ export class Editor extends PureComponent{
 		return 	<Root {...props}/>
 	}
 
+	componentDidMount(){
+		if(!this.state.viewport){
+			this.initViewport(this.refs.viewporter)
+		}
+	}
+
+	initViewport(viewporter){
+		const container=(function getFrameParent(node){
+			const {overflowY,width,height} = window.getComputedStyle(node);
+			if(parseInt(width)>0 && parseInt(height)>0)
+				return node
+			const isScrollable = overflowY !== 'visible' && overflowY !== 'hidden';
+			if(isScrollable)
+				return node
+
+			if (!node) {
+				return null;
+			}
+
+			return getFrameParent(node.closest('[style*="overflow"]')) || document.body;
+		})(viewporter);
+
+		const {height}=container.getBoundingClientRect()
+
+		let a=viewporter, width
+		while((width=a.getBoundingClientRect().width)==0){
+			a=a.parentNode
+		}
+		this.setState({viewport:{width:parseInt(width),height:parseInt(height||1056),node:container}})
+	}
+
+	get viewport(){
+		return this.state.viewport
+	}
 }
 
 const hashCode=ints=>ints.reduce((s,a)=>s+a,0)
