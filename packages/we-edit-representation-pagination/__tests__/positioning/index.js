@@ -30,15 +30,9 @@ export default function define(feature, tests){
             var sectionProps={}
             if(byCreate){
                 const Page=Section.fissureLike(Frame)
-                sectionProps.create=(a,b)=>{
-                    var props={...a,...size,...page}
-                    return new Page({...props},b)
-                    return new Page({cols:[{x:0, width:props.width}],...props},b)
-                }
+                sectionProps.create=(a,b)=>new Page({...a,...size,...page},b)
             }else{
-                const props={...size,...page}
-                sectionProps={page:{...props}}
-                //sectionProps={page:{cols:[{x:0,width:props.width}], ...props}}
+                sectionProps={page:{...size,...page}}
             }
 
             const Context=context({dom:Editors,state,contextTypes:{numbering:PropTypes.func}, context:{numbering:()=>'*'}})

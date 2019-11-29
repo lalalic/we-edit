@@ -1,10 +1,12 @@
-import React, {Component} from "react"
+import React, {Fragment} from "react"
 import PropTypes from "prop-types"
 import {dom, ReactQuery} from "we-edit"
 
 import {Rect} from "../../tool/geometry"
 import composable,{HasParentAndChild, Layout} from "../../composable"
 import {Frame as ComposedFrame, Group} from "../../composed"
+import ColumnChildren from "./column-children"
+
 
 const Super=HasParentAndChild(dom.Frame)
 
@@ -88,10 +90,8 @@ class Block extends Super{
 				enumerable:false,
 				configurable:true,
 				get(){
-					const {blockOffset=0, height}=this.getSpace()
+					const {blockOffset=0}=this.getSpace()
 					return blockOffset+this.contentHeight
-					const {margin:{top=0}={}}=this.props
-					return this.lines.reduce((Y, {props:{height=0}})=>Y+height,top)
 				}
 			},
 			availableBlockSize:{
@@ -100,8 +100,6 @@ class Block extends Super{
 				get(){
 					const {height}=this.getSpace()
 					return height-this.contentHeight
-					const {height=Number.MAX_SAFE_INTEGER, margin:{top=0,bottom=0}={}}=this.props
-					return height-this.blockOffset-bottom
 				}
 			},
 			anchors: {
@@ -147,8 +145,21 @@ class Block extends Super{
 	}
 
 	getSpace(){
-		const {width,height,space={left:0,right:width}}=this.props
-		return {height, blockOffset:0, ...space}
+		return this.props.space
+	}
+
+	positionLines(lines){
+		var y=0
+		const content=lines.map((a,i,me,ctx,{props:{height=0}}=a)=>{
+			const b=React.cloneElement(a,{key:i,y})
+			y+=height
+			return b
+		})
+        return (
+            <Group height={y}>
+                {content}
+            </Group>    
+        )
 	}
 
 	/**
@@ -564,18 +575,207 @@ class OrphanControlable extends Anchorable{
 	static Fixed=OrphanControlable
 }
 
-class Fixed extends OrphanControlable{
+/**
+ * {props:{space, cols=[{x,width,[y,height]}, ...]}}
+ * space is shared by cols, including wrappees, left,right, blockOffset, and height
+ * each col is a rect relative to space(left, this.blockOffset) if space exist
+ * otherwise each col shape a space {x as left, right:x+width, height, y as blockOffset}
+ */
+class Columnable extends OrphanControlable{
+	defineProperties(){
+		super.defineProperties()
+		if(!this.props.cols)
+			return
+		this.computed.columns=[]
+		Object.defineProperties(this,{
+			blockOffset:{
+				enumerable:false,
+				configurable:true,
+				get(){
+					return this.currentColumn.blockOffset
+				}
+			},
+			availableBlockSize:{
+				enumerable:true,
+				configurable:true,
+				get(){
+					return this.currentColumn.availableBlockSize
+				}
+			},
+			contentHeight:{
+				enumerable:false,
+				configurable:true,
+				get(){
+					return Math.max(...this.columns.map(a=>a.height))
+				}
+			},
+			currentColumn:{
+				enumerable:true,
+				configurable:true,
+				get(){
+					const columns=this.columns
+					if(columns.length==0)
+						this.createColumn()
+					return columns[columns.length-1]
+				}
+			},
+			cols:{
+				enumerable:true,
+				configurable:true,
+				get(){
+					return this.props.cols
+				}
+			},
+			columns:{
+				enumerable:true,
+				configurable:true,
+				get(){
+					return this.computed.columns
+				},
+				set(values){
+					return this.computed.columns=values
+				}
+			}
+		})
+	}
+
+	createColumn(){
+		const column={
+			...this.cols[this.columns.length],
+			children:ColumnChildren.create(this),
+			get isEmpty(){
+				return this.children.length==0
+			},
+			get availableBlockSize(){
+				const {height=Number.MAX_SAFE_INTEGER,y=0}=this
+				return height-(this.blockOffset-y)
+			},
+			get blockOffset(){
+				const {y=0}=this
+				return this.children.reduce((Y,{props:{height=0}})=>Y+height,y)
+			}
+		}
+		this.columns.push(column)
+		return column
+	}
+
+	positionLines(){
+		if(!this.cols)
+			return super.positionLines(...arguments)
+		return (
+			<Fragment>
+				{this.columns.map(({x,y,width,children:lines},i)=>{
+					return React.cloneElement(super.positionLines(lines),{x,y,width,key:i,className:"column"})
+				})}
+			</Fragment>
+		)
+	}
+
+	/**check class explaination */
+	getSpace(){
+		const space=super.getSpace(...arguments)
+		if(!this.cols)
+			return space
+		const {left=0,right=0,blockOffset=0, height:H}=space||{}
+		const {width=right-left,x=left,height=H,y=blockOffset}=this.currentColumn
+		return {
+			...space,
+			left:x,
+			right:x+width,
+			blockOffset:y,
+			height,
+		}
+	}
+
+	nextAvailableSpace(){
+		const space=super.nextAvailableSpace(...arguments)
+		if(space==false && this.cols){
+			if(this.currentColumn.isEmpty){
+				/** not allow empty column, so ignore required*/
+				return super.nextAvailableSpace()
+			}
+			const hasMoreColumn=this.cols.length>this.columns.length
+			if(hasMoreColumn){
+				this.createColumn()
+				/** ignore required for a new column*/
+				return super.nextAvailableSpace()
+			}
+		}
+		return space
+	}
+}
+
+class Balanceable extends Columnable{
+	onAllChildrenComposed(){
+		if(this.cols && this.cols.length>1 && this.props.balance){
+			this.balance()
+		}
+		super.onAllChildrenComposed(...arguments)
+	}
+
+	balance(){
+		const width=this.cols[0].width
+		const lines=this.lines
+		if(!this.cols.find(a=>width!==a.width)){
+			this.columns=[]
+			this.equalBalance(lines, this.cols)
+		}else{
+			this.anyBalance(lines, this.cols)
+		}
+	}
+
+	equalBalance(lines,cols){
+		const totalHeight=lines.reduce((h,{height,y=h})=>y+height,0)
+		const colHeight=totalHeight/cols.length-10
+		lines.reduce((state,line)=>{
+			if(state.h<colHeight){
+				state.cols[state.cols.length-1].push(line)
+				state.h+=line.props.height
+			}else{
+				state.cols.push([line])
+				state.h=line.props.height
+			}
+			return state
+		},{cols:[[]],h:0})
+			.cols
+			.forEach(lines=>Object.assign(this.createColumn(),{
+				children:lines
+			}))
+	}
+
+	anyBalance(lines, cols){
+		const createColumn=this.createColumn
+		const reset4Recompose=this.reset4Recompose
+		try{
+			//recompose into col with totalWidth to get total height
+			const totalWidth=cols.reduce((w,a)=>w+a.width,0)
+			this.createColumn=()=>Object.assign(createColumn.call(this),{width:totalWidth,height:Number.MAX_SAFE_INTEGER})
+			this.recompose()
+			const totalHeight=this.blockOffset
+
+			this.createColumn=()=>Object.assign(createColumn.call(this),{height:totalHeight})
+			this.recompose()
+		}finally{
+			this.createColumn=createColumn
+			this.reset4Recompose=reset4Recompose
+		}
+	}
+}
+
+class Fixed extends Balanceable{
 	static Fixed=Fixed
 	getSpace(){
-		const {width,height,margin:{left=0,right=0,top=0,bottom=0}={},x=left,y=top}=this.props
+		if(this.cols)
+			return super.getSpace()
+		const {width,height,margin:{left=0,right=0,top=0,bottom=0}={},x=0,y=0}=this.props
 		return {
-			x,
-			y,
-			left,
-			right:width-right,
+			left:x+left,
+			right:x+width-right,
+			blockOffset:y+top,
 			height:height-top-bottom,
 		}
 	}
+
 	defineProperties(){
 		super.defineProperties()
 		Object.defineProperties(this,{
@@ -583,6 +783,8 @@ class Fixed extends OrphanControlable{
 				enumerable:true,
 				configurable:true,
 				get(){
+					if(this.cols)
+						return Math.max(...this.columns.map(a=>a.y+(a.height-a.availableBlockSize)))
 					return this.blockOffset
 				}
 			}
@@ -591,7 +793,7 @@ class Fixed extends OrphanControlable{
 	
 
 	createComposed2Parent() {
-		const {width,height=this.contentHeight, x,y,z,named}=this.props
+		const {width,height=this.contentHeight, margin:{left=0,top=0,bottom=0,right=0}={}, x,y,z,named}=this.props
 		const alignY=contentHeight=>{
 			if(contentHeight==undefined)
 				return undefined
@@ -610,24 +812,12 @@ class Fixed extends OrphanControlable{
 		return (
 			<Group {...{width,height,x,y,z,named, className:"frame"}}>
 				{this.anchors.map((a,i)=>React.cloneElement(a,{key:i}))}
-				{React.cloneElement(content,{y:alignY(content.props.height)})}
+				<Group x={left} y={right}>
+					{React.cloneElement(content,{y:alignY(content.props.height)})}
+				</Group>
 			</Group>
 		)
     }
-
-	positionLines(lines){
-		var y=0
-		const content=lines.map((a,i,me,{props:{height=0}}=a)=>{
-			const b=React.cloneElement(a,{key:i,y})
-			y+=height
-			return b
-		})
-        return (
-            <Group height={y}>
-                {content}
-            </Group>    
-        )
-	}
 
 	belongsTo(a,id){
 		return new ReactQuery(a).findFirst(`[data-content="${id}"]`).get(0)

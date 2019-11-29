@@ -12,14 +12,6 @@ import {HasParentAndChild, Fissionable} from "../composable"
 export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 	static fissureLike=Frame=>class __$1 extends Frame{
 		static displayName="frame-cell"
-		clone({height,...props}){
-			const cloned=super.clone(...arguments)
-			if(height!=undefined){
-				this.columns[0].height=height
-			}
-			return cloned
-		}
-
 		getComposeType(){
 			return Cell.getType()
 		}
