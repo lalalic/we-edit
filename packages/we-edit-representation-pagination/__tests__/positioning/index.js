@@ -30,9 +30,15 @@ export default function define(feature, tests){
             var sectionProps={}
             if(byCreate){
                 const Page=Section.fissureLike(Frame)
-                sectionProps.create=(a,b)=>new Page({...a,...size,...page},b)
+                sectionProps.create=(a,b)=>{
+                    var props={...a,...size,...page}
+                    return new Page({...props},b)
+                    return new Page({cols:[{x:0, width:props.width}],...props},b)
+                }
             }else{
-                sectionProps={page:{...size,...page}}
+                const props={...size,...page}
+                sectionProps={page:{...props}}
+                //sectionProps={page:{cols:[{x:0,width:props.width}], ...props}}
             }
 
             const Context=context({dom:Editors,state,contextTypes:{numbering:PropTypes.func}, context:{numbering:()=>'*'}})
@@ -96,7 +102,7 @@ export default function define(feature, tests){
             )
         }]
 
-    ]//.filter(([a])=>a=="section")
+    ].filter(([a])=>a=="in table")
     )("%s",(TESTING, render)=>{
         describe(feature, ()=>{
             tests({dom:Editors,TESTING, render, mockQuery, pageGap, size, uuid,Responsible, Positioning})

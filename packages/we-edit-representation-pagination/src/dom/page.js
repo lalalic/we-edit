@@ -13,25 +13,6 @@ const factory=MyFrame=>class __$1 extends MyFrame{
 	static propTypes=dom.Page.propTypes||{}
 	static defaultProps=dom.Page.defaultProps||{}
 
-	defineProperties(){
-		super.defineProperties()
-		Object.defineProperties(this,{
-			cols:{
-				enumerable:false,
-				configurable:true,
-				get(){
-					const {
-						width,
-						height,
-						margin:{left=0,right=0,top=0,bottom=0}={},
-						cols=[{x:left,y:top,width:width-left-right,height:height-top-bottom}]
-					}=this.props
-					return cols
-				}
-			},
-		})
-	}
-
 	createComposed2Parent=memoize(()=>{
 		const render=()=>{
 			const {props:{I:key,width,height,margin}}=this

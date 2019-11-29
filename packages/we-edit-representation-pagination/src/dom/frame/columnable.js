@@ -10,17 +10,14 @@ export default class Columnable extends Fixed{
 	static Columnable=Columnable
 	defineProperties(){
 		super.defineProperties()
+		if(!this.props.cols)
+			return
 		this.computed.columns=[]
 		Object.defineProperties(this,{
 			blockOffset:{
 				enumerable:false,
 				configurable:true,
 				get(){
-					console.log(super.blockOffset)
-					if(this.cols.length==0){
-						
-						return super.blockOffset
-					}
 					return this.currentColumn.blockOffset
 				}
 			},
@@ -52,7 +49,7 @@ export default class Columnable extends Fixed{
 				enumerable:true,
 				configurable:true,
 				get(){
-					return this.props.cols||[]
+					return this.props.cols
 				}
 			},
 			columns:{
@@ -96,6 +93,8 @@ export default class Columnable extends Fixed{
 	}
 
 	positionLines(){
+		if(!this.cols)
+			return super.positionLines(...arguments)
 		return (
 			<Fragment>
 				{this.columns.map(({x,y,width,children:lines},i)=>{
@@ -106,8 +105,8 @@ export default class Columnable extends Fixed{
 	}
 
 	getSpace(){
-		if(this.cols.length==0)
-			return super.getSpace()
+		if(!this.cols)
+			return super.getSpace(...arguments)
 		const {width,x}=this.currentColumn
 		return {
 			left:x,
@@ -117,7 +116,7 @@ export default class Columnable extends Fixed{
 
 	nextAvailableSpace(){
 		const space=super.nextAvailableSpace(...arguments)
-		if(space==false && this.isMultiBlocks){
+		if(space==false && this.cols){
 			if(this.currentColumn.isEmpty){
 				/** not allow empty column, so ignore required*/
 				return super.nextAvailableSpace()
@@ -131,22 +130,23 @@ export default class Columnable extends Fixed{
 		}
 		return space
 	}
+
 	lineY(line){
-		if(this.cols.length==0)
-			return super.lineY()
+		if(!this.cols)
+			return super.lineY(...arguments)
 		var {y:y0=0,children:lines}=this.columns.find(a=>a.children.includes(line))||this.currentColumn
 		return lines.slice(0,lines.indexOf(line)+1).reduce((Y,{props:{height=0}})=>Y+height,y0)
 	}
 
 	lineX(line){
-		if(this.cols.length==0)
+		if(!this.cols)
 			return 0
 		return this.columns.find(a=>a.children.includes(line)).x
 	}
 
 	isDirtyIn(rect){
 		const dirty=super.isDirtyIn(...arguments)
-		if(this.cols.length>1 && !dirty){
+		if(this.cols && !dirty){
 			return !!this.columns
 				.filter(a=>a!=this.currentColumn)//current block has already checked in super as normal space
 				.find(({x=0,y=0,width,blockOffset:height})=>this.isIntersect(rect,{x,y,width,height}))
@@ -156,7 +156,7 @@ export default class Columnable extends Fixed{
 	}
 
 	columnIndexOf(line){
-		if(this.cols.length==0)
+		if(!this.cols)
 			return 0
 		return this.columns.reduce((c,column,i)=>{
 			if(c.count>0){
@@ -168,13 +168,13 @@ export default class Columnable extends Fixed{
 	}
 
 	layoutOf(){
-		if(this.cols.length==0)
-			return super.layoutOf()
-		return Object.assign(super.layoutOf(),{cols:this.cols})
+		if(!this.cols)
+			return super.layoutOf(...arguments)
+		return Object.assign(super.layoutOf(...arguments),{cols:this.cols})
 	}
 
 	includeContent(id){
-		if(this.cols.length && !!this.columns.find(a=>a.id==id)){
+		if(this.cols && !!this.columns.find(a=>a.id==id)){
 			return true
 		}
 		return !![...this.lines,...this.anchors].find(a=>this.belongsTo(a,id))

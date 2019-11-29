@@ -24,7 +24,7 @@ define("position", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Cont
     }
 
     describe("in page paragraph",()=>{
-        it("t|ext at=0,1,4",()=>{
+        fit("t|ext at=0,1,4",()=>{
             const MarginLeft=10
             const p=test(
                 <Paragraph id={`${++uuid}`}>
@@ -255,7 +255,6 @@ define("position", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Cont
                         <Text id={"1"}>text</Text>
                     </Paragraph>
                 )
-                debugger
             expect(doc.position("0",1)).toMatchObject({x:1,y:10})
         })
     })

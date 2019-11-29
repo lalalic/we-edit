@@ -9,24 +9,6 @@ const Super=Fissionable(HasParentAndChild(dom.Section))
 export default class Section extends Super{
 	static fissureLike=Frame=>class __$1 extends Frame{
 		static displayName="frame-section"
-		defineProperties(){
-			super.defineProperties()
-			Object.defineProperties(this,{
-				cols:{
-					enumerable:false,
-					configurable:true,
-					get(){
-						const {
-							width,
-							height,
-							margin:{left=0,right=0,top=0,bottom=0}={},
-							cols=[{x:left,y:top,width:width-left-right,height:height-top-bottom}]
-						}=this.props
-						return cols
-					}
-				}
-			})
-		}
 
 		getComposeType(){
 			return Section.getType()
