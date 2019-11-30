@@ -5,12 +5,21 @@ import memoize from "memoize-one"
 import {HasChild, Locatable,} from "../composable"
 import {dom,ACTION} from "we-edit"
 import Template from "./template"
-import {Document as ComposedDocument} from "../composed"
+import {Canvas} from "../composed"
 
 const {Document:Base}=dom
 const Super=Locatable.Locatorize(HasChild(Base))
 
 export default class Document extends Super{
+    static propTypes={
+        ...Super.prototype,
+        canvas: PropTypes.node,
+    }
+    static defaultProps={
+        ...Super.defaultProps,
+        canvas:<Canvas/>,
+    }
+
     static contextTypes={
         ...Super.contextTypes,
         Measure: PropTypes.func,
@@ -26,6 +35,10 @@ export default class Document extends Super{
     constructor(){
         super(...arguments)
         this.computed.templates=[]
+    }
+
+    get pages(){
+        return this.computed.composed
     }
 
     getChildContext(){
@@ -69,15 +82,10 @@ export default class Document extends Super{
         return (
 			<Fragment>
                 {super.render()}
-                {React.cloneElement(canvas, {content: this.renderComposed()})}
+                {canvas && React.cloneElement(canvas, {document:this})}
 			</Fragment>
 		)
     }
-
-    renderComposed(){
-        const {precision=1}=this.props
-        return <ComposedDocument pages={this.computed.composed} precision={precision}/>
-	}
 
 	appendComposed(page){
         if(Template.isTemplate(page)){

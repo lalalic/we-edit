@@ -1,46 +1,80 @@
 import React, {Component,Fragment} from "react"
 import PropTypes from "prop-types"
+import {ACTION, Cursor, Selection,ContentQuery} from "we-edit"
 
-import {setDisplayName,compose, getContext} from "recompose"
-import Waypoint from "react-waypoint"
-
-import {getSelection, ACTION, Cursor, Selection,connect,ContentQuery} from "we-edit"
-
-import ComposedDocument from "../document"
-import Group from "../group"
+import Canvas from "../canvas"
 import SelectionShape from "../selection"
 import Locator from "./locator"
 import Positioning from "./positioning"
+import ComposeMoreTrigger from "./compose-more-trigger"
 
 const CursorShape=({y=0,x=0,height=0,color="black", style})=>(
     <path d={`M${x} ${y} v${height}`} strokeWidth={1} stroke={color} style={style}/>
 )
 CursorShape.displayName="CursorShape"
 
-export default class Responsible extends Component{  
+/**
+ * must provide the following 
+ * 1. static composedY(), used to trigger composing if scrolling to uncomposed position
+ */
+export default class Responsible extends Component{
+    static displayName="responsible-composed-document-default-canvas"
+    static propTypes={
+        document: PropTypes.object,
+    }
     static contextTypes={
-        onContextMenu: PropTypes.func
+        onContextMenu: PropTypes.func,
+    }
+    static composedY=document=>{
+        const {computed:{composed:pages}, props:{pageGap}}=document
+        return pages.reduce((w,page)=>w+page.composedHeight+pageGap,0)
+    }
+    static getDerivedStateFromProps({document:{props:{editable,scale,content,canvasId,dispatch}}}){
+        return {editable,scale,content,canvasId,dispatch}
     }
 
-    static displayName="composed-document-with-cursor"
+    constructor(){
+        super(...arguments)
+        this.state={}
+        this.selecting=React.createRef()
+        this.onMove=this.onMove.bind(this)
+        this.onResize=this.onResize.bind(this)
+        this.onRotate=this.onRotate.bind(this)
+        this.getComposer=this.getComposer.bind(this)
+        this.getContent=this.getContent.bind(this)
+        this.positioning=new Positioning(this)
+    }
 
-    scale=this.props.scale
-    onMove=this.onMove.bind(this)
-    onResize=this.onResize.bind(this)
-    onRotate=this.onRotate.bind(this)
-    selecting=React.createRef()
-    positioning=new Positioning(this)
-    getComposer=this.getComposer.bind(this)
-    getContent=this.getContent.bind(this)
+    /**the following API must be provided to Positioning */
+    get scale(){
+        return this.state.scale
+    }
+
+    get pages(){
+        return this.props.document.pages
+    }
+
+    get pageGap(){
+        return this.state.pageGap
+    }
+
+    get dispatch(){
+        return this.state.dispatch
+    }
+
+	getComposer(id){
+		return this.props.document.getComposer(id)
+	}
+
+	getContent(id){
+        return ContentQuery.fromContent(this.state.content,  id ? `#${id}`  : undefined)
+	}
+    ////End Positioning API/
 
     get locator(){
         if(this.refs.locator)
-        return this.refs.locator.getWrappedInstance()
+            return this.refs.locator.getWrappedInstance()
     }
-
-	get dispatch(){
-		return this.props.dispatch
-	}
 
 	get selection(){
         if(this.locator)
@@ -50,18 +84,10 @@ export default class Responsible extends Component{
 	get cursor(){
 		const {cursorAt, x, ...a}=this.selection
         return {...a[cursorAt],x}
-	}
-
-	getComposer(id){
-		return this.props.getComposer(id)
-	}
-
-	getContent(id){
-        return ContentQuery.fromContent(this.props.content,  id ? `#${id}`  : undefined)
-	}
-
-	getComposeTrigger(){
-		const {continueCompose:{isAllComposed, isSelectionComposed, compose4Selection, compose4Scroll,composedY}, pages, pageGap}=this.props
+    }
+    
+	renderComposeTrigger(){
+		const {document}=this.props
 		const notifyLocator=callback=>{
 			if(this.locator){
 				this.locator.setState({content:null,canvas:null},callback)
@@ -71,84 +97,129 @@ export default class Responsible extends Component{
 		}
 
 		return <ComposeMoreTrigger
-					y={()=>composedY()}
-					isSelectionComposed={isSelectionComposed}
+					getComposedY={()=>document.composedY()}
+					isSelectionComposed={selection=>document.isSelectionComposed(selection)}
 					compose4Selection={a=>{
-						if(!isAllComposed()){
-							notifyLocator(compose4Selection)
+						if(!document.isAllComposed()){
+							notifyLocator(selection=>document.compose4Selection(selection))
 						}
 					}}
 					compose4Scroll={y=>{
-						if(!isAllComposed()){
-							notifyLocator(()=>compose4Scroll(y))
+						if(!document.isAllComposed()){
+							notifyLocator(()=>document.compose4Scroll(y))
 						}
 					}}
 					/>
-	}
+    }
+    
+    makeEventHandlers(){
+        const {context:{onContextMenu}}=this
+        const flagEvent=({clientX,clientY})=>this.down={clientX,clientY}
+        const shouldIgnore=({clientX,clientY})=>clientX==this.down.clientX && clientY==this.down.clientY
+        return {
+            onContextMenu:e=>{
+                this.onClick(e)
+                onContextMenu && onContextMenu(e)
+            },
+
+            onClick:e=>{
+                if(!this.down.selected){
+                    this.down.selected=false
+                    this.onClick(e)
+                }
+            },
+
+            onDoubleClick:e=>{
+                if(!this.down.selected){
+                    this.down.selected=false
+                    this.onClick(e,true)
+                }
+            },
+
+            onMouseDown:flagEvent,
+
+            onMouseMove:e=>{
+                if(!(e.buttons&0x1)){
+                    return
+                }
+                if(shouldIgnore(e)){
+                    return
+                }
+
+                const {id,at}=this.positioning.around(e.clientX,e.clientY)
+                if(id){
+                    const end={id,at}
+                    let {start=end}=this.selecting.current.state
+                    const rects=start==end ? [] : this.positioning.getRangeRects(start, end)
+                    this.selecting.current.setState({start:start||end, end, rects, selecting:true})
+                }
+            },
+            onMouseUp:e=>{
+                if(shouldIgnore(e)){
+                    return
+                }
+                var {start,end}=this.selecting.current.state
+                if(start && end){
+                    this.selecting.current.setState({start:undefined, end:undefined, rects:undefined,selecting:false})
+                    ;({start,end}=this.positioning.extendSelection(start,end));
+                    this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))
+                    this.down.selected=true
+                }
+            },
+        }
+    }
 
     render(){
-        const {children,canvasId, continueCompose, getComposer,dispatch, editable=true,...props}=this.props
-		const flagEvent=({clientX,clientY})=>this.down={clientX,clientY}
-        const shouldIgnore=({clientX,clientY})=>clientX==this.down.clientX && clientY==this.down.clientY
+        const {props:{children, ...props}, state:{editable=true, canvasId,scale}}=this
         const noCursor=editable && editable.cursor===false
-        var events={}
-        if(!noCursor){
-            events={
-                onContextMenu:e=>{
-                    this.onClick(e)
-                    if(this.context.onContextMenu){
-                        this.context.onContextMenu(e)
-                    }
-                },
+        const eventHandlers=!noCursor && this.makeEventHandlers()
+        const locator=!noCursor && (
+                <Locator
+                    canvasId={canvasId}
+                    scale={scale}
+                    positioning={this.positioning}
+                    ref="locator"
+                    cursor={
+                        <Cursor
+                            dispatch={this.dispatch}
+                            keys={{
+                                38:e=>this.onKeyArrowUp(e),//move up
+                                40:e=>this.onKeyArrowDown(e),//move down
+                            }}
+                            editable={!!editable}
+                            >
 
-                onClick:e=>{
-                    if(!this.down.selected){
-                        this.down.selected=false
-                        this.onClick(e)
-                    }
-                },
+                            <CursorShape/>
 
-                onDoubleClick:e=>{
-                    if(!this.down.selected){
-                        this.down.selected=false
-                        this.onClick(e,true)
+                        </Cursor>
                     }
-                },
+                    range={
+                        <Selection
+                            around={(left,top)=>{
+                                const {id,at}=this.positioning.around(left, top)
+                                if(id){
+                                    if(at!==null){
+                                        return this.positioning.position(id,at)
+                                    }
+                                }
+                            }}
 
-                onMouseDown:flagEvent,
-
-                onMouseMove:e=>{
-                    if(!(e.buttons&0x1)){
-                        return
+                            onMove={editable && this.onMove}
+                            onResize={editable && this.onResize}
+                            onRotate={editable && this.onRotate}>
+                            <SelectionShape ref={this.selecting}
+                                asCanvasPoint={a=>this.positioning.asCanvasPoint(a)}
+                                />
+                        </Selection>
                     }
-                    if(shouldIgnore(e)){
-                        return
-                    }
-
-                    const {id,at}=this.positioning.around(e.clientX,e.clientY)
-                    if(id){
-                        const end={id,at}
-                        let {start=end}=this.selecting.current.state
-                        const rects=start==end ? [] : this.positioning.getRangeRects(start, end)
-                        this.selecting.current.setState({start:start||end, end, rects, selecting:true})
-                    }
-                },
-                onMouseUp:e=>{
-                    if(shouldIgnore(e)){
-                        return
-                    }
-                    var {start,end}=this.selecting.current.state
-                    if(start && end){
-                        this.selecting.current.setState({start:undefined, end:undefined, rects:undefined,selecting:false})
-                        ;({start,end}=this.positioning.extendSelection(start,end))
-                        this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))
-                        this.down.selected=true
-                    }
-                },
-            }
-        }
-        return (
-            <ComposedDocument {...props} innerRef={a=>{this.canvas=a}} {...events}>
+                    getComposer={this.getComposer}/>
+            )
+        
+            return (
+            <Canvas 
+                {...props} 
+                innerRef={a=>{this.canvas=a}} 
+                {...eventHandlers}>
                 <Fragment>
                     <defs>
                         <path id="table.adder"
@@ -169,63 +240,24 @@ export default class Responsible extends Component{
                 </Fragment>
 				<Fragment>
                     {children}
-					{this.getComposeTrigger()}
-					{!noCursor && <Locator
-                        canvasId={canvasId}
-                        scale={this.props.scale}
-                        positioning={this.positioning}
-                        ref="locator"
-                        cursor={
-                            <Cursor
-                                dispatch={dispatch}
-                                keys={{
-									38:e=>this.onKeyArrowUp(e),//move up
-									40:e=>this.onKeyArrowDown(e),//move down
-                                }}
-                                editable={!!editable}
-                                >
-
-								<CursorShape/>
-
-							</Cursor>
-                        }
-                        range={
-                            <Selection
-                                around={(left,top)=>{
-                                    const {id,at}=this.positioning.around(left, top)
-                            		if(id){
-                                        if(at!==null){
-                                            return this.positioning.position(id,at)
-                                        }
-                                    }
-                                }}
-
-                                onMove={editable && this.onMove}
-                                onResize={editable && this.onResize}
-                                onRotate={editable && this.onRotate}>
-        						<SelectionShape ref={this.selecting}
-									asCanvasPoint={a=>this.positioning.asCanvasPoint(a)}
-									/>
-        					</Selection>
-                        }
-                        getComposer={getComposer}/>
-                    }
+					{this.renderComposeTrigger()}
+					{locator}
 				</Fragment>
-            </ComposedDocument>
+            </Canvas>
         )
     }
 
-    componentDidUpdate({},state,snapshot){
-        this.locator && this.locator.setState({content:this.props.content, canvas:this.canvas})
+    componentDidUpdate({}){
+        this.locator && this.locator.setState({content:this.state.content, canvas:this.canvas})
     }
 
     componentDidMount(){
         this.active()
-        this.locator && this.locator.setState({content:this.props.content, canvas:this.canvas})
+        this.locator && this.locator.setState({content:this.state.content, canvas:this.canvas})
     }
 
     active(){
-		this.dispatch(ACTION.Cursor.ACTIVE(this.props.canvasId))
+		this.dispatch(ACTION.Cursor.ACTIVE(this.state.canvasId))
     }
 
     onRotate({degree,id}){
@@ -323,28 +355,4 @@ export default class Responsible extends Component{
     }
 }
 
-const ComposeMoreTrigger=compose(
-	setDisplayName("More"),
-	getContext({debug: PropTypes.bool}),
-	connect(state=>({selection:getSelection(state)})),
-)(class __$1 extends Component{
-	shouldComponentUpdate({selection,isSelectionComposed,compose4Selection}){
-		if(!isSelectionComposed(selection)){
-			compose4Selection()
-			return false
-		}
-		return true
-	}
 
-	render(){
-		const {compose4Scroll,debug}=this.props
-		const y=this.props.y()
-		return (
-			<Waypoint onEnter={()=>compose4Scroll(y)} >
-                <Group y={y-100}>
-                    <line className="composeTrigger" x1="0" y1="0" x2="2" y2="0" strokeWidth="2" stroke={debug ? "red" : "transparent"}/>
-                </Group>
-			</Waypoint>
-		)
-	}
-})

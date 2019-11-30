@@ -18,7 +18,8 @@ export default class Document extends Super{
 	static defaultProps={
 		...Super.defaultProps,
 		pageGap:12,
-		screenBuffer: 1
+		screenBuffer: 1,
+		canvas:<Responsible/>,
 	}
 	static contextTypes={
 		...Super.contextTypes,
@@ -26,6 +27,18 @@ export default class Document extends Super{
 	}
 
 	static Responsible=Responsible
+
+	static getDerivedStateFromProps({content,viewport},state){
+		if(content && !content.equals(state.content)){
+			return {
+				content,
+				mode:"content",
+				y:0,
+				viewport
+			}
+		}
+		return {viewport}
+	}
 
 	constructor(){
 		super(...arguments)
@@ -41,49 +54,9 @@ export default class Document extends Super{
         this.computed.templates=[]
     }
 
-	renderComposed(){
-		const {scale,pageGap,canvasId,content,editable}=this.props
-		const pages=this.computed.composed
-		if(editable && editable.cursor===false){
-			return super.renderComposed()
-		}
-		return (
-				<this.constructor.Responsible
-					dispatch={this.context.activeDocStore.dispatch}
-					canvasId={canvasId}
-					content={content}
-					getComposer={this.getComposer}
-					scale={scale}
-					pageGap={pageGap}
-					pages={pages}
-					editable={editable}
-					continueCompose={{
-						isAllComposed: ()=>this.isAllChildrenComposed(),
-						isSelectionComposed:selection=>this.isSelectionComposed(selection),
-						compose4Selection:()=>this.setState({mode:"selection",y:0}),
-						compose4Scroll: y=>this.setState({mode:"scroll",y}),
-						composedY:()=>this.composedY()
-					}}
-					/>
-
-		)
-	}
-
-	static getDerivedStateFromProps({content,viewport},state){
-		if(content && !content.equals(state.content)){
-			return {
-				content,
-				mode:"content",
-				y:0,
-				viewport
-			}
-		}
-		return {viewport}
-	}
-
 	componentDidUpdate(){
 		this.dispatch(ACTION.Statistics({
-			pages:this.computed.composed.length,
+			pages:this.pages.length,
 			allComposed:this.isAllChildrenComposed(),
 			words: this.composedWords()
 		}))
@@ -99,7 +72,7 @@ export default class Document extends Super{
 	* 1. selection end
 	* 2. viewport: viewporter.scrollTop+viewporter.height
 	**/
-	shouldContinueCompose(a){
+	shouldContinueCompose(composer){
 		const aboveViewableBottom=()=>{
 			const {y=0,viewport:{height,node:{scrollTop}},mode}=this.state
 			const composedY=this.composedY() * this.props.scale
@@ -108,15 +81,15 @@ export default class Document extends Super{
 
 		const should=aboveViewableBottom() || !this.isSelectionComposed()
 
-		if(!should  && a){
-			this.notifyNotAllComposed(a)
+		if(!should  && composer){
+			this.notifyNotAllComposed(composer)
 		}
 		return should
 	}
 
 	composedY(){
-		const {computed:{composed:pages}, props:{pageGap}}=this
-		return pages.reduce((w,page)=>w+page.composedHeight+pageGap,0)
+		const {canvas:{type:Canvas}}=this.props
+		return Canvas.composedY(this)
 	}
 
 	isSelectionComposed(selection){
@@ -127,7 +100,7 @@ export default class Document extends Super{
 	}
 
 	getPages(){
-		return this.computed.composed
+		return this.pages
 	}
 
 	//when it can be used???

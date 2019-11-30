@@ -4,12 +4,13 @@ import memoize from "memoize-one"
 
 import Media from "./responsible/media"
 
-export default class ComposedDocument extends Component{
-	static displayName="composed"
+export default class ComposedDocumentCanvas extends Component{
+	static displayName="composed-document-default-canvas"
 	static propTypes={
-		pages: PropTypes.arrayOf(PropTypes.object).isRequired,
-		pageGap: PropTypes.number.isRequired,
-		scale: PropTypes.number.isRequired,
+		pages: PropTypes.arrayOf(PropTypes.object),
+		pageGap: PropTypes.number,
+		scale: PropTypes.number,
+		document: PropTypes.object,
 	}
 
 	static defaultProps={
@@ -17,8 +18,18 @@ export default class ComposedDocument extends Component{
 		scale:1,
 	}
 
-	static contextTypes={
-		events: PropTypes.shape({emit:PropTypes.func.isRequired}),
+	static getDerivedStateFromProps({document, ...mySelf}){
+		const {pages, props:{pageGap, scale, precision, content}}=document
+		return {
+			pages, precision,content,
+			pageGap:pageGap!=undefined ? pageGap : mySelf.pageGap, 
+			scale:scale||mySelf.scale,
+		}
+	}
+
+	constructor(){
+		super(...arguments)
+		this.state={}
 	}
 
 	getComposed=memoize((pages,pageGap)=>{
@@ -32,9 +43,11 @@ export default class ComposedDocument extends Component{
 	})
 
 	render(){
-		const {pages, pageGap, scale, style,children,innerRef, content, precision=1, ...props}=this.props
+		const {
+			state:{pages, pageGap, scale,precision=1}, 
+			props:{style,children,innerRef,document,pages:_1,pageGap:_2,scale:_3,precision:_4, ...props}
+		}=this
 		const {width,height,composed}=this.getComposed(pages, pageGap)
-
 		return   (
 			<svg
 				{...props}

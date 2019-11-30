@@ -193,7 +193,7 @@ export class WeDocumentStub extends Component{
 		return React.cloneElement(createWeDocument(content,ModelTypes),{
 			canvasId,
 			...canvasProps,
-			canvas:canvasProps.canvas||defaultCanvas,//default empty canvas to 
+			canvas:canvasProps.canvas,//||defaultCanvas,//default empty canvas to 
 			content,
 		})
 	},(a,b)=>a===b || shallowEqual.equals(a,b) || shallowEqual(a,b))
@@ -218,7 +218,5 @@ const Root=connect((state)=>{
 	return {content:state.get("content")}
 })(WeDocumentStub)
 
-const Dummy=({content})=><Fragment>{content}</Fragment>
-const defaultCanvas=<Dummy/>
 
 export default Editor
