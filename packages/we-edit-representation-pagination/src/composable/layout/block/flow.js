@@ -4,6 +4,7 @@ import { dom, ReactQuery } from "we-edit"
 import { HasParentAndChild } from "../.."
 import { Group } from "../../../composed"
 import ConstraintSpace from "../space"
+import {Rect} from "../../../tool/geometry"
 /**
  * Layout engine is how to layout content in a constraint space
  * so it includes: a constraint space + layout algorithm + content

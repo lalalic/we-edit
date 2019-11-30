@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 import {ACTION, Cursor, Selection,ContentQuery} from "we-edit"
 
 import Canvas from "../canvas"
-import SelectionShape from "../selection"
+import SelectionShape from "./selection"
 import Locator from "./locator"
 import Positioning from "./positioning"
 import ComposeMoreTrigger from "./compose-more-trigger"
@@ -29,7 +29,7 @@ export default class Responsible extends Component{
         const {computed:{composed:pages}, props:{pageGap}}=document
         return pages.reduce((w,page)=>w+page.composedHeight+pageGap,0)
     }
-    static getDerivedStateFromProps({document:{props:{editable,scale,content,canvasId,dispatch}}}){
+    static getDerivedStateFromProps({document:{dispatch,props:{editable,scale,content,canvasId}}}){
         return {editable,scale,content,canvasId,dispatch}
     }
 

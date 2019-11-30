@@ -2,7 +2,7 @@ import React, {PureComponent, Component,Fragment} from "react"
 import PropTypes from "prop-types"
 import {connect} from "we-edit"
 
-import {Group} from "../../composed"
+import {Group} from "../../../composed"
 import Overlay from "./overlay"
 import Top from "./top"
 

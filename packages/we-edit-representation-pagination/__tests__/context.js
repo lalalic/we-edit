@@ -74,11 +74,9 @@ export const $=pages=>{
 
 export const render=TestRender.create
 
-const DummyCanvas=({content})=>content
-
 export const defaultProps=({Document,Paragraph,Text})=>()=>{
     const defaultStyle={fonts:"arial",size:10}
-    Document.defaultProps=Object.assign(Document.defaultProps||{},{id:"root",canvas:<DummyCanvas/>})
+    Document.defaultProps=Object.assign(Document.defaultProps||{},{id:"root"})
     Paragraph.defaultProps=Object.assign(Paragraph.defaultProps||{},{defaultStyle})
     Text.defaultProps=Object.assign(Text.defaultProps||{},defaultStyle)
 }

@@ -3,8 +3,7 @@ import PropTypes from "prop-types"
 
 import Top from "./top"
 import Overlay from "./overlay"
-import {Group} from "../../composed"
-import { posix } from "path"
+import {Group} from "../../../composed"
 
 export default class Movable extends Component{
 	static propTypes={

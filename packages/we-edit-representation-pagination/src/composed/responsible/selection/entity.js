@@ -8,8 +8,8 @@ import AbsoluteMovable from "./absolute-movable"
 import Resizable from "./resizable"
 import Rotatable from "./rotatable"
 
-import {Group} from "../../composed"
-import Geometry from "../../tool/path"
+import {Group} from "../../../composed"
+import Geometry from "../../../tool/path"
 
 export default class Extent extends Component{
 	static propTypes={

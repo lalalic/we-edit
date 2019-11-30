@@ -1,8 +1,6 @@
 import React, {Component} from "react"
 import {createPortal} from "react-dom"
-import PropTypes from "prop-types"
-
-import {Group} from "../../composed"
+import {Group} from "../../../composed"
 
 
 export default class Top extends Component{

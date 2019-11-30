@@ -4,8 +4,8 @@ import {Cacheable} from "../../composable"
 import editable from "./editable"
 import Base from "../row"
 
-import Resizable from "../../composed/selection/resizable"
-import Top from "../../composed/selection/top"
+import Resizable from "../../composed/responsible/selection/resizable"
+import Top from "../../composed/responsible/selection/top"
 import {Group} from "../../composed"
 
 export default Cacheable(class __$1 extends editable(Base,{stoppable:true,continuable:true}){

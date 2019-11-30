@@ -24,7 +24,7 @@ define("position", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Cont
     }
 
     describe("in page paragraph",()=>{
-        fit("t|ext at=0,1,4",()=>{
+        it("t|ext at=0,1,4",()=>{
             const MarginLeft=10
             const p=test(
                 <Paragraph id={`${++uuid}`}>

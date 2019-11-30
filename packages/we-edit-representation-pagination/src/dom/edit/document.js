@@ -52,7 +52,11 @@ export default class Document extends Super{
 	clearComposed(){
         super.clearComposed(...arguments)
         this.computed.templates=[]
-    }
+	}
+	
+	get dispatch(){
+		return this.context.activeDocStore.dispatch
+	}
 
 	componentDidUpdate(){
 		this.dispatch(ACTION.Statistics({

@@ -14,10 +14,10 @@ import * as Measure from "./measure"
 import Output from "./output"
 import SVG from "./output/svg"
 
-import Resizable from "./composed/selection/resizable"
-import Movable from "./composed/selection/movable"
-import Rotatable from "./composed/selection/rotatable"
-import Top from "./composed/selection/top"
+import Resizable from "./composed/responsible/selection/resizable"
+import Movable from "./composed/responsible/selection/movable"
+import Rotatable from "./composed/responsible/selection/rotatable"
+import Top from "./composed/responsible/selection/top"
 
 
 import * as composable from "./composable"
