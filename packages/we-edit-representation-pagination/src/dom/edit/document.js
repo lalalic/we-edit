@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 import {getSelection, ACTION} from "we-edit"
 
 import Base from "../document"
-import Responsible from "../../composed/responsible"
+import Responsible from "../../composed/responsible-canvas"
 
 import editable from "./editable"
 

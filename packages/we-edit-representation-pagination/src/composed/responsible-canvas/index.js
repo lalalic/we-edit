@@ -4,18 +4,16 @@ import {ACTION, Cursor, Selection,ContentQuery} from "we-edit"
 
 import Canvas from "../canvas"
 import SelectionShape from "./selection"
+import CursorShape from "./cursor-shape"
 import Locator from "./locator"
 import Positioning from "./positioning"
 import ComposeMoreTrigger from "./compose-more-trigger"
-
-const CursorShape=({y=0,x=0,height=0,color="black", style})=>(
-    <path d={`M${x} ${y} v${height}`} strokeWidth={1} stroke={color} style={style}/>
-)
-CursorShape.displayName="CursorShape"
+import DefineShapes from "./define-shapes"
 
 /**
  * must provide the following 
  * 1. static composedY(), used to trigger composing if scrolling to uncomposed position
+ * 2. makeEventHandler(): make event handler to respond to user input
  */
 export default class Responsible extends Component{
     static displayName="responsible-composed-document-default-canvas"
@@ -111,28 +109,28 @@ export default class Responsible extends Component{
 					}}
 					/>
     }
-    
+    /**to make */
     makeEventHandlers(){
         const {context:{onContextMenu}}=this
-        const flagEvent=({clientX,clientY})=>this.down={clientX,clientY}
-        const shouldIgnore=({clientX,clientY})=>clientX==this.down.clientX && clientY==this.down.clientY
+        const flagEvent=({clientX,clientY})=>this.__mouseDownFlag={clientX,clientY}
+        const shouldIgnore=({clientX,clientY})=>clientX==this.__mouseDownFlag.clientX && clientY==this.__mouseDownFlag.clientY
         return {
             onContextMenu:e=>{
-                this.onClick(e)
+                this.__onClick(e)
                 onContextMenu && onContextMenu(e)
-            },
+            }, 
 
             onClick:e=>{
-                if(!this.down.selected){
-                    this.down.selected=false
-                    this.onClick(e)
+                if(!this.__mouseDownFlag.selected){
+                    this.__mouseDownFlag.selected=false
+                    this.__onClick(e)
                 }
             },
 
             onDoubleClick:e=>{
-                if(!this.down.selected){
-                    this.down.selected=false
-                    this.onClick(e,true)
+                if(!this.__mouseDownFlag.selected){
+                    this.__mouseDownFlag.selected=false
+                    this.__onClick(e,true)
                 }
             },
 
@@ -163,7 +161,7 @@ export default class Responsible extends Component{
                     this.selecting.current.setState({start:undefined, end:undefined, rects:undefined,selecting:false})
                     ;({start,end}=this.positioning.extendSelection(start,end));
                     this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))
-                    this.down.selected=true
+                    this.__mouseDownFlag.selected=true
                 }
             },
         }
@@ -220,24 +218,7 @@ export default class Responsible extends Component{
                 {...props} 
                 innerRef={a=>{this.canvas=a}} 
                 {...eventHandlers}>
-                <Fragment>
-                    <defs>
-                        <path id="table.adder"
-                            width={14}
-                            height={20}
-                            strokeWidth={1}
-                            fill="transparent"
-                            d="M8,9h8M12,5v8 M12,2C8.13,2,5,5.13,5,9c0,5.25,7,13,7,13s7-7.75,7-13C19,5.13,15.87,2,12,2z"
-                            />
-                        <svg id="rotator" viewBox="0 0 24 24" width={24} height={24}>
-                            <circle cx={12} cy={12} r={15}
-                                stroke="transparent"
-                                fillOpacity={0.01}
-                                cursor="pointer"/>
-                            <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
-                        </svg>
-                    </defs>
-                </Fragment>
+                <DefineShapes/>
 				<Fragment>
                     {children}
 					{this.renderComposeTrigger()}
@@ -290,7 +271,7 @@ export default class Responsible extends Component{
         this.dispatch(ACTION.Selection.MOVE(e))
     }
 
-    onClick({shiftKey:selecting, clientX:left,clientY:top}, doubleClicked=false){
+    __onClick({shiftKey:selecting, clientX:left,clientY:top}, doubleClicked=false){
 		const {id,at}=this.positioning.around(left, top)
 		if(id){
             if(at==undefined){
@@ -324,7 +305,7 @@ export default class Responsible extends Component{
         this.active()
     }
 
-    onKeyArrow(id,at,selecting){
+    __onKeyArrow(id,at,selecting){
         if(!selecting){
             this.dispatch(ACTION.Cursor.AT(id,at))
         }else{
@@ -343,14 +324,14 @@ export default class Responsible extends Component{
 	onKeyArrowUp({shiftKey:selecting}){
 		const {id, at}=this.locateLine("prev")
         if(id){
-    		this.onKeyArrow(id,at,selecting)
+    		this.__onKeyArrow(id,at,selecting)
         }
 	}
 
 	onKeyArrowDown({shiftKey:selecting}){
 		const {id, at}=this.locateLine("next")
         if(id){
-            this.onKeyArrow(id,at,selecting)
+            this.__onKeyArrow(id,at,selecting)
         }
     }
 }
