@@ -1,6 +1,6 @@
 import React, {Component} from "react"
 import {ReactQuery} from "we-edit"
-import {InlineSegments} from "./space"
+import InlineSegments from "./constraint-space/lnline-segments";
 
 /**
  * height: line box height
