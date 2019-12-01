@@ -7,15 +7,22 @@ import {Group} from "../composed"
 export default class Frame extends Layout.Block{
 	static displayName=HasParentAndChild(dom.Frame).displayName
 	getSpace(){
-		if(this.cols)
-			return super.getSpace()
+		const space=super.getSpace()
 		const {width,height,margin:{left=0,right=0,top=0,bottom=0}={},x=0,y=0}=this.props
-		return {
+		const edges={
+			[this.getComposeType()]:{left:x,top:y,right:x+width,bottom:y+height},
+			margin:{left:x+left,top:y+top,right:width+x-right,bottom:y+height-bottom}
+		}
+		if(this.cols)
+			return Layout.ConstraintSpace.create(space).clone({edges})
+
+		return Layout.ConstraintSpace.create(space).clone({
 			left:x+left,
 			right:x+width-right,
 			blockOffset:y+top,
 			height:height-top-bottom,
-		}
+			edges
+		})
 	}
 
 	defineProperties(){

@@ -1,6 +1,7 @@
 import React from "react"
 import OrphanControlable from "./orphan-controlable"
 import {Group} from "../../../composed"
+import ContraintSpace from "../constraint-space"
 /**
  * {props:{space, cols=[{x,width,[y,height]}, ...]}}
  * space is shared by cols, including wrappees, left,right, blockOffset, and height
@@ -89,18 +90,22 @@ export default class Columnable extends OrphanControlable {
 
 	/**check class explaination */
 	getSpace(column) {
-		const space = super.getSpace(...arguments);
+		var space = super.getSpace(...arguments);
 		if (!this.cols)
 			return space;
-		const { left = 0, right = 0, blockOffset = 0, height: H } = space || {};
+		if(!space)
+			space=ContraintSpace.create({})
+		const { left = 0, right = 0, blockOffset = 0, height: H } = space;
 		const { width = right - left, x = left, height = H, y = blockOffset } = column||this.currentColumn;
-		return {
-			...space,
+		return space.clone({
 			left: x,
 			right: x + width,
 			blockOffset: y,
 			height,
-		};
+			edges:{
+				column:{left:x,top:y,right:x+width,bottom:y+height}
+			}
+		})
 	}
 	nextAvailableSpace() {
 		const space = super.nextAvailableSpace(...arguments);

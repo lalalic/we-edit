@@ -109,12 +109,12 @@ export default class Responsible extends Component{
 					getComposedY={()=>document.composedY()}
 					isSelectionComposed={selection=>document.isSelectionComposed(selection)}
 					compose4Selection={a=>{
-						if(!document.isAllComposed()){
+						if(!document.isAllChildrenComposed()){
 							notifyLocator(selection=>document.compose4Selection(selection))
 						}
 					}}
 					compose4Scroll={y=>{
-						if(!document.isAllComposed()){
+						if(!document.isAllChildrenComposed()){
 							notifyLocator(()=>document.compose4Scroll(y))
 						}
 					}}

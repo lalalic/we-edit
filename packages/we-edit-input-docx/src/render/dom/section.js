@@ -76,6 +76,7 @@ export default ({Section,Frame})=>class __$1 extends Component{
 
 	static get Page(){
 		return memoize(()=>Section.fissureLike(class Page extends Frame{
+			static displayName="page"
 			defineProperties(){
 				this.section=this.context.parent
 				super.defineProperties()

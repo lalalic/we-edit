@@ -157,7 +157,7 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 	}
 	//default use props.space
 	getSpace() {
-		return this.props.space;
+		return this.props.space
 	}
 
 	positionLines(lines) {
@@ -178,8 +178,8 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 		const { allowOverflow = false } = this.props;
 		if (this.isEmpty()
 			|| this.availableBlockSize >= requiredBlockSize) {
-			return ConstraintSpace.create({
-				...this.getSpace(),
+			const space=this.getSpace()
+			return ConstraintSpace.create(space||{}).clone({
 				blockOffset: this.blockOffset,
 				height: !allowOverflow ? this.availableBlockSize : Number.MAX_SAFE_INTEGER,
 				frame: this,
