@@ -44,9 +44,19 @@
          return new Space({...this.props, ...modifier,edges:{...this.props.edges, ...modifier.edges,}})
      }
 
-     anchor({base, align, offset=0}){
-        const {[base]:{[align]:v=0}={}}=this.edges||{}
-        return v+offset
+     anchor({base, offset=0, align={page:"left",column:"left", paragraph:"top",line:"top",character:"left"}[base]},{width=0,height=0}={}){
+        if(!this.edges || !this.edges[base] || !(align in this.edges[base]))
+            return 0
+        
+        const {[base]:{[align]:v=0}={}}=this.edges
+        switch(align){
+            case "right": 
+                return v-offset-width
+            case "bottom": 
+                return v-offset-height
+            default: 
+                return v+offset 
+        }
      }
  }
  

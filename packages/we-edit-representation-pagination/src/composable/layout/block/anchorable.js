@@ -41,25 +41,6 @@ export default class Anchorable extends Flow {
 			return super.appendComposed(...arguments);
         }
         
-
-        const anchorInlineX=()=>{
-            const {first,parents}=new ReactQuery(line).findFirstAndParents(`[data-anchor]`)
-            return [...parents,first.get(0)].reduce((X,{props:{x=0}})=>X+x,0)
-        }
-
-        const paragraphY=()=>{
-            const id=new ReactQuery(line).findFirst('[data-type="paragraph"]').attr("data-content")
-            return this.paragraphY(id)
-        }
-
-        space.clone({
-            edges:{
-                paragraph:{top:paragraphY()},
-                line:{top:space.blockOffset},
-                character:{left:space.left+anchorInlineX()},
-            }
-        })
-        
         /**
          * it's only to append anchored content,
          * anchor placeholder in line will be relayouted later,
@@ -67,7 +48,23 @@ export default class Anchorable extends Flow {
          * return 1 to ignore and relayout current line or
          * return false to notify infeasible space, and ignore and re-layout current line and anchor
          */
-        const anchored = anchor(this,line);
+        const anchored = anchor(space.clone({
+            edges:{
+                paragraph:{
+                    top:this.getSpace().blockOffset+(()=>{
+                        const id=new ReactQuery(line).findFirst('[data-type="paragraph"]').attr("data-content")
+                        return this.paragraphY(id)
+                    })()
+                },
+                line:{top:space.blockOffset},
+                character:{
+                    left:space.left+(()=>{
+                        const {first,parents}=new ReactQuery(line).findFirstAndParents(`[data-anchor]`)
+                        return [...parents,first.get(0)].reduce((X,{props:{x=0}})=>X+x,0)
+                    })()
+                },
+            }
+        }))
 		const { wrap, geometry, y = 0, "data-content": anchorId } = anchored.props;
         /**
          * @TODO: wrap each other with already anchored wrappees, and this wrappees

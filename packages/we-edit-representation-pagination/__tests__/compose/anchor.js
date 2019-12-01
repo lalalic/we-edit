@@ -90,14 +90,6 @@ define("section compose",
                 expect(test({x:{base:"character",offset:1}}).x()).toBe(pg.margin.left+"hello".length+1)
             })
 
-            it("{base:'leftMargin', offset:1} should anchored at leftMargin+offset",()=>{
-                expect(test({x:{base:"leftMargin",offset:1}}).x()).toBe(pg.margin.left+1)
-            })
-
-            it("{base:'rightMargin', offset:1} should anchored at page.width-rightMargin-anchor.width-offset",()=>{
-                expect(test({x:{base:"rightMargin",offset:1}}).x()).toBe(pg.width-pg.margin.right-size.width-1)
-            })
-
             it("unsupported base would always anchor at 0",()=>{
                 console.error=jest.fn()
                 expect(test({x:{base:"unknown",offset:1}}).x()).toBe(0)
@@ -120,14 +112,6 @@ define("section compose",
 
             it("{base:'line', offset:1} should anchored at current line y",()=>{
                 expect(test({y:{base:"line",offset:1}}).y()).toBe(pg.margin.top+1)
-            })
-
-            it("{base:'topMargin', offset:1} should anchored",()=>{
-                expect(test({y:{base:"topMargin",offset:1}}).y()).toBe(pg.margin.top+1)
-            })
-
-            it("{base:'bottomMargin', offset:1} should anchored",()=>{
-                expect(test({y:{base:"bottomMargin",offset:1}}).y()).toBe(pg.height-pg.margin.bottom-size.height-1)
             })
 
             it("unsupported base should not anchor",()=>{

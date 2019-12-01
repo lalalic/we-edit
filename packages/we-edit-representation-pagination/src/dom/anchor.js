@@ -1,12 +1,9 @@
-import React,{PureComponent as Component} from "react"
-import PropTypes from "prop-types"
-import {Group, Frame as ComposedFrame} from "../composed"
+import React from "react"
+import {Group} from "../composed"
 
-import composable,{HasParentAndChild} from "../composable"
-import {dom, ReactQuery} from "we-edit"
-import Path from "../tool/path"
+import {HasParentAndChild} from "../composable"
+import {dom} from "we-edit"
 const Super=HasParentAndChild(dom.Anchor)
-
 
 /**
 * xy for Positioning
@@ -15,14 +12,16 @@ const Super=HasParentAndChild(dom.Anchor)
 export default class __$1 extends Super{
     createComposed2Parent(content){
         var {width,height,geometry}=content.props
-        const {margin:{left=0,right=0,top=0,bottom=0}={}, wrap:{mode}}=this.props
+        const {margin:{left=0,right=0,top=0,bottom=0}={}, wrap:{mode}, x:X, y:Y, xy}=this.props
         this.width=width+=(left+right)
         this.height=height+=(top+bottom)
-
         return (
             <Group width={0} height={0}
-                anchor={(frame,line)=>{
-                    var {x,y}=this.xy(frame,line)
+                anchor={space=>{
+                    const size={width:this.width, height:this.height}    
+                    var x=xy ? xy(X,size,space) : space.anchor(X,size)
+                    var y=xy ? xy(Y,size,space) : space.anchor(Y,size)
+                    
                     x=x-left, y=y-top
                     if(geometry && geometry.origin){
                         x-=geometry.origin.x
@@ -53,24 +52,6 @@ export default class __$1 extends Super{
             }
             />
         )
-    }
-
-    xy(frame,line){
-        const {x,y, xy}=this.props
-        if(xy){
-            return xy(this.props, frame, line)
-        }
-        const PositionX=Types[x.base]
-        const PositionY=Types[y.base]
-        if(!PositionX || !PositionY){
-            console.error(`anchor[x.base="${x.base}",y.base="${y.base}"] is not supported`)
-            return {x:0,y:0}
-        }
-
-        return {
-            x:new PositionX(frame,this,line).x(x),
-            y:new PositionY(frame,this,line).y(y)
-        }
     }
 
     applyWrapText(x1,x2, x, X){
@@ -131,134 +112,4 @@ export default class __$1 extends Super{
     wrapTopAndBottom(){
         return this.wrapClear(...arguments)
     }
-}
-
-class Positioning{
-    constructor(frame,anchor){
-        this.frame=frame
-        this.anchor=anchor
-        this.x0=0
-        this.y0=0
-    }
-
-    x({align, offset=0}){
-        if(align)
-            return this[`x_${align}`]()
-        else
-            return this.x0+offset
-    }
-
-    y({align, offset=0}){
-        if(align)
-            return this[`y_${align}`]()
-        else
-            return this.y0+offset
-    }
-}
-
-class page extends Positioning{
-    y_top(){
-        return 0
-    }
-
-    y_bottom(){
-        return this.frame.props.height-this.anchor.height
-    }
-}
-
-class margin extends page{
-    x({align,...val}){
-        return new Types[align+`Margin`](this.frame,this.anchor).x(val)
-    }
-
-    y({align,...val}){
-        return new Types[align+`Margin`](this.frame,this.anchor).y(val)
-    }
-}
-
-//x only
-class column extends page{
-    constructor(){
-        super(...arguments)
-        const {left:x=0,blockOffset:y=0}=this.frame.getSpace()
-        this.x0=x
-        this.y0=y
-    }
-}
-
-
-class character extends column{
-    constructor(frame,anchor,line){
-        super(...arguments)
-        const {first,parents}=new ReactQuery(line).findFirstAndParents(`[data-content="${this.anchor.props.id}"]`)
-        const dx=[...parents,first.get(0)].reduce((X,{props:{x=0}})=>X+x,0)
-        this.x0+=dx
-    }
-}
-
-class leftMargin extends page{
-    constructor(){
-        super(...arguments)
-        const {margin:{left=0}}=this.frame.props
-        this.x0=left
-    }
-}
-
-class rightMargin extends page{
-    constructor(){
-        super(...arguments)
-        const {margin:{right=0},width}=this.frame.props
-        this.x0=width-right-this.anchor.width
-    }
-
-    x({align,offset}){
-        if(!align && offset!=undefined){
-            return this.x0-offset
-        }
-        return super.x(...arguments)
-    }
-}
-
-//y only
-class paragraph extends column{
-    constructor(frame,anchor, line){
-        super(...arguments)
-        this.y0+=this.frame.paragraphY(new ReactQuery(line).findFirst('[data-type="paragraph"]').attr("data-content"))
-    }
-}
-
-class topMargin extends page{
-    constructor(){
-        super(...arguments)
-        const {margin:{top=0}}=this.frame.props
-        this.y0=top
-    }
-}
-
-class bottomMargin extends page{
-    constructor(){
-        super(...arguments)
-        const {margin:{bottom=0},height}=this.frame.props
-        this.y0=height-bottom-this.anchor.height
-    }
-
-    y({align,offset}){
-        if(!align && offset!=undefined){
-            return this.y0-offset
-        }
-        return this.y(...arguments)
-    }
-}
-
-class line extends column{
-    constructor(){
-        super(...arguments)
-        this.y0=this.frame.blockOffset
-    }
-}
-
-const Types={
-    page,margin,//both x and y
-    column,character,leftMargin, rightMargin, //only x
-    paragraph,line,topMargin, bottomMargin, //only y
 }
