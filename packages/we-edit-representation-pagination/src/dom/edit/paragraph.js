@@ -2,25 +2,13 @@ import React,{Children} from "react"
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
 
-import {ReactQuery, dom} from "we-edit"
+import {ReactQuery} from "we-edit"
 
 import {Cacheable} from "../../composable"
 import Base from "../paragraph"
-import Text from "./text"
 import editable from "./editable"
 
-import {Text as ComposedText} from "../../composed"
-
-const Cursorable=`[data-type="text"],[data-type="image"],[data-type="shape"]`
-
 const Editable=Cacheable(class __$1 extends editable(Base,{stoppable:true}){
-	createEnder(){
-        return <this.constructor.End {...this.props.defaultStyle}
-			End={this.props.End}
-			key={`${this.props.id}-end`}
-			id={`${this.props.id}-end`}/>
-    }
-
 	shouldComponentUpdate(){
 		return super.shouldComponentUpdate(...arguments) && this.context.shouldContinueCompose(this)
 	}

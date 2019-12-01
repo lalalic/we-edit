@@ -1,14 +1,12 @@
-import React, {Children,Component} from "react"
+import React from "react"
 import PropTypes from "prop-types"
 
 import {dom, ReactQuery} from "we-edit"
 
-import {HasParentAndChild,Layout} from "../../composable"
-import breakOpportunities from "../../wordwrap/line-break"
-import {Text as ComposedText,  Group} from "../../composed"
-import Frame from "../frame"
-
-import ParagraphEnd from "./ender"
+import Frame from "./frame"
+import {HasParentAndChild,Layout} from "../composable"
+import breakOpportunities from "../wordwrap/line-break"
+import {Text as ComposedText,  Group} from "../composed"
 
 const Super=HasParentAndChild(dom.Paragraph)
 const isText=a=>new ReactQuery(a).findFirst(`[data-type="text"]`).length==1
@@ -40,9 +38,7 @@ const shouldAtomMerge=(a,b)=>{
 }
 
 export default class Paragraph extends Super{
-    static End=ParagraphEnd
-
-	static contextTypes={
+    static contextTypes={
 		...Super.contextTypes,
 		Measure: PropTypes.func,
 	}
@@ -62,20 +58,6 @@ export default class Paragraph extends Super{
 		}
 		return composed[composed.length-1]
 	}
-
-	children(){
-        return [
-			...Children.toArray(this.props.children),
-            this.createEnder(),
-		]
-	}
-
-    createEnder(){
-        return <this.constructor.End {...this.props.defaultStyle}
-            End={""}
-            key={`${this.props.id}-end`}
-            id={`${this.props.id}-end`}/>
-    }
 
     /**
 	 * to collect atomic inline items
@@ -118,7 +100,16 @@ export default class Paragraph extends Super{
 	}
 
 
-    onAllChildrenComposed(){//need append last non-full-width line to parent
+	onAllChildrenComposed(){//need append last non-full-width line to parent ???
+		const {context:{Measure}, props:{defaultStyle:{fonts,size,bold,italic}, End=""}}=this
+        const measure=new Measure({fonts,size,bold,italic})
+		this.computed.atoms.push(<ComposedText
+			{...measure.defaultStyle}
+			width={measure.stringWidth(End)}
+			minWidth={0}
+			children={[End]}
+			className="ender"
+			/>)
 		this.commit()
 		super.onAllChildrenComposed()
     }

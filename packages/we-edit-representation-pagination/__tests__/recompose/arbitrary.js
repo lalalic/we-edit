@@ -45,6 +45,7 @@ describe("continuable", ()=>{
 		Paragraph.prototype.children=jest.fn(function(){
 			return this.props.children
 		})
+		Paragraph.defaultProps.End=""
 	})
 
 	describe("compose to Y", ()=>{
@@ -248,7 +249,7 @@ describe("continuable", ()=>{
 				})
 			})
 
-			fit("scroll with cache(part)/template compose",()=>{
+			it("scroll with cache(part)/template compose",()=>{
 				const node={scrollTop:0}
 				const state={
 					toJS(){
@@ -261,7 +262,7 @@ describe("continuable", ()=>{
 
 				const pages=doc.computed.composed
 				expect(pages.length).toBe(2)
-				expect($(pages).text()).toBe("hello1hello1.1hello2")
+				expect($(pages).text()).toBe(`hello1hello1.1hello2`)
 				//section 3 render to null since selection is on section2.paragraph1
 				expect(Section.prototype.render).toHaveBeenCalledTimes(3)
 				expect(Section.prototype.render).lastReturnedWith(null)
