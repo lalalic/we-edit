@@ -1,6 +1,7 @@
 import React, {Component} from "react"
 import {ReactQuery} from "we-edit"
-import InlineSegments from "./constraint-space/lnline-segments";
+import InlineSegments from "../constraint-space/lnline-segments"
+import Story from "./story"
 
 /**
  * height: line box height
@@ -157,5 +158,15 @@ export default class Inline extends Component{
 		const {props:{children}}=this.inlineSegments.render()
 		this.children=[...this.props.positioned,...children]
 		return this
+	}
+
+	render(bLastLine){
+		const {props:{align}}=this
+		const story=new Story({
+			children:this.children, 
+			width:this.width,
+			align:bLastLine && ["justify","both"].includes(align) ? undefined : align,
+		})
+		return story.render()
 	}
 }

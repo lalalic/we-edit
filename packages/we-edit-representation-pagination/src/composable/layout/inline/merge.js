@@ -1,7 +1,7 @@
 import React, {Component} from "react"
 import memoize from "memoize-one"
 
-import {Group} from "../../composed"
+import {Group} from "../../../composed"
 
 
 export default class Merge extends Component{

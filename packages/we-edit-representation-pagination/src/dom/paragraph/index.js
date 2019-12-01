@@ -9,7 +9,6 @@ import {Text as ComposedText,  Group} from "../../composed"
 import Frame from "../frame"
 
 import ParagraphEnd from "./ender"
-import Story from "./story"
 
 const Super=HasParentAndChild(dom.Paragraph)
 const isText=a=>new ReactQuery(a).findFirst(`[data-type="text"]`).length==1
@@ -41,7 +40,6 @@ const shouldAtomMerge=(a,b)=>{
 }
 
 export default class Paragraph extends Super{
-    static Story=Story
     static End=ParagraphEnd
 
 	static contextTypes={
@@ -273,6 +271,7 @@ export default class Paragraph extends Super{
 		const {
 			indent:{left:indentLeft=0,right:indentRight=0,firstLine=0}, 
 			numbering, 
+			align,
 			spacing:{lineHeight,top}
 		}=this.props
 		const bFirstLine=this.computed.composed.length==0
@@ -286,7 +285,8 @@ export default class Paragraph extends Super{
 			top:bFirstLine ? top : undefined, 
 			left:left+indentLeft+(bFirstLine&&!numbering&&firstLine||0), 
 			right:right-indentRight,
-			lineHeight
+			lineHeight,
+			align,
 		}),{parent:this})
 
 		this.computed.composed.push(line)
@@ -305,12 +305,11 @@ export default class Paragraph extends Super{
 	 * @param {*} last 
 	 */
 	createComposed2Parent(line,bLastLine){
-		const {height,width, children, anchor, topToBlockOffset}=line
+		const {height,width, anchor, topToBlockOffset}=line
 		const {
 			numbering,
 			indent:{left=0,right=0, firstLine=0},
 			spacing:{bottom=0},
-			align,
 			orphan,widow,keepWithNext,keepLines,
 			}=this.props
 		
@@ -331,11 +330,7 @@ export default class Paragraph extends Super{
 					y={topToBlockOffset} 
 					width={width} 
 					height={height}>
-					{new this.constructor.Story({
-						children,
-						align:bLastLine && ["justify","both"].includes(align) ? undefined : align,
-						width,
-					}).render()}
+					{line.render(bLastLine)}
                 </Group>
             </Group>
         )
@@ -358,7 +353,6 @@ export default class Paragraph extends Super{
 				})
 		}
 	}
-    
 }
 
 

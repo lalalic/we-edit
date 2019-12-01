@@ -1,8 +1,7 @@
-import React, {Children,Component} from "react"
-import PropTypes from "prop-types"
+import React, {Component} from "react"
 import {ReactQuery} from "we-edit"
 
-import {Group,Text} from "../../composed"
+import {Group,Text} from "../../../composed"
 
 import Merge from "./merge"
 
