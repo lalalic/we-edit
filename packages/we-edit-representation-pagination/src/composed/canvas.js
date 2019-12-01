@@ -2,7 +2,7 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
 
-import Media from "./responsible/media"
+import Media from "./responsible-canvas/media"
 
 export default class ComposedDocumentCanvas extends Component{
 	static displayName="composed-document-default-canvas"

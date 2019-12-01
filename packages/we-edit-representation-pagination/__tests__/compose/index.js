@@ -1,11 +1,7 @@
-import React from "react"
-import PropTypes from "prop-types"
-import {ReactQuery} from "we-edit"
-
-import {render, provider, Measure, defaultProps,context,$} from "../context"
+import {provider, Measure, defaultProps,context,$} from "../context"
 
 import {Viewers, Editors} from "../../src"
-import ConstraintSpace from "../../src/composable/layout/space"
+import ConstraintSpace from "../../src/composable/layout/constraint-space"
 
 export function define(feature, tests){
     describe.each([

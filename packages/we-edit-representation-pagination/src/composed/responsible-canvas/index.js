@@ -35,12 +35,23 @@ export default class Responsible extends Component{
         super(...arguments)
         this.state={}
         this.selecting=React.createRef()
-        this.onMove=this.onMove.bind(this)
-        this.onResize=this.onResize.bind(this)
-        this.onRotate=this.onRotate.bind(this)
         this.getComposer=this.getComposer.bind(this)
         this.getContent=this.getContent.bind(this)
         this.positioning=new Positioning(this)
+
+        this.onMove=this.onMove.bind(this)
+        this.onResize=this.onResize.bind(this)
+        this.onRotate=this.onRotate.bind(this)
+        this.eventHandlers="onClick,onDoubleClick,onContextMenu,onMouseDown,onMouseMove,onMouseUp".split(",")
+            .reduce((handlers,key)=>{
+                if(key in this){
+                    handlers[key]=this[key]=this[key].bind(this)
+                }else{
+                    console.warn(`responsible canvas doesn't implemented ${key} event`)
+                }
+                return handlers
+            },{})
+        this.__mouseDownFlag={}
     }
 
     /**the following API must be provided to Positioning */
@@ -109,68 +120,69 @@ export default class Responsible extends Component{
 					}}
 					/>
     }
-    /**to make */
-    makeEventHandlers(){
+
+    __shouldIgnoreMouseDownEvent({clientX,clientY}){
+        return clientX==this.__mouseDownFlag.clientX && clientY==this.__mouseDownFlag.clientY
+    }
+
+    onClick(e){
+        if(!this.__mouseDownFlag.selected){
+            this.__mouseDownFlag.selected=false
+            this.__onClick(e)
+        }
+    }
+
+    onContextMenu(e){
         const {context:{onContextMenu}}=this
-        const flagEvent=({clientX,clientY})=>this.__mouseDownFlag={clientX,clientY}
-        const shouldIgnore=({clientX,clientY})=>clientX==this.__mouseDownFlag.clientX && clientY==this.__mouseDownFlag.clientY
-        return {
-            onContextMenu:e=>{
-                this.__onClick(e)
-                onContextMenu && onContextMenu(e)
-            }, 
+        this.__onClick(e)
+        onContextMenu && onContextMenu(e)
+    }
 
-            onClick:e=>{
-                if(!this.__mouseDownFlag.selected){
-                    this.__mouseDownFlag.selected=false
-                    this.__onClick(e)
-                }
-            },
+    onDoubleClick(e){
+        if(!this.__mouseDownFlag.selected){
+            this.__mouseDownFlag.selected=false
+            this.__onClick(e,true)
+        }
+    }
 
-            onDoubleClick:e=>{
-                if(!this.__mouseDownFlag.selected){
-                    this.__mouseDownFlag.selected=false
-                    this.__onClick(e,true)
-                }
-            },
+    onMouseDown({clientX,clientY}){
+        this.__mouseDownFlag={clientX,clientY}
+    }
 
-            onMouseDown:flagEvent,
+    onMouseMove(e){
+        if(!(e.buttons&0x1)){
+            return
+        }
+        if(this.__shouldIgnoreMouseDownEvent(e)){
+            return
+        }
 
-            onMouseMove:e=>{
-                if(!(e.buttons&0x1)){
-                    return
-                }
-                if(shouldIgnore(e)){
-                    return
-                }
+        const {id,at}=this.positioning.around(e.clientX,e.clientY)
+        if(id){
+            const end={id,at}
+            let {start=end}=this.selecting.current.state
+            const rects=start==end ? [] : this.positioning.getRangeRects(start, end)
+            this.selecting.current.setState({start:start||end, end, rects, selecting:true})
+        }
+    }
 
-                const {id,at}=this.positioning.around(e.clientX,e.clientY)
-                if(id){
-                    const end={id,at}
-                    let {start=end}=this.selecting.current.state
-                    const rects=start==end ? [] : this.positioning.getRangeRects(start, end)
-                    this.selecting.current.setState({start:start||end, end, rects, selecting:true})
-                }
-            },
-            onMouseUp:e=>{
-                if(shouldIgnore(e)){
-                    return
-                }
-                var {start,end}=this.selecting.current.state
-                if(start && end){
-                    this.selecting.current.setState({start:undefined, end:undefined, rects:undefined,selecting:false})
-                    ;({start,end}=this.positioning.extendSelection(start,end));
-                    this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))
-                    this.__mouseDownFlag.selected=true
-                }
-            },
+    onMouseUp(e){
+        if(this.__shouldIgnoreMouseDownEvent(e)){
+            return
+        }
+        var {start,end}=this.selecting.current.state
+        if(start && end){
+            this.selecting.current.setState({start:undefined, end:undefined, rects:undefined,selecting:false})
+            ;({start,end}=this.positioning.extendSelection(start,end));
+            this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))
+            this.__mouseDownFlag.selected=true
         }
     }
 
     render(){
         const {props:{children, ...props}, state:{editable=true, canvasId,scale}}=this
         const noCursor=editable && editable.cursor===false
-        const eventHandlers=!noCursor && this.makeEventHandlers()
+        const eventHandlers=!noCursor ? this.eventHandlers  : {}
         const locator=!noCursor && (
                 <Locator
                     canvasId={canvasId}

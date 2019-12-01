@@ -5,7 +5,7 @@ import {ReactQuery} from "we-edit"
 import Base from "../shape"
 
 import editable from "./editable"
-import Entity from "../../composed/responsible/selection/entity"
+import Entity from "../../composed/responsible-canvas/selection/entity"
 import Path from "../../tool/path"
 
 const Super=editable(Base)

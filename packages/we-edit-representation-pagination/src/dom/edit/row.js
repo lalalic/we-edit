@@ -1,11 +1,11 @@
-import React, {Component,  PureComponent, Fragment} from "react"
+import React, {PureComponent, Fragment} from "react"
 import {ReactQuery,connect, ACTION} from "we-edit"
 import {Cacheable} from "../../composable"
 import editable from "./editable"
 import Base from "../row"
 
-import Resizable from "../../composed/responsible/selection/resizable"
-import Top from "../../composed/responsible/selection/top"
+import Resizable from "../../composed/responsible-canvas/selection/resizable"
+import Top from "../../composed/responsible-canvas/selection/top"
 import {Group} from "../../composed"
 
 export default Cacheable(class __$1 extends editable(Base,{stoppable:true,continuable:true}){

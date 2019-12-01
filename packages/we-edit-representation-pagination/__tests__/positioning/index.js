@@ -4,8 +4,8 @@ import PropTypes from "prop-types"
 import {context,render as testRender, defaultProps} from "../context"
 
 import {Editors} from "../../src"
-import Responsible from "../../src/composed/responsible"
-import Positioning from "../../src/composed/responsible/positioning"
+import Responsible from "../../src/composed/responsible-canvas"
+import Positioning from "../../src/composed/responsible-canvas/positioning"
 
 
 export default function define(feature, tests){

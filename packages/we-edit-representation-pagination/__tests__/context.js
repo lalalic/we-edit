@@ -5,9 +5,9 @@ import TestRender from "react-test-renderer"
 import ReactDOMServer from 'react-dom/server'
 import cheerio from "cheerio"
 
-jest.mock("../src/composed/responsible/locator")
+jest.mock("../src/composed/responsible-canvas/locator")
 
-import Locator from "../src/composed/responsible/locator"
+import Locator from "../src/composed/responsible-canvas/locator"
 Locator.prototype.shouldComponentUpdate=jest.fn(a=>true)
 
 export const provider=(A,Default={})=>withContext(A.contextTypes,({context})=>({...Default,...context}))(({children})=><Fragment>{children}</Fragment>)
