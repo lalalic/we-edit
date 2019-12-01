@@ -107,7 +107,7 @@ export default class Paragraph extends Super{
 			{...measure.defaultStyle}
 			width={measure.stringWidth(End)}
 			minWidth={0}
-			children={[End]}
+			children={End}
 			className="ender"
 			/>)
 		this.commit()

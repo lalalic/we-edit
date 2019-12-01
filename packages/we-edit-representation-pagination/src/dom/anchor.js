@@ -18,9 +18,9 @@ export default class __$1 extends Super{
         return (
             <Group width={0} height={0}
                 anchor={space=>{
-                    const size={width:this.width, height:this.height}    
-                    var x=xy ? xy(X,size,space) : space.anchor(X,size)
-                    var y=xy ? xy(Y,size,space) : space.anchor(Y,size)
+                    const size={width:this.width, height:this.height}  
+                    var x=(xy||space.anchor.bind(space))({align:"left",...X},size,space)
+                    var y=(xy||space.anchor.bind(space))({align:"top",...Y},size,space)
                     
                     x=x-left, y=y-top
                     if(geometry && geometry.origin){
