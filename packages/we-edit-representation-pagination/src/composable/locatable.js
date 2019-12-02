@@ -2,6 +2,7 @@
 import React from "react"
 import PropTypes from "prop-types"
 
+/**It to make composed result locatable through id and type */
 function Locatable(A){
 	return class __$1 extends A{
 		static displayName=`locatable-${A.displayName}`

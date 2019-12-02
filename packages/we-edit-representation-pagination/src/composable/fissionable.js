@@ -2,7 +2,14 @@ import PropTypes from "prop-types"
 import memoize from "memoize-one"
 import {ReactQuery} from "we-edit"
 
-
+/**
+ * To make a component fissionable by .create() for a new Layout
+ * such as Page, Table Cell
+ * .create(props,context,requiredSpace): to create new Layout(props,context) 
+ *          with constant space(such as page) or 
+ *          a required valid space from parent(such as cell slot)
+ * it also support named composed result for Fission to use
+ */
 export default (A)=>class __$1 extends A{
 	static defaultProps={
 		...A.defaultProps,
@@ -19,8 +26,8 @@ export default (A)=>class __$1 extends A{
 
 	static fissureLike(){
 		throw new Error("Fission should be implemented in static fissureLike()")
-	}
-
+    }
+    
 	constructor(){
 		super(...arguments)
 		this.computed.named={}
@@ -55,8 +62,13 @@ export default (A)=>class __$1 extends A{
         return a
     }
 
+    /**
+     * it proxy the call to current layout
+     * if current layout has no required space, a new Layout will be created
+     * @param {*} required 
+     */
     nextAvailableSpace(required){
-        let space=this.current.nextAvailableSpace(...arguments)
+        const space=this.current.nextAvailableSpace(...arguments)
         if(!space){
             this.create(undefined,undefined,required)
             return this.nextAvailableSpace(...arguments)
@@ -64,6 +76,12 @@ export default (A)=>class __$1 extends A{
         return space
     }
 
+    /**
+     * named is supported to be kept
+     * @param {*} composedChildenContent 
+     * @returns
+     * number: to rollback last number of lines
+     */
     appendComposed({props:{named,height}}){
         if(named){
             this.computed.named[named]=arguments[0]

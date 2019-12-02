@@ -1,5 +1,13 @@
 import {Children} from "react"
 
+/**
+ * Cacheable keep last composed in computed.lastComposed when it call createComposed2Parent
+ * TypedCacheable should implement how to append last composed
+ * the following can be cached
+ * Frame
+ * Paragraph
+ * Fissionable
+ */
 export default (A,partable, composedOnlyForFields=["hash"])=>class __$1 extends A{
     static displayName=`cacheable(${partable ? "part" : "all"})-${A.displayName}`
     constructor(){
@@ -8,6 +16,7 @@ export default (A,partable, composedOnlyForFields=["hash"])=>class __$1 extends 
         this.computed.hash=null
     }
 
+    //keep last composed for next time
     createComposed2Parent(){
         let composed=super.createComposed2Parent(...arguments)
         this.computed.lastComposed.push(composed)
