@@ -10,7 +10,8 @@ export default A=>class __$1 extends A{
 	static contextTypes={
 		...A.contextTypes,
 		activeDocStore: PropTypes.object,
-		debug: PropTypes.bool,
+        debug: PropTypes.bool,
+        ModelTypes: PropTypes.object,
 	}
 
     static childContextTypes = {

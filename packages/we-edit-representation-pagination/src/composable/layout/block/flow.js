@@ -111,7 +111,7 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 				enumerable: true,
 				configurable: true,
 				get() {
-					const { height } = this.getSpace();
+					const { height=Number.MAX_SAFE_INTEGER } = this.getSpace();
 					return height - this.contentHeight;
 				}
 			},

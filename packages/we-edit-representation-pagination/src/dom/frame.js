@@ -8,7 +8,7 @@ export default class Frame extends Layout.Block{
 	static displayName=HasParentAndChild(dom.Frame).displayName
 	getSpace(){
 		const space=super.getSpace()
-		const {width,height,margin:{left=0,right=0,top=0,bottom=0}={},x=0,y=0}=this.props
+		const {width,height=Number.MAX_SAFE_INTEGER,margin:{left=0,right=0,top=0,bottom=0}={},x=0,y=0}=this.props
 		const edges={
 			[this.getComposeType()]:{left:x,top:y,right:x+width,bottom:y+height},
 			margin:{left:x+left,top:y+top,right:width+x-right,bottom:y+height-bottom}
