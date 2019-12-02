@@ -1,9 +1,7 @@
 import React from "react"
 import PropTypes from "prop-types"
-import {ReactQuery} from "we-edit"
 
 import Base from "../shape"
-
 import editable from "./editable"
 import Entity from "../../composed/responsible-canvas/selection/entity"
 import Path from "../../tool/path"
