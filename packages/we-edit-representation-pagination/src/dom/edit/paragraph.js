@@ -41,12 +41,13 @@ const Editable=Cacheable(class __$1 extends editable(Base,{stoppable:true}){
 		return $.replace(last,React.cloneElement(current,{x,y})).root
 	}
 
+	/**if lineSegments is same, last layouted line should be able to fit in without relayout */
 	appendLastComposed(){
 		const lines=this.computed.composed
 		this.computed.composed=[]
 		const spaceChangedAt=this.computed.lastComposed.findIndex((a,i)=>{
 			const line=lines[i]
-			const space=this.context.parent.nextAvailableSpace({height:line.height})
+			const space=this.context.parent.nextAvailableSpace({height:a.props.height})
 			if(line.isFitTo(space)){
 				this.computed.composed.push(line)
 				if(i==0 && this.props.numbering){
