@@ -72,7 +72,8 @@ export default class Text extends Super{
 					width:isWhitespace ? whitespaceWidth : measure.stringWidth(b),
 					minWidth:isWhitespace ? 0 : (ending ? measure.stringWidth(ending) : undefined),
 					"data-endat":start+=b.length,
-					children: b,
+                    children: b,
+                    shouldMerge:start==0 && !isWhitespace && b
 				})
 			})
 		})

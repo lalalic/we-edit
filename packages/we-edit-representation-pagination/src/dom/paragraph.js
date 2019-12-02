@@ -258,7 +258,7 @@ export default class Paragraph extends Super{
 	 */
     createLine(required){
 		const space=this.nextAvailableSpace(required)
-		const {width,positioned=[],left=0,right=width}=space
+		const {width,left=0,right=width}=space
 		const {
 			indent:{left:indentLeft=0,right:indentRight=0,firstLine=0}, 
 			numbering, 
@@ -267,18 +267,21 @@ export default class Paragraph extends Super{
 		}=this.props
 		const bFirstLine=this.computed.composed.length==0
 
+		const positioned=[]
 		if(bFirstLine&&numbering){
 			positioned.push(this.getNumberingAtom())
 		}
 		
-		const line=new this.constructor.Line(space.clone({
-			positioned, 
-			top:bFirstLine ? top : undefined, 
-			left:left+indentLeft+(bFirstLine&&!numbering&&firstLine||0), 
-			right:right-indentRight,
+		const line=new this.constructor.Line({
+			space:space.clone({
+				left:left+indentLeft+(bFirstLine&&!numbering&&firstLine||0), 
+				right:right-indentRight,
+			}),
+			positioned,
+			top: bFirstLine ? top : undefined, 
 			lineHeight,
 			align,
-		}),{parent:this})
+		},{parent:this})
 
 		this.computed.composed.push(line)
 		return line
@@ -331,17 +334,6 @@ export default class Paragraph extends Super{
 		/**where does last atom end with in inline size, for positioning only */
 		get currentX(){
 			return this.inlineSegments.currentX
-		}
-		
-	
-		hasEqualSpace({width,wrappees=[]}){
-			return false
-			return this.props.maxWidth==maxWidth &&
-				this.wrappees.length==wrappees.length &&
-				!!!this.wrappees.find((a,i)=>{
-					let b=wrappees[i]
-					return Math.abs(a.x-b.x)>1 && Math.abs(a.width-b.width)>1
-				})
 		}
 	}
 }

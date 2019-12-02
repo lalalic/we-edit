@@ -11,7 +11,7 @@ import Story from "./story"
  * 
  */
 export default class Inline extends Component{
-	constructor({left, right, findInlineSegments}){
+	constructor({space:{left, right, findInlineSegments}}){
 		super(...arguments)
 		this.findInlineSegments=findInlineSegments
 			||(()=>({segments:[{x:left, width:this.width}]}));//@TODO: why is there no findInlineSegments some times? TEST ???
@@ -19,8 +19,8 @@ export default class Inline extends Component{
 		this.inlineSegments=InlineSegments.create({left,...segments})
 	}
 
-	isAnchored(){
-		return this.props.isAnchored(...arguments)
+	get space(){
+		return this.props.space
 	}
 
 	/** inline box height, considering props.lineHeight, content/text height */
@@ -39,7 +39,7 @@ export default class Inline extends Component{
 
 	/** inline layout width */
 	get width(){
-		const {width=0,left=0, right=width}=this.props
+		const {space:{width=0,left=0, right=width}}=this.props
 		return right-left
 	}
 		
@@ -83,7 +83,7 @@ export default class Inline extends Component{
 		const anchorId=$anchor.attr("data-content")
 		const placeholder=React.cloneElement($anchor.get(0),{atom,width:0,"data-anchor":anchorId})
 		this.inlineSegments.push(placeholder)
-		if(!this.isAnchored(anchorId)){//let frame anchor this atom first
+		if(!this.space.isAnchored(anchorId)){//let frame anchor this atom first
 			/**
 			 * anchor position MAY not decided, so it's NOT sure if space can hold anchor
 			 * to Let it simply, let block/parent layout engine layout it immediatly 
@@ -111,7 +111,7 @@ export default class Inline extends Component{
 				 * line rect change may lead to different inline opportunities and top
 				 * get opportunities again
 				 */
-				const {left,right,top=0}=this.props
+				const {space:{left,right},top=0}=this.props
 				const segments=this.findInlineSegments(this.topToBlockOffset+newHeight,left,right)
 				if(this.inlineSegments.shouldRelayout(segments)){
 					const relayouted=this.inlineSegments.relayout(segments,atom)
@@ -168,5 +168,14 @@ export default class Inline extends Component{
 			align:bLastLine && ["justify","both"].includes(align) ? undefined : align,
 		})
 		return story.render()
+	}
+
+	isFitTo(space){
+		if(!space)
+			return false
+		if(this.space.width!=space.width)
+			return false
+		const inlineSegments=space.findInlineSegments(this.topToBlockOffset+this.height,space.left,space.right)
+		return this.inlineSegments.equals(inlineSegments)
 	}
 }

@@ -22,9 +22,7 @@ const Editable=Cacheable(class __$1 extends editable(Base,{stoppable:true}){
 	}
 
 	clearComposed(){
-		this.computed.lastText=""
 		this.computed.atoms=[]
-		this.computed.hasFrame=false
 		super.clearComposed(...arguments)
 	}
 
@@ -47,9 +45,9 @@ const Editable=Cacheable(class __$1 extends editable(Base,{stoppable:true}){
 		const lines=this.computed.composed
 		this.computed.composed=[]
 		const spaceChangedAt=this.computed.lastComposed.findIndex((a,i)=>{
-			let line=lines[i]
-			let space=this.context.parent.nextAvailableSpace({height:line.height})
-			if(line.hasEqualSpace(space)){
+			const line=lines[i]
+			const space=this.context.parent.nextAvailableSpace({height:line.height})
+			if(line.isFitTo(space)){
 				this.computed.composed.push(line)
 				if(i==0 && this.props.numbering){
 					a=this.recalcNumbering(a)
