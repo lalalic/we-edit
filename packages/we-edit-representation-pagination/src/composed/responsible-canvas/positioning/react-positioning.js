@@ -1,5 +1,11 @@
 import Positioning from "./base"
 
+/**
+ * It utilize composer to do positioning, 
+ * so each composer must implement itself positioning methods, which actually make composer complex
+ * Can we make a pure positioning isolated from composer???
+ * 
+ */
 export default class ReactPositioning extends Positioning {
     position(id, at) {
         const composer = this.getComposer(id);

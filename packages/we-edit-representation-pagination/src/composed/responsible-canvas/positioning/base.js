@@ -1,3 +1,8 @@
+ /**
+ * Terms:
+ * Position: object must with coordinate figures like {x,y,left,top, ...} on canvas
+ * Location: {id, at}
+ */
 export default class Positioning{
     constructor(responsible){
         this.responsible=responsible
@@ -31,34 +36,7 @@ export default class Positioning{
         return this.responsible.scale
     }
 
-    position(id,at){
-        return {page:0}
-    }
 
-    extendWord(id,at){
-        const p=this.getComposer(id).closest("paragraph")
-        if(p){
-            return p.extendAtom(id,at)
-        }
-        return {}
-    }
-
-    around(left,top){
-        return {}
-    }
-
-    getRangeRects(start,end){
-        return []
-    }
-
-
-    nextLine(id,at){
-
-    }
-
-    prevLine(id,at){
-
-    }
 
     getBoundingClientRect(){
         return this.canvas.getBoundingClientRect()
@@ -89,5 +67,47 @@ export default class Positioning{
 
     pageY(i){
         return this.pageXY(...arguments).y
+    }
+
+
+    /**
+     * To get position{page,line, x,y,left,top,} for a location{id,at}
+     * 
+     */
+    position(id,at){
+        return {page:0}
+    }
+
+    /**get a location{id,at} from a position{left,top}*/
+    around(left,top){
+        return {}
+    }
+
+    /**get range rects from position start to position end*/
+    getRangeRects(start,end){
+        return []
+    }
+
+    /**get location of next line for a location */
+    nextLine(id,at){
+
+    }
+    /**get location of prev line for a location */
+    prevLine(id,at){
+
+    }
+
+    /**extend selection from location to word range*/
+    extendWord(id,at){
+        const p=this.getComposer(id).closest("paragraph")
+        if(p){
+            return p.extendAtom(id,at)
+        }
+        return {}
+    }
+
+    /**extend selection from location to line range*/
+    extendLine(id,at){
+
     }
 }
