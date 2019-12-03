@@ -22,7 +22,7 @@ const Editable=Cacheable(class __$1 extends editable(Base,{stoppable:true}){
 	}
 
 	clearComposed(){
-		this.computed.atoms=[]
+		this.atoms=[]
 		super.clearComposed(...arguments)
 	}
 
@@ -43,13 +43,13 @@ const Editable=Cacheable(class __$1 extends editable(Base,{stoppable:true}){
 
 	/**if lineSegments is same, last layouted line should be able to fit in without relayout */
 	appendLastComposed(){
-		const lines=this.computed.composed
-		this.computed.composed=[]
+		const lines=this.lines
+		this.lines=[]
 		const spaceChangedAt=this.computed.lastComposed.findIndex((a,i)=>{
 			const line=lines[i]
 			const space=this.context.parent.nextAvailableSpace({height:a.props.height})
 			if(line.isFitTo(space)){
-				this.computed.composed.push(line)
+				this.lines.push(line)
 				if(i==0 && this.props.numbering){
 					a=this.recalcNumbering(a)
 				}
@@ -364,6 +364,7 @@ class Navigatable extends Positionable{
 					page:page.props.I,
 					paragraph:this.props.id,
 					lineIndexOfParagraph,
+					lineHeight: this.computed.lastComposed[lineIndexOfParagraph].props.height,
 					...[...parents,line.get(0)].reduce((xy,{props:{x=0,y=0}})=>{
 						xy.x+=x
 						xy.y+=y

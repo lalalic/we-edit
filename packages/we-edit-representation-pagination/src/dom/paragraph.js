@@ -45,18 +45,35 @@ export default class Paragraph extends Super{
    constructor(){
 		super(...arguments)
 		this.computed.atoms=[]
+		Object.defineProperties(this,{
+			lines:{
+				get(){
+					return this.computed.composed
+				},
+				set(v){
+					this.computed.composed=v
+				}
+			},
+			atoms:{
+				get(){
+					return this.computed.atoms
+				},
+				set(v){
+					return this.computed.atoms=v
+				}
+			}
+		})
 	}
 
 	get enderWidth(){
-		return this.computed.atoms[this.computed.atoms.length-1].props.width
+		return this.atoms[this.atoms.length-1].props.width
 	}
 
 	get currentLine(){
-		const {composed}=this.computed
-		if(composed.length==0){
+		if(this.lines.length==0){
 			this.createLine()
 		}
-		return composed[composed.length-1]
+		return this.lines[this.lines.length-1]
 	}
 
     /**
@@ -66,7 +83,7 @@ export default class Paragraph extends Super{
 	 * @param {*} content
 	 */
     appendComposed(content){
-		const last=this.computed.atoms[this.computed.atoms.length-1]
+		const last=this.atoms[this.atoms.length-1]
 		if(shouldAtomMerge(last,content)){//possible merge with last if last is text
 			if( isText(last)){
 				const lastText=getText(last)
@@ -77,8 +94,8 @@ export default class Paragraph extends Super{
 					const height=Math.max(last.props.height, content.props.height)
 					const descent=Math.max(last.props.descent, content.props.descent)
 					const width=last.props.width+content.props.width
-					this.computed.atoms.pop()
-					this.computed.atoms.push(
+					this.atoms.pop()
+					this.atoms.push(
 						<Group {...{width,height,descent}}>
 							{last}
 							{React.cloneElement(content,{x:last.props.width})}
@@ -96,14 +113,14 @@ export default class Paragraph extends Super{
 			}
 		}
 		
-		this.computed.atoms.push(content)
+		this.atoms.push(content)
 	}
 
 
 	onAllChildrenComposed(){//need append last non-full-width line to parent ???
 		const {context:{Measure}, props:{defaultStyle:{fonts,size,bold,italic}, End=""}}=this
         const measure=new Measure({fonts,size,bold,italic})
-		this.computed.atoms.push(<ComposedText
+		this.atoms.push(<ComposedText
 			{...measure.defaultStyle}
 			width={measure.stringWidth(End)}
 			minWidth={0}
@@ -115,7 +132,7 @@ export default class Paragraph extends Super{
     }
 
 	rollbackLines(n){
-		this.computed.composed.splice(-n)
+		this.lines.splice(-n)
 	}
 
 	/**
@@ -126,7 +143,7 @@ export default class Paragraph extends Super{
         const {context:{parent}, computed:{atoms}}=this
 
 		const rollbackToLineWithFirstAtomIndex=at=>{
-			const {composed:lines,atoms}=this.computed
+			const {lines,atoms}=this
 			const i=lines.findIndex(a=>atoms.indexOf(a.firstAtom)==at)
 			this.rollbackLines(lines.length-i)
 		}
@@ -137,7 +154,7 @@ export default class Paragraph extends Super{
 		}
 
 		const atomIndexOfLastNthLine=i=>{
-			const lines=this.computed.composed
+			const lines=this.lines
 			const lastNthLine=lines[lines.length-i]
 			return atoms.indexOf(lastNthLine.firstAtom)
 		}
@@ -200,7 +217,7 @@ export default class Paragraph extends Super{
 				return
 			}
 
-			if(this.computed.composed.length==1 || !this.currentLine.isEmpty()){
+			if(this.lines.length==1 || !this.currentLine.isEmpty()){
 				rollbackLines=appendComposedLine(true)
 				if(Number.isInteger(rollbackLines)){
 					if(rollbackLines==Frame.IMMEDIATE_STOP)
@@ -221,9 +238,9 @@ export default class Paragraph extends Super{
 	 * default re-commit all already layouted lines
 	 * @param {} lastLines 
 	 */
-	recommit(lastLines=this.computed.composed){
-		const {atoms, composed}=this.computed
-		lastLines=composed.slice(-lastLines.length)
+	recommit(lastLines=this.lines){
+		const {atoms, lines}=this
+		lastLines=lines.slice(-lastLines.length)
 
 		this.rollbackLines(lastLines.length)
 
@@ -265,7 +282,7 @@ export default class Paragraph extends Super{
 			align,
 			spacing:{lineHeight,top}
 		}=this.props
-		const bFirstLine=this.computed.composed.length==0
+		const bFirstLine=this.lines.length==0
 
 		const positioned=[]
 		if(bFirstLine&&numbering){
@@ -283,7 +300,7 @@ export default class Paragraph extends Super{
 			align,
 		},{parent:this})
 
-		this.computed.composed.push(line)
+		this.lines.push(line)
 		return line
 	}
 	
@@ -307,14 +324,14 @@ export default class Paragraph extends Super{
 			orphan,widow,keepWithNext,keepLines,
 			}=this.props
 		
-		const bFirstLine=this.computed.composed.length==1
+		const bFirstLine=this.lines.length==1
 		return (
 			<Group className="line"
 				height={topToBlockOffset+height+(bLastLine&&bottom||0)} 
 				width={left+width+right} 
 				pagination={{
 					orphan,widow,keepWithNext,keepLines, 
-					i:this.computed.composed.length,
+					i:this.lines.length,
 					last:bLastLine
 				}} 
 				anchor={anchor} 
