@@ -1,8 +1,12 @@
 
-import React from "react"
 import PropTypes from "prop-types"
 import {ReactQuery} from "we-edit"
 
+/**
+ * It make a composer navigatable: 
+ * >>> if a composer can NOT navigate itself, let parent navigate
+ * @param {*} A 
+ */
 export default function Navigatable(A){
 	return class __$1 extends A{
 		static displayName=`navigatable-${A.displayName}`
@@ -15,7 +19,7 @@ export default function Navigatable(A){
             ...A.contextTypes,
  			getComposer: PropTypes.func,
         }
-
+		/**navigate itself, otherwise proxy to parent */
 		navigatable(op, ...args){
 			if(this.props[op]){
 				return this.props[op](...args)

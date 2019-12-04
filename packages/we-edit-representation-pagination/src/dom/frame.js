@@ -6,6 +6,21 @@ import {Group} from "../composed"
 
 export default class Frame extends Layout.Block{
 	static displayName=HasParentAndChild(dom.Frame).displayName
+	constructor(){
+		super(...arguments)
+		Object.defineProperties(this,{
+			uuid:{
+				get(){
+					return this.props.id
+				}
+			}
+		})
+	}
+
+	get isFrame(){
+		return true
+	}
+
 	getSpace(){
 		const space=super.getSpace()
 		const {width,height=Number.MAX_SAFE_INTEGER,margin:{left=0,right=0,top=0,bottom=0}={},x=0,y=0}=this.props
@@ -65,7 +80,7 @@ export default class Frame extends Layout.Block{
 			content=(<Group x={left} y={top}>{content}</Group>)
 		}
 		return (
-			<Group {...{width,height,x,y,z,named, className:"frame"}}>
+			<Group {...{width,height,x,y,z,named, className:"frame", "data-frame":this.uuid}}>
 				{this.anchors.map((a,i)=>React.cloneElement(a,{key:i}))}
 				{content}
 			</Group>
@@ -93,6 +108,10 @@ export default class Frame extends Layout.Block{
 		if(!this.cols)
 			return 0
 		return this.columns.find(a=>a.children.includes(line)).x
+	}
+
+	lineXY(line){
+		return {x:this.lineX(line),y:this.lineY(line)}
 	}
 
 	isDirtyIn(rect){

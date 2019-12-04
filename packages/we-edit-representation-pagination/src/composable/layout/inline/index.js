@@ -59,6 +59,10 @@ export default class Inline extends Component{
 		return last
 	}
 
+	get atoms(){
+		return this.inlineSegments.items
+	}
+
 	get items(){
 		return [...this.props.positioned,...this.inlineSegments.items]
 	}

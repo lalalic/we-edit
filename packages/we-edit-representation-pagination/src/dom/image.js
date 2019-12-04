@@ -1,8 +1,7 @@
-import React, {Component} from "react"
-import PropTypes from "prop-types"
+import React from "react"
 import {dom} from "we-edit"
 
-import {Image, Group} from "../composed"
+import {Image} from "../composed"
 import {NoChild} from "../composable"
 
 import Shape from "./shape"

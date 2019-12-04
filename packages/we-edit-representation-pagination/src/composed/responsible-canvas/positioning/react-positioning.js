@@ -15,21 +15,31 @@ export default class ReactPositioning extends Positioning {
         const { page, x, y, ...position } = composer.position(id, at) || {};
         if (page != undefined) {
             const { x: x0, y: y0 } = this.pageXY(page);
-            return {
+            
+            const pos={
                 id, at,
                 x: x0 + x, y: y0 + y,
                 ...this.asViewportPoint({ x: x0 + x, y: y0 + y }),
                 page,
                 ...position,
-            };
+            }
+
+            const my=super.position(...arguments)
+            //return my
+            if(Math.abs(my.x-pos.x)>1 || Math.abs(my.y-pos.y)>1){
+                //throw new Error(`dx:${Math.abs(my.x-pos.x)}, dy:${Math.abs(my.y-pos.y)}`)
+            }
+            return pos
         }
         else {
         }
     }
     nextLine(id, at) {
+        //return super.nextLine(...arguments)
         return this.getComposer(id).nextLine(id, at) || {};
     }
     prevLine(id, at) {
+        //return super.prevLine(...arguments)
         return this.getComposer(id).prevLine(id, at) || {};
     }
     around(left, top) {
@@ -72,7 +82,7 @@ export default class ReactPositioning extends Positioning {
                     rects[rects.length - 1].right += endComposer.enderWidth;
                 }
             }
-            return rects;
+            return rects.filter(({left,right})=>(left-right)!=0);
         }
         catch (e) {
             return [];

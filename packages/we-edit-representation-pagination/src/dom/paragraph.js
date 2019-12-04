@@ -116,10 +116,15 @@ export default class Paragraph extends Super{
 		this.atoms.push(content)
 	}
 
+	getDefaultMeasure(){
+		const {context:{Measure}, props:{defaultStyle:{fonts,size,bold,italic}}}=this
+        return new Measure({fonts,size,bold,italic})
+	}
+
 
 	onAllChildrenComposed(){//need append last non-full-width line to parent ???
-		const {context:{Measure}, props:{defaultStyle:{fonts,size,bold,italic}, End=""}}=this
-        const measure=new Measure({fonts,size,bold,italic})
+		const {props:{End=""}}=this
+		const measure=this.getDefaultMeasure()
 		this.atoms.push(<ComposedText
 			{...measure.defaultStyle}
 			width={measure.stringWidth(End)}
@@ -330,6 +335,7 @@ export default class Paragraph extends Super{
 				height={topToBlockOffset+height+(bLastLine&&bottom||0)} 
 				width={left+width+right} 
 				pagination={{
+					id:this.props.id,
 					orphan,widow,keepWithNext,keepLines, 
 					i:this.lines.length,
 					last:bLastLine

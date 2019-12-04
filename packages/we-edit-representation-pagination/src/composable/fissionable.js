@@ -70,7 +70,7 @@ export default (A)=>class __$1 extends A{
     nextAvailableSpace(required){
         const space=this.current.nextAvailableSpace(...arguments)
         if(!space){
-            this.create(undefined,undefined,required)
+            this.create(undefined,{frame:space.frame},required)
             return this.nextAvailableSpace(...arguments)
         }
         return space

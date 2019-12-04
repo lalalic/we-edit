@@ -25,8 +25,10 @@ export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 			return space
 		}
 
+		//@TODO: it's not compatible with positioning, since it has no width and height
+		//but a cell's height is decided by rank later, how to resolve it?
 		render(){
-			return <Group children={this.createComposed2Parent().props.children} className="frame"/>
+			return this.createComposed2Parent()
 		}
 	}
 
@@ -56,14 +58,14 @@ export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 				this.context.parent.appendComposed(this.createComposed2Parent())
 			}
 		}
-		const {width,height}=this.context.parent.nextAvailableSpace({...required,id:this.props.id})
+		const {width,height,frame}=this.context.parent.nextAvailableSpace({...required,id:this.props.id})
 		const {margin={right:0,left:0,top:0,bottom:0}, vertAlign}=this.props
 		return super.create({
 			margin,
 			width:width-margin.right-margin.left,
 			height: height-this.nonContentHeight,
 			vertAlign,
-		})
+		},{frame})
 	}
 
 	onAllChildrenComposed(){

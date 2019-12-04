@@ -45,6 +45,8 @@ export default class Story extends Component{
 				},[])})
 			}else if(a.props.children){
 				return React.cloneElement(a, {children:setBaseline(a.props.children)})
+			}else if(a.props.height!=undefined){
+				//return React.cloneElement(a, {y:baseline-a.props.height})
 			}
 			return a
 		}

@@ -20,10 +20,10 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
         const doc=test(<Paragraph id={"1"}><Text id={"0"}>text</Text></Paragraph>)
         
         new Array(5).fill(0).forEach((a,i)=>
-            expect(doc.getRangeRects({id:"0",at:0},{id:"0",at:i})).toMatchObject([{left:0,top:0,right:i,bottom:10}]))
+            expect(doc.getRangeRects({id:"0",at:0},{id:"0",at:i})).toMatchObject(i==0 ? [] :[{left:0,top:0,right:i,bottom:10}]))
 
             new Array(4).fill(0).forEach((a,i)=>
-                expect(doc.getRangeRects({id:"0",at:1},{id:"0",at:i+1})).toMatchObject([{left:1,top:0,right:i+1,bottom:10}]))
+                expect(doc.getRangeRects({id:"0",at:1},{id:"0",at:i+1})).toMatchObject(i==0 ? [] : [{left:1,top:0,right:i+1,bottom:10}]))
     })
 
     it("inline container",()=>{
@@ -40,19 +40,18 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
     it("text in second page",()=>{
         const doc=test(<Paragraph id={"1"}><Text id={"0"}>text</Text></Paragraph>,{x:10,y:20})
         new Array(5).fill(0).forEach((a,i)=>
-            expect(doc.getRangeRects({id:"0",at:0},{id:"0",at:i})).toMatchObject([{left:10+0,top:20+0,right:10+i,bottom:20+10}]))
+            expect(doc.getRangeRects({id:"0",at:0},{id:"0",at:i})).toMatchObject(i==0 ? [] : [{left:10+0,top:20+0,right:10+i,bottom:20+10}]))
 
             new Array(4).fill(0).forEach((a,i)=>
-                expect(doc.getRangeRects({id:"0",at:1},{id:"0",at:i+1})).toMatchObject([{left:10+1,top:20+0,right:10+i+1,bottom:20+10}]))
+                expect(doc.getRangeRects({id:"0",at:1},{id:"0",at:i+1})).toMatchObject(i==0 ? []: [{left:10+1,top:20+0,right:10+i+1,bottom:20+10}]))
 
     })
 
     it("no error",()=>{
         const doc=test(<Paragraph id={"1"}><Text id={"0"}>text</Text></Paragraph>)
-        expect(doc.getRangeRects({id:"0",at:0},{id:"0",at:-1})).toMatchObject([{left:0,top:0,right:0,bottom:10}])
-        expect(doc.getRangeRects({id:"0",at:-3},{id:"0",at:0})).toMatchObject([{left:0,top:0,right:0,bottom:10}])
+        expect(doc.getRangeRects({id:"0",at:0},{id:"0",at:-1})).toMatchObject([])
+        expect(doc.getRangeRects({id:"0",at:-3},{id:"0",at:0})).toMatchObject([])
         expect(doc.getRangeRects({id:"0",at:0},{id:"0",at:10})).toMatchObject([])
-
         expect(doc.getRangeRects({id:"notexist",at:-3},{id:"0",at:0})).toMatchObject([])
     })
 
