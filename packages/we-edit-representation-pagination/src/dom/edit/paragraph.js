@@ -148,15 +148,16 @@ class Positionable extends Editable{
 
 	/**
 	 * composedLine VS line
-	 * exclude numbering 
 	 * @param {*} id 
 	 * @param {*} at 
 	 * @param {*} i 
 	 */
 	xyInLine(id,at,i=this.lineIndexOf(id,at)){
 		const composedLine=this.computed.lastComposed[i]
+		const defaultStyle=this.getDefaultMeasure().defaultStyle
+		//could it search from line directly to target
 		const {first:story,parents:storyUps}=new ReactQuery(composedLine).findFirstAndParents(".story")
-		const pos=storyUps.reduce((xy,{props:{x=0,y=0}})=>(xy.x+=x,xy.y+=y,xy),{x:0,y:0,...this.getDefaultMeasure().defaultStyle})
+		const pos=storyUps.reduce((xy,{props:{x=0,y=0}})=>(xy.x+=x,xy.y+=y,xy),{x:0,y:0,...defaultStyle})
 		
 		const isParagraphSelf=id==this.props.id
 		const {first,last,target=first||last,parents}=story[`${at==1 ? "findLast" : "findFirst"}AndParents`](
@@ -171,8 +172,12 @@ class Positionable extends Editable{
 		)
 		pos.x+=[target.get(0),...parents].reduce((X,{props:{x=0}})=>X+x,0)
 		pos.y+=(({y=story.attr('baseline'),height=0,descent=0})=>y-(height-descent))(target.get(0).props)
-		if(isParagraphSelf)
+		//[target.get(0),...parents].reduce((Y,{props:{y=0}})=>Y+y,0)
+		//
+		if(isParagraphSelf){
+			//pos.y-=(defaultStyle.height-defaultStyle.descent)
 			return pos
+		}
 		
 		const composer=this.context.getComposer(id)
 		if(composer.getComposeType()=="text"){
@@ -183,6 +188,7 @@ class Positionable extends Editable{
 				const offset=composer.measure.stringWidth(text.substring(0,len))
 				pos.x+=offset
 			}
+			//pos.y-=(composer.defaultStyle.height-composer.defaultStyle.descent)
 		}else if(at==1){
 			pos.x+=(target.attr('width')||0)
 		}
