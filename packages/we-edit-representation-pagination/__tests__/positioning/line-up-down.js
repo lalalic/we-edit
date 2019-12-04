@@ -18,8 +18,10 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
         return {
             pages,
             get lines(){
-                if(TESTING=="in shape" || TESTING=="in table"){
+                if(TESTING=="in table"){
                     return doc.getComposer("container").current.lines
+                }else if(TESTING=="in shape"){
+                    return doc.getComposer("layoutcontainer").lines
                 }
                 return pages[0].lines
             },

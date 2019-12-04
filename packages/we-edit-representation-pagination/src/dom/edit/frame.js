@@ -151,8 +151,8 @@ const factory=base=>Cacheable(class Frame extends editable(base){
         
         //convert paragraph line index to page line index
 		p0.line=this.lineIndexOf(p0)
-		p1.line=this.lineIndexOf(p1)
-
+        p1.line=this.lineIndexOf(p1)
+        
 		const rects=[]
         const frameXY=page=>{
             const {x,y}=pageXY(page)
@@ -182,9 +182,8 @@ const factory=base=>Cacheable(class Frame extends editable(base){
 		lineRectsInPage(start.page, start.line, end.line+1)
 
 		if(rects.length){
-			Object.assign(rects[0],{left:pageXY(start.page).x+start.x})
-
-			Object.assign(rects[rects.length-1], {right:pageXY(end.page).x+end.x})
+			Object.assign(rects[0],{left:pageXY(start.page).x+(start.x||0)})
+            Object.assign(rects[rects.length-1], {right:pageXY(end.page).x+(end.x||0)})
 		}
 		return rects
 	}
