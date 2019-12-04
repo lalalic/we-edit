@@ -53,8 +53,8 @@ define("position", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Cont
 
         it("Text|image(lower than text)Text",()=>{
             const p=test(<Paragraph id={`${++uuid}`}><Text id="1">text</Text><Image id="0" {...{width:2,height:2}}/><Text id="2">text</Text></Paragraph>)
-            expect(p.position("0",0)).toMatchObject({x:4+0,y:0})
-            expect(p.position("0",1)).toMatchObject({x:4+2,y:0})
+            expect(p.position("0",0)).toMatchObject({x:4+0,y:7})
+            expect(p.position("0",1)).toMatchObject({x:4+2,y:7})
         })
 
         it("Text|image(heigher than text)Text",()=>{
@@ -179,9 +179,9 @@ define("position", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Cont
                     <Text id={"2"}>text</Text>
                 </Paragraph>)
         const y=0
-        expect(doc.position("0",0)).toMatchObject({x:0,y,height:5+4})
-        expect(doc.position("0",1)).toMatchObject({x:3+4,y,height:5+4})
-        expect(doc.position("2",0)).toMatchObject({x:3+4,y:0,height:10})
+        expect(doc.position("0",0)).toMatchObject({x:0,y,height:10})
+        expect(doc.position("0",1)).toMatchObject({x:3+4,y,height:10})
+        expect(doc.position("2",0)).toMatchObject({x:3+4,y,height:10})
     })
 
     describe("in frame",()=>{

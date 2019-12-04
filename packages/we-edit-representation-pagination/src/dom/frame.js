@@ -87,26 +87,30 @@ export default class Frame extends Layout.Block{
 		)
 	}
 
+	//absolute y
 	paragraphY(id){
-		const prevLineOfThisParagraph=this.lines.findLast(line=>this.getParagraph(line)!=id)
+		const prevLineOfThisParagraph=this.lines.findLastIndex(line=>this.getParagraph(line)!=id)
 		if(prevLineOfThisParagraph){
-			return this.lineY(prevLineOfThisParagraph)
+			return this.lineY(this.lines[prevLineOfThisParagraph+1])
 		}
 		return 0
 	}
 
+	//absolute y of line end at
 	lineY(line){
 		if(!this.cols){
-			return this.lines.slice(0,this.lines.indexOf(line)+1).reduce((Y,{props:{height=0}})=>Y+height,0)
+			return this.lines.slice(0,this.lines.indexOf(line)+1).reduce((Y,{props:{height=0}})=>Y+height,this.getSpace().blockOffset)
 		}
 
 		const {y:y0=0,children:lines}=this.columns.find(a=>a.children.includes(line))||this.currentColumn
 		return lines.slice(0,lines.indexOf(line)+1).reduce((Y,{props:{height=0}})=>Y+height,y0)
 	}
 
+	//absolute x
 	lineX(line){
-		if(!this.cols)
-			return 0
+		if(!this.cols){
+			return this.getSpace().left
+		}
 		return this.columns.find(a=>a.children.includes(line)).x
 	}
 

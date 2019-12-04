@@ -8,6 +8,8 @@ import Positioning from "./base"
  */
 export default class ReactPositioning extends Positioning {
     position(id, at) {
+        const my=super.position(...arguments)
+        return my
         const composer = this.getComposer(id);
         if (!composer) {
             return super.position(...arguments);
@@ -25,7 +27,7 @@ export default class ReactPositioning extends Positioning {
             }
 
             const my=super.position(...arguments)
-            //return my
+            return my
             if(Math.abs(my.x-pos.x)>1 || Math.abs(my.y-pos.y)>1){
                 //throw new Error(`dx:${Math.abs(my.x-pos.x)}, dy:${Math.abs(my.y-pos.y)}`)
             }

@@ -51,10 +51,7 @@ export default class Anchorable extends Flow {
         const anchored = anchor(space.clone({
             edges:{
                 paragraph:{
-                    top:this.getSpace().blockOffset+(()=>{
-                        const id=new ReactQuery(line).findFirst('[data-type="paragraph"]').attr("data-content")
-                        return this.paragraphY(id)
-                    })()
+                    top:this.paragraphY(new ReactQuery(line).findFirst('[data-type="paragraph"]').attr("data-content"))
                 },
                 line:{top:space.blockOffset},
                 character:{
