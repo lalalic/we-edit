@@ -110,28 +110,26 @@ class Positionable extends Editable{
 		}).extract()
 	}
 
+	/**
+	 * line content includes: 
+	 * 1. atoms,such as image,text,..., which is not sensitive to query.findFirst/findLast
+	 * 2. inline container: it's sensitive to at(0:conainer start|1: container end) to query.findFirst/findLast
+	 * 
+	 */
 	lineIndexOf(id,at){
 		if(id==this.props.id){
 			return at==0 ? 0 : this.computed.composed.length-1
 		}
-		return this.computed.composed.findIndex(line=>line.children.find((atom,i)=>{
-				let node=new ReactQuery(atom).findFirst(`[data-content="${id}"]`)
-				if(node.length>0){
-					let endat=node.attr("data-endat")
-					if(endat==undefined){
-						return true
-					}else if(endat>at){
-						return true
-					}else if(endat==at){
-						if(line.children.length-1==i){//last
-							if(this.context.getComposer(node.attr('data-content')).text.length==endat){
-								return true
-							}
-						}else{
-							return true
-						}
-					}
-				}
+		const find=at==1 ? 'findLast' : 'findFirst'
+		return this.lines[`find${at==1? 'Last' : ''}Index`](line=>line.children.find((atom,i)=>{
+				let node=new ReactQuery(atom)[find](`[data-content="${id}"]`)
+				if(node.length==0)
+					return 
+				
+				const endat=node.attr("data-endat")
+				const text=node.attr("children")||""
+				return endat==undefined //not text, true
+					|| (at>=endat-text.length && at<=endat)//inside text,true
 			})
 		)
 	}
@@ -155,20 +153,9 @@ class Positionable extends Editable{
 			if(id==this.props.id){
 				const {fontSize, fontFamily,height,descent}=this.getDefaultMeasure().defaultStyle
 				const xy={x:0,y:story.props.baseline-(height-descent),fontSize, fontFamily,height,descent}
-
-				if(at==0){
-					const {first,parents}=new ReactQuery(story).findFirstAndParents("[data-content]")
-					if(first.length==1){
-						xy.x=[first.get(0),...parents].reduce((X,{props:{x=0}})=>X+x,0)
-					}else{
-						const {first,parents}=new ReactQuery(story).findFirstAndParents(".ender")
-						xy.x=[first.get(0),...parents].reduce((X,{props:{x=0}})=>X+x,0)
-					}
-				}else if(at==1){
-					const {first,parents}=new ReactQuery(story).findFirstAndParents(".ender")
-					xy.x=[first.get(0),...parents].reduce((X,{props:{x=0}})=>X+x,0)
-				}
-
+				const selector=`.ender${at==0 ? ",[data-content]" : ""}`
+				const {first,parents}=new ReactQuery(story).findFirstAndParents(selector)
+				xy.x=[first.get(0),...parents].reduce((X,{props:{x=0}})=>X+x,0)
 				return xy
 			}else{
 				return this.xyInStory(id,at,story)
