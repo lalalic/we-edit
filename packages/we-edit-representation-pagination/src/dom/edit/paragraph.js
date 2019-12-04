@@ -146,6 +146,13 @@ class Positionable extends Editable{
 		}
 	}
 
+	/**
+	 * composedLine VS line
+	 * exclude numbering 
+	 * @param {*} id 
+	 * @param {*} at 
+	 * @param {*} i 
+	 */
 	xyInLine(id,at,i=this.lineIndexOf(id,at)){
 		const composedLine=this.computed.lastComposed[i]
 		const {first:story,parents:storyUps}=new ReactQuery(composedLine).findFirstAndParents(".story")
@@ -162,8 +169,8 @@ class Positionable extends Editable{
 					return true
 			}
 		)
-		pos.x=[target.get(0),...parents].reduce((X,{props:{x=0}})=>X+x,0)
-		pos.y=(({y=story.attr('baseline'),height=0,descent=0})=>y-(height-descent))(target.get(0).props)
+		pos.x+=[target.get(0),...parents].reduce((X,{props:{x=0}})=>X+x,0)
+		pos.y+=(({y=story.attr('baseline'),height=0,descent=0})=>y-(height-descent))(target.get(0).props)
 		if(isParagraphSelf)
 			return pos
 		
