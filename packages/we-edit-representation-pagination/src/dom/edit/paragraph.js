@@ -120,16 +120,16 @@ class Positionable extends Editable{
 		if(id==this.props.id){
 			return at==0 ? 0 : this.computed.composed.length-1
 		}
-		const find=at==1 ? 'findLast' : 'findFirst'
-		return this.lines[`find${at==1? 'Last' : ''}Index`](line=>line.children.find((atom,i)=>{
-				let node=new ReactQuery(atom)[find](`[data-content="${id}"]`)
+		return this.lines[`find${at==1? 'Last' : ''}Index`](line=>line.children.find(atom=>{
+				const node=new ReactQuery(atom)[`find${at==1?"Last":"First"}`](`[data-content="${id}"]`)
 				if(node.length==0)
 					return 
-				
-				const endat=node.attr("data-endat")
-				const text=node.attr("children")||""
-				return endat==undefined //not text, true
-					|| (at>=endat-text.length && at<=endat)//inside text,true
+				const {props:{"data-endat":endat, children:text}}=node.get(0)
+				if(endat==undefined //not text, true
+					|| (at>=endat-text.length && at<endat))//inside text,true
+					return true
+				if(at==endat && this.context.getComposer(id).text.length==endat)//next of last text
+					return true
 			})
 		)
 	}
@@ -147,50 +147,39 @@ class Positionable extends Editable{
 	}
 
 	xyInLine(id,at,i=this.lineIndexOf(id,at)){
-		const {first,parents}=new ReactQuery(this.computed.lastComposed[i]).findFirstAndParents(".story")
-		const story=first.get(0)
-		const xy=(()=>{
-			if(id==this.props.id){
-				const {fontSize, fontFamily,height,descent}=this.getDefaultMeasure().defaultStyle
-				const xy={x:0,y:story.props.baseline-(height-descent),fontSize, fontFamily,height,descent}
-				const selector=`.ender${at==0 ? ",[data-content]" : ""}`
-				const {first,parents}=new ReactQuery(story).findFirstAndParents(selector)
-				xy.x=[first.get(0),...parents].reduce((X,{props:{x=0}})=>X+x,0)
-				return xy
-			}else{
-				return this.xyInStory(id,at,story)
-			}
-		})();
-
-		return parents.reduce((xy,{props:{x=0,y=0}})=>(xy.x+=x,xy.y+=y,xy),xy)
-	}
-
-	xyInStory(id,at,story){
-		let endat
-		const {first:node,parents}=new ReactQuery(story).findFirstAndParents(a=>{
-			if(a.props["data-content"]==id){
-				endat=a.props["data-endat"]
-				if(endat==undefined || endat>=at){
+		const composedLine=this.computed.lastComposed[i]
+		const {first:story,parents:storyUps}=new ReactQuery(composedLine).findFirstAndParents(".story")
+		const pos=storyUps.reduce((xy,{props:{x=0,y=0}})=>(xy.x+=x,xy.y+=y,xy),{x:0,y:0,...this.getDefaultMeasure().defaultStyle})
+		
+		const isParagraphSelf=id==this.props.id
+		const {first,last,target=first||last,parents}=story[`${at==1 ? "findLast" : "findFirst"}AndParents`](
+			isParagraphSelf ? 
+			`.ender${at==0 ? ",[data-content]" : ""}` : 
+			({props:{"data-content":content,"data-endat":endat,children:text}})=>{
+				if(content!=id)
+					return
+				if(endat==undefined || (at<=endat && at>=endat-text.length))
 					return true
-				}
 			}
-		})
-
-		let x=[node.get(0),...parents].reduce((X,{props:{x=0}})=>X+x,0)
-		let y=(({y=0,height=0,descent=0})=>y-(height-descent))(node.get(0).props);
+		)
+		pos.x=[target.get(0),...parents].reduce((X,{props:{x=0}})=>X+x,0)
+		pos.y=(({y=story.attr('baseline'),height=0,descent=0})=>y-(height-descent))(target.get(0).props)
+		if(isParagraphSelf)
+			return pos
+		
 		const composer=this.context.getComposer(id)
 		if(composer.getComposeType()=="text"){
+			const endat=target.attr("data-endat")
+			const text=target.attr('children')
 			if(endat>=at){
-				const text=node.attr("children")
 				const len=at-(endat-text.length)
 				const offset=composer.measure.stringWidth(text.substring(0,len))
-				x+=offset
+				pos.x+=offset
 			}
 		}else if(at==1){
-			return {x:x+node.attr('width')||0,y}
+			pos.x+=(target.attr('width')||0)
 		}
-
-		return {x,y}
+		return pos
 	}
 
 	isSameFrameStack(id, limit=(mine,current)=>true){
