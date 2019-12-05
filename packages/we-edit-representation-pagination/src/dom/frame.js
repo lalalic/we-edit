@@ -11,7 +11,8 @@ export default class Frame extends Layout.Block{
 		Object.defineProperties(this,{
 			uuid:{
 				get(){
-					return this.props.id
+					const {props:{i,id}}=this
+					return `${id}${i!=undefined ? "_"+i : ""}`
 				}
 			}
 		})
@@ -87,29 +88,22 @@ export default class Frame extends Layout.Block{
 		)
 	}
 
-	//absolute y
-	paragraphY(id){
-		const prevLineOfThisParagraph=this.lines.findLastIndex(line=>this.getParagraph(line)!=id)
-		if(prevLineOfThisParagraph){
-			return this.lineY(this.lines[prevLineOfThisParagraph+1])
-		}
-		return 0
-	}
-
-	//absolute y of line end at
+	//y in frame
 	lineY(line){
 		if(!this.cols){
-			return this.lines.slice(0,this.lines.indexOf(line)+1).reduce((Y,{props:{height=0}})=>Y+height,this.getSpace().blockOffset)
+			const {margin:{top=0}={}}=this.props
+			return this.lines.slice(0,this.lines.indexOf(line)).reduce((Y,{props:{height=0}})=>Y+height,top)
 		}
 
 		const {y:y0=0,children:lines}=this.columns.find(a=>a.children.includes(line))||this.currentColumn
-		return lines.slice(0,lines.indexOf(line)+1).reduce((Y,{props:{height=0}})=>Y+height,y0)
+		return lines.slice(0,lines.indexOf(line)).reduce((Y,{props:{height=0}})=>Y+height,y0)
 	}
 
-	//absolute x
+	//x in frame
 	lineX(line){
 		if(!this.cols){
-			return this.getSpace().left
+			const {margin:{left=0}={}}=this.props
+			return left
 		}
 		return this.columns.find(a=>a.children.includes(line)).x
 	}
