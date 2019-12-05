@@ -67,7 +67,7 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
         expect(around).toHaveLastReturnedWith({id:"2",at:1})
     })
 
-    xit("ignore when out of content range, but shape should be selected when click on blank area ",()=>{
+    it("ignore when out of content range, but shape should be selected when click on blank area ",()=>{
         const doc=test(
 			<Paragraph id={"1"}>
 				<Text id={"0"}>text</Text>
@@ -81,7 +81,7 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
         doc.click(-1000,-1000)
         expect(around).toHaveLastReturnedWith({})
 
-debugger
+
         doc.click(5,5)
         expect(around).toHaveLastReturnedWith({id:"0",at:4})
 
