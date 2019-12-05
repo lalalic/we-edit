@@ -189,8 +189,11 @@ class Positionable extends Editable{
 				pos.x+=offset
 			}
 			//pos.y-=(composer.defaultStyle.height-composer.defaultStyle.descent)
-		}else if(at==1){
-			pos.x+=(target.attr('width')||0)
+		}else{
+			if(target.attr('height'))
+				pos.height=target.attr('height')
+			 if(at==1 && target.attr('width'))
+				pos.x+=target.attr('width')
 		}
 		return pos
 	}
