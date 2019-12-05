@@ -51,7 +51,7 @@ export default class Anchorable extends Flow {
         const anchored = anchor(space.clone({
             edges:{
                 paragraph:{
-                    top:this.paragraphY(new ReactQuery(line).findFirst('[data-type="paragraph"]').attr("data-content"))
+                    top:((id,line=this.lines.find(a=>a.props.pagination.id==id))=>this.lineY(line))(line.props.pagination.id)
                 },
                 line:{top:space.blockOffset},
                 character:{
