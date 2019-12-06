@@ -130,63 +130,6 @@ const factory=base=>Cacheable(class Frame extends editable(base){
     composeFrames(){
         return [...super.composeFrames(...arguments),this.props.id]
     }
-
-    getRangeRects(p0,p1, pageXY){
-		const getComposer=id=>this.getComposer && this.getComposer(id) || this.context.getComposer && this.context.getComposer(id)
-		const pages=this.getPages()
-
-		const composer0=getComposer(p0.id)
-		p0=composer0.position(p0.id,p0.at)
-		p1=getComposer(p1.id).position(p1.id,p1.at)//no context
-		if(!p0 || !p1){
-			return []
-		}
-		if(p0.id==p1.id && p0.page==p1.page && !composer0.splittable){
-			const [start,end]=[p0,p1].sort((a,b)=>a.at-b.at);
-			const {x,y}=pageXY(pages.find(a=>a.props.I==start.page))
-			return [{left:x+start.x,top:y+start.y,right:x+end.x,bottom:y+end.y}]
-		}
-        debugger
-        p0.page=p1.page=pages.find(a=>a.props.I==p0.page)
-        
-        //convert paragraph line index to page line index
-		p0.line=this.lineIndexOf(p0)
-        p1.line=this.lineIndexOf(p1)
-        
-		const rects=[]
-        const frameXY=page=>{
-            const {x,y}=pageXY(page)
-            const {first,parents}=new ReactQuery(page.render()).findFirstAndParents(`[data-content="${this.props.id}"]`)
-            return [...parents,first.get(0)].reduce((p,{props:{x=0,y=0}})=>(p.x+=x,p.y+=y,p),{x,y})
-        }
-
-        const lineRectsInPage=(page,start=0,end)=>{
-            const {x,y}=frameXY(page)
-            this.lines.slice(start,end).forEach((a,i)=>{
-				const {left,top,width,height}=this.lineRect(start+i)
-				rects.push({left:left+x,top:top+y,right:left+width+x,bottom:top+height+y})
-			})
-		}
-
-		const [start,end]=(()=>{
-            if(p0.page.props.I>p1.page.props.I){
-                return [p1,p0]
-            }else if(p0.page.props.I==p1.page.props.I){
-                if(p0.line>p1.line){
-                    return [p1,p0]
-                }
-            }
-            return [p0,p1]
-        })();
-
-		lineRectsInPage(start.page, start.line, end.line+1)
-
-		if(rects.length){
-			Object.assign(rects[0],{left:pageXY(start.page).x+(start.x||0)})
-            Object.assign(rects[rects.length-1], {right:pageXY(end.page).x+(end.x||0)})
-		}
-		return rects
-	}
 },undefined,["hash","width"])
 
 export default factory(Base)

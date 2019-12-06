@@ -79,8 +79,4 @@ export default Cacheable(class __$1 extends Super{
 		this.computed.composed=[...this.computed.lastComposed]
 		this.computed.composed.forEach(a=>this.context.parent.appendComposed(a))
 	}
-
-	getPages(){
-		return this.computed.composed
-	}
 },true)//numbering can't work

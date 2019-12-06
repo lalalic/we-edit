@@ -22,15 +22,4 @@ export default class __$1 extends Super{
         }
         return super.render()
     }
-
-	position(id,at){
-        const {fontSize, fontFamily,height,descent}=this.measure.defaultStyle
-        const paragraph=this.closest("paragraph").props.id
-		const position=this.context.getComposer(paragraph).position(id,at)
-		return {
-			id,at,
-			fontSize, fontFamily,height,descent,
-			...position
-		}
-	}
 }

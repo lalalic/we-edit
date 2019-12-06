@@ -47,8 +47,4 @@ export default class Shape extends Super{
 			transform={el=>this.transform(el,new Path(path),1)}
 		/>)
 	}
-
-	positionFromPoint(x,y){
-		return {id:this.props.id}
-	}
 }

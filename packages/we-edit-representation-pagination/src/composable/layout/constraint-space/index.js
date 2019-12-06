@@ -47,7 +47,7 @@
      anchor({base, offset=0, align},{width=0,height=0}={}){
         const {edges}=this.props
         if(!edges || !edges[base] || !(align in edges[base]))
-            return 0
+            return offset
         
         const {[base]:{[align]:v=0}={}}=edges
         switch(align){
