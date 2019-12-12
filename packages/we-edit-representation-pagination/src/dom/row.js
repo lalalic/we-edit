@@ -203,7 +203,18 @@ export default class __$1 extends Super{
 
 		/**the layouted rank in the space */
 		get layouted(){
-			return this.space.frame.lastLine
+			const frame=this.space.frame
+			return new Proxy(frame.lastLine, {
+				get(line, prop) {
+					if (prop == "replaceWith") {
+						return replacement => frame.lines.splice(-1, 1, replacement);
+					}
+					else if (prop == "detach") {
+						return () => frame.lines.splice(-1, 1);
+					}
+					return line[prop];
+				}
+			});
 		}
 	
 		delayout(){

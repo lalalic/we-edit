@@ -8,9 +8,10 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
     TESTING, render, mockQuery,size,uuid,Positioning,Responsible})=>{
 
     const test=(a,state={page:{width:5}})=>{
-        Positioning.prototype.pageXY=jest.fn(()=>({x:0,y:0}))
-        Positioning.prototype.asViewportPoint=jest.fn(p=>p)
-
+        Positioning.prototype.pageXY=jest.fn(function(i){
+            return {x:0,y:this.pages.slice(0,i).reduce((Y,{props:{height=0}})=>Y+height,0)}
+        })
+        
         const {renderer}=render(a,state)
         const doc=renderer.root.findByType(Document).instance
         const pages=doc.computed.composed
@@ -52,7 +53,7 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
         })
 
         it("Text-><page>Text</page>",()=>{
-            if(!"in shape,in table".includes(TESTING)){
+            if(!"in shape,in table".split(",").includes(TESTING)){
                 const p=test(
                     <Paragraph id={uuid++}>
                         <Text id="0">text </Text>

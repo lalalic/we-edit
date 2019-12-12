@@ -9,8 +9,7 @@ define("position", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Cont
 
     const test=(a,b,pageXY={x:0,y:0})=>{
         Positioning.prototype.pageXY=jest.fn(()=>pageXY)
-        Positioning.prototype.asViewportPoint=jest.fn(p=>p)
-
+        
         const {renderer}=render(a,b)
         const responsible=renderer.root.findByType(Responsible).instance
         return {

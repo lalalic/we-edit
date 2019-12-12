@@ -68,18 +68,7 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 				configurable: true,
 				get() {
 					const lines = this.lines;
-					const me = this;
-					return new Proxy(lines[lines.length - 1], {
-						get(line, prop) {
-							if (prop == "replaceWith") {
-								return replacement => me.lines.splice(-1, 1, replacement);
-							}
-							else if (prop == "detach") {
-								return () => me.lines.splice(-1, 1);
-							}
-							return line[prop];
-						}
-					});
+					return lines[lines.length - 1]
 				}
 			},
 			lines: {

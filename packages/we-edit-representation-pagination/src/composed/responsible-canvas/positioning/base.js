@@ -37,6 +37,10 @@ export default class Positioning{
         return this.responsible.scale
     }
 
+    get frames(){
+        return this.pages
+    }
+
 
 
     getBoundingClientRect(){
@@ -110,15 +114,11 @@ export default class Positioning{
 
     /**extend selection from location to word range*/
     extendWord(id,at){
-        const p=this.getComposer(id).closest("paragraph")
-        if(p){
-            return p.extendAtom(id,at)
-        }
         return {}
     }
 
     /**extend selection from location to line range*/
     extendLine(id,at){
-
+        return {}
     }
 }

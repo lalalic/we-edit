@@ -61,7 +61,9 @@ export default function define(feature, tests){
 
     beforeAll(()=>{
         defaultProps(Editors)()
-		Document.prototype.shouldContinueCompose=jest.fn(a=>true)
+        Document.prototype.shouldContinueCompose=jest.fn(a=>true)
+        Positioning.prototype.asViewportPoint=jest.fn(({x,y})=>({left:x,top:y}))
+        Positioning.prototype.asCanvasPoint=jest.fn(({left,top})=>({x:left,y:top}))
 	})
 
     describe.each([

@@ -118,7 +118,7 @@ class Border extends Component{
 		var {width,height,border:{left,right,bottom,top}, children, ...others}=this.props
 		return (
 			<Group {...others}>
-				<Group className="border"
+				<Group className="border" {...{"data-nocontent":true}}
 					children={[
 						<Edge key="top" type="top" size={top.sz} color={top.color} d={`M0 0 h${width}`}/>,
 						<Edge key="bottom" type="bottom" size={bottom.sz} color={top.color} d={`M0 ${height} h${width}`}/>,

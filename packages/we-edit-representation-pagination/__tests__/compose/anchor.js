@@ -90,9 +90,9 @@ define("section compose",
                 expect(test({x:{base:"character",offset:1}}).x()).toBe(pg.margin.left+"hello".length+1)
             })
 
-            it("unsupported base would always anchor at 0",()=>{
+            it("unsupported base would always anchor at offset",()=>{
                 console.error=jest.fn()
-                expect(test({x:{base:"unknown",offset:1}}).x()).toBe(0)
+                expect(test({x:{base:"unknown",offset:1}}).x()).toBe(1)
             })
         })
 
@@ -114,9 +114,9 @@ define("section compose",
                 expect(test({y:{base:"line",offset:1}}).y()).toBe(pg.margin.top+1)
             })
 
-            it("unsupported base should not anchor",()=>{
+            it("unsupported base should anchor at offset",()=>{
                 console.error=jest.fn()
-                expect(test({y:{base:"unknown",offset:1}}).y()).toBe(0)
+                expect(test({y:{base:"unknown",offset:1}}).y()).toBe(1)
             })
         })
     })

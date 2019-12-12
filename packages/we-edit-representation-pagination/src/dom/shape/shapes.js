@@ -35,7 +35,7 @@ export class custom extends Component{
 
 		const children=[]
 		children.push(
-			<Group x={this.strokeWidth/2} y={this.strokeWidth/2} key="outline">
+			<Group x={this.strokeWidth/2} y={this.strokeWidth/2} key="outline" {...{"data-nocontent":true}}>
 				<path d={this.getPath().toString()}
 					style={{
 						strokeWidth:this.strokeWidth,
@@ -48,7 +48,7 @@ export class custom extends Component{
 
 		if(url){
 			children.push(
-				<Group x={this.strokeWidth+left} y={this.strokeWidth+top} key="background">
+				<Group x={this.strokeWidth+left} y={this.strokeWidth+top} key="background" {...{"data-nocontent":true}}>
 					<image {...{...this.contentBox,xlinkHref: url, preserveAspectRatio:"none"}} />
 				</Group>
 			)

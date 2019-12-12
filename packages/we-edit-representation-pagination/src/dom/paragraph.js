@@ -41,7 +41,13 @@ export default class Paragraph extends Super{
     static contextTypes={
 		...Super.contextTypes,
 		Measure: PropTypes.func,
+		numbering: PropTypes.func,
 	}
+	static propTypes={
+		...Super.propTypes,
+		defaultStyle:PropTypes.object.isRequired,	
+	}
+
    constructor(){
 		super(...arguments)
 		this.computed.atoms=[]
@@ -333,7 +339,7 @@ export default class Paragraph extends Super{
 		return (
 			<Group className="line"
 				height={topToBlockOffset+height+(bLastLine&&bottom||0)} 
-				width={left+width+right} 
+				width={left+(bFirstLine&&!numbering&&firstLine||0)+width+right} 
 				pagination={{
 					id:this.props.id,
 					orphan,widow,keepWithNext,keepLines, 
