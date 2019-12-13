@@ -515,8 +515,8 @@ export default class ReactPositioning extends PositioningHelper {
             if(rects.length==0)
                 return rects
         
-            Object.assign(rects[0],{left:p0.left})
-            Object.assign(rects[rects.length-1], {right:p1.left})
+            Object.assign(rects[0],{left:p0.x})
+            Object.assign(rects[rects.length-1], {right:p1.x})
 
             return rects.filter(({left,right})=>(left-right)!=0)
         }catch(e){
