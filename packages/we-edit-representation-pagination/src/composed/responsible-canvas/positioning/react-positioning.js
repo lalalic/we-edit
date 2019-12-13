@@ -5,88 +5,77 @@ import {ReactQuery} from "we-edit"
  * layouted is a frame tree
  * top frame(topFrame) is the top frame
  * leafFrame is a frame without nested frame
+ * it's based on some knowledge:
+ * 1. data-frame=frame.uuid
+ * 2. props.for
+ * 3. inline layout story, and its baseline
+ * 
+ * the positioning basic idea is to positioning in leafFrame(so the content is exact atoms, or merging up with atoms), 
+ * and then computed with topFrame.offset, and leafFrame.offset
  */
 class PositioningHelper extends Positioning{
-    /**
-     * in paragraph: id->paragraph->line
-     * paragraph:
-     * larger frame than paragraph:
-     * anchor not in paragraph:
-     * @param {*} id 
-     * @param {*} at 
-     */
-    positionToLeafFrameLine(id,at){
-        const paragraph=this.getComposer(id).closest("paragraph")
-        const $find=at==1 ? 'findLast' : 'findFirst'
-        const find=at==1 ? "findLast" : "find"
-        var i=0, frame,lineInFrame, position
-        if(paragraph){
-            if(paragraph.props.id==id){
-                //paragraph level
-                i=at==1? paragraph.lines.length-1 : 0
-            }else{
-                //inline level
-                /**
-                 * inline content includes: 
-                 * 1. atoms,such as image,text,..., which is not sensitive to query.findFirst/findLast
-                 * 2. inline container: it's sensitive to at(0:conainer start|1: container end) to query.findFirst/findLast
-                 */
-                i=paragraph.lines[`${find}Index`](line=>line.children.find(atom=>{
-                    const node=new ReactQuery(atom)[$find](`[data-content="${id}"]`)
-                    if(node.length==0)
-                        return 
-                    const {props:{"data-endat":endat, children:text}}=node.get(0)
-                    if(endat==undefined //not text, true
-                        || (at>=endat-text.length && at<endat))//inside text,true
-                        return true
-                    if(at==endat && this.getComposer(id).text.length==endat)//next of last text
-                        return true
-                }))
-            }
-            
-            frame=paragraph.lines[i].space.frame
-            lineInFrame=frame.lines.find(({props:{pagination:{id:p,i:I}={}}})=>p==paragraph.props.id&&I==i+1)
-            position=()=>this.positionInInline(id,at,paragraph.computed.lastComposed[i])
-        }else{
-            /**
-             * bigger than paragraph level
-             * wrapper of paragraph
-             * table/row/cell
-             * frame/shape
-             */
-            const firstParagraph=this.getComposer(this.getContent(id)[$find]("paragraph").attr("id"))
-            
-            frame=this.getCheckedGrandFrameByFrame(
-                firstParagraph.lines[at==1 ? firstParagraph.lines.length-1 : 0].space.frame, 
-                a=>new ReactQuery(a.createComposed2Parent()).findFirst(`[data-content=${id}]`).length==1,
-                true,//first frame includes id
-                find
-            )
-            lineInFrame=frame.lines[find](line=>new ReactQuery(line).findFirst(`[data-content=${id}]`).length==1)
-            position=()=>{
-                const {first,last,node=first||last, parents}=new ReactQuery(lineInFrame)[`${$find}AndParents`](`[data-content=${id}]`)
-                const x=[...parents,node.get(0)].reduce((X,{props:{x=0}})=>x+X,0)
-                return {x:at==1 ? x+(node.attr('width')||0) : x, y:0}
-            }
-        }
-        
-        return {
-            frame, 
-            line:new Proxy(lineInFrame,{
-                get(line,prop){
-                    return {
-                        position,
-                        paragraph:paragraph ? paragraph.props.id : undefined,
-                        i:paragraph ? i : undefined,
-                        inFrame:line,
-                        height:line.props.height
-                    }[prop]||line[prop]
-                }
-            })
-        }
+    getTopFrameXY(topFrame){
+        const {x,y}=this.pageXY(topFrame.props.I)
+        return {x,y,top:y,bottom:y+topFrame.props.height}
+    }
+
+    getTopFrameByPosition(x,y){
+        var xy
+        const topFrame=this.pages.find(({ props: { width, height, I } }) => {
+            xy = this.pageXY(I);
+            return x >= xy.x && x <= xy.x + width && y >= xy.y && y <= xy.y + height;
+        })
+        return {topFrame, topFrameOffset:xy} 
+    }
+
+    orderPosition(start,end){
+        const p0=this.position(start.id,start.at, true)
+        const p1=this.position(end.id, end.at,true)
+        return {p0,p1}
+    }
+
+    frameOffsetGrandFrame(grandFrame,frame){
+        const grandFrameLayouted=grandFrame.createComposed2Parent()
+        const {first,parents}=new ReactQuery(grandFrameLayouted).findFirstAndParents(`[data-frame=${frame.uuid}]`)
+        return [...parents,first.get(0)].filter(a=>!!a).reduce((xy,{props:{x=0,y=0}})=>(xy.x+=x, xy.y+=y, xy),{x:0,y:0})
     }
 
     /**
+     * start and end must be in same block level (NOT same frame, BUT same level of grand content), 
+     * if not, start and end must be extended up to same block level
+     * 
+     * there are two type of block line
+     * 1. paragraph line
+     * 2. table row
+     * there are two types of frame 
+     * 1. frame content, 
+     * 2. fission frame as layout engine
+     * 
+     * @param {*} start 
+     * @param {*} end 
+     */
+    normalizeSelection(start, end) {
+        if (start.id == end.id)
+            return { start, end }
+        
+        const framesA = this.getComposer(start.id).composeFrames();
+        const framesB = this.getComposer(end.id).composeFrames();
+        const i = framesA.findLastIndex((a, i) => a == framesB[i]);
+        if (i != -1) {
+            framesA.splice(0, i + 1);
+            framesB.splice(0, i + 1);
+        }
+        if (framesA[0]) {
+            start = { id: framesA[0], at: 1 };
+        }
+        if (framesB[0]) {
+            end = { id: framesB[0], at: 1 };
+        }
+        return { start, end };
+    }
+
+   /**
+     * travel up
      * to find up frame layout or fissionable's fission based on following knowledge
      * 1. composed frame must give data-frame=frame.uuid on content
      * 2. each frame layout must have context.frame(for fission)|.parent(for frame content) to travel up frame tree
@@ -116,54 +105,9 @@ class PositioningHelper extends Positioning{
         return grandMaybe
     }
 
-    getTopFrameXY(topFrame){
-        const {x,y}=this.pageXY(topFrame.props.I)
-        return {x,y,top:y,bottom:y+topFrame.props.height}
-    }
-
-    getTopFrameByPosition(x,y){
-        var xy
-        const topFrame=this.pages.find(({ props: { width, height, I } }) => {
-            xy = this.pageXY(I);
-            return x >= xy.x && x <= xy.x + width && y >= xy.y && y <= xy.y + height;
-        })
-        return {topFrame, topFrameOffset:xy} 
-    }
-
-    orderPosition(start,end){
-        const p0=this.position(start.id,start.at, true)
-        const p1=this.position(end.id, end.at,true)
-        return {p0,p1}
-    }
-
-    frameOffsetGrandFrame(grandFrame,frame){
-        const grandFrameLayouted=grandFrame.createComposed2Parent()
-        const {first,parents}=new ReactQuery(grandFrameLayouted).findFirstAndParents(`[data-frame=${frame.uuid}]`)
-        return [...parents,first.get(0)].filter(a=>!!a).reduce((xy,{props:{x=0,y=0}})=>(xy.x+=x, xy.y+=y, xy),{x:0,y:0})
-    }
-
-    extendSelection(start, end) {
-        if (start.id == end.id)
-            return { start, end }
-        
-        const framesA = this.getComposer(start.id).composeFrames();
-        const framesB = this.getComposer(end.id).composeFrames();
-        const i = framesA.findLastIndex((a, i) => a == framesB[i]);
-        if (i != -1) {
-            framesA.splice(0, i + 1);
-            framesB.splice(0, i + 1);
-        }
-        if (framesA[0]) {
-            start = { id: framesA[0], at: 1 };
-        }
-        if (framesB[0]) {
-            end = { id: framesB[0], at: 1 };
-        }
-        return { start, end };
-    }
-
+ 
     /**
-     * 
+     * travel down
      * @param {*} composed 
      * @param {*} check(rect, node), rect({initial bounary}) is funciton to return node boundary
      * @param {} formatNode(node)  
@@ -182,7 +126,7 @@ class PositioningHelper extends Positioning{
         },{...size,x:0,y:0})
         
         var current=new ReactQuery(composed), allParents=[]
-        while(true){//find most inner frame that includes the point
+        while(true){//find most inner node that includes the point
             const found=current.findFirstAndParents((node,parents)=>{
                 if(!node) 
                     return false
@@ -208,17 +152,24 @@ class PositioningHelper extends Positioning{
             })
     }
 
-    aroundInBlockLine(grandestFrame, line, {x=0,y=0}={}){
-        if(!line || !grandestFrame)
+    /**
+     * to around to x in a line of topFrame, the line may contain frame
+     * scope it to leafFrame, and proxy to aourndInInline
+     * @param {*} topFrame 
+     * @param {*} line 
+     * @param {*} param2 
+     */    
+    aroundInBlockLine(topFrame, line, {x=0,y=0}={}){
+        if(!line || !topFrame)
             return {}
         /**
          * now next line found, then locate with one of following ways
          * 1. to round(left, top+1)???? what if it's on top margin/border
          * 2. **find most inner node that includes (left,*), and then position in paragraph line
          */
-        const lineOffset=grandestFrame.lineXY(line)
-        const grandFrameOffset=this.getTopFrameXY(grandestFrame)
-        x=x-grandFrameOffset.x-lineOffset.x
+        const lineOffset=topFrame.lineXY(line)
+        const topFrameOffset=this.getTopFrameXY(topFrame)
+        x=x-topFrameOffset.x-lineOffset.x
         const isIncludeX=(rect)=>rect.x<=x && (rect.x+rect.width)>=x
         var {node,parents,...inlineOffset}=this.getBoundaryCheckedMostInnerNode(
             line,
@@ -253,6 +204,11 @@ class PositioningHelper extends Positioning{
         return this.aroundInInline(paragraph.computed.lastComposed[i-1], x-inlineOffset.x)
     }
 
+    /**
+     * to around to x in a line of paragraph, the paragraph line must be in  leafFrame
+     * @param {*} composedLine 
+     * @param {*} X 
+     */
     aroundInInline(composedLine,X){
         //find atom node that include x
         const {node, parents, ...offset}=this.getBoundaryCheckedMostInnerNode(
@@ -308,9 +264,87 @@ class PositioningHelper extends Positioning{
         //last chance at beginning of paragraph, such as empty paragraph
         return {id:composedLine.props["data-content"],at:0}
     }
+/**
+     * in paragraph: id->paragraph->line
+     * paragraph:
+     * larger frame than paragraph:
+     * anchor not in paragraph:
+     * @param {*} id 
+     * @param {*} at 
+     */
+    positionToLeafFrameLine(id,at){
+        const paragraph=this.getComposer(id).closest("paragraph")
+        const $find=at==1 ? 'findLast' : 'findFirst'
+        const find=at==1 ? "findLast" : "find"
+        var i=0, leafFrame,lineInFrame, position
+        if(paragraph){
+            if(paragraph.props.id==id){
+                //paragraph level
+                i=at==1? paragraph.lines.length-1 : 0
+            }else{
+                //inline level
+                /**
+                 * inline content includes: 
+                 * 1. atoms,such as image,text,..., which is not sensitive to query.findFirst/findLast
+                 * 2. inline container: it's sensitive to at(0:conainer start|1: container end) to query.findFirst/findLast
+                 */
+                i=paragraph.lines[`${find}Index`](line=>line.children.find(atom=>{
+                    const node=new ReactQuery(atom)[$find](`[data-content="${id}"]`)
+                    if(node.length==0)
+                        return 
+                    const {props:{"data-endat":endat, children:text}}=node.get(0)
+                    if(endat==undefined //not text, true
+                        || (at>=endat-text.length && at<endat))//inside text,true
+                        return true
+                    if(at==endat && this.getComposer(id).text.length==endat)//next of last text
+                        return true
+                }))
+            }
+            
+            leafFrame=paragraph.lines[i].space.frame
+            lineInFrame=leafFrame.lines.find(({props:{pagination:{id:p,i:I}={}}})=>p==paragraph.props.id&&I==i+1)
+            position=()=>this.positionInInline(id,at,paragraph.computed.lastComposed[i])
+        }else{
+            /**
+             * bigger than paragraph level
+             * wrapper of paragraph
+             * table/row/cell
+             * frame/shape
+             */
+            const firstParagraph=this.getComposer(this.getContent(id)[$find]("paragraph").attr("id"))
+            
+            leafFrame=this.getCheckedGrandFrameByFrame(
+                firstParagraph.lines[at==1 ? firstParagraph.lines.length-1 : 0].space.frame, 
+                a=>new ReactQuery(a.createComposed2Parent()).findFirst(`[data-content=${id}]`).length==1,
+                true,//first frame includes id
+                find
+            )
+            lineInFrame=leafFrame.lines[find](line=>new ReactQuery(line).findFirst(`[data-content=${id}]`).length==1)
+            position=()=>{
+                const {first,last,node=first||last, parents}=new ReactQuery(lineInFrame)[`${$find}AndParents`](`[data-content=${id}]`)
+                const x=[...parents,node.get(0)].reduce((X,{props:{x=0}})=>x+X,0)
+                return {x:at==1 ? x+(node.attr('width')||0) : x, y:0}
+            }
+        }
+        
+        return {
+            leafFrame, 
+            line:new Proxy(lineInFrame,{
+                get(line,prop){
+                    return {
+                        position,
+                        paragraph:paragraph ? paragraph.props.id : undefined,
+                        i:paragraph ? i : undefined,
+                        inFrame:line,
+                        height:line.props.height
+                    }[prop]||line[prop]
+                }
+            })
+        }
+    }
 
     /**
-	 * composedLine VS line
+	 * position (id,at) on paragraph composedLine, paragraph line must be in a  leafFrame
 	 * @param {*} id 
 	 * @param {*} at 
 	 * @param {*} i 
@@ -374,29 +408,29 @@ export default class ReactPositioning extends PositioningHelper {
      * based on paragraph.xyInLine(id,at,paragraph.lineIndexOf(id,at)) 
      */
     position(id,at, internal){
-        //#b , (id,at)->line->frame->grandFrame
+        //#b , (id,at)->line->frame->topFrame
         /**
          * maybe no line
          * > anchor
-         * > grandFrame itself
+         * > topFrame itself
          */
-        const {frame,line, anchor}=this.positionToLeafFrameLine(id,at)
-        const grandFrame=this.getCheckedGrandFrameByFrame(frame)
-        const grandFrameOffset=this.getTopFrameXY(grandFrame)
-        const frameOffset=this.frameOffsetGrandFrame(grandFrame,frame)
-        const lineOffset=frame.lineXY(line.inFrame)
+        const {leafFrame,line, anchor}=this.positionToLeafFrameLine(id,at)
+        const topFrame=this.getCheckedGrandFrameByFrame(leafFrame)
+        const topFrameOffset=this.getTopFrameXY(topFrame)
+        const leafFrameOffset=this.frameOffsetGrandFrame(topFrame,leafFrame)
+        const lineOffset=leafFrame.lineXY(line.inFrame)
         const inline=line.position()
 
         //finally
-        const x=grandFrameOffset.x+frameOffset.x+lineOffset.x+inline.x
-        const y=grandFrameOffset.y+frameOffset.y+lineOffset.y+inline.y
+        const x=topFrameOffset.x+leafFrameOffset.x+lineOffset.x+inline.x
+        const y=topFrameOffset.y+leafFrameOffset.y+lineOffset.y+inline.y
         const position={
             id,at,
             ...inline,
             x,
             y,
             ...this.asViewportPoint({ x,y }),
-            page:grandFrame.props.I,
+            page:topFrame.props.I,
             paragraph:line.paragraph,
             lineIndexOfParagraph:line.i,
             lineHeight:line.height
@@ -404,7 +438,7 @@ export default class ReactPositioning extends PositioningHelper {
 
         if(!internal)
             return position
-        return Object.assign(position, {grandFrame, frame, lineIndexInFrame:frame.lines.indexOf(line.inFrame)})
+        return Object.assign(position, {topFrame, leafFrame, lineIndexInLeafFrame:leafFrame.lines.indexOf(line.inFrame)})
     }
 
     around(left,top){
@@ -432,8 +466,8 @@ export default class ReactPositioning extends PositioningHelper {
                 //continue use frame search
             }
         }
-        //to get most inner frame that includes the point, and return the frame
-        const {node:frame, parents:_1,...frameOffset}=this.getBoundaryCheckedMostInnerNode(
+        //to get leaf frame that includes the point, and return the frame
+        const {node:leafFrame, parents:_1,...leafFrameOffset}=this.getBoundaryCheckedMostInnerNode(
             topFrame.createComposed2Parent(), 
             //only frame that contain the point
             (rect,node)=>{
@@ -448,19 +482,19 @@ export default class ReactPositioning extends PositioningHelper {
         )
 
         //locate the line that contain the point
-        var line=frame.lines.find(line=>{
+        var line=leafFrame.lines.find(line=>{
             const {props:{width=0, height=0}}=line
-            return pointIsInside({...frame.lineXY(line),width,height},frameOffset,topFrameOffset)
+            return pointIsInside({...leafFrame.lineXY(line),width,height},leafFrameOffset,topFrameOffset)
         })
 
         if(!line){
             //end of frame
-            return {id:frame.props["layout-for"]||frame.props.id,at:1}
+            return {id:leafFrame.props.for||leafFrame.props.id,at:1}
         }
         
-        const lineOffset=frame.lineXY(line)
+        const lineOffset=leafFrame.lineXY(line)
         const {pagination:{id,i}, paragraph=this.getComposer(id)}=line.props
-        return this.aroundInInline(paragraph.computed.lastComposed[i-1],x-topFrameOffset.x-frameOffset.x-lineOffset.x)
+        return this.aroundInInline(paragraph.computed.lastComposed[i-1],x-topFrameOffset.x-leafFrameOffset.x-lineOffset.x)
     }
 
     /**
@@ -473,15 +507,15 @@ export default class ReactPositioning extends PositioningHelper {
     getRangeRects(start,end){
         //normalize up to (same level???) of layout block
         try{
-            ({ start, end } = this.extendSelection(start,end));//this.normalizeToFrame(start, end));
+            ({ start, end } = this.normalizeSelection(start,end));//this.normalizeToFrame(start, end));
             const rects=[]
             const { p0, p1 } = this.orderPosition(start, end)
             
             const scope=(function* (frame0, frame1){
                 const makeRects=(frame,from=0,to=frame.lines.length-1)=>{
-                    const grandFrame=this.getCheckedGrandFrameByFrame(frame)
-                    const o=this.getTopFrameXY(grandFrame)
-                    const {x,y}=this.frameOffsetGrandFrame(grandFrame,frame) 
+                    const topFrame=this.getCheckedGrandFrameByFrame(frame)
+                    const o=this.getTopFrameXY(topFrame)
+                    const {x,y}=this.frameOffsetGrandFrame(topFrame,frame) 
                     return frame.lines.slice(from,to+1)
                         .map((line,_,_1,{props:{width,height,pagination:{id:isParagraphLine}={}}}=line)=>{
                             const xy=frame.lineXY(line)
@@ -501,15 +535,15 @@ export default class ReactPositioning extends PositioningHelper {
                         .map(({x:left,y:top,width,height})=>({left,top,right:left+width,bottom:top+height}))
                 }
                 if(frame0==frame1){
-                    yield makeRects(frame0, p0.lineIndexInFrame, p1.lineIndexInFrame)
+                    yield makeRects(frame0, p0.lineIndexInLeafFrame, p1.lineIndexInLeafFrame)
                     return 
                 }
-                yield makeRects(frame0, p0.lineIndexInFrame)
+                yield makeRects(frame0, p0.lineIndexInLeafFrame)
                 for(let frames=frame0.context.parent.computed.composed,i=frame0.props.i+1;i<frame1.props.i;i++){
                     yield makeRects(frames[i])
                 }
-                yield makeRects(frame1, 0,p0.lineIndexInFrame)
-            }).call(this, p0.frame, p1.frame);
+                yield makeRects(frame1, 0,p0.lineIndexInLeafFrame)
+            }).call(this, p0.leafFrame, p1.leafFrame);
 
             for(const bounds of scope){
                 rects.splice(rects.length, 0, ...bounds)
@@ -550,10 +584,10 @@ export default class ReactPositioning extends PositioningHelper {
             return frame.lines[frame.lines.indexOf(lineInFrame)+1]
         }
         
-        const firstLineIncludeXInTopFrame=(grandestFrame,X)=>{
-            if(!(grandestFrame.cols && grandestFrame.cols.length>1))
-                return grandestFrame.firstLine
-            const column=grandestFrame.columns.find(({x,width})=>X>=x && X<=x+width)
+        const firstLineIncludeXInTopFrame=(topFrame,X)=>{
+            if(!(topFrame.cols && topFrame.cols.length>1))
+                return topFrame.firstLine
+            const column=topFrame.columns.find(({x,width})=>X>=x && X<=x+width)
             if(column)
                 return column.children[0]
         }
@@ -561,33 +595,33 @@ export default class ReactPositioning extends PositioningHelper {
         const nextTopFrame=a=>this.frames[this.frames.indexOf(a)+1]
 
 
-        var {x,y, frame, lineIndexInFrame, grandFrame}=this.position(id,at,true)
-        var lineInFrame=frame.lines[lineIndexInFrame]
+        var {x,y, leafFrame, lineIndexInLeafFrame, topFrame}=this.position(id,at,true)
+        var lineInLeafFrame=leafFrame.lines[lineIndexInLeafFrame]
         
         var nextLine
         //find next line in current top frame
-        while(frame && lineInFrame && !(nextLine=nextLineBelowInFrame(frame, lineInFrame))){
+        while(leafFrame && lineInLeafFrame && !(nextLine=nextLineBelowInFrame(leafFrame, lineInLeafFrame))){
             //direct parent frame
             const parentFrame=this.getCheckedGrandFrameByFrame(
-                frame,
-                a=>a!=frame && new ReactQuery(a.createComposed2Parent()).findFirst(`[data-frame=${frame.uuid}]`).length==1/**/,
+                leafFrame,
+                a=>a!=leafFrame && new ReactQuery(a.createComposed2Parent()).findFirst(`[data-frame=${leafFrame.uuid}]`).length==1/**/,
                 true/*first*/)
             if(parentFrame){
                 //locate line includes frame
-                lineInFrame=parentFrame.lines.find(line=>new ReactQuery(line).findFirst(`[data-frame=${frame.uuid}]`).length==1)
-                frame=parentFrame
+                lineInLeafFrame=parentFrame.lines.find(line=>new ReactQuery(line).findFirst(`[data-frame=${leafFrame.uuid}]`).length==1)
+                leafFrame=parentFrame
             }else{
                 break
             }
         }
         //find first line in next siblings of current top frame
-        while(grandFrame && !nextLine && (grandFrame=nextTopFrame(grandFrame))){
-            if(nextLine=firstLineIncludeXInTopFrame(grandFrame,x)){
+        while(topFrame && !nextLine && (topFrame=nextTopFrame(topFrame))){
+            if(nextLine=firstLineIncludeXInTopFrame(topFrame,x)){
                 //adjust top to new top frame
                 break
             }
         }
-        return this.aroundInBlockLine(grandFrame,nextLine, {x,y})
+        return this.aroundInBlockLine(topFrame,nextLine, {x,y})
     }
 
     prevLine(id,at){
@@ -608,10 +642,10 @@ export default class ReactPositioning extends PositioningHelper {
             return frame.lines[frame.lines.indexOf(lineInFrame)-1]
         }
         
-        const firstLineIncludeXInTopFrame=(grandestFrame,X)=>{
-            if(!(grandestFrame.cols && grandestFrame.cols.length>1))
-                return grandestFrame.lastLine
-            const column=grandestFrame.columns.find(({x,width})=>X>=x && X<=x+width)
+        const firstLineIncludeXInTopFrame=(topFrame,X)=>{
+            if(!(topFrame.cols && topFrame.cols.length>1))
+                return topFrame.lastLine
+            const column=topFrame.columns.find(({x,width})=>X>=x && X<=x+width)
             if(column)
                 return column.children[column.children.length-1]
         }
@@ -619,34 +653,34 @@ export default class ReactPositioning extends PositioningHelper {
         const prevTopFrame=a=>this.frames[this.frames.indexOf(a)-1]
 
 
-        var {x,y, frame, lineIndexInFrame, grandFrame}=this.position(id,at,true)
-        var lineInFrame=frame.lines[lineIndexInFrame]
+        var {x,y, leafFrame, lineIndexInLeafFrame, topFrame}=this.position(id,at,true)
+        var lineInLeafFrame=leafFrame.lines[lineIndexInLeafFrame]
         
         var prevLine
         //first try to find next line in current top frame
-        while(frame && lineInFrame && !(prevLine=prevLineAboveInFrame(frame, lineInFrame))){
+        while(leafFrame && lineInLeafFrame && !(prevLine=prevLineAboveInFrame(leafFrame, lineInLeafFrame))){
             //direct parent frame
             const parentFrame=this.getCheckedGrandFrameByFrame(
-                frame,
-                a=>a!=frame && new ReactQuery(a.createComposed2Parent()).findFirst(`[data-frame=${frame.uuid}]`).length==1/**/,
+                leafFrame,
+                a=>a!=leafFrame && new ReactQuery(a.createComposed2Parent()).findFirst(`[data-frame=${leafFrame.uuid}]`).length==1/**/,
                 true/*first*/)
             if(parentFrame){
                 //locate line includes frame
-                lineInFrame=parentFrame.lines.find(line=>new ReactQuery(line).findFirst(`[data-frame=${frame.uuid}]`).length==1)
-                frame=parentFrame
+                lineInLeafFrame=parentFrame.lines.find(line=>new ReactQuery(line).findFirst(`[data-frame=${leafFrame.uuid}]`).length==1)
+                leafFrame=parentFrame
             }else{
                 break
             }
         }
         //otherwise find first line in next siblings of current top frame
-        while(grandFrame && !prevLine && (grandFrame=prevTopFrame(grandFrame))){
-            if(prevLine=firstLineIncludeXInTopFrame(grandFrame,x)){
+        while(topFrame && !prevLine && (topFrame=prevTopFrame(topFrame))){
+            if(prevLine=firstLineIncludeXInTopFrame(topFrame,x)){
                 //adjust top to new top frame
                 break
             }
         }
         //then around in the line
-        return this.aroundInBlockLine(grandFrame,prevLine, {x,y})
+        return this.aroundInBlockLine(topFrame,prevLine, {x,y})
     }
 
     

@@ -21,7 +21,7 @@ export default class Shape extends HasParentAndChild(dom.Shape){
 		const {width}=this.geometry.availableSpace()
 		const {id,children}=this.props
 		return (
-			<Frame id={`shape_frame_${id}`} layout-for={id} width={width}>
+			<Frame id={`shape_frame_${id}`} for={id} width={width}>
 				{children}
 			</Frame>
 		)
