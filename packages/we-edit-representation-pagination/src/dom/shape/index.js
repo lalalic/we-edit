@@ -3,7 +3,7 @@ import {dom} from "we-edit"
 import memoize from "memoize-one"
 
 import {Group} from "../../composed"
-import {HasParentAndChild,editable} from "../../composable"
+import {HasParentAndChild,editable,ComposedAllTrigger} from "../../composable"
 import Entity from "../../composed/responsible-canvas/selection/entity"
 import Path from "../../tool/path"
 
@@ -20,18 +20,15 @@ export default class Shape extends editable(HasParentAndChild(dom.Shape)){
 	}
 
 	render(){
-		try{
-			const {Frame}=this.context.ModelTypes
-			const {width}=this.geometry.availableSpace()
-			const {id,children}=this.props
-			return (
-				<Frame id={`shape_frame_${id}`} for={id} width={width}>
-					{children}
-				</Frame>
-			)
-		}finally{
-			this.onAllChildrenComposed()
-		}
+		const {Frame}=this.context.ModelTypes
+		const {width}=this.geometry.availableSpace()
+		const {id,children}=this.props
+		return (
+			<Frame id={`shape_frame_${id}`} for={id} width={width}>
+				{children}
+				<ComposedAllTrigger host={this}/>
+			</Frame>
+		)
 	}
 
 	createComposed2Parent(content){

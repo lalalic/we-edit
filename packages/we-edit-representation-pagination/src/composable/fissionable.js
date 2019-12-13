@@ -109,4 +109,9 @@ export default (A)=>class __$1 extends A{
             }
         }
     }
+    /**
+     * cacheable API
+     * createComposed2Parent may not always be created frame(such as cell), usually
+     * TopFrame should be frame instance, otherwise be composed content
+     */
 }

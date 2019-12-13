@@ -1,4 +1,5 @@
 import React,{Children,Fragment} from "react"
+import { ComposedAllTrigger } from "."
 
 /**
  * Cacheable keep last composed in computed.lastComposed when it call createComposed2Parent
@@ -12,13 +13,13 @@ export default (A,partable, composedOnlyForFields=["hash"])=>class __$1 extends 
     static displayName=`cacheable(${partable ? "part" : "all"})-${A.displayName}`
     constructor(){
         super(...arguments)
-        this.computed.lastComposed=[]
-        this.computed.hash=null
+        this.computed.lastComposed=[]//cache
+        this.computed.hash=null//cached for content hash
     }
 
-    //keep last composed for next time
+    //cache last composed for next time
     createComposed2Parent(){
-        let composed=super.createComposed2Parent(...arguments)
+        const composed=super.createComposed2Parent(...arguments)
         this.computed.lastComposed.push(composed)
         return composed
     }
@@ -113,24 +114,24 @@ export default (A,partable, composedOnlyForFields=["hash"])=>class __$1 extends 
     }
 
     /**
-     * it utilize 
+     * to render part of content, customizable
      * @param {*} index 
      */
     renderFrom(index){
         if(this.appendLastComposed()===false){
             return super.render()
         }
-        try{
-            return (
-                <Fragment>
-                    {Children.toArray(this.props.children).slice(index)}
-                </Fragment>
-            )
-        }finally{
-            this.onAllChildrenComposed()
-        }
+        
+        return (
+            <Fragment>
+                {Children.toArray(this.props.children).slice(index)}
+                <ComposedAllTrigger host={this}/>
+            </Fragment>
+        )
     }
-
+    /**
+     * to utilize cache, customizable
+     */
     appendLastComposed(){
         if(super.appendLastComposed){
             return super.appendLastComposed(...arguments)

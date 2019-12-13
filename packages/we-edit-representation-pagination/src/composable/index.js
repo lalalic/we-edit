@@ -9,6 +9,7 @@ import Continuable from "./continuable"
 import Cacheable from "./cacheable"
 import Navigatable from "./navigatable"
 import Fissionable from "./fissionable"
+import ComposedAllTrigger from "./composed-all-trigger"
 
 import Layout from "./layout"
 
@@ -79,4 +80,8 @@ const enablify=func=>(targets, excludes)=>Object.keys(targets)
 [HasChild, HasParentAndChild, NoChild,Recomposable, Locatable,Navigatable,Stoppable,Continuable,Cacheable,Fissionable,editable]
 	.forEach(a=>a.enable=enablify(a))
 
-export {enablify, editable,Layout,HasChild, HasParentAndChild, NoChild, Recomposable,Locatable,Stoppable,Continuable,Cacheable,Fissionable}
+export {enablify, editable,
+	Layout,
+	HasChild, HasParentAndChild, NoChild, ComposedAllTrigger,
+	Recomposable,Locatable,Stoppable,Continuable,Cacheable,Fissionable
+}

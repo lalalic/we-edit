@@ -26,10 +26,10 @@ export default Cacheable(class __$1 extends Super{
 	}
 
 	keepUntilLastAllChildrenComposed(){
-        const {id,pageIndex,lineIndex}=(id=>{
-			let pageIndex=-1, lineIndex=-1
+        const {id,fissionIndex,lineIndex}=(id=>{
+			let fissionIndex=-1, lineIndex=-1
 			this.computed.lastComposed.findLast(({lines},i)=>{
-				pageIndex=i
+				fissionIndex=i
 				return lines.findLast((line,i)=>{
 					lineIndex=i
 					if(id=this.findContentId(line)){
@@ -41,11 +41,11 @@ export default Cacheable(class __$1 extends Super{
 					return false
 				})
 			})
-			return {id,pageIndex,lineIndex}
+			return {id,fissionIndex,lineIndex}
 		})();
 
 		if(id){
-			this.keepComposedUntil(pageIndex,lineIndex+1)
+			this.keepComposedUntil(fissionIndex,lineIndex+1)
 			return Children.toArray(this.props.children).findIndex(a=>a.props.id===id)
 		}
 		return -1
@@ -57,20 +57,20 @@ export default Cacheable(class __$1 extends Super{
 			return (id!==undefined && removedChildren.includes(id))
 		}
 
-		let pageIndex=-1, lineIndex=-1
-		if((pageIndex=this.computed.lastComposed.findIndex(({lines})=>{
+		let fissionIndex=-1, lineIndex=-1
+		if((fissionIndex=this.computed.lastComposed.findIndex(({lines})=>{
 			return (lineIndex=lines.findIndex(line=>findChangedContentId(line)))!=-1
 		}))!=-1){
-			this.keepComposedUntil(pageIndex,lineIndex)
+			this.keepComposedUntil(fissionIndex,lineIndex)
 			return true
 		}
 
 		return false
 	}
 
-	keepComposedUntil(pageIndex,lineIndex){
-		this.computed.lastComposed=this.computed.lastComposed.slice(0,pageIndex+1)
-		this.computed.lastComposed[pageIndex].removeFrom(lineIndex)
+	keepComposedUntil(fissionIndex,lineIndex){
+		this.computed.lastComposed=this.computed.lastComposed.slice(0,fissionIndex+1)
+		this.computed.lastComposed[fissionIndex].removeFrom(lineIndex)
 	}
 
 	appendLastComposed(){

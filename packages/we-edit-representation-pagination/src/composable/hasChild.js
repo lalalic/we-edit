@@ -1,16 +1,12 @@
 
 import React, {Fragment} from "react"
 import PropTypes from "prop-types"
-import {ContentQuery} from "we-edit"
-
-const ComposedAllTrigger=({host})=>(host.onAllChildrenComposed(),null)
-
+import ComposedAllTrigger from "./composed-all-trigger"
 export default A=>class __$1 extends A{
     static displayName=`composable-${A.displayName}`
 	static contextTypes={
 		...A.contextTypes,
-		activeDocStore: PropTypes.object,
-        debug: PropTypes.bool,
+		debug: PropTypes.bool,
         ModelTypes: PropTypes.object,
 	}
 
@@ -50,14 +46,6 @@ export default A=>class __$1 extends A{
         )
     }
 
-    /** NOTE: React.Children.toArray changes key, so 
-     * in order to make first/normal render with the same key on children, always use toArray on children 
-     */
-    children(){
-        return React.Children.toArray(this.props.children)
-    }
-
-
     /**
      * children should call after a line composed out
      * a chance to add to self's composed
@@ -90,14 +78,6 @@ export default A=>class __$1 extends A{
 	get debug(){
 		return !!this.context.debug||this.props.debug
 	}
-
-	dispatch(){
-		this.context.activeDocStore.dispatch(...arguments)
-	}
-	
-	query(selector=`#${this.props.id}`){
-		return new ContentQuery(this.context.activeDocStore.getState(),selector)
-    }
     
     closest(type){
         var fn=type
