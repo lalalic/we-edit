@@ -13,7 +13,6 @@ import Frame from "./frame"
 import Anchor from "./anchor"
 import Shape from "./shape"
 import Container from "./container"
-import Page from "./page"
 import Template from "./template"
 
 export default Locatable.enable(HasParentAndChild.enable(dom,{
@@ -30,6 +29,5 @@ export default Locatable.enable(HasParentAndChild.enable(dom,{
 	Shape,
 	Anchor,
 	Container,
-	Page,
 	Template,
 }))

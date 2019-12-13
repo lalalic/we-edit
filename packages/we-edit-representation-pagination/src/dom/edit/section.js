@@ -1,10 +1,8 @@
-import React, {Fragment,Children} from "react"
+import React, {Children} from "react"
 import PropTypes from "prop-types"
 
-import {Cacheable} from "../../composable"
+import {Cacheable,editable} from "../../composable"
 import Base from "../section"
-
-import editable from "./editable"
 
 const Super=editable(Base,{stoppable:true})
 

@@ -2,53 +2,15 @@ import React, {Component, Children, Fragment} from "react"
 import PropTypes from "prop-types"
 
 export default class Group extends Component{
-	static contextTypes={
-		debug: PropTypes.bool,
-		offset: PropTypes.shape({
-			x:PropTypes.number,
-			y:PropTypes.number,
-		}),
-		record: PropTypes.func,
-	}
-
-	static childContextTypes={
-		offset: PropTypes.shape({
-			x:PropTypes.number,
-			y:PropTypes.number,
-		})
-	}
-
 	static propTypes={
 		width: PropTypes.number,
 		height: PropTypes.number,
 		x:PropTypes.number,
 		y:PropTypes.number,
-	}
-
-	getChildContext(){
-		const {props:{x:dx=0,y:dy=0},context:{offset:{x=0,y=0}={}}}=this
-		return {
-			offset:{
-				x:x+dx,
-				y:y+dy,
-			}
-		}
-	}
-
-	record(){
-		var {props:{className,"data-content":id,"data-endat":endat,children:text="","data-type":type,height,width},context:{record}}=this
-		if((id||className&&(id=className).startsWith("page")) && record){
-			const info=this.getChildContext().offset
-			Object.assign(info,{id,type,width,height})
-			if(endat!==undefined){
-				Object.assign(info,{text,endat,startat:endat-text.length})
-			}
-			record(info)
-		}
+		z:PropTypes.number,
 	}
 
     render(){
-		this.record()
 		let {
 			innerRef, //for waypoint
 			rotate,

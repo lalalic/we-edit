@@ -6,7 +6,7 @@ import {Representation} from "we-edit"
 
 import Viewers from "./dom"
 import Editors from "./dom/edit"
-import editable from "./dom/edit/editable"
+import {editable} from "./composable"
 
 import FontManager from "./fonts"
 import * as Composed from "./composed"

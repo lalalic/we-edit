@@ -1,5 +1,4 @@
-import editable from "./editable"
-import {Cacheable} from "../../composable"
+import {Cacheable,editable} from "../../composable"
 import Base from "../table"
 
 

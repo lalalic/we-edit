@@ -1,4 +1,4 @@
-import editable from "./editable"
+import {editable} from "../../composable"
 import Base from "../cell"
 
 export default class __$1 extends editable(Base){

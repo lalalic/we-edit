@@ -37,19 +37,19 @@ define("section compose",
         document.appendComposed=jest.fn(p=>page=p)
         const rendered=render(
             <Context>
-                <Page {...{...pg, id:uuid++}}>
+                <Frame {...{...pg, id:uuid++}}>
                     <WithParagraphContext>
                         <WithTextContext>
                             {content}
                         </WithTextContext>
                     </WithParagraphContext>
-                </Page>
+                </Frame>
             </Context>
         )
 
         expect(document.appendComposed).toHaveBeenCalled()
         expect(page).toBeDefined()
-        const renderedPage=page.render()
+        const renderedPage=page
         const $page=new ReactQuery(renderedPage)
         const xy=(selector)=>{
             const {first,parents}=$page.findFirstAndParents(selector)

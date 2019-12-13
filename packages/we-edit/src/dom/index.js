@@ -12,7 +12,8 @@ import Cell from "./cell"
 import Frame from "./frame"
 import Anchor from "./anchor"
 import Shape from "./shape"
-import Page from "./page"
+import Template from "./template"
+import Group from "./group"
 
 export default {
 	Unknown,
@@ -29,5 +30,6 @@ export default {
 	Frame,
 	Shape,
 	Anchor,
-	Page,
+	Template,
+	Group,//a composed group supporting direct positioning, layer, ...
 }

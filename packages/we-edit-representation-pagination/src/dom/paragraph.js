@@ -2,6 +2,7 @@ import React from "react"
 import PropTypes from "prop-types"
 
 import {dom, ReactQuery} from "we-edit"
+import memoize from "memoize-one"
 
 import Frame from "./frame"
 import {HasParentAndChild,Layout} from "../composable"
@@ -82,6 +83,10 @@ export default class Paragraph extends Super{
 		return this.lines[this.lines.length-1]
 	}
 
+	getDefaultMeasure=memoize((style=this.props.defaultStyle)=>{
+		return new this.context.Measure(style)
+	})
+
     /**
 	 * to collect atomic inline items
 	 * a text start may merge with last text to compute break opportunity
@@ -120,11 +125,6 @@ export default class Paragraph extends Super{
 		}
 		
 		this.atoms.push(content)
-	}
-
-	getDefaultMeasure(){
-		const {context:{Measure}, props:{defaultStyle:{fonts,size,bold,italic}}}=this
-        return new Measure({fonts,size,bold,italic})
 	}
 
 

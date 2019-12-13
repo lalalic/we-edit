@@ -67,7 +67,7 @@ export const context=({dom, state=State, measure=Measure, contextTypes={},contex
 
 
 export const $=pages=>{
-	const html=ReactDOMServer.renderToString(<svg>{pages.map(a=>a.render())}</svg>)
+	const html=ReactDOMServer.renderToString(<svg>{pages.map(a=>a.createComposed2Parent())}</svg>)
 	const $=cheerio.load(html)
 	return $("svg")
 }

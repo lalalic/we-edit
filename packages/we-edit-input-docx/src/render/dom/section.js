@@ -5,7 +5,7 @@ import memoize from "memoize-one"
 import {shallowEqual} from "recompose"
 
 
-export default ({Section,Frame})=>class __$1 extends Component{
+export default ({Section,Frame,Group})=>class __$1 extends Component{
 	static displayName="section"
 	static propTypes={
 		cols: PropTypes.shape({
@@ -40,105 +40,67 @@ export default ({Section,Frame})=>class __$1 extends Component{
 		}
 	}
 
-	getLayout=memoize((width,margin,{num=1, space=0, data},id)=>{
+	getCols=memoize((width,margin,{num=1, space=0, data})=>{
 		const availableWidth=width-margin.left-margin.right
-		const cols=(data ? data : new Array(num).fill({width:(availableWidth-(num-1)*space)/num,space}))
+		return (data ? data : new Array(num).fill({width:(availableWidth-(num-1)*space)/num,space}))
 			.reduce((state,{width,space})=>{
-				state.columns.push({x:state.x, width,"data-content":id, "data-type":"section"})
+				state.columns.push({x:state.x, width})
 				state.x+=(space+width)
 				return state
 			},{x:margin.left,columns:[]}).columns
-		return {id,cols,margin,}
 	}, (a,b)=>a===b||shallowEqual(a,b))
 
-	getCreate=memoize((layout,type,width,height)=>{
-		return (props,context)=>{
-			if(type=="continuous"){
-				if(props.i==0){
-					if(props.I!=0){
-						const pages=context.parent.getDocument().computed.composed
-						return pages[pages.length-1].appendLayout(layout)
-					}
-				}
+	getCreate=memoize((margin,width,height,cols)=>{
+		const Page=this.constructor.Page
+		return function(props,context){
+			const {I,i,named}=props
+			const typed=type=>[(I==0 ? "first" :false),(i%2==0 ? "even" : "odd"),'default']
+				.filter(a=>!!a)
+				.reduce((found,a)=>found || named(`${type}.${a}`),null)
+
+			var header=typed("header"),footer=typed("footer")
+
+			var y0=margin.top
+			if(header){
+				header=React.cloneElement(header,{x:margin.left,y:margin.header, className:"header"})
+				y0=Math.max(y0, margin.header+header.props.height)
 			}
 
-			return new this.constructor.Page({width,height,...layout,...props},context)
+			var y1=height-margin.bottom
+			if(footer){
+				let y=height-margin.footer-footer.props.height
+				footer=React.cloneElement(footer,{x:margin.left,y, className:"footer"})
+				y1=Math.min(y, y1)
+			}
+			return new Page({margin,width,height,cols:cols.map(a=>({...a,height:y1-y0,y:y0})),header,footer,...props},context)
 		}
 	},(a,b)=>a===b||shallowEqual(a,b))
 
-	render(){
-		const {pgSz:{width,height},  pgMar, cols, ...props}=this.props
-		const layout=this.getLayout(width,pgMar,cols,this.props.id)
-		const create=this.getCreate(layout,this.props.type,width,height)
 
+	render(){
+		const {pgSz:{width,height},  pgMar:margin, cols, ...props}=this.props
+		const create=this.getCreate(margin,width,height,this.getCols(width,margin,cols,this.props.id))
 		return(<Section create={create} {...props}/>)
 	}
 
 	static get Page(){
 		return memoize(()=>Section.fissureLike(class Page extends Frame{
-			static displayName="page"
-			defineProperties(){
-				this.section=this.context.parent
-				super.defineProperties()
-				Object.defineProperties(this,{
-					layout:{
-						enumerable:false,
-						configurable:false,
-						get(){
-							return this.layouts[this.layouts.length-1]
-						}
-					},
-					cols:{
-						enumerable:false,
-						configurable:true,
-						get(){
-							return this.layouts.reduce((cols,a)=>[...cols,...a.cols],[])
-						}
-					}
-				})
-
-				const {width,height,margin, cols,named,i,id}=this.props
-				this.layouts=[{cols,margin,id}]
-
-				const typed=type=>[(i==0 ? "first" :false),(i%2==0 ? "even" : "odd"),'default']
-					.filter(a=>!!a)
-					.reduce((found,a)=>found || named(`${type}.${a}`),null)
-
-				const header=typed("header")
-				const footer=typed("footer")
-
-				var y0=margin.top
-				if(header){
-				  	this.header=React.cloneElement(header,{x:margin.left,y:margin.header, className:"header"})
-					y0=Math.max(y0, margin.header+header.props.height)
-				}
-
-				var y1=height-margin.bottom
-				if(footer){
-					let y=height-margin.footer-footer.props.height
-					this.footer=React.cloneElement(footer,{x:margin.left,y, className:"footer"})
-					y1=Math.min(y, y1)
-				}
-				this.y0=y0
-				this.y1=y1
-			}
-
 			createComposed2Parent(){
 				const content=super.createComposed2Parent(...arguments)
-				if(!this.footer && !this.header)
+				const {header,footer,I}=this.props
+				if(!footer && !header)
 					return content
-				const {type:Group}=content
 				return (
-					<Fragment>
+					<Group I={I}>
 						<Group z={-1}>
 							{this.header}
 							{this.footer}
 						</Group>
 						{content}
-					</Fragment>
+					</Group>
 				)
 			}
-
+/*
 			createColumn(){
 				const id=this.layout.id
 				const i=this.columns.findIndex(a=>a.id==id)
@@ -246,7 +208,7 @@ export default ({Section,Frame})=>class __$1 extends Component{
 					}
 					return false
 				},true)
-				*/
+				
 				return done
 			}
 
@@ -254,6 +216,7 @@ export default ({Section,Frame})=>class __$1 extends Component{
 				const {layouts,y0,y1}=this
 				return Object.assign(super.clone(...arguments),{layouts,y0,y1})
 			}
+			*/
 		}))();
 	}
 }

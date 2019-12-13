@@ -1,36 +1,26 @@
 import React,{PureComponent as Component} from "react"
-import PropTypes from "prop-types"
 import {dom} from "we-edit"
 
 import {Group} from "../composed"
 import {HasParentAndChild, Fissionable} from "../composable"
+
+const fissureLike=Frame=>class __$1 extends Frame{
+	nextAvailableSpace({height:requiredBlockSize=0}={}){
+		const space=super.nextAvailableSpace(...arguments)
+		/**cell is allowed to be empty, but normal frame is not allowed */
+		if(space && this.isEmpty() && requiredBlockSize>this.availableBlockSize){
+			return false
+		}
+		return space
+	}
+}
 
 /**
  * Cell is fissionable
  * commit all when all composed????
  */
 export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
-	static fissureLike=Frame=>class __$1 extends Frame{
-		static displayName="frame-cell"
-		getComposeType(){
-			return Cell.getType()
-		}
-
-		nextAvailableSpace({height:requiredBlockSize=0}={}){
-			const space=super.nextAvailableSpace(...arguments)
-			/**cell is allowed to be empty, but normal frame is not allowed */
-			if(space && this.isEmpty() && requiredBlockSize>this.availableBlockSize){
-				return false
-			}
-			return space
-		}
-
-		//@TODO: it's not compatible with positioning, since it has no width and height
-		//but a cell's height is decided by rank later, how to resolve it?
-		render(){
-			return this.createComposed2Parent()
-		}
-	}
+	static fissureLike=fissureLike
 
 	get nonContentHeight(){
 		const {margin={right:0,left:0,top:0,bottom:0}, border}=this.props
@@ -87,7 +77,6 @@ export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 }
 
 
-const Spacing=Group
 const Margin=Group
 
 Cell.ComposedCell=class __$1 extends Component{
@@ -103,7 +92,7 @@ Cell.ComposedCell=class __$1 extends Component{
 							border,width,height,
 							children:(
 								<Margin x={margin.left} y={margin.top}>
-									{frame ? frame.clone({height}).render() : null}
+									{frame ? frame.clone({height}).createComposed2Parent() : null}
 								</Margin>
 							)
 						}).render()

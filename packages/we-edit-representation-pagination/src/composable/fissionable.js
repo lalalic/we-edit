@@ -1,6 +1,6 @@
+import React from "react"
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
-import {ReactQuery} from "we-edit"
 
 /**
  * To make a component fissionable by .create() for a new Layout
@@ -24,13 +24,17 @@ export default (A)=>class __$1 extends A{
 
     static displayName=`fissionable-${A.displayName}`
 
-	static fissureLike(){
-		throw new Error("Fission should be implemented in static fissureLike()")
+    /**
+     * why use static function to inherit??? because Frame is in instance's context
+     * @param {*} Frame 
+     */
+	static fissureLike(Frame){
+		return Frame
     }
     
 	constructor(){
 		super(...arguments)
-		this.computed.named={}
+        this.computed.named={}
     }
     
     get isFissionable(){
@@ -38,7 +42,12 @@ export default (A)=>class __$1 extends A{
     }
 
 	get Fission(){
-		return memoize((Base)=>this.constructor.fissureLike(Base))(this.context.ModelTypes.Frame)
+		return memoize(Frame=>class extends this.constructor.fissureLike(Frame){
+            createComposed2Parent(){
+                const {props:{i,margin}}=this
+                return React.cloneElement(super.createComposed2Parent(),{margin,i,key:i})
+            }
+        })(this.context.ModelTypes.Frame)
 	}
 
 	named(name){

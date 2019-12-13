@@ -1,6 +1,4 @@
-import React from "react"
 import PropTypes from "prop-types"
-
 import Component from "./component"
 
 export default class __$1 extends Component{
@@ -16,18 +14,11 @@ export default class __$1 extends Component{
 				top:PropTypes.number,
 				bottom:PropTypes.number,
 			}),
-			cols:PropTypes.oneOfType([
-				PropTypes.arrayOf(PropTypes.shape({
-					x:PropTypes.number,
-					y:PropTypes.number,
-					width:PropTypes.number,
-				})),
-				PropTypes.shape({
-					num: PropTypes.number,
-					space: PropTypes.number,
-					y: PropTypes.number,
-				})
-			])
+			cols:PropTypes.arrayOf(PropTypes.shape({
+				x:PropTypes.number,
+				y:PropTypes.number,
+				width:PropTypes.number,
+			}))
 		})
 	}
 }

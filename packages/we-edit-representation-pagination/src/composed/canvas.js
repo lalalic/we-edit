@@ -33,7 +33,7 @@ export default class ComposedDocumentCanvas extends Component{
 	}
 
 	getComposed=memoize((pages,pageGap)=>{
-		const content=pages.map((page,i)=>page.render())
+		const content=pages.map((page,i)=>React.cloneElement(page.createComposed2Parent(),{key:i}))
 		return content.reduce((size,{props:{width,height}})=>{
 				return Object.assign(size,{
 					width:Math.max(size.width,width),

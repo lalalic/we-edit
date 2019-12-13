@@ -1,7 +1,6 @@
 import React, {PureComponent, Fragment} from "react"
 import {ReactQuery,connect, ACTION} from "we-edit"
-import {Cacheable} from "../../composable"
-import editable from "./editable"
+import {Cacheable,editable} from "../../composable"
 import Base from "../row"
 
 import Resizable from "../../composed/responsible-canvas/selection/resizable"

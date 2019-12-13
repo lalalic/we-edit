@@ -1,6 +1,6 @@
 import dom from ".."
 
-import editable from "./editable"
+import {editable} from "../../composable"
 
 import Document from "./document"
 import Section from "./section"
@@ -12,8 +12,6 @@ import Cell from "./cell"
 import Text from "./text"
 import Image from "./image"
 import Frame from "./frame"
-import Anchor from "./anchor"
-import Page from "./page"
 import Template from "./template"
 
 export default editable.enable(dom,{
@@ -27,7 +25,5 @@ export default editable.enable(dom,{
 	Cell,
 	Text,
 	Image,
-	Anchor,
-	Page,
 	Template,
 })

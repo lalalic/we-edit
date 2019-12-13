@@ -6,32 +6,6 @@ import memoize from "memoize-one"
 
 const Super=Fissionable(HasParentAndChild(dom.Section))
 export default class Section extends Super{
-	static fissureLike=Frame=>class __$1 extends Frame{
-		static displayName="frame-section"
-
-		getComposeType(){
-			return Section.getType()
-		}
-
-		render(){
-			const {props:{I:key,width,height,margin}}=this
-			return React.cloneElement(super.createComposed2Parent(),{
-				key,width,height,margin,I:key
-			})
-		}
-
-		lineIndexOf({page}){
-			if(page){
-				if(page==this){
-					return super.lineIndexOf(...arguments)
-				}
-				return -1
-			}else{
-				return super.lineIndexOf(...arguments)
-			}
-		}
-	}
-
 	static defaultProps={
 		...Super.defaultProps,
 		create(props,context){

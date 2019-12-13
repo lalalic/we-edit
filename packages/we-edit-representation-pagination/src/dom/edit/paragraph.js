@@ -1,12 +1,8 @@
-import React,{Children} from "react"
-import PropTypes from "prop-types"
-import memoize from "memoize-one"
-
+import React from "react"
 import {ReactQuery} from "we-edit"
 
-import {Cacheable} from "../../composable"
+import {Cacheable,editable} from "../../composable"
 import Base from "../paragraph"
-import editable from "./editable"
 
 export default Cacheable(class __$1 extends editable(Base,{stoppable:true}) {
 	shouldComponentUpdate(){
@@ -70,8 +66,4 @@ export default Cacheable(class __$1 extends editable(Base,{stoppable:true}) {
 				this.commit(this.computed.atoms.indexOf(lines[spaceChangedAt].firstAtom))
 		}
 	}
-
-	getDefaultMeasure=memoize((style=this.props.defaultStyle)=>{
-		return new this.context.Measure(style)
-	})
 })

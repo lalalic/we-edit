@@ -1,12 +1,7 @@
 
-import React from "react"
-import editable from "./editable"
+import {editable} from "../../composable"
 import Base from "../text"
-import {Cacheable} from "../../composable"
-
-//cache doesn't help on performance
-const Super=editable(Base)
-export default class __$1 extends Super{
+export default class __$1 extends editable(Base){
     render(){
         if(this.text.length==0){
             this.appendComposed({

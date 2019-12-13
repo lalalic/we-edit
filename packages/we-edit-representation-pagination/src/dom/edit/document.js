@@ -1,11 +1,11 @@
-import React, {PureComponent, Component, Fragment} from "react"
+import React from "react"
 import PropTypes from "prop-types"
 import {getSelection, ACTION} from "we-edit"
 
 import Base from "../document"
 import Responsible from "../../composed/responsible-canvas"
 
-import editable from "./editable"
+import {editable} from "../../composable"
 
 const Super=editable(Base,{continuable:true})
 export default class Document extends Super{

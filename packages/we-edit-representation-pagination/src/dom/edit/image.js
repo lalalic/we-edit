@@ -1,5 +1,5 @@
 import React from "react"
-import editable from "./editable"
+import {editable} from "../../composable"
 import Base from "../image"
 import Shape from "./shape"
 
