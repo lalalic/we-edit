@@ -11,8 +11,4 @@ export default class __$1 extends editable(Base){
         this.computed.lastComposed=[]
         this.appendComposed(this.frame)
     }
-
-    composeFrames(excludeTable=false){
-        return !excludeTable ? [...super.composeFrames(...arguments),this.props.id] : super.composeFrames(...arguments)
-    }
 }

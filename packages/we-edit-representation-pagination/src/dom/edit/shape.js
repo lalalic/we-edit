@@ -13,11 +13,7 @@ export default class Shape extends Super{
 		...Super.contextTypes,
 		shouldRemoveComposed:PropTypes.func
 	}
-
-	composeFrames(){
-        return [...super.composeFrames(...arguments),this.props.id]
-    }
-
+	
 	getFocusShape(){
 		const x=this.geometry.strokeWidth/2, y=x
 		const {width:right, height:bottom,rotate=0,id}=this.props

@@ -110,8 +110,4 @@ export default class Document extends Super{
 			this.composers.has(start.id) && this.getComposer(start.id).isAllChildrenComposed() &&
 			this.composers.has(end.id) && this.getComposer(end.id).isAllChildrenComposed()
 	}
-
-	composeFrames(){
-		return [this.props.id]
-	}
 }

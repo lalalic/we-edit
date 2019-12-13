@@ -58,10 +58,6 @@ export default Cacheable(class __$1 extends editable(Base,{stoppable:true,contin
 	shouldContinueCompose(a){
 		return true
 	}
-
-	composeFrames(excludeTable=false){
-        return !excludeTable ? [...super.composeFrames(...arguments),this.props.id] : super.composeFrames(...arguments)
-	}
 	
 	static Rank=class extends Base.Rank{
 		resetHeight(height, isLastRank, row){

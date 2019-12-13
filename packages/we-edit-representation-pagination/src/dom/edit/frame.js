@@ -126,10 +126,6 @@ const factory=base=>Cacheable(class Frame extends editable(base){
 		//remove content
 		return super.rollbackLines(this.lines.length-lineIndex,false)
 	}
-
-    composeFrames(){
-        return [...super.composeFrames(...arguments),this.props.id]
-    }
 },undefined,["hash","width"])
 
 export default factory(Base)

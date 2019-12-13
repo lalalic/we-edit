@@ -28,18 +28,6 @@ class PositioningHelper extends Positioning{
         return {topFrame, topFrameOffset:xy} 
     }
 
-    orderPosition(start,end){
-        const p0=this.position(start.id,start.at, true)
-        const p1=this.position(end.id, end.at,true)
-        return {p0,p1}
-    }
-
-    frameOffsetGrandFrame(grandFrame,frame){
-        const grandFrameLayouted=grandFrame.createComposed2Parent()
-        const {first,parents}=new ReactQuery(grandFrameLayouted).findFirstAndParents(`[data-frame=${frame.uuid}]`)
-        return [...parents,first.get(0)].filter(a=>!!a).reduce((xy,{props:{x=0,y=0}})=>(xy.x+=x, xy.y+=y, xy),{x:0,y:0})
-    }
-
     /**
      * start and end must be in same block level (NOT same frame, BUT same level of grand content), 
      * if not, start and end must be extended up to same block level
@@ -57,21 +45,63 @@ class PositioningHelper extends Positioning{
     normalizeSelection(start, end) {
         if (start.id == end.id)
             return { start, end }
+        const getGrandBlockContents=(current,blocks=[])=>{
+            while(current){
+                if(current.isFissionable
+                    ||(current.isFrame && !current.props.for)
+                    ||["row","document"].includes(current.getComposeType())
+                    ){
+                    blocks.push(current.props.id)
+                }
+                current=current.context ? current.context.parent : null
+            }
+            return blocks
+        }
         
-        const framesA = this.getComposer(start.id).composeFrames();
-        const framesB = this.getComposer(end.id).composeFrames();
-        const i = framesA.findLastIndex((a, i) => a == framesB[i]);
+        const blocksA = getGrandBlockContents(this.getComposer(start.id))
+        const blocksB = getGrandBlockContents(this.getComposer(end.id))
+        const i = blocksA.findLastIndex((a, i) => a == blocksB[i]);
         if (i != -1) {
-            framesA.splice(0, i + 1);
-            framesB.splice(0, i + 1);
+            blocksA.splice(0, i + 1);
+            blocksB.splice(0, i + 1);
         }
-        if (framesA[0]) {
-            start = { id: framesA[0], at: 1 };
+        if (blocksA[0]) {
+            start = { id: blocksA[0], at: 1 };
         }
-        if (framesB[0]) {
-            end = { id: framesB[0], at: 1 };
+        if (blocksB[0]) {
+            end = { id: blocksB[0], at: 1 };
         }
         return { start, end };
+    }
+
+    getOrderedPosition(start,end){
+        //at first start and end must be normalized to same block level
+        ({ start, end } = this.normalizeSelection(start,end));
+        const p0=this.position(start.id,start.at, true)
+        const p1=this.position(end.id, end.at,true)
+        const reverted={p0:p1,p1:p0}
+        if(p0.topFrame.props.i>p1.topFrame.props.i){
+            return reverted
+        }else if(p0.topFrame.props.i==p1.topFrame.props.i){
+            if(p0.leafFrame==p1.leafFrame){
+                if(p0.lineIndexInLeafFrame>p1.lineIndexInLeafFrame){
+                    return reverted
+                }else if(p0.lineIndexInLeafFrame==p1.lineIndexInLeafFrame){
+                    if(p0.x>p1.x){
+                        return reverted
+                    }
+                }
+            }else if(p0.leafFrame.props.i>p1.leafFrame.props.i){
+                return reverted
+            }
+        }
+        return {p0,p1}
+    }
+
+    getFrameOffsetGrandFrame(grandFrame,frame){
+        const grandFrameLayouted=grandFrame.createComposed2Parent()
+        const {first,parents}=new ReactQuery(grandFrameLayouted).findFirstAndParents(`[data-frame=${frame.uuid}]`)
+        return [...parents,first.get(0)].filter(a=>!!a).reduce((xy,{props:{x=0,y=0}})=>(xy.x+=x, xy.y+=y, xy),{x:0,y:0})
     }
 
    /**
@@ -417,7 +447,7 @@ export default class ReactPositioning extends PositioningHelper {
         const {leafFrame,line, anchor}=this.positionToLeafFrameLine(id,at)
         const topFrame=this.getCheckedGrandFrameByFrame(leafFrame)
         const topFrameOffset=this.getTopFrameXY(topFrame)
-        const leafFrameOffset=this.frameOffsetGrandFrame(topFrame,leafFrame)
+        const leafFrameOffset=this.getFrameOffsetGrandFrame(topFrame,leafFrame)
         const lineOffset=leafFrame.lineXY(line.inFrame)
         const inline=line.position()
 
@@ -507,15 +537,14 @@ export default class ReactPositioning extends PositioningHelper {
     getRangeRects(start,end){
         //normalize up to (same level???) of layout block
         try{
-            ({ start, end } = this.normalizeSelection(start,end));//this.normalizeToFrame(start, end));
             const rects=[]
-            const { p0, p1 } = this.orderPosition(start, end)
+            const { p0, p1 } = this.getOrderedPosition(start, end)
             
             const scope=(function* (frame0, frame1){
                 const makeRects=(frame,from=0,to=frame.lines.length-1)=>{
                     const topFrame=this.getCheckedGrandFrameByFrame(frame)
                     const o=this.getTopFrameXY(topFrame)
-                    const {x,y}=this.frameOffsetGrandFrame(topFrame,frame) 
+                    const {x,y}=this.getFrameOffsetGrandFrame(topFrame,frame) 
                     return frame.lines.slice(from,to+1)
                         .map((line,_,_1,{props:{width,height,pagination:{id:isParagraphLine}={}}}=line)=>{
                             const xy=frame.lineXY(line)

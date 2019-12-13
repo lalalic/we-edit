@@ -20,15 +20,6 @@ export default function Navigatable(A){
  			getComposer: PropTypes.func,
         }
 		
-		composeFrames(){
-			if(super.composeFrames)
-				return super.composeFrames(...arguments)
-
-			if(this.context && this.context.parent)
-				return this.context.parent.composeFrames(...arguments)
-			return []
-		}
-		
 		getFocusShape(){
 			return this.navigatable('getFocusShape',...arguments)
 		}

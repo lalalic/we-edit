@@ -173,7 +173,7 @@ export default class Responsible extends Component{
         var {start,end}=this.selecting.current.state
         if(start && end){
             this.selecting.current.setState({start:undefined, end:undefined, rects:undefined,selecting:false})
-            ;({start,end}=this.positioning.extendSelection(start,end));
+            ;({start,end}=this.positioning.normalizeSelection(start,end));
             this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))
             this.__mouseDownFlag.selected=true
         }
@@ -307,7 +307,7 @@ export default class Responsible extends Component{
     				if(top<top1 || (top==top1 && left<=left1)){
     					this.dispatch(ACTION.Selection.START_AT(id,at))
     				}else{
-                        const a=this.positioning.extendSelection(a.end,{id,at})
+                        const a=this.positioning.normalizeSelection(a.end,{id,at})
     					this.dispatch(ACTION.Selection.SELECT(a.start.id,a.start.at, a.end.id, a.end.at))
     				}
     			}
@@ -323,7 +323,7 @@ export default class Responsible extends Component{
         }else{
             const {cursorAt,...a}=this.selection
             a[cursorAt]={id,at}
-            const {start,end}=this.positioning.extendSelection(a.start,a.end)
+            const {start,end}=this.positioning.normalizeSelection(a.start,a.end)
             this.dispatch(ACTION.Selection.SELECT(start.id, start.at, end.id,end.at))
         }
     }
