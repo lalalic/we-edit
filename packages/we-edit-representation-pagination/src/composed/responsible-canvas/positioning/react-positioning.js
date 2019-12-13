@@ -213,10 +213,9 @@ class PositioningHelper extends Positioning{
          * 1. to round(left, top+1)???? what if it's on top margin/border
          * 2. **find most inner node that includes (left,*), and then position in paragraph line
          */
-        const prevLineOffset=grandestFrame.lineXY(line)
+        const lineOffset=grandestFrame.lineXY(line)
         const grandFrameOffset=this.getGrandestFrameXY(grandestFrame)
-        x=x-grandFrameOffset.x-prevLineOffset.x
-        y=grandFrameOffset.y+prevLineOffset.y//useless ????
+        x=x-grandFrameOffset.x-lineOffset.x
         const isIncludeX=(rect)=>rect.x<=x && (rect.x+rect.width)>=x
         var {node,parents,...inlineOffset}=this.getBoundaryCheckedMostInnerNode(
             line,
