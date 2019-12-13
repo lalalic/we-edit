@@ -602,7 +602,7 @@ export default class ReactPositioning extends PositioningHelper {
                 return
             if(frame.cols && frame.cols.length>1){
                 const isColumnLastLine=frame.columns.reduce((isLast,a)=>
-                    isLast || (a.chilren.length>0 && a.children.length-1==a.children.indexOf(lineInFrame)),
+                    isLast || (a.children.length>0 && a.children.length-1==a.children.indexOf(lineInFrame)),
                     false,
                 )
                 if(isColumnLastLine){//go to next top frame
