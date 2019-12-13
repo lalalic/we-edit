@@ -1,6 +1,11 @@
 import Positioning from "./base"
 import {ReactQuery} from "we-edit"
 
+/**
+ * layouted is a frame tree
+ * top frame(topFrame) is the top frame
+ * leafFrame is a frame without nested frame
+ */
 class PositioningHelper extends Positioning{
     /**
      * in paragraph: id->paragraph->line
@@ -10,7 +15,7 @@ class PositioningHelper extends Positioning{
      * @param {*} id 
      * @param {*} at 
      */
-    positionToFrameLine(id,at){
+    positionToLeafFrameLine(id,at){
         const paragraph=this.getComposer(id).closest("paragraph")
         const $find=at==1 ? 'findLast' : 'findFirst'
         const find=at==1 ? "findLast" : "find"
@@ -65,32 +70,30 @@ class PositioningHelper extends Positioning{
             }
         }
         
-        const line=new Proxy(lineInFrame,{
-            get(line,prop){
-                switch(prop){
-                case "position":
-                    return position
-                case "paragraph":
-                    return paragraph ? paragraph.props.id : undefined
-                case "i":
-                    return paragraph ? i : undefined
-                case "inFrame":
-                    return line
-                case "height":
-                    return line.props.height
+        return {
+            frame, 
+            line:new Proxy(lineInFrame,{
+                get(line,prop){
+                    return {
+                        position,
+                        paragraph:paragraph ? paragraph.props.id : undefined,
+                        i:paragraph ? i : undefined,
+                        inFrame:line,
+                        height:line.props.height
+                    }[prop]||line[prop]
                 }
-                return line[prop]
-            }
-        })
-
-        return {frame, line}
+            })
+        }
     }
 
     /**
-     * frame layout or fissionable's fission
+     * to find up frame layout or fissionable's fission based on following knowledge
+     * 1. composed frame must give data-frame=frame.uuid on content
+     * 2. each frame layout must have context.frame(for fission)|.parent(for frame content) to travel up frame tree
      * @param {*} frame, start point 
      * @param {*} check(frame) 
-     * @param {boolean} first
+     * @param {boolean} first: return first found or topFrame
+     * @Default for topFrame
      */
     getCheckedGrandFrameByFrame(frame,check, first, find="find"){
         if(!check)//default: frame or any grandFrame including frame
@@ -113,18 +116,18 @@ class PositioningHelper extends Positioning{
         return grandMaybe
     }
 
-    getGrandestFrameXY(grandFrame){
-        const {x,y}=this.pageXY(grandFrame.props.I)
-        return {x,y,top:y,bottom:y+grandFrame.props.height}
+    getTopFrameXY(topFrame){
+        const {x,y}=this.pageXY(topFrame.props.I)
+        return {x,y,top:y,bottom:y+topFrame.props.height}
     }
 
-    getGrandestFrameByPosition(x,y){
+    getTopFrameByPosition(x,y){
         var xy
-        const grandFrame=this.pages.find(({ props: { width, height, I } }) => {
+        const topFrame=this.pages.find(({ props: { width, height, I } }) => {
             xy = this.pageXY(I);
             return x >= xy.x && x <= xy.x + width && y >= xy.y && y <= xy.y + height;
         })
-        return {grandFrame, grandFrameOffset:xy} 
+        return {topFrame, topFrameOffset:xy} 
     }
 
     orderPosition(start,end){
@@ -214,7 +217,7 @@ class PositioningHelper extends Positioning{
          * 2. **find most inner node that includes (left,*), and then position in paragraph line
          */
         const lineOffset=grandestFrame.lineXY(line)
-        const grandFrameOffset=this.getGrandestFrameXY(grandestFrame)
+        const grandFrameOffset=this.getTopFrameXY(grandestFrame)
         x=x-grandFrameOffset.x-lineOffset.x
         const isIncludeX=(rect)=>rect.x<=x && (rect.x+rect.width)>=x
         var {node,parents,...inlineOffset}=this.getBoundaryCheckedMostInnerNode(
@@ -377,9 +380,9 @@ export default class ReactPositioning extends PositioningHelper {
          * > anchor
          * > grandFrame itself
          */
-        const {frame,line, anchor}=this.positionToFrameLine(id,at)
+        const {frame,line, anchor}=this.positionToLeafFrameLine(id,at)
         const grandFrame=this.getCheckedGrandFrameByFrame(frame)
-        const grandFrameOffset=this.getGrandestFrameXY(grandFrame)
+        const grandFrameOffset=this.getTopFrameXY(grandFrame)
         const frameOffset=this.frameOffsetGrandFrame(grandFrame,frame)
         const lineOffset=frame.lineXY(line.inFrame)
         const inline=line.position()
@@ -408,8 +411,8 @@ export default class ReactPositioning extends PositioningHelper {
         //convert to canvas co-ordinate
         var { x, y } = this.asCanvasPoint({ left, top })
         
-        const {grandFrame,grandFrameOffset}=this.getGrandestFrameByPosition(x,y)
-        if(!grandFrame)
+        const {topFrame,topFrameOffset}=this.getTopFrameByPosition(x,y)
+        if(!topFrame)
             return {}
         
         const pointIsInside=({x:x0=0,y:y0=0,width,height},...offsets)=>{
@@ -418,7 +421,7 @@ export default class ReactPositioning extends PositioningHelper {
         }
         
         //first check if it's anchor
-        const anchor=grandFrame.anchors.find(({props:{geometry:{x=0,y=0,width=0,height=0}}})=>pointIsInside({x,y,width,height},grandFrameOffset))
+        const anchor=topFrame.anchors.find(({props:{geometry:{x=0,y=0,width=0,height=0}}})=>pointIsInside({x,y,width,height},topFrameOffset))
         if(anchor){
             const $anchor=new ReactQuery(anchor)
             const notFrameAnchor=$anchor.findFirst(`[data-frame]`).length==0
@@ -431,12 +434,12 @@ export default class ReactPositioning extends PositioningHelper {
         }
         //to get most inner frame that includes the point, and return the frame
         const {node:frame, parents:_1,...frameOffset}=this.getBoundaryCheckedMostInnerNode(
-            grandFrame.createComposed2Parent(), 
+            topFrame.createComposed2Parent(), 
             //only frame that contain the point
             (rect,node)=>{
                 const {props:{'data-content':id, width,height, composer=this.getComposer(id)}}=node
                 if(composer && composer.isFrame)
-                    return pointIsInside(rect({width,height}),grandFrameOffset)
+                    return pointIsInside(rect({width,height}),topFrameOffset)
             },
             //get frame from data-content and data-frame
             ({props:{'data-content':id,'data-frame':frameId, composer=this.getComposer(id)}})=>{
@@ -447,7 +450,7 @@ export default class ReactPositioning extends PositioningHelper {
         //locate the line that contain the point
         var line=frame.lines.find(line=>{
             const {props:{width=0, height=0}}=line
-            return pointIsInside({...frame.lineXY(line),width,height},frameOffset,grandFrameOffset)
+            return pointIsInside({...frame.lineXY(line),width,height},frameOffset,topFrameOffset)
         })
 
         if(!line){
@@ -457,7 +460,7 @@ export default class ReactPositioning extends PositioningHelper {
         
         const lineOffset=frame.lineXY(line)
         const {pagination:{id,i}, paragraph=this.getComposer(id)}=line.props
-        return this.aroundInInline(paragraph.computed.lastComposed[i-1],x-grandFrameOffset.x-frameOffset.x-lineOffset.x)
+        return this.aroundInInline(paragraph.computed.lastComposed[i-1],x-topFrameOffset.x-frameOffset.x-lineOffset.x)
     }
 
     /**
@@ -477,7 +480,7 @@ export default class ReactPositioning extends PositioningHelper {
             const scope=(function* (frame0, frame1){
                 const makeRects=(frame,from=0,to=frame.lines.length-1)=>{
                     const grandFrame=this.getCheckedGrandFrameByFrame(frame)
-                    const o=this.getGrandestFrameXY(grandFrame)
+                    const o=this.getTopFrameXY(grandFrame)
                     const {x,y}=this.frameOffsetGrandFrame(grandFrame,frame) 
                     return frame.lines.slice(from,to+1)
                         .map((line,_,_1,{props:{width,height,pagination:{id:isParagraphLine}={}}}=line)=>{
@@ -532,14 +535,14 @@ export default class ReactPositioning extends PositioningHelper {
     nextLine(id,at){
         //to get next line below input line in the frame
         const nextLineBelowInFrame=(frame,lineInFrame)=>{
-            if(frame.lastLine==lineInFrame)//go to next grandest frame
+            if(frame.lastLine==lineInFrame)//go to next top frame
                 return
             if(frame.cols && frame.cols.length>1){
                 const isColumnLastLine=frame.columns.reduce((isLast,a)=>
                     isLast || (a.chilren.length>0 && a.children.length-1==a.children.indexOf(lineInFrame)),
                     false,
                 )
-                if(isColumnLastLine){//go to next grandest frame
+                if(isColumnLastLine){//go to next top frame
                     return 
                 }
                 //@TODO: column may below the column of line
@@ -547,7 +550,7 @@ export default class ReactPositioning extends PositioningHelper {
             return frame.lines[frame.lines.indexOf(lineInFrame)+1]
         }
         
-        const firstLineIncludeXInGrandestFrame=(grandestFrame,X)=>{
+        const firstLineIncludeXInTopFrame=(grandestFrame,X)=>{
             if(!(grandestFrame.cols && grandestFrame.cols.length>1))
                 return grandestFrame.firstLine
             const column=grandestFrame.columns.find(({x,width})=>X>=x && X<=x+width)
@@ -555,14 +558,14 @@ export default class ReactPositioning extends PositioningHelper {
                 return column.children[0]
         }
 
-        const nextGrandestFrame=a=>this.frames[this.frames.indexOf(a)+1]
+        const nextTopFrame=a=>this.frames[this.frames.indexOf(a)+1]
 
 
         var {x,y, frame, lineIndexInFrame, grandFrame}=this.position(id,at,true)
         var lineInFrame=frame.lines[lineIndexInFrame]
         
         var nextLine
-        //find next line in current grandest frame
+        //find next line in current top frame
         while(frame && lineInFrame && !(nextLine=nextLineBelowInFrame(frame, lineInFrame))){
             //direct parent frame
             const parentFrame=this.getCheckedGrandFrameByFrame(
@@ -577,10 +580,10 @@ export default class ReactPositioning extends PositioningHelper {
                 break
             }
         }
-        //find first line in next siblings of current grandest frame
-        while(grandFrame && !nextLine && (grandFrame=nextGrandestFrame(grandFrame))){
-            if(nextLine=firstLineIncludeXInGrandestFrame(grandFrame,x)){
-                //adjust top to new grandest frame
+        //find first line in next siblings of current top frame
+        while(grandFrame && !nextLine && (grandFrame=nextTopFrame(grandFrame))){
+            if(nextLine=firstLineIncludeXInTopFrame(grandFrame,x)){
+                //adjust top to new top frame
                 break
             }
         }
@@ -590,14 +593,14 @@ export default class ReactPositioning extends PositioningHelper {
     prevLine(id,at){
         //to get prev line above input line in the frame
         const prevLineAboveInFrame=(frame,lineInFrame)=>{
-            if(frame.firstLine==lineInFrame)//go to prev grandest frame
+            if(frame.firstLine==lineInFrame)//go to prev top frame
                 return
             if(frame.cols && frame.cols.length>1){
                 const isColumnFirstLine=frame.columns.reduce((isFirst,a)=>
                     isFirst || a.children.indexOf(lineInFrame)==0,
                     false,
                 )
-                if(isColumnFirstLine){//go to next grandest frame
+                if(isColumnFirstLine){//go to next top frame
                     return 
                 }
                 //@TODO: column may below the column of line
@@ -605,7 +608,7 @@ export default class ReactPositioning extends PositioningHelper {
             return frame.lines[frame.lines.indexOf(lineInFrame)-1]
         }
         
-        const firstLineIncludeXInGrandestFrame=(grandestFrame,X)=>{
+        const firstLineIncludeXInTopFrame=(grandestFrame,X)=>{
             if(!(grandestFrame.cols && grandestFrame.cols.length>1))
                 return grandestFrame.lastLine
             const column=grandestFrame.columns.find(({x,width})=>X>=x && X<=x+width)
@@ -613,14 +616,14 @@ export default class ReactPositioning extends PositioningHelper {
                 return column.children[column.children.length-1]
         }
 
-        const prevGrandestFrame=a=>this.frames[this.frames.indexOf(a)-1]
+        const prevTopFrame=a=>this.frames[this.frames.indexOf(a)-1]
 
 
         var {x,y, frame, lineIndexInFrame, grandFrame}=this.position(id,at,true)
         var lineInFrame=frame.lines[lineIndexInFrame]
         
         var prevLine
-        //first try to find next line in current grandest frame
+        //first try to find next line in current top frame
         while(frame && lineInFrame && !(prevLine=prevLineAboveInFrame(frame, lineInFrame))){
             //direct parent frame
             const parentFrame=this.getCheckedGrandFrameByFrame(
@@ -635,10 +638,10 @@ export default class ReactPositioning extends PositioningHelper {
                 break
             }
         }
-        //otherwise find first line in next siblings of current grandest frame
-        while(grandFrame && !prevLine && (grandFrame=prevGrandestFrame(grandFrame))){
-            if(prevLine=firstLineIncludeXInGrandestFrame(grandFrame,x)){
-                //adjust top to new grandest frame
+        //otherwise find first line in next siblings of current top frame
+        while(grandFrame && !prevLine && (grandFrame=prevTopFrame(grandFrame))){
+            if(prevLine=firstLineIncludeXInTopFrame(grandFrame,x)){
+                //adjust top to new top frame
                 break
             }
         }
