@@ -1,4 +1,4 @@
-import {Children} from "react"
+import React,{Children,Fragment} from "react"
 
 /**
  * Cacheable keep last composed in computed.lastComposed when it call createComposed2Parent
@@ -112,18 +112,22 @@ export default (A,partable, composedOnlyForFields=["hash"])=>class __$1 extends 
         }
     }
 
+    /**
+     * it utilize 
+     * @param {*} index 
+     */
     renderFrom(index){
         if(this.appendLastComposed()===false){
             return super.render()
         }
-        //only compose from changedIndex
-        const _children=this.children
         try{
-            this.children=()=>Children.toArray(this.props.children).slice(index)
-            const rendered=super.render()
-            return rendered
+            return (
+                <Fragment>
+                    {Children.toArray(this.props.children).slice(index)}
+                </Fragment>
+            )
         }finally{
-            this.children=_children
+            this.onAllChildrenComposed()
         }
     }
 

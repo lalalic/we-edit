@@ -32,7 +32,6 @@ export default class Section extends Super{
 		return this.getDocument().computed.composed.length
 	}
 
-
     create(){
         const page=super.create({I:this.totals})
 		this.context.parent.appendComposed(this.createComposed2Parent(page))

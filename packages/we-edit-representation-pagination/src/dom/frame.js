@@ -1,10 +1,10 @@
 import React from "react"
 import {dom, ReactQuery} from "we-edit"
 
-import {Layout, HasParentAndChild} from "../composable"
+import {Layout, HasParentAndChild, Cacheable, editable} from "../composable"
 import {Group} from "../composed"
 
-export default class Frame extends Layout.Block{
+class Frame extends Layout.Block{
 	static displayName=HasParentAndChild(dom.Frame).displayName
 	constructor(){
 		super(...arguments)
@@ -188,3 +188,38 @@ export default class Frame extends Layout.Block{
 		return Object.assign(new this.constructor({...this.props, ...props},this.context),{computed})
 	}
 }
+
+export default Cacheable(class EditableFrame extends editable(Frame){
+    clearComposed(){
+        this.computed.anchors=[]
+        return super.clearComposed(...arguments)
+    }
+
+    appendLastComposed(){
+        const lastComposed=[...this.computed.lastComposed]
+        this.computed.lastComposed=[]
+        lastComposed.forEach(a=>{
+            this.context.parent.appendComposed(this.createComposed2Parent())
+        })
+    }
+
+    removeChangedPart(removedChildren){
+        const findChangedContentId=line=>{
+			const id=this.findContentId(line)
+			return (id!==undefined && removedChildren.includes(id))
+		}
+
+        const lineIndex=this.lines.findIndex(line=>findChangedContentId(line))
+        this.rollbackLines(this.lines.slice(lineIndex))
+        return true
+    }
+
+    findLastChildIndexOfLastComposed(){
+        return this.findContentId(this.lastLine)
+    }
+    
+	removeFrom(lineIndex){
+		//remove content
+		return super.rollbackLines(this.lines.length-lineIndex,false)
+	}
+},undefined,["hash","width"])

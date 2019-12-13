@@ -3,22 +3,19 @@ import React, {Component, Fragment} from "react"
 import PropTypes from "prop-types"
 import Frame from "./frame"
 
-const factory=Frame=>{
-    return class Template extends Frame{
-        static factory=factory
-        static Use=Use
-        createComposed2Parent(){
-            const {xhref,master}=this.props
-            return (
-                <symbol id={xhref}>
-                    {master ? <Use xhref={master}/> : null}
-                    {super.createComposed2Parent(...arguments)}
-                </symbol>
-            )
-        } 
-        static isTemplate(a){
-            return a && a.type==="symbol"
-        }
+export default class Template extends Frame{
+    static Use=Use
+    createComposed2Parent(){
+        const {xhref,master}=this.props
+        return (
+            <symbol id={xhref}>
+                {master ? <Use xhref={master}/> : null}
+                {super.createComposed2Parent(...arguments)}
+            </symbol>
+        )
+    } 
+    static isTemplate(a){
+        return a && a.type==="symbol"
     }
 }
 
@@ -37,5 +34,3 @@ class Use extends Component{
 } 
 
 const NotPositionable=({children})=><Fragment>{children}</Fragment>
-
-export default factory(Frame)

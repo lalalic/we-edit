@@ -3,11 +3,14 @@ import {dom} from "we-edit"
 import memoize from "memoize-one"
 
 import {Group} from "../../composed"
-import {HasParentAndChild} from "../../composable"
+import {HasParentAndChild,editable} from "../../composable"
+import Entity from "../../composed/responsible-canvas/selection/entity"
+import Path from "../../tool/path"
+
 
 import {custom, rect, ellipse, circle} from "./shapes"
 
-export default class Shape extends HasParentAndChild(dom.Shape){
+export default class Shape extends editable(HasParentAndChild(dom.Shape)){
 	get geometry(){
 		return memoize(()=>{
 			const {geometry="rect"}=this.props
@@ -17,14 +20,18 @@ export default class Shape extends HasParentAndChild(dom.Shape){
 	}
 
 	render(){
-		const {Frame}=this.context.ModelTypes
-		const {width}=this.geometry.availableSpace()
-		const {id,children}=this.props
-		return (
-			<Frame id={`shape_frame_${id}`} for={id} width={width}>
-				{children}
-			</Frame>
-		)
+		try{
+			const {Frame}=this.context.ModelTypes
+			const {width}=this.geometry.availableSpace()
+			const {id,children}=this.props
+			return (
+				<Frame id={`shape_frame_${id}`} for={id} width={width}>
+					{children}
+				</Frame>
+			)
+		}finally{
+			this.onAllChildrenComposed()
+		}
 	}
 
 	createComposed2Parent(content){
@@ -63,6 +70,36 @@ export default class Shape extends HasParentAndChild(dom.Shape){
 				</Group>
 			</Group>
 		)
+	}
+
+	getFocusShape(){
+		const x=this.geometry.strokeWidth/2, y=x
+		const {width:right, height:bottom,rotate=0,id}=this.props
+		const left=0, top=0
+		const path=`M${left} ${top} h${right-left} v${bottom-top} h${left-right} Z`
+		return (<Entity
+			id={id}
+			x={x}
+			y={y}
+			path={path}
+			resizeSpots={[
+					{x:left,y:top,resize:"nwse"},
+					{x:(left+right)/2,y:top,resize:"ns",},
+					{x:right,y:top,resize:"nesw"},
+					{x:right,y:(top+bottom)/2,resize:"ew"},
+					{x:right,y:bottom,resize:"-nwse"},
+					{x:(left+right)/2,y:bottom,resize:"-ns"},
+					{x:left,y:bottom,resize:"-nesw"},
+					{x:left,y:(top+bottom)/2,resize:"-ew"},
+			]}
+			rotate={{
+				r:12,
+				x:(left+right)/2,
+				y:top-20,
+				degree: parseInt(rotate),
+			}}
+			transform={el=>this.transform(el,new Path(path),1)}
+		/>)
 	}
 
 	static custom=custom

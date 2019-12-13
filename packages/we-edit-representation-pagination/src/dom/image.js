@@ -2,13 +2,10 @@ import React from "react"
 import {dom} from "we-edit"
 
 import {Image} from "../composed"
-import {NoChild} from "../composable"
+import {NoChild,editable} from "../composable"
 
 import Shape from "./shape"
-const {Image:Base}=dom
-
-const Super=NoChild(Base)
-export default class __$1 extends Super{
+export default class __$1 extends editable(NoChild(dom.Image)){
 	getShape(){
 		const {width,height}=this.props
 		return new Shape({width, height,...this.props.outline, margin:{},children:null}, this.context)
@@ -25,5 +22,9 @@ export default class __$1 extends Super{
 			preserveAspectRatio:"none",
 		}}/>
 		return shape.createComposed2Parent(image)
-    }
+	}
+	
+	getFocusShape(){
+		return React.cloneElement(this.getShape().getFocusShape(),{id:this.props.id})
+	}
 }

@@ -44,7 +44,7 @@ export default A=>class __$1 extends A{
     render(){
         return (
             <Fragment>
-                {this.children()}
+                {this.props.children}
                 <ComposedAllTrigger host={this}/>
             </Fragment>
         )

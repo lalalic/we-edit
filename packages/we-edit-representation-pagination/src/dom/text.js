@@ -50,35 +50,38 @@ export default class Text extends Super{
         }
     }
 
+    /**
+     * it's safe to override render since allChildrenComposed would be set manually at end of render
+     */
     render(){
-        if(this.props.vanish){
-			return null
-		}
+        try{
+            if(this.props.vanish){
+                return null
+            }
+            
+            const defaultStyle=this.defaultStyle
+            const measure=this.measure
+            const whitespaceWidth=measure.stringWidth(" ")
 
-        const measure=this.measure
-
-        const defaultStyle=this.defaultStyle
-
-		const whitespaceWidth=measure.stringWidth(" ")
-
-		let start=0
-		breakOpportunities(this.text).forEach(a=>{
-			a.split(/(\s)/).filter(a=>!!a).forEach((b,i)=>{
-				const isWhitespace=b==" "
-                const ending=b.endsWith(",") ? b.substring(0,b.length-1) : false
-				this.appendComposed({
-					...defaultStyle,
-                    className:isWhitespace ? "whitespace" : undefined,
-					width:isWhitespace ? whitespaceWidth : measure.stringWidth(b),
-					minWidth:isWhitespace ? 0 : (ending ? measure.stringWidth(ending) : undefined),
-					"data-endat":start+=b.length,
-                    children: b,
-				})
-			})
-		})
-
-		this.onAllChildrenComposed()
-        return null
+            let start=0
+            breakOpportunities(this.text).forEach(a=>{
+                a.split(/(\s)/).filter(a=>!!a).forEach((b,i)=>{
+                    const isWhitespace=b==" "
+                    const ending=b.endsWith(",") ? b.substring(0,b.length-1) : false
+                    this.appendComposed({
+                        ...defaultStyle,
+                        className:isWhitespace ? "whitespace" : undefined,
+                        width:isWhitespace ? whitespaceWidth : measure.stringWidth(b),
+                        minWidth:isWhitespace ? 0 : (ending ? measure.stringWidth(ending) : undefined),
+                        "data-endat":start+=b.length,
+                        children: b,
+                    })
+                })
+            })
+            return null
+        }finally{
+            this.onAllChildrenComposed()
+        }
     }
 
 	createComposed2Parent(props){
