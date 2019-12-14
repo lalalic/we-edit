@@ -4,16 +4,36 @@ import {dom} from "we-edit"
 import {Group} from "../composed"
 import {HasParentAndChild, Fissionable} from "../composable"
 
-const fissureLike=Frame=>class __$1 extends Frame{
-	nextAvailableSpace({height:requiredBlockSize=0}={}){
-		const space=super.nextAvailableSpace(...arguments)
-		/**cell is allowed to be empty, but normal frame is not allowed */
-		if(space && this.isEmpty() && requiredBlockSize>this.availableBlockSize){
-			return false
+const fissureLike=Frame=>{
+	return class CellFrame extends Frame{
+		nextAvailableSpace({height:requiredBlockSize=0}={}){
+			const space=super.nextAvailableSpace(...arguments)
+			/**cell is allowed to be empty, but normal frame is not allowed */
+			if(space && this.isEmpty() && requiredBlockSize>this.availableBlockSize){
+				return false
+			}
+			return space
 		}
-		return space
-	}
 
+		/**
+		 * a cell space border|margin|content|margin|border
+		 */
+		createComposed2Parent(){
+			const {border:{top,bottom,left,right},width,height}=this.props
+			const content=super.createComposed2Parent(...arguments)
+			return (
+				<Group {...{width,height}}>
+					{content}
+					<Group {...{className:"border", "data-nocontent":true}}>
+						<Edge {...top}  d={`M0 0 h${width}`}/>,
+						<Edge {...bottom} d={`M0 ${height} h${width}`}/>,
+						<Edge {...right} d={`M${width} 0 v${height}`}/>,
+						<Edge {...left} d={`M0 0 v${height}`}/>,
+					</Group>
+				</Group>
+			)
+		}
+	}
 }
 
 /**
@@ -50,14 +70,20 @@ export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 			}
 		}
 		const {width,height,frame}=this.context.parent.nextAvailableSpace({...required,id:this.props.id})
-		const {margin={right:0,left:0,top:0,bottom:0}, vertAlign}=this.props
+		const {margin:{right=0,left=0,top=0,bottom=0}={}, vertAlign,border}=this.props
 		/**
 		 * a cell space border|margin|content|margin|border
 		 */
 		return super.create({
-			margin,
-			width:width-margin.right-margin.left,
-			height: height-this.nonContentHeight,
+			border,
+			margin:{
+				left:left+border.left.sz,
+				right:right+border.left.sz,
+				top:top+border.top.sz,
+				bottom:bottom+border.bottom.sz
+			},
+			width,
+			height,
 			vertAlign,
 		},{frame})
 	}
@@ -68,6 +94,7 @@ export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 	}
 
 	createComposed2Parent(){
+		return this.current
 		const {border, margin, background,vertAlign}=this.props
 		const width=this.current.props.width+margin.left+margin.right
 		return (
@@ -130,7 +157,7 @@ class Border extends Component{
 
 class Edge extends Component{
 	render(){
-		const {size,color,d}=this.props
+		const {sz:size,color,d}=this.props
 		return <path strokeWidth={size} stroke={color} d={d}/>
 	}
 }

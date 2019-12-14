@@ -167,7 +167,7 @@ export default class __$1 extends Super{
 			//replace  empty slot with empty column.firstSlot shape
 			rank.slots.forEach((a,i,slots)=>{
 				if(!a){
-					slots[i]=React.cloneElement(columns[i].firstSlot,{height,frame:undefined,children:null})
+					slots[i]=Object.assign(columns[i].firstSlot.clone({height,children:null}),{computed:{composed:[]}})//React.cloneElement(columns[i].firstSlot,{height,frame:undefined,children:null})
 				}
 			})
 			rank.resetHeight(height,ranks.length-1==i,this)
@@ -188,7 +188,7 @@ export default class __$1 extends Super{
 	}
 
 	getHeight(slots){
-		return Math.max(this.props.height||0,...slots.filter(a=>!!a).map(a=>a.props.nonContentHeight+a.props.frame.blockOffset))
+		return Math.max(this.props.height||0,...slots.filter(a=>!!a).map(a=>a.blockOffset))
 	}
 
 	static Rank=class extends Component{
@@ -226,7 +226,7 @@ export default class __$1 extends Super{
 			return !slots.find(a=>!!a)
 		}
 
-		resetHeight(height, lastRank){
+		resetHeight(height, isLastRank){
 			//at first reset each slot's height
 			this.slots.forEach((a,i,slots)=>{
 				const {first,parents}=new ReactQuery(a).findFirstAndParents(`[data-type="cell"]`)
@@ -235,9 +235,12 @@ export default class __$1 extends Super{
 	
 			const {first,parents}=new ReactQuery(this.layouted).findFirstAndParents(`[data-type="row"]`)
 			var changed=changeHeightUp(height,first.get(0),parents)
-			if(lastRank){
+			if(isLastRank){
 				changed=React.cloneElement(changed,{last:true})
 			}
+
+			const $layouted=new ReactQuery(this.layouted)
+			$layouted.replace($layouted.findFirst('rank'),<this.constructor {...this.props} {...{last:isLastRank,height}}/>)
 			/** set height changes from rank to block line*/
 			this.layouted.replaceWith(changed)
 		}
@@ -252,7 +255,9 @@ export default class __$1 extends Super{
 			return (
 					<Group height={height} {...props} >
 					{
-						slots.map((a,i)=>React.cloneElement(a,{
+						slots
+						.filter(a=>!!a)
+						.map((a,i)=>React.cloneElement(a.clone({height}).createComposed2Parent(),{
 							...cols[i],
 							height,
 							key:i,
@@ -282,5 +287,5 @@ function changeHeightUp(height, rank, parents, ) {
 	}, React.cloneElement(rank, { height }));
 }
 
-const getCellId=slot=>slot && new ReactQuery(slot).findFirst(`[data-type="cell"]`).attr("data-content")
+const getCellId=slot=>slot && slot.props.id//new ReactQuery(slot).findFirst(`[data-type="cell"]`).attr("data-content")
 
