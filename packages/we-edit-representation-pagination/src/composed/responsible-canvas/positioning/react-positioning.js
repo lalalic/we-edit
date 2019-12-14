@@ -392,7 +392,10 @@ class PositioningHelper extends Positioning{
 		const {first,last,target=first||last,parents}=story[`${at==1 ? "findLast" : "findFirst"}AndParents`](
 			isParagraphSelf ? 
 			`.ender${at==0 ? ",[data-content]" : ""}` : 
-			({props:{"data-content":content,"data-endat":endat,children:text}})=>{
+			node=>{
+                if(!React.isValidElement(node))
+                    return false
+                const {props:{"data-content":content,"data-endat":endat,children:text}}=node
 				if(content!=id)
 					return
 				if(endat==undefined || (at<=endat && at>=endat-text.length))
@@ -742,23 +745,4 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
 		}
 		return {}
 	}
-    /*
-    getRangeRects(start, end) {
-        try {
-            ({ start, end } = this.extendSelection(start, end));
-            const frame = this.getComposer(start.id).closest(a => !!a.getRangeRects && a.props.id != start.id);
-            const rects = frame.getRangeRects(start, end, page => this.pageXY(page.props.I));
-            if (end.at == 1) {
-                const endComposer = this.getComposer(end.id);
-                if (endComposer.getComposeType() == "paragraph") {
-                    rects[rects.length - 1].right += endComposer.enderWidth;
-                }
-            }
-            return rects.filter(({left,right})=>(left-right)!=0);
-        }
-        catch (e) {
-            return [];
-        }
-    }
-    */
 })
