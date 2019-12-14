@@ -20,25 +20,27 @@ const fissureLike=Frame=>{
 		 * a cell space border|margin|content|margin|border
 		 */
 		createComposed2Parent(){
-			const {border:{top,bottom,left,right},width,height,Edge}=this.props
+			const {borders,width,height}=this.props
+			const {table,row,id:cell,colIndex:i,isFirstRowInPage,isLastRankOfRow}=this.props
+        
 			const content=super.createComposed2Parent(...arguments)
 			return React.cloneElement(
 				content,
 				{width,height},
 				content.props.children,
-				<Group {...{className:"border", "data-nocontent":true}}>
-					<Edge {...top}  d={`M0 0 h${width}`}/>
-					<Edge {...bottom} d={`M0 ${height} h${width}`}/>
-					<Edge {...right} d={`M${width} 0 v${height}`}/>
-					<Edge {...left} d={`M0 0 v${height}`}/>
-				</Group>
+				React.cloneElement(borders,{height,width,
+					table,row,cell,i,isFirstRowInPage,isLastRankOfRow//editable edges
+				})
 			)
 		}
-
+		/**
+		 * create empty cell slot
+		 */
 		cloneAsEmpty(){
 			return Object.assign(this.clone(...arguments),{computed:{composed:[],anchors:[],lastComposed:[]}})
 		}
 
+		/**used to caculate rank height */
 		get slotHeight(){
 			const {margin:{bottom=0}}=this.props
 			return this.blockOffset+bottom
@@ -50,9 +52,17 @@ const fissureLike=Frame=>{
  * Cell is fissionable
  * commit all when all composed????
  */
+const Edge=({sz:size,color,d})=><path strokeWidth={size} stroke={color} d={d}/>
 export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 	static fissureLike=fissureLike
-	static Edge=({sz:size,color,d})=><path strokeWidth={size} stroke={color} d={d}/>
+	static Edges=({top,left,right,bottom, width,height, ...props})=>(
+		<Group {...props}>
+			<Edge {...top}  d={`M0 0 h${width}`}/>
+			<Edge {...bottom} d={`M0 ${height} h${width}`}/>
+			<Edge {...right} d={`M${width} 0 v${height}`}/>
+			<Edge {...left} d={`M0 0 v${height}`}/>
+		</Group>
+	)
 
 	/**
 	 * space is defined by row->table->parent space, so it has to require space up
@@ -78,7 +88,6 @@ export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 		 * a cell space border|margin|content|margin|border
 		 */
 		return super.create({
-			border,
 			margin:{
 				left:left+border.left.sz,
 				right:right+border.left.sz,
@@ -88,7 +97,11 @@ export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 			width,
 			height,
 			vertAlign,
-			Edge:this.constructor.Edge
+			borders:<this.constructor.Edges {...{
+				...border,width,height,
+				className:"border",
+				"data-nocontent":true,
+				}}/>
 		},{frame})
 	}
 

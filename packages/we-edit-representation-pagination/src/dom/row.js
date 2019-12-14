@@ -165,12 +165,9 @@ export default class Row extends Super{
 		this.ranks.forEach((rank,i,ranks)=>{
 			const height=this.getHeight(rank.slots)
 			//replace  empty slot with empty column.firstSlot shape
-			rank.slots.forEach((a,i,slots)=>{
-				if(!a){
-					slots[i]=columns[i].firstSlot.cloneAsEmpty({height})
-				}
-			})
-			rank.resetHeight(height,ranks.length-1==i,this)
+			rank.slots.forEach((a,i,slots)=>!a && (slots[i]=columns[i].firstSlot.cloneAsEmpty()))
+			//then 
+			rank.relayout(height,ranks.length-1==i)
 		})
 		super.onAllChildrenComposed()
 	}
@@ -183,8 +180,8 @@ export default class Row extends Super{
 	 * @param {*} last 
 	 */
 	createComposed2Parent({props:{space:{height}, children}}){
-		const {props:{cols},width}=this
-		return <this.constructor.Rank {...{height,width, children, cols}}/>
+		const {props:{cols,id:row},width}=this
+		return <this.constructor.Rank {...{height,width, row, children, cols}}/>
 	}
 
 	getHeight(slots){
@@ -211,12 +208,17 @@ export default class Row extends Super{
 					}
 					else if (prop == "detach") {
 						return () => frame.lines.splice(-1, 1);
+					}else if(prop == "isFirstRowInPage"){
+						const prevLine=frame.lines[frame.lines.length-2]
+						const table=a=>new ReactQuery(a).findFirst(`[data-type=table]`).attr("data-content")
+						return !prevLine || table(line)!=table(prevLine)
+							
 					}
 					return line[prop];
 				}
 			});
 		}
-	
+
 		delayout(){
 			this.layouted.detach()
 		}
@@ -226,13 +228,32 @@ export default class Row extends Super{
 			return !slots.find(a=>!!a)
 		}
 
-		resetHeight(height, isLastRank){
-			const {first,parents}=new ReactQuery(this.layouted).findFirstAndParents(`rank`)
-			var changed=changeHeightUp(height,first.get(0),parents)
-			if(isLastRank){
-				changed=React.cloneElement(changed,{last:true})
+		relayout(height, isLastRankOfRow){
+			const Rank=this.constructor
+			function changeHeightUp(height, rank, parents) {
+				const delta=height-(rank.props.height||0)
+				return parents.reduceRight((child, parent) => {
+					const { props: { height, children } } = parent
+					if (React.Children.count(children) == 1) {
+						if (typeof (height) == "number") {
+							return React.cloneElement(parent, { height: height + delta }, child);
+						}
+					} else {
+						console.warn("row's offspring should only has one child");
+					}
+					return parent
+				}, new Rank({...rank.props,height}).render())
 			}
-
+			const {first,parents,rank=first.get(0)}=new ReactQuery(this.layouted).findFirstAndParents(`rank`)
+			const changed=changeHeightUp(
+				height,
+				React.cloneElement(rank,{
+					isLastRankOfRow,
+					isFirstRowInPage:this.layouted.isFirstRowInPage,
+					table:parents.findLast(a=>a.props["data-type"]=="table").props["data-content"],
+				}),
+				parents
+			)
 			/** set height changes from rank to block line*/
 			this.layouted.replaceWith(changed)
 		}
@@ -242,14 +263,15 @@ export default class Row extends Super{
 		}
 	
 		render(){
-			const {children:slots=[],cols,height,last, space, ...props}=this.props
+			const {children:slots=[],cols,height,isLastRankOfRow, isFirstRowInPage,table, row, space, ...props}=this.props
 	
 			return (
 					<Group height={height} {...props} >
 					{
-						slots
-						.filter(a=>!!a)
-						.map((a,i)=>React.cloneElement(a.clone({height}).createComposed2Parent(),{
+						slots.map((a,i)=>React.cloneElement(
+							a.clone({height,
+								colIndex:i,table,row,isLastRankOfRow,isFirstRowInPage//editable edges need the information
+							}).createComposed2Parent(),{
 							...cols[i],
 							height,
 							key:i,
@@ -261,20 +283,3 @@ export default class Row extends Super{
 	}
 }
 
-function changeHeightUp(height, rank, parents, ) {
-	const delta=height-(rank.props.height||0)
-	if(delta==0)
-		return parents[0]||rank
-	return parents.reduceRight((child, parent) => {
-		const { props: { height, children } } = parent;
-			if (React.Children.count(children) == 1) {
-			if (typeof (height) == "number") {
-				return React.cloneElement(parent, { height: height + delta }, child);
-			}
-		}
-		else {
-			throw new Error("row's offspring should only has one child");
-		}
-		return parent;
-	}, new Row.Rank({...rank.props,height}).render())//React.cloneElement(rank, { height }));
-}
