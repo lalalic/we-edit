@@ -189,6 +189,14 @@ class Frame extends Layout.Block{
 	}
 }
 
+/**
+ * A frame would finally append composed to parent once, 
+ * so lastComposed should have only one item
+ * Frame cache key should based on 
+ * 1. space {width,height, wrappees,cols}: width or cols[*].width is changed, the cache ususally can NOT be used
+ * 2. content: space is not change, content can relayout from changed content
+ * 
+ */
 export default Cacheable(class EditableFrame extends editable(Frame){
     clearComposed(){
         this.computed.anchors=[]

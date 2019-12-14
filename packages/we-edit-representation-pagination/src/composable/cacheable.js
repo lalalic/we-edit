@@ -25,6 +25,9 @@ export default (A,partable, composedOnlyForFields=["hash"])=>class __$1 extends 
     }
 
     isChanged(current,last){
+        if(super.isChanged){
+            return super.isChanged(...arguments)
+        }
         return composedOnlyForFields.reduce((changed,k)=>{
             return changed || current[k]!=last[k]
         },false)
@@ -131,6 +134,7 @@ export default (A,partable, composedOnlyForFields=["hash"])=>class __$1 extends 
     }
     /**
      * to utilize cache, customizable
+     * default to append to parent
      */
     appendLastComposed(){
         if(super.appendLastComposed){
@@ -140,11 +144,28 @@ export default (A,partable, composedOnlyForFields=["hash"])=>class __$1 extends 
         this.computed.lastComposed.forEach(a=>this.context.parent.appendComposed(a))
     }
 
+    /**
+     * to remove cache for changed content
+     * @param {*} changedChildIndex 
+     * @return boolean
+     *   false: can't just remove, so will render all content
+     */
     removeChangedPart(changedChildIndex){
         if(super.removeChangedPart){
             return super.removeChangedPart(...arguments)
         }
         return false
+    }
+
+    /**
+     * only layouted of all children composed content can be utilized
+     * @return {number} index
+     */
+    keepUntilLastAllChildrenComposed(){
+        if(super.keepUntilLastAllChildrenComposed){
+            return super.keepUntilLastAllChildrenComposed(...arguments)
+        }
+        return -1
     }
 
     findLastChildIndexOfLastComposed(){
