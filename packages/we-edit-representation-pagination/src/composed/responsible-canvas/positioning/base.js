@@ -3,8 +3,58 @@
  * Position: object must with coordinate figures like {x,y,left,top, ...} on canvas
  * Location: {id, at}
  */
+const makeSafe=A=>class SafePositioning extends A{
+    position(){
+        try{
+            return super.position(...arguments)
+        }catch(e){
+            return {}
+        }
+    }
+
+    around(){
+        try{
+            return super.around(...arguments)
+        }catch(e){
+            return {}
+        }
+    }
+
+    nextLine(){
+        try{
+            return super.nextLine(...arguments)
+        }catch(e){
+            return {}
+        }
+    }
+
+    prevLine(){
+        try{
+            return super.prevLine(...arguments)
+        }catch(e){
+            return {}
+        }
+    }
+
+    extendWord(){
+        try{
+            return super.extendWord(...arguments)
+        }catch(e){
+            return {}
+        }
+    }
+
+    getRangeRects(){
+        try{
+            return super.getRangeRects(...arguments)
+        }catch(e){
+            return []
+        }
+    }
+}
 //export default 
 export default class Positioning{
+    static makeSafe=makeSafe
     constructor(responsible){
         this.responsible=responsible
         //check responsible API

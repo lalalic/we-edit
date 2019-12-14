@@ -428,7 +428,7 @@ class PositioningHelper extends Positioning{
  * Can we make a pure positioning isolated from composer???
  * 
  */
-export default class ReactPositioning extends PositioningHelper {
+export default Positioning.makeSafe(class ReactPositioning extends PositioningHelper {
     /**
      * 2 options:
      * >>a. positioning from up to id, scope from big to small
@@ -536,58 +536,54 @@ export default class ReactPositioning extends PositioningHelper {
      */
     getRangeRects(start,end){
         //normalize up to (same level???) of layout block
-        try{
-            const rects=[]
-            const { p0, p1 } = this.getOrderedPosition(start, end)
-            
-            const scope=(function* (frame0, frame1){
-                const makeRects=(frame,from=0,to=frame.lines.length-1)=>{
-                    const topFrame=this.getCheckedGrandFrameByFrame(frame)
-                    const o=this.getTopFrameXY(topFrame)
-                    const {x,y}=this.getFrameOffsetGrandFrame(topFrame,frame) 
-                    return frame.lines.slice(from,to+1)
-                        .map((line,_,_1,{props:{width,height,pagination:{id:isParagraphLine}={}}}=line)=>{
-                            const xy=frame.lineXY(line)
-                            if(isParagraphLine){
-                                const story=new ReactQuery(line).findFirstAndParents('.story')
-                                const x=[...story.parents,story.first.get(0)].reduce((X,{props:{x=0}})=>X+x,0)
-                                const first=story.first.findFirstAndParents('[data-content],.ender')
-                                const x0=[...first.parents,first.first.get(0)].reduce((X,{props:{x=0}})=>X+x,x)
-                                const last=story.first.findLastAndParents('[data-content],.ender')
-                                const x1=[...last.parents,last.last.get(0)].reduce((X,{props:{x=0}})=>X+x,x+last.last.attr('width'))
-                                return {...xy,x:xy.x+x0, width:x1-x0,height}
-                            }else{
-                                return {...xy,width,height}
-                            }
-                        })
-                        .map(a=>(a.x+=(x+o.x), a.y+=(y+o.y), a))
-                        .map(({x:left,y:top,width,height})=>({left,top,right:left+width,bottom:top+height}))
-                }
-                if(frame0==frame1){
-                    yield makeRects(frame0, p0.lineIndexInLeafFrame, p1.lineIndexInLeafFrame)
-                    return 
-                }
-                yield makeRects(frame0, p0.lineIndexInLeafFrame)
-                for(let frames=frame0.context.parent.computed.composed,i=frame0.props.i+1;i<frame1.props.i;i++){
-                    yield makeRects(frames[i])
-                }
-                yield makeRects(frame1, 0,p0.lineIndexInLeafFrame)
-            }).call(this, p0.leafFrame, p1.leafFrame);
-
-            for(const bounds of scope){
-                rects.splice(rects.length, 0, ...bounds)
-            }
-
-            if(rects.length==0)
-                return rects
+        const rects=[]
+        const { p0, p1 } = this.getOrderedPosition(start, end)
         
-            Object.assign(rects[0],{left:p0.x})
-            Object.assign(rects[rects.length-1], {right:p1.x})
+        const scope=(function* (frame0, frame1){
+            const makeRects=(frame,from=0,to=frame.lines.length-1)=>{
+                const topFrame=this.getCheckedGrandFrameByFrame(frame)
+                const o=this.getTopFrameXY(topFrame)
+                const {x,y}=this.getFrameOffsetGrandFrame(topFrame,frame) 
+                return frame.lines.slice(from,to+1)
+                    .map((line,_,_1,{props:{width,height,pagination:{id:isParagraphLine}={}}}=line)=>{
+                        const xy=frame.lineXY(line)
+                        if(isParagraphLine){
+                            const story=new ReactQuery(line).findFirstAndParents('.story')
+                            const x=[...story.parents,story.first.get(0)].reduce((X,{props:{x=0}})=>X+x,0)
+                            const first=story.first.findFirstAndParents('[data-content],.ender')
+                            const x0=[...first.parents,first.first.get(0)].reduce((X,{props:{x=0}})=>X+x,x)
+                            const last=story.first.findLastAndParents('[data-content],.ender')
+                            const x1=[...last.parents,last.last.get(0)].reduce((X,{props:{x=0}})=>X+x,x+last.last.attr('width'))
+                            return {...xy,x:xy.x+x0, width:x1-x0,height}
+                        }else{
+                            return {...xy,width,height}
+                        }
+                    })
+                    .map(a=>(a.x+=(x+o.x), a.y+=(y+o.y), a))
+                    .map(({x:left,y:top,width,height})=>({left,top,right:left+width,bottom:top+height}))
+            }
+            if(frame0==frame1){
+                yield makeRects(frame0, p0.lineIndexInLeafFrame, p1.lineIndexInLeafFrame)
+                return 
+            }
+            yield makeRects(frame0, p0.lineIndexInLeafFrame)
+            for(let frames=frame0.context.parent.computed.composed,i=frame0.props.i+1;i<frame1.props.i;i++){
+                yield makeRects(frames[i])
+            }
+            yield makeRects(frame1, 0,p0.lineIndexInLeafFrame)
+        }).call(this, p0.leafFrame, p1.leafFrame);
 
-            return rects.filter(({left,right})=>(left-right)!=0)
-        }catch(e){
-            return []
+        for(const bounds of scope){
+            rects.splice(rects.length, 0, ...bounds)
         }
+
+        if(rects.length==0)
+            return rects
+    
+        Object.assign(rects[0],{left:p0.x})
+        Object.assign(rects[rects.length-1], {right:p1.x})
+
+        return rects.filter(({left,right})=>(left-right)!=0)
     }
 
     /**
@@ -763,4 +759,4 @@ export default class ReactPositioning extends PositioningHelper {
         }
     }
     */
-}
+})
