@@ -8,6 +8,7 @@ const makeSafe=A=>class SafePositioning extends A{
         try{
             return super.position(...arguments)
         }catch(e){
+            console.error(e)
             return {}
         }
     }
@@ -16,6 +17,7 @@ const makeSafe=A=>class SafePositioning extends A{
         try{
             return super.around(...arguments)
         }catch(e){
+            console.error(e)
             return {}
         }
     }
@@ -24,6 +26,7 @@ const makeSafe=A=>class SafePositioning extends A{
         try{
             return super.nextLine(...arguments)
         }catch(e){
+            console.error(e)
             return {}
         }
     }
@@ -32,6 +35,7 @@ const makeSafe=A=>class SafePositioning extends A{
         try{
             return super.prevLine(...arguments)
         }catch(e){
+            console.error(e)
             return {}
         }
     }
@@ -40,6 +44,7 @@ const makeSafe=A=>class SafePositioning extends A{
         try{
             return super.extendWord(...arguments)
         }catch(e){
+            console.error(e)
             return {}
         }
     }
@@ -48,6 +53,7 @@ const makeSafe=A=>class SafePositioning extends A{
         try{
             return super.getRangeRects(...arguments)
         }catch(e){
+            console.error(e)
             return []
         }
     }
@@ -64,7 +70,7 @@ export default class Positioning{
         }
     }
 
-    getComposer(){
+    getComposer(){  
         return this.responsible.getComposer(...arguments)
     }
     getContent(){

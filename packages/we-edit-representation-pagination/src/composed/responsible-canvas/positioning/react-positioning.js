@@ -1,5 +1,6 @@
-import Positioning from "./base"
+import React from "react"
 import {ReactQuery} from "we-edit"
+import Positioning from "./base"
 
 /**
  * layouted is a frame tree
@@ -158,8 +159,9 @@ class PositioningHelper extends Positioning{
         var current=new ReactQuery(composed), allParents=[]
         while(true){//find most inner node that includes the point
             const found=current.findFirstAndParents((node,parents)=>{
-                if(!node) 
+                if(!node || !React.isValidElement(node)) 
                     return false
+                
                 if(node.props && node.props["data-nocontent"])
                     return false
                 if(node==current.get(0))
