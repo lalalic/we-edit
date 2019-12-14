@@ -45,7 +45,7 @@ export default (A)=>class __$1 extends A{
 		return memoize(Frame=>class extends this.constructor.fissureLike(Frame){
             createComposed2Parent(){
                 const {props:{i,margin}}=this
-                return React.cloneElement(super.createComposed2Parent(),{margin,i,key:i})
+                return React.cloneElement(super.createComposed2Parent(...arguments),{margin,i,key:i})
             }
         })(this.context.ModelTypes.Frame)
 	}

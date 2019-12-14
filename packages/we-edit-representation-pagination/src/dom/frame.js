@@ -166,6 +166,7 @@ class Frame extends Layout.Block{
 	}
 
 	lineIndexOf(position){
+		return 0
         const lines=this.lines
         const {lineIndexOfParagraph,paragraph,id,at}=position
         if(paragraph){

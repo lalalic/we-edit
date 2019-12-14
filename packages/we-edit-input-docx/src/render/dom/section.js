@@ -85,19 +85,15 @@ export default ({Section,Frame,Group})=>class __$1 extends Component{
 
 	static get Page(){
 		return memoize(()=>Section.fissureLike(class Page extends Frame{
+			static displayName="frame-section"
 			createComposed2Parent(){
 				const content=super.createComposed2Parent(...arguments)
-				const {header,footer,I}=this.props
-				if(!footer && !header)
-					return content
-				return (
-					<Group I={I}>
-						<Group z={-1}>
-							{this.header}
-							{this.footer}
-						</Group>
-						{content}
-					</Group>
+				const {header,footer,I,i, margin}=this.props
+				return React.cloneElement(
+					content,
+					{I,i,margin},
+					content.props.children,
+					header && footer && (<Group z={-1}>{header}{footer}</Group>)
 				)
 			}
 /*

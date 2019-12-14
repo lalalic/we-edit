@@ -15,7 +15,7 @@ export default editable.enable(dom,{
 	Section,
 	Paragraph,
 	Table,
-	Row,
+	//Row,
 	Cell,
 	Text,
 })

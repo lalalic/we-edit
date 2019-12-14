@@ -38,22 +38,6 @@ export default Cacheable(class __$1 extends editable(Base,{stoppable:true,contin
 		return false
 	}
 
-	/**
-	 * since every rank would be touched by this function, 
-	 * overriding it to add responsible edges for each slot in each rank
-	 * @param {} rank 
-	 * @param {*} parents 
-	 * @param {*} frame 
-	 */
-	injectEmptyCellIntoRank(rank,parents,frame){
-		if(this.spaces[0].frame==frame
-			&& this.computed.lastComposed.length>0){//??????the initial rank can't be used as cache????
-			this.computed.lastComposed=[]
-		}
-		super.injectEmptyCellIntoRank(...arguments)
-		this.render2Composed(...arguments)
-	}
-
 	shouldContinueCompose(a){
 		return true
 	}

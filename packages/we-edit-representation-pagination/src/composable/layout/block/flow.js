@@ -106,7 +106,7 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 			},
 			anchors: {
 				enumerable: true,
-				configurable: true,
+				configurable: false,
 				get() {
 					return this.computed.anchors;
 				},

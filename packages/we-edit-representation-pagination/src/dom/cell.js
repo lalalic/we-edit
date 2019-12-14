@@ -6,6 +6,7 @@ import {HasParentAndChild, Fissionable} from "../composable"
 
 const fissureLike=Frame=>{
 	return class CellFrame extends Frame{
+		static displayName="frame-cell"
 		nextAvailableSpace({height:requiredBlockSize=0}={}){
 			const space=super.nextAvailableSpace(...arguments)
 			/**cell is allowed to be empty, but normal frame is not allowed */
@@ -19,19 +20,28 @@ const fissureLike=Frame=>{
 		 * a cell space border|margin|content|margin|border
 		 */
 		createComposed2Parent(){
-			const {border:{top,bottom,left,right},width,height}=this.props
+			const {border:{top,bottom,left,right},width,height,Edge}=this.props
 			const content=super.createComposed2Parent(...arguments)
-			return (
-				<Group {...{width,height}}>
-					{content}
-					<Group {...{className:"border", "data-nocontent":true}}>
-						<Edge {...top}  d={`M0 0 h${width}`}/>,
-						<Edge {...bottom} d={`M0 ${height} h${width}`}/>,
-						<Edge {...right} d={`M${width} 0 v${height}`}/>,
-						<Edge {...left} d={`M0 0 v${height}`}/>,
-					</Group>
+			return React.cloneElement(
+				content,
+				{width,height},
+				content.props.children,
+				<Group {...{className:"border", "data-nocontent":true}}>
+					<Edge {...top}  d={`M0 0 h${width}`}/>
+					<Edge {...bottom} d={`M0 ${height} h${width}`}/>
+					<Edge {...right} d={`M${width} 0 v${height}`}/>
+					<Edge {...left} d={`M0 0 v${height}`}/>
 				</Group>
 			)
+		}
+
+		cloneAsEmpty(){
+			return Object.assign(this.clone(...arguments),{computed:{composed:[],anchors:[],lastComposed:[]}})
+		}
+
+		get slotHeight(){
+			const {margin:{bottom=0}}=this.props
+			return this.blockOffset+bottom
 		}
 	}
 }
@@ -42,14 +52,7 @@ const fissureLike=Frame=>{
  */
 export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 	static fissureLike=fissureLike
-
-	get nonContentHeight(){
-		const {margin={right:0,left:0,top:0,bottom:0}, border}=this.props
-		return 	border.top.sz
-				+border.bottom.sz
-				+margin.top
-				+margin.bottom
-	}
+	static Edge=({sz:size,color,d})=><path strokeWidth={size} stroke={color} d={d}/>
 
 	/**
 	 * space is defined by row->table->parent space, so it has to require space up
@@ -85,6 +88,7 @@ export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 			width,
 			height,
 			vertAlign,
+			Edge:this.constructor.Edge
 		},{frame})
 	}
 
@@ -95,69 +99,5 @@ export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 
 	createComposed2Parent(){
 		return this.current
-		const {border, margin, background,vertAlign}=this.props
-		const width=this.current.props.width+margin.left+margin.right
-		return (
-			<this.constructor.ComposedCell {...{
-				border, margin, background,vertAlign,width,
-				nonContentHeight:this.nonContentHeight,
-				frame:this.current
-			}}/>
-		)
-	}
-}
-
-
-const Margin=Group
-
-Cell.ComposedCell=class __$1 extends Component{
-	static displayName="cell"
-	render(){
-		var {border, margin, vertAlign,width,frame,
-			height,
-			nonContentHeight,
-			...others}=this.props
-		return (
-			<Group {...others} height={height} width={width}>
-				{new Border({//must render to composed for positioning later
-							border,width,height,
-							children:(
-								<Margin x={margin.left} y={margin.top}>
-									{frame ? frame.clone({height}).createComposed2Parent() : null}
-								</Margin>
-							)
-						}).render()
-					}
-			</Group>
-		)
-	}
-}
-
-class Border extends Component{
-	render(){
-		var {width,height,border:{left,right,bottom,top}, children, ...others}=this.props
-		return (
-			<Group {...others}>
-				<Group className="border" {...{"data-nocontent":true}}
-					children={[
-						<Edge key="top" type="top" size={top.sz} color={top.color} d={`M0 0 h${width}`}/>,
-						<Edge key="bottom" type="bottom" size={bottom.sz} color={top.color} d={`M0 ${height} h${width}`}/>,
-						<Edge key="right" type="right" size={right.sz} color={top.color} d={`M${width} 0 v${height}`}/>,
-						<Edge key="left" type="left" size={left.sz} color={top.color} d={`M0 0 v${height}`}/>,
-					]}
-				/>
-				<Group x={left.sz/2} y={top.sz/2}>
-					{children}
-				</Group>
-			</Group>
-		)
-
-	}
-}
-
-class Edge extends Component{
-	render(){
-		const {sz:size,color,d}=this.props
-		return <path strokeWidth={size} stroke={color} d={d}/>
 	}
 }

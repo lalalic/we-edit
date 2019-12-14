@@ -35,7 +35,7 @@ const Super=HasParentAndChild(dom.Row)
  * *** rank in computed.composed share the slots ARRAY with layouted Rank, so
  * *** IN-Place replacement should be used to replace slot in a rank
 */
-export default class __$1 extends Super{
+export default class Row extends Super{
 	constructor(){
 		super(...arguments)
 		const {props:{cols}}=this
@@ -147,7 +147,7 @@ export default class __$1 extends Super{
 	 * @param {*} slot 
 	 */
 	appendComposed(slot){
-		const cellId=getCellId(slot)
+		const cellId=slot && slot.props.id
 		const col=this.columns[cellId]
 		const rank=this.findOrCreateRankForColumn(col, {height:this.getHeight([slot])})
 		rank.insertAt(slot,this.columns.indexOf(col))
@@ -161,13 +161,13 @@ export default class __$1 extends Super{
 			}
 			rank.delayout()
 		})
-		const {props:{id}, columns}=this
+		const {columns}=this
 		this.ranks.forEach((rank,i,ranks)=>{
 			const height=this.getHeight(rank.slots)
 			//replace  empty slot with empty column.firstSlot shape
 			rank.slots.forEach((a,i,slots)=>{
 				if(!a){
-					slots[i]=Object.assign(columns[i].firstSlot.clone({height,children:null}),{computed:{composed:[]}})//React.cloneElement(columns[i].firstSlot,{height,frame:undefined,children:null})
+					slots[i]=columns[i].firstSlot.cloneAsEmpty({height})
 				}
 			})
 			rank.resetHeight(height,ranks.length-1==i,this)
@@ -188,7 +188,7 @@ export default class __$1 extends Super{
 	}
 
 	getHeight(slots){
-		return Math.max(this.props.height||0,...slots.filter(a=>!!a).map(a=>a.blockOffset))
+		return Math.max(this.props.height||0,...slots.filter(a=>!!a).map(a=>a.slotHeight))
 	}
 
 	static Rank=class extends Component{
@@ -227,20 +227,12 @@ export default class __$1 extends Super{
 		}
 
 		resetHeight(height, isLastRank){
-			//at first reset each slot's height
-			this.slots.forEach((a,i,slots)=>{
-				const {first,parents}=new ReactQuery(a).findFirstAndParents(`[data-type="cell"]`)
-				slots[i]=changeHeightUp(height, first.get(0), parents)
-			})
-	
-			const {first,parents}=new ReactQuery(this.layouted).findFirstAndParents(`[data-type="row"]`)
+			const {first,parents}=new ReactQuery(this.layouted).findFirstAndParents(`rank`)
 			var changed=changeHeightUp(height,first.get(0),parents)
 			if(isLastRank){
 				changed=React.cloneElement(changed,{last:true})
 			}
 
-			const $layouted=new ReactQuery(this.layouted)
-			$layouted.replace($layouted.findFirst('rank'),<this.constructor {...this.props} {...{last:isLastRank,height}}/>)
 			/** set height changes from rank to block line*/
 			this.layouted.replaceWith(changed)
 		}
@@ -284,8 +276,5 @@ function changeHeightUp(height, rank, parents, ) {
 			throw new Error("row's offspring should only has one child");
 		}
 		return parent;
-	}, React.cloneElement(rank, { height }));
+	}, new Row.Rank({...rank.props,height}).render())//React.cloneElement(rank, { height }));
 }
-
-const getCellId=slot=>slot && slot.props.id//new ReactQuery(slot).findFirst(`[data-type="cell"]`).attr("data-content")
-
