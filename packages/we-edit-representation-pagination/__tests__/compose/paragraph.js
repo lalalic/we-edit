@@ -9,10 +9,7 @@ define("paragraph compose",
 ({dom:{Paragraph, Text}, testing, CONTEXT, Context, WithTextContext, WithParagraphContext,ConstraintSpace})=>{
     const TEXT="hello world"
     const test=(lineWidth=5,spacing={}, indent={},align, text=TEXT, numbering)=>{
-        const context={...Context,exclusive:()=>[],...CONTEXT}
-        if(testing=="editor"){
-            context.numbering=()=>'*'
-        }
+        const context={...Context,exclusive:()=>[],...CONTEXT, numbering:()=>'*'}
         const nextAvailableSpace=context.parent.nextAvailableSpace=jest.fn(()=>(ConstraintSpace.create({
             width:lineWidth,height:100
         })))
@@ -205,13 +202,13 @@ define("paragraph compose",
             const line=new ReactQuery(lines[0])
             const label=line.find(".numbering")
             expect(label.length).toBe(1)
-            expect(label.findFirst(`[children="*"]`).length).toBe(1)
+            expect(label.get(0).props.children()).toBe('*')
         })
 
         it("label baseline same with first line",()=>{
             const lines=numbering({label:'*', style:{fonts:"arial",size:10}})
             const line=new ReactQuery(lines[0])
-            const label=line.findFirstAndParents(`[children="*"]`)
+            const label=line.findFirstAndParents(`.numbering`)
             const text=line.findFirstAndParents(`[data-type="text"]`)
             expect(label.first.length).toBe(1)
             expect(text.first.length).toBe(1)

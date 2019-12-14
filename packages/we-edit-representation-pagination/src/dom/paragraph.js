@@ -265,16 +265,16 @@ export default class Paragraph extends Super{
 	 * firstLine is usually minus for numbering
 	 */
 	getNumberingAtom(){
-		const {numbering:{style, label}, indent:{firstLine=0},}=this.props
-		const {defaultStyle}=new this.context.Measure(style)
+		const {props:{numbering:{style}, indent:{firstLine=0},id},context:{Measure, numbering}}=this
+		const {defaultStyle}=new Measure(style)
 
-		return <ComposedText
+		return <ComposedText.Dynamic
 			{...defaultStyle}
 			key="numbering"
 			className="numbering"
 			x={firstLine}
 			width={-firstLine}
-			children={label}
+			children={()=>numbering(id)}
 		/>
 	}
 

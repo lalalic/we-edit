@@ -1,5 +1,5 @@
 import React, {Fragment, PureComponent as Component} from "react"
-export class Text extends Component{
+export default class Text extends Component{
 	render(){
 		const {
 			children, whiteSpace, color:fill, highlight,border,underline,strike,
@@ -54,6 +54,6 @@ export class Text extends Component{
 			</Fragment>
 		)
 	}
-}
 
-export default Text
+	static Dynamic=({children, ...props})=><Text {...props} children={children()}/>
+}

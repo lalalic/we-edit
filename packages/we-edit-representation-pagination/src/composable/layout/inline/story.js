@@ -33,10 +33,12 @@ export default class Story extends Component{
 			if(Array.isArray(a)){
 				return a.map(a=>setBaseline(a))
 			}
+			if(!React.isValidElement(a))
+				return a
 			if(a.props.className=="story"){
 				return a
 			}
-			if(a.type==Text){
+			if(a.type==Text || a.type==Text.Dynamic){
 				return React.cloneElement(a,{y:baseline})
 			}else if(Array.isArray(a.props.children)){
 				return React.cloneElement(a, {children:a.props.children.reduce((children,b,i)=>{

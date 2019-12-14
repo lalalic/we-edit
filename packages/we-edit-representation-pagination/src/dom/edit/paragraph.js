@@ -9,14 +9,6 @@ export default Cacheable(class __$1 extends editable(Base,{stoppable:true}) {
 		return super.shouldComponentUpdate(...arguments) && this.context.shouldContinueCompose(this)
 	}
 
-	getNumberingAtom(){
-		const numbering=super.getNumberingAtom()
-		if(this.context.numbering){
-			return React.cloneElement(numbering,{children:this.context.numbering(this.props.id)})
-		}
-		return numbering
-	}
-
 	clearComposed(){
 		this.atoms=[]
 		super.clearComposed(...arguments)
@@ -29,14 +21,6 @@ export default Cacheable(class __$1 extends editable(Base,{stoppable:true}) {
 		}
 	}
 
-	recalcNumbering(composedLine){
-		const $=new ReactQuery(composedLine)
-		const last=$.findFirst(".numbering").get(0)
-		const current=this.getNumberingAtom()
-		const {x,y}=last.props
-		return $.replace(last,React.cloneElement(current,{x,y})).root
-	}
-
 	/**if lineSegments is same, last layouted line should be able to fit in without relayout */
 	appendLastComposed(){
 		const lines=this.lines
@@ -46,9 +30,6 @@ export default Cacheable(class __$1 extends editable(Base,{stoppable:true}) {
 			const space=this.context.parent.nextAvailableSpace({height:a.props.height})
 			if(line.isFitTo(space)){
 				this.lines.push(line)
-				if(i==0 && this.props.numbering){
-					a=this.recalcNumbering(a)
-				}
 				this.context.parent.appendComposed(a)
 				return false
 			}else{
