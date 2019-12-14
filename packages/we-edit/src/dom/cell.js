@@ -1,25 +1,17 @@
-import React from "react"
 import PropTypes from "prop-types"
 
 import Component from "./component"
 
-const border={
-	sz: PropTypes.number,
-	color: PropTypes.string
-}
+const {LineShape,DefaultLine}=Component
 
-const defaultBorder={
-	sz:1,
-	color:"black"
-}
 export default class Cell extends Component{
 	static displayName="cell"
 	static propTypes={
 		border:PropTypes.shape({
-			left:PropTypes.shape(border),
-			right:PropTypes.shape(border),
-			top:PropTypes.shape(border),
-			bottom:PropTypes.shape(border),
+			left:PropTypes.shape(LineShape),
+			right:PropTypes.shape(LineShape),
+			top:PropTypes.shape(LineShape),
+			bottom:PropTypes.shape(LineShape),
 		}),
 		margin: PropTypes.shape({
 			left: PropTypes.number,
@@ -33,10 +25,10 @@ export default class Cell extends Component{
 
 	static defaultProps={
 		border:{
-			left:defaultBorder,
-			right:defaultBorder,
-			top:defaultBorder,
-			bottom:defaultBorder
+			left:DefaultLine,
+			right:DefaultLine,
+			top:DefaultLine,
+			bottom:DefaultLine
 		},
 		margin:{
 			left:0,
