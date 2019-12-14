@@ -18,22 +18,17 @@ const Super=HasParentAndChild(dom.Row)
  * *** border
  * >rank's height is not always correct, how to fix it??? 
  * *** all children composed, each rank's height could be fixed
- * *** rank's height=Max(row height if defined, ... slot's content height)
+ * *** rank's height=Max(row height if defined, ... slot's height)
  * 
  * computed.composed is [rank, rank, rank, ...]
  * rank		space\col	col1	col2 	...
  * rank1	space1		slot11		
  * rank2	space2		slot12	slot21
  * ...		...	 		...	 	...
- * 
- * 
  * when append Rank to space, #1 is simple and chosen
  * 1> request rank space, then add empty Rank placeholder, then adjust rank every time a slot committed
  * 2> before requesting rank space, commit last Rank placeholder, do what #1 would do
  * 3> all children composed : affect blockOffset, so it's NOT possible
- * 
- * *** rank in computed.composed share the slots ARRAY with layouted Rank, so
- * *** IN-Place replacement should be used to replace slot in a rank
 */
 export default class Row extends Super{
 	constructor(){
@@ -144,13 +139,13 @@ export default class Row extends Super{
 
 	/**
 	 * put it into correct column[i].push(cell)
-	 * @param {*} slot 
+	 * @param {*} slotFrame 
 	 */
-	appendComposed(slot){
-		const cellId=slot && slot.props.id
+	appendComposed(slotFrame){
+		const cellId=slotFrame && slotFrame.props.id
 		const col=this.columns[cellId]
-		const rank=this.findOrCreateRankForColumn(col, {height:this.getHeight([slot])})
-		rank.insertAt(slot,this.columns.indexOf(col))
+		const rank=this.findOrCreateRankForColumn(col, {height:this.getHeight([slotFrame])})
+		rank.insertAt(slotFrame,this.columns.indexOf(col))
 	}
 
 	onAllChildrenComposed(){
