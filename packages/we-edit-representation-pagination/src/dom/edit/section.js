@@ -1,4 +1,3 @@
-import React, {Children} from "react"
 import PropTypes from "prop-types"
 
 import {Cacheable,editable} from "../../composable"
@@ -23,58 +22,5 @@ export default Cacheable(class __$1 extends Super{
 			return false
 		}
 		return this.context.parent.shouldContinueCompose(...arguments)
-	}
-
-	keepUntilLastAllChildrenComposed(){
-        const {id,fissionIndex,lineIndex}=(id=>{
-			let fissionIndex=-1, lineIndex=-1
-			this.computed.lastComposed.findLast(({lines},i)=>{
-				fissionIndex=i
-				return lines.findLast((line,i)=>{
-					lineIndex=i
-					if(id=this.findContentId(line)){
-						const composer=this.context.getComposer(id)
-						if(composer && composer.isAllChildrenComposed()){
-							return true
-						}
-					}
-					return false
-				})
-			})
-			return {id,fissionIndex,lineIndex}
-		})();
-
-		if(id){
-			this.keepComposedUntil(fissionIndex,lineIndex+1)
-			return Children.toArray(this.props.children).findIndex(a=>a.props.id===id)
-		}
-		return -1
-	}
-
-	removeChangedPart(removedChildren){
-		const findChangedContentId=line=>{
-			const id=this.findContentId(line)
-			return (id!==undefined && removedChildren.includes(id))
-		}
-
-		let fissionIndex=-1, lineIndex=-1
-		if((fissionIndex=this.computed.lastComposed.findIndex(({lines})=>{
-			return (lineIndex=lines.findIndex(line=>findChangedContentId(line)))!=-1
-		}))!=-1){
-			this.keepComposedUntil(fissionIndex,lineIndex)
-			return true
-		}
-
-		return false
-	}
-
-	keepComposedUntil(fissionIndex,lineIndex){
-		this.computed.lastComposed=this.computed.lastComposed.slice(0,fissionIndex+1)
-		this.computed.lastComposed[fissionIndex].removeFrom(lineIndex)
-	}
-
-	appendLastComposed(){
-		this.computed.composed=[...this.computed.lastComposed]
-		this.computed.composed.forEach(a=>this.context.parent.appendComposed(a))
 	}
 },true)//numbering can't work

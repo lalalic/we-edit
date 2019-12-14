@@ -1,5 +1,3 @@
-import React from "react"
-
 import {HasParentAndChild,Fissionable} from "../composable"
 import {dom} from "we-edit"
 import memoize from "memoize-one"
