@@ -1,6 +1,3 @@
-import React from "react"
-import {ReactQuery} from "we-edit"
-
 import {Cacheable,editable} from "../../composable"
 import Base from "../paragraph"
 
