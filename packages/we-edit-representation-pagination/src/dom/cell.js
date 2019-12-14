@@ -74,14 +74,6 @@ export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 	 * @param {*} required 
 	 */
 	create(props,context,required={}){
-		if(this.computed.composed.length>0){
-			if(this.current.isEmpty()){
-				/**???? */
-				this.computed.composed.pop()
-			}else{
-				this.context.parent.appendComposed(this.createComposed2Parent())
-			}
-		}
 		const {width,height,frame}=this.context.parent.nextAvailableSpace({...required,id:this.props.id})
 		const {margin:{right=0,left=0,top=0,bottom=0}={}, vertAlign,border}=this.props
 		/**
@@ -106,11 +98,13 @@ export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 	}
 
 	onAllChildrenComposed(){
-		this.context.parent.appendComposed(this.createComposed2Parent())
+		if(this.computed.composed.length==0){
+			this.create()
+		}
 		super.onAllChildrenComposed()
 	}
 
-	createComposed2Parent(){
-		return this.current
+	createComposed2Parent(slot=this.current){
+		return slot
 	}
 }

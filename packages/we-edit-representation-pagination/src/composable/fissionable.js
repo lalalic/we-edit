@@ -72,8 +72,14 @@ export default (A)=>class __$1 extends A{
             {...context,parent:this,getComposer:id=>this.context.getComposer(id)}
         )
         this.computed.composed.push(a)
+        this.context.parent.appendComposed(this.createComposed2Parent(a))
         return a
     }
+
+    createComposed2Parent(a){
+        return a
+    }
+
 
     /**
      * it proxy the call to current layout
