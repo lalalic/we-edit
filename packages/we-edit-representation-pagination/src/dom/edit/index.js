@@ -7,7 +7,6 @@ import Section from "./section"
 import Paragraph from "./paragraph"
 import Row from "./row"
 import Cell from "./cell"
-import Text from "./text"
 
 export default editable.enable(dom,{
 	Document,
@@ -15,5 +14,4 @@ export default editable.enable(dom,{
 	Paragraph,
 	Row,
 	Cell,
-	Text,
 })

@@ -2,23 +2,22 @@ import React from "react"
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
 
-import {NoChild} from "../composable"
+import {NoChild,editable} from "../composable"
 import {dom} from "we-edit"
 import breakOpportunities from "../wordwrap/line-break"
-const {Text:Base}=dom
 
 import {Text as ComposedText} from "../composed"
 
-const Super=NoChild(Base)
+const Super=NoChild(dom.Text)
 
-export default class Text extends Super{
+class Text extends Super{
     static contextTypes={
 		...Super.contextTypes,
 		Measure: PropTypes.func,
 	}
 
     get text(){
-        let {children=""}=this.props
+        const {children=""}=this.props
         return Array.isArray(children) ? children.join("") : children
     }
 
@@ -89,4 +88,22 @@ export default class Text extends Super{
 		this.computed.composed.push(composed)
 		return composed
 	}
+}
+
+export default class EditableText extends editable(Text){
+    render(){
+        if(this.text.length==0){
+            this.appendComposed({
+                ...this.defaultStyle,
+                width:0,
+                minWidth:0,
+                "data-endat":0,
+                children: ""
+            })
+
+            this.onAllChildrenComposed()
+            return null
+        }
+        return super.render()
+    }
 }

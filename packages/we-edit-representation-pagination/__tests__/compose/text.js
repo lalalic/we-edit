@@ -23,14 +23,6 @@ define("text compose", ({dom:{Text},testing,Context, WithTextContext})=>{
         expect(parent.appendComposed).toHaveBeenCalled()
     })
 
-    it("empty text should not be appended to parent when composing for view only",()=>{
-        const {context:{parent}}=test("")
-        if(testing=="editor"){
-            expect(parent.appendComposed).toHaveBeenCalled()
-        }else{
-            expect(parent.appendComposed).not.toHaveBeenCalled()
-        }
-    })
 
     it("'hello world' should append 3 times as [hello, ' ', world]",()=>{
         const {context:{parent:{appendComposed}}}=test("hello world")
