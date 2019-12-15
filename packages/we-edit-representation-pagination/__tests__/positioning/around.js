@@ -5,19 +5,15 @@ import define from "./index"
 define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Container, Frame,Anchor,Shape},
     TESTING, render, mockQuery,size,uuid,Positioning,Responsible})=>{
 
-	beforeEach(()=>{
-		Positioning.prototype.asCanvasPoint=jest.fn(({left,top})=>({x:left,y:top}))
-	})
 	const test=(content,state)=>{
-        const {responsible, doc}=render(content,state)
-        responsible.positioning.pageXY=jest.fn(()=>({x:0,y:0}))
+        const {responsible, doc, getLines}=render(content,state)
         return {
             responsible,
             click(clientX,clientY,shiftKey=false){
                 responsible.onClick({clientX,clientY,shiftKey})
             },
             get lines(){
-                return doc.computed.composed[0].lines
+                return getLines(TESTING)
             }
         }
     }
@@ -31,6 +27,9 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
 		)
 		const around=jest.spyOn(doc.responsible.positioning,"around")
 
+        doc.click(5,0)
+        expect(around).toHaveLastReturnedWith({id:"2"})
+                
         new Array(5).fill(0).forEach((a,x)=>{
 			new Array(20).fill(0).forEach((a,y)=>{
                 doc.click(5+x,y)

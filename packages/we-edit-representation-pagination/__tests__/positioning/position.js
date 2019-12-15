@@ -8,10 +8,9 @@ define("position", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Cont
     TESTING, render, mockQuery,size,uuid,Positioning,Responsible})=>{
 
     const test=(a,b,pageXY={x:0,y:0})=>{
-        Positioning.prototype.pageXY=jest.fn(()=>pageXY)
-        
         const {renderer}=render(a,b)
         const responsible=renderer.root.findByType(Responsible).instance
+        responsible.positioning.pageXY=jest.fn(()=>pageXY)
         return {
             position(){
                 return responsible.positioning.position(...arguments)

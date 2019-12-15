@@ -309,10 +309,13 @@ class PositioningHelper extends Positioning{
         const $find=at==1 ? 'findLast' : 'findFirst'
         const find=at==1 ? "findLast" : "find"
         var i=0, leafFrame,lineInFrame, position
-        if(paragraph){
+        const targetHasParagraph=this.getContent(id)[$find]('paragraph').attr('id')
+        if(paragraph && !targetHasParagraph){
             if(paragraph.props.id==id){
                 //paragraph level
-                i=at==1? paragraph.lines.length-1 : 0
+                i=at==1 ? paragraph.lines.length-1 : 0
+            }else if(false){
+
             }else{
                 //inline level
                 /**
@@ -343,7 +346,7 @@ class PositioningHelper extends Positioning{
              * table/row/cell
              * frame/shape
              */
-            const firstParagraph=this.getComposer(this.getContent(id)[$find]("paragraph").attr("id"))
+            const firstParagraph=this.getComposer(targetHasParagraph)// this.getContent(id)[$find]("paragraph").attr("id"))
             
             leafFrame=this.getCheckedGrandFrameByFrame(
                 firstParagraph.lines[at==1 ? firstParagraph.lines.length-1 : 0].space.frame, 
@@ -506,8 +509,8 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
             topFrame.createComposed2Parent(), 
             //only frame that contain the point
             (rect,node)=>{
-                const {props:{'data-content':id, width,height, composer=this.getComposer(id)}}=node
-                if(composer && composer.isFrame)
+                const {props:{"data-frame":isFrame, width,height}}=node
+                if(isFrame)
                     return pointIsInside(rect({width,height}),topFrameOffset)
             },
             //get frame from data-content and data-frame
@@ -528,6 +531,7 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
         }
         
         const lineOffset=leafFrame.lineXY(line)
+        //what if leafFrame is not leaf node?????
         const {pagination:{id,i}, paragraph=this.getComposer(id)}=line.props
         return this.aroundInInline(paragraph.computed.lastComposed[i-1],x-topFrameOffset.x-leafFrameOffset.x-lineOffset.x)
     }
@@ -540,7 +544,6 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
      * @param {*} end 
      */
     getRangeRects(start,end){
-        //normalize up to (same level???) of layout block
         const rects=[]
         const { p0, p1 } = this.getOrderedPosition(start, end)
         

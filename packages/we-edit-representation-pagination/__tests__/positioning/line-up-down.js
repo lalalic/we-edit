@@ -8,23 +8,19 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
     TESTING, render, mockQuery,size,uuid,Positioning,Responsible})=>{
 
     const test=(a,state={page:{width:5}})=>{
-        Positioning.prototype.pageXY=jest.fn(function(i){
-            return {x:0,y:this.pages.slice(0,i).reduce((Y,{props:{height=0}})=>Y+height,0)}
-        })
-        
-        const {renderer}=render(a,state)
+        const {renderer,getLines}=render(a,state)
+
         const doc=renderer.root.findByType(Document).instance
         const pages=doc.computed.composed
         const responsible=renderer.root.findByType(Responsible).instance
+        responsible.positioning.pageXY=jest.fn(function(i){
+            return {x:0,y:this.pages.slice(0,i).reduce((Y,{props:{height=0}})=>Y+height,0)}
+        })
+        
         return {
             pages,
             get lines(){
-                if(TESTING=="in table"){
-                    return doc.getComposer("container").current.lines
-                }else if(TESTING=="in shape"){
-                    return doc.getComposer("layoutcontainer").lines
-                }
-                return pages[0].lines
+                return getLines(TESTING)
             },
             position(){
                 return responsible.positioning.position(...arguments)
