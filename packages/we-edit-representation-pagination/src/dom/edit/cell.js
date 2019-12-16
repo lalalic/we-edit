@@ -8,16 +8,6 @@ import Top from "../../composed/responsible-canvas/selection/top"
 import {Group} from "../../composed"
 
 export default class __$1 extends editable(Base){
-    clearComposed(){
-        this.computed.composed=[]
-        super.clearComposed()
-    }
-
-    appendLastComposed(){
-        this.computed.lastComposed=[]
-        this.appendComposed(this.frame)
-    }
-
     /**
      * it make table be responsible when editing, such as select/resize column/row
      */

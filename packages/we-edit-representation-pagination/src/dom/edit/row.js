@@ -3,6 +3,22 @@ import Base from "../row"
 
 export default Cacheable(class __$1 extends editable(Base,{stoppable:true,continuable:true}){
 	/**
+	 * @stoppable
+	 */
+	shouldComponentUpdate(){
+		return super.shouldComponentUpdate(...arguments) && this.context.shouldContinueCompose(this)
+	}
+
+	/**
+	 * @continuable
+	 * row is atom of composing, so compose all content or nothing
+	 * @param {*} a 
+	 */
+	shouldContinueCompose(){
+		return true
+	}
+
+	/**
 	 * @TODO: it's disabled to refactor layout engine
 	 * thinking: request space may change space, so should only checking requesting space be allowed not to change space
 	 */
@@ -32,7 +48,5 @@ export default Cacheable(class __$1 extends editable(Base,{stoppable:true,contin
 		return false
 	}
 
-	shouldContinueCompose(a){
-		return true
-	}
+	
 })

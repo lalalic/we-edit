@@ -117,6 +117,7 @@ export default (A)=>class __$1 extends A{
     }
     /**
      * cacheable API
+     * compose rule: always compose all children, and content composing is stoppable 
      * both composed and lastComposed refer to fissions
      */
 	keepUntilLastAllChildrenComposed(){

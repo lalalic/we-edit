@@ -5,7 +5,7 @@ import {Editors} from "../../src"
 
 describe("continuable", ()=>{
 	const pageGap=12
-	const {Document, Section, Frame, Paragraph, Text, Image}=Editors
+	const {Document, Section, Frame, Paragraph, Text}=Editors
 	const Context=context({dom:Editors})
 	const Page=Section.fissureLike(Frame)
 	const size={width:816,height:1056,
@@ -42,9 +42,6 @@ describe("continuable", ()=>{
 
 	beforeAll(()=>{
 		defaultProps(Editors)()
-		Paragraph.prototype.children=jest.fn(function(){
-			return this.props.children
-		})
 		Paragraph.defaultProps.End=""
 	})
 

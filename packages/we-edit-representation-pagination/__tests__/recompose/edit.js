@@ -10,9 +10,6 @@ describe("editor",()=>{
 
     beforeAll(()=>{
 		defaultProps(Editors)()
-		Paragraph.prototype.children=jest.fn(function(){
-			return this.props.children
-		})
     })
     
     var doc, element
@@ -74,7 +71,6 @@ describe("editor",()=>{
     it("can arbitrarily recompose after editing",()=>{
         expect(doc.pages.length).toBe(2)
         doc.update('text',{children:"hello"})
-        //expect(doc.pages.length).toBe(2)
         doc.scroll2Y(gap+page.height)
         expect(doc.pages.length).toBe(3)
     })

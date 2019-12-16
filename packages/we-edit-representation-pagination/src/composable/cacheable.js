@@ -3,11 +3,19 @@ import { ComposedAllTrigger } from "."
 
 /**
  * Cacheable keep last composed in computed.lastComposed when it call createComposed2Parent
+ * stoppable: to check context.shouldContinueCompose to stop composing itself
+ * continuable: to provide shouldContinueCompose to content
+ * 
+ * 
  * TypedCacheable should implement how to append last composed
  * the following can be cached
- * Frame
- * Paragraph
- * Fissionable
+ * Frame:  stoppable
+ * Fissionable: stoppable
+ * Paragraph: stoppable,continuable=true
+ * Row: stoppable,continuable=true
+ * 
+ * 
+ * cacheable component should always compose all children, but children composing is stoppable
  */
 export default (A,partable, composedOnlyForFields=["hash"])=>class __$1 extends A{
     static displayName=`cacheable(${partable ? "part" : "all"})-${A.displayName}`
