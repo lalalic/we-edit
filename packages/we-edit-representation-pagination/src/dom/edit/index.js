@@ -10,8 +10,8 @@ import Cell from "./cell"
 
 export default editable.enable(dom,{
 	Document,
-	Section,
+	//Section,
 	Paragraph,
-	Row,
-	Cell,
+	//Row,
+	//Cell,
 })

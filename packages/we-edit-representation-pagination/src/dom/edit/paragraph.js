@@ -1,34 +1,23 @@
 import {Cacheable,editable} from "../../composable"
 import Base from "../paragraph"
 
-export default Cacheable(class __$1 extends editable(Base,{stoppable:true,continuable:true}) {
+export default Cacheable(class __$1 extends editable(Base,{stoppable:true}) {
+	/**to sync lastComposed with composed */
+	rollbackLines(n){
+		super.rollbackLines(n)
+		this.computed.lastComposed.splice(-n)
+	}
 	/**
 	 * @stoppable
-	 * 
 	 */
 	shouldComponentUpdate(){
-		return super.shouldComponentUpdate(...arguments) && this.context.shouldContinueCompose(this)
+		super.shouldComponentUpdate(...arguments)
+		return this.context.shouldContinueCompose(this)
 	}
-
-	/**
-	 * @continuable
-	 * row is atom of composing, so compose all content or nothing
-	 * @param {*} a 
-	 */
-	shouldContinueCompose(){
-		return true
-	}
-
+	
 	clearComposed(){
 		this.atoms=[]
 		super.clearComposed(...arguments)
-	}
-
-	rollbackLines(n){
-		super.rollbackLines(n)
-		if(this.computed.lastComposed){
-			this.computed.lastComposed.splice(-n)
-		}
 	}
 
 	/**if lineSegments is same, last layouted line should be able to fit in without relayout */

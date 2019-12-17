@@ -4,6 +4,9 @@ import PropTypes from "prop-types"
 import ComposedAllTrigger from "./composed-all-trigger"
 export default A=>class __$1 extends A{
     static displayName=`composable-${A.displayName}`
+    static already=function(capable){
+        return this.displayName.split("-").includes(capable)
+    }
 	static contextTypes={
 		...A.contextTypes,
 		debug: PropTypes.bool,

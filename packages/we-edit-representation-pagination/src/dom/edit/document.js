@@ -31,13 +31,17 @@ export default class Document extends Super{
 	static getDerivedStateFromProps({content,viewport},state){
 		if(content && !content.equals(state.content)){
 			return {
+				...Super.getDerivedStateFromProps(...arguments),
 				content,
 				mode:"content",
 				y:0,
 				viewport
 			}
 		}
-		return {viewport}
+		return {
+			...Super.getDerivedStateFromProps(...arguments),
+			viewport
+		}
 	}
 
 	constructor(){

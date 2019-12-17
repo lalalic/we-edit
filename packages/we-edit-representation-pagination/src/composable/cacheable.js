@@ -9,6 +9,8 @@ import { ComposedAllTrigger } from "."
  * 
  * TypedCacheable should implement how to append last composed
  * the following can be cached
+ * 
+ * Document: continuable to really control content continue composing or not 
  * Frame:  stoppable
  * Fissionable: stoppable
  * Paragraph: stoppable,continuable=true
@@ -17,12 +19,13 @@ import { ComposedAllTrigger } from "."
  * 
  * cacheable component should always compose all children, but children composing is stoppable
  */
-export default (A,partable, composedOnlyForFields=["hash"])=>class __$1 extends A{
+export default A=>A
+const Cacheable=(A,partable, composedOnlyForFields=["hash"])=>class __$1 extends A{
     static displayName=`cacheable(${partable ? "part" : "all"})-${A.displayName}`
+
     constructor(){
         super(...arguments)
         this.computed.lastComposed=[]//cache
-        this.computed.hash=null//cached for content hash
     }
 
     //cache last composed for next time

@@ -202,7 +202,7 @@ export default Cacheable(class EditableFrame extends editable(Frame){
     clearComposed(){
         this.computed.anchors=[]
         return super.clearComposed(...arguments)
-    }
+	}
 
     appendLastComposed(){
         const lastComposed=[...this.computed.lastComposed]

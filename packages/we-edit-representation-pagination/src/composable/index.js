@@ -13,30 +13,34 @@ import ComposedAllTrigger from "./composed-all-trigger"
 
 import Layout from "./layout"
 
-export default function composable(A,{locatable,navigatable,stoppable,continuable,recomposable,fissionable}){
-	if(locatable){
+export default function composable(A,{locatable,navigatable,stoppable,continuable,recomposable,fissionable,cacheable}){
+	if(locatable && !A.already("locatable")){
 		A=Locatable(A)
 	}
 
-    if(navigatable){
+	if(recomposable && !A.already("recomposable")){
+		A=Recomposable(A,recomposable)
+	}
+	
+	if(fissionable && !A.already("fissionable")){
+		A=Fissionable(A)
+	}
+
+	if(cacheable && !A.already("cacheable")){
+        A=Cacheable(A)
+    }
+
+	if(navigatable && !A.already("navigatable")){
 		A=Navigatable(A)
 	}
 
-    if(stoppable){
+    if(stoppable && !A.already("stoppable")){
         A=Stoppable(A)
     }
 
-	if(continuable){
+	if(continuable && !A.already("continuable")){
         A=Continuable(A)
     }
-
-	if(recomposable){
-		A=Recomposable(A)
-	}
-	
-	if(fissionable){
-		A=Fissionable(A)
-	}
 
     return A
 }

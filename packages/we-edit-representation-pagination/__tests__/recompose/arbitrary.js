@@ -3,7 +3,7 @@ import {context, $, State, render, defaultProps} from "../context"
 import {Editors} from "../../src"
 
 
-describe("continuable", ()=>{
+xdescribe("continuable", ()=>{
 	const pageGap=12
 	const {Document, Section, Frame, Paragraph, Text}=Editors
 	const Context=context({dom:Editors})
