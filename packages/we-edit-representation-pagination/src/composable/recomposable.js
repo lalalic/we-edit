@@ -2,8 +2,8 @@
  * make component always update (by calling .render), so AllComposedTrigger would be triggered to correctly set allComposed
  * but at first clear last composed 
 
-    * To make everything cacheable, component can customize appendLastComposed to define itself cache policy
-    * shoul lastComposed be cleared
+ * To make everything cacheable, component can customize appendLastComposed to define itself cache policy
+ * shoul lastComposed be cleared
  */
 export default (A,{})=>class __$1 extends A{
     static displayName=`recomposable-${A.displayName}`
@@ -62,7 +62,7 @@ export default (A,{})=>class __$1 extends A{
 
         this.computed.lastComposed.forEach(a=>this.context.parent.appendComposed(a))
     }
-
+/*
     render(){
         if(this.appendLastComposed()!==false){
             this.onAllChildrenComposed()
@@ -70,4 +70,5 @@ export default (A,{})=>class __$1 extends A{
         }
         return super.render()
     }
+    */
 }

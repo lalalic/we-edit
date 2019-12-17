@@ -3,7 +3,7 @@ import {context, $, State, render, defaultProps} from "../context"
 import {Editors} from "../../src"
 import {ReactQuery} from "we-edit"
 
-describe("editor",()=>{
+xdescribe("editor",()=>{
     const {Document, Section,Paragraph, Text}=Editors
     const Context=context({dom:Editors})
     var uuid=1000
