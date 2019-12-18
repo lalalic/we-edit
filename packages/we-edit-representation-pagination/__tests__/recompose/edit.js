@@ -28,14 +28,14 @@ describe("editor",()=>{
                     viewport={{...viewport, node:{scrollTop:0}}}
                     screenBuffer={0}
                     scale={1}>
-                    <Section id={++uuid} page={page} key="1">
+                    <Section id={++uuid} layout={page} key="1">
                         <Paragraph id={++uuid}>
                             <Text id={++uuid}>
                                 Video provides a powerful way to help you prove your point. When you click Online Video, you can paste in the embed code for the video you want to add. 
                             </Text>
                         </Paragraph>
                     </Section>
-                    <Section id={++uuid} page={page} key="2">
+                    <Section id={++uuid} layout={page} key="2">
                         <Paragraph id={++uuid}>
                             <Text id={++uuid}>
                                 Video provides a powerful way to help you prove your point. When you click Online Video, you can paste in the embed code for the video you want to add. 

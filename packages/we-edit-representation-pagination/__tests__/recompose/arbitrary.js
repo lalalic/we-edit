@@ -16,7 +16,7 @@ describe("continuable", ()=>{
 
 	const section=(id,ps=1)=>(
 		<Section id={`${id}.0`} key={`${id}.0`}
-			create={(props,context)=>{
+			createLayout={(props,context)=>{
 				const page=new Page({...props,...size},context)
 				Object.defineProperties(page,{
 					composedHeight:{

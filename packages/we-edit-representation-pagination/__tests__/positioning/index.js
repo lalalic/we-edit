@@ -30,9 +30,9 @@ export default function define(feature, tests){
             var sectionProps={}
             if(byCreate){
                 const Page=Section.fissureLike(Frame)
-                sectionProps.create=(a,b)=>new Page({...a,...size,...page},b)
+                sectionProps.createLayout=(a,b)=>new Page({...a,...size,...page},b)
             }else{
-                sectionProps={page:{...size,...page}}
+                sectionProps={layout:{...size,...page}}
             }
 
             const Context=context({dom:Editors,state,contextTypes:{numbering:PropTypes.func}, context:{numbering:()=>'*'}})

@@ -24,7 +24,7 @@ define("section compose",
     const context={parent:document,...CONTEXT}
 
     const section=(id=0)=>(
-        <Section create={(props,context)=>new Frame({...props,width:10,height:10},context)} id={`${id}.2`} key={id}>
+        <Section createLayout={(props,context)=>new Frame({...props,width:10,height:10},context)} id={`${id}.2`} key={id}>
             <WithParagraphContext>
                 <WithTextContext>
                     <Paragraph id={`${id}.1`}>

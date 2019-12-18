@@ -25,7 +25,7 @@ define("table compose",
 
     let u=1
     const section=table=>(
-        <Section create={(props,context)=>new Frame({...props,width:10,height:20},context)} id={0} key={0}>
+        <Section createLayout={(props,context)=>new Frame({...props,width:10,height:20},context)} id={0} key={0}>
             <WithParagraphContext>
                 <WithTextContext>
                     {table}

@@ -73,13 +73,13 @@ export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 	 * @param {*} context 
 	 * @param {*} required 
 	 */
-	create(props,context,required={}){
+	createLayout(props,context,required={}){
 		const {width,height,frame}=this.context.parent.nextAvailableSpace({...required,id:this.props.id})
 		const {margin:{right=0,left=0,top=0,bottom=0}={}, vertAlign,border}=this.props
 		/**
 		 * a cell space border|margin|content|margin|border
 		 */
-		return super.create({
+		return super.createLayout({
 			margin:{
 				left:left+border.left.sz,
 				right:right+border.left.sz,
@@ -99,7 +99,7 @@ export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 
 	onAllChildrenComposed(){
 		if(this.computed.composed.length==0){
-			const a=this.create()
+			const a=this.createLayout()
 			this.computed.composed.push(a)
 			this.context.parent.appendComposed(this.createComposed2Parent(a))
 		}

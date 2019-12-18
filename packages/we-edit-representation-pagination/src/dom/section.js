@@ -7,12 +7,12 @@ const Super=Fissionable(HasParentAndChild(dom.Section))
 class Section extends Super{
 	static defaultProps={
 		...Super.defaultProps,
-		create(props,context){
-			const {page}=this.props
-			if(page){
-				return new this.Fission({...page, ...props},context)
+		createLayout(props,context){
+			const {layout}=this.props
+			if(layout){
+				return new this.Fission({...layout, ...props},context)
 			}else{
-				throw new Error("section has no create")
+				throw new Error("section has no createLayout")
 			}
 		}
 	}
@@ -65,7 +65,7 @@ export default class EditableSection extends editable(Section,{stoppable:true}){
 				return true
 			}
 				
-			const current=this.create(false)
+			const current=this.createLayout(false)
 			if(fission.getSpace().equals(current.getSpace())){
 				this.computed.composed.splice(i,1,fission)
 				this.context.parent.appendComposed(this.createComposed2Parent(fission))

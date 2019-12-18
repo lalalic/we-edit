@@ -79,8 +79,8 @@ export default ({Section,Frame,Group})=>class __$1 extends Component{
 
 	render(){
 		const {pgSz:{width,height},  pgMar:margin, cols, ...props}=this.props
-		const create=this.getCreate(margin,width,height,this.getCols(width,margin,cols,this.props.id))
-		return(<Section create={create} {...props}/>)
+		const createLayout=this.getCreate(margin,width,height,this.getCols(width,margin,cols,this.props.id))
+		return(<Section createLayout={createLayout} {...props}/>)
 	}
 
 	static get Page(){

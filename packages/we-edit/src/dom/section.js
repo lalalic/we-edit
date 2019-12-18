@@ -4,8 +4,8 @@ import Component from "./component"
 export default class __$1 extends Component{
 	static displayName="section"
 	static propTypes={
-        create: PropTypes.func,
-		page:PropTypes.shape({
+        createLayout: PropTypes.func,
+		layout:PropTypes.shape({
 			width:PropTypes.number,
 			height:PropTypes.number,
 			margin:PropTypes.shape({

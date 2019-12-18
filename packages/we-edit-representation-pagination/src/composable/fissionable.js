@@ -13,7 +13,7 @@ import memoize from "memoize-one"
 export default (A)=>class __$1 extends A{
 	static defaultProps={
 		...A.defaultProps,
-		create(...args){
+		createLayout(...args){
 			return new this.Fission(...args)
 		}
 	}
@@ -67,7 +67,7 @@ export default (A)=>class __$1 extends A{
 
     get current(){
         if(this.computed.composed.length==0){
-            const a=this.create()
+            const a=this.createLayout()
             this.computed.composed.push(a)
             this.context.parent.appendComposed(this.createComposed2Parent(a))
         }
@@ -81,8 +81,8 @@ export default (A)=>class __$1 extends A{
      * @param {*} context 
      * @param {*} requiredSpace 
      */
-    create(props={},context={},requiredSpace){
-        return this.props.create.bind(this)(
+    createLayout(props={},context={},requiredSpace){
+        return this.props.createLayout.bind(this)(
             {...props,id:this.props.id, i:this.computed.composed.length, named:this.named.bind(this)},
             {...context,parent:this,getComposer:id=>this.context.getComposer(id)}
         )
@@ -101,7 +101,7 @@ export default (A)=>class __$1 extends A{
     nextAvailableSpace(required){
         const space=this.current.nextAvailableSpace(...arguments)
         if(!space){
-            const a=this.create(undefined,{frame:space.frame},required)
+            const a=this.createLayout(undefined,{frame:space.frame},required)
             this.computed.composed.push(a)
             this.context.parent.appendComposed(this.createComposed2Parent(a))
             return this.nextAvailableSpace(...arguments)
@@ -122,7 +122,7 @@ export default (A)=>class __$1 extends A{
         }else{
             const appended=this.current.appendComposed(...arguments)
             if(appended===false){
-                const a=this.create(undefined, undefined,{height})
+                const a=this.createLayout(undefined, undefined,{height})
                 this.computed.composed.push(a)
                 this.context.parent.appendComposed(this.createComposed2Parent(a))
                 return 1//recompose current line in case different availableSpace
