@@ -6,14 +6,13 @@ import Recomposable from "./recomposable"
 import Locatable from "./locatable"
 import Stoppable from "./stoppable"
 import Continuable from "./continuable"
-import Cacheable from "./cacheable"
 import Navigatable from "./navigatable"
 import Fissionable from "./fissionable"
 import ComposedAllTrigger from "./composed-all-trigger"
 
 import Layout from "./layout"
 
-export default function composable(A,{locatable,navigatable,stoppable,continuable,recomposable,fissionable,cacheable}){
+export default function composable(A,{locatable,navigatable,stoppable,continuable,recomposable,fissionable}){
 	if(locatable && !A.already("locatable")){
 		A=Locatable(A)
 	}
@@ -25,10 +24,6 @@ export default function composable(A,{locatable,navigatable,stoppable,continuabl
 	if(fissionable && !A.already("fissionable")){
 		A=Fissionable(A)
 	}
-
-	if(cacheable && !A.already("cacheable")){
-        A=Cacheable(A)
-    }
 
 	if(navigatable && !A.already("navigatable")){
 		A=Navigatable(A)
@@ -81,11 +76,11 @@ const enablify=func=>(targets, excludes)=>Object.keys(targets)
 		return enabled
 	},{...excludes});
 
-[HasChild, HasParentAndChild, NoChild,Recomposable, Locatable,Navigatable,Stoppable,Continuable,Cacheable,Fissionable,editable]
+[HasChild, HasParentAndChild, NoChild,Recomposable, Locatable,Navigatable,Stoppable,Continuable,Fissionable,editable]
 	.forEach(a=>a.enable=enablify(a))
 
 export {enablify, editable,
 	Layout,
 	HasChild, HasParentAndChild, NoChild, ComposedAllTrigger,
-	Recomposable,Locatable,Stoppable,Continuable,Cacheable,Fissionable
+	Recomposable,Locatable,Stoppable,Continuable,Fissionable
 }

@@ -1,7 +1,7 @@
 import React from "react"
 import {dom, ReactQuery} from "we-edit"
 
-import {Layout, HasParentAndChild, Cacheable, editable} from "../composable"
+import {Layout, HasParentAndChild, editable} from "../composable"
 import {Group} from "../composed"
 
 class Frame extends Layout.Block{
