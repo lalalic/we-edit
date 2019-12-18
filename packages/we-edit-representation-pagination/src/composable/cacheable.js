@@ -44,14 +44,14 @@ const Cacheable=(A,partable, composedOnlyForFields=["hash"])=>class __$1 extends
         },false)
     }
 
-    clearComposed({id, hash,children}){
+    cancelUnusableLastComposed({id, hash,children}){
         const changed=this.isChanged(arguments[0],this.props)
         console.debug(`${this.constructor.getType()}[${id}] -- ${changed}`)
         if(!changed && this.isAllChildrenComposed()){
             return
         }
 
-        super.clearComposed(...arguments)
+        super.cancelUnusableLastComposed(...arguments)
         composedOnlyForFields.forEach(k=>this.computed[k]=null)
         
         if(!partable){//keep last Composed for recovering
@@ -116,7 +116,7 @@ const Cacheable=(A,partable, composedOnlyForFields=["hash"])=>class __$1 extends
             }
 
             //last safe
-            super.clearComposed(this.props)
+            super.cancelUnusableLastComposed(this.props)
             this.computed.lastComposed=[]
             return super.render()
         }finally{
@@ -186,7 +186,7 @@ const Cacheable=(A,partable, composedOnlyForFields=["hash"])=>class __$1 extends
         return -1
     }
 
-    findContentId(content){
+    childIdOf(content){
 		return ((line,id)=>{
 			const extract=a=>{
 				if((id=a.props["data-content"])!==undefined)

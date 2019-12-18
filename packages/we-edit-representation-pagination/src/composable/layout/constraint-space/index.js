@@ -59,5 +59,24 @@
                 return v+offset 
         }
      }
+
+     isInlineSizeDifferent(that){
+        if(!!this.cols!==!!that.cols)
+            return true
+        const {width,cols}=that
+        if(!cols)
+            return width!=this.width
+        if(cols.length!=this.cols.length)
+            return true
+        if(this.cols.find((a,i,_,$,b=cols[i])=>a.width!=b.width))
+            return true
+     }
+
+     equals(that){
+         if(!this.isInlineSizeDifferent(that)){
+            return this.height==that.height
+         }
+         return false
+     }
  }
  

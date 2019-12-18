@@ -17,8 +17,8 @@ export default (A)=>class __$1 extends A{
 			return new this.Fission(...args)
 		}
 	}
-	static contextTypes={
-		...A.contextTypes,
+	static childContextTypes={
+		...A.childContextTypes,
         prevLayout: PropTypes.func,
 	}
 
@@ -48,32 +48,44 @@ export default (A)=>class __$1 extends A{
                 return React.cloneElement(super.createComposed2Parent(...arguments),{margin,i,key:i})
             }
         })(this.context.ModelTypes.Frame)
-	}
+    }
+    
+    getChildContext(){
+        const self=this
+        return {
+            ...super.getChildContext(),
+            prevLayout(ref){
+                const {composed}=self.computed
+                return composed[composed.indexOf(ref)-1]
+            }
+        }
+    }
 
 	named(name){
 		return this.computed.named[name]
 	}
 
     get current(){
-        if(this.computed.composed.length==0)
-            this.create()
+        if(this.computed.composed.length==0){
+            const a=this.create()
+            this.computed.composed.push(a)
+            this.context.parent.appendComposed(this.createComposed2Parent(a))
+        }
 		return this.computed.composed[this.computed.composed.length-1]
 	}
     /**
+     * ** create is pure, so you have to append to your composed and parent manually every time create called***
      * create a block layout engine with a ensured space {left,right,blockOffset,height,wrappees}
      * when current space is full, it would be called
-     * @param {*} props 
+     * @param {*} props
      * @param {*} context 
      * @param {*} requiredSpace 
      */
     create(props={},context={},requiredSpace){
-        const a=this.props.create.bind(this)(
+        return this.props.create.bind(this)(
             {...props,id:this.props.id, i:this.computed.composed.length, named:this.named.bind(this)},
             {...context,parent:this,getComposer:id=>this.context.getComposer(id)}
         )
-        this.computed.composed.push(a)
-        this.context.parent.appendComposed(this.createComposed2Parent(a))
-        return a
     }
 
     createComposed2Parent(a){
@@ -89,7 +101,9 @@ export default (A)=>class __$1 extends A{
     nextAvailableSpace(required){
         const space=this.current.nextAvailableSpace(...arguments)
         if(!space){
-            this.create(undefined,{frame:space.frame},required)
+            const a=this.create(undefined,{frame:space.frame},required)
+            this.computed.composed.push(a)
+            this.context.parent.appendComposed(this.createComposed2Parent(a))
             return this.nextAvailableSpace(...arguments)
         }
         return space
@@ -108,69 +122,13 @@ export default (A)=>class __$1 extends A{
         }else{
             const appended=this.current.appendComposed(...arguments)
             if(appended===false){
-                this.create(undefined, undefined,{height})
+                const a=this.create(undefined, undefined,{height})
+                this.computed.composed.push(a)
+                this.context.parent.appendComposed(this.createComposed2Parent(a))
                 return 1//recompose current line in case different availableSpace
             }else if(Number.isInteger(appended)){
                 return appended
             }
         }
     }
-    /**
-     * cacheable API
-     * compose rule: always compose all children, and content composing is stoppable 
-     * both composed and lastComposed refer to fissions
-     */
-	keepUntilLastAllChildrenComposed(){
-        const {id,fissionIndex,lineIndex}=(id=>{
-			let fissionIndex=-1, lineIndex=-1
-			this.computed.lastComposed.findLast(({lines},i)=>{
-				fissionIndex=i
-				return lines.findLast((line,i)=>{
-					lineIndex=i
-					if(id=this.findContentId(line)){
-						const composer=this.context.getComposer(id)
-						if(composer && composer.isAllChildrenComposed()){
-							return true
-						}
-					}
-					return false
-				})
-			})
-			return {id,fissionIndex,lineIndex}
-		})();
-
-		if(id){
-			this.keepComposedUntil(fissionIndex,lineIndex+1)
-			return Children.toArray(this.props.children).findIndex(a=>a.props.id===id)
-		}
-		return -1
-	}
-
-	removeChangedPart(removedChildren){
-		const findChangedContentId=line=>{
-			const id=this.findContentId(line)
-			return (id!==undefined && removedChildren.includes(id))
-		}
-
-		let fissionIndex=-1, lineIndex=-1
-		if((fissionIndex=this.computed.lastComposed.findIndex(({lines})=>{
-			return (lineIndex=lines.findIndex(line=>findChangedContentId(line)))!=-1
-		}))!=-1){
-			this.keepComposedUntil(fissionIndex,lineIndex)
-			return true
-		}
-
-		return false
-	}
-
-	keepComposedUntil(fissionIndex,lineIndex){
-		this.computed.lastComposed=this.computed.lastComposed.slice(0,fissionIndex+1)
-		this.computed.lastComposed[fissionIndex].removeFrom(lineIndex)
-	}
-
-	appendLastComposed(){
-        //both composed and lastComposed refer to fissions, check createComposed2Parent
-		this.computed.composed=[...this.computed.lastComposed]
-		this.computed.composed.forEach(a=>this.context.parent.appendComposed(a))
-	}
 }

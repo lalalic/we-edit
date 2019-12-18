@@ -3,7 +3,7 @@ import {context, $, State, render, defaultProps} from "../context"
 import {Editors} from "../../src"
 import {ReactQuery} from "we-edit"
 
-xdescribe("editor",()=>{
+describe("editor",()=>{
     const {Document, Section,Paragraph, Text}=Editors
     const Context=context({dom:Editors})
     var uuid=1000
@@ -53,7 +53,7 @@ xdescribe("editor",()=>{
             get root(){
                 return instance
             },
-            update(selector, props){
+            updateFirst(selector, props){
                 const $=new ReactQuery(element)
                 const found=$.findFirst(selector)
                 if(found.length>0){
@@ -70,7 +70,7 @@ xdescribe("editor",()=>{
     })
     it("can arbitrarily recompose after editing",()=>{
         expect(doc.pages.length).toBe(2)
-        doc.update('text',{children:"hello"})
+        doc.updateFirst('text',{children:"hello"})
         doc.scroll2Y(gap+page.height)
         expect(doc.pages.length).toBe(3)
     })

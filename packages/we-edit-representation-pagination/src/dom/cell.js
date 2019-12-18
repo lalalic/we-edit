@@ -99,7 +99,9 @@ export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 
 	onAllChildrenComposed(){
 		if(this.computed.composed.length==0){
-			this.create()
+			const a=this.create()
+			this.computed.composed.push(a)
+			this.context.parent.appendComposed(this.createComposed2Parent(a))
 		}
 		super.onAllChildrenComposed()
 	}

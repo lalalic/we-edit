@@ -31,17 +31,13 @@ export default class Document extends Super{
 	static getDerivedStateFromProps({content,viewport},state){
 		if(content && !content.equals(state.content)){
 			return {
-				...Super.getDerivedStateFromProps(...arguments),
 				content,
 				mode:"content",
 				y:0,
 				viewport
 			}
 		}
-		return {
-			...Super.getDerivedStateFromProps(...arguments),
-			viewport
-		}
+		return {viewport}
 	}
 
 	constructor(){
@@ -53,8 +49,8 @@ export default class Document extends Super{
 		return this.props.screenBuffer*this.state.viewport.height
 	}
 
-	clearComposed(){
-        super.clearComposed(...arguments)
+	cancelUnusableLastComposed(){
+        super.cancelUnusableLastComposed(...arguments)
         this.computed.templates=[]
 	}
 	

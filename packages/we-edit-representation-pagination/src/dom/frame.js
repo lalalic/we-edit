@@ -198,37 +198,68 @@ class Frame extends Layout.Block{
  * 2. content: space is not change, content can relayout from changed content
  * 
  */
-export default Cacheable(class EditableFrame extends editable(Frame){
-    clearComposed(){
-        this.computed.anchors=[]
-        return super.clearComposed(...arguments)
+export default class EditableFrame extends editable(Frame,{stoppable:true, continuable:true}){
+	/**
+	 * @continuable
+	 * multiple cols model should check on last column
+	 * @param {*} a 
+	 */
+	shouldContinueCompose(){
+		if(!this.cols || //non-column model
+			this.columns.length==this.cols.length)//last column
+			return this.context.shouldContinueCompose(...arguments)
+		//non-last column always continue
+		return true
+	}
+
+	/**
+	 * lastComposed is useless for frame, since it only commit once
+	 * to sync lines, anchors, 
+	 */
+    cancelUnusableLastComposed(nextProps){
+		const space=new this.constructor(nextProps,this.context).getSpace()
+		
+		const isInlineSizeChanged=this.getSpace().isInlineSizeDifferent(space)
+		if(isInlineSizeChanged){
+			//if inline size change, all have to be recomposed
+			this.computed.anchors=[]
+			return super.cancelUnusableLastComposed(...arguments)
+		}
+
+		//last composed is still valid if block size change 
+		//@TODO: wrappees change, but our wrappees are functions, how to compare???
+
+		const changed=nextProps.hash!=this.props.hash
+		if(changed){
+			this._cancelChangedPart(...arguments)
+		}
+		this._cancelUntilLastAllChildrenComposed(...arguments)
+	}
+
+	_cancelChangedPart(next){
+		const childrenNeedRecompose=this.childrenNeedRecompose(next,this.props)
+		const firstLineNeedRecompose=this.lines.findIndex(a=>childrenNeedRecompose.includes(this.childIdOf(a)))
+        this.removeFrom(firstLineNeedRecompose)
+	}
+	
+	_cancelUntilLastAllChildrenComposed(){
+       const lastLineOfAllChildrenComposed=this.lines.findLast((a,i,_,$,id=this.childIdOf(a))=>{
+			const composer=this.context.getComposer(id)
+			return composer && composer.isAllChildrenComposed()
+		})
+		this.removeFrom(lastLineOfAllChildrenComposed+1)
 	}
 
     appendLastComposed(){
-        const lastComposed=[...this.computed.lastComposed]
-        this.computed.lastComposed=[]
-        lastComposed.forEach(a=>{
-            this.context.parent.appendComposed(this.createComposed2Parent())
-        })
-    }
-
-    removeChangedPart(removedChildren){
-        const findChangedContentId=line=>{
-			const id=this.findContentId(line)
-			return (id!==undefined && removedChildren.includes(id))
+		if(!this.isAllChildrenComposed()){
+			const lastId=this.lastLine.props["data-content"]
+			return Children.toArray(this.props.children).findIndex(a=>a && a.props.id==lastId)
 		}
+		return true
+	}
 
-        const lineIndex=this.lines.findIndex(line=>findChangedContentId(line))
-        this.rollbackLines(this.lines.slice(lineIndex))
-        return true
-    }
-
-    findLastChildIndexOfLastComposed(){
-        return this.findContentId(this.lastLine)
-    }
-    
 	removeFrom(lineIndex){
-		//remove content
+		delete this.computed.allComposed
 		return super.rollbackLines(this.lines.length-lineIndex,false)
 	}
-},undefined,["hash","width"])
+}

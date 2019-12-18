@@ -3,7 +3,7 @@ import {dom, ReactQuery} from "we-edit"
 
 import {Group} from "../composed"
 
-import {HasParentAndChild} from "../composable"
+import {HasParentAndChild,editable} from "../composable"
 const Super=HasParentAndChild(dom.Row)
 
 /**
@@ -30,7 +30,7 @@ const Super=HasParentAndChild(dom.Row)
  * 2> before requesting rank space, commit last Rank placeholder, do what #1 would do
  * 3> all children composed : affect blockOffset, so it's NOT possible
 */
-export default class Row extends Super{
+class Row extends Super{
 	constructor(){
 		super(...arguments)
 		const {props:{cols}}=this
@@ -275,6 +275,17 @@ export default class Row extends Super{
 					</Group>
 				)
 		}
+	}
+}
+
+export default class EditableRow extends editable(Row,{stoppable:true, continuable:true}){
+	/**
+	 * @continuable
+	 * row is atom of composing, so compose all content or nothing
+	 * @param {*} a 
+	 */
+	shouldContinueCompose(){
+		return true
 	}
 }
 

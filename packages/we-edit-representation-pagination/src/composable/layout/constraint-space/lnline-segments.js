@@ -76,11 +76,6 @@ export default class InlineSegments extends Component {
             }, { flat: [], X: left });
         return <Group {...{ x: left, children: flat }} />;
     }
-
-    equals(segments=[]){
-        return this.props.segments.length==segments.length 
-            && !this.props.segments.find((a,i,_1,_2,b=segments[i])=>!a.equals(b))
-    }
 }
 
 class InlineSegment extends Component {
@@ -121,10 +116,5 @@ class InlineSegment extends Component {
                 return located;
             })}
         </Group>);
-    }
-
-    equals({props:b}){
-        const a=this.props
-        return a.x==b.x && a.width==b.width
     }
 }

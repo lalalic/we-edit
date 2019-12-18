@@ -1,5 +1,5 @@
 
-import React, {Fragment} from "react"
+import React, {Children,Fragment} from "react"
 import PropTypes from "prop-types"
 import ComposedAllTrigger from "./composed-all-trigger"
 export default A=>class __$1 extends A{
@@ -43,7 +43,7 @@ export default A=>class __$1 extends A{
     render(){
         return (
             <Fragment>
-                {this.props.children}
+                {Children.toArray(this.props.children)/****MUST use toArray(children), since recompose use this way to compose part of children*/}
                 <ComposedAllTrigger host={this}/>
             </Fragment>
         )

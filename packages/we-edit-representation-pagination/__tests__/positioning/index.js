@@ -113,7 +113,7 @@ export default function define(feature, tests){
             )
         }]
 
-    ]//.filter(([a])=>a=="in shape")
+    ]//.filter(([a])=>a=="section")
     )("%s",(TESTING, render)=>{
         describe(feature, ()=>{
             tests({dom:Editors,TESTING, render, mockQuery, pageGap, size, uuid,Responsible, Positioning})

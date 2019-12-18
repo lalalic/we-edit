@@ -7,7 +7,7 @@ export default A=>class __$1 extends A{
     }
 
     render(){
-        if(!this.context.shouldContinueCompose(this)){
+        if(this.context.shouldContinueCompose && !this.context.shouldContinueCompose(this)){
             return null
         }
 

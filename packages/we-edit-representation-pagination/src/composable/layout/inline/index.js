@@ -179,7 +179,9 @@ export default class Inline extends Component{
 			return false
 		if(this.space.width!=space.width)
 			return false
-		const inlineSegments=space.findInlineSegments(this.topToBlockOffset+this.height,space.left,space.right)
-		return this.inlineSegments.equals(inlineSegments)
+		const {segments}=space.findInlineSegments(this.topToBlockOffset+this.height,space.left,space.right)
+
+		return this.inlineSegments.segments.length==segments.length &&
+			!!!this.inlineSegments.segments.find(({props:{x,width}},i,_,$,b=segments[i])=>b.x!=x && b.width!=width)
 	}
 }
