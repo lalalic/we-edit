@@ -1,16 +1,23 @@
-import React from "react"
+import React,{Fragment} from "react"
 import {dom} from "we-edit"
 import memoize from "memoize-one"
 
 import {Group} from "../../composed"
-import {HasParentAndChild,editable,ComposedAllTrigger} from "../../composable"
+import {HasParentAndChild,editable,Layout} from "../../composable"
 import Entity from "../../composed/responsible-canvas/selection/entity"
 import Path from "../../tool/path"
+
+import Frame from "../frame"
 
 
 import {custom, rect, ellipse, circle} from "./shapes"
 
-export default class Shape extends editable(HasParentAndChild(dom.Shape)){
+const Super=editable(HasParentAndChild(dom.Shape))
+export default class Shape extends Frame{
+	static displayName=Super.displayName
+	static propTypes=Super.propTypes
+	static defaultProps=Super.defaultProps
+
 	get geometry(){
 		return memoize(()=>{
 			const {geometry="rect"}=this.props
@@ -19,20 +26,22 @@ export default class Shape extends editable(HasParentAndChild(dom.Shape)){
 		})()
 	}
 
-	render(){
-		const {Frame}=this.context.ModelTypes
-		const {width}=this.geometry.availableSpace()
-		const {id,children}=this.props
-		return (
-			<Frame id={`shape_frame_${id}`} for={id} width={width}>
-				{children}
-				<ComposedAllTrigger host={this}/>
-			</Frame>
-		)
-	}
+	getSpace=memoize(()=>{
+		const {width,height}=this.geometry.availableSpace()
+		return Layout.ConstraintSpace.create({width,height})
+	})
 
-	createComposed2Parent(content){
-		return this.transform(this.geometry.createComposedShape(content))
+	createComposed2Parent(){
+		const content=(
+			<Fragment>
+				{this.anchors.map((a,i)=>React.cloneElement(a,{key:i}))}
+				<Fragment key="content">
+					{this.positionLines(this.lines)}
+				</Fragment>
+			</Fragment>
+		)
+		const transformed=this.transform(this.geometry.createComposedShape(content))
+		return React.cloneElement(transformed,{className:"frame", "data-frame":this.uuid})
 	}
 
 	transform(shape, path=shape.props.geometry, strokeWidth=this.geometry.strokeWidth){

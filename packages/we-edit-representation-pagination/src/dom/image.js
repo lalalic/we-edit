@@ -8,7 +8,7 @@ import Shape from "./shape"
 export default class __$1 extends editable(NoChild(dom.Image)){
 	getShape(){
 		const {width,height}=this.props
-		return new Shape({width, height,...this.props.outline, margin:{},children:null}, this.context)
+		return new Shape({width, height,...this.props.outline, margin:{},children:null},{})
 	}
 
 	createComposed2Parent(){
@@ -19,9 +19,9 @@ export default class __$1 extends editable(NoChild(dom.Image)){
 			width,
 			height,
 			xlinkHref: src,
-			preserveAspectRatio:"none",
+			preserveAspectRatio:"none",	
 		}}/>
-		return shape.createComposed2Parent(image)
+		return shape.transform(shape.geometry.createComposedShape(image))
 	}
 	
 	getFocusShape(){

@@ -65,7 +65,7 @@ export default function define(feature, tests){
                 getLines(TESTING){
                     var target=doc
                     if(TESTING=="in shape"){
-                        return doc.getComposer("shape_frame_container").lines
+                        return doc.getComposer("container").lines
                     }else if(TESTING=="in table"){
                         target=doc.getComposer("container")
                     }
@@ -113,7 +113,7 @@ export default function define(feature, tests){
             )
         }]
 
-    ]//.filter(([a])=>a=="section")
+    ]//.filter(([a])=>a=="in shape")
     )("%s",(TESTING, render)=>{
         describe(feature, ()=>{
             tests({dom:Editors,TESTING, render, mockQuery, pageGap, size, uuid,Responsible, Positioning})

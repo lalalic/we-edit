@@ -8,8 +8,7 @@ import Positioning from "./base"
  * leafFrame is a frame without nested frame
  * it's based on some knowledge:
  * 1. data-frame=frame.uuid
- * 2. props.for
- * 3. inline layout story, and its baseline
+ * 2. inline layout story, and its baseline
  * 
  * the positioning basic idea is to positioning in leafFrame(so the content is exact atoms, or merging up with atoms), 
  * and then computed with topFrame.offset, and leafFrame.offset
@@ -49,7 +48,7 @@ class PositioningHelper extends Positioning{
         const getGrandBlockContents=(current,blocks=[])=>{
             while(current){
                 if(current.isFissionable
-                    ||(current.isFrame && !current.props.for)
+                    ||current.isFrame
                     ||["row","document"].includes(current.getComposeType())
                     ){
                     blocks.push(current.props.id)
@@ -527,7 +526,7 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
 
         if(!line){
             //end of frame
-            return {id:leafFrame.props.for||leafFrame.props.id,at:1}
+            return {id:leafFrame.props.id,at:1}
         }
         
         const lineOffset=leafFrame.lineXY(line)
