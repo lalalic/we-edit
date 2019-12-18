@@ -8,13 +8,8 @@ const Super=HasParentAndChild(dom.Section)
 class Section extends Super{
 	static defaultProps={
 		...Super.defaultProps,
-		createLayout(props,context){
-			const {layout}=this.props
-			if(layout){
-				return new this.Fission({...layout, ...props},context)
-			}else{
-				throw new Error("section has no createLayout")
-			}
+		createLayout(props,...args){
+			return new this.Fission({...this.props.layout, ...props},...args)
 		}
 	}
 
@@ -141,9 +136,7 @@ class Section extends Super{
         }else{
             const appended=this.current.appendComposed(...arguments)
             if(appended===false){
-                const a=this.createLayout(undefined, undefined,{height})
-                this.computed.composed.push(a)
-                this.context.parent.appendComposed(this.createComposed2Parent(a))
+				this.nextAvailableSpace({height})
                 return 1//recompose current line in case different availableSpace
             }else if(Number.isInteger(appended)){
                 return appended
@@ -153,6 +146,7 @@ class Section extends Super{
 }
 
 export default class EditableSection extends editable(Section,{stoppable:true}){
+	static UnRecomposable=Section
 	/**
 	 * lastComposed==composed
 	 */
