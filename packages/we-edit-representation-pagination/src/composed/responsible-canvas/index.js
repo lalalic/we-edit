@@ -18,17 +18,32 @@ import DefineShapes from "./define-shapes"
 export default class Responsible extends Component{
     static displayName="responsible-composed-document-default-canvas"
     static propTypes={
+        pageGap: PropTypes.number,
+        screenBuffer: PropTypes.number,
+        scale: PropTypes.number,  
+		viewport: PropTypes.shape({
+            height:PropTypes.number,
+            width: PropTypes.number,
+            node: PropTypes.instanceOf(Element),
+		}),        
         document: PropTypes.object,
     }
+
+    static defaultProps={
+		pageGap:12,
+        screenBuffer: 1,
+        scale:1,
+    }
+    
     static contextTypes={
         onContextMenu: PropTypes.func,
     }
-    static composedY=document=>{
-        const {computed:{composed:pages}, props:{pageGap}}=document
-        return pages.reduce((w,page)=>w+page.composedHeight+pageGap,0)
-    }
-    static getDerivedStateFromProps({document:{dispatch,props:{editable,scale,content,canvasId}}}){
-        return {editable,scale,content,canvasId,dispatch}
+    
+    static getDerivedStateFromProps({document,...me}){
+        const {dispatch,props:{editable,canvasId,content,
+            scale=me.scale,viewport=me.viewport,screenBuffer=me.screenBuffer,pageGap=me.pageGap,
+        }}=document
+        return {editable,scale,content,canvasId,dispatch,viewport,screenBuffer,pageGap}
     }
 
     constructor(){
@@ -71,6 +86,11 @@ export default class Responsible extends Component{
         return this.state.dispatch
     }
 
+    get bufferHeight(){
+        const {screenBuffer,viewport:{height}}=this.state
+		return screenBuffer*height
+	}
+
 	getComposer(id){
 		return this.props.document.getComposer(id)
 	}
@@ -94,6 +114,18 @@ export default class Responsible extends Component{
 		const {cursorAt, x, ...a}=this.selection
         return {...a[cursorAt],x}
     }
+
+    composedY(){
+        const {computed:{composed:pages}, props:{pageGap}}=this.props.document
+        return pages.reduce((w,page)=>w+page.composedHeight+pageGap,0)
+    }
+
+    isAboveViewableBottom(){
+        const document=this.props.document
+        const {y=0,viewport:{height,node:{scrollTop}}}=document.state
+        const composedY=this.composedY() * document.props.scale
+        return composedY<Math.max(scrollTop,y)+height+this.bufferHeight
+    }
     
 	renderComposeTrigger(){
 		const {document}=this.props
@@ -106,7 +138,7 @@ export default class Responsible extends Component{
 		}
 
 		return <ComposeMoreTrigger
-					getComposedY={()=>document.composedY()}
+					getComposedY={()=>this.composedY()}
 					isSelectionComposed={selection=>document.isSelectionComposed(selection)}
 					compose4Selection={a=>{
 						if(!document.isAllChildrenComposed()){
@@ -180,7 +212,7 @@ export default class Responsible extends Component{
     }
 
     render(){
-        const {props:{children, ...props}, state:{editable=true, canvasId,scale}}=this
+        const {props:{children,document}, state:{editable=true, canvasId,scale,pageGap,pages,precision}}=this
         const noCursor=editable && editable.cursor===false
         const eventHandlers=!noCursor ? this.eventHandlers  : {}
         const locator=!noCursor && (
@@ -227,7 +259,7 @@ export default class Responsible extends Component{
         
             return (
             <Canvas 
-                {...props} 
+                {...{scale,pageGap,pages,precision,document}} 
                 innerRef={a=>{this.canvas=a}} 
                 {...eventHandlers}>
                 <DefineShapes/>

@@ -2,15 +2,14 @@ import React, {Fragment} from "react"
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
 
-import {HasChild, Locatable,} from "../composable"
+import {HasChild, Locatable,editable} from "../composable"
 import {dom,ACTION} from "we-edit"
 import Template from "./template"
 import {Canvas} from "../composed"
 
-const {Document:Base}=dom
-const Super=Locatable.Locatorize(HasChild(Base))
+const Super=Locatable.Locatorize(HasChild(dom.Document))
 
-export default class Document extends Super{
+class Document extends Super{
     static propTypes={
         ...Super.prototype,
         canvas: PropTypes.node,
@@ -93,10 +92,50 @@ export default class Document extends Super{
         }else if(this.computed.composed.indexOf(page)==-1){
             this.computed.composed.push(page)
         }
+    }
+}
+
+
+export default class extends editable(Document,{continuable:true}){
+    get canvas(){
+        const {canvas:{type:Type,props}}=this.props
+        const canvas=new Type({...props,document:this})
+        canvas.state=Type.getDerivedStateFromProps(canvas.props,canvas.state)
+        return canvas
+    }
+
+    /**
+     * @continuable
+	 * 1. selection end
+	 * 2. viewport: viewporter.scrollTop+viewporter.height
+	 **/
+	shouldContinueCompose(composer){
+		const should=this.canvas.isAboveViewableBottom() || !this.isSelectionComposed()
+
+		if(!should  && composer){
+			this.notifyNotAllComposed(composer)
+		}
+		return should
 	}
+    
+    //no cache on document level
+    cancelUnusableLastComposed(){
+        this.computed.templates=[]
+        super.cancelUnusableLastComposed(...arguments)
+    }
 
     componentDidMount(){
-        this.dispatch(ACTION.Statistics({pages:this.computed.composed.length}))
-	}
+        this.dispatch && this.dispatch(ACTION.Statistics({
+			pages:this.pages.length,
+			allComposed:this.isAllChildrenComposed(),
+			words: Array.from(this.composers.values()).filter(a=>!!a)
+				.reduce((words,a)=>words+=(a.computed.atoms ? a.computed.atoms.length : 0),0)
+		}))
+    }
+
+    componentDidUpdate(){
+        this.componentDidMount()
+    }
 }
+
 
