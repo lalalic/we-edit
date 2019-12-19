@@ -37,13 +37,14 @@ export default class Responsible extends Component{
     
     static contextTypes={
         onContextMenu: PropTypes.func,
+        activeDocStore: PropTypes.any,
     }
     
     static getDerivedStateFromProps({document,...me}){
-        const {dispatch,props:{editable,canvasId,content,
+        const {dispatch,pages, props:{editable,canvasId,content,
             scale=me.scale,viewport=me.viewport,screenBuffer=me.screenBuffer,pageGap=me.pageGap,
         }}=document
-        return {editable,scale,content,canvasId,dispatch,viewport,screenBuffer,pageGap}
+        return {editable,scale,content,pages, canvasId,dispatch,viewport,screenBuffer,pageGap}
     }
 
     constructor(){
@@ -75,7 +76,7 @@ export default class Responsible extends Component{
     }
 
     get pages(){
-        return this.props.document.pages
+        return this.state.pages
     }
 
     get pageGap(){
@@ -83,7 +84,7 @@ export default class Responsible extends Component{
     }
 
     get dispatch(){
-        return this.state.dispatch
+        return this.context.activeDocStore.dispatch
     }
 
     get bufferHeight(){
@@ -116,7 +117,7 @@ export default class Responsible extends Component{
     }
 
     composedY(){
-        const {computed:{composed:pages}, props:{pageGap}}=this.props.document
+        const {state:{pageGap,pages}}=this
         return pages.reduce((w,page)=>w+page.composedHeight+pageGap,0)
     }
 
@@ -272,11 +273,23 @@ export default class Responsible extends Component{
         )
     }
 
+    statistics(){
+        const {props:{document}}=this
+        this.dispatch(ACTION.Statistics({
+			pages:this.pages.length,
+			allComposed:document.isAllChildrenComposed(),
+			words: Array.from(document.composers.values()).filter(a=>!!a)
+				.reduce((words,a)=>words+=(a.computed.atoms ? a.computed.atoms.length : 0),0)
+		}))
+    }
+
     componentDidUpdate({}){
+        this. statistics()
         this.locator && this.locator.setState({content:this.state.content, canvas:this.canvas})
     }
 
     componentDidMount(){
+        this.statistics()
         this.active()
         this.locator && this.locator.setState({content:this.state.content, canvas:this.canvas})
     }

@@ -3,9 +3,11 @@ import PropTypes from "prop-types"
 import memoize from "memoize-one"
 
 import {HasChild, Locatable,editable} from "../composable"
-import {dom,ACTION} from "we-edit"
+import {dom,getSelection} from "we-edit"
 import Template from "./template"
 import {Canvas} from "../composed"
+import Responsible from "../composed/responsible-canvas"
+
 
 const Super=Locatable.Locatorize(HasChild(dom.Document))
 
@@ -97,6 +99,25 @@ class Document extends Super{
 
 
 export default class extends editable(Document,{continuable:true}){
+    static defaultProps={
+		...Document.defaultProps,
+		canvas:<Responsible/>,
+    }
+    
+	static contextTypes={
+		...Document.contextTypes,
+        activeDocStore: PropTypes.any,
+	}
+
+	static getDerivedStateFromProps({hash,viewport},state){
+		return {viewport,hash, ...(hash!=state.hash && {mode:"content",y:0})}
+    }
+
+    constructor(){
+		super(...arguments)
+		this.state={mode:"content", ...this.state}
+	}
+    
     get canvas(){
         const {canvas:{type:Type,props}}=this.props
         const canvas=new Type({...props,document:this})
@@ -110,7 +131,8 @@ export default class extends editable(Document,{continuable:true}){
 	 * 2. viewport: viewporter.scrollTop+viewporter.height
 	 **/
 	shouldContinueCompose(composer){
-		const should=this.canvas.isAboveViewableBottom() || !this.isSelectionComposed()
+        const selection=getSelection(this.context.activeDocStore.getState())
+		const should=this.canvas.isAboveViewableBottom() || !this.isSelectionComposed(selection)
 
 		if(!should  && composer){
 			this.notifyNotAllComposed(composer)
@@ -124,18 +146,18 @@ export default class extends editable(Document,{continuable:true}){
         super.cancelUnusableLastComposed(...arguments)
     }
 
-    componentDidMount(){
-        this.dispatch && this.dispatch(ACTION.Statistics({
-			pages:this.pages.length,
-			allComposed:this.isAllChildrenComposed(),
-			words: Array.from(this.composers.values()).filter(a=>!!a)
-				.reduce((words,a)=>words+=(a.computed.atoms ? a.computed.atoms.length : 0),0)
-		}))
+    isSelectionComposed({start,end}){
+        const allComposed=id=>!id || this.composers.has(id) && this.getComposer(id).isAllChildrenComposed()
+		return allComposed(start.id) && allComposed(end.id)
     }
 
-    componentDidUpdate(){
-        this.componentDidMount()
-    }
+	compose4Scroll(y){
+		this.setState({mode:"scroll",y})
+	}
+
+	compose4Selection(selection){
+		this.setState({mode:"selection",selection})
+	}
 }
 
 
