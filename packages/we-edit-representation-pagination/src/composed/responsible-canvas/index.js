@@ -291,7 +291,7 @@ export default class Responsible extends Component{
     }
 
     componentDidUpdate({}){
-        this. statistics()
+        this.statistics()
         this.locator && this.locator.setState({content:this.state.content, canvas:this.canvas})
     }
 
