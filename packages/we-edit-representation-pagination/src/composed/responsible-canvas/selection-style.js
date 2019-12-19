@@ -35,7 +35,7 @@ export default class SelectionStyle {
         }
     }
     layoutProps() {
-        if (!this.positioning.canvas)
+        if (!this.positioning.ready)
             return null;
         const page = this.positioning.pages.find(a => a.props.I == this.position.page);
         if (!page) {
@@ -44,7 +44,7 @@ export default class SelectionStyle {
         return page.layoutOf(page.columnIndexOf(page.lineIndexOf(this.position)));
     }
     pageProps() {
-        if (!this.positioning.canvas)
+        if (!this.positioning.ready)
             return null;
         const page = this.positioning.pages.find(a => a.props.I == this.position.page);
         if (!page) {

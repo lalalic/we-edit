@@ -35,6 +35,10 @@ export default class Positioning{
         return this.pages
     }
 
+    get ready(){
+        return !!this.responsible.canvas
+    }
+
     /**
      * To get position{page,line, x,y,left,top,} for a location{id,at}
      * 
