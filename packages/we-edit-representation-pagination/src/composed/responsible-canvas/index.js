@@ -69,16 +69,8 @@ export default class Responsible extends Component{
     }
 
     /**the following API must be provided to Positioning */
-    get scale(){
-        return this.state.scale
-    }
-
     get pages(){
         return this.state.pages
-    }
-
-    get pageGap(){
-        return this.state.pageGap
     }
 
     get dispatch(){
