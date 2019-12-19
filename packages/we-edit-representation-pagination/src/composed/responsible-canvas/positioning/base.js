@@ -3,71 +3,9 @@
  * Position: object must with coordinate figures like {x,y,left,top, ...} on canvas
  * Location: {id, at}
  */
-const makeSafe=A=>class SafePositioning extends A{
-    position(){
-        try{
-            return super.position(...arguments)
-        }catch(e){
-            console.error(e)
-            return {}
-        }
-    }
-
-    around(){
-        try{
-            return super.around(...arguments)
-        }catch(e){
-            console.error(e)
-            return {}
-        }
-    }
-
-    nextLine(){
-        try{
-            return super.nextLine(...arguments)
-        }catch(e){
-            console.error(e)
-            return {}
-        }
-    }
-
-    prevLine(){
-        try{
-            return super.prevLine(...arguments)
-        }catch(e){
-            console.error(e)
-            return {}
-        }
-    }
-
-    extendWord(){
-        try{
-            return super.extendWord(...arguments)
-        }catch(e){
-            console.error(e)
-            return {}
-        }
-    }
-
-    getRangeRects(){
-        try{
-            return super.getRangeRects(...arguments)
-        }catch(e){
-            console.error(e)
-            return []
-        }
-    }
-}
-//export default 
 export default class Positioning{
-    static makeSafe=makeSafe
     constructor(responsible){
         this.responsible=responsible
-        //check responsible API
-        const wellResponsibleAPI="getComposer,getContent,canvas,pages,gap,scale".split(",").find(k=>!(k in responsible))
-        if(!wellResponsibleAPI){
-            throw new Error("Responsible API providing to Positioning is not compatible")
-        }
     }
 
     getComposer(){  
@@ -77,59 +15,25 @@ export default class Positioning{
         return this.responsible.getContent(...arguments)
     }
 
-    get canvas(){
-        return this.responsible.canvas
+    asCanvasPoint({left,top}){
+        return this.responsible.asCanvasPoint(...arguments)
+    }
+
+    asViewportPoint({x,y}){
+        return this.responsible.asViewportPoint(...arguments)
+    }
+
+    pageXY(I=0){
+        return this.responsible.pageXY(...arguments)
     }
 
     get pages(){
         return this.responsible.pages
     }
 
-    get gap(){
-        return this.responsible.pageGap
-    }
-
-    get scale(){
-        return this.responsible.scale
-    }
-
     get frames(){
         return this.pages
     }
-
-
-
-    getBoundingClientRect(){
-        return this.canvas.getBoundingClientRect()
-    }
-
-    asCanvasPoint({left,top}, element){
-        let point=this.canvas.createSVGPoint()
-        point.x=left,point.y=top
-        let a=point.matrixTransform((element||this.canvas).getScreenCTM().inverse())
-        return {x:a.x, y:a.y}
-    }
-
-    asViewportPoint({x,y}){
-        let point=this.canvas.createSVGPoint()
-        point.x=x,point.y=y
-        let location=point.matrixTransform(this.canvas.getScreenCTM())
-        return {left:location.x, top:location.y}
-    }
-
-    pageXY(I=0){
-        const page=this.canvas.querySelector(".page"+I)
-        if(page){
-            const {left,top}=page.getBoundingClientRect()
-            return this.asCanvasPoint({left,top})
-        }
-        return {x:0,y:0}
-    }
-
-    pageY(i){
-        return this.pageXY(...arguments).y
-    }
-
 
     /**
      * To get position{page,line, x,y,left,top,} for a location{id,at}
@@ -177,4 +81,28 @@ export default class Positioning{
     extendLine(id,at){
         return {}
     }
+
+    static makeSafe=A=>class SafePositioning extends A{
+        constructor(...args){
+            super(...args)
+            "position,around,nextLine,prevLine,extendWord".split(",").forEach(k=>{
+                this[k]=(...args)=>{
+                    try{
+                        return super[k](...args)
+                    }catch(e){
+                        console.warn(e)
+                        return {}
+                    }
+                }
+            }) 
+        }
+        getRangeRects(...args){
+            try{
+                return super.getRangeRects(...args)
+            }catch(e){
+                console.warn(e)
+                return []
+            }
+        }
+    }    
 }

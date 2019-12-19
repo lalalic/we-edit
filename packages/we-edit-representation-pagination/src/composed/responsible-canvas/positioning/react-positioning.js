@@ -21,7 +21,7 @@ class PositioningHelper extends Positioning{
 
     getTopFrameByPosition(x,y){
         var xy
-        const topFrame=this.pages.find(({ props: { width, height, I } }) => {
+        const topFrame=this.frames.find(({ props: { width, height, I } }) => {
             xy = this.pageXY(I);
             return x >= xy.x && x <= xy.x + width && y >= xy.y && y <= xy.y + height;
         })

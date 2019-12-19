@@ -41,10 +41,8 @@ export default class Responsible extends Component{
     }
     
     static getDerivedStateFromProps({document,...me}){
-        const {dispatch,pages, props:{editable,canvasId,content,
-            scale=me.scale,viewport=me.viewport,screenBuffer=me.screenBuffer,pageGap=me.pageGap,
-        }}=document
-        return {editable,scale,content,pages, canvasId,dispatch,viewport,screenBuffer,pageGap}
+        const {props:{editable,canvasId,content,viewport=me.viewport,screenBuffer=me.screenBuffer,},state:{y=0}}=document
+        return {...Canvas.getDerivedStateFromProps(...arguments), editable,canvasId,content,viewport,screenBuffer,composed4Y:y}
     }
 
     constructor(){
@@ -87,11 +85,6 @@ export default class Responsible extends Component{
         return this.context.activeDocStore.dispatch
     }
 
-    get bufferHeight(){
-        const {screenBuffer,viewport:{height}}=this.state
-		return screenBuffer*height
-	}
-
 	getComposer(id){
 		return this.props.document.getComposer(id)
 	}
@@ -116,16 +109,38 @@ export default class Responsible extends Component{
         return {...a[cursorAt],x}
     }
 
+    asCanvasPoint({left,top}){
+        let point=this.canvas.createSVGPoint()
+        point.x=left,point.y=top
+        let a=point.matrixTransform(this.canvas.getScreenCTM().inverse())
+        return {x:a.x, y:a.y}
+    }
+
+    asViewportPoint({x,y}){
+        let point=this.canvas.createSVGPoint()
+        point.x=x,point.y=y
+        let location=point.matrixTransform(this.canvas.getScreenCTM())
+        return {left:location.x, top:location.y}
+    }
+
+    pageXY(I=0){
+        const page=this.canvas.querySelector(".page"+I)
+        if(page){
+            const {left,top}=page.getBoundingClientRect()
+            return this.asCanvasPoint({left,top})
+        }
+        return {x:0,y:0}
+    }
+
     composedY(){
         const {state:{pageGap,pages}}=this
         return pages.reduce((w,page)=>w+page.composedHeight+pageGap,0)
     }
 
     isAboveViewableBottom(){
-        const document=this.props.document
-        const {y=0,viewport:{height,node:{scrollTop}}}=document.state
-        const composedY=this.composedY() * document.props.scale
-        return composedY<Math.max(scrollTop,y)+height+this.bufferHeight
+        const {scale, composed4Y=0,screenBuffer,viewport:{height,node:{scrollTop}}}=this.state
+        const composedY=this.composedY() * scale
+        return composedY<Math.max(scrollTop,composed4Y)+height+screenBuffer*height
     }
     
 	renderComposeTrigger(){
