@@ -49,7 +49,7 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
 
     it("no error",()=>{
         const doc=test(<Paragraph id={"1"}><Text id={"0"}>text</Text></Paragraph>)
-        console.error=jest.fn()
+        console.error=console.warn=jest.fn()
         expect(doc.getRangeRects({id:"0",at:0},{id:"0",at:-1})).toMatchObject([])
         expect(doc.getRangeRects({id:"0",at:-3},{id:"0",at:0})).toMatchObject([])
         expect(doc.getRangeRects({id:"0",at:0},{id:"0",at:10})).toMatchObject([])
