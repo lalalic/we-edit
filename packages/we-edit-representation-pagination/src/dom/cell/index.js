@@ -1,15 +1,15 @@
 import React from "react"
 import {dom} from "we-edit"
 
-import {Group} from "../composed"
-import {HasParentAndChild} from "../composable"
-import Section from "./section"
+import Edges from "./edges"
+import EditableEdges from "./editable-edges"
+import Section from "../section"
+import {HasParentAndChild} from "../../composable"
 
 /**
  * Cell is fissionable
  * commit all when all composed????
  */
-const Edge=({sz:size,color,d})=><path strokeWidth={size} stroke={color} d={d}/>
 const Super=HasParentAndChild(dom.Cell)
 export default class Cell extends Section{
 	static displayName=Super.displayName
@@ -60,14 +60,7 @@ export default class Cell extends Section{
 		}
 	}
 
-	static Edges=({top,left,right,bottom, width,height, ...props})=>(
-		<Group {...props}>
-			<Edge {...top}  d={`M0 0 h${width}`}/>
-			<Edge {...bottom} d={`M0 ${height} h${width}`}/>
-			<Edge {...right} d={`M${width} 0 v${height}`}/>
-			<Edge {...left} d={`M0 0 v${height}`}/>
-		</Group>
-	)
+	static Edges=EditableEdges
 
 	/**
 	 * space is defined by row->table->parent space, so it has to require space up

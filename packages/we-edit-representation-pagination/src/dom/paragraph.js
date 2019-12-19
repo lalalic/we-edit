@@ -5,7 +5,7 @@ import {dom, ReactQuery} from "we-edit"
 import memoize from "memoize-one"
 
 import Frame from "./frame"
-import {HasParentAndChild,Layout} from "../composable"
+import {HasParentAndChild,Layout, editable} from "../composable"
 import breakOpportunities from "../wordwrap/line-break"
 import {Text as ComposedText,  Group} from "../composed"
 
@@ -38,7 +38,7 @@ const shouldAtomMerge=(a,b)=>{
 	return false
 }
 
-export default class Paragraph extends Super{
+class Paragraph extends Super{
     static contextTypes={
 		...Super.contextTypes,
 		Measure: PropTypes.func,
@@ -363,4 +363,46 @@ export default class Paragraph extends Super{
 	}
 }
 
+export default class EditableParagraph extends editable(Paragraph,{stoppable:true}){
+	/**to sync lastComposed with composed */
+	rollbackLines(n){
+		super.rollbackLines(n)
+		this.computed.lastComposed.splice(-n)
+	}
+	
+	cancelUnusableLastComposed({hash,changed=hash!=this.props.hash}){
+		if(changed){
+			this.atoms=[]
+			super.cancelUnusableLastComposed(...arguments)
+		}
+	}
+
+	/**if lineSegments is same, last layouted line should be able to fit in without relayout */
+	appendLastComposed(){
+		const lines=this.lines
+		this.lines=[]
+		const spaceChangedAt=this.computed.lastComposed.findIndex((a,i)=>{
+			const line=lines[i]
+			const space=this.nextAvailableSpace({height:a.props.height})
+			if(line.isFitTo(space)){
+				this.lines.push(line)
+				this.context.parent.appendComposed(a)
+				return false
+			}else{
+				this.computed.lastComposed.splice(i)
+				return true
+			}
+		})
+
+		if(spaceChangedAt==0){
+			this.cancelUnusableLastComposed({changed:true})
+			return false
+		}
+		
+		if(spaceChangedAt>0){
+			this.commit(this.computed.atoms.indexOf(lines[spaceChangedAt].firstAtom))
+		}
+		return true
+	}
+}
 

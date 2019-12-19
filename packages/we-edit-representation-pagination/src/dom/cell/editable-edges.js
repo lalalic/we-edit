@@ -1,40 +1,38 @@
-import React, {PureComponent, Fragment} from "react"
+import React,{PureComponent,Fragment} from "react"
 import {connect, ACTION} from "we-edit"
-import Base from "../cell"
+
+import Edges from "./edges"
 
 import Resizable from "../../composed/responsible-canvas/selection/resizable"
 import Top from "../../composed/responsible-canvas/selection/top"
 import {Group} from "../../composed"
 
-export default class __$1 extends Base{
-    /**
-     * it make table be responsible when editing, such as select/resize column/row
-     */
-    static Edges=class EditableEdges extends PureComponent{
-        render(){
-            const {isFirstRowInPage, isLastRankOfRow, table,row, cell,i,width,height}=this.props
-            return (
-                <Fragment>
-                    <Base.Edges {...this.props}/>
-                    {isFirstRowInPage && <ColSelector/>}
-                    {isLastRankOfRow && <RowResizer x1={0} x2={width} y1={height} y2={height}
-                        onResize={({y},dispatch)=>{
-                            dispatch(ACTION.Entity.UPDATE({id:table, type:"table",height:{value:height+y,row,cell,i}}))
-                        }}
-                        /> || null
-                    }
-                    {i==0  && <RowSelector x1={0} x2={0} y1={0} y2={height}
-					    onSelect={dispatch=>dispatch(ACTION.Selection.SELECT(row))}/>}
-                    <ColResizer x1={width} y1={0} x2={width} y2={height}
-                        onResize={({x},dispatch)=>{
-                            dispatch(ACTION.Entity.UPDATE({id:table, type:"table", width:{value:width+x, row, cell,i}}))
-                        }}
-                        />
-                </Fragment>
-            )
-        }
+
+export default class EditableEdges extends PureComponent{
+    render(){
+        const {isFirstRowInPage, isLastRankOfRow, table,row, cell,i,width,height}=this.props
+        return (
+            <Fragment>
+                <Edges {...this.props}/>
+                {isFirstRowInPage && <ColSelector/>}
+                {isLastRankOfRow && <RowResizer x1={0} x2={width} y1={height} y2={height}
+                    onResize={({y},dispatch)=>{
+                        dispatch(ACTION.Entity.UPDATE({id:table, type:"table",height:{value:height+y,row,cell,i}}))
+                    }}
+                    /> || null
+                }
+                {i==0  && <RowSelector x1={0} x2={0} y1={0} y2={height}
+                    onSelect={dispatch=>dispatch(ACTION.Selection.SELECT(row))}/>}
+                <ColResizer x1={width} y1={0} x2={width} y2={height}
+                    onResize={({x},dispatch)=>{
+                        dispatch(ACTION.Entity.UPDATE({id:table, type:"table", width:{value:width+x, row, cell,i}}))
+                    }}
+                    />
+            </Fragment>
+        )
     }
 }
+
 
 const NoShow="transparent"
 const Resizer=connect()(class __$1 extends PureComponent{
