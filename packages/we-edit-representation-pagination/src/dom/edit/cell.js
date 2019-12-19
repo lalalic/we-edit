@@ -1,13 +1,12 @@
 import React, {PureComponent, Fragment} from "react"
 import {connect, ACTION} from "we-edit"
-import {editable} from "../../composable"
 import Base from "../cell"
 
 import Resizable from "../../composed/responsible-canvas/selection/resizable"
 import Top from "../../composed/responsible-canvas/selection/top"
 import {Group} from "../../composed"
 
-export default class __$1 extends editable(Base){
+export default class __$1 extends Base{
     /**
      * it make table be responsible when editing, such as select/resize column/row
      */

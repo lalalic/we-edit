@@ -5,7 +5,7 @@ import memoize from "memoize-one"
 import {shallowEqual} from "recompose"
 
 
-export default ({Section,Frame,Group})=>class __$1 extends Component{
+export default ({Section,Group})=>class __$1 extends Component{
 	static displayName="section"
 	static propTypes={
 		cols: PropTypes.shape({
@@ -84,14 +84,14 @@ export default ({Section,Frame,Group})=>class __$1 extends Component{
 	}
 
 	static get Page(){
-		return memoize(()=>Section.fissureLike(class Page extends Frame{
+		return memoize(()=>class extends Section.Layout{
 			static displayName="frame-section"
 			createComposed2Parent(){
 				const content=super.createComposed2Parent(...arguments)
 				const {header,footer,I,i, margin}=this.props
 				return React.cloneElement(
 					content,
-					{I,i,margin},
+					{},
 					content.props.children,
 					header && footer && (<Group z={-1}>{header}{footer}</Group>)
 				)
@@ -213,6 +213,6 @@ export default ({Section,Frame,Group})=>class __$1 extends Component{
 				return Object.assign(super.clone(...arguments),{layouts,y0,y1})
 			}
 			*/
-		}))();
+		})();
 	}
 }

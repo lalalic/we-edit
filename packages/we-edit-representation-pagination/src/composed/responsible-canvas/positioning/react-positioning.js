@@ -47,7 +47,7 @@ class PositioningHelper extends Positioning{
             return { start, end }
         const getGrandBlockContents=(current,blocks=[])=>{
             while(current){
-                if(current.isFissionable
+                if(current.isSection
                     ||current.isFrame
                     ||["row","document"].includes(current.getComposeType())
                     ){
@@ -121,7 +121,7 @@ class PositioningHelper extends Positioning{
         while(current){
             if(current.isFrame && check(current)){
                 grandMaybe=current 
-            }else if(current.isFissionable){
+            }else if(current.isSection){
                 grandMaybe=current.computed.composed[find](check)
             }
             

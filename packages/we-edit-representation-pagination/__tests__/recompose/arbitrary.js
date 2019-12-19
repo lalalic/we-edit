@@ -7,7 +7,6 @@ describe("continuable", ()=>{
 	const pageGap=12
 	const {Document, Section, Frame, Paragraph, Text}=Editors
 	const Context=context({dom:Editors})
-	const Page=Section.fissureLike(Frame)
 	const size={width:816,height:1056,
 		composedHeight(){
 			return this.height
@@ -17,7 +16,7 @@ describe("continuable", ()=>{
 	const section=(id,ps=1)=>(
 		<Section id={`${id}.0`} key={`${id}.0`}
 			createLayout={(props,context)=>{
-				const page=new Page({...props,...size},context)
+				const page=new Section.Layout({...props,...size},context)
 				Object.defineProperties(page,{
 					composedHeight:{
 						value:size.composedHeight()

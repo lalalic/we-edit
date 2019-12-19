@@ -1,11 +1,24 @@
-import React,{PureComponent as Component} from "react"
+import React from "react"
 import {dom} from "we-edit"
 
 import {Group} from "../composed"
-import {HasParentAndChild, Fissionable} from "../composable"
+import {HasParentAndChild} from "../composable"
+import Section from "./section"
 
-const fissureLike=Frame=>{
-	return class CellFrame extends Frame{
+/**
+ * Cell is fissionable
+ * commit all when all composed????
+ */
+const Edge=({sz:size,color,d})=><path strokeWidth={size} stroke={color} d={d}/>
+const Super=HasParentAndChild(dom.Cell)
+export default class Cell extends Section{
+	static displayName=Super.displayName
+	static defaultProps={
+		...Super.defaultProps,
+		createLayout:Section.defaultProps.createLayout,
+	}
+	
+	static Layout=class LayoutCell extends Section.Layout{
 		static displayName="frame-cell"
 		nextAvailableSpace({height:requiredBlockSize=0}={}){
 			const space=super.nextAvailableSpace(...arguments)
@@ -46,15 +59,7 @@ const fissureLike=Frame=>{
 			return this.blockOffset+bottom
 		}
 	}
-}
 
-/**
- * Cell is fissionable
- * commit all when all composed????
- */
-const Edge=({sz:size,color,d})=><path strokeWidth={size} stroke={color} d={d}/>
-export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
-	static fissureLike=fissureLike
 	static Edges=({top,left,right,bottom, width,height, ...props})=>(
 		<Group {...props}>
 			<Edge {...top}  d={`M0 0 h${width}`}/>
@@ -104,9 +109,5 @@ export default class Cell extends Fissionable(HasParentAndChild(dom.Cell)){
 			this.context.parent.appendComposed(this.createComposed2Parent(a))
 		}
 		super.onAllChildrenComposed()
-	}
-
-	createComposed2Parent(slot=this.current){
-		return slot
 	}
 }

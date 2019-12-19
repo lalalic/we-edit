@@ -4,12 +4,13 @@ import {HasParentAndChild, editable} from "../composable"
 import {dom} from "we-edit"
 import Frame from "./frame"
 
+
 const Super=HasParentAndChild(dom.Section)
 class Section extends Super{
 	static defaultProps={
 		...Super.defaultProps,
 		createLayout(props,...args){
-			return new this.Fission({...this.props.layout, ...props},...args)
+			return new this.constructor.Layout({...this.props.layout, ...props},...args)
 		}
 	}
 
@@ -18,32 +19,25 @@ class Section extends Super{
         prevLayout: PropTypes.func,
 	}
 
-    /**
-     * why use static function to inherit??? because Frame is in instance's context
-     * @param {*} Frame 
-     */
-	static fissureLike(Frame){
-		return Frame
-    }
+	static Layout=class LayoutSection extends Frame{
+		createComposed2Parent(){
+			const {props:{i,I,margin}}=this
+			const props={margin,i,key:i}
+			if(I!=undefined)
+				props.I=I
+			return React.cloneElement(super.createComposed2Parent(),props)
+		}
+	}
     
 	constructor(){
 		super(...arguments)
 		this.computed.named={}
-		const Fission=class extends this.constructor.fissureLike(Frame){
-            createComposed2Parent(){
-                const {props:{i,margin}}=this
-                return React.cloneElement(super.createComposed2Parent(...arguments),{margin,i,key:i})
-            }
-		}
-		Object.defineProperties(this,{
-			Fission:{
-				get:()=>Fission
-			},
-			isFissionable:{
-				get:()=>true,
-			},
-		})
-    }
+	}
+
+	get isSection(){
+		return true
+	}
+
 	get current(){
         if(this.computed.composed.length==0){
             const a=this.createLayout()
@@ -73,10 +67,11 @@ class Section extends Super{
 	get topIndex(){
 		var current=this.context.parent
 		while(current){
-			if(current.isFrame || current.isFissionable)
+			if(current.isFrame || current.isSection)
 				return 
 			if(!current.context || !current.context.parent)
 				return current.computed.composed.length
+			current=current.context.parent
 		}
 	}
 

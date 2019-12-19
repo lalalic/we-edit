@@ -29,8 +29,7 @@ export default function define(feature, tests){
     const render=(content,{state,page={}}={}, byCreate=true)=>{
             var sectionProps={}
             if(byCreate){
-                const Page=Section.fissureLike(Frame)
-                sectionProps.createLayout=(a,b)=>new Page({...a,...size,...page},b)
+                sectionProps.createLayout=(a,b)=>new Section.Layout({...a,...size,...page},b)
             }else{
                 sectionProps={layout:{...size,...page}}
             }
@@ -113,7 +112,7 @@ export default function define(feature, tests){
             )
         }]
 
-    ]//.filter(([a])=>a=="in shape")
+    ]//.filter(([a])=>a=="in table")
     )("%s",(TESTING, render)=>{
         describe(feature, ()=>{
             tests({dom:Editors,TESTING, render, mockQuery, pageGap, size, uuid,Responsible, Positioning})
