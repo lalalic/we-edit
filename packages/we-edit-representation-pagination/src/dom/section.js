@@ -20,6 +20,7 @@ class Section extends Super{
 	}
 
 	static Layout=class LayoutSection extends Frame{
+		static displayName="frame-section"
 		createComposed2Parent(){
 			const {props:{i,I,margin}}=this
 			const props={margin,i,key:i}
@@ -45,7 +46,7 @@ class Section extends Super{
             this.context.parent.appendComposed(this.createComposed2Parent(a))
         }
 		return this.computed.composed[this.computed.composed.length-1]
-	}    
+	} 
 
     getChildContext(){
         const self=this
@@ -86,8 +87,7 @@ class Section extends Super{
     createLayout(props={},context={},requiredSpace){
 		const allProps={...props,
 			id:this.props.id, 
-			i:this.computed.composed.length, 
-			named:this.named.bind(this),
+			i:this.computed.composed.length,
 		}
 		const I=this.topIndex
 		if(typeof(I)=="number")
@@ -137,6 +137,15 @@ class Section extends Super{
                 return appended
             }
         }
+	}
+
+	onAllChildrenComposed(){
+		//last one should check balanceable
+		const last=this.computed.composed[this.computed.composed.length-1]
+		if(last.balanceable){
+			last.balance()
+		}
+		super.onAllChildrenComposed()
 	}
 }
 

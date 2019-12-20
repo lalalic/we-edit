@@ -60,7 +60,7 @@ class Frame extends Layout.Block{
 	 * always use space to locate since layout using it 
 	 */
 	createComposed2Parent() {
-		const {width,height=this.contentHeight, margin:{left=0,top=0,bottom=0,right=0}={}, x,y,z,named}=this.props
+		const {width,height=this.contentHeight, margin:{left=0,top=0}={}, x,y,z,named}=this.props
 		const alignY=contentHeight=>{
 			if(contentHeight==undefined)
 				return undefined
