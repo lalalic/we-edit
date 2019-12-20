@@ -17,7 +17,7 @@ export default class Balanceable extends Columnable {
 		}
 		const { balanceThreshold = 1 } = this.props;
 		const width = this.cols[0].width;
-		if (!this.cols.find(a => Math.abs(width - a.width) <= balanceThreshold)) {
+		if (!this.cols.find(a => Math.abs(width - a.width) > balanceThreshold)) {
 			this.equalBalance();
 		}
 		else {
@@ -28,21 +28,21 @@ export default class Balanceable extends Columnable {
     *just relocate lines between all columns
     */
 	equalBalance() {
-		const totalHeight = this.lines.reduce((h, { height, y = h }) => y + height, 0);
-		const colHeight = totalHeight / this.cols.length - 10;
+		const totalHeight = this.lines.reduce((h, { props:{height=0} }) => h + height, 0);
+		const colHeight = totalHeight / this.cols.length;
 		this.columns = [];
-		this.lines.reduce((state, { props: { height = 0 } }, i) => {
-			if (state.h < colHeight) {
+		const segments=this.lines.reduce((state, { props: { height = 0 } }, i) => {
+			if ((state.h+height) <= colHeight) {
 				state.h += height;
 			}
 			else {
-				columns.push(i + 1);
+				state.columns.push(i);
 				state.h = height;
 			}
 			return state;
-		}, { columns: [0], h: 0 })
-			.columns
-			.forEach(startIndex => this.createColumn(startIndex));
+		}, { columns: [0], h: 0 }).columns.slice(0,this.cols.length)
+		
+		return segments.forEach(startIndex => this.createColumn(startIndex));
 	}
     /**
      * re-layout by total cols' width to get layout height
@@ -62,19 +62,5 @@ export default class Balanceable extends Columnable {
 		finally {
 			delete this.createColumn;
 		}
-	}
-
-	positionLines() {
-		if(!this.balanceable)
-			return super.positionLines(...arguments)
-
-		const height=Math.max(...this.columns.map(({contentHeight:h=0})=>h))
-		return (
-			<Group height={height}>
-				{this.columns.map(({x,y,width,contentHeight:height,children},i)=>{
-					return React.cloneElement(super.positionLines(children),{x,y,width,height,key:i})
-				})}
-			</Group>
-		)
 	}
 }
