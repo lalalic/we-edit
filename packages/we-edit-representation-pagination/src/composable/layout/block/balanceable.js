@@ -1,8 +1,16 @@
 import Columnable from "./columnable"
 export default class Balanceable extends Columnable {
-	get balanceable(){
-		return this.cols && this.cols.length > 1 && this.props.balance && !this.isEmpty()
+	defineProperties() {
+		super.defineProperties()
+		Object.defineProperties(this,{
+			balanceable:{
+				get(){
+					return this.cols && this.cols.length > 1 && this.props.balance && !this.isEmpty()
+				}
+			}
+		})
 	}
+
 	onAllChildrenComposed() {
 		if (this.balanceable) {
 			this.balance();
