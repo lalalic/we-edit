@@ -1,6 +1,4 @@
 import React from "react"
-import PropTypes from "prop-types"
-import {ReactQuery} from "we-edit"
 
 import {render,provider} from "../context"
 import {define} from "./index"
