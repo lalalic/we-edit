@@ -49,7 +49,7 @@ class Frame extends Layout.Block{
 				configurable:true,
 				get(){
 					if(this.cols)
-						return Math.max(...this.columns.map(a=>a.y+(a.height-a.availableBlockSize)))
+						return Math.max(...this.columns.map(a=>a.blockOffset))
 					return this.blockOffset
 				}
 			}

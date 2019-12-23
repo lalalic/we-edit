@@ -85,7 +85,8 @@ export default (A,{cancelAllOnSelfChange, partable})=>{
             const extract=({props:{"data-content":a,children}})=>(id=a)!=undefined ? 
                 true :  Children.toArray(children).findIndex(extract)!=-1;
             extract(composed)
-            return id
+            if(Children.toArray(this.props.children).findIndex(a=>a && a.props.id==id)!=-1)
+                return id
         }
 
         childrenNeedRecompose=memoize((b,a)=>{

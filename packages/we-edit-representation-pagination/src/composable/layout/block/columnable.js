@@ -73,7 +73,7 @@ export default class Columnable extends OrphanControlable {
 				return this.children.length == 0;
 			},
 			get availableBlockSize() {
-				const { height = Number.MAX_SAFE_INTEGER, y = 0 } = this;
+				const {maxHeight=Number.MAX_SAFE_INTEGER, height = maxHeight, y = 0 } = this;
 				return height - (this.blockOffset - y);
 			},
 			get blockOffset() {

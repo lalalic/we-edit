@@ -109,8 +109,8 @@ export default class extends editable(Document,{continuable:true}){
         activeDocStore: PropTypes.any,
 	}
 
-	static getDerivedStateFromProps({hash,viewport},state){
-		return {viewport,hash, ...(hash!=state.hash && {mode:"content",y:0})}
+	static getDerivedStateFromProps({hash,viewport,editable=true},state){
+		return {viewport,hash, editable, ...(hash!=state.hash && {mode:"content",y:0})}
     }
 
     constructor(){
@@ -131,6 +131,8 @@ export default class extends editable(Document,{continuable:true}){
 	 * 2. viewport: viewporter.scrollTop+viewporter.height
 	 **/
 	shouldContinueCompose(composer){
+        if(!this.state.editable)
+            return true
         const selection=getSelection(this.context.activeDocStore.getState())
 		const should=this.canvas.isAboveViewableBottom() || !this.isSelectionComposed(selection)
 

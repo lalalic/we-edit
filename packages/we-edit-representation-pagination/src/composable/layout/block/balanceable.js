@@ -5,7 +5,7 @@ export default class Balanceable extends Columnable {
 		Object.defineProperties(this,{
 			balanceable:{
 				get(){
-					return this.cols && this.cols.length > 1 && this.props.balance && !this.isEmpty()
+					return this.cols && this.cols.length > 1 && this.props.balance && this.lines.length>1
 				}
 			}
 		})
