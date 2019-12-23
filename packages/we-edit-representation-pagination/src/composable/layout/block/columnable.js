@@ -127,10 +127,10 @@ export default class Columnable extends OrphanControlable {
 	positionLines() {
 		if(!this.cols)
 			return super.positionLines(...arguments)
-		const height=Math.max(...this.columns.map(({height=0})=>height))
+		const height=Math.max(...this.columns.map(({contentHeight, height=contentHeight})=>height))
 		return (
 			<Group height={height}>
-				{this.columns.map(({x,y,width,height,children},i)=>{
+				{this.columns.map(({x,y,width,contentHeight, height=contentHeight,children},i)=>{
 					return React.cloneElement(super.positionLines(children),{x,y,width,height,key:i})
 				})}
 			</Group>

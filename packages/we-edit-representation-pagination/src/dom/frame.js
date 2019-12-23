@@ -60,11 +60,10 @@ class Frame extends Layout.Block{
 	 * always use space to locate since layout using it 
 	 */
 	createComposed2Parent() {
-		const {width,height=this.contentHeight, margin:{left=0,top=0}={}, x,y,z,named}=this.props
 		const alignY=contentHeight=>{
+			const {height=contentHeight, vertAlign}=this.props
 			if(contentHeight==undefined)
 				return undefined
-			const {height=contentHeight, vertAlign}=this.props
 			switch(vertAlign){
 				case "bottom":
 					return height-contentHeight
@@ -76,14 +75,18 @@ class Frame extends Layout.Block{
 			}
 		}
 		var content=this.positionLines(this.lines)
-		content=React.cloneElement(content,{y:alignY(content.props.height)})
+		const contentHeight=content.props.height
+		content=React.cloneElement(content,{y:alignY(contentHeight)})
+		const {width,height=contentHeight,margin:{left=0,top=0}={}, x,y,z,named}=this.props
 		if(!this.cols && (left||top)){
 			content=(<Group x={left} y={top}>{content}</Group>)
 		}
 		return (
 			<Group {...{width,height,x,y,z,named, className:"frame", "data-frame":this.uuid}}>
-				{this.anchors.map((a,i)=>React.cloneElement(a,{key:i}))}
-				{content}
+				{[
+					...this.anchors.map((a,i)=>React.cloneElement(a,{key:i})),
+					React.cloneElement(content,{key:"content"})
+				]}
 			</Group>
 		)
 	}
