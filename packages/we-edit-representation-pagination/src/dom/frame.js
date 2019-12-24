@@ -91,28 +91,19 @@ class Frame extends Layout.Block{
 		)
 	}
 
-	//y in frame
-	lineY(line){
-		if(!this.cols){
-			const {margin:{top=0}={}}=this.props
-			return this.lines.slice(0,this.lines.indexOf(line)).reduce((Y,{props:{height=0}})=>Y+height,top)
-		}
-
-		const {y:y0=0,children:lines}=this.columns.find(a=>a.children.includes(line))||this.currentColumn
-		return lines.slice(0,lines.indexOf(line)).reduce((Y,{props:{height=0}})=>Y+height,y0)
-	}
-
-	//x in frame
-	lineX(line){
-		if(!this.cols){
-			const {margin:{left=0}={}}=this.props
-			return left
-		}
-		return this.columns.find(a=>a.children.includes(line)).x
-	}
-
 	lineXY(line){
-		return {x:this.lineX(line),y:this.lineY(line)}
+		if(!this.cols){
+			const {margin:{top=0,left=0}={}}=this.props
+			return {
+				x:left,
+				y:this.lines.slice(0,this.lines.indexOf(line)).reduce((Y,{props:{height=0}})=>Y+height,top)
+			}
+		}
+		const {y:y0=0,x=0,children:lines}=this.columns.find(a=>a.children.includes(line))||this.currentColumn
+		return {
+			x,
+			y:lines.slice(0,lines.indexOf(line)).reduce((Y,{props:{height=0}})=>Y+height,y0)
+		}
 	}
 
 	isDirtyIn(rect){

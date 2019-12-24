@@ -51,7 +51,7 @@ export default class Anchorable extends Flow {
         const anchored = anchor(space.clone({
             edges:{
                 paragraph:{
-                    top:((id,line=this.lines.find(a=>a.props.pagination.id==id))=>this.lineY(line))(line.props.pagination.id)
+                    top:((id,line=this.lines.find(a=>a.props.pagination.id==id))=>this.lineXY(line).y)(line.props.pagination.id)
                 },
                 line:{top:space.blockOffset},
                 character:{
