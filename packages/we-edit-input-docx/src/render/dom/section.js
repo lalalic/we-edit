@@ -196,12 +196,15 @@ export default ({Section,Group})=>class __$1 extends Component{
 					return super.positionLines(...args)
 
 				// each section wrap itself content to compromise positioning
-				const thisSectionLines=Object.assign(
-					this._makeContinuousLayout(this.props,this.context)
-						.clone({cols:this.cols.map(a=>({...a,y:undefined}))}),
-						{computed:this.computed}
+				var thisSectionLines=Object.assign(
+					this._makeContinuousLayout(this.props,this.context),
+					{computed:{
+						...this.computed,
+						columns:this.columns.map(a=>({...a,y:undefined})),
+					}}
 				).createComposed2Parent()
 				
+				thisSectionLines=React.cloneElement(thisSectionLines,{key:"content",y:this.cols[0].y})
 				var y=Math.max(...this.columns.map(a=>a.blockOffset))
 				var height=Math.max(...this.columns.map(({contentHeight,height=contentHeight})=>height))
 				const layoutsContent=this.continuousLayouts.map((frame,i)=>{
@@ -212,8 +215,7 @@ export default ({Section,Group})=>class __$1 extends Component{
 				})
 				return (
 					<Group height={height}>
-						{thisSectionLines}
-						{layoutsContent}
+						{[thisSectionLines,...layoutsContent]}
 					</Group>
 				)
 			}
@@ -226,6 +228,7 @@ export default ({Section,Group})=>class __$1 extends Component{
 
 				return Object.assign(new Section.Layout({
 					...props,
+					I:undefined,
 					cols:cols.map(a=>({...a,maxHeight,y:undefined})),
 					balance:true,
 					width:width-left-right,
@@ -235,6 +238,28 @@ export default ({Section,Group})=>class __$1 extends Component{
 
 			appendContinuousLayout(layout){
 				this.continuousLayouts.push(layout)
+			}
+
+			nextLineBelowInFrame(lineInFrame,x){
+				const line=super.nextLineBelowInFrame(lineInFrame)
+				if(line || !this.hasMultipleSectionContent)
+					return line
+				var column
+				const frame=this.continuousLayouts.find(frame=>column=frame.columns.find(({x:x0=0,width})=>x>=x0 && x<=(x0+width)))
+				if(column){
+					return column.children[0]
+				}
+			}
+
+			prevLineAboveInFrame(lineInFrame,x){
+				const line=super.prevLineAboveInFrame(lineInFrame)
+				if(line || !this.hasMultipleSectionContent)
+					return line
+				var column
+				const frame=this.continuousLayouts.findLast(frame=>column=frame.columns.findLast(({x:x0=0,width})=>x>=x0 && x<=(x0+width)))
+				if(column){
+					return column.children[column.children.length-1]
+				}
 			}
 		}
 	})
