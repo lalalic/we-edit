@@ -40,7 +40,7 @@ export default class Balanceable extends Columnable {
 		const colHeight = totalHeight / this.cols.length;
 		this.columns = [];
 		const segments=this.lines.reduce((state, { props: { height = 0 } }, i) => {
-			if ((state.h+height) <= colHeight) {
+			if (state.h < colHeight) {
 				state.h += height;
 			}
 			else {
