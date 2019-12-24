@@ -1,9 +1,9 @@
-import React, {Component} from "react"
+import React, {Component,Children} from "react"
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
 import {ContentQuery} from "we-edit"
 
-export default ({Document, Container,Frame})=>class __$1 extends Component{
+export default ({Document})=>class __$1 extends Component{
 	static displayName="document"
 
 	static childContextTypes={
@@ -27,8 +27,7 @@ export default ({Document, Container,Frame})=>class __$1 extends Component{
 	}
 
 	resetNumbering(){
-		let styles=this.styles
-
+		const styles=this.styles
 		//reset for numbering
 		Object.keys(styles)
 			.forEach((k,t)=>(t=styles[k])&& t.reset && t.reset())
@@ -67,69 +66,32 @@ export default ({Document, Container,Frame})=>class __$1 extends Component{
 		}
 	},(a,b)=>a.equals(b))
 
-	getContent(){
-		const {evenAndOddHeaders}=this.props
-		var headerfooters={}
-
-		function getHeaderFooter({props:{children, titlePg}}){
-			return children.reduce((named,a)=>{
-				if(named.go){
-					if(a.props.named){
-						if(!evenAndOddHeaders &&
-							["even","odd"].find(key=>a.props.named.endsWith(key))){
-							//ignore
-						}else{
-							if(!titlePg && a.props.named.endsWith("first")){
-							//ignore
-							}else{
-								named[a.props.named]=a
-							}
-						}
-					}else{
-						delete named.go
-					}
-				}
-				return named
-			},{go:true})
-		}
-
-		function inheritHeaderFooter(current){
-			const mine=getHeaderFooter(current)
-			headerfooters=Object.values({
-				...headerfooters,
-				...mine,
-			})
-
-			 //remove own headers & footers
-			const children=headerfooters.concat(withoutHeaderFooterChildren(current.props.children))
-			current=React.cloneElement(current,{children})
-
-			//first page of section can't be inherited
-			delete headerfooters["header.first"]
-			delete headerfooters["footer.first"]
-
-			return current
-		}
-
-		function withoutHeaderFooterChildren(children){
-			return children.slice(Math.max(0,children.findIndex(a=>!a.props.named)))
-		}
-
-		return React.Children.toArray(this.props.children).reduce((content,current)=>{
-			if(current.type.displayName!=="section"){
-				content.push(current)
-			}else{
-				current=inheritHeaderFooter(current)
-				content.push(current)
-			}
-			return content
-		},[])
-	}
-
 	render(){
-		//need to merge for continuous sections
-		const {children,evenAndOddHeaders,...others}=this.props
+		const WordDocument=this.constructor.Document(Document)
+		const {evenAndOddHeaders,...props}=this.props
 		this.resetNumbering()
-		return <Document {...others} children={this.getContent()}/>
+		return <WordDocument {...props}/>
 	}
+
+	static Document=memoize(Document=>class WordDocument extends Document{
+		nextAvailableSpace(){
+			const pages=this.computed.composed
+			const last=pages[pages.length-1]
+			if(!last.continuous)
+				return 
+				
+		}
+
+		appendComposed(page){
+			if(page.isContinuousLayout){
+				const pages=this.computed.composed
+				const last=pages[pages.length-1]
+				if(last && last.continuous){
+					last.appendContinuousLayout(page)
+				}
+				return 
+			}
+			super.appendComposed(page)
+		}
+	})
 }
