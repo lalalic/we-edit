@@ -68,9 +68,9 @@ export default class Columnable extends OrphanControlable {
 	createColumn() {
 		const column = {
 			...this.cols[this.columns.length],
-			children: ColumnChildren.create(this, ...arguments),
+			lines: ColumnChildren.create(this, ...arguments),
 			get isEmpty() {
-				return this.children.length == 0;
+				return this.lines.length == 0;
 			},
 			get availableBlockSize() {
 				const {maxHeight=Number.MAX_SAFE_INTEGER, height = maxHeight, y = 0 } = this;
@@ -81,7 +81,7 @@ export default class Columnable extends OrphanControlable {
 				return y+this.contentHeight;
 			},
 			get contentHeight() {
-				return this.children.reduce((H, { props: { height: h = 0 } }) => h + H, 0);
+				return this.lines.reduce((H, { props: { height: h = 0 } }) => h + H, 0);
 			}
 		};
 		this.columns.push(column);
@@ -130,8 +130,8 @@ export default class Columnable extends OrphanControlable {
 		const height=Math.max(...this.columns.map(({contentHeight, height=contentHeight})=>height))
 		return (
 			<Group height={height}>
-				{this.columns.map(({x,y,width,contentHeight, height=contentHeight,children},i)=>{
-					return React.cloneElement(super.positionLines(children),{x,y,width,height,key:i})
+				{this.columns.map(({x,y,width,contentHeight, height=contentHeight,lines},i)=>{
+					return React.cloneElement(super.positionLines(lines),{x,y,width,height,key:i})
 				})}
 			</Group>
 		)
@@ -171,9 +171,9 @@ class ColumnChildren{
 
 	get endIndex(){
 		const columns=this.frame.columns
-		const i=columns.findIndex(a=>a.children.target==this)
+		const i=columns.findIndex(a=>a.lines.target==this)
 		const nextColumn=columns[i+1]
-		return nextColumn ? nextColumn.children.startIndex : this.frame.lines.length
+		return nextColumn ? nextColumn.lines.startIndex : this.frame.lines.length
     }
     
     get items(){

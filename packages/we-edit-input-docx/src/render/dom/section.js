@@ -247,7 +247,7 @@ export default ({Section,Group})=>class __$1 extends Component{
 				var column
 				const frame=this.continuousLayouts.find(frame=>column=frame.columns.find(({x:x0=0,width})=>x>=x0 && x<=(x0+width)))
 				if(column){
-					return column.children[0]
+					return column.lines[0]
 				}
 			}
 
@@ -258,7 +258,7 @@ export default ({Section,Group})=>class __$1 extends Component{
 				var column
 				const frame=this.continuousLayouts.findLast(frame=>column=frame.columns.findLast(({x:x0=0,width})=>x>=x0 && x<=(x0+width)))
 				if(column){
-					return column.children[column.children.length-1]
+					return column.lines[column.lines.length-1]
 				}
 			}
 		}

@@ -624,7 +624,7 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
                 return topFrame.firstLine
             const column=topFrame.columns.find(({x,width})=>X>=x && X<=x+width)
             if(column)
-                return column.children[0]
+                return column.lines[0]
         }
 
         const nextTopFrame=a=>this.frames[this.frames.indexOf(a)+1]
@@ -682,7 +682,7 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
                 return topFrame.lastLine
             const column=topFrame.columns.find(({x,width})=>X>=x && X<=x+width)
             if(column)
-                return column.children[column.children.length-1]
+                return column.lines[column.lines.length-1]
         }
 
         const prevTopFrame=a=>this.frames[this.frames.indexOf(a)-1]

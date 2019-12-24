@@ -99,7 +99,7 @@ class Frame extends Layout.Block{
 				y:this.lines.slice(0,this.lines.indexOf(line)).reduce((Y,{props:{height=0}})=>Y+height,top)
 			}
 		}
-		const {y:y0=0,x=0,children:lines}=this.columns.find(a=>a.children.includes(line))||this.currentColumn
+		const {y:y0=0,x=0,lines}=this.columns.find(a=>a.lines.includes(line))||this.currentColumn
 		return {
 			x,
 			y:lines.slice(0,lines.indexOf(line)).reduce((Y,{props:{height=0}})=>Y+height,y0)
@@ -132,7 +132,7 @@ class Frame extends Layout.Block{
 			return 0
 		return this.columns.reduce((c,column,i)=>{
 			if(c.count>0){
-				c.count-=column.children.length
+				c.count-=column.lines.length
 				c.i=i
 			}
 			return c
