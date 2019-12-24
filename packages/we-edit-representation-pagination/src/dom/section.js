@@ -28,6 +28,14 @@ class Section extends Super{
 				props.I=I
 			return React.cloneElement(super.createComposed2Parent(),props)
 		}
+
+		clone4Space(layout){
+			if(layout.context.frame==this.context.frame)
+				return this
+			const cloned=this.clone({space:layout.props.space})
+			cloned.context.frame=layout.context.frame
+			return cloned
+		}
 	}
     
 	constructor(){
@@ -181,6 +189,7 @@ export default class EditableSection extends editable(Section,{stoppable:true}){
 				
 			const current=this.createLayout(false)
 			if(fission.getSpace().equals(current.getSpace())){
+				fission=fission.clone4Space(current)
 				this.computed.composed.splice(i,1,fission)
 				this.context.parent.appendComposed(this.createComposed2Parent(fission))
 				return false

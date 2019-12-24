@@ -382,9 +382,10 @@ export default class EditableParagraph extends editable(Paragraph,{stoppable:tru
 		const lines=this.lines
 		this.lines=[]
 		const spaceChangedAt=this.computed.lastComposed.findIndex((a,i)=>{
-			const line=lines[i]
+			var line=lines[i]
 			const space=this.nextAvailableSpace({height:a.props.height})
 			if(line.isFitTo(space)){
+				line=line.clone4Space(space)
 				this.lines.push(line)
 				this.context.parent.appendComposed(a)
 				return false

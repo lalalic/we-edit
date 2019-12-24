@@ -184,4 +184,8 @@ export default class Inline extends Component{
 		return this.inlineSegments.segments.length==segments.length &&
 			!!!this.inlineSegments.segments.find(({props:{x,width}},i,_,$,b=segments[i])=>b.x!=x && b.width!=width)
 	}
+
+	clone4Space(space){
+		return Object.assign(new this.constructor({...this.props,space}),{inlineSegments:this.inlineSegments,children:this.children})
+	}
 }
