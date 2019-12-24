@@ -99,6 +99,8 @@ class PositioningHelper extends Positioning{
     }
 
     getFrameOffsetGrandFrame(grandFrame,frame){
+        if(grandFrame==frame)
+            return {x:0,y:0}
         const grandFrameLayouted=grandFrame.createComposed2Parent()
         const {first,parents}=new ReactQuery(grandFrameLayouted).findFirstAndParents(`[data-frame=${frame.uuid}]`)
         return [...parents,first.get(0)].filter(a=>!!a).reduce((xy,{props:{x=0,y=0}})=>(xy.x+=x, xy.y+=y, xy),{x:0,y:0})
@@ -504,7 +506,7 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
             }
         }
         //to get leaf frame that includes the point, and return the frame
-        const {node:leafFrame, parents:_1,...leafFrameOffset}=this.getBoundaryCheckedMostInnerNode(
+        const {node:leafFrame}=this.getBoundaryCheckedMostInnerNode(
             topFrame.createComposed2Parent(), 
             //only frame that contain the point
             (rect,node)=>{
@@ -517,6 +519,7 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
                 return frameId==id ? composer : composer.computed.composed.find(a=>a.uuid==frameId)
             }
         )
+        const leafFrameOffset=this.getFrameOffsetGrandFrame(topFrame,leafFrame)
 
         //locate the line that contain the point
         var line=leafFrame.lines.find(line=>{
