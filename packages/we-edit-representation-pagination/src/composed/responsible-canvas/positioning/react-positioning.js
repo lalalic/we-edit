@@ -444,7 +444,6 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
      * >>b. positioning from id up, performance should be better, chosen
      * the location may be:
      * Inline Level
-     * based on paragraph.xyInLine(id,at,paragraph.lineIndexOf(id,at)) 
      */
     position(id,at, internal){
         //#b , (id,at)->line->frame->topFrame
@@ -603,20 +602,36 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
      */
     nextLine(id,at){
         //to get next line below input line in the frame
-        const nextLineBelowInFrame=(frame,lineInFrame)=>{
-            if(frame.lastLine==lineInFrame)//go to next top frame
-                return
-            if(frame.cols && frame.cols.length>1){
-                const isColumnLastLine=frame.columns.reduce((isLast,a)=>
-                    isLast || (a.children.length>0 && a.children.length-1==a.children.indexOf(lineInFrame)),
-                    false,
-                )
-                if(isColumnLastLine){//go to next top frame
-                    return 
+        const nextLineBelowInFrame=(frame,lineInFrame, offset)=>{
+            var nextLine=(()=>{
+                if(frame.lastLine==lineInFrame)//go to next top frame
+                    return
+                if(frame.cols && frame.cols.length>1){
+                    const isColumnLastLine=frame.columns.reduce((isLast,a)=>
+                        isLast || (a.lines.length>0 && a.lines.length-1==a.lines.indexOf(lineInFrame)),
+                        false,
+                    )
+                    if(isColumnLastLine){//go to next top frame
+                        return 
+                    }
                 }
-                //@TODO: column may below the column of line
+                return frame.lines[frame.lines.indexOf(lineInFrame)+1]
+            })();
+            if(nextLine)
+                return nextLine
+
+            if(frame.unusualFrameLineBelow){
+                //provide chance to unusal frame, such as docx continuous section, a page may includes multi continous sections' content
+                offset=[
+                    this.getTopFrameXY(topFrame),
+                    this.getFrameOffsetGrandFrame(topFrame,leafFrame)
+                ].reduce((o,a)=>({x:o.x-a.x,y:o.y-a.y}),offset)
+                const found=frame.unusualFrameLineBelow(offset)
+                if(found){
+                    leafFrame=found.frame
+                    return found.line
+                }
             }
-            return frame.lines[frame.lines.indexOf(lineInFrame)+1]
         }
         
         const firstLineIncludeXInTopFrame=(topFrame,X)=>{
@@ -633,9 +648,10 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
         var {x,y, leafFrame, lineIndexInLeafFrame, topFrame}=this.position(id,at,true)
         var lineInLeafFrame=leafFrame.lines[lineIndexInLeafFrame]
         
-        var nextLine
-        //find next line in current top frame
-        while(leafFrame && lineInLeafFrame && !(nextLine=nextLineBelowInFrame(leafFrame, lineInLeafFrame))){
+        
+        var nextLineInTopFrame
+        //find next line in current TOP frame
+        while(leafFrame && lineInLeafFrame && !(nextLineInTopFrame=nextLineBelowInFrame(leafFrame, lineInLeafFrame,{x,y}))){
             //direct parent frame
             const parentFrame=this.getCheckedGrandFrameByFrame(
                 leafFrame,
@@ -650,13 +666,13 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
             }
         }
         //find first line in next siblings of current top frame
-        while(topFrame && !nextLine && (topFrame=nextTopFrame(topFrame))){
-            if(nextLine=firstLineIncludeXInTopFrame(topFrame,x)){
+        while(topFrame && !nextLineInTopFrame && (topFrame=nextTopFrame(topFrame))){
+            if(nextLineInTopFrame=firstLineIncludeXInTopFrame(topFrame,x)){
                 //adjust top to new top frame
                 break
             }
         }
-        return this.aroundInBlockLine(topFrame,nextLine, {x,y})
+        return this.aroundInBlockLine(topFrame,nextLineInTopFrame, {x,y})
     }
 
     prevLine(id,at){
@@ -666,7 +682,7 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
                 return
             if(frame.cols && frame.cols.length>1){
                 const isColumnFirstLine=frame.columns.reduce((isFirst,a)=>
-                    isFirst || a.children.indexOf(lineInFrame)==0,
+                    isFirst || a.lines.indexOf(lineInFrame)==0,
                     false,
                 )
                 if(isColumnFirstLine){//go to next top frame
@@ -692,7 +708,7 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
         var lineInLeafFrame=leafFrame.lines[lineIndexInLeafFrame]
         
         var prevLine
-        //first try to find next line in current top frame
+        //first try to find prev line in current top frame
         while(leafFrame && lineInLeafFrame && !(prevLine=prevLineAboveInFrame(leafFrame, lineInLeafFrame))){
             //direct parent frame
             const parentFrame=this.getCheckedGrandFrameByFrame(
