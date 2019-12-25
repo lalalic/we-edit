@@ -186,13 +186,13 @@ class PositioningHelper extends Positioning{
     }
 
     /**
-     * to around to x in a line of topFrame, the line may contain frame
+     * to around to x in a line of frame, the line may contain frame
      * scope it to leafFrame, and proxy to aourndInInline
      * @param {*} topFrame 
      * @param {*} line 
      * @param {*} param2 
      */    
-    aroundInBlockLine(topFrame, line, {x=0,y=0}={}){
+    aroundInBlockLine({x=0,y=0}={},line, topFrame, blockFrame=topFrame){
         if(!line || !topFrame)
             return {}
         /**
@@ -200,9 +200,10 @@ class PositioningHelper extends Positioning{
          * 1. to round(left, top+1)???? what if it's on top margin/border
          * 2. **find most inner node that includes (left,*), and then position in paragraph line
          */
-        const lineOffset=topFrame.lineXY(line)
+        const lineOffset=blockFrame.lineXY(line)
         const topFrameOffset=this.getTopFrameXY(topFrame)
-        x=x-topFrameOffset.x-lineOffset.x
+        const blockFrameOffset=this.getFrameOffsetGrandFrame(topFrame,blockFrame)
+        x=x-topFrameOffset.x-blockFrameOffset.x-lineOffset.x
         const isIncludeX=(rect)=>rect.x<=x && (rect.x+rect.width)>=x
         var {node,parents,...inlineOffset}=this.getBoundaryCheckedMostInnerNode(
             line,
@@ -596,7 +597,7 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
     }
 
     /**
-     * 
+     * use composed to locate, so frame would not 
      * @param {*} id 
      * @param {*} at 
      */
@@ -632,6 +633,36 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
                     return found.line
                 }
             }
+            /*
+            
+
+            const pointIsInside=({x:x0=0,y:y0=0,width,height})=>o.x>=x0 && o.y>=y0 && o.x<=x0+width && offset.y<=y0+height
+            
+            this.getBoundaryCheckedMostInnerNode(
+                frame.createComposed2Parent(),
+                //only frame that contain the point
+                (rect,node)=>{
+                    const {props:{"data-frame":isFrame, pagination:isLine, width,height}}=node
+                    if(isFrame && !pointIsInside(rect({width,height})))
+                        return false
+                    if(isLine){
+                        return pointIsInside(rect({width,height}))
+                    }
+                },
+                //get frame from data-content and data-frame
+                ({props:{pagination:{id,i}}},parents)=>{
+                    const composedFrame=parents.findLast(({props:{'data-content':id,'data-frame':frameId, composer=this.getComposer(id)}})=>{
+                        if(frameId){
+                            return leafFrame=frameId==id ? composer : composer.computed.composed.find(a=>a.uuid==frameId)
+                        }
+                    })
+                    if(composedFrame){
+                        nextLine=leafFrame.lines.find(({props:{pagination:a={}}})=>a.id==id && a.i==i)
+                    }
+                }
+            )
+            return nextLine
+            */
         }
         
         const firstLineIncludeXInTopFrame=(topFrame,X)=>{
@@ -648,10 +679,12 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
         var {x,y, leafFrame, lineIndexInLeafFrame, topFrame}=this.position(id,at,true)
         var lineInLeafFrame=leafFrame.lines[lineIndexInLeafFrame]
         
-        
-        var nextLineInTopFrame
+        var nextLine
         //find next line in current TOP frame
-        while(leafFrame && lineInLeafFrame && !(nextLineInTopFrame=nextLineBelowInFrame(leafFrame, lineInLeafFrame,{x,y}))){
+        while(leafFrame && lineInLeafFrame){
+            if(nextLine=nextLineBelowInFrame(leafFrame, lineInLeafFrame,{x,y})){
+                return this.aroundInBlockLine({x,y},nextLine, topFrame, leafFrame)
+            }
             //direct parent frame
             const parentFrame=this.getCheckedGrandFrameByFrame(
                 leafFrame,
@@ -666,13 +699,12 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
             }
         }
         //find first line in next siblings of current top frame
-        while(topFrame && !nextLineInTopFrame && (topFrame=nextTopFrame(topFrame))){
-            if(nextLineInTopFrame=firstLineIncludeXInTopFrame(topFrame,x)){
-                //adjust top to new top frame
-                break
+        while(topFrame && !nextLine && (topFrame=nextTopFrame(topFrame))){
+            if(nextLine=firstLineIncludeXInTopFrame(topFrame,x)){
+                return this.aroundInBlockLine({x,y}, nextLine, topFrame)
             }
         }
-        return this.aroundInBlockLine(topFrame,nextLineInTopFrame, {x,y})
+        
     }
 
     prevLine(id,at){
@@ -709,7 +741,10 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
         
         var prevLine
         //first try to find prev line in current top frame
-        while(leafFrame && lineInLeafFrame && !(prevLine=prevLineAboveInFrame(leafFrame, lineInLeafFrame))){
+        while(leafFrame && lineInLeafFrame){
+            if(prevLine=prevLineAboveInFrame(leafFrame, lineInLeafFrame)){
+                return this.aroundInBlockLine({x,y},prevLine,topFrame,leafFrame)
+            }
             //direct parent frame
             const parentFrame=this.getCheckedGrandFrameByFrame(
                 leafFrame,
@@ -726,12 +761,10 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
         //otherwise find first line in next siblings of current top frame
         while(topFrame && !prevLine && (topFrame=prevTopFrame(topFrame))){
             if(prevLine=firstLineIncludeXInTopFrame(topFrame,x)){
-                //adjust top to new top frame
-                break
+                //then around in the line
+                return this.aroundInBlockLine({x,y},prevLine, topFrame)
             }
         }
-        //then around in the line
-        return this.aroundInBlockLine(topFrame,prevLine, {x,y})
     }
 
     
