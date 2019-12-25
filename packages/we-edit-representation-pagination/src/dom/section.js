@@ -187,7 +187,7 @@ export default class EditableSection extends editable(Section,{stoppable:true}){
 				return true
 			}
 				
-			const current=this.createLayout(false)
+			const current=this.createLayout()
 			if(fission.getSpace().equals(current.getSpace())){
 				fission=fission.clone4Space(current)
 				this.computed.composed.splice(i,1,fission)
