@@ -10,34 +10,6 @@ import breakOpportunities from "../wordwrap/line-break"
 import {Text as ComposedText,  Group} from "../composed"
 
 const Super=HasParentAndChild(dom.Paragraph)
-const isText=a=>new ReactQuery(a).findFirst(`[data-type="text"]`).length==1
-const getText=a=>{
-	const $=new ReactQuery(a).find(`[data-type="text"]`)
-	let text=""
-	for(let i=0,len=$.length;i<len;i++){
-		text+=$.eq(i).attr("children")
-	}
-	return text
-}
-const shouldAtomMerge=(a,b)=>{
-	if(!a || !b){
-		return false
-	}
-	a=new ReactQuery(a).findLast(`[data-type="text"]`)
-	b=new ReactQuery(b).findLast(`[data-type="text"]`)
-	if(a.length==0 || b.length==0){
-		return false
-	}
-	if([a,b].find(a=>a.attr("className"))){//special control
-		return false
-	}
-
-	if(a.attr('data-content')!=b.attr('data-content')){
-		return true
-	}
-	return false
-}
-
 class Paragraph extends Super{
     static contextTypes={
 		...Super.contextTypes,
@@ -95,32 +67,32 @@ class Paragraph extends Super{
 	 */
     appendComposed(content){
 		const last=this.atoms[this.atoms.length-1]
-		if(shouldAtomMerge(last,content)){//possible merge with last if last is text
-			if( isText(last)){
-				const lastText=getText(last)
-				const text=getText(content)
-				const ops=breakOpportunities(`${lastText}${text}`)
-				switch(ops.length){
-				case 1:{//merge content into last atom
-					const height=Math.max(last.props.height, content.props.height)
-					const descent=Math.max(last.props.descent, content.props.descent)
-					const width=last.props.width+content.props.width
-					this.atoms.pop()
-					this.atoms.push(
-						<Group {...{width,height,descent}}>
-							{last}
-							{React.cloneElement(content,{x:last.props.width})}
-						</Group>
-					)
-					return 
+		if(last && last.props.mergeOpportunity && content.props.mergeOpportunity){
+			const lastText=last.props.mergeOpportunity
+			const text=content.props.mergeOpportunity
+			const ops=breakOpportunities(`${lastText}${text}`)
+			switch(ops.length){
+			case 1:{//merge content into last atom
+				const height=Math.max(last.props.height, content.props.height)
+				const descent=Math.max(last.props.descent, content.props.descent)
+				const width=last.props.width+content.props.width
+				const {props:{"data-content":isRawAtom, children,mergeOpportunity}}=last
+				this.atoms.splice(-1,1,
+					<Group {...{width,height,descent,mergeOpportunity:`${mergeOpportunity}${content.props.mergeOpportunity}`}}>
+						{isRawAtom ? 
+						[React.cloneElement(last,{key:0}),React.cloneElement(content,{x:last.props.width,key:1})]
+						: [...children,React.cloneElement(content,{x:last.props.width,key:children.length-1})]
+						}
+					</Group>
+				)
+				return 
+			}
+			case 2:
+				if(lastText===ops[0]){//don't need merge
+					break
 				}
-				case 2:
-					if(lastText===ops[0]){
-						break
-					}
-				default:
-					console.warn(`error: "${lastText}${text}" break opportunities: [${ops.join(",")}]`)
-				}
+			default:
+				console.warn(`error: "${lastText}${text}" break opportunities: [${ops.join(",")}]`)
 			}
 		}
 		

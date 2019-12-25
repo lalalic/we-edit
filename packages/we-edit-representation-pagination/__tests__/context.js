@@ -74,11 +74,12 @@ export const $=pages=>{
 
 export const render=TestRender.create
 
-export const defaultProps=({Document,Paragraph,Text})=>()=>{
+export const defaultProps=({Document,Paragraph,Text,Container})=>()=>{
     const defaultStyle={fonts:"arial",size:10}
     Document.defaultProps=Object.assign(Document.defaultProps||{},{id:"root"})
-    Paragraph.defaultProps=Object.assign(Paragraph.defaultProps||{},{defaultStyle})
-    Text.defaultProps=Object.assign(Text.defaultProps||{},defaultStyle)
+    Paragraph.defaultProps=Object.assign(Paragraph.defaultProps||{},{defaultStyle,id:"p"})
+    Text.defaultProps=Object.assign(Text.defaultProps||{},defaultStyle,{id:"t"})
+    Container.defaultProps=Object.assign(Container.defaultProps||{},{id:"c"})
 }
 
 it("compose context loaded",()=>{})

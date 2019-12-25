@@ -63,8 +63,8 @@ class Text extends Super{
             const whitespaceWidth=measure.stringWidth(" ")
 
             let start=0
-            breakOpportunities(this.text).forEach(a=>{
-                a.split(/(\s)/).filter(a=>!!a).forEach((b,i)=>{
+            breakOpportunities(this.text).forEach((a,j,_1,_2,jLast=_1.length-1==j)=>{
+                a.split(/(\s)/).filter(a=>!!a).forEach((b,i,$1,$2,iLast=$1.length-1==i)=>{
                     const isWhitespace=b==" "
                     const ending=b.endsWith(",") ? b.substring(0,b.length-1) : false
                     this.appendComposed({
@@ -74,6 +74,7 @@ class Text extends Super{
                         minWidth:isWhitespace ? 0 : (ending ? measure.stringWidth(ending) : undefined),
                         "data-endat":start+=b.length,
                         children: b,
+                        mergeOpportunity:((i+j)==0||(jLast&&iLast))&&!isWhitespace&&b//first or last
                     })
                 })
             })

@@ -6,7 +6,7 @@ import {render} from "../context"
 import {define} from "./index"
 
 define("paragraph compose",
-({dom:{Paragraph, Text}, testing, CONTEXT, Context, WithTextContext, WithParagraphContext,ConstraintSpace})=>{
+({dom:{Paragraph, Text,Container}, testing, CONTEXT, Context, WithTextContext, WithParagraphContext,ConstraintSpace})=>{
     const TEXT="hello world"
     const test=(lineWidth=5,spacing={}, indent={},align, text=TEXT, numbering)=>{
         const context={...Context,exclusive:()=>[],...CONTEXT, numbering:()=>'*'}
@@ -302,5 +302,105 @@ define("paragraph compose",
             const [line]=test(undefined,undefined,undefined,"left","")
             expect(line.props.height).toBe(10)
         })
+    })
+
+    describe("atom builder",()=>{
+        const build=(texts,p)=>{
+            //no ender
+            var onAllChildrenComposed=Paragraph.prototype.onAllChildrenComposed
+            try{
+                Paragraph.prototype.onAllChildrenComposed=jest.fn(function(){p=this})
+                render(
+                    <WithParagraphContext>
+                        <WithTextContext>
+                            <Paragraph id="p">
+                                {React.isValidElement(texts) ? texts : texts.map((a,i)=><Text id={i+"t"} key={i}>{a}</Text>)}
+                            </Paragraph>
+                        </WithTextContext>
+                    </WithParagraphContext>
+                )
+                expect(Paragraph.prototype.onAllChildrenComposed).toHaveBeenCalledTimes(1)
+            }finally{
+                Paragraph.prototype.onAllChildrenComposed=onAllChildrenComposed
+            }
+            return p.atoms
+        }
+        it("basic",()=>{
+            expect(build(["hello"," world"]).length).toBe(3)
+            expect(build(["hello world"]).length).toBe(3)      
+        })
+
+        it("container",()=>{
+            expect(build(<Container><Text>hello world</Text></Container>).length).toBe(3) 
+            expect(build(
+                <Container>
+                    <Container><Text>hello</Text></Container>
+                    <Container><Text> world</Text></Container>
+                </Container>).length).toBe(3) 
+        })
+
+        it("merge",()=>{
+            expect(build(["he","ll","o world"]).length).toBe(3)
+            expect(build(["he","ll","o wor","ld"]).length).toBe(3)
+        })
+
+        it("merge flat",()=>{
+            expect(build(["he","ll","o wor","ld"])[0].props.children.length).toBe(3)
+        })
+
+        describe("mergeOpportunity",()=>{
+            it("first and last atom text with mergeOpportunity",()=>{
+                const atoms=[]
+                const appendComposed=Paragraph.prototype.appendComposed
+                Paragraph.prototype.appendComposed=jest.fn(atom=>atoms.push(atom))
+                try{
+                    build(["he","ll","o my wor","ld"])
+                    const [he,ll,o,s,my,,wor,ld]=atoms
+                    expect(atoms.length).toBe(8)
+                    expect(he.props.mergeOpportunity).toBe("he")
+                    expect(ll.props.mergeOpportunity).toBe("ll")
+                    expect(o.props.mergeOpportunity).toBe("o")
+                    expect(s.props.mergeOpportunity).toBeFalsy()
+                    expect(my.props.mergeOpportunity).toBeFalsy()
+                    expect(wor.props.mergeOpportunity).toBe("wor")
+                    expect(ld.props.mergeOpportunity).toBe("ld")
+                }finally{
+                    Paragraph.prototype.appendComposed=appendComposed
+                }
+            })
+
+            it("first and last atom text in container with mergeOpportunity",()=>{
+                const atoms=[]
+                const appendComposed=Paragraph.prototype.appendComposed
+                Paragraph.prototype.appendComposed=jest.fn(atom=>atoms.push(atom))
+                try{
+                    build(
+                        <Container>
+                        {["he","ll","o my wor","ld"].map(a=>
+                            <Container id={a+"1"} key={a}><Text id={a}>{a}</Text></Container>
+                        )}
+                        </Container>
+                    )
+                    const [he,ll,o,s,my,,wor,ld]=atoms
+                    expect(atoms.length).toBe(8)
+                    expect(he.props.mergeOpportunity).toBe("he")
+                    expect(ll.props.mergeOpportunity).toBe("ll")
+                    expect(o.props.mergeOpportunity).toBe("o")
+                    expect(s.props.mergeOpportunity).toBeFalsy()
+                    expect(my.props.mergeOpportunity).toBeFalsy()
+                    expect(wor.props.mergeOpportunity).toBe("wor")
+                    expect(ld.props.mergeOpportunity).toBe("ld")
+                }finally{
+                    Paragraph.prototype.appendComposed=appendComposed
+                }
+            })
+
+            it("merged mergeOpportunity",()=>{
+                const [hello,,world]=build(["he","ll","o wor","ld"])
+                expect(hello.props.mergeOpportunity).toBe("hello")
+                expect(world.props.mergeOpportunity).toBe("world")
+            })
+        })
+        
     })
 })
