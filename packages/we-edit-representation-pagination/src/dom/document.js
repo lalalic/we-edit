@@ -140,7 +140,11 @@ export default class extends editable(Document,{continuable:true}){
 			this.notifyNotAllComposed(composer)
 		}
 		return should
-	}
+    }
+    
+    isAtomCollector(){
+        return false
+    }
     
     //no cache on document level
     cancelUnusableLastComposed(){
