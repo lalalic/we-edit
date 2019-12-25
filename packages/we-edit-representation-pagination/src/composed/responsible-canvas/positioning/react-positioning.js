@@ -144,7 +144,7 @@ class PositioningHelper extends Positioning{
      * @param {*} check(rect, node), rect({initial bounary}) is funciton to return node boundary
      * @param {} formatNode(node)  
      */
-    getBoundaryCheckedMostInnerNode(composed,check,formatNode=a=>a){
+    getBoundaryCheckedMostInnerNode(composed,check,formatNode=a=>a,fromLast){
         const rect=(nodes,size={})=>nodes.filter(a=>a!=composed)
         .reduce((bound, {props:{height,width,x=0,y=0,"data-type":type}={}}={})=>{
             bound.x+=x
@@ -159,7 +159,7 @@ class PositioningHelper extends Positioning{
         
         var current=new ReactQuery(composed), allParents=[]
         while(true){//find most inner node that includes the point
-            const found=current.findFirstAndParents((node,parents)=>{
+            const found=current[`find${fromLast ? "Last" : "First"}AndParents`]((node,parents)=>{
                 if(!node || !React.isValidElement(node)) 
                     return false
                 
@@ -169,9 +169,10 @@ class PositioningHelper extends Positioning{
                     return 
                 return check(o=>rect([...allParents, ...parents,node],o),node)
             })
-            if(found.first.length==1){
+            found.target=found.first||found.last
+            if(found.target.length==1){
                 allParents=[...allParents,...found.parents]
-                current=found.first
+                current=found.target
             }else{
                 break
             }
@@ -605,58 +606,53 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
      */
     nextLine(id,at){
         //to get next line below input line in the frame
-        const nextLineBelowInFrame=(frame,lineInFrame, offset)=>{
+        const nextLineBelow=(frame,line, offset)=>{
             var nextLine=(()=>{
-                if(frame.lastLine==lineInFrame)//go to next top frame
+                if(frame.lastLine==line)//go to next top frame
                     return
                 if(frame.cols && frame.cols.length>1){
                     const isColumnLastLine=frame.columns.reduce((isLast,a)=>
-                        isLast || (a.lines.length>0 && a.lines.length-1==a.lines.indexOf(lineInFrame)),
+                        isLast || (a.lines.length>0 && a.lines.length-1==a.lines.indexOf(line)),
                         false,
                     )
                     if(isColumnLastLine){//go to next top frame
                         return 
                     }
                 }
-                return frame.lines[frame.lines.indexOf(lineInFrame)+1]
+                return frame.lines[frame.lines.indexOf(line)+1]
             })();
             if(nextLine)
                 return nextLine
-            /*
-            //to get most inner frame that under y and include x
-            const {node:leafFrame}=this.getBoundaryCheckedMostInnerNode(
+
+            //frame can be customized to break Block Layout structure(such as Word continuous section), 
+            //so try to locate from layouted 
+            const point=[this.getTopFrameXY(topFrame)].reduce((o,a)=>({x:o.x-a.x,y:o.y-a.y}),offset)
+            const frameIsBelowPointAndContainPointX=({x,y,width})=>point.x>=x && point.x<=x+width && y>point.y
+            //to get most inner frame that under offset.y and include offset.x
+            const found=this.getBoundaryCheckedMostInnerNode(
                 topFrame.createComposed2Parent(), 
-                //only frame that contain the point
                 (rect,node)=>{
                     const {props:{"data-frame":isFrame, width,height}}=node
                     if(isFrame){
-                        return pointIsInside(rect({width,height}),topFrameOffset)
+                        if(this.getFrameByLayoutedFrameNode(node)==frame)
+                            return false
+                        return frameIsBelowPointAndContainPointX(rect({width,height}))
                     }
                 },
                 //get frame from data-content and data-frame
-                layoutedFrameNode=>this.getFrameByLayoutedFrameNode(layoutedFrameNode)
-            )*/
-            /**
-             * provide chance to unusal frame, such as docx continuous section, 
-             * a page may includes multi continous sections' content
-             */
-            if(frame.unusualFrameLineBelow){
-                offset=[
-                    this.getTopFrameXY(topFrame),
-                    this.getFrameOffsetGrandFrame(topFrame,leafFrame)
-                ].reduce((o,a)=>({x:o.x-a.x,y:o.y-a.y}),offset)
-                const found=frame.unusualFrameLineBelow(offset)
-                if(found){
-                    leafFrame=found.frame
-                    return found.line
-                }
+                (layoutedFrameNode,[layoutedTopFrame])=>
+                    layoutedFrameNode && layoutedTopFrame/*not top frame or layouted not synced*/
+                        ? this.getFrameByLayoutedFrameNode(layoutedFrameNode) : null
+            )
+            if(found.node){
+                return firstLineIncludeX(leafFrame=found.node, point.x-found.x)
             }
         }
         
-        const firstLineIncludeXInTopFrame=(topFrame,X)=>{
-            if(!(topFrame.cols && topFrame.cols.length>1))
-                return topFrame.firstLine
-            const column=topFrame.columns.find(({x,width})=>X>=x && X<=x+width)
+        const firstLineIncludeX=(frame,X)=>{
+            if(!(frame.cols && frame.cols.length>1))
+                return frame.firstLine
+            const column=frame.columns.find(({x,width})=>X>=x && X<=x+width)
             if(column)
                 return column.lines[0]
         }
@@ -670,7 +666,7 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
         var nextLine
         //find next line in current TOP frame
         while(leafFrame && lineInLeafFrame){
-            if(nextLine=nextLineBelowInFrame(leafFrame, lineInLeafFrame,{x,y})){
+            if(nextLine=nextLineBelow(leafFrame, lineInLeafFrame,{x,y})){
                 return this.aroundInBlockLine({x,y},nextLine, topFrame, leafFrame)
             }
             //direct parent frame
@@ -688,7 +684,7 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
         }
         //find first line in next siblings of current top frame
         while(topFrame && !nextLine && (topFrame=nextTopFrame(topFrame))){
-            if(nextLine=firstLineIncludeXInTopFrame(topFrame,x)){
+            if(nextLine=firstLineIncludeX(topFrame,x)){
                 return this.aroundInBlockLine({x,y}, nextLine, topFrame)
             }
         }
@@ -697,45 +693,54 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
 
     prevLine(id,at){
         //to get prev line above input line in the frame
-        const prevLineAboveInFrame=(frame,lineInFrame)=>{
+        const prevLineAbove=(frame,line, offset)=>{
             const prevLine=(()=>{
-                if(frame.firstLine==lineInFrame)//go to prev top frame
+                if(frame.firstLine==line)//go to prev top frame
                     return
                 if(frame.cols && frame.cols.length>1){
                     const isColumnFirstLine=frame.columns.reduce((isFirst,a)=>
-                        isFirst || a.lines.indexOf(lineInFrame)==0,
+                        isFirst || a.lines.indexOf(line)==0,
                         false,
                     )
                     if(isColumnFirstLine){//go to next top frame
                         return 
                     }
-                    //@TODO: column may below the column of line
                 }
-                return frame.lines[frame.lines.indexOf(lineInFrame)-1]
+                return frame.lines[frame.lines.indexOf(line)-1]
             })();
             if(prevLine)
                 return prevLine
-            /**
-             * provide chance to unusal frame, such as docx continuous section, 
-             * a page may includes multi continous sections' content
-             */
-            if(frame.unusualFrameLineAbove){
-                offset=[
-                    this.getTopFrameXY(topFrame),
-                    this.getFrameOffsetGrandFrame(topFrame,leafFrame)
-                ].reduce((o,a)=>({x:o.x-a.x,y:o.y-a.y}),offset)
-                const found=frame.unusualFrameLineAbove(offset)
-                if(found){
-                    leafFrame=found.frame
-                    return found.line
-                }
+
+            //frame can be customized to break Block Layout structure(such as Word continuous section), 
+            //so try to locate from layouted 
+            const point=[this.getTopFrameXY(topFrame)].reduce((o,a)=>({x:o.x-a.x,y:o.y-a.y}),offset)
+            const frameIsAbovePointAndContainPointX=({x,y,width,height})=>point.x>=x && point.x<=x+width && (point.y-y-height)>=0
+            //to get most inner frame that under offset.y and include offset.x
+            const found=this.getBoundaryCheckedMostInnerNode(
+                topFrame.createComposed2Parent(), 
+                (rect,node)=>{
+                    const {props:{"data-frame":isFrame, width,height}}=node
+                    if(isFrame){
+                        if(this.getFrameByLayoutedFrameNode(node)==frame)
+                            return false
+                        return frameIsAbovePointAndContainPointX(rect({width,height}))
+                    }
+                },
+                //get frame from data-content and data-frame
+                (layoutedFrameNode,[layoutedTopFrame])=>
+                    layoutedFrameNode && layoutedTopFrame/*not top frame or layouted not synced*/
+                        ? this.getFrameByLayoutedFrameNode(layoutedFrameNode) : null,
+                true//findLast
+            )
+            if(found.node){
+                return lastLineIncludeX(leafFrame=found.node, point.x-found.x)
             }
         }
         
-        const lastLineIncludeXInTopFrame=(topFrame,X)=>{
-            if(!(topFrame.cols && topFrame.cols.length>1))
-                return topFrame.lastLine
-            const column=topFrame.columns.find(({x,width})=>X>=x && X<=x+width)
+        const lastLineIncludeX=(frame,X)=>{
+            if(!(frame.cols && frame.cols.length>1))
+                return frame.lastLine
+            const column=frame.columns.find(({x,width})=>X>=x && X<=x+width)
             if(column)
                 return column.lines[column.lines.length-1]
         }
@@ -749,7 +754,7 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
         var prevLine
         //first try to find prev line in current top frame
         while(leafFrame && lineInLeafFrame){
-            if(prevLine=prevLineAboveInFrame(leafFrame, lineInLeafFrame)){
+            if(prevLine=prevLineAbove(leafFrame, lineInLeafFrame,{x,y})){
                 return this.aroundInBlockLine({x,y},prevLine,topFrame,leafFrame)
             }
             //direct parent frame
@@ -767,7 +772,7 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
         }
         //otherwise find first line in next siblings of current top frame
         while(topFrame && !prevLine && (topFrame=prevTopFrame(topFrame))){
-            if(prevLine=lastLineIncludeXInTopFrame(topFrame,x)){
+            if(prevLine=lastLineIncludeX(topFrame,x)){
                 //then around in the line
                 return this.aroundInBlockLine({x,y},prevLine, topFrame)
             }
