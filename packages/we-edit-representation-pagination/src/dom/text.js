@@ -85,9 +85,7 @@ class Text extends Super{
     }
 
 	createComposed2Parent(props){
-        const composed=<ComposedText {...props}/>
-		this.computed.composed.push(composed)
-		return composed
+        return <ComposedText {...props}/>
 	}
 }
 

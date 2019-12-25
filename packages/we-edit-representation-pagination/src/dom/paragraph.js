@@ -250,15 +250,9 @@ class Paragraph extends Super{
 		/>
 	}
 
+	//
 	nextAvailableSpace(required){
-		const space=super.nextAvailableSpace(required)
-		const {width,left=0,right=width}=space
-		const {indent:{left:indentLeft=0,right:indentRight=0,firstLine=0}, numbering,}=this.props
-		const bFirstLine=this.lines.length==0
-		return space.clone({
-			left:left+indentLeft+(bFirstLine&&!numbering&&firstLine||0), 
-			right:right-indentRight,
-		})
+		
 	}
 
 	/**
@@ -267,12 +261,23 @@ class Paragraph extends Super{
 	 * paragraph bottom doesn't affect current line's block offset, so don't handle it here
 	 * *** every created line is appended IMMEDIATELY into composed, so the line index is from 1 in createComposed2Parent 
 	 */
-    createLine(required){
+    createLine(required,shouldPush=true/*for cache*/){
+		const nextAvailableSpace=required=>{
+			const space=super.nextAvailableSpace(required)
+			const {width,left=0,right=width}=space
+			const {indent:{left:indentLeft=0,right:indentRight=0,firstLine=0}, numbering,}=this.props
+			const bFirstLine=this.lines.length==0
+			return space.clone({
+				left:left+indentLeft+(bFirstLine&&!numbering&&firstLine||0), 
+				right:right-indentRight,
+			})
+		}
+
 		const {numbering, align,spacing:{lineHeight,top}}=this.props
 		const bFirstLine=this.lines.length==0
 
 		const line=new this.constructor.Line({
-			space:this.nextAvailableSpace(required),
+			space:nextAvailableSpace(required),
 			positioned: bFirstLine&&numbering ? [this.getNumberingAtom()] : [],
 			top: bFirstLine ? top : undefined, 
 			lineHeight,
@@ -345,8 +350,8 @@ export default class EditableParagraph extends editable(Paragraph,{stoppable:tru
 	cancelUnusableLastComposed({hash,changed=hash!=this.props.hash}){
 		if(changed){
 			this.atoms=[]
-			super.cancelUnusableLastComposed(...arguments)
 		}
+		super.cancelUnusableLastComposed(...arguments)
 	}
 
 	/**if lineSegments is same, last layouted line should be able to fit in without relayout */
@@ -355,7 +360,7 @@ export default class EditableParagraph extends editable(Paragraph,{stoppable:tru
 		this.lines=[]
 		const spaceChangedAt=this.computed.lastComposed.findIndex((a,i)=>{
 			var line=lines[i]
-			const space=this.nextAvailableSpace({height:a.props.height})
+			const space=this.createLine({height:a.props.height},false).props.space
 			if(line.isFitTo(space)){
 				line=line.clone4Space(space)
 				this.lines.push(line)

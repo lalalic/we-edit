@@ -13,8 +13,13 @@ import ComposedAllTrigger from "./composed-all-trigger"
 
  * To make everything cacheable, component can customize appendLastComposed to define itself cache policy
  * shoul lastComposed be cleared
+ * 
+ * AtomCollector: is inline conainer and NoChild in Paragraph, Paragraph.nextAvailableSpace would give null for AtomCollector test.
+ * AtomCollector is just to collect atom without either block or inline layout, so the cache policy is sure as
+ * ** if not change, cache can always be applicable
+ * ** AtomCollector should be either all composed, or nothing composed
  */
-export default (A,{cancelAllOnSelfChange, partable})=>{
+export default A=>{
     class Recomposable extends A{
         static displayName=`recomposable-${A.displayName}`
 
@@ -31,7 +36,7 @@ export default (A,{cancelAllOnSelfChange, partable})=>{
         }
 
         //always call render to compose to sync onAllChildrenComposed
-        shouldComponentUpdate(){
+        shouldComponentUpdate(next){
             this.cancelUnusableLastComposed(...arguments)
             return true
         }
@@ -42,7 +47,11 @@ export default (A,{cancelAllOnSelfChange, partable})=>{
          * @param {*} nextProps 
          * @param {*} nextState 
          */
-        cancelUnusableLastComposed(nextProps, nextState){
+        cancelUnusableLastComposed({hash,changed=hash!=this.props.hash}){
+            if(this.isAtomCollector() && !changed){
+                return
+            }
+            
             this.computed.composed=[]
             this.computed.lastComposed=[]
             delete this.computed.allComposed
@@ -56,7 +65,10 @@ export default (A,{cancelAllOnSelfChange, partable})=>{
          * others: fail, render all
          */
         appendLastComposed(){
-            
+            if(this.isAtomCollector()){
+                this.computed.lastComposed.forEach(a=>this.context.parent.appendComposed(a))
+                return true
+            }
         }
 
         //last composed + left
@@ -96,8 +108,14 @@ export default (A,{cancelAllOnSelfChange, partable})=>{
                 !(b && b.props.id==id && b.props.hash==hash))
             return current.slice(changedIndex).map(a=>a && a.props.id)
         })
-    }
 
+        /**
+         * based on Paragraph's nextAvailableSpace implementation
+         */
+        isAtomCollector(){
+            return !this.nextAvailableSpace()
+        }
+    }
 
     return Recomposable
 }

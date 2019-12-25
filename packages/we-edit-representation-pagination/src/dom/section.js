@@ -201,7 +201,7 @@ export default class EditableSection extends editable(Section,{stoppable:true}){
 		if(spaceChangedAt==0){
 			//clear all computed
 			this.anchors=[]
-			super.cancelUnusableLastComposed()
+			super.cancelUnusableLastComposed({changed:true})
 			return false
 		}else if(spaceChangedAt==-1){
 			if(this.isAllChildrenComposed()){
