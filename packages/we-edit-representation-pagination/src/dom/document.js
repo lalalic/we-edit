@@ -135,8 +135,10 @@ export default class extends editable(Document,{continuable:true}){
      * 
 	 **/
 	shouldContinueCompose(composer){
-        if(this.computed.shouldContinueCompose===false)
+        if(this.computed.shouldContinueCompose===false){
+            composer && this.notifyNotAllComposed(composer)
             return false
+        }
         if(!this.state.editable)
             return true
         const selection=getSelection(this.context.activeDocStore.getState())

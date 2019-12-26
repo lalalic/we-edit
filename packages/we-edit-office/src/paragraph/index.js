@@ -1,7 +1,6 @@
 import React, {Component} from "react"
-import PropTypes from "prop-types"
 
-import {compose,setDisplayName,getContext,mapProps} from "recompose"
+import {compose,setDisplayName,mapProps, shallowEqual} from "recompose"
 import {ACTION, connect, getSelectionStyle,getUI} from "we-edit"
 
 import {ToolbarGroup,ToolbarSeparator as ToolbarSeparator0,MenuItem, SvgIcon} from "material-ui"
@@ -21,10 +20,13 @@ const ToolbarSeparator=props=><ToolbarSeparator0 style={{marginRight:2, marginLe
 
 export default compose(
 	setDisplayName("ParagraphStyle"),
-	connect(state=>({selection:getSelectionStyle(state), ...getUI(state)})),
-	mapProps(({dispatch,children,selection,pilcrow})=>{
-		const style=selection&&selection.props("paragraph",false)||null
-
+	connect(state=>{
+		const selection=getSelectionStyle(state)
+		if(selection)
+			return {style:selection.props("paragraph",false),...getUI(state)}
+		return getUI(state)
+	}),
+	mapProps(({dispatch,children,style,pilcrow})=>{
 		return {
 			children,
 			style,
@@ -56,60 +58,68 @@ export default compose(
 			}
 		}
 	}),
-)(({style, toggleAlign,numbering, bullet, toggleBullet, toggleNumbering, pilcrow, togglePilcrow,children})=>(
-	<ToolbarGroup>
-		<CheckIconButton
-			status={style &&(!style.align ||style.align=="left")?"checked":"unchecked"}
-			onClick={()=>toggleAlign("left")}
-			children={<IconAlignLeft/>}
-			/>
-		<CheckIconButton
-			status={style&&style.align=="center"?"checked":"unchecked"}
-			onClick={()=>toggleAlign("center")}
-			children={<IconAlignCenter/>}
-			/>
-		<CheckIconButton
-			status={style &&style.align=="right"?"checked":"unchecked"}
-			onClick={()=>toggleAlign("right")}
-			children={<IconAlignRight/>}
-			/>
-		<CheckIconButton
-			status={style&&style.align=="justify"?"checked":"unchecked"}
-			onClick={()=>toggleAlign("justify")}
-			children={<IconAlignJustify/>}
-			/>
-		<ToolbarSeparator/>
+)(class extends Component{
+	shouldComponentUpdate({style,pilcrow}){
+		return !((pilcrow==pilcrow) && (style==this.props.style || shallowEqual(style,this.props.style)))
+	}
+	render(){
+		const {style, toggleAlign,numbering, bullet, toggleBullet, toggleNumbering, pilcrow, togglePilcrow,children}=this.props
+		return (
+			<ToolbarGroup>
+				<CheckIconButton
+					status={style &&(!style.align ||style.align=="left")?"checked":"unchecked"}
+					onClick={()=>toggleAlign("left")}
+					children={<IconAlignLeft/>}
+					/>
+				<CheckIconButton
+					status={style&&style.align=="center"?"checked":"unchecked"}
+					onClick={()=>toggleAlign("center")}
+					children={<IconAlignCenter/>}
+					/>
+				<CheckIconButton
+					status={style &&style.align=="right"?"checked":"unchecked"}
+					onClick={()=>toggleAlign("right")}
+					children={<IconAlignRight/>}
+					/>
+				<CheckIconButton
+					status={style&&style.align=="justify"?"checked":"unchecked"}
+					onClick={()=>toggleAlign("justify")}
+					children={<IconAlignJustify/>}
+					/>
+				<ToolbarSeparator/>
 
-		<DropDownButton
-			status={style&&style.numbering&&style.numbering.format=="bullet" ?"checked":"unchecked"}
-			onClick={()=>toggleBullet({type:"bullet",text:"."})}
-			icon={<IconListBullet/>}
-			>
-			<MenuItem primaryText="." onClick={e=>numbering({type:"bullet",text:"."})}/>
-			<MenuItem primaryText="*" onClick={e=>numbering({type:"bullet",text:"*"})}/>
+				<DropDownButton
+					status={style&&style.numbering&&style.numbering.format=="bullet" ?"checked":"unchecked"}
+					onClick={()=>toggleBullet({type:"bullet",text:"."})}
+					icon={<IconListBullet/>}
+					>
+					<MenuItem primaryText="." onClick={e=>numbering({type:"bullet",text:"."})}/>
+					<MenuItem primaryText="*" onClick={e=>numbering({type:"bullet",text:"*"})}/>
 
-		</DropDownButton>
-		<DropDownButton
-			status={style&&style.numbering&&style.numbering.format!=="bullet" ?"checked":"unchecked"}
-			onClick={()=>toggleNumbering({type:"decimal",text:"%1."})}
-			icon={<IconListNumber/>}
-			>
-			<MenuItem primaryText="1." onClick={e=>numbering({type:"decimal",text:"%1."})}/>
-			<MenuItem primaryText="a." onClick={e=>numbering({type:"lowerLetter",text:"%1."})}/>
-			<MenuItem primaryText="一" onClick={e=>numbering({type:"chinese", text:"%1"})}/>
-		</DropDownButton>
-		<ToolbarSeparator/>
-		<CheckIconButton
-			status={pilcrow ? "checked" : "unchecked"}
-			onClick={togglePilcrow}
-			children={
-				<SvgIcon>
-					<g transform="translate(0 4)">
-						<path d="M9 10v5h2V4h2v11h2V4h2V2H9C6.79 2 5 3.79 5 6s1.79 4 4 4z"/>
-					</g>
-				</SvgIcon>
-			}
-			/>
-		{children}
-	</ToolbarGroup>
-))
+				</DropDownButton>
+				<DropDownButton
+					status={style&&style.numbering&&style.numbering.format!=="bullet" ?"checked":"unchecked"}
+					onClick={()=>toggleNumbering({type:"decimal",text:"%1."})}
+					icon={<IconListNumber/>}
+					>
+					<MenuItem primaryText="1." onClick={e=>numbering({type:"decimal",text:"%1."})}/>
+					<MenuItem primaryText="a." onClick={e=>numbering({type:"lowerLetter",text:"%1."})}/>
+					<MenuItem primaryText="一" onClick={e=>numbering({type:"chinese", text:"%1"})}/>
+				</DropDownButton>
+				<ToolbarSeparator/>
+				<CheckIconButton
+					status={pilcrow ? "checked" : "unchecked"}
+					onClick={togglePilcrow}
+					children={
+						<SvgIcon>
+							<g transform="translate(0 4)">
+								<path d="M9 10v5h2V4h2v11h2V4h2V2H9C6.79 2 5 3.79 5 6s1.79 4 4 4z"/>
+							</g>
+						</SvgIcon>
+					}
+					/>
+				{children}
+			</ToolbarGroup>
+		)
+	}
+})

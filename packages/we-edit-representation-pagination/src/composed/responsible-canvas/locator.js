@@ -39,7 +39,7 @@ export default compose(
     }
 
     shouldComponentUpdate({content,selection,positioning, cursor, range},state){
-		if(content.equals(state.content)){
+        if(content.equals(state.content)){
 			if(!content.equals(this.props.content) || !selection.equals(this.props.selection)
                 || !content.equals(this.last.content) || !selection.equals(this.last.selection)){
 				const {cursorAt, ...a}=selection.toJS()

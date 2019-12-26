@@ -13,7 +13,10 @@ export default class File extends PureComponent{
 	static contextTypes={
 		store: PropTypes.object,
 	}
-
+	shouldComponentUpdate(){
+		return false
+	}
+	
 	render(){
 		const {children}=this.props
 		return (

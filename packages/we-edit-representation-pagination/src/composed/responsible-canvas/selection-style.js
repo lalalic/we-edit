@@ -1,3 +1,5 @@
+import memoize from "memoize-one"
+
 export default class SelectionStyle {
     constructor(position, positioning, start, end) {
         this.position = position;
@@ -16,7 +18,7 @@ export default class SelectionStyle {
     toJSON() {
         return "Selection.Style";
     }
-    props(type, getFromContent = true) {
+    props=memoize((type, getFromContent = true)=>{
         if (type.toLowerCase() == "page") {
             return this.pageProps();
         }
@@ -24,31 +26,33 @@ export default class SelectionStyle {
             return this.layoutProps();
         }
         if (getFromContent) {
-            return this.content(type).props;
+            return this.content(type).props
         }
         const { id: typed } = this.content(type);
         if (typed) {
             const composer = this.getComposer(typed);
             if (composer) {
-                return composer.props;
+                return composer.props
             }
         }
-    }
-    layoutProps() {
+    })
+
+    layoutProps=memoize(()=>{
         if (!this.positioning.ready)
-            return null;
+            return undefined;
         const page = this.positioning.pages.find(a => a.props.I == this.position.page);
         if (!page) {
-            return null;
+            return undefined;
         }
         return page.layoutOf(page.columnIndexOf(page.lineIndexOf(this.position)));
-    }
-    pageProps() {
+    })
+
+    pageProps=memoize(()=>{
         if (!this.positioning.ready)
-            return null;
+            return undefined;
         const page = this.positioning.pages.find(a => a.props.I == this.position.page);
         if (!page) {
-            return null;
+            return undefined;
         }
         const pageY = () => this.positioning.pageXY(this.position.page).y;
         const line = () => page.lineIndexOf(this.position);
@@ -76,8 +80,9 @@ export default class SelectionStyle {
                 return margin;
             }
         };
-    }
-    content(type) {
+    })
+
+    content=memoize((type)=>{
         if (this.start != this.end) {
             var targets = this.getContent(this.start).forwardUntil(`#${this.end}`);
             targets = targets.add('#' + this.end).add('#' + this.start, "unshift");
@@ -86,13 +91,13 @@ export default class SelectionStyle {
                 return targets.props().toJS();
             }
             else {
-                return { props: null };
+                return { props: undefined };
             }
         }
         else {
             let $ = this.getContent(this.position.id);
             let props = $.is(type) ? $.props() : $.closest(type).props();
-            return props ? props.toJS() : { props: null };
+            return props ? props.toJS() : { props: undefined };
         }
-    }
+    })
 }

@@ -1,7 +1,6 @@
 import React, {Component} from "react"
-import PropTypes from "prop-types"
 import {connect} from "react-redux"
-import {compose, mapProps,getContext,setDisplayName} from "recompose"
+import {compose, setDisplayName} from "recompose"
 
 import {ToolbarGroup} from "material-ui"
 import CheckIconButton from "../components/check-icon-button"
@@ -21,8 +20,7 @@ export default compose(
 		const {start={},end={}}=getSelection(state)
 		const isCursor=start.id==end.id && start.at==end.at
         return {
-			isCursor,
-            withSelection: !isCursor,
+			withSelection: !isCursor,
             withClipboard:!!window._clipboard,
 		}
 	},(dispatch)=>{
@@ -38,26 +36,34 @@ export default compose(
 			},
 		}
 	})
-)(({cut,copy,paste,withSelection,withClipboard,children})=>(
-	<ToolbarGroup>
-		<CheckIconButton
-			label="paste"
-			status={withClipboard ? "uncheck" : "disabled"}
-			children={<IconPaste/>}
-			onClick={paste}
-			/>
-		<CheckIconButton
-			label="cut"
-			status={withSelection ? "uncheck" : "disabled"}
-			children={<IconCut/>}
-			onClick={cut}
-			/>
-        <CheckIconButton
-			label="copy"
-			status={withSelection ? "uncheck" : "disabled"}
-			children={<IconCopy/>}
-			onClick={copy}
-			/>
-		{children}
-	</ToolbarGroup>
-))
+)(class extends Component {
+	shouldComponentUpdate({withSelection,widthClipboard}){
+		return !(widthClipboard==this.props.widthClipboard && withSelection==this.props.withSelection)
+	}
+	render(){
+		const {cut,copy,paste,withSelection,withClipboard,children}=this.props
+		return (
+			<ToolbarGroup>
+				<CheckIconButton
+					label="paste"
+					status={withClipboard ? "uncheck" : "disabled"}
+					children={<IconPaste/>}
+					onClick={paste}
+					/>
+				<CheckIconButton
+					label="cut"
+					status={withSelection ? "uncheck" : "disabled"}
+					children={<IconCut/>}
+					onClick={cut}
+					/>
+				<CheckIconButton
+					label="copy"
+					status={withSelection ? "uncheck" : "disabled"}
+					children={<IconCopy/>}
+					onClick={copy}
+					/>
+				{children}
+			</ToolbarGroup>
+		)
+	}
+})

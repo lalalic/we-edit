@@ -1,9 +1,48 @@
 import React,{PureComponent} from "react"
 import PropTypes from "prop-types"
-import {compose, mapProps,getContext,setDisplayName} from "recompose"
+import memoize from "memoize-one"
 
 import {IconButton} from "material-ui"
 
+export default class SizableIconButton extends PureComponent{
+	static contextTypes={
+		muiTheme:PropTypes.object,
+	}
+
+	getStyle=memoize((style,size,padding,iconStyle, status)=>{
+		const sizeIconButton=this.context.muiTheme.sizeIconButton
+		style=style||{}
+		iconStyle=iconStyle||{}
+		
+		if(sizeIconButton){
+			if(!size && sizeIconButton.size)
+				size=sizeIconButton.size
+			if(!padding && sizeIconButton.padding)
+				padding=sizeIconButton.padding
+		}
+		if(!padding)
+			padding=2
+
+		if(size){
+			style.width=style.height=size
+			iconStyle.width=iconStyle.height=size-padding*2
+			style.padding=padding
+		}
+
+		return {style:{...style, ...styles[status]}, iconStyle}
+	})
+
+	render(){
+		const {status,
+			disabled=status=="disabled",
+			size,padding,style,iconStyle, label, hint=label,
+			...props}=this.props
+
+		return <IconButton {...props} 
+			{...this.getStyle(style,size,padding,iconStyle, status)}
+			disabled={disabled} tooltip={hint}/>
+	}
+}
 const styles={
 	checked:{
 		background:"lightblue",
@@ -13,31 +52,3 @@ const styles={
 	disabled:{
 	}
 }
-
-export const SizeIconButton=compose(
-	setDisplayName("SizableIconButton"),
-	getContext({muiTheme:PropTypes.object}),
-)(({status, disabled=status=="disabled",
-	size,padding,style={},iconStyle={}, muiTheme:{sizeIconButton}, label, hint=label,
-	...props})=>{
-	if(sizeIconButton){
-		if(!size && sizeIconButton.size)
-			size=sizeIconButton.size
-		if(!padding && sizeIconButton.padding)
-			padding=sizeIconButton.padding
-	}
-	if(!padding)
-		padding=2
-
-	if(size){
-		style.width=style.height=size
-		iconStyle.width=iconStyle.height=size-padding*2
-		style.padding=padding
-	}
-
-	style={...style, ...styles[status]}
-
-	return <IconButton {...props} {...{style,iconStyle, disabled}} tooltip={hint}/>
-})
-
-export default SizeIconButton

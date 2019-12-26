@@ -1,11 +1,10 @@
 import React, {Component} from "react"
-import PropTypes from "prop-types"
 
 import {ACTION,  connect, getSelectionStyle} from "we-edit"
 
-import {compose,setDisplayName,getContext,mapProps,withProps} from "recompose"
+import {compose,setDisplayName,withProps, shallowEqual} from "recompose"
 
-import {ToolbarGroup,TextField,SelectField, MenuItem,SvgIcon,ToolbarSeparator as ToolbarSeparator0,} from "material-ui"
+import {ToolbarGroup,MenuItem,SvgIcon,ToolbarSeparator as ToolbarSeparator0,} from "material-ui"
 
 import ComboBox from "../components/combo-box"
 import CheckIconButton from "../components/check-icon-button"
@@ -26,8 +25,12 @@ const ToolbarSeparator=props=><ToolbarSeparator0 style={{marginRight:2, marginLe
 
 export default compose(
 	setDisplayName("TextStyle"),
-	connect(state=>({selection:getSelectionStyle(state)})),
-	withProps(({dispatch,selection, style=(selection ? selection.props("text",false) : null)})=>{
+	connect(state=>{
+		const selection=getSelectionStyle(state)
+		if(selection)
+			return {style:selection.props("text",false)}
+	}),
+	withProps(({dispatch, style})=>{
 		let changeSize=size=>dispatch(ACTION.Selection.UPDATE({text:{size}}))
 		return {
 			style,
@@ -65,104 +68,113 @@ export default compose(
 
 		}
 	})
-)(({style, children,
-	bigger, smaller, clear,
-	toggleStrike, changeHightlight,changeColor,
-	toggleSubscript, toggleSuperscript, toggleBorder,
-	toggleB, toggleI, underline,
-	changeFont,changeSize})=>(
-	<ToolbarGroup>
-		<FontList
-			value={style&&style.fonts ? style.fonts.split(",")[0] : ""}
-			changeFont={changeFont}/>
-		<ComboBox
-			style={{width:50}}
-			inputStyle={{border:"1px solid lightgray"}}
-			value={style ? style.size: 11}
-			onChange={value=>changeSize(parseInt(value))}
-			dataSource={[8,9,10,11,12,14,16,20,22,24,26,28,36,72].map(a=>a+"")}
-			underlineShow={false}
-			/>
-		<CheckIconButton label="increase font size"
-			status={"unchecked"}
-			onClick={bigger}
-			children={<IconBigger/>}
-			/>
-		<CheckIconButton label="descrease font size"
-			status={"unchecked"}
-			onClick={smaller}
-			children={<IconSmaller/>}
-			/>
-		<ToolbarSeparator/>
+)(class extends Component{
+	shouldComponentUpdate({style}){
+		return !(style==this.props.style || shallowEqual(style, this.props.style))
+	}
 
-		<CheckIconButton label="bold"
-			status={style&&style.bold ? "checked" : "unchecked"}
-			onClick={()=>toggleB()}
-			children={<IconBold/>}
-			/>
-		<CheckIconButton label="italic"
-			status={style && style.italic?"checked":"unchecked"}
-			onClick={()=>toggleI()}
-			children={<IconItalic/>}
-			/>
-		<DropDownButton label="underline"
-			status={style&&style.underline?"checked":"unchecked"}
-			onClick={a=>underline(style&&style.underline ? "" : "single")}
-			icon={<IconUnderlined/>}
-			>
-			{"single,double,dot,dash".split(",").map(a=>
-				<MenuItem
-					key={a}
-					onClick={e=>underline(a)}
-					primaryText={a}
+	render(){
+		const {style, children,
+			bigger, smaller, clear,
+			toggleStrike, changeHightlight,changeColor,
+			toggleSubscript, toggleSuperscript, toggleBorder,
+			toggleB, toggleI, underline,
+			changeFont,changeSize}=this.props
+		return (
+			<ToolbarGroup>
+				<FontList
+					value={style&&style.fonts ? style.fonts.split(",")[0] : ""}
+					changeFont={changeFont}/>
+				<ComboBox
+					style={{width:50}}
+					inputStyle={{border:"1px solid lightgray"}}
+					value={style ? style.size: 11}
+					onChange={value=>changeSize(parseInt(value))}
+					dataSource={[8,9,10,11,12,14,16,20,22,24,26,28,36,72].map(a=>a+"")}
+					underlineShow={false}
 					/>
-			)}
-		</DropDownButton>
+				<CheckIconButton label="increase font size"
+					status={"unchecked"}
+					onClick={bigger}
+					children={<IconBigger/>}
+					/>
+				<CheckIconButton label="descrease font size"
+					status={"unchecked"}
+					onClick={smaller}
+					children={<IconSmaller/>}
+					/>
+				<ToolbarSeparator/>
 
-		<CheckIconButton label="strikethrough"
-			status={style&&style.strike?"checked":"unchecked"}
-			onClick={()=>toggleStrike()}
-			children={<IconStrike/>}
-			/>
-		<ToolbarSeparator/>
+				<CheckIconButton label="bold"
+					status={style&&style.bold ? "checked" : "unchecked"}
+					onClick={()=>toggleB()}
+					children={<IconBold/>}
+					/>
+				<CheckIconButton label="italic"
+					status={style && style.italic?"checked":"unchecked"}
+					onClick={()=>toggleI()}
+					children={<IconItalic/>}
+					/>
+				<DropDownButton label="underline"
+					status={style&&style.underline?"checked":"unchecked"}
+					onClick={a=>underline(style&&style.underline ? "" : "single")}
+					icon={<IconUnderlined/>}
+					>
+					{"single,double,dot,dash".split(",").map(a=>
+						<MenuItem
+							key={a}
+							onClick={e=>underline(a)}
+							primaryText={a}
+							/>
+					)}
+				</DropDownButton>
 
-		<CheckIconButton label="Subscript"
-			status={style&&style.subscript?"checked":"unchecked"}
-			onClick={()=>toggleSubscript()}
-			children={<IconSubscript/>}
-			/>
-		<CheckIconButton label="Superscript"
-			status={style&&style.superscript?"checked":"unchecked"}
-			onClick={()=>toggleSuperscript()}
-			children={<IconSuperscript/>}
-			/>
+				<CheckIconButton label="strikethrough"
+					status={style&&style.strike?"checked":"unchecked"}
+					onClick={()=>toggleStrike()}
+					children={<IconStrike/>}
+					/>
+				<ToolbarSeparator/>
 
-		<CheckIconButton label="text border"
-			onClick={toggleBorder}
-			children={<IconTextBorder/>}
-			/>
+				<CheckIconButton label="Subscript"
+					status={style&&style.subscript?"checked":"unchecked"}
+					onClick={()=>toggleSubscript()}
+					children={<IconSubscript/>}
+					/>
+				<CheckIconButton label="Superscript"
+					status={style&&style.superscript?"checked":"unchecked"}
+					onClick={()=>toggleSuperscript()}
+					children={<IconSuperscript/>}
+					/>
 
-		<ColorButton label="text highlight color"
-			status={style&&style.highlight?"checked":"unchecked"}
-			onChange={color=>changeHightlight(color)}>
-			<IconBackground/>
-		</ColorButton>
+				<CheckIconButton label="text border"
+					onClick={toggleBorder}
+					children={<IconTextBorder/>}
+					/>
 
-		<ColorButton label="text color"
-			status={style&&style.color?"checked":"unchecked"}
-			onChange={color=>changeColor(color)}>
-			<IconColor/>
-		</ColorButton>
+				<ColorButton label="text highlight color"
+					status={style&&style.highlight?"checked":"unchecked"}
+					onChange={color=>changeHightlight(color)}>
+					<IconBackground/>
+				</ColorButton>
 
-		<ToolbarSeparator/>
-		<CheckIconButton label="clear all text formatting"
-			onClick={clear}
-			children={<IconClear/>}
-			/>
+				<ColorButton label="text color"
+					status={style&&style.color?"checked":"unchecked"}
+					onChange={color=>changeColor(color)}>
+					<IconColor/>
+				</ColorButton>
 
-		{children}
-	</ToolbarGroup>
-))
+				<ToolbarSeparator/>
+				<CheckIconButton label="clear all text formatting"
+					onClick={clear}
+					children={<IconClear/>}
+					/>
+
+				{children}
+			</ToolbarGroup>
+		)
+	}			
+})
 
 const IconSuperscript=props=>(
 	<SvgIcon {...props}>

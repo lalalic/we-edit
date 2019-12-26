@@ -3,10 +3,7 @@ import PropTypes from "prop-types"
 
 import memoize from "memoize-one"
 
-import Run from "./run"
-
-
-export default ({Text, Paragraph})=>class __$1 extends Component{
+export default ({Paragraph})=>class __$1 extends Component{
 	static displayName="paragraph"
 	static propTypes={
 		style: PropTypes.object.isRequired,
@@ -17,7 +14,6 @@ export default ({Text, Paragraph})=>class __$1 extends Component{
 
 	static contextTypes={
 		style: PropTypes.object,
-		shouldContinueCompose: PropTypes.func
 	}
 
 	static childContextTypes={
