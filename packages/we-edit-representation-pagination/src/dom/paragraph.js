@@ -252,7 +252,14 @@ class Paragraph extends Super{
 
 	//
 	nextAvailableSpace(required){
-		
+		const space=super.nextAvailableSpace(required)
+		const {width,left=0,right=width}=space
+		const {indent:{left:indentLeft=0,right:indentRight=0,firstLine=0}, numbering,}=this.props
+		const bFirstLine=this.lines.length==0
+		return space.clone({
+			left:left+indentLeft+(bFirstLine&&!numbering&&firstLine||0), 
+			right:right-indentRight,
+		})
 	}
 
 	/**
@@ -262,22 +269,11 @@ class Paragraph extends Super{
 	 * *** every created line is appended IMMEDIATELY into composed, so the line index is from 1 in createComposed2Parent 
 	 */
     createLine(required){
-		const nextAvailableSpace=required=>{
-			const space=super.nextAvailableSpace(required)
-			const {width,left=0,right=width}=space
-			const {indent:{left:indentLeft=0,right:indentRight=0,firstLine=0}, numbering,}=this.props
-			const bFirstLine=this.lines.length==0
-			return space.clone({
-				left:left+indentLeft+(bFirstLine&&!numbering&&firstLine||0), 
-				right:right-indentRight,
-			})
-		}
-
 		const {numbering, align,spacing:{lineHeight,top}}=this.props
 		const bFirstLine=this.lines.length==0
 
 		const line=new this.constructor.Line({
-			space:nextAvailableSpace(required),
+			space:this.nextAvailableSpace(required),
 			positioned: bFirstLine&&numbering ? [this.getNumberingAtom()] : [],
 			top: bFirstLine ? top : undefined, 
 			lineHeight,
