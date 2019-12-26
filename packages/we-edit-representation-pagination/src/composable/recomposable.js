@@ -42,6 +42,9 @@ export default A=>{
                 //clear last allComposed, so it can be reset
                 delete this.computed.allComposed
             }
+            if(this.context.shouldContinueCompose && !this.context.shouldContinueCompose(this)){
+                return false
+            }
             this.cancelUnusableLastComposed(...arguments)
             return true
         }
@@ -84,7 +87,7 @@ export default A=>{
                     console.debug(`${this.getComposeType()}[${this.props.id}] used ${appended+1} children caches`)
                     return (
                         <Fragment>
-                            {Children.toArray(this.props.children).slice(appended+1)}
+                            {this.childrenArray(this.props.children).slice(appended+1)}
                             <ComposedAllTrigger host={this}/>
                         </Fragment>
                     )
@@ -102,13 +105,13 @@ export default A=>{
             const extract=({props:{"data-content":a,children}})=>(id=a)!=undefined ? 
                 true :  Children.toArray(children).findIndex(extract)!=-1;
             extract(composed)
-            if(Children.toArray(this.props.children).findIndex(a=>a && a.props.id==id)!=-1)
+            if(this.childrenArray(this.props.children).findIndex(a=>a && a.props.id==id)!=-1)
                 return id
         }
 
         childrenNeedRecompose=memoize((b,a)=>{
             const next=Children.toArray(b.children)
-            const current=Children.toArray(a.children)
+            const current=this.childrenArray(a.children)
             const changedIndex=current.findIndex(({props:{id,hash}},i,_,$,b=next[i])=>
                 !(b && b.props.id==id && b.props.hash==hash))
             return current.slice(changedIndex).map(a=>a && a.props.id)

@@ -115,7 +115,8 @@ export default class extends editable(Document,{continuable:true}){
 
     constructor(){
 		super(...arguments)
-		this.state={mode:"content", ...this.state}
+        this.state={mode:"content", ...this.state}
+        this.computed.shouldContinueCompose=true//cache for shouldContinueCompose
 	}
     
     get canvas(){
@@ -129,15 +130,20 @@ export default class extends editable(Document,{continuable:true}){
      * @continuable
 	 * 1. selection end
 	 * 2. viewport: viewporter.scrollTop+viewporter.height
+     * 
+     * computed.shouldContinueCompose as cache, since frequently called
+     * 
 	 **/
 	shouldContinueCompose(composer){
+        if(this.computed.shouldContinueCompose===false)
+            return false
         if(!this.state.editable)
             return true
         const selection=getSelection(this.context.activeDocStore.getState())
 		const should=this.canvas.isAboveViewableBottom() || !this.isSelectionComposed(selection)
-
-		if(!should  && composer){
-			this.notifyNotAllComposed(composer)
+        if(!should){
+            this.computed.shouldContinueCompose=false
+            composer && this.notifyNotAllComposed(composer)
 		}
 		return should
     }
@@ -149,6 +155,7 @@ export default class extends editable(Document,{continuable:true}){
     //no cache on document level
     cancelUnusableLastComposed(){
         this.computed.templates=[]
+        this.computed.shouldContinueCompose=true
         super.cancelUnusableLastComposed(...arguments)
     }
 

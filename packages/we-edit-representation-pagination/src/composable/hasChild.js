@@ -2,6 +2,7 @@
 import React, {Children,Fragment} from "react"
 import PropTypes from "prop-types"
 import ComposedAllTrigger from "./composed-all-trigger"
+import memoize from "memoize-one"
 export default A=>{
     if(A.already)
         return A
@@ -46,7 +47,7 @@ export default A=>{
         render(){
             return (
                 <Fragment>
-                    {Children.toArray(this.props.children)/****MUST use toArray(children), since recompose use this way to compose part of children*/}
+                    {this.childrenArray(this.props.children)/****MUST use toArray(children), since recompose use this way to compose part of children*/}
                     <ComposedAllTrigger host={this}/>
                 </Fragment>
             )
@@ -114,6 +115,8 @@ export default A=>{
                 if(current.context)
                     current=current.context.parent
             }
-        }    
+        }
+        
+        childrenArray=memoize((children=this.props.children)=>Children.toArray(children))
     }
 }

@@ -57,8 +57,9 @@ describe("editor",()=>{
                 const $=new ReactQuery(element)
                 const found=$.findFirst(selector)
                 if(found.length>0){
+                    const node=found.get(0)
                     const changes={hash:Date.now()}
-                    element=$.replace(found,React.cloneElement(found.get(0), {...props,...changes}),changes).get(0)
+                    element=$.replace(node,React.cloneElement(node, {...props,...changes}),changes).get(0)
                     renderer.update(element)
                 }
                 return doc
@@ -69,7 +70,7 @@ describe("editor",()=>{
             },
         }
     })
-    it("can arbitrarily recompose after editing",()=>{
+    fit("can arbitrarily recompose after editing",()=>{
         expect(doc.pages.length).toBe(2)
         doc.updateFirst('text',{children:"hello"})
         //there should be 2 pages, but last paragraph should be all composed, so 3
