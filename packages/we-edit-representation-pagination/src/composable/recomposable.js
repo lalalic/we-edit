@@ -18,6 +18,7 @@ import ComposedAllTrigger from "./composed-all-trigger"
  * AtomCollector is just to collect atom without either block or inline layout, so the cache policy is sure as
  * ** if not change, cache can always be applicable
  * ** AtomCollector should be either all composed, or nothing composed
+ * ** NoChild also works like AtomCollector from cache perspective
  */
 export default A=>{
     class Recomposable extends A{
