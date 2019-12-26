@@ -83,7 +83,7 @@ export default ({Document})=>class __$1 extends Component{
 		}
 
 		appendComposed(page){
-			if(page.isContinuousLayout){
+			if(page.computed.isContinuousLayout){
 				const pages=this.computed.composed
 				const last=pages[pages.length-1]
 				if(last && last.continuous){

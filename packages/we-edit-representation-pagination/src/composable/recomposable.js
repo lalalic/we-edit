@@ -48,7 +48,7 @@ export default A=>{
          * @param {*} nextState 
          */
         cancelUnusableLastComposed({hash,changed=hash!=this.props.hash}){
-            if(this.isAtomCollector() && !changed){
+            if(!changed && this.isAtomCollector()){
                 return
             }
             
@@ -113,7 +113,7 @@ export default A=>{
          * based on Paragraph's nextAvailableSpace implementation
          */
         isAtomCollector(){
-            return !this.nextAvailableSpace()
+            return this.isAtom || this.props.isInlineContainer
         }
     }
 

@@ -136,6 +136,19 @@ export default class Columnable extends OrphanControlable {
 			</Group>
 		)
 	}
+
+	rollbackLines(){
+		const removedLines=super.rollbackLines(...arguments)
+		if(this.cols && this.columns.length>1){
+			const max=this.lines.length-1
+			const i=this.columns.findIndex(a=>a.lines.startIndex>max)
+			if(i!=-1){
+				this.columns.splice(i)
+			}
+		}
+
+		return removedLines
+	}
 }
 
 class ColumnChildren{

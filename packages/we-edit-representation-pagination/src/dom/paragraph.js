@@ -349,8 +349,8 @@ export default class EditableParagraph extends editable(Paragraph,{stoppable:tru
 	cancelUnusableLastComposed({hash,changed=hash!=this.props.hash}){
 		if(changed){
 			this.atoms=[]
+			super.cancelUnusableLastComposed(...arguments)
 		}
-		super.cancelUnusableLastComposed(...arguments)
 	}
 
 	/**if lineSegments is same, last layouted line should be able to fit in without relayout */

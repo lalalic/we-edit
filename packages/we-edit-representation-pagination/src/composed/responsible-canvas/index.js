@@ -126,7 +126,11 @@ export default class Responsible extends Component{
 
     composedY(){
         const {state:{pageGap,pages}}=this
-        return pages.reduce((w,page)=>w+page.composedHeight+pageGap,0)
+        const last=pages[pages.length-1]
+        if(!last)
+            return 0
+        const heightOfLast=last.context.parent.isAllChildrenComposed() ? last.props.height : last.composedHeight
+        return pages.slice(0,pages.length-1).reduce((w,page)=>w+page.props.height+pageGap,heightOfLast)
     }
 
     isAboveViewableBottom(){

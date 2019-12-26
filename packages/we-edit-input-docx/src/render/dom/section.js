@@ -137,6 +137,7 @@ export default ({Section,Group})=>class __$1 extends Component{
 		cancelUnusableLastComposed(...args){
 			const last=this.computed.lastComposed[this.computed.lastComposed.length-1]
 			if(last){
+				//continuous layout should always be re-appended
 				last.continuousLayouts=[]
 			}
 			return super.cancelUnusableLastComposed(...args)
@@ -225,14 +226,16 @@ export default ({Section,Group})=>class __$1 extends Component{
 				if(maxHeight<=1)
 					return 
 
-				return Object.assign(new Section.Layout({
+				const layout=new Section.Layout({
 					...props,
 					I:undefined,
 					cols:cols.map(a=>({...a,maxHeight,y:undefined})),
 					balance:true,
 					width:width-left-right,
 					height:undefined,
-				},{...context,frame:this}),{isContinuousLayout:true})
+				},{...context,frame:this})
+				layout.computed.isContinuousLayout=true
+				return layout
 			}
 
 			appendContinuousLayout(layout){
