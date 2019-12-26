@@ -25,16 +25,22 @@ export default class SelectionStyle {
         else if (type.toLowerCase() == "layout") {
             return this.layoutProps();
         }
-        if (getFromContent) {
-            return this.content(type).props
-        }
-        const { id: typed } = this.content(type);
-        if (typed) {
-            const composer = this.getComposer(typed);
-            if (composer) {
-                return composer.props
+        const props=(()=>{
+            if (getFromContent) {
+                return this.content(type).props
             }
-        }
+            const { id: typed } = this.content(type);
+            if (typed) {
+                const composer = this.getComposer(typed);
+                if (composer) {
+                    return composer.props
+                }
+            }
+        })();
+        if(!props)
+            return props
+        const {hash,id,content,...a}=props
+        return a
     })
 
     layoutProps=memoize(()=>{
