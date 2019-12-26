@@ -38,6 +38,10 @@ export default A=>{
 
         //always call render to compose to sync onAllChildrenComposed
         shouldComponentUpdate(next){
+            if(!this.isAllChildrenComposed()){
+                //clear last allComposed, so it can be reset
+                delete this.computed.allComposed
+            }
             this.cancelUnusableLastComposed(...arguments)
             return true
         }

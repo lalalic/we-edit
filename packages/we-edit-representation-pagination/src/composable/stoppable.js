@@ -8,6 +8,7 @@ export default A=>class __$1 extends A{
 
     render(){
         if(this.context.shouldContinueCompose && !this.context.shouldContinueCompose(this)){
+            console.debug(`${this.getComposeType()}[${this.props.id}] skip composed`)
             return null
         }
 

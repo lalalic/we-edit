@@ -250,7 +250,6 @@ class Paragraph extends Super{
 		/>
 	}
 
-	//
 	nextAvailableSpace(required){
 		const space=super.nextAvailableSpace(required)
 		const {width,left=0,right=width}=space

@@ -18,12 +18,4 @@ export default A=>class __$1 extends A{
     shouldContinueCompose(current){
         throw new Error("shouldContinueCompose must be implemented, and notifyNotAllComposed when false")
     }
-
-	notifyNotAllComposed(current){
-        current.computed.allComposed=false
-		while(current.context.parent){
-			current.context.parent.computed.allComposed=false
-			current=current.context.parent
-		}
-	}
 }
