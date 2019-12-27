@@ -18,13 +18,14 @@ export default class ComposedDocumentCanvas extends Component{
 	static defaultProps={
 		pageGap:24,
 		scale:1,
+		__sequentialCompose:true,
 	}
 
 	static getDerivedStateFromProps({document,...me}){
         const {pages,props:{scale=me.scale,pageGap=me.pageGap,precision=me.precision}}=document
         return {pages,precision,scale,pageGap}
-    }
-
+	}
+	
 	constructor(){
 		super(...arguments)
 		this.state={}
@@ -43,7 +44,7 @@ export default class ComposedDocumentCanvas extends Component{
 	render(){
 		const {
 			state:{pages, pageGap, scale,precision=1}, 
-			props:{style,children,innerRef,document,pages:_1,pageGap:_2,scale:_3,precision:_4,paper, ...props}
+			props:{style,children,innerRef,document,pages:_1,pageGap:_2,scale:_3,precision:_4,paper,__sequentialCompose, ...props}
 		}=this
 		const {width,height,composed}=this.getComposed(pages, pageGap)
 		return   (
@@ -80,6 +81,19 @@ export default class ComposedDocumentCanvas extends Component{
 				},Object.assign([],{y:0}))}
 			</Group>
 		)
+	}
+	//follow same layout of positionPages
+	static composedY(pages, pageGap){
+        const last=pages[pages.length-1]
+        if(!last)
+            return 0
+        const heightOfLast=last.context.parent.isAllChildrenComposed() ? last.props.height : last.composedHeight
+        return pages.slice(0,pages.length-1).reduce((w,page)=>w+page.props.height+pageGap,heightOfLast)
+	}
+
+	static pageRect(I, svg){
+		const page=svg.querySelector(".page"+I)
+        return page && page.getBoundingClientRect()
 	}
 }
 

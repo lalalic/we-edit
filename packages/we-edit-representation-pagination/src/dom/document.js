@@ -79,13 +79,20 @@ class Document extends Super{
     })
 
     render(){
-		const {canvas}=this.props
-        return (
-			<Fragment>
-                {super.render()}
-                {canvas && React.cloneElement(canvas, {document:this})}
-			</Fragment>
-		)
+        const {canvas}=this.props
+        if(!canvas)
+            return super.render()
+        const {props:{__sequentialCompose}}=canvas
+        if(__sequentialCompose){
+            return (
+                <Fragment>
+                    {super.render()}
+                    {canvas && React.cloneElement(canvas, {document:this})}
+                </Fragment>
+            )
+        }else{
+            return React.cloneElement(canvas, {document:this})
+        }
     }
 
 	appendComposed(page){
