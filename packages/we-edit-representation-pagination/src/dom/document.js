@@ -82,7 +82,7 @@ class Document extends Super{
         const {canvas}=this.props
         if(!canvas)
             return super.render()
-        const {props:{__sequentialCompose}}=canvas
+        const {props:{__sequentialCompose=true}}=canvas
         if(__sequentialCompose){
             return (
                 <Fragment>

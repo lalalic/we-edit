@@ -18,7 +18,6 @@ export default class ComposedDocumentCanvas extends Component{
 	static defaultProps={
 		pageGap:24,
 		scale:1,
-		__sequentialCompose:true,
 	}
 
 	static getDerivedStateFromProps({document,...me}){

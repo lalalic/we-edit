@@ -34,7 +34,6 @@ class Responsible extends Component{
 		pageGap:12,
         screenBuffer: 1,
         scale:1,
-        __sequentialCompose:true,
     }
     
     static contextTypes={
