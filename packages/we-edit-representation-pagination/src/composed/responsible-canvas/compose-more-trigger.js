@@ -8,7 +8,7 @@ import Group from "../group"
 export default compose(
     setDisplayName("ComposeMoreTrigger"), 
     getContext({ debug: PropTypes.bool }), 
-    connect(state => ({ selection: getSelection(state) }))
+    connect(state => ({ selection: getSelection(state) })),
 )(class ComposeMoreTrigger extends Component {
     static propTypes = {
         selection: PropTypes.object,

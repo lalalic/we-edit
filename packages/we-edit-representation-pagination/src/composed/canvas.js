@@ -43,7 +43,7 @@ export default class ComposedDocumentCanvas extends Component{
 	render(){
 		const {
 			state:{pages, pageGap, scale,precision=1}, 
-			props:{style,children,innerRef,document,pages:_1,pageGap:_2,scale:_3,precision:_4, ...props}
+			props:{style,children,innerRef,document,pages:_1,pageGap:_2,scale:_3,precision:_4,paper, ...props}
 		}=this
 		const {width,height,composed}=this.getComposed(pages, pageGap)
 		return   (
@@ -94,7 +94,7 @@ class SmartShow extends Component{
 				onEnter={e=>{this.setState({display:true})}}
 				onLeave={e=>this.setState({display:false})}>
 				<g>
-					{<Paper {...{width,height,margin,fill:"white", precision,...paper}}/>}
+					{paper && <Paper {...{width,height,margin,fill:"white", precision,...paper}}/>}
 					{display ? children : null}
 				</g>
 			</Waypoint>
@@ -102,7 +102,7 @@ class SmartShow extends Component{
 	}
 }
 
-const Paper=({width,height, margin:{left,right,top,bottom}, precision, border=true,
+const Paper=({width,height, margin:{left=0,right=0,top=0,bottom=0}={}, precision, border=true,
 	strokeWidth=1*precision, marginWidth=20*precision, ...props})=>(
    <g className="paper">
 	   <rect {...props} {...{width,height}}/>
