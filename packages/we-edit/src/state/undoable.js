@@ -59,7 +59,8 @@ export default function undoable(reducer){
 					action,
 					selection:state.get("selection"),
 					content: state.get("content"),
-					patches: null//injected later in reducer, undo patch for doc file
+					patches: null,//injected later in reducer, undo patch for doc file
+					toJSON:()=>undefined
 				}
 				let changedState=reducer(state,action,entry)
 				if(changedState.get("content")!==state.get("content")){
