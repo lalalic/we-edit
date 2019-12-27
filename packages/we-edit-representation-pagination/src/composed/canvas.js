@@ -61,7 +61,7 @@ export default class ComposedDocumentCanvas extends Component{
 	}
 
 	positionPages(pages,canvasWidth){
-		const {state:{pageGap, precision}}=this
+		const {state:{pageGap, precision}, props:{paper}}=this
 		return (
 			<Group y={pageGap} x={0}>
 				{pages.reduce((positioned, page)=>{
@@ -71,7 +71,7 @@ export default class ComposedDocumentCanvas extends Component{
 							<SmartShow {...{
 								children:page,
 								width,height,margin,
-								precision,
+								precision,paper,
 							}}/>
 						</Group>
 					)
@@ -88,7 +88,7 @@ class SmartShow extends Component{
 	state={display:false}
 	render(){
 		const {display}=this.state
-		const {children,width,height,margin,precision}=this.props
+		const {children,width,height,margin,precision,paper}=this.props
 		return (
 			<Waypoint fireOnRapidScroll={false}
 				onEnter={e=>{this.setState({display:true})}}
