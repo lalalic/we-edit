@@ -115,6 +115,7 @@ export default class Responsible extends Component{
         return {left:location.x, top:location.y}
     }
 
+    //it based on browser dom, so
     pageXY(I=0){
         const page=this.canvas.querySelector(".page"+I)
         if(page){
@@ -132,7 +133,7 @@ export default class Responsible extends Component{
         const heightOfLast=last.context.parent.isAllChildrenComposed() ? last.props.height : last.composedHeight
         return pages.slice(0,pages.length-1).reduce((w,page)=>w+page.props.height+pageGap,heightOfLast)
     }
-
+    
     isAboveViewableBottom(){
         const {scale, composed4Y=0,screenBuffer,viewport:{height,node:{scrollTop}}}=this.state
         const composedY=this.composedY() * scale

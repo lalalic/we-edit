@@ -3,7 +3,15 @@ import {connect,ACTION} from "we-edit"
 import {compose} from "recompose"
 import SelectionStyle from "./selection-style"
 
-//update when content recomposed, and selection changed
+/**
+ * To update cursor, selection, and focus shape only when
+ * canvas is ready, which means document composed, and be updated in canvas
+ * 
+ * the following time should trigger locator updated:
+ * 1. content change
+ * 2. selection change
+ * 3. canvas change(such as scale)???
+ */
 export default compose(
     connect(
         state=>({

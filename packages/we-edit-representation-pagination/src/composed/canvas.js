@@ -2,7 +2,9 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
 
-import Media from "./responsible-canvas/media"
+import Waypoint from "react-waypoint"
+import Group from "./group"
+
 
 export default class ComposedDocumentCanvas extends Component{
 	static displayName="composed-document-default-canvas"
@@ -52,11 +54,65 @@ export default class ComposedDocumentCanvas extends Component{
 				viewBox={`0 0 ${width} ${height}`}
 				style={{background:"transparent", width:width*scale*precision, height:height*scale*precision, ...style}}
 				>
-				<Media {...{pageGap:pageGap*precision, width,precision}}>
-					{composed}
-				</Media>
+				{this.positionPages(composed, width)}
 				{children}
 			</svg>
 		)
 	}
+
+	positionPages(pages,canvasWidth){
+		const {state:{pageGap, precision}}=this
+		return (
+			<Group y={pageGap} x={0}>
+				{pages.reduce((positioned, page)=>{
+					const {width,height,margin,I}=page.props
+					positioned.push(
+						<Group key={I} y={positioned.y} x={(canvasWidth-width)/2} className={"page"+I}>
+							<SmartShow {...{
+								children:page,
+								width,height,margin,
+								precision,
+							}}/>
+						</Group>
+					)
+					positioned.y+=(height+pageGap)
+					return positioned
+				},Object.assign([],{y:0}))}
+			</Group>
+		)
+	}
 }
+
+
+class SmartShow extends Component{
+	state={display:false}
+	render(){
+		const {display}=this.state
+		const {children,width,height,margin,precision}=this.props
+		return (
+			<Waypoint fireOnRapidScroll={false}
+				onEnter={e=>{this.setState({display:true})}}
+				onLeave={e=>this.setState({display:false})}>
+				<g>
+					{<Paper {...{width,height,margin,fill:"white", precision,...paper}}/>}
+					{display ? children : null}
+				</g>
+			</Waypoint>
+		)
+	}
+}
+
+const Paper=({width,height, margin:{left,right,top,bottom}, precision, border=true,
+	strokeWidth=1*precision, marginWidth=20*precision, ...props})=>(
+   <g className="paper">
+	   <rect {...props} {...{width,height}}/>
+	   {border && <path strokeWidth={strokeWidth} stroke="lightgray" fill="none" d={`
+		   		M0 0 h${width} v${height} h${-width}z
+				M${left-Math.min(left,marginWidth)} ${top} h${Math.min(left,marginWidth)} v${-Math.min(top,marginWidth)}
+				M${left-Math.min(left,marginWidth)} ${height-bottom} h${Math.min(left,marginWidth)} v${Math.min(bottom,marginWidth)}
+				M${width-right+Math.min(right,marginWidth)} ${height-bottom} h${-Math.min(right,marginWidth)} v${Math.min(bottom,marginWidth)}
+				M${width-right+Math.min(right,marginWidth)} ${top} h${-Math.min(right,marginWidth)} v${-Math.min(top,marginWidth)}
+			`}/>
+		}
+   </g>
+)
