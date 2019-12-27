@@ -64,7 +64,7 @@ export default ({Section,Group})=>class __$1 extends Component{
 				state.x+=(space+width)
 				return state
 			},{x:left,cols:[]}).cols
-	}, (a,b)=>a===b||shallowEqual(a,b))
+	}, shallowEqual)
 
 	getHeaderFooter({I,i},context){
 		const {context:{evenAndOddHeaders},props:{titlePg=true,id}}=this
@@ -123,7 +123,7 @@ export default ({Section,Group})=>class __$1 extends Component{
 				...props
 			},context)
 		}
-	},(a,b)=>a===b||shallowEqual(a,b))
+	},shallowEqual)
 
 	render(){
 		const WordSection=this.constructor.Section(Section)
@@ -196,8 +196,9 @@ export default ({Section,Group})=>class __$1 extends Component{
 					return super.positionLines(...args)
 
 				// each section wrap itself content to compromise positioning
+
 				var thisSectionLines=Object.assign(
-					this._makeContinuousLayout(this.props,this.context),
+					this._makeContinuousLayout(this.props,this.context, false),
 					{computed:{
 						...this.computed,
 						columns:this.columns.map(a=>({...a,y:undefined})),
@@ -220,10 +221,9 @@ export default ({Section,Group})=>class __$1 extends Component{
 				)
 			}
 
-			_makeContinuousLayout({margin:{left=0,right=0},width,cols,...props},context){
-				var {cols:[{y=0, maxHeight}], composedHeight}=this
-				y+=composedHeight, maxHeight-=composedHeight
-				if(maxHeight<=1)
+			_makeContinuousLayout({margin:{left=0,right=0},width,cols,...props},context, checkSpace=true){
+				var {cols:[{maxHeight}], composedHeight}=this
+				if(checkSpace && (maxHeight-=composedHeight)<=1)
 					return 
 
 				const layout=new Section.Layout({

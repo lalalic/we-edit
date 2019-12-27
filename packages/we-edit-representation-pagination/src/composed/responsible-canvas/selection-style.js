@@ -45,20 +45,20 @@ export default class SelectionStyle {
 
     layoutProps=memoize(()=>{
         if (!this.positioning.ready)
-            return undefined;
+            return null;
         const page = this.positioning.pages.find(a => a.props.I == this.position.page);
         if (!page) {
-            return undefined;
+            return null;
         }
         return page.layoutOf(page.columnIndexOf(page.lineIndexOf(this.position)));
     })
 
     pageProps=memoize(()=>{
         if (!this.positioning.ready)
-            return undefined;
+            return null;
         const page = this.positioning.pages.find(a => a.props.I == this.position.page);
         if (!page) {
-            return undefined;
+            return null;
         }
         const pageY = () => this.positioning.pageXY(this.position.page).y;
         const line = () => page.lineIndexOf(this.position);
@@ -97,13 +97,13 @@ export default class SelectionStyle {
                 return targets.props().toJS();
             }
             else {
-                return { props: undefined };
+                return { props: null };
             }
         }
         else {
             let $ = this.getContent(this.position.id);
             let props = $.is(type) ? $.props() : $.closest(type).props();
-            return props ? props.toJS() : { props: undefined };
+            return props ? props.toJS() : { props: null };
         }
     })
 }
