@@ -1,10 +1,10 @@
-import React,{PureComponent, Component} from "react"
+import React from "react"
 import PropTypes from "prop-types"
-import {compose, getContext, mapProps,withProps,setDisplayName} from "recompose"
-import {Toolbar, ToolbarGroup, FlatButton, IconButton, Slider} from "material-ui"
+import {compose, getContext, mapProps,setDisplayName, onlyUpdateForKeys} from "recompose"
+import {FlatButton, Slider} from "material-ui"
 import {blue800, blue900} from "material-ui/styles/colors"
 import SizeIconButton from "../components/size-icon-button"
-import {when,connect, getSelectionStyle,getStatistics} from "we-edit"
+import {connect, getSelectionStyle,getStatistics} from "we-edit"
 
 const ButtonStyle={
 	background:"transparent",
@@ -36,7 +36,8 @@ const Status=compose(
 			channel,scale,style,
 			height:muiTheme.button.height
 		}
-	})
+	}),
+	onlyUpdateForKeys(['scale','height','channel'])
 )(({scale, height, channel, style})=>(
 	<div style={{...RootStyle,height,...style}}>
 		<Page/>

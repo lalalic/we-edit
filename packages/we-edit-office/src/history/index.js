@@ -1,7 +1,6 @@
-import React, {Component} from "react"
-import PropTypes from "prop-types"
+import React from "react"
 import {connect} from "react-redux"
-import {compose, mapProps,getContext,setDisplayName} from "recompose"
+import {compose, setDisplayName, onlyUpdateForKeys} from "recompose"
 
 import {ToolbarGroup} from "material-ui"
 import CheckIconButton from "../components/check-icon-button"
@@ -31,30 +30,22 @@ export default compose(
 				dispatch(ACTION.History.redo())
 			}
 		}
-	})
-)(class extends Component{
-	shouldComponentUpdate({canRedo,canUndo}){
-		return !(canRedo==this.props.canRedo && canUndo==this.props.canUndo)
-	}
-
-	render(){
-		const {undo,redo, canUndo, canRedo,children}=this.props
-		return (
-			<ToolbarGroup>
-				<CheckIconButton
-					hint="undo"
-					status={canUndo ? "uncheck" : "disabled"}
-					children={<IconUndo/>}
-					onClick={undo}
-					/>
-				<CheckIconButton
-					hint="redo"
-					status={canRedo ? "uncheck" : "disabled"}
-					children={<IconRedo/>}
-					onClick={redo}
-					/>
-				{children}
-			</ToolbarGroup>
-		)
-	}
-})
+	}),
+	onlyUpdateForKeys(['canRedo','canUndo'])
+)(({undo,redo, canUndo, canRedo,children})=>(
+	<ToolbarGroup>
+		<CheckIconButton
+			hint="undo"
+			status={canUndo ? "uncheck" : "disabled"}
+			children={<IconUndo/>}
+			onClick={undo}
+			/>
+		<CheckIconButton
+			hint="redo"
+			status={canRedo ? "uncheck" : "disabled"}
+			children={<IconRedo/>}
+			onClick={redo}
+			/>
+		{children}
+	</ToolbarGroup>
+))

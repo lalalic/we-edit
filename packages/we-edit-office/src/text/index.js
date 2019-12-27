@@ -1,8 +1,8 @@
-import React, {Component} from "react"
+import React from "react"
 
 import {ACTION,  connect, getSelectionStyle} from "we-edit"
 
-import {compose,setDisplayName,withProps, shallowEqual} from "recompose"
+import {compose,setDisplayName,withProps, shallowEqual,shouldUpdate} from "recompose"
 
 import {ToolbarGroup,MenuItem,SvgIcon,ToolbarSeparator as ToolbarSeparator0,} from "material-ui"
 
@@ -67,20 +67,14 @@ export default compose(
 			},
 
 		}
-	})
-)(class extends Component{
-	shouldComponentUpdate({style}){
-		return !(style==this.props.style || shallowEqual(style, this.props.style))
-	}
-
-	render(){
-		const {style, children,
-			bigger, smaller, clear,
-			toggleStrike, changeHightlight,changeColor,
-			toggleSubscript, toggleSuperscript, toggleBorder,
-			toggleB, toggleI, underline,
-			changeFont,changeSize}=this.props
-		return (
+	}),
+	shouldUpdate((a,b)=>!shallowEqual(a.style,b.style)),
+)(({style, children,
+	bigger, smaller, clear,
+	toggleStrike, changeHightlight,changeColor,
+	toggleSubscript, toggleSuperscript, toggleBorder,
+	toggleB, toggleI, underline,
+	changeFont,changeSize})=>(
 			<ToolbarGroup>
 				<FontList
 					value={style&&style.fonts ? style.fonts.split(",")[0] : ""}
@@ -172,9 +166,7 @@ export default compose(
 
 				{children}
 			</ToolbarGroup>
-		)
-	}			
-})
+))
 
 const IconSuperscript=props=>(
 	<SvgIcon {...props}>

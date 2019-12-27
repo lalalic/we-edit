@@ -39,7 +39,7 @@ export default class SelectionStyle {
         })();
         if(!props)
             return props
-        const {hash,id,content,...a}=props
+        const {hash,id,content,children,...a}=props
         return a
     })
 

@@ -1,7 +1,6 @@
 import React from "react"
-import PropTypes from "prop-types"
 
-import {compose,setDisplayName,getContext,mapProps,withProps} from "recompose"
+import {compose,setDisplayName,withProps} from "recompose"
 
 import {ACTION, connect, getSelectionStyle} from "we-edit"
 

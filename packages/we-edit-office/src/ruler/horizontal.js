@@ -1,9 +1,11 @@
 import React from "react"
+import {onlyUpdateForKeys} from "recompose"
 import {SvgIcon} from "material-ui"
 
 import Movable from "../components/movable"
 
-export default ({width=0,scale=1,
+export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,leftIndent,cm,step".split(","))((
+	{width=0,scale=1,
 	leftMargin=3, rightMargin=3, setLeftMargin, setRightMargin,
 	firstLine=0, leftIndent=0, rightIndent=0, setFirstLine, setLeftIndent, setRightIndent,
 	cm=scale*96/2.54, step=cm/8, trim=(x,dx)=>Math[dx>0 ? 'ceil' : 'floor']((x+dx)/step)*step
@@ -45,7 +47,7 @@ export default ({width=0,scale=1,
 				</Movable>)}
 			</div>
 		)
-}
+})
 
 const AT=(style,keys=Object.keys(style))=>"left,right".split(",").find(a=>keys.includes(a))
 
