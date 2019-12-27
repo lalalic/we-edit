@@ -42,6 +42,10 @@ class Document extends Super{
         return this.computed.composed
     }
 
+    getComposed(){
+        return this.pages.map(a=>a.createComposed2Parent())
+    }
+
     getChildContext(){
         const self=this
         return {

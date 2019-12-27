@@ -11,7 +11,6 @@ export class Editor extends PureComponent{
 	static displayName="editor"
 	static domain="edit"
 	static propTypes={
-		media:PropTypes.string,
 		representation: PropTypes.node.isRequired,
 
 		//canvas props for svg
@@ -40,12 +39,10 @@ export class Editor extends PureComponent{
 	}
 
 	static defaultProps={
-		media:"screen",
 		scale:1
 	}
 
 	static childContextTypes={
-		media:PropTypes.string,
 		onKeyDown: PropTypes.func,
 		onContextMenu: PropTypes.func,
 	}
@@ -61,8 +58,8 @@ export class Editor extends PureComponent{
 	}
 
 	getChildContext(){
-		const {media,onKeyDown, onContextMenu}=this.props
-		return {media,onKeyDown, onContextMenu}
+		const {onKeyDown, onContextMenu}=this.props
+		return {onKeyDown, onContextMenu}
 	}
 
 	render(){
@@ -71,7 +68,7 @@ export class Editor extends PureComponent{
 			return <div ref="viewporter" />
 		}
 
-		let {media, representation, scale, screenBuffer, children:canvas,viewport:_1, ...props}=this.props
+		var {representation, scale, screenBuffer, children:canvas,viewport:_1, ...props}=this.props
 		if(typeof(representation)=="string"){
 			representation=<Representation type={representation}/>
 		}
