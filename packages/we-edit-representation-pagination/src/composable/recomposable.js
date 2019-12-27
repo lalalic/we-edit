@@ -40,7 +40,7 @@ export default A=>{
         shouldComponentUpdate(next){
             if(!this.isAllChildrenComposed()){
                 //clear last allComposed, so it can be reset
-                delete this.computed.allComposed
+                this.computed.allComposed=undefined
             }
             if(this.context.shouldContinueCompose && !this.context.shouldContinueCompose(this)){
                 return false
@@ -62,7 +62,7 @@ export default A=>{
             
             this.computed.composed=[]
             this.computed.lastComposed=[]
-            delete this.computed.allComposed
+            this.computed.allComposed=undefined
         }
 
         /**

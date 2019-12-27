@@ -88,7 +88,6 @@ export default A=>{
         }
 
         notifyNotAllComposed(current){
-            console.debug(`${current.getComposeType()}[${current.props.id}] allComposed set as false`)
             current.computed.allComposed=false
             while(current=current.context.parent){
                 current.computed.allComposed=false
