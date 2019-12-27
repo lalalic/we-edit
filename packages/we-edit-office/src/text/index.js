@@ -29,6 +29,7 @@ export default compose(
 		const selection=getSelectionStyle(state)
 		if(selection)
 			return {style:selection.props("text",false)}
+		return {}
 	}),
 	withProps(({dispatch, style})=>{
 		let changeSize=size=>dispatch(ACTION.Selection.UPDATE({text:{size}}))

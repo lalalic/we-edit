@@ -1,15 +1,15 @@
-import React, {PureComponent} from "react"
+import React, {Component} from "react"
 import PropTypes from "prop-types"
 import {ToolbarGroup} from "material-ui"
 import IconSave from "material-ui/svg-icons/content/save"
 import IconRefresh from "material-ui/svg-icons/navigation/refresh"
 
-import {getActive, ACTION} from "we-edit"
+import {ACTION} from "we-edit"
 
 import Save from "./save"
 import CheckIconButton from "../components/check-icon-button"
 
-export default class File extends PureComponent{
+export default class File extends Component{
 	static contextTypes={
 		store: PropTypes.object,
 	}
