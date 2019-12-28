@@ -8,6 +8,9 @@ import Group from "./group"
 
 export default class ComposedDocumentCanvas extends Component{
 	static displayName="composed-document-default-canvas"
+	static contextTypes={
+		media: PropTypes.string,
+	}
 	static propTypes={
 		pages: PropTypes.arrayOf(PropTypes.object),
 		pageGap: PropTypes.number,
@@ -61,18 +64,19 @@ export default class ComposedDocumentCanvas extends Component{
 	}
 
 	positionPages(pages,canvasWidth){
-		const {state:{pageGap, precision}, props:{paper}}=this
+		const {state:{pageGap, precision}, props:{paper},context:{media}}=this
 		return (
 			<Group y={pageGap} x={0}>
 				{pages.reduce((positioned, page)=>{
 					const {width,height,margin,I}=page.props
 					positioned.push(
-						<Group key={I} y={positioned.y} x={(canvasWidth-width)/2} className={"page"+I}>
+						<Group {...{key:I, y:positioned.y,x:(canvasWidth-width)/2,className:"page", id:`page${I}`}}>
+							{media=="file" ? page :
 							<SmartShow {...{
 								children:page,
 								width,height,margin,
 								precision,paper,
-							}}/>
+							}}/>}
 						</Group>
 					)
 					positioned.y+=(height+pageGap)
@@ -91,7 +95,7 @@ export default class ComposedDocumentCanvas extends Component{
 	}
 
 	static pageRect(I, svg){
-		const page=svg.querySelector(".page"+I)
+		const page=svg.querySelector("#page"+I)
         return page && page.getBoundingClientRect()
 	}
 }

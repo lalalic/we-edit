@@ -63,6 +63,7 @@ export default class Emitter extends Viewer{
 	static defaultProps={
 		...Viewer.defaultProps,
 		editable:false,
+		media:"file",
 		domain:"view",
 	}
 
@@ -175,7 +176,9 @@ export default class Emitter extends Viewer{
 			 * it must have contextTypes(empty is also ok), 
 			 * otherwise __reactInternalMemoizedUnmaskedChildContext is missing in instance
 			 */
-			static contextTypes={}
+			static contextTypes={
+
+			}
 
 			static Setting=class __$1 extends Component{
 				render(){

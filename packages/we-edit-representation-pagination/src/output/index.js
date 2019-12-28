@@ -7,9 +7,7 @@ export default class Output extends Emitter.Format.Base{
 		...Emitter.Format.Base.defaultProps,
 		representation: "pagination"
 	}
-
 	output(content){
-		debugger
 		content.pipe(new Parser.WritableStream(this,{xmlMode:true}))
 	}
 
@@ -20,9 +18,11 @@ export default class Output extends Emitter.Format.Base{
 				this.onDocument(attrs)
 			break
 			case 'g':
-				if(attrs.class=="page")
-					this.onPage(attrs)
-				else
+				if(attrs.class=="page"){
+					const i=parseInt(attrs.id.substring(4))
+					const {props:{width,height}}=this.props.document.pages[i]
+					this.onPage({width,height})
+				}else
 					this.onGroup(attrs)
 			break
 			case 'text':

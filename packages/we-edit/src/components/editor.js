@@ -12,6 +12,7 @@ export class Editor extends PureComponent{
 	static domain="edit"
 	static propTypes={
 		representation: PropTypes.node.isRequired,
+		media: PropTypes.string,
 
 		//canvas props for svg
 		scale: PropTypes.number,
@@ -39,10 +40,12 @@ export class Editor extends PureComponent{
 	}
 
 	static defaultProps={
+		media:"screen",
 		scale:1
 	}
 
 	static childContextTypes={
+		media: PropTypes.string,
 		onKeyDown: PropTypes.func,
 		onContextMenu: PropTypes.func,
 	}
@@ -58,8 +61,8 @@ export class Editor extends PureComponent{
 	}
 
 	getChildContext(){
-		const {onKeyDown, onContextMenu}=this.props
-		return {onKeyDown, onContextMenu}
+		const {media, onKeyDown, onContextMenu}=this.props
+		return {media,onKeyDown, onContextMenu}
 	}
 
 	render(){

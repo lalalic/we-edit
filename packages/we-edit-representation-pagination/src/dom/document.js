@@ -43,7 +43,7 @@ class Document extends Super{
     }
 
     getComposed(){
-        return this.pages.map(a=>a.createComposed2Parent())
+        return <Canvas document={this}/>
     }
 
     getChildContext(){

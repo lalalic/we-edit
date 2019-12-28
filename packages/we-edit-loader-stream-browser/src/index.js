@@ -72,7 +72,6 @@ export class Writer extends Stream.Base{
 		const data=this.data=[]
 		const stream=new Writable({
 			write(chunk,enc, next){
-				debugger
 				data.push(chunk)
 				next()
 			}

@@ -19,16 +19,20 @@ export default class Group extends Component{
 			background,
 			margin,minWidth, width, height, index, childIndex,geometry,baseline,
 			contentWidth,wrap,pagination,anchor,blockOffset,named,descent,mergeOpportunity, spaceHeight,
-			className,
+			className,id,
 			I,
 			...others}=this.props
-		const props={}
+		const props={width,height}
 
 		if(innerRef){
 			props.ref=innerRef
 		}
 
-		if(className && className.startsWith("page")){//type define,  such as line, <line><content.../></line>, so query can be more simplier
+		if(id!=undefined){
+			props.id=id
+		}
+
+		if(className=="page"){//type define,  such as line, <line><content.../></line>, so query can be more simplier
 			props.className=className
 		}
 
