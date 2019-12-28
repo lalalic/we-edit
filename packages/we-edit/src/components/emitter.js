@@ -1,4 +1,4 @@
-import React, {Component,PureComponent, Fragment, Children} from "react"
+import React, {Component, Fragment, Children} from "react"
 import ReactDOMServer from "react-dom/server.node"
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
@@ -145,10 +145,16 @@ export default class Emitter extends Viewer{
 		return represents
 	})
 
-	static Format=class Format extends PureComponent{
+	/**
+	 * Format should deligate to typed format.
+	 */
+	static Format=class Format extends Component{
 		static displayName="Format"
-		
-		static Base=class __$1 extends PureComponent{
+		/**
+		 * 
+		 * Base 
+		 */
+		static Base=class __$1 extends Component{
 			static install(conf){
 				Emitter.install(this,conf)
 			}
@@ -162,24 +168,32 @@ export default class Emitter extends Viewer{
 				ext: PropTypes.string.isRequired,
 				representation: PropTypes.string.isRequired,
 				stream: PropTypes.node,
-				document: PropTypes.object,
+				document: PropTypes.object,//injected by representation
 			}
 
-			static contextTypes={
-				weDocument: PropTypes.node
-			}
+			/**
+			 * it must have contextTypes(empty is also ok), 
+			 * otherwise __reactInternalMemoizedUnmaskedChildContext is missing in instance
+			 */
+			static contextTypes={}
 
-			static defaultProps={
-
-			}
-
-			static Setting=class __$1 extends PureComponent{
+			static Setting=class __$1 extends Component{
 				render(){
 					return null
 				}
 			}
 
-			state={stream:null}
+			constructor(...args){
+				super(...args)
+				this.state={stream:null}
+				Object.defineProperties(this,{
+					ContextProvider:{
+						get(){
+							return this.getAllContext(this.__reactInternalMemoizedUnmaskedChildContext)
+						}
+					}
+				})
+			}
 
 			get stream(){
 				return this.state.stream
@@ -195,7 +209,6 @@ export default class Emitter extends Viewer{
 					})
 				}
 
-
 				const emitted=this.emit()
 				if(emitted && React.isValidElement(emitted)){
 					return emitted
@@ -204,8 +217,9 @@ export default class Emitter extends Viewer{
 				return null
 			}
 
-			getAllContext=memoize(context=>{
-				if(!"__reactInternalMemoizedUnmaskedChildContext" in this){
+			/**it's to hack to inherit all context, so ReactDOMServer can  inherit the whole context*/
+			getAllContext=memoize((context)=>{
+				if(!("__reactInternalMemoizedUnmaskedChildContext" in this)){
 					throw new Error("Format.Base implementation has problem because of no global context")
 				}
 				
@@ -227,8 +241,9 @@ export default class Emitter extends Viewer{
 
 			emit(){
 				const {document}=this.props
-				const AllContext=this.getAllContext(this.__reactInternalMemoizedUnmaskedChildContext)
-				const contentStream=ReactDOMServer.renderToStaticNodeStream(<AllContext>{document.getComposed()}</AllContext>)
+				const contentStream=ReactDOMServer.renderToStaticNodeStream(
+					<this.ContextProvider>{document.getComposed()}</this.ContextProvider>
+				)
 				this.output(contentStream)
 			}
 
@@ -269,7 +284,7 @@ class OutputInput extends Emitter.Format.Base{
 		docStream.push(null)
 	}
 }
-
+//document will be injected by representation Document
 const CanvasWrapper=({children, document})=>React.Children.toArray(children).map(a=>React.cloneElement(a,{document}))
 
 extendible(Emitter, "output format")

@@ -19,4 +19,9 @@ export default class Document extends Component{
 		//state
 		content: PropTypes.object,//document memory content, immutable map
 	}
+
+	//emitter call it to output returned
+	getComposed(){
+
+	}
 }
