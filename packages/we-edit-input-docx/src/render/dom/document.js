@@ -74,14 +74,6 @@ export default ({Document})=>class __$1 extends Component{
 	}
 
 	static Document=memoize(Document=>class WordDocument extends Document{
-		nextAvailableSpace(){
-			const pages=this.computed.composed
-			const last=pages[pages.length-1]
-			if(!last.continuous)
-				return 
-				
-		}
-
 		appendComposed(page){
 			if(page.computed.isContinuousLayout){
 				const pages=this.computed.composed
