@@ -22,7 +22,7 @@ export default class Group extends Component{
 			className,id,
 			I,
 			...others}=this.props
-		const props={width,height}
+		const props={}
 
 		if(innerRef){
 			props.ref=innerRef
