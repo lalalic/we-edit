@@ -2,6 +2,7 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 
 import memoize from "memoize-one"
+import {shallowEqual} from "recompose"
 
 export default ({Paragraph})=>class __$1 extends Component{
 	static displayName="paragraph"
@@ -38,17 +39,17 @@ export default ({Paragraph})=>class __$1 extends Component{
 		}
 
 		return style
-	})
+	},shallowEqual)
+
+	childStyle=memoize((direct,context)=>Object.assign(direct.clone(),{r:{}}).inherit(context),shallowEqual)
+
+	defaultStyle=memoize((direct,context)=>direct.flat4Character(context),shallowEqual)
 
 	getChildContext(){
 		return {
 			style:this.childStyle(this.props.style, this.context.style)
 		}
 	}
-
-	childStyle=memoize((direct,context)=>Object.assign(direct.clone(),{r:{}}).inherit(context))
-
-	defaultStyle=memoize((direct,context)=>direct.flat4Character(context))
 
 	render(){
 		const {style:$1, ...props}=this.props

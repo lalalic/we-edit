@@ -2,8 +2,7 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 import {Editors} from "we-edit-representation-pagination"
 
-const {Document, Frame, Page}=Editors
-
+const {Document, Frame}=Editors
 export default class __$1 extends Component{
 	static displayName="html-document"
 	static defaultProps={
@@ -29,6 +28,10 @@ export default class __$1 extends Component{
 		])
 	}
 
+	static getDerivedStateFromProps({viewport},state){
+		return {viewport,...state}
+	}
+
 	constructor(){
 		super(...arguments)
 		this.state={}
@@ -36,8 +39,10 @@ export default class __$1 extends Component{
 		this.resizeViewPort=()=>{
 			if(!resizeTimeout){
 				resizeTimeout=setTimeout(()=>{
+					const {state:{viewport}}=this
+					const {width,height}=viewport.node.getBoundingClientRect()
 					resizeTimeout=null
-					this.setState({resize:Date.now()})
+					this.setState({resize:Date.now(),viewport:{...viewport,width,height}})
 				},66)
 			}
 		}
@@ -60,27 +65,23 @@ export default class __$1 extends Component{
 
 	render(){
 		const {children, ...props}=this.props
-		return 	<ViewportDocument key={this.state.resize} {...props} pageGap={0} wrap={this.context.wrap}>
+		return 	<ViewportDocument
+					{...props} 
+					viewport={this.state.viewport}
+					pageGap={0} wrap={this.context.wrap}>
 					{children}
 				</ViewportDocument>
 	}
 }
-
+/**
+ * html doesn't apply section, so document emulate as a section with only 1 page
+ */
 class ViewportDocument extends Document{
-	static childContextTypes={
-		...Document.childContextTypes,
-		viewport: PropTypes.object,
-	}
-
-	getChildContext(){
-		return Object.assign(super.getChildContext(),{
-			viewport: this.state.viewport
-		})
+	get isSection(){
+		return true
 	}
 
 	appendComposed(frame){
-		if(!frame)
-			return 
 		this.page.appendComposed(frame)
 	}
 
@@ -90,7 +91,9 @@ class ViewportDocument extends Document{
 		if(this.computed.composed.length==0){
 			this.computed.composed.push(
 				new ViewportDocument.Page({
+					id:"root",
 					I:0,
+					i:0,
 					margin,
 					width:wrap ? viewport.width : Number.MAX_SAFE_INTEGER,
                 	height:Number.MAX_SAFE_INTEGER 
@@ -109,18 +112,22 @@ class ViewportDocument extends Document{
 		if(page){
 			page.props.height=Math.max(page.composedHeight,viewport.height)
 		}
-		super.componentDidUpdate(...arguments)
+		if(super.componentDidUpdate){
+			super.componentDidUpdate(...arguments)
+		}
 	}
 
 	nextAvailableSpace(){
 		return this.page.nextAvailableSpace()
 	}
 
-	static Page=class __$1 extends Page.factory(Frame.editableLike(Frame)){
-		render(){
+	static Page=class Page extends Frame{
+		createComposed2Parent(){
 			const {props:{width,margin}}=this
 			const height=Math.max(this.context.parent.state.viewport.height,this.composedHeight)
-			return React.cloneElement(super.createComposed2Parent(),{key:0,width,height,margin})
+			return React.cloneElement(super.createComposed2Parent(),{
+				key:0,I:0,i:0,width,height,margin:{},
+			})
 		}
 	}
 }
