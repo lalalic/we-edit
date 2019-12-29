@@ -133,113 +133,118 @@ export default ({Section,Group})=>class __$1 extends Component{
 		return(<WordSection createLayout={create} {...props}/>)
 	}
 
-	static Section=memoize(Section=>class WordSection extends Section{
-		cancelUnusableLastComposed(...args){
-			const last=this.computed.lastComposed[this.computed.lastComposed.length-1]
-			if(last){
-				//continuous layout should always be re-appended
-				last.continuousLayouts=[]
-			}
-			return super.cancelUnusableLastComposed(...args)
-		}
+	static Section=memoize(Section=>{
+		if(!Section.Layout)
+			return Section
 
-		/**
-		 * composed+continuousLayouts
-		 * createComposed2Parent must be customized for react-poisitioning for frame tree
-		 */
-		static Layout=class Page extends Section.Layout{
-			defineProperties(){
-				super.defineProperties()
-				this.computed.continuousLayouts=[]
-				Object.defineProperties(this,{
-					continuousLayouts:{
-						get(){
-							return this.computed.continuousLayouts
-						},
-						set(v){
-							this.computed.continuousLayouts=v
-						}
-					},
-					continuous:{
-						get(){
-							return this.props.continuous
-						}
-					},
-					composedHeight:{
-						get(){
-							const height=frame=>Math.max(...frame.columns.map(a=>a.contentHeight))
-							return this.computed.continuousLayouts.reduce((H,a)=>H+height(a),height(this))
-						}
-					}
-				})
-			}
-
-			get hasMultipleSectionContent(){
-				return this.continuousLayouts.length>0
-			}
-
-			createComposed2Parent(){
-				const {header,footer}=this
-				const headerFooter=(header || footer) && (<Group z={-1}>{header}{footer}</Group>)
-				const content=super.createComposed2Parent()
-				const props={...content.props}
-				if(this.hasMultipleSectionContent){
-					// each section wrap itself content already, so page frame is not for specific section
-					Object.keys(props).filter(k=>k.startsWith("data-")).forEach(k=>props[k]=undefined)
+		return class WordSection extends Section{
+			cancelUnusableLastComposed(...args){
+				const last=this.computed.lastComposed[this.computed.lastComposed.length-1]
+				if(last){
+					//continuous layout should always be re-appended
+					last.continuousLayouts=[]
 				}
-				
-				return React.cloneElement(content,props,...[...content.props.children,headerFooter].filter(a=>a))
+				return super.cancelUnusableLastComposed(...args)
 			}
 
-			positionLines(...args) {
-				if(!this.hasMultipleSectionContent)
-					return super.positionLines(...args)
+			/**
+			 * composed+continuousLayouts
+			 * createComposed2Parent must be customized for react-poisitioning for frame tree
+			 */
+			static Layout=class Page extends Section.Layout{
+				defineProperties(){
+					super.defineProperties()
+					this.computed.continuousLayouts=[]
+					Object.defineProperties(this,{
+						continuousLayouts:{
+							get(){
+								return this.computed.continuousLayouts
+							},
+							set(v){
+								this.computed.continuousLayouts=v
+							}
+						},
+						continuous:{
+							get(){
+								return this.props.continuous
+							}
+						},
+						composedHeight:{
+							get(){
+								const height=frame=>Math.max(...frame.columns.map(a=>a.contentHeight))
+								return this.computed.continuousLayouts.reduce((H,a)=>H+height(a),height(this))
+							}
+						}
+					})
+				}
 
-				// each section wrap itself content to compromise positioning
+				get hasMultipleSectionContent(){
+					return this.continuousLayouts.length>0
+				}
 
-				var thisSectionLines=Object.assign(
-					this._makeContinuousLayout(this.props,this.context, false),
-					{computed:{
-						...this.computed,
-						columns:this.columns.map(a=>({...a,y:undefined})),
-					}}
-				).createComposed2Parent()
-				
-				thisSectionLines=React.cloneElement(thisSectionLines,{key:"content",y:this.cols[0].y})
-				var y=Math.max(...this.columns.map(a=>a.blockOffset))
-				var height=Math.max(...this.columns.map(({contentHeight,height=contentHeight})=>height))
-				const layoutsContent=this.continuousLayouts.map((frame,i)=>{
-					const frameContent=React.cloneElement(frame.createComposed2Parent(),{y,key:i})
-					y+=frameContent.props.height
-					height+=frameContent.props.height
-					return frameContent
-				})
-				return (
-					<Group height={height}>
-						{[thisSectionLines,...layoutsContent]}
-					</Group>
-				)
-			}
+				createComposed2Parent(){
+					const {header,footer}=this
+					const headerFooter=(header || footer) && (<Group z={-1}>{header}{footer}</Group>)
+					const content=super.createComposed2Parent()
+					const props={...content.props}
+					if(this.hasMultipleSectionContent){
+						// each section wrap itself content already, so page frame is not for specific section
+						Object.keys(props).filter(k=>k.startsWith("data-")).forEach(k=>props[k]=undefined)
+					}
+					
+					return React.cloneElement(content,props,...[...content.props.children,headerFooter].filter(a=>a))
+				}
 
-			_makeContinuousLayout({margin:{left=0,right=0},width,cols,...props},context, checkSpace=true){
-				var {cols:[{maxHeight}], composedHeight}=this
-				if(checkSpace && (maxHeight-=composedHeight)<=1)
-					return 
+				positionLines(...args) {
+					if(!this.hasMultipleSectionContent)
+						return super.positionLines(...args)
 
-				const layout=new Section.Layout({
-					...props,
-					I:undefined,
-					cols:cols.map(a=>({...a,maxHeight,y:undefined})),
-					balance:true,
-					width:width-left-right,
-					height:undefined,
-				},{...context,frame:this})
-				layout.computed.isContinuousLayout=true
-				return layout
-			}
+					// each section wrap itself content to compromise positioning
 
-			appendContinuousLayout(layout){
-				this.continuousLayouts.push(layout)
+					var thisSectionLines=Object.assign(
+						this._makeContinuousLayout(this.props,this.context, false),
+						{computed:{
+							...this.computed,
+							columns:this.columns.map(a=>({...a,y:undefined})),
+						}}
+					).createComposed2Parent()
+					
+					thisSectionLines=React.cloneElement(thisSectionLines,{key:"content",y:this.cols[0].y})
+					var y=Math.max(...this.columns.map(a=>a.blockOffset))
+					var height=Math.max(...this.columns.map(({contentHeight,height=contentHeight})=>height))
+					const layoutsContent=this.continuousLayouts.map((frame,i)=>{
+						const frameContent=React.cloneElement(frame.createComposed2Parent(),{y,key:i})
+						y+=frameContent.props.height
+						height+=frameContent.props.height
+						return frameContent
+					})
+					return (
+						<Group height={height}>
+							{[thisSectionLines,...layoutsContent]}
+						</Group>
+					)
+				}
+
+				_makeContinuousLayout({margin:{left=0,right=0},width,cols,...props},context, checkSpace=true){
+					var {cols:[{maxHeight}], composedHeight}=this
+					if(checkSpace && (maxHeight-=composedHeight)<=1)
+						return 
+
+					const layout=new Section.Layout({
+						...props,
+						I:undefined,
+						cols:cols.map(a=>({...a,maxHeight,y:undefined})),
+						balance:true,
+						width:width-left-right,
+						height:undefined,
+					},{...context,frame:this})
+					layout.computed.isContinuousLayout=true
+					return layout
+				}
+
+				appendContinuousLayout(layout){
+					this.continuousLayouts.push(layout)
+				}
 			}
 		}
 	})
