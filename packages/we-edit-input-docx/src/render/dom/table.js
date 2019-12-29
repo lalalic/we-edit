@@ -94,6 +94,6 @@ export default ({Table,Container})=>class __$1 extends Component{
 		if(undefined!=condition){
 			children=this.getConditionalChildren(condition,children)
 		}
-		return <Table {...{...props,...style,indent,width, children}}/>
+		return <Table {...{...props,...style,indent,width,cols, children}}/>
 	}
 }
