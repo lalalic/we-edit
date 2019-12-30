@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 import {Editors} from "we-edit-representation-pagination"
 
 const {Document, Frame}=Editors
-export default class __$1 extends Component{
+export default class HTMLDocument extends Component{
 	static displayName="html-document"
 	static defaultProps={
 		margin:{
@@ -11,7 +11,8 @@ export default class __$1 extends Component{
 			right:10,
 			top:10,
 			bottom:10
-		}
+		},
+		canvas:Document.defaultProps.canvas,
 	}
 
 	static contextTypes={
