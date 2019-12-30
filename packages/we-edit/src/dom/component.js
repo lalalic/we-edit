@@ -12,6 +12,19 @@ export default class Base extends Component{
 		color:"black"
 	}
 
+	static as=function (type,defaultProps={}){
+		const displayName=this.displayName.split("-")
+		displayName.splice(-1,1,type)
+		defaultProps={
+			...this.defaultProps,
+			...defaultProps,
+		}
+        return class $1 extends this{
+			static displayName=displayName.join("-")
+			static defaultProps=defaultProps
+        }
+    }
+
 	render(){
 		return (<Fragment>{this.props.children||null}</Fragment>)
 	}
