@@ -11,8 +11,13 @@ import {HasParentAndChild} from "../../composable"
  * commit all when all composed????
  */
 const Super=HasParentAndChild(dom.Cell)
+const displayName=()=>{
+	const parts=Section.displayName.split("-")
+	parts.splice(-1,1,Super.displayName.split("-").pop())
+	return parts.join("-")
+}
 export default class Cell extends Section{
-	static displayName=Super.displayName
+	static displayName=displayName()
 	static defaultProps={
 		...Super.defaultProps,
 		createLayout:Section.defaultProps.createLayout,

@@ -25,6 +25,7 @@ export default class EditableEdges extends PureComponent{
                     onSelect={dispatch=>dispatch(ACTION.Selection.SELECT(row))}/>}
                 <ColResizer x1={width} y1={0} x2={width} y2={height}
                     onResize={({x},dispatch)=>{
+						console.log("updating cell width="+(width+x))
                         dispatch(ACTION.Entity.UPDATE({id:table, type:"table", width:{value:width+x, row, cell,i}}))
                     }}
                     />

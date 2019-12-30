@@ -270,7 +270,7 @@ class PositioningHelper extends Positioning{
             const id=$node.findFirst(`[data-content]`).attr("data-content")
             if(id)
                 return {id}
-            const wrapper=parents.find(a=>a.props["data-content"])
+            const wrapper=parents.findLast(a=>a.props["data-content"])
             if(wrapper)
                 return {id:wrapper.props["data-content"]}
         }else{

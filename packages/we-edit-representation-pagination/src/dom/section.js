@@ -158,7 +158,6 @@ class Section extends Super{
 }
 
 export default class EditableSection extends editable(Section,{stoppable:true}){
-	static UnRecomposable=Section
 	/**
 	 * lastComposed==composed
 	 */

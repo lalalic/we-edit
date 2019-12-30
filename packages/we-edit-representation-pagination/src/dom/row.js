@@ -1,5 +1,6 @@
 import React,{PureComponent as Component} from "react"
 import {dom, ReactQuery} from "we-edit"
+import memoize from "memoize-one"
 
 import {Group} from "../composed"
 
@@ -33,8 +34,6 @@ const Super=HasParentAndChild(dom.Row)
 class Row extends Super{
 	constructor(){
 		super(...arguments)
-		const {props:{cols}}=this
-		const me=this
 		Object.defineProperties(this,{
 			ranks:{
 				get(){
@@ -45,14 +44,22 @@ class Row extends Super{
 				}
 			}
 		})
-		/**
-		 * support get column by cellid, such as this.columns["cellid1"] 
-		 * cell id would be set in column accoding to using/composing order(it's correct for composing)
-		 * support 
-		 * column.currentRank:current valid rank for the column
-		 * column.firstSlot:first slot of this column
-		 */
-		this.columns=new Proxy(cols.map(a=>new Proxy(a,{
+	}
+
+	get width(){//used by calc row range
+		return this.closest("table").props.width
+	}
+	
+	/**
+	 * support get column by cellid, such as this.getColumns(this.props.cols)["cellid1"] 
+	 * cell id would be set in column accoding to using/composing order(it's correct for composing)
+	 * support 
+	 * column.currentRank:current valid rank for the column
+	 * column.firstSlot:first slot of this column
+	 */
+	getColumns=memoize(cols=>{
+		const me=this
+		return new Proxy(cols.map(a=>new Proxy(a,{
 			get(col,prop){
 				switch(prop){
 				case "currentRank":{
@@ -79,11 +86,7 @@ class Row extends Super{
 				}
 			}
 		})
-	}
-
-	get width(){//used by calc row range
-		return this.closest("table").props.width
-	}
+	})
 
 	/**
 	 * it would find a rank's space meeting required, if there isn't 
@@ -104,7 +107,7 @@ class Row extends Super{
 		while(!rank){
 			//request largest space in current constraint space
 			const space=super.nextAvailableSpace()
-			this.ranks.push(rank=new this.constructor.Rank({space, children:new Array(this.columns.length).fill(null)}))
+			this.ranks.push(rank=new this.constructor.Rank({space, children:new Array(this.getColumns(this.props.cols).length).fill(null)}))
 			//each requested space should be taken up by appending rank placeholder, so next request can take effect
 			this.context.parent.appendComposed(this.createComposed2Parent(rank))
 		}
@@ -126,7 +129,7 @@ class Row extends Super{
 	 */
 	nextAvailableSpace({id:cellId, ...required}){
 		const {keepLines}=this.props
-		const col=this.columns[cellId]
+		const col=this.getColumns(this.props.cols)[cellId]
 		const {space}=this.findOrCreateRankForColumn(col,required)
 		//further constraint rank space for column of cellid
 		const {left,height}=space, {x=0,width}=col, X=left+x
@@ -142,10 +145,11 @@ class Row extends Super{
 	 * @param {*} slotFrame 
 	 */
 	appendComposed(slotFrame){
+		const columns=this.getColumns(this.props.cols)
 		const cellId=slotFrame && slotFrame.props.id
-		const col=this.columns[cellId]
+		const col=columns[cellId]
 		const rank=this.findOrCreateRankForColumn(col, {height:this.getHeight([slotFrame])})
-		rank.insertAt(slotFrame,this.columns.indexOf(col))
+		rank.insertAt(slotFrame,columns.indexOf(col))
 	}
 
 	onAllChildrenComposed(){
@@ -156,7 +160,7 @@ class Row extends Super{
 			}
 			rank.delayout()
 		})
-		const {columns}=this
+		const columns=this.getColumns(this.props.cols)
 		this.ranks.forEach((rank,i,ranks)=>{
 			const height=this.getHeight(rank.slots)
 			//replace  empty slot with empty column.firstSlot shape
@@ -240,6 +244,7 @@ class Row extends Super{
 				}, new Rank({...rank.props,height}).render())
 			}
 			const {first,parents,rank=first.get(0)}=new ReactQuery(this.layouted).findFirstAndParents(`rank`)
+			try{
 			const changed=changeHeightUp(
 				height,
 				React.cloneElement(rank,{
@@ -251,6 +256,9 @@ class Row extends Super{
 			)
 			/** set height changes from rank to block line*/
 			this.layouted.replaceWith(changed)
+			}catch(e){
+				debugger
+			}
 		}
 	
 		insertAt(slot, i){
@@ -285,6 +293,7 @@ export default class EditableRow extends editable(Row,{stoppable:true, continuab
 	 * @param {*} a 
 	 */
 	shouldContinueCompose(){
+		//this.context.shouldContinueCompose()
 		return true
 	}
 }
