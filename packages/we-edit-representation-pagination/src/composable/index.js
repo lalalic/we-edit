@@ -13,7 +13,7 @@ import Layout from "./layout"
 
 export default function composable(A,{locatable,navigatable,stoppable,continuable,recomposable}){
 	if(locatable && !A.already("locatable")){
-		A=Locatable(A)
+		A=Locatable(A,locatable)
 	}
 
 	if(recomposable && !A.already("recomposable")){
@@ -21,15 +21,15 @@ export default function composable(A,{locatable,navigatable,stoppable,continuabl
 	}
 
 	if(navigatable && !A.already("navigatable")){
-		A=Navigatable(A)
+		A=Navigatable(A,navigatable)
 	}
 
     if(stoppable && !A.already("stoppable")){
-        A=Stoppable(A)
+        A=Stoppable(A,stoppable)
     }
 
 	if(continuable && !A.already("continuable")){
-        A=Continuable(A)
+        A=Continuable(A,Continuable)
     }
 
     return A

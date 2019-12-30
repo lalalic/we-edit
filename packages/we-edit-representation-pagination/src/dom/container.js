@@ -1,9 +1,9 @@
 import React from "react"
-import {HasParentAndChild} from "../composable"
+import {HasParentAndChild,Stoppable} from "../composable"
 import {dom} from "we-edit"
 import {Group} from "../composed"
 
-export default class __$1 extends HasParentAndChild(dom.Container){
+export default class Container extends Stoppable(HasParentAndChild(dom.Container),false){
     getComposeType(){
         return this.props.type || super.getComposeType()
     }
