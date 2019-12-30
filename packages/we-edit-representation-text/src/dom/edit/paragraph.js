@@ -11,7 +11,7 @@ export default class __$1 extends Component{
 	}
 	render(){
 		const {lineHeight="140%", fonts, size}=this.context
-		const {spacing, numbering, ...props}=this.props
+		const {spacing, numbering,indent, ...props}=this.props
 		return (<Paragraph {...props} spacing={{lineHeight}} defaultStyle={{fonts,size}}/>)
 	}
 }

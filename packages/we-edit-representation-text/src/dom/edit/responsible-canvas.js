@@ -1,4 +1,4 @@
-import React,{Component, Fragment} from "react"
+import React,{PureComponent, Fragment} from "react"
 import PropTypes from "prop-types"
 import {connect,getSelectionStyle} from "we-edit"
 import {Editors} from "we-edit-representation-html"
@@ -6,30 +6,27 @@ const {Group, }=Editors
 
 const ResponsibleCanvas=Editors.Document.defaultProps.canvas.type
 
-class LineCanvas extends ResponsibleCanvas.Canvas{
-    positionPages(){
-        const {props:{margin:{top=0}}, pages:[{lines}]}=this.props.document
-        return (
-            <Fragment>
-                {super.positionPages(...arguments)}
-                <Group y={top}>
-                    <LineNos count={lines.length} lineHeight={lines[0].props.height}/>
-                </Group>
-            </Fragment>
-            
-        )
+export default class LineResponsibleCanvas extends ResponsibleCanvas{
+    static Canvas=class LineCanvas extends this.Canvas{
+        positionPages(...args){
+            const {props:{margin:{top=0}}, pages:[{lines}]}=this.props.document
+            return (
+                <Fragment>
+                    {super.positionPages(...args)}
+                    <Group y={top}>
+                        <LineNos count={lines.length} lineHeight={lines[0].props.height}/>
+                    </Group>
+                </Fragment>
+                
+            )
+        }
     }
 }
 
-export default class LineResponsibleCanvas extends ResponsibleCanvas{
-    static Canvas=LineCanvas
-}
-
-class LineNos extends Component{
+class LineNos extends PureComponent{
     static contextTypes={
         fonts: PropTypes.string,
         size: PropTypes.number,
-        lineHeight: PropTypes.string,
         activeColor: PropTypes.string,
         measure: PropTypes.object,
     }
