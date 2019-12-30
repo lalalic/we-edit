@@ -9,7 +9,7 @@ const dom=Object.keys(Editors).reduce((My,k)=>{
 export default {
     ...dom,
 	Document,
-    Section:dom.Container,
+    Section:dom.Container.as("section",{stoppable:true}),
     Header:dom.Ignore,
     Footer:dom.Ignore
 }
