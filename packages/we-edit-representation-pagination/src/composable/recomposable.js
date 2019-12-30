@@ -55,8 +55,8 @@ export default A=>{
          * @param {*} nextProps 
          * @param {*} nextState 
          */
-        cancelUnusableLastComposed({hash,changed=hash!=this.props.hash}){
-            if(!changed && this.isAtomCollector()){
+        cancelUnusableLastComposed(props){
+            if(this.isAtomCollector() && !this.isAtomChanged(...arguments)){
                 return
             }
             

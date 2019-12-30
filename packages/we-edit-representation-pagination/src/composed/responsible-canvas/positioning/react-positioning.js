@@ -482,7 +482,16 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
 
         if(!internal)
             return position
-        return Object.assign(position, {topFrame, leafFrame, lineIndexInLeafFrame:leafFrame.lines.indexOf(line.inFrame)})
+        return Object.assign(position, {
+            topFrame, 
+            leafFrame, 
+            lineIndexInLeafFrame:leafFrame.lines.indexOf(line.inFrame),
+            get line(){
+                if(topFrame==leafFrame)
+                    return this.lineIndexInLeafFrame
+                return topFrame.lines.findIndex(a=>new ReactQuery(a).findFirst(`[data-frame="${leafFrame.uuid}"]`).length==1)
+            }
+        })
     }
 
     around(left,top){

@@ -92,7 +92,7 @@ export default ({Section,Group})=>class __$1 extends Component{
 				const pages=context.getComposer("root").computed.composed
 				const prev=pages[pages.length-1]
 				if(prev && prev.continuous){
-					const layout=prev._makeContinuousLayout({...props,margin,width,I:undefined,cols,},context)
+					const layout=prev._makeContinuousLayout({...props,margin,width,height,I:undefined,cols,},context)
 					if(layout){
 						return layout
 					}
@@ -225,11 +225,11 @@ export default ({Section,Group})=>class __$1 extends Component{
 					)
 				}
 
-				_makeContinuousLayout({margin:{left=0,right=0},width,cols,...props},context, checkSpace=true){
+				_makeContinuousLayout({margin,width,height,cols,...props},context, checkSpace=true){
 					var {cols:[{maxHeight}], composedHeight}=this
 					if(checkSpace && (maxHeight-=composedHeight)<=1)
 						return 
-
+					const {left=0,right=0}=margin
 					const layout=new Section.Layout({
 						...props,
 						I:undefined,
@@ -237,6 +237,7 @@ export default ({Section,Group})=>class __$1 extends Component{
 						balance:true,
 						width:width-left-right,
 						height:undefined,
+						_layout:{width,height,cols,margin},//for layoutOf
 					},{...context,frame:this})
 					layout.computed.isContinuousLayout=true
 					return layout
@@ -244,6 +245,18 @@ export default ({Section,Group})=>class __$1 extends Component{
 
 				appendContinuousLayout(layout){
 					this.continuousLayouts.push(layout)
+				}
+
+				layoutOf({id}){
+					const section=this.context.getComposer(id).closest("section")
+					if(section.props.id==this.props.id)
+						return super.layoutOf()
+					const {margin:{left,right}, ...layout}=section.computed.composed[0].props._layout
+					return {...layout, margin:{...this.props.margin, left,right}}
+				}
+
+				columnIndexOf(lineIndex,positioning){
+					return super.columnIndexOf(lineIndex)
 				}
 			}
 		}

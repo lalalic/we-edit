@@ -14,6 +14,7 @@ export default class SelectionStyle {
                 this.end = start.id;
             }
         }
+        this.isRange=!(start.id==end.id && start.at==end.at)
     }
     toJSON() {
         return "Selection.Style";
@@ -50,9 +51,14 @@ export default class SelectionStyle {
         if (!page) {
             return null;
         }
-        return page.layoutOf(page.columnIndexOf(page.lineIndexOf(this.position)));
+        
+        return page.layoutOf(this.position)
     })
 
+    /**
+     * x, y of page,line,column
+     * size, margin
+     */
     pageProps=memoize(()=>{
         if (!this.positioning.ready)
             return null;
@@ -60,9 +66,10 @@ export default class SelectionStyle {
         if (!page) {
             return null;
         }
+        const position=this.positioning.position(this.position.id,this.position.at,true)
         const pageY = () => this.positioning.pageXY(this.position.page).y;
-        const line = () => page.lineIndexOf(this.position);
-        const column = () => page.columnIndexOf(line());
+        const line = () => position.line
+        const column = () => page.columnIndexOf(line(),position);
         const cols = () => [...page.cols];
         const { margin, width, height } = page.props;
         return {

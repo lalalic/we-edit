@@ -127,23 +127,15 @@ class Frame extends Layout.Block{
 		return false
 	}
 
-	columnIndexOf(line){
+	columnIndexOf(lineIndex){
 		if(!this.cols)
 			return 0
-		return this.columns.reduce((c,column,i)=>{
-			if(c.count>0){
-				c.count-=column.lines.length
-				c.i=i
-			}
-			return c
-		},{count:line+1,i:0}).i
+		return this.columns.findIndex(a=>a.lines.startIndex>=lineIndex)
 	}
 
 	layoutOf(){
-		const {width,height}=this.props
-		if(!this.cols)
-			return {width,height}
-		return {width,height,cols:this.cols}
+		const {width,height,margin}=this.props
+		return {width,height,margin,cols:this.cols}
 	}
 
 	includeContent(id){
@@ -158,25 +150,6 @@ class Frame extends Layout.Block{
 			.findFirst(`[data-type="paragraph"]`)
 			.attr("data-content")
 	}
-
-	lineIndexOf(position){
-		return 0
-        const lines=this.lines
-        const {lineIndexOfParagraph,paragraph,id,at}=position
-        if(paragraph){
-            return lines.findIndex(a=>new ReactQuery(a)
-                .findFirst(({props:{"data-content":content,"data-type":type,pagination:{i}={}}})=>{
-                    if(content==paragraph && i==lineIndexOfParagraph+1){
-                        return true
-                    }
-                    if(type=="paragraph"){
-                        return false
-                    }
-                }).length)
-        }else{
-            return lines[`find${at==0?"":"Last"}Index`](a=>new ReactQuery(a)[at==0 ? "findFirst" : "findLast"](`[data-content="${id}"]`).length)
-        }
-    }
 
 	clone(props={}){
 		const {computed}=this
