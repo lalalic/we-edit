@@ -22,7 +22,8 @@ export default ({Paragraph})=>class __$1 extends Component{
 	}
 
 	style=memoize((direct,context)=>{
-		let style=direct.flat(context)
+		const defaultStyle=direct.flat4Character(context)
+		const style=direct.flat(context)
 		if(style.indent){
 			if(style.indent.hanging){
 				style.indent.firstLine=-style.indent.hanging
@@ -38,12 +39,12 @@ export default ({Paragraph})=>class __$1 extends Component{
 			}
 		}
 
-		return style
+		return {style,defaultStyle}
 	},shallowEqual)
 
-	childStyle=memoize((direct,context)=>Object.assign(direct.clone(),{r:{}}).inherit(context),shallowEqual)
-
-	defaultStyle=memoize((direct,context)=>direct.flat4Character(context),shallowEqual)
+	childStyle=memoize((direct,context)=>{
+		return Object.assign(direct.clone(),{r:{}}).inherit(context)
+	},shallowEqual)
 
 	getChildContext(){
 		return {
@@ -53,13 +54,12 @@ export default ({Paragraph})=>class __$1 extends Component{
 
 	render(){
 		const {style:$1, ...props}=this.props
-		const {widow,orphan=widow, ...style}=this.style(this.props.style,this.context.style)
+		const {style:{widow,orphan=widow, ...style}, defaultStyle}=this.style(this.props.style,this.context.style)
 		return (
 			<Paragraph
 				{...style}
 				{...props}
-				{...{widow,orphan}}
-				defaultStyle={this.defaultStyle(this.props.style,this.context.style)}
+				{...{widow,orphan,defaultStyle}}
 				/>
 		)
 	}
