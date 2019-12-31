@@ -56,6 +56,7 @@ class Row extends Super{
 	 * support 
 	 * column.currentRank:current valid rank for the column
 	 * column.firstSlot:first slot of this column
+	 * make it dynamic to always use current cols
 	 */
 	getColumns=memoize(cols=>{
 		const me=this
@@ -289,11 +290,11 @@ class Row extends Super{
 export default class EditableRow extends editable(Row,{stoppable:true, continuable:true}){
 	/**
 	 * @continuable
-	 * row is atom of composing, so compose all content or nothing
+	 * 1. [done]simply(suitable for most cases), row is atom of composing, so compose all content or nothing
+	 * 2. big row: it can avoid composing for out of viewport space
 	 * @param {*} a 
 	 */
 	shouldContinueCompose(){
-		//this.context.shouldContinueCompose()
 		return true
 	}
 }

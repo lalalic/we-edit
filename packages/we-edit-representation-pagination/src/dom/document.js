@@ -155,7 +155,7 @@ export default class extends editable(Document,{continuable:true}){
         if(!this.state.editable)
             return true
         const selection=getSelection(this.context.activeDocStore.getState())
-		const should=this.canvas.isAboveViewableBottom() || !this.isSelectionComposed(selection)
+		const should=this.canvas.availableBlockSize() || !this.isSelectionComposed(selection)
         if(!should){
             this.computed.shouldContinueCompose=false
             composer && this.notifyNotAllComposed(composer)

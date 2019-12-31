@@ -124,10 +124,10 @@ class Responsible extends Component{
     }
     
     //provide to document to query 
-    isAboveViewableBottom(){
+    availableBlockSize(){
         const {scale, composed4Y=0,screenBuffer,viewport:{height,node:{scrollTop}}}=this.state
         const composedY=this.__composedY() * scale
-        return composedY<Math.max(scrollTop,composed4Y)+height+screenBuffer*height
+        return Math.max(0,(Math.max(scrollTop,composed4Y)+height+screenBuffer*height)-composedY)
     }
 
     render(){
