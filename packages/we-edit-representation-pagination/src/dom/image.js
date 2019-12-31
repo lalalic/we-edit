@@ -1,11 +1,11 @@
 import React from "react"
 import {dom} from "we-edit"
 
-import {Image} from "../composed"
+import ComposedImage from "../composed/image"
 import {NoChild,editable} from "../composable"
 
 import Shape from "./shape"
-export default class __$1 extends editable(NoChild(dom.Image)){
+export default class Image extends editable(NoChild(dom.Image)){
 	getShape(){
 		const {width,height}=this.props
 		return new Shape({width, height,...this.props.outline, margin:{},children:null},{})
@@ -15,7 +15,7 @@ export default class __$1 extends editable(NoChild(dom.Image)){
 		const shape=this.getShape()
 		const {width,height}=shape.geometry.contentBox
 		const {src}=this.props
-		const image=<Image {...{
+		const image=<ComposedImage {...{
 			width,
 			height,
 			xlinkHref: src,

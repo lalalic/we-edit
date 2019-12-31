@@ -34,10 +34,11 @@ export default class Shape extends Frame{
 	createComposed2Parent(){
 		const content=(
 			<Fragment>
-				{this.anchors.map((a,i)=>React.cloneElement(a,{key:i}))}
-				<Fragment key="content">
-					{this.positionLines(this.lines)}
-				</Fragment>
+				{[
+					...this.anchors.map((a,i)=>React.cloneElement(a,{key:i})),
+					React.cloneElement(this.positionLines(this.lines),{key:"content"}),
+				].filter(a=>!!a)
+				}
 			</Fragment>
 		)
 		const transformed=this.transform(this.geometry.createComposedShape(content))
