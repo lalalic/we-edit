@@ -1,7 +1,8 @@
-import React,{Children} from "react"
+import React from "react"
 import PropTypes from "prop-types"
-import {HasParentAndChild, editable} from "../composable"
 import {dom} from "we-edit"
+
+import {HasParentAndChild, editable} from "../composable"
 import Frame from "./frame"
 
 
@@ -21,6 +22,7 @@ class Section extends Super{
 
 	static Layout=class LayoutSection extends Frame{
 		static displayName="frame-section"
+
 		createComposed2Parent(){
 			const {props:{i,I,margin}}=this
 			const props={margin,i,key:i}

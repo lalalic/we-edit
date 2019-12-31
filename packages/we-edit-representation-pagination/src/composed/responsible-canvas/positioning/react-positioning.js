@@ -106,6 +106,30 @@ class PositioningHelper extends Positioning{
         return [...parents,first.get(0)].filter(a=>!!a).reduce((xy,{props:{x=0,y=0}})=>(xy.x+=x, xy.y+=y, xy),{x:0,y:0})
     }
 
+    _targetFrameContainsFrame=frame=>targetFrame=>{
+        const parents=((a,found=[])=>{
+            while(a=a.context.parent){
+                found.push(a.props.id)
+            }
+            return found
+        })(this.getComposer(frame.props.id))
+
+        return new ReactQuery(targetFrame.createComposed2Parent()).findFirst(node=>{
+            if(!(node && node.props))
+                return 
+            const {props:{"data-content":id,"data-frame":isFrame}}=node
+            if(!isFrame) 
+                return 
+
+            if(isFrame==frame.uuid){
+                return true
+            }
+            if(!parents.includes(id)){
+                return false
+            }
+        }).length==1  
+    }
+
    /**
      * travel up
      * to find up frame layout or fissionable's fission based on following knowledge
@@ -117,8 +141,11 @@ class PositioningHelper extends Positioning{
      * @Default for topFrame
      */
     getCheckedGrandFrameByFrame(frame,check, first, find="find"){
-        if(!check)//default: frame or any grandFrame including frame
-            check=a=>a==frame || new ReactQuery(a.createComposed2Parent()).findFirst(`[data-frame=${frame.uuid}]`).length==1
+        if(!check){//default: frame or any grandFrame including frame
+            const frameContainedBy=this._targetFrameContainsFrame(frame)
+            check=targetFrame=>targetFrame==frame || frameContainedBy(targetFrame)
+        }
+
         var current=frame, grandMaybe=null
         while(current){
             if(current.isFrame && check(current)){
@@ -485,7 +512,9 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
         return Object.assign(position, {
             topFrame, 
             leafFrame, 
-            lineIndexInLeafFrame:leafFrame.lines.indexOf(line.inFrame),
+            get lineIndexInLeafFrame(){
+                return leafFrame.lines.indexOf(line.inFrame)
+            },
             get line(){
                 if(topFrame==leafFrame)
                     return this.lineIndexInLeafFrame
@@ -679,9 +708,10 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
                 return this.aroundInBlockLine({x,y},nextLine, topFrame, leafFrame)
             }
             //direct parent frame
+            const leafFrameContainedBy=this._targetFrameContainsFrame(leafFrame)
             const parentFrame=this.getCheckedGrandFrameByFrame(
                 leafFrame,
-                a=>a!=leafFrame && new ReactQuery(a.createComposed2Parent()).findFirst(`[data-frame=${leafFrame.uuid}]`).length==1/**/,
+                a=>a!=leafFrame && leafFrameContainedBy(a)/**/,
                 true/*first*/)
             if(parentFrame){
                 //locate line includes frame
@@ -767,9 +797,10 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
                 return this.aroundInBlockLine({x,y},prevLine,topFrame,leafFrame)
             }
             //direct parent frame
+            const leafFrameContainedBy=this._targetFrameContainsFrame(leafFrame)
             const parentFrame=this.getCheckedGrandFrameByFrame(
                 leafFrame,
-                a=>a!=leafFrame && new ReactQuery(a.createComposed2Parent()).findFirst(`[data-frame=${leafFrame.uuid}]`).length==1/**/,
+                a=>a!=leafFrame && leafFrameContainedBy(a)/**/,
                 true/*first*/)
             if(parentFrame){
                 //locate line includes frame

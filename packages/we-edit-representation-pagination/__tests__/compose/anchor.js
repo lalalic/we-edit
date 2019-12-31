@@ -8,7 +8,12 @@ import {define} from "./index"
 define("section compose",
 ({dom, testing, WithTextContext, WithParagraphContext, uuid=0})=>{
     const {Page,Frame, Paragraph, Text, Anchor, Shape}=dom
-    const document={get computed(){}}
+    const document={
+        get computed(){
+
+        },
+        computed:{},
+    }
     const Context=context({
         contextTypes:{
             parent:PropTypes.any,

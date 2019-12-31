@@ -38,6 +38,10 @@ export default A=>{
 
         //always call render to compose to sync onAllChildrenComposed
         shouldComponentUpdate(next){
+            /**
+             * composedUUID to identify each compose, so createComposed2Parent can be cached.
+             */           
+            this.computed.composedUUID=Date.now()
             if(!this.isAllChildrenComposed()){
                 //clear last allComposed, so it can be reset
                 this.computed.allComposed=undefined

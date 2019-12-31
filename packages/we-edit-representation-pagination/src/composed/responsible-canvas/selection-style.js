@@ -66,10 +66,9 @@ export default class SelectionStyle {
         if (!page) {
             return null;
         }
-        const position=this.positioning.position(this.position.id,this.position.at,true)
         const pageY = () => this.positioning.pageXY(this.position.page).y;
-        const line = () => position.line
-        const column = () => page.columnIndexOf(line(),position);
+        const line = () => this.position.line
+        const column = () => page.columnIndexOf(line(),this.position);
         const cols = () => [...page.cols];
         const { margin, width, height } = page.props;
         return {

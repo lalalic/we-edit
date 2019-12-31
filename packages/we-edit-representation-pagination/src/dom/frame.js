@@ -1,5 +1,6 @@
 import React from "react"
-import {dom, ReactQuery} from "we-edit"
+import {dom} from "we-edit"
+import memoize from "memoize-one"
 
 import {Layout, HasParentAndChild, editable} from "../composable"
 import {Group} from "../composed"
@@ -59,7 +60,7 @@ class Frame extends Layout.Block{
 	/**
 	 * always use space to locate since layout using it 
 	 */
-	createComposed2Parent() {
+	createComposed2Parent(){
 		const alignY=contentHeight=>{
 			const {height=contentHeight, vertAlign}=this.props
 			if(contentHeight==undefined)
@@ -166,6 +167,11 @@ class Frame extends Layout.Block{
  * 
  */
 export default class EditableFrame extends editable(Frame,{stoppable:true, continuable:true}){
+	___createComposed2Parent=memoize(composedUUID=>super.createComposed2Parent())
+	createComposed2Parent(){
+		return this.___createComposed2Parent(this.computed.composedUUID||this.context.parent.computed.composedUUID)
+	}
+	
 	/**
 	 * @continuable
 	 * multiple cols model should check on last column

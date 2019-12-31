@@ -3,13 +3,12 @@ import {Group} from "../composed"
 
 import {HasParentAndChild} from "../composable"
 import {dom} from "we-edit"
-const Super=HasParentAndChild(dom.Anchor)
 
 /**
 * xy for Positioning
 * wrap boundary must be provided by children content, and then pass to frame
 */
-export default class __$1 extends Super{
+export default class Anchor extends HasParentAndChild(dom.Anchor){
     createComposed2Parent(content){
         var {width,height,geometry}=content.props
         const {margin:{left=0,right=0,top=0,bottom=0}={}, wrap:{mode}, x:X, y:Y, xy}=this.props
