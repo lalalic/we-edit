@@ -31,6 +31,7 @@ class Document extends Super{
         Measure: PropTypes.func,
         getComposedTemplate:PropTypes.func,
         prevLayout: PropTypes.func,
+        editable: PropTypes.any,
     }
 
     constructor(){
@@ -58,7 +59,8 @@ class Document extends Super{
                 const pages=self.computed.composed
                 const i=pages.indexOf(ref)
                 return pages[i-1]
-            }
+            },
+            editable:this.state&&this.state.editable,
         }
     }
 

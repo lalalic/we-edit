@@ -69,15 +69,17 @@ export default class ComposedDocumentCanvas extends Component{
 			<Group y={pageGap} x={0}>
 				{pages.reduce((positioned, page)=>{
 					const {width,height,margin,I}=page.props
-					positioned.push(
-						<Group {...{key:I, y:positioned.y,x:(canvasWidth-width)/2,className:"page", id:`page${I}`}}>
-							{media=="file" ? page :
-							<SmartShow {...{
-								children:page,
-								width,height,margin,
-								precision,paper,
-							}}/>}
-						</Group>
+					positioned.push(//use g to make Group ignore className and id for better merge
+						<g key={I} className={"page"} id={`page${I}`}>
+							<Group {...{y:positioned.y,x:(canvasWidth-width)/2}}>
+								{media=="file" ? page :
+								<SmartShow {...{
+									children:page,
+									width,height,margin,
+									precision,paper,
+								}}/>}
+							</Group>
+						</g>
 					)
 					positioned.y+=(height+pageGap)
 					return positioned

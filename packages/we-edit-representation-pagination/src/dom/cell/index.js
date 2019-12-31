@@ -1,4 +1,5 @@
 import React from "react"
+import PropTypes from "prop-types"
 import {dom} from "we-edit"
 
 import Edges from "./edges"
@@ -21,6 +22,10 @@ export default class Cell extends Section{
 	static defaultProps={
 		...Super.defaultProps,
 		createLayout:Section.defaultProps.createLayout,
+	}
+	static contextTypes={
+		...Section.contextTypes,
+		editable:PropTypes.any,
 	}
 	
 	static Layout=class LayoutCell extends Section.Layout{
@@ -94,8 +99,8 @@ export default class Cell extends Section{
 			vertAlign,
 			borders:<this.constructor.Edges {...{
 				...border,width,height,
-				className:"border",
-				"data-nocontent":true,
+				editable:!!this.context.editable,
+				"data-nocontent":true,//ignore search for positioning
 				}}/>
 		},{frame})
 	}

@@ -1,5 +1,6 @@
 import React, {Component, Children, Fragment} from "react"
 import PropTypes from "prop-types"
+import Text from "./text"
 
 export default class Group extends Component{
 	static propTypes={
@@ -19,21 +20,13 @@ export default class Group extends Component{
 			background,
 			margin,minWidth, width, height, index, childIndex,geometry,baseline,
 			contentWidth,wrap,pagination,anchor,blockOffset,named,descent,mergeOpportunity, spaceHeight,
-			className,id,
+			//className,id,
 			I,
 			...others}=this.props
 		const props={}
 
 		if(innerRef){
 			props.ref=innerRef
-		}
-
-		if(id!=undefined){
-			props.id=id
-		}
-
-		if(className=="page"){//type define,  such as line, <line><content.../></line>, so query can be more simplier
-			props.className=className
 		}
 
 		let transform=""
@@ -50,14 +43,10 @@ export default class Group extends Component{
 			props.transform=transform
 		}
 
-		const content=(
-			<Fragment>
-				{background&&background!="transparent"&& (<rect width={width} height={height} fill={background} key="background"/>)}
-				{Children.toArray(children).map((a,i)=>{
-					return React.cloneElement(a,{key:i})
-				})}
-			</Fragment>
-		)
+		const content=[
+			background&&background!="transparent"&& (<rect width={width} height={height} fill={background} key="background"/>),
+			...Children.toArray(children).map((a,i)=>React.cloneElement(a,{key:i}))
+		].filter(a=>a)
 
 		if(this.context.debug){
 			return (
@@ -67,14 +56,22 @@ export default class Group extends Component{
 			)
 		}
 
-		if(Object.keys(props).length){
-			return (
-				<g {...props}>
-					{content}
-				</g>
-			)
+		const keys=Object.keys(props)
+		if(keys.length==0){
+			return <Fragment>{content}</Fragment>
+		}else if(content.length==1 && keys.length==1 && keys[0]=="transform" && !rotate){
+			const {props:{x:x1=0,y:y1=0},type}=content[0]	
+			switch(type){
+				case Text:
+				case this.constructor:
+					return React.cloneElement(content[0],{x:x1+x,y:y1+y})
+			}
 		}
 
-		return content
+		return (
+			<g {...props}>
+				{content}
+			</g>
+		)
     }
 }
