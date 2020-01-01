@@ -34,8 +34,8 @@ export default class InlineSegments extends Component {
         const relayout = this.constructor.create({ ...this.props, ...props });
         const items = [...this.items, ...atoms];
         let i = 0, len = items.length;
-        for (let j = 0, l = this.segments.length; j < l; j++) {
-            let segment = this.segments[j];
+        for (let j = 0, l = relayout.segments.length; j < l; j++) {
+            let segment = relayout.segments[j];
             for (; i < len; i++) {
                 let item = items[i];
                 if (segment.push(item) === false) {
