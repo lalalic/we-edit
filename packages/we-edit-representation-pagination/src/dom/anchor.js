@@ -15,7 +15,7 @@ export default class Anchor extends HasParentAndChild(dom.Anchor){
         this.width=width+=(left+right)
         this.height=height+=(top+bottom)
         return (
-            <Group width={0} height={0}
+            <Group children={content}
                 anchor={space=>{
                     const size={width:this.width, height:this.height}  
                     var x=(xy||space.anchor.bind(space))({align:"left",...X},size,space)

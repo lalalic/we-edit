@@ -338,34 +338,42 @@ class PositioningHelper extends Positioning{
         const paragraph=this.getComposer(id).closest("paragraph")
         const $find=at==1 ? 'findLast' : 'findFirst'
         const find=at==1 ? "findLast" : "find"
-        var i=0, leafFrame,lineInFrame, position
+        var i=0, leafFrame,lineInFrame, position, anchor
         const targetHasParagraph=this.getContent(id)[$find]('paragraph').attr('id')
         if(paragraph && !targetHasParagraph){
             if(paragraph.props.id==id){
                 //paragraph level
                 i=at==1 ? paragraph.lines.length-1 : 0
-            }else if(false){
-
             }else{
                 //inline level
                 /**
                  * inline content includes: 
                  * 1. atoms,such as image,text,..., which is not sensitive to query.findFirst/findLast
                  * 2. inline container: it's sensitive to at(0:conainer start|1: container end) to query.findFirst/findLast
+                 * 3. anchors
                  */
-                i=paragraph.lines[`${find}Index`](line=>line.children.find(atom=>{
-                    const node=new ReactQuery(atom)[$find](`[data-content="${id}"]`)
+                i=paragraph.lines[`${find}Index`](line=>line.atoms.find(atom=>{
+                    const $atom=new ReactQuery(atom)
+                    const node=$atom[$find](`[data-content="${id}"]`)
                     if(node.length==0)
                         return 
-                    const {props:{"data-endat":endat, children:text}}=node.get(0)
-                    if(endat==undefined //not text, true
-                        || (at>=endat-text.length && at<endat))//inside text,true
+                        
+                    if((()=>{
+                        const {props:{"data-endat":endat, children:text}}=node.get(0)
+                        if(endat==undefined //not text, true
+                            || (at>=endat-text.length && at<endat))//inside text,true
+                            return true
+                        if(at==endat && this.getComposer(id).text.length==endat)//next of last text
+                            return true
+                    })()){
+                        if(atom.props.anchor){
+                            anchor=$atom.findFirst('[data-type="anchor"]').attr('data-content')
+                            debugger
+                        }
                         return true
-                    if(at==endat && this.getComposer(id).text.length==endat)//next of last text
-                        return true
+                    }
                 }))
             }
-            
             leafFrame=paragraph.lines[i].space.frame
             lineInFrame=leafFrame.lines.find(({props:{pagination:{id:p,i:I}={}}})=>p==paragraph.props.id&&I==i+1)
             position=()=>this.positionInInline(id,at,paragraph.computed.lastComposed[i])
@@ -404,7 +412,21 @@ class PositioningHelper extends Positioning{
                         height:line.props.height
                     }[prop]||line[prop]
                 }
-            })
+            }),
+            anchor: anchor && ({
+                id:anchor,
+                position:null,//implemented by offset 
+                offset(topFrame){
+                    const offset=nodes=>nodes.filter(a=>!!a).reduce((o,{props:{x=0,y=0}})=>(o.x+=x, o.y+=y, o),{x:0,y:0})
+                    const {first, parents}=new ReactQuery(topFrame.createComposed2Parent())
+                        .findFirstAndParents(`[data-content="${anchor}"]`)
+                    this.position=()=>{
+                        const a=first.findFirstAndParents(`[data-content="${id}]`)
+                        return offset([...a.parents,a.first.get(0)])
+                    }
+                    return offset([...parents])
+                },
+            }),
         }
     }
 
@@ -478,7 +500,7 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
      * the location may be:
      * Inline Level
      */
-    position(id,at, internal){
+    position(id,at, __returnEverything){
         //#b , (id,at)->line->frame->topFrame
         /**
          * maybe no line
@@ -488,9 +510,9 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
         const {leafFrame,line, anchor}=this.positionToLeafFrameLine(id,at)
         const topFrame=this.getCheckedGrandFrameByFrame(leafFrame)
         const topFrameOffset=this.getTopFrameXY(topFrame)
-        const leafFrameOffset=this.getFrameOffsetGrandFrame(topFrame,leafFrame)
-        const lineOffset=leafFrame.lineXY(line.inFrame)
-        const inline=line.position()
+        const leafFrameOffset=!anchor ? this.getFrameOffsetGrandFrame(topFrame,leafFrame) : anchor.offset(topFrame,leafFrame)
+        const lineOffset=!anchor ? leafFrame.lineXY(line.inFrame) : {x:0,y:0}
+        const inline=!anchor ? line.position(id,at) : anchor.position(topFrame,id,at)
 
         //finally
         const x=topFrameOffset.x+leafFrameOffset.x+lineOffset.x+inline.x
@@ -507,7 +529,7 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
             lineHeight:line.height
         }
 
-        if(!internal)
+        if(!__returnEverything)
             return position
         return Object.assign(position, {
             topFrame, 
@@ -542,8 +564,19 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
             const $anchor=new ReactQuery(anchor)
             const notFrameAnchor=$anchor.findFirst(`[data-frame]`).length==0
             if(notFrameAnchor){
-                //@TODO: ReactQuery.findLast doesn't work as expected
-                return {id:$anchor.findLast('[data-content]').attr('data-content')}
+                const {node}=this.getBoundaryCheckedMostInnerNode(
+                    anchor, 
+                    (rect,node)=>{
+                        const {props:{width,height, "data-nocontent":noContent}}=node
+                        if(noContent)
+                            return false
+                        if(width && height)
+                            return pointIsInside(rect({width,height}),topFrameOffset, anchor.props.geometry)
+                    },
+                    (node,parents)=>[node,...parents].find(a=>a && a.props && "data-content" in a.props)
+                )
+
+                return {id:node.props["data-content"]}
             }else{
                 //continue use frame search
             }

@@ -2,6 +2,7 @@ import React, {Component} from "react"
 import {ReactQuery} from "we-edit"
 import InlineSegments from "../constraint-space/lnline-segments"
 import Story from "./story"
+import Group from "../../../composed/group"
 
 /**
  * height: line box height
@@ -60,7 +61,7 @@ export default class Inline extends Component{
 	}
 
 	get atoms(){
-		return this.inlineSegments.items
+		return this.inlineSegments.items.map(a=>a && a.props.atom ||a)
 	}
 
 	get items(){
@@ -83,9 +84,14 @@ export default class Inline extends Component{
 	 * if not, let parent block layout it since it possibly affect layout space, block offset
 	 */
 	appendAnchorAtom(atom){
-		const $anchor=new ReactQuery(atom).findFirst('[data-type="anchor"]')
+		const $atom=new ReactQuery(atom)
+		const $anchor=$atom.findFirst('[data-type="anchor"]')
 		const anchorId=$anchor.attr("data-content")
-		const placeholder=React.cloneElement($anchor.get(0),{atom,width:0,"data-anchor":anchorId})
+		const placeholder=React.cloneElement(
+			$atom.replace($anchor.get(0),<Group/>).get(0),
+			{atom,width:0,"data-anchor":anchorId}
+		)
+		//React.cloneElement($anchor.get(0),{atom,width:0,"data-anchor":anchorId})
 		this.inlineSegments.push(placeholder)
 		if(!this.space.isAnchored(anchorId)){//let frame anchor this atom first
 			/**
