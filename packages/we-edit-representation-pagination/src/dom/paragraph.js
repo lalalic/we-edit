@@ -372,7 +372,7 @@ export default class EditableParagraph extends editable(Paragraph,{stoppable:tru
 		}
 		
 		if(spaceChangedAt>0){
-			this.commit(this.computed.atoms.indexOf(lines[spaceChangedAt].firstAtom))
+			this.commit(this.atoms.indexOf(lines[spaceChangedAt].firstAtom))
 		}
 		return true
 	}

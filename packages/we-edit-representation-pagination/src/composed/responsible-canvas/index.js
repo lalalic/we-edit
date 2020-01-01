@@ -195,7 +195,7 @@ class Responsible extends Component{
 			pages:this.pages.length,
 			allComposed:document.isAllChildrenComposed(),
 			words: Array.from(document.composers.values()).filter(a=>!!a)
-				.reduce((words,a)=>words+=(a.computed.atoms ? a.computed.atoms.length : 0),0)
+				.reduce((words,a)=>words+=(a.atoms ? a.atoms.length : 0),0)
 		}))
     }
 
