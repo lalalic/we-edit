@@ -8,16 +8,13 @@ import AbsoluteMovable from "./absolute-movable"
 import Resizable from "./resizable"
 import Rotatable from "./rotatable"
 
-import {Group} from "../../../composed"
+import {Group} from "../.."
 import Geometry from "../../../tool/path"
 
-export default class Extent extends Component{
+export default class FocusShape extends Component{
 	static propTypes={
-		onResize: PropTypes.func,
 		path: PropTypes.string,
 		resizeSpots: PropTypes.arrayOf(PropTypes.object),
-		onMove: PropTypes.func,
-		onRotate: PropTypes.func,
 		rotate: PropTypes.shape({
 			r:PropTypes.number,
 			x:PropTypes.number.isRequired,
@@ -27,38 +24,53 @@ export default class Extent extends Component{
 		absolute:PropTypes.bool,
 	}
 
+	static contextTypes={
+		onMove:PropTypes.func,
+		onResize: PropTypes.func,
+		onRotate: PropTypes.func,
+		around: PropTypes.func,
+	}
+
 	render(){
-		const {path, resizeSpots, onResize, onMove, around, onRotate, rotate, positioning, x, y,transform=a=>a,id,absolute}=this.props
+		const {onResize, onMove, around, onRotate,asCanvasPoint}=this.context
+		const {path, resizeSpots, rotate, x, y,transform=a=>a,id,absolute,
+				movable=!!onMove,
+				resizable=!!onResize,
+				rotatable=!!onRotate,
+				children,
+				isAnchor,
+			}=this.props
 		const Mover=absolute ? AbsoluteMovable : Movable
 		return(
 			<Group x={x} y={y}>
 				{transform(
 					<Fragment>
 						<path d={path} fill="none" stroke="lightgray"/>
-						{onMove && (
-							<Mover onMove={e=>onMove({...e,id,absolute})} around={around}>
+						{movable && (
+							<Mover onMove={e=>onMove({...e,id,absolute})} around={around} isAnchor={isAnchor}>
 								<path d={path} fill="white" fillOpacity={0.01} cursor="move"/>
 							</Mover>
 						)}
 
-						{onResize && (
+						{resizable && (
 							<Resizable onResize={e=>onResize({...e,id})}>
 								{resizeSpots.map((a,i)=><Spot key={i} {...a}/>)}
 							</Resizable>
 						)}
 
-						{onRotate && <Rotatable onRotate={({left,top})=>{
+						{rotatable && <Rotatable onRotate={({left,top})=>{
 							const geometry=new Geometry(path)
 							const center=geometry.center()
 							center.x+=x
 							center.y+=y
-							const xy=positioning.asCanvasPoint({left,top})
+							const xy=asCanvasPoint({left,top})
 							var degree=parseInt(Math.atan2(xy.x-center.x,-xy.y+center.y)*180/Math.PI)
 							if(degree<0)
 								degree+=360
 
 							return onRotate({degree,id})
 						}} {...rotate}/>}
+						{children}
 					</Fragment>
 				)}
 			</Group>

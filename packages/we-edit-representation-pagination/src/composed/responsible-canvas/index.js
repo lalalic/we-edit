@@ -143,7 +143,7 @@ class Responsible extends Component{
                     40:e=>this.onKeyArrowDown(e),//move down
                 }}/>)
             const range=(<Selection
-                children={<SelectionShape ref={this.selecting} asCanvasPoint={a=>this.positioning.asCanvasPoint(a)}/>}
+                children={<SelectionShape ref={this.selecting}/>}
                 onMove={editable && this.onMove}
                 onResize={editable && this.onResize}
                 onRotate={editable && this.onRotate}
@@ -153,6 +153,7 @@ class Responsible extends Component{
                         return this.positioning.position(id,at)
                     }
                 }}
+                asCanvasPoint={a=>this.positioning.asCanvasPoint(a)}
                 />)
             locator=<Locator canvas={this} ref="locator" cursor={cursor}  range={range}/>
         }

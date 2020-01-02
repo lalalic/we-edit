@@ -11,6 +11,10 @@ export default class Group extends Component{
 		z:PropTypes.number,
 	}
 
+	static contextTypes={
+		debug: PropTypes.bool
+	}
+
     render(){
 		let {
 			innerRef, //for waypoint

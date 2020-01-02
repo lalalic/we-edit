@@ -4,7 +4,7 @@ import memoize from "memoize-one"
 
 import {Group} from "../../composed"
 import {HasParentAndChild,editable,Layout} from "../../composable"
-import Entity from "../../composed/responsible-canvas/selection/entity"
+import FocusShape from "../../composed/responsible-canvas/selection/focus-shape"
 import Path from "../../tool/path"
 
 import Frame from "../frame"
@@ -84,7 +84,7 @@ export default class Shape extends Frame{
 		const {width:right, height:bottom,rotate=0,id}=this.props
 		const left=0, top=0
 		const path=`M${left} ${top} h${right-left} v${bottom-top} h${left-right} Z`
-		return (<Entity
+		return (<FocusShape
 			id={id}
 			x={x}
 			y={y}

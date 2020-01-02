@@ -7,14 +7,13 @@ import {Group} from "../../../composed"
 
 export default class Movable extends Component{
 	static propTypes={
-		onMove: PropTypes.func.isRequired,
-		onMoving: PropTypes.func,
+		onMove: PropTypes.func
 	}
 
 	state={moving:false}
 	render(){
 		const {moving}=this.state
-		const {children}=this.props
+		const {children,isAnchor}=this.props
 
 		return (
 			<Group>
@@ -23,7 +22,7 @@ export default class Movable extends Component{
 					 	onMouseUp={e=>this.onEndMove(e)}
 						onMouseMove={e=>this.moving(e)}
 						>
-						<Mover ref={a=>this.mover=a} cursor="default" show={!this.props.isWholeAnchor}/>
+						<Mover ref={a=>this.mover=a} cursor="default" show={!isAnchor}/>
 					</Overlay>)
 				}
 				{React.cloneElement(children,{onMouseMove:e=>{

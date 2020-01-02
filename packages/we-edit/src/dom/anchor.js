@@ -33,4 +33,8 @@ export default class __$1 extends Component{
             PropTypes.func
         ]).isRequired
     }
+
+    static defaultProps={
+        wrap:{}
+    }
 }

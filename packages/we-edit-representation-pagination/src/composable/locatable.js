@@ -38,7 +38,6 @@ function Locatable(A){
 				return element
 			}
 		}
-
 	}
 }
 
