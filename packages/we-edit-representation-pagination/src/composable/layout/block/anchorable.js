@@ -1,7 +1,10 @@
 import { ReactQuery } from "we-edit"
 import Flow from "./flow"
+import {Rect} from "../../../tool/geometry"
+
 /**
  * anchorable can layout positioned content, and ***MAY change space if supporting wrap***
+ * data-anchor: check inline.appendAnchorAtom, to identify anchor placeholder in paragraph
  */
 export default class Anchorable extends Flow {
 	/**
@@ -30,8 +33,10 @@ export default class Anchorable extends Flow {
 				return this.constructor.IMMEDIATE_STOP;
 			}
 			return false;
-		}
-		const anchorPlaced = (anchorId, line) => new ReactQuery(line).findFirst(`[data-anchor="${anchorId}]`).length == 1;
+        }
+        
+		//data-anchor is placeholder specification in inline layout
+        const anchorPlaced = (anchorId, line) => new ReactQuery(line).findFirst(`[data-anchor="${anchorId}]`).length == 1;
 		if (!anchor) {
             if (this.computed.recomposing) {
 				if (anchorPlaced(this.computed.recomposing, line)) {
@@ -69,44 +74,43 @@ export default class Anchorable extends Flow {
                 },
             }
         }))
-		const { wrap, geometry, y = 0, "data-content": anchorId } = anchored.props;
+		const { wrap, geometry, "data-content": anchorId } = anchored.props;
         /**
          * @TODO: wrap each other with already anchored wrappees, and this wrappees
          */
-		if (!(wrap && this.isDirtyIn(geometry))) {
+		if (!(wrap && this.__isDirtyIn(geometry))) {
 			super.appendComposed(anchored);
 			return 1;
 		}
         /**
          * the area above current block offset is affected by this wrap area
          * temporarily anchor it to exclude the wrap area, and relayout whole to see:
-         * ** always rollback to current stack
-         * if the anchor can be layouted within the space, rollback and keep this wrappee, relayout this line
+         * if the anchor can be layouted within the space, keep relayouted, relayout last line
          * if not, rollback to last layout result, and return false
          */
-		const rollback = this.recompose(() => {
-			/**add anchored and line arbitarily to make recompose until current anchor, so, then recompose to check */
-			super.appendComposed(anchored);
-			super.appendComposed(line);
+		const rollback = this.recompose((recomposingLines, anchors) => {
+			//keep all anchors, @TODO: it's supposed: later anchor can't affect previous anchors layout????
+            this.anchors=[...anchors,anchored]
+            //recompose until this anchor
+            recomposingLines.push(line)
 			return anchorId;
 		});
         /**
-         * then check if this anchor is in this page
-         * data-anchor is placeholder specification in inline layout
+         * then check if this anchor is in this block, specifically in last line
          * */
-		if (this.lines.findLast(a => anchorPlaced(anchorId, a))) {
+		if (anchorPlaced(anchorId, this.lines[this.lines.length-1])) {
             /**
-             * anchor and placeholder can be on same frame, so keep anchor,
-             * and re-layout the line
+             * anchor and placeholder can be on same block, 
+             * so keep recomposed lines and anchors (including appending anchor),
+             * and re-layout last line that contains anchor placeholder
+             *** the last line in paragraph MAY not equal to appending line since recompose changes it
+             *** while paragraph should already be synced with recompose
              */
-			rollback();
-			super.appendComposed(anchored);
-			return 0 + 1;
+            this.lines.pop()//rollback last line definitely in this block
+			return 0 + 1;//rollback last line of paragrpah accordingly
 		}
 		else {
-            /**
-             * anchor and placeholder can NOT be on same frame, so throw to parent
-             */
+            //anchor and placeholder can NOT be on same frame, so throw to parent
 			rollback();
 			return false;
 		}
@@ -121,7 +125,38 @@ export default class Anchorable extends Flow {
 			const removingAnchorIds = lines.map(a=>anchorsInLine(a)).flat()
 			return this.anchors.filter(a => removingAnchorIds.includes(anchorId(a))).map(remove);
         })(removedLines);
+
+        //if removed anchors affect wrap areas above removed lines,
+        const blockOffset=this.blockOffset
+        const removedWrappeesAffectedLayoutedSpace=this.wrappees.filter(a=>removedAnchors.includes(a))
+            .filter(({props:{geometry:{y=0,height=0}}})=>y+height<blockOffset)
+        if(removedWrappeesAffectedLayoutedSpace.length>0){
+            this.recompose()
+        }
         
         return Object.assign(removedLines, {anchors:removedAnchors})
+    }
+
+
+	__isDirtyIn(rect){
+        const isIntersect=(A,B)=>new Rect(A.x, A.y, A.width, A.height).intersects(new Rect(B.x, B.y, B.width, B.height))
+		//wrappee already take up
+		if(this.wrappees.find(({props:{x,y,width,height}})=>isIntersect(rect,{x,y,width,height}))){
+			return true
+		}
+
+		//content already take up
+		if(isIntersect(rect,{x:0,y:0,width:this.props.width,height:this.blockOffset})){
+			return true
+		}
+
+		if(this.cols){
+			//if any non-current column content already take up
+			return !!this.columns
+				.filter(a=>a!=this.currentColumn)//current block has already checked in super as normal space
+				.find(({x=0,y=0,width,blockOffset:height})=>isIntersect(rect,{x,y,width,height}))
+		}
+
+		return false
     }
 }

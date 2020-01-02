@@ -52,7 +52,6 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 		super(...arguments);
 		this.computed.anchors = [];
 		this.defineProperties();
-		this.deadLoop=0
 	}
 	defineProperties() {
 		Object.defineProperties(this, {
@@ -249,16 +248,17 @@ export default class Flow extends HasParentAndChild(dom.Container) {
      * so it should work to recommit alreay layouted paragraphs
      * @returns: function to rollback/recover to last state
      */
-	recompose(pre = a => a) {
-		if(++this.deadLoop>1000){
+	recompose(init = a => a) {
+		if(!this.recompose.deadLoop)
+			this.recompose.deadLoop=1
+		if(++this.recompose.deadLoop>10000){
 			debugger
 		}
-		
-        /**
+		/**
          * if it's empty frame, recompose would not happen
          */
-		if ((this.lines.length + this.anchors.length) == 0) {
-			pre();
+		if (this.isEmpty()) {
+			init();
 			return a => a;
 		}
 		const lastLines = [...this.lines];
@@ -271,15 +271,25 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 				this.columns = lastColumns;
 		};
 		try {
-			this.computed.recomposing = pre();
+			//reset composed
 			this.lines = [];
 			this.anchors = [];
-			const lines = [...lastLines];
+			this.columns=[]
+
+			//initialize for recompose
+			const lines = [...lastLines]
+			this.computed.recomposing = init(lines, [...lastAnchors]);
+
+			const getParagraphId=line=>new ReactQuery(line).findFirst(`[data-type="paragraph"]`).attr("data-content")
+			/**
+			 * To recommit each paragraph's lines in this block from top to bottom
+			 * Every time line paragraph changed, last paragraph would recommit 
+			 */
 			var currentParagraph = null;
 			var currentParagraphLines = [];
 			for (let i = 0, line; i < lines.length; i++) {
 				line = lines[i];
-				const paragraphOfLine = this.getFlowableComposerId(line, `[data-type="paragraph"]`);
+				const paragraphOfLine = getParagraphId(line)
 				if (!paragraphOfLine) { //not paragraph, then append directly
 					if (currentParagraph) {
 						this.context.getComposer(currentParagraph).recommit(currentParagraphLines);
@@ -307,6 +317,7 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 					}
 				}
 			}
+			//last paragraph 
 			if (currentParagraph) {
 				this.context.getComposer(currentParagraph).recommit(currentParagraphLines);
 			}
@@ -327,44 +338,17 @@ export default class Flow extends HasParentAndChild(dom.Container) {
      */
 	rollbackLines(n) {
 		return n==0 ? [] : this.lines.splice(-n);
-		
-        /**
-         * @TODO: should consider recompose?
-        const asRect=({x=0,y=0,width,height,wrap},a={})=>({x,y,width,height,...a})
-        const intersectWithContent=!!removedAnchors.find(a=>{
-            if(!a.props.wrap)
-                return false
-
-            const wrapRect=asRect(a.props)
-            return !!this.columns.find(b=>this.isIntersect(wrapRect, asRect(b,{height:b.height-b.availableBlockSize})))
-        })
-
-        if(intersectWithContent){
-            this.recompose()
-        }
-        */
-	}
-
-	getFlowableComposerId(line,filter){
-		return new ReactQuery(line)
-			.findFirst(`[data-type="paragraph"],[data-type="table"]`)
-			.filter(filter)
-			.attr("data-content")
 	}
 
 	isEmpty(){
 		return (this.lines.length+this.anchors.length)==0
 	}
 	
-	belongsTo(a,id){
-		return new ReactQuery(a).findFirst(`[data-content="${id}"]`).get(0)
-	}
-
 	isAnchored(id){
-		return !!this.anchors.find(a=>this.belongsTo(a,id))
+		return !!this.anchors.find(a=>new ReactQuery(a).findFirst(`[data-content="${id}"]`).length==1)
 	}
 
-	isIntersect(A,B){
+	_isIntersect(A,B){
 		return new Rect(A.x, A.y, A.width, A.height).intersects(new Rect(B.x, B.y, B.width, B.height))
 	}
 }

@@ -25,9 +25,12 @@ export default class __$1 extends Component{
 			top:PropTypes.number,
 			bottom:PropTypes.number,
 		}),
-        wrap:PropTypes.shape({
-            mode:PropTypes.oneOf("TopAndBottom,Square,Tight,Through".split(",")),
-            wrapText: PropTypes.oneOf("bothSides,left,right,largest".split(","))
-        }).isRequired
+        wrap:PropTypes.oneOfType([
+            PropTypes.shape({
+                mode:PropTypes.oneOf("TopAndBottom,Square,Tight,Through".split(",")),
+                wrapText: PropTypes.oneOf("bothSides,left,right,largest".split(","))
+            }),
+            PropTypes.func
+        ]).isRequired
     }
 }

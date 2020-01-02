@@ -11,15 +11,15 @@ import {dom} from "we-edit"
 export default class Anchor extends HasParentAndChild(dom.Anchor){
     createComposed2Parent(content){
         var {width,height,geometry}=content.props
-        const {margin:{left=0,right=0,top=0,bottom=0}={}, wrap:{mode}, x:X, y:Y, xy}=this.props
+        const {margin:{left=0,right=0,top=0,bottom=0}={}, wrap:{mode}, x:X, y:Y}=this.props
         this.width=width+=(left+right)
         this.height=height+=(top+bottom)
         return (
             <Group children={content}
                 anchor={space=>{
                     const size={width:this.width, height:this.height}  
-                    var x=(xy||space.anchor.bind(space))({align:"left",...X},size,space)
-                    var y=(xy||space.anchor.bind(space))({align:"top",...Y},size,space)
+                    var x=space.anchor({align:"left",...X},size,space)
+                    var y=space.anchor({align:"top",...Y},size,space)
                     
                     x=x-left, y=y-top
                     if(geometry && geometry.origin){
@@ -34,7 +34,7 @@ export default class Anchor extends HasParentAndChild(dom.Anchor){
                             }
                             return line=>fn.call(this, line, geometry.clone().translate(x,y))
                         }
-                    })(this[`wrap${mode}`]);
+                    })(typeof(this.props.wrap)=="function" ? this.props.wrap : this[`wrap${mode}`]);
 
                     return (
                         <Group {...{

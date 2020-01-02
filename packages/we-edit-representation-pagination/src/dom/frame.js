@@ -107,27 +107,6 @@ class Frame extends Layout.Block{
 		}
 	}
 
-	isDirtyIn(rect){
-		//wrappee already take up
-		if(this.wrappees.find(({props:{x,y,width,height}})=>this.isIntersect(rect,{x,y,width,height}))){
-			return true
-		}
-
-		//content already take up
-		if(this.isIntersect(rect,{x:0,y:0,width:this.props.width,height:this.blockOffset})){
-			return true
-		}
-
-		if(this.cols){
-			//if any non-current column content already take up
-			return !!this.columns
-				.filter(a=>a!=this.currentColumn)//current block has already checked in super as normal space
-				.find(({x=0,y=0,width,blockOffset:height})=>this.isIntersect(rect,{x,y,width,height}))
-		}
-
-		return false
-	}
-
 	columnIndexOf(lineIndex){
 		if(!this.cols)
 			return 0
@@ -137,19 +116,6 @@ class Frame extends Layout.Block{
 	layoutOf(){
 		const {width,height,margin}=this.props
 		return {width,height,margin,cols:this.cols}
-	}
-
-	includeContent(id){
-		if(this.cols && !!this.columns.find(a=>a.id==id)){
-			return true
-		}
-		return !![...this.lines,...this.anchors].find(a=>this.belongsTo(a,id))
-	}
-
-	getParagraph(line){
-		return new ReactQuery(line)
-			.findFirst(`[data-type="paragraph"]`)
-			.attr("data-content")
 	}
 
 	clone(props={}){

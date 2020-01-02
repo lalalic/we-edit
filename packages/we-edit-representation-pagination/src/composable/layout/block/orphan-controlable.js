@@ -32,16 +32,17 @@ export default class OrphanControlable extends Anchorable {
 			}
 		});
 	}
+
     /**
      * how many last lines from same paragraph of input line
      * @param {*} line
      */
 	orphanCount(line = this.lastLine) {
-		const pid = this.getFlowableComposerId(line, '[data-type="paragraph"]');
+		const pid = getLineParagraphId(line, '[data-type="paragraph"]');
 		if (!pid)
 			return 0;
 		const lines = this.lines;
-		const i = lines.findLastIndex(a => this.getFlowableComposerId(a) !== pid);
+		const i = lines.findLastIndex(a => getLineParagraphId(a) !== pid);
 		return i == -1 ? lines.length : i + 1;
 	}
     /**
@@ -88,7 +89,7 @@ export default class OrphanControlable extends Anchorable {
 			if (this.prev.shouldKeepWithNext(line)) {
 				let removedLines = this.prev.rollbackLines(this.prev.orphanCount());
 				//re-submit last paragraph
-				const pid = this.getFlowableComposerId(removedLines[0]);
+				const pid = getLineParagraphId(removedLines[0]);
 				this.context.getComposer(pid).recommit();
 				return 0 + 1;
 			}
@@ -96,15 +97,17 @@ export default class OrphanControlable extends Anchorable {
 		return super.appendComposed(...arguments);
 	}
 	shouldKeepLinesWith(line) {
-		const pid = this.getFlowableComposerId(line);
-		return this.getFlowableComposerId(this.lastLine) == pid &&
-			this.getFlowableComposerId(this.firstLine) != pid;
+		const pid = getLineParagraphId(line);
+		return getLineParagraphId(this.lastLine) == pid &&
+			getLineParagraphId(this.firstLine) != pid;
 	}
 	shouldKeepWithNext(line) {
 		const should = (this.lastLine.props.pagination || {}).keepWithNext &&
 			this.orphanCount(line) == 0 &&
-			this.getFlowableComposerId(this.firstLine) !== this.getFlowableComposerId(this.lastLine);
+			getLineParagraphId(this.firstLine) !== getLineParagraphId(this.lastLine);
 		return should;
 	}
 	static Fixed = OrphanControlable;
 }
+
+const getLineParagraphId=line=>new ReactQuery(line).findFirst(`[data-type="paragraph"]`).attr("data-content")
