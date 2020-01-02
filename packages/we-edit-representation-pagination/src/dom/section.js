@@ -214,7 +214,6 @@ export default class EditableSection extends editable(Section,{stoppable:true}){
 			//continue from last
 		}
 
-		//is it possible that this.current is empty? last empty fission is removed, so not possible
 		const lastId=this.current.lastLine.props["data-content"]
 		return this.childrenArray(this.props.children).findIndex(a=>a && a.props.id==lastId)
 	}

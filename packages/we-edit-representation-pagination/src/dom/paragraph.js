@@ -152,8 +152,10 @@ class Paragraph extends Super{
 			let last=0, times=0
 			let next, rollbackLines
 			for(let i=start;i<len;){
-				if(i>end)
+				if(i>end){
 					return
+				}
+
 				if(i==last){
 					times++
 					if(times>DEAD){
@@ -171,6 +173,10 @@ class Paragraph extends Super{
 					continue
 				}else if(next!==false){
 					i++
+					if(i>end){
+						//it's recommitting since end is reasonable value
+						appendComposedLine(false)
+					}
 					continue
 				}else{
 					//current line is full, atoms[i] not assembled, commit to block layout

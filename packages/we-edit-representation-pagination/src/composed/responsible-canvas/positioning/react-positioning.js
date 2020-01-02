@@ -368,7 +368,6 @@ class PositioningHelper extends Positioning{
                     })()){
                         if(atom.props.anchor){
                             anchor=$atom.findFirst('[data-type="anchor"]').attr('data-content')
-                            debugger
                         }
                         return true
                     }

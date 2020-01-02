@@ -52,6 +52,7 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 		super(...arguments);
 		this.computed.anchors = [];
 		this.defineProperties();
+		this.deadLoop=0
 	}
 	defineProperties() {
 		Object.defineProperties(this, {
@@ -242,12 +243,17 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 		return excludes;
 	}
     /**
-     * layout after pre() for only already layouted lines
+     * recompose for space since layouted space will be changed, such as wrap and balance
+	 * layout after pre() for only already layouted lines
      * It's presumed: *** all content are in paragraphs, otherwise just append it directly***
-     * so it's should work to recommit alreay layouted paragraphs
+     * so it should work to recommit alreay layouted paragraphs
      * @returns: function to rollback/recover to last state
      */
 	recompose(pre = a => a) {
+		if(++this.deadLoop>1000){
+			debugger
+		}
+		
         /**
          * if it's empty frame, recompose would not happen
          */
@@ -273,8 +279,8 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 			var currentParagraphLines = [];
 			for (let i = 0, line; i < lines.length; i++) {
 				line = lines[i];
-				const linePID = this.getFlowableComposerId(line, `[data-type="paragraph"]`);
-				if (!linePID) { //not paragraph, then append directly
+				const paragraphOfLine = this.getFlowableComposerId(line, `[data-type="paragraph"]`);
+				if (!paragraphOfLine) { //not paragraph, then append directly
 					if (currentParagraph) {
 						this.context.getComposer(currentParagraph).recommit(currentParagraphLines);
 						currentParagraph = null;
@@ -284,13 +290,13 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 				}
 				else {
 					if (!currentParagraph) {
-						currentParagraph = linePID;
+						currentParagraph = paragraphOfLine;
 						currentParagraphLines.push(line);
 					}
 					else {
-						if (linePID !== currentParagraph) {
+						if (paragraphOfLine !== currentParagraph) {
 							this.context.getComposer(currentParagraph).recommit(currentParagraphLines);
-							currentParagraph = linePID;
+							currentParagraph = paragraphOfLine;
 							currentParagraphLines = [line];
 							continue;
 						}
@@ -320,16 +326,8 @@ export default class Flow extends HasParentAndChild(dom.Container) {
      * @returns [...removed line].anchros=[...removed anchor id]
      */
 	rollbackLines(n) {
-		if (n == 0) {
-			return Object.assign([], { anchors: [] });
-		}
-		const removedLines = this.lines.splice(-n);
-		const removedAnchors = (lines => {
-			const remove = a => this.anchors.splice(this.anchors.indexOf(a), 1)[0];
-			const anchorId = a => new ReactQuery(a).findFirst('[data-type="anchor"]').attr("data-content");
-			const removingAnchorIds = Array.from(lines.reduce((ps, a) => (ps.add(anchorId(a)), ps), new Set())).filter(a => !!a);
-			return this.anchors.filter(a => removingAnchorIds.includes(anchorId(a))).map(remove);
-		})(removedLines);
+		return n==0 ? [] : this.lines.splice(-n);
+		
         /**
          * @TODO: should consider recompose?
         const asRect=({x=0,y=0,width,height,wrap},a={})=>({x,y,width,height,...a})
@@ -345,7 +343,6 @@ export default class Flow extends HasParentAndChild(dom.Container) {
             this.recompose()
         }
         */
-		return Object.assign(removedLines, { anchors: removedAnchors });
 	}
 
 	getFlowableComposerId(line,filter){

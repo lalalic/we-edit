@@ -33,12 +33,19 @@ export default class Anchorable extends Flow {
 		}
 		const anchorPlaced = (anchorId, line) => new ReactQuery(line).findFirst(`[data-anchor="${anchorId}]`).length == 1;
 		if (!anchor) {
-			if (this.computed.recomposing) {
+            if (this.computed.recomposing) {
 				if (anchorPlaced(this.computed.recomposing, line)) {
+                    /**
+                     * anchor and placeholder be in same frame, so stop immediately
+                     * ** the placeholder line should be appended, since later 
+                     * by checking this placeholder existence to decide if recompose success
+                     * but this line will be rollbacked
+                     */
+                    super.appendComposed(...arguments)
 					return this.constructor.IMMEDIATE_STOP;
 				}
 			}
-			return super.appendComposed(...arguments);
+			return super.appendComposed(...arguments)
         }
         
         /**
@@ -78,7 +85,7 @@ export default class Anchorable extends Flow {
          * if not, rollback to last layout result, and return false
          */
 		const rollback = this.recompose(() => {
-			/**add anchored and line arbitarily, then recompose to check */
+			/**add anchored and line arbitarily to make recompose until current anchor, so, then recompose to check */
 			super.appendComposed(anchored);
 			super.appendComposed(line);
 			return anchorId;
@@ -103,5 +110,18 @@ export default class Anchorable extends Flow {
 			rollback();
 			return false;
 		}
-	}
+    }
+    
+    rollbackLines(){
+        const removedLines=super.rollbackLines(...arguments)
+        const removedAnchors = (lines => {
+			const remove = a => this.anchors.splice(this.anchors.indexOf(a), 1)[0];
+            const anchorId = a=>new ReactQuery(a).findFirst(`[data-type="anchor"]`).attr('data-content')
+            const anchorsInLine=line=> new ReactQuery(line).find('[data-anchor]').toArray().map(a=>a.props["data-anchor"])
+			const removingAnchorIds = lines.map(a=>anchorsInLine(a)).flat()
+			return this.anchors.filter(a => removingAnchorIds.includes(anchorId(a))).map(remove);
+        })(removedLines);
+        
+        return Object.assign(removedLines, {anchors:removedAnchors})
+    }
 }

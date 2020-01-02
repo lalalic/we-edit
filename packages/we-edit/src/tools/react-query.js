@@ -106,7 +106,7 @@ export default class Query{
 		console.assert(React.isValidElement(changed))
 		const {first,parents}=new this.constructor(this.root).findFirstAndParents(a=>a==element||undefined)
         console.assert(first.get(0)==element)
-        console.assert(parents.length>0)
+        //parents may be empty since the root is being replaced
         const root=parents.reduceRight(({origin,cloned},parent)=>{
             const children=[...toArray(parent.props.children)]
 			switch(children.length){
