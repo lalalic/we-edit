@@ -23,7 +23,7 @@ export default class Movable extends Component{
 					 	onMouseUp={e=>this.onEndMove(e)}
 						onMouseMove={e=>this.moving(e)}
 						>
-						<Mover ref={a=>this.mover=a} cursor="default" show={!!!this.props.onMoving}/>
+						<Mover ref={a=>this.mover=a} cursor="default" show={!this.props.isWholeAnchor}/>
 					</Overlay>)
 				}
 				{React.cloneElement(children,{onMouseMove:e=>{
@@ -67,8 +67,8 @@ export default class Movable extends Component{
 class Mover extends Component{
 	state={}
     render(){
-        const {x,y,id}=this.state
-        return (
+		const {x,y,id}=this.state
+		return (
             <Top x={x} y={y}>
 				{ x!=undefined && y!=undefined && (
 					<rect x={5} y={20} width={10} height={5}
@@ -79,5 +79,5 @@ class Mover extends Component{
                 {id && <rect width={2} height={20} fill={this.props.show ? "black" : "transparent"}/>}
             </Top>
         )
-    }
+	}
 }

@@ -58,6 +58,9 @@ export default compose(
         //update cursor
         const {cursorAt, ...a}=selection.toJS()
         const {id,at}=a[cursorAt]
+        if(!id)//
+            return true
+        
         const cursorPosition=positioning.position(id, at, true)
         const isCursor=a.start.id==a.end.id && a.start.at==a.end.at
         if(cursorPosition){
@@ -107,7 +110,7 @@ export default compose(
     componentDidUpdate(){
         const {props:{canvas,dispatch,content,selection}, refs:{cursor}, style}=this
         canvas.scrollNodeIntoView(cursor)
-        //dispatch(ACTION.Selection.STYLE(style))
+        dispatch(ACTION.Selection.STYLE(style))
         this.last={content, selection}
     }
 })

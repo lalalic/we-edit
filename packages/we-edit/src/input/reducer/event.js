@@ -254,10 +254,12 @@ export default class __$1 extends Base{
 
         if(this.isWhole()){
             const $parent=this.$target.parent()
-            if($parent.attr('type')=="anchor" && (dest.dx || dest.dy)){
-                this.selectWhole($parent.attr('id'))
-                this.emit("move",this.conds, dest)
-                this.selectWhole(start.id)
+            if($parent.attr('type')=="anchor"){
+                if(dest.dx || dest.dy){
+                    this.selectWhole($parent.attr('id'))
+                    this.emit("move",this.conds, dest)
+                    this.selectWhole(start.id)
+                }
                 return 
             }
         }

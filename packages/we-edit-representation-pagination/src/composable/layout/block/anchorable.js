@@ -74,7 +74,7 @@ export default class Anchorable extends Flow {
                 },
             }
         }))
-		const { wrap, geometry, "data-content": anchorId } = anchored.props;
+        const { wrap, geometry, "data-content": anchorId } = anchored.props;
         /**
          * @TODO: wrap each other with already anchored wrappees, and this wrappees
          */
@@ -89,8 +89,9 @@ export default class Anchorable extends Flow {
          * if not, rollback to last layout result, and return false
          */
 		const rollback = this.recompose((recomposingLines, anchors) => {
-			//keep all anchors, @TODO: it's supposed: later anchor can't affect previous anchors layout????
-            this.anchors=[...anchors,anchored]
+            //keep all anchors, @TODO: it's supposed: later anchor can't affect previous anchors layout????
+            this.anchors=anchors
+            super.appendComposed(anchored)
             //recompose until this anchor
             recomposingLines.push(line)
 			return anchorId;
