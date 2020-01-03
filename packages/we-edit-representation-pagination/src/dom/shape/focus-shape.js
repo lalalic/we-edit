@@ -36,11 +36,9 @@ export default connect(state=>{
 		const getComposer=a=>selectionStyle.positioning.getComposer(a)
 		const cursor=selectionStyle.position.id
 		const target=getComposer(id)
-		return {
-			show:!!getComposer(cursor).closest(a=>a.props.id==id),
-			type:target.getComposeType(),
-			isAnchor: target.closest(a=>(a!=target && (a.isFrame||a.isSection))||a.getComposeType()=="anchor").getComposeType()=="anchor"
-		}
+		const isCursorGrand=!!getComposer(cursor).closest(a=>a.props.id==id)
+		const isAnchor=target.closest(a=>(a!=target && (a.isFrame||a.isSection))||a.getComposeType()=="anchor").getComposeType()=="anchor"
+		return {show:isCursorGrand,type:target.getComposeType(),isAnchor}
 	}
 	constructor(){
 		super(...arguments)

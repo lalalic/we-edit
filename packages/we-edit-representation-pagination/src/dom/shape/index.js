@@ -5,8 +5,6 @@ import memoize from "memoize-one"
 
 import {Group} from "../../composed"
 import {HasParentAndChild,editable,Layout} from "../../composable"
-import FocusShape from "./focus-shape"
-import Path from "../../tool/path"
 
 import Frame from "../frame"
 
@@ -46,9 +44,9 @@ export default class Shape extends Frame{
 		const content=(
 			<Fragment>
 				{[
-					...this.anchors.map((a,i)=>React.cloneElement(a,{key:i})),
 					React.cloneElement(this.positionLines(this.lines),{key:"content"}),
-				].filter(a=>!!a)
+					...this.anchors.map((a,i)=>React.cloneElement(a,{key:i})),
+				].filter(a=>!!a).sort(({props:{z:z1=0}},{props:{z:z2=0}},)=>z1-z2)
 				}
 			</Fragment>
 		)

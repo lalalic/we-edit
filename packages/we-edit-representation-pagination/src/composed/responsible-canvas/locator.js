@@ -76,7 +76,7 @@ export default compose(
 
         var rangeRects=!isCursor ? positioning.getRangeRects(a.start,a.end) : []
         if(range && (rangeRects && rangeRects.length)){
-            this.range=React.cloneElement(range,{rects:rangeRects,shape:focusShape})
+            this.range=React.cloneElement(range,{rects:rangeRects})
         }
 
         return true

@@ -87,7 +87,7 @@ class Frame extends Layout.Block{
 				{[
 					React.cloneElement(content,{key:"content"}),
 					...this.anchors.map((a,i)=>React.cloneElement(a,{key:i})),
-				]}
+				].filter(a=>!!a).sort(({props:{z:z1=0}},{props:{z:z2=0}},)=>z1-z2)}
 			</Group>
 		)
 	}
