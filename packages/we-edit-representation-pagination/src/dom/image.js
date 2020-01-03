@@ -13,7 +13,7 @@ export default class Image extends editable(NoChild(dom.Image)){
 
 	createComposed2Parent(){
 		const shape=this.getShape()
-		const geometry=shape.getGeometry(shape.props)
+		const geometry=shape.geometry
 		const {width,height}=geometry.contentBox
 		const {src}=this.props
 		const image=<ComposedImage {...{

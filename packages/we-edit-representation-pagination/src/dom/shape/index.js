@@ -1,4 +1,5 @@
 import React,{Fragment} from "react"
+import PropTypes from "prop-types"
 import {dom} from "we-edit"
 import memoize from "memoize-one"
 
@@ -17,18 +18,28 @@ export default class Shape extends Frame{
 	static displayName=Super.displayName
 	static propTypes=Super.propTypes
 	static defaultProps=Super.defaultProps
+	static contextTypes={
+		...Frame.contextTypes,
+		editable: PropTypes.any,
+	}
 
-	getGeometry=memoize(props=>{
-		return memoize(()=>{
-			const {geometry="rect"}=props
-			const Geometry=this.constructor[geometry]||this.constructor.custom
-			return new Geometry(props, this.context)
-		})()
+	__getGeometry=memoize(composedUUID=>{
+		const {geometry="rect"}=this.props
+		const Geometry=this.constructor[geometry]||this.constructor.custom
+		return new Geometry(this.props, this.context)
+	})
+
+	get geometry(){
+		return this.__getGeometry(this.computed.composedUUID)
+	}
+
+	__getSpace=memoize(geometry=>{
+		const {width,height}=geometry.availableSpace()
+		return Layout.ConstraintSpace.create({width,height})
 	})
 
 	getSpace(){
-		const {width,height}=this.getGeometry(this.props).availableSpace()
-		return Layout.ConstraintSpace.create({width,height})
+		return this.__getSpace(this.geometry)
 	}
 
 	createComposed2Parent(){
@@ -41,11 +52,11 @@ export default class Shape extends Frame{
 				}
 			</Fragment>
 		)
-		const transformed=this.transform(this.getGeometry(this.props).createComposedShape(content))
+		const transformed=this.transform(this.geometry.createComposedShape(content))
 		return React.cloneElement(transformed,{className:"frame", "data-frame":this.uuid})
 	}
 
-	transform(shape, path=shape.props.geometry, strokeWidth=this.getGeometry(this.props).strokeWidth){
+	transform(shape, path=shape.props.geometry, strokeWidth=this.geometry.strokeWidth){
 		var {rotate, scale}=this.props
 		const translate={}
 		if(rotate){
@@ -80,7 +91,7 @@ export default class Shape extends Frame{
 	}
 
 	getFocusShape(){
-		const x=this.getGeometry(this.props).strokeWidth/2, y=x
+		const x=this.geometry.strokeWidth/2, y=x
 		const {width:right, height:bottom,rotate=0,id}=this.props
 		const left=0, top=0
 		const path=`M${left} ${top} h${right-left} v${bottom-top} h${left-right} Z`
