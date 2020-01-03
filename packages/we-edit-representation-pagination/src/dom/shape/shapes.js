@@ -36,7 +36,7 @@ export class custom extends Component{
 		const children=[]
 		children.push(
 			<Group x={this.strokeWidth/2} y={this.strokeWidth/2} key="outline" {...{"data-nocontent":true}}>
-				<path d={this.getPath().toString()}
+				<path d={this.getPath().toString()} className="shapeOutline"
 					style={{
 						strokeWidth:this.strokeWidth,
 						stroke:outline.solidFill,

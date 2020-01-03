@@ -11,7 +11,7 @@ import {dom} from "we-edit"
 export default class Anchor extends HasParentAndChild(dom.Anchor){
     createComposed2Parent(content){
         var {width,height,geometry}=content.props
-        const {margin:{left=0,right=0,top=0,bottom=0}={}, wrap:{mode}, x:X, y:Y}=this.props
+        const {margin:{left=0,right=0,top=0,bottom=0}={}, wrap, x:X, y:Y}=this.props
         this.width=width+=(left+right)
         this.height=height+=(top+bottom)
         return (
@@ -27,19 +27,18 @@ export default class Anchor extends HasParentAndChild(dom.Anchor){
                         y-=geometry.origin.y
                     }
 
-                    const wrap=(fn=>{
-                        if(fn){
-                            if(mode=="Square" || mode=="TopAndBottom"){
-                                return line=>fn.call(this, line, {bounds:()=>({left:x,top:y,right:x+width,bottom:y+height})})
-                            }
-                            return line=>fn.call(this, line, geometry.clone().translate(x,y))
-                        }
-                    })(typeof(this.props.wrap)=="function" ? this.props.wrap : this[`wrap${mode}`]);
+                    const wrapFunc=(fn=>{
+                        if(!fn)
+                            return 
+                        if(wrap.mode=="Square" || wrap.mode=="TopAndBottom")
+                            return line=>fn.call(this, line, {bounds:()=>({left:x,top:y,right:x+width,bottom:y+height})})
+                        return line=>fn.call(this, line, geometry.clone().translate(x,y))
+                    })(wrap && (typeof(wrap)=="function" ? wrap : this[`wrap${wrap.mode}`]));
 
                     return (
                         <Group {...{
                             x,y,
-                            wrap,
+                            wrap:wrapFunc,
                             geometry:{x,y,width,height},
                             "data-content":this.props.id,"data-type":this.getComposeType()}}>
                             <Group x={left} y={top}>

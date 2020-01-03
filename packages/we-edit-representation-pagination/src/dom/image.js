@@ -13,7 +13,8 @@ export default class Image extends editable(NoChild(dom.Image)){
 
 	createComposed2Parent(){
 		const shape=this.getShape()
-		const {width,height}=shape.geometry.contentBox
+		const geometry=shape.getGeometry(shape.props)
+		const {width,height}=geometry.contentBox
 		const {src}=this.props
 		const image=<ComposedImage {...{
 			width,
@@ -21,7 +22,7 @@ export default class Image extends editable(NoChild(dom.Image)){
 			xlinkHref: src,
 			preserveAspectRatio:"none",	
 		}}/>
-		return shape.transform(shape.geometry.createComposedShape(image))
+		return shape.transform(geometry.createComposedShape(image))
 	}
 	
 	getFocusShape(){

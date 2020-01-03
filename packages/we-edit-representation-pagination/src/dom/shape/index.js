@@ -18,18 +18,18 @@ export default class Shape extends Frame{
 	static propTypes=Super.propTypes
 	static defaultProps=Super.defaultProps
 
-	get geometry(){
+	getGeometry=memoize(props=>{
 		return memoize(()=>{
-			const {geometry="rect"}=this.props
+			const {geometry="rect"}=props
 			const Geometry=this.constructor[geometry]||this.constructor.custom
-			return new Geometry(this.props, this.context)
+			return new Geometry(props, this.context)
 		})()
-	}
-
-	getSpace=memoize(()=>{
-		const {width,height}=this.geometry.availableSpace()
-		return Layout.ConstraintSpace.create({width,height})
 	})
+
+	getSpace(){
+		const {width,height}=this.getGeometry(this.props).availableSpace()
+		return Layout.ConstraintSpace.create({width,height})
+	}
 
 	createComposed2Parent(){
 		const content=(
@@ -41,11 +41,11 @@ export default class Shape extends Frame{
 				}
 			</Fragment>
 		)
-		const transformed=this.transform(this.geometry.createComposedShape(content))
+		const transformed=this.transform(this.getGeometry(this.props).createComposedShape(content))
 		return React.cloneElement(transformed,{className:"frame", "data-frame":this.uuid})
 	}
 
-	transform(shape, path=shape.props.geometry, strokeWidth=this.geometry.strokeWidth){
+	transform(shape, path=shape.props.geometry, strokeWidth=this.getGeometry(this.props).strokeWidth){
 		var {rotate, scale}=this.props
 		const translate={}
 		if(rotate){
@@ -80,7 +80,7 @@ export default class Shape extends Frame{
 	}
 
 	getFocusShape(){
-		const x=this.geometry.strokeWidth/2, y=x
+		const x=this.getGeometry(this.props).strokeWidth/2, y=x
 		const {width:right, height:bottom,rotate=0,id}=this.props
 		const left=0, top=0
 		const path=`M${left} ${top} h${right-left} v${bottom-top} h${left-right} Z`

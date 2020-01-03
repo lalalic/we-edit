@@ -85,8 +85,8 @@ class Frame extends Layout.Block{
 		return (
 			<Group {...{width,height,x,y,z,named, className:"frame", "data-frame":this.uuid}}>
 				{[
+					React.cloneElement(content,{key:"content"}),
 					...this.anchors.map((a,i)=>React.cloneElement(a,{key:i})),
-					React.cloneElement(content,{key:"content"})
 				]}
 			</Group>
 		)

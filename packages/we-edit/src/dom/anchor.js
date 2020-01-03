@@ -27,14 +27,10 @@ export default class __$1 extends Component{
 		}),
         wrap:PropTypes.oneOfType([
             PropTypes.shape({
-                mode:PropTypes.oneOf("TopAndBottom,Square,Tight,Through".split(",")),
+                mode:PropTypes.oneOf("TopAndBottom,Square,Tight,Through".split(",")).isRequired,
                 wrapText: PropTypes.oneOf("bothSides,left,right,largest".split(","))
             }),
             PropTypes.func
-        ]).isRequired
-    }
-
-    static defaultProps={
-        wrap:{}
+        ])
     }
 }

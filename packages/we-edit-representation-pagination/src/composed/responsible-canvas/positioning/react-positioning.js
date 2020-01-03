@@ -392,23 +392,28 @@ class PositioningHelper extends Positioning{
                 find
             )
             lineInFrame=leafFrame.lines[find](line=>new ReactQuery(line).findFirst(`[data-content=${id}]`).length==1)
-            position=()=>{
-                const {first,last,node=first||last, parents}=new ReactQuery(lineInFrame)[`${$find}AndParents`](`[data-content=${id}]`)
-                const x=[...parents,node.get(0)].reduce((X,{props:{x=0}})=>x+X,0)
-                return {x:at==1 ? x+(node.attr('width')||0) : x, y:0}
+                
+            if(!lineInFrame){
+                position=()=>({x:0,y:0}) 
+            }else{
+                position=()=>{
+                    const {first,last,node=first||last, parents}=new ReactQuery(lineInFrame)[`${$find}AndParents`](`[data-content=${id}]`)
+                    const x=[...parents,node.get(0)].reduce((X,{props:{x=0}})=>x+X,0)
+                    return {x:at==1 ? x+(node.attr('width')||0) : x, y:0}
+                }
             }
         }
         
         return {
             leafFrame, 
-            line:new Proxy(lineInFrame,{
+            line:new Proxy(lineInFrame||{},{
                 get(line,prop){
                     return {
                         position,
                         paragraph:paragraph ? paragraph.props.id : undefined,
                         i:paragraph ? i : undefined,
-                        inFrame:line,
-                        height:line.props.height
+                        inFrame:lineInFrame,
+                        height:lineInFrame && lineInFrame.props.height
                     }[prop]||line[prop]
                 }
             }),
@@ -510,7 +515,7 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
         const topFrame=this.getCheckedGrandFrameByFrame(leafFrame)
         const topFrameOffset=this.getTopFrameXY(topFrame)
         const leafFrameOffset=!anchor ? this.getFrameOffsetGrandFrame(topFrame,leafFrame) : anchor.offset(topFrame,leafFrame)
-        const lineOffset=!anchor ? leafFrame.lineXY(line.inFrame) : {x:0,y:0}
+        const lineOffset=(!anchor && line.inFrame) ? leafFrame.lineXY(line.inFrame) : {x:0,y:0}
         const inline=!anchor ? line.position(id,at) : anchor.position(topFrame,id,at)
 
         //finally

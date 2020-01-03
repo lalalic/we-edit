@@ -112,7 +112,9 @@ export default compose(
     }
 
     makeFocuseShape(current,positioning){
-        const isAnchorShape=id=>positioning.getComposer(id).closest(a=>a.isFrame||a.isSection||a.getComposeType()=="anchor").getComposeType()=="anchor"
+        const isAnchorShape=(id,b=positioning.getComposer(id))=>{
+            return b.closest(a=>(a!=b && (a.isFrame||a.isSection))||a.getComposeType()=="anchor").getComposeType()=="anchor"
+        }
         var currentShape,shape=null
         while(current){
             if(current.getFocusShape && (currentShape=current.getFocusShape())){
