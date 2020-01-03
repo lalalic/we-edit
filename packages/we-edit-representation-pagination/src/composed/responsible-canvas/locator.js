@@ -74,30 +74,8 @@ export default compose(
             this.style=new SelectionStyle(cursorPosition,positioning, a.start, a.end)
         }
 
-        //update range, range include focusShape or range rects
         var rangeRects=!isCursor ? positioning.getRangeRects(a.start,a.end) : []
-        var focusShape=this.makeFocuseShape(positioning.getComposer(id),positioning)
-        if(focusShape){
-            const {id:fid, x:x0=0, y:y0=0}=focusShape.props
-            const isSelfSelected=a.start.id==a.end.id && fid==id && a.start.at!=a.end.at
-            const isContentSelected=fid!=id
-            if(isSelfSelected || isContentSelected){/*
-                const {x=0,y=0}=positioning.position(fid, 0)||{}
-                const props={x:x+x0,y:y+y0,positioning}
-                if(isContentSelected){
-                    props.onMove=null
-                }
-                focusShape=React.cloneElement(focusShape,props)
-                */
-                if(isSelfSelected){
-                    rangeRects=[]
-                }
-            }else{
-                focusShape=null
-            }
-        }
-
-        if(range && (rangeRects && rangeRects.length || focusShape)){
+        if(range && (rangeRects && rangeRects.length)){
             this.range=React.cloneElement(range,{rects:rangeRects,shape:focusShape})
         }
 
@@ -109,26 +87,6 @@ export default compose(
         canvas.scrollNodeIntoView(cursor)
         dispatch(ACTION.Selection.STYLE(style))
         this.last={content, selection}
-    }
-
-    makeFocuseShape(current,positioning){
-        const isAnchorShape=(id,b=positioning.getComposer(id))=>{
-            return b.closest(a=>(a!=b && (a.isFrame||a.isSection))||a.getComposeType()=="anchor").getComposeType()=="anchor"
-        }
-        var currentShape,shape=null
-        while(current){
-            if(current.getFocusShape && (currentShape=current.getFocusShape())){
-                const {id,x:x0=0,y:y0=0}=currentShape.props
-                const {x=0,y=0}=positioning.position(currentShape.props.id,0)
-                shape=React.cloneElement(currentShape,{
-                    children:shape ? React.cloneElement(shape,{x:shape.props.x-x, y:shape.props.y-y}) : null,
-                    x:x+x0, y:y+y0,
-                    isAnchor:isAnchorShape(id),
-                })
-            }
-            current=current.context.parent
-        }
-        return shape
     }
 })
 

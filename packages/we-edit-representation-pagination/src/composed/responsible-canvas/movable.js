@@ -1,28 +1,30 @@
-import React, {Component} from "react"
+import React, {Component,Fragment} from "react"
 import PropTypes from "prop-types"
 
 import Top from "./top"
 import Overlay from "./overlay"
-import {Group} from "../../../composed"
 
 export default class Movable extends Component{
 	static propTypes={
 		onMove: PropTypes.func
 	}
+	static contextTypes={
+		around: PropTypes.func,
+	}
 
 	state={moving:false}
 	render(){
 		const {moving}=this.state
-		const {children,isAnchor}=this.props
+		const {children,showMovingPlaceholder}=this.props
 
 		return (
-			<Group>
+			<Fragment>
 				{ !moving ? null :
 					 (<Overlay cursor="default"
 					 	onMouseUp={e=>this.onEndMove(e)}
 						onMouseMove={e=>this.moving(e)}
 						>
-						<Mover ref={a=>this.mover=a} cursor="default" show={!isAnchor}/>
+						<Mover ref={a=>this.mover=a} cursor="default" show={showMovingPlaceholder}/>
 					</Overlay>)
 				}
 				{React.cloneElement(children,{onMouseMove:e=>{
@@ -31,7 +33,7 @@ export default class Movable extends Component{
 						this.setState({moving:true})
 					}
 				}})}
-			</Group>
+			</Fragment>
 		)
 	}
 
@@ -52,7 +54,7 @@ export default class Movable extends Component{
     moving(e){
 		if(this.state.moving){
 			const {clientX, clientY}=e
-			const pos=this.props.around(clientX,clientY)||{}
+			const pos=this.context.around(clientX,clientY)||{}
 			this.mover.setState(({clientX:x=clientX,clientY:y=clientY,...state})=>{
 				return {...state, ...pos, clientX, clientY, dx:clientX-x, dy:clientY-y}
 			},()=>{
@@ -66,16 +68,17 @@ export default class Movable extends Component{
 class Mover extends Component{
 	state={}
     render(){
+		const {show}=this.props
 		const {x,y,id}=this.state
 		return (
             <Top x={x} y={y}>
-				{ x!=undefined && y!=undefined && (
+				{ show&& x!=undefined && y!=undefined && (
 					<rect x={5} y={20} width={10} height={5}
 						fill="transparent"
-						stroke={this.props.show ? "gray" : "transparent"}
+						stroke={"gray"}
 						strokeWidth="1"/>
 				)}
-                {id && <rect width={2} height={20} fill={this.props.show ? "black" : "transparent"}/>}
+                {show && id && <rect width={2} height={20} fill={"black"}/>}
             </Top>
         )
 	}

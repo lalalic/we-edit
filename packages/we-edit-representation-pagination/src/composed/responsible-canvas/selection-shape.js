@@ -1,5 +1,4 @@
-import React, {Component,Fragment} from "react"
-import PropTypes from "prop-types"
+import React, {Component} from "react"
 import Movable from "./movable"
 
 export default class SelectionShape extends Component{
@@ -9,34 +8,15 @@ export default class SelectionShape extends Component{
 		this.onShrink=this.onShrink.bind(this)
 	}
 
-	static childContextTypes={
-		onMove:PropTypes.func,
-		onResize: PropTypes.func,
-		onRotate: PropTypes.func,
-		around: PropTypes.func,
-		asCanvasPoint: PropTypes.func,
-	}
-
-	getChildContext(){
-		const {onMove,onResize,onRotate,around, asCanvasPoint}=this.props
-		return {onMove,onResize,onRotate,around,asCanvasPoint}
-	}
-
 	render(){
-		const {onMove,shape,around}=this.props
+		const {onMove}=this.props
 		const {rects=[], selecting}=this.state
-		var range=null
-
-		if(selecting){
-			range=<Area rects={rects} onMouseMove={this.onShrink} />
-		}else{
-			range=<Area rects={rects}/>
-			if(onMove){
-				range=<Movable children={range} onMove={onMove} around={around}/>
-			}
-		}
-
-		return (<Fragment>{range}{shape}</Fragment>)
+		
+		const range=<Area rects={rects}/>
+		if(selecting)
+			return React.cloneElement(range,{onMouseMove:this.onShrink})
+		
+		return onMove ? <Movable children={range} onMove={onMove}/> : range
 	}
 
 	static getDerivedStateFromProps({rects},{selecting}){

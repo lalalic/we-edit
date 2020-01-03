@@ -1,9 +1,16 @@
 import React, {Component} from "react"
 import {createPortal} from "react-dom"
-import {Group} from "../../../composed"
+import Group from "../group"
 
 
 export default class Top extends Component{
+	static getDerivedStateFromProps({x,y}){
+		const a={}
+		typeof(x)!="undefined" && (a.x=x);
+		typeof(y)!="undefined" && (a.y=y);
+		return a
+	}
+
 	state={}
     render(){
 		const {x=0, y=0, svg}=this.state
@@ -16,16 +23,9 @@ export default class Top extends Component{
 		return svg ? createPortal(content,  svg) : content
     }
 
-	static getDerivedStateFromProps({x,y},state){
-		let a={}
-		typeof(x)!="undefined" && (a.x=x);
-		typeof(y)!="undefined" && (a.y=y);
-		return a
-	}
-
 	componentDidMount(){
-		let el=this.el
-		let state={svg:el.viewportElement, x:0, y:0}
+		const el=this.el
+		const state={svg:el.viewportElement, x:0, y:0}
 		if(this.props.x!==0 || this.props.y!==0){
 			let o=el.viewportElement.createSVGPoint()
 			o.x=0

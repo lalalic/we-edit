@@ -1,6 +1,6 @@
 import React, {Component} from "react"
 import Top from "./top"
-import {Group} from "../../../composed"
+import {Group} from ".."
 
 
 export default class Overlay extends Component{

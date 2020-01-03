@@ -1,13 +1,12 @@
-import React, {PureComponent, Component,Fragment} from "react"
+import React, {Component,Fragment} from "react"
 import PropTypes from "prop-types"
 import {connect} from "we-edit"
 
-import {Group} from "../../../composed"
 import Overlay from "./overlay"
 import Top from "./top"
 
 const NoShow="transparent"
-const Resizer=connect()(class __$1 extends PureComponent{
+const Resizer=connect()(class __$1 extends Component{
 	constructor(){
 		super(...arguments)
 		this.state={resizing:false}
@@ -58,7 +57,7 @@ export default class Resizable extends Component{
 
 	render(){
 		const {resizing,cursor}=this.state
-		const {children, onEnd}=this.props
+		const {children,spots=[], onEnd}=this.props
 		if(resizing){
 			return (
 				<Overlay
@@ -75,29 +74,29 @@ export default class Resizable extends Component{
 					style={{cursor}}
 					>
 					{children}
+					{spots.map(a=><Spot key={a.resize} {...a}/>)}
 				</Overlay>
 			)
-		}else{
-			let props={}
-			const {direction}=this.props
-			if(direction){
-				props.onMouseMove=e=>{
-					if(e.buttons&0x1){
-						this.onStartResize(direction,e)
-						e.stopPropagation()
-					}
-				}
-			}else{
-				props.onStartResize=this.onStartResize
-			}
-			return (
-				<Group>
-					{
-						React.Children.map(children,a=>React.cloneElement(a,props))
-					}
-				</Group>
-			)
 		}
+		
+		const {direction}=this.props
+		const props={}
+		if(direction){
+			props.onMouseMove=e=>{
+				if(e.buttons&0x1){
+					this.onStartResize(direction,e)
+					e.stopPropagation()
+				}
+			}
+		}else{
+			props.onStartResize=this.onStartResize
+		}
+		return (
+			<Fragment>
+				{children}
+				{spots.map(a=><Spot key={a.resize} {...a} {...props}/>)}}
+			</Fragment>
+		)
 	}
 	onStartResize(resizing,e){
 		this.setState({resizing,cursor:e.target.style.cursor})
@@ -156,6 +155,22 @@ export default class Resizable extends Component{
 		this.left=left
 		this.top=top
 	}
+}
+
+const Spot=({width=5,height=5,x,y,resize,onStartResize})=>{
+	const style={fill:"white",stroke:"lightgray",strokeWidth:1}
+	const props={
+		width,height,style,
+		x:x-width/2,
+		y:y-height/2
+	}
+
+	if(resize){
+		style.cursor=`${resize.replace("-","")}-resize`
+		props.onMouseDown=e=>onStartResize(resize,e)
+	}
+
+	return <rect {...props}/>
 }
 
 

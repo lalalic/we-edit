@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 import {ACTION, Cursor, Selection,ContentQuery, getSelection} from "we-edit"
 
 import Canvas from "../canvas"
-import SelectionShape from "./selection"
+import SelectionShape from "./selection-shape"
 import CursorShape from "./cursor-shape"
 import Locator from "./locator"
 import Positioning from "./positioning"
@@ -40,6 +40,11 @@ class Responsible extends Component{
         onContextMenu: PropTypes.func,
         activeDocStore: PropTypes.any,
     }
+
+    static childContextTypes={
+        around:PropTypes.func,
+        asCanvasPoint: PropTypes.func,
+    }
     
     static getDerivedStateFromProps({document,...me}){
         const {props:{editable,canvasId,content,viewport=me.viewport,screenBuffer=me.screenBuffer,},state:{y=0}}=document
@@ -53,6 +58,17 @@ class Responsible extends Component{
         this.getComposer=this.getComposer.bind(this)
         this.getContent=this.getContent.bind(this)
         this.positioning=new Positioning(this)
+    }
+
+    getChildContext(){
+        const around=(left,top)=>{
+            const {id,at}=this.positioning.around(left, top)
+            if(id && at!==null){
+                return this.positioning.position(id,at)
+            }
+        }
+        const asCanvasPoint=(...args)=>this.asCanvasPoint(...args)
+        return {around,asCanvasPoint}
     }
 
     /**the following API must be provided to Positioning */
@@ -69,10 +85,10 @@ class Responsible extends Component{
     }
     
     asCanvasPoint({left,top}){
-        let point=this.canvas.createSVGPoint()
+        const point=this.canvas.createSVGPoint()
         point.x=left,point.y=top
-        let a=point.matrixTransform(this.canvas.getScreenCTM().inverse())
-        return {x:a.x, y:a.y}
+        const {x,y}=point.matrixTransform(this.canvas.getScreenCTM().inverse())
+        return {x, y}
     }
 
     asViewportPoint({x,y}){
@@ -142,19 +158,9 @@ class Responsible extends Component{
                     38:e=>this.onKeyArrowUp(e),//move up
                     40:e=>this.onKeyArrowDown(e),//move down
                 }}/>)
-            const range=(<Selection
-                children={<SelectionShape ref={this.selecting}/>}
-                onMove={editable && this.onMove}
-                onResize={editable && this.onResize}
-                onRotate={editable && this.onRotate}
-                around={(left,top)=>{
-                    const {id,at}=this.positioning.around(left, top)
-                    if(id && at!==null){
-                        return this.positioning.position(id,at)
-                    }
-                }}
-                asCanvasPoint={a=>this.positioning.asCanvasPoint(a)}
-                />)
+            const range=(<Selection children={<SelectionShape ref={this.selecting} 
+                        onMove={editable && (e=>this.dispatch(ACTION.Selection.MOVE(e)))}/>
+                }/>)
             locator=<Locator canvas={this} ref="locator" cursor={cursor}  range={range}/>
         }
 
@@ -218,9 +224,6 @@ class Responsible extends Component{
 export default class EventResponsible extends Responsible{
     constructor(){
         super(...arguments)
-        this.onMove=this.onMove.bind(this)
-        this.onResize=this.onResize.bind(this)
-        this.onRotate=this.onRotate.bind(this)
         this.eventHandlers="onClick,onDoubleClick,onContextMenu,onMouseDown,onMouseMove,onMouseUp".split(",")
             .reduce((handlers,key)=>{
                 if(key in this){
@@ -334,36 +337,6 @@ export default class EventResponsible extends Responsible{
             this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))
             this.__mouseDownFlag.selected=true
         }
-    }
-
-    onRotate({degree,id}){
-		id=id||this.cursor.id
-		const content=this.getContent(id)
-        this.dispatch(ACTION.Entity.UPDATE({id,type:content.attr("type"),rotate:degree}))
-    }
-
-    onResize({x,y,id}){
-		id=id||this.cursor.id
-		const content=this.getContent(id)
-		//const {width,height}=content.attr("size").toJS()
-        const width=content.attr('width')
-        const height=content.attr('height')
-
-		let size=null
-
-		if(y===undefined){
-			size={width:width+x}
-		}else if(x===undefined){
-			size={height:height+y}
-		}else{
-			let scale=1+Math.max(Math.abs(x)/width,Math.abs(y)/height)*x/Math.abs(x)
-			size={width:width*scale, height:height*scale}
-		}
-        this.dispatch(ACTION.Entity.UPDATE({id,type:content.attr("type"),size}))
-    }
-
-    onMove(e){
-        this.dispatch(ACTION.Selection.MOVE(e))
     }
 
 	onKeyArrowUp({shiftKey:selecting}){

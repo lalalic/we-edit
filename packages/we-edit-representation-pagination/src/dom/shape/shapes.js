@@ -1,8 +1,10 @@
-import React,{Component} from "react"
+import React,{Component,} from "react"
+
 import memoize from "memoize-one"
 import {Group} from "../../composed"
 
 import Path from "../../tool/path"
+import FocusShape from "./focus-shape"
 
 export class custom extends Component{
 	get strokeWidth(){
@@ -25,52 +27,62 @@ export class custom extends Component{
 		return this.contentBox
 	}
 
-	createComposedShape(content){
+	createComposedShape(content, focusableContent){
 		const {
 				margin:{left=0,top=0},
 				solidFill="transparent",blipFill:{url}={},
 				outline={width:0},
-				fill={fill:solidFill}
+				fill={fill:solidFill},
 			}=this.props
-
-		const children=[]
-		children.push(
-			<Group x={this.strokeWidth/2} y={this.strokeWidth/2} key="outline" {...{"data-nocontent":true}}>
-				<path d={this.getPath().toString()} className="shapeOutline"
-					style={{
-						strokeWidth:this.strokeWidth,
-						stroke:outline.solidFill,
-						...fill
-					}}
-					/>
-			</Group>
-		)
-
-		if(url){
-			children.push(
-				<Group x={this.strokeWidth+left} y={this.strokeWidth+top} key="background" {...{"data-nocontent":true}}>
-					<image {...{...this.contentBox,xlinkHref: url, preserveAspectRatio:"none"}} />
-				</Group>
-			)
-		}
-
-		if(content){
-			children.push(
-				<Group key="content" x={this.strokeWidth+left} y={this.strokeWidth+top}>
-					{content}
-				</Group>
-			)
-		}
-
+		
 		return (
 			<Group {...this.outlineBox} geometry={this.getPath().clone()}>
-				{children}
+				<Group x={this.strokeWidth/2} y={this.strokeWidth/2}>
+					<Group  {...{"data-nocontent":true}}>
+						{<path d={this.getPath().toString()} strokeWidth={this.strokeWidth} stroke={outline.solidFill} {...fill}/>}
+						{url && <image {...{...this.contentBox,x:left, y:top, xlinkHref: url, preserveAspectRatio:"none"}} />}
+					</Group>
+					{this.createFocusShape(content && 
+						<Group x={this.strokeWidth/2+left} y={this.strokeWidth/2+top}>
+							{content}
+						</Group>,
+						focusableContent
+					)}
+				</Group>
 			</Group>
 		)
 	}
 
 	getPath(){
 		return memoize((geometry)=>new Path(geometry))(this.props.geometry)
+	}
+
+	createFocusShape(content, focusableContent){
+		const {width:right, height:bottom,rotate=0,id, left=0, top=0}=this.props
+		return (
+			<FocusShape id={id} 
+				focusableContent={focusableContent}
+				width={right} height={bottom}
+				geometry={this.getPath()}
+				path={`M${left} ${top} h${right-left} v${bottom-top} h${left-right} Z`} 
+				resizeSpots={[
+						{x:left,y:top,resize:"nwse"},
+						{x:(left+right)/2,y:top,resize:"ns",},
+						{x:right,y:top,resize:"nesw"},
+						{x:right,y:(top+bottom)/2,resize:"ew"},
+						{x:right,y:bottom,resize:"-nwse"},
+						{x:(left+right)/2,y:bottom,resize:"-ns"},
+						{x:left,y:bottom,resize:"-nesw"},
+						{x:left,y:(top+bottom)/2,resize:"-ew"},
+				]}
+				rotate={{
+					r:12,
+					x:(left+right)/2,
+					y:top-20,
+					degree: parseInt(rotate),
+				}}
+			>{content}</FocusShape>
+		)
 	}
 }
 

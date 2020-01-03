@@ -3,8 +3,8 @@ import {connect, ACTION} from "we-edit"
 
 import Edges from "./edges"
 
-import Resizable from "../../composed/responsible-canvas/selection/resizable"
-import Top from "../../composed/responsible-canvas/selection/top"
+import Resizable from "../../composed/responsible-canvas/resizable"
+import Top from "../../composed/responsible-canvas/top"
 import {Group} from "../../composed"
 
 
