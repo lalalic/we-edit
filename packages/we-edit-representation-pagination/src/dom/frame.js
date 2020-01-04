@@ -24,6 +24,10 @@ class Frame extends Layout.Block{
 	}
 
 	getSpace(){
+		return this.__getSpace(this.props)
+	}
+
+	__getSpace=memoize(props=>{
 		const space=super.getSpace()
 		const {width,height=Number.MAX_SAFE_INTEGER,margin:{left=0,right=0,top=0,bottom=0}={},x=0,y=0}=this.props
 		const edges={
@@ -40,7 +44,7 @@ class Frame extends Layout.Block{
 			height:height-top-bottom,
 			edges
 		})
-	}
+	})
 
 	defineProperties(){
 		super.defineProperties()

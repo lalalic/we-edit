@@ -166,12 +166,13 @@ class PositioningHelper extends Positioning{
 
  
     /**
-     * travel down
+     * travel down composed to find node,
+     * ** it should always find from last to consider z order
      * @param {*} composed 
      * @param {*} check(rect, node), rect({initial bounary}) is funciton to return node boundary
      * @param {} formatNode(node)  
      */
-    getBoundaryCheckedMostInnerNode(composed,check,formatNode=a=>a,fromLast){
+    getBoundaryCheckedMostInnerNode(composed,check,formatNode=a=>a){
         const rect=(nodes,size={})=>nodes.filter(a=>a!=composed)
         .reduce((bound, {props:{height,width,x=0,y=0,"data-type":type}={}}={})=>{
             bound.x+=x
@@ -186,7 +187,7 @@ class PositioningHelper extends Positioning{
         
         var current=new ReactQuery(composed), allParents=[]
         while(true){//find most inner node that includes the point
-            const found=current[`find${fromLast ? "Last" : "First"}AndParents`]((node,parents)=>{
+            const found=current.findLastAndParents((node,parents)=>{
                 if(!node || !React.isValidElement(node)) 
                     return false
                 
@@ -196,10 +197,9 @@ class PositioningHelper extends Positioning{
                     return 
                 return check(o=>rect([...allParents, ...parents,node],o),node)
             })
-            found.target=found.first||found.last
-            if(found.target.length==1){
+            if(found.last.length==1){
                 allParents=[...allParents,...found.parents]
-                current=found.target
+                current=found.last
             }else{
                 break
             }

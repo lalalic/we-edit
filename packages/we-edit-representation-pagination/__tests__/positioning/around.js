@@ -30,8 +30,8 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
         doc.click(5,0)
         expect(around).toHaveLastReturnedWith({id:"2"})
                 
-        new Array(5).fill(0).forEach((a,x)=>{
-			new Array(20).fill(0).forEach((a,y)=>{
+        new Array(5-1).fill(0).forEach((a,x)=>{
+			new Array(20-1).fill(0).forEach((a,y)=>{
                 doc.click(5+x,y)
 				expect(around).toHaveLastReturnedWith({id:"2"})
 			})
@@ -44,7 +44,9 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
 		expect(around).toHaveLastReturnedWith({id:"3",at:1})
     })
 
-    xit("anchor can be located",()=>{
+    it("anchor can be located",()=>{
+        if(["in shape","in table"].includes(TESTING))
+            return 
         const doc=test(
 			<Paragraph id={"1"}>
 				<Text id={"0"}>text</Text>

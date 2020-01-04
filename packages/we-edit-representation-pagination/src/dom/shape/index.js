@@ -34,6 +34,10 @@ export default class Shape extends Frame{
 	__getSpace=memoize(geometry=>{
 		const {width,height}=geometry.availableSpace()
 		return Layout.ConstraintSpace.create({width,height})
+			.clone({edges:{
+				page:{left:0,right:width,top:0,bottom:height},
+				[this.getComposeType()]:{left:0,right:width,top:0,bottom:height},
+			}})
 	})
 
 	getSpace(){
