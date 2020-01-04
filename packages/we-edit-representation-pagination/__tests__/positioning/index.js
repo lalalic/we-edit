@@ -48,10 +48,6 @@ export default function define(feature, tests){
 
             const doc=renderer.root.findByType(Document).instance
             const responsible=renderer.root.findByType(Responsible).instance
-            responsible.positioning.getContent=jest.fn(()=>({
-                findFirst:()=>({attr:()=>null}),
-                findLast:()=>({attr:()=>null}),
-            }))
             responsible.positioning.pageXY=jest.fn(()=>({x:0,y:0}))
 
             return {
@@ -112,7 +108,7 @@ export default function define(feature, tests){
             )
         }]
 
-    ].filter(([a])=>a=="in shape")
+    ]//.filter(([a])=>a=="section")
     )("%s",(TESTING, render)=>{
         describe(feature, ()=>{
             tests({dom:Editors,TESTING, render, mockQuery, pageGap, size, uuid,Responsible, Positioning})

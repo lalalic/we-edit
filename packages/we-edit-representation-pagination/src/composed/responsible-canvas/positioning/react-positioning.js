@@ -1,4 +1,4 @@
-import React from "react"
+import React,{Fragment} from "react"
 import {ReactQuery} from "we-edit"
 import Positioning from "./base"
 
@@ -326,7 +326,24 @@ class PositioningHelper extends Positioning{
         //last chance at beginning of paragraph, such as empty paragraph
         return {id:composedLine.props["data-content"],at:0}
     }
-/**
+
+    //to make positioning only based on compose, not content
+    __findFirstParagraphInTarget(target){
+        var paragraphInCell=null
+        const paragraphDirect=new ReactQuery(<Fragment>{target.computed.lastComposed}</Fragment>)
+            .findFirst(a=>{
+                if(!a || !a.props)
+                    return 
+                if(a.props["data-type"]=="paragraph")
+                    return true
+                if(a.isFrame){//table Cell is special, since table and row last composed element includes Cell Frames, instead of cell content
+                    return paragraphInCell=new ReactQuery(a.createComposed2Parent()).findFirst(`[data-type="paragraph"]`).attr("data-content")
+                }
+            })
+        return paragraphInCell || paragraphDirect.attr("data-content")
+    }
+
+    /**
      * in paragraph: id->paragraph->line
      * paragraph:
      * larger frame than paragraph:
@@ -335,11 +352,13 @@ class PositioningHelper extends Positioning{
      * @param {*} at 
      */
     positionToLeafFrameLine(id,at){
-        const paragraph=this.getComposer(id).closest("paragraph")
+        const target=this.getComposer(id)
+        const paragraph=target.closest("paragraph")
         const $find=at==1 ? 'findLast' : 'findFirst'
         const find=at==1 ? "findLast" : "find"
         var i=0, leafFrame,lineInFrame, position, anchor
-        const targetHasParagraph=this.getContent(id)[$find]('paragraph').attr('id')
+        //@TODO: how to find target's first paragraph??? //
+        const targetHasParagraph= target!=paragraph && this.__findFirstParagraphInTarget(target)//this.getContent(id)[$find]('paragraph').attr('id')
         if(paragraph && !targetHasParagraph){
             if(paragraph.props.id==id){
                 //paragraph level
@@ -382,8 +401,10 @@ class PositioningHelper extends Positioning{
              * wrapper of paragraph
              * table/row/cell
              * frame/shape
+             * 
+             * use the first paragraph of target, and find up frame that includes target 
              */
-            const firstParagraph=this.getComposer(targetHasParagraph)// this.getContent(id)[$find]("paragraph").attr("id"))
+            const firstParagraph=this.getComposer(targetHasParagraph)
             
             leafFrame=this.getCheckedGrandFrameByFrame(
                 firstParagraph.lines[at==1 ? firstParagraph.lines.length-1 : 0].space.frame, 
@@ -394,7 +415,13 @@ class PositioningHelper extends Positioning{
             lineInFrame=leafFrame.lines[find](line=>new ReactQuery(line).findFirst(`[data-content=${id}]`).length==1)
                 
             if(!lineInFrame){
-                position=()=>({x:0,y:0}) 
+                position=()=>{
+                    if(at==1){
+                        const {width,height}=leafFrame.createComposed2Parent().props
+                        return {x:width,y:height}
+                    }
+                    return {x:0,y:0,}
+                }
             }else{
                 position=()=>{
                     const {first,last,node=first||last, parents}=new ReactQuery(lineInFrame)[`${$find}AndParents`](`[data-content=${id}]`)
@@ -515,7 +542,7 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
         const topFrame=this.getCheckedGrandFrameByFrame(leafFrame)
         const topFrameOffset=this.getTopFrameXY(topFrame)
         const leafFrameOffset=!anchor ? this.getFrameOffsetGrandFrame(topFrame,leafFrame) : anchor.offset(topFrame,leafFrame)
-        const lineOffset=(!anchor && line.inFrame) ? leafFrame.lineXY(line.inFrame) : {x:0,y:0}
+        const lineOffset=(!anchor && line.paragraph) ? leafFrame.lineXY(line.inFrame) : {x:0,y:0}
         const inline=!anchor ? line.position(id,at) : anchor.position(topFrame,id,at)
 
         //finally
@@ -539,6 +566,9 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
             topFrame, 
             leafFrame, 
             get lineIndexInLeafFrame(){
+                if(!line.inFrame && !anchor){
+                    return at==0 ? 0 : leafFrame.lines.length-1
+                }
                 return leafFrame.lines.indexOf(line.inFrame)
             },
             get line(){

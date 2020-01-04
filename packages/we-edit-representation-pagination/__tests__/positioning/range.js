@@ -117,10 +117,6 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
                 </Paragraph>
             </Container>
         )
-        doc.responsible.positioning.getContent=jest.fn(id=>({
-            findFirst:type=>({attr:()=>type=="paragraph" && id=="2" ? "1" : null}),
-            findLast:type=>({attr:()=>type=="paragraph" && id=="2" ? "1" : null}),
-        }))
         expect(doc.getRangeRects({id:"1",at:0},{id:"1",at:1})).toMatchObject([{left:0,top:0,right:4,bottom:10}])
         expect(doc.getRangeRects({id:"2",at:0},{id:"2",at:1})).toMatchObject([{left:0,top:0,bottom:10}])
     })
@@ -162,11 +158,6 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
                     <Paragraph id={`${++uuid}p0`}><Text id={`${++uuid}t0`}>hello</Text></Paragraph>
                 </Fragment>
             )
-            doc.responsible.positioning.getContent=jest.fn(id=>({
-                findFirst:type=>({attr:()=>type=="paragraph" && "pfirst"}),
-                findLast:type=>({attr:()=>type=="paragraph" && "plast"}),
-            }))
-            
         })
 
         it("table",()=>{ 
