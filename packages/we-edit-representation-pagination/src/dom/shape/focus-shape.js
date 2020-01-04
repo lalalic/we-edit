@@ -14,14 +14,17 @@ export default connect(state=>{
 	return {selectionStyle,cursor:selectionStyle.position.id,}
 })(class FocusShape extends Component{
 	static propTypes={
+		width: PropTypes.number,
+		height: PropTypes.number,
 		path: PropTypes.string,
-		geometry: PropTypes.object,
-		resizeSpots: PropTypes.arrayOf(PropTypes.object),
-		rotate: PropTypes.shape({
-			r:PropTypes.number,
+		resizable: PropTypes.arrayOf(PropTypes.object),
+		rotatable: PropTypes.shape({
 			x:PropTypes.number.isRequired,
-			y:PropTypes.number.isRequired
+			y:PropTypes.number.isRequired,
+			r:PropTypes.number,
+			degree: PropTypes.number,
 		}),
+		movable: PropTypes.bool,
 		id:PropTypes.string,
 		absolute:PropTypes.bool,
 	}
@@ -43,6 +46,7 @@ export default connect(state=>{
 	constructor(){
 		super(...arguments)
 		this.state={}
+
 	}
 
 	shouldComponentUpdate({selectionStyle}){
@@ -50,8 +54,24 @@ export default connect(state=>{
 	}
 
 	render(){
-		const {width, height, id,rotate,path,geometry,resizeSpots, dispatch, children,focusableContent=true,
-			movable=true, resizable=true, rotatable=true}=this.props
+		const {width, height, id, rotate, dispatch, children,
+			path=`M0 0 h${width} v${height} h${-width} Z`,
+			resizable=[//default for rect[width,height]
+				{x:0,y:0,resize:"nwse"},
+				{x:width/2,y:0,resize:"ns",},
+				{x:width,y:0,resize:"nesw"},
+				{x:width,y:height/2,resize:"ew"},
+				{x:width,y:height,resize:"-nwse"},
+				{x:width/2,y:height,resize:"-ns"},
+				{x:0,y:height,resize:"-nesw"},
+				{x:0,y:height/2,resize:"-ew"},
+			],
+			rotatable={//default for rect, and {x,y} is center
+				x:width/2,
+				y:height/2,
+				degree: parseInt(rotate),
+			},
+			focusableContent=true,movable=true,}=this.props
 		const {show,type,isAnchor}=this.state
 		const {editable}=this.context
 
@@ -71,13 +91,13 @@ export default connect(state=>{
 				) : children}
 				
 				{rotatable && (
-					<Rotatable {...rotate} geometry={geometry} 
+					<Rotatable {...rotatable} 
 						onRotate={(({degree})=>dispatch(ACTION.Entity.UPDATE({id,type,rotate:degree})))}/>
 				)}
 				
 				
 				{resizable && (
-					<Resizable spots={resizeSpots} 
+					<Resizable spots={resizable}
 						onResize={({x,y})=>{
 							let size=null
 							if(y===undefined){
@@ -85,7 +105,7 @@ export default connect(state=>{
 							}else if(x===undefined){
 								size={height:height+y}
 							}else{
-								let scale=1+Math.max(Math.abs(x)/width,Math.abs(y)/height)*x/Math.abs(x)
+								const scale=1+Math.max(Math.abs(x)/width,Math.abs(y)/height)*x/Math.abs(x)
 								size={width:width*scale, height:height*scale}
 							}
 							dispatch(ACTION.Entity.UPDATE({id,type,size}))

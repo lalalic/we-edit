@@ -145,8 +145,13 @@ export default class EditableFrame extends editable(Frame,{stoppable:true, conti
 	 */
 	shouldContinueCompose(){
 		if(!this.cols || //non-column model
-			this.columns.length==this.cols.length)//last column
-			return this.context.shouldContinueCompose(...arguments)
+			this.columns.length==this.cols.length){//last column
+			if(!this.context.shouldContinueCompose(...arguments))
+				return false
+			if(this.availableBlockSize<=0)
+				return false
+			return true
+		}
 		//non-last column always continue
 		return true
 	}

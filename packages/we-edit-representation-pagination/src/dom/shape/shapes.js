@@ -57,32 +57,9 @@ export class custom extends Component{
 		return memoize((geometry)=>new Path(geometry))(this.props.geometry)
 	}
 
-	createFocusShape(content, focusableContent){
-		const {width:right, height:bottom,rotate=0,id, left=0, top=0}=this.props
-		return (
-			<FocusShape id={id} 
-				focusableContent={focusableContent}
-				width={right} height={bottom}
-				geometry={this.getPath()}
-				path={`M${left} ${top} h${right-left} v${bottom-top} h${left-right} Z`} 
-				resizeSpots={[
-						{x:left,y:top,resize:"nwse"},
-						{x:(left+right)/2,y:top,resize:"ns",},
-						{x:right,y:top,resize:"nesw"},
-						{x:right,y:(top+bottom)/2,resize:"ew"},
-						{x:right,y:bottom,resize:"-nwse"},
-						{x:(left+right)/2,y:bottom,resize:"-ns"},
-						{x:left,y:bottom,resize:"-nesw"},
-						{x:left,y:(top+bottom)/2,resize:"-ew"},
-				]}
-				rotate={{
-					r:12,
-					x:(left+right)/2,
-					y:top-20,
-					degree: parseInt(rotate),
-				}}
-			>{content}</FocusShape>
-		)
+	createFocusShape(children, focusableContent){
+		const {width, height,rotate=0,id}=this.props
+		return (<FocusShape {...{width, height,rotate,id,focusableContent,children}}/>)
 	}
 }
 

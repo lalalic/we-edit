@@ -1,4 +1,4 @@
-import React, {Component} from "react"
+import React, {Component,Fragment} from "react"
 import PropTypes from "prop-types"
 import Overlay from "./overlay"
 
@@ -10,52 +10,55 @@ export default class Rotatable extends Component{
 		degree: PropTypes.number,
 	}
 	static contextTypes={
-		asCanvasPoint: PropTypes.func,
+		asCanvasPoint: PropTypes.func
 	}
 
 	state={rotating:false}
 
 	render(){
-		const {r,x,y,onEnd, degree}=this.props
-		const style={fill:"white",stroke:"lightgray",strokeWidth:1}
-		const props={width:2*r,height:2*r,style,x:x-r,y:y-r}
-		const {rotating}=this.state
+		const {props:{r=12,x,y,onEnd, degree=0},state:{rotating}}=this
+		const rotator={
+			width:2*r,height:2*r,x:x-r,y:-(20+r),
+			style:{fill:"white",stroke:"lightgray",strokeWidth:1},
+		}
+		
 		if(!rotating)
-			return (<use xlinkHref="#rotator" {...props} onMouseDown={e=>this.onStartRotate(e)}/>)
+			return (<use xlinkHref="#rotator" {...rotator} onMouseDown={e=>this.onStartRotate(e)}/>)
+		
 		return (
-			<Overlay cursor="crosshair"
-				onMouseUp={e=>{
-					this.setState({rotating:undefined})
-					if(onEnd)
-						onEnd()
-					e.stopPropagation()
-				}}
-				onMouseMove={e=>{
-					this.rotate(e)
-					e.stopPropagation()
-				}}
-				>
-				<text x={x+2*r} y={y}>{degree}</text>
-				<use xlinkHref="#rotator" {...props}/>
-			</Overlay>
+			<Fragment>
+				<g ref="locator">
+					<text x={x+r} y={-20}>{degree}</text>
+					<use xlinkHref="#rotator" {...rotator}/>
+				</g>
+				<Overlay cursor="crosshair"
+					onMouseUp={e=>{
+						this.setState({rotating:undefined})
+						if(onEnd)
+							onEnd()
+						e.stopPropagation()
+					}}
+					onMouseMove={e=>{
+						this.rotate(e)
+						e.stopPropagation()
+					}}
+					/>
+			</Fragment>
 		)
 	}
 
-	onStartRotate({clientX,clientY}){
+	onStartRotate({clientX:left,clientY:top}){
 		this.setState({rotating:true})
-		this.left=clientX
-		this.top=clientY
+		this.xy=this.context.asCanvasPoint({left,top})
 	}
 
 	rotate({clientX:left,clientY:top}){
-		const {onRotate,degree=0}=this.props
-		const dx=left-this.left, dy=top-this.top
-		var dd=parseInt(Math.atan2(dy,dx)*180/Math.PI)
-		if(dd<0)
-			dd+=360
-		if(false!=onRotate({degree:(degree+dd)%360})){
-			this.left=left
-			this.top=top
+		const {props:{onRotate,x=0,y=0, degree},context:{asCanvasPoint}}=this
+		const xy=asCanvasPoint({left,top})
+		//const dx=(xy.x-this.xy.x)/Math.cos(degree), dy=(this.xy.y-xy.y)/Math.cos(degree)
+		const dd=parseInt(Math.atan2(xy.x-this.xy.x,this.xy.y-xy.y)*180/Math.PI)
+		if(false!=onRotate({degree:(degree+dd+360)%360})){
+			this.xy=xy
 		}
 	}
 }
