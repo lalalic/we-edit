@@ -1,5 +1,5 @@
-import Html from "we-edit-representation-html"
 import Pagination,{FontManager} from "we-edit-representation-pagination"
+import Html from "we-edit-representation-html"
 import Text from "we-edit-representation-text"
 import Plain from "we-edit-representation-plain"
 
@@ -138,7 +138,7 @@ function testOffice(Target, representation="pagination"){
 			debug={true}
 			accept="*.docx"
 			key={KEY}
-			ruler={true}
+			ruler={false}
 			toolBar={<Ribbon.Ribbon commands={{layout:false,}}/>}
 			reducer={(state={assemble:false, data:null, pilcrow:false},{type,payload})=>{
 				switch(type){
@@ -154,13 +154,13 @@ function testOffice(Target, representation="pagination"){
 			<Workspace.Desk
 				layout={
 					<Workspace.Layout
-						right={null/*
-							<div style={{width:210}}>
+						right={
+							<div style={{width:300}}>
 								<Tabs>
 									<Tab label="Document">
 										{
 											<DocumentTree
-											toNodeProps={({id,type,props})=>({name:`${type}(${id})`})}
+											toNodeProps={({id,type,props})=>({name:`${type}(${parseInt(id)})`})}
 											/>
 										}
 									</Tab>
@@ -169,12 +169,15 @@ function testOffice(Target, representation="pagination"){
 									</Tab>
 								</Tabs>
 							</div>
-									*/}
+									}
 						/>
 				}
 				children={<VariantEditor representation={representation}
 					onContextMenu={e=>console.log("context menu")}
-					onKeyDown={e=>console.log("key down")}
+					onKeyDown={e=>{
+						console.log("key down")
+						return false
+					}}
 					/>}
 				/>
 			

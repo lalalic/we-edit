@@ -23,9 +23,26 @@ Anchor/Wrap
 *** paragraph[done]
 ** space provide anchor() to provide x,y[done]
 
-*** move cache from section to fissionable
-** remove children() to normalize render, so we can use Layout to compose render
+*** move cache from section to fissionable[NO]
+** remove children() to normalize render, so we can use Layout to compose render[done]
 ** immutable space, so we can compare space to decide if component should be recomposed
-** dynamic composed text, such as numbering, page number, ..., whose width should be pre-defined
-** another simple way to positioning cursor and range, 
+** dynamic composed text, such as numbering, page number, ..., whose width should be pre-defined[done]
 ***fully based on locatable layouted block and inline[done]
+** merge fissionable to section[done]
+** Inheritance VS composition: so composer and content are always synced [done]
+*** Shape[done]
+** atom builder mergeOpportunity[done]
+** inline level cache: AtomCollector/isInlineContainer && Atom cache[done]
+** block level cache
+** move composedY to final canvas
+** edit tests
+** delay createDocument to compose phase to Type render layer
+** next/prev line based on original clientX????
+** support z :frame sort content and anchor by z [done]
+** precision
+** merge border
+** remove content search from positioning, use composer search up
+** focus shape in composed
+** layer: conten
+
+**Canvas
