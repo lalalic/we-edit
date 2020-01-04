@@ -53,11 +53,14 @@ export default class Rotatable extends Component{
 	}
 
 	rotate({clientX:left,clientY:top}){
-		const {props:{onRotate,x=0,y=0, degree},context:{asCanvasPoint}}=this
-		const xy=asCanvasPoint({left,top})
-		//const dx=(xy.x-this.xy.x)/Math.cos(degree), dy=(this.xy.y-xy.y)/Math.cos(degree)
-		const dd=parseInt(Math.atan2(xy.x-this.xy.x,this.xy.y-xy.y)*180/Math.PI)
-		if(false!=onRotate({degree:(degree+dd+360)%360})){
+		const {props:{onRotate,x=0,y=0,id,positioning,degree}}=this
+		const xy=positioning.asCanvasPoint({left,top})
+		const pos=positioning.position(id,0)
+		const dy=(pos.y+y)-xy.y, dx=xy.x-(x+pos.x)
+		const c=90-parseInt(Math.atan2(dy,dx)*180/Math.PI)
+		const rotate=(c+360)%360
+		console.log(`c=${c},dx=${dx},dy=${dy}, rotate:${rotate}, degree:${degree}`)
+		if(false!=onRotate({degree:rotate})){
 			this.xy=xy
 		}
 	}

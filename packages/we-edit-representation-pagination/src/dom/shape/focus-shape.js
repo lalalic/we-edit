@@ -54,7 +54,7 @@ export default connect(state=>{
 	}
 
 	render(){
-		const {width, height, id, rotate, dispatch, children,
+		const {width, height, id, rotate, dispatch, children,selectionStyle,positioning=selectionStyle.positioning,
 			path=`M0 0 h${width} v${height} h${-width} Z`,
 			resizable=[//default for rect[width,height]
 				{x:0,y:0,resize:"nwse"},
@@ -91,7 +91,7 @@ export default connect(state=>{
 				) : children}
 				
 				{rotatable && (
-					<Rotatable {...rotatable} 
+					<Rotatable {...rotatable} positioning={positioning} id={id}
 						onRotate={(({degree})=>dispatch(ACTION.Entity.UPDATE({id,type,rotate:degree})))}/>
 				)}
 				
