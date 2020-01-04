@@ -142,11 +142,20 @@ class Paragraph extends Super{
 			return atoms.indexOf(lastNthLine.firstAtom)
 		}
 
+		const createAndAppendLine=(...args)=>{
+			const line=this.createLine(...args)
+			if(!line)
+				return false
+			this.lines.push(line)
+			return line
+		}
+
 		const len=atoms.length
 		const DEAD=5
 		var nested=0
 
-		this.lines.push(this.createLine())
+		if(!createAndAppendLine())
+			return 
 
 		const commitFrom=(start=0)=>{
 			let last=0, times=0
@@ -169,7 +178,8 @@ class Paragraph extends Super{
 				if(typeof(next)=="number"){
 					//discard current line, and next is requiredHeight
 					this.rollbackLines(1)
-					this.lines.push(this.createLine({height:next}))
+					if(!createAndAppendLine({height:next}))
+						return 
 					continue
 				}else if(next!==false){
 					i++
@@ -183,7 +193,8 @@ class Paragraph extends Super{
 					rollbackLines=appendComposedLine(false)
 					if(!Number.isInteger(rollbackLines)){
 						//line committed
-						this.lines.push(this.createLine())
+						if(!createAndAppendLine())
+							return 
 						continue
 					}else{
 						//fail committed, and rollback lines
@@ -192,8 +203,9 @@ class Paragraph extends Super{
 
 						next=atomIndexOfLastNthLine(rollbackLines)
                         if(Number.isInteger(next)){
-        					rollbackToLineWithFirstAtomIndex(next)
-        					this.lines.push(this.createLine())
+							rollbackToLineWithFirstAtomIndex(next)
+							if(!createAndAppendLine())
+								return 
         					i=next
         					continue
         				}
@@ -213,7 +225,8 @@ class Paragraph extends Super{
 						return Frame.IMMEDIATE_STOP
 					next=atomIndexOfLastNthLine(rollbackLines)
 					rollbackToLineWithFirstAtomIndex(next)
-					this.lines.push(this.createLine())
+					if(!createAndAppendLine())
+						return 
 					commitFrom(next)
 				}
 			}
@@ -258,6 +271,8 @@ class Paragraph extends Super{
 
 	nextAvailableSpace(required){
 		const space=super.nextAvailableSpace(required)
+		if(!space)
+			return space
 		const {width,left=0,right=width}=space
 		const {indent:{left:indentLeft=0,right:indentRight=0,firstLine=0}, numbering,}=this.props
 		const bFirstLine=this.lines.length==0
@@ -274,11 +289,14 @@ class Paragraph extends Super{
 	 * *** every created line is appended IMMEDIATELY into composed, so the line index is from 1 in createComposed2Parent 
 	 */
     createLine(required){
+		const space=this.nextAvailableSpace(required)
+		if(!space)
+			return space
 		const {numbering, align,spacing:{lineHeight,top}}=this.props
 		const bFirstLine=this.lines.length==0
 
 		const line=new this.constructor.Line({
-			space:this.nextAvailableSpace(required),
+			space,
 			positioned: bFirstLine&&numbering ? [this.getNumberingAtom()] : [],
 			top: bFirstLine ? top : undefined, 
 			lineHeight,
@@ -360,7 +378,10 @@ export default class EditableParagraph extends editable(Paragraph,{stoppable:tru
 		this.lines=[]
 		const spaceChangedAt=this.computed.lastComposed.findIndex((a,i)=>{
 			var line=lines[i]
-			const space=this.createLine({height:a.props.height}).props.space
+			const newLine=this.createLine({height:a.props.height})
+			if(!newLine)
+				return true
+			const space=newLine.props.space
 			if(line.isFitTo(space)){
 				line=line.clone4Space(space)
 				this.lines.push(line)
