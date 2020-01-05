@@ -23,6 +23,16 @@ export default class Actions extends Input.Editable.EventHandler.xml{
         Object.assign(this,seperate,create,update,enter,type,backspace,tab,paste,serialize,remove)
     }
 
+    init(){
+        //set start of first paragraph in content as selection
+        const firstParagraphId=this.file.makeId(this.file.$('w\\:p').get(0))
+        if(firstParagraphId){
+            this.cursorAt(firstParagraphId,0)
+            this.forward()
+            this.backward()
+        }
+    }
+
     create_first_paragraph(){
         const $body=this.file.$('w\\:body').prepend(`<w:p><w:r><w:t/></w:r></w:p>`)
         const a=this.file.renderChanged($body.children().first())
