@@ -330,7 +330,11 @@ class PositioningHelper extends Positioning{
     //to make positioning only based on compose, not content
     __findFirstParagraphInTarget(target){
         var paragraphInCell=null
-        const paragraphDirect=new ReactQuery(<Fragment>{target.computed.lastComposed}</Fragment>)
+        const paragraphDirect=new ReactQuery(
+            <Fragment>
+                {target.computed.lastComposed}
+            </Fragment>
+        )
             .findFirst(a=>{
                 if(!a || !a.props)
                     return 

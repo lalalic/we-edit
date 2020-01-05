@@ -23,8 +23,7 @@
      }
 
      get width(){
-        const {left,right,width=right-left}=this.props
-        return width
+        return this.right-this.left
      }
 
      get left(){

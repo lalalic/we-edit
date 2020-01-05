@@ -83,7 +83,7 @@ export default class Shape extends Frame{
 		const {width,height}=path.size(strokeWidth)
 		return (
 			<Group {...{width,height, geometry:path}}>
-				<Group {...{scale, rotate, ...translate}}>
+				<Group {...{scale, rotate, ...translate,className:"rotator"}}>
 					{shape}
 				</Group>
 			</Group>
