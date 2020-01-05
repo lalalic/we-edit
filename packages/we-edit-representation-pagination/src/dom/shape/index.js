@@ -21,6 +21,8 @@ export default class Shape extends Frame{
 		editable: PropTypes.any,
 	}
 
+	focusable=true
+
 	__getGeometry=memoize(composedUUID=>{
 		const {geometry="rect"}=this.props
 		const Geometry=this.constructor[geometry]||this.constructor.custom

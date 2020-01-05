@@ -60,21 +60,19 @@ export default compose(
         const {id,at}=a[cursorAt]
         if(!id)//
             return true
-        
         const cursorPosition=positioning.position(id, at, true)
-        const isCursor=a.start.id==a.end.id && a.start.at==a.end.at
-        if(cursorPosition){
-            if(cursor){
-                const {x,y,left,top,height,fontFamily,fontSize}=cursorPosition
-                this.cursor=React.cloneElement(cursor, {
-                    x,y,left,top,fontFamily,fontSize,
-                    height: isCursor ? height : 0,
-                })
-            }
-            this.style=new SelectionStyle(cursorPosition,positioning, a.start, a.end)
-        }
+        this.style=new SelectionStyle(cursorPosition,positioning, a.start, a.end)
 
-        var rangeRects=!isCursor ? positioning.getRangeRects(a.start,a.end) : []
+        const isCursor=a.start.id==a.end.id && a.start.at==a.end.at
+        if(cursor){
+            const {x,y,left,top,height,fontFamily,fontSize}=cursorPosition
+            this.cursor=React.cloneElement(cursor, {
+                x,y,left,top,fontFamily,fontSize,
+                height: isCursor ? height : 0,
+            })
+        }
+        const focusable=a.start.id==a.end.id && positioning.getComposer(id).focusable
+        const rangeRects=!isCursor&&!focusable ? positioning.getRangeRects(a.start,a.end) : []
         if(range && (rangeRects && rangeRects.length)){
             this.range=React.cloneElement(range,{rects:rangeRects})
         }
