@@ -579,6 +579,14 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
                 if(topFrame==leafFrame)
                     return this.lineIndexInLeafFrame
                 return topFrame.lines.findIndex(a=>new ReactQuery(a).findFirst(`[data-frame="${leafFrame.uuid}"]`).length==1)
+            },
+
+            get layer(){
+                const {parents}=new ReactQuery(topFrame.createComposed2Parent()).findFirstAndParents(`[data-content="${id}]`)
+                const layer=parents.find(a=>a && a.type.displayName=="layer")
+                if(layer){
+                    return layer.props.z
+                }
             }
         })
     }

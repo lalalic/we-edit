@@ -1,6 +1,7 @@
 import React, {Component, Children, Fragment} from "react"
 import PropTypes from "prop-types"
 import Text from "./text"
+import Layer from "./layer"
 
 export default class Group extends Component{
 	static propTypes={
@@ -14,6 +15,9 @@ export default class Group extends Component{
 	static contextTypes={
 		debug: PropTypes.bool
 	}
+
+	static Layer=Layer
+	static Layers=Layer.Container
 
     render(){
 		let {

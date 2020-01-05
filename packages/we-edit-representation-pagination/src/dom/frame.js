@@ -200,8 +200,11 @@ export default class EditableFrame extends editable(Frame,{stoppable:true, conti
 
     appendLastComposed(){
 		if(!this.isAllChildrenComposed()){
-			const lastId=this.lastLine.props["data-content"]
-			return this.childrenArray(this.props.children).findIndex(a=>a && a.props.id==lastId)
+			if(this.lastLine){
+				const lastId=this.lastLine.props["data-content"]
+				return this.childrenArray(this.props.children).findIndex(a=>a && a.props.id==lastId)
+			}
+			return false
 		}
 		return true
 	}

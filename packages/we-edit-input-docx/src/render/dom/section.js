@@ -110,7 +110,7 @@ export default ({Section,Group})=>class __$1 extends Component{
 			var y1=height-margin.bottom
 			if(footer){
 				let y=height-margin.footer-footer.props.height
-				this.footer=React.cloneElement(footer,{x:margin.left,y, className:"footer"})
+				footer=React.cloneElement(footer,{x:margin.left,y, className:"footer"})
 				y1=Math.min(y, y1)
 			}
 
@@ -184,7 +184,6 @@ export default ({Section,Group})=>class __$1 extends Component{
 
 				createComposed2Parent(){
 					const {header,footer}=this.props
-					const headerFooter=(header || footer) && (<Group z={-1}>{header}{footer}</Group>)
 					const content=super.createComposed2Parent()
 					const props={...content.props}
 					if(this.hasMultipleSectionContent){
@@ -192,7 +191,18 @@ export default ({Section,Group})=>class __$1 extends Component{
 						Object.keys(props).filter(k=>k.startsWith("data-")).forEach(k=>props[k]=undefined)
 					}
 					
-					return React.cloneElement(content,props,...[...content.props.children,headerFooter].filter(a=>a))
+					return React.cloneElement(content,props,
+						<Group.Layers>
+							{[
+								<Group.Layer key="headerfooter" z={Number.MIN_SAFE_INTEGER} >
+									{header}{footer}
+								</Group.Layer>,
+								<Group.Layer key="content" z={Number.MAX_SAFE_INTEGER}>
+									{content.props.children}
+								</Group.Layer>
+							]}
+						</Group.Layers>
+					)
 				}
 
 				positionLines(...args) {
