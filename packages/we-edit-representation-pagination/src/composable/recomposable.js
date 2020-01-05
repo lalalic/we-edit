@@ -99,9 +99,8 @@ export default A=>{
                     console.debug(`${this.getComposeType()}[${this.props.id}] used all children caches`)
                     return null
                 }
-                console.debug(`${this.getComposeType()}[${this.props.id}] used 0 children caches`)
             }
-
+            console.debug(`${this.getComposeType()}[${this.props.id}] used 0 children caches`)
             return super.render()
         }
 

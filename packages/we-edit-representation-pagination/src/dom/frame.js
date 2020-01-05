@@ -164,7 +164,8 @@ export default class EditableFrame extends editable(Frame,{stoppable:true, conti
 	 * lastComposed is useless for frame, since it only commit once
 	 * to sync lines, anchors, 
 	 */
-    cancelUnusableLastComposed(nextProps){
+    cancelUnusableLastComposed({id,...nextProps}){
+		//**remove id to avoid replace this real composer */
 		const space=new this.constructor(nextProps,this.context).getSpace()
 		
 		const isInlineSizeChanged=this.getSpace().isInlineSizeDifferent(space)
@@ -211,8 +212,10 @@ export default class EditableFrame extends editable(Frame,{stoppable:true, conti
 
 	removeFrom(lineIndex){
 		const removed=super.rollbackLines(this.lines.length-lineIndex)
-		if(removed.length>0)
+		if(removed.length>0){
 			delete this.computed.allComposed
+			this.computed.lastComposed=[]
+		}
 		return removed
 	}
 }
