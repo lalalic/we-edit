@@ -191,7 +191,7 @@ export default class EditableFrame extends editable(Frame,{stoppable:true, conti
 	}
 	
 	_cancelUntilLastAllChildrenComposed(){
-       const lastLineOfAllChildrenComposed=this.lines.findLast((a,i,_,$,id=this.childIdOf(a))=>{
+       const lastLineOfAllChildrenComposed=this.lines.findLastIndex((a,i,_,$,id=this.childIdOf(a))=>{
 			const composer=this.context.getComposer(id)
 			return composer && composer.isAllChildrenComposed()
 		})
@@ -207,7 +207,9 @@ export default class EditableFrame extends editable(Frame,{stoppable:true, conti
 	}
 
 	removeFrom(lineIndex){
-		delete this.computed.allComposed
-		return super.rollbackLines(this.lines.length-lineIndex,false)
+		const removed=super.rollbackLines(this.lines.length-lineIndex)
+		if(removed.length>0)
+			delete this.computed.allComposed
+		return removed
 	}
 }
