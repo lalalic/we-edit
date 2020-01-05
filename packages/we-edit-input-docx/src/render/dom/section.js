@@ -183,7 +183,7 @@ export default ({Section,Group})=>class __$1 extends Component{
 				}
 
 				createComposed2Parent(){
-					const {header,footer}=this
+					const {header,footer}=this.props
 					const headerFooter=(header || footer) && (<Group z={-1}>{header}{footer}</Group>)
 					const content=super.createComposed2Parent()
 					const props={...content.props}
