@@ -14,7 +14,9 @@ export default class SelectionStyle {
                 this.end = start.id;
             }
         }
-        this.isRange=!(start.id==end.id && start.at==end.at)
+        this.isCursor=start.id==end.id && start.at==end.at
+        this.isFocusable=start.id==end.id && positioning.getComposer(start.id).focusable
+        this.isRange=!this.isCursor && !this.isFocusable
     }
     toJSON() {
         return "Selection.Style";
