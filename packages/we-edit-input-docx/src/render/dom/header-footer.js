@@ -1,8 +1,8 @@
 import React,{Component} from "react"
 import PropTypes from "prop-types"
 
-export default ({Frame})=>class HeaderFooter extends Component{
-    static displayName="headerFooter"
+export default ({Frame},displayName="headerFooter")=>class HeaderFooter extends Component{
+    static displayName=displayName
     
     static contextTypes={
         headerFooterWidth: PropTypes.number

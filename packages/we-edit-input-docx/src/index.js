@@ -221,7 +221,7 @@ class DocxType extends Input.Editable{
 					return false
 				}
 
-				const hf=cat=>node.children.filter(a=>a.name==`w:${cat}Reference`)
+				const hf=(cat,HFType)=>node.children.filter(a=>a.name==`w:${cat}Reference`)
 					.reduce((hfs, a)=>{
 						let type=a.attribs["w:type"]
 						let rId=a.attribs["r:id"]
@@ -230,7 +230,7 @@ class DocxType extends Input.Editable{
 							self.part=rId
 
 							children.splice(0,0,
-								createElement(components.HeaderFooter,{named:`${cat}.${type}`,type:`${cat}.${type}`},
+								createElement(HFType,{named:`${cat}.${type}`,type:`${cat}.${type}`},
 									root.children.map(a=>renderNode(a)),
 									root
 								)
@@ -241,8 +241,8 @@ class DocxType extends Input.Editable{
 						return hfs
 					},{})
 
-				hf("header")
-				hf("footer")
+				hf("header",components.Header)
+				hf("footer",components.Footer)
 
 				return createElement(components.Section,style,children,node)
 			}

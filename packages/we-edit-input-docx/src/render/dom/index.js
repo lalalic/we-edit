@@ -35,7 +35,8 @@ export default {
 	Image,
 	Shape,
 	Anchor,
-	HeaderFooter,
+	Header:(...args)=>HeaderFooter(...args, "header"),
+	Footer:(...args)=>HeaderFooter(...args, "footer"),
 	Styles:()=>createUnvisibleComponent("styles"),
 	Style:()=>createUnvisibleComponent("style"),
 }
