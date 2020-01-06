@@ -76,6 +76,16 @@ export default class Positioning{
         return this.around(left,top-1)
     }
 
+    positionAtLineEnd(id,at){
+        return {id,at}
+    }
+
+    positionAtLineStart(id,at){
+        return {id,at}
+    }
+
+
+
     /**extend selection from location to word range*/
     extendWord(id,at){
         return {}

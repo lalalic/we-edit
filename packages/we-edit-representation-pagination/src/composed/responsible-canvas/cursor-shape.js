@@ -14,12 +14,17 @@ export default whenSelectionChange()(
         }
 
         componentDidMount(){
-            const {scrollNodeIntoView}=this.props
-            scrollNodeIntoView && scrollNodeIntoView(this.shape.current)
+            this.componentDidUpdate({})
         }
 
-        componentDidUpdate(){
-            this.componentDidMount()
+        componentDidUpdate({selection}){
+            if(selection!=this.props.selection && this.props.selection.isCursor){
+                const shape=this.shape.current
+                if(shape.scrollIntoViewIfNeeded)
+                    shape.scrollIntoViewIfNeeded(true)
+                else
+                    shape.scrollIntoView()
+            }
         }
     }
 )

@@ -126,20 +126,6 @@ class Responsible extends Component{
         return {...a[cursorAt]}
     }
 
-    //used to scroll cursor into viewport
-    scrollNodeIntoView(node){
-        if(!node)
-            return
-        const rect=node.getBoundingClientRect()
-        const {viewport:{node:viewporter}}=this.state
-        const {top,height,bottom=top+height}=viewporter.getBoundingClientRect()
-		if(rect.bottom<top){
-			viewporter.scrollTop-=(top-rect.top+rect.height)
-		}else if(rect.top>bottom){
-			viewporter.scrollTop+=(rect.bottom-bottom+rect.height)
-		}
-    }
-
     __composedY(){
         const {pages, pageGap}=this.state
         return this.constructor.Canvas.composedY(pages, pageGap)
@@ -184,6 +170,8 @@ class Responsible extends Component{
                     {children}
 					<Cursor
                         keys={{
+                            37:e=>this.onKeyArrowLeft(e),//move left
+			                39:e=>this.onKeyArrowRight(e),//move right
                             38:e=>this.onKeyArrowUp(e),//move up
                             40:e=>this.onKeyArrowDown(e),//move down
                         }}>
@@ -355,6 +343,32 @@ export default class EventResponsible extends Responsible{
         if(id){
             this.__onKeyArrow(id,at,selecting)
         }
+    }
+
+    onKeyArrowLeft(e){
+        const {metaKey,ctrlKey,shiftKey:selecting}=e
+        if(metaKey||ctrlKey){
+            const cursor=this.cursor
+            const start=this.positioning.positionToLineStart(cursor.id,cursor.at)
+            if(cursor.id!=start.id || cursor.at!=start.at){
+                this.__onKeyArrow(start.id, start.at, selecting)
+                return 
+            }
+        }
+        this.dispatch(ACTION.Cursor.BACKWARD(e))
+    }
+
+    onKeyArrowRight(e){
+        const {metaKey,ctrlKey,shiftKey:selecting}=e
+        if(metaKey||ctrlKey){
+            const cursor=this.cursor
+            const end=this.positioning.positionToLineEnd(cursor.id,cursor.at)
+            if(cursor.id!=end.id || cursor.at!=end.at){
+                this.__onKeyArrow(end.id, end.at, selecting)
+                return 
+            }
+        }
+        this.dispatch(ACTION.Cursor.FORWARD(e))
     }
 }
 

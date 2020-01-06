@@ -439,13 +439,16 @@ class PositioningHelper extends Positioning{
             leafFrame, 
             line:new Proxy(lineInFrame||{},{
                 get(line,prop){
+                    if(["position","paragraph","i","inFrame","height"].includes(prop)){
                     return {
-                        position,
-                        paragraph:paragraph ? paragraph.props.id : undefined,
-                        i:paragraph ? i : undefined,
-                        inFrame:lineInFrame,
-                        height:lineInFrame && lineInFrame.props.height
-                    }[prop]||line[prop]
+                            position,
+                            paragraph:paragraph ? paragraph.props.id : undefined,
+                            i:paragraph ? i : undefined,
+                            inFrame:lineInFrame,
+                            height:lineInFrame && lineInFrame.props.height
+                        }[prop]
+                    }
+                    return line[prop]
                 }
             }),
             anchor: anchor && ({
@@ -589,6 +592,61 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
                 }
             }
         })
+    }
+
+    positionToLineEnd(id,at){
+        const pos=this.position(id,at,true)
+        const {paragraph, lineIndexOfParagraph}=pos
+        if(lineIndexOfParagraph!=-1){
+            const $p=this.getComposer(paragraph)
+            const atom=$p.lines[lineIndexOfParagraph].lastAtom
+            if(atom==$p.atoms[$p.atoms.length-1])
+                return {id:paragraph, at:1}
+
+            const node=new ReactQuery(atom).findLast(node=>{
+                if(!React.isValidElement(node))
+                    return false
+                const {props:{"data-content":isContent, "data-type":type, children}}=node
+                if(isContent && (type=="text" || !children)){
+                    return true
+                }
+            })
+            if(node.length){
+                if(node.attr("data-type")=="text"){
+                    return {id:node.attr('data-content'), at:Math.max(0,node.attr("data-endat")-1)}
+                }else{
+                    return {id:node.attr('data-content'),at:1}
+                }
+            }
+        }
+        return {id,at}
+    }
+
+    positionToLineStart(id,at){
+        const pos=this.position(id,at,true)
+        const {paragraph, lineIndexOfParagraph}=pos
+        if(lineIndexOfParagraph!=-1){
+            const $p=this.getComposer(paragraph)
+            const atom=$p.lines[lineIndexOfParagraph].firstAtom
+            if(atom==$p.atoms[0])
+                return {id:paragraph, at:0}
+            const node=new ReactQuery(atom).findFirst(node=>{
+                if(!React.isValidElement(node))
+                    return false
+                const {props:{"data-content":isContent, "data-type":type, children}}=node
+                if(isContent && (type=="text" || !children)){
+                    return true
+                }
+            })
+            if(node.length){
+                if(node.attr("data-type")=="text"){
+                    return {id:node.attr('data-content'), at:node.attr("data-endat")-node.attr('children').length}
+                }else{
+                    return {id:node.attr('data-content'),at:0}
+                }
+            }
+        }
+        return {id,at}
     }
 
     around(left,top){
