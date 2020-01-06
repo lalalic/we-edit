@@ -1,6 +1,6 @@
 import React, {Component, Fragment, Children} from "react"
 import PropTypes from "prop-types"
-import {connect,getSelectionStyle} from "we-edit"
+import {whenSelectionChange} from "we-edit"
 import Group from "./group"
 
 export default class Layer extends Component{
@@ -23,11 +23,10 @@ export default class Layer extends Component{
         return (<Group>{children}</Group>)
     }
 
-    static Container=connect(state=>{
-        const selectionStyle=getSelectionStyle(state)
-        if(!selectionStyle)
+    static Container=whenSelectionChange(({selection})=>{
+        if(!selection)
             return {}
-        const props=selectionStyle.pageProps()
+        const props=selection.pageProps()
         const active=props ? props.layer : undefined
         return {active}
     })(class LayerContainer extends Component{

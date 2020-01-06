@@ -6,12 +6,12 @@ export default class SelectionStyle {
         this.positioning = positioning;
         this.getComposer = a => positioning.getComposer(a);
         this.getContent = a => positioning.getContent(a);
-        this.start = start.id;
-        this.end = end.id;
+        this.start = start;
+        this.end = end;
         if (start.id != end.id) {
             if (this.getContent(start.id).forwardFirst(`#${end.id}`).length == 0) {
-                this.start = end.id;
-                this.end = start.id;
+                this.start = end;
+                this.end = start;
             }
         }
         this.isCursor=start.id==end.id && start.at==end.at
@@ -97,9 +97,9 @@ export default class SelectionStyle {
     })
 
     content=memoize((type)=>{
-        if (this.start != this.end) {
-            var targets = this.getContent(this.start).forwardUntil(`#${this.end}`);
-            targets = targets.add('#' + this.end).add('#' + this.start, "unshift");
+        if (this.start.id != this.end.id) {
+            var targets = this.getContent(this.start.id).forwardUntil(`#${this.end.id}`);
+            targets = targets.add('#' + this.end.id).add('#' + this.start.id, "unshift");
             targets = targets.filter(type);
             if (targets.length > 0) {
                 return targets.props().toJS();

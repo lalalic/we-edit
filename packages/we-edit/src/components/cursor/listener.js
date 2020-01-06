@@ -2,14 +2,12 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 
 import reactComposition from "../../tools/react-composition"
-import {ACTION, connect} from "../../state"
-import {getSelection} from "../../state/selector"
+import {ACTION} from "../../state"
 
-export default connect(
-	state=>({actived:getSelection(state).actived})
-)(class Listener extends Component{
+export default class Listener extends Component{
 	static contextTypes={
 		onKeyDown:PropTypes.func,
+		editable: PropTypes.any,
 	}
 
 	constructor(){
@@ -40,7 +38,8 @@ export default connect(
 	}
 
 	render(){
-		let {dispatch,keys={},inputRef,editable,...others}=this.props
+		let {dispatch,keys={},inputRef,...others}=this.props
+		const {editable}=this.context
 		keys={...this.KEYs, ...keys}
 		if(editable==false){
 			delete others.onPaste
@@ -94,7 +93,7 @@ export default connect(
 	componentDidUpdate(){
 		this.props.inputRef.current.focus()
 	}
-})
+}
 
 const toMyEvent=e=>{
 	return Object.keys(e).reduce((keys,k)=>{

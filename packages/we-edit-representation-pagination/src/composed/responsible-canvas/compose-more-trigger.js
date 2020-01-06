@@ -7,7 +7,6 @@ import Group from "../group"
 
 export default compose(
     setDisplayName("ComposeMoreTrigger"), 
-    getContext({ debug: PropTypes.bool }), 
     connect(state => ({ selection: getSelection(state) })),
 )(class ComposeMoreTrigger extends Component {
     static propTypes = {
@@ -16,7 +15,10 @@ export default compose(
         isSelectionComposed: PropTypes.func,
         compose4Scroll: PropTypes.func,
         compose4Selection: PropTypes.func,
-    };
+    }
+    static contextTypes={
+        debug: PropTypes.bool,
+    }
     shouldComponentUpdate({ selection, isSelectionComposed, compose4Selection }) {
         if (!isSelectionComposed(selection)) {
             compose4Selection();
@@ -27,10 +29,12 @@ export default compose(
     render() {
         const { compose4Scroll, getComposedY, debug } = this.props;
         const y = getComposedY();
-        return (<Waypoint onEnter={() => compose4Scroll(y)}>
-            <Group y={y - 100}>
-                <line className="composeTrigger" x1="0" y1="0" x2="2" y2="0" strokeWidth="2" stroke={debug ? "red" : "transparent"} />
-            </Group>
-        </Waypoint>);
+        return (
+            <Waypoint onEnter={() => compose4Scroll(y)}>
+                <Group y={y - 100}>
+                    <line className="composeTrigger" x1="0" y1="0" x2="2" y2="0" strokeWidth="2" stroke={debug ? "red" : "transparent"} />
+                </Group>
+            </Waypoint>
+        );
     }
 })

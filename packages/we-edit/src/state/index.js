@@ -2,7 +2,7 @@ import {createStore as createRawStore, compose, applyMiddleware} from "redux"
 import {connect as _connect, createProvider} from "react-redux"
 import Immutable,{Map} from "immutable"
 import thunk from "redux-thunk"
-import {firstCursorable} from "./selector"
+import {firstCursorable, getSelectionStyle} from "./selector"
 
 export function createStore(reducer,INIT_STATE){
 	const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
@@ -56,3 +56,8 @@ export const connect=(stateMap, actionMap, mergeProps, options={})=>{
 	options.storeKey=STORE_KEY
 	return _connect(stateMap, actionMap, mergeProps, options)
 }
+export const whenSelectionChange=((props=a=>a)=>{
+	return connect(state=>{
+		return props({selection:getSelectionStyle(state)},state)
+	},undefined,undefined,{withRef:true})
+})

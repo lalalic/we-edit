@@ -1,29 +1,25 @@
-import React, {PureComponent as Component} from "react"
-import PropTypes from "prop-types"
-
-import Waypoint from "react-waypoint"
-
+import React, {Component} from "react"
+import {whenSelectionChange} from "../../state"
 import Listener from "./listener"
 
-export default class Input extends Component{
+export default whenSelectionChange()(class Input extends Component{
 	render(){
-		const {top,left,height,color,fontFamily,fontSize,...props}=this.props
-		let style={height,margin:0,padding:0,border:0,left:10,top:10,position:"fixed",outline:"none"}
+		const {selection,hasCursorShape,...props}=this.props
+		const {position:{top,left,height,color,fontFamily,fontSize,},isCursor}=selection||{position:{}}
 		return (
-			<div unselectable="on"
-					style={{left,top,position:"fixed",height:0,width:0}}>
+			<div unselectable="on" style={{left,top,position:"fixed",height:0,width:0}}>
 				<Listener
 					style={{
-						...style,
-						color,
+						margin:0,padding:0,border:0,left:0,top:0,
+						position:"absolute",outline:"none",width:2,background:"transparent",
 						fontSize,
 						fontFamily,
-						width:2,
-						background:"transparent"
+						height: !hasCursorShape && isCursor ? height : 1,
+						color: !hasCursorShape && isCursor ? color : "transparent",
 					}}
 					{...props}
 					/>
 			</div>
 		)
 	}
-}
+})

@@ -5,7 +5,7 @@ import {ACTION, Cursor, Selection,ContentQuery, getSelection} from "we-edit"
 import Canvas from "../canvas"
 import SelectionShape from "./selection-shape"
 import CursorShape from "./cursor-shape"
-import Locator from "./locator"
+import WhenSelectionChangeNotifier from "./when-selection-change-notifier"
 import Positioning from "./positioning"
 import ComposeMoreTrigger from "./compose-more-trigger"
 import DefineShapes from "./define-shapes"
@@ -54,7 +54,6 @@ class Responsible extends Component{
     constructor(){
         super(...arguments)
         this.state={}
-        this.selecting=React.createRef()
         this.getComposer=this.getComposer.bind(this)
         this.getContent=this.getContent.bind(this)
         this.positioning=new Positioning(this)
@@ -108,9 +107,14 @@ class Responsible extends Component{
         return this.context.activeDocStore.dispatch
     }
 
-    get locator(){
-        if(this.refs.locator)
-            return this.refs.locator.getWrappedInstance()
+    get selectionChangeNotifier(){
+        if(this.refs.selectionChangeNotifier)
+            return this.refs.selectionChangeNotifier.getWrappedInstance()
+    }
+
+    get selecting(){
+        if(this.refs.selecting)
+            return this.refs.selecting.getWrappedInstance()
     }
 
 	get selection(){
@@ -124,6 +128,8 @@ class Responsible extends Component{
 
     //used to scroll cursor into viewport
     scrollNodeIntoView(node){
+        if(!node)
+            return
         const rect=node.getBoundingClientRect()
         const {viewport:{node:viewporter}}=this.state
         const {top,height,bottom=top+height}=viewporter.getBoundingClientRect()
@@ -150,24 +156,8 @@ class Responsible extends Component{
         const {props:{children,document}, state:{editable=true,scale,pageGap,pages,precision}}=this
         const noCursor=editable && editable.cursor===false
         const eventHandlers=!noCursor ? this.eventHandlers  : {}
-        var locator=null
-        if(!noCursor){
-            const cursor=(<Cursor dispatch={this.dispatch} editable={!!editable} 
-                        children={<CursorShape/>}
-                        keys={{
-                            38:e=>this.onKeyArrowUp(e),//move up
-                            40:e=>this.onKeyArrowDown(e),//move down
-                        }}/>)
-                    const range=(<Selection 
-                            children={<SelectionShape ref={this.selecting}/>} 
-                            onMove={editable && (e=>this.dispatch(ACTION.Selection.MOVE(e)))}
-                            asCanvasPoint={a=>this.positioning.asCanvasPoint(a)}
-                        />)
-            locator=<Locator canvas={this} ref="locator" cursor={cursor}  range={range}/>
-        }
-
-        const notifyLocator=callback=>{
-			!this.locator ? callback() : this.locator.setState({composedContent:null},callback)
+        const notifySelectionChangeNotifier=callback=>{
+			!this.selectionChangeNotifier ? callback() : this.selectionChangeNotifier.setState({composedContent:null},callback)
         }
         const Canvas=this.constructor.Canvas
         return (
@@ -180,19 +170,29 @@ class Responsible extends Component{
                     isSelectionComposed={selection=>document.isSelectionComposed(selection)}
                     compose4Selection={a=>{
                         if(!document.isAllChildrenComposed()){
-                            notifyLocator(selection=>document.compose4Selection(selection))
+                            notifySelectionChangeNotifier(selection=>document.compose4Selection(selection))
                         }
                     }}
                     compose4Scroll={y=>{
                         if(!document.isAllChildrenComposed()){
-                            notifyLocator(()=>document.compose4Scroll(y))
+                            notifySelectionChangeNotifier(()=>document.compose4Scroll(y))
                         }
                     }}
                 />    
                 <DefineShapes/>
 				<Fragment>
                     {children}
-					{locator}
+					<Cursor
+                        keys={{
+                            38:e=>this.onKeyArrowUp(e),//move up
+                            40:e=>this.onKeyArrowDown(e),//move down
+                        }}>
+                        <CursorShape scrollNodeIntoView={node=>this.scrollNodeIntoView(node)}/>
+                    </Cursor>
+                    <Selection >
+                        <SelectionShape ref={"selecting"}/>
+                    </Selection>
+                    <WhenSelectionChangeNotifier canvas={this} ref="selectionChangeNotifier"/>
 				</Fragment>
             </Canvas>
         )
@@ -210,7 +210,7 @@ class Responsible extends Component{
 
     componentDidUpdate(){
         this.__statistics()
-        this.locator && this.locator.setState({composedContent:this.state.content})
+        this.selectionChangeNotifier && this.selectionChangeNotifier.setState({composedContent:this.state.content})
     }
 
     componentDidMount(){
@@ -322,9 +322,9 @@ export default class EventResponsible extends Responsible{
         const {id,at}=this.positioning.around(e.clientX,e.clientY)
         if(id){
             const end={id,at}
-            let {start=end}=this.selecting.current.state
+            let {start=end}=this.selecting.state
             const rects=start==end ? [] : this.positioning.getRangeRects(start, end)
-            this.selecting.current.setState({start:start||end, end, rects, selecting:true})
+            this.selecting.setState({start:start||end, end, rects, selecting:true})
         }
     }
 
@@ -332,9 +332,9 @@ export default class EventResponsible extends Responsible{
         if(this.__shouldIgnoreMouseDownEvent(e)){
             return
         }
-        var {start,end}=this.selecting.current.state
+        var {start,end}=this.selecting.state
         if(start && end){
-            this.selecting.current.setState({start:undefined, end:undefined, rects:undefined,selecting:false})
+            this.selecting.setState({start:undefined, end:undefined, rects:undefined,selecting:false})
             ;({start,end}=this.positioning.normalizeSelection(start,end));
             this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))
             this.__mouseDownFlag.selected=true

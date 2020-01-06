@@ -1,22 +1,35 @@
 import React, {Component} from "react"
+import PropTypes from "prop-types"
+import {whenSelectionChange} from "we-edit"
 import Movable from "./movable"
 
-export default class SelectionShape extends Component{
+export default whenSelectionChange(({selection})=>{
+	const asCanvasPoint=a=>selection.positioning.asCanvasPoint(a)
+	if(selection && selection.isRange){
+		return {
+			rects:selection.positioning.getRangeRects(selection.start, selection.end),
+			asCanvasPoint,
+		}
+	}
+	return {rects:[],asCanvasPoint}
+})(class SelectionShape extends Component{
+	static contextTypes={
+		editable: PropTypes.any
+	}
 	constructor(){
 		super(...arguments)
 		this.state={}
 		this.onShrink=this.onShrink.bind(this)
+		this.onMove=this.onMove.bind(this)
 	}
-
 	render(){
-		const {onMove}=this.props
 		const {rects=[], selecting}=this.state
-		
+		const {editable}=this.context
 		const range=<Area rects={rects}/>
 		if(selecting)
 			return React.cloneElement(range,{onMouseMove:this.onShrink})
 		
-		return onMove ? <Movable children={range} onMove={onMove}/> : range
+		return editable ? <Movable children={range} onMove={this.onMove}/> : range
 	}
 
 	static getDerivedStateFromProps({rects},{selecting}){
@@ -39,7 +52,11 @@ export default class SelectionShape extends Component{
 		}
 		this.setState({rects:newRects})
 	}
-}
+
+	onMove(){
+		this.props.dispatch(dispatch(ACTION.Selection.MOVE(e)))
+	}
+})
 
 export const Area=({rects, ...props})=>(
 	<path

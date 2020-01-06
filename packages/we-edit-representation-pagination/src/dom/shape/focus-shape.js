@@ -1,18 +1,13 @@
 import React, {Component, Fragment} from "react"
 import PropTypes from "prop-types"
-import {connect,getSelectionStyle,ACTION} from "we-edit"
+import {whenSelectionChange,ACTION} from "we-edit"
 
 import Movable from "../../composed/responsible-canvas/movable"
 import Resizable from "../../composed/responsible-canvas/resizable"
 import Rotatable from "../../composed/responsible-canvas/rotatable"
 
 
-export default connect(state=>{
-	const selectionStyle=getSelectionStyle(state)
-	if(!selectionStyle)
-		return {}
-	return {selectionStyle,cursor:selectionStyle.position.id,}
-})(class FocusShape extends Component{
+export default whenSelectionChange()(class FocusShape extends Component{
 	static propTypes={
 		width: PropTypes.number,
 		height: PropTypes.number,
@@ -33,11 +28,11 @@ export default connect(state=>{
 		editable:PropTypes.any
 	}
 
-	static getDerivedStateFromProps({id,selectionStyle,$1}){
-		if(!selectionStyle)
+	static getDerivedStateFromProps({id,selection}){
+		if(!selection)
 			return {}
-		const getComposer=a=>selectionStyle.positioning.getComposer(a)
-		const cursor=selectionStyle.position.id
+		const getComposer=a=>selection.positioning.getComposer(a)
+		const cursor=selection.position.id
 		const target=getComposer(id)
 		const isCursorGrand=!!getComposer(cursor).closest(a=>a.props.id==id)
 		const isAnchor=target.closest(a=>(a!=target && (a.isFrame||a.isSection))||a.getComposeType()=="anchor").getComposeType()=="anchor"
@@ -49,12 +44,15 @@ export default connect(state=>{
 
 	}
 
-	shouldComponentUpdate({selectionStyle}){
-		return this.props.selectionStyle!=selectionStyle
+	shouldComponentUpdate({selection}){
+		return this.props.selection!=selection
 	}
 
 	render(){
-		const {width, height, id, rotate, dispatch, children,selectionStyle,positioning=selectionStyle.positioning,
+		if(!this.props.selection)
+			return this.props.children
+
+		const {width, height, id, rotate, dispatch, children,selection,positioning=selection.positioning,
 			path=`M0 0 h${width} v${height} h${-width} Z`,
 			resizable=[//default for rect[width,height]
 				{x:0,y:0,resize:"nwse"},

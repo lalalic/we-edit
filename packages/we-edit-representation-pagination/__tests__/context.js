@@ -4,10 +4,12 @@ import {withContext} from "recompose"
 import TestRender from "react-test-renderer"
 import ReactDOMServer from 'react-dom/server'
 import cheerio from "cheerio"
+import ReactDOM from 'react-dom'
 
-jest.mock("../src/composed/responsible-canvas/locator")
+ReactDOM.createPortal = jest.fn(node => node)
+jest.mock("../src/composed/responsible-canvas/when-selection-change-notifier")
 
-import Locator from "../src/composed/responsible-canvas/locator"
+import Locator from "../src/composed/responsible-canvas/when-selection-change-notifier"
 Locator.prototype.shouldComponentUpdate=jest.fn(a=>true)
 
 export const provider=(A,Default={})=>withContext(A.contextTypes,({context})=>({...Default,...context}))(({children})=><Fragment>{children}</Fragment>)
@@ -72,7 +74,16 @@ export const $=pages=>{
 	return $("svg")
 }
 
-export const render=TestRender.create
+export const render=A=>TestRender.create(A,{
+    createNodeMock(el){
+        if(el.type=="input")
+            return {
+                focus(){
+
+                }
+            }
+    }
+})
 
 export const defaultProps=({Document,Paragraph,Text,Container})=>()=>{
     const defaultStyle={fonts:"arial",size:10}

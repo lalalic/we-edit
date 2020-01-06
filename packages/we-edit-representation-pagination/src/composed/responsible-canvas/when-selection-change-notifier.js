@@ -1,4 +1,4 @@
-import React, {Component, Fragment} from "react"
+import React, {Component} from "react"
 import {connect,ACTION} from "we-edit"
 import {compose} from "recompose"
 import SelectionStyle from "./selection-style"
@@ -20,67 +20,43 @@ export default compose(
         undefined,
         {withRef:true}
     ),
-)(class Locator extends Component{
+)(class WhenSelectionChangeNotifier extends Component{
     constructor(){
         super(...arguments)
         this.state={composedContent:null}
     }
 
 	render(){
-        const {range=this.props.range, cursor=this.props.cursor}=this
-        return (
-            <Fragment>
-                <g ref="cursor">{cursor}</g>
-				{range}
-            </Fragment>
-        )
+        return null
     }
 
-    shouldComponentUpdate({content,selection, cursor, range, canvas, positioning=canvas.positioning},{composedContent}){
+    shouldComponentUpdate({content,selection, canvas, positioning=canvas.positioning},{composedContent}){
         const composedContentIsSynced=content.equals(composedContent)
         if(!composedContentIsSynced)
             return false
 
-        const contentAndSelectionIsSynced=
+        const contentAndSelectionIsNotChanged=
             content.equals(this.props.content) &&
             selection.equals(this.props.selection) && 
             content.equals(this.last.content) && 
             selection.equals(this.last.selection)
 
-        if(contentAndSelectionIsSynced)
+        if(contentAndSelectionIsNotChanged)
             return false
 
         //initialize
-        this.cursor=cursor
-        this.range=range
         this.style=null
 
-        //update cursor
         const {cursorAt, ...a}=selection.toJS()
         const {id,at}=a[cursorAt]
-        if(!id)//
+        if(!id)
             return true
-        const cursorPosition=positioning.position(id, at, true)
-        const {isCursor, isRange}=this.style=new SelectionStyle(cursorPosition,positioning, a.start, a.end)
-
-        if(cursor){//cursor always should be updated even if it's range to make range viewable in viewport 
-            const {x,y,left,top,height,fontFamily,fontSize}=cursorPosition
-            this.cursor=React.cloneElement(cursor, {
-                x,y,left,top,fontFamily,fontSize,
-                height: isCursor ? height : 0,
-            })
-        }
-        
-        if(range && isRange){
-            this.range=React.cloneElement(range,{rects:positioning.getRangeRects(a.start,a.end)})
-        }
-
+        this.style=new SelectionStyle(positioning.position(id, at, true),positioning, a.start, a.end)
         return true
     }
 
     componentDidUpdate(){
-        const {props:{canvas,dispatch,content,selection}, refs:{cursor}, style}=this
-        canvas.scrollNodeIntoView(cursor)
+        const {props:{dispatch,content,selection}, style}=this
         dispatch(ACTION.Selection.STYLE(style))
         this.last={content, selection}
     }
