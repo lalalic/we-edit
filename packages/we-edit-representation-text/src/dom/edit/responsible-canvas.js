@@ -1,6 +1,6 @@
 import React,{PureComponent, Fragment} from "react"
 import PropTypes from "prop-types"
-import {connect,getSelectionStyle} from "we-edit"
+import {whenSelectionChange} from "we-edit"
 import {Editors} from "we-edit-representation-html"
 const {Group, }=Editors
 
@@ -49,9 +49,8 @@ class LineNos extends PureComponent{
     }
 }
 
-const ActiveLineNo=connect(state=>{
-    const selection=getSelectionStyle(state)
-	if(selection){
+const ActiveLineNo=whenSelectionChange(({selection})=>{
+    if(selection){
         if(selection.isRange)
             return {isRange:true}
 		const page=selection.props("page")

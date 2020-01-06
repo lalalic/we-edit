@@ -1,7 +1,7 @@
 import React from "react"
 
 import {compose,setDisplayName,mapProps, shallowEqual,shouldUpdate} from "recompose"
-import {ACTION, connect, getSelectionStyle,getUI} from "we-edit"
+import {ACTION, whenSelectionChange,getUI} from "we-edit"
 
 import {ToolbarGroup,ToolbarSeparator as ToolbarSeparator0,MenuItem, SvgIcon} from "material-ui"
 import CheckIconButton from "../components/check-icon-button"
@@ -20,8 +20,7 @@ const ToolbarSeparator=props=><ToolbarSeparator0 style={{marginRight:2, marginLe
 
 export default compose(
 	setDisplayName("ParagraphStyle"),
-	connect(state=>{
-		const selection=getSelectionStyle(state)
+	whenSelectionChange(({selection},state)=>{
 		if(selection)
 			return {style:selection.props("paragraph",false),...getUI(state)}
 		return getUI(state)

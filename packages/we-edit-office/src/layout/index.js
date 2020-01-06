@@ -8,11 +8,11 @@ import Subheader from 'material-ui/Subheader'
 import DropDownButton from "../components/drop-down-button"
 import IconChecked from "material-ui/svg-icons/action/done"
 
-import {ACTION,connect,getSelectionStyle} from "we-edit"
+import {ACTION,whenSelectionChange} from "we-edit"
 
 export const Tools=compose(
 	setDisplayName("Page Layout"),
-	connect(state=>({selection:getSelectionStyle(state)})),
+	whenSelectionChange(),
 	mapProps(({children,dispatch,selection})=>{
 		const style=selection&&selection.props("page",false)||{}
 		return {

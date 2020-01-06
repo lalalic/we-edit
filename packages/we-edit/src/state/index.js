@@ -56,8 +56,8 @@ export const connect=(stateMap, actionMap, mergeProps, options={})=>{
 	options.storeKey=STORE_KEY
 	return _connect(stateMap, actionMap, mergeProps, options)
 }
-export const whenSelectionChange=((props=a=>a)=>{
+export const whenSelectionChange=((props=a=>a,actionMap,mergeProps,options={})=>{
 	return connect(state=>{
 		return props({selection:getSelectionStyle(state)},state)
-	},undefined,undefined,{withRef:true})
+	},actionMap,mergeProps,options)
 })

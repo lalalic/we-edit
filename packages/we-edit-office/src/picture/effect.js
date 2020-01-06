@@ -1,14 +1,14 @@
 import React from "react"
 import {compose,setDisplayName,mapProps} from "recompose"
-import {ACTION, connect, getSelectionStyle} from "we-edit"
+import {whenSelectionChange} from "we-edit"
 
-import {MenuItem,Subheader, SvgIcon,ToolbarGroup} from "material-ui"
+import {MenuItem,Subheader,ToolbarGroup} from "material-ui"
 import DropdownButton from "../components/drop-down-button"
 import IconColor from "material-ui/svg-icons/image/color-lens"
 
 export default compose(
     setDisplayName("PictureEffect"),
-    connect(state=>({selection:getSelectionStyle(state)})),
+    whenSelectionChange(),
     mapProps(({dispatch})=>{
         return {
 

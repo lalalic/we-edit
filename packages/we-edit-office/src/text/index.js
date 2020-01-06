@@ -1,6 +1,6 @@
 import React from "react"
 
-import {ACTION,  connect, getSelectionStyle} from "we-edit"
+import {ACTION, whenSelectionChange} from "we-edit"
 
 import {compose,setDisplayName,withProps, shallowEqual,shouldUpdate} from "recompose"
 
@@ -25,8 +25,7 @@ const ToolbarSeparator=props=><ToolbarSeparator0 style={{marginRight:2, marginLe
 
 export default compose(
 	setDisplayName("TextStyle"),
-	connect(state=>{
-		const selection=getSelectionStyle(state)
+	whenSelectionChange(({selection})=>{
 		if(selection)
 			return {style:selection.props("text",false)}
 		return {}

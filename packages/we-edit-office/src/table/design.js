@@ -1,7 +1,7 @@
 import React from "react"
 
 import {compose,setDisplayName,mapProps} from "recompose"
-import {ACTION, connect, getSelectionStyle} from "we-edit"
+import {ACTION, whenSelectionChange} from "we-edit"
 
 import {MenuItem,SvgIcon,ToolbarGroup} from "material-ui"
 import DropDownButton from "../components/drop-down-button"
@@ -18,7 +18,7 @@ import IconRight from "material-ui/svg-icons/navigation/last-page"
 
 export default compose(
     setDisplayName("TableDesigner"),
-    connect(state=>({selection:getSelectionStyle(state)})),
+    whenSelectionChange(),
     mapProps(({dispatch})=>{
         return {
             addRowAbove(){

@@ -1,14 +1,13 @@
 import React,{Component} from  "react"
-import {connect, getSelectionStyle, getUI} from "we-edit"
-import {compose, setDisplayName, withProps} from "recompose"
+import {connect,whenSelectionChange, getUI} from "we-edit"
+import {compose, setDisplayName} from "recompose"
 
 import Ruler from "./ruler"
 
 var uuid=0
 const VerticalRuler=compose(
 	setDisplayName("VerticalRuler"),
-	connect(state=>({selection: getSelectionStyle(state)})),
-	withProps(({selection})=>{
+	whenSelectionChange(({selection})=>{
 		if(selection){
 			let props=selection.props("page",false)
 			if(props){

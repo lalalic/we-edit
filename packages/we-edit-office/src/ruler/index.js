@@ -2,7 +2,7 @@ import React from "react"
 
 import {compose,setDisplayName,withProps} from "recompose"
 
-import {ACTION, connect, getSelectionStyle} from "we-edit"
+import {ACTION, whenSelectionChange} from "we-edit"
 
 import HorizontalRuler from "./horizontal"
 import VerticalRuler from "./vertical"
@@ -10,7 +10,7 @@ import VerticalRuler from "./vertical"
 
 export default compose(
 	setDisplayName("Ruler"),
-	connect(state=>({selection:getSelectionStyle(state)})),
+	whenSelectionChange(),
 	withProps(({dispatch})=>({
 		setLeftMargin(left){
 			dispatch(ACTION.Selection.UPDATE({section:{pgMar:{left}}}))

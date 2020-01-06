@@ -1,7 +1,7 @@
-import React, {PureComponent, Fragment,Children} from "react"
+import React, {Fragment,Children} from "react"
 import PropTypes from "prop-types"
-import {connect, getSelectionStyle} from "we-edit"
-import {compose,mapProps,setDisplayName,getContext,setStatic,branch,renderNothing}  from "recompose"
+import {whenSelectionChange} from "we-edit"
+import {compose,setDisplayName,getContext,setStatic,branch,renderNothing}  from "recompose"
 
 import {Toolbar as Toolbar0,ToolbarSeparator as ToolbarSeparator0, Tabs, Tab} from "material-ui"
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
@@ -33,7 +33,7 @@ const NoTabIfOnly1=({children:tab})=>{
 const Ribbon=compose(
 	setDisplayName("Ribbon"),
 	getContext({muiTheme:PropTypes.object,selection:PropTypes.object}),
-	connect(state=>({selection:getSelectionStyle(state)}))
+	whenSelectionChange()
 )(({children, selection,
 	muiTheme,
 	buttonStyle={height:24, fontSize:10, lineHeight:"24px", paddingRight:5,  paddingLeft:5},

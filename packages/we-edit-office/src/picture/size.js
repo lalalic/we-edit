@@ -1,13 +1,13 @@
 import React from "react"
 import {compose,setDisplayName,mapProps} from "recompose"
-import {ACTION, connect, getSelectionStyle} from "we-edit"
+import {whenSelectionChange} from "we-edit"
 
 import {MenuItem,SvgIcon,ToolbarGroup} from "material-ui"
 import DropdownButton from "../components/drop-down-button"
 
 export default compose(
     setDisplayName("PictureSize"),
-    connect(state=>({selection:getSelectionStyle(state)})),
+    whenSelectionChange(),
     mapProps(({dispatch})=>{
     }),
 )(({})=>{

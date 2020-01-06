@@ -1,6 +1,6 @@
 import React from "react"
 import {compose,setDisplayName,mapProps} from "recompose"
-import {ACTION, connect, getSelectionStyle} from "we-edit"
+import {whenSelectionChange} from "we-edit"
 
 import {MenuItem,SvgIcon,ToolbarGroup, Divider} from "material-ui"
 import DropdownButton from "../components/drop-down-button"
@@ -9,7 +9,7 @@ import IconWrap from "material-ui/svg-icons/action/picture-in-picture"
 
 export default compose(
     setDisplayName("PicturePosition"),
-    connect(state=>({selection:getSelectionStyle(state)})),
+    whenSelectionChange(),
     mapProps(({dispatch})=>{
     }),
 )(({})=>{

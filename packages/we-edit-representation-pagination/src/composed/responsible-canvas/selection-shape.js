@@ -12,7 +12,7 @@ export default whenSelectionChange(({selection})=>{
 		}
 	}
 	return {rects:[],asCanvasPoint}
-})(class SelectionShape extends Component{
+},undefined,undefined,{withRef:true})(class SelectionShape extends Component{
 	static contextTypes={
 		editable: PropTypes.any
 	}

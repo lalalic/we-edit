@@ -4,7 +4,7 @@ import {compose, getContext, mapProps,setDisplayName, onlyUpdateForKeys} from "r
 import {FlatButton, Slider} from "material-ui"
 import {blue800, blue900} from "material-ui/styles/colors"
 import SizeIconButton from "../components/size-icon-button"
-import {connect, getSelectionStyle,getStatistics} from "we-edit"
+import {connect, whenSelectionChange,getStatistics} from "we-edit"
 
 const ButtonStyle={
 	background:"transparent",
@@ -49,9 +49,8 @@ const Status=compose(
 ))
 
 const Page=compose(
-	connect(state=>{
+	whenSelectionChange(({selection},state)=>{
 		const {pages:total=0,allComposed}=getStatistics(state)
-		const selection=getSelectionStyle(state)
 		const status={total,allComposed}
 		if(selection){
 			let props=selection.props("page",false)
