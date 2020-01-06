@@ -61,20 +61,18 @@ export default compose(
         if(!id)//
             return true
         const cursorPosition=positioning.position(id, at, true)
-        this.style=new SelectionStyle(cursorPosition,positioning, a.start, a.end)
+        const {isCursor, isRange}=this.style=new SelectionStyle(cursorPosition,positioning, a.start, a.end)
 
-        const isCursor=a.start.id==a.end.id && a.start.at==a.end.at
-        if(cursor){
+        if(cursor){//cursor always should be updated even if it's range to make range viewable in viewport 
             const {x,y,left,top,height,fontFamily,fontSize}=cursorPosition
             this.cursor=React.cloneElement(cursor, {
                 x,y,left,top,fontFamily,fontSize,
                 height: isCursor ? height : 0,
             })
         }
-        const focusable=a.start.id==a.end.id && positioning.getComposer(id).focusable
-        const rangeRects=!isCursor&&!focusable ? positioning.getRangeRects(a.start,a.end) : []
-        if(range && (rangeRects && rangeRects.length)){
-            this.range=React.cloneElement(range,{rects:rangeRects})
+        
+        if(range && isRange){
+            this.range=React.cloneElement(range,{rects:positioning.getRangeRects(a.start,a.end)})
         }
 
         return true

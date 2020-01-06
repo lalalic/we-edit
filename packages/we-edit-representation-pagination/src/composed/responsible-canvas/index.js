@@ -153,14 +153,16 @@ class Responsible extends Component{
         var locator=null
         if(!noCursor){
             const cursor=(<Cursor dispatch={this.dispatch} editable={!!editable} 
-                children={<CursorShape/>}
-                keys={{
-                    38:e=>this.onKeyArrowUp(e),//move up
-                    40:e=>this.onKeyArrowDown(e),//move down
-                }}/>)
-            const range=(<Selection children={<SelectionShape ref={this.selecting} 
-                        onMove={editable && (e=>this.dispatch(ACTION.Selection.MOVE(e)))}/>
-                }/>)
+                        children={<CursorShape/>}
+                        keys={{
+                            38:e=>this.onKeyArrowUp(e),//move up
+                            40:e=>this.onKeyArrowDown(e),//move down
+                        }}/>)
+                    const range=(<Selection 
+                            children={<SelectionShape ref={this.selecting}/>} 
+                            onMove={editable && (e=>this.dispatch(ACTION.Selection.MOVE(e)))}
+                            asCanvasPoint={a=>this.positioning.asCanvasPoint(a)}
+                        />)
             locator=<Locator canvas={this} ref="locator" cursor={cursor}  range={range}/>
         }
 
