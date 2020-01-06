@@ -1,146 +1,96 @@
-import React,{PureComponent, Component, Fragment} from "react"
+import React,{Component, Fragment} from "react"
 import PropTypes from "prop-types"
-import {getContext,compose,setDisplayName} from "recompose"
 import minimatch from "minimatch"
-import memoize ,{EqualityFn} from "memoize-one"
+import memoize from "memoize-one"
 import {connect} from "../state"
-import {getSelection,getParentId} from "../state/selector"
+import {getSelection} from "../state/selector"
 import {Selection} from "../state/action"
-import shallowEqual from "../tools/shallow-equal"
 
-
-const DL=connect(state=>{
-	const content=state.get("content")
-	const {cursorAt, ...selection}=getSelection(state)
-	const {id}=selection[cursorAt]
-	return {focus:id}
-})(class DL extends PureComponent{
+class Node extends Component{
 	state={show:true}
-	render(){
-		let {name,id, children, isFocus, focus, dispatch, textContent,
-			onClick=a=>{
-				if(typeof(textContent)=="string"){
-					dispatch(Selection.SELECT(id,0,id,textContent.length))
-				}else{
-					dispatch(Selection.SELECT(id))
-				}
-			},
-			...props}=this.props
+	shouldComponentUpdate({content}){
+		return !content.equals(this.props.content)
+	}
 
-		const {show}=this.state
-		if(children){
-			if(Array.isArray(children)){
-				children=(
+	render(){
+		const {props:{name,id, children, dispatch, textContent,onClick,content,style,...props},state:{show}}=this
+		const childrenNodes=(()=>{
+			if(children && Array.isArray(children)){
+				return (
 					<dl style={{marginLeft:15, marginTop:0, marginBottom:0, display: show ? "" : "none"}}>
 						{children}
 					</dl>
 				)
-			}else if(typeof(children)=="string"){
-				children=null
 			}
-		}
-		props.style={...props.style, userSelect:"none"}
-		let typeStyle={}
-		if(isFocus(focus)){
-			typeStyle.background="lightblue"
-		}
+			return null
+		})();
+
 		return (
 			<Fragment>
-				{name &&
-				<dt {...props}>
+				{!name ? null : 
+				<dt {...props} style={{...style, userSelect:"none"}}>
 					<span
 						onClick={e=>this.setState({show:!show})}
 						style={{display:"inline-block",width:20,textAlign:"center"}}>
-						{!!children && (show ? "-" : "+")}
+						{!!childrenNodes && (show ? "-" : "+")}
 					</span>
-					<span style={typeStyle} onClick={onClick}>
+					<span onClick={e=>{
+						if(onClick)
+							onClick(e)
+						else if(typeof(textContent)=="string"){
+							dispatch(Selection.SELECT(id,0,id,textContent.length))
+						}else{
+							dispatch(Selection.SELECT(id))
+						}
+					}}  id={`_docNode_${id}`}>
 						{name}
 					</span>
 				</dt>
 				}
-				{children}
+				{childrenNodes}
 			</Fragment>
 		)
 	}
-})
-
-const withContentEquals=(a,b)=>{
-	return a===b || (a.equals && a.equals(b))
 }
-export default compose(
-	setDisplayName("DocumentTree"),
-	connect((state)=>{
-		const content=state.get("content")
-		return {content}
-	}),
-)(class __$1 extends Component{
+
+
+export default connect(state=>({content:state.get("content")}))(class DocumentTree extends Component{
 	static propTypes={
 		content: PropTypes.any,
 		node: PropTypes.element,
 		toNodeProps: PropTypes.func
 	}
 
-	shouldComponentUpdate(props){
-		if(shallowEqual(props, this.props)){
-			return false
-		}else{
-			const {content,...next}=props
-			const {content:last, ...current}=this.props
-			if(shallowEqual(next,current) && content.equals(last)){
-				return false
-			}
-		}
-		
-		return true
+	static defaultProps={
+		toNodeProps: (({id,type,props})=>({id,name:type})),
+		node:<Node/>
+	}
+
+	shouldComponentUpdate({content,filter}){
+		return !content.equals(this.props.content) || filter!=this.props.filter
 	}
 
 	render(){
-		const {content, filter="*", children, node=children,  toNodeProps}=this.props
-		const doc=this.getDocument(content, filter, node, toNodeProps)
-		return (
-			<Fragment>
-				{doc.props.children}
-			</Fragment>
-		)
-	}
-
-	getFocus=memoize((content, filter, focus)=>{
-		if(content.has(focus)){
-			filter=this.getFilter(filter)
-			let current=focus
-			while(current && !filter(content.get(current).toJS())){
-				current=getParentId(content, current)
-			}
-			if(current){
-				return content.get(current).toJS()
-			}
-		}
-
-		return null
-	},withContentEquals)
-
-	getDocument=memoize((content, filter,  node, toNodeProps)=>{
-		node=node||<this.constructor.Node/>
-		const isFocus=id=>focus=>{
-			let thisFocus=this.getFocus(content,filter,focus)
-			if(thisFocus){
-				return thisFocus.id==id
-			}
-			return false
-		}
-		toNodeProps=toNodeProps||(({id,type,props})=>({id,name:type}))
-		const createNode=(id, type,props,children)=>{
-			return React.cloneElement(node,{
+		const  {content, filter="*", filterFn=this.getFilter(filter), children, node=children,  toNodeProps,dispatch}=this.props
+		const doc=this.constructor.createDocument(content, filterFn,(id, type,props,children)=>
+			React.cloneElement(node,{
 				...toNodeProps({id,type,props}),
+				content:content.get(id),
+				dispatch,
 				key:id,
 				id,
 				children,
-				isFocus:isFocus(id),
 				textContent: typeof(children)=="string" ? children: undefined
 			})
-		}
-		return this.constructor.createDocument(content, this.getFilter(filter),createNode)
-	},withContentEquals)
+		)
+
+		return (
+			<Fragment>
+				{doc.props.children}
+				<Focus/>
+			</Fragment>
+		)
+	}
 
 	getFilter=memoize(filter=>{
 		if(typeof(filter)=="string"){
@@ -157,13 +107,10 @@ export default compose(
 	static createDocument(content, filter, createNode){
 		const createElement=id=>{
 			if(content.has(id)){
-				let current=content.get(id).toJS()
+				const current=content.get(id).toJS()
 				let {type, props, children}=current
 				if(id=="root" || filter(current)){
-					return createNode(
-						id, type, props,
-						Array.isArray(children) ? create4Children(children) : children
-					)
+					return createNode(id, type, props,Array.isArray(children) ? create4Children(children) : children)
 				}else{
 					return Array.isArray(children) ? create4Children(children) : null
 				}
@@ -189,6 +136,33 @@ export default compose(
 
 		return createElement("root")
 	}
+})
 
-	static Node=DL
+const Focus=connect(state=>{
+	const {cursorAt, ...a}=getSelection(state)
+	if(a[cursorAt]){
+		const {id:focus}=a[cursorAt]
+		return {focus}
+	}
+	return {}
+})(class $_ extends Component{
+	shouldComponentUpdate({focus}){
+		return focus!=this.props.focus
+	}
+
+	render(){
+		return <span/>
+	}
+
+	componentDidMount(){
+		const node=document.getElementById(`_docNode_${this.props.focus}`)
+		node && (node.style.background="lightblue");
+	}
+
+	componentDidUpdate({focus}){
+		const last=document.getElementById(`_docNode_${focus}`);
+		last && (last.style.background="");
+		
+		this.componentDidMount()
+	}
 })
