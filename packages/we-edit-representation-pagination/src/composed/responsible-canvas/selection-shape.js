@@ -5,13 +5,7 @@ import Movable from "./movable"
 
 export default whenSelectionChange(({selection})=>{
 	const asCanvasPoint=a=>selection.positioning.asCanvasPoint(a)
-	if(selection && selection.isRange){
-		return {
-			rects:selection.positioning.getRangeRects(selection.start, selection.end),
-			asCanvasPoint,
-		}
-	}
-	return {rects:[],asCanvasPoint}
+	return {rects:selection && selection.getRangeRects(),asCanvasPoint}
 },undefined,undefined,{withRef:true})(class SelectionShape extends Component{
 	static contextTypes={
 		editable: PropTypes.any

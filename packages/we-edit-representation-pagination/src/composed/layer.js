@@ -26,7 +26,7 @@ export default class Layer extends Component{
     static Container=whenSelectionChange(({selection})=>{
         if(!selection)
             return {}
-        const props=selection.pageProps()
+        const props=selection.props("page")
         const active=props ? props.layer : undefined
         return {active}
     })(class LayerContainer extends Component{

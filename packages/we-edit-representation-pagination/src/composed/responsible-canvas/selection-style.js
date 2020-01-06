@@ -1,52 +1,55 @@
+import {SelectionStyle} from "we-edit"
 import memoize from "memoize-one"
 
-export default class SelectionStyle {
-    constructor(position, positioning, start, end) {
-        this.position = position;
-        this.positioning = positioning;
-        this.getComposer = a => positioning.getComposer(a);
-        this.getContent = a => positioning.getContent(a);
-        this.start = start;
-        this.end = end;
+export default class PaginationSelectionStyle extends SelectionStyle{
+    constructor(position, start, end,positioning) {
+        super(position, start, end)
+        this.positioning=positioning
         if (start.id != end.id) {
             if (this.getContent(start.id).forwardFirst(`#${end.id}`).length == 0) {
                 this.start = end;
                 this.end = start;
             }
         }
-        this.isCursor=start.id==end.id && start.at==end.at
         this.isFocusable=start.id==end.id && positioning.getComposer(start.id).focusable
         this.isRange=!this.isCursor && !this.isFocusable
     }
-    toJSON() {
-        return "Selection.Style";
+
+    getComposer(){
+       return this.positioning.getComposer(...arguments)
     }
+
+    getContent(){
+        return this.positioning.getContent(...arguments)
+    }
+
+    getRangeRects(){
+        return this.__getRangeRects(this.start,this.end)
+    }
+
+    __getRangeRects=memoize((start, end)=>{
+        if(this.isRange){
+            return this.positioning.getRangeRects(start, end)
+        }
+        return super.getRangeRects()
+    })
+
     props=memoize((type, getFromContent = true)=>{
         if (type.toLowerCase() == "page") {
-            return this.pageProps();
+            return this._pageProps();
         }
         else if (type.toLowerCase() == "layout") {
-            return this.layoutProps();
+            return this._layoutProps();
         }
-        const props=(()=>{
-            if (getFromContent) {
-                return this.content(type).props
-            }
-            const { id: typed } = this.content(type);
-            if (typed) {
-                const composer = this.getComposer(typed);
-                if (composer) {
-                    return composer.props
-                }
-            }
-        })();
+
+        const props=super.props(type,getFromContent)
         if(!props)
             return props
         const {hash,id,content,children,...a}=props
         return a
     })
 
-    layoutProps=memoize(()=>{
+    _layoutProps=memoize(()=>{
         if (!this.positioning.ready)
             return null;
         const page = this.positioning.pages.find(a => a.props.I == this.position.page);
@@ -61,7 +64,7 @@ export default class SelectionStyle {
      * x, y of page,line,column
      * size, margin
      */
-    pageProps=memoize(()=>{
+    _pageProps=memoize(()=>{
         if (!this.positioning.ready)
             return null;
         const page = this.positioning.pages.find(a => a.props.I == this.position.page);
@@ -94,24 +97,5 @@ export default class SelectionStyle {
                 return margin;
             }
         };
-    })
-
-    content=memoize((type)=>{
-        if (this.start.id != this.end.id) {
-            var targets = this.getContent(this.start.id).forwardUntil(`#${this.end.id}`);
-            targets = targets.add('#' + this.end.id).add('#' + this.start.id, "unshift");
-            targets = targets.filter(type);
-            if (targets.length > 0) {
-                return targets.props().toJS();
-            }
-            else {
-                return { props: null };
-            }
-        }
-        else {
-            let $ = this.getContent(this.position.id);
-            let props = $.is(type) ? $.props() : $.closest(type).props();
-            return props ? props.toJS() : { props: null };
-        }
     })
 }

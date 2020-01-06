@@ -51,7 +51,7 @@ export default compose(
         const {id,at}=a[cursorAt]
         if(!id)
             return true
-        this.style=new SelectionStyle(positioning.position(id, at, true),positioning, a.start, a.end)
+        this.style=new SelectionStyle(positioning.position(id, at, true), a.start, a.end,positioning)
         return true
     }
 
