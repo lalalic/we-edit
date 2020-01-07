@@ -34,9 +34,10 @@ export class custom extends Component{
 				outline={width:0},
 				fill={fill:solidFill},
 			}=this.props
+		const geometry=this.getPath().clone()
 		
-		return (
-			<Group {...this.outlineBox} geometry={this.getPath().clone()}>
+		const shapeContent=(
+			<Group {...this.outlineBox} geometry={geometry}>
 				<Group x={this.strokeWidth/2} y={this.strokeWidth/2}>
 					<Group  {...{"data-nocontent":true}}>
 						{<path d={this.getPath().toString()} strokeWidth={this.strokeWidth} stroke={outline.solidFill} {...fill}/>}
@@ -51,6 +52,10 @@ export class custom extends Component{
 				</Group>
 			</Group>
 		)
+
+
+
+		return this.transform(shapeContent)
 	}
 
 	getPath(){
@@ -60,6 +65,40 @@ export class custom extends Component{
 	createFocusShape(children, focusableContent){
 		const {outlineBox:{width, height},props:{rotate=0,id}}=this
 		return (<FocusShape {...{width, height,rotate,id,focusableContent,children}}/>)
+	}
+
+	/**
+	 * Rotation heavily depends on inline story baseline implementation
+	 */
+	transform(shape, path=shape.props.geometry,strokeWidth=this.strokeWidth){
+		var {rotate, scale}=this.props
+		const translate={}
+		if(rotate){
+			const a=path.bounds()
+			const {x,y}=path.center()
+			path.rotate(rotate,x,y)
+			const b=path.bounds()
+			rotate=`${rotate} ${x} ${y}`
+			
+			translate.x=parseInt(a.left-b.left)
+			translate.y=parseInt(a.top-b.top)
+			path.translate(translate.x, translate.y)
+			path.origin={x:translate.x,y:translate.y}
+		}
+
+		if(scale){
+			path.scale(scale)
+		}
+
+		path.strokeWidth=strokeWidth
+		const {width,height}=path.size(strokeWidth)
+		return (
+			<Group {...{width,height, geometry:path}}>
+				<Group {...{scale,rotate,...translate}}>
+					{shape}
+				</Group>
+			</Group>
+		)
 	}
 }
 

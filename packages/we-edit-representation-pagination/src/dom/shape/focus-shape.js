@@ -33,11 +33,12 @@ export default whenSelectionChange()(class FocusShape extends Component{
 		if(!selection)
 			return {}
 		const getComposer=a=>selection.positioning.getComposer(a)
+		const isCursor=selection.isCursor
 		const cursor=selection.position.id
 		const target=getComposer(id)
 		const isCursorGrand=!!getComposer(cursor).closest(a=>a.props.id==id)
 		const isAnchor=target.closest(a=>(a!=target && (a.isFrame||a.isSection))||a.getComposeType()=="anchor").getComposeType()=="anchor"
-		return {show:isCursorGrand,type:target.getComposeType(),isAnchor}
+		return {show:isCursorGrand,type:target.getComposeType(),isAnchor,isCursor}
 	}
 	constructor(){
 		super(...arguments)
@@ -71,14 +72,17 @@ export default whenSelectionChange()(class FocusShape extends Component{
 				degree: parseInt(rotate),
 			},
 			focusableContent=true,movable=true,}=this.props
-		const {show,type,isAnchor}=this.state
+		const {show,type,isAnchor,isCursor}=this.state
 		const {editable}=this.context
 
 		if(!editable || !show)
 			return children
 		
 		return (
-			<Fragment>
+			<Group rotate={isCursor ? -rotate : 0}>
+				<Group {...{"data-nocontent":true}}>
+					<path d={path} fill="none" stroke="lightgray"/>
+				</Group>
 				{movable ? (
 					<Fragment>
 						{!focusableContent && children}
@@ -120,7 +124,7 @@ export default whenSelectionChange()(class FocusShape extends Component{
 							}}/>
 					)}
 				</Group>
-			</Fragment>
+			</Group>
 		)
 	}
 })

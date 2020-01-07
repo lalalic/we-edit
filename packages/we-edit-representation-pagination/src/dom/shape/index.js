@@ -56,43 +56,13 @@ export default class Shape extends Frame{
 				}
 			</Fragment>
 		)
-		const transformed=this.transform(this.geometry.createComposedShape(content))
-		return React.cloneElement(transformed,{className:"frame", "data-frame":this.uuid})
-	}
-
-	/**
-	 * Rotation heavily depends on inline story baseline implementation
-	 */
-	transform(shape, path=shape.props.geometry, strokeWidth=this.geometry.strokeWidth){
-		var {rotate, scale}=this.props
-		const translate={}
-		if(rotate){
-			const a=path.bounds()
-			const {x,y}=path.center()
-			path.rotate(rotate,x,y)
-			const b=path.bounds()
-			rotate=`${rotate} ${x} ${y}`
-			
-			translate.x=parseInt(a.left-b.left)
-			translate.y=parseInt(a.top-b.top)
-			path.translate(translate.x, translate.y)
-			path.origin={x:translate.x,y:translate.y}
-		}
-
-		if(scale){
-			path.scale(scale)
-		}
-
-		path.strokeWidth=strokeWidth
-		const {width,height}=path.size(strokeWidth)
-		return (
-			<Group {...{width,height, geometry:path}}>
-				<Group {...{scale,rotate,...translate}}>
-					{shape}
-				</Group>
-			</Group>
+		return React.cloneElement(
+			this.geometry.createComposedShape(content),
+			{className:"frame", "data-frame":this.uuid}
 		)
 	}
+
+	
 
 	static custom=custom
 

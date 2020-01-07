@@ -20,8 +20,7 @@ export default class Image extends Super{
 	}
 
 	createComposed2Parent(){
-		const shape=this.getShape()
-		const geometry=shape.geometry
+		const geometry=this.getShape().geometry
 		const {width,height}=geometry.contentBox
 		const {src}=this.props
 		const image=<ComposedImage {...{
@@ -30,6 +29,6 @@ export default class Image extends Super{
 			xlinkHref: src,
 			preserveAspectRatio:"none",	
 		}}/>
-		return shape.transform(geometry.createComposedShape(image, false))
+		return geometry.createComposedShape(image, false)
 	}
 }
