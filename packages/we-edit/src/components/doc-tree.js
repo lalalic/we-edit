@@ -8,22 +8,18 @@ import {Selection} from "../state/action"
 
 class Node extends Component{
 	state={show:true}
-	shouldComponentUpdate({content}){
-		return !content.equals(this.props.content)
+
+	shouldComponentUpdate({content},{show}){
+		return !content.equals(this.props.content) || show!=this.state.show
 	}
 
 	render(){
 		const {props:{name,id, children, dispatch, textContent,onClick,content,style,...props},state:{show}}=this
-		const childrenNodes=(()=>{
-			if(children && Array.isArray(children)){
-				return (
-					<dl style={{marginLeft:15, marginTop:0, marginBottom:0, display: show ? "" : "none"}}>
-						{children}
-					</dl>
-				)
-			}
-			return null
-		})();
+		const childrenNodes=children && Array.isArray(children) && (
+			<dl style={{marginLeft:15, marginTop:0, marginBottom:0, display: show ? "" : "none"}}>
+				{children}
+			</dl>
+		)
 
 		return (
 			<Fragment>
