@@ -33,29 +33,27 @@ export class custom extends Component{
 				solidFill="transparent",blipFill:{url}={},
 				outline={width:0},
 				fill={fill:solidFill},
+				rotate:degree,
+				scale,
+				id,
 			}=this.props
-		const geometry=this.getPath().clone()
-		
-		const shapeContent=(
-			<Group {...this.outlineBox} geometry={geometry}>
-				<Group x={this.strokeWidth/2} y={this.strokeWidth/2}>
-					<Group  {...{"data-nocontent":true}}>
-						{<path d={this.getPath().toString()} strokeWidth={this.strokeWidth} stroke={outline.solidFill} {...fill}/>}
-						{url && <image {...{...this.contentBox,x:left, y:top, xlinkHref: url, preserveAspectRatio:"none"}} />}
-					</Group>
-					{this.createFocusShape(content && 
-						<Group x={this.strokeWidth/2+left} y={this.strokeWidth/2+top}>
+
+		const {width,height,rotate,translate,geometry}=this.transform(this.getPath().clone())
+		return (
+			<FocusShape {...{width,height, geometry, focusableContent, scale,rotate,translate, degree, id}}>
+				<Group {...this.outlineBox}>
+					<Group x={this.strokeWidth/2} y={this.strokeWidth/2}>
+						<Group  {...{"data-nocontent":true}}>
+							{<path d={this.getPath().toString()} strokeWidth={this.strokeWidth} stroke={outline.solidFill} {...fill}/>}
+							{url && <image {...{...this.contentBox,x:left, y:top, xlinkHref: url, preserveAspectRatio:"none"}} />}
+						</Group>
+						<Group x={this.strokeWidth/2+left} y={this.strokeWidth/2+top} className="content">
 							{content}
-						</Group>,
-						focusableContent
-					)}
+						</Group>
+					</Group>
 				</Group>
-			</Group>
+			</FocusShape>
 		)
-
-
-
-		return this.transform(shapeContent)
 	}
 
 	getPath(){
@@ -70,35 +68,28 @@ export class custom extends Component{
 	/**
 	 * Rotation heavily depends on inline story baseline implementation
 	 */
-	transform(shape, path=shape.props.geometry,strokeWidth=this.strokeWidth){
+	transform(geometry){
 		var {rotate, scale}=this.props
 		const translate={}
 		if(rotate){
-			const a=path.bounds()
-			const {x,y}=path.center()
-			path.rotate(rotate,x,y)
-			const b=path.bounds()
+			const a=geometry.bounds()
+			const {x,y}=geometry.center()
+			geometry.rotate(rotate,x,y)
+			const b=geometry.bounds()
 			rotate=`${rotate} ${x} ${y}`
 			
 			translate.x=parseInt(a.left-b.left)
 			translate.y=parseInt(a.top-b.top)
-			path.translate(translate.x, translate.y)
-			path.origin={x:translate.x,y:translate.y}
+			geometry.translate(translate.x, translate.y)
+			geometry.origin={x:translate.x,y:translate.y}
 		}
 
 		if(scale){
-			path.scale(scale)
+			geometry.scale(scale)
 		}
 
-		path.strokeWidth=strokeWidth
-		const {width,height}=path.size(strokeWidth)
-		return (
-			<Group {...{width,height, geometry:path}}>
-				<Group {...{scale,rotate,...translate}}>
-					{shape}
-				</Group>
-			</Group>
-		)
+		const {width,height}=geometry.size(geometry.strokeWidth=this.strokeWidth)
+		return {width,height,geometry,rotate,translate}
 	}
 }
 

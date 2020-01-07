@@ -1,6 +1,6 @@
 import React, {Component, Fragment} from "react"
 import PropTypes from "prop-types"
-import {whenSelectionChange,ACTION} from "we-edit"
+import {whenSelectionChange,ACTION, ReactQuery} from "we-edit"
 
 import Group from "../../composed/group"
 import Movable from "../../composed/responsible-canvas/movable"
@@ -38,7 +38,7 @@ export default whenSelectionChange()(class FocusShape extends Component{
 		const target=getComposer(id)
 		const isCursorGrand=!!getComposer(cursor).closest(a=>a.props.id==id)
 		const isAnchor=target.closest(a=>(a!=target && (a.isFrame||a.isSection))||a.getComposeType()=="anchor").getComposeType()=="anchor"
-		return {show:isCursorGrand,type:target.getComposeType(),isAnchor,isCursor}
+		return {showFocus:isCursorGrand,type:target.getComposeType(),isAnchor,isCursor}
 	}
 	constructor(){
 		super(...arguments)
@@ -51,10 +51,20 @@ export default whenSelectionChange()(class FocusShape extends Component{
 	}
 
 	render(){
-		if(!this.props.selection)
-			return this.props.children
+		const {props:{selection, children:outline, rotate, scale, translate},context:{editable},state:{showFocus}}=this
+		if(!selection || !editable || !showFocus){
+			return (
+				<Group {...{rotate, scale, ...translate}}>
+					{outline}
+				</Group>
+			)
+		}
 
-		const {width, height, id, rotate, dispatch, children,selection,positioning=selection.positioning,
+		const {width,height}=outline.props
+		const $outline=new ReactQuery(outline)
+		const content=$outline.findFirst(".content").get(0)
+
+		const {id, degree, dispatch,positioning=selection.positioning,
 			path=`M0 0 h${width} v${height} h${-width} Z`,
 			resizable=[//default for rect[width,height]
 				{x:0,y:0,resize:"nwse"},
@@ -69,31 +79,27 @@ export default whenSelectionChange()(class FocusShape extends Component{
 			rotatable={//default for rect, and {x,y} is center
 				x:width/2,
 				y:height/2,
-				degree: parseInt(rotate),
+				degree,
 			},
-			focusableContent=true,movable=true,}=this.props
-		const {show,type,isAnchor,isCursor}=this.state
-		const {editable}=this.context
-
-		if(!editable || !show)
-			return children
+			focusableContent=true,movable=true}=this.props
+		const {type,isAnchor,isCursor}=this.state
 		
-		return (
-			<Group rotate={isCursor ? -rotate : 0}>
+		const edtableContent=(
+			<Fragment>
 				<Group {...{"data-nocontent":true}}>
 					<path d={path} fill="none" stroke="lightgray"/>
 				</Group>
 				{movable ? (
 					<Fragment>
-						{!focusableContent && children}
+						{!focusableContent && content}
 						<Group {...{"data-nocontent":true}}>
 							<Movable showMovingPlaceholder={!isAnchor} onMove={e=>dispatch(ACTION.Selection.MOVE({...e, id,type}))}>
 								<path d={path} fill="white" fillOpacity={0.01} cursor="move"/>
 							</Movable>
 						</Group>
-						{focusableContent && children}
+						{focusableContent && content}
 					</Fragment>
-				) : children}
+				) : content}
 
 				<Group {...{"data-nocontent":true}}>
 					{rotatable && (<Rotatable {...rotatable}
@@ -124,6 +130,12 @@ export default whenSelectionChange()(class FocusShape extends Component{
 							}}/>
 					)}
 				</Group>
+			</Fragment>
+		)
+
+		return (
+			<Group {...{rotate:isCursor ? 0 : degree, scale, ...translate}}>
+				{$outline.replace(content, edtableContent).get(0)}
 			</Group>
 		)
 	}
