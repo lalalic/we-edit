@@ -23,7 +23,7 @@ export default class Rotatable extends Component{
 		}
 		
 		if(!rotating)
-			return (<use xlinkHref="#rotator" {...rotator} onMouseDown={e=>this.onStartRotate(e)}/>)
+			return (<use xlinkHref="#rotator" {...rotator} onMouseDown={e=>this.setState({rotating:true})}/>)
 		
 		return (
 			<Fragment>
@@ -47,21 +47,12 @@ export default class Rotatable extends Component{
 		)
 	}
 
-	onStartRotate({clientX:left,clientY:top}){
-		this.setState({rotating:true})
-		this.xy=this.context.asCanvasPoint({left,top})
-	}
-
 	rotate({clientX:left,clientY:top}){
-		const {props:{onRotate,x=0,y=0,id,positioning,degree}}=this
+		const {props:{onRotate,x=0,y=0,id,positioning}}=this
 		const xy=positioning.asCanvasPoint({left,top})
 		const pos=positioning.position(id,0)
-		const dy=(pos.y+y)-xy.y, dx=xy.x-(x+pos.x)
-		const c=90-parseInt(Math.atan2(dy,dx)*180/Math.PI)
-		const rotate=(c+360)%360
-		console.log(`c=${c},dx=${dx},dy=${dy}, rotate:${rotate}, degree:${degree}`)
-		if(false!=onRotate({degree:rotate})){
-			this.xy=xy
-		}
+		const center={x:x+pos.x,y:y+pos.y}
+		const degree=parseInt(Math.atan2(xy.x-center.x,-xy.y+center.y)*180/Math.PI)
+		onRotate({degree: degree<0 ? degree+360 : degree})
 	}
 }

@@ -59,7 +59,7 @@ export class custom extends Component{
 
 	createFocusShape(children, focusableContent){
 		const {outlineBox:{width, height},props:{rotate=0,id}}=this
-		return (<FocusShape {...{width, height,rotate,id,focusableContent,children, rotatable:false}}/>)
+		return (<FocusShape {...{width, height,rotate,id,focusableContent,children}}/>)
 	}
 }
 

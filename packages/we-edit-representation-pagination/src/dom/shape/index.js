@@ -68,11 +68,13 @@ export default class Shape extends Frame{
 		const translate={}
 		if(rotate){
 			const a=path.bounds()
-			path.rotate(rotate)
+			const {x,y}=path.center()
+			path.rotate(rotate,x,y)
 			const b=path.bounds()
+			rotate=`${rotate} ${x} ${y}`
 			
 			translate.x=parseInt(a.left-b.left)
-			translate.y=parseInt(a.bottom-b.bottom)
+			translate.y=parseInt(a.top-b.top)
 			path.translate(translate.x, translate.y)
 			path.origin={x:translate.x,y:translate.y}
 		}
@@ -85,10 +87,7 @@ export default class Shape extends Frame{
 		const {width,height}=path.size(strokeWidth)
 		return (
 			<Group {...{width,height, geometry:path}}>
-				<Group {...{scale,
-					rotate, 
-					x:translate.x,//y should not be translated since story baseline is set to -height
-					}}>
+				<Group {...{scale,rotate,...translate}}>
 					{shape}
 				</Group>
 			</Group>
