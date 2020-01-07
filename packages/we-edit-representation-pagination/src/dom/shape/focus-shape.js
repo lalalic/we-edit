@@ -2,6 +2,7 @@ import React, {Component, Fragment} from "react"
 import PropTypes from "prop-types"
 import {whenSelectionChange,ACTION} from "we-edit"
 
+import Group from "../../composed/group"
 import Movable from "../../composed/responsible-canvas/movable"
 import Resizable from "../../composed/responsible-canvas/resizable"
 import Rotatable from "../../composed/responsible-canvas/rotatable"
@@ -81,34 +82,38 @@ export default whenSelectionChange()(class FocusShape extends Component{
 				{movable ? (
 					<Fragment>
 						{!focusableContent && children}
-						<Movable showMovingPlaceholder={!isAnchor} onMove={e=>dispatch(ACTION.Selection.MOVE({...e, id,type}))}>
-							<path d={path} fill="white" fillOpacity={0.01} cursor="move"/>
-						</Movable>
+						<Group {...{"data-nocontent":true}}>
+							<Movable showMovingPlaceholder={!isAnchor} onMove={e=>dispatch(ACTION.Selection.MOVE({...e, id,type}))}>
+								<path d={path} fill="white" fillOpacity={0.01} cursor="move"/>
+							</Movable>
+						</Group>
 						{focusableContent && children}
 					</Fragment>
 				) : children}
-				
-				{rotatable && (
-					<Rotatable {...rotatable} positioning={positioning} id={id}
-						onRotate={(({degree})=>dispatch(ACTION.Entity.UPDATE({id,type,rotate:degree})))}/>
-				)}
-				
-				
-				{resizable && (
-					<Resizable spots={resizable}
-						onResize={({x,y})=>{
-							let size=null
-							if(y===undefined){
-								size={width:width+x}
-							}else if(x===undefined){
-								size={height:height+y}
-							}else{
-								const scale=1+Math.max(Math.abs(x)/width,Math.abs(y)/height)*x/Math.abs(x)
-								size={width:width*scale, height:height*scale}
-							}
-							dispatch(ACTION.Entity.UPDATE({id,type,size}))
-						}}/>
-				)}
+
+				<Group {...{"data-nocontent":true}}>
+					{rotatable && (
+						<Rotatable {...rotatable} positioning={positioning} id={id}
+							onRotate={(({degree})=>dispatch(ACTION.Entity.UPDATE({id,type,rotate:degree})))}/>
+					)}
+					
+					
+					{resizable && (
+						<Resizable spots={resizable}
+							onResize={({x,y})=>{
+								let size=null
+								if(y===undefined){
+									size={width:width+x}
+								}else if(x===undefined){
+									size={height:height+y}
+								}else{
+									const scale=1+Math.max(Math.abs(x)/width,Math.abs(y)/height)*x/Math.abs(x)
+									size={width:width*scale, height:height*scale}
+								}
+								dispatch(ACTION.Entity.UPDATE({id,type,size}))
+							}}/>
+					)}
+				</Group>
 			</Fragment>
 		)
 	}

@@ -60,19 +60,19 @@ export default class Shape extends Frame{
 		return React.cloneElement(transformed,{className:"frame", "data-frame":this.uuid})
 	}
 
+	/**
+	 * Rotation heavily depends on inline story baseline implementation
+	 */
 	transform(shape, path=shape.props.geometry, strokeWidth=this.geometry.strokeWidth){
 		var {rotate, scale}=this.props
 		const translate={}
 		if(rotate){
-			const {x,y}=path.center()
 			const a=path.bounds()
-
-			path.rotate(rotate, x, y)
-			rotate=`${rotate} ${x} ${y}`
-
+			path.rotate(rotate)
 			const b=path.bounds()
+			
 			translate.x=parseInt(a.left-b.left)
-			translate.y=parseInt(a.top-b.top)
+			translate.y=parseInt(a.bottom-b.bottom)
 			path.translate(translate.x, translate.y)
 			path.origin={x:translate.x,y:translate.y}
 		}
@@ -85,7 +85,10 @@ export default class Shape extends Frame{
 		const {width,height}=path.size(strokeWidth)
 		return (
 			<Group {...{width,height, geometry:path}}>
-				<Group {...{scale, rotate, ...translate,className:"rotator"}}>
+				<Group {...{scale,
+					rotate, 
+					x:translate.x,//y should not be translated since story baseline is set to -height
+					}}>
 					{shape}
 				</Group>
 			</Group>

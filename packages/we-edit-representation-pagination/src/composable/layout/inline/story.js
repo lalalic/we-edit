@@ -7,52 +7,17 @@ import Merge from "./merge"
 
 /**
  * 1. align
- * 2. set baseline
+ * 2. set baseline: baseline set on story is important for rotation
  * 3. merge to simplify dom structure for performance
  */
 export default class Story extends Component{
 	static displayName="story"
 	render(){
 		const {children, align="left"}=this.props
+		const descent=children.reduce((h,{props:{descent=0}})=>Math.max(h,descent),0)
 		const baseline=children.reduce((h,{props:{height=0,descent=0}})=>Math.max(h,height-descent),0)
 		const aligned=this[align]()
-		return (
-			<Group className="story" 
-				baseline={baseline} 
-				children={this.baseline(aligned,baseline)}
-				/>
-		)
-	}
-	/**
-	 * deeply set baseline for each text content
-	 * @param {} content 
-	 * @param {*} baseline 
-	 */
-	baseline(content,baseline){
-		const setBaseline=a=>{
-			if(Array.isArray(a)){
-				return a.map(a=>setBaseline(a))
-			}
-			if(!React.isValidElement(a))
-				return a
-			if(a.props.className=="story"){
-				return a
-			}
-			if(a.type==Text || a.type==Text.Dynamic){
-				return React.cloneElement(a,{y:baseline})
-			}else if(Array.isArray(a.props.children)){
-				return React.cloneElement(a, {children:a.props.children.reduce((children,b,i)=>{
-					children[i]=setBaseline(b)
-					return children
-				},[])})
-			}else if(a.props.children){
-				return React.cloneElement(a, {children:setBaseline(a.props.children)})
-			}else if(a.props.height!=undefined){
-				return React.cloneElement(a, {y:baseline-a.props.height})
-			}
-			return a
-		}
-		return setBaseline(<Group children={content}/>).props.children
+		return (<Group className="story" y={baseline} lineDescent={descent} children={aligned}/>)
 	}
 
 	/**

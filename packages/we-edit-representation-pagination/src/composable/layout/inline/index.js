@@ -1,6 +1,6 @@
 import React, {Component} from "react"
 import {ReactQuery} from "we-edit"
-import InlineSegments from "../constraint-space/lnline-segments"
+import InlineSegments from "./lnline-space-segments"
 import Story from "./story"
 import Group from "../../../composed/group"
 

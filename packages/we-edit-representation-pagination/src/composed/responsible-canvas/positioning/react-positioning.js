@@ -478,9 +478,10 @@ class PositioningHelper extends Positioning{
         const paragraph=this.getComposer(composedLine.props["data-content"])
 		const defaultStyle=paragraph.getDefaultMeasure().defaultStyle
 		//could it search from line directly to target
-		const {first:story,parents:storyUps}=new ReactQuery(composedLine).findFirstAndParents(".story")
-		const pos=storyUps.reduce((xy,{props:{x=0,y=0}})=>(xy.x+=x,xy.y+=y,xy),{x:0,y:0,...defaultStyle})
-		
+        const {first:story,parents:storyUps}=new ReactQuery(composedLine).findFirstAndParents(".story")
+        const pos=storyUps.reduce((xy,{props:{x=0,y=0}})=>(xy.x+=x,xy.y+=y,xy),{x:0,y:0,...defaultStyle})
+        const lineDescent=story.attr('lineDescent')
+        
 		const isParagraphSelf=id==paragraph.props.id
 		const {first,last,target=first||last,parents}=story[`${at==1 ? "findLast" : "findFirst"}AndParents`](
 			isParagraphSelf ? 
@@ -494,14 +495,22 @@ class PositioningHelper extends Positioning{
 				if(endat==undefined || (at<=endat && at>=endat-text.length))
 					return true
 			}
-		)
-		pos.x+=[target.get(0),...parents].reduce((X,{props:{x=0}})=>X+x,0)
-		pos.y+=(({y=story.attr('baseline'),height=0,descent=0})=>y-(height-descent))(target.get(0).props)
+		);
+		[target.get(0),...parents].reduce((o,{props:{x=0,y=0}})=>(o.x+=x, o.y+=y, o), pos);
         
         if(isParagraphSelf){
+            pos.y=0
 			return pos
-		}
-		
+        }
+        
+        const {height,width,descent}=target.get(0).props
+        if(descent!=undefined){//text or text inline container
+            pos.y-=(height-descent)
+            pos.height=height
+        }else{
+            pos.height=height+lineDescent
+        }
+
 		const composer=this.getComposer(id)
 		if(composer.getComposeType()=="text"){
 			const endat=target.attr("data-endat")
@@ -510,13 +519,11 @@ class PositioningHelper extends Positioning{
 				const len=at-(endat-text.length)
 				const offset=composer.measure.stringWidth(text.substring(0,len))
 				pos.x+=offset
-			}
-		}else{
-			if(target.attr('height'))
-				pos.height=target.attr('height')+pos.descent
-			 if(at==1 && target.attr('width'))
-				pos.x+=target.attr('width')
-		}
+            }
+        }else if(at==1 && width){
+            pos.x+=width
+        }
+        
 		return pos
     }
     

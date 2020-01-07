@@ -1,6 +1,7 @@
 import React, { Component } from "react"
 import PropTypes from "prop-types"
 import Group from "../../../composed/group"
+import { ReactQuery } from "we-edit";
 
 export default class InlineSegments extends Component {
     static propTypes = {
@@ -71,6 +72,8 @@ export default class InlineSegments extends Component {
         const { left = 0 } = this.props;
         const { flat } = this.segments
             .reduce(({ X, flat }, { items, props: { x = 0, width = 0 } }, i) => {
+                /**non text atom set y=-height, so line based baseline in @story can be implemented,   */
+                items=items.map(a=>a.props.height && !isText(a) ?  React.cloneElement(a,{y:-a.props.height}) : a)
                 flat.splice(flat.length, 0, ...(X != x ? [<Group x={X - left} width={x - X} />, ...items] : items));
                 return { X: x + width, flat };
             }, { flat: [], X: left });
@@ -106,6 +109,7 @@ class InlineSegment extends Component {
             return false;
         }
     }
+    //****InlineSegments doesn't use it
     render() {
         const { x = 0, width } = this.props;
         let X = x;
@@ -113,8 +117,13 @@ class InlineSegment extends Component {
             {this.items.map(a => {
                 const located = React.cloneElement(a, { x: X });
                 X += (a.props.width || 0);
+                if(!isText(a) && a.props.height){
+                    return React.cloneElement(located,{y:-a.props.height})
+                }
                 return located;
             })}
         </Group>);
     }
 }
+
+const isText=a=>a.props.descent!==undefined

@@ -136,7 +136,6 @@ define("position", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Cont
                     }}
                     indent={{left:2,hanging:1,firstLine:-1}}/>
             )
-            debugger
             expect(doc.position("paragraph",0)).toMatchObject({x:2,y:0})
         })
 
