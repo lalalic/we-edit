@@ -40,11 +40,6 @@ class Responsible extends Component{
         onContextMenu: PropTypes.func,
         activeDocStore: PropTypes.any,
     }
-
-    static childContextTypes={
-        around:PropTypes.func,
-        asCanvasPoint: PropTypes.func,
-    }
     
     static getDerivedStateFromProps({document,...me}){
         const {props:{editable,canvasId,content,viewport=me.viewport,screenBuffer=me.screenBuffer,},state:{y=0}}=document
@@ -57,17 +52,6 @@ class Responsible extends Component{
         this.getComposer=this.getComposer.bind(this)
         this.getContent=this.getContent.bind(this)
         this.positioning=new Positioning(this)
-    }
-
-    getChildContext(){
-        const around=(left,top)=>{
-            const {id,at}=this.positioning.around(left, top)
-            if(id && at!==null){
-                return this.positioning.position(id,at)
-            }
-        }
-        const asCanvasPoint=(...args)=>this.asCanvasPoint(...args)
-        return {around,asCanvasPoint}
     }
 
     /**the following API must be provided to Positioning */

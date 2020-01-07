@@ -92,14 +92,20 @@ export default whenSelectionChange()(class FocusShape extends Component{
 				) : children}
 
 				<Group {...{"data-nocontent":true}}>
-					{rotatable && (
-						<Rotatable {...rotatable} positioning={positioning} id={id}
-							onRotate={(({degree})=>dispatch(ACTION.Entity.UPDATE({id,type,rotate:degree})))}/>
+					{rotatable && (<Rotatable {...rotatable}
+							onRotate={({clientX:left,clientY:top})=>{
+								const xy=positioning.asCanvasPoint({left,top})
+								const pos=positioning.position(id,0)
+								const center={x:rotatable.x+pos.x,y:rotatable.y+pos.y}
+								const degree=parseInt(Math.atan2(xy.x-center.x,-xy.y+center.y)*180/Math.PI)
+
+								dispatch(ACTION.Entity.UPDATE({id,type,rotate:degree<0 ? degree+360 : degree}))
+							}
+						}/>
 					)}
 					
 					
-					{resizable && (
-						<Resizable spots={resizable}
+					{resizable && (<Resizable spots={resizable}
 							onResize={({x,y})=>{
 								let size=null
 								if(y===undefined){

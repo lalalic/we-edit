@@ -26,7 +26,7 @@ export default class Group extends Component{
 			x=0,y=0,
 			children,
 			background,
-			margin,minWidth, width, height, index, childIndex,geometry,baseline,
+			margin,minWidth, width, height, index, childIndex,geometry,baseline,lineDescent,
 			contentWidth,wrap,pagination,anchor,blockOffset,named,descent,mergeOpportunity, spaceHeight,
 			//className,id,
 			I,
