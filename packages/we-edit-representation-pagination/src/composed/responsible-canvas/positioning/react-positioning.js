@@ -329,19 +329,20 @@ class PositioningHelper extends Positioning{
 
     //to make positioning only based on compose, not content
     __findFirstParagraphInTarget(target){
+        const getParagraphInCell=a=>new ReactQuery(a.createComposed2Parent()).findFirst(`[data-type="paragraph"]`).attr("data-content")
         var paragraphInCell=null
-        const paragraphDirect=new ReactQuery(
-            <Fragment>
-                {target.computed.lastComposed}
-            </Fragment>
-        )
-            .findFirst(a=>{
+        if(target.getComposeType()=="cell"){
+            target.computed.lastComposed.find(a=>paragraphInCell=getParagraphInCell(a))
+            return paragraphInCell
+        }
+
+        const paragraphDirect=new ReactQuery(target.computed.lastComposed).findFirst(a=>{
                 if(!a || !a.props)
                     return 
                 if(a.props["data-type"]=="paragraph")
                     return true
                 if(a.isFrame){//table Cell is special, since table and row last composed element includes Cell Frames, instead of cell content
-                    return paragraphInCell=new ReactQuery(a.createComposed2Parent()).findFirst(`[data-type="paragraph"]`).attr("data-content")
+                    return paragraphInCell=getParagraphInCell(a)
                 }
             })
         return paragraphInCell || paragraphDirect.attr("data-content")
