@@ -1,10 +1,10 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
-import {whenSelectionChange} from "we-edit"
+import {whenSelectionChange,ACTION} from "we-edit"
 import Movable from "./movable"
 
 export default whenSelectionChange(({selection})=>{
-	return {rects:selection && selection.getRangeRects(),selection}
+	return selection ? {selection,rects:selection.getRangeRects()} : {}
 },undefined,undefined,{withRef:true})(class SelectionShape extends Component{
 	static contextTypes={
 		editable: PropTypes.any
@@ -16,14 +16,15 @@ export default whenSelectionChange(({selection})=>{
 		this.onShrink=this.onShrink.bind(this)
 		this.onMove=this.onMove.bind(this)
 	}
+
 	render(){
-		const {rects=[], selecting, selection}=this.state
+		const {state:{rects=[], selecting}, props:{}}=this
 		const {editable}=this.context
 		const range=<Area rects={rects} innerRef={this.area}/>
 		if(selecting)
 			return React.cloneElement(range,{onMouseMove:this.onShrink})
 		
-		return editable ? <Movable children={range} onMove={this.onMove} positioning={selection&&selection.positioning}/> : range
+		return editable ? <Movable children={range} onMove={this.onMove}/> : range
 	}
 
 	static getDerivedStateFromProps({rects},{selecting}){
@@ -35,9 +36,9 @@ export default whenSelectionChange(({selection})=>{
 	onShrink({buttons, clientX:left, clientY: top}){
 		if(!(buttons&0x1))
 			return
-		const {selection, positioning=selection.positioning}=this.props
+		const {selection}=this.props
 		const {rects}=this.state
-		const {x,y}=positioning.asCanvasPoint({left,top})
+		const {x,y}=selection.positioning.asCanvasPoint({left,top})
 
 		let i=rects.findIndex(({left,top,right,bottom})=>y<=bottom && left<=x && x<=right)
 		let newRects=rects.slice(0,i+1)
@@ -47,8 +48,8 @@ export default whenSelectionChange(({selection})=>{
 		this.setState({rects:newRects})
 	}
 
-	onMove(){
-		this.props.dispatch(dispatch(ACTION.Selection.MOVE(e)))
+	onMove(e){
+		this.props.dispatch(ACTION.Selection.MOVE(e))
 	}
 
 	componentDidMount(){
@@ -57,7 +58,7 @@ export default whenSelectionChange(({selection})=>{
 
 	componentDidUpdate(prev){
 		const selection=this.props.selection
-		if(prev.selection!=selection && selection.isRange){
+		if(prev.selection!=selection && selection && selection.isRange){
 			const shape=this.area.current
 			if(shape.scrollIntoViewIfNeeded)
 				shape.scrollIntoViewIfNeeded(true)
@@ -74,7 +75,7 @@ export const Area=({rects, innerRef,...props})=>(
 		className="selectionShape"
 		style={{fillOpacity:0.5}}
 		d={
-			rects.map(({left,top,right,bottom})=>`M${left} ${top} L${right} ${top} L${right} ${bottom} L${left} ${bottom} Z`).join(" ")
+			(rects||[]).map(({left,top,right,bottom})=>`M${left} ${top} L${right} ${top} L${right} ${bottom} L${left} ${bottom} Z`).join(" ")
 		}
 		{...props}
 		onClick={e=>console.log(1)}

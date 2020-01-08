@@ -35,13 +35,21 @@ export default whenSelectionChange()(class FocusShape extends Component{
 		const getComposer=a=>selection.positioning.getComposer(a)
 		const cursor=selection.position.id
 		const target=getComposer(id)
-		const isCursorGrand=!!getComposer(cursor).closest(a=>a.props.id==id)
-		const isEditableCursor=(isParagraph=>{
-				const grand=getComposer(cursor).closest(a=>isParagraph(a)||a.props.id==id)
-				return grand && isParagraph(grand)
-		})(a=>a.getComposeType()=="paragraph");
-		const isAnchor=target.closest(a=>(a!=target && (a.isFrame||a.isSection))||a.getComposeType()=="anchor").getComposeType()=="anchor"
-		return {showFocus:isCursorGrand,type:target.getComposeType(),isAnchor,isEditableCursor}
+		return {
+			type:target.getComposeType(),
+			
+			//all grand focus shape of cursor/selection should show itself
+			showFocus:!!getComposer(cursor).closest(a=>a.props.id==id),
+			
+			//
+			isAnchor:target.closest(a=>(a!=target && (a.isFrame||a.isSection))||a.getComposeType()=="anchor").getComposeType()=="anchor",
+			
+			//should not transform if cursor/selection is in editable cursor, such as any inline content
+			isEditableCursor: (isParagraph=>{
+					const grand=getComposer(cursor).closest(a=>isParagraph(a)||a.props.id==id)
+					return grand && isParagraph(grand)
+				})(a=>a.getComposeType()=="paragraph"),
+		}
 	}
 	constructor(){
 		super(...arguments)
@@ -86,7 +94,6 @@ export default whenSelectionChange()(class FocusShape extends Component{
 			},
 			focusableContent=true,movable=true}=this.props
 		const {type,isAnchor,isEditableCursor}=this.state
-		
 		const edtableContent=(
 			<Fragment>
 				<Group {...{"data-nocontent":true}}>
@@ -96,7 +103,7 @@ export default whenSelectionChange()(class FocusShape extends Component{
 					<Fragment>
 						{!focusableContent && content}
 						<Group {...{"data-nocontent":true}}>
-							<Movable showMovingPlaceholder={!isAnchor} positioning={positioning}
+							<Movable isAnchor={isAnchor}
 								onMove={e=>dispatch(ACTION.Selection.MOVE({...e, id,type}))}>
 								<path d={path} fill="white" fillOpacity={0.01} cursor="move"/>
 							</Movable>
@@ -138,7 +145,7 @@ export default whenSelectionChange()(class FocusShape extends Component{
 		)
 
 		return (
-			<Group {...(isEditableCursor ? {} : {scale, rotate, ...translate})}>
+			<Group {...(isEditableCursor ? {/*not transform*/} : {scale, rotate, ...translate})}>
 				{$outline.replace(content, edtableContent).get(0)}
 			</Group>
 		)

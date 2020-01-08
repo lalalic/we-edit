@@ -40,6 +40,10 @@ class Responsible extends Component{
         onContextMenu: PropTypes.func,
         activeDocStore: PropTypes.any,
     }
+
+    static childContextTypes={
+        positioning:PropTypes.object,
+    }
     
     static getDerivedStateFromProps({document,...me}){
         const {props:{editable,canvasId,content,viewport=me.viewport,screenBuffer=me.screenBuffer,},state:{y=0}}=document
@@ -52,6 +56,12 @@ class Responsible extends Component{
         this.getComposer=this.getComposer.bind(this)
         this.getContent=this.getContent.bind(this)
         this.positioning=new Positioning(this)
+    }
+
+    getChildContext(){
+        return {
+            positioning:this.positioning
+        }
     }
 
     /**the following API must be provided to Positioning */

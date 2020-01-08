@@ -19,7 +19,7 @@ export default whenSelectionChange()(
 
         componentDidUpdate(prev){
             const selection=this.props.selection
-            if(prev.selection!=selection && selection.isCursor){
+            if(prev.selection!=selection && selection && selection.isCursor){
                 const shape=this.shape.current
                 if(shape.scrollIntoViewIfNeeded)
                     shape.scrollIntoViewIfNeeded(true)

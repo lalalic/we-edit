@@ -246,51 +246,41 @@ export default class __$1 extends Base{
         })
     }
 
-    move({moving,dest}){
+    /**
+     * anchor move: move by dest{dx,dy}
+     * flow move: move to dest{id,at}
+     * @param {*} param0 
+     */
+    move({dest:{id,at,dx,dy, isMovingAnchor=!id && dx!=undefined && dy!=undefined}}){
         const {start,end}=this.selection
         if(start.id==end.id && start.at==end.at){
             return 
         }
 
-        if(this.isWhole()){
-            const $parent=this.$target.parent()
-            if($parent.attr('type')=="anchor"){
-                if(dest.dx || dest.dy){
-                    this.selectWhole($parent.attr('id'))
-                    this.emit("move",this.conds, dest)
-                    this.selectWhole(start.id)
-                }
-                return 
+        if(isMovingAnchor){
+            if(dx||dy){
+                const $anchor=this.$target.closest('anchor')
+                this.selectWhole($anchor.attr('id'))
+                this.emit("move",this.conds, {dx,dy})
+                this.selectWhole(start.id)
             }
+            return 
         }
 
-        if(!this.moving){
-            try{
-                if(start.id==end.id){
-                    this.moving=this.emit("serialize", this.conds)
-                }else{   
-                    this.seperateSelection()
-                    this.moving=this.$target.to("#"+end.id).toArray().map(id=>{
-                        this.selectWhole(id)
-                        return this.emit("serialize",this.conds)
-                    }).join("")
-                }
-            }catch(e){
-                delete this.moving
-            }
-        }
+        if(!id)
+            return 
 
-        if(!moving && this.moving){
-            try{
-                this.remove()
-                this.file.attach(this.moving).each((i,a)=>{
-                    const {id}=this.file.renderChanged(a)
-                    const $b=this.$(`#${id}`)
-                    this.emit("paste_"+$b.attr('type'),this.conds,$b,a)
-                })
-            }catch(e){
-                delete this.moving
-            }
+        /**
+         * flow move is a cut-n-paste, but this.clipboard should be kept 
+         */
+        const clipboard=this.clipboard
+        try{
+            //at first to make sure dest still exists after cut
+            this.cut()
+            this.cursorAt(id,at)
+            this.paste()
+        }finally{
+            this.clipboard=clipboard
         }
     }
 }
