@@ -61,19 +61,23 @@ export default class Actions extends Input.Editable.EventHandler.xml{
         }
     }
 
-    move_at_whole_anchor({dx,dy}){
-        dx && this.content.updateIn([this.$target.attr("id"),"props","x","offset"], a=>a+dx)
-        dy && this.content.updateIn([this.$target.attr("id"),"props","y","offset"], a=>a+dy)
-        const anchor=this.target
+    move_at_up_to_anchor({dx,dy}){
+        const $anchor=this.$target.closest('anchor')
+        const id=$anchor.attr('id')
+        const anchor=this.file.getNode(id)
+        
+        dx && this.content.updateIn([id,"props","x","offset"], a=>a+dx)
+        dy && this.content.updateIn([id,"props","y","offset"], a=>a+dy)
+        
         if(anchor.attr("simplePos")=="0"){
             const $x=anchor.find("wp\\:positionH>wp\\:posOffset")
             const $y=anchor.find("wp\\:positionV>wp\\:posOffset")
-            dx && $x.text(this.file.px2emu(this.$target.attr("x.offset")))
-            dy && $y.text(this.file.px2emu(this.$target.attr("y.offset")))
+            dx && $x.text(this.file.px2emu($anchor.attr("x.offset")))
+            dy && $y.text(this.file.px2emu($anchor.attr("y.offset")))
         }else if(anchor.attr("simplePos")=="1"){
             const simplePos=anchor.find("wp\\:simplePos")
-            dx && simplePos.attr('x', this.file.px2emu(this.$target.attr("x.offset")))
-            dy && simplePos.attr('y', this.file.px2emu(this.$target.attr("y.offset")))
+            dx && simplePos.attr('x', this.file.px2emu($anchor.attr("x.offset")))
+            dy && simplePos.attr('y', this.file.px2emu($anchor.attr("y.offset")))
         }
     }
 }

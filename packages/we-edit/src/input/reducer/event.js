@@ -253,23 +253,19 @@ export default class __$1 extends Base{
      */
     move({dest:{id,at,dx,dy, isMovingAnchor=!id && dx!=undefined && dy!=undefined}}){
         const {start,end}=this.selection
-        if(start.id==end.id && start.at==end.at){
-            return 
-        }
-
         if(isMovingAnchor){
             if(dx||dy){
-                const $anchor=this.$target.closest('anchor')
-                this.selectWhole($anchor.attr('id'))
-                this.emit("move",this.conds, {dx,dy})
-                this.selectWhole(start.id)
+                this.emit("move",["at_up_to_anchor"], {dx,dy})
             }
             return 
         }
 
         if(!id)
             return 
-
+        if(start.id==end.id && start.at==end.at){
+            return 
+        }
+    
         /**
          * flow move is a cut-n-paste, but this.clipboard should be kept 
          */
