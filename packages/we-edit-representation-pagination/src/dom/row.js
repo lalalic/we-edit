@@ -108,6 +108,8 @@ class Row extends Super{
 		while(!rank){
 			//request largest space in current constraint space
 			const space=super.nextAvailableSpace()
+			if(!space)//no space any more, stop immediately
+				return 
 			this.ranks.push(rank=new this.constructor.Rank({space, children:new Array(this.getColumns(this.props.cols).length).fill(null)}))
 			//each requested space should be taken up by appending rank placeholder, so next request can take effect
 			this.context.parent.appendComposed(this.createComposed2Parent(rank))
@@ -131,7 +133,10 @@ class Row extends Super{
 	nextAvailableSpace({id:cellId, ...required}){
 		const {keepLines}=this.props
 		const col=this.getColumns(this.props.cols)[cellId]
-		const {space}=this.findOrCreateRankForColumn(col,required)
+		const rank=this.findOrCreateRankForColumn(col,required)
+		if(!rank)
+			return false
+		const space=rank.space
 		//further constraint rank space for column of cellid
 		const {left,height}=space, {x=0,width}=col, X=left+x
 		return space.clone({
@@ -150,7 +155,7 @@ class Row extends Super{
 		const cellId=slotFrame && slotFrame.props.id
 		const col=columns[cellId]
 		const rank=this.findOrCreateRankForColumn(col, {height:this.getHeight([slotFrame])})
-		rank.insertAt(slotFrame,columns.indexOf(col))
+		rank && rank.insertAt(slotFrame,columns.indexOf(col))
 	}
 
 	onAllChildrenComposed(){

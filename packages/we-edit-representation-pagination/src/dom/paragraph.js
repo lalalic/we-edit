@@ -185,7 +185,8 @@ class Paragraph extends Super{
 					i++
 					if(i>end){
 						//it's recommitting since end is reasonable value
-						appendComposedLine(false)
+						if(appendComposedLine(false)==Layout.IMMEDIATE_STOP)
+							return Layout.IMMEDIATE_STOP
 					}
 					continue
 				}else{

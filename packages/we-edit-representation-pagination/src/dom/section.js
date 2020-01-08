@@ -51,9 +51,11 @@ class Section extends Super{
 
 	get current(){
         if(this.computed.composed.length==0){
-            const a=this.createLayout()
-            this.computed.composed.push(a)
-            this.context.parent.appendComposed(this.createComposed2Parent(a))
+			const layout=this.createLayout()
+			if(layout){
+				this.computed.composed.push(layout)
+				this.context.parent.appendComposed(this.createComposed2Parent(layout))
+			}
         }
 		return this.computed.composed[this.computed.composed.length-1]
 	} 
@@ -120,10 +122,12 @@ class Section extends Super{
     nextAvailableSpace(required){
         const space=this.current.nextAvailableSpace(...arguments)
         if(!space){
-            const a=this.createLayout(undefined,{frame:space.frame},required)
-            this.computed.composed.push(a)
-            this.context.parent.appendComposed(this.createComposed2Parent(a))
-            return this.nextAvailableSpace(...arguments)
+			const layout=this.createLayout(undefined,{frame:space.frame},required)
+			if(layout){
+				this.computed.composed.push(layout)
+				this.context.parent.appendComposed(this.createComposed2Parent(layout))
+				return this.nextAvailableSpace(...arguments)
+			}
         }
         return space
     }
@@ -141,8 +145,10 @@ class Section extends Super{
         }else{
             const appended=this.current.appendComposed(...arguments)
             if(appended===false){
-				this.nextAvailableSpace({height})
-                return 1//recompose current line in case different availableSpace
+				if(this.nextAvailableSpace({height})){
+					return 1//recompose current line in case different availableSpace
+				}
+				return Frame.IMMEDIATE_STOP
             }else if(Number.isInteger(appended)){
                 return appended
             }

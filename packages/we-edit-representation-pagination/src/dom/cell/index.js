@@ -82,7 +82,10 @@ export default class Cell extends Section{
 	 * @param {*} required 
 	 */
 	createLayout(props,context,required={}){
-		const {width,height,frame}=this.context.parent.nextAvailableSpace({...required,id:this.props.id})
+		const space=this.context.parent.nextAvailableSpace({...required,id:this.props.id})
+		if(!space)
+			return null
+		const {width,height,frame}=space
 		const {margin:{right=0,left=0,top=0,bottom=0}={}, vertAlign,border}=this.props
 		/**
 		 * a cell space border|margin|content|margin|border
