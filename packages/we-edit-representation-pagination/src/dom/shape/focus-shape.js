@@ -33,12 +33,15 @@ export default whenSelectionChange()(class FocusShape extends Component{
 		if(!selection)
 			return {}
 		const getComposer=a=>selection.positioning.getComposer(a)
-		const isCursor=selection.isCursor
 		const cursor=selection.position.id
 		const target=getComposer(id)
 		const isCursorGrand=!!getComposer(cursor).closest(a=>a.props.id==id)
+		const isEditableCursor=(isParagraph=>{
+				const grand=getComposer(cursor).closest(a=>isParagraph(a)||a.props.id==id)
+				return grand && isParagraph(grand)
+		})(a=>a.getComposeType()=="paragraph");
 		const isAnchor=target.closest(a=>(a!=target && (a.isFrame||a.isSection))||a.getComposeType()=="anchor").getComposeType()=="anchor"
-		return {showFocus:isCursorGrand,type:target.getComposeType(),isAnchor,isCursor}
+		return {showFocus:isCursorGrand,type:target.getComposeType(),isAnchor,isEditableCursor}
 	}
 	constructor(){
 		super(...arguments)
@@ -79,10 +82,10 @@ export default whenSelectionChange()(class FocusShape extends Component{
 			rotatable={//default for rect, and {x,y} is center
 				x:width/2,
 				y:height/2,
-				degree,
+				degree:Math.ceil(degree*100)/100,
 			},
 			focusableContent=true,movable=true}=this.props
-		const {type,isAnchor,isCursor}=this.state
+		const {type,isAnchor,isEditableCursor}=this.state
 		
 		const edtableContent=(
 			<Fragment>
@@ -93,7 +96,8 @@ export default whenSelectionChange()(class FocusShape extends Component{
 					<Fragment>
 						{!focusableContent && content}
 						<Group {...{"data-nocontent":true}}>
-							<Movable showMovingPlaceholder={!isAnchor} onMove={e=>dispatch(ACTION.Selection.MOVE({...e, id,type}))}>
+							<Movable showMovingPlaceholder={!isAnchor} positioning={positioning}
+								onMove={e=>dispatch(ACTION.Selection.MOVE({...e, id,type}))}>
 								<path d={path} fill="white" fillOpacity={0.01} cursor="move"/>
 							</Movable>
 						</Group>
@@ -134,7 +138,7 @@ export default whenSelectionChange()(class FocusShape extends Component{
 		)
 
 		return (
-			<Group {...{rotate:isCursor ? 0 : degree, scale, ...translate}}>
+			<Group {...(isEditableCursor ? {} : {scale, rotate, ...translate})}>
 				{$outline.replace(content, edtableContent).get(0)}
 			</Group>
 		)

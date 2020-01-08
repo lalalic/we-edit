@@ -4,8 +4,7 @@ import {whenSelectionChange} from "we-edit"
 import Movable from "./movable"
 
 export default whenSelectionChange(({selection})=>{
-	const asCanvasPoint=a=>selection.positioning.asCanvasPoint(a)
-	return {rects:selection && selection.getRangeRects(),asCanvasPoint,selection}
+	return {rects:selection && selection.getRangeRects(),selection}
 },undefined,undefined,{withRef:true})(class SelectionShape extends Component{
 	static contextTypes={
 		editable: PropTypes.any
@@ -18,13 +17,13 @@ export default whenSelectionChange(({selection})=>{
 		this.onMove=this.onMove.bind(this)
 	}
 	render(){
-		const {rects=[], selecting}=this.state
+		const {rects=[], selecting, selection}=this.state
 		const {editable}=this.context
 		const range=<Area rects={rects} innerRef={this.area}/>
 		if(selecting)
 			return React.cloneElement(range,{onMouseMove:this.onShrink})
 		
-		return editable ? <Movable children={range} onMove={this.onMove}/> : range
+		return editable ? <Movable children={range} onMove={this.onMove} positioning={selection&&selection.positioning}/> : range
 	}
 
 	static getDerivedStateFromProps({rects},{selecting}){
@@ -36,9 +35,9 @@ export default whenSelectionChange(({selection})=>{
 	onShrink({buttons, clientX:left, clientY: top}){
 		if(!(buttons&0x1))
 			return
-		const {asCanvasPoint}=this.props
+		const {selection, positioning=selection.positioning}=this.props
 		const {rects}=this.state
-		const {x,y}=asCanvasPoint({left,top})
+		const {x,y}=positioning.asCanvasPoint({left,top})
 
 		let i=rects.findIndex(({left,top,right,bottom})=>y<=bottom && left<=x && x<=right)
 		let newRects=rects.slice(0,i+1)
@@ -56,8 +55,9 @@ export default whenSelectionChange(({selection})=>{
 		this.componentDidUpdate({})
 	}
 
-	componentDidUpdate({selection}){
-		if(selection!=this.props.selection && this.props.selection.isRange){
+	componentDidUpdate(prev){
+		const selection=this.props.selection
+		if(prev.selection!=selection && selection.isRange){
 			const shape=this.area.current
 			if(shape.scrollIntoViewIfNeeded)
 				shape.scrollIntoViewIfNeeded(true)

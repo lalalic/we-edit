@@ -9,16 +9,17 @@ export default whenSelectionChange()(
         }
         render(){
             const {selection, style }=this.props
-            const {position:{y = 0, x = 0, height = 0, color = "black"}, isCursor}=selection||{position:{}}
-            return (<path ref={this.shape} d={`M${x} ${y} v${isCursor ? height: 0}`} strokeWidth={1} stroke={color} style={style} />)
+            const {position:{y = 0, x = 0, height = 0, color = "black"}, isCursor, isFocusable}=selection||{position:{}}
+            return (<path ref={this.shape} d={`M${x} ${y} v${isCursor&&!isFocusable ? height: 0}`} strokeWidth={1} stroke={color} style={style} />)
         }
 
         componentDidMount(){
             this.componentDidUpdate({})
         }
 
-        componentDidUpdate({selection}){
-            if(selection!=this.props.selection && this.props.selection.isCursor){
+        componentDidUpdate(prev){
+            const selection=this.props.selection
+            if(prev.selection!=selection && selection.isCursor){
                 const shape=this.shape.current
                 if(shape.scrollIntoViewIfNeeded)
                     shape.scrollIntoViewIfNeeded(true)

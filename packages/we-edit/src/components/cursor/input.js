@@ -5,7 +5,7 @@ import Listener from "./listener"
 export default whenSelectionChange()(class Input extends Component{
 	render(){
 		const {selection,hasCursorShape,...props}=this.props
-		const {position:{top,left,height,color,fontFamily,fontSize,},isCursor}=selection||{position:{}}
+		const {position:{top,left,height,color,fontFamily,fontSize,},isCursor, isFocusable}=selection||{position:{}}
 		return (
 			<div unselectable="on" style={{left,top,position:"fixed",height:0,width:0}}>
 				<Listener
@@ -14,8 +14,8 @@ export default whenSelectionChange()(class Input extends Component{
 						position:"absolute",outline:"none",width:2,background:"transparent",
 						fontSize,
 						fontFamily,
-						height: !hasCursorShape && isCursor ? height : 1,
-						color: !hasCursorShape && isCursor ? color : "transparent",
+						height: !hasCursorShape && isCursor&&!isFocusable ? height : 1,
+						color: !hasCursorShape && isCursor&&!isFocusable ? color : "transparent",
 					}}
 					{...props}
 					/>

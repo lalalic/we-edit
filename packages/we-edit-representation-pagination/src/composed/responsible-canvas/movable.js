@@ -6,10 +6,8 @@ import Overlay from "./overlay"
 
 export default class Movable extends Component{
 	static propTypes={
+		positioning: PropTypes.object,
 		onMove: PropTypes.func
-	}
-	static contextTypes={
-		around: PropTypes.func,
 	}
 
 	state={moving:false}
@@ -54,7 +52,7 @@ export default class Movable extends Component{
     moving(e){
 		if(this.state.moving){
 			const {clientX, clientY}=e
-			const pos=this.context.around(clientX,clientY)||{}
+			const pos=this.props.positioning.around(clientX,clientY)||{}
 			this.mover.setState(({clientX:x=clientX,clientY:y=clientY,...state})=>{
 				return {...state, ...pos, clientX, clientY, dx:clientX-x, dy:clientY-y}
 			},()=>{
