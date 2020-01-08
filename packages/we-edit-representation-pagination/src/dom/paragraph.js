@@ -185,7 +185,7 @@ class Paragraph extends Super{
 					i++
 					if(i>end){
 						//it's recommitting since end is reasonable value
-						if(appendComposedLine(false)==Layout.IMMEDIATE_STOP)
+						if(appendComposedLine(i==atoms.length)==Layout.IMMEDIATE_STOP)
 							return Layout.IMMEDIATE_STOP
 					}
 					continue
@@ -249,7 +249,7 @@ class Paragraph extends Super{
 
 		const start=atoms.findIndex(a=>a==lastLines[0].firstAtom)
 		const end=atoms.slice(start+1).findIndex(a=>a==lastLines[lastLines.length-1].lastAtom)+start+1
-		return this.commit(start, end)
+		return this.commit(start, end==atoms.length-1 ? undefined : end)
 	}
 
 	/**
