@@ -290,6 +290,7 @@ export default class EventResponsible extends Responsible{
     }
 
     onMouseDown({clientX,clientY}){
+        console.log("svg mouse down")
         this.__mouseDownFlag={clientX,clientY}
     }
 

@@ -1,115 +1,75 @@
 import React, {Component,Fragment} from "react"
 import PropTypes from "prop-types"
-import {connect} from "we-edit"
-
 import Overlay from "./overlay"
-import Top from "./top"
 
-const NoShow="transparent"
-const Resizer=connect()(class __$1 extends Component{
-	constructor(){
-		super(...arguments)
-		this.state={resizing:false}
-		this.resize=a=>this.props.onResize(a,this.props.dispatch)
-	}
-	render(){
-		const {resizing}=this.state
-		const {dispatch,onResize,direction="ew", cursor="col-resize", top={x:0,y:0},...props}=this.props
-		const y=direction=="ew" ? 'y' :'x'
-		const topLine={[y+'1']:"-100%", [y+'2']:"100%"}
-		return (
-			<Fragment>
-				{resizing &&
-					<Top {...top}>
-						<line {...props} {...topLine}
-							stroke="lightgray"
-							strokeWidth={1}
-							strokeDasharray="5,5"/>
-					</Top>
-				}
-				<Resizable
-					direction={direction}
-					onStart={e=>this.setState({resizing:true})}
-					onEnd={e=>this.setState({resizing:false})}
-					onResize={this.resize}>
-					<line {...props}
-						stroke={NoShow}
-						strokeWidth={5}
-						style={{cursor}}
-						/>
-				</Resizable>
-			</Fragment>
-		)
-	}
-})
-	
+/**
+ * resizable support two types:
+ * 1. spots for multiple directions, or 
+ * 2. a single direction 
+ */
+const direction=PropTypes.oneOf("ew,ns,nwse,nesw".split(",").reduce((all,a)=>(all.splice(0,0,a,"-"+a),all),[]))
 export default class Resizable extends Component{
 	static propTypes={
+		direction,
 		onResize: PropTypes.func.isRequired,
-		direction: PropTypes.oneOf("ew,ns,nwse,nesw".split(",").reduce((all,a)=>(all.splice(0,0,a,"-"+a),all),[]))
+		spots: PropTypes.arrayOf(PropTypes.shape({
+			x: PropTypes.number.isRequired,
+			y: PropTypes.number.isRequired,
+			direction,
+			width: PropTypes.number,
+			height: PropTypes.number,
+		}))
 	}
 
-	static ColResizer=props=><Resizer {...props} direction="ew" cursor="col-resize"/>
-	static RowResizer=props=><Resizer {...props} direction="-ns" cursor="row-resize"/>
-	
-	state={}
-	onStartResize=this.onStartResize.bind(this)
+	constructor(){
+		super(...arguments)
+		this.state={}
+	}
 
 	render(){
 		const {resizing,cursor}=this.state
-		const {children,spots=[], onEnd}=this.props
+		const {children,spots=[], onEnd, direction}=this.props
 		if(resizing){
 			return (
 				<Overlay
 					onMouseUp={e=>{
-						this.setState({resizing:undefined})
-						if(onEnd)
-							onEnd()
 						e.stopPropagation()
+						this.setState({resizing:false})
+						onEnd && onEnd()
 					}}
 					onMouseMove={e=>{
-						this.resize(e.clientX, e.clientY)
 						e.stopPropagation()
+						this.resize(e)
 					}}
 					style={{cursor}}
 					>
 					{children}
-					{spots.map(a=><Spot key={a.resize} {...a}/>)}
+					{spots.map(a=><Spot key={a.direction} {...a}/>)}
 				</Overlay>
 			)
 		}
 		
-		const {direction}=this.props
-		const props={}
-		if(direction){
-			props.onMouseMove=e=>{
-				if(e.buttons&0x1){
-					this.onStartResize(direction,e)
-					e.stopPropagation()
-				}
-			}
-		}else{
-			props.onStartResize=this.onStartResize
-		}
 		return (
 			<Fragment>
-				{children}
-				{spots.map(a=><Spot key={a.resize} {...a} {...props}/>)}}
+				{direction ? React.cloneElement(React.Children.only(children),{onMouseDown:e=>this.startResize(direction,e)}) : children}
+				{spots.map(a=><Spot key={a.direction} {...a} onMouseDown={e=>this.startResize(a.direction,e)}/>)}}
 			</Fragment>
 		)
 	}
-	onStartResize(resizing,e){
-		this.setState({resizing,cursor:e.target.style.cursor})
-		this.left=e.clientX
-		this.top=e.clientY
+
+	startResize(resizing,e){
+		console.log('resizer mouse down')
+		e.stopPropagation()
+		const {clientX:left, clientY:top,target:{style:{cursor}}}=e
 		const {onStart}=this.props
-		if(onStart)
-			onStart()
+		this.setState({resizing,cursor})
+		onStart && onStart()
+		this.left=left
+		this.top=top
 	}
 
-	resize(left,top){
-		const {onResize}=this.props
-		const {resizing}=this.state
+	resize({clientX:left,clientY:top}){
+		const {props:{onResize}, state:{resizing}}=this
 		let x=left-this.left
 		let y=top-this.top
 		switch(resizing){
@@ -157,20 +117,17 @@ export default class Resizable extends Component{
 	}
 }
 
-const Spot=({width=5,height=5,x,y,resize,onStartResize})=>{
-	const style={fill:"white",stroke:"lightgray",strokeWidth:1}
-	const props={
-		width,height,style,
+const Spot=(({width=5,height=5,x,y,direction,style={}, ...props})=><rect {...{
+		...props,
+		width,height,
 		x:x-width/2,
-		y:y-height/2
-	}
-
-	if(resize){
-		style.cursor=`${resize.replace("-","")}-resize`
-		props.onMouseDown=e=>onStartResize(resize,e)
-	}
-
-	return <rect {...props}/>
-}
+		y:y-height/2,
+		style:{
+			fill:"white",stroke:"lightgray",strokeWidth:1,
+			cursor:`${direction.replace("-","")}-resize`,
+			...style
+		},
+	}}/>
+)
 
 

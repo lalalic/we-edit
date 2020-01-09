@@ -1,18 +1,16 @@
-import React, {Component} from "react"
+import React, {Component,Fragment} from "react"
 import Top from "./top"
-import {Group} from ".."
-
 
 export default class Overlay extends Component{
     render(){
-        let {children,...others}=this.props
+        const {children,...props}=this.props
         return (
-            <Group>
+            <Fragment>
                 {children}
-				<Top x={0} y={0}>
-					<rect {...{width:"100%",height:"100%",fill:"transparent"}} {...others}/>
+                <Top x={0} y={0}>
+					<rect {...{width:"100%",height:"100%",fill:"transparent"}} {...props}/>
 				</Top>
-            </Group>
+            </Fragment>
         )
     }
 }

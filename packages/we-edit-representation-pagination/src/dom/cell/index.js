@@ -23,10 +23,6 @@ export default class Cell extends Section{
 		...Super.defaultProps,
 		createLayout:Section.defaultProps.createLayout,
 	}
-	static contextTypes={
-		...Section.contextTypes,
-		editable:PropTypes.any,
-	}
 	
 	static Layout=class LayoutCell extends Section.Layout{
 		static displayName="frame-cell"
@@ -102,7 +98,6 @@ export default class Cell extends Section{
 			vertAlign,
 			borders:<this.constructor.Edges {...{
 				...border,width,height,
-				editable:!!this.context.editable,
 				"data-nocontent":true,//ignore search for positioning
 				}}/>
 		},{frame})

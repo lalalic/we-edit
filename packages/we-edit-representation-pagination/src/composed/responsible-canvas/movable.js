@@ -3,6 +3,7 @@ import PropTypes from "prop-types"
 
 import Top from "./top"
 import Overlay from "./overlay"
+import Group from "../group"
 
 /**
  * 1. anchor move: move to arbitary x,y, which can be composing during moving, without placeholder
@@ -12,7 +13,7 @@ export default class Movable extends Component{
 	static propTypes={
 		around: PropTypes.func,
 		onMove: PropTypes.func,
-		isAnchor: PropTypes.func,
+		isAnchor: PropTypes.bool,
 	}
 
 	static contextTypes={
@@ -86,12 +87,14 @@ export default class Movable extends Component{
     }
 }
 
-const MovingPlaceholder=({x,y})=>(
-	<Top x={x} y={y}>
-		<rect x={5} y={20} width={10} height={5}
-				fill="transparent"
-				stroke={"gray"}
-				strokeWidth="1"/>
-		<rect width={2} height={20} fill={"black"}/>
+const MovingPlaceholder=({x=0,y=0})=>(
+	<Top>
+		<Group  x={x} y={y}>
+			<rect x={5} y={20} width={10} height={5}
+					fill="transparent"
+					stroke={"gray"}
+					strokeWidth="1"/>
+			<rect width={2} height={20} fill={"black"}/>
+		</Group>
 	</Top>
 )
