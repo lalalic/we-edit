@@ -262,16 +262,15 @@ export default class __$1 extends Base{
 
         if(!id)
             return 
-        if(start.id==end.id && start.at==end.at){
+        if(start.id==end.id && start.at==end.at)
             return 
-        }
     
         /**
          * flow move is a cut-n-paste, but this.clipboard should be kept 
          */
         const clipboard=this.clipboard
         try{
-            //at first to make sure dest still exists after cut
+            //@TODO: to make sure dest still exists after cut
             this.cut()
             this.cursorAt(id,at)
             this.paste()
