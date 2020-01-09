@@ -59,11 +59,13 @@ export default whenSelectionChange(({selection})=>{
 	componentDidUpdate(prev){
 		const selection=this.props.selection
 		if(prev.selection!=selection && selection && selection.isRange){
-			const shape=this.area.current
-			if(shape.scrollIntoViewIfNeeded)
-				shape.scrollIntoViewIfNeeded(true)
-			else
-				shape.scrollIntoView()
+			if(selection.isSelectionChanged(prev.selection)){
+				const shape=this.area.current
+				if(shape.scrollIntoViewIfNeeded)
+					shape.scrollIntoViewIfNeeded(true)
+				else
+					shape.scrollIntoView()
+			}
 		}
 	}
 })

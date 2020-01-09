@@ -58,7 +58,6 @@ export default class Resizable extends Component{
 	}
 
 	startResize(resizing,e){
-		console.log('resizer mouse down')
 		e.stopPropagation()
 		const {clientX:left, clientY:top,target:{style:{cursor}}}=e
 		const {onStart}=this.props
