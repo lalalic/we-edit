@@ -6,8 +6,14 @@ export default whenSelectionChange()(class Input extends Component{
 	render(){
 		const {selection,hasCursorShape,...props}=this.props
 		const {position:{top,left,height,color,fontFamily,fontSize,},isCursor, isFocusable}=selection||{position:{}}
+		const ignoreEvent=e=>e.stopPropagation()
 		return (
-			<div unselectable="on" style={{left,top,position:"fixed",height:0,width:0}}>
+			<div unselectable="on" 
+				style={{left,top,position:"fixed",height:0,width:0}}
+				onMouseDown={ignoreEvent}
+				onMouseMove={ignoreEvent}
+				onMouseUp={ignoreEvent}
+				>
 				<Listener
 					style={{
 						margin:0,padding:0,border:0,left:0,top:0,
