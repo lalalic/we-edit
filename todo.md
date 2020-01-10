@@ -34,15 +34,17 @@ Anchor/Wrap
 ** atom builder mergeOpportunity[done]
 ** inline level cache: AtomCollector/isInlineContainer && Atom cache[done]
 ** block level cache
-** move composedY to final canvas
+** move composedY to final canvas[done]
 ** edit tests
 ** delay createDocument to compose phase to Type render layer
 ** next/prev line based on original clientX????
 ** support z :frame sort content and anchor by z [done]
 ** precision
 ** merge border
-** remove content search from positioning, use composer search up
-** focus shape in composed
-** layer: conten
+** remove content search from positioning, use composer search up[done]
+** focus shape in composed [done]
+** layer: content [done]
+** ctrl+->:line end, ctrl+<-: line start, 
+** connect cursor shape and selection shape to selectionStyle, instead of locator[done]
 
 **Canvas

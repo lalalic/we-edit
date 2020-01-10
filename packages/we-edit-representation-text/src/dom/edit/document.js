@@ -32,7 +32,8 @@ export default class  extends Component{
 		wrap: PropTypes.bool,
 		background: PropTypes.string,
 		activeColor: PropTypes.string,
-		measure: PropTypes.object
+		measure: PropTypes.object,
+		lineNo: PropTypes.bool,
 	}
 
 	static contextTypes={
@@ -49,10 +50,12 @@ export default class  extends Component{
 			lineHeight="140%",
 			background,
 			activeColor="lightblue",
+			lineNo=true,
 		}=this.props
 		return {
 			colorful, fonts, size, lineHeight, background,activeColor,
 			measure:this.getMeasure(this.context.Measure, fonts, size),
+			lineNo,
 		}
 	}
 

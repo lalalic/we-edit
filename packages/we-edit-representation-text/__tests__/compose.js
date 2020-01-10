@@ -32,11 +32,9 @@ describe("text", ()=>{
 			</StoreContext>
 		)
 		const doc=renderer.root.find(a=>a.type.displayName && a.type.displayName.endsWith("composable-document"))
-		const composedDoc=doc.find(a=>a.type.displayName=="composed").instance
-		const pages=composedDoc.props.pages
-		const responsible=doc.find(a=>a.type.displayName=="composed-document-with-cursor").instance
+		const responsible=doc.find(a=>a.type.displayName=="responsible-composed-document-default-canvas").instance
 
-		return {renderer, dom:doc,doc:doc.instance, pages, page:pages[0],composed:composedDoc,responsible}
+		return {renderer, dom:doc,doc:doc.instance, page:doc.instance.page,responsible}
 	}
 
 	beforeAll(()=>{
@@ -44,16 +42,14 @@ describe("text", ()=>{
 	})
 
 	it("basic editor compose",function(){
-		const {page, pages}=render(undefined, {margin,lineNo:false})
-		expect(pages.length).toBe(1)
-		expect(page.props.margin).toMatchObject(margin)
-		expect(page.render().props.height).toBe(viewport.height)
+		const {page}=render(undefined, {margin,lineNo:false})
+		expect(page.props.margin).toMatchObject({...margin,top:0})
+		expect(page.createComposed2Parent().props.height).toBe(viewport.height)
 	})
 
 	it("{lineNo:true}",function(){
-		const {page, pages}=render(undefined, {margin,lineNo:true})
-		expect(pages.length).toBe(1)
-		expect(page.props.margin).toMatchObject({...margin,left:margin.left+5})
+		const {page}=render(undefined, {margin,lineNo:true})
+		expect(page.props.margin).toMatchObject({...margin,left:margin.left+5, top:0})
 	})
 
 	it("doument always has only 1 page",()=>{
@@ -71,7 +67,6 @@ describe("text", ()=>{
 				</Section>
 			</Fragment>
 		)
-		expect(pages.length).toBe(1)
 		expect(dom.findAllByType(Text).length).toBe(2)
 	})
 
@@ -88,12 +83,12 @@ describe("text", ()=>{
 			const positioning=responsible.positioning
 			positioning.asCanvasPoint=jest.fn(({left,top})=>({x:left,y:top}))
 			positioning.asViewportPoint=jest.fn(({x,y})=>({left:x, top:y}))
-			const pageXY=positioning.pageXY=jest.fn(()=>({x:0,y:0}))
+			positioning.pageXY=jest.fn(()=>({x:0,y:0}))
 			return positioning
 		}
 		it("position",()=>{
 			expect(test().position("2",3))
-				.toMatchObject({x:margin.left+3, y:margin.top})
+				.toMatchObject({x:margin.left+3, y:0})
 		})
 
 		it("around", ()=>{
@@ -102,8 +97,9 @@ describe("text", ()=>{
 		})
 
 		it("range rect",()=>{
-			expect(test().getRangeRects({id:"2",at:0},{id:"2",at:3}))
-				.toMatchObject([{left:margin.left, right:margin.left+3, bottom:margin.top+(10+1)*lineHeight}])
+			const [rect]=test().getRangeRects({id:"2",at:0},{id:"2",at:3})
+			expect(rect).toMatchObject({left:margin.left, right:margin.left+3,top:0})
+			expect(parseInt(rect.bottom)).toBe(parseInt(11*lineHeight))
 		})
 
 		it("next line in a section",()=>{
@@ -192,7 +188,7 @@ describe("text", ()=>{
 	})
 
     it("lineNo control displaying line no", ()=>{
-        expect(render(undefined, {lineNo:true}).dom.findByProps({className:"activeLine"})).toBeDefined()
-		expect(()=>render(undefined, {lineNo:false}).dom.findByProps({className:"activeLine"})).toThrow()
+        expect(render(undefined, {lineNo:true}).dom.findByProps({className:"lineNos"})).toBeDefined()
+		expect(()=>render(undefined, {lineNo:false}).dom.findByProps({className:"lineNos"})).toThrow()
     })
 })

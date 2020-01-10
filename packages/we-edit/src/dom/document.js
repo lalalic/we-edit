@@ -1,3 +1,4 @@
+import React from "react"
 import Component from "./component"
 import PropTypes from "prop-types"
 
@@ -22,6 +23,11 @@ export default class Document extends Component{
 
 	//emitter call it to output returned
 	getComposed(){
+		return super.render()
+	}
 
+	render(){
+		const {canvas}=this.props
+		return canvas ? React.cloneElement(canvas,{document:this}) : this.getComposed()
 	}
 }

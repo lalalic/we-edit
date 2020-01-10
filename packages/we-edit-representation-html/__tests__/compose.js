@@ -31,11 +31,9 @@ describe("html", ()=>{
 			</Context>
 		)
 		const doc=renderer.root.find(a=>a.type.displayName && a.type.displayName.endsWith("composable-document"))
-		const composedDoc=doc.find(a=>a.type.displayName=="composed").instance
-		const pages=composedDoc.props.pages
-		const responsible=doc.find(a=>a.type.displayName=="composed-document-with-cursor").instance
+		const responsible=doc.find(a=>a.type.displayName=="responsible-composed-document-default-canvas").instance
 
-		return {renderer, dom:doc,doc:doc.instance, pages, page:pages[0],composed:composedDoc,responsible}
+		return {renderer, dom:doc,doc:doc.instance, page:doc.instance.page,responsible}
 	}
 
 	beforeAll(()=>{
@@ -43,14 +41,13 @@ describe("html", ()=>{
 	})
 
 	it("basic editor compose",function(){
-		const {page, pages}=render(undefined, {margin})
-		expect(pages.length).toBe(1)
+		const {page}=render(undefined, {margin})
 		expect(page.props.margin).toMatchObject(margin)
-		expect(page.render().props.height).toBe(viewport.height)
+		expect(page.createComposed2Parent().props.height).toBe(viewport.height)
 	})
 
 	it("doument always has only 1 page",()=>{
-		const {dom, pages}=render(
+		const {dom}=render(
 			<Fragment>
 				<Section id={`${++uuid}`}>
 					<Paragraph id={`${++uuid}`}>
@@ -64,13 +61,12 @@ describe("html", ()=>{
 				</Section>
 			</Fragment>
 		)
-		expect(pages.length).toBe(1)
 		expect(dom.findAllByType(Text).length).toBe(2)
 	})
 
 	describe("responsible",()=>{
 		function test(a, ...args){
-			const {doc, responsible}=render(
+			const {responsible}=render(
 				a||(<Section id={`${uuid++}`}>
 					<Paragraph id={`1`}>
 						<Text id={`2`}>Hello</Text>
