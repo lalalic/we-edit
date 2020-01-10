@@ -1,7 +1,7 @@
 {
   "name": "we-edit",
   "description": "a text editor framework based on React",
-  "version": "3.5.1",
+  "version": "3.5.2",
   "author": {
     "name": "Raymond Li",
     "email": "lalalic@139.com"
@@ -32,7 +32,7 @@
   },
   "optionalDependencies": {
     "cheerio": "^1.0.0-rc.2",
-    "docx4js": "latest",
+    "docx4js": "^3.2.1",
     "fetchable": "^1.0.4",
     "fontkit": "^1.8.0",
     "get-system-fonts": "^1.0.0",

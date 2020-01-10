@@ -2609,19 +2609,9 @@ dns-txt@^2.0.2:
   dependencies:
     buffer-indexof "^1.0.0"
 
-docx4js@^3.1.31:
-  version "3.1.31"
-  resolved "https://registry.yarnpkg.com/docx4js/-/docx4js-3.1.31.tgz#253baae21a693e36beb9dc025dff6a57508721ea"
-  dependencies:
-    cfb "^0.12.1"
-    cheerio "^0.22.0"
-    color "^3.1.0"
-    htmlparser2 "^3.9.2"
-    jszip "^2.6.0"
-
-docx4js@latest:
-  version "3.2.0"
-  resolved "https://registry.npm.taobao.org/docx4js/download/docx4js-3.2.0.tgz#0ab3b7762ef0b2d15c6a8a6f2b763b92bb9415b4"
+docx4js@^3.2.1:
+  version "3.2.1"
+  resolved "https://registry.npm.taobao.org/docx4js/download/docx4js-3.2.1.tgz#eb8e3d893e7ae2543991c271304c570496898ed7"
   dependencies:
     cfb "^0.12.1"
     cheerio "^0.22.0"
