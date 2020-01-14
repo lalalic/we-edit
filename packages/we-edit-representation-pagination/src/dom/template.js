@@ -3,6 +3,20 @@ import React, {Component, Fragment} from "react"
 import PropTypes from "prop-types"
 import Frame from "./frame"
 
+class Use extends Component{
+    static contextTypes={
+        getComposedTemplate:PropTypes.func.isRequired
+    }
+
+    render(){
+        const composedTemplate=this.context.getComposedTemplate(this.props.xhref)
+        if(!composedTemplate)
+            return null
+
+        return (<Fragment>{composedTemplate.props.children}</Fragment>)
+    }
+}
+
 export default class Template extends Frame{
     static Use=Use
     createComposed2Parent(){
@@ -18,19 +32,3 @@ export default class Template extends Frame{
         return a && a.type==="symbol"
     }
 }
-
-class Use extends Component{
-    static contextTypes={
-        getComposedTemplate:PropTypes.func.isRequired
-    }
-
-    render(){
-        const composedTemplate=this.context.getComposedTemplate(this.props.xhref)
-        if(!composedTemplate)
-            return null
-
-        return (<NotPositionable>{composedTemplate.props.children}</NotPositionable>)
-    }
-} 
-
-const NotPositionable=({children})=><Fragment>{children}</Fragment>
