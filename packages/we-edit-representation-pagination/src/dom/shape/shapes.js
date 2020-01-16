@@ -40,29 +40,26 @@ export class custom extends Component{
 
 		const {width,height,rotate,translate,geometry}=this.transform(this.getPath().clone())
 		return (
-			<FocusShape {...{width,height, geometry, focusableContent, scale,rotate,translate, degree, id}}>
-				<Group {...this.outlineBox}>
-					<Group x={this.strokeWidth/2} y={this.strokeWidth/2}>
-						<Group  {...{"data-nocontent":true}}>
-							{<path d={this.getPath().toString()} strokeWidth={this.strokeWidth} stroke={outline.solidFill} {...fill}/>}
-							{url && <image {...{...this.contentBox,x:left, y:top, xlinkHref: url, preserveAspectRatio:"none"}} />}
-						</Group>
-						<Group x={this.strokeWidth/2+left} y={this.strokeWidth/2+top} className="content">
-							{content}
+			<Group {...{width,height, geometry}}>
+				<FocusShape {...{width,height, focusableContent, scale,rotate,translate, degree, id}}>
+					<Group {...this.outlineBox}>
+						<Group x={this.strokeWidth/2} y={this.strokeWidth/2}>
+							<Group  {...{"data-nocontent":true}}>
+								{<path d={this.getPath().toString()} strokeWidth={this.strokeWidth} stroke={outline.solidFill} {...fill}/>}
+								{url && <image {...{...this.contentBox,x:left, y:top, xlinkHref: url, preserveAspectRatio:"none"}} />}
+							</Group>
+							<Group x={this.strokeWidth/2+left} y={this.strokeWidth/2+top} className="content">
+								{content}
+							</Group>
 						</Group>
 					</Group>
-				</Group>
-			</FocusShape>
+				</FocusShape>
+			</Group>
 		)
 	}
 
 	getPath(){
 		return memoize((geometry)=>new Path(geometry))(this.props.geometry)
-	}
-
-	createFocusShape(children, focusableContent){
-		const {outlineBox:{width, height},props:{rotate=0,id}}=this
-		return (<FocusShape {...{width, height,rotate,id,focusableContent,children}}/>)
 	}
 
 	/**

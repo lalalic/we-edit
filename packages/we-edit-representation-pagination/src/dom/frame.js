@@ -188,7 +188,7 @@ export default class EditableFrame extends editable(Frame,{stoppable:true, conti
 	_cancelChangedPart(next){
 		const childrenNeedRecompose=this.childrenNeedRecompose(next,this.props)
 		const firstLineNeedRecompose=this.lines.findIndex(a=>childrenNeedRecompose.includes(this.childIdOf(a)))
-        this.removeFrom(firstLineNeedRecompose)
+		this.removeFrom(firstLineNeedRecompose)
 	}
 	
 	_cancelUntilLastAllChildrenComposed(){
@@ -214,7 +214,6 @@ export default class EditableFrame extends editable(Frame,{stoppable:true, conti
 		const removed=super.rollbackLines(this.lines.length-lineIndex)
 		if(removed.length>0){
 			delete this.computed.allComposed
-			this.computed.lastComposed=[]
 		}
 		return removed
 	}

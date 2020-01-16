@@ -19,6 +19,22 @@ class Use extends Component{
 
 export default class Template extends Frame{
     static Use=Use
+    static isTemplate(a){
+        if(React.isValidElement(a)){
+            return a.type==this || a.type=="symbol"
+        }
+        return a&& a.isTemplate && a.isTemplate()
+    }
+
+    isTemplate(){
+        return true
+    }
+
+    shouldComponentUpdate(){
+        return false
+    }
+
+    //since template is not updated, so no cache at all, it's ok if computed.lastComposed is empty
     createComposed2Parent(){
         const {xhref,master}=this.props
         return (
@@ -28,7 +44,21 @@ export default class Template extends Frame{
             </symbol>
         )
     } 
-    static isTemplate(a){
-        return a && a.type==="symbol"
+    
+    onAllChildrenComposed(){
+        try{
+            this.createComposed2Parent=()=>this
+            super.onAllChildrenComposed()
+        }finally{
+            delete this.createComposed2Parent
+        }
+    }
+
+    appendLastComposed(){
+        const appended=super.appendLastComposed(...arguments)
+        if(appended===true){
+            this.onAllChildrenComposed()
+        }
+        return appended
     }
 }

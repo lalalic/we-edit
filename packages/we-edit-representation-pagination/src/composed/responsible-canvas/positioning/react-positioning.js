@@ -671,7 +671,10 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
         }
         
         //first check if it's anchor
-        const anchor=topFrame.anchors.find(({props:{geometry:{x=0,y=0,width=0,height=0}}})=>pointIsInside({x,y,width,height},topFrameOffset))
+        const anchor=topFrame.anchors.find(({props})=>{
+            const {x=0,y=0,width=0,height=0}=props.geometry||props
+            return pointIsInside({x,y,width,height},topFrameOffset)
+        })
         if(anchor){
             const $anchor=new ReactQuery(anchor)
             const notFrameAnchor=$anchor.findFirst(`[data-frame]`).length==0

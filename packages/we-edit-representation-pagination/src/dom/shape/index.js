@@ -46,7 +46,11 @@ export default class Shape extends Frame{
 		return this.__getSpace(this.geometry)
 	}
 
+	/**
+	 * there's no call super.createComposed2Parent, so editable interface is skipped
+	 */
 	createComposed2Parent(){
+		const {x,y,z}=this.props
 		const content=(
 			<Fragment>
 				{[
@@ -56,10 +60,12 @@ export default class Shape extends Frame{
 				}
 			</Fragment>
 		)
-		return React.cloneElement(
+		const composed=React.cloneElement(
 			this.geometry.createComposedShape(content),
-			{className:"frame", "data-frame":this.uuid}
+			{className:"frame", "data-frame":this.uuid,x,y,z}
 		)
+		this.computed.lastComposed=[composed]
+		return composed
 	}
 
 	

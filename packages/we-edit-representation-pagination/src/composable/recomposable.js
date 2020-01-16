@@ -115,8 +115,7 @@ export default A=>{
         childrenNeedRecompose=memoize((b,a)=>{
             const next=Children.toArray(b.children)
             const current=this.childrenArray(a.children)
-            const changedIndex=current.findIndex(({props:{id,hash}},i,_,$,b=next[i])=>
-                !(b && b.props.id==id && b.props.hash==hash))
+            const changedIndex=current.findIndex(({props:{id,hash}},i,_,$,b=next[i])=>!(b && b.props.id==id && b.props.hash==hash))
             return current.slice(changedIndex).map(a=>a && a.props.id)
         })
 

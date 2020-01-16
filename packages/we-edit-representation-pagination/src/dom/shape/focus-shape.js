@@ -1,6 +1,7 @@
 import React, {Component, Fragment} from "react"
 import PropTypes from "prop-types"
 import {whenSelectionChange,ACTION, ReactQuery} from "we-edit"
+import {compose, shouldUpdate } from "recompose"
 
 import Group from "../../composed/group"
 import Movable from "../../composed/responsible-canvas/movable"
@@ -8,7 +9,14 @@ import Resizable from "../../composed/responsible-canvas/resizable"
 import Rotatable from "../../composed/responsible-canvas/rotatable"
 
 
-export default whenSelectionChange()(class FocusShape extends Component{
+export default compose(
+	whenSelectionChange(),
+	shouldUpdate((a,b)=>{
+		const targetChanged=a.selection?.position.id!=b.selection?.position.id
+		const isSelfOrGrand=t=>!!t.selection?.getComposer(t.selection?.position.id).closest(p=>p.props.id==t.id)
+		return targetChanged&&(isSelfOrGrand(a)||isSelfOrGrand(b))
+	})
+)(class FocusShape extends Component{
 	static propTypes={
 		width: PropTypes.number,
 		height: PropTypes.number,
@@ -22,7 +30,6 @@ export default whenSelectionChange()(class FocusShape extends Component{
 		}),
 		movable: PropTypes.bool,
 		id:PropTypes.string,
-		absolute:PropTypes.bool,
 	}
 
 	static contextTypes={

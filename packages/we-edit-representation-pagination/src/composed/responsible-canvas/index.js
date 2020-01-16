@@ -18,6 +18,7 @@ import DefineShapes from "./define-shapes"
 class Responsible extends Component{
     static displayName="responsible-composed-document-default-canvas"
     static Canvas=Canvas
+    static ComposeMoreTrigger=ComposeMoreTrigger
     static propTypes={
         pageGap: PropTypes.number,
         screenBuffer: PropTypes.number,
@@ -139,7 +140,7 @@ class Responsible extends Component{
         const notifySelectionChangeNotifier=callback=>{
 			!this.selectionChangeNotifier ? callback() : this.selectionChangeNotifier.setState({composedContent:null},callback)
         }
-        const Canvas=this.constructor.Canvas
+        const {Canvas, ComposeMoreTrigger}=this.constructor
         return (
             <Canvas 
                 {...{scale,pageGap,pages,precision,document,paper:true}}

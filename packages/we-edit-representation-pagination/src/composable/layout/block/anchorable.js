@@ -22,7 +22,11 @@ export default class Anchorable extends Flow {
      * else: good
      */
 	appendComposed(line) {
-		const { props: { anchor, height: requiredBlockSize = 0 } } = line;
+        const { props: { anchor, y:positioned, height: requiredBlockSize = 0 } } = line;
+        if(positioned!=undefined){
+            return super.appendComposed(line)
+        }
+        
 		const space = this.nextAvailableSpace({ height: requiredBlockSize });
 		if (space == false) {
 			if (this.computed.recomposing) {
