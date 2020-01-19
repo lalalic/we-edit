@@ -3,7 +3,6 @@ import PropTypes from "prop-types"
 import {dom} from "we-edit"
 import memoize from "memoize-one"
 
-import {Group} from "../../composed"
 import {HasParentAndChild,editable,Layout} from "../../composable"
 
 import Frame from "../frame"
@@ -49,7 +48,7 @@ export default class Shape extends Frame{
 	/**
 	 * there's no call super.createComposed2Parent, so editable interface is skipped
 	 */
-	createComposed2Parent(){
+	recomposable_createComposed2Parent(){
 		const {x,y,z}=this.props
 		const content=(
 			<Fragment>
@@ -60,15 +59,13 @@ export default class Shape extends Frame{
 				}
 			</Fragment>
 		)
+
 		const composed=React.cloneElement(
-			this.geometry.createComposedShape(content),
+			this.geometry.createComposedShape(content,{composedUUID:this.computed.composedUUID}),
 			{className:"frame", "data-frame":this.uuid,x,y,z}
 		)
-		this.computed.lastComposed=[composed]
 		return composed
 	}
-
-	
 
 	static custom=custom
 

@@ -7,6 +7,10 @@ function reducer(state={loader:{},stream:{}},{type,payload}){
             return {...state, stream:payload}
         case `${DOMAIN}/office/FORMAT`:
             return {...state, format:payload}
+        case `${DOMAIN}/office/channel`:
+            return {...state, channel:payload}
+        case `${DOMAIN}/office/scale`:
+            return {...state, scale:payload}
 		default:
             return state
     }

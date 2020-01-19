@@ -14,7 +14,11 @@ export default compose(
 	shouldUpdate((a,b)=>{
 		const targetChanged=a.selection?.position.id!=b.selection?.position.id
 		const isSelfOrGrand=t=>!!t.selection?.getComposer(t.selection?.position.id).closest(p=>p.props.id==t.id)
-		return targetChanged&&(isSelfOrGrand(a)||isSelfOrGrand(b))
+		const shapeRecomposed=a.composedUUID!=b.composedUUID
+		const isAGrand=isSelfOrGrand(a)
+		const isBGrand=isSelfOrGrand(b)
+		console.log({id:b.id, shapeRecomposed,targetChanged,isAGrand,isBGrand})
+		return (shapeRecomposed || targetChanged)&&(isAGrand||isBGrand)
 	})
 )(class FocusShape extends Component{
 	static propTypes={
@@ -62,10 +66,6 @@ export default compose(
 		super(...arguments)
 		this.state={}
 
-	}
-
-	shouldComponentUpdate({selection}){
-		return this.props.selection!=selection
 	}
 
 	render(){

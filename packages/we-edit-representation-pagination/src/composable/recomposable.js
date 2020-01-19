@@ -29,9 +29,13 @@ export default A=>{
             this.computed.lastComposed=[]
         }
 
+        recomposable_createComposed2Parent(){
+            return super.createComposed2Parent(...arguments)
+        }
+
         //cache last composed for next time
         createComposed2Parent(){
-            const composed=super.createComposed2Parent(...arguments)
+            const composed=this.recomposable_createComposed2Parent(...arguments)
             this.computed.lastComposed.push(composed)
             return composed
         }

@@ -27,7 +27,7 @@ export class custom extends Component{
 		return this.contentBox
 	}
 
-	createComposedShape(content, focusableContent){
+	createComposedShape(content, props){
 		const {
 				margin:{left=0,top=0},
 				solidFill="transparent",blipFill:{url}={},
@@ -36,12 +36,13 @@ export class custom extends Component{
 				rotate:degree,
 				scale,
 				id,
+				hash,
 			}=this.props
 
 		const {width,height,rotate,translate,geometry}=this.transform(this.getPath().clone())
 		return (
 			<Group {...{width,height, geometry}}>
-				<FocusShape {...{width,height, focusableContent, scale,rotate,translate, degree, id}}>
+				<FocusShape {...{width,height, scale,rotate,translate, degree, id,...props}}>
 					<Group {...this.outlineBox}>
 						<Group x={this.strokeWidth/2} y={this.strokeWidth/2}>
 							<Group  {...{"data-nocontent":true}}>

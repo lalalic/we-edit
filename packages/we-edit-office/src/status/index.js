@@ -5,6 +5,7 @@ import {FlatButton, Slider} from "material-ui"
 import {blue800, blue900} from "material-ui/styles/colors"
 import SizeIconButton from "../components/size-icon-button"
 import {connect, whenSelectionChange,getStatistics} from "we-edit"
+import ACTION,{getOffice} from "../state/action"
 
 const ButtonStyle={
 	background:"transparent",
@@ -37,14 +38,14 @@ const Status=compose(
 			height:muiTheme.button.height
 		}
 	}),
-	onlyUpdateForKeys(['scale','height','channel'])
-)(({scale, height, channel, style})=>(
+	onlyUpdateForKeys(['height','channel'])
+)(({height, channel, style})=>(
 	<div style={{...RootStyle,height,...style}}>
 		<Page/>
 		<Words/>
 		<div style={{flex:"1 100%"}}/>
 		{channel.items.length<2 ? null : <Channel height={height} {...channel}/>}
-		<Scale {...scale}/>
+		<Scale/>
 	</div>
 ))
 
@@ -74,9 +75,9 @@ const Words=connect(state=>getStatistics(state))(({words=0,allComposed})=>(
 ))
 
 
-const Scale=({
-	current=100,max=200,min=10,step=10,
-	onChange,
+const Scale=connect(state=>({current:getOffice(state).scale}))(({
+	current=100,max=200,min=10,step=10,dispatch,
+	onChange=scale=>dispatch(ACTION.scale(scale))
 	})=>(
 	<div style={{display:"flex"}}>
 		<FlatButton label="-" onClick={()=>onChange(Math.max(current-step,min))}
@@ -96,7 +97,7 @@ const Scale=({
 			labelStyle={{fontSize:ButtonStyle.fontSize}}
 			/>
 	</div>
-)
+))
 
 const Channel=({items, current, onChange, height:size})=>(
 	<div style={{display:"flex", opacity:0.4}}>

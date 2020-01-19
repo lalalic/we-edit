@@ -1,8 +1,10 @@
 import React,{Component} from  "react"
+import PropTypes from "prop-types"
 import {connect,whenSelectionChange, getUI} from "we-edit"
 import {compose, setDisplayName} from "recompose"
 
 import Ruler from "./ruler"
+import {getOffice} from "./state/action"
 
 var uuid=0
 const VerticalRuler=compose(
@@ -25,12 +27,14 @@ const VerticalRuler=compose(
 	)
 })
 
-export default class Canvas extends Component{
+export default connect(state=>({scale:getOffice(state).scale}))(
+class Canvas extends Component{
 	constructor(){
 		super(...arguments)
 		this.uid=uuid++
+		this.state={}
 	}
-	state={}
+
 	render(){
 		const {scale=100,ruler={vertical:true}, style={}, children}=this.props
 		const {error}=this.state
@@ -67,6 +71,6 @@ export default class Canvas extends Component{
 	static getDerivedStateFromError(error){
 		return {error}
 	}
-}
+})
 
 const Pilcrow=connect(state=>({pilcrow:getUI(state).pilcrow}))(({pilcrow})=><style>{!pilcrow && `svg text.ender{visibility:hidden}`}</style>)

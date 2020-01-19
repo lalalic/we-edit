@@ -1,5 +1,6 @@
 import React, {Component,PureComponent, Children} from "react"
 import PropTypes from "prop-types"
+import memoize from "memoize-one"
 import extendible from "../tools/extendible"
 
 class  Representation extends PureComponent{
@@ -33,11 +34,16 @@ class  Representation extends PureComponent{
 		}
 	}
 
-	getChildContext(){
+	constructor(){
+		super(...arguments)
 		const {domain, EditorTypes, ViewerTypes, transformer=a=>a}=this.props
 		const models=domain=="edit" ? EditorTypes : ViewerTypes
+		this.ModelTypes=models ? transformer(this.context.transformer(models)) : undefined
+	}
+
+	getChildContext(){
 		return {
-			ModelTypes: models ? transformer(this.context.transformer(models)) : undefined,
+			ModelTypes: this.ModelTypes
 		}
 	}
 

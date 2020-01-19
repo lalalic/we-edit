@@ -35,12 +35,12 @@ export default class Template extends Frame{
     }
 
     //since template is not updated, so no cache at all, it's ok if computed.lastComposed is empty
-    createComposed2Parent(){
+    recomposable_createComposed2Parent(){
         const {xhref,master}=this.props
         return (
             <symbol id={xhref}>
                 {master ? <Use xhref={master}/> : null}
-                {super.createComposed2Parent(...arguments)}
+                {super.recomposable_createComposed2Parent(...arguments)}
             </symbol>
         )
     } 

@@ -139,7 +139,7 @@ class Frame extends Layout.Block{
 export default class EditableFrame extends editable(Frame,{stoppable:true, continuable:true}){
 	___createComposed2Parent=memoize(composedUUID=>super.createComposed2Parent())
 	createComposed2Parent(){
-		return this.___createComposed2Parent(this.computed.composedUUID||this.context.parent.computed.composedUUID)
+		return this.___createComposed2Parent(this.computed.composedUUID||this.context.parent?.computed?.composedUUID)
 	}
 	
 	/**
@@ -200,6 +200,8 @@ export default class EditableFrame extends editable(Frame,{stoppable:true, conti
 	}
 
     appendLastComposed(){
+		//lastComposed is the frame or the result of createComposed2Parent, so it always should be removed
+		this.computed.lastComposed=[]
 		if(!this.isAllChildrenComposed()){
 			if(this.lastLine){
 				const lastId=this.lastLine.props["data-content"]
@@ -207,6 +209,8 @@ export default class EditableFrame extends editable(Frame,{stoppable:true, conti
 			}
 			return false
 		}
+		//this event should be called to append to parent
+		this.onAllChildrenComposed()
 		return true
 	}
 

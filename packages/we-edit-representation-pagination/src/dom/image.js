@@ -29,6 +29,6 @@ export default class Image extends Super{
 			xlinkHref: src,
 			preserveAspectRatio:"none",	
 		}}/>
-		return geometry.createComposedShape(image, false)
+		return geometry.createComposedShape(image, {focusableContent:false, composedUUID:this.computed.composedUUID})
 	}
 }
