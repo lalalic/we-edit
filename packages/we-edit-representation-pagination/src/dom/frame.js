@@ -126,6 +126,21 @@ class Frame extends Layout.Block{
 		const {computed}=this
 		return Object.assign(new this.constructor({...this.props, ...props},this.context),{computed})
 	}
+
+	onAllChildrenComposed(){
+		const {isTop}=this.props
+		if(!isTop){
+			super.onAllChildrenComposed()
+			return 
+		}
+		
+        try{
+            this.createComposed2Parent=()=>this
+            super.onAllChildrenComposed()
+        }finally{
+            delete this.createComposed2Parent
+        }
+    }
 }
 
 /**

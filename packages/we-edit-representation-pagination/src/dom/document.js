@@ -52,8 +52,8 @@ class Document extends Super{
         return {
             ...super.getChildContext(),
             Measure: this.getMeasure(),
-            getComposedTemplate(id){
-                return self.computed.templates.find(a=>a.props.id===id)||{props:{children:null}}
+            getComposedTemplate(xhref){
+                return self.computed.templates.find(a=>a.props.xhref===xhref)
             },
             prevLayout(ref){
                 const pages=self.computed.composed

@@ -17,7 +17,6 @@ export default compose(
 		const shapeRecomposed=a.composedUUID!=b.composedUUID
 		const isAGrand=isSelfOrGrand(a)
 		const isBGrand=isSelfOrGrand(b)
-		console.log({id:b.id, shapeRecomposed,targetChanged,isAGrand,isBGrand})
 		return (shapeRecomposed || targetChanged)&&(isAGrand||isBGrand)
 	})
 )(class FocusShape extends Component{

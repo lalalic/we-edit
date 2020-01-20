@@ -24,6 +24,7 @@ export default class Frame extends Component{
 		x: PropTypes.number,
 		y: PropTypes.number,
 		z: PropTypes.number,
-		vertAlign: PropTypes.oneOf(["top","middle","center","bottom"])
+		vertAlign: PropTypes.oneOf(["top","middle","center","bottom"]),
+		isTop:PropTypes.bool,
 	}
 }
