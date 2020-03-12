@@ -3,8 +3,10 @@ import PropTypes from "prop-types"
 import {connect, ACTION} from "we-edit"
 
 import {ColSelector, RowSelector} from "./selector"
-import {ColResizer, RowResizer} from "./resizer"
+import Resizable from "../../composed/responsible-canvas/resizable"
 import Edges from "./edges"
+
+const {ColResizer, RowResizer}=Resizable
 
 export default connect()(class EditableEdges extends Component{
 	static contextTypes={

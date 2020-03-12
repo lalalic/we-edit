@@ -81,10 +81,14 @@ class Frame extends Layout.Block{
 		}
 		var content=this.positionLines(this.lines)
 		const contentHeight=content.props.height
-		content=React.cloneElement(content,{y:alignY(contentHeight)})
+		const origin={x:0, y:alignY(contentHeight)}
 		const {width,height=contentHeight,margin:{left=0,top=0}={}, x,y,z,named}=this.props
 		if(!this.cols && (left||top)){
-			content=(<Group x={left} y={top}>{content}</Group>)
+			origin.x+=left
+			origin.y+=top
+		}
+		if(origin.x || origin.y){
+			content=React.cloneElement(content,origin)
 		}
 		return (
 			<Group {...{width,height,x,y,z,named, className:"frame", "data-frame":this.uuid}}>
@@ -96,6 +100,10 @@ class Frame extends Layout.Block{
 		)
 	}
 
+	/**
+	 * it should be in accordance with createComposed2Parent()
+	 * @param {*} line : composed line object
+	 */
 	lineXY(line){
 		if(!this.cols){
 			const {margin:{top=0,left=0}={}}=this.props
@@ -104,6 +112,7 @@ class Frame extends Layout.Block{
 				y:this.lines.slice(0,this.lines.indexOf(line)).reduce((Y,{props:{height=0}})=>Y+height,top)
 			}
 		}
+		//make columns simple to ignore margin, vertAlign, or say not supporting margin and vertAlign in columns frame
 		const {y:y0=0,x=0,lines}=this.columns.find(a=>a.lines.includes(line))||this.currentColumn
 		return {
 			x,

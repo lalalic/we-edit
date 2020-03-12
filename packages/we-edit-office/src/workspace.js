@@ -118,7 +118,6 @@ const Channels=connect((state,props)=>({channel:getOffice(state).channel||props.
 				layout=typeof(current.props.layout)=="undefined"? layout : current.props.layout
 			}
 
-
 			const canvas=(
 				<Canvas ruler={ruler}>
 					{current}

@@ -1,6 +1,7 @@
 import React, {Component,Fragment} from "react"
 import PropTypes from "prop-types"
 import Overlay from "./overlay"
+import Top from "./top"
 
 /**
  * resizable support two types:
@@ -20,6 +21,9 @@ export default class Resizable extends Component{
 			height: PropTypes.number,
 		}))
 	}
+
+	static ColResizer=props=><Resizer {...props} direction="ew" cursor="col-resize"/>
+	static RowResizer=props=><Resizer {...props} direction="-ns" cursor="row-resize"/>
 
 	constructor(){
 		super(...arguments)
@@ -128,5 +132,37 @@ const Spot=(({width=5,height=5,x,y,direction,style={}, ...props})=><rect {...{
 		},
 	}}/>
 )
+/**
+ * column/row resizer
+ */
+class Resizer extends Component{
+	constructor(){
+		super(...arguments)
+		this.state={resizing:false}
+	}
+	render(){
+		const {resizing}=this.state
+		const {onResize,direction,d=direction=="ew" ? 'y' :'x',cursor,children,...props}=this.props
+		return (
+            <Fragment>
+                <Resizable
+                    direction={direction}
+                    onStart={e=>this.setState({resizing:true})}
+                    onEnd={e=>this.setState({resizing:false})}
+                    onResize={onResize}>
+                    <line {...props} stroke={"transparent"} strokeWidth={5} style={{cursor}}/>
+                </Resizable>
+                {resizing && (
+                    <Top>
+                        <line {...{...props,[d+'1']:"-100%", [d+'2']:"100%"}}
+                            stroke="lightgray"
+                            strokeWidth={1}
+                            strokeDasharray="5,5"/>
+                    </Top>
+                )}
+            </Fragment>
+		)
+	}
+}
 
 

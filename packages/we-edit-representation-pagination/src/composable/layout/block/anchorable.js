@@ -67,7 +67,7 @@ export default class Anchorable extends Flow {
         const anchored = anchor(space.clone({
             edges:{
                 paragraph:{
-                    top:((id,line=this.lines.find(a=>a.props.pagination.id==id))=>this.lineXY(line).y)(line.props.pagination.id)
+                    top:(id=>this.__lineXY(this.lines.find(a=>a.props.pagination.id==id)).y)(line.props.pagination.id)
                 },
                 line:{top:space.blockOffset},
                 character:{
@@ -164,4 +164,27 @@ export default class Anchorable extends Flow {
 
 		return false
     }
+
+    /**
+	 * it should be in accordance with createComposed2Parent, 
+     * but during composing, it's not possible to get position when vertAlign is any of middle/center/bottom
+     * so it only support default vertAlign=top
+     * so It can't be used by normal frame
+	 * @param {*} line : composed line object
+	 */
+	__lineXY(line){
+		if(!this.cols){
+			const {margin:{top=0,left=0}={}}=this.props
+			return {
+				x:left,
+				y:this.lines.slice(0,this.lines.indexOf(line)).reduce((Y,{props:{height=0}})=>Y+height,top)
+			}
+		}
+		//make columns simple to ignore margin, vertAlign, or say not supporting margin and vertAlign in columns frame
+		const {y:y0=0,x=0,lines}=this.columns.find(a=>a.lines.includes(line))||this.currentColumn
+		return {
+			x,
+			y:lines.slice(0,lines.indexOf(line)).reduce((Y,{props:{height=0}})=>Y+height,y0)
+		}
+	}
 }

@@ -192,7 +192,7 @@ export default ({Section,Group})=>class __$1 extends Component{
 					}
 					
 					return React.cloneElement(content,props,
-						<Group.Layers>
+						<Group.Layers inactiveStyle={{opacity:0.4}}>
 							{[
 								<Group.Layer key="headerfooter" z={Number.MIN_SAFE_INTEGER} >
 									{header}{footer}

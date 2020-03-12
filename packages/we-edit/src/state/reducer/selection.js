@@ -6,6 +6,8 @@ export default (state, {type,payload})=>{
 		return {...state, active:payload, actived:Date.now()}
 	case "we-edit/selection/STARTAT":
 		return {...state, cursorAt:"start", start:payload}
+	case "we-edit/selection/EXTEND":
+		return {...state, [state.cursorAt=="start" ? "end" : "start"]:payload}
 	default:
 		return state
 	}

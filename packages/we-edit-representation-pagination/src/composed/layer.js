@@ -11,10 +11,10 @@ export default class Layer extends Component{
     }
 
     render(){
-        const {active=true,children}=this.props
+        const {active=true,style, children}=this.props
         if(!active){
             return (
-                <Group style={{opacity:0.4}} onDoubleClick={e=>e}>
+                <Group style={style} onDoubleClick={e=>e}>
                     {children}
                 </Group>
             )
@@ -37,13 +37,15 @@ export default class Layer extends Component{
             if(!this.context.editable){
                 return <Fragment>{this.props.children}</Fragment>
             }
-            const {active}=this.props
+            const {active, activeStyle, inactiveStyle}=this.props
             const children=Children.toArray(this.props.children).filter(a=>!!a).sort(({props:a},{props:b})=>a.z-b.z)
+            const inactiveLayers=children.filter(a=>a.props.z!=active).map(a=>React.cloneElement(a, {active:false,style:inactiveStyle}))
+            const activeLayer=children.find(a=>a.props.z==active)
             return (
                 <Fragment>
                     {[
-                        ...children.filter(a=>a.props.z!=active).map(a=>React.cloneElement(a, {active:false})),
-                        children.find(a=>a.props.z==active)
+                        ...inactiveLayers,
+                        activeLayer&&activeStyle ? React.cloneElement(activeLayer,{style:activeStyle}) : activeLayer
                     ].filter(a=>!!a)}
                 </Fragment>
             )

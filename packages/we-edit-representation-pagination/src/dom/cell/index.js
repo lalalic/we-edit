@@ -1,8 +1,6 @@
 import React from "react"
-import PropTypes from "prop-types"
 import {dom} from "we-edit"
 
-import Edges from "./edges"
 import EditableEdges from "./editable-edges"
 import Section from "../section"
 import {HasParentAndChild} from "../../composable"

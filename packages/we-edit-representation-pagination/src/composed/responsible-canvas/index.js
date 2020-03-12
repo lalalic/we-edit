@@ -19,6 +19,7 @@ class Responsible extends Component{
     static displayName="responsible-composed-document-default-canvas"
     static Canvas=Canvas
     static ComposeMoreTrigger=ComposeMoreTrigger
+    static Positioning=Positioning
     static propTypes={
         pageGap: PropTypes.number,
         screenBuffer: PropTypes.number,
@@ -56,7 +57,7 @@ class Responsible extends Component{
         this.state={}
         this.getComposer=this.getComposer.bind(this)
         this.getContent=this.getContent.bind(this)
-        this.positioning=new Positioning(this)
+        this.positioning=new this.constructor.Positioning(this)
     }
 
     getChildContext(){

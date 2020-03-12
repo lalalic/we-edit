@@ -1,5 +1,5 @@
 import {DOMAIN} from "we-edit"
-function reducer(state={loader:{},stream:{}},{type,payload}){
+function reducer(state={loader:{},stream:{},channels:{}},{type,payload}){
 	switch(type){
         case `${DOMAIN}/office/LOADER`:
             return {...state, loader:payload}
