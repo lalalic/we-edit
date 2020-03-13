@@ -1,5 +1,5 @@
 import React from "react"
-import {dom} from "we-edit"
+import {dom, ReactQuery} from "we-edit"
 import memoize from "memoize-one"
 
 import {Layout, HasParentAndChild, editable} from "../composable"
@@ -63,6 +63,7 @@ class Frame extends Layout.Block{
 	
 	/**
 	 * always use space to locate since layout using it 
+	 ***.positionlines is used to get lineXY(line), so it should be added
 	 */
 	createComposed2Parent(){
 		const alignY=contentHeight=>{
@@ -81,14 +82,10 @@ class Frame extends Layout.Block{
 		}
 		var content=this.positionLines(this.lines)
 		const contentHeight=content.props.height
-		const origin={x:0, y:alignY(contentHeight)}
+		content=React.cloneElement(content,{y:alignY(contentHeight),className:"positionlines"})
 		const {width,height=contentHeight,margin:{left=0,top=0}={}, x,y,z,named}=this.props
 		if(!this.cols && (left||top)){
-			origin.x+=left
-			origin.y+=top
-		}
-		if(origin.x || origin.y){
-			content=React.cloneElement(content,origin)
+			content=(<Group x={left} y={top}>{content}</Group>)
 		}
 		return (
 			<Group {...{width,height,x,y,z,named, className:"frame", "data-frame":this.uuid}}>
@@ -102,14 +99,18 @@ class Frame extends Layout.Block{
 
 	/**
 	 * it should be in accordance with createComposed2Parent()
+	 ***positionlines is used to get the origin
 	 * @param {*} line : composed line object
 	 */
 	lineXY(line){
 		if(!this.cols){
-			const {margin:{top=0,left=0}={}}=this.props
+			const composed=this.createComposed2Parent()
+			const {first, parents:[_,...parents]}=new ReactQuery(composed).findFirstAndParents(".positionlines")
+			const offset=[...parents, first.get(0)].filter(a=>!!a)
+				.reduce((o,{props:{x=0,y=0}})=>(o.x+=x,o.y+=y,o),{x:0,y:0})
 			return {
-				x:left,
-				y:this.lines.slice(0,this.lines.indexOf(line)).reduce((Y,{props:{height=0}})=>Y+height,top)
+				x:offset.x,
+				y:this.lines.slice(0,this.lines.indexOf(line)).reduce((Y,{props:{height=0}})=>Y+height,offset.y)
 			}
 		}
 		//make columns simple to ignore margin, vertAlign, or say not supporting margin and vertAlign in columns frame
@@ -118,7 +119,7 @@ class Frame extends Layout.Block{
 			x,
 			y:lines.slice(0,lines.indexOf(line)).reduce((Y,{props:{height=0}})=>Y+height,y0)
 		}
-	}
+}	
 
 	columnIndexOf(lineIndex){
 		if(!this.cols)

@@ -47,13 +47,14 @@ export default class Shape extends Frame{
 
 	/**
 	 * there's no call super.createComposed2Parent, so editable interface is skipped
+	 *** .positionlines is used to get lineXY(line), so it should be added
 	 */
 	recomposable_createComposed2Parent(){
 		const {x,y,z}=this.props
 		const content=(
 			<Fragment>
 				{[
-					React.cloneElement(this.positionLines(this.lines),{key:"content"}),
+					React.cloneElement(this.positionLines(this.lines),{key:"content",className:"positionlines"}),
 					...this.anchors.map((a,i)=>React.cloneElement(a,{key:i})),
 				].filter(a=>!!a).sort(({props:{z:z1=0}},{props:{z:z2=0}},)=>z1-z2)
 				}
