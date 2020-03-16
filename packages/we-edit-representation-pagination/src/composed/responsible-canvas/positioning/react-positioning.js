@@ -717,8 +717,21 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
         })
 
         if(!line){
-            //end of frame
-            return {id:leafFrame.props.id,at:1}
+            const isAboveFirstLine=()=>{
+                return y<leafFrame.lineXY(leafFrame.lines[0]).y+leafFrameOffset.y+topFrameOffset.y
+            }
+            const isBelowLastLine=()=>{
+                const last=leafFrame.lines[leafFrame.lines.length-1]
+                return y>leafFrame.lineXY(last).y+last.props.height+leafFrameOffset.y+topFrameOffset.y
+            }
+            if(isAboveFirstLine()){
+                line=leafFrame.lines[0]
+            }else if(isBelowLastLine()){
+                line=leafFrame.lines[leafFrame.lines.length-1]
+            }else{
+                //end of frame
+                return {id:leafFrame.props.id,at:1}
+            }
         }
         
         const lineOffset=leafFrame.lineXY(line)
