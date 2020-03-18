@@ -127,7 +127,7 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
         expect(around).toHaveLastReturnedWith({id:"2",at:5})
     })
 
-    it("clicking empty space of frame should locate at end of frame",()=>{
+    it("clicking empty space of frame, below last line, should locate at last line of frame",()=>{
         const doc=test(
 			<Paragraph id={"0"}>
 				<Text id="1">text </Text>

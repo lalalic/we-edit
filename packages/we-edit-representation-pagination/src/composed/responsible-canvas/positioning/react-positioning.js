@@ -1,4 +1,4 @@
-import React,{Fragment} from "react"
+import React from "react"
 import {ReactQuery} from "we-edit"
 import Positioning from "./base"
 
@@ -538,7 +538,7 @@ class PositioningHelper extends Positioning{
  * Can we make a pure positioning isolated from composer???
  * 
  */
-export default Positioning.makeSafe(class ReactPositioning extends PositioningHelper {
+export default class ReactPositioning extends PositioningHelper {
     /**
      * 2 options:
      * >>a. positioning from up to id, scope from big to small
@@ -717,6 +717,7 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
         })
 
         if(!line){
+            const isEmpty=leafFrame.lines.length==0
             const isAboveFirstLine=()=>{
                 return y<leafFrame.lineXY(leafFrame.lines[0]).y+leafFrameOffset.y+topFrameOffset.y
             }
@@ -724,9 +725,9 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
                 const last=leafFrame.lines[leafFrame.lines.length-1]
                 return y>leafFrame.lineXY(last).y+last.props.height+leafFrameOffset.y+topFrameOffset.y
             }
-            if(isAboveFirstLine()){
+            if(!isEmpty && isAboveFirstLine()){
                 line=leafFrame.lines[0]
-            }else if(isBelowLastLine()){
+            }else if(!isEmpty && isBelowLastLine()){
                 line=leafFrame.lines[leafFrame.lines.length-1]
             }else{
                 //end of frame
@@ -1012,4 +1013,4 @@ export default Positioning.makeSafe(class ReactPositioning extends PositioningHe
 		}
 		return {}
 	}
-})
+}

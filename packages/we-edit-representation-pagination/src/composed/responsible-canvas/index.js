@@ -57,7 +57,9 @@ class Responsible extends Component{
         this.state={}
         this.getComposer=this.getComposer.bind(this)
         this.getContent=this.getContent.bind(this)
-        this.positioning=new this.constructor.Positioning(this)
+        const Positioning=this.constructor.Positioning
+        const SafePositioning=Positioning.makeSafe(Positioning)
+        this.positioning=new SafePositioning(this)
     }
 
     getChildContext(){
