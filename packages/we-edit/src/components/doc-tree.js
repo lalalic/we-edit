@@ -9,12 +9,12 @@ import {Selection} from "../state/action"
 class Node extends Component{
 	state={show:true}
 
-	shouldComponentUpdate({content},{show}){
-		return !content.equals(this.props.content) || show!=this.state.show
+	shouldComponentUpdate({hash},{show}){
+		return hash!=this.props.hash || show!=this.state.show
 	}
 
 	render(){
-		const {props:{name,id, children, dispatch, textContent,onClick,content,style,...props},state:{show}}=this
+		const {props:{name,id, children, dispatch, textContent,onClick,hash,style,...props},state:{show}}=this
 		const childrenNodes=children && Array.isArray(children) && (
 			<dl style={{marginLeft:15, marginTop:0, marginBottom:0, display: show ? "" : "none"}}>
 				{children}
@@ -49,7 +49,6 @@ class Node extends Component{
 	}
 }
 
-
 export default connect(state=>({content:state.get("content")}))(class DocumentTree extends Component{
 	static propTypes={
 		content: PropTypes.any,
@@ -68,15 +67,19 @@ export default connect(state=>({content:state.get("content")}))(class DocumentTr
 
 	render(){
 		const  {content, filter="*", filterFn=this.getFilter(filter), children, node=children,  toNodeProps,dispatch}=this.props
+		const hashCode=(id,children)=>[
+			content.get(id).hashCode(),
+			...(Array.isArray(children) ? children.map(a=>a.props.hash) : [])
+		].reduce((s,a)=>s+a,0);
 		const doc=this.constructor.createDocument(content, filterFn,(id, type,props,children)=>
 			React.cloneElement(node,{
+				hash:hashCode(id,children),
+				children,
+				textContent: typeof(children)=="string" ? children: undefined,
 				...toNodeProps({id,type,props}),
-				content:content.get(id),
 				dispatch,
 				key:id,
 				id,
-				children,
-				textContent: typeof(children)=="string" ? children: undefined
 			})
 		)
 
