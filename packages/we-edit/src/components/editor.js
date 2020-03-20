@@ -107,14 +107,38 @@ export class Editor extends PureComponent{
 
 			return getFrameParent(node.closest('[style*="overflow"]')) || document.body;
 		})(viewporter);
-
-		const {height}=container.getBoundingClientRect()
-
-		let a=viewporter, width
-		while((width=a.getBoundingClientRect().width)==0){
-			a=a.parentNode
+		
+		let a=viewporter.parentNode
+		const setViewport=()=>{
+			const {height}=container.getBoundingClientRect()
+			let width=0
+			while((width=a.getBoundingClientRect().width)==0){
+				a=a.parentNode
+			}
+			this.setState({viewport:{width:parseInt(width),height:parseInt(height||1056),node:container}})
 		}
-		this.setState({viewport:{width:parseInt(width),height:parseInt(height||1056),node:container}})
+
+		setViewport()
+
+		;(function() {
+			var throttle = function(type, name, obj) {
+				obj = obj || window;
+				var running = false;
+				var func = function() {
+					if (running) { return; }
+					running = true;
+					 requestAnimationFrame(function() {
+						obj.dispatchEvent(new CustomEvent(name));
+						running = false;
+					});
+				};
+				obj.addEventListener(type, func);
+			};
+		
+			/* init - you can init any event */
+			throttle("resize", "optimizedResize");
+			window.addEventListener("optimizedResize",setViewport)
+		})();
 	}
 
 	get viewport(){

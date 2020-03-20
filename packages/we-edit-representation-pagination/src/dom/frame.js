@@ -122,7 +122,7 @@ class Frame extends Layout.Block{
 }	
 
 	columnIndexOf(lineIndex){
-		if(!this.cols)
+		if(!this.cols || this.cols.length==1)
 			return 0
 		return this.columns.findIndex(a=>a.lines.startIndex>=lineIndex)
 	}

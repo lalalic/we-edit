@@ -53,7 +53,7 @@ class Canvas extends Component{
 						<VerticalRuler scale={scale/100} />
 					</div>
 				)}
-				<div style={{flex:"1 100%", display:"flex", flexDirection:"column"}}>
+				<div style={{flex:"1 100%", display:"flex", flexDirection:"column",width:"100%"}}>
 					<div style={{flex:"1 100%",textAlign:"center"}}>
 						{ruler && (
 							<div style={{position:"sticky",top:0}}>
