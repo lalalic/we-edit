@@ -174,7 +174,7 @@ export default ({Section,Group})=>class __$1 extends Component{
 								const height=frame=>Math.max(...frame.columns.map(a=>a.contentHeight))
 								return this.computed.continuousLayouts.reduce((H,a)=>H+height(a),height(this))
 							}
-						}
+						},
 					})
 				}
 
@@ -190,14 +190,27 @@ export default ({Section,Group})=>class __$1 extends Component{
 						// each section wrap itself content already, so page frame is not for specific section
 						Object.keys(props).filter(k=>k.startsWith("data-")).forEach(k=>props[k]=undefined)
 					}
+					const {hfAreas,contentAreas}=(()=>{
+						const {width,height}=this.props
+						const {y:headerY, maxHeight, footerY=maxHeight-headerY}=this.props.cols[0]
+						return {
+							hfAreas:[
+								<rect {...{x:0,y:0,width,height:headerY,key:"header",fill:"transparent"}} />,
+								<rect {...{x:0,y:footerY, width,height:height-footerY,key:"footer",fill:"transparent"}}/>
+							],
+							contentAreas:[
+								<rect {...{x:0,y:headerY,width,height:footerY-headerY,key:"content",fill:"transparent"}}/>
+							]
+						}
+					})();
 					
 					return React.cloneElement(content,props,
 						<Group.Layers inactiveStyle={{opacity:0.4}}>
 							{[
-								<Group.Layer key="headerfooter" z={Number.MIN_SAFE_INTEGER} >
+								<Group.Layer key="headerfooter" z={Number.MIN_SAFE_INTEGER} areas={hfAreas}>
 									{header}{footer}
 								</Group.Layer>,
-								<Group.Layer key="content" z={Number.MAX_SAFE_INTEGER}>
+								<Group.Layer key="content" z={Number.MAX_SAFE_INTEGER} areas={contentAreas}>
 									{content.props.children}
 								</Group.Layer>
 							]}

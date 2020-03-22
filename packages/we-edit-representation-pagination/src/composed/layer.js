@@ -11,11 +11,23 @@ export default class Layer extends Component{
     }
 
     render(){
-        const {active=true,style, children}=this.props
+        const {active=true,style, children, areas=[]}=this.props
+        const Ignore=e=>e.stopPropagation()
+        const ignoreEvents="onClick,onMouseDown,onMouseMove,onMouseUp,onContextMenu".split(",").reduce((o,k)=>(o[k]=Ignore,o),{})
         if(!active){
             return (
-                <Group style={style} onDoubleClick={e=>e}>
+                <Group style={style}>
                     {children}
+                    {areas.map(a=>{
+                        return React.cloneElement(a,{
+                            ...ignoreEvents,
+                            onDoubleClick:e=>{
+                                e.stopPropagation()
+                                const click=new MouseEvent('click',{bubbles:true,cancelable:true,clientX:e.clientX,clientY:e.clientY})
+                                e.target.viewportElement.dispatchEvent(click)
+                            }
+                        })
+                    })}
                 </Group>
             )
         }
