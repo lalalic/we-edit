@@ -50,33 +50,24 @@ export default{
     },
 
     create_image_at_beginning_of_run(){
-        const editor=new Image(this.file)
-        editor.create(...arguments)
         this.target.before(`<w:r/>`)
-        const r=this.target.prev()
-        r.append(editor.node)
-        const {id}=this.file.renderChanged(r)
-        this.$target.before('#'+id)
-        this.cursorAt(this.$('#'+id).first().attr('id'),0)
+        this.__create_image_in_run(this.target.prev(),...arguments)
     },
 
     create_image_at_end_of_run(){
-        const editor=new Image(this.file)
-        editor.create(...arguments)
         this.target.after(`<w:r/>`)
-        const r=this.target.next()
-        r.append(editor.node)
-        const {id}=this.file.renderChanged(r)
-        this.$target.after('#'+id)
-        this.cursorAt(this.$('#'+id).first().attr('id'),0)
+        this.__create_image_in_run(this.target.next(),...arguments)
     },
 
     create_image_at_empty_run(){
+        this.__create_image_in_run(this.target,...arguments)
+    },
+
+    __create_image_in_run(run, ...args){
         const editor=new Image(this.file)
-        editor.create(...arguments)
-        const r=this.target
-        r.append(editor.node)
-        const {id}=this.file.renderChanged(r)
+        editor.create(...args)
+        run.append(editor.node.closest("w\\:drawing"))
+        const {id}=this.file.renderChanged(run)
         this.$target.after('#'+id)
         this.cursorAt(this.$('#'+id).first().attr('id'),0)
     },

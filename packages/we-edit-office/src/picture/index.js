@@ -11,6 +11,7 @@ import selectFile from "../components/file-select"
 import {ACTION, connect} from "we-edit"
 
 export {default as Ribbon} from "./ribbon"
+import FileType from "file-type/browser"
 
 export const Tools=compose(
 	connect(),
@@ -27,7 +28,11 @@ export const Tools=compose(
 				.then(data=>{
 					data=new Uint8Array(data)
 					data.crc32=url
-					dispatch(ACTION.Entity.CREATE({type:"image",data}))
+					FileType.fromBuffer(data)
+					.then(mime=>{
+						debugger
+						dispatch(ACTION.Entity.CREATE({type:"image",data, mime}))
+					})
 				})
 		}
 	})),

@@ -1,7 +1,7 @@
 import Base from "./base"
 
 export class Image extends Base{
-    apply({data, ...props}){
+    apply({data, mime, ...props}){
         if(this.node.prop('name')!=='pic:pic'){
             this.node=this.node.find("pic\\:pic")
         }
@@ -10,7 +10,10 @@ export class Image extends Base{
             if(typeof(data)=='string'){//file name
                 props.rid=this.file.doc.officeDocument.addExternalImage(data)
             }else{
-                props.rid=this.file.doc.officeDocument.addImage(data)
+                props.rid=this.file.doc.officeDocument.addImage(data, mime)
+                if(!props.name){
+                  props.name=`unknown.${mime.ext}`
+                }
             }
         }
 
@@ -58,26 +61,35 @@ export class Image extends Base{
 
     rid(rid){
         this.node.find("a\\:blip").attr("r:embed",rid)
-    }
-
-    name(name, {rid}){
-        this.node
-            .find("pic\\:cNvPr")
-            .attr("name", name)
+        const ids=this.$("wp\\:docPr").map((i,a)=>parseInt(a.attribs.id)).get()
+        const id=Math.max(0,...ids)+1
         this.node
             .closest("wp\\:inline")
             .find("wp\\:docPr")
-            .attr("id", rid)
+            .attr("id", id)
+            .attr("name", "Picture "+id)
+        this.node
+          .find("pic\\:cNvPr")
+          .attr('id',id)
+    }
+
+    name(name){
+        this.node
+            .find("pic\\:cNvPr")
             .attr("name", name)
     }
 
+    /**
+     * must: (id, name) in docPr and cNvPicPr, rid in a:blip
+     * @param {*} props 
+     */
     template(props){
         return `
         <w:drawing>
           <wp:inline distT="0" distB="0" distL="0" distR="0">
             <wp:extent cx="1636295" cy="920416"/>
             <wp:effectExtent l="0" t="0" r="0" b="0"/>
-            <wp:docPr/>
+            <wp:docPr id="1" name="Picture 1"/>
             <wp:cNvGraphicFramePr>
               <a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/>
             </wp:cNvGraphicFramePr>
@@ -86,7 +98,7 @@ export class Image extends Base{
                 <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
                   <pic:nvPicPr>
                     <pic:cNvPr/>
-                    <pic:cNvPicPr/>
+                    <pic:cNvPicPr id="1" name="unknown"/>
                   </pic:nvPicPr>
                   <pic:blipFill>
                     <a:blip r:embed="rId9"/>

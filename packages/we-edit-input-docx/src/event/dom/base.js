@@ -37,7 +37,6 @@ export default class Editor{
         const $=this.file.doc.constructor.parseXml(this.trim(content))
         this.node=$.root().children().first()
         this.apply(props)
-        return this.file.attach(this.node)
     }
 
     update(changing){
