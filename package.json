@@ -65,6 +65,7 @@
   },
   "readme": "README.md",
   "dependencies": {
+    "file-type": "^14.1.4",
     "prop-types": "^15.7.2",
     "recompose": "^0.30.0"
   }

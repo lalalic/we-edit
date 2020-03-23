@@ -46,7 +46,8 @@
     "svgpath": "^2.2.1",
     "vm-browserify": "^1.1.0",
     "material-ui": "^0.19.4",
-    "minimatch": "^3.0.4"
+    "minimatch": "^3.0.4",
+    "file-type": "^14.1.4"
   },
   "devDependencies": {
     "brfs": "^1.4.3",
