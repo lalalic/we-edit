@@ -2634,9 +2634,9 @@ dns-txt@^2.0.2:
   dependencies:
     buffer-indexof "^1.0.0"
 
-docx4js@^3.2.1:
-  version "3.2.1"
-  resolved "https://registry.npm.taobao.org/docx4js/download/docx4js-3.2.1.tgz#eb8e3d893e7ae2543991c271304c570496898ed7"
+docx4js@^3.2.2:
+  version "3.2.2"
+  resolved "https://registry.npm.taobao.org/docx4js/download/docx4js-3.2.2.tgz#710d3b1037f0185fbdae38d3f7fdd846aec0b8b1"
   dependencies:
     cfb "^0.12.1"
     cheerio "^0.22.0"

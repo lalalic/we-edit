@@ -29,6 +29,7 @@ export function create(container, office=<Office/>){
 		let container=document.querySelector('#OfficeContainer')
 		if(container || document.title=="test"){
 			create(container)
+			document.title="we-edit"
 		}
 	})
 })(window);

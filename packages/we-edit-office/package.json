@@ -17,7 +17,8 @@
     "react-dom": "^16.1.1",
     "recompose": "^0.26.0",
     "react-redux": "^5.0.6",
-    "memoize-one": "^4.0.2"
+    "memoize-one": "^4.0.2",
+    "file-type": "^14.1.4"
   },
   "peerDependencies": {
 	"react": "^16.2.0",
