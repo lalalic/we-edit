@@ -18,7 +18,7 @@ export default class Dashboard extends PureComponent{
 	render(){
 		const {display,action}=this.state
 		const done=()=>this.setState({display:false,action:null})
-		const {active, zIndex, width=256, children, avatar, commands}=this.props
+		const {active, zIndex, width=256, menus, children, avatar}=this.props
 		return (
 			<div style={{
 					zIndex,
@@ -80,7 +80,7 @@ export default class Dashboard extends PureComponent{
 								value={<OptionsUI/>}
 								/>
 
-							{React.Children.map(children,function(a){
+							{React.Children.map(menus,function(a){
 								let {value}=a.props
 								if(!value){
 									return React.cloneElement(a,{onClick:done})
@@ -91,7 +91,8 @@ export default class Dashboard extends PureComponent{
 						</Menu>
 				</Paper>
 				<div style={{flex:"1 100%", backgroundColor:"lightgray",display:"flex",flexDirection:"column",padding:10}}>
-					{action && React.cloneElement(action, {done}) || <div onClick={done} flex="1 100%" style={{height:"100%"}}/>}
+					{action && React.cloneElement(action, {done}) || 
+					<div onClick={done} flex="1 100%" style={{height:"100%"}} children={children}/>}
 				</div>
 			</div>
 		)
