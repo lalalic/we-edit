@@ -21,18 +21,20 @@ export default compose(
     }
     shouldComponentUpdate({ selection, isSelectionComposed, compose4Selection }) {
         if (!isSelectionComposed(selection)) {
-            compose4Selection();
-            return false;
+            compose4Selection()
+            return false
         }
-        return true;
+        return true
     }
-    render() {
-        const { compose4Scroll, getComposedY, debug } = this.props;
+
+    render(){
+        const { compose4Scroll, getComposedY } = this.props;
+        const {debug}=this.context
         const y = getComposedY();
         return (
             <Waypoint onEnter={() => compose4Scroll(y)}>
                 <Group y={y - 100}>
-                    <line className="composeTrigger" x1="0" y1="0" x2="2" y2="0" strokeWidth="2" stroke={debug ? "red" : "transparent"} />
+                    <line className="composeTrigger" x1="0" y1="0" x2="200" y2="0" strokeWidth="2" stroke={debug ? "red" : "transparent"} />
                 </Group>
             </Waypoint>
         );

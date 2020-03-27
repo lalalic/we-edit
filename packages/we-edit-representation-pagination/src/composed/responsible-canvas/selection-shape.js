@@ -61,10 +61,13 @@ export default whenSelectionChange(({selection})=>{
 		if(prev.selection!=selection && selection && selection.isRange){
 			if(selection.isSelectionChanged(prev.selection)){
 				const shape=this.area.current
-				if(shape.scrollIntoViewIfNeeded)
-					shape.scrollIntoViewIfNeeded(true)
-				else
-					shape.scrollIntoView()
+				const {width,height}=shape.getBoundingClientRect()
+				if(width*height!=0){
+					if(shape.scrollIntoViewIfNeeded)
+						shape.scrollIntoViewIfNeeded(true)
+					else
+						shape.scrollIntoView()
+				}
 			}
 		}
 	}

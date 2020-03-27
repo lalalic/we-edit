@@ -22,10 +22,13 @@ export default whenSelectionChange()(
             if(prev.selection!=selection && selection && selection.isCursor){
                 if(selection.isSelectionChanged(prev.selection)){
                     const shape=this.shape.current
-                    if(shape.scrollIntoViewIfNeeded)
-                        shape.scrollIntoViewIfNeeded(true)
-                    else
-                        shape.scrollIntoView()
+                    const {width,height}=shape.getBoundingClientRect()
+				    if(width*height!=0){
+                        if(shape.scrollIntoViewIfNeeded)
+                            shape.scrollIntoViewIfNeeded(true)
+                        else
+                            shape.scrollIntoView()
+                    }
                 }
             }
         }

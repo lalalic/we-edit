@@ -179,8 +179,8 @@ export default class extends editable(Document,{continuable:true}){
 		return allComposed(start.id) && allComposed(end.id)
     }
 
-	compose4Scroll(y){
-		this.setState({mode:"scroll",y})
+	compose4Scroll(y,x){
+		this.setState({mode:"scroll",y,x})
 	}
 
 	compose4Selection(selection){

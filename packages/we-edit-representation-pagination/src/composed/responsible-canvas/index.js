@@ -147,7 +147,7 @@ class Responsible extends Component{
         return (
             <Canvas 
                 {...{scale,pageGap,pages,precision,document,paper:true}}
-                innerRef={a=>{this.canvas=a}} 
+                innerRef={a=>{this.canvas=a}}
                 {...eventHandlers}>
                 <ComposeMoreTrigger
                     getComposedY={()=>this.__composedY()}
