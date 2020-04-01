@@ -218,6 +218,7 @@ export class WeDocumentStub extends Component{
 			...canvasProps,
 			canvas:canvasProps.canvas,//||defaultCanvas,//default empty canvas to 
 			content,
+			contentHash:content.hashCode(),
 		})
 	},(a,b)=>a===b || shallowEqual.equals(a,b) || shallowEqual(a,b))
 
@@ -237,9 +238,18 @@ export class WeDocumentStub extends Component{
 }
 
 
-const Root=connect((state)=>{
-	return {content:state.get("content")}
-})(WeDocumentStub)
+const Root=connect(
+	(state)=>{
+		return {content:state.get("content")}
+	},
+	null,
+	null,
+	{
+		areStatePropsEqual(a,b){
+			return a.content.equals(b.content)
+		}
+	}
+)(WeDocumentStub)
 
 
 export default Editor

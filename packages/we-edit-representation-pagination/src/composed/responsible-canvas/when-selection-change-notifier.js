@@ -13,12 +13,17 @@ import SelectionStyle from "./selection-style"
 export default compose(
     connect(
         state=>({
-            content:state.get("content"),
+            content:state.get("content").hashCode(),
             selection:state.get("selection"),
         }),
         undefined,
         undefined,
-        {withRef:true}
+        {
+            withRef:true,
+            areStatePropsEqual(a,b){
+                return a.content===b.content && a.selection.equals(b.selection)
+            }
+        }
     ),
 )(class WhenSelectionChangeNotifier extends Component{
     constructor(){
@@ -30,15 +35,15 @@ export default compose(
         return null
     }
 
-    shouldComponentUpdate({content,selection, canvas, positioning=canvas.positioning},{composedContent}){
-        const composedContentIsSynced=content.equals(composedContent)
+    shouldComponentUpdate({shouldNotify, content,selection, canvas, positioning=canvas.positioning},{composedContent}){
+        const composedContentIsSynced=content===composedContent
         if(!composedContentIsSynced)
             return false
 
         const contentAndSelectionIsNotChanged=
-            content.equals(this.props.content) &&
+            content===this.props.content &&
             selection.equals(this.props.selection) && 
-            content.equals(this.last.content) && 
+            content===this.last.content &&
             selection.equals(this.last.selection)
 
         if(contentAndSelectionIsNotChanged)
@@ -46,6 +51,10 @@ export default compose(
 
         //initialize
         this.style=null
+
+        if(!shouldNotify()){
+            return true
+        }
 
         const {cursorAt, ...a}=selection.toJS()
         const {id,at}=a[cursorAt]

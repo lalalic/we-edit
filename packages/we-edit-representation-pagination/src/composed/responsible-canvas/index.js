@@ -48,8 +48,8 @@ class Responsible extends Component{
     }
     
     static getDerivedStateFromProps({document,...me}){
-        const {props:{editable,canvasId,content,viewport=me.viewport,screenBuffer=me.screenBuffer,},state:{y=0}}=document
-        return {...Canvas.getDerivedStateFromProps(...arguments), editable,canvasId,content,viewport,screenBuffer,composed4Y:y}
+        const {props:{editable,canvasId,content,contentHash,viewport=me.viewport,screenBuffer=me.screenBuffer,},state:{y=0}}=document
+        return {...Canvas.getDerivedStateFromProps(...arguments), editable,canvasId,content,contentHash,viewport,screenBuffer,composed4Y:y}
     }
 
     constructor(){
@@ -178,10 +178,14 @@ class Responsible extends Component{
                     <Selection >
                         <SelectionShape ref={"selecting"}/>
                     </Selection>
-                    <WhenSelectionChangeNotifier canvas={this} ref="selectionChangeNotifier"/>
+                    <WhenSelectionChangeNotifier canvas={this} shouldNotify={()=>this.shouldCursorOrSelectionChange()} ref="selectionChangeNotifier"/>
 				</Fragment>
             </Canvas>
         )
+    }
+
+    shouldCursorOrSelectionChange(){
+        return true
     }
 
     __statistics(){
@@ -196,7 +200,7 @@ class Responsible extends Component{
 
     componentDidUpdate(){
         this.__statistics()
-        this.selectionChangeNotifier && this.selectionChangeNotifier.setState({composedContent:this.state.content})
+        this.selectionChangeNotifier && this.selectionChangeNotifier.setState({composedContent:this.state.contentHash})
     }
 
     componentDidMount(){
