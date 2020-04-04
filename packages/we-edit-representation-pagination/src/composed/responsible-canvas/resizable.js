@@ -142,7 +142,7 @@ class Resizer extends Component{
 	}
 	render(){
 		const {resizing}=this.state
-		const {onResize,direction,d=direction=="ew" ? 'y' :'x',cursor,children,...props}=this.props
+		const {onResize,direction,d=direction=="ew" ? 'y' :'x',cursor,children,top={},...props}=this.props
 		return (
             <Fragment>
                 <Resizable
@@ -150,11 +150,11 @@ class Resizer extends Component{
                     onStart={e=>this.setState({resizing:true})}
                     onEnd={e=>this.setState({resizing:false})}
                     onResize={onResize}>
-                    <line {...props} stroke={"transparent"} strokeWidth={5} style={{cursor}}/>
+                    <line stroke={"transparent"} strokeWidth={5} {...props} style={{cursor}}/>
                 </Resizable>
                 {resizing && (
                     <Top>
-                        <line {...{...props,[d+'1']:"-100%", [d+'2']:"100%"}}
+                        <line {...{...props,...top,[d+'1']:"-100%", [d+'2']:"100%"}}
                             stroke="lightgray"
                             strokeWidth={1}
                             strokeDasharray="5,5"/>

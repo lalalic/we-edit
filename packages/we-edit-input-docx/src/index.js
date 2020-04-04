@@ -270,6 +270,8 @@ class DocxType extends Input.Editable{
 				let style= !props.pr ? styles['*character'] : new Style.Character.Direct(props.pr,  styles, selector)
 				return createElement(components.Run,{style},children,node)
 			}
+			case "br":
+				return createElement(components.Text,{},String.fromCharCode(13),node)
 			case "t":
 				return createElement(components.Text,{},children[0]||"",node)
 

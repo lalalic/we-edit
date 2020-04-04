@@ -66,6 +66,10 @@ class Paragraph extends Super{
 	 * @param {*} content
 	 */
     appendComposed(content){
+		if(content.props.mergeOpportunity==Layout.Inline.LineBreak){
+			this.atoms.push(content)
+			return 
+		}
 		const last=this.atoms[this.atoms.length-1]
 		if(last && last.props.mergeOpportunity && content.props.mergeOpportunity){
 			const lastText=last.props.mergeOpportunity
@@ -159,7 +163,6 @@ class Paragraph extends Super{
 
 		const commitFrom=(start=0)=>{
 			let last=0, times=0
-			let next, rollbackLines
 			for(let i=start;i<len;){
 				if(i>end){
 					return
@@ -174,42 +177,36 @@ class Paragraph extends Super{
 					last=i
 					times=0
 				}
-				next=this.currentLine.appendAtom(atoms[i],i)
-				if(typeof(next)=="number"){
-					//discard current line, and next is requiredHeight
-					this.rollbackLines(1)
-					if(!createAndAppendLine({height:next}))
-						return 
-					continue
-				}else if(next!==false){
-					i++
-					if(i>end){
-						//it's recommitting since end is reasonable value
-						if(appendComposedLine(i==atoms.length)==Layout.IMMEDIATE_STOP)
-							return Layout.IMMEDIATE_STOP
-					}
-					continue
-				}else{
+				const next=this.currentLine.appendAtom(atoms[i])
+				if(next===false || next===true){
 					//current line is full, atoms[i] not assembled, commit to block layout
-					rollbackLines=appendComposedLine(false)
+					const rollbackLines=appendComposedLine(false)
 					if(!Number.isInteger(rollbackLines)){
 						//line committed
 						if(!createAndAppendLine())
 							return 
-						continue
 					}else{
 						//fail committed, and rollback lines
 						if(rollbackLines==Layout.IMMEDIATE_STOP)
 							return Layout.IMMEDIATE_STOP
 
-						next=atomIndexOfLastNthLine(rollbackLines)
+						const next=atomIndexOfLastNthLine(rollbackLines)
                         if(Number.isInteger(next)){
 							rollbackToLineWithFirstAtomIndex(next)
 							if(!createAndAppendLine())
 								return 
         					i=next
-        					continue
         				}
+					}
+					if(next===true){
+						i++
+					}
+				}else{
+					i++
+					if(i>end){
+						//it's recommitting since end is reasonable value
+						if(appendComposedLine(i==atoms.length)==Layout.IMMEDIATE_STOP)
+							return Layout.IMMEDIATE_STOP
 					}
 				}
 			}
@@ -220,11 +217,11 @@ class Paragraph extends Super{
 			}
 
 			if(this.lines.length==1 || !this.currentLine.isEmpty()){
-				rollbackLines=appendComposedLine(true)
+				const rollbackLines=appendComposedLine(true)
 				if(Number.isInteger(rollbackLines)){
-					if(rollbackLines==Frame.IMMEDIATE_STOP)
+					if(rollbackLines===Frame.IMMEDIATE_STOP)
 						return Frame.IMMEDIATE_STOP
-					next=atomIndexOfLastNthLine(rollbackLines)
+					const next=atomIndexOfLastNthLine(rollbackLines)
 					rollbackToLineWithFirstAtomIndex(next)
 					if(!createAndAppendLine())
 						return 

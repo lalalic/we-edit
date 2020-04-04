@@ -12,6 +12,7 @@ import Group from "../../../composed/group"
  * 
  */
 export default class Inline extends Component{
+	static LineBreak=String.fromCharCode(13)
 	constructor({space:{left, right, findInlineSegments}}){
 		super(...arguments)
 		this.findInlineSegments=findInlineSegments
@@ -114,6 +115,11 @@ export default class Inline extends Component{
 		if(atom.props.anchor){
 			return this.appendAnchorAtom(atom)
 		}
+
+		if(atom.props.mergeOpportunity===Inline.LineBreak){
+			this.inlineSegments.push(atom,true/*append atom without considering inline size*/)
+			return true
+		}
 		
 		const appended=(newHeight=>{
 			if((newHeight-this.height)>1){
@@ -144,13 +150,14 @@ export default class Inline extends Component{
 			return this.inlineSegments.push(atom)
 		})(this.getLineHeight(atom.props.height));
 
-		if(appended===false && this.isEmpty()){
-			//empty inline layout is not allowed
-			this.inlineSegments.push(atom,true/*append atom without considering inline size*/)
-			return
+		if(appended===false){
+			if(this.isEmpty()){
+				//empty inline layout is not allowed
+				this.inlineSegments.push(atom,true/*append atom without considering inline size*/)
+				return
+			}
+			return false
 		}
-
-		return appended
 	}
 	
 	getLineHeight(contentHeight=this.contentHeight){

@@ -10,7 +10,7 @@ import breakOpportunities from "../wordwrap/line-break"
 import {Text as ComposedText} from "../composed"
 
 const Super=NoChild(dom.Text)
-
+const LineBreak=String.fromCharCode(13)
 class Text extends Super{
     static contextTypes={
 		...Super.contextTypes,
@@ -85,7 +85,7 @@ class Text extends Super{
                         ...defaultStyle,
                         className:isWhitespace ? "whitespace" : undefined,
                         width:isWhitespace ? whitespaceWidth : measure.stringWidth(b),
-                        minWidth:isWhitespace ? 0 : (ending ? measure.stringWidth(ending) : undefined),
+                        minWidth:isWhitespace||b==LineBreak ? 0 : (ending ? measure.stringWidth(ending) : undefined),
                         "data-endat":start+=b.length,
                         children: b,
                         mergeOpportunity:((i+j)==0||(jLast&&iLast))&&!isWhitespace&&b//first or last
