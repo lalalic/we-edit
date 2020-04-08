@@ -85,10 +85,10 @@ class Document extends Super{
     })
 
     render(){
-        const {canvas}=this.props
+        const {canvas, children}=this.props
         if(!canvas)
             return super.render()
-        const {props:{__sequentialCompose=true}}=canvas
+        const {props:{__sequentialCompose=true}}=this
         if(__sequentialCompose){
             return (
                 <Fragment>
@@ -97,7 +97,7 @@ class Document extends Super{
                 </Fragment>
             )
         }else{
-            return React.cloneElement(canvas, {document:this})
+            return React.cloneElement(canvas, {document:this, children})
         }
     }
 
