@@ -65,9 +65,9 @@ class Frame extends Layout.Block{
 	 * always use space to locate since layout using it 
 	 ***.positionlines is used to get lineXY(line), so it should be added
 	 */
-	createComposed2Parent(){
+	createComposed2Parent(rowHeight){
 		const alignY=contentHeight=>{
-			const {height=contentHeight, vertAlign}=this.props
+			const {height=rowHeight||contentHeight, vertAlign,}=this.props
 			if(contentHeight==undefined)
 				return undefined
 			switch(vertAlign){
@@ -83,7 +83,7 @@ class Frame extends Layout.Block{
 		var content=this.positionLines(this.lines)
 		const contentHeight=content.props.height
 		content=React.cloneElement(content,{y:alignY(contentHeight),className:"positionlines"})
-		const {width,height=contentHeight,margin:{left=0,top=0}={}, x,y,z,named}=this.props
+		const {width,height=rowHeight||contentHeight,margin:{left=0,top=0}={}, x,y,z,named}=this.props
 		if(!this.cols && (left||top)){
 			content=(<Group x={left} y={top}>{content}</Group>)
 		}
@@ -162,9 +162,9 @@ class Frame extends Layout.Block{
  * 
  */
 export default class EditableFrame extends editable(Frame,{stoppable:true, continuable:true}){
-	___createComposed2Parent=memoize(composedUUID=>super.createComposed2Parent())
+	___createComposed2Parent=memoize((composedUUID,...args)=>super.createComposed2Parent(...args))
 	createComposed2Parent(){
-		return this.___createComposed2Parent(this.computed.composedUUID||this.context.parent?.computed?.composedUUID)
+		return this.___createComposed2Parent(this.computed.composedUUID||this.context.parent?.computed?.composedUUID,...arguments)
 	}
 	
 	/**

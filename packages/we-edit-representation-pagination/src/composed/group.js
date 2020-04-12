@@ -1,9 +1,9 @@
-import React, {Component, Children, Fragment} from "react"
+import React, {Component, PureComponent, Children, Fragment} from "react"
 import PropTypes from "prop-types"
 import Text from "./text"
 import Layer from "./layer"
 
-export default class Group extends Component{
+export default class Group extends PureComponent{
 	static propTypes={
 		width: PropTypes.number,
 		height: PropTypes.number,
