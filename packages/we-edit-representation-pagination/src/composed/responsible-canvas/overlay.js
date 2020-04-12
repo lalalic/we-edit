@@ -9,7 +9,7 @@ export default class Overlay extends Component{
             ReactDOM.createPortal(
                 <div style={{
                     ...style,
-                    position:"fixed", left:0, top:0, background:"red", opacity:0.4,
+                    position:"fixed", left:0, top:0,
                     width,height,overflow:"hidden",
                     zIndex:Number.MAX_SAFE_INTEGER
                 }} {...props}/>, 

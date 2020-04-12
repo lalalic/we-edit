@@ -31,7 +31,12 @@ export default class Group extends PureComponent{
 			//className,id,
 			I,
 			...others}=this.props
-		const props={}
+		const props=Object.keys(others).reduce((o,k)=>{
+			if(k.startsWith("on")){
+				o[k]=others[k]
+			}
+			return o
+		},{})
 
 		if(innerRef){
 			props.ref=innerRef
