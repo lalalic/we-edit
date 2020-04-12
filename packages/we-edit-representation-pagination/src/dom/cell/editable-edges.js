@@ -23,11 +23,11 @@ export default connect()(class EditableEdges extends Component{
 
                 {isFirstRowInPage && <ColSelector/>}
 
-                {isLastRankOfRow && <RowResizer x1={0} x2={width} y1={height} y2={height}
+                {isLastRankOfRow && (<RowResizer x1={0} x2={width} y1={height} y2={height}
                     onResize={({y})=>{
                         dispatch(ACTION.Entity.UPDATE({id:table, type:"table",height:{value:height+y,row,cell,i}}))
                     }}
-                    /> || null
+                    />) || null
                 }
 
                 {i==0  && <RowSelector x1={0} x2={0} y1={0} y2={height}

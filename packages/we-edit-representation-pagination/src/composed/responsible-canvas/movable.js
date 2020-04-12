@@ -1,7 +1,6 @@
-import React, {Component,Fragment} from "react"
+import React, {Component} from "react"
 import PropTypes from "prop-types"
 
-import Top from "./top"
 import Overlay from "./overlay"
 import Group from "../group"
 
@@ -22,32 +21,21 @@ export default class Movable extends Component{
 
 	state={moving:false}
 	render(){
-		const {moving, x, y}=this.state
-		const {children, isAnchor}=this.props
-		if(!moving){
-			return React.cloneElement(children,{
-				onMouseDown:e=>{
-					if(e.buttons&0x1){
-						e.stopPropagation()
-						const {x,y}=this.context.positioning.asCanvasPoint({left:e.clientX,top:e.clientY})
-						this.setState({moving:true,x,y})
-					}
-				}
-			})
-		}
-
+		const {state:{moving, x, y}, props:{children, isAnchor}, context:{positioning}}=this
+		
 		return (
-			<Fragment>
-				{children}
-				<Overlay cursor="default"
+			<Overlay.WhenMouseDown style={{cursor:"default"}}>
+				<Group onMouseDown={e=>{
+						const {x,y}=positioning.asCanvasPoint({left:e.clientX,top:e.clientY})
+						this.setState({moving:true,x,y})
+					}}
 					onMouseUp={e=>this.onEndMove(e)}
-					onMouseMove={e=>this.moving(e)}
-					>
-					{!isAnchor && <MovingPlaceholder {...{x,y}}/>}
-				</Overlay>
-			</Fragment>
+					onMouseMove={e=>this.moving(e)}>
+					{moving && !isAnchor && <MovingPlaceholder {...{x,y}}/>}
+					{children}
+				</Group>
+			</Overlay.WhenMouseDown>
 		)
-			
 	}
 
     onEndMove(e){
@@ -88,13 +76,11 @@ export default class Movable extends Component{
 }
 
 const MovingPlaceholder=({x=0,y=0})=>(
-	<Top>
-		<Group  x={x} y={y}>
-			<rect x={5} y={20} width={10} height={5}
-					fill="transparent"
-					stroke={"gray"}
-					strokeWidth="1"/>
-			<rect width={2} height={20} fill={"black"}/>
-		</Group>
-	</Top>
+	<Group  x={x} y={y}>
+		<rect x={5} y={20} width={10} height={5}  pointerEvents="none"
+				fill="transparent"
+				stroke={"gray"}
+				strokeWidth="1"/>
+		<rect width={2} height={20} fill={"black"}  pointerEvents="none"/>
+	</Group>
 )

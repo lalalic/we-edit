@@ -1,7 +1,7 @@
-import React, {Component,Fragment} from "react"
+import React, {Component} from "react"
 import PropTypes from "prop-types"
 import Overlay from "./overlay"
-import Top from "./top"
+import Group from "../group"
 
 /**
  * resizable support two types:
@@ -13,6 +13,8 @@ export default class Resizable extends Component{
 	static propTypes={
 		direction,
 		onResize: PropTypes.func.isRequired,
+		onEnd: PropTypes.func,
+		resizer: PropTypes.node,
 		spots: PropTypes.arrayOf(PropTypes.shape({
 			x: PropTypes.number.isRequired,
 			y: PropTypes.number.isRequired,
@@ -22,20 +24,44 @@ export default class Resizable extends Component{
 		}))
 	}
 
-	static ColResizer=props=><Resizer {...props} direction="ew" cursor="col-resize"/>
-	static RowResizer=props=><Resizer {...props} direction="-ns" cursor="row-resize"/>
+	static ColResizer=({onResize, onEnd, resizer, ...props})=>(
+		<Resizable {...{onResize, onEnd, resizer}}>
+			<line {...{stroke:"transparent", strokeWidth:5, "data-direction":"ew",cursor:"col-resize",...props}}/>
+		</Resizable>
+	)
+	static RowResizer=({onResize, onEnd, resizer, ...props})=>(
+		<Resizable {...{onResize, onEnd, resizer}}>
+			<line {...{stroke:"transparent", strokeWidth:5, "data-direction":"-ns",cursor:"row-resize",...props}}/>
+		</Resizable>
+	)
 
 	constructor(){
 		super(...arguments)
 		this.state={}
 	}
 
+	static getDerivedStateFromProps({cursor},state){
+		return {cursor, ...state}
+	}
+
 	render(){
-		const {resizing,cursor}=this.state
-		const {children,spots=[], onEnd, direction}=this.props
-		if(resizing){
-			return (
-				<Overlay
+		const {cursor,resizing}=this.state
+		const {children,spots=[], onEnd, direction, resizer}=this.props
+		return (
+			<Overlay.WhenMouseDown style={{cursor}}>
+				<Group 	
+					onMouseDown={e=>{
+						e.stopPropagation()
+						const {clientX:left, clientY:top,target}=e
+						const {onStart}=this.props
+						this.setState({
+							resizing:e.target.dataset.direction||direction,
+							cursor:target.style.cursor||target.getAttribute("cursor")||cursor
+						})
+						onStart && onStart()
+						this.left=left
+						this.top=top
+					}}
 					onMouseUp={e=>{
 						e.stopPropagation()
 						this.setState({resizing:false})
@@ -45,30 +71,13 @@ export default class Resizable extends Component{
 						e.stopPropagation()
 						this.resize(e)
 					}}
-					style={{cursor}}
 					>
 					{children}
-					{spots.map(a=><Spot key={a.direction} {...a}/>)}
-				</Overlay>
-			)
-		}
-		
-		return (
-			<Fragment>
-				{direction ? React.cloneElement(React.Children.only(children),{onMouseDown:e=>this.startResize(direction,e)}) : children}
-				{spots.map(a=><Spot key={a.direction} {...a} onMouseDown={e=>this.startResize(a.direction,e)}/>)}}
-			</Fragment>
+					{spots.map(a=><Spot {...a}  key={a.direction}/>)}
+					{resizing && resizer}
+				</Group>
+			</Overlay.WhenMouseDown>
 		)
-	}
-
-	startResize(resizing,e){
-		e.stopPropagation()
-		const {clientX:left, clientY:top,target:{style:{cursor}}}=e
-		const {onStart}=this.props
-		this.setState({resizing,cursor})
-		onStart && onStart()
-		this.left=left
-		this.top=top
 	}
 
 	resize({clientX:left,clientY:top}){
@@ -121,6 +130,7 @@ export default class Resizable extends Component{
 }
 
 const Spot=(({width=5,height=5,x,y,direction,style={}, ...props})=><rect {...{
+		"data-direction":direction,
 		...props,
 		width,height,
 		x:x-width/2,
@@ -132,37 +142,4 @@ const Spot=(({width=5,height=5,x,y,direction,style={}, ...props})=><rect {...{
 		},
 	}}/>
 )
-/**
- * column/row resizer
- */
-class Resizer extends Component{
-	constructor(){
-		super(...arguments)
-		this.state={resizing:false}
-	}
-	render(){
-		const {resizing}=this.state
-		const {onResize,direction,d=direction=="ew" ? 'y' :'x',cursor,children,top={},...props}=this.props
-		return (
-            <Fragment>
-                <Resizable
-                    direction={direction}
-                    onStart={e=>this.setState({resizing:true})}
-                    onEnd={e=>this.setState({resizing:false})}
-                    onResize={onResize}>
-                    <line stroke={"transparent"} strokeWidth={5} {...props} style={{cursor}}/>
-                </Resizable>
-                {resizing && (
-                    <Top>
-                        <line {...{...props,...top,[d+'1']:"-100%", [d+'2']:"100%"}}
-                            stroke="lightgray"
-                            strokeWidth={1}
-                            strokeDasharray="5,5"/>
-                    </Top>
-                )}
-            </Fragment>
-		)
-	}
-}
-
 

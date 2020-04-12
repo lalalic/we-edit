@@ -17,29 +17,25 @@ export default class Rotatable extends Component{
 			width:2*r,height:2*r,x:x-r,y:-2*r,
 			style:{fill:"white",stroke:"lightgray",strokeWidth:1},
 		}
-		
-		if(!rotating)
-			return (<use xlinkHref="#rotator" {...rotator} onMouseDown={e=>this.setState({rotating:true})}/>)
-		
-		return (
-			<Fragment>
-				<g ref="locator">
-					<text x={x+r} y={-20}>{degree}</text>
-					<use xlinkHref="#rotator" {...rotator}/>
+
+		return(
+			<Overlay.WhenMouseDown>
+				<g style={{cursor:"crosshair"}}
+						onMouseDown={e=>this.setState({rotating:true})}
+						onMouseUp={e=>{
+							this.setState({rotating:false})
+							if(onEnd)
+								onEnd()
+							e.stopPropagation()
+						}}
+						onMouseMove={e=>{
+							e.stopPropagation()
+							onRotate(e)
+						}}>
+					{rotating && <text x={x} y={-20} pointerEvents="none">{degree}</text>}
+					<use xlinkHref="#rotator" {...rotator} />
 				</g>
-				<Overlay cursor="crosshair"
-					onMouseUp={e=>{
-						this.setState({rotating:undefined})
-						if(onEnd)
-							onEnd()
-						e.stopPropagation()
-					}}
-					onMouseMove={e=>{
-						onRotate(e)
-						e.stopPropagation()
-					}}
-					/>
-			</Fragment>
+			</Overlay.WhenMouseDown>
 		)
 	}
 }
