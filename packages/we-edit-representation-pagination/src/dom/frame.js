@@ -95,31 +95,7 @@ class Frame extends Layout.Block{
 				].filter(a=>!!a).sort(({props:{z:z1=0}},{props:{z:z2=0}},)=>z1-z2)}
 			</Group>
 		)
-	}
-
-	/**
-	 * it should be in accordance with createComposed2Parent()
-	 ***positionlines is used to get the origin
-	 * @param {*} line : composed line object
-	 */
-	lineXY(line){
-		if(!this.cols){
-			const composed=this.createComposed2Parent()
-			const {first, parents:[_,...parents]}=new ReactQuery(composed).findFirstAndParents(".positionlines")
-			const offset=[...parents, first.get(0)].filter(a=>!!a)
-				.reduce((o,{props:{x=0,y=0}})=>(o.x+=x,o.y+=y,o),{x:0,y:0})
-			return {
-				x:offset.x,
-				y:this.lines.slice(0,this.lines.indexOf(line)).reduce((Y,{props:{height=0}})=>Y+height,offset.y)
-			}
-		}
-		//make columns simple to ignore margin, vertAlign, or say not supporting margin and vertAlign in columns frame
-		const {y:y0=0,x=0,lines}=this.columns.find(a=>a.lines.includes(line))||this.currentColumn
-		return {
-			x,
-			y:lines.slice(0,lines.indexOf(line)).reduce((Y,{props:{height=0}})=>Y+height,y0)
-		}
-}	
+	}	
 
 	columnIndexOf(lineIndex){
 		if(!this.cols || this.cols.length==1)
@@ -245,5 +221,30 @@ export default class EditableFrame extends editable(Frame,{stoppable:true, conti
 			delete this.computed.allComposed
 		}
 		return removed
+	}
+
+	/**
+	 * it should be in accordance with createComposed2Parent()
+	 ***positionlines is used to get the origin
+	 *** it works only when document composed, and it's using lastComposed, so it need cacheable implementation
+	 * @param {*} line : composed line object
+	 */
+	lineXY(line){
+		if(!this.cols){
+			const composed=this.computed.lastComposed
+			const {first, parents:[_,...parents]}=new ReactQuery(composed).findFirstAndParents(".positionlines")
+			const offset=[...parents, first.get(0)].filter(a=>!!a)
+				.reduce((o,{props:{x=0,y=0}})=>(o.x+=x,o.y+=y,o),{x:0,y:0})
+			return {
+				x:offset.x,
+				y:this.lines.slice(0,this.lines.indexOf(line)).reduce((Y,{props:{height=0}})=>Y+height,offset.y)
+			}
+		}
+		//make columns simple to ignore margin, vertAlign, or say not supporting margin and vertAlign in columns frame
+		const {y:y0=0,x=0,lines}=this.columns.find(a=>a.lines.includes(line))||this.currentColumn
+		return {
+			x,
+			y:lines.slice(0,lines.indexOf(line)).reduce((Y,{props:{height=0}})=>Y+height,y0)
+		}
 	}
 }

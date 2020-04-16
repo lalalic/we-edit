@@ -17,12 +17,12 @@ import SVG from "./output/svg"
 import Resizable from "./composed/responsible-canvas/resizable"
 import Movable from "./composed/responsible-canvas/movable"
 import Rotatable from "./composed/responsible-canvas/rotatable"
-import Top from "./composed/responsible-canvas/top"
 import Overlay from "./composed/responsible-canvas/overlay"
-
-
-
 import * as composable from "./composable"
+
+const Responsible=Editors.Document.defaultProps.canvas.type
+const Canvas=Responsible.Canvas
+const Positioning=Responsible.Positioning
 
 const {FontMeasure, SVGMeasure}=Measure
 
@@ -127,4 +127,4 @@ export default class Pagination extends Representation.Base{
 
 Pagination.install()
 
-export {Viewers, Editors, FontManager, Measure, Composed, composable, editable, Resizable, Movable, Rotatable,Top, Overlay}
+export {Viewers, Editors, FontManager, Measure, Composed, composable, editable, Resizable, Movable, Rotatable,Overlay,Responsible,Canvas,Positioning}
