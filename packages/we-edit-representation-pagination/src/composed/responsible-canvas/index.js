@@ -60,6 +60,7 @@ class Responsible extends Component{
         const Positioning=this.constructor.Positioning
         const SafePositioning=Positioning.makeSafe(Positioning)
         this.positioning=new SafePositioning(this)
+        this.cursorNode=React.createRef()
     }
 
     getChildContext(){
@@ -167,6 +168,7 @@ class Responsible extends Component{
 				<Fragment>
                     {children}
 					<Cursor
+                        ref={this.cursorNode}
                         keys={{
                             37:e=>this.onKeyArrowLeft(e),//move left
 			                39:e=>this.onKeyArrowRight(e),//move right
@@ -186,6 +188,10 @@ class Responsible extends Component{
 
     shouldCursorOrSelectionChange(){
         return true
+    }
+
+    __focusCursor(){
+        this.cursorNode.current.input.current.focus()
     }
 
     __statistics(){

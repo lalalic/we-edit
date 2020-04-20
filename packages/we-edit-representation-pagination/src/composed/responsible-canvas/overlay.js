@@ -27,14 +27,14 @@ export default class Overlay extends Component{
 
         render(){
             const {children, doubleClickTime=200, style, ...props}=this.props
-            const {mouseDowning,lastMouseUp}=this.state
+            const {mouseDowning,lastMouseUp,x=0,y=0}=this.state
             const {onMouseDown, onMouseMove, onMouseUp, onDoubleClick, onContextMenu,style:holderStyle={},cursor=holderStyle.cursor}=children.props
             return (
                 <Fragment>
                     {React.cloneElement(children,{
                         onMouseDown:e=>{
                             e.stopPropagation()
-                            this.setState({mouseDowning:true})
+                            this.setState({mouseDowning:true,x:e.clientX, y:e.clientY})
                             onMouseDown && onMouseDown(e)
                         },
                         onMouseMove:null,
@@ -45,7 +45,7 @@ export default class Overlay extends Component{
                     {mouseDowning && <Overlay {...{
                         style:{cursor, ...style},
                         onMouseMove:e=>{
-                            onMouseMove && onMouseMove(e)
+                            onMouseMove && onMouseMove(e,{dx:e.clientX-x,dy:e.clientY})
                         },
                         onMouseUp:e=>{
                             e.stopPropagation()

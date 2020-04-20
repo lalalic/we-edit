@@ -93,7 +93,7 @@ export default class xQuery extends Query{
 		const id=new this.constructor(this.state,node).attr('id')
 
 		this._content.updateIn([this.attr('id'),'children'],children=>
-			children.splice(children.length-1,0,id)
+			children.splice(children.size-1,0,id)
 		)
 
 		this._content.updateIn([id,'parent'],parent=>{

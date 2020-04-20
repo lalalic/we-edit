@@ -11,7 +11,8 @@ export default class PaginationSelectionStyle extends SelectionStyle{
                 this.end = start;
             }
         }
-        this.isFocusable=start.id==end.id && positioning.getComposer(start.id).focusable
+        const target=positioning.getComposer(start.id)
+        this.isFocusable=start.id==end.id && target && target.focusable
         this.isRange=!this.isCursor && !this.isFocusable
     }
 

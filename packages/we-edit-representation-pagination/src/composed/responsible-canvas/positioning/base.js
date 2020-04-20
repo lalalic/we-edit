@@ -102,7 +102,7 @@ export default class Positioning{
             "position,around,nextLine,prevLine,extendWord".split(",").forEach(k=>{
                 this[k]=(...args)=>{
                     try{
-                        return super[k](...args)
+                        return super[k](...args)||{}
                     }catch(e){
                         console.warn(e)
                         return {}
@@ -112,7 +112,7 @@ export default class Positioning{
         }
         getRangeRects(...args){
             try{
-                return super.getRangeRects(...args)
+                return super.getRangeRects(...args)||[]
             }catch(e){
                 console.warn(e)
                 return []

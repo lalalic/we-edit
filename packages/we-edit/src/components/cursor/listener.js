@@ -92,6 +92,7 @@ export default class Listener extends Component{
 
 	componentDidUpdate(){
 		this.props.inputRef.current.focus()
+		console.log("cursor focused")
 	}
 }
 

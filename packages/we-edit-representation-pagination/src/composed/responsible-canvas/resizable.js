@@ -24,13 +24,15 @@ export default class Resizable extends Component{
 		}))
 	}
 
-	static ColResizer=({onResize, onEnd, resizer, ...props})=>(
+	static ColResizer=({onResize, onEnd, resizer, children, ...props})=>(
 		<Resizable {...{onResize, onEnd, resizer}}>
+			{children}
 			<line {...{stroke:"transparent", strokeWidth:5, "data-direction":"ew",cursor:"col-resize",...props}}/>
 		</Resizable>
 	)
-	static RowResizer=({onResize, onEnd, resizer, ...props})=>(
+	static RowResizer=({onResize, onEnd, resizer, children, ...props})=>(
 		<Resizable {...{onResize, onEnd, resizer}}>
+			{children}
 			<line {...{stroke:"transparent", strokeWidth:5, "data-direction":"-ns",cursor:"row-resize",...props}}/>
 		</Resizable>
 	)

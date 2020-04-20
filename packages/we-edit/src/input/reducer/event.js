@@ -72,12 +72,14 @@ export default class __$1 extends Base{
         conds=conds.map(a=>`${pos}_${type}_${a}`)
         //pos+parents
         conds=[...conds, ...up2Parents.map(a=>`${pos}_up_to_${a}`)]
-        return [
-            ...conds,
-            `${pos}_${type}`,
-            type,
-            pos.replace(/_of$/,'')
-        ]
+        if(parentType)
+            conds.push(`${pos}_${type}_in_${parentType}`)
+        conds.push(`${pos}_${type}`)
+        if(parentType)
+            conds.push(`${type}_in_${parentType}`)
+        conds.push(type)
+        conds.push(pos.replace(/_of$/,''))
+        return conds
             .filter(a=>!!a).map(a=>a.replace(/^_/g,""))
             .map(a=>'at_'+a)
     }  

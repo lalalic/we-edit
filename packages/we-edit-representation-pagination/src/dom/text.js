@@ -11,6 +11,7 @@ import {Text as ComposedText} from "../composed"
 
 const Super=NoChild(dom.Text)
 const LineBreak=String.fromCharCode(13)
+const LineFeed=String.fromCharCode(10)
 class Text extends Super{
     static contextTypes={
 		...Super.contextTypes,
@@ -78,18 +79,36 @@ class Text extends Super{
             const whitespaceWidth=measure.stringWidth(" ")
             let start=0
             breakOpportunities(text).forEach((a,j,_1,_2,jLast=_1.length-1==j)=>{
-                a.split(/(\s)/).filter(a=>!!a).forEach((b,i,$1,$2,iLast=$1.length-1==i)=>{
-                    const isWhitespace=b==" "
-                    const ending=b.endsWith(",") ? b.substring(0,b.length-1) : false
-                    this.appendComposed({
-                        ...defaultStyle,
-                        className:isWhitespace ? "whitespace" : undefined,
-                        width:isWhitespace ? whitespaceWidth : measure.stringWidth(b),
-                        minWidth:isWhitespace||b==LineBreak ? 0 : (ending ? measure.stringWidth(ending) : undefined),
-                        "data-endat":start+=b.length,
-                        children: b,
-                        mergeOpportunity:((i+j)==0||(jLast&&iLast))&&!isWhitespace&&b//first or last
-                    })
+                a.split(/(\r\n?)/).filter(a=>!!a)
+                    .map(a=>a.startsWith(LineBreak) ? [a] : a.split(/(\s)/))
+                    .flat().filter(a=>!!a)
+                    .forEach((b,i,$1,$2,iLast=$1.length-1==i)=>{
+                    switch(b){
+                        case LineBreak:
+                        case LineBreak+LineFeed:
+                            this.appendComposed({
+                                ...defaultStyle,
+                                width:0,
+                                minWidth:0,
+                                "data-endat":start+=b.length,
+                                children: b,
+                                mergeOpportunity:LineBreak
+                            })
+                            break
+                        default:{
+                            const isWhitespace=b==" "
+                            const ending=b.endsWith(",") ? b.substring(0,b.length-1) : false
+                            this.appendComposed({
+                                ...defaultStyle,
+                                className:isWhitespace ? "whitespace" : undefined,
+                                width:isWhitespace ? whitespaceWidth : measure.stringWidth(b),
+                                minWidth:isWhitespace||b==LineBreak ? 0 : (ending ? measure.stringWidth(ending) : undefined),
+                                "data-endat":start+=b.length,
+                                children: b,
+                                mergeOpportunity:((i+j)==0||(jLast&&iLast))&&!isWhitespace&&b//first or last
+                            })
+                        }
+                    }
                 })
             })
             return null
