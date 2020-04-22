@@ -340,12 +340,22 @@ class DocxType extends Input.Editable{
 }
 
 export default class Editable extends DocxType{
-    makeId(node, root="w:document"){
+    makeId(node, root="w:document", nodeId){
         if(!node){
             return "null"
 		}
         
-       node=this._unwrap(node)
+	   node=this._unwrap(node)
+	   
+	   if(nodeId!=undefined){
+			Object.defineProperty(node.attribs,"xxid",{
+				enumerable: false,
+				configurable: true,
+				writable: false,
+				value: nodeId
+			})
+			return nodeId
+	   }
 
 		if(node.attribs.xxid){
 			return node.attribs.xxid

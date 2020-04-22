@@ -45,10 +45,13 @@ export default class Overlay extends Component{
                     {mouseDowning && <Overlay {...{
                         style:{cursor, ...style},
                         onMouseMove:e=>{
+                            e.stopPropagation()
+                            e.preventDefault()
                             onMouseMove && onMouseMove(e,{dx:e.clientX-x,dy:e.clientY})
                         },
                         onMouseUp:e=>{
                             e.stopPropagation()
+                            e.preventDefault()
                             const now=Date.now()
                             if(now-lastMouseUp<doubleClickTime){
                                 e.stopPropagation()
