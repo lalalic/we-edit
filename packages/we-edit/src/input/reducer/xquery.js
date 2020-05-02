@@ -15,21 +15,23 @@ export default class xQuery extends Query{
                 return
             }
 
-			let children=this._content.getIn([k,"children"])
+			const children=this._content.getIn([k,"children"])
 			if(children instanceof List){
 				children.forEach(id=>clear(id))
 			}
             this._content.remove(k)
 		}
 		this._nodes.forEach(k=>{
-            let parentId=this._content.getIn([k,"parent"])
-            let children=this._content.getIn([parentId,"children"])
-            if(children instanceof List){
-                let i=children.indexOf(k)
-                if(i!=-1){
-                    this._content.removeIn([parentId,"children",i])
-                }
-            }
+			const parentId=this._content.getIn([k,"parent"])
+			this._content.updateIn([parentId,"children"],children=>{
+				if(children instanceof List){
+					const i=children.indexOf(k)
+					if(i!=-1){
+						return children.splice(i,1)
+					}
+				}
+				return children
+			})
 			clear(k)
 		})
 		return this

@@ -193,19 +193,22 @@ export class WeDocumentStub extends Component{
 			}
 	
 			let elChildren=children
-			const hashCodes=[current.hashCode()]
+			const hashCodes=[Child.hashCode ? Child.hashCode(props,content,id) : current.hashCode()]
 			if(Array.isArray(children)){
 				elChildren=children.map(a=>createNode(a))
 				elChildren.every(a=>hashCodes.push(a.props.hash))
 			}
 	
-			return(<Child
+			const el=(<Child
 					key={id}
 					id={id}
 					{...props}
 					children={elChildren}
 					hash={hashCode(hashCodes)}
 				/>)
+			if(Child.createElement)
+				return Child.createElement(el, content)
+			return el
 		}
 	
 		return createNode("root")

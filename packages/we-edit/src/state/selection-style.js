@@ -20,6 +20,13 @@ export default class SelectionStyle{
      * @param {*} getFromContent: bool, get props from content or composer 
      */
     props(type, getFromContent = true){
+        if(`_${type}Props` in this){
+            return this[`_${type}Props`]()
+        }
+        return this._props(...arguments)
+    }
+
+    _props(type, getFromContent = true){
         if (getFromContent) {
             return this._getFromContent(type).props
         }

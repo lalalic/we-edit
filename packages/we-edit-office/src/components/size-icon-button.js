@@ -7,6 +7,7 @@ import {IconButton} from "material-ui"
 export default class SizableIconButton extends PureComponent{
 	static contextTypes={
 		muiTheme:PropTypes.object,
+		disabled:PropTypes.bool,
 	}
 
 	getStyle=memoize((style,size,padding,iconStyle, status)=>{
@@ -34,7 +35,7 @@ export default class SizableIconButton extends PureComponent{
 
 	render(){
 		const {status,
-			disabled=status=="disabled",
+			disabled=this.context.disabled || status=="disabled",
 			size,padding,style,iconStyle, label, hint=label,
 			...props}=this.props
 

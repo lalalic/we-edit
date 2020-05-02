@@ -23,6 +23,7 @@ import * as composable from "./composable"
 const Responsible=Editors.Document.defaultProps.canvas.type
 const Canvas=Responsible.Canvas
 const Positioning=Responsible.Positioning
+const SelectionStyle=Responsible.SelectionStyle
 
 const {FontMeasure, SVGMeasure}=Measure
 
@@ -127,4 +128,8 @@ export default class Pagination extends Representation.Base{
 
 Pagination.install()
 
-export {Viewers, Editors, FontManager, Measure, Composed, composable, editable, Resizable, Movable, Rotatable,Overlay,Responsible,Canvas,Positioning}
+export {
+	Viewers, Editors, FontManager, Measure, Composed, composable, editable, 
+	Resizable, Movable, Rotatable,Overlay,
+	Responsible,Canvas,Positioning,SelectionStyle,
+}

@@ -9,6 +9,7 @@ import WhenSelectionChangeNotifier from "./when-selection-change-notifier"
 import Positioning from "./positioning"
 import ComposeMoreTrigger from "./compose-more-trigger"
 import DefineShapes from "./define-shapes"
+import SelectionStyle from "./selection-style"
 
 /**
  * must provide the following 
@@ -20,6 +21,7 @@ class Responsible extends Component{
     static Canvas=Canvas
     static ComposeMoreTrigger=ComposeMoreTrigger
     static Positioning=Positioning
+    static SelectionStyle=SelectionStyle
     static propTypes={
         pageGap: PropTypes.number,
         screenBuffer: PropTypes.number,
@@ -180,7 +182,11 @@ class Responsible extends Component{
                     <Selection >
                         <SelectionShape ref={"selecting"}/>
                     </Selection>
-                    <WhenSelectionChangeNotifier canvas={this} shouldNotify={()=>this.shouldCursorOrSelectionChange()} ref="selectionChangeNotifier"/>
+                    <WhenSelectionChangeNotifier
+                        ref="selectionChangeNotifier"
+                        SelectionStyle={this.constructor.SelectionStyle} 
+                        canvas={this} 
+                        shouldNotify={()=>this.shouldCursorOrSelectionChange()} />
 				</Fragment>
             </Canvas>
         )
@@ -285,22 +291,23 @@ export default class EventResponsible extends Responsible{
 
     onClick(e){
         if(!this.__mouseDownFlag.selected){
-            this.__mouseDownFlag.selected=false
             this.__onClick(e)
         }
+        delete this.__mouseDownFlag.selected
     }
 
     onContextMenu(e){
         const {context:{onContextMenu}}=this
         this.__onClick(e)
+        delete this.__mouseDownFlag.selected
         onContextMenu && onContextMenu(e)
     }
 
     onDoubleClick(e){
         if(!this.__mouseDownFlag.selected){
-            this.__mouseDownFlag.selected=false
             this.__onClick(e,true)
         }
+        delete this.__mouseDownFlag.selected
     }
 
     onMouseDown({clientX,clientY}){

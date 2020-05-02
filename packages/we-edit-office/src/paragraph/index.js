@@ -1,9 +1,10 @@
 import React from "react"
+import PropTypes from "prop-types"
 
-import {compose,setDisplayName,mapProps, shallowEqual,shouldUpdate} from "recompose"
+import {compose,setDisplayName,mapProps, shallowEqual,shouldUpdate, withContext} from "recompose"
 import {ACTION, whenSelectionChange,getUI} from "we-edit"
 
-import {ToolbarGroup,ToolbarSeparator as ToolbarSeparator0,MenuItem, SvgIcon} from "material-ui"
+import {ToolbarGroup,ToolbarSeparator,MenuItem, SvgIcon} from "material-ui"
 import CheckIconButton from "../components/check-icon-button"
 import DropDownButton from "../components/drop-down-button"
 
@@ -16,8 +17,6 @@ import IconAlignJustify from "material-ui/svg-icons/editor/format-align-justify"
 import IconListBullet from "material-ui/svg-icons/editor/format-list-bulleted"
 import IconListNumber from "material-ui/svg-icons/editor/format-list-numbered"
 
-const ToolbarSeparator=props=><ToolbarSeparator0 style={{marginRight:2, marginLeft:2}} {...props}/>
-
 export default compose(
 	setDisplayName("ParagraphStyle"),
 	whenSelectionChange(({selection},state)=>{
@@ -25,6 +24,7 @@ export default compose(
 			return {style:selection.props("paragraph",false),...getUI(state)}
 		return getUI(state)
 	}),
+	withContext({disabled:PropTypes.bool},({style})=>({disabled:!style})),
 	mapProps(({dispatch,children,style,pilcrow})=>{
 		return {
 			children,
@@ -80,7 +80,7 @@ export default compose(
 			onClick={()=>toggleAlign("justify")}
 			children={<IconAlignJustify/>}
 			/>
-		<ToolbarSeparator/>
+		<ToolbarSeparator style={{marginRight:2, marginLeft:2}}/>
 
 		<DropDownButton
 			status={style&&style.numbering&&style.numbering.format=="bullet" ?"checked":"unchecked"}
@@ -100,7 +100,7 @@ export default compose(
 			<MenuItem primaryText="a." onClick={e=>numbering({type:"lowerLetter",text:"%1."})}/>
 			<MenuItem primaryText="一" onClick={e=>numbering({type:"chinese", text:"%1"})}/>
 		</DropDownButton>
-		<ToolbarSeparator/>
+		<ToolbarSeparator style={{marginRight:2, marginLeft:2}}/>
 		<CheckIconButton
 			status={pilcrow ? "checked" : "unchecked"}
 			onClick={togglePilcrow}

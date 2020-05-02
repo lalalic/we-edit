@@ -11,7 +11,7 @@ import paste from "./paste"
 import serialize from "./serialize"
 import remove from "./remove"
 
-export default class Actions extends Input.Editable.EventHandler.xml{
+export default (class Actions extends Input.Editable.EventHandler.xml{
     constructor(){
         super(...arguments)
         this.debug=true
@@ -19,8 +19,6 @@ export default class Actions extends Input.Editable.EventHandler.xml{
         this.PARAGRAPH="w:p"
         this.TEXT="w:t"
         this.InlineContainers="w\\:r, w\\:sdt"
-        
-        Object.assign(this,seperate,create,update,enter,type,backspace,tab,paste,serialize,remove)
     }
 
     init(){
@@ -80,4 +78,5 @@ export default class Actions extends Input.Editable.EventHandler.xml{
             dy && simplePos.attr('y', this.file.px2emu($anchor.attr("y.offset")))
         }
     }
-}
+}).extends(seperate,create,update,enter,type,backspace,tab,paste,serialize,remove)
+

@@ -16,10 +16,10 @@ export default class Base{
 		let state={}
 
 		if(Object.keys(this._undoables).length>0)
-			state.undoables=this._undoables
+			state.undoables={...this._undoables}
 
 		if(Object.keys(this._selection).length>0)
-			state.selection=this._selection
+			state.selection={...this._selection}
 
 		return state
 	}

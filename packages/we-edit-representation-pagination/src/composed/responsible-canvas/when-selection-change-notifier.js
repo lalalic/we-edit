@@ -1,7 +1,6 @@
 import React, {Component} from "react"
 import {connect,ACTION} from "we-edit"
 import {compose} from "recompose"
-import SelectionStyle from "./selection-style"
 
 /**
  * To update cursor, selection, and focus shape only when
@@ -35,7 +34,7 @@ export default compose(
         return null
     }
 
-    shouldComponentUpdate({shouldNotify, content,selection, canvas, positioning=canvas.positioning},{composedContent}){
+    shouldComponentUpdate({shouldNotify, SelectionStyle, content,selection, canvas, positioning=canvas.positioning},{composedContent}){
         const composedContentIsSynced=content===composedContent
         if(!composedContentIsSynced)
             return false

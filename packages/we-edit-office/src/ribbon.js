@@ -41,7 +41,7 @@ const Ribbon=compose(
 	style,
 	commands={layout:false}
 	})=>{
-		let {home,insert,layout,when}="home,insert,layout,when".split(",").reduce((merged,k)=>{
+		const {home,insert,layout,when}="home,insert,layout,when".split(",").reduce((merged,k)=>{
 				if(commands[k]  || commands[k]===undefined){
 					if(typeof(commands[k])=="object"){
 						merged[k]={...merged[k], ...commands[k]}

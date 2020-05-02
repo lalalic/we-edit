@@ -5,6 +5,7 @@ export default class Base extends Component{
 	static displayName="unknown"
 	static LineShape={
 		sz: PropTypes.number.isRequired,
+		style: PropTypes.string,
 		color: PropTypes.string
 	}
 	static DefaultLine={

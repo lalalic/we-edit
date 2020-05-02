@@ -40,13 +40,6 @@ export default class PaginationSelectionStyle extends SelectionStyle{
     })
 
     props=memoize((type, getFromContent = true)=>{
-        if (type.toLowerCase() == "page") {
-            return this._pageProps();
-        }
-        else if (type.toLowerCase() == "layout") {
-            return this._layoutProps();
-        }
-
         const props=super.props(type,getFromContent)
         if(!props)
             return props
