@@ -1,13 +1,13 @@
 export default {
-    update({id,type,...changing}){
-        this.seperateSelection()
-        
-        const {start,end}=this.selection
+	update({id,type,...changing}){
         if(!type){
 			type=Object.keys(changing)[0]
 			changing=changing[type]
 		}
-
+		this.seperateSelection(type)
+        
+		const {start,end}=this.selection
+		
 		const targets=id ? [id] : (()=>{
 			const from=this.$(`#${start.id}`)
 			const to=this.$(`#${end.id}`)

@@ -370,9 +370,9 @@ export default class Editable extends DocxType{
             value: id
         })
         return id
-    }
-
-    getNode(uid){
+	}
+	
+	getNode(uid){
 		const [id,part]=uid.split(/[\{\}]/g)
 		let node=null
 

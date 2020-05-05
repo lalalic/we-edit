@@ -1,7 +1,7 @@
 import {getSelection,getFile} from "../../state/selector"
 import xQuery from "./xquery"
 
-export default class Base{
+export default class Reducer{
 	constructor(state,doc){
 		this._state=state
 		this._undoables={}

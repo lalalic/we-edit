@@ -12,7 +12,7 @@ import forward from "./forward"
 import backward from "./backward"
 import remove from "./remove"
 
-export default (class __$1 extends Base{
+export default (class XDocEvents extends Base{
     static extends(){
         Object.assign(this.prototype,...arguments)
         return this
@@ -23,7 +23,6 @@ export default (class __$1 extends Base{
         this.PARAGRAPH="paragraph"
         this.TEXT="text"
         this.InlineContainers=""
-        //Object.assign(this,seperate,create,update,enter,type,backspace,Delete,tab,forward,backward,remove)
     }
 
     get TEXT_(){

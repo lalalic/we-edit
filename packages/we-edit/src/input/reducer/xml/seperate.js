@@ -1,21 +1,38 @@
 export default {
-
     //the result should be [element], or [el1,...,el2]
 	seperateSelection(){
+        const action="seperate"
         var {start,end}=this.selection
+        start={...start}, end={...end}
         if(start.id==end.id){
-            if(start.at==end.at){
+            start.at=Math.min(start.at, end.at)
+            end.at=Math.max(start.at, end.at)
+            //whole
+            if(this.content.getIn([start.id,"type"])!="text")
                 return
-            }else{
-                if(this.content.getIn([start.id,"type"])!="text"){
-                    return
-                }else if(start.at==0 && end.at>=this.content.getIn([start.id,"children"]).length-1){
-                    return
-                }
+            //text
+            //full text, whole/empty
+            const isEndAtEnd=end.at>=this.content.getIn([start.id,"children"]).length-1
+            if(start.at==0 && isEndAtEnd)
+                return
+            if(start.at==end.at){
+                this.emit("split_text",this.conds)
+                return
             }
+        }else{
+            //normalize start, and end according to order
+            const ids=[start.id,end.id]
+            const grand=this.$('#'+end.id).parentsUntil(this.$('#'+start.id).parents()).parent()
+            grand.findFirst(a=>{
+                switch(ids.indexOf(a.get('id'))){
+                    case 1:
+                        ([start,end]=[end,start]);
+                    case 0:
+                        return true
+                }
+            })
         }
 
-        const action="seperate"
         this.cursorAt(end.id, end.at)
         var conds=this.conds
         if(!(conds.includes("at_end"))){
@@ -66,7 +83,26 @@ export default {
             end.at=src.length-at
         }
         this.cursorAt(clonedId,0,end.id,end.at)
-    },   
+    },  
+
+    split_text_at_text(){
+        this.seperate_at_text_for_start()
+        this.split_text_at_beginning()
+    },
+
+    split_text_at_end(){
+        const target=this.target
+        const empty=target.clone().text("").insertAfter(target)
+        this.file.renderChanged(this.file.getNode(this.$target.parent().attr("id")))
+        this.cursorAt(this.file.makeId(empty),0)
+    },
+
+    split_text_at_beginning(){
+        const target=this.target
+        const empty=target.clone().text("").insertBefore(target)
+        this.file.renderChanged(this.file.getNode(this.$target.parent().attr("id")))
+        this.cursorAt(this.file.makeId(empty),0)
+    },
 
     seperate_at_beginning_for_end(){
         const prevId=this.$target.backwardFirst(this.cursorable).attr('id')

@@ -264,7 +264,7 @@ export default class EventResponsible extends Responsible{
     				if(top<top1 || (top==top1 && left<=left1)){
     					this.dispatch(ACTION.Selection.START_AT(id,at))
     				}else{
-                        const a=this.positioning.normalizeSelection(a.end,{id,at})
+                        const a=this.positioning.normalizeSelection(end,{id,at})
     					this.dispatch(ACTION.Selection.SELECT(a.start.id,a.start.at, a.end.id, a.end.at))
     				}
     			}
