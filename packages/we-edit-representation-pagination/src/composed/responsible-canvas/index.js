@@ -99,7 +99,7 @@ class Responsible extends Component{
     }
     
     pageXY(I=0){
-        const rect=this.constructor.Canvas.pageRect(I,this.canvas)
+        const rect=this.canvas && this.constructor.Canvas.pageRect(I,this.canvas)
         return !rect ? {x:0,y:0} : this.asCanvasPoint(rect)
     }
     ////End Positioning API/

@@ -27,5 +27,15 @@ describe("responsible", ()=>{
 
     })
 
-    
+    it("double clicking on text will extend selection to word",()=>{
+
+    })
+
+    it("click on text will locate text",()=>{
+
+    })
+
+    it("click on image will locate image",()=>{
+        
+    })
 })

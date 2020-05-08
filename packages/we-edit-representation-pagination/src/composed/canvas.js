@@ -52,6 +52,7 @@ export default class ComposedDocumentCanvas extends Component{
 		return   (
 			<svg
 				{...props}
+				className={this.constructor.displayName}
 				ref={innerRef}
 				preserveAspectRatio="xMidYMin"
 				viewBox={`0 0 ${width} ${height}`}
