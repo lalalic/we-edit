@@ -18,3 +18,5 @@ export {Stream} from "./stream"
 export {default as Loader} from "./loader"
 
 export {default as DocumentTree} from "./doc-tree"
+
+export {Test} from "./test"

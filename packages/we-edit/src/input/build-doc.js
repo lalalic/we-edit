@@ -161,6 +161,7 @@ const createElementFactoryBuilder=inputTypeInstance=>content=>(type, props, chil
 class LocalStore{
 	constructor(store,key, getState){
 		this.key=key
+		this.listeners=[]
 		this.getState=()=>{
 			try{
 				if(getState){
@@ -176,7 +177,17 @@ class LocalStore{
 			if(typeof(action)=="function"){
 				return action(this.dispatch, this.getState)
 			}
+			this.listeners.forEach(a=>a(action))
 			return store.dispatch(action)
+		}
+		this.listen=fn=>{
+			this.listeners.push(fn)
+			return ()=>{
+				const i=this.listeners.indexOf(fn)
+				if(i!=-1){
+					this.listeners.splice(i,1)
+				}
+			}
 		}
 		this.subscribe=store.subscribe.bind(store)
 		this.replaceReducer=store.replaceReducer.bind(store)

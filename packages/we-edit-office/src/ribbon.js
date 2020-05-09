@@ -1,7 +1,7 @@
 import React, {Fragment,Children} from "react"
 import PropTypes from "prop-types"
 import {whenSelectionChange} from "we-edit"
-import {compose,setDisplayName,getContext,setStatic,branch,renderNothing}  from "recompose"
+import {compose,setDisplayName,getContext}  from "recompose"
 
 import {Toolbar as Toolbar0,ToolbarSeparator as ToolbarSeparator0, Tabs, Tab} from "material-ui"
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
@@ -12,6 +12,7 @@ import Paragraph from "./paragraph"
 import File from "./file"
 import History from "./history"
 import Clipboard from "./clipboard"
+import Recorder from "./record"
 
 import * as Table from "./table"
 import * as Picture from "./picture"
@@ -168,4 +169,4 @@ const Ribbon=compose(
 
 export default Ribbon
 
-export {Ribbon, Text, Paragraph,File,History,Table,Picture,Layout, Toolbar, ToolbarSeparator, Tabs, Tab, CheckIconButton,DropDownButton}
+export {Ribbon, Text, Paragraph,File,History,Table,Picture,Layout,Recorder, Toolbar, ToolbarSeparator, Tabs, Tab, CheckIconButton,DropDownButton}

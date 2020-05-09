@@ -19,6 +19,7 @@ import Movable from "./composed/responsible-canvas/movable"
 import Rotatable from "./composed/responsible-canvas/rotatable"
 import Overlay from "./composed/responsible-canvas/overlay"
 import * as composable from "./composable"
+import TestEmulator from "./composed/responsible-canvas/test"
 
 const Responsible=Editors.Document.defaultProps.canvas.type
 const Canvas=Responsible.Canvas
@@ -50,7 +51,7 @@ export default class Pagination extends Representation.Base{
 	}
 
 	static childContextTypes={
-		Measure: PropTypes.func
+		Measure: PropTypes.func,
 	}
 
 	static contextTypes={
@@ -132,4 +133,5 @@ export {
 	Viewers, Editors, FontManager, Measure, Composed, composable, editable, 
 	Resizable, Movable, Rotatable,Overlay,
 	Responsible,Canvas,Positioning,SelectionStyle,
+	TestEmulator,
 }

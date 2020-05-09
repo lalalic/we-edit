@@ -23,7 +23,7 @@ export default whenSelectionChange()(
                 if(selection.isSelectionChanged(prev.selection)){
                     const shape=this.shape.current
                     const {width,height}=shape.getBoundingClientRect()
-				    if(width*height!=0){
+				    if(height!=0){
                         if(shape.scrollIntoViewIfNeeded)
                             shape.scrollIntoViewIfNeeded(true)
                         else

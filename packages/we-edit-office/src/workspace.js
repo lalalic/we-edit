@@ -27,6 +27,7 @@ export default class Workspace extends PureComponent{
 		ruler: PropTypes.bool,
 		channel: PropTypes.string,
 		layout: PropTypes.node,
+		tests: PropTypes.node,
 	}
 
 	static defaultProps={
