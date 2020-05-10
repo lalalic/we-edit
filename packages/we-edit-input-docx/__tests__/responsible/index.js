@@ -1,9 +1,12 @@
 import {getSelection, ACTION} from "we-edit"
-export default ({doc, tick,every, describe,it,xdescribe,xit,fit,fdescribe,expect,beforeEach})=>{
+export default ({doc, tick,every, describe,it,xdescribe,xit,fit,fdescribe,expect,beforeEach,afterEach, wait})=>{
     const {store}=doc, dispatch=store.dispatch.bind(store)
     
+    afterEach(()=>wait(300))
+
     describe("scroll",()=>{
-        fit("to cursor",()=>{
+        it("to cursor",()=>{
+            
             dispatch(ACTION.Cursor.AT('95{word/document.xml}',9))
         })
 
@@ -29,7 +32,7 @@ export default ({doc, tick,every, describe,it,xdescribe,xit,fit,fdescribe,expect
         })
 
         it("change style",()=>{
-            return every(400, a=>dispatch(a),[
+            return every(400, dispatch,[
                 ACTION.Selection.SELECT('17{word/document.xml}',7,undefined,15),
                 ...([["size",24],["bold",true],["italic",true],["color",'red']].map(([k,v])=>({
                     type: 'we-edit/selection/UPDATE',
@@ -43,7 +46,7 @@ export default ({doc, tick,every, describe,it,xdescribe,xit,fit,fdescribe,expect
         })
 
         it("type", ()=>{
-            every(200, a=>dispatch(a),[
+            every(200, dispatch,[
                   ACTION.Cursor.AT('190{word/document.xml}',32),
                   {
                     type: 'we-edit/selection/UPDATE',
