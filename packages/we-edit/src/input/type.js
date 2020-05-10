@@ -242,7 +242,6 @@ export class Editable extends Viewable{
 				break
 			case "we-edit/selection/SELECTED":
 			case "we-edit/selection/STARTEDAT":
-			case "we-edit/selection/EXTENDTO":
 				const {start, end, cursorAt}=selection(getSelection(state),action)
 				reducer.cursorAt(start.id, start.at, end.id, end.at, cursorAt)
 				break

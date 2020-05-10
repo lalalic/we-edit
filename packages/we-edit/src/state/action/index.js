@@ -34,9 +34,9 @@ export const Selection={
 			}
 		}
 	},
+	WHOLE: id=>({type:"we-edit/selection/WHOLE",payload:id}),
 	START_AT:(id,at)=>({type:"we-edit/selection/STARTAT",payload:{id,at}}),
 	EXTEND: payload=>({type:"we-edit/selection/EXTEND",payload}),
-	EXTENDTO: (id,at)=>({type:"we-edit/selection/EXTENDTO",payload:{id,at}}),
 	
 	COPY: payload=>({type:"we-edit/selection/COPY",payload}),
 	PASTE: payload=>({type:"we-edit/selection/PASTE",payload}),

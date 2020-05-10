@@ -63,6 +63,7 @@ export const Test=connect(state=>getStatistics(state))(class Test extends PureCo
     }
 
     createEnv(specs,jasmineRequire){
+        const {activeDocStore}=this.context
         const {TestEmulator}=this.props
         const jasmine=jasmineRequire.core(jasmineRequire)
         jasmine.matchers.toMatchObject=(j$=>{
@@ -97,7 +98,20 @@ export const Test=connect(state=>getStatistics(state))(class Test extends PureCo
         const env = jasmine.getEnv()
         env.configure({random:false})
         specs(Object.assign(jasmineRequire.interface(jasmine, env),{
-            doc:new TestEmulator(this.context.activeDocStore),
+            wait(t){
+                return new Promise(resolve=>{
+                    const start=performance.now()
+                    const step=timestamp=>{
+                        if(timestamp-start>=t){
+                            resolve()
+                        }else{
+                            requestAnimationFrame(step)
+                        }
+                    }
+                    requestAnimationFrame(step)
+                })
+            },
+            doc:new TestEmulator(activeDocStore),
             tick(duration, a, b, fn){
                 return new Promise((resolve)=>{
                     let starttime, dist=a-b
