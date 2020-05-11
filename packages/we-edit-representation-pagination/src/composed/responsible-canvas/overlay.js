@@ -18,54 +18,33 @@ export default class Overlay extends Component{
         )
     }
 
-    static WhenMouseDown=class OverlayWhenMouseDown extends Component{
+    static WhenMousePressedMove=class OverlayWhenMousePressedMove extends Component{
         constructor(...args){
             super(...args)
-            this.state={mouseDowning:false, lastMouseUp:0}
-            this.holder=React.createRef()
+            this.state={}
         }
-
         render(){
-            const {children, doubleClickTime=200, style, ...props}=this.props
-            const {mouseDowning,lastMouseUp,x=0,y=0}=this.state
-            const {onMouseDown, onMouseMove, onMouseUp, onDoubleClick, onContextMenu,style:holderStyle={},cursor=holderStyle.cursor}=children.props
+            const {children,onStart,onMouseUp, ...props}=this.props
+            const {moving}=this.state
+
             return (
                 <Fragment>
-                    {React.cloneElement(children,{
-                        onMouseDown:e=>{
+                    <g onMouseMove={e=>{
+                        if(e.buttons==1){
                             e.stopPropagation()
-                            this.setState({mouseDowning:true,x:e.clientX, y:e.clientY})
-                            onMouseDown && onMouseDown(e)
-                        },
-                        onMouseMove:null,
-                        onMouseUp:null,
-                        onDoubleClick:null,
-                        onContextMenu:null,
-                    })}
-                    {mouseDowning && <Overlay {...{
-                        style:{cursor, ...style},
-                        onMouseMove:e=>{
-                            e.stopPropagation()
-                            e.preventDefault()
-                            onMouseMove && onMouseMove(e,{dx:e.clientX-x,dy:e.clientY})
-                        },
-                        onMouseUp:e=>{
-                            e.stopPropagation()
-                            e.preventDefault()
-                            const now=Date.now()
-                            if(now-lastMouseUp<doubleClickTime){
-                                e.stopPropagation()
-                                this.setState({mouseDowning:false})
-                                onDoubleClick && onDoubleClick(e)
-                            }else{
-                                this.setState({mouseDowning:false,lastMouseUp:Date.now()})
-                                onMouseUp && onMouseUp(e)
-                            }
-                        },
-                        onContextMenu:e=>{
-                            onContextMenu && onContextMenu(e)
+                            this.setState({moving:true})
+                            onStart && onStart(e)
                         }
-                    }} {...props}/>}
+                    }}>
+                        {children}
+                    </g>
+                    {moving && <Overlay {...props}
+                        onMouseUp={e=>{
+                            e.stopPropagation()
+                            this.setState({moving:false})
+                            onMouseUp && onMouseUp(e)
+                        }}
+                    />}
                 </Fragment>
             )
         }

@@ -19,23 +19,25 @@ export default class Rotatable extends Component{
 		}
 
 		return(
-			<Overlay.WhenMouseDown>
-				<g style={{cursor:"crosshair"}}
-						onMouseDown={e=>this.setState({rotating:true})}
-						onMouseUp={e=>{
-							this.setState({rotating:false})
-							if(onEnd)
-								onEnd()
-							e.stopPropagation()
-						}}
-						onMouseMove={e=>{
-							e.stopPropagation()
-							onRotate(e)
-						}}>
+			<Overlay.WhenMousePressedMove
+				style={{cursor:"crosshair"}}
+				onStart={e=>{
+					e.stopPropagation()
+					this.setState({rotating:true})
+				}}
+				onMouseUp={e=>{
+					e.stopPropagation()
+					this.setState({rotating:false})
+					if(onEnd)
+						onEnd()
+				}}
+				onMouseMove={e=>{
+					e.stopPropagation()
+					onRotate(e)
+				}}>
 					{rotating && <text x={x} y={-20} pointerEvents="none">{degree}</text>}
 					<use xlinkHref="#rotator" {...rotator} />
-				</g>
-			</Overlay.WhenMouseDown>
+			</Overlay.WhenMousePressedMove>
 		)
 	}
 }

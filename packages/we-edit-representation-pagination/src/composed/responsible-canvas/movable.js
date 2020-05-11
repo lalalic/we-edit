@@ -10,8 +10,9 @@ import Group from "../group"
  */
 export default class Movable extends Component{
 	static propTypes={
-		around: PropTypes.func,
+		onStart: PropTypes.func,
 		onMove: PropTypes.func,
+		onEnd: PropTypes.func,
 		isAnchor: PropTypes.bool,
 	}
 
@@ -21,58 +22,54 @@ export default class Movable extends Component{
 
 	state={moving:false}
 	render(){
-		const {state:{moving, x, y}, props:{children, isAnchor}, context:{positioning}}=this
-		
+		const {
+			state:{moving, x, y, id, at}, 
+			props:{children, isAnchor, onStart, onMove,onEnd=onMove}, 
+			context:{positioning}}=this
+
 		return (
-			<Overlay.WhenMouseDown style={{cursor:"default"}}>
-				<Group onMouseDown={e=>{
-						const {x,y}=positioning.asCanvasPoint({left:e.clientX,top:e.clientY})
-						this.setState({moving:true,x,y})
-					}}
-					onMouseUp={e=>this.onEndMove(e)}
-					onMouseMove={e=>this.moving(e)}>
-					{moving && !isAnchor && <MovingPlaceholder {...{x,y}}/>}
-					{children}
-				</Group>
-			</Overlay.WhenMouseDown>
+			<Overlay.WhenMousePressedMove
+				style={{cursor:"default"}}
+				onStart={e=>{
+					const {x,y}=positioning.asCanvasPoint({left:e.clientX,top:e.clientY})
+					this.setState({moving:true,x,y,x0:x,y0:y})
+					onStart && onStart({x,y})
+				}}
+
+				onMouseUp={e=>{
+					e.stopPropagation()
+					this.setState({moving:false})
+					if(isAnchor){
+						const {clientX:left, clientY:top}=e
+						const dest=positioning.asCanvasPoint({left, top})
+						onEnd && onEnd({dest:{dx:dest.x-x, dy:dest.y-y}});
+					}else{
+						onEnd && onEnd({dest:{id,at,x,y}})
+					}
+				}}
+
+				onMouseMove={e=>{
+					e.stopPropagation()
+					const {clientX:left, clientY:top}=e
+					if(isAnchor){
+						const dest=positioning.asCanvasPoint({left, top})
+						this.setState({...dest},()=>{
+							onMove({dest:{dx:dest.x-x, dy:dest.y-y}})
+						})
+					}else{
+						const {id,at}=positioning.around(left,top)
+						if(id){
+							const {x,y}=positioning.position(id,at)
+							this.setState({x,y,id,at})
+						}
+					}
+				}}
+				>
+				{children}
+				{moving && !isAnchor && <MovingPlaceholder {...{x,y}}/>}
+			</Overlay.WhenMousePressedMove>
 		)
 	}
-
-    onEndMove(e){
-		if(!this.state.moving)
-			return
-		const {clientX:left, clientY:top}=e
-		this.setState({moving:false},()=>{
-			const {props:{isAnchor,onMove}, state:{x,y}}=this
-			if(isAnchor){
-				const dest=this.context.positioning.asCanvasPoint({left, top})
-				onMove({dest:{dx:dest.x-x, dy:dest.y-y}})
-			}else{
-				onMove({dest:this.context.positioning.around(left,top)})
-			}
-		})
-		e.stopPropagation()
-    }
-
-    moving(e){
-		const {state:{moving,x,y},props:{onMove,isAnchor}}=this
-		if(moving){
-			const {clientX:left, clientY:top}=e
-			if(isAnchor){
-				const dest=this.context.positioning.asCanvasPoint({left, top})
-				this.setState({...dest},()=>{
-					onMove({dest:{dx:dest.x-x, dy:dest.y-y}})
-				})
-			}else{
-				const {id,at}=this.context.positioning.around(left,top)
-				if(id){
-					const {x,y}=this.context.positioning.position(id,at)
-					this.setState({x,y,id,at})
-				}
-			}
-		}
-		e.stopPropagation()
-    }
 }
 
 const MovingPlaceholder=({x=0,y=0})=>(

@@ -48,37 +48,35 @@ export default class Resizable extends Component{
 
 	render(){
 		const {cursor,resizing}=this.state
-		const {children,spots=[], onEnd, direction, resizer}=this.props
+		const {children,spots=[], onEnd, onStart, direction, resizer}=this.props
 		return (
-			<Overlay.WhenMouseDown style={{cursor}}>
-				<Group 	
-					onMouseDown={e=>{
-						e.stopPropagation()
-						const {clientX:left, clientY:top,target}=e
-						const {onStart}=this.props
-						this.setState({
-							resizing:e.target.dataset.direction||direction,
-							cursor:target.style.cursor||target.getAttribute("cursor")||cursor
-						})
-						onStart && onStart()
-						this.left=left
-						this.top=top
-					}}
-					onMouseUp={e=>{
-						e.stopPropagation()
-						this.setState({resizing:false})
-						onEnd && onEnd()
-					}}
-					onMouseMove={e=>{
-						e.stopPropagation()
-						this.resize(e)
-					}}
-					>
-					{children}
-					{spots.map(a=><Spot {...a}  key={a.direction}/>)}
-					{resizing && resizer}
-				</Group>
-			</Overlay.WhenMouseDown>
+			<Overlay.WhenMousePressedMove 
+				style={{cursor}}
+				onStart={e=>{
+					e.stopPropagation()
+					const {clientX:left, clientY:top,target}=e
+					this.setState({
+						resizing:e.target.dataset.direction||direction,
+						cursor:target.style.cursor||target.getAttribute("cursor")||cursor
+					})
+					onStart && onStart()
+					this.left=left
+					this.top=top
+				}}
+				onMouseUp={e=>{
+					e.stopPropagation()
+					this.setState({resizing:false})
+					onEnd && onEnd()
+				}}
+				onMouseMove={e=>{
+					e.stopPropagation()
+					this.resize(e)
+				}}
+				>
+				{children}
+				{spots.map(a=><Spot {...a}  key={a.direction}/>)}
+				{resizing && resizer}
+			</Overlay.WhenMousePressedMove>
 		)
 	}
 
