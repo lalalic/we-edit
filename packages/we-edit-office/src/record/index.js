@@ -1,6 +1,8 @@
 import React,{Component} from "react"
 import PropTypes from "prop-types"
 
+import {timeout} from "we-edit"
+
 import CheckIconButton from "../components/check-icon-button"
 
 import IconRecord from "material-ui/svg-icons/av/fiber-manual-record"
@@ -8,7 +10,7 @@ import IconPlay from "material-ui/svg-icons/av/play-circle-outline"
 import IconStop from "material-ui/svg-icons/av/stop"
 import IconNext from "material-ui/svg-icons/av/skip-next"
 import IconPrev from "material-ui/svg-icons/av/skip-previous"
-import IconSave from "material-ui/svg-icons/action/get-app"
+import IconSave from "material-ui/svg-icons/content/save"
 import IconUpload from "material-ui/svg-icons/editor/publish"
 
 import {ToolbarGroup } from "material-ui/Toolbar"
@@ -20,17 +22,17 @@ export default class Recorder extends Component{
     }
     constructor(){
         super(...arguments)
-        this.state={recording:false, playing:false, records:[], i:-1}
+        this.state={recording:false, playing:false, records:[], i:-1, interval:this.props.interval||400}
     }
 
-    shouldComponentUpdate(){
-        if(this.state.playing)
+    shouldComponentUpdate(props, state){
+        if(this.state.playing && state.playing)
             return false
         return true
     }
 
     render(){
-        const {recording, playing, i, records}=this.state
+        const {recording, playing, i, records,interval}=this.state
         const store=this.context.activeDocStore, dispatch=store.dispatch
         return (
             <ToolbarGroup>
@@ -63,10 +65,16 @@ export default class Recorder extends Component{
                     status={recording||records.length==0 ? "disabled" : (playing ? "checked" : "unchecked")}
                     onClick={e=>{
                         if(playing){
-                            this.setState({playing:false},)
+                            this.setState({playing:false},()=>{
+                                timeout.cancelEvery(this.every)
+                            })
                         }else{
                             this.setState({playing:true},()=>{
-                                records.forEach(dispatch)
+                                this.every=timeout.every(interval,(a,i)=>{
+                                    dispatch(a)
+                                    this.setState({i})
+                                }, records, i)
+                                this.every.then(i=>this.setState({playing:false,i:i>=records.length ? -1 : i}))
                             })
                         }
                     }}
@@ -120,6 +128,9 @@ export default class Recorder extends Component{
                     }}>
 					<IconUpload/>
 				</CheckIconButton>
+                <input value={interval} type="number" min={0}
+                    style={{width:50}}
+                    onChange={e=>this.setState({interval:parseInt(e.target.value)||0})}/>
             </ToolbarGroup>
         )
     }

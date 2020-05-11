@@ -1,4 +1,4 @@
-import Pagination,{FontManager} from "we-edit-representation-pagination"
+import Pagination,{FontManager, TestEmulator} from "we-edit-representation-pagination"
 import Html from "we-edit-representation-html"
 import Text from "we-edit-representation-text"
 import Plain from "we-edit-representation-plain"
@@ -11,11 +11,12 @@ import ioBrowser from "we-edit-loader-stream-browser"
 import Variant, {Provider} from "we-edit-variant"
 
 import React,{Fragment} from "react"
-import {Viewer, Editor,Input, DocumentTree, ACTION} from  "we-edit"
+import {Viewer, Editor,Input, DocumentTree, ACTION, Test} from  "we-edit"
 import {Office,Workspace, Ribbon,reducer} from "we-edit-office"
 import {Tabs, Tab, ToolbarGroup, SvgIcon} from "material-ui"
 import {connect} from  "react-redux"
 import minimatch from "minimatch"
+import { Toolbar } from "./packages/we-edit-office/src/ribbon"
 
 
 iDocx.install({
@@ -139,7 +140,15 @@ function testOffice(Target, representation="pagination"){
 			accept="*.docx"
 			key={KEY}
 			ruler={false}
-			toolBar={<Ribbon.Ribbon commands={{layout:false,}}/>}
+			toolBar={
+				<Ribbon.Ribbon commands={{layout:false,}}>
+					<Tab label="Record">
+						<Toolbar>
+							<Ribbon.Recorder/>
+						</Toolbar>
+					</Tab>
+				</Ribbon.Ribbon>
+			}
 			reducer={(state={assemble:false, data:null, pilcrow:false},{type,payload})=>{
 				switch(type){
 					case `${KEY}/data`:
@@ -172,15 +181,19 @@ function testOffice(Target, representation="pagination"){
 									*/}
 						/>
 				}
-				children={<VariantEditor representation={representation}
+			>
+				<VariantEditor representation={representation}
 					onContextMenu={e=>console.log("context menu")}
 					onKeyDown={e=>{
 						console.log("key down")
 						return false
 					}}
-					/>}
-				/>
-			
+					/>
+			</Workspace.Desk>
+			<Test 
+					TestEmulator={TestEmulator} 
+					auto={false} 
+					fixture={()=>import("./packages/we-edit-input-docx/__tests__/responsible")}/>
 		</Workspace>
 	)
 

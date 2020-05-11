@@ -6,8 +6,7 @@ export default ({doc, tick,every, describe,it,xdescribe,xit,fit,fdescribe,expect
 
     describe("scroll",()=>{
         it("to cursor",()=>{
-            
-            dispatch(ACTION.Cursor.AT('95{word/document.xml}',9))
+            dispatch(ACTION.Cursor.AT('95{word/document.xml}',9),doc=>doc.selectionStyle)
         })
 
         it("to range",()=>{

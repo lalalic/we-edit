@@ -23,7 +23,7 @@ module.exports=(env,args)=>{
 			},{
 				test: /\.js?$/,
 				use: ['babel-loader'],
-				exclude: /node_modules/,
+				exclude: /(node_modules|tools\/jasmine)/,
 				include: /src/
 			},{
 				test: /\.js?$/,

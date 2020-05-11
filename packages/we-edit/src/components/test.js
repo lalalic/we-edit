@@ -4,9 +4,18 @@ import FloatingActionButton from "material-ui/FloatingActionButton"
 import IconTest from "material-ui/svg-icons/notification/adb"
 
 import {connect} from "../state"
-import {getStatistics, getSelectionStyle} from "../state/selector"
+import {getStatistics, getSelectionStyle, getSelection} from "../state/selector"
+import * as timeout from "../tools/timeout"
 
-export const Test=connect(state=>getStatistics(state))(class Test extends PureComponent{
+export const Test=connect(state=>{
+    const selection=getSelection(state)
+    const style=getSelectionStyle(state)
+    let ready=false
+    if(selection && style){
+        ready=style.start.id==selection.start.id && style.start.at==selection.start.at && style.end.id==selection.end.id && style.end.at==selection.end.at
+    }
+    return {ready}
+})(class Test extends PureComponent{
     static contextTypes={
         activeDocStore: PropTypes.any,
     }
@@ -98,61 +107,8 @@ export const Test=connect(state=>getStatistics(state))(class Test extends PureCo
         const env = jasmine.getEnv()
         env.configure({random:false})
         specs(Object.assign(jasmineRequire.interface(jasmine, env),{
-            wait(t){
-                return new Promise(resolve=>{
-                    const start=performance.now()
-                    const step=timestamp=>{
-                        if(timestamp-start>=t){
-                            resolve()
-                        }else{
-                            requestAnimationFrame(step)
-                        }
-                    }
-                    requestAnimationFrame(step)
-                })
-            },
             doc:new TestEmulator(activeDocStore),
-            tick(duration, a, b, fn){
-                return new Promise((resolve)=>{
-                    let starttime, dist=a-b
-                    function step(timestamp){
-                        let runtime = timestamp - starttime
-                        fn(a-dist * Math.min(runtime / duration, 1))
-                        if (runtime < duration){
-                            requestAnimationFrame(step)
-                        }else{
-                            resolve()
-                        }
-                    }
-                    
-                    requestAnimationFrame(timestamp=>{
-                        starttime = timestamp
-                        step(timestamp)
-                    })
-                })
-            },
-            every(t, fn, data){
-                data=Array.from(data)
-                return new Promise(resolve=>{
-                    let last, i=-1
-                    function step(timestamp){
-                        if((timestamp-last)>=t && i<data.length-1){
-                            fn(data[++i])
-                            last=performance.now()
-                        }
-                        if(i<data.length-1){
-                            requestAnimationFrame(step)
-                        }else{
-                            resolve()
-                        }
-                    }
-
-                    requestAnimationFrame(timestamp=>{
-                        last=timestamp-t
-                        step(timestamp)
-                    })
-                })
-            }
+            ...timeout
         }))
         return env
     }

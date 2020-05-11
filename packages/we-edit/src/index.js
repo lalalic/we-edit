@@ -12,6 +12,7 @@ export {default as shallowEqual} from "./tools/shallow-equal"
 export {default as ReactQuery} from "./tools/react-query"
 export {default as uuid} from "./tools/uuid"
 export {default as transactifyCheerio} from "./tools/cheerio"
+import * as timeout from "./tools/timeout"
 
 export {default as ContentQuery} from "./state/selector/query"
 
@@ -20,3 +21,5 @@ export {default as Input} from "./input"
 export {default as dom} from "./dom"
 
 export {default as render} from "./render"
+
+export {timeout}

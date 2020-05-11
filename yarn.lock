@@ -4243,6 +4243,10 @@ istanbul-reports@^2.2.6:
   dependencies:
     handlebars "^4.1.2"
 
+jasmine-core@^3.5.0:
+  version "3.5.0"
+  resolved "https://registry.npm.taobao.org/jasmine-core/download/jasmine-core-3.5.0.tgz#132c23e645af96d85c8bca13c8758b18429fc1e4"
+
 jest-changed-files@^24.9.0:
   version "24.9.0"
   resolved "https://registry.npm.taobao.org/jest-changed-files/download/jest-changed-files-24.9.0.tgz#08d8c15eb79a7fa3fc98269bc14b451ee82f8039"
@@ -6395,7 +6399,7 @@ react-codemirror2@^6.0.0:
 
 react-dom@16.7.0, react-dom@^16.1.1, react-dom@^16.5.1:
   version "16.7.0"
-  resolved "https://registry.npm.taobao.org/react-dom/download/react-dom-16.7.0.tgz?cache=0&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Freact-dom%2Fdownload%2Freact-dom-16.7.0.tgz#a17b2a7ca89ee7390bc1ed5eb81783c7461748b8"
+  resolved "https://registry.npm.taobao.org/react-dom/download/react-dom-16.7.0.tgz#a17b2a7ca89ee7390bc1ed5eb81783c7461748b8"
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
@@ -6895,7 +6899,7 @@ sax@^1.2.4, sax@~1.2.1:
 
 scheduler@^0.12.0:
   version "0.12.0"
-  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.12.0.tgz#8ab17699939c0aedc5a196a657743c496538647b"
+  resolved "https://registry.npm.taobao.org/scheduler/download/scheduler-0.12.0.tgz#8ab17699939c0aedc5a196a657743c496538647b"
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
