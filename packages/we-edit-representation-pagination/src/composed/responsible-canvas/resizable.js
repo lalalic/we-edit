@@ -73,9 +73,11 @@ export default class Resizable extends Component{
 					this.resize(e)
 				}}
 				>
-				{children}
-				{spots.map(a=><Spot {...a}  key={a.direction}/>)}
-				{resizing && resizer}
+				<g onMouseDown={e=>e.stopPropagation()}>
+					{children}
+					{spots.map(a=><Spot {...a}  key={a.direction}/>)}
+					{resizing && resizer}
+				</g>
 			</Overlay.WhenMousePressedMove>
 		)
 	}
