@@ -4,7 +4,9 @@ export default {
 			type=Object.keys(changing)[0]
 			changing=changing[type]
 		}
-		this.seperateSelection(type)
+		if(!id){//target id specified, so don't need seperate selection
+			this.seperateSelection(type)
+		}
         
 		const {start,end}=this.selection
 		
