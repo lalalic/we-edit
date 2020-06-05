@@ -2,7 +2,7 @@ import {createStore as createRawStore, compose, applyMiddleware} from "redux"
 import {connect as _connect, createProvider} from "react-redux"
 import Immutable,{Map} from "immutable"
 import thunk from "redux-thunk"
-import {firstCursorable, getSelectionStyle} from "./selector"
+import {firstCursorable, getSelectionStyle, getSelection} from "./selector"
 
 export function createStore(reducer,INIT_STATE){
 	const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
@@ -29,7 +29,7 @@ export function createState(doc, content){
 		ui:{},
 		statistics:{},
 		undos:[],
-		redos:[]
+		redos:[],
 	})
 }
 
@@ -61,3 +61,15 @@ export const whenSelectionChange=((props=a=>a,actionMap,mergeProps,options={})=>
 		return props({selection:getSelectionStyle(state)},state)
 	},actionMap,mergeProps,options)
 })
+
+export const isDocumentReady=state=>{
+	const selection=getSelection(state)
+	const style=getSelectionStyle(state)
+	if(selection && style){
+		return style.start.id==selection.start.id && 
+			style.start.at==selection.start.at && 
+			style.end.id==selection.end.id && 
+			style.end.at==selection.end.at
+	}
+	return false
+}

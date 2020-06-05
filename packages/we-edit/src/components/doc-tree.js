@@ -24,7 +24,7 @@ class Node extends Component{
 		return (
 			<Fragment>
 				{!name ? null : 
-				<dt {...props} style={{...style, userSelect:"none"}}>
+				<dt {...props} style={{...style, userSelect:"none",cursor:"default"}}>
 					<span
 						onClick={e=>this.setState({show:!show})}
 						style={{display:"inline-block",width:20,textAlign:"center"}}>

@@ -141,12 +141,7 @@ function testOffice(Target, representation="pagination"){
 			key={KEY}
 			ruler={false}
 			toolBar={
-				<Ribbon.Ribbon commands={{layout:false,}}>
-					<Tab label="Record">
-						<Toolbar>
-							<Ribbon.Recorder/>
-						</Toolbar>
-					</Tab>
+				<Ribbon.Ribbon commands={{layout:true,}}>
 				</Ribbon.Ribbon>
 			}
 			reducer={(state={assemble:false, data:null, pilcrow:false},{type,payload})=>{
@@ -162,23 +157,7 @@ function testOffice(Target, representation="pagination"){
 				
 			<Workspace.Desk
 				layout={
-					<Workspace.Layout
-						right={null/*
-							<div style={{width:300}}>
-								<Tabs>
-									<Tab label="Document">
-										{
-											<DocumentTree
-											toNodeProps={({id,type,props})=>({name:`${type}(${parseInt(id)})`})}
-											/>
-										}
-									</Tab>
-									<Tab label="Assemble">
-										<FileSelector />
-									</Tab>
-								</Tabs>
-							</div>
-									*/}
+					<Workspace.Layout right={<Workspace.PanelContainer name="right" style={{width:300}}/>}
 						/>
 				}
 			>
@@ -190,10 +169,11 @@ function testOffice(Target, representation="pagination"){
 					}}
 					/>
 			</Workspace.Desk>
-			<Test 
-					TestEmulator={TestEmulator} 
-					auto={false} 
-					fixture={()=>import("./packages/we-edit-input-docx/__tests__/responsible")}/>
+			{
+			<Test auto={true}
+				style={{position:"fixed",right:20,bottom:50,background:"lightblue",opacity:0.9,width:250,textAlign:"initial"}} 
+				fixture={()=>import("./packages/we-edit-input-docx/__tests__/responsible/index")}/>
+			}
 		</Workspace>
 	)
 

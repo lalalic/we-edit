@@ -1,7 +1,11 @@
 /**
  * To provide a selection structure to UI layer
- * Represenation layouer should implement and dispatch(ACTION.Selection.STYLE(style)) to state
+ * Represenation layer should implement and dispatch(ACTION.Selection.STYLE(style)) to state
  * UI Layer can use whenSelectionChange to get selection props/style
+ * 
+ * Selection can be following type:
+ * cursor: the selection is collapsed
+ * range: a range is selected
  */
 export default class SelectionStyle{
     constructor(position,start,end){
@@ -11,7 +15,8 @@ export default class SelectionStyle{
     }
 
     toJSON() {
-        return "Selection.Style";
+        const {start, end}=this
+        return this.isCursor ? `cursor at (${start.id}, ${start.at})` : JSON.stringify({start,end})
     }
 
     /**
@@ -71,6 +76,10 @@ export default class SelectionStyle{
     }
 
     getContent(id){
+
+    }
+
+    getTestDocument(store){
 
     }
 }

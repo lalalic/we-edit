@@ -1,79 +1,91 @@
-import React, {PureComponent,Fragment} from "react"
+import React, {Component,} from "react"
 import PropTypes from "prop-types"
-import FloatingActionButton from "material-ui/FloatingActionButton"
-import IconTest from "material-ui/svg-icons/notification/adb"
 
-import {connect} from "../state"
-import {getStatistics, getSelectionStyle, getSelection} from "../state/selector"
+import {connect, isDocumentReady} from "../state"
+import {ACTION, getActive, getAll} from "./we-edit"
+import Input from "../input"
+import {getSelectionStyle, getSelection, getFile} from "../state/selector"
 import * as timeout from "../tools/timeout"
 
-export const Test=connect(state=>{
-    const selection=getSelection(state)
-    const style=getSelectionStyle(state)
-    let ready=false
-    if(selection && style){
-        ready=style.start.id==selection.start.id && style.start.at==selection.start.at && style.end.id==selection.end.id && style.end.at==selection.end.at
-    }
-    return {ready}
-})(class Test extends PureComponent{
+export const Test=connect(state=>({ready:isDocumentReady(state)}))(class extends Component{
     static contextTypes={
-        activeDocStore: PropTypes.any,
+        store: PropTypes.any,
     }
+
+    static propTypes={
+        auto: PropTypes.bool,
+        onStart: PropTypes.func,
+        onEnd: PropTypes.func,
+        fixture: PropTypes.oneOfType([PropTypes.func,PropTypes.string])
+    }
+
     constructor(){
         super(...arguments)
-        this.state={show:!!this.props.show}
+        this.state={}
     }
 
     render(){
-        const {tests, current,show, tested, testing, start, status}=this.state
-        const {reporterStyle={}, buttonStyle={}, auto, ...props}=this.props
+        const {state:{tests, current},props:{style={}, on1Chosen}}=this
         if(!tests)
             return null
-        const showStyle={textAlign:"initial",position:"fixed",width:"100%",height:"100%",background:"lightblue",top:0,left:0,opacity:0.9}
         return (
-            <Fragment>
-                {show && <div  id="test" style={{...showStyle,...reporterStyle}}>
-                    <CurrentContext.Provider value={{current,test1:(id)=>this.test(id)}}>
-                        {show && tests.topSuite().children.map((a,i)=>a.id.startsWith("spec") ? <Spec key={i} spec={a}/> : <Suite key={i} suite={a}/>)}
-                    </CurrentContext.Provider>
-                </div>}
-                <FloatingActionButton mini={true}
-                    style={{bottom:80,left:10,position:"fixed",...buttonStyle}}
-                    onClick={e=>this.setState({show:!show})}
-                    >
-                    <IconTest style={{fill:!status ? (testing ? "blue" : "white") : (status=="failed" ? "red" : "green")}}/>
-                    {!tested && !testing && !auto && !start && (
-                        <span style={{position:"absolute",width:0,height:0,top:0,left:0}}>
-                            <input type="radio" defaultChecked={false} style={{margin:0}} 
-                                onClick={e=>{
-                                    e.stopPropagation()
-                                    this.setState({start:true})
-                                }}/>
-                        </span>
-                    )}
-                </FloatingActionButton>
-            </Fragment>
+            <div style={style}>
+                <CurrentContext.Provider value={{current,test1:on1Chosen}}>
+                    {tests.topSuite().children.map((a,i)=>a.id.startsWith("spec") ? <Spec key={i} spec={a}/> : <Suite key={i} suite={a}/>)}
+                </CurrentContext.Provider>
+            </div>
         )
     }
 
-    test(id){
-        !this.state.testing && this.setState({tested:false,test1:id})
+    shouldComponentUpdate(){
+        return !this.state.tested
     }
 
     componentDidMount(){
-        const {fixture}=this.props
+        const {fixture, onChange=a=>a}=this.props
         if(!fixture)
             return
-        Promise.resolve(fixture())
-            .then(tests=>{
+        this.loadFixture(fixture)
+            .then(specs=>{
                 import(/*jasmine*/"jasmine-core/lib/jasmine-core/jasmine")
-                .then(jasmineRequire=>this.setState({tests:this.createEnv(tests.default, jasmineRequire)}))
+                .then(jasmineRequire=>{
+                    this.jasmine=jasmineRequire
+                    this.setState({tests:this.createEnv(specs, jasmineRequire)},()=>onChange(this.state))
+                })
             })
     }
 
+    loadFixture(fixture){
+        switch(typeof(fixture)){
+            case "function":
+                return Promise.resolve(fixture.length ? fixture : fixture())
+                    .then(a=>a.default||a)
+            case "string":
+                return Promise.resolve(fixture.match(/^(blob\:)?http(s)?\:\/\//) ? fetch(fixture).then(res=>res.text()) : fixture)
+                    .then(js=>{
+                        const isFunction=(code)=>{
+                            return code.match(/(export\s+default)|(module.exports\s+=)/)
+                        }
+                        if(isFunction(js)){
+                            return jasmine=>(new Function('j',`(${js.replace(/(export\s+default)|(module.exports\s+=)/,"")})(j)`))(jasmine)
+                        }else{
+                            return (js=>jasmine=>{
+                                const apis=Object.keys(jasmine).filter(k=>typeof(jasmine[k])=="function");
+                                (new Function('jasmine',`
+                                    (({doc, ${apis.join(",")}})=>{
+                                        ${js}
+                                    })(jasmine);
+                                `))(jasmine)
+                            })(js)
+                        }
+                    })
+            default:
+                return Promise.reject()
+        }
+    }
+
     createEnv(specs,jasmineRequire){
-        const {activeDocStore}=this.context
-        const {TestEmulator}=this.props
+        const {store}=this.context
         const jasmine=jasmineRequire.core(jasmineRequire)
         jasmine.matchers.toMatchObject=(j$=>{
             var getErrorMsg = j$.formatErrorMsg('<toMatchObject>', 'expect(<expectation>).toMatch(<object>)');
@@ -106,36 +118,52 @@ export const Test=connect(state=>{
         })(jasmine);
         const env = jasmine.getEnv()
         env.configure({random:false})
+        const doc=getSelectionStyle(getActive(store.getState()).state).getTestDocument(store)||new Test.Emulator(store)
         specs(Object.assign(jasmineRequire.interface(jasmine, env),{
-            doc:new TestEmulator(activeDocStore),
+            doc,
             ...timeout
         }))
         return env
     }
 
     componentDidUpdate(){
-        const {pages,words, auto}=this.props
+        const {ready, auto}=this.props
         const {testing,tests,tested, start=auto}=this.state
-        if(tests && !testing &&!tested && (pages || words) && start){
+        if(tests && !testing &&!tested && ready && start){
             this.run()
         }
     }
 
     run(){
-        const {tests,test1}=this.state
+        const {tests}=this.state
+        const {onStart=a=>a, onEnd=a=>a, onChange=a=>a, focus}=this.props
+        const failed=[]
         tests.addReporter({
-            jasmineStarted:()=>this.setState({testing:true}),
-            jasmineDone:(a)=>{
-                this.setState({
-                    testing:undefined,current:undefined, test1:undefined,start:undefined,
-                    tested:true,
-                    status:a.overallStatus,
+            jasmineStarted:a=>{
+                this.setState({testing:true},()=>{
+                    onStart(a)
+                    onChange(this.state)
                 })
             },
-            specStarted:(a)=>this.setState({current:a.id})
+            jasmineDone:a=>{
+                this.setState({
+                    testing:undefined,current:undefined, start:undefined,
+                    tested:true,
+                    status:a.overallStatus,
+                },()=>{
+                    onEnd({status:a.overallStatus, failed})
+                    onChange(this.state)
+                })
+            },
+            specStarted:(a)=>this.setState({current:a.id}, ()=>onChange(this.state)),
+            specDone:a=>{
+                if(a.status=="failed"){
+                    failed.push(a.id)
+                }
+            }
         })
         try{
-        tests.execute(test1 ? [test1] : undefined)
+            tests.execute(focus&&focus.length ? focus : undefined)
         }catch(e){
             debugger
         }
@@ -164,7 +192,9 @@ const Spec=({spec, result:{status,throwOnExpectationFailure,failedExpectations}=
     <CurrentContext.Consumer>
         {({current,test1})=>(
             <li style={Styles[status||(current==spec.id && "running")||""]}>
-                <div onDoubleClick={e=>test1(spec.id)}>{spec.description}</div>
+                <div onDoubleClick={e=>test1(spec.id)} style={{cursor:"default"}}>
+                    {spec.description}
+                </div>
                 
                 {throwOnExpectationFailure && (
                 <div>{failedExpectations}</div>
@@ -180,11 +210,80 @@ const Spec=({spec, result:{status,throwOnExpectationFailure,failedExpectations}=
 
 Test.Emulator=class{
     constructor(store){
-        this.store=store
+        this.dispatch=store.dispatch
+        this.ACTION=ACTION
+        Object.defineProperties(this,{
+            state:{
+                get(){
+                    return getActive(store.getState()).state
+                }
+            },
+        })
+
+        this.load=(url,props={})=>{
+            let unsubscribe=a=>a
+            return new Promise((resolve,reject)=>{
+                fetch(url)
+                .then(res=>res.blob())
+                .then(data=>{
+                    const file={data,src:url,...props}
+                    return Input.parse(file)
+                })
+                .then(doc=>{
+                    const id=doc.id
+                    unsubscribe=store.subscribe((a,b,c)=>{
+                        const docState=getAll(store.getState())[id]
+                        if(docState && isDocumentReady(docState)){
+                            unsubscribe()
+                            resolve()
+                        }
+                    })
+                    store.dispatch(ACTION.ADD(doc,a=>a))
+                    return unsubscribe
+                })
+                .finally(unsubscribe)
+            })
+        }
+
+        this.unload=()=>{
+            store.dispatch(ACTION.CLOSE())
+        }
+
+        this.dispatch=(action,check=isDocumentReady, time=3000)=>{
+            if(typeof(check)!="function")
+                return Promise.resolve(store.dispatch(action))
+            
+            let unsubscribe=a=>a, resolved=false
+            return new Promise((resolve, reject)=>{
+                unsubscribe=store.subscribe((a,b,c)=>{
+                    if(check(this.state) && !resolved){
+                        resolved=true
+                        unsubscribe()
+                        resolve()
+                    }
+                })
+                store.dispatch(action)
+                if(time){
+                    timeout.requestTimeout(()=>{
+                        if(!resolved)
+                            reject(`timeout for action:${JSON.stringify(action)} within ${time}ms`)
+                    }, time)
+                }
+            })
+            .finally(unsubscribe)
+        }
+    }
+
+    get selectionStyle(){
+        return getSelectionStyle(this.state)
     }
 
     get selection(){
-        return getSelectionStyle(this.store.getState())
+        return getSelection(this.state)
+    }
+
+    get file(){
+        return getFile(this.state)
     }
 
     click(){
@@ -193,5 +292,9 @@ Test.Emulator=class{
 
     doubleClick(){
         
+    }
+
+    isInView(id){
+        return true
     }
 }
