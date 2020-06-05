@@ -13,7 +13,7 @@ import IconPrev from "material-ui/svg-icons/av/skip-previous"
 import IconSave from "material-ui/svg-icons/content/save"
 import IconUpload from "material-ui/svg-icons/editor/publish"
 
-import {ToolbarGroup } from "material-ui/Toolbar"
+import {ToolbarGroup, ToolbarSeparator } from "material-ui/Toolbar"
 
 
 export default class Recorder extends Component{
@@ -131,6 +131,7 @@ export default class Recorder extends Component{
                 <input value={interval} type="number" min={0}
                     style={{width:50}}
                     onChange={e=>this.setState({interval:parseInt(e.target.value)||0})}/>
+                <ToolbarSeparator/>
             </ToolbarGroup>
         )
     }

@@ -17,7 +17,9 @@ import Recorder from "./record"
 import * as Table from "./table"
 import * as Picture from "./picture"
 import * as Layout from "./layout"
-import {CheckIconButton,DropDownButton} from "./components"
+import * as Developer from "./developer"
+
+import {CheckIconButton,DropDownButton,IconButton} from "./components"
 
 const Toolbar=props=><Toolbar0 style={{justifyContent:"initial"}} {...props}/>
 const ToolbarSeparator=props=><ToolbarSeparator0 style={{marginRight:2, marginLeft:2}} {...props}/>
@@ -42,7 +44,7 @@ const Ribbon=compose(
 	style,
 	commands={layout:false}
 	})=>{
-		const {home,insert,layout,when}="home,insert,layout,when".split(",").reduce((merged,k)=>{
+		const {home,insert,layout,developer,when}="home,insert,layout,when,developer".split(",").reduce((merged,k)=>{
 				if(commands[k]  || commands[k]===undefined){
 					if(typeof(commands[k])=="object"){
 						merged[k]={...merged[k], ...commands[k]}
@@ -95,6 +97,10 @@ const Ribbon=compose(
 			},
 			layout:{
 				basic:<Layout.Tools/>
+			},
+			developer:{
+				basic:<Developer.Ribbon/>,
+				recorder: <Recorder/>
 			},
 			when:{
 				table:<Table.Ribbon/>,
@@ -155,6 +161,13 @@ const Ribbon=compose(
 							{layout.more}
 						</Toolbar>
 					</Tab>}
+					{developer && <Tab label="Developer" buttonStyle={buttonStyle} style={tabStyle}>
+						<Toolbar>
+							{developer.basic}	
+							{developer.recorder}
+							{developer.more}
+						</Toolbar>
+					</Tab>}
 					{React.Children.toArray(children).map(a=>React.cloneElement(a,{buttonStyle, style:tabStyle,key:a.props.label}))}
 					{when}
 					<Tab label="beautifier"
@@ -169,4 +182,4 @@ const Ribbon=compose(
 
 export default Ribbon
 
-export {Ribbon, Text, Paragraph,File,History,Table,Picture,Layout,Recorder, Toolbar, ToolbarSeparator, Tabs, Tab, CheckIconButton,DropDownButton}
+export {Ribbon, Text, Paragraph,File,History,Table,Picture,Layout,Developer,Recorder, Toolbar, ToolbarSeparator, Tabs, Tab, CheckIconButton,DropDownButton}
