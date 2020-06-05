@@ -357,6 +357,10 @@ class Paragraph extends Super{
 }
 
 export default class EditableParagraph extends editable(Paragraph,{stoppable:true}){
+	_hasAnchor(){
+		return this.atoms.find(a=>a.props.anchor)
+	}
+
 	/**to sync lastComposed with composed */
 	rollbackLines(n){
 		super.rollbackLines(n)
@@ -364,7 +368,7 @@ export default class EditableParagraph extends editable(Paragraph,{stoppable:tru
 	}
 	
 	cancelUnusableLastComposed({hash,changed=hash!=this.props.hash}){
-		if(changed){
+		if(changed || this._hasAnchor()){
 			this.atoms=[]
 			super.cancelUnusableLastComposed(...arguments)
 		}
