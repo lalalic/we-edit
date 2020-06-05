@@ -26,7 +26,7 @@ export function requestTimeout(fn, time){
     return id
 }
 
-export const cancalTimeout=cancel
+export const cancelTimeout=cancel
 
 export function every(t, fn, data, start=0){
     data=Array.from(data)
@@ -35,12 +35,12 @@ export function every(t, fn, data, start=0){
         done=resolve
         let last
         function step(timestamp){
-            if((timestamp-last)>=t && i<data.length-1){
+            if((timestamp-last)>=t && i<data.length){
                 fn(data[i],i)
                 i++
                 last=performance.now()
             }
-            if(i<data.length-1){
+            if(i<data.length){
                 current=requestAnimationFrame(step)
             }else{
                 resolve(i)
