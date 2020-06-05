@@ -219,9 +219,11 @@ export default class EditableSection extends editable(Section,{stoppable:true}){
 			delete this.computed.allComposed
 			//continue from last
 		}
-
-		const lastId=this.current.lastLine.props["data-content"]
-		return this.childrenArray(this.props.children).findIndex(a=>a && a.props.id==lastId)
+		if(this.current.lastLine){
+			const lastId=this.current.lastLine.props["data-content"]
+			return this.childrenArray(this.props.children).findIndex(a=>a && a.props.id==lastId)
+		}
+		return false
 	}
 
 	_cancelChangedPart(next){

@@ -1,6 +1,13 @@
 import {SelectionStyle} from "we-edit"
 import memoize from "memoize-one"
+import Test from "./test"
 
+/**
+ * Selection type:
+ *  cursor
+ *  range
+ *  focusable: not range, not cursor, just an object, such as image
+ */
 export default class PaginationSelectionStyle extends SelectionStyle{
     constructor(position, start, end,positioning) {
         super(position, start, end)
@@ -96,4 +103,8 @@ export default class PaginationSelectionStyle extends SelectionStyle{
             }
         };
     })
+
+    getTestDocument(store){
+        return new Test(store)
+    }
 }

@@ -21,7 +21,7 @@ export default compose(
     }
     shouldComponentUpdate({ selection, isSelectionComposed, compose4Selection }) {
         if (!isSelectionComposed(selection)) {
-            compose4Selection()
+            compose4Selection(selection)
             return false
         }
         return true

@@ -10,7 +10,7 @@ export default whenSelectionChange()(
         render(){
             const {selection, style }=this.props
             const {position:{y = 0, x = 0, height = 0, color = "black"}, isCursor, isFocusable}=selection||{position:{}}
-            return (<path ref={this.shape} d={`M${x} ${y} v${isCursor&&!isFocusable ? height: 0}`} strokeWidth={1} stroke={color} style={style} />)
+            return (<path ref={this.shape} d={`M${x} ${y} v${isCursor ? height: (isFocusable ? 1 : 0)}`} strokeWidth={1} stroke={color} style={style} />)
         }
 
         componentDidMount(){
@@ -19,7 +19,7 @@ export default whenSelectionChange()(
 
         componentDidUpdate(prev){
             const selection=this.props.selection
-            if(prev.selection!=selection && selection && selection.isCursor){
+            if(prev.selection!=selection && selection && (selection.isCursor || selection.isFocusable)){
                 if(selection.isSelectionChanged(prev.selection)){
                     const shape=this.shape.current
                     const {width,height}=shape.getBoundingClientRect()

@@ -5,7 +5,6 @@ import {ACTION, Cursor, Selection,ContentQuery, getSelection} from "we-edit"
 import Canvas from "../canvas"
 import SelectionShape from "./selection-shape"
 import CursorShape from "./cursor-shape"
-import WhenSelectionChangeNotifier from "./when-selection-change-notifier"
 import Positioning from "./positioning"
 import ComposeMoreTrigger from "./compose-more-trigger"
 import DefineShapes from "./define-shapes"
@@ -15,6 +14,12 @@ import SelectionStyle from "./selection-style"
  * must provide the following 
  * 1. for Positioning: pages, getComposer, getContent, asCanvasPoint, asViewportPoint, pageXY(I)
  * 2. for Responsible Events: 
+ * 
+ * SelectionStyle is provided when following events and selection composed
+ * recompose for any purpose, such as content change, scroll, or selection change
+ *      done in compontentDidUpdate
+ * selection change without recomposing(composedUUID not changed)
+ *      done in subscribe store change
  */
 class Responsible extends Component{
     static displayName="responsible-composed-document-default-canvas"
@@ -154,15 +159,19 @@ class Responsible extends Component{
                 {...eventHandlers}>
                 <ComposeMoreTrigger
                     getComposedY={()=>this.__composedY()}
-                    isSelectionComposed={selection=>document.isSelectionComposed(selection)}
-                    compose4Selection={a=>{
+                    isSelectionComposed={selection=>{
+                        return document.isSelectionComposed(selection)
+                    }}
+
+                    compose4Selection={selection=>{
                         if(!document.isAllChildrenComposed()){
-                            notifySelectionChangeNotifier(selection=>document.compose4Selection(selection))
+                            document.compose4Selection(selection)
                         }
                     }}
+                    
                     compose4Scroll={y=>{
                         if(!document.isAllChildrenComposed()){
-                            notifySelectionChangeNotifier(()=>document.compose4Scroll(y))
+                            document.compose4Scroll(y)
                         }
                     }}
                 />    
@@ -182,11 +191,6 @@ class Responsible extends Component{
                     <Selection >
                         <SelectionShape ref={"selecting"}/>
                     </Selection>
-                    <WhenSelectionChangeNotifier
-                        ref="selectionChangeNotifier"
-                        SelectionStyle={this.constructor.SelectionStyle} 
-                        canvas={this} 
-                        shouldNotify={()=>this.shouldCursorOrSelectionChange()} />
 				</Fragment>
             </Canvas>
         )
@@ -212,17 +216,52 @@ class Responsible extends Component{
 
     componentDidUpdate(){
         this.__statistics()
-        this.selectionChangeNotifier && this.selectionChangeNotifier.setState({composedContent:this.state.contentHash})
+        //cavas is ready, so SelectionStyle SHOULD be updated
+        if(this.props.document.isSelectionComposed(this.selection)){
+            this.__updateSelectionStyle()
+        }
     }
 
     componentDidMount(){
         this.active()
+        this.unsubscribe=this.context.activeDocStore.subscribe(this.__updateSelectionStyleWhenSelectionChangeWithoutRecomposing())
         this.componentDidUpdate()
+    }
+
+    componentWillUnmount(){
+        this.unsubscribe()
     }
 
     active(){
 		this.dispatch(ACTION.Cursor.ACTIVE(this.state.canvasId))
-    }    
+    }
+
+    __updateSelectionStyle(){
+        const SelectionStyle=this.constructor.SelectionStyle
+        const {start,end}=this.selection, {id,at}=this.cursor
+        this.dispatch(ACTION.Selection.STYLE(new SelectionStyle(this.positioning.position(id, at, true), start, end,this.positioning)))
+    }
+    
+    __updateSelectionStyleWhenSelectionChangeWithoutRecomposing(){
+        const document=this.props.document
+        const getSelection=()=>this.context.activeDocStore.getState().get("selection")
+        
+        let lastSelection=getSelection()
+        let lastComposedUUID=document.computed.composedUUID
+        
+        const selectionChanged=()=>!lastSelection.equals(getSelection())
+        const withoutRecomposing=()=>document.computed.composedUUID===(lastComposedUUID||document.computed.composedUUID)
+        
+        return (()=>{
+            const a=withoutRecomposing(), b=selectionChanged()
+            lastComposedUUID=document.computed.composedUUID
+            lastSelection=getSelection()
+            if( a && b && document.isSelectionComposed(this.selection)){
+                this.__updateSelectionStyle()
+            } 
+            
+        })
+    }
 }
 
 export default class EventResponsible extends Responsible{
