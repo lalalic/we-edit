@@ -230,7 +230,7 @@ class Row extends Super{
 	
 		isEmpty(){
 			const {children:slots}=this.props
-			return !slots.find(a=>!!a)
+			return !slots.find(a=>a && !a.isEmpty())
 		}
 
 		relayout(height, isLastRankOfRow){
