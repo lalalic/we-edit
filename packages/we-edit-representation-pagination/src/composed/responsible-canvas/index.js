@@ -239,7 +239,9 @@ class Responsible extends Component{
     __updateSelectionStyle(){
         const SelectionStyle=this.constructor.SelectionStyle
         const {start,end}=this.selection, {id,at}=this.cursor
-        this.dispatch(ACTION.Selection.STYLE(new SelectionStyle(this.positioning.position(id, at, true), start, end,this.positioning)))
+        const pos=this.positioning.position(id, at, true)
+        const style=new SelectionStyle(pos, start, end,this.positioning)
+        this.dispatch(ACTION.Selection.STYLE(style))
     }
     
     __updateSelectionStyleWhenSelectionChangeWithoutRecomposing(){

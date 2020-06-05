@@ -104,7 +104,6 @@ export default class Positioning{
                     try{
                         return super[k](...args)||{}
                     }catch(e){
-                        console.warn(e)
                         return {}
                     }
                 }
@@ -114,7 +113,6 @@ export default class Positioning{
             try{
                 return super.getRangeRects(...args)||[]
             }catch(e){
-                console.warn(e)
                 return []
             }
         }
