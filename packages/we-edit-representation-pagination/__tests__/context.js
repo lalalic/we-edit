@@ -7,10 +7,6 @@ import cheerio from "cheerio"
 import ReactDOM from 'react-dom'
 
 ReactDOM.createPortal = jest.fn(node => node)
-jest.mock("../src/composed/responsible-canvas/when-selection-change-notifier")
-
-import Locator from "../src/composed/responsible-canvas/when-selection-change-notifier"
-Locator.prototype.shouldComponentUpdate=jest.fn(a=>true)
 
 export const provider=(A,Default={})=>withContext(A.contextTypes,({context})=>({...Default,...context}))(({children})=><Fragment>{children}</Fragment>)
 
