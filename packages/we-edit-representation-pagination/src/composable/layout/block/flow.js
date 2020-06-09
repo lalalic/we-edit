@@ -43,7 +43,7 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 			x: PropTypes.number,
 			y: PropTypes.number,
 			width: PropTypes.number,
-			height: PropTypes.number,
+			height: PropTypes.number,//height should be specified
 		})),
 		inheritExclusives: PropTypes.bool,
 		allowOverflow: PropTypes.bool,
