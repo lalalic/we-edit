@@ -118,7 +118,8 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 				enumerable: true,
 				configurable: true,
 				get() {
-					return this.anchors.filter(({ props: { wrap } }) => !!wrap);
+					const {space:{wrappees=[]}={}}=this.props
+					return [...wrappees, ...this.anchors.filter(({ props: { wrap } }) => !!wrap)];
 				}
 			},
 			contentHeight: {
