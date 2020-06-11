@@ -2,7 +2,6 @@ import React, {Component, PureComponent, Children, Fragment} from "react"
 import PropTypes from "prop-types"
 import Text from "./text"
 import Layer from "./layer"
-import Table from "./table"
 
 export default class Group extends PureComponent{
 	static propTypes={
@@ -59,19 +58,7 @@ export default class Group extends PureComponent{
 
 		const content=[
 			background&&background!="transparent"&& (<rect width={width} height={height} fill={background} key="background"/>),
-			...Children.toArray(children).reduce((data, a,i)=>{
-				a=React.cloneElement(a,{key:i})
-				if(a.props["data-type"]==="table"){
-					if(data.table && data.table.props["data-table"]==a.props["data-content"]){
-						data.table.props.children.push(a)
-					}else{
-						data.content.push(data.table=React.createElement(Table, {key:i, children:[a], "data-table":a.props["data-content"]}))
-					}
-				}else{
-					data.content.push(a)
-				}
-				return data
-			},{content:[],table:null}).content
+			...Children.toArray(children)
 		].filter(a=>a)
 
 		if(this.context.debug){
