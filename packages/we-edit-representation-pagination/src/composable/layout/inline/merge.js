@@ -22,7 +22,7 @@ export default class Merge extends Component{
 		.reduce((state,piece,key)=>{
 			const piecePath=path(piece)
 			if(!piecePath.bText){
-				state.mergeTrunk(key)
+				state.mergeTrunk(`m${key}`)
 				state.pieces.push(React.cloneElement(piece,{x:state.x,key}))
 				state.x+=piece.props.width
 			}else{
