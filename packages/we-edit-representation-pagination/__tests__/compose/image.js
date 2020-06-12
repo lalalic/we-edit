@@ -39,7 +39,7 @@ define("paragraph compose",
         expect(image.length).toBe(1)
         expect(line.attr('width')).toBe(10)
         expect(image.attr('width')).toBe(11)
-        expect(line.attr('height')).toBe(50)
+        expect(line.attr('height')).toBe(50+1)
     })
 
     it("image(size.height>capacity)", ()=>{
@@ -49,7 +49,7 @@ define("paragraph compose",
         const image=line.find("[xlinkHref]")
         expect(image.length).toBe(1)
         expect(line.attr('width')).toBe(10)
-        expect(line.attr('height')).toBe(110)
+        expect(line.attr('height')).toBe(110+1)
         expect(image.attr('width')).toBe(5)
         expect(image.attr('height')).toBe(110)
     })

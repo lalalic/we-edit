@@ -31,13 +31,18 @@ export default class Inline extends Component{
 	}
 	/**max of all atoms' height */
 	get contentHeight() {
-		return this.items.reduce((H, { props: { height = 0 } }) => Math.max(H, height), 0);
+		const lineDescent=this.descent
+		return this.items.reduce((H, { props: { height = 0,descent } }) => Math.max(H, descent ? height : height+lineDescent), 0);
     }
 
 	/**max of text atoms' height, percentage line box height should be based on textHeight */
     get textHeight(){
         return this.items.reduce((H, { props: { height = 0, descent:isText } }) => Math.max(H, isText ? height : 0), 0);
 	}	
+
+	get descent(){
+		return Math.max(0,...this.items.map(({ props: {descent=0 } }) => descent))
+	}
 
 	/** inline layout width */
 	get width(){
