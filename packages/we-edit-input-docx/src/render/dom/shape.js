@@ -96,8 +96,6 @@ class ShapeStyle extends Style{
 	textStyle(style,props){
 		Object.assign(this.got(props,"textStyle"),style)
 	}
-
-
 }
 
 class TextBoxStyle extends Style{

@@ -53,80 +53,12 @@ class DocxType extends Input.Editable{
 		return stream
 	}
 
-	style(officeDocument, node){
-		const same=(keys,fx)=>keys.reduce((props,k)=>(props[k]=fx,props),{})
-		const eachAttrib=({attribs},fx)=>Object.keys(attribs).reduce((props,a)=>{
-			props[a.split(":").pop()]=fx(attribs[a])
-			return props
-		},{})
-
-		return officeDocument.$(node).props({
-			tidy_pPrDefault:({pPr})=>pPr,
-			...same("keepNext,keepLines,contextualSpacing,cantSplit".split(","),()=>true),
-			tidy_outlineLvl:({val})=>parseInt(val),
-			...same("w,h,space,trHeight".split(","),v=>officeDocument.doc.dxa2Px(v)),
-			titlePg:({"w:val":val})=>val!="false",
-			widowControl:({"w:val":val})=>val!="0",
-			cnfStyle:({"w:val":val})=>parseInt(val,2),
-			ind:x=>eachAttrib(x,a=>officeDocument.doc.dxa2Px(a)),
-			//...same("tblInd,tcW,left,right,top,bottom".split(","),({"w:w":val})=>officeDocument.doc.dxa2Px(val)),
-
-			...same("jc,tblStyleColBandSize,tblStyleRowBandSize".split(","),({"w:val":val})=>val),
-
-			tidy_rPrDefault:({rPr})=>rPr,
-			...same("ascii,eastAsia,hAnsi,cs".split(",").map(a=>a+'Theme'),v=>officeDocument.theme.fontx(v)),
-			...same("sz,szCs,kern".split(",").map(a=>'tidy_'+a),({val})=>parseInt(val)/2),
-			tidy_rFonts:({ascii,eastAsia,hAnsi,cs})=>[ascii,eastAsia,hAnsi,cs].filter(a=>a).join(","),
-
-			//themeShade:v=>officeDocument.theme.
-			themeColor:v=>officeDocument.theme.colorx(v),
-			tidy_color:({themeColor,val,...effects})=>officeDocument.doc.asColor(val||themeColor,...effects),
-
-
-			...same("beforeLines,before,afterLines,after".split(","),v=>officeDocument.doc.dxa2Px(v)),
-			tidy_spacing:({beforeAutospacing,beforeLines,before,afterAutospacing,afterLines,after,line,lineRule,val,...props})=>{
-				if(val!=undefined){
-					return val
-				}
-
-				props.top=!beforeAutospacing&&beforeLines||before
-				props.bottom=!afterAutospacing&&afterLines||after
-
-				if(line){
-					switch (lineRule) {
-						case 'atLeast':
-						case 'exact':
-							props.line=officeDocument.doc.dxa2Px(line)
-							break
-						default:
-							props.line=parseInt(line)*100/240.0
-					}
-				}
-				return props
-			},
-			...same("basedOn,name,link".split(",").map(a=>'tidy_'+a),({val})=>val),
-
-			names:{
-				asciiTheme:"ascii",
-				eastAsiaTheme:"eastAsia",
-				hAnsiTheme:'hAnsi',
-				themeShade:'shade',
-				rFonts:"fonts",
-				rPrDefault:"rPr",
-				pPrDefault:"pPr",
-				w:"width",
-				h:"height",
-			},
-		})
-	}
-
 	render(createElement,components){
 		const self=this
 		const identify=this.doc.constructor.OfficeDocument.identify.bind(this.doc.constructor.OfficeDocument)
 
-		const precision=1
 		const docx=this.doc
-		const selector=new Style.Properties(docx,precision)
+		const selector=new Style.Properties(docx)
 		const officeDocument=docx.officeDocument
 		const $=officeDocument.content
 		const settings=officeDocument.settings
@@ -200,7 +132,7 @@ class DocxType extends Input.Editable{
 					{
 						...selector.select(node.children.filter(a=>a.name!="w:body")),
 						evenAndOddHeaders,
-						precision,
+						precision:docx.precision,
 						styles,
 					},
 					children,
@@ -427,28 +359,12 @@ export default class Editable extends DocxType{
 		return px*72/96
 	}
 
-	dxa2Px(a){
-		return this.pt2Px(parseInt(a)/20.0)
-	}
-
-	emu2Px(a){
-		return this.pt2Px(parseInt(a)/12700)
-	}
-
-	pt2Px(pt){
-		return Math.ceil(pt*96/72)
-	}
-
-	cm2Px(cm){
-		return parseFloat(cm)*28.3464567/360000*96/72
-	}
-
-	cm2dxa(w){
-		return parseInt(parseFloat(w)*11900/21.59)
-	}
-
 	px2emu(a){
 		return this.px2Pt(a)*12700
+	}
+	
+	cm2dxa(w){
+		return parseInt(parseFloat(w)*11900/21.59)
 	}
 
 	static Reducer=Reducer

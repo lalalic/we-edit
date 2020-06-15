@@ -10,6 +10,11 @@ export default class Document extends docx4js{
 		return this.__cachedData
 	}
 
+	constructor(){
+		super(...arguments)
+		this.precision=1000
+	}
+
 	createObjectURL(data,type){
 		return Document.URL.createObjectURL(...arguments)
 	}
@@ -51,6 +56,10 @@ export default class Document extends docx4js{
 		this.officeDocument.content.rollback(content)
 		this.officeDocument.numbering.rollback(numbering)
 		this.officeDocument.styles.rollback(styles)
+	}
+
+	pt2Px(){
+		return super.pt2Px(...arguments)*this.precision
 	}
 
 	static parseXml=function(){
