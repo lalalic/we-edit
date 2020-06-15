@@ -72,12 +72,15 @@ export default class Movable extends Component{
 	}
 }
 
-const MovingPlaceholder=({x=0,y=0})=>(
+const MovingPlaceholder=({x=0,y=0},{precision=1})=>(
 	<Group  x={x} y={y}>
-		<rect x={5} y={20} width={10} height={5}  pointerEvents="none"
+		<rect x={5*precision} y={20*precision} width={10*precision} height={5*precision}  pointerEvents="none"
 				fill="transparent"
 				stroke={"gray"}
-				strokeWidth="1"/>
-		<rect width={2} height={20} fill={"black"}  pointerEvents="none"/>
+				strokeWidth={1*precision}/>
+		<rect width={2*precision} height={20*precision} fill={"black"}  pointerEvents="none"/>
 	</Group>
 )
+MovingPlaceholder.contextTypes={
+	precision:PropTypes.number,
+}

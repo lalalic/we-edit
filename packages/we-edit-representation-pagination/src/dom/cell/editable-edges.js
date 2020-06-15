@@ -10,11 +10,13 @@ const {ColResizer, RowResizer}=Resizable
 
 export default connect()(class EditableEdges extends Component{
 	static contextTypes={
-		editable:PropTypes.any,
+        editable:PropTypes.any,
+        precision: PropTypes.number,
 	}
 	render(){
-		const {isFirstRowInPage, isLastRankOfRow, table,row, cell,i,width,height,dispatch}=this.props
-		if(!this.context.editable)
+        const {isFirstRowInPage, isLastRankOfRow, table,row, cell,i,width,height,dispatch}=this.props
+        const {editable, precision=1}=this.context
+		if(!editable)
 			return <Edges {...this.props}/>
                 
         return (
@@ -25,7 +27,7 @@ export default connect()(class EditableEdges extends Component{
 
                 {isLastRankOfRow && (<RowResizer x1={0} x2={width} y1={height} y2={height}
                     onResize={({y})=>{
-                        dispatch(ACTION.Entity.UPDATE({id:table, type:"table",height:{value:height+y,row,cell,i}}))
+                        dispatch(ACTION.Entity.UPDATE({id:table, type:"table",height:{value:height/precision+y,row,cell,i}}))
                     }}
                     />) || null
                 }
@@ -35,7 +37,7 @@ export default connect()(class EditableEdges extends Component{
 
                 <ColResizer x1={width} y1={0} x2={width} y2={height}
                     onResize={({x})=>{
-						dispatch(ACTION.Entity.UPDATE({id:table, type:"table", width:{value:width+x, row, cell,i}}))
+						dispatch(ACTION.Entity.UPDATE({id:table, type:"table", width:{value:width/precision+x, row, cell,i}}))
                     }}
                     />
             </Fragment>

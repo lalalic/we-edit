@@ -18,6 +18,7 @@ export default compose(
     }
     static contextTypes={
         debug: PropTypes.bool,
+        precision: PropTypes.number,
     }
     shouldComponentUpdate({ selection, isSelectionComposed, compose4Selection }) {
         if (!isSelectionComposed(selection)) {
@@ -29,12 +30,12 @@ export default compose(
 
     render(){
         const { compose4Scroll, getComposedY } = this.props;
-        const {debug}=this.context
+        const {debug, precision=1}=this.context
         const y = getComposedY();
         return (
             <Waypoint onEnter={() => compose4Scroll(y)}>
-                <Group y={y - 100}>
-                    <line className="composeTrigger" x1="0" y1="0" x2="200" y2="0" strokeWidth="2" stroke={debug ? "red" : "transparent"} />
+                <Group y={(y - 100)*precision}>
+                    <line className="composeTrigger" x1="0" y1="0" x2={200*precision} y2="0" strokeWidth={2*precision} stroke={debug ? "red" : "transparent"} />
                 </Group>
             </Waypoint>
         );

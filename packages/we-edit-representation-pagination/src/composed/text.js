@@ -1,11 +1,21 @@
 import React, {Fragment, PureComponent as Component} from "react"
+import PropTypes from "prop-types"
+
 export default class Text extends Component{
+	static contextTypes={
+		precision: PropTypes.number
+	}
+
 	render(){
 		const {
 			children, whiteSpace, color:fill, highlight,border,underline,strike,
 			descent,minWidth, height, width, blockOffset,mergeOpportunity,//ignore
 			y,
 			...others}=this.props
+		const {precision=1}=this.context
+		if(precision!=1){
+			others.transform=`scale(${precision})`
+		}
 
 		let background=null
 		if(highlight || border){
@@ -40,6 +50,7 @@ export default class Text extends Component{
 			let y=-descent
 			strikeline=(<line y1={y} x2={width} y2={y} stroke="black" strokeWidth={0.5}/>)
 		}
+
 		return (
 			<Fragment>
 				{background}

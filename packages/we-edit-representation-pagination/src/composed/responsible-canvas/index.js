@@ -56,7 +56,10 @@ class Responsible extends Component{
     
     static getDerivedStateFromProps({document,...me}){
         const {props:{editable,canvasId,content,contentHash,viewport=me.viewport,screenBuffer=me.screenBuffer,},state:{y=0}}=document
-        return {...Canvas.getDerivedStateFromProps(...arguments), editable,canvasId,content,contentHash,viewport,screenBuffer,composed4Y:y}
+        return {
+            ...Canvas.getDerivedStateFromProps(...arguments), 
+            editable,canvasId,content,contentHash,viewport,screenBuffer,composed4Y:y
+        }
     }
 
     constructor(){
@@ -133,13 +136,13 @@ class Responsible extends Component{
     }
 
     __composedY(){
-        const {pages, pageGap}=this.state
-        return this.constructor.Canvas.composedY(pages, pageGap)
+        const {pages, pageGap,precision=1}=this.state
+        return this.constructor.Canvas.composedY(pages, pageGap*precision)/precision
     }
     
     //provide to document to query 
     availableBlockSize(){
-        const {scale, composed4Y=0,screenBuffer,viewport:{height,node:{scrollTop}}}=this.state
+        const {scale,composed4Y=0,screenBuffer,viewport:{height,node:{scrollTop}}}=this.state
         const composedY=this.__composedY() * scale
         return Math.max(0,(Math.max(scrollTop,composed4Y)+height+screenBuffer*height)-composedY)
     }

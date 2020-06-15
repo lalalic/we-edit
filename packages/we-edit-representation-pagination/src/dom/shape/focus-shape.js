@@ -36,7 +36,8 @@ export default compose(
 	}
 
 	static contextTypes={
-		editable:PropTypes.any
+		editable:PropTypes.any,
+		precision: PropTypes.number,
 	}
 
 	static getDerivedStateFromProps({id,selection}){
@@ -68,7 +69,7 @@ export default compose(
 	}
 
 	render(){
-		const {props:{selection, children:outline, rotate, scale, translate},context:{editable},state:{showFocus}}=this
+		const {props:{selection, children:outline, rotate, scale, translate},context:{editable,precision=1},state:{showFocus}}=this
 		if(!selection || !editable || !showFocus){
 			return (
 				<Group {...{rotate, scale, ...translate}}>
@@ -81,7 +82,7 @@ export default compose(
 		const $outline=new ReactQuery(outline)
 		const content=$outline.findFirst(".content").get(0)
 
-		const {id, degree, dispatch,positioning=selection.positioning,
+		const {id, degree=0, dispatch,positioning=selection.positioning,
 			path=`M0 0 h${width} v${height} h${-width} Z`,
 			resizable=[//default for rect[width,height]
 				{x:0,y:0,direction:"nwse"},
@@ -124,7 +125,7 @@ export default compose(
 								const xy=positioning.asCanvasPoint({left,top})
 								const pos=positioning.position(id,0)
 								const center={x:rotatable.x+pos.x,y:rotatable.y+pos.y}
-								const degree=parseInt(Math.atan2(xy.x-center.x,-xy.y+center.y)*180/Math.PI)
+								const degree=Math.floor(Math.atan2(xy.x-center.x,-xy.y+center.y)*180*100/Math.PI)/100
 
 								dispatch(ACTION.Entity.UPDATE({id,type,rotate:degree<0 ? degree+360 : degree}))
 							}
@@ -136,12 +137,12 @@ export default compose(
 							onResize={({x,y})=>{
 								let size=null
 								if(y===undefined){
-									size={width:width+x}
+									size={width:width/precision+x}
 								}else if(x===undefined){
-									size={height:height+y}
+									size={height:height/precision+y}
 								}else{
-									const scale=1+Math.max(Math.abs(x)/width,Math.abs(y)/height)*x/Math.abs(x)
-									size={width:width*scale, height:height*scale}
+									const scale=1+Math.max(Math.abs(x*precision)/width,Math.abs(y*precision)/height)*x/Math.abs(x)
+									size={width:width*scale/precision, height:height*scale/precision}
 								}
 								dispatch(ACTION.Entity.UPDATE({id,type,size}))
 							}}/>

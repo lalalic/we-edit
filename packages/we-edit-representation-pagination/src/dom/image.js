@@ -12,6 +12,7 @@ export default class Image extends Super{
 		...Super.contextTypes,
 		editable: PropTypes.any,
 	}
+	
 	focusable=true
 
 	getShape(){

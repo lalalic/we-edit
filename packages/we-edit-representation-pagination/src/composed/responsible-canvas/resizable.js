@@ -24,16 +24,22 @@ export default class Resizable extends Component{
 		}))
 	}
 
-	static ColResizer=({onResize, onEnd, resizer, children, ...props})=>(
+	static contextTypes={
+		precision: PropTypes.number
+	}
+
+	
+
+	static ColResizer=({onResize, onEnd, resizer, children, ...props},{precision=1})=>(
 		<Resizable {...{onResize, onEnd, resizer}}>
 			{children}
-			<line {...{stroke:"transparent", strokeWidth:5, "data-direction":"ew",cursor:"col-resize",...props}}/>
+			<line {...{stroke:"transparent", strokeWidth:5*precision, "data-direction":"ew",cursor:"col-resize",...props}}/>
 		</Resizable>
 	)
-	static RowResizer=({onResize, onEnd, resizer, children, ...props})=>(
+	static RowResizer=({onResize, onEnd, resizer, children, ...props},{precision=1})=>(
 		<Resizable {...{onResize, onEnd, resizer}}>
 			{children}
-			<line {...{stroke:"transparent", strokeWidth:5, "data-direction":"-ns",cursor:"row-resize",...props}}/>
+			<line {...{stroke:"transparent", strokeWidth:5*precision, "data-direction":"-ns",cursor:"row-resize",...props}}/>
 		</Resizable>
 	)
 
@@ -131,17 +137,21 @@ export default class Resizable extends Component{
 	}
 }
 
-const Spot=(({width=5,height=5,x,y,direction,style={}, ...props})=><rect {...{
+const Spot=(({width=5,height=5,x,y,direction,style={}, ...props},{precision=1})=><rect {...{
 		"data-direction":direction,
 		...props,
-		width,height,
-		x:x-width/2,
-		y:y-height/2,
+		width:width*precision,height:height*precision,
+		x:x-width*precision/2,
+		y:y-height*precision/2,
 		style:{
-			fill:"white",stroke:"lightgray",strokeWidth:1,
+			fill:"white",stroke:"lightgray",strokeWidth:1*precision,
 			cursor:`${direction.replace("-","")}-resize`,
 			...style
 		},
 	}}/>
 )
+
+Spot.contextTypes= Resizable.RowResizer.contextTypes=Resizable.ColResizer.contextTypes={
+	precision: PropTypes.number,
+}
 

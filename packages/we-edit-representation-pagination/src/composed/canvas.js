@@ -1,6 +1,5 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
-import memoize from "memoize-one"
 
 import Waypoint from "react-waypoint"
 import Group from "./group"
@@ -27,13 +26,25 @@ export default class ComposedDocumentCanvas extends Component{
         const {pages,props:{scale=me.scale,pageGap=me.pageGap,precision=me.precision}}=document
         return {pages,precision,scale,pageGap}
 	}
+
+	static childContextTypes={
+		precision: PropTypes.number
+	}
 	
 	constructor(){
 		super(...arguments)
 		this.state={}
 	}
 
+	getChildContext(){
+		return {
+			precision:this.state.precision
+		}
+	}
+
 	getComposed(pages,pageGap){
+		const {precision=1}=this.state
+		pageGap=pageGap*precision
 		const content=pages.map(page=>page.createComposed2Parent())
 		return content.reduce((size,{props:{width,height}})=>{
 				return Object.assign(size,{
@@ -56,7 +67,7 @@ export default class ComposedDocumentCanvas extends Component{
 				ref={innerRef}
 				preserveAspectRatio="xMidYMin"
 				viewBox={`0 0 ${width} ${height}`}
-				style={{background:"transparent", width:width*scale*precision, height:height*scale*precision, ...style}}
+				style={{background:"transparent", width:width*scale/precision, height:height*scale/precision, ...style}}
 				>
 				{this.positionPages(composed, width)}
 				{children}
@@ -67,7 +78,7 @@ export default class ComposedDocumentCanvas extends Component{
 	positionPages(pages,canvasWidth){
 		const {state:{pageGap, precision}, props:{paper},context:{media}}=this
 		return (
-			<Group y={pageGap} x={0}>
+			<Group y={pageGap*precision} x={0}>
 				{pages.reduce((positioned, page)=>{
 					const {width,height,margin,I}=page.props
 					positioned.push(//use g to make Group ignore className and id for better merge
@@ -82,7 +93,7 @@ export default class ComposedDocumentCanvas extends Component{
 							</Group>
 						</g>
 					)
-					positioned.y+=(height+pageGap)
+					positioned.y+=(height+pageGap*precision)
 					return positioned
 				},Object.assign([],{y:0}))}
 			</Group>

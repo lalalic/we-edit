@@ -8,13 +8,18 @@ export default class Rotatable extends Component{
 		r:PropTypes.number,
 		degree: PropTypes.number,
 	}
+
+	static contextTypes={
+		precision: PropTypes.number
+	}
 	
 	state={rotating:false}
 
 	render(){
-		const {props:{r=12,x,y,onEnd, degree=0, onRotate},state:{rotating}}=this
+		const {props:{r=12,x,y,onEnd, degree=0, onRotate},state:{rotating}, context:{precision=1}}=this
 		const rotator={
-			width:2*r,height:2*r,x:x-r,y:-2*r,
+			width:2*r*precision,height:2*r*precision,
+			x:x-r*precision,y:-2*r*precision,
 			style:{fill:"white",stroke:"lightgray",strokeWidth:1},
 		}
 
@@ -35,7 +40,10 @@ export default class Rotatable extends Component{
 					e.stopPropagation()
 					onRotate(e)
 				}}>
-					{rotating && <text x={x} y={-20} pointerEvents="none">{degree}</text>}
+					{rotating && <text x={x/precision} y={-20} pointerEvents="none" transform={`scale(${precision})`}>
+						{degree}
+						<tspan y={-30} fontSize="x-small">o</tspan>
+					</text>}
 					<use xlinkHref="#rotator" {...rotator} />
 			</Overlay.WhenMousePressedMove>
 		)

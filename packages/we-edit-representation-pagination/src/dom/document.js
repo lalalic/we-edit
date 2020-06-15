@@ -73,13 +73,13 @@ class Document extends Super{
             lineHeight(...args){
                 const {height,descent}=super.lineHeight(...args)
                 return {
-                    height:height*precision,
-                    descent:descent*precision
+                    height:parseInt(height*precision),
+                    descent:parseInt(descent*precision)
                 }
             }
 
             stringWidth(...args){
-                return precision*super.stringWidth(...args)
+                return parseInt(precision*super.stringWidth(...args))
             }
         }
     })
