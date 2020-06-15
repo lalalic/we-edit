@@ -132,6 +132,9 @@ class Paragraph extends Super{
 		const rollbackToLineWithFirstAtomIndex=at=>{
 			const {lines,atoms}=this
 			const i=lines.findIndex(a=>atoms.indexOf(a.firstAtom)==at)
+			if(i==-1){
+				throw new Error(`failed rollback to line with first Atom index=${at}`)
+			}
 			this.rollbackLines(lines.length-i)
 		}
 
@@ -190,13 +193,16 @@ class Paragraph extends Super{
 						if(rollbackLines==Layout.IMMEDIATE_STOP)
 							return Layout.IMMEDIATE_STOP
 
-						const next=atomIndexOfLastNthLine(rollbackLines)
-                        if(Number.isInteger(next)){
-							rollbackToLineWithFirstAtomIndex(next)
+						const at=atomIndexOfLastNthLine(rollbackLines)
+                        if(at>-1){
+							rollbackToLineWithFirstAtomIndex(at)
 							if(!createAndAppendLine())
 								return 
-        					i=next
-        				}
+        					i=at
+        				}else{
+							debugger
+							throw new Error("unknown error")
+						}
 					}
 					if(next===true){
 						i++
