@@ -2,6 +2,15 @@ import {getSelection,getFile} from "../../state/selector"
 import xQuery from "./xquery"
 
 export default class Reducer{
+	static extends(...protos){
+		return class extends this{
+			constructor(){
+				super(...arguments)
+				Object.assign(this,...protos)
+			}
+		}
+	}
+
 	constructor(state,doc){
 		this._state=state
 		this._undoables={}
