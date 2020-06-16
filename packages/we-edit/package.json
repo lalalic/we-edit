@@ -1,7 +1,7 @@
 {
   "name": "we-edit",
   "description": "a text editor framework based on React",
-  "version": "3.5.16",
+  "version": "3.5.17",
   "author": {
     "name": "Raymond Li",
     "email": "lalalic@139.com"
@@ -47,7 +47,9 @@
     "vm-browserify": "^1.1.0",
     "material-ui": "^0.19.4",
     "minimatch": "^3.0.4",
-    "file-type": "^14.1.4"
+    "file-type": "^14.1.4",
+    "react-gh-like-diff": "^2.0.0",
+    "xml-formatter": "^1.2.0"
   },
   "devDependencies": {
     "brfs": "^1.4.3",
