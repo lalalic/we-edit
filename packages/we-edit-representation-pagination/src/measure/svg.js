@@ -25,7 +25,7 @@ export default class SVGMeasure extends Measure{
     cssStyle(){
         return `white-space:pre;
             font-family:${this.fontFamily};
-            font-size:${this.size}pt;
+            font-size:${this.size}px;
             font-weight:${this.style.bold ? "700" : "400"};
             font-style:${this.style.italic ? "italic" : "normal"};
             `

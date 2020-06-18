@@ -10,13 +10,13 @@ export default class FontMeasure extends Measure{
     lineHeight(){
 		this.font=this.getFont()
         return {
-			height : this.font.lineHeight(this.size)*96/72,
-			descent: this.font.lineDescent(this.size)*96/72
+			height : this.font.lineHeight(this.size),
+			descent: this.font.lineDescent(this.size)
 		}
     }
 
     stringWidth(input){
-		return this.font.stringWidth(input,this.size)*96/72
+		return this.font.stringWidth(input,this.size)
     }
 
 	static requireFonts(service,fonts=[]){

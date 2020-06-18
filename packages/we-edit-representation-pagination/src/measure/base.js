@@ -7,7 +7,7 @@ export class Measure{
 		this.size=size
         this.defaultStyle={
 			whiteSpace:'pre',
-			fontSize:`${size}pt`,
+			fontSize:`${size}px`,
 			fontWeight:style.bold ? 700 : 400,
 			fontStyle:style.italic ? "italic" : "normal",
 			fontFamily:this.fontFamily

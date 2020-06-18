@@ -13,10 +13,7 @@ export default class Text extends Component{
 			y,
 			...others}=this.props
 		const {precision=1}=this.context
-		if(precision!=1){
-			others.transform=`scale(${precision})`
-		}
-
+		
 		let background=null
 		if(highlight || border){
 			let props={
@@ -42,13 +39,13 @@ export default class Text extends Component{
 							return a
 					}
 				})(0.5)
-			decoration=(<line y1={y} x2={width} y2={y} stroke="black" strokeWidth={strokeWidth}/>)
+			decoration=(<line y1={y} x2={width} y2={y} stroke="black" strokeWidth={strokeWidth*precision}/>)
 		}
 
 		let strikeline=null
 		if(strike){
 			let y=-descent
-			strikeline=(<line y1={y} x2={width} y2={y} stroke="black" strokeWidth={0.5}/>)
+			strikeline=(<line y1={y} x2={width} y2={y} stroke="black" strokeWidth={0.5*precision}/>)
 		}
 
 		return (

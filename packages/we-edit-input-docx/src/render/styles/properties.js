@@ -133,7 +133,7 @@ export class Properties{
 	}
 
 	sz(x){
-		return this._val(x)/2
+		return this.docx.pt2Px(this._val(x)/2)
 	}
 
 	kern(x){

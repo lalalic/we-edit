@@ -52,7 +52,6 @@ class Document extends Super{
         const self=this
         return {
             ...super.getChildContext(),
-            Measure: this.getMeasure(),
             getComposedTemplate(xhref){
                 return self.computed.templates.find(a=>a.props.xhref===xhref)
             },
@@ -65,26 +64,6 @@ class Document extends Super{
             precision: this.props.precision,
         }
     }
-
-    getMeasure=memoize(()=>{
-        const {precision=1}=this.props
-        if(precision==1)
-            return this.context.Measure
-
-        return class __$1 extends this.context.Measure{
-            lineHeight(...args){
-                const {height,descent}=super.lineHeight(...args)
-                return {
-                    height:parseInt(height*precision),
-                    descent:parseInt(descent*precision)
-                }
-            }
-
-            stringWidth(...args){
-                return parseInt(precision*super.stringWidth(...args))
-            }
-        }
-    })
 
     render(){
         const {canvas, children}=this.props
