@@ -51,14 +51,14 @@ export default class Text extends Component{
 		return (
 			<Fragment>
 				{background}
-				{strikeline}
-				{decoration}
 				<text style={{userSelect:"none",whiteSpace:"pre",cursor:"text"}}
 					y={y||0}
 					{...others}
 					fill={fill}>
 					{children}
 				</text>
+				{strikeline}
+				{decoration}
 			</Fragment>
 		)
 	}
