@@ -32,6 +32,7 @@ class Document extends Super{
         getComposedTemplate:PropTypes.func,
         prevLayout: PropTypes.func,
         editable: PropTypes.any,
+        precision: PropTypes.number,
     }
 
     constructor(){
@@ -61,6 +62,7 @@ class Document extends Super{
                 return pages[i-1]
             },
             editable:this.state&&this.state.editable,
+            precision: this.props.precision,
         }
     }
 

@@ -23,23 +23,13 @@ export default class ComposedDocumentCanvas extends Component{
 	}
 
 	static getDerivedStateFromProps({document,...me}){
-        const {pages,props:{scale=me.scale,pageGap=me.pageGap,precision=me.precision}}=document
+        const {pages,props:{scale=me.scale,pageGap=me.pageGap,precision}}=document
         return {pages,precision,scale,pageGap}
-	}
-
-	static childContextTypes={
-		precision: PropTypes.number
 	}
 	
 	constructor(){
 		super(...arguments)
 		this.state={}
-	}
-
-	getChildContext(){
-		return {
-			precision:this.state.precision
-		}
 	}
 
 	getComposed(pages,pageGap){
