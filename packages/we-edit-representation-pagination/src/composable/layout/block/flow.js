@@ -100,6 +100,9 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 				enumerable: true,
 				configurable: true,
 				get() {
+					const {allowOverflow}=this.props
+					if(allowOverflow)
+						return Number.MAX_SAFE_INTEGER
 					const { height=Number.MAX_SAFE_INTEGER } = this.getSpace();
 					return height - this.contentHeight;
 				}
@@ -165,13 +168,12 @@ export default class Flow extends HasParentAndChild(dom.Container) {
      * @param {*} param0
      */
 	nextAvailableSpace({ height: requiredBlockSize = 1 } = {}) {
-		const { allowOverflow = false } = this.props;
 		if (this.isEmpty()
 			|| this.availableBlockSize >= requiredBlockSize) {
 			const space=this.getSpace()
 			return ConstraintSpace.create(space||{}).clone({
 				blockOffset: this.blockOffset,
-				height: !allowOverflow ? this.availableBlockSize : Number.MAX_SAFE_INTEGER,
+				height: this.availableBlockSize,
 				frame: this,
 				findInlineSegments: (requiredBlockSize, left, right) => {
 					const blockOffset = this.blockOffset;
