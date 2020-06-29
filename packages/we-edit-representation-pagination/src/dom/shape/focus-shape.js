@@ -13,7 +13,7 @@ export default compose(
 	whenSelectionChange(),
 	shouldUpdate((a,b)=>{
 		const targetChanged=a.selection?.position.id!=b.selection?.position.id
-		const isSelfOrGrand=t=>!!t.selection?.getComposer(t.selection?.position.id).closest(p=>p.props.id==t.id)
+		const isSelfOrGrand=t=>!!t.selection?.getComposer(t.selection?.position.id)?.closest(p=>p.props.id==t.id)
 		const shapeRecomposed=a.composedUUID!=b.composedUUID
 		const isAGrand=isSelfOrGrand(a)
 		const isBGrand=isSelfOrGrand(b)
@@ -50,14 +50,14 @@ export default compose(
 			type:target.getComposeType(),
 			
 			//all grand focus shape of cursor/selection should show itself
-			showFocus:!!getComposer(cursor).closest(a=>a.props.id==id),
+			showFocus:!!getComposer(cursor)?.closest(a=>a.props.id==id),
 			
 			//
 			isAnchor:target.closest(a=>(a!=target && (a.isFrame||a.isSection))||a.getComposeType()=="anchor").getComposeType()=="anchor",
 			
 			//should not transform if cursor/selection is in editable cursor, such as any inline content
 			isEditableCursor: (isParagraph=>{
-					const grand=getComposer(cursor).closest(a=>isParagraph(a)||a.props.id==id)
+					const grand=getComposer(cursor)?.closest(a=>isParagraph(a)||a.props.id==id)
 					return grand && isParagraph(grand)
 				})(a=>a.getComposeType()=="paragraph"),
 		}

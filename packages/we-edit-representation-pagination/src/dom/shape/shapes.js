@@ -1,6 +1,7 @@
 import React,{Component,} from "react"
 
 import memoize from "memoize-one"
+import {ReactQuery} from "we-edit"
 import {Group} from "../../composed"
 
 import Path from "../../tool/path"
@@ -27,9 +28,9 @@ export class custom extends Component{
 		return this.contentBox
 	}
 
-	createComposedShape(content, props){
+	createComposedShape(content, {contentHeight, ...props}){
 		const {
-				margin:{left=0,top=0},
+				margin:{left=0,top=0,bottom=0},
 				solidFill="transparent",blipFill:{url}={},
 				outline={width:0},
 				fill={fill:solidFill},
@@ -37,9 +38,24 @@ export class custom extends Component{
 				scale,
 				id,
 				hash,
+				vertAlign="top",
 			}=this.props
 
 		const {width,height,rotate,translate,geometry}=this.transform(this.getPath().clone())
+
+		const alignY=()=>{
+			const contentHeight=new ReactQuery(content).findFirst(".positionlines").attr("height")
+			switch(vertAlign){
+				case "bottom":
+					return height-bottom-this.strokeWidth/2-contentHeight
+				case "center":
+				case "middle":
+					return (height+top-bottom-contentHeight)/2
+				default:
+					return this.strokeWidth/2+top
+			}
+		}
+		
 		return (
 			<Group {...{width,height, geometry}}>
 				<FocusShape {...{width,height, scale,rotate,translate, degree, id,...props}}>
@@ -49,7 +65,7 @@ export class custom extends Component{
 								{<path d={this.getPath().toString()} strokeWidth={this.strokeWidth} stroke={outline.solidFill} {...fill}/>}
 								{url && <image {...{...this.contentBox,x:left, y:top, xlinkHref: url, preserveAspectRatio:"none"}} />}
 							</Group>
-							<Group x={this.strokeWidth/2+left} y={this.strokeWidth/2+top} className="content">
+							<Group x={this.strokeWidth/2+left} y={alignY()} className="content">
 								{content}
 							</Group>
 						</Group>
