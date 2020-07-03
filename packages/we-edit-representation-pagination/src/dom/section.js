@@ -22,6 +22,10 @@ class Section extends Super{
 
 	static Layout=class LayoutSection extends Frame{
 		static displayName="frame-section"
+		static defaultProps={
+			...Frame.defaultProps,
+			___nomount:true,
+		}
 
 		createComposed2Parent(){
 			const {props:{i,I,margin}}=this

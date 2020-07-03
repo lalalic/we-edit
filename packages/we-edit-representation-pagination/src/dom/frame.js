@@ -106,7 +106,7 @@ class Frame extends Layout.Block{
 
 	clone(props={}){
 		const {computed}=this
-		return Object.assign(new this.constructor({...this.props, ...props},this.context),{computed})
+		return Object.assign(new this.constructor({...this.props, ...props, ___nomount:true},this.context),{computed})
 	}
 
 	onAllChildrenComposed(){
@@ -163,7 +163,7 @@ export default class EditableFrame extends editable(Frame,{stoppable:true, conti
 	 */
     cancelUnusableLastComposed({id,...nextProps}){
 		//**remove id to avoid replace this real composer */
-		const space=new this.constructor(nextProps,this.context).getSpace()
+		const space=new this.constructor({...nextProps,___nomount:true},this.context).getSpace()
 		
 		const isInlineSizeChanged=this.getSpace().isInlineSizeDifferent(space)
 		if(isInlineSizeChanged){

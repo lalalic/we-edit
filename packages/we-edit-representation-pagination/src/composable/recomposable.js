@@ -68,6 +68,10 @@ export default A=>{
                 return
             }
             
+            this._cancelAllLastComposed()
+        }
+
+        _cancelAllLastComposed(){
             this.computed.composed=[]
             this.computed.lastComposed=[]
             this.computed.allComposed=undefined
