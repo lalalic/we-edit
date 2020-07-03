@@ -27,6 +27,7 @@ export default A=>{
         constructor(){
             super(...arguments)
             this.computed.lastComposed=[]
+            this.computed.composedUUID=Date.now()
         }
 
         recomposable_createComposed2Parent(){
