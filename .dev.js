@@ -161,7 +161,7 @@ function testOffice(Target, representation="pagination"){
 						/>
 				}
 			>
-				<VariantEditor representation={representation}
+				<VariantEditor representation={representation/*<Pagination fonts="/fonts"/>*/}
 					onContextMenu={e=>console.log("context menu")}
 					onKeyDown={e=>{
 						console.log("key down")
@@ -169,11 +169,6 @@ function testOffice(Target, representation="pagination"){
 					}}
 					/>
 			</Workspace.Desk>
-			{
-			<Test auto={true}
-				style={{position:"fixed",right:20,bottom:50,background:"lightblue",opacity:0.9,width:250,textAlign:"initial"}} 
-				fixture={()=>import("./packages/we-edit-input-docx/__tests__/responsible/index")}/>
-			}
 		</Workspace>
 	)
 
@@ -189,4 +184,4 @@ function testOffice(Target, representation="pagination"){
 }
 
 
-testOffice(Editor,"pagination")
+testOffice(Viewer,"pagination")
