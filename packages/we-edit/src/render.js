@@ -2,8 +2,13 @@ import TestRenderer from 'react-test-renderer'
 import React, {PureComponent, Fragment, Children} from "react"
 import PropTypes from "prop-types"
 import {Stream} from "./components/stream"
+import AggregateContext from "./components/aggregate-context"
 
 export default function render(element){
+	if(element.type==AggregateContext){
+		return TestRenderer.create(element).root
+	}
+
 	const promises=[]
 	function inject(a){
 		if(!React.isValidElement(a))

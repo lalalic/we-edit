@@ -20,3 +20,5 @@ export {default as Loader} from "./loader"
 export {default as DocumentTree} from "./doc-tree"
 
 export {Test} from "./test"
+
+export {default as AggregateContext} from "./aggregate-context"

@@ -1,5 +1,5 @@
 import React from "react"
-import {dom, ReactQuery} from "we-edit"
+import {dom, ReactQuery, render, AggregateContext} from "we-edit"
 import memoize from "memoize-one"
 
 import {Layout, HasParentAndChild, editable} from "../composable"
@@ -122,7 +122,45 @@ class Frame extends Layout.Block{
         }finally{
             delete this.createComposed2Parent
         }
-    }
+	}
+	
+	/**
+	 * to layout children with changed context
+	 * @param {*} context 
+	 */
+	__layoutAutofitContent(context){
+		const composers=new Map()
+	    const mount=a=>{
+            if(!a.props.___nomount){
+                composers.set(a.props.id,a)
+            }
+        }
+		const unmount=a=>{
+            if(composers.get(a.props.id)==a){
+                composers.delete(a.props.id)
+            }
+        }
+        const getComposer=id=>composers.get(id)
+
+        const {width}=this.getSpace()
+        const content=(
+            <AggregateContext target={this} value={{
+                    mount,unmount,getComposer,
+                    parent:{
+                        appendComposed(){
+
+                        }
+					},
+					shouldContinueCompose(){
+						return true
+					},
+					...context
+                }}>
+                <Layout.Block space={{width}} id="___target">{this.props.children}</Layout.Block>
+            </AggregateContext>
+        )
+        return render(content).find(a=>a.props.id=="___target").instance
+	}
 }
 
 /**

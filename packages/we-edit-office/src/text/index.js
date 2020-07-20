@@ -31,6 +31,9 @@ export default compose(
 		return {}
 	}),
 	withProps(({dispatch, style})=>{
+		if(style && style.size){
+			style.size=style.size*72/96
+		}
 		let changeSize=size=>dispatch(ACTION.Selection.UPDATE({text:{size}}))
 		return {
 			style,

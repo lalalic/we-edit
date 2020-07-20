@@ -1,12 +1,15 @@
-import React from "react"
+import React,{Component,Fragment} from "react"
 import PropTypes from "prop-types"
 
 import {compose,setDisplayName,mapProps, shallowEqual,shouldUpdate, withContext} from "recompose"
 import {ACTION, whenSelectionChange,getUI} from "we-edit"
 
-import {ToolbarGroup,ToolbarSeparator,MenuItem, SvgIcon} from "material-ui"
+import {ToolbarGroup,ToolbarSeparator,MenuItem, SvgIcon, Dialog,FlatButton} from "material-ui"
 import CheckIconButton from "../components/check-icon-button"
 import DropDownButton from "../components/drop-down-button"
+import SizeIconButton from "../components/size-icon-button"
+
+import Composer from "./composer"
 
 
 import IconAlignCenter from "material-ui/svg-icons/editor/format-align-center"
@@ -112,6 +115,51 @@ export default compose(
 				</SvgIcon>
 			}
 			/>
+		<StyleComposer paragraph={style}/>
+			
 		{children}
 	</ToolbarGroup>
 ))
+
+class StyleComposer extends Component{
+	constructor(){
+		super(...arguments)
+		this.state={}
+		this.handleClose=this.handleClose.bind(this)
+	}
+
+	handleClose(){
+		this.setState({open:false})
+	}
+
+	render(){
+		const {open}=this.state
+		const {paragraph}=this.props
+		const actions = [
+			<FlatButton
+			  label="Cancel"
+			  primary={true}
+			  onClick={this.handleClose}
+			/>,
+			<FlatButton
+			  label="Apply"
+			  primary={true}
+			  keyboardFocused={true}
+			  onClick={this.handleClose}
+			/>,
+		  ];
+		return (
+			<Fragment>
+				<SizeIconButton
+					onClick={()=>this.setState({open:true})}
+					children={<IconListNumber/>}
+					/>
+				{open && <Dialog 
+					actions={actions}
+					open={true}>
+						<Composer paragraphStyle={paragraph}/>
+					</Dialog>}
+			</Fragment>
+		)
+	}
+}
