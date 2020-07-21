@@ -27,6 +27,11 @@ class Section extends Super{
 			___nomount:true,
 		}
 
+		constructor(){
+			super(...arguments)
+			delete this.computed.composedUUID
+		}
+
 		createComposed2Parent(){
 			const {props:{i,I,margin}}=this
 			const props={margin,i,key:i}
