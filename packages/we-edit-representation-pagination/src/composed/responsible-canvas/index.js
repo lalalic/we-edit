@@ -151,9 +151,6 @@ class Responsible extends Component{
         const {props:{children,document}, state:{editable=true,scale,pageGap,pages,precision}}=this
         const noCursor=editable && editable.cursor===false
         const eventHandlers=!noCursor ? this.eventHandlers  : {}
-        const notifySelectionChangeNotifier=callback=>{
-			!this.selectionChangeNotifier ? callback() : this.selectionChangeNotifier.setState({composedContent:null},callback)
-        }
         const {Canvas, ComposeMoreTrigger}=this.constructor
         return (
             <Canvas 
@@ -197,10 +194,6 @@ class Responsible extends Component{
 				</Fragment>
             </Canvas>
         )
-    }
-
-    shouldCursorOrSelectionChange(){
-        return true
     }
 
     __focusCursor(){

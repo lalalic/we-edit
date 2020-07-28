@@ -348,15 +348,15 @@ export default class Editable extends DocxType{
 	}
 
     px2dxa(w){
-        return this.px2Pt(w*20)
+        return this.px2pt(w*20)
     }
 
 	px2cm(px){
-		return this.px2Pt(px/28.3464567)
+		return this.px2pt(px/28.3464567)
 	}
 
 	px2emu(a){
-		return this.px2Pt(a*12700)
+		return this.px2pt(a*12700)
 	}
 	
 	px2pt(px){

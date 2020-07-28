@@ -1,5 +1,11 @@
+import React from "react"
+import {render, AggregateContext} from "we-edit"
 import Balanceable from "./balanceable"
+import layout from ".."
 
+/**
+ * Autofitable is to autofit content of block by changing font size, paragraph space
+ */
 export default class Autofitable extends Balanceable{
     defineProperties() {
 		super.defineProperties()
@@ -13,39 +19,29 @@ export default class Autofitable extends Balanceable{
 		})
     }
     
+    
     onAllChildrenComposed(){
-        super.onAllChildrenComposed()
-        if(this.autofitable){
-            if(this.balanceable){
-                //after balance
-            }else{
-                if(this.shouldAutofitDown()){
-                    this.autofitDown()
-                }else if(this.shouldAutofitUp()){
-                    this.autofitUp()
-                }
-            }
-        }else{
-            super.onAllChildrenComposed()
+        if(this.autofitable && !this.balanceable){
+            this.__autofit()
         }
-    }
-
-
-    __replaceComposedWithAutofitLayouted(layout){
-        this.state.computed=layout.state.computed
+        super.onAllChildrenComposed()
     }
 
     balance(){
         super.balance()
         if(this.autofitable){
-            if(this.shouldAutfitDown()){
-                this.autofitDown()
-            }else if(this.shouldAutofitUp()){
-                this.autofitUp()
-            }
+            this.__autofit()
         }
     }
 
+    __autofit(){
+        const {layout, ...autofit}= this.shouldAutofitDown() ? this.autofitDown() : (this.shouldAutofitUp() && this.autofitUp() ||{})
+        if(layout){
+            this.computed={...this.computed, ...layout.computed, autofit}
+        }
+    }
+
+	
 	/**
 	 * to layout children with changed context
 	 * @param {*} context 
@@ -53,9 +49,7 @@ export default class Autofitable extends Balanceable{
 	__layoutAutofitContent(context){
 		const composers=new Map()
 	    const mount=a=>{
-            if(!a.props.___nomount){
-                composers.set(a.props.id,a)
-            }
+            composers.set(a.props.id,a)
         }
 		const unmount=a=>{
             if(composers.get(a.props.id)==a){

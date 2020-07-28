@@ -1,5 +1,5 @@
 import React from "react"
-import {dom, ReactQuery, render, AggregateContext} from "we-edit"
+import {dom, ReactQuery} from "we-edit"
 import memoize from "memoize-one"
 
 import {Layout, HasParentAndChild, editable} from "../composable"
@@ -106,7 +106,7 @@ class Frame extends Layout.Block{
 
 	clone(props={}){
 		const {computed}=this
-		return Object.assign(new this.constructor({...this.props, ...props, ___nomount:true},this.context),{computed})
+		return Object.assign(new this.constructor({...this.props, ...props},this.context),{computed})
 	}
 
 	onAllChildrenComposed(){
@@ -123,44 +123,6 @@ class Frame extends Layout.Block{
             delete this.createComposed2Parent
         }
 	}
-	
-	/**
-	 * to layout children with changed context
-	 * @param {*} context 
-	 */
-	__layoutAutofitContent(context){
-		const composers=new Map()
-	    const mount=a=>{
-            if(!a.props.___nomount){
-                composers.set(a.props.id,a)
-            }
-        }
-		const unmount=a=>{
-            if(composers.get(a.props.id)==a){
-                composers.delete(a.props.id)
-            }
-        }
-        const getComposer=id=>composers.get(id)
-
-        const {width}=this.getSpace()
-        const content=(
-            <AggregateContext target={this} value={{
-                    mount,unmount,getComposer,
-                    parent:{
-                        appendComposed(){
-
-                        }
-					},
-					shouldContinueCompose(){
-						return true
-					},
-					...context
-                }}>
-                <Layout.Block space={{width}} id="___target">{this.props.children}</Layout.Block>
-            </AggregateContext>
-        )
-        return render(content).find(a=>a.props.id=="___target").instance
-	}
 }
 
 /**
@@ -172,6 +134,14 @@ class Frame extends Layout.Block{
  * 
  */
 export default class EditableFrame extends editable(Frame,{stoppable:true, continuable:true}){
+	_cancelAllLastComposed(){
+		super._cancelAllLastComposed()
+		this.computed.anchors=[]
+		if(this.autofitable){
+			delete this.computed.autofit
+		}
+	}
+	
 	___createComposed2Parent=memoize((composedUUID,...args)=>super.createComposed2Parent(...args))
 	createComposed2Parent(){
 		return this.___createComposed2Parent(this.computed.composedUUID||this.context.parent?.computed?.composedUUID,...arguments)
@@ -201,7 +171,7 @@ export default class EditableFrame extends editable(Frame,{stoppable:true, conti
 	 */
     cancelUnusableLastComposed({id,...nextProps}){
 		//**remove id to avoid replace this real composer */
-		const space=new this.constructor({...nextProps,___nomount:true},this.context).getSpace()
+		const space=new this.constructor(nextProps,this.context).getSpace()
 		
 		const isInlineSizeChanged=this.getSpace().isInlineSizeDifferent(space)
 		if(isInlineSizeChanged){

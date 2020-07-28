@@ -55,9 +55,7 @@ function Locatorize(A){
 			super(...arguments)
 			const composers=this.composers=new Map([[this.props.id,this]])
 			this.mount=a=>{
-				if(!a.props.___nomount){//is react component, instead of self instantiated instance
-					composers.set(a.props.id,a)
-				}
+				composers.set(a.props.id,a)
 			}
 			this.unmount=a=>{
 				if(composers.get(a.props.id)==a){

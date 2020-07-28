@@ -22,13 +22,8 @@ class Section extends Super{
 
 	static Layout=class LayoutSection extends Frame{
 		static displayName="frame-section"
-		static defaultProps={
-			...Frame.defaultProps,
-			___nomount:true,
-		}
-
-		constructor(){
-			super(...arguments)
+		constructor(props, context){
+			super(props,{...context,mount:undefined,unmount:undefined})
 			delete this.computed.composedUUID
 		}
 

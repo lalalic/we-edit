@@ -52,14 +52,14 @@ export {ACTION} from "./action"
 
 export const STORE_KEY="activeDocStore"
 export const Provider=createProvider(STORE_KEY)
-export const connect=(stateMap, actionMap, mergeProps, options={})=>{
+export const connect=(stateMap, actionMap, mergeProps, options={},...args)=>{
 	options.storeKey=STORE_KEY
-	return _connect(stateMap, actionMap, mergeProps, options)
+	return _connect(stateMap, actionMap, mergeProps, options,...args)
 }
-export const whenSelectionChange=((props=a=>a,actionMap,mergeProps,options={})=>{
+export const whenSelectionChange=((props=a=>a,actionMap,mergeProps,options={},...args)=>{
 	return connect(state=>{
 		return props({selection:getSelectionStyle(state)},state)
-	},actionMap,mergeProps,options)
+	},actionMap,mergeProps,options,...args)
 })
 
 export const isDocumentReady=state=>{
