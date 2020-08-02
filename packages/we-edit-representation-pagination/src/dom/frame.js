@@ -171,7 +171,7 @@ export default class EditableFrame extends editable(Frame,{stoppable:true, conti
 	 */
     cancelUnusableLastComposed({id,...nextProps}){
 		//**remove id to avoid replace this real composer */
-		const space=new this.constructor(nextProps,this.context).getSpace()
+		const space=new this.constructor(nextProps,{...this.context,editable:false}).getSpace()
 		
 		const isInlineSizeChanged=this.getSpace().isInlineSizeDifferent(space)
 		if(isInlineSizeChanged){

@@ -65,24 +65,27 @@ export default compose(
 	constructor(){
 		super(...arguments)
 		this.state={}
-
 	}
 
 	render(){
-		const {props:{selection, children:outline, rotate, scale, translate},context:{editable,precision=1},state:{showFocus}}=this
+		const {props:{selection, children:outline, rotate, scale, translate,dispatch,id},context:{editable,precision=1},state:{showFocus}}=this
+		const {width,height}=outline.props
 		if(!selection || !editable || !showFocus){
 			return (
 				<Group {...{rotate, scale, ...translate}}>
 					{outline}
+					{editable && <rect {...{width,height,fill:"transparent",onClick:e=>{
+						e.stopPropagation()
+						dispatch(ACTION.Selection.SELECT(id,0,id,1))
+					}}}/>}
 				</Group>
 			)
 		}
 
-		const {width,height}=outline.props
 		const $outline=new ReactQuery(outline)
 		const content=$outline.findFirst(".content").get(0)
 
-		const {id, degree=0, dispatch,positioning=selection.positioning,
+		const {degree=0,positioning=selection.positioning,
 			path=`M0 0 h${width} v${height} h${-width} Z`,
 			resizable=[//default for rect[width,height]
 				{x:0,y:0,direction:"nwse"},
@@ -101,7 +104,7 @@ export default compose(
 			},
 			focusableContent=true,movable=true}=this.props
 		const {type,isAnchor,isEditableCursor}=this.state
-		const edtableContent=(
+		const editableContent=(
 			<Fragment>
 				<Group {...{"data-nocontent":true}}>
 					<path d={path} fill="none" stroke="lightgray"/>
@@ -119,7 +122,7 @@ export default compose(
 					</Fragment>
 				) : content}
 
-				<Group {...{"data-nocontent":true}}>
+				{(rotatable || resizable) &&<Group {...{"data-nocontent":true}}>
 					{rotatable && (<Rotatable {...rotatable}
 							onRotate={({clientX:left,clientY:top})=>{
 								const xy=positioning.asCanvasPoint({left,top})
@@ -147,13 +150,19 @@ export default compose(
 								dispatch(ACTION.Entity.UPDATE({id,type,size}))
 							}}/>
 					)}
-				</Group>
+				</Group>}
 			</Fragment>
 		)
 
+		const outlinedEditableContent=$outline.replace(content, editableContent).get(0)
+
+		if(isEditableCursor){
+			return outlinedEditableContent
+		}
+
 		return (
-			<Group {...(isEditableCursor ? {/*not transform*/} : {scale, rotate, ...translate})}>
-				{$outline.replace(content, edtableContent).get(0)}
+			<Group {...{scale, rotate, ...translate}}>
+				{outlinedEditableContent}
 			</Group>
 		)
 	}

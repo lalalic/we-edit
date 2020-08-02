@@ -70,7 +70,8 @@ export default class Autofitable extends Balanceable{
 					shouldContinueCompose(){
 						return true
 					},
-					...context
+                    ...context,
+                    editable:false,
                 }}>
                 <Balanceable space={{width}} id="___target">{this.props.children}</Balanceable>
             </AggregateContext>

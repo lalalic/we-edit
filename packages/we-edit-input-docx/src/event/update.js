@@ -1,4 +1,4 @@
-import {Text,Paragraph,Image,Section,Table} from "./dom"
+import {Text,Paragraph,Image,Section,Table,Shape} from "./dom"
 
 export default {
     update_at_text(props){
@@ -54,4 +54,10 @@ export default {
         editor.node=this.target
         editor.update(props)
     },
+
+    update_at_shape(props){
+        const editor=new Shape(this.file)
+        editor.node=this.target
+        editor.update(props)
+    }
 }

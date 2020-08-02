@@ -22,14 +22,14 @@ export default class Shape extends Frame{
 
 	focusable=true
 
-	__getGeometry=memoize(composedUUID=>{
+	__getGeometry=memoize((props, context)=>{
 		const {geometry="rect"}=this.props
 		const Geometry=this.constructor[geometry]||this.constructor.custom
-		return new Geometry(this.props, this.context)
+		return new Geometry(props, context)
 	})
 
 	get geometry(){
-		return this.__getGeometry(this.computed.composedUUID)
+		return this.__getGeometry(this.props, this.context)
 	}
 
 	__getSpace=memoize(geometry=>{

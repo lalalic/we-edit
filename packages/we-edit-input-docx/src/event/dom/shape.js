@@ -7,7 +7,7 @@ export default class __$1 extends Base{
 
         const update=(x,target)=>{
             if(x){
-                let cx=this.file.px2cm(x)
+                let cx=this.file.px2emu(x)
                 let cx0=parseInt(ext0.attr(target))
                 ext0.attr(target,cx)
 
@@ -23,12 +23,11 @@ export default class __$1 extends Base{
         update(height,"cy")
     }
 
-	rotate(degree){
-		const rot=parseInt(degree*60000)
-		const xfrm=this.node.find("a\\:xfrm")
-
-		xfrm.attr("rot",rot)
-	}
+    rotate(degree){
+        const rot=parseInt(degree*60000)
+        const xfrm=this.node.find("a\\:xfrm")
+        xfrm.attr("rot",rot)
+    }
 
     effectExtent(props){
         return null
