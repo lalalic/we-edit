@@ -22,10 +22,12 @@ export default class Shape extends Frame{
 
 	focusable=true
 
-	__getGeometry=memoize((props, context)=>{
+	get Geometry(){
 		const {geometry="rect"}=this.props
-		const Geometry=this.constructor[geometry]||this.constructor.custom
-		return new Geometry(props, context)
+		return this.constructor[geometry]||this.constructor.custom
+	}
+	__getGeometry=memoize((props, context)=>{
+		return new this.Geometry(props, context)
 	})
 
 	get geometry(){
@@ -50,7 +52,8 @@ export default class Shape extends Frame{
 	 *** .positionlines is used to get lineXY(line), so it should be added
 	 */
 	recomposable_createComposed2Parent(){
-		const {x,y,z}=this.props
+		const {x,y,z,height,margin:{top=0,bottom=0}={}}=this.props
+		const geometry=height ? this.geometry : new this.Geometry({...this.props, height:this.contentHeight+this.geometry.strokeWidth+top+bottom},this.context) 
 		const content=(
 			<Fragment>
 				{[
@@ -62,7 +65,7 @@ export default class Shape extends Frame{
 		)
 
 		const composed=React.cloneElement(
-			this.geometry.createComposedShape(content,{composedUUID:this.computed.composedUUID}),
+			geometry.createComposedShape(content,{composedUUID:this.computed.composedUUID}),
 			{className:"frame", "data-frame":this.uuid,x,y,z}
 		)
 		return composed

@@ -23,6 +23,9 @@ export default ({Shape})=>class __$1 extends Component{
     }
 
     render(){
+        const {autofit,height, ...props}=this.props
+        if(autofit && autofit.type=="block")
+            return (<Shape {...props}/>)
         return (<Shape {...this.props}/>)
     }
 
@@ -62,7 +65,7 @@ class ShapeStyle extends Style{
             anchor:"vertAlign",
             ln:"outline",
             bodyPr:"textStyle",
-        },"geometry","solidFill","rotate", "textStyle")
+        },"geometry","solidFill","rotate", "textStyle","autofit")
         const _flat=this.flat.bind(this)
         this.flat=()=>{
             const props=_flat()
@@ -88,9 +91,10 @@ class ShapeStyle extends Style{
         return {width,...props}
     }
 
-    bodyPr(style, props){
+    bodyPr({autofit, ...style}, props){
 		const {margin,}=new TextBoxStyle(style).flat()
         props.margin=margin
+        props.autofit=autofit
     }
 
 	textStyle(style,props){

@@ -101,7 +101,7 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 				configurable: true,
 				get() {
 					const {allowOverflow}=this.props
-					if(allowOverflow)
+					if(allowOverflow||!this.props.height)
 						return Number.MAX_SAFE_INTEGER
 					const { height=Number.MAX_SAFE_INTEGER } = this.getSpace();
 					return height - this.contentHeight;

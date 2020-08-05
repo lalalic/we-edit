@@ -109,14 +109,14 @@ export class custom extends Component{
 
 export class rect extends custom{
 	getPath(){
-		const {width:w,height:h}=this.props
+		const {width:w,height:h=Number.MAX_SAFE_INTEGER}=this.props
 		return new Path(`M0 0h${w}v${h}h${-w}z`)
 	}
 }
 
 export class ellipse extends custom{
 	getPath(){
-		const {width,height,cx=width/2,cy=height/2,rx=cx,ry=cy}=this.props
+		const {width,height=Number.MAX_SAFE_INTEGER,cx=width/2,cy=height/2,rx=cx,ry=cy}=this.props
 		return new Path(`M${cx-rx},${cy}a${rx},${ry} 0 1,0 ${rx*2},0a${rx},${ry} 0 1,0 -${rx*2},0`)
 	}
 }

@@ -12,8 +12,7 @@ export default class Autofitable extends Balanceable{
 		Object.defineProperties(this,{
 			autofitable:{
 				get(){
-                    const {shouldAutofitDown, shouldAutofitUp, autofitDown, autofitUp}=this
-					return shouldAutofitDown && shouldAutofitUp && autofitDown && autofitUp
+                    return !!this.props.autofit && this.autofit
 				}
 			}
 		})
@@ -22,7 +21,7 @@ export default class Autofitable extends Balanceable{
     
     onAllChildrenComposed(){
         if(this.autofitable && !this.balanceable){
-            this.__autofit()
+            this.autofit()
         }
         super.onAllChildrenComposed()
     }
@@ -30,23 +29,15 @@ export default class Autofitable extends Balanceable{
     balance(){
         super.balance()
         if(this.autofitable){
-            this.__autofit()
+            this.autofit()
         }
     }
-
-    __autofit(){
-        const {layout, ...autofit}= this.shouldAutofitDown() ? this.autofitDown() : (this.shouldAutofitUp() && this.autofitUp() ||{})
-        if(layout){
-            this.computed={...this.computed, ...layout.computed, autofit}
-        }
-    }
-
 	
 	/**
 	 * to layout children with changed context
 	 * @param {*} context 
 	 */
-	__layoutAutofitContent(context){
+	layoutOnly(context){
 		const composers=new Map()
 	    const mount=a=>{
             composers.set(a.props.id,a)

@@ -26,9 +26,5 @@ export default class Frame extends Component{
 		z: PropTypes.number,
 		vertAlign: PropTypes.oneOf(["top","middle","center","bottom"]),
 		isTop:PropTypes.bool,
-		autofit:PropTypes.shape({
-			type:PropTypes.oneOf(["font","block"]),
-			fit:PropTypes.func
-		})
 	}
 }
