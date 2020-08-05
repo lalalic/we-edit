@@ -36,3 +36,4 @@ dist/fonts
 
 *.map
 .worc
+packages/we-edit/*.md

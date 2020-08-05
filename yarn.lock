@@ -2653,9 +2653,9 @@ dns-txt@^2.0.2:
   dependencies:
     buffer-indexof "^1.0.0"
 
-docx4js@^3.2.2:
-  version "3.2.2"
-  resolved "https://registry.npm.taobao.org/docx4js/download/docx4js-3.2.2.tgz#710d3b1037f0185fbdae38d3f7fdd846aec0b8b1"
+docx4js@^3.2.5:
+  version "3.2.5"
+  resolved "https://registry.npm.taobao.org/docx4js/download/docx4js-3.2.5.tgz#dfe2d54bc8636adf7d71876b167648bfc82b93b1"
   dependencies:
     cfb "^0.12.1"
     cheerio "^0.22.0"
@@ -6443,7 +6443,7 @@ react-codemirror2@^6.0.0:
 
 react-dom@16.7.0, react-dom@^16.1.1, react-dom@^16.5.1:
   version "16.7.0"
-  resolved "https://registry.npm.taobao.org/react-dom/download/react-dom-16.7.0.tgz#a17b2a7ca89ee7390bc1ed5eb81783c7461748b8"
+  resolved "https://registry.npm.taobao.org/react-dom/download/react-dom-16.7.0.tgz?cache=0&sync_timestamp=1596208770567&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Freact-dom%2Fdownload%2Freact-dom-16.7.0.tgz#a17b2a7ca89ee7390bc1ed5eb81783c7461748b8"
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
@@ -6523,7 +6523,7 @@ react-waypoint@^7.3.1:
 
 react@16.7.0, react@^16.5.1:
   version "16.7.0"
-  resolved "https://registry.npm.taobao.org/react/download/react-16.7.0.tgz#b674ec396b0a5715873b350446f7ea0802ab6381"
+  resolved "https://registry.npm.taobao.org/react/download/react-16.7.0.tgz?cache=0&sync_timestamp=1596208696204&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Freact%2Fdownload%2Freact-16.7.0.tgz#b674ec396b0a5715873b350446f7ea0802ab6381"
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
