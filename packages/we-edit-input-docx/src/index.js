@@ -208,7 +208,7 @@ class DocxType extends Input.Editable{
 				return createElement(components.Text,{},children[0]||"",node)
 
 			case "drawing.inline":{
-				return createElement(components.Container,{},children,node)
+				return createElement(components.Inline,{},children,node)
 			}
 			case "drawing.anchor":{
 				const style=new Style.Anchor(node,styles,selector)

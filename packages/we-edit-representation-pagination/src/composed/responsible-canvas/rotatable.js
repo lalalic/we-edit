@@ -16,11 +16,14 @@ export default class Rotatable extends Component{
 	state={rotating:false}
 
 	render(){
-		const {props:{r=12,x,y,onEnd, degree=0, onRotate},state:{rotating}, context:{precision=1}}=this
+		const {props:{r=12,x,y,onEnd, degree=0, onRotate, onStart,onClick},state:{rotating}, context:{precision=1}}=this
 		const rotator={
 			width:2*r*precision,height:2*r*precision,
 			x:x-r*precision,y:-2*r*precision,
 			style:{fill:"white",stroke:"lightgray",strokeWidth:1},
+		}
+		if(!rotating){
+			rotator.onClick=onClick
 		}
 
 		return(
@@ -29,6 +32,8 @@ export default class Rotatable extends Component{
 				onStart={e=>{
 					e.stopPropagation()
 					this.setState({rotating:true})
+					if(onStart)
+						onStart()
 				}}
 				onMouseUp={e=>{
 					e.stopPropagation()

@@ -13,6 +13,7 @@ import Image from "./image"
 import Shape from "./shape"
 import Anchor from "./anchor"
 import HeaderFooter from "./header-footer"
+import Inline from "./draw-inline"
 
 const createUnvisibleComponent=type=>{
 	return class __$1 extends Component{
@@ -35,6 +36,7 @@ export default {
 	Image,
 	Shape,
 	Anchor,
+	Inline,
 	Header:(...args)=>HeaderFooter(...args, "header"),
 	Footer:(...args)=>HeaderFooter(...args, "footer"),
 	Styles:()=>createUnvisibleComponent("styles"),
