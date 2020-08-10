@@ -64,20 +64,25 @@ export default class Anchorable extends Flow {
          * return 1 to ignore and relayout current line or
          * return false to notify infeasible space, and ignore and re-layout current line and anchor
          */
-        const anchored = anchor(space.clone({
-            edges:{
-                paragraph:{
-                    top:(id=>this.__lineXY(this.lines.find(a=>a.props.pagination?.id==id)).y)(line.props.pagination.id)
-                },
-                line:{top:space.blockOffset},
-                character:{
-                    left:space.left+(()=>{
-                        const {first,parents}=new ReactQuery(line).findFirstAndParents(`[data-anchor]`)
-                        return [...parents,first.get(0)].reduce((X,{props:{x=0}})=>X+x,0)
-                    })()
-                },
-            }
-        }))
+        const edges={
+            paragraph:{
+                top:(id=>{
+                    const line=this.lines.find(a=>a.props.pagination?.id==id)
+                    if(line){
+                        return this.__lineXY(line).y
+                    }
+                    return space.blockOffset
+                })(line.props.pagination.id)
+            },
+            line:{top:space.blockOffset},
+            character:{
+                left:space.left+(()=>{
+                    const {first,parents}=new ReactQuery(line).findFirstAndParents(`[data-anchor]`)
+                    return [...parents,first.get(0)].reduce((X,{props:{x=0}})=>X+x,0)
+                })()
+            },
+        }
+        const anchored = anchor(space.clone({edges}))
         const { wrap, geometry, "data-content": anchorId } = anchored.props;
         /**
          * @TODO: wrap each other with already anchored wrappees, and this wrappees
