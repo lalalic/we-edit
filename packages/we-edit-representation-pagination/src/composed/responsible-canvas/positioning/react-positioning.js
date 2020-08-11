@@ -557,7 +557,7 @@ export default class ReactPositioning extends PositioningHelper {
         const topFrame=this.getCheckedGrandFrameByFrame(leafFrame)
         const topFrameOffset=this.getTopFrameXY(topFrame)
         const leafFrameOffset=!anchor ? this.getFrameOffsetGrandFrame(topFrame,leafFrame) : anchor.offset(topFrame,leafFrame)
-        const lineOffset=(!anchor && line.paragraph) ? leafFrame.lineXY(line.inFrame) : {x:0,y:0}
+        const lineOffset=(!anchor && line.inFrame) ? leafFrame.lineXY(line.inFrame) : {x:0,y:0}
         const inline=!anchor ? line.position(id,at) : anchor.position(topFrame,id,at)
 
         //finally

@@ -33,13 +33,13 @@ export default class Rotatable extends Component{
 					e.stopPropagation()
 					this.setState({rotating:true})
 					if(onStart)
-						onStart()
+						onStart(e)
 				}}
 				onMouseUp={e=>{
 					e.stopPropagation()
 					this.setState({rotating:false})
 					if(onEnd)
-						onEnd()
+						onEnd(e)
 				}}
 				onMouseMove={e=>{
 					e.stopPropagation()

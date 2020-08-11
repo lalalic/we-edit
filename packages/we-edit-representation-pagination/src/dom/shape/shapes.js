@@ -34,14 +34,13 @@ export class custom extends Component{
 				solidFill="transparent",blipFill:{url}={},
 				outline={width:0},
 				fill={fill:solidFill},
-				rotate:degree,
-				scale,
+				rotate:degree=0,
 				id,
 				hash,
 				vertAlign="top",
 			}=this.props
 
-		const {width,height,rotate,translate,geometry}=this.transform(this.getPath().clone())
+		const {width,height,rotate,scale,translate,geometry}=this.transform(this.getPath().clone())
 
 		const alignY=()=>{
 			const contentHeight=new ReactQuery(content).findFirst(".positionlines").attr("height")
@@ -55,10 +54,14 @@ export class custom extends Component{
 					return this.strokeWidth/2+top
 			}
 		}
-		
+		const rotatable={
+			...this.getPath().center(),
+			degree: Math.floor(degree*100)/100,
+			center: geometry.center(),
+		}
 		return (
 			<Group {...{width,height, geometry}}>
-				<FocusShape {...{width,height, scale,rotate,translate, degree, id,...props}}>
+				<FocusShape {...{width,height, scale,rotate,translate,rotatable,id,...props}}>
 					<Group {...this.outlineBox}>
 						<Group x={this.strokeWidth/2} y={this.strokeWidth/2}>
 							<Group  {...{"data-nocontent":true}}>
@@ -86,12 +89,14 @@ export class custom extends Component{
 		var {rotate, scale}=this.props
 		const translate={}
 		if(rotate){
+			//rotate around shape center
 			const a=geometry.bounds()
 			const {x,y}=geometry.center()
 			geometry.rotate(rotate,x,y)
 			const b=geometry.bounds()
 			rotate=`${rotate} ${x} ${y}`
-			
+
+			//translate rotate to origin
 			translate.x=parseInt(a.left-b.left)
 			translate.y=parseInt(a.top-b.top)
 			geometry.translate(translate.x, translate.y)
@@ -103,7 +108,7 @@ export class custom extends Component{
 		}
 
 		const {width,height}=geometry.size(geometry.strokeWidth=this.strokeWidth)
-		return {width,height,geometry,rotate,translate}
+		return {width,height,geometry,rotate,scale, translate}
 	}
 }
 

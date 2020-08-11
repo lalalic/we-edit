@@ -23,13 +23,15 @@ export default compose(
 	static propTypes={
 		width: PropTypes.number,
 		height: PropTypes.number,
-		path: PropTypes.string,
 		resizable: PropTypes.arrayOf(PropTypes.object),
 		rotatable: PropTypes.shape({
 			x:PropTypes.number.isRequired,
 			y:PropTypes.number.isRequired,
-			r:PropTypes.number,
 			degree: PropTypes.number,
+			center:PropTypes.shape({
+				x:PropTypes.number.isRequired,
+				y:PropTypes.number.isRequired,
+			}),
 		}),
 		movable: PropTypes.bool,
 		id:PropTypes.string,
@@ -70,14 +72,16 @@ export default compose(
 	render(){
 		const {props:{selection, children:outline, rotate, scale, translate,dispatch,id},context:{editable,precision=1},state:{showFocus}}=this
 		const {width,height}=outline.props
+
+		const selectShape=e=>{
+			e.stopPropagation()
+			dispatch(ACTION.Selection.SELECT(id,0,id,1))
+		}
 		if(!selection || !editable || !showFocus){
 			return (
 				<Group {...{rotate, scale, ...translate}}>
 					{outline}
-					{editable && <rect {...{width,height,fill:"transparent",onClick:e=>{
-						e.stopPropagation()
-						dispatch(ACTION.Selection.SELECT(id,0,id,1))
-					}}}/>}
+					{editable && <rect {...{width,height,fill:"transparent",onClick:selectShape}}/>}
 				</Group>
 			)
 		}
@@ -85,8 +89,9 @@ export default compose(
 		const $outline=new ReactQuery(outline)
 		const content=$outline.findFirst(".content").get(0)
 
-		const {degree=0,positioning=selection.positioning,
-			path=`M0 0 h${width} v${height} h${-width} Z`,
+		const {
+			positioning=selection.positioning,
+			path=`M0 0h${width}v${height}h${-width}z`,
 			resizable=[//default for rect[width,height]
 				{x:0,y:0,direction:"nwse"},
 				{x:width/2,y:0,direction:"ns",},
@@ -97,16 +102,15 @@ export default compose(
 				{x:0,y:height,direction:"-nesw"},
 				{x:0,y:height/2,direction:"-ew"},
 			],
-			rotatable={//default for rect, and {x,y} is center
-				x:width/2,
-				y:height/2,
-				degree:Math.ceil(degree*100)/100,
+			rotatable:{
+				center,
+				...rotatable
 			},
 			focusableContent=true,movable=true}=this.props
 		const {type,isAnchor,isEditableCursor}=this.state
 		const editableContent=(
 			<Fragment>
-				<Group {...{"data-nocontent":true}}>
+				<Group {...{"data-nocontent":true,"data-width":width,"data-height":height}}>
 					<path d={path} fill="none" stroke="lightgray"/>
 				</Group>
 				{movable ? (
@@ -124,16 +128,11 @@ export default compose(
 
 				{(rotatable || resizable) &&<Group {...{"data-nocontent":true}}>
 					{rotatable && (<Rotatable {...rotatable}
-							onClick={e=>{
-								e.stopPropagation()
-								dispatch(ACTION.Selection.SELECT(id,0,id,1))
-							}}
+							onClick={selectShape}
 							onRotate={({clientX:left,clientY:top})=>{
 								const xy=positioning.asCanvasPoint({left,top})
 								const pos=positioning.position(id,0)
-								const center={x:rotatable.x+pos.x,y:rotatable.y+pos.y}
-								const degree=Math.floor(Math.atan2(xy.x-center.x,-xy.y+center.y)*180*100/Math.PI)/100
-
+								const degree=Math.floor(Math.atan2(xy.x-center.x-pos.x,-(xy.y-center.y-pos.y))*180*100/Math.PI)/100
 								dispatch(ACTION.Entity.UPDATE({id,type,rotate:degree<0 ? degree+360 : degree}))
 							}
 						}/>
