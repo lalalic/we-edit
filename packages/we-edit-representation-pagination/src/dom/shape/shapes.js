@@ -43,6 +43,7 @@ export class custom extends Component{
 		const {width,height,rotate,scale,translate,geometry}=this.transform(this.getPath().clone())
 
 		const alignY=()=>{
+			const {height}=this.getPath().size()
 			const contentHeight=new ReactQuery(content).findFirst(".positionlines").attr("height")
 			switch(vertAlign){
 				case "bottom":
@@ -86,29 +87,35 @@ export class custom extends Component{
 	 * Rotation heavily depends on inline story baseline implementation
 	 */
 	transform(geometry){
-		var {rotate, scale}=this.props
-		const translate={}
-		if(rotate){
-			//rotate around shape center
-			const a=geometry.bounds()
-			const {x,y}=geometry.center()
-			geometry.rotate(rotate,x,y)
-			const b=geometry.bounds()
-			rotate=`${rotate} ${x} ${y}`
+		var {rotate, scale,transform}=this.props
+		var transformed
+		if(transform){
+			transformed=transform(geometry,this.props)
+		}else{
+			const translate={}
+			transformed={translate, scale, rotate}
+			if(rotate){
+				//rotate around shape center
+				const a=geometry.bounds()
+				const {x,y}=geometry.center()
+				geometry.rotate(rotate,x,y)
+				const b=geometry.bounds()
+				transformed.rotate=`${rotate} ${x} ${y}`
 
-			//translate rotate to origin
-			translate.x=parseInt(a.left-b.left)
-			translate.y=parseInt(a.top-b.top)
-			geometry.translate(translate.x, translate.y)
-			geometry.origin={x:translate.x,y:translate.y}
-		}
+				//translate rotate to origin
+				translate.x=parseInt(a.left-b.left)
+				translate.y=parseInt(a.top-b.top)
+				geometry.translate(translate.x, translate.y)
+				geometry.origin={x:translate.x,y:translate.y}
+			}
 
-		if(scale){
-			geometry.scale(scale)
+			if(scale){
+				geometry.scale(scale)
+			}
 		}
 
 		const {width,height}=geometry.size(geometry.strokeWidth=this.strokeWidth)
-		return {width,height,geometry,rotate,scale, translate}
+		return {width,height,geometry,...transformed}
 	}
 }
 

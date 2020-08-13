@@ -14,7 +14,9 @@ const Super=editable(HasParentAndChild(dom.Shape))
 export default class Shape extends Frame{
 	static displayName=Super.displayName
 	static propTypes=Super.propTypes
-	static defaultProps=Super.defaultProps
+	static defaultProps={
+		...Super.defaultProps
+	}
 	static contextTypes={
 		...Frame.contextTypes,
 		editable: PropTypes.any,
