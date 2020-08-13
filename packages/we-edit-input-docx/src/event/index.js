@@ -10,8 +10,10 @@ import tab from "./tab"
 import paste from "./paste"
 import serialize from "./serialize"
 import remove from "./remove"
+import * as dom from "./dom"
 
 export default (class Actions extends Input.Editable.EventHandler.xml{
+    static editors=dom
     constructor(){
         super(...arguments)
         this.debug=true
