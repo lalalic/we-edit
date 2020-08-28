@@ -131,8 +131,9 @@ export default class Diff extends Component{
 class Compare extends Component{
     render(){
         const {a,b, options={}}=this.props
-        const formattedA=a && a.startsWith("<?xml") ? format(a) : a
-        const formattedB=b && b.startsWith("<?xml") ? format(b) : b
+        const isXml=a=>a && a.substring(0,10).trim().startsWith("<?xml")
+        const formattedA=isXml(a) ? format(a) : a
+        const formattedB=isXml(b) ? format(b) : b
         if(formattedA && formattedB && formattedA!==formattedB){
             return (<ReactGhLikeDiff past={formattedA} 
                 current={formattedB} 

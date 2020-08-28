@@ -96,6 +96,9 @@ export default class Query{
 	}
 
 	replace(element, changed, props){
+        if(!this.root){
+            throw new Error("ReactQuery object must have root when running .replace(element, changed)")
+        }
         if(element instanceof Query){
             element=element.get(0)
         }
@@ -103,7 +106,8 @@ export default class Query{
             changed=changed.get(0)
         }
 		console.assert(React.isValidElement(element))
-		console.assert(React.isValidElement(changed))
+        console.assert(React.isValidElement(changed))
+        
 		const {first,parents}=new this.constructor(this.root).findFirstAndParents(a=>a==element||undefined)
         console.assert(first.get(0)==element)
         //parents may be empty since the root is being replaced

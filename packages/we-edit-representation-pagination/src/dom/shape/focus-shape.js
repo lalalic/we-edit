@@ -128,7 +128,7 @@ export default compose(
 
 				{(rotatable || resizable) &&<Group {...{"data-nocontent":true}}>
 					{rotatable && (<Rotatable {...rotatable}
-							onClick={selectShape}
+							onRotatorMouseDown={selectShape}
 							onRotate={({clientX:left,clientY:top})=>{
 								const xy=positioning.asCanvasPoint({left,top})
 								const pos=positioning.position(id,0)
