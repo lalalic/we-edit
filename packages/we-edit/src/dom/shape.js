@@ -20,10 +20,7 @@ export default class Shape extends Component{
 			bottom:PropTypes.number
 		}),
 		geometry:PropTypes.string,//svg path
-		outline:PropTypes.shape({
-			width: PropTypes.number.isRequired,
-			solidFill: PropTypes.string,
-		}),
+		outline:this.LineShape,
 		solidFill: PropTypes.string,
 		blipFill: PropTypes.shape({
 			url: PropTypes.string,
