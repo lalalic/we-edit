@@ -112,7 +112,7 @@ export class Editor extends PureComponent{
 		const setViewport=()=>{
 			const {height}=container.getBoundingClientRect()
 			let width=0
-			while((width=a.getBoundingClientRect().width)==0){
+			while(a && (width=a.getBoundingClientRect().width)==0){
 				a=a.parentNode
 			}
 			this.setState({viewport:{width:parseInt(width),height:parseInt(height||1056),node:container}})
