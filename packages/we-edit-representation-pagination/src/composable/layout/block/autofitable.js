@@ -1,7 +1,6 @@
 import React from "react"
 import {render, AggregateContext} from "we-edit"
 import Balanceable from "./balanceable"
-import layout from ".."
 
 /**
  * Autofitable is to autofit content of block by changing font size, paragraph space
@@ -37,7 +36,7 @@ export default class Autofitable extends Balanceable{
 	 * to layout children with changed context
 	 * @param {*} context 
 	 */
-	layoutOnly(context){
+	layoutOnly(context,content){
 		const composers=new Map()
 	    const mount=a=>{
             composers.set(a.props.id,a)
@@ -47,10 +46,9 @@ export default class Autofitable extends Balanceable{
                 composers.delete(a.props.id)
             }
         }
-        const getComposer=id=>composers.get(id)
+        const getComposer=id=>composers.get(id);
 
-        const {width}=this.getSpace()
-        const content=(
+        const rendered=render(
             <AggregateContext target={this} value={{
                     mount,unmount,getComposer,
                     parent:{
@@ -64,9 +62,10 @@ export default class Autofitable extends Balanceable{
                     ...context,
                     editable:false,
                 }}>
-                <Balanceable space={{width}} id="___target">{this.props.children}</Balanceable>
+                {React.cloneElement(content||<Balanceable space={{width:this.getSpace().width}} id="___target">{this.props.children}</Balanceable>,{__me:true,key:Date.now()})}
             </AggregateContext>
         )
-        return render(content).find(a=>a.props.id=="___target").instance
+        const target=rendered.find(a=>a.props.__me===true).instance
+        return target
 	}
 }
