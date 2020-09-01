@@ -70,7 +70,7 @@ export default compose(
 	}
 
 	render(){
-		const {props:{selection, children:outline, rotate, scale, translate,dispatch,id},context:{editable,precision=1},state:{showFocus}}=this
+		const {props:{selection, children:outline, rotate, scale, translate,dispatch,id, placeholded},context:{editable,precision=1},state:{showFocus}}=this
 		const {width,height}=outline.props
 
 		const selectShape=e=>{
@@ -115,16 +115,16 @@ export default compose(
 				</Group>
 				{movable ? (
 					<Fragment>
-						{!focusableContent && content}
+						{!focusableContent && !placeholded && content}
 						<Group {...{"data-nocontent":true}}>
 							<Movable isAnchor={isAnchor}
 								onMove={e=>dispatch(ACTION.Selection.MOVE({...e, id,type}))}>
 								<path d={path} fill="white" fillOpacity={0.01} cursor="move"/>
 							</Movable>
 						</Group>
-						{focusableContent && content}
+						{focusableContent && !placeholded && content}
 					</Fragment>
-				) : content}
+				) : !placeholded && content}
 
 				{(rotatable || resizable) &&<Group {...{"data-nocontent":true}}>
 					{rotatable && (<Rotatable {...rotatable}

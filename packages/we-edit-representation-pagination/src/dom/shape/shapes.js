@@ -38,6 +38,7 @@ export class custom extends Component{
 				id,
 				hash,
 				vertAlign="top",
+				placeholded,
 			}=this.props
 
 		const {width,height,rotate,scale,translate,geometry}=this.transform(this.getPath().clone())
@@ -62,11 +63,11 @@ export class custom extends Component{
 		}
 		return (
 			<Group {...{width,height, geometry}}>
-				<FocusShape {...{width,height, scale,rotate,translate,rotatable,id,...props}}>
+				<FocusShape {...{width,height, scale,rotate,translate,rotatable,id,placeholded,...props}}>
 					<Group {...this.outlineBox}>
 						<Group x={this.strokeWidth/2} y={this.strokeWidth/2}>
 							<Group  {...{"data-nocontent":true}}>
-								{<path d={this.getPath().toString()} strokeWidth={this.strokeWidth} stroke={outline.solidFill} {...fill}/>}
+								<path d={this.getPath().toString()} strokeWidth={this.strokeWidth} stroke={outline.solidFill} {...fill}/>
 								{url && <image {...{...this.contentBox,x:left, y:top, xlinkHref: url, preserveAspectRatio:"none"}} />}
 							</Group>
 							<Group x={this.strokeWidth/2+left} y={alignY()} className="content">
