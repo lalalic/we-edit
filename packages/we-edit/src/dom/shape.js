@@ -13,17 +13,9 @@ export default class Shape extends Component{
 		}),
 		width:PropTypes.number,
 		height:PropTypes.number,
-		margin:PropTypes.shape({
-			left:PropTypes.number,
-			right:PropTypes.number,
-			top:PropTypes.number,
-			bottom:PropTypes.number
-		}),
 		geometry:PropTypes.string,//svg path
-		outline:PropTypes.shape({
-			width: PropTypes.number.isRequired,
-			solidFill: PropTypes.string,
-		}),
+		outline:this.LineShape,
+		margin:this.MarginShape,
 		solidFill: PropTypes.string,
 		blipFill: PropTypes.shape({
 			url: PropTypes.string,

@@ -197,7 +197,7 @@ export default class TableStyle extends WithBorder{
 			if(v!==undefined)
 				border[a]=v
 			else
-				border[a]={sz:0}
+				border[a]={width:0}
 			return border
 		},{})
 

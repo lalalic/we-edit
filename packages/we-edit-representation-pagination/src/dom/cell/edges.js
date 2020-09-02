@@ -1,7 +1,7 @@
 import React from "react"
 import Group from "../../composed/group"
 
-const Edge=({sz:size,color,d, val, space, ...xy})=><line strokeWidth={size} stroke={color} {...xy}/>
+const Edge=({width:size,color,d, val, space, ...xy})=><line strokeWidth={size} stroke={color} {...xy}/>
 
 export default ({top,left,right,bottom, width,height, ...props})=>(
     <Group {...props}>

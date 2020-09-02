@@ -483,12 +483,12 @@ export class Properties{
 		let border={}, t
 		border.val=x.attribs['w:val']
 		if(border.val=="nil"){
-			border.sz=0
+			border.width=0
 			return
 		}
 
 		if(t=x.attribs['w:sz'])
-			border.sz=this.docx.pt2Px(t/8)
+			border.width=this.docx.pt2Px(t/8)
 
 		if(t=x.attribs['w:color'])
 			border.color=this.docx.asColor(t)
