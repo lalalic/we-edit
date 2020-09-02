@@ -2,7 +2,7 @@ import React,{Component,} from "react"
 
 import memoize from "memoize-one"
 import {ReactQuery} from "we-edit"
-import {Group} from "../../composed"
+import {Group,Line} from "../../composed"
 
 import Path from "../../tool/path"
 import FocusShape from "./focus-shape"
@@ -67,7 +67,7 @@ export class custom extends Component{
 					<Group {...this.outlineBox}>
 						<Group x={this.strokeWidth/2} y={this.strokeWidth/2}>
 							<Group  {...{"data-nocontent":true}}>
-								<path d={this.getPath().toString()} strokeWidth={this.strokeWidth} stroke={outline.solidFill} {...fill}/>
+								<Line {...outline} {...fill} d={this.getPath().toString()} width={this.strokeWidth} />
 								{url && <image {...{...this.contentBox,x:left, y:top, xlinkHref: url, preserveAspectRatio:"none"}} />}
 							</Group>
 							<Group x={this.strokeWidth/2+left} y={alignY()} className="content">

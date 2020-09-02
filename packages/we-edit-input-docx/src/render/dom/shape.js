@@ -87,8 +87,8 @@ class ShapeStyle extends Style{
 
     blipFill=({blip, ...props})=>({...blip, ...props})
 
-    ln({w:width,...props}){
-        return {width,...props}
+    ln({w:width,solidFill:color,...props}){
+        return {width,color,...props}
     }
 
     bodyPr({autofit, ...style}, props){
