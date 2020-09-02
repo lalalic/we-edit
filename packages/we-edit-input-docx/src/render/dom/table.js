@@ -70,6 +70,10 @@ export default ({Table,Container})=>class __$1 extends Component{
 		this.style={...tblStyle, ...direct, children:rows}
 	}
 
+	/**
+	 * @deprecated
+	 * older Word table layout
+	 */
 	getIndent=memoize((indent=0, tblMargin, children)=>{
 		const query=new ContentQuery(this.context.activeDocStore.getState(),`#${this.props.id}`)
 		if(query.parents("table").length>0){
@@ -87,9 +91,8 @@ export default ({Table,Container})=>class __$1 extends Component{
 	render(){
 		var {cols,width=cols.reduce((w,a)=>w+a,0),children, style:$1, ...props}=this.props
 		const childStyle=this.childStyle(this.props.style, this.context.style)
-		const {indent:tblInd,...style}=childStyle.flat4Table()
-		const indent=this.getIndent(tblInd,childStyle.get("tbl.margin"), children)
-
+		const {indent,...style}=childStyle.flat4Table()
+		
 		const condition=this.props.style.get("conditional")
 		if(undefined!=condition){
 			children=this.getConditionalChildren(condition,children)

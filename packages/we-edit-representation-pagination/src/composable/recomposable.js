@@ -98,9 +98,10 @@ export default A=>{
                 const appended=this.appendLastComposed()
                 if(typeof(appended)=="number" && appended>-1){
                     console.debug(`${this.getComposeType()}[${this.props.id}] used ${appended+1} children caches`)
+                    const children=this.childrenArray(this.props.children)
                     return (
                         <Fragment>
-                            {this.childrenArray(this.props.children).slice(appended+1)}
+                            {children.slice(appended+1)}
                             <ComposedAllTrigger host={this}/>
                         </Fragment>
                     )
