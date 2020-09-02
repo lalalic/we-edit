@@ -52,6 +52,20 @@ export default class Base extends Component{
 		}),
 	})
 
+	static BorderShape=PropTypes.shape({
+		left:this.LineShape,
+		right:this.LineShape,
+		top:this.LineShape,
+		bottom:this.LineShape,
+	})
+	
+	static MarginShape=PropTypes.shape({
+		left: PropTypes.number,
+		right: PropTypes.number,
+		top: PropTypes.number,
+		bottom: PropTypes.number
+	})
+
 	static DefaultLine={
 		width:1,
 		color:"black"
