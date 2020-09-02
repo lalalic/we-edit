@@ -123,7 +123,7 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
 
     describe("table",()=>{
         var doc
-        const zero={sz:0}
+        const zero={width:0}
         const border={left:zero,right:zero,top:zero,bottom:zero}
         beforeEach(()=>{
             doc=test(

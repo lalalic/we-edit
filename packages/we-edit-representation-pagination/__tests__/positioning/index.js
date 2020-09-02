@@ -94,7 +94,7 @@ export default function define(feature, tests){
         }],
         
         ["in table", (a,...args)=>{
-            const Zero={sz:0}
+            const Zero={width:0}
             const {page:{width=size.width,height=size.height}={}}=args[0]||{}
             return render(
                 <Table id={++uuid} width={width}>

@@ -112,7 +112,7 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
         })
 
         describe("table",()=>{
-            const zero={sz:0}
+            const zero={width:0}
             const border={left:zero,right:zero,top:zero,bottom:zero}
             it("paragraph=>table",()=>{
                 const p=test(
@@ -277,7 +277,7 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
         })
 
         describe("table",()=>{
-            const zero={sz:0}
+            const zero={width:0}
             const border={left:zero,right:zero,top:zero,bottom:zero}
             it("paragraph=>table",()=>{
                 const p=test(
