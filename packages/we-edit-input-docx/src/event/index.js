@@ -32,6 +32,14 @@ export default (class Actions extends Input.Editable.EventHandler.xml{
         }
     }
 
+    paragraphHasIndentSetting(){
+        return this.target.closest(this.PARAGRAPH_).children(this.PR).find("w\\:ind").length>0
+    }
+
+    isNumberingParagraph(){
+        return !!this.$target.closest("paragraph").attr("numId")
+    }
+
     create_first_paragraph(){
         const $body=this.file.$('w\\:body').prepend(`<w:p><w:r><w:t/></w:r></w:p>`)
         const a=this.file.renderChanged($body.children().first())

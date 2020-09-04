@@ -1,8 +1,4 @@
 export default {
-    paragraphHasIndentSetting(){
-        return this.target.closest(this.PARAGRAPH_).children(this.PR).find("w\\:ind").length>0
-    },
-
     backspace_at_beginning_of_up_to_numbering_paragraph(){
         const p=this.target.closest(`w\\:p`)
         const pPr=p.children("w\\:pPr")  

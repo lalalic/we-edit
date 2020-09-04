@@ -30,6 +30,8 @@ export default function tck(TypedDocument,file, debug=false){
                 doc.onChange=jest.fn(function(){
                     editor=new TypedDocument.Reducer(...arguments)
                     editor.debug=debug
+                    editor.isNumberingParagraph=jest.fn()
+                    editor.paragraphHasIndentSetting=jest.fn()
                 })
                 reducer(state,{})
             }).catch(e=>{

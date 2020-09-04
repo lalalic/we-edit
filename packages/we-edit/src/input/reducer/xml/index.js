@@ -23,6 +23,21 @@ export default (class XDocEvents extends Base{
         this.PARAGRAPH="paragraph"
         this.TEXT="text"
         this.InlineContainers=""
+        this.super=new Proxy(this,{
+            get(me, k){
+                let a=me.__proto__.__proto__
+                while(a){
+                    if(k in a){
+                        if(typeof(a[k])=="function"){
+                            return a[k].bind(me)
+                        }
+                        break
+                    }
+                    a=a.__proto__
+                }
+                throw new Error(`super has no ${k}`)
+            }
+        })
     }
 
     get TEXT_(){
@@ -31,6 +46,14 @@ export default (class XDocEvents extends Base{
 
     get PARAGRAPH_(){
         return this.PARAGRAPH.replace(":","\\:")
+    }
+
+    paragraphHasIndentSetting(){
+        throw new Error("no paragraphHasIndentSetting implementation")
+    }
+
+    isNumberingParagraph(){
+        throw new Error("no isNumberingParagraph implementation")
     }
 
     merge_in_paragraph(){

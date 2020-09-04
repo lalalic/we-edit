@@ -27,21 +27,17 @@ export default {
         }
     },
 
-    paragraphHasIndentSetting(){
-        throw new Error("paragraphHasIndentSetting implementation")
-    },
-
     backspace_at_beginning_of_paragraph(){
         this.backspace_at_beginning_of_up_to_paragraph()
     },
 
     backspace_at_beginning_of_up_to_paragraph(){
-        const $p=this.$target.closest("paragraph")
-        if($p.attr('numId')){
+        if(this.isNumberingParagraph()){
             this.backspace_at_beginning_of_up_to_numbering_paragraph()
         }else if(this.paragraphHasIndentSetting()){
             this.backspace_at_beginning_of_up_to_indent_paragraph()
         }else{
+            const $p=this.$target.closest("paragraph")
             const $prevP=$p.backwardFirst("table, paragraph")
             if($prevP.attr('type')=="paragraph"){
                 const prevId=$prevP.attr('id')
