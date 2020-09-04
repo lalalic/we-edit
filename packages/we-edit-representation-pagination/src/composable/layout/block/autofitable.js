@@ -59,8 +59,8 @@ export default class Autofitable extends Balanceable{
 					shouldContinueCompose(){
 						return true
 					},
-                    ...context,
                     editable:false,
+                    ...context,
                 }}>
                 {React.cloneElement(content||<Balanceable space={{width:this.getSpace().width}} id="___target">{this.props.children}</Balanceable>,{__me:true,key:Date.now()})}
             </AggregateContext>
