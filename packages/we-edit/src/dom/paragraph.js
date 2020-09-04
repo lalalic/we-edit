@@ -1,4 +1,3 @@
-import React from "react"
 import PropTypes from "prop-types"
 
 import Component from "./component"
@@ -25,7 +24,7 @@ export default class Paragraph extends Component{
 				bold: PropTypes.bool,
 				italic: PropTypes.bool,
 			}).isRequired,
-			label: PropTypes.string.isRequired,
+			label: PropTypes.string,
 		}),
 		defaultStyle:PropTypes.shape({
 			fonts:PropTypes.string.isRequired,

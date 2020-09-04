@@ -269,7 +269,7 @@ class Paragraph extends Super{
 			className="numbering"
 			x={firstLine}
 			width={-firstLine}
-			children={()=>numbering(id)}
+			children={(...args)=>numbering(id, ...args)}
 		/>
 	}
 
