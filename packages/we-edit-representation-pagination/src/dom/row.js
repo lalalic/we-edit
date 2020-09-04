@@ -238,7 +238,7 @@ class Row extends Super{
 			function changeHeightUp(height, rank, parents) {
 				const delta=height-(rank.props.height||0)
 				return parents.reduceRight((child, parent) => {
-					const { props: { height, children } } = parent
+					const { props: { height, children} } = parent
 					if (React.Children.count(children) == 1) {
 						if (typeof (height) == "number") {
 							return React.cloneElement(parent, { height: height + delta }, child);
@@ -272,10 +272,10 @@ class Row extends Super{
 		}
 	
 		render(){
-			const {children:slots=[],cols,height,isLastRankOfRow, isFirstRowInPage,table, row, space, ...props}=this.props
-	
+			const {children:slots=[],cols,height,isLastRankOfRow, isFirstRowInPage,table, row, space, x=0,y=0,...props}=this.props
+			const {borders:{props:{top,left}}}=slots[0].props
 			return (
-					<Group height={height} {...props} >
+					<Group height={height} x={x+left.width/2} y={y+top.width/2} {...props} >
 					{
 						slots.map((a,i)=>React.cloneElement(
 							a.clone({height,
