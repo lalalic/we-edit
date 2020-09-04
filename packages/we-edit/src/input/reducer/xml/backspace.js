@@ -114,8 +114,7 @@ export default {
     },
 
     backspace_at_beginning_of_up_to_cell(){
-        const $p=this.$target.closest("paragraph")
-        if($p.attr('numId')){
+        if(this.isNumberingParagraph()){
             this.backspace_at_beginning_of_up_to_numbering_paragraph(...arguments)
         }else if(this.paragraphHasIndentSetting()){
             this.backspace_at_beginning_of_up_to_indent_paragraph(...arguments)
