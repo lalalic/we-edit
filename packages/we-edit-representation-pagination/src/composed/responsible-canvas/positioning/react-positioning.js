@@ -499,11 +499,6 @@ class PositioningHelper extends Positioning{
 		);
 		[target.get(0),...parents].reduce((o,{props:{x=0,y=0}})=>(o.x+=x, o.y+=y, o), pos);
         
-        if(isParagraphSelf){
-            pos.y=0
-			return pos
-        }
-        
         const {height,width,descent}=target.get(0).props
         if(descent!=undefined){//text or text inline container
             pos.y-=(height-descent)
@@ -521,7 +516,7 @@ class PositioningHelper extends Positioning{
 				const offset=composer.measure.stringWidth(text.substring(0,len))
 				pos.x+=offset
             }
-        }else if(at==1 && width){
+        }else if(at==1 && width && !isParagraphSelf){
             pos.x+=width
         }
         
