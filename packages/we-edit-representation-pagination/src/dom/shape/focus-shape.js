@@ -1,7 +1,7 @@
 import React, {Component, Fragment} from "react"
 import PropTypes from "prop-types"
 import {whenSelectionChange,ACTION, ReactQuery} from "we-edit"
-import {compose, shouldUpdate } from "recompose"
+import {compose, shouldUpdate} from "recompose"
 
 import Group from "../../composed/group"
 import Movable from "../../composed/responsible-canvas/movable"

@@ -61,21 +61,32 @@ export class custom extends Component{
 			degree: Math.floor(degree*100)/100,
 			center: geometry.center(),
 		}
+
+		let innerContent=(
+			<Group {...this.outlineBox}>
+				<Group x={this.strokeWidth/2} y={this.strokeWidth/2}>
+					<Group  {...{"data-nocontent":true}}>
+						<Line {...outline} {...fill} d={this.getPath().toString()} width={this.strokeWidth} />
+						{url && <image {...{...this.contentBox,x:left, y:top, xlinkHref: url, preserveAspectRatio:"none"}} />}
+					</Group>
+					<Group x={this.strokeWidth/2+left} y={alignY()} className="content">
+						{content}
+					</Group>
+				</Group>
+			</Group>
+		)
+
+		if(this.context.editable){
+			innerContent=(
+				<FocusShape {...{width,height, scale,rotate,translate,rotatable,id,placeholded,...props}}>
+					{innerContent}	
+				</FocusShape>
+			)
+		}
+
 		return (
 			<Group {...{width,height, geometry}}>
-				<FocusShape {...{width,height, scale,rotate,translate,rotatable,id,placeholded,...props}}>
-					<Group {...this.outlineBox}>
-						<Group x={this.strokeWidth/2} y={this.strokeWidth/2}>
-							<Group  {...{"data-nocontent":true}}>
-								<Line {...outline} {...fill} d={this.getPath().toString()} width={this.strokeWidth} />
-								{url && <image {...{...this.contentBox,x:left, y:top, xlinkHref: url, preserveAspectRatio:"none"}} />}
-							</Group>
-							<Group x={this.strokeWidth/2+left} y={alignY()} className="content">
-								{content}
-							</Group>
-						</Group>
-					</Group>
-				</FocusShape>
+				{innerContent}
 			</Group>
 		)
 	}
