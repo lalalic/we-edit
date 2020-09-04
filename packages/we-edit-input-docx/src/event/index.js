@@ -16,7 +16,6 @@ export default (class Actions extends Input.Editable.EventHandler.xml{
     static editors=dom
     constructor(){
         super(...arguments)
-        this.debug=true
         this.PR="w\\:rPr,w\\:pPr,w\\:tblPr,w\\:sdtPr,w\\:tcPr,w\\:trPr"
         this.PARAGRAPH="w:p"
         this.TEXT="w:t"

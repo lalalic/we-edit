@@ -8,9 +8,28 @@ export default class ContextProvider extends Component{
 		onQuit: PropTypes.func,
 	}
 
+	static contextTypes={
+		debug: PropTypes.bool
+	}
+
 	static childContextTypes={
 		doc: PropTypes.object,
 		transformer: PropTypes.func,
+	}
+
+	constructor({doc}){
+		super(...arguments)
+		let debug, self=this
+		Object.defineProperties(doc,{
+			debug:{
+				get(){
+					return typeof(debug)==="boolean" ? debug : self.context.debug
+				},
+				set(v){
+					debug=v
+				}
+			}
+		})
 	}
 
 	getChildContext(){

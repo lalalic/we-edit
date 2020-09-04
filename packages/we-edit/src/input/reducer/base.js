@@ -2,7 +2,7 @@ import {getSelection,getFile} from "../../state/selector"
 import xQuery from "./xquery"
 
 export default class Reducer{
-	constructor(state,doc){
+	constructor(state){
 		this._state=state
 		this._undoables={}
 		this._selection=getSelection(state)
@@ -10,6 +10,18 @@ export default class Reducer{
 		this._content=state.get("_content")
 		this.$=context=>new xQuery(state,context)
 		this.cursorable=this.cursorable.bind(this)
+
+		let debug, self=this
+		Object.defineProperties(this,{
+			debug:{
+				get(){
+					return typeof(debug)==="boolean" ? debug : self._file.debug
+				},
+				set(v){
+					debug=v
+				}
+			}
+		})
 	}
 
 	state(){
@@ -23,7 +35,6 @@ export default class Reducer{
 
 		return state
 	}
-
 	get clipboard(){
 		return window._clipboard
 	}
