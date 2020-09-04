@@ -87,7 +87,7 @@ export default class Cell extends Section{
 		return super.createLayout({
 			margin:{
 				left:left+border.left.width,
-				right:right+border.left.width,
+				right:right+border.right.width,
 				top:top+border.top.width,
 				bottom:bottom+border.bottom.width
 			},
