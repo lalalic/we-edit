@@ -73,7 +73,7 @@ class Text extends Super{
                     width:measure.stringWidth(text),
                     "data-endat":text.length,
                     children:text,
-                    mergeOpportunity:false,
+                    tokenizeOpportunity:false,
                 })
                 return null
             }
@@ -94,16 +94,17 @@ class Text extends Super{
                                 minWidth:0,
                                 "data-endat":start+=b.length,
                                 children: b,
-                                mergeOpportunity:LineBreak
+                                tokenizeOpportunity:LineBreak
                             })
                             break
                         case Tab:
                             this.appendComposed({
                                 ...defaultStyle,
                                 width:this.context.tabWidth()||measure.stringWidth(b),
+                                minWidth:0,
                                 "data-endat":start+=b.length,
                                 children: b,
-                                mergeOpportunity:false
+                                tokenizeOpportunity:0,
                             })
                             break
                         default:{
@@ -116,7 +117,7 @@ class Text extends Super{
                                 minWidth:isWhitespace||b==LineBreak ? 0 : (ending ? measure.stringWidth(ending) : undefined),
                                 "data-endat":start+=b.length,
                                 children: b,
-                                mergeOpportunity:((i+j)==0||(jLast&&iLast))&&!isWhitespace&&b//first or last
+                                tokenizeOpportunity:((i+j)==0||(jLast&&iLast))&&!isWhitespace&&b//first or last
                             })
                         }
                     }

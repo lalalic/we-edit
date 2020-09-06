@@ -66,23 +66,23 @@ class Paragraph extends Super{
 	 * @param {*} content
 	 */
     appendComposed(content){
-		if(content.props.mergeOpportunity==Layout.Inline.LineBreak){
+		if(content.props.tokenizeOpportunity==Layout.Inline.LineBreak){
 			this.atoms.push(content)
 			return 
 		}
 		const last=this.atoms[this.atoms.length-1]
-		if(last && last.props.mergeOpportunity && content.props.mergeOpportunity){
-			const lastText=last.props.mergeOpportunity
-			const text=content.props.mergeOpportunity
+		if(last && last.props.tokenizeOpportunity && content.props.tokenizeOpportunity){
+			const lastText=last.props.tokenizeOpportunity
+			const text=content.props.tokenizeOpportunity
 			const ops=breakOpportunities(`${lastText}${text}`)
 			switch(ops.length){
 			case 1:{//merge content into last atom
 				const height=Math.max(last.props.height, content.props.height)
 				const descent=Math.max(last.props.descent, content.props.descent)
 				const width=last.props.width+content.props.width
-				const {props:{"data-content":isRawAtom, children,mergeOpportunity}}=last
+				const {props:{"data-content":isRawAtom, children,tokenizeOpportunity}}=last
 				this.atoms.splice(-1,1,
-					<Group {...{width,height,descent,mergeOpportunity:`${mergeOpportunity}${content.props.mergeOpportunity}`}}>
+					<Group {...{width,height,descent,tokenizeOpportunity:`${tokenizeOpportunity}${content.props.tokenizeOpportunity}`}}>
 						{isRawAtom ? 
 						[React.cloneElement(last,{key:0}),React.cloneElement(content,{x:last.props.width,key:1})]
 						: [...children,React.cloneElement(content,{x:last.props.width,key:children.length-1})]

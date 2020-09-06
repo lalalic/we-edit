@@ -348,8 +348,8 @@ define("paragraph compose",
             expect(build(["he","ll","o wor","ld"])[0].props.children.length).toBe(3)
         })
 
-        describe("mergeOpportunity",()=>{
-            it("first and last atom text with mergeOpportunity",()=>{
+        describe("tokenizeOpportunity",()=>{
+            it("first and last atom text with tokenizeOpportunity",()=>{
                 const atoms=[]
                 const appendComposed=Paragraph.prototype.appendComposed
                 Paragraph.prototype.appendComposed=jest.fn(atom=>atoms.push(atom))
@@ -357,19 +357,19 @@ define("paragraph compose",
                     build(["he","ll","o my wor","ld"])
                     const [he,ll,o,s,my,,wor,ld]=atoms
                     expect(atoms.length).toBe(8)
-                    expect(he.props.mergeOpportunity).toBe("he")
-                    expect(ll.props.mergeOpportunity).toBe("ll")
-                    expect(o.props.mergeOpportunity).toBe("o")
-                    expect(s.props.mergeOpportunity).toBeFalsy()
-                    expect(my.props.mergeOpportunity).toBeFalsy()
-                    expect(wor.props.mergeOpportunity).toBe("wor")
-                    expect(ld.props.mergeOpportunity).toBe("ld")
+                    expect(he.props.tokenizeOpportunity).toBe("he")
+                    expect(ll.props.tokenizeOpportunity).toBe("ll")
+                    expect(o.props.tokenizeOpportunity).toBe("o")
+                    expect(s.props.tokenizeOpportunity).toBeFalsy()
+                    expect(my.props.tokenizeOpportunity).toBeFalsy()
+                    expect(wor.props.tokenizeOpportunity).toBe("wor")
+                    expect(ld.props.tokenizeOpportunity).toBe("ld")
                 }finally{
                     Paragraph.prototype.appendComposed=appendComposed
                 }
             })
 
-            it("first and last atom text in container with mergeOpportunity",()=>{
+            it("first and last atom text in container with tokenizeOpportunity",()=>{
                 const atoms=[]
                 const appendComposed=Paragraph.prototype.appendComposed
                 Paragraph.prototype.appendComposed=jest.fn(atom=>atoms.push(atom))
@@ -383,22 +383,22 @@ define("paragraph compose",
                     )
                     const [he,ll,o,s,my,,wor,ld]=atoms
                     expect(atoms.length).toBe(8)
-                    expect(he.props.mergeOpportunity).toBe("he")
-                    expect(ll.props.mergeOpportunity).toBe("ll")
-                    expect(o.props.mergeOpportunity).toBe("o")
-                    expect(s.props.mergeOpportunity).toBeFalsy()
-                    expect(my.props.mergeOpportunity).toBeFalsy()
-                    expect(wor.props.mergeOpportunity).toBe("wor")
-                    expect(ld.props.mergeOpportunity).toBe("ld")
+                    expect(he.props.tokenizeOpportunity).toBe("he")
+                    expect(ll.props.tokenizeOpportunity).toBe("ll")
+                    expect(o.props.tokenizeOpportunity).toBe("o")
+                    expect(s.props.tokenizeOpportunity).toBeFalsy()
+                    expect(my.props.tokenizeOpportunity).toBeFalsy()
+                    expect(wor.props.tokenizeOpportunity).toBe("wor")
+                    expect(ld.props.tokenizeOpportunity).toBe("ld")
                 }finally{
                     Paragraph.prototype.appendComposed=appendComposed
                 }
             })
 
-            it("merged mergeOpportunity",()=>{
+            it("merged tokenizeOpportunity",()=>{
                 const [hello,,world]=build(["he","ll","o wor","ld"])
-                expect(hello.props.mergeOpportunity).toBe("hello")
-                expect(world.props.mergeOpportunity).toBe("world")
+                expect(hello.props.tokenizeOpportunity).toBe("hello")
+                expect(world.props.tokenizeOpportunity).toBe("world")
             })
         })
         

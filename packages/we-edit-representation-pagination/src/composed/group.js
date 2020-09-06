@@ -27,7 +27,7 @@ export default class Group extends PureComponent{
 			children,
 			background,
 			margin,minWidth, width, height, index, childIndex,geometry,baseline,lineDescent,isLastRankOfRow,isFirstRowInPage,
-			contentWidth,wrap,pagination,anchor,blockOffset,named,descent,mergeOpportunity, spaceHeight,editable,dispatch,
+			contentWidth,wrap,pagination,anchor,blockOffset,named,descent,tokenizeOpportunity, spaceHeight,editable,dispatch,
 			//className,id,
 			I,
 			...others}=this.props

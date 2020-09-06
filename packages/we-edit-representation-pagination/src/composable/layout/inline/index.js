@@ -121,7 +121,7 @@ export default class Inline extends Component{
 			return this.appendAnchorAtom(atom)
 		}
 
-		if(atom.props.mergeOpportunity===Inline.LineBreak){
+		if(atom.props.tokenizeOpportunity===Inline.LineBreak){
 			this.inlineSegments.push(atom,true/*append atom without considering inline size*/)
 			return true
 		}
