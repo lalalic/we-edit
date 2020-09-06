@@ -72,12 +72,12 @@ export default class Merge extends Component{
 	})
 }
 
-
+const Tab=String.fromCharCode(9)
 function path(a,info=a=>a.props["data-content"],test=a=>!!a.props["data-content"],ids=[]){
 	if(React.isValidElement(a)){
 		if(test(a)){
 			ids.push(info(a))
-			ids.bText=a.props["data-type"]=="text"
+			ids.bText=a.props["data-type"]=="text" && a.props.children!==Tab
 		}
 		if(React.isValidElement(a.props.children)){
 			path(React.Children.only(a.props.children),info,test,ids)

@@ -12,10 +12,12 @@ import {Text as ComposedText} from "../composed"
 const Super=NoChild(dom.Text)
 const LineBreak=String.fromCharCode(13)
 const LineFeed=String.fromCharCode(10)
+const Tab=String.fromCharCode(9)
 class Text extends Super{
     static contextTypes={
 		...Super.contextTypes,
-		Measure: PropTypes.func,
+        Measure: PropTypes.func,
+        tabWidth: PropTypes.func,
 	}
 
     get text(){
@@ -93,6 +95,15 @@ class Text extends Super{
                                 "data-endat":start+=b.length,
                                 children: b,
                                 mergeOpportunity:LineBreak
+                            })
+                            break
+                        case Tab:
+                            this.appendComposed({
+                                ...defaultStyle,
+                                width:this.context.tabWidth()||measure.stringWidth(b),
+                                "data-endat":start+=b.length,
+                                children: b,
+                                mergeOpportunity:false
                             })
                             break
                         default:{
