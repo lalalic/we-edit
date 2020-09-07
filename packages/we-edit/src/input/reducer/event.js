@@ -79,9 +79,8 @@ export default class Events extends Base{
             conds.push(`${type}_in_${parentType}`)
         conds.push(type)
         conds.push(pos.replace(/_of$/,''))
-        return conds
-            .filter(a=>!!a).map(a=>a.replace(/^_/g,""))
-            .map(a=>'at_'+a)
+        conds=conds.filter(a=>!!a).map(a=>a.replace(/^_/g,""))
+        return Array.from(new Set(conds)).map(a=>'at_'+a)
     }  
 
     isEmpty(){
