@@ -85,7 +85,7 @@ class Paragraph extends Super{
 					<Group {...{width,height,descent,tokenizeOpportunity:`${tokenizeOpportunity}${content.props.tokenizeOpportunity}`}}>
 						{isRawAtom ? 
 						[React.cloneElement(last,{key:0}),React.cloneElement(content,{x:last.props.width,key:1})]
-						: [...children,React.cloneElement(content,{x:last.props.width,key:children.length-1})]
+						: [...children,React.cloneElement(content,{x:last.props.width,key:children.length})]
 						}
 					</Group>
 				)

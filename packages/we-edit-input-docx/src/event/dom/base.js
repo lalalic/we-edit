@@ -9,17 +9,20 @@ export default class Editor{
 
 	//find pr, if no,create it
 	got(nodeName,tagContent, tagPr){
-		let contentSelector=tagContent.replace(":", "\\:")
-		let prSelector=tagPr.replace(":", "\\:")
+		const contentSelector=tagContent.replace(":", "\\:")
+		const prSelector=tagPr.replace(":", "\\:")
 
-		let content=this.node.closest(contentSelector)
+		const content=this.node.closest(contentSelector)
 		let pr=content.children(prSelector)
 		if(pr.length==0){
 			content.prepend(`<${tagPr}/>`)
 			pr=content.children(prSelector)
-		}
+        }
+        
+        if(!nodeName)
+            return pr
 
-		let selector=nodeName.replace(":", "\\:")
+		const selector=nodeName.replace(":", "\\:")
 		let target=pr.children(selector)
 		if(target.length==0){
 			pr.append(`<${nodeName}/>`)

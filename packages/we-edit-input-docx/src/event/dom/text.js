@@ -22,8 +22,8 @@ export class Text extends Base{
 		}
 	}
 
-	got(nodeName){
-		return super.got(nodeName,"w:r", "w:rPr")
+	got(nodeName,context="w:r", pr="w:rPr"){
+		return super.got(nodeName,context, pr)
 	}
 
 	split(at,firstKeepId=true){

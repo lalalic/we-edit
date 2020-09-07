@@ -10,8 +10,8 @@ export default class Text extends Component{
 	render(){
 		const {
 			children, whiteSpace, color:fill, highlight,border,underline,strike,
-			descent,minWidth, height, width, blockOffset,tokenizeOpportunity,//ignore
-			y,
+			descent,minWidth, height, width, blockOffset,tokenizeOpportunity,mergeOpportunity,//ignore
+			y=0,
 			...others}=this.props
 		const {precision=1}=this.context
 		
@@ -40,20 +40,20 @@ export default class Text extends Component{
 							return a
 					}
 				})(0.5)
-			decoration=(<Line y1={y} x2={width} y2={y} color="black" width={strokeWidth*precision}/>)
+			decoration=(<Line y1={y} x2={width} y2={y} color={fill} width={strokeWidth*precision}/>)
 		}
 
 		let strikeline=null
 		if(strike){
 			let y=-descent
-			strikeline=(<Line y1={y} x2={width} y2={y} color="black" width={0.5*precision}/>)
+			strikeline=(<Line y1={y} x2={width} y2={y} color={fill} width={0.5*precision}/>)
 		}
 
 		return (
 			<Fragment>
 				{background}
 				<text style={{userSelect:"none",whiteSpace:"pre",cursor:"text"}}
-					y={y||0}
+					y={y}
 					{...others}
 					fill={fill}>
 					{children}
