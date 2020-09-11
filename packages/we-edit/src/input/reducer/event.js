@@ -91,11 +91,11 @@ export default class Events extends Base{
 
     isWhole(){
         const {start,end}=this.selection
-        if(start.id==end.id && start.at==0 && end.at!=0){
+        if(start.id==end.id && Math.min(start.at,end.at)==0 && end.at!=start.at){
             if(this.$target.attr('type')=="text"){
-                return end.at>=this.$target.text().length
+                return Math.max(start.at,end.at)>=this.$target.text().length
             }else{
-                return end.at>=1
+                return Math.max(start.at,end.at)>=1
             }
         }
         return false
@@ -127,14 +127,6 @@ export default class Events extends Base{
         const $p=this.$target.closest("paragraph")
         
         f&&f();
-        
-        $p.find("text").filter(a=>this.$(a).text().length==0).each((i,a)=>{
-            const parents=this.$(a).parentsUntil($p).not($p)
-            const k=((parents.toArray().findIndex(b=>this.$('#'+b).length>1)+1)||parents.length)-1
-            const target=parents.eq(k).attr('id')||a.get('id')
-            this.$(`#${target}`).remove()
-            this.file.getNode(target).remove()
-        })
 
         if(this.$target.length==0){
             if($next.closest($p).length>0){

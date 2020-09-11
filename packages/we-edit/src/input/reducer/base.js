@@ -170,7 +170,7 @@ export default class Reducer{
 		const parents=$parents.toArray()
 		const indexes=[$target.attr('id'), ...parents].reduce((indexes, id, i, arr)=>{
 			if(i<arr.length-1){
-				const siblings=this.content.getIn(arr[i+1],'children')
+				const siblings=this.content.getIn([arr[i+1],'children'])
 				indexes.push(siblings.indexOf(id))
 			}
 			return indexes

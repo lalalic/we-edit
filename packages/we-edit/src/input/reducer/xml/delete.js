@@ -1,15 +1,4 @@
 export default {
-    delete(){
-        const {start,end}=this.selection
-        if(start.id==end.id && start.at==end.at){
-            this.emit("delete",this.conds,...arguments)
-        }else{
-            this.remove(...arguments)
-        }
-        this.clean()
-        return this
-    },
-
     delete_at_text(){
         const {start:{id,at}}=this.selection
         const target=this.target

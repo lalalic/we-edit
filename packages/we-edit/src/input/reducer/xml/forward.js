@@ -15,7 +15,7 @@ export default {
     forward_at_end(){
         const forward=this.$target.forwardFirst(this.cursorable)
         if(forward.length>0){
-            this.cursorAt(forward.attr('id'),0)
+            this.cursorAt(forward.attr('id'),1)
         }
     },
 
