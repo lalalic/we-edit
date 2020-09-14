@@ -19,17 +19,19 @@ export default class ContextProvider extends Component{
 
 	constructor({doc}){
 		super(...arguments)
-		let debug, self=this
-		Object.defineProperties(doc,{
-			debug:{
-				get(){
-					return typeof(debug)==="boolean" ? debug : self.context.debug
-				},
-				set(v){
-					debug=v
+		if(!('debug' in doc)){
+			let debug, self=this
+			Object.defineProperties(doc,{
+				debug:{
+					get(){
+						return typeof(debug)==="boolean" ? debug : self.context.debug
+					},
+					set(v){
+						debug=v
+					}
 				}
-			}
-		})
+			})
+		}
 	}
 
 	getChildContext(){

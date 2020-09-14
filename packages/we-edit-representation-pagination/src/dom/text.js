@@ -67,17 +67,6 @@ class Text extends Super{
             const defaultStyle=this.defaultStyle
             const measure=this.measure
 
-            if(this.props.wrap===false){
-                this.appendComposed({
-                    ...defaultStyle,
-                    width:measure.stringWidth(text),
-                    "data-endat":text.length,
-                    children:text,
-                    tokenizeOpportunity:false,
-                })
-                return null
-            }
-
             const whitespaceWidth=measure.stringWidth(" ")
             let start=0
             breakOpportunities(text).forEach((a,j,_1,_2,jLast=_1.length-1==j)=>{

@@ -278,11 +278,11 @@ class Paragraph extends Super{
 		if(!space)
 			return space
 		const {width,left=0,right=width}=space
-		const {indent:{left:indentLeft=0,right:indentRight=0,firstLine=0}, numbering,}=this.props
+		const {indent:{left:indentLeft=0,right:indentRight=0,firstLine=0}, numbering,wrap=true}=this.props
 		const bFirstLine=this.lines.length==0
 		return space.clone({
 			left:left+indentLeft+(bFirstLine&&!numbering&&firstLine||0), 
-			right:right-indentRight,
+			right:(wrap ? right : Number.MAX_SAFE_INTEGER)-indentRight,
 		})
 	}
 

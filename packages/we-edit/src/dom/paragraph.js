@@ -37,6 +37,7 @@ export default class Paragraph extends Component{
 		keepLines: PropTypes.bool,
 		keepWithNext: PropTypes.bool,
 		End:PropTypes.string,
+		wrap: PropTypes.bool,
 	}
 
 	static defaultProps={
@@ -44,6 +45,7 @@ export default class Paragraph extends Component{
 		indent:{},
 		widow:true,
 		orphan:true,
+		wrap:true,
 		End:String.fromCharCode(0xb6),
 	}
 
