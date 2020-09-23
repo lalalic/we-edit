@@ -1,4 +1,4 @@
-import React, {Fragment,Children} from "react"
+import React, {Fragment,PureComponent, Children} from "react"
 import PropTypes from "prop-types"
 import {whenSelectionChange} from "we-edit"
 import {compose,setDisplayName,getContext}  from "recompose"
@@ -37,13 +37,17 @@ const Ribbon=compose(
 	setDisplayName("Ribbon"),
 	getContext({muiTheme:PropTypes.object,selection:PropTypes.object}),
 	whenSelectionChange()
-)(({children, selection,
-	muiTheme,
-	buttonStyle={height:24, fontSize:10, lineHeight:"24px", paddingRight:5,  paddingLeft:5},
-	tabStyle={width:"auto"},
-	style,
-	commands={layout:false}
-	})=>{
+)(class extends PureComponent{
+	render(){
+		const {
+			children, selection,
+			muiTheme,
+			buttonStyle={height:24, fontSize:10, lineHeight:"24px", paddingRight:5,  paddingLeft:5},
+			tabStyle={width:"auto"},
+			style,
+			commands={layout:false}
+			}=this.props
+		
 		const {home,insert,layout,developer,when}="home,insert,layout,when,developer".split(",").reduce((merged,k)=>{
 				if(commands[k]  || commands[k]===undefined){
 					if(typeof(commands[k])=="object"){
@@ -177,7 +181,8 @@ const Ribbon=compose(
 				</Tabs>
 			</MuiThemeProvider>
 		</div>
-	)
+		)
+	}
 })
 
 export default Ribbon

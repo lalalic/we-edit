@@ -1,4 +1,4 @@
-import React from "react"
+import React, {PureComponent} from "react"
 import PropTypes from "prop-types"
 
 import Immutable, {Map} from "immutable"
@@ -22,12 +22,12 @@ export default function buildDoc(doc,inputTypeInstance){
 	const getDocStore=memoize((store,id)=>new LocalStore(store, "we-edit", state=>state['we-edit'].docs[id].state))
 
 	const buildReducer=(extendReducer=a=>a)=>{
-		let createElementFactory=createElementFactoryBuilder(inputTypeInstance)
-		let changeReducer=changeReducerBuilder(createElementFactory,inputTypeInstance,TypedComponents)
-		let content=new Map().withMutations(a=>inputTypeInstance.render(createElementFactory(a),TypedComponents))
+		const createElementFactory=createElementFactoryBuilder(inputTypeInstance)
+		const changeReducer=changeReducerBuilder(createElementFactory,inputTypeInstance,TypedComponents)
+		const content=new Map().withMutations(a=>inputTypeInstance.render(createElementFactory(a),TypedComponents))
 
-		let _reducer=undoable(changeReducer)
-		let INIT_STATE=createState(inputTypeInstance,content)
+		const _reducer=undoable(changeReducer)
+		const INIT_STATE=createState(inputTypeInstance,content)
 
 		return (state=INIT_STATE,action={type:"we-edit/init"})=>{
 			state=_reducer(state,action)
@@ -37,31 +37,32 @@ export default function buildDoc(doc,inputTypeInstance){
 		}
 	}
 
-	const Store=compose(
-			setDisplayName("DocStore"),
-			getContext({store:PropTypes.any}),
-		)(({children,store,release=true,reducer,...props})=>{
-		let onQuit=null
-		if(store){
-			store=getDocStore(store,id)
-		}else{
-			store=createStore(buildReducer(reducer))
-			onQuit=()=>inputTypeInstance.release()
+	class Store extends PureComponent{
+		static contextTypes={
+			store: PropTypes.any
 		}
-
-		return (
-			<Provider store={store}>
-				<ContextProvider
-					doc={inputTypeInstance}
-					onQuit={release ? onQuit : null}
-					transformer={transform}
-					{...props}
-					>
-					{children}
-				</ContextProvider>
-			</Provider>
-		)
-	})
+		
+		constructor({reducer},{store}){
+			super(...arguments)
+			this.store=store ? getDocStore(store, id) : createStore(buildReducer(reducer))
+		}
+	
+		render(){
+			const {children, release=true, ...props}=this.props
+			return (
+				<Provider store={this.store}>
+					<ContextProvider
+						doc={inputTypeInstance}
+						onQuit={()=>release && inputTypeInstance.release()}
+						transformer={transform}
+						{...props}
+						>
+						{children}
+					</ContextProvider>
+				</Provider>
+			)			
+		}
+	}
 
 	return Object.assign(inputTypeInstance,{
 		id,doc,buildReducer,Store,
@@ -77,40 +78,46 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance,TypedComponen
 	switch(action.type){
 	case "we-edit/refresh":
 		return state.setIn(["content","root","props","key"],Date.now())
+	case "we-edit/content/ASYNC":{
+		return state.updateIn(["content"], a=>a.withMutations(b=>{
+				inputTypeInstance.renderNode(action.payload, createElementFactory(b),TypedComponents)
+			}))
+	}
 	default:
 		break
 	}
-
-	const mutableContent=state.get("content").asMutable()
-	const mutableState=state.set("_content", mutableContent)
-
-	const createElement=createElementFactory(mutableContent)
-
-	inputTypeInstance.renderChanged=node=>inputTypeInstance.renderNode(node,createElement,TypedComponents)
+	if(typeof(inputTypeInstance.onChange)!=="function")
+		return state
 
 	try{
 		if(typeof(inputTypeInstance.startTransaction)=="function"){
 			inputTypeInstance.startTransaction()
 		}
 		
-		if(typeof(inputTypeInstance.onChange)=="function"){
-			const changed=inputTypeInstance.onChange(mutableState,action)
-			if(changed===false){
-				return state
-			}else if(isState(changed)){
-				state=changed.remove("_content")
-			}else if(typeof(changed)=="object"){
-				const {selection}=changed
-				if(selection){
-					state=state.mergeIn(["selection"], selection)
-				}
-				state=state.setIn(["content"],mutableContent.asImmutable())
-			}else{
-				state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))
+		const mutableContent=state.get("content").asMutable()
+		const mutableState=state.set("_content", mutableContent)
+		const createElement=createElementFactory(mutableContent)
+		
+		inputTypeInstance.renderChanged=node=>inputTypeInstance.renderNode(node,createElement,TypedComponents)
+		const changed=inputTypeInstance.onChange(mutableState,action)
+
+		if(changed===false){
+			return state
+		}else if(isState(changed)){
+			state=changed.remove("_content")
+		}else if(typeof(changed)=="object"){
+			const {selection}=changed
+			if(selection){
+				state=state.mergeIn(["selection"], selection)
 			}
-			if(typeof(inputTypeInstance.commit)=="function"){
-				historyEntry.patches=inputTypeInstance.commit()
-			}
+			state=state.setIn(["content"],mutableContent.asImmutable())
+		}else{
+			state=state.mergeIn(["selection"],reducer.selection(getSelection(state),action))
+		}
+
+
+		if(typeof(inputTypeInstance.commit)=="function"){
+			historyEntry.patches=inputTypeInstance.commit()
 		}
 	}catch(e){
 		console.error(e)
@@ -118,6 +125,8 @@ const changeReducerBuilder=(createElementFactory,inputTypeInstance,TypedComponen
 			inputTypeInstance.rollback()
 		}
 	}finally{
+		//@TODO: renderChanged should not be called out of onChange
+		//inputTypeInstance.renderChanged=()=>console.warn("you should not call .renderChanged out of onChange")
 		return state
 	}
 }

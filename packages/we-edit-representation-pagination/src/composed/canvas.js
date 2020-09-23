@@ -1,12 +1,52 @@
-import React, {Component} from "react"
+import React, {Component, PureComponent} from "react"
 import PropTypes from "prop-types"
 
 import Waypoint from "react-waypoint"
 import Group from "./group"
 
+class SmartShow extends PureComponent{
+	state={display:false}
+	render(){
+		const {display}=this.state
+		const {children,width,height,margin,precision,paper}=this.props
+		return (
+			<Waypoint fireOnRapidScroll={false}
+				onEnter={e=>{this.setState({display:true})}}
+				onLeave={e=>this.setState({display:false})}>
+				<g>
+					{paper && <Paper {...{width,height,margin,fill:"white", precision,...paper}}/>}
+					{display ? children : null}
+				</g>
+			</Waypoint>
+		)
+	}
+}
+
+class Paper extends PureComponent{
+	render(){
+		const {
+			width,height, margin:{left=0,right=0,top=0,bottom=0}={}, precision, border=true,
+			strokeWidth=1*precision, marginWidth=20*precision, ...props
+		}=this.props
+		return (
+			<g className="paper">
+				<rect {...props} {...{width,height}}/>
+				{border && <path strokeWidth={strokeWidth} stroke="lightgray" fill="none" d={`
+							M0 0 h${width} v${height} h${-width}z
+							M${left-Math.min(left,marginWidth)} ${top} h${Math.min(left,marginWidth)} v${-Math.min(top,marginWidth)}
+							M${left-Math.min(left,marginWidth)} ${height-bottom} h${Math.min(left,marginWidth)} v${Math.min(bottom,marginWidth)}
+							M${width-right+Math.min(right,marginWidth)} ${height-bottom} h${-Math.min(right,marginWidth)} v${Math.min(bottom,marginWidth)}
+							M${width-right+Math.min(right,marginWidth)} ${top} h${-Math.min(right,marginWidth)} v${-Math.min(top,marginWidth)}
+						`}/>
+					}
+			</g>
+			)
+	}
+}
 
 export default class ComposedDocumentCanvas extends Component{
 	static displayName="composed-document-default-canvas"
+	static PageShow=SmartShow
 	static contextTypes={
 		media: PropTypes.string,
 	}
@@ -67,6 +107,7 @@ export default class ComposedDocumentCanvas extends Component{
 
 	positionPages(pages,canvasWidth){
 		const {state:{pageGap, precision}, props:{paper},context:{media}}=this
+		const SmartShow=this.constructor.PageShow
 		return (
 			<Group y={pageGap*precision} x={0}>
 				{pages.reduce((positioned, page)=>{
@@ -76,6 +117,7 @@ export default class ComposedDocumentCanvas extends Component{
 							<Group {...{y:positioned.y,x:(canvasWidth-width)/2}}>
 								{media=="file" ? page :
 								<SmartShow {...{
+									I,
 									children:page,
 									width,height,margin,
 									precision,paper,
@@ -103,37 +145,3 @@ export default class ComposedDocumentCanvas extends Component{
         return page && page.getBoundingClientRect()
 	}
 }
-
-
-class SmartShow extends Component{
-	state={display:false}
-	render(){
-		const {display}=this.state
-		const {children,width,height,margin,precision,paper}=this.props
-		return (
-			<Waypoint fireOnRapidScroll={false}
-				onEnter={e=>{this.setState({display:true})}}
-				onLeave={e=>this.setState({display:false})}>
-				<g>
-					{paper && <Paper {...{width,height,margin,fill:"white", precision,...paper}}/>}
-					{display ? children : null}
-				</g>
-			</Waypoint>
-		)
-	}
-}
-
-const Paper=({width,height, margin:{left=0,right=0,top=0,bottom=0}={}, precision, border=true,
-	strokeWidth=1*precision, marginWidth=20*precision, ...props})=>(
-   <g className="paper">
-	   <rect {...props} {...{width,height}}/>
-	   {border && <path strokeWidth={strokeWidth} stroke="lightgray" fill="none" d={`
-		   		M0 0 h${width} v${height} h${-width}z
-				M${left-Math.min(left,marginWidth)} ${top} h${Math.min(left,marginWidth)} v${-Math.min(top,marginWidth)}
-				M${left-Math.min(left,marginWidth)} ${height-bottom} h${Math.min(left,marginWidth)} v${Math.min(bottom,marginWidth)}
-				M${width-right+Math.min(right,marginWidth)} ${height-bottom} h${-Math.min(right,marginWidth)} v${Math.min(bottom,marginWidth)}
-				M${width-right+Math.min(right,marginWidth)} ${top} h${-Math.min(right,marginWidth)} v${-Math.min(top,marginWidth)}
-			`}/>
-		}
-   </g>
-)

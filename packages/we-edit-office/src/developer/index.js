@@ -113,7 +113,7 @@ class DiffButton extends PureComponent{
         const {open}=this.state
         return (
             <Fragment>
-                <IconButton hint="compare" onClick={e=>this.setState({open:!open})}>
+                <IconButton hint="Content" onClick={e=>this.setState({open:!open})}>
                     <IconDiff/>
                 </IconButton>
                 {open && 

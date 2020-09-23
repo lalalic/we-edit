@@ -105,9 +105,9 @@ export default class Workspace extends PureComponent{
 
 	static Layout=pure(({canvas, left,  right, style})=>(
 		<div style={{flex:"1 100%", display:"flex",  flexDirection:"row", overflow:"auto",...style}}>
-			{left && <div style={{overflow:"auto"}}>{left}</div>}
+			{left && <div style={{overflow:"auto",...left.props.containerStyle}}>{left}</div>}
 			{canvas}
-			{right && <div style={{overflow:"auto"}}>{right}</div>}
+			{right && <div style={{overflow:"auto",...right.props.containerStyle}}>{right}</div>}
 		</div>
 	))
 
@@ -122,11 +122,11 @@ export default class Workspace extends PureComponent{
 		}
 
 		render(){
-			const {state:{panels=[]},props:{}}=this
+			const {state:{panels=[]},props:{containerStyle, ...props}}=this
 			if(panels.length==0)
 				return null
 			return (
-				<Tabs {...this.props}>
+				<Tabs {...props}>
 					{panels.map(a=><Tab key={a.props.title} label={a.props.title}>{a}</Tab>)}
 				</Tabs>
 			)

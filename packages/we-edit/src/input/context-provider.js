@@ -1,7 +1,7 @@
-import React, {Component, Fragment} from "react"
+import React, {PureComponent, Fragment} from "react"
 import PropTypes from "prop-types"
 
-export default class ContextProvider extends Component{
+export default class ContextProvider extends PureComponent{
 	static propTypes={
 		doc: PropTypes.object,
 		transformer: PropTypes.func.isRequired,
@@ -9,7 +9,7 @@ export default class ContextProvider extends Component{
 	}
 
 	static contextTypes={
-		debug: PropTypes.bool
+		debug: PropTypes.bool,
 	}
 
 	static childContextTypes={
@@ -35,25 +35,20 @@ export default class ContextProvider extends Component{
 	}
 
 	getChildContext(){
-		return {
-			doc:this.props.doc,
-			transformer:this.props.transformer
-		}
+		const {doc, transformer}=this.props
+		return {doc, transformer}
 	}
 
-
 	render(){
-		const {children, readonly,  doc}=this.props
 		return (
 			<Fragment>
-				{children}
+				{this.props.children}
 			</Fragment>
 		)
 	}
 
 	componentWillUnmount(){
-		let {onQuit}=this.props
-		if(onQuit)
-			onQuit()
+		const {onQuit}=this.props
+		onQuit && onQuit()
 	}
 }

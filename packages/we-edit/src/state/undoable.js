@@ -62,13 +62,15 @@ export default function undoable(reducer){
 					patches: null,//injected later in reducer, undo patch for doc file
 					toJSON:()=>undefined
 				}
-				let changedState=reducer(state,action,entry)
+				const changedState=reducer(state,action,entry)
 				if(changedState.get("content")!==state.get("content")){
-					const undos=getUndos(state)
-					undos.push(entry)
-					const redos=[]
-					changedState=changedState.set('redos',[...redos])
-					changedState=changedState.set('undos',[...undos])
+					if(action.type==='we-edit/content/sync'){
+						//@TODO: to merge change to each redos and undos' content
+						return changedState
+					}
+					return changedState
+						.set('redos',[])
+						.set('undos',[...getUndos(state), entry])
 				}
 				return changedState
 			}

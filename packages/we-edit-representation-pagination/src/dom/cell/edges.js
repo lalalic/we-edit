@@ -1,11 +1,11 @@
-import React, {Component} from "react"
+import React, {PureComponent} from "react"
 import Group from "../../composed/group"
 import Line from "../../composed/line"
 
 
 const Edge=({val, space, ...props})=><Line {...props}/>
 
-export default class Edges extends Component{
+export default class Edges extends PureComponent{
     render(){
         const {top,left,right,bottom, width,height, ...props}=this.props
         if(top.width==left.width && right.width==top.width && bottom.width==top.width){
@@ -24,4 +24,4 @@ export default class Edges extends Component{
             </Group>
         )
     }
-} 
+}

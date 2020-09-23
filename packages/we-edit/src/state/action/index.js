@@ -53,12 +53,16 @@ export const Entity={
 	UPDATE: changing=>({type:"we-edit/entity/UPDATE", payload:changing}),
 }
 
+export const Content={
+	Async: payload=>({type:"we-edit/content/ASYNC", payload})
+}
+
 export const UI=payload=>({type:"we-edit/doc/ui",payload})
 
 export const Statistics=stat=>({type:"we-edit/statistics",payload:stat})
 
 export const Refresh=()=>({type:"we-edit/refresh"})
 
-export const ACTION={Cursor, Text, Selection,Entity,History,Statistics, Refresh,UI}
+export const ACTION={Cursor, Text, Selection,Entity,History,Statistics, Refresh,UI, Content}
 
 export default ACTION
