@@ -1,18 +1,12 @@
 import {DOMAIN} from "we-edit"
-function reducer(state={loader:{},stream:{},channels:{}},{type,payload}){
+function reducer(state={loader:{},stream:{},reducer:a=>a},{type,payload}){
 	switch(type){
-        case `${DOMAIN}/office/LOADER`:
-            return {...state, loader:payload}
-        case `${DOMAIN}/office/STREAM`:
-            return {...state, stream:payload}
-        case `${DOMAIN}/office/FORMAT`:
-            return {...state, format:payload}
-        case `${DOMAIN}/office/channel`:
-            return {...state, channel:payload}
-        case `${DOMAIN}/office/scale`:
-            return {...state, scale:payload}
+        case `${DOMAIN}/office`:
+            return {...state, ...payload}
+        case `${DOMAIN}/office/reducer`:
+            return {...payload(undefined,{type,payload:{}}),...state,reducer:payload}
 		default:
-            return state
+            return state.reducer(state,arguments[1])
     }
 }
 

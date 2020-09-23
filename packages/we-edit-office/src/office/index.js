@@ -39,8 +39,6 @@ const event=new (class OfficeEvent extends EventEmitter{
 	}
 })();
 
-const excludeReducer=(state={})=>state
-
 export default class Office extends PureComponent{
 	static propTypes={
 		workspaces: PropTypes.arrayOf(PropTypes.element),
@@ -73,50 +71,27 @@ export default class Office extends PureComponent{
 		this.wedit=React.createRef()
 	}
 
-	getReducers=memoize((workspaces,reducers)=>{
-		return workspaces.reduce((collected,a)=>{
-			if(a.props.reducer){
-				collected[a.key]=(state,action)=>{
-					let reduced=a.props.reducer(state,action)
-					return {...state,...reduced}
-				}
-			}
-			return collected
-		},{...reducers})
-	},(a,b)=>a===b || shallowEqual(a,b))
-
 	componentDidMount(){
 		const {installable}=this.props
 		if(installable){
 			const dispatch=this.wedit.current.store.dispatch
 			event.ready(dispatch)
 			event.on("change", this.updateWorkspaces=(workspaces,init)=>{
-				this.setState(({workspaces:current})=>{
-					return {
-						workspaces,
-						excludes:current.filter(a=>!workspaces.find(b=>b.key===a.key))
-									.reduce((excludes,a)=>{
-										excludes[a.key]=excludeReducer
-										return excludes
-									},{})
-					}
-				}, init && (()=>{
-					init(dispatch)
-				}))
+				this.setState({workspaces}, ()=>{
+					init && init(dispatch)
+				})
 			})
 		}
 	}
 
 	render(){
-		const {workspaces, excludes}=this.state
-		let {titleBarProps,children, titleBar, dashboard, reducers={}}=this.props
+		const {workspaces}=this.state
+		const {titleBarProps,children, titleBar, dashboard, reducers}=this.props
 		
-		reducers=this.getReducers(workspaces,{...excludes,...reducers})
-
 		return (
 			<WeEdit reducers={reducers} ref={this.wedit}>
 				<WeEditUI {...{titleBarProps, titleBar,dashboard}}>
-					{workspaces.map(a=>a.props.reducer ? React.cloneElement(a,{reducer:undefined}) : a)}
+					{workspaces}
 					{children}
 				</WeEditUI>
 			</WeEdit>

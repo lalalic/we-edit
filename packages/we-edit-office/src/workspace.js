@@ -80,9 +80,9 @@ export default class Workspace extends PureComponent{
 				</div>
 			)
 		}
-		const {doc,reducer, ...props}=this.props
+		const {doc, ...props}=this.props
 		return (
-			<doc.Store reducer={reducer}>
+			<doc.Store>
 				<Channels {...props}/>
 			</doc.Store>
 		)
@@ -152,6 +152,7 @@ export default class Workspace extends PureComponent{
 //extract Channels from Workspace to make channel into redux state
 const Channels=connect((state,props)=>({channel:getOffice(state).channel||props.channel}))(
 	class BaseChannels extends Component{
+		state={}
 		getChannels=memoize(children=>
 			Children.toArray(children).filter(a=>a.props)
 				.map(({props:{channel,icon}})=>channel ? {channel,icon:icon||<span title={{channel}}/>} : null)
@@ -165,7 +166,19 @@ const Channels=connect((state,props)=>({channel:getOffice(state).channel||props.
 			return {current, uncontrolled}
 		})	
 
+		componentDidMount(){
+			const {dispatch,reducer}=this.props
+			if(reducer){
+				dispatch(ACTION.reducer(reducer))
+				this.setState({reduced:true})
+			}
+		}
+
 		render(){
+			if(this.props.reducer && !this.state.reduced){
+				return null
+			}
+
 			let {channel, children, toolBar, statusBar, ruler=true, layout, dispatch}=this.props
 			let {current,uncontrolled}=this.getCurrent(children, channel)
 

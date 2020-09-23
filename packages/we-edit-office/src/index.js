@@ -10,7 +10,7 @@ export {default as Canvas} from "./canvas"
 export {default as TitleBar} from "./title-bar"
 export {default as Dashboard} from "./dashboard"
 export {default as reducer} from "./state/reducer"
-export {default as ACTION} from "./state/action"
+export {default as ACTION, getOffice} from "./state/action"
 
 
 export {Ribbon,Office}
