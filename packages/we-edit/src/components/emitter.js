@@ -282,9 +282,11 @@ class OutputInput extends Emitter.Format.Base{
 	}
 
 	emit(){
-		const docStream=this.context.doc.stream()
-		docStream.pipe(this.stream)
-		docStream.push(null)
+		Promise.resolve(this.context.doc.stream())
+			.then(docStream=>{
+				docStream.pipe(this.stream)
+				docStream.push(null)
+			})
 	}
 }
 //document will be injected by representation Document

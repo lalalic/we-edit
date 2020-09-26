@@ -111,18 +111,18 @@ export default class Workspace extends PureComponent{
 		</div>
 	))
 
-	static PanelContainer=class PanelContainer extends Component{
+	static PanelContainer=class PanelContainer extends PureComponent{
 		static contextTypes={
 			panelManager: PropTypes.any
 		}
 
 		constructor(...args){
 			super(...args)
-			this.state={panels:[]}
+			this.state={panels:React.Children.toArray(this.props.children)}
 		}
 
 		render(){
-			const {state:{panels=[]},props:{containerStyle, ...props}}=this
+			const {state:{panels=[]},props:{containerStyle, children, ...props}}=this
 			if(panels.length==0)
 				return null
 			return (
