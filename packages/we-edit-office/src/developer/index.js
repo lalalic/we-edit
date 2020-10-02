@@ -167,7 +167,6 @@ class Tester extends PureComponent{
                         {src && <IconButton label={"start"} 
                             disabled={testing ? true : false}
                             style={style} 
-                            primary={true}
                             children={<IconRun/>}
                             onClick={e=>{
                                 this.setState({key:Date.now(), target:undefined})

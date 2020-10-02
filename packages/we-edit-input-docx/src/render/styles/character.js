@@ -6,6 +6,7 @@ const attribs={
 	"w:color":"color",
 	"w:b":"bold",
 	"w:i":"italic",
+	"w:u":"underline",
 	"w:vanish":"vanish",
 	"w:highlight":"highlight",
 	"w:bdr":"border",

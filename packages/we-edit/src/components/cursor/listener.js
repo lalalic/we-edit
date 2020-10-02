@@ -35,6 +35,9 @@ export default class Listener extends Component{
 			"z":e=>dispatch(ACTION.History.undo(e)),
 			"y":e=>dispatch(ACTION.History.redo(e)),
 		}
+		this.onChange=this.onChange.bind(this)
+		this.isOnComposition = false
+        this.emittedInput = true
 	}
 
 	render(){
@@ -50,21 +53,24 @@ export default class Listener extends Component{
 			className="cursor"
 			type="text"
 			value={this.state.value}
-
 			{...others}
+			onChange={this.onChange}
 
-			{...reactComposition({
-					onChange:e=>{
-						if(editable==false)
-							return
-						let value = e.target.value
-						if(e.reactComposition.composition === false){
-							dispatch(ACTION.Text.TYPE(value))
-							this.setState({value:""})
-						}else
-							this.setState({value})
-					}
-			})}
+			onCompositionStart={e=>{
+				this.isOnComposition = true
+            	this.emittedInput = false
+			}}
+
+			onCompositionEnd={e=>{
+				this.isOnComposition = false
+				// fixed for Chrome v53+ and detect all Chrome
+				// https://chromium.googlesource.com/chromium/src/+/afce9d93e76f2ff81baaa088a4ea25f67d1a76b3%5E%21/
+				// also fixed for the native Apple keyboard which emit input event before composition event
+				// subscribe this issue: https://github.com/facebook/react/issues/8683
+				if (!this.emittedInput) {
+					this.onChange(e)
+				}				
+			}}
 
 			onKeyDown={e=>{
 				if(editable==false && ![37,38,39,40].includes(e.keyCode)){
@@ -90,10 +96,23 @@ export default class Listener extends Component{
 		/>
 	}
 
+	onChange(e){
+		if(this.context.editable==false)
+			return
+		const value = e.target.value
+		if(!this.isOnComposition){
+			this.props.dispatch(ACTION.Text.TYPE(value))
+			this.setState({value:""})
+			this.emittedInput = true
+		}else{
+			this.setState({value})
+			this.emittedInput = false
+		}
+	}
+
 	componentDidUpdate(){
 		requestAnimationFrame(()=>{
 			this.props.inputRef.current.focus()
-			console.log("cursor focused")
 		})
 	}
 }

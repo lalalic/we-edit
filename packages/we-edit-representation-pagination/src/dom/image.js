@@ -17,7 +17,7 @@ export default class Image extends Super{
 
 	getShape(){
 		const {width,height,id,}=this.props
-		return new Shape({width, height,id,...this.props.outline, margin:{},children:null},{context:this.context})
+		return new Shape({width, height,id,...this.props.outline, margin:{},children:null},{...this.context,mount:false,unmount:false})
 	}
 
 	createComposed2Parent(){
