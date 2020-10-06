@@ -118,16 +118,16 @@ export default class Workspace extends PureComponent{
 
 		constructor(...args){
 			super(...args)
-			this.state={panels:React.Children.toArray(this.props.children)}
+			this.state={panels:React.Children.toArray(this.props.children),active:0}
 		}
 
 		render(){
-			const {state:{panels=[]},props:{containerStyle, children, ...props}}=this
+			const {state:{panels=[],active},props:{containerStyle, children, ...props}}=this
 			if(panels.length==0)
 				return null
 			return (
-				<Tabs {...props}>
-					{panels.map(a=><Tab key={a.props.title} label={a.props.title}>{a}</Tab>)}
+				<Tabs {...props} value={active}>
+					{panels.map((a,i)=><Tab key={a.props.title} label={a.props.title} value={i}>{a}</Tab>)}
 				</Tabs>
 			)
 		}
@@ -137,14 +137,17 @@ export default class Workspace extends PureComponent{
 		}
 
 		toggle(el){
+			let active
 			const {panels=[]}=this.state
 			const i=panels.findIndex(a=>a.props.title==el.props.title)
 			if(i!=-1){
 				panels.splice(i,1)
+				active=Math.min(i,panels.length-1)
 			}else{
 				panels.push(el)
+				active=panels.length-1
 			}
-			this.setState({panels:[...panels]})
+			this.setState({panels:[...panels],active})
 		}
 	}
 }

@@ -65,6 +65,25 @@ export default class PaginationSelectionStyle extends SelectionStyle{
         return page.layoutOf(this.position)
     })
 
+    _textProps=memoize((type,getFromContent)=>{
+        const textProps=this._props(type,getFromContent)
+        if(!textProps)
+            return textProps
+        const {size=0, ...props}=textProps
+        return {...props,size:Math.round(size*72/96/this.positioning.precision)}
+    })
+
+    _cellProps=memoize((type,getFromContent)=>{
+        const cellProps=this._props(type,getFromContent)
+        if(!cellProps || getFromContent)
+            return cellProps
+        const composer=this.positioning.responsible.getComposer(cellProps.id)
+        if(!composer)
+            return cellProps
+        const props=composer.computed.composed[0].props
+        return {...cellProps, ...props}
+    })
+
     /**
      * x, y of page,line,column
      * size, margin

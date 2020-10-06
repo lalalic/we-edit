@@ -483,10 +483,12 @@ class PositioningHelper extends Positioning{
         const pos=storyUps.reduce((xy,{props:{x=0,y=0}})=>(xy.x+=x,xy.y+=y,xy),{x:0,y:0,...defaultStyle})
         const lineDescent=story.attr('lineDescent')
         
-		const isParagraphSelf=id==paragraph.props.id
-		const {first,last,target=first||last,parents}=story[`${at==1 ? "findLast" : "findFirst"}AndParents`](
-			isParagraphSelf ? 
-			`.ender${at==0 ? ",[data-content]" : ""}` : 
+        const isParagraphSelf=id==paragraph.props.id
+        
+
+
+		const {first,last,target=first||last,parents}=story[`${at>0 ? "findLast" : "findFirst"}AndParents`](
+			isParagraphSelf ? "[data-content],.ender":
 			node=>{
                 if(!React.isValidElement(node))
                     return false
@@ -496,7 +498,9 @@ class PositioningHelper extends Positioning{
 				if(endat==undefined || (at<=endat && at>=endat-text.length))
 					return true
 			}
-		);
+        );
+        
+
 		[target.get(0),...parents].reduce((o,{props:{x=0,y=0}})=>(o.x+=x, o.y+=y, o), pos);
         
         const {height,width,descent}=target.get(0).props

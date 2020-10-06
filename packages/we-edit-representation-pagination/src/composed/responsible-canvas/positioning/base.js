@@ -39,6 +39,14 @@ export default class Positioning{
         return !!this.responsible.canvas
     }
 
+    get scale(){
+        return this.responsible.state.scale||1
+    }
+
+    get precision(){
+        return this.responsible.state.precision||1
+    }
+
     /**
      * To get position{page,line, x,y,left,top,} for a location{id,at}
      * 

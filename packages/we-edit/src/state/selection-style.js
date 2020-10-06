@@ -26,7 +26,7 @@ export default class SelectionStyle{
      */
     props(type, getFromContent = true){
         if(`_${type}Props` in this){
-            return this[`_${type}Props`]()
+            return this[`_${type}Props`](type, getFromContent)
         }
         return this._props(...arguments)
     }

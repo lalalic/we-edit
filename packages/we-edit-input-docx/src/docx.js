@@ -58,8 +58,8 @@ export default class Document extends docx4js{
 		this.officeDocument.styles.rollback(styles)
 	}
 
-	pt2Px(){
-		return super.pt2Px(...arguments)*this.precision
+	pt2Px(pt){
+		return Math.round(pt*96/72*this.precision)
 	}
 
 	static parseXml=function(){

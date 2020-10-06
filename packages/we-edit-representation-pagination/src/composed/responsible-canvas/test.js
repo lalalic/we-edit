@@ -6,11 +6,11 @@ export default class extends Test.Emulator{
     }
 
     get scale(){
-        return this.selectionStyle.positioning.responsible.state.scale||1
+        return this.selectionStyle.positioning.scale||1
     }
 
     get precision(){
-        return this.selectionStyle.positioning.responsible.state.precision||1
+        return this.selectionStyle.positioning.precision||1
     }
 
     getXY(el){

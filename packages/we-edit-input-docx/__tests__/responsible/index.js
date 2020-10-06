@@ -16,6 +16,53 @@ export default ({doc, tick,every,describe,it,xdescribe,xit,fit,fdescribe,expect,
         })
     })
 
+
+    describe("table",()=>{
+        it("can resize column",()=>{
+            return dispatch(ACTION.Cursor.AT('95{word/document.xml}',2))
+                    .then(()=>tick(4000, 200,300,value=>{
+                        dispatch({
+                            type: 'we-edit/entity/UPDATE',
+                            payload: {
+                                id: '153{word/document.xml}',
+                                type: 'table',
+                                width: {
+                                    value,
+                                    row: '131{word/document.xml}',
+                                    cell: '128{word/document.xml}',
+                                    i: 1
+                                }
+                            }
+                        })
+                    })).then(()=>{
+                        const cell=doc.selectionStyle.props("cell",false)
+                        expect(cell.width).toBe(300*doc.precision)
+                    })
+        },10000)
+
+        it("can resize row",()=>{
+            return dispatch(ACTION.Cursor.AT('135{word/document.xml}',1))
+                .then(()=>tick(4000, 48, 350, value=>{
+                    dispatch({
+                        type: 'we-edit/entity/UPDATE',
+                        payload: {
+                        id: '153{word/document.xml}',
+                        type: 'table',
+                        height: {
+                            value,
+                            row: '138{word/document.xml}',
+                            cell: '135{word/document.xml}',
+                            i: 1
+                        }
+                        }
+                    })
+                })).then(()=>{
+                    const row=doc.selectionStyle.props("row",false)
+                    expect(row.height).toBe(350*doc.precision)
+                })
+        })
+    })
+
     describe("text",()=>{
         const id="15{word/document.xml}", at=2
 
@@ -33,7 +80,7 @@ export default ({doc, tick,every,describe,it,xdescribe,xit,fit,fdescribe,expect,
         })
 
         it("change style",()=>{
-            return dispatch(ACTION.Selection.SELECT('17{word/document.xml}',7,undefined,15))
+            return dispatch(ACTION.Selection.SELECT('15{word/document.xml}',7,undefined,15))
                 .then(()=>every(TIME, dispatch,[
                 ...([["size",24],["bold",true],["italic",true],["color","red"]].map(([k,v])=>({
                         type: 'we-edit/selection/UPDATE',
@@ -55,7 +102,7 @@ export default ({doc, tick,every,describe,it,xdescribe,xit,fit,fdescribe,expect,
 
         it("bold type 'good morning'", ()=>{
             return every(TIME, dispatch,[
-                  ACTION.Cursor.AT('190{word/document.xml}',32),
+                  ACTION.Cursor.AT('189{word/document.xml}',32),
                   {
                     type: 'we-edit/selection/UPDATE',
                     payload: {
@@ -107,7 +154,7 @@ export default ({doc, tick,every,describe,it,xdescribe,xit,fit,fdescribe,expect,
                   })
             }).then(()=>{
                 const {outline:{height}={}}=doc.selectionStyle.props("image")||{}
-                expect(height).toBe(100)
+                expect(height).toBe(100*doc.precision)
             })
         })
 
@@ -125,52 +172,8 @@ export default ({doc, tick,every,describe,it,xdescribe,xit,fit,fdescribe,expect,
                   })
             }).then(()=>{
                 const {outline:{width}={}}=doc.selectionStyle.props("image")||{}
-                expect(width).toBe(200)
+                expect(width).toBe(200*doc.precision)
             })
-        })
-    })
-
-    xdescribe("table: composed has bug because of composer not unmounted",()=>{
-        it("can resize column",()=>{
-            return dispatch(ACTION.Cursor.AT('95{word/document.xml}',9))
-                    .then(()=>tick(4000, 200,100,value=>{
-                        dispatch({
-                            type: 'we-edit/entity/UPDATE',
-                            payload: {
-                                id: '157{word/document.xml}',
-                                type: 'table',
-                                width: {
-                                    value,
-                                    row: '90{word/document.xml}',
-                                    cell: '87{word/document.xml}',
-                                    i: 1
-                                }
-                            }
-                        })
-                    })).then(()=>{
-                        //cell size should be 100
-                    })
-        },10000)
-
-        it("can resize row",()=>{
-            return dispatch(ACTION.Cursor.AT('138{word/document.xml}',0))
-                .then(()=>tick(4000, 48, 300, value=>{
-                    dispatch({
-                        type: 'we-edit/entity/UPDATE',
-                        payload: {
-                        id: '157{word/document.xml}',
-                        type: 'table',
-                        height: {
-                            value,
-                            row: '142{word/document.xml}',
-                            cell: '139{word/document.xml}',
-                            i: 1
-                        }
-                        }
-                    })
-                })).then(()=>{
-                    //row height should be 300
-                })
         })
     })
 }

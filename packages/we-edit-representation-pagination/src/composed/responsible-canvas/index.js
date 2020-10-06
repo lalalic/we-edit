@@ -116,11 +116,6 @@ class Responsible extends Component{
         return this.context.activeDocStore.dispatch
     }
 
-    get selectionChangeNotifier(){
-        if(this.refs.selectionChangeNotifier)
-            return this.refs.selectionChangeNotifier.getWrappedInstance()
-    }
-
     get selecting(){
         if(this.refs.selecting)
             return this.refs.selecting.getWrappedInstance()
@@ -186,7 +181,7 @@ class Responsible extends Component{
                             38:e=>this.onKeyArrowUp(e),//move up
                             40:e=>this.onKeyArrowDown(e),//move down
                         }}>
-                        <CursorShape scrollNodeIntoView={node=>this.scrollNodeIntoView(node)}/>
+                        <CursorShape/>
                     </Cursor>
                     <Selection >
                         <SelectionShape ref={"selecting"}/>
@@ -235,6 +230,10 @@ class Responsible extends Component{
     __updateSelectionStyle(){
         const SelectionStyle=this.constructor.SelectionStyle
         const {start,end}=this.selection, {id,at}=this.cursor
+        console.log(`update selection style for ${id},${at}`)
+        if(!this.props.document.isSelectionComposed({end,start})){
+            console.error(`selection style: not fully composed ${id}`)
+        }
         const pos=this.positioning.position(id, at, true)
         const style=new SelectionStyle(pos, start, end,this.positioning)
         this.dispatch(ACTION.Selection.STYLE(style))

@@ -155,7 +155,10 @@ const Focus=connect(state=>{
 
 	componentDidMount(){
 		const node=document.getElementById(`_docNode_${this.props.focus}`)
-		node && (node.style.background="lightblue");
+		if(node){
+			node.style.background="lightblue"
+			node.scrollIntoViewIfNeeded(true)
+		} 
 	}
 
 	componentDidUpdate({focus}){
