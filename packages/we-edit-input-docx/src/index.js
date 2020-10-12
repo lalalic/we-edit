@@ -204,6 +204,7 @@ class DocxType extends Input.Editable{
 			}
 			case "br":
 				return createElement(components.Text,{},String.fromCharCode(13),node)
+			case "instrText":
 			case "t":
 				return createElement(components.Text,{},children[0]||"",node)
 

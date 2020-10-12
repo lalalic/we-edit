@@ -250,13 +250,14 @@ class Responsible extends Component{
         const withoutRecomposing=()=>document.computed.composedUUID===(lastComposedUUID||document.computed.composedUUID)
         
         return (()=>{
-            const a=withoutRecomposing(), b=selectionChanged()
-            lastComposedUUID=document.computed.composedUUID
-            lastSelection=getSelection()
-            if( a && b && document.isSelectionComposed(this.selection)){
-                this.__updateSelectionStyle()
-            } 
-            
+            if(this.context.activeDocStore.getState()){
+                const a=withoutRecomposing(), b=selectionChanged()
+                lastComposedUUID=document.computed.composedUUID
+                lastSelection=getSelection()
+                if( a && b && document.isSelectionComposed(this.selection)){
+                    this.__updateSelectionStyle()
+                } 
+            }
         })
     }
 }

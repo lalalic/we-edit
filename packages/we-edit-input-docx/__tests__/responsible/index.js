@@ -16,53 +16,6 @@ export default ({doc, tick,every,describe,it,xdescribe,xit,fit,fdescribe,expect,
         })
     })
 
-
-    describe("table",()=>{
-        it("can resize column",()=>{
-            return dispatch(ACTION.Cursor.AT('95{word/document.xml}',2))
-                    .then(()=>tick(4000, 200,300,value=>{
-                        dispatch({
-                            type: 'we-edit/entity/UPDATE',
-                            payload: {
-                                id: '153{word/document.xml}',
-                                type: 'table',
-                                width: {
-                                    value,
-                                    row: '131{word/document.xml}',
-                                    cell: '128{word/document.xml}',
-                                    i: 1
-                                }
-                            }
-                        })
-                    })).then(()=>{
-                        const cell=doc.selectionStyle.props("cell",false)
-                        expect(cell.width).toBe(300*doc.precision)
-                    })
-        },10000)
-
-        it("can resize row",()=>{
-            return dispatch(ACTION.Cursor.AT('135{word/document.xml}',1))
-                .then(()=>tick(4000, 48, 350, value=>{
-                    dispatch({
-                        type: 'we-edit/entity/UPDATE',
-                        payload: {
-                        id: '153{word/document.xml}',
-                        type: 'table',
-                        height: {
-                            value,
-                            row: '138{word/document.xml}',
-                            cell: '135{word/document.xml}',
-                            i: 1
-                        }
-                        }
-                    })
-                })).then(()=>{
-                    const row=doc.selectionStyle.props("row",false)
-                    expect(row.height).toBe(350*doc.precision)
-                })
-        })
-    })
-
     describe("text",()=>{
         const id="15{word/document.xml}", at=2
 
@@ -174,6 +127,52 @@ export default ({doc, tick,every,describe,it,xdescribe,xit,fit,fdescribe,expect,
                 const {outline:{width}={}}=doc.selectionStyle.props("image")||{}
                 expect(width).toBe(200*doc.precision)
             })
+        })
+    })
+
+    describe("table",()=>{
+        it("can resize column",()=>{
+            return dispatch(ACTION.Cursor.AT('95{word/document.xml}',2))
+                    .then(()=>tick(4000, 200,300,value=>{
+                        dispatch({
+                            type: 'we-edit/entity/UPDATE',
+                            payload: {
+                                id: '153{word/document.xml}',
+                                type: 'table',
+                                width: {
+                                    value,
+                                    row: '131{word/document.xml}',
+                                    cell: '128{word/document.xml}',
+                                    i: 1
+                                }
+                            }
+                        })
+                    })).then(()=>{
+                        const cell=doc.selectionStyle.props("cell",false)
+                        expect(cell.width).toBe(300*doc.precision)
+                    })
+        },10000)
+
+        it("can resize row",()=>{
+            return dispatch(ACTION.Cursor.AT('135{word/document.xml}',1))
+                .then(()=>tick(4000, 48, 350, value=>{
+                    dispatch({
+                        type: 'we-edit/entity/UPDATE',
+                        payload: {
+                        id: '153{word/document.xml}',
+                        type: 'table',
+                        height: {
+                            value,
+                            row: '138{word/document.xml}',
+                            cell: '135{word/document.xml}',
+                            i: 1
+                        }
+                        }
+                    })
+                })).then(()=>{
+                    const row=doc.selectionStyle.props("row",false)
+                    expect(row.height).toBe(350*doc.precision)
+                })
         })
     })
 }

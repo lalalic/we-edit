@@ -19,7 +19,7 @@ export default function buildDoc(doc,inputTypeInstance){
 	const transform=inputTypeInstance.transform.bind(inputTypeInstance)
 	const TypedComponents=transform(Dom)
 
-	const getDocStore=memoize((store,id)=>new LocalStore(store, "we-edit", state=>state['we-edit'].docs[id].state))
+	const getDocStore=memoize((store,id)=>new LocalStore(store, "we-edit", state=>state['we-edit'].docs[id]?.state))
 
 	const buildReducer=(extendReducer=a=>a)=>{
 		const createElementFactory=createElementFactoryBuilder(inputTypeInstance)

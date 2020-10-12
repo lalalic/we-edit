@@ -32,8 +32,7 @@ export default A=>{
 
 
         getChildContext() {
-            let self = this
-            let superChildContext=super.getChildContext ? super.getChildContext() : {}
+            const superChildContext=super.getChildContext ? super.getChildContext() : {}
             return {
                 ...superChildContext,
                 parent: this

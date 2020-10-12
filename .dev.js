@@ -120,7 +120,7 @@ function testOffice(Target, representation="pagination"){
 		</div>
 	))
 
-	const VariantEditor=connect(state=>state[KEY])(({data,assemble, pilcrow, ...props})=>{
+	const VariantEditor=connect(state=>({...state[KEY]}))(({data,assemble, pilcrow, ...props})=>{
 		var editor=<Target {...props}/>
 
 		if(data && assemble){

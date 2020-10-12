@@ -131,7 +131,7 @@ class Paragraph extends Super{
 
 		const rollbackToLineWithFirstAtomIndex=at=>{
 			const {lines,atoms}=this
-			const i=lines.findIndex(a=>atoms.indexOf(a.firstAtom)==at)
+			const i=lines.findIndex(a=>atoms.indexOf(a.atoms[0])==at)
 			if(i==-1){
 				throw new Error(`failed rollback to line with first Atom index=${at}`)
 			}
@@ -146,7 +146,7 @@ class Paragraph extends Super{
 		const atomIndexOfLastNthLine=i=>{
 			const lines=this.lines
 			const lastNthLine=lines[lines.length-i]
-			return atoms.indexOf(lastNthLine.firstAtom)
+			return atoms.indexOf(lastNthLine.atoms[0])
 		}
 
 		const createAndAppendLine=(...args)=>{

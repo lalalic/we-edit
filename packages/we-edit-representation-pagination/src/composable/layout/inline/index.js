@@ -125,6 +125,11 @@ export default class Inline extends Component{
 			this.inlineSegments.push(atom,true/*append atom without considering inline size*/)
 			return true
 		}
+
+		if(atom.props.className=="ender"){
+			this.inlineSegments.push(atom,true/*append atom without considering inline size*/)
+			return
+		}
 		
 		const appended=(newHeight=>{
 			if((newHeight-this.height)>1){

@@ -40,7 +40,7 @@ export class Properties{
 	}
 
 	titlePg(x){
-		return a.atrribs["w:val"]!=="false"
+		return x.attribs["w:val"]!=="false"
 	}
 
 	cnfStyle(x){
