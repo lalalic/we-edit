@@ -47,7 +47,9 @@ export const Test=connect(state=>({ready:isDocumentReady(state)}))(class extends
             return
         this.loadFixture(fixture)
             .then(specs=>{
-                import(/*jasmine*/"jasmine-core/lib/jasmine-core/jasmine")
+                import(
+                    /* webpackChunkName: "jasmine" */
+                "jasmine-core/lib/jasmine-core/jasmine")
                 .then(jasmineRequire=>{
                     this.jasmine=jasmineRequire
                     this.setState({tests:this.createEnv(specs, jasmineRequire)},()=>onChange(this.state))

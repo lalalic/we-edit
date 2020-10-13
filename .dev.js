@@ -139,7 +139,7 @@ function testOffice(Target, representation="pagination"){
 			debug={true}
 			accept="*.docx"
 			key={KEY}
-			ruler={false}
+			ruler={true}
 			toolBar={
 				<Ribbon.Ribbon commands={{layout:true,}}>
 				</Ribbon.Ribbon>

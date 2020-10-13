@@ -68,7 +68,7 @@ const Page=compose(
 	</FlatButton>
 ))
 
-const Words=connect(state=>getStatistics(state))(({words=0,allComposed})=>(
+const Words=connect(state=>({...getStatistics(state)}))(({words=0,allComposed})=>(
 	<FlatButton style={ButtonStyle}>
 		{`${words}${allComposed?'':'..'}`} WORDS
 	</FlatButton>

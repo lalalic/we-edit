@@ -17,6 +17,8 @@ import IconRunFails from "material-ui/svg-icons/av/slow-motion-video"
 
 import selectFile from "../components/file-select"
 
+import Diff from "./diff"
+
 export class Ribbon extends Component{
     static contextTypes={
         panelManager:PropTypes.any
@@ -75,8 +77,6 @@ class FilterDocumentTree extends Component{
     }
 }
    
-const Diff=React.lazy(()=>import("./diff"))
-
 class DiffButton extends PureComponent{
     static contextTypes={
         activeDocStore:PropTypes.any
