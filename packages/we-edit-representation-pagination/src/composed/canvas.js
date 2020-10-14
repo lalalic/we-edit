@@ -63,7 +63,7 @@ export default class ComposedDocumentCanvas extends Component{
 	}
 
 	static getDerivedStateFromProps({document,...me}){
-        const {pages,props:{scale=me.scale,pageGap=me.pageGap,precision}}=document
+        const {pages,props:{scale=me.scale,pageGap=me.pageGap,precision=1}}=document
         return {pages,precision,scale,pageGap}
 	}
 	

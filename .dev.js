@@ -136,7 +136,7 @@ function testOffice(Target, representation="pagination"){
 
 	const myWorkspace=(
 		<Workspace
-			debug={true}
+			debug={false}
 			accept="*.docx"
 			key={KEY}
 			ruler={true}
@@ -173,10 +173,10 @@ function testOffice(Target, representation="pagination"){
 	)
 
 	Office.install(myWorkspace,dispatch=>{
-		fetch("/basic.docx")
+		fetch("/basic.xml")
 			.then(res=>res.blob())
 			.then(data=>{
-				const file={data,name:"basic.docx",ext:"docx", src:"/basic.docx"}
+				const file={data,name:"basic.xml",ext:"xml", src:"/basic.xml"}
 				return Input.parse(file)
 			})
 			.then(doc=>dispatch(ACTION.ADD(doc,reducer)))

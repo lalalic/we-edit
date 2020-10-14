@@ -186,7 +186,7 @@ export class WeDocumentStub extends Component{
 			if(!type){
 				debugger
 			}
-			const Child=ModelTypes[type[0].toUpperCase()+type.substr(1)]
+			let Child=ModelTypes[type[0].toUpperCase()+type.substr(1)]
 			if(!Child){
 				Child=ModelTypes.Unknown
 				console.warn(`[${type}] not found`)

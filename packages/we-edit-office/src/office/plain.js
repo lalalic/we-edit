@@ -99,7 +99,6 @@ const PlainEditor=connect(state=>state[DOMAIN])(({mode,theme,font,size,wrap,numb
 
 export default (
     <Workspace
-        debug={true}
         accept="*"
         key={DOMAIN}
         ruler={false}

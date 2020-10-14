@@ -1,7 +1,16 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 
-export default ({Document, Container,Frame})=>class __$1 extends Component{
+const trim=a=>{
+    Object.keys(a).forEach(k=>{
+        if(a[k]==undefined){
+            delete a[k]
+        }
+    })
+    return a
+}
+
+export default ({Document})=>class __$1 extends Component{
     static displayName="document"
     static propTypes={
         defaultStyle:PropTypes.shape({
@@ -21,6 +30,10 @@ export default ({Document, Container,Frame})=>class __$1 extends Component{
 			italic: PropTypes.bool,
             color: PropTypes.string,
 		})
+    }
+
+    static extractProps({fonts, size, bold, italic,color,  ...props}){
+        return {defaultStyle:trim({fonts, size:size ? parseFloat(size) : undefined, bold, italic,color,}), ...props}
     }
 
     getChildContext(){

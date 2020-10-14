@@ -237,9 +237,9 @@ class DocxType extends Input.Editable{
 		}
 
 		let build=buildFactory(createElement)
-		let renderNode=node=>docx.officeDocument.renderNode(node,build,identify)
+		const renderNode=node=>docx.officeDocument.renderNode(node,build,identify)
 
-		let rendered=docx.render(build)
+		const rendered=docx.render(build)
 
 
 		//implement loader.renderChangedNode

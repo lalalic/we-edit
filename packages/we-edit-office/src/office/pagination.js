@@ -11,7 +11,6 @@ import Ribbon,{} from "../ribbon"
 
 export default (
     <Workspace
-			debug={true}
 			accept={
 				function({props:{supportPagination},name}){
 					return supportPagination

@@ -43,10 +43,18 @@ export default class __$1 extends Input.Editable{
     }
 
     parse({data, ...props}){
-		this.props={...props,supportPagination:true}
-		const doc=cheer.load(this.dataToDom(data),{xmlMode:true,decodeEntities: false})
-		transactifyCheerio(doc)
-		return doc
+		const _parse=d=>{
+			this.props={...props,supportPagination:true}
+			const doc=cheer.load(this.dataToDom(d),{xmlMode:true,decodeEntities: false})
+			transactifyCheerio(doc)
+			return doc
+		}
+		
+		if(Blob && Blob.prototype.text){
+			return new Blob([data]).text().then(data=>_parse(data))
+		}else{
+			return _parse(data)
+		}
 	}
 
 	stream(){
@@ -58,6 +66,7 @@ export default class __$1 extends Input.Editable{
 
 	render(createElement, components){
 		const UnknownComponents={}
+		const extractProps=a=>a
 		const renderNode=(node,createElement)=>{
 			const {children, name:type, attribs:props, isText=type=="text"}=node
 			const TYPE=isText ? "Text" : type[0].toUpperCase()+type.substr(1)
@@ -65,7 +74,7 @@ export default class __$1 extends Input.Editable{
 			if(!Type){
 				UnknownComponents[TYPE]=Type=class{static displayName=type}
 			}
-			return createElement(Type,props||{},
+			return createElement(Type,(Type.extractProps||extractProps)(props||{}),
 				isText ? (!Array.isArray(children) ? children.data : (children[0]||{}).data) : 
 					(Array.isArray(children) ? children.map(a=>renderNode(a,createElement)).filter(a=>!!a) : 
 						(!!children ? renderNode(a,createElement) : children)

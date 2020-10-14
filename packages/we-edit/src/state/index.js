@@ -58,7 +58,7 @@ export const connect=(stateMap, actionMap, mergeProps, options={},...args)=>{
 }
 export const whenSelectionChange=((props=a=>a,actionMap,mergeProps,options={},...args)=>{
 	return connect(state=>{
-		return props({selection:getSelectionStyle(state)},state)
+		return props({selection:getSelectionStyle(state)},state)||{}
 	},actionMap,mergeProps,options,...args)
 })
 

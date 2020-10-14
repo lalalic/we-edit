@@ -3,7 +3,7 @@
 	"children":[{
 		"type":"section",
 		"props":{
-			"page":{
+			"layout":{
 				"width":800,
 				"height":600,
 				"margin":{
@@ -29,7 +29,7 @@
 				"children":"hello, have fun",
 				"props":{
 					"fonts":"Verdana",
-					"size":12,
+					"size":12
 				}
 			}]
 		}]
