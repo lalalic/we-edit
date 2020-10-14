@@ -46,8 +46,12 @@ export default class Plain extends Input.Editable{
 			Document,
 			{mode:this.mode},
 			this.doc,
-			{id:"root"}
+			{}
 		)
+	}
+
+	makeId(){
+		return 'root'
 	}
 
 	onChange(state,{type,payload}){

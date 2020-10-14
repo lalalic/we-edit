@@ -1,6 +1,6 @@
 import React,{Fragment} from "react"
-import {connect} from  "react-redux"
-import {Editor,getActive} from "we-edit"
+import {Editor,getFile,connect} from "we-edit"
+import {getOffice} from "we-edit-office"
 import {modes, themes} from "we-edit-representation-plain"
 
 
@@ -13,7 +13,7 @@ import CheckIconButton from "../components/check-icon-button"
 import IconWrap from "material-ui/svg-icons/editor/wrap-text"
 import IconNumber from "material-ui/svg-icons/editor/format-list-numbered"
 
-const DOMAIN="default(accept=*)"
+const DOMAIN="we-edit/default(accept=*)"
 
 function reducer(state={
     mode:"",theme:"eclipse",font:"Calibri",size:12,wrap:false,number:true
@@ -36,13 +36,8 @@ function reducer(state={
 }
 
 const Setting=connect(state=>{
-    const setting=state[DOMAIN]
-    const active=getActive(state)
-    const mode=active.doc.mode
-    if(mode){
-        return {...setting,mode}
-    }
-    return setting
+    const {mode,theme,font,size,wrap,number}=getOffice(state)
+    return {theme,font,size,wrap,number,mode:getFile(state).doc.mode||mode}
 })(({dispatch,mode,theme,font,size,wrap,number})=>{
 	return (
 		<Fragment>
@@ -93,7 +88,10 @@ const Setting=connect(state=>{
 	)
 })
 
-const PlainEditor=connect(state=>state[DOMAIN])(({mode,theme,font,size,wrap,number})=>(
+const PlainEditor=connect(state=>{
+    const {mode,theme,font,size,wrap,number}=getOffice(state)
+    return {mode,theme,font,size,wrap,number}
+})(({mode,theme,font,size,wrap,number})=>(
 	<Editor representation="plain" setting={{mode,theme,font,size,wrap,number}}/>
 ))
 
