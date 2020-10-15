@@ -1,5 +1,5 @@
-<Document>
-    <Section>
+<Document fonts="Arial" size="12">
+    <Section width="800" height="600" left="96" right="96" top="48" bottom="48" header="24" footer="24">
         <Paragraph>
             <Text>hello</Text>
         </Paragraph>
