@@ -53,7 +53,7 @@ export const context=({dom, state=State, measure=Measure, contextTypes={},contex
 				return {
 					get(){
 						return state
-					}
+                    }
 				}
 			}
 		},

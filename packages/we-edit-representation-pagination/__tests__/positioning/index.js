@@ -14,7 +14,7 @@ export default function define(feature, tests){
 	const size={width:20,height:500}
 	const pageGap=12
     const mockQuery=(key,value)=>{
-            Paragraph.prototype.query=jest.fn(()=>{
+            jest.spyOn(Paragraph.prototype,"query").mockImplementation(()=>{
                 return {
                     [key]:()=>{
                         return {
@@ -69,12 +69,20 @@ export default function define(feature, tests){
             }
     }
 
+    const shouldContinueCompose=jest.spyOn(Document.prototype,"shouldContinueCompose").mockReturnValue(true)
+    const asViewportPoint=jest.spyOn(Positioning.prototype,"asViewportPoint").mockImplementation(({x,y})=>({left:x,top:y}))
+    const asCanvasPoint=jest.spyOn(Positioning.prototype,"asCanvasPoint").mockImplementation(({left,top})=>({x:left,y:top}))
+
     beforeAll(()=>{
         defaultProps(Editors)()
-        Document.prototype.shouldContinueCompose=jest.fn(a=>true)
-        Positioning.prototype.asViewportPoint=jest.fn(({x,y})=>({left:x,top:y}))
-        Positioning.prototype.asCanvasPoint=jest.fn(({left,top})=>({x:left,y:top}))
-	})
+    })
+
+    afterAll(()=>{
+        shouldContinueCompose.mockRestore()
+        asViewportPoint.mockRestore()
+        asCanvasPoint.mockRestore()
+    })
+    
 
     describe.each([
 

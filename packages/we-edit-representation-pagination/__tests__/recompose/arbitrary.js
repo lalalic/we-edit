@@ -2,7 +2,6 @@ import React from "react"
 import {context, $, State, render, defaultProps} from "../context"
 import {Editors} from "../../src"
 
-
 describe("continuable", ()=>{
 	const pageGap=12
 	const {Document, Section, Frame, Paragraph, Text}=Editors
@@ -28,7 +27,7 @@ describe("continuable", ()=>{
 				<Text  id={`${id}.2`} key={`${id}.2`} fonts="arial" size={12}>hello{id||""}</Text>
 			</Paragraph>
 			{
-				ps>1 && new Array(ps-1)
+				new Array(ps-1)
 					.fill(0)
 					.map((a,i)=>
 						<Paragraph id={`${id}.1.${i+1}`} key={`${id}.1.${i+1}`}>
@@ -39,12 +38,24 @@ describe("continuable", ()=>{
 		</Section>
 	)
 
+	const spyIsSelectionComposed=jest.spyOn(Document.prototype,"isSelectionComposed")
+
+	function isSelectionComposed({start,end}){
+		const allComposed=id=>this.composers.has(id) && this.getComposer(id).isAllChildrenComposed()
+		return allComposed(start.id) && allComposed(end.id)
+	}
+
 	beforeAll(()=>{
 		defaultProps(Editors)()
 		Paragraph.defaultProps.End=""
+		console.debug=console.log=jest.fn()
 	})
 
+	afterAll(()=>spyIsSelectionComposed.mockRestore())
+
 	describe("compose to Y", ()=>{
+		beforeAll(()=>spyIsSelectionComposed.mockReturnValue(true))
+		
 		const compose2Y=(y,n)=>it(`${y},pages=${n}`,()=>{
 			const renderer=render(
 				<Context>
@@ -75,8 +86,11 @@ describe("continuable", ()=>{
 	})
 
 	describe("compose to id",()=>{
+		beforeAll(()=>spyIsSelectionComposed.mockImplementation(isSelectionComposed))
+		
 		const compose2Id=(id,n)=>it(`${id},pages=${n}`,()=>{
 			State.toJS=jest.fn(()=>({start:{id,at:0},end:{id,at:0}}))
+			
 			const renderer=render(
 				<Context>
 					<Document viewport={{width:500,height:100,node:{scrollTop:0}}} screenBuffer={0} scale={1}>
@@ -99,7 +113,6 @@ describe("continuable", ()=>{
 
 		compose2Id('3.2',3)
 	})
-
 
 	describe("compose to y/id then y/id",()=>{
 		function compose2(node,state,i){
@@ -125,12 +138,13 @@ describe("continuable", ()=>{
 				}
 			}
 			size.composedHeight=jest.fn(()=>size.height/2)
+			spyIsSelectionComposed.mockReturnValue(true)
 			const doc=compose2(node,state)
 			let pages=doc.computed.composed
 
-			expect($(pages).text()).toBe("hello1")
 			expect(pages.length).toBe(1)
-
+			expect($(pages).text()).toBe("hello1")
+			
 			return new Promise((resolve, reject)=>{
 				node.scrollTop=size.height/2+pageGap
 				doc.setState({mode:"viewport",time:Date.now()},()=>{
@@ -149,17 +163,19 @@ describe("continuable", ()=>{
 					return {start:{},end:{}}
 				}
 			}
+			spyIsSelectionComposed.mockReturnValue(true)
 			const doc=compose2(node,state)
 
 			let pages=doc.computed.composed
 
-			expect($(pages).text()).toBe("hello1")
 			expect(pages.length).toBe(1)
-
+			expect($(pages).text()).toBe("hello1")
+			
 			return new Promise((resolve, reject)=>{
 				state.toJS=jest.fn(()=>{
 					return {start:{id:"3.2",at:0},end:{id:"3.2",at:0}}
 				})
+				spyIsSelectionComposed.mockImplementation(isSelectionComposed)
 				doc.setState({mode:"viewport",time:Date.now()},()=>{
 					let pages=doc.computed.composed
 					expect(pages.length).toBe(3)
@@ -177,6 +193,7 @@ describe("continuable", ()=>{
 					return {start:{id:"2.2",at:0},end:{id:"2.2",at:0}}
 				}
 			}
+			spyIsSelectionComposed.mockImplementation(isSelectionComposed)
 			const doc=compose2(node,state)
 
 			const pages=doc.computed.composed
@@ -199,6 +216,8 @@ describe("continuable", ()=>{
 		})
 
 		describe("cache", ()=>{
+			beforeAll(()=>spyIsSelectionComposed.mockImplementation(isSelectionComposed))
+
 			it("scroll with cache(all) compose",()=>{
 				const node={scrollTop:0}
 				const state={
@@ -206,16 +225,16 @@ describe("continuable", ()=>{
 						return {start:{id:"2.2",at:0},end:{id:"2.2",at:0}}
 					}
 				}
-				Section.prototype.render=jest.fn(Section.prototype.render)
-				Paragraph.prototype.render=jest.fn(Paragraph.prototype.render)
+				const SectionRender=jest.spyOn(Section.prototype,"render")
+				const ParagraphRender=jest.spyOn(Paragraph.prototype,"render")
 				const doc=compose2(node,state)
 
 				const pages=doc.computed.composed
 				expect(pages.length).toBe(2)
 				expect($(pages).text()).toBe("hello1hello2")
-				expect(Section.prototype.render).toHaveBeenCalledTimes(3)
-				expect(Section.prototype.render).lastReturnedWith(null)
-				expect(Paragraph.prototype.render).toHaveBeenCalledTimes(2)
+				expect(SectionRender).toHaveBeenCalledTimes(3)
+				expect(SectionRender).lastReturnedWith(null)
+				expect(ParagraphRender).toHaveBeenCalledTimes(2)
 
 
 				return new Promise((resolve, reject)=>{
@@ -232,14 +251,15 @@ describe("continuable", ()=>{
 						1. section1/2.render should be return null
 						2. so paragraph1/2.render should not be called
 						*/
-						expect(Section.prototype.render).toHaveBeenCalledTimes(6)
-						expect(Paragraph.prototype.render).toHaveBeenCalledTimes(3)
+						expect(SectionRender).toHaveBeenCalledTimes(6)
+						expect(ParagraphRender).toHaveBeenCalledTimes(3)
 
-						expect(Section.prototype.render).nthReturnedWith(4,null)
-						expect(Section.prototype.render).nthReturnedWith(5,null)
-						expect(React.isValidElement(Section.prototype.render.mock.results[5].value)).toBe(true)
-						//expect(section2.render).lastReturnedWith(null)
-
+						expect(SectionRender).nthReturnedWith(4,null)
+						expect(SectionRender).nthReturnedWith(5,null)
+						expect(React.isValidElement(SectionRender.mock.results[5].value)).toBe(true)
+						
+						SectionRender.mockRestore()
+						ParagraphRender.mockRestore()
 						resolve()
 					})
 				})
@@ -252,20 +272,20 @@ describe("continuable", ()=>{
 						return {start:{id:"2.2",at:0},end:{id:"2.2",at:0}}
 					}
 				}
-				Section.prototype.render=jest.fn(Section.prototype.render)
-				Paragraph.prototype.render=jest.fn(Paragraph.prototype.render)
+				const SectionRender=jest.spyOn(Section.prototype,"render")
+				const ParagraphRender=jest.spyOn(Paragraph.prototype,"render")
 				const doc=compose2(node,state,2)
 
 				const pages=doc.computed.composed
 				expect(pages.length).toBe(2)
 				expect($(pages).text()).toBe(`hello1hello1.1hello2`)
 				//section 3 render to null since selection is on section2.paragraph1
-				expect(Section.prototype.render).toHaveBeenCalledTimes(3)
-				expect(Section.prototype.render).lastReturnedWith(null)
+				expect(SectionRender).toHaveBeenCalledTimes(3)
+				expect(SectionRender).lastReturnedWith(null)
 
 				//section2.paragraph2 render to null since selection is on first paragraph
-				expect(Paragraph.prototype.render).toHaveBeenCalledTimes(4)
-				expect(Paragraph.prototype.render).lastReturnedWith(null)
+				expect(ParagraphRender).toHaveBeenCalledTimes(4)
+				expect(ParagraphRender).lastReturnedWith(null)
 
 
 				return new Promise((resolve, reject)=>{
@@ -281,15 +301,15 @@ describe("continuable", ()=>{
 						1. section1/2.render should be return null
 						2. so paragraph1/2.render should not be called
 						*/
-						expect(Section.prototype.render).toHaveBeenCalledTimes(3+3)
-						expect(Section.prototype.render).nthReturnedWith(4,null)
+						expect(SectionRender).toHaveBeenCalledTimes(3+3)
+						expect(SectionRender).nthReturnedWith(4,null)
 						
-						expect(Paragraph.prototype.render).toHaveBeenCalledTimes(4+3)
-						//expect(Paragraph.prototype.render).nthReturnedWith(5,null)
-
-						expect(React.isValidElement(Section.prototype.render.mock.results[5].value)).toBe(true)
-						//expect(section2.render).lastReturnedWith(null)
-
+						expect(ParagraphRender).toHaveBeenCalledTimes(4+3)
+						
+						expect(React.isValidElement(SectionRender.mock.results[5].value)).toBe(true)
+						
+						SectionRender.mockRestore()
+						ParagraphRender.mockRestore()
 						resolve()
 					})
 				})

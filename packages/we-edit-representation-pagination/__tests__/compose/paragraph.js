@@ -307,9 +307,8 @@ define("paragraph compose",
     describe("atom builder",()=>{
         const build=(texts,p)=>{
             //no ender
-            var onAllChildrenComposed=Paragraph.prototype.onAllChildrenComposed
+            const onAllChildrenComposed=jest.spyOn(Paragraph.prototype,"onAllChildrenComposed").mockImplementation(function(){p=this})
             try{
-                Paragraph.prototype.onAllChildrenComposed=jest.fn(function(){p=this})
                 render(
                     <WithParagraphContext>
                         <WithTextContext>
@@ -319,9 +318,9 @@ define("paragraph compose",
                         </WithTextContext>
                     </WithParagraphContext>
                 )
-                expect(Paragraph.prototype.onAllChildrenComposed).toHaveBeenCalledTimes(1)
+                expect(onAllChildrenComposed).toHaveBeenCalledTimes(1)
             }finally{
-                Paragraph.prototype.onAllChildrenComposed=onAllChildrenComposed
+                onAllChildrenComposed.mockRestore()
             }
             return p.atoms
         }
@@ -351,8 +350,7 @@ define("paragraph compose",
         describe("tokenizeOpportunity",()=>{
             it("first and last atom text with tokenizeOpportunity",()=>{
                 const atoms=[]
-                const appendComposed=Paragraph.prototype.appendComposed
-                Paragraph.prototype.appendComposed=jest.fn(atom=>atoms.push(atom))
+                const appendComposed=jest.spyOn(Paragraph.prototype,"appendComposed").mockImplementation(atom=>atoms.push(atom))
                 try{
                     build(["he","ll","o my wor","ld"])
                     const [he,ll,o,s,my,,wor,ld]=atoms
@@ -365,14 +363,13 @@ define("paragraph compose",
                     expect(wor.props.tokenizeOpportunity).toBe("wor")
                     expect(ld.props.tokenizeOpportunity).toBe("ld")
                 }finally{
-                    Paragraph.prototype.appendComposed=appendComposed
+                    appendComposed.mockRestore()
                 }
             })
 
             it("first and last atom text in container with tokenizeOpportunity",()=>{
                 const atoms=[]
-                const appendComposed=Paragraph.prototype.appendComposed
-                Paragraph.prototype.appendComposed=jest.fn(atom=>atoms.push(atom))
+                const appendComposed=jest.spyOn(Paragraph.prototype,"appendComposed").mockImplementation(atom=>atoms.push(atom))
                 try{
                     build(
                         <Container>
@@ -391,7 +388,7 @@ define("paragraph compose",
                     expect(wor.props.tokenizeOpportunity).toBe("wor")
                     expect(ld.props.tokenizeOpportunity).toBe("ld")
                 }finally{
-                    Paragraph.prototype.appendComposed=appendComposed
+                    appendComposed.mockRestore()
                 }
             })
 
