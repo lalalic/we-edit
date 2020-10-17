@@ -23,10 +23,6 @@ function Locatable(A){
             this.context.mount && this.props.id && this.context.mount(this)
         }
 
-        componentWillUnmount(){
-            //this.context.unmount && this.context.unmount(this)
-        }
-
 		createComposed2Parent(){
 			const element=super.createComposed2Parent(...arguments)
 			if(React.isValidElement(element) && this.props.id){

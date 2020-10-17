@@ -135,8 +135,8 @@ export default class extends editable(Document,{continuable:true}){
         }
         if(!this.state.editable)
             return true
-        const selection=getSelection(this.context.activeDocStore.getState())
-		const should=this.canvas.availableBlockSize() || !this.isSelectionComposed(selection)
+        const should=this.canvas.availableBlockSize() || //has block space
+            !this.isSelectionComposed(getSelection(this.context.activeDocStore.getState()));//selection not composed yet
         if(!should){
             this.computed.shouldContinueCompose=false
             composer && this.notifyNotAllComposed(composer)
@@ -156,9 +156,46 @@ export default class extends editable(Document,{continuable:true}){
     }
 
     isSelectionComposed({start,end}){
-        const allComposed=id=>!id || this.composers.has(id) && this.getComposer(id).isAllChildrenComposed()
-		return allComposed(start.id) && allComposed(end.id)
+        return this._isSelectionComposed(this.computed.composedUUID, start.id, end.id)
     }
+
+    _isSelectionComposed=memoize((composedUUID, start, end)=>{
+        const allComposed=id=>{
+            if(id==undefined)
+                return true
+            if(id && this.composers.has(id)){
+                const composer=this.getComposer(id)
+                if(composer.isAllChildrenComposed()){
+                    return allPrevSiblingsComposed(composer)
+                }
+            } 
+            return false
+        }
+
+        const allPrevSiblingsComposed=composer=>{
+            let directChildOfClosestPartialComposed
+            const closestPartialComposed=composer.closest(a=>{
+                if(!a.isAllChildrenComposed()){
+                    return true
+                }
+                directChildOfClosestPartialComposed=a
+            })
+            if(!closestPartialComposed)
+                return true
+            const siblings=this.context.activeDocStore.getState().getIn(['content',closestPartialComposed.props.id,'children']).toJS()
+            if(siblings){
+                const i=siblings.indexOf(directChildOfClosestPartialComposed.props.id)
+                for(let k=i-1,id;k>-1;k--){
+                    if(!(this.composers.has(id=siblings[k]) && this.getComposer(id).isAllChildrenComposed())){
+                        return false
+                    }
+                }
+            }
+            return true
+        }
+
+		return allComposed(start) && (start==end || allComposed(end))
+    })
 
 	compose4Scroll(y,x){
 		this.setState({mode:"scroll",y,x})
