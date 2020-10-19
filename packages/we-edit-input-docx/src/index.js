@@ -140,7 +140,7 @@ class DocxType extends Input.Editable{
 				)
 			}
 			case "section":{
-				let style=selector.select(node.children)
+				const style=selector.select(node.children)
 				const isEmpty=a=>{
 					if(a.children.length==1){
 						const p=a.children[0]
@@ -155,9 +155,9 @@ class DocxType extends Input.Editable{
 
 				const hf=(cat,HFType)=>node.children.filter(a=>a.name==`w:${cat}Reference`)
 					.reduce((hfs, a)=>{
-						let type=a.attribs["w:type"]
-						let rId=a.attribs["r:id"]
-						let root=docx.officeDocument.getRel(rId).root().children().get(0)
+						const type=a.attribs["w:type"]
+						const rId=a.attribs["r:id"]
+						const root=docx.officeDocument.getRel(rId).root().children().get(0)
 						if(!isEmpty(root)){
 							self.part=rId
 

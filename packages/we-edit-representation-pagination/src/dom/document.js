@@ -155,6 +155,11 @@ export default class extends editable(Document,{continuable:true}){
         super.cancelUnusableLastComposed(...arguments)
     }
 
+    /**
+     * 1. self fully composed
+     * 2. prior content fully composed
+     * @param {*} param0 
+     */
     isSelectionComposed({start, end}){
         const allComposed=id=>{
             if(id==undefined)
@@ -163,7 +168,7 @@ export default class extends editable(Document,{continuable:true}){
                 const composer=this.getComposer(id)
                 if(composer.isAllChildrenComposed()){
                     /**
-                     * cache make it complicated, so make sure all prior content are all composed
+                     * cached composers make it complicated, so make sure all prior content are all composed
                      */
                     return !hasPartiallyComposedPriorContent(id)
                 }
@@ -176,9 +181,12 @@ export default class extends editable(Document,{continuable:true}){
             const parents=$.find('#'+id).parents().toArray()
             const i=parents.findLastIndex(a=>!this.getComposer(a).isAllChildrenComposed())
             const partiallyComposed=parents.slice(0,i+1).findLast((a,i)=>{
-                return $.find('#'+a).prevUntil(b=>!this.getComposer(b.get('id')).isAllChildrenComposed()).length>0
+                const prevPartiallyComposed=$.find('#'+a).prevAll(b=>!this.getComposer(b.get('id')).isAllChildrenComposed())
+                if(prevPartiallyComposed.length>0){
+                    return true
+                }
             })
-            return !!partiallyComposed
+            return partiallyComposed
         }
 
 		return allComposed(start.id) && (start.id==end.id || allComposed(end.id))
