@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 import memoize from "memoize-one"
 
 import {HasChild, Locatable,editable} from "../composable"
-import {dom,getSelection} from "we-edit"
+import {dom,getSelection,ContentQuery} from "we-edit"
 import Template from "./template"
 import {Canvas} from "../composed"
 import Responsible from "../composed/responsible-canvas"
@@ -155,47 +155,34 @@ export default class extends editable(Document,{continuable:true}){
         super.cancelUnusableLastComposed(...arguments)
     }
 
-    isSelectionComposed({start,end}){
-        return this._isSelectionComposed(this.computed.composedUUID, start.id, end.id)
-    }
-
-    _isSelectionComposed=memoize((composedUUID, start, end)=>{
+    isSelectionComposed({start, end}){
         const allComposed=id=>{
             if(id==undefined)
                 return true
             if(id && this.composers.has(id)){
                 const composer=this.getComposer(id)
                 if(composer.isAllChildrenComposed()){
-                    return allPrevSiblingsComposed(composer)
+                    /**
+                     * cache make it complicated, so make sure all prior content are all composed
+                     */
+                    return !hasPartiallyComposedPriorContent(id)
                 }
             } 
             return false
         }
 
-        const allPrevSiblingsComposed=composer=>{
-            let directChildOfClosestPartialComposed
-            const closestPartialComposed=composer.closest(a=>{
-                if(!a.isAllChildrenComposed()){
-                    return true
-                }
-                directChildOfClosestPartialComposed=a
+        const hasPartiallyComposedPriorContent=id=>{
+            const $=ContentQuery.fromContent(this.props.content)
+            const parents=$.find('#'+id).parents().toArray()
+            const i=parents.findLastIndex(a=>!this.getComposer(a).isAllChildrenComposed())
+            const partiallyComposed=parents.slice(0,i+1).findLast((a,i)=>{
+                return $.find('#'+a).prevUntil(b=>!this.getComposer(b.get('id')).isAllChildrenComposed()).length>0
             })
-            if(!closestPartialComposed)
-                return true
-            const siblings=this.context.activeDocStore.getState().getIn(['content',closestPartialComposed.props.id,'children']).toJS()
-            if(siblings){
-                const i=siblings.indexOf(directChildOfClosestPartialComposed.props.id)
-                for(let k=i-1,id;k>-1;k--){
-                    if(!(this.composers.has(id=siblings[k]) && this.getComposer(id).isAllChildrenComposed())){
-                        return false
-                    }
-                }
-            }
-            return true
+            return !!partiallyComposed
         }
 
-		return allComposed(start) && (start==end || allComposed(end))
-    })
+		return allComposed(start.id) && (start.id==end.id || allComposed(end.id))
+    }
 
 	compose4Scroll(y,x){
 		this.setState({mode:"scroll",y,x})
