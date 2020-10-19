@@ -118,7 +118,15 @@ export default class Workspace extends PureComponent{
 
 		constructor(...args){
 			super(...args)
-			this.state={panels:React.Children.toArray(this.props.children),active:0}
+			this.state={panels:React.Children.toArray(this.props.children)}
+		}
+
+		static getDerivedStateFromProps(props, {panels,active}){
+			if(panels.length==0){
+				return {active:undefined}
+			}else if(!panels.find(a=>a.props.title==active)){
+				return {active:panels[0].props.title}
+			}
 		}
 
 		render(){
@@ -127,7 +135,10 @@ export default class Workspace extends PureComponent{
 				return null
 			return (
 				<Tabs {...props} value={active}>
-					{panels.map((a,i)=><Tab key={a.props.title} label={a.props.title} value={i}>{a}</Tab>)}
+					{panels.map((a,i)=>{
+						const title=a.props.title
+						return <Tab key={title} label={title} value={title} onActive={()=>this.setState({active:title})}>{a}</Tab>
+					})}
 				</Tabs>
 			)
 		}
@@ -137,17 +148,16 @@ export default class Workspace extends PureComponent{
 		}
 
 		toggle(el){
-			let active
 			const {panels=[]}=this.state
 			const i=panels.findIndex(a=>a.props.title==el.props.title)
 			if(i!=-1){
 				panels.splice(i,1)
-				active=Math.min(i,panels.length-1)
+				this.setState({panels:[...panels]})
 			}else{
 				panels.push(el)
-				active=panels.length-1
+				this.setState({panels:[...panels],active:el.props.title})
 			}
-			this.setState({panels:[...panels],active})
+			
 		}
 	}
 }
