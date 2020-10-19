@@ -1,23 +1,27 @@
 export default ({doc, tick,every,describe,it,xdescribe,xit,fit,fdescribe,expect,beforeEach,afterEach, wait})=>{
     const {dispatch,ACTION}=doc
-    const TIME=400
+    const TIME=400, TIMEOUT=60*1000
+    const IMAGE=doc.querySelector('image').attr('id')
 
     afterEach(()=>wait(TIME))
 
     describe("scroll",()=>{
         it("to content out of viewport",()=>{
-            return dispatch(ACTION.Cursor.AT('95{word/document.xml}',9))
-                .then(()=>expect(doc.isInView('95{word/document.xml}')).toBe(true))
-        })
+            const text=doc.querySelector('table text')
+            const id=text.attr('id')
+            return dispatch(ACTION.Cursor.AT(id,0),undefined, TIMEOUT)
+                .then(()=>expect(doc.isInView(id)).toBe(true))
+        },TIMEOUT)
 
         it("to focusable image out of viewport",()=>{
-            return dispatch(ACTION.Selection.SELECT('12{word/document.xml}',0,'12{word/document.xml}',1))
-                .then(()=>expect(doc.isInView('12{word/document.xml}')).toBe(true))
+            return dispatch(ACTION.Selection.SELECT(IMAGE,0,IMAGE,1))
+                .then(()=>expect(doc.isInView(IMAGE)).toBe(true))
         })
     })
 
     describe("text",()=>{
-        const id="15{word/document.xml}", at=2
+        const firstText=doc.querySelector('section>paragraph').findFirst('text'), len=firstText.text().length
+        const id=firstText.attr('id'), at=Math.min(len-1,2)
 
         beforeEach(()=>dispatch(ACTION.Cursor.AT(id, at)).then(()=>expect(doc.isInView(id)).toBe(true)))
 
@@ -33,14 +37,14 @@ export default ({doc, tick,every,describe,it,xdescribe,xit,fit,fdescribe,expect,
         })
 
         it("change style",()=>{
-            return dispatch(ACTION.Selection.SELECT('15{word/document.xml}',7,undefined,15))
+            return dispatch(ACTION.Selection.SELECT(id,0,id,len-1))
                 .then(()=>every(TIME, dispatch,[
                 ...([["size",24],["bold",true],["italic",true],["color","red"]].map(([k,v])=>({
                         type: 'we-edit/selection/UPDATE',
                         payload: {
-                        text: {
-                            [k]: v,
-                        }
+                            text: {
+                                [k]: v,
+                            }
                         }
                     })))
                 ])).then(()=>{
@@ -51,11 +55,13 @@ export default ({doc, tick,every,describe,it,xdescribe,xit,fit,fdescribe,expect,
                     expect(style.italic).toBe(true)
                     expect(style.color).toBe("red")
                 })
-        })
+        },TIMEOUT)
 
         it("bold type 'good morning'", ()=>{
-            return every(TIME, dispatch,[
-                  ACTION.Cursor.AT('189{word/document.xml}',32),
+            const text=doc.querySelector('section>paragraph').eq(1).findFirst('text'),len=text.text().length
+            const id=text.attr('id')
+            return every(50, dispatch,[
+                  ACTION.Cursor.AT(id,Math.min(len-1,5)),
                   {
                     type: 'we-edit/selection/UPDATE',
                     payload: {
@@ -65,20 +71,20 @@ export default ({doc, tick,every,describe,it,xdescribe,xit,fit,fdescribe,expect,
                     }
                   }
             ]).then(()=>every(TIME, ch=>dispatch({type: 'we-edit/text/TYPE',payload: ch}),"good morning"))
-        },10000)
+        },TIMEOUT)
     })
 
 
 
     describe("image",()=>{
-        const id='12{word/document.xml}', type="image"
+        const id=doc.querySelector().findFirst('image').attr('id'), type="image"
         beforeEach(()=>
             dispatch(ACTION.Selection.SELECT(id,0,id,1))
                 .then(()=>expect(doc.isInView(id)).toBe(true))
         )
 
         it("rotate image",()=>{
-            return tick(4000, 138,720, rotate=>{
+            return tick(10*1000, 138,720, rotate=>{
                 dispatch({
                     type: 'we-edit/entity/UPDATE',
                     payload: {
@@ -91,7 +97,7 @@ export default ({doc, tick,every,describe,it,xdescribe,xit,fit,fdescribe,expect,
                 const {outline:{rotate}={}}=doc.selectionStyle.props("image")||{}
                 expect(rotate).toBe(720)
             })
-        })
+        },TIMEOUT)
 
         it("resize image height", ()=>{
             return tick(4000, 60,100,height=>{
@@ -131,19 +137,24 @@ export default ({doc, tick,every,describe,it,xdescribe,xit,fit,fdescribe,expect,
     })
 
     describe("table",()=>{
+        const table=doc.querySelector('table')
         it("can resize column",()=>{
-            return dispatch(ACTION.Cursor.AT('95{word/document.xml}',2))
+            const i=1
+            const row=table.find('row').eq(i)
+            const cell=row.find('cell').eq(i)
+            const p=cell.findFirst('paragraph')
+            return dispatch(ACTION.Cursor.AT(p.attr('id'),0), undefined, TIMEOUT)
                     .then(()=>tick(4000, 200,300,value=>{
                         dispatch({
                             type: 'we-edit/entity/UPDATE',
                             payload: {
-                                id: '153{word/document.xml}',
+                                id: table.attr('id'),
                                 type: 'table',
                                 width: {
                                     value,
-                                    row: '131{word/document.xml}',
-                                    cell: '128{word/document.xml}',
-                                    i: 1
+                                    row: row.attr('id'),
+                                    cell: cell.attr('id'),
+                                    i,
                                 }
                             }
                         })
@@ -151,28 +162,31 @@ export default ({doc, tick,every,describe,it,xdescribe,xit,fit,fdescribe,expect,
                         const cell=doc.selectionStyle.props("cell",false)
                         expect(cell.width).toBe(300*doc.precision)
                     })
-        },10000)
+        },TIMEOUT)
 
         it("can resize row",()=>{
-            return dispatch(ACTION.Cursor.AT('135{word/document.xml}',1))
+            const row=table.find('row').eq(2)
+            const cell=row.find('cell').eq(1)
+            const p=cell.findFirst('paragraph')
+            return dispatch(ACTION.Cursor.AT(p.attr('id'),0),undefined, TIMEOUT)
                 .then(()=>tick(4000, 48, 350, value=>{
                     dispatch({
                         type: 'we-edit/entity/UPDATE',
                         payload: {
-                        id: '153{word/document.xml}',
-                        type: 'table',
-                        height: {
-                            value,
-                            row: '138{word/document.xml}',
-                            cell: '135{word/document.xml}',
-                            i: 1
-                        }
+                            id: table.attr('id'),
+                            type: 'table',
+                            height: {
+                                value,
+                                row: row.attr('id'),
+                                cell: cell.attr('id'),
+                                i:1,
+                            }
                         }
                     })
                 })).then(()=>{
                     const row=doc.selectionStyle.props("row",false)
                     expect(row.height).toBe(350*doc.precision)
                 })
-        })
+        },TIMEOUT)
     })
 }

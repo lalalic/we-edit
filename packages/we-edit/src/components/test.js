@@ -2,6 +2,7 @@ import React, {Component,} from "react"
 import PropTypes from "prop-types"
 
 import {connect, isDocumentReady} from "../state"
+import Query from "../state/selector/query"
 import {ACTION, getActive, getAll} from "./we-edit"
 import Input from "../input"
 import {getSelectionStyle, getSelection, getFile} from "../state/selector"
@@ -286,6 +287,10 @@ Test.Emulator=class{
 
     get file(){
         return getFile(this.state)
+    }
+
+    querySelector(selector){
+        return new Query(this.state, selector)
     }
 
     click(){
