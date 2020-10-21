@@ -135,8 +135,12 @@ export default class extends editable(Document,{continuable:true}){
         }
         if(!this.state.editable)
             return true
-        const should=this.canvas.availableBlockSize() || //has block space
-            !this.isSelectionComposed(getSelection(this.context.activeDocStore.getState()));//selection not composed yet
+        let should=this.canvas.availableBlockSize() //has block space
+        if(!should){
+            if(!this.isSelectionComposed(getSelection(this.context.activeDocStore.getState()),true)){//selection not composed yet
+                should=true
+            }
+        }
         if(!should){
             this.computed.shouldContinueCompose=false
             composer && this.notifyNotAllComposed(composer)
@@ -160,17 +164,26 @@ export default class extends editable(Document,{continuable:true}){
      * 2. prior content fully composed
      * @param {*} param0 
      */
-    isSelectionComposed({start, end}){
+    isSelectionComposed({start, end}, removeLastCache){
         const allComposed=id=>{
             if(id==undefined)
                 return true
             if(id && this.composers.has(id)){
                 const composer=this.getComposer(id)
+                /**
+                 * 1. 
+                 */
                 if(composer.isAllChildrenComposed()){
                     /**
                      * cached composers make it complicated, so make sure all prior content are all composed
                      */
-                    return !hasPartiallyComposedPriorContent(id)
+                    if(hasPartiallyComposedPriorContent(id)){
+                        if(removeLastCache){
+                            this.unmount(composer)
+                        }
+                    }else{
+                        return true
+                    }
                 }
             } 
             return false
@@ -178,11 +191,12 @@ export default class extends editable(Document,{continuable:true}){
 
         const hasPartiallyComposedPriorContent=id=>{
             const $=ContentQuery.fromContent(this.props.content)
-            const parents=$.find('#'+id).parents().toArray()
-            const i=parents.findLastIndex(a=>!this.getComposer(a).isAllChildrenComposed())
+            const parents=$.find('#'+id).parents().toArray()//[..., root]
+            const i=parents.findIndex(a=>!this.getComposer(a).isAllChildrenComposed())
             const partiallyComposed=parents.slice(0,i+1).findLast((a,i)=>{
                 const prevPartiallyComposed=$.find('#'+a).prevAll(b=>!this.getComposer(b.get('id')).isAllChildrenComposed())
                 if(prevPartiallyComposed.length>0){
+                    console.warn(`${id} fully composed, but ${prevPartiallyComposed.attr('id')} not`)
                     return true
                 }
             })

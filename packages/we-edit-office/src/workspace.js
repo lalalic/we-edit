@@ -127,6 +127,7 @@ export default class Workspace extends PureComponent{
 			}else if(!panels.find(a=>a.props.title==active)){
 				return {active:panels[0].props.title}
 			}
+			return null
 		}
 
 		render(){
