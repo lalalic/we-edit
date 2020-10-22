@@ -111,13 +111,73 @@ export default class extends editable(Document,{continuable:true}){
 		super(...arguments)
         this.state={mode:"content", ...this.state}
         this.computed.shouldContinueCompose=true//cache for shouldContinueCompose
-	}
+    }
+    
+    /**
+     * in order to make isSelectionComposed correct and quick
+     * composers hold current layout
+     * history hold cached layout
+     * @param {*} composers 
+     */
+    locatorize(composers){
+        super.locatorize(...arguments)
+        const history=new Map()
+        this.mount=a=>{
+            if(typeof(a)!="object"){
+                if(history.has(a)){
+                    composers.set(a, history.get(a))
+                    history.delete(a)
+                }
+            }else{
+                composers.set(a.props.id,a)
+                history.delete(a.props.id)
+            }
+        }
+
+        this.getComposer=id=>composers.get(id)||history.get(id)
+
+        this.__getCurrentLayoutComposer=id=>composers.get(id)
+        
+        this.__delocaterize=()=>{
+            const {content}=this.props
+            if(content){
+                for(const [id] of history){
+                    if(!content.has(id)){
+                        history.delete(id)
+                    }
+                }
+            }
+
+            for(const [id, composer] of composers){
+                if(content && content.has(id)){
+                    history.set(id,composer)
+                }
+            }
+            composers.clear()
+            this.mount(this)
+        }
+
+        Object.defineProperties(this,{
+            words:{
+                get(){
+                   return  [...Array.from(composers.values()),...Array.from(history.values())]
+                    .filter(a=>!!a)
+				    .reduce((words,a)=>words+=(a.atoms?.length||0),0)
+                }
+            }
+        })
+    }
     
     get canvas(){
         const {canvas:{type:Type,props}}=this.props
         const canvas=new Type({...props,document:this})
         canvas.state=Type.getDerivedStateFromProps(canvas.props,canvas.state)
         return canvas
+    }
+
+    shouldComponentUpdate(){
+        this.__delocaterize()
+        return super.shouldComponentUpdate(...arguments)
     }
 
     /**
@@ -137,7 +197,7 @@ export default class extends editable(Document,{continuable:true}){
             return true
         let should=this.canvas.availableBlockSize() //has block space
         if(!should){
-            if(!this.isSelectionComposed(getSelection(this.context.activeDocStore.getState()),true)){//selection not composed yet
+            if(!this.isSelectionComposed(getSelection(this.context.activeDocStore.getState()))){//selection not composed yet
                 should=true
             }
         }
@@ -159,50 +219,8 @@ export default class extends editable(Document,{continuable:true}){
         super.cancelUnusableLastComposed(...arguments)
     }
 
-    /**
-     * 1. self fully composed
-     * 2. prior content fully composed
-     * @param {*} param0 
-     */
-    isSelectionComposed({start, end}, removeLastCache){
-        const allComposed=id=>{
-            if(id==undefined)
-                return true
-            if(id && this.composers.has(id)){
-                const composer=this.getComposer(id)
-                /**
-                 * 1. 
-                 */
-                if(composer.isAllChildrenComposed()){
-                    /**
-                     * cached composers make it complicated, so make sure all prior content are all composed
-                     */
-                    if(hasPartiallyComposedPriorContent(id)){
-                        if(removeLastCache){
-                            this.unmount(composer)
-                        }
-                    }else{
-                        return true
-                    }
-                }
-            } 
-            return false
-        }
-
-        const hasPartiallyComposedPriorContent=id=>{
-            const $=ContentQuery.fromContent(this.props.content)
-            const parents=$.find('#'+id).parents().toArray()//[..., root]
-            const i=parents.findIndex(a=>!this.getComposer(a).isAllChildrenComposed())
-            const partiallyComposed=parents.slice(0,i+1).findLast((a,i)=>{
-                const prevPartiallyComposed=$.find('#'+a).prevAll(b=>!this.getComposer(b.get('id')).isAllChildrenComposed())
-                if(prevPartiallyComposed.length>0){
-                    console.warn(`${id} fully composed, but ${prevPartiallyComposed.attr('id')} not`)
-                    return true
-                }
-            })
-            return partiallyComposed
-        }
-
+    isSelectionComposed({start, end}){
+        const allComposed=id=>!id || !!this.__getCurrentLayoutComposer(id)?.isAllChildrenComposed()
 		return allComposed(start.id) && (start.id==end.id || allComposed(end.id))
     }
 

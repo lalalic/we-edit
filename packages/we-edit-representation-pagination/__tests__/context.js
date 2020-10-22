@@ -70,7 +70,7 @@ export const $=pages=>{
 	return $("svg")
 }
 
-export const render=A=>TestRender.create(A,{
+export const render=(A,opt={})=>TestRender.create(A,{
     createNodeMock(el){
         if(el.type=="input")
             return {
@@ -78,7 +78,7 @@ export const render=A=>TestRender.create(A,{
 
                 }
             }
-    }
+    },...opt
 })
 
 export const defaultProps=({Document,Paragraph,Text,Container})=>()=>{
@@ -87,6 +87,21 @@ export const defaultProps=({Document,Paragraph,Text,Container})=>()=>{
     Paragraph.defaultProps=Object.assign(Paragraph.defaultProps||{},{defaultStyle,id:"p"})
     Text.defaultProps=Object.assign(Text.defaultProps||{},defaultStyle,{id:"t"})
     Container.defaultProps=Object.assign(Container.defaultProps||{},{id:"c"})
+}
+
+export const nthUseCached=(fn,n)=>{
+    const isUseCached=a=>React.Children.toArray(a)
+                    .reduce((useCached, a)=>{
+                        return useCached && 
+                            (!a || 
+                                (
+                                (a.type==Fragment && isUseCached(a.props.children)) || 
+                                a.type.displayName=="UseCached" || 
+                                a.type.displayName=="__ComposedAllTrigger"
+                                ) 
+                            )
+                    },true)
+    return isUseCached(fn.mock.results[n-1].value)
 }
 
 it("compose context loaded",()=>{})

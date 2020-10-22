@@ -1,5 +1,5 @@
 import React from "react"
-import {context, $, State, render, defaultProps} from "../context"
+import {context, $, State, render, defaultProps, nthUseCached} from "../context"
 import {Editors} from "../../src"
 
 describe("continuable", ()=>{
@@ -38,24 +38,13 @@ describe("continuable", ()=>{
 		</Section>
 	)
 
-	const spyIsSelectionComposed=jest.spyOn(Document.prototype,"isSelectionComposed")
-
-	function isSelectionComposed({start,end}){
-		const allComposed=id=>this.composers.has(id) && this.getComposer(id).isAllChildrenComposed()
-		return allComposed(start.id) && allComposed(end.id)
-	}
-
 	beforeAll(()=>{
 		defaultProps(Editors)()
 		Paragraph.defaultProps.End=""
 		console.debug=console.log=jest.fn()
 	})
 
-	afterAll(()=>spyIsSelectionComposed.mockRestore())
-
-	describe("compose to Y", ()=>{
-		beforeAll(()=>spyIsSelectionComposed.mockReturnValue(true))
-		
+	describe("compose to Y", ()=>{	
 		const compose2Y=(y,n)=>it(`${y},pages=${n}`,()=>{
 			const renderer=render(
 				<Context>
@@ -86,8 +75,6 @@ describe("continuable", ()=>{
 	})
 
 	describe("compose to id",()=>{
-		beforeAll(()=>spyIsSelectionComposed.mockImplementation(isSelectionComposed))
-		
 		const compose2Id=(id,n)=>it(`${id},pages=${n}`,()=>{
 			State.toJS=jest.fn(()=>({start:{id,at:0},end:{id,at:0}}))
 			
@@ -138,7 +125,6 @@ describe("continuable", ()=>{
 				}
 			}
 			size.composedHeight=jest.fn(()=>size.height/2)
-			spyIsSelectionComposed.mockReturnValue(true)
 			const doc=compose2(node,state)
 			let pages=doc.computed.composed
 
@@ -163,7 +149,6 @@ describe("continuable", ()=>{
 					return {start:{},end:{}}
 				}
 			}
-			spyIsSelectionComposed.mockReturnValue(true)
 			const doc=compose2(node,state)
 
 			let pages=doc.computed.composed
@@ -175,7 +160,6 @@ describe("continuable", ()=>{
 				state.toJS=jest.fn(()=>{
 					return {start:{id:"3.2",at:0},end:{id:"3.2",at:0}}
 				})
-				spyIsSelectionComposed.mockImplementation(isSelectionComposed)
 				doc.setState({mode:"viewport",time:Date.now()},()=>{
 					let pages=doc.computed.composed
 					expect(pages.length).toBe(3)
@@ -193,7 +177,6 @@ describe("continuable", ()=>{
 					return {start:{id:"2.2",at:0},end:{id:"2.2",at:0}}
 				}
 			}
-			spyIsSelectionComposed.mockImplementation(isSelectionComposed)
 			const doc=compose2(node,state)
 
 			const pages=doc.computed.composed
@@ -216,8 +199,6 @@ describe("continuable", ()=>{
 		})
 
 		describe("cache", ()=>{
-			beforeAll(()=>spyIsSelectionComposed.mockImplementation(isSelectionComposed))
-
 			it("scroll with cache(all) compose",()=>{
 				const node={scrollTop:0}
 				const state={
@@ -254,9 +235,9 @@ describe("continuable", ()=>{
 						expect(SectionRender).toHaveBeenCalledTimes(6)
 						expect(ParagraphRender).toHaveBeenCalledTimes(3)
 
-						expect(SectionRender).nthReturnedWith(4,null)
-						expect(SectionRender).nthReturnedWith(5,null)
-						expect(React.isValidElement(SectionRender.mock.results[5].value)).toBe(true)
+						expect(nthUseCached(SectionRender,4)).toBe(true)
+						expect(nthUseCached(SectionRender,5)).toBe(true)
+						expect(nthUseCached(SectionRender,6)).toBe(false)
 						
 						SectionRender.mockRestore()
 						ParagraphRender.mockRestore()
@@ -281,11 +262,11 @@ describe("continuable", ()=>{
 				expect($(pages).text()).toBe(`hello1hello1.1hello2`)
 				//section 3 render to null since selection is on section2.paragraph1
 				expect(SectionRender).toHaveBeenCalledTimes(3)
-				expect(SectionRender).lastReturnedWith(null)
+				expect(nthUseCached(SectionRender,3)).toBe(true)
 
 				//section2.paragraph2 render to null since selection is on first paragraph
 				expect(ParagraphRender).toHaveBeenCalledTimes(4)
-				expect(ParagraphRender).lastReturnedWith(null)
+				expect(nthUseCached(ParagraphRender,4)).toBe(true)
 
 
 				return new Promise((resolve, reject)=>{
@@ -302,11 +283,11 @@ describe("continuable", ()=>{
 						2. so paragraph1/2.render should not be called
 						*/
 						expect(SectionRender).toHaveBeenCalledTimes(3+3)
-						expect(SectionRender).nthReturnedWith(4,null)
+						expect(nthUseCached(SectionRender,4)).toBe(true)
 						
 						expect(ParagraphRender).toHaveBeenCalledTimes(4+3)
-						
-						expect(React.isValidElement(SectionRender.mock.results[5].value)).toBe(true)
+
+						expect(nthUseCached(SectionRender,6)).toBe(false)
 						
 						SectionRender.mockRestore()
 						ParagraphRender.mockRestore()

@@ -43,29 +43,24 @@ function Locatorize(A){
 		static childContextTypes={
 			...A.childContextTypes,
 			mount: PropTypes.func,
-			unmount: PropTypes.func,
 			getComposer: PropTypes.func,
 		}
 
 		constructor(){
 			super(...arguments)
-			const composers=this.composers=new Map([[this.props.id,this]])
-			this.mount=a=>{
-				composers.set(a.props.id,a)
-			}
-			this.unmount=a=>{
-				if(composers.get(a.props.id)==a){
-					composers.delete(a.props.id)
-				}
-			}
+			this.locatorize(new Map([[this.props.id,this]]))
+		}
+
+		locatorize(composers){
+			this.mount=a=>composers.set(a.props.id,a)
 			this.getComposer=id=>composers.get(id)
 		}
 
 		getChildContext(){
-			const {mount,unmount,getComposer}=this
 			return {
 				...super.getChildContext(),
-				mount,unmount,getComposer
+				mount:a=>this.mount(a),
+				getComposer:id=>this.getComposer(id),
 			}
 		}
 	}

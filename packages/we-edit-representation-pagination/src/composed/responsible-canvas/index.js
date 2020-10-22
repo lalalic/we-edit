@@ -200,8 +200,7 @@ class Responsible extends Component{
         this.dispatch(ACTION.Statistics({
 			pages:this.pages.length,
 			allComposed:document.isAllChildrenComposed(),
-			words: Array.from(document.composers.values()).filter(a=>!!a)
-				.reduce((words,a)=>words+=(a.atoms ? a.atoms.length : 0),0)
+			words: document.words
 		}))
     }
 

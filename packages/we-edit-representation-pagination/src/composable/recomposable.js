@@ -1,6 +1,7 @@
 import React,{Fragment,Children} from "react"
 import memoize from "memoize-one"
 import ComposedAllTrigger from "./composed-all-trigger"
+import UseCached from "./use-cached"
 /**
  * make component always update (by calling .render), so AllComposedTrigger would be triggered to correctly set allComposed
  * but at first clear last composed 
@@ -47,6 +48,7 @@ export default A=>{
              * composedUUID to identify each compose, so createComposed2Parent can be cached.
              */           
             this.computed.composedUUID=Date.now()
+            this.context.mount && this.context.mount(this)
             if(!this.isAllChildrenComposed()){
                 //clear last allComposed, so it can be reset
                 this.computed.allComposed=undefined
@@ -96,18 +98,23 @@ export default A=>{
         render(){
             if(this.computed.lastComposed.length>0){
                 const appended=this.appendLastComposed()
+                const children=this.childrenArray(this.props.children)
                 if(typeof(appended)=="number" && appended>-1){
                     console.debug(`${this.getComposeType()}[${this.props.id}] used ${appended+1} children caches`)
-                    const children=this.childrenArray(this.props.children)
                     return (
                         <Fragment>
+                            {children.slice(0,appended+1).map(UseCached.create)}
                             {children.slice(appended+1)}
                             <ComposedAllTrigger host={this}/>
                         </Fragment>
                     )
                 }else if(appended===true){
                     console.debug(`${this.getComposeType()}[${this.props.id}] used all children caches`)
-                    return null
+                    return (
+                        <Fragment>
+                            {children.map(UseCached.create)}
+                        </Fragment>
+                    )
                 }
             }
             console.debug(`${this.getComposeType()}[${this.props.id}] used 0 children caches`)
