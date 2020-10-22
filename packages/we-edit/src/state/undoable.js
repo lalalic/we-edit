@@ -60,10 +60,10 @@ export default function undoable(reducer){
 					selection:state.get("selection"),
 					content: state.get("content"),
 					patches: null,//injected later in reducer, undo patch for doc file
-					toJSON:()=>undefined
+					toJSON:()=>action.type
 				}
 				const changedState=reducer(state,action,entry)
-				if(changedState.get("content")!==state.get("content")){
+				if(!changedState.get("content").equals(state.get("content"))){
 					if(action.type==='we-edit/content/sync'){
 						//@TODO: to merge change to each redos and undos' content
 						return changedState
