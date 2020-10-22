@@ -26,6 +26,7 @@ export default class Group extends PureComponent{
 			x=0,y=0,
 			children,
 			background,
+			style,
 			margin,minWidth, width, height, index, childIndex,geometry,baseline,lineDescent,isLastRankOfRow,isFirstRowInPage,
 			contentWidth,wrap,pagination,anchor,blockOffset,named,descent,tokenizeOpportunity, mergeOpportunity, spaceHeight,editable,dispatch,
 			//className,id,
@@ -36,7 +37,7 @@ export default class Group extends PureComponent{
 				o[k]=others[k]
 			}
 			return o
-		},{})
+		},{style})
 
 		if(innerRef){
 			props.ref=innerRef
