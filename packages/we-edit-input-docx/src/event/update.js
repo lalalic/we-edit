@@ -19,7 +19,7 @@ export default {
         }
 
         if(prev.length>0){
-            r.before(cloneR().append(target.prevAll()))
+            r.before(cloneR().append(target.prevAll(":not(w\\:rPr)")))
         }
 
         if(structureChanged){

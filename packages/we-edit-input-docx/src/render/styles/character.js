@@ -10,6 +10,7 @@ const attribs={
 	"w:vanish":"vanish",
 	"w:highlight":"highlight",
 	"w:bdr":"border",
+	"w:strike":"strike",
 }
 export default class Character extends Base{
 	constructor(node, styles, selector){

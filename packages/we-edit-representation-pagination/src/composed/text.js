@@ -9,7 +9,7 @@ export default class Text extends Component{
 
 	render(){
 		const {
-			children, whiteSpace, color:fill, highlight,border,underline,strike,
+			children, whiteSpace, color:fill="black", highlight,border,underline,strike,
 			descent,minWidth, height, width, blockOffset,tokenizeOpportunity,mergeOpportunity,//ignore
 			y=0,
 			...others}=this.props
