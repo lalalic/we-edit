@@ -41,16 +41,12 @@ export default class Autofitable extends Balanceable{
 	    const mount=a=>{
             composers.set(a.props.id,a)
         }
-		const unmount=a=>{
-            if(composers.get(a.props.id)==a){
-                composers.delete(a.props.id)
-            }
-        }
+
         const getComposer=id=>composers.get(id);
 
         const rendered=render(
             <AggregateContext target={this} value={{
-                    mount,unmount,getComposer,
+                    mount,getComposer,
                     parent:{
                         appendComposed(){
 
