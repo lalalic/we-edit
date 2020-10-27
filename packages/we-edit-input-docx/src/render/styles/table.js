@@ -114,6 +114,7 @@ const attribs={
 		"w:tblStyleColBandSize":"cellSpan",
 		"w:tblStyleRowBandSize":"rowSpan",
 		"w:tblLook":"conditional",
+		"w:tblLayout":"layout",
 	},
 
 	tr:{

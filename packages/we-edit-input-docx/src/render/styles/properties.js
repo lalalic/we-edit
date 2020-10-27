@@ -218,6 +218,10 @@ export class Properties{
 		},{})
 	}
 
+	tblLayout(x){
+		return x.attribs["w:type"]
+	}
+
 	tblStyleColBandSize(x){
 		return parseInt(this._val(x))
 	}

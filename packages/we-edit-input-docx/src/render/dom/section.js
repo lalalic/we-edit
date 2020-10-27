@@ -88,11 +88,15 @@ export default ({Section,Group})=>class __$1 extends Component{
 			const WordSection=this.constructor.Section(Section)
 			const Page=WordSection.Layout
 			const continuous=type=="continuous"
+			const balance=!!context.getComposer("root").props.children.filter(a=>!!a).find((a,i,sections,last=sections[i-1])=>{
+				return last?.props.id==props.id && a.props.type=="continuous"
+			})
+
 			if(continuous && props.i==0){
 				const pages=context.getComposer("root").computed.composed
 				const prev=pages[pages.length-1]
 				if(prev && prev.continuous){
-					const layout=prev._makeContinuousLayout({...props,margin,width,height,I:undefined,cols,},context)
+					const layout=prev._makeContinuousLayout({...props,margin,width,height,balance,I:undefined,cols,},context)
 					if(layout){
 						return layout
 					}
@@ -116,7 +120,7 @@ export default ({Section,Group})=>class __$1 extends Component{
 
 			return new Page({
 				continuous,
-				balance:continuous,
+				balance,
 				header,footer,
 				width,height,margin,
 				cols:cols.map(a=>({...a, y:y0, maxHeight:y1-y0})),
@@ -257,7 +261,6 @@ export default ({Section,Group})=>class __$1 extends Component{
 						...props,
 						I:undefined,
 						cols:cols.map(a=>({...a,maxHeight,y:undefined})),
-						balance:true,
 						width:width-left-right,
 						height:undefined,
 						_layout:{width,height,cols,margin},//for layoutOf

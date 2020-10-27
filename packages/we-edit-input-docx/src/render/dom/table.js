@@ -89,14 +89,18 @@ export default ({Table,Container})=>class __$1 extends Component{
 	})
 
 	render(){
-		var {cols,width=cols.reduce((w,a)=>w+a,0),children, style:$1, ...props}=this.props
+		var {cols,width, children, style:tblStyle, ...props}=this.props
 		const childStyle=this.childStyle(this.props.style, this.context.style)
 		const {indent,...style}=childStyle.flat4Table()
 		
-		const condition=this.props.style.get("conditional")
+		const condition=tblStyle.get("tbl.conditional")
 		if(undefined!=condition){
 			children=this.getConditionalChildren(condition,children)
 		}
-		return <Table {...{...props,...style,indent,width,cols, children}}/>
+
+		if(tblStyle.get('tbl.layout')=="fixed"){
+			width=cols.reduce((s,a)=>s+a,0)
+		}
+		return <Table {...{...props,...style,width,indent, children}}/>
 	}
 }
