@@ -15,6 +15,7 @@ export default class Text extends Component{
 		highlight: PropTypes.string,
 		border: PropTypes.object,
 		underline: PropTypes.string,
-		strike: PropTypes.bool
+		strike: PropTypes.bool,
+		vertAlign: PropTypes.oneOf(["subscript","superscript"]),
 	}
 }

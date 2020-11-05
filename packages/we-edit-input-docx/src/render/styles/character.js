@@ -11,6 +11,7 @@ const attribs={
 	"w:highlight":"highlight",
 	"w:bdr":"border",
 	"w:strike":"strike",
+	"w:vertAlign":"vertAlign"
 }
 export default class Character extends Base{
 	constructor(node, styles, selector){
@@ -27,7 +28,7 @@ export default class Character extends Base{
 
 	flat(...inherits){
 		let targets=[this,...inherits]
-		return "fonts,size,color,highlight,border,underline,bold,italic,vanish,strike"
+		return "fonts,size,color,highlight,border,underline,bold,italic,vanish,strike,vertAlign"
 			.split(",")
 			.reduce((props,k)=>{
 				targets.find(a=>(props[k]=a.get(`r.${k}`))!==undefined)

@@ -7,11 +7,11 @@ export default class FontMeasure extends Measure{
 		return FontManager.get(this.fontFamily, this.style)
 	}
 
-    lineHeight(){
+    lineHeight(size=this.size){
 		this.font=this.getFont()
         return {
-			height : this.font.lineHeight(this.size),
-			descent: this.font.lineDescent(this.size)
+			height : this.font.lineHeight(size),
+			descent: this.font.lineDescent(size)
 		}
     }
 

@@ -7,7 +7,7 @@ import memoize from "memoize-one"
  */
 let tester=null
 export default class SVGMeasure extends Measure{
-    lineHeight(){
+    lineHeight(size=this.size){
 		if(!tester){
 			let container=document.createElement("div")
 			container.style="position:absolute;top:-1000px"
@@ -16,16 +16,16 @@ export default class SVGMeasure extends Measure{
 			tester=container.querySelector('text')
             tester.setStyle=memoize(style=>tester.style=style)
 		}
-		tester.setStyle(this.cssStyle())
+		tester.setStyle(this.cssStyle(size))
         tester.firstChild.data="Ä"
         const {height,y, baseline=-y}=tester.getBBox()
         return {height,descent:height-baseline}
     }
 
-    cssStyle(){
+    cssStyle(size=this.size){
         return `white-space:pre;
             font-family:${this.fontFamily};
-            font-size:${this.size}px;
+            font-size:${size}px;
             font-weight:${this.style.bold ? "700" : "400"};
             font-style:${this.style.italic ? "italic" : "normal"};
             `

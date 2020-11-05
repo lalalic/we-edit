@@ -1,24 +1,28 @@
 export class Measure{
-    constructor(style){
-		const {fonts, size}=style
+	constructor(style){
+		const {VertAlign_Size=0.5,Super_Script_Position=0.4}=this.constructor
+		const {fonts, size, vertAlign}=style
 		this.style=style
 		this.fontFamilys=fonts.split(",").map(a=>a.trim()).filter(a=>!!a)
         this.fontFamily=this.fontFamilys[0]
-		this.size=size
+		this.size=size * (vertAlign ? VertAlign_Size : 1);
         this.defaultStyle={
 			whiteSpace:'pre',
-			fontSize:`${size}px`,
+			fontSize:`${this.size}px`,
 			fontWeight:style.bold ? 700 : 400,
 			fontStyle:style.italic ? "italic" : "normal",
-			fontFamily:this.fontFamily
+			fontFamily:this.fontFamily,
 		}
 
 		const {height, descent}=this.lineHeight()
         this.defaultStyle.height=this.height=height
 		this.defaultStyle.descent=this.descent=descent
-    }
+		if(vertAlign=="superscript"){
+			this.defaultStyle.y=-this.lineHeight(size).height*Super_Script_Position
+		}
+	}
 
-	lineHeight(){
+	lineHeight(size){
 		return {height:25,descent:2}
 	}
 

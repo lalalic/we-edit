@@ -25,11 +25,11 @@ class Text extends Super{
         return Array.isArray(children) ? children.join("") : children
     }
 
-    createMeasure=memoize((fonts,size,bold,italic)=>{
+    createMeasure=memoize((fonts,size,bold,italic,vertAlign)=>{
         if(this.props.measure)
             return this.props.measure
         const {Measure}=this.context
-        const measure=new Measure({fonts,size,bold,italic})
+        const measure=new Measure({fonts,size,bold,italic,vertAlign})
         const _stringWidth=measure.stringWidth.bind(measure)
         const cache=new Map()
         measure.stringWidth=word=>{
@@ -43,8 +43,8 @@ class Text extends Super{
     })
 
     get measure(){
-        const {fonts, size, bold, italic, }=this.props
-        return this.createMeasure(fonts,size,bold,italic)
+        const {fonts, size, bold, italic, vertAlign}=this.props
+        return this.createMeasure(fonts,size,bold,italic,vertAlign)
     }
 
     get defaultStyle(){
