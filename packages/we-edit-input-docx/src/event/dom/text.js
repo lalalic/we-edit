@@ -72,7 +72,7 @@ export class Text extends Base{
 	}
 
 	color(color,a, attr="w:color"){
-		let node=this.got(attr)
+		const node=this.got(attr)
 		if(color){
 			node.attr("w:val", color)
 		}else{
@@ -85,7 +85,7 @@ export class Text extends Base{
 	}
 
 	border(){
-		let node=this.got("w:bdr")
+		const node=this.got("w:bdr")
 		if(!node.attr("w:val")){
 			node.replaceWith(`<w:bdr w:val="single" w:sz="4" w:space="0" w:color="auto"/>`)
 		}else{
@@ -94,7 +94,7 @@ export class Text extends Base{
 	}
 
 	underline(type){
-		let node=this.got("w:u")
+		const node=this.got("w:u")
 		if(type){
 			node.attr("w:val",type)
 		}else{
@@ -108,6 +108,24 @@ export class Text extends Base{
 
 	tab({shiftKey,at=0}){
 
+	}
+
+	subscript(b){
+		const node=this.got("w:vertAlign")
+		if(b){
+			node.attr("w:val","subscript")
+		}else{
+			node.remove()
+		}
+	}
+
+	superscript(b){
+		const node=this.got("w:vertAlign")
+		if(b){
+			node.attr("w:val","superscript")
+		}else{
+			node.remove()
+		}
 	}
 
 	_toggle(k,b){

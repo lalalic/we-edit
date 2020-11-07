@@ -37,8 +37,8 @@ export default compose(
 			toggleB:b=>style && dispatch(ACTION.Selection.UPDATE({text:{bold:!style.bold}})),
 			toggleI:b=>style && dispatch(ACTION.Selection.UPDATE({text:{italic:!style.italic}})),
 			toggleU:b=>style && dispatch(ACTION.Selection.UPDATE({text:{underline:!style.underline}})),
-			toggleSubscript:b=>style && dispatch(ACTION.Selection.UPDATE({text:{subscript:!style.subscript}})),
-			toggleSuperscript:b=>style && dispatch(ACTION.Selection.UPDATE({text:{superscript:!style.superscript}})),
+			toggleSubscript:b=>style && dispatch(ACTION.Selection.UPDATE({text:{subscript:!(style.vertAlign=="subscript")}})),
+			toggleSuperscript:b=>style && dispatch(ACTION.Selection.UPDATE({text:{superscript:!(style.vertAlign=="superscript")}})),
 			changeFont:fonts=>dispatch(ACTION.Selection.UPDATE({text:{fonts}})),
 			changeSize,
 			smaller(){
@@ -131,12 +131,12 @@ export default compose(
 				<ToolbarSeparator/>
 
 				<CheckIconButton label="Subscript"
-					status={style&&style.subscript?"checked":"unchecked"}
+					status={style?.vertAlign=="subscript" ? "checked":"unchecked"}
 					onClick={()=>toggleSubscript()}
 					children={<IconSubscript/>}
 					/>
 				<CheckIconButton label="Superscript"
-					status={style&&style.superscript?"checked":"unchecked"}
+					status={style?.vertAlign=="superscript"?"checked":"unchecked"}
 					onClick={()=>toggleSuperscript()}
 					children={<IconSuperscript/>}
 					/>
