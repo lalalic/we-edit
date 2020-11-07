@@ -1,4 +1,20 @@
 export default {
+    backspace_at_text(event){
+        const target=this.target, name=target.prop('name')
+        if(!name.endsWith(":t")){
+            const type=name.split(":").pop()
+            this.emit('backspace',[`at_${type}`], event)
+        }else{
+            this.super.backspace_at_text(...arguments)
+        }
+    },
+
+    backspace_at_br(){
+        const r=this.target.closest('w\\:r')
+        this.target.remove()
+        this.file.renderChanged(r)
+    },
+
     backspace_at_beginning_of_up_to_numbering_paragraph(){
         const p=this.target.closest(`w\\:p`)
         const pPr=p.children("w\\:pPr")  

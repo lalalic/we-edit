@@ -17,5 +17,11 @@ export default class Text extends Component{
 		underline: PropTypes.string,
 		strike: PropTypes.bool,
 		vertAlign: PropTypes.oneOf(["subscript","superscript"]),
+		displayText: PropTypes.string,
 	}
+	static LineBreak=String.fromCharCode(13)
+	static LineFeed=String.fromCharCode(10)
+	static Tab=String.fromCharCode(9)
+	static FormFeed=String.fromCharCode(12)
+	static PageBreak=String.fromCharCode(12)
 }

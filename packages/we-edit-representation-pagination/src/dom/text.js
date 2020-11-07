@@ -10,9 +10,6 @@ import breakOpportunities from "../wordwrap/line-break"
 import {Text as ComposedText} from "../composed"
 
 const Super=NoChild(dom.Text)
-const LineBreak=String.fromCharCode(13)
-const LineFeed=String.fromCharCode(10)
-const Tab=String.fromCharCode(9)
 class Text extends Super{
     static contextTypes={
 		...Super.contextTypes,
@@ -63,6 +60,7 @@ class Text extends Super{
             if(this.props.vanish){
                 return null
             }
+            const {LineBreak, LineFeed, Tab, PageBreak, FormFeed}=dom.Text
             const text=this.text
             const defaultStyle=this.defaultStyle
             const measure=this.measure
@@ -86,6 +84,18 @@ class Text extends Super{
                                 tokenizeOpportunity:LineBreak
                             })
                             break
+                        case PageBreak:
+                        case FormFeed:{
+                            this.appendComposed({
+                                ...defaultStyle,
+                                width:0,
+                                minWidth:0,
+                                "data-endat":start+=b.length,
+                                children: b,
+                                tokenizeOpportunity:b,
+                            })
+                            break
+                        }
                         case Tab:
                             this.appendComposed({
                                 ...defaultStyle,
@@ -129,6 +139,14 @@ export default class EditableText extends editable(Text){
             return !shallowEqual(props,this.props)
         }
         return true
+    }
+
+    createComposed2Parent(props){
+        if(props.children===dom.Text.PageBreak && this.props.displayText){
+            props.width=this.measure.stringWidth(props.displayText=this.props.displayText)
+            props.className="__ender pagebreak"
+        }
+        return super.createComposed2Parent(props)
     }
 
     render(){

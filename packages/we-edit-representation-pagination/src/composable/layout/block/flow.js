@@ -100,6 +100,9 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 				enumerable: true,
 				configurable: true,
 				get() {
+					if(this.lastLine?.props.pagination?.break){
+						return 0
+					}
 					const {allowOverflow}=this.props
 					if(allowOverflow||!this.props.height)
 						return Number.MAX_SAFE_INTEGER
@@ -134,6 +137,7 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 			}
 		});
 	}
+	
 	onAllChildrenComposed() {
 		const content = this.createComposed2Parent();
 		this.context.parent.appendComposed(content);

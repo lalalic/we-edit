@@ -26,6 +26,10 @@ export default class Columnable extends OrphanControlable {
 				enumerable: true,
 				configurable: true,
 				get() {
+					if(this.lastLine?.props.pagination?.break){
+						return 0
+					}
+					
 					return this.currentColumn.availableBlockSize;
 				}
 			},

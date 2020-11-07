@@ -1,5 +1,5 @@
 
-import {Input} from "we-edit"
+import {Input,dom} from "we-edit"
 import {Readable} from "readable-stream"
 
 import Docx from "./docx"
@@ -195,15 +195,27 @@ class DocxType extends Input.Editable{
 			case "heading":
 			case "p":{
 				const {pr, ...pProps}=props
-				let style= !props.pr ? styles['*paragraph'] : new Style.Paragraph.Direct(props.pr,styles,selector);
+				const style= !props.pr ? styles['*paragraph'] : new Style.Paragraph.Direct(props.pr,styles,selector);
+				const sectPr=props.pr?.children.find(a=>a.name.endsWith("sectPr"))
+				if(sectPr){
+					const sectType=sectPr.children.find(a=>a.name.endsWith("type"))?.attribs["w:val"]
+					pProps.End=`====section break (${sectType})====${dom.Paragraph.defaultProps.End}`
+				}
 				return createElement(components.Paragraph,{style,...pProps},children,node)
 			}
 			case "r":{
-				let style= !props.pr ? styles['*character'] : new Style.Character.Direct(props.pr,  styles, selector)
+				const style= !props.pr ? styles['*character'] : new Style.Character.Direct(props.pr,  styles, selector)
 				return createElement(components.Run,{style},children,node)
 			}
-			case "br":
-				return createElement(components.Text,{},String.fromCharCode(13),node)
+			case "br":{
+				switch(node.attribs["w:type"]){
+					case 'page':
+						return createElement(components.Text,{displayText:"----page break----"},dom.Text.PageBreak,node)
+					default:
+						return createElement(components.Text,{},dom.Text.LineBreak,node)
+				}
+				
+			}
 			case "instrText":
 			case "t":
 				return createElement(components.Text,{},children[0]||"",node)

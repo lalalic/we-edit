@@ -9,6 +9,7 @@ import Positioning from "./positioning"
 import ComposeMoreTrigger from "./compose-more-trigger"
 import DefineShapes from "./define-shapes"
 import SelectionStyle from "./selection-style"
+import Pilcrow from "./pilcrow"
 
 /**
  * must provide the following 
@@ -147,9 +148,10 @@ class Responsible extends Component{
         const noCursor=editable && editable.cursor===false
         const eventHandlers=!noCursor ? this.eventHandlers  : {}
         const {Canvas, ComposeMoreTrigger}=this.constructor
+        const id=`canvas${document.props.canvasId}`
         return (
             <Canvas 
-                {...{scale,pageGap,pages,precision,document,paper:true}}
+                {...{scale,pageGap,pages,precision,document,paper:true, id}}
                 innerRef={a=>{this.canvas=a}}
                 {...eventHandlers}>
                 <ComposeMoreTrigger
@@ -170,6 +172,7 @@ class Responsible extends Component{
                         }
                     }}
                 />    
+                <Pilcrow canvas={id}/>
                 <DefineShapes/>
 				<Fragment>
                     {children}
@@ -423,5 +426,3 @@ export default class EventResponsible extends Responsible{
         this.dispatch(ACTION.Cursor.FORWARD(e))
     }
 }
-
-

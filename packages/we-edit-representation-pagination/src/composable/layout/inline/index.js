@@ -1,5 +1,5 @@
 import React, {Component} from "react"
-import {ReactQuery} from "we-edit"
+import {ReactQuery, dom} from "we-edit"
 import InlineSegments from "./lnline-space-segments"
 import Story from "./story"
 import Group from "../../../composed/group"
@@ -12,7 +12,6 @@ import Group from "../../../composed/group"
  * 
  */
 export default class Inline extends Component{
-	static LineBreak=String.fromCharCode(13)
 	constructor({space:{left, right, findInlineSegments}}){
 		super(...arguments)
 		this.findInlineSegments=findInlineSegments
@@ -121,7 +120,7 @@ export default class Inline extends Component{
 			return this.appendAnchorAtom(atom)
 		}
 
-		if(atom.props.tokenizeOpportunity===Inline.LineBreak){
+		if(atom.props.tokenizeOpportunity===dom.Text.LineBreak){
 			this.inlineSegments.push(atom,true/*append atom without considering inline size*/)
 			return true
 		}

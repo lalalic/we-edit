@@ -9,6 +9,7 @@ import {HasParentAndChild,Layout, editable} from "../composable"
 import breakOpportunities from "../wordwrap/line-break"
 import {Text as ComposedText,  Group} from "../composed"
 
+const Tokenizers=[dom.Text.LineBreak, dom.Text.PageBreak]
 const Super=HasParentAndChild(dom.Paragraph)
 class Paragraph extends Super{
     static contextTypes={
@@ -48,6 +49,12 @@ class Paragraph extends Super{
 		return this.atoms[this.atoms.length-1].props.width
 	}
 
+	get pageBreak(){
+		const atoms=this.atoms, l=atoms.length
+		const isPageBreak=a=> a?.props.tokenizeOpportunity===dom.Text.PageBreak
+		return isPageBreak(atoms[l-2])||isPageBreak(atoms[l-1])
+	}
+
 	get currentLine(){
 		if(this.lines.length==0){
 			this.lines.push(this.createLine())
@@ -66,7 +73,7 @@ class Paragraph extends Super{
 	 * @param {*} content
 	 */
     appendComposed(content){
-		if(content.props.tokenizeOpportunity==Layout.Inline.LineBreak){
+		if(Tokenizers.includes(content.props.tokenizeOpportunity)){
 			this.atoms.push(content)
 			return 
 		}
@@ -105,7 +112,7 @@ class Paragraph extends Super{
 
 
 	onAllChildrenComposed(){//need append last non-full-width line to parent ???
-		const {props:{End=""}}=this
+		const {props:{End="", id}}=this
 		const measure=this.getDefaultMeasure()
 		this.atoms.push(<ComposedText
 			{...measure.defaultStyle}
@@ -339,7 +346,8 @@ class Paragraph extends Super{
 					id:this.props.id,
 					orphan,widow,keepWithNext,keepLines, 
 					i:this.lines.length,
-					last:bLastLine
+					last:bLastLine,
+					break: bLastLine && this.pageBreak
 				}} 
 				anchor={anchor} 
 				>
