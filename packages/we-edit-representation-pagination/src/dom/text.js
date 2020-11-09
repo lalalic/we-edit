@@ -142,9 +142,9 @@ export default class EditableText extends editable(Text){
     }
 
     createComposed2Parent(props){
-        if(props.children===dom.Text.PageBreak && this.props.displayText){
+        if(this.props.displayText){
             props.width=this.measure.stringWidth(props.displayText=this.props.displayText)
-            props.className="__ender pagebreak"
+            props.className="__ender"
         }
         return super.createComposed2Parent(props)
     }

@@ -49,12 +49,6 @@ class Paragraph extends Super{
 		return this.atoms[this.atoms.length-1].props.width
 	}
 
-	get pageBreak(){
-		const atoms=this.atoms, l=atoms.length
-		const isPageBreak=a=> a?.props.tokenizeOpportunity===dom.Text.PageBreak
-		return isPageBreak(atoms[l-2])||isPageBreak(atoms[l-1])
-	}
-
 	get currentLine(){
 		if(this.lines.length==0){
 			this.lines.push(this.createLine())
@@ -347,7 +341,7 @@ class Paragraph extends Super{
 					orphan,widow,keepWithNext,keepLines, 
 					i:this.lines.length,
 					last:bLastLine,
-					break: bLastLine && this.pageBreak
+					break: line.pageBreak
 				}} 
 				anchor={anchor} 
 				>

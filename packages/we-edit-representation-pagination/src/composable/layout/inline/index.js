@@ -79,6 +79,12 @@ export default class Inline extends Component{
 		return opportunityTop+lineTop
 	}
 
+	get pageBreak(){
+		const atoms=this.atoms, l=atoms.length
+		const isPageBreak=a=> a?.props.tokenizeOpportunity===dom.Text.PageBreak
+		return isPageBreak(atoms[l-2])||isPageBreak(atoms[l-1])
+	}
+
 	isEmpty(){
 		return !!!this.firstAtom
 	}
@@ -125,9 +131,18 @@ export default class Inline extends Component{
 			return true
 		}
 
+		if(atom.props.tokenizeOpportunity===dom.Text.PageBreak){
+			this.inlineSegments.push(atom,true/*append atom without considering inline size*/)
+			return
+		}
+
 		if(atom.props.className=="ender"){
 			this.inlineSegments.push(atom,true/*append atom without considering inline size*/)
 			return
+		}
+
+		if(this.pageBreak){/*immediately break line*/
+			return false
 		}
 		
 		const appended=(newHeight=>{

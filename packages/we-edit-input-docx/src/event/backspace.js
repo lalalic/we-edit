@@ -1,15 +1,5 @@
 export default {
-    backspace_at_text(event){
-        const target=this.target, name=target.prop('name')
-        if(!name.endsWith(":t")){
-            const type=name.split(":").pop()
-            this.emit('backspace',[`at_${type}`], event)
-        }else{
-            this.super.backspace_at_text(...arguments)
-        }
-    },
-
-    backspace_at_br(){
+    backspace_at_end_of_br(){
         const r=this.target.closest('w\\:r')
         this.target.remove()
         this.file.renderChanged(r)

@@ -22,7 +22,7 @@ export default ({Container})=>class __$1 extends Component{
 			{
 				React.Children.map(this.props.children,a=>{
 					if(a.type.displayName=="text"){
-						return React.cloneElement(a,style)
+						return React.cloneElement(a,{...style, ...a.props})
 					}else
 						return a
 				})

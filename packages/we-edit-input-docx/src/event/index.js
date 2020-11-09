@@ -22,6 +22,17 @@ export default (class Actions extends Input.Editable.EventHandler.xml{
         this.InlineContainers="w\\:r, w\\:sdt"
     }
 
+    emit(action, conds, ...others){
+        if(this.$target.attr('type')=="text"){
+            const name=this.target.prop('name')
+            if(!name.endsWith(":t")){
+                const type=name.split(":").pop()
+                conds=conds.map(a=>a.replace('text',type))
+            }
+        }
+        super.emit(action, conds, ...others)
+    }
+
     init(){
         //set start of first paragraph in content as selection
         const firstParagraphId=this.file.makeId(this.file.$('w\\:p').get(0))

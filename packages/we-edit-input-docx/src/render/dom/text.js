@@ -7,16 +7,8 @@ export default ({Text})=>class __$1 extends Component{
 	static contextTypes={
 		r: PropTypes.object
 	}
-	constructor(){
-		super(...arguments)
-		this.componentWillReceiveProps(this.props,this.context)
-	}
-
-	componentWillReceiveProps(next,context){
-		this.style={...context.r,...next}
-	}
-
+	
 	render(){
-		return <Text {...this.style}/>
+		return <Text {...{...this.context.r,...this.props}}/>
 	}
 }

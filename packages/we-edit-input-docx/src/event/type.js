@@ -48,4 +48,8 @@ export default {
         this.file.renderChanged(this.target.append(`<w:r><w:t>${data}</w:t></w:r>`))
         this.cursorAt(this.$target.find("text").last().attr("id"),data.length)
     },
+
+    type_at_end_of_br(data){
+        
+    }
 }

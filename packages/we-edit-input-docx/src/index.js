@@ -210,11 +210,10 @@ class DocxType extends Input.Editable{
 			case "br":{
 				switch(node.attribs["w:type"]){
 					case 'page':
-						return createElement(components.Text,{displayText:"----page break----"},dom.Text.PageBreak,node)
+						return createElement(components.Text,{fonts:"Verdana",size:docx.pt2Px(11), displayText:"----page break----"},dom.Text.PageBreak,node)
 					default:
 						return createElement(components.Text,{},dom.Text.LineBreak,node)
 				}
-				
 			}
 			case "instrText":
 			case "t":
