@@ -9,13 +9,14 @@ import {HasParentAndChild,Layout, editable} from "../composable"
 import breakOpportunities from "../wordwrap/line-break"
 import {Text as ComposedText,  Group} from "../composed"
 
-const Tokenizers=[dom.Text.LineBreak, dom.Text.PageBreak]
+const Tokenizers=[dom.Text.LineBreak, dom.Text.PageBreak,dom.Text.Tab]
 const Super=HasParentAndChild(dom.Paragraph)
 class Paragraph extends Super{
     static contextTypes={
 		...Super.contextTypes,
 		Measure: PropTypes.func,
 		numbering: PropTypes.func,
+		editable: PropTypes.any,
 	}
 	static propTypes={
 		...Super.propTypes,
@@ -106,18 +107,24 @@ class Paragraph extends Super{
 
 
 	onAllChildrenComposed(){//need append last non-full-width line to parent ???
-		const {props:{End="", id}}=this
-		const measure=this.getDefaultMeasure()
-		this.atoms.push(<ComposedText
-			{...measure.defaultStyle}
-			width={measure.stringWidth(End)}
-			minWidth={0}
-			children={End}
-			className="ender"
-			/>)
+		this.atoms.push(this._createEndAtom())
 		this.commit()
 		super.onAllChildrenComposed()
-    }
+	}
+	
+	_createEndAtom(){
+		const {props:{End="", id}}=this
+		const measure=this.getDefaultMeasure()
+		return (
+			<ComposedText
+					{...measure.defaultStyle}
+					width={measure.stringWidth(End)}
+					minWidth={0}
+					children={End}
+					className="ender"
+					/>
+		)
+	}
 
 	rollbackLines(n){
 		this.lines.splice(-n)

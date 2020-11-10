@@ -126,12 +126,12 @@ class DocxType extends Input.Editable{
 				return createStylesElement()
 			}
 			case "document":{
-				let evenAndOddHeaders=settings("w\\:evenAndOddHeaders").length>0
 				return createElement(
 					components.Document,
 					{
 						...selector.select(node.children.filter(a=>a.name!="w:body")),
-						evenAndOddHeaders,
+						defaultTab:docx.toPx(`${parseInt(settings("w\\:defaultTabStop").attr("w:val"))/1440.0}in`),
+						evenAndOddHeaders:settings("w\\:evenAndOddHeaders").length>0,
 						precision:docx.precision,
 						styles,
 					},
@@ -207,21 +207,21 @@ class DocxType extends Input.Editable{
 				const style= !props.pr ? styles['*character'] : new Style.Character.Direct(props.pr,  styles, selector)
 				return createElement(components.Run,{style},children,node)
 			}
+			case "tab":
+				return createElement(components.Text,{fonts:"Arial",displayText:String.fromCharCode(0x2192)},dom.Text.Tab,node)
 			case "br":{
 				switch(node.attribs["w:type"]){
 					case 'page':
-						return createElement(components.Text,{fonts:"Verdana",size:docx.pt2Px(11), displayText:"----page break----"},dom.Text.PageBreak,node)
+						return createElement(components.Text,{fonts:"Arial",size:docx.pt2Px(11), displayText:"----page break----"},dom.Text.PageBreak,node)
 					default:
-						return createElement(components.Text,{},dom.Text.LineBreak,node)
+						return createElement(components.Text,{fonts:"Arial",size:docx.pt2Px(11), displayText:String.fromCharCode(0x21A1)},dom.Text.LineBreak,node)
 				}
 			}
 			case "instrText":
 			case "t":
 				return createElement(components.Text,{},children[0]||"",node)
-
-			case "drawing.inline":{
+			case "drawing.inline":
 				return createElement(components.Inline,{},children,node)
-			}
 			case "drawing.anchor":{
 				const style=new Style.Anchor(node,styles,selector)
 				return createElement(components.Anchor,style.flat(),children,node)

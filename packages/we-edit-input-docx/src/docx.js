@@ -62,6 +62,12 @@ export default class Document extends docx4js{
 		return Math.round(pt*96/72*this.precision)
 	}
 
+	toPx(length){
+		const count=parseFloat(length)
+		const unit=length.match(/([a-zA-Z]+)$/)[1]
+		return count*super.toPx(`1${unit}`)
+	}
+
 	static parseXml=function(){
 		const initialize=docx4js.parseXml(...arguments)
 		initialize.prototype.afterOrPrepend=function(dom,selector){

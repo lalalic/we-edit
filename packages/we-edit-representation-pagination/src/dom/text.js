@@ -99,11 +99,12 @@ class Text extends Super{
                         case Tab:
                             this.appendComposed({
                                 ...defaultStyle,
-                                width:this.context.tabWidth()||measure.stringWidth(b),
+                                width:measure.stringWidth(b),
+                                tabWidth:line=>this.context.tabWidth(line,this),
                                 minWidth:0,
                                 "data-endat":start+=b.length,
                                 children: b,
-                                tokenizeOpportunity:0,
+                                tokenizeOpportunity:b,
                             })
                             break
                         default:{

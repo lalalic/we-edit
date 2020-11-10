@@ -117,6 +117,28 @@ export default class Inline extends Component{
 		}
 	}
 
+	appendTab(atom){
+		const x=this.inlineSegments.currentX
+		const width=atom.props.tabWidth(x)
+		const tabWidth=atom.props.width
+		let located=atom
+		if(width!==tabWidth){//don't need it if it's not editable
+			if(this.context.parent.context.editable){
+				const $atom=new ReactQuery(atom)
+				const tab=$atom.findFirst('[data-type="text"]')
+				if(width<tabWidth){
+					located=$atom.replace(tab.get(0),React.cloneElement(tab.get(0),{x:width-tabWidth,clipPath:`inset(0 0 0 ${tabWidth-width})`})).get(0)
+				}else if(width>tabWidth){
+					located=$atom.replace(tab.get(0),React.cloneElement(tab.get(0),{x:(width-tabWidth)/2})).get(0)
+				}
+			}
+			this.inlineSegments.push(React.cloneElement(located,{x, width}),true/*append atom without considering inline size*/)
+		}else{
+			this.inlineSegments.push(atome,true/*append atom without considering inline size*/)
+		}
+		return
+	}
+
 	/**
 	 * inline layout doesn't consider block layout capacity,
 	 * leave it to block layout engine decide how to handle overflow block size
@@ -124,6 +146,10 @@ export default class Inline extends Component{
 	appendAtom(atom){
 		if(atom.props.anchor){
 			return this.appendAnchorAtom(atom)
+		}
+
+		if(atom.props.tokenizeOpportunity===dom.Text.Tab){
+			return this.appendTab(atom)
 		}
 
 		if(atom.props.tokenizeOpportunity===dom.Text.LineBreak){

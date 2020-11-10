@@ -15,14 +15,15 @@ export default class Container extends Stoppable(HasParentAndChild(dom.Container
             wrap, anchor,
             descent,pagination,
             tokenizeOpportunity,
-            mergeOpportunity,
+            mergeOpportunity,tabWidth,
             ...props}=element.props
         const myElement=React.createElement(Group,{
-            width,height,minWidth,wrap, anchor,descent,pagination,x,y,blockOffset,tokenizeOpportunity,
+            width,height,minWidth,wrap, anchor,descent,pagination,x,y,blockOffset,tokenizeOpportunity,tabWidth,
             children:React.cloneElement(element,{
                 x:undefined, y:undefined,wrap:undefined,anchor:undefined,blockOffset:undefined,
                 tokenizeOpportunity:undefined,
                 mergeOpportunity:undefined,
+                tabWidth:undefined,
             })
         })
         return createComposed2Parent ? createComposed2Parent(myElement) : myElement

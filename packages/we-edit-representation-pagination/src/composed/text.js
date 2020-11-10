@@ -13,7 +13,7 @@ export default class Text extends Component{
 	render(){
 		const {
 			displayText, children, whiteSpace, color:fill="black", highlight,border,underline,strike,
-			descent,minWidth, height, width, blockOffset,tokenizeOpportunity,mergeOpportunity,//ignore
+			descent,minWidth, height, width, blockOffset,tokenizeOpportunity,mergeOpportunity,tabWidth,//ignore
 			y=0,
 			...others}=this.props
 		const {precision=1}=this.context
@@ -55,8 +55,7 @@ export default class Text extends Component{
 		return (
 			<Fragment>
 				{background}
-				<text style={{userSelect:"none",whiteSpace:"pre",cursor:"text"}}
-					y={y}
+				<text y={y}
 					{...others}
 					fill={fill}>
 					{displayText||children}
