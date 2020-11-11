@@ -32,4 +32,30 @@ define("text compose", ({dom:{Text},testing,Context, WithTextContext})=>{
     it("whitespace should have .whitespace, with minWidth=0",()=>{
 
     })
+
+    describe("tab",()=>{
+        it("can be fixed length",()=>{
+
+        })
+
+        it("can be caculated based on current line",()=>{
+
+        })
+    })
+
+    it("page-break should stop page layout immediately",()=>{
+
+    })
+
+    it("page-break can be shown when editing",()=>{
+
+    })
+
+    it("line-break should stop line layout immediately",()=>{
+        
+    })
+
+    it("line-break can be shown when editing",()=>{
+        
+    })
 })
