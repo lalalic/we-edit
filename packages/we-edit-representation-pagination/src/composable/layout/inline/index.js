@@ -118,11 +118,10 @@ export default class Inline extends Component{
 	}
 
 	appendTab(atom){
-		const x=this.inlineSegments.currentX
-		const width=atom.props.tabWidth(x)
+		const width=atom.props.tabWidth(this.inlineSegments.currentX)
 		const tabWidth=atom.props.width
-		let located=atom
 		if(width!==tabWidth){//don't need it if it's not editable
+			let located=atom
 			if(this.context.parent.context.editable){
 				const $atom=new ReactQuery(atom)
 				const tab=$atom.findFirst('[data-type="text"]')
@@ -132,9 +131,9 @@ export default class Inline extends Component{
 					located=$atom.replace(tab.get(0),React.cloneElement(tab.get(0),{x:(width-tabWidth)/2})).get(0)
 				}
 			}
-			this.inlineSegments.push(React.cloneElement(located,{x, width}),true/*append atom without considering inline size*/)
+			this.inlineSegments.push(React.cloneElement(located,{width}),true/*append atom without considering inline size*/)
 		}else{
-			this.inlineSegments.push(atome,true/*append atom without considering inline size*/)
+			this.inlineSegments.push(atom,true/*append atom without considering inline size*/)
 		}
 		return
 	}
