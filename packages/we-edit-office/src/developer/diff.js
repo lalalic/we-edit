@@ -14,9 +14,9 @@ export default class Diff extends Component{
         return {...state, files:Array.from(new Set([...files,...state.files]))}
     }
 
-    constructor(){
+    constructor({files=[]}){
         super(...arguments)
-        this.state={files:[], comparing:[]}
+        this.state={files:[], comparing:[files[0]].filter(a=>!!a)}
         this.selector=React.createRef()
     }
 
