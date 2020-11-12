@@ -8,6 +8,14 @@ export default class xQuery extends Query{
 		return this.state.get("_content")
 	}
 
+	attr(k, v){
+		if(arguments.length==1){
+			return super.attr(...arguments)
+		}else{
+			this._nodes.forEach(id=>this._content.setIn([id,'props',k],v))
+		}
+	}
+
 	remove(deep=true){
 		const clear=k=>{//clear the tree
 			if(!deep){
