@@ -1,46 +1,54 @@
-import React,{Component} from "react"
+import React,{Component,Fragment} from "react"
 
 import {ACTION, whenSelectionChange} from "we-edit"
-import {Ribbon} from "we-edit-office"
+import {Ribbon, Dialog, ContextMenu} from "we-edit-office"
 
-import {compose,setDisplayName,withState, withProps, shallowEqual,shouldUpdate} from "recompose"
+import {compose,setDisplayName,withState, withProps, } from "recompose"
 
-import {ToolbarGroup, FlatButton} from "material-ui"
+import {ToolbarGroup, FlatButton,MenuItem,Divider} from "material-ui"
 import FieldIcon from "material-ui/svg-icons/places/all-inclusive"
 
 export default compose(
 	setDisplayName("FieldStyle"),
 	whenSelectionChange(({selection})=>{
         return {
-            style:selection?.props("text",false),
-            
+            style:selection?.props("text",false),     
         }
     }),
-    withProps(({dispatch})=>({
-        toggleFieldCode(id){
-            dispatch(ACTION.Entity.UPDATE({field:{toggle:id}, id}))
+    withProps(({dispatch,style})=>({
+        toggleFieldCode(){
+            dispatch(ACTION.Entity.UPDATE({field:{toggle:style.field}, id:style.field}))
         },
         build(instr){
             dispatch(ACTION.Entity.CREATE({type:"field",instr}))
+        },
+        update(){
+            dispatch(ACTION.Entity.UPDATE({field:{update:style.field},id:style.field}))
         }
     })),
     withState('open','setOpen', false),
-)(({style, toggleFieldCode, open, setOpen})=>(
-    <ToolbarGroup>
-        <Ribbon.CheckIconButton label="field"
-            status={style?.field ? "checked" : "unchecked"}
-            onClick={()=>{
-                if(style?.field){
-                    toggleFieldCode(style.field)
-                }else{
-                    setOpen(!open)
-                }
-            }}
-            >
-            <FieldIcon/>
-        </Ribbon.CheckIconButton>
-        {open && <BuildField close={()=>setOpen(false)} />}
-    </ToolbarGroup>
+)(({style, toggleFieldCode, update, open, setOpen})=>(
+    <ContextMenu.Support
+        menus={!(style?.field) ? null : //not field
+            (
+                <Fragment>
+                    <MenuItem primaryText="Update Field" onClick={update}/>
+                    <MenuItem primaryText="Toggle Field Code" onClick={toggleFieldCode}/>
+                    <Divider/>
+                </Fragment>
+            )
+        }
+        >
+        <ToolbarGroup>
+            <Ribbon.CheckIconButton label="Field"
+                status={style?.field ? "checked" : "unchecked"}
+                onClick={e=>style?.field ? toggleFieldCode() : setOpen(!open)}
+                >
+                <FieldIcon/>
+            </Ribbon.CheckIconButton>
+            {open && <BuildField close={()=>setOpen(false)} />}
+        </ToolbarGroup>
+    </ContextMenu.Support>
 ))
 
 class BuildField extends Component{
@@ -51,7 +59,6 @@ class BuildField extends Component{
     render(){
         const {close}=this.props
         const {current={}}=this.state
-        const Dialog=Ribbon.Dialog
         return (
             <Dialog title="Field" modal={true} open={true}
                 actions={[

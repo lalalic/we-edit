@@ -217,7 +217,7 @@ export class WeDocumentStub extends Component{
 		const doc=this.createWeDocument(content,ModelTypes)
 		return React.cloneElement(doc,{
 			canvasId,
-			onContextMenu:e=>this.props.dispatch(ACTION.UI({contextMenuAt:{left:e.clientX, top:e.clientY}})),
+			onContextMenu:e=>this.props.dispatch(ACTION.UI({contextMenuAt:{left:e.clientX+2, top:e.clientY}})),
 			...canvasProps,
 			canvas:canvasProps.canvas,//||defaultCanvas,//default empty canvas to 
 			content,

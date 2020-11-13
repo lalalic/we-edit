@@ -2,7 +2,7 @@ import React,{Fragment} from "react"
 import {Editor} from "we-edit"
 
 import {Workspace, Ribbon, ContextMenu} from "we-edit-office"
-import {Menu, Paper} from "material-ui"
+import {Divider, MenuItem} from "material-ui"
 
 import Field from "./field"
 
@@ -28,8 +28,14 @@ export default (
             </Ribbon.Ribbon>
         }
         contextMenu={
-            <ContextMenu>
+            <ContextMenu desktop={true}>
                 <Ribbon.Clipboard/>
+                <Divider/>
+                <Field/>
+                <Fragment>
+                    <MenuItem primaryText="Font..."/>
+                    <MenuItem primaryText="Paragraph..."/>
+                </Fragment>
             </ContextMenu>
         }
     >

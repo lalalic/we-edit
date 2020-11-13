@@ -12,6 +12,7 @@ export {default as Dashboard} from "./dashboard"
 export {default as reducer} from "./state/reducer"
 export {default as ACTION, getOffice} from "./state/action"
 export {default as ContextMenu} from "./components/context-menu"
+export {default as Dialog} from "./components/dialog"
 
 
 export {Ribbon,Office}

@@ -13,7 +13,8 @@ export default connect(state=>{
 
     constructor(){
         super(...arguments)
-        this.close=this.close.bind(this)
+		this.close=this.close.bind(this)
+		this.menu=React.createRef()
     }
 	
 	getChildContext(){
@@ -33,10 +34,20 @@ export default connect(state=>{
 		return (
 			<div style={{position:"fixed",left:0,top:0,width:"100%",height:"100%"}}
                 onClick={this.close}
-                onDoubleClick={this.close}
+				onDoubleClick={this.close}
+				onContextMenu={this.close}
 				>
-				<div style={{position:"absolute", ...at}}>{children}</div>
+				<div ref={this.menu} style={{position:"fixed", ...at}}>{children}</div>
 			</div>
 		)
+	}
+
+	componentDidUpdate(){
+		if(!this.props.at)
+			return 
+		if(this.menu.current.getBoundingClientRect().bottom>window.innerHeight){
+			this.menu.current.style.top='unset'
+			this.menu.current.style.bottom=0
+		}
 	}
 })
