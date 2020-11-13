@@ -19,7 +19,7 @@ import * as Picture from "./picture"
 import * as Layout from "./layout"
 import * as Developer from "./developer"
 
-import {CheckIconButton,DropDownButton,IconButton} from "./components"
+import {CheckIconButton,DropDownButton,ContextMenuSupport} from "./components"
 
 const Toolbar=props=><Toolbar0 style={{justifyContent:"initial"}} {...props}/>
 const ToolbarSeparator=props=><ToolbarSeparator0 style={{marginRight:2, marginLeft:2}} {...props}/>
@@ -187,4 +187,4 @@ const Ribbon=compose(
 
 export default Ribbon
 
-export {Ribbon, Text, Paragraph,File,History,Table,Picture,Layout,Developer,Recorder, Toolbar, ToolbarSeparator, Tabs, Tab, CheckIconButton,DropDownButton}
+export {Ribbon, Clipboard, ContextMenuSupport, Text, Paragraph,File,History,Table,Picture,Layout,Developer,Recorder, Toolbar, ToolbarSeparator, Tabs, Tab, CheckIconButton,DropDownButton}

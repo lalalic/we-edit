@@ -1,9 +1,11 @@
 import React from "react"
+
 import {connect} from "react-redux"
 import {compose, setDisplayName, onlyUpdateForKeys} from "recompose"
 
 import {ToolbarGroup} from "material-ui"
 import CheckIconButton from "../components/check-icon-button"
+import ContextMenu from "../components/context-menu"
 
 
 import IconCopy from "material-ui/svg-icons/content/content-copy"
@@ -36,27 +38,30 @@ export default compose(
 			},
 		}
 	}),
-	onlyUpdateForKeys(['withSelection','withClipboard'])
+	onlyUpdateForKeys(['withSelection','withClipboard']),
 )(({cut,copy,paste,withSelection,withClipboard,children})=>(
-	<ToolbarGroup>
-		<CheckIconButton
-			label="paste"
-			status={withClipboard ? "uncheck" : "disabled"}
-			children={<IconPaste/>}
-			onClick={paste}
-			/>
-		<CheckIconButton
-			label="cut"
-			status={withSelection ? "uncheck" : "disabled"}
-			children={<IconCut/>}
-			onClick={cut}
-			/>
-		<CheckIconButton
-			label="copy"
-			status={withSelection ? "uncheck" : "disabled"}
-			children={<IconCopy/>}
-			onClick={copy}
-			/>
-		{children}
-	</ToolbarGroup>
+	<ContextMenu.Support>
+		<ToolbarGroup>
+			<CheckIconButton
+				shortcut="&#8984;B"
+				label="Paste"
+				status={withClipboard ? "uncheck" : "disabled"}
+				children={<IconPaste/>}
+				onClick={paste}
+				/>
+			<CheckIconButton
+				label="Cut"
+				status={withSelection ? "uncheck" : "disabled"}
+				children={<IconCut/>}
+				onClick={cut}
+				/>
+			<CheckIconButton
+				label="Copy"
+				status={withSelection ? "uncheck" : "disabled"}
+				children={<IconCopy/>}
+				onClick={copy}
+				/>
+			{children}
+		</ToolbarGroup>
+	</ContextMenu.Support>
 ))

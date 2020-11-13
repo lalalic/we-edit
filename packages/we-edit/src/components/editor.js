@@ -1,7 +1,7 @@
-import React, {PureComponent, Component,Fragment} from "react"
+import React, {PureComponent, Component} from "react"
 import PropTypes from "prop-types"
 
-import {connect} from "../state"
+import {connect,ACTION} from "../state"
 import Representation from "./representation"
 import uuid from "../tools/uuid"
 import memoize from "memoize-one"
@@ -46,7 +46,6 @@ export class Editor extends PureComponent{
 	static childContextTypes={
 		media: PropTypes.string,
 		onKeyDown: PropTypes.func,
-		onContextMenu: PropTypes.func,
 	}
 
 	static getDerivedStateFromProps({viewport},state={}){
@@ -60,8 +59,8 @@ export class Editor extends PureComponent{
 	}
 
 	getChildContext(){
-		const {media, onKeyDown, onContextMenu}=this.props
-		return {media,onKeyDown, onContextMenu}
+		const {media, onKeyDown}=this.props
+		return {media,onKeyDown}
 	}
 
 	render(){
@@ -218,6 +217,7 @@ export class WeDocumentStub extends Component{
 		const doc=this.createWeDocument(content,ModelTypes)
 		return React.cloneElement(doc,{
 			canvasId,
+			onContextMenu:e=>this.props.dispatch(ACTION.UI({contextMenuAt:{left:e.clientX, top:e.clientY}})),
 			...canvasProps,
 			canvas:canvasProps.canvas,//||defaultCanvas,//default empty canvas to 
 			content,
@@ -242,9 +242,7 @@ export class WeDocumentStub extends Component{
 
 
 const Root=connect(
-	(state)=>{
-		return {content:state.get("content")}
-	},
+	(state)=>({content:state.get("content")}),
 	null,
 	null,
 	{

@@ -28,11 +28,12 @@ export default class Character extends Base{
 
 	flat(...inherits){
 		let targets=[this,...inherits]
-		return "fonts,size,color,highlight,border,underline,bold,italic,vanish,strike,vertAlign"
+		const props="fonts,size,color,highlight,border,underline,bold,italic,vanish,strike,vertAlign"
 			.split(",")
 			.reduce((props,k)=>{
 				targets.find(a=>(props[k]=a.get(`r.${k}`))!==undefined)
 				return props
 			},{})
+		return this.__clear(props,undefined)
 	}
 }

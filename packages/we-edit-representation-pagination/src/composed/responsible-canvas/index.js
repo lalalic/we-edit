@@ -47,7 +47,6 @@ class Responsible extends Component{
     }
     
     static contextTypes={
-        onContextMenu: PropTypes.func,
         activeDocStore: PropTypes.any,
     }
 
@@ -186,7 +185,13 @@ class Responsible extends Component{
                         }}>
                         <CursorShape/>
                     </Cursor>
-                    <Selection >
+                    <Selection onContextMenu={e=>{
+                            e.stopPropagation()
+                            e.preventDefault()
+                            delete this.__mouseDownFlag.selected
+                            const {onContextMenu}=document.props
+                            onContextMenu && onContextMenu(e)
+                        }}>
                         <SelectionShape ref={"selecting"}/>
                     </Selection>
 				</Fragment>
@@ -336,9 +341,9 @@ export default class EventResponsible extends Responsible{
     }
 
     onContextMenu(e){
-        const {context:{onContextMenu}}=this
         this.__onClick(e)
         delete this.__mouseDownFlag.selected
+        const {onContextMenu}=this.props.document.props
         onContextMenu && onContextMenu(e)
     }
 

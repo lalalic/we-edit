@@ -2,12 +2,14 @@
 import {Input,dom} from "we-edit"
 import {Readable} from "readable-stream"
 
+import Workspace from "./office"
 import Docx from "./docx"
 import Style from "./render/styles"
 import HOCs from "./render/dom"
 import Reducer from "./event"
 
 class DocxType extends Input.Editable{
+	static Workspace=Workspace
 	static FileType=Docx
 	static support(file){
 		if(arguments.length==0){//for installer
@@ -64,6 +66,7 @@ class DocxType extends Input.Editable{
 		const settings=officeDocument.settings
 
 		const styles=new (class{})();//keep as raw object in state
+		const fields=[]
 
 		const createStylesElement=()=>{
 			return null
@@ -217,9 +220,28 @@ class DocxType extends Input.Editable{
 						return createElement(components.Text,{fonts:"Arial",size:docx.pt2Px(11), displayText:String.fromCharCode(0x21A1)},dom.Text.LineBreak,node)
 				}
 			}
-			case "instrText":
-			case "t":
+			case "fldSimple":
+				return createElement(components.SimpleField,{instr:node.attribs["w:instr"],display:$(node).text()},children,node)
+			case "begin":{
+				fields.push({node, id:this.makeId(node),instr:"",display:""})
+				return createElement(components.FieldBegin,{},[],node)
+			}
+			case "end":{
+				const {id,instr,display,...begin}=fields.pop()
+				createElement(components.FieldBegin,{instr,display,field:id},[],begin.node)
+				return createElement(components.FieldEnd,{field:id},children,node)
+			}
+			case "instrText":{
+				fields[fields.length-1].instr+=children[0]||""
+				return createElement(components.Text,{field:fields[fields.length-1].id, isInstr:true},children[0]||"",node)
+			}
+			case "t":{
+				if(fields.length){
+					fields[fields.length-1].display+=children[0]||""
+					return createElement(components.Text,{field:fields[fields.length-1].id},children[0]||"",node)
+				}
 				return createElement(components.Text,{},children[0]||"",node)
+			}
 			case "drawing.inline":
 				return createElement(components.Inline,{},children,node)
 			case "drawing.anchor":{
@@ -381,10 +403,3 @@ export default class Editable extends DocxType{
 
 	static Reducer=Reducer
 }
-
-const defineId=(target,id)=>Object.defineProperty(target,"xxid",{
-	enumerable: false,
-	configurable: true,
-	writable: false,
-	value: id
-})

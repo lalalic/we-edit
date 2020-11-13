@@ -18,13 +18,12 @@ export default whenSelectionChange(({selection})=>{
 	}
 
 	render(){
-		const {state:{rects=[], selecting}, props:{}}=this
-		const {editable}=this.context
+		const {state:{rects=[], selecting}, props:{dispatch, ...props}}=this
 		const range=<Area rects={rects} innerRef={this.area}/>
 		if(selecting)
 			return React.cloneElement(range,{onMouseMove:this.onShrink})
 		
-		return editable ? <Movable children={range} onMove={this.onMove}/> : range
+		return <g {...props}>{this.context.editable ? <Movable children={range} onMove={this.onMove}/> : range}</g>
 	}
 
 	static getDerivedStateFromProps({rects},{selecting}){
@@ -83,6 +82,5 @@ export const Area=({rects, innerRef,...props})=>(
 			(rects||[]).map(({left,top,right,bottom})=>`M${left} ${top} L${right} ${top} L${right} ${bottom} L${left} ${bottom} Z`).join(" ")
 		}
 		{...props}
-		onClick={e=>console.log(1)}
 		/>
 )

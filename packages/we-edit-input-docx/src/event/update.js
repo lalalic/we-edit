@@ -59,5 +59,12 @@ export default {
         const editor=new Shape(this.file)
         editor.node=this.target
         editor.update(props)
+    },
+
+    update_at_fieldBegin({toggle}){
+        if(toggle){
+            const $target=this.$target
+            $target.attr('showCode',!!!$target.attr('showCode'))
+        }
     }
 }

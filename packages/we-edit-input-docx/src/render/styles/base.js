@@ -123,4 +123,13 @@ export default class Style extends Linkable{
 		const cloned=new this.constructor(undefined,styles)
 		return Object.assign(cloned,{basedOn, p, r, next})
 	}
+
+	__clear(o,v=undefined){
+		for(let k in o){
+			if(o[k]===v){
+				delete o[k]
+			}
+		}
+		return o
+	}
 }

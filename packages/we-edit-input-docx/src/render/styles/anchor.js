@@ -25,6 +25,6 @@ export default class{
 
     flat(){
         const {distance,x,y,wrap,width,height}=this
-        return {distance,x,y,wrap,width,height}
+        return this.__clear({distance,x,y,wrap,width,height},undefined)
     }
 }

@@ -1,5 +1,5 @@
 import React, {PureComponent, Component, Children, Fragment} from "react"
-import {connect} from "we-edit"
+import {connect, ContextMenu} from "we-edit"
 import PropTypes from "prop-types"
 import {pure}  from "recompose"
 import EventEmitter from "events"
@@ -193,7 +193,7 @@ const Channels=connect((state,props)=>({channel:getOffice(state).channel||props.
 				return null
 			}
 
-			let {channel, children, toolBar, statusBar, ruler=true, layout, dispatch}=this.props
+			let {channel, children, toolBar, statusBar, ruler=true, layout, dispatch, contextMenu}=this.props
 			let {current,uncontrolled}=this.getCurrent(children, channel)
 
 			if(current){
@@ -201,6 +201,7 @@ const Channels=connect((state,props)=>({channel:getOffice(state).channel||props.
 				statusBar=typeof(current.props.statusBar)=="undefined"? statusBar : current.props.statusBar
 				ruler=typeof(current.props.ruler)=="undefined"? ruler : current.props.ruler
 				layout=typeof(current.props.layout)=="undefined"? layout : current.props.layout
+				contextMenu=typeof(current.props.contextMenu)=="undefined"? contextMenu : current.props.contextMenu
 			}
 
 			const canvas=(
@@ -230,6 +231,8 @@ const Channels=connect((state,props)=>({channel:getOffice(state).channel||props.
 							onChange: channel=>dispatch(ACTION.channel(channel))
 						}
 					})}
+
+					{contextMenu}
 				</div>
 			)		
 		}

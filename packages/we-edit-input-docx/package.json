@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "docx4js": "^3.2.9",
+    "material-ui": "^0.19.4",
     "fetchable": "^1.0.4",
     "lodash.get": "^4.4.2",
     "lodash.invoke": "^4.5.2",

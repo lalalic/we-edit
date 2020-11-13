@@ -98,5 +98,9 @@ export default (class Actions extends Input.Editable.EventHandler.xml{
             dy && simplePos.attr('y', this.file.px2emu($anchor.attr("y.offset")))
         }
     }
+
+    update(){
+        return super.update(...arguments)
+    }
 }).extends(seperate,create,update,enter,type,backspace,tab,paste,serialize,remove)
 

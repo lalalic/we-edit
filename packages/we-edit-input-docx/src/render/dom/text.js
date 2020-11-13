@@ -5,10 +5,25 @@ import PropTypes from "prop-types"
 export default ({Text})=>class __$1 extends Component{
 	static displayName="text"
 	static contextTypes={
-		r: PropTypes.object
+		style: PropTypes.object,
+		getField: PropTypes.func,
 	}
 	
 	render(){
-		return <Text {...{...this.context.r,...this.props}}/>
+		const {field, isInstr}=this.props
+		if(field){
+			const f=this.context.getField(field)
+			if(f.showCode){//only instr should show
+				if(isInstr){
+					return <Text {...{...this.context.style,...this.props}}/>
+				}
+			}else{//only display value should show
+				if(!isInstr){
+					return <Text {...{...this.context.style,...this.props}}/>
+				}
+			}
+			return null
+		}
+		return <Text {...{...this.context.style,...this.props}}/>
 	}
 }

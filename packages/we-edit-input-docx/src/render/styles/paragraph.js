@@ -29,7 +29,7 @@ export default class Paragraph extends Base{
 
 	flat(...inherits){
 		let targets=[this,...inherits]
-		return Object.values(attribs)
+		const props=Object.values(attribs)
 				.reduce((props, k)=>{
 					if(targets.find(a=>(props[k]=a.get(`p.${k}`))!==undefined)){
 						if(k==="num"){
@@ -53,5 +53,6 @@ export default class Paragraph extends Base{
 					}
 					return props
 				},{})
+		return this.__clear(props,undefined)
 	}
 }

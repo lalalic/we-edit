@@ -12,7 +12,11 @@ export default class Layer extends Component{
 
     render(){
         const {active=true,style, children, areas=[]}=this.props
-        const Ignore=e=>e.stopPropagation()
+        const Ignore=e=>{
+            e.stopPropagation()
+            e.preventDefault()
+            return false
+        }
         const ignoreEvents="onClick,onMouseDown,onMouseMove,onMouseUp,onContextMenu".split(",").reduce((o,k)=>(o[k]=Ignore,o),{})
         if(!active){
             return (

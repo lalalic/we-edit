@@ -12,6 +12,7 @@ export default ({Document})=>class __$1 extends Component{
 		style: PropTypes.object,
 		numbering: PropTypes.func,
 		tabWidth: PropTypes.func,
+		getField: PropTypes.func,
 	}
 
 	get styles(){
@@ -27,7 +28,8 @@ export default ({Document})=>class __$1 extends Component{
 			},
 			evenAndOddHeaders: !!this.props.evenAndOddHeaders,
 			style: this.styles['*'],
-			numbering: id=>this.numberingContext(this.props.content).numbering(id)
+			numbering: id=>this.numberingContext(this.props.content).numbering(id),
+			getField:id=>this.props.content.getIn([id,"props"]).toJS()
 		}
 	}
 

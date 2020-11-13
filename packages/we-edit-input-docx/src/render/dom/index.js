@@ -14,6 +14,7 @@ import Shape from "./shape"
 import Anchor from "./anchor"
 import HeaderFooter from "./header-footer"
 import Inline from "./draw-inline"
+import {SimpleField, FieldBegin, FieldEnd} from "./field"
 
 const createUnvisibleComponent=type=>{
 	return class __$1 extends Component{
@@ -37,6 +38,7 @@ export default {
 	Shape,
 	Anchor,
 	Inline,
+	SimpleField,FieldBegin,FieldEnd,
 	Header:(...args)=>HeaderFooter(...args, "header"),
 	Footer:(...args)=>HeaderFooter(...args, "footer"),
 	Styles:()=>createUnvisibleComponent("styles"),

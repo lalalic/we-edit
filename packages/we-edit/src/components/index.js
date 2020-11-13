@@ -22,3 +22,5 @@ export {default as DocumentTree} from "./doc-tree"
 export {Test} from "./test"
 
 export {default as AggregateContext} from "./aggregate-context"
+
+export {default as ContextMenu} from "./context-menu"
