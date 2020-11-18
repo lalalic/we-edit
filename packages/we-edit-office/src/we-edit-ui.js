@@ -50,7 +50,7 @@ export default compose(
 
 	static defaultProps={
 		titleBar:<TitleBar/>,
-		dashboard: <Dashboard/>
+		dashboard: <Dashboard/>,
 	}
 
 	state={}

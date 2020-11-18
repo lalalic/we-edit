@@ -229,6 +229,7 @@ class DocxType extends Input.Editable{
 			case "end":{
 				const {id,instr,display,...begin}=fields.pop()
 				createElement(components.FieldBegin,{instr,display,field:id},[],begin.node)
+				this.makeId(node,undefined,`end${id}`)
 				return createElement(components.FieldEnd,{field:id},children,node)
 			}
 			case "instrText":{
@@ -275,7 +276,10 @@ class DocxType extends Input.Editable{
 		const rendered=docx.render(build)
 
 
-		//implement loader.renderChangedNode
+		/**
+		 * implement loader.renderChangedNode
+		 * what if node is in region element, such as Field, Bookmark
+		 */
 		this.renderNode=(node,createElement)=>{
 			build=buildFactory(createElement)
 			return docx.officeDocument.renderNode(this._unwrap(node),build,identify)

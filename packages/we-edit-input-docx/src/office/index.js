@@ -32,10 +32,8 @@ export default (
                 <Ribbon.Clipboard/>
                 <Divider/>
                 <Field/>
-                <Fragment>
-                    <MenuItem primaryText="Font..."/>
-                    <MenuItem primaryText="Paragraph..."/>
-                </Fragment>
+                <Ribbon.Text/>
+                <Ribbon.Paragraph/>
             </ContextMenu>
         }
     >

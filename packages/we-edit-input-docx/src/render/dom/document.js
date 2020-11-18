@@ -29,7 +29,10 @@ export default ({Document})=>class __$1 extends Component{
 			evenAndOddHeaders: !!this.props.evenAndOddHeaders,
 			style: this.styles['*'],
 			numbering: id=>this.numberingContext(this.props.content).numbering(id),
-			getField:id=>this.props.content.getIn([id,"props"]).toJS()
+			getField:id=>{
+				const field=this.props.content.getIn([id,"props"])
+				return field.toJS()
+			}
 		}
 	}
 

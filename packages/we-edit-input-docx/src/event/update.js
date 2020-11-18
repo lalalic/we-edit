@@ -1,4 +1,4 @@
-import {Text,Paragraph,Image,Section,Table,Shape} from "./dom"
+import {Text,Paragraph,Image,Section,Table,Shape,Field} from "./dom"
 
 export default {
     update_at_text(props){
@@ -61,10 +61,23 @@ export default {
         editor.update(props)
     },
 
-    update_at_fieldBegin({toggle}){
-        if(toggle){
-            const $target=this.$target
-            $target.attr('showCode',!!!$target.attr('showCode'))
+    update_at_fieldBegin({toggle, ...props}){
+        const $target=this.$target
+        if(toggle){//UI only
+            const showCode=!!!$target.attr('showCode')
+            $target.attr('showCode',showCode)
+            const first=this.$('#'+toggle).forwardFirst(a=>{
+                if(a.getIn(['props','field'])===toggle && (!!a.getIn(['props','isInstr']))===showCode)
+                    return true
+            })  
+            this.cursorAt(first.attr('id'),0)
+            this.cursorAt=()=>void(0)//@@Hack: cursor can't be changed after this
+        }else{
+            const editor=new Field(this.file, this)
+            editor.node=this.target
+            editor.content=$target
+            editor.updater=this
+            editor.update(props)
         }
     }
 }

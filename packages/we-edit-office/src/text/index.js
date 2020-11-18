@@ -1,8 +1,8 @@
-import React from "react"
+import React,{Fragment} from "react"
 
 import {ACTION, whenSelectionChange} from "we-edit"
 
-import {compose,setDisplayName,withProps, shallowEqual,shouldUpdate} from "recompose"
+import {compose,setDisplayName,withProps, shallowEqual,shouldUpdate,withState} from "recompose"
 
 import {ToolbarGroup,MenuItem,SvgIcon,ToolbarSeparator as ToolbarSeparator0,} from "material-ui"
 
@@ -10,6 +10,7 @@ import ComboBox from "../components/combo-box"
 import CheckIconButton from "../components/check-icon-button"
 import DropDownButton from "../components/drop-down-button"
 import ColorButton from "../components/color-button"
+import ContextMenu from "../components/context-menu"
 
 import IconBold from "material-ui/svg-icons/editor/format-bold"
 import IconItalic from "material-ui/svg-icons/editor/format-italic"
@@ -19,8 +20,11 @@ import IconClear from "material-ui/svg-icons/editor/format-clear"
 import IconStrike from "material-ui/svg-icons/editor/strikethrough-s"
 import IconBackground from "material-ui/svg-icons/editor/format-color-fill"
 import IconColor from "material-ui/svg-icons/editor/format-color-text"
+import IconMore from "material-ui/svg-icons/navigation/more-horiz"
 
 import FontList from "./fonts"
+import TextSetting from "./setting"
+
 const ToolbarSeparator=props=><ToolbarSeparator0 style={{marginRight:2, marginLeft:2}} {...props}/>
 
 export default compose(
@@ -69,12 +73,16 @@ export default compose(
 		}
 	}),
 	shouldUpdate((a,b)=>!shallowEqual(a.style,b.style)),
+	withState("setting","toggleSetting",false)
 )(({style, children,
 	bigger, smaller, clear,
 	toggleStrike, changeHightlight,changeColor,
 	toggleSubscript, toggleSuperscript, toggleBorder,
 	toggleB, toggleI, underline,
-	changeFont,changeSize})=>(
+	changeFont,changeSize, setting, toggleSetting})=>(
+		<ContextMenu.Support menus={
+			<MenuItem primaryText="Font..." onClick={e=>e.dialog=<TextSetting style={style}/>}/>
+		}>
 			<ToolbarGroup>
 				<FontList
 					value={style&&style.fonts ? style.fonts.split(",")[0] : ""}
@@ -163,9 +171,14 @@ export default compose(
 					onClick={clear}
 					children={<IconClear/>}
 					/>
-
+				<CheckIconButton label="Text setting..."
+					onClick={e=>toggleSetting(true)}
+					children={<IconMore/>}
+					/>
+				{setting && <TextSetting style={style} close={e=>toggleSetting(false)}/>}
 				{children}
 			</ToolbarGroup>
+		</ContextMenu.Support>
 ))
 
 const IconSuperscript=props=>(

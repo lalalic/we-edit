@@ -1,4 +1,5 @@
 import {Image,Section,Paragraph,Table} from "./dom"
+import {parse} from "../render/dom/field"
 
 export default{
     create_table_at_end_of_up_to_document(){
@@ -171,4 +172,16 @@ export default{
         $p.append(`#${a.id}`)
     },
     
+    create_field_at_text({instr}){
+        this.split_text_at_text()
+        const target=this.target
+        const p=target.closest('w\\:p')
+        const field=parse(instr)
+        target.before(`<w:fldChar w:fldCharType="begin"/>`)
+        target.before(`<w:instrText xml:space="preserve">${instr}</w:instrText>`)
+        target.before(`<w:fldChar w:fldCharType="separate"/>`)
+        target.before(`<w:t xml:space="preserve">${field.execute()}</w:t>`)
+        target.before(`<w:fldChar w:fldCharType="end"/>`)
+        this.file.renderChanged(p)
+    }
 }

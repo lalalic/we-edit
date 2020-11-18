@@ -1,5 +1,7 @@
 import FontKit from "fontkit"
+import EventEmitter from "events"
 
+const onChange=new EventEmitter()
 const fonts=new (class{
     constructor(){
         this.families={}
@@ -66,6 +68,7 @@ const fonts=new (class{
         const name=font.familyName.toLowerCase()
         console.log(`font[${font.familyName}] loaded`)
         family.push(font)
+        onChange.emit('fontLoaded',font)
         return font
     }
 
@@ -297,3 +300,12 @@ function makeWebFont(){
             }
         })
 }
+
+;(function(doc){//
+    const dlFont=doc.createElement("datalist")
+    dlFont.setAttribute('id',"loadedFonts")
+    doc.body.appendChild(dlFont)
+    onChange.on('fontLoaded',()=>{
+        dlFont.innerHTML=fonts.names().map(a=>`<option>${a}</option>`).join("")
+    })
+})(document);

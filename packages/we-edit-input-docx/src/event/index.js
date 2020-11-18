@@ -20,6 +20,35 @@ export default (class Actions extends Input.Editable.EventHandler.xml{
         this.PARAGRAPH="w:p"
         this.TEXT="w:t"
         this.InlineContainers="w\\:r, w\\:sdt"
+        //const file=this._file
+        this._file=new Proxy(this._file,{
+            get:(file,k, receiver)=>{
+                if(k==="renderChanged"){
+                    return (node)=>{
+                        node=file._unwrap(node)
+                        const id=file.makeId(node)
+                        const $target=this.$(`#${id}`)
+                        const field=$target.attr('field')
+                        if(field){
+                            const begin=file.getNode(field)
+                            const end=file.getNode(`end${field}`)
+                            const parents=end.parents()
+                            const parent=begin.closest(parents)
+                            const i=parents.index(parent), p=parents.index(parents.filter("w\\:p"))
+                            if(i<=p){
+                                file.renderChanged(parent)
+                            }else if(i>p){
+                                throw new Error("not supported yet")
+                            }   
+
+                        }else{
+                            return file.renderChanged(node)
+                        }
+                    }
+                }
+                return Reflect.get(file,k,receiver)
+            }
+        })
     }
 
     emit(action, conds, ...others){
@@ -27,9 +56,18 @@ export default (class Actions extends Input.Editable.EventHandler.xml{
             const name=this.target.prop('name')
             if(!name.endsWith(":t")){
                 const type=name.split(":").pop()
-                conds=conds.map(a=>a.replace('text',type))
+                conds=[...conds.filter(a=>a.indexOf('text')!=-1).map(a=>a.replace('text',type)),...conds]
             }
         }
+
+        if(this.$target.attr('field')){
+            conds=[...conds.map(a=>`${a}_in_field`),...conds]
+        }
+
+        if(this.$target.attr('bookmark')){
+            conds=[...conds.map(a=>`${a}_in_bookmark`),...conds]
+        }
+        
         super.emit(action, conds, ...others)
     }
 
@@ -41,6 +79,14 @@ export default (class Actions extends Input.Editable.EventHandler.xml{
             this.forward()
             this.backward()
         }
+    }
+
+    get fieldParent(){
+        const id=this.$target.attr('field')
+        const begin=this.file.getNode(id)
+        const end=this.file.getNode(`end${id}`)
+        const parent=begin.closest(end.parents())
+        return parent
     }
 
     paragraphHasIndentSetting(){
@@ -62,7 +108,7 @@ export default (class Actions extends Input.Editable.EventHandler.xml{
         super.clean(()=>{
             this.$target.closest('paragraph')
                 .find("run")
-                .filter(a=>this.$(a).findFirst(this.cursorable).length==0)
+                .filter(a=>this.$(a).children().length==0)
                 .each((i,a)=>{
                     this.$(a).remove()
                     this.file.getNode(a.get('id')).remove()

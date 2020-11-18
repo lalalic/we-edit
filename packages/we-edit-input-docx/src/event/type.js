@@ -51,5 +51,10 @@ export default {
 
     type_at_end_of_br(data){
         
-    }
+    },
+
+    type_at_instrText(data){
+        this.type_at_text(...arguments)
+        this.$('#'+this.$target.attr('field')).attr('showCode',true)
+    },
 }

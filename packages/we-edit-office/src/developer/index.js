@@ -32,7 +32,7 @@ export class Ribbon extends Component{
                     hint="document tree"
                     onClick={()=>{
                         panelManager.toggle(
-                            <FilterDocumentTree title="Document Tree" toNodeProps={({id,type})=>({name:`${type}(${parseInt(id)})`})}/>
+                            <FilterDocumentTree title="Document Tree" toNodeProps={({id,type})=>({name:`${type}(${id.split("{")[0]})`})}/>
                         )}
                     } >
                     <IconDoc/>

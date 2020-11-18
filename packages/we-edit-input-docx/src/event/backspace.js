@@ -53,5 +53,10 @@ export default {
     },
     backspace_at_beginning_of_up_to_run(){
         this.backspace_at_beginning(...arguments)
-    },       
+    },
+
+    backspace_at_instrText(){
+        this.backspace_at_text()
+        this.$('#'+this.$target.attr('field')).attr('showCode',true)
+    }
 }
