@@ -1,3 +1,5 @@
+jest.mock("../packages/we-edit-input-docx/src/office",()=>jest.fn())
+
 import React from "react"
 import {Loader, Emitter, Stream, render, Editor, Viewer} from "we-edit"
 
