@@ -55,8 +55,7 @@ export default {
         this.backspace_at_beginning(...arguments)
     },
 
-    backspace_at_instrText(){
-        this.backspace_at_text()
-        this.$('#'+this.$target.attr('field')).attr('showCode',true)
+    backspace_at_whole_in_field(){
+        this.remove_at_whole_in_field(...arguments)
     }
 }

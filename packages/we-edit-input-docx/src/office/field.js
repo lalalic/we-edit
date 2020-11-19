@@ -9,23 +9,30 @@ import {ToolbarGroup, FlatButton,MenuItem,Divider,Tabs,Tab} from "material-ui"
 import FieldIcon from "material-ui/svg-icons/places/all-inclusive"
 
 import Fields from "../render/dom/field/categories"
+import {parse} from "../render/dom/field"
 
 export default compose(
 	setDisplayName("FieldStyle"),
 	whenSelectionChange(({selection})=>{
-        return {
-            style:selection?.props("text",false),     
+        const style=selection?.props("text",false)
+        if(style?.field){
+            style.instr=selection.getContent(style.field).attr('instr')
         }
+        return {style}
     }),
     withProps(({dispatch,style})=>({
         toggleFieldCode(){
             dispatch(ACTION.Entity.UPDATE({field:{toggle:style.field}, id:style.field}))
         },
         build(instr){
-            dispatch(ACTION.Entity.CREATE({type:"field",instr}))
+            if(style?.field && style.instr!==instr){
+                dispatch(ACTION.Entity.UPDATE({field:{instr}, id:style.field}))
+            }else{
+                dispatch(ACTION.Entity.CREATE({type:"field",instr}))
+            }
         },
         update(){
-            dispatch(ACTION.Entity.UPDATE({field:{update:style.field},id:style.field}))
+            dispatch(ACTION.Entity.UPDATE({field:{execute:style.field},id:style.field}))
         }
     })),
     withState('open','setOpen', false),
@@ -36,6 +43,7 @@ export default compose(
                 <Fragment>
                     <MenuItem primaryText="Update Field" onClick={update}/>
                     <MenuItem primaryText="Toggle Field Code" onClick={toggleFieldCode}/>
+                    <MenuItem primaryText="Edit Field..." onClick={e=>e.dialog=<BuildField value={style.instr} apply={build}/>}/>
                     <Divider/>
                 </Fragment>
             )
@@ -44,23 +52,33 @@ export default compose(
         <ToolbarGroup>
             <Ribbon.CheckIconButton label="Field"
                 status={style?.field ? "checked" : "unchecked"}
-                onClick={e=>style?.field ? toggleFieldCode() : setOpen(!open)}
+                onClick={e=>setOpen(true)}
                 >
                 <FieldIcon/>
             </Ribbon.CheckIconButton>
-            {open && <BuildField close={()=>setOpen(false)} create={build}/>}
+            {open && <BuildField close={()=>setOpen(false)} apply={build} value={style?.instr}/>}
         </ToolbarGroup>
     </ContextMenu.Support>
 ))
 
 const DialogTitleStyle={textAlign:"center",padding:5,background:"darkgray",lineHeight:"unset",fontSize:12}
 class BuildField extends Component{
-    constructor(){
+    constructor({value}){
         super(...arguments)
         this.state={}
+        if(value){
+            const {command}=parse(value)
+            this.state.command=command
+            if(value.indexOf("\* MERGEFORMAT")!=-1){
+                this.state.value=value.replace("\\* MERGEFORMAT","")  
+            }else{
+                this.state.preserve=false
+            }  
+        } 
     }
+    
     render(){
-        const {close, create}=this.props
+        const {close, apply}=this.props
         const {cate="(All)",command=Fields.filter(cate)[0],value=command,setOption,preserve=true}=this.state
         const field=Fields.describe(command)
         return (
@@ -79,7 +97,10 @@ class BuildField extends Component{
                     <FlatButton
                         label="Submit"
                         primary={true}
-                        onClick={e=>create(`${value} ${preserve ? "\\* MERGEFORMAT" : ""}`)}
+                        onClick={e=>{
+                            apply(`${value} ${preserve ? "\\* MERGEFORMAT" : ""}`)
+                            close()
+                        }}
                     />,
                 ]}
                 >
@@ -110,7 +131,9 @@ class BuildField extends Component{
                 <div>Description:</div>
                 <div style={{minHeight:50,padding:10}}>{field.desc}</div>
                 <div>
-                    <input type="checkbox" checked={preserve} onClick={e=>this.setState({preserve:!preserve})}/>
+                    <input type="checkbox" checked={preserve} onChange={e=>{
+                        this.setState({preserve:e.target.checked})
+                    }}/>
                     <span>Preserve formatting during updates</span>
                 </div>
                 {setOption && <Options command={command} value={value} field={field} close={(e,options)=>this.setState({setOption:false,...options})}/>}
@@ -120,12 +143,9 @@ class BuildField extends Component{
 }
 
 class Options extends Component{
-    static getDerivedStateFromProps({value},state){
-        return {value,...state}
-    }
-    constructor(){
+    constructor({value}){
         super(...arguments)
-        this.state={}
+        this.state={value}
     }
     render(){
         const {close,command,field:{switches:{"@":date, "#":numeric, "*":text, ...specific}={},...field}}=this.props

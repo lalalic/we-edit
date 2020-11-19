@@ -42,5 +42,6 @@ export default (
         >
             <Editor representation="pagination"/>
         </Workspace.Desk>
+        <style children={`text[data-field]:hover{filter:url(#background)}`}/>
     </Workspace>
 )

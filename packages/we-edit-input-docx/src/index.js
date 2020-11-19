@@ -228,9 +228,9 @@ class DocxType extends Input.Editable{
 			}
 			case "end":{
 				const {id,instr,display,...begin}=fields.pop()
-				createElement(components.FieldBegin,{instr,display,field:id},[],begin.node)
-				this.makeId(node,undefined,`end${id}`)
-				return createElement(components.FieldEnd,{field:id},children,node)
+				createElement(components.FieldBegin,{instr,display},[],begin.node)
+				this.makeId(node,undefined,`endField${id}`)
+				return createElement(components.FieldEnd,{},children,node)
 			}
 			case "instrText":{
 				fields[fields.length-1].instr+=children[0]||""

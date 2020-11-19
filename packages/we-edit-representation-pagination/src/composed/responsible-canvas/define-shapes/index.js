@@ -5,6 +5,10 @@ export default ()=>(
         <defs>
             <TableAdder/>
             <Rotator/>
+            <filter x="0" y="0" width="1" height="1" id="background">
+                <feFlood floodColor="darkgray"/>
+                <feComposite in="SourceGraphic" operator="xor" />
+            </filter>
         </defs>
     </Fragment>
 )

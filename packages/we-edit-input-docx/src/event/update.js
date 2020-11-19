@@ -73,11 +73,11 @@ export default {
             this.cursorAt(first.attr('id'),0)
             this.cursorAt=()=>void(0)//@@Hack: cursor can't be changed after this
         }else{
-            const editor=new Field(this.file, this)
+            const editor=new Field(this.file)
             editor.node=this.target
             editor.content=$target
-            editor.updater=this
             editor.update(props)
+            this.file.renderChanged(this.target.closest('w\\:p'))
         }
     }
 }

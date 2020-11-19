@@ -296,9 +296,11 @@ export default class EventResponsible extends Responsible{
                         if(start && end){
                             this.dispatch(ACTION.Selection.SELECT(start.id,start.at, end.id, end.at))
                         }else{
+                            this.__focusCursor()
                             this.dispatch(ACTION.Cursor.AT(id,at))
                         }
                     }else{
+                        this.__focusCursor()
         				this.dispatch(ACTION.Cursor.AT(id,at))
                     }
     			}else{

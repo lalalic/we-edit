@@ -1,7 +1,14 @@
 import Base from "./base"
-import {parse, execute} from "../../render/dom/field"
+import {parse} from "../../render/dom/field"
 
 export default class Field extends Base{
+    _normalize(){
+        const id=this.content.attr('id')
+        const instrText=this.file.getNode(this.content.forwardFirst(`[field='${id}'][isInstr]`).attr('id'))
+        const displayText=this.file.getNode(this.content.forwardFirst(`#endField${id}`).backwardFirst('text').attr('id'))
+        return {instrText, displayText}
+    }
+
     template(instr){
         return  `
             <w:r>
@@ -22,33 +29,19 @@ export default class Field extends Base{
             `
     }
 
-    update({update:id}){
-        const instruct=parse(this.content.attr('instr'))
-        const value=instruct.execute()
+    execute(){
+        const value=parse(this.content.attr('instr')).execute()
         const display=this.content.attr('display')
         if(value!==display){
-            const p=this.content.closest('paragraph')
-            const texts=p.find(a=>
-                a.getIn(['props','field'])==id && 
-                a.get('type')=='text' && 
-                !a.getIn(['props','isInstr'])
-            )
-
-            if(texts.length){
-                this.file.getNode(texts.first().attr('id')).text(value)
-                texts.slice(1).each((i,a,$)=>{
-                    const target=$(a).parentsUntil(a=>a.get('type')=='paragraph'||a.get('children').size>1)
-                                    .add(a,'unshift')//in case parent has multiple children
-                                    .last()
-                    this.file.getNode(target.attr('id')).remove()
-                    target.remove()
-                })
-            }else{
-                const end=p.findFirst(`fieldEnd[field="${id}"]`)
-                end.before(`<w:t>${value}</w:t>`)
-            }
-            this.file.renderChanged(this.file.getNode(p.attr('id')))
+            const {displayText}=this._normalize()
+            displayText.text(value)
         }
+    }
+
+    instr(instr){
+        const {instrText, displayText}=this._normalize()
+        instrText.text(instr)
+        displayText.text(parse(instr).execute())
     }
 
     charformat(){

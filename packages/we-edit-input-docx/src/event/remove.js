@@ -40,4 +40,23 @@ export default {
             this.cursorAt(id,0)
         }
     },
+
+    remove_at_whole_in_field(){
+        const $field=this.$field
+        const backward=$field.backwardFirst(this.cursorable)
+        const forward=this.$fieldEnd.forwardFirst(this.cursorable)
+        const id=$field.attr('id')
+        const p=this.field.closest('w\\:p')
+
+        const runs=this.$(`#${id},#endField${id},[field=${id}]`).closest('run').toArray()
+        runs.forEach((a)=>{
+            this.file.getNode(a).remove()
+        })
+        this.file.renderChanged(p)
+        if(forward.length){
+            this.cursorAt(forward.attr('id'),0)
+        }else{
+            this.cursorAtEnd(backward.attr('id'))
+        }
+    }
 }

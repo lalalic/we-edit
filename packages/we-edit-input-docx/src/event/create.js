@@ -173,15 +173,17 @@ export default{
     },
     
     create_field_at_text({instr}){
-        this.split_text_at_text()
-        const target=this.target
-        const p=target.closest('w\\:p')
+        this.seperate_at_text_for_end()
+        this.seperate_up_to_run_at_end_of_text()
+
+        const r=this.target.closest('w\\:r')
+        const p=r.closest('w\\:p')
         const field=parse(instr)
-        target.before(`<w:fldChar w:fldCharType="begin"/>`)
-        target.before(`<w:instrText xml:space="preserve">${instr}</w:instrText>`)
-        target.before(`<w:fldChar w:fldCharType="separate"/>`)
-        target.before(`<w:t xml:space="preserve">${field.execute()}</w:t>`)
-        target.before(`<w:fldChar w:fldCharType="end"/>`)
+        r.after(`<w:r><w:fldChar w:fldCharType="end"/></w:r>`)
+        r.after(`<w:r><w:t xml:space="preserve">${field.execute()}</w:t></w:r>`)
+        r.after(`<w:r><w:fldChar w:fldCharType="separate"/></w:r>`)
+        r.after(`<w:r><w:instrText xml:space="preserve">${instr}</w:instrText></w:r>`)
+        r.after(`<w:r><w:fldChar w:fldCharType="begin"/></w:r>`)
         this.file.renderChanged(p)
     }
 }

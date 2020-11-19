@@ -58,7 +58,7 @@ export const FieldEnd=({Text})=>class FieldBegin extends Component{
     }
 
     render(){
-        const {field:id}=this.props
+        const id=this.props.id.replace(/^endField/,"")
         const field=this.context.getField(id)
         if(!field.showCode)
             return null
