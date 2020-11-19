@@ -560,6 +560,9 @@ function asSelector(selector,$){
 			return cssSelect(selector,$,{
 				"#":id=>n=>n.get("id")==id,
 				"[":(name,v)=>n=>{
+					if(name[0]=="!"){
+						return !n.hasIn(["props",name.substring(1)])
+					}
 					if(n.hasIn(["props",name])){
 						if(typeof(v)=='undefined'){
 							return true

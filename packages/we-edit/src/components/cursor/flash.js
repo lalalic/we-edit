@@ -5,7 +5,7 @@ export default class Flash extends Component{
 	componentDidMount(){
 		this.timer=setInterval(()=>{
 			if(document.activeElement!==this.props.input.current)
-				this.setState({visibility:"hidden"})
+				this.setState({visibility:"unset"})
 			else
 				this.setState({visibility:this.state.visibility ? undefined : "hidden"})
 		},500)
