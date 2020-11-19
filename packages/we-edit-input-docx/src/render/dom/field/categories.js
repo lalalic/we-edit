@@ -14,7 +14,7 @@ function describe(f){
 
 export default new Proxy({
     "Date and Time":{ 
-        DATE(){
+        DATE(formats){
             /**desc:Today's date*/
             /**formula:[\@ "Date-Time Picture"] [switches]*/
             /**switches:@:Date-Time display options(date-time picture switch)*/
@@ -22,6 +22,37 @@ export default new Proxy({
             /**switches:l:inserts the date with last format chosen using the Date and Time command*/
             /**switches:s:Uses the Saka Era calendar*/
             /**switches:u:Uses the Um-al-Qura calendar*/
+            const {picture, calendar, others}=formats.reduce((f,a)=>{
+                switch(a[0]){
+                    case '@':
+                        f.picture=a.substring(1).trim().replace(/\"/g,"")
+                        break
+                    case 'h':
+                        f.calendar="chinese"
+                        break
+                    case 's':
+                        f.calendar="buddhist"
+                        break
+                    case 'u':
+                        f.calendar="hebrew"
+                        break
+                    case 'l':
+                        break
+                    default:
+                        f.others.push(a)
+                }
+                return f
+            },{picture:"M/d/yy",calendar:"iso8601",others:[]})
+            const date=new Date().format(picture, calendar)
+            return others.reduce((d,format)=>{
+                switch(format[0]){
+                    case '#':
+                        return Format[format[0]](d, format.substring(1))
+                    case '*':
+                    default:
+                }
+                return d
+            },date)
         }, 
         CREATEDATE(){
             /**desc:Today's date*/
@@ -42,6 +73,7 @@ export default new Proxy({
         TIME(){
         /**desc:Today's date*/
         /**formula:[\@ "Date-Time Picture"]*/
+            return this.DATE(...arguments)
         },
     },
     "Document Automation":{ 
@@ -140,21 +172,25 @@ export default new Proxy({
 },{
     get(cates, k, proxy){
         switch(k){
-            case "Categories":
+            case "Categories"://all category names
                 return ["(All)",...Object.keys(cates).sort()]
-            case "getCategory":
+            case "getCategory"://get f's category name
                 return f=>Object.keys(cates).find(c=>cates[c][f])||"(All)"
-            case "(All)":
+            case "(All)"://all function name
                 return Array.from(new Set(Object.keys(cates).reduce((all,cat)=>[...all,...Object.keys(cates[cat])],[]))).sort()
-            case "filter":
+            case "filter"://all function name of category c
                 return c=>c in cates ? Object.keys(cates[c]).sort() : proxy[c]
-            case "Format":
+            case "Format"://all formats
                 return Format
-            case "describe":
+            case "describe"://describe f
                 return f=>describe(cates[Object.keys(cates).find(c=>cates[c][f])][f])
-            default:{
+            case "invoke"://execute a parsed command
+                return ({command,parameters,formats, switches})=>{
+                    const cat=proxy.getCategory(command)
+                    return cates[cat][command](formats,parameters)
+                }
+            default:
                 return Reflect.get(...arguments)
-            }
         }
     }
 })
