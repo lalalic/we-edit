@@ -130,7 +130,7 @@ class Text extends Super{
     }
 
 	createComposed2Parent(props){
-        return <ComposedText {...props}/>
+        return super.createComposed2Parent(<ComposedText {...props}/>)
 	}
 }
 

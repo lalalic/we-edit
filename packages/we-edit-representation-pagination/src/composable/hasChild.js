@@ -94,7 +94,8 @@ export default A=>{
         }
 
         createComposed2Parent(content) {
-            return content
+            const {transformComposed=a=>a}=this.props
+            return transformComposed(content)
         }
 
         get debug(){
