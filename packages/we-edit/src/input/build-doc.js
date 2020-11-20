@@ -160,7 +160,7 @@ const createElementFactoryBuilder=inputTypeInstance=>content=>(type, props, chil
 
 	if(Array.isArray(children)){
 		//set parent make map as a double direction tree structure
-		children.forEach(k=>content.mergeIn([k.id],{parent:id}))
+		children.forEach(k=>content.setIn([k.id,'parent'],id))
 	}
 
 	return {id,type,props,children}
