@@ -39,7 +39,7 @@ export const Tools=compose(
 )(({children, insert})=>{
 	return (
 		<ToolbarGroup>
-			<SizeIconButton 
+			<SizeIconButton label="picture"
 				onClick={e=>selectFile("image/*").then(insert)}>
 				<IconPicture/>
 			</SizeIconButton>

@@ -2,7 +2,7 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 
 import memoize from "memoize-one"
-import Fields from "./categories"
+import Field from "./fields"
 
 export const SimpleField=({Container})=>class SimpleField extends Component{
     static displayName="simpleField"
@@ -32,20 +32,26 @@ export const FieldBegin=({Text})=>class FieldBegin extends Component{
         getField: PropTypes.func,
     }
 
-    getValue=memoize(instr=>parse(instr).execute())
+    getValue=memoize(instr=>Field.create(instr).execute())
 
     render(){
         const {showCode,display,instr}=this.props
+        const text=<Text {...{
+                        ...this.context.style,
+                        ...this.props,
+                        transformComposed:a=>React.cloneElement(a,{"data-field":this.props.id}),
+                        children:""
+                    }}/>
         if(!showCode){
             const current=this.getValue(instr)
             if(current===display){
-                return null
+                return text
             }else{
-                return <Text {...{...this.context.style,...this.props, color:"red", children:"!", transformComposed:a=>React.cloneElement(a,{"data-field":this.props.id})}}/>
+                return React.cloneElement(text,{color:"red", children:"!"})
             }
         }
         
-        return <Text {...{...this.context.style,...this.props, children:"{",transformComposed:a=>React.cloneElement(a,{"data-field":this.props.id})}}/>
+        return React.cloneElement(text,{color:"red", children:"{"})
 	}
 }
 
@@ -67,18 +73,4 @@ export const FieldEnd=({Text})=>class FieldBegin extends Component{
 	}
 }
 
-//FieldName [...parameters] [\[@#*]] [\MERGEFORMAT|CHARFORMAT]
-export function parse(instr){
-    const [field, ...formats]=instr.trim().split("\\")
-    const switches=formats.filter(a=>!formats[a.trim()[0]])
-    const [command,...parameters]=field.split(/\s+/g)
-    return {
-        command,
-        parameters:parameters.map(a=>a.trim()),
-        formats:formats.map(a=>a.trim()), 
-        switches:switches.map(a=>a.trim()), 
-        execute(){
-            return Fields.invoke(this)
-        }
-    }
-}
+export {Field}

@@ -257,6 +257,10 @@ class DocxType extends Input.Editable{
 				prStyle.r=textStyle
 				return createElement(components.Shape,{...style, textStyle:prStyle},children,node)
 			}
+			case "Properties":
+			case "coreProperties":
+			case "property":
+
 			case "bookmarkStart":
 			case "bookmarkEnd":
 				return null

@@ -1,53 +1,73 @@
 export default new Proxy({
-    '@':(date,picture)=>{
-        return date.format(picture)
+    date:(date,formats)=>{//@
+        const {picture, calendar, others}=formats.reduce((f,a)=>{
+            switch(a[0]){
+                case '@':
+                    f.picture=a.substring(1).trim().replace(/\"/g,"")
+                    break
+                case 'h':
+                    f.calendar="islamic"
+                    break
+                case 's':
+                    f.calendar="indian"
+                    break
+                case 'u':
+                    f.calendar="ethiopic"
+                    break
+                case 'l':
+                    break
+                default:
+                    f.others.push(a)
+            }
+            return f
+        },{picture:"M/d/yy",calendar:"iso8601",others:[]})
+        formats.splice(0,formats.length, ...others)
+        return date.format(picture, calendar)
     },
-    '#':()=>{
+    number:()=>{//#
 
     },
-    '*':{
-        //subsequent update
-        MERGEFORMAT(){
+    //subsequent update
+    MERGEFORMAT(){
 
-        },
-        CHARFORMAT(){
+    },
+    CHARFORMAT(){
 
-        },
-        //number
-        Arabic(){
+    },
+    //number
+    Arabic(){
 
-        },
-        CardText(){
+    },
+    CardText(){
 
-        },
-        DollarText(){
+    },
+    DollarText(){
 
-        },
-        Ordinal(){
-            
-        },
-        OrdText(){
-            
-        },
-        Roman(){
-            
-        },
-        roman(){
-            
-        },
-        //text
-        Caps(){
-            
-        },
-        FirstCap(){
-            
-        },
-        Lower(){
-            
-        },
-        Upper(){
-            
-        }
+    },
+    Ordinal(){
+        
+    },
+    OrdText(){
+        
+    },
+    Roman(){
+        
+    },
+    roman(){
+        
+    },
+    //text
+    Caps(){
+        
+    },
+    FirstCap(){
+        
+    },
+    Lower(){
+        
+    },
+    Upper(){
+        
     }
 },{
     get(format,k, receiver){
@@ -64,21 +84,22 @@ export default new Proxy({
     }
 })
 
-const DateFormat=`M/d/yyyy
-dddd, MMMM dd, yyyy
-MMMM d, yyyy
-M/d/yy
-yyyy-MM-dd
-d-MMM-yy
-M.d.yyyy
-MMM. d, yy
-d MMMM yyyy
-MMMM yy
-M/d/yyyy h:mm am/pm
-M/d/yyyy h:mm:ss am/pm
-h:mm am/pm
-HH:mm
-'Today is 'HH:mm:ss`.split(/[\r\n]/).filter(a=>!!a)
+const DateFormat=
+        `M/d/yyyy
+        dddd, MMMM dd, yyyy
+        MMMM d, yyyy
+        M/d/yy
+        yyyy-MM-dd
+        d-MMM-yy
+        M.d.yyyy
+        MMM. d, yy
+        d MMMM yyyy
+        MMMM yy
+        M/d/yyyy h:mm am/pm
+        M/d/yyyy h:mm:ss am/pm
+        h:mm am/pm
+        HH:mm
+        'Today is 'HH:mm:ss`.split(/[\r\n]/).filter(a=>!!a)
 
 
 if(!Date.prototype.format){
@@ -89,7 +110,8 @@ if(!Date.prototype.format){
                         return t
                     }
                     if(apm){
-                        return this.getHours()>11 ? 'PM' : 'AM'
+                        const hour=new Intl.DateTimeFormat(undefined,{calendar,hour:"numeric",hour12:false}).format(this)
+                        return parseInt(hour)>11 ? 'PM' : 'AM'
                     }
                     if(p && p in this){
                         return this[p](calendar)
@@ -98,61 +120,61 @@ if(!Date.prototype.format){
                 })
             },
             yyyy(calendar){
-                return new Intl.DateTimeFormat(undefined,{calendar, year:"numeric"}).format(this)
+                return parseInt(new Intl.DateTimeFormat(undefined,{calendar, year:"numeric"}).format(this))
             },
             yy(calendar){
-                return new Intl.DateTimeFormat(undefined,{calendar, year:"2-digit"}).format(this)
+                return String(parseInt(new Intl.DateTimeFormat(undefined,{calendar, year:"2-digit"}).format(this))).padStart(2,'0')
             },
-            M(){
-                return this.getMonth()+1
+            M(calendar){
+                return new Intl.DateTimeFormat(undefined,{calendar,month:"numeric"}).format(this)
             },
-            MM(){
-                return String(this.M()).padStart(2,'0')
+            MM(calendar){
+                return new Intl.DateTimeFormat(undefined,{calendar,month:"2-digit"}).format(this)
             },
-            MMM(){
-                return new Intl.DateTimeFormat(undefined,{month:"short"}).format(this)
+            MMM(calendar){
+                return new Intl.DateTimeFormat(undefined,{calendar,month:"short"}).format(this)
             },
-            MMMM(){
-                return new Intl.DateTimeFormat(undefined,{month:"long"}).format(this)
+            MMMM(calendar){
+                return new Intl.DateTimeFormat(undefined,{calendar,month:"long"}).format(this)
             },
-            W(){
-                return new Intl.DateTimeFormat(undefined,{weekday:"short"}).format(this)
+            W(calendar){
+                return new Intl.DateTimeFormat(undefined,{calendar,weekday:"short"}).format(this)
             },
-            d(){
-                return this.getDate()
+            d(calendar){
+                return new Intl.DateTimeFormat(undefined,{calendar,day:"numeric"}).format(this)
             },
-            dd(){
-                return String(this.getDate()).padStart(2,'0')
+            dd(calendar){
+                return new Intl.DateTimeFormat(undefined,{calendar,day:"2-digit"}).format(this)
             },
-            ddd(){
-                return new Intl.DateTimeFormat(undefined,{weekday:"short"}).format(this)
+            ddd(calendar){
+                return new Intl.DateTimeFormat(undefined,{calendar,weekday:"short"}).format(this)
             },
-            dddd(){
-                return new Intl.DateTimeFormat(undefined,{weekday:"long"}).format(this)
+            dddd(calendar){
+                return new Intl.DateTimeFormat(undefined,{calendar,weekday:"long"}).format(this)
             },
-            H(){
-                return this.getHours()
+            H(calendar){
+                return parseInt(new Intl.DateTimeFormat(undefined,{calendar,hour:"numeric",}).format(this))
             },
-            HH(){
-                return String(this.getHours()).padStart(2,'0')
+            HH(calendar){
+                return String(parseInt(new Intl.DateTimeFormat(undefined,{calendar,hour:"2-digit"}).format(this))).padStart(2,'0')
             },
-            h(){
-                return this.H()%12
+            h(calendar){
+                return parseInt(new Intl.DateTimeFormat(undefined,{calendar,hour:"numeric",hour12:true}).format(this))
             },
-            hh(){
-                return String(this.h()).padStart(2,'0')
+            hh(calendar){
+                return String(parseInt(new Intl.DateTimeFormat(undefined,{calendar,hour:"2-digit",hour12:true}).format(this))).padStart(2,'0')
             },
-            m(){
-                return this.getMinutes()
+            m(calendar){
+                return new Intl.DateTimeFormat(undefined,{calendar,minute:"numeric",}).format(this)
             },
-            mm(){
-                return String(this.getMinutes()).padStart(2,'0')
+            mm(calendar){
+                return new Intl.DateTimeFormat(undefined,{calendar,minute:"2-digit"}).format(this).padStart(2,'0')
             },
-            s(){
-                return this.getSeconds()
+            s(calendar){
+                return new Intl.DateTimeFormat(undefined,{calendar,second:"numeric",}).format(this)
             },
-            ss(){
-                return String(this.getSeconds()).padStart(2,'0')
+            ss(calendar){
+                return new Intl.DateTimeFormat(undefined,{calendar,second:"2-digit"}).format(this).padStart(2,'0')
             },
     })
 }

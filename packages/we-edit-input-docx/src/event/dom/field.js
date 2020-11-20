@@ -1,7 +1,7 @@
 import Base from "./base"
-import {parse} from "../../render/dom/field"
+import {Field} from "../../render/dom/field"
 
-export default class Field extends Base{
+export default class extends Base{
     _normalize(){
         const id=this.content.attr('id')
         const instrText=this.file.getNode(this.content.forwardFirst(`[field='${id}'][isInstr]`).attr('id'))
@@ -30,7 +30,7 @@ export default class Field extends Base{
     }
 
     execute(){
-        const value=parse(this.content.attr('instr')).execute()
+        const value=Field.create(this.content.attr('instr')).execute()
         const display=this.content.attr('display')
         if(value!==display){
             const {displayText}=this._normalize()
@@ -41,7 +41,7 @@ export default class Field extends Base{
     instr(instr){
         const {instrText, displayText}=this._normalize()
         instrText.text(instr)
-        displayText.text(parse(instr).execute())
+        displayText.text(Field.create(instr).execute())
     }
 
     charformat(){

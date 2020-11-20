@@ -2,9 +2,11 @@ import React,{Fragment} from "react"
 import {Editor} from "we-edit"
 
 import {Workspace, Ribbon, ContextMenu} from "we-edit-office"
-import {Divider, MenuItem} from "material-ui"
+import {Divider} from "material-ui"
 
 import Field from "./field"
+import Links from "./link"
+import PageNumber from "./page-number"
 
 const KEY="docx"
 const {Tab}=Ribbon
@@ -17,7 +19,25 @@ export default (
         toolBar={
             <Ribbon.Ribbon commands={{
                 insert:{
-                    more:(<Fragment><Field/></Fragment>)
+                    more:(
+                    <Fragment>
+                        <Field/>
+                      {/*  
+                        <Links/>
+                        <PageNumber/>
+                        <Comment/>
+                        <TextBox/>
+                        <TextFile/>
+                        <OLEObject/>
+                        <Chart/>
+                        <Icons/>
+                        <Symbols/>
+                        <Equation/>
+                        <Movie/>
+                        <Audio/>
+                      */}
+                    </Fragment>
+                    )
                 }
             }}>
                  {"Draw,Design,References,Review,View,Developer".split(",").map(label=><Tab label={label} key={label}/>)}

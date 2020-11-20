@@ -145,7 +145,7 @@ export default (class Actions extends Input.Editable.EventHandler.xml{
             const field=this.$target.attr('field')
             if(field){
                 const $field=this.$(`#`+field)
-                const first=$field.forwardFirst(`text[field=${field}][${$field.showCode?"":"!"}isInstr]`)
+                const first=$field.forwardFirst(`text[field=${field}][${$field.attr('showCode')?"":"!"}isInstr]`)
                 this.cursorAt(first.attr('id'),0,undefined,undefined,undefined,false)
             }
         }

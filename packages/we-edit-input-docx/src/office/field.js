@@ -8,8 +8,7 @@ import {compose,setDisplayName,withState, withProps, } from "recompose"
 import {ToolbarGroup, FlatButton,MenuItem,Divider,Tabs,Tab} from "material-ui"
 import FieldIcon from "material-ui/svg-icons/places/all-inclusive"
 
-import Fields from "../render/dom/field/categories"
-import {parse} from "../render/dom/field"
+import {Field} from "../render/dom/field"
 
 export default compose(
 	setDisplayName("FieldStyle"),
@@ -67,7 +66,7 @@ class BuildField extends Component{
         super(...arguments)
         this.state={}
         if(value){
-            const {command}=parse(value)
+            const {command}=Field.create(value)
             this.state.command=command
             if(value.indexOf("\* MERGEFORMAT")!=-1){
                 this.state.value=value.replace("\\* MERGEFORMAT","")  
@@ -79,8 +78,8 @@ class BuildField extends Component{
     
     render(){
         const {close, apply}=this.props
-        const {cate="(All)",command=Fields.filter(cate)[0],value=command,setOption,preserve=true}=this.state
-        const field=Fields.describe(command)
+        const {cate="(All)",command=Field.filter(cate)[0],value=command,setOption,preserve=true}=this.state
+        const field=Field.describe(command)
         return (
             <Dialog title="Field" modal={true} open={true} titleStyle={DialogTitleStyle}
                 actions={[
@@ -111,7 +110,7 @@ class BuildField extends Component{
                             multiple size={7} value={[cate]} 
                             onChange={e=>this.setState({cate:e.target.value,command:undefined,value:undefined})}
                             >
-                            {Fields.Categories.map(k=><option key={k}>{k}</option>)}
+                            {Field.Categories.map(k=><option key={k}>{k}</option>)}
                         </select>
                     </div>
                     <div style={{flex:1,padding:5}}>
@@ -119,7 +118,7 @@ class BuildField extends Component{
                         <select style={{width:"100%",outline:"none"}} 
                         multiple size={7} value={[command]} 
                         onChange={e=>this.setState({command:e.target.value,value:undefined})}>
-                            {Fields.filter(cate).map(k=><option key={k}>{k}</option>)}
+                            {Field.filter(cate).map(k=><option key={k}>{k}</option>)}
                         </select>
                     </div>
                 </div>
@@ -175,21 +174,21 @@ class Options extends Component{
                                     onChange={e=>this.setState({date:e.target.value})}
                                     onDoubleClick={e=>{this.setState({date:e.target.value, value:`${value} \\@ "${e.target.value}"`})}}
                                     >
-                                    {Fields.Format.Date.map(k=><option key={k}>{k}</option>)}
+                                    {Field.Format.Date.map(k=><option key={k}>{k}</option>)}
                                 </select>}
                                 {numeric && <select multiple size={5} style={{flex:1,outline:"none"}} 
                                     value={[state.numeric]} 
                                     onChange={e=>this.setState({numeric:e.target.value})}
                                     onDoubleClick={e=>{this.setState({numeric:e.target.value, value:`${value} \\# "${e.target.value}"`})}}
                                     >
-                                    {Fields.Format.Numeric.map(k=><option key={k}>{k}</option>)}
+                                    {Field.Format.Numeric.map(k=><option key={k}>{k}</option>)}
                                 </select>}
                                 {text && <select multiple size={5} style={{flex:1,outline:"none"}} 
                                     value={[state.text]} 
                                     onChange={e=>this.setState({text:e.target.value})}
                                     onDoubleClick={e=>{this.setState({text:e.target.value, value:`${value} \\* "${e.target.value}"`})}}
                                     >
-                                    {Fields.Format.Text.map(k=><option key={k}>{k}</option>)}
+                                    {Field.Format.Text.map(k=><option key={k}>{k}</option>)}
                                 </select>}
                             </div>
                         </Tab>}

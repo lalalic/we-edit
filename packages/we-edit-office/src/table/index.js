@@ -29,6 +29,7 @@ export const Create=whenSelectionChange()(class  extends Component{
 		return (
 			<ToolbarGroup>
 				<SizeIconButton
+					label="table"
 					disabled={!selection}
 					onClick={e=>this.setState({show:!this.state.show,anchor:e.target})}>
 					<IconTable/>
