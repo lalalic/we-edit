@@ -212,7 +212,7 @@ class Options extends Component{
                     <div style={{minHeight:50,padding:10}}>
                         {
                             option=="specific" ? specific[state.specific||specifics[0]] : 
-                            (option=="general" ? date||numberic||text : option)
+                            (option=="general" ? date||numeric||text : option)
                         }
                     </div>
             </Dialog>

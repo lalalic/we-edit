@@ -1,5 +1,5 @@
 import Base from "./base"
-import {Field} from "../../render/dom/field"
+import {Field,Context} from "../../render/dom/field"
 
 export default class extends Base{
     _normalize(){
@@ -29,8 +29,8 @@ export default class extends Base{
             `
     }
 
-    execute(){
-        const value=Field.create(this.content.attr('instr')).execute()
+    execute(id){
+        const value=Field.create(this.content.attr('instr')).execute(new Context(this.file, id))
         const display=this.content.attr('display')
         if(value!==display){
             const {displayText}=this._normalize()
@@ -41,7 +41,7 @@ export default class extends Base{
     instr(instr){
         const {instrText, displayText}=this._normalize()
         instrText.text(instr)
-        displayText.text(Field.create(instr).execute())
+        displayText.text(Field.create(instr).execute(new Context(this.file)))
     }
 
     charformat(){

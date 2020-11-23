@@ -74,7 +74,7 @@ export default class Field{
         }
 
         if(hasNumPicture){
-            value=Format.number(value, formats, context)
+            value=Format.numeric(value, formats, context)
         }
 
         formats.forEach(k=>{
@@ -97,4 +97,80 @@ export default class Field{
         /**switches:u:Uses the Um-al-Qura calendar*/
         return new Date()
     }
+
+    CREATEDATE(context){
+        /**category: Date and Time */
+        /**desc: the date the document was created*/
+        /**formula:[\@ "Date-Time Picture"] [switches]*/
+        /**switches:@:Date-Time display options(date-time picture switch)*/
+        /**switches:h:Uses the Hijri/Lunar calendar*/
+        /**switches:l:inserts the date with last format chosen using the Date and Time command*/
+        /**switches:s:Uses the Saka Era calendar*/
+        /**switches:u:Uses the Um-al-Qura calendar*/
+        const date=context.coreDocProp("dcterms:created")
+        return new Date(date)
+    }
+
+    EDITTIME(context){
+        /**category: Date and Time */
+        /**desc: the total document editing time*/
+        /**formula:[\# "Number Picture"]*/
+        /**switches:#:Numeric display options(number picture switch)*/
+        return parseInt(context.appDocProp("TotalTime")||0)
+    }
+
+    PRINTDATE(context){
+        /**category: Date and Time */
+        /**desc: the date the document was last printed*/
+        /**formula:[\@ "Date-Time Picture"] [switches]*/
+        /**switches:@:Date-Time display options(date-time picture switch)*/
+        /**switches:h:Uses the Hijri/Lunar calendar*/
+        /**switches:l:inserts the date with last format chosen using the Date and Time command*/
+        /**switches:s:Uses the Saka Era calendar*/
+        /**switches:u:Uses the Um-al-Qura calendar*/
+        const date=context.coreDocProp("dcterms:printed")
+        return new Date(date)
+    }
+
+    SAVEDATE(context){
+        /**category: Date and Time */
+        /**desc: the date the document as last saved*/
+        /**formula:[\@ "Date-Time Picture"] [switches]*/
+        /**switches:@:Date-Time display options(date-time picture switch)*/
+        /**switches:h:Uses the Hijri/Lunar calendar*/
+        /**switches:l:inserts the date with last format chosen using the Date and Time command*/
+        /**switches:s:Uses the Saka Era calendar*/
+        /**switches:u:Uses the Um-al-Qura calendar*/
+        const date=context.coreDocProp("dcterms:modified")
+        return new Date(date)
+    }
+
+    TIME(context){
+        /**category: Date and Time */
+        /**desc: the current time*/
+        /**formula:[\@ "Date-Time Picture"]*/
+        /**switches:@:Date-Time display options(date-time picture)*/
+        if(!this.formats.find(a=>a.startsWith("@ "))){
+            this.formats.unshift("@ HH:mm:ss")
+        }
+        return this.DATE()
+    }
+
+    //user information - 
+    USERADDRESS(){
+        /**category: user information */
+        /**desc: Address from your office personization options*/
+        /**formula:["New Address"]*/
+        /**switches:*:text formating switch*/
+        return 
+    }// USERINITIALS, USERNAME
+
+    //document information
+    AUTHOR(context){
+        /**category: document information */
+        /**desc: the name of the document's author from the document properties*/
+        /**formula:["New Author"]*/
+        /**switches:*:text formating switch*/
+        return context.coreDocProp("dc:creator")
+    } //COMMENTS, DOCPROPERTY, FILENAME, FILESIZE, KEYWORDS, LASTSAVEDBY, NUMCHARS, NUMPAGES, NUMWORDS, SUBJECT, TEMPLATE, TITLE
 }

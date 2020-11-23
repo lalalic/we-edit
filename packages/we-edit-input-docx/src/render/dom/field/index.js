@@ -1,8 +1,10 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
+import {getFile} from "we-edit"
 
 import memoize from "memoize-one"
 import Field from "./fields"
+import Context from "./context"
 
 export const SimpleField=({Container})=>class SimpleField extends Component{
     static displayName="simpleField"
@@ -30,12 +32,13 @@ export const FieldBegin=({Text})=>class FieldBegin extends Component{
     static contextTypes={
         style: PropTypes.object,
         getField: PropTypes.func,
+        activeDocStore: PropTypes.object
     }
 
-    getValue=memoize(instr=>Field.create(instr).execute())
+    getField=memoize(instr=>Field.create(instr))
 
     render(){
-        const {showCode,display,instr}=this.props
+        const {showCode,display,instr,id}=this.props
         const text=<Text {...{
                         ...this.context.style,
                         ...this.props,
@@ -43,7 +46,7 @@ export const FieldBegin=({Text})=>class FieldBegin extends Component{
                         children:""
                     }}/>
         if(!showCode){
-            const current=this.getValue(instr)
+            const current=this.getField(instr).execute(new Context(getFile(this.context.activeDocStore.getState()),id))
             if(current===display){
                 return text
             }else{
@@ -73,4 +76,4 @@ export const FieldEnd=({Text})=>class FieldBegin extends Component{
 	}
 }
 
-export {Field}
+export {Field, Context}

@@ -24,7 +24,47 @@ export default new Proxy({
         formats.splice(0,formats.length, ...others)
         return date.format(picture, calendar)
     },
-    number:()=>{//#
+    numeric:(value, formats)=>{//#
+        const {picture, others}=formats.reduce((f,a)=>{
+            switch(a[0]){
+                case '#':
+                    f.picture=a.substring(1).trim().replace(/\"/g,"")
+                    break
+                default:
+                    f.others.push(a)
+            }
+            return f
+        },{picture:"M/d/yy",others:[]})
+        formats.splice(0,formats.length, ...others)
+        return value=String(value)
+        let fraction=false, offset=-1
+        picture=picture.replace(/('.*?')|(\.[0#]*x)|(x[0#]+)/gi,function(m, text, round, drop){
+            if(drop){
+                const i=value.indexOf(".")
+                value=value.substr(i+1,drop.length)+value.substring(0,i+1)
+                return drop.replace(/x$/gi,"#")
+            }
+            if(round){
+                value=String(Math.round(parseFloat(value),round.length-1))
+                return round.replace(/^x/,"#")
+            }
+            return m
+        })
+        picture.replace(/('.*?')(\.)/gi,(m,t,point,i)=>point && (offset=i),"")
+        const [intg="", frac=""]=value.split("."), lessThan0=value[0]=='-'
+        const _intg=picuture.substring(0,offset).replace(/('.*?')|([0#])|(,)|([-+])/gi,function(m,text,ph,se,sign,i){
+            if(text){
+                return text
+            }
+            if(sign){
+                return lessThan0 ? '-' : (sign=="+"?"+":"")
+            }
+            if(ph){
+
+            }
+            return m
+        })
+
 
     },
     //subsequent update
@@ -35,39 +75,39 @@ export default new Proxy({
 
     },
     //number
-    Arabic(){
-
+    Arabic(i){
+        return String(arguments[0])
     },
     CardText(){
-
+        return String(arguments[0])
     },
     DollarText(){
-
+        return String(arguments[0])
     },
     Ordinal(){
-        
+        return String(arguments[0])
     },
     OrdText(){
-        
+        return String(arguments[0])
     },
-    Roman(){
-        
+    Roman(i){
+        return ["I","II","III","IV","V","VI","VII","VIII","IX"][parseInt(i)-1]
     },
     roman(){
-        
+        return this.Roman(...arguments).toLowerCase()
     },
     //text
-    Caps(){
-        
+    Caps(v){
+        return this.FirstCap(v.replace(/(\s+.)/gi,m=>m.substring(0,m.length-2)+m[m.length-1].toUpperCase()))
     },
-    FirstCap(){
-        
+    FirstCap(v){
+        return v[0].toUpperCase()+v.substring(1)
     },
-    Lower(){
-        
+    Lower(v){
+        return v.toLowerCase()
     },
-    Upper(){
-        
+    Upper(v){
+        return v.toUpperCase()
     }
 },{
     get(format,k, receiver){
@@ -75,9 +115,10 @@ export default new Proxy({
             case "Date":
                 return DateFormat
             case "Numeric":
+                return NumericFormat
             case "Text":
             case "General":
-                return []
+                return Object.keys(format).filter(a=>["date","numeric","MERGEFORMAT","CHARFORMAT"].indexOf(a)==-1)
             default:
                 return Reflect.get(...arguments)
         }
@@ -99,7 +140,16 @@ const DateFormat=
         M/d/yyyy h:mm:ss am/pm
         h:mm am/pm
         HH:mm
-        'Today is 'HH:mm:ss`.split(/[\r\n]/).filter(a=>!!a)
+        'Today is 'HH:mm:ss`.split(/[\r\n]/).filter(a=>!!a).map(a=>a.trim())
+
+const NumericFormat=
+        `#,##0
+        #,##0.00
+        $#,##0.00
+        0
+        0.00
+        0.00%
+        0%`.split(/[\r\n]/).filter(a=>!!a).map(a=>a.trim())
 
 
 if(!Date.prototype.format){

@@ -1,5 +1,5 @@
 import {Image,Section,Paragraph,Table} from "./dom"
-import {parse} from "../render/dom/field"
+import {Context, Field} from "../render/dom/field"
 
 export default{
     create_table_at_end_of_up_to_document(){
@@ -178,9 +178,9 @@ export default{
 
         const r=this.target.closest('w\\:r')
         const p=r.closest('w\\:p')
-        const field=parse(instr)
+        const field=Field.create(instr)
         r.after(`<w:r><w:fldChar w:fldCharType="end"/></w:r>`)
-        r.after(`<w:r><w:t xml:space="preserve">${field.execute()}</w:t></w:r>`)
+        r.after(`<w:r><w:t xml:space="preserve">${field.execute(new Context(this.file))}</w:t></w:r>`)
         r.after(`<w:r><w:fldChar w:fldCharType="separate"/></w:r>`)
         r.after(`<w:r><w:instrText xml:space="preserve">${instr}</w:instrText></w:r>`)
         r.after(`<w:r><w:fldChar w:fldCharType="begin"/></w:r>`)
