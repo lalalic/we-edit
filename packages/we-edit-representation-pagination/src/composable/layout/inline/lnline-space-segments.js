@@ -52,6 +52,17 @@ export default class InlineSegments extends Component {
         }
         return relayout;
     }
+    replace(atom,changed){
+        for(let i=this.segments.length-1;i>-1;i--){
+            for(let items=this.segments[i].items,k=items.length-1;k>-1;k--){
+                if(items[k]===atom){
+                    items[k]=changed
+                    return 
+                }
+            }
+        }
+    }
+
     push() {
         const i = this.segments.findLastIndex((a, i) => a.items.length > 0 || i == 0);
         return !!this.segments.slice(i).find(a => {

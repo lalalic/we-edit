@@ -171,7 +171,7 @@ export default class Inline extends Component{
 				//line rect doesn't change, continue normal inline layout later 
 			}
 			
-			return this.inlineSegments.push(atom)
+			return !!this.inlineSegments.push(atom)
 		})(this.getLineHeight(atom.props.height));
 
 		if(appended===false){

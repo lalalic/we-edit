@@ -211,7 +211,7 @@ class DocxType extends Input.Editable{
 				return createElement(components.Run,{style},children,node)
 			}
 			case "tab":
-				return createElement(components.Text,{fonts:"Arial",displayText:String.fromCharCode(0x2192)},dom.Text.Tab,node)
+				return createElement(components.Text,{/*fonts:"Arial",displayText:String.fromCharCode(0x2192)*/},dom.Text.Tab,node)
 			case "br":{
 				switch(node.attribs["w:type"]){
 					case 'page':

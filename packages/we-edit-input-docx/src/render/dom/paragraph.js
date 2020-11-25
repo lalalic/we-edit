@@ -1,6 +1,6 @@
-import React, {Component} from "react"
+import React, {Component,Fragment} from "react"
 import PropTypes from "prop-types"
-import {ReactQuery} from "we-edit"
+import {ReactQuery,connect, getUI} from "we-edit"
 
 import memoize from "memoize-one"
 import {shallowEqual} from "recompose"
@@ -58,8 +58,7 @@ export default ({Paragraph,Text,Group})=>class DocxParagraph extends Component{
 	render(){
 		const {style:$1, ...props}=this.props
 		const {style:{widow,orphan=widow, ...style}, defaultStyle}=this.style(this.props.style,this.context.style)
-		const Layout=Paragraph.Line ? DocxParagraph.getLayout(Paragraph) : Paragraph
-		console.log(Layout)
+		const Layout=Paragraph.Line ? this.constructor.getLayout(Paragraph) : Paragraph
 		return (
 			<Layout
 				{...style}
@@ -69,105 +68,201 @@ export default ({Paragraph,Text,Group})=>class DocxParagraph extends Component{
 		)
 	}
 
-	static getLayout=memoize(Paragraph=>class Layout extends Paragraph{
-		static contextTypes={
-			...Paragraph.contextTypes,
-			defaultTab: PropTypes.object,
-		}
-
-		getTabAt(x){
-			const {tabs=[]}=this.props
-			const pos=[x,...tabs.map(a=>a.pos)].sort((a,b)=>a-b)
-			const i=pos.lastIndexOf(x)
-			if(i!=-1 && i!=pos.length-1){
-				return tabs.find(a=>a.pos==pos[i+1])
+	static getLayout=memoize(Paragraph=>{
+		const Layout=class Layout extends Paragraph{
+			static contextTypes={
+				...Paragraph.contextTypes,
+				defaultTab: PropTypes.object,
 			}
-			return {...this.context.defaultTab, pos:Math.ceil((x+0.1)/this.context.defaultTab.pos)*this.context.defaultTab.pos}
-		}
 
-		static Line=class Line extends Paragraph.Line{
-			appendAtom(atom){
-				/**
-				 * Left-aligned - Begins text at the tab stop (This is the default tab setting).
-				 * Center-aligned - Centers text on the tab stop.
-				 * Right-aligned - Ends the text at tab stop.
-				 * Decimal - Centers text over decimal point for a list of numbers.
-				 * Bar - Runs a vertical line through a selected paragraph at the tab stop.
-				 */
-				if(atom.props.tokenizeOpportunity===Text.Tab){
+			getTabAt(x){
+				const {indent:{left:indentLeft=0,firstLine=0}, numbering,}=this.props
+				const bFirstLine=this.lines.length==1
+				const lineLeadingSpace=indentLeft+(bFirstLine&&!numbering&&firstLine||0) 
+		
+				x=x+lineLeadingSpace
+				const {tabs=[], }=this.props
+				const pos=[x,...tabs.map(a=>a.pos)].sort((a,b)=>a-b)
+				const i=pos.lastIndexOf(x)
+				const tab=(()=>{
+					if(i!=-1 && i!=pos.length-1){
+						return tabs.find(a=>a.pos==pos[i+1])
+					}
+					return {...this.context.defaultTab, pos:Math.ceil((x+0.1)/this.context.defaultTab.pos)*this.context.defaultTab.pos}		 
+				})();
+				tab.pos-=lineLeadingSpace
+				return tab
+			}
+
+			static Tab=connect(state=>({pilcrow:getUI(state).pilcrow}))(class Tab extends Component{
+				static displayName="tab"
+				static contextTypes={
+					getComposer: PropTypes.func,
+					Measure: PropTypes.func,
+					editable: PropTypes.any,
+				}
+				render(){
+					const {leader, width, id, pilcrow}=this.props
+					const textComposer=this.context.getComposer(id)
+					return (
+						<Fragment>
+							{!leader ? null : leader.repeat(Math.floor(width/textComposer.measure.stringWidth(leader)))}
+							{pilcrow && this.context.editable && (()=>{
+								const measure=new this.context.Measure({fonts:"Arial",size:textComposer.props.size})
+								const text=String.fromCharCode(0x2192)
+								const tabWidth=measure.stringWidth(text)
+								const props={}
+								if(width<tabWidth){
+									props.x=width-tabWidth
+									props.clipPath=`inset(0 0 0 ${tabWidth-width})`
+								}else if(width>tabWidth){
+									props.x=(width-tabWidth)/2
+								}
+								return <tspan {...props} fill="deepskyblue">{text}</tspan>
+							})()}
+						</Fragment>
+					)
+				}
+			})
+
+			static Line=class Line extends Paragraph.Line{
+				appendAtom(atom){
+					/**
+					 * Left-aligned - Begins text at the tab stop (This is the default tab setting).
+					 * Center-aligned - Centers text on the tab stop.
+					 * Right-aligned - Ends the text at tab stop.
+					 * Decimal - Centers text over decimal point for a list of numbers.
+					 * Bar - Runs a vertical line through a selected paragraph at the tab stop.
+					 */
+					if(atom.props.tokenizeOpportunity===Text.Tab){
+						return this.appendTab(atom)
+					}
+
+					switch(this.tab?.align){
+						case "center":{
+							if(this.tab.width>=(atom.props.width/2)){
+								this.tab.width-=(atom.props.width/2)
+								return super.appendAtom(atom)
+							}else{
+								this.tab.width=0
+								this.tab.align=null
+							}
+							break
+						}
+						case "decimal":{
+							const x=this._decimalTabAlignX(atom)
+							if(x!==false){
+								if(this.tab.width>=x){//upper part ok
+									const fractionWidth=atom.props.width-x
+									const availableWidth=this.width-this.currentX
+									if(fractionWidth<=availableWidth){//lower part ok
+										this.tab.width-=x
+										this.inlineSegments.push(React.cloneElement(atom,{atom,x:this.tab.pos-x}),true)
+										return 
+									}else{//lower part without enough space
+										if(this.tab.width+availableWidth>=atom.props.width){
+											//leave space enough for atom, and continue left mode
+											this.tab.width=this.tab.width+availableWidth-atom.props.width
+										}else{
+											//tab take space, continue left mode
+										}
+									}
+								}else{//left mode when upper part without enough space
+									//no tab space
+									this.tab.width=0
+								}
+								//only once, continue on 
+								this.tab.align=null
+								return super.appendAtom(atom)
+							}else{
+								//right mode, *** decimal must be above right mode
+							}
+						}
+						case "right":{//***must below decimal mode */
+							if(this.tab.width>=atom.props.width){
+								this.tab.width-=atom.props.width
+								return super.appendAtom(atom)
+							}else{
+								this.tab.width=0
+								this.tab.align=null
+							}
+							break
+						}
+					}
+			
+					return super.appendAtom(atom)
+				}
+
+				_decimalTabAlignX(atom){
+					if(!atom.props?.tokenizeOpportunity?.match){
+						return false
+					}
+					const match=atom.props.tokenizeOpportunity.match(/\d+\.\d+|\d+\.?|\.?\d+|\./)||[]
+					if(!match[0]){
+						return false
+					}
+					const i=match.index+(match[0].indexOf(".")!=-1 ? match[0].indexOf(".") : match[0].length)
+					let j=0
+					const {first, parents}=new ReactQuery(atom).findFirstAndParents(node=>{
+						const {"data-type":type, children}=node.props
+						if(type=="text"){
+							if(i>=j && i<=j+children.length){
+								return true
+							}
+							j+=children.length
+						}
+					});
+					const x=[first.get(0),...parents].reduce((X,{props:{x=0}})=>x+X,0)
+					const composer=this.context.parent.context.getComposer(first.attr('data-content'))
+					return x+composer.measure.stringWidth(first.attr('children').substring(0,i-j))
+				}
+
+				appendTab(atom){
 					const paragraph=this.context.parent
 					const x=this.inlineSegments.currentX
-					const {val:align="left", ...tab}=paragraph.getTabAt(x)
-					const supported=this[`append${align[0].toUpperCase()}${align.substring(1)}Tab`]
-					if(supported){
-						supported.call(this, atom, tab)
+					const tab=paragraph.getTabAt(x)
+					const {pos,width=pos-x,leader}=tab
+					const resetWidth=width=>{
+						const $atom=new ReactQuery(atom)
+						const $tab=$atom.findFirst('[data-type="text"]')
+						return React.cloneElement(
+								$atom.replace($tab, 
+									React.cloneElement(
+										$tab.get(0),
+										{width,children:[<Layout.Tab {...{key:0,width,leader,id:$tab.attr('data-content')}}/>]}
+									)
+								).get(0),
+								{width,atom}
+							)
 					}
-					return
+					const inlineSegments=this.inlineSegments
+					this.tab=Object.defineProperties({...tab},{
+						align:{
+							value:tab.val,
+							writable:true,
+						},
+						__w:{
+							value:width,
+							writable:true,
+						},
+						atom:{
+							value:resetWidth(width),
+							writable:true,
+						},
+						width:{
+							get(){
+								return this.__w
+							},
+							set(width){
+								inlineSegments.replace(this.atom,this.atom=resetWidth(this.__w=width))
+							}
+						}
+					})
+	
+					this.inlineSegments.push(this.tab.atom,true/*append atom without considering inline size*/)
 				}
-		
-				return super.appendAtom(atom)
-			}
-
-			/**
-			 * next atom starts at tab.pos, so width of tab can be calculated when appending
-			 * @param {*} atom 
-			 * @param {*} param1 
-			 */
-			appendLeftTab(atom, {pos, leader,width=pos-this.inlineSegments.currentX}){
-				const paragraph=this.context.parent
-				const tabWidth=atom.props.width
-
-				let $atom=new ReactQuery(atom)
-				let tab=$atom.findFirst('[data-type="text"]')
-				if(leader){//leader
-					const textComposer=paragraph.context.getComposer(tab.attr('data-content'))
-					const count=Math.floor(width/textComposer.measure.stringWidth(leader))
-					const leadersWidth=textComposer.measure.stringWidth(leader.repeat(count))
-					const ComposedText=tab.get(0).type
-					const leadersGroup=(
-						<Group {...{"data-nocontent":true}}>
-							<ComposedText {...textComposer.defaultStyle} x={width-leadersWidth}>{leader.repeat(count)}</ComposedText>
-						</Group>
-					)
-					atom=React.cloneElement(atom,{children:[atom.props.children, leadersGroup]})
-					$atom=new ReactQuery(atom)
-					tab=$atom.findFirst('[data-type="text"]')
-				}
-				
-					
-				if(paragraph.context.editable){//direction arrow
-					if(width<tabWidth){
-						$atom=$atom.replace(tab.get(0),React.cloneElement(tab.get(0),{x:width-tabWidth,clipPath:`inset(0 0 0 ${tabWidth-width})`}))
-					}else if(width>tabWidth){
-						$atom=$atom.replace(tab.get(0),React.cloneElement(tab.get(0),{x:(width-tabWidth)/2}))
-					}
-				}
-
-				this.inlineSegments.push(React.cloneElement($atom.get(0),{width,atom}),true/*append atom without considering inline size*/)
-			}
-
-			/**
-			 * next atom ends exactly at tab.pos
-			 * tab width has to be re-calculated when appending atom until last atom of line, or next tab
-			 * a right-ward layout flag needed to quickly instruct later appending 
-			 * @param {*} atom 
-			 * @param {*} param1 
-			 */
-			appendRightTab(atom, {pos, leader,width=pos-this.inlineSegments.currentX}){
-
-			}
-
-			appendCenterTab(atom, {pos, leader,width=pos-this.inlineSegments.currentX}){
-
-			}
-
-			appendDecimalTab(atom,{pos, leader,width=pos-this.inlineSegments.currentX}){
-
-			}
-
-			appendBarTab(atom, {pos, leader,width=pos-this.inlineSegments.currentX}){
-
 			}
 		}
+		return Layout
 	})
 }
