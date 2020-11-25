@@ -180,7 +180,7 @@ export default{
         const p=r.closest('w\\:p')
         const field=Field.create(instr)
         r.after(`<w:r><w:fldChar w:fldCharType="end"/></w:r>`)
-        r.after(`<w:r><w:t xml:space="preserve">${field.execute(new Context(this.file))}</w:t></w:r>`)
+        r.after(`<w:r><w:t xml:space="preserve">${field.execute(new Context(this._state))}</w:t></w:r>`)
         r.after(`<w:r><w:fldChar w:fldCharType="separate"/></w:r>`)
         r.after(`<w:r><w:instrText xml:space="preserve">${instr}</w:instrText></w:r>`)
         r.after(`<w:r><w:fldChar w:fldCharType="begin"/></w:r>`)

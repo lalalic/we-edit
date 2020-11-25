@@ -46,7 +46,8 @@ export const FieldBegin=({Text})=>class FieldBegin extends Component{
                         children:""
                     }}/>
         if(!showCode){
-            const current=this.getField(instr).execute(new Context(getFile(this.context.activeDocStore.getState()),id))
+            return text
+            const current=this.getField(instr).execute(new Context(this.context.activeDocStore.getState(),id))
             if(current===display){
                 return text
             }else{
@@ -72,7 +73,7 @@ export const FieldEnd=({Text})=>class FieldBegin extends Component{
         if(!field.showCode)
             return null
         
-        return <Text {...{...this.context.style, ...this.props,children:"}",transformComposed:a=>React.cloneElement(a,{"data-field":id})}}/>
+        return <Text {...{...this.context.style, ...this.props,children:"}",color:"red",transformComposed:a=>React.cloneElement(a,{"data-field":id})}}/>
 	}
 }
 

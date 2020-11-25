@@ -78,12 +78,15 @@ export default class Field{
         }
 
         formats.forEach(k=>{
+            if(k.startsWith("* ")){
+                k=k.replace(/^\*\s+/g,"")
+            }
             if(k in Format){
                 value=Format[k](value, formats, context)
             }
         })
 
-        return value
+        return String(value)
     }
 
     DATE(){
@@ -173,4 +176,37 @@ export default class Field{
         /**switches:*:text formating switch*/
         return context.coreDocProp("dc:creator")
     } //COMMENTS, DOCPROPERTY, FILENAME, FILESIZE, KEYWORDS, LASTSAVEDBY, NUMCHARS, NUMPAGES, NUMWORDS, SUBJECT, TEMPLATE, TITLE
+
+    //document automation - COMPARE, DOCVARIABLE, GOTOBUTTON, IF, MACROBUTTON, PRINT
+    //equations and formulas - =formula, ADVANCE, SYMBOL
+    //form fields - FORMCHECKBOX, FORMDROPDOWN, FORMTEXT
+    //index and tables - INDEX, RD (identifies a file to include when creating a table of contents, table of authorities, or an index), TA (text and page number for a table of authorities entry), TC (text and page number for a table of contents entry), TOC (table of contents), XE (text and page number for an index entry)
+    //links and references - AUTOTEXT, AUTOTEXTLIST, BIBLIOGRAPHY, CITATION, HYPERLINK, INCLUDEPICTURE, INCLUDETEXT, LINK, NOTEREF, PAGEREF, QUOTE, REF, STYLEREF
+    //mail merge - ADDRESSBLOCK, ASK, COMPARE, DATABASE, FILLIN, GREETINGLINE, IF, MERGEFIELD, MERGEREC, MERGESEQ, NEXT, NEXTIF,SET, SKIPIF
+    //numbering - LISTNUM, 
+    PAGE(context){
+        /**category: Numbering */
+        /**desc: Insert the number of the current page*/
+        /**formula:[\* Format Switch]*/
+        /**switches:*:Page number formatting options*/
+        const {topFrame:{props:{i=0,I=0}}}=context.selection?.props('page')||{topFrame:{props:{}}}
+        const {pgNumType:{fmt="Arabic",start}={}}=context.selection.props('section')
+        return ((Format[fmt])||(i=>i))(start!=undefined ? i+parseInt(start) : I+1)
+    }//REVNUM, 
+    SECTION(){
+        /**category: Numbering */
+        /**desc: Insert the number of the current section*/
+        /**formula:[\* Format Switch]*/
+        /**switches:*:number formatting options*/
+        return 
+    }
+    SECTIONPAGES(){
+        /**category: Numbering */
+        /**desc: Insert the total number of pages in the section*/
+        /**formula:[\* Format Switch]*/
+        /**switches:*:number formatting options*/
+        const {topFrame}=context.selection?.props('page')
+        const {allComposed, composed=[]}=topFrame.context.parent.computed
+        return composed.length
+    }// SEQ
 }

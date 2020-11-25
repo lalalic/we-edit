@@ -257,12 +257,15 @@ export default function tck(TypedDocument,file, debug=false){
             it("delete at end of text should delete forward",()=>{
                 debugger
                 const first=editor.$().findFirst("text")
+                const firstText=first.text()
                 editor.cursorAtEnd(first.attr('id'))
                 const $next=editor.$target.forwardFirst(editor.cursorable)
                 expect($next.attr('type')).toBe("text")
                 const text=$next.text()
                 editor.delete()
+                expect(first.text()).toBe(firstText)
                 expect($next.text().length).toBe(text.length-1)
+                
                 expect(editor.selection.start).toMatchObject({id:$next.attr('id'),at:0})
             })
         })

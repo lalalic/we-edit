@@ -38,6 +38,12 @@ export class Properties{
 			return value
 		},{})
 	}
+	pgNumType(x){
+		return Object.keys(x.attribs).reduce((value,a)=>{
+			value[a.split(':').pop()]=x.attribs[a]
+			return value
+		},{})
+	}
 
 	titlePg(x){
 		return x.attribs["w:val"]!=="false"
@@ -100,6 +106,32 @@ export class Properties{
 	pBdr(x){
 		return Object.keys(x.attribs).reduce((props,a)=>{
 			props[a.split(":").pop()]=this.toBorder(x[a][0])
+			return props
+		},{})
+	}
+
+	tabs(x){
+		return x.children.map(a=>this.tab(a))
+	}
+
+	tab(x){
+		return Object.keys(x.attribs).reduce((props,a)=>{
+			const k=a.split(":").pop()
+			props[k]=x.attribs[a]
+			switch(k){
+				case "pos":
+					props[k]=this.docx.dxa2Px(props[k])
+				break
+				case "leader":
+					props.leader=({
+						middleDot:String.fromCharCode(0xB7),
+						dot: String.fromCharCode(0x2024),
+						hyphen: String.fromCharCode(0x2010),
+						underscore: String.fromCharCode(0x5F),
+					})[props.leader]
+				break
+			}
+			
 			return props
 		},{})
 	}

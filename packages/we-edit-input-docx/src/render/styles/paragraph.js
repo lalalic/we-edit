@@ -8,7 +8,8 @@ const attribs={
 	"w:outlineLvl":"heading",
 	"w:widowControl":"widow",
 	"w:keepNext":"keepWithNext",
-	"w:keepLines":"keepLines"
+	"w:keepLines":"keepLines",
+	"w:tabs":"tabs",
 }
 export default class Paragraph extends Base{
 	constructor(node,styles,selector){

@@ -76,6 +76,7 @@ export default {
             const editor=new Field(this.file)
             editor.node=this.target
             editor.content=$target
+            editor.doc=this
             editor.update(props)
             this.file.renderChanged(this.target.closest('w\\:p'))
         }

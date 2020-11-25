@@ -9,6 +9,10 @@ export default class extends Base{
         return {instrText, displayText}
     }
 
+    get fieldContext(){
+        return new Context(this.doc._state,this.content.attr('id'))
+    }
+
     template(instr){
         return  `
             <w:r>
@@ -30,7 +34,7 @@ export default class extends Base{
     }
 
     execute(id){
-        const value=Field.create(this.content.attr('instr')).execute(new Context(this.file, id))
+        const value=Field.create(this.content.attr('instr')).execute(this.fieldContext)
         const display=this.content.attr('display')
         if(value!==display){
             const {displayText}=this._normalize()
@@ -41,7 +45,7 @@ export default class extends Base{
     instr(instr){
         const {instrText, displayText}=this._normalize()
         instrText.text(instr)
-        displayText.text(Field.create(instr).execute(new Context(this.file)))
+        displayText.text(Field.create(instr).execute(this.fieldContext))
     }
 
     charformat(){

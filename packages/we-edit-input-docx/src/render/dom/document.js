@@ -11,7 +11,11 @@ export default ({Document})=>class __$1 extends Component{
 		evenAndOddHeaders: PropTypes.bool,
 		style: PropTypes.object,
 		numbering: PropTypes.func,
-		tabWidth: PropTypes.func,
+		defaultTab: PropTypes.shape({
+			pos:PropTypes.number.isRequired,
+			leader: PropTypes.string,
+			val: PropTypes.string,
+		}),
 		getField: PropTypes.func,
 	}
 
@@ -22,10 +26,7 @@ export default ({Document})=>class __$1 extends Component{
 	getChildContext(){
 		return {
 			styles:this.styles,
-			tabWidth:x=>{
-				const i=Math.ceil(x/this.props.defaultTab)
-				return Math.ceil(i*this.props.defaultTab-x)||this.props.defaultTab
-			},
+			defaultTab:{pos:this.props.defaultTab},
 			evenAndOddHeaders: !!this.props.evenAndOddHeaders,
 			style: this.styles['*'],
 			numbering: id=>this.numberingContext(this.props.content).numbering(id),

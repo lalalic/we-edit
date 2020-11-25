@@ -60,14 +60,6 @@ export default class InlineSegments extends Component {
             }
         });
     }
-    pushAtomic() {
-    }
-    pushTab() {
-    }
-    pushLinebreak() {
-    }
-    pushHyphen() {
-    }
     render() {
         const { left = 0 } = this.props;
         const { flat } = this.segments

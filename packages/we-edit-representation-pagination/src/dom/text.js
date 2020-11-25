@@ -14,7 +14,6 @@ class Text extends Super{
     static contextTypes={
 		...Super.contextTypes,
         Measure: PropTypes.func,
-        tabWidth: PropTypes.func,
 	}
 
     get text(){
@@ -100,7 +99,6 @@ class Text extends Super{
                             this.appendComposed({
                                 ...defaultStyle,
                                 width:measure.stringWidth(b),
-                                tabWidth:line=>this.context.tabWidth(line,this),
                                 minWidth:0,
                                 "data-endat":start+=b.length,
                                 children: b,

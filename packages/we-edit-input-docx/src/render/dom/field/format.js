@@ -69,25 +69,25 @@ export default new Proxy({
     },
     //subsequent update
     MERGEFORMAT(){
-
+        return arguments[0]
     },
     CHARFORMAT(){
-
+        return arguments[0]
     },
     //number
     Arabic(i){
         return String(arguments[0])
     },
-    CardText(){
+    CardText(){//One, Two
         return String(arguments[0])
     },
-    DollarText(){
+    DollarText(){//$
         return String(arguments[0])
     },
-    Ordinal(){
+    Ordinal(){//
         return String(arguments[0])
     },
-    OrdText(){
+    OrdText(){//First, Second
         return String(arguments[0])
     },
     Roman(i){
@@ -119,6 +119,20 @@ export default new Proxy({
             case "Text":
             case "General":
                 return Object.keys(format).filter(a=>["date","numeric","MERGEFORMAT","CHARFORMAT"].indexOf(a)==-1)
+            case "upperRoman":return v=>format.Roman(v)
+            case "lowerRoman": return v=>format.roman(v)
+            case "cardinalText": return v=>format.CardText(v)
+            case "decimal": return v=>format.Arabic(v)
+            case "ordinalText": return v=>format.OrdText(v)
+            /*
+                case "lowerLetter": return v=>parseInt(v,26)
+                case "upperLetter": 
+                decimalEnclosedCircle,
+                decimalEnclosedFullstop,
+                decimalEnclosedParen,
+                decimalZero,
+                none,
+                */
             default:
                 return Reflect.get(...arguments)
         }
