@@ -140,14 +140,6 @@ export default class EditableText extends editable(Text){
         return true
     }
 
-    createComposed2Parent(props){
-        if(this.props.displayText){
-            props.width=this.measure.stringWidth(props.displayText=this.props.displayText)
-            props.className="__ender"
-        }
-        return super.createComposed2Parent(props)
-    }
-
     render(){
         if(this.text.length==0){
             this.appendComposed({

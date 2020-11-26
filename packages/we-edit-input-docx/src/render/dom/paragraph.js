@@ -17,6 +17,7 @@ export default ({Paragraph,Text,Group})=>class DocxParagraph extends Component{
 	static contextTypes={
 		style: PropTypes.object,
 		tabWidth: PropTypes.func,
+		pilcrowMeasure: PropTypes.object,
 	}
 
 	static childContextTypes={
@@ -73,6 +74,7 @@ export default ({Paragraph,Text,Group})=>class DocxParagraph extends Component{
 			static contextTypes={
 				...Paragraph.contextTypes,
 				defaultTab: PropTypes.object,
+				pilcrowMeasure: PropTypes.object,
 			}
 
 			getTabAt(x){
@@ -92,6 +94,19 @@ export default ({Paragraph,Text,Group})=>class DocxParagraph extends Component{
 				})();
 				tab.pos-=lineLeadingSpace
 				return tab
+			}
+
+			_createEndAtom(){
+				const atom=super._createEndAtom(...arguments)
+				if(this.props.sectionType){
+					const text=`====== Section Break (${this.props.sectionType}) ===========`
+					return React.cloneElement(atom, {
+						...this.context.pilcrowMeasure.defaultStyle,
+						width: this.context.pilcrowMeasure.stringWidth(text),
+						children: text
+					})
+				}
+				return atom
 			}
 
 			static Tab=connect(state=>({pilcrow:getUI(state).pilcrow}))(class Tab extends Component{
@@ -127,17 +142,6 @@ export default ({Paragraph,Text,Group})=>class DocxParagraph extends Component{
 
 			static Line=class Line extends Paragraph.Line{
 				appendAtom(atom){
-					/**
-					 * Left-aligned - Begins text at the tab stop (This is the default tab setting).
-					 * Center-aligned - Centers text on the tab stop.
-					 * Right-aligned - Ends the text at tab stop.
-					 * Decimal - Centers text over decimal point for a list of numbers.
-					 * Bar - Runs a vertical line through a selected paragraph at the tab stop.
-					 */
-					if(atom.props.tokenizeOpportunity===Text.Tab){
-						return this.appendTab(atom)
-					}
-
 					switch(this.tab?.align){
 						case "center":{
 							if(this.tab.width>=(atom.props.width/2)){
@@ -217,6 +221,13 @@ export default ({Paragraph,Text,Group})=>class DocxParagraph extends Component{
 					return x+composer.measure.stringWidth(first.attr('children').substring(0,i-j))
 				}
 
+				/**
+				 * Left-aligned - Begins text at the tab stop (This is the default tab setting).
+				 * Center-aligned - Centers text on the tab stop.
+				 * Right-aligned - Ends the text at tab stop.
+				 * Decimal - Centers text over decimal point for a list of numbers.
+				 * Bar - Runs a vertical line through a selected paragraph at the tab stop.
+				 */
 				appendTab(atom){
 					const paragraph=this.context.parent
 					const x=this.inlineSegments.currentX
@@ -261,7 +272,71 @@ export default ({Paragraph,Text,Group})=>class DocxParagraph extends Component{
 	
 					this.inlineSegments.push(this.tab.atom,true/*append atom without considering inline size*/)
 				}
+
+				appendLineBreak(atom){
+					const $atom=new ReactQuery(atom)
+					const $text=$atom.findFirst('[data-type="text"]')
+					this.inlineSegments.push(
+						React.cloneElement(
+							$atom.replace($text, 
+								React.cloneElement(
+									$text.get(0),
+									{children:[<Layout.LineBreak {...{key:0,id:$text.attr('data-content'),children:$text.attr('children')}}/>]}
+								)
+							).get(0),
+							{atom}
+						),true
+					)
+					return true
+				}
+
+				appendPageBreak(atom){
+					const $atom=new ReactQuery(atom)
+					const $text=$atom.findFirst('[data-type="text"]')
+					const text="----page break----"
+					const width=this.context.parent.context.pilcrowMeasure.stringWidth(text)
+					this.inlineSegments.push(
+						React.cloneElement(
+							$atom.replace($text, 
+								React.cloneElement(
+									$text.get(0),
+									{width,children:[<Layout.PageBreak {...{key:0,children:text}}/>]}
+								)
+							).get(0),
+							{atom,width}
+						),true
+					)
+				}
 			}
+
+			static LineBreak=connect(state=>({pilcrow:getUI(state).pilcrow}))(class LineBreak extends Component{
+				static displayName="LineBreak"
+				static contextTypes={
+					editable: PropTypes.any,
+					pilcrowMeasure: PropTypes.object,
+				}
+				render(){
+					if(!this.context.editable){
+						return null
+					}
+					if(this.props.pilcrow){
+						return <tspan fill="deepskyblue" fontFamily="arial" fontSize="11">{String.fromCharCode(0x21A1)}</tspan>
+					}
+					return this.props.children
+				}
+			})
+			static PageBreak=connect(state=>({pilcrow:getUI(state).pilcrow}))(class PageBreak extends Component{
+				static displayName="PageBreak"
+				static contextTypes={
+					editable: PropTypes.any,
+				}
+				render(){
+					if(this.context.editable && this.props.pilcrow){
+						return <tspan fill="deepskyblue" fontFamily="arial" fontSize="11pt">{this.props.children}</tspan>
+					}
+					return null
+				}
+			})
 		}
 		return Layout
 	})

@@ -3,16 +3,13 @@ import PropTypes from "prop-types"
 import Line from "./line"
 
 export default class Text extends Component{
-	static propTypes={
-		displayText: PropTypes.string,
-	}
 	static contextTypes={
 		precision: PropTypes.number
 	}
 
 	render(){
 		const {
-			displayText, children, whiteSpace, color:fill="black", highlight,border,underline,strike,
+			children, whiteSpace, color:fill="black", highlight,border,underline,strike,
 			descent,minWidth, height, width, blockOffset,tokenizeOpportunity,mergeOpportunity,tabWidth,//ignore
 			y=0,
 			...others}=this.props
@@ -58,7 +55,7 @@ export default class Text extends Component{
 				<text y={y}
 					{...others}
 					fill={fill}>
-					{displayText||children}
+					{children}
 				</text>
 				{strikeline}
 				{decoration}

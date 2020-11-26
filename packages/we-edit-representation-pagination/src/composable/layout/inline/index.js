@@ -94,7 +94,7 @@ export default class Inline extends Component{
 	 * if already anchored, continue next atom
 	 * if not, let parent block layout it since it possibly affect layout space, block offset
 	 */
-	appendAnchorAtom(atom){
+	appendAnchor(atom){
 		const $atom=new ReactQuery(atom)
 		const $anchor=$atom.findFirst('[data-type="anchor"]')
 		const anchorId=$anchor.attr("data-content")
@@ -117,28 +117,46 @@ export default class Inline extends Component{
 		}
 	}
 
+	appendLineBreak(atom){
+		this.inlineSegments.push(atom,true/*append atom without considering inline size*/)
+		return true
+	}
+
+	appendPageBreak(atom){
+		this.inlineSegments.push(atom,true/*append atom without considering inline size*/)
+	}
+
+	appendParagraphEnd(atom){
+		this.inlineSegments.push(atom,true/*append atom without considering inline size*/)
+	}
+
+	appendTab(atom){
+		this.inlineSegments.push(atom,true/*append atom without considering inline size*/)
+	}
+
 	/**
 	 * inline layout doesn't consider block layout capacity,
 	 * leave it to block layout engine decide how to handle overflow block size
 	 */
 	appendAtom(atom){
 		if(atom.props.anchor){
-			return this.appendAnchorAtom(atom)
+			return this.appendAnchor(atom)
+		}
+
+		if(atom.props.tokenizeOpportunity===dom.Text.Tab){
+			return this.appendTab(atom)
 		}
 
 		if(atom.props.tokenizeOpportunity===dom.Text.LineBreak){
-			this.inlineSegments.push(atom,true/*append atom without considering inline size*/)
-			return true
+			return this.appendLineBreak(atom)
 		}
 
 		if(atom.props.tokenizeOpportunity===dom.Text.PageBreak){
-			this.inlineSegments.push(atom,true/*append atom without considering inline size*/)
-			return
+			return this.appendPageBreak(atom)
 		}
 
 		if(atom.props.className=="ender"){
-			this.inlineSegments.push(atom,true/*append atom without considering inline size*/)
-			return
+			return this.appendParagraphEnd(atom)
 		}
 
 		if(this.pageBreak){/*immediately break line*/

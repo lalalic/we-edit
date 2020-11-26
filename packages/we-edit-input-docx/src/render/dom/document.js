@@ -6,6 +6,10 @@ import {ContentQuery} from "we-edit"
 export default ({Document})=>class __$1 extends Component{
 	static displayName="document"
 
+	static contextTypes={
+		Measure: PropTypes.func,
+	}
+
 	static childContextTypes={
 		styles: PropTypes.object,
 		evenAndOddHeaders: PropTypes.bool,
@@ -17,10 +21,16 @@ export default ({Document})=>class __$1 extends Component{
 			val: PropTypes.string,
 		}),
 		getField: PropTypes.func,
+		pilcrowMeasure: PropTypes.object,
 	}
 
 	get styles(){
 		return this.props.styles
+	}
+
+	constructor(){
+		super(...arguments)
+		this.pilcrowMeasure=new this.context.Measure(this.props.pilcrow)
 	}
 
 	getChildContext(){
@@ -33,7 +43,8 @@ export default ({Document})=>class __$1 extends Component{
 			getField:id=>{
 				const field=this.props.content.getIn([id,"props"])
 				return field.toJS()
-			}
+			},
+			pilcrowMeasure:this.pilcrowMeasure
 		}
 	}
 
@@ -79,7 +90,7 @@ export default ({Document})=>class __$1 extends Component{
 
 	render(){
 		const WordDocument=this.constructor.Document(Document)
-		const {evenAndOddHeaders,...props}=this.props
+		const {evenAndOddHeaders,pilcrow,...props}=this.props
 		this.resetNumbering()
 		return <WordDocument {...props}/>
 	}

@@ -514,7 +514,7 @@ class PositioningHelper extends Positioning{
 		const composer=this.getComposer(id)
 		if(composer.getComposeType()=="text"){
             const endat=target.attr("data-endat")
-            const text=target.attr('displayText')||target.attr('children')
+            const text=target.attr('children')
             if(text.length==1 && endat==1){//only 1, then quick width
                 pos.x+=text[0].props.width
             }else if(at>0 && endat>=at){

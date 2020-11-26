@@ -137,6 +137,10 @@ class DocxType extends Input.Editable{
 						evenAndOddHeaders:settings("w\\:evenAndOddHeaders").length>0,
 						precision:docx.precision,
 						styles,
+						pilcrow:{
+							fonts:"Arial",
+							size:docx.pt2Px(11),
+						}
 					},
 					children,
 					node
@@ -201,23 +205,24 @@ class DocxType extends Input.Editable{
 				const style= !props.pr ? styles['*paragraph'] : new Style.Paragraph.Direct(props.pr,styles,selector);
 				const sectPr=props.pr?.children.find(a=>a.name.endsWith("sectPr"))
 				if(sectPr){
-					const sectType=sectPr.children.find(a=>a.name.endsWith("type"))?.attribs["w:val"]
-					pProps.End=`====section break (${sectType})====${dom.Paragraph.defaultProps.End}`
+					pProps.sectionType=sectPr.children.find(a=>a.name.endsWith("type"))?.attribs["w:val"]||"Next Page"
 				}
 				return createElement(components.Paragraph,{style,...pProps},children,node)
 			}
+			case "hyperlink":
+				return createElement(components.Hyperlink,{anchor:node.attribs["w:anchor"]},children,node)
 			case "r":{
 				const style= !props.pr ? styles['*character'] : new Style.Character.Direct(props.pr,  styles, selector)
 				return createElement(components.Run,{style},children,node)
 			}
 			case "tab":
-				return createElement(components.Text,{/*fonts:"Arial",displayText:String.fromCharCode(0x2192)*/},dom.Text.Tab,node)
+				return createElement(components.Text,{},dom.Text.Tab,node)
 			case "br":{
 				switch(node.attribs["w:type"]){
 					case 'page':
-						return createElement(components.Text,{fonts:"Arial",size:docx.pt2Px(11), displayText:"----page break----"},dom.Text.PageBreak,node)
+						return createElement(components.Text,{},dom.Text.PageBreak,node)
 					default:
-						return createElement(components.Text,{fonts:"Arial",size:docx.pt2Px(11), displayText:String.fromCharCode(0x21A1)},dom.Text.LineBreak,node)
+						return createElement(components.Text,{},dom.Text.LineBreak,node)
 				}
 			}
 			case "fldSimple":

@@ -1,4 +1,4 @@
-import React, {Component, Fragment} from "react"
+import React, {Component} from "react"
 import PropTypes from "prop-types"
 
 
@@ -9,7 +9,8 @@ export default ({Container})=>class __$1 extends Component{
 	}
 
 	static contextTypes={
-		style: PropTypes.object
+		style: PropTypes.object,
+		isHyperlinkTOC: PropTypes.bool,
 	}
 
 	static childContextTypes={
@@ -17,13 +18,19 @@ export default ({Container})=>class __$1 extends Component{
 	}
 
 	getChildContext(){
-		const {style, ...props}=this.props
+		const {style}=this.props
 		return {
 			style: this.style(style, this.context.style)
 		}
 	}
 
-	style=(direct, context)=>direct.flat(context)
+	style=(direct, context)=>{
+		if(this.context.isHyperlinkTOC && direct.basedOn=="Hyperlink"){
+			direct=direct.clone()
+			direct.basedOn=null
+		}
+		return direct.flat(context)
+	}
 
 	render(){
 		const {style, ...props}=this.props
