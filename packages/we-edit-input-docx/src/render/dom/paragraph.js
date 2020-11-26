@@ -276,15 +276,17 @@ export default ({Paragraph,Text,Group})=>class DocxParagraph extends Component{
 				appendLineBreak(atom){
 					const $atom=new ReactQuery(atom)
 					const $text=$atom.findFirst('[data-type="text"]')
+					const text=String.fromCharCode(0x21A1)
+					const width=this.context.parent.context.pilcrowMeasure.stringWidth(text)
 					this.inlineSegments.push(
 						React.cloneElement(
 							$atom.replace($text, 
 								React.cloneElement(
 									$text.get(0),
-									{children:[<Layout.LineBreak {...{key:0,id:$text.attr('data-content'),children:$text.attr('children')}}/>]}
+									{width,children:[<Layout.LineBreak {...{key:0,id:$text.attr('data-content'),children:text}}/>]}
 								)
 							).get(0),
-							{atom}
+							{atom,width}
 						),true
 					)
 					return true
@@ -316,13 +318,10 @@ export default ({Paragraph,Text,Group})=>class DocxParagraph extends Component{
 					pilcrowMeasure: PropTypes.object,
 				}
 				render(){
-					if(!this.context.editable){
-						return null
+					if(this.context.editable && this.props.pilcrow){
+						return <tspan fill="deepskyblue" fontFamily="arial" fontSize="11">{this.props.children}</tspan>
 					}
-					if(this.props.pilcrow){
-						return <tspan fill="deepskyblue" fontFamily="arial" fontSize="11">{String.fromCharCode(0x21A1)}</tspan>
-					}
-					return this.props.children
+					return null
 				}
 			})
 			static PageBreak=connect(state=>({pilcrow:getUI(state).pilcrow}))(class PageBreak extends Component{
