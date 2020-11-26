@@ -8,12 +8,13 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 	{width=0,scale=1,
 	leftMargin=3, rightMargin=3, setLeftMargin, setRightMargin,
 	firstLine=0, leftIndent=0, rightIndent=0, setFirstLine, setLeftIndent, setRightIndent,
-	cm=scale*96/2.54, step=cm/8, trim=(x,dx)=>Math[dx>0 ? 'ceil' : 'floor']((x+dx)/step)*step
+	cm=scale*96/2.54, step=cm/8, trim=(x,dx)=>Math[dx>0 ? 'ceil' : 'floor']((x+dx)/step)*step,
+	onDoubleClick=e=>e, onScaleClick=e=>e, onScaleDoubleClick=e=>e,children,dispatch,
 	})=>{
 		let fl=null
 		return (
-			<div className="ruler horizontal" style={{width:width*scale,position:"relative"}}>
-				<Scale {...{width:width*scale,from:leftMargin*scale,cm}}/>
+			<div className="ruler horizontal" style={{width:width*scale,position:"relative"}} onDoubleClick={e=>onDoubleClick(e,dispatch)}>
+				<Scale {...{width:width*scale,from:leftMargin*scale,cm, dispatch,onClick:onScaleClick, onDoubleClick:onScaleDoubleClick, children}}/>
 
 				{!!width && (<Margin style={{position:"absolute", top:0,left:0,width:leftMargin*scale}} onMove={setLeftMargin}/>)}
 
@@ -76,8 +77,10 @@ const Marker=({direction="top",degs={bottom:180}, ...props})=>(
 	</SvgIcon>
 )
 
-const Scale=({width,height=20,from,cm, children})=>(
-	<svg style={{width:width,height,backgroundColor:"white"}}
+const Scale=({width,height=20,from,cm, children, dispatch, onClick, onDoubleClick})=>(
+	<svg style={{width:width,height,backgroundColor:"white"}} 
+		onClick={e=>onClick(e,dispatch,from)} 
+		onDoubleClick={e=>onDoubleClick(e,dispatch,from)}
 		viewBox={`0 0 ${width} ${height}`} >
 		<g transform={`translate(${from} 0)`}>
 		{

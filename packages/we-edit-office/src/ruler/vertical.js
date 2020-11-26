@@ -5,8 +5,9 @@ export default onlyUpdateForKeys(['height','footer',"header",'scale','topMargin'
 	({height=0, footer=0, header=0, scale=1,
 	topMargin=3, bottomMargin=3,
 	setTopMargin, setBottomMargin,
+	onDoubleClick=e=>e,dispatch,
 	})=>(
-	<div className="ruler vertical">
+	<div className="ruler vertical" onDoubleClick={e=>onDoubleClick(e,dispatch)}>
 		<Scale {...{height:height*scale,from:topMargin*scale, cm:scale*96/2.54}}/>
 		{!!height && <Margin style={{position:"absolute",top:0, left:0, height:topMargin*scale}} onMove={setTopMargin}/>}
 		{!!height && <Margin style={{position:"absolute", bottom:0, left:0, height:bottomMargin*scale}} onMove={setBottomMargin}/>}

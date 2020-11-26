@@ -29,7 +29,7 @@ export default class Workspace extends PureComponent{
 		statusBar: PropTypes.node,
 		debug: PropTypes.bool,
 		doc: PropTypes.object,
-		ruler: PropTypes.bool,
+		ruler: PropTypes.oneOfType([PropTypes.bool,PropTypes.object]),
 		channel: PropTypes.string,
 		layout: PropTypes.node,
 		tests: PropTypes.node,

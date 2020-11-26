@@ -45,14 +45,14 @@ class Canvas extends Component{
 				}}>
 				{ruler && ruler.vertical!==false && (
 					<div style={{flex:1, paddingTop:horizontalRulerHeight}}>
-						<VerticalRuler scale={scale/100} />
+						<VerticalRuler scale={scale/100} {...ruler.vertical}/>
 					</div>
 				)}
 				<div style={{flex:"1 100%", display:"flex", flexDirection:"column",width:"100%"}}>
 					<div style={{flex:"1 100%",textAlign:"center"}}>
 						{ruler && (
 							<div style={{position:"sticky",top:0}}>
-								<Ruler direction="horizontal" scale={scale/100}/>
+								<Ruler direction="horizontal" scale={scale/100} {...ruler.horizontal}/>
 							</div>
 						)}
 						{error ?  error.stack : children}

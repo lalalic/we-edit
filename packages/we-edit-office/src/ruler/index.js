@@ -32,7 +32,7 @@ export default compose(
 		},
 		setRightIndent(right){
 			dispatch(ACTION.Selection.UPDATE({paragraph:{indent:{right}}}))
-		}
+		},
 	})),
 	withProps(({selection})=>{
 		let {
