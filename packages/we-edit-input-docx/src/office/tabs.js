@@ -1,19 +1,143 @@
-import React,{Fragment, Component} from "react"
-import {whenSelectionChange, connect, getUI, ACTION} from "we-edit"
-import {getOffice,Dialog} from "we-edit-office"
-import {compose, setStatic} from "recompose"
+import React,{Fragment, Component,PureComponent} from "react"
+import {createPortal} from "react-dom"
+import {whenSelectionChange, connect, getUI,getContent, getFile, ACTION} from "we-edit"
+import {getOffice,Dialog, } from "we-edit-office"
+import {compose} from "recompose"
+
 
 import {FlatButton} from "material-ui"
 
 const ALIGNs="Left,Center,Right,Decimal".split(",")
 const LEADERs=`,-|hyphen,.|dot,_|underscore,${String.fromCharCode(0xB7)}|middleDot`.split(",")
 
-const Setting=compose(
-    whenSelectionChange(({selection})=>({tabs:selection?.props("paragraph",false)?.tabs})),
+export const Indicator=compose(
+    whenSelectionChange(({selection},state)=>{
+        const {tabs}=selection?.props("paragraph",false)||{}
+        const {margin:{left=0}={}}=selection?.props('layout')||{}
+        return {tabs,from:left}
+    }),
+    connect((state,{from=0, dispatch})=>{
+        const {scale=1}=getOffice(state)
+        const {tabAlign="left"}=getUI(state)
+        const content=getContent(state)
+        const {defaultTab}=content ? content.get("root").toJS() : {}
+        return {
+            from:from*scale, 
+            align:tabAlign,
+            defaultTab,
+            switchDefault(){
+                const i=ALIGNs.findIndex(a=>a.toLowerCase()==tabAlign)
+                dispatch(ACTION.UI({tabAlign:ALIGNs[(i+1)%4].toLowerCase()}))
+            },
+            setDocumentLayout:()=>dispatch(ACTION.UI({settingDocumentLayout:true})),
+            setTabs:()=>dispatch(ACTION.UI({settingTab:true})),
+        }
+    }),
+)(class Tabs extends Component{
+    state={}
+    render(){
+        const {tabs=[],from=0, align, switchDefault}=this.props
+        const {container}=this.state
+        return(
+            <Fragment>
+                <defs ref="defs">
+                    <marker id="triangle" viewBox="0 0 20 20"
+                        refX="1" refY="5" 
+                        markerUnits="strokeWidth"
+                        markerWidth="10" markerHeight="10"
+                        orient="auto">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="black"/>
+                    </marker>
+                </defs>
+                {tabs.map(({val="left", pos},i)=>{
+                    return this[val](pos+from,16,i)
+                })}
+                {container && <DefaultTab container={container}>
+                    <svg style={{width:20,height:20}} onClick={switchDefault}>
+                        {this.defaultTab(align)}
+                    </svg>
+                </DefaultTab>}
+            </Fragment>
+        )
+    }
+
+    componentDidMount(){
+        if(this.state.container)
+            return 
+        let stickyParent=this.refs.defs
+        while(stickyParent && stickyParent.style.position!="sticky"){
+            stickyParent=stickyParent.parentElement
+        }
+        if(stickyParent){
+            this.setState({container:stickyParent},()=>{
+                const {setDocumentLayout, setTabs}=this.props
+                stickyParent.addEventListener('dblclick',setDocumentLayout)
+                const horizontalScale=stickyParent.querySelector('svg')
+                horizontalScale.addEventListener('dblclick', e=>{
+                    e.stopPropagation()
+                    setTabs()
+                })
+                horizontalScale.addEventListener('click', ({clientX:left,clientY:top,srcElement})=>{
+                    const {align,from, dispatch, tabs}=this.props
+                    const point=horizontalScale.createSVGPoint()
+                    point.x=left,point.y=top
+                    const {x,pos=x-from}=point.matrixTransform(horizontalScale.getScreenCTM().inverse())
+                    if(!tabs.find(a=>Math.abs(a.pos-pos)<10)){
+                        dispatch(ACTION.Entity.UPDATE({paragraph:{tabs:[...{val:align,pos},tabs].sort((a,b)=>a.pos-b.pos)}}))
+                    }
+                })
+
+                let scrollParent=horizontalScale
+                while(scrollParent && scrollParent.style.overflowY!="scroll"){
+                    scrollParent=scrollParent.parentElement
+                }
+                const verticalRuler=scrollParent.querySelector('.vertical')
+                verticalRuler.addEventListener('dblclick',setDocumentLayout)
+            })
+        }
+    }
+
+    defaultTab(align){
+        return this[align](10,16,0)
+    }
+
+    left(x,y,i){
+        return <path key={i} d={`M${x} ${y} v-8 h3`} fill="none" stroke="black" markerEnd="url(#triangle)"/>
+    }
+
+    right(x,y,i){
+        return <path key={i} d={`M${x} ${y} v-8 h-3`} fill="none" stroke="black" markerEnd="url(#triangle)"/>
+    }
+
+    center(x,y,i){
+        return <path key={i} d={`M${x} ${y} v-8`} fill="none" stroke="black" markerEnd="url(#triangle)"/>
+    }
+
+    decimal(x,y,i){
+        return (
+            <g key={i}>
+                <circle {...{cx:x,cy:y-1,r:1}}/>
+                <path d={`M${x} ${y-3} v-4`} fill="none" stroke="black" markerEnd="url(#triangle)"/>
+            </g>
+        )    
+    }
+})
+
+export const Setting=compose(
+    whenSelectionChange(({selection}, state)=>{
+        let tabs=selection?.props("paragraph",false)?.tabs
+        if(tabs){
+            const file=getFile(state)
+            const toCM=px=>parseInt(px*100/file.doc.toPx("1cm"))/100.0
+            tabs=tabs.map(a=>({...a, pos:toCM(a.pos)}))
+        }
+        return {tabs}
+    }),
     connect(state=>({setting:getUI(state).settingTab})),
 )(class Setting extends Component{
+
     static getDerivedStateFromProps({tabs, defaultTab},state){
-        return {tabs,defaultTab, ...state}
+        return {tabs:state.tabs||tabs,defaultTab:state.defaultTab||defaultTab}
     }
 
     state={}
@@ -21,15 +145,14 @@ const Setting=compose(
         const {setting, dispatch}=this.props
         if(!setting)
             return null
-        const {tabs=[], i=tabs.length, tab=tabs[i]||{val:"left"}, defaultTab=1.27}=this.state
+        const {tabs=[], i, tab=tabs[i]||{val:"left"}, defaultTab=1.27}=this.state
         const close=e=>dispatch(ACTION.UI({settingTab:undefined}))
         return (
             <Dialog open={true} modal={true} title="Tabs" titleStyle={{padding:2,background:"lightgray",textAlign:"center"}}
-                style={{width:700}}
                 actions={[
                     <FlatButton
                         label="Clear All"
-                        onClick={e=>this.setState({tabs:undefined})}
+                        onClick={e=>this.setState({tabs:[],i:undefined})}
                         style={{float:"left"}}
                     />,
                     <FlatButton
@@ -41,7 +164,14 @@ const Setting=compose(
                         primary={true}
                         onClick={e=>{
                             close()
-                            dispatch(ACTION.Entity.UPDATE({paragraph:{tabs,defaultTab}}))
+                            const paragraph={tabs}
+                            if(tabs!==this.props.tabs){
+                                paragraph.tabs=tabs
+                            }
+                            if(defaultTab!==this.props.defaultTab){
+                                paragraph.defaultTab=defaultTab
+                            }
+                            dispatch(ACTION.Entity.UPDATE({paragraph}))
                         }}
                     />,
                 ]}
@@ -50,17 +180,24 @@ const Setting=compose(
                 <div style={{display:"flex", flexDirection:"row"}}>
                     <div style={{width:200}}>
                         <input style={{width:"calc(100% - 7.97px)",marginBottom:10}} 
-                            value={tab.pos||""}
-                            onChange={e=>{
-                                tabs.splice(i,1,{...tab,pos:e.target.value})
-                                this.setState({tabs:[...tabs]})
+                            value={tab.pos ? `${tab.pos} cm` : ""}
+                            onChange={({target:{value:pos}})=>{
+                                pos=parseFloat(pos)
+                                const j=tabs.findIndex(a=>a.pos==pos)
+                                if(j!=-1){
+                                    this.setState({i:j, tab:undefined})
+                                }else{
+                                    this.setState({i:undefined,tab:{...tab,pos}})
+                                }
                             }}
                             />
                         <select style={{width:"100%"}} 
                             size={11} multiple value={[i]}
-                            onChange={e=>this.setState({i:e.target.value})}
+                            onChange={e=>{
+                                this.setState({i:e.target.value[0],tab:undefined})
+                            }}
                             >
-                            {tabs.map(({pos},k)=><option value={k} key={k}>{pos}</option>)}
+                            {tabs.map(({pos},k)=><option value={k} key={k}>{pos} cm</option>)}
                         </select>
                     </div>
                     <div style={{flex:1,paddingLeft:10}}>
@@ -104,73 +241,47 @@ const Setting=compose(
 
                 <div style={{marginTop:10}}>
                     <div style={{float:"left"}}>
-                        <button style={{borderRadius:0}}>+</button>
-                        <button style={{borderRadius:0,borderLeft:0}}>-</button>
+                        <button style={{borderRadius:0}} onClick={e=>{
+                            const newTabs=[tab, ...tabs].sort((a,b)=>a.pos-b.pos)
+                            this.setState({tabs:newTabs, i:newTabs.findIndex(a=>a.pos==tab.pos)})
+                        }}>+</button>
+                        <button style={{borderRadius:0,borderLeft:0}} onClick={e=>{
+                            if(i!==undefined){
+                                tabs.splice(i,1)
+                                this.setState({
+                                    tabs:[...tabs],
+                                    i:tabs[i] ? i : (tabs[i-1] ? i-1 : undefined)
+                                })
+                            }
+                        }}>-</button>
                     </div>
                     <div style={{float:"right"}}>
                         Default stops: 
-                        <input type="number" min={0.02}
+                        <input type="number" min={0.02} style={{textAlign:"right"}}
                             value={defaultTab} step={0.1} 
                             onChange={e=>{
                                 this.setState({defaultTab:Math.ceil(e.target.value*10-1)/10})
-                            }}/>cm
+                            }}/> cm
                     </div>
                 </div>
             </Dialog>
         )
     }
 })
-export default compose(
-    setStatic("Setting",Setting),
-    whenSelectionChange(({selection},state)=>{
-        const {tabs=[]}=selection?.props("paragraph",false)||{}
-        const {margin:{left=0}={}}=selection?.props('layout')||{}
-        return {tabs,from:left}
-    }),
-    connect((state,{from=0})=>{
-        const scale=getOffice(state).scale||1
-        return {from:from*scale}
-    }),
-)(class Tabs extends Component{
+
+class DefaultTab extends PureComponent{
     render(){
-        const {tabs=[],from=0}=this.props
-        return(
-            <Fragment>
-                <defs>
-                    <marker id="triangle" viewBox="0 0 20 20"
-                        refX="1" refY="5" 
-                        markerUnits="strokeWidth"
-                        markerWidth="10" markerHeight="10"
-                        orient="auto">
-                        <path d="M 0 0 L 10 5 L 0 10 z" fill="black"/>
-                    </marker>
-                </defs>
-                {tabs.map(({val="left", pos},i)=>{
-                    return this[val](pos+from,16,i)
-                })}
-            </Fragment>
+        const {children,container}=this.props
+        return createPortal(
+            <div style={{top:0,position:"absolute",left:-20}}>
+                {children}
+            </div>,
+            container
         )
     }
+}
 
-    left(x,y,i){
-        return <path key={i} d={`M${x} ${y} v-8 h3`} fill="none" stroke="black" markerEnd="url(#triangle)"/>
-    }
+export const Events=class extends PureComponent{
 
-    right(x,y,i){
-        return <path key={i} d={`M${x} ${y} v-8 h-3`} fill="none" stroke="black" markerEnd="url(#triangle)"/>
-    }
+}
 
-    center(x,y,i){
-        return <path key={i} d={`M${x} ${y} v-8`} fill="none" stroke="black" markerEnd="url(#triangle)"/>
-    }
-
-    decimal(x,y,i){
-        return (
-            <Fragment key={i}>
-                <circle {...{cx:x,cy:y-1,r:1}}/>
-                <path d={`M${x} ${y-3} v-4`} fill="none" stroke="black" markerEnd="url(#triangle)"/>
-            </Fragment>
-        )
-            
-    }
-})

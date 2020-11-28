@@ -7,7 +7,7 @@ import {Divider} from "material-ui"
 import Field from "./field"
 import Links from "./link"
 import PageNumber from "./page-number"
-import Tabs from "./tabs"
+import * as DocxTabs from "./tabs"
 
 const KEY="docx"
 const {Tab}=Ribbon
@@ -17,29 +17,9 @@ export default (
         accept="*.docx"
         key={KEY}
         ruler={{
-            vertical:{
-                onDoubleClick(e,dispatch){
-                    dispatch(ACTION.UI({settingLayout:true}))
-                }
-            },
+            vertical:true,
             horizontal:{
-                onDoubleClick(e,dispatch){
-                    dispatch(ACTION.UI({settingLayout:true}))
-                },
-
-                onScaleClick(e,dispatch,leftMargin){
-                    e.stopPropagation()
-                    const x=100
-                    //dispatch(ACTION.UPDATE({paragraph:{addTab:x-leftMargin}}))
-                    return false
-                },
-
-                onScaleDoubleClick(e,dispatch,leftMargin){
-                    e.stopPropagation()
-                    dispatch(ACTION.UI({settingTab:true}))
-                    return false
-                },
-                children:<Tabs/>
+                children:<DocxTabs.Indicator/>,
             }
         }}
         toolBar={
@@ -88,7 +68,7 @@ export default (
         >
             <Editor representation="pagination"/>
         </Workspace.Desk>
-        <Tabs.Setting/>
+        <DocxTabs.Setting/>
         <style children={`text[data-field]:hover{filter:url(#background)}`}/>
     </Workspace>
 )
