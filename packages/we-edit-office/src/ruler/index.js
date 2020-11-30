@@ -54,6 +54,6 @@ export default compose(
 			header,footer
 		}
 	}),
-)(({direction="horizontal", Ruler=direction=="horizontal" ? HorizontalRuler : VerticalRuler, ...props})=>(
+)(({direction="horizontal", Ruler=direction=="horizontal" ? HorizontalRuler : VerticalRuler,...props})=>(
 	<Ruler {...props}/>
 ))
