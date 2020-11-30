@@ -17,14 +17,12 @@ export const Indicator=compose(
         return {tabs,from:left}
     }),
     connect((state,{from=0, dispatch})=>{
-        const {scale=1}=getOffice(state)
+        const {scale=100}=getOffice(state)
         const {tabAlign="left"}=getUI(state)
-        const content=getContent(state)
-        const {defaultTab}=content ? content.get("root").toJS() : {}
         return {
-            from:from*scale, 
-            align:tabAlign,
-            defaultTab,
+            from, 
+            defaultAlign:tabAlign,
+            scale:scale/100,
             switchDefault(){
                 const i=ALIGNs.findIndex(a=>a.toLowerCase()==tabAlign)
                 dispatch(ACTION.UI({tabAlign:ALIGNs[(i+1)%4].toLowerCase()}))
@@ -36,7 +34,7 @@ export const Indicator=compose(
 )(class Tabs extends Component{
     state={}
     render(){
-        const {tabs=[],from=0, align, switchDefault}=this.props
+        const {tabs=[],from=0, scale=1, defaultAlign, switchDefault}=this.props
         const {container}=this.state
         return(
             <Fragment>
@@ -50,11 +48,11 @@ export const Indicator=compose(
                     </marker>
                 </defs>
                 {tabs.map(({val="left", pos},i)=>{
-                    return this[val](pos+from,16,i)
+                    return this[val]((pos+from)*scale,16,i)
                 })}
                 {container && <DefaultTab container={container}>
                     <svg style={{width:20,height:20}} onClick={switchDefault}>
-                        {this.defaultTab(align)}
+                        {this.defaultTab(defaultAlign)}
                     </svg>
                 </DefaultTab>}
             </Fragment>
@@ -78,12 +76,12 @@ export const Indicator=compose(
                     setTabs()
                 })
                 horizontalScale.addEventListener('click', ({clientX:left,clientY:top,srcElement})=>{
-                    const {align,from, dispatch, tabs}=this.props
+                    const {defaultAlign,from, dispatch, tabs=[]}=this.props
                     const point=horizontalScale.createSVGPoint()
                     point.x=left,point.y=top
                     const {x,pos=x-from}=point.matrixTransform(horizontalScale.getScreenCTM().inverse())
                     if(!tabs.find(a=>Math.abs(a.pos-pos)<10)){
-                        dispatch(ACTION.Entity.UPDATE({paragraph:{tabs:[...{val:align,pos},tabs].sort((a,b)=>a.pos-b.pos)}}))
+                        dispatch(ACTION.Entity.UPDATE({paragraph:{tabs:[...{val:defaultAlign,pos},...tabs].sort((a,b)=>a.pos-b.pos)}}))
                     }
                 })
 
@@ -125,13 +123,16 @@ export const Indicator=compose(
 
 export const Setting=compose(
     whenSelectionChange(({selection}, state)=>{
+        const file=getFile(state)
+        const toPx=file.doc.cm2Px
+            
         let tabs=selection?.props("paragraph",false)?.tabs
         if(tabs){
-            const file=getFile(state)
-            const toCM=px=>parseInt(px*100/file.doc.toPx("1cm"))/100.0
-            tabs=tabs.map(a=>({...a, pos:toCM(a.pos)}))
+            tabs=tabs.map(a=>({...a, pos:Number(file.px2cm(a.pos)).toFixed(2)}))
         }
-        return {tabs}
+        const content=getContent(state)
+        const {defaultTab}=content ? content.get("root").toJS() : {}
+        return {tabs,detaultTab:defaultTab ? Number(file.doc.px2cm(defaultTab)).toFixed(2): undefined, toPx}
     }),
     connect(state=>({setting:getUI(state).settingTab})),
 )(class Setting extends Component{
@@ -142,7 +143,7 @@ export const Setting=compose(
 
     state={}
     render(){
-        const {setting, dispatch}=this.props
+        const {setting, dispatch, toPx}=this.props
         if(!setting)
             return null
         const {tabs=[], i, tab=tabs[i]||{val:"left"}, defaultTab=1.27}=this.state
@@ -166,10 +167,10 @@ export const Setting=compose(
                             close()
                             const paragraph={tabs}
                             if(tabs!==this.props.tabs){
-                                paragraph.tabs=tabs
+                                paragraph.tabs=tabs.map(a=>({...a,pos:toPx(`${a.pos}cm`)}))
                             }
                             if(defaultTab!==this.props.defaultTab){
-                                paragraph.defaultTab=defaultTab
+                                paragraph.defaultTab=toPx(`${defaultTab}cm`)
                             }
                             dispatch(ACTION.Entity.UPDATE({paragraph}))
                         }}
@@ -179,10 +180,11 @@ export const Setting=compose(
                 <div style={{marginTop:10,marginBottom:5}}>Tab stops:</div>
                 <div style={{display:"flex", flexDirection:"row"}}>
                     <div style={{width:200}}>
-                        <input style={{width:"calc(100% - 7.97px)",marginBottom:10}} 
-                            value={tab.pos ? `${tab.pos} cm` : ""}
+                        <div style={{whiteSpace:"nowrap"}}>
+                            <input type="number" step={0.1}
+                            style={{width:"calc(100% - 37.97px)",marginBottom:10}} 
+                            value={tab.pos||""}
                             onChange={({target:{value:pos}})=>{
-                                pos=parseFloat(pos)
                                 const j=tabs.findIndex(a=>a.pos==pos)
                                 if(j!=-1){
                                     this.setState({i:j, tab:undefined})
@@ -190,7 +192,8 @@ export const Setting=compose(
                                     this.setState({i:undefined,tab:{...tab,pos}})
                                 }
                             }}
-                            />
+                            /> cm
+                        </div>
                         <select style={{width:"100%"}} 
                             size={11} multiple value={[i]}
                             onChange={e=>{
@@ -207,7 +210,7 @@ export const Setting=compose(
                                 return (
                                     <span key={val} style={{padding:5,display:"inline-block",width:"calc(50% - 10px)"}}>
                                         <input type="radio" 
-                                            checked={val.toLowerCase()==tab.val} 
+                                            checked={val.toLowerCase()==(tab.val||'left')} 
                                             onChange={e=>{
                                                 tabs.splice(i,1,{...tab,val})
                                                 this.setState({tabs:[...tabs]})
@@ -260,7 +263,7 @@ export const Setting=compose(
                         <input type="number" min={0.02} style={{textAlign:"right"}}
                             value={defaultTab} step={0.1} 
                             onChange={e=>{
-                                this.setState({defaultTab:Math.ceil(e.target.value*10-1)/10})
+                                this.setState({defaultTab:e.target.value})
                             }}/> cm
                     </div>
                 </div>

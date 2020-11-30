@@ -14,7 +14,7 @@ export default{
     },
 
     create_table_at_beginning_of_paragraph(){
-        const editor=new Table(this.file)
+        const editor=new Table(this)
         editor.create(...arguments)
         this.target.before(editor.node)
         const {id}=this.file.renderChanged(editor.node)
@@ -23,7 +23,7 @@ export default{
     },
 
     create_table_at_end_of_paragraph(){
-        const editor=new Table(this.file)
+        const editor=new Table(this)
         editor.create(...arguments)
         this.target.after(editor.node)
         const {id}=this.file.renderChanged(editor.node)
@@ -65,7 +65,7 @@ export default{
     },
 
     __create_image_in_run(run, ...args){
-        const editor=new Image(this.file)
+        const editor=new Image(this)
         editor.create(...args)
         run.append(editor.node.closest("w\\:drawing"))
         const {id}=this.file.renderChanged(run)
@@ -88,7 +88,7 @@ export default{
         const row=this.file.getNode($row.attr('id'))
         const table=this.file.getNode($row.closest('table').attr('id'))
         const cols=table.first("w\\:tblGrid").find("w\\:gridCol")
-        const editor=new Table(this.file)
+        const editor=new Table(this)
         editor.node=table
         const tds=new Array(cols.length).fill(0).map((w,i)=>editor.template_tc(w))
         const tr=this.file.$("<w:tr>"+tds.join("")+"</w:tr>")
@@ -124,7 +124,7 @@ export default{
 		cols.eq(at)[where](cols.eq(at).clone().attr("w:w",width))
 
         const rows=table.find("w\\:tr")
-        const editor=new Table(this.file)
+        const editor=new Table(this)
         editor.node=table
 		for(let i=0;i<rows.length;i++){
             rows.eq(i)
@@ -140,7 +140,7 @@ export default{
         const $p=this.$target.closest('paragraph')
         const $section=this.$target.closest('section')
         const section=this.file.getNode($section.attr('id'))
-        const editor=new Paragraph(this.file)
+        const editor=new Paragraph(this)
         editor.node=this.file.getNode($p.attr('id'))
         const clonedSection=section.clone()
         clonedSection.appendTo(editor.got("w:pPr"))

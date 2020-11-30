@@ -1,6 +1,7 @@
 export default class Editor{
-    constructor(file){
-        this.file=file
+    constructor(reducer){
+        this.reducer=reducer
+        this.file=reducer.file
     }
 
     $(){

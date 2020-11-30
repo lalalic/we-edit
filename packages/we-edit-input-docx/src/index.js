@@ -133,7 +133,7 @@ class DocxType extends Input.Editable{
 					components.Document,
 					{
 						...selector.select(node.children.filter(a=>a.name!="w:body")),
-						defaultTab:docx.toPx(`${parseInt(settings("w\\:defaultTabStop").attr("w:val"))/1440.0}in`),
+						defaultTab:docx.dxa2Px(parseInt(settings("w\\:defaultTabStop").attr("w:val"))),
 						evenAndOddHeaders:settings("w\\:evenAndOddHeaders").length>0,
 						precision:docx.precision,
 						styles,

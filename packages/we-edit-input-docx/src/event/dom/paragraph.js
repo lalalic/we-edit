@@ -202,7 +202,30 @@ export default class Paragraph extends Editor{
             const styleNode=$(this.trim(STYLE_NoList)).insertAfter($(`w\\:style[w\\:default="1"]`).last())
             this.file.renderChanged(styleNode)
         }
-    }
+	}
+	
+	tabs(tabs=[]){
+		if(tabs.length==0){
+			this.got('w:tabs').remove()
+		}else{
+			this.got('w:tabs').empty()
+				.append(tabs.map((tab)=>{
+					const {val,pos,leader}=tab
+					if(!val)
+						delete tab.val
+					if(!leader)
+						delete tab.leader
+					return `<w:tab ${val && `w:val="${val}"`||''} ${leader&&`w:leader="${leader}"`||''} w:pos="${this.file.px2dxa(pos)}"/>`
+				}))
+		}
+		this.reducer.$target.attr('tabs',tabs)
+	}
+
+	defaultTab(v){
+		const $=this.file.doc.officeDocument.settings
+		$('defaultTabStop').attr('w:val',this.file.px2dxa(v))
+		this.reducer.$('#root').attr('defaultTab',v)
+	}	
 }
 
 const STYLE_NoList=`

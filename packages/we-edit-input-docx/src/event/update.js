@@ -26,37 +26,37 @@ export default {
             this.file.renderChanged(this.file.getNode(this.$target.parent().parent().attr('id')))
         }
 
-        const editor=new Text(this.file)
+        const editor=new Text(this)
         editor.node=this.target
         editor.update(props)
     },
 
     update_at_paragraph(props){
-        const editor=new Paragraph(this.file)
+        const editor=new Paragraph(this)
         editor.node=this.target
         editor.update(props)
     },
 
     update_at_image(props){
-        const editor=new Image(this.file)
+        const editor=new Image(this)
         editor.node=this.target
         editor.update(props)
     },
 
     update_at_table(props){
-        const editor=new Table(this.file)
+        const editor=new Table(this)
         editor.node=this.target
         editor.update(props)
     },
 
     update_at_section(props){
-        const editor=new Section(this.file)
+        const editor=new Section(this)
         editor.node=this.target
         editor.update(props)
     },
 
     update_at_shape(props){
-        const editor=new Shape(this.file)
+        const editor=new Shape(this)
         editor.node=this.target
         editor.update(props)
     },
@@ -73,10 +73,8 @@ export default {
             this.cursorAt(first.attr('id'),0)
             this.cursorAt=()=>void(0)//@@Hack: cursor can't be changed after this
         }else{
-            const editor=new Field(this.file)
+            const editor=new Field(this)
             editor.node=this.target
-            editor.content=$target
-            editor.doc=this
             editor.update(props)
             this.file.renderChanged(this.target.closest('w\\:p'))
         }

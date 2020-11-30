@@ -3,14 +3,14 @@ import {Field,Context} from "../../render/dom/field"
 
 export default class extends Base{
     _normalize(){
-        const id=this.content.attr('id')
-        const instrText=this.file.getNode(this.content.forwardFirst(`[field='${id}'][isInstr]`).attr('id'))
-        const displayText=this.file.getNode(this.content.forwardFirst(`#endField${id}`).backwardFirst('text').attr('id'))
+        const id=this.reducer.$target.attr('id')
+        const instrText=this.file.getNode(this.reducer.$target.forwardFirst(`[field='${id}'][isInstr]`).attr('id'))
+        const displayText=this.file.getNode(this.reducer.$target.forwardFirst(`#endField${id}`).backwardFirst('text').attr('id'))
         return {instrText, displayText}
     }
 
     get fieldContext(){
-        return new Context(this.doc._state,this.content.attr('id'))
+        return new Context(this.doc._state,this.reducer.$target.attr('id'))
     }
 
     template(instr){
@@ -34,8 +34,8 @@ export default class extends Base{
     }
 
     execute(id){
-        const value=Field.create(this.content.attr('instr')).execute(this.fieldContext)
-        const display=this.content.attr('display')
+        const value=Field.create(this.reducer.$target.attr('instr')).execute(this.fieldContext)
+        const display=this.reducer.$target.attr('display')
         if(value!==display){
             const {displayText}=this._normalize()
             displayText.text(value)
