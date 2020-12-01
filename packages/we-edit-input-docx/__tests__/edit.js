@@ -25,7 +25,7 @@ describe('edit',()=>{
                     typeof(content)=="string" ? content : new Array(content).fill('<w:p><w:r><w:t>hello</w:t></w:r></w:p>').join("")
                 )
                 const numbering=(n=0, props=props)=>{
-                    const p=new Paragraph(weDoc)
+                    const p=new Paragraph({file:weDoc})
                     p.node=p.$('w\\:p').eq(n)
                     p.numbering(props)
                     return p
@@ -274,7 +274,7 @@ describe('edit',()=>{
                     .map((a,i)=>`<w:p><w:pPr><w:pStyle w:val="Heading${i+1}"/></w:pPr><w:r><w:t>hello</w:t></w:r></w:p>`)
                     .join("")
             )
-            const p=new Paragraph(weDoc)
+            const p=new Paragraph({file:weDoc})
             p.node=p.$("w\\:p").eq(pre-1)
             debugger
             p.tab({shiftKey})

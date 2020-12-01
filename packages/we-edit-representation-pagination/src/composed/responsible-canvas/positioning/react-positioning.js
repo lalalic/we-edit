@@ -515,12 +515,17 @@ class PositioningHelper extends Positioning{
 		if(composer.getComposeType()=="text"){
             const endat=target.attr("data-endat")
             const text=target.attr('children')
-            if(text.length==1 && endat==1){//only 1, then quick width
-                pos.x+=(text[0].props?.width||width)
-            }else if(at>0 && endat>=at){
-				const len=at-(endat-text.length)
-				const offset=composer.measure.stringWidth(text.substring(0,len))
-				pos.x+=offset
+            if(endat==at){//only 1, then quick width
+                /**
+                 * there are some special case, such as tab/linebreak, which can't use measure
+                 * so just use shortcut for both text and special case
+                 */
+                pos.x+=width
+            }else if(endat>at){
+                const len=at-(endat-text.length)
+                if(len>0){
+                    pos.x+=composer.measure.stringWidth(text.substring(0,len))
+                }
             }
         }else if(at==1 && width && !isParagraphSelf){
             pos.x+=width
