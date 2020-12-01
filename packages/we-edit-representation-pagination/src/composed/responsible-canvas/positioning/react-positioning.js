@@ -291,7 +291,10 @@ class PositioningHelper extends Positioning{
             const textNode=$node.findFirst(`[data-type="text"]`).get(0)
             if(textNode){//text
                 const {props:{children:text, "data-content":id,"data-endat":endat},composer=this.getComposer(id)}=textNode
-                const i=composer.measure.widthString(X-offset.x,text)
+                /**
+                 * only 1 char, use shortcut to adapt for both text and special char such as tab, linebreak, page break
+                 */
+                const i=text.length==1 ? 0 :composer.measure.widthString(X-offset.x,text)
                 return {id, at:endat-text.length+i}
             }
             const id=$node.findFirst(`[data-content]`).attr("data-content")
@@ -314,7 +317,10 @@ class PositioningHelper extends Positioning{
                             return {id:last.attr('data-content'),at:last.attr('data-endat')}
                         }else{
                             const {props:{children:text, "data-content":id,"data-endat":endat},composer=this.getComposer(id)}=last.get(0)
-                            const i=composer.measure.widthString(X-offset.x,text)
+                            /**
+                             * only 1 char, use shortcut to adapt for both text and special char such as tab, linebreak, page break
+                             */            
+                            const i=text.length==1 ? 0 : composer.measure.widthString(X-offset.x,text)
                             return {id, at:endat-text.length+i}
                         }
                     }else{
