@@ -240,7 +240,7 @@ export default ({Paragraph,Text,Group})=>class DocxParagraph extends Component{
 								$atom.replace($tab, 
 									React.cloneElement(
 										$tab.get(0),
-										{width,children:[<Layout.Tab {...{key:0,width,leader,id:$tab.attr('data-content')}}/>]}
+										{width,children:[<Layout.Tab {...{key:0,width,leader,id:$tab.attr('data-content'),"data-nocontent":true}}/>]}
 									)
 								).get(0),
 								{width,atom}

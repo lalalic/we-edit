@@ -34,6 +34,14 @@ export default {
         this.type_at_beginning_of_run(...arguments)
     },
 
+    type_at_beginning_of_br(data){
+        this.seperate_up_to_run_at_beginning_of_text()
+        const r=this.target.closest("w\\:r").prev("w\\:r")
+        r.append(`<w:t>${data}</w:t>`)
+        const a=this.file.renderChanged(r)
+        this.cursorAt(this.$(`#${a.id} text`).attr("id"),data.length)
+    },
+
     type_at_beginning_of_paragraph(data){
         this.file.renderChanged(this.target.afterOrPrepend(`<w:r><w:t>${data}</w:t></w:r>`,"w\\:pPr"))
         this.cursorAt(this.$target.find("text").first().attr("id"),data.length)
@@ -50,7 +58,11 @@ export default {
     },
 
     type_at_end_of_br(data){
-        
+        this.seperate_up_to_run_at_end_of_text()
+        const r=this.target.closest("w\\:r").next("w\\:r")
+        r.append(`<w:t>${data}</w:t>`)
+        const a=this.file.renderChanged(r)
+        this.cursorAt(this.$(`#${a.id} text`).attr("id"),data.length)
     },
 
     type_at_instrText(data){

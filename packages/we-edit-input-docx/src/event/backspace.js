@@ -57,5 +57,11 @@ export default {
 
     backspace_at_whole_in_field(){
         this.remove_at_whole_in_field(...arguments)
+    },
+
+    backspace_at_end_of_tab(){
+        const r=this.target.closest('w\\:r')
+        this.target.remove()
+        this.file.renderChanged(r)
     }
 }
