@@ -176,7 +176,13 @@ export default class Field{
         /**switches:*:text formating switch*/
         return context.coreDocProp("dc:creator")
     } //COMMENTS, DOCPROPERTY, FILENAME, FILESIZE, KEYWORDS, LASTSAVEDBY, NUMCHARS, NUMPAGES, NUMWORDS, SUBJECT, TEMPLATE, TITLE
-
+    NUMPAGES(){
+        /**category: document information */
+        /**desc: the name of the document's author from the document properties*/
+        /**formula:["New Author"]*/
+        /**switches:*:text formating switch*/
+        return context.statistics("totalPages")
+    }
     //document automation - COMPARE, DOCVARIABLE, GOTOBUTTON, IF, MACROBUTTON, PRINT
     //equations and formulas - =formula, ADVANCE, SYMBOL
     //form fields - FORMCHECKBOX, FORMDROPDOWN, FORMTEXT
@@ -186,7 +192,7 @@ export default class Field{
     //numbering - LISTNUM, 
     PAGE(context){
         /**category: Numbering */
-        /**desc: Insert the number of the current page*/
+        /**desc: Insert the total number of pages in the document*/
         /**formula:[\* Format Switch]*/
         /**switches:*:Page number formatting options*/
         const {topFrame:{props:{i=0,I=0}}}=context.selection?.props('page')||{topFrame:{props:{}}}
@@ -209,4 +215,5 @@ export default class Field{
         const {allComposed, composed=[]}=topFrame.context.parent.computed
         return composed.length
     }// SEQ
+
 }

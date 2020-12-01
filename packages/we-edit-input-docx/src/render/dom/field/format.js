@@ -108,6 +108,9 @@ export default new Proxy({
     },
     Upper(v){
         return v.toUpperCase()
+    },
+    chineseLegalSimplified(v){
+        return ["零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖"][v]
     }
 },{
     get(format,k, receiver){

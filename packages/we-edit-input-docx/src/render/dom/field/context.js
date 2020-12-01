@@ -2,6 +2,7 @@ import {getFile, getStatistics, getSelectionStyle} from "we-edit"
 
 export default class {
     constructor(state, id){
+        this.state=state
         this.doc=getFile(state)
         this.selection=getSelectionStyle(state)
         this.docx=this.doc.doc
@@ -18,5 +19,10 @@ export default class {
 
     customDocProp(key){
         return this.docx.getObjectPart("docProps/custom.xml")(key.replace(":","\\:")).text()
+    }
+
+    statistics(k){
+        const statistics=getStatistics(this.state)
+        return statistics[k]
     }
 }

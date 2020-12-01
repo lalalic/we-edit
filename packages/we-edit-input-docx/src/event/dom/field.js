@@ -10,7 +10,7 @@ export default class extends Base{
     }
 
     get fieldContext(){
-        return new Context(this.doc._state,this.reducer.$target.attr('id'))
+        return new Context(this.reducer._state,this.reducer.$target.attr('id'))
     }
 
     template(instr){
