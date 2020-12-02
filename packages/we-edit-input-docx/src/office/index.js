@@ -5,9 +5,9 @@ import {Workspace, Ribbon, ContextMenu} from "we-edit-office"
 import {Divider} from "material-ui"
 
 import Field from "./field"
-import Links from "./link"
-import PageNumber from "./page-number"
 import * as DocxTabs from "./tabs"
+
+import Canvas from "../representation/canvas"
 
 const KEY="docx"
 const {Tab}=Ribbon
@@ -66,9 +66,8 @@ export default (
         <Workspace.Desk
             layout={<Workspace.Layout right={<Workspace.PanelContainer name="right" style={{width:300}}/>}/>}
         >
-            <Editor representation="pagination"/>
+            <Editor representation={"pagination"} canvas={<Canvas/>}/>
         </Workspace.Desk>
         <DocxTabs.Setting/>
-        <style children={`text[data-field]:hover{filter:url(#background)}`}/>
     </Workspace>
 )

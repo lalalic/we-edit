@@ -13,16 +13,15 @@ import {Field} from "../render/dom/field"
 export default compose(
 	setDisplayName("FieldStyle"),
 	whenSelectionChange(({selection})=>{
-        const style=selection?.props("text",false)
-        if(style?.field){
-            style.instr=selection.getContent(style.field).attr('instr')
+        const field=selection?.isInField()
+        if(field){
+            const instr=field.attr('instr')
+            const style=selection?.props("text",false)
+            return {style:{...style,field:field.attr('id'),instr}}
         }
-        return {style}
+        return {style:undefined}
     }),
     withProps(({dispatch,style})=>({
-        toggleFieldCode(){
-            dispatch(ACTION.Entity.UPDATE({field:{toggle:style.field}, id:style.field}))
-        },
         build(instr){
             if(style?.field && style.instr!==instr){
                 dispatch(ACTION.Entity.UPDATE({field:{instr}, id:style.field}))
@@ -41,7 +40,6 @@ export default compose(
             (
                 <Fragment>
                     <MenuItem primaryText="Update Field" onClick={update}/>
-                    <MenuItem primaryText="Toggle Field Code" onClick={toggleFieldCode}/>
                     <MenuItem primaryText="Edit Field..." onClick={e=>e.dialog=<BuildField value={style.instr} apply={build}/>}/>
                     <Divider/>
                 </Fragment>

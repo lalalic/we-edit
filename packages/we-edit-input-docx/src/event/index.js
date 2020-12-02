@@ -25,24 +25,24 @@ export default (class Actions extends Input.Editable.EventHandler.xml{
         this.InlineContainers="w\\:r, w\\:sdt"
     }
 
-    get field(){
-        const fieldId=this.$target.attr('field')
-        return this.file.getNode(fieldId)
-    }
+    isInRegion(type, $target=this.$target){
+        const region=$target.closest(type)
+        if(region.length==1){
+            return region
+        }
 
-    get $field(){
-        const fieldId=this.$target.attr('field')
-        return this.$(`#${fieldId}`)
-    }
+        if($target.is(`${type}Begin,${type}End`)){
+            return $target
+        }
 
-    get fieldEnd(){
-        const fieldId=this.$target.attr('field')
-        return this.file.getNode('endField'+fieldId)
-    }
-
-    get $fieldEnd(){
-        const fieldId=this.$target.attr('field')
-        return this.$(`#endField${fieldId}`)
+        const end=$target.forwardFirst(`${type}End,${type}Begin`)
+        const begin=$target.backwardFirst(`${type}Begin,${type}End`)
+        if(end.length && begin.length && 
+            end.attr('type').endsWith('End') && 
+            begin.attr('type').endsWith('Begin')){
+            return begin
+        }
+        return false
     }
 
     emit(action, conds, ...others){
@@ -54,11 +54,13 @@ export default (class Actions extends Input.Editable.EventHandler.xml{
             }
         }
 
-        if(this.$target.attr('field')){
-            conds=[...conds.map(a=>`${a}_in_field`),'in_field',...conds]
+        const field=this.isInRegion('field')
+        if(field){//this.$target.attr('field')
+            const type=field.attr('type')
+            conds=[...conds.map(a=>`${a}_in_${field.attr('command')}_${type}`),...conds.map(a=>`${a}_in_${type}`),`in_${type}`,...conds]
         }
 
-        if(this.$target.attr('bookmark')){
+        if(this.isInRegion('bookmark')){//this.$target.attr('bookmark')
             conds=[...conds.map(a=>`${a}_in_bookmark`),'in_bookmark',...conds]
         }
         
@@ -73,14 +75,6 @@ export default (class Actions extends Input.Editable.EventHandler.xml{
             this.forward()
             this.backward()
         }
-    }
-
-    get fieldParent(){
-        const id=this.$target.attr('field')
-        const begin=this.file.getNode(id)
-        const end=this.file.getNode(`end${id}`)
-        const parent=begin.closest(end.parents())
-        return parent
     }
 
     paragraphHasIndentSetting(){
@@ -142,12 +136,12 @@ export default (class Actions extends Input.Editable.EventHandler.xml{
     state(){
         const {start,end}=this.selection
         if(start.id==end.id && start.at==end.at){
-            const field=this.$target.attr('field')
-            if(field){
-                const $field=this.$(`#`+field)
-                const first=$field.forwardFirst(`text[field=${field}][${$field.attr('showCode')?"":"!"}isInstr]`)
-                this.cursorAt(first.attr('id'),0,undefined,undefined,undefined,false)
+            const field=this.isInRegion('field')
+            if(field && start.id!=field.attr('id')){
+                this.cursorAt(field.attr('id'),0,undefined,undefined,undefined,false)
             }
+        }else{
+            
         }
         return super.state()
     }

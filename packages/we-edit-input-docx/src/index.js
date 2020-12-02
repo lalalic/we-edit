@@ -225,27 +225,25 @@ class DocxType extends Input.Editable{
 						return createElement(components.Text,{},dom.Text.LineBreak,node)
 				}
 			}
-			case "fldSimple":
-				return createElement(components.SimpleField,{instr:node.attribs["w:instr"],display:$(node).text()},children,node)
+			case "fldSimple":{
+				const instr=node.attribs["w:instr"].trim()
+				return createElement(components.SimpleField,{instr,command:instr.split(" ")[0],display:$(node).text()},children,node)
+			}
 			case "begin":{
 				fields.push({node, id:this.makeId(node),instr:"",display:""})
 				return createElement(components.FieldBegin,{},[],node)
 			}
 			case "end":{
 				const {id,instr,display,...begin}=fields.pop()
-				createElement(components.FieldBegin,{instr,display},[],begin.node)
-				this.makeId(node,undefined,`endField${id}`)
+				createElement(components.FieldBegin,{instr:instr.trim(),display,command:instr.trim().split(" ")[0]},[],begin.node)
+				this.makeId(node,undefined,`end${id}`)
 				return createElement(components.FieldEnd,{},children,node)
 			}
 			case "instrText":{
 				fields[fields.length-1].instr+=children[0]||""
-				return createElement(components.Text,{field:fields[fields.length-1].id, isInstr:true},children[0]||"",node)
+				return createElement(components.InstrText,{},children[0]||"",node)
 			}
 			case "t":{
-				if(fields.length){
-					fields[fields.length-1].display+=children[0]||""
-					return createElement(components.Text,{field:fields[fields.length-1].id},children[0]||"",node)
-				}
 				return createElement(components.Text,{},children[0]||"",node)
 			}
 			case "drawing.inline":
@@ -262,13 +260,16 @@ class DocxType extends Input.Editable{
 				prStyle.r=textStyle
 				return createElement(components.Shape,{...style, textStyle:prStyle},children,node)
 			}
+			case "bookmarkStart":
+				return createElement(components.BookmarkBegin,{},[],node)
+			case "bookmarkEnd":
+				return createElement(components.BookmarkEnd,{},[],node)
+
 			case "Properties":
 			case "coreProperties":
 			case "property":
-
-			case "bookmarkStart":
-			case "bookmarkEnd":
 				return null
+			
 			case "inline":
 			case "block":
 				return createElement(components.Container,{},children,node)

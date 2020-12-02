@@ -56,11 +56,13 @@ export default class Reducer{
 	}
 
     get $target(){
-        return this.$(`#${this.selection.start.id}`)
+		const {cursorAt,...selection}=this.selection
+        return this.$(`#${selection[cursorAt].id}`)
     }
 
     get target(){
-        return this.file.getNode(this.selection.start.id)
+        const {cursorAt,...selection}=this.selection
+        return this.file.getNode(selection[cursorAt].id)
     }	
 
 	cursorAt(id,at, endId=id, endAt=at, cursorAt,fix=true){

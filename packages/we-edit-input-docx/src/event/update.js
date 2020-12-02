@@ -61,22 +61,24 @@ export default {
         editor.update(props)
     },
 
-    update_at_fieldBegin({toggle, ...props}){
-        const $target=this.$target
-        if(toggle){//UI only
-            const showCode=!!!$target.attr('showCode')
-            $target.attr('showCode',showCode)
-            const first=this.$('#'+toggle).forwardFirst(a=>{
-                if(a.getIn(['props','field'])===toggle && (!!a.getIn(['props','isInstr']))===showCode)
-                    return true
-            })  
-            this.cursorAt(first.attr('id'),0)
-            this.cursorAt=()=>void(0)//@@Hack: cursor can't be changed after this
-        }else{
-            const editor=new Field(this)
-            editor.node=this.target
-            editor.update(props)
-            this.file.renderChanged(this.target.closest('w\\:p'))
-        }
-    }
+    update_at_field(props){
+        const editor=new Field.Simple(this)
+        editor.node=this.target
+        editor.update(props)
+        this.file.renderChanged(this.target.closest('w\\:p'))
+    },
+
+    update_at_fieldBegin(props){
+        const editor=new Field(this)
+        editor.node=this.target
+        editor.update(props)
+        this.file.renderChanged(this.target.closest('w\\:p'))
+    },
+
+    update_at_fieldEnd(props){
+        const editor=new Field(this)
+        editor.node=this.target
+        editor.update(props)
+        this.file.renderChanged(this.target.closest('w\\:p'))
+    },
 }

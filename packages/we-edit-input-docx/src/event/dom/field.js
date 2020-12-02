@@ -1,11 +1,12 @@
 import Base from "./base"
 import {Field,Context} from "../../render/dom/field"
 
-export default class extends Base{
+export default class Complex extends Base{
     _normalize(){
-        const id=this.reducer.$target.attr('id')
-        const instrText=this.file.getNode(this.reducer.$target.forwardFirst(`[field='${id}'][isInstr]`).attr('id'))
-        const displayText=this.file.getNode(this.reducer.$target.forwardFirst(`#endField${id}`).backwardFirst('text').attr('id'))
+        const $target=this.reducer.$target
+        const id=$target.attr('id')
+        const instrText=this.file.getNode($target.forwardFirst(`instrText`).attr('id'))
+        const displayText=this.file.getNode(this.reducer.$(`#end${id}`).backwardFirst('text').attr('id'))
         return {instrText, displayText}
     }
 
@@ -13,7 +14,7 @@ export default class extends Base{
         return new Context(this.reducer._state,this.reducer.$target.attr('id'))
     }
 
-    template(instr){
+    template(instr,value=""){
         return  `
             <w:r>
                 <w:fldChar w:fldCharType="begin"/>
@@ -25,7 +26,7 @@ export default class extends Base{
                 <w:fldChar w:fldCharType="separate"/>
             </w:r>
             <w:r>
-                <w:t xml:space="preserve"> </w:t>
+                <w:t xml:space="preserve">${value}</w:t>
             </w:r>
             <w:r>
                 <w:fldChar w:fldCharType="end"/>
@@ -48,11 +49,27 @@ export default class extends Base{
         displayText.text(Field.create(instr).execute(this.fieldContext))
     }
 
-    charformat(){
+    static Simple=class Simple extends Complex{
+        template(instr, value=""){
+            return `
+                <w:fldSimple w:instr="${instr}">
+                    <w:r>
+                        <w:t xml:space="preserve">${value}</w:t>
+                    </w:r>
+                </w:fldSimple>
+            `
+        }
 
-    }
-
-    mergeformat(){
-
+        _normalize(){
+            const displayText=this.file.getNode(this.reducer.$target.findFirst('text').attr('id'))
+            return {
+                instrText:{
+                    text:t=>{
+                        this.reducer.target.attr('w:instr',t)
+                    }
+                }, 
+                displayText
+            }
+        }
     }
 }

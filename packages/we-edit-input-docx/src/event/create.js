@@ -1,5 +1,6 @@
 import {Image,Section,Paragraph,Table} from "./dom"
 import {Context, Field} from "../render/dom/field"
+import FieldEditor from "./dom/field"
 
 export default{
     create_table_at_end_of_up_to_document(){
@@ -179,11 +180,9 @@ export default{
         const r=this.target.closest('w\\:r')
         const p=r.closest('w\\:p')
         const field=Field.create(instr)
-        r.after(`<w:r><w:fldChar w:fldCharType="end"/></w:r>`)
-        r.after(`<w:r><w:t xml:space="preserve">${field.execute(new Context(this._state))}</w:t></w:r>`)
-        r.after(`<w:r><w:fldChar w:fldCharType="separate"/></w:r>`)
-        r.after(`<w:r><w:instrText xml:space="preserve">${instr}</w:instrText></w:r>`)
-        r.after(`<w:r><w:fldChar w:fldCharType="begin"/></w:r>`)
+        const editor=new FieldEditor.Simple(this)
+        r.after(editor.trim(editor.template(instr,field.execute(new Context(this._state)))))
         this.file.renderChanged(p)
+        this.cursorAt(this.file.makeId(r.next(),0))
     }
 }
