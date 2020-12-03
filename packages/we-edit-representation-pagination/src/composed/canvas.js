@@ -111,7 +111,7 @@ export default class ComposedDocumentCanvas extends Component{
 		return (
 			<Group y={pageGap*precision} x={0}>
 				{pages.reduce((positioned, page)=>{
-					const {width,height,margin,I}=page.props
+					const {width,height,margin,I,i}=page.props
 					positioned.push(//use g to make Group ignore className and id for better merge
 						<g key={I} className={"page"} id={`page${I}`}>
 							<Group {...{y:positioned.y,x:(canvasWidth-width)/2}}>

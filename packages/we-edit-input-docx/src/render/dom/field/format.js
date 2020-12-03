@@ -110,7 +110,12 @@ export default new Proxy({
         return v.toUpperCase()
     },
     chineseLegalSimplified(v){
-        return ["零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖"][v]
+        const U=["","拾","佰","仟","万"], D=["零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖"]
+        return Array.from(String(parseInt(v)))
+            .reverse().reduce((g,a,i)=>[...g,U[i],D[parseInt(a)]],[])
+            .reverse()
+            .join("")
+            .replace(/零+$/gu,"")
     }
 },{
     get(format,k, receiver){

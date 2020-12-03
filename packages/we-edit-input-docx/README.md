@@ -5,13 +5,20 @@ It's to support docx with input and workspace. **It should be moved as an extens
 * Document
 * Section
     * header/footer decide content start
+        * should it be a template component?
     * Continuous section may change margin/column in a **PAGE**
 * 
 ## In Mind
 * Field
     * Field in content should be updated on demand
+    * NOT support toggle code/value (**to simplify input reducer**)
     * Page/Numpages in header/footer should be updated in time
-    * NOT support toggle code/value
+        * recompose when 
+        * NUMPAGES
+            * Not trigger recompose, but render to dynamic that will be resolved during view
+            * or response to ACTION.statistics to update content, then trigger recompose if necessary
+        * PAGE
+            * 
     * Special Rep-Canvas to indicate field area when focused
     * TOC
     * TOA

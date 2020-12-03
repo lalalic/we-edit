@@ -1,11 +1,11 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
+
 import Field from "./fields"
 import Context from "./context"
 
 export const SimpleField=({Container})=>class SimpleField extends Component{
     static displayName="field"
-    
     render(){
         return <Container {...this.props}/>
     }

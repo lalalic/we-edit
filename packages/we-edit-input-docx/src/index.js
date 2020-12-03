@@ -227,7 +227,7 @@ class DocxType extends Input.Editable{
 			}
 			case "fldSimple":{
 				const instr=node.attribs["w:instr"].trim()
-				return createElement(components.SimpleField,{instr,command:instr.split(" ")[0],display:$(node).text()},children,node)
+				return createElement(components.Field,{instr,command:instr.split(" ")[0],display:$(node).text()},children,node)
 			}
 			case "begin":{
 				fields.push({node, id:this.makeId(node),instr:"",display:""})
@@ -235,9 +235,10 @@ class DocxType extends Input.Editable{
 			}
 			case "end":{
 				const {id,instr,display,...begin}=fields.pop()
-				createElement(components.FieldBegin,{instr:instr.trim(),display,command:instr.trim().split(" ")[0]},[],begin.node)
+				const command=instr.trim().split(" ")[0]
+				createElement(components.FieldBegin,{instr:instr.trim(),display,command},[],begin.node)
 				this.makeId(node,undefined,`end${id}`)
-				return createElement(components.FieldEnd,{},children,node)
+				return createElement(components.FieldEnd,{command},children,node)
 			}
 			case "instrText":{
 				fields[fields.length-1].instr+=children[0]||""

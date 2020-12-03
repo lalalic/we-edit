@@ -66,16 +66,16 @@ export default (class Actions extends Input.Editable.EventHandler.xml{
         
         super.emit(action, conds, ...others)
     }
-
+    
     init(){
-        //set start of first paragraph in content as selection
-        const firstParagraphId=this.file.makeId(this.file.$('w\\:p').get(0))
-        if(firstParagraphId){
-            this.cursorAt(firstParagraphId,0)
-            this.forward()
-            this.backward()
-        }
-    }
+		const $p=this.$().findFirst(a=>{
+            const $a=this.$(a)
+            return $a.is('paragraph') && $a.closest('header,footer').length==0
+        })
+		if($p.length>0){
+			this.cursorAt($p.attr('id'),0)
+		}
+	}
 
     paragraphHasIndentSetting(){
         return this.target.closest(this.PARAGRAPH_).children(this.PR).find("w\\:ind").length>0

@@ -15,7 +15,7 @@ import Anchor from "./anchor"
 import HeaderFooter from "./header-footer"
 import Inline from "./draw-inline"
 import Hyperlink from "./hyperlink"
-import {SimpleField, FieldBegin, FieldEnd, InstrText} from "./field"
+import {SimpleField as Field, FieldBegin, FieldEnd, InstrText} from "./field"
 import {BookmarkBegin, BookmarkEnd} from "./bookmark"
 
 const createUnvisibleComponent=type=>{
@@ -41,7 +41,7 @@ export default {
 	Anchor,
 	Inline,
 	Hyperlink,
-	SimpleField,FieldBegin,FieldEnd,InstrText,
+	Field,FieldBegin,FieldEnd,InstrText,
 	BookmarkBegin, BookmarkEnd,
 	Header:(...args)=>HeaderFooter(...args, "header"),
 	Footer:(...args)=>HeaderFooter(...args, "footer"),

@@ -197,8 +197,6 @@ export default class Reducer{
 		const $p=this.$().findFirst('paragraph')
 		if($p.length>0){
 			this.cursorAt($p.attr('id'),0)
-			this.forward()
-			this.backward()
 		}
 	}
 

@@ -175,13 +175,43 @@ export default class Field{
         /**formula:["New Author"]*/
         /**switches:*:text formating switch*/
         return context.coreDocProp("dc:creator")
-    } //COMMENTS, DOCPROPERTY, FILENAME, FILESIZE, KEYWORDS, LASTSAVEDBY, NUMCHARS, NUMPAGES, NUMWORDS, SUBJECT, TEMPLATE, TITLE
-    NUMPAGES(){
+    } //COMMENTS, DOCPROPERTY, FILENAME, FILESIZE, NUMCHARS,
+    NUMWORDS(context){
+        return context.appDocProp('Words')
+    }
+    NUMCHARS(context){
+        return context.appDocProp('Characters')
+    }
+    TEMPLATE(context){
+        return context.appDocProp('Template')
+    }
+    KEYWORDS(context){
+        return context.coreDocProp("cp:keywords")
+    }
+    SUBJECT(){
+        return context.coreDocProp('dc:subject')
+    }
+    TITLE(context){
+        return context.coreDocProp('dc:title')
+    }
+    LASTSAVEDBY(context){
+        return context.coreDocProp('cp:lastModifiedBy')
+    }
+    FILENAME(context){
+        return context.doc.props.name||""
+    }
+    FILESIZE(context){
+        return context.doc.props.size||0
+    }
+    NUMPAGES(context){
         /**category: document information */
         /**desc: the name of the document's author from the document properties*/
         /**formula:["New Author"]*/
         /**switches:*:text formating switch*/
-        return context.statistics("totalPages")
+        if(context.statistics("allComposed")){
+            return context.statistics('pages')
+        }
+        return context.appDocProp("Pages")
     }
     //document automation - COMPARE, DOCVARIABLE, GOTOBUTTON, IF, MACROBUTTON, PRINT
     //equations and formulas - =formula, ADVANCE, SYMBOL
@@ -204,7 +234,7 @@ export default class Field{
         /**desc: Insert the number of the current section*/
         /**formula:[\* Format Switch]*/
         /**switches:*:number formatting options*/
-        return 
+        return 1
     }
     SECTIONPAGES(){
         /**category: Numbering */
@@ -212,7 +242,7 @@ export default class Field{
         /**formula:[\* Format Switch]*/
         /**switches:*:number formatting options*/
         const {topFrame}=context.selection?.props('page')
-        const {allComposed, composed=[]}=topFrame.context.parent.computed
+        const {composed=[]}=topFrame.context.parent.computed
         return composed.length
     }// SEQ
 

@@ -66,8 +66,8 @@ export default ({Section,Group})=>class __$1 extends Component{
 			},{x:left,cols:[]}).cols
 	}, shallowEqual)
 
-	getHeaderFooter({I,i},context){
-		const {context:{evenAndOddHeaders},props:{titlePg=true,id}}=this
+	getHeaderFooterLayout({I,i, },context){
+		const {context:{evenAndOddHeaders},props:{titlePg=true,id,pgNumType}}=this
 		const inheritHeaderFooter=type=>{
 			const document=context.getComposer("root")
 			const sections=Children.toArray(document.props.children)
@@ -76,14 +76,18 @@ export default ({Section,Group})=>class __$1 extends Component{
 			return sections.slice(0,sections.indexOf(id)+1)
 				.reduceRight((found,id)=>found||context.getComposer(id).named(type),null)
 		}
-		const get=type=>[titlePg&&(I==0 ? "first" :false),evenAndOddHeaders&&(i%2==0 ? "even" : "odd"),'default']
-			.filter(a=>!!a)
-			.reduceRight((found,a)=>found || inheritHeaderFooter(`${type}.${a}`),null)
+		const get=type=>{
+			const prioritized=[titlePg&&(I==0 ? "first" :false),evenAndOddHeaders&&(i%2==0 ? "even" : "odd"),'default'].filter(a=>!!a)
+			const found=prioritized.reduceRight((found,a)=>found || inheritHeaderFooter(`${type}.${a}`),null)
+			if(found){
+				return React.cloneElement(found,{I,i,pgNumType})
+			}
+		}
 
 		return {header: get("header"), footer:get("footer")}
 	}
 
-	getCreate=memoize((width,height,margin,cols,type)=>{
+	factoryOfCreateLayout=memoize((width,height,margin,cols,type)=>{
 		return (props,context)=>{
 			const WordSection=this.constructor.Section(Section)
 			const Page=WordSection.Layout
@@ -103,7 +107,7 @@ export default ({Section,Group})=>class __$1 extends Component{
 				}
 			}
 
-			var {header,footer}=this.getHeaderFooter(props,context)
+			var {header,footer}=this.getHeaderFooterLayout(props,context)
 			
 			var y0=margin.top
 			if(header){
@@ -132,7 +136,7 @@ export default ({Section,Group})=>class __$1 extends Component{
 	render(){
 		const WordSection=this.constructor.Section(Section)
 		const {pgSz:{width,height},  pgMar, cols, type,...props}=this.props
-		const create=this.getCreate(width,height,pgMar,this.getCols(width,pgMar,cols),type)
+		const create=this.factoryOfCreateLayout(width,height,pgMar,this.getCols(width,pgMar,cols),type)
 
 		return(<WordSection createLayout={create} {...props}/>)
 	}
@@ -211,8 +215,9 @@ export default ({Section,Group})=>class __$1 extends Component{
 					return React.cloneElement(content,props,
 						<Group.Layers inactiveStyle={{opacity:0.4}}>
 							{[
-								<Group.Layer key="headerfooter" z={Number.MIN_SAFE_INTEGER} areas={hfAreas}>
-									{header}{footer}
+								<Group.Layer key="headerfooter" z={0} areas={hfAreas}>
+									{header}
+									{footer}
 								</Group.Layer>,
 								<Group.Layer key="content" z={Number.MAX_SAFE_INTEGER} areas={contentAreas}>
 									{content.props.children}
