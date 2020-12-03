@@ -5,18 +5,28 @@ a document editing library
 ```sh
 npm install we-edit
 ```
+## Picture
+Preceding DOM can be rendered(evolved) to next DOM for different purpose, which exactly match **Reactjs Component **concept.
+* Evolve in order: 
+	* File 
+	* content state:{root:{children:[...]},001:{},...}
+	* Content DOM
+	* Representation DOM
+	* View DOM
+	* Emit DOM/Event
+* content state as store to support multiple view/edit/emit tasks for same state
+* utilize React to evolve DOM for different purpose, and to improve performance 
+* installable plugin to extend system, including Input, Loader, Stream, Emitter Format, Representation
 
-## design : Loader load input file by Stream, convert it to redux store, create representation document based on state in the store to view/edit in browser, or emit to a file format 
+
+## design
+Loader load input file by Stream, convert it to redux store, create representation document based on state in the store to view/edit in browser, or emit to a file format 
 * Loader (Input) -> we-edit models
 * Viewer/Editor/Emitter -> we-edit document
 * Represenation(pagination/html/text) -> view document
 * Emitter.Format -> output document
 * Stream(load,write) -> file/url/object/...
 
-## concept
-* state document as store to support multiple view/edit/emit tasks for same state
-* utilize React to evolve documents for different purpose, and to improve performance 
-* installable plugin to extend system, including Input, Loader, Stream, Emitter Format, Representation
 
 
 ###example
@@ -31,7 +41,7 @@ npm install we-edit
 	iDocx.install()
 	lsFile.install()
 
-	render(
+	render(// loade file and then emit to a file stream with formats of pdf, svg, and html
 		<Loader type="file" path="./test.docx">
 			<Emitter>
 				<Stream type="file" path="./test" name={({format})=>`test.${format}`}>
@@ -54,7 +64,7 @@ npm install we-edit
 
 	iDocx.install()
 	lsBrowser.install()
-	ReactDOM.render(
+	ReactDOM.render(//load from browser to view in pages
 		<Loader type="browser">
 			<Viewer representation={<Representation type="pagination"/>}>
 		</Loader>,
@@ -70,7 +80,7 @@ npm install we-edit
 
 	iDocx.install()
 	lsBrowser.install()
-	ReactDOM.render(
+	ReactDOM.render(// load from browser to edit in pages
 		<Loader type="browser">
 			<Editor representation="pagination"/>
 		</Loader>,
@@ -80,7 +90,7 @@ npm install we-edit
 	//or without loader to use load of Input Type
 	iDocx.load(file)
 		.then(doc=>{
-			return ReactDOM.render(
+			return ReactDOM.render(//edit an existing document store in pages
 				<doc.Store>
 					<Editor representation="pagination"/>
 				</doc.Store>,
@@ -97,7 +107,7 @@ npm install we-edit
 	import ReactDOM from "react-dom"
 		iDocx.install()
 		lsBrowser.install()
-		ReactDOM.render(
+		ReactDOM.render(//load document from browser to view in html, and to edit in pages at same time
 			<Loader type="browser">
 				<div style={{position:"absolute",left:0,width:500}}>
 					<Editor representation="pagination"/>

@@ -14,8 +14,73 @@ import Pagination from "we-edit-representation-pagination"
 let representation=<Pagination/>
 ReactDOM.render(<Editor representation={<Pagination/>}/>)
 ```
+## Picture
+* composable: define capabilities of layout component
+	* layout: based on space
+		* constraint-space: layout always happens in a constraint space
+			* width: left <-> right
+			* height: top <-> bottom
+			* wrappees: excluded areas in the space
+		* block: vertical layout, progressive implementation based on following capabilities
+			* flow: flow content
+			* anchorable: anchor some content when flow
+			* widow-orphan controllable
+			* columnable
+			* balanceable: balance content in columns
+			* autofitable: autofit content into the space
+		* inline: horizontal layout, line height/decend, justify, and merge words for performance improvement
+			* appendAtom
+			* appendAnchor
+			* appendTab
+			* appendLineBreak
+			* appendPageBreak
+			* appendParagraphEnd
+
+	* noChild
+	* hasChild
+	* hasParentAndChild
+	* locatable: make everything locatable in composed result
+		* locatorize: manage locatable components
+	* recomposable: how to use cache when compose again
+	* stoppable: how to stop myself when layout stop
+	* continuable: control whole layout continue/stop in a component
+	* composed-all-trigger: sequentialize layout
+	* use-cached
+		* help manage cached layout components with locatorized component
+		* help understanding recompose process when inspecting doc tree
+* composed : view DOM
+	* svg
+		* component of composed document tree
+		* responsible: for viewer/editor
+			* react to events
+			* cursor shape, selection shape
+			* control layout process by compose-more-trigger
+			* positioning
+			* movable, resizeable, ..., to support object modification
+	* canvas: *in future*
+* dom: represenation DOM, layout components
+* fonts: font management
+* measure: word/string measure
+* output: based on view DOM
+	* default based on event: onDocument, onPage, ...
+	* react-render model also supported as advanced feature
+* wordwrap: line break oppotunity
 
 ## Components
+* Document
+	* props
+		* canvas
+		* __sequentialCompose
+* Section: a Page Layout creator
+* Template: a reusable content as template
+	* Use: a reference to template in layout
+* Frame: layout management
+* Paragraph: word wrap, break to atoms, and layout inline
+* Text
+	* Tab, LineBreak, PageBreak, FormFeed, ...
+* Container: customizable type, and createComposed2Parent for special atoms
+* ....
+
 
 ###Pagination: default, auto registration as representation[type="pagination"]
 ###Output: inherit Emitter.Format to provide output interface with following functions
@@ -67,3 +132,4 @@ class PDF extends Output{
 }
 
 ```
+## API
