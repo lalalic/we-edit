@@ -142,6 +142,30 @@ export default ({Paragraph,Text,Group})=>class DocxParagraph extends Component{
 
 			static Line=class Line extends Paragraph.Line{
 				appendAtom(atom){
+					if(atom.props.anchor){
+						return this.appendAnchor(atom)
+					}
+			
+					if(atom.props.tokenizeOpportunity===Text.Tab){
+						return this.appendTab(atom)
+					}
+			
+					if(atom.props.tokenizeOpportunity===Text.LineBreak){
+						return this.appendLineBreak(atom)
+					}
+			
+					if(atom.props.tokenizeOpportunity===Text.PageBreak){
+						return this.appendPageBreak(atom)
+					}
+			
+					if(atom.props.className=="ender"){
+						return this.appendParagraphEnd(atom)
+					}
+			
+					if(this.pageBreak){/*immediately break line*/
+						return false
+					}
+
 					switch(this.tab?.align){
 						case "center":{
 							if(this.tab.width>=(atom.props.width/2)){

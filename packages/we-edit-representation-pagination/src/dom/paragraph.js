@@ -73,7 +73,10 @@ class Paragraph extends Super{
 			return 
 		}
 		const last=this.atoms[this.atoms.length-1]
-		if(last && last.props.tokenizeOpportunity && content.props.tokenizeOpportunity){
+		if(last?.props.tokenizeOpportunity && 
+			content.props.tokenizeOpportunity &&
+			!Tokenizers.includes(last.props.tokenizeOpportunity)
+			){
 			const lastText=last.props.tokenizeOpportunity
 			const text=content.props.tokenizeOpportunity
 			const ops=breakOpportunities(`${lastText}${text}`)
