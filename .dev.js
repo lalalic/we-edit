@@ -172,7 +172,7 @@ function testOffice(Target, representation="pagination"){
 		</Workspace>
 	)
 
-	Office.install(myWorkspace,dispatch=>{
+	Office.install(iDocx.Workspace,dispatch=>{
 		fetch("/basic.docx")
 			.then(res=>res.blob())
 			.then(data=>{

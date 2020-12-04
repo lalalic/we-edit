@@ -162,6 +162,7 @@ export default ({Paragraph,Text,Group})=>class DocxParagraph extends Component{
 									if(fractionWidth<=availableWidth){//lower part ok
 										this.tab.width-=x
 										this.inlineSegments.push(React.cloneElement(atom,{atom,x:this.tab.pos-x}),true)
+										this.tab.align=null
 										return 
 									}else{//lower part without enough space
 										if(this.tab.width+availableWidth>=atom.props.width){
@@ -198,10 +199,12 @@ export default ({Paragraph,Text,Group})=>class DocxParagraph extends Component{
 				}
 
 				_decimalTabAlignX(atom){
-					if(!atom.props?.tokenizeOpportunity?.match){
-						return false
-					}
-					const match=atom.props.tokenizeOpportunity.match(/\d+\.\d+|\d+\.?|\.?\d+|\./)||[]
+					const text=new ReactQuery(atom).find('[data-type="text"]')
+						.toArray()
+						.map(({props:{children}})=>typeof(children)=="string" ? children :"")
+						.join("")
+					
+					const match=text.match(/\d+\.\d+|\d+\.?|\.?\d+|\./)||[]
 					if(!match[0]){
 						return false
 					}

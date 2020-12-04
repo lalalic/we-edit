@@ -215,11 +215,11 @@ export default ({Section,Group})=>class __$1 extends Component{
 					return React.cloneElement(content,props,
 						<Group.Layers inactiveStyle={{opacity:0.4}}>
 							{[
-								<Group.Layer key="headerfooter" z={0} areas={hfAreas}>
+								<Group.Layer key="headerfooter" z={1} areas={hfAreas}>
 									{header}
 									{footer}
 								</Group.Layer>,
-								<Group.Layer key="content" z={Number.MAX_SAFE_INTEGER} areas={contentAreas}>
+								<Group.Layer key="content" z={2} areas={contentAreas}>
 									{content.props.children}
 								</Group.Layer>
 							]}

@@ -13,7 +13,7 @@ export default ({Frame},displayName="headerFooter")=>class HeaderFooter extends 
 
     render(){
         const HFFrame=this.constructor.ReFrame
-        return <HFFrame {...this.props} width={this.context.headerFooterWidth}/>
+        return <Frame {...this.props} width={this.context.headerFooterWidth}/>
     }
 
     //evolve

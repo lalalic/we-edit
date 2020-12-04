@@ -605,7 +605,7 @@ export default class ReactPositioning extends PositioningHelper {
             },
 
             get layer(){
-                const {parents}=new ReactQuery(topFrame.createComposed2Parent()).findFirstAndParents(`[data-content="${id}]`)
+                const {parents}=new ReactQuery(topFrame.createComposed2Parent()).findFirstAndParents(`[data-content="${id}"]`)
                 const layer=parents.find(a=>a && a.type.displayName=="layer")
                 if(layer){
                     return layer.props.z

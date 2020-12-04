@@ -37,6 +37,17 @@ describe("react query", ()=>{
             expect($.findFirst("*").attr('type')).toBe('div')  
         })
 
+        it("[d=1]",()=>{
+            const $=new ReactQuery(<div><i d="1">good</i><span className="good"><span>hello</span><i>bad</i></span></div>)
+            expect($.findFirst("[d=1]").attr('type')).toBe('i')  
+        })
+
+        it("[d='1 2']",()=>{
+            const $=new ReactQuery(<div><i d="1 2" a=".+-sd">good</i><span className="good"><span>hello</span><i>bad</i></span></div>)
+            expect($.findFirst("[d='1 2']").attr('type')).toBe('i')  
+            expect($.findFirst("[a='.+-sd']").attr('type')).toBe('i')  
+        })
+
         xit("unions not supported yet: >< +~",()=>{
             expect("unions supported").toBe(true)
         })

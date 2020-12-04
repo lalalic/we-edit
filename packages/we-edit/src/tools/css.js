@@ -1,7 +1,14 @@
 //selector,selector
+const VAR=/^____(\d+)$/
 export default function selectors(a,$,basic){
 	try{
-		return n=>!!a.split(",").map(k=>unionSelector(k.trim(),$, basic)).find(f=>f(n)) ? true : undefined
+		//at first remove "",''
+		const vars=[]
+		a=a.replace(/('.*?')|(".*?")/gu,m=>{
+			vars.push(m.substring(1,m.length-1))
+			return `____${vars.length-1}`
+		})
+		return n=>!!a.split(",").map(k=>unionSelector(k.trim(),$, basic,vars)).find(f=>f(n)) ? true : undefined
 	}catch(error){
 		debugger
 		throw error
@@ -23,15 +30,15 @@ const SCOPE={
 		"~":"next"
 	}
 const UNION=/[\s\[,:<>+~]/
-function unionSelector(a,$, basic){
+function unionSelector(a,$, basic,vars){
 	try{
 		let selectors=a.split(/(?=[><+~\s])/g)
 		const scopes=selectors.slice(1).map(k=>SCOPE[k[0]])
 		selectors=selectors.map(k=>k.replace(/^[><+~]/,"")).map(k=>k.trim())
 		const nodeSelector=selectors.pop()
-		const nodeCheck=basicSelectors(nodeSelector,basic)
+		const nodeCheck=basicSelectors(nodeSelector,basic,vars)
 		const checks=selectors.map((a,i)=>{
-			const check=basicSelectors(a,basic)
+			const check=basicSelectors(a,basic, vars)
 			return n=>$(n)[scopes[i]](check).length>0
 		}).reverse()
 		return n=>{
@@ -50,7 +57,7 @@ function unionSelector(a,$, basic){
 //p#id[k=v], any fail cause fail
 //id=\w{.*}
 //[k="vddd.*H"]
-function basicSelectors(a,basic=basic){
+function basicSelectors(a,basic=basic,vars){
 	//[a=""],#23{god.sidd,ck}
 	const checks=a.split(/(?<![\{\[][^\{\}\[\]]*)(?=[#.\[\*])/g)
 		.filter(a=>!!a)
@@ -73,8 +80,12 @@ function basicSelectors(a,basic=basic){
 					return basic["#"](k.substr(1))
 				case '[':{
 					const args=k.substr(1,k.length-2).split("=")
-					if(args.length==2)
-						args[1]=args[1].replace(/^[`'"]/,"").replace(/[`'"]$/,"")
+					if(args.length==2){
+						const [,i]=args[1].match(VAR)||[]
+						if(i){
+							args[1]=vars[parseInt(i)]
+						}
+					}
 					return basic["["](...args)
 				}
 				case ".":

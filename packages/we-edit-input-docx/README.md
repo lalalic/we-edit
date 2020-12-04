@@ -13,7 +13,7 @@ It's to support docx with input and workspace. **It should be moved as an extens
     * Field in content should be updated on demand
     * NOT support toggle code/value (**to simplify input reducer**)
     * Page/Numpages in header/footer should be updated in time
-        * recompose when 
+        * reframe header/footer: works for viewer/emitter
         * NUMPAGES
             * Not trigger recompose, but render to dynamic that will be resolved during view
             * or response to ACTION.statistics to update content, then trigger recompose if necessary

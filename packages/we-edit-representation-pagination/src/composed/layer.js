@@ -43,7 +43,7 @@ export default class Layer extends Component{
         if(!selection)
             return {}
         const props=selection.props("page")
-        const active=props ? props.layer : undefined
+        const active=props?.layer
         return {active}
     })(class LayerContainer extends Component{
         static contextTypes={
