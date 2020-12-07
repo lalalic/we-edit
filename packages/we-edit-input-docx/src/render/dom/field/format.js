@@ -111,11 +111,14 @@ export default new Proxy({
     },
     chineseLegalSimplified(v){
         const U=["","拾","佰","仟","万"], D=["零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖"]
-        return Array.from(String(parseInt(v)))
+        const a=Array.from(String(parseInt(v)))
             .reverse().reduce((g,a,i)=>[...g,U[i],D[parseInt(a)]],[])
             .reverse()
             .join("")
             .replace(/零+$/gu,"")
+        return ({
+            "壹拾":"拾"
+        })[a]||a
     }
 },{
     get(format,k, receiver){

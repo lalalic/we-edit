@@ -80,6 +80,8 @@ export default ({Section,Group})=>class __$1 extends Component{
 			const prioritized=[titlePg&&(I==0 ? "first" :false),evenAndOddHeaders&&(i%2==0 ? "even" : "odd"),'default'].filter(a=>!!a)
 			const found=prioritized.reduceRight((found,a)=>found || inheritHeaderFooter(`${type}.${a}`),null)
 			if(found){
+				if(found.props.replacePageNum)
+					return found.props.replacePageNum({I,i,pgNumType})
 				return React.cloneElement(found,{I,i,pgNumType})
 			}
 		}

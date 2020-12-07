@@ -27,7 +27,7 @@ export default class Group extends PureComponent{
 			children,
 			background,
 			style,
-			margin,minWidth, width, height, index, childIndex,geometry,baseline,lineDescent,isLastRankOfRow,isFirstRowInPage,atom,pgNumType,
+			margin,minWidth, width, height, index, childIndex,geometry,baseline,lineDescent,isLastRankOfRow,isFirstRowInPage,atom,pgNumType,hasPage,hasNumpages,
 			contentWidth,wrap,pagination,anchor,blockOffset,named,descent,tokenizeOpportunity, mergeOpportunity, spaceHeight,editable,dispatch,tabWidth,
 			//className,id,
 			I,

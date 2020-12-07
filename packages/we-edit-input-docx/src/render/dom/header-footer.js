@@ -1,39 +1,95 @@
 import React,{Component} from "react"
 import PropTypes from "prop-types"
-import {ReactQuery} from "we-edit"
+import {ReactQuery, ContentQuery} from "we-edit"
+import memoize from "memoize-one"
 import {Field, Context} from "./field"
 
+const NUMPAGES_FIELDS='field[command="NUMPAGES"],fieldBegin[command="NUMPAGES"]'
+const PAGE_FIELDS='field[command="PAGE"],fieldBegin[command="PAGE"]'
 export default ({Frame},displayName="headerFooter")=>class HeaderFooter extends Component{
     static displayName=displayName
     
     static contextTypes={
+        activeDocStore: PropTypes.object,
         headerFooterWidth: PropTypes.number,
         editable: PropTypes.any,
     }
 
     render(){
-        const HFFrame=this.constructor.ReFrame
-        return <Frame {...this.props} width={this.context.headerFooterWidth}/>
+        const {hash}=this.props
+        const hasPage=this.hasPageField(hash), hasNumpages=this.hasNumpagesField(hash)
+        let TypedFrame=Frame
+        if(hasPage||hasNumpages){
+            if(this.context.editable){
+                if(hasPage){
+                    TypedFrame=this.constructor.ReFramePage    
+                }
+            }else{
+                TypedFrame=this.constructor.ReFrame
+            }
+        }
+        return <TypedFrame {...this.props} {...{
+            width:this.context.headerFooterWidth,
+            hasPage,hasNumpages,
+            getPageValue:this.getPageValue.bind(this)
+        }} />
+    }
+
+    hasPageField=memoize((hash)=>{
+        const $=new ContentQuery(this.context.activeDocStore.getState(),'#'+this.props.id)
+        return $.find(PAGE_FIELDS).toArray().join(",")
+    })
+
+    hasNumpagesField=memoize((hash)=>{
+        const $=new ContentQuery(this.context.activeDocStore.getState(),'#'+this.props.id)
+        return $.find(NUMPAGES_FIELDS).toArray().join(",")
+    })
+
+
+
+    getPageValue(id,{i, I, pgNumType}){
+        const {props:{instr}}=new ContentQuery(this.context.activeDocStore.getState(),'#'+id).toJS()
+        const field=Field.create(instr)
+        return field.execute({selection:{
+            props:type=>type=="page" ? {topFrame:{props:{i,I}}} : {pgNumType}
+        }})
+    }
+
+    /**no relayout for page number,  */
+    static ReFramePage=class extends Frame{
+        createComposed2Parent(...args){
+            const composed=super.createComposed2Parent(...args)
+            const {hasPage, pageFields=hasPage.split(","), getPageValue}=this.props
+            const $composed=new ReactQuery(<div>{composed}</div>)
+            const pageText=pageFields.map(id=>{
+                const $field=$composed.findFirst(`[data-content="${id}"]`)
+                if($field.attr('data-type')=="field"){//simple field
+                    return $field.findFirst('text').get(0)
+                }else{//fieldBegin
+                    const possible=$composed.find(`[data-content="${id}"],[data-type=text]`).toArray()
+                    const i=possible.indexOf($field.get(0))
+                    return possible.slice(i+1).find(a=>a.props['data-type']=='text')
+                }
+            })
+            return React.cloneElement(composed,{
+                replacePageNum:(page)=>{
+                    //return composed
+                    return pageText.reduce(($,a,i)=>$.replace(a, React.cloneElement(a,{children:getPageValue(pageFields[i],page)})),$composed)
+                        .attr('children')
+                }
+            })
+        }
     }
 
     //evolve
     static ReFrame=class extends Frame{
         createComposed2Parent(...args){
             const composed=super.createComposed2Parent(...args)
-            if(this.needReLayout){
-                return (
-                    <this.constructor.ReLayout {...composed.props} composed={composed}>
-                        <Frame {...this.props} />
-                    </this.constructor.ReLayout>
-                )
-            }
-            return composed
-        }
-
-        get needReLayout(){
-            return new ReactQuery(<div>{this.props.children}</div>)
-                .find('field[command="PAGE"],field[command="NUMPAGES"],fieldBegin[command="NUMPAGES"],fieldBegin[command="NUMPAGES"]')
-                .length>0
+            return (
+                <this.constructor.ReLayout {...composed.props} composed={composed}>
+                    <Frame {...this.props} />
+                </this.constructor.ReLayout>
+            )
         }
 
         static ReLayout=class extends Component{
