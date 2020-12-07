@@ -1,6 +1,7 @@
 import {Image,Section,Paragraph,Table} from "./dom"
 import {Context, Field} from "../render/dom/field"
 import FieldEditor from "./dom/field"
+import ToC from "./dom/toc"
 
 export default{
     create_table_at_end_of_up_to_document(){
@@ -184,5 +185,75 @@ export default{
         r.after(editor.trim(editor.template(instr,field.execute(new Context(this._state)))))
         this.file.renderChanged(p)
         this.cursorAt(this.file.makeId(r.next(),0))
-    }
+    },
+
+    create_toc({canvas,instr}){
+        //find headings
+        const field=Field.create(instr)
+        const officeDocument=this.file.doc.officeDocument.content
+        const styles=this.$('#root').attr('styles')
+        const outlinePStyles=Object.keys(styles).filter(k=>{
+            const style=styles[k]
+            if(style.type=="paragraph"){
+                const level=style.get('p.heading')
+                if(level>=field.minLevel && level<=field.maxLevel){
+                    return true
+                }
+            }
+        })
+        const outlineRStyles=Array.from(new Set(outlinePStyles.reduce((dd,k)=>[styles[k].getLink()?.id,...dd],[]).filter(a=>!!a)))
+        
+        let uid=Math.max(0,...this.$('bookmarkStart').map(a=>parseInt(a.getIn('props','i'))))
+        let tocid=Date.now()
+
+        const content=officeDocument.root()
+        const pSelectors=[
+                ...new Array(field.maxLevel-field.minLevel+1).fill(0).map((k,i)=>field.minLevel+i).map(l=>`w\\:pPr>w\\:outlineLvl[w\\:val=${l}]`),//direct p
+                ...outlinePStyles.map(a=>`w\\:pPr>w\\:pStyle[w\\:val="${a}"]`),
+            ]
+        const rSelectors=outlineRStyles.map(a=>`w\\:rPr>w\\:rStyle[w\\:val="${a}"]`)
+        const headings=content.find([...pSelectors,...rSelectors].join(","))
+            .closest("w\\:p")
+            .map((i,p)=>{
+                p=officeDocument(p)
+                let pr=p.find(pSelectors.join(",")), level,text
+                if(pr.length){
+                    p.append(`<w:bookmarkEnd w:id="${++uid}"/>`)
+                        .children('w\\:pPr')
+                        .after(`<w:bookmarkStart w:id="${uid}" w:name="_Toc${++tocid}"/>`)
+                    
+                    const $p=this.$('#'+this.file.makeId(p.get(0)))
+                    $p.append('#'+this.file.renderChanged(p.children("w\\:bookmarkEnd").last()).id)
+                        .prepend('#'+this.file.renderChanged(p.children("w\\:bookmarkStart").first()).id)
+                        
+                    level=$p.attr('style').get('p.heading')
+                    text=p.text()
+                }else{
+                    const r=p.find(rSelectors.join(",")).eq(0).closest('w\\:r')
+
+                    r.before(`<w:bookmarkStart w:id="${++uid}" w:name="_Toc${++tocid}"/>`)
+                        .after(`<w:bookmarkEnd w:id="${uid}"/>`)
+                    
+                    const $r=this.$('#'+this.file.makeId(r.get(0)))
+                    $r.before('#'+this.file.renderChanged(r.prev()).id)
+                        .after('#'+this.file.renderChanged(r.next()).id)
+                    level=$r.attr('style').getLink().get('p.heading')
+                    text=r.text()
+                }
+                return ToC.template1({tocid,level,text}) 
+            })
+            .get()
+            
+        const toc=ToC.template(headings)
+        
+        const target=this.target.before(toc)
+        target.prev()//toc
+            .find("w\\:sdtContent")
+            .children("w\\:p").eq(1)//
+            .children("w\\:pPr")
+            .after(ToC.field(instr))// TOC field
+
+        const $toc=this.$('#'+this.file.renderChanged(target.prev()).id).attr('needPage',true)
+        this.$target.before($toc)
+    },
 }

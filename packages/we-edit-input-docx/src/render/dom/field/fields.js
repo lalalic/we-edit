@@ -4,7 +4,8 @@ export default class Field{
     static create(instr){
         const [field, ...formats]=instr.trim().split("\\")
         const [command,...parameters]=field.split(/\s+/g)
-        return new Field(command,parameters.map(a=>a.trim()),formats.map(a=>a.trim()))
+        const Type=Field[command]||Field
+        return new Type(command,parameters.map(a=>a.trim()),formats.map(a=>a.trim()))
     }
 
     static get Summary(){
@@ -245,5 +246,33 @@ export default class Field{
         const {composed=[]}=topFrame.context.parent.computed
         return composed.length
     }// SEQ
+    static TOC=class extends this{
+        constructor(...args){
+            super(...args)
+            this.formats.forEach(a=>{
+                const [f,...o]=a.split(" ")
+                if(this[f]){
+                    this[f](o.join(" ").trim())
+                }
+            })
+        }
+        h(){
 
+        }
+
+        o(levels){
+            const [min,max]=levels.replace(/\"/g,"").split(/-/)
+            this.minLevel=parseInt(min)
+            this.maxLevel=parseInt(max)
+        }
+
+        z(){
+
+        }
+
+        u(){
+
+        }
+    }
 }
+

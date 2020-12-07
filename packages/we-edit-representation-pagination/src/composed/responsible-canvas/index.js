@@ -173,9 +173,9 @@ class Responsible extends Component{
                 />    
                 <Pilcrow canvas={id}/>
                 <DefineShapes/>
+                {children}
 				<Fragment>
-                    {children}
-					<Cursor
+                    <Cursor
                         ref={this.cursorNode}
                         keys={{
                             37:e=>this.onKeyArrowLeft(e),//move left

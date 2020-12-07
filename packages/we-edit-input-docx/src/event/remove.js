@@ -58,5 +58,28 @@ export default {
         }else{
             this.cursorAtEnd(backward.attr('id'))
         }
-    }
+    },
+
+    remove_toc(){
+        let $target=this.$target
+        $target=$target.is('ToC') ? $target : $target.closest('ToC')
+        const target=this.file.getNode($target.attr('id'))
+        const bookmarks=$target.find('hyperlink[anchor]').map((i,a)=>a.getIn(['props','anchor']))
+        const bookmarkIDs=[]
+        this._content.find(a=>{
+            if(bookmarks.includes(a.getIn(['props','name']))){
+                bookmarkIDs.push(a.get('id'))
+            }
+        });
+
+        [...bookmarkIDs,...bookmarkIDs.map(a=>`end${a}`)].forEach(id=>{
+            this.file.getNode(id).remove()
+            this.$(id).remove()
+        })
+        
+        target.remove()
+        $target.remove()
+
+        this.init()
+    },
 }

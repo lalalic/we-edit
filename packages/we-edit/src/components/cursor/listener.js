@@ -112,7 +112,7 @@ export default class Listener extends Component{
 
 	componentDidUpdate(){
 		requestAnimationFrame(()=>{
-			this.props.inputRef.current.focus()
+			this.props.inputRef.current?.focus()
 		})
 	}
 }

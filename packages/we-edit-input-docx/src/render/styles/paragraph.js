@@ -14,6 +14,7 @@ const attribs={
 export default class Paragraph extends Base{
 	constructor(node,styles,selector){
 		super(node, styles, selector)
+		this.type="paragraph"
 		this.p=this._convert(node, "w:pPr",attribs, selector)
 	}
 
@@ -21,6 +22,10 @@ export default class Paragraph extends Base{
 		constructor(node,styles,selector){
 			super(node, styles, selector)
 			this.p=this._convert(node, null,attribs, selector)
+		}
+
+		getLink(){
+			return this.styles[this.basedOn]?.getLink()
 		}
 	}
 

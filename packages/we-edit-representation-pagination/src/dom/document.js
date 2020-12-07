@@ -104,13 +104,14 @@ export default class extends editable(Document,{continuable:true}){
 	}
 
 	static getDerivedStateFromProps({hash,viewport,editable=true},state){
-		return {viewport,hash, editable, ...(hash!=state.hash && {mode:"content",y:0})}
+		return {viewport,hash, editable, ...(hash!=state.hash && {mode:"content",y:0,composeAll:false})}
     }
 
     constructor(){
 		super(...arguments)
         this.state={mode:"content", ...this.state}
         this.computed.shouldContinueCompose=true//cache for shouldContinueCompose
+        this.composeAll=this.composeAll.bind(this)
     }
     
     /**
@@ -175,7 +176,7 @@ export default class extends editable(Document,{continuable:true}){
         return canvas
     }
 
-    shouldComponentUpdate(){
+    shouldComponentUpdate(nextProps, nextState){
         this.__delocaterize()
         return super.shouldComponentUpdate(...arguments)
     }
@@ -189,6 +190,9 @@ export default class extends editable(Document,{continuable:true}){
      * 
 	 **/
 	shouldContinueCompose(composer){
+        if(this.state.composeAll){
+            return true
+        }
         if(this.computed.shouldContinueCompose===false){
             composer && this.notifyNotAllComposed(composer)
             return false
@@ -225,12 +229,23 @@ export default class extends editable(Document,{continuable:true}){
     }
 
 	compose4Scroll(y,x){
-		this.setState({mode:"scroll",y,x})
+		this.setState({mode:"scroll",y,x, composeAll:false})
 	}
 
 	compose4Selection(selection){
-		this.setState({mode:"selection",selection})
-	}
+		this.setState({mode:"selection",selection,composeAll:false})
+    }
+    
+    composeAll(){
+        return new Promise(resolve=>{
+            this.setState((state,props)=>{
+                if(state.composeAll || this.isAllChildrenComposed()){
+                    return {}
+                }
+                return {composeAll:true}
+            },resolve)
+        })
+    }
 }
 
 

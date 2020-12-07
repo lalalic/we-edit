@@ -17,6 +17,7 @@ import Inline from "./draw-inline"
 import Hyperlink from "./hyperlink"
 import {SimpleField as Field, FieldBegin, FieldEnd, InstrText} from "./field"
 import {BookmarkBegin, BookmarkEnd} from "./bookmark"
+import ToC from "./toc"
 
 const createUnvisibleComponent=type=>{
 	return class __$1 extends Component{
@@ -43,6 +44,7 @@ export default {
 	Hyperlink,
 	Field,FieldBegin,FieldEnd,InstrText,
 	BookmarkBegin, BookmarkEnd,
+	ToC,
 	Header:(...args)=>HeaderFooter(...args, "header"),
 	Footer:(...args)=>HeaderFooter(...args, "footer"),
 	Styles:()=>createUnvisibleComponent("styles"),

@@ -14,7 +14,7 @@ export default compose(
 	setDisplayName("FieldStyle"),
 	whenSelectionChange(({selection})=>{
         const field=selection?.isInField()
-        if(field){
+        if(field && field.attr('command')!="TOC"){
             const instr=field.attr('instr')
             const style=selection?.props("text",false)
             return {style:{...style,field:field.attr('id'),instr}}

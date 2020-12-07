@@ -16,6 +16,7 @@ const attribs={
 export default class Character extends Base{
 	constructor(node, styles, selector){
 		super(node, styles, selector)
+		this.type="character"
 		this.r=this._convert(node, "w:rPr",attribs, selector)
 	}
 
@@ -23,6 +24,10 @@ export default class Character extends Base{
 		constructor(node, styles, selector){
 			super(node, styles, selector)
 			this.r=this._convert(node, null,attribs, selector)
+		}
+
+		getLink(){
+			return this.styles[this.basedOn]?.getLink()
 		}
 	}
 

@@ -13,6 +13,20 @@ export default class xQuery extends Query{
 			return super.attr(...arguments)
 		}else{
 			this._nodes.forEach(id=>this._content.setIn([id,'props',k],v))
+			return this
+		}
+	}
+
+	text(v){
+		if(arguments.length==1){
+			this._nodes.forEach(id=>{
+				if(this._content.getIn([id,'type'])=='text'){
+					this._content.setIn([id,'children'],v)
+				}
+			})
+			return this
+		}else{
+			return super.text(...arguments)
 		}
 	}
 
@@ -97,6 +111,7 @@ export default class xQuery extends Query{
 			}
 			return this.attr('id')
 		})
+		return this
 	}
 
 	append(node){
@@ -114,5 +129,6 @@ export default class xQuery extends Query{
 			}
 			return this.attr('id')
 		})
+		return this
 	}
 }

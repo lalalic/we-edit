@@ -10,11 +10,11 @@
     "email": "lalalic@139.com"
   },
   "dependencies": {
-    "docx4js": "^3.2.9",
-    "material-ui": "^0.19.4",
+    "docx4js": "3.2.12",
     "fetchable": "^1.0.4",
     "lodash.get": "^4.4.2",
     "lodash.invoke": "^4.5.2",
+    "material-ui": "^0.19.4",
     "memoize-one": "^4.0.0",
     "readable-stream": "^3.4.0"
   },

@@ -45,7 +45,9 @@ export default class Editor{
 
     update(changing){
         this.apply(changing)
-        this.file.renderChanged(this.node)
+        if(this.node){
+            this.file.renderChanged(this.node)
+        }
     }
 
     apply(changing){

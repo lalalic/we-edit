@@ -5,6 +5,7 @@ import {Workspace, Ribbon, ContextMenu} from "we-edit-office"
 import {Divider} from "material-ui"
 
 import Field from "./field"
+import TOC from "./toc"
 import * as DocxTabs from "./tabs"
 
 import Canvas from "../representation/canvas"
@@ -28,6 +29,7 @@ export default (
                     more:(
                     <Fragment>
                         <Field/>
+                        <TOC/>
                       {/*  
                         <Links/>
                         <PageNumber/>
@@ -57,6 +59,7 @@ export default (
             <ContextMenu desktop={true}>
                 <Ribbon.Clipboard/>
                 <Divider/>
+                <TOC/>
                 <Field/>
                 <Ribbon.Text/>
                 <Ribbon.Paragraph/>

@@ -11,7 +11,7 @@ export default class OfficeContextMenu extends Component{
     render(){
         return (
             <ContextMenu>
-                <MuiThemeProvider muiTheme={getMuiTheme({menuItem:{height:32}})}>
+                <MuiThemeProvider muiTheme={getMuiTheme({menuItem:{height:"auto",dataHeight:"auto"}})}>
                     <Paper style={{display: 'inline-block'}}>
                         <Menu style={{minWidth:"200px"}} {...this.props}/>
                     </Paper>

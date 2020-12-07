@@ -1,6 +1,7 @@
 export default class {
 	constructor(node, styles, selector){
 		this.styles=styles
+		this.type="shape"
 		const pr=node.children.find(a=>a.name.endsWith(":spPr"))
 
 		if(pr){

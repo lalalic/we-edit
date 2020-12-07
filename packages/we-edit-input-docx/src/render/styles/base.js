@@ -98,6 +98,8 @@ export default class Style extends Linkable{
 			case "tblStyle":
 			case "basedOn":
 				return this.basedOn=a.attribs["w:val"]
+			case "link":
+				return this._link=a.attribs["w:val"]
 			}
 		})
 		if(!this.basedOn)
@@ -131,5 +133,9 @@ export default class Style extends Linkable{
 			}
 		}
 		return o
+	}
+
+	getLink(){
+		return this.styles[this._link]
 	}
 }

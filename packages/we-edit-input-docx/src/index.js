@@ -66,8 +66,7 @@ class DocxType extends Input.Editable{
 		const settings=officeDocument.settings
 
 		const styles=new (class{})();//keep as raw object in state
-		const fields=[]
-
+		
 		const createStylesElement=()=>{
 			return null
 			createElement(
@@ -230,23 +229,27 @@ class DocxType extends Input.Editable{
 				return createElement(components.Field,{instr,command:instr.split(" ")[0],display:$(node).text()},children,node)
 			}
 			case "begin":{
-				fields.push({node, id:this.makeId(node),instr:"",display:""})
-				return createElement(components.FieldBegin,{},[],node)
+				const field=$(node)
+				const instr=field.forwardUntil("w\\:fldChar[w\\:fldCharType=separate]","w\\:instrText").text().trim()
+				const command=instr.split(" ")[0]
+				if(command=="TOC")
+					return null
+				const display=field.forwardUntil("w\\:fldChar[w\\:fldCharType=end]","w\\:t").text()
+				return createElement(components.FieldBegin,{instr,command,display},[],node)
 			}
 			case "end":{
-				const {id,instr,display,...begin}=fields.pop()
-				const command=instr.trim().split(" ")[0]
-				createElement(components.FieldBegin,{instr:instr.trim(),display,command},[],begin.node)
-				this.makeId(node,undefined,`end${id}`)
+				const field=$(node).backwardUntil("w\\:fldChar[w\\:fldCharType=begin]")
+				const instr=field.forwardUntil("w\\:fldChar[w\\:fldCharType=separate]","w\\:instrText").text().trim()
+				const command=instr.split(" ")[0]
+				if(command=="TOC")
+					return null
+				this.makeId(node,undefined,`end${this.makeId(field.get(0))}`)
 				return createElement(components.FieldEnd,{command},children,node)
 			}
-			case "instrText":{
-				fields[fields.length-1].instr+=children[0]||""
-				return createElement(components.InstrText,{},children[0]||"",node)
-			}
-			case "t":{
+			case "instrText":
+				return null
+			case "t":
 				return createElement(components.Text,{},children[0]||"",node)
-			}
 			case "drawing.inline":
 				return createElement(components.Inline,{},children,node)
 			case "drawing.anchor":{
@@ -261,16 +264,33 @@ class DocxType extends Input.Editable{
 				prStyle.r=textStyle
 				return createElement(components.Shape,{...style, textStyle:prStyle},children,node)
 			}
-			case "bookmarkStart":
-				return createElement(components.BookmarkBegin,{},[],node)
-			case "bookmarkEnd":
+			case "bookmarkStart":{
+				const id=node.attribs["w:id"]
+				this.makeId(node,undefined, 'bookmark'+id)
+				return createElement(components.BookmarkBegin,{i:id, name:node.attribs["w:name"]},[],node)
+			}
+			case "bookmarkEnd":{
+				const id=node.attribs["w:id"]
+				this.makeId(node,undefined,'endbookmark'+id)
 				return createElement(components.BookmarkEnd,{},[],node)
+			}
 
+			case "control.docPartObj":{
+				const $node=$(node)
+				const type=$node.find("w\\:docPartGallery").attr("w:val").split(/\s+/g).map(a=>a.trim()[0]).join("")
+				const Typed=components[type]
+				if(Typed){
+					if($node.find("w\\:docPartUnique").length){
+						this.makeId(node, undefined, Typed.displayName)
+					}
+					return createElement(Typed,{},children,node)
+				}
+				return createElement(components.Container,{type},children,node)
+			}
 			case "Properties":
 			case "coreProperties":
 			case "property":
 				return null
-			
 			case "inline":
 			case "block":
 				return createElement(components.Container,{},children,node)

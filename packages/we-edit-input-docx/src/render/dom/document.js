@@ -107,5 +107,24 @@ export default ({Document})=>class __$1 extends Component{
 			}
 			super.appendComposed(page)
 		}
+
+		tocNeedPage(content=this.props.content){
+			const toc=ContentQuery.fromContent(content,'#ToC')
+			const page=toc.findFirst('fieldBegin[command=PAGEREF]')
+			const num=(page.attr('display')||"").trim()
+			return !num
+		}
+
+		static getDerivedStateFromProps(props,...args){
+			const state=super.getDerivedStateFromProps(props,...args)
+			if(!state.composeAll 
+				&& state.mode=="content" 
+				&& props.content.has('ToC') 
+				&& WordDocument.prototype.tocNeedPage(props.content)){
+				console.warn('compose all content because of toc need page')
+				state.composeAll=true
+			}
+			return state
+		}
 	})
 }

@@ -462,7 +462,7 @@ export class Properties{
 	}
 
 	outlineLvl(x){
-		return parseInt(x.attribs['w:val'])
+		return parseInt(x.attribs['w:val'])+1
 	}
 
 	asToggle(x){

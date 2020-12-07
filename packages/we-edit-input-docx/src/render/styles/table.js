@@ -16,6 +16,7 @@ const CNF='firstRow,lastRow,firstCol,lastCol,band1Vert,band2Vert,band1Horz,band2
 class WithBorder extends Paragraph{
 	constructor(node,styles,selector){
 		super(node, styles, selector)
+		this.type="table"
 		this.tbl=this._convert(node,"w:tcPr",{
 			"w:tcMargin":"margin",
 			"w:tcBorders":"border",

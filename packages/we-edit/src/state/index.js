@@ -4,6 +4,17 @@ import Immutable,{Map} from "immutable"
 import thunk from "redux-thunk"
 import {firstCursorable, getSelectionStyle, getSelection} from "./selector"
 
+export function stateSafe(o){
+	return new Proxy(o,{
+        get(o,k){
+            if(k=="toJSON"){
+                return a=>"..."
+            }
+            return Reflect.get(...arguments)
+        }
+    })
+}
+
 export function createStore(reducer,INIT_STATE){
 	const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
 	 	window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
@@ -19,11 +30,10 @@ export function createStore(reducer,INIT_STATE){
 
 export function createState(doc, content){
 	const id=firstCursorable(content)
-	doc.toJSON=()=>undefined
-
+	
 	return Map({
 		vendor:"we-edit",
-		doc, //source file
+		doc:stateSafe(doc), //source file
 		content, // models
 		selection:Immutable.fromJS({start:{id,at:0},end:{id,at:0},cursorAt:"end"}),
 		ui:{},
@@ -73,3 +83,4 @@ export const isDocumentReady=state=>{
 	}
 	return false
 }
+

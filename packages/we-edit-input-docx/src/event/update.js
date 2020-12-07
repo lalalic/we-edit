@@ -1,4 +1,4 @@
-import {Text,Paragraph,Image,Section,Table,Shape,Field} from "./dom"
+import {Text,Paragraph,Image,Section,Table,Shape,Field,TOC, Document} from "./dom"
 
 export default {
     update_at_text(props){
@@ -81,4 +81,15 @@ export default {
         editor.update(props)
         this.file.renderChanged(this.target.closest('w\\:p'))
     },
+
+    update_at_ToC(props){
+        const editor=new TOC(this)
+        editor.node=this.file.getNode('ToC')
+        editor.update(props)
+    },
+
+    update_at_document(props){
+        const editor=new Document(this)
+        editor.update(props)
+    }
 }

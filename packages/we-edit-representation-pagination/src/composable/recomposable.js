@@ -53,7 +53,7 @@ export default A=>{
                 //clear last allComposed, so it can be reset
                 this.computed.allComposed=undefined
             }
-            if(this.context.shouldContinueCompose && !this.context.shouldContinueCompose(this)){
+            if(this.context.shouldContinueCompose && !this.context.shouldContinueCompose(this,...arguments)){
                 return false
             }
             this.cancelUnusableLastComposed(...arguments)

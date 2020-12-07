@@ -1,15 +1,26 @@
 import React, {Component} from "react"
+import PropTypes from "prop-types"
 
-export const BookmarkBegin=({})=>class BookmarkBegin extends Component{
+export const BookmarkBegin=({Text})=>class BookmarkBegin extends Component{
     static displayName="bookmarkBegin"
     render(){
-        return null
-    }
+        return <Text {...{
+                        fonts:"Arial",
+                        size:10,
+                        ...this.props,
+                        children:String.fromCharCode(0),
+                    }}/>
+	}
 }
 
-export const BookmarkEnd=({})=>class BookmarkEnd extends Component{
+export const BookmarkEnd=({Text})=>class BookmarkEnd extends Component{
     static displayName="bookmarkEnd"
     render(){
-        return null
-    }
+        return <Text {...{
+                        fonts:"Arial",
+                        size:10,
+                        ...this.props,
+                        children:String.fromCharCode(0),
+                    }}/>
+	}
 }
