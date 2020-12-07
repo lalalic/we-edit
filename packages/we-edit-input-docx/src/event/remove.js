@@ -61,8 +61,7 @@ export default {
     },
 
     remove_toc(){
-        let $target=this.$target
-        $target=$target.is('ToC') ? $target : $target.closest('ToC')
+        const $target=this.$('#ToC')
         const target=this.file.getNode($target.attr('id'))
         const bookmarks=$target.find('hyperlink[anchor]').map((i,a)=>a.getIn(['props','anchor']))
         const bookmarkIDs=[]

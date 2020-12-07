@@ -27,6 +27,17 @@ export default class TOC extends Base{
         })
     }
 
+    whole(){
+        const $toc=this.reducer.$('#ToC')
+        const next=$toc.forwardFirst('paragraph')
+        const instr=this.reducer.file.getNode('ToC')
+            .forwardUntil('w\\:fldChar[w\\:fldCharType=separate]','w\\:instrText')
+            .text()
+        this.reducer.remove_toc()
+        this.reducer.cursorAt(next.attr('id'),0)
+        this.reducer.create_toc({instr})
+    }
+
     static template1({page="",tocid,level,text}){
         return `
             <w:p>

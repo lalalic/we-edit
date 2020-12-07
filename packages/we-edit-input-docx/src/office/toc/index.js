@@ -1,13 +1,12 @@
 import React,{Component,Fragment} from "react"
 
-import {ACTION, whenSelectionChange} from "we-edit"
+import {ACTION, whenSelectionChange, stateSafe} from "we-edit"
 import {Ribbon, Dialog, ContextMenu} from "we-edit-office"
 
 import {compose,setDisplayName,withState, withProps, } from "recompose"
 
 import {ToolbarGroup, FlatButton,MenuItem,Divider} from "material-ui"
 import TOCIcon from "material-ui/svg-icons/action/toc"
-import ArrowDropRight from 'material-ui/svg-icons/navigation-arrow-drop-right';
 
 
 export default compose(
@@ -29,12 +28,19 @@ export default compose(
             }
         }
     }),
-    withProps(({dispatch,toc:id, instr})=>({
+    withProps(({dispatch,toc:id, instr, canvas})=>({
         build(e,instr='TOC \\o "1-3" \\h \\z \\u'){
             dispatch(ACTION.Entity.CREATE({type:"ToC",instr}))
         },
         update(type){
-            dispatch(ACTION.Entity.UPDATE({toc:{type,instr},id}))
+            if(type=="page"){
+                canvas.props.document.setState({composeAll:true},()=>{
+                    dispatch(ACTION.Entity.UPDATE({document:{numpages:{canvas:stateSafe(canvas)}},id:"root"}))
+                })
+            }else{//
+                dispatch(ACTION.Entity.UPDATE({toc:{whole:{}},id}))
+            }
+            
         },
         remove(){
             dispatch(ACTION.Selection.REMOVE({type:"ToC"}))
@@ -46,11 +52,8 @@ export default compose(
         menus={!toc ? null : //not field
             (
                 <Fragment>
-                    <MenuItem primaryText="Update ToC" rightIcon={<ArrowDropRight/>} open={true} menuItems={[
-                        <MenuItem primaryText="Page Only" onClick={e=>update("page")}/>,
-                        <MenuItem primaryText="Whole ToC" onClick={e=>update("toc")}/>,
-                    ]}/>
-                    <MenuItem primaryText="Edit ToC..." onClick={e=>e.dialog=<BuildTOC id={toc} apply={build}/>}/>
+                    <MenuItem primaryText="Update ToC Page" onClick={e=>update("page")}/>,
+                    <MenuItem primaryText="Update Entire ToC" onClick={e=>update("whole")}/>,
                     <MenuItem primaryText="Remove ToC" onClick={remove}/>
                     <Divider/>
                 </Fragment>

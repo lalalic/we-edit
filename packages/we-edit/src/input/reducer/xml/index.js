@@ -195,7 +195,9 @@ export default (class XDocEvents extends Base{
                 this.emit("update",this.conds,changing)
             })
         }finally{
-            this.cursorAt(start.id,start.at,end.id,end.at)
+            if(this.$(`#${start.id}`).length && this.$(`#${end.id}`).length){
+                this.cursorAt(start.id,start.at,end.id,end.at)
+            }
         }
     }   
     
