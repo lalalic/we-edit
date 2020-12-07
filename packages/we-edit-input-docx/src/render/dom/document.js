@@ -95,36 +95,47 @@ export default ({Document})=>class __$1 extends Component{
 		return <WordDocument {...props}/>
 	}
 
-	static Document=memoize(Document=>class WordDocument extends Document{
-		appendComposed(page){
-			if(page.computed.isContinuousLayout){
-				const pages=this.computed.composed
-				const last=pages[pages.length-1]
-				if(last && last.continuous){
-					last.appendContinuousLayout(page)
+	static Document=memoize(Document=>{
+		if(!Document?.support('composable'))
+			return Document
+
+		class WordDocument extends Document{
+			appendComposed(page){
+				if(page.computed.isContinuousLayout){
+					const pages=this.computed.composed
+					const last=pages[pages.length-1]
+					if(last && last.continuous){
+						last.appendContinuousLayout(page)
+					}
+					return 
 				}
-				return 
+				super.appendComposed(page)
 			}
-			super.appendComposed(page)
 		}
 
-		tocNeedPage(content=this.props.content){
-			const toc=ContentQuery.fromContent(content,'#ToC')
-			const page=toc.findFirst('fieldBegin[command=PAGEREF]')
-			const num=(page.attr('display')||"").trim()
-			return !num
-		}
+		if(!Document?.support(['editable']))
+			return WordDocument
 
-		static getDerivedStateFromProps(props,...args){
-			const state=super.getDerivedStateFromProps(props,...args)
-			if(!state.composeAll 
-				&& state.mode=="content" 
-				&& props.content.has('ToC') 
-				&& WordDocument.prototype.tocNeedPage(props.content)){
-				console.warn('compose all content because of toc need page')
-				state.composeAll=true
+		return class EditableWordDocument extends WordDocument{
+			tocNeedPage(content=this.props.content){
+				const toc=ContentQuery.fromContent(content,'#ToC')
+				const page=toc.findFirst('fieldBegin[command=PAGEREF]')
+				const num=(page.attr('display')||"").trim()
+				return !num
 			}
-			return state
+
+			static getDerivedStateFromProps(props,...args){
+				const state=super.getDerivedStateFromProps(props,...args)
+				if(Document.displayName.indexOf('editable')!=-1 
+					&& !state.composeAll 
+					&& state.mode=="content" 
+					&& props.content.has('ToC') 
+					&& WordDocument.prototype.tocNeedPage(props.content)){
+					console.warn('compose all content because of toc need page')
+					state.composeAll=true
+				}
+				return state
+			}
 		}
 	})
 }

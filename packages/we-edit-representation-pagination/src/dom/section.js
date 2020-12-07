@@ -43,11 +43,6 @@ class Section extends Super{
 			return cloned
 		}
 	}
-    
-	constructor(){
-		super(...arguments)
-		this.computed.named={}
-	}
 
 	get isSection(){
 		return true
@@ -74,11 +69,6 @@ class Section extends Super{
             }
         }
     }
-
-	named(name){
-		return this.computed.named[name]
-	}
-
 
 	/**page index, or undefined */
 	get topIndex(){
@@ -142,21 +132,16 @@ class Section extends Super{
      * @returns
      * number: to rollback last number of lines
      */
-    appendComposed({props:{named,height}}){
-        if(named){
-            this.computed.named[named]=arguments[0]
-            return
-        }else{
-            const appended=this.current.appendComposed(...arguments)
-            if(appended===false){
-				if(this.nextAvailableSpace({height})){
-					return 1//recompose current line in case different availableSpace
-				}
-				return Frame.IMMEDIATE_STOP
-            }else if(Number.isInteger(appended)){
-                return appended
-            }
-        }
+    appendComposed({props:{height}}){
+		const appended=this.current.appendComposed(...arguments)
+		if(appended===false){
+			if(this.nextAvailableSpace({height})){
+				return 1//recompose current line in case different availableSpace
+			}
+			return Frame.IMMEDIATE_STOP
+		}else if(Number.isInteger(appended)){
+			return appended
+		}
 	}
 
 	onAllChildrenComposed(){

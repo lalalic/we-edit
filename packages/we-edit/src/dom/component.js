@@ -92,6 +92,10 @@ export default class Base extends Component{
 		return this.displayName.split("-").pop()
 	}
 
+	static support(...capabilities){
+		return capabilities.find(a=>this.displayName.indexOf(a)!=-1)
+	}
+
 	getComposeType(){
 		return this.constructor.getType()
 	}

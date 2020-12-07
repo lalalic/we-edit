@@ -20,7 +20,7 @@ It's to support docx with input and workspace. **It should be moved as an extens
         * PAGE
             * 
     * Special Rep-Canvas to indicate field area when focused
-    * TOC
+    * TOC: as whole to edit/remove, no Field
     * TOA
 * Hover: representation layer hasn't supportted yet
     * Field

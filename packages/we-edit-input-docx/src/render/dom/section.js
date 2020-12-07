@@ -148,6 +148,30 @@ export default ({Section,Group})=>class __$1 extends Component{
 			return Section
 
 		return class WordSection extends Section{
+			constructor(...args){
+				super(...args)
+				this.computed.named={}
+			}
+
+			named(name){
+				return this.computed.named[name]
+			}
+
+			/**
+			 * header/footer is named frame
+			 * @param {*} composedChildenContent 
+			 * @returns
+			 * number: to rollback last number of lines
+			 */
+			appendComposed(...args){
+				const {named}=args[0].props
+				if(named){
+					this.computed.named[named]=args[0]
+					return
+				}
+				return super.appendComposed(...args)
+			}
+
 			cancelUnusableLastComposed(...args){
 				const last=this.computed.lastComposed[this.computed.lastComposed.length-1]
 				if(last){

@@ -97,7 +97,7 @@ export default class SVG extends Base{
 	}
 
 	onText({text, ...attrs}){
-		this.stream.write(`<text ${this.spread(attrs)}>${text}</text>`)
+		this.stream.write(`<text ${this.spread(attrs)}>${text.replace(String.fromCharCode(0),"")}</text>`)
 	}
 
 	onGroup(attrs){

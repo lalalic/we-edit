@@ -88,13 +88,13 @@ describe("paragraph",()=>{
 
         it("right tab should push next content end at tabstop",()=>{
             return test("hello "+Tab+"world",[{pos:15,val:"right"}]).then(world=>{
-                expect(world.x).toBe(15-5-1)
+                expect(world.x).toBe(15-5)
             })
         })
 
         it("center tab should push next content centered at tabstop",()=>{
             return test("hello "+Tab+"world",[{pos:15,val:"center"}]).then(world=>{
-                expect(world.x).toBe(15-1-Math.floor(5/2))
+                expect(world.x).toBe(15-5/2)
             })
         })
 
