@@ -2653,6 +2653,16 @@ dns-txt@^2.0.2:
   dependencies:
     buffer-indexof "^1.0.0"
 
+docx4js@3.2.12:
+  version "3.2.12"
+  resolved "https://registry.npm.taobao.org/docx4js/download/docx4js-3.2.12.tgz#ee8675a4b4ece23ed4adf507f7f20edfd9c98236"
+  dependencies:
+    cfb "^0.12.1"
+    cheerio "^0.22.0"
+    color "^3.1.0"
+    htmlparser2 "^3.9.2"
+    jszip "^2.6.0"
+
 docx4js@^3.2.9:
   version "3.2.9"
   resolved "https://registry.npm.taobao.org/docx4js/download/docx4js-3.2.9.tgz#41bdceb8f275359758b9fa42b60ef16438e4ef86"
@@ -6441,7 +6451,7 @@ react-codemirror2@^6.0.0:
   version "6.0.0"
   resolved "https://registry.npm.taobao.org/react-codemirror2/download/react-codemirror2-6.0.0.tgz#180065df57a64026026cde569a9708fdf7656525"
 
-react-dom@16.7.0, react-dom@^16.1.1, react-dom@^16.5.1:
+react-dom@^16.1.1, react-dom@^16.5.1:
   version "16.7.0"
   resolved "https://registry.npm.taobao.org/react-dom/download/react-dom-16.7.0.tgz?cache=0&sync_timestamp=1596208770567&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Freact-dom%2Fdownload%2Freact-dom-16.7.0.tgz#a17b2a7ca89ee7390bc1ed5eb81783c7461748b8"
   dependencies:
@@ -6521,7 +6531,7 @@ react-waypoint@^7.3.1:
     consolidated-events "^1.1.0"
     prop-types "^15.0.0"
 
-react@16.7.0, react@^16.5.1:
+react@^16.5.1:
   version "16.7.0"
   resolved "https://registry.npm.taobao.org/react/download/react-16.7.0.tgz?cache=0&sync_timestamp=1596208696204&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Freact%2Fdownload%2Freact-16.7.0.tgz#b674ec396b0a5715873b350446f7ea0802ab6381"
   dependencies:
