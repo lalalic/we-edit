@@ -703,7 +703,7 @@ export default class ReactPositioning extends PositioningHelper {
                     (node,parents)=>[node,...parents].find(a=>a && a.props && "data-content" in a.props)
                 )
 
-                return {id:node.props["data-content"]}
+                return {id:node.props["data-content"],page:topFrame.props.I}
             }else{
                 //continue use frame search
             }
@@ -743,14 +743,15 @@ export default class ReactPositioning extends PositioningHelper {
                 line=leafFrame.lines[leafFrame.lines.length-1]
             }else{
                 //end of frame
-                return {id:leafFrame.props.id,at:1}
+                return {id:leafFrame.props.id,at:1,page:topFrame.props.I}
             }
         }
         
         const lineOffset=leafFrame.lineXY(line)
         //what if leafFrame is not leaf node?????
         const {pagination:{id,i}, paragraph=this.getComposer(id)}=line.props
-        return this.aroundInInline(paragraph.computed.lastComposed[i-1],x-topFrameOffset.x-leafFrameOffset.x-lineOffset.x)
+        const pos=this.aroundInInline(paragraph.computed.lastComposed[i-1],x-topFrameOffset.x-leafFrameOffset.x-lineOffset.x)
+        return {...pos,page: topFrame.props.I}
     }
 
     /**
