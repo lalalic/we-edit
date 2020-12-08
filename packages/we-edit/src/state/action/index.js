@@ -18,7 +18,7 @@ export const Text={
 }
 
 export const Selection={
-	SELECT: function(start, at=0, end=start, endAt=at){
+	SELECT: function(start, at=0, end=start, endAt=at,page){
 		endAt=arguments.length==1 ? 1 : endAt
 		return {
 			type:`we-edit/selection/SELECTED`,
@@ -30,7 +30,8 @@ export const Selection={
 				end:{
 					id:end,
 					at:endAt
-				}
+				},
+				page
 			}
 		}
 	},

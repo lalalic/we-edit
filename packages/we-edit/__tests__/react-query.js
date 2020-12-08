@@ -1,7 +1,40 @@
 import React from "react"
 import ReactQuery from "../src/tools/react-query"
+import {fromJS, isKeyed, Record} from "immutable"
 
 describe("react query", ()=>{
+    fdescribe("immutable implementation",()=>{
+        it("immutable",()=>{
+            
+            const $=<div><span>hello</span><i d="1">good</i></div>
+
+            const Component=Record({key:null,ref:null, type: null, props:{}})
+            const imu=fromJS($, (k, v)=>{
+                debugger
+                switch(k){
+                    case "children":{
+                        if(typeof(v)=="string"){
+                            return v
+                        }
+                        if(isKeyed(v)){
+                            return Component(v)
+                        }
+                        return v.toList()
+                    }
+                    case "props":
+                        return v.toMap()
+                    case "":
+                        return Component(v)
+
+                }
+                return v
+            })
+            debugger
+        })
+
+        
+    })
+
     describe("can query by ",()=>{
         it("any prop",()=>{
             const $=new ReactQuery(<div><span>hello</span><i d="1">good</i></div>)   
