@@ -8,7 +8,7 @@ export default class Frame extends Component{
 	static propTypes={
 		width:PropTypes.number.isRequired,
 		height:PropTypes.number,
-		named: PropTypes.string,
+		xhref: PropTypes.string,
 		cols:PropTypes.arrayOf(PropTypes.shape({
 			x:PropTypes.number,
 			width:PropTypes.number.isRequired,

@@ -79,12 +79,12 @@ class Frame extends Layout.Block{
 		var content=this.positionLines(this.lines)
 		const contentHeight=content.props.height
 		content=React.cloneElement(content,{y:alignY(contentHeight),className:"positionlines"})
-		const {width,height=rowHeight||contentHeight,margin:{left=0,top=0}={}, x,y,z,named}=this.props
+		const {width,height=rowHeight||contentHeight,margin:{left=0,top=0}={}, x,y,z,xhref}=this.props
 		if(!this.cols && (left||top)){
 			content=(<Group x={left} y={top}>{content}</Group>)
 		}
 		return (
-			<Group {...{width,height,x,y,z,named, className:"frame", "data-frame":this.uuid}}>
+			<Group {...{width,height,x,y,z,xhref, className:"frame", "data-frame":this.uuid}}>
 				{[
 					React.cloneElement(content,{key:"content"}),
 					...this.anchors.map((a,i)=>React.cloneElement(a,{key:i})),

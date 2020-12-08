@@ -3,10 +3,14 @@ import Unknown from "./component"
 
 export default class Template extends Unknown{
     static displayName="template"
-    static Use=({xhref})=>null
+    static Use=({xhref, varables})=>null
     
     static propTypes={
         xhref: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
         master: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    }
+
+    static childContextTypes={
+        notifyVariable: PropTypes.func
     }
 }

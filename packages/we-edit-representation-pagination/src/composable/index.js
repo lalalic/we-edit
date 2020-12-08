@@ -6,6 +6,7 @@ import Recomposable from "./recomposable"
 import Locatable from "./locatable"
 import Stoppable from "./stoppable"
 import Continuable from "./continuable"
+import Templatable from "./templatable"
 import ComposedAllTrigger from "./composed-all-trigger"
 
 import Layout from "./layout"
@@ -27,7 +28,8 @@ export default function composable(A,{locatable,stoppable,continuable,recomposab
         A=Continuable(A,Continuable)
     }
 
-    return A
+	A.composables={Recomposable,Locatable,Stoppable,Continuable, Templatable}
+	return A
 }
 
 
@@ -72,5 +74,5 @@ const enablify=func=>(targets, excludes)=>Object.keys(targets)
 export {enablify, editable,
 	Layout,
 	HasChild, HasParentAndChild, NoChild, ComposedAllTrigger,
-	Recomposable,Locatable,Stoppable,Continuable
+	Recomposable,Locatable,Stoppable,Continuable, Templatable
 }

@@ -6,7 +6,7 @@ import {Field, Context} from "./field"
 
 const NUMPAGES_FIELDS='field[command="NUMPAGES"],fieldBegin[command="NUMPAGES"]'
 const PAGE_FIELDS='field[command="PAGE"],fieldBegin[command="PAGE"]'
-export default ({Frame},displayName="headerFooter")=>class HeaderFooter extends Component{
+export default ({Frame,Template},displayName="headerFooter")=>class HeaderFooter extends Component{
     static displayName=displayName
     
     static contextTypes={
@@ -15,7 +15,14 @@ export default ({Frame},displayName="headerFooter")=>class HeaderFooter extends 
         editable: PropTypes.any,
     }
 
+    constructor(){
+        super(...arguments)
+        this.variables=new Variables()
+    }
+
     render(){
+        return <Template {...this.props} width={this.context.headerFooterWidth} variables={this.variables}/>
+
         const {hash}=this.props
         const hasPage=this.hasPageField(hash), hasNumpages=this.hasNumpagesField(hash)
         let TypedFrame=Frame
@@ -170,5 +177,48 @@ export default ({Frame},displayName="headerFooter")=>class HeaderFooter extends 
                 return $.get(0).props.children
             }
         }
+    }
+}
+
+//only support PAGE/NUMPAGES
+class Variables extends Array{
+    getValues=memoize(({I,i,pgNumType})=>{
+        return Array.from(this).reduce((values, {id,command,instr})=>{
+            const field=Field.create(instr)
+            switch(command){
+                case 'PAGE':{
+                    values[id]=field.execute({selection:{
+                        props:type=>type=="page" ? {topFrame:{props:{i,I}}} : {pgNumType}
+                    }})
+                    break
+                }
+                case 'NUMPAGES':{
+                    values[id]=field.execute({})
+                    break
+                }
+            }
+            return values
+        },{})
+    })
+
+    equals(variables){
+        const values=this.getValues(variables)
+        return !this.find(a=>a.display!=values[a.id])
+    }
+
+    add(variable){
+        if(!['PAGE','NUMPAGES'].includes(variable.command))
+            return 
+
+        const i=this.findIndex(a=>a.id==variable.id)
+        if(i!=-1){
+            this.splice(i,1,variable)
+        }else{
+            this.push(variable)
+        }
+    }
+
+    get size(){
+        return this.length
     }
 }

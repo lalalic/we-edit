@@ -20,7 +20,7 @@ import {shallowEqual} from "recompose"
  * ** 
  * 
  */
-export default ({Section,Group})=>class __$1 extends Component{
+export default ({Section,Group, Template})=>class __$1 extends Component{
 	static displayName="section"
 	static propTypes={
 		cols: PropTypes.shape({
@@ -74,15 +74,16 @@ export default ({Section,Group})=>class __$1 extends Component{
 				.filter(a=>a.type.displayName=="section")
 				.map(a=>a.props.id)
 			return sections.slice(0,sections.indexOf(id)+1)
-				.reduceRight((found,id)=>found||context.getComposer(id).named(type),null)
+				.reduceRight((found,id)=>found||context.getComposer(id).getComposedTemplate(type),null)
 		}
 		const get=type=>{
 			const prioritized=[titlePg&&(I==0 ? "first" :false),evenAndOddHeaders&&(i%2==0 ? "even" : "odd"),'default'].filter(a=>!!a)
-			const found=prioritized.reduceRight((found,a)=>found || inheritHeaderFooter(`${type}.${a}`),null)
-			if(found){
-				if(found.props.replacePageNum)
-					return found.props.replacePageNum({I,i,pgNumType})
-				return React.cloneElement(found,{I,i,pgNumType})
+			const template=prioritized.reduceRight((found,a)=>found || inheritHeaderFooter(`${type}.${a}`),null)
+			if(template){
+				return template.createComposed2Parent({I,i,pgNumType})
+				if(template.props.replacePageNum)
+					return template.props.replacePageNum({I,i,pgNumType})
+				return React.cloneElement(template,{I,i,pgNumType})
 			}
 		}
 
@@ -147,31 +148,7 @@ export default ({Section,Group})=>class __$1 extends Component{
 		if(!Section.Layout)
 			return Section
 
-		return class WordSection extends Section{
-			constructor(...args){
-				super(...args)
-				this.computed.named={}
-			}
-
-			named(name){
-				return this.computed.named[name]
-			}
-
-			/**
-			 * header/footer is named frame
-			 * @param {*} composedChildenContent 
-			 * @returns
-			 * number: to rollback last number of lines
-			 */
-			appendComposed(...args){
-				const {named}=args[0].props
-				if(named){
-					this.computed.named[named]=args[0]
-					return
-				}
-				return super.appendComposed(...args)
-			}
-
+		return Section.composables.Templatable(class WordSection extends Section{
 			cancelUnusableLastComposed(...args){
 				const last=this.computed.lastComposed[this.computed.lastComposed.length-1]
 				if(last){
@@ -316,6 +293,6 @@ export default ({Section,Group})=>class __$1 extends Component{
 					return super.columnIndexOf(lineIndex)
 				}
 			}
-		}
+		})
 	})
 }

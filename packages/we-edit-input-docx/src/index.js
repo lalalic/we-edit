@@ -168,7 +168,7 @@ class DocxType extends Input.Editable{
 							self.part=rId
 
 							children.splice(0,0,
-								createElement(HFType,{named:`${cat}.${type}`,type:`${cat}.${type}`},
+								createElement(HFType,{xhref:`${cat}.${type}`,type:`${cat}.${type}`},
 									root.children.map(a=>renderNode(a)),
 									root
 								)

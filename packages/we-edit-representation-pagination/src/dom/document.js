@@ -1,10 +1,8 @@
 import React, {Fragment} from "react"
 import PropTypes from "prop-types"
-import memoize from "memoize-one"
 
 import {HasChild, Locatable,editable} from "../composable"
-import {dom,getSelection,ContentQuery} from "we-edit"
-import Template from "./template"
+import {dom,getSelection} from "we-edit"
 import {Canvas} from "../composed"
 import Responsible from "../composed/responsible-canvas"
 
@@ -29,15 +27,9 @@ class Document extends Super{
     static childContextTypes={
         ...Super.childContextTypes,
         Measure: PropTypes.func,
-        getComposedTemplate:PropTypes.func,
         prevLayout: PropTypes.func,
         editable: PropTypes.any,
         precision: PropTypes.number,
-    }
-
-    constructor(){
-        super(...arguments)
-        this.computed.templates=[]
     }
 
     get pages(){
@@ -52,9 +44,6 @@ class Document extends Super{
         const self=this
         return {
             ...super.getChildContext(),
-            getComposedTemplate(xhref){
-                return self.computed.templates.find(a=>a.props.xhref===xhref)
-            },
             prevLayout(ref){
                 const pages=self.computed.composed
                 const i=pages.indexOf(ref)
@@ -83,9 +72,7 @@ class Document extends Super{
     }
 
 	appendComposed(page){
-        if(Template.isTemplate(page)){
-            this.computed.templates.push(page)
-        }else if(this.computed.composed.indexOf(page)==-1){
+        if(this.computed.composed.indexOf(page)==-1){
             this.computed.composed.push(page)
         }
     }
@@ -139,6 +126,9 @@ export default class extends editable(Document,{continuable:true}){
 
         this.__getCurrentLayoutComposer=id=>composers.get(id)
         
+        /**
+         * clear all current composer, and save in history
+         */
         this.__delocaterize=()=>{
             const {content}=this.props
             if(content){

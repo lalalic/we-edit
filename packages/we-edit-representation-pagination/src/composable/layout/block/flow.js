@@ -1,7 +1,9 @@
-import React from "react"
+import React,{Component} from "react"
 import PropTypes from "prop-types"
 import { dom, ReactQuery } from "we-edit"
+import memoize from "memoize-one"
 import { HasParentAndChild } from "../.."
+
 import { Group } from "../../../composed"
 import ConstraintSpace from "../constraint-space"
 import {Rect} from "../../../tool/geometry"
@@ -47,7 +49,8 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 		})),
 		inheritExclusives: PropTypes.bool,
 		allowOverflow: PropTypes.bool,
-	};
+	}
+
 	constructor() {
 		super(...arguments);
 		this.computed.anchors = [];
@@ -357,5 +360,56 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 
 	_isIntersect(A,B){
 		return new Rect(A.x, A.y, A.width, A.height).intersects(new Rect(B.x, B.y, B.width, B.height))
+	}
+
+	static get Async(){
+		const SyncTypeFrame=this
+		return class extends Component{
+			static propTypes={
+				"data-nocontent": PropTypes.bool,
+			}
+			static defaultProps={
+				"data-nocontent": true,
+			}
+			static childContextTypes={
+				parent: PropTypes.object,
+				mount: PropTypes.func,
+				getComposer: PropTypes.func,
+				shouldContinueCompose: PropTypes.func,
+			}
+
+			constructor(){
+				super(...arguments)
+				this.state={}
+			}
+
+			getChildContext(){
+				const self=this
+				return {
+					parent:{
+						appendComposed(frame){
+							self.frame=frame
+						},
+					},
+					mount(){
+
+					},
+					getComposer(){
+
+					},
+					shouldContinueCompose: ()=>true,
+				}
+			}
+
+			render(){
+				const {state:{composed}, props:{children, onComposed, ...props}}=this
+				return composed||<SyncTypeFrame {...props}>{children}</SyncTypeFrame>
+			}
+			componentDidMount(){
+				const {onComposed=a=>a}=this.props
+				const composed=this.frame.createComposed2Parent().props.children
+				this.setState({composed},()=>onComposed(composed))
+			}
+		}
 	}
 }
