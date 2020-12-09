@@ -116,14 +116,6 @@ export default class Template extends Frame{
         ,<div>{this.props.children}</div>)
         return replaced.props.children
     }
-
-    render1(){
-        const {resolvedChildren=[]}=this.state
-        if(resolvedChildren?.length){
-            return <Fragment>{resolvedChildren[0]}</Fragment>
-        }
-        return super.render()    
-    }
 }
 
 class Variables extends Set{

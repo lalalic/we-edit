@@ -3,7 +3,7 @@ import ReactQuery from "../src/tools/react-query"
 import {fromJS, isKeyed, Record} from "immutable"
 
 describe("react query", ()=>{
-    fdescribe("immutable implementation",()=>{
+    xdescribe("immutable implementation",()=>{
         it("immutable",()=>{
             
             const $=<div><span>hello</span><i d="1">good</i></div>

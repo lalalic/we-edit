@@ -28,20 +28,20 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
 		const around=jest.spyOn(doc.responsible.positioning,"around")
 
         doc.click(5,0)
-        expect(around).toHaveLastReturnedWith({id:"2"})
+        expect(around).toHaveLastReturnedWith({page:0,id:"2"})
                 
         new Array(5-1).fill(0).forEach((a,x)=>{
 			new Array(20-1).fill(0).forEach((a,y)=>{
                 doc.click(5+x,y)
-				expect(around).toHaveLastReturnedWith({id:"2"})
+				expect(around).toHaveLastReturnedWith({page:0,id:"2"})
 			})
 		})
 
         doc.click(1,10)
-		expect(around).toHaveLastReturnedWith({id:"0",at:1})
+		expect(around).toHaveLastReturnedWith({page:0,id:"0",at:1})
 
 		doc.click(10,10)
-		expect(around).toHaveLastReturnedWith({id:"3",at:1})
+		expect(around).toHaveLastReturnedWith({page:0,id:"3",at:1})
     })
 
     it("anchor can be located",()=>{
@@ -62,7 +62,7 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
 		)
         const around=jest.spyOn(doc.responsible.positioning,"around")
         doc.click(60,60)
-        expect(around).toHaveLastReturnedWith({id:"2"})
+        expect(around).toHaveLastReturnedWith({page:0,id:"2"})
     })
     
     it("second line of paragraph can be located",()=>{
@@ -79,10 +79,10 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
         const around=jest.spyOn(doc.responsible.positioning,"around")
         
         doc.click(1,1)
-        expect(around).toHaveLastReturnedWith({id:"1",at:1})
+        expect(around).toHaveLastReturnedWith({page:0,id:"1",at:1})
 
         doc.click(1,12)
-        expect(around).toHaveLastReturnedWith({id:"2",at:1})
+        expect(around).toHaveLastReturnedWith({page:0,id:"2",at:1})
     })
 
     it("clicking on first line space of line should locate at start of paragraph",()=>{
@@ -96,7 +96,7 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
         expect(doc.lines.length).toBe(2)
         const around=jest.spyOn(doc.responsible.positioning,"around")
         doc.click(1,1)
-        expect(around).toHaveLastReturnedWith({id:"1",at:0})
+        expect(around).toHaveLastReturnedWith({page:0,id:"1",at:0})
     })
 
     it("clicking on empty end space of first line should locate at end location of line",()=>{
@@ -110,7 +110,7 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
         expect(doc.lines.length).toBe(2)
         const around=jest.spyOn(doc.responsible.positioning,"around")
         doc.click(8,1)
-        expect(around).toHaveLastReturnedWith({id:"1",at:5})
+        expect(around).toHaveLastReturnedWith({page:0,id:"1",at:5})
     })
 
     it("clicking on empty end space of last line of paragraph should locate at end location of paragraph",()=>{
@@ -124,7 +124,7 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
         expect(doc.lines.length).toBe(2)
         const around=jest.spyOn(doc.responsible.positioning,"around")
         doc.click(8,11)
-        expect(around).toHaveLastReturnedWith({id:"2",at:5})
+        expect(around).toHaveLastReturnedWith({page:0,id:"2",at:5})
     })
 
     it("clicking empty space of frame, below last line, should locate at last line of frame",()=>{
@@ -144,9 +144,9 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
         const around=jest.spyOn(doc.responsible.positioning,"around")
         
         doc.click(8,1)
-        expect(around).toHaveLastReturnedWith({id:"0.1",at:3})
+        expect(around).toHaveLastReturnedWith({page:0,id:"0.1",at:3})
         doc.click(12,15)
-        expect(around).toHaveLastReturnedWith({id:"0.1",at:5})
+        expect(around).toHaveLastReturnedWith({page:0,id:"0.1",at:5})
     })
 
     it("ignore when out of content range, but shape should be selected when click on blank area ",()=>{
@@ -165,13 +165,13 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
 
 
         doc.click(5,5)
-        expect(around).toHaveLastReturnedWith({id:"1",at:1})
+        expect(around).toHaveLastReturnedWith({page:0,id:"1",at:1})
 /*
         doc.click(5,11)
         if(TESTING=="in shape"){//shape should be selected
-            expect(around).toHaveLastReturnedWith({id:"container"})
+            expect(around).toHaveLastReturnedWith({page:0,id:"container"})
         }else{
-            expect(around).toHaveLastReturnedWith({at:1})
+            expect(around).toHaveLastReturnedWith({page:0,at:1})
         }
         */
     })

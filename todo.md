@@ -48,3 +48,7 @@ Anchor/Wrap
 ** connect cursor shape and selection shape to selectionStyle, instead of locator[done]
 
 **Canvas
+
+
+# Notes
+* immutable 4.0 would deadloop

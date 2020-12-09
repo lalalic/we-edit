@@ -138,12 +138,7 @@ export default connect(state=>({content:state.get("content")}))(class DocumentTr
 })
 
 const Focus=connect(state=>{
-	const {cursorAt, ...a}=getSelection(state)
-	if(a[cursorAt]){
-		const {id:focus}=a[cursorAt]
-		return {focus}
-	}
-	return {}
+	return {focus:getSelection(state).end?.id}
 })(class $_ extends Component{
 	shouldComponentUpdate({focus}){
 		return focus!=this.props.focus

@@ -156,14 +156,19 @@ export default class Events extends Base{
 
     forward({shiftKey}={}){
         const {cursorAt="end", ...a}=this.selection
+        if(!shiftKey && !this.isCursor){
+            this.cursorAt(a.end.id,a.end.at)
+            return 
+        }
+        
         this.cursorAt(a[cursorAt].id, a[cursorAt].at)
         if(shiftKey){
             this.emit("forward",this.conds,...arguments)
-            const {end:current}=this.selection
-            if(cursorAt=="start"){
-                this.cursorAt(current.id,current.at,a.end.id,a.end.at,cursorAt)
-            }else{
-                this.cursorAt(a.start.id, a.start.at, current.id,current.at,cursorAt)
+            const {id,at}=this.selection.end
+            if(cursorAt=="end"){//end changed
+                this.cursorAt(a.start.id, a.start.at, id,at)
+            }else{//start changed
+                this.cursorAt(id, at, a.end.id,a.end.at)
             }
         }else{
             this.emit("forward",this.conds,...arguments)
@@ -172,15 +177,21 @@ export default class Events extends Base{
 
     backward({shiftKey}={}){
         const {cursorAt="end", ...a}=this.selection
+        if(!shiftKey && !this.isCursor){
+            this.cursorAt(a.start.id,a.start.at)
+            return
+        }
+        
         this.cursorAt(a[cursorAt].id, a[cursorAt].at)
         if(shiftKey){
             this.emit("backward",this.conds,...arguments)
-            const {end:current}=this.selection
-            if(cursorAt=="start"){
-                this.cursorAt(current.id,current.at,a.end.id,a.end.at,cursorAt)
-            }else{
-                this.cursorAt(a.start.id, a.start.at, current.id,current.at,cursorAt)
+            const {id,at}=this.selection.end
+            if(cursorAt=="end"){//end changed
+                this.cursorAt(a.start.id, a.start.at, id,at)
+            }else{//start changed
+                this.cursorAt(id, at, a.end.id,a.end.at)
             }
+            
         }else{
             this.emit("backward",this.conds,...arguments)
         }

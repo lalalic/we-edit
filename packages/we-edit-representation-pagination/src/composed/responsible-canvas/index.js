@@ -126,8 +126,7 @@ class Responsible extends Component{
 	}
 
 	get cursor(){
-		const {cursorAt, ...a}=this.selection
-        return {...a[cursorAt]}
+        return this.selection.end
     }
 
     __composedY(){
@@ -288,7 +287,7 @@ export default class EventResponsible extends Responsible{
 		const {id,at}=this.positioning.around(left, top)
 		if(id){
             if(at==undefined){
-                this.dispatch(ACTION.Selection.SELECT(id,0,id,1))
+                this.dispatch(ACTION.Selection.SELECT(id,1,id,0))
             }else{
     			if(!selecting){
                     if(doubleClicked){
@@ -308,7 +307,7 @@ export default class EventResponsible extends Responsible{
     				let {left,top}=this.positioning.position(id,at)
     				let {left:left1,top:top1}=this.positioning.position(end.id,end.at)
     				if(top<top1 || (top==top1 && left<=left1)){
-    					this.dispatch(ACTION.Selection.START_AT(id,at))
+    					this.dispatch(ACTION.Selection.SELECT(end.id,end.at,id,at))
     				}else{
                         const a=this.positioning.normalizeSelection(end,{id,at})
     					this.dispatch(ACTION.Selection.SELECT(a.start.id,a.start.at, a.end.id, a.end.at))
@@ -324,9 +323,8 @@ export default class EventResponsible extends Responsible{
         if(!selecting){
             this.dispatch(ACTION.Cursor.AT(id,at))
         }else{
-            const {cursorAt,...a}=this.selection
-            a[cursorAt]={id,at}
-            const {start,end}=this.positioning.normalizeSelection(a.start,a.end)
+            const {...a}=this.selection
+            const {start,end}=this.positioning.normalizeSelection(a.start,a.end={id,at})
             this.dispatch(ACTION.Selection.SELECT(start.id, start.at, end.id,end.at))
         }
     }

@@ -1,11 +1,9 @@
 export default (state, {type,payload})=>{
 	switch(type){
 	case `we-edit/selection/SELECTED`:
-		return {...state, cursorAt:"end",...payload}
+		return {...state, ...payload}
 	case `we-edit/selection/CANVAS`:
 		return {...state, active:payload}
-	case "we-edit/selection/STARTAT":
-		return {...state, cursorAt:"start", start:payload}
 	default:
 		return state
 	}

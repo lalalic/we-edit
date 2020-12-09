@@ -201,3 +201,15 @@ Loader load input file by Stream, convert it to redux store, create representati
 * Anchor,
 * Page,
 * Template,
+
+### state
+* Selection: {start:{id,at},end:{id,at}, cursorAt:[start|end]}
+	* cursor, range
+	* not supported
+		* template: need page
+		* multiple ranges 
+	* refactor: {start:{id,at}, end:{id,at}, page}, and cursor always on end, 
+		* represtention doesn't need ordered start/end
+			* when select/cursor, don't fix
+		* reducer should need ordered start/end, fix start/end==> upper/lower
+		* *Base Reducer is responsible for ordering start/end, and restore it when output state, so API is simpler and make start/end meaningful*

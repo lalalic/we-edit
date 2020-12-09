@@ -1,6 +1,14 @@
 import {getSelection,getFile} from "../../state/selector"
 import xQuery from "./xquery"
 
+/**
+ * 1. start/end in selection does make sense, since base Reducer is responsible for it
+ * 2. Selection is normalized to following basic rules at beginning and end of reducing
+ * 		* meaningful start and end
+	 	* start and end can NOT include each other
+	 	* cursor should be on paragraph or inner level
+	 
+ */
 export default class Reducer{
 	constructor(state){
 		this._state=state
@@ -22,6 +30,25 @@ export default class Reducer{
 				}
 			}
 		})
+
+		/**
+		 * make start/end meaningful in content order to make situation simpler
+		 * but selection order must be recovered when output state in .state()
+		 * during reducing, the order should not be changed
+		 */
+		const {start,end}=this.selection
+		if((start.id==end.id && start.at>end.at) ||
+			(start.id!=end.id && this.$(`#${start.id}`).forwardFirst(`#${end.id}`).length==0)){
+			this._selection=Object.defineProperties({start:end, end:start}, {
+				cursorAt:{//read
+					enumerable:true,
+					writable:false,
+					value:"start",
+				}
+			})
+		}
+
+		this.normalizeSelection()
 	}
 
 	state(){
@@ -30,11 +57,15 @@ export default class Reducer{
 		if(Object.keys(this._undoables).length>0)
 			state.undoables={...this._undoables}
 
-		if(Object.keys(this._selection).length>0)
-			state.selection={...this._selection}
+		if(Object.keys(this._selection).length>0){
+			this.normalizeSelection()
+			const {start,end, cursorAt}=this._selection
+			state.selection=cursorAt==="start" ? {start:end, end:start} : {start,end}
+		}
 
 		return state
 	}
+
 	get clipboard(){
 		return window._clipboard
 	}
@@ -56,23 +87,30 @@ export default class Reducer{
 	}
 
     get $target(){
-		const {cursorAt,...selection}=this.selection
-        return this.$(`#${selection[cursorAt].id}`)
+		return this.$(`#${this.selection[this.selection.cursorAt||"end"].id}`)
     }
 
     get target(){
-        const {cursorAt,...selection}=this.selection
-        return this.file.getNode(selection[cursorAt].id)
-    }	
+        return this.file.getNode(this.selection[this.selection.cursorAt||"end"].id)
+	}	
+	
+	get isCursor(){
+		const {start,end}=this.selection
+		return start.id==end.id && start.at==end.at
+	}
 
-	cursorAt(id,at, endId=id, endAt=at, cursorAt,fix=true){
-		if(cursorAt=="start" || cursorAt=="end")
-			this._selection.cursorAt=cursorAt
+	get cursor(){
+		const {cursorAt="end", ...a}=this.selection
+		return a[cursorAt]
+	}
 
-		this._selection={...this._selection,start:{id,at}, end:{id:endId, at:endAt}}
-		if(fix){
-			this.fixSelection()
+	cursorAt(id,at, endId=id, endAt=at){
+		if(endId===false || endId===true){//to support .cursorAt(id,at,fix[true|false])
+			fix=endId
+			endId=id
+			endAt=at
 		}
+		Object.assign(this._selection,{start:{id,at}, end:{id:endId, at:endAt}})
 		return this._selection
 	}
 
@@ -105,67 +143,63 @@ export default class Reducer{
             default:
                 return !!!children || undefined
         }
-    }
+	}
+	
+	/**
+	 * meaningful start and end
+	 * start and end can NOT include each other
+	 * cursor should be on paragraph or inner level
+	 */
+	normalizeSelection(){
+		var {start, end}=this.selection
+		if(start.id!=end.id && start.at!=end.at){
+			//move end to end of prev if ending at beginning of something,  
+			if(end.at==0){
+				const prev=this.$(`#${end.id}`).backwardFirst(this.cursorable)
+				if(prev.length>0){
+					this.cursorAtEnd(prev.attr('id'))
+				}
+				end=this.selection.end
+			}
 
-	fixSelection(){
-		const fixSelection=this.fixSelection
-		this.fixSelection=a=>a
-			
-		try{
-			var {start, end}=this.selection
-			if(start.id!=end.id && start.at!=end.at){
-				//move end to end of prev if ending at beginning of something,  
-				if(end.at==0){
-					const prev=this.$(`#${end.id}`).backwardFirst(this.cursorable)
-					if(prev.length>0){
-						this.cursorAtEnd(prev.attr('id'))
-					}
-					end=this.selection.end
-				}
-
-				this.cursorAtEnd(start.id)
-				//move beginning to beginning of next if beginning at end of something, 
-				if(start.at==this.selection.start.at){
-					const next=this.$(`#${start.id}`).forwardFirst(this.cursorable)
-					if(next.length>0){
-						start.id=next.attr('id')
-						start.at=0
-					}
-				}
-
-				let temp=null
-				//start can't include end
-				while((temp=this.$(`#${start.id}`)).find(`#${end.id}`).length>0){
-					this.cursorAt(temp.children().first().attr('id'),0,end.id, end.at)
-					start=this.selection.start
-				}
-				
-				//end can't include start
-				while((temp=this.$(`#${end.id}`)).find(`#${start.id}`).length>0){
-					this.cursorAtEnd(temp.children().last().attr('id'))
-					end=this.selection.end
-				}
-				
-				//start should be ahead of end
-				if(start.id!=end.id && this.$(`#${start.id}`).forwardFirst(`#${end.id}`).length==0){
-					;({start,end}={start:end,end:start});
-					this.selection.cursorAt=this.selection.cursorAt=="start" ? "end" : "start"
-				}
-
-				this.cursorAt(start.id, start.at, end.id,end.at)
-			}else if(start.id==end.id && start.at==end.at){
-				if(this.$target.closest("paragraph").length==0){
-					const p=this.$target.findFirst('paragraph')
-					if(p.length==1){
-						this.cursorAt(p.attr('id'),0)
-					}
+			this.cursorAtEnd(start.id)
+			//move beginning to beginning of next if beginning at end of something, 
+			if(start.at==this.selection.start.at){
+				const next=this.$(`#${start.id}`).forwardFirst(this.cursorable)
+				if(next.length>0){
+					start.id=next.attr('id')
+					start.at=0
 				}
 			}
-		}finally{
-			this.fixSelection=fixSelection
+
+			let temp=null
+			//start can't include end
+			while((temp=this.$(`#${start.id}`)).find(`#${end.id}`).length>0){
+				this.cursorAt(temp.children().first().attr('id'),0,end.id, end.at)
+				start=this.selection.start
+			}
+			
+			//end can't include start
+			while((temp=this.$(`#${end.id}`)).find(`#${start.id}`).length>0){
+				this.cursorAtEnd(temp.children().last().attr('id'))
+				end=this.selection.end
+			}
+
+			this.cursorAt(start.id, start.at, end.id,end.at)
+		}else if(this.isCursor){
+			if(this.$target.closest("paragraph").length==0){
+				const p=this.$target.findFirst('paragraph')
+				if(p.length==1){
+					this.cursorAt(p.attr('id'),0)
+				}
+			}
 		}
 	}
 	
+	/**
+	 * to make cursor safer???
+	 * @param {*} f 
+	 */
 	safeCursor(f){
 		const $target=this.$target
 		const $parents=$target.parents()

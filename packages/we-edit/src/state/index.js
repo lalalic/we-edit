@@ -35,7 +35,7 @@ export function createState(doc, content){
 		vendor:"we-edit",
 		doc:stateSafe(doc), //source file
 		content, // models
-		selection:Immutable.fromJS({start:{id,at:0},end:{id,at:0},cursorAt:"end"}),
+		selection:Immutable.fromJS({start:{id,at:0},end:{id,at:0}}),
 		ui:{},
 		statistics:{},
 		undos:[],
