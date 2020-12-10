@@ -6,26 +6,23 @@ import {dom,getSelection} from "we-edit"
 import {Canvas} from "../composed"
 import Responsible from "../composed/responsible-canvas"
 
-
-const Super=Locatable.Locatorize(HasChild(dom.Document))
-
-class Document extends Super{
+class Document extends Locatable.Locatorize(HasChild(dom.Document)){
     static propTypes={
-        ...Super.prototype,
+        ...super.prototype,
         canvas: PropTypes.node,
     }
     static defaultProps={
-        ...Super.defaultProps,
+        ...super.defaultProps,
         canvas:<Canvas/>,
     }
 
     static contextTypes={
-        ...Super.contextTypes,
+        ...super.contextTypes,
         Measure: PropTypes.func,
     }
 
     static childContextTypes={
-        ...Super.childContextTypes,
+        ...super.childContextTypes,
         Measure: PropTypes.func,
         prevLayout: PropTypes.func,
         editable: PropTypes.any,

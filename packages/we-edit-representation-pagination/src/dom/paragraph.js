@@ -10,16 +10,15 @@ import breakOpportunities from "../wordwrap/line-break"
 import {Text as ComposedText,  Group} from "../composed"
 
 const Tokenizers=[dom.Text.LineBreak, dom.Text.PageBreak,dom.Text.Tab]
-const Super=HasParentAndChild(dom.Paragraph)
-class Paragraph extends Super{
+class Paragraph extends HasParentAndChild(dom.Paragraph){
     static contextTypes={
-		...Super.contextTypes,
+		...super.contextTypes,
 		Measure: PropTypes.func,
 		numbering: PropTypes.func,
 		editable: PropTypes.any,
 	}
 	static propTypes={
-		...Super.propTypes,
+		...super.propTypes,
 		defaultStyle:PropTypes.object.isRequired,	
 	}
 

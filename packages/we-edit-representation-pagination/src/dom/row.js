@@ -5,7 +5,6 @@ import memoize from "memoize-one"
 import {Group} from "../composed"
 
 import {HasParentAndChild,editable} from "../composable"
-const Super=HasParentAndChild(dom.Row)
 
 /**
  * terms:
@@ -31,7 +30,7 @@ const Super=HasParentAndChild(dom.Row)
  * 2> before requesting rank space, commit last Rank placeholder, do what #1 would do
  * 3> all children composed : affect blockOffset, so it's NOT possible
 */
-class Row extends Super{
+class Row extends HasParentAndChild(dom.Row){
 	constructor(){
 		super(...arguments)
 		Object.defineProperties(this,{

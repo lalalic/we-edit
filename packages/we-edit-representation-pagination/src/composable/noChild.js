@@ -1,8 +1,7 @@
 
 import HasParentAndChild from "./hasParentAndChild"
 export default A=>{
-    const Super=HasParentAndChild(A)
-    return class __$1 extends Super{
+    return class NoChild extends HasParentAndChild(A){
         get isAtom(){
             return true
         }

@@ -6,10 +6,10 @@ import ComposedImage from "../composed/image"
 import {NoChild,editable} from "../composable"
 
 import Shape from "./shape"
-const Super=editable(NoChild(dom.Image))
-export default class Image extends Super{
+
+export default class Image extends editable(NoChild(dom.Image)){
 	static contextTypes={
-		...Super.contextTypes,
+		...super.contextTypes,
 		editable: PropTypes.any,
 	}
 	

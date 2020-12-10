@@ -5,18 +5,16 @@ import {dom} from "we-edit"
 import {HasParentAndChild, editable} from "../composable"
 import Frame from "./frame"
 
-
-const Super=HasParentAndChild(dom.Section)
-class Section extends Super{
+class Section extends HasParentAndChild(dom.Section){
 	static defaultProps={
-		...Super.defaultProps,
+		...super.defaultProps,
 		createLayout(props,...args){
 			return new this.constructor.Layout({...this.props.layout, ...props},...args)
 		}
 	}
 
 	static childContextTypes={
-		...Super.childContextTypes,
+		...super.childContextTypes,
         prevLayout: PropTypes.func,
 	}
 

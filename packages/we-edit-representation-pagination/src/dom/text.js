@@ -8,10 +8,9 @@ import breakOpportunities from "../wordwrap/line-break"
 
 import {Text as ComposedText} from "../composed"
 
-const Super=NoChild(dom.Text)
-class Text extends Super{
+class Text extends NoChild(dom.Text){
     static contextTypes={
-		...Super.contextTypes,
+		...super.contextTypes,
         Measure: PropTypes.func,
 	}
 
