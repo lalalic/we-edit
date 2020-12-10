@@ -12,7 +12,7 @@ export default A=>{
             return this.displayName.split("-").includes(capable)
         }
         static contextTypes={
-            ...A.contextTypes,
+            ...super.contextTypes,
             debug: PropTypes.bool,
             ModelTypes: PropTypes.object,
         }

@@ -7,12 +7,12 @@ function Locatable(A){
 	return class __$1 extends A{
 		static displayName=`locatable-${A.displayName}`
 		static propTypes={
-			...A.propTypes,
+			...super.propTypes,
 			id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
 		}
 
         static contextTypes={
-            ...A.contextTypes,
+            ...super.contextTypes,
             mount: PropTypes.func,
             unmount: PropTypes.func,
 			getComposer: PropTypes.func,
@@ -41,7 +41,7 @@ function Locatorize(A){
 	return class __$1 extends A{
 		static displayName=`locator-${A.displayName}`
 		static childContextTypes={
-			...A.childContextTypes,
+			...super.childContextTypes,
 			mount: PropTypes.func,
 			getComposer: PropTypes.func,
 		}

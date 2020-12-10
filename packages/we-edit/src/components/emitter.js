@@ -54,21 +54,21 @@ export default class Emitter extends Viewer{
 	static displayName="emitter"
 
 	static propTypes={
-		...Viewer.propTypes,
+		...super.propTypes,
 		input: PropTypes.object,
 		persist: PropTypes.func,
 		representation: PropTypes.node,
 	}
 
 	static defaultProps={
-		...Viewer.defaultProps,
+		...super.defaultProps,
 		editable:false,
 		media:"file",
 		domain:"view",
 	}
 
 	static contextTypes={
-		...Viewer.contextTypes,
+		...super.contextTypes,
 		activeDocStore: PropTypes.object,
 	}
 

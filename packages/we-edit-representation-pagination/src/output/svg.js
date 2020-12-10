@@ -3,7 +3,7 @@ import Base from "./index"
 export default class SVG extends Base{
 	static displayName="SVG"
 	static propTypes={
-		...Base.propTypes,
+		...super.propTypes,
 		pageGap: PropTypes.number,
 		pgColor: PropTypes.string,
 	}

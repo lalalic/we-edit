@@ -72,7 +72,7 @@ export default ({Paragraph,Text,Group})=>class DocxParagraph extends Component{
 	static getLayout=memoize(Paragraph=>{
 		const Layout=class Layout extends Paragraph{
 			static contextTypes={
-				...Paragraph.contextTypes,
+				...super.contextTypes,
 				defaultTab: PropTypes.object,
 				pilcrowMeasure: PropTypes.object,
 			}

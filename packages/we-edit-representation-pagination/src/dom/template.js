@@ -47,7 +47,7 @@ export default class Template extends Locatorize(Frame){
     }
 
     static defaultProps={
-        ...Frame.defaultProps,
+        ...super.defaultProps,
         autoCompose2Parent:false,
     }
 

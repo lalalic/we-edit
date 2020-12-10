@@ -4,21 +4,18 @@ import {dom} from "we-edit"
 import memoize from "memoize-one"
 
 import {HasParentAndChild,editable,Layout} from "../../composable"
-
 import Frame from "../frame"
-
-
 import {custom, rect, ellipse, circle} from "./shapes"
 
-const Super=editable(HasParentAndChild(dom.Shape))
-export default class Shape extends Frame{
-	static displayName=Super.displayName
-	static propTypes=Super.propTypes
+const Shape=editable(HasParentAndChild(dom.Shape))
+export default class extends Frame{
+	static displayName=Shape.displayName
+	static propTypes=Shape.propTypes
 	static defaultProps={
-		...Super.defaultProps
+		...Shape.defaultProps
 	}
 	static contextTypes={
-		...Frame.contextTypes,
+		...super.contextTypes,
 		editable: PropTypes.any,
 	}
 

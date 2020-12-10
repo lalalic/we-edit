@@ -2,7 +2,7 @@ import PropTypes from "prop-types"
 export default (A)=>class __$1 extends A{
     static displayName=`templateable-${A.displayName}`
     static childContextTypes={
-        ...A.childContextTypes,
+        ...super.childContextTypes,
         getComposedTemplate: PropTypes.func
     }
 

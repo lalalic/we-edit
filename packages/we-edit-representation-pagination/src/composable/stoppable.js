@@ -2,7 +2,7 @@ import PropTypes from "prop-types"
 export default (A,always=true)=>class __$1 extends A{
     static displayName=`stoppable-${A.displayName}`
     static contextTypes={
-        ...A.contextTypes,
+        ...super.contextTypes,
         shouldContinueCompose: PropTypes.func
     }
 

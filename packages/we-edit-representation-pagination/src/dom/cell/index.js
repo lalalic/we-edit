@@ -9,16 +9,16 @@ import {HasParentAndChild} from "../../composable"
  * Cell is fissionable
  * commit all when all composed????
  */
-const Super=HasParentAndChild(dom.Cell)
+const Cell=HasParentAndChild(dom.Cell)
 const displayName=()=>{
 	const parts=Section.displayName.split("-")
-	parts.splice(-1,1,Super.displayName.split("-").pop())
+	parts.splice(-1,1,Cell.displayName.split("-").pop())
 	return parts.join("-")
 }
-export default class Cell extends Section{
+export default class extends Section{
 	static displayName=displayName()
 	static defaultProps={
-		...Super.defaultProps,
+		...Cell.defaultProps,
 		createLayout:Section.defaultProps.createLayout,
 	}
 	

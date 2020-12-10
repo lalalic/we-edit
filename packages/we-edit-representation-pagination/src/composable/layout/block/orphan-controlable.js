@@ -15,7 +15,7 @@ import Anchorable from "./anchorable"
  */
 export default class OrphanControlable extends Anchorable {
 	static contextTypes = {
-		...Anchorable.contextTypes,
+		...super.contextTypes,
 		prevLayout: PropTypes.func,
 	};
 	defineProperties() {

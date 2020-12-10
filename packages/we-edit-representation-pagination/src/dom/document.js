@@ -78,12 +78,12 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
 
 export default class extends editable(Document,{continuable:true}){
     static defaultProps={
-		...Document.defaultProps,
+		...super.defaultProps,
 		canvas:<Responsible/>,
     }
     
 	static contextTypes={
-		...Document.contextTypes,
+		...super.contextTypes,
         activeDocStore: PropTypes.any,
 	}
 
