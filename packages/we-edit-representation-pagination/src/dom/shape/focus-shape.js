@@ -131,7 +131,7 @@ export default compose(
 							onRotatorMouseDown={selectShape}
 							onRotate={({clientX:left,clientY:top})=>{
 								const xy=positioning.asCanvasPoint({left,top})
-								const pos=positioning.position(id,0)
+								const pos=positioning.position({id,at:0})
 								const degree=Math.floor(Math.atan2(xy.x-center.x-pos.x,-(xy.y-center.y-pos.y))*180*100/Math.PI)/100
 								dispatch(ACTION.Entity.UPDATE({id,type,rotate:degree<0 ? degree+360 : degree}))
 							}

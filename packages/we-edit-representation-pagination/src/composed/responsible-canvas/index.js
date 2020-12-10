@@ -240,7 +240,7 @@ class Responsible extends Component{
         if(!this.props.document.isSelectionComposed({end,start})){
             console.error(`selection style: not fully composed ${id}`)
         }
-        const pos=this.positioning.position(id, at, true)
+        const pos=this.positioning.position({id, at}, true)
         const style=new SelectionStyle(pos, start, end,this.positioning)
         this.dispatch(ACTION.Selection.STYLE(style))
     }
@@ -284,33 +284,33 @@ export default class EventResponsible extends Responsible{
     }
 
     __onClick({shiftKey:selecting, clientX:left,clientY:top}, doubleClicked=false){
-		const {id,at}=this.positioning.around(left, top)
+		const {id,at,page}=this.positioning.around(left, top)
 		if(id){
             if(at==undefined){
-                this.dispatch(ACTION.Selection.SELECT(id,1,id,0))
+                this.dispatch(ACTION.Selection.SELECT(id,1,id,0,page))
             }else{
     			if(!selecting){
                     if(doubleClicked){
-                        const {start,end}=this.positioning.extendWord(id,at)
+                        const {start,end}=this.positioning.extendWord(id,at,page)
                         if(start && end){
-                            this.dispatch(ACTION.Selection.SELECT(start.id,start.at, end.id, end.at))
+                            this.dispatch(ACTION.Selection.SELECT(start.id,start.at, end.id, end.at,page))
                         }else{
                             this.__focusCursor()
-                            this.dispatch(ACTION.Cursor.AT(id,at))
+                            this.dispatch(ACTION.Cursor.AT(id,at,page))
                         }
                     }else{
                         this.__focusCursor()
-        				this.dispatch(ACTION.Cursor.AT(id,at))
+        				this.dispatch(ACTION.Cursor.AT(id,at,page))
                     }
     			}else{
     				let {end}=this.selection
-    				let {left,top}=this.positioning.position(id,at)
-    				let {left:left1,top:top1}=this.positioning.position(end.id,end.at)
+    				let {left,top}=this.positioning.position({id,at})
+    				let {left:left1,top:top1}=this.positioning.position(end)
     				if(top<top1 || (top==top1 && left<=left1)){
-    					this.dispatch(ACTION.Selection.SELECT(end.id,end.at,id,at))
+    					this.dispatch(ACTION.Selection.SELECT(end.id,end.at,id,at,page))
     				}else{
                         const a=this.positioning.normalizeSelection(end,{id,at})
-    					this.dispatch(ACTION.Selection.SELECT(a.start.id,a.start.at, a.end.id, a.end.at))
+    					this.dispatch(ACTION.Selection.SELECT(a.start.id,a.start.at, a.end.id, a.end.at,page))
     				}
     			}
             }
@@ -367,11 +367,11 @@ export default class EventResponsible extends Responsible{
             return
         }
 
-        const {id,at}=this.positioning.around(e.clientX,e.clientY)
+        const {id,at,page}=this.positioning.around(e.clientX,e.clientY)
         if(id){
             const end={id,at}
             let {start=end}=this.selecting.state
-            const rects=start==end ? [] : this.positioning.getRangeRects(start, end)
+            const rects=start==end ? [] : this.positioning.getRangeRects(start, end,page)
             this.selecting.setState({start:start||end, end, rects, selecting:true})
         }
     }

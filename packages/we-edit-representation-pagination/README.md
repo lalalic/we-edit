@@ -133,3 +133,5 @@ class PDF extends Output{
 
 ```
 ## API
+* template positioning is not implemented, so it always go to first page that included the template content
+	* which is cheapest and acceptable

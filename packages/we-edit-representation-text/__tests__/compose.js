@@ -87,7 +87,7 @@ describe("text", ()=>{
 			return positioning
 		}
 		it("position",()=>{
-			expect(test().position("2",3))
+			expect(test().position({id:"2",at:3}))
 				.toMatchObject({x:margin.left+3, y:0})
 		})
 

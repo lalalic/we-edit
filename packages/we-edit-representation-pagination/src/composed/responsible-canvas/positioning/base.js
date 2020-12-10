@@ -69,7 +69,7 @@ export default class Positioning{
      * simple: find location from 1 pixel below the line, what about if it's last line of frame
     */
     nextLine(id,at){
-        const position=this.position(id,at)
+        const position=this.position({id,at})
         if(!position && nextFrame){
             return this.around(left,nextFrame.firstLine.y+1)
         }
@@ -77,7 +77,7 @@ export default class Positioning{
     }
     /**get location of prev line for a location */
     prevLine(id,at){
-        const position=this.position(id,at)
+        const position=this.position({id,at})
         if(!position && prevFrame){
             return this.around(left,prevFrame.lastLine.y-1)
         }

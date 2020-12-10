@@ -44,7 +44,7 @@ export default class extends Test.Emulator{
             const y0=this._detransform(Math.min(...ys)), y1=this._detransform(Math.max(...ys))
             return !((scrollLeft>=x1 || scrollLeft+width<=x0) && (scrollTop>=y1 || scrollTop+height<=y0))
         }else{
-            let {x=0,y=0}=positioning.position(id,0)
+            let {x=0,y=0}=positioning.position({id,at:0})
             x=this._detransform(x)
             y=this._detransform(y)
             return (x>=scrollLeft && x<=scrollLeft+width) && (y>=scrollTop && y<=scrollTop+height)

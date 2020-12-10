@@ -8,7 +8,7 @@ export default class TOC extends Base{
         toc.find('fieldBegin[command=PAGEREF]').each((i,field,$)=>{
             const tocId=Field.create(field.getIn(['props','instr'])).parameters[0]
             const bookmark=reducer._content.find(a=>a.get('type')=="bookmarkBegin" && a.getIn(['props','name'])==tocId)
-            const {topFrame}=canvas.positioning.position(bookmark.get('id'),0,true)
+            const {topFrame}=canvas.positioning.position({id:bookmark.get('id'),at:0},true)
             const display=Field.create("PAGE").execute({
                 selection:{
                     props:type=>{

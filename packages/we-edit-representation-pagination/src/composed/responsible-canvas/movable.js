@@ -59,7 +59,7 @@ export default class Movable extends Component{
 					}else{
 						const {id,at}=positioning.around(left,top)
 						if(id){
-							const {x,y}=positioning.position(id,at)
+							const {x,y}=positioning.position({id,at})
 							this.setState({x,y,id,at})
 						}
 					}

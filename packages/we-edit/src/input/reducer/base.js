@@ -36,10 +36,10 @@ export default class Reducer{
 		 * but selection order must be recovered when output state in .state()
 		 * during reducing, the order should not be changed
 		 */
-		const {start,end}=this.selection
+		const {start,end,...others}=this.selection
 		if((start.id==end.id && start.at>end.at) ||
 			(start.id!=end.id && this.$(`#${start.id}`).forwardFirst(`#${end.id}`).length==0)){
-			this._selection=Object.defineProperties({start:end, end:start}, {
+			this._selection=Object.defineProperties({start:end, end:start,...others}, {
 				cursorAt:{//read
 					enumerable:true,
 					writable:false,
@@ -59,8 +59,8 @@ export default class Reducer{
 
 		if(Object.keys(this._selection).length>0){
 			this.normalizeSelection()
-			const {start,end, cursorAt}=this._selection
-			state.selection=cursorAt==="start" ? {start:end, end:start} : {start,end}
+			const {start,end, cursorAt, ...others}=this._selection
+			state.selection=cursorAt==="start" ? {start:end, end:start,...others} : {start,end,...others}
 		}
 
 		return state
@@ -104,13 +104,11 @@ export default class Reducer{
 		return a[cursorAt]
 	}
 
-	cursorAt(id,at, endId=id, endAt=at){
-		if(endId===false || endId===true){//to support .cursorAt(id,at,fix[true|false])
-			fix=endId
-			endId=id
-			endAt=at
-		}
+	cursorAt(id,at, endId=id, endAt=at,page){
 		Object.assign(this._selection,{start:{id,at}, end:{id:endId, at:endAt}})
+		if(page!=undefined){
+			this._selection.page=page
+		}
 		return this._selection
 	}
 

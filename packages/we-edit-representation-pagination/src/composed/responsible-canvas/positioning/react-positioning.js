@@ -77,8 +77,8 @@ class PositioningHelper extends Positioning{
     getOrderedPosition(start,end){
         //at first start and end must be normalized to same block level
         ({ start, end } = this.normalizeSelection(start,end));
-        const p0=this.position(start.id,start.at, true)
-        const p1=this.position(end.id, end.at,true)
+        const p0=this.position(start, true)
+        const p1=this.position(end,true)
         const reverted={p0:p1,p1:p0}
         if(p0.topFrame.props.i>p1.topFrame.props.i){
             return reverted
@@ -558,7 +558,7 @@ export default class ReactPositioning extends PositioningHelper {
      * the location may be:
      * Inline Level
      */
-    position(id,at, __returnEverything){
+    position({id,at}, __returnEverything){
         //#b , (id,at)->line->frame->topFrame
         /**
          * maybe no line
@@ -615,7 +615,7 @@ export default class ReactPositioning extends PositioningHelper {
     }
 
     positionToLineEnd(id,at){
-        const pos=this.position(id,at,true)
+        const pos=this.position({id,at},true)
         const {paragraph, lineIndexOfParagraph}=pos
         if(lineIndexOfParagraph!=-1){
             const $p=this.getComposer(paragraph)
@@ -643,7 +643,7 @@ export default class ReactPositioning extends PositioningHelper {
     }
 
     positionToLineStart(id,at){
-        const pos=this.position(id,at,true)
+        const pos=this.position({id,at},true)
         const {paragraph, lineIndexOfParagraph}=pos
         if(lineIndexOfParagraph!=-1){
             const $p=this.getComposer(paragraph)
@@ -873,7 +873,7 @@ export default class ReactPositioning extends PositioningHelper {
         const nextTopFrame=a=>this.frames[this.frames.indexOf(a)+1]
 
 
-        var {x,y, leafFrame, lineIndexInLeafFrame, topFrame}=this.position(id,at,true)
+        var {x,y, leafFrame, lineIndexInLeafFrame, topFrame}=this.position({id,at},true)
         var lineInLeafFrame=leafFrame.lines[lineIndexInLeafFrame]
         
         var nextLine
@@ -962,7 +962,7 @@ export default class ReactPositioning extends PositioningHelper {
         const prevTopFrame=a=>this.frames[this.frames.indexOf(a)-1]
 
 
-        var {x,y, leafFrame, lineIndexInLeafFrame, topFrame}=this.position(id,at,true)
+        var {x,y, leafFrame, lineIndexInLeafFrame, topFrame}=this.position({id,at},true)
         var lineInLeafFrame=leafFrame.lines[lineIndexInLeafFrame]
         
         var prevLine
