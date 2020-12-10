@@ -146,7 +146,7 @@ export default ({Section,Group, Template})=>class __$1 extends Component{
 		if(!Section.Layout)
 			return Section
 
-		return Section.composables.Templatable(class WordSection extends Section{
+		return Section.composables.Templateable(class WordSection extends Section{
 			cancelUnusableLastComposed(...args){
 				const last=this.computed.lastComposed[this.computed.lastComposed.length-1]
 				if(last){

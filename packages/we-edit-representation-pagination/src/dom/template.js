@@ -2,7 +2,6 @@
 import React, {Component, Fragment} from "react"
 import PropTypes from "prop-types"
 import {ReactQuery} from "we-edit"
-import {withContext} from "recompose"
 
 import Frame from "./frame"
 
@@ -49,10 +48,6 @@ export default class Template extends Frame{
         ...Frame.defaultProps,
         autoCompose2Parent:false,
     }
-    
-    static isTemplate(a){
-        return a?.isTemplate?.()
-    }
 
     constructor(){
         super(...arguments)
@@ -66,10 +61,6 @@ export default class Template extends Frame{
             ...super.getChildContext(),
             notifyVariable:this.notifyVariable,
         }
-    }
-
-    isTemplate(){
-        return true
     }
 
     notifyVariable(variable){
@@ -97,7 +88,7 @@ export default class Template extends Frame{
             return content
 
         const variableId=this.variables.id(variables)
-        const frameId=`${content.props['data-frame']}_${variableId}`
+        const frameId=`${content.props['data-frame']}`//_${variableId}`
         if(new ReactQuery(replaced).findFirst("[data-content]").length){
             /**
              * replace variable in content, so don't need recompose
