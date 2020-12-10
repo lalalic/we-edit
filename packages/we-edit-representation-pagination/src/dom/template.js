@@ -44,6 +44,11 @@ export default class Template extends Frame{
         ...Frame.childContextTypes,
         notifyVariable:PropTypes.func,
     }
+
+    static defaultProps={
+        ...Frame.defaultProps,
+        autoCompose2Parent:false,
+    }
     
     static isTemplate(a){
         return a?.isTemplate?.()
@@ -67,13 +72,12 @@ export default class Template extends Frame{
         return true
     }
 
-    notifyVariable(name){
-        this.variables.add(name)
+    notifyVariable(variable){
+        this.variables.add(variable)
     }
 
     onAllChildrenComposed(){
-    
-        super.onAllChildrenComposed()
+        super.onAllChildrenComposed(...arguments)
     }
 
     createComposed2Parent(variables){
