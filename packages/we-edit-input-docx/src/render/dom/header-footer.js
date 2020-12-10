@@ -23,7 +23,7 @@ export default ({Template},displayName="headerFooter")=>class HeaderFooter exten
 //only support PAGE/NUMPAGES
 class Variables extends Array{
     getValues=memoize(({I,i,pgNumType})=>{
-        return Array.from(this).reduce((values, {id,command,instr})=>{
+        return Array.from(this).reduce((values, {id,command,instr,display})=>{
             const field=Field.create(instr)
             switch(command){
                 case 'PAGE':{
@@ -33,7 +33,7 @@ class Variables extends Array{
                     break
                 }
                 case 'NUMPAGES':{
-                    values[id]=field.execute({})
+                    values[id]='unknown'
                     break
                 }
             }
@@ -56,6 +56,10 @@ class Variables extends Array{
         }else{
             this.push(variable)
         }
+    }
+
+    id({I}){
+        return I
     }
 
     get size(){

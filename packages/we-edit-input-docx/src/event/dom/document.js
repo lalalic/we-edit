@@ -31,5 +31,8 @@ export default class extends Base{
                     }
                 }
             })
+        //sync to props
+        this.reducer.file.doc.getObjectPart("docProps/app.xml")("Pages").text(pages)
+        //other statistics data could be updated, such as words, characters 
     }
 }

@@ -836,6 +836,9 @@ export default class ReactPositioning extends PositioningHelper {
             })();
             if(nextLine)
                 return nextLine
+            
+            if(frame==topFrame)
+                return false
 
             //frame can be customized to break Block Layout structure(such as Word continuous section), 
             //so try to locate from layouted 
@@ -873,7 +876,7 @@ export default class ReactPositioning extends PositioningHelper {
         const nextTopFrame=a=>this.frames[this.frames.indexOf(a)+1]
 
 
-        var {x,y, leafFrame, lineIndexInLeafFrame, topFrame}=this.position({id,at},true)
+        var {x,y, leafFrame, lineIndexInLeafFrame, topFrame,layer}=this.position({id,at},true)
         var lineInLeafFrame=leafFrame.lines[lineIndexInLeafFrame]
         
         var nextLine
@@ -924,6 +927,9 @@ export default class ReactPositioning extends PositioningHelper {
             })();
             if(prevLine)
                 return prevLine
+
+            if(frame==topFrame)
+                return false
 
             //frame can be customized to break Block Layout structure(such as Word continuous section), 
             //so try to locate from layouted 

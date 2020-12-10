@@ -34,6 +34,9 @@ class Use extends Component{
     }
 }
 
+/**
+ * Template should keep instances for positioning
+ */
 export default class Template extends Frame{
     static displayName=Frame.displayName.replace("frame","template")
     static Use=Use
@@ -53,10 +56,9 @@ export default class Template extends Frame{
 
     constructor(){
         super(...arguments)
-        this.resolvedChildren=[]
         this.variables=this.props.variables||new Variables()
         this.notifyVariable=this.notifyVariable.bind(this)
-        this.state={resolvedChildren:this.resolvedChildren}
+        this.instances={}
     }
 
     getChildContext(){
@@ -90,27 +92,27 @@ export default class Template extends Frame{
         if(replaced==this.props.children || replaced==content)
             return content
 
+        const variableId=this.variables.id(variables)
+        const frameId=`${content.props['data-frame']}_${variableId}`
         if(new ReactQuery(replaced).findFirst("[data-content]").length){
             /**
              * replace variable in content, so don't need recompose
              */
-            return replaced
+            return React.cloneElement(replaced,{"data-frame":frameId})
         }
 
         const replaceableComposed=[]
 
         replaceableComposed[0]=(<Frame.Async {...{
             ...this.props,
+            i:variableId,
             children:replaced, 
-            onComposed(composed){
+            onComposed(composed, frame){
                 replaceableComposed[0]=composed
-            },
-            childContext:{
-
             }
         }}/>)
 
-        return React.cloneElement(content,{children:replaceableComposed})
+        return React.cloneElement(content,{children:replaceableComposed,"data-frame":frameId})
     }
 
     replaceVariables(composed, values){
@@ -128,5 +130,9 @@ class Variables extends Set{
 
     getValues(variables){
         return {}
+    }
+
+    id(variables){
+        return 1
     }
 }
