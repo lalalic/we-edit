@@ -7,6 +7,7 @@ import {HasParentAndChild,editable,Layout} from "../../composable"
 import Frame from "../frame"
 import {custom, rect, ellipse, circle} from "./shapes"
 
+
 const Shape=editable(HasParentAndChild(dom.Shape))
 export default class extends Frame{
 	static displayName=Shape.displayName
