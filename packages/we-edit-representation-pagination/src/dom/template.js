@@ -40,11 +40,6 @@ class Use extends Component{
 export default class Template extends Frame{
     static displayName=Frame.displayName.replace("frame","template")
     static Use=Use
-    static defaultProps={
-        ...Frame.defaultProps,
-        isTop:true,
-    }
-
     static childContextTypes={
         ...Frame.childContextTypes,
         notifyVariable:PropTypes.func,
@@ -74,6 +69,11 @@ export default class Template extends Frame{
 
     notifyVariable(name){
         this.variables.add(name)
+    }
+
+    onAllChildrenComposed(){
+    
+        super.onAllChildrenComposed()
     }
 
     createComposed2Parent(variables){

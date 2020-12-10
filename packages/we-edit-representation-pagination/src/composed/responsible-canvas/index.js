@@ -235,12 +235,18 @@ class Responsible extends Component{
 
     __updateSelectionStyle(){
         const SelectionStyle=this.constructor.SelectionStyle
-        const {start,end,page}=this.selection, {id,at}=this.cursor
-        console.log(`update selection style for ${id},${at} on page=${page}`)
-        if(!this.props.document.isSelectionComposed({end,start})){
-            console.error(`selection style: not fully composed ${id}`)
+        const {start,end,page}=this.selection
+        /*
+        const idIsInTemplate=!!this.getComposer(end.id).closest(a=>a.isTemplate?.())
+        if(idIsInTemplate){
+            start.page=end.page=page
         }
-        const pos=this.positioning.position({id, at,page}, true)
+*/
+        if(!this.props.document.isSelectionComposed({end,start})){
+            console.error(`selection style: not fully composed ${end.id}`)
+        }
+
+        const pos=this.positioning.position(end, true)
         const style=new SelectionStyle(pos, start, end,this.positioning)
         this.dispatch(ACTION.Selection.STYLE(style))
     }

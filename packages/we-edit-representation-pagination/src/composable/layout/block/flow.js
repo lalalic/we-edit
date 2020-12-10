@@ -142,7 +142,8 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 	}
 	
 	onAllChildrenComposed() {
-		const content = this.createComposed2Parent();
+		const {autoComposed2Parent=true}=this.props
+		const content = autoComposed2Parent ? this.createComposed2Parent() : this
 		this.context.parent.appendComposed(content);
 		super.onAllChildrenComposed();
 	}

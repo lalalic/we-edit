@@ -362,7 +362,7 @@ class PositioningHelper extends Positioning{
      * @param {*} id 
      * @param {*} at 
      */
-    positionToLeafFrameLine(id,at){
+    positionToLeafFrameLine(id,at,page){
         const target=this.getComposer(id)
         const paragraph=target.closest("paragraph")
         const $find=at==1 ? 'findLast' : 'findFirst'
@@ -444,6 +444,7 @@ class PositioningHelper extends Positioning{
         
         return {
             leafFrame, 
+            topFrame: page!=undefined ? this.pages[page] : undefined,
             line:new Proxy(lineInFrame||{},{
                 get(line,prop){
                     if(["position","paragraph","i","inFrame","height"].includes(prop)){
@@ -558,15 +559,19 @@ export default class ReactPositioning extends PositioningHelper {
      * the location may be:
      * Inline Level
      */
-    position({id,at}, __returnEverything){
+    position({id,at,page}, __returnEverything){
         //#b , (id,at)->line->frame->topFrame
         /**
          * maybe no line
          * > anchor
          * > topFrame itself
          */
-        const {leafFrame,line, anchor}=this.positionToLeafFrameLine(id,at)
+        const {
+            leafFrame,line, anchor,
+            
+        }=this.positionToLeafFrameLine(id,at,page)
         const topFrame=this.getCheckedGrandFrameByFrame(leafFrame)
+                
         const topFrameOffset=this.getTopFrameXY(topFrame)
         const leafFrameOffset=!anchor ? this.getFrameOffsetGrandFrame(topFrame,leafFrame) : anchor.offset(topFrame,leafFrame)
         const lineOffset=(!anchor && line.inFrame) ? leafFrame.lineXY(line.inFrame) : {x:0,y:0}

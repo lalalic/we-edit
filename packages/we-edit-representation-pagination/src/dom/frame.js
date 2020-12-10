@@ -110,12 +110,16 @@ class Frame extends Layout.Block{
 	}
 
 	onAllChildrenComposed(){
-		const {isTop}=this.props
-		if(!isTop){
+		const {autoComposed2Parent=true}=this.props
+		if(autoComposed2Parent){
 			super.onAllChildrenComposed()
 			return 
 		}
 		
+		/**
+		 * some Frame doesn't need create composed to parent, such as page, template
+		 * Canvas is responsible to call page.createComposed2Parent
+		 */
         try{
             this.createComposed2Parent=()=>this
             super.onAllChildrenComposed()

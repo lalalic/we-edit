@@ -81,9 +81,6 @@ export default ({Section,Group, Template})=>class __$1 extends Component{
 			const template=prioritized.reduceRight((found,a)=>found || inheritHeaderFooter(`${type}.${a}`),null)
 			if(template){
 				return template.createComposed2Parent({I,i,pgNumType})
-				if(template.props.replacePageNum)
-					return template.props.replacePageNum({I,i,pgNumType})
-				return React.cloneElement(template,{I,i,pgNumType})
 			}
 		}
 
@@ -120,6 +117,7 @@ export default ({Section,Group, Template})=>class __$1 extends Component{
 
 			var y1=height-margin.bottom
 			if(footer){
+				y1=height-Math.max(margin.bottom, margin.footer+footer.props.height)
 				let y=height-margin.footer-footer.props.height
 				footer=React.cloneElement(footer,{x:margin.left,y, className:"footer"})
 				y1=Math.min(y, y1)
@@ -203,7 +201,7 @@ export default ({Section,Group, Template})=>class __$1 extends Component{
 					}
 					const {hfAreas,contentAreas}=(()=>{
 						const {width,height}=this.props
-						const {y:headerY, maxHeight, footerY=maxHeight-headerY}=this.props.cols[0]
+						const {y:headerY, maxHeight, footerY=maxHeight+headerY}=this.props.cols[0]
 						return {
 							hfAreas:[
 								<rect {...{x:0,y:0,width,height:headerY,key:"header",fill:"transparent"}} />,
