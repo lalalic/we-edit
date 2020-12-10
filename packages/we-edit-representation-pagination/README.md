@@ -135,3 +135,7 @@ class PDF extends Output{
 ## API
 * template positioning is not implemented, so it always go to first page that included the template content
 	* which is cheapest and acceptable
+* tempate positioning need implementation of getComposer for template layout
+	* Template doesn't keep composers of template instance
+		* Template can implement itself special Locatorize to hold its own composers, and
+			* hold template instances, then template composer can give instance  

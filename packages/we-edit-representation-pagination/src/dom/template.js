@@ -104,6 +104,9 @@ export default class Template extends Frame{
             children:replaced, 
             onComposed(composed){
                 replaceableComposed[0]=composed
+            },
+            childContext:{
+
             }
         }}/>)
 

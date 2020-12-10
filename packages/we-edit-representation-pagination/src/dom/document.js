@@ -202,10 +202,6 @@ export default class extends editable(Document,{continuable:true}){
 		return should
     }
     
-    isAtomCollector(){
-        return false
-    }
-    
     //no cache on document level
     cancelUnusableLastComposed(){
         this.computed.templates=[]

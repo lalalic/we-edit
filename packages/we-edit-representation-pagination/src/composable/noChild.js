@@ -7,10 +7,6 @@ export default A=>{
             return true
         }
 
-        isAtomChanged({hash,changed=hash==this.props.hash}){
-            return changed
-        }
-        
         render() {
             this.appendComposed()
             this.onAllChildrenComposed()

@@ -1,5 +1,7 @@
 import React,{Fragment,Children} from "react"
 import memoize from "memoize-one"
+import {shallowEqual} from "recompose"
+
 import ComposedAllTrigger from "./composed-all-trigger"
 import UseCached from "./use-cached"
 /**
@@ -67,7 +69,7 @@ export default A=>{
          * @param {*} nextState 
          */
         cancelUnusableLastComposed(props){
-            if(this.isAtomCollector() && !this.isAtomChanged(...arguments)){
+            if(this.isAtom && shallowEqual(props,this.props)){
                 return
             }
             
@@ -88,7 +90,7 @@ export default A=>{
          * others: fail, render all
          */
         appendLastComposed(){
-            if(this.isAtomCollector()){
+            if(this.isAtom){
                 this.computed.lastComposed.forEach(a=>this.context.parent.appendComposed(a))
                 return true
             }
@@ -135,13 +137,6 @@ export default A=>{
             const changedIndex=current.findIndex(({props:{id,hash}},i,_,$,b=next[i])=>!(b && b.props.id==id && b.props.hash==hash))
             return current.slice(changedIndex).map(a=>a && a.props.id)
         })
-
-        /**
-         * based on Paragraph's nextAvailableSpace implementation
-         */
-        isAtomCollector(){
-            return this.isAtom || this.props.isInlineContainer
-        }
     }
 
     return Recomposable

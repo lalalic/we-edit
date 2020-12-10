@@ -1,7 +1,6 @@
 import React from "react"
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
-import {shallowEqual} from "recompose"
 
 import {NoChild,editable} from "../composable"
 import {dom} from "we-edit"
@@ -133,13 +132,6 @@ class Text extends Super{
 }
 
 export default class EditableText extends editable(Text){
-    isAtomChanged(props){
-        if(!super.isAtomChanged(...arguments)){
-            return !shallowEqual(props,this.props)
-        }
-        return true
-    }
-
     render(){
         if(this.text.length==0){
             this.appendComposed({
