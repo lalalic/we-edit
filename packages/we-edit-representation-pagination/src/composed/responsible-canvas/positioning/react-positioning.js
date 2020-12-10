@@ -559,17 +559,14 @@ export default class ReactPositioning extends PositioningHelper {
      * the location may be:
      * Inline Level
      */
-    position({id,at,page}, __returnEverything){
+    position({id,at}, __returnEverything){
         //#b , (id,at)->line->frame->topFrame
         /**
          * maybe no line
          * > anchor
          * > topFrame itself
          */
-        const {
-            leafFrame,line, anchor,
-            
-        }=this.positionToLeafFrameLine(id,at,page)
+        const {leafFrame,line, anchor,}=this.positionToLeafFrameLine(id,at)
         const topFrame=this.getCheckedGrandFrameByFrame(leafFrame)
                 
         const topFrameOffset=this.getTopFrameXY(topFrame)
@@ -870,6 +867,7 @@ export default class ReactPositioning extends PositioningHelper {
             }
         }
         
+        /**@TODO:layer limit */
         const firstLineIncludeX=(frame,X)=>{
             if(!(frame.cols && frame.cols.length>1))
                 return frame.firstLine
@@ -962,6 +960,7 @@ export default class ReactPositioning extends PositioningHelper {
             }
         }
         
+        /**@TODO:layer limit */
         const lastLineIncludeX=(frame,X)=>{
             if(!(frame.cols && frame.cols.length>1))
                 return frame.lastLine

@@ -5,6 +5,8 @@ import {ReactQuery} from "we-edit"
 
 import Frame from "./frame"
 
+const {Locatable:{Locatorize}}=Frame.composables
+
 class Use extends Component{
     static displayName="template.use"
     static contextTypes={
@@ -36,11 +38,11 @@ class Use extends Component{
 /**
  * Template should keep instances for positioning
  */
-export default class Template extends Frame{
+export default class Template extends Locatorize(Frame){
     static displayName=Frame.displayName.replace("frame","template")
     static Use=Use
     static childContextTypes={
-        ...Frame.childContextTypes,
+        ...super.childContextTypes,
         notifyVariable:PropTypes.func,
     }
 
@@ -65,10 +67,6 @@ export default class Template extends Frame{
 
     notifyVariable(variable){
         this.variables.add(variable)
-    }
-
-    onAllChildrenComposed(){
-        super.onAllChildrenComposed(...arguments)
     }
 
     createComposed2Parent(variables){

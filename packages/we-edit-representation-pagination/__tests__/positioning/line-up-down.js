@@ -77,6 +77,10 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
             expect(p.nextLine({id:"0",at:3})).toMatchObject({id:"1",at:0})
         })
 
+        xit("line in layer should go to same layer in next page",()=>{
+
+        })
+
         it("Text->Image(width=2)->Text",()=>{
             const p=test(
                 <Paragraph id={uuid++}>
@@ -256,6 +260,9 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
             expect(p.prevLine({id:"0",at:3})).toMatchObject({id:"1",at:0})
         })
 
+        xit("line in layer should go to same layer in prev page",()=>{
+
+        })
 
         it("Text<-Image(width=7)<-Text",()=>{
             const p=test(
