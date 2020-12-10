@@ -211,7 +211,7 @@ define("position", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Cont
     describe("extend word",()=>{
         it("extend single word",()=>{
             expect(test(<Paragraph id={`${++uuid}`}><Text id="1">hello</Text></Paragraph>)
-                    .extendWord("1",0)
+                    .extendWord({id:"1",at:0})
                 ).toMatchObject({start:{id:"1",at:0},end:{id:"1",at:5}})
         })
 
@@ -221,8 +221,8 @@ define("position", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Cont
                     <Text id="1">hello world</Text>
                 </Paragraph>
             )
-            expect(p.extendWord("1",0)).toMatchObject({start:{id:"1",at:0},end:{id:"1",at:5}})
-            expect(p.extendWord("1",7)).toMatchObject({start:{id:"1",at:6},end:{id:"1",at:11}})
+            expect(p.extendWord({id:"1",at:0})).toMatchObject({start:{id:"1",at:0},end:{id:"1",at:5}})
+            expect(p.extendWord({id:"1",at:7})).toMatchObject({start:{id:"1",at:6},end:{id:"1",at:11}})
         })
 
         it("extend two word",()=>{
@@ -234,8 +234,8 @@ define("position", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Cont
                     <Container id={`${++uuid}`}><Text id="4">ld good night</Text></Container>
                 </Paragraph>
             )
-            expect(p.extendWord("1",7)).toMatchObject(p.extendWord("2",0))
-            expect(p.extendWord("3",7)).toMatchObject(p.extendWord("4",0))
+            expect(p.extendWord({id:"1",at:7})).toMatchObject(p.extendWord({id:"2",at:0}))
+            expect(p.extendWord({id:"3",at:7})).toMatchObject(p.extendWord({id:"4",at:0}))
         })
     })
 

@@ -817,7 +817,7 @@ export default class ReactPositioning extends PositioningHelper {
      * @param {*} id 
      * @param {*} at 
      */
-    nextLine(id,at){
+    nextLine({id,at}){
         //to get next line below input line in the frame
         const nextLineBelow=(frame,line, offset)=>{
             var nextLine=(()=>{
@@ -908,7 +908,7 @@ export default class ReactPositioning extends PositioningHelper {
         
     }
 
-    prevLine(id,at){
+    prevLine({id,at}){
         //to get prev line above input line in the frame
         const prevLineAbove=(frame,line, offset)=>{
             const prevLine=(()=>{
@@ -1001,7 +1001,7 @@ export default class ReactPositioning extends PositioningHelper {
     }
 
     
-	extendWord(id,at){
+	extendWord({id,at}){
         const paragraph=this.getComposer(id).closest("paragraph")
         if(!paragraph)
             return {}

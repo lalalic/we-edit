@@ -51,7 +51,7 @@ export default class Positioning{
      * To get position{page,line, x,y,left,top,} for a location{id,at}
      * 
      */
-    position(id,at){
+    position({id,at}){
         return {page:0}
     }
 
@@ -68,7 +68,7 @@ export default class Positioning{
     /**get location of next line for a location 
      * simple: find location from 1 pixel below the line, what about if it's last line of frame
     */
-    nextLine(id,at){
+    nextLine({id,at}){
         const position=this.position({id,at})
         if(!position && nextFrame){
             return this.around(left,nextFrame.firstLine.y+1)
@@ -76,7 +76,7 @@ export default class Positioning{
         return this.around(left,top+lineHeight+1)
     }
     /**get location of prev line for a location */
-    prevLine(id,at){
+    prevLine({id,at}){
         const position=this.position({id,at})
         if(!position && prevFrame){
             return this.around(left,prevFrame.lastLine.y-1)
@@ -84,23 +84,23 @@ export default class Positioning{
         return this.around(left,top-1)
     }
 
-    positionAtLineEnd(id,at){
+    positionAtLineEnd({id,at}){
         return {id,at}
     }
 
-    positionAtLineStart(id,at){
+    positionAtLineStart({id,at}){
         return {id,at}
     }
 
 
 
     /**extend selection from location to word range*/
-    extendWord(id,at){
+    extendWord({id,at}){
         return {}
     }
 
     /**extend selection from location to line range*/
-    extendLine(id,at){
+    extendLine({id,at}){
         return {}
     }
 

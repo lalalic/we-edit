@@ -108,7 +108,7 @@ describe("html", ()=>{
 				</Section>
 			)
 
-			expect(doc.nextLine("2",3)).toMatchObject({id:"4",at:3})
+			expect(doc.nextLine({id:"2",at:3})).toMatchObject({id:"4",at:3})
 		})
 
 		it("next line in two sections",()=>{
@@ -127,7 +127,7 @@ describe("html", ()=>{
 				</Fragment>
 			)
 
-			expect(doc.nextLine("2",3)).toMatchObject({id:"4",at:3})
+			expect(doc.nextLine({id:"2",at:3})).toMatchObject({id:"4",at:3})
 		})
 
 		it("prev line in a section",()=>{
@@ -142,7 +142,7 @@ describe("html", ()=>{
 				</Section>
 			)
 
-			expect(doc.prevLine("4",3)).toMatchObject({id:"2",at:3})
+			expect(doc.prevLine({id:"4",at:3})).toMatchObject({id:"2",at:3})
 		})
 
 		it("prev line in two sections",()=>{
@@ -161,7 +161,7 @@ describe("html", ()=>{
 				</Fragment>
 			)
 
-			expect(doc.prevLine("4",3)).toMatchObject({id:"2",at:3})
+			expect(doc.prevLine({id:"4",at:3})).toMatchObject({id:"2",at:3})
 		})
 	})
 

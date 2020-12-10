@@ -235,12 +235,12 @@ class Responsible extends Component{
 
     __updateSelectionStyle(){
         const SelectionStyle=this.constructor.SelectionStyle
-        const {start,end}=this.selection, {id,at}=this.cursor
-        console.log(`update selection style for ${id},${at}`)
+        const {start,end,page}=this.selection, {id,at}=this.cursor
+        console.log(`update selection style for ${id},${at} on page=${page}`)
         if(!this.props.document.isSelectionComposed({end,start})){
             console.error(`selection style: not fully composed ${id}`)
         }
-        const pos=this.positioning.position({id, at}, true)
+        const pos=this.positioning.position({id, at,page}, true)
         const style=new SelectionStyle(pos, start, end,this.positioning)
         this.dispatch(ACTION.Selection.STYLE(style))
     }
@@ -291,7 +291,7 @@ export default class EventResponsible extends Responsible{
             }else{
     			if(!selecting){
                     if(doubleClicked){
-                        const {start,end}=this.positioning.extendWord(id,at,page)
+                        const {start,end}=this.positioning.extendWord({id,at,page})
                         if(start && end){
                             this.dispatch(ACTION.Selection.SELECT(start.id,start.at, end.id, end.at,page))
                         }else{
@@ -391,7 +391,7 @@ export default class EventResponsible extends Responsible{
 
 	onKeyArrowUp({shiftKey:selecting}){
         const cursor=this.cursor
-		const {id, at}=this.positioning.prevLine(cursor.id,cursor.at)
+		const {id, at}=this.positioning.prevLine(cursor)
         if(id){
     		this.__onKeyArrow(id,at,selecting)
         }
@@ -399,7 +399,7 @@ export default class EventResponsible extends Responsible{
 
 	onKeyArrowDown({shiftKey:selecting}){
 		const cursor=this.cursor
-		const {id, at}=this.positioning.nextLine(cursor.id,cursor.at)
+		const {id, at}=this.positioning.nextLine(cursor)
         if(id){
             this.__onKeyArrow(id,at,selecting)
         }

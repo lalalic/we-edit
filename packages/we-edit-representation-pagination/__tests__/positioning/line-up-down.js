@@ -43,9 +43,9 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
                 </Paragraph>
             )
             expect(p.lines.length).toBe(2)
-            expect(p.nextLine("0",0)).toMatchObject({id:"1",at:0})
-            expect(p.nextLine("0",1)).toMatchObject({id:"1",at:1})
-            expect(p.nextLine("0",4)).toMatchObject({id:"1",at:4})
+            expect(p.nextLine({id:"0",at:0})).toMatchObject({id:"1",at:0})
+            expect(p.nextLine({id:"0",at:1})).toMatchObject({id:"1",at:1})
+            expect(p.nextLine({id:"0",at:4})).toMatchObject({id:"1",at:4})
         })
 
         it("Text-><page>Text</page>",()=>{
@@ -59,9 +59,9 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
                 )
                 expect(p.pages.length).toBe(2)
                 expect(p.lines.length).toBe(1)
-                expect(p.nextLine("0",0)).toMatchObject({id:"1",at:0})
-                expect(p.nextLine("0",1)).toMatchObject({id:"1",at:1})
-                expect(p.nextLine("0",4)).toMatchObject({id:"1",at:4})
+                expect(p.nextLine({id:"0",at:0})).toMatchObject({id:"1",at:0})
+                expect(p.nextLine({id:"0",at:1})).toMatchObject({id:"1",at:1})
+                expect(p.nextLine({id:"0",at:4})).toMatchObject({id:"1",at:4})
             }
         })
 
@@ -74,7 +74,7 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
                     <Paragraph id="1"/>
                 </Fragment>
             )
-            expect(p.nextLine("0",3)).toMatchObject({id:"1",at:0})
+            expect(p.nextLine({id:"0",at:3})).toMatchObject({id:"1",at:0})
         })
 
         it("Text->Image(width=2)->Text",()=>{
@@ -86,12 +86,12 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
                 </Paragraph>
             )
             expect(p.lines.length).toBe(3)
-            expect(p.nextLine("0",0)).toMatchObject({id:"2"})
-            expect(p.nextLine("0",1)).toMatchObject({id:"2"})
-            expect(p.nextLine("0",2)).toMatchObject({id:"2"})
+            expect(p.nextLine({id:"0",at:0})).toMatchObject({id:"2"})
+            expect(p.nextLine({id:"0",at:1})).toMatchObject({id:"2"})
+            expect(p.nextLine({id:"0",at:2})).toMatchObject({id:"2"})
 
-            expect(p.nextLine("2",0)).toMatchObject({id:"1",at:0})
-            expect(p.nextLine("2",1)).toMatchObject({id:"1",at:2})
+            expect(p.nextLine({id:"2",at:0})).toMatchObject({id:"1",at:0})
+            expect(p.nextLine({id:"2",at:1})).toMatchObject({id:"1",at:2})
         })
 
         it("Text->Image(width=7)->Text",()=>{
@@ -103,12 +103,12 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
                 </Paragraph>
             )
             expect(p.lines.length).toBe(3)
-            expect(p.nextLine("0",0)).toMatchObject({id:"2"})
-            expect(p.nextLine("0",1)).toMatchObject({id:"2"})
-            expect(p.nextLine("0",2)).toMatchObject({id:"2"})
+            expect(p.nextLine({id:"0",at:0})).toMatchObject({id:"2"})
+            expect(p.nextLine({id:"0",at:1})).toMatchObject({id:"2"})
+            expect(p.nextLine({id:"0",at:2})).toMatchObject({id:"2"})
 
-            expect(p.nextLine("2",0)).toMatchObject({id:"1",at:0})
-            expect(p.nextLine("2",1)).toMatchObject({id:"1",at:5})
+            expect(p.nextLine({id:"2",at:0})).toMatchObject({id:"1",at:0})
+            expect(p.nextLine({id:"2",at:1})).toMatchObject({id:"1",at:5})
         })
 
         describe("table",()=>{
@@ -131,10 +131,10 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
                         </Table>
                     </Fragment>
                 )
-                expect(p.nextLine("0",0)).toMatchObject({id:"1",at:0})
-                expect(p.nextLine("0",1)).toMatchObject({id:"1",at:1})
-                expect(p.nextLine("0",2)).toMatchObject({id:"1",at:2})
-                expect(p.nextLine("0",3)).toMatchObject({id:"1",at:3})
+                expect(p.nextLine({id:"0",at:0})).toMatchObject({id:"1",at:0})
+                expect(p.nextLine({id:"0",at:1})).toMatchObject({id:"1",at:1})
+                expect(p.nextLine({id:"0",at:2})).toMatchObject({id:"1",at:2})
+                expect(p.nextLine({id:"0",at:3})).toMatchObject({id:"1",at:3})
             })
 
             it("paragraph=>table(3 cells)",()=>{
@@ -169,9 +169,9 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
                     </Fragment>
                 )
                 expect(p.lines.length).toBe(2)
-                expect(p.nextLine("0",1)).toMatchObject({id:"1",at:1})
-                expect(p.nextLine("0",4+1)).toMatchObject({id:"2",at:1})
-                expect(p.nextLine("0",4+4+1)).toMatchObject({id:"3",at:1})
+                expect(p.nextLine({id:"0",at:1})).toMatchObject({id:"1",at:1})
+                expect(p.nextLine({id:"0",at:4+1})).toMatchObject({id:"2",at:1})
+                expect(p.nextLine({id:"0",at:4+4+1})).toMatchObject({id:"3",at:1})
             })
 
             it("row cell-> row cell",()=>{
@@ -208,8 +208,8 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
                         </Table>
                     </Fragment>
                 )
-                expect(p.nextLine("2",1)).toMatchObject({id:"4",at:1})
-                expect(p.nextLine("1",1)).toMatchObject({id:"3",at:1})
+                expect(p.nextLine({id:"2",at:1})).toMatchObject({id:"4",at:1})
+                expect(p.nextLine({id:"1",at:1})).toMatchObject({id:"3",at:1})
             })
         })
     })
@@ -223,9 +223,9 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
                 </Paragraph>
             )
             expect(p.lines.length).toBe(2)
-            expect(p.prevLine("1",0)).toMatchObject({id:"0",at:0})
-            expect(p.prevLine("1",1)).toMatchObject({id:"0",at:1})
-            expect(p.prevLine("1",4)).toMatchObject({id:"0",at:4})
+            expect(p.prevLine({id:"1",at:0})).toMatchObject({id:"0",at:0})
+            expect(p.prevLine({id:"1",at:1})).toMatchObject({id:"0",at:1})
+            expect(p.prevLine({id:"1",at:4})).toMatchObject({id:"0",at:4})
         })
 
         it("Text<-<page>Text</page>",()=>{
@@ -238,9 +238,9 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
                     {page:{width:5,height:10}}
                 )
                 expect(p.pages.length).toBe(2)
-                expect(p.prevLine("1",0)).toMatchObject({id:"0",at:0})
-                expect(p.prevLine("1",1)).toMatchObject({id:"0",at:1})
-                expect(p.prevLine("1",4)).toMatchObject({id:"0",at:4})
+                expect(p.prevLine({id:"1",at:0})).toMatchObject({id:"0",at:0})
+                expect(p.prevLine({id:"1",at:1})).toMatchObject({id:"0",at:1})
+                expect(p.prevLine({id:"1",at:4})).toMatchObject({id:"0",at:4})
             }
         })
 
@@ -253,7 +253,7 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
                     </Paragraph>
                 </Fragment>
             )
-            expect(p.prevLine("0",3)).toMatchObject({id:"1",at:0})
+            expect(p.prevLine({id:"0",at:3})).toMatchObject({id:"1",at:0})
         })
 
 
@@ -266,12 +266,12 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
                 </Paragraph>
             )
             expect(p.lines.length).toBe(3)
-            expect(p.prevLine("1",0)).toMatchObject({id:"2"})
-            expect(p.prevLine("1",1)).toMatchObject({id:"2"})
-            expect(p.prevLine("1",5)).toMatchObject({id:"2"})
+            expect(p.prevLine({id:"1",at:0})).toMatchObject({id:"2"})
+            expect(p.prevLine({id:"1",at:1})).toMatchObject({id:"2"})
+            expect(p.prevLine({id:"1",at:5})).toMatchObject({id:"2"})
 
-            expect(p.prevLine("2",0)).toMatchObject({id:"0",at:0})
-            expect(p.prevLine("2",1)).toMatchObject({id:"0",at:5})
+            expect(p.prevLine({id:"2",at:0})).toMatchObject({id:"0",at:0})
+            expect(p.prevLine({id:"2",at:1})).toMatchObject({id:"0",at:5})
 
 
         })
@@ -296,7 +296,7 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
                         </Table>
                     </Fragment>
                 )
-                new Array(4).fill(0).forEach((a,i)=>expect(p.prevLine("1",i)).toMatchObject({id:"0",at:i}))
+                new Array(4).fill(0).forEach((a,i)=>expect(p.prevLine({id:"1",at:i})).toMatchObject({id:"0",at:i}))
             })
 
             it("row cell<- row cell",()=>{
@@ -333,8 +333,8 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
                         </Table>
                     </Fragment>
                 )
-                expect(p.prevLine("4",1)).toMatchObject({id:"2",at:1})
-                expect(p.prevLine("3",1)).toMatchObject({id:"1",at:1})
+                expect(p.prevLine({id:"4",at:1})).toMatchObject({id:"2",at:1})
+                expect(p.prevLine({id:"3",at:1})).toMatchObject({id:"1",at:1})
             })
 
             it("paragraph<=table(3 cells)",()=>{
@@ -367,9 +367,9 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
                         </Table>
                     </Fragment>
                 )
-                expect(p.prevLine("1",1)).toMatchObject({id:"0",at:1})
-                expect(p.prevLine("2",1)).toMatchObject({id:"0",at:4+1})
-                expect(p.prevLine("3",1)).toMatchObject({id:"0",at:4+4+1})
+                expect(p.prevLine({id:"1",at:1})).toMatchObject({id:"0",at:1})
+                expect(p.prevLine({id:"2",at:1})).toMatchObject({id:"0",at:4+1})
+                expect(p.prevLine({id:"3",at:1})).toMatchObject({id:"0",at:4+4+1})
             })
         })
     })
