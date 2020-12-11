@@ -80,6 +80,10 @@ class Section extends HasParentAndChild(dom.Section){
 		}
 	}
 
+	getLayoutByUUID(uuid){
+		return this.computed.composed.find(a=>a.uuid==uuid)
+	}
+
     /**
      * ** create is pure, so you have to append to your composed and parent manually every time create called***
      * create a block layout engine with a ensured space {left,right,blockOffset,height,wrappees}

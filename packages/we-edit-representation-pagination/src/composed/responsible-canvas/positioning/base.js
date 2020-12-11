@@ -27,12 +27,20 @@ export default class Positioning{
         return this.responsible.pageXY(...arguments)
     }
 
+    limitAt(page){
+        this.page=page
+    }
+
+    unlimit(){
+        delete this.page
+    }
+
     get pages(){
         return this.responsible.pages
     }
 
     get frames(){
-        return this.pages
+        return this.limited ? [this.pages[this.page]] : this.pages
     }
 
     get ready(){
@@ -107,11 +115,12 @@ export default class Positioning{
     static makeSafe=A=>class SafePositioning extends A{
         constructor(...args){
             super(...args)
-            "position,around,nextLine,prevLine,extendWord".split(",").forEach(k=>{
+            "around,nextLine,prevLine,extendWord".split(",").forEach(k=>{
                 this[k]=(...args)=>{
                     try{
                         return super[k](...args)||{}
                     }catch(e){
+                        console.error(e)
                         return {}
                     }
                 }
@@ -122,6 +131,18 @@ export default class Positioning{
                 return super.getRangeRects(...args)||[]
             }catch(e){
                 return []
+            }
+        }
+
+        position(...args){
+            try{
+                this.limited=this.page!=undefined
+                return super.position(...args)||{}
+            }catch(e){
+                console.error(e)
+                return {}
+            }finally{
+                delete this.limited
             }
         }
     }    

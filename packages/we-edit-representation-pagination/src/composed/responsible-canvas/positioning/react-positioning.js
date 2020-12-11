@@ -37,7 +37,7 @@ class PositioningHelper extends Positioning{
      * 2. table row
      * there are two types of frame 
      * 1. frame content, 
-     * 2. fission frame as layout engine
+     * 2. section layout as layout engine
      * 
      * @param {*} start 
      * @param {*} end 
@@ -132,9 +132,9 @@ class PositioningHelper extends Positioning{
 
    /**
      * travel up
-     * to find up frame layout or fissionable's fission based on following knowledge
+     * to find up frame layout or section's layout based on following knowledge
      * 1. composed frame must give data-frame=frame.uuid on content
-     * 2. each frame layout must have context.frame(for fission)|.parent(for frame content) to travel up frame tree
+     * 2. each frame layout must have context.frame(for section.layout)|.parent(for frame content) to travel up frame tree
      * @param {*} frame, start point 
      * @param {*} check(frame) 
      * @param {boolean} first: return first found or topFrame
@@ -148,18 +148,24 @@ class PositioningHelper extends Positioning{
 
         var current=frame, grandMaybe=null
         while(current){
-            if(current.isFrame && check(current)){
+            if(current.isTemplate){
+                grandMaybe=this.frames[0]
+            }else if(current.isFrame && check(current)){
                 grandMaybe=current 
             }else if(current.isSection){
                 grandMaybe=current.computed.composed[find](check)
+            }
+
+            if(this.frames.includes(grandMaybe)){
+                //don't up with top frame
+                return grandMaybe
             }
             
             if(first && grandMaybe){
                 return grandMaybe
             }
 
-            if(current.context)
-                current=current.context.frame||current.context.parent
+            current=current?.context.frame||current?.context.parent
         }
         return grandMaybe
     }
@@ -362,7 +368,7 @@ class PositioningHelper extends Positioning{
      * @param {*} id 
      * @param {*} at 
      */
-    positionToLeafFrameLine(id,at,page){
+    positionToLeafFrameLine(id,at){
         const target=this.getComposer(id)
         const paragraph=target.closest("paragraph")
         const $find=at==1 ? 'findLast' : 'findFirst'
@@ -444,7 +450,6 @@ class PositioningHelper extends Positioning{
         
         return {
             leafFrame, 
-            topFrame: page!=undefined ? this.pages[page] : undefined,
             line:new Proxy(lineInFrame||{},{
                 get(line,prop){
                     if(["position","paragraph","i","inFrame","height"].includes(prop)){
@@ -542,7 +547,7 @@ class PositioningHelper extends Positioning{
     }
     
     getFrameByLayoutedFrameNode({props:{'data-content':id,'data-frame':frameId, composer=this.getComposer(id)}}){
-        return frameId==id ? composer : composer.computed.composed.find(a=>a.uuid==frameId)
+        return frameId==id ? composer : composer.getLayoutByUUID?.(frameId)
     }
 }
 /**

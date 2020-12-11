@@ -6,6 +6,7 @@ import {ReactQuery} from "we-edit"
 import Frame from "./frame"
 
 const {Locatable:{Locatorize}}=Frame.composables
+const locatorize=Locatorize(class{}).prototype.locatorize
 
 class Use extends Component{
     static displayName="template.use"
@@ -38,9 +39,9 @@ class Use extends Component{
 /**
  * Template should keep instances for positioning
  */
-export default class Template extends Locatorize(Frame){
-    static displayName=Frame.displayName.replace("frame","template")
+export default class Template extends Frame{
     static Use=Use
+    static displayName=super.displayName.replace("frame","template")
     static childContextTypes={
         ...super.childContextTypes,
         notifyVariable:PropTypes.func,
@@ -58,6 +59,10 @@ export default class Template extends Locatorize(Frame){
         this.instances={}
     }
 
+    get isTemplate(){
+        return true
+    }
+
     getChildContext(){
         return {
             ...super.getChildContext(),
@@ -68,6 +73,11 @@ export default class Template extends Locatorize(Frame){
     notifyVariable(variable){
         this.variables.add(variable)
     }
+
+    getLayoutByUUID(uuid){
+        const i=uuid.replace(this.props.id+"_","")
+        return this.instances[i]||this
+	}
 
     createComposed2Parent(variables){
         const content=super.createComposed2Parent()
@@ -86,26 +96,28 @@ export default class Template extends Locatorize(Frame){
             return content
 
         const variableId=this.variables.id(variables)
-        const frameId=`${content.props['data-frame']}`//_${variableId}`
+        const frameId=`${content.props['data-frame']}_${variableId}`
         if(new ReactQuery(replaced).findFirst("[data-content]").length){
             /**
              * replace variable in content, so don't need recompose
              */
-            return React.cloneElement(replaced,{"data-frame":frameId})
+            return React.cloneElement(replaced,{"data-frame1":frameId})
         }
 
         const replaceableComposed=[]
 
         replaceableComposed[0]=(<Frame.Async {...{
             ...this.props,
-            i:variableId,
+            //i:variableId,
             children:replaced, 
-            onComposed(composed, frame){
+            onComposed:(composed, frame)=>{
                 replaceableComposed[0]=composed
-            }
+                this.instances[variableId]=frame
+            },
+            childContext:locatorize.bind({})(new Map()),
         }}/>)
 
-        return React.cloneElement(content,{children:replaceableComposed,"data-frame":frameId})
+        return React.cloneElement(content,{children:replaceableComposed,"data-frame1":frameId})
     }
 
     replaceVariables(composed, values){
