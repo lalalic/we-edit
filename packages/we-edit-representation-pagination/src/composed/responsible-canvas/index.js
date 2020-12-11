@@ -126,7 +126,8 @@ class Responsible extends Component{
 	}
 
 	get cursor(){
-        return this.selection.end
+        const {end,page}=this.selection
+        return {...end,page}
     }
 
     __composedY(){
@@ -235,18 +236,13 @@ class Responsible extends Component{
 
     __updateSelectionStyle(){
         const SelectionStyle=this.constructor.SelectionStyle
-        const {start,end,page}=this.selection
+        const {start}=this.selection
+        const end=this.cursor
         
         if(!this.props.document.isSelectionComposed({end,start})){
             console.error(`selection style: not fully composed ${end.id}`)
         }
 
-        const idIsInTemplate=!!this.getComposer(end.id).closest(a=>a.isTemplate)
-        if(idIsInTemplate){
-            this.positioning.limitAt(page)
-        }else{
-            this.positioning.unlimit(page)
-        }
         const pos=this.positioning.position(end, true)
         const style=new SelectionStyle(pos, start, end,this.positioning)
         this.dispatch(ACTION.Selection.STYLE(style))
@@ -375,30 +371,44 @@ export default class EventResponsible extends Responsible{
         }
 
         const {id,at,page}=this.positioning.around(e.clientX,e.clientY)
-        if(id){
-            const end={id,at}
-            let {start=end}=this.selecting.state
-            const rects=start==end ? [] : this.positioning.getRangeRects(start, end,page)
-            this.selecting.setState({start:start||end, end, rects, selecting:true})
+        if(!id)
+            return 
+        
+        const end={id,at}
+        const {start=end, page:lastPage=page}=this.selecting.state
+        
+        if(this.positioning.shouldLimitInTemplate({...start,page:lastPage})){
+            if(lastPage!==page){
+                return   
+            }
+            if(id!=start.id){
+                if(!this.positioning.shouldLimitInTemplate({...end,page})){
+                    return 
+                }
+            }
         }
+        const rects=start==end ? [] : this.positioning.getRangeRects(start, {...end,page})
+        console.log(JSON.stringify({start,end,page, rects}))
+        this.selecting.setState({start:start||end, end, page, rects, selecting:true})
+    
     }
 
     onMouseUp(e){
         if(this.__shouldIgnoreMouseDownEvent(e)){
             return
         }
-        var {start,end}=this.selecting.state
+        var {start,end,page}=this.selecting.state
         if(start && end){
-            this.selecting.setState({start:undefined, end:undefined, rects:undefined,selecting:false})
+            this.selecting.setState({page:undefined,start:undefined, end:undefined, rects:undefined,selecting:false})
             ;({start,end}=this.positioning.normalizeSelection(start,end));
-            this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))
+            this.dispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at,page))
             this.__mouseDownFlag.selected=true
         }
     }
 
 	onKeyArrowUp({shiftKey:selecting}){
         const cursor=this.cursor
-		const {id, at}=this.positioning.prevLine(cursor)
+        const {id, at}=this.positioning.prevLine(cursor)
         if(id){
     		this.__onKeyArrow(id,at,selecting)
         }

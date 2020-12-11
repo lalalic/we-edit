@@ -27,20 +27,12 @@ export default class Positioning{
         return this.responsible.pageXY(...arguments)
     }
 
-    limitAt(page){
-        this.page=page
-    }
-
-    unlimit(){
-        delete this.page
-    }
-
     get pages(){
         return this.responsible.pages
     }
 
     get frames(){
-        return this.limited ? [this.pages[this.page]] : this.pages
+        return this.limited!=undefined ? [this.pages[this.limited]] : this.pages
     }
 
     get ready(){
@@ -113,36 +105,93 @@ export default class Positioning{
     }
 
     static makeSafe=A=>class SafePositioning extends A{
-        constructor(...args){
-            super(...args)
-            "around,nextLine,prevLine,extendWord".split(",").forEach(k=>{
-                this[k]=(...args)=>{
-                    try{
-                        return super[k](...args)||{}
-                    }catch(e){
-                        console.error(e)
-                        return {}
-                    }
-                }
-            }) 
+        shouldLimitInTemplate({id,page}){
+            return this.limited==undefined && page!=undefined && this.getComposer(id)?.closest(a=>a.isTemplate)
         }
-        getRangeRects(...args){
+
+        extendWord(...args){
             try{
-                return super.getRangeRects(...args)||[]
+                return super.extendWord(...args)||{}
             }catch(e){
-                return []
+                console.error(e)
+                return {}
             }
         }
 
-        position(...args){
+        around(...args){
             try{
-                this.limited=this.page!=undefined
-                return super.position(...args)||{}
+                return super.around(...args)||{}
+            }catch(e){
+                console.error(e)
+                return {}
+            }
+        }
+
+        getRangeRects(start,end){
+            const limited=this.shouldLimitInTemplate(end)
+            try{
+                if(limited){
+                    this.limited=end.page
+                }
+                return super.getRangeRects(start,end)||[]
+            }catch(e){
+                console.log(e)
+                return []
+            }finally{
+                if(limited){
+                    delete this.limited
+                }
+            }
+        }
+
+        position(pos,_everything){
+            const limited=this.shouldLimitInTemplate(pos)
+            try{
+                if(limited){
+                    this.limited=pos.page
+                }
+                return super.position(pos,_everything)||{}
             }catch(e){
                 console.error(e)
                 return {}
             }finally{
-                delete this.limited
+                if(limited){
+                    delete this.limited
+                }
+            }
+        }
+
+        nextLine(pos){
+            const limited=this.shouldLimitInTemplate(pos)
+            try{
+                if(limited){
+                    this.limited=pos.page
+                }
+                return super.nextLine(pos)||{}
+            }catch(e){
+                console.error(e)
+                return {}
+            }finally{
+                if(limited){
+                    delete this.limited
+                }
+            }
+        }
+
+        prevLine(pos){
+            const limited=this.shouldLimitInTemplate(pos)
+            try{
+                if(limited){
+                    this.limited=pos.page
+                }
+                return super.prevLine(pos)||{}
+            }catch(e){
+                console.error(e)
+                return {}
+            }finally{
+                if(limited){
+                    delete this.limited
+                }
             }
         }
     }    

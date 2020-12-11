@@ -1,4 +1,4 @@
-import React, {Component,Children} from "react"
+import React, {Component,Children,Fragment} from "react"
 
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
@@ -20,7 +20,7 @@ import {shallowEqual} from "recompose"
  * ** 
  * 
  */
-export default ({Section,Group, Template})=>class __$1 extends Component{
+export default ({Section,Group, Container})=>class __$1 extends Component{
 	static displayName="section"
 	static propTypes={
 		cols: PropTypes.shape({
@@ -46,6 +46,18 @@ export default ({Section,Group, Template})=>class __$1 extends Component{
 
 	static childContextTypes={
 		headerFooterWidth: PropTypes.number
+	}
+
+	static createElement(section,content, createNode){
+		let {props:{headers=[],footers=[]}}=section
+		headers=headers.map(a=>createNode(a))
+		footers=footers.map(a=>createNode(a))
+		return React.cloneElement(section,{headers,footers,})
+	} 
+
+	constructor(){
+		super(...arguments)
+		this.section=React.createRef()
 	}
 
 	getChildContext(){
@@ -74,7 +86,7 @@ export default ({Section,Group, Template})=>class __$1 extends Component{
 				.filter(a=>a.type.displayName=="section")
 				.map(a=>a.props.id)
 			return sections.slice(0,sections.indexOf(id)+1)
-				.reduceRight((found,id)=>found||context.getComposer(id).getComposedTemplate(type),null)
+				.reduceRight((found,id)=>found||context.getComposer(`${id}_headerfooters`).getComposedTemplate(type),null)
 		}
 		const get=type=>{
 			const prioritized=[titlePg&&(I==0 ? "first" :false),evenAndOddHeaders&&(i%2==0 ? "even" : "odd"),'default'].filter(a=>!!a)
@@ -136,24 +148,87 @@ export default ({Section,Group, Template})=>class __$1 extends Component{
 
 	render(){
 		const WordSection=this.constructor.Section(Section)
-		const {pgSz:{width,height},  pgMar, cols, type,...props}=this.props
+		const {pgSz:{width,height},  pgMar, cols, type, headers, footers, ...props}=this.props
 		const create=this.factoryOfCreateLayout(width,height,pgMar,this.getCols(width,pgMar,cols),type)
-
-		return(<WordSection createLayout={create} {...props}/>)
+		return(
+			<Fragment>
+				<WordSection.HeaderFooterContainer id={`${this.props.id}_headerfooters`} key={"0"}>
+					{headers}
+					{footers}
+				</WordSection.HeaderFooterContainer>
+				<WordSection createLayout={create} {...props}/>
+			</Fragment>
+		)
 	}
 
 	static Section=memoize(Section=>{
 		if(!Section.Layout)
 			return Section
 
-		return Section.composables.Templateable(class WordSection extends Section{
+		return class WordSection extends Section{
+			onlyHeaderFooterChanged({headers=[],footers=[]}){
+				if(this._onlyHeaderFooterChanged){
+					return true
+				}
+				const {headers:_headers=[], footers:_footers=[]}=this.props
+				if(headers.length!=_headers.length || footers.length!=_footers.length){
+					return true
+				}
+				if(headers.find((a,i)=>_headers?.props.hash!=a?.props.hash) ||
+					footers.find((a,i)=>_footers?.props.hash!=a?.props.hash)){
+					return true
+				}
+				return false
+			}
+
 			cancelUnusableLastComposed(...args){
 				const last=this.computed.lastComposed[this.computed.lastComposed.length-1]
 				if(last){
 					//continuous layout should always be re-appended
 					last.continuousLayouts=[]
 				}
-				return super.cancelUnusableLastComposed(...args)
+				if(this.onlyHeaderFooterChanged(...args)){
+					const equals=(cols1,cols2)=>true
+					const reusable=this.computed.lastComposed.reduce((reusable,page,i)=>{
+						if(reusable.discardIndex!=undefined)
+							return reusable
+						const {
+							context, 
+							props:{
+								continuous,
+								balance,
+								header,footer,
+								width,height,margin,
+								cols, 
+								...props
+							}
+						}=page
+						const newPage=this.createLayout(props,context)
+						if(equals(cols, newPage.props.cols)){
+							reusable.push(page.clone({header:newPage.header, footer:newPage.footer}))
+						}else{
+							reusable.discardIndex=i
+						}
+						return reusable
+					},[])
+					if(reusable.discardIndex!=undefined){
+						this.computed.composed.splice(0,this.computed.composed.length,...reusable)
+						this.computed.lastComposed.splice(0,this.computed.composed.length)
+						this.computed.composed.forEach(a=>{
+							this.context.parent.appendComposed(this.createComposed2Parent(a))
+						})
+					}
+
+					this._onlyHeaderFooterChanged=true
+				}
+				super.cancelUnusableLastComposed(...args)
+			}
+
+			appendLastComposed(){
+				if(this.onlyHeaderFooterChanged()){
+
+					delete this._onlyHeaderFooterChanged
+				}
 			}
 
 			/**
@@ -281,6 +356,10 @@ export default ({Section,Group, Template})=>class __$1 extends Component{
 
 				layoutOf({id}){
 					const section=this.context.getComposer(id).closest("section")
+					if(!section){
+						//header footer content
+						return {}
+					}
 					if(section.props.id==this.props.id)
 						return super.layoutOf()
 					const {margin:{left,right}, ...layout}=section.computed.composed[0].props._layout
@@ -291,6 +370,10 @@ export default ({Section,Group, Template})=>class __$1 extends Component{
 					return super.columnIndexOf(lineIndex)
 				}
 			}
-		})
+
+			static HeaderFooterContainer=Container.composables.Templateable(class extends Container{
+				
+			})
+		}
 	})
 }

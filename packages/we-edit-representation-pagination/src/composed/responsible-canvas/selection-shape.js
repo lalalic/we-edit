@@ -26,10 +26,12 @@ export default whenSelectionChange(({selection})=>{
 		return <g {...props}>{this.context.editable ? <Movable children={range} onMove={this.onMove}/> : range}</g>
 	}
 
-	static getDerivedStateFromProps({rects},{selecting}){
+	static getDerivedStateFromProps({rects, selection},{selecting, ...last}){
+		if(last.selection!=selection)//event is not correct, then fix it
+			selecting=false
 		if(!selecting)
-			return {rects}
-		return null
+			return {rects,selection,start:undefined, end:undefined, page:undefined, selecting:false}
+		return {selection}
 	}
 
 	onShrink({buttons, clientX:left, clientY: top}){

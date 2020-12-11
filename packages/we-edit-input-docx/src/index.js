@@ -167,22 +167,24 @@ class DocxType extends Input.Editable{
 						if(!isEmpty(root)){
 							self.part=rId
 
-							children.splice(0,0,
-								createElement(HFType,{xhref:`${cat}.${type}`,type:`${cat}.${type}`},
+							hfs.push(
+								createElement(
+									HFType,
+									{xhref:`${cat}.${type}`,type:`${cat}.${type}`},
 									root.children.map(a=>renderNode(a)),
 									root
-								)
+								).id
 							)
 
 							delete self.part
 						}
 						return hfs
-					},{})
+					},[])
 
-				hf("header",components.Header)
-				hf("footer",components.Footer)
+				const headers=hf("header",components.Header)
+				const footers=hf("footer",components.Footer)
 
-				return createElement(components.Section,style,children,node)
+				return createElement(components.Section,{...style, headers,footers},children,node)
 			}
 			case "tbl":{
 				let cols=selector.select([node.children.find(a=>a.name=="w:tblGrid")]).tblGrid

@@ -17,7 +17,7 @@ export default class Container extends Stoppable(HasParentAndChild(dom.Container
             tokenizeOpportunity,
             mergeOpportunity,tabWidth,
             ...props}=element.props
-        const myElement=React.createElement(Group,{
+        const myElement=React.isValidElement(element) ? React.createElement(Group,{
             width,height,minWidth,wrap, anchor,descent,pagination,x,y,blockOffset,tokenizeOpportunity,tabWidth,
             children:React.cloneElement(element,{
                 x:undefined, y:undefined,wrap:undefined,anchor:undefined,blockOffset:undefined,
@@ -25,7 +25,7 @@ export default class Container extends Stoppable(HasParentAndChild(dom.Container
                 mergeOpportunity:undefined,
                 tabWidth:undefined,
             })
-        })
-        return createComposed2Parent ? createComposed2Parent(myElement) : myElement
+        }) : element
+        return createComposed2Parent ? createComposed2Parent(myElement,element) : myElement
     }
 }

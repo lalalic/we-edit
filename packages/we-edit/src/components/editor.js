@@ -206,7 +206,7 @@ export class WeDocumentStub extends Component{
 					hash={hashCode(hashCodes)}
 				/>)
 			if(Child.createElement)
-				return Child.createElement(el, content)
+				return Child.createElement(el, content, createNode)
 			return el
 		}
 	
