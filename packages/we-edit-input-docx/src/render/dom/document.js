@@ -89,16 +89,17 @@ export default ({Document})=>class __$1 extends Component{
 	},(a,b)=>a.equals(b))
 
 	render(){
-		const WordDocument=this.constructor.Document(Document)
-		const {evenAndOddHeaders,pilcrow,...props}=this.props
 		this.resetNumbering()
-		return <WordDocument {...props}/>
+		
+		if(Document.support('pageable')){
+			const WordDocument=this.constructor.Document(Document)
+			const {evenAndOddHeaders,pilcrow,...props}=this.props
+			return <WordDocument {...props}/>
+		}
+		return <Document {...this.props}/>
 	}
 
 	static Document=memoize(Document=>{
-		if(!Document?.support('composable'))
-			return Document
-
 		class WordDocument extends Document{
 			appendComposed(page){
 				if(page.computed.isContinuousLayout){
@@ -113,7 +114,7 @@ export default ({Document})=>class __$1 extends Component{
 			}
 		}
 
-		if(!Document?.support(['editable']))
+		if(!Document?.support('editable'))
 			return WordDocument
 
 		return class EditableWordDocument extends WordDocument{
