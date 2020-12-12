@@ -8,7 +8,7 @@ export default A=>{
     if(A.already)
         return A
     return class __$1 extends A{
-        static displayName=`composable-${A.displayName}`
+        static displayName=`composable-pageable-${A.displayName}`
         static already=function(capable){
             return dom.Unknown.support.call(this,...arguments)
         }

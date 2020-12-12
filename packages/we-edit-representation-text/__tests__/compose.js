@@ -31,7 +31,7 @@ describe("text", ()=>{
 				</Document>
 			</StoreContext>
 		)
-		const doc=renderer.root.find(a=>a.type.displayName && a.type.displayName.endsWith("composable-document"))
+		const doc=renderer.root.find(a=>a.type.support?.("pageable","document"))
 		const responsible=doc.find(a=>a.type.displayName=="responsible-composed-document-default-canvas").instance
 
 		return {renderer, dom:doc,doc:doc.instance, page:doc.instance.page,responsible}
