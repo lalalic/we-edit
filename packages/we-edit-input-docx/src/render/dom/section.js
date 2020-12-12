@@ -86,7 +86,7 @@ export default ({Section,Group, Container})=>class __$1 extends Component{
 				.filter(a=>a.type.displayName=="section")
 				.map(a=>a.props.id)
 			return sections.slice(0,sections.indexOf(id)+1)
-				.reduceRight((found,id)=>found||context.getComposer(`${id}_headerfooters`).getComposedTemplate(type),null)
+				.reduceRight((found,id)=>found||context.getComposer(`${id}_headerfooters`)?.getComposedTemplate(type),null)
 		}
 		const get=type=>{
 			const prioritized=[titlePg&&(I==0 ? "first" :false),evenAndOddHeaders&&(i%2==0 ? "even" : "odd"),'default'].filter(a=>!!a)
@@ -149,7 +149,10 @@ export default ({Section,Group, Container})=>class __$1 extends Component{
 	render(){
 		const WordSection=this.constructor.Section(Section)
 		const {pgSz:{width,height},  pgMar, cols, type, headers, footers, ...props}=this.props
-		const create=this.factoryOfCreateLayout(width,height,pgMar,this.getCols(width,pgMar,cols),type)
+		if(WordSection.support('composable')){
+			props.createLayout=this.factoryOfCreateLayout(width,height,pgMar,this.getCols(width,pgMar,cols),type)
+		}
+		return <WordSection {...props}/>
 		return(
 			<Fragment>
 				<WordSection.HeaderFooterContainer id={`${this.props.id}_headerfooters`} key={"0"}>
@@ -161,7 +164,7 @@ export default ({Section,Group, Container})=>class __$1 extends Component{
 		)
 	}
 
-	static Section=memoize(Section=>{
+	static Section=(Section=>{
 		if(!Section.Layout)
 			return Section
 
@@ -371,7 +374,7 @@ export default ({Section,Group, Container})=>class __$1 extends Component{
 				}
 			}
 
-			static HeaderFooterContainer=Container.composables.Templateable(class extends Container{
+			static HeaderFooterContainer=Container.composables?.Templateable(class extends Container{
 				
 			})
 		}

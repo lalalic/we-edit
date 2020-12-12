@@ -27,6 +27,10 @@ export default class Query{
 
 		if(Array.isArray(element)){
             this._nodes=element.filter(a=>React.isValidElement(a))
+            if(!root){
+                root=React.createElement("root",{children:[],_root:element})
+                element.forEach(a=>root.props.children.push(a))
+            }
         }else if(React.isValidElement(element)){
             this._nodes.push(element)
             if(!root){
@@ -93,11 +97,11 @@ export default class Query{
 				return null
 			}
 		}
-	}
-
-	replace(element, changed, props){
-        if(!this.root){
-            throw new Error("ReactQuery object must have root when running .replace(element, changed)")
+    }
+    
+    replace(element, changed, props){
+        if(this.root?.props._root){
+            throw new Error("ReactQuery object must have root, instead of [...] when running .replace(element, changed)")
         }
         if(element instanceof Query){
             element=element.get(0)
@@ -254,6 +258,13 @@ export default class Query{
 	}
 }
 
+/**
+ * depth first
+ * @param {*} el 
+ * @param {*} f 
+ * @param {*} right 
+ * @param {*} self 
+ */
 function traverse(el, f, right=false,self=true){
     if(!React.isValidElement(el))
         return

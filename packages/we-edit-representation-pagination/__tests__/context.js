@@ -47,7 +47,9 @@ export const context=({dom, state=State, measure=Measure, contextTypes={},contex
     	   }
        },{
         activeDocStore:{
-			subscribe(){},
+			subscribe(){
+                return ()=>null
+            },
 			dispatch(){},
 			getState(){
 				return {

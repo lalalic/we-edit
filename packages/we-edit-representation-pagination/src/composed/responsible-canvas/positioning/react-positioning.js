@@ -341,23 +341,28 @@ class PositioningHelper extends Positioning{
 
     //to make positioning only based on compose, not content
     __findFirstParagraphInTarget(target){
-        const getParagraphInCell=a=>new ReactQuery(a.createComposed2Parent()).findFirst(`[data-type="paragraph"]`).attr("data-content")
-        var paragraphInCell=null
-        if(target.getComposeType()=="cell"){
-            target.computed.lastComposed.find(a=>paragraphInCell=getParagraphInCell(a))
-            return paragraphInCell
-        }
-
-        const paragraphDirect=new ReactQuery(target.computed.lastComposed).findFirst(a=>{
+        const find=element=>{
+            if(!element)
+                return null
+            let found=null
+            new ReactQuery(element).findFirst(a=>{
                 if(!a || !a.props)
                     return 
                 if(a.props["data-type"]=="paragraph")
-                    return true
-                if(a.isFrame){//table Cell is special, since table and row last composed element includes Cell Frames, instead of cell content
-                    return paragraphInCell=getParagraphInCell(a)
+                    return found=a
+                if(a.createComposed2Parent){
+                    if(found=find(a.createComposed2Parent())){
+                        return true
+                    }
                 }
             })
-        return paragraphInCell || paragraphDirect.attr("data-content")
+            return found
+        }
+
+        const root=<div children={[]}/>
+        root.props.children[0]=target.computed.lastComposed
+        
+        return find(root)?.props['data-content']
     }
 
     /**
@@ -547,7 +552,7 @@ class PositioningHelper extends Positioning{
     }
     
     getFrameByLayoutedFrameNode({props:{'data-content':id,'data-frame':frameId, composer=this.getComposer(id)}}){
-        return frameId==id ? composer : composer.getLayoutByUUID?.(frameId)
+        return frameId==id ? composer : composer.computed.composed.find(a=>a.uuid==frameId)
     }
 }
 /**

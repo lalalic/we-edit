@@ -5,6 +5,8 @@ import {Editors} from "../../src"
 describe("continuable", ()=>{
 	const pageGap=12
 	const {Document, Section, Frame, Paragraph, Text}=Editors
+	const Canvas=Document.defaultProps.canvas.type
+		
 	const Context=context({dom:Editors})
 	const size={width:816,height:1056,
 		composedHeight(){
@@ -42,6 +44,7 @@ describe("continuable", ()=>{
 		defaultProps(Editors)()
 		Paragraph.defaultProps.End=""
 		console.debug=console.log=jest.fn()
+		Canvas.prototype.asViewportPoint=jest.fn(a=>a)
 	})
 
 	describe("compose to Y", ()=>{	

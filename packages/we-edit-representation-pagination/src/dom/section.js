@@ -149,7 +149,7 @@ class Section extends HasParentAndChild(dom.Section){
 	onAllChildrenComposed(){
 		//last one should check balanceable
 		const last=this.computed.composed[this.computed.composed.length-1]
-		if(last.balanceable){
+		if(last?.balanceable){
 			last.balance()
 		}
 		super.onAllChildrenComposed()

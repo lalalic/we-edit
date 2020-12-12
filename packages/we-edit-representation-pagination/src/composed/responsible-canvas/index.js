@@ -238,6 +238,8 @@ class Responsible extends Component{
         const SelectionStyle=this.constructor.SelectionStyle
         const {start}=this.selection
         const end=this.cursor
+        if(!end.id)
+            return
         
         if(!this.props.document.isSelectionComposed({end,start})){
             console.error(`selection style: not fully composed ${end.id}`)
