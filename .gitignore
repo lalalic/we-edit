@@ -37,3 +37,6 @@ dist/fonts
 *.map
 .worc
 packages/we-edit/*.md
+dist/basic.bak.docx
+dist/~$basic.docx
+docs/
