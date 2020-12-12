@@ -147,27 +147,26 @@ export default ({Section,Group, Container})=>class __$1 extends Component{
 	},shallowEqual)
 
 	render(){
-		const WordSection=this.constructor.Section(Section)
 		const {pgSz:{width,height},  pgMar, cols, type, headers, footers, ...props}=this.props
-		if(WordSection.support('composable')){
+		if(Section.support('pageable')){
+			const WordSection=this.constructor.Section(Section)
+			const {HeaderFooterContainer}=WordSection
 			props.createLayout=this.factoryOfCreateLayout(width,height,pgMar,this.getCols(width,pgMar,cols),type)
+			return(
+				<Fragment>
+					<HeaderFooterContainer id={`${this.props.id}_headerfooters`} key={"0"}>
+						{headers}
+						{footers}
+					</HeaderFooterContainer>
+					<WordSection {...props}/>
+				</Fragment>
+			)
 		}
-		return <WordSection {...props}/>
-		return(
-			<Fragment>
-				<WordSection.HeaderFooterContainer id={`${this.props.id}_headerfooters`} key={"0"}>
-					{headers}
-					{footers}
-				</WordSection.HeaderFooterContainer>
-				<WordSection createLayout={create} {...props}/>
-			</Fragment>
-		)
+		return <Section {...this.props}/>
+		
 	}
 
 	static Section=(Section=>{
-		if(!Section.Layout)
-			return Section
-
 		return class WordSection extends Section{
 			onlyHeaderFooterChanged({headers=[],footers=[]}){
 				if(this._onlyHeaderFooterChanged){
@@ -374,7 +373,7 @@ export default ({Section,Group, Container})=>class __$1 extends Component{
 				}
 			}
 
-			static HeaderFooterContainer=Container.composables?.Templateable(class extends Container{
+			static HeaderFooterContainer=Section.composables.Templateable(class extends Container{
 				
 			})
 		}
