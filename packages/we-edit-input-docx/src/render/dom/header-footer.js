@@ -1,22 +1,17 @@
 import React,{Component} from "react"
-import PropTypes from "prop-types"
 import memoize from "memoize-one"
 import {Field} from "./field"
 
 export default ({Template},displayName="headerFooter")=>class HeaderFooter extends Component{
     static displayName=displayName
     
-    static contextTypes={
-        headerFooterWidth: PropTypes.number,
-    }
-
     constructor(){
         super(...arguments)
         this.variables=new Variables()
     }
 
     render(){
-        return <Template {...this.props} width={this.context.headerFooterWidth} variables={this.variables}/>
+        return <Template {...this.props} variables={this.variables}/>
     }
 }
 

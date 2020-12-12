@@ -170,7 +170,7 @@ class DocxType extends Input.Editable{
 							hfs.push(
 								createElement(
 									HFType,
-									{xhref:`${cat}.${type}`,type:`${cat}.${type}`},
+									{xhref:`${cat}.${type}`},
 									root.children.map(a=>renderNode(a)),
 									root
 								).id

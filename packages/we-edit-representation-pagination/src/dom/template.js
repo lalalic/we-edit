@@ -126,6 +126,19 @@ export default class Template extends Frame{
         ,<div>{this.props.children}</div>)
         return replaced.props.children
     }
+
+    cancelUnusableLastComposed({hash,changed=hash!=this.props.hash}){
+        if(!changed){
+            return  
+        }
+        super._cancelAllLastComposed()
+    }
+
+    appendLastComposed(){
+        if(this.computed.allComposed){
+            this.context.parent.appendComposed(this)
+        }
+    }
 }
 
 class Variables extends Set{
