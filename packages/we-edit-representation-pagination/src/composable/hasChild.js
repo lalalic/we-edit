@@ -1,15 +1,16 @@
 
 import React, {Children,Fragment} from "react"
 import PropTypes from "prop-types"
-import ComposedAllTrigger from "./composed-all-trigger"
 import memoize from "memoize-one"
+import {dom} from "we-edit"
+import ComposedAllTrigger from "./composed-all-trigger"
 export default A=>{
     if(A.already)
         return A
     return class __$1 extends A{
         static displayName=`composable-${A.displayName}`
         static already=function(capable){
-            return this.displayName.split("-").includes(capable)
+            return dom.Unknown.support.call(this,...arguments)
         }
         static contextTypes={
             ...super.contextTypes,
@@ -18,7 +19,7 @@ export default A=>{
         }
 
         static childContextTypes = {
-            ...(A.childContextTypes||{}),
+            ...super.childContextTypes,
             parent: PropTypes.object
         }
 

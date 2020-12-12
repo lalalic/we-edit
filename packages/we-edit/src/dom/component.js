@@ -93,7 +93,8 @@ export default class Base extends Component{
 	}
 
 	static support(...capabilities){
-		return capabilities.find(a=>this.displayName.indexOf(a)!=-1)
+		const mine=this.displayName.toLowerCase().split("-")
+		return !capabilities.find(a=>!mine.includes(a))
 	}
 
 	getComposeType(){
