@@ -98,7 +98,7 @@ export default A=>{
 
         //last composed + left
         render(){
-            if(this.computed.lastComposed.length>0){
+            if(this.computed.allComposed || this.computed.lastComposed.length>0){
                 const appended=this.appendLastComposed()
                 const children=this.childrenArray(this.props.children)
                 if(typeof(appended)=="number" && appended>-1){

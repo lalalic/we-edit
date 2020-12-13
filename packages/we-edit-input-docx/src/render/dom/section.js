@@ -148,7 +148,7 @@ export default ({Section,Group, Container})=>class __$1 extends Component{
 						{headers.map(a=>React.cloneElement(a,{width:hfWidth,hash:a.props.hash+hfWidth}))}
 						{footers.map(a=>React.cloneElement(a,{width:hfWidth,hash:a.props.hash+hfWidth}))}
 					</HeaderFooterContainer>
-					<WordSection {...props}/>
+					<WordSection {...{...props,headers,footers}}/>
 				</Fragment>
 			)
 		}
@@ -159,66 +159,44 @@ export default ({Section,Group, Container})=>class __$1 extends Component{
 	static Section=memoize(Section=>{
 		const {composables:{Templateable, Recomposable}}=Section
 		return class WordSection extends Section{
-			onlyHeaderFooterChanged(nextProps){
-				if(this._onlyHeaderFooterChanged!=undefined){
-					try{
-						return this._onlyHeaderFooterChanged
-					}finally{
-						delete this._onlyHeaderFooterChanged
-					}
-				}
+			headerFooterChanged(nextProps){
 				const {headers=[],footers=[]}=nextProps
 				const {headers:_headers=[], footers:_footers=[]}=this.props
 				if(headers.length!=_headers.length || footers.length!=_footers.length){
-					return this._onlyHeaderFooterChanged=true
+					return true
 				}
-				if(headers.find((a,i)=>_headers?.props.hash!=a?.props.hash) ||
-					footers.find((a,i)=>_footers?.props.hash!=a?.props.hash)){
-					return this._onlyHeaderFooterChanged=true
+				if(headers.find((a,i)=>_headers[i]?.props.hash!=a?.props.hash) ||
+					footers.find((a,i)=>_footers[i]?.props.hash!=a?.props.hash)){
+					return true
 				}
-				return this._onlyHeaderFooterChanged=false
+				return false
 			}
 
-			cancelUnusableLastComposed(...args){
-				debugger
+			cancelUnusableLastComposed(nextProps){
+				this._headerFooterChanged=this.headerFooterChanged(nextProps)
 				const last=this.computed.lastComposed[this.computed.lastComposed.length-1]
 				if(last){
 					//continuous layout should always be re-appended
 					last.continuousLayouts=[]
 				}
-				if(this.onlyHeaderFooterChanged(...args)){
-					const equals=(cols1,cols2)=>true
-					const reusable=this.computed.lastComposed.reduce((reusable,page,i)=>{
-						if(reusable.discardIndex!=undefined)
-							return reusable
-						const {
-							context, 
-							props:{
-								continuous,
-								balance,
-								header,footer,
-								width,height,margin,
-								cols, 
-								...props
-							}
-						}=page
-						const newPage=this.createLayout(props,context)
-						if(equals(cols, newPage.props.cols)){
-							reusable.push(page.clone({header:newPage.header, footer:newPage.footer}))
+				super.cancelUnusableLastComposed(nextProps)
+			}
+
+			_appendLastComposedUntilSpaceChanged(lastComposed){
+				if(this._headerFooterChanged){
+					const equals=(cols,cols2)=>cols.length==cols.length && !cols.find((a,i)=>!shallowEqual(a,cols2[i]))
+					return lastComposed.findIndex((page,i)=>{
+						const newPage=this.createLayout()
+						if(equals(page.props.cols, newPage.props.cols)){
+							const cloned=page.clone({header:newPage.props.header, footer:newPage.props.footer})
+							this.computed.composed.splice(i,1,cloned)
+							this.context.parent.appendComposed(this.createComposed2Parent(cloned))
 						}else{
-							reusable.discardIndex=i
+							return true
 						}
-						return reusable
-					},[])
-					if(reusable.discardIndex!=undefined){
-						this.computed.composed.splice(0,this.computed.composed.length,...reusable)
-						this.computed.lastComposed.splice(0,this.computed.composed.length)
-						this.computed.composed.forEach(a=>{
-							this.context.parent.appendComposed(this.createComposed2Parent(a))
-						})
-					}
+					})
 				}
-				super.cancelUnusableLastComposed(...args)
+				return super._appendLastComposedUntilSpaceChanged(lastComposed)
 			}
 
 			/**

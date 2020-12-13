@@ -96,12 +96,11 @@ export default class Template extends Frame{
             return content
 
         const variableId=this.variables.id(variables)
-        const frameId=`${content.props['data-frame']}_${variableId}`
         if(new ReactQuery(replaced).findFirst("[data-content]").length){
             /**
              * replace variable in content, so don't need recompose
              */
-            return React.cloneElement(replaced,{"data-frame1":frameId})
+            return replaced
         }
 
         const replaceableComposed=[]
@@ -114,10 +113,10 @@ export default class Template extends Frame{
                 replaceableComposed[0]=composed
                 this.instances[variableId]=frame
             },
-            childContext:locatorize.bind({})(new Map()),
+            childContext:locatorize.call({},new Map()),
         }}/>)
 
-        return React.cloneElement(content,{children:replaceableComposed,"data-frame1":frameId})
+        return React.cloneElement(content,{children:replaceableComposed})
     }
 
     replaceVariables(composed, values){
@@ -125,19 +124,6 @@ export default class Template extends Frame{
             a.replaceVariable(element,values,composed)
         ,<div>{this.props.children}</div>)
         return replaced.props.children
-    }
-
-    cancelUnusableLastComposed({hash,changed=hash!=this.props.hash}){
-        if(!changed){
-            return  
-        }
-        super._cancelAllLastComposed()
-    }
-
-    appendLastComposed(){
-        if(this.computed.allComposed){
-            this.context.parent.appendComposed(this)
-        }
     }
 }
 

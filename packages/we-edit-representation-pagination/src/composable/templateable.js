@@ -13,7 +13,7 @@ export default (A)=>class __$1 extends A{
     }
 
     getComposedTemplate(xhref){
-        return this.computed.templates[xhref]
+        return this.computed.templates.find(a=>a.props.xhref==xhref)
     }
 
     getChildContext(){
@@ -26,7 +26,12 @@ export default (A)=>class __$1 extends A{
     appendComposed(){
         const {xhref}=arguments[0].props
         if(xhref){
-            this.computed.templates[xhref]=arguments[0]
+            const i=this.computed.templates.findIndex(a=>a.props.xhref==xhref)
+            if(i==-1){
+                this.computed.templates.push(arguments[0])
+            }else{
+                this.computed.templates.splice(i,1,arguments[0])
+            }
             return
         }
         return super.appendComposed(...arguments)

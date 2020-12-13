@@ -179,22 +179,7 @@ export default class EditableSection extends editable(Section,{stoppable:true}){
 		this.computed.lastComposed=[]
 		
 		//append last composed fissions one by one
-		const spaceChangedAt=lastComposed.findIndex((fission,i,_,$,isLast=i==lastComposed.length-1)=>{
-			if(isLast&&fission.isEmpty()){
-				//last empty fission is useless for cache
-				return true
-			}
-				
-			const current=this.createLayout()
-			if(fission.getSpace().equals(current.getSpace())){
-				fission=fission.clone4Space(current)
-				this.computed.composed.splice(i,1,fission)
-				this.context.parent.appendComposed(this.createComposed2Parent(fission))
-				return false
-			}
-			return true
-		})
-
+		const spaceChangedAt=this._appendLastComposedUntilSpaceChanged(lastComposed)
 
 		if(spaceChangedAt==0){
 			//clear all computed
@@ -215,6 +200,24 @@ export default class EditableSection extends editable(Section,{stoppable:true}){
 			return this.childrenArray(this.props.children).findIndex(a=>a && a.props.id==lastId)
 		}
 		return false
+	}
+
+	_appendLastComposedUntilSpaceChanged(lastComposed){
+		return lastComposed.findIndex((fission,i,_,$,isLast=i==lastComposed.length-1)=>{
+			if(isLast&&fission.isEmpty()){
+				//last empty fission is useless for cache
+				return true
+			}
+				
+			const current=this.createLayout()
+			if(fission.getSpace().equals(current.getSpace())){
+				fission=fission.clone4Space(current)
+				this.computed.composed.splice(i,1,fission)
+				this.context.parent.appendComposed(this.createComposed2Parent(fission))
+				return false
+			}
+			return true
+		})
 	}
 
 	_cancelChangedPart(next){

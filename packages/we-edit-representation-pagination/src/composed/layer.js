@@ -56,13 +56,11 @@ export default class Layer extends Component{
             const {active, activeStyle, inactiveStyle}=this.props
             const children=Children.toArray(this.props.children).filter(a=>!!a).sort(({props:a},{props:b})=>a.z-b.z)
             const inactiveLayers=children.filter(a=>a.props.z!=active).map(a=>React.cloneElement(a, {active:false,style:inactiveStyle}))
-            const activeLayer=children.find(a=>a.props.z==active)
+            const activeLayers=children.filter(a=>a.props.z==active).map(a=>React.cloneElement(a, {active:true,style:activeStyle}))
             return (
                 <Fragment>
-                    {[
-                        ...inactiveLayers,
-                        activeLayer&&activeStyle ? React.cloneElement(activeLayer,{style:activeStyle}) : activeLayer
-                    ].filter(a=>!!a)}
+                    {inactiveLayers}
+                    {activeLayers}
                 </Fragment>
             )
         }
