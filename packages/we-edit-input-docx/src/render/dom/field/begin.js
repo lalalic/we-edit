@@ -4,6 +4,7 @@ import { ReactQuery } from "we-edit";
 import memoize from "memoize-one";
 import Fields from "./fields"
 import Context from "./context"
+import NumPages from "./numpages"
 
 
 export default ({ Text }) => class FieldBegin extends Component {

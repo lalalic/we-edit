@@ -50,7 +50,7 @@ export default ({ Container }) => class SimpleField extends Component {
     replaceNUMPAGES(element){
         const { props: { display, id, command, instr } } = this;
         const $ = new ReactQuery(element);
-        const text = (all => all[1 + all.findIndex(a => a.props.id == id)])($.find(`[id="${id}"],text`).toArray());
+        const text = $.findFirst(`[id="${id}"]`).findFirst('text').get(0)
         const getValue=()=>{
             return Fields.create(instr).execute(new Context(this.context.activeDocStore.getState(),id))
         }
