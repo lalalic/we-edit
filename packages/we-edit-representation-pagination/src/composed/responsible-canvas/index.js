@@ -38,7 +38,6 @@ class Responsible extends Component{
             node: PropTypes.instanceOf(Element),
 		}),        
         document: PropTypes.object,
-        responsible: PropTypes.object,
     }
 
     static defaultProps={
@@ -53,6 +52,7 @@ class Responsible extends Component{
 
     static childContextTypes={
         positioning:PropTypes.object,
+        responsible: PropTypes.object,
     }
     
     static getDerivedStateFromProps({document,...me}){
@@ -76,7 +76,8 @@ class Responsible extends Component{
 
     getChildContext(){
         return {
-            positioning:this.positioning
+            positioning:this.positioning,
+            responsible:this,
         }
     }
 
