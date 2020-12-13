@@ -385,6 +385,9 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 				"data-nocontent": true,
 			}
 
+			static contextTypes={
+				responsible: PropTypes.object,
+			}
 			
 			constructor(){
 				super(...arguments)
@@ -408,7 +411,7 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 			componentDidMount(){
 				const {onComposed=a=>a}=this.props
 				const composed=this.frame.createComposed2Parent().props.children
-				this.setState({composed},()=>onComposed(composed,this.frame))
+				this.setState({composed},()=>onComposed(composed,this.frame, this.context.responsible))
 			}
 		}
 	})

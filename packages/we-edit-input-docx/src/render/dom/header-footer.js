@@ -13,6 +13,21 @@ export default ({Template},displayName="headerFooter")=>class HeaderFooter exten
     render(){
         return <Template {...this.props} variables={this.variables}/>
     }
+
+    static FHTemplate=memoize(Template=>{
+        if(!Template.support('pageable'))
+            return Template
+        return class extends Template{
+            onTemplated(variables,responsible){
+                if(!responsible)
+                    return 
+                if(variables.I==responsible.cursor.page &&
+                    this.context.getComposer(responsible.cursor.id)?.closest(a=>a.props.id==this.props.id)){
+                    responsible.__updateSelectionStyle()
+                }
+            }
+        }
+    })
 }
 
 //only support PAGE/NUMPAGES

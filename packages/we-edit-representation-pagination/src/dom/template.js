@@ -95,7 +95,6 @@ export default class Template extends Frame{
         if(replaced==this.props.children || replaced==content)
             return content
 
-        const variableId=this.variables.id(variables)
         if(new ReactQuery(replaced).findFirst("[data-content]").length){
             /**
              * replace variable in content, so don't need recompose
@@ -103,20 +102,24 @@ export default class Template extends Frame{
             return replaced
         }
 
-        const replaceableComposed=[]
+        return this.renderVariables(replaced, content, variables)
+    }
 
-        replaceableComposed[0]=(<Frame.Async {...{
+    renderVariables(replaced, content, variables) {
+        const replaceableComposed = []
+
+        replaceableComposed[0] = (<Frame.Async {...{
             ...this.props,
-            //i:variableId,
-            children:replaced, 
-            onComposed:(composed, frame)=>{
-                replaceableComposed[0]=composed
-                this.instances[variableId]=frame
+            children: replaced,
+            onComposed: (composed, frame, responsible) => {
+                replaceableComposed[0] = composed
+                this.instances[variables.Id] = frame
+                this.onTemplated(variables,responsible)
             },
-            childContext:locatorize.call({},new Map()),
-        }}/>)
+            childContext: locatorize.call({}, new Map()),
+        }} />)
 
-        return React.cloneElement(content,{children:replaceableComposed})
+        return React.cloneElement(content, { children: replaceableComposed })
     }
 
     replaceVariables(composed, values){
@@ -124,6 +127,14 @@ export default class Template extends Frame{
             a.replaceVariable(element,values,composed)
         ,<div>{this.props.children}</div>)
         return replaced.props.children
+    }
+
+    onTemplated(variables,responsible){
+        if(!responsible)
+            return 
+        if(this.context.getComposer(responsible.cursor.id)?.closest(a=>a.props.id==this.props.id)){
+            responsible.__updateSelectionStyle()
+        }
     }
 }
 

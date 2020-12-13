@@ -621,8 +621,6 @@ export default class ReactPositioning extends PositioningHelper {
                 const layer=parents.find(a=>a && a.type.displayName=="layer")
                 if(layer){
                     return layer.props.z
-                }else{
-                    debugger
                 }
             }
         })
