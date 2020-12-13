@@ -38,6 +38,7 @@ class Responsible extends Component{
             node: PropTypes.instanceOf(Element),
 		}),        
         document: PropTypes.object,
+        responsible: PropTypes.object,
     }
 
     static defaultProps={
