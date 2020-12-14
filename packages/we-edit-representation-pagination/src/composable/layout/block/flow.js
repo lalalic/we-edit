@@ -369,6 +369,7 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 
 	static __getAsync=memoize(SyncTypeFrame=>{
 		return class extends Component{
+			static displayName="async"
 			static childContextTypes={
 				parent: PropTypes.object,
 				mount: PropTypes.func,
@@ -408,7 +409,12 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 				const {state:{composed}, props:{children, onComposed, ...props}}=this
 				return composed||<SyncTypeFrame {...props}>{children}</SyncTypeFrame>
 			}
+
 			componentDidMount(){
+				this.onComposed()
+			}
+
+			onComposed(){
 				const {onComposed=a=>a}=this.props
 				const composed=this.frame.createComposed2Parent().props.children
 				this.setState({composed},()=>onComposed(composed,this.frame, this.context.responsible))
