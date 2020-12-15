@@ -1,3 +1,4 @@
+import React from "react"
 import PropTypes from "prop-types"
 import Unknown from "./component"
 
@@ -13,4 +14,6 @@ export default class Template extends Unknown{
     static childContextTypes={
         notifyVariable: PropTypes.func
     }
+
+    static Manager=React.Fragment
 }

@@ -393,6 +393,7 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 			constructor(){
 				super(...arguments)
 				this.state={}
+				this.onComposed=this.onComposed.bind(this)
 			}
 
 			getChildContext(){
@@ -417,7 +418,7 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 			onComposed(){
 				const {onComposed=a=>a}=this.props
 				const composed=this.frame.createComposed2Parent().props.children
-				this.setState({composed},()=>onComposed(composed,this.frame, this.context.responsible))
+				this.setState({composed},()=>onComposed(composed, this.context.responsible))
 			}
 		}
 	})

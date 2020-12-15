@@ -18,6 +18,7 @@ export default ({ Text }) => class FieldBegin extends Component {
     constructor() {
         super(...arguments);
         this.replaceVariable = this.replaceVariable.bind(this);
+        this.uuid=Date.now()
     }
 
     getVariableDefinition = memoize(props => {
@@ -49,7 +50,8 @@ export default ({ Text }) => class FieldBegin extends Component {
             return element;
         const $ = new ReactQuery(element);
         const text = (all => all[1 + all.findIndex(a => a.props.id == id)])($.find(`[id="${id}"],text`).toArray());
-        return $.replace(text, React.cloneElement(text, { children: value })).get(0);
+        const hash=++this.uuid
+        return $.replace(text, React.cloneElement(text, { children: value,hash}),{hash}).get(0);
     }
 
     replaceNUMPAGES(element){
@@ -59,6 +61,6 @@ export default ({ Text }) => class FieldBegin extends Component {
         const getValue=()=>{
             return Fields.create(instr).execute(new Context(this.context.activeDocStore.getState(),id))
         }
-        return $.replace(text, <NumPages children={text} getValue={getValue}/>).get(0);
+        return $.replace(text, <NumPages id={`${text.props.id}_numpages`} key={text.props.id} children={text} getValue={getValue}/>).get(0);
     }
 };

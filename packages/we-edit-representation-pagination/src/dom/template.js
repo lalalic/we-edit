@@ -4,7 +4,6 @@ import PropTypes from "prop-types"
 import {ReactQuery} from "we-edit"
 
 import Frame from "./frame"
-import Container from "./container"
 
 const {Locatable:{Locatorize}}=Frame.composables
 const locatorize=Locatorize(class{}).prototype.locatorize
@@ -40,63 +39,7 @@ class Use extends Component{
 /**
  * Template should keep instances for positioning
  */
-export default class extends Container{
-    static childContextTypes={
-        ...super.childContextTypes,
-        notifyVariable:PropTypes.func,
-        parent: PropTypes.object,
-        variables: PropTypes.object,
-        shouldContinueCompose: PropTypes.func,
-    }
-
-    constructor(){
-        super(...arguments)
-        this.state=this.state||{}
-        this.variables=this.props.variables||new Variables()
-        this.notifyVariable=this.notifyVariable.bind(this)
-        this.composed=[]
-    }
-
-    notifyVariable(variable){
-        this.variables.add(variable)
-    }
-
-    getChildContext(){
-        return {
-            notifyVariable:this.notifyVariable,
-            parent:this.state.asyncer ? this : this.context.parent,
-            variables: this.state.values,
-            shouldContinueCompose(){
-                return true
-            }
-        }
-    }
-
-    appendComposed(a){
-        this.composed[this.variables.id(a.props.values)]=a
-    }
-
-    render(){
-        const {state:{asyncer}, props:{hash,...props}}=this
-        if(asyncer){
-            const {values, children}=asyncer.props
-            return <Template {...props} manager={this} children={children} hash={`${hash}${this.variables.id(values)}`} values={values}/>
-        }else{
-            return <Template {...this.props} manager={this}/>
-        }
-    }
-
-    componentDidUpdate(){
-        const {asyncer}=this.state
-        if(!asyncer)
-            return 
-        asyncer.onComposed(asyncer.frame=this.composed[this.variables.id(asyncer.props.values)])
-    }
-}
-
-
-
-class Template extends Frame{
+export default class Template extends Frame{
     static Use=Use
     static displayName=super.displayName.replace("frame","template")
     
@@ -109,88 +52,233 @@ class Template extends Frame{
         return true
     }
 
-    get variables(){
-        return this.props.manager.variables
-    }
-
     createComposed2Parent(variables){
-        const content=super.createComposed2Parent()
-        if(!variables || Object.keys(variables).length==0)
-            return content
-
-        if(this.variables.size==0)
-            return content
-
-        if(this.variables.equals(variables))
-            return content
-
-        const values=this.variables.getValues(variables)
-        const replaced=this.replaceVariables(content,values, this.props.children)
-        if(replaced==this.props.children || replaced==content)
-            return content
-
-        if(new ReactQuery(replaced).findFirst("[data-content]").length){
-            /**
-             * replace variable in content, so don't need recompose
-             */
-            return replaced
-        }
-
-        return this.renderVariables(replaced, content, variables)
-    }
-
-    onAllChildrenComposed(){
-        super.onAllChildrenComposed(...arguments)
-    }
-
-    renderVariables(replaced, content, variables) {
-        const replaceableComposed = []
-
-        replaceableComposed[0] = (<this.constructor.Async {...{
-            ...this.props,
-            children: replaced,
-            values: variables,
-            onComposed: (composed, frame, responsible) => {
-                replaceableComposed[0] = composed
-                this.onTemplated(variables,responsible)
-            },
-            childContext: locatorize.call({}, new Map()),
-        }} />)
-
-        return React.cloneElement(content, { children: replaceableComposed })
-    }
-
-    replaceVariables(composed, values){
-        const replaced=Array.from(this.variables).reduce((element,a)=>
-            a.replaceVariable(element,values,composed)
-        ,<div>{this.props.children}</div>)
-        return replaced.props.children
-    }
-
-    onTemplated(variables,responsible){
-        if(!responsible)
-            return 
-        if(this.context.getComposer(responsible.cursor.id)?.closest(a=>a.props.id==this.props.id)){
-            responsible.__updateSelectionStyle()
-        }
+        if(arguments.length==0 || !this.props.manager)
+            return super.createComposed2Parent()
+        return this.props.manager.createComposed2Parent(...arguments)
     }
 
     /**
-     * A template re-render trigger by setState
+     * Manager is as a composer by setState({templateWithValues})
+     * templateWithValues composed when show
      */
-    static Async=class extends super.Async{
-        constructor(...args){
-            super(...args)
-            
-        }
-        render(){
-            return this.state.composed||null
+    static Manager=class Manager extends Component{
+        static displayName="template-manager"
+        static childContextTypes={
+            notifyVariable:PropTypes.func,
+            parent: PropTypes.object,
+            variables: PropTypes.object,
+            shouldContinueCompose: PropTypes.func,
         }
 
-        componentDidMount(){
-            this.props.manager.setState({asyncer:this})
+        static contextTypes={
+            parent: PropTypes.object,
+            debug: PropTypes.bool,
+            getComposer: PropTypes.func,
+        }
+
+        static getDerivedStateFromProps({children:{props:{hash}}},state){
+            return {hash,templates:hash!=state.hash ? [] : state.templates}
+        }
+    
+        constructor(){
+            super(...arguments)
+            this.state={...this.state,templates:[]}
+            this.variables=this.props.variables||new Variables()
+            this.notifyVariable=this.notifyVariable.bind(this)
+            this.lastComposed=[]
+            this.appendComposed=this.appendComposed.bind(this)
+        }
+
+        get template(){
+            return this.props.children
+        }
+
+        get templateComposer(){
+            return this._templateComposer
+        }
+
+        _text(element){
+            return new ReactQuery(element).find('text,[data-type=text]').toArray().map(a=>a.props.children).join(",")
+        }
+
+        shouldComponentUpdate({children:{props:{hash,}}},{templates:[templateWithValues]}){
+            const changed=hash!=this.props.children.props.hash
+            if(changed){
+                this.lastComposed=[]
+                //this.variables.clear()
+                return true
+            }
+            return !!(templateWithValues && !this.lastComposed[this.variables.id(templateWithValues.props.values)])
+        }
+    
+        notifyVariable(variable){
+            if(!this.state.templateWithValues){
+                this.variables.add(variable)
+            }
+        }
+    
+        getChildContext(){
+            return {
+                notifyVariable:this.notifyVariable,
+                variables: this.state.values,
+                shouldContinueCompose:a=>true,
+                parent:new Proxy(this.context.parent,{
+                    get:(parent, k, proxy)=>k=="appendComposed" ? this.appendComposed : Reflect.get(parent,k,proxy)
+                }),
+            }
+        }
+
+        appendComposed(a){
+            const {values}=a.props
+            const composed=a.createComposed2Parent()
+            if(values){
+                this.lastComposed[this.variables.id(values)]=composed
+                if(this.context.debug)
+                    console.debug(`[${a.props.uuid}.manager.composed]: ${this._text(composed)}`)
+            }else{
+                this.context.parent.appendComposed(a)
+                this.lastComposed.default=composed
+            }
+            this._templateComposer=a
+        }
+    
+        render(){
+            const {state:{templates:[templateWithValues]}, props:{children:template}}=this
+            return React.cloneElement(templateWithValues||template,{manager:this})
+        }
+
+        createComposed2Parent(variables){
+            if(this.variables.size==0){
+                return this.lastComposed.default
+            }
+            
+            const id=this.variables.id(variables)
+            if(this.variables.equals(variables)){
+                console.log(`[${id}.manager]: use cached default because of matching default`)
+                return this.lastComposed.default
+            }
+            
+            if(this.lastComposed[id]){
+                console.log(`[${id}.manager]: use cached`)
+                return this.lastComposed[id]
+            }
+            
+            const values=this.variables.getValues(variables)
+            const replaced=this.replaceVariables(this.lastComposed.default,values)
+            if(replaced==this.props.children || replaced==this.lastComposed.default){
+                console.log(`[${id}.manager]: use cached default because of no replaced`)
+                return this.lastComposed.default
+            }
+            if(this.context.debug)
+                console.log(`[${id}.manager.replaced]: ${this._text(replaced)}`)
+            if(new ReactQuery(replaced).findFirst("[data-content]").length){
+                /**
+                 * replace variable in content, so don't need recompose
+                 */
+                console.log(`[${id}.manager]: use cached default because of replacing in composed`)
+                return replaced
+            }
+    
+            return this._renderVariables(variables, replaced, this.lastComposed.default, )
+        }
+
+        _renderVariables(variables, replaced, defaultComposed) {
+            const replaceableComposed = [], id=this.variables.id(variables)
+            const uuid=`${id}.${Date.now()}`
+            replaceableComposed[0] = (<this.constructor.Async {...{
+                id:uuid,
+                key:uuid,
+                children: React.cloneElement(replaced, {values:variables, uuid}),
+                compose:(templateWithValues,onComposed, responsible)=>{
+                    this.state.templates.splice(0,1,templateWithValues)
+                    this.forceUpdate(function(){
+                        if(this.templateComposer.props.values==templateWithValues.props.values){
+                            const composed=this.templateComposer.createComposed2Parent()
+                            this.lastComposed[id]=composed
+                            console.log(`[${uuid}.manager]: forced update async with${composed?"":"out"} composed`) 
+                            this.state.templates.splice(0,1)
+                            if(composed){
+                                replaceableComposed[0] = composed
+                                onComposed(composed)
+                                this.onTemplated(variables,responsible)
+                            }
+                            
+                        }
+                    })
+                },
+                childContext: locatorize.call({}, new Map()),
+            }} />)
+            console.log(`[${uuid}.manager]: use Async`)    
+    
+            return React.cloneElement(defaultComposed,{children:replaceableComposed})
+        }
+
+        replaceVariables(composed, values){
+            return Array.from(this.variables).reduce((element,a)=>
+                a.replaceVariable(element,values,composed)
+            ,this.template)
+        }
+    
+        onTemplated(variables,responsible){
+            if(!responsible)
+                return 
+            if(this.context.getComposer(responsible.cursor.id)?.closest(a=>a.props.id==this.props.id)){
+                responsible.__updateSelectionStyle()
+            }
+        }
+
+        /**
+         * A template re-render trigger by setState
+         */
+        static Async=class extends Component{
+            static displayName="async"
+            static getDerivedStateFromProps({children:{props:{hash}}}, state){
+                return {hash, composed:state.hash!=hash ? null : state.composed}
+            }
+
+            static contextTypes={
+                responsible: PropTypes.object,
+            }
+
+            constructor(...args){
+                super(...args)
+                this.state={}
+                console.log(`[${this.props.id}.async]: creating`)
+            }
+
+            get template(){
+                return this.props.children
+            }
+
+            render(){
+                console.log(`[${this.props.id}.async]: render with${this.state.composed?"":"out"} composed`)
+                return this.state.composed?.props.children||null
+            }
+
+            componentDidMount(){
+                console.log(`[${this.props.id}.async]: mounting`)
+                if(!this.state.composed){
+                    console.log(`[${this.props.id}.async]: composing`)
+                    this.props.compose(
+                        this.props.children,
+                        composed=>this.setState({composed},()=>console.log(`[${this.props.id}.async]: set composed`)),
+                        this.context.responsible
+                    )
+                }
+            }
+
+            componentDidUpdate(){
+                console.log(`[${this.props.id}.async]: updated with${this.state.composed?"":"out"} composed`)
+            }
+
+            componentWillUnmount(){
+                console.log(`[${this.props.id}.async]: unmounting with${this.state.composed?"":"out"} composed`)
+            }
         }
     }
+
+    
 }
 
 class Variables extends Set{

@@ -106,6 +106,7 @@ export default class extends editable(Document,{continuable:true}){
      */
     locatorize(composers){
         super.locatorize(...arguments)
+        this.composers=composers
         const history=new Map()
         this.mount=a=>{
             if(typeof(a)!="object"){

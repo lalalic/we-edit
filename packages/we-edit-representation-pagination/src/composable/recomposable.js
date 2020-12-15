@@ -135,7 +135,10 @@ export default A=>{
             const next=Children.toArray(b.children)
             const current=this.childrenArray(a.children)
             const changedIndex=current.findIndex(({props:{id,hash}},i,_,$,b=next[i])=>!(b && b.props.id==id && b.props.hash==hash))
-            return current.slice(changedIndex).map(a=>a && a.props.id)
+            if(changedIndex!=-1){
+                return current.slice(changedIndex).map(a=>a && a.props.id)
+            }
+            return []
         })
     }
 

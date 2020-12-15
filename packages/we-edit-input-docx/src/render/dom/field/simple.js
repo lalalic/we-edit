@@ -44,16 +44,19 @@ export default ({ Container }) => class SimpleField extends Component {
             return element;
         const $ = new ReactQuery(element);
         const text = $.findFirst(`[id="${id}"]`).findFirst('text');
-        return $.replace(text, React.cloneElement(text.get(0), { children: value })).get(0);
+        return $.replace(text, React.cloneElement(text.get(0), { children: value,hash:Date.now() }),{hash:Date.now()}).get(0);
     }
 
     replaceNUMPAGES(element){
         const { props: { display, id, command, instr } } = this;
         const $ = new ReactQuery(element);
         const text = $.findFirst(`[id="${id}"]`).findFirst('text').get(0)
+        if(!text){
+            debugger
+        }
         const getValue=()=>{
             return Fields.create(instr).execute(new Context(this.context.activeDocStore.getState(),id))
         }
-        return $.replace(text, <NumPages children={text} getValue={getValue}/>).get(0);
+        return $.replace(text, <NumPages id={`${text.props.id}_numpages`} children={text} getValue={getValue}/>).get(0);
     }
 };
