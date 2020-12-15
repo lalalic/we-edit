@@ -89,6 +89,8 @@ export default class Template extends Frame{
             this.notifyVariable=this.notifyVariable.bind(this)
             this.lastComposed=[]
             this.appendComposed=this.appendComposed.bind(this)
+
+            this.queue=this.createQueue()
         }
 
         get template(){
@@ -97,6 +99,29 @@ export default class Template extends Frame{
 
         get templateComposer(){
             return this._templateComposer
+        }
+
+        createQueue(){
+            const queue=[]
+            let current=null
+            const compose=start=>start().then(()=>(current=queue.shift()) && compose(current))
+            
+            return new Proxy(queue,{
+                get:(arr, k, proxy)=>{
+                    if(k=="push"){
+                        return message=>{
+                            for(let i=arr.length-1;i>-1;i--){
+                                if(arr[i].id==message.id){
+                                    arr.splice(i,1)
+                                }
+                            }
+                            arr.push(message)
+                            !current && compose(current=arr.shift())
+                        }
+                    }
+                    return Reflect.get(arry,k,proxy)
+                }
+            })
         }
 
         _text(element){
@@ -191,18 +216,21 @@ export default class Template extends Frame{
                 id:uuid,
                 children: React.cloneElement(replaced, {values:variables, uuid}),
                 compose:(templateWithValues,onComposed, responsible)=>{
-                    this.setState({templateWithValues},()=>{
-                        if(this.templateComposer.props.values==templateWithValues.props.values){
-                            const composed=this.templateComposer.createComposed2Parent()
-                            this.lastComposed[id]=composed
-                            console.log(`[${uuid}.manager]: forced update async with${composed?"":"out"} composed`) 
-                            replaceableComposed[0] = composed
-                            this.onTemplated(variables,responsible)
-                            onComposed(composed)
-                        }else{
-                            console.log(`[${uuid}.manager]: forced update async for ${uuid}, but template is ${this.templateComposer.props.uuid}`) 
-                        }
-                    })
+                    this.queue.push(Object.assign(()=>{
+                        return new Promise((resolve)=>{
+                            this.setState({templateWithValues},()=>{
+                                try{
+                                    const composed=this.lastComposed[id]
+                                    console.log(`[${uuid}.manager]: forced update async with${composed?"":"out"} composed`) 
+                                    replaceableComposed[0] = composed
+                                    onComposed(composed)
+                                    this.onTemplated(variables,responsible)
+                                }finally{
+                                    resolve()
+                                }
+                            })
+                        })
+                    }),{id})
                 },
                 childContext: locatorize.call({}, new Map()),
             }} />)
@@ -230,10 +258,6 @@ export default class Template extends Frame{
          */
         static Async=class extends Component{
             static displayName="async"
-            static getDerivedStateFromProps({children:{props:{hash}}}, state){
-                return {hash, composed:state.hash!=hash ? null : state.composed}
-            }
-
             static contextTypes={
                 responsible: PropTypes.object,
             }
@@ -250,7 +274,7 @@ export default class Template extends Frame{
 
             render(){
                 console.log(`[${this.props.id}.async]: render with${this.state.composed?"":"out"} composed`)
-                return <Group>{this.state.composed?.props.children||null}</Group>
+                return this.state.composed?.props.children||null
             }
 
             componentDidMount(){
@@ -267,10 +291,6 @@ export default class Template extends Frame{
                         this.context.responsible
                     )
                 }
-            }
-
-            componentDidUpdate(){
-                console.log(`[${this.props.id}.async]: updated with${this.state.composed?"":"out"} composed`)
             }
 
             componentWillUnmount(){
