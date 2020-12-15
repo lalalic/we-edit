@@ -4,6 +4,7 @@ import PropTypes from "prop-types"
 import {ReactQuery} from "we-edit"
 
 import Frame from "./frame"
+import Group from "../composed/group"
 
 const {Locatable:{Locatorize}}=Frame.composables
 const locatorize=Locatorize(class{}).prototype.locatorize
@@ -78,12 +79,12 @@ export default class Template extends Frame{
         }
 
         static getDerivedStateFromProps({children:{props:{hash}}},state){
-            return {hash,templates:hash!=state.hash ? [] : state.templates}
+            return {hash,templateWithValues:hash!=state.hash ? null : state.templateWithValues}
         }
     
         constructor(){
             super(...arguments)
-            this.state={...this.state,templates:[]}
+            this.state={...this.state}
             this.variables=this.props.variables||new Variables()
             this.notifyVariable=this.notifyVariable.bind(this)
             this.lastComposed=[]
@@ -102,7 +103,7 @@ export default class Template extends Frame{
             return new ReactQuery(element).find('text,[data-type=text]').toArray().map(a=>a.props.children).join(",")
         }
 
-        shouldComponentUpdate({children:{props:{hash,}}},{templates:[templateWithValues]}){
+        shouldComponentUpdate({children:{props:{hash,}}},{templateWithValues}){
             const changed=hash!=this.props.children.props.hash
             if(changed){
                 this.lastComposed=[]
@@ -144,7 +145,7 @@ export default class Template extends Frame{
         }
     
         render(){
-            const {state:{templates:[templateWithValues]}, props:{children:template}}=this
+            const {state:{templateWithValues}, props:{children:template}}=this
             return React.cloneElement(templateWithValues||template,{manager:this})
         }
 
@@ -188,22 +189,18 @@ export default class Template extends Frame{
             const uuid=`${id}.${Date.now()}`
             replaceableComposed[0] = (<this.constructor.Async {...{
                 id:uuid,
-                key:uuid,
                 children: React.cloneElement(replaced, {values:variables, uuid}),
                 compose:(templateWithValues,onComposed, responsible)=>{
-                    this.state.templates.splice(0,1,templateWithValues)
-                    this.forceUpdate(function(){
+                    this.setState({templateWithValues},()=>{
                         if(this.templateComposer.props.values==templateWithValues.props.values){
                             const composed=this.templateComposer.createComposed2Parent()
                             this.lastComposed[id]=composed
                             console.log(`[${uuid}.manager]: forced update async with${composed?"":"out"} composed`) 
-                            this.state.templates.splice(0,1)
-                            if(composed){
-                                replaceableComposed[0] = composed
-                                onComposed(composed)
-                                this.onTemplated(variables,responsible)
-                            }
-                            
+                            replaceableComposed[0] = composed
+                            this.onTemplated(variables,responsible)
+                            onComposed(composed)
+                        }else{
+                            console.log(`[${uuid}.manager]: forced update async for ${uuid}, but template is ${this.templateComposer.props.uuid}`) 
                         }
                     })
                 },
@@ -253,16 +250,20 @@ export default class Template extends Frame{
 
             render(){
                 console.log(`[${this.props.id}.async]: render with${this.state.composed?"":"out"} composed`)
-                return this.state.composed?.props.children||null
+                return <Group>{this.state.composed?.props.children||null}</Group>
             }
 
             componentDidMount(){
                 console.log(`[${this.props.id}.async]: mounting`)
                 if(!this.state.composed){
-                    console.log(`[${this.props.id}.async]: composing`)
+                    console.log(`[${this.props.id}.async]: force compose`)
                     this.props.compose(
                         this.props.children,
-                        composed=>this.setState({composed},()=>console.log(`[${this.props.id}.async]: set composed`)),
+                        composed=>{
+                            if(this.unmounted)
+                                return 
+                            this.setState({composed})
+                        },
                         this.context.responsible
                     )
                 }
@@ -273,6 +274,7 @@ export default class Template extends Frame{
             }
 
             componentWillUnmount(){
+                this.unmounted=true
                 console.log(`[${this.props.id}.async]: unmounting with${this.state.composed?"":"out"} composed`)
             }
         }

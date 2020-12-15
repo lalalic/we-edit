@@ -32,9 +32,13 @@ export default ({Template,Frame},displayName="headerFooter")=>class HeaderFooter
                 onTemplated(variables,responsible){
                     if(!responsible)
                         return 
-                    if(variables.I==responsible.cursor.page &&
-                        this.context.getComposer(responsible.cursor.id)?.closest(a=>a.props.id==this.props.id)){
-                        responsible.__updateSelectionStyle()
+                    if(variables.I==responsible.cursor.page){
+                        const cursor=this.context.getComposer(responsible.cursor.id)
+                        const template=cursor?.closest(a=>a.props.id==this.template.props.id)
+                        if(template){
+                            console.log(`[${this.templateComposer.props.uuid}].manager: update selection style`)
+                            responsible.__updateSelectionStyle()
+                        }
                     }
                 }
             }
