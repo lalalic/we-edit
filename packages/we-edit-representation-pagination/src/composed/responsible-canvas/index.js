@@ -134,6 +134,14 @@ class Responsible extends Component{
         return {...end,page}
     }
 
+    get id(){
+        return `canvas${this.props.document.props.canvasId}`
+    }
+
+    get canvas(){
+        return document.getElementById(this.id)
+    }
+
     __composedY(){
         const {pages, pageGap,precision=1}=this.state
         return this.constructor.Canvas.composedY(pages, pageGap*precision)/precision
@@ -151,11 +159,9 @@ class Responsible extends Component{
         const noCursor=editable && editable.cursor===false
         const eventHandlers=!noCursor ? this.eventHandlers  : {}
         const {Canvas, ComposeMoreTrigger}=this.constructor
-        const id=`canvas${document.props.canvasId}`
         return (
             <Canvas 
-                {...{scale,pageGap,pages,precision,document,paper:true, id}}
-                innerRef={a=>{this.canvas=a}}
+                {...{scale,pageGap,pages,precision,document,paper:true, id:this.id}}
                 {...eventHandlers}>
                 <ComposeMoreTrigger
                     getComposedY={()=>this.__composedY()}
@@ -175,7 +181,7 @@ class Responsible extends Component{
                         }
                     }}
                 />
-                <Pilcrow canvas={id}/>
+                <Pilcrow canvas={this.id}/>
                 <DefineShapes/>
                 {children}
 				<Fragment>

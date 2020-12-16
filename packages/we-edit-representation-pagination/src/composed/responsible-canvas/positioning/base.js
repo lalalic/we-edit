@@ -113,7 +113,7 @@ export default class Positioning{
             try{
                 return super.extendWord(...args)
             }catch(e){
-                console.error(e)
+                console.warn(e)
                 return {}
             }
         }
@@ -122,7 +122,7 @@ export default class Positioning{
             try{
                 return super.around(...args)
             }catch(e){
-                console.error(e)
+                console.warn(e)
                 return {}
             }
         }
@@ -135,7 +135,7 @@ export default class Positioning{
                 }
                 return super.getRangeRects(start,end)
             }catch(e){
-                console.log(e)
+                console.warn(e)
                 return []
             }finally{
                 if(limited){
@@ -152,7 +152,7 @@ export default class Positioning{
                 }
                 return super.position(pos,_everything)
             }catch(e){
-                console.error(e)
+                console.warn(e)
                 return {}
             }finally{
                 if(limited){
@@ -169,7 +169,7 @@ export default class Positioning{
                 }
                 return super.nextLine(pos)
             }catch(e){
-                console.error(e)
+                console.warn(e)
                 return {}
             }finally{
                 if(limited){
@@ -186,7 +186,7 @@ export default class Positioning{
                 }
                 return super.prevLine(pos)
             }catch(e){
-                console.error(e)
+                console.warn(e)
                 return {}
             }finally{
                 if(limited){
