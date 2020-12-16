@@ -48,6 +48,9 @@ describe("continuable", ()=>{
 	})
 
 	describe("compose to Y", ()=>{	
+		const isSelectionComposed=Document.prototype.isSelectionComposed
+		beforeAll(()=>Document.prototype.isSelectionComposed=jest.fn(a=>true))
+		afterAll(()=>Document.prototype.isSelectionComposed=isSelectionComposed)
 		const compose2Y=(y,n)=>it(`${y},pages=${n}`,()=>{
 			const renderer=render(
 				<Context>
@@ -92,6 +95,7 @@ describe("continuable", ()=>{
 			)
 			const doc=renderer.root.findByType(Document).instance
 			const pages=doc.computed.composed
+			debugger
 			expect(pages.length).toBe(n)
 		})
 
@@ -127,6 +131,9 @@ describe("continuable", ()=>{
 					return {start:{},end:{}}
 				}
 			}
+			const isSelectionComposed=Document.prototype.isSelectionComposed
+			Document.prototype.isSelectionComposed=jest.fn(a=>true)
+			
 			size.composedHeight=jest.fn(()=>size.height/2)
 			const doc=compose2(node,state)
 			let pages=doc.computed.composed
@@ -140,6 +147,8 @@ describe("continuable", ()=>{
 					let pages=doc.computed.composed
 					expect(pages.length).toBe(2)
 					expect($(pages).text()).toBe("hello1hello2")
+					Document.prototype.isSelectionComposed=isSelectionComposed
+
 					resolve()
 				})
 			})
@@ -152,6 +161,9 @@ describe("continuable", ()=>{
 					return {start:{},end:{}}
 				}
 			}
+			const isSelectionComposed=Document.prototype.isSelectionComposed
+			Document.prototype.isSelectionComposed=jest.fn(a=>true)
+			
 			const doc=compose2(node,state)
 
 			let pages=doc.computed.composed
@@ -160,6 +172,7 @@ describe("continuable", ()=>{
 			expect($(pages).text()).toBe("hello1")
 			
 			return new Promise((resolve, reject)=>{
+				Document.prototype.isSelectionComposed=isSelectionComposed
 				state.toJS=jest.fn(()=>{
 					return {start:{id:"3.2",at:0},end:{id:"3.2",at:0}}
 				})

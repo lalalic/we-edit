@@ -215,7 +215,7 @@ export default class extends editable(Document,{continuable:true}){
                 if(this.__getCurrentLayoutComposer(id)?.isAllChildrenComposed()){
                     return true
                 }
-                id=this.props.content.getIn([id,'parent'])
+                id=this.props.content?.getIn([id,'parent'])
             }
         }
 		return allComposed(start.id) && (start.id==end.id || allComposed(end.id))

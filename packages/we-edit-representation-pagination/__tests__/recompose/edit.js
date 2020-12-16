@@ -9,9 +9,14 @@ describe("editor",()=>{
     var uuid=1000
 
     beforeAll(()=>{
-		defaultProps(Editors)()
+        defaultProps(Editors)()
+        Document.prototype.isSelectionComposed=jest.fn(a=>true)
     })
-    
+
+    afterAll(()=>Document.prototype.isSelectionComposed=isSelectionComposed)
+
+    const isSelectionComposed=Document.prototype.isSelectionComposed
+        
     var doc, element
     const page={width:40,height:25}, gap=12, viewport={width:500,height:30,}
     beforeEach(()=>{
@@ -70,7 +75,7 @@ describe("editor",()=>{
             },
         }
     })
-    fit("can arbitrarily recompose after editing",()=>{
+    it("can arbitrarily recompose after editing",()=>{
         expect(doc.pages.length).toBe(2)
         doc.updateFirst('text',{children:"hello"})
         //there should be 2 pages, but last paragraph should be all composed, so 3
