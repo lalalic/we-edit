@@ -144,7 +144,7 @@ export default ({Section,Group, Container})=>class __$1 extends Component{
 			props.createLayout=this.factoryOfCreateLayout(width,height,pgMar,this.getCols(width,pgMar,cols),type)
 			return(
 				<Fragment>
-					<HeaderFooterContainer id={`${this.props.id}_headerfooters`}> 
+					<HeaderFooterContainer id={`${this.props.id}_headerfooters`} type="section-header-footer"> 
 						{headers.map(a=>React.cloneElement(a,{width:hfWidth,hash:a.props.hash+hfWidth}))}
 						{footers.map(a=>React.cloneElement(a,{width:hfWidth,hash:a.props.hash+hfWidth}))}
 					</HeaderFooterContainer>

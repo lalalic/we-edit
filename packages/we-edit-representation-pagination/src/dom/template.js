@@ -135,7 +135,12 @@ export default class Template extends Frame{
                 //this.variables.clear()
                 return true
             }
-            return !!(templateWithValues && !this.lastComposed[this.variables.id(templateWithValues.props.values)])
+            
+            const should=!!(templateWithValues && !this.lastComposed[this.variables.id(templateWithValues.props.values)])
+            if(!should){
+                this.templateComposer.context.mount(this.templateComposer)
+            }
+            return should
         }
     
         notifyVariable(variable){

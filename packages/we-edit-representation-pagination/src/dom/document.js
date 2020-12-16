@@ -110,13 +110,15 @@ export default class extends editable(Document,{continuable:true}){
         const history=new Map()
         this.mount=a=>{
             if(typeof(a)!="object"){
-                if(history.has(a)){
+                if(history.has(a)){//by id
                     composers.set(a, history.get(a))
                     history.delete(a)
+                    console.log(`${a} mounted from history`)
                 }
             }else{
                 composers.set(a.props.id,a)
                 history.delete(a.props.id)
+                console.log(`${a.props.id} mounted`)
             }
         }
 
@@ -208,7 +210,14 @@ export default class extends editable(Document,{continuable:true}){
     }
 
     isSelectionComposed({start, end}){
-        const allComposed=id=>!id || !!this.__getCurrentLayoutComposer(id)?.isAllChildrenComposed()
+        const allComposed=id=>{
+            while(id){
+                if(this.__getCurrentLayoutComposer(id)?.isAllChildrenComposed()){
+                    return true
+                }
+                id=this.props.content.getIn([id,'parent'])
+            }
+        }
 		return allComposed(start.id) && (start.id==end.id || allComposed(end.id))
     }
 
