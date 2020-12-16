@@ -51,9 +51,6 @@ export default ({ Container }) => class SimpleField extends Component {
         const { props: { display, id, command, instr } } = this;
         const $ = new ReactQuery(element);
         const text = $.findFirst(`[id="${id}"]`).findFirst('text').get(0)
-        if(!text){
-            debugger
-        }
         const getValue=()=>{
             return Fields.create(instr).execute(new Context(this.context.activeDocStore.getState(),id))
         }

@@ -299,8 +299,6 @@ export default class Template extends Frame{
             }
         }
     }
-
-    
 }
 
 class Variables extends Set{
