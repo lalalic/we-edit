@@ -5,7 +5,7 @@ import {ReactQuery,connect, getUI} from "we-edit"
 import memoize from "memoize-one"
 import {shallowEqual} from "recompose"
 
-export default ({Paragraph,Text,Group})=>class DocxParagraph extends Component{
+export default ({Paragraph,Text})=>class DocxParagraph extends Component{
 	static displayName="paragraph"
 	static propTypes={
 		style: PropTypes.object.isRequired,
@@ -57,20 +57,23 @@ export default ({Paragraph,Text,Group})=>class DocxParagraph extends Component{
 	}
 
 	render(){
-		const {style:$1, ...props}=this.props
-		const {style:{widow,orphan=widow, ...style}, defaultStyle}=this.style(this.props.style,this.context.style)
-		const Layout=Paragraph.Line ? this.constructor.getLayout(Paragraph) : Paragraph
-		return (
-			<Layout
-				{...style}
-				{...props}
-				{...{widow,orphan,defaultStyle}}
-				/>
-		)
+		if(Paragraph.support('pageable')){
+			const {style:$1, ...props}=this.props
+			const {style:{widow,orphan=widow, ...style}, defaultStyle}=this.style(this.props.style,this.context.style)
+			const DocxParagraph=this.constructor.Paragraph(Paragraph)
+			return (
+				<DocxParagraph
+					{...style}
+					{...props}
+					{...{widow,orphan,defaultStyle}}
+					/>
+			)
+		}
+		return <Paragraph {...this.props}/>
 	}
 
-	static getLayout=memoize(Paragraph=>{
-		const Layout=class Layout extends Paragraph{
+	static Paragraph=memoize(Paragraph=>{
+		const Layout=class extends Paragraph{
 			static contextTypes={
 				...super.contextTypes,
 				defaultTab: PropTypes.object,

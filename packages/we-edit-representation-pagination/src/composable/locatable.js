@@ -19,7 +19,8 @@ function Locatable(A){
         }
 
         constructor(){
-            super(...arguments)
+			super(...arguments)
+			console.log(`${this.getComposeType()}[${this.props.id}] created`)
             this.context.mount && this.props.id && this.context.mount(this)
         }
 

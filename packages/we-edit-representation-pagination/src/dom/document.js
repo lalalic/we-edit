@@ -109,16 +109,10 @@ export default class extends editable(Document,{continuable:true}){
         this.composers=composers
         const history=new Map()
         this.mount=a=>{
-            if(typeof(a)!="object"){
-                if(history.has(a)){//by id
-                    composers.set(a, history.get(a))
-                    history.delete(a)
-                    console.log(`${a} mounted from history`)
-                }
-            }else{
+            if(a=(typeof(a)!="object" ? history.get(a) : a)){
                 composers.set(a.props.id,a)
                 history.delete(a.props.id)
-                console.log(`${a.props.id} mounted`)
+                console.log(`${this.getComposeType()}[${a.props.id}] mounted`)
             }
         }
 
