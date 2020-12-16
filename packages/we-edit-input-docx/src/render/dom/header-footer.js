@@ -37,7 +37,7 @@ export default ({Template,Frame},displayName="headerFooter")=>class HeaderFooter
                         const template=cursor?.closest(a=>a.props.id==this.template.props.id)
                         if(template){
                             console.log(`[${this.templateComposer.props.uuid}].manager: update selection style`)
-                            responsible.__updateSelectionStyle()
+                            responsible.updateSelectionStyle()
                         }
                     }
                 }

@@ -10,6 +10,7 @@ import ComposeMoreTrigger from "./compose-more-trigger"
 import DefineShapes from "./define-shapes"
 import SelectionStyle from "./selection-style"
 import Pilcrow from "./pilcrow"
+import SelectionStyleNotify from "./selection-style-notify"
 
 /**
  * must provide the following 
@@ -72,6 +73,7 @@ class Responsible extends Component{
         const SafePositioning=Positioning.makeSafe(Positioning)
         this.positioning=new SafePositioning(this)
         this.cursorNode=React.createRef()
+        this.updateSelectionStyle=this.updateSelectionStyle.bind(this)
     }
 
     getChildContext(){
@@ -172,11 +174,12 @@ class Responsible extends Component{
                             document.compose4Scroll(y)
                         }
                     }}
-                />    
+                />
                 <Pilcrow canvas={id}/>
                 <DefineShapes/>
                 {children}
 				<Fragment>
+                    <SelectionStyleNotify updateSelectionStyle={this.updateSelectionStyle}/>
                     <Cursor
                         ref={this.cursorNode}
                         keys={{
@@ -210,33 +213,25 @@ class Responsible extends Component{
         this.dispatch(ACTION.Statistics({
 			pages:this.pages.length,
 			allComposed:document.isAllChildrenComposed(),
-			words: document.words
+            words: document.words,
+            composerID: document.computed.composedUUID,
 		}))
     }
 
     componentDidUpdate(){
         this.__statistics()
-        //cavas is ready, so SelectionStyle SHOULD be updated
-        if(this.props.document.isSelectionComposed(this.selection)){
-            this.__updateSelectionStyle()
-        }
     }
 
     componentDidMount(){
         this.active()
-        this.unsubscribe=this.context.activeDocStore.subscribe(this.__updateSelectionStyleWhenSelectionChangeWithoutRecomposing())
         this.componentDidUpdate()
-    }
-
-    componentWillUnmount(){
-        this.unsubscribe()
     }
 
     active(){
 		this.dispatch(ACTION.Cursor.ACTIVE(this.state.canvasId))
     }
 
-    __updateSelectionStyle(){
+    updateSelectionStyle(){
         const SelectionStyle=this.constructor.SelectionStyle
         const {start}=this.selection
         const end=this.cursor
@@ -245,33 +240,12 @@ class Responsible extends Component{
         
         if(!this.props.document.isSelectionComposed({end,start})){
             console.error(`selection style: not fully composed ${end.id}`)
+            return 
         }
 
         const pos=this.positioning.position(end, true)
         const style=new SelectionStyle(pos, start, end,this.positioning)
         this.dispatch(ACTION.Selection.STYLE(style))
-    }
-    
-    __updateSelectionStyleWhenSelectionChangeWithoutRecomposing(){
-        const document=this.props.document
-        const getSelection=()=>this.context.activeDocStore.getState().get("selection")
-        
-        let lastSelection=getSelection()
-        let lastComposedUUID=document.computed.composedUUID
-        
-        const selectionChanged=()=>!lastSelection.equals(getSelection())
-        const withoutRecomposing=()=>document.computed.composedUUID===(lastComposedUUID||document.computed.composedUUID)
-        
-        return (()=>{
-            if(this.context.activeDocStore.getState()){
-                const a=withoutRecomposing(), b=selectionChanged()
-                lastComposedUUID=document.computed.composedUUID
-                lastSelection=getSelection()
-                if( a && b && document.isSelectionComposed(this.selection)){
-                    this.__updateSelectionStyle()
-                } 
-            }
-        })
     }
 }
 
