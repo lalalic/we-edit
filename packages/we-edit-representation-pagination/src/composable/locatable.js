@@ -20,8 +20,7 @@ function Locatable(A){
 
         constructor(){
 			super(...arguments)
-			console.log(`${this.getComposeType()}[${this.props.id}] created`)
-            this.context.mount && this.props.id && this.context.mount(this)
+			this.context.mount && this.props.id && this.context.mount(this)
         }
 
 		createComposed2Parent(){

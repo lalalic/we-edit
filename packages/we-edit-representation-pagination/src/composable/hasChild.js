@@ -8,7 +8,7 @@ export default A=>{
     if(A.already)
         return A
     return class __$1 extends A{
-        static displayName=`composable-pageable-${A.displayName}`
+        static displayName=`pageable-${A.displayName}`
         static already=function(capable){
             return dom.Unknown.support.call(this,...arguments)
         }
@@ -25,6 +25,7 @@ export default A=>{
 
         constructor(){
             super(...arguments)
+            console.log(`${this.getComposeType()}[${this.props.id}] created`)
             this.computed = {composed: [] , allComposed:undefined}
             if(this.debug){
                 this.state={computed:this.computed}

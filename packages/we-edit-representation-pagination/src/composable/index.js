@@ -60,18 +60,23 @@ function editable(A, enables={}){
 	return composable(A,{locatable:true,recomposable:true,...enables})
 }
 
-const enablify=func=>(targets, excludes)=>Object.keys(targets)
-	.reduce((enabled, k)=>{
-		if(!enabled[k]){
-			enabled[k]=func(targets[k])
-		}
-		return enabled
-	},{...excludes});
+/**
+ * make Capability with static enable(dom, excludes) to make every dom with this capability
+ * @param {*} able 
+ */
+const enablify=able=>(dom, excludes)=>Object.keys(dom).reduce((enabled, k)=>{
+	enabled[k]=enabled[k]||able(dom[k])
+	return enabled
+},{...excludes});
 
+//make Capability with static enable
 [HasChild, HasParentAndChild, NoChild,Recomposable, Locatable,Stoppable,Continuable,editable]
 	.forEach(a=>a.enable=enablify(a))
 
-export {enablify, editable,
+//Locatable.enable=enablify(A=>composable(A,{locatable:true}))
+
+export {
+	enablify, editable,
 	Layout,
 	HasChild, HasParentAndChild, NoChild, ComposedAllTrigger,
 	Recomposable,Locatable,Stoppable,Continuable, Templateable
