@@ -14,8 +14,7 @@ function Locatable(A){
         static contextTypes={
             ...super.contextTypes,
             mount: PropTypes.func,
-            unmount: PropTypes.func,
-			getComposer: PropTypes.func,
+            getComposer: PropTypes.func,
         }
 
         constructor(){

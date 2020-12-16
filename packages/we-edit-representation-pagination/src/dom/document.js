@@ -112,7 +112,7 @@ export default class extends editable(Document,{continuable:true}){
             if(a=(typeof(a)!="object" ? history.get(a) : a)){
                 composers.set(a.props.id,a)
                 history.delete(a.props.id)
-                console.log(`${this.getComposeType()}[${a.props.id}] mounted`)
+                console.log(`${a.getComposeType()}[${a.props.id}] mounted`)
             }
         }
 

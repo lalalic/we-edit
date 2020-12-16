@@ -75,7 +75,7 @@ export default ({Section,Group, Container})=>class __$1 extends Component{
 				.filter(a=>a.type.displayName=="section")
 				.map(a=>a.props.id)
 			return sections.slice(0,sections.indexOf(id)+1)
-				.reduceRight((found,id)=>found||context.getComposer(`${id}_headerfooters`)?.getComposedTemplate(type),null)
+				.reduceRight((found,id)=>found||context.getComposer(headerFooterID(id))?.getComposedTemplate(type),null)
 		}
 		const get=type=>{
 			const prioritized=[titlePg&&(I==0 ? "first" :false),evenAndOddHeaders&&(i%2==0 ? "even" : "odd"),'default'].filter(a=>!!a)
@@ -144,7 +144,7 @@ export default ({Section,Group, Container})=>class __$1 extends Component{
 			props.createLayout=this.factoryOfCreateLayout(width,height,pgMar,this.getCols(width,pgMar,cols),type)
 			return(
 				<Fragment>
-					<HeaderFooterContainer id={`${this.props.id}_headerfooters`} type="section-header-footer"> 
+					<HeaderFooterContainer id={headerFooterID(this.props.id)}> 
 						{headers.map(a=>React.cloneElement(a,{width:hfWidth,hash:a.props.hash+hfWidth}))}
 						{footers.map(a=>React.cloneElement(a,{width:hfWidth,hash:a.props.hash+hfWidth}))}
 					</HeaderFooterContainer>
@@ -157,7 +157,7 @@ export default ({Section,Group, Container})=>class __$1 extends Component{
 	}
 
 	static Section=memoize(Section=>{
-		const {composables:{Templateable, Recomposable}}=Section
+		const {composables:{Templateable}}=Section
 		return class WordSection extends Section{
 			headerFooterChanged(nextProps){
 				const {headers=[],footers=[]}=nextProps
@@ -343,3 +343,5 @@ export default ({Section,Group, Container})=>class __$1 extends Component{
 		}
 	})
 }
+
+const headerFooterID=id=>`${id}_headerfooters`

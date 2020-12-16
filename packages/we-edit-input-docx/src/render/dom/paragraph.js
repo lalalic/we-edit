@@ -73,7 +73,7 @@ export default ({Paragraph,Text})=>class DocxParagraph extends Component{
 	}
 
 	static Paragraph=memoize(Paragraph=>{
-		const Layout=class extends Paragraph{
+		class WordParagraph extends Paragraph{
 			static contextTypes={
 				...super.contextTypes,
 				defaultTab: PropTypes.object,
@@ -270,7 +270,7 @@ export default ({Paragraph,Text})=>class DocxParagraph extends Component{
 								$atom.replace($tab, 
 									React.cloneElement(
 										$tab.get(0),
-										{width,children:[<Layout.Tab {...{key:0,width,leader,id:$tab.attr('data-content'),"data-nocontent":true}}/>]}
+										{width,children:[<WordParagraph.Tab {...{key:0,width,leader,id:$tab.attr('data-content'),"data-nocontent":true}}/>]}
 									)
 								).get(0),
 								{width,atom}
@@ -313,7 +313,7 @@ export default ({Paragraph,Text})=>class DocxParagraph extends Component{
 							$atom.replace($text, 
 								React.cloneElement(
 									$text.get(0),
-									{width,children:[<Layout.LineBreak {...{key:0,id:$text.attr('data-content'),children:text}}/>]}
+									{width,children:[<WordParagraph.LineBreak {...{key:0,id:$text.attr('data-content'),children:text}}/>]}
 								)
 							).get(0),
 							{atom,width}
@@ -332,7 +332,7 @@ export default ({Paragraph,Text})=>class DocxParagraph extends Component{
 							$atom.replace($text, 
 								React.cloneElement(
 									$text.get(0),
-									{width,children:[<Layout.PageBreak {...{key:0,children:text}}/>]}
+									{width,children:[<WordParagraph.PageBreak {...{key:0,children:text}}/>]}
 								)
 							).get(0),
 							{atom,width}
@@ -367,6 +367,6 @@ export default ({Paragraph,Text})=>class DocxParagraph extends Component{
 				}
 			})
 		}
-		return Layout
+		return WordParagraph
 	})
 }

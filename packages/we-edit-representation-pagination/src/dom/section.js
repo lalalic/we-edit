@@ -19,7 +19,7 @@ class Section extends HasParentAndChild(dom.Section){
 	}
 
 	static Layout=class LayoutSection extends Frame{
-		static displayName="frame-section"
+		static displayName="sectionlayout"
 		constructor(props, context){
 			super(props,{...context,mount:undefined,unmount:undefined})
 			delete this.computed.composedUUID

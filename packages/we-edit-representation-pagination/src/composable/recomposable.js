@@ -13,6 +13,7 @@ import UseCached from "./use-cached"
  * in render:
  * 2. append last composed
  * 3. compose not composed
+ * ** The cache mechanism is to utilize React keyed array children ***
 
  * To make everything cacheable, component can customize appendLastComposed to define itself cache policy
  * shoul lastComposed be cleared
@@ -105,8 +106,10 @@ export default A=>{
                     console.debug(`${this.getComposeType()}[${this.props.id}] used ${appended+1} children caches`)
                     return (
                         <Fragment>
-                            {children.slice(0,appended+1).map(UseCached.create)}
-                            {children.slice(appended+1)}
+                            {[//keyed array
+                                ...children.slice(0,appended+1).map(UseCached.create),
+                                ...children.slice(appended+1),
+                            ]}
                             <ComposedAllTrigger host={this}/>
                         </Fragment>
                     )
