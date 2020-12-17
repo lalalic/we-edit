@@ -4,7 +4,7 @@ import memoize from "memoize-one"
 import {Field} from "./field"
 import Context from "./field/context"
 
-export default ({Template,Frame},displayName="headerFooter")=>class HeaderFooter extends Component{
+export default ({Template},displayName="headerFooter")=>class HeaderFooter extends Component{
     static displayName=displayName
     static contextTypes={
         activeDocStore: PropTypes.object,
@@ -15,37 +15,11 @@ export default ({Template,Frame},displayName="headerFooter")=>class HeaderFooter
     }
 
     render(){
-        if(Template.support('pageable')){
-            const DocxTemplate=this.constructor.Template(Template)
-            return (
-                <DocxTemplate.Manager variables={this.variables}>
-                    <DocxTemplate {...this.props}/>
-                </DocxTemplate.Manager>
-            )
-        }
-        return <Template {...this.props}/>
+        return <Template {...this.props} 
+            variables={this.variables} 
+            whenUpdateSelectionStyle={(variables,responsible)=>variables.I==responsible.cursor.page}
+            />
     }
-
-    static Template=memoize(Template=>{
-        return class extends Template{
-            static Async=class extends super.Async{
-                onComposed(composed, variables){
-                    if(this.unmounted)
-                        return
-                    this.setState({composed})
-                    const {getComposer, responsible}=this.context
-                    if(variables.I==responsible.cursor.page){
-                        const cursor=getComposer(responsible.cursor.id)
-                        const template=cursor?.closest(a=>a.props.id==this.content.props.id)
-                        if(template){
-                            console.log(`[${this.props.uuid}].async: update selection style`)
-                            responsible.updateSelectionStyle()
-                        }
-                    }
-                }
-            }
-        }
-    })
 }
 
 //only support PAGE/NUMPAGES
