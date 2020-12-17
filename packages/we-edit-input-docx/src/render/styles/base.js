@@ -1,7 +1,12 @@
 import get from "lodash.get"
 import invoke from "lodash.invoke"
 
-
+/**
+ * Word Style is 
+ * ** inheritable by basedOn
+ * ** next paragraph's style indicated by next
+ * 
+ */
 export class Getable{
 	constructor(node, styles, selector){
 		this.styles=styles
@@ -57,7 +62,16 @@ class Linkable extends Getable{
 	_getFromBasedOn(path){
 		let value=super._getFromBasedOn(...arguments)
 		if(value==undefined){
-			value=this.next.reduce((r,a)=>(r==undefined ? a.get(...arguments) : r),undefined)
+			value=this.next.reduce((r,a)=>{
+				if(r==undefined){
+					try{
+						return a.get(...arguments)
+					}catch(e){
+						return this.styles['*'].get(...arguments)
+					}
+				} 
+				return r
+			},undefined)
 		}
 
 		return value
@@ -106,6 +120,10 @@ export default class Style extends Linkable{
 			;//this.basedOn="*"
 		else
 			this.cache=new Map()
+	}
+
+	get isStyle(){
+		return true
 	}
 
 	_convert(node={attribs:{},children:[]}, target, map, selector){

@@ -1,3 +1,4 @@
+import { instanceOf } from "prop-types"
 import Base from "./base"
 
 const attribs={
@@ -32,7 +33,7 @@ export default class Character extends Base{
 	}
 
 	flat(...inherits){
-		let targets=[this,...inherits]
+		let targets=[this,...inherits].filter(a=>a?.isStyle)
 		const props="fonts,size,color,highlight,border,underline,bold,italic,vanish,strike,vertAlign"
 			.split(",")
 			.reduce((props,k)=>{

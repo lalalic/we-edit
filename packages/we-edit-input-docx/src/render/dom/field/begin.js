@@ -18,6 +18,7 @@ export default ({ Text }) => class FieldBegin extends Component {
     constructor() {
         super(...arguments);
         this.replaceVariable = this.replaceVariable.bind(this);
+        this.getNumPages=this.getNumPages.bind(this)
         this.uuid=Date.now()
     }
 
@@ -49,18 +50,24 @@ export default ({ Text }) => class FieldBegin extends Component {
         if (value == display)
             return element;
         const $ = new ReactQuery(element);
-        const text = (all => all[1 + all.findIndex(a => a.props.id == id)])($.find(`[id="${id}"],text`).toArray());
-        const hash=++this.uuid
-        return $.replace(text, React.cloneElement(text, { children: value,hash}),{hash}).get(0);
+        const text = (all => all[(all.findIndex(a => a.props.id == id)+1)||-1])($.find(`[id="${id}"],text`).toArray());
+        return text && $.replace(text, React.cloneElement(text, { children: value,hash:++this.uuid}),{hash:this.uuid}).get(0);
     }
 
-    replaceNUMPAGES(element){
+    replaceNUMPAGES(element, values){
         const { props: { display, id, command, instr}, } = this;
         const $ = new ReactQuery(element);
-        const text = (all => all[1 + all.findIndex(a => a.props.id == id)])($.find(`[id="${id}"],text`).toArray());
-        const getValue=()=>{
-            return Fields.create(instr).execute(new Context(this.context.activeDocStore.getState(),id))
-        }
-        return $.replace(text, <NumPages id={`${text.props.id}_numpages`} key={text.props.id} children={text} getValue={getValue}/>).get(0);
+        const text = (all => all[(all.findIndex(a => a.props.id == id)+1)||-1])($.find(`[id="${id}"],text`).toArray());
+        return text && $.replace(
+                text, 
+                <NumPages id={`${text.props.id}_numpages`} 
+                    key={text.props.id} 
+                    children={text} 
+                    getValue={this.getNumPages}/>
+            ).get(0);
+    }
+
+    getNumPages(){
+        return Fields.create(this.props.instr).execute(new Context(this.context.activeDocStore.getState()))
     }
 };

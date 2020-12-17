@@ -17,6 +17,8 @@ export default ({ Container }) => class SimpleField extends Component {
     constructor() {
         super(...arguments);
         this.replaceVariable = this.replaceVariable.bind(this);
+        this.getNumPages=this.getNumPages.bind(this)
+        this.uuid=Date.now()
     }
 
     getVariableDefinition = memoize(props => {
@@ -44,16 +46,24 @@ export default ({ Container }) => class SimpleField extends Component {
             return element;
         const $ = new ReactQuery(element);
         const text = $.findFirst(`[id="${id}"]`).findFirst('text');
-        return $.replace(text, React.cloneElement(text.get(0), { children: value,hash:Date.now() }),{hash:Date.now()}).get(0);
+        return text && $.replace(text, React.cloneElement(text.get(0), { children: value,hash:++this.uuid}),{hash:this.uuid}).get(0);
     }
 
-    replaceNUMPAGES(element){
+    replaceNUMPAGES(element, values){
         const { props: { display, id, command, instr } } = this;
         const $ = new ReactQuery(element);
         const text = $.findFirst(`[id="${id}"]`).findFirst('text').get(0)
-        const getValue=()=>{
-            return Fields.create(instr).execute(new Context(this.context.activeDocStore.getState(),id))
-        }
-        return $.replace(text, <NumPages id={`${text.props.id}_numpages`} children={text} getValue={getValue}/>).get(0);
+        return text && $.replace(
+            text, 
+            <NumPages 
+                id={`${text.props.id}_numpages`} 
+                children={text} 
+                getValue={this.getNumPages}/>,
+            {hash:++this.uuid}
+        ).get(0);
+    }
+
+    getNumPages(){
+        return Fields.create(this.props.instr).execute(new Context(this.context.activeDocStore.getState()))
     }
 };

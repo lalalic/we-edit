@@ -1,5 +1,7 @@
-export default class{
+import Style from "./base"
+export default class extends Style{
     constructor(node, styles, selector){
+        super(...arguments)
         const find=name=>node.children.find(a=>a.name===name)
 
         this.distance=selector.toDist(node)
@@ -27,4 +29,13 @@ export default class{
         const {distance,x,y,wrap,width,height}=this
         return this.__clear({distance,x,y,wrap,width,height},undefined)
     }
+
+    __clear(o,v=undefined){
+		for(let k in o){
+			if(o[k]===v){
+				delete o[k]
+			}
+		}
+		return o
+	}
 }

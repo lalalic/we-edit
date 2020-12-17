@@ -2,41 +2,43 @@ import React,{Component} from "react"
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
 import {Field} from "./field"
+import Context from "./field/context"
 
 export default ({Template,Frame},displayName="headerFooter")=>class HeaderFooter extends Component{
     static displayName=displayName
-    
+    static contextTypes={
+        activeDocStore: PropTypes.object,
+    }
     constructor(){
         super(...arguments)
-        this.variables=new Variables()
+        this.variables=new Variables(this.context.activeDocStore)
     }
 
     render(){
-        const Template=this.constructor.Template
-        return (
-            <Template.Manager variables={this.variables}>
-                <Template {...this.props}/>
-            </Template.Manager>
-        )
+        if(Template.support('pageable')){
+            const DocxTemplate=this.constructor.Template(Template)
+            return (
+                <DocxTemplate.Manager variables={this.variables}>
+                    <DocxTemplate {...this.props}/>
+                </DocxTemplate.Manager>
+            )
+        }
+        return <Template {...this.props}/>
     }
 
-    static get Template(){
-        return this._getTemplate(Template)
-    }
-
-    static _getTemplate=memoize(Template=>{
-        if(!Template.support?.('pageable'))
-            return Template
+    static Template=memoize(Template=>{
         return class extends Template{
-            static Manager=class extends super.Manager{
-                onTemplated(variables,responsible){
-                    if(!responsible)
-                        return 
+            static Async=class extends super.Async{
+                onComposed(composed, variables){
+                    if(this.unmounted)
+                        return
+                    this.setState({composed})
+                    const {getComposer, responsible}=this.context
                     if(variables.I==responsible.cursor.page){
-                        const cursor=this.context.getComposer(responsible.cursor.id)
-                        const template=cursor?.closest(a=>a.props.id==this.template.props.id)
+                        const cursor=getComposer(responsible.cursor.id)
+                        const template=cursor?.closest(a=>a.props.id==this.content.props.id)
                         if(template){
-                            console.log(`[${this.templateComposer.props.uuid}].manager: update selection style`)
+                            console.log(`[${this.props.uuid}].async: update selection style`)
                             responsible.updateSelectionStyle()
                         }
                     }
@@ -48,8 +50,9 @@ export default ({Template,Frame},displayName="headerFooter")=>class HeaderFooter
 
 //only support PAGE/NUMPAGES
 class Variables {
-    constructor(){
+    constructor(activeDocStore){
         this.data=[]
+        this.getNumPages=memoize(()=>parseInt(Field.create("NUMPAGES").execute(new Context(activeDocStore.getState()))))
         this[Symbol.iterator]=this.data[Symbol.iterator].bind(this.data)
     }
     getValues=memoize(({I,i,pgNumType})=>{
@@ -63,7 +66,7 @@ class Variables {
                     break
                 }
                 case 'NUMPAGES':{
-                    values[id]='unknown'
+                    values[id]="unknown"//this.getNumPages()
                     break
                 }
             }
