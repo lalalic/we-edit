@@ -58,6 +58,9 @@ export default class extends dom.Unknown{
         const Template=this.constructor.Frame
         const Manager=this.constructor.Manager
         Manager.Async=this.constructor.Async
+        if(!variables){
+            return <Frame {...props}/>
+        }
         return (
             <Manager {...{variables}}>
                 <Template {...props}/>
