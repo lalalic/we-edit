@@ -1,10 +1,9 @@
 
 import React, {Component, Fragment} from "react"
 import PropTypes from "prop-types"
-import {ReactQuery} from "we-edit"
+import {ReactQuery, dom} from "we-edit"
 
 import Frame from "./frame"
-import Group from "../composed/group"
 
 const {Locatable:{Locatorize}}=Frame.composables
 const locatorize=Locatorize(class{}).prototype.locatorize
@@ -40,23 +39,50 @@ class Use extends Component{
 /**
  * Template should keep instances for positioning
  */
-export default class Template extends Frame{
-    static Use=Use
-    static displayName=super.displayName.replace("frame","template")
+export default class extends dom.Unknown{
+    static displayName="template"
+    static already(){
+        return this.Frame.already(...arguments)
+    }
+
+    get composables(){
+        return this.Frame.composables
+    }
+
+    get Use(){
+        return this.Frame.Use
+    }
+
+    render(){
+        const {variables, ...props}=this.props
+        const Template=this.constructor.Frame
+        const Manager=this.constructor.Manager
+        Manager.Async=this.constructor.Async
+        return (
+            <Manager {...{variables}}>
+                <Template {...props}/>
+            </Manager>
+        )
+    }
+
+    static Frame=class extends Frame{
+        static Use=Use
+        static displayName=super.displayName.replace("frame","template")
+        
+        static defaultProps={
+            ...super.defaultProps,
+            autoCompose2Parent:false,
+        }
     
-    static defaultProps={
-        ...super.defaultProps,
-        autoCompose2Parent:false,
-    }
-
-    get isTemplate(){
-        return true
-    }
-
-    createComposed2Parent(variables){
-        if(arguments.length==0 || !this.props.manager)
-            return super.createComposed2Parent()
-        return this.props.manager.createComposed2Parent(...arguments)
+        get isTemplate(){
+            return true
+        }
+    
+        createComposed2Parent(variables){
+            if(arguments.length==0 || !this.props.manager)
+                return super.createComposed2Parent()
+            return this.props.manager.createComposed2Parent(...arguments)
+        }
     }
 
     /**
@@ -108,7 +134,7 @@ export default class Template extends Frame{
                                 !current && compose(current=arr.shift())
                             }
                         }
-                        return Reflect.get(arry,k,proxy)
+                        return Reflect.get(arr,k,proxy)
                     }
                 })
             })();
@@ -230,7 +256,7 @@ export default class Template extends Frame{
         createAsyncComposed2Parent(variables, replaced, defaultComposed) {
             const replaceableComposed = [], id=this.variables.id(variables)
             const uuid=`${id}.${Date.now()}`
-            replaceableComposed[0] = (<this.managedComposer.constructor.Async {...{
+            replaceableComposed[0] = (<this.constructor.Async {...{
                 id,
                 uuid,
                 children: React.cloneElement(replaced, {values:variables, uuid}),
@@ -311,7 +337,9 @@ export default class Template extends Frame{
                 return
             this.setState({composed})
             const {getComposer, responsible}=this.context
-            if(getComposer(responsible.cursor.id)?.closest(a=>a.props.id==this.content.props.id)){
+
+            if(this.props.whenUpdateSelectionStyle?.call(this,)&&
+                getComposer(responsible.cursor.id)?.closest(a=>a.props.id==this.content.props.id)){
                 responsible.updateSelectionStyle()
             }
         }
@@ -321,18 +349,34 @@ export default class Template extends Frame{
             console.log(`[${this.props.uuid}.async]: unmounting with${this.state.composed?"":"out"} composed`)
         }
     }
+
+    static Variables=class{
+        constructor(){
+            this.length=this.size=0
+        }
+
+        equals(variables){
+            return true
+        }
+    
+        getValues(variables){
+            return {}
+        }
+    
+        id(variables){
+            return 1
+        }
+
+        add(){
+
+        }
+
+        clear(){
+
+        }
+    }
 }
 
-class Variables extends Set{
-    equals(variables){
-        return true
-    }
 
-    getValues(variables){
-        return {}
-    }
 
-    id(variables){
-        return 1
-    }
-}
+
