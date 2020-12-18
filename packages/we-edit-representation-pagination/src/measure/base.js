@@ -1,11 +1,24 @@
 export class Measure{
+	static caches=new Map()
 	constructor(style){
 		const {VertAlign_Size=0.5,Super_Script_Position=0.4}=this.constructor
-		const {fonts, size, vertAlign}=style
+		const {fonts, size, vertAlign, bold, italic}=style
 		this.style=style
 		this.fontFamilys=fonts.split(",").map(a=>a.trim()).filter(a=>!!a)
         this.fontFamily=this.fontFamilys[0]
 		this.size=size * (vertAlign ? VertAlign_Size : 1);
+		this.hit=0
+
+		const cacheKey=`${this.fontFamily}-${this.size}-${bold}-${italic}`
+		const caches=this.constructor.caches
+		if(caches.has(cacheKey)){
+			const cache=caches.get(cacheKey)
+			cache.hit++
+			console.log(`measure cache[${cacheKey}]: hit ${cache.hit}`)
+			return cache
+		}
+		caches.set(cacheKey,this)
+
         this.defaultStyle={
 			whiteSpace:'pre',
 			fontSize:`${this.size}px`,
