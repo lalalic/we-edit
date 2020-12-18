@@ -22,18 +22,7 @@ class Text extends NoChild(dom.Text){
     createMeasure=memoize((fonts,size,bold,italic,vertAlign)=>{
         if(this.props.measure)
             return this.props.measure
-        const {Measure}=this.context
-        const measure=new Measure({fonts,size,bold,italic,vertAlign})
-        const _stringWidth=measure.stringWidth.bind(measure)
-        const cache=new Map()
-        measure.stringWidth=word=>{
-            if(cache.has(word))
-                return cache.get(word)
-            const width=_stringWidth(word)
-            cache.set(word,width)
-            return width
-        }
-        return measure
+        return new this.context.Measure({fonts,size,bold,italic,vertAlign})
     })
 
     get measure(){
