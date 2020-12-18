@@ -5,6 +5,8 @@ import {ReactQuery,connect, getUI} from "we-edit"
 import memoize from "memoize-one"
 import {shallowEqual} from "recompose"
 
+import AutoFitContext from "./autofit-context"
+
 export default ({Paragraph,Text})=>class DocxParagraph extends Component{
 	static displayName="paragraph"
 	static propTypes={
@@ -58,15 +60,23 @@ export default ({Paragraph,Text})=>class DocxParagraph extends Component{
 
 	render(){
 		if(Paragraph.support('pageable')){
-			const {style:$1, ...props}=this.props
-			const {style:{widow,orphan=widow, ...style}, defaultStyle}=this.style(this.props.style,this.context.style)
+			const {style:$1, hash,...props}=this.props
+			const {style:{widow,orphan=widow, ...style}, defaultStyle:{...defaultStyle}}=this.style(this.props.style,this.context.style)
 			const DocxParagraph=this.constructor.Paragraph(Paragraph)
 			return (
-				<DocxParagraph
-					{...style}
-					{...props}
-					{...{widow,orphan,defaultStyle}}
-					/>
+				<AutoFitContext.Consumer>
+					{({scale})=>{
+						if(scale){
+							console.log(`paragraph font size autofit scaled from ${defaultStyle.size} to ${defaultStyle.size=Math.floor(defaultStyle.size*parseInt(scale)/100000)}`)
+						}
+						return <DocxParagraph
+							{...style}
+							{...props}
+							{...{widow,orphan,defaultStyle}}
+							hash={`${hash}-${scale}`}
+							/>
+					}}
+				</AutoFitContext.Consumer>
 			)
 		}
 		return <Paragraph {...this.props}/>

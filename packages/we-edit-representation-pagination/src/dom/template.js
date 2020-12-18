@@ -5,9 +5,6 @@ import {ReactQuery, dom} from "we-edit"
 
 import Frame from "./frame"
 
-const {Locatable:{Locatorize}}=Frame.composables
-const locatorize=Locatorize(class{}).prototype.locatorize
-
 class Use extends Component{
     static displayName="template.use"
     static contextTypes={
@@ -38,6 +35,7 @@ class Use extends Component{
 
 /**
  * Template should keep instances for positioning
+ * @TODO: mount composers for variables, so positioning will be correct
  */
 export default class extends dom.Unknown{
     static displayName="template"
@@ -57,7 +55,6 @@ export default class extends dom.Unknown{
         const {variables, ...props}=this.props
         const Template=this.constructor.Frame
         const Manager=this.constructor.Manager
-        Manager.Async=this.constructor.Async
         if(!variables){
             return <Frame {...props}/>
         }
@@ -86,6 +83,62 @@ export default class extends dom.Unknown{
                 return super.createComposed2Parent()
             return this.props.manager.createComposed2Parent(...arguments)
         }
+
+        /**
+         * A template re-render trigger by setState
+         */
+        static Async=class extends Component{
+            static displayName="async"
+            static contextTypes={
+                responsible: PropTypes.object,
+                getComposer: PropTypes.func,
+            }
+
+            constructor(...args){
+                super(...args)
+                this.state={}
+                this.onComposed=this.onComposed.bind(this)
+                console.log(`[${this.props.uuid}.async]: creating`)
+            }
+
+            get content(){
+                return this.props.children
+            }
+
+            render(){
+                console.log(`[${this.props.uuid}.async]: render with${this.state.composed?"":"out"} composed`)
+                return this.state.composed?.props.children||null
+            }
+
+            componentDidMount(){
+                console.log(`[${this.props.uuid}.async]: mounting`)
+                if(!this.state.composed){
+                    console.log(`[${this.props.uuid}.async]: force compose`)
+                    this.props.compose(
+                        this.props.children,
+                        this.onComposed,
+                        this.context.responsible
+                    )
+                }
+            }
+
+            onComposed(composed, variables, manager){
+                if(this.unmounted)
+                    return
+                this.setState({composed})
+                const {getComposer, responsible}=this.context
+
+                if(this.props.whenUpdateSelectionStyle?.call(this,variables, responsible)&&
+                    getComposer(responsible.cursor.id)?.closest(a=>a.props.id==this.content.props.id)){
+                    responsible.updateSelectionStyle()
+                }
+            }
+
+            componentWillUnmount(){
+                this.unmounted=true
+                console.log(`[${this.props.uuid}.async]: unmounting with${this.state.composed?"":"out"} composed`)
+            }
+        }
     }
 
     /**
@@ -108,7 +161,7 @@ export default class extends dom.Unknown{
         }
 
         static getDerivedStateFromProps({children:{props:{hash}}},state){
-            return {hash,asyncManaged:hash!=state.hash ? null : state.asyncManaged}
+            return {hash,asyncManaged:hash!=state.hash ? undefined : state.asyncManaged}
         }
     
         constructor(){
@@ -145,6 +198,10 @@ export default class extends dom.Unknown{
 
         get managed(){
             return this.props.children
+        }
+
+        get managedComposer(){
+            return this.context.getComposer(this.managed.props.id)
         }
 
         _text(element){
@@ -199,15 +256,6 @@ export default class extends dom.Unknown{
                 this.context.parent.appendComposed(a)
                 this.lastComposed.default=composed
             }
-            if(!this.managedComposer){
-                Object.defineProperties(this,{
-                    managedComposer:{
-                        get(){
-                            return a
-                        }
-                    }
-                })
-            }
         }
     
         render(){
@@ -216,12 +264,12 @@ export default class extends dom.Unknown{
         }
 
         createComposed2Parent(variables){
-            if(this.variables.size==0){
+            if(this.variables.length==0){
                 return this.lastComposed.default
             }
             
             const id=this.variables.id(variables)
-            if(this.variables.equals(variables)){
+            if(this.variables.isDefault(variables)){
                 console.log(`[${id}.manager]: use cached default because of matching default`)
                 return this.lastComposed.default
             }
@@ -259,7 +307,7 @@ export default class extends dom.Unknown{
         createAsyncComposed2Parent(variables, replaced, defaultComposed) {
             const replaceableComposed = [], id=this.variables.id(variables)
             const uuid=`${id}.${Date.now()}`
-            replaceableComposed[0] = (<this.constructor.Async {...{
+            replaceableComposed[0] = (<this.managedComposer.constructor.Async {...{
                 id,
                 uuid,
                 children: React.cloneElement(replaced, {values:variables, uuid}),
@@ -275,8 +323,7 @@ export default class extends dom.Unknown{
                             })
                         })
                     }),{id})
-                },
-                childContext: locatorize.call({}, new Map()),
+                }
             }} />)
             console.log(`[${uuid}.manager]: use Async`)    
     
@@ -297,85 +344,41 @@ export default class extends dom.Unknown{
         }
     }
 
-    /**
-     * A template re-render trigger by setState
-     */
-    static Async=class extends Component{
-        static displayName="async"
-        static contextTypes={
-            responsible: PropTypes.object,
-            getComposer: PropTypes.func,
-        }
-
-        constructor(...args){
-            super(...args)
-            this.state={}
-            this.onComposed=this.onComposed.bind(this)
-            console.log(`[${this.props.uuid}.async]: creating`)
-        }
-
-        get content(){
-            return this.props.children
-        }
-
-        render(){
-            console.log(`[${this.props.uuid}.async]: render with${this.state.composed?"":"out"} composed`)
-            return this.state.composed?.props.children||null
-        }
-
-        componentDidMount(){
-            console.log(`[${this.props.uuid}.async]: mounting`)
-            if(!this.state.composed){
-                console.log(`[${this.props.uuid}.async]: force compose`)
-                this.props.compose(
-                    this.props.children,
-                    this.onComposed,
-                    this.context.responsible
-                )
-            }
-        }
-
-        onComposed(composed, variables, manager){
-            if(this.unmounted)
-                return
-            this.setState({composed})
-            const {getComposer, responsible}=this.context
-
-            if(this.props.whenUpdateSelectionStyle?.call(this,)&&
-                getComposer(responsible.cursor.id)?.closest(a=>a.props.id==this.content.props.id)){
-                responsible.updateSelectionStyle()
-            }
-        }
-
-        componentWillUnmount(){
-            this.unmounted=true
-            console.log(`[${this.props.uuid}.async]: unmounting with${this.state.composed?"":"out"} composed`)
-        }
-    }
-
     static Variables=class{
         constructor(){
-            this.length=this.size=0
+            this.data=[]
+            this[Symbol.iterator]=this.data[Symbol.iterator].bind(this.data)
         }
-
-        equals(variables){
-            return true
+        //from varibles to display text
+        getValues(variables){
+            return variables   
+        }
+        
+        //variables are same as default value in content
+        isDefault(variables){
+            const values=this.getValues(variables)
+            return !this.data.find(a=>a.display!=values[a.id])
         }
     
-        getValues(variables){
-            return {}
+        add(variable){
+            const i=this.data.findIndex(a=>a.id==variable.id)
+            if(i!=-1){
+                this.data.splice(i,1,variable)
+            }else{
+                this.data.push(variable)
+            }
+        }
+    
+        clear(){
+            this.data.splice(0,this.data.length)
         }
     
         id(variables){
-            return 1
+            return variables.id
         }
-
-        add(){
-
-        }
-
-        clear(){
-
+    
+        get length(){
+            return this.data.length
         }
     }
 }

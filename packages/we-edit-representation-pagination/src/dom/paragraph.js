@@ -56,9 +56,9 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 		return this.lines[this.lines.length-1]
 	}
 
-	getDefaultMeasure=memoize((style=this.props.defaultStyle)=>{
-		return new this.context.Measure(style)
-	})
+	getDefaultMeasure(){
+		return new this.context.Measure(this.props.defaultStyle)
+	}
 
     /**
 	 * to collect atomic inline items

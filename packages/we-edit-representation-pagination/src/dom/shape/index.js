@@ -8,12 +8,14 @@ import Frame from "../frame"
 import {custom, rect, ellipse, circle} from "./shapes"
 
 
-const Shape=editable(HasParentAndChild(dom.Shape))
+const {displayName, propTypes, defaultProps}=editable(HasParentAndChild(dom.Shape))
 export default class extends Frame{
-	static displayName=Shape.displayName
-	static propTypes=Shape.propTypes
+	static displayName=displayName
+	static propTypes={
+		...propTypes
+	}
 	static defaultProps={
-		...Shape.defaultProps
+		...defaultProps
 	}
 	static contextTypes={
 		...super.contextTypes,
