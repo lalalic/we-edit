@@ -72,6 +72,31 @@ export const whenSelectionChange=((props=a=>a,actionMap,mergeProps,options={},..
 	},actionMap,mergeProps,options,...args)
 })
 
+export const whenSelectionChangeDiscardable=((props=a=>a,actionMap,mergeProps,options={},...args)=>{
+	return A=>discardable({timeout:400})((
+			connect(state=>{
+				return props({selection:getSelectionStyle(state)},state)||{}
+			},actionMap,mergeProps,options,...args)(A))
+		)
+})
+
+export const discardable=({timeout=100})=>A=>class extends A{
+	static displayName=`discardable(${super.displayName})`
+	setState(state){
+		(this._prev=this._prev||Promise.resolve()).then(()=>{
+			this.timeout && clearTimeout(this.timeout)
+			this.timeout=setTimeout(()=>{
+				this.animationFrame=requestAnimationFrame(timestamp=>{
+					this._prev=new Promise(resolve=>super.setState(state,()=>{
+						cancelAnimationFrame(this.animationFrame)
+						resolve()
+					}))
+				})
+			},timeout)
+		})
+	}
+}
+
 export const isDocumentReady=state=>{
 	const selection=getSelection(state)
 	const style=getSelectionStyle(state)
