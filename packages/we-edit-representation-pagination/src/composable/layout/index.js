@@ -1,4 +1,4 @@
-import Block from "./block/autofitable"
+import Block from "./block/balanceable"
 import Inline from "./inline"
 import ConstraintSpace from "./constraint-space"
 

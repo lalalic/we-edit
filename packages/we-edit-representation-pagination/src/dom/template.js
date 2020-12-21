@@ -37,35 +37,7 @@ class Use extends Component{
  * Template should keep instances for positioning
  * @TODO: mount composers for variables, so positioning will be correct
  */
-export default class extends dom.Unknown{
-    static displayName="template"
-    static already(){
-        return this.Frame.already(...arguments)
-    }
-
-    get composables(){
-        return this.Frame.composables
-    }
-
-    get Use(){
-        return this.Frame.Use
-    }
-
-    render(){
-        const {variables, ...props}=this.props
-        const Template=this.constructor.Frame
-        const Manager=this.constructor.Manager
-        if(!variables){
-            return <Frame {...props}/>
-        }
-        return (
-            <Manager {...{variables}}>
-                <Template {...props}/>
-            </Manager>
-        )
-    }
-
-    static Frame=class extends Frame{
+export default class extends Frame{
         static Use=Use
         static displayName=super.displayName.replace("frame","template")
         
@@ -83,141 +55,26 @@ export default class extends dom.Unknown{
                 return super.createComposed2Parent()
             return this.props.manager.createComposed2Parent(...arguments)
         }
-
-        /**
-         * A template re-render trigger by setState
-         */
-        static Async=class extends Component{
-            static displayName="async"
-            static contextTypes={
-                responsible: PropTypes.object,
-                getComposer: PropTypes.func,
-            }
-
-            constructor(...args){
-                super(...args)
-                this.state={}
-                this.onComposed=this.onComposed.bind(this)
-                console.log(`[${this.props.uuid}.async]: creating`)
-            }
-
-            get content(){
-                return this.props.children
-            }
-
-            render(){
-                console.log(`[${this.props.uuid}.async]: render with${this.state.composed?"":"out"} composed`)
-                return this.state.composed?.props.children||null
-            }
-
-            componentDidMount(){
-                console.log(`[${this.props.uuid}.async]: mounting`)
-                if(!this.state.composed){
-                    console.log(`[${this.props.uuid}.async]: force compose`)
-                    this.props.compose(
-                        this.props.children,
-                        this.onComposed,
-                        this.context.responsible
-                    )
-                }
-            }
-
-            onComposed(composed, variables, manager){
-                if(this.unmounted)
-                    return
-                this.setState({composed})
-                const {getComposer, responsible}=this.context
-
-                if(this.props.whenUpdateSelectionStyle?.call(this,variables, responsible)&&
-                    getComposer(responsible.cursor.id)?.closest(a=>a.props.id==this.content.props.id)){
-                    responsible.updateSelectionStyle()
-                }
-            }
-
-            componentWillUnmount(){
-                this.unmounted=true
-                console.log(`[${this.props.uuid}.async]: unmounting with${this.state.composed?"":"out"} composed`)
-            }
-        }
-    }
-
-    /**
+/**
      * Manager is as a composer by setState({asyncManaged})
      * asyncManaged composed when show
      */
-    static Manager=class extends Component{
+    static Manager=class extends super.Manager{
         static displayName="template-manager"
         static childContextTypes={
+            ...super.childContextTypes,
             notifyVariable:PropTypes.func,
-            parent: PropTypes.object,
             variables: PropTypes.object,
-            shouldContinueCompose: PropTypes.func,
         }
-
-        static contextTypes={
-            parent: PropTypes.object,
-            debug: PropTypes.bool,
-            getComposer: PropTypes.func,
-        }
-
-        static getDerivedStateFromProps({children:{props:{hash}}},state){
-            return {hash,asyncManaged:hash!=state.hash ? undefined : state.asyncManaged}
-        }
-    
+        
         constructor(){
             super(...arguments)
-            this.state={...this.state}
             this.variables=this.props.variables||new Variables()
             this.notifyVariable=this.notifyVariable.bind(this)
-            this.lastComposed=[]
-            this.appendComposed=this.appendComposed.bind(this)
-
-            this.queue=(()=>{
-                const queue=[]
-                let current=null
-                const compose=start=>start().then(()=>(current=queue.shift()) && compose(current))
-                
-                return new Proxy(queue,{
-                    get:(arr, k, proxy)=>{
-                        if(k=="push"){
-                            return message=>{
-                                for(let i=arr.length-1;i>-1;i--){
-                                    if(arr[i].id==message.id){
-                                        arr.splice(i,1)
-                                    }
-                                }
-                                arr.push(message)
-                                !current && compose(current=arr.shift())
-                            }
-                        }
-                        return Reflect.get(arr,k,proxy)
-                    }
-                })
-            })();
         }
-
-        get managed(){
-            return this.props.children
-        }
-
-        get managedComposer(){
-            return this.context.getComposer(this.managed.props.id)
-        }
-
-        _text(element){
-            return new ReactQuery(element).find('text,[data-type=text]').toArray().map(a=>a.props.children).join(",")
-        }
-
         shouldComponentUpdate({children:{props:{hash,}}},{asyncManaged}){
-            const changed=hash!=this.props.children.props.hash
-            if(changed){
-                this.lastComposed=[]
-                this.queue.splice(0,this.queue.length)
-                /**
-                 * clear variables if content changed
-                 * there is issue with cache, so don't clear, and there's no problem
-                 */
-                //this.variables.clear()
+            super.shouldComponentUpdate(...arguments)
+            if(hash!=this.props.children.props.hash){
                 return true
             }
             
@@ -235,14 +92,10 @@ export default class extends dom.Unknown{
         }
     
         getChildContext(){
-            return {
+            return Object.assign(super.getChildContext(),{
                 notifyVariable:this.notifyVariable,
                 variables: this.state.values,
-                shouldContinueCompose:a=>true,
-                parent:new Proxy(this.context.parent,{
-                    get:(parent, k, proxy)=>k=="appendComposed" ? this.appendComposed : Reflect.get(parent,k,proxy)
-                }),
-            }
+            })
         }
 
         appendComposed(a){
@@ -251,16 +104,11 @@ export default class extends dom.Unknown{
             if(values){
                 this.lastComposed[this.variables.id(values)]=composed
                 if(this.context.debug)
-                    console.debug(`[${a.props.uuid}.manager.composed]: ${this._text(composed)}`)
+                    console.debug(`[${a.props.id}.manager.composed]: ${this._text(composed)}`)
             }else{
                 this.context.parent.appendComposed(a)
                 this.lastComposed.default=composed
             }
-        }
-    
-        render(){
-            const {state:{asyncManaged}, props:{children:template}}=this
-            return React.cloneElement(asyncManaged||template,{manager:this})
         }
 
         createComposed2Parent(variables){
@@ -295,7 +143,7 @@ export default class extends dom.Unknown{
                 return replaced
             }
     
-            return this.createAsyncComposed2Parent(variables, replaced, this.lastComposed.default, )
+            return this.createAsyncComposed2Parent(this.lastComposed.default, variables, replaced)
         }
 
         /**
@@ -304,19 +152,17 @@ export default class extends dom.Unknown{
          * @param {*} replaced 
          * @param {*} defaultComposed 
          */
-        createAsyncComposed2Parent(variables, replaced, defaultComposed) {
+        createAsyncComposed2Parent(defaultComposed, variables, replaced) {
             const replaceableComposed = [], id=this.variables.id(variables)
-            const uuid=`${id}.${Date.now()}`
-            replaceableComposed[0] = (<this.managedComposer.constructor.Async {...{
-                id,
-                uuid,
-                children: React.cloneElement(replaced, {values:variables, uuid}),
+            replaceableComposed[0] = (<this.constructor.Async {...{
+                id:`${this.managed.props}.${id}.${Date.now()}`,
+                children: React.cloneElement(replaced, {values:variables}),
                 compose:(asyncManaged,onComposed)=>{
                     this.queue.push(Object.assign(()=>{
                         return new Promise((resolve)=>{
                             this.setState({asyncManaged},()=>{
                                 try{
-                                    onComposed(replaceableComposed[0] = this.lastComposed[id], variables, this)
+                                    onComposed(replaceableComposed[0] = this.lastComposed[id], variables)
                                 }finally{
                                     resolve()
                                 }
@@ -325,8 +171,7 @@ export default class extends dom.Unknown{
                     }),{id})
                 }
             }} />)
-            console.log(`[${uuid}.manager]: use Async`)    
-    
+            
             return React.cloneElement(defaultComposed,{children:replaceableComposed})
         }
 
@@ -341,6 +186,25 @@ export default class extends dom.Unknown{
             return Array.from(this.variables).reduce((element,a,i)=>{
                 return a.replaceVariable(element,values,composed)||element
             },this.managed)
+        }
+
+
+
+        /**
+         * A template re-render trigger by setState
+         */
+        static Async=class extends super.Async{
+            onComposed(composed, variables){
+                if(this.unmounted)
+                    return
+                this.setState({composed})
+                const {getComposer, responsible}=this.context
+
+                if(this.props.whenUpdateSelectionStyle?.call(this,variables, responsible)&&
+                    getComposer(responsible.cursor.id)?.closest(a=>a.props.id==this.content.props.id)){
+                    responsible.updateSelectionStyle()
+                }
+            }
         }
     }
 
@@ -381,7 +245,9 @@ export default class extends dom.Unknown{
             return this.data.length
         }
     }
+
 }
+
 
 
 

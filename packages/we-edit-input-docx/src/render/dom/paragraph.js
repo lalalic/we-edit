@@ -5,9 +5,7 @@ import {ReactQuery,connect, getUI} from "we-edit"
 import memoize from "memoize-one"
 import {shallowEqual} from "recompose"
 
-import AutoFitContext from "./autofit-context"
-
-export default ({Paragraph,Text})=>class DocxParagraph extends Component{
+export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 	static displayName="paragraph"
 	static propTypes={
 		style: PropTypes.object.isRequired,
@@ -64,7 +62,7 @@ export default ({Paragraph,Text})=>class DocxParagraph extends Component{
 			const {style:{widow,orphan=widow, ...style}, defaultStyle:{...defaultStyle}}=this.style(this.props.style,this.context.style)
 			const DocxParagraph=this.constructor.Paragraph(Paragraph)
 			return (
-				<AutoFitContext.Consumer>
+				<Frame.AutoFitManager.Context.Consumer>
 					{({scale})=>{
 						if(scale){
 							console.log(`paragraph font size autofit scaled from ${defaultStyle.size} to ${defaultStyle.size=Math.floor(defaultStyle.size*parseInt(scale)/100000)}`)
@@ -76,7 +74,7 @@ export default ({Paragraph,Text})=>class DocxParagraph extends Component{
 							hash={`${hash}-${scale}`}
 							/>
 					}}
-				</AutoFitContext.Consumer>
+				</Frame.AutoFitManager.Context.Consumer>
 			)
 		}
 		return <Paragraph {...this.props}/>

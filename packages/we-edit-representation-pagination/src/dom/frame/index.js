@@ -2,11 +2,15 @@ import React from "react"
 import {dom, ReactQuery} from "we-edit"
 import memoize from "memoize-one"
 
-import {Layout, HasParentAndChild, editable} from "../composable"
-import {Group} from "../composed"
+import {Layout, HasParentAndChild, editable} from "../../composable"
+import {Group} from "../../composed"
+import Manager from "./manager"
+import AutoFitManager from "./autofit-manager"
 
 class Frame extends Layout.Block{
 	static displayName=HasParentAndChild(dom.Frame).displayName
+	static Manager=Manager
+	static AutoFitManager=AutoFitManager
 	constructor(){
 		super(...arguments)
 		Object.defineProperties(this,{

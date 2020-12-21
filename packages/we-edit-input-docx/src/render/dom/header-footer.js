@@ -5,10 +5,17 @@ import {Field} from "./field"
 export default ({Template},displayName="headerFooter")=>class HeaderFooter extends Component{
     static displayName=displayName
     render(){
-        return <Template {...this.props} 
-                    variables={this.createVariables()} 
-                    whenUpdateSelectionStyle={(variables,responsible)=>variables.I==responsible.cursor.page}
-                    />
+        if(Template.support('pageable')){
+            return (
+            <Template.Manager 
+                variables={this.createVariables()}
+                whenUpdateSelectionStyle={(variables,responsible)=>variables.I==responsible.cursor.page}
+                >
+                <Template {...this.props}/>
+            </Template.Manager>
+            )
+        }
+        return <Template {...this.props}/>
     }
 
     createVariables=memoize(()=>{
