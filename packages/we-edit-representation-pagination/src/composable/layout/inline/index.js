@@ -240,7 +240,13 @@ export default class Inline extends Component{
 			!!!this.inlineSegments.segments.find(({props:{x,width}},i,_,$,b=segments[i])=>b.x!=x && b.width!=width)
 	}
 
+	/**
+	 * utilize cache directly, so just replace space to use story aligned cache
+	 * @param {*} space 
+	 */
 	clone4Space(space){
-		return Object.assign(new this.constructor({...this.props,space}),{inlineSegments:this.inlineSegments,children:this.children})
+		this.props.space=space
+		return this
+		//return Object.assign(new this.constructor({...this.props,space}),{inlineSegments:this.inlineSegments,children:this.children})
 	}
 }

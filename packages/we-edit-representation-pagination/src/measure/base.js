@@ -17,6 +17,7 @@ export class Measure{
 			console.log(`measure cache[${cacheKey}]: hit ${cache.hit}`)
 			return cache
 		}
+
 		caches.set(cacheKey,this)
 
         this.defaultStyle={
@@ -33,14 +34,24 @@ export class Measure{
 		if(vertAlign=="superscript"){
 			this.defaultStyle.y=-this.lineHeight(size).height*Super_Script_Position
 		}
+
+		this.caches=new Map()
 	}
 
 	lineHeight(size){
 		return {height:25,descent:2}
 	}
 
-	stringWidth(string){
-		return 200
+	stringWidth(word){
+		if(this.caches.has(word))
+			return this.caches.get(word)
+		const w=this._stringWidth(word)
+		this.caches.set(word, w)
+		return w
+	}
+
+	_stringWidth(string){
+		return string.length
 	}
 
 	widthString(width,string){

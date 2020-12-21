@@ -31,7 +31,7 @@ export default class SVGMeasure extends Measure{
             `
     }
 
-    stringWidth(word){
+    _stringWidth(word){
 		tester.setStyle(this.cssStyle())
         tester.firstChild.data=word
         return tester.getBBox().width

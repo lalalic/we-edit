@@ -1,5 +1,6 @@
 import React, {Component} from "react"
 import {ReactQuery} from "we-edit"
+import memoize from "memoize-one"
 
 import {Group,Text} from "../../../composed"
 
@@ -16,7 +17,7 @@ export default class Story extends Component{
 		const {children, align="left"}=this.props
 		const descent=children.reduce((h,{props:{descent=0}})=>Math.max(h,descent),0)
 		const baseline=children.reduce((h,{props:{height=0,descent=0}})=>Math.max(h,height-descent),0)
-		const aligned=this[align]()
+		const aligned=this[align](children)
 		return (<Group className="story" y={baseline} lineDescent={descent} children={aligned}/>)
 	}
 
@@ -25,8 +26,8 @@ export default class Story extends Component{
 	 * *** last group should ignore minWidth==0 element for alignment
 	 * @param {*} right 
 	 */
-	group(right=false){
-		return this.props.children
+	group=memoize((right=false,children=this.props.children)=>{
+		return children
 			.reduce((groups,a)=>{
 				if(a.props.x!=undefined){
 					if(right){
@@ -50,10 +51,10 @@ export default class Story extends Component{
 				group.words=group.words.slice(0,i)
 				return group
 			})
-	}
+	})
 
-	left(){
-		return this.group()
+	left=memoize(children=>{
+		return this.group(undefined, children)
 			.reduce((state, {words, endingWhitespaces,located})=>{
 				if(words.length+endingWhitespaces.length){
 					state.aligned.push(
@@ -73,9 +74,10 @@ export default class Story extends Component{
 				return state
 			},{x:0, aligned:[]})
 			.aligned
-	}
-	right(){
-		return this.group(true)
+	})
+
+	right=memoize(children=>{
+		return this.group(true,children)
 			.reduceRight((state, {located,words,endingWhitespaces})=>{
 				if(endingWhitespaces.length>0){
 					state.aligned.push(
@@ -108,9 +110,9 @@ export default class Story extends Component{
 			},{x:this.props.width,aligned:[]})
 			.aligned
 			.reverse()
-	}
+	})
 
-	center(){
+	center=memoize(children=>{
 		const contentWidth=pieces=>pieces.reduce((w,a)=>w+a.props.width,0)
 		return this
 			.group()
@@ -134,11 +136,11 @@ export default class Story extends Component{
 				}
 				return state
 			},{x:0, aligned:[]}).aligned
-	}
+	})
 
-	justify(){
+	justify=memoize(children=>{
 		return this
-			.group()
+			.group(undefined, children)
 			.reduce((state,{words,endingWhitespaces,located})=>{
 				let len=state.justified.length
 				const width=(located ? located.props.x : this.props.width)-state.x
@@ -162,10 +164,10 @@ export default class Story extends Component{
 				}
 				return state
 			},{x:0,justified:[]}).justified
-	}
+	})
 
 	both(){
-		return this.justify()
+		return this.justify(this.props.children)
 	}
 }
 

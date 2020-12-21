@@ -15,7 +15,7 @@ export default class FontMeasure extends Measure{
 		}
     }
 
-    stringWidth(input){
+    _stringWidth(input){
 		return this.font.stringWidth(input,this.size)
     }
 
