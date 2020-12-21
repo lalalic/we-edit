@@ -191,7 +191,7 @@ export default (class XDocEvents extends Base{
         
         try{
             targets.forEach(id=>{
-                this.cursorAt(id,0,false)
+                this.cursorAt(id,0)
                 this.emit("update",this.conds,changing)
             })
         }finally{

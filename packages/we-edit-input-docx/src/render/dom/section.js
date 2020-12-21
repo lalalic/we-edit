@@ -324,14 +324,9 @@ export default ({Section,Group, Container})=>class __$1 extends Component{
 
 				layoutOf({id}){
 					const section=this.context.getComposer(id).closest("section")
-					if(!section){
-						//header footer content
-						return {}
-					}
-					if(section.props.id==this.props.id)
+					if(section?.props.id==this.props.id)
 						return super.layoutOf()
-					const {margin:{left,right}, ...layout}=section.computed.composed[0].props._layout
-					return {...layout, margin:{...this.props.margin, left,right}}
+					return this.props
 				}
 
 				columnIndexOf(lineIndex,positioning){

@@ -138,7 +138,7 @@ export default (class Actions extends Input.Editable.EventHandler.xml{
         if(start.id==end.id && start.at==end.at){
             const field=this.isInRegion('field')
             if(field && start.id!=field.attr('id')){
-                this.cursorAt(field.attr('id'),0,undefined,undefined,undefined,false)
+                this.cursorAt(field.attr('id'),0)
             }
         }else{
             

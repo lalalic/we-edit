@@ -160,7 +160,7 @@ export default function tck(TypedDocument,file, debug=false){
                 expect(p.length).toBe(1)
                 expect(editor.$("paragraph").text().length>0).toBe(true)
                 const id=p.attr('id')
-                editor.cursorAt(id,0,id,1,false)
+                editor.cursorAt(id,0,id,1)
                 removeSelection()
                 expect(editor.$("paragraph").length).toBe(1)
                 expect(editor.$("paragraph").text().length).toBe(0)

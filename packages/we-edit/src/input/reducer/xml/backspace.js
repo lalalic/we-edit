@@ -73,7 +73,7 @@ export default {
             this.cursorAtEnd(last.attr('id'))
             this.backspace(...arguments)
         }else{
-            this.cursorAt(cursor.id,0, cursor.id,1,false)
+            this.cursorAt(cursor.id,0, cursor.id,1)
             this.remove() 
         }
     },
