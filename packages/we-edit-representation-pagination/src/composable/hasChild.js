@@ -25,9 +25,9 @@ export default A=>{
 
         constructor(){
             super(...arguments)
-            console.log(`${this.getComposeType()}[${this.props.id}] created`)
             this.computed = {composed: [] , allComposed:undefined}
             if(this.debug){
+                console.debug(`${this.getComposeType()}[${this.props.id}] created`)
                 this.state={computed:this.computed}
             }
         }

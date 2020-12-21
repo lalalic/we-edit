@@ -161,6 +161,7 @@ export default class AsyncManager extends Component{
             id: PropTypes.any.isRequired,
         }
         static contextTypes={
+            debug: PropTypes.bool,
             responsible: PropTypes.object,
             getComposer: PropTypes.func,
         }
@@ -192,7 +193,8 @@ export default class AsyncManager extends Component{
         }
 
         log(m){
-            console.debug(`[${this.props.id}.async]: ${m}`)
+            if(this.context.debug)
+                console.debug(`[${this.props.id}.async]: ${m}`)
         }
     }
 }

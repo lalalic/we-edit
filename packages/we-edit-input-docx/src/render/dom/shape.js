@@ -28,7 +28,7 @@ export default ({Shape, Frame, Template})=>class __$1 extends Component{
             const {autofit,height, ...props}=this.props
             switch(autofit?.type){
                 case "block":
-                    //return (<Shape {...props}/>)
+                    return (<Shape {...props}/>)
                 case "font":{
                     return <Shape.AutoFitManager><Shape {...this.props}/></Shape.AutoFitManager>
                 }
