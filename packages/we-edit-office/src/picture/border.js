@@ -1,6 +1,6 @@
 import React from "react"
 import {compose,setDisplayName,mapProps} from "recompose"
-import {whenSelectionChange} from "we-edit"
+import {whenSelectionChangeDiscardable} from "we-edit"
 
 import {MenuItem,SvgIcon,ToolbarGroup, Subheader} from "material-ui"
 import DropdownButton from "../components/drop-down-button"
@@ -10,7 +10,7 @@ import IconColor from "material-ui/svg-icons/image/color-lens"
 
 export default compose(
     setDisplayName("PictureBorder"),
-    whenSelectionChange(),
+    whenSelectionChangeDiscardable(),
 )(({})=>{
     return (
         <ToolbarGroup>

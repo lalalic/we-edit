@@ -1,6 +1,6 @@
 import React from "react"
 import {compose,setDisplayName,mapProps} from "recompose"
-import {whenSelectionChange} from "we-edit"
+import {whenSelectionChangeDiscardable} from "we-edit"
 
 import {MenuItem,SvgIcon,ToolbarGroup, Divider} from "material-ui"
 import DropdownButton from "../components/drop-down-button"
@@ -9,7 +9,7 @@ import IconWrap from "material-ui/svg-icons/action/picture-in-picture"
 
 export default compose(
     setDisplayName("PicturePosition"),
-    whenSelectionChange(),
+    whenSelectionChangeDiscardable(),
     mapProps(({dispatch})=>{
     }),
 )(({})=>{

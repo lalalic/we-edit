@@ -1,7 +1,7 @@
 import React from "react"
 
 import {compose,setDisplayName,mapProps} from "recompose"
-import {ACTION, whenSelectionChange} from "we-edit"
+import {ACTION, whenSelectionChangeDiscardable} from "we-edit"
 
 import {MenuItem,SvgIcon,ToolbarGroup} from "material-ui"
 import DropDownButton from "../components/drop-down-button"
@@ -18,7 +18,7 @@ import IconRight from "material-ui/svg-icons/navigation/last-page"
 
 export default compose(
     setDisplayName("TableDesigner"),
-    whenSelectionChange(),
+    whenSelectionChangeDiscardable(),
     mapProps(({dispatch})=>{
         return {
             addRowAbove(){

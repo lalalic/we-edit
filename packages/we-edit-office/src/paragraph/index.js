@@ -2,7 +2,7 @@ import React,{Component,Fragment} from "react"
 import PropTypes from "prop-types"
 
 import {compose,setDisplayName,mapProps, shallowEqual,shouldUpdate, withContext,withState} from "recompose"
-import {ACTION, whenSelectionChange,getUI} from "we-edit"
+import {ACTION, whenSelectionChangeDiscardable,getUI} from "we-edit"
 
 import {ToolbarGroup,ToolbarSeparator,MenuItem, SvgIcon, Dialog,FlatButton} from "material-ui"
 import CheckIconButton from "../components/check-icon-button"
@@ -23,7 +23,7 @@ import IconMore from "material-ui/svg-icons/navigation/more-vert"
 
 export default compose(
 	setDisplayName("ParagraphStyle"),
-	whenSelectionChange(({selection},state)=>{
+	whenSelectionChangeDiscardable(({selection},state)=>{
 		if(selection)
 			return {style:selection.props("paragraph",false),...getUI(state)}
 		return getUI(state)

@@ -1,5 +1,5 @@
 import React,{Component} from  "react"
-import {connect,whenSelectionChange} from "we-edit"
+import {connect,whenSelectionChangeDiscardable} from "we-edit"
 import {compose, setDisplayName} from "recompose"
 
 import Ruler from "./ruler"
@@ -7,7 +7,7 @@ import {getOffice} from "./state/action"
 
 const VerticalRuler=compose(
 	setDisplayName("VerticalRuler"),
-	whenSelectionChange(({selection})=>{
+	whenSelectionChangeDiscardable(({selection})=>{
 		if(selection){
 			let props=selection.props("page",false)
 			if(props){

@@ -4,12 +4,12 @@ import {compose, mapProps} from "recompose"
 import { Popover,Subheader, ToolbarGroup} from "material-ui"
 import IconTable from "material-ui/svg-icons/editor/border-all"
 
-import {ACTION, whenSelectionChange} from "we-edit"
+import {ACTION, whenSelectionChangeDiscardable} from "we-edit"
 import SizeIconButton from "../components/size-icon-button"
 
 export {default as Ribbon} from "./ribbon"
 
-export const Create=whenSelectionChange()(class  extends Component{
+export const Create=whenSelectionChangeDiscardable()(class  extends Component{
 	state={show:false}
 	render(){
 		const {selection, children}=this.props
@@ -53,7 +53,7 @@ class Setting extends Component{
 }
 
 const RCSize=compose(
-	whenSelectionChange(),
+	whenSelectionChangeDiscardable(),
 	mapProps(({onAction,selection,dispatch})=>({
 		create(rows, col){
 			let layoutWidth=(()=>{

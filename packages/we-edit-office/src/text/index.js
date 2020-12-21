@@ -1,6 +1,6 @@
 import React,{Fragment} from "react"
 
-import {ACTION, whenSelectionChange} from "we-edit"
+import {ACTION, whenSelectionChangeDiscardable} from "we-edit"
 
 import {compose,setDisplayName,withProps, shallowEqual,shouldUpdate,withState} from "recompose"
 
@@ -29,7 +29,7 @@ const ToolbarSeparator=props=><ToolbarSeparator0 style={{marginRight:2, marginLe
 
 export default compose(
 	setDisplayName("TextStyle"),
-	whenSelectionChange(({selection})=>{
+	whenSelectionChangeDiscardable(({selection})=>{
 		if(selection)
 			return {style:selection.props("text",false)}
 		return {}

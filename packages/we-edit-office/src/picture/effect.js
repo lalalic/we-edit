@@ -1,6 +1,6 @@
 import React from "react"
 import {compose,setDisplayName,mapProps} from "recompose"
-import {whenSelectionChange} from "we-edit"
+import {whenSelectionChangeDiscardable} from "we-edit"
 
 import {MenuItem,Subheader,ToolbarGroup} from "material-ui"
 import DropdownButton from "../components/drop-down-button"
@@ -8,7 +8,7 @@ import IconColor from "material-ui/svg-icons/image/color-lens"
 
 export default compose(
     setDisplayName("PictureEffect"),
-    whenSelectionChange(),
+    whenSelectionChangeDiscardable(),
     mapProps(({dispatch})=>{
         return {
 

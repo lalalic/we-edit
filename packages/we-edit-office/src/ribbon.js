@@ -1,6 +1,6 @@
 import React, {Fragment,PureComponent, Children} from "react"
 import PropTypes from "prop-types"
-import {whenSelectionChange} from "we-edit"
+import {whenSelectionChangeDiscardable} from "we-edit"
 import {compose,setDisplayName,getContext}  from "recompose"
 
 import {Toolbar as Toolbar0,ToolbarSeparator as ToolbarSeparator0, Tabs, Tab} from "material-ui"
@@ -36,7 +36,7 @@ const NoTabIfOnly1=({children:tab})=>{
 const Ribbon=compose(
 	setDisplayName("Ribbon"),
 	getContext({muiTheme:PropTypes.object,selection:PropTypes.object}),
-	whenSelectionChange()
+	whenSelectionChangeDiscardable()
 )(class extends PureComponent{
 	render(){
 		const {
