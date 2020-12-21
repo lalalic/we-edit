@@ -1,6 +1,6 @@
 import React,{Component,Fragment} from "react"
 
-import {ACTION, whenSelectionChange, stateSafe} from "we-edit"
+import {ACTION, whenSelectionChangeDiscardable, stateSafe} from "we-edit"
 import {Ribbon, Dialog, ContextMenu} from "we-edit-office"
 
 import {compose,setDisplayName,withState, withProps, } from "recompose"
@@ -11,7 +11,7 @@ import TOCIcon from "material-ui/svg-icons/action/toc"
 
 export default compose(
     setDisplayName("TOC"),
-    whenSelectionChange(({selection}, state)=>{
+    whenSelectionChangeDiscardable(({selection}, state)=>{
         const toc=selection?.isInTOC()
         const canvas=selection?.positioning.responsible
         if(toc){

@@ -1,6 +1,6 @@
 import React,{Component,Fragment} from "react"
 
-import {ACTION, whenSelectionChange} from "we-edit"
+import {ACTION, whenSelectionChangeDiscardable} from "we-edit"
 import {Ribbon, Dialog, ContextMenu} from "we-edit-office"
 
 import {compose,setDisplayName,withState, withProps, } from "recompose"
@@ -12,7 +12,7 @@ import {Field} from "../render/dom/field"
 
 export default compose(
 	setDisplayName("FieldStyle"),
-	whenSelectionChange(({selection})=>{
+	whenSelectionChangeDiscardable(({selection})=>{
         const field=selection?.isInField()
         if(field && field.attr('command')!="TOC"){
             const instr=field.attr('instr')

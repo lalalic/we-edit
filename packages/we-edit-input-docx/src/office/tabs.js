@@ -1,6 +1,6 @@
 import React,{Fragment, Component,PureComponent} from "react"
 import {createPortal} from "react-dom"
-import {whenSelectionChange, connect, getUI,getContent, getFile, ACTION} from "we-edit"
+import {whenSelectionChangeDiscardable, connect, getUI,getContent, getFile, ACTION} from "we-edit"
 import {getOffice,Dialog, } from "we-edit-office"
 import {compose} from "recompose"
 
@@ -11,7 +11,7 @@ const ALIGNs="Left,Center,Right,Decimal".split(",")
 const LEADERs=`,-|hyphen,.|dot,_|underscore,${String.fromCharCode(0xB7)}|middleDot`.split(",")
 
 export const Indicator=compose(
-    whenSelectionChange(({selection},state)=>{
+    whenSelectionChangeDiscardable(({selection},state)=>{
         const {tabs}=selection?.props("paragraph",false)||{}
         const {margin:{left=0}={}}=selection?.props('layout')||{}
         return {tabs,from:left}
@@ -122,7 +122,7 @@ export const Indicator=compose(
 })
 
 export const Setting=compose(
-    whenSelectionChange(({selection}, state)=>{
+    whenSelectionChangeDiscardable(({selection}, state)=>{
         const file=getFile(state)
         const toPx=file.doc.cm2Px
             
