@@ -1,7 +1,7 @@
 
 import React, {Component, Fragment} from "react"
 import PropTypes from "prop-types"
-import {ReactQuery, dom} from "we-edit"
+import {ReactQuery} from "we-edit"
 
 import Frame from "./frame"
 
@@ -90,6 +90,19 @@ export default class extends Frame{
                 this.variables.add(variable)
             }
         }
+
+        /**
+         * replacing happens 
+         * ** in composed, which would not trigger async compose
+         * ** in this.managed, which would trigger async compose
+         * @param {*} composed 
+         * @param {*} values 
+         */
+        replaceVariables(composed, values){
+            return Array.from(this.variables).reduce((element,a,i)=>{
+                return a.replaceVariable(element,values,composed)||element
+            },this.managed)
+        }
     
         getChildContext(){
             return Object.assign(super.getChildContext(),{
@@ -143,68 +156,20 @@ export default class extends Frame{
                 return replaced
             }
     
-            return this.createAsyncComposed2Parent(this.lastComposed.default, variables, replaced)
+            return this.createAsyncComposed2Parent(
+                    this.lastComposed.default, 
+                    {
+                        id:`${this.managed.props.id}.${id}`,
+                        variables,
+                    }, 
+                    React.cloneElement(replaced,{values:variables})
+                )
         }
 
-        /**
-         * to create async element, and will update the composed to document's composed tree
-         * @param {*} variables 
-         * @param {*} replaced 
-         * @param {*} defaultComposed 
-         */
-        createAsyncComposed2Parent(defaultComposed, variables, replaced) {
-            const replaceableComposed = [], id=this.variables.id(variables)
-            replaceableComposed[0] = (<this.constructor.Async {...{
-                id:`${this.managed.props}.${id}.${Date.now()}`,
-                children: React.cloneElement(replaced, {values:variables}),
-                compose:(asyncManaged,onComposed)=>{
-                    this.queue.push(Object.assign(()=>{
-                        return new Promise((resolve)=>{
-                            this.setState({asyncManaged},()=>{
-                                try{
-                                    onComposed(replaceableComposed[0] = this.lastComposed[id], variables)
-                                }finally{
-                                    resolve()
-                                }
-                            })
-                        })
-                    }),{id})
-                }
-            }} />)
-            
-            return React.cloneElement(defaultComposed,{children:replaceableComposed})
-        }
-
-        /**
-         * replacing happens 
-         * ** in composed, which would not trigger async compose
-         * ** in this.managed, which would trigger async compose
-         * @param {*} composed 
-         * @param {*} values 
-         */
-        replaceVariables(composed, values){
-            return Array.from(this.variables).reduce((element,a,i)=>{
-                return a.replaceVariable(element,values,composed)||element
-            },this.managed)
-        }
-
-
-
-        /**
-         * A template re-render trigger by setState
-         */
-        static Async=class extends super.Async{
-            onComposed(composed, variables){
-                if(this.unmounted)
-                    return
-                this.setState({composed})
-                const {getComposer, responsible}=this.context
-
-                if(this.props.whenUpdateSelectionStyle?.call(this,variables, responsible)&&
-                    getComposer(responsible.cursor.id)?.closest(a=>a.props.id==this.content.props.id)){
-                    responsible.updateSelectionStyle()
-                }
-            }
+        //last composed result for asyncManaged
+        asyncManagedLastComposed(asyncManaged){
+            const id=this.variables.id(asyncManaged.props.values)
+            return this.lastComposed[id]
         }
     }
 

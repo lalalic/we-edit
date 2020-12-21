@@ -9,7 +9,7 @@ export default ({Template},displayName="headerFooter")=>class HeaderFooter exten
             return (
             <Template.Manager 
                 variables={this.createVariables()}
-                whenUpdateSelectionStyle={(variables,responsible)=>variables.I==responsible.cursor.page}
+                shouldUpdateSelectionStyle={({props:{variables},context:{responsible}})=>variables.I==responsible.cursor.page}
                 >
                 <Template {...this.props}/>
             </Template.Manager>

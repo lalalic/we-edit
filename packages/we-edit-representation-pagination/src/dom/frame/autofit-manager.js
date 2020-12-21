@@ -1,5 +1,4 @@
 import React from "react"
-import {shallowEqual} from "we-edit"
 import Manager from "./manager"
 /**
  * state:
@@ -15,6 +14,30 @@ export default class extends Manager{
             asyncManaged=React.cloneElement(children,{autofit:{...autofit,fontScale:perfect.scale}})
         }
         return {hash, asyncManaged}
+    }
+
+    constructor(){
+        super(...arguments)
+        Object.defineProperties(this,{
+            perfect:{
+                get:()=>{
+                    const {limit, lastComposed:tried}=this
+                    let perfect=tried.find(a=>a.scale==PRECISION && a.height<limit)//not scaled but can hold
+                                    ||tried.find(a=>Math.abs(limit-a.height)<3)//almost equals
+                                    ||(new Set(tried.map(a=>a.height)).size<tried.length && tried[tried.length-1])//somehow height not changed when scale changed
+                    if(!perfect){
+                        const all=[...tried,{height:limit}].sort((a,b)=>a.height-b.height)
+                        const i=all.map(a=>a.height).indexOf(limit)
+                        perfect=all[i+1] && all[i-1]//bigger and smaller
+                    }
+                    return perfect
+                }
+            },
+        
+            limit:{
+                get:()=>this.managedComposer.getSpace().height
+            }
+        })
     }
 
     render(){
@@ -42,99 +65,49 @@ export default class extends Manager{
 
         this.lastComposed.push({scale, composed, height})
         if(this.lastComposed.length==1){
-            if(this.getPerfect()){
+            if(this.perfect){
                 return this.context.parent.appendComposed(composed)
             }
-            this.context.parent.appendComposed(this.createAsyncComposed2Parent(composed))
+            const asyncible=this.createAsyncComposed2Parent(
+                composed,
+                {
+                    id:`${this.managed.props.id}.${Date.now()}`,
+                },
+                this.managed)
+            this.context.parent.appendComposed(asyncible)
         } 
     }
 
-    createAsyncComposed2Parent(defaultComposed){
-        const current=(a=this.lastComposed,{scale,height}=a[a.length-1])=>({scale,height})
-        const replaceableComposed = []
-        replaceableComposed[0] = (<this.constructor.Async {...{
-            id:`${this.managed.props.id}.${Date.now()}`,
-            children: this.managed,
-            limit: this.limit,
-            ...current(),
-            compose:(asyncManaged,onComposed)=>{
-                this.queue.push(()=>{
-                    return new Promise((resolve)=>{
-                        this.setState({asyncManaged},()=>{
-                            try{
-                                const perfect=this.getPerfect()
-                                if(perfect){
-                                    /**
-                                     * to render with perfect scale at least to cheerup correct composers
-                                     * It's ok to cheerup again to make logic more of appendComposed simple 
-                                     */
-                                    asyncManaged=React.cloneElement(asyncManaged, {autofit:{...asyncManaged.props.autofit,fontScale:perfect.scale}})
-                                    this.setState({asyncManaged,perfect},()=>{
-                                        onComposed(replaceableComposed[0]=perfect.composed, {})
-                                    })
-                                }else{
-                                    onComposed(replaceableComposed[0]=perfect?.composed, current())
-                                }
-                            }finally{
-                                resolve()
-                            }
-                        })
-                    })
-                })
-            }
-        }} />)
-        
-        return React.cloneElement(defaultComposed,{children:replaceableComposed})
+    asyncManagedDidCompose(asyncManaged,asyncer, composed){
+        const updater=()=>({...this.current, composed})
+        if(composed){
+            const perfect=this.lastComposed.find(a=>a.composed==composed)
+            /**
+             * to render with perfect scale at least to cheerup correct composers
+             * It's ok to cheerup again to make logic more of appendComposed simple 
+             */
+            asyncManaged=React.cloneElement(asyncManaged, {autofit:{...asyncManaged.props.autofit,fontScale:perfect.scale}})
+            this.setState({asyncManaged,perfect},()=>{
+                super.asyncManagedDidCompose(asyncManaged, asyncer, composed, updater)
+            })
+        }else{
+            super.asyncManagedDidCompose(asyncManaged, asyncer, composed, updater)
+        }
     }
 
-    getPerfect(){
-        const {limit, lastComposed:tried}=this
-        let perfect=tried.find(a=>a.scale==PRECISION && a.height<limit)//not scaled but can hold
-                        ||tried.find(a=>Math.abs(limit-a.height)<3)//almost equals
-                        ||(new Set(tried.map(a=>a.height)).size<tried.length && tried[tried.length-1])//somehow height not changed when scale changed
-        if(!perfect){
-            const all=[...tried,{height:limit}].sort((a,b)=>a.height-b.height)
-            const i=all.map(a=>a.height).indexOf(limit)
-            perfect=all[i+1] && all[i-1]//bigger and smaller
-        }
-        return perfect
+    asyncManagedLastComposed(asyncManaged){
+        return this.perfect?.composed
     }
 
-    get limit(){
-        return this.managedComposer.getSpace().height
+    asyncManagedNext(asyncManaged, asyncer){
+        const {limit, current:{scale, height}}=this
+        const {props:{autofit}}=asyncManaged
+        const fontScale=height>limit ? Math.max(scale-7500, 7500) : Math.min(PRECISION, scale+7500)
+        return React.cloneElement(asyncManaged, {autofit:{...autofit,fontScale}})
     }
 
-    static Async=class extends super.Async{
-        static getDerivedStateFromProps({scale,height},state){
-            return {scale,height,...state}
-        }
-        onComposed(composed, variables){
-            if(this.unmounted)
-                return 
-            this.setState({composed, ...variables})
-            const {getComposer, responsible}=this.context
-
-            if(getComposer(responsible.cursor.id)?.closest(a=>a.props.id==this.content.props.id)){
-                responsible.updateSelectionStyle()
-            }
-        }
-
-        componentDidMount(...args){
-            this.componentDidUpdate(...args)
-        }
-
-        componentDidUpdate(a, lastState){
-            if(this.state.composed || shallowEqual(lastState, this.state))
-                return 
-            const {
-                props:{limit, compose}, 
-                state:{scale, height}, 
-                context:{responsible},
-                content:{props:{autofit}}}=this
-            
-            const fontScale=height>limit ? Math.max(scale-7500, 7500) : Math.min(PRECISION, scale+7500)
-            compose(React.cloneElement(this.content, {autofit:{...autofit,fontScale}}),this.onComposed,responsible)
-        }
+    get current(){
+        return ((a=this.lastComposed,{scale,height}=a[a.length-1])=>({scale,height}))()
     }
 }
 

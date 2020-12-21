@@ -1,7 +1,7 @@
 
 import React, {Component} from "react"
 import PropTypes from "prop-types"
-import {ReactQuery} from "we-edit"
+import {ReactQuery, shallowEqual} from "we-edit"
 
 /**
  * To make a frame compose on-demand, such as
@@ -100,17 +100,24 @@ export default class AsyncManager extends Component{
 
     /**
      * to create async element, and will update the composed to document's composed tree
-     * @param {*} composed 
+     * ** Use Array as children, so async composed can be injected into positioning tree
+     * @param {*} composed: default composed result
+     * @param {*} asyncProps: aync component props
      */
-    createAsyncComposed2Parent(composed, asyncProps) {
+    createAsyncComposed2Parent(composed, asyncProps, asyncManaged) {
         const replaceableComposed = []
         replaceableComposed[0] = (<this.constructor.Async {...{
-            compose:(asyncManaged,onComposed)=>{
+            compose:asyncer=>{
+                asyncManaged=this.asyncManagedNext(asyncManaged,asyncer)
                 this.queue.push(Object.assign(()=>{
                     return new Promise((resolve)=>{
                         this.setState({asyncManaged},()=>{
                             try{
-                                onComposed(replaceableComposed[0] = this.lastComposed[this.lastComposed.length-1])
+                                this.asyncManagedDidCompose(
+                                    asyncManaged, 
+                                    asyncer,
+                                    replaceableComposed[0]=this.asyncManagedLastComposed(asyncManaged), 
+                                )
                             }finally{
                                 resolve()
                             }
@@ -123,11 +130,36 @@ export default class AsyncManager extends Component{
         return React.cloneElement(composed,{children:replaceableComposed})
     }
 
+    asyncManagedDidCompose(asyncManaged, asyncer, composed, updater=()=>({composed})){
+        if(asyncer.unmounted)
+            return
+        asyncer.setState(updater)
+        const {getComposer, responsible}=asyncer.context
+
+        const {props:{shouldUpdateSelectionStyle=a=>true}, managed:{props:{id}}}=this
+        if(shouldUpdateSelectionStyle(asyncer)&&
+            getComposer(responsible.cursor.id)?.closest(a=>a.props.id==id)){
+            responsible.updateSelectionStyle()
+        }
+    }
+    //last composed result for asyncManaged
+    asyncManagedLastComposed(asyncManaged){
+        return this.lastComposed[this.lastComposed.length-1]
+    }
+
+    //next asyncManaged to compose
+    asyncManagedNext(asyncManaged,asyncer){
+        return asyncManaged
+    }
+
     /**
      * Async Trigger to render managed content with special props/varibles
      */
     static Async=class extends Component{
         static displayName="async"
+        static propTypes={
+            id: PropTypes.any.isRequired,
+        }
         static contextTypes={
             responsible: PropTypes.object,
             getComposer: PropTypes.func,
@@ -136,12 +168,7 @@ export default class AsyncManager extends Component{
         constructor(...args){
             super(...args)
             this.state={}
-            this.onComposed=this.onComposed.bind(this)
             this.log(`creating`)
-        }
-
-        get content(){
-            return this.props.children
         }
 
         render(){
@@ -149,28 +176,14 @@ export default class AsyncManager extends Component{
             return this.state.composed?.props.children||null
         }
 
-        componentDidMount(){
-            this.log(`mounting`)
-            if(!this.state.composed){
-                this.log(`force compose`)
-                this.props.compose(
-                    this.props.children,
-                    this.onComposed,
-                    this.context.responsible
-                )
-            }
+        componentDidMount(...args){
+            this.componentDidUpdate(...args)
         }
 
-        onComposed(composed, variables){
-            if(this.unmounted)
+        componentDidUpdate(lastProps, lastState){
+            if(this.state.composed || shallowEqual(lastState, this.state))
                 return
-            this.setState({composed})
-            const {getComposer, responsible}=this.context
-
-            if(this.props.whenUpdateSelectionStyle?.call(this,variables, responsible)&&
-                getComposer(responsible.cursor.id)?.closest(a=>a.props.id==this.content.props.id)){
-                responsible.updateSelectionStyle()
-            }
+            this.props.compose(this)
         }
 
         componentWillUnmount(){
@@ -179,7 +192,7 @@ export default class AsyncManager extends Component{
         }
 
         log(m){
-            console.debug(`[${this.content.props.id}.async]: ${m}`)
+            console.debug(`[${this.props.id}.async]: ${m}`)
         }
     }
 }
