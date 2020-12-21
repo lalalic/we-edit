@@ -1,10 +1,12 @@
 import React,{Component,Fragment} from "react"
 import PropTypes from "prop-types"
+import {ReactQuery} from "we-edit"
 
 export default class UseCached extends Component{
     static displayName="UseCached"
     static contextTypes={
         mount: PropTypes.func,
+        debug: PropTypes.bool,
     }
 
     static create(el){
@@ -29,6 +31,14 @@ export default class UseCached extends Component{
         const {children}=this.props
         if(typeof(children)!=="object")
             return null
+        
+        if(!this.context.debug){
+            new ReactQuery(<div>{children}</div>)
+                .find('id').toArray()
+                .forEach(({props:{id}})=>id && this.context.mount(id))
+            return null
+        }
+
         return (
             <Fragment>
                 {React.Children.toArray(children).map(UseCached.create)}

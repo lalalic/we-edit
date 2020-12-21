@@ -10,7 +10,7 @@ export default (A,always=true)=>class __$1 extends A{
         if(this.context.shouldContinueCompose){
             if(always || this.props.stoppable){
                 if(!this.context.shouldContinueCompose(this)){
-                    console.debug(`${this.getComposeType()}[${this.props.id}] skip composed`)
+                    this.debug && console.debug(`${this.getComposeType()}[${this.props.id}] skip composed`)
                     return null
                 }
             }
