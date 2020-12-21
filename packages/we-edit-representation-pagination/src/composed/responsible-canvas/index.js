@@ -185,7 +185,7 @@ class Responsible extends Component{
                 <DefineShapes/>
                 {children}
 				<Fragment>
-                    <SelectionStyleNotify updateSelectionStyle={this.updateSelectionStyle}/>
+                    <SelectionStyleNotify updateSelectionStyle={this.updateSelectionStyle} hash={document.props.hash}/>
                     <Cursor
                         ref={this.cursorNode}
                         keys={{
@@ -220,7 +220,7 @@ class Responsible extends Component{
 			pages:this.pages.length,
 			allComposed:document.isAllChildrenComposed(),
             words: document.words,
-            composerID: document.computed.composedUUID,
+            composerID: `${document.props.hash}_${document.computed.composedUUID}`,
 		}))
     }
 

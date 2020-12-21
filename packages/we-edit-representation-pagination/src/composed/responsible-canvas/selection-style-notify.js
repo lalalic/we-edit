@@ -7,8 +7,8 @@ export default connect(state=>{
 })(class extends Component{
     static displayName="SelectionStyleNotify"
 
-    shouldComponentUpdate({selection,composerID}){
-        return !!(composerID && (this.props.selection!=selection || composerID!=this.props.composerID))
+    shouldComponentUpdate({selection,composerID, hash}){
+        return !!(composerID && composerID.startsWith(hash) && (this.props.selection!=selection || composerID!=this.props.composerID))
     }
 
     render(){
