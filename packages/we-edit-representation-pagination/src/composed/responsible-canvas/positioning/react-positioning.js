@@ -223,24 +223,24 @@ class PositioningHelper extends Positioning{
      * to around to x in a line of frame, the line may contain frame
      * scope it to leafFrame, and proxy to aourndInInline
      * @param {*} topFrame 
-     * @param {*} line 
+     * @param {*} blockLine 
      * @param {*} param2 
      */    
-    aroundInBlockLine({x=0,y=0}={},line, topFrame, blockFrame=topFrame){
-        if(!line || !topFrame)
+    aroundInBlockLine({x=0,y=0}={},blockLine, topFrame, blockFrame=topFrame){
+        if(!blockLine || !topFrame)
             return {}
         /**
          * now next line found, then locate with one of following ways
          * 1. to round(left, top+1)???? what if it's on top margin/border
          * 2. **find most inner node that includes (left,*), and then position in paragraph line
          */
-        const lineOffset=blockFrame.lineXY(line)
+        const lineOffset=blockFrame.lineXY(blockLine)
         const topFrameOffset=this.getTopFrameXY(topFrame)
         const blockFrameOffset=this.getFrameOffsetGrandFrame(topFrame,blockFrame)
         x=x-topFrameOffset.x-blockFrameOffset.x-lineOffset.x
         const isIncludeX=(rect)=>rect.x<=x && (rect.x+rect.width)>=x
         var {node,parents,...inlineOffset}=this.getBoundaryCheckedMostInnerNode(
-            line,
+            blockLine,
             //only content include x
             (rect,{props:{width}})=>{
                 if(width!=undefined){
@@ -249,7 +249,7 @@ class PositioningHelper extends Positioning{
                 }
             }
         )
-        var $paragraph
+        var inline
         const possibleParagraph=new ReactQuery(node).findFirstAndParents('[data-type=paragraph]')
         const isInlineNode=possibleParagraph.first.length==0
         if(isInlineNode){
@@ -257,19 +257,18 @@ class PositioningHelper extends Positioning{
             const j=parents.findLastIndex(a=>a.props.pagination)
             if(j==-1){
                 //nextLine should be paragraph line
-                $paragraph=line
+                inline=blockLine
                 inlineOffset={x:0,y:0}
             }else{
-                $paragraph=parents[j]
+                inline=parents[j]
                 inlineOffset=parents.slice(0,j+1).reduce((xy,{props:{x=0,y=0}})=>(xy.x+=x,xy.y+=y,xy),{x:0,y:0})
             }
         }else{//nested paragraph, which means frame in paragraph
             inlineOffset=[...possibleParagraph.parents,possibleParagraph.first.get(0)]
                 .reduce((xy,{props:{x=0,y=0}})=>(xy.x+=x,xy.y+=y,xy),inlineOffset)
-            $paragraph=possibleParagraph.first.get(0)
+            inline=possibleParagraph.first.get(0)
         }
-        const {pagination:{id:pid,i},paragraph=this.getComposer(pid)}=$paragraph.props
-        return this.aroundInInline(paragraph.computed.lastComposed[i-1], x-inlineOffset.x)
+        return this.aroundInInline( inline,x-inlineOffset.x )
     }
 
     /**
@@ -359,7 +358,7 @@ class PositioningHelper extends Positioning{
             return found
         }
 
-        const root=<div children={[]}/>
+        const root=<div children={[]}/>//***avoid no key warning
         root.props.children[0]=target.computed.lastComposed
         
         return find(root)?.props['data-content']
@@ -416,7 +415,7 @@ class PositioningHelper extends Positioning{
             }
             leafFrame=paragraph.lines[i].space.frame
             lineInFrame=leafFrame.lines.find(({props:{pagination:{id:p,i:I}={}}})=>p==paragraph.props.id&&I==i+1)
-            position=()=>this.positionInInline(id,at,paragraph.computed.lastComposed[i])
+            position=()=>this.positionInInline(id,at,lineInFrame)
         }else{
             /**
              * bigger than paragraph level
@@ -493,7 +492,8 @@ class PositioningHelper extends Positioning{
 	 * @param {*} i 
 	 */
 	positionInInline(id,at,composedLine){
-        const paragraph=this.getComposer(composedLine.props["data-content"])
+        const paragraphId=new ReactQuery(composedLine).findFirst(`[data-type="paragraph"]`).attr('data-content')
+        const paragraph=this.getComposer(paragraphId)
 		const defaultStyle=paragraph.getDefaultMeasure().defaultStyle
 		//could it search from line directly to target
         const {first:story,parents:storyUps}=new ReactQuery(composedLine).findFirstAndParents(".story")
@@ -761,8 +761,7 @@ export default class ReactPositioning extends PositioningHelper {
         
         const lineOffset=leafFrame.lineXY(line)
         //what if leafFrame is not leaf node?????
-        const {pagination:{id,i}, paragraph=this.getComposer(id)}=line.props
-        const pos=this.aroundInInline(paragraph.computed.lastComposed[i-1],x-topFrameOffset.x-leafFrameOffset.x-lineOffset.x)
+        const pos=this.aroundInInline(line, x-topFrameOffset.x-leafFrameOffset.x-lineOffset.x)
         return {...pos,page: topFrame.props.I}
     }
 

@@ -50,7 +50,15 @@ docx:
     * nextLine
     * prevLine
 * Canvas
-
+* **Positioning NOT rely on composer.computed.lastComposed**
+    * it's heavy to maintain composers vs composed
+        * template
+        * autofit
+        * cache??
+    * the following rely on 
+        * positionInInline(id,at,composedLine)
+        * aroundInInline(composedLine, offset)
+        * __findFirstParagraphInTarget(any target)
 
 # Notes
 * immutable 4.0 would deadloop

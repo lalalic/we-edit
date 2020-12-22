@@ -114,6 +114,7 @@ export default class extends Frame{
         appendComposed(a){
             const {values}=a.props
             const composed=a.createComposed2Parent()
+
             if(values){
                 this.lastComposed[this.variables.id(values)]=composed
                 if(this.context.debug)
@@ -210,7 +211,6 @@ export default class extends Frame{
             return this.data.length
         }
     }
-
 }
 
 
