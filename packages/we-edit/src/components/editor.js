@@ -14,25 +14,20 @@ export class Editor extends PureComponent{
 		representation: PropTypes.node.isRequired,
 		media: PropTypes.string,
 
-		//canvas props for svg
+		//props to canvas
 		scale: PropTypes.number,
 		screenBuffer: PropTypes.oneOfType([PropTypes.func, PropTypes.number]),
-		viewport: PropTypes.shape({
-			width: PropTypes.number,
-			height: PropTypes.number,
-			node: PropTypes.instanceOf(Element),
-		}),
+		//events to canvas
+		onKeyDown: PropTypes.func,
+		onContextMenu: PropTypes.func,
 
+		//props to document
 		editable: PropTypes.oneOfType([
 			PropTypes.bool,
 			PropTypes.shape({
 				cursor:PropTypes.bool
 			})
 		]),
-
-		//events
-		onKeyDown: PropTypes.func,
-		onContextMenu: PropTypes.func,
 	}
 
 	static contextTypes={
@@ -45,7 +40,6 @@ export class Editor extends PureComponent{
 
 	static childContextTypes={
 		media: PropTypes.string,
-		onKeyDown: PropTypes.func,
 	}
 
 	static getDerivedStateFromProps({viewport},state={}){
@@ -59,8 +53,8 @@ export class Editor extends PureComponent{
 	}
 
 	getChildContext(){
-		const {media, onKeyDown}=this.props
-		return {media,onKeyDown}
+		const {media, }=this.props
+		return {media, }
 	}
 
 	render(){
@@ -69,7 +63,7 @@ export class Editor extends PureComponent{
 			return <div ref="viewporter" />
 		}
 
-		var {representation, children, canvas=children, viewport:_1, ...props}=this.props
+		var {representation, children, canvas=children, editable, ...props}=this.props
 		if(typeof(representation)=="string"){
 			representation=<Representation type={representation}/>
 		}
@@ -77,7 +71,7 @@ export class Editor extends PureComponent{
 		return React.cloneElement(
 			representation,
 			{domain:this.constructor.domain},
-			this.createDocument({canvasProps:{...props,id:this.canvasId,viewport,canvas}})
+			this.createDocument({canvasProps:{...props,id:this.canvasId,viewport}, canvas, editable})
 		)
 	}
 
@@ -108,46 +102,25 @@ export class Editor extends PureComponent{
 		})(viewporter);
 		
 		let a=viewporter.parentNode
-		const setViewport=()=>{
-			const {height}=container.getBoundingClientRect()
-			let width=0
-			while(a && (width=a.getBoundingClientRect().width)==0){
-				a=a.parentNode
-			}
-			this.setState({viewport:{width:parseInt(width),height:parseInt(height||1056),node:container}})
+		const {height}=container.getBoundingClientRect()
+		let width=0
+		while(a && (width=a.getBoundingClientRect().width)==0){
+			a=a.parentNode
 		}
-
-		setViewport()
-
-		;(function() {
-			var throttle = function(type, name, obj) {
-				obj = obj || window;
-				var running = false;
-				var func = function() {
-					if (running) { return; }
-					running = true;
-					 requestAnimationFrame(function() {
-						obj.dispatchEvent(new CustomEvent(name));
-						running = false;
-					});
-				};
-				obj.addEventListener(type, func);
-			};
-		
-			/* init - you can init any event */
-			throttle("resize", "optimizedResize");
-			window.addEventListener("optimizedResize",setViewport)
-		})();
-	}
-
-	get viewport(){
-		return this.state.viewport
+		this.setState({viewport:{width:parseInt(width),height:parseInt(height||1056),node:container}})
 	}
 }
 
 const hashCode=ints=>ints.reduce((s,a)=>s+a,0)
 
 export class WeDocumentStub extends Component{
+	static propTypes={
+		content:	PropTypes.object.isRequired,
+		canvas: 	PropTypes.object.isRequired,
+		canvasProps: PropTypes.object,
+		editable: PropTypes.any,
+	}
+	
 	static contextTypes={
 		ModelTypes: PropTypes.object
 	}
@@ -160,18 +133,8 @@ export class WeDocumentStub extends Component{
 		return {weDocument:this.getDoc()}
 	}
 
-	shouldComponentUpdate(props){
-		if(shallowEqual(props, this.props)){
-			return false
-		}else{
-			const {content,...next}=props
-			const {content:last, ...current}=this.props
-			if(shallowEqual.equals(content,last) && shallowEqual(next,current)){
-				return false
-			}
-		}
-		
-		return true
+	shouldComponentUpdate({hash}){
+		return hash!==this.props.hash
 	}
 
 	createWeDocument=memoize((content,ModelTypes)=>{
@@ -213,20 +176,25 @@ export class WeDocumentStub extends Component{
 		return createNode("root")
 	}, (a,b)=>a===b || shallowEqual(a,b) || a?.equals?.(b))
 
-	createDocument=memoize((content,canvasProps,ModelTypes)=>{
+	createDocument=memoize((content,ModelTypes)=>{
 		const doc=this.createWeDocument(content,ModelTypes)
-		return React.cloneElement(doc,{
-			canvasProps,
-			content,
-			hash:content.hashCode(),
-			onContextMenu:e=>this.props.dispatch(ACTION.UI({contextMenuAt:{left:e.clientX+2, top:e.clientY}})),
-		})
+		return React.cloneElement(doc,{content,hash:content.hashCode()})
 	},(a,b)=>a===b || shallowEqual.equals(a,b) || shallowEqual(a,b))
 
 	getDoc(){
 		const {ModelTypes}=this.context
-		const {content, canvasProps}=this.props
-		return this.createDocument(content,canvasProps,ModelTypes)
+		const {content, canvas, canvasProps, editable}=this.props
+		const doc=this.createDocument(content,ModelTypes)
+		return React.cloneElement(doc, {
+				editable,
+				canvas: React.cloneElement(canvas||doc.props.canvas,{
+					...canvasProps,
+					onContextMenu:e=>{
+						this.props.dispatch(ACTION.UI({contextMenuAt:{left:e.clientX+2, top:e.clientY}}))
+						canvasProps?.onContextMenu?.(e)
+					},
+				})
+			})
 	}
 
 	render(){
@@ -239,16 +207,9 @@ export class WeDocumentStub extends Component{
 }
 
 
-const Root=connect(
-	(state)=>({content:state.get("content")}),
-	null,
-	null,
-	{
-		areStatePropsEqual(a,b){
-			return a.content.equals(b.content)
-		}
-	}
-)(WeDocumentStub)
-
+const Root=connect(state=>{
+	const content=state.get("content")
+	return {content, hash: content.hashCode()}
+})(WeDocumentStub)
 
 export default Editor

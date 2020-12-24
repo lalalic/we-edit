@@ -1,5 +1,5 @@
 import React from "react"
-import {context, $, State, render, defaultProps} from "../context"
+import {context, $, State, render, defaultProps, createCanvas} from "../context"
 import {Editors} from "../../src"
 import {ReactQuery} from "we-edit"
 
@@ -29,10 +29,12 @@ describe("editor",()=>{
         const renderer=render(element=
             <Context>
                 <Document id="root"
-                    pageGap={gap}
-                    viewport={{...viewport, node:{scrollTop:0}}}
-                    screenBuffer={0}
-                    scale={1}>
+                        canvas={createCanvas(Document,{
+                            pageGap:gap,
+                            viewport:{...viewport, node:{scrollTop:0}},
+                            screenBuffer:0,
+                            scale:1,
+                    })}>
                     <Section id={++uuid} layout={page} key="1">
                         <Paragraph id={++uuid}>
                             <Text id={++uuid}>

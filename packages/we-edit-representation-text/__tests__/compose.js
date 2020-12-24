@@ -1,5 +1,5 @@
 import React,{Fragment} from "react"
-import {render as testRender, context, defaultProps} from "../../we-edit-representation-pagination/__tests__/context"
+import {render as testRender, context, defaultProps, createCanvas} from "../../we-edit-representation-pagination/__tests__/context"
 
 import dom from "../src/dom/edit"
 
@@ -14,9 +14,11 @@ describe("text", ()=>{
 		const renderer=testRender(
 			<StoreContext>
 				<Document
-					viewport={viewport}
-					screenBuffer={0}
-					scale={1}
+					canvas={createCanvas(Document,{
+						viewport,
+						screenBuffer:0,
+						scale:1,
+					})}
 					{...docProps}
 					>
 					<Fragment>

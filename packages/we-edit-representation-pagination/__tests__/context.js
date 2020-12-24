@@ -106,4 +106,8 @@ export const nthUseCached=(fn,n)=>{
     return isUseCached(fn.mock.results[n-1].value)
 }
 
+export function createCanvas(Doc, props){
+    return React.cloneElement(Doc.defaultProps.canvas,props)
+}
+
 it("compose context loaded",()=>{})

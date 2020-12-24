@@ -37,7 +37,7 @@ class Responsible extends Component{
 		viewport: PropTypes.shape({
             height:PropTypes.number,
             width: PropTypes.number,
-            node: PropTypes.instanceOf(Element),
+            node: PropTypes.object,
 		}),        
         document: PropTypes.object,
     }
@@ -57,8 +57,8 @@ class Responsible extends Component{
         responsible: PropTypes.object,
     }
     
-    static getDerivedStateFromProps({id:canvasId, viewport, screenBuffer,pageGap,scale, document:{pages, props:{editable,content, precision},state:{y=0}}},state){
-        return {pages, precision, pageGap, scale,editable,canvasId,content,viewport,screenBuffer,composed4Y:y,...state}
+    static getDerivedStateFromProps({viewport, screenBuffer,pageGap,scale, document:{pages, props:{editable,content, precision},state:{y=0}}},state){
+        return {pages, precision, pageGap, scale,editable,content,viewport,screenBuffer,composed4Y:y,...state}
     }
 
     constructor(){
@@ -71,6 +71,7 @@ class Responsible extends Component{
         this.positioning=new SafePositioning(this)
         this.cursorNode=React.createRef()
         this.updateSelectionStyle=this.updateSelectionStyle.bind(this)
+        this.onViewportChange=this.onViewportChange.bind(this)
     }
 
     getChildContext(){
@@ -132,7 +133,7 @@ class Responsible extends Component{
     }
 
     get id(){
-        return `canvas${this.props.document.props.canvasId}`
+        return `canvas${this.props.id}`
     }
 
     get canvas(){
@@ -152,7 +153,7 @@ class Responsible extends Component{
     }
 
     render(){
-        const {props:{children,document}, state:{editable=true,scale,pageGap,pages,precision}}=this
+        const {props:{children,document, onKeyDown=e=>e, onContextMenu=e=>e}, state:{editable=true,scale,pageGap,pages,precision}}=this
         const noCursor=editable && editable.cursor===false
         const eventHandlers=!noCursor ? this.eventHandlers  : {}
         const {Canvas, ComposeMoreTrigger}=this.constructor
@@ -182,9 +183,9 @@ class Responsible extends Component{
                 <DefineShapes/>
                 {children}
 				<Fragment>
-                    <ScaleNotify notify={scale=>this.setState({scale})}/>
+                    <ScaleNotify notify={scale=>this.setState({scale})} scale={scale}/>
                     <SelectionStyleNotify notify={this.updateSelectionStyle} hash={document.props.hash}/>
-                    <Cursor
+                    <Cursor onKeyDown={e=>onKeyDown(e)}
                         ref={this.cursorNode}
                         keys={{
                             37:e=>this.onKeyArrowLeft(e),//move left
@@ -198,8 +199,7 @@ class Responsible extends Component{
                             e.stopPropagation()
                             e.preventDefault()
                             delete this.__mouseDownFlag.selected
-                            const {onContextMenu}=document.props
-                            onContextMenu && onContextMenu(e)
+                            onContextMenu(e)
                         }}>
                         <SelectionShape ref={"selecting"}/>
                     </Selection>
@@ -228,11 +228,20 @@ class Responsible extends Component{
 
     componentDidMount(){
         this.active()
+        window.addEventListener("resize",this.onViewportChange)
         this.componentDidUpdate()
     }
 
+    componentWillUnmount(){
+        window.removeEventListener("resize",this.onViewportChange)
+    }
+
+    onViewportChange(){
+
+    }
+
     active(){
-		this.dispatch(ACTION.Cursor.ACTIVE(this.state.canvasId))
+		this.dispatch(ACTION.Cursor.ACTIVE(this.props.id))
     }
 
     updateSelectionStyle(){
@@ -328,8 +337,7 @@ export default class EventResponsible extends Responsible{
     onContextMenu(e){
         this.__onClick(e)
         delete this.__mouseDownFlag.selected
-        const {onContextMenu}=this.props.document.props
-        onContextMenu && onContextMenu(e)
+        this.props.onContextMenu?.(e)
     }
 
     onDoubleClick(e){

@@ -47,19 +47,13 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
                 const i=pages.indexOf(ref)
                 return pages[i-1]
             },
-            editable:this.state&&this.state.editable,
+            editable: self.state.editable,
             precision: this.props.precision,
         }
     }
 
-    getCanvasElement=memoize((representationCanvas, uiCanvasProps)=>{
-        const {canvas=representationCanvas, ...props}=uiCanvasProps
-        return canvas && React.cloneElement(canvas, {document:this, ...props})
-    })
-
     render(){
-        const {canvas:representationCanvas, children, canvasProps}=this.props
-        const canvas=this.getCanvasElement(representationCanvas, canvasProps)
+        const {canvas, children}=this.props
         if(!canvas)
             return super.render()
         const {props:{__sequentialCompose=true}}=this
@@ -67,11 +61,11 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
             return (
                 <Fragment>
                     {super.render()}
-                    {canvas}
+                    {React.cloneElement(canvas,{document:this})}
                 </Fragment>
             )
         }else{
-            return React.cloneElment(canvas,{children})
+            return React.cloneElment(canvas,{children, document:this})
         }
     }
 
@@ -86,7 +80,8 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
 export default class extends editable(Document,{continuable:true}){
     static defaultProps={
 		...super.defaultProps,
-		canvas:<Responsible/>,
+        canvas:<Responsible/>,
+        editable: true,
     }
     
 	static contextTypes={
@@ -94,7 +89,7 @@ export default class extends editable(Document,{continuable:true}){
         activeDocStore: PropTypes.any,
 	}
 
-	static getDerivedStateFromProps({hash,editable=true},state){
+	static getDerivedStateFromProps({hash,editable},state){
 		return {hash, editable, ...(hash!=state.hash && {mode:"content",y:0,composeAll:false})}
     }
 
@@ -162,11 +157,15 @@ export default class extends editable(Document,{continuable:true}){
     }
     
     get canvas(){
-        const {canvas:representationCanvas, canvasProps}=this.props
-        const {type:Type,props}=this.getCanvasElement(representationCanvas, canvasProps)
-        const canvas=new Type({...props})
-        canvas.state=Type.getDerivedStateFromProps(canvas.props,canvas.state)
-        return canvas
+        const {canvas:{type:Type,props}}=this.props
+        const canvas=new Type({...props, document:this})
+        
+        if('availableBlockSize' in canvas){
+            canvas.state && (canvas.state={...canvas.state, ...Type.getDerivedStateFromProps?.(canvas.props,canvas.state)})
+            return canvas
+        }
+
+        return {availableBlockSize:()=>Number.MAX_SAFE_INTEGER}
     }
 
     shouldComponentUpdate(nextProps, nextState){
@@ -192,6 +191,7 @@ export default class extends editable(Document,{continuable:true}){
         }
         if(!this.state.editable)
             return true
+
         let should=this.canvas.availableBlockSize() //has block space
         if(!should){
             if(!this.isSelectionComposed(getSelection(this.context.activeDocStore.getState()))){//selection not composed yet

@@ -29,7 +29,7 @@ export default class HTMLDocument extends Component{
 		])
 	}
 
-	static getDerivedStateFromProps({viewport},state){
+	static getDerivedStateFromProps({canvas:{props:{viewport}}},state){
 		return {viewport,...state}
 	}
 
@@ -65,11 +65,11 @@ export default class HTMLDocument extends Component{
 	}
 
 	render(){
-		const {children, ...props}=this.props
+		const {children, canvas, ...props}=this.props
 		return 	<ViewportDocument
 					{...props} 
-					viewport={this.state.viewport}
-					pageGap={0} wrap={this.context.wrap}>
+					canvas={React.cloneElement(canvas, {viewport:this.state.viewport, pageGap:0})}
+					wrap={this.context.wrap}>
 					{children}
 				</ViewportDocument>
 	}
@@ -88,7 +88,7 @@ class ViewportDocument extends Document{
 
 	get page(){
 		const {wrap=true,margin}=this.props
-		const {viewport}=this.state
+		const {viewport}=this.canvas.state
 		if(this.computed.composed.length==0){
 			this.computed.composed.push(
 				new ViewportDocument.Page({
@@ -125,7 +125,7 @@ class ViewportDocument extends Document{
 	static Page=class Page extends Frame{
 		createComposed2Parent(){
 			const {props:{width,margin}}=this
-			const height=Math.max(this.context.parent.state.viewport.height,this.composedHeight)
+			const height=Math.max(this.context.parent.canvas.state.viewport.height,this.composedHeight)
 			return React.cloneElement(super.createComposed2Parent(),{
 				key:0,I:0,i:0,width,height,margin:{},
 			})

@@ -1,14 +1,15 @@
 import React from "react"
-import {context, $, State, render, defaultProps, nthUseCached} from "../context"
+import {context, $, State, render, defaultProps, nthUseCached, createCanvas} from "../context"
 import {Editors} from "../../src"
 
 describe("continuable", ()=>{
 	const pageGap=12
 	const {Document, Section, Frame, Paragraph, Text}=Editors
 	const Canvas=Document.defaultProps.canvas.type
-		
+	
 	const Context=context({dom:Editors})
-	const size={width:816,height:1056,
+	const size={
+		width:816,height:1056,
 		composedHeight(){
 			return this.height
 		}
@@ -55,10 +56,13 @@ describe("continuable", ()=>{
 			const renderer=render(
 				<Context>
 					<Document
-						pageGap={pageGap}
-						viewport={{width:500,height:y,node:{scrollTop:0}}}
-						screenBuffer={0}
-						scale={1}>
+						canvas={createCanvas(Document,{
+							pageGap,
+							viewport:{width:500,height:y,node:{scrollTop:0}},
+							screenBuffer:0,
+							scale:1,
+						})}
+						>
 						{section(1)}
 						{section(2)}
 						{section(3)}
@@ -71,6 +75,7 @@ describe("continuable", ()=>{
 		})
 
 		compose2Y(10,1)
+ 
 		compose2Y(size.height,1)
 		compose2Y(size.height+pageGap+1,2)
 		compose2Y(size.height*1.9,2)
@@ -86,7 +91,7 @@ describe("continuable", ()=>{
 			
 			const renderer=render(
 				<Context>
-					<Document viewport={{width:500,height:100,node:{scrollTop:0}}} screenBuffer={0} scale={1}>
+					<Document canvas={createCanvas(Document, {viewport:{width:500,height:100,node:{scrollTop:0}}, screenBuffer:0, scale:1})}>
 						{section(1)}
 						{section(2)}
 						{section(3)}
@@ -114,7 +119,7 @@ describe("continuable", ()=>{
 			Object.keys(state).map(k=>State[k]=jest.fn(function(){return state[k](...arguments)}))
 			const renderer=render(
 				<Context key="test">
-					<Document id="root" pageGap={pageGap} viewport={{width:500,height:size.height/2,node}} screenBuffer={0} scale={1}>
+					<Document id="root" canvas={createCanvas(Document, {pageGap, viewport:{width:500,height:size.height/2,node}, screenBuffer:0, scale:1})}>
 						{section(1,i)}
 						{section(2,i)}
 						{section(3,i)}

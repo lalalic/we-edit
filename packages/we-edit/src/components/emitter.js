@@ -49,7 +49,6 @@ import extendible from "../tools/extendible"
 	</emiter>
 </doc>
 */
-var emitterID=0
 export default class Emitter extends Viewer{
 	static displayName="emitter"
 
@@ -128,14 +127,15 @@ export default class Emitter extends Viewer{
 				const {style, children, ...props}=this.props
 				represents.push(
 					<Representation type={type} key={type}>
-						<WeDocumentStub {...{canvasProps:{
+						<WeDocumentStub {...{
 							canvas:(
-								<CanvasWrapper>
+								<CanvasWrapper scale={1} {...props}>
 									{Children.toArray(streams).map(a=>React.cloneElement(a,props))}
 								</CanvasWrapper>
 							),
-							...props
-						},scale:1,content}}/>
+							editable:false,
+							content
+						}}/>
 					</Representation>
 				)
 			}else{

@@ -1,7 +1,7 @@
 import React from "react"
 import PropTypes from "prop-types"
 
-import {context,render as testRender, defaultProps} from "../context"
+import {context,render as testRender, defaultProps, createCanvas} from "../context"
 
 import {Editors} from "../../src"
 import Responsible from "../../src/composed/responsible-canvas"
@@ -38,7 +38,7 @@ export default function define(feature, tests){
 
             const renderer=testRender(
                 <Context>
-                    <Document viewport={{width:500,height:500,node:{scrollTop:0}}}>
+                    <Document canvas={createCanvas(Document,{viewport:{width:500,height:500,node:{scrollTop:0}}})}>
                         <Editors.Section id={`${++uuid}`} {...sectionProps}>
                         {content}
                         </Editors.Section>
