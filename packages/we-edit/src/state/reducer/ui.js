@@ -1,4 +1,4 @@
-export default (state={selectionStyle:null,pilcrow:false}, {type,payload})=>{
+export default (state={selectionStyle:null,pilcrow:false, scale:1}, {type,payload})=>{
 	switch(type){
 	case `we-edit/selection/STYLE`:
 		return {...state, selectionStyle:payload}

@@ -2,7 +2,7 @@ import React from "react"
 
 import {compose,setDisplayName,withProps} from "recompose"
 
-import {ACTION, whenSelectionChangeDiscardable} from "we-edit"
+import {ACTION, whenSelectionChangeDiscardable,connect, getUI} from "we-edit"
 
 import HorizontalRuler from "./horizontal"
 import VerticalRuler from "./vertical"
@@ -35,25 +35,32 @@ export default compose(
 		},
 	})),
 	withProps(({selection})=>{
-		let {
+		const {
 				width,height,
 				margin:{
 					left:leftMargin,top:topMargin,right:rightMargin,bottom:bottomMargin,
 					header,footer,
 				}={},
 				cols=[{x:leftMargin,width:width-leftMargin-rightMargin}]
-			}=(selection && selection.props("layout")||{})
+			}=(selection?.props("layout")||{})
 
-		let {
-			indent:{left:leftIndent,right:rightIndent,firstLine}={}
-		}=(selection && selection.props("paragraph",false)||{})
+		const {indent:{left:leftIndent,right:rightIndent,firstLine}={}}=(selection?.props("paragraph",false)||{})
+		const {pageY}=selection?.props("page",false)||{}
 
 		return {
 			width,height,leftMargin,topMargin,bottomMargin,rightMargin,leftIndent,rightIndent,firstLine,
 			cols,
-			header,footer
+			header,footer,
+			pageY,
 		}
 	}),
-)(({direction="horizontal", Ruler=direction=="horizontal" ? HorizontalRuler : VerticalRuler,...props})=>(
-	<Ruler {...props}/>
+	connect((state,{pageY=0})=>{
+		const {scale=1}=getUI(state)
+		return {scale, pageY:scale*pageY}
+	}),
+)(({direction, pageY, ...props})=>(	
+	direction=="vertical" ? 
+		<div style={{position:"relative",top:pageY}}><VerticalRuler {...props}/></div> :
+		<HorizontalRuler {...props}/>
+		
 ))

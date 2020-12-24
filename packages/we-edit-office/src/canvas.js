@@ -1,39 +1,14 @@
 import React,{Component} from  "react"
-import {connect,whenSelectionChangeDiscardable} from "we-edit"
-import {compose, setDisplayName} from "recompose"
-
 import Ruler from "./ruler"
-import {getOffice} from "./state/action"
 
-const VerticalRuler=compose(
-	setDisplayName("VerticalRuler"),
-	whenSelectionChangeDiscardable(({selection})=>{
-		if(selection){
-			let props=selection.props("page",false)
-			if(props){
-				return {
-					pageY:props.pageY
-				}
-			}
-		}
-	})
-)(({pageY=0, scale, ...props})=>{
-	return (
-		<div style={{position:"relative",top:pageY*scale}}>
-			<Ruler direction="vertical" {...props} scale={scale}/>
-		</div>
-	)
-})
-
-export default connect(state=>({scale:getOffice(state).scale}))(
-class Canvas extends Component{
+export default class Canvas extends Component{
 	constructor(){
 		super(...arguments)
 		this.state={}
 	}
 
 	render(){
-		const {scale=100,ruler={vertical:true}, style={}, children}=this.props
+		const {ruler={vertical:true}, style={}, children}=this.props
 		const {error}=this.state
 		const horizontalRulerHeight=20
 		return (
@@ -45,14 +20,14 @@ class Canvas extends Component{
 				}}>
 				{ruler && ruler.vertical!==false && (
 					<div style={{flex:1, paddingTop:horizontalRulerHeight}}>
-						<VerticalRuler scale={scale/100} {...ruler.vertical}/>
+						<Ruler direction="vertical" {...ruler.vertical}/>
 					</div>
 				)}
 				<div style={{flex:"1 100%", display:"flex", flexDirection:"column",width:"100%"}}>
 					<div style={{flex:"1 100%",textAlign:"center"}}>
 						{ruler && (
 							<div style={{position:"sticky",top:0}}>
-								<Ruler direction="horizontal" scale={scale/100} {...ruler.horizontal}/>
+								<Ruler direction="horizontal" {...ruler.horizontal}/>
 							</div>
 						)}
 						{error ?  error.stack : children}
@@ -66,4 +41,4 @@ class Canvas extends Component{
 	static getDerivedStateFromError(error){
 		return {error}
 	}
-})
+}

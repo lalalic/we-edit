@@ -4,7 +4,6 @@ export default {
     stream:stream=>({type:`${DOMAIN}/office`, payload:{stream}}),
     format:format=>({type:`${DOMAIN}/office`,payload:{format}}),
     channel:channel=>({type:`${DOMAIN}/office`,payload:{channel}}),
-    scale: scale=>({type:`${DOMAIN}/office`,payload:{scale}}),
     reducer: reducer=>({type:`${DOMAIN}/office/reducer`,payload:reducer}),
 }
 

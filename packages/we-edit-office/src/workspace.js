@@ -92,16 +92,11 @@ export default class Workspace extends PureComponent{
 		this.setState({error})
 	}
 
-	static Desk=connect((state)=>{
-		const scale=getOffice(state).scale
-		if(scale!=undefined)
-			return {scale:scale/100}
-		return {}
-	})(pure(({children, toolBar, ruler, channel, statusBar, icon, layout,...props})=>(
+	static Desk=pure(({children, toolBar, ruler, channel, statusBar, icon, layout,...props})=>(
 		<Fragment>
 			{React.cloneElement(children,props)}
 		</Fragment>
-	)))
+	))
 
 	static Layout=pure(({canvas, left,  right, style})=>(
 		<div style={{flex:"1 100%", display:"flex",  flexDirection:"row", overflow:"auto",...style}}>

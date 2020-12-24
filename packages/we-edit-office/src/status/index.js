@@ -4,8 +4,7 @@ import {compose, getContext, mapProps,setDisplayName, onlyUpdateForKeys} from "r
 import {FlatButton, Slider} from "material-ui"
 import {blue800, blue900} from "material-ui/styles/colors"
 import SizeIconButton from "../components/size-icon-button"
-import {connect, whenSelectionChangeDiscardable,getStatistics} from "we-edit"
-import ACTION,{getOffice} from "../state/action"
+import {connect, whenSelectionChangeDiscardable,getStatistics,getUI, ACTION} from "we-edit"
 
 const ButtonStyle={
 	background:"transparent",
@@ -32,12 +31,9 @@ const Status=compose(
 	getContext({
 		muiTheme: PropTypes.object,
 	}),
-	mapProps(({muiTheme,channel,scale,setScale,style})=>{
-		return {
-			channel,scale,style,
-			height:muiTheme.button.height
-		}
-	}),
+	mapProps(({muiTheme,channel,style})=>(
+		{channel,style,height:muiTheme.button.height}
+	)),
 	onlyUpdateForKeys(['height','channel'])
 )(({height, channel, style})=>(
 	<div style={{...RootStyle,height,...style}}>
@@ -52,15 +48,7 @@ const Status=compose(
 const Page=compose(
 	whenSelectionChangeDiscardable(({selection},state)=>{
 		const {pages:total=0,allComposed}=getStatistics(state)
-		const status={total,allComposed}
-		if(selection){
-			let props=selection.props("page",false)
-			if(props){
-				status.current=props.page
-			}
-		}
-
-		return status
+		return {total,allComposed, current: selection?.props("page",false)?.page}
 	})
 )(({current=0,total=0,allComposed})=>(
 	<FlatButton style={ButtonStyle}>
@@ -75,9 +63,9 @@ const Words=connect(state=>({...getStatistics(state)}))(({words=0,allComposed})=
 ))
 
 
-const Scale=connect(state=>({current:getOffice(state).scale}))(({
-	current=100,max=200,min=10,step=10,dispatch,
-	onChange=scale=>dispatch(ACTION.scale(scale))
+const Scale=connect(state=>({current:(getUI(state).scale||1)*100}))(({
+	current,max=200,min=10,step=10,dispatch,
+	onChange=scale=>dispatch(ACTION.UI({scale}))
 	})=>(
 	<div style={{display:"flex"}}>
 		<FlatButton label="-" onClick={()=>onChange(Math.max(current-step,min))}
