@@ -7,14 +7,21 @@ export default class UseCached extends Component{
     static contextTypes={
         mount: PropTypes.func,
         debug: PropTypes.bool,
+        getComposer: PropTypes.func,
     }
 
-    static create(el){
-        if(typeof(el)=="object"){
-            const {type, props:{id,...props}}=el
-            return <UseCached __type__={typeof(type)=="string" ? type : type.displayName} {...props} {...{id,key:id}}/>
+    static create(el,getComposer){
+        if(!React.isValidElement(el))
+            return null
+
+        //can't use cache if el has managed frame
+        if(typeof(getComposer)=="function" && 
+            (new ReactQuery(el).findFirst(b=>getComposer(el.props.id)?.props.manager).length==1)){
+            return el
         }
-        return null
+
+        const {type, props:{id,...props}}=el
+        return <UseCached __type__={typeof(type)=="string" ? type : type.displayName} {...props} {...{id,key:id}}/>
     }
 
     constructor({id}){
@@ -28,14 +35,14 @@ export default class UseCached extends Component{
     }
 
     render(){
-        const {children}=this.props
+        const {props:{children},context:{debug, mount, getComposer}}=this
         if(typeof(children)!=="object")
             return null
         
-        if(!this.context.debug){
+        if(!debug){
             new ReactQuery(<div>{children}</div>)
                 .find('id').toArray()
-                .forEach(({props:{id}})=>id && this.context.mount(id))
+                .forEach(({props:{id}})=>id && mount(id))
             return null
         }
 

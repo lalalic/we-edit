@@ -162,6 +162,7 @@ export default class extends Frame{
                     {
                         id:`${this.managed.props.id}.${id}`,
                         variables,
+                        message:`template variable=${id}`,
                     }, 
                     React.cloneElement(replaced,{values:variables})
                 )

@@ -7,6 +7,10 @@ import {ReactQuery, shallowEqual} from "we-edit"
  * To make a frame compose on-demand, such as
  * content with variables
  * autofit frame
+ * 
+ * **AsyncManager can't be unmount since Async may call it to compose in any time**
+ * we can register manager, and don't use Cache for its parents
+ * * avoid registering by checking composer.props.manager
  */
 export default class AsyncManager extends Component{
     static displayName="async-manager"
@@ -53,6 +57,7 @@ export default class AsyncManager extends Component{
                 }
             })
         })();
+        console.debug(`${this.constructor.displayName}[${this.managed.props.id}] created`)
     }
 
     get managed(){
@@ -74,6 +79,11 @@ export default class AsyncManager extends Component{
             this.queue.splice(0,this.queue.length)
         }
         return true
+    }
+
+    componentWillUnmount(){
+        this.queue.length=0
+        this.unmounted=true
     }
 
     getChildContext(){
@@ -111,8 +121,10 @@ export default class AsyncManager extends Component{
                 asyncManaged=this.asyncManagedNext(asyncManaged,asyncer)
                 this.queue.push(Object.assign(()=>{
                     return new Promise((resolve)=>{
+                        asyncer.log(`going to update for ${asyncManaged.props.message}`)
                         this.setState({asyncManaged},()=>{
                             try{
+                                asyncer.log(`composed for for ${asyncManaged.props.message}, and ready to update UI`)
                                 this.asyncManagedDidCompose(
                                     asyncManaged, 
                                     asyncer,
@@ -133,12 +145,14 @@ export default class AsyncManager extends Component{
     asyncManagedDidCompose(asyncManaged, asyncer, composed, updater=()=>({composed})){
         if(asyncer.unmounted)
             return
-        asyncer.setState(updater)
-        const {getComposer, responsible}=asyncer.context
+
+        asyncer.log(`updating UI for for ${asyncManaged.props.message}`)    
+        asyncer.setState(updater,()=>asyncer.log(`updated UI for for ${asyncManaged.props.message}`))
+        const {responsible}=asyncer.context
 
         const {props:{shouldUpdateSelectionStyle=a=>true}, managed:{props:{id}}}=this
         if(shouldUpdateSelectionStyle(asyncer)&&
-            getComposer(responsible.cursor.id)?.closest(a=>a.props.id==id)){
+            responsible?.getComposer(responsible.cursor.id)?.closest(a=>a.props.id==id)){
             responsible.updateSelectionStyle()
         }
     }
@@ -163,13 +177,12 @@ export default class AsyncManager extends Component{
         static contextTypes={
             debug: PropTypes.bool,
             responsible: PropTypes.object,
-            getComposer: PropTypes.func,
         }
 
         constructor(...args){
             super(...args)
-            this.state={}
-            this.log(`creating`)
+            this.state={composed:null}
+            this.log(`created`)
         }
 
         render(){
@@ -182,14 +195,18 @@ export default class AsyncManager extends Component{
         }
 
         componentDidUpdate(lastProps, lastState){
-            if(this.state.composed || shallowEqual(lastState, this.state))
+            if(this.state.composed || shallowEqual(lastState, this.state)){
+                if(this.state.composed){
+                    //this.context.notifyAsync?.()
+                }
                 return
+            }
             this.props.compose(this)
         }
 
         componentWillUnmount(){
             this.unmounted=true
-            this.log(`unmounting with${this.state.composed?"":"out"} composed`)
+            this.log(`unmounted with${this.state.composed?"":"out"} composed`)
         }
 
         log(m){

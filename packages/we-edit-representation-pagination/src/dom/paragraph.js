@@ -1,8 +1,7 @@
 import React from "react"
 import PropTypes from "prop-types"
 
-import {dom, ReactQuery} from "we-edit"
-import memoize from "memoize-one"
+import {dom} from "we-edit"
 
 import Frame from "./frame"
 import {HasParentAndChild,Layout, editable} from "../composable"

@@ -1,4 +1,4 @@
-import React,{Component} from "react"
+import React,{Component, Fragment} from "react"
 import PropTypes from "prop-types"
 import { dom, ReactQuery } from "we-edit"
 import memoize from "memoize-one"
@@ -389,11 +389,11 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 			static contextTypes={
 				responsible: PropTypes.object,
 			}
-			
+
 			constructor(){
 				super(...arguments)
-				this.state={}
 				this.onComposed=this.onComposed.bind(this)
+				this.composedUpdater=React.createRef()
 			}
 
 			getChildContext(){
@@ -406,19 +406,43 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 				}
 			}
 
+			shouldComponentUpdate({hash}){
+				return hash!=this.props.hash
+			}
+
 			render(){
-				const {state:{composed}, props:{children, onComposed, ...props}}=this
-				return composed||<SyncTypeFrame {...props}>{children}</SyncTypeFrame>
+				const {props:{children, onComposed, ...props}}=this
+				return (
+					<Fragment>
+						{[
+							<this.constructor.Updater ref={this.composedUpdater} key="composed"/>,
+							<SyncTypeFrame {...props} key={props.id}>{children}</SyncTypeFrame>
+						]}
+					</Fragment>
+				)
 			}
 
 			componentDidMount(){
 				this.onComposed()
 			}
 
+			componentDidUpdate(){
+				this.onComposed()
+			}
+
 			onComposed(){
-				const {onComposed=a=>a}=this.props
-				const composed=this.frame.createComposed2Parent().props.children
-				this.setState({composed},()=>onComposed(composed, this.context.responsible))
+				if(this.frame && this.composedUpdater.current){
+					const {onComposed=a=>a}=this.props
+					const composed=this.frame.createComposed2Parent().props.children
+					this.composedUpdater.current.setState({composed},()=>onComposed(composed, this.context.responsible))
+				}
+			}
+
+			static Updater=class AsyncUpdater extends Component{
+				state={composed:null}
+				render(){
+					return this.state.composed
+				}
 			}
 		}
 	})

@@ -9,12 +9,12 @@ export class Measure{
 		this.size=size * (vertAlign ? VertAlign_Size : 1);
 		this.hit=0
 
-		const cacheKey=`${this.fontFamily}-${this.size}-${bold}-${italic}`
+		const cacheKey=[this.fontFamily,this.size,bold&&'bold',italic&&'italic'].filter(a=>!!a).join("-")
 		const caches=this.constructor.caches
 		if(caches.has(cacheKey)){
 			const cache=caches.get(cacheKey)
 			cache.hit++
-			console.log(`measure cache[${cacheKey}]: hit ${cache.hit}`)
+			console.debug(`measure cache[${cacheKey}]: hit ${cache.hit}`)
 			return cache
 		}
 

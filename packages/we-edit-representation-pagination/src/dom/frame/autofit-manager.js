@@ -1,5 +1,8 @@
 import React from "react"
 import Manager from "./manager"
+
+const PRECISION=100000 
+
 /**
  * state:
  *      asyncManaged: current try
@@ -24,7 +27,7 @@ export default class extends Manager{
                     const {limit, lastComposed:tried}=this
                     let perfect=tried.find(a=>a.scale==PRECISION && a.height<limit)//not scaled but can hold
                                     ||tried.find(a=>Math.abs(limit-a.height)<3)//almost equals
-                                    ||(new Set(tried.map(a=>a.height)).size<tried.length && tried[tried.length-1])//somehow height not changed when scale changed
+                                    ||(new Set(tried.map(a=>a.height)).size<tried.length-1 && tried[tried.length-1])//somehow height not changed when scale changed
                     if(!perfect){
                         const all=[...tried,{height:limit}].sort((a,b)=>a.height-b.height)
                         const i=all.map(a=>a.height).indexOf(limit)
@@ -41,11 +44,11 @@ export default class extends Manager{
     }
 
     render(){
-        const {props:{children:template},state:{asyncManaged=template}}=this
+        const {props:{children:template, fit},state:{asyncManaged=template}}=this
         const {props:{id,hash,autofit:{fontScale:scale=PRECISION}}}=asyncManaged
         console.debug(`autofit shape[${id}] rendering for scale ${scale}`)
         return (
-            <this.constructor.Context.Provider value={{scale}}>
+            <this.constructor.Context.Provider value={{scale, fitFont:(size,scale)=>Math.floor(size*parseInt(scale)/PRECISION),...fit}}>
                 {React.cloneElement(asyncManaged,{manager:this, allowOverflow:true, hash:`${hash}-${scale}`})}
             </this.constructor.Context.Provider>
         )
@@ -88,6 +91,7 @@ export default class extends Manager{
              */
             asyncManaged=React.cloneElement(asyncManaged, {autofit:{...asyncManaged.props.autofit,fontScale:perfect.scale}})
             this.setState({asyncManaged,perfect},()=>{
+                asyncer.log(`finally perfect for ${asyncManaged.props.message} with scale=${perfect.scale} and height=${perfect.height}`)
                 super.asyncManagedDidCompose(asyncManaged, asyncer, composed, updater)
             })
         }else{
@@ -103,12 +107,10 @@ export default class extends Manager{
         const {limit, current:{scale, height}}=this
         const {props:{autofit}}=asyncManaged
         const fontScale=height>limit ? Math.max(scale-7500, 7500) : Math.min(PRECISION, scale+7500)
-        return React.cloneElement(asyncManaged, {autofit:{...autofit,fontScale}})
+        return React.cloneElement(asyncManaged, {autofit:{...autofit,fontScale},message:`autfit.scale=${fontScale}`})
     }
 
     get current(){
         return ((a=this.lastComposed,{scale,height}=a[a.length-1])=>({scale,height}))()
     }
 }
-
-const PRECISION=100000 
