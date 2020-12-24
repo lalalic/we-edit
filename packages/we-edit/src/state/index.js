@@ -2,7 +2,7 @@ import {createStore as createRawStore, compose, applyMiddleware} from "redux"
 import {connect as _connect, createProvider} from "react-redux"
 import Immutable,{Map} from "immutable"
 import thunk from "redux-thunk"
-import {firstCursorable, getSelectionStyle, getSelection} from "./selector"
+import {firstCursorable, getSelectionStyle, getSelection, getContent} from "./selector"
 
 export function stateSafe(o){
 	return new Proxy(o,{

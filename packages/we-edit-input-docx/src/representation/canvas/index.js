@@ -7,6 +7,7 @@ import {Responsible} from "./base"
 import Reducer from "../../event"
 
 export default class DocxCanvas extends Responsible{
+    static displayName=`docx-${super.displayName}`
     render(){
         const rendered=super.render()
         return React.cloneElement(rendered, {children:[

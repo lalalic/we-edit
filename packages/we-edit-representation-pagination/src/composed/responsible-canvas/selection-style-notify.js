@@ -16,6 +16,6 @@ export default connect(state=>{
     }
 
     componentDidUpdate(){
-        this.props.updateSelectionStyle()
+        this.props.notify()
     }
 })

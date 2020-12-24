@@ -69,7 +69,7 @@ export class Editor extends PureComponent{
 			return <div ref="viewporter" />
 		}
 
-		var {representation, scale, screenBuffer, children:canvas,viewport:_1, ...props}=this.props
+		var {representation, children, canvas=children, viewport:_1, ...props}=this.props
 		if(typeof(representation)=="string"){
 			representation=<Representation type={representation}/>
 		}
@@ -77,7 +77,7 @@ export class Editor extends PureComponent{
 		return React.cloneElement(
 			representation,
 			{domain:this.constructor.domain},
-			this.createDocument({canvasId:this.canvasId, canvasProps:{canvas, scale, screenBuffer,viewport, ...props}})
+			this.createDocument({canvasProps:{...props,id:this.canvasId,viewport,canvas}})
 		)
 	}
 
@@ -213,22 +213,20 @@ export class WeDocumentStub extends Component{
 		return createNode("root")
 	}, (a,b)=>a===b || shallowEqual(a,b) || a?.equals?.(b))
 
-	createDocument=memoize((canvasId, content, canvasProps,ModelTypes)=>{
+	createDocument=memoize((content,canvasProps,ModelTypes)=>{
 		const doc=this.createWeDocument(content,ModelTypes)
 		return React.cloneElement(doc,{
-			canvasId,
-			onContextMenu:e=>this.props.dispatch(ACTION.UI({contextMenuAt:{left:e.clientX+2, top:e.clientY}})),
-			...canvasProps,
-			canvas:canvasProps.canvas,//||defaultCanvas,//default empty canvas to 
+			canvasProps,
 			content,
-			contentHash:content.hashCode(),
+			hash:content.hashCode(),
+			onContextMenu:e=>this.props.dispatch(ACTION.UI({contextMenuAt:{left:e.clientX+2, top:e.clientY}})),
 		})
 	},(a,b)=>a===b || shallowEqual.equals(a,b) || shallowEqual(a,b))
 
 	getDoc(){
 		const {ModelTypes}=this.context
-		const {content, canvasProps, canvasId}=this.props
-		return this.createDocument(canvasId,content,canvasProps,ModelTypes)
+		const {content, canvasProps}=this.props
+		return this.createDocument(content,canvasProps,ModelTypes)
 	}
 
 	render(){

@@ -11,6 +11,7 @@ import DefineShapes from "./define-shapes"
 import SelectionStyle from "./selection-style"
 import Pilcrow from "./pilcrow"
 import SelectionStyleNotify from "./selection-style-notify"
+import ScaleNotify from "./scale-notify"
 
 /**
  * must provide the following 
@@ -56,12 +57,8 @@ class Responsible extends Component{
         responsible: PropTypes.object,
     }
     
-    static getDerivedStateFromProps({document,...me}){
-        const {props:{editable,canvasId,content,contentHash,viewport=me.viewport,screenBuffer=me.screenBuffer,},state:{y=0}}=document
-        return {
-            ...Canvas.getDerivedStateFromProps(...arguments), 
-            editable,canvasId,content,contentHash,viewport,screenBuffer,composed4Y:y
-        }
+    static getDerivedStateFromProps({id:canvasId, viewport, screenBuffer,pageGap,scale, document:{pages, props:{editable,content, precision},state:{y=0}}},state){
+        return {pages, precision, pageGap, scale,editable,canvasId,content,viewport,screenBuffer,composed4Y:y,...state}
     }
 
     constructor(){
@@ -185,7 +182,8 @@ class Responsible extends Component{
                 <DefineShapes/>
                 {children}
 				<Fragment>
-                    <SelectionStyleNotify updateSelectionStyle={this.updateSelectionStyle} hash={document.props.hash}/>
+                    <ScaleNotify notify={scale=>this.setState({scale})}/>
+                    <SelectionStyleNotify notify={this.updateSelectionStyle} hash={document.props.hash}/>
                     <Cursor
                         ref={this.cursorNode}
                         keys={{

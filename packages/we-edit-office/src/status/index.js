@@ -65,7 +65,7 @@ const Words=connect(state=>({...getStatistics(state)}))(({words=0,allComposed})=
 
 const Scale=connect(state=>({current:(getUI(state).scale||1)*100}))(({
 	current,max=200,min=10,step=10,dispatch,
-	onChange=scale=>dispatch(ACTION.UI({scale}))
+	onChange=scale=>dispatch(ACTION.UI({scale:scale/100}))
 	})=>(
 	<div style={{display:"flex"}}>
 		<FlatButton label="-" onClick={()=>onChange(Math.max(current-step,min))}

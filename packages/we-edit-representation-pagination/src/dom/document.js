@@ -1,5 +1,6 @@
 import React, {Fragment} from "react"
 import PropTypes from "prop-types"
+import memoize from "memoize-one"
 
 import {HasChild, Locatable,editable} from "../composable"
 import {dom,getSelection} from "we-edit"
@@ -9,7 +10,7 @@ import Responsible from "../composed/responsible-canvas"
 class Document extends Locatable.Locatorize(HasChild(dom.Document)){
     static propTypes={
         ...super.prototype,
-        canvas: PropTypes.node,
+        canvas: PropTypes.element,
     }
     static defaultProps={
         ...super.defaultProps,
@@ -51,8 +52,14 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
         }
     }
 
+    getCanvasElement=memoize((representationCanvas, uiCanvasProps)=>{
+        const {canvas=representationCanvas, ...props}=uiCanvasProps
+        return canvas && React.cloneElement(canvas, {document:this, ...props})
+    })
+
     render(){
-        const {canvas, children}=this.props
+        const {canvas:representationCanvas, children, canvasProps}=this.props
+        const canvas=this.getCanvasElement(representationCanvas, canvasProps)
         if(!canvas)
             return super.render()
         const {props:{__sequentialCompose=true}}=this
@@ -60,11 +67,11 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
             return (
                 <Fragment>
                     {super.render()}
-                    {canvas && React.cloneElement(canvas, {document:this})}
+                    {canvas}
                 </Fragment>
             )
         }else{
-            return React.cloneElement(canvas, {document:this, children})
+            return React.cloneElment(canvas,{children})
         }
     }
 
@@ -87,8 +94,8 @@ export default class extends editable(Document,{continuable:true}){
         activeDocStore: PropTypes.any,
 	}
 
-	static getDerivedStateFromProps({hash,viewport,editable=true},state){
-		return {viewport,hash, editable, ...(hash!=state.hash && {mode:"content",y:0,composeAll:false})}
+	static getDerivedStateFromProps({hash,editable=true},state){
+		return {hash, editable, ...(hash!=state.hash && {mode:"content",y:0,composeAll:false})}
     }
 
     constructor(){
@@ -155,8 +162,9 @@ export default class extends editable(Document,{continuable:true}){
     }
     
     get canvas(){
-        const {canvas:{type:Type,props}}=this.props
-        const canvas=new Type({...props,document:this})
+        const {canvas:representationCanvas, canvasProps}=this.props
+        const {type:Type,props}=this.getCanvasElement(representationCanvas, canvasProps)
+        const canvas=new Type({...props})
         canvas.state=Type.getDerivedStateFromProps(canvas.props,canvas.state)
         return canvas
     }
