@@ -19,24 +19,3 @@ export default connect(state=>{
         this.props.notify()
     }
 })
-/*
-{
-  type: 'we-edit/selection/SELECTED',
-  payload: {
-    start: {
-      id: '338{ppt/slides/slide1.xml}',
-      at: 67
-    },
-    end: {
-      id: '338{ppt/slides/slide1.xml}',
-      at: 67
-    },
-    page: 0
-  }
-}
-
-{
-    type:"we-edit/text/TYPE",
-    payload:'k'
-}
-*/

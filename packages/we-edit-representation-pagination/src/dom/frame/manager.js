@@ -115,7 +115,7 @@ export default class AsyncManager extends Component{
      * @param {*} asyncProps: aync component props
      */
     createAsyncComposed2Parent(composed, asyncProps, asyncManaged) {
-        const replaceableComposed = []
+        const replaceableComposed = new this.constructor.ObserveableArray(1)
         replaceableComposed[0] = (<this.constructor.Async {...{
             compose:asyncer=>{
                 asyncManaged=this.asyncManagedNext(asyncManaged,asyncer)
@@ -125,10 +125,14 @@ export default class AsyncManager extends Component{
                         this.setState({asyncManaged},()=>{
                             try{
                                 asyncer.log(`composed for for ${asyncManaged.props.message}, and ready to update UI`)
+                                const composed=this.asyncManagedLastComposed(asyncManaged)
+                                if(composed){
+                                    replaceableComposed.set(composed.props.children)
+                                }
                                 this.asyncManagedDidCompose(
                                     asyncManaged, 
                                     asyncer,
-                                    replaceableComposed[0]=this.asyncManagedLastComposed(asyncManaged), 
+                                    composed, 
                                 )
                             }finally{
                                 resolve()
@@ -158,7 +162,7 @@ export default class AsyncManager extends Component{
     }
     //last composed result for asyncManaged
     asyncManagedLastComposed(asyncManaged){
-        return this.lastComposed[this.lastComposed.length-1]
+        return this.lastComposed[this.lastComposed.length-1].props.children
     }
 
     //next asyncManaged to compose
@@ -196,9 +200,6 @@ export default class AsyncManager extends Component{
 
         componentDidUpdate(lastProps, lastState){
             if(this.state.composed || shallowEqual(lastState, this.state)){
-                if(this.state.composed){
-                    //this.context.notifyAsync?.()
-                }
                 return
             }
             this.props.compose(this)
@@ -212,6 +213,20 @@ export default class AsyncManager extends Component{
         log(m){
             if(this.context.debug)
                 console.debug(`[${this.props.id}.async]: ${m}`)
+        }
+    }
+
+    static ObserveableArray=class extends Array{
+        constructor(...args){
+            super(...args)
+            this.isObserveableArray=true
+            const listeners=[]
+            this.subscribe=a=>!listeners.includes(a) && listeners.push(a)
+            this.unsubscribe=a=>{
+                const i=listeners.indexOf(a)
+                i!=-1 && listeners.splice(i,1)
+            }
+            this.set=v=>(this[0]=v) && listeners.forEach(a=>a(v))
         }
     }
 }
