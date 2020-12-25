@@ -63,12 +63,12 @@ const Words=connect(state=>({...getStatistics(state)}))(({words=0,allComposed})=
 ))
 
 
-const Scale=connect(state=>({current:(getUI(state).scale||1)*100}))(({
-	current,max=200,min=10,step=10,dispatch,
+const Scale=connect(state=>({current:parseInt((getUI(state).scale||1)*100)}))(({
+	current,max=200,min=10,step=10,dispatch, round=a=>Math.floor(a/10)*10,
 	onChange=scale=>dispatch(ACTION.UI({scale:scale/100}))
 	})=>(
 	<div style={{display:"flex"}}>
-		<FlatButton label="-" onClick={()=>onChange(Math.max(current-step,min))}
+		<FlatButton label="-" onClick={()=>onChange(Math.max(round(current-step),min))}
 			style={{...CompactButtonStyle}}
 			labelStyle={{fontSize:20, fontWeight:700,paddingRight:4,paddingLeft:4}}/>
 		<Slider style={{width:100, display:"inline-block"}}
@@ -77,7 +77,7 @@ const Scale=connect(state=>({current:(getUI(state).scale||1)*100}))(({
 			onChange={(e,newValue)=>onChange(newValue)}
 			value={current} min={min} max={max}
 			/>
-		<FlatButton label="+" onClick={()=>onChange(Math.min(current+step,max))}
+		<FlatButton label="+" onClick={()=>onChange(Math.min(round(current+step),max))}
 			style={{...CompactButtonStyle}}
 			labelStyle={{fontSize:18, fontWeight:700,paddingRight:4,paddingLeft:4}}/>
 		<FlatButton label={`${current}%`}

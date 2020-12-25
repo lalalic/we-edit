@@ -57,8 +57,8 @@ class Responsible extends Component{
         responsible: PropTypes.object,
     }
     
-    static getDerivedStateFromProps({viewport, screenBuffer,pageGap,scale, document:{pages, props:{editable,content, precision},state:{y=0}}},state){
-        return {pages, precision, pageGap, scale,editable,content,viewport,screenBuffer,composed4Y:y,...state}
+    static getDerivedStateFromProps({viewport, screenBuffer,pageGap,scale, document:{pages, props:{editable,content, precision},state:{y=0}}}){
+        return {pages, precision, pageGap, scale,editable,content,viewport,screenBuffer,composed4Y:y}
     }
 
     constructor(){
@@ -183,7 +183,6 @@ class Responsible extends Component{
                 <DefineShapes/>
                 {children}
 				<Fragment>
-                    <ScaleNotify notify={scale=>this.setState({scale})} scale={scale}/>
                     <SelectionStyleNotify notify={this.updateSelectionStyle} hash={document.props.hash}/>
                     <Cursor onKeyDown={e=>onKeyDown(e)}
                         ref={this.cursorNode}
@@ -212,24 +211,9 @@ class Responsible extends Component{
         this.cursorNode.current.input.current.focus()
     }
 
-    __statistics(){
-        const {props:{document}}=this
-        this.dispatch(ACTION.Statistics({
-			pages:this.pages.length,
-			allComposed:document.isAllChildrenComposed(),
-            words: document.words,
-            composerID: `${document.props.hash}_${document.computed.composedUUID}`,
-		}))
-    }
-
-    componentDidUpdate(){
-        this.__statistics()
-    }
-
     componentDidMount(){
         this.active()
         window.addEventListener("resize",this.onViewportChange)
-        this.componentDidUpdate()
     }
 
     componentWillUnmount(){

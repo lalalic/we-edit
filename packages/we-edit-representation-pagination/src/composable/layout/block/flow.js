@@ -399,8 +399,6 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 			getChildContext(){
 				return {
 					parent:{appendComposed:frame=>this.frame=frame,},
-					mount:a=>null,
-					getComposer:a=>null ,
 					shouldContinueCompose: a=>true,
 					...this.props.childContext,
 				}

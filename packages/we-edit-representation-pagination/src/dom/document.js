@@ -1,9 +1,8 @@
 import React, {Fragment} from "react"
 import PropTypes from "prop-types"
-import memoize from "memoize-one"
 
 import {HasChild, Locatable,editable} from "../composable"
-import {dom,getSelection} from "we-edit"
+import {dom,getSelection,ACTION} from "we-edit"
 import {Canvas} from "../composed"
 import Responsible from "../composed/responsible-canvas"
 
@@ -65,7 +64,7 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
                 </Fragment>
             )
         }else{
-            return React.cloneElment(canvas,{children, document:this})
+            return React.cloneElement(canvas,{children, document:this})
         }
     }
 
@@ -73,6 +72,25 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
         if(this.computed.composed.indexOf(page)==-1){
             this.computed.composed.push(page)
         }
+    }
+
+    componentDidUpdate(){
+        super.componentDidUpdate?.(...arguments)
+        this.__statistics()
+    }
+
+    componentDidMount(){
+        super.componentDidMount?.(...arguments)
+        this.__statistics()
+    }
+
+    __statistics(){
+        this.context.activeDocStore?.dispatch(ACTION.Statistics({
+			pages:this.pages.length,
+			allComposed:this.isAllChildrenComposed(),
+            words: this.words,
+            composerID: `${this.props.hash}_${this.computed.composedUUID}`,
+		}))
     }
 }
 
