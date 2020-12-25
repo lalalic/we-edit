@@ -4,11 +4,13 @@ import PropTypes from "prop-types"
 import memoize from "memoize-one"
 import {dom} from "we-edit"
 import ComposedAllTrigger from "./composed-all-trigger"
+import Interseptor from "./interseptor"
 export default A=>{
     if(A.already)
         return A
     return class __$1 extends A{
         static displayName=`pageable-${A.displayName}`
+        static Interseptor=Interseptor
         static already=function(capable){
             return dom.Unknown.support.call(this,...arguments)
         }

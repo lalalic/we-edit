@@ -2,6 +2,7 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 import {ReactQuery, shallowEqual} from "we-edit"
+import Interseptor from "../../composable/interseptor"
 
 /**
  * To make a frame compose on-demand, such as
@@ -12,15 +13,15 @@ import {ReactQuery, shallowEqual} from "we-edit"
  * we can register manager, and don't use Cache for its parents
  * * avoid registering by checking composer.props.manager
  */
-export default class AsyncManager extends Component{
+export default class AsyncManager extends Interseptor{
     static displayName="async-manager"
     static childContextTypes={
-        parent: PropTypes.object,
+        ...super.childContextTypes,
         shouldContinueCompose: PropTypes.func,
     }
 
     static contextTypes={
-        parent: PropTypes.object,
+        ...super.contextTypes,
         debug: PropTypes.bool,
         getComposer: PropTypes.func,
     }
@@ -32,9 +33,7 @@ export default class AsyncManager extends Component{
     constructor(){
         super(...arguments)
         this.state={}
-        this.lastComposed=[]
-        this.appendComposed=this.appendComposed.bind(this)
-
+        
         this.queue=(()=>{
             const queue=[]
             let current=null
@@ -88,10 +87,8 @@ export default class AsyncManager extends Component{
 
     getChildContext(){
         return {
+            ...super.getChildContext(),
             shouldContinueCompose:a=>true,
-            parent:new Proxy(this.context.parent,{
-                get:(parent, k, proxy)=>k=="appendComposed" ? this.appendComposed : Reflect.get(parent,k,proxy)
-            }),
         }
     }
 
