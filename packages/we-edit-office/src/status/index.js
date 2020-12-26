@@ -31,17 +31,18 @@ const Status=compose(
 	getContext({
 		muiTheme: PropTypes.object,
 	}),
-	mapProps(({muiTheme,channel,style})=>(
-		{channel,style,height:muiTheme.button.height}
+	mapProps(({muiTheme,channel,style,page, words, scale,children})=>(
+		{channel,style,height:muiTheme.button.height,page, words, scale,children}
 	)),
 	onlyUpdateForKeys(['height','channel'])
-)(({height, channel, style})=>(
-	<div style={{...RootStyle,height,...style}}>
-		<Page/>
-		<Words/>
+)(({height, channel, style, children, page=<Page/>, words=<Words/>, scale=<Scale/>})=>(
+	<div style={{...RootStyle,height,...style}} id="status">
+		{page}
+		{words}
+		{children}
 		<div style={{flex:"1 100%"}}/>
 		{channel.items.length<2 ? null : <Channel height={height} {...channel}/>}
-		<Scale/>
+		{scale}
 	</div>
 ))
 
@@ -67,7 +68,7 @@ const Scale=connect(state=>({current:parseInt((getUI(state).scale||1)*100)}))(({
 	current,max=200,min=10,step=10,dispatch, round=a=>Math.floor(a/10)*10,
 	onChange=scale=>dispatch(ACTION.UI({scale:scale/100}))
 	})=>(
-	<div style={{display:"flex"}}>
+	<div style={{display:"flex"}} id="scale">
 		<FlatButton label="-" onClick={()=>onChange(Math.max(round(current-step),min))}
 			style={{...CompactButtonStyle}}
 			labelStyle={{fontSize:20, fontWeight:700,paddingRight:4,paddingLeft:4}}/>

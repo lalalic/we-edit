@@ -214,7 +214,7 @@ const Channels=connect((state,props)=>({channel:getOffice(state).channel||props.
 			}
 
 			return (
-				<div style={rootStyle} key={channel}>
+				<div style={rootStyle} key={channel} className="workspace">
 					{toolBar}
 
 					{layout ? React.cloneElement(layout, {canvas, children:layout.props.children||canvas}) : canvas}
