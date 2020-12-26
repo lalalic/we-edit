@@ -92,7 +92,7 @@ describe("we-edit integration", function(){
 			})
 		})
 
-		it("html",()=>{
+		fit("html",()=>{
 			const html=[]
 			return render(template("html",{
 				write(chunk,encoding,cb){
