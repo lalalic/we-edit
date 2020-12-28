@@ -6,6 +6,7 @@ import {Divider} from "material-ui"
 
 import Field from "./field"
 import TOC from "./toc"
+import TOA from "./toa"
 import * as DocxTabs from "./tabs"
 
 import Canvas from "../representation/canvas"
@@ -30,6 +31,8 @@ export default (
                     <Fragment>
                         <Field/>
                         <TOC/>
+                        <Ribbon.ToolbarSeparator/>
+                        <TOA/>
                       {/*  
                         <Links/>
                         <PageNumber/>

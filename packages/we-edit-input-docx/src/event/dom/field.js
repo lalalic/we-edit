@@ -52,7 +52,7 @@ export default class Complex extends Base{
     static Simple=class Simple extends Complex{
         template(instr, value=""){
             return `
-                <w:fldSimple w:instr="${instr}">
+                <w:fldSimple w:instr='${instr}'>
                     <w:r>
                         <w:t xml:space="preserve">${value}</w:t>
                     </w:r>

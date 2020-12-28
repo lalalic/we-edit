@@ -4,7 +4,7 @@ export default class Field{
     static create(instr){
         const [field, ...formats]=instr.trim().split("\\")
         const [command,...parameters]=field.split(/\s+/g)
-        const Type=Field[command]||Field
+        const Type=Field['_'+command]||Field
         return new Type(command,parameters.map(a=>a.trim()),formats.map(a=>a.trim()))
     }
 
@@ -217,7 +217,57 @@ export default class Field{
     //document automation - COMPARE, DOCVARIABLE, GOTOBUTTON, IF, MACROBUTTON, PRINT
     //equations and formulas - =formula, ADVANCE, SYMBOL
     //form fields - FORMCHECKBOX, FORMDROPDOWN, FORMTEXT
-    //index and tables - INDEX, RD (identifies a file to include when creating a table of contents, table of authorities, or an index), TA (text and page number for a table of authorities entry), TC (text and page number for a table of contents entry), TOC (table of contents), XE (text and page number for an index entry)
+    //index and tables - INDEX, RD (identifies a file to include when creating a table of contents, table of authorities, or an index), 
+    TA(context){
+        /**category: index and tables */
+        /**desc: text and page number for a table of authorities entry  */
+        /**formula: [Switches]*/
+        /**switches:b: makes the page number for the field bold*/
+        /**switches:c: defines the category number for the field*/
+        /**switches:i: makes the page number for the field italic*/
+        /**switches:l: defines the long citation for the field in the table of authorities*/
+        /**switches:r: includes the bookmark's range in the page number for the field*/
+        /**switches:s: defines the short citation that editor displays in the Mark Citation dialog box*/
+
+    }
+    TOA(context){
+        /**category: index and tables */
+        /**desc: create a table of authorities  */
+        /**formula: [Switches]*/
+        /**switches:b: creates a table of authorities for the part of the document marked by the bookmark*/
+        /**switches:c: creates a table of authorities for the entries with the specified category number*/
+        /**switches:d: with the \s switch, defines the separator between sequence and page numbers */
+        /**switches:e: defines the separator characters used between the table entry and its page number*/
+        /**switches:f: removes the fomatting applied to the entries in the document*/
+        /**switches:g: defines the separator characters used in a page range*/
+        /**switches:h: includes the category headings for the entries in a table of authorities*/
+        /**switches:l: defines the separators between page numbers for multi-page references */
+        /**switches:p: replaces 5 or more different page references to the same authority with "passim" */
+        /**switches:s: includes the referenced sequence number with the page number*/
+    }
+    TOC(context){
+        /**category: index and tables */
+        /**desc: create a table of contents  */
+        /**formula: [Switches]*/
+        /**switches:a: builds a table of figures but doesn't include the caption's label and number*/
+        /**switches:b: uses a bookmark to specify area of document from which to build table of contents*/
+        /**switches:c: builds a table of figures of the given label*/
+        /**switches:d: defines the separator between sequence and page numbers*/
+        /**switches:f: builds a table of contents by using TC entries instead of outline levels*/
+        /**switches:h: hyperlinks the entries and page numbers within the table of contents*/
+        /**switches:l: defines the TC entries field level used to build a table of contents*/
+        /**switches:n: builds a table of contents or a range of entries, such as "1-9", in a table of contents without page numbers*/
+        /**switches:o: builds a table of contents by using outline levels instead of TC entries*/
+        /**switches:p: defines the separator between the table entry and its page number*/
+        /**switches:s: builds a table of contents by using a sequence type*/
+        /**switches:t: builds a table of contents by using style names other than the standard outline styles*/
+        /**switches:u: builds a table of contents by using the applied paragraph outline level*/
+        /**switches:w: preserve tab characters within table entries*/
+        /**switches:x: preserve newline characters within table entries*/
+        /**switches:z: hides page numbers within the table of contents when shown in Web Layout View*/
+    }
+
+    //TC (text and page number for a table of contents entry), XE (text and page number for an index entry)
     //links and references - AUTOTEXT, AUTOTEXTLIST, BIBLIOGRAPHY, CITATION, HYPERLINK, INCLUDEPICTURE, INCLUDETEXT, LINK, NOTEREF, PAGEREF, QUOTE, REF, STYLEREF
     //mail merge - ADDRESSBLOCK, ASK, COMPARE, DATABASE, FILLIN, GREETINGLINE, IF, MERGEFIELD, MERGEREC, MERGESEQ, NEXT, NEXTIF,SET, SKIPIF
     //numbering - LISTNUM, 
@@ -246,7 +296,7 @@ export default class Field{
         const {composed=[]}=topFrame.context.parent.computed
         return composed.length
     }// SEQ
-    static TOC=class extends this{
+    static _TOC=class extends this{
         constructor(...args){
             super(...args)
             this.formats.forEach(a=>{

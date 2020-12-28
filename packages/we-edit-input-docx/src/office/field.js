@@ -69,6 +69,7 @@ class BuildField extends Component{
             if(value.indexOf("\* MERGEFORMAT")!=-1){
                 this.state.value=value.replace("\\* MERGEFORMAT","")  
             }else{
+                this.state.value=value
                 this.state.preserve=false
             }  
         } 
