@@ -2,7 +2,7 @@ import React from "react"
 
 import {compose,setDisplayName,withProps} from "recompose"
 
-import {ACTION, whenSelectionChangeDiscardable,connect, getUI} from "we-edit"
+import {ACTION, whenSelectionChange,connect, getUI} from "we-edit"
 
 import HorizontalRuler from "./horizontal"
 import VerticalRuler from "./vertical"
@@ -10,7 +10,7 @@ import VerticalRuler from "./vertical"
 
 export default compose(
 	setDisplayName("Ruler"),
-	whenSelectionChangeDiscardable(),
+	whenSelectionChange(),
 	withProps(({dispatch})=>({
 		setLeftMargin(left){
 			dispatch(ACTION.Selection.UPDATE({section:{pgMar:{left}}}))
@@ -34,29 +34,29 @@ export default compose(
 			dispatch(ACTION.Selection.UPDATE({paragraph:{indent:{right}}}))
 		},
 	})),
-	withProps(({selection})=>{
+	connect((state)=>{
+		const {scale=1}=getUI(state)
+		return {scale}
+	}),
+	withProps(({selection,scale})=>{
 		const {
 				width,height,
 				margin:{
 					left:leftMargin,top:topMargin,right:rightMargin,bottom:bottomMargin,
 					header,footer,
 				}={},
-				cols=[{x:leftMargin,width:width-leftMargin-rightMargin}]
+				cols=[],
 			}=(selection?.props("layout")||{})
 
-		const {indent:{left:leftIndent,right:rightIndent,firstLine}={}}=(selection?.props("paragraph",false)||{})
-		const {pageY}=selection?.props("page",false)||{}
+		const {indent:{left:leftIndent=0,right:rightIndent=0,firstLine=0}={}}=(selection?.props("paragraph",false)||{})
+		const {pageY=0, column}=selection?.props("page",false)||{}
 
 		return {
 			width,height,leftMargin,topMargin,bottomMargin,rightMargin,leftIndent,rightIndent,firstLine,
-			cols,
+			cols,column,
 			header,footer,
-			pageY,
+			pageY:scale*pageY,
 		}
-	}),
-	connect((state,{pageY=0})=>{
-		const {scale=1}=getUI(state)
-		return {scale, pageY:scale*pageY}
 	}),
 )(({direction, pageY, ...props})=>(	
 	direction=="vertical" ? 

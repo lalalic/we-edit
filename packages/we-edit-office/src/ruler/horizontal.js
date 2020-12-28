@@ -4,8 +4,8 @@ import {SvgIcon} from "material-ui"
 
 import Movable from "../components/movable"
 
-export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,leftIndent,cm,step".split(","))((
-	{width=0,scale=1,
+export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,leftIndent,cm,step,cols,column".split(","))((
+	{width=0,scale=1,cols=[], column,
 	leftMargin=3, rightMargin=3, setLeftMargin, setRightMargin,
 	firstLine=0, leftIndent=0, rightIndent=0, setFirstLine, setLeftIndent, setRightIndent,
 	cm=scale*96/2.54, step=cm/8, trim=(x,dx)=>Math[dx>0 ? 'ceil' : 'floor']((x+dx)/step)*step,
@@ -14,48 +14,72 @@ export default onlyUpdateForKeys("width,scale,leftMargin,rightMargin,firstLine,l
 		let fl=null
 		return (
 			<div className="ruler horizontal" style={{width:width*scale,position:"relative"}}>
-				<Scale {...{width:width*scale,from:leftMargin*scale,cm, children}}/>
+				<Scale {...{width:width*scale,from:leftMargin*scale,cm, children}}>
+					{cols && (()=>{
+							const all=cols.map(({x,width},i)=>[<ColStart x={x} key={i+"0"}/>,<ColEnd x={x+width} key={i+"1"}/>]).flat()
+							all.pop(), all.shift()
+							return all.map((a,i)=>{
+								if(i%2==0) {
+									const b=all[i+1]
+									return [
+										<rect {...{key:i+"2",y:0,height:20,x:a.props.x-2,width:b.props.x-a.props.x+4,fill:"lightgray"}}/>,
+										a
+									]
+								}
+								return a
+							}).flat()
+							
+						})()
+					}
+					<Margin {...{y:0,x:0,width:leftMargin*scale,height:20,fillOpacity:0.6}} onMove={setLeftMargin}/>
 
-				{!!width && (<Margin style={{position:"absolute", top:0,left:0,width:leftMargin*scale}} onMove={setLeftMargin}/>)}
-
-				{!!width && (<Movable ref={a=>fl=a}
-					onAccept={dx=>setFirstLine((trim((leftIndent+firstLine)*scale,dx)-leftIndent*scale)/scale)}
-					onMove={dx=>({style:{position:"absolute", top:0,left:leftMargin*scale+trim((leftIndent+firstLine)*scale,dx)}})}
-					>
-					<FirstLine style={{position:"absolute", top:0,left:(leftMargin+leftIndent+firstLine)*scale}}/>
-				</Movable>)}
-
-				{!!width && (<Movable
-					onAccept={dx=>{
-						fl.setState({move:false})
-						setLeftIndent(trim(leftIndent*scale,dx)/scale)
-					}}
-					onMove={dx=>{
-						fl.setState({move:true,x0:0,y0:0,x:dx,y:0})
-						return {style:{position:"absolute", top:0,left:leftMargin*scale+trim(leftIndent*scale,dx)}}
-					}}
-					>
-					<Indent style={{position:"absolute", top:0,left:(leftMargin+leftIndent)*scale}}/>
-				</Movable>)}
-
-				{!!width && (<Margin style={{position:"absolute", top:0,right:0,width:rightMargin*scale}} onMove={setRightMargin}/>)}
-
-				{!!width && (<Movable
-					onAccept={dx=>setRightIndent(trim(rightIndent*scale,-dx)/scale)}
-					onMove={dx=>({style:{position:"absolute", top:0,right:rightMargin*scale+trim(rightIndent*scale,-dx)}})}
-					>
-					<Indent style={{position:"absolute", top:0,right:(rightMargin+rightIndent)*scale}}/>
-				</Movable>)}
+					<Margin {...{y:0,x:(width-rightMargin)*scale,width:rightMargin*scale,height:20,fillOpacity:0.6}} onMove={setRightMargin}/>
+				</Scale>
+				{
+					((leftMargin, rightMargin, col=cols[column])=>{
+						if(!width)
+							return null
+						if(col){
+							leftMargin=col.x
+							rightMargin=width-col.x-col.width
+						}
+						return [
+							<Movable ref={a=>fl=a} key="first"
+								onAccept={dx=>setFirstLine((trim((leftIndent+firstLine)*scale,dx)-leftIndent*scale)/scale)}
+								onMove={dx=>({style:{position:"absolute", top:0,left:leftMargin*scale+trim((leftIndent+firstLine)*scale,dx)}})}
+								>
+								<FirstLine style={{position:"absolute", top:0,left:(leftMargin+leftIndent+firstLine)*scale}}/>
+							</Movable>,
+							<Movable key="left"
+								onAccept={dx=>{
+									fl.setState({move:false})
+									setLeftIndent(trim(leftIndent*scale,dx)/scale)
+								}}
+								onMove={dx=>{
+									fl.setState({move:true,x0:0,y0:0,x:dx,y:0})
+									return {style:{position:"absolute", top:0,left:leftMargin*scale+trim(leftIndent*scale,dx)}}
+								}}
+								>
+								<Indent style={{position:"absolute", top:0,left:(leftMargin+leftIndent)*scale}}/>
+							</Movable>,
+							
+							<Movable key="right"
+								onAccept={dx=>setRightIndent(trim(rightIndent*scale,-dx)/scale)}
+								onMove={dx=>({style:{position:"absolute", top:0,right:rightMargin*scale+trim(rightIndent*scale,-dx)}})}
+								>
+								<Indent style={{position:"absolute", top:0,right:(rightMargin+rightIndent)*scale}}/>
+							</Movable>
+						]
+					})(leftMargin,rightMargin)
+				}
 			</div>
 		)
 })
 
 const AT=(style,keys=Object.keys(style))=>"left,right".split(",").find(a=>keys.includes(a))
 
-const Margin=({style, onMove, at=AT(style)})=>(
-	<div className={`margin ${at}`} style={style} title={`${at} Margin`}>
-		<div className="mover"/>
-	</div>
+const Margin=({onMove,...props})=>(
+	<rect {...props}/>
 )
 
 const Indent=({style,at=AT(style), ...props})=>(
@@ -80,6 +104,9 @@ const Marker=({direction="top",degs={bottom:180}, ...props})=>(
 const Scale=({width,height=20,from,cm, children})=>(
 	<svg style={{width:width,height,backgroundColor:"white"}}
 		viewBox={`0 0 ${width} ${height}`} >
+		<symbol id="marker" viewBox="0 0 60 60">
+			<path d="M11.5 0 L23 11.5 L23 23 L0 23 L0 11.5Z" fill="white" strokeWidth="1" stroke="gray"/>
+		</symbol>
 		<g transform={`translate(${from} 0)`}>
 		{
 			new Array(Math.ceil(from/cm)).fill(0)
@@ -106,3 +133,9 @@ const CM=({i,cm,nth=Math.abs(i+1)})=>(
 		{nth!=0 ? <text x={cm} y={13} textAnchor="middle">{nth}</text> : null}
 	</g>
 )
+
+const ColStart=({x})=>(
+	<rect {...{x:x-1,width:3,height:8,y:6, fill:"white",stroke:"black",cursor:"ew-resize"}}/>
+)
+
+const ColEnd=ColStart

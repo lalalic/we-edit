@@ -23,7 +23,7 @@ export default class DocxCanvas extends Responsible{
         if(document.state.composeAll && document.tocNeedPage()){
             this.dispatch(ACTION.Entity.UPDATE({document:{numpages:{canvas:stateSafe(this)}},id:'root'}))
         }
-        super.componentDidUpdate(...arguments)
+        super.componentDidUpdate?.(...arguments)
     }
 
     static SelectionStyle=class extends Responsible.SelectionStyle{

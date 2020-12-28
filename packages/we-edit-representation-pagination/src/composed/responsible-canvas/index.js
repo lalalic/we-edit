@@ -153,13 +153,13 @@ class Responsible extends Component{
     }
 
     render(){
-        const {props:{children,document, onKeyDown=e=>e, onContextMenu=e=>e}, state:{editable=true,scale,pageGap,pages,precision}}=this
+        const {props:{style, children,document, onKeyDown=e=>e, onContextMenu=e=>e}, state:{editable=true,scale,pageGap,pages,precision}}=this
         const noCursor=editable && editable.cursor===false
         const eventHandlers=!noCursor ? this.eventHandlers  : {}
         const {Canvas, ComposeMoreTrigger}=this.constructor
         return (
             <Canvas 
-                {...{scale,pageGap,pages,precision,document,paper:true, id:this.id}}
+                {...{style,scale,pageGap,pages,precision,document,paper:true, id:this.id}}
                 {...eventHandlers}>
                 <ComposeMoreTrigger
                     getComposedY={()=>this.__composedY()}
