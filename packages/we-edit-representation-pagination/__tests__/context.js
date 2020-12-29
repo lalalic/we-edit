@@ -5,7 +5,9 @@ import TestRender from "react-test-renderer"
 import ReactDOMServer from 'react-dom/server'
 import cheerio from "cheerio"
 import ReactDOM from 'react-dom'
+import * as selector from "../../we-edit/src/state/selector"
 
+selector.getWorkers=jest.fn(()=>[])
 ReactDOM.createPortal = jest.fn(node => node)
 
 export const provider=(A,Default={})=>withContext(A.contextTypes,({context})=>({...Default,...context}))(({children})=><Fragment>{children}</Fragment>)
