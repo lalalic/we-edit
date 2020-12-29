@@ -1,11 +1,9 @@
-jest.mock("../../src/office",()=>jest.fn())
-
 import React,{Component} from "react"
 import PropTypes from "prop-types"
 import {dom, ReactQuery, render} from "we-edit"
 import {withContext} from "recompose"
 import {Editors, Viewers} from "we-edit-representation-pagination"
-import Docx from "../../src"
+import Docx from "../../src/type"
 import Style from "../../src/render/styles"
 
 class Measure{
