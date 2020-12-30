@@ -1,5 +1,3 @@
-jest.mock("../packages/we-edit-input-docx/src/office",()=>jest.fn())
-
 import React from "react"
 import {Loader, Emitter, Stream, render, Editor, Viewer} from "we-edit"
 
@@ -9,7 +7,7 @@ import Text from "we-edit-representation-text"
 
 
 import File from "we-edit-loader-stream-file"
-import iDocx from "we-edit-input-docx"
+import iDocx from "we-edit-input-docx/type"
 
 import TestRenderer from 'react-test-renderer'
 
