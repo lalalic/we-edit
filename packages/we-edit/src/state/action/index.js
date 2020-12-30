@@ -63,6 +63,13 @@ export const Statistics=stat=>({type:"we-edit/statistics",payload:stat})
 
 export const Refresh=()=>({type:"we-edit/refresh"})
 
+export const Workers={
+	SELECT: payload=>({type:"we-edit/workers/selection",payload}),
+	REMOVE:	id=>({type:"we-edit/workers/remove",payload:{id}}),
+	PUSH:	payload=>({type:"we-edit/workers/push",payload}),
+	MERGE: 	payload=>({action:"we-edit/workers/merge",payload}),
+}
+
 export const ACTION={Cursor, Text, Selection,Entity,History,Statistics, Refresh,UI, Content}
 
 export default ACTION

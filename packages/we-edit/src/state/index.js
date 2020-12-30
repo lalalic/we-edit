@@ -40,6 +40,11 @@ export function createState(doc, content){
 		statistics:{},
 		undos:[],
 		redos:[],
+		workers:[
+			{name:'Midas', id:'1', selection:{start:{id:"45{word/document.xml}", at:1},end:{id:"45{word/document.xml}",at:10}}},
+			{name:"Julio", id:"2", selection:{start:{id:"48{word/document.xml}", at:2},end:{id:"48{word/document.xml}",at:20}}},
+			{name:"Paul",  id:"3", selection:{start:{id:"45{word/document.xml}", at:20},end:{id:"45{word/document.xml}",at:20}}}
+		],
 	})
 }
 

@@ -293,5 +293,15 @@ export default class Reducer{
         if(typed.length>0){
             this.selectWhole(typed.attr('id'))
         }
-    }
+	}
+	
+	//merge remote to local
+	merge(){
+
+	}
+
+	//push local to remote
+	push(){
+
+	}
 }

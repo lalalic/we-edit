@@ -15,7 +15,7 @@ import uuid from "../tools/uuid"
 import ContextProvider from "./context-provider"
 
 export default function buildDoc(doc,inputTypeInstance){
-	const id=uuid()
+	const id=doc.id || uuid()
 	const transform=inputTypeInstance.transform.bind(inputTypeInstance)
 	const TypedComponents=transform(Dom)
 
@@ -33,6 +33,7 @@ export default function buildDoc(doc,inputTypeInstance){
 			state=_reducer(state,action)
 			state=state.set("statistics", reducer.statistics(state.get("statistics"),action))
 			state=state.set("ui", reducer.ui(state.get("ui"),action))
+			state=state.set('workers',reducer.workers(state.get("workers"),action))
 			return extendReducer(state,action)
 		}
 	}

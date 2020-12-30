@@ -3,8 +3,8 @@ import PropTypes from "prop-types"
 import {ACTION, Cursor, Selection,ContentQuery, getSelection} from "we-edit"
 
 import Canvas from "../canvas"
-import SelectionShape from "./selection-shape"
-import CursorShape from "./cursor-shape"
+import {SelectionShape,WorkerSelection} from "./selection-shape"
+import {CursorShape, WorkerCursor} from "./cursor-shape"
 import Positioning from "./positioning"
 import ComposeMoreTrigger from "./compose-more-trigger"
 import DefineShapes from "./define-shapes"
@@ -184,7 +184,9 @@ class Responsible extends Component{
                 {children}
 				<Fragment>
                     <SelectionStyleNotify notify={this.updateSelectionStyle} hash={document.props.hash}/>
-                    <Cursor onKeyDown={e=>onKeyDown(e)}
+                    <Cursor 
+                        workerShape={<WorkerCursor/>}
+                        onKeyDown={e=>onKeyDown(e)}
                         ref={this.cursorNode}
                         keys={{
                             37:e=>this.onKeyArrowLeft(e),//move left
@@ -194,7 +196,9 @@ class Responsible extends Component{
                         }}>
                         <CursorShape/>
                     </Cursor>
-                    <Selection onContextMenu={e=>{
+                    <Selection 
+                        workerShape={<WorkerSelection/>}
+                        onContextMenu={e=>{
                             e.stopPropagation()
                             e.preventDefault()
                             delete this.__mouseDownFlag.selected

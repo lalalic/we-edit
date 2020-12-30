@@ -244,6 +244,12 @@ export class Editable extends Viewable{
 				const {start, end, page}=selection(getSelection(state),action)
 				reducer.cursorAt(start.id, start.at, end.id, end.at, page)
 				break
+			case "we-edit/workers/merge":
+				reducer.merge(payload)
+				break
+			case "we-edit/workers/push":
+				reducer.push(payload)
+				break
 			default:
 				return true
 		}

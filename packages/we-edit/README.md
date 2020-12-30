@@ -213,3 +213,11 @@ Loader load input file by Stream, convert it to redux store, create representati
 			* when select/cursor, don't fix
 		* reducer should need ordered start/end, fix start/end==> upper/lower
 		* *Base Reducer is responsible for ordering start/end, and restore it when output state, so API is simpler and make start/end meaningful*
+### corperation ready
+* state.workers: [{id,name, selection}]
+* actions
+	* SELECT
+	* dispatch: change event to remote,which should be customized by client
+	* merge: remote change to local, which should be customized by local reducer
+		* we-edit/content/async: is responsible for async loading content and render, could it be used to push remote change?!!
+* process: load->create session with docid(as local doc id)

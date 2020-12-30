@@ -1,8 +1,8 @@
 import React,{Component} from "react"
 import PropTypes from "prop-types"
-import {whenSelectionChange} from "we-edit"
+import {whenSelectionChange, whenSelectionChangeDiscardable} from "we-edit"
 
-export default whenSelectionChange()(
+export const CursorShape=whenSelectionChange()(
     class CursorShape extends Component{
         static contextTypes={
             precision: PropTypes.number
@@ -36,6 +36,24 @@ export default whenSelectionChange()(
                     }
                 }
             }
+        }
+    }
+)
+
+export const WorkerCursor=whenSelectionChangeDiscardable()(
+    class WorkerCursor extends Component{
+        static contextTypes={
+            precision: PropTypes.number,
+        }
+        render(){
+            const {props:{name,selection, start,end,dispatch, ...props}, context:{ precision}}=this
+            const {x=0,y=0,height=0}=(end?.id && start?.id==end.id && start.at==end.at) && selection?.positioning.position(end) || {}
+            return (
+                <g {...props}>
+                    <text {...{x,y,fontFamily:"Arial",fontSize:10}}>{name}</text>
+                    <path d={`M${x} ${y} v${height}`} strokeWidth={1*precision}/>
+                </g>
+            )
         }
     }
 )

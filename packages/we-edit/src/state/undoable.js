@@ -1,4 +1,5 @@
-import {getSelection, getRedos, getUndos} from "./selector"
+import { Workers } from "./action"
+import {getRedos, getUndos} from "./selector"
 
 export const ACTION={
 	undo:entry=>{
@@ -63,6 +64,9 @@ export default function undoable(reducer){
 					toJSON:()=>action.type
 				}
 				const changedState=reducer(state,action,entry)
+				if(!state.equals(changedState)){
+					Workers.PUSH({entry, state, changedState})
+				}
 				if(!changedState.get("content").equals(state.get("content"))){
 					if(action.type==='we-edit/content/sync'){
 						//@TODO: to merge change to each redos and undos' content

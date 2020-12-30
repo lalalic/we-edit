@@ -37,6 +37,23 @@ module.exports=(env,args)=>{
 					{ loader: 'css-loader', options: { importLoaders: 1 } },
 					'less-loader'
 				]
+			},{
+				test:/dom-serializer\/index\.js$/,
+				loader:"string-replace-loader",
+				options:{
+					search:/function\s+formatAttrs\(/,
+					replace:`
+					function formatAttrs(attribs, opt){
+						if(!attribs)
+							return 
+						const out=_formatAttrs(...arguments)
+						if(opt.xxid && attribs.xxid){
+							out+='xxid="'+attribs.xxid+'"'
+						}
+						return out
+					}
+					function _formatAttrs(`
+				}
 			}]
 		},
 		resolve:{

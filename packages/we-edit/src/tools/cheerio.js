@@ -410,6 +410,6 @@ export default function($, trap=DefaultTrap){
 			myPatches=myPatches||patches
             myPatches.reverse().forEach(a=>applyPatch(a))
             return myPatches.splice(0,myPatches.length)
-        }
+        },
     })
 }

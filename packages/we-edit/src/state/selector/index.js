@@ -37,6 +37,10 @@ export function getParentId(content,id){
 	return content.getIn([id,"parent"])
 }
 
+export function getWorkers(state){
+	return state.get('workers')
+}
+
 export function traverse(content, f, start="root", right=false){
 	let [id,node]=[start,content.get(start)]
 	if(!node)

@@ -1,9 +1,9 @@
-import React, {Component} from "react"
+import React, {Component, Fragment} from "react"
 import PropTypes from "prop-types"
-import {whenSelectionChange,ACTION} from "we-edit"
+import {whenSelectionChange,ACTION, whenSelectionChangeDiscardable} from "we-edit"
 import Movable from "./movable"
 
-export default whenSelectionChange(({selection})=>{
+export const SelectionShape= whenSelectionChange(({selection})=>{
 	return selection ? {selection,rects:selection.getRangeRects()} : {}
 },undefined,undefined,{withRef:true})(class SelectionShape extends Component{
 	static contextTypes={
@@ -85,4 +85,23 @@ export const Area=({rects, innerRef,...props})=>(
 		}
 		{...props}
 		/>
+)
+
+export const WorkerSelection=whenSelectionChangeDiscardable()(
+	class WorkerSelection extends Component{
+		static contextTypes={
+			precision: PropTypes.number,
+		}
+		render(){
+			const {props:{name,selection,start,end, dispatch, ...props}, context:{precision}}=this
+			const rects=(start?.id && end?.id && !(start.id==end.id && start.at==end.at)) && selection?.positioning.getRangeRects(start,end) || []
+			const [{left:x=0,top:y=0}={}]=rects
+			return (
+				<g {...props}>
+					<text {...{x,y:y-2,fontFamily:"Arial",fontSize:10}}>{name}</text>
+					<Area rects={rects}/>
+				</g>
+			)
+		}
+	}
 )
