@@ -3,9 +3,9 @@ import "./tools/array-find-last"
 
 export * from "./components"
 
-export {ACTION, DOMAIN, reducer, getActive, getAll} from "./components/we-edit"
+export {ACTION, DOMAIN, reducer, getActive, getAll,getReducer} from "./components/we-edit"
 export {connect, whenSelectionChange, whenSelectionChangeDiscardable, discardable, isDocumentReady, stateSafe} from "./state"
-export {getContent, getSelection, getFile, getUndos, getRedos,getStatistics,getUI,getSelectionStyle} from "./state/selector"
+export {getContent, getSelection, getFile, getUndos, getRedos,getStatistics,getUI,getSelectionStyle,getWorkers} from "./state/selector"
 export {default as SelectionStyle} from "./state/selection-style"
 export {default as getClientRect} from "./tools/get-client-rect"
 export {default as shallowEqual} from "./tools/shallow-equal"

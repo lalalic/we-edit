@@ -1,7 +1,7 @@
 import {ACTION as History} from "../undoable"
 
 export const Cursor={
-	ACTIVE: canvasId=>({type:"we-edit/selection/CANVAS",payload:canvasId}),
+	ACTIVE: canvasId=>({type:"we-edit/cursor/CANVAS",payload:canvasId}),
 	AT: (contentId, at,page)=>Selection.SELECT(contentId, at,contentId, at,page),
 	BACKWARD: payload=>({type:"we-edit/cursor/BACKWARD",payload}),
 	FORWARD: payload=>({type:"we-edit/cursor/FORWARD",payload}),
@@ -62,13 +62,6 @@ export const UI=payload=>({type:"we-edit/doc/ui",payload})
 export const Statistics=stat=>({type:"we-edit/statistics",payload:stat})
 
 export const Refresh=()=>({type:"we-edit/refresh"})
-
-export const Workers={
-	SELECT: payload=>({type:"we-edit/workers/selection",payload}),
-	REMOVE:	id=>({type:"we-edit/workers/remove",payload:{id}}),
-	PUSH:	payload=>({type:"we-edit/workers/push",payload}),
-	MERGE: 	payload=>({action:"we-edit/workers/merge",payload}),
-}
 
 export const ACTION={Cursor, Text, Selection,Entity,History,Statistics, Refresh,UI, Content}
 

@@ -8,6 +8,7 @@ import memoize from "memoize-one"
 
 import {ACTION as EditorAction} from "../state/action"
 import {createStore} from "../state"
+import {getFile} from "../state/selector"
 import shallowEqual from "../tools/shallow-equal"
 
 /**
@@ -71,6 +72,10 @@ export function getAll({[DOMAIN]:{docs}}){
 	return Object.keys(docs).map(k=>docs[k])
 }
 
+export function getReducer(state){
+	return reducers[state.active||getFile(state).id]
+}
+
 export const ACTION={
 	ADD:(doc,reducer)=>{
 		let id=doc.id
@@ -95,43 +100,30 @@ export function reducer(state={active:null,docs:{}}, action){
 		}
 		case `${DOMAIN}/ACTIVE`:
 			return {...state, active:payload}
-		case `${DOMAIN}/CLOSE`:{
-			let active=state.docs[state.active]
-			if(active){
-				active.doc.release()
-				delete state.docs[active.id]
-				active=Object.keys(state.docs)[0]
-			}
-			return {...state, docs:{...state.docs}, active}
-		}
 		case `${DOMAIN}/MESSAGE`:
 			return {...state, message:payload}
 		default:{
-			let id=state.active
-			if(id && type.startsWith(DOMAIN)){
-				let reducer=reducers[id]
-				let myDoc=state.docs[id].doc
-				let myState=state.docs[id].state
-				let changedMyState=reducer(myState,action)
-				if(changedMyState){
-					return {
-						...state,
-						docs:{
-							...state.docs,
-							[id]:{
-								...state.docs[id],
-								state:changedMyState
-							}
-						}
+			const id=state.active
+			if(!(id && type.startsWith(DOMAIN)))
+				return state
+			
+			const changedMyState=reducers[id](state.docs[id].state,action)
+			if(action.type==`${DOMAIN}/CLOSE` || !changedMyState){
+				delete state.docs[id]
+				delete reducers[id]
+				return {...state, docs:{...state.docs}, active:Object.keys(state.docs)[0]}
+			}
+
+			return {
+				...state,
+				docs:{
+					...state.docs,
+					[id]:{
+						...state.docs[id],
+						state:changedMyState
 					}
-				}else{
-					let docs={...state.docs}
-					delete docs[id]
-					let active=Object.keys(docs)[0]
-					return {...state, docs, active}
 				}
 			}
-			return state
 		}
 	}
 }

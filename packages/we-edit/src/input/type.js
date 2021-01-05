@@ -86,11 +86,19 @@ export class Viewable{
 	//////////////////
 
 	makeId(node, rootId, nodeId){
-		return uuid()
+		return (this.props?.makeId||uuid)()
 	}
 
 	//doc=null//injected from load/create
-	parse({data/*stream,array,object,...*/,...props}){
+	/**
+	 * @param {*} param0 
+	 * data: document data
+	 * reducer: injected reducer
+	 * id: injected id
+	 * makeId: injected makeId
+	 */
+	parse({/*data:stream,array,object,...*, reducer, id, makeId,name, ext,type*/ ...props}){
+		this.props={...props,supportPagination:true}
 		return Promise.reject(new Error("need implementation to parse file {data}"))
 	}
 
@@ -186,6 +194,9 @@ export class Editable extends Viewable{
 		const params=[state]
 		const reducer=new this.constructor.Reducer(...params)
 		switch(type){
+			case `we-edit/CLOSE`:
+				this.doc.release()
+				return false
 			case `we-edit/init`:
 				reducer.init(payload)
 				break
