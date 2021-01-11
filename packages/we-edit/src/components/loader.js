@@ -2,7 +2,7 @@ import React, {Component,PureComponent,Fragment} from "react"
 import PropTypes from "prop-types"
 import {Readable} from "readable-stream"
 import {DOMAIN, ACTION, getReducer} from "./we-edit"
-import {getWorkers,getSelection,getFile} from "../state/selector"
+import {getWorkers,getSelection,getFile,getPatch} from "../state/selector"
 import Input from "../input"
 import extendible from "../tools/extendible"
 
@@ -173,14 +173,14 @@ class Loader extends PureComponent{
 			ignore: PropTypes.arrayOf(PropTypes.string),
 		}
 
-		onLoad({data,id,workers,doc=this.props.doc, onClose}){
-			let uuid=id
+		onLoad({data,id,uid,workers,doc=this.props.doc, onClose, needPatchAll}){
+			let uuid=uid
 			super.onLoad({
 				data,
 				id,
 				name:doc,
 				ext:doc.split(".").pop(),
-				reduce:this.createReducer(workers,onClose),
+				reduce:this.createReducer({workers,onClose, needPatchAll}),
 				makeId(){
 					return uuid++
 				},
@@ -195,11 +195,19 @@ class Loader extends PureComponent{
 			})
 		}
 
+		patch(state, action){
+			Promise.resolve(getPatch(state, action?.payload))
+				.then(patch=>{
+					debugger
+					this.remoteDispatch({type:'we-edit/collaborative/save', payload:patch})
+				})
+		}
+
 		onNext(action, worker){
 			this.context.store.dispatch({type:'we-edit/REMOTE', payload:{...action,worker}})
 		}
 	
-		createReducer=(workers,onClose=a=>a)=>(state, action)=>{
+		createReducer=({workers,onClose=a=>a, needPatchAll})=>(state, action)=>{
 			if(action.isRemote)
 				return state
 			const {
@@ -207,13 +215,29 @@ class Loader extends PureComponent{
 				ignore:Ignore=['selection/STYLE','cursor/CANVAS']
 			}=this.props
 			switch(action.type){
-				case 'we-edit/REMOTE':
-					return this.reduceRemoteAction(state, action.payload)
 				case 'we-edit/CLOSE':
 					onClose()
 					return state
-				case 'we-edit/init':
+				case 'we-edit/init':{
+					if(needPatchAll){
+						this.patch(state)
+					}
+					const {start,end}=getSelection(state)
+					this.remoteDispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))
 					return state.set('workers',workers||[])
+				}
+				case 'we-edit/REMOTE':{
+					if(action.payload.action.type!=='we-edit/collaborative/save'){
+						return this.reduceRemoteAction(state, action.payload)
+					}else{
+						this.patch(state,action.payload)
+						return state
+					}
+				}
+				case 'we-edit/collaborative/save':{
+					this.patch(state,action)
+					return state
+				}
 				default:{
 					const workers=getWorkers(state)
 					const shouldSync=workers.length 
@@ -278,9 +302,9 @@ class Loader extends PureComponent{
 
 			action.payload=payload
 			if(stringify){
-				payload.data=Array.from(data).map(a=>String.fromCharCode(a)).join("")
+				payload.data=String.fromCodePoint(...data)
 			}else{//decoding
-				payload.data=Uint8Array.from(Array.from(data).map(a=>a.charCodeAt(0)))
+				payload.data=Uint8Array.from(data, a=>a.charCodeAt(0))
 			}
 
 			return action

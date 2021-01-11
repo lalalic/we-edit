@@ -52,20 +52,36 @@ export class Stream extends Component{
 			return Promise
 				.resolve(this.create())
 				.then(stream=>{
-					const {onFinish, onError, onReady}=this.props
-					stream.on("finish",()=>onFinish(stream))
-					stream.on("error",e=>onError(stream,e))
-					onReady(stream)
+					stream.on("finish",()=>this.onFinish(stream))
+					stream.on("error",e=>this.onError(stream,e))
+					this.onReady(stream)
 					return stream
 				})
 		}
 
 		create(){
-			const {write=(chunk, encoding, cb)=>{
+			return new Writable({write:this.write.bind(this),autoDestroy:true})
+		}
+
+		write(chunk, encoding, callback){
+			if(this.props.write){
+				this.props.write(...arguments)
+			}else{
 				console.debug(chunk.toString())
-				process.nextTick(cb)
-			}}=this.props
-			return new Writable({write,autoDestroy:true})
+				process.nextTick(callback)
+			}
+		}
+
+		onFinish(stream){
+			this.props?.onFinish(stream)
+		}
+
+		onError(stream,error){
+			this.props?.onError(...arguments)
+		}
+
+		onReady(stream){
+			this.props?.onReady(stream)
 		}
 	}
 

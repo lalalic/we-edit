@@ -179,6 +179,31 @@ export class Editable extends Viewable{
 		}
 	}
 
+	getPatch(state,since){
+		globalThis.xxid=true
+		const stream=this.stream()
+		return new Promise((resolve,reject)=>{
+			const data=[]
+			stream.on('readable',function(){
+				let chunk
+				while(null!=(chunk=stream.read())){
+					data.push(chunk)
+				}
+			})
+			stream.on('end',function(){
+				let buffer=data[0]
+				if(data.length>1){
+					buffer=new Uint8Array(data.reduce((c,a)=>c+a.length,0))
+					data.reduce((l,a)=>(buffer.set(a,l),l+a.length),0)
+				}
+				resolve(buffer)
+			})
+			stream.push(null)
+		})
+		.then(data=>[{target:'*', op:'replace', data}])
+		.finally(()=>delete globalThis.xxid)
+	}
+
 	/**
 	*return:
 	- false: no state change

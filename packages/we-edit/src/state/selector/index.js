@@ -41,6 +41,10 @@ export function getWorkers(state){
 	return state.get('workers')
 }
 
+export function getPatch(state){
+	return getFile(state).getPatch(...arguments)
+}
+
 export function traverse(content, f, start="root", right=false){
 	let [id,node]=[start,content.get(start)]
 	if(!node)

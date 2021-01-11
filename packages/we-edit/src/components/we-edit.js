@@ -82,7 +82,7 @@ export const ACTION={
 		reducers[id]=doc.buildReducer(reducer)
 		return {type:`${DOMAIN}/ADD`,payload:{id,state: reducers[id](), doc}}
 	},
-	CLOSE: ()=>({type:`${DOMAIN}/CLOSE`}),
+	CLOSE: id=>({type:`${DOMAIN}/CLOSE`,payload:id}),
 	ACTIVE: id=>({type:`${DOMAIN}/ACTIVE`, payload:id}),
 	MESSAGE: payload=>({type:`${DOMAIN}/MESSAGE`,payload}),
 	...EditorAction
@@ -102,6 +102,14 @@ export function reducer(state={active:null,docs:{}}, action){
 			return {...state, active:payload}
 		case `${DOMAIN}/MESSAGE`:
 			return {...state, message:payload}
+		case `${DOMAIN}/CLOSE`:{
+			if(payload &&  state.active!=payload && reducers[payload]){
+				reducers[payload](state.docs[payload],action)
+				delete state.docs[payload]
+				delete reducers[payload]
+				return {...state, docs:{...state.docs}}
+			}
+		}
 		default:{
 			const id=state.active
 			if(!(id && type.startsWith(DOMAIN)))
