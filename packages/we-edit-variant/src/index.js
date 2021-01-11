@@ -21,15 +21,3 @@ export const VariantRepresentation=({variants, transformer=a=>a, ...props})=>(
 )
 
 export {Provider}
-
-export default {
-	install(){
-		Representation.defaultProps.transformer=withVariant
-	},
-	uninstall(){
-		Representation.defaultProps.transformer=undefined
-	},
-	Provider,
-	VariantRepresentation,
-	withVariant
-}

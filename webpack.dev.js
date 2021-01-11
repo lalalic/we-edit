@@ -41,7 +41,7 @@ module.exports=(base, packages)=>{
 			},
 		},
 		watchOptions:{
-			ignored: /node_modules/
+			ignored: /node_modules\/(?!docx4js)/
 		}
 	}
 }

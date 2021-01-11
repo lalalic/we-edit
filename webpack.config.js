@@ -19,7 +19,7 @@ module.exports=(env,args)=>{
 				test: /.js?$/,
 				use: 'source-map-loader',
 				enforce:"pre",
-				exclude:/node_modules/
+				include: /(docx4js)/
 			},{
 				test: /\.js?$/,
 				use: ['babel-loader'],
@@ -46,8 +46,8 @@ module.exports=(env,args)=>{
 					function formatAttrs(attribs, opt){
 						if(!attribs)
 							return 
-						const out=_formatAttrs(...arguments)
-						if(opt.xxid && attribs.xxid){
+						let out=_formatAttrs(...arguments)
+						if(globalThis.xxid && attribs.xxid){
 							out+='xxid="'+attribs.xxid+'"'
 						}
 						return out

@@ -42,6 +42,7 @@ class DocxType extends Input.Editable{
 	}
 
 	stream(option){
+		debugger
 		const data=this.doc.serialize(option)
 			.generate({
 				...option,
@@ -349,6 +350,9 @@ export default class Editable extends DocxType{
 	   node=this._unwrap(node)
 	   
 	   if(nodeId!=undefined){
+			if('xxid' in node.attribs){
+				delete node.attribs.xxid
+			}
 			Object.defineProperty(node.attribs,"xxid",{
 				enumerable: false,
 				configurable: true,
@@ -359,6 +363,16 @@ export default class Editable extends DocxType{
 	   }
 
 		if(node.attribs.xxid){
+			if('xxid' in node.attribs){
+				const xxid=node.attribs.xxid
+				delete node.attribs.xxid
+				Object.defineProperty(node.attribs,"xxid",{
+					enumerable: false,
+					configurable: true,
+					writable: false,
+					value: xxid
+				})
+			}
 			return node.attribs.xxid
 		}
 

@@ -3,30 +3,31 @@ import Html from "we-edit-representation-html"
 import Text from "we-edit-representation-text"
 import Plain from "we-edit-representation-plain"
 
-import iDocx from "we-edit-input-docx"
-import iJson from "we-edit-input-json"
+import iDocx from "we-edit-input-docx/plugin"
+import iJson from "we-edit-input-json/plugin"
+
+import Variant from "we-edit-variant/plugin"
+import {Provider} from "we-edit-variant"
+
 import ioFile from "we-edit-loader-stream-file"
 import ioBrowser from "we-edit-loader-stream-browser"
-
-import Variant, {Provider} from "we-edit-variant"
 
 import React,{Fragment} from "react"
 import {Viewer, Editor,Input, DocumentTree, ACTION, Test} from  "we-edit"
 import {Office,Workspace, Ribbon,reducer} from "we-edit-office"
-import {Tabs, Tab, ToolbarGroup, SvgIcon} from "material-ui"
 import {connect} from  "react-redux"
 import minimatch from "minimatch"
-import { Toolbar } from "./packages/we-edit-office/src/ribbon"
 
 
 iDocx.install({
 	template:"/templates/normal.docx"
 })
 iJson.install()
+Variant.install()
+
 ioFile.install()
 ioBrowser.install()
 
-Variant.install()
 FontManager.asService("/font-service.js")
 
 

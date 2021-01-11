@@ -198,7 +198,6 @@ class Loader extends PureComponent{
 		patch(state, action){
 			Promise.resolve(getPatch(state, action?.payload))
 				.then(patch=>{
-					debugger
 					this.remoteDispatch({type:'we-edit/collaborative/save', payload:patch})
 				})
 		}
@@ -227,7 +226,7 @@ class Loader extends PureComponent{
 					return state.set('workers',workers||[])
 				}
 				case 'we-edit/REMOTE':{
-					if(action.payload.action.type!=='we-edit/collaborative/save'){
+					if(action.payload.type!=='we-edit/collaborative/save'){
 						return this.reduceRemoteAction(state, action.payload)
 					}else{
 						this.patch(state,action.payload)
