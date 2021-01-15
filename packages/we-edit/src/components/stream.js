@@ -59,6 +59,10 @@ export class Stream extends Component{
 				})
 		}
 
+		componentDidMount(){
+			this.doCreate()
+		}
+
 		create(){
 			return new Writable({write:this.write.bind(this),autoDestroy:true})
 		}

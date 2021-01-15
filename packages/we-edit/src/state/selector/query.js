@@ -454,11 +454,16 @@ export default class Query{
 	}
 
 	has(selector){
+		if(this._nodes.length==0)
+			return false
+		
 		let select=asSelector(selector,this._$)
 		return this._nodes.findIndex(k=>select(this._content.get(k)))!=-1
 	}
 
 	is(selector){
+		if(this._nodes.length==0)
+			return false
 		let select=asSelector(selector,this._$)
 		return this._nodes.findIndex(k=>!select(this._content.get(k)))==-1
 	}

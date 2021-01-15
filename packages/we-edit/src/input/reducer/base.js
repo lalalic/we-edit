@@ -37,18 +37,20 @@ export default class Reducer{
 		 * during reducing, the order should not be changed
 		 */
 		const {start,end,...others}=this.selection
-		if((start.id==end.id && start.at>end.at) ||
-			(start.id!=end.id && this.$(`#${start.id}`).forwardFirst(`#${end.id}`).length==0)){
-			this._selection=Object.defineProperties({start:end, end:start,...others}, {
-				cursorAt:{//read
-					enumerable:true,
-					writable:false,
-					value:"start",
-				}
-			})
-		}
+		if(end.id){
+			if((start.id==end.id && start.at>end.at) ||
+				(start.id!=end.id && this.$(`#${start.id}`).forwardFirst(`#${end.id}`).length==0)){
+				this._selection=Object.defineProperties({start:end, end:start,...others}, {
+					cursorAt:{//read
+						enumerable:true,
+						writable:false,
+						value:"start",
+					}
+				})
+			}
 
-		this.normalizeSelection()
+			this.normalizeSelection()
+		}
 	}
 
 	state(){
@@ -302,6 +304,11 @@ export default class Reducer{
 
 	//push local to remote
 	push(){
+
+	}
+
+	//resolve collaborative editing selection conflict
+	conflict(){
 
 	}
 }

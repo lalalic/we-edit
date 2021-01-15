@@ -42,16 +42,13 @@ class DocxType extends Input.Editable{
 	}
 
 	stream(option){
-		debugger
-		const data=this.doc.serialize(option)
-			.generate({
-				...option,
-				type:"nodebuffer",
-				mimeType:this.doc.mime,
-			})
-		const stream=new Readable({objectMode: true})
-		stream.push(data)
-		return stream
+		const doc=this.doc
+		return new Readable({
+			read(){
+				this.push(doc.serialize(option).generate({...option, type:"nodebuffer",mimeType:doc.mime,}))
+				this.push(null)
+			}
+		})
 	}
 
 	render(createElement,components){
@@ -342,7 +339,7 @@ class DocxType extends Input.Editable{
 }
 
 export default class Editable extends DocxType{
-    makeId(node, root="w:document", nodeId){
+	makeId(node, root="w:document", nodeId){
         if(!node){
             return "null"
 		}
@@ -385,6 +382,47 @@ export default class Editable extends DocxType{
             value: id
         })
         return id
+	}
+
+	getPatch(last){
+		globalThis.xxid=true
+		try{
+			const doc=this.doc.serialize(), files=doc.files
+			const current=this._crc32(Object.keys(files).map(k=>files[k]._data.crc32||this._crc32(files[k]._data)).join(","))
+
+			if(last!==current){
+				return {status:current, patch:[{target:'*',data:doc.generate({type:"nodebuffer",mimeType:this.doc.mime})}]}
+			}
+		}finally{
+			delete globalThis.xxid
+		}
+	}
+
+	_partPatch(last){
+		globalThis.xxid=true
+		try{
+			const doc=this.doc.serialize(), files=doc.files, current={}
+			const patch=Object.keys(files).map(k=>{
+				current[k]=files[k]._data.crc32||this._crc32(files[k]._data);
+				if(!last)
+					return 
+				if(!(k in last) ||last[k]!==current[k]){
+					return {target:k, data:files[k].asUint8Array()}
+				}
+			}).filter(a=>!!a);
+
+			if(!last){
+				patch.push({target:'*',data:doc.generate({type:"nodebuffer",mimeType:this.doc.mime})})
+			}else{
+				if(patch.length==0)
+					return
+				Object.keys(last).forEach(k=>!(k in current) && patch.push({target:k, op:"remove"}))
+			}
+
+			return {status:current, patch, __patch__:"part"}
+		}finally{
+			delete globalThis.xxid
+		}
 	}
 	
 	getNode(uid){

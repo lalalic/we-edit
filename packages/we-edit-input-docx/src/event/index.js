@@ -64,7 +64,7 @@ export default (class Actions extends Input.Editable.EventHandler.xml{
             conds=[...conds.map(a=>`${a}_in_bookmark`),'in_bookmark',...conds]
         }
         
-        super.emit(action, conds, ...others)
+        return super.emit(action, conds, ...others)
     }
     
     init(){

@@ -221,3 +221,38 @@ Loader load input file by Stream, convert it to redux store, create representati
 	* merge: remote change to local, which should be customized by local reducer
 		* we-edit/content/async: is responsible for async loading content and render, could it be used to push remote change?!!
 * process: load->create session with docid(as local doc id)
+
+### collaborative edit
+* document load by Loader.Collaborative implementation support collaborative editing
+* Input Type must implement
+	* getPatch(lastPatchState): {status, patch:[{target, op, data}]}
+		* the patch data must include content id, such as <t xxid="2345"/>
+		* the default implementation is to replace whole data with {status:crc, patch:[{target:'*', data:file data}]}
+* Loader.Collaborative implementation must implement
+	* load[must] : load your document content
+		* return/resolved as {data, ..., 
+			* id: unique document/collaborative session id
+			* uid: worker unique id, which must be integer, and each uid should have big enough space to make content unique id, such as there are 100000 content objects between uid 10*100000 and 11*100000. normally, 
+				* design uid as [session space:auto incre][content space: always 0...0]
+					* content space decides how big document can be supported
+					* session space decides how many workers can be supported to collaboratively edit one document
+			 
+	* remoteDispatch(action)[must]: dispatch local action to other workers
+	* patch(state,{payload:lastPatchState})[must]: patch document accoring to current state, and last patch state
+		* the default implemenation calls input <Strong>document.getPatch(state, lastPatchState)</Strong>, so the implemenation should call super.patch and then save to somewhere
+		* patch action type is "<Strong>we-edit/collaborative/patch</Strong>"
+		* a common implementation 
+			1. when a collaborative session initiated, patch action should be fired with falsy last patch state
+			2. the first worker should respond to patch action to send persisted file content with ids to server
+			3. the server keep the patch
+			4. next worker request collaborative editing 
+			5. the server send document data to next worker
+			6. the server send patch action from time to time to a worker to pull patch
+			7. targeted worker respond patch to server
+	* onNext(remoteAction,worker): this function must be called when remote action accept. Usually the client subscribe to server, and when client should call this function every time a message received
+	* resolveConflict: this function is supposed to resolve selection conflict when a remote action happens
+		* on selection not exist any more
+		* or selection unexpectedly moved, such as delete text ahead of same text piece selection
+		* the default implementation is to call document.onChange to resolve action "<Strong>we-edit/collaborative/conflict</Strong>"
+			* Input Type implementation can resolve it in reducer
+			* or leave it to editor

@@ -282,4 +282,36 @@ export default class Events extends Base{
             this.clipboard=clipboard
         }
     }
+
+    conflict({action,conflict}){
+        const isCursor=({start,end})=>start.id==end.id && start.at==end.at
+        const type=id=>this.$('#'+id).attr('type')
+        const conds=action.type.split('/').slice(1).reverse().map(a=>a.toLowerCase())
+        conds.push('at', this.isCursor ? type(this.cursor.id) : 'range')
+
+        const start=this.emit('conflict_collaborating',[conds.join("_")+'_for_'+type(conflict.start.id)], {action,conflict:conflict.start})||conflict.start
+        const end=!isCursor(conflict) && this.emit('conflict_collaborating',[conds.join("_")+'_for_'+type(conflict.end.id)], {action,conflict:conflict.end}) || start
+        
+        if(start!=conflict.start || end!=conflict.end){
+            return {...conflict,start,end}
+        }
+    }
+
+    conflict_collaborating_type_text_at_text_for_text({cursor=this.cursor, conflict, action:{payload}}){
+        if(cursor.id==conflict.id && cursor.at<=conflict.at){
+            return {...conflict, at:conflict.at+payload.length}
+        }
+    }
+
+    conflict_collaborating_delete_text_at_text_for_text({cursor=this.cursor, conflict}){
+        if(cursor.id==conflict.id && cursor.at<=conflict.at){
+            return {...conflict, at:conflict.at-1}
+        }
+    }
+
+    conflict_collaborating_backspace_text_at_text_for_text({cursor=this.cursor, conflict}){
+        if(cursor.id==conflict.id && cursor.at<=conflict.at){
+            return {...conflict, at:conflict.at-1}
+        }
+    }
 }

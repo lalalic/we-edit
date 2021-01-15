@@ -2,7 +2,7 @@ import React, {Component,PureComponent,Fragment} from "react"
 import PropTypes from "prop-types"
 import {Readable} from "readable-stream"
 import {DOMAIN, ACTION, getReducer} from "./we-edit"
-import {getWorkers,getSelection,getFile,getPatch} from "../state/selector"
+import {getWorkers,getSelection,getFile, getUndos} from "../state/selector"
 import Input from "../input"
 import extendible from "../tools/extendible"
 
@@ -173,14 +173,14 @@ class Loader extends PureComponent{
 			ignore: PropTypes.arrayOf(PropTypes.string),
 		}
 
-		onLoad({data,id,uid,workers,doc=this.props.doc, onClose, needPatchAll}){
+		onLoad({data,id,uid,workers,doc=this.props.doc, onClose, needPatchAll, ...props}){
 			let uuid=uid
 			super.onLoad({
 				data,
 				id,
 				name:doc,
 				ext:doc.split(".").pop(),
-				reduce:this.createReducer({workers,onClose, needPatchAll}),
+				reduce:this.createReducer({workers,onClose, needPatchAll, ...props}),
 				makeId(){
 					return uuid++
 				},
@@ -196,62 +196,81 @@ class Loader extends PureComponent{
 		}
 
 		patch(state, action){
-			Promise.resolve(getPatch(state, action?.payload))
-				.then(patch=>{
-					this.remoteDispatch({type:'we-edit/collaborative/save', payload:patch})
-				})
+			return Promise.resolve(getFile(state)?.getPatch(action?.payload))
 		}
 
 		onNext(action, worker){
 			this.context.store.dispatch({type:'we-edit/REMOTE', payload:{...action,worker}})
 		}
 	
-		createReducer=({workers,onClose=a=>a, needPatchAll})=>(state, action)=>{
-			if(action.isRemote)
+		createReducer({workers,onClose=a=>a, needPatchAll}){
+			return (state, action)=>{
+				if(action.isRemote)
+					return state
+				const {
+					actions:Remote_ACTION=["selection","cursor","text","entity"], 
+					ignore:Ignore=['selection/STYLE','cursor/CANVAS']
+				}=this.props
+				switch(action.type){
+					case 'we-edit/CLOSE':
+						onClose()
+						return state
+					case 'we-edit/init':{
+						if(needPatchAll){
+							setImmediate(()=>this.patch(state))
+						}
+						setImmediate(()=>{
+							this.remoteDispatch(action)
+							const {start,end}=getSelection(state)
+							this.remoteDispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))
+						})
+						return state.set('workers',workers||[])
+					}
+					case 'we-edit/REMOTE':{
+						switch(action.payload.type){
+							case 'we-edit/collaborative/patch':
+								setImmediate(()=>this.patch(state,action.payload))
+								return state
+							case 'we-edit/init':
+								setImmediate(()=>{
+									const {start,end}=getSelection(state)
+									this.remoteDispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))
+								})
+								return state
+							default:
+								return this.reduceRemoteAction(state, action.payload)
+						}
+					}
+					case 'we-edit/collaborative/patch':{
+						setImmediate(()=>this.patch(state,action))
+						return state
+					}
+					default:{
+						const workers=getWorkers(state)
+						const shouldSync=workers.length 
+							&& Remote_ACTION.find(a=>action.type.startsWith(`we-edit/${a}/`))
+							&& !Ignore.find(a=>action.type.endsWith(a))
+						if(!shouldSync)
+							return state
+
+						
+						const remoteAction={...this.stringifyAction(action,true), uuid:state.get('uuid')}
+						state=state.set('uuid',getFile(state).props.getCurrentUUID())
+						
+						const undos=getUndos(state), {selection,content,...last}=undos[undos.length-1]||{}
+						const contentChangedByAction=last.action==action && !content.equals(state.get('content'))
+						if(contentChangedByAction){
+							remoteAction.selection=selection?.toJS()
+							state=this.resolveConflict({action,content, state,selection:remoteAction.selection})
+						}
+						setImmediate(()=>this.remoteDispatch(remoteAction))
+					}
+				}
 				return state
-			const {
-				actions:Remote_ACTION=["selection","cursor","text","entity"], 
-				ignore:Ignore=['selection/STYLE','cursor/CANVAS']
-			}=this.props
-			switch(action.type){
-				case 'we-edit/CLOSE':
-					onClose()
-					return state
-				case 'we-edit/init':{
-					if(needPatchAll){
-						this.patch(state)
-					}
-					const {start,end}=getSelection(state)
-					this.remoteDispatch(ACTION.Selection.SELECT(start.id,start.at,end.id,end.at))
-					return state.set('workers',workers||[])
-				}
-				case 'we-edit/REMOTE':{
-					if(action.payload.type!=='we-edit/collaborative/save'){
-						return this.reduceRemoteAction(state, action.payload)
-					}else{
-						this.patch(state,action.payload)
-						return state
-					}
-				}
-				case 'we-edit/collaborative/save':{
-					this.patch(state,action)
-					return state
-				}
-				default:{
-					const workers=getWorkers(state)
-					const shouldSync=workers.length 
-						&& Remote_ACTION.find(a=>action.type.startsWith(`we-edit/${a}/`))
-						&& !Ignore.find(a=>action.type.endsWith(a))
-					if(!shouldSync)
-						return state
-					this.remoteDispatch({...this.stringifyAction(action,true), uuid:state.get('uuid')})
-					state=state.set('uuid',getFile(state).props.getCurrentUUID())
-				}
 			}
-			return state
 		}
 	
-		reduceRemoteAction(state, {worker:{...worker},uuid, ...action}){
+		reduceRemoteAction(state, {worker,uuid, selection, ...action}){
 			const {props:{resetUUID}}=getFile(state)
 			const myUUID=uuid && resetUUID(uuid)
 			try{
@@ -262,24 +281,60 @@ class Loader extends PureComponent{
 				}else{
 					worker=workers[i]
 				}
-	
-				let workerState=state.mergeIn(['selection'],worker.selection)
+				selection=selection||worker.selection
+				let workerState=state.mergeIn(['selection'],selection)
 				const reducer=getReducer(state)
 				action.isRemote=true
 				workerState=reducer(workerState,this.stringifyAction(action, false))
 				workers.splice(i,1,{...worker, selection:getSelection(workerState)})
-				workerState=workerState.set('workers',[...workers])
-				if(workerState.get('content').equals(state.get('content')))
-					return workerState.set('selection', state.get('selection'))
+				workerState=workerState.set('workers',[...workers]).set('selection', state.get('selection'))
 
-				return this.resolveConflict({action, worker, state, changedState:workerState})
+				const content=state.get('content')
+				if(workerState.get('content').equals(content))
+					return workerState
+				
+				return this.resolveConflict({
+					action, selection, content, 
+					worker,
+					state:workerState, 
+				})
 			}finally{
 				uuid && resetUUID(myUUID)
 			}
 		}
 
-		resolveConflict({worker, action, state, changedState}){
-			return changedState
+		resolveConflict({action, selection, content, state, worker={_id:"me",selection:getSelection(state)}}){
+			
+			const doc=getFile(state), fakeState=state.mergeIn(['selection'],selection).set('_content',content)
+			const workers=[...getWorkers(state),{_id:"me",selection:getSelection(state)}]
+			let changed=false
+			workers.forEach(a=>{
+				if(a._id==worker._id // current worker
+					|| !a.selection?.end?.id)//no selection
+					return 
+				try{
+					const resolved=doc.onChange(
+						fakeState,
+						{
+							type:'we-edit/collaborative/conflict',
+							payload:{action,conflict:a.selection,content:state.get('content')}
+						})
+					if(resolved && resolved!=a.selection){
+						if(a._id=='me'){
+							state=state.mergeIn(['selection'], resolved)
+						}else{
+							a.selection=resolved
+							changed=true
+						}
+					}
+				}catch(e){
+					console.debug(a)
+					console.warn(e)
+				}
+			})
+			workers.pop()//remove me
+			
+			return changed ? state.set('workers', workers) : state
 		}
 
 		remoteDispatch(action){
@@ -293,20 +348,6 @@ class Loader extends PureComponent{
 		stringifyAction(action,stringify){
 			const f='on'+action.type.split("/").slice(1).map(a=>a[0].toUpperCase()+a.substr(1).toLowerCase()).join("")
 			return this[f] && this[f](action, stringify) ||action
-		}
-
-		onEntityCreate({payload:{data, ...payload},...action}, stringify){
-			if(payload.type!=="image" && data)
-				return arguments[0]
-
-			action.payload=payload
-			if(stringify){
-				payload.data=String.fromCodePoint(...data)
-			}else{//decoding
-				payload.data=Uint8Array.from(data, a=>a.charCodeAt(0))
-			}
-
-			return action
 		}
 	}
 
