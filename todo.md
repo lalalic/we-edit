@@ -60,6 +60,8 @@ docx:
         * aroundInInline(composedLine, offset)
         * __findFirstParagraphInTarget(any target)
 
+* mono width font, such as chinese font
+
 # Notes
 * immutable 4.0 would deadloop
 
