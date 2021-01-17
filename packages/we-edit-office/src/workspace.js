@@ -223,7 +223,7 @@ const Channels=connect((state,props)=>({channel:getOffice(state).channel||props.
 						channel:{
 							items:this.getChannels(children),
 							current:channel,
-							onChange: channel=>dispatch(ACTION.channel(channel))
+							onChange: channel=>dispatch(ACTION.office({channel}))
 						}
 					})}
 

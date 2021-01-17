@@ -42,7 +42,7 @@ export default class __$1 extends PureComponent{
 							loader=>{
 								onLoad()
 								if(loader){
-									this.context.store.dispatch(ACTION.loader(loader))
+									this.context.store.dispatch(ACTION.office({loader}))
 								}
 							}
 						}

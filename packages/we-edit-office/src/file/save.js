@@ -172,8 +172,7 @@ export default class Saver extends PureComponent{
 		format={...format, ...(this.refs.format && this.refs.format.state || {})}
         Saver.save(store)({format,stream})
             .then(()=>{
-                store.dispatch(ACTION.stream(stream))
-                store.dispatch(ACTION.format(format))
+                store.dispatch(ACTION.office({stream,format}))
             })
             .catch(e=>store.dispatch(weACTION.MESSAGE({type:"error", message:e.message})))
             .then(onSave)

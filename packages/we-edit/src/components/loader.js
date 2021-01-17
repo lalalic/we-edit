@@ -131,7 +131,7 @@ class Loader extends PureComponent{
 		}
 
 		render(){
-			return this.state.loaded ? null : "loading..." 
+			return this.state.loaded ? null : <center>loading...</center>
 		}
 
 		doLoad(){
@@ -150,7 +150,6 @@ class Loader extends PureComponent{
 		 */
 		onLoad(file){
 			this.props.onLoad(file)
-			this.setState({loaded:true})
 		}
 
 		/**
@@ -216,6 +215,7 @@ class Loader extends PureComponent{
 						onClose()
 						return state
 					case 'we-edit/init':{
+						this.setState({inited:true})
 						if(needPatchAll){
 							setImmediate(()=>this.patch(state))
 						}
