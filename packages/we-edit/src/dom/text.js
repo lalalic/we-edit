@@ -6,7 +6,7 @@ import Component from "./component"
 export default class Text extends Component{
 	static displayName="text"
 	static propTypes={
-		fonts: PropTypes.string.isRequired,
+		fonts: PropTypes.oneOfType([PropTypes.string, PropTypes.func]).isRequired,//(char)=>fontName
 		size: PropTypes.number.isRequired,
 		color: PropTypes.string,
 		bold: PropTypes.bool,

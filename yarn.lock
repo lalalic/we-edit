@@ -8113,9 +8113,9 @@ wbuf@^1.1.0, wbuf@^1.7.3:
   dependencies:
     minimalistic-assert "^1.0.0"
 
-we-office-cli@^0.0.18:
-  version "0.0.18"
-  resolved "https://registry.npm.taobao.org/we-office-cli/download/we-office-cli-0.0.18.tgz#a2c1595b3a54f3c9bfa51f181b3cd3ff2b3e6c4f"
+we-office-cli@^0.0.21:
+  version "0.0.21"
+  resolved "https://registry.npm.taobao.org/we-office-cli/download/we-office-cli-0.0.21.tgz#05dbea92d7cf7304aa5b4d8597e875f48520e6ea"
   dependencies:
     lodash.merge "^4.6.1"
     mkdirp "^0.5.1"

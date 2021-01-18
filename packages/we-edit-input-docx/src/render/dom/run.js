@@ -2,6 +2,12 @@ import React, {Component} from "react"
 import PropTypes from "prop-types"
 
 
+/**
+ * rFonts decide run's font according to following specs:
+ * check: https://docs.microsoft.com/en-us/openspecs/office_standards/ms-oi29500/aef3c9a6-5d6c-434b-90b7-85e761fd8e62
+ * 
+ * 
+ */
 export default ({Container})=>class __$1 extends Component{
 	static displayName="run"
 	static propTypes={

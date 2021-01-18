@@ -215,7 +215,6 @@ class Loader extends PureComponent{
 						onClose()
 						return state
 					case 'we-edit/init':{
-						this.setState({inited:true})
 						if(needPatchAll){
 							setImmediate(()=>this.patch(state))
 						}

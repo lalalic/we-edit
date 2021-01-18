@@ -1,7 +1,7 @@
 {
   "name": "we-edit-input-docx",
   "description": "docx input type implementation",
-  "version": "3.0.5",
+  "version": "3.0.6",
   "keywords": [
     "we-edit"
   ],
@@ -10,7 +10,7 @@
     "email": "lalalic@139.com"
   },
   "dependencies": {
-    "docx4js": "^3.2.14",
+    "docx4js": "^3.2.16",
     "fetchable": "^1.0.4",
     "lodash.get": "^4.4.2",
     "lodash.invoke": "^4.5.2",

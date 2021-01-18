@@ -1,7 +1,7 @@
 {
   "name": "we-edit-input-json",
   "description": "native json input type implementation",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "keywords": ["we-edit"],
   "author": {
     "name": "Raymond Li",

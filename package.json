@@ -39,7 +39,7 @@
     "string-replace-loader": "^3.0.1",
     "style-loader": "^1.0.0",
     "transform-loader": "^0.2.4",
-    "we-office-cli": "^0.0.18",
+    "we-office-cli": "^0.0.21",
     "webpack": "^4.39.3",
     "webpack-cli": "^3.3.7",
     "webpack-dev-server": "^3.8.0",
