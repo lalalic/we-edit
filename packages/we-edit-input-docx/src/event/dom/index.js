@@ -8,6 +8,7 @@ import {default as Paragraph} from "./paragraph"
 import {default as Field} from "./field"
 import {default as TOC} from "./toc"
 import {default as Document} from "./document"
+import {default as TextBox} from "./text-box"
 
 
-export {Unknown, Image, Table, Text, Section, Paragraph,Shape,Field, TOC, Document}
+export {Unknown, Image, Table, Text, Section, Paragraph,Shape,Field, TOC, Document, TextBox}

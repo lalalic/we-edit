@@ -1,4 +1,4 @@
-import {Image,Section,Paragraph,Table} from "./dom"
+import {Image,Shape, TextBox, Section,Paragraph,Table} from "./dom"
 import {Context, Field} from "../render/dom/field"
 import FieldEditor from "./dom/field"
 import ToC from "./dom/toc"
@@ -256,4 +256,26 @@ export default{
         const $toc=this.$('#'+this.file.renderChanged(target.prev()).id).attr('needPage',true)
         this.$target.before($toc)
     },
+
+    create_textbox({paragraph:p,run, ...props}){
+        const editor=new TextBox(this)
+        const paragraph=this.file.getNode(p)
+        editor.create({})
+        if(run){
+            this.file.getNode(run).after(editor.node)
+        }else{
+            paragraph.prepend(editor.node)
+            paragraph.find('>w\\:pPr').before(editor.node)
+        }
+        
+        editor.node.prepend(paragraph.find('>w\\:pPr>w\\:rPr').clone())
+
+        this.file.renderChanged(paragraph)
+        const id=this.file.makeId(editor.node)
+        const cursor=this.$('#'+id).find('shape').attr('id')
+        this.cursorAt(cursor,0)
+        editor.node=this.target
+        editor.update(props)
+        this.file.renderChanged(this.file.getNode(id))
+    }
 }

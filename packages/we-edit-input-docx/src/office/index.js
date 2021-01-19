@@ -8,6 +8,7 @@ import Field from "./field"
 import TOC from "./toc"
 import TOA from "./toa"
 import * as DocxTabs from "./tabs"
+import TextBox from "./shape/text-box"
 
 import Canvas from "../representation/canvas"
 
@@ -33,6 +34,8 @@ export default (
                         <TOC/>
                         <Ribbon.ToolbarSeparator/>
                         <TOA/>
+                        <TextBox/>
+
                       {/*  
                         <Links/>
                         <PageNumber/>
