@@ -6,7 +6,10 @@ import Component from "./component"
 export default class Text extends Component{
 	static displayName="text"
 	static propTypes={
-		fonts: PropTypes.oneOfType([PropTypes.string, PropTypes.func]).isRequired,//(char)=>fontName
+		/**
+		 * "Arial", or {cs,ea,ascii,hansi,[7F-FF,...]}
+		 */
+		fonts: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
 		size: PropTypes.number.isRequired,
 		color: PropTypes.string,
 		bold: PropTypes.bool,

@@ -137,7 +137,28 @@ export class Properties{
 	}
 
 	rFonts(x){
+		const {
+			'w:hint':hint,
+			'w:asciiTheme':ascii0,'w:cstheme':cs0, 'w:eastAsiaTheme':ea0, 'w:hAnsiTheme':high0,
+			'w:ascii':ascii=ascii0 && this.theme.font(ascii0),
+			'w:cs':cs=cs0 && this.theme.font(cs0), 
+			'w:eastAsia':ea=ea0 && this.theme.font(ea0), 
+			'w:hAnsi':hansi=high0 && this.theme.font(high0),
+		}=x.attribs
+
+		return {ascii,cs,ea,hansi,hint}
+		/*
 		let fonts=[], t
+		if(t=x.attribs['w:ascii'])
+			fonts.push(t)
+		else if(t=x.attribs['w:asciiTheme'])
+			fonts.push(this.theme.font(t))
+
+		if(t=x.attribs['w:eastAsia'])
+			fonts.push(t)
+		else if(t=x.attribs['w:eastAsiaTheme'])
+			fonts.push(this.theme.font(t))
+
 		if(t=x.attribs['w:ascii'])
 			fonts.push(t)
 		else if(t=x.attribs['w:asciiTheme'])
@@ -154,6 +175,7 @@ export class Properties{
 				.forEach(a=>this.requireFonts.add(a))
 			return fonts
 		}
+		*/
 	}
 
 	lang(x){

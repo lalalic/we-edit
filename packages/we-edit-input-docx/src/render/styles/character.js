@@ -1,4 +1,4 @@
-import { instanceOf } from "prop-types"
+import { instanceOf, node } from "prop-types"
 import Base from "./base"
 
 const attribs={
@@ -27,19 +27,42 @@ export default class Character extends Base{
 			this.r=this._convert(node, null,attribs, selector)
 		}
 
+		_convert(node, ...args){
+			const r=super._convert(node, ...args)
+			/**
+			 * <cs/> or <rtl/> make cs fonts
+			 */
+			if(node.children.find(a=>a.name.endsWith(':cs')||a.name.endsWith(':rtl'))){
+				(r.fonts=r.fonts||{}).hint='cs'
+			}
+			return r
+		}
+
 		getLink(){
 			return this.styles[this.basedOn]?.getLink()
+		}
+
+		flat(...args){
+			const props=super.flat(...args)
+			if(this.r.fonts?.hint=="cs"){
+				props.fonts=props.fonts.cs
+			}else if(this.r.fonts?.hint=="eastAsia"){
+				props.fonts=props.fonts.ea
+			}
+			return props
 		}
 	}
 
 	flat(...inherits){
-		let targets=[this,...inherits].filter(a=>a?.isStyle)
-		const props="fonts,size,color,highlight,border,underline,bold,italic,vanish,strike,vertAlign"
+		const targets=[this,...inherits].filter(a=>a?.isStyle)
+		const {"fonts.ascii":ascii,"fonts.ea":ea,"fonts.cs":cs,"fonts.hansi":hansi,...props}=
+			"fonts.ascii,fonts.ea,fonts.cs,fonts.hansi,size,color,highlight,border,underline,bold,italic,vanish,strike,vertAlign"
 			.split(",")
 			.reduce((props,k)=>{
 				targets.find(a=>(props[k]=a.get(`r.${k}`))!==undefined)
 				return props
 			},{})
+		props.fonts=this.__clear({ascii,ea,cs,hansi},undefined)
 		return this.__clear(props,undefined)
 	}
 }

@@ -4,8 +4,7 @@ export class Measure{
 		const {VertAlign_Size=0.5,Super_Script_Position=0.4}=this.constructor
 		const {fonts, size, vertAlign, bold, italic}=style
 		this.style=style
-		this.fontFamilys=fonts.split(",").map(a=>a.trim()).filter(a=>!!a)
-        this.fontFamily=this.fontFamilys[0]
+		this.fontFamily=this.decideFont(fonts)
 		this.size=size * (vertAlign ? VertAlign_Size : 1);
 		this.hit=0
 
@@ -36,6 +35,10 @@ export class Measure{
 		}
 
 		this.caches=new Map()
+	}
+
+	decideFont(fonts){
+		return fonts.split(",")[0]
 	}
 
 	lineHeight(size){
