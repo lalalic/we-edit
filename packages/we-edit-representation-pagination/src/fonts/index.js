@@ -1,15 +1,18 @@
 import FontKit from "fontkit"
-import EventEmitter from "events"
+import {default as isNode} from "is-node"
+import {makeFontFace, removeFontFace} from "./font-face"
+import r from 'restructure';
 
-const onChange=new EventEmitter()
-const fonts=new (class{
-    constructor(){
-        this.families={}
-    }
-
-    get(name,{bold,italic}={}){
-        const found=this.family(name)
-        if(found){
+/**
+ * families:{[family name]: [different variations, such as plain/regular/bold/italic/oblique/bold-italic/...]}
+ */
+const fonts=(()=>{
+    const families={}
+    return {
+        get(name,{bold,italic}={}){
+            const found=this.family(name)
+            if(!found)
+                return
             if(found.length==1)
                 return found[0]
 
@@ -43,43 +46,55 @@ const fonts=new (class{
                 }
             }
 
-
             return found[0]
+        },
+
+        put(font,props){
+            const url=font.url
+            const put=font=>{
+                const key=font.familyName.toLowerCase()
+                const family=((fonts)=>{
+                    if(!fonts){
+                        fonts=[]
+                        Object.values(font.name.records.fontFamily).forEach(key=>families[key.toLowerCase()]=fonts)
+                    }
+                    return fonts
+                })(families[key]);
+                if(family.find(a=>a.fullName==font.fullName)){
+                    return
+                }
+
+                font=extend(font,props)
+                const {fullName="",familyName="",subfamilyName=""}=font
+                const uuid=`${fullName},${familyName},${subfamilyName}`
+                if(/bold/i.test(uuid))
+                    font.bold=1
+                if(/italic/i.test(uuid))
+                    font.italic=1
+                if(/oblique/i.test(uuid))
+                    font.oblique=1
+                family.push(font)
+                console.log(`font[${familyName}-${subfamilyName}] loaded`)
+                document?.dispatchEvent(new CustomEvent('fontLoaded',{detail:{font,url, fonts}}))
+                return font
+            }
+
+            if(font.fonts)
+                return font.fonts.filter(a=>a.familyName).map(put)
+
+            return put(font)
+        },
+
+        names(){
+            return Array.from(new Set(Object.values(families))).map(([font])=>font.familyName)
+        },
+
+        family(name){
+            const key=name.toLowerCase()
+            if(key in families){
+                return families[key]
+            }
         }
-    }
-
-    put(font,props){
-        if(!font.familyName){
-            return
-        }
-        const key=font.familyName.toLowerCase()
-        const family=(this.families[key]=this.families[key]||[])
-        if(family.find(a=>a.fullName==font.fullName)){
-            return
-        }
-
-        font=extend(font,props)
-        const {fullName="",familyName="",subfamilyName=""}=font
-        const uuid=`${fullName},${familyName},${subfamilyName}`
-        if(/bold/i.test(uuid))
-            font.bold=1
-        if(/italic/i.test(uuid))
-            font.italic=1
-        const name=font.familyName.toLowerCase()
-        console.log(`font[${font.familyName}] loaded`)
-        family.push(font)
-        onChange.emit('fontLoaded',font)
-        return font
-    }
-
-    names(){
-        return Object.keys(this.families)
-			.map(k=>this.families[k][0].familyName)
-			.filter(a=>!!a)
-    }
-
-    family(name){
-        return this.families[name.toLowerCase()]
     }
 })()
 
@@ -93,36 +108,20 @@ const FontManager={
 	},
 
     release(){
-        this.iterateLocal(a=>URL.releaseObjectURL(a.src))
-        fonts.families={}
-        return this
+        
     },
 
-    iterateLocal(f){
-        fonts.names().forEach(k=>{
-            fonts.family(k).forEach(a=>{
-                if(a.src && a.src.startsWith("blob:")){
-                    f(a)
-                }
-            })
-        })
-    },
-
-	fromBrowser(loader){
+    /**
+     * load fonts from a file input
+     * @param {*} input 
+     */
+	fromInput(input){
         const load1=file=>{
             return new Promise(resolve=>{
-                const src=URL.createObjectURL(file)
                 Object.assign(new FileReader(),{
                     onload({target:{result:data}}){
                         try{
-                            const font=FontKit.create(Buffer.from(data))
-                            if(!font){
-                                resolve()
-                            }else if(font.fonts){
-                                resolve(Array.from(font.fonts).map(font=>fonts.put(font,{src})))
-                            } else{
-    							resolve(fonts.put(font,{src}))
-                            }
+                            resolve(fonts.put(FontKit.create(Buffer.from(data))))
 						}catch(e){
 							resolve()
 						}
@@ -131,22 +130,26 @@ const FontManager={
                 }).readAsArrayBuffer(file)
             })
         }
-		return Promise.all(Array.from(loader.files).map(load1)).then(fonts=>{
-            loader.value=""
-            return flat(fonts)
-        }).finally(makeWebFont)
+        return Promise.all(Array.from(input.files).map(load1))
+        .then(fonts=>{
+            input.value=""
+        })
 	},
 
-    fromPath(path){
+    /**
+     * load all fonts from
+     * path:
+     * system: 
+     */
+    fromLocal(path){
         const load1=file=>{
             return new Promise(resolve=>{
                 FontKit.open(file,(err, font)=>{
                     if(err){
+                        console.error(err)
                         resolve()
-                    }else if(font.fonts){
-                        resolve(Array.from(font.fonts).map(font=>fonts.put(font,{src:file})))
                     }else{
-                        resolve(fonts.put(font,{src:file}))
+                        resolve(fonts.put(font))
                     }
                 })
             })
@@ -158,114 +161,171 @@ const FontManager={
                         if(err){
                             reject(err)
                         } else {
-                            Promise.all(files.map(file=>load1(`${path}/${file}`)))
-                            .then(fonts=>resolve(flat(fonts)),reject)
+                            return Promise
+                                .all(files.map(file=>load1(`${path}/${file}`)))
+                                .then(resolve,reject)
                         }
                     })
                 }else{
                     require("get-system-fonts")()
-                        .then(fonts=>Promise.all(fonts.map(load1).filter(a=>!!a)))
-                        .then(fonts=>resolve(flat(fonts)),reject)
+                        .then(fonts=>Promise.all(fonts.map(load1)))
+                        .then(resolve,reject)
                 }
             })
     },
 
-    fromRemote(service){
+    /**
+     * load fonts data from url
+     * API: 
+     *  ** root example: /fonts
+     *  ** ../fonts should require all possible fonts, ["Arial", "Time New Roman",...]
+     *  ** ../fonts/(font family name) to load specified font family data
+     * @param {*} service 
+     */
+    fromRemote(service, required){
         return fetch(service)
-            .then(res=>res.text())
+            .then(res=>res.status!=200 ? "" : res.text())
             .then(list=>{
-                let fonts
                 try{
-                    fonts=JSON.parse(list)
+                    return JSON.parse(list).filter(a=>!!a).map(a=>a.trim())
                 }catch(e){
-                    fonts=list.split(",")
+                    return list.split(",").filter(a=>!!a).map(a=>a.trim())
                 }
-                return fonts.filter(a=>!!a).map(a=>a.trim())
             })
+            .then(supported=>required?.length ? supported.filter(a=>required.includes(a)) : supported)
+            .then(supported=>supported.filter(a=>!fonts.family(a)))
             .then(list=>{
                 return Promise.all(
                     list.map(a=>{
-                        const src=`${service}/${a}`
-                        return fetch(src).then(res=>{
-            					if(res.ok){
-            						return res.arrayBuffer().then(buffer=>fonts.put(FontKit.create(Buffer.from(buffer)),{src}))
-            					}
-            				})
+                        return fetch(`${service}/${a}`).then(res=>{
+                                if(res.ok){
+                                    return res.arrayBuffer().then(buffer=>{
+                                        const font=FontKit.create(Buffer.from(buffer))
+                                        fonts.put(font)
+                                    })
+                                }
+                            })
 
                     })
                 )
             })
-            .finally(makeWebFont)
     },
 
-	load(service,id){
-        try{
-            const found=this.get(id)
-    		if(typeof(found)!="undefined")
-    			return Promise.resolve(found)
-        }catch(e){
+    /**
+     * load fonts from a function
+     * @param {*} service 
+     * @param {*} id 
+     */
+    fromFn(service,required=[]){
+        return Promise.all(
+            required.filter(a=>!fonts.family(a))
+                .map(a=>{
+                    return service(a)
+                        .then(buffer=>fonts.put(FontKit.create(Buffer.from(buffer))))
+                })
+        )
+    },
+    
+    fromCache(fonts){
+        return Promise.resolve({unloaded:fonts})
+    },
 
-        }
-
-		let dataRetrieved,props={}
-		if(typeof(service)=="string"){
-            dataRetrieved=fetch(props.src=`${service}/${id}`)
-				.then(res=>{
-					if(!res.ok){
-						throw new Error(res.statusText)
-					}
-					return res.arrayBuffer()
-				})
-		}else{
-			dataRetrieved=service(id)
-		}
-
-		return dataRetrieved
-			.then(buffer=>fonts.put(FontKit.create(Buffer.from(buffer)),props))
-			.catch()
-	},
-
-    asService(sw="/font-service.js",scope=""){
+    asService(sw="/font-service.js",scope="/fonts"){
         if (typeof(navigator)!="undefined" && 'serviceWorker' in navigator) {
             var service
-            const _fromBrowser=FontManager.fromBrowser
-            FontManager.fromBrowser=function(){
-                return _fromBrowser.call(FontManager,...arguments)
-                  .finally(()=>FontManager.iterateLocal(({familyName, src})=>{
-                      try{
-                          service.active.postMessage({familyName, src, scope})
-                      }catch(e){
-                          console.error(e)
-                      }
-                  }))
+            this.makeFontFace=makeFontFace
+            this.removeFontFace=removeFontFace
+
+            const noCacheCreate=FontKit.create
+            FontKit.noCacheCreate=noCacheCreate
+            FontKit.create=function(data){
+                try{
+                    const font=noCacheCreate(data)
+                    if(font){
+                        const fonts=Array.from(new Set((font.fonts||[font]).map(a=>a.familyName).filter(a=>a[0]!==".")))
+                        service.active.postMessage({familyName:fonts, src:toUrl(data), scope})
+                    }
+                    return font
+                }catch(e){
+                    console.error(e)
+                }
             }
 
-            navigator.serviceWorker.register(`${sw}`, { scope: `${scope}/` }).then(function(reg) {
+            document.addEventListener('fontLoaded',({detail:{font,url}})=>{
+                if(font.familyName[0]==".")
+                    return 
+                Promise.resolve(font.createObjectURL())
+                    .then(url=>makeFontFace(font, `url(${url})`))  
+            })
+
+            navigator.serviceWorker.register(sw, { scope: `${scope}/` }).then(reg=> {
                 service=reg
                 if(reg.active) {
-                    console.log(`Font Service[${sw}] worker active`);
+                    console.log(`Font Service[${sw}] worker active at ${scope}`);
+                    const loadCache=new Promise((resolve,reject)=>{
+                        navigator.serviceWorker.addEventListener('message',function({data:{font:data,done}}){
+                            if(done){
+                                resolve()
+                            }else if(data){    
+                                try{
+                                    const font=noCacheCreate(Buffer.from(data))
+                                    font && fonts.put(Object.assign(font,{src:toUrl(data)}))
+                                }catch(e){}
+                            }
+                        })
+                        service.active.postMessage({action:"fontCache"})
+                    }).finally(()=>{
+                        console.log(`load cache fonts: ${fonts.names().join(",")}`)
+                    })
+                    FontManager.fromCache=()=>loadCache
+                    return loadCache
                 }
-            }).catch(function(error) {
-                console.log(`Font Service[${sw}] failed with ` + error);
-            });
+            })
+            .catch(error=>console.log(`Font Service[${sw}] failed with ` + error))
         }
     },
+
+    requireFonts(service,fonts=[]){
+		const allAlreadyLoaded=fonts.reduce((loaded,k)=>loaded && !!FontManager.get(k),true)
+
+		if(allAlreadyLoaded){
+			return Promise.resolve(done({loaded:fonts}))
+		}
+        
+        const done=()=>{
+			const unloaded=fonts.filter(a=>!FontManager.get(a))
+			const loaded=fonts.filter(a=>!unloaded.includes(a))
+			return {loaded,unloaded, FontManager}
+        }
+        
+        
+		if(isNode && typeof(service)=="string" && require("fs").existsSync(service)){
+			return FontManager
+				.fromPath(service, fonts)
+				.then(done,done)
+		}
+
+        return FontManager.fromCache()
+            .then(()=>{
+                const {unloaded}=done()
+				if(unloaded.length==0)
+					return fonts
+				switch(typeof(service)){
+					case "string"://url
+						return FontManager.fromRemote(service, unloaded)
+					case "function":
+						return FontManager.fromFn(service,unloaded)
+					default:
+						return fonts
+				}
+			}).then(done,done)
+    }
 }
 
 export default FontManager
 
-function flat(fonts){
-    return fonts.reduce((clt,a)=>{
-        if(Array.isArray(a)){
-            clt.splice(clt.length,0,...a)
-        }else if(a){
-            clt.push(a)
-        }
-        return clt
-    },[])
-}
-
 function extend(font, props={}){
+    let url
 	return Object.assign(font,{
 		lineHeight(fontSize){
 			const scale = 1 / this.unitsPerEm * fontSize
@@ -279,33 +339,51 @@ function extend(font, props={}){
         stringWidth(string,fontSize){
             return this.layout(string).advanceWidth/this.unitsPerEm * fontSize
         },
+
+        createObjectURL(){
+            if(url)
+                return url
+            if(!this._directoryPos)
+                return url=toUrl(this.stream.buffer)
+
+            //from font collection file
+            return new Promise((resolve)=>{
+                const buffer=this.stream.buffer
+                const {tag, numTables,searchRange,entrySelector,rangeShift,tables}=this.directory
+                const stream=new r.EncodeStream(), data=[],bufferType=new r.Buffer()
+                stream.on('readable',(a,b,c,chunk)=>{
+                    while(null!=(chunk=stream.read())){
+                        data.push(chunk)
+                    }
+                })
+                stream.on('end',()=> resolve(url=toUrl(data)))
+
+                const _preEncode=FontKit.Directory.preEncode
+                try{
+                    FontKit.Directory.preEncode=null
+                    FontKit.Directory.encode(stream,{
+                        tag, numTables,searchRange,entrySelector,rangeShift,tables,
+                        tables:Object.values(tables).map(({tag,checkSum,length,offset})=>({
+                            tag,checkSum,length,
+                            offset: new r.VoidPointer(bufferType, buffer.slice(offset,offset+length))
+                        }))
+                    })
+                }finally{
+                    FontKit.Directory.preEncode=_preEncode
+                }
+            })
+            
+        },
+
         ...props
 	})
 }
 
-var webFonts=null
-function makeWebFont(){
-    if(!webFonts){
-        webFonts=document.createElement("style")
-        webFonts.id="we_edit_web_fonts"
-        document.body.appendChild(webFonts)
-    }
-    const loaded=Array.from(webFonts.sheet.rules).map(a=>a.style.fontFamily)
-    fonts.names().filter(a=>!loaded.includes(a))
-        .forEach(k=>{
-            const font=fonts.get(k)
-            const {familyName, src}=font
-            if(src && familyName){
-                webFonts.sheet.addRule('@font-face',`font-family:"${familyName}";src: local("${familyName}"), url("${src}");`)
-            }
-        })
-}
+const toUrl=data=>URL.createObjectURL(new Blob([data],{type:"application/octet-stream"}))
 
-;(function(doc){//
-    const dlFont=doc.createElement("datalist")
-    dlFont.setAttribute('id',"loadedFonts")
-    doc.body.appendChild(dlFont)
-    onChange.on('fontLoaded',()=>{
-        dlFont.innerHTML=fonts.names().map(a=>`<option>${a}</option>`).join("")
-    })
-})(document);
+/**
+font <generic-name>: serif, sans-serif, monospace, cursive, fantasy, math, emoji,fangsong, system-ui, ui-serif, ui-sans-serif, ui-monospace, ui-rounded, 
+***NOTES***
+> font family name may be localized, such as word theme font, so localized name should be translated to english name
+> to keep font choosing logic same between font measure and svg measure
+ */

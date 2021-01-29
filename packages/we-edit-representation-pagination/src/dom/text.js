@@ -8,12 +8,15 @@ import breakOpportunities from "../wordwrap/line-break"
 
 import {Text as ComposedText} from "../composed"
 
+/**
+ * fonts make composing complex
+ */
 class Text extends NoChild(dom.Text){
     static contextTypes={
 		...super.contextTypes,
         Measure: PropTypes.func,
-	}
-
+    }
+    
     get text(){
         const {children=""}=this.props
         return Array.isArray(children) ? children.join("") : children
@@ -39,6 +42,27 @@ class Text extends NoChild(dom.Text){
     }
 
     /**
+     * extend to honer fonts, so measure could be simpler
+     * @param {*} text 
+     */
+    breakOpportunities(text){
+        return breakOpportunities(
+            text, 
+            a=>a.split(/(\r\n?)/).filter(a=>!!a).map(a=>a.startsWith(dom.Text.LineBreak) ? [a] : a.split(/(\s)/)).flat().filter(a=>!!a)//linebreaks
+                .map(a=>this.measure.break(a)).flat()//break by fonts
+        )
+    }
+
+    removeLineOrphan(a){
+        const orphans=a.match(/([,.，。]+)$/)?.[0]
+        return orphans ? a.substr(0,a.length-orphans.length) : a
+    }
+    
+    fontFamily(at){
+        return this.measure.getCharFontFamily(this.text[at])
+    }
+
+    /**
      * it's safe to override render since allChildrenComposed would be set manually at end of render
      */
     render(){
@@ -47,65 +71,47 @@ class Text extends NoChild(dom.Text){
                 return null
             }
             const {LineBreak, LineFeed, Tab, PageBreak, FormFeed}=dom.Text
-            const text=this.text
-            const defaultStyle=this.defaultStyle
+            const text=this.text, defaultStyle=this.defaultStyle
             const measure=this.measure
 
-            const whitespaceWidth=measure.stringWidth(" ")
             let start=0
-            breakOpportunities(text).forEach((a,j,_1,_2,jLast=_1.length-1==j)=>{
-                a.split(/(\r\n?)/).filter(a=>!!a)
-                    .map(a=>a.startsWith(LineBreak) ? [a] : a.split(/(\s)/))
-                    .flat().filter(a=>!!a)
-                    .forEach((b,i,$1,$2,iLast=$1.length-1==i)=>{
-                    switch(b){
-                        case LineBreak:
-                        case LineBreak+LineFeed:
-                            this.appendComposed({
-                                ...defaultStyle,
-                                width:0,
-                                minWidth:0,
-                                "data-endat":start+=b.length,
-                                children: b,
-                                tokenizeOpportunity:LineBreak
-                            })
-                            break
-                        case PageBreak:
-                        case FormFeed:{
-                            this.appendComposed({
-                                ...defaultStyle,
-                                width:0,
-                                minWidth:0,
-                                "data-endat":start+=b.length,
-                                children: b,
-                                tokenizeOpportunity:b,
-                            })
-                            break
-                        }
-                        case Tab:
-                            this.appendComposed({
-                                ...defaultStyle,
-                                width:measure.stringWidth(b),
-                                minWidth:0,
-                                "data-endat":start+=b.length,
-                                children: b,
-                                tokenizeOpportunity:b,
-                            })
-                            break
-                        default:{
-                            const isWhitespace=b==" "
-                            const ending=b.endsWith(",") ? b.substring(0,b.length-1) : false
-                            this.appendComposed({
-                                ...defaultStyle,
-                                className:isWhitespace ? "whitespace" : undefined,
-                                width:isWhitespace ? whitespaceWidth : measure.stringWidth(b),
-                                minWidth:isWhitespace||b==LineBreak ? 0 : (ending ? measure.stringWidth(ending) : undefined),
-                                "data-endat":start+=b.length,
-                                children: b,
-                                tokenizeOpportunity:((i+j)==0||(jLast&&iLast))&&!isWhitespace&&b//first or last
-                            })
+            this.breakOpportunities(text)
+            .forEach((b,j,_1,_2,bLast=_1.length-1==j, bFirst=j==0)=>{
+                const props={  
+                    width:0,
+                    minWidth:0,
+                    "data-endat":start+=b.length,
+                    children: b, 
+                    tokenizeOpportunity: (bFirst||bLast)&&b     
+                }
+
+                switch(b){
+                    case PageBreak:
+                    case FormFeed:
+                        break
+                    case Tab:
+                        props.width=measure.stringWidth(b)
+                        break
+                    case LineBreak:
+                    case LineBreak+LineFeed:
+                        props.tokenizeOpportunity=LineBreak
+                        break
+                    case " ":
+                        props.width=measure.stringWidth(b)
+                        props.className="whitespace"
+                        props.tokenizeOpportunity=false
+                        break
+                    default:{
+                        props.width=measure.stringWidth(b)
+                        const withoutLineOrphan=this.removeLineOrphan(b)
+                        if(withoutLineOrphan!=b){
+                            props.minWidth=measure.stringWidth(withoutLineOrphan)
                         }
                     }
+                }
+                this.appendComposed({
+                    ...measure.defaultStyle,
+                    ...props
                 })
             })
             return null

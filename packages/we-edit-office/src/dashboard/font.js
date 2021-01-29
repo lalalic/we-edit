@@ -25,7 +25,7 @@ export default connect()(class __$1 extends PureComponent{
     }
 
     load(input){
-        FontManager.fromBrowser(input)
+        FontManager.fromInput(input)
             .then(e=>this.setState({loaded:Date.now()}))
     }
 })

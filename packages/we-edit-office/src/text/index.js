@@ -85,7 +85,7 @@ export default compose(
 		}>
 			<ToolbarGroup>
 				<FontList
-					value={style&&style.fonts ? style.fonts.split(",")[0] : ""}
+					value={style?.font||""}
 					changeFont={changeFont}/>
 				<ComboBox
 					style={{width:50}}

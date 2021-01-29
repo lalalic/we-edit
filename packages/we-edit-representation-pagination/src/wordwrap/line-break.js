@@ -4,18 +4,11 @@ import LineBreaker from "linebreak"
 * find opportunities from string
 *
 */
-export default function opportunities(str){
-	let breaker=new LineBreaker(str)
-	let last=0
-	var op=[]
-	for (let bk;bk = breaker.nextBreak();) {
-	  op.push(str.slice(last, bk.position))
-
-	  if (bk.required) {
-		//op.push("\n")
-	  }
-
-	  last = bk.position
+export default function opportunities(str,reviver=a=>[a]){
+	const  breaker=new LineBreaker(str), op=[]
+	for (let last=0, bk; bk = breaker.nextBreak();) {
+        op.push(...reviver(str.slice(last, bk.position)))
+	    last = bk.position
 	}
 	return op
 }

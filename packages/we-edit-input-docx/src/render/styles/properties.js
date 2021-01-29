@@ -144,7 +144,9 @@ export class Properties{
 			'w:cs':cs=cs0 && this.theme.font(cs0), 
 			'w:eastAsia':ea=ea0 && this.theme.font(ea0), 
 			'w:hAnsi':hansi=high0 && this.theme.font(high0),
-		}=x.attribs
+		}=x.attribs;
+
+		[ascii,cs,ea,hansi].forEach(a=>this.requireFonts.add(a))
 
 		return {ascii,cs,ea,hansi,hint}
 		/*

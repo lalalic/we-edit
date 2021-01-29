@@ -25,6 +25,10 @@ export class Measure{
     stringWidth(text){
         return text.length
     }
+
+    break(a){
+        return a
+    }
 }
 
 export const State={

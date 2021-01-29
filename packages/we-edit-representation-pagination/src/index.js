@@ -1,4 +1,4 @@
-import React from "react"
+import React,{Component} from "react"
 import PropTypes from "prop-types"
 
 import isNode from "is-node"
@@ -28,14 +28,6 @@ const SelectionStyle=Responsible.SelectionStyle
 
 const {FontMeasure, SVGMeasure}=Measure
 
-const createFontMeasureWithDefault=defaultFont=>{
-	return class __$1 extends FontMeasure{
-		getFont(){
-			return super.getFont()||FontManager.get(defaultFont)
-		}
-	}
-}
-
 export default class Pagination extends Representation.Base{
 	static displayName="pagination"
 	static propTypes={
@@ -56,45 +48,24 @@ export default class Pagination extends Representation.Base{
 
 	static contextTypes={
 		doc: PropTypes.object,
+		media: PropTypes.string,
 	}
 
 	static Output=Output
 
-	state={fontsLoaded:false}
-	componentDidMount(){
-		const {defaultFont,measure,fonts}=this.props
-		this.Measure=measure||(fonts||isNode ? FontMeasure : SVGMeasure)
-		switch(this.Measure){
-			case FontMeasure:{
-				this.Measure=createFontMeasureWithDefault(defaultFont)
-				const requiredFonts=this.context.doc.getFontList()
-				const fontsLoaded=error=>{
-					let loaded=FontManager.names
-					if(loaded && loaded.length){
-						if(!FontManager.get(defaultFont)){
-							console.warn(`default font[${defaultFont}] can't be loaded, set ${loaded[0]} as default`)
-							this.Measure=createFontMeasureWithDefault(loaded[0])
-						}
-					}
-
-					if(error){
-						console.error(error.message)
-					}
-
-					this.setState({fontsLoaded:true})
-				}
-				FontMeasure
-					.requireFonts(fonts,[defaultFont,...requiredFonts])
-					.then(fontsLoaded, fontsLoaded)
-				break
-			}
-			default:{
-				this.setState({fontsLoaded:true})
-				break
-			}
+	constructor(){
+		super(...arguments)
+		const {defaultFont,measure,fonts:service}=this.props
+		this.Measure=measure||(isNode ? FontMeasure : SVGMeasure)
+		if(defaultFont){
+			this.Measure=this.Measure.defaultFontMeasure(defaultFont)
+		}
+		this.state={fontsLoaded:false}
+		this.fontReady=e=>{
+			this.setState({fontsLoaded:true})
 		}
 	}
-
+	
 	getChildContext(){
 		return {
 			Measure: this.Measure,
@@ -102,13 +73,38 @@ export default class Pagination extends Representation.Base{
 	}
 
 	render(){
-		const {fontsLoaded}=this.state
-		if(!fontsLoaded)
-			return <div>loading fonts...</div>
-
+		const {state:{fontsLoaded}, props:{fonts:service}, context:{media, doc}}=this
 		const {defaultFont,measure,fonts, type, ViewerTypes=Viewers, EditorTypes=Editors, ...props}=this.props
 
-		return (<Representation {...{ViewerTypes,EditorTypes,...props,type:undefined} }/>)
+		return [
+			<FontLoader {...{
+				key:"fontloader", service, Measure:this.Measure,media,
+				onFinished:this.fontReady,
+				fonts:Array.from(new Set([...doc.getFontList(),defaultFont])).filter(a=>!!a)
+			}}/>,
+			fontsLoaded && <Representation {...{key:"representation",ViewerTypes,EditorTypes,...props,type:undefined} }/>
+		]
+	}
+}
+
+class FontLoader extends Component{
+	constructor(){
+		super(...arguments)
+		this.state={loaded:false}
+	}
+	render(){
+		const {state:{loaded}}=this
+		if(loaded)
+			return null
+		return <div>loading fonts ... </div>
+	}
+
+	componentDidMount(){
+		const {props:{service, fonts,Measure, onFinished}}=this
+		Measure.requireFonts(service,fonts)
+			.then(({unloaded, errors})=>{
+				this.setState({errors, unloaded, loaded:true},onFinished)
+			})	
 	}
 }
 

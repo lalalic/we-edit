@@ -7,7 +7,6 @@ import IconTextBox from "material-ui/svg-icons/editor/format-shapes"
 import {ToolbarGroup, FlatButton,MenuItem,Divider,Tabs,Tab} from "material-ui"
 import {Ribbon, Dialog, ContextMenu} from "we-edit-office"
 import { compose } from "recompose"
-import Positioning from "../../../../we-edit-representation-pagination/src/composed/responsible-canvas/positioning/base"
 
 export default compose(
     whenSelectionChangeDiscardable()

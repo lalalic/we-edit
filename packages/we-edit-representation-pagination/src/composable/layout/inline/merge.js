@@ -26,7 +26,8 @@ export default class Merge extends Component{
 				state.pieces.push(React.cloneElement(piece,{x:state.x,key}))
 				state.x+=piece.props.width
 			}else{
-				if(piecePath.join(",")==state.trunkPath){
+				if(piecePath.join(",")==state.trunkPath 
+					&& piece.props.fontFamily==state.trunk[state.trunk.length-1].props.fontFamily){
 					state.trunk.push(piece)
 				}else {
 					state.mergeTrunk(key)

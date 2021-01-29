@@ -54,7 +54,15 @@ module.exports=(env,args)=>{
 					}
 					function _formatAttrs(`
 				}
-			}]
+			},{
+				test:/fontkit\/index\.js$/,
+				loader:"string-replace-loader",
+				options:{
+					search:/module.exports\s+=/,
+					replace:`;fontkit.Directory=Directory;module.exports=`
+				}
+			},
+			]
 		},
 		resolve:{
 			symlinks:false,

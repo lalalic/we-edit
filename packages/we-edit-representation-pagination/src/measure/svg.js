@@ -1,35 +1,16 @@
 import Measure from "./base"
 import memoize from "memoize-one"
+import FontManager from "../fonts"
 
 /**
  *
  * why it's slower than html
  */
-let tester=null
+let tester=null, fontSheet
 export default class SVGMeasure extends Measure{
-    decideFont(fonts){
-        if(typeof(fonts)!="object")
-            return super.decideFont(fonts)
-
-        const decide=Object.keys(fonts).map(k=>{
-            const ranges=fonts[k].split(",").map(a=>a.trim()).filter(a=>!!a)
-                .map(a=>a.split("-").map(a=>a.trim()).filter(a=>!!a).map(a=>{
-                    console.log('parsing ' +a)
-                    return parseInt(a,16)
-                }))
-                .map(([min,max=min])=>(code=>{
-                    console.log({code,min,max})
-                    return code>=min && code<=max
-                }))
-            return code=>{
-                if(ranges.find(a=>a(code))){
-                    return k
-                }
-            }
-        })
-
-        this._decide=code=>decide.reduce((found,fn)=>(found || fn(code)),"")
-        return this._decide("A".charCodeAt(0))
+    static displayName="SVG Measure"
+    fontExists(family){
+        return !!Array.from(document.fonts).find(a=>a.family==family && a.status=="loaded")
     }
 
     lineHeight(size=this.size){
@@ -47,25 +28,47 @@ export default class SVGMeasure extends Measure{
         return {height,descent:height-baseline}
     }
 
-    cssStyle(size=this.size, family=this.fontFamily){
+    cssStyle(size=this.size){
         return `white-space:pre;
-            font-family:${family};
+            font-family:${this.fontFamily};
             font-size:${size}px;
-            font-weight:${this.style.bold ? "700" : "400"};
+            font-weight:${this.style.bold ? "bold" : "normal"};
             font-style:${this.style.italic ? "italic" : "normal"};
             `
     }
 
     _stringWidth(word){
-        tester.setStyle(this.cssStyle(this.size,this.getFamily(word)))
+        tester.setStyle(this.cssStyle(this.size))
         tester.firstChild.data=word
         return tester.getBBox().width
     }
 
-    getFamily(word){
-        if(typeof(this.style.fonts)=="object"){
-            return this._decide(word.charCodeAt(0))
-        }
-        return this.fontFamily
+    static requireFonts(service, fonts){
+        return super.requireFonts(service, fonts)
+            .then(({FontManager,unloaded})=>{
+                const locals=unloaded
+                if(locals && locals.length){
+                    locals.forEach(a=>FontManager.makeFontFace({familyName:a},`local("${a}")`))
+                }
+                const names=fonts.map(a=>FontManager.get(a)?.familyName||a)
+                const faces=Array.from(document.fonts).filter(a=>names.includes(a.family))
+                return Promise.all(
+                    faces
+                        .map(a=>new Promise((resolve,reject)=>{
+                            console.log(`${a.family} required`)
+                            return a.loaded.then(
+                                ()=>(console.log(`${a.family} loaded`),resolve()), 
+                                e=>(console.log(`${a.family} loaded error: ${e.message}`),resolve(a.family))
+                            )
+                        }))
+                ).then(required=>{
+                    const unloaded=required.filter(a=>typeof(a)=="string")
+                    if(unloaded.length){
+                        unloaded.forEach(a=>FontManager.removeFontFace(a))
+                    }
+                    const errors=unloaded.filter(a=>locals.includes(a))
+                    return {FontManager,unloaded, errors}
+                })
+            })
     }
 }

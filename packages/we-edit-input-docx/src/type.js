@@ -316,7 +316,7 @@ class DocxType extends Input.Editable{
 
 		this.refreshStyles=createStylesElement
 
-		this.getFontList=()=>Array.from(selector.requireFonts)
+		this.getFontList=()=>Array.from(selector.requireFonts).filter(a=>!!a)
 
 		return rendered
 	}

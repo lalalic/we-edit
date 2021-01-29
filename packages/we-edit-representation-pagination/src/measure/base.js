@@ -1,44 +1,143 @@
+import FontManager from "../fonts"
+
+function toUnicodeCheck(unicodes,name="undecided"){
+	unicodes=unicodes.split(",").map(a=>a.trim()).filter(a=>!!a)
+	.map(seg=>
+		seg.split("-").map(a=>a.trim()).filter(a=>!!a).map(a=>{
+			return parseInt(a,16)
+		})
+	)
+	return A=>unicodes.find(([min,max=min])=>A>=min && A<=max) ? name : ""
+}
+
 export class Measure{
 	static caches=new Map()
 	constructor(style){
 		const {VertAlign_Size=0.5,Super_Script_Position=0.4}=this.constructor
-		const {fonts, size, vertAlign, bold, italic}=style
+		const {size, vertAlign, bold, italic}=style
 		this.style=style
-		this.fontFamily=this.decideFont(fonts)
 		this.size=size * (vertAlign ? VertAlign_Size : 1);
-		this.hit=0
-
-		const cacheKey=[this.fontFamily,this.size,bold&&'bold',italic&&'italic'].filter(a=>!!a).join("-")
-		const caches=this.constructor.caches
-		if(caches.has(cacheKey)){
-			const cache=caches.get(cacheKey)
-			cache.hit++
-			console.debug(`measure cache[${cacheKey}]: hit ${cache.hit}`)
-			return cache
-		}
-
-		caches.set(cacheKey,this)
-
-        this.defaultStyle={
-			whiteSpace:'pre',
-			fontSize:`${this.size}px`,
-			fontWeight:style.bold ? 700 : 400,
-			fontStyle:style.italic ? "italic" : "normal",
-			fontFamily:this.fontFamily,
-		}
-
-		const {height, descent}=this.lineHeight()
-        this.defaultStyle.height=this.height=height
-		this.defaultStyle.descent=this.descent=descent
-		if(vertAlign=="superscript"){
-			this.defaultStyle.y=-this.lineHeight(size).height*Super_Script_Position
-		}
-
 		this.caches=new Map()
+
+		this.fontFamily=this.decideFont({...style,Super_Script_Position})
+		if(this.fontFamily){
+			this.hit=0
+
+			const cacheKey=[this.fontFamily,this.size,bold&&'bold',italic&&'italic'].filter(a=>!!a).join("-")
+			const caches=this.constructor.caches
+			if(caches.has(cacheKey)){
+				const cache=caches.get(cacheKey)
+				cache.hit++
+				console.debug(`measure cache[${cacheKey}]: hit ${cache.hit}`)
+				return cache
+			}
+
+			caches.set(cacheKey,this)
+		}
 	}
 
-	decideFont(fonts){
-		return fonts.split(",")[0]
+	decideFont({fonts,bold,italic,vertAlign,Super_Script_Position}){
+		if(!fonts){
+			debugger
+		}
+		const getDefaultStyle=()=>{
+			const defaultStyle={
+				whiteSpace:'pre',
+				fontSize:`${this.size}px`,
+				fontWeight:bold ? "bold" : "normal",
+				fontStyle:italic ? "italic" : "normal",
+				fontFamily:this.fontFamily,
+			}
+	
+			const {height, descent}=this.lineHeight()
+			defaultStyle.height=this.height=height
+			defaultStyle.descent=this.descent=descent
+			if(vertAlign=="superscript"){
+				defaultStyle.y=-this.lineHeight().height*Super_Script_Position
+			}
+			return defaultStyle
+		}
+
+        if(typeof(fonts)=="string"){
+			if(this.fontExists(fonts)){
+				this.fontFamily=fonts
+			} else if(fonts!=this.constructor.defaultFont && this.fontExists(this.constructor.defaultFont)){
+				this.fontFamily=this.constructor.defaultFont
+				console.warn(`Font[${fonts}] not exists, fallback to default ${this.constructor.defaultFont}`)
+			}else{
+				this.fontFamily="Arial"
+				console.warn(`Font[${fonts}, and ${this.constructor.defaultFont} as default] not exists, fallback to Arial`)
+			}
+			this.defaultStyle=getDefaultStyle()
+			return fonts
+		}
+
+		const checks=this.constructor.checks
+		const types=Object.keys(fonts).map(range=>{
+			let fn
+			const font=fonts[range]
+			return A=>{
+				if(checks[range]){
+					return checks[range](A) && font
+				}else{
+					return (fn||(fn=toUnicodeCheck(range,font)))(A)
+				}
+			}
+		})
+			
+		const fontFamily=this.getCharFontFamily=(A)=>{
+			let family=types.reduce((type,fn)=>type||fn(A), "")
+			if(!family && !checks.ascii(A)&&!checks.ea(A)){
+				family=fonts.hansi||fonts['*']
+			}
+			
+			if(!(family && this.fontExists(family))){
+				if(fonts!=this.constructor.defaultFont && this.fontExists(this.constructor.defaultFont)){
+					family=this.constructor.defaultFont
+				}else{
+					family="Arial"
+				}
+			}
+			return family
+		}
+
+		this.break=str=>{
+			let top, parsed=[top=[str[0]]], last=fontFamily(str.charCodeAt(0))
+			for(let i=1, cur, len=str.length;i<len;i++){
+				cur=fontFamily(str.charCodeAt(i))
+				if(cur==last){
+					top.push(str[i])
+				}else{
+					parsed.push(top=[str[i]])
+					last=cur
+				}
+			}
+			return parsed.map(a=>a.join(""))
+		}
+
+		const measures={}
+
+		this._stringWidth=str=>{
+			this.fontFamily=fontFamily(str[0])
+			const measure=measures[this.fontFamily]||(measures[this.fontFamily]=this.clone({fonts:this.fontFamily}))
+			return measure._stringWidth(str)
+		}
+
+		Object.defineProperties(this,{
+			defaultStyle:{
+				get(){
+					return getDefaultStyle()
+				}
+			}
+		})
+	}
+	
+	fontExists(font){
+		return true
+	}
+
+	getCharFontFamily(a){
+		return this.fontFamily
 	}
 
 	lineHeight(size){
@@ -76,6 +175,41 @@ export class Measure{
 			return state
 		},{width:0,text:"",done:false}).text.length
 	}
+
+	/**
+	 * break according to fonts
+	 * @param {*} str 
+	 */
+	break(str){
+		return str
+	}
+
+	clone(style){
+		return new (this.constructor)({...this.style,...style})
+	}
+
+	static checks={
+		ascii:	toUnicodeCheck("0000 - 007F,FE70 - FEFE,0590 - 05FF,0600 - 06FF,0700 - 074F,0750 - 077F,0780 - 07BF"),
+		ea:	toUnicodeCheck(`
+					1100 - 11FF,2F00 - 2FDF,2FF0 - 2FFF,3000 - 303F,3040 - 309F,30A0 - 30FF,3100 - 312F,3130 - 318F,
+					3190 - 319F,3200 - 32FF,3300 - 33FF,3400 - 4DBF,4E00 - 9FAF,A000 - A48F,A490 - A4CF,AC00 - D7AF,
+					D800 - DB7F,DB80 - DBFF,DC00 - DFFF,F900 - FAFF,FE30 - FE4F,FE50 - FE6F,FF00 - FFEF
+				`),
+		cs: A=>false, 
+		hansi: A=>false, // fallback of ascii && ea in code
+	}
+
+	static requireFonts=FontManager.requireFonts
+
+	static defaultFont="Arial"
+
+	static defaultFontMeasure=function(defaultFont){
+		const Type=this
+		return class extends Type{
+			static defaultFont=defaultFont
+		}
+	}
 }
+
 
 export default Measure
