@@ -102,6 +102,7 @@ class Text extends NoChild(dom.Text){
                         props.tokenizeOpportunity=false
                         break
                     default:{
+                        delete props.minWidth
                         props.width=measure.stringWidth(b)
                         const withoutLineOrphan=this.removeLineOrphan(b)
                         if(withoutLineOrphan!=b){

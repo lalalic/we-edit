@@ -98,7 +98,7 @@ define("paragraph compose",
             })
         })
 
-        fit("right",()=>{
+        it("right",()=>{
             const [line]=align("right")
             const story=new ReactQuery(line).find(".story")
             expect(story.children().eq(0).attr('x')).toBe(LineWidth-TEXT.length)
