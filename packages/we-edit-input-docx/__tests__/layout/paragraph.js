@@ -3,31 +3,10 @@ import PropTypes from "prop-types"
 import {dom, ReactQuery, render} from "we-edit"
 import {withContext} from "recompose"
 import {Editors, Viewers} from "we-edit-representation-pagination"
+import Measure from "we-edit-representation-pagination/__tests__/measure"
+
 import Docx from "../../src/type"
 import Style from "../../src/render/styles"
-
-class Measure{
-    constructor({size}){
-        this.defaultStyle={height:size,descent:1}
-        this.height=size
-    }
-
-    widthString(x,text){
-        return Math.min(x,text.length)
-    }
-
-    stringWidth(text){
-        return text.length
-    }
-
-    break(a){
-        return a
-    }
-
-    static defaultFontMeasure(){
-        return this
-    }
-}
 
 describe("paragraph",()=>{
     describe("tab",()=>{
@@ -86,7 +65,7 @@ describe("paragraph",()=>{
                 })
             })
         }
-        fit("left tab should push next content start at tabstop",()=>{
+        it("left tab should push next content start at tabstop",()=>{
             return test("hello "+Tab+"world",[{pos:15}]).then(world=>{
                 expect(world.x).toBe(15)
             })

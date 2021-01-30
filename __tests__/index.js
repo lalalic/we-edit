@@ -11,6 +11,8 @@ import iDocx from "we-edit-input-docx/type"
 
 import TestRenderer from 'react-test-renderer'
 
+import Measure from "we-edit-representation-pagination/__tests__/measure"
+
 const {Format}=Emitter
 
 describe("we-edit integration", function(){
@@ -18,35 +20,7 @@ describe("we-edit integration", function(){
 		File.install()
 		iDocx.install()
 
-		Pagination.defaultProps.measure=class {
-			defaultStyle={
-
-			}
-
-			lineHeight(){
-				return {height:1,descent:0}
-			}
-
-			stringWidth(string){
-				return string.length
-			}
-
-			widthString(width,string){
-				return string
-			}
-
-			break(a){
-				return a
-			}
-
-			static defaultFontMeasure(){
-				return this
-			}
-
-			static requireFonts(){
-				return Promise.resolve({})
-			}
-		}
+		Pagination.defaultProps.measure=Measure
 	})
 
 	afterAll(()=>{

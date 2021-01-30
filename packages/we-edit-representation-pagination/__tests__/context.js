@@ -6,38 +6,14 @@ import ReactDOMServer from 'react-dom/server'
 import cheerio from "cheerio"
 import ReactDOM from 'react-dom'
 import * as selector from "../../we-edit/src/state/selector"
+import Measure from "./measure"
 
 selector.getWorkers=jest.fn(()=>[])
 ReactDOM.createPortal = jest.fn(node => node)
 
+export {Measure}
+
 export const provider=(A,Default={})=>withContext(A.contextTypes,({context})=>({...Default,...context}))(({children})=><Fragment>{children}</Fragment>)
-
-export class Measure{
-    constructor({size}){
-        this.defaultStyle={height:size,descent:1}
-        this.height=size
-    }
-
-    widthString(x,text){
-        return Math.min(x,text.length)
-    }
-
-    stringWidth(text){
-        return text.length
-    }
-
-    break(a){
-        return a
-    }
-
-    static defaultFontMeasure(){
-        return this
-    }
-
-    static requireFonts(){
-        return Promise.resolve({unloaded:[]})
-    }
-}
 
 export const State={
     equals({start,end}){

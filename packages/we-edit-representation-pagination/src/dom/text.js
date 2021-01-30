@@ -71,8 +71,7 @@ class Text extends NoChild(dom.Text){
                 return null
             }
             const {LineBreak, LineFeed, Tab, PageBreak, FormFeed}=dom.Text
-            const text=this.text, defaultStyle=this.defaultStyle
-            const measure=this.measure
+            const text=this.text, measure=this.measure
 
             let start=0
             this.breakOpportunities(text)
@@ -81,16 +80,17 @@ class Text extends NoChild(dom.Text){
                     width:0,
                     minWidth:0,
                     "data-endat":start+=b.length,
-                    children: b, 
-                    tokenizeOpportunity: (bFirst||bLast)&&b     
+                    children: b,   
                 }
 
                 switch(b){
                     case PageBreak:
                     case FormFeed:
+                        props.tokenizeOpportunity=b
                         break
                     case Tab:
                         props.width=measure.stringWidth(b)
+                        props.tokenizeOpportunity=b
                         break
                     case LineBreak:
                     case LineBreak+LineFeed:
@@ -108,6 +108,7 @@ class Text extends NoChild(dom.Text){
                         if(withoutLineOrphan!=b){
                             props.minWidth=measure.stringWidth(withoutLineOrphan)
                         }
+                        props.tokenizeOpportunity=(bFirst||bLast)&&b
                     }
                 }
                 this.appendComposed({
