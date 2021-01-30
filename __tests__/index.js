@@ -34,6 +34,18 @@ describe("we-edit integration", function(){
 			widthString(width,string){
 				return string
 			}
+
+			break(a){
+				return a
+			}
+
+			static defaultFontMeasure(){
+				return this
+			}
+
+			static requireFonts(){
+				return Promise.resolve({})
+			}
 		}
 	})
 
@@ -90,7 +102,7 @@ describe("we-edit integration", function(){
 			})
 		})
 
-		fit("html",()=>{
+		it("html",()=>{
 			const html=[]
 			return render(template("html",{
 				write(chunk,encoding,cb){

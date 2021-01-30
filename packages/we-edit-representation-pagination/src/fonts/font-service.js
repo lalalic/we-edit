@@ -41,15 +41,10 @@ self.addEventListener("message", function(e){
     }
 
     if(familyName && src){
-        const names=Array.isArray(familyName) ? familyName : [familyName]
         self.caches.open("v1").then(cache=>{
             return fetch(src)
             .then(response=>{
-                names.forEach(a=>cache.put(SCOPE+a,response.clone()))
-                if(src.startsWith("blob:http")){
-                    URL.revokeObjectURL(src)
-                }
-                console.debug(`service[font]: ${names.join(",")} at ${src}`)
+                cache.put(SCOPE+familyName,response.clone())
             })
         })
     }

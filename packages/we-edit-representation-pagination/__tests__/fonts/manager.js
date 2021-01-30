@@ -6,14 +6,14 @@ describe("font manager",()=>{
     })
 
 	it("can load all fonts from a folder",()=>{
-        return FontManager.fromPath(__dirname)
+        return FontManager.fromLocal(__dirname)
             .then(fonts=>{
                 expect(fonts.length>0).toBe(true)
             })
 	})
 
     it("can load system fonts",()=>{
-        return FontManager.fromPath()
+        return FontManager.fromLocal()
             .then(fonts=>{
                 expect(fonts.length>0).toBe(true)
             })
@@ -21,9 +21,9 @@ describe("font manager",()=>{
 
 
 
-    describe("font",()=>{
+    fdescribe("font",()=>{
         beforeAll(()=>{
-            return FontManager.release().fromPath(__dirname)
+            return FontManager.release().fromLocal(__dirname)
         })
 
         it("loaded family",()=>{

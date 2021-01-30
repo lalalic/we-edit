@@ -19,6 +19,14 @@ class Measure{
     stringWidth(text){
         return text.length
     }
+
+    break(a){
+        return a
+    }
+
+    static defaultFontMeasure(){
+        return this
+    }
 }
 
 describe("paragraph",()=>{
@@ -78,7 +86,7 @@ describe("paragraph",()=>{
                 })
             })
         }
-        it("left tab should push next content start at tabstop",()=>{
+        fit("left tab should push next content start at tabstop",()=>{
             return test("hello "+Tab+"world",[{pos:15}]).then(world=>{
                 expect(world.x).toBe(15)
             })

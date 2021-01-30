@@ -29,6 +29,14 @@ export class Measure{
     break(a){
         return a
     }
+
+    static defaultFontMeasure(){
+        return this
+    }
+
+    static requireFonts(){
+        return Promise.resolve({unloaded:[]})
+    }
 }
 
 export const State={

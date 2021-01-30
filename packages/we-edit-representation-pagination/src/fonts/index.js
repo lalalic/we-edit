@@ -50,7 +50,6 @@ const fonts=(()=>{
         },
 
         put(font,props){
-            const url=font.url
             const put=font=>{
                 const key=font.familyName.toLowerCase()
                 const family=((fonts)=>{
@@ -64,7 +63,7 @@ const fonts=(()=>{
                     return
                 }
 
-                font=extend(font,props)
+                !font.createObjectURL && extend(font,props)
                 const {fullName="",familyName="",subfamilyName=""}=font
                 const uuid=`${fullName},${familyName},${subfamilyName}`
                 if(/bold/i.test(uuid))
@@ -74,8 +73,8 @@ const fonts=(()=>{
                 if(/oblique/i.test(uuid))
                     font.oblique=1
                 family.push(font)
-                console.log(`font[${familyName}-${subfamilyName}] loaded`)
-                document?.dispatchEvent(new CustomEvent('fontLoaded',{detail:{font,url, fonts}}))
+                console.log(`font[${fullName}] loaded`)
+                document?.dispatchEvent(new CustomEvent('fontLoaded',{detail:{font, fonts}}))
                 return font
             }
 
@@ -108,7 +107,7 @@ const FontManager={
 	},
 
     release(){
-        
+        return this
     },
 
     /**
@@ -242,8 +241,11 @@ const FontManager={
                 try{
                     const font=noCacheCreate(data)
                     if(font){
-                        const fonts=Array.from(new Set((font.fonts||[font]).map(a=>a.familyName).filter(a=>a[0]!==".")))
-                        service.active.postMessage({familyName:fonts, src:toUrl(data), scope})
+                        (font.fonts||[font]).forEach(a=>{
+                            Promise.resolve(extend(a).createObjectURL()).then(src=>{
+                                service.active.postMessage({familyName:a.fullName, src, scope})
+                            })
+                        })
                     }
                     return font
                 }catch(e){
