@@ -15,7 +15,7 @@ export default class FontList extends React.Component{
 	}
 
 	componentWillUnmount(){
-		document.removeEventListener(this.fontListener)
+		document.removeEventListener("fontLoaded",this.fontListener)
 	}
 
 	render(){

@@ -55,7 +55,6 @@ export default class SVGMeasure extends Measure{
                 return Promise.all(
                     faces
                         .map(a=>new Promise((resolve,reject)=>{
-                            console.log(`${a.family} required`)
                             return a.loaded.then(
                                 ()=>(console.log(`${a.family} loaded`),resolve()), 
                                 e=>(console.log(`${a.family} loaded error: ${e.message}`),resolve(a.family))

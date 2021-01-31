@@ -10,6 +10,9 @@ function toUnicodeCheck(unicodes,name="undecided"){
 	return A=>unicodes.find(([min,max=min])=>A>=min && A<=max) ? name : ""
 }
 
+/**
+ * if fonts is string, fontFamily is determined for every char, no mater unicode 
+ */
 export class Measure{
 	static caches=new Map()
 	constructor(style){
@@ -65,8 +68,8 @@ export class Measure{
 				this.fontFamily=this.constructor.defaultFont
 				console.warn(`Font[${fonts}] not exists, fallback to default ${this.constructor.defaultFont}`)
 			}else{
-				this.fontFamily="Arial"
-				console.warn(`Font[${fonts}, and ${this.constructor.defaultFont} as default] not exists, fallback to Arial`)
+				this.fontFamily="Times"
+				console.warn(`Font[${Array.from(new Set([fonts,this.constructor.defaultFont])).join(",")} as fallback] not exists, fallback to ${this.fontFamily}`)
 			}
 			this.defaultStyle=getDefaultStyle()
 			return fonts
@@ -88,15 +91,11 @@ export class Measure{
 		const fontFamily=this.getCharFontFamily=(A)=>{
 			let family=types.reduce((type,fn)=>type||fn(A), "")
 			if(!family && !checks.ascii(A)&&!checks.ea(A)){
-				family=fonts.hansi||fonts['*']
+				family=fonts.hansi
 			}
 			
 			if(!(family && this.fontExists(family))){
-				if(fonts!=this.constructor.defaultFont && this.fontExists(this.constructor.defaultFont)){
-					family=this.constructor.defaultFont
-				}else{
-					family="Arial"
-				}
+				family=this.defaultFontMeasure.getCharFontFamily(A)
 			}
 			return family
 		}
@@ -201,12 +200,19 @@ export class Measure{
 
 	static requireFonts=FontManager.requireFonts
 
-	static defaultFont="Arial"
+	static defaultFont={
+		ascii:"Times",
+		ea:"ST",
+	}
 
 	static defaultFontMeasure=function(defaultFont){
 		const Type=this
+		const measure=new Type({fonts:defaultFont})
 		return class extends Type{
 			static defaultFont=defaultFont
+			get defaultFontMeasure(){
+				return measure
+			}
 		}
 	}
 }
