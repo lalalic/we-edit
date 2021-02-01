@@ -1,5 +1,18 @@
 import FontManager from "../fonts"
 
+/**
+ * Measure has 
+ * ** fonts: 
+ * 		> {ascii:Times,ea:宋体, "00FA-FF00":,..., hint:"ea"}
+ * 			> hint specifies all chars use same domain font family
+ * 
+ * 		> string: every char use the same font=>{ascii:fontFamily, hint:"ascii"}
+ * 
+ * ** fallback fonts: 
+ * 		> system must make sure all fallback fonts loaded, which must be object
+ * 		> {ascii,ea, hansi,...}
+ */
+
 function toUnicodeCheck(unicodes,name="undecided"){
 	unicodes=unicodes.split(",").map(a=>a.trim()).filter(a=>!!a)
 	.map(seg=>
@@ -10,9 +23,6 @@ function toUnicodeCheck(unicodes,name="undecided"){
 	return A=>unicodes.find(([min,max=min])=>A>=min && A<=max) ? name : ""
 }
 
-/**
- * if fonts is string, fontFamily is determined for every char, no mater unicode 
- */
 export class Measure{
 	static caches=new Map()
 	constructor(style){
@@ -62,15 +72,7 @@ export class Measure{
 		}
 
         if(typeof(fonts)=="string"){
-			if(this.fontExists(fonts)){
-				this.fontFamily=fonts
-			} else if(fonts!=this.constructor.defaultFont && this.fontExists(this.constructor.defaultFont)){
-				this.fontFamily=this.constructor.defaultFont
-				console.warn(`Font[${fonts}] not exists, fallback to default ${this.constructor.defaultFont}`)
-			}else{
-				this.fontFamily="Times"
-				console.warn(`Font[${Array.from(new Set([fonts,this.constructor.defaultFont])).join(",")} as fallback] not exists, fallback to ${this.fontFamily}`)
-			}
+			this.fontFamily= this.fontExists(fonts) ? fonts : this.defaultFontMeasure.getCharFontFamily("A")
 			this.defaultStyle=getDefaultStyle()
 			return fonts
 		}
@@ -207,14 +209,22 @@ export class Measure{
 
 	static defaultFontMeasure=function(defaultFont){
 		const Type=this
-		const measure=new Type({fonts:defaultFont})
+		const fonts=typeof(defaultFont)=="string" ? {...this.defaultFont, ascii:defaultFont} : {...this.defaultFont, ...defaultFont}
+		const measure=new Type({fonts})
 		return class extends Type{
-			static defaultFont=defaultFont
 			get defaultFontMeasure(){
 				return measure
 			}
 		}
 	}
+}
+
+/**
+ * make sure default font can be loaded from somewhere
+ */
+const defaultFont={
+	ascii:"Times",
+	ea:"ST",	
 }
 
 
