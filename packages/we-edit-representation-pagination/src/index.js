@@ -34,12 +34,11 @@ export default class Pagination extends Representation.Base{
 		type: PropTypes.string.isRequired,
 		measure: PropTypes.func,
 		fonts: PropTypes.oneOfType([PropTypes.string,PropTypes.func]),
-		defaultFont: PropTypes.string,
+		fallbackFonts: PropTypes.any,
 	}
 
 	static defaultProps={
-		type:"pagination",
-		defaultFont:"Arial"
+		type:"pagination"
 	}
 
 	static childContextTypes={
@@ -55,13 +54,16 @@ export default class Pagination extends Representation.Base{
 
 	constructor(){
 		super(...arguments)
-		const {defaultFont,measure,fonts:service}=this.props
+		const {fallbackFonts,measure,fonts:service}=this.props
 		this.Measure=measure||(isNode ? FontMeasure : SVGMeasure)
-		if(defaultFont){
-			this.Measure=this.Measure.defaultFontMeasure(defaultFont)
+		if(fallbackFonts){
+			this.Measure=this.Measure.createFallbackFontsMeasure(fallbackFonts)
 		}
 		this.state={fontsLoaded:false}
-		this.fontReady=e=>{
+		this.fontReady=({unloaded})=>{
+			if(unloaded?.length){
+				console.warn(`some required fonts[${unloaded.join(",")}] can't be loaded`)
+			}
 			this.setState({fontsLoaded:true})
 		}
 	}
@@ -72,15 +74,25 @@ export default class Pagination extends Representation.Base{
 		}
 	}
 
+	get requiredFonts(){
+		const {context:{doc}, props:{fallbackFonts=""}}=this
+		return Array.from(new Set([
+			...doc.getFontList(), 
+			...(typeof(fallbackFonts)=="string" ? [fallbackFonts] : Object.values(fallbackFonts))
+		])).filter(a=>!!a)
+	}
+
 	render(){
-		const {state:{fontsLoaded}, props:{fonts:service}, context:{media, doc}}=this
-		const {defaultFont,measure,fonts, type, ViewerTypes=Viewers, EditorTypes=Editors, ...props}=this.props
+		const {state:{fontsLoaded}, props:{fonts:service}, context:{doc}}=this
+		const {fallbackFonts,measure,fonts, type, ViewerTypes=Viewers, EditorTypes=Editors, ...props}=this.props
 
 		return [
 			<FontLoader {...{
-				key:"fontloader", service, Measure:this.Measure,media,
+				key:"fontloader", 
+				service, 
+				Measure:this.Measure,
 				onFinished:this.fontReady,
-				fonts:Array.from(new Set([...doc.getFontList(),defaultFont])).filter(a=>!!a)
+				fonts:this.requiredFonts
 			}}/>,
 			fontsLoaded && <Representation {...{key:"representation",ViewerTypes,EditorTypes,...props,type:undefined} }/>
 		]
@@ -103,7 +115,7 @@ class FontLoader extends Component{
 		const {props:{service, fonts,Measure, onFinished}}=this
 		Measure.requireFonts(service,fonts)
 			.then(({unloaded, errors})=>{
-				this.setState({errors, unloaded, loaded:true},onFinished)
+				this.setState({errors, unloaded, loaded:true},()=>onFinished({unloaded}))
 			})	
 	}
 }

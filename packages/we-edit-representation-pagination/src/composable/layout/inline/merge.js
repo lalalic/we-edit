@@ -1,5 +1,6 @@
 import React, {Component} from "react"
 import memoize from "memoize-one"
+import {ReactQuery} from "we-edit"
 
 import {Group} from "../../../composed"
 
@@ -26,8 +27,7 @@ export default class Merge extends Component{
 				state.pieces.push(React.cloneElement(piece,{x:state.x,key}))
 				state.x+=piece.props.width
 			}else{
-				if(piecePath.join(",")==state.trunkPath 
-					&& piece.props.fontFamily==state.trunk[state.trunk.length-1].props.fontFamily){
+				if(state.mergeable(piece,piecePath.join(","))){
 					state.trunk.push(piece)
 				}else {
 					state.mergeTrunk(key)
@@ -66,6 +66,15 @@ export default class Merge extends Component{
 				this.trunk=[]
 				this.trunkPath=null
 				return this
+			},
+			mergeable(piece, path){
+				if(path==this.trunkPath){
+					const fonts=new ReactQuery([piece,this.trunk[this.trunk.length-1]])
+						.find(`[fontFamily]`)
+						.toArray()
+						.map(a=>a.props.fontFamily)
+					return new Set(fonts).size<=1
+				}
 			}
 		})
 		.mergeTrunk()

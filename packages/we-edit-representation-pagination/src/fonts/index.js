@@ -358,18 +358,23 @@ function extend(font, props={}){
                         data.push(chunk)
                     }
                 })
-                stream.on('end',()=> resolve(url=toUrl(data)))
+                stream.on('end',()=>{
+                    debugger
+                    resolve(url=toUrl(data))
+                })
 
                 const _preEncode=FontKit.Directory.preEncode
                 try{
                     FontKit.Directory.preEncode=null
+                    const data=Object.values(tables).map(({tag,checkSum,length,offset})=>({
+                        tag,checkSum,length,
+                        offset: new r.VoidPointer(bufferType, buffer.slice(offset,offset+length))
+                    }))
                     FontKit.Directory.encode(stream,{
-                        tag, numTables,searchRange,entrySelector,rangeShift,tables,
-                        tables:Object.values(tables).map(({tag,checkSum,length,offset})=>({
-                            tag,checkSum,length,
-                            offset: new r.VoidPointer(bufferType, buffer.slice(offset,offset+length))
-                        }))
+                        tag, numTables,searchRange,entrySelector,rangeShift,
+                        tables:data
                     })
+                    stream.end()
                 }finally{
                     FontKit.Directory.preEncode=_preEncode
                 }

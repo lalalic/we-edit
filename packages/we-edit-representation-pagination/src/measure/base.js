@@ -3,10 +3,13 @@ import FontManager from "../fonts"
 /**
  * Measure has 
  * ** fonts: 
- * 		> {ascii:Times,ea:宋体, "00FA-FF00":,..., hint:"ea"}
+ * 		> {ascii:Times,ea:宋体, "00FA-FF00":,...}
  * 			> hint specifies all chars use same domain font family
  * 
- * 		> string: every char use the same font=>{ascii:fontFamily, hint:"ascii"}
+ * 		> string: every char use the same font=>{ascii:fontFamily}
+ * 
+ * 		> if Object.keys(fonts).length==1, the key also be used for fallback fonts of all chars
+ * 			eg: {ascii:"NoFont"} only fallback to fallbackFonts.ascii, {ea:""} =>fallbackFonts.ea
  * 
  * ** fallback fonts: 
  * 		> system must make sure all fallback fonts loaded, which must be object
@@ -53,6 +56,8 @@ export class Measure{
 		if(!fonts){
 			debugger
 		}
+		const isFallbackFontsMeasure=fonts==this.fallbackFonts
+
 		const getDefaultStyle=()=>{
 			const defaultStyle={
 				whiteSpace:'pre',
@@ -71,10 +76,23 @@ export class Measure{
 			return defaultStyle
 		}
 
-        if(typeof(fonts)=="string"){
-			this.fontFamily= this.fontExists(fonts) ? fonts : this.defaultFontMeasure.getCharFontFamily("A")
+		this.fontFamily=(()=>{
+			if(typeof(fonts)=="string"){//{ascii:fonts}
+				fonts={ascii:fonts}
+			}
+
+			const keys=Object.keys(fonts), hint=keys[0]
+			if(keys.length==1){//every char use same font, and key also used to fallback
+				 return this.fontExists(fonts[hint]) ? fonts[hint] : this.fallbackFonts[hint]
+			}else if(new Set(Object.values(fonts)).length==1){
+				if(this.fontExists(fonts[hint])){
+					return fonts[hint]
+				}
+			}
+		})();
+		if(this.fontFamily){
 			this.defaultStyle=getDefaultStyle()
-			return fonts
+			return this.fontFamily
 		}
 
 		const checks=this.constructor.checks
@@ -96,8 +114,8 @@ export class Measure{
 				family=fonts.hansi
 			}
 			
-			if(!(family && this.fontExists(family))){
-				family=this.defaultFontMeasure.getCharFontFamily(A)
+			if(!(family && this.fontExists(family)) && !isFallbackFontsMeasure){
+				family=this.fallbackFontsMeasure.getCharFontFamily(A)
 			}
 			return family
 		}
@@ -119,7 +137,7 @@ export class Measure{
 		const measures={}
 
 		this._stringWidth=str=>{
-			this.fontFamily=fontFamily(str[0])
+			this.fontFamily=fontFamily(str.charCodeAt(0))
 			const measure=measures[this.fontFamily]||(measures[this.fontFamily]=this.clone({fonts:this.fontFamily}))
 			return measure._stringWidth(str)
 		}
@@ -202,30 +220,29 @@ export class Measure{
 
 	static requireFonts=FontManager.requireFonts
 
-	static defaultFont={
-		ascii:"Times",
+	static fallbackFonts={
+		ascii:"Arial",
 		ea:"ST",
 	}
 
-	static defaultFontMeasure=function(defaultFont){
+	get fallbackFonts(){
+		return this.constructor.fallbackFonts
+	}
+
+	get fallbackFontsMeasure(){
+		if(!this.constructor.fallbackFontsMeasure){
+			this.constructor.fallbackFontsMeasure=new this.constructor({fonts:this.fallbackFonts})
+		}
+		return this.constructor.fallbackFontsMeasure
+	}
+
+	static createFallbackFontsMeasure=function(fallbackFonts){
 		const Type=this
-		const fonts=typeof(defaultFont)=="string" ? {...this.defaultFont, ascii:defaultFont} : {...this.defaultFont, ...defaultFont}
-		const measure=new Type({fonts})
+		const fonts=typeof(fallbackFonts)=="string" ? {...this.fallbackFonts, ascii:fallbackFonts} : {...this.fallbackFonts, ...fallbackFonts}
 		return class extends Type{
-			get defaultFontMeasure(){
-				return measure
-			}
+			static fallbackFonts=fonts
 		}
 	}
 }
-
-/**
- * make sure default font can be loaded from somewhere
- */
-const defaultFont={
-	ascii:"Times",
-	ea:"ST",	
-}
-
 
 export default Measure

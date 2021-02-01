@@ -6,7 +6,7 @@ import FontManager from "../fonts"
  *
  * why it's slower than html
  */
-let tester=null, fontSheet
+let tester=null
 export default class SVGMeasure extends Measure{
     static displayName="SVG Measure"
     fontExists(family){

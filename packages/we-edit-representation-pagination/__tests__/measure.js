@@ -16,7 +16,7 @@ export default class Measure{
         return a
     }
 
-    static defaultFontMeasure(){
+    static fallbackFontsMeasure(){
         return this
     }
 
