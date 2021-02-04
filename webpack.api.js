@@ -63,9 +63,6 @@ class CopyFontService{
 
             fs.createReadStream(path.resolve(__dirname, 'packages/we-edit-representation-pagination/src/fonts/Arial'))
                 .pipe(fs.createWriteStream(path.resolve(compilation.options.output.path,"Arial")))
-            
-            fs.createReadStream(path.resolve(__dirname, 'packages/we-edit-representation-pagination/src/fonts/Songti'))
-                .pipe(fs.createWriteStream(path.resolve(compilation.options.output.path,"Songti")))
         })
     }
 }

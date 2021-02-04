@@ -1,5 +1,4 @@
 import React from "react"
-import {MenuItem} from "material-ui"
 import ComboBox from "../components/combo-box"
 
 export default class FontList extends React.Component{
@@ -20,7 +19,7 @@ export default class FontList extends React.Component{
 
 	render(){
 		const {state:{fonts}, props:{value, changeFont, muiTheme,dispatch, ...props}}=this
-		const dataSource=fonts.map(({family})=>family)
+		const dataSource=Array.from(new Set(fonts.map(({family})=>family))).sort()
 		return <ComboBox
 			style={{width:150}}
 			value={value}
