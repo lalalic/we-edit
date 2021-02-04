@@ -59,7 +59,7 @@ class Text extends NoChild(dom.Text){
     }
     
     fontFamily(at){
-        return this.measure.getCharFontFamily(this.text[at])
+        return this.measure.getCharFontFamily(this.text.charCodeAt(at))
     }
 
     /**

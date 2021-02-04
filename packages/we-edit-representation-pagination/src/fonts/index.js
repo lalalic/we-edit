@@ -2,6 +2,7 @@ import FontKit from "fontkit"
 import {default as isNode} from "is-node"
 import {makeFontFace, removeFontFace} from "./font-face"
 import r from 'restructure';
+import cloneDeep from "clone"
 
 /**
  * families:{[family name]: [different variations, such as plain/regular/bold/italic/oblique/bold-italic/...]}
@@ -73,7 +74,7 @@ const fonts=(()=>{
                 if(/oblique/i.test(uuid))
                     font.oblique=1
                 family.push(font)
-                console.log(`font[${fullName}] loaded`)
+                console.debug(`font[${fullName}] loaded`)
                 document?.dispatchEvent(new CustomEvent('fontLoaded',{detail:{font, fonts}}))
                 return font
             }
@@ -243,7 +244,7 @@ const FontManager={
                     if(font){
                         (font.fonts||[font]).forEach(a=>{
                             Promise.resolve(extend(a).createObjectURL()).then(src=>{
-                                service.active.postMessage({familyName:a.fullName, src, scope})
+                                src && service.active.postMessage({familyName:a.fullName, src, scope})
                             })
                         })
                     }
@@ -253,33 +254,40 @@ const FontManager={
                 }
             }
 
-            document.addEventListener('fontLoaded',({detail:{font,url}})=>{
+            document.addEventListener('fontLoaded',({detail:{font}})=>{
                 if(font.familyName[0]==".")
                     return 
                 Promise.resolve(font.createObjectURL())
-                    .then(url=>makeFontFace(font, `url(${url})`))  
+                    .then(url=>url && makeFontFace(font, `url(${url})`))  
             })
 
             navigator.serviceWorker.register(sw, { scope: `${scope}/` }).then(reg=> {
                 service=reg
                 if(reg.active) {
-                    console.log(`Font Service[${sw}] worker active at ${scope}`);
+                    console.log(`Font Service[${sw}] worker active at ${scope}`)
                     const loadCache=new Promise((resolve,reject)=>{
-                        navigator.serviceWorker.addEventListener('message',function({data:{font:data,done}}){
+                        const errorFonts=[]
+                        navigator.serviceWorker.addEventListener('message',function({data:{font:data,name,done}}){
                             if(done){
+                                errorFonts.length && console.error(`Load cache fonts errors: [${errorFonts.join(",")}]`)
                                 resolve()
                             }else if(data){    
                                 try{
                                     const font=noCacheCreate(Buffer.from(data))
-                                    font && fonts.put(Object.assign(font,{src:toUrl(data)}))
-                                }catch(e){}
+                                    font && fonts.put(font)
+                                }catch(e){
+                                    errorFonts.push(decodeURIComponent(name))
+                                }
                             }
                         })
                         service.active.postMessage({action:"fontCache"})
                     }).finally(()=>{
                         console.log(`load cache fonts: ${fonts.names().join(",")}`)
+                        FontManager.createUnifiedFallbackFont?.()
                     })
                     FontManager.fromCache=()=>loadCache
+
+                    
                     return loadCache
                 }
             })
@@ -346,37 +354,56 @@ function extend(font, props={}){
             if(url)
                 return url
             if(!this._directoryPos)
-                return url=toUrl(this.stream.buffer)
+                return url=toUrl([this.stream.buffer])
 
             //from font collection file
             return new Promise((resolve)=>{
                 const buffer=this.stream.buffer
                 const {tag, numTables,searchRange,entrySelector,rangeShift,tables}=this.directory
-                const stream=new r.EncodeStream(), data=[],bufferType=new r.Buffer()
+                const stream=new r.EncodeStream(), data=[]
                 stream.on('readable',(a,b,c,chunk)=>{
                     while(null!=(chunk=stream.read())){
                         data.push(chunk)
                     }
                 })
                 stream.on('end',()=>{
-                    debugger
                     resolve(url=toUrl(data))
                 })
 
                 const _preEncode=FontKit.Directory.preEncode
+                const _offsetEncode=FontKit.Directory.fields.tables.type.fields.offset.encode
                 try{
                     FontKit.Directory.preEncode=null
-                    const data=Object.values(tables).map(({tag,checkSum,length,offset})=>({
-                        tag,checkSum,length,
-                        offset: new r.VoidPointer(bufferType, buffer.slice(offset,offset+length))
-                    }))
+                    /**
+                     * to make table offset a multiple of 4 
+                     */
+                    FontKit.Directory.fields.tables.type.fields.offset.encode=function(stream, val, ctx){
+                        if((ctx.parent.pointerOffset % 4)!=0){
+                            //it's global pointer, so use parent context
+                            const len=4 - (ctx.parent.pointerOffset % 4)
+                            //insert data before current pointer to make offset meet multiple 4
+                            ctx.parent.pointers.push({
+                                type:new r.Buffer(),
+                                val:new Uint8Array(len).fill(0),
+                                parent:ctx,
+                            })
+                            ctx.parent.pointerOffset+=len
+                            //ctx.pointerSize useless, so don't sync it
+                        }
+                        return _offsetEncode.call(this,...arguments)
+                    }
+                    
                     FontKit.Directory.encode(stream,{
                         tag, numTables,searchRange,entrySelector,rangeShift,
-                        tables:data
+                        tables:Object.values(tables).map(({tag,checkSum,length,offset})=>({
+                            tag,checkSum,length,
+                            offset: new r.VoidPointer(new r.Buffer(), buffer.slice(offset,offset+length))
+                        }))
                     })
                     stream.end()
                 }finally{
                     FontKit.Directory.preEncode=_preEncode
+                    FontKit.Directory.fields.tables.type.fields.offset.encode=_offsetEncode
                 }
             })
             
@@ -386,7 +413,7 @@ function extend(font, props={}){
 	})
 }
 
-const toUrl=data=>URL.createObjectURL(new Blob([data],{type:"application/octet-stream"}))
+const toUrl=data=>URL.createObjectURL(new Blob(data,{type:"application/octet-stream"}))
 
 /**
 font <generic-name>: serif, sans-serif, monospace, cursive, fantasy, math, emoji,fangsong, system-ui, ui-serif, ui-sans-serif, ui-monospace, ui-rounded, 

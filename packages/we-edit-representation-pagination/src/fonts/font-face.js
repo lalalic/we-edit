@@ -39,11 +39,18 @@ export function makeFontFace(font, src){
 
 const toName=a=>a.replace(/\s/g,'_')
 
-export function removeFontFace(family){
-    const names=[family,`"${family}"`]
-    const rule=Array.from(fontFaces.sheet.rules).findIndex(a=>names.includes(a.style.fontFamily))
+export function removeFontFace(font){
+    const names=[font.family,`"${font.family}"`]
+    const rule=Array.from(fontFaces.sheet.rules).findIndex(a=>{
+        if(names.includes(a.style.fontFamily)){
+            return font.style==(a.style.fontStyle||"normal") && font.weight==(a.style.fontWeight||"normal")
+        }
+    })
     if(rule!=-1){
         fontFaces.sheet.deleteRule(rule)
-        loader.querySelector('#'+toName(family))?.remove()
+        const allVariantFontsRemoved=!Array.from(fontFaces.sheet.rules).find(a=>names.includes(a.style.fontFamily))
+        if(allVariantFontsRemoved){
+            loader.querySelector('#'+toName(font.family))?.remove()
+        }
     }
 }

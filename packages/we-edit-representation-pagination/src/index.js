@@ -75,7 +75,7 @@ export default class Pagination extends Representation.Base{
 	}
 
 	get requiredFonts(){
-		const {context:{doc}, props:{fallbackFonts=""}}=this
+		const {context:{doc}, Measure:{fallbackFonts=""}}=this
 		return Array.from(new Set([
 			...doc.getFontList(), 
 			...(typeof(fallbackFonts)=="string" ? [fallbackFonts] : Object.values(fallbackFonts))

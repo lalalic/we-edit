@@ -31,9 +31,12 @@ self.addEventListener("message", function(e){
         self.caches.open("v1")
         .then(cache=>cache.keys())
         .then(cached=>{
-            Promise.all(cached.map(req=>self.caches.match(req)
+            Promise.all(cached.map(
+                req=>self.caches.match(req)
                 .then(res=>res.arrayBuffer())
-                .then(buffer=>e.source.postMessage({font:buffer}))
+                .then(buffer=>{
+                    e.source.postMessage({font:buffer, name: req.url.split("/").pop()})
+                })
             )).finally(()=>e.source.postMessage({done:true}))
         })
 

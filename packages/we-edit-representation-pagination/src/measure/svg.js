@@ -9,6 +9,10 @@ import FontManager from "../fonts"
 let tester=null
 export default class SVGMeasure extends Measure{
     static displayName="SVG Measure"
+    static fallbackFonts={
+        ascii:"Times New Roman",
+        ea:"Songti TC",
+    }
     fontExists(family){
         return !!Array.from(document.fonts).find(a=>a.family==family && a.status=="loaded")
     }
@@ -57,13 +61,16 @@ export default class SVGMeasure extends Measure{
                         .map(a=>new Promise((resolve,reject)=>{
                             return a.loaded.then(
                                 ()=>(console.log(`${a.family} loaded`),resolve()), 
-                                e=>(console.log(`${a.family} loaded error: ${e.message}`),resolve(a.family))
+                                e=>(console.log(`${a.family} loaded error: ${e.message}`),resolve(a))
                             )
                         }))
                 ).then(required=>{
-                    const unloaded=required.filter(a=>typeof(a)=="string")
+                    let unloaded=required.filter(a=>!!a)
                     if(unloaded.length){
-                        unloaded.forEach(a=>FontManager.removeFontFace(a))
+                        unloaded.forEach(a=>{
+                            FontManager.removeFontFace(a)
+                        })
+                        unloaded=Array.from(new Set(unloaded.map(a=>[a.family,a.style,a.weight].filter(a=>a!=="normal").join("/"))))
                     }
                     const errors=unloaded.filter(a=>locals.includes(a))
                     return {FontManager,unloaded, errors}
