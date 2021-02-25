@@ -52,17 +52,16 @@ export default class SVGMeasure extends Measure{
             .then(({FontManager,unloaded})=>{
                 const locals=unloaded
                 if(locals && locals.length){
+                    console.warn(`Try browser local fonts: [${locals.join(",")}]`)
                     locals.forEach(a=>FontManager.makeFontFace({familyName:a},`local("${a}")`))
                 }
                 const names=fonts.map(a=>FontManager.get(a)?.familyName||a)
                 const faces=Array.from(document.fonts).filter(a=>names.includes(a.family))
                 return Promise.all(
                     faces
-                        .map(a=>new Promise((resolve,reject)=>{
-                            return a.loaded.then(
-                                ()=>(console.log(`${a.family} loaded`),resolve()), 
-                                e=>(console.log(`${a.family} loaded error: ${e.message}`),resolve(a))
-                            )
+                        .map(a=>new Promise(resolve=>{
+                            return a.loaded
+                            .then(()=>resolve(),()=>resolve(a))
                         }))
                 ).then(required=>{
                     let unloaded=required.filter(a=>!!a)

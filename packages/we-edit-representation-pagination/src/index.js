@@ -62,7 +62,7 @@ export default class Pagination extends Representation.Base{
 		this.state={fontsLoaded:false}
 		this.fontReady=({unloaded})=>{
 			if(unloaded?.length){
-				console.warn(`some required fonts[${unloaded.join(",")}] can't be loaded`)
+				console.warn(`Required fonts[${unloaded.join(",")}] missing`)
 			}
 			this.setState({fontsLoaded:true})
 		}

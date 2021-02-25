@@ -1,8 +1,6 @@
 import FontKit from "fontkit"
 import {default as isNode} from "is-node"
 import {makeFontFace, removeFontFace} from "./font-face"
-import r from 'restructure';
-import cloneDeep from "clone"
 
 /**
  * families:{[family name]: [different variations, such as plain/regular/bold/italic/oblique/bold-italic/...]}
@@ -64,7 +62,7 @@ const fonts=(()=>{
                     return
                 }
 
-                !font.createObjectURL && extend(font,props)
+                extend(font,props)
                 const {fullName="",familyName="",subfamilyName=""}=font
                 const uuid=`${fullName},${familyName},${subfamilyName}`
                 if(/bold/i.test(uuid))
@@ -231,68 +229,67 @@ const FontManager={
     },
 
     asService(sw="/font-service.js",scope="/fonts"){
-        if (typeof(navigator)!="undefined" && 'serviceWorker' in navigator) {
-            var service
-            this.makeFontFace=makeFontFace
-            this.removeFontFace=removeFontFace
-
-            const noCacheCreate=FontKit.create
-            FontKit.noCacheCreate=noCacheCreate
-            FontKit.create=function(data){
-                try{
-                    const font=noCacheCreate(data)
-                    if(font){
-                        (font.fonts||[font]).forEach(a=>{
-                            Promise.resolve(extend(a).createObjectURL()).then(src=>{
-                                src && service.active.postMessage({familyName:a.fullName, src, scope})
-                            })
-                        })
-                    }
-                    return font
-                }catch(e){
-                    console.error(e)
-                }
-            }
-
-            document.addEventListener('fontLoaded',({detail:{font}})=>{
-                if(font.familyName[0]==".")
-                    return 
-                Promise.resolve(font.createObjectURL())
-                    .then(url=>url && makeFontFace(font, `url(${url})`))  
-            })
-
-            navigator.serviceWorker.register(sw, { scope: `${scope}/` }).then(reg=> {
-                service=reg
-                if(reg.active) {
-                    console.log(`Font Service[${sw}] worker active at ${scope}`)
-                    const loadCache=new Promise((resolve,reject)=>{
-                        const errorFonts=[]
-                        navigator.serviceWorker.addEventListener('message',function({data:{font:data,name,done}}){
-                            if(done){
-                                errorFonts.length && console.error(`Load cache fonts errors: [${errorFonts.join(",")}]`)
-                                resolve()
-                            }else if(data){    
-                                try{
-                                    const font=noCacheCreate(Buffer.from(data))
-                                    font && fonts.put(font)
-                                }catch(e){
-                                    errorFonts.push(decodeURIComponent(name))
-                                }
-                            }
-                        })
-                        service.active.postMessage({action:"fontCache"})
-                    }).finally(()=>{
-                        console.log(`load cache fonts: ${fonts.names().join(",")}`)
-                        FontManager.createUnifiedFallbackFont?.()
-                    })
-                    FontManager.fromCache=()=>loadCache
-
-                    
-                    return loadCache
-                }
-            })
-            .catch(error=>console.log(`Font Service[${sw}] failed with ` + error))
+        if (!(typeof(navigator)!="undefined" && 'serviceWorker' in navigator)){
+            console.warn('Font Service not supported because no navigator.serviceWorker')
+            return 
         }
+        
+        var service
+        const register=navigator.serviceWorker.register(sw, { scope: `${scope}/` })
+            .then(reg=>reg.update())
+            .then(reg=>{
+                if(!reg.active) 
+                    return 
+                service=reg
+                const noCacheCreate=FontKit.noCacheCreate||FontKit.create
+                if(!'noCacheCreate' in FontKit){
+                    FontKit.noCacheCreate=noCacheCreate
+                    FontKit.create=function(data){
+                        try{
+                            const font=noCacheCreate(data)
+                            if(font){//cache data
+                                const familyName=(font.fonts||[font])[0].familyName
+                                service.active.postMessage({familyName, data, scope})
+                            }
+                            return font
+                        }catch(e){
+                            console.error(e)
+                        }
+                    }
+                }
+
+                document.addEventListener('fontLoaded',({detail:{font}})=>{
+                    if(font.familyName[0]==".")
+                        return 
+                    makeFontFace(font)
+                })
+                
+                console.log(`Font Service[${sw}] at ${scope}`)
+
+                return new Promise((resolve,reject)=>{
+                    const errorFonts=[]
+                    navigator.serviceWorker.addEventListener('message',function({data:{font:data,name,done}}){
+                        if(done){
+                            errorFonts.length && console.warn(`Failed to cache fonts [${errorFonts.join(",")}]`)
+                            resolve()
+                        }else if(data){    
+                            try{
+                                const font=noCacheCreate(Buffer.from(data))
+                                font && fonts.put(font)
+                            }catch(e){
+                                errorFonts.push(decodeURIComponent(name))
+                            }
+                        }
+                    })
+                    service.active.postMessage({action:"fontCache"})
+                }).finally(()=>{
+                    console.log(`Loaded cache fonts: ${fonts.names().join(",")}`)
+                    FontManager.createUnifiedFallbackFont?.()
+                })
+            })
+            .catch(error=>console.warn(`Font Service[${sw}] failed: ` + error))
+        FontManager.fromCache=()=>register
+        return register
     },
 
     requireFonts(service,fonts=[]){
@@ -329,14 +326,15 @@ const FontManager={
 						return fonts
 				}
 			}).then(done,done)
-    }
+    },
+    makeFontFace, 
+    removeFontFace
 }
 
 export default FontManager
 
 function extend(font, props={}){
-    let url
-	return Object.assign(font,{
+    return Object.assign(font,{
 		lineHeight(fontSize){
 			const scale = 1 / this.unitsPerEm * fontSize
 			return scale*(this.ascent-this.descent+this.lineGap)
@@ -350,70 +348,9 @@ function extend(font, props={}){
             return this.layout(string).advanceWidth/this.unitsPerEm * fontSize
         },
 
-        createObjectURL(){
-            if(url)
-                return url
-            if(!this._directoryPos)
-                return url=toUrl([this.stream.buffer])
-
-            //from font collection file
-            return new Promise((resolve)=>{
-                const buffer=this.stream.buffer
-                const {tag, numTables,searchRange,entrySelector,rangeShift,tables}=this.directory
-                const stream=new r.EncodeStream(), data=[]
-                stream.on('readable',(a,b,c,chunk)=>{
-                    while(null!=(chunk=stream.read())){
-                        data.push(chunk)
-                    }
-                })
-                stream.on('end',()=>{
-                    resolve(url=toUrl(data))
-                })
-
-                const _preEncode=FontKit.Directory.preEncode
-                const _offsetEncode=FontKit.Directory.fields.tables.type.fields.offset.encode
-                try{
-                    FontKit.Directory.preEncode=null
-                    /**
-                     * to make table offset a multiple of 4 
-                     */
-                    FontKit.Directory.fields.tables.type.fields.offset.encode=function(stream, val, ctx){
-                        if((ctx.parent.pointerOffset % 4)!=0){
-                            //it's global pointer, so use parent context
-                            const len=4 - (ctx.parent.pointerOffset % 4)
-                            //insert data before current pointer to make offset meet multiple 4
-                            ctx.parent.pointers.push({
-                                type:new r.Buffer(),
-                                val:new Uint8Array(len).fill(0),
-                                parent:ctx,
-                            })
-                            ctx.parent.pointerOffset+=len
-                            //ctx.pointerSize useless, so don't sync it
-                        }
-                        return _offsetEncode.call(this,...arguments)
-                    }
-                    
-                    FontKit.Directory.encode(stream,{
-                        tag, numTables,searchRange,entrySelector,rangeShift,
-                        tables:Object.values(tables).map(({tag,checkSum,length,offset})=>({
-                            tag,checkSum,length,
-                            offset: new r.VoidPointer(new r.Buffer(), buffer.slice(offset,offset+length))
-                        }))
-                    })
-                    stream.end()
-                }finally{
-                    FontKit.Directory.preEncode=_preEncode
-                    FontKit.Directory.fields.tables.type.fields.offset.encode=_offsetEncode
-                }
-            })
-            
-        },
-
         ...props
 	})
 }
-
-const toUrl=data=>URL.createObjectURL(new Blob(data,{type:"application/octet-stream"}))
 
 /**
 font <generic-name>: serif, sans-serif, monospace, cursive, fantasy, math, emoji,fangsong, system-ui, ui-serif, ui-sans-serif, ui-monospace, ui-rounded, 

@@ -11,14 +11,18 @@ export function makeFontFace(font, src){
     }
     if(typeof(font)=="string")
         return fontFaces.sheet.addRule('@font-face',font)
-        
-    fontFaces.sheet.addRule('@font-face',`
-        font-family:"${font.familyName}";
-        src: ${src};
-        ${font.bold ? 'font-weight:bold;' : ''}
-        ${font.italic ? 'font-style:italic;' : ''}
-        ${font.oblique ? 'font-style:oblique;' : ''}
-    `)
+    if(!src){
+        const nativeFont=new FontFace(font.familyName, font.stream.buffer, {})
+        document.fonts.add(nativeFont)
+    }else{
+        fontFaces.sheet.addRule('@font-face',`
+            font-family:"${font.familyName}";
+            src: ${src};
+            ${font.bold ? 'font-weight:bold;' : ''}
+            ${font.italic ? 'font-style:italic;' : ''}
+            ${font.oblique ? 'font-style:oblique;' : ''}
+        `)
+    }
     
     const id=toName(font.familyName)
     if(loader.querySelector(`#${id}`))

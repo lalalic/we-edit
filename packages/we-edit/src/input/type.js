@@ -145,11 +145,9 @@ export class Viewable{
 }
 
 export class Editable extends Viewable{
-	static createStyles(){
-		return {}
-	}
+	static EventHandler=Reducer
 
-	static  EventHandler=Reducer
+	static Reducer=Reducer
 
 	editable(){
 		return true
