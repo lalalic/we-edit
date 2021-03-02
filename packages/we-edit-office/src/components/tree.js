@@ -3,7 +3,7 @@ export default class Tree extends PureComponent{
     render(){
         const {data, children:render, style, ...props}=this.props
         return (
-            <dl style={{padding:5,...style}} {...props}>
+            <dl style={{margin:2,...style}} {...props}>
                 {typeof(render)=="function" ? render(data, this.constructor.Node) : render}
             </dl>
         )

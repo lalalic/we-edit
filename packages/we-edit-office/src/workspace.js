@@ -10,6 +10,7 @@ import Status from "./status"
 import Ribbon from "./ribbon"
 import Canvas from "./canvas"
 import ACTION,{getOffice} from "./state/action"
+import IconClose from "material-ui/svg-icons/action/highlight-off"
 
 /**
  * doc.Store can't be removed to Workspace since cursor
@@ -104,13 +105,18 @@ export default class Workspace extends PureComponent{
 		</Fragment>
 	))
 
-	static Layout=pure(({canvas, left,  right, style})=>(
-		<div style={{flex:"1 100%", display:"flex",  flexDirection:"row", overflow:"auto",...style}}>
-			{left && <div style={{overflow:"auto",...left.props.containerStyle}}>{left}</div>}
-			{canvas}
-			{right && <div style={{overflow:"auto",...right.props.containerStyle}}>{right}</div>}
-		</div>
-	))
+	static Layout=class Layout extends PureComponent{
+		render(){
+			const {props:{canvas, left,  right, style}}=this
+			return (
+				<div style={{flex:"1 100%", display:"flex",  flexDirection:"row", overflow:"auto",...style}}>
+					{left && React.cloneElement(left,{name:"left"})}
+					{canvas}
+					{right && React.cloneElement(right,{name:"right"})}
+				</div>
+			)
+		}
+	}
 
 	static PanelContainer=class PanelContainer extends PureComponent{
 		static contextTypes={
@@ -132,16 +138,41 @@ export default class Workspace extends PureComponent{
 		}
 
 		render(){
-			const {state:{panels=[],active},props:{containerStyle, children, ...props}}=this
+			const {
+				state:{panels=[],active},
+				props:{name,children, style,contentContainerStyle, containerStyle,...props}
+			}=this
 			if(panels.length==0)
 				return null
+			const reverse=name=="right" ? -1 : 1
+			let container
 			return (
-				<Tabs {...props} value={active}>
-					{panels.map((a,i)=>{
-						const title=a.props.title
-						return <Tab key={title} label={title} value={title} onActive={()=>this.setState({active:title})}>{a}</Tab>
-					})}
-				</Tabs>
+				<div ref={a=>container=a} 
+					style={{
+						overflow:"hidden",maxWidth:"300px", minWidth:"300px", position:"relative",
+						display:"flex",flexDirection:`row${reverse==-1 ? "-reverse" : ""}`,
+						...containerStyle
+						}}>
+					<Tabs {...props} value={active} 
+						style={{flex:1,margin:5,display:"flex",flexDirection:"column",...style}}
+						contentContainerStyle={{height:"100%", overflow:"auto", ...contentContainerStyle}}
+						>
+						{panels.map((a,i)=>{
+							const title=a.props.title
+							return <Tab key={title} label={title} value={title} onActive={()=>this.setState({active:title})}>{a}</Tab>
+						})}
+					</Tabs>
+					<Resizer onResizing={({moved})=>{
+						const {width}=container.getBoundingClientRect()
+						container.style.maxWidth=container.style.minWidth=`${Math.max(width+moved*reverse,50)}px`
+					}}/>
+					<IconClose 
+						color="darkgray"
+						style={{position:"absolute", top:5, [name]:5, width:12, height:12}}
+						onClick={e=>{
+							this.setState({panels:[]})
+						}}/>
+				</div>
 			)
 		}
 
@@ -154,7 +185,7 @@ export default class Workspace extends PureComponent{
 		}
 
 		toggle(el){
-			const {panels=[]}=this.state
+			const {state:{panels=[]}}=this
 			const i=panels.findIndex(a=>a.props.title==el.props.title)
 			if(i!=-1){
 				panels.splice(i,1)
@@ -243,3 +274,42 @@ const Channels=connect((state,props)=>({channel:getOffice(state).channel||props.
 		}
 	}
 )
+
+class Resizer extends PureComponent{
+	state={}
+	render(){
+		const {resizing}=this.state
+		const resizer=(
+			<div key="resizer" 
+				onMouseDown={e=>this.start(e)}
+				style={{cursor:"ew-resize"}}>
+				<div style={{background:"darkgray",width:1,height:"100%",marginLeft:1,marginRight:1}}/>
+			</div>
+		)
+		if(!resizing){
+			return [resizer]
+		}
+
+		return [
+			resizer,
+			<div key="overlap" 
+				onMouseMove={e=>this.resizing(e)}
+				onMouseUp={e=>this.end(e)}
+				style={{position:"fixed", left:0, top:0, width:"100%", height:"100%",background:"transparent",cursor:"ew-resize"}}/>,
+		]
+	}
+
+	start(e){
+		this.setState({resizing:true, left:e.clientX})
+	}
+
+	resizing(e){
+		const {props:{onResizing}, state:{left}}=this
+		const current=e.clientX
+		this.setState({left:current},()=>onResizing({moved:current-left}))
+	}
+
+	end(){
+		this.setState({resizing:undefined, left:undefined})
+	}
+}
