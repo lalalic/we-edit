@@ -16,6 +16,8 @@ export {default as Dialog} from "./components/dialog"
 export {default as TextSetting} from "./text/setting"
 export {default as ParagraphSettin} from "./paragraph/setting"
 
+export {default as Tree} from "./components/tree"
+
 export {Ribbon,Office}
 
 export function create(container, office=<Office/>){

@@ -6,10 +6,9 @@ import {createPortal} from "react-dom"
 import {ToolbarGroup, ToolbarSeparator} from "material-ui/Toolbar"
 import IconButton from "../components/size-icon-button"
 
-import IconDoc from "material-ui/svg-icons/action/assignment"
-import IconDiff from "material-ui/svg-icons/device/storage"
+import IconDocTree from "material-ui/svg-icons/action/list"
+import IconDiff from "material-ui/svg-icons/action/compare-arrows"
 import IconTest from "material-ui/svg-icons/action/bug-report"
-import CircularProgress from 'material-ui/CircularProgress'
 
 import IconFile from "material-ui/svg-icons/file/create-new-folder"
 import IconRun from "material-ui/svg-icons/av/play-circle-outline"
@@ -19,43 +18,22 @@ import selectFile from "../components/file-select"
 
 import Diff from "./diff"
 
-export class Ribbon extends Component{
-    static contextTypes={
-        panelManager:PropTypes.any
-    }
-    
+export class Ribbon extends PureComponent{
     render(){
-        const {panelManager}=this.context
+        const {diff, tester, docTree, children}=this.props
         return (
             <ToolbarGroup>
-                <IconButton 
-                    hint="document tree"
-                    onClick={()=>{
-                        panelManager.toggle(
-                            <FilterDocumentTree title="Document Tree" toNodeProps={({id,type})=>({name:`${type}(${id.split("{")[0]})`})}/>
-                        )}
-                    } >
-                    <IconDoc/>
-                </IconButton>
-
-                <DiffButton/>
-
-                <IconButton hint="test" 
-                    onClick={()=>{
-                        panelManager.toggle(
-                            <Tester title="Test"/>
-                        )
-                    }}
-                    >
-                    <IconTest/>
-                </IconButton>
+                <FilterDocumentTree.Button {...docTree}/>
+                <DiffInput.Button {...diff}/>
+                <Tester.Button {...tester}/>
+                {children}
                 <ToolbarSeparator/>
             </ToolbarGroup>
         )
     }
 }
 
-class FilterDocumentTree extends Component{
+export class FilterDocumentTree extends PureComponent{
     constructor(){
         super(...arguments)
         this.state={}
@@ -75,52 +53,70 @@ class FilterDocumentTree extends Component{
             </Fragment>
         )
     }
+
+    static panel=<FilterDocumentTree title="Document Tree"  toNodeProps={({id,type})=>({name:`${type}(${id.split("{")[0]})`})}/>
+    static Button=class extends PureComponent{
+        static contextTypes={
+            panelManager:PropTypes.any
+        }
+
+        render(){
+            const {title=FilterDocumentTree.panel.props.title, whichPanel="right", ...props}=this.props
+            return (
+                <IconButton 
+                    {...props}
+                    hint={title}
+                    onClick={()=>this.context.panelManager.toggle(FilterDocumentTree.panel,whichPanel)}>
+                    <IconDocTree/>
+                </IconButton>
+            )
+        }
+    }
 }
-   
-class DiffButton extends PureComponent{
-    static contextTypes={
-        activeDocStore:PropTypes.any
-    }
 
-    constructor(){
-        super(...arguments)
-        this.state={open:false}
-    }
-
-    get activeFile(){
-        const doc=getFile(this.context.activeDocStore.getState()).doc
-        const files=doc.parts
-        return new Proxy(files,{
-            get(target, k){
-                if(k in target){
-                    const f=target[k]
-                    return {
-                        asText(){
-                            if('asText' in f)
-                                return f.asText()
-                            else if('html' in f){
-                                return f.html()
+export class DiffInput extends Diff{
+    static Button=class DiffButton extends PureComponent{
+        static contextTypes={
+            activeDocStore:PropTypes.any
+        }
+    
+        constructor(){
+            super(...arguments)
+            this.state={open:false}
+        }
+    
+        get activeFile(){
+            const {parseActive=(file)=>file.doc?.parts||{}}=this.props
+            return new Proxy(parseActive(getFile(this.context.activeDocStore.getState())),{
+                get(target, k){
+                    if(k in target){
+                        const f=target[k]
+                        return {
+                            asText(){
+                                if('asText' in f)
+                                    return f.asText()
+                                else if('html' in f){
+                                    return f.html()
+                                }
+                                return "[]"
                             }
-                            return "[]"
                         }
                     }
                 }
-            }
-        })
-    }
-
-    render(){
-        const {open}=this.state
-        return (
-            <Fragment>
-                <IconButton hint="Content" onClick={e=>this.setState({open:!open})}>
-                    <IconDiff/>
-                </IconButton>
-                {open && 
-                createPortal(
-                    <div style={{position:"fixed",width:"100%", height:"100%",zIndex:9999}}>
-                        <React.Suspense fallback={<CircularProgress/>}>
-                            <Diff files={[{name:"[Active]",parts:this.activeFile}]}
+            })
+        }
+    
+        render(){
+            const {state:{open}, props:{title="Compare", parseFile}}=this
+            return (
+                <Fragment>
+                    <IconButton hint={title} onClick={e=>this.setState({open:!open})}>
+                        <IconDiff/>
+                    </IconButton>
+                    {open && 
+                    createPortal(
+                        <div style={{position:"fixed",width:"100%", height:"100%",zIndex:9999}}>
+                            <Diff files={[{name:"[Active]",parts:this.activeFile}]} parse={parseFile}
                                 onRequestClose={e=>this.setState({open:false})}
                                 style={{
                                     width:"80%",height:"80%",
@@ -128,16 +124,16 @@ class DiffButton extends PureComponent{
                                     border:"1px solid lightgray",
                                     overflow:"hidden",top:80,
                                 }}/>
-                        </React.Suspense>
-                    </div>, 
-                    document.body
-                )}
-            </Fragment>
-        )
-    }
+                        </div>, 
+                        document.body
+                    )}
+                </Fragment>
+            )
+        }
+    }    
 }
 
-class Tester extends PureComponent{
+export class Tester extends PureComponent{
     constructor(){
         super(...arguments)
         this.state={}
@@ -199,5 +195,23 @@ class Tester extends PureComponent{
                     />
             </div>
         )
+    }
+
+    static panel=<Tester title="Test"/>
+    static Button=class extends PureComponent{
+        static contextTypes={
+            panelManager:PropTypes.any,
+        }
+        render(){
+            const {title=Tester.panel.props.title, whichPanel="right",...props}=this.props
+            return (
+                <IconButton 
+                    {...props}
+                    hint={title} 
+                    onClick={()=>this.context.panelManager.toggle(Tester.panel,whichPanel)}>
+                    <IconTest/>
+                </IconButton>
+            )
+        }
     }
 }

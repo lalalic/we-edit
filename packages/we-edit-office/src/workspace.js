@@ -51,6 +51,12 @@ export default class Workspace extends PureComponent{
 					panelContainers.push(a)
 				}
 			},
+			unregister(a){
+				const i=panelContainers.indexOf(a)
+				if(i!=-1){
+					panelContainers.splice(i,1)
+				}
+			},
 			toggle(el, container){
 				this.get(container).toggle(el)
 			},
@@ -141,6 +147,10 @@ export default class Workspace extends PureComponent{
 
 		componentDidMount(){
 			this.context.panelManager.register(this)
+		}
+
+		componentWillUnmount(){
+			this.context.panelManager.unregister(this)
 		}
 
 		toggle(el){

@@ -1,5 +1,4 @@
 import React,{Component} from "react"
-import JSZip from "jszip"
 import format from "xml-formatter"
 import {ReactGhLikeDiff} from "react-gh-like-diff"
 import 'react-gh-like-diff/dist/css/diff2html.min.css'
@@ -18,6 +17,19 @@ export default class Diff extends Component{
         super(...arguments)
         this.state={files:[], comparing:[files[0]].filter(a=>!!a)}
         this.selector=React.createRef()
+    }
+
+    parse(data,e){
+        const {parse}=this.props
+        if(parse)
+            return parse(...arguments)
+        return {
+            ".":{
+                asText(){
+                    return new TextDecoder("utf-8").decode(data)
+                }
+            }
+        }
     }
 
     render(){
@@ -62,14 +74,15 @@ export default class Diff extends Component{
                                     var reader=new FileReader()
                                     reader.onload=e=>{
                                         try{
-                                            let raw=new JSZip(e.target.result),parts={}
-                                            raw.filter((path,file)=>parts[path]=file)
                                             const file={
                                                 name:inputFile.name,
-                                                lastModified:inputFile.lastModified,
-                                                parts,
+                                                lastModified:inputFile.lastModified
                                             }
-                                            this.setState(({files=[]})=>({files:[...files, file]}))
+                                            Promise.resolve(this.parse(e.target.result,e))
+                                                .then(parts=>{
+                                                    file.parts=parts
+                                                    this.setState(({files=[]})=>({files:[...files, file]}))
+                                                })
                                         }catch(error){
                                             alert(error)
                                         }
