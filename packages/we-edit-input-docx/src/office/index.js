@@ -2,12 +2,13 @@ import React,{Fragment} from "react"
 import {Editor,ACTION} from "we-edit"
 
 import {Workspace, Ribbon, ContextMenu} from "we-edit-office"
-import {Divider} from "material-ui"
+import {Divider, ToolbarGroup} from "material-ui"
 
 import Field from "./field"
 import TOC from "./toc"
 import TOA from "./toa"
 import * as DocxTabs from "./tabs"
+import {parseFile} from "./developer"
 import TextBox from "./shape/text-box"
 
 import Canvas from "../representation/canvas"
@@ -34,7 +35,9 @@ export default (
                         <TOC/>
                         <Ribbon.ToolbarSeparator/>
                         <TOA/>
-                        <TextBox/>
+                        <ToolbarGroup>
+                            <TextBox/>
+                        </ToolbarGroup>
 
                       {/*  
                         <Links/>
@@ -52,6 +55,9 @@ export default (
                       */}
                     </Fragment>
                     )
+                },
+                developer:{
+                    basic: <Ribbon.Developer.Ribbon diff={{parseFile}}/>
                 }
             }}>
                  {"Draw,Design,References,Review,View,Developer".split(",").map(label=><Tab label={label} key={label}/>)}

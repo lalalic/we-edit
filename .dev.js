@@ -28,7 +28,7 @@ Variant.install()
 ioFile.install()
 ioBrowser.install()
 
-FontManager.asService("/font-service.js")
+FontManager.asService()
 
 
 

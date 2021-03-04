@@ -1,24 +1,24 @@
-import Measure from "./base"
 import memoize from "memoize-one"
-import FontManager from "../fonts"
+import FontMeasure from "./font"
 
 /**
  *
  * why it's slower than html
  */
 let tester=null
-export default class SVGMeasure extends Measure{
+export default class SVGMeasure extends FontMeasure{
     static displayName="SVG Measure"
     static fallbackFonts={
         ascii:"Times New Roman",
         ea:"Songti TC",
     }
+
     fontExists(family){
         return !!Array.from(document.fonts).find(a=>a.family==family && a.status=="loaded")
     }
 
     lineHeight(size=this.size){
-		if(!tester){
+        if(!tester){
 			let container=document.createElement("div")
 			container.style="position:absolute;top:-1000px"
 			document.body.appendChild(container)
@@ -42,6 +42,9 @@ export default class SVGMeasure extends Measure{
     }
 
     _stringWidth(word){
+        if(this.font){
+            return super._stringWidth(word)
+        }
         tester.setStyle(this.cssStyle(this.size))
         tester.firstChild.data=word
         return tester.getBBox().width

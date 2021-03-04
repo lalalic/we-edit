@@ -116,10 +116,11 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 	_createEndAtom(){
 		const {props:{End="", id}}=this
 		const measure=this.getDefaultMeasure()
+		const width=measure.stringWidth(End)
 		return (
 			<ComposedText
 					{...measure.defaultStyle}
-					width={measure.stringWidth(End)}
+					width={width}
 					minWidth={0}
 					children={End}
 					className="ender"

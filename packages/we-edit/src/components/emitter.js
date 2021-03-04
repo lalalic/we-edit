@@ -278,11 +278,12 @@ class OutputInput extends Emitter.Format.Base{
 	}
 
 	static contextTypes={
-		doc: PropTypes.object
+		doc: PropTypes.object,
+		activeDocStore: PropTypes.any,
 	}
 
 	emit(){
-		Promise.resolve(this.context.doc.stream())
+		Promise.resolve(this.context.doc.stream(this.context.activeDocStore.getState()))
 			.then(docStream=>docStream.pipe(this.stream))
 	}
 }

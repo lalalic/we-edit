@@ -3,6 +3,10 @@ import FontManager from "../fonts"
 
 export default class FontMeasure extends Measure{
 	static displayName="Font Measure"
+	get font(){
+		return this.__font||(this.__font=FontManager.get(this.fontFamily, this.style))
+	}
+
 	fontExists(family){
 		return !!FontManager.get(family)
 	}

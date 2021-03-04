@@ -27,18 +27,12 @@ module.exports=(base, packages)=>{
 			})
 		],
 		devServer:{
-			contentBase: path.join(__dirname, "dist"),
+			contentBase: [`${__dirname}/dist`,`${__dirname}/packages/we-edit-representation-pagination/src/fonts`],
 			compress: true,
 			port: 9091,
 			host:"0.0.0.0",
 			inline:true,
-			hot:false,
-			before(app){
-				app.get("/font-service.js", (req,res)=>{
-					res.set({ 'Content-Type': 'application/javascript; charset=utf-8' });
-                	res.send(require("fs").readFileSync(path.join(__dirname, 'packages/we-edit-representation-pagination/src/fonts/font-service.js')));
-				})
-			},
+			hot:false
 		},
 		watchOptions:{
 			ignored: /node_modules\/(?!docx4js)/

@@ -46,16 +46,16 @@ export default class FontList extends React.Component{
 				return menus
 			},[])
 		return <ComboBox
-			//style={{width:150}}
+			style={{width:150}}
 			value={value}
 			dataSource={dataSource}
-			//onChange={changeFont}
+			onChange={changeFont}
 			inputStyle={{border:"1px solid lightgray",background:"white"}}
 			underlineShow={false}
 			menuProps={{
 				ref:this.menu,
-				//style:{width:150},
-				//menuItemStyle:{width:150}
+				style:{width:150},
+				menuItemStyle:{width:150}
 			}}
 			{...props}
 		/>

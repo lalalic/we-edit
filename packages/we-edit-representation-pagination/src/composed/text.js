@@ -52,7 +52,8 @@ export default class Text extends Component{
 		return (
 			<Fragment>
 				{background}
-				<text y={y}
+				<text y={y} 
+					textLength={width}
 					{...others}
 					fill={fill}>
 					{children}
