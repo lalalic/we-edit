@@ -150,11 +150,11 @@ export default class Workspace extends PureComponent{
 				<div ref={a=>container=a} 
 					style={{
 						overflow:"hidden",maxWidth:"300px", minWidth:"300px", position:"relative",
-						display:"flex",flexDirection:`row${reverse==-1 ? "-reverse" : ""}`,
+						display:"flex",flexDirection:`row`,
 						...containerStyle
 						}}>
 					<Tabs {...props} value={active} 
-						style={{flex:1,margin:5,display:"flex",flexDirection:"column",...style}}
+						style={{flex:1,margin:5,display:"flex",flexDirection:"column",width:"100%",order:0,overflowX:"hidden",...style}}
 						contentContainerStyle={{height:"100%", overflow:"auto", ...contentContainerStyle}}
 						>
 						{panels.map((a,i)=>{
@@ -162,10 +162,11 @@ export default class Workspace extends PureComponent{
 							return <Tab key={title} label={title} value={title} onActive={()=>this.setState({active:title})}>{a}</Tab>
 						})}
 					</Tabs>
-					<Resizer onResizing={({moved})=>{
-						const {width}=container.getBoundingClientRect()
-						container.style.maxWidth=container.style.minWidth=`${Math.max(width+moved*reverse,50)}px`
-					}}/>
+					<Resizer style={{order:reverse}}
+						onResizing={({moved})=>{
+							const {width}=container.getBoundingClientRect()
+							container.style.maxWidth=container.style.minWidth=`${Math.max(width+moved*reverse,50)}px`
+						}}/>
 					<IconClose 
 						color="darkgray"
 						style={{position:"absolute", top:5, [name]:5, width:12, height:12}}
@@ -278,11 +279,11 @@ const Channels=connect((state,props)=>({channel:getOffice(state).channel||props.
 class Resizer extends PureComponent{
 	state={}
 	render(){
-		const {resizing}=this.state
+		const { state:{resizing}, props:{style}}=this
 		const resizer=(
 			<div key="resizer" 
 				onMouseDown={e=>this.start(e)}
-				style={{cursor:"ew-resize"}}>
+				style={{cursor:"ew-resize",...style}}>
 				<div style={{background:"darkgray",width:1,height:"100%",marginLeft:1,marginRight:1}}/>
 			</div>
 		)
