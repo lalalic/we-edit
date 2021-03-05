@@ -48,6 +48,12 @@ export class Measure{
 		const isFallbackFontsMeasure=fonts==this.fallbackFonts
 
 		const getDefaultStyle=()=>{
+			if(!this.fontFamily){
+				/**
+				 * @TODO: some place never call stringWidth, such as empty paragraph
+				 */
+				this.stringWidth("A")
+			}
 			const defaultStyle={
 				whiteSpace:'pre',
 				fontSize:`${this.size}px`,

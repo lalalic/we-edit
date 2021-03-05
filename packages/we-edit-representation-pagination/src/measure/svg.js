@@ -19,6 +19,9 @@ export default class SVGMeasure extends FontMeasure{
     }
 
     lineHeight(size=this.size){
+        if(this.font){
+            return super.lineHeight(...arguments)
+        }
         if(!tester){
 			let container=document.createElement("div")
 			container.style="position:absolute;top:-1000px"
