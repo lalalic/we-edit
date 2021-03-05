@@ -9,6 +9,7 @@ let tester=null
 export default class SVGMeasure extends FontMeasure{
     static displayName="SVG Measure"
     static fallbackFonts={
+        ...super.fallbackFonts,
         ascii:"Times New Roman",
         ea:"Songti TC",
     }

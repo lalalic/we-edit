@@ -3,39 +3,27 @@ import FontManager from "../fonts"
 /**
  * Measure has 
  * ** fonts: 
- * 		> {ascii:Times,ea:宋体, "00FA-FF00":,...}
- * 			> hint specifies all chars use same domain font family
+ * 		> {ascii:Times,ea:宋体, "00FA-FF00":,..., "ascii,ea":"Arial", fallback, hint:"ea"}
+ * 			> hint indicates all chars use same scope font family
+ * 				> hint also will be resolved in FallbackMeassure
+ * 			> fallback will be used if no font scope located in this fonts
  * 
  * 		> string: every char use the same font=>{ascii:fontFamily}
- * 
- * 		> if Object.keys(fonts).length==1, the key also be used for fallback fonts of all chars
- * 			eg: {ascii:"NoFont"} only fallback to fallbackFonts.ascii, {ea:""} =>fallbackFonts.ea
  * 
  * ** fallback fonts: 
  * 		> system must make sure all fallback fonts loaded, which must be object
  * 		> {ascii,ea, hansi,...}
  */
-
-function toUnicodeCheck(unicodes,name="undecided"){
-	unicodes=unicodes.split(",").map(a=>a.trim()).filter(a=>!!a)
-	.map(seg=>
-		seg.split("-").map(a=>a.trim()).filter(a=>!!a).map(a=>{
-			return parseInt(a,16)
-		})
-	)
-	return A=>unicodes.find(([min,max=min])=>A>=min && A<=max) ? name : ""
-}
-
 export class Measure{
 	static caches=new Map()
-	constructor(style){
+	constructor(style,_dont_decide){
 		const {VertAlign_Size=0.5,Super_Script_Position=0.4}=this.constructor
 		const {size, vertAlign, bold, italic}=style
 		this.style=style
 		this.size=size * (vertAlign ? VertAlign_Size : 1);
 		this.caches=new Map()
 
-		this.fontFamily=this.decideFont({...style,Super_Script_Position})
+		this.fontFamily=this.__decideFont({...style,Super_Script_Position},_dont_decide)
 		if(this.fontFamily){
 			this.hit=0
 
@@ -52,10 +40,11 @@ export class Measure{
 		}
 	}
 
-	decideFont({fonts,bold,italic,vertAlign,Super_Script_Position}){
+	__decideFont({fonts,bold,italic,vertAlign,Super_Script_Position},_dont_decide){
 		if(!fonts){
-			debugger
+			throw new Error("No fonts specified for Measure")
 		}
+		
 		const isFallbackFontsMeasure=fonts==this.fallbackFonts
 
 		const getDefaultStyle=()=>{
@@ -78,40 +67,39 @@ export class Measure{
 
 		this.fontFamily=(()=>{
 			if(typeof(fonts)=="string"){//{ascii:fonts}
+				if(_dont_decide)
+					return fonts
 				fonts={ascii:fonts}
 			}
 
-			const keys=Object.keys(fonts), hint=keys[0]
-			if(keys.length==1){//every char use same font, and key also used to fallback
-				 return this.fontExists(fonts[hint]) ? fonts[hint] : this.fallbackFonts[hint]
-			}else if(new Set(Object.values(fonts)).length==1){
-				if(this.fontExists(fonts[hint])){
-					return fonts[hint]
+			if(fonts.hint){
+				if(this.fontExists(fonts[fonts.hint])){
+					return fonts[fonts.hint]
+				} else if(this.fontExists(this.fallbackFonts[fonts.hint])){
+					return this.fallbackFonts[fonts.hint]
 				}
 			}
 		})();
+
 		if(this.fontFamily){
 			this.defaultStyle=getDefaultStyle()
 			return this.fontFamily
 		}
 
-		const checks=this.constructor.checks
-		const types=Object.keys(fonts).map(range=>{
-			let fn
+		const {namedUnicodeScopeChecks,createFromCharCode2FontFunction}=this.constructor
+		const resolveCharFontFunctions=Object.keys(fonts).map(range=>{
 			const font=fonts[range]
-			return A=>{
-				if(checks[range]){
-					return checks[range](A) && font
-				}else{
-					return (fn||(fn=toUnicodeCheck(range,font)))(A)
-				}
+			if(namedUnicodeScopeChecks[range]){ 
+				return A=>namedUnicodeScopeChecks[range](A) && font
+			}else{
+				return createFromCharCode2FontFunction(range,namedUnicodeScopeChecks, font)
 			}
 		})
 			
 		const fontFamily=this.getCharFontFamily=(A)=>{
-			let family=types.reduce((type,fn)=>type||fn(A), "")
-			if(!family && !checks.ascii(A)&&!checks.ea(A)){
-				family=fonts.hansi
+			let family=resolveCharFontFunctions.reduce((font,resolveCharFont)=>font||resolveCharFont(A), "")
+			if(!family && !namedUnicodeScopeChecks.ascii(A)&&!namedUnicodeScopeChecks.ea(A)){
+				family=fonts.hansi||fonts.fallback
 			}
 			
 			if(!(family && this.fontExists(family)) && !isFallbackFontsMeasure){
@@ -136,9 +124,13 @@ export class Measure{
 
 		const measures={}
 
+		/**
+		 * str must use same font
+		 * @param {*} str 
+		 */
 		this._stringWidth=str=>{
 			this.fontFamily=fontFamily(str.charCodeAt(0))
-			const measure=measures[this.fontFamily]||(measures[this.fontFamily]=this.clone({fonts:this.fontFamily}))
+			const measure=measures[this.fontFamily]||(measures[this.fontFamily]=this.clone({fonts:this.fontFamily},true))
 			return measure._stringWidth(str)
 		}
 
@@ -203,17 +195,43 @@ export class Measure{
 		return str
 	}
 
-	clone(style){
-		return new (this.constructor)({...this.style,...style})
+	clone(style,_dont_decide){
+		return new (this.constructor)({...this.style,...style},_dont_decide)
 	}
 
-	static checks={
-		ascii:	toUnicodeCheck("0000 - 007F,FE70 - FEFE,0590 - 05FF,0600 - 06FF,0700 - 074F,0750 - 077F,0780 - 07BF"),
-		ea:	toUnicodeCheck(`
+	static createFromCharCode2FontFunction(
+		unicodes/*OOFA-FF[,ea[,FFA0]]*/, 
+		namedUnicodeScopeChecks={}/*{ascii(){},ea(){},...}*/, 
+		fontFamily
+	){
+		const scopes=unicodes.split(",").map(a=>a.trim()).filter(a=>!!a)
+			.map(seg=>
+				seg.split("-").map(a=>a.trim()).filter(a=>!!a).map(a=>{
+					return a in namedUnicodeScopeChecks ? a : parseInt(a,16)
+				})
+			)
+			.filter(a=>!!a)
+		return A=>{
+				const found=scopes.find(([min,max=min])=>{
+					if(min in namedUnicodeScopeChecks){
+						return namedUnicodeScopeChecks[min](A)
+					}else {
+						return A>=min && A<=max
+					}
+				})
+				return found ? fontFamily : ""
+		}
+	}
+
+	static namedUnicodeScopeChecks={
+		ascii:	this.createFromCharCode2FontFunction(`
+					0000 - 007F,FE70 - FEFE,0590 - 05FF,0600 - 06FF,0700 - 074F,0750 - 077F,0780 - 07BF
+				`,{},true),
+		ea:		this.createFromCharCode2FontFunction(`
 					1100 - 11FF,2F00 - 2FDF,2FF0 - 2FFF,3000 - 303F,3040 - 309F,30A0 - 30FF,3100 - 312F,3130 - 318F,
 					3190 - 319F,3200 - 32FF,3300 - 33FF,3400 - 4DBF,4E00 - 9FAF,A000 - A48F,A490 - A4CF,AC00 - D7AF,
 					D800 - DB7F,DB80 - DBFF,DC00 - DFFF,F900 - FAFF,FE30 - FE4F,FE50 - FE6F,FF00 - FFEF
-				`),
+				`, {}, true),
 		cs: A=>false, 
 		hansi: A=>false, // fallback of ascii && ea in code
 	}
@@ -223,6 +241,7 @@ export class Measure{
 	static fallbackFonts={
 		ascii:"Arial",
 		ea:"ST",
+		fallback:"Arial",
 	}
 
 	get fallbackFonts(){
