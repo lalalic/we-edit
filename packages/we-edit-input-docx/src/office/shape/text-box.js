@@ -1,28 +1,22 @@
-import React, {Component, Fragment} from "react"
-import {createPortal} from "react-dom"
+import React, { Fragment, PureComponent} from "react"
 import {ACTION, whenSelectionChangeDiscardable, ReactQuery} from "we-edit"
 import {Ribbon} from "we-edit-office"
 import IconTextBox from "material-ui/svg-icons/editor/format-shapes"
 
 export default whenSelectionChangeDiscardable()(
-class TextBox extends Component{
+class DrawTextBox extends PureComponent{
     constructor(){
         super(...arguments)
-        this.state={status:undefined}
         this.create=this.create.bind(this)
     }
 
     render(){
-        const {state:{status}, props:{selection}}=this
+        const {props:{dispatch}, create, constructor:{TextBox}}=this
         return (
-            <Fragment>
-                <Ribbon.CheckIconButton label="text box" onClick={e=>this.setState({status:"drawing"})}>
-                    <IconTextBox/>
-                </Ribbon.CheckIconButton>
-                {status=="drawing" && ((canvas, {left,top,width,height}=canvas.getBoundingClientRect())=>{
-                    return createPortal(<this.constructor.Drawing {...{left,top,width,height, onEnd:this.create}}/>,canvas.parentNode)
-                })(selection.positioning.responsible.canvas)}
-            </Fragment>
+            <Ribbon.CheckIconButton hint="text box"
+                onClick={e=>dispatch(ACTION.UI({draw:<TextBox create={create}/>}))}>
+                <IconTextBox/>
+            </Ribbon.CheckIconButton>
         )
     }
 
@@ -31,13 +25,12 @@ class TextBox extends Component{
      * @param {*} param0 
      */
     create({left,right,bottom,top}){
-        this.setState({status:null})
+        const {selection:{positioning}, dispatch}=this.props
+        dispatch(ACTION.UI({draw:null}))
         if(Math.abs((right-left)*(bottom-top))<1){
             return 
         }
-        const {selection:{positioning}, dispatch}=this.props
-        const p0=positioning.responsible.asCanvasPoint({left,top})
-        const p1=positioning.responsible.asCanvasPoint({left:right,top:bottom})
+        const p0={x:left, y:top}, p1={x:right,y:bottom}
         const [x,y,width,height]=[Math.min(p0.x, p1.x), Math.min(p0.y,p1.y),Math.abs(p0.x-p1.x), Math.abs(p1.y-p0.y)]
         
         const page=positioning.pages.find(({props:{I,height,Y=positioning.pageXY(I).y}})=>p0.y>Y && p0.y<Y+height)
@@ -63,47 +56,62 @@ class TextBox extends Component{
         }))
     }
 
-    static Drawing=class Drawing extends Component{
+    static TextBox=class TextBox extends PureComponent{
         constructor(...args){
             super(...args)
-            this.state={}
-            this.start=this.start.bind(this)
-            this.end=this.end.bind(this)
-            this.drawing=this.drawing.bind(this)
+            this.onMouseDown=this.onMouseDown.bind(this)
+            this.onMouseMove=this.onMouseMove.bind(this)
+            this.onMouseUp=this.onMouseUp.bind(this)
+            this.state={drawing:false}
         }
-
         render(){
-            const {left,top,bottom, right, width=Math.abs(right-left),height=Math.abs(bottom-top)}=this.state
+            const {
+                onMouseDown, onMouseUp, onMouseMove,
+                state:{left,top,bottom, right, width=Math.abs(right-left),height=Math.abs(bottom-top)},
+                props:{style={width:"100%",height:"100%",fill:"red", cursor:"crosshair",opacity:0.6}}
+            }=this
             return (
-                <div style={{cursor:"crosshair", position:"absolute", background:"red", opacity:0.6, ...this.props}} 
-                    onMouseDown={this.start}
-                    onMouseUp={this.end}
-                    onMouseMove={this.drawing}
-                    >
-                {!!width && !!height && 
-                        <div 
-                            style={{
-                                position:"absolute", background:"white", borderWidth:1,borderStyle:"solid",
-                                width,height,
-                                left:Math.min(left, right)-this.props.left,
-                                top:Math.min(top,bottom)-this.props.top,
-                            }}>
-                                {top},{bottom}
-                        </div>
+                <Fragment>
+                    <rect {...{style, onMouseDown, onMouseUp, onMouseMove}}/>
+                    {!!width && !!height && 
+                        <g pointerEvents="none">
+                            <rect 
+                                style={{
+                                    background:"white", 
+                                    borderWidth:1,
+                                    borderStyle:"solid",
+                                    width,height,
+                                    x:Math.min(left,right),
+                                    y:Math.min(top,bottom),
+                                }}/>
+                            <text {...{x:Math.max(left,right),y:Math.max(top,bottom)}}>{width},{height}</text>
+                        </g>
                     }
-                </div>
+                </Fragment>
             )
         }
-
-        start({clientX:left, clientY:top}){
+    
+        asCanvasPoint(left,top, canvas){
+            const point=canvas.createSVGPoint()
+            point.x=left,point.y=top
+            const {x,y}=point.matrixTransform(canvas.getScreenCTM().inverse())
+            return {x, y}
+        }
+    
+        onMouseDown(e){
+            e.stopPropagation()
+            const {x:left,y:top}=this.asCanvasPoint(e.clientX, e.clientY, e.currentTarget.ownerSVGElement)
             this.setState({left,top})
         }
-
-        end(){
-            this.props.onEnd(this.state)
+    
+        onMouseUp(e){
+            e.stopPropagation()
+            this.props.create(this.state)
         }
-
-        drawing({clientX:right, clientY:bottom}){
+    
+        onMouseMove(e){
+            e.stopPropagation()
+            const {x:right,y:bottom}=this.asCanvasPoint(e.clientX, e.clientY, e.currentTarget.ownerSVGElement)
             if('left' in this.state){
                 this.setState({bottom,right})
             }
