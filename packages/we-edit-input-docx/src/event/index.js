@@ -73,7 +73,8 @@ export default (class Actions extends Input.Editable.EventHandler.xml{
             return $a.is('paragraph') && $a.closest('header,footer').length==0
         })
 		if($p.length>0){
-			this.cursorAt($p.attr('id'),0)
+            const first=$p.findFirst(this.cursorable)
+            this.cursorAt(first.attr('id')||$p.attr('id'),0)
 		}
 	}
 
