@@ -95,7 +95,7 @@ export default class ComposedDocumentCanvas extends Component{
 				{...props}
 				className={this.constructor.displayName}
 				ref={innerRef}
-				preserveAspectRatio="xMidYMin"
+				preserveAspectRatio="xMidYMid"
 				viewBox={`0 0 ${width} ${height}`}
 				style={{background:"transparent", width:width*scale/precision, height:height*scale/precision, ...style}}
 				>

@@ -1,16 +1,10 @@
 import React, {Component, Fragment} from "react"
 import {createPortal} from "react-dom"
-import PropTypes from "prop-types"
 import {ACTION, whenSelectionChangeDiscardable, ReactQuery} from "we-edit"
-
+import {Ribbon} from "we-edit-office"
 import IconTextBox from "material-ui/svg-icons/editor/format-shapes"
-import {ToolbarGroup, FlatButton,MenuItem,Divider,Tabs,Tab} from "material-ui"
-import {Ribbon, Dialog, ContextMenu} from "we-edit-office"
-import { compose } from "recompose"
 
-export default compose(
-    whenSelectionChangeDiscardable()
-)(
+export default whenSelectionChangeDiscardable()(
 class TextBox extends Component{
     constructor(){
         super(...arguments)
@@ -19,7 +13,7 @@ class TextBox extends Component{
     }
 
     render(){
-        const {state:{status}, props:{selection, dispatch}}=this
+        const {state:{status}, props:{selection}}=this
         return (
             <Fragment>
                 <Ribbon.CheckIconButton label="text box" onClick={e=>this.setState({status:"drawing"})}>
@@ -41,17 +35,16 @@ class TextBox extends Component{
         if(Math.abs((right-left)*(bottom-top))<1){
             return 
         }
-        const {selection, dispatch}=this.props
-        const positioning=selection.positioning
-        const p0=selection.positioning.responsible.asCanvasPoint({left,top})
-        const p1=selection.positioning.responsible.asCanvasPoint({left:right,top:bottom})
+        const {selection:{positioning}, dispatch}=this.props
+        const p0=positioning.responsible.asCanvasPoint({left,top})
+        const p1=positioning.responsible.asCanvasPoint({left:right,top:bottom})
         const [x,y,width,height]=[Math.min(p0.x, p1.x), Math.min(p0.y,p1.y),Math.abs(p0.x-p1.x), Math.abs(p1.y-p0.y)]
         
         const page=positioning.pages.find(({props:{I,height,Y=positioning.pageXY(I).y}})=>p0.y>Y && p0.y<Y+height)
         const $=new ReactQuery(page.createComposed2Parent())
         
-        const {id=$.findFirst('[data-type="paragraph"]').attr('data-content')}=selection.positioning.around(left,top)
-        const paragraph=selection.positioning.getContent(id).closest("paragraph").attr('id')
+        const {id=$.findFirst('[data-type="paragraph"]').attr('data-content')}=positioning.around(left,top)
+        const paragraph=positioning.getContent(id).closest("paragraph").attr('id')
 
         const {first, parents}=$.findFirstAndParents(`[data-content="${paragraph}"]`)
         const y0=[...parents,first.get(0)].filter(a=>!!a).reduce((Y,{props:{y=0}})=>Y+y,positioning.pageXY(page.props.I).y)
