@@ -149,35 +149,6 @@ export class Properties{
 		[ascii,cs,ea,hansi].forEach(a=>this.requireFonts.add(a))
 
 		return {ascii,cs,ea,hansi,hint}
-		/*
-		let fonts=[], t
-		if(t=x.attribs['w:ascii'])
-			fonts.push(t)
-		else if(t=x.attribs['w:asciiTheme'])
-			fonts.push(this.theme.font(t))
-
-		if(t=x.attribs['w:eastAsia'])
-			fonts.push(t)
-		else if(t=x.attribs['w:eastAsiaTheme'])
-			fonts.push(this.theme.font(t))
-
-		if(t=x.attribs['w:ascii'])
-			fonts.push(t)
-		else if(t=x.attribs['w:asciiTheme'])
-			fonts.push(this.theme.font(t))
-
-		if(t=x.attribs['w:eastAsia'])
-			fonts.push(t)
-		else if(t=x.attribs['w:eastAsiaTheme'])
-			fonts.push(this.theme.font(t))
-
-		if(fonts.length){
-			fonts=fonts.join(",")
-			fonts.split(",")
-				.forEach(a=>this.requireFonts.add(a))
-			return fonts
-		}
-		*/
 	}
 
 	lang(x){
