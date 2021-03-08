@@ -71,7 +71,7 @@ export default compose(
 
 	render(){
 		const {props:{selection, children:outline, rotate, scale, translate,dispatch,id, placeholded},context:{editable,precision=1},state:{showFocus}}=this
-		const {width,height}=outline.props
+		const {width,height}=this.props
 
 		const selectShape=e=>{
 			e.stopPropagation()

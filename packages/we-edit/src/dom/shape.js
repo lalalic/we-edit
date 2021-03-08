@@ -3,6 +3,13 @@ import PropTypes from "prop-types"
 
 import Component from "./component"
 
+/**
+ * shape has two types: static, and dynamic 
+ * static: fixed size
+ * dynamic: size decided by children content, so the shape is drawn with content size
+ * 
+ * client should decide
+ */
 export default class Shape extends Component{
 	static displayName="shape"
 

@@ -17,7 +17,7 @@ export class custom extends Component{
 		const {margin:{right=0,left=0,top=0,bottom=0}}=this.props
 		const {width,height}=this.getPath().size()
 		const strokeWidth=this.strokeWidth
-		return {width:width-strokeWidth/2-right-left,height:height-strokeWidth/2-top-bottom}
+		return {width:width-strokeWidth-right-left,height:height-strokeWidth-top-bottom}
 	}
 
 	get outlineBox(){
@@ -31,9 +31,9 @@ export class custom extends Component{
 	createComposedShape(content, {contentHeight, ...props}){
 		const {
 				margin:{left=0,top=0,bottom=0},
-				solidFill="transparent",blipFill:{url}={},
+				solidFill,blipFill,
 				outline={width:0},
-				fill={fill:solidFill},
+				fill={solidFill,blipFill},
 				rotate:degree=0,
 				id,
 				hash,
@@ -66,8 +66,10 @@ export class custom extends Component{
 			<Group {...this.outlineBox}>
 				<Group x={this.strokeWidth/2} y={this.strokeWidth/2}>
 					<Group  {...{"data-nocontent":true}}>
-						<Line {...outline} {...fill} d={this.getPath().toString()} width={this.strokeWidth} />
-						{url && <image {...{...this.contentBox,x:left, y:top, xlinkHref: url, preserveAspectRatio:"none"}} />}
+						<Line {...outline} fill={fill} d={this.getPath().toString()} 
+							width={this.strokeWidth} 
+							size={{width:this.props.width-this.strokeWidth,height:this.props.height-this.strokeWidth}}
+							/>
 					</Group>
 					<Group x={this.strokeWidth/2+left} y={alignY()} className="content">
 						{content}
@@ -78,7 +80,7 @@ export class custom extends Component{
 
 		if(this.context.editable){
 			innerContent=(
-				<FocusShape {...{width,height, scale,rotate,translate,rotatable,id,placeholded,...props}}>
+				<FocusShape {...{width:this.props.width,height:this.props.height, scale,rotate,translate,rotatable,id,placeholded,...props}}>
 					{innerContent}	
 				</FocusShape>
 			)
