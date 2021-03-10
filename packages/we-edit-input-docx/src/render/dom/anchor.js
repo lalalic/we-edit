@@ -2,14 +2,7 @@ import React,{Component} from "react"
 export default ({Anchor})=>class __$1 extends Component{
 	static displayName="anchor"
 	render(){
-		const {distance, wrap, x, y,...props}=this.props
-		const margin=((a,b)=>{
-            return "left,right,top,bottom".split(",")
-                .reduce((o,k)=>{
-                    o[k]=Math.max(a[k]||0,b[k]||0)
-                    return o
-                },{})
-        })(distance||{}, wrap && wrap.distance||{});
+		const {distance:_, wrap:{distance=_, path}, x, y,...props}=this.props
 
         switch(x.base){
         case "leftMargin":
@@ -33,6 +26,28 @@ export default ({Anchor})=>class __$1 extends Component{
             break
         }
 		
-		return <Anchor {...props} {...{margin,wrap,x,y}}/>
+		return <Anchor {...props} {...{x,y,wrap:{mode:this.mode,side:this.side,distance,path}}}/>
 	}
+
+    get mode(){
+        const {wrap:{mode}}=this.props
+        return MODE[mode]||"no"
+    }
+
+    get side(){
+        const {wrap:{side}}=this.props
+        return SIDE[side]||"both"
+    }
+}
+
+const MODE={
+    Square:"square",
+    Tight:"tight",
+    Through:"tight",
+    TopAndBottom:"clear",
+    Clear:"clear",
+}
+
+const SIDE={
+    bothSides:"both",
 }

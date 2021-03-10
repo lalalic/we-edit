@@ -23,9 +23,9 @@ export default class Balanceable extends Columnable {
 		if (typeof (balance) == "function") {
 			return balance.call(this);
 		}
-		const { balanceThreshold = 1 } = this.props;
+		const { equalBalanceThreshold = 1 } = this.props;
 		const width = this.cols[0].width;
-		if (!this.cols.find(a => Math.abs(width - a.width) > balanceThreshold)) {
+		if (!this.cols.find(a => Math.abs(width - a.width) > equalBalanceThreshold)) {
 			this.equalBalance();
 		}
 		else {

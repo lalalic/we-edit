@@ -15,19 +15,37 @@ export default class Base extends Component{
 		})),
 	})
 
+	static FontsShape=PropTypes.oneOfType([
+		/** same as {ascii: fontName}*/
+		PropTypes.string, 
+		PropTypes.shape({
+			ascii: PropTypes.string,
+			ea: PropTypes.string,
+			cs: PropTypes.string,
+			hansi: PropTypes.string,
+			/**fallback font*/
+			fallback: PropTypes.string,
+			/** value is scope, such as ea, to indicate all text should use font specified by fonts[hint] */
+			hint: PropTypes.string,
+			//"7F-FF,00-3F":"Arial",
+		})]
+	)
+
 	static LineShape=PropTypes.shape({
 		width: PropTypes.number.isRequired,
-		style: PropTypes.string,
 		color: PropTypes.string,
 		
+		dashArray: PropTypes.string,
+		dashOffset: PropTypes.string,
+		lineJoin: PropTypes.string,
+		lineCap: PropTypes.string,
+		miterLimit: PropTypes.string,
+		
+		opacity: PropTypes.number,
+		
+		style: PropTypes.string,
 		sketched: PropTypes.string,
 		compound: PropTypes.string,
-		dash: PropTypes.string,
-		join: PropTypes.string,
-		cap: PropTypes.string,
-		
-		transparency: PropTypes.number,
-		
 		gradient: this.GradientShape
 	})
 
@@ -52,6 +70,10 @@ export default class Base extends Component{
 		}),
 	})
 
+	static EffectShape=PropTypes.shape({
+		
+	})
+
 	static BorderShape=PropTypes.shape({
 		left:this.LineShape,
 		right:this.LineShape,
@@ -66,6 +88,16 @@ export default class Base extends Component{
 		bottom: PropTypes.number
 	})
 
+	static AlignShape=PropTypes.oneOf(["left","right","center","justify"])
+	static VertAlignShape=PropTypes.oneOf(["top","middle","bottom"])
+
+	static TextStyleShape=PropTypes.shape({
+		fonts:this.FontsShape.isRequired,
+		size:PropTypes.number.isRequired,
+		bold: PropTypes.bool,
+		italic: PropTypes.bool,
+	})
+	
 	static DefaultLine={
 		width:1,
 		color:"black"

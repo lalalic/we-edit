@@ -29,28 +29,9 @@ import {Rect} from "../../../tool/geometry"
  * layout algorithm itself(such as line, page, and etc) decide how to re-layout
  * constraint space:{left,right, height, blockOffset}
  */
-export default class Flow extends HasParentAndChild(dom.Container) {
+export default class Flow extends HasParentAndChild(dom.Frame) {
 	static IMMEDIATE_STOP = Number.MAX_SAFE_INTEGER;
-	static propTypes = {
-		balance: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
-		balanceThreshold: PropTypes.number,
-		space: PropTypes.shape({
-			left: PropTypes.number,
-			right: PropTypes.number,
-			blockOffset: PropTypes.number,
-			height: PropTypes.number,
-			wrappees: PropTypes.arrayOf(PropTypes.object)
-		}),
-		cols: PropTypes.arrayOf(PropTypes.shape({
-			x: PropTypes.number,
-			y: PropTypes.number,
-			width: PropTypes.number,
-			height: PropTypes.number,//height should be specified
-		})),
-		inheritExclusives: PropTypes.bool,
-		allowOverflow: PropTypes.bool,
-	}
-
+	
 	constructor() {
 		super(...arguments);
 		this.computed.anchors = [];
@@ -107,7 +88,7 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 						return 0
 					}
 					const {allowOverflow}=this.props
-					if(allowOverflow||!this.props.height)
+					if(allowOverflow||typeof(this.props.height)=="undefined")
 						return Number.MAX_SAFE_INTEGER
 					const { height=Number.MAX_SAFE_INTEGER } = this.getSpace();
 					return height - this.contentHeight;
@@ -158,7 +139,22 @@ export default class Flow extends HasParentAndChild(dom.Container) {
 	}
 	//default use props.space
 	getSpace() {
-		return this.props.space
+		const {
+			width,height=Number.MAX_SAFE_INTEGER,
+			margin:{left=0,right=0,top=0,bottom=0}={},
+			x=0,y=0,
+			edges={
+				[this.getComposeType()]:{left:x,top:y,right:x+width,bottom:y+height},
+				margin:{left:x+left,top:y+top,right:width+x-right,bottom:y+height-bottom}
+			},
+			space
+		}=this.props
+		return ConstraintSpace.create(space||{
+			left:x+left,
+			right:x+width-right,
+			blockOffset:y+top,
+			height:height-top-bottom,
+		}).clone({edges})
 	}
 
 	positionLines(lines) {

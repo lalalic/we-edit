@@ -11,33 +11,31 @@ export default class Paragraph extends Component{
 			top:PropTypes.number,
 			bottom:PropTypes.number
 		}).isRequired,
+
 		indent: PropTypes.shape({
 			left:PropTypes.number,
 			right:PropTypes.number,
 			firstLine:PropTypes.number
 		}).isRequired,
-		align:PropTypes.string,
+
+		align:this.AlignShape,
+		
 		numbering: PropTypes.shape({
-			style: PropTypes.shape({
-				fonts:PropTypes.string.isRequired,
-				size:PropTypes.number.isRequired,
-				bold: PropTypes.bool,
-				italic: PropTypes.bool,
-			}).isRequired,
+			style: this.TextStyleShape.isRequired,
 			label: PropTypes.string,
 		}),
-		defaultStyle:PropTypes.shape({
-			fonts:PropTypes.string.isRequired,
-			size:PropTypes.number.isRequired,
-			bold: PropTypes.bool,
-			italic: PropTypes.bool,
-		}),
+		
+		/**[edit]default text style to be used when add text in empty paragraph*/
+		defaultStyle:this.TextStyleShape,
+
+		/**Pagination control */
 		widow:PropTypes.bool,
 		orphan: PropTypes.bool,
 		keepLines: PropTypes.bool,
 		keepWithNext: PropTypes.bool,
-		End:PropTypes.string,
 		wrap: PropTypes.bool,
+		/**Paragraph End Character */
+		End:PropTypes.string,
 	}
 
 	static defaultProps={

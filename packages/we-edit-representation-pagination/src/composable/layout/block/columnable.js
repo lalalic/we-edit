@@ -94,22 +94,21 @@ export default class Columnable extends OrphanControlable {
 
 	/**check class explaination */
 	getSpace(column) {
-		var space = super.getSpace(...arguments);
-		if (!this.cols)
-			return space;
-		if(!space)
-			space=ContraintSpace.create({})
-		const { left = 0, right = 0, blockOffset = 0, height: H } = space;
-		const { width = right - left, x = left, height = H, y = blockOffset } = column||this.currentColumn;
-		return space.clone({
-			left: x,
-			right: x + width,
-			blockOffset: y,
-			height,
-			edges:{
-				column:{left:x,top:y,right:x+width,bottom:y+height}
-			}
-		})
+		const space = super.getSpace(...arguments);
+		if (this.cols){
+			const { left = 0, right = 0, blockOffset = 0, height: H } = space;
+			const { width = right - left, x = left, height = H, y = blockOffset } = column||this.currentColumn;
+			return space.clone({
+				left: x,
+				right: x + width,
+				blockOffset: y,
+				height,
+				edges:{
+					column:{left:x,top:y,right:x+width,bottom:y+height}
+				}
+			})
+		}
+		return space
 	}
 	nextAvailableSpace() {
 		const space = super.nextAvailableSpace(...arguments);

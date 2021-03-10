@@ -319,6 +319,15 @@ export class Properties{
 		return {width:this.docx.emu2Px(x.attribs.cx),height:this.docx.emu2Px(x.attribs.cy)}
 	}
 
+	effectExtent({attribs:{l,r,t,b}}){
+		return {
+			left:this.docx.emu2Px(l),
+			right:this.docx.emu2Px(r),
+			top:this.docx.emu2Px(t),
+			bottom:this.docx.emu2Px(b),
+		}
+	}
+
 	off(x){
 		return {x:this.docx.emu2Px(x.attribs.x),y:this.docx.emu2Px(x.attribs.y)}
 	}
@@ -429,21 +438,21 @@ export class Properties{
 
 	wrapPolygon(x){
 		const xy=({attribs:{x,y}})=>({x:this.docx.emu2Px(x),y:this.docx.emu2Px(y)})
-		return x.children.map(a=>xy(a))
+		const [start,...points]=x.children.map(a=>xy(a))
+		return points.reduce((segs,{x,y})=>{
+			segs.push(`L${x} ${y}`)
+			return sets
+		},[`M${start.x} ${start.y}`]).join("")
 	}
 
 	wrap(x){
 		var props={
 			mode:x.name.substring("wp:wrap".length),
-			wrapText: x.attribs.wrapText,
+			sides: x.attribs.wrapText,
 			distance: this.toDist(x),
-			...this.select(x.children,{wrapPolygon:"polygon"})
+			...this.select(x.children,{wrapPolygon:"path"})
 		}
 
-		if(props.mode=="Square" && !props.distance){
-			let dt=this.docx.emu2Px(36000)
-			props.distance={left:dt,right:dt,top:dt,bottom:dt}
-		}
 		return props
 	}
 /********************************/

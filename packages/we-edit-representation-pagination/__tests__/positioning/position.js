@@ -240,12 +240,12 @@ define("position", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Cont
     })
 
     describe("wrap", ()=>{
-        it("TopAndBottom",()=>{
+        it("clear",()=>{
             const doc=test(
                     <Paragraph id={uuid++}>
                         <Text id={"0"}>text</Text>
                         <Anchor id={"2"}
-                            wrap={{mode:"TopAndBottom"}}
+                            wrap={{mode:"clear"}}
                             x={{base:"page",offset:0}} y={{base:"page",offset:0}}>
                             <Image id={"3"} {...{width:2,height:10}}/>
                         </Anchor>

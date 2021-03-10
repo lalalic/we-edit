@@ -23,11 +23,13 @@ export default class extends Style{
         if(wrap){
             this.wrap=selector.selectValue(wrap)
         }
+
+        this.effectExtent=selector.effectExtent(find("wp:effectExtent"))
     }
 
     flat(){
-        const {distance,x,y,wrap,width,height}=this
-        return this.__clear({distance,x,y,wrap,width,height},undefined)
+        const {distance,x,y,wrap,width,height,effectExtent}=this
+        return this.__clear({distance,x,y,wrap,width,height,effectExtent},undefined)
     }
 
     __clear(o,v=undefined){

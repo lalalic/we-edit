@@ -9,7 +9,7 @@ export default class Text extends Component{
 		/**
 		 * "Arial", or {cs,ea,ascii,hansi,[7F-FF,...]}
 		 */
-		fonts: PropTypes.oneOfType([PropTypes.string, PropTypes.object]).isRequired,
+		fonts: this.FontsShape.isRequired,
 		size: PropTypes.number.isRequired,
 		color: PropTypes.string,
 		bold: PropTypes.bool,
@@ -20,7 +20,6 @@ export default class Text extends Component{
 		underline: PropTypes.string,
 		strike: PropTypes.bool,
 		vertAlign: PropTypes.oneOf(["subscript","superscript"]),
-		displayText: PropTypes.string,
 	}
 	static LineBreak=String.fromCharCode(13)
 	static LineFeed=String.fromCharCode(10)
