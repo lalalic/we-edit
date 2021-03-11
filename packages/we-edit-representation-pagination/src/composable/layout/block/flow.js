@@ -7,6 +7,7 @@ import { HasParentAndChild } from "../.."
 import { Group } from "../../../composed"
 import ConstraintSpace from "../constraint-space"
 import {Rect} from "../../../tool/geometry"
+import Path from "../../../tool/path"
 /**
  * Layout engine is how to layout content in a constraint space
  * so it includes: a constraint space + layout algorithm + content
@@ -29,7 +30,7 @@ import {Rect} from "../../../tool/geometry"
  * layout algorithm itself(such as line, page, and etc) decide how to re-layout
  * constraint space:{left,right, height, blockOffset}
  */
-export default class Flow extends HasParentAndChild(dom.Frame) {
+class Flow extends HasParentAndChild(dom.Frame) {
 	static IMMEDIATE_STOP = Number.MAX_SAFE_INTEGER;
 	
 	constructor() {
@@ -118,8 +119,20 @@ export default class Flow extends HasParentAndChild(dom.Frame) {
 				get() {
 					return this.lines.reduce((H, { props: { height: h = 0 } }) => h + H, 0);
 				}
+			},
+			inclusiveGeometry: {
+				enumerable:false,
+				configurable:true,
+				get(){
+					const {space:{inclusive}={}}=this.props
+					if(inclusive){
+						return createInclusive(inclusive)
+					}
+				}
 			}
 		});
+
+		const createInclusive=memoize(path=>new Path(inclusive))
 	}
 	
 	onAllChildrenComposed() {
@@ -149,6 +162,7 @@ export default class Flow extends HasParentAndChild(dom.Frame) {
 			},
 			space
 		}=this.props
+		
 		return ConstraintSpace.create(space||{
 			left:x+left,
 			right:x+width-right,
@@ -204,6 +218,7 @@ export default class Flow extends HasParentAndChild(dom.Frame) {
 		}
 		return false;
 	}
+
     /**
      * exclude area in rect {x1,y1, x2,y2}
      * @param {*} y1
@@ -440,4 +455,70 @@ export default class Flow extends HasParentAndChild(dom.Frame) {
 			}
 		}
 	})
+}
+
+/**
+ * Inclusive Layout Mode for inclusive space
+ * conditions:
+ * 1. {props:{space:{inclusive:"<path>"}}}
+ * 2. 
+ */
+export default class Inclusive extends Flow{
+	defineProperties(){
+		super.defineProperties()
+
+		const createInclusive=memoize(path=>new Path(path))
+		
+		Object.defineProperties(this,{
+			inclusiveGeometry: {
+				enumerable:false,
+				configurable:true,
+				get(){
+					const {space:{inclusive="M 400 100 h200 L700 300 L400 100"}={}}=this.props
+					if(inclusive){
+						return createInclusive(inclusive)
+					}
+				}
+			}
+		});		
+	}
+
+	inclusive(y1, y2, x1, x2){
+		const includes=this.inclusiveGeometry.intersects({ x1, x2, y1, y2})
+		if(includes.length<2)
+			return Math.max((y1+y2)/2,this.inclusiveGeometry.bounds().top+1)
+		includes.sort((a,b)=>a.x-b.x)
+		return new Array(Math.floor(includes.length/2)).fill(0).map((_,i)=>{
+			return {
+				x: includes[i].x,
+				width:includes[i+1].x-includes[i].x,
+			}
+		})
+	}
+
+	exclusive(){
+		if(this.inclusiveGeometry){
+			return this.inclusive(...arguments)
+		}
+		return super.exclusive(...arguments)
+	}
+
+	getSpace(){
+		if(this.inclusiveGeometry){
+			const {left,right,top,bottom}=this.inclusiveGeometry.bounds()
+			return ConstraintSpace.create(this.props.space)
+				.clone({
+					left:left-1,
+					right:right+1,
+					height:bottom-top,
+					blockOffset:top,
+				})
+		}
+
+		return super.getSpace()
+	}
+
+	createComposed2Parent(){
+		return super.createComposed2Parent(...arguments)
+	}
 }

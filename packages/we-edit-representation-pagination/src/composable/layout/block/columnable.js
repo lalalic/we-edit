@@ -11,7 +11,7 @@ import ContraintSpace from "../constraint-space"
 export default class Columnable extends OrphanControlable {
 	defineProperties() {
 		super.defineProperties();
-		if (!this.props.cols)
+		if (!this.props.cols || this.props.cols.length<2)
 			return;
 		this.computed.columns = [];
 		Object.defineProperties(this, {

@@ -17,7 +17,7 @@ export default class extends Style{
                 Object.assign(this,selector.select([find("wp:positionH"),find("wp:positionV")],{positionH:"x", positionV:"y"}))
         }
 
-        let wrap="TopAndBottom,Square,Tight,Through"
+        let wrap="TopAndBottom,Square,Tight,Through,None"
             .split(",")
             .reduce((wrap,a)=>wrap || find(`wp:wrap${a}`),null)
         if(wrap){

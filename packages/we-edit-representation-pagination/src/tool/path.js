@@ -8,6 +8,17 @@ export default class __$1 extends Path{
         return new this(`M${x} ${y} h${w} v${h} h${-w}z`)    
     }
 
+	static fromCircle({cx,cy,r}){
+		const circle=`M (${cx - r}), ${cy}
+		a ${R},${R} 0 1,0 (${R * 2}),0
+		a ${R},${R} 0 1,0 -(${R * 2}),0`
+		return new this(circle)
+	}
+
+	static fromEllipse({cx,cy,rx,ry}){
+		
+	}
+
     toString(){
         this.__evaluateStack()
         return memoize(d=>super.toString())(this.segments.map(a=>a.join("")).join(""))

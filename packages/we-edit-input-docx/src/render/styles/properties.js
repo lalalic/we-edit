@@ -5,7 +5,7 @@ export class Properties{
 		this.docx=docx
 		this.theme=getTheme(docx)
 		this.rStyle=this.pStyle=this.tblStyle=this.type=this._val
-		this.wrapSquare=this.wrapTight=this.wrapThrough=this.wrapTopAndBottom=this.wrap
+		this.wrapSquare=this.wrapTight=this.wrapThrough=this.wrapTopAndBottom=this.wrapNone=this.wrap
 		this.vAlign=this.vertAlign
 		this.ext=this.extent
 		this.requireFonts=new Set()

@@ -63,7 +63,8 @@ export default class Frame extends Component{
 					}),
 					wrap:PropTypes.func.isRequired,
 				}
-			}))
+			})),
+			inclusive: PropTypes.string,//inclusive mode, only this inclusive area should be layouted
 		}),
 
 		/**if true: the content out of the frame should be composed too */

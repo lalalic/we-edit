@@ -55,7 +55,7 @@ export const Tools=compose(
 			},
 			cols(n, f=a=>a){
 				const cols=style.cols
-				return cols && cols.length==n && f(...cols.map(a=>a.width))
+				return cols && cols.length==n && f(...cols.map(a=>a?.width))
 			}
 		}
 	}),
