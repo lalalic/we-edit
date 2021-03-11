@@ -10,8 +10,8 @@ export default class __$1 extends Path{
 
 	static fromCircle({cx,cy,r}){
 		const circle=`M (${cx - r}), ${cy}
-		a ${R},${R} 0 1,0 (${R * 2}),0
-		a ${R},${R} 0 1,0 -(${R * 2}),0`
+		a ${r},${r} 0 1,0 (${r * 2}),0
+		a ${r},${r} 0 1,0 -(${r * 2}),0`
 		return new this(circle)
 	}
 

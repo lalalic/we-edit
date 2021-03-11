@@ -466,7 +466,7 @@ class Flow extends HasParentAndChild(dom.Frame) {
 export default class Inclusive extends Flow{
 	defineProperties(){
 		super.defineProperties()
-
+		
 		const createInclusive=memoize(path=>new Path(path))
 		
 		Object.defineProperties(this,{
@@ -474,8 +474,11 @@ export default class Inclusive extends Flow{
 				enumerable:false,
 				configurable:true,
 				get(){
-					const {space:{inclusive/*="M 400 100 h200 L700 300 L400 100"*/}={}}=this.props
+					const {cols, space:{inclusive="M 100 100 h200 v200 L100 100"}={}}=this.props
 					if(inclusive){
+						if(cols && cols.length>0){
+							throw new Error(`inclusive layout can't support cols, please remove cols or space.inclusive from Frame`)
+						}
 						return createInclusive(inclusive)
 					}
 				}
@@ -484,23 +487,24 @@ export default class Inclusive extends Flow{
 	}
 
 	inclusive(y1, y2, x1, x2){
-		const {top:min,bottom:max}=this.inclusiveGeometry.bounds()
+		const {top:min,bottom:max, left,right}=this.inclusiveGeometry.bounds()
 		if(Math.max(y1,y2)<min){
 			return min
 		}else if(Math.min(y1,y2)>max){
-			return false
+			return [{x:left, width:right-left}]
 		}
 		
 		const includes=this.inclusiveGeometry.intersects({ x1, x2, y1, y2:y1})
 		if(includes.length<2)
 			return y1+5
 		includes.sort((a,b)=>a.x-b.x)
-		return new Array(Math.floor(includes.length/2)).fill(0).map((_,i)=>{
+		const [{x,width}]=new Array(Math.floor(includes.length/2)).fill(0).map((_,i)=>{
 			return {
 				x: includes[i].x,
 				width:includes[i+1].x-includes[i].x,
 			}
 		})
+		return [{x:left,width:x-left},{x:x+width,width:right-x-width}]
 	}
 
 	exclusive(){
@@ -525,7 +529,17 @@ export default class Inclusive extends Flow{
 		return super.getSpace()
 	}
 
-	createComposed2Parent(){
-		return super.createComposed2Parent(...arguments)
+	positionLines(lines){
+		const positioned=super.positionLines(...arguments)
+		if(!this.inclusiveGeometry)
+			return positioned
+		
+		const {left:x,top:y}=this.inclusiveGeometry.bounds()
+		return React.cloneElement(positioned,{
+			children:[
+				<path d={this.inclusiveGeometry.toString()} style={{stroke:"black",strokeWidth:1,fill:"none"}}/>,
+				React.cloneElement(positioned,{x,y}),
+			]
+		})
 	}
 }
