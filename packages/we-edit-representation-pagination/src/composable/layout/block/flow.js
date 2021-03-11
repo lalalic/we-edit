@@ -484,9 +484,16 @@ export default class Inclusive extends Flow{
 	}
 
 	inclusive(y1, y2, x1, x2){
-		const includes=this.inclusiveGeometry.intersects({ x1, x2, y1, y2})
+		const {top:min,bottom:max}=this.inclusiveGeometry.bounds()
+		if(Math.max(y1,y2)<min){
+			return min
+		}else if(Math.min(y1,y2)>max){
+			return false
+		}
+		
+		const includes=this.inclusiveGeometry.intersects({ x1, x2, y1, y2:y1})
 		if(includes.length<2)
-			return Math.max((y1+y2)/2,this.inclusiveGeometry.bounds().top+1)
+			return y1+5
 		includes.sort((a,b)=>a.x-b.x)
 		return new Array(Math.floor(includes.length/2)).fill(0).map((_,i)=>{
 			return {
