@@ -474,7 +474,7 @@ export default class Inclusive extends Flow{
 				enumerable:false,
 				configurable:true,
 				get(){
-					const {space:{inclusive="M 400 100 h200 L700 300 L400 100"}={}}=this.props
+					const {space:{inclusive/*="M 400 100 h200 L700 300 L400 100"*/}={}}=this.props
 					if(inclusive){
 						return createInclusive(inclusive)
 					}

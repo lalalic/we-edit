@@ -84,7 +84,7 @@ define("section compose",
             it("{base:'column', offset:1} should anchored at x=col.x+1",()=>{
                 try{
                     const col={x:20,width:40}
-                    pg.cols=[col]
+                    pg.cols=[col,{x:30,width:20}]
                     expect(test({x:{base:"column",offset:1}}).x()).toBe(col.x+1)
                 }finally{
                     delete pg.cols
