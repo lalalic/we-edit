@@ -68,7 +68,6 @@
   "readme": "README.md",
   "dependencies": {
     "prop-types": "^15.7.2",
-    "recompose": "^0.30.0",
-    "we-edit": "^3.5.16"
+    "recompose": "^0.30.0"
   }
 }

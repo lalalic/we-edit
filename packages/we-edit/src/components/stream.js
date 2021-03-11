@@ -77,15 +77,15 @@ export class Stream extends Component{
 		}
 
 		onFinish(stream){
-			this.props?.onFinish(stream)
+			this.props.onFinish?.(stream)
 		}
 
 		onError(stream,error){
-			this.props?.onError(...arguments)
+			this.props.onError?.(...arguments)
 		}
 
 		onReady(stream){
-			this.props?.onReady(stream)
+			this.props.onReady?.(stream)
 		}
 	}
 

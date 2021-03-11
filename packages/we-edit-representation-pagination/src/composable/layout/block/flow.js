@@ -474,7 +474,7 @@ export default class Inclusive extends Flow{
 				enumerable:false,
 				configurable:true,
 				get(){
-					const {cols, space:{inclusive="M 100 100 h200 v200 L100 100"}={}}=this.props
+					const {cols, space:{inclusive}={}}=this.props
 					if(inclusive){
 						if(cols && cols.length>0){
 							throw new Error(`inclusive layout can't support cols, please remove cols or space.inclusive from Frame`)
