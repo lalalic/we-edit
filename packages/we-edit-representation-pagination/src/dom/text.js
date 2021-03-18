@@ -72,7 +72,7 @@ class Text extends NoChild(dom.Text){
             }
             const {LineBreak, LineFeed, Tab, PageBreak, FormFeed}=dom.Text
             const text=this.text, measure=this.measure
-
+            
             let start=0
             this.breakOpportunities(text)
             .forEach((b,j,_1,_2,bLast=_1.length-1==j, bFirst=j==0)=>{
@@ -112,7 +112,7 @@ class Text extends NoChild(dom.Text){
                     }
                 }
                 this.appendComposed({
-                    ...measure.defaultStyle,
+                    ...this.defaultStyle,
                     ...props
                 })
             })
