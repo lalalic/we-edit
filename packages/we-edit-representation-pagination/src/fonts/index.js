@@ -242,7 +242,7 @@ const FontManager={
                     return 
                 service=reg
                 const noCacheCreate=FontKit.noCacheCreate||FontKit.create
-                if(!'noCacheCreate' in FontKit){
+                if(!FontKit.noCacheCreate){
                     FontKit.noCacheCreate=noCacheCreate
                     FontKit.create=function(data){
                         try{

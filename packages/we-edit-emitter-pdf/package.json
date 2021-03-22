@@ -1,0 +1,31 @@
+{
+  "name": "we-edit-emitter-pdf",
+  "version": "0.0.1",
+  "description": "we-edit pdf emitter based on representation-pagination",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "pdf",
+    "we-edit",
+    "pagination"
+  ],
+  "author": "lalalic@gmail.com",
+  "license": "MIT",
+  "we-office": {
+    "name": "emitter-pdf",
+    "type": [
+      "Emitter"
+    ]
+  },
+  "dependencies": {
+    "pdfkit": "^0.11.0",
+    "react-reconciler": "0.17.0"
+  },
+  "peerDependencies": {
+    "prop-types": "^15.6.0",
+    "react": "^16.2.0",
+    "we-edit": "^3.0.0"
+  },
+  "readme": "README.md"
+}

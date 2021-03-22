@@ -18,6 +18,8 @@ import {Office,Workspace, Ribbon,reducer} from "we-edit-office"
 import {connect} from  "react-redux"
 import minimatch from "minimatch"
 
+import PDFEmitter from "we-edit-emitter-pdf"
+
 
 iDocx.install({
 	template:"/templates/normal.docx"
@@ -29,6 +31,8 @@ ioFile.install()
 ioBrowser.install()
 
 FontManager.asService()
+
+PDFEmitter.install()
 
 
 
