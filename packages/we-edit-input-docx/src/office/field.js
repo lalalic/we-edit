@@ -14,7 +14,7 @@ export default compose(
 	setDisplayName("FieldStyle"),
 	whenSelectionChangeDiscardable(({selection})=>{
         const field=selection?.isInField()
-        if(field && field.attr('command')!="TOC"){
+        if(field && !["TOC","FORMTEXT","FORMDROPDOWN","FORMCHECKBOX"].includes(field.attr('command'))){
             const instr=field.attr('instr')
             const style=selection?.props("text",false)
             return {style:{...style,field:field.attr('id'),instr}}

@@ -10,6 +10,8 @@ import TOA from "./toa"
 import * as DocxTabs from "./tabs"
 import {parseFile} from "./developer"
 import TextBox from "./shape/text-box"
+import {Input, CheckBox, ComboBox} from "./form-field"
+
 
 import Canvas from "../representation/canvas"
 
@@ -38,8 +40,15 @@ export default (
                         <ToolbarGroup>
                             <TextBox/>
                         </ToolbarGroup>
+                        
 
                       {/*  
+                      <ToolbarGroup>
+                            <Input/>
+                            <CheckBox/>
+                            <ComboBox/>
+                        </ToolbarGroup>
+                        
                         <Links/>
                         <PageNumber/>
                         <Comment/>
