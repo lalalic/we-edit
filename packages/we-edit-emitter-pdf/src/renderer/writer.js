@@ -129,13 +129,13 @@ export default class PDFWriter extends Readable {
         }
         const buffer=Buffer.from(streamOrContent)
         
-        const deflated = buffer//deflateSync(buffer)
+        const deflated = deflateSync(buffer)
         const bytes=this.filter(deflated)
         return {
             dict:this.xref.getNewDict({
-                //Filter: Name.get("FlateDecode"),
+                Filter: Name.get("FlateDecode"),
                 Length: bytes.length,
-                //Length1:buffer.length
+                Length1:buffer.length
             }),
             getBytes:()=>{
                 return bytes
