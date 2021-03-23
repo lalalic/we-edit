@@ -10,10 +10,11 @@ export default class Element{
     }
 
     addContent(op){
-        this.page && this.page.addContent(op)
+        this.page.addContent("".padStart(this.level," ")+op)
     }
 
-    toCommand(parent, more=this){
+    toCommand(parent,level=0){
+        this.level=level
         this.ctm=[...parent.ctm]
         this.addContent("q")//save graphics state
         
@@ -22,11 +23,11 @@ export default class Element{
             this[`_${k}`]?.(this.props[k])
         })
         
-        more?.preChildCommand?.()
+        this?.preChildCommand?.()
       
-        this.children.forEach(a=>a.toCommand(this))
+        this.children.forEach(a=>a.toCommand(this,++level))
         
-        more?.postChildCommand?.()
+        this?.postChildCommand?.()
 
         this.addContent("Q")//restore graphics state
     }

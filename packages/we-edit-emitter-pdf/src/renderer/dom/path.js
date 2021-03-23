@@ -215,6 +215,7 @@ export default class Path extends Vector {
 				this[c.cmd](c.args);
 			}
 		}
+		this.addContent(' S')
 	}
 
 	parse(path) {

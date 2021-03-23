@@ -27,8 +27,7 @@ class SubsetFont extends Font {
 		super(...arguments);
 		this.font = font;
 		this.subset = font.createSubset();
-        //this.subset.glyphs.splice(0,1)
-		
+        
 		Object.defineProperties(this.subset, {
 			cmap: {
 				get: () => this.cmap,
@@ -60,9 +59,6 @@ class SubsetFont extends Font {
 			}
 			return flags;
 		})();
-
-        this.unicode = []
-        this.widths = []
 	}
 
 	get cmap() {

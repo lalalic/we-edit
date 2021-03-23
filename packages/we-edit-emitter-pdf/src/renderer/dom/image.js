@@ -33,6 +33,7 @@ class Manager{
                     dict:this.xref.getNewDict({
                         Type: Name.get("XObject"),
                         Subtype : Name.get("Image"),
+                        Name: new Name(this.id),
                         Width:width,
                         Height:height,
                         ColorSpace : Name.get("DeviceRGB"),
