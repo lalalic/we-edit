@@ -441,7 +441,7 @@ export class Properties{
 		const [start,...points]=x.children.map(a=>xy(a))
 		return points.reduce((segs,{x,y})=>{
 			segs.push(`L${x} ${y}`)
-			return sets
+			return segs
 		},[`M${start.x} ${start.y}`]).join("")
 	}
 
