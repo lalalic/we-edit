@@ -196,7 +196,7 @@ class Flow extends HasParentAndChild(dom.Frame) {
 				findInlineSegments: (requiredBlockSize, left, right) => {
 					const blockOffset = this.blockOffset;
 					var wrappees = this.exclusive(blockOffset, blockOffset + requiredBlockSize, left, right);
-					var top = 0;
+					var top = blockOffset;
 					while (typeof (wrappees) == "number") {
 						top = wrappees;
 						wrappees = this.exclusive(top, top + requiredBlockSize, left, right);
@@ -204,7 +204,7 @@ class Flow extends HasParentAndChild(dom.Frame) {
 					const space = this.nextAvailableSpace({ height: top - blockOffset + requiredBlockSize });
 					if (space) {
 						return {
-							top,
+							top:top-blockOffset,
 							segments: wrappees.reduce((ops, { x, width }) => {
 								const [last] = ops.splice(-1);
 								return [...ops, { x: last.x, width: x - last.x }, { x: x + width, width: right - x - width }];

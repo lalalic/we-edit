@@ -169,7 +169,7 @@ export default class Inline extends Component{
 				 * line rect change may lead to different inline opportunities and top
 				 * get opportunities again
 				 */
-				const {space:{left,right},top=0}=this.props
+				const {space:{left,right}}=this.props
 				const segments=this.findInlineSegments(this.topToBlockOffset+newHeight,left,right)
 				if(this.inlineSegments.shouldRelayout(segments)){
 					const relayouted=this.inlineSegments.relayout(segments,atom)
@@ -184,6 +184,8 @@ export default class Inline extends Component{
 					}
 				}else{
 					//same inline opportunities, continue normal inline layout later 
+					//but block top may be changed, such as clear wrap
+					this.inlineSegments.props.top=segments.top
 				}
 			}else{
 				//line rect doesn't change, continue normal inline layout later 

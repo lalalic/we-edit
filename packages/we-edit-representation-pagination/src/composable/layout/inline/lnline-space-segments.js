@@ -1,7 +1,6 @@
 import React, { Component } from "react"
 import PropTypes from "prop-types"
 import Group from "../../../composed/group"
-import { ReactQuery } from "we-edit";
 
 export default class InlineSegments extends Component {
     static propTypes = {

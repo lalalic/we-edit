@@ -54,8 +54,8 @@ export default class Story extends Component{
 	})
 
 	left=memoize(children=>{
-		return this.group(undefined, children)
-			.reduce((state, {words, endingWhitespaces,located})=>{
+		const groups=this.group(false, children)
+		const {aligned}=groups.reduce((state, {words, endingWhitespaces,located})=>{
 				if(words.length+endingWhitespaces.length){
 					state.aligned.push(
 						React.cloneElement(
@@ -73,12 +73,12 @@ export default class Story extends Component{
 				}
 				return state
 			},{x:0, aligned:[]})
-			.aligned
+		return aligned
 	})
 
 	right=memoize(children=>{
-		return this.group(true,children)
-			.reduceRight((state, {located,words,endingWhitespaces})=>{
+		const groups=this.group(true,children)
+		const {aligned}=groups.reduceRight((state, {located,words,endingWhitespaces})=>{
 				if(endingWhitespaces.length>0){
 					state.aligned.push(
 						React.cloneElement(
@@ -108,15 +108,13 @@ export default class Story extends Component{
 				}
 				return state
 			},{x:this.props.width,aligned:[]})
-			.aligned
-			.reverse()
+		return aligned.reverse()
 	})
 
 	center=memoize(children=>{
 		const contentWidth=pieces=>pieces.reduce((w,a)=>w+a.props.width,0)
-		return this
-			.group()
-			.reduce((state, {words, endingWhitespaces,located})=>{
+		const groups=this.group(false, children)
+		const {aligned}=groups.reduce((state, {words, endingWhitespaces,located})=>{
 				if(words.length+endingWhitespaces.length){
 					const width=(located ? located.props.x : this.props.width)-state.x
 					const wordsWidth=contentWidth(words)
@@ -135,13 +133,13 @@ export default class Story extends Component{
 					state.x=located.props.x+located.props.width
 				}
 				return state
-			},{x:0, aligned:[]}).aligned
+			},{x:0, aligned:[]})
+		return aligned
 	})
 
 	justify=memoize(children=>{
-		return this
-			.group(undefined, children)
-			.reduce((state,{words,endingWhitespaces,located})=>{
+		const groups=this.group(false, children)
+		const {justified}=groups.reduce((state,{words,endingWhitespaces,located})=>{
 				let len=state.justified.length
 				const width=(located ? located.props.x : this.props.width)-state.x
 				const {whitespaces,contentWidth}=words.reduce((status,a,i)=>{
@@ -163,7 +161,8 @@ export default class Story extends Component{
 					state.x=located.props.x+located.props.width
 				}
 				return state
-			},{x:0,justified:[]}).justified
+			},{x:0,justified:[]})
+		return justified
 	})
 
 	both(){
