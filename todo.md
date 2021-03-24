@@ -50,6 +50,9 @@ docx:
     * nextLine
     * prevLine
 * Canvas
+* topBlock makes inline layout confusion, spaceTopBlock, lineTopBlock: can topBlock concept be removed?
+* exclusive space of wrappee => available inline segments, is it possible to calc available space directly from space?
+* findInlineSegments() should support minimum inline size to support big wrapper hold whole line
 * **Positioning NOT rely on composer.computed.lastComposed**
     * it's heavy to maintain composers vs composed
         * template

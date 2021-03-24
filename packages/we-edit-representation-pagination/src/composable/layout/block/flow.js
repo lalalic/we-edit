@@ -196,19 +196,24 @@ class Flow extends HasParentAndChild(dom.Frame) {
 				findInlineSegments: (requiredBlockSize, left, right) => {
 					const blockOffset = this.blockOffset;
 					var wrappees = this.exclusive(blockOffset, blockOffset + requiredBlockSize, left, right);
+					
+					/**find the nearest top that can start flow content if wrappees as number specify next available blockOffset */
 					var top = blockOffset;
 					while (typeof (wrappees) == "number") {
 						top = wrappees;
 						wrappees = this.exclusive(top, top + requiredBlockSize, left, right);
 					}
+
 					const space = this.nextAvailableSpace({ height: top - blockOffset + requiredBlockSize });
 					if (space) {
 						return {
-							top:top-blockOffset,
+							/**unavailable block to contain flow content*/
+							topBlock:top-blockOffset,
+							/** transform exclusive space to acceptable space */
 							segments: wrappees.reduce((ops, { x, width }) => {
 								const [last] = ops.splice(-1);
-								return [...ops, { x: last.x, width: x - last.x }, { x: x + width, width: right - x - width }];
-							}, [{ x: left, width: right - left }])
+								return [...ops, { x: last.x, width: x - last.x}, { x: x + width, width: right - x - width }];
+							}, [{ x: left, width: right - left }]).filter(a=>a.width>0)
 						};
 					}
 					return space;

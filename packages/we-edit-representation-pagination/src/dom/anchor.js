@@ -9,43 +9,52 @@ import {dom} from "we-edit"
 * wrap boundary must be provided by children content, and then pass to frame
 */
 export default class Anchor extends HasParentAndChild(dom.Anchor){
+    onAllChildrenComposed(){
+        if(React.Children.toArray(this.props.children).length==0){
+            this.context.parent.appendComposed(this.createComposed2Parent())
+        }
+        super.onAllChildrenComposed()
+    }
+
+    getSize(geometry){
+        const {left=0,right=0,top=0,bottom=0,width=right-left,height=bottom-top}=geometry?.bounds()||{}
+        return {width,height}
+    }
+
     createComposed2Parent(content){
-        var {width,height,geometry}=content.props
-        const {
-            margin:{left=0,right=0,top=0,bottom=0}={}, 
-            wrap:{mode,wrap,path,distance:{left:dl=0,right:dr=0,top:dt=0,bottom:db=0}={}}, 
-            x:X, y:Y
-        }=this.props
-        this.width=width+=(left+dl+dr+right)
-        this.height=height+=(top+bottom+dt+db)
+        const {geometry: contentGeometry}=content?.props||{}
+        const {x:X, y:Y,wrap:{mode, geometry:anchorGeometry, geometryFn=(a,{x,y})=>a?.clone().translate(x,y)}}=this.props
         return (
             <Group children={content}
                 anchor={space=>{
-                    const size={width:this.width, height:this.height}  
+                    const size=this.getSize(contentGeometry||anchorGeometry)
                     var x=space.anchor({align:"left",...X},size,space)
                     var y=space.anchor({align:"top",...Y},size,space)
-                    
-                    x=x-left-dl, y=y-top-dt
-                    if(geometry && geometry.origin){
-                        x-=geometry.origin.x
-                        y-=geometry.origin.y
-                    }
+                    x-=contentGeometry?.origin?.x||0
+                    y-=contentGeometry?.origin?.y||0
 
+                    const geometry=geometryFn(contentGeometry||anchorGeometry, {x,y})
+                    
                     const wrapFunc=(fn=>{
+                        if(typeof(this.props.wrap)=="function"){
+                            return line=>this.props.wrap.call(this, line, {x,y})
+                        }
                         if(!fn)
-                            return 
-                        if(mode=="square" || mode=="clear")
-                            return line=>fn.call(this, line, {bounds:()=>({left:x,top:y,right:x+width,bottom:y+height})})
-                        return line=>fn.call(this, line, geometry.clone().translate(x,y))
-                    })(wrap||this[mode]);
+                            return
+                        return line=>fn.call(this, line, geometry?.clone())
+                    })(this[mode]);
+
+                    const offset=content && ((a,b)=>{
+                        return {x:a.left-b.left,y:a.top-b.top}
+                    })(geometry.bounds(),contentGeometry.clone().translate(x,y).bounds())
 
                     return (
                         <Group {...{
                             x,y,
                             wrap:wrapFunc,
-                            geometry:{x,y,width,height},
+                            geometry:{x,y,...this.getSize(geometry)},
                             "data-content":this.props.id,"data-type":this.getComposeType()}}>
-                            <Group x={left+dl} y={top+dt}>
+                            <Group {...offset}>
                                 {content}
                             </Group>
                         </Group>
@@ -56,6 +65,14 @@ export default class Anchor extends HasParentAndChild(dom.Anchor){
         )
     }
 
+    /**
+     * 
+     * @param {*} x1 
+     * @param {*} x2 
+     * @param {*} x 
+     * @param {*} X 
+     * @returns 
+     */
     applySide(x1,x2, x, X){
         const {wrap:{side}}=this.props
         const get=type=>{
@@ -75,36 +92,28 @@ export default class Anchor extends HasParentAndChild(dom.Anchor){
         return get(side)
     }
 
-    square({x1,x2,y2:y,y1=y},geometry){
-        const {wrap:{mode, wrapText},margin:{right:mr=0, left:ml=0}={}}=this.props
+    square({x1,x2,y2,y1},geometry){
         const {left,top,right,bottom}=geometry.bounds()
-        if(y>=top && y<=bottom){
-            if(!(x2<=left || x1>=right)){
-                if(y1!==bottom){
-                    return Object.assign(this.applySide(x1,x2,left-ml, right+mr),{y:bottom})
-                }
-            }
-        }
+        if(y1>=bottom || y2<=top || x2<=left || x1>=right)
+            return 
+        return Object.assign(this.applySide(x1,x2,left, right),{y:bottom})
     }
 
     tight(line,geometry){
-        const {margin:{left=0,right=0}}=this.props
         const {x1,x2, y2}=line
         const points=geometry.intersects({x1,x2,y2,y1:y2}).sort((a,b)=>a.x-b.x)
         if(points.length>2){
             points.splice(1,points.length-1-1)
         }
         if(points.length>0){
-            return this.applySide(x1,x2,points[0].x-left,points.pop().x+right)
+            return this.applySide(x1,x2,points[0].x,points.pop().x)
         }
     }
 
-    clear({x1,x2,y2:y, y1=y},geometry){
-        const {left,top,right,bottom}=geometry.bounds()
-        if(y>=top && y<=bottom){
-            if(y1!==bottom){
-                return {x:x1,width:x2-x1,y:bottom,type:"clear"}
-            }
-        }
+    clear({x1,x2,y2, y1},geometry){
+        const {top,bottom}=geometry.bounds()
+        if(y1>=bottom || y2<=top)
+            return 
+        return {x:x1,width:x2-x1,y:bottom,type:"clear"}
     }
 }

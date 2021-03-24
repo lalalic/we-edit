@@ -13,6 +13,7 @@ import * as Composed from "./composed"
 import * as Measure from "./measure"
 import Output from "./output"
 import SVG from "./output/svg"
+import Path from "./tool/path"
 
 import Resizable from "./composed/responsible-canvas/resizable"
 import Movable from "./composed/responsible-canvas/movable"
@@ -141,5 +142,5 @@ export {
 	Viewers, Editors, FontManager, Measure, Composed, composable, editable, 
 	Resizable, Movable, Rotatable,Overlay,
 	Responsible,Canvas,Positioning,SelectionStyle,
-	TestEmulator,
+	TestEmulator,Path,
 }

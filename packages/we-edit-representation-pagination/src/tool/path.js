@@ -4,7 +4,7 @@ import contours from "svg-path-contours"
 import memoize from "memoize-one"
 
 export default class __$1 extends Path{
-    static fromRect({x,y,width:w,height:h}){
+    static fromRect({x=0,y=0,width:w,height:h}){
         return new this(`M${x} ${y} h${w} v${h} h${-w}z`)    
     }
 

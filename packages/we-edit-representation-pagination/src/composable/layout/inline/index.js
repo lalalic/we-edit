@@ -8,7 +8,7 @@ import Group from "../../../composed/group"
  * height: line box height
  * contentHeight: max of all atoms' height
  * textHeight: max of text atoms' height, percentage line box height should be based on textHeight
- * line block height: topToBlockOffset + height (content height), parent can add its own logic to change line height
+ * line block height: topBlock + height (content height), parent can add its own logic to change line height
  * .atoms can't be broke (means each atom must be an item of inlineSegments), otherwise .items/.firstAtom/.lastAtom will be broke
  */
 export default class Inline extends Component{
@@ -16,7 +16,7 @@ export default class Inline extends Component{
 		super(...arguments)
 		this.findInlineSegments=findInlineSegments
 			||(()=>({segments:[{x:left, width:this.width}]}));//@TODO: why is there no findInlineSegments some times? TEST ???
-		const segments=this.findInlineSegments(this.topToBlockOffset,left,right)
+		const segments=this.findInlineSegments(this.topBlock,left,right)
 		this.inlineSegments=InlineSegments.create({left,...segments})
 	}
 
@@ -74,9 +74,9 @@ export default class Inline extends Component{
 	}
 
 	/** the distance between line blockOffset  and line content top*/
-	get topToBlockOffset(){
-		const {props:{top:lineTop=0}, inlineSegments:{props:{top:opportunityTop=0}}={props:{}}}=this
-		return opportunityTop+lineTop
+	get topBlock(){
+		const {props:{topBlock:lineTopBlock=0}, inlineSegments:{props:{topBlock:spaceTopBlock=0}}={props:{}}}=this
+		return lineTopBlock+spaceTopBlock
 	}
 
 	get pageBreak(){
@@ -170,7 +170,8 @@ export default class Inline extends Component{
 				 * get opportunities again
 				 */
 				const {space:{left,right}}=this.props
-				const segments=this.findInlineSegments(this.topToBlockOffset+newHeight,left,right)
+				const segments=this.findInlineSegments(this.topBlock+newHeight,left,right)
+				/**@TODO: what if segments is null since there's no space */
 				if(this.inlineSegments.shouldRelayout(segments)){
 					const relayouted=this.inlineSegments.relayout(segments,atom)
 					if(relayouted!==false){
@@ -179,13 +180,16 @@ export default class Inline extends Component{
 						//not full, continue next atom
 						return 
 					}else{
+						if(this.isEmpty()){
+							this.inlineSegments=InlineSegments.create({...this.inlineSegments.props,...segments})
+						}
 						//new inline opportunities can NOT hold atom, commit to block layout
 						return false
 					}
 				}else{
 					//same inline opportunities, continue normal inline layout later 
-					//but block top may be changed, such as clear wrap
-					this.inlineSegments.props.top=segments.top
+					//but topBlock may be changed, such as clear wrap
+					this.inlineSegments.props.topBlock=segments.topBlock
 				}
 			}else{
 				//line rect doesn't change, continue normal inline layout later 
@@ -236,7 +240,7 @@ export default class Inline extends Component{
 			return false
 		if(this.space.width!=space.width)
 			return false
-		const {segments}=space.findInlineSegments(this.topToBlockOffset+this.height,space.left,space.right)
+		const {segments}=space.findInlineSegments(this.topBlock+this.height,space.left,space.right)
 
 		return this.inlineSegments.segments.length==segments.length &&
 			!!!this.inlineSegments.segments.find(({props:{x,width}},i,_,$,b=segments[i])=>b.x!=x && b.width!=width)

@@ -312,7 +312,7 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 		const line=new this.constructor.Line({
 			space,
 			positioned: bFirstLine&&numbering ? [this.getNumberingAtom()] : [],
-			top: bFirstLine ? top : undefined, 
+			topBlock: bFirstLine ? top : undefined, 
 			lineHeight,
 			align,
 		},{parent:this})
@@ -332,7 +332,7 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 	 * @param {*} last 
 	 */
 	createComposed2Parent(line,bLastLine){
-		const {height,width, anchor, topToBlockOffset}=line
+		const {height,width, anchor, topBlock}=line
 		const {
 			numbering,
 			indent:{left=0,right=0, firstLine=0},
@@ -343,7 +343,7 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 		const bFirstLine=this.lines.length==1
 		return (
 			<Group className="line"
-				height={topToBlockOffset+height+(bLastLine&&bottom||0)} 
+				height={topBlock+height+(bLastLine&&bottom||0)} 
 				width={left+(bFirstLine&&!numbering&&firstLine||0)+width+right} 
 				pagination={{
 					id:this.props.id,
@@ -356,7 +356,7 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 				>
 				<Group 
 					x={left+(bFirstLine&&!numbering&&firstLine||0)} 
-					y={topToBlockOffset} 
+					y={topBlock} 
 					width={width} 
 					height={height}>
 					{line.render(bLastLine)}
