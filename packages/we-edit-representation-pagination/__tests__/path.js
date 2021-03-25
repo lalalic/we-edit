@@ -20,8 +20,7 @@ describe("geometry",()=>{
             expect(geometry.intersects({x1:0,y1:0,x2:10,y2:5})).toMatchObject([{x:5,y:2.5}])
         })
 
-        fit("part of  geometry also should not be intersected", ()=>{
-            debugger
+        it("part of  geometry also should not be intersected", ()=>{
             expect(geometry.intersects({x1:5,y1:0,x2:5,y2:5}).length).toBe(0)
             expect(geometry.intersects({x1:3,y1:0,x2:3,y2:5}).length).toBe(0)
         })

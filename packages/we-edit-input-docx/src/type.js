@@ -257,11 +257,9 @@ class DocxType extends Input.Editable{
 				return createElement(components.Anchor,style.flat(),children,node)
 			}
 			case "picture":
-				return createElement(components.Image,components.Image.asStyle(props),null,node)
-			case "shape":{
-				
+				return createElement(components.Image,props,null,node)
+			case "shape":
 				return createElement(components.Shape,props,children,node)
-			}
 			case "bookmarkStart":{
 				const id=node.attribs["w:id"]
 				this.makeId(node,undefined, 'bookmark'+id)

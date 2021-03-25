@@ -1,12 +1,11 @@
-import React,{Fragment} from "react"
-import PropTypes from "prop-types"
+import React,{} from "react"
 import {dom} from "we-edit"
 import Path from "../../tool/path"
 import {Group,Line} from "../../composed"
+import FocusShape from "./focus"
 
-import memoize from "memoize-one"
 import {HasParentAndChild,editable} from "../../composable"
-export default class Shape extends HasParentAndChild(dom.Shape){
+export default class Shape extends editable(HasParentAndChild(dom.Shape)){
 	static Path=Path
 	get geometry(){
 		return new Path(this.props.geometry)
@@ -24,97 +23,56 @@ export default class Shape extends HasParentAndChild(dom.Shape){
         super.onAllChildrenComposed()
     }
 
+	/**
+	 * shape need pass up transformed geometry for wrap, and size({width,height}) for flow
+	 * we can't use a Transformer component since it has to be layouted for positioning
+	 * @param {*} content 
+	 * @returns 
+	 */
 	createComposed2Parent(content){
-		const { outline, fill, autofit, autofitHeight=this.boundHeight, id}=this.props
+		const { outline, fill, autofit, autofitHeight=this.boundHeight, id, hash}=this.props
 		var geometry=this.geometry
 		if(autofit && content){
 			geometry.verticalExtend(content.props.height-autofitHeight)
 		}
-
+		const path=geometry.toString()
+		const {width,height,x, y, transform}=this.transform(geometry)
 		return (
-			<Group geometry={geometry}>
-				<Line {...{...outline, d:geometry.toString(), fill, id}}/>
-				{content}
+			<Group {...{width,height,geometry}}>
+				<Group 	x={x} y={y}>{/*go back to original position for editing*/}
+					<FocusShape {...{path,id, composedUUID:hash,transform}}>
+						<Group {...{"data-nocontent":true}}>
+							<Line {...{...outline, d:path, fill, id}}/>
+						</Group>
+						{content}
+					</FocusShape>
+				</Group>
 			</Group>
 		)		
 	}
+
+	transform(geometry){
+		const {rotate, scale, transforms=[], outline={}}=this.props
+		var x=0, y=0
+		if(rotate){
+			//rotate around shape center
+			const center=geometry.center(), a=center
+
+			geometry.rotate(rotate,center.x,center.y)
+			transforms.push(`rotate(${rotate} ${center.x} ${center.y})`)
+
+			//translate rotate to origin
+			const b=geometry.center()
+			geometry.translate(x=parseInt(a.x-b.x), y=parseInt(a.y-b.y))
+			//geometry.origin={x:translate.x,y:translate.y}
+		}
+
+		if(scale){
+			geometry.scale(scale)
+			transforms.push(`scale(${scale})`)
+		}
+
+		const {width,height}=geometry.size(outline.width)
+		return {width,height,geometry,x, y,transform:transforms.join(" ")}
+	}
 }
-
-/*
-import Frame from "../frame"
-import {custom, rect, ellipse, circle} from "./shapes"
-
-const {displayName, propTypes, defaultProps}=editable(HasParentAndChild(dom.Shape))
-export default class extends Frame{
-	static displayName=displayName
-	static propTypes={
-		...propTypes
-	}
-	static defaultProps={
-		...defaultProps
-	}
-	static contextTypes={
-		...super.contextTypes,
-		editable: PropTypes.any,
-	}
-
-	focusable=true
-
-	get Geometry(){
-		const {geometry="rect"}=this.props
-		return this.constructor[geometry]||this.constructor.custom
-	}
-	__getGeometry=memoize((props, context)=>{
-		return new this.Geometry(props, context)
-	})
-
-	get geometry(){
-		return this.__getGeometry(this.props, this.context)
-	}
-
-	__getSpace=memoize(geometry=>{
-		const {width,height}=geometry.availableSpace()
-		return Layout.ConstraintSpace.create({width,height})
-			.clone({edges:{
-				page:{left:0,right:width,top:0,bottom:height},
-				[this.getComposeType()]:{left:0,right:width,top:0,bottom:height},
-			}})
-	})
-
-	getSpace(){
-		return this.__getSpace(this.geometry)
-	}
-
-	/**
-	 * there's no call super.createComposed2Parent, so editable interface is skipped
-	 *** .positionlines is used to get lineXY(line), so it should be added
-	 *//*
-	recomposable_createComposed2Parent(){
-		const {x,y,z,height,margin:{top=0,bottom=0}={}}=this.props
-		const geometry=height ? this.geometry : new this.Geometry({...this.props, height:this.contentHeight+this.geometry.strokeWidth+top+bottom},this.context) 
-		const content=(
-			<Fragment>
-				{[
-					React.cloneElement(this.positionLines(this.lines),{key:"content",className:"positionlines"}),
-					...this.anchors.map((a,i)=>React.cloneElement(a,{key:i})),
-				].filter(a=>!!a).sort(({props:{z:z1=0}},{props:{z:z2=0}},)=>z1-z2)
-				}
-			</Fragment>
-		)
-
-		const composed=React.cloneElement(
-			geometry.createComposedShape(content,{composedUUID:this.computed.composedUUID}),
-			{className:"frame", "data-frame":this.uuid,x,y,z}
-		)
-		return composed
-	}
-
-	static custom=custom
-
-	static rect=rect
-
-	static ellipse=ellipse
-
-	static circle=circle
-}
-*/

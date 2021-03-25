@@ -22,17 +22,17 @@ export default ({Shape, Frame, Template})=>class __$1 extends Component{
             return (<Shape {...this.props}/>)
 
         const {
-            children:[frame]=[], 
-            xfrm:{width,height},
-            ln:{w:lineWidth,solidFill:color="black", gradFill:lnGradFill, noFill,...outline},
-            bodyPr:{lIns:left,rIns:right,bIns:bottom,tIns:top},
+            children:frame, 
+            xfrm:{width,height, rotate},
+            ln:{w:lineWidth=0,solidFill:color="black", gradFill:lnGradFill, noFill,...outline}={},
+            bodyPr:{lIns:left=0,rIns:right=0,bIns:bottom=0,tIns:top=0}={},
             pattFill,blipFill,gradFill,solidFill,
             autofit, 
             anchor,
             id,hash,
             ...props}=this.props
 
-        const children= frame && React.cloneElement(frame,{
+        const children= frame?.[0] && React.cloneElement(frame?.[0],{
             x:left+lineWidth/2,y:top+lineWidth/2,
             width:width-lineWidth-left-right,
             height:height-lineWidth-top-bottom,
@@ -57,7 +57,8 @@ export default ({Shape, Frame, Template})=>class __$1 extends Component{
                     },
                     autofit,
                     autofitHeight:height-lineWidth-top-bottom,
-                    children
+                    children,
+                    rotate
                 }}/>
         )
 
@@ -71,8 +72,8 @@ export default ({Shape, Frame, Template})=>class __$1 extends Component{
         }
     }
 
-    shapeLine(){
-
+    shapeLine({cap, miter, bevel, round, }){
+        return {cap, join: bevel ? "bevel" : !miter ? "round" : "miter"}
     }
 
     shapePattern(pattern){

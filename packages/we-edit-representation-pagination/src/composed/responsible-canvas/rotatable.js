@@ -46,7 +46,7 @@ export default class Rotatable extends Component{
 					onRotate(e)
 				}}>
 					{rotating && <text x={x/precision} y={-20} pointerEvents="none" transform={`scale(${precision})`}>
-						{degree}
+						{parseInt(degree)}
 						<tspan y={-30} fontSize="x-small">o</tspan>
 					</text>}
 					<use xlinkHref="#rotator" {...rotator} />

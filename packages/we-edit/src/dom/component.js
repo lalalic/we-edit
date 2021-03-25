@@ -57,8 +57,8 @@ export default class Base extends Component{
 		
 		dashArray: PropTypes.string,
 		dashOffset: PropTypes.string,
-		lineJoin: PropTypes.string,
-		lineCap: PropTypes.string,
+		join: PropTypes.oneOf(["miter","round","bevel"]),
+		cap: PropTypes.string,
 		miterLimit: PropTypes.string,
 		
 		opacity: PropTypes.number,

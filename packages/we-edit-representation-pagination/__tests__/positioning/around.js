@@ -131,10 +131,12 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
         const doc=test(
 			<Paragraph id={"0"}>
 				<Text id="1">text </Text>
-                <Shape width={7} height={17} id="shape">
-                    <Paragraph id="0.10">
-                        <Text id="0.1">text </Text>
-                    </Paragraph>
+                <Shape geometry={Shape.Path.fromRect({width:7,height:17}).toString()} id="shape">
+                    <Frame id="f0" width={7} height={17}>
+                        <Paragraph id="0.10">
+                            <Text id="0.1">text </Text>
+                        </Paragraph>
+                    </Frame>
                 </Shape>
                 <Text id="2">hello</Text>
             </Paragraph>,

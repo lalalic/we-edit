@@ -7,7 +7,8 @@ import {define} from "./index"
 
 define("paragraph compose",
 ({dom:{Paragraph, Text,Shape,Frame,Table,Row,Cell}, testing, WithTextContext, WithParagraphContext,ConstraintSpace})=>{
-    const parent={}
+    const parent={}, size={width:100,height:100}
+    const geometry=Shape.Path.fromRect(size).toString()
     const Context=context({
         contextTypes:{
             parent:PropTypes.any,
@@ -27,20 +28,22 @@ define("paragraph compose",
     })
 
     it("can be empty",()=>{
-        parent.nextAvailableSpace.mockReturnValueOnce(ConstraintSpace.create({width:100,height:100}))
-        const {}=render(<Context><Shape {...{width:100,height:100,id:"shape"}}/></Context>)
+        parent.nextAvailableSpace.mockReturnValueOnce(ConstraintSpace.create(size))
+        const {}=render(<Context><Shape {...{geometry, id:"shape"}}/></Context>)
     })
 
     it("with text",()=>{
         var composed
-        parent.nextAvailableSpace.mockReturnValueOnce(ConstraintSpace.create({width:100,height:100}))
+        parent.nextAvailableSpace.mockReturnValueOnce(ConstraintSpace.create(size))
         parent.appendComposed.mockImplementationOnce(a=>composed=a)
         render(
             <Context>
-                <Shape {...{width:100,height:100,id:"shape"}}>
-                    <Paragraph id="p">
-                        <Text children="hello" id="text"/>
-                    </Paragraph>
+                <Shape {...{geometry,id:"shape"}}>
+                    <Frame {...size} id="f0">
+                        <Paragraph id="p">
+                            <Text children="hello" id="text"/>
+                        </Paragraph>
+                    </Frame>
                 </Shape>
             </Context>)
         expect(parent.appendComposed).toHaveBeenCalledTimes(1)
@@ -50,29 +53,31 @@ define("paragraph compose",
     it("with table",()=>{
         var u=9
         var composed
-        parent.nextAvailableSpace.mockReturnValueOnce(ConstraintSpace.create({width:100,height:100}))
+        parent.nextAvailableSpace.mockReturnValueOnce(ConstraintSpace.create(size))
         parent.appendComposed.mockImplementationOnce(a=>composed=a)
         render(
             <Context>
-                <Shape {...{width:100,height:100,id:"shape"}}>
-                    <Table id={`${u++}`} width={8}>
-                        <Row id={`${u++}`} cols={[{x:0,width:6}]} >
-                            <Cell id={`${u++}`}>
-                                <Paragraph id={`${u++}`}>
-                                    <Text id={`${u++}`}>hello</Text>
-                                </Paragraph>
-                            </Cell>
-                        </Row>
-                    </Table>
+                <Shape {...{geometry, id:"shape"}}>
+                    <Frame {...size} id="f0">
+                        <Table id={`${u++}`} width={8}>
+                            <Row id={`${u++}`} cols={[{x:0,width:6}]} >
+                                <Cell id={`${u++}`}>
+                                    <Paragraph id={`${u++}`}>
+                                        <Text id={`${u++}`}>hello</Text>
+                                    </Paragraph>
+                                </Cell>
+                            </Row>
+                        </Table>
+                    </Frame>
                 </Shape>
             </Context>)
         expect(parent.appendComposed).toHaveBeenCalledTimes(1)
     })
 
     describe("size",()=>{
-        const test=(props={width:100,height:100})=>{
+        const test=(props={geometry})=>{
             var composed
-            parent.nextAvailableSpace.mockReturnValueOnce(ConstraintSpace.create({width:100,height:100}))
+            parent.nextAvailableSpace.mockReturnValueOnce(ConstraintSpace.create(size))
             parent.appendComposed.mockImplementationOnce(a=>composed=a)
             render(<Context><Shape {...{...props,id:"shape"}}/></Context>)
             expect(parent.appendComposed).toHaveBeenCalledTimes(1)
@@ -87,7 +92,7 @@ define("paragraph compose",
 
         it("outline should be counted",()=>{
             const width=10
-            const composed=test({width:100,height:100, outline:{width}})
+            const composed=test({geometry,outline:{width}})
             expect(composed.attr("width")).toBe(100+width)
             expect(composed.attr("height")).toBe(100+width)
         })

@@ -172,7 +172,7 @@ define("position", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Cont
     it("shape",()=>{
         const doc=test(
                 <Paragraph id={"1"}>
-                    <Shape id={"0"} {...{width:3,height:5, outline:{width:4}}}/>
+                    <Shape id={"0"} {...{geometry:Shape.Path.fromRect({width:3,height:5}).toString(), outline:{width:4}}}/>
                     <Text id={"2"}>text</Text>
                 </Paragraph>)
         const y=0

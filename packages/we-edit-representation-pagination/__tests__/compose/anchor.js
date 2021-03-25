@@ -34,7 +34,7 @@ define("section compose",
             <Paragraph {...{id:uuid++}}>
                 <Text id={uuid++}>hello</Text>
                 <Anchor {...{id:"anchor",wrap:{}, x:{base:"page"}, y:{base:"page"}, ...props}}>
-                    <Shape {...{...size, id:uuid++}}/>
+                    <Shape {...{geometry:Shape.Path.fromRect(size).toString(), id:uuid++}}/>
                 </Anchor>
                 <Text id={uuid++}>world</Text>
             </Paragraph>)

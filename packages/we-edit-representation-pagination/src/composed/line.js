@@ -12,11 +12,13 @@ export default class Line extends Component{
             fill:{color:fill="none", picture, gradient, pattern}, size,
             ...props
         }=this.props
+        
+        join && (props.strokeLinejoin=join);
 
         if(!d)
             return <line {...{...props, stroke,strokeWidth}}/>
         
-        const pid=`apattern`
+        const pid=`${id}-pattern`
             
         const shape=<path {...{...props, d,stroke,strokeWidth, fill}}/>
         const geometry=new Path(d)

@@ -30,34 +30,23 @@ export default class Anchor extends HasParentAndChild(dom.Anchor){
                     const size=this.getSize(contentGeometry||anchorGeometry)
                     var x=space.anchor({align:"left",...X},size,space)
                     var y=space.anchor({align:"top",...Y},size,space)
-                    x-=contentGeometry?.origin?.x||0
-                    y-=contentGeometry?.origin?.y||0
-
+                    
                     const geometry=geometryFn(contentGeometry||anchorGeometry, {x,y})
                     
                     const wrapFunc=(fn=>{
                         if(typeof(this.props.wrap)=="function"){
                             return line=>this.props.wrap.call(this, line, {x,y})
                         }
-                        if(!fn)
-                            return
-                        return line=>fn.call(this, line, geometry?.clone())
+                        return fn ? line=>fn.call(this, line, geometry?.clone()) : null
                     })(this[mode]);
-
-                    const offset=content && ((a,b)=>{
-                        return {x:a.left-b.left,y:a.top-b.top}
-                    })(geometry.bounds(),contentGeometry.clone().translate(x,y).bounds())
-
                     return (
                         <Group {...{
                             x,y,
                             wrap:wrapFunc,
                             geometry:{x,y,...this.getSize(geometry)},
-                            "data-content":this.props.id,"data-type":this.getComposeType()}}>
-                            <Group {...offset}>
-                                {content}
-                            </Group>
-                        </Group>
+                            "data-content":this.props.id,"data-type":this.getComposeType()}}
+                            children={content}
+                            />
                     )
                 }
             }

@@ -24,9 +24,10 @@ define("paragraph compose",
         )
         return Object.assign(appendComposed.mock.calls.map(([line])=>line),{dom:renderer.root})
     }
-    it("image(size<=capacitty)", ()=>{
+    const imageSelector="[data-type=image]"
+    it("image(size<=capacitty)", ()=>{debugger
         const [line]=test({width:8,height:50})
-        const image=new ReactQuery(line).findFirst("[xlinkHref]")
+        const image=new ReactQuery(line).findFirst(imageSelector)
         expect(image.length).toBe(1)
         expect(line.props.width).toBe(10)
         expect(image.attr('width')).toBe(8)
@@ -35,7 +36,7 @@ define("paragraph compose",
     it("image(size.width>capacity)", ()=>{
         const lines=test({width:11,height:50})
         const line=new ReactQuery(lines[0])
-        const image=line.find("[xlinkHref]")
+        const image=line.find(imageSelector)
         expect(image.length).toBe(1)
         expect(line.attr('width')).toBe(10)
         expect(image.attr('width')).toBe(11)
@@ -46,19 +47,11 @@ define("paragraph compose",
         const lines=test({width:5,height:110})
         expect(lines.length).toBe(1)
         const line=new ReactQuery(lines[0])
-        const image=line.find("[xlinkHref]")
+        const image=line.find(imageSelector)
         expect(image.length).toBe(1)
         expect(line.attr('width')).toBe(10)
         expect(line.attr('height')).toBe(110+1)
         expect(image.attr('width')).toBe(5)
         expect(image.attr('height')).toBe(110)
-    })
-
-    describe("anchored",()=>{
-
-    })
-
-    describe("rotate",()=>{
-
     })
 })

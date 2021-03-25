@@ -1,17 +1,17 @@
-import React from "react"
+import React,{Component} from "react"
 import Shape from "./shape"
 
 export default dom=>{
-    return class __$1 extends Shape(dom){
+    return class Image extends Shape(dom){
         static displayName="image"
 
-        static asStyle(){
-            const {blipFill:{url}={}, width,height,id,hash,changed,children,...outline}=super.asStyle(...arguments)
-            return {src:url,width,height, outline:{...outline, width,height}}
-        }
-
         render(){
-            return (<dom.Image {...this.props}/>)
+            const {xfrm:{width,height},blipFill,picture=this.shapePicture(blipFill), id, hash}=this.props
+            if(!dom.Shape.support('pageable')){
+                return (<dom.Image {...{width,height,src:picture?.url,id,hash}}/>)
+            }
+
+            return super.render()
         }
     }
 }

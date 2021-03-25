@@ -68,6 +68,15 @@ export default class __$1 extends Path{
         const {left,right,top,bottom,width=right-left,height=bottom-top}=this.bounds()
         return {width:width+strokeWidth,height:height+strokeWidth}
     }
+	/**
+	 * to extend or thrink shape vertically
+	 * @param {*} changed 
+	 * @returns 
+	 */
+	verticalExtend(changed){
+		changed && console.error(`path.verticalExtend not implemented yet!`)
+		return this
+	}
 }
 
 const between=(a,b1,b2)=>((a >= b1) && (a <= b2))||((a >= b2) && (a <= b1))

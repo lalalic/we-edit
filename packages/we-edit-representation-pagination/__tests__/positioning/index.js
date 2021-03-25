@@ -92,7 +92,13 @@ export default function define(feature, tests){
 
         ["in shape", (a,...args)=>{
             const {page:{width=size.width,height=size.height}={}}=args[0]||{}
-            const shape=(<Shape {...{children:a,id:"container", ...size,width,height}}/>)
+            const shape=(
+                <Shape {...{id:"shape", geometry:Shape.Path.fromRect({...size,width,height}).toString()}}>
+                    <Frame id="container" {...{width,height}}>
+                        {a}
+                    </Frame>
+                </Shape>
+            )
             return render(
                 <Paragraph id={++uuid}>
                     {shape}
@@ -116,7 +122,7 @@ export default function define(feature, tests){
             )
         }]
 
-    ]//.filter(([a])=>a=="section")
+    ].filter(([a])=>a=="in shape")
     )("%s",(TESTING, render)=>{
         describe(feature, ()=>{
             tests({dom:Editors,TESTING, render, mockQuery, pageGap, size, uuid,Responsible, Positioning})
