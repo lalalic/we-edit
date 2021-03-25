@@ -55,7 +55,7 @@ export default class Frame extends Component{
 				props:{
 					x: PropTypes.number,
 					y: PropTypes.number,
-					geometry: PropTypes.shape({
+					geometry: PropTypes.shape({//extent
 						x: PropTypes.number,
 						y: PropTypes.number,
 						width: PropTypes.number,

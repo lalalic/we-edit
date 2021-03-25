@@ -3,16 +3,36 @@ import PropTypes from "prop-types"
 
 export default class Base extends Component{
 	static displayName="unknown"
+
+	static UnitShape=PropTypes.oneOfType([
+		PropTypes.number,
+		PropTypes.string,
+	])
+
+	static ColorShape=PropTypes.oneOfType([
+		PropTypes.string,
+	])
+
 	static GradientShape=PropTypes.shape({
 		type:PropTypes.string,
-		direction: PropTypes.string,
-		angle: PropTypes.number,
+		angle: this.UnitShape,
 		stops:PropTypes.arrayOf(PropTypes.shape({
-			color: PropTypes.string,
-			position: PropTypes.number,
+			color: this.ColorShape,
+			position: this.UnitShape,
 			transparency: PropTypes.number,
 			brightness: PropTypes.number,
 		})),
+	})
+
+	static PatternShape=PropTypes.shape({
+		pattern:PropTypes.shape({
+			path: PropTypes.string,
+			viewBox: PropTypes.string,
+			width: this.UnitShape,
+			height: this.UnitShape,	
+		}),
+		foreground: this.ColorShape,
+		background: this.ColorShape,
 	})
 
 	static FontsShape=PropTypes.oneOfType([
@@ -32,8 +52,8 @@ export default class Base extends Component{
 	)
 
 	static LineShape=PropTypes.shape({
-		width: PropTypes.number.isRequired,
-		color: PropTypes.string,
+		width: this.UnitShape.isRequired,
+		color: this.ColorShape,
 		
 		dashArray: PropTypes.string,
 		dashOffset: PropTypes.string,
@@ -50,43 +70,58 @@ export default class Base extends Component{
 	})
 
 	static FillShape=PropTypes.shape({
-		color:PropTypes.string,
+		color:this.ColorShape,
 		transparency: PropTypes.number,
+
 		gradient: this.GradientShape,
+		
 		picture: PropTypes.shape({
-			src: PropTypes.string,
+			url: PropTypes.string,
 			transparency: PropTypes.number,
-			x: PropTypes.number,
-			y: PropTypes.number,
-			scaleX: PropTypes.number,
-			scaleY: PropTypes.number,
-			align: PropTypes.string,
-			mirror: PropTypes.string,
+			tile: PropTypes.shape({
+				x: PropTypes.number,
+				y: PropTypes.number,
+				scaleX: PropTypes.number,
+				scaleY: PropTypes.number,
+				align: PropTypes.string,
+				mirror: PropTypes.string,
+			}),
+			margin:this.MarginShape,
 		}),
-		pattern: PropTypes.shape({
-			type: PropTypes.string,
-			background: PropTypes.string,
-			foreground: PropTypes.string,
-		}),
+		
+		pattern: this.PatternShape,
 	})
 
 	static EffectShape=PropTypes.shape({
 		
 	})
 
-	static BorderShape=PropTypes.shape({
-		left:this.LineShape,
-		right:this.LineShape,
-		top:this.LineShape,
-		bottom:this.LineShape,
+	static GeometryShape=PropTypes.shape({
+		intersects: PropTypes.func,//({x1,x2,y2,y1})=>[{x,width},{x,width}]
+		bounds: PropTypes.func,//()=>{left, right, top, bottom}
+		clone: PropTypes.func,//()=>to clone this geometry
 	})
+
+	static BorderShape=PropTypes.oneOfType([
+		PropTypes.shape({
+			left:this.LineShape,
+			right:this.LineShape,
+			top:this.LineShape,
+			bottom:this.LineShape,
+		}),
+		this.LineShape,//4 edges with same shape
+	])
 	
 	static MarginShape=PropTypes.shape({
-		left: PropTypes.number,
-		right: PropTypes.number,
-		top: PropTypes.number,
-		bottom: PropTypes.number
+		left: this.UnitShape,
+		right: this.UnitShape,
+		top: this.UnitShape,
+		bottom: this.UnitShape
 	})
+
+	static PaddingShape=this.MarginShape
+
+	static AutofitShape=PropTypes.oneOf(["block","font"])
 
 	static AlignShape=PropTypes.oneOf(["left","right","center","justify"])
 	static VertAlignShape=PropTypes.oneOf(["top","middle","bottom"])

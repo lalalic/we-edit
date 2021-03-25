@@ -8,7 +8,7 @@ export default class Cell extends Component{
 		border:this.BorderShape,
 		margin: this.MarginShape,
 		background: PropTypes.string,
-		vertAlign: PropTypes.oneOf(["top","middle","center","bottom"])
+		vertAlign: this.VertAlignShape,
 	}
 
 	static defaultProps={

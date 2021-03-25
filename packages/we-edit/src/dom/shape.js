@@ -8,27 +8,18 @@ import Component from "./component"
  * static: fixed size
  * dynamic: size decided by children content, so the shape is drawn with content size
  * 
- * client should decide
+ * shape itself has following 
  */
 export default class Shape extends Component{
 	static displayName="shape"
 
 	static propTypes={
-		position:PropTypes.shape({
-			x:PropTypes.number,
-			y:PropTypes.number
-		}),
-		width:PropTypes.number,
-		height:PropTypes.number,
 		geometry:PropTypes.string,//svg path
 		outline:this.LineShape,
-		margin:this.MarginShape,
-		solidFill: PropTypes.string,
-		blipFill: PropTypes.shape({
-			url: PropTypes.string,
-		}),
-		rotate:PropTypes.number,
-		scale:PropTypes.number,
+		fill: this.FillShape,
+
+		autofit: PropTypes.oneOf([true,"larger"]),
+		autofitHeight: PropTypes.number,
 	}
 
 	static defaultProps={

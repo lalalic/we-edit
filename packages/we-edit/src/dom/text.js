@@ -11,7 +11,7 @@ export default class Text extends Component{
 		 */
 		fonts: this.FontsShape.isRequired,
 		size: PropTypes.number.isRequired,
-		color: PropTypes.string,
+		color: this.ColorShape,
 		bold: PropTypes.bool,
 		italic: PropTypes.bool,
 		vanish: PropTypes.bool,

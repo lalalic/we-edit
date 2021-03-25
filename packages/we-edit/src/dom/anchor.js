@@ -28,11 +28,7 @@ export default class Anchor extends Component{
                 mode: PropTypes.oneOf(["square", "tight", "clear","no"]),
                 side: PropTypes.oneOf(["both","left","right","largest"]),
                 
-                geometry:  PropTypes.shape({
-                    intersects: PropTypes.func,//({x1,x2,y2,y1})=>[{x,width},{x,width}]
-                    bounds: PropTypes.func,//()=>{left, right, top, bottom}
-                    clone: PropTypes.func,//()=>to clone this geometry
-                }),
+                geometry:  this.GeometryShape,
 
                 geometryFn: PropTypes.func,//fn(geometry shape, {anchored x,y}): which can enhance a geometry, such as adjust according to border/distance
             }),
