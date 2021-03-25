@@ -222,6 +222,8 @@ class DocxType extends Input.Editable{
 						return createElement(components.Text,{},dom.Text.LineBreak,node)
 				}
 			}
+			case 'txbx':
+				return createElement(components.Frame,{width:1},children,node)
 			case "fldSimple":{
 				const instr=node.attribs["w:instr"].trim()
 				return createElement(components.Field,{instr,command:instr.split(" ")[0],display:$(node).text()},children,node)
@@ -257,10 +259,8 @@ class DocxType extends Input.Editable{
 			case "picture":
 				return createElement(components.Image,components.Image.asStyle(props),null,node)
 			case "shape":{
-				const {textStyle, ...style}=components.Shape.asStyle(props)
-				const prStyle=new Style.Paragraph.Direct(undefined,styles,selector)
-				prStyle.r=textStyle
-				return createElement(components.Shape,{...style, textStyle:prStyle},children,node)
+				
+				return createElement(components.Shape,props,children,node)
 			}
 			case "bookmarkStart":{
 				const id=node.attribs["w:id"]

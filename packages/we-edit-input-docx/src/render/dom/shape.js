@@ -1,40 +1,116 @@
 import React, {Component} from "react"
-import memoize from "memoize-one"
 import PropTypes from "prop-types"
-import { shallowEqual } from "recompose"
 
 export default ({Shape, Frame, Template})=>class __$1 extends Component{
     static displayName="shape"
     static contextTypes={
-		style: PropTypes.object,
+		styles: PropTypes.object,
     }
 
     static childContextTypes={
         style: PropTypes.object,
     }
 
-    childStyle=memoize((direct,context)=>{
-		return direct ? direct.inherit(context) : context
-	})
-
     getChildContext(){
         return {
-            style:this.props.textStyle?this.props.textStyle.inherit(this.context.style):this.context.style
+            style:this.context.styles['*']
         }
     }
 
     render(){
-        if(Shape.support('pageable')){
-            const {autofit,height, ...props}=this.props
-            switch(autofit?.type){
-                case "block":
-                    return (<Shape {...props}/>)
-                case "font":{
-                    return <Shape.AutoFitManager><Shape {...this.props}/></Shape.AutoFitManager>
-                }
+        if(!Shape.support('pageable'))
+            return (<Shape {...this.props}/>)
+
+        const {
+            children:[frame]=[], 
+            xfrm:{width,height},
+            ln:{w:lineWidth,solidFill:color="black", gradFill:lnGradFill, noFill,...outline},
+            bodyPr:{lIns:left,rIns:right,bIns:bottom,tIns:top},
+            pattFill,blipFill,gradFill,solidFill,
+            autofit, 
+            anchor,
+            id,hash,
+            ...props}=this.props
+
+        const children= frame && React.cloneElement(frame,{
+            x:left+lineWidth/2,y:top+lineWidth/2,
+            width:width-lineWidth-left-right,
+            height:height-lineWidth-top-bottom,
+            vertAlign:({b:"bottom",ctr:"middle",t:"top", dist:"distributed",just:"justified"}[anchor]),
+        })
+
+        return (
+            <Shape {...{
+                    id,hash,
+                    geometry:Shape.Path.fromRect({width,height}).toString(),
+                    outline:{
+                        color, 
+                        width:lineWidth,
+                        gradient:this.shapeGradient(lnGradFill),
+                        ...this.shapeLine(outline),
+                    },
+                    fill:{
+                        color:solidFill,
+                        pattern:this.shapePattern(pattFill), 
+                        picture:this.shapePicture(blipFill),
+                        gradient:this.shapeGradient(gradFill),
+                    },
+                    autofit,
+                    autofitHeight:height-lineWidth-top-bottom,
+                    children
+                }}/>
+        )
+
+
+        switch(autofit?.type){
+            case "block":
+                return (<Shape {...props}/>)
+            case "font":{
+                return <Shape.AutoFitManager><Shape {...this.props}/></Shape.AutoFitManager>
             }
         }
-        return (<Shape {...this.props}/>)
+    }
+
+    shapeLine(){
+
+    }
+
+    shapePattern(pattern){
+        if(!arguments[0])
+            return 
+        const {bgClr:{color:background}, fgClr:{color:foreground}, prst}=pattern
+        return {
+            background,
+            foreground,
+            pattern:{
+                path:Shape.Path.fromRect({width:5,height:5}).translate(5,5).toString(),
+                viewBox:'0 0 15 15', 
+                width:'10%',
+                height:'10%'
+            }
+        }
+    }
+
+    shapeGradient(gradient){
+        if(!arguments[0])
+            return 
+        const props={}
+        const {lin,path,type=lin?"linear":"radial", gsLst=[]}=gradient
+        props.type=type
+        props.angle=lin?.ang
+        props.stops=gsLst.map(({color,pos})=>({color,position:`${pos/1000}%`}))
+        return props
+    }
+
+    shapePicture(blipFill){
+        if(!arguments[0])
+            return 
+        const {blip:{url}, stretch:{fillRect:{l,r,t,b}={}}={}}=blipFill
+        const percent=a=>`${parseInt(l)/1000}%`
+        return {
+            url,
+            margin:{left:percent(l),right:percent(r),top:percent(t),bottom:percent(b)}
+        }
     }
 
     static asStyle(props){

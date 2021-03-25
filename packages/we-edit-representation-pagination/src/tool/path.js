@@ -8,15 +8,12 @@ export default class __$1 extends Path{
         return new this(`M${x} ${y} h${w} v${h} h${-w}z`)    
     }
 
-	static fromCircle({cx,cy,r}){
-		const circle=`M (${cx - r}), ${cy}
-		a ${r},${r} 0 1,0 (${r * 2}),0
-		a ${r},${r} 0 1,0 -(${r * 2}),0`
-		return new this(circle)
+	static fromCircle({cx=0,cy=0,r}){
+		return this.fromEllipse({cx,cy,rx:r, ry:r})
 	}
 
-	static fromEllipse({cx,cy,rx,ry}){
-		
+	static fromEllipse({cx=0,cy=0,rx,ry}){
+		return new this(`z`)
 	}
 
     toString(){

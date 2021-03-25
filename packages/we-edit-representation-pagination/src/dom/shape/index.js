@@ -1,12 +1,48 @@
 import React,{Fragment} from "react"
 import PropTypes from "prop-types"
 import {dom} from "we-edit"
-import memoize from "memoize-one"
+import Path from "../../tool/path"
+import {Group,Line} from "../../composed"
 
-import {HasParentAndChild,editable,Layout} from "../../composable"
+import memoize from "memoize-one"
+import {HasParentAndChild,editable} from "../../composable"
+export default class Shape extends HasParentAndChild(dom.Shape){
+	static Path=Path
+	get geometry(){
+		return new Path(this.props.geometry)
+	}
+
+	get boundHeight(){
+		const {top=0,bottom=0}=this.geometry.bounds()
+		return bottom-top
+	}
+
+	onAllChildrenComposed(){
+        if(React.Children.toArray(this.props.children).length==0){
+            this.context.parent.appendComposed(this.createComposed2Parent())
+        }
+        super.onAllChildrenComposed()
+    }
+
+	createComposed2Parent(content){
+		const { outline, fill, autofit, autofitHeight=this.boundHeight, id}=this.props
+		var geometry=this.geometry
+		if(autofit && content){
+			geometry.verticalExtend(content.props.height-autofitHeight)
+		}
+
+		return (
+			<Group geometry={geometry}>
+				<Line {...{...outline, d:geometry.toString(), fill, id}}/>
+				{content}
+			</Group>
+		)		
+	}
+}
+
+/*
 import Frame from "../frame"
 import {custom, rect, ellipse, circle} from "./shapes"
-
 
 const {displayName, propTypes, defaultProps}=editable(HasParentAndChild(dom.Shape))
 export default class extends Frame{
@@ -52,7 +88,7 @@ export default class extends Frame{
 	/**
 	 * there's no call super.createComposed2Parent, so editable interface is skipped
 	 *** .positionlines is used to get lineXY(line), so it should be added
-	 */
+	 *//*
 	recomposable_createComposed2Parent(){
 		const {x,y,z,height,margin:{top=0,bottom=0}={}}=this.props
 		const geometry=height ? this.geometry : new this.Geometry({...this.props, height:this.contentHeight+this.geometry.strokeWidth+top+bottom},this.context) 
@@ -81,3 +117,4 @@ export default class extends Frame{
 
 	static circle=circle
 }
+*/
