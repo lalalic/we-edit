@@ -85,6 +85,10 @@ export default class Inline extends Component{
 		return isPageBreak(atoms[l-2])||isPageBreak(atoms[l-1])
 	}
 
+	get hasExcludedSpace(){
+		return this.inlineSegments.length>1
+	}
+
 	isEmpty(){
 		return !!!this.firstAtom
 	}
@@ -167,9 +171,15 @@ export default class Inline extends Component{
 
 		if(appended===false){
 			if(this.isEmpty()){
-				//empty inline layout is not allowed
-				this.inlineSegments.push(atom,true/*append atom without considering inline size*/)
-				return
+				if(this.hasExcludedSpace){
+					console.debug(`An empty line caused by wrappees will be commit to block layout engine`)
+					//we'd better to ask for help from block layout engine
+					return false
+				}else{
+					console.debug(`Empty inline layout is not allowed in clear space, so always append an atom.`)
+					this.inlineSegments.push(atom,true/*append atom without considering inline size*/)
+					return
+				}
 			}
 			return false
 		}
@@ -186,11 +196,9 @@ export default class Inline extends Component{
 		 * so get opportunities again
 		 */
 		const {space:{left,right}}=this.props
-		const minRequiredWidth=this.isEmpty() ? atom.props.width : 0
-		const segments=this.findInlineSegments(this.topBlock+newHeight,left,right, minRequiredWidth)
-		/**@TODO: what if segments is null since there's no space */
+		const segments=this.findInlineSegments(this.topBlock+newHeight,left,right)
 		if(!segments){
-
+			return false
 		}else if(this.inlineSegments.shouldRelayout(segments)){
 			const relayouted=this.inlineSegments.relayout(segments,atom)
 			if(relayouted!==false){
@@ -200,6 +208,7 @@ export default class Inline extends Component{
 				return 
 			}else{
 				if(this.isEmpty()){
+					/**change inline segments to indicate space changed*/
 					this.inlineSegments=InlineSegments.create({...this.inlineSegments.props,...segments})
 				}
 				//new inline opportunities can NOT hold atom, commit to block layout
@@ -207,7 +216,7 @@ export default class Inline extends Component{
 			}
 		}else{
 			//same inline opportunities, continue normal inline layout later 
-			//but topBlock may be changed, such as clear wrap
+			//but topBlock may be changed, such as clear wrapee
 			this.inlineSegments.props.topBlock=segments.topBlock
 		}
 		

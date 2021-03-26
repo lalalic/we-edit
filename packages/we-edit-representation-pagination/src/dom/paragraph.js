@@ -153,7 +153,7 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 			return parent.appendComposed(this.createComposed2Parent(this.currentLine,bLastLine))
 		}
 
-		const atomIndexOfLastNthLine=i=>{
+		const indexOfFirstAtomInLastNthLine=i=>{
 			const lines=this.lines
 			const lastNthLine=lines[lines.length-i]
 			return atoms.indexOf(lastNthLine.atoms[0])
@@ -203,7 +203,7 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 						if(rollbackLines==Layout.IMMEDIATE_STOP)
 							return Layout.IMMEDIATE_STOP
 
-						const at=atomIndexOfLastNthLine(rollbackLines)
+						const at=indexOfFirstAtomInLastNthLine(rollbackLines)
                         if(at>-1){
 							rollbackToLineWithFirstAtomIndex(at)
 							if(!createLineAndEnqueue())
@@ -237,7 +237,7 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 				if(Number.isInteger(rollbackLines)){
 					if(rollbackLines===Frame.IMMEDIATE_STOP)
 						return Frame.IMMEDIATE_STOP
-					const next=atomIndexOfLastNthLine(rollbackLines)
+					const next=indexOfFirstAtomInLastNthLine(rollbackLines)
 					rollbackToLineWithFirstAtomIndex(next)
 					if(!createLineAndEnqueue())
 						return 
