@@ -1,12 +1,10 @@
 import React from "react"
 import PropTypes from "prop-types"
-
 import {dom} from "we-edit"
 
-import Frame from "./frame"
-import {HasParentAndChild,Layout, editable} from "../composable"
 import breakOpportunities from "../wordwrap/line-break"
 import {Text as ComposedText,  Group} from "../composed"
+import {HasParentAndChild,Layout, editable} from "../composable"
 
 const Tokenizers=[dom.Text.LineBreak, dom.Text.PageBreak,dom.Text.Tab]
 class Paragraph extends HasParentAndChild(dom.Paragraph){
@@ -132,11 +130,16 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 		this.lines.splice(-n)
 	}
 
+	kill(reason,info){
+		console.error(reason)
+		return Layout.IMMEDIATE_STOP
+	}
+
 	/**
 	* line.appendComposed can rollback to a specified atom
 	* parent.appendComposed can rollback lines
 	**/
-	commit(start=0, end=Number.MAX_SAFE_INTEGER){
+	commit(start=0, end=Number.MAX_SAFE_INTEGER, DEADTolerance=5){
         const {context:{parent}, computed:{atoms}}=this
 
 		const rollbackToLineWithFirstAtomIndex=at=>{
@@ -167,29 +170,24 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 			return line
 		}
 
-		const len=atoms.length
-		const DEAD=5
-		var nested=0
-
 		if(!createLineAndEnqueue())
 			return 
 
-		const commitFrom=(start=0)=>{
-			let last=0, times=0
-			for(let i=start;i<len;){
+		const commitFrom=(start=0, nestedTimes=0)=>{
+			for(let i=start,last=-1, times=0, len=atoms.length;i<len;){
 				if(i>end){
 					return
 				}
 
 				if(i==last){
-					times++
-					if(times>DEAD){
-						throw Error(`it may be dead loop on ${i}th atoms`)
+					if(++times>DEADTolerance){
+						return kill(`it may be dead loop on ${i}th atoms`)
 					}
 				}else{
 					last=i
 					times=0
 				}
+				
 				const next=this.currentLine.appendAtom(atoms[i])
 				if(next===false || next===true){
 					//current line is full, atoms[i] not assembled, commit to block layout
@@ -210,8 +208,7 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 								return 
         					i=at
         				}else{
-							debugger
-							throw new Error("unknown error")
+							return kill("unknown error")
 						}
 					}
 					if(next===true){
@@ -227,21 +224,20 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 				}
 			}
 
-			if(++nested>DEAD){
-				console.error(`it may be dead loop on since commit nested ${nested}, ignore and continue`)
-				return
+			if(++nestedTimes>DEADTolerance){
+				return kill(`it may be dead loop on since commit nested ${nestedTimes}, ignore and continue`,{i})
 			}
 
 			if(this.lines.length==1 || !this.currentLine.isEmpty()){
 				const rollbackLines=commitComposedLine(true)
 				if(Number.isInteger(rollbackLines)){
-					if(rollbackLines===Frame.IMMEDIATE_STOP)
-						return Frame.IMMEDIATE_STOP
+					if(rollbackLines===Layout.IMMEDIATE_STOP)
+						return Layout.IMMEDIATE_STOP
 					const next=indexOfFirstAtomInLastNthLine(rollbackLines)
 					rollbackToLineWithFirstAtomIndex(next)
 					if(!createLineAndEnqueue())
 						return 
-					commitFrom(next)
+					commitFrom(next, nestedTimes)
 				}
 			}
 		}

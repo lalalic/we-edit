@@ -86,7 +86,7 @@ export default class Inline extends Component{
 	}
 
 	get hasExcludedSpace(){
-		return this.inlineSegments.length>1
+		return this.inlineSegments.segments.length>1
 	}
 
 	isEmpty(){
