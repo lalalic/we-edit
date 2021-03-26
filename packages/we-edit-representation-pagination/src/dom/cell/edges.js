@@ -1,9 +1,9 @@
 import React, {PureComponent} from "react"
 import Group from "../../composed/group"
-import Line from "../../composed/line"
+import Shape from "../../composed/shape"
 
 
-const Edge=({val, space, ...props})=><Line {...props}/>
+const Edge=({val, space, ...props})=><Shape {...props}/>
 
 export default class Edges extends PureComponent{
     render(){
@@ -11,7 +11,7 @@ export default class Edges extends PureComponent{
         if(top.width==left.width && right.width==top.width && bottom.width==top.width){
             return (
                 <Group {...props}>
-                    <Line d={`M0 0h${width}v${height}h${-width}v${-height}z`} {...top} fill="none"/>
+                    <Shape d={`M0 0h${width}v${height}h${-width}v${-height}z`} {...top} fill="none"/>
                 </Group>
             )
         }

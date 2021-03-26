@@ -1,12 +1,13 @@
 import React,{} from "react"
 import {dom} from "we-edit"
-import Path from "../../tool/path"
-import {Group,Line} from "../../composed"
-import FocusShape from "./focus"
+import Path from "../tool/path"
+import {Group,Shape} from "../composed"
+import Focusable from "../composed/responsible-canvas/focusable"
 
-import {HasParentAndChild,editable} from "../../composable"
-export default class Shape extends editable(HasParentAndChild(dom.Shape)){
+import {HasParentAndChild,editable} from "../composable"
+export default class extends editable(HasParentAndChild(dom.Shape)){
 	static Path=Path
+	focusable=true
 	get geometry(){
 		return new Path(this.props.geometry)
 	}
@@ -40,12 +41,10 @@ export default class Shape extends editable(HasParentAndChild(dom.Shape)){
 		return (
 			<Group {...{width,height,geometry}}>
 				<Group 	x={x} y={y}>{/*go back to original position for editing*/}
-					<FocusShape {...{path,id, composedUUID:hash,transform}}>
-						<Group {...{"data-nocontent":true}}>
-							<Line {...{...outline, d:path, fill, id}}/>
-						</Group>
+					<Focusable {...{path,id, outline,fill, composedUUID:hash,transform}}>
 						{content}
-					</FocusShape>
+					</Focusable>
+                    <Shape {...{d:path, width:1, color:"red"}}/>
 				</Group>
 			</Group>
 		)		

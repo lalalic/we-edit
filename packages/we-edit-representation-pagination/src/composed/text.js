@@ -1,6 +1,6 @@
 import React, {Fragment, PureComponent as Component} from "react"
 import PropTypes from "prop-types"
-import Line from "./line"
+import Shape from "./shape"
 
 export default class Text extends Component{
 	static contextTypes={
@@ -40,13 +40,13 @@ export default class Text extends Component{
 							return a
 					}
 				})(0.5)
-			decoration=(<Line y1={y} x2={width} y2={y} color={fill} width={strokeWidth*precision}/>)
+			decoration=(<Shape y1={y} x2={width} y2={y} color={fill} width={strokeWidth*precision}/>)
 		}
 
 		let strikeline=null
 		if(strike){
 			let y=-descent
-			strikeline=(<Line y1={y} x2={width} y2={y} color={fill} width={0.5*precision}/>)
+			strikeline=(<Shape y1={y} x2={width} y2={y} color={fill} width={0.5*precision}/>)
 		}
 
 		return (

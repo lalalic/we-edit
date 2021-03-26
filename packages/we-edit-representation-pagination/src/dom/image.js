@@ -4,7 +4,6 @@ import Shape from "./shape"
 
 export default class Image extends editable(NoChild(dom.Image)){
 	focusable=true
-
 	getShape(){
 		const {width,height,id,src}=this.props
 		return new Shape({

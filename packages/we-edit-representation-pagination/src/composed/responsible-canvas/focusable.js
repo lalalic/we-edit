@@ -3,29 +3,29 @@ import PropTypes from "prop-types"
 import {whenSelectionChange,ACTION} from "we-edit"
 import {compose, shouldUpdate} from "recompose"
 
-import Group from "../../composed/group"
-import Movable from "../../composed/responsible-canvas/movable"
-import Resizable from "../../composed/responsible-canvas/resizable"
-import Rotatable from "../../composed/responsible-canvas/rotatable"
+import Shape from "../shape"
+import Group from "../group"
+import Movable from "./movable"
+import Resizable from "./resizable"
+import Rotatable from "./rotatable"
 import Path from "../../tool/path"
 
-
+const IgnoreEvents=Group.Layer.IgnoreEvents
+const isSelfOrGrand=t=>!!t.selection?.getComposer(t.selection?.position.id)?.closest(p=>p.props.id==t.id)
+		
 export default compose(
 	whenSelectionChange(),
 	shouldUpdate((a,b)=>{
 		const targetChanged=a.selection?.position.id!=b.selection?.position.id
-		const isSelfOrGrand=t=>!!t.selection?.getComposer(t.selection?.position.id)?.closest(p=>p.props.id==t.id)
 		const shapeRecomposed=a.composedUUID!=b.composedUUID
-		const isAGrand=isSelfOrGrand(a)
-		const isBGrand=isSelfOrGrand(b)
+		const isAGrand=isSelfOrGrand(a), isBGrand=isSelfOrGrand(b)
 		const should=(shapeRecomposed || targetChanged)&&(isAGrand||isBGrand)
 		console.debug(`focus shape[id=${a.id}] should update: ${should}`)
 		return should
 	})
-)(class FocusShape extends Component{
+)(class Focusable extends Component{
 	static propTypes={
-		width: PropTypes.number,
-		height: PropTypes.number,
+		path: PropTypes.string.isRequired,
 		resizable: PropTypes.arrayOf(PropTypes.object),
 		rotatable: PropTypes.shape({
 			x:PropTypes.number.isRequired,
@@ -72,8 +72,9 @@ export default compose(
 	render(){
 		const {
 			props:{
-				path, selection, children:content, 
-				transform,dispatch,id, placeholded,
+				path, selection, children, 
+				transform,dispatch,id,
+				outline, fill,
 
 				positioning=selection.positioning,
 				geometry=new Path(path),
@@ -91,11 +92,10 @@ export default compose(
 				],
 				rotatable={...center,center,degree:parseInt(/rotate\((\d+)/gi.exec(transform||"")?.[1])||0},
 				movable=true,
-				focusableContent=true,
 			},
 			context:{editable,precision=1},
 			state:{status, type, isAnchor},
-			selectShape=e=>{
+			select=e=>{
 				e.stopPropagation()
 				dispatch(ACTION.Selection.SELECT(id,0,id,1))
 			},
@@ -103,51 +103,46 @@ export default compose(
 		
 		return (
 			<Group transform={status!=="editing" ? transform : undefined}>
-				{content}
-				{editable && <Group {...{"data-nocontent":true}}>
-					{status!=="unactive" && <path d={path} fill="none" stroke="lightgray"/>}
-					{status=="unactive" && <path {...{d:path,fill:"transparent",...ignoreEvents, onClick:selectShape}}/>}
-					
-					{status=="focus" && movable && <Movable isAnchor={isAnchor}
-						onMove={e=>dispatch(ACTION.Selection.MOVE({...e, id,type}))}
-						children={<path d={path} fill="white" fillOpacity={0.01} cursor="move"/>}
-					/>}
+				{[
+					status!=="unactive" && <path key="FocusIndicator" d={path} fill="none" stroke="lightgray"/>,
+					<Shape {...{...outline, d:path, fill, id, key:"outline"}}/>,
+					children,
+					editable && <Group {...{"data-nocontent":true, key:"actors"}}>
+						{[
+							status=="unactive" && <path {...{key:"selector",d:path,fill:"transparent",...IgnoreEvents, onClick:select}}/>,
+							status=="focus" && movable && <Movable isAnchor={isAnchor} key="movable"
+								onMove={e=>dispatch(ACTION.Selection.MOVE({...e, id,type}))}
+								children={<path d={path} fill="white" fillOpacity={0.01} cursor="move"/>}
+							/>,
 
-					{status=="focus" && rotatable && <Rotatable {...rotatable}
-						onRotate={({clientX:left,clientY:top})=>{
-							const center=rotatable.center
-							const xy=positioning.asCanvasPoint({left,top})
-							const pos=positioning.position({id,at:0})
-							const degree=Math.floor(Math.atan2(xy.x-center.x-pos.x,-(xy.y-center.y-pos.y))*180*100/Math.PI)/100
-							dispatch(ACTION.Entity.UPDATE({id,type,rotate:degree<0 ? degree+360 : degree}))
-						}}
-					/>}
+							status=="focus" && rotatable && <Rotatable {...rotatable} key="rotatable"
+								onRotate={({clientX:left,clientY:top})=>{
+									const center=rotatable.center
+									const xy=positioning.asCanvasPoint({left,top})
+									const pos=positioning.position({id,at:0})
+									const degree=Math.floor(Math.atan2(xy.x-center.x-pos.x,-(xy.y-center.y-pos.y))*180*100/Math.PI)/100
+									dispatch(ACTION.Entity.UPDATE({id,type,rotate:degree<0 ? degree+360 : degree}))
+								}}
+							/>,
 
-					{status=="focus" && resizable && <Resizable spots={resizable}
-						onResize={({x,y})=>{
-							let size=null
-							if(y===undefined){
-								size={width:width/precision+x}
-							}else if(x===undefined){
-								size={height:height/precision+y}
-							}else{
-								const scale=1+Math.max(Math.abs(x*precision)/width,Math.abs(y*precision)/height)*x/Math.abs(x)
-								size={width:width*scale/precision, height:height*scale/precision}
-							}
-							dispatch(ACTION.Entity.UPDATE({id,type,size}))
-						}}
-					/>}
-				</Group>}
+							status=="focus" && resizable && <Resizable spots={resizable} key="resizable"
+								onResize={({x,y})=>{
+									let size=null
+									if(y===undefined){
+										size={width:width/precision+x}
+									}else if(x===undefined){
+										size={height:height/precision+y}
+									}else{
+										const scale=1+Math.max(Math.abs(x*precision)/width,Math.abs(y*precision)/height)*x/Math.abs(x)
+										size={width:width*scale/precision, height:height*scale/precision}
+									}
+									dispatch(ACTION.Entity.UPDATE({id,type,size}))
+								}}
+							/>,
+						]}
+					</Group>,
+				]}
 			</Group>
 		)
 	}
 })
-
-const Ignore=e=>{
-	e.stopPropagation()
-	e.preventDefault()
-	return false
-}
-const ignoreEvents="onClick,onMouseDown,onMouseMove,onMouseUp,onContextMenu".split(",").reduce((o,k)=>(o[k]=Ignore,o),{})
-
-

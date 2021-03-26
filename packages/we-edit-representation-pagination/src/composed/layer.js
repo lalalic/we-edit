@@ -3,7 +3,11 @@ import PropTypes from "prop-types"
 import {whenSelectionChange} from "we-edit"
 import Group from "./group"
 
+const Ignore=e=>(e.stopPropagation(),  e.preventDefault(), false)
+const IgnoreEvents="onClick,onMouseDown,onMouseMove,onMouseUp,onContextMenu".split(",").reduce((o,k)=>(o[k]=Ignore,o),{})
+
 export default class Layer extends Component{
+    static IgnoreEvents=IgnoreEvents
     static displayName="layer"
     static propTypes={
         z:PropTypes.number,
@@ -12,19 +16,13 @@ export default class Layer extends Component{
 
     render(){
         const {active=true,style, children, areas=[]}=this.props
-        const Ignore=e=>{
-            e.stopPropagation()
-            e.preventDefault()
-            return false
-        }
-        const ignoreEvents="onClick,onMouseDown,onMouseMove,onMouseUp,onContextMenu".split(",").reduce((o,k)=>(o[k]=Ignore,o),{})
         if(!active){
             return (
                 <Group style={style}>
                     {children}
                     {areas.map(a=>{
                         return React.cloneElement(a,{
-                            ...ignoreEvents,
+                            ...IgnoreEvents,
                             onDoubleClick:e=>{
                                 e.stopPropagation()
                                 const click=new MouseEvent('click',{bubbles:true,cancelable:true,clientX:e.clientX,clientY:e.clientY})

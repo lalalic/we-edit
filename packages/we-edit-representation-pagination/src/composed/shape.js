@@ -1,15 +1,15 @@
-import React, {Fragment,Component} from "react"
+import React, {Component} from "react"
 import Path from "../tool/path"
 
-export default class Line extends Component{
-    static displayName="CoolLine"
+export default class Shape extends Component{
+    static displayName="Shape"
     render(){
         const {
             id,
             d, 
             width:strokeWidth=1, color:stroke="black", 
             style, sketched, compound, dash, join, cap, transparency, 
-            fill:{color:fill="none", picture, gradient, pattern}, size,
+            fill:{color:fill="none", picture, gradient, pattern}={}, size,
             ...props
         }=this.props
         

@@ -15,6 +15,7 @@ import Output from "./output"
 import SVG from "./output/svg"
 import Path from "./tool/path"
 
+import Focusable from "./composed/responsible-canvas/focusable"
 import Resizable from "./composed/responsible-canvas/resizable"
 import Movable from "./composed/responsible-canvas/movable"
 import Rotatable from "./composed/responsible-canvas/rotatable"
@@ -140,7 +141,7 @@ Pagination.install()
 
 export {
 	Viewers, Editors, FontManager, Measure, Composed, composable, editable, 
-	Resizable, Movable, Rotatable,Overlay,
+	Resizable, Movable, Rotatable,Overlay, Focusable,
 	Responsible,Canvas,Positioning,SelectionStyle,
 	TestEmulator,Path,
 }
