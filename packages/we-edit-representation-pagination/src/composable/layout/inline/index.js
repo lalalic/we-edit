@@ -2,7 +2,7 @@ import React, {Component} from "react"
 import {ReactQuery, dom} from "we-edit"
 import InlineSegments from "./lnline-space-segments"
 import Story from "./story"
-import Group from "../../../composed/group"
+import Marker from "../../../composed/marker"
 
 /**
  * height: line box height
@@ -103,7 +103,7 @@ export default class Inline extends Component{
 		const $anchor=$atom.findFirst('[data-type="anchor"]')
 		const anchorId=$anchor.attr("data-content")
 		const placeholder=React.cloneElement(
-			$atom.replace($anchor.get(0),<Group/>).get(0),
+			$atom.replace($anchor.get(0),<Marker type="anchor" id={anchorId}/>).get(0),
 			{atom,width:0,"data-anchor":anchorId}
 		)
 		//React.cloneElement($anchor.get(0),{atom,width:0,"data-anchor":anchorId})
