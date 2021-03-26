@@ -54,7 +54,9 @@ export default ({Anchor})=>class __$1 extends Component{
 
                 intersects(){
                     const segs=this.geometry.intersects(...arguments)
-                    return segs.map(({x,width})=>({x:x-dl-el,width:width+dl+el+dr+er}))
+                    segs.length>0 && (segs[0].x-=(dl+el));
+                    segs.length>1 && (segs[segs.length-1].x+=(dr+er));
+                    return segs
                 },
 
                 clone(){

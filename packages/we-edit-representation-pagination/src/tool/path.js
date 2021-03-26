@@ -53,6 +53,7 @@ export default class __$1 extends Path{
 			})
 			.map(line1=>line_line_intersect(line1,line))
 			.filter(a=>!!a)
+			.sort((a,b)=>a.x-b.x)
     }
 
     center(){
