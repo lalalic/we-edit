@@ -141,12 +141,18 @@ class Flow extends HasParentAndChild(dom.Frame) {
 		this.context.parent.appendComposed(content);
 		super.onAllChildrenComposed();
 	}
+
+ 	/**
+	* use x as positioned indicator, 
+	* @TODO: y could be used for a positioned line on following situations
+	* 1. wrappee with CLEEAR mode, which will create a block unavailable for inline layout
+	* 2. wrappee is larger than inline size, or is large enough not able to layout an atom for inline layout
+	*/
 	appendComposed(line) {
-		const { props: { y: positioned } } = line;
+		const { props: { x: positioned } } = line;
 		if (positioned != undefined) {
 			this.anchors.push(line);
-		}
-		else {
+		} else {
 			this.lines.push(line);
 		}
 	}
