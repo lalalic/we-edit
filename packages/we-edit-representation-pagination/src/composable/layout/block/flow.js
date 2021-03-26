@@ -203,12 +203,11 @@ class Flow extends HasParentAndChild(dom.Frame) {
 		if (this.isEmpty()
 			|| this.availableBlockSize >= requiredBlockSize) {
 			const space=this.getSpace()
-			return ConstraintSpace.create(space||{}).clone({
+			const inlineLayoutSpace=ConstraintSpace.create(space||{}).clone({
 				blockOffset: this.blockOffset,
 				height: this.availableBlockSize,
 				frame: this,
-				findInlineSegments: (requiredBlockSize, left, right) => {
-					const blockOffset = this.blockOffset;
+				findInlineSegments: (requiredBlockSize, left, right, atLeastHaveOneSegmentWidth=1, blockOffset=this.blockOffset) => {
 					var wrappees = this.exclusive(blockOffset, blockOffset + requiredBlockSize, left, right);
 					
 					/**find the nearest top that can start flow content if wrappees as number specify next available blockOffset */
@@ -218,22 +217,37 @@ class Flow extends HasParentAndChild(dom.Frame) {
 						wrappees = this.exclusive(top, top + requiredBlockSize, left, right);
 					}
 
-					const space = this.nextAvailableSpace({ height: top - blockOffset + requiredBlockSize });
-					if (space) {
+					const space = this.nextAvailableSpace({ height: top - this.blockOffset + requiredBlockSize });
+					if (!space) 
+						return space
+					
+					/** transform exclusive space to acceptable space */
+					const segments=wrappees.reduce((ops, { x, width}) => {
+							const [last] = ops.splice(-1);
+							return [...ops, { x: last.x, width: x - last.x}, { x: x + width, width: right - x - width }];
+						}, [{ x: left, width: right - left }])
+						.filter(a=>a.width>0)
+
+					if(wrappees.length==0 || segments.find(a=>a.width>=atLeastHaveOneSegmentWidth)){
 						return {
 							/**unavailable block to contain flow content*/
-							topBlock:top-blockOffset,
-							/** transform exclusive space to acceptable space */
-							segments: wrappees.reduce((ops, { x, width }) => {
-								const [last] = ops.splice(-1);
-								return [...ops, { x: last.x, width: x - last.x}, { x: x + width, width: right - x - width }];
-							}, [{ x: left, width: right - left }]).filter(a=>a.width>0)
-						};
+							topBlock:top-this.blockOffset,
+							segments
+						}
+					}else{
+						const untilYs=wrappees.map(a=>a.y).filter(y=>y!=undefined)
+						if(untilYs.length==0)
+							return null
+						const maxY=Math.max(...untilYs)
+						if(maxY>=this.blockOffset+this.availableBlockSize)
+							return null
+					
+						return inlineLayoutSpace.findInlineSegments(requiredBlockSize, left, right, atLeastHaveOneSegmentWidth, maxY)
 					}
-					return space;
 				},
 				isAnchored: id => this.isAnchored(id)
-			});
+			})
+			return inlineLayoutSpace
 		}
 		return false;
 	}

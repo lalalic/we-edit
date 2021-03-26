@@ -110,6 +110,7 @@ class Row extends HasParentAndChild(dom.Row){
 			if(!space)//no space any more, stop immediately
 				return 
 			this.ranks.push(rank=new this.constructor.Rank({space, children:new Array(this.getColumns(this.props.cols).length).fill(null)}))
+			console.debug(`${this.ranks.length}th rank of row created and taking place`)
 			//each requested space should be taken up by appending rank placeholder, so next request can take effect
 			this.context.parent.appendComposed(this.createComposed2Parent(rank))
 		}

@@ -2,7 +2,7 @@ import React, {Component} from "react"
 import {ReactQuery, dom} from "we-edit"
 import InlineSegments from "./lnline-space-segments"
 import Story from "./story"
-import Marker from "../../../composed/marker"
+import {Marker,Group} from "../../../composed"
 
 /**
  * height: line box height
@@ -83,10 +83,6 @@ export default class Inline extends Component{
 		const atoms=this.atoms, l=atoms.length
 		const isPageBreak=a=> a?.props.tokenizeOpportunity===dom.Text.PageBreak
 		return isPageBreak(atoms[l-2])||isPageBreak(atoms[l-1])
-	}
-
-	get hasExcludedSpace(){
-		return this.inlineSegments.segments.length>1
 	}
 
 	isEmpty(){
@@ -171,15 +167,12 @@ export default class Inline extends Component{
 
 		if(appended===false){
 			if(this.isEmpty()){
-				if(this.hasExcludedSpace){
-					console.debug(`An empty line caused by wrappees will be commit to block layout engine`)
-					//we'd better to ask for help from block layout engine
+				if(this.inlineSegments.segments.length==0){
 					return false
-				}else{
-					console.debug(`Empty inline layout is not allowed in clear space, so always append an atom.`)
-					this.inlineSegments.push(atom,true/*append atom without considering inline size*/)
-					return
 				}
+				console.debug(`Empty inline layout is not allowed in clear space, so always append an atom.`)
+				this.inlineSegments.push(atom,true/*append atom without considering inline size*/)
+				return
 			}
 			return false
 		}
@@ -196,8 +189,18 @@ export default class Inline extends Component{
 		 * so get opportunities again
 		 */
 		const {space:{left,right}}=this.props
-		const segments=this.findInlineSegments(this.topBlock+newHeight,left,right)
+		const minRequiredWidth=this.isEmpty() ? atom.props.width : undefined
+		const segments=this.findInlineSegments(this.topBlock+newHeight,left,right, minRequiredWidth)
 		if(!segments){
+			if(minRequiredWidth){
+				//to indicate the space status
+				this.inlineSegments.segments=[]
+				/**@@Hack: to trigger block layout*/
+				this.freeze=()=>this.children=[<Group width={0} height={this.props.space.height}/>]
+				const lineHeight=this.getLineHeight(this.props.space.height)
+				this.getLineHeight=()=>lineHeight
+			}
+			
 			return false
 		}else if(this.inlineSegments.shouldRelayout(segments)){
 			const relayouted=this.inlineSegments.relayout(segments,atom)
@@ -207,10 +210,6 @@ export default class Inline extends Component{
 				//not full, continue next atom
 				return 
 			}else{
-				if(this.isEmpty()){
-					/**change inline segments to indicate space changed*/
-					this.inlineSegments=InlineSegments.create({...this.inlineSegments.props,...segments})
-				}
 				//new inline opportunities can NOT hold atom, commit to block layout
 				return false
 			}

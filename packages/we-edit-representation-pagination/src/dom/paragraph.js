@@ -130,7 +130,7 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 		this.lines.splice(-n)
 	}
 
-	kill(reason,info){
+	killCommit(reason,info){
 		console.error(reason)
 		return Layout.IMMEDIATE_STOP
 	}
@@ -181,13 +181,13 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 
 				if(i==last){
 					if(++times>DEADTolerance){
-						return kill(`it may be dead loop on ${i}th atoms`)
+						return this.killCommit(`it may be dead loop on ${i}th atoms`)
 					}
 				}else{
 					last=i
 					times=0
 				}
-				
+
 				const next=this.currentLine.appendAtom(atoms[i])
 				if(next===false || next===true){
 					//current line is full, atoms[i] not assembled, commit to block layout
@@ -208,7 +208,7 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 								return 
         					i=at
         				}else{
-							return kill("unknown error")
+							return this.killCommit("unknown error")
 						}
 					}
 					if(next===true){
@@ -225,7 +225,7 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 			}
 
 			if(++nestedTimes>DEADTolerance){
-				return kill(`it may be dead loop on since commit nested ${nestedTimes}, ignore and continue`,{i})
+				return this.killCommit(`it may be dead loop on since commit nested ${nestedTimes}, ignore and continue`,{i})
 			}
 
 			if(this.lines.length==1 || !this.currentLine.isEmpty()){
