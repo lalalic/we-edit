@@ -148,7 +148,7 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 			this.rollbackLines(lines.length-i)
 		}
 
-		const appendComposedLine=bLastLine=>{
+		const commitComposedLine=bLastLine=>{
 			this.currentLine.freeze()
 			return parent.appendComposed(this.createComposed2Parent(this.currentLine,bLastLine))
 		}
@@ -159,7 +159,7 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 			return atoms.indexOf(lastNthLine.atoms[0])
 		}
 
-		const createAndAppendLine=(...args)=>{
+		const createLineAndEnqueue=(...args)=>{
 			const line=this.createLine(...args)
 			if(!line)
 				return false
@@ -171,7 +171,7 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 		const DEAD=5
 		var nested=0
 
-		if(!createAndAppendLine())
+		if(!createLineAndEnqueue())
 			return 
 
 		const commitFrom=(start=0)=>{
@@ -193,10 +193,10 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 				const next=this.currentLine.appendAtom(atoms[i])
 				if(next===false || next===true){
 					//current line is full, atoms[i] not assembled, commit to block layout
-					const rollbackLines=appendComposedLine(false)
+					const rollbackLines=commitComposedLine(false)
 					if(!Number.isInteger(rollbackLines)){
 						//line committed
-						if(!createAndAppendLine())
+						if(!createLineAndEnqueue())
 							return 
 					}else{
 						//fail committed, and rollback lines
@@ -206,7 +206,7 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 						const at=atomIndexOfLastNthLine(rollbackLines)
                         if(at>-1){
 							rollbackToLineWithFirstAtomIndex(at)
-							if(!createAndAppendLine())
+							if(!createLineAndEnqueue())
 								return 
         					i=at
         				}else{
@@ -221,7 +221,7 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 					i++
 					if(i>end){
 						//it's recommitting since end is reasonable value
-						if(appendComposedLine(i==atoms.length)==Layout.IMMEDIATE_STOP)
+						if(commitComposedLine(i==atoms.length)==Layout.IMMEDIATE_STOP)
 							return Layout.IMMEDIATE_STOP
 					}
 				}
@@ -233,13 +233,13 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 			}
 
 			if(this.lines.length==1 || !this.currentLine.isEmpty()){
-				const rollbackLines=appendComposedLine(true)
+				const rollbackLines=commitComposedLine(true)
 				if(Number.isInteger(rollbackLines)){
 					if(rollbackLines===Frame.IMMEDIATE_STOP)
 						return Frame.IMMEDIATE_STOP
 					const next=atomIndexOfLastNthLine(rollbackLines)
 					rollbackToLineWithFirstAtomIndex(next)
-					if(!createAndAppendLine())
+					if(!createLineAndEnqueue())
 						return 
 					commitFrom(next)
 				}

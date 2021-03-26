@@ -79,7 +79,7 @@ export default class Inline extends Component{
 		return lineTopBlock+spaceTopBlock
 	}
 
-	get pageBreak(){
+	get endWithPageBreak(){
 		const atoms=this.atoms, l=atoms.length
 		const isPageBreak=a=> a?.props.tokenizeOpportunity===dom.Text.PageBreak
 		return isPageBreak(atoms[l-2])||isPageBreak(atoms[l-1])
@@ -159,44 +159,11 @@ export default class Inline extends Component{
 			return this.appendParagraphEnd(atom)
 		}
 
-		if(this.pageBreak){/*immediately break line*/
+		if(this.endWithPageBreak){/*immediately break line*/
 			return false
 		}
 		
-		const appended=(newHeight=>{
-			if((newHeight-this.height)>1){
-				/**
-				 * line rect change may lead to different inline opportunities and top
-				 * get opportunities again
-				 */
-				const {space:{left,right}}=this.props
-				const segments=this.findInlineSegments(this.topBlock+newHeight,left,right)
-				/**@TODO: what if segments is null since there's no space */
-				if(this.inlineSegments.shouldRelayout(segments)){
-					const relayouted=this.inlineSegments.relayout(segments,atom)
-					if(relayouted!==false){
-						this.inlineSegments=relayouted
-						//new inline opportunities can hold layouted and atom, replace inlineSegments, and top
-						//not full, continue next atom
-						return 
-					}else{
-						if(this.isEmpty()){
-							this.inlineSegments=InlineSegments.create({...this.inlineSegments.props,...segments})
-						}
-						//new inline opportunities can NOT hold atom, commit to block layout
-						return false
-					}
-				}else{
-					//same inline opportunities, continue normal inline layout later 
-					//but topBlock may be changed, such as clear wrap
-					this.inlineSegments.props.topBlock=segments.topBlock
-				}
-			}else{
-				//line rect doesn't change, continue normal inline layout later 
-			}
-			
-			return !!this.inlineSegments.push(atom)
-		})(this.getLineHeight(atom.props.height));
+		const appended=this.appendContentAtom(atom)
 
 		if(appended===false){
 			if(this.isEmpty()){
@@ -206,6 +173,45 @@ export default class Inline extends Component{
 			}
 			return false
 		}
+	}
+
+	appendContentAtom(atom){
+		const newHeight=this.getLineHeight(atom.props.height)
+		const lineHeightChanged=Math.abs(newHeight-this.height)>1
+		if(!lineHeightChanged)//line rect doesn't change, continue normal inline layout later 
+			return !!this.inlineSegments.push(atom)
+
+		/**
+		 * line rect change may lead to different inline opportunities and topBlock
+		 * so get opportunities again
+		 */
+		const {space:{left,right}}=this.props
+		const minRequiredWidth=this.isEmpty() ? atom.props.width : 0
+		const segments=this.findInlineSegments(this.topBlock+newHeight,left,right, minRequiredWidth)
+		/**@TODO: what if segments is null since there's no space */
+		if(!segments){
+
+		}else if(this.inlineSegments.shouldRelayout(segments)){
+			const relayouted=this.inlineSegments.relayout(segments,atom)
+			if(relayouted!==false){
+				this.inlineSegments=relayouted
+				//new inline opportunities can hold layouted and atom, replace inlineSegments, and top
+				//not full, continue next atom
+				return 
+			}else{
+				if(this.isEmpty()){
+					this.inlineSegments=InlineSegments.create({...this.inlineSegments.props,...segments})
+				}
+				//new inline opportunities can NOT hold atom, commit to block layout
+				return false
+			}
+		}else{
+			//same inline opportunities, continue normal inline layout later 
+			//but topBlock may be changed, such as clear wrap
+			this.inlineSegments.props.topBlock=segments.topBlock
+		}
+		
+		return !!this.inlineSegments.push(atom)
 	}
 	
 	getLineHeight(contentHeight=this.contentHeight){

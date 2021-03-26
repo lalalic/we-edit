@@ -144,7 +144,7 @@ class Flow extends HasParentAndChild(dom.Frame) {
 
  	/**
 	* use x as positioned indicator, 
-	* @TODO: y could be used for a positioned line on following situations
+	* @TODO: in future y MAY be used for a positioned line on following situations to make layout engine simpler??!!, current inline layout use topBlock to prepend to a line
 	* 1. wrappee with CLEEAR mode, which will create a block unavailable for inline layout
 	* 2. wrappee is larger than inline size, or is large enough not able to layout an atom for inline layout
 	*/
