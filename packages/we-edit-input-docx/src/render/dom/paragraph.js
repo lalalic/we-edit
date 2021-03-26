@@ -152,36 +152,12 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 			})
 
 			static Line=class Line extends Paragraph.Line{
-				appendAtom(atom){
-					if(atom.props.anchor){
-						return this.appendAnchor(atom)
-					}
-			
-					if(atom.props.tokenizeOpportunity===Text.Tab){
-						return this.appendTab(atom)
-					}
-			
-					if(atom.props.tokenizeOpportunity===Text.LineBreak){
-						return this.appendLineBreak(atom)
-					}
-			
-					if(atom.props.tokenizeOpportunity===Text.PageBreak){
-						return this.appendPageBreak(atom)
-					}
-			
-					if(atom.props.className=="ender"){
-						return this.appendParagraphEnd(atom)
-					}
-			
-					if(this.pageBreak){/*immediately break line*/
-						return false
-					}
-
+				appendContentAtom(atom){
 					switch(this.tab?.align){
 						case "center":{
 							if(this.tab.width>=(atom.props.width/2)){
 								this.tab.width-=(atom.props.width/2)
-								return super.appendAtom(atom)
+								return super.appendContentAtom(atom)
 							}else{
 								this.tab.width=0
 								this.tab.align=null
@@ -213,7 +189,7 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 								}
 								//only once, continue on 
 								this.tab.align=null
-								return super.appendAtom(atom)
+								return super.appendContentAtom(atom)
 							}else{
 								//right mode, *** decimal must be above right mode
 							}
@@ -221,7 +197,7 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 						case "right":{//***must below decimal mode */
 							if(this.tab.width>=atom.props.width){
 								this.tab.width-=atom.props.width
-								return super.appendAtom(atom)
+								return super.appendContentAtom(atom)
 							}else{
 								this.tab.width=0
 								this.tab.align=null
@@ -230,7 +206,7 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 						}
 					}
 			
-					return super.appendAtom(atom)
+					return super.appendContentAtom(atom)
 				}
 
 				_decimalTabAlignX(atom){
