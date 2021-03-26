@@ -148,17 +148,22 @@ class Flow extends HasParentAndChild(dom.Frame) {
 	* 1. wrappee with CLEEAR mode, which will create a block unavailable for inline layout
 	* 2. wrappee is larger than inline size, or is large enough not able to layout an atom for inline layout
 	*/
-	isPositioned(line){
-		return line.props.x!=undefined
-	}
-
 	appendComposed(line) {
-		if (this.isPositioned(line)) {
+		const {x:positioned, height: requiredBlockSize=0}=line.props
+		if (positioned!=undefined) {
 			this.anchors.push(line);
+		} else if (this.nextAvailableSpace({ height: requiredBlockSize })){
+			return this.appendFlowBlock(line)
 		} else {
-			this.lines.push(line);
+			return false
 		}
 	}
+
+	appendFlowBlock(line){
+		this.lines.push(line)
+	}
+
+
 	//default use props.space
 	getSpace() {
 		const {

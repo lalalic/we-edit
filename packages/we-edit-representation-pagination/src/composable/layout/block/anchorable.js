@@ -7,63 +7,21 @@ import {Rect} from "../../../tool/geometry"
  * data-anchor: check inline.appendAnchorAtom, to identify anchor placeholder in paragraph
  */
 export default class Anchorable extends Flow {
-	/**
-     * line with/without anchors
-     * anchors with wrap can affect exclusives, so it need re-layout
-     * anchor need know anchor host to position itself
-     * anchor host
-     */
-    /**
-     * @param {*} line
-     * @returns
-     * int: rollback n unpositioned lines
-     * false: space can't flow more content
-     * Number.SAFE_MAX_INTEGER: let descendant stop layout
-     * else: good
-     */
-	appendComposed(line) {
-        const { props: { anchor, height: requiredBlockSize = 0 } } = line;
-        if(this.isPositioned(line)){
-            return super.appendComposed(line)
-        }
-        
-		const space = this.nextAvailableSpace({ height: requiredBlockSize });
-		if (space == false) {
-			if (this.computed.recomposing) {
-                /**
-                 * when space infeasible and recomposing
-                 * paragraph must immediate stop, so to return back to outer layout
-                 */
-				return this.constructor.IMMEDIATE_STOP;
-			}
-			return false;
-        }
-        
-		//data-anchor is placeholder specification in inline layout
-        const anchorPlaced = (anchorId, line) => new ReactQuery(line).findFirst(`[data-anchor="${anchorId}]`).length == 1;
-		if (!anchor) {
-            if (this.computed.recomposing) {
-				if (anchorPlaced(this.computed.recomposing, line)) {
-                    /**
-                     * anchor and placeholder be in same frame, so stop immediately
-                     * ** the placeholder line should be appended, since later 
-                     * by checking this placeholder existence to decide if recompose success
-                     * but this line will be rollbacked
-                     */
-                    super.appendComposed(...arguments)
-					return this.constructor.IMMEDIATE_STOP;
+    defineProperties() {
+		super.defineProperties();
+		Object.defineProperties(this, {
+			anchoring: {
+				enumerable: false,
+				configurable: false,
+				get() {
+					return this.computed.recomposing
 				}
 			}
-			return super.appendComposed(...arguments)
-        }
-        
-        /**
-         * it's only to append anchored content,
-         * anchor placeholder in line will be relayouted later,
-         * so from here
-         * return 1 to ignore and relayout current line or
-         * return false to notify infeasible space, and ignore and re-layout current line and anchor
-         */
+		});
+	}
+
+    getAnchorSpace(line){
+        const space=this.nextAvailableSpace({height:line.props.height})
         const edges={
             paragraph:{
                 top:(id=>{
@@ -82,8 +40,59 @@ export default class Anchorable extends Flow {
                 })()
             },
         }
-        const anchored = anchor(space.clone({edges}))
-        const { wrap, geometry, "data-content": anchorId } = anchored.props;
+        return space.clone({edges})
+    }
+
+    appendComposed(){
+        const appended=super.appendComposed(...arguments)
+        if(false===appended && this.anchoring){
+            /**No available space, should stop anchoring in this frame */
+            return this.constructor.IMMEDIATE_STOP;
+        }
+        return appended
+    }
+
+	/**
+     * line with/without anchors
+     * anchors with wrap can affect exclusives, so it need re-layout
+     * anchor need know anchor host to position itself
+     * anchor host
+     */
+    /**
+     * @param {*} line
+     * @returns
+     * int: rollback n unpositioned lines
+     * false: space can't flow more content
+     * Number.SAFE_MAX_INTEGER: let descendant stop layout
+     * else: good
+     */
+	appendFlowBlock(line) {
+        const { props: { anchor: anchorContentFn } } = line;
+		//data-anchor is placeholder specification in inline layout
+        const anchorPlaceholderPlaced = (anchorId, line) => new ReactQuery(line).findFirst(`[data-anchor="${anchorId}]`).length == 1;
+		if (!anchorContentFn) {
+            if (this.anchoring && anchorPlaceholderPlaced(this.anchoring, line)) {
+                /**
+                 * anchor and placeholder be in same frame, so stop immediately
+                 * ** the placeholder line should be appended, since later 
+                 * by checking this placeholder existence to decide if recompose success
+                 * but this line will be rollbacked
+                 */
+                super.appendFlowBlock(...arguments)
+                return this.constructor.IMMEDIATE_STOP;
+			}
+			return super.appendFlowBlock(...arguments)
+        }
+        
+        /**
+         * it's only to append anchored content,
+         * anchor placeholder in line will be relayouted later,
+         * so from here
+         * return 1 to ignore and relayout current line or
+         * return false to notify infeasible space, and ignore and re-layout current line and anchor
+         */
+        const anchored = anchorContentFn(this.getAnchorSpace(line))
+        const { wrap, geometry, "data-content": anchoring } = anchored.props;
         /**
          * @TODO: wrap each other with already anchored wrappees, and this wrappees
          */
@@ -103,12 +112,12 @@ export default class Anchorable extends Flow {
             super.appendComposed(anchored)
             //recompose until this anchor
             recomposingLines.push(line)
-			return anchorId;
+			return anchoring;
 		});
         /**
          * then check if this anchor is in this block, specifically in last line
          * */
-		if (anchorPlaced(anchorId, this.lines[this.lines.length-1])) {
+		if (anchorPlaceholderPlaced(anchoring, this.lines[this.lines.length-1])) {
             /**
              * anchor and placeholder can be on same block, 
              * so keep recomposed lines and anchors (including appending anchor),
