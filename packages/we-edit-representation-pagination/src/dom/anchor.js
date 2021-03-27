@@ -1,5 +1,5 @@
-import React from "react"
-import {Group} from "../composed"
+import React, { Fragment } from "react"
+import {Group, Shape} from "../composed"
 
 import {HasParentAndChild} from "../composable"
 import {dom} from "we-edit"
@@ -30,8 +30,8 @@ export default class Anchor extends HasParentAndChild(dom.Anchor){
                     const size=this.getSize(contentGeometry||anchorGeometry)
                     var x=space.anchor({align:"left",...X},size,space)
                     var y=space.anchor({align:"top",...Y},size,space)
-                    
-                    const geometry=geometryFn(contentGeometry||anchorGeometry, {x,y})
+                    const rawGeometry=contentGeometry||anchorGeometry
+                    const geometry=geometryFn(rawGeometry, {x,y})
                     
                     const wrapFunc=(fn=>{
                         if(typeof(this.props.wrap)=="function"){
@@ -45,7 +45,13 @@ export default class Anchor extends HasParentAndChild(dom.Anchor){
                             wrap:wrapFunc,
                             geometry:{x,y,...this.getSize(geometry)},
                             "data-content":this.props.id,"data-type":this.getComposeType()}}
-                            children={content}
+                            children={
+                                <Fragment>
+                                    {content}
+                                    {this.context.debug && <Shape {...{d:rawGeometry.toString(), fill:"none", color:"green"}}/>}
+                                </Fragment>
+                                
+                            }
                             />
                     )
                 }

@@ -85,6 +85,14 @@ export default class Inline extends Component{
 		return isPageBreak(atoms[l-2])||isPageBreak(atoms[l-1])
 	}
 
+	get lineTop(){
+		if(typeof(this.props.lineHeight)=="string"){
+			const topPercent=parseInt(this.props.lineHeight.split(",")[1])||0
+			return this.textHeight*topPercent/100
+		}
+		return 0
+	}
+
 	isEmpty(){
 		return !!!this.firstAtom
 	}
@@ -230,7 +238,6 @@ export default class Inline extends Component{
 			return lineHeight
 		}
 		return contentHeight
-        
 	}
 
 	freeze(){

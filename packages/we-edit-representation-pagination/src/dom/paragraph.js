@@ -302,7 +302,7 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 		const space=this.nextAvailableSpace(required)
 		if(!space)
 			return space
-		const {numbering, align,spacing:{lineHeight,top}}=this.props
+		const {numbering, align,spacing:{lineHeight, top}}=this.props
 		const bFirstLine=this.lines.length==0
 
 		const line=new this.constructor.Line({
@@ -328,7 +328,7 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 	 * @param {*} last 
 	 */
 	createComposed2Parent(line,bLastLine){
-		const {height,width, anchor, topBlock}=line
+		const {height,width, anchor, topBlock, lineTop}=line
 		const {
 			numbering,
 			indent:{left=0,right=0, firstLine=0},
@@ -352,7 +352,7 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 				>
 				<Group 
 					x={left+(bFirstLine&&!numbering&&firstLine||0)} 
-					y={topBlock} 
+					y={topBlock+lineTop} 
 					width={width} 
 					height={height}>
 					{line.render(bLastLine)}

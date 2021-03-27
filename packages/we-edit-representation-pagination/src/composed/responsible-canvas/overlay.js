@@ -22,14 +22,16 @@ export default class Overlay extends Component{
         constructor(...args){
             super(...args)
             this.state={}
+            this.target=React.createRef()
         }
         render(){
-            const {children,onStart,onMouseUp, ...props}=this.props
+            const {children, ..._props}=this.props
+            const {onStart,onMouseUp,...props}=targetEvents(_props,this.target)
             const {moving}=this.state
 
             return (
                 <Fragment>
-                    <g onMouseMove={e=>{
+                    <g ref={this.target} onMouseMove={e=>{
                         if(e.buttons==1){
                             e.stopPropagation()
                             this.setState({moving:true})
@@ -54,14 +56,16 @@ export default class Overlay extends Component{
         constructor(...args){
             super(...args)
             this.state={}
+            this.target=React.createRef()
         }
         render(){
-            const {children,onStart,onMouseUp, onMouseMove, onDoubleClick, doubleClickTimeout=200, ...props}=this.props
+            const {children, doubleClickTimeout=200, ..._props}=this.props
+            const {onStart,onMouseUp, onMouseMove, onDoubleClick,...props}=targetEvents(_props, this.target)
             const {down,x,y,lastUp=0}=this.state
 
             return (
                 <Fragment>
-                    <g onMouseDown={e=>{
+                    <g ref={this.target} onMouseDown={e=>{
                         if(e.buttons==1){
                             e.stopPropagation()
                             this.setState({down:true,x:e.clientX, y:e.clientY})
@@ -89,4 +93,24 @@ export default class Overlay extends Component{
             )
         }
     }
+}
+
+function createEvent(e, target){
+    return new Proxy(e,{
+        get(e,k){
+            if(k=="currentTarget" || k=="target")
+                return target
+            return Reflect.get(...arguments)
+        }
+    })
+}
+
+function targetEvents(props, ref){
+    return Object.keys(props).reduce((props,key)=>{
+        if(key.startsWith("on") && typeof(props[key])=="function"){
+            const func=props[key]
+            props[key]=(e,...args)=>func(createEvent(e,ref.current),...args)
+        }
+        return props
+    },props)
 }

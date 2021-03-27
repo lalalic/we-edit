@@ -41,8 +41,7 @@ export default ({Anchor})=>class __$1 extends Component{
     get geometryFn(){
         const {
             distance:{left:dl=0,right:dr=0,top:dt=0,bottom:db=0}={}, 
-            effectExtent:{left:el=0,right:er=0,top:et=0,bottom:eb=0}={},
-            width,height,
+            effectExtent1:{left:el=0,right:er=0,top:et=0,bottom:eb=0}={},
         }=this.props
         return (geometry,{x,y}={})=>{
             return {

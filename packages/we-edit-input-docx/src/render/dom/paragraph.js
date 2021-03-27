@@ -59,18 +59,18 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 	render(){
 		if(Paragraph.support('pageable')){
 			const {style:$1, hash,...props}=this.props
-			const {style:{widow,orphan=widow, ...style}, defaultStyle:{...defaultStyle}}=this.style(this.props.style,this.context.style)
+			const {style:{widow,orphan=widow, spacing,...style}, defaultStyle:{...defaultStyle}}=this.style(this.props.style,this.context.style)
 			const DocxParagraph=this.constructor.Paragraph(Paragraph)
 			return (
 				<Frame.AutoFitManager.Context.Consumer>
 					{({scale})=>{
 						if(scale){
-							console.log(`paragraph font size autofit scaled from ${defaultStyle.size} to ${defaultStyle.size=Math.floor(defaultStyle.size*parseInt(scale)/100000)}`)
+							console.debug(`paragraph font size autofit scaled from ${defaultStyle.size} to ${defaultStyle.size=Math.floor(defaultStyle.size*parseInt(scale)/100000)}`)
 						}
 						return <DocxParagraph
 							{...style}
 							{...props}
-							{...{widow,orphan,defaultStyle}}
+							{...{widow,orphan,defaultStyle, spacing:{lineHeight:"115%,15%",...spacing}}}
 							hash={`${hash}-${scale}`}
 							/>
 					}}

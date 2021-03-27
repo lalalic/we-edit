@@ -229,6 +229,7 @@ class Flow extends HasParentAndChild(dom.Frame) {
 						.filter(a=>a.width>0)
 
 					if(wrappees.length==0 || segments.find(a=>a.width>=atLeastHaveOneSegmentWidth)){
+						console.debug(`segments: ${JSON.stringify(segments)}`)
 						return {
 							/**unavailable block to contain flow content*/
 							topBlock:top-this.blockOffset,
@@ -294,6 +295,7 @@ class Flow extends HasParentAndChild(dom.Frame) {
 			}, [excludes[0]]);
 			excludes.forEach(a => delete a.x2);
 		}
+		console.debug(`exclude: ${JSON.stringify({line, excludes})}`)
 		return excludes;
 	}
     /**

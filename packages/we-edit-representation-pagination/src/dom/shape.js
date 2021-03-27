@@ -44,7 +44,7 @@ export default class extends editable(HasParentAndChild(dom.Shape)){
 					<Focusable {...{path,id, outline,fill, composedUUID:hash,transform}}>
 						{content}
 					</Focusable>
-                    <Shape {...{d:path, width:1, color:"red"}}/>
+                    {this.context.debug && <Shape {...{d:path, width:1, color:"red"}}/>}
 				</Group>
 			</Group>
 		)		
@@ -55,15 +55,9 @@ export default class extends editable(HasParentAndChild(dom.Shape)){
 		var x=0, y=0
 		if(rotate){
 			//rotate around shape center
-			const center=geometry.center(), a=center
-
+			const center=geometry.center()
 			geometry.rotate(rotate,center.x,center.y)
 			transforms.push(`rotate(${rotate} ${center.x} ${center.y})`)
-
-			//translate rotate to origin
-			const b=geometry.center()
-			geometry.translate(x=parseInt(a.x-b.x), y=parseInt(a.y-b.y))
-			//geometry.origin={x:translate.x,y:translate.y}
 		}
 
 		if(scale){

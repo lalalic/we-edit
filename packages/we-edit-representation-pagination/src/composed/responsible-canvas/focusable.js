@@ -29,7 +29,6 @@ export default compose(
 		resizable: PropTypes.arrayOf(PropTypes.object),
 		rotatable: PropTypes.shape({
 			x:PropTypes.number.isRequired,
-			y:PropTypes.number.isRequired,
 			degree: PropTypes.number,
 			center:PropTypes.shape({
 				x:PropTypes.number.isRequired,
@@ -116,11 +115,12 @@ export default compose(
 							/>,
 
 							status=="focus" && rotatable && <Rotatable {...rotatable} key="rotatable"
-								onRotate={({clientX:left,clientY:top})=>{
-									const center=rotatable.center
+								onRotate={({clientX:left,clientY:top, target})=>{
+									const center=Object.assign(target.viewportElement.createSVGPoint(),rotatable.center).matrixTransform(target.getCTM())
 									const xy=positioning.asCanvasPoint({left,top})
 									const pos=positioning.position({id,at:0})
 									const degree=Math.floor(Math.atan2(xy.x-center.x-pos.x,-(xy.y-center.y-pos.y))*180*100/Math.PI)/100
+									console.debug(`rotating ${degree}`)
 									dispatch(ACTION.Entity.UPDATE({id,type,rotate:degree<0 ? degree+360 : degree}))
 								}}
 							/>,
