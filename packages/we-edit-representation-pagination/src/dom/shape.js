@@ -40,19 +40,16 @@ export default class extends editable(HasParentAndChild(dom.Shape)){
 		const {width,height,x, y, transform}=this.transform(geometry)
 		return (
 			<Group {...{width,height,geometry}}>
-				<Group 	x={x} y={y}>{/*go back to original position for editing*/}
-					<Focusable {...{path,id, outline,fill, composedUUID:hash,transform}}>
-						{content}
-					</Focusable>
-                    {this.context.debug && <Shape {...{d:path, width:1, color:"red"}}/>}
-				</Group>
+				<Focusable {...{path,id, outline,fill, composedUUID:hash,transform}}>
+					{content}
+				</Focusable>
+				{/*not transformed: this.context.debug && <Shape {...{d:path, width:1, color:"red"}}/>*/}
 			</Group>
 		)		
 	}
 
 	transform(geometry){
 		const {rotate, scale, transforms=[], outline={}}=this.props
-		var x=0, y=0
 		if(rotate){
 			//rotate around shape center
 			const center=geometry.center()
@@ -66,6 +63,6 @@ export default class extends editable(HasParentAndChild(dom.Shape)){
 		}
 
 		const {width,height}=geometry.size(outline.width)
-		return {width,height,geometry,x, y,transform:transforms.join(" ")}
+		return {width,height,geometry,transform:transforms.join(" ")}
 	}
 }

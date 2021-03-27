@@ -24,14 +24,14 @@ export default class Anchor extends HasParentAndChild(dom.Anchor){
     createComposed2Parent(content){
         const {geometry: contentGeometry}=content?.props||{}
         const {x:X, y:Y,wrap:{mode, geometry:anchorGeometry, geometryFn=(a,{x,y})=>a?.clone().translate(x,y)}}=this.props
+        const _geometry=contentGeometry||anchorGeometry
+        const size=_geometry?.size()||{x:0,y:0}
         return (
             <Group children={content}
                 anchor={space=>{
-                    const size=this.getSize(contentGeometry||anchorGeometry)
-                    var x=space.anchor({align:"left",...X},size,space)
-                    var y=space.anchor({align:"top",...Y},size,space)
-                    const rawGeometry=contentGeometry||anchorGeometry
-                    const geometry=geometryFn(rawGeometry, {x,y})
+                    const x=space.anchor({align:"left",...X},size,space)
+                    const y=space.anchor({align:"top",...Y},size,space)
+                    const geometry=geometryFn(_geometry, {x,y})
                     
                     const wrapFunc=(fn=>{
                         if(typeof(this.props.wrap)=="function"){
@@ -39,16 +39,17 @@ export default class Anchor extends HasParentAndChild(dom.Anchor){
                         }
                         return fn ? line=>fn.call(this, line, geometry?.clone()) : null
                     })(this[mode]);
+                    const {left=0,right=0,top=0,bottom=0}=geometry?.bounds()||{}
                     return (
                         <Group {...{
                             x,y,
                             wrap:wrapFunc,
-                            geometry:{x,y,...this.getSize(geometry)},
+                            geometry:{x:left,y:top,width:right-left,height:bottom-top},
                             "data-content":this.props.id,"data-type":this.getComposeType()}}
                             children={
                                 <Fragment>
                                     {content}
-                                    {this.context.debug && <Shape {...{d:rawGeometry.toString(), fill:"none", color:"green"}}/>}
+                                    {/*wrap geometry: this.context.debug && <Shape {...{d:_geometry?.toString(), fill:"none", color:"green"}}/>*/}
                                 </Fragment>
                                 
                             }
