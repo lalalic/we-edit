@@ -41,20 +41,19 @@ export default ({Anchor})=>class __$1 extends Component{
     get geometryFn(){
         const {
             distance:{left:dl=0,right:dr=0,top:dt=0,bottom:db=0}={}, 
-            effectExtent1:{left:el=0,right:er=0,top:et=0,bottom:eb=0}={},
         }=this.props
         return (geometry,{x,y}={})=>{
             return {
                 geometry:geometry.clone().translate(x,y),
                 bounds(){
                     const {left,right,top,bottom}=this.geometry.bounds()
-                    return {left:left-dl-el,right:right+dr+er,top:top-dt-et,bottom:bottom+db+eb}
+                    return {left:left-dl,right:right+dr,top:top-dt,bottom:bottom+db}
                 },
 
                 intersects(){
                     const segs=this.geometry.intersects(...arguments)
-                    segs.length>0 && (segs[0].x-=(dl+el));
-                    segs.length>1 && (segs[segs.length-1].x+=(dr+er));
+                    segs.length>0 && (segs[0].x-=dl);
+                    segs.length>1 && (segs[segs.length-1].x+=dr);
                     return segs
                 },
 
