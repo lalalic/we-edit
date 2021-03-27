@@ -32,7 +32,7 @@
   },
   "optionalDependencies": {
     "cheerio": "^0.22.0",
-    "docx4js": "^3.2.16",
+    "docx4js": "^3.2.17",
     "fetchable": "^1.0.4",
     "fontkit": "^1.8.0",
     "get-system-fonts": "^1.0.0",
