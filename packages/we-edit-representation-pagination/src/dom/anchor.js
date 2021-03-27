@@ -16,11 +16,6 @@ export default class Anchor extends HasParentAndChild(dom.Anchor){
         super.onAllChildrenComposed()
     }
 
-    getSize(geometry){
-        const {left=0,right=0,top=0,bottom=0,width=right-left,height=bottom-top}=geometry?.bounds()||{}
-        return {width,height}
-    }
-
     createComposed2Parent(content){
         const {geometry: contentGeometry}=content?.props||{}
         const {x:X, y:Y,wrap:{mode, geometry:anchorGeometry, geometryFn=(a,{x,y})=>a?.clone().translate(x,y)}}=this.props
