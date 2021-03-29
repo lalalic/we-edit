@@ -13,19 +13,16 @@ export default class DropdownButton extends Component{
 			children, labelStyle={fontSize:"xx-small"},
 			status, onClick=toggle, ...props}=this.props
 		
-		let menus=null
-		if(open){
-			menus=(
-				<Popover 
-					open={true} 
-					anchorEl={anchor}
-					onRequestClose={e=>this.setState({open:false})}>
-					<Menu onItemTouchTap={e=>this.setState({open:false})}>
-						{children}
-					</Menu>
-				</Popover>
-			)
-		}
+		const menus=open && (
+			<Popover 
+				open={true} 
+				anchorEl={anchor}
+				onRequestClose={e=>this.setState({open:false})}>
+				<Menu onClick={e=>this.setState({open:false})}>
+					{children}
+				</Menu>
+			</Popover>
+		)
 		return (
 			<span style={{whiteSpace:"nowrap"}}>
 				<SizeIconButton onClick={onClick} {...props} status={status}>

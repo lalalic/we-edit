@@ -30,4 +30,7 @@ export default class Shape extends Component{
 			bottom:0,
 		}
 	}
+
+	static OverlayWhenMouseDown="WhenMouseDown"
+	static OverlayWhenMouseMove="WhenMouseMove"
 }

@@ -67,7 +67,7 @@ export default{
     },
 
     __create_image_in_run(run, ...args){
-        const editor=new Image(this)
+        const editor=new Image.Inline(this)
         editor.create(...args)
         run.append(editor.node.closest("w\\:drawing"))
         const {id}=this.file.renderChanged(run)
@@ -257,8 +257,8 @@ export default{
         this.$target.before($toc)
     },
 
-    create_textbox({paragraph:p,run, ...props}){
-        const editor=new TextBox(this)
+    create_textbox({paragraph:p,run, geometry, ...props}){
+        const editor=new TextBox.Anchor(this)
         const paragraph=this.file.getNode(p)
         editor.create({})
         if(run){
@@ -275,7 +275,31 @@ export default{
         const cursor=this.$('#'+id).find('shape').attr('id')
         this.cursorAt(cursor,0)
         editor.node=this.target
-        editor.update(props)
+        const size=geometry.size()
+        editor.update({size,...props})
+        this.file.renderChanged(this.file.getNode(id))
+    },
+
+    create_shape({paragraph:p,run,geometry,...props}){
+        const editor=new Shape.Anchor(this)
+        const paragraph=this.file.getNode(p)
+        editor.create({name:"shape"})
+        if(run){
+            this.file.getNode(run).after(editor.node)
+        }else{
+            paragraph.prepend(editor.node)
+            paragraph.find('>w\\:pPr').before(editor.node)
+        }
+        
+        editor.node.prepend(paragraph.find('>w\\:pPr>w\\:rPr').clone())
+
+        this.file.renderChanged(paragraph)
+        const id=this.file.makeId(editor.node)
+        const cursor=this.$('#'+id).find('shape').attr('id')
+        this.cursorAt(cursor,0)
+        editor.node=this.target
+        const size=geometry.size()
+        editor.update({size,...props})
         this.file.renderChanged(this.file.getNode(id))
     }
 }

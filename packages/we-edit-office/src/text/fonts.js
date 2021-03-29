@@ -67,7 +67,7 @@ export default class FontList extends React.Component{
 	}
 
 	getMenuItems(){
-		const {state:{fonts, filter},props:{value}}=this
+		const {state:{fonts, filter},props:{value, changeFont}}=this
 		return Array.from(new Set(fonts.map(({family})=>family))).sort()
 			.reduce((menus, a)=>{
 				if(filter && !a.startsWith(filter)){
@@ -103,7 +103,7 @@ export default class FontList extends React.Component{
 									e.currentTarget.click()
 								},
 								onMouseLeave:(e)=>{
-									this.menu.current.refs.focusedMenuItem.setState({open:false,anchorEl:null})
+									//this.menu.current.refs.focusedMenuItem.setState({open:false,anchorEl:null})
 								},
 								menuItems:[React.cloneElement(last.value,{primaryText:"Regular"}),item],
 							})

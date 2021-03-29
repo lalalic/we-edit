@@ -8,9 +8,8 @@ import Field from "./field"
 import TOC from "./toc"
 import TOA from "./toa"
 import * as DocxTabs from "./tabs"
-import {parseFile} from "./developer"
-import TextBox from "./shape/text-box"
-
+import {parseFile, anchor} from "./util"
+import {shapes,textbox} from "./shape"
 
 import Canvas from "../representation/canvas"
 
@@ -30,16 +29,19 @@ export default (
         toolBar={
             <Ribbon.Ribbon commands={{
                 insert:{
+                    shape:false,
                     more:(
                     <Fragment>
                         <Field/>
                         <TOC/>
                         <Ribbon.ToolbarSeparator/>
                         <TOA/>
-                        <ToolbarGroup>
-                            <TextBox/>
-                        </ToolbarGroup>
-                        
+                        <Ribbon.Shape 
+                            anchor={anchor}
+                            shapes={shapes}
+                            >
+                            {textbox}
+                        </Ribbon.Shape>
 
                       {/*  
                       <ToolbarGroup>

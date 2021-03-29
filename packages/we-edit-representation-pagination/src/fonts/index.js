@@ -345,6 +345,8 @@ function extend(font, props={}){
 		},
 
         stringWidth(string,fontSize){
+            if(this.isMonospace)
+                return this.monoWidth*fontSize
             return this.layout(string).advanceWidth/this.unitsPerEm * fontSize
         },
 

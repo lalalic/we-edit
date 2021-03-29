@@ -8,28 +8,23 @@ export default class Editor{
         return this.file.doc.officeDocument.content(...arguments)
     }
 
-	//find pr, if no,create it
+	/**
+     * find or create a>b>c>d
+     * @param {*} nodeName 
+     * @param {*} tagContent 
+     * @param {*} tagPr 
+     * @returns 
+     */
 	got(nodeName,tagContent, tagPr){
-		const contentSelector=tagContent.replace(":", "\\:")
-		const prSelector=tagPr.replace(":", "\\:")
-
-		const content=this.node.closest(contentSelector)
-		let pr=content.children(prSelector)
-		if(pr.length==0){
-			content.prepend(`<${tagPr}/>`)
-			pr=content.children(prSelector)
-        }
-        
-        if(!nodeName)
-            return pr
-
-		const selector=nodeName.replace(":", "\\:")
-		let target=pr.children(selector)
-		if(target.length==0){
-			pr.append(`<${nodeName}/>`)
-			target=pr.children(selector)
-		}
-		return target
+        const selectors=[tagContent,tagPr,nodeName].filter(a=>!!a).join(">")
+        const [first,...nodes]=selectors.split(">")
+        const elFirst=this.node.find(first.replace(":","\\:")).eq(0)
+        return nodes.reduce((current,node)=>{
+            let next=current.children(node.replace(":","\\:")).eq(0)
+            if(next.length)
+                return next
+            return current.append(`<${node}/>`).children().last()
+        },elFirst)
 	}
 
 	trim(xml){

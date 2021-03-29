@@ -53,6 +53,16 @@ docx:
 * topBlock makes inline layout confusion, spaceTopBlock, lineTopBlock: can topBlock concept be removed?
 * exclusive space of wrappee => available inline segments, is it possible to calc available space directly from space?
 * findInlineSegments() should support minimum inline size to support big wrapper hold whole line[done]
+* focusable is heavy
+* fixed font width measure
+* font id on composed text for quick emitter
+* bold and italic font selection, and how to utilize font variation
+* uniform missing font in editor
+* make editor default support shape, and make we-edit-office support it
+* more precise path and line intersects
+* underline should be considered in a line
+* draw shape for we-edit-office
+* enter in docx problem
 * **Positioning NOT rely on composer.computed.lastComposed**
     * it's heavy to maintain composers vs composed
         * template
@@ -65,6 +75,7 @@ docx:
 
 * mono width font, such as chinese font
 * text fonts maybe a few for different 
+* we-edit-office.fonts nested fonts display problem
 
 # Notes
 * immutable 4.0 would deadloop

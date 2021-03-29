@@ -13,6 +13,7 @@ import File from "./file"
 import History from "./history"
 import Clipboard from "./clipboard"
 import Recorder from "./record"
+import Shape from "./shape"
 
 import * as Table from "./table"
 import * as Picture from "./picture"
@@ -98,6 +99,7 @@ const Ribbon=compose(
 			insert:{
 				table:<Table.Create><ToolbarSeparator/></Table.Create>,
 				picture:<Picture.Tools><ToolbarSeparator/></Picture.Tools>,
+				shape:<Shape><ToolbarSeparator/></Shape>
 			},
 			layout:{
 				basic:<Layout.Tools/>
@@ -155,6 +157,7 @@ const Ribbon=compose(
 						<Toolbar>
 							{insert.table}
 							{insert.picture}
+							{insert.shape}
 							{insert.more}
 						</Toolbar>
 					</Tab>}
@@ -187,4 +190,4 @@ const Ribbon=compose(
 
 export default Ribbon
 
-export {Ribbon, Clipboard, ContextMenuSupport, Text, Paragraph,File,History,Table,Picture,Layout,Developer,Recorder, Toolbar, ToolbarSeparator, Tabs, Tab, CheckIconButton,DropDownButton}
+export {Ribbon, Clipboard, ContextMenuSupport, Text, Paragraph,File,History,Table,Picture,Layout,Developer,Recorder,Shape, Toolbar, ToolbarSeparator, Tabs, Tab, CheckIconButton,DropDownButton}

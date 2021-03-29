@@ -11,7 +11,7 @@ import DefineShapes from "./define-shapes"
 import SelectionStyle from "./selection-style"
 import Pilcrow from "./pilcrow"
 import SelectionStyleNotify from "./selection-style-notify"
-import DrawCanvas from "./draw-canvas"
+import DrawLayer from "./draw-layer"
 import ScaleNotify from "./scale-notify"
 
 /**
@@ -208,7 +208,7 @@ class Responsible extends Component{
                         <SelectionShape ref={"selecting"}/>
                     </Selection>
 				</Fragment>
-                <DrawCanvas/>
+                <DrawLayer/>
             </Canvas>
         )
     }
