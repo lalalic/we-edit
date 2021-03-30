@@ -86,6 +86,7 @@ export default (
                 <Field/>
                 <Ribbon.Text/>
                 <Ribbon.Paragraph/>
+                <Ribbon.Shape/>
             </ContextMenu>
         }
     >

@@ -1,32 +1,48 @@
 import React,{Fragment, PureComponent} from "react"
-
+import PropTypes from "prop-types"
 import {ACTION, whenSelectionChangeDiscardable,dom} from "we-edit"
 import {Path, Composed} from "we-edit-representation-pagination"
-import {ToolbarGroup, SvgIcon} from "material-ui"
+import {ToolbarGroup, SvgIcon, MenuItem} from "material-ui"
 import IconShape from "material-ui/svg-icons/editor/show-chart"
 import memoize from "memoize-one"
 
 import {compose,setDisplayName} from "recompose"
 
 import DropDownButton from "../components/drop-down-button"
+import ContextMenu from "../components/context-menu"
+import Setting from "./panel"
 
 const {Shape}=dom, IconGeometry=Object.freeze(Path.fromRect({width:24,height:24}))
 export default compose(
     setDisplayName("DrawShape"),
-    whenSelectionChangeDiscardable(),
+    whenSelectionChangeDiscardable(({selection})=>{
+		if(selection){
+            const shape=selection.props("shape",false)
+            const image=selection.props("image",false)
+			return {style:image||shape, type:image ? "Image" : "Shape"}
+        }
+		return {}
+	}),
 )(class DrawShape extends PureComponent{
+    static contextTypes = {
+        panelManager: PropTypes.any,
+    }
     render(){
-        const {props:{children, shapes=[], defaultShape}}=this
+        const {props:{children, shapes=[], defaultShape, style, type}}=this
         return (
-            <ToolbarGroup>
-                <DropDownButton hint="draw shape" icon={<IconShape/>}
-                    onClick={defaultShape ? e=>this.send(defaultShape) : null}>
-                    {this.shapes(shapes)}
-                </DropDownButton>
-                {React.Children.toArray(children).map((a,key)=>{
-                    return React.cloneElement(a,{key,onClick:e=>this.send(a.props.create),create:undefined})
-                })}
-            </ToolbarGroup>
+            <ContextMenu.Support menus={!style ? null :
+                <MenuItem primaryText={`Format ${type}...`} onClick={e=>this.context.panelManager.toggle(Setting.panel)}/>
+            }>
+                <ToolbarGroup>
+                    <DropDownButton hint="draw shape" icon={<IconShape/>}
+                        onClick={defaultShape ? e=>this.send(defaultShape) : null}>
+                        {this.shapes(shapes)}
+                    </DropDownButton>
+                    {React.Children.toArray(children).map((a,key)=>{
+                        return React.cloneElement(a,{key,onClick:e=>this.send(a.props.create),create:undefined})
+                    })}
+                </ToolbarGroup>
+            </ContextMenu.Support>
         )
     }
 
