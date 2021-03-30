@@ -24,6 +24,7 @@ export default ({Shape, Frame, Template})=>class __$1 extends Component{
         const {
             children:frame, 
             xfrm:{width,height, rotate},
+            geometry,
             ln:{w:lineWidth=0,solidFill:color="black", gradFill:lnGradFill, noFill,...outline}={},
             bodyPr:{lIns:left=0,rIns:right=0,bIns:bottom=0,tIns:top=0}={},
             pattFill,blipFill,gradFill,solidFill,
@@ -42,7 +43,7 @@ export default ({Shape, Frame, Template})=>class __$1 extends Component{
         return (
             <Shape {...{
                     id,hash,
-                    geometry:Shape.Path.fromRect({width,height}).toString(),
+                    geometry:this.getGeometry(geometry,{width,height}),
                     outline:{
                         color, 
                         width:lineWidth,
@@ -70,6 +71,12 @@ export default ({Shape, Frame, Template})=>class __$1 extends Component{
                 return <Shape.AutoFitManager><Shape {...this.props}/></Shape.AutoFitManager>
             }
         }
+    }
+
+    getGeometry(geometry,size){
+        if(-1!=geometry.trim().indexOf(" "))
+            return geometry
+        return Shape.Path.fromRect(size).toString()
     }
 
     shapeLine({cap, miter, bevel, round, }){

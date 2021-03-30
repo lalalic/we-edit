@@ -5,6 +5,11 @@ import {Group,Shape} from "../composed"
 import Focusable from "../composed/responsible-canvas/focusable"
 
 import {HasParentAndChild,editable} from "../composable"
+
+/**
+ * Shape default layouted as inline mode, in which left&top will keep unchanged after transformation
+ * anchor mode is different, so anchor should adjust shape according to geometry
+ */
 export default class extends editable(HasParentAndChild(dom.Shape)){
 	static Path=Path
 	focusable=true
@@ -37,12 +42,14 @@ export default class extends editable(HasParentAndChild(dom.Shape)){
 			geometry.verticalExtend(content.props.height-autofitHeight)
 		}
 		const path=geometry.toString()
-		const {width,height,x, y, transform}=this.transform(geometry)
+		const {width,height,x,y,transform}=this.transform(geometry)
 		return (
 			<Group {...{width,height,geometry}}>
-				<Focusable {...{path,id, outline,fill, composedUUID:hash,transform,editableSpots}}>
-					{content}
-				</Focusable>
+				<Group {...{x,y,'data-inline':"on"}}>
+					<Focusable {...{path,id, outline,fill, composedUUID:hash,transform,editableSpots}}>
+						{content}
+					</Focusable>
+				</Group>
 				{/*not transformed: this.context.debug && <Shape {...{d:path, width:1, color:"red"}}/>*/}
 			</Group>
 		)		
@@ -50,6 +57,7 @@ export default class extends editable(HasParentAndChild(dom.Shape)){
 
 	transform(geometry){
 		const {rotate, scale, transforms=[], outline={}}=this.props
+		const a=geometry.bounds()
 		if(rotate){
 			//rotate around shape center
 			const center=geometry.center()
@@ -61,8 +69,9 @@ export default class extends editable(HasParentAndChild(dom.Shape)){
 			geometry.scale(scale)
 			transforms.push(`scale(${scale})`)
 		}
+		const b=geometry.bounds()
 
 		const {width,height}=geometry.size(outline.width)
-		return {width,height,geometry,transform:transforms.join(" ")}
+		return {width,height,geometry,transform:transforms.join(" "), x:a.left-b.left, y:a.top-b.top}
 	}
 }

@@ -1,6 +1,6 @@
-import Base from "./base"
+import Shape from "./shape"
 
-export class Image extends Base{
+export class Image extends Shape.Inline{
     apply({data, mime, ...props}){
         if(this.node.prop('name')!=='pic:pic'){
             this.node=this.node.find("pic\\:pic")
@@ -77,49 +77,5 @@ export class Image extends Base{
         this.node
             .find("pic\\:cNvPr")
             .attr("name", name)
-    }
-
-    /**
-     * must: (id, name) in docPr and cNvPicPr, rid in a:blip
-     * @param {*} props 
-     */
-    template(props){
-        return `
-        <w:drawing>
-          <wp:inline distT="0" distB="0" distL="0" distR="0">
-            <wp:extent cx="1636295" cy="920416"/>
-            <wp:effectExtent l="0" t="0" r="0" b="0"/>
-            <wp:docPr id="1" name="Picture 1"/>
-            <wp:cNvGraphicFramePr>
-              <a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/>
-            </wp:cNvGraphicFramePr>
-            <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
-              <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
-                <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
-                  <pic:nvPicPr>
-                    <pic:cNvPr/>
-                    <pic:cNvPicPr id="1" name="unknown"/>
-                  </pic:nvPicPr>
-                  <pic:blipFill>
-                    <a:blip r:embed="rId9"/>
-                    <a:stretch>
-                      <a:fillRect/>
-                    </a:stretch>
-                  </pic:blipFill>
-                  <pic:spPr>
-                    <a:xfrm>
-                      <a:off x="0" y="0"/>
-                      <a:ext cx="1636295" cy="920416"/>
-                    </a:xfrm>
-                    <a:prstGeom prst="rect">
-                      <a:avLst/>
-                    </a:prstGeom>
-                  </pic:spPr>
-                </pic:pic>
-              </a:graphicData>
-            </a:graphic>
-          </wp:inline>
-        </w:drawing>
-        `
     }
 }

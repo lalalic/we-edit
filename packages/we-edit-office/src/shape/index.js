@@ -15,16 +15,12 @@ export default compose(
     setDisplayName("DrawShape"),
     whenSelectionChangeDiscardable(),
 )(class DrawShape extends PureComponent{
-    constructor(){
-        super(...arguments)
-        this.scrible=this.scrible.bind(this)
-        this.scrible.props={route:true}
-    }
     render(){
-        const {props:{children, shapes=[]}}=this
+        const {props:{children, shapes=[], defaultShape}}=this
         return (
             <ToolbarGroup>
-                <DropDownButton hint="draw shape" icon={<IconShape/>} onClick={e=>this.send(this.scrible)}>
+                <DropDownButton hint="draw shape" icon={<IconShape/>}
+                    onClick={defaultShape ? e=>this.send(defaultShape) : null}>
                     {this.shapes(shapes)}
                 </DropDownButton>
                 {React.Children.toArray(children).map((a,key)=>{
@@ -76,21 +72,6 @@ export default compose(
                 }}
             </Shape.OverlayWhenMouseDown>
             )
-        }))
-    }
-
-    scrible({motionRoute:geometry},{positioning,dispatch,anchor}={}){
-        if(!positioning)
-            return <Shape {...{geometry:geometry.toString(), outline:{width:1,color:"green"}}}/>
-        const {left,top,right,bottom,width=right-left,height=bottom-top}=geometry.bounds()
-        if(Math.abs(width*height)<1){
-            return 
-        }
-        dispatch(ACTION.Entity.CREATE({
-            type:'shape',kind:'scrible',
-            geometry,
-            size:{width,height}, 
-            ...anchor({x:left,y:top},positioning),
         }))
     }
 })

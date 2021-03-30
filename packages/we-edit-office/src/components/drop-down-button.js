@@ -25,7 +25,7 @@ export default class DropdownButton extends Component{
 		)
 		return (
 			<span style={{whiteSpace:"nowrap"}}>
-				<SizeIconButton onClick={onClick} {...props} status={status}>
+				<SizeIconButton onClick={onClick||toggle} {...props} status={status}>
 					{icon}
 				</SizeIconButton>
 				{false && (<span style={labelStyle} onClick={onClick}>{label}</span>)}

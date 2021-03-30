@@ -7,7 +7,7 @@ export default class Rotatable extends Component{
 		cursor: PropTypes.string,
 		/**Rotator x,y, r[adius], degree: current value */
 		x:PropTypes.number.isRequired,
-		y: PropTypes.number,
+		y:PropTypes.number.isRequired,
 		r:PropTypes.number,
 		degree: PropTypes.number,
 
@@ -28,7 +28,7 @@ export default class Rotatable extends Component{
 			state:{rotating}, 
 			context:{precision=1},
 			props:{
-				r=12,x,y,cursor="crosshair", degree=0, style,
+				r=12,x,cursor="crosshair", degree=0, style,
 				onEnd, onRotate, onStart,onRotatorMouseDown,
 				rotator={
 					width:2*r*precision,height:2*r*precision,
@@ -46,21 +46,15 @@ export default class Rotatable extends Component{
 			<Overlay.WhenMousePressedMove
 				style={{cursor}}
 				onStart={e=>{
-					e.stopPropagation()
 					this.setState({rotating:true})
-					if(onStart)
-						onStart(e)
+					onStart && onStart(e)
 				}}
 				onMouseUp={e=>{
-					e.stopPropagation()
 					this.setState({rotating:false})
-					if(onEnd)
-						onEnd(e,)
+					onEnd && onEnd({degree:this.getDegree(e)})
 				}}
-				onMouseMove={e=>{
-					e.stopPropagation()
-					onRotate(e)
-				}}>
+				onMouseMove={e=>onRotate({degree: this.getDegree(e)})}
+				>
 				{rotating && <text x={x/precision} y={-20} pointerEvents="none" transform={`scale(${precision})`}>
 					{parseInt(degree)}
 					<tspan y={-30} fontSize="x-small">o</tspan>
@@ -68,5 +62,12 @@ export default class Rotatable extends Component{
 				<use xlinkHref="#rotator" {...rotator} />
 			</Overlay.WhenMousePressedMove>
 		)
+	}
+
+	getDegree(e){
+		const {props:{x,y},context:{precision=1}}=this
+		const {left,right,top,bottom}=e.motionRect
+		const dx=(right-left)/precision,dy=(bottom-top)/precision
+		return Math.floor(Math.atan2(x+dx,y-dy)*180*100/Math.PI)/100
 	}
 }

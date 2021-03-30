@@ -1,8 +1,8 @@
 import React, { Fragment } from "react"
-import {Group, Shape} from "../composed"
+import {Group} from "../composed"
 
 import {HasParentAndChild} from "../composable"
-import {dom} from "we-edit"
+import {dom,ReactQuery} from "we-edit"
 
 /**
 * xy for Positioning
@@ -41,19 +41,19 @@ export default class Anchor extends HasParentAndChild(dom.Anchor){
                             wrap:wrapFunc,
                             geometry:{x:left,y:top,width:right-left,height:bottom-top},
                             "data-content":this.props.id,"data-type":this.getComposeType()}}
-                            children={
-                                <Fragment>
-                                    {content}
-                                    {/*wrap geometry: this.context.debug && <Shape {...{d:_geometry?.toString(), fill:"none", color:"green"}}/>*/}
-                                </Fragment>
-                                
-                            }
+                            children={this.fromInlineMode2AnchorMode(content)}
                             />
                     )
                 }
             }
             />
         )
+    }
+
+    fromInlineMode2AnchorMode(content){
+        const $=new ReactQuery(content)
+        const inline=$.findFirst('[data-inline]').get(0)
+        return $.replace(inline,inline.props.children).get(0)
     }
 
     /**

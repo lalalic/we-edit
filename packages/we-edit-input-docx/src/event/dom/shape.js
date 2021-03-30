@@ -62,6 +62,44 @@ export default class __$1 extends Base{
         }
     }
 
+    geometry(geometry,{kind,size:{width:w,height:h}}){
+        switch(kind){
+            case "closedScribble":
+            case "scribble":{
+                this.got("wps:spPr>a:prstGeom").remove()
+                this.got("wps:spPr>a:custGeom")
+                "avLst,gdLst,ahLst,cxnLst,pathLst".split(",").forEach(a=>this.got(`a:custGeom>a:${a}`));
+                this.got("a:custGeom>a:rect").attr({l:'l',r:'r',b:'b',t:'t'})
+                const path=this.got('a:pathLst>a:path').attr({w:this.file.px2emu(w),h:this.file.px2emu(h)})
+                const segments=geometry.segments.map(([command,a,b,c,d,e,f])=>{
+                    switch(command){
+                        case 'M':
+                            return `<a:moveTo><a:pt x="${this.file.px2emu(a)}" y="${this.file.px2emu(b)}"/></a:moveTo>`
+                        case 'L':
+                            return `<a:lnTo><a:pt x="${this.file.px2emu(a)}" y="${this.file.px2emu(b)}"/></a:lnTo>`
+                        case 'Q':
+                            return `<a:cubicBezTo>
+                                <a:pt x="${this.file.px2emu(a)}" y="${this.file.px2emu(b)}"/>
+                                <a:pt x="${this.file.px2emu(c)}" y="${this.file.px2emu(d)}"/>
+                                <a:pt x="${this.file.px2emu(e)}" y="${this.file.px2emu(f)}"/>
+                            </a:cubicBezTo>`
+                        case 'A':
+                            return `<a:arcTo/>`
+                        case 'Z':
+                            return `<a:close/>`
+                    }
+                })
+                if(kind=="closedScribble")
+                    segments.push("<a:close/>")
+                path.append(segments.join(""))
+
+            }
+            default:{
+                this.got("wps:wsp>wps:spPr>a:prstGeom").attr('prst',kind)
+            }
+        }
+    }
+
     static Anchor=class Anchor extends this{
         template({offset:{x=0,y=0}={},size:{width=0,height=0}={},id,name}={}){
             ({id,name}=(a=>{
@@ -165,25 +203,25 @@ export default class __$1 extends Base{
                 <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
                 <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
                     <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
-                    <pic:nvPicPr>
-                        <pic:cNvPr/>
-                        <pic:cNvPicPr/>
-                    </pic:nvPicPr>
-                    <pic:blipFill>
-                        <a:blip r:embed="rId9"/>
-                        <a:stretch>
-                        <a:fillRect/>
-                        </a:stretch>
-                    </pic:blipFill>
-                    <pic:spPr>
-                        <a:xfrm>
-                        <a:off x="0" y="0"/>
-                        <a:ext cx="1636295" cy="920416"/>
-                        </a:xfrm>
-                        <a:prstGeom prst="rect">
-                        <a:avLst/>
-                        </a:prstGeom>
-                    </pic:spPr>
+                        <pic:nvPicPr>
+                            <pic:cNvPr/>
+                            <pic:cNvPicPr/>
+                        </pic:nvPicPr>
+                        <pic:blipFill>
+                            <a:blip r:embed="rId9"/>
+                            <a:stretch>
+                                <a:fillRect/>
+                            </a:stretch>
+                        </pic:blipFill>
+                        <pic:spPr>
+                            <a:xfrm>
+                                <a:off x="0" y="0"/>
+                                <a:ext cx="1636295" cy="920416"/>
+                            </a:xfrm>
+                            <a:prstGeom prst="rect">
+                                <a:avLst/>
+                            </a:prstGeom>
+                        </pic:spPr>
                     </pic:pic>
                 </a:graphicData>
                 </a:graphic>

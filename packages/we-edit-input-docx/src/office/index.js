@@ -9,7 +9,7 @@ import TOC from "./toc"
 import TOA from "./toa"
 import * as DocxTabs from "./tabs"
 import {parseFile, anchor} from "./util"
-import {shapes,textbox} from "./shape"
+import {shapes,textbox, defaultShape} from "./shape"
 
 import Canvas from "../representation/canvas"
 
@@ -39,6 +39,7 @@ export default (
                         <Ribbon.Shape 
                             anchor={anchor}
                             shapes={shapes}
+                            defaultShape={defaultShape}
                             >
                             {textbox}
                         </Ribbon.Shape>

@@ -26,15 +26,8 @@ export default compose(
 )(class Focusable extends Component{
 	static propTypes={
 		path: PropTypes.string.isRequired,
-		resizable: PropTypes.arrayOf(PropTypes.object),
-		rotatable: PropTypes.shape({
-			x:PropTypes.number.isRequired,
-			degree: PropTypes.number,
-			center:PropTypes.shape({
-				x:PropTypes.number.isRequired,
-				y:PropTypes.number.isRequired,
-			}),
-		}),
+		resizable: PropTypes.bool,
+		rotatable: PropTypes.bool,
 		movable: PropTypes.bool,
 		id:PropTypes.string,
 	}
@@ -68,29 +61,36 @@ export default compose(
 		this.state={}
 	}
 
+	getRotatable(transform){
+		const [degree=0,x=0,y=0]=/rotate\s*\((.*?)\)/gi.exec(transform||"")?.[1].split(/[\s,]/).map(parseFloat)||[]
+		return {x,y,degree}
+	}
+
+	getResizable(geometry,width,height){
+		return [//default for rect[width,height]
+			{x:0,y:0,direction:"nwse"},
+			{x:width/2,y:0,direction:"ns",},
+			{x:width,y:0,direction:"nesw"},
+			{x:width,y:height/2,direction:"ew"},
+			{x:width,y:height,direction:"-nwse"},
+			{x:width/2,y:height,direction:"-ns"},
+			{x:0,y:height,direction:"-nesw"},
+			{x:0,y:height/2,direction:"-ew"},
+			...this.getEditableSpots(geometry).map(a=>({style:{fill:"yellow"},...a})),
+		] 
+	}
+
 	render(){
 		const {
 			props:{
-				path, selection, children, 
+				path,children, 
 				transform,dispatch,id,
 				outline, fill,
 
-				positioning=selection.positioning,
 				geometry=new Path(path),
-				center=geometry.center(),
 				size:{width,height}=geometry.size(),
-				resizable=[//default for rect[width,height]
-					{x:0,y:0,direction:"nwse"},
-					{x:width/2,y:0,direction:"ns",},
-					{x:width,y:0,direction:"nesw"},
-					{x:width,y:height/2,direction:"ew"},
-					{x:width,y:height,direction:"-nwse"},
-					{x:width/2,y:height,direction:"-ns"},
-					{x:0,y:height,direction:"-nesw"},
-					{x:0,y:height/2,direction:"-ew"},
-					...this.getEditableSpots(geometry).map(a=>({style:{fill:"yellow"},...a})),
-				],
-				rotatable={...center,center,degree:parseInt(/rotate\((\d+)/gi.exec(transform||"")?.[1])||0},
+				resizable=this.getResizable(geometry,width,height),
+				rotatable=this.getRotatable(transform),
 				movable=true,
 			},
 			context:{editable,precision=1},
@@ -116,12 +116,7 @@ export default compose(
 							/>,
 
 							status=="focus" && rotatable && <Rotatable {...rotatable} key="rotatable"
-								onRotate={({clientX:left,clientY:top, target})=>{
-									const center=Object.assign(target.viewportElement.createSVGPoint(),rotatable.center).matrixTransform(target.getCTM())
-									const xy=positioning.asCanvasPoint({left,top})
-									const pos=positioning.position({id,at:0})
-									const degree=Math.floor(Math.atan2(xy.x-center.x-pos.x,-(xy.y-center.y-pos.y))*180*100/Math.PI)/100
-									console.debug(`rotating ${degree}`)
+								onRotate={({degree})=>{
 									dispatch(ACTION.Entity.UPDATE({id,type,rotate:degree<0 ? degree+360 : degree}))
 								}}
 							/>,

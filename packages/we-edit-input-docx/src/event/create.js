@@ -67,7 +67,7 @@ export default{
     },
 
     __create_image_in_run(run, ...args){
-        const editor=new Image.Inline(this)
+        const editor=new Image(this)
         editor.create(...args)
         run.append(editor.node.closest("w\\:drawing"))
         const {id}=this.file.renderChanged(run)
@@ -299,7 +299,7 @@ export default{
         this.cursorAt(cursor,0)
         editor.node=this.target
         const size=geometry.size()
-        editor.update({size,...props})
+        editor.update({size,geometry,...props})
         this.file.renderChanged(this.file.getNode(id))
     }
 }
