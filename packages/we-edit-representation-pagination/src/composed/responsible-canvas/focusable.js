@@ -88,6 +88,7 @@ export default compose(
 					{x:width/2,y:height,direction:"-ns"},
 					{x:0,y:height,direction:"-nesw"},
 					{x:0,y:height/2,direction:"-ew"},
+					...this.getEditableSpots(geometry).map(a=>({style:{fill:"yellow"},...a})),
 				],
 				rotatable={...center,center,degree:parseInt(/rotate\((\d+)/gi.exec(transform||"")?.[1])||0},
 				movable=true,
@@ -126,7 +127,7 @@ export default compose(
 							/>,
 
 							status=="focus" && resizable && <Resizable spots={resizable} key="resizable"
-								onResize={({x,y})=>{
+								onResize={({x,y,control})=>{
 									let size=null
 									if(y===undefined){
 										size={width:width/precision+x}
@@ -136,7 +137,7 @@ export default compose(
 										const scale=1+Math.max(Math.abs(x*precision)/width,Math.abs(y*precision)/height)*x/Math.abs(x)
 										size={width:width*scale/precision, height:height*scale/precision}
 									}
-									dispatch(ACTION.Entity.UPDATE({id,type,size}))
+									dispatch(ACTION.Entity.UPDATE({id,type,size,control}))
 								}}
 							/>,
 						]}
@@ -144,5 +145,13 @@ export default compose(
 				]}
 			</Group>
 		)
+	}
+
+	getEditableSpots(geometry){
+		const {editableSpots=[]}=this.props
+		if(typeof(editableSpots)!=="function")
+			return editableSpots
+		
+		return editableSpots(geometry)
 	}
 })

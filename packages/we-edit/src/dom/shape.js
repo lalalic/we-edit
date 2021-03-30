@@ -17,6 +17,16 @@ export default class Shape extends Component{
 		geometry:PropTypes.string,//svg path
 		outline:this.LineShape,
 		fill: this.FillShape,
+		editableSpots: PropTypes.oneOfType([
+			PropTypes.func,//func(geometry)=>[{x,y,direction,style,control}]
+			PropTypes.arrayOf(PropTypes.shape({
+				x: PropTypes.number.isRequired,
+				y: PropTypes.number.isRequired,
+				direction: PropTypes.oneOf(["ns","-ns","ew","-ew","nwse","-nwse","nesw","-nesw"]).isRequired,
+				style: PropTypes.object,
+				control: PropTypes.string,
+			}))
+		]),
 
 		autofit: PropTypes.oneOf([true,"larger"]),
 		autofitHeight: PropTypes.number,

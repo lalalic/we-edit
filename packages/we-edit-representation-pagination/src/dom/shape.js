@@ -31,7 +31,7 @@ export default class extends editable(HasParentAndChild(dom.Shape)){
 	 * @returns 
 	 */
 	createComposed2Parent(content){
-		const { outline, fill, autofit, autofitHeight=this.boundHeight, id, hash}=this.props
+		const { outline, fill, autofit, autofitHeight=this.boundHeight, id, hash,editableSpots}=this.props
 		var geometry=this.geometry
 		if(autofit && content){
 			geometry.verticalExtend(content.props.height-autofitHeight)
@@ -40,7 +40,7 @@ export default class extends editable(HasParentAndChild(dom.Shape)){
 		const {width,height,x, y, transform}=this.transform(geometry)
 		return (
 			<Group {...{width,height,geometry}}>
-				<Focusable {...{path,id, outline,fill, composedUUID:hash,transform}}>
+				<Focusable {...{path,id, outline,fill, composedUUID:hash,transform,editableSpots}}>
 					{content}
 				</Focusable>
 				{/*not transformed: this.context.debug && <Shape {...{d:path, width:1, color:"red"}}/>*/}

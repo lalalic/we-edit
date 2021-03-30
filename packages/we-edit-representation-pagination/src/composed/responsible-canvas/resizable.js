@@ -1,7 +1,6 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 import Overlay from "./overlay"
-import Group from "../group"
 
 /**
  * resizable support two types:
@@ -62,8 +61,9 @@ export default class Resizable extends Component{
 					e.stopPropagation()
 					const {clientX:left, clientY:top,target}=e
 					this.setState({
-						resizing:e.target.dataset.direction||direction,
-						cursor:target.style.cursor||target.getAttribute("cursor")||cursor
+						resizing:target.dataset.direction||direction,
+						cursor:target.style.cursor||target.getAttribute("cursor")||cursor,
+						control: target.dataset.control,
 					})
 					onStart && onStart()
 					this.left=left
@@ -81,7 +81,7 @@ export default class Resizable extends Component{
 				>
 				<g onMouseDown={e=>e.stopPropagation()}>
 					{children}
-					{spots.map(a=><Spot {...a}  key={a.direction}/>)}
+					{spots.map((a,key)=><Spot {...a}  key={key}/>)}
 					{resizing && resizer}
 				</g>
 			</Overlay.WhenMousePressedMove>
@@ -89,15 +89,14 @@ export default class Resizable extends Component{
 	}
 
 	resize({clientX:left,clientY:top}){
-		const {props:{onResize}, state:{resizing}}=this
-		let x=left-this.left
-		let y=top-this.top
+		const {props:{onResize}, state:{resizing,control}}=this
+		let x=left-this.left, y=top-this.top
 		switch(resizing){
 		case "-ns":
 			y*=-1
 		case "ns":
 			if(y){
-				if(false===onResize({y:-y})){
+				if(false===onResize({y:-y,control})){
 					return
 				}
 			}
@@ -106,7 +105,7 @@ export default class Resizable extends Component{
 			x*=-1
 		case "ew":
 			if(x){
-				if(false===onResize({x})){
+				if(false===onResize({x,control})){
 					return
 				}
 			}
@@ -116,7 +115,7 @@ export default class Resizable extends Component{
 			x*=-1
 		case "nwse":
 			if(x && y){
-				if(false===onResize({x:-x,y})){
+				if(false===onResize({x:-x,y,control})){
 					return
 				}
 			}
@@ -126,7 +125,7 @@ export default class Resizable extends Component{
 			x*=-1
 		case "nesw":
 			if(x && y){
-				if(false===onResize({x,y})){
+				if(false===onResize({x,y,control})){
 					return
 				}
 			}
@@ -137,8 +136,9 @@ export default class Resizable extends Component{
 	}
 }
 
-const Spot=(({width=5,height=5,x,y,direction,style={}, ...props},{precision=1})=><rect {...{
+const Spot=(({width=5,height=5,x,y,direction,style={},control, ...props},{precision=1})=><rect {...{
 		"data-direction":direction,
+		"data-control":control,
 		...props,
 		width:width*precision,height:height*precision,
 		x:x-width*precision/2,
