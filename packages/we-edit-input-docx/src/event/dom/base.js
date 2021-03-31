@@ -16,9 +16,8 @@ export default class Editor{
      * @returns 
      */
 	got(nodeName,tagContent, tagPr){
-        const selectors=[tagContent,tagPr,nodeName].filter(a=>!!a).join(">")
-        const [first,...nodes]=selectors.split(">")
-        const elFirst=this.node.find(first.replace(":","\\:")).eq(0)
+        const [first,...nodes]=[tagContent,tagPr,nodeName].filter(a=>!!a).join(">").split(">")
+        const elFirst=this.node[tagContent ? "closest" : "find"](first.replace(":","\\:")).eq(0)
         return nodes.reduce((current,node)=>{
             let next=current.children(node.replace(":","\\:")).eq(0)
             if(next.length)

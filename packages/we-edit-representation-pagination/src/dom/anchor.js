@@ -41,7 +41,7 @@ export default class Anchor extends HasParentAndChild(dom.Anchor){
                             wrap:wrapFunc,
                             geometry:{x:left,y:top,width:right-left,height:bottom-top},
                             "data-content":this.props.id,"data-type":this.getComposeType()}}
-                            children={this.fromInlineMode2AnchorMode(content)}
+                            children={content && this.fromInlineMode2AnchorMode(content)}
                             />
                     )
                 }
