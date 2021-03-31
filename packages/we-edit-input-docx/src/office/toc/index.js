@@ -61,7 +61,7 @@ export default compose(
         }
         >
         <ToolbarGroup>
-            <Ribbon.CheckIconButton title="Table of Contents"
+            <Ribbon.CheckIconButton hint="Table of Contents"
                 status={toc ? "checked" : "unchecked"}
                 disabled={hasToC}
                 onClick={build}

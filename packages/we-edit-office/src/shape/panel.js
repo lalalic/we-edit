@@ -10,11 +10,12 @@ import IconPicture from "material-ui/svg-icons/image/photo"
 import IconPlus from "material-ui/svg-icons/content/add"
 import IconMinus from "material-ui/svg-icons/content/remove"
 
+const Label=({children})=><span style={{fontSize:9}}>{children}</span>
 export default class FormatPanel extends PureComponent {
     render() {
         return (
             <Tabs className="format-panel">
-                <Tab icon={<IconFillLine/>}>
+                <Tab label={<Label>Fill/Line</Label>} icon={<IconFillLine/>}>
                     <details open>
                         <summary>Fill</summary>
                         <Fill/>  
@@ -24,7 +25,7 @@ export default class FormatPanel extends PureComponent {
                         <Line/>
                     </details>
                 </Tab>
-                <Tab icon={<IconEffect/>}>
+                <Tab label={<Label>Effect</Label>} icon={<IconEffect/>}>
                     <details open>
                         <summary>Shadow</summary>
                         <div>hello</div>    
@@ -54,13 +55,13 @@ export default class FormatPanel extends PureComponent {
                         <div>hello</div> 
                     </details>
                 </Tab>
-                <Tab icon={<IconLayout/>}>
+                <Tab label={<Label>TextBox</Label>} icon={<IconLayout/>}>
                     <details open>
                         <summary>Text Box</summary>   
                         <TextBox/> 
                     </details>
                 </Tab>
-                <Tab icon={<IconPicture/>}>
+                <Tab label={<Label>Picture</Label>} icon={<IconPicture/>}>
                     <details open>
                         <summary>Corrections</summary>  
                         <div>hello</div>  

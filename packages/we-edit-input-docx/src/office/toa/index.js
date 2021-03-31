@@ -39,10 +39,10 @@ export default compose(
     withState('open','setOpen', false),
 )(({toa, mark, build, open, setOpen, selected, getAllTa})=>(
     <ToolbarGroup>
-        <Ribbon.CheckIconButton title="Mark Citation" onClick={e=>setOpen(true)}>
+        <Ribbon.CheckIconButton hint="Mark Citation" onClick={e=>setOpen(true)}>
             <TAIcon/>
         </Ribbon.CheckIconButton>
-        <Ribbon.CheckIconButton title="Table of Authorities" onClick={build}>
+        <Ribbon.CheckIconButton hint="Table of Authorities" onClick={build}>
             <TOAIcon/>
         </Ribbon.CheckIconButton>
         {open && <BuildTA close={()=>setOpen(false)} apply={mark} selected={selected()} tas={getAllTa()}/>}

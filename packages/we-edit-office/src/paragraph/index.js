@@ -74,21 +74,25 @@ export default compose(
 				status={style &&(!style.align ||style.align=="left")?"checked":"unchecked"}
 				onClick={()=>toggleAlign("left")}
 				children={<IconAlignLeft/>}
+				hint="Align Left"
 				/>
 			<CheckIconButton
 				status={style&&style.align=="center"?"checked":"unchecked"}
 				onClick={()=>toggleAlign("center")}
 				children={<IconAlignCenter/>}
+				hint="Align Center"
 				/>
 			<CheckIconButton
 				status={style &&style.align=="right"?"checked":"unchecked"}
 				onClick={()=>toggleAlign("right")}
 				children={<IconAlignRight/>}
+				hint="Align Right"
 				/>
 			<CheckIconButton
 				status={style&&style.align=="justify"?"checked":"unchecked"}
 				onClick={()=>toggleAlign("justify")}
 				children={<IconAlignJustify/>}
+				hint="Justify"
 				/>
 			<ToolbarSeparator style={{marginRight:2, marginLeft:2}}/>
 
@@ -96,6 +100,7 @@ export default compose(
 				status={style&&style.numbering&&style.numbering.format=="bullet" ?"checked":"unchecked"}
 				onClick={()=>toggleBullet({type:"bullet",text:"."})}
 				icon={<IconListBullet/>}
+				hint="bullet"
 				>
 				<MenuItem primaryText="." onClick={e=>numbering({type:"bullet",text:"."})}/>
 				<MenuItem primaryText="*" onClick={e=>numbering({type:"bullet",text:"*"})}/>
@@ -105,6 +110,7 @@ export default compose(
 				status={style&&style.numbering&&style.numbering.format!=="bullet" ?"checked":"unchecked"}
 				onClick={()=>toggleNumbering({type:"decimal",text:"%1."})}
 				icon={<IconListNumber/>}
+				hint="numbering"
 				>
 				<MenuItem primaryText="1." onClick={e=>numbering({type:"decimal",text:"%1."})}/>
 				<MenuItem primaryText="a." onClick={e=>numbering({type:"lowerLetter",text:"%1."})}/>
@@ -114,6 +120,7 @@ export default compose(
 			<CheckIconButton
 				status={pilcrow ? "checked" : "unchecked"}
 				onClick={togglePilcrow}
+				hint="Show/Hide❡"
 				children={
 					<SvgIcon>
 						<g transform="translate(0 4)">

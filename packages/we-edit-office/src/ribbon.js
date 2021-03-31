@@ -109,8 +109,7 @@ const Ribbon=compose(
 				recorder: <Recorder/>
 			},
 			when:{
-				table:<Table.Ribbon/>,
-				image: <Picture.Ribbon/>,
+				table:<Table.Ribbon/>
 			}
 		})
 	return (

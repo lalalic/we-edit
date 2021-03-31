@@ -1,6 +1,5 @@
 import React from "react"
-import PropTypes from "prop-types"
-import {compose, getContext, mapProps} from "recompose"
+import {compose, mapProps} from "recompose"
 
 import {ToolbarGroup} from "material-ui"
 import IconPicture from "material-ui/svg-icons/editor/insert-photo"
@@ -10,7 +9,6 @@ import selectFile from "../components/file-select"
 
 import {ACTION, connect} from "we-edit"
 
-export {default as Ribbon} from "./ribbon"
 import FileType from "file-type/browser"
 
 export const Tools=compose(
@@ -30,7 +28,6 @@ export const Tools=compose(
 					data.crc32=url
 					FileType.fromBuffer(data)
 					.then(mime=>{
-						debugger
 						dispatch(ACTION.Entity.CREATE({type:"image",data, mime}))
 					})
 				})

@@ -11,6 +11,7 @@ import {compose,setDisplayName} from "recompose"
 import DropDownButton from "../components/drop-down-button"
 import ContextMenu from "../components/context-menu"
 import Setting from "./panel"
+import Layout from "./layout"
 
 const {Shape}=dom, IconGeometry=Object.freeze(Path.fromRect({width:24,height:24}))
 export default compose(
@@ -31,7 +32,12 @@ export default compose(
         const {props:{children, shapes=[], defaultShape, style, type}}=this
         return (
             <ContextMenu.Support menus={!style ? null :
-                <MenuItem primaryText={`Format ${type}...`} onClick={e=>this.context.panelManager.toggle(Setting.panel)}/>
+                (
+                <Fragment>
+                    <MenuItem primaryText={`Format ${type}...`} onClick={e=>this.context.panelManager.toggle(Setting.panel)}/>
+                    <MenuItem primaryText={`Layout ${type}...`} onClick={e=>this.context.panelManager.toggle(Layout.panel)}/>
+                </Fragment>
+                )
             }>
                 <ToolbarGroup>
                     <DropDownButton hint="draw shape" icon={<IconShape/>}
