@@ -12,11 +12,9 @@ import {Marker,Group} from "../../../composed"
  * .atoms can't be broke (means each atom must be an item of inlineSegments), otherwise .items/.firstAtom/.lastAtom will be broke
  */
 export default class Inline extends Component{
-	constructor({space:{left, right, findInlineSegments}}){
+	constructor({space:{left, right}}){
 		super(...arguments)
-		this.findInlineSegments=findInlineSegments
-			||(()=>({segments:[{x:left, width:this.width}]}));//@TODO: why is there no findInlineSegments some times? TEST ???
-		const segments=this.findInlineSegments(this.dy,left,right)
+		const segments=this.space.findInlineSegments(this.dy)//|| {segments:[{x:left, width:this.width}]}
 		this.inlineSegments=InlineSegments.create({left,...segments})
 	}
 
@@ -208,9 +206,8 @@ export default class Inline extends Component{
 		 * line rect change may lead to different inline opportunities and dy
 		 * so get opportunities again
 		 */
-		const {space:{left,right}}=this.props
 		const minRequiredWidth=this.isEmpty() ? atom.props.width : undefined
-		const segments=this.findInlineSegments(this.dy+newHeight,left,right, minRequiredWidth)
+		const segments=this.space.findInlineSegments(this.dy+newHeight,minRequiredWidth)
 		if(!segments){
 			if(minRequiredWidth){
 				//to indicate the space status
@@ -273,7 +270,7 @@ export default class Inline extends Component{
 			return false
 		if(this.space.width!=space.width)
 			return false
-		const {segments}=space.findInlineSegments(this.dy+this.height,space.left,space.right)
+		const {segments}=space.findInlineSegments(this.dy+this.height)
 
 		return this.inlineSegments.segments.length==segments.length &&
 			!!!this.inlineSegments.segments.find(({props:{x,width}},i,_,$,b=segments[i])=>b.x!=x && b.width!=width)

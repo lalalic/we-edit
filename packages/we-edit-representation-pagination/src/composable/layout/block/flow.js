@@ -212,17 +212,18 @@ class Flow extends HasParentAndChild(dom.Frame) {
 				blockOffset: this.blockOffset,
 				height: this.availableBlockSize,
 				frame: this,
-				findInlineSegments: (requiredBlockSize, left, right, atLeastHaveOneSegmentWidth=1, blockOffset=this.blockOffset) => {
-					var wrappees = this.exclusive(blockOffset, blockOffset + requiredBlockSize, left, right);
+				findInlineSegments(requiredBlockSize, atLeastHaveOneSegmentWidth=1, blockOffset=this.blockOffset){
+					const left=this.left, right=this.right
+					var wrappees = this.frame.exclusive(blockOffset, blockOffset + requiredBlockSize, left, right);
 					
 					/**find the nearest top that can start flow content if wrappees as number specify next available blockOffset */
 					var top = blockOffset;
 					while (typeof (wrappees) == "number") {
 						top = wrappees;
-						wrappees = this.exclusive(top, top + requiredBlockSize, left, right);
+						wrappees = this.frame.exclusive(top, top + requiredBlockSize, left, right);
 					}
 
-					const space = this.nextAvailableSpace({ height: top - this.blockOffset + requiredBlockSize });
+					const space = this.frame.nextAvailableSpace({ height: top - this.frame.blockOffset + requiredBlockSize });
 					if (!space) 
 						return space
 					
@@ -237,7 +238,7 @@ class Flow extends HasParentAndChild(dom.Frame) {
 						console.debug(`segments: ${JSON.stringify(segments)}`)
 						return {
 							/**unavailable block to contain flow content*/
-							dy:top-this.blockOffset,
+							dy:top-this.frame.blockOffset,
 							segments
 						}
 					}else{
@@ -245,13 +246,15 @@ class Flow extends HasParentAndChild(dom.Frame) {
 						if(untilYs.length==0)
 							return null
 						const maxY=Math.max(...untilYs)
-						if(maxY>=this.blockOffset+this.availableBlockSize)
+						if(maxY>=this.frame.blockOffset+this.frame.availableBlockSize)
 							return null
 					
-						return inlineLayoutSpace.findInlineSegments(requiredBlockSize, left, right, atLeastHaveOneSegmentWidth, maxY)
+						return inlineLayoutSpace.findInlineSegments(requiredBlockSize, atLeastHaveOneSegmentWidth, maxY)
 					}
 				},
-				isAnchored: id => this.isAnchored(id)
+				isAnchored(id){
+					return this.frame.isAnchored(id)
+				}
 			})
 			return inlineLayoutSpace
 		}

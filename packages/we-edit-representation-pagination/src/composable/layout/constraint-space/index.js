@@ -36,6 +36,10 @@
          return right
      }
 
+     findInlineSegments(){
+         return {segments:[{x:this.left,width:this.width}]}
+     }
+
      clone(modifier){
          if(modifier instanceof Space){
             modifier=modifier.props
