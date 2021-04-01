@@ -222,7 +222,7 @@ class Flow extends HasParentAndChild(dom.Frame) {
 						top = wrappees;
 						wrappees = this.frame.exclusive(top, top + requiredBlockSize, left, right);
 					}
-
+				
 					const space = this.frame.nextAvailableSpace({ height: top - this.blockOffset + requiredBlockSize });
 					if (!space) 
 						return space
@@ -233,7 +233,7 @@ class Flow extends HasParentAndChild(dom.Frame) {
 							return [...ops, { x: last.x, width: x - last.x}, { x: x + width, width: right - x - width }];
 						}, [{ x: left, width: right - left }])
 						.filter(a=>a.width>0)
-
+				
 					if(wrappees.length==0 || segments.find(a=>a.width>=atLeastHaveOneSegmentWidth)){
 						console.debug(`segments: ${JSON.stringify(segments)}`)
 						return {
@@ -254,7 +254,32 @@ class Flow extends HasParentAndChild(dom.Frame) {
 				},
 				isAnchored(id){
 					return this.frame.isAnchored(id)
-				}
+				},
+				findBlockSegments(){
+					const excludes=this.frame.wrappees
+						.map(({props:{geometry:{y,height}}})=>({y,height,y2:y+height}))
+						.sort((a,b)=>a.y-b.y)
+						.reduce((wrapees, a) => {
+							const b = wrapees.pop()||a
+							wrapees.push(b)
+							if (a.y2 > b.y2) {
+								if (a.y > b.y2) { //seperated
+									wrapees.push(a);
+								}else { //intersect
+									b.y2 = a.y2;
+									b.height = b.y2 - b.y;
+								}
+							}
+							return wrapees;
+						}, [])
+					const segments=excludes.reduce((ops, { y, height}) => {
+							debugger
+							const [last] = ops.splice(-1);
+							return [...ops, { y: last.y, height: y - last.y}, { y: y + height, height: this.blockOffset+height-(y+height) }];
+						}, [{ y: this.blockOffset, height:this.height }])
+						.filter(a=>a.height>=0)
+					return segments
+				},
 			})
 			return inlineLayoutSpace
 		}
