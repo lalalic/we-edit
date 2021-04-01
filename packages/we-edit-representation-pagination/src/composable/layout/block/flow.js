@@ -223,7 +223,7 @@ class Flow extends HasParentAndChild(dom.Frame) {
 						wrappees = this.frame.exclusive(top, top + requiredBlockSize, left, right);
 					}
 
-					const space = this.frame.nextAvailableSpace({ height: top - this.frame.blockOffset + requiredBlockSize });
+					const space = this.frame.nextAvailableSpace({ height: top - this.blockOffset + requiredBlockSize });
 					if (!space) 
 						return space
 					
@@ -238,7 +238,7 @@ class Flow extends HasParentAndChild(dom.Frame) {
 						console.debug(`segments: ${JSON.stringify(segments)}`)
 						return {
 							/**unavailable block to contain flow content*/
-							dy:top-this.frame.blockOffset,
+							dy:top-this.blockOffset,
 							segments
 						}
 					}else{
@@ -246,7 +246,7 @@ class Flow extends HasParentAndChild(dom.Frame) {
 						if(untilYs.length==0)
 							return null
 						const maxY=Math.max(...untilYs)
-						if(maxY>=this.frame.blockOffset+this.frame.availableBlockSize)
+						if(maxY>=this.blockOffset+this.height)
 							return null
 					
 						return inlineLayoutSpace.findInlineSegments(requiredBlockSize, atLeastHaveOneSegmentWidth, maxY)
