@@ -40,6 +40,10 @@
          return {segments:[{x:this.left,width:this.width}]}
      }
 
+     findBlockSegments(){
+         return [{y:this.blockOffset, height:this.height}]
+     }
+
      clone(modifier){
          if(modifier instanceof Space){
             modifier=modifier.props
