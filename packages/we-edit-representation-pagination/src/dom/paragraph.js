@@ -339,7 +339,7 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 		const bFirstLine=this.lines.length==1
 		return (
 			<Group className="line"
-				dy={dyBlock}
+				{...(dyBlock ? {dy:dyBlock} : {})}
 				height={(bFirstLine&&top||0)+height+(bLastLine&&bottom||0)} 
 				width={left+(bFirstLine&&!numbering&&firstLine||0)+width+right} 
 				pagination={{
