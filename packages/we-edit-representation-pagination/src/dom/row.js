@@ -106,7 +106,7 @@ class Row extends HasParentAndChild(dom.Row){
 		}
 		while(!rank){
 			//request largest space in current constraint space
-			const space=super.nextAvailableSpace()
+			const space=super.nextAvailableSpace(this.props.id)
 			if(!space)//no space any more, stop immediately
 				return 
 			this.ranks.push(rank=new this.constructor.Rank({space, children:new Array(this.getColumns(this.props.cols).length).fill(null)}))

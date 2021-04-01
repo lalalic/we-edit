@@ -1,4 +1,4 @@
-import React from "react"
+import React, {Component} from "react"
 import {dom} from "we-edit"
 
 import {HasParentAndChild} from "../composable"
@@ -10,56 +10,48 @@ import {Group} from "../composed"
  * but cell may be splitted into blocks
  * space is defined by cell->row->table->parent space, so it has to require space up
  */
-export default class Table extends HasParentAndChild(dom.Table){
-	constructor(){
-		super(...arguments)
-		Object.defineProperties(this,{
-			/** 
-			 * a segment is the whole part on a page
-			 * a segment is an appending unit as a line
-			 * a segment is a rect space in parent layout space
-			 * each space should only have a segment since table can't be split in a frame
-			 */
-			pages:{
-				get(){
-					return this.computed.composed
-				}
-			},
+export default class extends HasParentAndChild(dom.Table){
+	createComposed2Parent(row){
+		const {width,indent}=this.props
+		return (
+			<Group width={width} height={row.props.height}>
+				{React.cloneElement(row,{x:indent})}
+			</Group>
+		)
+	}
+}
 
-			currentPage:{
-				get(){
-					return this.pages[this.pages.length-1]
-				}
-			},
+class Table extends HasParentAndChild(dom.Table){
+	get pages(){
+		return this.computed.composed
+	}
 
-			/**
-			 * table width: border(table and cell) counted
-			 */
-			width: {
-
-			}
-		})
+	get currentPage(){
+		return this.pages[this.pages.length-1]
 	}
 
 	onAllChildrenComposed(){
-		this.context.parent.appendComposed(this.createComposed2Parent())
+		/**content height should be considered for dy */
+		const content=this.createComposed2Parent(this.currentPage)
+		const height=this.currentPage.height
+		const {y}=this.currentPage.space.segments.find(a=>a.height>=height)
+		this.context.parent.appendComposed(React.cloneElement(content,{y}))
 		super.onAllChildrenComposed()
 	}
 
-	appendComposed(row){
-		this.currentPage.push(row)
-		if(this.currentPage.isFull){
-			this.context.parent.appendComposed(this.createComposed2Parent())
-		}
+	appendComposed(rowRankPlaceholder){
+		this.currentPage.push(rowRankPlaceholder)
 	}
 
 	/**row call it to append a block of row*/
-	createComposed2Parent(){
+	createComposed2Parent(page){
 		const {width,indent}=this.props
+		const height=page.height
+		const content=this.page.render()
 		return (
-			<Group width={width} height={this.currentSegment.height}>
+			<Group width={width} height={height}>
 				<Group x={indent}>
-					{this.currentSegment.render()}
+					{content}
 				</Group>
 			</Group>
 		)
@@ -71,8 +63,18 @@ export default class Table extends HasParentAndChild(dom.Table){
 	 * row asking for space, we need know which row is asking, maybe the row already asked, but it need adjust height
 	 * each row should only request once, since max and edge already give each time, row already know how to balance
 	 */
-	nextAvailableSpace(){
-		let space=super.nextAvailableSpace(...arguments)
+	nextAvailableSpace(rowId){
+		if(this.currentPage.has(rowId)){
+			const content=this.createComposed2Parent(this.currentPage)
+			this.context.parent.appendComposed(React.cloneElement(content, {dy:this.currentPage.space.blockOffset}))
+			this.pages.push(null)
+		}
+
+		let space=this.currentPage?.nextAvailableSpace()
+		if(space)
+			return space
+
+		space=super.nextAvailableSpace(...arguments)
 		let segments=space.findBlockSegments()
 		if(segments.length==0){
 			space=super.nextAvailableSpace(space.height+1)
@@ -81,22 +83,37 @@ export default class Table extends HasParentAndChild(dom.Table){
 				return false
 		}
 		
-		const edge=segments[segments.length-1]
 		const max=segments.sort((a,b)=>b.height-a.height)[0]
-		this.pages.push(new this.constructor.Page({
-			space:space.clone({height:max.height,blockOffset:max.y, edge}),
+		this.pages.splice(-1,1,new this.constructor.Page({
+			space:space.clone({height:max.height,blockOffset:max.y, segments}),
 			children:[],
 		}))
-		return this.currentPage.space
+		return this.currentPage.nextAvailableSpace()
 	}
 
 	static Page=class extends Component{
+		get space(){
+			return this.props.space
+		}
+
 		get rows(){
 			return this.props.rows
 		}
 
 		get height(){
 			return this.rows.reduce((H,{props:{height:h=0}})=>H+h,0)
+		}
+
+		get isFull(){
+			return this.space.height-this.height<=0
+		}
+
+		nextAvailableSpace(){
+			const height=this.space.height-this.height
+			if(height>0){
+				return this.space.clone({height,blockOffset:this.space.blockOffset+this.height})
+			}
+			return false
 		}
 
 		render(){
