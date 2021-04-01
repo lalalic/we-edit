@@ -1,4 +1,4 @@
-import React from "react"
+import React, { Fragment } from "react"
 import PropTypes from "prop-types"
 import {ReactQuery} from "we-edit"
 
@@ -8,7 +8,7 @@ import Path from "../../src/tool/path"
 
 define("section compose",
 ({dom, testing, WithTextContext, WithParagraphContext, uuid=0})=>{
-    const {Page,Frame, Paragraph, Text, Anchor, Shape}=dom
+    const {Page,Frame, Paragraph, Text, Anchor, Shape, Table, Row, Cell}=dom
     const document={
         get computed(){
 
@@ -256,7 +256,7 @@ define("section compose",
 
         })
 
-        xit("anchor content bigger than line/column/page should work like TopAndBottom",()=>{
+        it("anchor content bigger than line/column/page should work like TopAndBottom",()=>{
             try{
                 size.width=90
                 const props={x:{base:"page",offset:12},y:{base:"page",offset:12},wrap:{mode:"square"}}
@@ -269,14 +269,12 @@ define("section compose",
             }
         })
 
-        xit("Tight should around geometry right and left boundary",()=>{
-            const computed=jest.spyOn(document,'computed','get')
-            computed.mockReturnValue({composed:[]})
+        it("Tight should around geometry right and left boundary",()=>{
             const content=(x,y)=>(
                 <Paragraph {...{id:uuid++}}>
                     <Text id={uuid++}>hello</Text>
                     <Anchor {...{id:"anchor",x:{base:"page",x},y:{base:"page",y},wrap:{mode:"tight"}}}>
-                        <Shape {...{width:20,height:20, geometry:"M10 0L0 20 20 20Z", id:uuid++}}/>
+                        <Shape {...{geometry:"M10 0L0 20 20 20Z", id:uuid++}}/>
                     </Anchor>
                     <Text id={uuid++}>world</Text>
                 </Paragraph>
@@ -286,6 +284,33 @@ define("section compose",
 
             const doc2=test(undefined,content(0,5))
             expect(doc2.xy(`[children="hello"]`)).toMatchObject({x:pg.margin.left,y:pg.margin.top+baseline})
+        })
+
+        fit("table should be wrapped around anchor too",()=>{
+            const doc1=test(undefined,(
+                <Fragment>
+                    <Paragraph {...{id:uuid++}}>
+                        <Text id={uuid++}>world</Text>
+                        <Anchor {...{
+                            id:"anchor", 
+                            x:{base:"page",x:12},y:{base:"page",y:12},
+                            wrap:{mode:"square",geometry:new Shape.Path("M0 0h50v50h-50Z"), }
+                        }}/>
+                    </Paragraph>
+                    <Table {...{id:uuid++}}>
+                        <Row {...{id:uuid++, cols:[{x:10,width:40},{x:50,width:90}]}}>
+                            <Cell {...{id:uuid++}}>
+                                <Paragraph {...{id:uuid++}}>
+                                    <Text id={uuid++}>hello</Text>
+                                </Paragraph>
+                            </Cell>
+                            <Cell {...{id:uuid++}}>
+                            </Cell>
+                        </Row>
+                    </Table>
+                </Fragment>
+            ))
+            expect(doc1.xy('[data-type=table]')).toMatchObject({x:pg.margin.left,y:62})
         })
 
         xit("Through should around geometry boundary including inside of left and right margin",()=>{

@@ -315,7 +315,7 @@ class Flow extends HasParentAndChild(dom.Frame) {
          * if it's empty frame, recompose would not happen
          */
 		if (this.isEmpty()) {
-			init([],[]);
+			init(this.lines,this.anchors);
 			return a => a;
 		}
 		const lastLines = [...this.lines];
