@@ -50,7 +50,7 @@ docx:
     * nextLine
     * prevLine
 * Canvas
-* topBlock makes inline layout confusion, spaceTopBlock, lineTopBlock: can topBlock concept be removed?
+* topBlock makes inline layout confusion, spaceTopBlock, lineTopBlock: can topBlock concept be removed? [done: dy in line]
 * exclusive space of wrappee => available inline segments, is it possible to calc available space directly from space?
 * findInlineSegments() should support minimum inline size to support big wrapper hold whole line[done]
 * focusable is heavy
@@ -60,6 +60,7 @@ docx:
 * uniform missing font in editor
 * make editor default support shape, and make we-edit-office support it
 * more precise path and line intersects
+    * use line rect and geometry intersect to find most-right and most-left, instead of line begin/end
 * underline should be considered in a line
 * draw shape for we-edit-office
 * enter in docx problem

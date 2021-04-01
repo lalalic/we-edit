@@ -88,7 +88,7 @@ export default class Columnable extends OrphanControlable {
 				return y+this.contentHeight;
 			},
 			get contentHeight() {
-				return this.lines.reduce((H, { props: { height: h = 0 } }) => h + H, 0);
+				return this.lines.reduce((H, { props: { height: h = 0, dy=0 } }) => h + H + dy, 0);
 			}
 		};
 		this.columns.push(column);

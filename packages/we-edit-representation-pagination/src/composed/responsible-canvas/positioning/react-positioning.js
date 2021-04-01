@@ -103,7 +103,7 @@ class PositioningHelper extends Positioning{
             return {x:0,y:0}
         const grandFrameLayouted=grandFrame.createComposed2Parent()
         const {first,parents}=new ReactQuery(grandFrameLayouted).findFirstAndParents(`[data-frame=${frame.uuid}]`)
-        return [...parents,first.get(0)].filter(a=>!!a).reduce((xy,{props:{x=0,y=0}})=>(xy.x+=x, xy.y+=y, xy),{x:0,y:0})
+        return [...parents,first.get(0)].filter(a=>!!a).reduce((xy,{props:{x=0,dy=0,y=dy}})=>(xy.x+=x, xy.y+=y, xy),{x:0,y:0})
     }
 
     _targetFrameContainsFrame=frame=>targetFrame=>{
@@ -180,7 +180,7 @@ class PositioningHelper extends Positioning{
      */
     getBoundaryCheckedMostInnerNode(composed,check,formatNode=a=>a){
         const rect=(nodes,size={})=>nodes.filter(a=>a!=composed)
-        .reduce((bound, {props:{height,width,x=0,y=0,"data-type":type}={}}={})=>{
+        .reduce((bound, {props:{height,width,x=0,dy=0,y=dy,"data-type":type}={}}={})=>{
             bound.x+=x
             if(type!=="text")
                 bound.y+=y
@@ -212,7 +212,7 @@ class PositioningHelper extends Positioning{
         }
         allParents=allParents.filter(a=>a!=composed)
         return [...allParents,current.get(0)].filter(a=>!!a)
-            .reduce((xy,{props:{x=0,y=0}})=>(xy.x+=x,xy.y+=y,xy),{
+            .reduce((xy,{props:{x=0,dy=0,y=dy}})=>(xy.x+=x,xy.y+=y,xy),{
                 x:0,y:0,
                 node:formatNode(current.get(0),allParents),
                 parents: allParents
@@ -265,7 +265,7 @@ class PositioningHelper extends Positioning{
             }
         }else{//nested paragraph, which means frame in paragraph
             inlineOffset=[...possibleParagraph.parents,possibleParagraph.first.get(0)]
-                .reduce((xy,{props:{x=0,y=0}})=>(xy.x+=x,xy.y+=y,xy),inlineOffset)
+                .reduce((xy,{props:{x=0,dy=0,y=dy}})=>(xy.x+=x,xy.y+=y,xy),inlineOffset)
             inline=possibleParagraph.first.get(0)
         }
         return this.aroundInInline( inline,x-inlineOffset.x )
@@ -472,7 +472,7 @@ class PositioningHelper extends Positioning{
                 id:anchor,
                 position:null,//implemented by offset 
                 offset(topFrame){
-                    const offset=nodes=>nodes.filter(a=>!!a).reduce((o,{props:{x=0,y=0}})=>(o.x+=x, o.y+=y, o),{x:0,y:0})
+                    const offset=nodes=>nodes.filter(a=>!!a).reduce((o,{props:{x=0,dy=0,y=dy}})=>(o.x+=x, o.y+=y, o),{x:0,y:0})
                     const {first, parents}=new ReactQuery(topFrame.createComposed2Parent())
                         .findFirstAndParents(`[data-content="${anchor}"]`)
                     this.position=()=>{
@@ -497,7 +497,7 @@ class PositioningHelper extends Positioning{
 		const defaultStyle=paragraph.getDefaultMeasure().defaultStyle
 		//could it search from line directly to target
         const {first:story,parents:storyUps}=new ReactQuery(composedLine).findFirstAndParents(".story")
-        const pos=storyUps.reduce((xy,{props:{x=0,y=0}})=>(xy.x+=x,xy.y+=y,xy),{x:0,y:0,...defaultStyle})
+        const pos=storyUps.reduce((xy,{props:{x=0,dy=0,y=dy}})=>(xy.x+=x,xy.y+=y,xy),{x:0,y:0,...defaultStyle})
         const lineDescent=story.attr('lineDescent')
         
         const isParagraphSelf=id==paragraph.props.id
@@ -518,7 +518,7 @@ class PositioningHelper extends Positioning{
         );
         
 
-		[target.get(0),...parents].reduce((o,{props:{x=0,y=0}})=>(o.x+=x, o.y+=y, o), pos);
+		[target.get(0),...parents].reduce((o,{props:{x=0,dy=0,y=dy}})=>(o.x+=x, o.y+=y, o), pos);
         
         const {height,width,descent}=target.get(0).props
         if(descent!=undefined){//text or text inline container
@@ -736,8 +736,8 @@ export default class ReactPositioning extends PositioningHelper {
 
         //locate the line that contain the point
         var line=leafFrame.lines.find(line=>{
-            const {props:{width=0, height=0}}=line
-            return pointIsInside({...leafFrame.lineXY(line),width,height},leafFrameOffset,topFrameOffset)
+            const {props:{width=0, height=0, dy=0}}=line
+            return pointIsInside({...leafFrame.lineXY(line),width,height:height+dy},leafFrameOffset,topFrameOffset)
         })
 
         if(!line){
@@ -782,8 +782,9 @@ export default class ReactPositioning extends PositioningHelper {
                 const o=this.getTopFrameXY(topFrame)
                 const {x,y}=this.getFrameOffsetGrandFrame(topFrame,frame) 
                 return frame.lines.slice(from,to+1)
-                    .map((line,_,_1,{props:{width,height,pagination:{id:isParagraphLine}={}}}=line)=>{
+                    .map((line,_,_1,{props:{width,height,dy=0,pagination:{id:isParagraphLine}={}}}=line)=>{
                         const xy=frame.lineXY(line)
+                        xy.y=xy.y+dy
                         if(isParagraphLine){
                             const story=new ReactQuery(line).findFirstAndParents('.story')
                             const x=[...story.parents,story.first.get(0)].reduce((X,{props:{x=0}})=>X+x,0)

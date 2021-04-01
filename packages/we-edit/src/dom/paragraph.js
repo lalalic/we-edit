@@ -7,7 +7,7 @@ export default class Paragraph extends Component{
 	static displayName="paragraph"
 	static propTypes={
 		spacing: PropTypes.shape({
-			lineHeight:this.UnitShape, //"115%[,15%:top of line taken]"
+			lineHeight:this.UnitShape, //"115%[,15%:top offset]"
 			top:PropTypes.number,
 			bottom:PropTypes.number
 		}).isRequired,

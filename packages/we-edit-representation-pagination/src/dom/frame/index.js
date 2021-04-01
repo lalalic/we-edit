@@ -208,17 +208,17 @@ export default class EditableFrame extends editable(Frame,{stoppable:true, conti
 			const composed=this.computed.lastComposed
 			const {first, parents:[_,...parents]}=new ReactQuery(composed).findFirstAndParents(".positionlines")
 			const offset=[...parents, first.get(0)].filter(a=>!!a)
-				.reduce((o,{props:{x=0,y=0}})=>(o.x+=x,o.y+=y,o),{x:0,y:0})
+				.reduce((o,{props:{x=0,dy=0,y=dy}})=>(o.x+=x,o.y+=y,o),{x:0,y:0})
 			return {
 				x:offset.x,
-				y:this.lines.slice(0,this.lines.indexOf(line)).reduce((Y,{props:{height=0}})=>Y+height,offset.y)
+				y:this.lines.slice(0,this.lines.indexOf(line)).reduce((Y,{props:{height=0,dy=0}})=>Y+height+dy,offset.y)
 			}
 		}
 		//make columns simple to ignore margin, vertAlign, or say not supporting margin and vertAlign in columns frame
 		const {y:y0=0,x=0,lines}=this.columns.find(a=>a.lines.includes(line))||this.currentColumn
 		return {
 			x,
-			y:lines.slice(0,lines.indexOf(line)).reduce((Y,{props:{height=0}})=>Y+height,y0)
+			y:lines.slice(0,lines.indexOf(line)).reduce((Y,{props:{height=0,dy=0}})=>Y+height+dy,y0)
 		}
 	}
 }

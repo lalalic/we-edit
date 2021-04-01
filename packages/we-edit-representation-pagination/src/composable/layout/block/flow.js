@@ -22,6 +22,10 @@ import Path from "../../../tool/path"
  * but can help decide on geometry functions, such as intersection
  */
 /**
+ * line procols:
+ * {props:{width,height,dy:block offset for a line,}}
+ */
+/**
  * layout content in a space with excludable areas
  * inline excludable & block excludable
  * excludable areas is changing along with content appended, then
@@ -117,7 +121,7 @@ class Flow extends HasParentAndChild(dom.Frame) {
 				enumerable: true,
 				configurable: true,
 				get() {
-					return this.lines.reduce((H, { props: { height: h = 0 } }) => h + H, 0);
+					return this.lines.reduce((H, { props: { height: h = 0, dy=0 } }) => h + H+dy, 0);
 				}
 			},
 			inclusiveGeometry: {
@@ -144,9 +148,10 @@ class Flow extends HasParentAndChild(dom.Frame) {
 
  	/**
 	* use x as positioned indicator, 
-	* @TODO: in future y MAY be used for a positioned line on following situations to make layout engine simpler??!!, current inline layout use topBlock to prepend to a line
+	* @TODO: in future y MAY be used for a positioned line on following situations to make layout engine simpler??!!, current inline layout use dy to prepend to a line
 	* 1. wrappee with CLEEAR mode, which will create a block unavailable for inline layout
 	* 2. wrappee is larger than inline size, or is large enough not able to layout an atom for inline layout
+	* @resolved: use dy to indicate block offset layout
 	*/
 	appendComposed(line) {
 		const {x:positioned, height: requiredBlockSize=0}=line.props
@@ -187,9 +192,9 @@ class Flow extends HasParentAndChild(dom.Frame) {
 
 	positionLines(lines) {
 		var y = 0;
-		const content = lines.map((a, i, me, ctx, { props: { height = 0 } } = a) => {
-			const b = React.cloneElement(a, { key: i, y });
-			y += height;
+		const content = lines.map((a, i, me, ctx, { props: { height = 0, dy=0, ...props } } = a) => {
+			const b = React.cloneElement(a, {...props, key: i, y:y+dy, height });
+			y += height+dy;
 			return b;
 		});
 		return (<Group height={y}>{content}</Group>);
@@ -232,7 +237,7 @@ class Flow extends HasParentAndChild(dom.Frame) {
 						console.debug(`segments: ${JSON.stringify(segments)}`)
 						return {
 							/**unavailable block to contain flow content*/
-							topBlock:top-this.blockOffset,
+							dy:top-this.blockOffset,
 							segments
 						}
 					}else{

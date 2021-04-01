@@ -8,7 +8,7 @@ import {Marker,Group} from "../../../composed"
  * height: line box height
  * contentHeight: max of all atoms' height
  * textHeight: max of text atoms' height, percentage line box height should be based on textHeight
- * line block height: topBlock + height (content height), parent can add its own logic to change line height
+ * line block height: dy + height (content height), parent can add its own logic to change line height
  * .atoms can't be broke (means each atom must be an item of inlineSegments), otherwise .items/.firstAtom/.lastAtom will be broke
  */
 export default class Inline extends Component{
@@ -16,7 +16,7 @@ export default class Inline extends Component{
 		super(...arguments)
 		this.findInlineSegments=findInlineSegments
 			||(()=>({segments:[{x:left, width:this.width}]}));//@TODO: why is there no findInlineSegments some times? TEST ???
-		const segments=this.findInlineSegments(this.topBlock,left,right)
+		const segments=this.findInlineSegments(this.dy,left,right)
 		this.inlineSegments=InlineSegments.create({left,...segments})
 	}
 
@@ -26,7 +26,7 @@ export default class Inline extends Component{
 
 	/** inline box height, considering props.lineHeight, content/text height */
 	get height(){
-		return this.getLineHeight()
+		return this.getLineHeight(this.contentHeight)
 	}
 	/**max of all atoms' height */
 	get contentHeight() {
@@ -73,10 +73,19 @@ export default class Inline extends Component{
 		return [...this.props.positioned,...this.inlineSegments.items]
 	}
 
+	get dyLine(){
+		const {props:{dy:dyLine=0}}=this
+		return dyLine
+	}
+
+	get dyBlock(){
+		const {inlineSegments:{props:{dy:dyBlock=0}}={props:{}}}=this
+		return dyBlock
+	}
+
 	/** the distance between line blockOffset  and line content top*/
-	get topBlock(){
-		const {props:{topBlock:lineTopBlock=0}, inlineSegments:{props:{topBlock:spaceTopBlock=0}}={props:{}}}=this
-		return lineTopBlock+spaceTopBlock
+	get dy(){
+		return this.dyLine+this.dyBlock
 	}
 
 	get endWithPageBreak(){
@@ -85,7 +94,7 @@ export default class Inline extends Component{
 		return isPageBreak(atoms[l-2])||isPageBreak(atoms[l-1])
 	}
 
-	get lineTop(){
+	get topOffset(){
 		if(typeof(this.props.lineHeight)=="string"){
 			const topPercent=parseInt(this.props.lineHeight.split(",")[1])||0
 			return this.textHeight*topPercent/100
@@ -196,12 +205,12 @@ export default class Inline extends Component{
 			return !!this.inlineSegments.push(atom)
 
 		/**
-		 * line rect change may lead to different inline opportunities and topBlock
+		 * line rect change may lead to different inline opportunities and dy
 		 * so get opportunities again
 		 */
 		const {space:{left,right}}=this.props
 		const minRequiredWidth=this.isEmpty() ? atom.props.width : undefined
-		const segments=this.findInlineSegments(this.topBlock+newHeight,left,right, minRequiredWidth)
+		const segments=this.findInlineSegments(this.dy+newHeight,left,right, minRequiredWidth)
 		if(!segments){
 			if(minRequiredWidth){
 				//to indicate the space status
@@ -226,8 +235,8 @@ export default class Inline extends Component{
 			}
 		}else{
 			//same inline opportunities, continue normal inline layout later 
-			//but topBlock may be changed, such as clear wrapee
-			this.inlineSegments.props.topBlock=segments.topBlock
+			//but dy may be changed, such as clear wrapee
+			this.inlineSegments.props.dy=segments.dy
 		}
 		
 		return !!this.inlineSegments.push(atom)
@@ -264,7 +273,7 @@ export default class Inline extends Component{
 			return false
 		if(this.space.width!=space.width)
 			return false
-		const {segments}=space.findInlineSegments(this.topBlock+this.height,space.left,space.right)
+		const {segments}=space.findInlineSegments(this.dy+this.height,space.left,space.right)
 
 		return this.inlineSegments.segments.length==segments.length &&
 			!!!this.inlineSegments.segments.find(({props:{x,width}},i,_,$,b=segments[i])=>b.x!=x && b.width!=width)
