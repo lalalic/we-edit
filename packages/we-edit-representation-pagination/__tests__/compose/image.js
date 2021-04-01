@@ -10,7 +10,7 @@ define("paragraph compose",
     const test=props=>{
         const context={...Context,exclusive:()=>[],...CONTEXT}
         const nextAvailableSpace=context.parent.nextAvailableSpace=jest.fn(()=>(ConstraintSpace.create({
-            width:10,height:100
+            width:10,height:100,
         })))
         const appendComposed=context.parent.appendComposed=jest.fn()
         const renderer=render(

@@ -286,7 +286,7 @@ define("section compose",
             expect(doc2.xy(`[children="hello"]`)).toMatchObject({x:pg.margin.left,y:pg.margin.top+baseline})
         })
 
-        xit("table should be wrapped around anchor too",()=>{
+        fit("table should be wrapped around anchor too",()=>{
             const doc1=test(undefined,(
                 <Fragment>
                     <Paragraph {...{id:uuid++}}>
