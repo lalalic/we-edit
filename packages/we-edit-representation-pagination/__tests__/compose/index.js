@@ -6,7 +6,7 @@ import ConstraintSpace from "../../src/composable/layout/constraint-space"
 export function define(feature, tests){
     describe.each([
     	["viewer",Viewers],
-    	//["editor", Editors,{shouldContinueCompose:()=>true}]
+    	["editor", Editors,{shouldContinueCompose:()=>true}]
     ])("%s",(testing,dom,CONTEXT={})=>{
     	const {Document, Section, Frame, Paragraph, Text, Image,Table,Row,Cell, Shape}=dom
 

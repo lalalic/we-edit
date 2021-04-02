@@ -433,12 +433,23 @@ class PositioningHelper extends Positioning{
                 true,//first frame includes id
                 find
             )
+            
             lineInFrame=leafFrame.lines[find](line=>new ReactQuery(line).findFirst(`[data-content=${id}]`).length==1)
                 
             if(!lineInFrame){
                 position=()=>{
                     if(at==1){
-                        const {width,height}=leafFrame.createComposed2Parent().props
+                        /**it's leafFrame itself, since size of some type of frame can't be decided by itself, such as cell frame
+                         * so search in top frame's layouted
+                         */
+                        const topFrame=this.getCheckedGrandFrameByFrame(
+                            leafFrame, 
+                            a=>new ReactQuery(a.createComposed2Parent()).findFirst(`[data-content=${id}]`).length==1,
+                            false,//the top 
+                            find
+                        )
+                        const layoutedFeafFrame=new ReactQuery(topFrame.createComposed2Parent()).findFirst(`[data-content=${id}]`).get(0)
+                        const {width,height}=layoutedFeafFrame.props
                         return {x:width,y:height}
                     }
                     return {x:0,y:0,}
@@ -447,7 +458,12 @@ class PositioningHelper extends Positioning{
                 position=()=>{
                     const {first,last,node=first||last, parents}=new ReactQuery(lineInFrame)[`${$find}AndParents`](`[data-content=${id}]`)
                     const x=[...parents,node.get(0)].reduce((X,{props:{x=0}})=>x+X,0)
-                    return {x:at==1 ? x+(node.attr('width')||0) : x, y:0}
+                    const y=[...parents,node.get(0)].reduce((Y,{props:{y=0}})=>y+Y,0)
+                    return {
+                        x:at==1 ? x+(node.attr('width')||0) : x, 
+                        //y:0,
+                        y:at==1 ? y+node.attr('height')||0 : y,
+                    }
                 }
             }
         }

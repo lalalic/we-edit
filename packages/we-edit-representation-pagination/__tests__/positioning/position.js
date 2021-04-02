@@ -181,6 +181,49 @@ define("position", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Cont
         expect(doc.position({id:"2",at:0})).toMatchObject({x:3+4,y,height:10})
     })
 
+    describe("table",()=>{
+        const left={width:0}
+        const border={left,right:left,top:left,bottom:left}    
+        const content=()=>(
+                <Table id="table" width={100}>
+                    <Row id="row" cols={[{x:10,width:90}]}>
+                        <Cell id="cell" border={border}>
+                            <Paragraph id="paragraph">
+                                <Text id="text">hello</Text>
+                            </Paragraph>
+                        </Cell>
+                    </Row>
+                    <Row id="row1" cols={[{x:10,width:90}]}>
+                        <Cell id="cell1" border={border}>
+                            <Paragraph id="paragraph1">
+                                <Text id="text1">hello</Text>
+                            </Paragraph>
+                        </Cell>
+                    </Row>
+                </Table>
+        )
+
+        it("cell start/end",()=>{
+            const p=test(content())
+            expect(p.position({id:"cell",at:0})).toMatchObject({x:10,y:0})
+            expect(p.position({id:"cell",at:1})).toMatchObject({x:100,y:10})
+        })
+
+        it("row start/end",()=>{
+            const p=test(content())
+            expect(p.position({id:"row",at:0})).toMatchObject({x:0,y:0})
+            expect(p.position({id:"row",at:1})).toMatchObject({x:100,y:10})
+            expect(p.position({id:"row1",at:0})).toMatchObject({x:0,y:10})
+            expect(p.position({id:"row1",at:1})).toMatchObject({x:100,y:20})
+        })
+
+        it("table start/end",()=>{
+            const p=test(content())
+            expect(p.position({id:"table",at:0})).toMatchObject({x:0,y:0})
+            expect(p.position({id:"table",at:1})).toMatchObject({x:100,y:20})
+        })
+    })
+
     describe("in frame",()=>{
         it("without anchored",()=>{
             const p=test(
