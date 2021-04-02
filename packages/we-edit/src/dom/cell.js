@@ -7,23 +7,12 @@ export default class Cell extends Component{
 	static propTypes={
 		border:this.BorderShape,
 		margin: this.MarginShape,
-		background: PropTypes.string,
+		fill: this.FillShape,
 		vertAlign: this.VertAlignShape,
 	}
 
 	static defaultProps={
-		border:{
-			left:this.DefaultLine,
-			right:this.DefaultLine,
-			top:this.DefaultLine,
-			bottom:this.DefaultLine
-		},
-		margin:{
-			left:0,
-			right:0,
-			top:0,
-			bottom:0
-		},
-		background:"transparent"
+		border:this.BorderShape.default,
+		margin:this.MarginShape.default,
 	}
 }

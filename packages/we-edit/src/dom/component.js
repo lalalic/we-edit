@@ -9,6 +9,7 @@ export default class Base extends Component{
 		PropTypes.string,
 	])
 
+	//CSS valid values, keyword/hsl()/hsla()/rgb()/rgba()/#hex rgb
 	static ColorShape=PropTypes.oneOfType([
 		PropTypes.string,
 	])
@@ -51,7 +52,7 @@ export default class Base extends Component{
 		})]
 	)
 
-	static LineShape=PropTypes.shape({
+	static LineShape=Object.assign(PropTypes.shape({
 		width: this.UnitShape.isRequired,
 		color: this.ColorShape,
 		
@@ -67,6 +68,8 @@ export default class Base extends Component{
 		sketched: PropTypes.string,
 		compound: PropTypes.string,
 		gradient: this.GradientShape
+	}),{
+		default:{width:1,color:"black"}
 	})
 
 	static FillShape=PropTypes.shape({
@@ -102,7 +105,7 @@ export default class Base extends Component{
 		clone: PropTypes.func,//()=>to clone this geometry
 	})
 
-	static BorderShape=PropTypes.oneOfType([
+	static BorderShape=Object.assign(PropTypes.oneOfType([
 		PropTypes.shape({
 			left:this.LineShape,
 			right:this.LineShape,
@@ -110,13 +113,22 @@ export default class Base extends Component{
 			bottom:this.LineShape,
 		}),
 		this.LineShape,//4 edges with same shape
-	])
+	]),{
+		default:{
+			left:this.LineShape.default,
+			right:this.LineShape.default,
+			top: this.LineShape.default,
+			bottom: this.LineShape.default,
+		}
+	})
 	
-	static MarginShape=PropTypes.shape({
+	static MarginShape=Object.assign(PropTypes.shape({
 		left: this.UnitShape,
 		right: this.UnitShape,
 		top: this.UnitShape,
 		bottom: this.UnitShape
+	}),{
+		default:{left:0,right:0,top:0,bottom:0}
 	})
 
 	static PaddingShape=this.MarginShape
@@ -132,11 +144,6 @@ export default class Base extends Component{
 		bold: PropTypes.bool,
 		italic: PropTypes.bool,
 	})
-	
-	static DefaultLine={
-		width:1,
-		color:"black"
-	}
 
 	static as=function (type,defaultProps={}){
 		const displayName=this.displayName.split("-")

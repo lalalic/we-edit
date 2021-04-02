@@ -72,12 +72,7 @@ export default class Frame extends Component{
 	}
 
 	static defaultProps={
-		margin:{
-			left:0,
-			right:0,
-			top:0,
-			bottom:0,
-		},
+		margin:this.MarginShape.default,
 		allowOverflow:false,
 		balance:false,
 		equalBalanceThreshold:1,

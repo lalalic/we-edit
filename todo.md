@@ -50,7 +50,7 @@ docx:
     * nextLine
     * prevLine
 * Canvas
-* topBlock makes inline layout confusion, spaceTopBlock, lineTopBlock: can topBlock concept be removed? [done: dy in line]
+* topBlock makes inline layout confusion, spaceTopBlock, lineTopBlock: can topBlock concept be removed? [done]
 * exclusive space of wrappee => available inline segments, is it possible to calc available space directly from space?
 * findInlineSegments() should support minimum inline size to support big wrapper hold whole line[done]
 * focusable is heavy
@@ -64,6 +64,13 @@ docx:
 * underline should be considered in a line
 * draw shape for we-edit-office
 * enter in docx problem
+* shape border and text distance
+* use shape for cell to utilize shape feature on cell borders
+* col span, row span
+* wrap all table rows in table container, instead of table-row-line [failed]
+    * it's very risk, since positioning is based on line
+* make color support svg supported color space
+* CSSUnitValue 
 * **Positioning NOT rely on composer.computed.lastComposed**
     * it's heavy to maintain composers vs composed
         * template

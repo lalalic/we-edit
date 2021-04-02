@@ -11,24 +11,10 @@ import {HasParentAndChild,editable} from "../composable"
  * Page: a composed line, a row may be splitted into more than one page, page apply vertAlign
  * Cell: a composed cell segment, a cell may be splitted into more than one cell
  * 
- * 
- * ***Every time a row request space up, a page would be created to keep the space in the layout engine
- * ***
- * >why page's height must be fixed? 
- * *** border
- * >page's height is not always correct, how to fix it??? 
- * *** all children composed, each page's height could be fixed
- * *** page's height=Max(row height if defined, ... cell's height)
- * 
  * computed.composed is [page, page, page, ...]
  * page		space\col	col1	col2 	...
  * page1	space1		cell11		
  * page2	space2		cell12	cell21
- * ...		...	 		...	 	...
- * when append Page to space, #1 is simple and chosen
- * 1> request page space, then add empty Page placeholder, then adjust page every time a cell committed
- * 2> before requesting page space, commit last Page placeholder, do what #1 would do
- * 3> all children composed : affect blockOffset, so it's NOT possible
 */
 class Row extends HasParentAndChild(dom.Row){
 	constructor(){
@@ -43,10 +29,6 @@ class Row extends HasParentAndChild(dom.Row){
 				}
 			}
 		})
-	}
-
-	get width(){//used by calc row range
-		return this.closest("table").props.width
 	}
 
 	get currentPage(){
@@ -93,12 +75,6 @@ class Row extends HasParentAndChild(dom.Row){
 	})
 
 	/**
-	 * it would find a page's space meeting required, if there isn't 
-	 * it would request space up, and use an empty page placeholder to take up the block in layout engine
-	 * 
-	 * ***Don't use required height to request space, since later other cells' cell may fit in
-	 * if there's no cell fit in a page, it can be delete after all children composed
-	 * @TODO: there may be dead loop
 	 * @param {*} col 
 	 * @param {*} requiredSpace
 	 */
@@ -121,22 +97,9 @@ class Row extends HasParentAndChild(dom.Row){
 		}
 		return page
 	}
-	/**
-	 * request a page space from up, and then
-	 * create space for each cell
-	 * when a cell request space, we need at first determin which page, then we can determin 
-	 * 1. request page space from up
-	 * 2. or calc cell space from page space
-	 * How to determin which page when cell request space???
-	 * ** use cellId to query page
-	 * 
-	 * 
-	 * **every time requesting space, a page placeholder height=0 would be appended to take the space
-	 * **then height will be corrected every time a cell appended
-	 * @param {*} requiredSpace {cellId, height:requiredBlockSize} 
-	 */
+	
 	nextAvailableSpace({id:cellId, ...required}){
-		const {keepLines}=this.props
+		const {keepLines, minHeight, height:exactHeight}=this.props
 		const col=this.getColumns(this.props.cols)[cellId]
 		const page=this.findOrCreatePageForColumn(col,required)
 		if(!page)
@@ -183,19 +146,13 @@ class Row extends HasParentAndChild(dom.Row){
 		super.onAllChildrenComposed()
 	}
 
-	/**
-	 * it create a page placeholder, and then immediately append to block as placeholder
-	 * it first take up the whole left space with space.height, then
-	 * after all children composed, the page height and cells height would be fixed
-	 * @param {*} page 
-	 * @param {*} last 
-	 */
 	createComposed2Parent(bLastPage){
 		return this.currentPage.render(bLastPage)
 	}
 
-	getHeight(cells){
-		return Math.max(this.props.height||0,...cells.filter(a=>!!a).map(a=>a.cellHeight))
+	getHeight(cells){//@TODO: to honor height
+		const {props:{height=0, minHeight=height}}=this
+		return Math.max(minHeight||0,...cells.filter(a=>!!a).map(a=>a.cellHeight))
 	}
 
 	static Page=class extends Component{
@@ -218,10 +175,6 @@ class Row extends HasParentAndChild(dom.Row){
 
 		get appended(){
 			return !!this.height
-		}
-
-		get width(){
-			return this.props.host.width
 		}
 
 		makeEmptyCell(i){
@@ -262,7 +215,6 @@ class Row extends HasParentAndChild(dom.Row){
 				<Group {...{
 					...props,
 					height:this.height, 
-					width:this.width,
 					x:x+left.width/2,
 					y:y+top.width/2,
 					children:cells,

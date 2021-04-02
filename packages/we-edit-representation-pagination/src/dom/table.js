@@ -4,24 +4,6 @@ import {dom, ReactQuery} from "we-edit"
 import {HasParentAndChild} from "../composable"
 import {Group, Marker} from "../composed"
 
-/**
- * table/row/cell may be splitted into blocks
- * cell is the smallest unit of composing
- * but cell may be splitted into blocks
- * space is defined by cell->row->table->parent space, so it has to require space up
- */
-//export default 
-class Table1 extends HasParentAndChild(dom.Table){
-	createComposed2Parent(row){
-		const {width,indent}=this.props
-		return (
-			<Group width={width} height={row.props.height}>
-				{React.cloneElement(row,{x:indent})}
-			</Group>
-		)
-	}
-}
-
 export default class Table extends HasParentAndChild(dom.Table){
 	get pages(){
 		return this.computed.composed
@@ -41,7 +23,7 @@ export default class Table extends HasParentAndChild(dom.Table){
 	}
 
 	appendComposed(row){
-		this.currentPage.rows.push(row)
+		this.currentPage.rows.push(React.cloneElement(row,{width:this.props.width}))
 	}
 
 	/**row call it to append a block of row*/
