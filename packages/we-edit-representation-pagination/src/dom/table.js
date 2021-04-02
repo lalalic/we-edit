@@ -1,8 +1,8 @@
 import React, {Component} from "react"
-import {dom} from "we-edit"
+import {dom, ReactQuery} from "we-edit"
 
 import {HasParentAndChild} from "../composable"
-import {Group} from "../composed"
+import {Group, Marker} from "../composed"
 
 /**
  * table/row/cell may be splitted into blocks
@@ -10,7 +10,8 @@ import {Group} from "../composed"
  * but cell may be splitted into blocks
  * space is defined by cell->row->table->parent space, so it has to require space up
  */
-export default class extends HasParentAndChild(dom.Table){
+//export default 
+class Table1 extends HasParentAndChild(dom.Table){
 	createComposed2Parent(row){
 		const {width,indent}=this.props
 		return (
@@ -21,7 +22,7 @@ export default class extends HasParentAndChild(dom.Table){
 	}
 }
 
-class Table extends HasParentAndChild(dom.Table){
+export default class Table extends HasParentAndChild(dom.Table){
 	get pages(){
 		return this.computed.composed
 	}
@@ -32,29 +33,39 @@ class Table extends HasParentAndChild(dom.Table){
 
 	onAllChildrenComposed(){
 		/**content height should be considered for dy */
-		const content=this.createComposed2Parent(this.currentPage)
 		const height=this.currentPage.height
-		const {y}=this.currentPage.space.segments.find(a=>a.height>=height)
-		this.context.parent.appendComposed(React.cloneElement(content,{y}))
+		const {y}=this.currentPage.space.segments.sort((a,b)=>a.y-b.y).find(a=>a.height>=height)
+		const dy=y-this.currentPage.space.frame.blockOffset
+		this.appendCurrentPageRowsAt(dy)
 		super.onAllChildrenComposed()
 	}
 
-	appendComposed(rowRankPlaceholder){
-		this.currentPage.push(rowRankPlaceholder)
+	appendComposed(row){
+		this.currentPage.rows.push(row)
 	}
 
 	/**row call it to append a block of row*/
-	createComposed2Parent(page){
-		const {width,indent}=this.props
-		const height=page.height
-		const content=this.page.render()
+	createComposed2Parent(pageRow, needMarker){
+		const {width,indent, id}=this.props
 		return (
-			<Group width={width} height={height}>
+			<Group width={width} height={pageRow.props.height}>
+				{needMarker && <Marker {...{type:"table",id}}/>}
 				<Group x={indent}>
-					{content}
+					{pageRow}
 				</Group>
 			</Group>
 		)
+	}
+
+	appendCurrentPageRowsAt(dy){
+		const [first,...rows]=this.currentPage.render()
+		this.context.parent.appendComposed(
+			React.cloneElement(
+				this.createComposed2Parent(first,true),
+				{dy}
+			)
+		)
+		rows.forEach(row=>{this.context.parent.appendComposed(this.createComposed2Parent(row))})
 	}
 
 	/**
@@ -64,9 +75,9 @@ class Table extends HasParentAndChild(dom.Table){
 	 * each row should only request once, since max and edge already give each time, row already know how to balance
 	 */
 	nextAvailableSpace(rowId){
-		if(this.currentPage.has(rowId)){
-			const content=this.createComposed2Parent(this.currentPage)
-			this.context.parent.appendComposed(React.cloneElement(content, {dy:this.currentPage.space.blockOffset}))
+		if(this.currentPage?.has(rowId)){
+			const dy=this.currentPage.space.blockOffset-this.currentPage.space.frame.blockOffset
+			this.appendCurrentPageRowsAt(dy)
 			this.pages.push(null)
 		}
 
@@ -92,20 +103,22 @@ class Table extends HasParentAndChild(dom.Table){
 	}
 
 	static Page=class extends Component{
+		static displayName="page-table"
 		get space(){
 			return this.props.space
 		}
 
 		get rows(){
-			return this.props.rows
+			return this.props.children
 		}
 
 		get height(){
 			return this.rows.reduce((H,{props:{height:h=0}})=>H+h,0)
 		}
 
-		get isFull(){
-			return this.space.height-this.height<=0
+		has(rowId){
+			const row=this.rows[this.rows.length-1]
+			return row && new ReactQuery(row).findFirst(`[data-content="${rowId}"]`).length==1
 		}
 
 		nextAvailableSpace(){
@@ -117,12 +130,9 @@ class Table extends HasParentAndChild(dom.Table){
 		}
 
 		render(){
+			this.render=()=>{throw new Error("table already appended, why called again?")}
 			const {children:rows, }=this.props
-			return rows.reduce((status,row,i)=>{
-				status.rows.push(React.cloneElement(row,{y:status.y,key:i}))
-				status.y+=row.props.height
-				return status
-			},{y:0,rows:[]})
+			return rows
 		}
 	}
 }

@@ -228,9 +228,13 @@ class Flow extends HasParentAndChild(dom.Frame) {
 						return space
 					
 					/** transform exclusive space to acceptable space */
-					const segments=wrappees.reduce((ops, { x, width}) => {
-							const [last] = ops.splice(-1);
-							return [...ops, { x: last.x, width: x - last.x}, { x: x + width, width: right - x - width }];
+					const segments=wrappees.reduce((segs, { x, width}) => {
+							const [last] = segs.splice(-1);
+							return [
+								...segs, 
+								{ x: last.x, width: x - last.x}, 
+								{ x: x + width, width: right - x - width }
+							]
 						}, [{ x: left, width: right - left }])
 						.filter(a=>a.width>0)
 				
@@ -272,10 +276,13 @@ class Flow extends HasParentAndChild(dom.Frame) {
 							}
 							return wrapees;
 						}, [])
-					const segments=excludes.reduce((ops, { y, height}) => {
-							debugger
-							const [last] = ops.splice(-1);
-							return [...ops, { y: last.y, height: y - last.y}, { y: y + height, height: this.blockOffset+height-(y+height) }];
+					const segments=excludes.reduce((segs, { y, height}) => {
+							const [last] = segs.splice(-1);
+							return [
+								...segs, 
+								{ y: last.y, height: y - last.y}, 
+								{ y: y + height, height: (last.y+last.height)-(y+height) }
+							]
 						}, [{ y: this.blockOffset, height:this.height }])
 						.filter(a=>a.height>=0)
 					return segments

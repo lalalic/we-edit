@@ -286,14 +286,14 @@ define("section compose",
             expect(doc2.xy(`[children="hello"]`)).toMatchObject({x:pg.margin.left,y:pg.margin.top+baseline})
         })
 
-        xit("table should be wrapped around anchor too",()=>{
+        it("table should be wrapped around anchor too",()=>{
             const doc1=test(undefined,(
                 <Fragment>
                     <Paragraph {...{id:uuid++}}>
                         <Text id={uuid++}>world</Text>
                         <Anchor {...{
                             id:"anchor", 
-                            x:{base:"page",x:12},y:{base:"page",y:12},
+                            x:{base:"page"},y:{base:"page"},
                             wrap:{mode:"square",geometry:new Shape.Path("M0 0h50v50h-50Z"), }
                         }}/>
                     </Paragraph>
@@ -310,7 +310,53 @@ define("section compose",
                     </Table>
                 </Fragment>
             ))
-            expect(doc1.xy('[data-type=table]')).toMatchObject({x:pg.margin.left,y:62})
+            expect(doc1.xy('[data-type=table]')).toMatchObject({x:pg.margin.left,y:50})
+        })
+
+        it("[anchor:0,20],[anchor:35,55] makes table[heigh=20] layout from 55",()=>{
+            const left={width:0}
+            const border={left,right:left,top:left,bottom:left}
+            const doc1=test(undefined,(
+                <Fragment>
+                    <Paragraph {...{id:uuid++}}>
+                        <Text id={uuid++}>world</Text>
+                        <Anchor {...{
+                            id:"anchor", 
+                            x:{base:"page"},y:{base:"page"},
+                            wrap:{mode:"square",geometry:new Shape.Path("M0 0h20v20h-20Z"), }
+                        }}/>
+
+                        <Anchor {...{
+                            id:"anchor1", 
+                            x:{base:"page"},y:{base:"page"},
+                            wrap:{mode:"square",geometry:new Shape.Path("M35 35h20v20h-20Z"), }
+                        }}/>
+                    </Paragraph>
+                    <Table {...{id:uuid++}}>
+                        <Row {...{id:"row1", cols:[{x:10,width:40},{x:50,width:90}]}}>
+                            <Cell {...{id:uuid++}} border={border}>
+                                <Paragraph {...{id:uuid++}}>
+                                    <Text id={uuid++}>hello</Text>
+                                </Paragraph>
+                            </Cell>
+                            <Cell {...{id:uuid++}}  border={border}>
+                            </Cell>
+                        </Row>
+                        <Row {...{id:"row2", cols:[{x:10,width:40},{x:50,width:90}]}}>
+                            <Cell {...{id:uuid++}}  border={border}>
+                                <Paragraph {...{id:uuid++}}>
+                                    <Text id={uuid++}>hello</Text>
+                                </Paragraph>
+                            </Cell>
+                            <Cell {...{id:uuid++}}  border={border}>
+                            </Cell>
+                        </Row>
+                    </Table>
+                </Fragment>
+            ))
+            expect(doc1.xy('[data-type=table]')).toMatchObject({x:pg.margin.left,y:55})
+            expect(doc1.xy('[data-content=row1]')).toMatchObject({x:pg.margin.left,y:55})
+            expect(doc1.xy('[data-content=row2]')).toMatchObject({x:pg.margin.left,y:65})
         })
 
         xit("Through should around geometry boundary including inside of left and right margin",()=>{

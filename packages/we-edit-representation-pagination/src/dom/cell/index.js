@@ -4,6 +4,7 @@ import {dom} from "we-edit"
 import EditableEdges from "./editable-edges"
 import Section from "../section"
 import {HasParentAndChild} from "../../composable"
+import Group from "../../composed/group"
 
 /**
  * Cell is fissionable
@@ -44,23 +45,17 @@ export default class extends Section{
 			return React.cloneElement(
 				content,
 				{width,height},
-				content.props.children,
+				<Group {...{"data-cellcontent":1}}>{content.props.children}</Group>,
 				React.cloneElement(borders,{height,width,
 					table,row,cell,i,isFirstRowInPage,isLastRankOfRow//editable edges
 				})
 			)
 		}
-		/**
-		 * create empty cell slot
-		 */
-		cloneAsEmpty(){
-			return Object.assign(this.clone(...arguments),{computed:{composed:[],anchors:[],lastComposed:[]}})
-		}
 
 		/**used to caculate rank height */
-		get slotHeight(){
-			const {margin:{bottom=0}}=this.props
-			return this.blockOffset+bottom
+		get cellHeight(){
+			const {margin:{bottom=0, top=0}}=this.props
+			return this.contentHeight+bottom+top
 		}
 	}
 

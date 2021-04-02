@@ -173,7 +173,7 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
                 .toMatchObject( [{left:60,top:10,right:100,bottom:20}])
         })
     
-        it("row ",()=>{
+        fit("row ",()=>{
             expect(doc.getRangeRects({id:"row",at:0},{id:"row",at:1}))
                 .toMatchObject([ {left:0,top:10,right:100,bottom:20}])
         })    

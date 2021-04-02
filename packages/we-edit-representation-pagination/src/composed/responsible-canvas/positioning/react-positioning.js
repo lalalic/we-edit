@@ -791,7 +791,6 @@ export default class ReactPositioning extends PositioningHelper {
     getRangeRects(start,end){
         const rects=[]
         const { p0, p1 } = this.getOrderedPosition(start, end)
-        
         const scope=(function* (frame0, frame1){
             const makeRects=(frame,from=0,to=frame.lines.length-1)=>{
                 const topFrame=this.getCheckedGrandFrameByFrame(frame)
