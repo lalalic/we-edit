@@ -9,10 +9,14 @@ export default class Cell extends Component{
 		margin: this.MarginShape,
 		fill: this.FillShape,
 		vertAlign: this.VertAlignShape,
+		rowSpan: PropTypes.number,
+		colSpan: PropTypes.number,
 	}
 
 	static defaultProps={
 		border:this.BorderShape.default,
 		margin:this.MarginShape.default,
+		rowSpan:0,
+		colSpan:0,
 	}
 }

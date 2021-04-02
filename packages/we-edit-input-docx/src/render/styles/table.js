@@ -133,6 +133,8 @@ const attribs={
 		"w:tblBorders":"border",
 		"w:cnfStyle":"conditional",
 		"w:vAlign": "vertAlign",
+		"w:vMerge":"vMerge",
+		"w:gridSpan":"rowSpan",
 	}
 }
 export default class TableStyle extends WithBorder{
@@ -223,7 +225,7 @@ export default class TableStyle extends WithBorder{
 		},{}))
 
 		let background=this.get('tbl.background',conditions)
-
+		
 		const clean=a=>Object.keys(a).length==0 ? undefined : a
 
 		[margin,border,p,r]=[clean(margin),clean(border),clean(p),clean(r)]

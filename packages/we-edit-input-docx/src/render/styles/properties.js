@@ -281,6 +281,10 @@ export class Properties{
 		return this._val(x)
 	}
 
+	vMerge(x){
+		return x.attribs["w:val"]||true
+	}
+
 /**************drawingML********************/
 	positionH(x){
 		return {

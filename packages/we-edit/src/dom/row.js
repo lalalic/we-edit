@@ -12,6 +12,11 @@ export default class Row extends Component{
 		cols: PropTypes.arrayOf(PropTypes.shape({
 			x: this.UnitShape,
 			width:this.UnitShape
-		})).isRequired
+		})).isRequired,
+		span: PropTypes.number,
+	}
+
+	static defaultProps={
+		span:0,
 	}
 }
