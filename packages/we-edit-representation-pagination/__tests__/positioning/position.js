@@ -181,6 +181,39 @@ define("position", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Cont
         expect(doc.position({id:"2",at:0})).toMatchObject({x:3+4,y,height:10})
     })
 
+    describe("table",()=>{
+        fit("cell start/end",()=>{
+            const p=test(
+                <Table id="table" width={100}>
+                    <Row id="row" cols={[{x:10,width:90}]}>
+                        <Cell id="cell">
+                            <Paragraph id="paragraph">
+                                <Text id="text">hello</Text>
+                            </Paragraph>
+                        </Cell>
+                    </Row>
+                    <Row id="row1" cols={[{x:10,width:90}]}>
+                        <Cell id="cell1">
+                            <Paragraph id="paragraph1">
+                                <Text id="text1">hello</Text>
+                            </Paragraph>
+                        </Cell>
+                    </Row>
+                </Table>
+            )
+            expect(p.position("cell",0)).toMatchObject({x:10,y:0,height:10})
+            expect(p.position("cell",1)).toMatchObject({x:10,y:100,height:10})
+        })
+
+        it("row start/end",()=>{
+
+        })
+
+        it("table start/end",()=>{
+
+        })
+    })
+
     describe("in frame",()=>{
         it("without anchored",()=>{
             const p=test(

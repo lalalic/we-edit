@@ -1,4 +1,4 @@
-import React,{PureComponent as Component} from "react"
+import React,{PureComponent as Component, Fragment} from "react"
 import {dom, ReactQuery} from "we-edit"
 import memoize from "memoize-one"
 
@@ -8,33 +8,33 @@ import {HasParentAndChild,editable} from "../composable"
 
 /**
  * terms:
- * Rank: a composed line, a row may be splitted into more than one rank, rank apply vertAlign
- * Slot: a composed cell segment, a cell may be splitted into more than one slot
+ * Page: a composed line, a row may be splitted into more than one page, page apply vertAlign
+ * Cell: a composed cell segment, a cell may be splitted into more than one cell
  * 
  * 
- * ***Every time a row request space up, a rank would be created to keep the space in the layout engine
+ * ***Every time a row request space up, a page would be created to keep the space in the layout engine
  * ***
- * >why rank's height must be fixed? 
+ * >why page's height must be fixed? 
  * *** border
- * >rank's height is not always correct, how to fix it??? 
- * *** all children composed, each rank's height could be fixed
- * *** rank's height=Max(row height if defined, ... slot's height)
+ * >page's height is not always correct, how to fix it??? 
+ * *** all children composed, each page's height could be fixed
+ * *** page's height=Max(row height if defined, ... cell's height)
  * 
- * computed.composed is [rank, rank, rank, ...]
- * rank		space\col	col1	col2 	...
- * rank1	space1		slot11		
- * rank2	space2		slot12	slot21
+ * computed.composed is [page, page, page, ...]
+ * page		space\col	col1	col2 	...
+ * page1	space1		cell11		
+ * page2	space2		cell12	cell21
  * ...		...	 		...	 	...
- * when append Rank to space, #1 is simple and chosen
- * 1> request rank space, then add empty Rank placeholder, then adjust rank every time a slot committed
- * 2> before requesting rank space, commit last Rank placeholder, do what #1 would do
+ * when append Page to space, #1 is simple and chosen
+ * 1> request page space, then add empty Page placeholder, then adjust page every time a cell committed
+ * 2> before requesting page space, commit last Page placeholder, do what #1 would do
  * 3> all children composed : affect blockOffset, so it's NOT possible
 */
 class Row extends HasParentAndChild(dom.Row){
 	constructor(){
 		super(...arguments)
 		Object.defineProperties(this,{
-			ranks:{
+			pages:{
 				get(){
 					return this.computed.composed
 				},
@@ -48,13 +48,17 @@ class Row extends HasParentAndChild(dom.Row){
 	get width(){//used by calc row range
 		return this.closest("table").props.width
 	}
+
+	get currentPage(){
+		return this.pages[this.pages.length-1]
+	}
 	
 	/**
 	 * support get column by cellid, such as this.getColumns(this.props.cols)["cellid1"] 
 	 * cell id would be set in column accoding to using/composing order(it's correct for composing)
 	 * support 
-	 * column.currentRank:current valid rank for the column
-	 * column.firstSlot:first slot of this column
+	 * column.currentPage:current valid page for the column
+	 * column.firstCell:first cell of this column
 	 * make it dynamic to always use current cols
 	 */
 	getColumns=memoize(cols=>{
@@ -62,15 +66,15 @@ class Row extends HasParentAndChild(dom.Row){
 		return new Proxy(cols.map(a=>new Proxy(a,{
 			get(col,prop){
 				switch(prop){
-				case "currentRank":{
-						const ranks=me.ranks
+				case "currentPage":{
+						const pages=me.pages
 						const i=cols.indexOf(col)
-						return ranks[ranks.findLastIndex(a=>!!a.slots[i])+1]
+						return pages[pages.findLastIndex(a=>!!a.cells[i])+1]
 					}
-				case "firstSlot":{
-						const ranks=me.ranks
+				case "firstCell":{
+						const pages=me.pages
 						const i=cols.indexOf(col)
-						return ranks.find(a=>!!a.slots[i]).slots[i]	
+						return pages.find(a=>!!a.cells[i]).cells[i]	
 					}	
 				}
 				return col[prop]
@@ -89,55 +93,56 @@ class Row extends HasParentAndChild(dom.Row){
 	})
 
 	/**
-	 * it would find a rank's space meeting required, if there isn't 
-	 * it would request space up, and use an empty rank placeholder to take up the block in layout engine
+	 * it would find a page's space meeting required, if there isn't 
+	 * it would request space up, and use an empty page placeholder to take up the block in layout engine
 	 * 
-	 * ***Don't use required height to request space, since later other cells' slot may fit in
-	 * if there's no slot fit in a rank, it can be delete after all children composed
+	 * ***Don't use required height to request space, since later other cells' cell may fit in
+	 * if there's no cell fit in a page, it can be delete after all children composed
 	 * @TODO: there may be dead loop
 	 * @param {*} col 
 	 * @param {*} requiredSpace
 	 */
-	findOrCreateRankForColumn(col, {height:minHeight=0}={}){
-		var rank=col.currentRank 
-		if(rank){
-			//find first rank whose space meet required
-			rank=this.ranks.slice(this.ranks.indexOf(rank)).find(rank=>rank.space.height>=minHeight)
+	findOrCreatePageForColumn(col, {height:minHeight=0}={}){
+		var page=col.currentPage 
+		if(page){
+			//find first page whose space meet required
+			page=this.pages.slice(this.pages.indexOf(page)).find(page=>page.space.height>=minHeight)
 		}
-		while(!rank){
+		while(!page){
+			if(this.currentPage){
+				this.context.parent.appendComposed(this.createComposed2Parent(false))
+			}
 			//request largest space in current constraint space
 			const space=super.nextAvailableSpace(this.props.id)
 			if(!space)//no space any more, stop immediately
 				return 
-			this.ranks.push(rank=new this.constructor.Rank({space, children:new Array(this.getColumns(this.props.cols).length).fill(null)}))
-			console.debug(`${this.ranks.length}th rank of row created and taking place`)
-			//each requested space should be taken up by appending rank placeholder, so next request can take effect
-			this.context.parent.appendComposed(this.createComposed2Parent(rank))
+			
+			this.pages.push(page=new this.constructor.Page({host:this, space,  children:new Array(this.getColumns(this.props.cols).length).fill(null)}))
 		}
-		return rank
+		return page
 	}
 	/**
-	 * request a rank space from up, and then
+	 * request a page space from up, and then
 	 * create space for each cell
-	 * when a cell request space, we need at first determin which rank, then we can determin 
-	 * 1. request rank space from up
-	 * 2. or calc cell space from rank space
-	 * How to determin which rank when cell request space???
-	 * ** use cellId to query rank
+	 * when a cell request space, we need at first determin which page, then we can determin 
+	 * 1. request page space from up
+	 * 2. or calc cell space from page space
+	 * How to determin which page when cell request space???
+	 * ** use cellId to query page
 	 * 
 	 * 
-	 * **every time requesting space, a rank placeholder height=0 would be appended to take the space
-	 * **then height will be corrected every time a slot appended
+	 * **every time requesting space, a page placeholder height=0 would be appended to take the space
+	 * **then height will be corrected every time a cell appended
 	 * @param {*} requiredSpace {cellId, height:requiredBlockSize} 
 	 */
 	nextAvailableSpace({id:cellId, ...required}){
 		const {keepLines}=this.props
 		const col=this.getColumns(this.props.cols)[cellId]
-		const rank=this.findOrCreateRankForColumn(col,required)
-		if(!rank)
+		const page=this.findOrCreatePageForColumn(col,required)
+		if(!page)
 			return false
-		const space=rank.space
-		//further constraint rank space for column of cellid
+		const space=page.space
+		//further constraint page space for column of cellid
 		const {left,height}=space, {x=0,width}=col, X=left+x
 		return space.clone({
 			left:X,
@@ -148,146 +153,116 @@ class Row extends HasParentAndChild(dom.Row){
 
 	/**
 	 * put it into correct column[i].push(cell)
-	 * @param {*} slotFrame 
+	 * @param {*} cellFrame 
 	 */
-	appendComposed(slotFrame){
+	appendComposed(cellFrame){
 		const columns=this.getColumns(this.props.cols)
-		const cellId=slotFrame && slotFrame.props.id
+		const cellId=cellFrame && cellFrame.props.id
 		const col=columns[cellId]
-		const rank=this.findOrCreateRankForColumn(col, {height:this.getHeight([slotFrame])})
-		rank && rank.insertAt(slotFrame,columns.indexOf(col))
+		const page=this.findOrCreatePageForColumn(col, {height:this.getHeight([cellFrame])})
+		page && page.insertAt(cellFrame,columns.indexOf(col))
 	}
 
 	onAllChildrenComposed(){
-		//remove empty rank, can it be ignored????
-		this.ranks=this.ranks.filter(rank=>{
-			if(!rank.isEmpty()){
+		/*
+		//remove empty page, can it be ignored????
+		this.pages=this.pages.filter(page=>{
+			if(!page.isEmpty()){
 				return true
 			}
-			rank.delayout()
+			page.delayout()
 		})
-		const columns=this.getColumns(this.props.cols)
-		this.ranks.forEach((rank,i,ranks)=>{
-			const height=this.getHeight(rank.slots)
-			//replace  empty slot with empty column.firstSlot shape
-			rank.slots.forEach((a,i,slots)=>!a && (slots[i]=columns[i].firstSlot.cloneAsEmpty()))
-			//then 
-			rank.relayout(height,ranks.length-1==i)
+		*/
+		if(this.currentPage && !this.currentPage.appended){
+			this.context.parent.appendComposed(this.createComposed2Parent(true))
+		}
+		this.pages.forEach(page=>{
+			page.cells.forEach((a,i,cells)=>!a && (cells[i]=page.makeEmptyCell(i)))
 		})
+		
 		super.onAllChildrenComposed()
 	}
 
 	/**
-	 * it create a rank placeholder, and then immediately append to block as placeholder
+	 * it create a page placeholder, and then immediately append to block as placeholder
 	 * it first take up the whole left space with space.height, then
-	 * after all children composed, the rank height and slots height would be fixed
-	 * @param {*} rank 
+	 * after all children composed, the page height and cells height would be fixed
+	 * @param {*} page 
 	 * @param {*} last 
 	 */
-	createComposed2Parent({props:{space:{height}, children}}){
-		const {props:{cols,id:row},width}=this
-		return <this.constructor.Rank {...{height,width, row, children, cols}}/>
+	createComposed2Parent(bLastPage){
+		return this.currentPage.render(bLastPage)
 	}
 
-	getHeight(slots){
-		return Math.max(this.props.height||0,...slots.filter(a=>!!a).map(a=>a.slotHeight))
+	getHeight(cells){
+		return Math.max(this.props.height||0,...cells.filter(a=>!!a).map(a=>a.cellHeight))
 	}
 
-	static Rank=class extends Component{
-		static displayName="rank"
+	static Page=class extends Component{
+		static displayName="page-row"
 		get space(){
 			return this.props.space
 		}
 	
-		get slots(){
+		get cells(){
 			return this.props.children
 		}
 
-		/**the layouted rank in the space */
-		get layouted(){
-			const frame=this.space.frame
-			return new Proxy(frame.lastLine, {
-				get(line, prop) {
-					if (prop == "replaceWith") {
-						return replacement => frame.lines.splice(-1, 1, replacement);
-					}
-					else if (prop == "detach") {
-						return () => frame.lines.splice(-1, 1);
-					}else if(prop == "isFirstRowInPage"){
-						const prevLine=frame.lines[frame.lines.length-2]
-						const table=a=>new ReactQuery(a).findFirst(`[data-type=table]`).attr("data-content")
-						return !prevLine || table(line)!=table(prevLine)
-							
-					}
-					return line[prop];
-				}
-			});
+		get cols(){
+			return this.props.host.props.cols
 		}
 
-		delayout(){
-			this.layouted.detach()
-		}
-	
-		isEmpty(){
-			const {children:slots}=this.props
-			return !slots.find(a=>a && !a.isEmpty())
+		get border(){
+			return this.props.host.pages[0]._border
 		}
 
-		relayout(height, isLastRankOfRow){
-			const Rank=this.constructor
-			function changeHeightUp(height, rank, parents) {
-				const delta=height-(rank.props.height||0)
-				return parents.reduceRight((child, parent) => {
-					const { props: { height, children} } = parent
-					if (React.Children.count(children) == 1) {
-						if (typeof (height) == "number") {
-							return React.cloneElement(parent, { height: height + delta }, child);
-						}
-					} else {
-						console.warn("row's offspring should only has one child");
-					}
-					return parent
-				}, new Rank({...rank.props,height}).render())
-			}
-			const {first,parents,rank=first.get(0)}=new ReactQuery(this.layouted).findFirstAndParents(`rank`)
-			try{
-			const changed=changeHeightUp(
-				height,
-				React.cloneElement(rank,{
-					isLastRankOfRow,
-					isFirstRowInPage:this.layouted.isFirstRowInPage,
-					table:parents.findLast(a=>a.props["data-type"]=="table").props["data-content"],
-				}),
-				parents
-			)
-			/** set height changes from rank to block line*/
-			this.layouted.replaceWith(changed)
-			}catch(e){
-				debugger
-			}
+		get appended(){
+			return !!this.height
+		}
+
+		makeEmptyCell(i){
+			const columns=this.props.host.getColumns(this.cols)
+			let $=new ReactQuery(columns[i].firstCell)
+			const cellContent=$.findFirst(`[data-cellcontent]`)
+			$=$.replace(cellContent,<Fragment/>)
+			const border=$.findFirst('[data-nocontent]')
+			$=$.replace(border, React.cloneElement(border.get(0),{height:this.height}))
+			return $.get(0)
+		}
+
+		insertAt(cell, i){
+			i==0 && (this._border=cell.props.borders.props);
+			this.cells[i]=this.height ? this.renderCell(cell,i) : cell
+		}
+
+		renderCell(cell, i){
+			const {isLastPageOfRow, isFirstRowInPage,table, row}=this.props
+			return React.cloneElement(
+				cell.clone({
+					height:this.height,
+					colIndex:i,table,row,isLastPageOfRow,isFirstRowInPage//editable edges need the information
+				}).createComposed2Parent(),{
+				...this.cols[i],
+				height:this.height,
+				key:i,
+			})	
 		}
 	
-		insertAt(slot, i){
-			this.slots[i]=slot
-		}
-	
-		render(){
-			const {children:slots=[],cols,height,isLastRankOfRow, isFirstRowInPage,table, row, space, x=0,y=0,...props}=this.props
-			const {borders:{props:{top,left}}}=slots[0].props
+		render(bLastPage){
+			this.render=()=>{throw new Error("row already appended, why called again?")}
+			const {children:cells=[],host, isLastPageOfRow, isFirstRowInPage,table, row, space, x=0,y=0,...props}=this.props			
+			this.height=bLastPage ? host.getHeight(cells) : space.height
+			cells.forEach((a,i)=>cells[i]=a?.render ? this.renderCell(a,i) : a)
+			const {top,left}=this.border
 			return (
-					<Group height={height} x={x+left.width/2} y={y+top.width/2} {...props} >
-					{
-						slots.map((a,i)=>React.cloneElement(
-							a.clone({height,
-								colIndex:i,table,row,isLastRankOfRow,isFirstRowInPage//editable edges need the information
-							}).createComposed2Parent(),{
-							...cols[i],
-							height,
-							key:i,
-						}))
-					}
-					</Group>
-				)
+				<Group {...{
+					...props,
+					height:this.height,
+					x:x+left.width/2,
+					y:y+top.width/2,
+					children:cells,
+				}}/>
+			)
 		}
 	}
 }

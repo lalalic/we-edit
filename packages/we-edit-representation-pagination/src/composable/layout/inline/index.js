@@ -117,7 +117,7 @@ export default class Inline extends Component{
 		const placeholder=React.cloneElement(
 			$atom.replace(
 				$anchor.get(0),
-				<Group children={<Marker type="anchor" id={anchorId} width={12} height={12} x={-12} y={-12}/>}/>).get(0),
+				<Group children={<Marker type="anchor" id={anchorId}/>}/>).get(0),
 			{atom,width:0,"data-anchor":anchorId}
 		)
 		//React.cloneElement($anchor.get(0),{atom,width:0,"data-anchor":anchorId})
