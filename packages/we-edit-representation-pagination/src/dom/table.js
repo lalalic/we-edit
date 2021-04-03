@@ -116,11 +116,10 @@ export default class Table extends HasParentAndChild(dom.Table){
 		}
 
 		nextAvailableSpace(){
-			const height=this.space.height-this.height
-			if(height>0){
-				return this.space.clone({height,blockOffset:this.space.blockOffset+this.height})
-			}
-			return false
+			const height=this.height, available=this.space.height-this.height
+			if(available<=0)
+				return false
+			return this.space.clone({height:available,blockOffset:this.space.blockOffset+height})
 		}
 
 		render(){
