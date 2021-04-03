@@ -86,11 +86,11 @@ export default class extends Section{
 	 * @param {*} required 
 	 */
 	createLayout(props,context,required={}){
-		const space=this.context.parent.nextAvailableSpace({...required,id:this.props.id})
+		const {margin:{right=0,left=0,top=0,bottom=0}={}, vertAlign,border, id, rowSpan}=this.props
+		const space=this.context.parent.nextAvailableSpace({...required,id, rowSpan})
 		if(!space)
 			return null
 		const {width,height,frame}=space
-		const {margin:{right=0,left=0,top=0,bottom=0}={}, vertAlign,border}=this.props
 		/**
 		 * a cell space border|margin|content|margin|border
 		 */
