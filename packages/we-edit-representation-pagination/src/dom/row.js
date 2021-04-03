@@ -62,13 +62,25 @@ class Row extends HasParentAndChild(dom.Row){
 				return col[prop]
 			}
 		})),{
-			get(columns, prop){
-				if(prop in columns){
-					return columns[prop]
+			get(columns, key){
+				if(key in columns){
+					return columns[key]
 				}
 
-				if(typeof(prop)=="string"){
-					return columns.find(a=>a.id ? a.id==prop : a.id=prop)
+				if(typeof(key)=="string"){
+					let i=columns.findIndex(a=>a.id==key)
+					if(i!=-1)
+						return columns[i]
+					let found=null
+					i=columns.findLastIndex(a=>!!a.id)
+					if(i==-1){
+						found=columns[0]
+					}else{
+						const {rowSpan=1}=columns[i]
+						found=columns[i+rowSpan]
+					}
+					found.id=key
+					return found
 				}
 			}
 		})
