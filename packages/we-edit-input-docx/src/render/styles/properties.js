@@ -285,6 +285,10 @@ export class Properties{
 		return x.attribs["w:val"]||true
 	}
 
+	gridSpan(x){
+		return parseInt(x.attribs["w:val"])
+	}
+
 /**************drawingML********************/
 	positionH(x){
 		return {
