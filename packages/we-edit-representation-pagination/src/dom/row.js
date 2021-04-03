@@ -155,7 +155,7 @@ class Row extends HasParentAndChild(dom.Row){
 
 	getHeight(cells){//@TODO: to honor height
 		const {props:{height=0, minHeight=height}}=this
-		return Math.max(minHeight||0,...cells.filter(a=>!!a).map(a=>a.cellHeight))
+		return Math.max(minHeight||0,...cells.filter(a=>!!a && !a.vMerge).map(a=>a.cellHeight))
 	}
 
 	static Page=class extends Component{
@@ -194,10 +194,11 @@ class Row extends HasParentAndChild(dom.Row){
 		get height(){
 			return this.bLastPage ? this.props.host.getHeight(this.cells) : this.props.space.height
 		}
-	
-		render(){
+
+		render(cellHeights){
 			const {children:cells=[],host, isLastPageOfRow, isFirstRowInPage,table, row, space, x=0,y=0,...props}=this.props			
 			const {top,left}=this.border, height=this.height, cols=this.cols
+
 			return (
 				<Group {...{
 					...props,
@@ -205,13 +206,16 @@ class Row extends HasParentAndChild(dom.Row){
 					x:x+left.width/2,
 					y:y+top.width/2,
 					children:cells.map((cell,i)=>{
-						return cell&&React.cloneElement(
+						if(!cell || cell.vMerged)
+							return null
+						const h=cellHeights?.[i]||height
+						return React.cloneElement(
 							cell.clone({
-								height,
+								height:h,
 								colIndex:i,table,row,isLastPageOfRow,isFirstRowInPage//editable edges need the information
 							}).createComposed2Parent(),{
 							...cols[i],
-							height,
+							height:h,
 							key:i,
 						})
 					}),
@@ -219,8 +223,8 @@ class Row extends HasParentAndChild(dom.Row){
 			)
 		}
 
-		createComposed2Parent(){
-			return this.props.host.createComposed2Parent(this.render())
+		createComposed2ParentWithHeight(cellHeights){
+			return this.props.host.createComposed2Parent(this.render(cellHeights))
 		}
 	}
 }

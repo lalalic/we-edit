@@ -57,6 +57,21 @@ export default class extends Section{
 			const {margin:{bottom=0, top=0}}=this.props
 			return this.contentHeight+bottom+top
 		}
+
+		get vMerged(){
+			const {context:{parent:{props:{vMerge}}}}=this
+			return vMerge===true
+		}
+
+		get startVMerge(){
+			const {context:{parent:{props:{vMerge}}}}=this
+			return vMerge==="restart"
+		}
+
+		get vMerge(){
+			const {context:{parent:{props:{vMerge}}}}=this
+			return vMerge
+		}
 	}
 
 	static Edges=EditableEdges

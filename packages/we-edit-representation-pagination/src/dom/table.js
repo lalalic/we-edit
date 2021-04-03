@@ -128,10 +128,62 @@ export default class Table extends HasParentAndChild(dom.Table){
 				throw new Error("table already appended, why called again?")
 			}
 			const {children:rows}=this.props
-			const layouted=rows.map(pageRow=>{
-				return pageRow.createComposed2Parent()
+			const matrix=this.getCellHeightMatrix(rows)
+			return rows.map((pageRow,i)=>{
+				return pageRow.createComposed2ParentWithHeight(matrix[i])
 			})
-			return layouted
+		}
+
+		getCellHeightMatrix(rows){
+			const matrix=new Array(rows.length)
+			const startMergeCells=[]
+			let Y=0
+			rows.forEach((row, i)=>{
+				const rowHeight=row.height, rowBeginY=Y, rowEndY=rowBeginY+rowHeight
+				//init all cell with row height
+				matrix[i]=new Array(row.cells.length).fill(rowHeight)
+				Y+=rowHeight
+
+				const endMergeCells=new Array(row.cells.length).fill(null)
+				row.cells.forEach((a,j,_1,_2,b=rows[i+1]?.cells[j])=>{
+					if(!a)
+						return 
+					if(b && a.startVMerge){//start
+						a.__temp={rowBeginY,rowIndex:i} //temp for quick calc
+						startMergeCells[j]=a
+					}else if(a.vMerge && (!b?.vMerge || b.startVMerge)){//end
+						endMergeCells[j]=a
+					}
+				})
+
+				if(!endMergeCells.find(a=>!!a))
+					return 
+
+				const maxRowEndY=Math.max(
+					rowEndY,
+					...endMergeCells.map((b,j,_1,_2,a=startMergeCells[j])=>{
+						if(!b)
+							return 0
+						return a.cellHeight+a.__temp.rowBeginY
+					})
+				)
+				
+				const higher=maxRowEndY-rowEndY
+				if(higher>0){
+					Y+=higher
+					//reset height for all cells in current row
+					matrix[i]=matrix[i].map(a=>a+higher)
+				}
+				//reset height for start cells of all endMergeCells to rowEndY
+				endMergeCells.forEach((b,j,_1,_2,a=startMergeCells[j])=>{
+					if(!b)
+						return 
+					matrix[a.__temp.rowIndex][j]=maxRowEndY-a.__temp.rowBeginY
+					delete a.__temp
+					startMergeCells[j]=undefined//remove ended
+				})
+			})
+			return matrix
 		}
 	}
 }
