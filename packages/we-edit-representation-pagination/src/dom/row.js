@@ -128,7 +128,7 @@ class Row extends HasParentAndChild(dom.Row){
 		const {keepLines, minHeight, height:exactHeight}=this.props
 		const col=this.getColumns(this.props.cols)[cellId]
 		rowSpan>1 && (col.rowSpan=rowSpan);
-		
+
 		const page=this.findOrCreatePageForColumn(col,required)
 		if(!page)
 			return false
@@ -221,29 +221,31 @@ class Row extends HasParentAndChild(dom.Row){
 		}
 
 		render(cellHeights){
-			const {children:cells=[],host, isLastPageOfRow, isFirstRowInPage,table, row, space, x=0,y=0,...props}=this.props			
-			const {top,left}=this.border, height=this.height, cols=this.cols
-
+			const {children:cells=[],host, isLastPageOfRow, isFirstRowInPage,table, row, space, x=0,y=0,id,...props}=this.props			
+			const {top,left}=this.border, cols=this.cols
+			const rowHeight=Math.max(...cellHeights.filter((h,i,_,cell=cells[i])=>cell && !cell.vMerge))
+			const layoutedCells=cells.map((cell,i)=>{
+				if(!cell || cell.vMerged)
+					return null
+				const h=cellHeights[i]
+				return React.cloneElement(
+					cell.clone({
+						height:h,
+						colIndex:i,table,row,isLastPageOfRow,isFirstRowInPage//editable edges need the information
+					}).createComposed2Parent(),{
+					...cols[i],
+					height:h,
+					key:i,
+				})
+			})
 			return (
 				<Group {...{
 					...props,
-					height, 
+					key:id,
+					height:rowHeight, 
 					x:x+left.width/2,
 					y:y+top.width/2,
-					children:cells.map((cell,i)=>{
-						if(!cell || cell.vMerged)
-							return null
-						const h=cellHeights?.[i]||height
-						return React.cloneElement(
-							cell.clone({
-								height:h,
-								colIndex:i,table,row,isLastPageOfRow,isFirstRowInPage//editable edges need the information
-							}).createComposed2Parent(),{
-							...cols[i],
-							height:h,
-							key:i,
-						})
-					}),
+					children:layoutedCells,
 				}}/>
 			)
 		}

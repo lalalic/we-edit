@@ -14,7 +14,7 @@ export default class Table extends HasParentAndChild(dom.Table){
 	}
 
 	onAllChildrenComposed(){
-		this.appendCurrentPageRowsAt(this.currentPage.dySuitable)
+		this.commitCurrentPageRows(true)
 		super.onAllChildrenComposed()
 	}
 
@@ -35,12 +35,12 @@ export default class Table extends HasParentAndChild(dom.Table){
 		)
 	}
 
-	appendCurrentPageRowsAt(dy){
-		const [first,...rows]=this.currentPage.render()
+	commitCurrentPageRows(suitable){
+		const {props:{height, children:[first,...rows]}}=this.currentPage.render()
 		this.context.parent.appendComposed(
 			React.cloneElement(
 				this.createComposed2Parent(first,true),
-				{dy}
+				{dy:this.currentPage.dy(height)}
 			)
 		)
 		rows.forEach(row=>{this.context.parent.appendComposed(this.createComposed2Parent(row))})
@@ -54,7 +54,7 @@ export default class Table extends HasParentAndChild(dom.Table){
 	 */
 	nextAvailableSpace(rowId){
 		if(this.currentPage?.has(rowId)){
-			this.appendCurrentPageRowsAt(this.currentPage.dy)
+			this.commitCurrentPageRows(this.currentPage.dy)
 			this.pages.push(null)
 		}
 
@@ -89,20 +89,11 @@ export default class Table extends HasParentAndChild(dom.Table){
 			return this.props.children
 		}
 
-		get height(){
-			return this.rows.reduce((H,{height:h})=>H+h,0)
-		}
-
 		get currentRow(){
 			return this.rows[this.rows.length-1]
 		}
 
-		get dy(){
-			return this.space.blockOffset-this.space.frame.blockOffset
-		}
-
-		get dySuitable(){
-			const height=this.height
+		dy(height){
 			const {y}=[...this.space.segments].sort((a,b)=>a.y-b.y).find(a=>a.height>=height)
 			return y-this.space.frame.blockOffset
 		}
@@ -116,7 +107,8 @@ export default class Table extends HasParentAndChild(dom.Table){
 		}
 
 		nextAvailableSpace(){
-			const height=this.height, available=this.space.height-this.height
+			const height=this.rows.reduce((H,{height:h})=>H+h,0)
+			const available=this.space.height-height
 			if(available<=0)
 				return false
 			return this.space.clone({height:available,blockOffset:this.space.blockOffset+height})
@@ -129,9 +121,12 @@ export default class Table extends HasParentAndChild(dom.Table){
 			}
 			const {children:rows}=this.props
 			const matrix=this.getCellHeightMatrix(rows)
-			return rows.map((pageRow,i)=>{
-				return pageRow.createComposed2ParentWithHeight(matrix[i])
-			})
+			const height=matrix.reduce((H,[h])=>H+h,0)
+			return (
+				<Group height={height}>
+					{rows.map((pageRow,i)=>pageRow.createComposed2ParentWithHeight(matrix[i]))}
+				</Group>
+			)
 		}
 
 		getCellHeightMatrix(rows){
