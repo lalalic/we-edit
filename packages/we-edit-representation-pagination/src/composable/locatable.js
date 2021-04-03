@@ -17,10 +17,21 @@ function Locatable(A){
             getComposer: PropTypes.func,
         }
 
+
         constructor(){
 			super(...arguments)
 			this.context.mount && this.props.id && this.context.mount(this)
         }
+
+		createPromise(){
+			let o={}
+			let p=new Promise((resolve,reject)=>{
+				o.resolve=resolve
+				o.reject=reject
+			})
+			Object.assign(p,o)
+			return p
+		}
 
 		createComposed2Parent(){
 			const element=super.createComposed2Parent(...arguments)

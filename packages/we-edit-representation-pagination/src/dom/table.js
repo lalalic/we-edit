@@ -14,7 +14,7 @@ export default class Table extends HasParentAndChild(dom.Table){
 	}
 
 	onAllChildrenComposed(){
-		this.commitCurrentPageRows(true)
+		this.currentPage.commit(true)
 		super.onAllChildrenComposed()
 	}
 
@@ -35,17 +35,6 @@ export default class Table extends HasParentAndChild(dom.Table){
 		)
 	}
 
-	commitCurrentPageRows(suitable){
-		const {props:{height, children:[first,...rows]}}=this.currentPage.render()
-		this.context.parent.appendComposed(
-			React.cloneElement(
-				this.createComposed2Parent(first,true),
-				{dy:this.currentPage.dy(height)}
-			)
-		)
-		rows.forEach(row=>{this.context.parent.appendComposed(this.createComposed2Parent(row))})
-	}
-
 	/**
 	 * on current space,
 	 * otherwise request up
@@ -54,7 +43,7 @@ export default class Table extends HasParentAndChild(dom.Table){
 	 */
 	nextAvailableSpace(rowId){
 		if(this.currentPage?.has(rowId)){
-			this.commitCurrentPageRows(this.currentPage.dy)
+			this.currentPage.commit()
 			this.pages.push(null)
 		}
 
@@ -72,15 +61,22 @@ export default class Table extends HasParentAndChild(dom.Table){
 		}
 		
 		const max=segments.sort((a,b)=>b.height-a.height)[0]
-		this.pages.splice(-1,1,new this.constructor.Page({
-			space:space.clone({height:max.height,blockOffset:max.y, segments}),
-			children:[],
-		}))
+		this.pages.splice(-1,1,
+			new this.constructor.Page({
+				space:space.clone({height:max.height,blockOffset:max.y, segments}),
+				children:[],
+			},{parent:this})
+		)
 		return this.currentPage.nextAvailableSpace()
 	}
 
 	static Page=class extends Component{
 		static displayName="page-table"
+		constructor(){
+			super(...arguments)
+			this.getCellHeightMatrix=this.getCellHeightMatrix.bind(this)
+			this.commit=this.commit.bind(this)
+		}
 		get space(){
 			return this.props.space
 		}
@@ -93,13 +89,34 @@ export default class Table extends HasParentAndChild(dom.Table){
 			return this.rows[this.rows.length-1]
 		}
 
+		get table(){
+			return this.context.parent
+		}
+
+		commit(){
+			const {props:{height, children:[first,...rows]}}=this.render()
+			this.table.context.parent.appendComposed(
+				React.cloneElement(
+					this.table.createComposed2Parent(first,true),
+					{dy:this.dy(height)}
+				)
+			)
+			rows.forEach(row=>{this.table.context.parent.appendComposed(this.table.createComposed2Parent(row))})
+		}
+
 		dy(height){
 			const {y}=[...this.space.segments].sort((a,b)=>a.y-b.y).find(a=>a.height>=height)
 			return y-this.space.frame.blockOffset
 		}
 
 		push(row){
-			this.rows[this.rows.length-1]!=row && this.rows.push(row)
+			if(this.currentRow!==row){
+				this.rows.push(row)
+				// this.allDone=this.table.createPromise(this.rows.map(a=>a.allDone))
+				// this.allDone.then(()=>{
+				// 	console.error("recommit")
+				// })
+			}
 		}
 
 		has(rowId){
@@ -107,7 +124,7 @@ export default class Table extends HasParentAndChild(dom.Table){
 		}
 
 		nextAvailableSpace(){
-			const height=this.rows.reduce((H,{height:h})=>H+h,0)
+			const height=this.getCellHeightMatrix().height //this.rows.reduce((H,{height:h})=>H+h,0)
 			const available=this.space.height-height
 			if(available<=0)
 				return false
@@ -121,7 +138,7 @@ export default class Table extends HasParentAndChild(dom.Table){
 			}
 			const {children:rows}=this.props
 			try{
-				const matrix=this.getCellHeightMatrix(rows)
+				const matrix=this.getCellHeightMatrix()
 				const height=matrix.reduce((H,[h])=>H+h,0)
 				return (
 					<Group height={height}>
@@ -139,15 +156,17 @@ export default class Table extends HasParentAndChild(dom.Table){
 			}
 		}
 
-		getCellHeightMatrix(rows){
+		getCellHeightMatrix(){
+			const {children:rows}=this.props
 			const matrix=new Array(rows.length)
 			const startMergeCells=[]
-			let Y=0
+			let Y=0,height=0
 			rows.forEach((row, i)=>{
 				const rowHeight=row.height, rowBeginY=Y, rowEndY=rowBeginY+rowHeight
 				//init all cell with row height
 				matrix[i]=new Array(row.cells.length).fill(rowHeight)
 				Y+=rowHeight
+				height+=rowHeight
 
 				const endMergeCells=new Array(row.cells.length).fill(null)
 				row.cells.forEach((a,j,_1,_2,b=rows[i+1]?.cells[j])=>{
@@ -167,7 +186,7 @@ export default class Table extends HasParentAndChild(dom.Table){
 				const maxRowEndY=Math.max(
 					rowEndY,
 					...endMergeCells.map((b,j,_1,_2,a=startMergeCells[j])=>{
-						if(!b)
+						if(!b || !a)
 							return 0
 						return a.cellHeight+a.__temp.rowBeginY
 					})
@@ -176,19 +195,20 @@ export default class Table extends HasParentAndChild(dom.Table){
 				const higher=maxRowEndY-rowEndY
 				if(higher>0){
 					Y+=higher
+					height+=higher
 					//reset height for all cells in current row
 					matrix[i]=matrix[i].map(a=>a+higher)
 				}
 				//reset height for start cells of all endMergeCells to rowEndY
 				endMergeCells.forEach((b,j,_1,_2,a=startMergeCells[j])=>{
-					if(!b)
+					if(!b || !a)
 						return 
 					matrix[a.__temp.rowIndex][j]=maxRowEndY-a.__temp.rowBeginY
 					delete a.__temp
 					startMergeCells[j]=undefined//remove ended
 				})
 			})
-			return matrix
+			return Object.assign(this.matrix=matrix,{height})
 		}
 	}
 }

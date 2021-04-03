@@ -29,6 +29,7 @@ class Row extends HasParentAndChild(dom.Row){
 				}
 			}
 		})
+		this.allDonePromise=this.createPromise()
 	}
 
 	get currentPage(){
@@ -117,9 +118,9 @@ class Row extends HasParentAndChild(dom.Row){
 				return 
 			
 			this.pages.push(page=new this.constructor.Page({
-				host:this, space, id:this.props.id,
-				children:new Array(this.getColumns(this.props.cols).length).fill(null)}
-			))
+				space, id:this.props.id,
+				children:new Array(this.getColumns(this.props.cols).length).fill(null),
+			},{parent:this}))
 		}
 		return page
 	}
@@ -172,6 +173,7 @@ class Row extends HasParentAndChild(dom.Row){
 		})
 		*/
 		super.onAllChildrenComposed()
+		this.allDonePromise.resolve(this.props.id)
 	}
 
 	createComposed2Parent(pageRow){
@@ -194,15 +196,23 @@ class Row extends HasParentAndChild(dom.Row){
 		}
 
 		get cols(){
-			return this.props.host.props.cols
+			return this.row.props.cols
 		}
 
 		get border(){
-			return this.props.host.pages[0]._border
+			return this.row.pages[0]._border
+		}
+
+		get allDone(){
+			return this.row.allDonePromise
+		}
+
+		get row(){
+			return this.context.parent
 		}
 
 		makeEmptyCell(i){
-			const columns=this.props.host.getColumns(this.cols)
+			const columns=this.row.getColumns(this.cols)
 			let $=new ReactQuery(columns[i].firstCell)
 			const cellContent=$.findFirst(`[data-cellcontent]`)
 			$=$.replace(cellContent,<Fragment/>)
@@ -217,12 +227,13 @@ class Row extends HasParentAndChild(dom.Row){
 		}
 
 		get height(){
-			return this.bLastPage ? this.props.host.getHeight(this.cells) : this.props.space.height
+			return this.bLastPage ? this.row.getHeight(this.cells) : this.props.space.height
 		}
 
 		render(cellHeights){
-			const {children:cells=[],host, isLastPageOfRow, isFirstRowInPage,table, row, space, x=0,y=0,id,...props}=this.props			
-			const {top,left}=this.border, cols=this.cols, height=this.height
+			const {children:cells=[], isLastPageOfRow, isFirstRowInPage,table, row, space, x=0,y=0,id,...props}=this.props			
+			const {top:{width:top=0}={},left:{width:left=0}={}}=this.border||{}
+			const cols=this.cols, height=this.height
 			const rowHeight=Math.max(...cellHeights.filter((h,i,_,cell=cells[i])=>cell && !cell.vMerge))||height
 			const layoutedCells=cells.map((cell,i)=>{
 				if(!cell || cell.vMerged)
@@ -243,15 +254,15 @@ class Row extends HasParentAndChild(dom.Row){
 					...props,
 					key:id,
 					height:rowHeight, 
-					x:x+left.width/2,
-					y:y+top.width/2,
+					x:x+left/2,
+					y:y+top/2,
 					children:layoutedCells,
 				}}/>
 			)
 		}
 
 		createComposed2ParentWithHeight(cellHeights){
-			return this.props.host.createComposed2Parent(this.render(cellHeights))
+			return this.row.createComposed2Parent(this.render(cellHeights))
 		}
 	}
 }
