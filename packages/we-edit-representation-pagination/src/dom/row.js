@@ -222,12 +222,12 @@ class Row extends HasParentAndChild(dom.Row){
 
 		render(cellHeights){
 			const {children:cells=[],host, isLastPageOfRow, isFirstRowInPage,table, row, space, x=0,y=0,id,...props}=this.props			
-			const {top,left}=this.border, cols=this.cols
-			const rowHeight=Math.max(...cellHeights.filter((h,i,_,cell=cells[i])=>cell && !cell.vMerge))
+			const {top,left}=this.border, cols=this.cols, height=this.height
+			const rowHeight=Math.max(...cellHeights.filter((h,i,_,cell=cells[i])=>cell && !cell.vMerge))||height
 			const layoutedCells=cells.map((cell,i)=>{
 				if(!cell || cell.vMerged)
 					return null
-				const h=cellHeights[i]
+				const h=cellHeights?.[i]||height
 				return React.cloneElement(
 					cell.clone({
 						height:h,

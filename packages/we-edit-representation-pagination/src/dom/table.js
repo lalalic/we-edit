@@ -120,13 +120,23 @@ export default class Table extends HasParentAndChild(dom.Table){
 				throw new Error("table already appended, why called again?")
 			}
 			const {children:rows}=this.props
-			const matrix=this.getCellHeightMatrix(rows)
-			const height=matrix.reduce((H,[h])=>H+h,0)
-			return (
-				<Group height={height}>
-					{rows.map((pageRow,i)=>pageRow.createComposed2ParentWithHeight(matrix[i]))}
-				</Group>
-			)
+			try{
+				const matrix=this.getCellHeightMatrix(rows)
+				const height=matrix.reduce((H,[h])=>H+h,0)
+				return (
+					<Group height={height}>
+						{rows.map((pageRow,i)=>{
+							try{
+								return pageRow.createComposed2ParentWithHeight(matrix[i])
+							}catch(e){
+								return console.error(e)
+							}
+						})}
+					</Group>
+				)
+			}catch(e){
+				console.error(e)
+			}
 		}
 
 		getCellHeightMatrix(rows){
