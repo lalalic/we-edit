@@ -86,14 +86,17 @@ class Row extends HasParentAndChild(dom.Row){
 		}
 		while(!page){
 			if(this.currentPage){
-				this.context.parent.appendComposed(this.createComposed2Parent(false))
+				this.context.parent.appendComposed(this.currentPage)
 			}
 			//request largest space in current constraint space
 			const space=super.nextAvailableSpace(this.props.id)
 			if(!space)//no space any more, stop immediately
 				return 
 			
-			this.pages.push(page=new this.constructor.Page({host:this, space,  children:new Array(this.getColumns(this.props.cols).length).fill(null)}))
+			this.pages.push(page=new this.constructor.Page({
+				host:this, space, id:this.props.id,
+				children:new Array(this.getColumns(this.props.cols).length).fill(null)}
+			))
 		}
 		return page
 	}
@@ -136,18 +139,18 @@ class Row extends HasParentAndChild(dom.Row){
 			page.delayout()
 		})
 		*/
-		if(this.currentPage && !this.currentPage.appended){
-			this.context.parent.appendComposed(this.createComposed2Parent(true))
-		}
+		this.currentPage.bLastPage=true
+		this.context.parent.appendComposed(this.currentPage)
+		/*
 		this.pages.forEach(page=>{
 			page.cells.forEach((a,i,cells)=>!a && (cells[i]=page.makeEmptyCell(i)))
 		})
-		
+		*/
 		super.onAllChildrenComposed()
 	}
 
-	createComposed2Parent(bLastPage){
-		return this.currentPage.render(bLastPage)
+	createComposed2Parent(pageRow){
+		return pageRow
 	}
 
 	getHeight(cells){//@TODO: to honor height
@@ -173,10 +176,6 @@ class Row extends HasParentAndChild(dom.Row){
 			return this.props.host.pages[0]._border
 		}
 
-		get appended(){
-			return !!this.height
-		}
-
 		makeEmptyCell(i){
 			const columns=this.props.host.getColumns(this.cols)
 			let $=new ReactQuery(columns[i].firstCell)
@@ -189,37 +188,39 @@ class Row extends HasParentAndChild(dom.Row){
 
 		insertAt(cell, i){
 			i==0 && (this._border=cell.props.borders.props);
-			this.cells[i]=this.height ? this.renderCell(cell,i) : cell
+			this.cells[i]=cell
 		}
 
-		renderCell(cell, i){
-			const {isLastPageOfRow, isFirstRowInPage,table, row}=this.props
-			return React.cloneElement(
-				cell.clone({
-					height:this.height,
-					colIndex:i,table,row,isLastPageOfRow,isFirstRowInPage//editable edges need the information
-				}).createComposed2Parent(),{
-				...this.cols[i],
-				height:this.height,
-				key:i,
-			})	
+		get height(){
+			return this.bLastPage ? this.props.host.getHeight(this.cells) : this.props.space.height
 		}
 	
-		render(bLastPage){
-			this.render=()=>{throw new Error("row already appended, why called again?")}
+		render(){
 			const {children:cells=[],host, isLastPageOfRow, isFirstRowInPage,table, row, space, x=0,y=0,...props}=this.props			
-			this.height=bLastPage ? host.getHeight(cells) : space.height
-			cells.forEach((a,i)=>cells[i]=a?.render ? this.renderCell(a,i) : a)
-			const {top,left}=this.border
+			const {top,left}=this.border, height=this.height, cols=this.cols
 			return (
 				<Group {...{
 					...props,
-					height:this.height, 
+					height, 
 					x:x+left.width/2,
 					y:y+top.width/2,
-					children:cells,
+					children:cells.map((cell,i)=>{
+						return cell&&React.cloneElement(
+							cell.clone({
+								height,
+								colIndex:i,table,row,isLastPageOfRow,isFirstRowInPage//editable edges need the information
+							}).createComposed2Parent(),{
+							...cols[i],
+							height,
+							key:i,
+						})
+					}),
 				}}/>
 			)
+		}
+
+		createComposed2Parent(){
+			return this.props.host.createComposed2Parent(this.render())
 		}
 	}
 }

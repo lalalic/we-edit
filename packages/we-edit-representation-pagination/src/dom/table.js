@@ -14,16 +14,12 @@ export default class Table extends HasParentAndChild(dom.Table){
 	}
 
 	onAllChildrenComposed(){
-		/**content height should be considered for dy */
-		const height=this.currentPage.height
-		const {y}=this.currentPage.space.segments.sort((a,b)=>a.y-b.y).find(a=>a.height>=height)
-		const dy=y-this.currentPage.space.frame.blockOffset
-		this.appendCurrentPageRowsAt(dy)
+		this.appendCurrentPageRowsAt(this.currentPage.dySuitable)
 		super.onAllChildrenComposed()
 	}
 
 	appendComposed(row){
-		this.currentPage.rows.push(React.cloneElement(row,{width:this.props.width}))
+		this.currentPage.push(row)
 	}
 
 	/**row call it to append a block of row*/
@@ -33,7 +29,7 @@ export default class Table extends HasParentAndChild(dom.Table){
 			<Group width={width} height={pageRow.props.height}>
 				{needMarker && <Marker {...{type:"table",id}}/>}
 				<Group x={indent}>
-					{pageRow}
+					{React.cloneElement(pageRow,{width})}
 				</Group>
 			</Group>
 		)
@@ -58,8 +54,7 @@ export default class Table extends HasParentAndChild(dom.Table){
 	 */
 	nextAvailableSpace(rowId){
 		if(this.currentPage?.has(rowId)){
-			const dy=this.currentPage.space.blockOffset-this.currentPage.space.frame.blockOffset
-			this.appendCurrentPageRowsAt(dy)
+			this.appendCurrentPageRowsAt(this.currentPage.dy)
 			this.pages.push(null)
 		}
 
@@ -95,12 +90,29 @@ export default class Table extends HasParentAndChild(dom.Table){
 		}
 
 		get height(){
-			return this.rows.reduce((H,{props:{height:h=0}})=>H+h,0)
+			return this.rows.reduce((H,{height:h})=>H+h,0)
+		}
+
+		get currentRow(){
+			return this.rows[this.rows.length-1]
+		}
+
+		get dy(){
+			return this.space.blockOffset-this.space.frame.blockOffset
+		}
+
+		get dySuitable(){
+			const height=this.height
+			const {y}=[...this.space.segments].sort((a,b)=>a.y-b.y).find(a=>a.height>=height)
+			return y-this.space.frame.blockOffset
+		}
+
+		push(row){
+			this.rows[this.rows.length-1]!=row && this.rows.push(row)
 		}
 
 		has(rowId){
-			const row=this.rows[this.rows.length-1]
-			return row && new ReactQuery(row).findFirst(`[data-content="${rowId}"]`).length==1
+			return this.currentRow?.props.id==rowId
 		}
 
 		nextAvailableSpace(){
@@ -112,26 +124,15 @@ export default class Table extends HasParentAndChild(dom.Table){
 		}
 
 		render(){
-			this.render=()=>{throw new Error("table already appended, why called again?")}
-			const {children:rows, }=this.props
-			return rows
+			this.render=()=>{
+				debugger
+				throw new Error("table already appended, why called again?")
+			}
+			const {children:rows}=this.props
+			const layouted=rows.map(pageRow=>{
+				return pageRow.createComposed2Parent()
+			})
+			return layouted
 		}
 	}
 }
-
-/**
- * what is table from perspective of layout
- * 1. space manager
- * 2. recommit trigger, since table must be commit as lines
- */
-
-/**
- * what is row from perspective of layout
- * > 1. request fixed inline size of space
- * > 2. append row as a whole
- */
-
-/**
- * what is cell from perspective of layout
- * > cell is a section to define layouts of cell content
- */
