@@ -58,8 +58,19 @@ class Row extends HasParentAndChild(dom.Row){
 						const i=cols.indexOf(col)
 						return pages.find(a=>!!a.cells[i]).cells[i]	
 					}	
+				case "width":{
+						const span=col.rowSpan||1, i=cols.indexOf(col)
+						return cols.slice(i,i+span).reduce((W,a)=>W+a.width,0)
+					}
 				}
 				return col[prop]
+			},
+			set(col, k, v){
+				if(["id","rowSpan"].includes(k)){
+					col[k]=v
+					return true
+				}
+				return false
 			}
 		})),{
 			get(columns, key){
@@ -113,9 +124,11 @@ class Row extends HasParentAndChild(dom.Row){
 		return page
 	}
 	
-	nextAvailableSpace({id:cellId, ...required}){
+	nextAvailableSpace({id:cellId, rowSpan=1, ...required}){
 		const {keepLines, minHeight, height:exactHeight}=this.props
 		const col=this.getColumns(this.props.cols)[cellId]
+		rowSpan>1 && (col.rowSpan=rowSpan);
+		
 		const page=this.findOrCreatePageForColumn(col,required)
 		if(!page)
 			return false
