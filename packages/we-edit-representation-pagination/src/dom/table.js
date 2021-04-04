@@ -112,7 +112,8 @@ export default class Table extends HasParentAndChild(dom.Table){
 		push(row){
 			if(this.currentRow!==row){
 				this.rows.push(row)
-				// this.allDone=this.table.createPromise(this.rows.map(a=>a.allDone))
+
+				// this.allDone=Promise.all(this.rows.map(a=>a.allDone))
 				// this.allDone.then(()=>{
 				// 	console.error("recommit")
 				// })

@@ -88,11 +88,6 @@ class Frame extends Layout.Block{
 		const {width,height,margin}=this.props
 		return {width,height,margin,cols:this.cols}
 	}
-
-	clone(props={}){
-		const {computed}=this
-		return Object.assign(new this.constructor({...this.props, ...props},this.context),{computed})
-	}
 }
 
 /**

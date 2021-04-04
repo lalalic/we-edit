@@ -449,6 +449,11 @@ class Flow extends HasParentAndChild(dom.Frame) {
 		return new Rect(A.x, A.y, A.width, A.height).intersects(new Rect(B.x, B.y, B.width, B.height))
 	}
 
+	clone(props={},withoutComposed){
+		const computed=!withoutComposed ? this.computed : {composed:[],lastComposed:[],allComposed:true,anchors:[]}
+		return Object.assign(new this.constructor({...this.props, ...props},this.context),{computed})
+	}
+
 	static get Async(){
 		return this.__getAsync(this)
 	}
