@@ -9,12 +9,18 @@ export default class Table extends HasParentAndChild(dom.Table){
 		return this.computed.composed
 	}
 
-	get currentPage(){
+	get lastPage(){
 		return this.pages[this.pages.length-1]
 	}
 
+	get currentPage(){
+		return [...this.pages].reverse().find((me,i,pages,prev=pages[i+1])=>{
+			return (me && !prev) || prev.lastRow.props.id!==me.lastRow?.props.id
+		})
+	}
+
 	onAllChildrenComposed(){
-		this.currentPage.commit(true)
+		this.lastPage.commit(true)
 		super.onAllChildrenComposed()
 	}
 
@@ -42,16 +48,17 @@ export default class Table extends HasParentAndChild(dom.Table){
 	 * each row should only request once, since max and edge already give each time, row already know how to balance
 	 */
 	nextAvailableSpace(rowId){
-		if(this.currentPage?.has(rowId)){
-			this.currentPage.commit()
-			this.pages.push(null)
+		if(this.lastPage){
+			if(this.lastPage.lastRow.props.id==rowId){
+				this.lastPage.commit()
+			}else{
+				const space=this.currentPage.nextAvailableSpace()
+				if(space)
+					return space
+			}
 		}
 
-		let space=this.currentPage?.nextAvailableSpace()
-		if(space)
-			return space
-
-		space=super.nextAvailableSpace(...arguments)
+		const space=super.nextAvailableSpace(...arguments)
 		let segments=space.findBlockSegments()
 		if(segments.length==0){
 			space=super.nextAvailableSpace(space.height+1)
@@ -61,13 +68,13 @@ export default class Table extends HasParentAndChild(dom.Table){
 		}
 		
 		const max=segments.sort((a,b)=>b.height-a.height)[0]
-		this.pages.splice(-1,1,
+		this.pages.push(
 			new this.constructor.Page({
 				space:space.clone({height:max.height,blockOffset:max.y, segments}),
 				children:[],
 			},{parent:this})
 		)
-		return this.currentPage.nextAvailableSpace()
+		return this.lastPage.nextAvailableSpace()
 	}
 
 	static Page=class extends Component{
@@ -76,6 +83,7 @@ export default class Table extends HasParentAndChild(dom.Table){
 			super(...arguments)
 			this.getCellHeightMatrix=this.getCellHeightMatrix.bind(this)
 			this.commit=this.commit.bind(this)
+			this.recommit=this.recommit.bind(this)
 		}
 		get space(){
 			return this.props.space
@@ -85,7 +93,7 @@ export default class Table extends HasParentAndChild(dom.Table){
 			return this.props.children
 		}
 
-		get currentRow(){
+		get lastRow(){
 			return this.rows[this.rows.length-1]
 		}
 
@@ -104,24 +112,39 @@ export default class Table extends HasParentAndChild(dom.Table){
 			rows.forEach(row=>{this.table.context.parent.appendComposed(this.table.createComposed2Parent(row))})
 		}
 
+		//should only happen when vMerge exists
+		//current make it simple to always recommit
+		recommit(){
+			const isBelongToThisTable=l=>{
+				const $line=new ReactQuery(l)
+				const $table=$line.findFirst(`[data-content="${this.table.props.id}"]`)
+				return $table.length==1
+			}
+			const frame=this.space.frame,lines=frame.lines, len=lines.length
+			const i=[...lines].reverse().findIndex(l=>!isBelongToThisTable(l))
+			const removed=lines.splice(-(i==-1 ? lines.length : i+1))
+			this.commit()
+			console.debug(`recommit page-table[${this.table.props.id}][${this.table.pages.indexOf(this)+1}]: rollback ${removed.length} lines`)
+		}
+
 		dy(height){
 			const {y}=[...this.space.segments].sort((a,b)=>a.y-b.y).find(a=>a.height>=height)
 			return y-this.space.frame.blockOffset
 		}
 
 		push(row){
-			if(this.currentRow!==row){
+			if(this.lastRow!==row){
 				this.rows.push(row)
-
-				// this.allDone=Promise.all(this.rows.map(a=>a.allDone))
-				// this.allDone.then(()=>{
-				// 	console.error("recommit")
-				// })
+				/*
+				this.allDone?.reject()
+				this.allDone=this.table.createPromise()
+				Promise.all(this.rows.map(a=>a.allDone))
+					.then(this.allDone.resolve,this.allDone.reject)
+				this.allDone
+					.then(this.recommit,()=>console.debug("cancel page-table all done promise since new row comes"))
+					.finally(()=>delete this.allDone)
+				*/
 			}
-		}
-
-		has(rowId){
-			return this.currentRow?.props.id==rowId
 		}
 
 		nextAvailableSpace(){
@@ -133,10 +156,6 @@ export default class Table extends HasParentAndChild(dom.Table){
 		}
 
 		render(){
-			this.render=()=>{
-				debugger
-				throw new Error("table already appended, why called again?")
-			}
 			const {children:rows}=this.props
 			try{
 				const matrix=this.getCellHeightMatrix()
@@ -161,14 +180,13 @@ export default class Table extends HasParentAndChild(dom.Table){
 			const {children:rows}=this.props
 			const matrix=new Array(rows.length)
 			const startMergeCells=[]
-			let Y=0,height=0
+			let Y=0
 			rows.forEach((row, i)=>{
 				const rowHeight=row.height, rowBeginY=Y, rowEndY=rowBeginY+rowHeight
 				//init all cell with row height
 				matrix[i]=new Array(row.cells.length).fill(rowHeight)
 				Y+=rowHeight
-				height+=rowHeight
-
+				
 				const endMergeCells=new Array(row.cells.length).fill(null)
 				row.cells.forEach((a,j,_1,_2,b=rows[i+1]?.cells[j])=>{
 					if(!a)
@@ -196,7 +214,6 @@ export default class Table extends HasParentAndChild(dom.Table){
 				const higher=maxRowEndY-rowEndY
 				if(higher>0){
 					Y+=higher
-					height+=higher
 					//reset height for all cells in current row
 					matrix[i]=matrix[i].map(a=>a+higher)
 				}
@@ -209,7 +226,7 @@ export default class Table extends HasParentAndChild(dom.Table){
 					startMergeCells[j]=undefined//remove ended
 				})
 			})
-			return Object.assign(this.matrix=matrix,{height})
+			return Object.assign(this.matrix=matrix,{height:Y})
 		}
 	}
 }
