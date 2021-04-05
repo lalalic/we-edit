@@ -4,6 +4,16 @@ import {dom, ReactQuery} from "we-edit"
 import {HasParentAndChild} from "../composable"
 import {Group, Marker} from "../composed"
 
+/**
+ * 1. Always give row max availabe space in frame
+ * 2. every commit, except last page-table commit, should create a new page, 
+ * 		a. which means last row in page-table should take all left available space in order to flow following content to next page 
+ * 		b. last page-table commit should already use content height of row [?:]
+ * 3. each row should make height correct after it all children layouted
+ * 		a. last page-table doesn't need relayout
+ * 4. each page-table relayout should use content height of row to layout
+ * 5. 
+ */
 export default class Table extends HasParentAndChild(dom.Table){
 	get pages(){
 		return this.computed.composed
@@ -50,7 +60,8 @@ export default class Table extends HasParentAndChild(dom.Table){
 	nextAvailableSpace(rowId){
 		if(this.lastPage){
 			if(this.lastPage.lastRow.props.id==rowId){
-				this.lastPage.commit()
+				//to ensure #2a: when calculating cell height matrix, use space height
+				this.lastPage.commit(false)
 			}else{
 				const space=this.currentPage.nextAvailableSpace()
 				if(space)
@@ -81,10 +92,9 @@ export default class Table extends HasParentAndChild(dom.Table){
 		static displayName="page-table"
 		constructor(){
 			super(...arguments)
-			this.getCellHeightMatrix=this.getCellHeightMatrix.bind(this)
-			this.commit=this.commit.bind(this)
-			this.recommit=this.recommit.bind(this)
+			this.relayout=this.relayout.bind(this)
 		}
+
 		get space(){
 			return this.props.space
 		}
@@ -101,30 +111,77 @@ export default class Table extends HasParentAndChild(dom.Table){
 			return this.context.parent
 		}
 
-		commit(){
-			const {props:{height, children:[first,...rows]}}=this.render()
-			this.table.context.parent.appendComposed(
-				React.cloneElement(
-					this.table.createComposed2Parent(first,true),
-					{dy:this.dy(height)}
-				)
-			)
+		/**
+		 * call only once, mainly for page flow
+		 * firstRow should locate dy
+		 * lastRow should take all space for flow, except last page table
+		 * @param {*} bLastPageTable 
+		 */
+		commit(bLastPageTable){
+			const {props:{height, children, rows=[...children]}}=this.render()
+			let last=rows[rows.length-1],dy=0
+			if(!bLastPageTable){
+				//@NOTE: to make sure page flow, but not affect nextAvailableSpace
+				last=React.cloneElement(last,{height:last.props.height+(this.space.height-height)})
+				rows.splice(-1,1,last)
+				dy=this.dy(this.space.height)
+			}else{
+				dy=this.dy(height)
+			}
+
+			let first=this.table.createComposed2Parent(rows[0],true)
+			dy && (first=React.cloneElement(first,{dy}))
+			this.table.context.parent.appendComposed(first)
+			rows.splice(0,1)
+
 			rows.forEach(row=>{this.table.context.parent.appendComposed(this.table.createComposed2Parent(row))})
+			this.alreadyLayouted=true
+			this.commit=()=>{
+				console.error("page table already commit")
+			}
 		}
 
-		//should only happen when vMerge exists
-		//current make it simple to always recommit
-		recommit(){
+		relayout(){
 			const isBelongToThisTable=l=>{
 				const $line=new ReactQuery(l)
 				const $table=$line.findFirst(`[data-content="${this.table.props.id}"]`)
 				return $table.length==1
 			}
-			const frame=this.space.frame,lines=frame.lines, len=lines.length
+			const replaceLayoutedTableRow=(layoutedTableRowWithParents,current)=>{
+				const {first,parents,layoutedTableRow=first.get(0)}=new ReactQuery(layoutedTableRowWithParents)
+					.findFirstAndParents(`[data-content="${current.props['data-content']}"]`)
+				if(!layoutedTableRow){
+					debugger
+					throw new Error("why can't find row")
+				}
+
+				const increased=current.props.height-layoutedTableRow.props.height
+				return parents.reduceRight((revisedChild, parent,i,_, child=parents[i+1]) => {
+					const { props: { height, children, ...props} } = parent
+					props.children=revisedChild
+					height!=undefined && (props.height=height+increased);
+					if(Array.isArray(children)){
+						const revisable=[...children], i=children.indexOf(child)
+						revisable.splice(i,1,revisedChild)
+						props.children=revisable
+					}
+					return React.cloneElement(parent, props)
+				}, current)
+			}
+			const frame=this.space.frame,lines=frame.lines
 			const i=[...lines].reverse().findIndex(l=>!isBelongToThisTable(l))
 			const removed=lines.splice(-(i==-1 ? lines.length : i+1))
-			this.commit()
-			console.debug(`recommit page-table[${this.table.props.id}][${this.table.pages.indexOf(this)+1}]: rollback ${removed.length} lines`)
+			const {props:{children:rows}}=this.render()
+			rows.forEach((row,i)=>{
+				const last=removed[i]
+				if(!last){
+					//@TODO: not safe
+					this.space.frame.appendFlowBlock(row)
+				}else{
+					this.space.frame.appendFlowBlock(replaceLayoutedTableRow(last,row))
+				}
+			})
+			console.debug(`relayout ${removed.length} lines page-table[${this.table.props.id}][${this.table.pages.indexOf(this)+1}]`)
 		}
 
 		dy(height){
@@ -135,20 +192,12 @@ export default class Table extends HasParentAndChild(dom.Table){
 		push(row){
 			if(this.lastRow!==row){
 				this.rows.push(row)
-				/*
-				this.allDone?.reject()
-				this.allDone=this.table.createPromise()
-				Promise.all(this.rows.map(a=>a.allDone))
-					.then(this.allDone.resolve,this.allDone.reject)
-				this.allDone
-					.then(this.recommit,()=>console.debug("cancel page-table all done promise since new row comes"))
-					.finally(()=>delete this.allDone)
-				*/
+				//row.onAllChildrenComposed(this.relayout)
 			}
 		}
 
 		nextAvailableSpace(){
-			const height=this.getCellHeightMatrix().height //this.rows.reduce((H,{height:h})=>H+h,0)
+			const height=this.getCellHeightMatrix().height
 			const available=this.space.height-height
 			if(available<=0)
 				return false
@@ -159,9 +208,8 @@ export default class Table extends HasParentAndChild(dom.Table){
 			const {children:rows}=this.props
 			try{
 				const matrix=this.getCellHeightMatrix()
-				const height=matrix.reduce((H,[h])=>H+h,0)
 				return (
-					<Group height={height}>
+					<Group height={matrix.height}>
 						{rows.map((pageRow,i)=>{
 							try{
 								return pageRow.createComposed2ParentWithHeight(matrix[i])
@@ -176,13 +224,21 @@ export default class Table extends HasParentAndChild(dom.Table){
 			}
 		}
 
+		/**
+		 * for render: always use content height
+		 * 
+		 * for nextAvailableSpace: to provide available space for next row
+		 * 
+		 * @returns 
+		 */
 		getCellHeightMatrix(){
 			const {children:rows}=this.props
 			const matrix=new Array(rows.length)
 			const startMergeCells=[]
 			let Y=0
-			rows.forEach((row, i)=>{
-				const rowHeight=row.height, rowBeginY=Y, rowEndY=rowBeginY+rowHeight
+			rows.forEach((row, i, _, isLastRow=i==rows.length-1)=>{
+				const rowHeight=row.flowableContentHeight
+				const rowBeginY=Y, rowEndY=rowBeginY+rowHeight
 				//init all cell with row height
 				matrix[i]=new Array(row.cells.length).fill(rowHeight)
 				Y+=rowHeight
@@ -195,6 +251,8 @@ export default class Table extends HasParentAndChild(dom.Table){
 						a.__temp={rowBeginY,rowIndex:i} //temp for quick calc
 						startMergeCells[j]=a
 					}else if(a.vMerge && (!b?.vMerge || b.startVMerge)){//end
+						endMergeCells[j]=a
+					}else if(isLastRow && startMergeCells[j]){//force end at last row
 						endMergeCells[j]=a
 					}
 				})
@@ -226,6 +284,7 @@ export default class Table extends HasParentAndChild(dom.Table){
 					startMergeCells[j]=undefined//remove ended
 				})
 			})
+			
 			return Object.assign(this.matrix=matrix,{height:Y})
 		}
 	}

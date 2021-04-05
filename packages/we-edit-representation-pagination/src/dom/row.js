@@ -1,6 +1,7 @@
 import React,{PureComponent as Component, Fragment} from "react"
 import {dom, ReactQuery} from "we-edit"
 import memoize from "memoize-one"
+import EventEmitter from "events"
 
 import {Group} from "../composed"
 
@@ -29,7 +30,7 @@ class Row extends HasParentAndChild(dom.Row){
 				}
 			}
 		})
-		this.allDonePromise=this.createPromise()
+		this.computed.allDoneEvent=new EventEmitter()
 	}
 
 	get currentPage(){
@@ -156,24 +157,10 @@ class Row extends HasParentAndChild(dom.Row){
 	}
 
 	onAllChildrenComposed(){
-		/*
-		//remove empty page, can it be ignored????
-		this.pages=this.pages.filter(page=>{
-			if(!page.isEmpty()){
-				return true
-			}
-			page.delayout()
-		})
-		*/
 		this.currentPage.bLastPage=true
 		this.context.parent.appendComposed(this.currentPage)
-		/*
-		this.pages.forEach(page=>{
-			page.cells.forEach((a,i,cells)=>!a && (cells[i]=page.makeEmptyCell(i)))
-		})
-		*/
 		super.onAllChildrenComposed()
-		this.allDonePromise.resolve(this.props.id)
+		this.computed.allDoneEvent.emit("allDone",this.props.id)
 	}
 
 	createComposed2Parent(pageRow){
@@ -182,7 +169,7 @@ class Row extends HasParentAndChild(dom.Row){
 
 	getHeight(cells){//@TODO: to honor height
 		const {props:{height=0, minHeight=height}}=this
-		return Math.max(minHeight||0,...cells.filter(a=>!!a && !a.vMerge).map(a=>a.cellHeight))
+		return Math.max(minHeight||0,...cells.filter(a=>a && !a.vMerge).map(a=>a.cellHeight))
 	}
 
 	static Page=class extends Component{
@@ -209,6 +196,10 @@ class Row extends HasParentAndChild(dom.Row){
 
 		get row(){
 			return this.context.parent
+		}
+
+		onAllChildrenComposed(callback){
+			this.row.computed.allDoneEvent.once('allDone',callback)
 		}
 
 		renderCell(cell,i, height){
@@ -239,19 +230,18 @@ class Row extends HasParentAndChild(dom.Row){
 			}
 		}
 
-		get height(){
-			return this.bLastPage ? this.row.getHeight(this.cells) : this.props.space.height
+		get flowableContentHeight(){
+			return this.row.getHeight(this.cells)
 		}
 
 		render(cellHeights){
 			const {children:cells=[], isLastPageOfRow, isFirstRowInPage,table, row, space, x=0,y=0,id,...props}=this.props			
 			const {top:{width:top=0}={},left:{width:left=0}={}}=this.border||{}
-			const height=this.height
-			const rowHeight=Math.max(...cellHeights.filter((h,i,_,cell=cells[i])=>cell && !cell.vMerge))||height
+			const rowHeight=Math.max(...cellHeights.filter((h,i,_,cell=cells[i])=>cell && !cell.vMerge))
 			const layoutedCells=this.lastLayoutedCells=cells.map((cell,i)=>{
 				if(cell?.vMerged)
 					return null
-				const h=cellHeights?.[i]||height
+				const h=cellHeights[i]
 				return this.renderCell(cell,i,h)
 			})
 			this.lastLayoutedCells.cellHeights=cellHeights
