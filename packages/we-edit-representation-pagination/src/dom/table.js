@@ -25,7 +25,12 @@ export default class Table extends HasParentAndChild(dom.Table){
 
 	get currentPage(){
 		return [...this.pages].reverse().find((me,i,pages,prev=pages[i+1])=>{
-			return (me && !prev) || prev.lastRow.props.id!==me.lastRow?.props.id
+			if(me && !prev)
+				return true
+			if(prev.lastRow.id!==me.lastRow?.id)
+				return true
+			if(prev.lastRow.hasEndOfVMerge())
+				return true
 		})
 	}
 
@@ -59,7 +64,7 @@ export default class Table extends HasParentAndChild(dom.Table){
 	 */
 	nextAvailableSpace(rowId){
 		if(this.lastPage){
-			if(this.lastPage.lastRow.props.id==rowId){
+			if(this.lastPage.lastRow.id==rowId){
 				//to ensure #2a: when calculating cell height matrix, use space height
 				this.lastPage.commit(false)
 			}else{
@@ -141,7 +146,7 @@ export default class Table extends HasParentAndChild(dom.Table){
 			}
 		}
 
-		relayout(){
+		relayout(id){
 			const isBelongToThisTable=l=>{
 				const $line=new ReactQuery(l)
 				const $table=$line.findFirst(`[data-content="${this.table.props.id}"]`)
@@ -176,9 +181,9 @@ export default class Table extends HasParentAndChild(dom.Table){
 				const last=removed[i]
 				if(!last){
 					//@TODO: not safe
-					this.space.frame.appendFlowBlock(row)
+					lines.push(this.table.createComposed2Parent(row))
 				}else{
-					this.space.frame.appendFlowBlock(replaceLayoutedTableRow(last,row))
+					lines.push(replaceLayoutedTableRow(last,row))
 				}
 			})
 			console.debug(`relayout ${removed.length} lines page-table[${this.table.props.id}][${this.table.pages.indexOf(this)+1}]`)
@@ -190,10 +195,28 @@ export default class Table extends HasParentAndChild(dom.Table){
 		}
 
 		push(row){
-			if(this.lastRow!==row){
-				this.rows.push(row)
-				//row.onAllChildrenComposed(this.relayout)
-			}
+			if(this.lastRow===row)
+				return
+			
+			const relayout=page=>id=>page.alreadyLayouted && page.relayout(id)
+			/**
+			 * vertical span may change the end & begin of pagerow, it need be corrected
+			 * such as a cell with vMerge of first row flow content to next page, 
+			 * the 2nd tablePage will hold the a first rowPage when created,
+			 * but when 2nd row fully layouted, the last rowPage in 1st tablePage will be changed to 2nd rowPage
+			 * so the 1st rowPage in 2nd tablePage should be reshaped to 2nd rowPage
+			 */
+			//reshape FirstRow Of AllNextPages To Be Same WithLastRow Of ThisPage
+			this.table.pages
+				.slice(this.table.pages.indexOf(this)+1)//next pages
+				.filter(page=>page.rows[0].id==this.lastRow.id)//page crossed from same row
+				.forEach(page=>{
+					const reshaped=page.rows[0]=page.rows[0].reshapeTo(row)
+					reshaped.onAllChildrenComposed(relayout(page))
+				})
+
+			this.rows.push(row)
+			row.onAllChildrenComposed(relayout(this))
 		}
 
 		nextAvailableSpace(){
@@ -250,7 +273,8 @@ export default class Table extends HasParentAndChild(dom.Table){
 					if(b && a.startVMerge){//start
 						a.__temp={rowBeginY,rowIndex:i} //temp for quick calc
 						startMergeCells[j]=a
-					}else if(a.vMerge && (!b?.vMerge || b.startVMerge)){//end
+					}//can't use else since a row maybe restart and end of vMerge in context of reshape
+					if(a.vMerge && (!b?.vMerge || b.startVMerge)){//end
 						endMergeCells[j]=a
 					}else if(isLastRow && startMergeCells[j]){//force end at last row
 						endMergeCells[j]=a
@@ -279,6 +303,7 @@ export default class Table extends HasParentAndChild(dom.Table){
 				endMergeCells.forEach((b,j,_1,_2,a=startMergeCells[j])=>{
 					if(!b || !a)
 						return 
+					matrix[i].isStartAndEnd=matrix[i].isStartAndEnd||a===b	
 					matrix[a.__temp.rowIndex][j]=maxRowEndY-a.__temp.rowBeginY
 					delete a.__temp
 					startMergeCells[j]=undefined//remove ended

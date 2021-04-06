@@ -119,7 +119,7 @@ class Row extends HasParentAndChild(dom.Row){
 				return 
 			
 			this.pages.push(page=new this.constructor.Page({
-				space, id:this.props.id,
+				space, 
 				children:new Array(this.getColumns(this.props.cols).length).fill(null),
 			},{parent:this}))
 		}
@@ -198,8 +198,17 @@ class Row extends HasParentAndChild(dom.Row){
 			return this.context.parent
 		}
 
+		get id(){
+			return this.row.props.id
+		}
+
 		onAllChildrenComposed(callback){
-			this.row.computed.allDoneEvent.once('allDone',callback)
+			this.row.computed.allDoneEvent.on('allDone',this.allDoneListener=callback)
+			this.removeAllDoneListener=()=>{
+				this.row.computed.allDoneEvent.removeListener('allDone',callback)
+				delete this.allDoneListener
+				return callback
+			}
 		}
 
 		renderCell(cell,i, height){
@@ -235,9 +244,16 @@ class Row extends HasParentAndChild(dom.Row){
 		}
 
 		render(cellHeights){
-			const {children:cells=[], isLastPageOfRow, isFirstRowInPage,table, row, space, x=0,y=0,id,...props}=this.props			
+			const {children:cells=[], isLastPageOfRow, isFirstRowInPage,table, row, space, x=0,y=0,...props}=this.props			
 			const {top:{width:top=0}={},left:{width:left=0}={}}=this.border||{}
-			const rowHeight=Math.max(...cellHeights.filter((h,i,_,cell=cells[i])=>cell && !cell.vMerge))
+			let rowHeight=Math.max(-1,...cellHeights.filter((h,i,_,cell=cells[i])=>cell && !cell.vMerge))
+			if(rowHeight==-1){
+				if(cellHeights.isStartAndEnd){
+					rowHeight=cellHeights[0]
+				}else{
+					rowHeight=0
+				}
+			}
 			const layoutedCells=this.lastLayoutedCells=cells.map((cell,i)=>{
 				if(cell?.vMerged)
 					return null
@@ -248,7 +264,7 @@ class Row extends HasParentAndChild(dom.Row){
 			return (
 				<Group {...{
 					...props,
-					key:id,
+					key:this.id,
 					height:rowHeight, 
 					x:x+left/2,
 					y:y+top/2,
@@ -259,6 +275,20 @@ class Row extends HasParentAndChild(dom.Row){
 
 		createComposed2ParentWithHeight(cellHeights){
 			return this.row.createComposed2Parent(this.render(cellHeights))
+		}
+
+		reshapeTo(pageRow){
+			const {props:{children,space}}=this
+			const shaped=new this.constructor({space,children:[...children]},{parent:pageRow.row})
+			pageRow.row.pages.push(shaped)
+			this?.removeAllDoneListener()
+			return shaped
+		}
+
+		hasEndOfVMerge(){
+			if(this.id.startsWith("37"))
+				return true
+			
 		}
 	}
 }
