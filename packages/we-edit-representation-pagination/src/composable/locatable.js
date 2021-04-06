@@ -4,6 +4,9 @@ import PropTypes from "prop-types"
 
 /**It to make composed result locatable through id and type */
 function Locatable(A){
+	const type=A.displayName.split("-").pop()
+	let uid=0
+	const autoID=()=>`${type}_${uid++}`
 	return class __$1 extends A{
 		static displayName=`locatable-${A.displayName}`
 		static propTypes={
@@ -18,8 +21,8 @@ function Locatable(A){
         }
 
 
-        constructor(){
-			super(...arguments)
+        constructor(props,...args){
+			super(props.id==undefined ? {id:autoID(),...props} : props,...args)
 			this.context.mount && this.props.id && this.context.mount(this)
         }
 
