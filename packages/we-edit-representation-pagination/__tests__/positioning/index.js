@@ -111,8 +111,8 @@ export default function define(feature, tests){
             const Zero={width:0}
             const {page:{width=size.width,height=size.height}={}}=args[0]||{}
             return render(
-                <Table id={++uuid} width={width}>
-                    <Row id={++uuid} cols={[{x:0,width}]}>
+                <Table id={++uuid} width={width}cols={[{x:0,width}]}>
+                    <Row id={++uuid} >
                         <Cell id={"container"} border={{left:Zero,right:Zero,top:Zero,bottom:Zero}}>
                             {a}
                         </Cell>

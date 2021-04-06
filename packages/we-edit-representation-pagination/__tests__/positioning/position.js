@@ -185,15 +185,15 @@ define("position", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Cont
         const left={width:0}
         const border={left,right:left,top:left,bottom:left}    
         const content=()=>(
-                <Table id="table" width={100}>
-                    <Row id="row" cols={[{x:10,width:90}]}>
+                <Table id="table" width={100}cols={[{x:10,width:90}]}>
+                    <Row id="row" >
                         <Cell id="cell" border={border}>
                             <Paragraph id="paragraph">
                                 <Text id="text">hello</Text>
                             </Paragraph>
                         </Cell>
                     </Row>
-                    <Row id="row1" cols={[{x:10,width:90}]}>
+                    <Row id="row1">
                         <Cell id="cell1" border={border}>
                             <Paragraph id="paragraph1">
                                 <Text id="text1">hello</Text>

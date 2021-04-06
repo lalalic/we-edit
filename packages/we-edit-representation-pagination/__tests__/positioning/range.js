@@ -129,8 +129,8 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
             doc=test(
                 <Fragment>
                     <Paragraph id={`${++uuid}p0`}><Text id={`${++uuid}t0`}>hello</Text></Paragraph>
-                    <Table id="table" width={100}>
-                        <Row id={`row`} cols={[{x:0,width:40},{x:60,width:40}]}>
+                    <Table id="table" width={100}cols={[{x:0,width:40},{x:60,width:40}]}>
+                        <Row id={`row`} >
                             <Cell  id={`${++uuid}c`} border={border}>
                                 <Paragraph id={`pfirst`}>
                                     <Text id={`${++uuid}t`}>text</Text>
@@ -142,7 +142,7 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
                                 </Paragraph>
                             </Cell>
                         </Row>
-                        <Row id={`row1`} cols={[{x:0,width:40},{x:60,width:40}]}>
+                        <Row id={`row1`}>
                             <Cell  id={`${++uuid}c`} border={border}>
                                 <Paragraph id={`${++uuid}p`}>
                                     <Text id={`${++uuid}t`}>text</Text>

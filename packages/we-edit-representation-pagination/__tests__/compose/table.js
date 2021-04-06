@@ -41,8 +41,8 @@ define("table compose",
             const rendered=render(
                 <WithSectionContext context={context}>
                     {section(
-                        <Table id={`${u++}`} width={8}>
-                            <Row id={`${u++}`} cols={[{x:0,width:6}]} >
+                        <Table id={`${u++}`} width={8} cols={[{x:0,width:6}]}>
+                            <Row id={`${u++}`} >
                                 <Cell id={`${u++}`}>
                                     <Paragraph id={`${u++}`}>
                                         <Text id={`${u++}`} fonts="arial" size={10}>hello</Text>
@@ -69,8 +69,8 @@ define("table compose",
             const rendered=render(
                 <WithSectionContext context={context}>
                     {section(
-                        <Table id={`${u++}`} width={8}>
-                            <Row id={`${u++}`} cols={[{x:0,width:6}]} >
+                        <Table id={`${u++}`} width={8} cols={[{x:0,width:6}]} >
+                            <Row id={`${u++}`} >
                                 <Cell id={`${u++}`}>
                                     <Paragraph id={`${u++}`}/>
                                 </Cell>
@@ -95,8 +95,8 @@ define("table compose",
             const rendered=render(
                 <WithSectionContext context={context}>
                     {section(
-                        <Table id={`${u++}`} width={8}>
-                            <Row id={`${u++}`} height={2} cols={[{x:0,width:6}]} >
+                        <Table id={`${u++}`} width={8}cols={[{x:0,width:6}]}>
+                            <Row id={`${u++}`} height={2}  >
                                 <Cell id={`${u++}`}>
                                     <Paragraph id={`${u++}`}>
                                         <Text id={`${u++}`} fonts="arial" size={10}>hello</Text>
@@ -126,8 +126,8 @@ define("table compose",
             const rendered=render(
                 <WithSectionContext context={context}>
                     {section(
-                        <Table id={`${u++}`} width={8}>
-                            <Row id={`${u++}`} cols={[{x:0,width:7}]} >
+                        <Table id={`${u++}`} width={8} cols={[{x:0,width:7}]}>
+                            <Row id={`${u++}`}  >
                                 <Cell id={`${u++}`}>
                                     <Paragraph id={`${u++}`}>
                                         <Text id={`${u++}`} fonts="arial" size={10}>hello hello hello</Text>
@@ -146,11 +146,11 @@ define("table compose",
             const rendered=render(
                 <WithSectionContext context={context}>
                     {section(
-                        <Table id={`${u++}`} width={10}>
-                            <Row id={`${u++}`} cols={[{x:0,width:7}]} >
+                        <Table id={`${u++}`} width={10}cols={[{x:0,width:7}]} >
+                            <Row id={`${u++}`} >
                                 <Cell id={`${u++}`}>
-                                    <Table id={`${u++}`} width={8}>
-                                        <Row id={`${u++}`} cols={[{x:0,width:7}]}>
+                                    <Table id={`${u++}`} width={8}cols={[{x:0,width:7}]}>
+                                        <Row id={`${u++}`} >
                                             <Cell id={`${u++}`}>
                                                 <Paragraph id={`${u++}`}>
                                                     <Text id={`${u++}`} fonts="arial" size={10}>hello hello hello</Text>
@@ -176,8 +176,8 @@ define("table compose",
             const rendered=render(
                 <WithSectionContext context={context}>
                     {section(
-                        <Table id={`${`${u++}`}`} width={10}>
-                            <Row id={`${u++}`} cols={[{x:0,width:5},{x:5,width:5}]} >
+                        <Table id={`${`${u++}`}`} width={10}cols={[{x:0,width:5},{x:5,width:5}]} >
+                            <Row id={`${u++}`} >
                                 <Cell id={`${u++}`}>
                                     <Paragraph id={`${u++}`}>
                                         <Text id={`${u++}`} fonts="arial" size={15}>hello hello</Text>
@@ -201,8 +201,8 @@ define("table compose",
             const rendered=render(
                 <WithSectionContext context={context}>
                     {section(
-                        <Table id={`${u++}`} width={10}>
-                            <Row id={`${u++}`} cols={[{x:0,width:5},{x:5,width:5}]} >
+                        <Table id={`${u++}`} width={10}cols={[{x:0,width:5},{x:5,width:5}]} >
+                            <Row id={`${u++}`} >
                                 <Cell id={`${u++}`}>
                                     <Paragraph id={`${u++}`}>
                                         <Text id={`${u++}`} fonts="arial" size={10}>hello</Text>
@@ -228,8 +228,8 @@ define("table compose",
             const rendered=render(
                 <WithSectionContext context={context}>
                     {section(
-                        <Table id={`${u++}`} width={10}>
-                            <Row id={`${u++}`} cols={[{x:0,width:5},{x:5,width:5}]} >
+                        <Table id={`${u++}`} width={10}cols={[{x:0,width:5},{x:5,width:5}]} >
+                            <Row id={`${u++}`} >
                                 <Cell id={`${u++}`}>
                                     <Paragraph id={`${u++}`}>
                                         <Text id={`${u++}`} fonts="arial" size={10}>hello</Text>
@@ -237,8 +237,8 @@ define("table compose",
                                 </Cell>
 
                                 <Cell id={`${u++}`}>
-                                    <Table id={`${u++}`} width={10}>
-                                        <Row id={`${u++}`} cols={[{x:0,width:5},{x:5,width:5}]}>
+                                    <Table id={`${u++}`} width={10} cols={[{x:0,width:5},{x:5,width:5}]}>
+                                        <Row id={`${u++}`} >
                                             <Cell id={`${u++}`}>
                                                 <Paragraph id={`${u++}`}>
                                                     <Text id={`${u++}`} fonts="arial" size={15}>hello hello</Text>
@@ -255,6 +255,45 @@ define("table compose",
                 </WithSectionContext>
             )
             expect(document.appendComposed).toHaveBeenCalledTimes(2)
+        })
+    })
+
+    xdescribe("span",()=>{
+        describe("col span",()=>{
+            it("colspan=2",()=>{
+
+            })
+
+            it("colspan=2 cross page",()=>{
+
+            })
+        })
+
+        describe("row span",()=>{
+            it("rowspan=2",()=>{
+                const p=test(
+                    <Table width={100} cols={[{},{},{}]}>
+                        <Row><Cell></Cell><Cell></Cell><Cell></Cell></Row>
+                        <Row><Cell></Cell><Cell></Cell><Cell></Cell></Row>
+                    </Table>
+                )
+            })
+
+            it("rowspan=2 cross page",()=>{
+
+            })
+
+            it("rowspan end at cross page",()=>{
+
+            })
+        })
+
+        it("colspan=2 and rowspan=2",()=>{
+
+        })
+
+        it("colspan=2 and rowspan=2 cross page",()=>{
+
         })
     })
 })

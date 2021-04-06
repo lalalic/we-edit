@@ -59,8 +59,8 @@ define("paragraph compose",
             <Context>
                 <Shape {...{geometry, id:"shape"}}>
                     <Frame {...size} id="f0">
-                        <Table id={`${u++}`} width={8}>
-                            <Row id={`${u++}`} cols={[{x:0,width:6}]} >
+                        <Table id={`${u++}`} width={8} cols={[{x:0,width:6}]} >
+                            <Row id={`${u++}`} >
                                 <Cell id={`${u++}`}>
                                     <Paragraph id={`${u++}`}>
                                         <Text id={`${u++}`}>hello</Text>

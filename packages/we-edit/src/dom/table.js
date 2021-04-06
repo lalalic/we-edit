@@ -11,10 +11,24 @@ export default class Table extends Component{
 		headers: PropTypes.number,
 		footers: PropTypes.number,
 		indent: this.UnitShape,
+		cols: PropTypes.arrayOf(PropTypes.shape({
+			x: this.UnitShape,
+			width:this.UnitShape
+		})).isRequired,
 	}
 
 	static defaultProps={
 		headers:0,
 		indent:0
+	}
+
+	static childContextTypes={
+		cols:this.propTypes.cols,
+	}
+
+	getChildContext(){
+		return {
+			cols:this.props.cols
+		}
 	}
 }

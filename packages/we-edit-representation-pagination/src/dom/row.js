@@ -33,12 +33,16 @@ class Row extends HasParentAndChild(dom.Row){
 		this.computed.allDoneEvent=new EventEmitter()
 	}
 
+	get cols(){
+		return this.context.cols
+	}
+
 	get currentPage(){
 		return this.pages[this.pages.length-1]
 	}
 	
 	/**
-	 * support get column by cellid, such as this.getColumns(this.props.cols)["cellid1"] 
+	 * support get column by cellid, such as this.getColumns(this.cols)["cellid1"] 
 	 * cell id would be set in column accoding to using/composing order(it's correct for composing)
 	 * support 
 	 * column.currentPage:current valid page for the column
@@ -47,6 +51,7 @@ class Row extends HasParentAndChild(dom.Row){
 	 */
 	getColumns=memoize(cols=>{
 		const me=this
+		cols=cols.map(a=>({...a}))
 		return new Proxy(cols.map(a=>new Proxy(a,{
 			get(col,prop){
 				switch(prop){
@@ -120,7 +125,7 @@ class Row extends HasParentAndChild(dom.Row){
 			
 			this.pages.push(page=new this.constructor.Page({
 				space, 
-				children:new Array(this.getColumns(this.props.cols).length).fill(null),
+				children:new Array(this.getColumns(this.cols).length).fill(null),
 			},{parent:this}))
 		}
 		return page
@@ -128,7 +133,7 @@ class Row extends HasParentAndChild(dom.Row){
 	
 	nextAvailableSpace({id:cellId, rowSpan=1, ...required}){
 		const {keepLines, minHeight, height:exactHeight}=this.props
-		const col=this.getColumns(this.props.cols)[cellId]
+		const col=this.getColumns(this.cols)[cellId]
 		rowSpan>1 && (col.rowSpan=rowSpan);
 
 		const page=this.findOrCreatePageForColumn(col,required)
@@ -149,7 +154,7 @@ class Row extends HasParentAndChild(dom.Row){
 	 * @param {*} cellFrame 
 	 */
 	appendComposed(cellFrame){
-		const columns=this.getColumns(this.props.cols)
+		const columns=this.getColumns(this.cols)
 		const cellId=cellFrame && cellFrame.props.id
 		const col=columns[cellId]
 		const page=this.findOrCreatePageForColumn(col, {height:this.getHeight([cellFrame])})
@@ -183,7 +188,7 @@ class Row extends HasParentAndChild(dom.Row){
 		}
 
 		get cols(){
-			return this.row.props.cols
+			return this.row.cols
 		}
 
 		get border(){

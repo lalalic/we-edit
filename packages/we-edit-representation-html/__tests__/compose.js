@@ -171,8 +171,8 @@ describe("html", ()=>{
 	it("table",()=>{
 		const {doc}=render(
 			<Section id={`${++uuid}`}>
-				<Table id={`${++uuid}`} width={50}>
-					<Row id={`${++uuid}`} cols={[{x:0,width:10}]}>
+				<Table id={`${++uuid}`} width={50}cols={[{x:0,width:10}]}>
+					<Row id={`${++uuid}`} >
 						<Cell id={`${++uuid}`}>
 							<Paragraph id={`${++uuid}`}>
 								<Text id={`${++uuid}`}>hello</Text>

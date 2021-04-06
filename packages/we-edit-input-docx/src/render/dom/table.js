@@ -25,8 +25,7 @@ export default ({Table,Container})=>class __$1 extends Component{
 
 	getChildContext(){
 		return {
-			style: this.childStyle(this.props.style, this.context.style),
-			cols:this.props.cols
+			style: this.childStyle(this.props.style, this.context.style)
 		}
 	}
 
@@ -101,6 +100,13 @@ export default ({Table,Container})=>class __$1 extends Component{
 		if(tblStyle.get('tbl.layout')=="fixed"){
 			width=cols.reduce((s,a)=>s+a,0)
 		}
-		return <Table {...{...props,...style,width,indent, children}}/>
+
+		cols=cols.reduce((state,w)=>{
+			state.cols.push({x:state.x,width:w})
+			state.x+=w
+			return state
+		},{x:0,cols:[]}).cols
+
+		return <Table {...{...props,...style,width,indent, children, cols}}/>
 	}
 }

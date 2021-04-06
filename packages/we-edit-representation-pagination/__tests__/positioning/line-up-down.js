@@ -124,8 +124,8 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
                         <Paragraph id="2">
                             <Text id={"0"}>text</Text>
                         </Paragraph>
-                        <Table id={uuid++} width={10}>
-                            <Row id={uuid++} cols={[{x:0,width:5}]}>
+                        <Table id={uuid++} width={10}cols={[{x:0,width:5}]}>
+                            <Row id={uuid++} >
                                 <Cell id={uuid++} border={border}>
                                     <Paragraph id="3">
                                         <Text id={"1"}>text</Text>
@@ -151,8 +151,8 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
                         <Paragraph id={uuid++}>
                             <Text id={"0"}>texttexttext</Text>
                         </Paragraph>
-                        <Table id={uuid++} width={10}>
-                            <Row id={uuid++} cols={[{x:0,width:4},{x:4,width:4},{x:8,width:4}]}>
+                        <Table id={uuid++} width={10}cols={[{x:0,width:4},{x:4,width:4},{x:8,width:4}]}>
+                            <Row id={uuid++} >
                                 <Cell id={uuid++} border={border}>
                                     <Paragraph id={uuid++}>
                                         <Text id={"1"}>text</Text>
@@ -181,8 +181,8 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
             it("row cell-> row cell",()=>{
                 const p=test(
                     <Fragment>
-                        <Table id={uuid++} width={10}>
-                            <Row id={uuid++} cols={[{x:0,width:4},{x:4,width:4}]}>
+                        <Table id={uuid++} width={10}cols={[{x:0,width:4},{x:4,width:4}]}>
+                            <Row id={uuid++} >
                                 <Cell id={"1.1.1"} border={border}>
                                     <Paragraph id={"1.1"}>
                                         <Text id={"1"}>text</Text>
@@ -196,8 +196,8 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
                             </Row>
                         </Table>
 
-                        <Table id={uuid++} width={10}>
-                            <Row id={uuid++} cols={[{x:0,width:4},{x:4,width:4}]}>
+                        <Table id={uuid++} width={10}cols={[{x:0,width:4},{x:4,width:4}]}>
+                            <Row id={uuid++} >
                                 <Cell id={"3.1.1"} border={border}>
                                     <Paragraph id={"3.1"}>
                                         <Text id={"3"}>text</Text>
@@ -292,8 +292,8 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
                         <Paragraph id={uuid++}>
                             <Text id={"0"}>text</Text>
                         </Paragraph>
-                        <Table id={uuid++} width={10}>
-                            <Row id={uuid++} cols={[{x:0,width:5}]}>
+                        <Table id={uuid++} width={10}cols={[{x:0,width:5}]}>
+                            <Row id={uuid++} >
                                 <Cell id={uuid++} border={border}>
                                     <Paragraph id={uuid++}>
                                         <Text id={"1"}>text</Text>
@@ -309,8 +309,8 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
             it("row cell<- row cell",()=>{
                 const p=test(
                     <Fragment>
-                        <Table id={uuid++} width={10}>
-                            <Row id={uuid++} cols={[{x:0,width:4},{x:4,width:4}]}>
+                        <Table id={uuid++} width={10} cols={[{x:0,width:4},{x:4,width:4}]}>
+                            <Row id={uuid++}>
                                 <Cell id={"1.1.1"} border={border}>
                                     <Paragraph id={"1.1"}>
                                         <Text id={"1"}>text</Text>
@@ -324,8 +324,8 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
                             </Row>
                         </Table>
 
-                        <Table id={uuid++} width={10}>
-                            <Row id={uuid++} cols={[{x:0,width:4},{x:4,width:4}]}>
+                        <Table id={uuid++} width={10} cols={[{x:0,width:4},{x:4,width:4}]}>
+                            <Row id={uuid++}>
                                 <Cell id={"3.1.1"} border={border}>
                                     <Paragraph id={"3.1"}>
                                         <Text id={"3"}>text</Text>
@@ -353,8 +353,8 @@ define("line", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Containe
                         <Paragraph id={uuid++}>
                             <Text id={"0"}>texttexttexttext</Text>
                         </Paragraph>
-                        <Table id={uuid++} width={10}>
-                            <Row id={uuid++} cols={[{x:0,width:4},{x:4,width:8},{x:8,width:12}]}>
+                        <Table id={uuid++} width={10}cols={[{x:0,width:4},{x:4,width:8},{x:8,width:12}]}>
+                            <Row id={uuid++} >
                                 <Cell id={uuid++} border={border}>
                                     <Paragraph id={uuid++}>
                                         <Text id={"1"}>text</Text>

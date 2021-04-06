@@ -297,8 +297,8 @@ define("section compose",
                             wrap:{mode:"square",geometry:new Shape.Path("M0 0h50v50h-50Z"), }
                         }}/>
                     </Paragraph>
-                    <Table {...{id:uuid++}}>
-                        <Row {...{id:uuid++, cols:[{x:10,width:40},{x:50,width:90}]}}>
+                    <Table {...{id:uuid++,cols:[{x:10,width:40},{x:50,width:90}]}}>
+                        <Row {...{id:uuid++}}>
                             <Cell {...{id:uuid++}}>
                                 <Paragraph {...{id:uuid++}}>
                                     <Text id={uuid++}>hello</Text>
@@ -332,8 +332,8 @@ define("section compose",
                             wrap:{mode:"square",geometry:new Shape.Path("M35 35h20v20h-20Z"), }
                         }}/>
                     </Paragraph>
-                    <Table {...{id:uuid++}}>
-                        <Row {...{id:"row1", cols:[{x:10,width:40},{x:50,width:90}]}}>
+                    <Table {...{id:uuid++, cols:[{x:10,width:40},{x:50,width:90}]}}>
+                        <Row {...{id:"row1"}}>
                             <Cell {...{id:uuid++}} border={border}>
                                 <Paragraph {...{id:uuid++}}>
                                     <Text id={uuid++}>hello</Text>
@@ -342,7 +342,7 @@ define("section compose",
                             <Cell {...{id:uuid++}}  border={border}>
                             </Cell>
                         </Row>
-                        <Row {...{id:"row2", cols:[{x:10,width:40},{x:50,width:90}]}}>
+                        <Row {...{id:"row2"}}>
                             <Cell {...{id:uuid++}}  border={border}>
                                 <Paragraph {...{id:uuid++}}>
                                     <Text id={uuid++}>hello</Text>

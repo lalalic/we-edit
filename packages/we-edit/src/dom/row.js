@@ -9,14 +9,12 @@ export default class Row extends Component{
 		height: this.UnitShape,
 		minHeight: this.UnitShape,
 		keepLines: PropTypes.bool,
-		cols: PropTypes.arrayOf(PropTypes.shape({
+	}
+
+	static contextTypes={
+		cols:PropTypes.arrayOf(PropTypes.shape({
 			x: this.UnitShape,
 			width:this.UnitShape
 		})).isRequired,
-		span: PropTypes.number,
-	}
-
-	static defaultProps={
-		span:0,
 	}
 }
