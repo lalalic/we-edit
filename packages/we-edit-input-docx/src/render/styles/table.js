@@ -134,7 +134,7 @@ const attribs={
 		"w:cnfStyle":"conditional",
 		"w:vAlign": "vertAlign",
 		"w:vMerge":"vMerge",
-		"w:gridSpan":"rowSpan",
+		"w:gridSpan":"colSpan",
 	}
 }
 export default class TableStyle extends WithBorder{

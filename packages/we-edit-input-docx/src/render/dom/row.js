@@ -1,7 +1,6 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
-import {Paragraph,Character} from "../styles"
 
 
 export default ({Row})=>class __$1 extends Component{

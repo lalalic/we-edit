@@ -66,14 +66,14 @@ class Row extends HasParentAndChild(dom.Row){
 						return pages.find(a=>!!a.cells[i])?.cells[i]	
 					}	
 				case "width":{
-						const span=col.rowSpan||1, i=cols.indexOf(col)
+						const span=col.colSpan||1, i=cols.indexOf(col)
 						return cols.slice(i,i+span).reduce((W,a)=>W+a.width,0)
 					}
 				}
 				return col[prop]
 			},
 			set(col, k, v){
-				if(["id","rowSpan"].includes(k)){
+				if(["id","colSpan"].includes(k)){
 					col[k]=v
 					return true
 				}
@@ -94,8 +94,8 @@ class Row extends HasParentAndChild(dom.Row){
 					if(i==-1){
 						found=columns[0]
 					}else{
-						const {rowSpan=1}=columns[i]
-						found=columns[i+rowSpan]
+						const {colSpan=1}=columns[i]
+						found=columns[i+colSpan]
 					}
 					found.id=key
 					return found
@@ -131,10 +131,10 @@ class Row extends HasParentAndChild(dom.Row){
 		return page
 	}
 	
-	nextAvailableSpace({id:cellId, rowSpan=1, ...required}){
+	nextAvailableSpace({id:cellId, colSpan=1, ...required}){
 		const {keepLines, minHeight, height:exactHeight}=this.props
 		const col=this.getColumns(this.cols)[cellId]
-		rowSpan>1 && (col.rowSpan=rowSpan);
+		colSpan>1 && (col.colSpan=colSpan);
 
 		const page=this.findOrCreatePageForColumn(col,required)
 		if(!page)
