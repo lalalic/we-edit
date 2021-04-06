@@ -6,7 +6,7 @@ import {render,provider} from "../context"
 import {define} from "./index"
 
 define("table compose",
-({dom, testing, CONTEXT, Context, WithTextContext, WithParagraphContext})=>{
+({dom, testing, CONTEXT, Context, WithTextContext, WithParagraphContext, autoID})=>{
     const {Section,Frame, Paragraph, Text,Table,Row,Cell}=dom
     const WithSectionContext=provider(Section,{ModelTypes:dom})
 
@@ -259,6 +259,21 @@ define("table compose",
     })
 
     xdescribe("span",()=>{
+        function test(content){
+            render(
+                <WithSectionContext context={context}>
+                    {section(content)}
+                </WithSectionContext>
+            )
+            expect(document.appendComposed).toHaveBeenCalled()
+            const pages=document.computed.composed
+            const $page=new ReactQuery(pages[0])
+            return {$page,pages}
+        }
+
+        let uid=0
+        const id=()=>`_${++uid}`
+
         describe("col span",()=>{
             it("colspan=2",()=>{
 
@@ -271,12 +286,13 @@ define("table compose",
 
         describe("row span",()=>{
             it("rowspan=2",()=>{
-                const p=test(
-                    <Table width={100} cols={[{},{},{}]}>
-                        <Row><Cell></Cell><Cell></Cell><Cell></Cell></Row>
-                        <Row><Cell></Cell><Cell></Cell><Cell></Cell></Row>
+                const doc=test(
+                    <Table id={id()} width={100} cols={[{x:10,width:10},{x:20,width:10},{x:30,width:10}]}>
+                        <Row  id={id()}><Cell  id={id()} colSpan={2}/><Cell  id={id()}/></Row>
+                        <Row  id={id()}><Cell  id={id()}/><Cell  id={id()}/><Cell  id={id()}/></Row>
                     </Table>
                 )
+                expect(doc.$page.find('[data-type="row"]').length).toBe(2)
             })
 
             it("rowspan=2 cross page",()=>{

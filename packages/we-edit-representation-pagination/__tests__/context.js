@@ -7,6 +7,7 @@ import cheerio from "cheerio"
 import ReactDOM from 'react-dom'
 import * as selector from "../../we-edit/src/state/selector"
 import Measure from "./measure"
+const composable= require("../src/composable")
 
 selector.getWorkers=jest.fn(()=>[])
 ReactDOM.createPortal = jest.fn(node => node)
