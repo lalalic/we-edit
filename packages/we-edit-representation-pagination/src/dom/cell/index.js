@@ -60,17 +60,24 @@ export default class extends Section{
 
 		get vMerged(){
 			const {context:{parent:{props:{vMerge}}}}=this
-			return vMerge===true
-		}
-
-		get startVMerge(){
-			const {context:{parent:{props:{vMerge}}}}=this
-			return vMerge==="restart"
+			return vMerge==="continue"
 		}
 
 		get vMerge(){
 			const {context:{parent:{props:{vMerge}}}}=this
 			return vMerge
+		}
+
+		get cell(){
+			return this.context.parent
+		}
+
+		get rowSpan(){
+			return this.cell.props.rowSpan
+		}
+
+		get isStartRowSpan(){
+			return !!this.rowSpan
 		}
 	}
 

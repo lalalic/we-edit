@@ -12,9 +12,9 @@ export default class Table extends Component{
 		footers: PropTypes.number,
 		indent: this.UnitShape,
 		cols: PropTypes.arrayOf(PropTypes.shape({
-			x: this.UnitShape,
-			width:this.UnitShape
-		})).isRequired,
+				x: this.UnitShape,
+				width:this.UnitShape
+			})).isRequired,
 	}
 
 	static defaultProps={
@@ -23,7 +23,10 @@ export default class Table extends Component{
 	}
 
 	static childContextTypes={
-		cols:this.propTypes.cols,
+		cols:PropTypes.oneOfType([
+			PropTypes.func,
+			this.propTypes.cols,
+		]).isRequired
 	}
 
 	getChildContext(){

@@ -1,4 +1,5 @@
 import React, {Component} from "react"
+import PropTypes from "prop-types"
 import {dom, ReactQuery} from "we-edit"
 
 import {HasParentAndChild} from "../composable"
@@ -12,9 +13,23 @@ import {Group, Marker} from "../composed"
  * 3. each row should make height correct after it all children layouted
  * 		a. last page-table doesn't need relayout
  * 4. each page-table relayout should use content height of row to layout
- * 5. 
+ * 
+ * NOTE: pageCell is appended to pageRow before layout content, so relayout when a row all done is a must
+ * currentPage is the page which should hold next ROW content 
  */
-export default class Table extends HasParentAndChild(dom.Table){
+class Table extends HasParentAndChild(dom.Table){
+	constructor(){
+		super(...arguments)
+		Object.defineProperties(this,{
+			currentPage:{
+				enumerable: true,
+				configurable: true,
+				get(){
+					return this.lastPage
+				}
+			}
+		})
+	}
 	get pages(){
 		return this.computed.composed
 	}
@@ -23,15 +38,11 @@ export default class Table extends HasParentAndChild(dom.Table){
 		return this.pages[this.pages.length-1]
 	}
 
-	get currentPage(){
-		return [...this.pages].reverse().find((me,i,pages,prev=pages[i+1])=>{
-			if(me && !prev)
-				return true
-			if(prev.lastRow.id!==me.lastRow?.id)
-				return true
-			if(prev.lastRow.hasEndOfVMerge())
-				return true
-		})
+	getChildContext(){
+		return {
+			...super.getChildContext(),
+			cols:()=>this.props.cols.map(a=>({...a})),
+		}
 	}
 
 	onAllChildrenComposed(){
@@ -98,6 +109,11 @@ export default class Table extends HasParentAndChild(dom.Table){
 		constructor(){
 			super(...arguments)
 			this.relayout=this.relayout.bind(this)
+			this.relayout.factory=page=>allDoneRow=>{
+				if(page.alreadyLayouted && allDoneRow.pages.length>1){
+					page.relayout(allDoneRow)
+				}
+			}
 		}
 
 		get space(){
@@ -196,27 +212,10 @@ export default class Table extends HasParentAndChild(dom.Table){
 
 		push(row){
 			if(this.lastRow===row)
-				return
-			
-			const relayout=page=>id=>page.alreadyLayouted && page.relayout(id)
-			/**
-			 * vertical span may change the end & begin of pagerow, it need be corrected
-			 * such as a cell with vMerge of first row flow content to next page, 
-			 * the 2nd tablePage will hold the a first rowPage when created,
-			 * but when 2nd row fully layouted, the last rowPage in 1st tablePage will be changed to 2nd rowPage
-			 * so the 1st rowPage in 2nd tablePage should be reshaped to 2nd rowPage
-			 */
-			//reshape FirstRow Of AllNextPages To Be Same WithLastRow Of ThisPage
-			this.table.pages
-				.slice(this.table.pages.indexOf(this)+1)//next pages
-				.filter(page=>page.rows[0].id==this.lastRow.id)//page crossed from same row
-				.forEach(page=>{
-					const reshaped=page.rows[0]=page.rows[0].reshapeTo(row)
-					reshaped.onAllChildrenComposed(relayout(page))
-				})
-
+				return false
+			console.debug(`append row[${row.id}] to page[${this.table.pages.indexOf(this)}]`)
 			this.rows.push(row)
-			row.onAllChildrenComposed(relayout(this))
+			row.onAllChildrenComposed(this.relayout.factory(this))
 		}
 
 		nextAvailableSpace(){
@@ -257,7 +256,101 @@ export default class Table extends HasParentAndChild(dom.Table){
 		getCellHeightMatrix(){
 			const {children:rows}=this.props
 			const matrix=new Array(rows.length)
-			const startMergeCells=[]
+			let Y=0
+			rows.forEach((row, i)=>{
+				const rowHeight=row.flowableContentHeight
+				matrix[i]=new Array(row.cells.length).fill(rowHeight)
+				Y+=rowHeight
+			})
+			return Object.assign(matrix,{height:Y})
+		}
+	}
+}
+
+class SpanableTable extends Table{
+	constructor(){
+		super(...arguments)
+		Object.defineProperties(this,{
+			currentPage:{
+				get(){
+					/**the logic is not to mess up row order */
+					return [...this.pages].reverse().find((me,i,pages,prev=pages[i+1])=>{
+						if(me && !prev)
+							return true
+						if(prev.lastRow.id!==me.rows[0]?.id)
+							return true
+						//same row, but me.firstRow may be reshaped to different row, so it need check further
+						//if it's rowspan edge, such as end/begin of rowspan
+						return prev.lastRowIsRowSpanEdge()
+					})
+				}
+			}
+		})
+	}
+
+	getChildContext(){
+		return {
+			...super.getChildContext(),
+			cols:()=>{
+				const cols=[...this.props.cols]
+				this.currentPage?.lastRow?.cells.forEach((a,i)=>{
+					if(a?.rowSpan){
+						const {props:{colSpan=1}}=a
+						cols.splice(i,colSpan,...new Array(colSpan).fill(null))
+					}
+				})
+				return cols
+			}
+		}
+	}
+
+	static Page=class extends super.Page{
+		lastRowIsRowSpanEdge(){
+			if(this.lastRow.cells.find(a=>a?.rowSpan))
+				return true
+		}
+	
+		cellAlreadySpanRows(pageCell){
+			const rowId=pageCell.cell.closest('row').props.id
+			const rows=this.table.pages.slice(0,this.table.pages.indexOf(this)+1)
+				.map(a=>a.rows.map(b=>b.id)).flat()
+			return Array.from(new Set(rows)).reverse().indexOf(rowId)+1
+		}
+
+		push(row){
+			const lastRow=this.lastRow
+			if(!super.push(row))
+				return false
+			//@NOTE:reshape cross page spanCell to current row to make row order already correct
+			this.table.pages
+				.slice(this.table.pages.indexOf(this)+1)//next pages
+				.filter(page=>page.rows[0].id==lastRow.id)//page crossed from same row
+				.forEach((page,i, pages)=>{
+					const firstRow=page.rows[0]
+					if(i===0){
+						const rowSpaneds=firstRow.cells.map(a=>{
+							if(!a?.rowSpan)
+								return -1
+							return this.cellAlreadySpanRows(a)
+						})
+						pages.rowSpaneds=rowSpaneds
+					}
+					const reshaped=page.rows[0]=firstRow.reshapeTo(row, pages.rowSpaneds)
+					reshaped.onAllChildrenComposed(this.relayout.factory(page))
+				})
+		}
+
+		/**
+		 * for render: always use content height
+		 * 
+		 * for nextAvailableSpace: to provide available space for next row
+		 * 
+		 * @returns 
+		 */
+		 getCellHeightMatrix(){
+			const {children:rows}=this.props
+			const matrix=new Array(rows.length)
+			const startRowSpanCells=[]
 			let Y=0
 			rows.forEach((row, i, _, isLastRow=i==rows.length-1)=>{
 				const rowHeight=row.flowableContentHeight
@@ -266,27 +359,28 @@ export default class Table extends HasParentAndChild(dom.Table){
 				matrix[i]=new Array(row.cells.length).fill(rowHeight)
 				Y+=rowHeight
 				
-				const endMergeCells=new Array(row.cells.length).fill(null)
+				const endRowSpanCells=new Array(row.cells.length).fill(null)
 				row.cells.forEach((a,j,_1,_2,b=rows[i+1]?.cells[j])=>{
 					if(!a)
 						return 
-					if(b && a.startVMerge){//start
+					if(b && a.rowSpan){//start
 						a.__temp={rowBeginY,rowIndex:i} //temp for quick calc
-						startMergeCells[j]=a
+						startRowSpanCells[j]=a
 					}//can't use else since a row maybe restart and end of vMerge in context of reshape
-					if(a.vMerge && (!b?.vMerge || b.startVMerge)){//end
-						endMergeCells[j]=a
-					}else if(isLastRow && startMergeCells[j]){//force end at last row
-						endMergeCells[j]=a
+					if(a.isEndRowSpan){//end
+						endRowSpanCells[j]=a
+					}
+					if(isLastRow && startRowSpanCells[j]){//force end at last row
+						endRowSpanCells[j]=a
 					}
 				})
 
-				if(!endMergeCells.find(a=>!!a))
+				if(!endRowSpanCells.find(a=>!!a))
 					return 
 
 				const maxRowEndY=Math.max(
 					rowEndY,
-					...endMergeCells.map((b,j,_1,_2,a=startMergeCells[j])=>{
+					...endRowSpanCells.map((b,j,_1,_2,a=startRowSpanCells[j])=>{
 						if(!b || !a)
 							return 0
 						return a.cellHeight+a.__temp.rowBeginY
@@ -300,13 +394,13 @@ export default class Table extends HasParentAndChild(dom.Table){
 					matrix[i]=matrix[i].map(a=>a+higher)
 				}
 				//reset height for start cells of all endMergeCells to rowEndY
-				endMergeCells.forEach((b,j,_1,_2,a=startMergeCells[j])=>{
+				endRowSpanCells.forEach((b,j,_1,_2,a=startRowSpanCells[j])=>{
 					if(!b || !a)
 						return 
 					matrix[i].isStartAndEnd=matrix[i].isStartAndEnd||a===b	
 					matrix[a.__temp.rowIndex][j]=maxRowEndY-a.__temp.rowBeginY
 					delete a.__temp
-					startMergeCells[j]=undefined//remove ended
+					startRowSpanCells[j]=undefined//remove ended
 				})
 			})
 			
@@ -314,3 +408,5 @@ export default class Table extends HasParentAndChild(dom.Table){
 		}
 	}
 }
+
+export default Table

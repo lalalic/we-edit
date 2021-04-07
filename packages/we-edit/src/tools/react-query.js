@@ -10,8 +10,9 @@ export default class Query{
             return React.isValidElement(element)&&element.props["id"]==id
         },
         "[":(name,value)=>element=>{
-            if(value===undefined)
-                return React.isValidElement(element)&&Object.keys(element.props).includes(name)
+            if(value===undefined){
+                return React.isValidElement(element)&& (name in element.props) && element.props[name]!=undefined
+            }
 
             return React.isValidElement(element)&&element.props[name]==value
         },

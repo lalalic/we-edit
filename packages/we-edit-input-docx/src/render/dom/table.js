@@ -107,6 +107,48 @@ export default ({Table,Container})=>class __$1 extends Component{
 			return state
 		},{x:0,cols:[]}).cols
 
-		return <Table {...{...props,...style,width,indent, children, cols}}/>
+		return <Table {...{...props,...style,width,indent, children:this.shapeRowSpan(children), cols}}/>
+	}
+
+	shapeRowSpan(children){
+		const $table=new ReactQuery(<div>{children}</div>)
+		const rows=$table.find('row').toArray()
+		const restarts=$table.find('[vMerge=restart]').toArray()
+
+		const getIthCell=(row,iCol)=>{
+			const cells=new ReactQuery(row).find('cell').toArray()
+			const i=cells.findIndex(({props:{rowSpan=1}})=>{
+					iCol=iCol-rowSpan
+					return iCol==0
+				})
+			return cells[i+1]
+		}
+		let $shapedTable=$table
+		restarts.map(restart=>{
+			const {first,parents}=$table.findFirstAndParents(`#${restart.props.id}`)
+			const row=parents.find(a=>a.type.displayName=="row")
+			const i=new ReactQuery(row).find('cell').toArray()
+				.reduce((I,cell)=>{
+					if(I.found)
+						return I
+					if(cell!==restart){
+						const {props:{colSpan=1}}=cell
+						I.i+=colSpan
+					}else{
+						I.found=true
+					}
+					return I
+				},{found:false,i:0}).i
+			const nexts=rows.slice(rows.indexOf(row)+1)
+			let span=nexts.findIndex(row=>{
+						const ithCell=getIthCell(row,i)
+						const {props:{vMerge}}=ithCell
+						return !vMerge || vMerge=="restart"
+					})
+			const rowSpan=span==-1 ? nexts.length+1 : span+1
+			$shapedTable=$shapedTable.replace(restart,React.cloneElement(restart,{rowSpan}))
+		})
+		children=$shapedTable.children().toArray()
+		return children
 	}
 }

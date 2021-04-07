@@ -12,9 +12,12 @@ export default class Row extends Component{
 	}
 
 	static contextTypes={
-		cols:PropTypes.arrayOf(PropTypes.shape({
-			x: this.UnitShape,
-			width:this.UnitShape
-		})).isRequired,
+		cols:PropTypes.oneOfType([
+			PropTypes.arrayOf(PropTypes.shape({
+				x: this.UnitShape,
+				width:this.UnitShape
+			})),
+			PropTypes.func
+		])
 	}
 }

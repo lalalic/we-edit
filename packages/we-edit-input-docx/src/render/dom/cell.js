@@ -24,8 +24,10 @@ export default ({Cell})=>class __$1 extends Component{
 		const {style:$1,...props}=this.props
 		const childStyle=this.childStyle(this.props.style, this.context.style)
 		const conditional=childStyle.get("tc.conditional")|childStyle.get("tr.conditional")
-		const edges=[], vMerge=$1.tc?.vMerge, colSpan=$1.tc?.colSpan
+		const edges=[], colSpan=$1.tc?.colSpan
 		const style=childStyle.flat4Cell(conditional,edges)
-		return <Cell {...{...props,...style, vMerge,colSpan}}/>
+		if(colSpan)
+			props.colSpan=colSpan
+		return <Cell {...{...props,...style}}/>
 	}
 }

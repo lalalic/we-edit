@@ -16,7 +16,5 @@ export default class Cell extends Component{
 	static defaultProps={
 		border:this.BorderShape.default,
 		margin:this.MarginShape.default,
-		rowSpan:0,
-		colSpan:0,
 	}
 }

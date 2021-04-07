@@ -282,7 +282,7 @@ export class Properties{
 	}
 
 	vMerge(x){
-		return x.attribs["w:val"]||true
+		return x.attribs["w:val"]||"continue"
 	}
 
 	gridSpan(x){

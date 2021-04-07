@@ -192,8 +192,9 @@ class DocxType extends Input.Editable{
 				return createElement(components.Row,{style},children,node)
 			}
 			case "tc":{
-				let style=!props.pr ? undefined : new Style.Table.Direct(props.pr,styles,selector)
-				return createElement(components.Cell,{style},children,node)
+				const style=!props.pr ? undefined : new Style.Table.Direct(props.pr,styles,selector)
+				const vMerge=style.tc?.vMerge
+				return createElement(components.Cell,{style, vMerge},children,node)
 			}
 			case "list":
 			case "heading":

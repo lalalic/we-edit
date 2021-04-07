@@ -28,13 +28,19 @@ class Row extends HasParentAndChild(dom.Row){
 				set(value){
 					this.computed.composed=value
 				}
+			},
+			cols:{
+				get(){
+					return this.computed.cols||(this.computed.cols=this.context.cols())
+				}
+			},
+			allDoneEvent:{
+				get(){
+					return this.computed.allDoneEvent||(this.computed.allDoneEvent=new EventEmitter())
+				}
 			}
 		})
-		this.computed.allDoneEvent=new EventEmitter()
-	}
-
-	get cols(){
-		return this.context.cols
+		
 	}
 
 	get currentPage(){
@@ -80,22 +86,23 @@ class Row extends HasParentAndChild(dom.Row){
 				return false
 			}
 		})),{
-			get(columns, key){
-				if(key in columns){
-					return columns[key]
+			get(cols, key){
+				if(key in cols){
+					return cols[key]
 				}
 
 				if(typeof(key)=="string"){
-					let i=columns.findIndex(a=>a.id==key)
+					let i=cols.findIndex(a=>a?.id==key)
 					if(i!=-1)
-						return columns[i]
+						return cols[i]
+
 					let found=null
-					i=columns.findLastIndex(a=>!!a.id)
+					i=cols.findLastIndex(a=>!!a?.id)
 					if(i==-1){
-						found=columns[0]
+						found=cols.find(a=>!!a)
 					}else{
-						const {colSpan=1}=columns[i]
-						found=columns[i+colSpan]
+						const {colSpan=1}=cols[i]
+						found=cols[i+colSpan]
 					}
 					found.id=key
 					return found
@@ -157,7 +164,7 @@ class Row extends HasParentAndChild(dom.Row){
 		const columns=this.getColumns(this.cols)
 		const cellId=cellFrame && cellFrame.props.id
 		const col=columns[cellId]
-		const page=this.findOrCreatePageForColumn(col, {height:this.getHeight([cellFrame])})
+		const page=this.findOrCreatePageForColumn(col, {height:this.getFlowableContentHeight([cellFrame])})
 		page && page.insertAt(cellFrame,columns.indexOf(col))
 	}
 
@@ -165,16 +172,16 @@ class Row extends HasParentAndChild(dom.Row){
 		this.currentPage.bLastPage=true
 		this.context.parent.appendComposed(this.currentPage)
 		super.onAllChildrenComposed()
-		this.computed.allDoneEvent.emit("allDone",this.props.id)
+		this.allDoneEvent.emit("allDone",this)
 	}
 
 	createComposed2Parent(pageRow){
 		return pageRow
 	}
 
-	getHeight(cells){//@TODO: to honor height
+	getFlowableContentHeight(cells){//@TODO: to honor height
 		const {props:{height=0, minHeight=height}}=this
-		return Math.max(minHeight||0,...cells.filter(a=>a && !a.vMerge).map(a=>a.cellHeight))
+		return Math.max(minHeight||0,...cells.map(a=>a?.cellHeight||0))
 	}
 
 	static Page=class extends Component{
@@ -195,10 +202,6 @@ class Row extends HasParentAndChild(dom.Row){
 			return this.row.pages[0]._border
 		}
 
-		get allDone(){
-			return this.row.allDonePromise
-		}
-
 		get row(){
 			return this.context.parent
 		}
@@ -207,10 +210,14 @@ class Row extends HasParentAndChild(dom.Row){
 			return this.row.props.id
 		}
 
+		get flowableContentHeight(){
+			return this.row.getFlowableContentHeight(this.cells)
+		}
+
 		onAllChildrenComposed(callback){
-			this.row.computed.allDoneEvent.on('allDone',this.allDoneListener=callback)
+			this.row.allDoneEvent.on('allDone',this.allDoneListener=callback)
 			this.removeAllDoneListener=()=>{
-				this.row.computed.allDoneEvent.removeListener('allDone',callback)
+				this.row.allDoneEvent.removeListener('allDone',callback)
 				delete this.allDoneListener
 				return callback
 			}
@@ -239,33 +246,21 @@ class Row extends HasParentAndChild(dom.Row){
 		insertAt(cell, i){
 			i==0 && (this._border=cell.props.borders.props);
 			this.cells[i]=cell
-			if(this.lastLayoutedCells){
-				this.lastLayoutedCells[i]=this.renderCell(cell,i,this.lastLayoutedCells.cellHeights[i])
-			}
-		}
-
-		get flowableContentHeight(){
-			return this.row.getHeight(this.cells)
+			/**
+			 * NOTE: composed can't be inserted into frame because page-cell is inserted before content layouted
+			 * so don't try to inject composed to frame
+			 */
 		}
 
 		render(cellHeights){
+			console.debug(`rendering row[${this.id}][page: ${this.row.pages.indexOf(this)+1}]`)
 			const {children:cells=[], isLastPageOfRow, isFirstRowInPage,table, row, space, x=0,y=0,...props}=this.props			
 			const {top:{width:top=0}={},left:{width:left=0}={}}=this.border||{}
-			let rowHeight=Math.max(-1,...cellHeights.filter((h,i,_,cell=cells[i])=>cell && !cell.vMerge))
-			if(rowHeight==-1){
-				if(cellHeights.isStartAndEnd){
-					rowHeight=cellHeights[0]
-				}else{
-					rowHeight=0
-				}
-			}
-			const layoutedCells=this.lastLayoutedCells=cells.map((cell,i)=>{
-				if(cell?.vMerged)
-					return null
-				const h=cellHeights[i]
-				return this.renderCell(cell,i,h)
+			const rowHeight=Math.max(-1,...cellHeights.filter((h,i,_,cell=cells[i])=>cell))
+			const layoutedCells=cells.map((cell,i)=>{
+					const h=cellHeights[i]
+					return this.renderCell(cell,i,h)
 			})
-			this.lastLayoutedCells.cellHeights=cellHeights
 			return (
 				<Group {...{
 					...props,
@@ -281,22 +276,52 @@ class Row extends HasParentAndChild(dom.Row){
 		createComposed2ParentWithHeight(cellHeights){
 			return this.row.createComposed2Parent(this.render(cellHeights))
 		}
+	}
+}
 
-		reshapeTo(pageRow){
+class SpanableRow extends Row{
+	getFlowableContentHeight(cells){//@TODO: to honor height
+		const {props:{height=0, minHeight=height}}=this
+		return Math.max(minHeight||0,...cells.filter(a=>a && !a.rowSpan).map(a=>a.cellHeight))
+	}
+
+	static Page=class extends super.Page{
+		reshapeTo(pageRow, rowSpaneds){
 			const {props:{children,space}}=this
-			const shaped=new this.constructor({space,children:[...children]},{parent:pageRow.row})
+
+			const shaped=new this.constructor({
+				space,
+				children:children.map((cell,i)=>{
+					const rowSpaned=rowSpaneds[i]
+					if(cell?.rowSpan){
+						return new Proxy(cell,{
+							get(cell,k,...args){
+								if(k=='rowSpan'){
+									return cell.rowSpan-rowSpaned
+								}else if(k=='isStartRowSpan'){
+									return false
+								}
+								return Reflect.get(cell,k,...args)
+							}
+						})
+					}else{
+						return cell
+					}
+				})
+			},{parent:pageRow.row})
+
 			pageRow.row.pages.push(shaped)
 			this?.removeAllDoneListener()
 			return shaped
 		}
 
-		hasEndOfVMerge(){
-			if(this.id.startsWith("37"))
-				return true
-			
+		isEndOfRowSpan(){
+			return !!this.cells.find(a=>a && (a.rowSpan===0||a.isStartRowSpan))
 		}
 	}
 }
+
+
 
 export default class EditableRow extends editable(Row,{stoppable:true, continuable:true}){
 	/**
@@ -307,6 +332,12 @@ export default class EditableRow extends editable(Row,{stoppable:true, continuab
 	 */
 	shouldContinueCompose(){
 		return true
+	}
+
+	_cancelAllLastComposed(){
+		super._cancelAllLastComposed()
+		delete this.computed.cols
+		delete this.computed.allDoneEvent
 	}
 }
 
