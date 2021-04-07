@@ -74,7 +74,7 @@ class Table extends HasParentAndChild(dom.Table){
 	 * each row should only request once, since max and edge already give each time, row already know how to balance
 	 */
 	nextAvailableSpace(rowId){
-		if(this.lastPage){
+		if(this.lastPage){//a row only happen once in a page
 			if(this.lastPage.lastRow.id==rowId){
 				//to ensure #2a: when calculating cell height matrix, use space height
 				this.lastPage.commit(false)
@@ -216,6 +216,7 @@ class Table extends HasParentAndChild(dom.Table){
 			console.debug(`append row[${row.id}] to page[${this.table.pages.indexOf(this)}]`)
 			this.rows.push(row)
 			row.onAllChildrenComposed(this.relayout.factory(this))
+			return true
 		}
 
 		nextAvailableSpace(){
@@ -277,11 +278,14 @@ class SpanableTable extends Table{
 					return [...this.pages].reverse().find((me,i,pages,prev=pages[i+1])=>{
 						if(me && !prev)
 							return true
-						if(prev.lastRow.id!==me.rows[0]?.id)
+						if(prev.lastRow.id!==me.lastRow?.id)
+							return true
+						if(!prev.nextAvailableSpace())
 							return true
 						//same row, but me.firstRow may be reshaped to different row, so it need check further
 						//if it's rowspan edge, such as end/begin of rowspan
-						return prev.lastRowIsRowSpanEdge()
+						//check first row since first row is stateful for rowspan, reshape will remove rowspan when rowspan finished
+						return !me.rows[0].cells.find(a=>a?.rowSpan)
 					})
 				}
 			}
@@ -305,11 +309,6 @@ class SpanableTable extends Table{
 	}
 
 	static Page=class extends super.Page{
-		lastRowIsRowSpanEdge(){
-			if(this.lastRow.cells.find(a=>a?.rowSpan))
-				return true
-		}
-	
 		cellAlreadySpanRows(pageCell){
 			const rowId=pageCell.cell.closest('row').props.id
 			const rows=this.table.pages.slice(0,this.table.pages.indexOf(this)+1)
@@ -328,16 +327,12 @@ class SpanableTable extends Table{
 				.forEach((page,i, pages)=>{
 					const firstRow=page.rows[0]
 					if(i===0){
-						const rowSpaneds=firstRow.cells.map(a=>{
-							if(!a?.rowSpan)
-								return -1
-							return this.cellAlreadySpanRows(a)
-						})
-						pages.rowSpaneds=rowSpaneds
+						pages.spanedRows=firstRow.cells.map(a=> a?.rowSpan ? this.cellAlreadySpanRows(a) : -1)
 					}
-					const reshaped=page.rows[0]=firstRow.reshapeTo(row, pages.rowSpaneds)
+					const reshaped=page.rows[0]=firstRow.reshapeTo(row, pages.spanedRows)
 					reshaped.onAllChildrenComposed(this.relayout.factory(page))
 				})
+			return true
 		}
 
 		/**
@@ -366,12 +361,13 @@ class SpanableTable extends Table{
 					if(b && a.rowSpan){//start
 						a.__temp={rowBeginY,rowIndex:i} //temp for quick calc
 						startRowSpanCells[j]=a
-					}//can't use else since a row maybe restart and end of vMerge in context of reshape
-					if(a.isEndRowSpan){//end
-						endRowSpanCells[j]=a
 					}
-					if(isLastRow && startRowSpanCells[j]){//force end at last row
-						endRowSpanCells[j]=a
+					if(startRowSpanCells[j]){//already started
+						if(isLastRow){
+							endRowSpanCells[j]=a
+						}else if(this.cellAlreadySpanRows(a)==startRowSpanCells[j].rowSpan){//span all rows
+							endRowSpanCells[j]=a
+						}
 					}
 				})
 
@@ -409,4 +405,4 @@ class SpanableTable extends Table{
 	}
 }
 
-export default Table
+export default SpanableTable

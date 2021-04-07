@@ -227,7 +227,7 @@ class Row extends HasParentAndChild(dom.Row){
 			if(!cell){
 				const columns=this.row.getColumns(this.cols)
 				cell=columns[i].firstCell
-				return cell ? this.renderCell(cell.clone({id:undefined},true),i,height) : null
+				return cell ? this.renderCell(cell.clone({/*id:undefined, why remove id?? comment it here */},true),i,height) : null
 			}
 			const {cols=this.cols,isLastPageOfRow, isFirstRowInPage,table, row}=this.props
 			const {x,width}=cols[i]
@@ -286,20 +286,24 @@ class SpanableRow extends Row{
 	}
 
 	static Page=class extends super.Page{
-		reshapeTo(pageRow, rowSpaneds){
+		/**
+		 * 1. make row order in pages correct
+		 * 2. remove rowspan flag when row span finished, so this.getFlowableContentHeight is correct
+		 * 3. sync page-row to page-table to make page-row number match
+		 * @param {*} pageRow 
+		 * @param {*} spanedRows 
+		 * @returns 
+		 */
+		reshapeTo(pageRow, spanedRows){
 			const {props:{children,space}}=this
-
 			const shaped=new this.constructor({
 				space,
 				children:children.map((cell,i)=>{
-					const rowSpaned=rowSpaneds[i]
-					if(cell?.rowSpan){
+					if(cell?.rowSpan===spanedRows[i]){//all spaned
 						return new Proxy(cell,{
 							get(cell,k,...args){
 								if(k=='rowSpan'){
-									return cell.rowSpan-rowSpaned
-								}else if(k=='isStartRowSpan'){
-									return false
+									return undefined
 								}
 								return Reflect.get(cell,k,...args)
 							}
@@ -314,14 +318,8 @@ class SpanableRow extends Row{
 			this?.removeAllDoneListener()
 			return shaped
 		}
-
-		isEndOfRowSpan(){
-			return !!this.cells.find(a=>a && (a.rowSpan===0||a.isStartRowSpan))
-		}
 	}
 }
-
-
 
 export default class EditableRow extends editable(Row,{stoppable:true, continuable:true}){
 	/**
