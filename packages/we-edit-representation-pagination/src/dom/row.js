@@ -1,4 +1,4 @@
-import React,{PureComponent as Component, Fragment} from "react"
+import React,{PureComponent as Component} from "react"
 import {dom, ReactQuery} from "we-edit"
 import memoize from "memoize-one"
 import EventEmitter from "events"
@@ -38,7 +38,7 @@ class Row extends HasParentAndChild(dom.Row){
 				get(){
 					return this.computed.allDoneEvent||(this.computed.allDoneEvent=new EventEmitter())
 				}
-			}
+			},
 		})
 		
 	}
@@ -57,7 +57,6 @@ class Row extends HasParentAndChild(dom.Row){
 	 */
 	getColumns=memoize(cols=>{
 		const me=this
-		cols=cols.map(a=>({...a}))
 		return new Proxy(cols.map(a=>new Proxy(a,{
 			get(col,prop){
 				switch(prop){
@@ -79,37 +78,34 @@ class Row extends HasParentAndChild(dom.Row){
 				return col[prop]
 			},
 			set(col, k, v){
-				if(["id","colSpan"].includes(k)){
+				if(["id","colSpan","rowSpan"].includes(k)){
 					col[k]=v
+					if(k=="rowSpan")
+						col.beginRowSpan=true
 					return true
 				}
 				return false
 			}
 		})),{
-			get(cols, key){
-				if(key in cols){
-					return cols[key]
+			get(colsProxy, key){
+				if(key in colsProxy){
+					return colsProxy[key]
 				}
 
 				if(typeof(key)=="string"){
-					let i=cols.findIndex(a=>a?.id==key)
-					if(i!=-1)
-						return cols[i]
-
-					let found=null
-					i=cols.findLastIndex(a=>!!a?.id)
-					if(i==-1){
-						found=cols.find(a=>!!a)
-					}else{
-						const {colSpan=1}=cols[i]
-						found=cols[i+colSpan]
-					}
+					const found=colsProxy.find(a=>a.id==key) || me._nextColumn(colsProxy)
 					found.id=key
 					return found
 				}
 			}
 		})
 	})
+
+	_nextColumn(cols){
+		const i=cols.findLastIndex(a=>!!a.id)
+		const {colSpan=1}=cols[i]||{}
+		return cols[i+colSpan]
+	}
 
 	/**
 	 * @param {*} col 
@@ -138,10 +134,11 @@ class Row extends HasParentAndChild(dom.Row){
 		return page
 	}
 	
-	nextAvailableSpace({id:cellId, colSpan=1, ...required}){
-		const {keepLines, minHeight, height:exactHeight}=this.props
+	nextAvailableSpace({id:cellId, colSpan=1,rowSpan=1, ...required}){
+		const {keepLines, height:exactHeight,minHeight=0}=this.props
 		const col=this.getColumns(this.cols)[cellId]
 		colSpan>1 && (col.colSpan=colSpan);
+		rowSpan>1 && (col.rowSpan=rowSpan);
 
 		const page=this.findOrCreatePageForColumn(col,required)
 		if(!page)
@@ -180,8 +177,8 @@ class Row extends HasParentAndChild(dom.Row){
 	}
 
 	getFlowableContentHeight(cells){//@TODO: to honor height
-		const {props:{height=0, minHeight=height}}=this
-		return Math.max(minHeight||0,...cells.map(a=>a?.cellHeight||0))
+		const {props:{height=0, minHeight=0}}=this
+		return height||Math.max(minHeight,...cells.map(a=>a?.cellHeight||0))
 	}
 
 	static Page=class extends Component{
@@ -223,14 +220,19 @@ class Row extends HasParentAndChild(dom.Row){
 			}
 		}
 
+		renderEmptyCell(i,height){
+			const firstCell=this.row.getColumns(this.cols)[i].firstCell
+			return firstCell && this.renderCell(firstCell.clone({/*id:undefined, why remove id?? comment it here */},true),i,height)
+		}
+
 		renderCell(cell,i, height){
-			if(!cell){
-				const columns=this.row.getColumns(this.cols)
-				cell=columns[i].firstCell
-				return cell ? this.renderCell(cell.clone({/*id:undefined, why remove id?? comment it here */},true),i,height) : null
-			}
-			const {cols=this.cols,isLastPageOfRow, isFirstRowInPage,table, row}=this.props
+			const {cols=this.cols, isLastPageOfRow, isFirstRowInPage,table, row}=this.props
 			const {x,width}=cols[i]
+			if(!cell){
+				return this.renderEmptyCell(i,height)||null
+			}
+			
+
 			return React.cloneElement(
 				cell.clone({
 					height,
@@ -252,13 +254,13 @@ class Row extends HasParentAndChild(dom.Row){
 			 */
 		}
 
-		render(cellHeights){
+		render(pageTableRowHeight){
 			console.debug(`rendering row[${this.id}][page: ${this.row.pages.indexOf(this)+1}]`)
 			const {children:cells=[], isLastPageOfRow, isFirstRowInPage,table, row, space, x=0,y=0,...props}=this.props			
 			const {top:{width:top=0}={},left:{width:left=0}={}}=this.border||{}
-			const rowHeight=Math.max(-1,...cellHeights.filter((h,i,_,cell=cells[i])=>cell))
+			const rowHeight=Math.max(pageTableRowHeight, this.flowableContentHeight)
 			const layoutedCells=cells.map((cell,i)=>{
-					const h=cellHeights[i]
+					const h=Math.max(rowHeight, cell?.cellHeight||0)
 					return this.renderCell(cell,i,h)
 			})
 			return (
@@ -281,11 +283,23 @@ class Row extends HasParentAndChild(dom.Row){
 
 class SpanableRow extends Row{
 	getFlowableContentHeight(cells){//@TODO: to honor height
-		const {props:{height=0, minHeight=height}}=this
-		return Math.max(minHeight||0,...cells.filter(a=>a && !a.rowSpan).map(a=>a.cellHeight))
+		const {props:{height=0, minHeight=0}, cols}=this
+		return height || Math.max(minHeight,...cells.map((a,i)=>{
+			const {rowSpan=1}=cols[i]
+			return rowSpan===1 && a?.cellHeight || 0
+		}))
+	}
+
+	_nextColumn(cols){
+		const iStartSearch=cols.indexOf(super._nextColumn(cols))
+		return cols.slice(iStartSearch).find(a=>a.beginRowSpan||!a.rowSpan)
 	}
 
 	static Page=class extends super.Page{
+		renderEmptyCell(i,height){
+			return !this.cols[i].rowSpan && super.renderEmptyCell(i,height)
+		}
+
 		/**
 		 * 1. make row order in pages correct
 		 * 2. remove rowspan flag when row span finished, so this.getFlowableContentHeight is correct
@@ -294,12 +308,12 @@ class SpanableRow extends Row{
 		 * @param {*} spanedRows 
 		 * @returns 
 		 */
-		reshapeTo(pageRow, spanedRows){
+		reshapeTo(pageRow){
 			const {props:{children,space}}=this
 			const shaped=new this.constructor({
 				space,
 				children:children.map((cell,i)=>{
-					if(cell?.rowSpan===spanedRows[i]){//all spaned
+					if(pageRow.cols[i].rowSpan===1){
 						return new Proxy(cell,{
 							get(cell,k,...args){
 								if(k=='rowSpan'){
@@ -321,7 +335,7 @@ class SpanableRow extends Row{
 	}
 }
 
-export default class EditableRow extends editable(Row,{stoppable:true, continuable:true}){
+export default class EditableRow extends editable(SpanableRow,{stoppable:true, continuable:true}){
 	/**
 	 * @continuable
 	 * 1. [done]simply(suitable for most cases), row is atom of composing, so compose all content or nothing

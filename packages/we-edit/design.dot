@@ -1,0 +1,30 @@
+digraph G {
+    splines=true
+    compound=true
+    Node[shape=folder fontsize=10]
+    fontsize=10
+    fontcolor=transparent
+    /* Entities */
+    input,output[shape=cylinder]
+
+    TypeDOM
+    LayoutDOM[shape=Mrecord label="LayoutDOM|{<page>Pagination|<html>Html|<text>Plain|...}"]
+    ViewDOM[shape=Mrecord label="ViewDOM|{<text>TEXT|<html>HTML|<svg>SVG|...}"]
+    EmitterDOM[shape=Mrecord label="EmitterDOM|{<page>PDF PCL...|<html>Html|<email>Email|<text>Text|App|Device}"]
+    
+    /* Relationships */
+    input->TypeDOM
+    TypeDOM->LayoutDOM
+    LayoutDOM->ViewDOM
+    ViewDOM->EmitterDOM
+    EmitterDOM->output
+
+    subgraph{
+        LayoutDOM:page:e->ViewDOM:svg:e->EmitterDOM:page:e[color=blue]
+        LayoutDOM:html:e->ViewDOM:html:e->EmitterDOM:html:e,EmitterDOM:email:e[color=green]
+        LayoutDOM:text:e->ViewDOM:text:e->EmitterDOM:text:e[color=red]
+
+    }
+    /* Ranks */
+    { rank=same };
+}

@@ -73,7 +73,7 @@ class Table extends HasParentAndChild(dom.Table){
 	 * row asking for space, we need know which row is asking, maybe the row already asked, but it need adjust height
 	 * each row should only request once, since max and edge already give each time, row already know how to balance
 	 */
-	nextAvailableSpace(rowId){
+	nextAvailableSpace(rowId){debugger
 		if(this.lastPage){//a row only happen once in a page
 			if(this.lastPage.lastRow.id==rowId){
 				//to ensure #2a: when calculating cell height matrix, use space height
@@ -132,13 +132,17 @@ class Table extends HasParentAndChild(dom.Table){
 			return this.context.parent
 		}
 
+		get flowableContentHeight(){
+			return this.rows.reduce((H,{flowableContentHeight:h})=>H+h,0)
+		}
+
 		/**
 		 * call only once, mainly for page flow
 		 * firstRow should locate dy
 		 * lastRow should take all space for flow, except last page table
 		 * @param {*} bLastPageTable 
 		 */
-		commit(bLastPageTable){
+		commit(bLastPageTable){debugger
 			const {props:{height, children, rows=[...children]}}=this.render()
 			let last=rows[rows.length-1],dy=0
 			if(!bLastPageTable){
@@ -162,7 +166,7 @@ class Table extends HasParentAndChild(dom.Table){
 			}
 		}
 
-		relayout(id){
+		relayout(row){
 			const isBelongToThisTable=l=>{
 				const $line=new ReactQuery(l)
 				const $table=$line.findFirst(`[data-content="${this.table.props.id}"]`)
@@ -213,14 +217,13 @@ class Table extends HasParentAndChild(dom.Table){
 		push(row){
 			if(this.lastRow===row)
 				return false
-			console.debug(`append row[${row.id}] to page[${this.table.pages.indexOf(this)}]`)
 			this.rows.push(row)
 			row.onAllChildrenComposed(this.relayout.factory(this))
 			return true
 		}
 
 		nextAvailableSpace(){
-			const height=this.getCellHeightMatrix().height
+			const height=this.flowableContentHeight
 			const available=this.space.height-height
 			if(available<=0)
 				return false
@@ -230,12 +233,12 @@ class Table extends HasParentAndChild(dom.Table){
 		render(){
 			const {children:rows}=this.props
 			try{
-				const matrix=this.getCellHeightMatrix()
+				const tableRowHeights=this.getTableRowHeights()
 				return (
-					<Group height={matrix.height}>
+					<Group height={tableRowHeights.reduce((H,h)=>H+h,0)}>
 						{rows.map((pageRow,i)=>{
 							try{
-								return pageRow.createComposed2ParentWithHeight(matrix[i])
+								return pageRow.createComposed2ParentWithHeight(tableRowHeights[i])
 							}catch(e){
 								return console.error(e)
 							}
@@ -247,23 +250,8 @@ class Table extends HasParentAndChild(dom.Table){
 			}
 		}
 
-		/**
-		 * for render: always use content height
-		 * 
-		 * for nextAvailableSpace: to provide available space for next row
-		 * 
-		 * @returns 
-		 */
-		getCellHeightMatrix(){
-			const {children:rows}=this.props
-			const matrix=new Array(rows.length)
-			let Y=0
-			rows.forEach((row, i)=>{
-				const rowHeight=row.flowableContentHeight
-				matrix[i]=new Array(row.cells.length).fill(rowHeight)
-				Y+=rowHeight
-			})
-			return Object.assign(matrix,{height:Y})
+		getTableRowHeights(){
+			return this.rows.map(a=>a.flowableContentHeight)
 		}
 	}
 }
@@ -296,11 +284,12 @@ class SpanableTable extends Table{
 		return {
 			...super.getChildContext(),
 			cols:()=>{
-				const cols=[...this.props.cols]
-				this.currentPage?.lastRow?.cells.forEach((a,i)=>{
-					if(a?.rowSpan){
-						const {props:{colSpan=1}}=a
-						cols.splice(i,colSpan,...new Array(colSpan).fill(null))
+				const cols=this.props.cols.map(a=>({...a}))
+				//it's based on last row.cols, row is responsible to correct itself
+				const lastRow=this.lastPage?.lastRow?.row
+				lastRow?.cols.forEach((a,i)=>{
+					if(a.rowSpan>1){
+						cols[i].rowSpan=a.rowSpan-1
 					}
 				})
 				return cols
@@ -309,13 +298,6 @@ class SpanableTable extends Table{
 	}
 
 	static Page=class extends super.Page{
-		cellAlreadySpanRows(pageCell){
-			const rowId=pageCell.cell.closest('row').props.id
-			const rows=this.table.pages.slice(0,this.table.pages.indexOf(this)+1)
-				.map(a=>a.rows.map(b=>b.id)).flat()
-			return Array.from(new Set(rows)).reverse().indexOf(rowId)+1
-		}
-
 		push(row){
 			const lastRow=this.lastRow
 			if(!super.push(row))
@@ -324,85 +306,70 @@ class SpanableTable extends Table{
 			this.table.pages
 				.slice(this.table.pages.indexOf(this)+1)//next pages
 				.filter(page=>page.rows[0].id==lastRow.id)//page crossed from same row
-				.forEach((page,i, pages)=>{
-					const firstRow=page.rows[0]
-					if(i===0){
-						pages.spanedRows=firstRow.cells.map(a=> a?.rowSpan ? this.cellAlreadySpanRows(a) : -1)
-					}
-					const reshaped=page.rows[0]=firstRow.reshapeTo(row, pages.spanedRows)
+				.forEach(page=>{
+					const reshaped=page.rows[0]=page.rows[0].reshapeTo(row)
 					reshaped.onAllChildrenComposed(this.relayout.factory(page))
 				})
 			return true
 		}
 
-		/**
-		 * for render: always use content height
-		 * 
-		 * for nextAvailableSpace: to provide available space for next row
-		 * 
-		 * @returns 
-		 */
-		 getCellHeightMatrix(){
-			const {children:rows}=this.props
-			const matrix=new Array(rows.length)
-			const startRowSpanCells=[]
-			let Y=0
-			rows.forEach((row, i, _, isLastRow=i==rows.length-1)=>{
+		getTableRowHeights(){
+			const {yRows}=this.rows.reduce((state, row,i,rows,isLastRow=i==rows.length-1)=>{
 				const rowHeight=row.flowableContentHeight
-				const rowBeginY=Y, rowEndY=rowBeginY+rowHeight
-				//init all cell with row height
-				matrix[i]=new Array(row.cells.length).fill(rowHeight)
-				Y+=rowHeight
-				
-				const endRowSpanCells=new Array(row.cells.length).fill(null)
-				row.cells.forEach((a,j,_1,_2,b=rows[i+1]?.cells[j])=>{
-					if(!a)
-						return 
-					if(b && a.rowSpan){//start
-						a.__temp={rowBeginY,rowIndex:i} //temp for quick calc
-						startRowSpanCells[j]=a
+				const Y=state.yRows[i-1]||0
+				const yCells=row.cols.map((col,j)=>{
+					if(col.beginRowSpan){
+						state.yRowSpanCells[j]=Y+row.cells[j].cellHeight
 					}
-					if(startRowSpanCells[j]){//already started
-						if(isLastRow){
-							endRowSpanCells[j]=a
-						}else if(this.cellAlreadySpanRows(a)==startRowSpanCells[j].rowSpan){//span all rows
-							endRowSpanCells[j]=a
-						}
+					if(col.rowSpan===1 || isLastRow){
+						const y=state.yRowSpanCells[j]
+						state.yRowSpanCells[j]=0
+						return y
 					}
+					return 0
 				})
-
-				if(!endRowSpanCells.find(a=>!!a))
-					return 
-
-				const maxRowEndY=Math.max(
-					rowEndY,
-					...endRowSpanCells.map((b,j,_1,_2,a=startRowSpanCells[j])=>{
-						if(!b || !a)
-							return 0
-						return a.cellHeight+a.__temp.rowBeginY
-					})
-				)
-				
-				const higher=maxRowEndY-rowEndY
-				if(higher>0){
-					Y+=higher
-					//reset height for all cells in current row
-					matrix[i]=matrix[i].map(a=>a+higher)
-				}
-				//reset height for start cells of all endMergeCells to rowEndY
-				endRowSpanCells.forEach((b,j,_1,_2,a=startRowSpanCells[j])=>{
-					if(!b || !a)
-						return 
-					matrix[i].isStartAndEnd=matrix[i].isStartAndEnd||a===b	
-					matrix[a.__temp.rowIndex][j]=maxRowEndY-a.__temp.rowBeginY
-					delete a.__temp
-					startRowSpanCells[j]=undefined//remove ended
-				})
-			})
-			
-			return Object.assign(this.matrix=matrix,{height:Y})
+				state.yRows[i]=Math.max(Y+rowHeight, ...yCells)
+				return state
+			},{yRows:[],yRowSpanCells:new Array(this.table.props.cols.length).fill(0)})
+			const heights=yRows.map((y,i,ys,y0=ys[i-1]||0)=>y-y0)
+			return heights
 		}
 	}
 }
 
 export default SpanableTable
+
+/**
+ * colspan would not mess up column, since row takes colspan into account when locating column
+ * rowspan makes cell miss from spaned row, but page-row may get a proxy of spaned cell in next page
+ * 
+ * scen#1.rowSpanCell doesn't cross page
+ * [col,         col]
+ * [rowspanCell, cell]
+ * [cell]=>[undefined/no empty cell<=col.rowspan/, cell] : 1. [null, col] could help, but if rowSpanCell cross page, 
+ * 
+ * scen#2. rowSpanCell cross page, and which is reshaped
+ * [col,         col]
+ * page1 : 
+ * [rowspanCell, cell11]
+ * [, cell21]: =>[undefined/no empty cell<=col.rowspan/, cell21] 
+ * page2:
+ * [rowSpanCell, cell21 | undefined/empty cell/]: rowSpanCell need col information to render  
+ * [cell] : 1. [null, col] could help, but if rowSpanCell cross page, 
+ * 
+ * 
+ * [col,  col,   col ]
+ * [colspanCell, cell]=> composed to [colSpanCell, null/no empty cell/, cell]: column can be located with colspan=x and whole cols data
+ * [cell, cell,  cell]
+ * 
+ * so: 
+ * 1. all cols information always needed to locate column
+ * 2. a special flag in col to specify rowspaned 
+ * action: 
+ * 1. reshape rowspaned col to null when locating column
+ * 2. 
+ * 
+ * when cell is null
+ * 1. create empty cell:  !col.rowspan && can find a pageCell in row
+ * 2. not create empty cell:  else
+ */

@@ -139,14 +139,22 @@ export default ({Table,Container})=>class __$1 extends Component{
 					}
 					return I
 				},{found:false,i:0}).i
-			const nexts=rows.slice(rows.indexOf(row)+1)
-			let span=nexts.findIndex(row=>{
+			const nextRows=rows.slice(rows.indexOf(row)+1)
+			const spanedCells=[]
+			const span=nextRows.findIndex(row=>{
 						const ithCell=getIthCell(row,i)
 						const {props:{vMerge}}=ithCell
-						return !vMerge || vMerge=="restart"
+						if(!vMerge || vMerge=="restart"){
+							return true
+						}else if(vMerge){
+							spanedCells.push(ithCell)
+						}
 					})
-			const rowSpan=span==-1 ? nexts.length+1 : span+1
+			const rowSpan=span==-1 ? nextRows.length+1 : span+1
 			$shapedTable=$shapedTable.replace(restart,React.cloneElement(restart,{rowSpan}))
+			spanedCells.forEach(cell=>{
+				$shapedTable=$shapedTable.replace(cell,null)
+			})
 		})
 		children=$shapedTable.children().toArray()
 		return children

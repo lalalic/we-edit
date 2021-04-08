@@ -99,7 +99,11 @@ export default class Query{
 			}
 		}
     }
-    
+
+    text(){
+        return this.find(a=>typeof(a?.props?.children)=="string").toArray().map(a=>a.props.children).join("")
+    }
+
     replace(element, changed, props){
         if(this.root?.props._root){
             throw new Error("ReactQuery object must have root, instead of [...] when running .replace(element, changed)")
@@ -111,7 +115,7 @@ export default class Query{
             changed=changed.get(0)
         }
 		console.assert(React.isValidElement(element))
-        console.assert(React.isValidElement(changed))
+        console.assert(!changed || React.isValidElement(changed))
         
 		const {first,parents}=new this.constructor(this.root).findFirstAndParents(a=>a==element||undefined)
         console.assert(first.get(0)==element)

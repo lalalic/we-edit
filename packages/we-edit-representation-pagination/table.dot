@@ -1,0 +1,47 @@
+digraph G {
+    splines=true;
+    Node[shape=Mrecord]
+   
+    subgraph{
+        Edge[color=green]
+         /* Entities */
+        Cell[label="Cell|{<0>page-cell|page-cell|...}"]
+        Row[label="Row|{<0>page-row|page-row|...}"]
+        Table[label="Table|{<0>page-table|page-table|...}"]
+        /* Relationships */
+        Content->Cell
+    
+        Content:e->Cell:0:e->Row:0:e->Table:0:e->Frame:e[color=red fontcolor=blue label="request space"];
+
+        Table:w->Row:w[label="row height"]
+        Row:w->Cell:w[label="cell height"]
+        Cell->Row
+        Row->Table->Frame
+    }
+
+    subgraph cluster_spanable{
+        Node[shape=Mrecord]
+        render[label="Table Render"]
+        getCellHeightMatrix[label="getCellHeightMatrix\n\nalways content height?!"]
+        RowSpan_Cell->Spanable_Row->Spanable_Table
+
+        AppendRow->GetCurrentPage->PushRow->shouldReshape->reshapeRow
+        render->getCellHeightMatrix->rowRender->cellRender
+        pageCommit->render
+        lastPageCommit->render
+        relayout->render
+
+        subgraph{
+            Edge[style=dashed]
+            getCellHeightMatrix:e->lastPageCommit:e[label="with content height" decorate=true]
+            getCellHeightMatrix:w->relayout:w[labelangle=90 label="with space height" decorate=true]
+            getCellHeightMatrix:w->pageCommit:w[labelangle=90 label="with space height" decorate=true]
+        }
+        {rank=min relayout lastPageCommit pageCommit}
+    }
+    
+    /* Ranks */
+    { rank=same }
+
+    size=15
+}
