@@ -238,7 +238,7 @@ class Table extends HasParentAndChild(dom.Table){
 					<Group height={tableRowHeights.reduce((H,h)=>H+h,0)}>
 						{rows.map((pageRow,i)=>{
 							try{
-								return pageRow.createComposed2ParentWithHeight(tableRowHeights[i])
+								return pageRow.createComposed2ParentWithHeight(tableRowHeights[i],tableRowHeights.matrix?.[i])
 							}catch(e){
 								return console.error(e)
 							}
@@ -314,24 +314,35 @@ class SpanableTable extends Table{
 		}
 
 		getTableRowHeights(){
+			const cellHeightMatrix=[]
 			const {yRows}=this.rows.reduce((state, row,i,rows,isLastRow=i==rows.length-1)=>{
+				cellHeightMatrix[i]=new Array(row.cols.length).fill(0)
 				const rowHeight=row.flowableContentHeight
 				const Y=state.yRows[i-1]||0
 				const yCells=row.cols.map((col,j)=>{
-					if(col.beginRowSpan){
-						state.yRowSpanCells[j]=Y+row.cells[j].cellHeight
+					if(row.cells[j]?.rowSpan>1){
+						state.yRowSpanCells[j]={row:i, y:Y+row.cells[j].cellHeight}
 					}
 					if(col.rowSpan===1 || isLastRow){
-						const y=state.yRowSpanCells[j]
-						state.yRowSpanCells[j]=0
+						const y=state.yRowSpanCells[j].y
 						return y
 					}
 					return 0
 				})
 				state.yRows[i]=Math.max(Y+rowHeight, ...yCells)
+				yCells.forEach((a,j)=>{
+					if(!a)
+						return 
+					if(a<state.yRows[i]){
+						cellHeightMatrix[state.yRowSpanCells[j].row][j]=state.yRows[i]-a
+					}
+					state.yRowSpanCells[j]={y:0}
+				})
 				return state
-			},{yRows:[],yRowSpanCells:new Array(this.table.props.cols.length).fill(0)})
+			},{yRows:[],yRowSpanCells:new Array(this.table.props.cols.length).fill({y:0})})
+
 			const heights=yRows.map((y,i,ys,y0=ys[i-1]||0)=>y-y0)
+			heights.matrix=cellHeightMatrix
 			return heights
 		}
 	}

@@ -338,7 +338,7 @@ define("table compose",
                 expect($page0.find('[data-type="cell"]').length).toBe(3)
             })
 
-            it("rowspan=2 cross page",()=>{
+            it("rowspan=2 cross page, and reshape to next row",()=>{
                 const LineText=" ".padStart(5,"A")
                 const left={width:0}, Zero={left,right:left,top:left,bottom:left}
                 const doc=test(
@@ -367,18 +367,6 @@ define("table compose",
                 expect($page1.find("[data-type=cell]").length).toBe(3+1)
                 
             })
-
-            it("rowspan end at cross page",()=>{
-
-            })
-        })
-
-        it("colspan=2 and rowspan=2",()=>{
-
-        })
-
-        it("colspan=2 and rowspan=2 cross page",()=>{
-
         })
     })
 })

@@ -117,9 +117,14 @@ class Row extends HasParentAndChild(dom.Row){
 			//find first page whose space meet required
 			page=this.pages.slice(this.pages.indexOf(page)).find(page=>page.space.height>=minHeight)
 		}
-		while(!page){
+		if(!page){
 			if(this.currentPage){
+				const current=this.currentPage
 				this.context.parent.appendComposed(this.currentPage)
+				if(current!==this.currentPage){
+					//it's trick since reshape, but anyway the pages changed, so it's worth a nested search
+					return this.findOrCreatePageForColumn(...arguments)
+				}
 			}
 			//request largest space in current constraint space
 			const space=super.nextAvailableSpace(this.props.id)
@@ -133,6 +138,8 @@ class Row extends HasParentAndChild(dom.Row){
 		}
 		return page
 	}
+
+	
 	
 	nextAvailableSpace({id:cellId, colSpan=1,rowSpan=1, ...required}){
 		const {keepLines, height:exactHeight,minHeight=0}=this.props
@@ -254,13 +261,13 @@ class Row extends HasParentAndChild(dom.Row){
 			 */
 		}
 
-		render(pageTableRowHeight){
+		render(pageTableRowHeight, cellAppendHeights=[]){
 			console.debug(`rendering row[${this.id}][page: ${this.row.pages.indexOf(this)+1}]`)
 			const {children:cells=[], isLastPageOfRow, isFirstRowInPage,table, row, space, x=0,y=0,...props}=this.props			
 			const {top:{width:top=0}={},left:{width:left=0}={}}=this.border||{}
 			const rowHeight=Math.max(pageTableRowHeight, this.flowableContentHeight)
 			const layoutedCells=cells.map((cell,i)=>{
-					const h=Math.max(rowHeight, cell?.cellHeight||0)
+					const h=Math.max(rowHeight, (cell?.cellHeight||0)+(cellAppendHeights[i]||0))
 					return this.renderCell(cell,i,h)
 			})
 			return (
@@ -275,8 +282,8 @@ class Row extends HasParentAndChild(dom.Row){
 			)
 		}
 
-		createComposed2ParentWithHeight(cellHeights){
-			return this.row.createComposed2Parent(this.render(cellHeights))
+		createComposed2ParentWithHeight(rowHeight, cellAppendHeights ){
+			return this.row.createComposed2Parent(this.render(rowHeight, cellAppendHeights))
 		}
 	}
 }
@@ -307,6 +314,14 @@ class SpanableRow extends Row{
 		 * @param {*} pageRow 
 		 * @param {*} spanedRows 
 		 * @returns 
+		 * 
+		 * it's happening right after pageRow.row append pageRow to parent
+		 * this is still hold by its row, but impact nothing, since page-table replace it with reshaped
+		 * pageRow.row add a new page that inherit the source space
+		 * 
+		 * @TODO: the reshaped pageRow might be reshaped again, 
+		 * 	should the reshaped be removed from reshaped.row to sync???
+		 * what's happening: pageRow.row -> append pageRow to parent -> reshape this pageRow(->append reshaped to pageRow.row.pages)->
 		 */
 		reshapeTo(pageRow){
 			const {props:{children,space}}=this
@@ -327,9 +342,24 @@ class SpanableRow extends Row{
 					}
 				})
 			},{parent:pageRow.row})
-
+			
+			//insert to row pages, what else should do for injection?
 			pageRow.row.pages.push(shaped)
+
+			shaped.isReshaped=true
+			
+			//clear source
 			this?.removeAllDoneListener()
+			if(this.isReshaped){
+				if(this.row.currentPage!==this){
+					debugger
+				}
+				const i=this.row.pages.indexOf(this)//for safe to remove by index
+				if(i!=-1){
+					this.row.pages.splice(i,1)
+				}
+			}
+
 			return shaped
 		}
 	}
