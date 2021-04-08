@@ -51,7 +51,7 @@ class Table extends HasParentAndChild(dom.Table){
 	}
 
 	appendComposed(row){
-		this.currentPage.push(row)
+		this.pages.findLast(page=>page.space.frame==row.space.frame).push(row)
 	}
 
 	/**row call it to append a block of row*/
@@ -215,7 +215,7 @@ class Table extends HasParentAndChild(dom.Table){
 		}
 
 		push(row){
-			if(this.lastRow===row)
+			if(this.rows.includes(row))
 				return false
 			this.rows.push(row)
 			row.onAllChildrenComposed(this.relayout.factory(this))
