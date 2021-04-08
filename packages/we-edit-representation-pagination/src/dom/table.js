@@ -73,7 +73,7 @@ class Table extends HasParentAndChild(dom.Table){
 	 * row asking for space, we need know which row is asking, maybe the row already asked, but it need adjust height
 	 * each row should only request once, since max and edge already give each time, row already know how to balance
 	 */
-	nextAvailableSpace(rowId){debugger
+	nextAvailableSpace(rowId){
 		if(this.lastPage){//a row only happen once in a page
 			if(this.lastPage.lastRow.id==rowId){
 				//to ensure #2a: when calculating cell height matrix, use space height
@@ -142,7 +142,7 @@ class Table extends HasParentAndChild(dom.Table){
 		 * lastRow should take all space for flow, except last page table
 		 * @param {*} bLastPageTable 
 		 */
-		commit(bLastPageTable){debugger
+		commit(bLastPageTable){
 			const {props:{height, children, rows=[...children]}}=this.render()
 			let last=rows[rows.length-1],dy=0
 			if(!bLastPageTable){
@@ -176,7 +176,7 @@ class Table extends HasParentAndChild(dom.Table){
 				const {first,parents,layoutedTableRow=first.get(0)}=new ReactQuery(layoutedTableRowWithParents)
 					.findFirstAndParents(`[data-content="${current.props['data-content']}"]`)
 				if(!layoutedTableRow){
-					debugger
+					
 					throw new Error("why can't find row")
 				}
 
@@ -210,7 +210,7 @@ class Table extends HasParentAndChild(dom.Table){
 		}
 
 		dy(height){
-			const {y}=[...this.space.segments].sort((a,b)=>a.y-b.y).find(a=>a.height>=height)
+			const {y}=[...this.space.segments].sort((a,b)=>a.y-b.y).find(a=>a.height>=height)||{y:this.space.blockOffset}
 			return y-this.space.frame.blockOffset
 		}
 
@@ -338,38 +338,3 @@ class SpanableTable extends Table{
 }
 
 export default SpanableTable
-
-/**
- * colspan would not mess up column, since row takes colspan into account when locating column
- * rowspan makes cell miss from spaned row, but page-row may get a proxy of spaned cell in next page
- * 
- * scen#1.rowSpanCell doesn't cross page
- * [col,         col]
- * [rowspanCell, cell]
- * [cell]=>[undefined/no empty cell<=col.rowspan/, cell] : 1. [null, col] could help, but if rowSpanCell cross page, 
- * 
- * scen#2. rowSpanCell cross page, and which is reshaped
- * [col,         col]
- * page1 : 
- * [rowspanCell, cell11]
- * [, cell21]: =>[undefined/no empty cell<=col.rowspan/, cell21] 
- * page2:
- * [rowSpanCell, cell21 | undefined/empty cell/]: rowSpanCell need col information to render  
- * [cell] : 1. [null, col] could help, but if rowSpanCell cross page, 
- * 
- * 
- * [col,  col,   col ]
- * [colspanCell, cell]=> composed to [colSpanCell, null/no empty cell/, cell]: column can be located with colspan=x and whole cols data
- * [cell, cell,  cell]
- * 
- * so: 
- * 1. all cols information always needed to locate column
- * 2. a special flag in col to specify rowspaned 
- * action: 
- * 1. reshape rowspaned col to null when locating column
- * 2. 
- * 
- * when cell is null
- * 1. create empty cell:  !col.rowspan && can find a pageCell in row
- * 2. not create empty cell:  else
- */

@@ -255,7 +255,7 @@ define("table compose",
                 expect(doc.$page(0).find('[data-type="cell"]').length).toBe(2)
                 expect(doc.$page(0).text()).toBe("hello world ")
                 expect(doc.$page(1).text()).toBe("hello"+Paragraph.defaultProps.End)
-                expect(doc.$page(1).find('[data-type="cell"]').length).toBe(5)
+                expect(doc.$page(1).find('[data-type="cell"]').length).toBe(3+1)
             })
         })
 
@@ -338,24 +338,34 @@ define("table compose",
                 expect($page0.find('[data-type="cell"]').length).toBe(3)
             })
 
-            xit("rowspan=2 cross page",()=>{
-                const LineText=" ".padStart(15+1,"A")
+            it("rowspan=2 cross page",()=>{
+                const LineText=" ".padStart(5,"A")
+                const left={width:0}, Zero={left,right:left,top:left,bottom:left}
                 const doc=test(
                     <Table id={id()} width={100} cols={[{x:10,width:5},{x:20,width:10},{x:30,width:10}]}>
-                        <Row  id={"0"} height={10}><Cell  id={id()}/><Cell  id={id()}/><Cell  id={id()}/></Row>
+                        <Row  id={"0"} height={8}><Cell border={Zero} id={id()}/><Cell border={Zero} id={id()}/><Cell border={Zero} id={id()}/></Row>
                         <Row  id={"1"}>
-                            <Cell  id={id()} rowSpan={2}>
+                            <Cell  id={id()} rowSpan={2} border={Zero}>
                                 <Paragraph id={id()}>
                                     <Text id={id()}>{LineText}{LineText}</Text>
                                 </Paragraph>
                             </Cell>
-                            <Cell  id={id()}/>
+                            <Cell border={Zero}  id={id()}/>
                         </Row>
-                        <Row  id={"2"}><Cell  id={id()}/><Cell  id={id()}/></Row>
-                        <Row  id={"3"} height={10}><Cell  id={id()}/><Cell  id={id()}/><Cell  id={id()}/></Row>
+                        <Row  id={"2"}><Cell border={Zero} id={id()}/><Cell border={Zero} id={id()}/></Row>
+                        <Row  id={"3"} height={10}><Cell border={Zero} id={id()}/><Cell border={Zero}  id={id()}/><Cell border={Zero} id={id()}/></Row>
                     </Table>
                 )
                 expect(doc.pages.length).toBe(2)
+                const $page0=doc.$page(0), $page1=doc.$page(1)
+                expect($page0.text()).toBe(LineText)
+                expect($page0.find("[data-type=row]").toArray().map(a=>a.props["data-content"]).join(",")).toBe("0,1,2")
+                expect($page0.find("[data-type=cell]").length).toBe(3+2+2)
+
+                expect($page1.text()).toBe(LineText+Paragraph.defaultProps.End)
+                expect($page1.find("[data-type=row]").toArray().map(a=>a.props["data-content"]).join(",")).toBe("2,3")
+                expect($page1.find("[data-type=cell]").length).toBe(3+1)
+                
             })
 
             it("rowspan end at cross page",()=>{

@@ -222,7 +222,7 @@ class Row extends HasParentAndChild(dom.Row){
 
 		renderEmptyCell(i,height){
 			const firstCell=this.row.getColumns(this.cols)[i].firstCell
-			return firstCell && this.renderCell(firstCell.clone({/*id:undefined, why remove id?? comment it here */},true),i,height)
+			return firstCell && this.renderCell(firstCell.clone({id:undefined/*not belong to any cell*/},true),i,height)
 		}
 
 		renderCell(cell,i, height){
