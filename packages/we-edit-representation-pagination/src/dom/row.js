@@ -325,10 +325,11 @@ class SpanableRow extends Row{
 		 */
 		yieldTo(pageRow){
 			const {props:{children,space}}=this
+			const cols=pageRow.cols
 			const shaped=new this.constructor({
 				space,
 				children:children.map((cell,i)=>{
-					if(pageRow.cols[i].rowSpan===RowSpanEnd){
+					if(cell && cols[i].rowSpan===RowSpanEnd){
 						return new Proxy(cell,{
 							get(cell,k,...args){
 								if(k=='rowSpan'){
