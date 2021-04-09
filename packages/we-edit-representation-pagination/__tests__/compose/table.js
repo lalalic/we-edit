@@ -2,7 +2,7 @@ import React from "react"
 import PropTypes from "prop-types"
 import {ReactQuery} from "we-edit"
 
-import {render,provider} from "../context"
+import {render,provider, defaultProps} from "../context"
 import {define} from "./index"
 
 let u=1
@@ -11,9 +11,9 @@ const id=()=>`_${++u}`
 define("table compose",
 ({dom, testing, CONTEXT, Context, WithTextContext, WithParagraphContext, autoID})=>{
     const {Section,Frame, Paragraph, Text,Table,Row,Cell}=dom
+    const PEnd=Paragraph.defaultProps.End
     const WithSectionContext=provider(Section,{ModelTypes:dom})
-    const PageHeight=20
-    function test(content){
+    function test(content,frame={height:20}){
         const document={
             appendComposed(page){
                 this.computed.composed.push(page)
@@ -29,7 +29,7 @@ define("table compose",
 
         render(
             <WithSectionContext context={context}>
-                <Section createLayout={(props,context)=>new Frame({...props,width:10,height:PageHeight},context)} id={++u}>
+                <Section createLayout={(props,context)=>new Frame({...props,width:10,...frame},context)} id={++u}>
                     <WithParagraphContext>
                         <WithTextContext>
                             {content}
@@ -225,41 +225,8 @@ define("table compose",
     })
 
     describe("span",()=>{
-        describe("col span",()=>{
-            it("colspan=2 should create less cells",()=>{
-                const doc=test(
-                    <Table id={id()} width={100} cols={[{x:10,width:10},{x:20,width:10},{x:30,width:10}]}>
-                        <Row  id={id()} minHeight={10}><Cell  id={id()} colSpan={2}/><Cell  id={id()}/></Row>
-                        <Row  id={id()} minHeight={10}><Cell  id={id()}/><Cell  id={id()}/><Cell  id={id()}/></Row>
-                    </Table>
-                )
-                expect(doc.pages.length).toBe(1)
-                expect(doc.$page(0).find('[data-type="cell"]').length).toBe(5)
-            })
 
-            it("colspan=2 cross page",()=>{
-                const doc=test(
-                    <Table id={id()} width={100} cols={[{x:10,width:6},{x:20,width:10},{x:30,width:10}]}>
-                        <Row  id={id()}>
-                            <Cell  id={"cell"} colSpan={2}>
-                                <Paragraph>
-                                    <Text>hello world hello</Text>
-                                </Paragraph>
-                            </Cell>
-                            <Cell  id={id()}/>
-                        </Row>
-                        <Row  id={id()}><Cell  id={id()}/><Cell  id={id()}/><Cell  id={id()}/></Row>
-                    </Table>
-                )
-                expect(doc.pages.length).toBe(2)
-                expect(doc.$page(0).find('[data-type="cell"]').length).toBe(2)
-                expect(doc.$page(0).text()).toBe("hello world ")
-                expect(doc.$page(1).text()).toBe("hello"+Paragraph.defaultProps.End)
-                expect(doc.$page(1).find('[data-type="cell"]').length).toBe(3+1)
-            })
-        })
-
-        describe("column location",()=>{
+        describe("row.nextColumn with spans",()=>{
             const id="a0", id1="a1"
             function next(cols,id){
                 const row=new Row({},{cols:()=>cols})
@@ -325,7 +292,46 @@ define("table compose",
             })
         })
 
+        describe("col span",()=>{
+            it("colspan=2 should create less cells",()=>{
+                const doc=test(
+                    <Table id={id()} width={100} cols={[{x:10,width:10},{x:20,width:10},{x:30,width:10}]}>
+                        <Row  id={id()} minHeight={10}><Cell  id={id()} colSpan={2}/><Cell  id={id()}/></Row>
+                        <Row  id={id()} minHeight={10}><Cell  id={id()}/><Cell  id={id()}/><Cell  id={id()}/></Row>
+                    </Table>
+                )
+                expect(doc.pages.length).toBe(1)
+                expect(doc.$page(0).find('[data-type="cell"]').length).toBe(5)
+            })
+
+            it("colspan=2 cross page",()=>{
+                const doc=test(
+                    <Table id={id()} width={100} cols={[{x:10,width:6},{x:20,width:10},{x:30,width:10}]}>
+                        <Row  id={id()}>
+                            <Cell  id={"cell"} colSpan={2}>
+                                <Paragraph>
+                                    <Text>hello world hello</Text>
+                                </Paragraph>
+                            </Cell>
+                            <Cell  id={id()}/>
+                        </Row>
+                        <Row  id={id()}><Cell  id={id()}/><Cell  id={id()}/><Cell  id={id()}/></Row>
+                    </Table>
+                )
+                expect(doc.pages.length).toBe(2)
+                expect(doc.$page(0).find('[data-type="cell"]').length).toBe(2)
+                expect(doc.$page(0).text()).toBe("hello world ")
+                expect(doc.$page(1).text()).toBe("hello"+PEnd)
+                expect(doc.$page(1).find('[data-type="cell"]').length).toBe(3+1)
+            })
+        })
+
+
         describe("row span",()=>{
+            const left={width:0}, Zero={left,right:left,top:left,bottom:left}
+            const getRows=$page=>$page.find("[data-type=row]").toArray().map(a=>a.props["data-content"]).join(",")
+            const A=(<Paragraph id={id()}><Text id={id()}></Text></Paragraph>)
+                        
             it("rowspan=2",()=>{
                 const doc=test(
                     <Table id={id()} width={100} cols={[{x:10,width:10},{x:20,width:10},{x:30,width:10}]}>
@@ -338,35 +344,305 @@ define("table compose",
                 expect($page0.find('[data-type="cell"]').length).toBe(3)
             })
 
-            it("rowspan=2 cross page, and reshape to next row",()=>{
+            describe("a cell{rowspan=2} cross 2 pages",()=>{
                 const LineText=" ".padStart(5,"A")
-                const left={width:0}, Zero={left,right:left,top:left,bottom:left}
-                const doc=test(
-                    <Table id={id()} width={100} cols={[{x:10,width:5},{x:20,width:10},{x:30,width:10}]}>
-                        <Row  id={"0"} height={8}><Cell border={Zero} id={id()}/><Cell border={Zero} id={id()}/><Cell border={Zero} id={id()}/></Row>
-                        <Row  id={"1"}>
-                            <Cell  id={id()} rowSpan={2} border={Zero}>
-                                <Paragraph id={id()}>
-                                    <Text id={id()}>{LineText}{LineText}</Text>
-                                </Paragraph>
-                            </Cell>
-                            <Cell border={Zero}  id={id()}/>
-                        </Row>
-                        <Row  id={"2"}><Cell border={Zero} id={id()}/><Cell border={Zero} id={id()}/></Row>
-                        <Row  id={"3"} height={10}><Cell border={Zero} id={id()}/><Cell border={Zero}  id={id()}/><Cell border={Zero} id={id()}/></Row>
-                    </Table>
-                )
-                expect(doc.pages.length).toBe(2)
-                const $page0=doc.$page(0), $page1=doc.$page(1)
-                expect($page0.text()).toBe(LineText)
-                expect($page0.find("[data-type=row]").toArray().map(a=>a.props["data-content"]).join(",")).toBe("0,1,2")
-                expect($page0.find("[data-type=cell]").length).toBe(3+2+2)
+                let doc=null, $page0, $page1
 
-                expect($page1.text()).toBe(LineText+Paragraph.defaultProps.End)
-                expect($page1.find("[data-type=row]").toArray().map(a=>a.props["data-content"]).join(",")).toBe("2,3")
-                expect($page1.find("[data-type=cell]").length).toBe(3+1)
-                
+                beforeAll(()=>{
+                    doc=test(//3 line in page
+                        <Table id={id()} width={100} cols={[{x:10,width:5},{x:20,width:10},{x:30,width:10}]}>
+                            <Row  id={"0"}>
+                                <Cell border={Zero} id={id()} children={A}/>
+                                <Cell border={Zero} id={id()} children={A}/>
+                                <Cell border={Zero} id={id()} children={A}/>
+                            </Row>
+                            <Row  id={"1"}>
+                                <Cell border={Zero} id={id()} rowSpan={2}>
+                                    <Paragraph id={id()}>
+                                        <Text id={id()}>
+                                            {LineText}
+                                            {LineText}
+                                            {LineText}
+                                        </Text>
+                                    </Paragraph>
+                                </Cell>
+                                <Cell border={Zero}  id={id()}  children={A}/>
+                                <Cell border={Zero}  id={id()}  children={A}/>
+                            </Row>
+                            <Row  id={"2"}>
+                                {/*1:row spaned 1st*/}
+                                <Cell border={Zero} id={id()} children={A}/>
+                                <Cell border={Zero} id={id()} children={A}/>
+                            </Row>
+                            <Row  id={"3"}>
+                                <Cell border={Zero} id={id()} children={A}/>
+                                <Cell border={Zero} id={id()} children={A}/>
+                                <Cell border={Zero} id={id()} children={A}/>
+                            </Row>
+                        </Table>,
+                        {height:30}
+                    )
+                    $page0=doc.$page(0)
+                    $page1=doc.$page(1)
+                })
+
+                it("crossed pages",()=>{
+                    expect(doc.pages.length).toBe(2)
+                })
+
+                it("crossed content is correct",()=>{
+                    expect($page0.text().replace(/[^A\s]/g,"")).toBe(LineText+LineText)
+                    expect($page1.text().replace(/[^A\s]/g,"")).toBe(LineText)
+                })
+
+                it("row order is correct as [0,1,2],[2,3] because yield",()=>{
+                    expect(getRows($page0)).toBe("0,1,2")
+                    expect(getRows($page1)).toBe("2,3")
+                })
+
+                it("cell and box should be correct",()=>{
+                    expect($page0.find("[data-type=cell]").length).toBe(3+3+2)
+                    expect($page0.find("cell-box").length).toBe(3+3+2)
+
+                    expect($page1.find("[data-type=cell]").length).toBe(1+3)
+                    expect($page1.find("cell-box").length).toBe(3+3)
+                })
             })
+
+            describe("a cell{rowspan=2} cross 2 pages, row span start line natually end at page end",()=>{
+                const LineText=" ".padStart(5,"A")
+                let doc=null, $page0, $page1
+
+                beforeAll(()=>{debugger
+                    doc=test(//2 line in page
+                        <Table id={id()} width={100} cols={[{x:10,width:5},{x:20,width:10},{x:30,width:10}]}>
+                            <Row  id={"0"}>
+                                <Cell border={Zero} id={id()} children={A}/>
+                                <Cell border={Zero} id={id()} children={A}/>
+                                <Cell border={Zero} id={id()} children={A}/>
+                            </Row>
+                            <Row  id={"1"}>
+                                <Cell border={Zero} id={id()} rowSpan={2}>
+                                    <Paragraph id={id()}>
+                                        <Text id={id()}>
+                                            {LineText}
+                                            {LineText}
+                                        </Text>
+                                    </Paragraph>
+                                </Cell>
+                                <Cell border={Zero}  id={id()}  children={A}/>
+                                <Cell border={Zero}  id={id()}  children={A}/>
+                            </Row>
+                            <Row  id={"2"}>
+                                {/*1:row spaned 1st: and rowspan end at page edge*/}
+                                <Cell border={Zero} id={id()} children={A}/>
+                                <Cell border={Zero} id={id()} children={A}/>
+                            </Row>
+                            <Row  id={"3"}>
+                                <Cell border={Zero} id={id()} children={A}/>
+                                <Cell border={Zero} id={id()} children={A}/>
+                                <Cell border={Zero} id={id()} children={A}/>
+                            </Row>
+                        </Table>
+                    )
+                    $page0=doc.$page(0)
+                    $page1=doc.$page(1)
+                })
+
+                it("crossed pages",()=>{
+                    expect(doc.pages.length).toBe(2)
+                })
+
+                it("crossed content is correct",()=>{
+                    expect($page0.text().replace(/[^A\s]/g,"")).toBe(LineText)
+                    expect($page1.text().replace(/[^A\s]/g,"")).toBe(LineText)
+                })
+
+                it("spaned row1 in 2nd page should be yield to row2",()=>{
+                    expect(getRows($page0)).toBe("0,1")
+                    expect(getRows($page1)).toBe("2,3")
+
+                    expect($page0.find("[data-type=cell]").length).toBe(3+3)
+                    expect($page0.find("cell-box").length).toBe(3+3)
+
+                    expect($page1.find("[data-type=cell]").length).toBe(3+3)
+                    expect($page1.find("cell-box").length).toBe(3+3)
+                })
+            })
+
+            describe("2 cells{rowspan=3,2} competition when cross page",()=>{
+
+                describe("row span end at different row",()=>{
+                    const LineText=" ".padStart(5,"A")
+                    let doc=null, $page0, $page1
+
+                    beforeAll(()=>{
+                        const A=(<Paragraph id={id()}><Text id={id()}>A</Text></Paragraph>)
+                        doc=test(//each page can hold 3 lines
+                            <Table id={id()} width={100} cols={[{x:10,width:5},{x:20,width:10},{x:30,width:5}]}>
+                                <Row  id={"0"}>
+                                    <Cell  id={id()} border={Zero} rowSpan={3} >
+                                        <Paragraph id={id()}>
+                                            <Text id={id()}>
+                                                {LineText}
+                                                {LineText}
+                                                {LineText}
+                                                {LineText/*in 2nd page*/}
+                                            </Text>
+                                        </Paragraph>
+                                    </Cell>
+                                    <Cell border={Zero}  id={id()} colSpan={2} children={A}/>
+                                    {/*col spaned*/}
+                                </Row>
+                                <Row  id={"1"}>
+                                    {/*0 row spaned: 2nd*/}
+                                    <Cell border={Zero} id={id()} colSpan={2} children={A}/>
+                                    {/*col spaned*/}
+                                </Row>
+                                <Row  id={"2"}>
+                                    {/*0 row spaned: 1st*/}
+                                    <Cell border={Zero} id={id()} children={A}/>
+                                    <Cell border={Zero} id={id()} rowSpan={2}>
+                                        <Paragraph id={id()}>
+                                            <Text id={id()}>
+                                                {LineText}
+                                                {LineText/*in 2nd page*/}
+                                                {LineText}
+                                            </Text>
+                                        </Paragraph>
+                                    </Cell>
+                                </Row>
+                                <Row  id={"3"} height={10}>
+                                    <Cell border={Zero}  id={id()} children={A}/>
+                                    <Cell border={Zero} id={id()} children={A}/>
+                                    {/*2 row spaned: 1st*/}
+                                </Row>
+                                <Row  id={"4"} height={10}>
+                                    <Cell border={Zero} id={id()} children={A}/>
+                                    <Cell border={Zero}  id={id()} children={A}/>
+                                    <Cell border={Zero} id={id()} children={A}/>
+                                </Row>
+                            </Table>,
+                            {height:30}
+                        )
+                        $page0=doc.$page(0)
+                        $page1=doc.$page(1)
+                    })
+
+                    it("should be 2 pages",()=>{
+                        expect(doc.pages.length).toBe(2)
+                    })
+
+                    it("row order should be [0,1,2], [2,3,4] because of yield",()=>{
+                        expect(getRows($page0)).toBe("0,1,2")
+                        expect(getRows($page1)).toBe("2,3,4")
+                    })
+
+                    it("cell and box should be correct",()=>{
+                        expect($page0.find("[data-type=cell]").length).toBe(2+1+2)
+                        expect($page0.findFirst("[data-content=0]").find("cell-box").length).toBe(2)
+                        expect($page0.findFirst("[data-content=1]").find("cell-box").length).toBe(1)
+                        expect($page0.findFirst("[data-content=2]").find("cell-box").length).toBe(2)
+                        expect($page0.findFirst("[data-content=0]").findFirst("[data-type=cell]").find(".line").length).toBe(3)
+                        expect($page0.findFirst("[data-content=2]").findLast("[data-type=cell]").find(".line").length).toBe(1)
+                        expect($page0.findFirst("[data-content=2]").findLast("[data-type=cell]").attr('height')).toBe(10)
+
+                        expect($page1.find("[data-type=cell]").length).toBe(2+2+3)
+                        expect($page1.findFirst("[data-content=2]").find("cell-box").length).toBe(3)
+                        expect($page1.findFirst("[data-content=3]").find("cell-box").length).toBe(2)
+                        expect($page1.findFirst("[data-content=4]").find("cell-box").length).toBe(3)
+                        expect($page1.findFirst("[data-content=2]").findFirst("[data-type=cell]").find(".line").length).toBe(1)
+                        expect($page1.findFirst("[data-content=2]").findLast("[data-type=cell]").find(".line").length).toBe(2)
+                        expect($page1.findFirst("[data-content=2]").findLast("[data-type=cell]").attr('height')).toBe(20)
+                    })
+                })
+
+                describe("row span end at same row",()=>{
+                    const LineText=" ".padStart(5,"A")
+                    let doc=null, $page0, $page1, $page2 
+
+                    beforeAll(()=>{
+                        doc=test(//each page can hold 3 lines
+                            <Table id={id()} width={100} cols={[{x:10,width:5},{x:20,width:10},{x:30,width:5}]}>
+                                <Row  id={"0"}>
+                                    <Cell  id={id()} border={Zero} rowSpan={3} >
+                                        <Paragraph id={id()}>
+                                            <Text id={id()}>
+                                                {LineText}
+                                                {LineText}
+                                                {LineText}
+                                                {LineText/*in 2nd page*/}
+                                            </Text>
+                                        </Paragraph>
+                                    </Cell>
+                                    <Cell border={Zero}  id={id()} colSpan={2} children={A}/>
+                                    {/*col spaned*/}
+                                </Row>
+                                <Row  id={"1"}>
+                                    {/*0 row spaned: 2nd*/}
+                                    <Cell border={Zero} id={id()} children={A}/>
+                                    <Cell border={Zero} id={id()} rowSpan={2}>
+                                        <Paragraph id={id()}>
+                                            <Text id={id()}>
+                                                {LineText}
+                                                {LineText}
+                                                {LineText/*in 2nd page*/}
+                                                {LineText}
+                                            </Text>
+                                        </Paragraph>
+                                    </Cell>
+                                </Row>
+                                <Row  id={"2"}>
+                                    {/*0 row spaned: 1st*/}
+                                    <Cell border={Zero} id={id()} children={A}/>
+                                    {/*1 row spaned: 1st*/}
+                                </Row>
+                                <Row  id={"3"}>
+                                    <Cell border={Zero}  id={id()} children={A}/>
+                                    <Cell border={Zero} id={id()} children={A}/>
+                                    <Cell border={Zero} id={id()} children={A}/>
+                                </Row>
+                                <Row  id={"4"}>
+                                    <Cell border={Zero} id={id()} children={A}/>
+                                    <Cell border={Zero}  id={id()} children={A}/>
+                                    <Cell border={Zero} id={id()} children={A}/>
+                                </Row>
+                            </Table>,
+                            {height:30}
+                        )
+                        $page0=doc.$page(0)
+                        $page1=doc.$page(1)
+                        $page2=doc.$page(2)
+                    })
+
+                    it("should be 2 pages",()=>{
+                        expect(doc.pages.length).toBe(3)
+                    })
+
+                    it("row order should be [0,1,2], [2,3],[4] because of yield",()=>{
+                        expect(getRows($page0)).toBe("0,1,2")
+                        expect(getRows($page1)).toBe("2,3")
+                        expect(getRows($page2)).toBe("4")
+                    })
+
+                    it("cell and box should be correct",()=>{
+                        expect($page0.find("[data-type=cell]").length).toBe(2+2+1)
+                        expect($page0.find("cell-box").length).toBe(2+2+1)
+
+                        expect($page1.find("[data-type=cell]").length).toBe(2+3)
+                        expect($page1.find("cell-box").length).toBe(3+3)
+                        
+                    })
+
+                    it("2nd row span win the height competition",()=>{
+                        expect($page1.findFirst("[data-type=row]").attr('height')).toBe(20)
+                        expect($page1.findFirst("[data-type=row]").findFirst("[data-type=cell]").find(".line").length).toBe(1)
+                        expect($page1.findFirst("[data-type=row]").findLast("[data-type=cell]").find(".line").length).toBe(2)
+                    })
+                })
+            })
+
+
         })
     })
 })

@@ -7,6 +7,7 @@ import {Group} from "../composed"
 
 import {HasParentAndChild,editable} from "../composable"
 
+const RowSpanEnd=1
 /**
  * terms:
  * Page: a composed line, a row may be splitted into more than one page, page apply vertAlign
@@ -122,7 +123,7 @@ class Row extends HasParentAndChild(dom.Row){
 				const current=this.currentPage
 				this.context.parent.appendComposed(this.currentPage)
 				if(current!==this.currentPage){
-					//it's trick since reshape, but anyway the pages changed, so it's worth a nested search
+					//it's trick since yielde, but anyway the pages changed, so it's worth a nested search
 					return this.findOrCreatePageForColumn(...arguments)
 				}
 			}
@@ -227,19 +228,18 @@ class Row extends HasParentAndChild(dom.Row){
 			}
 		}
 
-		renderEmptyCell(i,height){
+		renderEmptyBox(i,height){
 			const firstCell=this.row.getColumns(this.cols)[i].firstCell
 			return firstCell && this.renderCell(firstCell.clone({id:undefined/*not belong to any cell*/},true),i,height)
 		}
 
 		renderCell(cell,i, height){
+			if(!cell){
+				return this.renderEmptyBox(i,height)||null
+			}
 			const {cols=this.cols, isLastPageOfRow, isFirstRowInPage,table, row}=this.props
 			const {x,width}=cols[i]
-			if(!cell){
-				return this.renderEmptyCell(i,height)||null
-			}
 			
-
 			return React.cloneElement(
 				cell.clone({
 					height,
@@ -293,7 +293,7 @@ class SpanableRow extends Row{
 		const {props:{height=0, minHeight=0}, cols}=this
 		return height || Math.max(minHeight,...cells.map((a,i)=>{
 			const {rowSpan=1}=cols[i]
-			return rowSpan===1 && a?.cellHeight || 0
+			return rowSpan===RowSpanEnd && a?.cellHeight || 0
 		}))
 	}
 
@@ -303,8 +303,8 @@ class SpanableRow extends Row{
 	}
 
 	static Page=class extends super.Page{
-		renderEmptyCell(i,height){
-			return !this.cols[i].rowSpan && super.renderEmptyCell(i,height)
+		renderEmptyBox(i,height){
+			return !this.cols[i].rowSpan && super.renderEmptyBox(i,height)
 		}
 
 		/**
@@ -316,19 +316,19 @@ class SpanableRow extends Row{
 		 * @returns 
 		 * 
 		 * it's happening right after pageRow.row append pageRow to parent
-		 * this is still hold by its row, but impact nothing, since page-table replace it with reshaped
+		 * this is still hold by its row, but impact nothing, since page-table replace it with yielded
 		 * pageRow.row add a new page that inherit the source space
 		 * 
-		 * @TODO: the reshaped pageRow might be reshaped again, 
-		 * 	should the reshaped be removed from reshaped.row to sync???
-		 * what's happening: pageRow.row -> append pageRow to parent -> reshape this pageRow(->append reshaped to pageRow.row.pages)->
+		 * @TODO: the yielded pageRow might be yielded again, 
+		 * 	should the yielded be removed from yielded.row to sync???
+		 * what's happening: pageRow.row -> append pageRow to parent -> yielde this pageRow(->append yielded to pageRow.row.pages)->
 		 */
-		reshapeTo(pageRow){
+		yieldTo(pageRow){
 			const {props:{children,space}}=this
 			const shaped=new this.constructor({
 				space,
 				children:children.map((cell,i)=>{
-					if(pageRow.cols[i].rowSpan===1){
+					if(pageRow.cols[i].rowSpan===RowSpanEnd){
 						return new Proxy(cell,{
 							get(cell,k,...args){
 								if(k=='rowSpan'){

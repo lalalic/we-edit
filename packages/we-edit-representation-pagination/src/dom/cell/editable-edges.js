@@ -8,7 +8,7 @@ import Edges from "./edges"
 
 const {ColResizer, RowResizer}=Resizable
 
-export default connect()(class EditableEdges extends Component{
+const CellBox=connect()(class EditableEdges extends Component{
 	static contextTypes={
         editable:PropTypes.any,
         precision: PropTypes.number,
@@ -44,6 +44,10 @@ export default connect()(class EditableEdges extends Component{
         )
     }
 })
+
+CellBox.displayName="cell-box"
+
+export default CellBox
 
 
 

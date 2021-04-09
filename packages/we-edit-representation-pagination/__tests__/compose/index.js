@@ -32,10 +32,7 @@ export function define(feature, tests){
     	const WithTextContext=provider(Text,{Measure})
     	const WithParagraphContext=provider(Paragraph)
     	const Context={parent:{context:{}},Measure}
-
-    	beforeAll(()=>{
-    		defaultProps(dom)()
-    	})
+        defaultProps(dom)()
 
         describe(feature, ()=>{
             tests({dom, CONTEXT, Context, WithTextContext, WithParagraphContext, testing,ConstraintSpace })

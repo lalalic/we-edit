@@ -4,6 +4,7 @@ import {dom, ReactQuery} from "we-edit"
 
 import {HasParentAndChild} from "../composable"
 import {Group, Marker} from "../composed"
+const RowSpanEnd=1
 
 /**
  * 1. Always give row max availabe space in frame
@@ -80,8 +81,11 @@ class Table extends HasParentAndChild(dom.Table){
 				this.lastPage.commit(false)
 			}else{
 				const space=this.currentPage.nextAvailableSpace()
-				if(space)
+				if(space){
 					return space
+				}else{
+					this.lastPage.commit(false)
+				}
 			}
 		}
 
@@ -270,10 +274,9 @@ class SpanableTable extends Table{
 							return true
 						if(!prev.nextAvailableSpace())
 							return true
-						//same row, but me.firstRow may be reshaped to different row, so it need check further
-						//if it's rowspan edge, such as end/begin of rowspan
-						//check first row since first row is stateful for rowspan, reshape will remove rowspan when rowspan finished
-						return !me.rows[0].cells.find(a=>a?.rowSpan)
+						
+						//my first row has end of rowspan
+						return !!me.rows[0].cols.find(a=>a.rowSpan===RowSpanEnd)
 					})
 				}
 			}
@@ -300,50 +303,65 @@ class SpanableTable extends Table{
 	static Page=class extends super.Page{
 		push(row){
 			const lastRow=this.lastRow
+			//may merge cells if rowSpan row natually end at last page
+			if(this.rows.length==1 && 
+				lastRow.id!=row.id && //already checked on request space, but leave here for self explain
+				!lastRow.cols.find(a=>a.rowSpan===RowSpanEnd)// edge never merge
+			){
+				if(lastRow.cols.find(a=>a.beginRowSpan) && 
+					lastRow.row.pages.indexOf(lastRow)!=0// last pageRow of last page from same row
+				){
+					lastRow.cells.forEach((cell,i)=>cell && (row.cells[i]= row.cells[i] || cell))
+					this.rows.pop()
+				}
+			}
+
 			if(!super.push(row))
 				return false
-			//@NOTE:reshape cross page spanCell to current row to make row order already correct
+			//@NOTE:yield cross page spanCell to current row to make row order already correct
+			
+			//yield on next pages
 			this.table.pages
 				.slice(this.table.pages.indexOf(this)+1)//next pages
 				.filter(page=>page.rows[0].id==lastRow.id)//page crossed from same row
 				.forEach(page=>{
-					const reshaped=page.rows[0]=page.rows[0].reshapeTo(row)
-					reshaped.onAllChildrenComposed(this.relayout.factory(page))
+					const yielded=page.rows[0]=page.rows[0].yieldTo(row)
+					yielded.onAllChildrenComposed(this.relayout.factory(page))
 				})
 			return true
 		}
 
 		getTableRowHeights(){
-			const cellHeightMatrix=[]
+			const cellExtraHeightMatrix=[]
 			const {yRows}=this.rows.reduce((state, row,i,rows,isLastRow=i==rows.length-1)=>{
-				cellHeightMatrix[i]=new Array(row.cols.length).fill(0)
+				cellExtraHeightMatrix[i]=new Array(row.cols.length).fill(0)
 				const rowHeight=row.flowableContentHeight
 				const Y=state.yRows[i-1]||0
 				const yCells=row.cols.map((col,j)=>{
-					if(row.cells[j]?.rowSpan>1){
-						state.yRowSpanCells[j]={row:i, y:Y+row.cells[j].cellHeight}
+					if(row.cells[j]?.rowSpan>RowSpanEnd){
+						state.yRowSpanCells[j].y=Y+row.cells[j].cellHeight
+						state.yRowSpanCells[j].row=i
 					}
-					if(col.rowSpan===1 || isLastRow){
-						const y=state.yRowSpanCells[j].y
-						return y
+					if(col.rowSpan===RowSpanEnd || isLastRow){
+						return state.yRowSpanCells[j].y
 					}
 					return 0
 				})
 				state.yRows[i]=Math.max(Y+rowHeight, ...yCells)
 				yCells.forEach((a,j)=>{
-					if(!a)
-						return 
-					if(a<state.yRows[i]){
-						cellHeightMatrix[state.yRowSpanCells[j].row][j]=state.yRows[i]-a
+					if(a){ 
+						if(a<state.yRows[i]){
+							cellExtraHeightMatrix[state.yRowSpanCells[j].row][j]=state.yRows[i]-a
+						}
+						state.yRowSpanCells[j].y=0
 					}
-					state.yRowSpanCells[j]={y:0}
 				})
 				return state
-			},{yRows:[],yRowSpanCells:new Array(this.table.props.cols.length).fill({y:0})})
+			},{yRows:[],yRowSpanCells:new Array(this.table.props.cols.length).fill(0).map(a=>({y:0}))})
 
-			const heights=yRows.map((y,i,ys,y0=ys[i-1]||0)=>y-y0)
-			heights.matrix=cellHeightMatrix
-			return heights
+			const hRows=yRows.map((y,i,ys,y0=ys[i-1]||0)=>y-y0)
+			hRows.matrix=cellExtraHeightMatrix
+			return hRows
 		}
 	}
 }
