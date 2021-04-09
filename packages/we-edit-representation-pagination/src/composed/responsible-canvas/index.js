@@ -325,8 +325,10 @@ export default class EventResponsible extends Responsible{
     }
 
     onContextMenu(e){
-        this.__onClick(e)
-        delete this.__mouseDownFlag.selected
+        if(!e.focusable){
+            this.__onClick(e)
+            delete this.__mouseDownFlag.selected
+        }
         this.props.onContextMenu?.(e)
     }
 

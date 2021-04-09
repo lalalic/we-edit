@@ -20,7 +20,7 @@ export default compose(
 		if(selection){
             const shape=selection.props("shape",false)
             const image=selection.props("image",false)
-			return {style:image||shape, type:image ? "Image" : "Shape"}
+			return {selection, style:image||shape, type:image ? "Image" : "Shape"}
         }
 		return {}
 	}),
@@ -88,7 +88,7 @@ export default compose(
                         fn(e,{positioning,dispatch,anchor})
                     }}>
                 {(overlay)=>{
-                    if(!overlay.state.down)
+                    if(!overlay.state.triggered)
                         return <rect style={{width:"100%",height:"100%",fill:"transparent", cursor:"crosshair",opacity:0.6}}/>
                     return fn(overlay)
                 }}

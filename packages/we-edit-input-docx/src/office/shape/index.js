@@ -7,8 +7,9 @@ const Shape=dom.Shape
 
 function rect({motionRoute:geometry}, {positioning, anchor,dispatch,type="shape"}={}){
     const {left,top,right,bottom, w=right-left, h=bottom-top}=geometry.bounds()
-    if(!positioning)
+    if(!positioning){
         return <Shape geometry={`M${left} ${top} h${w} v${h} h${-w}z`} outline={{width:1,color:"green"}}/>
+    }
     dispatch(ACTION.Entity.CREATE({
         type,
         kind:"rect",

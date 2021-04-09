@@ -71,10 +71,6 @@ export default (
                     basic: <Ribbon.Developer.Ribbon diff={{parseFile}}/>
                 }
             }}>
-                 {"Draw,Design,References,Review,View,Developer".split(",").map(label=><Tab label={label} key={label}/>)}
-                <Tab label="xPression">
-                    <input type="checkbox"/>
-                </Tab>
                 <Tab label={<input placeholder="Tell me what you want to do"/>}/>
             </Ribbon.Ribbon>
         }

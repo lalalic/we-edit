@@ -257,7 +257,7 @@ export default{
         this.$target.before($toc)
     },
 
-    create_textbox({paragraph:p,run, geometry, ...props}){
+    create_textbox({page, column:{i,x}={}, paragraph:{id:p, y},run, geometry, ...props}){
         const editor=new TextBox.Anchor(this)
         const paragraph=this.file.getNode(p)
         editor.create({})
@@ -276,11 +276,11 @@ export default{
         this.cursorAt(cursor,0)
         editor.node=this.target
         const size=geometry.size()
-        editor.update({size,...props})
+        editor.update({size,offset:{x,y, page},...props})
         this.file.renderChanged(this.file.getNode(id))
     },
 
-    create_shape({paragraph:p,run,geometry,...props}){
+    create_shape({page, column:{i,x}={}, paragraph:{id:p, y},run, geometry,...props}){
         const editor=new Shape.Anchor(this)
         const paragraph=this.file.getNode(p)
         editor.create({name:"shape"})
@@ -299,7 +299,7 @@ export default{
         this.cursorAt(cursor,0)
         editor.node=this.target
         const size=geometry.size()
-        editor.update({size,geometry,...props})
+        editor.update({size,offset:{x,y,page},geometry,...props})
         this.file.renderChanged(this.file.getNode(id))
     }
 }

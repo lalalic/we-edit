@@ -62,8 +62,11 @@ export default compose(
 	}
 
 	getRotatable(transform){
-		const [degree=0,x=0,y=0]=/rotate\s*\((.*?)\)/gi.exec(transform||"")?.[1].split(/[\s,]/).map(parseFloat)||[]
-		return {x,y,degree}
+		if(typeof(transform)=="string"){
+			const [degree=0,x=0,y=0]=/rotate\s*\((.*?)\)/gi.exec(transform||"")?.[1].split(/[\s,]/).map(parseFloat)||[]
+			return {x,y,degree}
+		}
+		return transform.center()
 	}
 
 	getResizable(geometry,width,height){
@@ -90,7 +93,7 @@ export default compose(
 				geometry=new Path(path),
 				size:{width,height}=geometry.size(),
 				resizable=this.getResizable(geometry,width,height),
-				rotatable=this.getRotatable(transform),
+				rotatable=this.getRotatable(transform||geometry),
 				movable=true,
 			},
 			context:{editable,precision=1},
@@ -112,7 +115,8 @@ export default compose(
 							status=="unactive" && <path {...{key:"selector",d:path,fill:"transparent",...IgnoreEvents, onClick:select}}/>,
 							status=="focus" && movable && <Movable isAnchor={isAnchor} key="movable"
 								onMove={e=>dispatch(ACTION.Selection.MOVE({...e, id,type}))}
-								children={<path d={path} fill="white" fillOpacity={0.01} cursor="move"/>}
+								
+								children={<path d={path} fill="white" fillOpacity={0.01} cursor="move" onContextMenu={e=>e.focusable=id}/>}
 							/>,
 
 							status=="focus" && rotatable && <Rotatable {...rotatable} key="rotatable"
