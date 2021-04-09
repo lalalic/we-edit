@@ -4,7 +4,7 @@ import "./tools/array-find-last"
 export * from "./components"
 
 export {ACTION, DOMAIN, reducer, getActive, getAll,getReducer} from "./components/we-edit"
-export {connect, whenSelectionChange, whenSelectionChangeDiscardable, discardable, isDocumentReady, stateSafe, EmptyStore} from "./state"
+export {connect, whenSelectionChange, whenSelectionChangeDiscardable, discardable, isDocumentReady, stateSafe, createEmptyStore} from "./state"
 export {getContent, getSelection, getFile, getUndos, getRedos,getStatistics,getUI,getSelectionStyle,getWorkers} from "./state/selector"
 export {default as SelectionStyle} from "./state/selection-style"
 export {default as getClientRect} from "./tools/get-client-rect"

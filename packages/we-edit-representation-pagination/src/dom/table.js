@@ -58,9 +58,10 @@ class Table extends HasParentAndChild(dom.Table){
 	/**row call it to append a block of row*/
 	createComposed2Parent(pageRow, needMarker){
 		const {width,indent, id}=this.props
-		pageRow=this.wrapParentsUntilMe(pageRow)
+		const height=pageRow.props.height
+		//pageRow=this.wrapParentsUntilMe(pageRow)
 		return (
-			<Group width={width} height={pageRow.props.height}>
+			<Group width={width} height={height}>
 				{needMarker && <Marker {...{type:"table",id}}/>}
 				<Group x={indent}>
 					{React.cloneElement(pageRow,{width})}

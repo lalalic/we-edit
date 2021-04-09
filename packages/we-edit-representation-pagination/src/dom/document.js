@@ -2,7 +2,7 @@ import React, {Fragment} from "react"
 import PropTypes from "prop-types"
 
 import {HasChild, Locatable,editable} from "../composable"
-import {dom,getSelection,ACTION, EmptyStore} from "we-edit"
+import {dom,getSelection,ACTION, createEmptyStore} from "we-edit"
 import {Canvas} from "../composed"
 import Responsible from "../composed/responsible-canvas"
 import SVGMeasure from "../measure/svg"
@@ -37,7 +37,7 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
     }
 
     get activeDocStore(){
-        return this.context.activeDocStore||EmptyStore
+        return this.context.activeDocStore||this._emptyStore||(this._emptyStore=createEmptyStore())
     }
 
     get Measure(){

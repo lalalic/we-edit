@@ -45,7 +45,7 @@ export default class extends Section{
 			return React.cloneElement(
 				content,
 				{width,height},
-				<Group {...{"data-cellcontent":1}}>{content.props.children}</Group>,
+				content.props.children,
 				React.cloneElement(borders,{height,width,
 					table,row,cell,i,isFirstRowInPage,isLastRankOfRow//editable edges
 				})

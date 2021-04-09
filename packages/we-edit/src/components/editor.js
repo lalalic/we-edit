@@ -35,7 +35,8 @@ export class Editor extends PureComponent{
 	}
 
 	static defaultProps={
-		media:"screen"
+		media:"screen",
+		editable: true,
 	}
 
 	static childContextTypes={

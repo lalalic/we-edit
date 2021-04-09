@@ -330,11 +330,11 @@ define("table compose",
                 expect($page0.find('[data-type="cell"]').length).toBe(3)
             })
 
-            describe("a cell{rowspan=2} cross 2 pages",()=>{
+            fdescribe("a cell{rowspan=2} cross 2 pages",()=>{
                 const LineText=" ".padStart(5,"A")
                 let doc=null, $page0, $page1
 
-                beforeAll(()=>{
+                beforeAll(()=>{debugger
                     doc=test(//3 line in page
                         <Table id={id()} width={100} cols={[{x:10,width:5},{x:20,width:10},{x:30,width:10}]}>
                             <Row  id={"0"}>
@@ -632,7 +632,7 @@ define("table compose",
         })
     })
 
-    xit("cell/row containers included in layouted",()=>{debugger
+    it("cell/row containers included in layouted",()=>{debugger
         const doc=test(
             <Table id={`${u++}`} width={8} cols={[{x:0,width:6},{x:0,width:6}]}>
                 <Container id={id()} type="RowContainer">

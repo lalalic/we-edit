@@ -97,7 +97,7 @@ export const discardable=({timeout=100})=>A=>class extends A{
 	}
 }
 
-export const EmptyStore=createStore(state=>state, createState())
+export const createEmptyStore=()=>createStore(state=>state, createState())
 
 export const isDocumentReady=state=>{
 	const selection=getSelection(state)

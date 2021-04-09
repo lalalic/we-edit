@@ -250,8 +250,12 @@ class Row extends HasParentAndChild(dom.Row){
 				height,
 				key:i,
 			})
-
-			return this.row.wrapParentsUntilMe(layoutedCell)
+return layoutedCell
+			const wraped=this.row.wrapParentsUntilMe(layoutedCell)
+			if(wraped!=layoutedCell){
+				debugger
+			}
+			return wraped
 		}
 
 		insertAt(cell, i){
