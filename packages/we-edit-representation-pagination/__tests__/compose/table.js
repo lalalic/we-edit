@@ -330,7 +330,7 @@ define("table compose",
                 expect($page0.find('[data-type="cell"]').length).toBe(3)
             })
 
-            fdescribe("a cell{rowspan=2} cross 2 pages",()=>{
+            describe("a cell{rowspan=2} cross 2 pages",()=>{
                 const LineText=" ".padStart(5,"A")
                 let doc=null, $page0, $page1
 

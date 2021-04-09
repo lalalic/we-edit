@@ -59,7 +59,7 @@ class Table extends HasParentAndChild(dom.Table){
 	createComposed2Parent(pageRow, needMarker){
 		const {width,indent, id}=this.props
 		const height=pageRow.props.height
-		//pageRow=this.wrapParentsUntilMe(pageRow)
+		pageRow=this.wrapParentsUntilMe(pageRow)
 		return (
 			<Group width={width} height={height}>
 				{needMarker && <Marker {...{type:"table",id}}/>}

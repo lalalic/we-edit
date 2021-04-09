@@ -250,12 +250,8 @@ class Row extends HasParentAndChild(dom.Row){
 				height,
 				key:i,
 			})
-return layoutedCell
-			const wraped=this.row.wrapParentsUntilMe(layoutedCell)
-			if(wraped!=layoutedCell){
-				debugger
-			}
-			return wraped
+			//yield and merge when pageTable.push changed the relationship between pageCell and pageRow
+			return this.row.wrapParentsUntilMe(layoutedCell,cell.cell.closest('row'))
 		}
 
 		insertAt(cell, i){
