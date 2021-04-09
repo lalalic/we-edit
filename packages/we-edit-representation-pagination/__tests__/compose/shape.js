@@ -12,12 +12,10 @@ define("paragraph compose",
     const Context=context({
         contextTypes:{
             parent:PropTypes.any,
-            ModelTypes:PropTypes.any,
             shouldContinueCompose: PropTypes.func,
         },
         context:{
             parent,
-            ModelTypes:{Frame},
             shouldContinueCompose:()=>true,
         }
     })

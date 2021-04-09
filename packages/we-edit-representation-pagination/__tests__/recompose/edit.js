@@ -28,7 +28,7 @@ describe("editor",()=>{
         })
         const renderer=render(element=
             <Context>
-                <Document id="root"
+                <Document id="root" editable={true}
                         canvas={createCanvas(Document,{
                             pageGap:gap,
                             viewport:{...viewport, node:{scrollTop:0}},

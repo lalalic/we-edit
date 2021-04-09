@@ -240,7 +240,7 @@ class Row extends HasParentAndChild(dom.Row){
 			const {cols=this.cols, isLastPageOfRow, isFirstRowInPage,table, row}=this.props
 			const {x,width}=cols[i]
 			
-			return React.cloneElement(
+			const layoutedCell=React.cloneElement(
 				cell.clone({
 					height,
 					colIndex:i,table,row,isLastPageOfRow,isFirstRowInPage//editable edges need the information
@@ -250,6 +250,8 @@ class Row extends HasParentAndChild(dom.Row){
 				height,
 				key:i,
 			})
+
+			return this.row.wrapParentsUntilMe(layoutedCell)
 		}
 
 		insertAt(cell, i){

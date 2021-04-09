@@ -2,7 +2,7 @@ import React from "react"
 import PropTypes from "prop-types"
 import {ReactQuery} from "we-edit"
 
-import {render,provider, defaultProps} from "../context"
+import {render,provider} from "../context"
 import {define} from "./index"
 
 let u=1
@@ -10,25 +10,11 @@ const id=()=>`_${++u}`
     
 define("table compose",
 ({dom, testing, CONTEXT, Context, WithTextContext, WithParagraphContext, autoID})=>{
-    const {Section,Frame, Paragraph, Text,Table,Row,Cell}=dom
-    const PEnd=Paragraph.defaultProps.End
-    const WithSectionContext=provider(Section,{ModelTypes:dom})
+    const {Document, Section,Frame, Paragraph, Text,Table,Row,Cell, Container}=dom
     function test(content,frame={height:20}){
-        const document={
-            appendComposed(page){
-                this.computed.composed.push(page)
-            },
-            getComposeType(){
-                return "document"
-            },
-            computed:{
-                composed:[]
-            }
-        }
-        const context={parent:document,...CONTEXT}
-
-        render(
-            <WithSectionContext context={context}>
+        console.debug=jest.fn()
+        const rendered=render(
+            <Document id="root" canvas={null}>
                 <Section createLayout={(props,context)=>new Frame({...props,width:10,...frame},context)} id={++u}>
                     <WithParagraphContext>
                         <WithTextContext>
@@ -36,8 +22,10 @@ define("table compose",
                         </WithTextContext>
                     </WithParagraphContext>
                 </Section>
-            </WithSectionContext>
+            </Document>
         )
+
+        const document=rendered.getInstance()
         const pages=document.computed.composed
         return {
             pages,
@@ -63,9 +51,7 @@ define("table compose",
             expect(doc.pages.length).toBe(1)
 
             expect(doc.page.lastLine).toBeDefined()
-            const table=doc.$(doc.page.lastLine)
-                .findFirst(`[data-type="table"]`)
-                .get(0)
+            const table=doc.$(doc.page.lastLine).findFirst(`[data-type="table"]`).get(0)
             expect(table).toBeDefined()
             expect(table.props.height).toBe(12)
         })
@@ -321,7 +307,7 @@ define("table compose",
                 expect(doc.pages.length).toBe(2)
                 expect(doc.$page(0).find('[data-type="cell"]').length).toBe(2)
                 expect(doc.$page(0).text()).toBe("hello world ")
-                expect(doc.$page(1).text()).toBe("hello"+PEnd)
+                expect(doc.$page(1).text().replace(/[^\w\s]/,"")).toBe("hello")
                 expect(doc.$page(1).find('[data-type="cell"]').length).toBe(3+1)
             })
         })
@@ -413,7 +399,7 @@ define("table compose",
                 const LineText=" ".padStart(5,"A")
                 let doc=null, $page0, $page1
 
-                beforeAll(()=>{debugger
+                beforeAll(()=>{
                     doc=test(//2 line in page
                         <Table id={id()} width={100} cols={[{x:10,width:5},{x:20,width:10},{x:30,width:10}]}>
                             <Row  id={"0"}>
@@ -644,5 +630,29 @@ define("table compose",
 
 
         })
+    })
+
+    xit("cell/row containers included in layouted",()=>{debugger
+        const doc=test(
+            <Table id={`${u++}`} width={8} cols={[{x:0,width:6},{x:0,width:6}]}>
+                <Container id={id()} type="RowContainer">
+                    <Row id={`${u++}`} >
+                        <Container id={id()} type="CellContainer">
+                            <Cell id={`${u++}`}>
+                                <Paragraph id={`${u++}`}>
+                                    <Text id={`${u++}`} fonts="arial" size={10}>hello</Text>
+                                </Paragraph>
+                            </Cell>
+                        </Container>
+                        <Container id={id()} type="CellContainer">
+                            <Cell id={`${u++}`}/>
+                        </Container>
+                    </Row>
+                </Container>
+            </Table>
+        )
+
+        expect(doc.$page(0).find("[data-type=CellContainer]").length).toBe(2)
+        expect(doc.$page(0).find("[data-type=RowContainer]").length).toBe(1)
     })
 })

@@ -28,7 +28,7 @@ export function createStore(reducer,INIT_STATE){
 	)
 }
 
-export function createState(doc, content){
+export function createState(doc={}, content=new Map({"root":"fake document"})){
 	const id=firstCursorable(content)
 	
 	return Map({
@@ -96,6 +96,8 @@ export const discardable=({timeout=100})=>A=>class extends A{
 		})
 	}
 }
+
+export const EmptyStore=createStore(state=>state, createState())
 
 export const isDocumentReady=state=>{
 	const selection=getSelection(state)

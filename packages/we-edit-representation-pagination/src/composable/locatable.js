@@ -1,6 +1,7 @@
 
 import React from "react"
 import PropTypes from "prop-types"
+import {ReactQuery} from "we-edit"
 
 /**It to make composed result locatable through id and type */
 function Locatable(A){
@@ -33,6 +34,19 @@ function Locatable(A){
 			}else{
 				return element
 			}
+		}
+
+		/**a helper for later create relationships*/
+		wrapParentsUntilMe(element){
+			return element
+			const id=new ReactQuery(element).findFirst("[data-content]").attr('data-content')
+			const composer=this.context.getComposer(id)
+			let wrapped=element, current=composer?.context.parent
+			while(current?.createComposed2Parent && current!=this){
+				wrapped=current.createComposed2Parent(wrapped)
+				current=current.context.parent
+			}
+			return wrapped
 		}
 	}
 }

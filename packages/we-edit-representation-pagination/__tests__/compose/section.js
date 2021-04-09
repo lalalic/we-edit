@@ -6,7 +6,7 @@ import {define} from "./index"
 define("section compose",
 ({dom, testing, CONTEXT, Context, WithTextContext, WithParagraphContext})=>{
     const {Section,Frame, Paragraph, Text,Table,Row,Cell}=dom
-    const WithSectionContext=provider(Section,{ModelTypes:dom})
+    const WithSectionContext=provider(Section,{})
 
     const document={
         appendComposed(page){

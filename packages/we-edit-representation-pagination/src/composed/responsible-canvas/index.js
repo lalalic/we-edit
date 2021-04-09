@@ -208,7 +208,7 @@ class Responsible extends Component{
                         <SelectionShape ref={"selecting"}/>
                     </Selection>
 				</Fragment>
-                <DrawLayer/>
+                {!noCursor && <DrawLayer/>}
             </Canvas>
         )
     }

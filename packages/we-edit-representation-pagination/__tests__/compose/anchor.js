@@ -18,12 +18,10 @@ define("section compose",
     const Context=context({
         contextTypes:{
             parent:PropTypes.any,
-            ModelTypes:PropTypes.any,
             shouldContinueCompose: PropTypes.func,
         },
         context:{
             parent:document,
-            ModelTypes:{Frame},
             shouldContinueCompose:()=>true,
         }
     })

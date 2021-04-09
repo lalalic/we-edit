@@ -2,9 +2,10 @@ import React, {Fragment} from "react"
 import PropTypes from "prop-types"
 
 import {HasChild, Locatable,editable} from "../composable"
-import {dom,getSelection,ACTION} from "we-edit"
+import {dom,getSelection,ACTION, EmptyStore} from "we-edit"
 import {Canvas} from "../composed"
 import Responsible from "../composed/responsible-canvas"
+import SVGMeasure from "../measure/svg"
 
 class Document extends Locatable.Locatorize(HasChild(dom.Document)){
     static propTypes={
@@ -19,6 +20,7 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
     static contextTypes={
         ...super.contextTypes,
         Measure: PropTypes.func,
+        activeDocStore: PropTypes.any,
     }
 
     static childContextTypes={
@@ -27,10 +29,19 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
         prevLayout: PropTypes.func,
         editable: PropTypes.any,
         precision: PropTypes.number,
+        activeDocStore: PropTypes.any,
     }
 
     get pages(){
         return this.computed.composed
+    }
+
+    get activeDocStore(){
+        return this.context.activeDocStore||EmptyStore
+    }
+
+    get Measure(){
+        return this.context.Measure||this.props.Measure
     }
 
     getComposed(){
@@ -48,6 +59,8 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
             },
             editable: self.state.editable,
             precision: this.props.precision,
+            activeDocStore: this.activeDocStore,
+            Measure: this.Measure,
         }
     }
 
@@ -85,7 +98,7 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
     }
 
     __statistics(){
-        this.context.activeDocStore?.dispatch(ACTION.Statistics({
+        this.activeDocStore?.dispatch(ACTION.Statistics({
 			pages:this.pages.length,
 			allComposed:this.isAllChildrenComposed(),
             words: this.words,
@@ -99,13 +112,9 @@ export default class extends editable(Document,{continuable:true}){
     static defaultProps={
 		...super.defaultProps,
         canvas:<Responsible/>,
-        editable: true,
+        editable: false,
+        Measure: SVGMeasure,
     }
-    
-	static contextTypes={
-		...super.contextTypes,
-        activeDocStore: PropTypes.any,
-	}
 
 	static getDerivedStateFromProps({hash,editable},state){
 		return {hash, editable, ...(hash!=state.hash && {mode:"content",y:0,composeAll:false})}
@@ -175,6 +184,9 @@ export default class extends editable(Document,{continuable:true}){
     }
     
     get canvas(){
+        if(!this.props.canvas)
+            return {availableBlockSize:()=>Number.MAX_SAFE_INTEGER}
+
         const {canvas:{type:Type,props}}=this.props
         const canvas=new Type({...props, document:this})
         
@@ -212,7 +224,7 @@ export default class extends editable(Document,{continuable:true}){
 
         let should=this.canvas.availableBlockSize() //has block space
         if(!should){
-            if(!this.isSelectionComposed(getSelection(this.context.activeDocStore.getState()))){//selection not composed yet
+            if(!this.isSelectionComposed(getSelection(this.activeDocStore.getState()))){//selection not composed yet
                 should=true
             }
         }

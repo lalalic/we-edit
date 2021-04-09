@@ -55,7 +55,7 @@ describe("continuable", ()=>{
 		const compose2Y=(y,n)=>it(`${y},pages=${n}`,()=>{
 			const renderer=render(
 				<Context>
-					<Document
+					<Document editable={true}
 						canvas={createCanvas(Document,{
 							pageGap,
 							viewport:{width:500,height:y,node:{scrollTop:0}},
@@ -91,7 +91,7 @@ describe("continuable", ()=>{
 			
 			const renderer=render(
 				<Context>
-					<Document canvas={createCanvas(Document, {viewport:{width:500,height:100,node:{scrollTop:0}}, screenBuffer:0, scale:1})}>
+					<Document editable={true} canvas={createCanvas(Document, {viewport:{width:500,height:100,node:{scrollTop:0}}, screenBuffer:0, scale:1})}>
 						{section(1)}
 						{section(2)}
 						{section(3)}
@@ -119,7 +119,8 @@ describe("continuable", ()=>{
 			Object.keys(state).map(k=>State[k]=jest.fn(function(){return state[k](...arguments)}))
 			const renderer=render(
 				<Context key="test">
-					<Document id="root" canvas={createCanvas(Document, {pageGap, viewport:{width:500,height:size.height/2,node}, screenBuffer:0, scale:1})}>
+					<Document id="root" editable={true}
+						canvas={createCanvas(Document, {pageGap, viewport:{width:500,height:size.height/2,node}, screenBuffer:0, scale:1})}>
 						{section(1,i)}
 						{section(2,i)}
 						{section(3,i)}

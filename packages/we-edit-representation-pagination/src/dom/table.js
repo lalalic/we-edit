@@ -58,6 +58,7 @@ class Table extends HasParentAndChild(dom.Table){
 	/**row call it to append a block of row*/
 	createComposed2Parent(pageRow, needMarker){
 		const {width,indent, id}=this.props
+		pageRow=this.wrapParentsUntilMe(pageRow)
 		return (
 			<Group width={width} height={pageRow.props.height}>
 				{needMarker && <Marker {...{type:"table",id}}/>}
@@ -83,8 +84,10 @@ class Table extends HasParentAndChild(dom.Table){
 				const space=this.currentPage.nextAvailableSpace()
 				if(space){
 					return space
-				}else{
+				}else if(this.currentPage==this.lastPage){
 					this.lastPage.commit(false)
+				}else{
+					//this.currentPage.relayout()
 				}
 			}
 		}
@@ -114,7 +117,15 @@ class Table extends HasParentAndChild(dom.Table){
 			super(...arguments)
 			this.relayout=this.relayout.bind(this)
 			this.relayout.factory=page=>allDoneRow=>{
+				//the scope should make it as small as possible
 				if(page.alreadyLayouted && allDoneRow.pages.length>1){
+					//only rowSpan>0 affect already layouted
+					/**
+					 * spaning row can affect last already layouted pageRow, and rowSpan cell
+					 * other kind row just need be appended
+					 * but pageTable controls its flow, why relayout on row finished, instead of table finished?
+					 * > because table may not finished if it's partial compose
+					 */
 					page.relayout(allDoneRow)
 				}
 			}
@@ -197,6 +208,7 @@ class Table extends HasParentAndChild(dom.Table){
 					return React.cloneElement(parent, props)
 				}, current)
 			}
+
 			const frame=this.space.frame,lines=frame.lines
 			const i=[...lines].reverse().findIndex(l=>!isBelongToThisTable(l))
 			const removed=lines.splice(-(i==-1 ? lines.length : i+1))
@@ -210,7 +222,7 @@ class Table extends HasParentAndChild(dom.Table){
 					lines.push(replaceLayoutedTableRow(last,row))
 				}
 			})
-			console.debug(`relayout ${removed.length} lines page-table[${this.table.props.id}][${this.table.pages.indexOf(this)+1}]`)
+			console.debug(`relayout ${removed.length} lines page-table[${this.table.props.id}][${this.table.pages.indexOf(this)}]`)
 		}
 
 		dy(height){

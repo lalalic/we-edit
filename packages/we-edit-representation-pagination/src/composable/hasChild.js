@@ -17,7 +17,7 @@ export default A=>{
         static contextTypes={
             ...super.contextTypes,
             debug: PropTypes.bool,
-            ModelTypes: PropTypes.object,
+            //ModelTypes: PropTypes.object,
         }
 
         static childContextTypes = {
