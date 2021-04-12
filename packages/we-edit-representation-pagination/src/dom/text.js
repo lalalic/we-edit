@@ -22,22 +22,23 @@ class Text extends NoChild(dom.Text){
         return Array.isArray(children) ? children.join("") : children
     }
 
-    createMeasure=memoize((fonts,size,bold,italic,vertAlign)=>{
+    createMeasure=memoize((fonts,size,bold,italic)=>{
         if(this.props.measure)
             return this.props.measure
-        return new this.context.Measure({fonts,size,bold,italic,vertAlign})
+        const {vertAlign,underline}=this.props
+        return new this.context.Measure({fonts,size,bold,italic,vertAlign,underline})
     })
 
     get measure(){
-        const {fonts, size, bold, italic, vertAlign}=this.props
-        return this.createMeasure(fonts,size,bold,italic,vertAlign)
+        const {fonts, size, bold, italic}=this.props
+        return this.createMeasure(fonts,size,bold,italic)
     }
 
     get defaultStyle(){
-        const {color,highlight,vanish,border,underline,strike}=this.props
+        const {color,highlight,vanish,border,strike}=this.props
         return {
             ...this.measure.defaultStyle,
-            color, highlight,border,underline,strike
+            color, highlight,border,strike
         }
     }
 

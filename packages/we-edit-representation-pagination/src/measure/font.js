@@ -14,7 +14,9 @@ export default class FontMeasure extends Measure{
 	lineHeight(size=this.size){
 		return {
 			height : this.font.lineHeight(size),
-			descent: this.font.lineDescent(size)
+			descent: this.font.lineDescent(size),
+			underlinePos: Math.floor(-(this.font.underlinePosition||-100)*size/2000),
+			underlineThick: Math.floor((this.font.underlineThickness||50)*size/2000),
 		}
     }
 

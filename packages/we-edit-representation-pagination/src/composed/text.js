@@ -12,6 +12,7 @@ export default class Text extends Component{
 			children, whiteSpace, color:fill="black", highlight,border,underline,strike,
 			descent,minWidth, height, width, blockOffset,tokenizeOpportunity,mergeOpportunity,tabWidth,//ignore
 			y=0,
+			//["data-mergeid"]:_1,
 			...others}=this.props
 		const {precision=1}=this.context
 		
@@ -31,15 +32,7 @@ export default class Text extends Component{
 		}
 		let decoration=null
 		if(underline){
-			let y=Math.ceil(descent/2)
-			let strokeWidth=(a=>{
-					switch(underline){
-						case "double":
-							return a*2;
-						default:
-							return a
-					}
-				})(0.5)
+			const {pos:y,thick:strokeWidth}=underline
 			decoration=(<Shape y1={y} x2={width} y2={y} color={fill} width={strokeWidth*precision}/>)
 		}
 

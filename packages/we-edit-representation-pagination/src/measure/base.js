@@ -40,7 +40,7 @@ export class Measure{
 		}
 	}
 
-	__decideFont({fonts,bold,italic,vertAlign,Super_Script_Position},_dont_decide){
+	__decideFont({fonts,bold,italic,vertAlign,underline,Super_Script_Position},_dont_decide){
 		if(!fonts){
 			throw new Error("No fonts specified for Measure")
 		}
@@ -54,17 +54,23 @@ export class Measure{
 				 */
 				this.stringWidth("A")
 			}
+			const fontId=this.font?.fullName||this.fontFamily
 			const defaultStyle={
 				whiteSpace:'pre',
 				fontSize:`${this.size}px`,
 				fontWeight:bold ? "bold" : "normal",
 				fontStyle:italic ? "italic" : "normal",
 				fontFamily:this.fontFamily,
+				['data-fontid']: fontId,
+				['data-mergeid']: `${fontId}.${this.size}${bold&&'.bold'||''}${italic&&'.italic'||''}${underline&&'.underline'||''}`,
 			}
 	
-			const {height, descent}=this.lineHeight()
+			const {height, descent, underlinePos=descent/2, underlineThick=50*size/1000}=this.lineHeight()
 			defaultStyle.height=this.height=height
 			defaultStyle.descent=this.descent=descent
+			if(underline){
+				defaultStyle.underline={pos:underlinePos,thick:underlineThick}
+			}
 			if(vertAlign=="superscript"){
 				defaultStyle.y=-this.lineHeight().height*Super_Script_Position
 			}

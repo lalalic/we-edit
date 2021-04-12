@@ -32,6 +32,7 @@ export default class Merge extends Component{
 				}else {
 					state.mergeTrunk(key)
 					state.trunk.push(piece)
+					state.pieces.length && state.syncUnderline()
 					state.trunkPath=piecePath.join(",")
 				}
 			}
@@ -69,11 +70,22 @@ export default class Merge extends Component{
 			},
 			mergeable(piece, path){
 				if(path==this.trunkPath){
-					const fonts=new ReactQuery([piece,this.trunk[this.trunk.length-1]])
-						.find(`[fontFamily]`)
+					const mergeids=new ReactQuery([piece,this.trunk[this.trunk.length-1]])
+						.find(`[data-mergeid]`)
 						.toArray()
-						.map(a=>a.props.fontFamily)
-					return new Set(fonts).size<=1
+						.map(a=>a.props["data-mergeid"])
+					return new Set(mergeids).size<=1
+				}
+			},
+			syncUnderline(){
+				const piece=this.pieces[this.pieces.length-1],pending=this.trunk[this.trunk.length-1]
+				const a=piece.props.underline, b=pending.props.underline
+				if(a && b && (a.pos!=b.pos||a.thick!=b.thick)){
+					if(a.pos>=b.pos){
+						this.trunk.splice(-1,1,replaceTextUnderline(pending,a))
+					}else{
+						this.pieces.splice(-1,1,replaceTextUnderline(piece,b))
+					}
 				}
 			}
 		})
@@ -93,4 +105,9 @@ function path(a,info=a=>a.props["data-content"],test=a=>!!a.props["data-content"
 		}
 	}
 	return ids
+}
+
+function replaceTextUnderline(el,underline){
+	const $=new ReactQuery(el), text=$.findFirst('[data-type=text]').get(0)
+	return $.replace(text, React.cloneElement(text,{underline})).get(0)
 }
