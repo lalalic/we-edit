@@ -65,7 +65,7 @@ export class Measure{
 				['data-mergeid']: `${fontId}.${this.size}${bold&&'.bold'||''}${italic&&'.italic'||''}${underline&&'.underline'||''}`,
 			}
 	
-			const {height, descent, underlinePos=descent/2, underlineThick=50*size/1000}=this.lineHeight()
+			const {height, descent, underlinePos=descent/2, underlineThick=50*this.size/2000}=this.lineHeight()
 			defaultStyle.height=this.height=height
 			defaultStyle.descent=this.descent=descent
 			if(underline){
