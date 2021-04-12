@@ -39,7 +39,9 @@ function Locatable(A){
 		/**a helper for later create relationships*/
 		wrapParentsUntilMe(element,me=this){
 			const id=new ReactQuery(element).findFirst("[data-content]").attr('data-content')
-			const composer=this.context.getComposer(id)
+			const composer=this.context.getComposer?.(id)
+			if(!composer)
+				return element
 			let wrapped=element, current=composer?.context.parent
 			while(current?.createComposed2Parent && current!=me){
 				wrapped=current.createComposed2Parent(wrapped)
