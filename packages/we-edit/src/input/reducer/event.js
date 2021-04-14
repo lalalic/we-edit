@@ -1,6 +1,11 @@
 import Base from "./base"
 
 export default class Events extends Base{
+    static extends(){
+        Object.assign(this.prototype,...arguments)
+        return this
+    }
+    
     /* whole|empty|beginning_of|end_of|type
         at_beginning_of_text_up_to_document_in_run
         at_beginning_of_text_up_to_section_in_run
@@ -152,6 +157,23 @@ export default class Events extends Base{
     tab(){
         this.remove()
         this.emit("tab",this.conds,...arguments)
+    }
+
+    create({type}){
+        this.remove()
+        this.emit("create",[...this.conds,""].map(a=>type.toLowerCase()+(a&&"_")+a),...arguments)
+    }
+
+    remove({type}={}){
+        if(type){
+            this.emit("remove", [...this.conds,""].map(a=>type.toLowerCase()+(a&&'_')+a), ...arguments)
+            return 
+        }
+    }
+
+    update({id, type}={}){
+        type=type||"untyped"
+        this.emit("update", [...this.conds,""].map(a=>type.toLowerCase()+(a&&'_')+a), ...arguments)
     }
 
     forward({shiftKey}={}){

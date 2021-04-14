@@ -32,7 +32,7 @@ export default compose(
     state={}
     componentDidMount(){
         Promise.all([
-            import(/* webpackChunkName: "flowcharts", esModule:false */"file-loader!./flowchart.ttf"),
+            import(/* webpackChunkName: "flowcharts", esModule:false, */"file-loader!./flowchart.ttf"),
             import(/* webpackChunkName: "shapes", esModule:false */"file-loader!./shapes.ttf")
         ]).then(([flowchart,shapes])=>Promise.all([fetch(flowchart.default),fetch(shapes.default)]))
         .then(ress=>Promise.all(ress.map(a=>a.arrayBuffer())))

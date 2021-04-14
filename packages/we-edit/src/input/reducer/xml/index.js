@@ -1,4 +1,4 @@
-import Base from "../event"
+import Event from "../event"
 
 import seperate from "./seperate"
 import create from "./create"
@@ -12,11 +12,7 @@ import forward from "./forward"
 import backward from "./backward"
 import remove from "./remove"
 
-export default (class XDocEvents extends Base{
-    static extends(){
-        Object.assign(this.prototype,...arguments)
-        return this
-    }
+export default (class XDocEvents extends Event{
     constructor(){
         super(...arguments)
         this.PR="__unknown"
@@ -84,11 +80,6 @@ export default (class XDocEvents extends Base{
             this.remove(...arguments)
         }
         this.clean()
-    }
-
-    create({type}){
-        this.remove()
-        this.emit("create",[...this.conds,""].map(a=>type.toLowerCase()+(a&&"_")+a),...arguments)
     }
     
     delete(){
