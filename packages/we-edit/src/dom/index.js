@@ -14,6 +14,7 @@ import Anchor from "./anchor"
 import Shape from "./shape"
 import Template from "./template"
 import Group from "./group"
+import Page from "./page"
 
 export default {
 	Unknown,
@@ -31,5 +32,6 @@ export default {
 	Shape,
 	Anchor,
 	Template,
+	Page,
 	Group,//a composed group supporting direct positioning, layer, ...
 }

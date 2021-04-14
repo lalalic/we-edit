@@ -6,20 +6,20 @@ import Component from "./component"
 export default class Frame extends Component{
 	static displayName="frame"
 	static propTypes={
-		width:PropTypes.number.isRequired,
-		height:PropTypes.number,
+		width:this.UnitShape.isRequired,
+		height:this.UnitShape,
 		/**margin is in frame box*/
 		margin:this.MarginShape,
 		
 		cols:PropTypes.arrayOf(PropTypes.shape({
-			x:PropTypes.number,
-			y:PropTypes.number,
-			width:PropTypes.number.isRequired,
-			height:PropTypes.number,
+			x:this.UnitShape,
+			y:this.UnitShape,
+			width:this.UnitShape.isRequired,
+			height:this.UnitShape,
 		})),
 		
-		x: PropTypes.number,
-		y: PropTypes.number,
+		x: this.UnitShape,
+		y: this.UnitShape,
 		z: PropTypes.number,
 		vertAlign: this.VertAlignShape,
 		
@@ -27,7 +27,7 @@ export default class Frame extends Component{
 		xhref: PropTypes.string,
 
 		/**false: this frame object itself will be a composed page*/
-		autoComposed2Parent:PropTypes.bool,
+		autoCompose2Parent:PropTypes.bool,
 
 		/**
 		 * Balance: to make col height equal as possible
@@ -47,19 +47,19 @@ export default class Frame extends Component{
 		 * 	},...]
 		 */
 		space: PropTypes.shape({
-			left: PropTypes.number,//default margin.left
-			right: PropTypes.number,//default margin.right
-			blockOffset: PropTypes.number,//default margin.top
-			height: PropTypes.number,//default height-margin.top-margin.bottom
+			left: this.UnitShape,//default margin.left
+			right: this.UnitShape,//default margin.right
+			blockOffset: this.UnitShape,//default margin.top
+			height: this.UnitShape,//default height-margin.top-margin.bottom
 			wrappees: PropTypes.arrayOf(PropTypes.shape({
 				props:{
-					x: PropTypes.number,
-					y: PropTypes.number,
+					x: this.UnitShape,
+					y: this.UnitShape,
 					geometry: PropTypes.shape({//extent
-						x: PropTypes.number,
-						y: PropTypes.number,
-						width: PropTypes.number,
-						height: PropTypes.number,		
+						x: this.UnitShape,
+						y: this.UnitShape,
+						width: this.UnitShape,
+						height: this.UnitShape,		
 					}),
 					wrap:PropTypes.func.isRequired,
 				}
@@ -76,6 +76,6 @@ export default class Frame extends Component{
 		allowOverflow:false,
 		balance:false,
 		equalBalanceThreshold:1,
-		autoComposed2Parent:true,
+		autoCompose2Parent:true,
 	}
 }

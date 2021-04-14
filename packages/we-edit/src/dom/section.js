@@ -6,13 +6,13 @@ export default class __$1 extends Component{
 	static propTypes={
         createLayout: PropTypes.func,
 		layout:PropTypes.shape({
-			width:PropTypes.number,
-			height:PropTypes.number,
+			width:this.UnitShape,
+			height:this.UnitShape,
 			margin:this.MarginShape,
 			cols:PropTypes.arrayOf(PropTypes.shape({
-				x:PropTypes.number,
-				y:PropTypes.number,
-				width:PropTypes.number,
+				x:this.UnitShape,
+				y:this.UnitShape,
+				width:this.UnitShape,
 			}))
 		})
 	}

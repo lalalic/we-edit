@@ -171,6 +171,12 @@ export default class Base extends Component{
 		return !capabilities.find(a=>!mine.includes(a))
 	}
 
+	static switchTypeTo(Next){
+		const parts=this.displayName.split("-")
+		parts.splice(-1,1,Next.displayName.split("-").pop())
+		return parts.join("-")
+	}
+
 	getComposeType(){
 		return this.constructor.getType()
 	}

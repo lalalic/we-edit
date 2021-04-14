@@ -17,7 +17,7 @@ const displayName=()=>{
 	return parts.join("-")
 }
 export default class extends Section{
-	static displayName=displayName()
+	static displayName=super.switchTypeTo(Cell)
 	static defaultProps={
 		...Cell.defaultProps,
 		createLayout:Section.defaultProps.createLayout,
