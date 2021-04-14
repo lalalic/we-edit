@@ -12,15 +12,15 @@ export default class Anchor extends Component{
     static displayName="anchor"
     static propTypes={
         x: PropTypes.shape({
-            base: PropTypes.string,
-            offset: PropTypes.number,
-            align: PropTypes.string
+            base: this.BaseShape,
+            offset: this.UnitShape,
+            align: this.AlignShape,
         }).isRequired,
 
         y: PropTypes.shape({
-            base: PropTypes.string,
-            offset: PropTypes.number,
-            align: PropTypes.string
+            base: this.BaseShape,
+            offset: this.UnitShape,
+            align: this.AlignShape,
         }).isRequired,
 
         wrap:PropTypes.oneOfType([
@@ -35,6 +35,8 @@ export default class Anchor extends Component{
             PropTypes.func,
         ])
     }
+
+    static BaseShape=PropTypes.oneOf(["character","line","paragraph","page","frame","margin"])
 
     static defaultProps={
         x:{base:"character",offset:0,align:"left"},
