@@ -15,7 +15,7 @@ export default class Balanceable extends Columnable {
 		if (this.balanceable) {
 			this.balance();
 		}
-		super.onAllChildrenComposed(...arguments);
+		return super.onAllChildrenComposed(...arguments);
 	}
 	
 	balance() {

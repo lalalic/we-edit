@@ -140,10 +140,10 @@ class Flow extends HasParentAndChild(dom.Frame) {
 	}
 	
 	onAllChildrenComposed() {
-		const {autoCompose2Parent=true}=this.props
-		const content = autoCompose2Parent ? this.createComposed2Parent() : this
-		this.context.parent.appendComposed(content);
-		super.onAllChildrenComposed();
+		const {autoCompose2Parent=true,}=this.props
+		const composed = autoCompose2Parent && this.createComposed2Parent()
+		this.context.parent.appendComposed(composed||this);
+		super.onAllChildrenComposed()
 	}
 
  	/**
@@ -459,8 +459,24 @@ class Flow extends HasParentAndChild(dom.Frame) {
 	}
 
 	static __getAsync=memoize(SyncTypeFrame=>{
+		return class extends SyncTypeFrame{
+			getChildContext(){
+				return {
+					...super.getChildContext(),
+					shouldContinueCompose(){
+						return true
+					}
+				}
+			}
+
+			onAllChildrenComposed(){
+				super.onAllChildrenComposed()
+				return this.createComposed2Parent()
+			}
+		}
+		/*
 		return class extends Component{
-			static displayName="async"
+			static displayName=`async-${SyncTypeFrame.getType()}`
 			static childContextTypes={
 				parent: PropTypes.object,
 				mount: PropTypes.func,
@@ -489,7 +505,9 @@ class Flow extends HasParentAndChild(dom.Frame) {
 
 			getChildContext(){
 				return {
-					parent:{appendComposed:frame=>this.frame=frame,},
+					parent:{
+						appendComposed:frame=>this.frame=frame,
+					},
 					shouldContinueCompose: a=>true,
 					...this.props.childContext,
 				}
@@ -528,12 +546,14 @@ class Flow extends HasParentAndChild(dom.Frame) {
 			}
 
 			static Updater=class AsyncUpdater extends Component{
+				static displayName=`async-${SyncTypeFrame.getType()}-viewer`
 				state={composed:null}
 				render(){
 					return this.state.composed
 				}
 			}
 		}
+		*/
 	})
 }
 
