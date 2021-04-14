@@ -32,8 +32,8 @@ export default class Text extends Component{
 		}
 		let decoration=null
 		if(underline){
-			const {pos:y,thick:strokeWidth}=underline
-			decoration=(<Shape y1={y} x2={width} y2={y} color={fill} width={strokeWidth*precision}/>)
+			const {pos:y,thick:strokeWidth, ...underlineProps}=underline
+			decoration=(<Shape y1={y} x2={width} y2={y} color={fill} width={strokeWidth*precision} {...{underlineProps}}/>)
 		}
 
 		let strikeline=null

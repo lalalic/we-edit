@@ -15,9 +15,12 @@ export default class Text extends Component{
 		bold: PropTypes.bool,
 		italic: PropTypes.bool,
 		vanish: PropTypes.bool,
-		highlight: PropTypes.string,
-		border: PropTypes.object,
-		underline: PropTypes.string,
+		highlight: this.ColorShape,
+		border: this.BorderShape,
+		underline: PropTypes.oneOfType([
+			PropTypes.bool,
+			this.LineShape,
+		]),
 		strike: PropTypes.bool,
 		vertAlign: PropTypes.oneOf(["subscript","superscript"]),
 	}

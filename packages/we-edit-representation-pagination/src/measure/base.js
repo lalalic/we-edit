@@ -69,7 +69,7 @@ export class Measure{
 			defaultStyle.height=this.height=height
 			defaultStyle.descent=this.descent=descent
 			if(underline){
-				defaultStyle.underline={pos:underlinePos,thick:underlineThick}
+				defaultStyle.underline={...underline, pos:underlinePos,thick:underlineThick}
 			}
 			if(vertAlign=="superscript"){
 				defaultStyle.y=-this.lineHeight().height*Super_Script_Position
