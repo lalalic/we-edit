@@ -7,9 +7,11 @@ import Component from "./component"
 export default class Image extends Component{
 	static displayName="image"
 	static propTypes={
-		width: PropTypes.number.isRequired,
-		height: PropTypes.number.isRequired,
-		src: PropTypes.string
+		width: this.UnitShape.isRequired,
+		height: this.UnitShape.isRequired,
+		src: PropTypes.string,
+		outline: this.LineShape,
+		fill: this.FillShape,
 	}
 
 	static defaultProps={
