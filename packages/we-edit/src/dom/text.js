@@ -10,7 +10,7 @@ export default class Text extends Component{
 		 * "Arial", or {cs,ea,ascii,hansi,[7F-FF,...]}
 		 */
 		fonts: this.FontsShape.isRequired,
-		size: PropTypes.number.isRequired,
+		size: this.UnitShape.isRequired,
 		color: this.ColorShape,
 		bold: PropTypes.bool,
 		italic: PropTypes.bool,

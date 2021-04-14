@@ -9,7 +9,7 @@ define("paragraph compose",
 ({dom:{Paragraph, Text,Container}, testing, CONTEXT, Context, WithTextContext, WithParagraphContext,ConstraintSpace})=>{
     const TEXT="hello world"
     const test=(lineWidth=5,spacing={}, indent={},align, text=TEXT, numbering)=>{
-        const context={...Context,exclusive:()=>[],...CONTEXT, numbering:()=>'*'}
+        const context={...Context,...CONTEXT, numbering:()=>'*'}
         const nextAvailableSpace=context.parent.nextAvailableSpace=jest.fn(()=>(ConstraintSpace.create({
             width:lineWidth,height:100
         })))

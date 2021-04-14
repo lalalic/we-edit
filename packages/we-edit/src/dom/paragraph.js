@@ -8,14 +8,14 @@ export default class Paragraph extends Component{
 	static propTypes={
 		spacing: PropTypes.shape({
 			lineHeight:this.UnitShape, //"115%[,15%:top offset]"
-			top:PropTypes.number,
-			bottom:PropTypes.number
+			top:this.UnitShape,
+			bottom:this.UnitShape,
 		}).isRequired,
 
 		indent: PropTypes.shape({
-			left:PropTypes.number,
-			right:PropTypes.number,
-			firstLine:PropTypes.number
+			left:this.UnitShape,
+			right:this.UnitShape,
+			firstLine:this.UnitShape,
 		}).isRequired,
 
 		align:this.AlignShape,
@@ -45,10 +45,5 @@ export default class Paragraph extends Component{
 		orphan:true,
 		wrap:true,
 		End:String.fromCharCode(0xb6),
-	}
-
-	static contextTypes={
-		isAnchored: PropTypes.func,
-		exclusive: PropTypes.func,
 	}
 }

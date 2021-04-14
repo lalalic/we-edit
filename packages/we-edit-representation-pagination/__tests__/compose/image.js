@@ -8,7 +8,7 @@ import {define} from "./index"
 define("paragraph compose",
 ({dom:{Paragraph, Text, Image}, testing, CONTEXT, Context, WithTextContext, WithParagraphContext,ConstraintSpace})=>{
     const test=props=>{
-        const context={...Context,exclusive:()=>[],...CONTEXT}
+        const context={...Context,...CONTEXT}
         const nextAvailableSpace=context.parent.nextAvailableSpace=jest.fn(()=>(ConstraintSpace.create({
             width:10,height:100,
         })))
