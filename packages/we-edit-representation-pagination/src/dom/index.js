@@ -14,7 +14,7 @@ import Anchor from "./anchor"
 import Shape from "./shape"
 import Container from "./container"
 import Template from "./template"
-//import Page from "./page"
+import Page from "./page"
 import Group from "../composed/group"
 
 
@@ -33,5 +33,5 @@ export default Locatable.enable(HasParentAndChild.enable(dom,{
 	Anchor,
 	Container,
 	Template,
-	//Page,
+	Page,
 }),{Group})

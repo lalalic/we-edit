@@ -4,18 +4,12 @@ import {dom} from "we-edit"
 import EditableEdges from "./editable-edges"
 import Section from "../section"
 import {HasParentAndChild} from "../../composable"
-import Group from "../../composed/group"
 
 /**
  * Cell is fissionable
  * commit all when all composed????
  */
 const Cell=HasParentAndChild(dom.Cell)
-const displayName=()=>{
-	const parts=Section.displayName.split("-")
-	parts.splice(-1,1,Cell.displayName.split("-").pop())
-	return parts.join("-")
-}
 export default class extends Section{
 	static displayName=super.switchTypeTo(Cell)
 	static defaultProps={
