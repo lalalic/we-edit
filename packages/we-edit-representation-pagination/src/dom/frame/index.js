@@ -106,14 +106,8 @@ export default class EditableFrame extends editable(Frame,{stoppable:true, conti
 			delete this.computed.autofit
 		}
 	}
-
-	__createCacheableComposed2Parent(){
-		return super.createComposed2Parent(...arguments)
-	}
-
-	___createComposed2Parent=memoize((composedUUID,...args)=>this.__createCacheableComposed2Parent(...args))
-
 	
+	___createComposed2Parent=memoize((composedUUID,...args)=>super.createComposed2Parent(...args))
 	createComposed2Parent(){
 		return this.___createComposed2Parent(this.computed.composedUUID||this.context.parent?.computed?.composedUUID,...arguments)
 	}

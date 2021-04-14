@@ -99,11 +99,14 @@ export default class Base extends Component{
 		
 	})
 
-	static GeometryShape=PropTypes.shape({
-		intersects: PropTypes.func,//({x1,x2,y2,y1})=>[{x,width},{x,width}]
-		bounds: PropTypes.func,//()=>{left, right, top, bottom}
-		clone: PropTypes.func,//()=>to clone this geometry
-	})
+	static GeometryShape=PropTypes.oneOfType([
+		PropTypes.shape({
+			intersects: PropTypes.func,//({x1,x2,y2,y1})=>[{x,width},{x,width}]
+			bounds: PropTypes.func,//()=>{left, right, top, bottom}
+			clone: PropTypes.func,//()=>to clone this geometry
+		}),
+		PropTypes.string// a svg path
+	])
 
 	static BorderShape=Object.assign(PropTypes.oneOfType([
 		PropTypes.shape({

@@ -21,8 +21,12 @@ export default class __$1 extends Path{
         return memoize(d=>super.toString())(this.segments.map(a=>a.join("")).join(""))
     }
 
+	toJSON(){
+		return this.toString()
+	}
+
     bounds(){
-        return this.contour()
+        const {left,right,top,bottom}=this.contour()
 			.reduce(({left,top,right,bottom},[x,y])=>({
 				left:Math.min(left,x),
 				top:Math.min(top,y),
@@ -34,6 +38,7 @@ export default class __$1 extends Path{
 				right:Number.MIN_SAFE_INTEGER,
 				bottom:Number.MIN_SAFE_INTEGER,
 			})
+		return {left,right,top,bottom, width:right-left, height:bottom-top}
     }
 
     contour(tolerance=1,d=this.toString()){

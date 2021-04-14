@@ -31,11 +31,11 @@ export default class extends Section{
 		/**
 		 * a cell space border|margin|content|margin|border
 		 */
-		 __createCacheableComposed2Parent(){
+		 recomposable_createComposed2Parent(){
 			const {borders,width,height}=this.props
 			const {table,row,id:cell,colIndex:i,isFirstRowInPage,isLastRankOfRow}=this.props
         
-			const content=super.__createCacheableComposed2Parent(...arguments)
+			const content=super.recomposable_createComposed2Parent(...arguments)
 			return React.cloneElement(
 				content,
 				{width,height},

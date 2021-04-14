@@ -32,8 +32,17 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
         activeDocStore: PropTypes.any,
     }
 
-    get pages(){
-        return this.computed.composed
+    constructor(){
+        super(...arguments)
+        Object.defineProperties(this,{
+            pages:{
+                enumerable:true,
+                configurable:true,
+                get(){
+                    return this.computed.composed
+                }
+            }
+        })
     }
 
     get activeDocStore(){

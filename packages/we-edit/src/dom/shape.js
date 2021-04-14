@@ -14,7 +14,7 @@ export default class Shape extends Component{
 	static displayName="shape"
 
 	static propTypes={
-		geometry:PropTypes.string,//svg path
+		geometry:this.GeometryShape,//svg path
 		outline:this.LineShape,
 		fill: this.FillShape,
 		editableSpots: PropTypes.oneOfType([

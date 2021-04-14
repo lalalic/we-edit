@@ -13,8 +13,8 @@ export default class extends Frame{
         autoCompose2Parent:false
     }
 
-    __createCacheableComposed2Parent(){
+    recomposable_createComposed2Parent(){
         const {i, I=i}=this.props
-        return React.cloneElement(super.__createCacheableComposed2Parent(...arguments),{I, i})
+        return React.cloneElement(super.recomposable_createComposed2Parent(...arguments),{I, i})
     }
 }
