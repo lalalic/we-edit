@@ -7,13 +7,14 @@ import IconShape from "material-ui/svg-icons/editor/show-chart"
 import memoize from "memoize-one"
 
 import {compose,setDisplayName} from "recompose"
+import FontKit from "fontkit"
 
 import DropDownButton from "../components/drop-down-button"
 import ContextMenu from "../components/context-menu"
 import Setting from "./panel"
 import Layout from "./layout"
 
-const {Shape}=dom, IconGeometry=Object.freeze(Path.fromRect({width:24,height:24}))
+const {Shape}=dom
 export default compose(
     setDisplayName("DrawShape"),
     whenSelectionChangeDiscardable(({selection})=>{
@@ -28,8 +29,23 @@ export default compose(
     static contextTypes = {
         panelManager: PropTypes.any,
     }
+    state={}
+    componentDidMount(){
+        Promise.all([
+            import(/* webpackChunkName: "flowcharts", esModule:false */"file-loader!./flowchart.ttf"),
+            import(/* webpackChunkName: "shapes", esModule:false */"file-loader!./shapes.ttf")
+        ]).then(([flowchart,shapes])=>Promise.all([fetch(flowchart.default),fetch(shapes.default)]))
+        .then(ress=>Promise.all(ress.map(a=>a.arrayBuffer())))
+        .then(([flowchart,shapes])=>{
+            this.setState({
+                flowcharts:FontKit.create(Buffer.from(flowchart)),
+                varishapes:FontKit.create(Buffer.from(shapes))
+            })
+        })
+    }
+
     render(){
-        const {props:{children, shapes=[], defaultShape, style, type}}=this
+        const {props:{children, shapes=[], defaultShape, style, type="Shape"},state:{flowcharts,varishapes}}=this
         return (
             <ContextMenu.Support menus={!style ? null :
                 (
@@ -40,9 +56,13 @@ export default compose(
                 )
             }>
                 <ToolbarGroup>
-                    <DropDownButton hint="draw shape" icon={<IconShape/>}
+                    <DropDownButton 
+                        hint="draw shape" 
+                        icon={<IconShape/>} 
+                        style={{width:200}}
+                        menuStyle={{width:"30%"}}
                         onClick={defaultShape ? e=>this.send(defaultShape) : null}>
-                        {this.shapes(shapes)}
+                        {this.shapes(shapes,flowcharts,varishapes)}
                     </DropDownButton>
                     {React.Children.toArray(children).map((a,key)=>{
                         return React.cloneElement(a,{key,onClick:e=>this.send(a.props.create),create:undefined})
@@ -52,20 +72,60 @@ export default compose(
         )
     }
 
-    shapes=memoize((shapes)=>{
-        return shapes.map(({name,children})=>{
-            const icons=children.map(a=>{
+    fontShape=({name,path, bbox:{minX, maxX, minY, maxY}={}},{code,kind,font})=>{
+        if(!path.commands.length)
+            return 
+        const shape=new Path(path.toSVG()), size={width:maxX-minX, height:maxY-minY}
+        const d=shape.clone().scale(24/font.unitsPerEm).round(2).toString()
+        const fn=({motionRoute:geometry,target}, {positioning, anchor,dispatch,type="shape"}={})=>{
+            const {left,top,right,bottom, w=right-left, h=bottom-top}=geometry.bounds()
+            const revised=()=>shape.clone().scale(Math.min(w/size.width, h/size.height))
+                                
+            if(!positioning){
+                if(!target){
+                    return <Shape geometry={d} outline={{width:1,color:"green"}}/>
+                }
+                return <Shape geometry={revised().translate(left,top).round(2).toString()} outline={{width:1,color:"green"}}/>
+            }
+            dispatch(ACTION.Entity.CREATE({
+                type,
+                kind:`${kind}-${name}`,
+                geometry:revised(),
+                ...anchor({x:left,y:top},positioning),
+            }))
+        }
+        return fn
+    }
+
+    shapes=memoize((shapes,flowcharts, varishapes)=>{
+        flowcharts=flowcharts && {
+            name:"flowcharts",
+            children:flowcharts.characterSet
+                .map(code=>this.fontShape(flowcharts.glyphForCodePoint(code),{font:flowcharts,code,kind:"flowchart"}))
+                .filter(a=>!!a)
+        }
+
+        varishapes=varishapes && {
+            name:"shapes",
+            children:varishapes.characterSet
+                .map(code=>this.fontShape(varishapes.glyphForCodePoint(code),{font:varishapes,code,kind:"shape"}))
+                .filter(a=>!!a)
+        }
+        const {iconSize=36}=this.props
+        const IconGeometry=Object.freeze(Path.fromRect({width:iconSize,height:iconSize}))
+        return [...shapes,flowcharts,varishapes].filter(a=>!!a).map(({name,children})=>{
+            const icons=children.map((a,i)=>{
                 const icon=a({motionRoute:IconGeometry})
                 if(!icon)
                     return null
                 const {props:{outline,fill, geometry},type}=icon
                 return (
-                    <SvgIcon key={a.name} title={a.name} onClick={e=>this.send(a)}
-                        viewBox="-6 -6 36 36" 
-                        style={{border:"1px solid transparent", borderRadius:2}}
+                    <SvgIcon key={i} title={a.name} onClick={e=>this.send(a)}
+                        viewBox={`0 0 ${iconSize} ${iconSize}`}
+                        style={{border:"1px solid transparent", borderRadius:2, width:iconSize, height:iconSize}}
                         onMouseEnter={e=>e.currentTarget.style.borderColor="lightgray"} 
                         onMouseLeave={e=>e.currentTarget.style.borderColor="transparent"}>
-                        {type==dom.Shape ? <Composed.Shape {...outline} fille={fill} d={geometry.toString()}/> : icon}
+                        {type==dom.Shape ? <Composed.Shape {...outline} fille={fill} d={centerAndSize(geometry,iconSize)}/> : icon}
                     </SvgIcon>
                 )
             }).filter(a=>!!a)
@@ -97,3 +157,16 @@ export default compose(
         }))
     }
 })
+
+function centerAndSize(d,size=48){
+    const contentSize=parseInt(size*2/3)
+    const geometry=typeof(d)=="string" ? new Path(d) : d
+    const {right,left,top,bottom, w=right-left, h=bottom-top}=geometry.bounds()
+    if(w>contentSize || h>contentSize){
+        geometry.scale(Math.min(contentSize/w, contentSize/h))
+    }
+    const center=geometry.center(), o=size/2
+    geometry.translate(o-center.x,o-center.y)
+    return geometry.round(2).toString()
+}
+                

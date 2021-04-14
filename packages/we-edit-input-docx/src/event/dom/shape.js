@@ -62,10 +62,13 @@ export default class __$1 extends Base{
         }
     }
 
-    geometry(geometry,{kind,size:{width:w,height:h}}){
+    geometry(geometry,{kind,closePath, size:{width:w,height:h}}){
         switch(kind){
-            case "closedScribble":
-            case "scribble":{
+            case "rect":
+            case "roundRect":
+                this.got("wps:wsp>wps:spPr>a:prstGeom").attr('prst',kind)
+                break
+            default:{
                 this.got("wps:spPr>a:prstGeom").remove()
                 this.got("wps:spPr>a:custGeom")
                 "avLst,gdLst,ahLst,cxnLst,pathLst".split(",").forEach(a=>this.got(`a:custGeom>a:${a}`));
@@ -89,13 +92,8 @@ export default class __$1 extends Base{
                             return `<a:close/>`
                     }
                 })
-                if(kind=="closedScribble")
-                    segments.push("<a:close/>")
+                closePath && segments.push("<a:close/>")
                 path.append(segments.join(""))
-
-            }
-            default:{
-                this.got("wps:wsp>wps:spPr>a:prstGeom").attr('prst',kind)
             }
         }
     }

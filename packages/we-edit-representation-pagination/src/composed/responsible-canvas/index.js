@@ -370,9 +370,7 @@ export default class EventResponsible extends Responsible{
             }
         }
         const rects=start==end ? [] : this.positioning.getRangeRects(start, {...end,page})
-        console.log(JSON.stringify({start,end,page, rects}))
         this.selecting.setState({start:start||end, end, page, rects, selecting:true})
-    
     }
 
     onMouseUp(e){

@@ -67,6 +67,7 @@ export const shapes=[
             dispatch(ACTION.Entity.CREATE({
                 type:'shape',kind:'closedScribble',
                 geometry,
+                closePath:true,
                 size:{width,height}, 
                 ...anchor({x:left,y:top},positioning),
             }))
@@ -78,7 +79,7 @@ export const shapes=[
             const {left,top,right,bottom, w=right-left, h=bottom-top}=geometry.bounds()
             if(!positioning){
                 if(!target){
-                    return <rect {...{width:w,height:h,rx:5,ry:5,fill:"none",stroke:"green",strokeWidth:1}}/>
+                    return <rect {...{width:w*2/3,height:h*2/3,rx:5,ry:5,fill:"none",stroke:"green",strokeWidth:1, transform:`translate(${w/6} ${h/6})`}}/>
                 }
                 return <Shape geometry={`M${left} ${top} h${w} v${h} h${-w}z`} outline={{width:1,color:"green"}}/>
             }

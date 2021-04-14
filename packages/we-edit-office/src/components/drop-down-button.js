@@ -9,7 +9,7 @@ export default class DropdownButton extends Component{
 	render(){
 		const {open,anchor}=this.state
 		const toggle=this.toggle.bind(this)
-		const {icon, 
+		const {icon, menuStyle={},
 			children, labelStyle={fontSize:"xx-small"},
 			status, onClick=toggle, ...props}=this.props
 		
@@ -18,7 +18,9 @@ export default class DropdownButton extends Component{
 				open={true} 
 				anchorEl={anchor}
 				onRequestClose={e=>this.setState({open:false})}>
-				<Menu onClick={e=>this.setState({open:false})}>
+				<Menu
+					style={menuStyle} 
+					onClick={e=>this.setState({open:false})}>
 					{children}
 				</Menu>
 			</Popover>
