@@ -28,6 +28,30 @@ export default class Reducer{
 				set(v){
 					debug=v
 				}
+			},
+			clipboard:{
+				configurable:true,
+				get:()=>globalThis._clipboard,
+				set:v=>globalThis._clipboard=v
+			},
+			$target:{
+				configurable:true,
+				get(){
+					return this.$(`#${this.selection[this.selection.cursorAt||"end"].id}`)
+				}
+			},
+			target:{
+				configurable:true,
+				get(){
+					return this.file.getNode(this.selection[this.selection.cursorAt||"end"].id)
+				}
+			},
+			cursor:{
+				configurable:true,
+				get(){
+					const {cursorAt="end", ...a}=this.selection
+					return a[cursorAt]
+				}
 			}
 		})
 
@@ -53,6 +77,23 @@ export default class Reducer{
 		}
 	}
 
+	get selection(){
+		return this._selection
+	}
+
+	get file(){
+		return this._file
+	}
+
+	get content(){
+		return this._content
+	}
+
+	get isCursor(){
+		const {start,end}=this.selection
+		return start.id==end.id && start.at==end.at
+	}
+
 	state(){
 		let state={}
 
@@ -66,44 +107,6 @@ export default class Reducer{
 		}
 
 		return state
-	}
-
-	get clipboard(){
-		return window._clipboard
-	}
-
-	set clipboard(v){
-		return window._clipboard=v
-	}
-
-	get selection(){
-		return this._selection
-	}
-
-	get file(){
-		return this._file
-	}
-
-	get content(){
-		return this._content
-	}
-
-    get $target(){
-		return this.$(`#${this.selection[this.selection.cursorAt||"end"].id}`)
-    }
-
-    get target(){
-        return this.file.getNode(this.selection[this.selection.cursorAt||"end"].id)
-	}	
-	
-	get isCursor(){
-		const {start,end}=this.selection
-		return start.id==end.id && start.at==end.at
-	}
-
-	get cursor(){
-		const {cursorAt="end", ...a}=this.selection
-		return a[cursorAt]
 	}
 
 	cursorAt(id,at, endId=id, endAt=at,page){

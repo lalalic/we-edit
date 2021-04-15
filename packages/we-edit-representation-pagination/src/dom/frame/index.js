@@ -159,6 +159,7 @@ export default class EditableFrame extends editable(Frame,{stoppable:true, conti
 		const childrenNeedRecompose=this.childrenNeedRecompose(next,this.props)
 		const firstLineNeedRecompose=this.lines.findIndex(a=>childrenNeedRecompose.includes(this.childIdOf(a)))
 		this.removeFrom(firstLineNeedRecompose)
+		this.removePositioned(childrenNeedRecompose)
 	}
 	
 	_cancelUntilLastAllChildrenComposed(){
@@ -189,6 +190,23 @@ export default class EditableFrame extends editable(Frame,{stoppable:true, conti
 		if(removed.length>0){
 			delete this.computed.allComposed
 		}
+		return removed
+	}
+
+	removePositioned(ids){
+		let removed=[]
+		this.anchors.reduceRight((_,anchor,i,anchors)=>{
+			const id=anchor.props["data-content"]
+			if(ids.includes(id)){
+				anchors.splice(i,1)
+				removed.push(id)
+			}
+		},ids)
+		if(removed.length>0){
+			delete this.computed.allComposed
+			console.debug("removed anchors: "+removed.join(","))
+		}
+		
 		return removed
 	}
 

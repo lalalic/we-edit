@@ -5,6 +5,10 @@ import cssSelect, {isIdSelector} from "../../tools/css"
 const isNode=a=>a instanceof Map
 
 export default class Query{
+	static get isQuery(){
+		return true
+	}
+	
 	static fromContent(content,selector){
 		return new Query({get:a=>content},selector)
 	}

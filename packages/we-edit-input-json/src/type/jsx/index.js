@@ -47,6 +47,9 @@ export default class JSXDocument extends Input.Editable{
 
     render(createElement, Types){
         this.renderNode=(node,createElement)=>{
+			if(node.isQuery){
+				return node.toJS()
+			}
 			if(!node || !React.isValidElement(node))
 				return node
 			const {props:{children, ...props},type}=node

@@ -5,10 +5,27 @@ import backspace from "./backspace"
 import create from "./create"
 import update from "./update"
 import remove from "./remove"
+import Delete from "./delete"
+import enter from "./enter"
+import tab from "./tab"
+import seperate from "./seperate"
 
 export default (class Events extends Input.Editable.EventHandler{
-    init(){
-        super.init(...arguments)
+    constructor(){
+        super(...arguments)
+        Object.defineProperties(this,{
+            target:{
+                get(){
+                    return this.$target
+                }
+            }
+        })
     }
+
+    isNumberingParagraph(){
+        
+    }
+
     
-}).extends(type,backspace,create,update,remove)
+    
+})//.extends(seperate,create,update,enter,type,backspace,Delete,tab,forward,backward,remove)
