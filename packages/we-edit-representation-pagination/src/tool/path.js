@@ -41,6 +41,11 @@ export default class __$1 extends Path{
 		return {left,right,top,bottom, width:right-left, height:bottom-top}
     }
 
+	boundRect(){
+		const {left,top,width,height}=this.bounds()
+		return this.constructor.fromRect({width,height,x:left,y:top})
+	}
+
     contour(tolerance=1,d=this.toString()){
         return memoize((tolerance, d)=>contours(this.segments)
             .map(a=>a.map(([x,y])=>[Math.ceil(x), Math.ceil(y)]))

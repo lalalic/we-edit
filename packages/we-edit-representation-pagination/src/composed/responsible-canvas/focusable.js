@@ -43,6 +43,9 @@ export default compose(
 		const getComposer=a=>selection.positioning.getComposer(a)
 		const cursor=selection.position.id
 		const target=getComposer(id)
+		if(!target){
+			return {status:"unactive"}
+		}
 		//all grand focus shape of cursor/selection should show itself
 		const focus=!!getComposer(cursor)?.closest(a=>a.props.id==id)
 		
