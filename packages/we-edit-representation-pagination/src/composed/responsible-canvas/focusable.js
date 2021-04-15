@@ -116,19 +116,26 @@ export default compose(
 					editable && <Group {...{"data-nocontent":true, key:"actors"}}>
 						{[
 							status=="unactive" && <path {...{key:"selector",d:path,fill:"transparent",...IgnoreEvents, onClick:select}}/>,
-							status=="focus" && movable && <Movable isAnchor={isAnchor} key="movable"
+							["focus","editing"].includes(status) && movable && <Movable isAnchor={isAnchor} key="movable"
 								onMove={e=>dispatch(ACTION.Selection.MOVE({...e, id,type}))}
 								
-								children={<path d={path} fill="white" fillOpacity={0.01} cursor="move" onContextMenu={e=>e.focusable=id}/>}
+								children={
+									<path d={path} 
+										stroke="transparent" strokeWidth={5}
+										fill={status=="editing" ? "none" : "white"} 
+										fillOpacity={0.01} 
+										cursor="move" 
+										onContextMenu={e=>e.focusable=id}/>
+								}
 							/>,
 
-							status=="focus" && rotatable && <Rotatable {...rotatable} key="rotatable"
+							["focus","editing"].includes(status) && rotatable && <Rotatable {...rotatable} key="rotatable"
 								onRotate={({degree})=>{
 									dispatch(ACTION.Entity.UPDATE({id,type,rotate:degree<0 ? degree+360 : degree}))
 								}}
 							/>,
 
-							status=="focus" && resizable && <Resizable spots={resizable} key="resizable"
+							["focus","editing"].includes(status) && resizable && <Resizable spots={resizable} key="resizable"
 								onResize={({x,y,control})=>{
 									let size=null
 									if(y===undefined){

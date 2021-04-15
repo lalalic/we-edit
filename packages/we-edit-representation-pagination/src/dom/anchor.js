@@ -3,6 +3,7 @@ import {Group} from "../composed"
 
 import {HasParentAndChild} from "../composable"
 import {dom,ReactQuery} from "we-edit"
+import Path from "../tool/path"
 
 /**
 * xy for Positioning
@@ -17,9 +18,9 @@ export default class Anchor extends HasParentAndChild(dom.Anchor){
     }
 
     createComposed2Parent(content){
-        const {geometry: contentGeometry}=content?.props||{}
+        const {width, height, geometry: contentGeometry}=content?.props||{}
         const {x:X, y:Y,wrap:{mode, geometry:anchorGeometry, geometryFn=(a,{x,y})=>a?.clone().translate(x,y)}={}}=this.props
-        const _geometry=contentGeometry||anchorGeometry
+        const _geometry=anchorGeometry||contentGeometry||Path.fromRect({width,height})
         const size=_geometry?.size()||{x:0,y:0}
         const anchorX={align:"left", base:"closest", ...(typeof(X)=="object" ? X : {offset:X})}
         const anchorY={align:"top", base:"closest", ...(typeof(Y)=="object" ? Y : {offset:Y})}

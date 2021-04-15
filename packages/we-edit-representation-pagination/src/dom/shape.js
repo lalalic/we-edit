@@ -13,13 +13,12 @@ import {HasParentAndChild,editable} from "../composable"
 export default class extends editable(HasParentAndChild(dom.Shape)){
 	static Path=Path
 	focusable=true
-	get geometry(){
-		return new Path(this.props.geometry)
-	}
-
-	get boundHeight(){
-		const {top=0,bottom=0}=this.geometry.bounds()
-		return bottom-top
+	getGeometry(content){
+		const {geometry}=this.props
+		if(geometry){
+			return new Path(geometry)
+		}
+		return Path.fromRect(content.props)
 	}
 
 	onAllChildrenComposed(){
@@ -36,8 +35,8 @@ export default class extends editable(HasParentAndChild(dom.Shape)){
 	 * @returns 
 	 */
 	createComposed2Parent(content){
-		const { outline, fill, autofit, autofitHeight=this.boundHeight, id, hash,editableSpots}=this.props
-		var geometry=this.geometry
+		const geometry=this.getGeometry(content)
+		const { outline, fill, autofit, autofitHeight=geometry.bounds().height, id, hash,editableSpots}=this.props
 		if(autofit && content){
 			geometry.verticalExtend(content.props.height-autofitHeight)
 		}

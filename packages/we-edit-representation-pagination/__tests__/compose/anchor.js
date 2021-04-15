@@ -102,6 +102,10 @@ define("section compose",
             it("default is {base:'character', offset:0,align:'left'}",()=>{
                 expect(test({x:undefined}).x()).toBe(pg.margin.left+"hello".length)
             })
+
+            it("can be number as {base:'closest',offset:x, align:'left}",()=>{
+                expect(test({x:5}).x()).toBe(5)
+            })
         })
 
         describe("y",()=>{
@@ -129,6 +133,10 @@ define("section compose",
 
             it("default is {base:'line',offset:0,align:'top'}",()=>{
                 expect(test({y:undefined}).y()).toBe(pg.margin.top)
+            })
+
+            it("can be number as {base:'closest',offset:y, align:'top}",()=>{
+                expect(test({y:5}).y()).toBe(5)
             })
         })
     })
@@ -225,6 +233,32 @@ define("section compose",
                     </Paragraph>
                 ))
                 expect(doc1.xy(`[children="hello world"]`).x).toBe(16-4+size.width)
+            })
+
+            it("can use content's geometry",()=>{
+                const doc1=test({},(
+                    <Paragraph>
+                        <Anchor {...{...props, wrap:undefined}}>
+                            <Shape geometry="M 5 5h50v150h-50Z"/>
+                        </Anchor>
+                        <Text>hello world</Text>
+                    </Paragraph>
+                ))
+                const anchor=doc1.$page.findFirst('[data-type=anchor]').get(0)
+                expect(anchor.props.geometry).toMatchObject({width:50,height:150})
+            })
+
+            it("can use content's rect as geometry",()=>{
+                const doc1=test({},(
+                    <Paragraph>
+                        <Anchor {...{...props, wrap:undefined}}>
+                            <Frame width={50} height={150}/>
+                        </Anchor>
+                        <Text>hello world</Text>
+                    </Paragraph>
+                ))
+                const anchor=doc1.$page.findFirst('[data-type=anchor]').get(0)
+                expect(anchor.props.geometry).toMatchObject({width:50,height:150})
             })
         })
 

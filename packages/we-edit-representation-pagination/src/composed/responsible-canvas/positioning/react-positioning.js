@@ -340,6 +340,7 @@ class PositioningHelper extends Positioning{
 
     //to make positioning only based on compose, not content
     __findFirstParagraphInTarget(target){
+        const root=<div children={[]}/>//***avoid no key warning
         const find=element=>{
             if(!element)
                 return null
@@ -358,10 +359,13 @@ class PositioningHelper extends Positioning{
             return found
         }
 
-        const root=<div children={[]}/>//***avoid no key warning
         root.props.children[0]=target.computed.lastComposed
-        
-        return find(root)?.props['data-content']
+        let id=find(root)?.props['data-content']
+        if(!id){
+            root.props.children[0]=target.props.children
+            id=new ReactQuery(root).findFirst("paragraph").attr('id')
+        }
+        return id
     }
 
     /**

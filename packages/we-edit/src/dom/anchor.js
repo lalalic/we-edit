@@ -34,7 +34,7 @@ export default class Anchor extends Component{
                 mode: this.WrapModeShape,
                 side: this.WrapSideShape,
                 
-                geometry:  this.GeometryShape,
+                geometry:  this.GeometryShape,//priority: anchor's > content > content rect
 
                 geometryFn: PropTypes.func,//fn(geometry shape, {anchored x,y}): which can enhance a geometry, such as adjust according to border/distance
             }),

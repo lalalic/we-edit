@@ -131,4 +131,13 @@ export default class xQuery extends Query{
 		})
 		return this
 	}
+
+	//jsx document need following functions
+	clone(){
+
+	}
+
+	insertAfter(){
+		
+	}
 }

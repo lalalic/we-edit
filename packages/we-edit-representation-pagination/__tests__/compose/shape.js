@@ -72,6 +72,20 @@ define("paragraph compose",
         expect(parent.appendComposed).toHaveBeenCalledTimes(1)
     })
 
+    it("should get content rect geometry if shape has no",()=>{
+        let composed=null
+        parent.appendComposed.mockImplementationOnce(a=>composed=a)
+        render(
+            <Context>
+                <Shape>
+                    <Frame {...{width:50,height:150}}/>
+                </Shape>
+            </Context>
+        )
+        expect(composed.props.width).toBe(50)
+        expect(composed.props.height).toBe(150)
+    })
+
     describe("size",()=>{
         const test=(props={geometry})=>{
             var composed
