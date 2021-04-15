@@ -109,9 +109,7 @@ export default class Events extends Base{
     emit(action,conds, ...payload){
         const event=conds.find(cond=>`${action}_${cond}` in this)
         if(event){
-            if(this.debug){
-                console.debug({message:`${action}_${event}`,action,conds,payload})
-            }
+            console.debug({message:`${action}_${event}`,action,conds,payload})
             return this[`${action}_${event}`](...payload,conds)
         }else if(this.debug){
             console.warn({message:"event without handler",action,conds,payload})
@@ -167,13 +165,119 @@ export default class Events extends Base{
     remove({type}={}){
         if(type){
             this.emit("remove", [...this.conds,""].map(a=>type.toLowerCase()+(a&&'_')+a), ...arguments)
-            return 
+            return
+        }
+
+        const {start,end}=this.selection
+        if(start.id==end.id){
+            if(start.at!==end.at){
+                this.emit("remove", this.conds, ...arguments)
+            }
+            return
+        }
+
+        try{
+            this.seperateSelection()
+            const {start,end}=this.selection
+            const prev=this.$("#"+start.id).backwardFirst(this.cursorable)
+            const next=this.$('#'+end.id).forwardFirst(this.cursorable)
+
+            const targets=this.$target.to("#"+end.id)
+            targets.toArray().forEach(id=>{
+                this.selectWhole(id)
+                this.emit("remove",this.conds, ...arguments)
+            })
+
+            //join
+            if(prev.length==0 && next.length==0){
+                this.create_first_paragraph()
+                return 
+            }else{
+                 if(prev.length>0){
+                    this.cursorAtEnd(prev.attr("id"))
+                    if(next.length>0){
+                        this.cursorAt(this.selection.start.id, this.selection.start.at, next.attr("id"),0)
+
+                        const {end}=this.selection
+                        const parentsOfEnd=this.$('#'+end.id).parents()
+                        const grandParent=this.$target.closest(parentsOfEnd)
+                        const inParagraph=parentsOfEnd.slice(0,parentsOfEnd.indexOf(grandParent)+1).filter("paragraph").length>0
+        
+                        const type=grandParent.attr("type")
+                        const conds=[]
+                        if(inParagraph){
+                            conds.push("in_paragraph")
+                        }
+                        conds.push(`up_to_${type}`)
+                        conds.push("up_to_same_grand_parent")
+                        this.emit("merge",conds)
+                    }
+                }else if(next.length>0){
+                    this.cursorAt(next.attr("id"),0)
+                }
+            }
+        }finally{
+            if(this.content.has(start.id)){
+                this.cursorAt(start.id, start.at)
+            }
         }
     }
 
-    update({id, type}={}){
-        type=type||"untyped"
-        this.emit("update", [...this.conds,""].map(a=>type.toLowerCase()+(a&&'_')+a), ...arguments)
+    delete(){
+        if(this.isCursor){
+            this.emit("delete",this.conds,...arguments)
+        }else{
+            this.remove(...arguments)
+        }
+        this.clean()
+    }
+
+    backspace(){
+        if(this.isCursor){
+            this.emit("backspace",this.conds,...arguments)
+        }else{
+            this.remove(...arguments)
+        }
+        this.clean()
+    }
+
+    update({id,type,...changing}){
+        if(!type){
+			type=Object.keys(changing)[0]
+			changing=changing[type]
+		}
+		if(!id){//target id specified, so don't need seperate selection
+			this.seperateSelection(type)
+		}
+        
+		const {start,end}=this.selection
+		
+		const targets=id ? [id] : (()=>{
+			const from=this.$(`#${start.id}`)
+			const to=this.$(`#${end.id}`)
+			const targets=((from,to)=>start.id==end.id ? from : from
+				.add(from.forwardUntil(to))
+				.add(to.parents())
+				.add(to)
+			)(from,to)
+
+			return targets//self
+				.add(from.parents())//ancestors
+				.filter(type)
+				.add(from.add(to).find(type))//descendents
+				.toArray()
+        })();
+        
+        try{
+            targets.forEach(id=>{
+                this.cursorAt(id,0)
+                this.emit("update",this.conds,changing)
+            })
+        }finally{
+            if(this.$(`#${start.id}`).length && this.$(`#${end.id}`).length){
+                this.cursorAt(start.id,start.at,end.id,end.at)
+            }
+        }
     }
 
     forward({shiftKey}={}){
@@ -302,6 +406,59 @@ export default class Events extends Base{
             this.paste()
         }finally{
             this.clipboard=clipboard
+        }
+    }
+
+    //the result should be [element], or [el1,...,el2]
+    seperateSelection(){
+        const action="seperate"
+        var {start,end}=this.selection
+        start={...start}, end={...end}
+        if(start.id==end.id){
+            const min=Math.min(start.at, end.at),max=Math.max(start.at, end.at)
+            start.at=min
+            end.at=max
+            //whole
+            if(this.content.getIn([start.id,"type"])!="text")
+                return
+            //text
+            //full text, whole/empty
+            const isEndAtEnd=end.at>=this.content.getIn([start.id,"children"]).length-1
+            if(start.at==0 && isEndAtEnd)
+                return
+            if(start.at==end.at){
+                this.emit("split_text",this.conds)
+                return
+            }
+        }else{
+            //normalize start, and end according to order
+            const ids=[start.id,end.id]
+            const grand=this.$('#'+end.id).parentsUntil(this.$('#'+start.id).parents()).parent()
+            grand.findFirst(a=>{
+                switch(ids.indexOf(a.get('id'))){
+                    case 1:
+                        ([start,end]=[end,start]);
+                    case 0:
+                        return true
+                }
+            })
+        }
+
+        this.cursorAt(end.id, end.at)
+        var conds=this.conds
+        if(!(conds.includes("at_end"))){
+            this.emit(action,conds.map(a=>a+"_for_end"))
+        }
+        end=this.selection.start
+
+        this.cursorAt(start.id,start.at,end.id,end.at)
+        conds=this.conds
+        if(conds.includes("at_whole")){
+            return 
+        }
+
+        if(!(conds.includes("at_beginning"))){
+            this.emit(action,this.conds.map(a=>a+"_for_start"))
         }
     }
 

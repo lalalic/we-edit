@@ -26,6 +26,11 @@ export default compose(
 		return {}
 	}),
 )(class DrawShape extends PureComponent{
+    static defaultProps={
+        anchor(page){
+            return {page}
+        }
+    }
     static contextTypes = {
         panelManager: PropTypes.any,
     }

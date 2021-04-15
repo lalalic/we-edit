@@ -176,12 +176,13 @@ function testOffice(Target, representation="pagination"){
 			</Workspace.Desk>
 		</Workspace>
 	)
+	const ext="jsx", name="basic."+ext
 
 	Office.install(iDocx.Workspace,dispatch=>{
-		fetch("/basic.docx")
+		fetch("/basic."+ext)
 			.then(res=>res.blob())
 			.then(data=>{
-				const file={data,name:"basic.docx",ext:"docx", src:"/basic.docx"}
+				const file={data,name,ext, src:"/"+name}
 				return Input.parse(file)
 			})
 			.then(doc=>dispatch(ACTION.ADD(doc,reducer)))

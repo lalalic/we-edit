@@ -2,21 +2,13 @@ import {Input} from "we-edit"
 
 import type from "./type"
 import backspace from "./backspace"
+import create from "./create"
+import update from "./update"
+import remove from "./remove"
 
-export default class __$1 extends Input.Editable.EventHandler.xml{
-    constructor(){
-        super(...arguments)
-        this.PR=""
-        this.PARAGRAPH="paragraph"
-        this.TEXT="text"
-        this.InlineContainers=""
-        Object.assign(this,type, backspace)
+export default (class Events extends Input.Editable.EventHandler{
+    init(){
+        super.init(...arguments)
     }
-
-    create_first_paragraph(){
-        const $body=this.file.$('section').prepend(`<paragraph><text/></paragraph>`)
-        const a=this.file.renderChanged($body.children().first())
-        this.$().findFirst('section').prepend(`#${a.id}`)
-        this.cursorAt(a.id,0)
-    }
-}
+    
+}).extends(type,backspace,create,update,remove)

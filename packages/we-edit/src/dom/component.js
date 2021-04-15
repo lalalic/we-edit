@@ -5,10 +5,14 @@ import memoize from "memoize-one"
 export default class Base extends Component{
 	static displayName="unknown"
 
-	static UnitShape=PropTypes.oneOfType([
+	static UnitShape=Object.assign(PropTypes.oneOfType([
 		PropTypes.number,
 		PropTypes.string,
-	])
+	]),{
+		normalize(){
+			
+		}
+	})
 
 	//CSS valid values, keyword/hsl()/hsla()/rgb()/rgba()/#hex rgb
 	static ColorShape=PropTypes.oneOfType([
