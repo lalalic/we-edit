@@ -74,7 +74,7 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
     }
 
     render(){
-        const {canvas, children}=this.props
+        const {canvas, canvasProps, children}=this.props
         if(!canvas)
             return super.render()
         const {props:{__sequentialCompose=true}}=this
@@ -82,11 +82,11 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
             return (
                 <Fragment>
                     {super.render()}
-                    {React.cloneElement(canvas,{document:this})}
+                    {React.cloneElement(canvas,{...canvasProps, document:this})}
                 </Fragment>
             )
         }else{
-            return React.cloneElement(canvas,{children, document:this})
+            return React.cloneElement(canvas,{...canvasProps, children, document:this})
         }
     }
 
@@ -196,8 +196,8 @@ export default class extends editable(Document,{continuable:true}){
         if(!this.props.canvas)
             return {availableBlockSize:()=>Number.MAX_SAFE_INTEGER}
 
-        const {canvas:{type:Type,props}}=this.props
-        const canvas=new Type({...props, document:this})
+        const {canvas:{type:Type,props}, canvasProps}=this.props
+        const canvas=new Type({...canvasProps, ...props, document:this})
         
         if('availableBlockSize' in canvas){
             canvas.state && (canvas.state={...canvas.state, ...Type.getDerivedStateFromProps?.(canvas.props,canvas.state)})

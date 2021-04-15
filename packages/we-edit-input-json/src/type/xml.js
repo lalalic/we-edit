@@ -2,8 +2,8 @@ import {Readable} from "readable-stream"
 import cheer from "cheerio"
 import {Parser, DomHandler} from "htmlparser2"
 import {transactifyCheerio,Input} from "we-edit"
-import Reducer from "./event"
-import Dom from "./render"
+import Reducer from "../event"
+import Dom from "../render"
 
 export default class __$1 extends Input.Editable{
     static support(file){

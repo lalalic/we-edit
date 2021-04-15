@@ -43,7 +43,6 @@ export default class Workspace extends PureComponent{
 
 	constructor(){
 		super(...arguments)
-		this.state={}
 		this.events=new EventEmitter()
 		const panelContainers=[]
 		this.panelManager={
@@ -77,26 +76,12 @@ export default class Workspace extends PureComponent{
 	}
 
 	render(){
-		const {error}=this.state
-		if(error){
-			return (
-				<div style={{flex:1, display:"flex", flexDirection:"column"}}>
-					<pre style={{margin:"auto",color:"red",fontSize:"bigger"}}>
-						{error.stack}
-					</pre>
-				</div>
-			)
-		}
 		const {doc, ...props}=this.props
 		return (
 			<doc.Store>
 				<Channels {...props}/>
 			</doc.Store>
 		)
-	}
-
-	componentDidCatch(error){
-		this.setState({error})
 	}
 
 	static Desk=pure(({children, toolBar, ruler, channel, statusBar, icon, layout,...props})=>(

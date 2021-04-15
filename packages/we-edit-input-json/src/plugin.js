@@ -1,12 +1,13 @@
-import {JSONDocument, XMLDocument} from "we-edit-input-json"
+import {Office} from "we-edit-office"
+import {Type, Office as TypedOffice} from "we-edit-input-json" 
 
 export default {
 	install(){
-		JSONDocument.install()
-		XMLDocument.install()
+		Type.install()
+		//Office.install(TypedOffice)
 	},
 	uninstall(){
-		JSONDocument.uninstall()
-		XMLDocument.uninstall()
+		Type.uninstall()
+		//Office.uninstall(TypedOffice)
 	}
 }

@@ -85,5 +85,9 @@ export default class Page extends Component{
         }
         return props
     }
+
+    constructor(props, ...args){
+		super(Page.normalizeProps(props),...args)
+	}
 }
 

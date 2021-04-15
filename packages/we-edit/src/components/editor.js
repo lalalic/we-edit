@@ -117,7 +117,7 @@ const hashCode=ints=>ints.reduce((s,a)=>s+a,0)
 export class WeDocumentStub extends Component{
 	static propTypes={
 		content:	PropTypes.object.isRequired,
-		canvas: 	PropTypes.object.isRequired,
+		canvas: 	PropTypes.object,
 		canvasProps: PropTypes.object,
 		editable: PropTypes.any,
 	}
@@ -188,13 +188,14 @@ export class WeDocumentStub extends Component{
 		const doc=this.createDocument(content,ModelTypes)
 		return React.cloneElement(doc, {
 				editable,
-				canvas: React.cloneElement(canvas||doc.props.canvas,{
+				canvas,
+				canvasProps:{
 					...canvasProps,
 					onContextMenu:e=>{
 						this.props.dispatch(ACTION.UI({contextMenuAt:{left:e.clientX+2, top:e.clientY}}))
 						canvasProps?.onContextMenu?.(e)
 					},
-				})
+				}
 			})
 	}
 

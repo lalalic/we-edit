@@ -1,0 +1,24 @@
+<document styles={{paragraph:{},text:{fonts:"Arial", size:12}}}>
+    <page size="A4">
+        <paragraph>
+            <text bold={true}>
+                hello world
+            </text>
+        </paragraph>
+        <frame x={50} y={50}>
+            <paragraph>
+                <text>hello world</text>
+            </paragraph>
+        </frame>
+
+        <anchor x={80} y={100} wrap="tight">
+            <shape geometry="" outline={{width:1, color:"red"}}>
+                <frame>
+                    <paragraph>
+                        <text>hello world</text>
+                    </paragraph>
+                </frame>
+            </shape>
+        </anchor>
+    </page>
+</document>

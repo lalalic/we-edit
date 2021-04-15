@@ -1,4 +1,4 @@
-import Document from "../src/json"
+import Document from "../src/type/json"
 
 const JSON_FILE=`${__dirname}/doc.wed.json`
 describe("json document",()=>{

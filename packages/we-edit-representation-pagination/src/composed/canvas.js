@@ -26,7 +26,7 @@ class SmartShow extends PureComponent{
 class Paper extends PureComponent{
 	render(){
 		const {
-			width,height, margin:{left=0,right=0,top=0,bottom=0}={}, precision, border=true,
+			width,height, margin:{left=0,right=0,top=0,bottom=0}={}, precision=1, border=true,
 			strokeWidth=1*precision, marginWidth=20*precision, ...props
 		}=this.props
 		return (

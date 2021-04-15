@@ -185,6 +185,10 @@ export default class Base extends Component{
 		return props
 	}
 
+	constructor(props, ...args){
+		super(props,...args)
+	}
+
 	render(){
 		return (<Fragment>{this.props.children||null}</Fragment>)
 	}
