@@ -43,7 +43,15 @@ export default class Anchorable extends Flow {
         return space.clone({edges})
     }
 
-    appendComposed(){
+    appendComposed(line){
+        const isPageAnchor=line.props.anchor && !line.props.pagination
+        if(isPageAnchor){
+            const { props: { anchor: anchorContentFn } } = line;
+            const space=this.nextAvailableSpace()
+            const anchored = anchorContentFn(space)
+            return super.appendComposed(anchored)
+        }
+
         const appended=super.appendComposed(...arguments)
         if(false===appended && this.anchoring){
             /**No available space, should stop anchoring in this frame */

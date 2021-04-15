@@ -75,7 +75,15 @@ export default class Page extends Component{
             left: 72,
             bottom: 72,
             right: 72
+        },
+    }
+
+    static normalizeProps({size, width, ...props}){
+        if(size && !width){
+            const [w,h]=this.Size[size]||this.Size['A4']
+            return Object.freeze({...props, width:w, height:h})
         }
+        return props
     }
 }
 

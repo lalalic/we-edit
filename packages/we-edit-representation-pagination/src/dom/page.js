@@ -7,8 +7,12 @@ const Page=HasParentAndChild(dom.Page)
 
 export default class extends Frame{
     static displayName=this.switchTypeTo(Page)
+    static propTypes={
+        ...super.propTypes,
+        ...Page.propTypes,
+    }
     static defaultProps={
-        ...Frame.defaultProps,
+        ...super.defaultProps,
         ...Page.defaultProps,
         autoCompose2Parent:false
     }

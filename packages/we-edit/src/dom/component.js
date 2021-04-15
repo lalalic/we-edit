@@ -1,5 +1,6 @@
 import React, {Component,Fragment} from "react"
 import PropTypes from "prop-types"
+import memoize from "memoize-one"
 
 export default class Base extends Component{
 	static displayName="unknown"
@@ -160,11 +161,6 @@ export default class Base extends Component{
 			static defaultProps=defaultProps
         }
     }
-
-	render(){
-		return (<Fragment>{this.props.children||null}</Fragment>)
-	}
-
 	static getType(){
 		return this.displayName.split("-").pop()
 	}
@@ -177,7 +173,20 @@ export default class Base extends Component{
 	static switchTypeTo(Next){
 		const parts=this.displayName.split("-")
 		parts.splice(-1,1,Next.displayName.split("-").pop())
-		return parts.join("-")
+		const displayName = parts.join("-")
+
+		const superNormalizeProps=this.normalizeProps.bind(this)
+		this.normalizeProps=props=>superNormalizeProps(Next.normalizeProps(props))
+
+		return displayName
+	}
+
+	static normalizeProps(props){
+		return props
+	}
+
+	render(){
+		return (<Fragment>{this.props.children||null}</Fragment>)
 	}
 
 	getComposeType(){

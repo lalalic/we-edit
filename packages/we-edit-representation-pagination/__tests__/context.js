@@ -71,12 +71,18 @@ export const render=(A,opt={})=>TestRender.create(A,{
     },...opt
 })
 
-export const defaultProps=({Document,Paragraph,Text,Container})=>()=>{
+export const defaultProps=({Document,Paragraph,Text,...dom})=>()=>{
     const defaultStyle={fonts:"arial",size:10}
     Document.defaultProps=Object.assign(Document.defaultProps||{},{id:"root"})
-    Paragraph.defaultProps=Object.assign(Paragraph.defaultProps||{},{defaultStyle,id:"p"})
-    Text.defaultProps=Object.assign(Text.defaultProps||{},defaultStyle,{id:"t"})
-    Container.defaultProps=Object.assign(Container.defaultProps||{},{id:"c"})
+    Paragraph.defaultProps=Object.assign(Paragraph.defaultProps||{},{defaultStyle,id:"paragraph"})
+    Text.defaultProps=Object.assign(Text.defaultProps||{},defaultStyle,{id:"text"})
+    Object.keys(dom).forEach(k=>{
+        const Type=dom[k], type=Type.getType?.()
+        if(type){
+            Type.defaultProps=Object.assign(Type.defaultProps||{},{id:type})
+        }
+    })
+    dom.Page.defaultProps.margin={left:0,right:0,top:0,bottom:0}
 }
 
 export const nthUseCached=(fn,n)=>{
@@ -97,5 +103,14 @@ export const nthUseCached=(fn,n)=>{
 export function createCanvas(Doc, props){
     return React.cloneElement(Doc.defaultProps.canvas,props)
 }
+
+const error=console.error.bind(console)
+console.error=(message,...args)=>{
+	if(-1!=message.indexOf("make sure to pass up the same props that your component's constructor was passed")){
+		return 
+	}
+	return error(message,...args)
+}
+
 
 it("compose context loaded",()=>{})
