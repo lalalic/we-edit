@@ -21,11 +21,13 @@ export default class Anchor extends HasParentAndChild(dom.Anchor){
         const {x:X, y:Y,wrap:{mode, geometry:anchorGeometry, geometryFn=(a,{x,y})=>a?.clone().translate(x,y)}={}}=this.props
         const _geometry=contentGeometry||anchorGeometry
         const size=_geometry?.size()||{x:0,y:0}
+        const anchorX={align:"left", base:"closest", ...(typeof(X)=="object" ? X : {offset:X})}
+        const anchorY={align:"top", base:"closest", ...(typeof(Y)=="object" ? Y : {offset:Y})}
         return (
             <Group children={content}
                 anchor={space=>{
-                    const x=space.anchor({align:"left",...X},size,space)
-                    const y=space.anchor({align:"top",...Y},size,space)
+                    const x=space.anchor(anchorX,size,space)
+                    const y=space.anchor(anchorY,size,space)
                     const geometry=geometryFn(_geometry, {x,y})
                     
                     const wrapFunc=(fn=>{

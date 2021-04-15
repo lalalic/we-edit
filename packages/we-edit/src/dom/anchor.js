@@ -11,22 +11,28 @@ import Component from "./component"
 export default class Anchor extends Component{
     static displayName="anchor"
     static propTypes={
-        x: PropTypes.shape({
-            base: this.BaseShape,
-            offset: this.UnitShape,
-            align: this.AlignShape,
-        }).isRequired,
+        x: PropTypes.oneOfType([
+            PropTypes.shape({
+                base: this.BaseShape,
+                offset: this.UnitShape,
+                align: this.AlignShape,
+            }),
+            this.UnitShape,//base is closest parent frame
+        ]),
 
-        y: PropTypes.shape({
-            base: this.BaseShape,
-            offset: this.UnitShape,
-            align: this.AlignShape,
-        }).isRequired,
+        y: PropTypes.oneOfType([
+            PropTypes.shape({
+                base: this.BaseShape,
+                offset: this.UnitShape,
+                align: this.AlignShape,
+            }),
+            this.UnitShape,//base is closest parent frame
+        ]),
 
         wrap:PropTypes.oneOfType([
             PropTypes.shape({
-                mode: PropTypes.oneOf(["square", "tight", "clear","no"]),
-                side: PropTypes.oneOf(["both","left","right","largest"]),
+                mode: this.WrapModeShape,
+                side: this.WrapSideShape,
                 
                 geometry:  this.GeometryShape,
 
@@ -35,8 +41,9 @@ export default class Anchor extends Component{
             PropTypes.func,
         ])
     }
-
-    static BaseShape=PropTypes.oneOf(["character","line","paragraph","page","frame","margin"])
+    static WrapModeShape=PropTypes.oneOf(["square", "tight", "clear","no"])
+    static WrapSideShape=PropTypes.oneOf(["both","left","right","largest"])
+    static BaseShape=PropTypes.oneOf(["character","line","paragraph","page","frame","margin", "closest"])
 
     static defaultProps={
         x:{base:"character",offset:0,align:"left"},

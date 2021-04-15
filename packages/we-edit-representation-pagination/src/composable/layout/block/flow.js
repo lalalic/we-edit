@@ -177,6 +177,7 @@ class Flow extends HasParentAndChild(dom.Frame) {
 			x=0,y=0,
 			edges={
 				[this.getComposeType()]:{left:x,top:y,right:x+width,bottom:y+height},
+				"closest":{left:x,top:y,right:x+width,bottom:y+height},
 				margin:{left:x+left,top:y+top,right:width+x-right,bottom:y+height-bottom}
 			},
 			space
