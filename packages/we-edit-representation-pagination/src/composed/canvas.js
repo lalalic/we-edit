@@ -1,5 +1,6 @@
 import React, {Component, PureComponent} from "react"
 import PropTypes from "prop-types"
+import {connect, getUI} from "we-edit"
 
 import Waypoint from "react-waypoint"
 import Group from "./group"
@@ -23,15 +24,23 @@ class SmartShow extends PureComponent{
 	}
 }
 
-class Paper extends PureComponent{
+const Paper=connect(state=>{
+		const {paper}=getUI(state)
+		return {...paper}
+})(class Paper extends PureComponent{
 	render(){
 		const {
-			width,height, margin:{left=0,right=0,top=0,bottom=0}={}, precision=1, border=true,
-			strokeWidth=1*precision, marginWidth=20*precision, ...props
+			width,height, 
+			margin:{left=0,right=0,top=0,bottom=0}={}, precision=1, 
+			border=true,
+			strokeWidth=1*precision, marginWidth=20*precision, 
+			content,
+			dispatch,
+			...props
 		}=this.props
 		return (
 			<g className="paper">
-				<rect {...props} {...{width,height}}/>
+				<rect {...props} {...{x:0,y:0, width,height}}/>
 				{border && <path strokeWidth={strokeWidth} stroke="lightgray" fill="none" d={`
 							M0 0 h${width} v${height} h${-width}z
 							M${left-Math.min(left,marginWidth)} ${top} h${Math.min(left,marginWidth)} v${-Math.min(top,marginWidth)}
@@ -40,10 +49,11 @@ class Paper extends PureComponent{
 							M${width-right+Math.min(right,marginWidth)} ${top} h${-Math.min(right,marginWidth)} v${-Math.min(top,marginWidth)}
 						`}/>
 					}
+				{content && <rect {...content} {...{x:left,y:top,width:width-left-right,height:height-top-bottom}}/>}
 			</g>
 			)
 	}
-}
+})
 
 export default class ComposedDocumentCanvas extends Component{
 	static displayName="composed-document-default-canvas"
@@ -113,7 +123,8 @@ export default class ComposedDocumentCanvas extends Component{
 				{pages.reduce((positioned, page)=>{
 					const {width,height,margin,I,i}=page.props
 					positioned.push(//use g to make Group ignore className and id for better merge
-						<g key={I} className={"page"} id={`page${I}`} clipPath={`path("M0,0h${width}v${height}h${-width}Z")`}>
+						<g key={I} className={"page"} id={`page${I}`} 
+							clipPath={`path("M0,0h${width}v${height}h${-width}Z")`}>
 							<Group {...{y:positioned.y,x:(canvasWidth-width)/2}}>
 								{media=="file" ? page :
 								<SmartShow {...{

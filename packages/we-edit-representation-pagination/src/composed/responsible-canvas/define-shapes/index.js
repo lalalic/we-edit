@@ -11,6 +11,7 @@ export default ()=>(
                 <feFlood floodColor="darkgray"/>
                 <feComposite in="SourceGraphic" operator="xor" />
             </filter>
+            <DotPattern/>
         </defs>
     </Fragment>
 )
@@ -45,4 +46,10 @@ const Table=()=>(
     <svg id="table" height="24" viewBox="0 0 24 24" width="24">
         <path d="M3 3v18h18V3H3zm8 16H5v-6h6v6zm0-8H5V5h6v6zm8 8h-6v-6h6v6zm0-8h-6V5h6v6z"/>
     </svg>
+)
+
+const DotPattern=({size="5mm", r=1, color="black"})=>(
+    <pattern id="dot" width={size} height={size} patternUnits="userSpaceOnUse"> 
+        <circle r={r} cx={r} cy={r} fill={color}/>
+    </pattern>
 )
