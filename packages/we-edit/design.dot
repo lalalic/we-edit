@@ -23,8 +23,11 @@ digraph G {
         LayoutDOM:page:e->ViewDOM:svg:e->EmitterDOM:page:e[color=blue]
         LayoutDOM:html:e->ViewDOM:html:e->EmitterDOM:html:e,EmitterDOM:email:e[color=green]
         LayoutDOM:text:e->ViewDOM:text:e->EmitterDOM:text:e[color=red]
-
     }
     /* Ranks */
     { rank=same };
+
+    LayoutDOMAPI[shape=Mrecord label="LayoutDOM API|{{Content|{Unknown|Document|Section|Page|Shape|Paragraph|Text|Image|Container}}|{Layout|{Ignore|Group|Frame|Anchor|Template}}}"]
+
+    LayoutDOM:w->LayoutDOMAPI[arrowsize=2 arrowhead=doticurve arrowtail=curve]
 }

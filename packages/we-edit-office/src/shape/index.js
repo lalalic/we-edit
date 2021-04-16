@@ -3,7 +3,6 @@ import PropTypes from "prop-types"
 import {ACTION, whenSelectionChangeDiscardable,dom} from "we-edit"
 import {Path, Composed} from "we-edit-representation-pagination"
 import {ToolbarGroup, SvgIcon, MenuItem} from "material-ui"
-import IconShape from "material-ui/svg-icons/editor/show-chart"
 import memoize from "memoize-one"
 
 import {compose,setDisplayName} from "recompose"
@@ -13,8 +12,9 @@ import DropDownButton from "../components/drop-down-button"
 import ContextMenu from "../components/context-menu"
 import Setting from "./panel"
 import Layout from "./layout"
+import textbox from "./text-box"
 
-const {Shape}=dom
+const {Shape}=dom 
 export default compose(
     setDisplayName("DrawShape"),
     whenSelectionChangeDiscardable(({selection})=>{
@@ -50,7 +50,7 @@ export default compose(
     }
 
     render(){
-        const {props:{children, shapes=[], defaultShape, style, type="Shape"},state:{flowcharts,varishapes}}=this
+        const {props:{children, shapes=[], defaultShape, style, type="Shape", color="black"},state:{flowcharts,varishapes}}=this
         return (
             <ContextMenu.Support menus={!style ? null :
                 (
@@ -69,7 +69,7 @@ export default compose(
                         onClick={defaultShape ? e=>this.send(defaultShape) : null}>
                         {this.shapes(shapes,flowcharts,varishapes)}
                     </DropDownButton>
-                    {React.Children.toArray(children).map((a,key)=>{
+                    {[textbox,...React.Children.toArray(children)].map((a,key)=>{
                         return React.cloneElement(a,{key,onClick:e=>this.send(a.props.create),create:undefined})
                     })}
                 </ToolbarGroup>
@@ -80,6 +80,7 @@ export default compose(
     fontShape=({name,path, bbox:{minX, maxX, minY, maxY}={}},{code,kind,font})=>{
         if(!path.commands.length)
             return 
+        const {color="black"}=this.props
         const shape=new Path(path.toSVG()), size={width:maxX-minX, height:maxY-minY}
         const d=shape.clone().scale(24/font.unitsPerEm).round(2).toString()
         const fn=({motionRoute:geometry,target}, {positioning, anchor,dispatch,type="shape"}={})=>{
@@ -88,9 +89,9 @@ export default compose(
                                 
             if(!positioning){
                 if(!target){
-                    return <Shape geometry={d} outline={{width:1,color:"green"}}/>
+                    return <Shape geometry={d} outline={{width:1,color}}/>
                 }
-                return <Shape geometry={revised().translate(left,top).round(2).toString()} outline={{width:1,color:"green"}}/>
+                return <Shape geometry={revised().translate(left,top).round(2).toString()} outline={{width:1,color}}/>
             }
             dispatch(ACTION.Entity.CREATE({
                 type,
@@ -174,4 +175,11 @@ function centerAndSize(d,size=48){
     geometry.translate(o-center.x,o-center.y)
     return geometry.round(2).toString()
 }
+
+const IconShape=props=>(
+    <SvgIcon {...props}>
+        <rect {...{width:18,height:18,x:1,y:1,fill:"black"}}/>
+        <circle {...{r:8,cx:15,cy:15,stroke:"black", fill:"white"}}/>
+    </SvgIcon>
+)
                 

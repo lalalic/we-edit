@@ -179,8 +179,8 @@ export default class Base extends Component{
 		parts.splice(-1,1,Next.displayName.split("-").pop())
 		const displayName = parts.join("-")
 
-		const superNormalizeProps=this.normalizeProps.bind(this)
-		this.normalizeProps=props=>superNormalizeProps(Next.normalizeProps(props))
+		const superNormalizePropShape=this.normalizePropShape?.bind(this)||(props=>props)
+		this.normalizePropShape=props=>superNormalizePropShape(Next.normalizePropShape(props))
 
 		return displayName
 	}

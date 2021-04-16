@@ -1,6 +1,7 @@
 import immutable,{Map} from "immutable"
 import {createState} from "../src/state"
 import {default as QueryContent} from "../src/state/selector/query"
+import {default as xQuery} from "../src/input/reducer/xquery"
 
 describe("content query",()=>{
     const state=(data={})=>{
@@ -245,4 +246,23 @@ describe("content query",()=>{
             })
         })
     })
+
+    describe("xQuery to modify content",()=>{
+        let $,$1
+        beforeEach(()=>{
+            $=new xQuery(state())
+            $1=$.find('#1')    
+        })
+            
+        it("set attribute",()=>{
+            expect($1.attr('name')).toBe(undefined)
+            expect($1.attr('name','tester').attr('name')).toBe('tester')
+        })
+
+        it(".attr(k,null) to remove attribute",()=>{
+            expect($1.attr('name','tester').attr('name',null).attr('name')).toBe(undefined)
+        })
+    })
 })
+
+

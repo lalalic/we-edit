@@ -78,16 +78,12 @@ export default class Page extends Component{
         },
     }
 
-    static normalizeProps({size, width, ...props}){
+    static normalizePropShape({size, width, ...props}){
         if(size && !width){
             const [w,h]=this.Size[size]||this.Size['A4']
             return Object.freeze({...props, width:w, height:h})
         }
         return props
     }
-
-    constructor(props, ...args){
-		super(Page.normalizeProps(props),...args)
-	}
 }
 

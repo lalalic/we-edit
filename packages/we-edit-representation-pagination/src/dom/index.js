@@ -21,17 +21,17 @@ import Group from "../composed/group"
 export default Locatable.enable(HasParentAndChild.enable(dom,{
 	Document,
 	Section,
+	Page,
+	Shape,
 	Paragraph,
 	Text,
-
 	Image,
 	Table,
 	Row,
 	Cell,
-	Frame,
-	Shape,
-	Anchor,
 	Container,
+	
+	Frame,
+	Anchor,
 	Template,
-	Page,
 }),{Group})

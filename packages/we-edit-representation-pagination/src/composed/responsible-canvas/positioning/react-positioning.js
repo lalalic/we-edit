@@ -420,7 +420,7 @@ class PositioningHelper extends Positioning{
             leafFrame=paragraph.lines[i].space.frame
             lineInFrame=leafFrame.lines.find(({props:{pagination:{id:p,i:I}={}}})=>p==paragraph.props.id&&I==i+1)
             position=()=>this.positionInInline(id,at,lineInFrame)
-        }else{
+        }else {
             /**
              * bigger than paragraph level
              * wrapper of paragraph
@@ -429,34 +429,39 @@ class PositioningHelper extends Positioning{
              * 
              * use the first paragraph of target, and find up frame that includes target 
              */
-            const firstParagraph=this.getComposer(targetHasParagraph)
-            
-            leafFrame=this.getCheckedGrandFrameByFrame(
-                firstParagraph.lines[at==1 ? firstParagraph.lines.length-1 : 0].space.frame, 
-                a=>new ReactQuery(a.createComposed2Parent()).findFirst(`[data-content=${id}]`).length==1,
-                true,//first frame includes id
-                find
-            )
-            
-            lineInFrame=leafFrame.lines[find](line=>new ReactQuery(line).findFirst(`[data-content=${id}]`).length==1)
+            if(targetHasParagraph){
+                const firstParagraph=this.getComposer(targetHasParagraph)
                 
+                leafFrame=this.getCheckedGrandFrameByFrame(
+                    firstParagraph.lines[at==1 ? firstParagraph.lines.length-1 : 0].space.frame, 
+                    a=>new ReactQuery(a.createComposed2Parent()).findFirst(`[data-content=${id}]`).length==1,
+                    true,//first frame includes id
+                    find
+                )
+                
+                lineInFrame=leafFrame.lines[find](line=>new ReactQuery(line).findFirst(`[data-content=${id}]`).length==1) 
+            }else{
+                leafFrame=target.closest(a=>a.isFrame)
+            }
+
             if(!lineInFrame){
-                position=()=>{
-                    if(at==1){
-                        /**it's leafFrame itself, since size of some type of frame can't be decided by itself, such as cell frame
-                         * so search in top frame's layouted
-                         */
-                        const topFrame=this.getCheckedGrandFrameByFrame(
-                            leafFrame, 
-                            a=>new ReactQuery(a.createComposed2Parent()).findFirst(`[data-content=${id}]`).length==1,
-                            false,//the top 
-                            find
-                        )
-                        const layoutedFeafFrame=new ReactQuery(topFrame.createComposed2Parent()).findFirst(`[data-content=${id}]`).get(0)
-                        const {width,height}=layoutedFeafFrame.props
-                        return {x:width,y:height}
-                    }
-                    return {x:0,y:0,}
+                /**it's leafFrame itself, since size of some type of frame can't be decided by itself, such as cell frame
+                 * so search in top frame's layouted
+                 */
+                const topFrame=this.getCheckedGrandFrameByFrame(
+                    leafFrame, 
+                    a=>new ReactQuery(a.createComposed2Parent()).findFirst(`[data-content=${id}]`).length==1,
+                    false,//the top 
+                    find
+                )
+                const topFrameLayout=topFrame.createComposed2Parent()
+                const node=new ReactQuery(topFrameLayout)[find](`[data-content=${id}]`)
+
+                const geometry=node.attr('geometry')
+                if(geometry){//anchor
+                    anchor=id
+                }else{
+                    position=()=>at==1 ? {x:node.attr('width'),y:node.attr('height')} : {x:0,y:0}
                 }
             }else{
                 position=()=>{

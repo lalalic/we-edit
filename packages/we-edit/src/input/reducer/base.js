@@ -190,11 +190,24 @@ export default class Reducer{
 
 			this.cursorAt(start.id, start.at, end.id,end.at)
 		}else if(this.isCursor){
-			if(this.$target.closest("paragraph").length==0){
-				const p=this.$target.findFirst('paragraph')
-				if(p.length==1){
-					this.cursorAt(p.attr('id'),0)
-				}
+			this.normalizeCursorSelection()
+		}
+		if(this.$target.is("anchor")){
+			const id=this.$target.children().eq(0).attr('id')
+			if(this.selection.start.id==this.selection.end.id){
+				this.selection.start.id=id
+				this.selection.end.id=id
+			}
+		}
+	}
+
+	normalizeCursorSelection(){
+		if(this.$target.attr('type')=="page")
+			return 
+		if(this.$target.closest("paragraph").length==0){
+			const p=this.$target.findFirst('paragraph')
+			if(p.length==1){
+				this.cursorAt(p.attr('id'),0)
 			}
 		}
 	}

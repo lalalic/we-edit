@@ -12,7 +12,13 @@ export default class xQuery extends Query{
 		if(arguments.length==1){
 			return super.attr(...arguments)
 		}else{
-			this._nodes.forEach(id=>this._content.setIn([id,'props',k],v))
+			this._nodes.forEach(id=>{
+				if(v==null){
+					this._content.deleteIn([id,'props',k])
+				}else{
+					this._content.setIn([id,'props',k],v)
+				}
+			})
 			return this
 		}
 	}

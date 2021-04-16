@@ -52,7 +52,7 @@ export default class JSXDocument extends Input.Editable{
 			}
 			if(!node || !React.isValidElement(node))
 				return node
-			const {props:{children, ...props},type}=node
+			const {props:{children=[], ...props},type}=node
 			return createElement(
 				Types[type]||{displayName:type}, 
 				props,

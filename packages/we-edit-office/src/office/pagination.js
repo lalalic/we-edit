@@ -18,6 +18,11 @@ export default (
 			}
 			key="default(accept=[supportPagination])"
 			channel="print"
+
+			layout={
+				<Workspace.Layout right={<Workspace.PanelContainer name="right" style={{width:300}}/>}
+					/>
+			}
 			>
 
 			<Workspace.Desk

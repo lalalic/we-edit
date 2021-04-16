@@ -14,7 +14,7 @@ export default class extends Frame{
     static defaultProps={
         ...super.defaultProps,
         ...Page.defaultProps,
-        autoCompose2Parent:false
+        autoCompose2Parent:false,
     }
 
     recomposable_createComposed2Parent(){

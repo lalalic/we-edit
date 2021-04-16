@@ -44,7 +44,7 @@ export default class extends editable(HasParentAndChild(dom.Shape)){
 		const {width,height,x,y,transform}=this.transform(geometry)
 		return (
 			<Group {...{width,height,geometry}}>
-				<Group {...{x,y,'data-inline':"on"}}>
+				<Group {...{x,y,'data-anchorable':true}}>
 					<Focusable {...{path,id, outline,fill, composedUUID:hash,transform,editableSpots}}>
 						{content}
 					</Focusable>

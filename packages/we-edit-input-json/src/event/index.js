@@ -9,6 +9,8 @@ import Delete from "./delete"
 import enter from "./enter"
 import tab from "./tab"
 import seperate from "./seperate"
+import forward from "./forward"
+import backward from "./backward"
 
 export default (class Events extends Input.Editable.EventHandler{
     constructor(){
@@ -20,12 +22,17 @@ export default (class Events extends Input.Editable.EventHandler{
                 }
             }
         })
+        this.debug=true
     }
 
     isNumberingParagraph(){
         
     }
 
+    paragraphHasIndentSetting(){
+        return false
+    }
+
     
     
-})//.extends(seperate,create,update,enter,type,backspace,Delete,tab,forward,backward,remove)
+}).extends(seperate,create,update,enter,type,backspace,Delete,tab,forward,backward,remove)

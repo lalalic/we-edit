@@ -20,7 +20,7 @@ export default class Frame extends Component{
 		
 		x: this.UnitShape,
 		y: this.UnitShape,
-		z: PropTypes.number,
+		z: PropTypes.number,//layer
 		vertAlign: this.VertAlignShape,
 		
 		/**template id*/
@@ -69,6 +69,8 @@ export default class Frame extends Component{
 
 		/**if true: the content out of the frame should be composed too */
 		allowOverflow: PropTypes.bool,
+
+		focusable: PropTypes.bool,
 	}
 
 	static defaultProps={

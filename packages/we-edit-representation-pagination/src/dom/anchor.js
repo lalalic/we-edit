@@ -55,7 +55,7 @@ export default class Anchor extends HasParentAndChild(dom.Anchor){
 
     fromInlineMode2AnchorMode(content){
         const $=new ReactQuery(content)
-        const inline=$.findFirst('[data-inline]').get(0)
+        const inline=$.findFirst('[data-anchorable]').get(0)
         return inline ? $.replace(inline,inline.props.children).get(0) : content
     }
 

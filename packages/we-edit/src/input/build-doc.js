@@ -2,7 +2,6 @@ import React, {PureComponent} from "react"
 import PropTypes from "prop-types"
 
 import Immutable, {Map} from "immutable"
-import {compose, setDisplayName, getContext} from "recompose"
 import memoize from "memoize-one"
 
 import Dom from "../dom"
@@ -16,7 +15,7 @@ import ContextProvider from "./context-provider"
 
 export default function buildDoc(doc,inputTypeInstance){
 	const id=inputTypeInstance.props?.id || uuid()
-	const transform=inputTypeInstance.transform.bind(inputTypeInstance)
+	const transform=memoize(components=>inputTypeInstance.transform.call(inputTypeInstance,components))
 	const TypedComponents=transform(Dom)
 
 	const getDocStore=memoize((store,id)=>new LocalStore(store, "we-edit", state=>state['we-edit'].docs[id]?.state))

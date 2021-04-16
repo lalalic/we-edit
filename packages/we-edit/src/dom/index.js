@@ -1,37 +1,45 @@
 import Unknown from "./component"
-import Ignore from "./ignore"
-import Container from "./container"
 import Document from "./document"
 import Section from "./section"
+import Page from "./page"
+import Shape from "./shape"
 import Paragraph from "./paragraph"
 import Text from "./text"
 import Image from "./image"
 import Table from "./table"
 import Row from "./row"
 import Cell from "./cell"
+import Container from "./container"
+
+import Ignore from "./ignore"
 import Frame from "./frame"
 import Anchor from "./anchor"
-import Shape from "./shape"
 import Template from "./template"
-import Group from "./group"
-import Page from "./page"
+import Group from "./lazy"
 
-export default {
-	Unknown,
-	Ignore,
-	Container,
+const Dom={
 	Document,
 	Section,
+	Page,
+	Shape,
 	Paragraph,
 	Text,
 	Image,
 	Table,
 	Row,
 	Cell,
-	Frame,
-	Shape,
-	Anchor,
-	Template,
-	Page,
-	Group,//a composed group supporting direct positioning, layer, ...
+	Container,
+}
+
+const Layout={
+	Ignore,//content should be ignored
+	Group,//don't layout, and append to parent frame
+	Frame,//layout engine
+	Anchor,//positioning
+	Template,//template
+}
+export default {
+	Unknown,//source of any dom
+	...Dom,
+	...Layout,
 }
