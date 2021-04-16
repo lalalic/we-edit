@@ -22,11 +22,11 @@ export default class Group extends PureComponent{
     render(){
 		let {
 			innerRef, //for waypoint
-			rotate,
 			x=0,y=0,
 			children,
 			background,
 			style,
+			transform="",
 			margin,minWidth, width, height, index, childIndex,geometry,baseline,lineDescent,isLastRankOfRow,isFirstRowInPage,atom,pgNumType,hasPage,hasNumpages,
 			contentWidth,wrap,pagination,anchor,blockOffset,named,descent,tokenizeOpportunity, mergeOpportunity, spaceHeight,editable,dispatch,tabWidth,
 			//className,id,
@@ -43,14 +43,8 @@ export default class Group extends PureComponent{
 			props.ref=innerRef
 		}
 
-		let transform=""
-
 		if(x||y){
-			transform=`translate(${parseInt(x||0)} ${parseInt(y||0)})`
-		}
-
-		if(rotate){
-			transform=`${transform} rotate(${rotate})`
+			transform=`${transform} translate(${parseInt(x||0)} ${parseInt(y||0)})`
 		}
 
 		if(transform.length>0){

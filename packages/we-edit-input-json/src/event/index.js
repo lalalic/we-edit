@@ -33,6 +33,17 @@ export default (class Events extends Input.Editable.EventHandler{
         return false
     }
 
-    
-    
+    move_at_up_to_anchor({dx,dy}){
+        const $anchor=this.$target.closest('anchor')
+        const change=(k,d)=>{
+            const value=$anchor.attr(k)
+            if(typeof(value)=="number")
+                $anchor.attr(k, value+d)
+            else if(typeof(value)=="object"){
+                this.content.setIn([$anchor.attr('id'),'props',k,'offset'],offset=>offset+d)
+            }
+        }
+        change('x',dx)
+        change('y',dy)
+    }
 }).extends(seperate,create,update,enter,type,backspace,Delete,tab,forward,backward,remove)

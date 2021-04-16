@@ -17,6 +17,8 @@ export default class Shape extends Component{
 		geometry:this.GeometryShape,//svg path, priority: shape's > content's rect
 		outline:this.LineShape,
 		fill: this.FillShape,
+		rotate: this.UnitShape,
+		scale: this.UnitShape,
 		editableSpots: PropTypes.oneOfType([
 			PropTypes.func,//func(geometry)=>[{x,y,direction,style,control}]
 			PropTypes.arrayOf(PropTypes.shape({

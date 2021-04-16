@@ -1,3 +1,5 @@
+import {Editors} from "we-edit-representation-pagination"
+const Path=Editors.Shape.Path
 export default {
     update_page({id, type, rotate, ...changing}){
         if(rotate!=undefined){
@@ -24,5 +26,27 @@ export default {
 
     update_origin({id,origin}){
         this.$('#'+id).attr('origin',origin)
+    },
+
+    update_at_shape({id, rotate, size, scale, outline, fill}){
+        if(rotate!==undefined){
+            this.$target.attr('rotate',rotate)
+        }
+        if(size){
+            const geometry=this.$target.attr('geometry')
+            if(!geometry){
+                const target=this.$target.find('frame')
+                const {width,height}=size
+                if(width!==undefined)
+                    target.attr('width',width)
+                if(height!=undefined)
+                    target.attr('height',height)
+            }else{
+                const size0=new Path(geometry).bounds()
+                const {width=size0.width,height=size0.height}=size
+                this.$target.attr("geometry",Path.fromRect({width,height}).toString())
+            }
+        }
     }
+    
 }

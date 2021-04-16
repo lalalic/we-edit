@@ -244,9 +244,9 @@ export default class Reducer{
 	}
 
 	init(){
-		const $p=this.$().findFirst('paragraph')
-		if($p.length>0){
-			this.cursorAt($p.attr('id'),0)
+		const cursor=this.$().findFirst('page,paragraph')
+		if(cursor.length>0){
+			this.cursorAt(cursor.attr('id'),0)
 		}
 	}
 

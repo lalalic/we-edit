@@ -15,7 +15,7 @@ import Ignore from "./ignore"
 import Frame from "./frame"
 import Anchor from "./anchor"
 import Template from "./template"
-import Group from "./lazy"
+import Group from "./group"
 
 const Dom={
 	Document,

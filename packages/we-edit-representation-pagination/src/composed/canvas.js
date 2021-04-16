@@ -113,7 +113,7 @@ export default class ComposedDocumentCanvas extends Component{
 				{pages.reduce((positioned, page)=>{
 					const {width,height,margin,I,i}=page.props
 					positioned.push(//use g to make Group ignore className and id for better merge
-						<g key={I} className={"page"} id={`page${I}`}>
+						<g key={I} className={"page"} id={`page${I}`} clipPath={`path("M0,0h${width}v${height}h${-width}Z")`}>
 							<Group {...{y:positioned.y,x:(canvasWidth-width)/2}}>
 								{media=="file" ? page :
 								<SmartShow {...{
