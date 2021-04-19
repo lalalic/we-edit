@@ -219,6 +219,18 @@ export default function tck(TypedDocument,file, debug=false){
                 backspace()
                 expect(editor.selection).toMatchObject(selection)
             })
+
+            xit('backspace at beginning of paragraph should merge to prev paragraph',()=>{
+                const ps=editor.$("paragraph")
+                const $next=editor.$().findFirst("paragraph+paragraph")
+                expect($next.length>0).toBe(true)
+                const $p=$next.prev("paragraph")
+                const lenP=$p.children().length, lenPNext=$next.children.length
+                editor.cursorAt($next.attr('id'),0)
+                editor.backspace()
+                expect(editor.$("paragraph").length).toBe(ps.length-1)
+                expect($p.children().length).toBe(lenP+lenPNext)
+            })
         })
 
         describe("delete",()=>{

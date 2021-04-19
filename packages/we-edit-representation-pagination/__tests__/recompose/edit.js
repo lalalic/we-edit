@@ -85,4 +85,8 @@ describe("editor",()=>{
         doc.scroll2Y(gap+page.height)
         expect(doc.pages.length).toBe(3)
     })
+
+    it("insert paragraph",()=>{
+        
+    })
 })

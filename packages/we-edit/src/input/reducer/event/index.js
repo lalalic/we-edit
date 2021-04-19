@@ -10,6 +10,8 @@ import tab from "./tab"
 import forward from "./forward"
 import backward from "./backward"
 import remove from "./remove"
+import collaborate from "./conflict-collaborate"
+import merge from "./merge"
 /**
  * conditions:
  *  whole|empty|beginning_of|end_of|type
@@ -123,6 +125,22 @@ export default (class Events extends Base{
                     return this.TEXT
                 }
             },
+        })
+
+        this.super=new Proxy(this,{
+            get(me, k){
+                let a=me.__proto__.__proto__
+                while(a){
+                    if(k in a){
+                        if(typeof(a[k])=="function"){
+                            return a[k].bind(me)
+                        }
+                        break
+                    }
+                    a=a.__proto__
+                }
+                throw new Error(`super has no ${k}`)
+            }
         })
     }
 
@@ -519,21 +537,16 @@ export default (class Events extends Base{
         }
     }
 
-    conflict_collaborating_type_text_at_text_for_text({cursor=this.cursor, conflict, action:{payload}}){
-        if(cursor.id==conflict.id && cursor.at<=conflict.at){
-            return {...conflict, at:conflict.at+payload.length}
-        }
+    paragraphHasIndentSetting(){
+        throw new Error("no paragraphHasIndentSetting implementation")
     }
 
-    conflict_collaborating_delete_text_at_text_for_text({cursor=this.cursor, conflict}){
-        if(cursor.id==conflict.id && cursor.at<=conflict.at){
-            return {...conflict, at:conflict.at-1}
-        }
+    isNumberingParagraph(){
+        throw new Error("no isNumberingParagraph implementation")
     }
 
-    conflict_collaborating_backspace_text_at_text_for_text({cursor=this.cursor, conflict}){
-        if(cursor.id==conflict.id && cursor.at<=conflict.at){
-            return {...conflict, at:conflict.at-1}
-        }
+    create_first_paragraph(){
+        throw new Error("create_first_paragraph")
     }
-}).extends(seperate,create,update,enter,type,backspace,Delete,tab,forward,backward,remove)
+
+}).extends(seperate,create,update,enter,type,backspace,Delete,tab,forward,backward,remove,collaborate,merge)

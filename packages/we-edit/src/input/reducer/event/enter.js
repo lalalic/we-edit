@@ -65,12 +65,7 @@ export default {
         cloned.children().not(this.PR).remove()
         const a=this.file.renderChanged(cloned)
 
-        const $p=this.$target.closest("paragraph")
-        const $container=$p.parent()
-        this.content.updateIn([$container.attr("id"),"children"],children=>{
-            this.content.setIn([a.id,"parent"],$container.attr("id"))
-            return children.insert(children.indexOf($p.attr('id')), a.id)
-        })
+        this.$target.closest("paragraph").before('#'+a.id)
     },
 
     enter_at_end(){
@@ -91,13 +86,7 @@ export default {
         cloned.children().not(this.PR).remove()
         const a=this.file.renderChanged(cloned)
 
-        const $p=this.$target.closest("paragraph")
-        const $container=$p.parent()
-        this.content.updateIn([$container.attr("id"),"children"],children=>{
-            this.content.setIn([a.id,"parent"],$container.attr("id"))
-            return children.insert(children.indexOf($p.attr('id'))+1, a.id)
-        })
-
+        this.$target.closest("paragraph").after('#'+a.id)
         this.cursorAt(a.id,0)
     },
 }

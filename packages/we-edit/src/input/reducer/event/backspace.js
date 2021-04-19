@@ -31,14 +31,13 @@ export default {
             if($prevP.attr('type')=="paragraph"){
                 const prevId=$prevP.attr('id')
                 const prev=this.file.getNode(prevId)
-                const $container=$p.parent()
                 const last=$prevP.children().length-1
+                //append paragraph's content to prev paragraph in file
                 prev.append(this.target.closest(this.PARAGRAPH_).remove().children().not(this.PR))
                 this.file.renderChanged(prev)
 
-                this.content.updateIn([$container.attr("id"),"children"],children=>{
-                    return children.remove(children.indexOf(prevId)+1)
-                })
+                //sync state content
+                $p.remove()
                 const $cursor=$prevP.children().eq(last+1)
                 if($cursor.length){
                     this.cursorAt($cursor.attr('id'),0)

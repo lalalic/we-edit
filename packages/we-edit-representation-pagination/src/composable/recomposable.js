@@ -119,7 +119,6 @@ export default A=>{
                     return (
                         <Fragment>
                             {children.map(tryUseCached)}
-                            <ComposedAllTrigger host={this}/>
                         </Fragment>
                     )
                 }
@@ -127,6 +126,8 @@ export default A=>{
             console.debug(`${this.getComposeType()}[${this.props.id}] used 0 children caches`)
             return super.render()
         }
+
+
 
         childIdOf(composed,id){
             const extract=({props:{"data-content":a,children}})=>(id=a)!=undefined ? 
