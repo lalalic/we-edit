@@ -42,12 +42,10 @@ export default class Query{
 					this._nodes.push(a)
 				}
 			})
-			return this
-		}else
-
-		if(typeof(selector)=="string" && selector!="root"){
-			this._nodes.push('root')
-			return this.find(selector)
+		}else if(typeof(selector)=="string"){
+			selector.split(",").forEach(a=>{//to keep order
+				this._$().find(a).toArray().forEach(id=>this._nodes.push(id))
+			})
 		}
 	}
 

@@ -16,7 +16,7 @@ export default {
         }
     },
 
-    backspace_at_beginning_of_paragraph(){
+    backspace_at_beginning_of_paragraph(){debugger
         this.backspace_at_beginning_of_up_to_paragraph()
     },
 
@@ -29,20 +29,22 @@ export default {
             const $p=this.$target.closest("paragraph")
             const $prevP=$p.backwardFirst("table, paragraph")
             if($prevP.attr('type')=="paragraph"){
-                const prevId=$prevP.attr('id')
-                const prev=this.file.getNode(prevId)
+                const prevP=this.file.getNode($prevP.attr('id'))
+                const p=this.target.closest(this.PARAGRAPH_)
+                
                 const last=$prevP.children().length-1
                 //append paragraph's content to prev paragraph in file
-                prev.append(this.target.closest(this.PARAGRAPH_).remove().children().not(this.PR))
-                this.file.renderChanged(prev)
-
+                prevP.append(p.children().not(this.PR))
+                this.file.renderChanged(prevP)
+                p.remove()
+                
                 //sync state content
                 $p.remove()
                 const $cursor=$prevP.children().eq(last+1)
                 if($cursor.length){
                     this.cursorAt($cursor.attr('id'),0)
                 }else{
-                    this.cursorAtEnd(prevId)
+                    this.cursorAtEnd($prevP.attr('id'))
                 }
             }
         }

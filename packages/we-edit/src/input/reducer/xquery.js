@@ -77,22 +77,24 @@ export default class xQuery extends Query{
 			throw new Error("[content query]:can't insert node before an orphan node")
 		}
 		
-		const id0=new this.constructor(this.state,node).attr('id')
-		const id1=this.attr('id')
-		this._content.updateIn([grandId,"children"],children=>{
-			const i=children.indexOf(id0)
-			i!=-1 && (children=children.splice(i,1))
-			return children.splice(children.indexOf(id1),0,id0)
-		})
-
-		this._content.updateIn([id0,"parent"],parent=>{
-			if(parent && this._content.has(parent) && parent!=grandId){
-				this._content.updateIn([parent,"children"],children=>{
-					const i=children.indexOf(id0)
-					return i==-1 ? children : children.splice(i,1)
-				})
-			}
-			return grandId
+		const nodeIds=new this.constructor(this.state,node).toArray()
+		nodeIds.forEach(id0=>{
+			const id1=this.attr('id')
+			this._content.updateIn([grandId,"children"],children=>{
+				const i=children.indexOf(id0)
+				i!=-1 && (children=children.splice(i,1))
+				return children.splice(children.indexOf(id1),0,id0)
+			})
+	
+			this._content.updateIn([id0,"parent"],parent=>{
+				if(parent && this._content.has(parent) && parent!=grandId){
+					this._content.updateIn([parent,"children"],children=>{
+						const i=children.indexOf(id0)
+						return i==-1 ? children : children.splice(i,1)
+					})
+				}
+				return grandId
+			})
 		})
 		return this
 	}
@@ -107,25 +109,28 @@ export default class xQuery extends Query{
 		if(!grandId){
 			throw new Error("[content query]:can't insert node after an orphan node")
 		}
-		const id1=new this.constructor(this.state,node).attr('id')
-		const id0=this.attr('id')
-		//construct new relationship: parent->children
-		this._content.updateIn([grandId,"children"],children=>{
-			const i=children.indexOf(id1)
-			i!=-1 && (children=children.splice(i,1))
-			return children.splice(children.indexOf(id0)+1,0,id1)
+		const nodeIds=new this.constructor(this.state,node).toArray().reverse()
+		nodeIds.forEach(id1=>{
+			const id0=this.attr('id')
+			//construct new relationship: parent->children
+			this._content.updateIn([grandId,"children"],children=>{
+				const i=children.indexOf(id1)
+				i!=-1 && (children=children.splice(i,1))
+				return children.splice(children.indexOf(id0)+1,0,id1)
+			})
+	
+			//update old relationship: id1.parent=granId, and remove id1 from oldparent.children
+			this._content.updateIn([id1,"parent"],parent=>{
+				if(parent && this._content.has(parent) && parent!=grandId){
+					this._content.updateIn([parent,"children"],children=>{
+						const i=children.indexOf(id1)
+						return i==-1 ? children : children.splice(i,1)
+					})
+				}
+				return grandId
+			})
 		})
-
-		//update old relationship: id1.parent=granId, and remove id1 from oldparent.children
-		this._content.updateIn([id1,"parent"],parent=>{
-			if(parent && this._content.has(parent) && parent!=grandId){
-				this._content.updateIn([parent,"children"],children=>{
-					const i=children.indexOf(id1)
-					return i==-1 ? children : children.splice(i,1)
-				})
-			}
-			return grandId
-		})
+		
 		return this
 	}
 
@@ -133,22 +138,25 @@ export default class xQuery extends Query{
 	 * insert node as first child of this
 	 */
 	prepend(node){
-		const id=new this.constructor(this.state,node).attr('id')
-		this._content.updateIn([this.attr('id'),'children'],children=>{
-			const i=children.indexOf(id)
-			i!=-1 && (children=children.splice(i,1))
-			return children.splice(0,0,id)
+		const nodeIds=new this.constructor(this.state,node).toArray().reverse()
+		nodeIds.forEach(id=>{
+			this._content.updateIn([this.attr('id'),'children'],children=>{
+				const i=children.indexOf(id)
+				i!=-1 && (children=children.splice(i,1))
+				return children.splice(0,0,id)
+			})
+	
+			this._content.updateIn([id,'parent'],parent=>{
+				if(parent && this._content.has(parent) && parent!=this.attr('id')){
+					this._content.updateIn([parent,"children"],children=>{
+						const i=children.indexOf(id)
+						return i==-1 ? children : children.splice(i,1)
+					})
+				}
+				return this.attr('id')
+			})
 		})
-
-		this._content.updateIn([id,'parent'],parent=>{
-			if(parent && this._content.has(parent) && parent!=this.attr('id')){
-				this._content.updateIn([parent,"children"],children=>{
-					const i=children.indexOf(id)
-					return i==-1 ? children : children.splice(i,1)
-				})
-			}
-			return this.attr('id')
-		})
+		
 		return this
 	}
 
@@ -158,23 +166,25 @@ export default class xQuery extends Query{
 	 * @returns 
 	 */
 	append(node){
-		const nodeId=new this.constructor(this.state,node).attr('id')
-
-		this._content.updateIn([this.attr('id'),'children'],children=>{
-			const i=children.indexOf(nodeId)
-			i!=-1 && (children=children.splice(i,1))
-			return children.splice(children.size,0,nodeId)
+		const nodeIds=new this.constructor(this.state,node).toArray()
+		nodeIds.forEach(nodeId=>{
+			this._content.updateIn([this.attr('id'),'children'],children=>{
+				const i=children.indexOf(nodeId)
+				i!=-1 && (children=children.splice(i,1))
+				return children.splice(children.size,0,nodeId)
+			})
+	
+			this._content.updateIn([nodeId,'parent'],parent=>{
+				if(parent && this._content.has(parent) && parent!=this.attr('id')){
+					this._content.updateIn([parent,"children"],children=>{
+						const i=children.indexOf(nodeId)
+						return i==-1 ? children : children.splice(i,1)
+					})
+				}
+				return this.attr('id')
+			})
 		})
-
-		this._content.updateIn([nodeId,'parent'],parent=>{
-			if(parent && this._content.has(parent) && parent!=this.attr('id')){
-				this._content.updateIn([parent,"children"],children=>{
-					const i=children.indexOf(nodeId)
-					return i==-1 ? children : children.splice(i,1)
-				})
-			}
-			return this.attr('id')
-		})
+		
 		return this
 	}
 }

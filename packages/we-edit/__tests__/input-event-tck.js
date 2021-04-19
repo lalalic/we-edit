@@ -188,7 +188,7 @@ export default function tck(TypedDocument,file, debug=false){
                 expect(first.text()).toBe(text)
             })
 
-            it("backspace at beginning of text should remove prev's content",()=>{debugger
+            it("backspace at beginning of text should remove prev's content",()=>{
                 const first=editor.$().findFirst("text")
                 const len=first.text().length
                 expect(len>1).toBe(true)
@@ -220,12 +220,12 @@ export default function tck(TypedDocument,file, debug=false){
                 expect(editor.selection).toMatchObject(selection)
             })
 
-            xit('backspace at beginning of paragraph should merge to prev paragraph',()=>{
+            it('backspace at beginning of paragraph should merge to prev paragraph',()=>{
                 const ps=editor.$("paragraph")
                 const $next=editor.$().findFirst("paragraph+paragraph")
                 expect($next.length>0).toBe(true)
                 const $p=$next.prev("paragraph")
-                const lenP=$p.children().length, lenPNext=$next.children.length
+                const lenP=$p.children().length, lenPNext=$next.children().length
                 editor.cursorAt($next.attr('id'),0)
                 editor.backspace()
                 expect(editor.$("paragraph").length).toBe(ps.length-1)
@@ -249,10 +249,12 @@ export default function tck(TypedDocument,file, debug=false){
                 expect($next.length>0).toBe(true)
                 const $p=$next.prev("paragraph")
                 const text=$p.findLast(editor.cursorable)
+                const lenP=$p.children().length, lenPNext=$next.children().length
                 expect(text.is("text")).toBe(true)
                 editor.cursorAtEnd(text.attr('id'))
                 editor.delete()
                 expect(editor.$("paragraph").length).toBe(ps.length-1)
+                expect($p.children().length).toBe(lenP+lenPNext)
             })
 
             it("delete at end of paragraph should merge next paragraph",()=>{
@@ -260,9 +262,11 @@ export default function tck(TypedDocument,file, debug=false){
                 const $next=editor.$().findFirst("paragraph+paragraph")
                 expect($next.length>0).toBe(true)
                 const $p=$next.prev("paragraph")
+                const lenP=$p.children().length, lenPNext=$next.children().length
                 editor.cursorAt($p.attr('id'),1)
                 editor.delete()
                 expect(editor.$("paragraph").length).toBe(ps.length-1)
+                expect($p.children().length).toBe(lenP+lenPNext)
             })
 
             it("delete at end of last paragraph should do nothing",()=>{
@@ -270,7 +274,6 @@ export default function tck(TypedDocument,file, debug=false){
             })
 
             it("delete at end of text should delete forward",()=>{
-                debugger
                 const first=editor.$().findFirst("text")
                 const firstText=first.text()
                 editor.cursorAtEnd(first.attr('id'))

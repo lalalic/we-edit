@@ -267,10 +267,29 @@ describe("content query",()=>{
                 expect($1.append('#2').append('#3').children().map((i,a)=>a.get('id')).join(",")).toBe("2,3")
                 expect($.find('#root').children().length).toBe(1)
             })
+
+            it('append multiple nodes at a time',()=>{debugger
+                expect($1.append(['2','3']).children().map((i,a)=>a.get('id')).join(",")).toBe("2,3")
+                expect($1.append(['3','2']).children().map((i,a)=>a.get('id')).join(",")).toBe("3,2")
+                expect($1.append('#2,#3').children().map((i,a)=>a.get('id')).join(",")).toBe("2,3")
+                expect($1.append('#3,#2').children().map((i,a)=>a.get('id')).join(",")).toBe("3,2")
+                
+                expect($.find('#root').children().length).toBe(1)
+            })
     
             it('prepend',()=>{
                 expect($1.prepend('#2').prepend('#3').children().map((i,a)=>a.get('id')).join(",")).toBe("3,2")
                 expect($.find('#root').children().length).toBe(1)
+            })
+
+            it('prepend multple nodes at a time',()=>{
+                expect($1.prepend(['3','2']).children().map((i,a)=>a.get('id')).join(",")).toBe("3,2")
+                expect($1.prepend(['2','3']).children().map((i,a)=>a.get('id')).join(",")).toBe("2,3")
+                expect($1.prepend('#3,#2').children().map((i,a)=>a.get('id')).join(",")).toBe("3,2")
+                expect($1.prepend('#2','#3').children().map((i,a)=>a.get('id')).join(",")).toBe("2,3")
+                
+                expect($.find('#root').children().length).toBe(1)
+
             })
     
             it('after',()=>{
@@ -278,12 +297,29 @@ describe("content query",()=>{
                 expect($.find('#root').children().length).toBe(3)
                 expect($.find('#2').after('#1').parent().children().map((i,a)=>a.get('id')).join(",")).toBe("2,1,3")
             })
+
+            it('after multple nodes at a time',()=>{
+                expect($1.after(['3','2']).parent().children().map((i,a)=>a.get('id')).join(",")).toBe("1,3,2")
+                expect($.find('#root').children().length).toBe(3)
+                expect($.find('#2').after(['1','3']).parent().children().map((i,a)=>a.get('id')).join(",")).toBe("2,1,3")
+                expect($1.after('#3,#2').parent().children().map((i,a)=>a.get('id')).join(",")).toBe("1,3,2")
+                expect($.find('#2').after('#1,#3').parent().children().map((i,a)=>a.get('id')).join(",")).toBe("2,1,3")
+            })
     
             it('before',()=>{
                 expect($1.before('#2').parent().children().map((i,a)=>a.get('id')).join(",")).toBe("2,1,3")
                 expect($.find('#root').children().length).toBe(3)
                 expect($.find('#2').before('#3').parent().children().map((i,a)=>a.get('id')).join(",")).toBe("3,2,1")
             })
+            it('before multiple nodes at a time',()=>{
+                expect($1.before(['2','3']).parent().children().map((i,a)=>a.get('id')).join(",")).toBe("2,3,1")
+                expect($.find('#root').children().length).toBe(3)
+                expect($.find('#2').before(['3','1']).parent().children().map((i,a)=>a.get('id')).join(",")).toBe("3,1,2")
+                
+                expect($1.before('#2,#3').parent().children().map((i,a)=>a.get('id')).join(",")).toBe("2,3,1")
+                expect($.find('#2').before('#3,#1').parent().children().map((i,a)=>a.get('id')).join(",")).toBe("3,1,2")
+            })
+            
         })
 
         describe("modification on different parent",()=>{
