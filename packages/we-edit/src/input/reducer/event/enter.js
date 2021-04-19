@@ -1,5 +1,5 @@
 export default {
-    enter_at_text(){debugger
+    enter_at_text(){
         this.seperate_at_text_for_end()
         const $next=this.$target.forwardFirst()
         this.cursorAt($next.attr("id"),0)
@@ -85,7 +85,7 @@ export default {
         this.enter_at_end_of_up_to_paragraph()
     },
 
-    enter_at_end_of_up_to_paragraph(){debugger
+    enter_at_end_of_up_to_paragraph(){
         const p=this.target.closest(this.PARAGRAPH_)
         const cloned=p.clone().insertAfter(p)
         cloned.children().not(this.PR).remove()

@@ -66,7 +66,6 @@ export default {
     },
 
     backspace_at_end(){
-        debugger
         const cursor=this.selection.start
         const last=this.$target.findLast(this.cursorable)
         if(last.length>0){
