@@ -35,6 +35,12 @@ export default (class Events extends Base{
 
     constructor(){
         super(...arguments)
+        this.PARAGRAPH="paragraph"
+        this.TEXT="text"
+        
+        this.PR="__unknown"//non-content in file source
+        this.InlineContainers="__unknown"//inline container types in file source
+        
         Object.defineProperties(this,{
             conds:{
                 configurable:true,
@@ -104,7 +110,19 @@ export default (class Events extends Base{
                     conds=conds.filter(a=>!!a).map(a=>a.replace(/^_/g,""))
                     return Array.from(new Set(conds)).map(a=>'at_'+a)
                 }
-            }
+            },
+            PARAGRAPH_:{
+                configurable:true,
+                get(){
+                    return this.PARAGRAPH
+                }
+            },
+            TEXT_:{
+                configurable:true,
+                get(){
+                    return this.TEXT
+                }
+            },
         })
     }
 

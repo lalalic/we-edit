@@ -18,6 +18,7 @@ export default (class Events extends Input.Editable.EventHandler{
     static createExtendedQuery=memoize($=>extendQuery($.constructor))
     constructor(){
         super(...arguments)
+        this.text
         Object.defineProperties(this,{
             target:{
                 get(){
@@ -32,7 +33,21 @@ export default (class Events extends Input.Editable.EventHandler{
                 ExtendedQuery=this.constructor.ExtendedQuery=this.constructor.createExtendedQuery($('#root'))
             }
             return content=>new ExtendedQuery(this._state,content)
-        })(this.$)
+        })(this.$);
+
+        const getNode=id=>this.$('#'+id)
+        const file$=(...args)=>this.$(...args)
+        this._file=new Proxy(this._file,{
+            get(file, key){
+                if(key=="getNode"){
+                    return getNode
+                }
+                if(key=="$"){
+                    return file$
+                }
+                return Reflect.get(...arguments)
+            }
+        })
     }
 
     isNumberingParagraph(){
@@ -55,5 +70,9 @@ export default (class Events extends Input.Editable.EventHandler{
         }
         change('x',dx)
         change('y',dy)
+    }
+
+    create_first_paragraph(){
+        
     }
 }).extends(seperate,create,update,enter,type,backspace,Delete,tab,forward,backward,remove)

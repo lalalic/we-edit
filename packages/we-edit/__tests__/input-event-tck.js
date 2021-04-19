@@ -140,7 +140,7 @@ export default function tck(TypedDocument,file, debug=false){
                 const id=$first.attr('id'), text=$first.text()
                 expect(text.length>3).toBe(true)
                 editor.cursorAt(id,0,id,text.length)
-                debugger
+        
                 removeSelection()
                 expect(editor.$('text').length).toBe(textLength-1)
                 expect(editor.$(`#${id}`).length).toBe(0)
@@ -156,6 +156,8 @@ export default function tck(TypedDocument,file, debug=false){
             })
 
             it("remove the only paragraph should leave an empty paragraph",()=>{
+                if(!editor.onlyFlow)
+                    return 
                 const p=leaveOnlyFirst("paragraph")
                 expect(p.length).toBe(1)
                 expect(editor.$("paragraph").text().length>0).toBe(true)
@@ -186,11 +188,12 @@ export default function tck(TypedDocument,file, debug=false){
                 expect(first.text()).toBe(text)
             })
 
-            it("backspace at beginning of text should remove prev's content",()=>{
+            it("backspace at beginning of text should remove prev's content",()=>{debugger
                 const first=editor.$().findFirst("text")
                 const len=first.text().length
                 expect(len>1).toBe(true)
                 const second=first.forwardFirst("text")
+                expect(first.attr('id')!=second.attr('id')).toBe(true)
                 expect(second.closest("paragraph").attr('id')).toBe(first.closest("paragraph").attr("id"))
                 editor.cursorAt(second.attr('id'),0)
                 backspace()
@@ -283,6 +286,8 @@ export default function tck(TypedDocument,file, debug=false){
             })
 
             it("enter at first table cell and the table is the first of document should create new paragraph before table",()=>{
+                if(!editor.onlyFlow)
+                    return 
                 expect(editor.$('table').length>0).toBe(true)
                 const table=leaveOnlyFirst('table')
                 const first=table.findFirst('cell paragraph text')

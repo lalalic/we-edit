@@ -86,14 +86,14 @@ export default {
         const clonedP=p.clone()
         const clonedTarget=clonedP.find(`[${MARKER}=1]`)
         clonedTarget.parents(containers).each((i,el)=>{
-            this.file.$(el).nextAll(`:not(${this.PR})`).remove()
+            this.file.$(el).nextAll().not(this.PR).remove()
         })
         clonedTarget.nextAll().add(clonedTarget).remove()
         
         p.before(clonedP)
         
         target.parents(containers).each((i,el)=>{
-            this.file.$(el).prevAll(`:not(${this.PR})`).remove()
+            this.file.$(el).prevAll().not(this.PR).remove()
         })
         target.prevAll().remove()
         this.target.removeAttr(MARKER)

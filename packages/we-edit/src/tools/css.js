@@ -27,13 +27,16 @@ const SCOPE={
 		"<":"children",
 		" ":"parents",
 		"+":"prev",
-		"~":"next"
+		"~":"next",
+
 	}
 const UNION=/[\s\[,:<>+~]/
 function unionSelector(a,$, basic,vars){
 	try{
 		let selectors=a.split(/(?=[><+~\s])/g)
-		const scopes=selectors.slice(1).map(k=>SCOPE[k[0]])
+		const scopes=selectors.slice(1).map(k=>{
+			return SCOPE[k[0]]
+		})
 		selectors=selectors.map(k=>k.replace(/^[><+~]/,"")).map(k=>k.trim())
 		const nodeSelector=selectors.pop()
 		const nodeCheck=basicSelectors(nodeSelector,basic,vars)

@@ -1,6 +1,7 @@
 import tck from "we-edit/__tests__/input-event-tck"
 import JSONType from "../src/type/json"
 import XMLType from "../src/type/xml"
+import JSXDocument from "../src/type/jsx"
 
 console.debug=console.log=a=>a
-tck(JSONType, `${__dirname}/doc.wed.json`,false)
+tck(JSXDocument, `${__dirname}/doc.wejsx`)

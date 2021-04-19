@@ -33,7 +33,7 @@ export default {
                 const prev=this.file.getNode(prevId)
                 const $container=$p.parent()
                 const last=$prevP.children().length-1
-                prev.append(this.target.closest(this.PARAGRAPH_).remove().children(`:not(${this.PR})`))
+                prev.append(this.target.closest(this.PARAGRAPH_).remove().children().not(this.PR))
                 this.file.renderChanged(prev)
 
                 this.content.updateIn([$container.attr("id"),"children"],children=>{

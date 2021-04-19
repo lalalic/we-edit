@@ -1,24 +1,25 @@
 <document styles={{paragraph:{},text:{fonts:"Arial", size:12}}}>
     <page size="A4">
-        <paragraph>
-            <text bold={true}>
-                hello world
-            </text>
-        </paragraph>
-        <frame x={50} y={50}>
+        <frame x={500} y={500}>
             <paragraph>
-                <text>hello world</text>
+                <text>hello</text>
+                <text>world</text>
             </paragraph>
+            <paragraph>
+                <text>hello</text>
+                <text>world</text>
+                <image src="./favico.ico"/>
+            </paragraph>
+            <table>
+                <row>
+                    <cell><paragraph><text>hello</text></paragraph></cell>
+                    <cell/>
+                </row>
+                <row>
+                    <cell><paragraph><text>hello</text></paragraph></cell>
+                    <cell/>
+                </row>
+            </table>
         </frame>
-
-        <anchor x={80} y={100} wrap="tight">
-            <shape geometry="" outline={{width:1, color:"red"}}>
-                <frame>
-                    <paragraph>
-                        <text>hello world</text>
-                    </paragraph>
-                </frame>
-            </shape>
-        </anchor>
     </page>
 </document>

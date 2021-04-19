@@ -37,13 +37,15 @@ export default class JSXDocument extends Input.Editable{
 			return Promise.resolve(data)
 		}
 		
+		data=data instanceof Blob ? data.text() : Buffer.from(data).toString()
 		return Promise.all([
-				new Blob([data]).text(),
+				data,
 				import(/* webpackChunkName: "plugin-compiler" */"./transform"),
 			])
 			.then(([raw, {transform}])=>{
 				const {code}=transform(raw)
-				const compiled=new Function("React","return "+code)
+				const i=code.indexOf("React.createElement")
+				const compiled=new Function("React",code.substring(0,i)+";return "+code.substring(i))
 				const doc=compiled(React)
 				return doc
 			})
@@ -52,7 +54,7 @@ export default class JSXDocument extends Input.Editable{
     render(createElement, Types){
         this.renderNode=(node,createElement)=>{
 			if(node.isQuery){
-				return node.toJS()
+				return {id:node.attr('id'),...node.toJS()}
 			}
 			if(!node || !React.isValidElement(node))
 				return node
@@ -71,7 +73,8 @@ export default class JSXDocument extends Input.Editable{
 	makeId(node){
 		if(node?.type=="document")
 			return "root"
+		if(node?.isQuery)
+			return node.attr('id')
 		return super.makeId(...arguments)
 	}
-
 }

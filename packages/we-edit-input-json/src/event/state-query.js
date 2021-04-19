@@ -5,6 +5,11 @@ export default xQuery=>class extends xQuery{
     get file(){
         return getFile(this.state)
     }
+
+	removeAttr(key){
+		return this.attr(key,null)
+	}
+
 	//jsx document need following functions
 	clone(){
         const clone1=(nodeId,parentNodeId)=>{

@@ -5,7 +5,7 @@ import cssSelect, {isIdSelector} from "../../tools/css"
 const isNode=a=>a instanceof Map
 
 export default class Query{
-	static get isQuery(){
+	get isQuery(){
 		return true
 	}
 	

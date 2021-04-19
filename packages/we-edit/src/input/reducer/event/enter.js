@@ -1,5 +1,5 @@
 export default {
-    enter_at_text(){
+    enter_at_text(){debugger
         this.seperate_at_text_for_end()
         const $next=this.$target.forwardFirst()
         this.cursorAt($next.attr("id"),0)
@@ -62,7 +62,7 @@ export default {
     enter_at_beginning_of_up_to_paragraph(){
         const p=this.target.closest(this.PARAGRAPH_)
         const cloned=p.clone().insertBefore(p)
-        cloned.children(`:not(${this.PR})`).remove()
+        cloned.children().not(this.PR).remove()
         const a=this.file.renderChanged(cloned)
 
         const $p=this.$target.closest("paragraph")
@@ -85,10 +85,10 @@ export default {
         this.enter_at_end_of_up_to_paragraph()
     },
 
-    enter_at_end_of_up_to_paragraph(){
+    enter_at_end_of_up_to_paragraph(){debugger
         const p=this.target.closest(this.PARAGRAPH_)
         const cloned=p.clone().insertAfter(p)
-        cloned.children(`:not(${this.PR})`).remove()
+        cloned.children().not(this.PR).remove()
         const a=this.file.renderChanged(cloned)
 
         const $p=this.$target.closest("paragraph")

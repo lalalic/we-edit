@@ -15,10 +15,6 @@ import remove from "./remove"
 export default (class XDocEvents extends Event{
     constructor(){
         super(...arguments)
-        this.PR="__unknown"
-        this.PARAGRAPH="paragraph"
-        this.TEXT="text"
-        this.InlineContainers=""
         this.super=new Proxy(this,{
             get(me, k){
                 let a=me.__proto__.__proto__
@@ -34,14 +30,20 @@ export default (class XDocEvents extends Event{
                 throw new Error(`super has no ${k}`)
             }
         })
-    }
-
-    get TEXT_(){
-        return this.TEXT.replace(":","\\:")
-    }
-
-    get PARAGRAPH_(){
-        return this.PARAGRAPH.replace(":","\\:")
+        Object.defineProperties(this,{
+            PARAGRAPH_:{
+                configurable:true,
+                get(){
+                    return this.PARAGRAPH.replace(":","\\:")
+                }
+            },
+            TEXT_:{
+                configurable:true,
+                get(){
+                    return this.TEXT.replace(":","\\:")
+                }
+            }
+        })
     }
 
     paragraphHasIndentSetting(){

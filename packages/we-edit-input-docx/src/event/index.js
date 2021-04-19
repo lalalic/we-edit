@@ -25,6 +25,10 @@ export default (class Actions extends Input.Editable.EventHandler.xml{
         this.InlineContainers="w\\:r, w\\:sdt"
     }
 
+    get onlyFlow(){
+        return true
+    }
+
     isInRegion(type, $target=this.$target){
         const region=$target.closest(type)
         if(region.length==1){

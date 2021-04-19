@@ -33,7 +33,7 @@ export default {
         if($next.attr('type')=="paragraph"){
             const p=this.file.getNode($p.attr('id'))
             const nextP=this.file.getNode($next.attr('id'))
-            p.append(nextP.children(`:not(${this.PR})`))
+            p.append(nextP.children().not(this.PR))
             $next.remove()
             this.file.renderChanged(p)
 
