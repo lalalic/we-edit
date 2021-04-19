@@ -6,7 +6,7 @@ import {default as xQuery} from "../src/input/reducer/xquery"
 describe("content query",()=>{
     const state=(data={})=>{
         const content=Object.keys({"1":{},"2":{},"3":{},...data}).reduce(
-            (content,k)=>content.set(k,immutable.fromJS({id:k,parent:"root",props:{},...(data[k]||{})})),
+            (content,k)=>content.set(k,immutable.fromJS({id:k,parent:"root",props:{},children:[],...(data[k]||{})})),
             new Map()
                 .set("root",immutable.fromJS({id:"root",type:"document",children:["1","2","3"]}))
         )
@@ -261,6 +261,68 @@ describe("content query",()=>{
 
         it(".attr(k,null) to remove attribute",()=>{
             expect($1.attr('name','tester').attr('name',null).attr('name')).toBe(undefined)
+        })
+        describe("modification on same parent",()=>{
+            it('append',()=>{
+                expect($1.append('#2').append('#3').children().map((i,a)=>a.get('id')).join(",")).toBe("2,3")
+                expect($.find('#root').children().length).toBe(1)
+            })
+    
+            it('prepend',()=>{
+                expect($1.prepend('#2').prepend('#3').children().map((i,a)=>a.get('id')).join(",")).toBe("3,2")
+                expect($.find('#root').children().length).toBe(1)
+            })
+    
+            it('after',()=>{
+                expect($1.after('#2').parent().children().map((i,a)=>a.get('id')).join(",")).toBe("1,2,3")
+                expect($.find('#root').children().length).toBe(3)
+                expect($.find('#2').after('#1').parent().children().map((i,a)=>a.get('id')).join(",")).toBe("2,1,3")
+            })
+    
+            it('before',()=>{
+                expect($1.before('#2').parent().children().map((i,a)=>a.get('id')).join(",")).toBe("2,1,3")
+                expect($.find('#root').children().length).toBe(3)
+                expect($.find('#2').before('#3').parent().children().map((i,a)=>a.get('id')).join(",")).toBe("3,2,1")
+            })
+        })
+
+        describe("modification on different parent",()=>{
+            let $,$1
+            beforeEach(()=>{
+                $=new xQuery(state({"1.1":{},"2.1":{},"3.1":{}}))
+                expect($.children().length).toBe(3)
+                $1=$.find('#1')
+                $1.append('#1.1')
+                $.find('#2').append('#2.1')
+                $.find('#3').append('#3.1')
+                expect($.children().length).toBe(3)
+            })
+
+            it('append',()=>{
+                expect($1.children().attr('id')).toBe(`1.1`)
+                expect($.find('#2.1').parent().attr('id')).toBe('2')
+                expect($.find('#3.1').parent().attr('id')).toBe('3')
+            })
+    
+            it('prepend',()=>{
+                expect($1.prepend('#2.1').prepend('#3.1').children().map((i,a)=>a.get('id')).join(",")).toBe("3.1,2.1,1.1")
+            })
+    
+            it('after',()=>{
+                expect($1.after('#2').parent().children().map((i,a)=>a.get('id')).join(",")).toBe("1,2,3")
+                expect($.find('#root').children().length).toBe(3)
+                expect($.find('#2').after('#1').parent().children().map((i,a)=>a.get('id')).join(",")).toBe("2,1,3")
+                
+                expect($1.after("#1.1").parent().children().map((i,a)=>a.get('id')).join(",")).toBe("2,1,1.1,3")
+            })
+    
+            it('before',()=>{
+                expect($1.before('#2').parent().children().map((i,a)=>a.get('id')).join(",")).toBe("2,1,3")
+                expect($.find('#root').children().length).toBe(3)
+                expect($.find('#2').before('#3').parent().children().map((i,a)=>a.get('id')).join(",")).toBe("3,2,1")
+
+                expect($1.before("#2.1").parent().children().map((i,a)=>a.get('id')).join(",")).toBe("3,2,2.1,1")
+            })
         })
     })
 })

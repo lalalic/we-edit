@@ -28,7 +28,7 @@ export function createStore(reducer,INIT_STATE){
 	)
 }
 
-export function createState(doc={}, content=new Map({"root":"fake document"})){
+export function createState(doc={}, content=new Map({root:"fake document"})){
 	const id=firstCursorable(content)
 	
 	return Map({

@@ -33,6 +33,10 @@ export default class JSXDocument extends Input.Editable{
 
 	parse({data,...props}){
 		this.props={...props,supportPagination:true}
+		if(React.isValidElement(data)){
+			return Promise.resolve(data)
+		}
+		
 		return Promise.all([
 				new Blob([data]).text(),
 				import(/* webpackChunkName: "plugin-compiler" */"./transform"),

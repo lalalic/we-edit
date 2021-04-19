@@ -11,8 +11,11 @@ import tab from "./tab"
 import seperate from "./seperate"
 import forward from "./forward"
 import backward from "./backward"
+import extendQuery from "./state-query"
+import memoize from "memoize-one"
 
 export default (class Events extends Input.Editable.EventHandler{
+    static createExtendedQuery=memoize($=>extendQuery($.constructor))
     constructor(){
         super(...arguments)
         Object.defineProperties(this,{
@@ -23,6 +26,13 @@ export default (class Events extends Input.Editable.EventHandler{
             }
         })
         this.debug=true
+        this.$=($=>{
+            let ExtendedQuery=this.constructor.ExtendedQuery
+            if(!ExtendedQuery){
+                ExtendedQuery=this.constructor.ExtendedQuery=this.constructor.createExtendedQuery($('#root'))
+            }
+            return content=>new ExtendedQuery(this._state,content)
+        })(this.$)
     }
 
     isNumberingParagraph(){

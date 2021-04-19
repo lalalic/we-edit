@@ -88,8 +88,11 @@ export default class Query{
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,id)=>{
 			let node=this._content.get(id)
-			if(node && node.has("parent") && select(node=this._content.get(node.get("parent"))))
-				found.add(node.get("id"))
+			if(node && node.has("parent") && select(node=this._content.get(node.get("parent")))){
+				if(node){
+					found.add(node.get("id"))
+				}
+			}
 			return found
 		},new Set())
 		return new this.constructor(this.state,Array.from(found))
