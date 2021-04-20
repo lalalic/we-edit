@@ -15,7 +15,7 @@ import forward from "./forward"
 
 import * as dom from "./dom"
 
-export default (class Actions extends Input.Editable.EventHandler.xml{
+export default (class Actions extends Input.Editable.Reducer.xml{
     static editors=dom
     constructor(){
         super(...arguments)
