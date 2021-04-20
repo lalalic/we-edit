@@ -86,8 +86,10 @@ export default A=>{
          * so this event can works again 
          */
         onAllChildrenComposed() {
-            if(this.computed.allComposed!==false)
+            if(this.computed.allComposed!==false){
                 this.computed.allComposed=true
+                console.debug(`${this.getComposeType()}[${this.props.id}] all children composed`)
+            }
         }
 
         notifyNotAllComposed(current){

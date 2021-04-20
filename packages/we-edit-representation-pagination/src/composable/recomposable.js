@@ -119,6 +119,7 @@ export default A=>{
                     return (
                         <Fragment>
                             {children.map(tryUseCached)}
+                            <ComposedAllTrigger host={this}/>
                         </Fragment>
                     )
                 }

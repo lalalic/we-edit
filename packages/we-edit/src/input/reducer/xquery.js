@@ -76,6 +76,9 @@ export default class xQuery extends Query{
 		if(!grandId){
 			throw new Error("[content query]:can't insert node before an orphan node")
 		}
+		if(this.length>1){
+			throw new Error("[content query]:can't insert node before multiple places")
+		}
 		
 		const nodeIds=new this.constructor(this.state,node).toArray()
 		nodeIds.forEach(id0=>{
@@ -109,6 +112,9 @@ export default class xQuery extends Query{
 		if(!grandId){
 			throw new Error("[content query]:can't insert node after an orphan node")
 		}
+		if(this.length>1){
+			throw new Error("[content query]:can't insert node before multiple places")
+		}
 		const nodeIds=new this.constructor(this.state,node).toArray().reverse()
 		nodeIds.forEach(id1=>{
 			const id0=this.attr('id')
@@ -138,6 +144,9 @@ export default class xQuery extends Query{
 	 * insert node as first child of this
 	 */
 	prepend(node){
+		if(this.length>1){
+			throw new Error("[content query]:can't insert node before multiple places")
+		}
 		const nodeIds=new this.constructor(this.state,node).toArray().reverse()
 		nodeIds.forEach(id=>{
 			this._content.updateIn([this.attr('id'),'children'],children=>{
@@ -166,6 +175,9 @@ export default class xQuery extends Query{
 	 * @returns 
 	 */
 	append(node){
+		if(this.length>1){
+			throw new Error("[content query]:can't insert node before multiple places")
+		}
 		const nodeIds=new this.constructor(this.state,node).toArray()
 		nodeIds.forEach(nodeId=>{
 			this._content.updateIn([this.attr('id'),'children'],children=>{

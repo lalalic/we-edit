@@ -1,6 +1,5 @@
 import React from "react"
 import {createState} from "we-edit"
-import {Map} from "immutable"
 import Events from "../src/event"
 import JSXDocument from "../src/type/jsx"
 describe('construct state',()=>{
@@ -68,21 +67,44 @@ describe('construct state',()=>{
             const cloned=raw.clone()
             expect(cloned.attr('parent')).toBeFalsy()
         })
+
+        it("cloned(without parent) can be cloned",()=>{
+            const text=$.findFirst('text')
+            const text1=text.clone()
+            const text2=text1.clone()
+            expect(text2.text()).toBe(text.text())
+            expect($.find('text').length+2).toBe($.append(text1).append(text2).find('text').length)
+        })
+
+        it("can clone multiple nodes",()=>{
+            const texts=$.find('text')
+            expect(texts.length>1).toBe(true)
+            const cloned=texts.clone()
+            expect(texts.length==cloned.length).toBe(true)
+            expect($.find('text').length+cloned.length).toBe($.append(cloned).find('text').length)
+        })
+
+        it("clone(false), not deep",()=>{
+            const p=$.findFirst('paragraph')
+            expect(p.clone(false).children().length).toBe(0)
+            expect(p.clone(true).children().length).toBe(p.children().length)
+            expect(p.clone().children().length).toBe(p.children().length)
+        })
     })
 
-    it('appendTo',()=>{
+    it('a node appendTo',()=>{
         expect('appendTo' in $).toBe(true)
         $.find('page').clone().appendTo('#root')
         expect($.find('page').length).toBe(2)
     })
 
-    it('prependTo',()=>{
+    it('a node prependTo',()=>{
         expect('prependTo' in $).toBe(true)
         $.find('page').clone().prependTo('#root')
         expect($.find('page').length).toBe(2)
     })
 
-    it('insertBefore',()=>{
+    it('a node insertBefore',()=>{
         expect('insertBefore' in $).toBe(true)
         const p=$.findFirst('paragraph').clone()
         expect(p.attr('id')).toBeDefined()
@@ -91,7 +113,7 @@ describe('construct state',()=>{
         expect($.children().first().attr('type')).toBe('paragraph')
     })
 
-    it('insertAfter',()=>{
+    it('a node insertAfter',()=>{
         expect('insertBefore' in $).toBe(true)
         const p=$.findFirst('paragraph').clone()
         expect(p.attr('id')).toBeDefined()
@@ -102,7 +124,45 @@ describe('construct state',()=>{
 
     it("can't insert node before/after orphan node",()=>{
         const p=$.findFirst('paragraph').clone()
-        expect(()=>p.after('page')).toThrow("orphan")
-        expect(()=>p.before('page')).toThrow("orphan")
+        expect(()=>$.find('text').insertAfter(p)).toThrow("orphan")
+        expect(()=>$.find('text').insertBefore(p)).toThrow("orphan")
+    })
+
+    it("can't insert node to multiple place",()=>{
+        const $1=$.findFirst('text'),$23=$.find('paragraph')
+        expect(()=>$1.insertAfter($23)).toThrow("multiple")
+        expect(()=>$1.insertBefore($23)).toThrow("multiple")
+        expect(()=>$1.prependTo($23)).toThrow("multiple")
+        expect(()=>$1.appendTo($23)).toThrow("multiple")
+    })
+
+    it('multiples nodes appendTo',()=>{
+        expect('appendTo' in $).toBe(true)
+        $.find('page').clone().children().appendTo('#root')
+        expect($.children().length).toBe(3)
+    })
+
+    it('multiples nodes prependTo',()=>{
+        expect('prependTo' in $).toBe(true)
+        $.find('page').clone().children().prependTo('#root')
+        expect($.children().length).toBe(3)
+    })
+
+    it('multiples nodes insertBefore',()=>{
+        expect('insertBefore' in $).toBe(true)
+        const p=$.findFirst('paragraph').clone()
+        expect(p.attr('id')).toBeDefined()
+        p.add(p.clone()).insertBefore('page')
+        expect($.children().length).toBe(3)
+        expect($.children().first().attr('type')).toBe('paragraph')
+    })
+
+    it('multiples nodes insertAfter',()=>{
+        expect('insertBefore' in $).toBe(true)
+        const p=$.findFirst('paragraph').clone()
+        expect(p.attr('id')).toBeDefined()
+        p.add(p.clone()).insertAfter('page')
+        expect($.children().length).toBe(3)
+        expect($.children().last().attr('type')).toBe('paragraph')
     })
 })

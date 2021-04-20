@@ -11,7 +11,7 @@ export default xQuery=>class extends xQuery{
 	}
 
 	//jsx document need following functions
-	clone(){
+	clone(deep=true){
         const clone1=(nodeId,parentNodeId)=>{
             const node=this._content.get(nodeId)
             const id=this.file.makeId()
@@ -20,13 +20,13 @@ export default xQuery=>class extends xQuery{
                 node.set('id',id)
                     .set('parent',parentNodeId)
                     .updateIn(['children'],children=>{
-                        return typeof(children)=="string" ? children : children.map(a=>clone1(a,id))
+                        return typeof(children)=="string" ? children : (deep ? children.map(a=>clone1(a,id)) : [])
                     })
             )
             return id
         }
-        const id=clone1(this.attr('id'), parent="")
-        return new this.constructor(this.state, [id])
+		const nodes=this._nodes.map(id=>clone1(id, parent=""))
+        return new this.constructor(this.state, nodes)
 	}
 
 	/**
@@ -36,9 +36,6 @@ export default xQuery=>class extends xQuery{
 	 */
 	insertAfter(node){
 		const $=new this.constructor(this.state,node)
-		if(!($.length==1 && $.attr('id'))){
-			throw new Error('StateQuery.insertAfter must be a single node with id')
-		}
 		$.after(this)
 		return this
 	}
@@ -48,9 +45,6 @@ export default xQuery=>class extends xQuery{
 	 */
 	insertBefore(node){
 		const $=new this.constructor(this.state,node)
-		if(!($.length==1 && $.attr('id'))){
-			throw new Error('StateQuery.insertBefore must be a single node with id')
-		}
 		$.before(this)
 		return this
 	}
@@ -61,9 +55,6 @@ export default xQuery=>class extends xQuery{
 	 */
 	prependTo(node){
 		const $=new this.constructor(this.state,node)
-		if(!($.length==1 && $.attr('id'))){
-			throw new Error('StateQuery.insertAfter must be a single node with id')
-		}
 		$.prepend(this)
 		return this
 	}
@@ -73,17 +64,7 @@ export default xQuery=>class extends xQuery{
 	 */
 	appendTo(node){
 		const $=new this.constructor(this.state,node)
-		if(!($.length==1 && $.attr('id'))){
-			throw new Error('StateQuery.insertAfter must be a single node with id')
-		}
 		$.append(this)
-		return this
-	}
-
-	makeId(node){
-		const file=getFile(this.state)
-		const id=file.makeId(node)
-		
 		return this
 	}
 }

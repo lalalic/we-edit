@@ -181,7 +181,7 @@ export default class EditableFrame extends editable(Frame,{stoppable:true, conti
 			return false
 		}
 		//this event should be called to append to parent
-		this.onAllChildrenComposed()
+		//this.onAllChildrenComposed()
 		return true
 	}
 

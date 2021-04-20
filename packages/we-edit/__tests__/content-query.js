@@ -262,6 +262,27 @@ describe("content query",()=>{
         it(".attr(k,null) to remove attribute",()=>{
             expect($1.attr('name','tester').attr('name',null).attr('name')).toBe(undefined)
         })
+
+        it("can't before/after on orphan node(without parent)",()=>{
+            const $=new xQuery(state({"1.1":{}}))
+            expect(()=>$.find("1.1").before('#1')).toThrow("orphan")
+            expect(()=>$.find("1.1").after('#1')).toThrow("orphan")
+        })
+
+        it("can't before/after/append/prepend on multiple nodes/places",()=>{
+            const $12=$.find('#1,#2')
+            expect(()=>$12.before("#3")).toThrow("multiple")
+            expect(()=>$12.after("#3")).toThrow("multiple")
+            expect(()=>$12.append("#3")).toThrow("multiple")
+            expect(()=>$12.prepend("#3")).toThrow("multiple")
+        })
+
+        it("orphan can be appended/prepended",()=>{
+            const $=new xQuery(state({"1.1":{}}))
+            expect(()=>$.find('#1').append('#1.1')).not.toThrow("orphan")
+            expect(()=>$.find("#1").prepend('#1.1')).not.toThrow("orphan")
+        })
+
         describe("modification on same parent",()=>{
             it('append',()=>{
                 expect($1.append('#2').append('#3').children().map((i,a)=>a.get('id')).join(",")).toBe("2,3")
