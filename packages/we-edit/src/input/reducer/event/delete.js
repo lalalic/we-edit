@@ -34,10 +34,10 @@ export default {
             const p=this.file.getNode($p.attr('id'))
             const nextP=this.file.getNode($nextP.attr('id'))
             p.append(nextP.children().not(this.PR))
-            this.file.renderChanged(p)
-
             nextP.remove()
             $nextP.remove()
+            
+            this.file.renderChanged(p)
         }
     },
 

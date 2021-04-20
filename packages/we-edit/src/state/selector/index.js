@@ -42,18 +42,19 @@ export function getWorkers(state){
 }
 
 export function traverse(content, f, start="root", right=false){
-	let [id,node]=[start,content.get(start)]
+	const [id,node]=[start,content.get(start)]
 	if(!node)
 		return null
-	let children=node.get("children")
+	const children=node.get("children")
 	if(children instanceof List){
 		return !!children[`find${right ? "Last" :""}`](k=>{
-			let node=content.get(k)
+			const node=content.get(k)
 			if(!node){
 				debugger
+				console.warn(!!node,`${k} not in content, but parent[${id}] includes it as child`)
+				return false
 			}
-			console.assert(!!node,`${k} not in content, but parent[${id}] includes it as child`)
-			let result=f(node)
+			const result=f(node)
 			if(result===true){
 				return true
 			}else if(result===false){

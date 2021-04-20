@@ -35,11 +35,11 @@ export default {
                 const last=$prevP.children().length-1
                 //append paragraph's content to prev paragraph in file
                 prevP.append(p.children().not(this.PR))
-                this.file.renderChanged(prevP)
                 p.remove()
-                
-                //sync state content
                 $p.remove()
+                
+                this.file.renderChanged(prevP)
+                //sync state content
                 const $cursor=$prevP.children().eq(last+1)
                 if($cursor.length){
                     this.cursorAt($cursor.attr('id'),0)
