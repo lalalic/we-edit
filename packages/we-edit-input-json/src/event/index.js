@@ -14,11 +14,10 @@ import backward from "./backward"
 import extendQuery from "./state-query"
 import memoize from "memoize-one"
 
-export default (class Events extends Input.Editable.EventHandler{
+export default (class Events extends Input.Editable.Reducer{
     static createExtendedQuery=memoize($=>extendQuery($.constructor))
     constructor(){
         super(...arguments)
-        this.text
         Object.defineProperties(this,{
             target:{
                 get(){

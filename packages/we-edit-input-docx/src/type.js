@@ -338,6 +338,7 @@ class DocxType extends Input.Editable{
 }
 
 export default class Editable extends DocxType{
+	static Reducer=Reducer
 	makeId(node, root="w:document", nodeId){
         if(!node){
             return "null"
@@ -486,6 +487,4 @@ export default class Editable extends DocxType{
 	cm2dxa(w){
 		return this.px2dxa(this.doc.cm2Px(w))
 	}
-
-	static Reducer=Reducer
 }

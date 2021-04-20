@@ -145,8 +145,6 @@ export class Viewable{
 }
 
 export class Editable extends Viewable{
-	static EventHandler=Reducer
-
 	static Reducer=Reducer
 
 	editable(){
@@ -234,7 +232,8 @@ export class Editable extends Viewable{
 	onChange(state,action){
 		const {type,payload}=action
 		const params=[state]
-		const reducer=new this.constructor.Reducer(...params)
+		const Reducer=this.constructor.Reducer
+		const reducer=new Reducer(...params)
 		switch(type){
 			case `we-edit/CLOSE`:
 				this.doc.release()

@@ -1,11 +1,11 @@
 import React from "react"
 import {Input} from "we-edit"
-import Reducer from "../../event"
+import EventHandler from "../../event"
 import Dom from "../../render"
 
 
 export default class JSXDocument extends Input.Editable{
-	static Reducer=Reducer
+	static Reducer=EventHandler
 	static HOCs=Dom
 	
     static support(file){
