@@ -13,7 +13,8 @@ export default class Group extends PureComponent{
 	}
 
 	static contextTypes={
-		debug: PropTypes.bool
+		debug: PropTypes.bool,
+		media: PropTypes.string,
 	}
 
 	static Layer=Layer
@@ -29,9 +30,14 @@ export default class Group extends PureComponent{
 			transform="",
 			margin,minWidth, width, height, index, childIndex,geometry,baseline,lineDescent,isLastRankOfRow,isFirstRowInPage,atom,pgNumType,hasPage,hasNumpages,
 			contentWidth,wrap,pagination,anchor,blockOffset,named,descent,tokenizeOpportunity, mergeOpportunity, spaceHeight,editable,dispatch,tabWidth,
+			"data-nocontent":noContent,
 			//className,id,
 			I,
 			...others}=this.props
+		if(this.context.media=="file" && noContent){
+			return null
+		}
+			
 		const props=Object.keys(others).reduce((o,k)=>{
 			if(k.startsWith("on")){
 				o[k]=others[k]

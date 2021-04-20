@@ -1,9 +1,9 @@
 import ReactFiberReconciler from "react-reconciler"
-import Writer from "./writer"
+export {default as Writer} from "./writer"
 
 const emptyObject = Object.create(null)
 
-const PDFRenderer = ReactFiberReconciler({
+export const PDFRenderer = ReactFiberReconciler({
     supportsMutation: true,
 
     createInstance(type, props, writer) {
@@ -94,10 +94,10 @@ const PDFRenderer = ReactFiberReconciler({
     useSyncScheduling: true,
 })
 
-export const render=element => {
+export const render=(element,{Writer,Renderer}) => {
     const writer=new Writer()
-    const root = PDFRenderer.createContainer(writer, 0, false, null)
-    PDFRenderer.updateContainer(element, root, null, undefined)
+    const root = Renderer.createContainer(writer, 0, false, null)
+    Renderer.updateContainer(element, root, null, undefined)
     return writer
 }
 

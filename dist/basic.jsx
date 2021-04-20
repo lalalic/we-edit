@@ -8,8 +8,8 @@
         </paragraph>
         */}
         <anchor x={100} y={100}>
-            <shape geometry="M0 0 h100 v300 h-100Z" outline={{width:1, color:"red"}}>
-                <frame width={100} height={300}>
+            <shape geometry="M0 0 h100 v300 h-100Z" rotate={30} outline={{width:1, color:"red"}}>
+                <frame width={100} height={300} margin={{left:10,right:10,top:10,bottom:10}}>
                     <paragraph>
                         <text>hello world</text>
                     </paragraph>
