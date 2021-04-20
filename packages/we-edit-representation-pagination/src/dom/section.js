@@ -228,6 +228,12 @@ export default class EditableSection extends editable(Section,{stoppable:true}){
 	_cancelChangedPart(next){
 		var lineIndex=-1
 		const childrenNeedRecompose=this.childrenNeedRecompose(next,this.props)
+		if(childrenNeedRecompose.length==0){
+			if(childrenNeedRecompose.sizeChanged){
+				delete this.computed.allComposed
+				return 
+			}
+		}
 		const fissionIndex=this.computed.lastComposed.findIndex(({lines})=>{
 			return (lineIndex=lines.findIndex(a=>childrenNeedRecompose.includes(this.childIdOf(a))))!=-1
 		})

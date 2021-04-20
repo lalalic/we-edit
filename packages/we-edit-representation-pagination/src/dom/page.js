@@ -21,4 +21,8 @@ export default class extends Frame{
         const {I, margin}=this.props
         return React.cloneElement(super.recomposable_createComposed2Parent(...arguments),{I,margin})
     }
+
+    render(){
+        return super.render()
+    }
 }

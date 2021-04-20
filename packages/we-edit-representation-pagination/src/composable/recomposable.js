@@ -4,6 +4,7 @@ import {shallowEqual} from "recompose"
 
 import ComposedAllTrigger from "./composed-all-trigger"
 import UseCached from "./use-cached"
+import { object } from "prop-types"
 /**
  * make component always update (by calling .render), so AllComposedTrigger would be triggered to correctly set allComposed
  * but at first clear last composed 
@@ -141,11 +142,11 @@ export default A=>{
         childrenNeedRecompose=memoize((b,a)=>{
             const next=Children.toArray(b.children)
             const current=this.childrenArray(a.children)
-            const changedIndex=current.findIndex(({props:{id,hash}},i,_,$,b=next[i])=>!(b && b.props.id==id && b.props.hash==hash))
+            const changedIndex=current.findIndex((a1,i,_,$,b1=next[i])=>!(b1?.props.id==a1?.props.id && b1?.props.hash==a1?.props.hash))
             if(changedIndex!=-1){
                 return current.slice(changedIndex).map(a=>a && a.props.id)
             }
-            return []
+            return Object.assign([],{sizeChanged:current.length!=next.length})
         })
     }
 

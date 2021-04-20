@@ -170,6 +170,12 @@ export default class EditableFrame extends editable(Frame,{stoppable:true, conti
 
 	_cancelChangedPart(next){
 		const childrenNeedRecompose=this.childrenNeedRecompose(next,this.props)
+		if(childrenNeedRecompose.length==0){
+			if(childrenNeedRecompose.sizeChanged){
+				delete this.computed.allComposed
+				return 
+			}
+		}
 		const firstLineNeedRecompose=this.lines.findIndex(a=>childrenNeedRecompose.includes(this.childIdOf(a)))
 		this.removeFrom(firstLineNeedRecompose)
 		this.removePositioned(childrenNeedRecompose)
