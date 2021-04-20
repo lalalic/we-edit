@@ -71,6 +71,9 @@ export default class Frame extends Component{
 		allowOverflow: PropTypes.bool,
 
 		focusable: PropTypes.bool,
+
+		/**compose and render at same time*/
+		async: PropTypes.bool,
 	}
 
 	static defaultProps={

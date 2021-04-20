@@ -71,6 +71,13 @@ docx:
     * it's very risk, since positioning is based on line
 * make color support svg supported color space
 * CSSUnitValue 
+* async frame based on Composed-all-trigger to render[done]
+    * Frame.onAllChildrenComposed should return composed 
+    * composed-all-trigger render to frame.onAllchildrenComposed
+    * Any.appendLastComposed should NOT call its onAllChildrenComposed
+        * if already isAllChildrenComposed, don't call onAllChildrenComposed
+    * every render should be ended with composed-all-trigger
+        * even all cached applied
 * **Positioning NOT rely on composer.computed.lastComposed**
     * it's heavy to maintain composers vs composed
         * template
