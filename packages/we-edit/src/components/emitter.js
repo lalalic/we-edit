@@ -288,7 +288,9 @@ class OutputInput extends Emitter.Format.Base{
 	}
 }
 //document will be injected by representation Document
-const CanvasWrapper=({children, document})=>React.Children.toArray(children).map(a=>React.cloneElement(a,{document}))
+const CanvasWrapper=({children, document})=>{
+	return React.Children.toArray(children).map(a=>React.cloneElement(a,{document}))
+}
 
 extendible(Emitter, "output format")
 

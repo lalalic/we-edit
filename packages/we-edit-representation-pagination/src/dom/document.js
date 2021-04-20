@@ -78,15 +78,16 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
         if(!canvas)
             return super.render()
         const {props:{__sequentialCompose=true}}=this
+        const documentCanvas=React.cloneElement(canvas,{...canvasProps, document:this})
         if(__sequentialCompose){
             return (
                 <Fragment>
                     {super.render()}
-                    {React.cloneElement(canvas,{...canvasProps, document:this})}
+                    {documentCanvas}
                 </Fragment>
             )
-        }else{
-            return React.cloneElement(canvas,{...canvasProps, children, document:this})
+        }else{//canvas should know how to render document
+            return documentCanvas
         }
     }
 

@@ -74,12 +74,12 @@ export default class Saver extends PureComponent{
 
     render(){
         const {onCancel, onSave}=this.props
-		let {format, stream}=this.state
-		let supportedStreams=this.getSupportedStreams()
-		let supportedFormats=this.getSupportedFormats()
+		const {format, stream}=this.state
+		const supportedStreams=this.getSupportedStreams()
+		const supportedFormats=this.getSupportedFormats()
 
         let noTypedStream=false
-        let typedStreamUI=(({type, ...streamProps})=>{
+        const typedStreamUI=(({type, ...streamProps})=>{
 			let Type=Stream.get(type)
 			if(Type){
 				return <Type
@@ -98,8 +98,8 @@ export default class Saver extends PureComponent{
 			}
 		})(stream);
 
-		let typedFormatUI=(({type, ...formatProps})=>{
-			let Type=Emitter.get(type)
+		const typedFormatUI=(({type, ...formatProps})=>{
+			const Type=Emitter.get(type)
 			if(Type){
 				return <Type.Setting ref="format"	{...formatProps} />
 			}else{
@@ -188,7 +188,7 @@ export default class Saver extends PureComponent{
     	if(!format)
             format={type:doc.type}
 
-    	let Format=doc.type==format.type ? Emitter.Format.OutputInput : Emitter.get(format.type)
+    	const Format=doc.type==format.type && doc.stream ? Emitter.Format.OutputInput : Emitter.get(format.type)
 
     	return render(
             <Provider store={store}>

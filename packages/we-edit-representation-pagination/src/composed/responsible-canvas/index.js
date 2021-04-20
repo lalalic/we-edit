@@ -242,7 +242,7 @@ class Responsible extends Component{
             return
         
         if(!this.props.document.isSelectionComposed({end,start})){
-            console.error(`selection style: not fully composed ${end.id}`)
+            console.info(`selection style: not fully composed ${end.id},delay update selection style`)
             return 
         }
 

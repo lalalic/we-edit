@@ -36,17 +36,21 @@ export default compose(
     }
     state={}
     componentDidMount(){
-        Promise.all([
-            import(/* webpackChunkName: "flowcharts", esModule:false, */"file-loader!./flowchart.ttf"),
-            import(/* webpackChunkName: "shapes", esModule:false */"file-loader!./shapes.ttf")
-        ]).then(([flowchart,shapes])=>Promise.all([fetch(flowchart.default),fetch(shapes.default)]))
-        .then(ress=>Promise.all(ress.map(a=>a.arrayBuffer())))
-        .then(([flowchart,shapes])=>{
-            this.setState({
-                flowcharts:FontKit.create(Buffer.from(flowchart)),
-                varishapes:FontKit.create(Buffer.from(shapes))
+        try{
+            Promise.all([
+                import(/* webpackChunkName: "flowcharts", esModule:false, */"file-loader!./flowchart.ttf"),
+                import(/* webpackChunkName: "shapes", esModule:false */"file-loader!./shapes.ttf")
+            ]).then(([flowchart,shapes])=>Promise.all([fetch(flowchart.default),fetch(shapes.default)]))
+            .then(ress=>Promise.all(ress.map(a=>a.arrayBuffer())))
+            .then(([flowchart,shapes])=>{
+                this.setState({
+                    flowcharts:FontKit.create(Buffer.from(flowchart)),
+                    varishapes:FontKit.create(Buffer.from(shapes))
+                })
             })
-        })
+        }catch(e){
+
+        }
     }
 
     render(){
