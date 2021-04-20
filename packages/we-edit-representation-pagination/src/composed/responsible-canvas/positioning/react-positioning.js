@@ -718,16 +718,42 @@ export default class ReactPositioning extends PositioningHelper {
             const o=offsets.reduce((o,{x,y})=>(o.x-=x,o.y-=y,o),{x,y})
             return x0<=o.x && y0<=o.y && (x0+width)>=o.x && (y0+height)>=o.y
         }
+
+        //to get leaf frame that includes the point, and return the frame
+        const getLeafFrame=(composed)=>{
+            const {node:leafFrame}=this.getBoundaryCheckedMostInnerNode(
+                composed, 
+                //only frame that contain the point
+                (rect,node)=>{
+                    const {props:{"data-frame":isFrame, width,height}}=node
+                    if(isFrame)
+                        return pointIsInside(rect({width,height}),topFrameOffset)
+                },
+                //get frame from data-content and data-frame
+                layoutedFrameNode=>this.getFrameByLayoutedFrameNode(layoutedFrameNode)
+            )
+            return leafFrame
+        }
+
+        const getLastFrame=composed=>{
+            const lastFrame=new ReactQuery(composed).findLast('[data-frame]')
+            const id=lastFrame.attr("data-content")
+            return id && this.getComposer(id)
+        }
         
         //first check if it's anchor
         const anchor=topFrame.anchors.find(({props})=>{
             const {x=0,y=0,width=0,height=0}=props.geometry||props
             return pointIsInside({x,y,width,height},topFrameOffset)
         })
+        let leafFrame=null
         if(anchor){
-            const $anchor=new ReactQuery(anchor)
-            const notFrameAnchor=$anchor.findFirst(`[data-frame]`).length==0
-            if(notFrameAnchor){
+            /**
+             * the position must be in this anchor, either 
+             * 
+             */
+            leafFrame=getLeafFrame(anchor)||getLastFrame(anchor)
+            if(!leafFrame){
                 const {node}=this.getBoundaryCheckedMostInnerNode(
                     anchor, 
                     (rect,node)=>{
@@ -737,26 +763,14 @@ export default class ReactPositioning extends PositioningHelper {
                         if(width && height)
                             return pointIsInside(rect({width,height}),topFrameOffset, anchor.props.geometry)
                     },
-                    (node,parents)=>[node,...parents].find(a=>a && a.props && "data-content" in a.props)
+                    (node,parents)=>[node,...parents].find(a=>a?.props?.["data-content"])
                 )
-
-                return {id:node.props["data-content"],page:topFrame.props.I}
-            }else{
-                //continue use frame search
+                return {id:(node||anchor).props["data-content"],page:topFrame.props.I}
             }
+        }else{
+            leafFrame=getLeafFrame(topFrame.createComposed2Parent())
         }
-        //to get leaf frame that includes the point, and return the frame
-        const {node:leafFrame}=this.getBoundaryCheckedMostInnerNode(
-            topFrame.createComposed2Parent(), 
-            //only frame that contain the point
-            (rect,node)=>{
-                const {props:{"data-frame":isFrame, width,height}}=node
-                if(isFrame)
-                    return pointIsInside(rect({width,height}),topFrameOffset)
-            },
-            //get frame from data-content and data-frame
-            layoutedFrameNode=>this.getFrameByLayoutedFrameNode(layoutedFrameNode)
-        )
+
         const leafFrameOffset=this.getFrameOffsetGrandFrame(topFrame,leafFrame)
 
         //locate the line that contain the point
