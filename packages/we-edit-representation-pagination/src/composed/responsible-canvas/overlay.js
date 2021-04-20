@@ -12,7 +12,7 @@ export default class Overlay extends Component{
                 <div style={{
                     ...style,
                     position:"fixed", left:0, top:0,
-                    width,height,overflow:"hidden",
+                    width,height,overflow:"hidden", background:"red", opacity:0.5,
                     zIndex:Number.MAX_SAFE_INTEGER
                 }} {...props}/>, 
                 document.body
@@ -81,6 +81,11 @@ export default class Overlay extends Component{
             )
         }
 
+        get motionPoint(){
+            const {right:x,bottom:y}=this.motionRect
+            return {x,y}
+        }
+
         get motionRect(){
             const {state:{left:x0, top:y0, right:x1=x0,bottom:y1=y0}, target}=this
             const svg=target.current.viewportElement,m=svg.getScreenCTM().inverse()
@@ -118,10 +123,14 @@ function createEvent(e, overlay){
                 case "currentTarget":
                 case "target":
                     return overlay.target.current
+                case "motionPoint":
+                    return overlay.motionPoint
                 case "motionRect":
                     return overlay.motionRect
                 case "motionRoute":
                     return overlay.motionRoute
+                case "overlay":
+                    return overlay
                 default:
                     return Reflect.get(...arguments)
             }
@@ -131,7 +140,7 @@ function createEvent(e, overlay){
 
 function targetEvents(props, overlay){
     return Object.keys(props).reduce((props,key)=>{
-        if(key.startsWith("onMouse") && typeof(props[key])=="function"){
+        if(key.startsWith("on") && typeof(props[key])=="function"){
             const func=props[key]
             props[key]=(e,...args)=>func(createEvent(e,overlay),...args)
         }

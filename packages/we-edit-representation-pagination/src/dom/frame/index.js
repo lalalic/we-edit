@@ -105,6 +105,9 @@ class Frame extends Layout.Block{
  */
 export default class EditableFrame extends editable(Frame,{stoppable:true, continuable:true}){
 	onAllChildrenComposed(){
+		if(this.isAllChildrenComposed()){
+			return this.async && this.createComposed2Parent() || null
+		}
 		super.onAllChildrenComposed()
 		return this.async && this.createComposed2Parent() || null
 	}

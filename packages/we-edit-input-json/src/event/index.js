@@ -65,11 +65,11 @@ export default (class Events extends Input.Editable.EventHandler{
             if(typeof(value)=="number")
                 $anchor.attr(k, value+d)
             else if(typeof(value)=="object"){
-                this.content.setIn([$anchor.attr('id'),'props',k,'offset'],offset=>offset+d)
+                this.content.setIn([$anchor.attr('id'),'props',k,'offset'],d+value.get('offset'))
             }
         }
-        change('x',dx)
-        change('y',dy)
+        dx && change('x',dx)
+        dy && change('y',dy)
     }
 
     create_first_paragraph(){
