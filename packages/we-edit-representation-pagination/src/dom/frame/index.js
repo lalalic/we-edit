@@ -19,6 +19,11 @@ class Frame extends Layout.Block{
 					const {props:{i,id}}=this
 					return `${id}${i!=undefined ? "_"+i : ""}`
 				}
+			},
+			async:{
+				get(){
+					return this.props.async
+				}
 			}
 		})
 	}
@@ -99,6 +104,11 @@ class Frame extends Layout.Block{
  * 
  */
 export default class EditableFrame extends editable(Frame,{stoppable:true, continuable:true}){
+	onAllChildrenComposed(){
+		super.onAllChildrenComposed()
+		return this.async && this.createComposed2Parent() || null
+	}
+
 	_cancelAllLastComposed(){
 		super._cancelAllLastComposed()
 		this.computed.anchors=[]
@@ -118,6 +128,9 @@ export default class EditableFrame extends editable(Frame,{stoppable:true, conti
 	 * @param {*} a 
 	 */
 	shouldContinueCompose(){
+		if(this.async)
+			return true
+
 		if(!this.cols || //non-column model
 			this.columns.length==this.cols.length){//last column
 			if(!this.context.shouldContinueCompose(...arguments))
@@ -181,7 +194,6 @@ export default class EditableFrame extends editable(Frame,{stoppable:true, conti
 			return false
 		}
 		//this event should be called to append to parent
-		//this.onAllChildrenComposed()
 		return true
 	}
 

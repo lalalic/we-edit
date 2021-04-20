@@ -24,14 +24,6 @@ export default ({Document})=>{
             defaultStyles: PropTypes.object
         }
 
-        static defaultProps={
-            canvas:<span/>,
-        }
-
-        static extractProps({fonts, size, bold, italic,color,  ...props}){
-            return {defaultStyle:trim({fonts, size:size ? parseFloat(size) : undefined, bold, italic,color,}), ...props}
-        }
-
         getChildContext(){
             const {defaultStyles:{text={fonts:"Arial",size:12},...styles}={}}=this.props
             return{
@@ -43,7 +35,7 @@ export default ({Document})=>{
         }
 
         render(){
-            const {defaultStyles, canvas, ...props}=this.props
+            const {defaultStyles, ...props}=this.props
             return <Document {...props}/>
         }
     }

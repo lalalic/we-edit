@@ -157,6 +157,11 @@ class Section extends HasParentAndChild(dom.Section){
 }
 
 export default class EditableSection extends editable(Section,{stoppable:true}){
+	onAllChildrenComposed(){
+		if(this.isAllChildrenComposed())
+			return 
+		super.onAllChildrenComposed()
+	}
 	/**
 	 * lastComposed==composed
 	 */

@@ -4,10 +4,10 @@ import {render} from "../context"
 import {define} from "./index"
 
 define("Frame", ({dom:{Document, Page, Anchor, Frame, Paragraph, Text}, WithTextContext, WithParagraphContext, uuid=0})=>{
-    function test(content){
+    function test(content, pageProps={}){
         const rendered=render(
             <Document canvas={null}>
-                <Page {...{width:200, height:500}}>
+                <Page {...{width:200, height:500, ...pageProps}}>
                     <WithParagraphContext>
                         <WithTextContext>
                             {content}
@@ -16,6 +16,7 @@ define("Frame", ({dom:{Document, Page, Anchor, Frame, Paragraph, Text}, WithText
                 </Page>
             </Document>
         )
+        
         const doc=rendered.getInstance()
         return {
             rendered,
@@ -32,16 +33,20 @@ define("Frame", ({dom:{Document, Page, Anchor, Frame, Paragraph, Text}, WithText
         const paragraph=(<Paragraph><Text>{text}</Text></Paragraph>)
                 
         describe("async",()=>{
-            it("should show composed without canvas, and also commit to parent",()=>{
-                const {doc, $page}=test(paragraph)
+            it("async and sync composed to same",()=>{
+                const {doc, $page, rendered}=test(paragraph,{async:true})
                 expect(doc.pages.length).toBe(1)
-                expect(doc.getComposer('page')).toBeTruthy()
-                expect(doc.getComposer('paragraph')).toBeTruthy()
-                expect(doc.getComposer('text')).toBeTruthy()
-                expect(trim($page(0).text())).toBe(text)
-                //how to check rendered with same text output
-            }) 
-            
+                const synced=render($page(0).get(0)).toJSON()
+                const asynced=rendered.toJSON()
+                expect(synced).toEqual(asynced)
+            })
+
+            it("sync compose should have no async content",()=>{
+                const {doc, rendered}=test(paragraph)
+                expect(doc.pages.length).toBe(1)
+                const asynced=rendered.toJSON()
+                expect(asynced).toBeFalsy()
+            })
         })
 
         it("anchored children not in paragraph should be layouted",()=>{

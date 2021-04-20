@@ -28,10 +28,6 @@ export default ({Paragraph})=>class __$1 extends Component{
     render(){
         return <Paragraph {...this.context.defaultStyles.paragraph} {...this.props} defaultStyle={this.getDefaultStyle()} />
     }
-
-    static extractProps({fonts, size, bold, italic,color,  ...props}){
-        return {defaultStyle:trim({fonts, size:size ? parseFloat(size) : undefined, bold, italic,color}), ...props}
-    }
 }
 
 const trim=a=>{
