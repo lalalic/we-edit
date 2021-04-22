@@ -1,9 +1,17 @@
 import React, {Component,Fragment} from "react"
 import PropTypes from "prop-types"
-import memoize from "memoize-one"
 
 export default class Base extends Component{
 	static displayName="unknown"
+	static reactCreateElementNormalized=(
+		createElement=>{
+			React.createElement=function(Type, props, ...args){
+				props=Type.normalizePropShape?.({...Type.defaultProps,...props})||props
+				return createElement(Type, props, ...args)
+			}
+			return true
+		}
+	)(React.createElement)
 
 	static UnitShape=Object.assign(PropTypes.oneOfType([
 		PropTypes.number,
@@ -180,17 +188,9 @@ export default class Base extends Component{
 		const displayName = parts.join("-")
 
 		const superNormalizePropShape=this.normalizePropShape?.bind(this)||(props=>props)
-		this.normalizePropShape=props=>superNormalizePropShape(Next.normalizePropShape(props))
+		this.normalizePropShape=props=>superNormalizePropShape(Next.normalizePropShape?.(props)||props)
 
 		return displayName
-	}
-
-	static normalizeProps(props){
-		return props
-	}
-
-	constructor(props, ...args){
-		super(props,...args)
 	}
 
 	render(){
