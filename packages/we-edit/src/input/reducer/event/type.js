@@ -12,5 +12,4 @@ export default {
         this.file.renderChanged(this.target.text(data))
         this.cursorAt(this.cursor.id,data.length)
     },
-
 }

@@ -49,7 +49,7 @@ export const Test=connect(state=>({ready:isDocumentReady(state)}))(class extends
         this.loadFixture(fixture)
             .then(specs=>{
                 import(
-                    /* webpackChunkName: "jasmine" */
+                    /* webpackChunkName: "jasmine.js" */
                 "jasmine-core/lib/jasmine-core/jasmine")
                 .then(jasmineRequire=>{
                     this.jasmine=jasmineRequire

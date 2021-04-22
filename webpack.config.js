@@ -12,7 +12,7 @@ module.exports=(env,args)=>{
 		entry:"./src/index.js",
 		output:{
 			filename:"[name].js",
-			path:path.resolve(__dirname, 'dist')
+			path:path.resolve(__dirname, 'dist'),
 		},
 		module:{
 			rules:[{

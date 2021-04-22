@@ -41,7 +41,7 @@ export default class JSXDocument extends Input.Editable{
 		return Promise.all([
 				data,
 				import(
-					/* webpackChunkName: "plugin-compiler" */
+					/* webpackChunkName: "js-compiler.js" */
 					"./transform"
 				),
 			])

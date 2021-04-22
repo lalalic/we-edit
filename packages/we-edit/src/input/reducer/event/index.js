@@ -163,7 +163,7 @@ export default (class Events extends Base{
     }
     
     emit(action,conds, ...payload){
-        const event=conds.find(cond=>`${action}_${cond}` in this)
+        const event=conds.find(cond=>`${action}_${cond}` in this)||(-1!=action.indexOf("_")&&this[action]&&action)
         if(event){
             if(this.debug)
                 console.debug({message:`${action}_${event}`,action,conds,payload})
@@ -222,12 +222,12 @@ export default (class Events extends Base{
         if(this.shouldRemoveSelectionWhenCreate(...arguments)){
             this.remove()
         }
-        this.emit("create",[...this.conds,""].map(a=>type.toLowerCase()+(a&&"_")+a),...arguments)
+        this.emit(`create_${type.toLowerCase()}`,this.conds,...arguments)
     }
 
     remove({type}={}){
         if(type){
-            this.emit("remove", [...this.conds,""].map(a=>type.toLowerCase()+(a&&'_')+a), ...arguments)
+            this.emit(`remove_${type.toLowerCase}`, this.conds, ...arguments)
             return
         }
 

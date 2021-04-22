@@ -13,6 +13,9 @@ import ContextMenu from "../components/context-menu"
 import Setting from "./panel"
 import Layout from "./layout"
 import textbox from "./text-box"
+import flowchart from "!!file-loader?name=[name].[ext]!./flowchart.ttf"
+import shapes from "!!file-loader?name=[name].[ext]!./shapes.ttf"
+
 
 const {Shape}=dom 
 export default compose(
@@ -37,20 +40,7 @@ export default compose(
     state={}
     componentDidMount(){
         try{
-            Promise.all([
-                import(
-                    /*webpackChunkName: "flowcharts.ttf"*/ 
-                    /*webpackMode: "lazy-once"*/
-                    /*webpackPrefetch: true*/
-                    "!!file-loader!./flowchart.ttf?name=[name].[ext]&esModule=false"
-                ),
-                import(
-                    /* webpackChunkName: "shapes.ttf"*/ 
-                    /*webpackMode: "lazy-once"*/
-                    /*webpackPrefetch: true*/
-                    "!!file-loader!./shapes.ttf?name=[name].[ext]&esModule=false"
-                )
-            ]).then(([flowchart,shapes])=>Promise.all([fetch(flowchart.default),fetch(shapes.default)]))
+            Promise.all([fetch(flowchart),fetch(shapes)])
             .then(ress=>Promise.all(ress.map(a=>a.arrayBuffer())))
             .then(([flowchart,shapes])=>{
                 this.setState({

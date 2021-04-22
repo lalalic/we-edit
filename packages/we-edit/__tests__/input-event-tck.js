@@ -1,6 +1,9 @@
 import Input from "../src/input/index"
 
 export default function tck(TypedDocument,file, debug=false){
+    if(!debug)
+        console.debug=console.log=a=>a
+
     const data=require("fs").readFileSync(file)
     describe("event based reducer", ()=>{
         var editor=null
@@ -342,6 +345,95 @@ export default function tck(TypedDocument,file, debug=false){
 
             it("forward at  end of  paragraph's last should go to end of paragraph",()=>{
                 
+            })
+        })
+
+        describe("create",()=>{
+
+        })
+
+        xdescribe("type",()=>{
+            const x="x"
+                
+            describe("in text",()=>{
+                it("at beginning should prepend, and cursor at 1",()=>{
+                    const $=editor.$().findFirst('text')
+                    const id=$.attr('id'), text=$.text()
+                    editor.cursorAt(id,0)
+                    editor.type(x)
+                    expect($.text()).toBe(x+text)
+                    expect(editor.cursor.at).toBe(1)
+                })
+
+                it("at end should append, and cursor at next of last",()=>{
+                    const $=editor.$().findFirst('text')
+                    const id=$.attr('id'), text=$.text()
+                    editor.cursorAt(id,text.length)
+                    editor.type(x)
+                    expect($.text()).toBe(text+x)
+                    expect(editor.cursor.at).toBe(text.length+1)
+                })
+
+                it("at middle should insert at i, and cursor at i+1",()=>{
+                    const $=editor.$().findFirst('text')
+                    const id=$.attr('id'), text=$.text()
+                    editor.cursorAt(id,2)
+                    editor.type(x)
+                    expect($.text()).toBe(text.substring(0,2)+x+text.substring(2))
+                    expect(editor.cursor.at).toBe(3)
+                })
+            })
+
+            describe("in inline container",()=>{
+                it("at begin to prepend to children",()=>{
+
+                })
+
+                it("at end to append to children",()=>{
+
+                })
+
+                it("empty container",()=>{
+
+                })
+            })
+
+            describe("on image",()=>{
+
+            })
+
+            describe("at paragraph",()=>{
+                it("end should append to last child",()=>{
+                    const $p=editor.$().findFirst('paragraph')
+                    editor.cursorAt($p.attr('id'),1,$p.attr('id'),1)
+                    const text=$p.findLast('text').text(), children=$p.children()
+                    editor.type(x)
+                    expect(children.length).toBe($p.children().length)
+                    expect($p.findLast('text').text()).toBe(text+x)
+                    expect(editor.cursor.at).toBe(text.length+1+1)
+                })
+
+                it("end, but last child is not text, should create text at end",()=>{
+
+                })
+
+                it('begin should prepend to first child',()=>{
+                    const $p=editor.$().findFirst('paragraph')
+                    editor.cursorAt($p.attr('id'),0)
+                    const text=$p.findFirst('text').text()
+                    editor.type(x)
+                    expect($p.findFirst('text').text()).toBe(x+text)
+                    expect(editor.cursor.at).toBe(1)
+                    expect(editor.cursor.id).toBe($p.findFirst('text').attr('id'))
+                })
+
+                it('begin,but first child is not text,  should create text at beginning',()=>{
+
+                })
+
+                it('of empty should create first text',()=>{
+                    const $p=editor.$().findFirst('paragraph')
+                })
             })
         })
     }) 
