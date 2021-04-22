@@ -73,7 +73,7 @@ const fonts=(()=>{
                     font.oblique=1
                 family.push(font)
                 console.debug(`font[${fullName}] loaded`)
-                document?.dispatchEvent(new CustomEvent('fontLoaded',{detail:{font, fonts}}))
+                makeFontFace(font)
                 return font
             }
 
@@ -107,20 +107,11 @@ const FontManager={
 		return fonts.names().sort()
 	},
 
-    init(){
-        document?.addEventListener('fontLoaded',({detail:{font}})=>{
-            if(font.familyName[0]==".")
-                return 
-            makeFontFace(font)
-        })
-        this.init=a=>a
-    },
-
     load(data,cache=true){
         const font=FontKit.create(Buffer.from(data))
         if(font){//cache data
             const familyName=(font.fonts||[font])[0].familyName
-            cache && service?.active.postMessage({familyName, data, scope:service.scope})
+            cache && service?.active.postMessage({familyName, data, scope:new URL(service.scope).pathname})
             return fonts.put(font)
         }
     },
@@ -259,7 +250,6 @@ const FontManager={
                 if(!reg.active) 
                     return 
                 service=reg
-                service.scope=scope
                 console.log(`Font Service[${sw}] at ${scope}`)
 
                 return new Promise((resolve,reject)=>{
@@ -325,8 +315,6 @@ const FontManager={
     makeFontFace, 
     removeFontFace
 }
-
-FontManager.init()
 
 export default FontManager
 

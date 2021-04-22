@@ -1,0 +1,31 @@
+digraph G {
+    /* Entities */
+    measure[shape=Mrecord label="measure|{<font>Font|<svg>SVG}"]
+    FontManager[shape=Mrecord label="FontManager\nload from|{file|system|remote|cache|input|...}"]
+    FontLoaded[label="event"]
+    FontCache[shape=Mrecord label="font cache"]
+    /* Relationships */
+    //fonts -> measure[label="layout"] 
+    //fonts -> browser[label="display"]
+    measure:font -> FontManager[label="require"]
+    measure:svg -> Browser
+
+    FontManager->font
+    Browser->fontface[label="local"]
+
+    font->fontface[label="native"]
+    font->FontCache1
+    font:e->FontCache:w
+    FontManager->FontCache[arrowhead=dot]
+    fontface->FontLoaded[label="dispatch"]
+    fontface->document
+
+    FontLoaded->user
+    document->user
+
+    FontCache->emitter
+    
+
+    /* Ranks */
+    { rank=same; FontManager Browser};
+}

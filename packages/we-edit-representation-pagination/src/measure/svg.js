@@ -54,8 +54,10 @@ export default class SVGMeasure extends FontMeasure{
         return tester.getBBox().width
     }
 
+    static WebFonts=["Arial","Courier New","Georia","Times New Roman","Trebuchet MS","Verdana"]
+
     static requireFonts(service, fonts){
-        return super.requireFonts(service, fonts)
+        return super.requireFonts(service, Array.from(new Set([...fonts,...this.WebFonts])))
             .then(({FontManager,unloaded})=>{
                 const locals=unloaded
                 if(locals && locals.length){

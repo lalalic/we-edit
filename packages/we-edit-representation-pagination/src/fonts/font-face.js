@@ -9,12 +9,10 @@ export function makeFontFace(font, src){
         fontFaces=loader.appendChild(document.createElement("style"))
         fontFaces.id="we_edit_font_face"
     }
-    if(typeof(font)=="string")
-        return fontFaces.sheet.addRule('@font-face',font)
-    if(!src){
+    if(!src){//font data
         const nativeFont=new FontFace(font.familyName, font.stream.buffer, {})
         document.fonts.add(nativeFont)
-    }else{
+    }else{//local, url, service
         fontFaces.sheet.addRule('@font-face',`
             font-family:"${font.familyName}";
             src: ${src};
@@ -25,20 +23,24 @@ export function makeFontFace(font, src){
     }
     
     const id=toName(font.familyName)
-    if(loader.querySelector(`#${id}`))
-        return 
-    const span=loader.appendChild(document.createElement('span'))
-    span.id=id
-    span.style.fontFamily=font.familyName
-    //load normal, bold, italic, and boldItalic
-    span.innerHTML=`
-        A
-        <b style="font-style:bold">
+    if(!loader.querySelector(`#${id}`)){
+        const span=loader.appendChild(document.createElement('span'))
+        span.id=id
+        span.style.fontFamily=font.familyName
+        //load normal, bold, italic, and boldItalic
+        span.innerHTML=`
             A
+            <b style="font-style:bold">
+                A
+                <i style="font-style:italic">A</i>
+            </b>
             <i style="font-style:italic">A</i>
-        </b>
-        <i style="font-style:italic">A</i>
-    `
+        `
+    }
+    const fontface=Array.from(document.fonts).find(a=>a.family==font.familyName)
+    return fontface.loaded.then(font=>{
+        document.dispatchEvent(new CustomEvent('fontLoaded',{detail:{font}}))
+    })
 }
 
 const toName=a=>a.replace(/\s/g,'_')
