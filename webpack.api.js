@@ -73,6 +73,14 @@ class CopyReadme{
             if(compilation.options.mode!=="production")
                 return 
             const project=compilation.options.entry.split("/").reverse()[2]
+            const files=fs.readdirSync(compilation.options.output.path,{withFileTypes:true})
+            const excludes=["package.json","readme.md","design.dot"]
+            files.forEach(a=>{
+                if(a.isFile && excludes.find(b=>a.name.toLowerCase()==b)==-1){
+                    fs.rmSync(path.resolve(compilation.options.output.path,a.name))
+                }
+            })
+
             fs.createReadStream(path.resolve(__dirname, `packages/${project}/README.md`))
                 .pipe(fs.createWriteStream(path.resolve(compilation.options.output.path,project.replace("we-edit-","")+".md")))
         })

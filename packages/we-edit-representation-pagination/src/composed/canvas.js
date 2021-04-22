@@ -9,11 +9,12 @@ class SmartShow extends PureComponent{
 	state={display:false}
 	render(){
 		const {display}=this.state
-		const {children,width,height,margin,precision,paper}=this.props
+		const {children,width,height,margin,precision,paper, waypointProps}=this.props
 		return (
 			<Waypoint 
 				fireOnRapidScroll={false}
 				onEnter={e=>{this.setState({display:true})}}
+				{...waypointProps}
 				>
 				<g>
 					{paper && <Paper {...{width,height,margin,fill:"white", precision,...paper}}/>}

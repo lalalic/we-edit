@@ -38,8 +38,18 @@ export default compose(
     componentDidMount(){
         try{
             Promise.all([
-                import(/* webpackChunkName: "flowcharts", esModule:false, */"file-loader!./flowchart.ttf"),
-                import(/* webpackChunkName: "shapes", esModule:false */"file-loader!./shapes.ttf")
+                import(
+                    /*webpackChunkName: "flowcharts.ttf"*/ 
+                    /*webpackMode: "lazy-once"*/
+                    /*webpackPrefetch: true*/
+                    "!!file-loader!./flowchart.ttf?name=[name].[ext]&esModule=false"
+                ),
+                import(
+                    /* webpackChunkName: "shapes.ttf"*/ 
+                    /*webpackMode: "lazy-once"*/
+                    /*webpackPrefetch: true*/
+                    "!!file-loader!./shapes.ttf?name=[name].[ext]&esModule=false"
+                )
             ]).then(([flowchart,shapes])=>Promise.all([fetch(flowchart.default),fetch(shapes.default)]))
             .then(ress=>Promise.all(ress.map(a=>a.arrayBuffer())))
             .then(([flowchart,shapes])=>{

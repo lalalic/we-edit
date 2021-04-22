@@ -40,7 +40,10 @@ export default class JSXDocument extends Input.Editable{
 		data=data instanceof Blob ? data.text() : Buffer.from(data).toString()
 		return Promise.all([
 				data,
-				import(/* webpackChunkName: "plugin-compiler" */"./transform"),
+				import(
+					/* webpackChunkName: "plugin-compiler" */
+					"./transform"
+				),
 			])
 			.then(([raw, {transform}])=>{
 				const {code}=transform(raw)

@@ -5,13 +5,9 @@ export default {
         const target=this.$target
         const page=target.closest('page')
         const {props:{width,height}}=page.toJS()
-        const id=this.file.makeId()
-        const newPage={type:'page',id,props:{width,height}, children:[], parent:"root"}
-        this.content.mergeDeep({[id]:newPage})
-        this.content.updateIn(['root','children'],children=>{
-            const i=children.indexOf(page.attr('id'))
-            return children.splice(i,0,id)
-        })
+        const {id}=this.file.renderChanged(<page {...{width,height}}/>)
+        this.$('#'+id).appendTo('#root')
+        this.cursorAt(id)
     },
 
     create_textbox({geometry}){
@@ -30,18 +26,28 @@ export default {
         this.cursorAt(this.$('#'+id).find("text").attr('id'),0)
     },
 
-    create_shape({page:{x,y},geometry}){
+    create_shape({geometry}){
+        this.emit("create_anchor", this.conds, arguments[0])
         const {id}=this.file.renderChanged(
-            <anchor x={{base:'page',offset:x}} y={{base:'page',offset:y}}>
-                <shape 
-                    geometry={geometry.round(2).toString()} 
-                    outline={{width:1, color:"green"}}
-                    fill={{color:"green"}}
-                    />
-            </anchor>
+            <shape 
+                geometry={geometry.round(2).toString()} 
+                outline={{width:1, color:"green"}}
+                fill={{color:"green"}}
+                />
         )
-        const $anchor=this.$('#'+id)
-        this.$target.closest("frame,page").append($anchor)
-        this.cursorAt($anchor.children("shape").attr('id'))
-    }
+        this.$target.append('#'+id)
+        this.cursorAt(id)
+    },
+
+    create_anchor_at_page({page:{x,y}}){
+        const {id}=this.file.renderChanged(
+            <anchor x={{base:'page',offset:x}} y={{base:'page',offset:y}}/>
+        )
+        this.$target.closest("page").append('#'+id)
+        this.cursorAt(id)
+    },
+
+    create_anchor_at_frame(){
+        debugger
+    },
 }

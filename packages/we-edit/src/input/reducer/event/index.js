@@ -214,8 +214,14 @@ export default (class Events extends Base{
         this.emit("tab",this.conds,...arguments)
     }
 
+    shouldRemoveSelectionWhenCreate(payload){
+        return true
+    }
+
     create({type}){
-        this.remove()
+        if(this.shouldRemoveSelectionWhenCreate(...arguments)){
+            this.remove()
+        }
         this.emit("create",[...this.conds,""].map(a=>type.toLowerCase()+(a&&"_")+a),...arguments)
     }
 
@@ -428,8 +434,15 @@ export default (class Events extends Base{
         this.remove()
     }
 
+    shouldRemoveSelectionWhenPaste(payload){
+        return true
+    }
+
     paste(){
-        this.remove()
+        if(this.shouldRemoveSelectionWhenPaste(...arguments)){
+            this.remove()
+        }
+
         this.file.attach(this.clipboard).each((i,a)=>{
             const {id}=this.file.renderChanged(a)
             const $b=this.$(`#${id}`)

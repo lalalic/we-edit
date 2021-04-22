@@ -49,6 +49,10 @@ export default (class Events extends Input.Editable.Reducer{
         })
     }
 
+    shouldRemoveSelectionWhenCreate({type}){
+        return !["textbox","shape"].includes(type)
+    }
+
     isNumberingParagraph(){
         
     }

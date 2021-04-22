@@ -89,7 +89,7 @@ export class Dict{
     }
 
     merge(map){
-        return Object.assign(this._map,map)
+        return map && Object.assign(this._map,map)
     }
 }
 

@@ -1,6 +1,5 @@
 import {Name} from "./primitives"
 import DictElement from "./dict-element"
-import memoize from "memoize-one"
 export default class Page extends DictElement{
     static Type="Page"
     constructor(writer){

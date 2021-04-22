@@ -94,11 +94,10 @@ export const PDFRenderer = ReactFiberReconciler({
     useSyncScheduling: true,
 })
 
-export const render=(element,{Writer,Renderer}) => {
-    const writer=new Writer()
-    const root = Renderer.createContainer(writer, 0, false, null)
+export const render=(element,container, Renderer=PDFRenderer) => {
+    const root = Renderer.createContainer(container, 0, false, null)
     Renderer.updateContainer(element, root, null, undefined)
-    return writer
+    return container
 }
 
 export const [Document, Page, Pages]=["Document","Page","Pages"]

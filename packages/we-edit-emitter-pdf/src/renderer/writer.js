@@ -17,20 +17,17 @@ import { deflateSync } from "zlib";
  *  > while render createinstance from bottom to top 
  */
 export default class PDFWriter extends Readable {
-    constructor() {
-        super(...arguments);
-        this.xref = new XRef();
-        this.trailer = new Trailer(this.xref)
-        this.count=0
-
+    static writers={Pages,Page,Group,Text,Path,Image}
+    constructor(doc) {
+        super();
+        this.source=doc
         let current = null;
         Object.defineProperties(this, {
             current: {
                 get() {
                     if (!current) {
-                        current=new Page(this)
+                        current=new this.constructor.writers.Page(this)
                         this.xref.getNewRef(current)
-                        this.count++
                     }
                     return current;
                 },
@@ -40,10 +37,14 @@ export default class PDFWriter extends Readable {
             },
         });
 
+        this.offset=0
+        this.xref = new XRef();
+        this.trailer = new Trailer(this.xref)
         this.fontManager = Font.createManager(this.xref);
         this.imageManager = Image.createManager(this.xref);
+    }
 
-        this.offset=0
+    init(){
         this._line("%PDF-1.7");
         this._line("%\xFF\xFF\xFF\xFF");
     }
@@ -59,13 +60,17 @@ export default class PDFWriter extends Readable {
         super.push(...arguments);
     }
 
-    _line(data) {
+    _line(data="") {
         this.push(Buffer.from(data + "\n", "binary"));
     }
 
     _read() {
         if (this.alreadyPushedAll) 
             return;
+        if(this.xref.entries.find(a=>a.offset==0)){
+            this.push(null)
+            throw new Error("pdf header is not written, please fix it!")
+        }
         return this.alreadyPushedAll=Promise.resolve()
             .finally(()=>{
                 const entries=this.xref.entries
@@ -216,7 +221,8 @@ export default class PDFWriter extends Readable {
      * instances are created from bottom to top
      */
     createInstance(type, props) {
-        console.log(`creating ${type}`);
+        console.log(`creating ${type}`)
+        const {Pages, Page, Group, Image, Text, Path}=this.constructor.writers
         switch (type) {
             case "Document":{
                 this.props = props;
