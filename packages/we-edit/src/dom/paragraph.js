@@ -6,10 +6,14 @@ import Component from "./component"
 export default class Paragraph extends Component{
 	static displayName="paragraph"
 	static propTypes={
-		spacing: PropTypes.shape({
+		spacing: this.normalizeChecker(PropTypes.shape({
 			lineHeight:this.UnitShape, //"115%[,15%:top offset]"
 			top:this.UnitShape,
 			bottom:this.UnitShape,
+		}),{
+			normalize:value=>{
+
+			}
 		}).isRequired,
 
 		indent: PropTypes.shape({

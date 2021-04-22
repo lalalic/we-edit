@@ -1,8 +1,17 @@
 import React, {Component,Fragment} from "react"
 import PropTypes from "prop-types"
+import units from "../tools/units"
+
 
 export default class Base extends Component{
 	static displayName="unknown"
+	static units=units
+	static normalizeChecker=(checker,extend)=>{
+		const isRequired=checker.isRequired
+		Object.assign(checker,extend)
+		Object.assign(isRequired,extend)
+		return checker
+	}
 	static reactCreateElementNormalized=(
 		createElement=>{
 			React.createElement=function(Type, props, ...args){
@@ -12,33 +21,70 @@ export default class Base extends Component{
 			return true
 		}
 	)(React.createElement)
-
-	static UnitShape=Object.assign(PropTypes.oneOfType([
+	
+	static UnitShape=this.normalizeChecker(PropTypes.oneOfType([
 		PropTypes.number,
 		PropTypes.string,
 	]),{
-		normalize(){
-			
+		normalize:(value,toUnit="px",missUnit=toUnit)=>{
+			switch(typeof(value)){
+				case "number":
+					return value
+				case "string":{
+					const val=parseFloat(value), unit=value.replace(/[\s\d\.]/g,"")||missUnit
+					if(toUnit==unit)
+						return val
+					return this.units[`${unit}2${toUnit}`](val)
+				}
+			}
+		},
+		normalizeAll: value=>{
+			return Object.keys(value).reduce((normalized,key)=>{
+				normalized[key]=this.UnitShape.normalize(value[key])
+				return normalized
+			},{...value})
 		}
 	})
 
 	//CSS valid values, keyword/hsl()/hsla()/rgb()/rgba()/#hex rgb
-	static ColorShape=PropTypes.oneOfType([
+	static ColorShape=this.normalizeChecker(PropTypes.oneOfType([
 		PropTypes.string,
-	])
-
-	static GradientShape=PropTypes.shape({
-		type:PropTypes.string,
-		angle: this.UnitShape,
-		stops:PropTypes.arrayOf(PropTypes.shape({
-			color: this.ColorShape,
-			position: this.UnitShape,
-			transparency: PropTypes.number,
-			brightness: PropTypes.number,
-		})),
+	]),{
+		normalize(value){
+			return value
+		}
 	})
 
-	static PatternShape=PropTypes.shape({
+	static GradientStopShape=this.normalizeChecker(PropTypes.shape({
+		color: this.ColorShape,
+		position: this.UnitShape,
+		transparency: PropTypes.number,
+		brightness: PropTypes.number,
+	}),{
+		normalize:({color,position, ...stop	})=>{
+			if(color!=undefined)
+				stop.color=this.ColorShape.normalize(color)
+			if(position!=undefined)
+				stop.position=this.UnitShape.normalize(position)
+			return stop
+		}
+	})
+
+	static GradientShape=this.normalizeChecker(PropTypes.shape({
+		type:PropTypes.string,
+		angle: this.UnitShape,
+		stops:PropTypes.arrayOf(this.GradientStopShape),
+	}),{
+		normalize:({angle,stops,...gradient})=>{
+			if(angle!=undefined)
+				gradient.angle=this.UnitShape.normalize(angle,"deg")
+			if(stops!=undefined)
+				gradient.stops=stops.map(a=>this.GradientStopShape.normalize(a))
+			return gradient
+		}
+	})
+
+	static PatternShape=this.normalizeChecker(PropTypes.shape({
 		pattern:PropTypes.shape({
 			path: PropTypes.string,
 			viewBox: PropTypes.string,
@@ -47,6 +93,18 @@ export default class Base extends Component{
 		}),
 		foreground: this.ColorShape,
 		background: this.ColorShape,
+	}),{
+		normalize:({pattern,...props})=>{
+			if(pattern!=undefined){
+				pattern={...pattern}
+				if(pattern.width!=undefined)
+					pattern.width=this.UnitShape.normalize(pattern.width)
+				if(pattern.height!=undefined)
+					pattern.height=this.UnitShape.normalize(pattern.height)
+				props.pattern=pattern
+			}
+			return props
+		}
 	})
 
 	static FontsShape=PropTypes.oneOfType([
@@ -65,47 +123,84 @@ export default class Base extends Component{
 		})]
 	)
 
-	static LineShape=Object.assign(PropTypes.shape({
-		width: this.UnitShape.isRequired,
-		color: this.ColorShape,
-		
-		dashArray: PropTypes.string,
-		dashOffset: PropTypes.string,
-		join: PropTypes.oneOf(["miter","round","bevel"]),
-		cap: PropTypes.string,
-		miterLimit: PropTypes.string,
-		
-		opacity: PropTypes.number,
-		
-		style: PropTypes.string,
-		sketched: PropTypes.string,
-		compound: PropTypes.string,
-		gradient: this.GradientShape
-	}),{
-		default:{width:1,color:"black"}
+	static LineShape=this.normalizeChecker(PropTypes.oneOfType([
+		PropTypes.shape({
+			width: this.UnitShape.isRequired,
+			color: this.ColorShape,
+			
+			dashArray: PropTypes.string,
+			dashOffset: PropTypes.string,
+			join: PropTypes.oneOf(["miter","round","bevel"]),
+			cap: PropTypes.string,
+			miterLimit: PropTypes.string,
+			
+			opacity: PropTypes.number,
+			
+			style: PropTypes.string,
+			sketched: PropTypes.string,
+			compound: PropTypes.string,
+			gradient: this.GradientShape
+		}),
+		this.UnitShape,//width
+	]),{
+		default:{width:1,color:"black"},
+		normalize:(value)=>{
+			switch(typeof(value)){
+				case "object":{
+					const {gradient, color, width, ...line}=value
+					if(gradient!=undefined)
+						line.gradient=this.GradientShape.normalize(gradient)
+					if(color!=undefined)
+						line.color=this.ColorShape.normalize(color)
+					if(width!=undefined)
+						line.width=this.UnitShape.normalize(width)
+					return line
+				}
+				default:
+					return {width:this.UnitShape.normalize(value)}
+			}
+			
+		}
 	})
 
-	static FillShape=PropTypes.shape({
-		color:this.ColorShape,
-		transparency: PropTypes.number,
-
-		gradient: this.GradientShape,
-		
-		picture: PropTypes.shape({
-			url: PropTypes.string,
+	static FillShape=this.normalizeChecker(PropTypes.oneOfType([
+		PropTypes.shape({
+			color:this.ColorShape,
 			transparency: PropTypes.number,
-			tile: PropTypes.shape({
-				x: PropTypes.number,
-				y: PropTypes.number,
-				scaleX: PropTypes.number,
-				scaleY: PropTypes.number,
-				align: PropTypes.string,
-				mirror: PropTypes.string,
+
+			gradient: this.GradientShape,
+			
+			picture: PropTypes.shape({
+				url: PropTypes.string,
+				transparency: PropTypes.number,
+				tile: PropTypes.shape({
+					x: PropTypes.number,
+					y: PropTypes.number,
+					scaleX: PropTypes.number,
+					scaleY: PropTypes.number,
+					align: PropTypes.string,
+					mirror: PropTypes.string,
+				}),
+				margin:this.MarginShape,
 			}),
-			margin:this.MarginShape,
+			
+			pattern: this.PatternShape,
 		}),
-		
-		pattern: this.PatternShape,
+		this.ColorShape,
+	]),{
+		normalize:(value)=>{
+			if(typeof(value)=="object"){
+				const {color, pattern, picture, ...fill}=value
+				if(color!=undefined)
+					fill.color=this.ColorShape.normalize(color)
+				if(pattern!=undefined)
+					fill.pattern=this.PatternShape.normalize(pattern)
+				if(picture!=undefined && picture.margin!=undefined)
+					fill.picture={...picture,margin:this.MarginShape.normalize(picture.margin)}
+				return fill
+			}
+			return {color:this.ColorShape.normalize(value)}
+		}
 	})
 
 	static EffectShape=PropTypes.shape({
@@ -121,7 +216,7 @@ export default class Base extends Component{
 		PropTypes.string// a svg path
 	])
 
-	static BorderShape=Object.assign(PropTypes.oneOfType([
+	static BorderShape=this.normalizeChecker(PropTypes.oneOfType([
 		PropTypes.shape({
 			left:this.LineShape,
 			right:this.LineShape,
@@ -135,16 +230,41 @@ export default class Base extends Component{
 			right:this.LineShape.default,
 			top: this.LineShape.default,
 			bottom: this.LineShape.default,
+		},
+		normalize:value=>{
+			if(typeof(value)=="object"){
+				return Object.keys(value).reduce((normalized,key)=>{
+					normalized[key]=this.LineShape.normalize(value[key])
+					return normalized
+				},{...value})
+			}else{
+				value=this.LineShape.normalize(value)
+				return {left:value, right:value, top:value, bottom:value}
+			}
 		}
 	})
 	
-	static MarginShape=Object.assign(PropTypes.shape({
-		left: this.UnitShape,
-		right: this.UnitShape,
-		top: this.UnitShape,
-		bottom: this.UnitShape
-	}),{
-		default:{left:0,right:0,top:0,bottom:0}
+	static MarginShape=this.normalizeChecker(PropTypes.oneOfType([
+		PropTypes.shape({
+			left: this.UnitShape,
+			right: this.UnitShape,
+			top: this.UnitShape,
+			bottom: this.UnitShape
+		}),
+		this.UnitShape//all is same
+	]),{
+		default:{left:0,right:0,top:0,bottom:0},
+		normalize:(value)=>{
+			switch(typeof(value)){
+				case "object":
+					return this.UnitShape.normalizeAll(value)
+				default:{
+					value=this.UnitShape.normalize(value)
+					return {left:value, right:value, top:value, bottom:value}
+				}
+
+			}
+		}
 	})
 
 	static PaddingShape=this.MarginShape
@@ -154,11 +274,17 @@ export default class Base extends Component{
 	static AlignShape=PropTypes.oneOf(["left","right","center","justify"])
 	static VertAlignShape=PropTypes.oneOf(["top","middle","bottom"])
 
-	static TextStyleShape=PropTypes.shape({
+	static TextStyleShape=this.normalizeChecker(PropTypes.shape({
 		fonts:this.FontsShape.isRequired,
-		size:PropTypes.number.isRequired,
+		size:this.UnitShape.isRequired,
 		bold: PropTypes.bool,
 		italic: PropTypes.bool,
+	}),{
+		normalize:({size,...style})=>{
+			if(size!=undefined)
+				style.size=this.UnitShape.normalize(size)
+			return style
+		}
 	})
 
 	static as=function (type,defaultProps={}){
@@ -191,6 +317,18 @@ export default class Base extends Component{
 		this.normalizePropShape=props=>superNormalizePropShape(Next.normalizePropShape?.(props)||props)
 
 		return displayName
+	}
+
+	static normalizePropShape(props){
+		const checks=this.propTypes
+		return Object.keys(props).reduce((normalized,key)=>{
+			if(props[key]!=null){
+				normalized[key]=checks[key]?.normalize?.(props[key])||props[key]
+			}else{
+				normalized[key]=props[key]
+			}
+			return normalized
+		},{...props})
 	}
 
 	render(){

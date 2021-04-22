@@ -1,5 +1,6 @@
 import Component from "./component"
 import PropTypes from "prop-types"
+import Frame from "./frame"
 
 export default class Page extends Component{
     static displayName="page"
@@ -61,11 +62,7 @@ export default class Page extends Component{
         height: this.UnitShape,
         size: PropTypes.oneOf(Object.keys(this.Size)),
         margin: this.MarginShape,
-        cols:PropTypes.arrayOf(PropTypes.shape({
-            x:this.UnitShape,
-            y:this.UnitShape,
-            width:this.UnitShape,
-        }))
+        cols:Frame.propTypes.cols,
     }
 
     static defaultProps={
@@ -81,9 +78,9 @@ export default class Page extends Component{
     static normalizePropShape({size, width, ...props}){
         if(size && !width){
             const [w,h]=this.Size[size]||this.Size['A4']
-            return Object.freeze({...props, width:w, height:h})
+            props={...props, width:w, height:h, size}
         }
-        return props
+        return super.normalizePropShape(props)
     }
 }
 

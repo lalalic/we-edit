@@ -5,18 +5,30 @@ import Component from "./component"
 
 export default class Frame extends Component{
 	static displayName="frame"
+	static ColShape=this.normalizeChecker(PropTypes.shape({
+		x:this.UnitShape,
+		y:this.UnitShape,
+		width:this.UnitShape.isRequired,
+		height:this.UnitShape,
+	}),{
+		normalize:value=>{
+			return Object.keys(value).reduce((normalized,key)=>{
+				normalized[key]=this.UnitShape.normalize(value[key])
+				return normalized
+			},{...value})
+		}
+	})
 	static propTypes={
 		width:this.UnitShape.isRequired,
 		height:this.UnitShape,
 		/**margin is in frame box*/
 		margin:this.MarginShape,
 		
-		cols:PropTypes.arrayOf(PropTypes.shape({
-			x:this.UnitShape,
-			y:this.UnitShape,
-			width:this.UnitShape.isRequired,
-			height:this.UnitShape,
-		})),
+		cols:this.normalizeChecker(PropTypes.arrayOf(this.ColShape),{
+			normalize:value=>{
+				return value.map(a=>this.ColShape.normalize(a))
+			}
+		}),
 		
 		x: this.UnitShape,
 		y: this.UnitShape,

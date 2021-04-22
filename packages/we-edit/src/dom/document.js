@@ -7,6 +7,7 @@ export default class Document extends Component{
 	static propTypes={
 		//target
 		canvas: PropTypes.node,
+		canvasProps: PropTypes.object,
 		canvasId: PropTypes.string,
 		
 		//viewer/editor

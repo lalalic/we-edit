@@ -1,5 +1,5 @@
 <document defaultStyles={{text:{fonts:"Arial", size:12}}}>
-    <page size="A4" width={1000} height={500} I={0}>
+    <page size="A4" I={0} margin="1in">
         {/*
         <paragraph>
             <text bold={true}>
@@ -9,7 +9,7 @@
         */}
         <anchor x={100} y={100}>
             <shape geometry="M0 0 h100 v300 h-100Z" rotate={30} outline={{width:1, color:"red"}}>
-                <frame width={100} height={300} margin={{left:10,right:10,top:10,bottom:10}}>
+                <frame width={100} height={300} margin={10}>
                     <paragraph>
                         <text>hello world</text>
                     </paragraph>
@@ -24,8 +24,5 @@
                 </frame>
             </shape>
         </anchor>
-       
-        
-    
     </page>
 </document>
