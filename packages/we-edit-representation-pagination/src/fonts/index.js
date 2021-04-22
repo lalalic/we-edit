@@ -96,6 +96,8 @@ const fonts=(()=>{
     }
 })()
 
+var service=null
+
 const FontManager={
     get(){
         return fonts.get(...arguments)
@@ -104,6 +106,24 @@ const FontManager={
     get names(){
 		return fonts.names().sort()
 	},
+
+    init(){
+        document?.addEventListener('fontLoaded',({detail:{font}})=>{
+            if(font.familyName[0]==".")
+                return 
+            makeFontFace(font)
+        })
+        this.init=a=>a
+    },
+
+    load(data,cache=true){
+        const font=FontKit.create(Buffer.from(data))
+        if(font){//cache data
+            const familyName=(font.fonts||[font])[0].familyName
+            cache && service?.active.postMessage({familyName, data, scope:service.scope})
+            return fonts.put(font)
+        }
+    },
 
     release(){
         return this
@@ -119,7 +139,7 @@ const FontManager={
                 Object.assign(new FileReader(),{
                     onload({target:{result:data}}){
                         try{
-                            resolve(fonts.put(FontKit.create(Buffer.from(data))))
+                            resolve(FontManager.load(data))
 						}catch(e){
 							resolve()
 						}
@@ -198,8 +218,7 @@ const FontManager={
                         return fetch(`${service}/${a}`).then(res=>{
                                 if(res.ok){
                                     return res.arrayBuffer().then(buffer=>{
-                                        const font=FontKit.create(Buffer.from(buffer))
-                                        fonts.put(font)
+                                        FontManager.load(buffer)
                                     })
                                 }
                             })
@@ -219,7 +238,7 @@ const FontManager={
             required.filter(a=>!fonts.family(a))
                 .map(a=>{
                     return service(a)
-                        .then(buffer=>fonts.put(FontKit.create(Buffer.from(buffer))))
+                        .then(buffer=>FontManager.load(buffer))
                 })
         )
     },
@@ -234,36 +253,13 @@ const FontManager={
             return 
         }
         
-        var service
         const register=navigator.serviceWorker.register(sw, { scope: `${scope}/` })
             .then(reg=>reg.update())
             .then(reg=>{
                 if(!reg.active) 
                     return 
                 service=reg
-                const noCacheCreate=FontKit.noCacheCreate||FontKit.create
-                if(!FontKit.noCacheCreate){
-                    FontKit.noCacheCreate=noCacheCreate
-                    FontKit.create=function(data){
-                        try{
-                            const font=noCacheCreate(data)
-                            if(font){//cache data
-                                const familyName=(font.fonts||[font])[0].familyName
-                                service.active.postMessage({familyName, data, scope})
-                            }
-                            return font
-                        }catch(e){
-                            console.error(e)
-                        }
-                    }
-                }
-
-                document.addEventListener('fontLoaded',({detail:{font}})=>{
-                    if(font.familyName[0]==".")
-                        return 
-                    makeFontFace(font)
-                })
-                
+                service.scope=scope
                 console.log(`Font Service[${sw}] at ${scope}`)
 
                 return new Promise((resolve,reject)=>{
@@ -274,8 +270,7 @@ const FontManager={
                             resolve()
                         }else if(data){    
                             try{
-                                const font=noCacheCreate(Buffer.from(data))
-                                font && fonts.put(font)
+                                FontManager.load(data,false)
                             }catch(e){
                                 errorFonts.push(decodeURIComponent(name))
                             }
@@ -330,6 +325,8 @@ const FontManager={
     makeFontFace, 
     removeFontFace
 }
+
+FontManager.init()
 
 export default FontManager
 
