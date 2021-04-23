@@ -162,13 +162,17 @@ const FontManager={
      */
     fromLocal(path){
         const load1=file=>{
-            return new Promise(resolve=>{
-                FontKit.open(file,(err, font)=>{
+            return new Promise(resolve=>{debugger
+                require('fs').readFile(file,(err, data)=>{
                     if(err){
                         console.error(err)
                         resolve()
                     }else{
-                        resolve(fonts.put(font))
+                        try{
+                            resolve(FontManager.load(data,false))
+                        }catch(e){
+                            resolve()
+                        }
                     }
                 })
             })
