@@ -311,17 +311,17 @@ class Manager {
 		this.createId = () => `F${++id}`;
 	}
 
-	get(family) {
-		return this.items[family];
+	get(fontFullName) {
+		return this.items[fontFullName];
 	}
 
-	create(family) {
+	create(fontFullName) {
 		const id = this.createId();
-		const font = FontManager.get(family);
+		const font = FontManager.byFullName(fontFullName);
 		const fontObj = font
-			? new SubsetFont({ family, font, id })
-			: new Font({ family, id });
-		return (this.items[family] = this.xref.getNewRef(fontObj).obj);
+			? new SubsetFont({ family: fontFullName, font, id })
+			: new Font({ family: fontFullName, id });
+		return (this.items[fontFullName] = this.xref.getNewRef(fontObj).obj);
 	}
 }
 

@@ -1,8 +1,8 @@
 import Group from "./group"
 export default class Text extends Group{
     postChildCommand(){
-        const {fontFamily, fontSize, children}=this.props
-        const font=this.page.font(fontFamily)
+        const {fontSize, "data-fontfullname":fullName, children}=this.props
+        const font=this.page.font(fullName)
         const text=(Array.isArray(children) ? children.join("") : children).trim()
         text && this.addContent(`
             BT

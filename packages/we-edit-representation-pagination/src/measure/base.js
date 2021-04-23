@@ -61,7 +61,7 @@ export class Measure{
 				fontWeight:bold ? "bold" : "normal",
 				fontStyle:italic ? "italic" : "normal",
 				fontFamily:this.fontFamily,
-				['data-fontid']: fontId,
+				['data-fontfullname']: fontId,
 				['data-mergeid']: `${fontId}.${this.size}${bold&&'.bold'||''}${italic&&'.italic'||''}${underline&&'.underline'||''}`,
 			}
 	

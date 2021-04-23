@@ -6,7 +6,8 @@ import {makeFontFace, removeFontFace} from "./font-face"
  * families:{[family name]: [different variations, such as plain/regular/bold/italic/oblique/bold-italic/...]}
  */
 const fonts=(()=>{
-    const families={}
+    const families=Object.create(null)
+    const fullNames=Object.create(null)
     return {
         get(name,{bold,italic}={}){
             const found=this.family(name)
@@ -61,6 +62,7 @@ const fonts=(()=>{
                 if(family.find(a=>a.fullName==font.fullName)){
                     return
                 }
+                fullNames[font.fullName]=font
 
                 extend(font,props)
                 const {fullName="",familyName="",subfamilyName=""}=font
@@ -92,6 +94,10 @@ const fonts=(()=>{
             if(key in families){
                 return families[key]
             }
+        },
+
+        byFullName(fullName){
+            return fullNames[fullName]
         }
     }
 })()
@@ -101,6 +107,10 @@ var service=null
 const FontManager={
     get(){
         return fonts.get(...arguments)
+    },
+
+    byFullName(fullName){
+        return fonts.byFullName(fullName)
     },
 
     get names(){

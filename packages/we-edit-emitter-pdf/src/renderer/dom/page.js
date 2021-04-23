@@ -38,10 +38,10 @@ export default class Page extends DictElement{
         super.appendChild(...arguments)
     }
 
-    font(family){
-        let font=this.fontManager.get(family)
+    font(fullName){
+        let font=this.fontManager.get(fullName)
         if(!font){
-            font=this.fontManager.create(family)  
+            font=this.fontManager.create(fullName)  
         }
 
         if(!this._map.Resources.Font[font.id]){
