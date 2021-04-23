@@ -86,3 +86,5 @@ export default class SVGMeasure extends FontMeasure{
             })
     }
 }
+
+
