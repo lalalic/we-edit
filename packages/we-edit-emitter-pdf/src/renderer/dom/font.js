@@ -9,9 +9,9 @@ export default class Font extends Dict {
 	constructor({ family, id }) {
 		super({
 			Type: Name.get("Font"),
-			Subtype: Name.get("Type1"),
+			Subtype: Name.get(Standard.is(family) ? "Type1" : "TrueType"),
 			BaseFont: new Name(family),
-			Encoding: new Name("MacRomanEncoding"),
+			Encoding: new Name("WinAnsiEncoding"),
 		});
 		this.id = id;
 		this.font = { familyName: family };
@@ -19,6 +19,10 @@ export default class Font extends Dict {
 
 	include(t) {
 		return t;
+	}
+
+	isStandard(family){
+		return family in Standard
 	}
 }
 
@@ -311,20 +315,87 @@ class Manager {
 		this.createId = () => `F${++id}`;
 	}
 
-	get(fontFullName) {
-		return this.items[fontFullName];
+	get(postscriptName) {
+		return this.items[postscriptName];
 	}
 
-	create(fontFullName) {
+	create(postscriptName) {
 		const id = this.createId();
-		const font = FontManager.byFullName(fontFullName);
+		const font = FontManager.byFullName(postscriptName);
 		const fontObj = font
-			? new SubsetFont({ family: fontFullName, font, id })
-			: new Font({ family: fontFullName, id });
-		return (this.items[fontFullName] = this.xref.getNewRef(fontObj).obj);
+			? new SubsetFont({ family: postscriptName, font, id })
+			: new Font({ family: postscriptName, id });
+		return (this.items[postscriptName] = this.xref.getNewRef(fontObj).obj);
 	}
 }
 
 const toHex = function(num) {
     return `0000${num.toString(16)}`.slice(-4);
-  };
+}
+
+const Standard={
+	is(family){
+		return family in this
+	},
+
+	Courier() {
+	  
+	},
+  
+	'Courier-Bold'() {
+	  
+	},
+  
+	'Courier-Oblique'() {
+	  
+	},
+  
+	'Courier-BoldOblique'() {
+	  
+	},
+  
+	Helvetica() {
+	  
+	},
+  
+	'Helvetica-Bold'() {
+	  
+	},
+  
+	'Helvetica-Oblique'() {
+	  
+	},
+  
+	'Helvetica-BoldOblique'() {
+	  
+	},
+
+	Times(){
+
+	},
+  
+	'Times-Roman'() {
+	  
+	},
+  
+	'Times-Bold'() {
+	  
+	},
+  
+	'Times-Italic'() {
+	  
+	},
+  
+	'Times-BoldItalic'() {
+	  
+	},
+  
+	Symbol() {
+	  
+	},
+  
+	ZapfDingbats() {
+	  
+	}
+  
+}

@@ -7,7 +7,7 @@ import {makeFontFace, removeFontFace} from "./font-face"
  */
 const fonts=(()=>{
     const families=Object.create(null)
-    const fullNames=Object.create(null)
+    const postscriptNames=Object.create(null)
     return {
         get(name,{bold,italic}={}){
             const found=this.family(name)
@@ -62,7 +62,7 @@ const fonts=(()=>{
                 if(family.find(a=>a.fullName==font.fullName)){
                     return
                 }
-                fullNames[font.fullName]=font
+                postscriptNames[font.postscriptName]=font
 
                 extend(font,props)
                 const {fullName="",familyName="",subfamilyName=""}=font
@@ -96,8 +96,8 @@ const fonts=(()=>{
             }
         },
 
-        byFullName(fullName){
-            return fullNames[fullName]
+        byPostscriptName(postscriptName){
+            return postscriptNames[postscriptName]
         }
     }
 })()
@@ -109,8 +109,8 @@ const FontManager={
         return fonts.get(...arguments)
     },
 
-    byFullName(fullName){
-        return fonts.byFullName(fullName)
+    byPostscriptName(postscriptName){
+        return fonts.byPostscriptName(postscriptName)
     },
 
     get names(){

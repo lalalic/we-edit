@@ -54,14 +54,14 @@ export class Measure{
 				 */
 				this.stringWidth("A")
 			}
-			const fontId=this.font?.fullName||this.fontFamily
+			const fontId=this.font?.postscriptName||this.fontFamily
 			const defaultStyle={
 				whiteSpace:'pre',
 				fontSize:`${this.size}px`,
 				fontWeight:bold ? "bold" : "normal",
 				fontStyle:italic ? "italic" : "normal",
 				fontFamily:this.fontFamily,
-				['data-fontfullname']: fontId,
+				['data-postscriptname']: fontId,
 				['data-mergeid']: `${fontId}.${this.size}${bold&&'.bold'||''}${italic&&'.italic'||''}${underline&&'.underline'||''}`,
 			}
 	
