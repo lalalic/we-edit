@@ -2,6 +2,9 @@ import PropTypes from "prop-types"
 
 import Component from "./component"
 
+/**
+ * Cell is like Section, so follow Section structure
+ */
 export default class Cell extends Component{
 	static displayName="cell"
 	static propTypes={

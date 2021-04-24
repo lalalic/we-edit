@@ -348,8 +348,54 @@ export default function tck(TypedDocument,file, debug=false){
             })
         })
 
-        describe("create",()=>{
+        describe("structure",()=>{
+            describe("section is flow container",()=>{
+                it("section must have paragraph",()=>{
 
+                })
+
+                it("anchor should be in paragraph",()=>{
+
+                })
+            })
+
+            describe("frame is flow and block container",()=>{
+                it("frame can have paragraph",()=>{
+
+                })
+
+                it("frame can have anchor",()=>{
+
+                })
+            })
+
+            describe("paragraph",()=>{
+
+            })
+
+            describe("text",()=>{
+                it("must in paragraph",()=>{
+
+                })
+    
+                it("can be in inline container in paragraph",()=>{
+                    
+                }) 
+            })
+            
+            describe("anchor (position and wrap)",()=>{
+                it("anchor in frame",()=>{
+
+                })
+
+                it("anchor in paragraph",()=>{
+
+                })
+            })
+
+            describe("image is a shape",()=>{
+
+            })
         })
 
         xdescribe("type",()=>{

@@ -45,5 +45,5 @@ export default{
 
     create_column({where}){
         this.emit("create_column",[where],...arguments)
-    },
+    }
 }

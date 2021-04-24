@@ -34,7 +34,7 @@ export default (class Events extends Base{
         Object.assign(this.prototype,...arguments)
         return this
     }
-
+    
     constructor(){
         super(...arguments)
         this.PARAGRAPH="paragraph"

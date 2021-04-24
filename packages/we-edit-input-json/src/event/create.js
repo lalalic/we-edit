@@ -39,11 +39,11 @@ export default {
         this.cursorAt(id)
     },
 
-    create_anchor_at_page({page:{x,y}}){
+    create_anchor({page:{x,y}}){
         const {id}=this.file.renderChanged(
             <anchor x={{base:'page',offset:x}} y={{base:'page',offset:y}}/>
         )
-        this.$target.closest("page").append('#'+id)
+        this.$target.closest("text, frame, page").append('#'+id)
         this.cursorAt(id)
     },
 

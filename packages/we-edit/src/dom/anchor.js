@@ -2,8 +2,10 @@ import PropTypes from "prop-types"
 import Component from "./component"
 
 /**
- * anchor can be positioned seperatedly x and y, and also can be wrapped
- * wrap:
+ * anchor can be positioned seperatedly x and y, z as layer 
+ *  > position:
+ * 
+ *  > wrap:
  * wrap is based on a wrap function to exclude horizontal spaces
  * wrap({x1,y1,x2,y2}, anchored position:{x,y}): in practice y2===y1
  * return [{x,width},...], which should be excluded to flow content

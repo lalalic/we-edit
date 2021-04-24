@@ -12,7 +12,7 @@ export default class Container extends Stoppable(HasParentAndChild(dom.Container
         const {createComposed2Parent}=this.props
         const {
             width,height,minWidth,tabWidth,
-            x,y,dy,
+            x,y,z,dy,
             wrap, anchor,
             descent,pagination,
             tokenizeOpportunity,
@@ -20,7 +20,7 @@ export default class Container extends Stoppable(HasParentAndChild(dom.Container
             }=element.props
         const myElement=React.isValidElement(element) ? React.createElement(Group,{
             width,height,minWidth,tabWidth,
-            x,y,dy,
+            x,y,z,dy,
             wrap, anchor,
             descent,pagination,
             tokenizeOpportunity,
@@ -30,5 +30,5 @@ export default class Container extends Stoppable(HasParentAndChild(dom.Container
         return createComposed2Parent ? createComposed2Parent(myElement,element) : myElement
     }
 }
-const Clear_Props="x,y,dy,wrap,anchor,tokenizeOpportunity,mergeOpportunity,tabWidth,underline".split(",")
+const Clear_Props="x,y,z,dy,wrap,anchor,tokenizeOpportunity,mergeOpportunity,tabWidth,underline".split(",")
 const clear=props=>Clear_Props.reduce((props,k)=>(delete props[k], props),{...props})

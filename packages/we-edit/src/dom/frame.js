@@ -1,8 +1,15 @@
-import React from "react"
 import PropTypes from "prop-types"
-
 import Component from "./component"
 
+/**
+ * frame 
+ * > can be a flow container
+ * 	> paragraph can be child
+ * > can be a positioning container
+ * 	> anchor can be child
+ * so in order to make both ready, should have
+ * 	> paragraph always?!
+ */
 export default class Frame extends Component{
 	static displayName="frame"
 	static ColShape=this.normalizeChecker(PropTypes.shape({
@@ -94,5 +101,9 @@ export default class Frame extends Component{
 		balance:false,
 		equalBalanceThreshold:1,
 		autoCompose2Parent:true,
+	}
+
+	get isFrame(){
+		return true
 	}
 }
