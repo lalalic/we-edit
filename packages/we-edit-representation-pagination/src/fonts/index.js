@@ -1,6 +1,9 @@
 import FontKit from "fontkit"
 import {default as isNode} from "is-node"
 import {makeFontFace, removeFontFace} from "./font-face"
+import arial from "!!file-loader?name=[name].[ext]!./Arial.ttf"
+import fontservice from "!!file-loader?name=[name].[ext]!./font-service.js"
+import {Blob} from "buffer"
 
 /**
  * families:{[family name]: [different variations, such as plain/regular/bold/italic/oblique/bold-italic/...]}
@@ -60,7 +63,7 @@ const fonts=(()=>{
                     return fonts
                 })(families[key]);
                 if(family.find(a=>a.fullName==font.fullName)){
-                    return
+                    return font
                 }
                 postscriptNames[font.postscriptName]=font
 
@@ -98,6 +101,11 @@ const fonts=(()=>{
 
         byPostscriptName(postscriptName){
             return postscriptNames[postscriptName]
+        },
+
+        release(){
+            Object.keys(families).forEach(k=>delete families[k])
+            Object.keys(postscriptNames).forEach(k=>delete families[k])
         }
     }
 })()
@@ -127,6 +135,7 @@ const FontManager={
     },
 
     release(){
+        fonts.release()
         return this
     },
 
@@ -162,7 +171,7 @@ const FontManager={
      */
     fromLocal(path){
         const load1=file=>{
-            return new Promise(resolve=>{debugger
+            return new Promise(resolve=>{
                 require('fs').readFile(file,(err, data)=>{
                     if(err){
                         console.error(err)
@@ -325,6 +334,110 @@ const FontManager={
 						return fonts
 				}
 			}).then(done,done)
+    },
+
+    createUnifiedFallbackFont(){
+        return null
+        return globalThis.fetch(arial)
+            .then(res=>res.arrayBuffer())
+            .then(data=>FontManager.load(data))
+            .then(font=>{
+                return new Promise((resolve,reject)=>{
+                    const subset=font.createSubset()
+                    const cmapTable = {
+                        version: 13, //format0
+                        language: 0,
+                        nGroups:1,
+                        //length:
+                        groups: [{
+                            startCharCode:1,
+                            endCharCode:0xFFFFFFFF,
+                            glyphID:0,
+                        }]
+                    }
+                    subset.cmap={
+                        version: 0,
+                        numSubtables: 3,
+                        tables: [
+                            {
+                                //unicode
+                                platformID: 0,
+                                encodeingID: 0,
+                                table: cmapTable,
+                            },
+                            {
+                                //mac
+                                platformID: 1,
+                                encodeingID: 0,
+                                table: cmapTable,
+                            },
+                            {
+                                //windows
+                                platformID: 3,
+                                encodeingID: 1,
+                                table: cmapTable,
+                            },
+                        ],
+                    }
+                    const name="fallback"
+                    subset.name={
+                        version:0,
+                        count:3,
+                        stringOffset:0,
+                        records:[
+                            {
+                                platformID: 0,
+                                encodingID: 4,
+                                languageID: 0,
+                                nameID:     1,
+                                string: name,
+                                length:  name.length,
+                            },
+                            {
+                                platformID: 0,
+                                encodingID: 4,
+                                languageID: 0,
+                                nameID:     4,
+                                string: name,
+                                length:  name.length,
+                            },
+                            {
+                                platformID: 0,
+                                encodingID: 4,
+                                languageID: 0,
+                                nameID:     6,
+                                string: name,
+                                length:  name.length,
+                            },
+                        ]
+                    }
+debugger
+                    const stream=subset.encodeStream(), data=[]
+                    stream.on('data',trunk=>{
+                        data.push(trunk)
+                    })
+                    stream.on('end',()=>{
+                        const size=data.reduce((s,a)=>s+a.length,0)
+                        const buffer=data.reduce((buffer,a)=>{
+                            a.forEach(c=>buffer.push(c))
+                            return buffer
+                        },new Array(size))
+                        resolve(buffer)
+                    })
+                }).then(data=>{
+                    debugger
+                    const name="Fallback", names=["familyName","postscriptName","fullName"]
+                    const font=FontKit.create(Buffer.from(data))
+                    return new Proxy(font,{
+                        get(font,key){
+                            if(names.includes(key))
+                                return name
+                            return Reflect.get(...arguments)
+                        }
+                    })
+                })
+                .then(font=>makeFontFace(font))
+            })
     },
     makeFontFace, 
     removeFontFace

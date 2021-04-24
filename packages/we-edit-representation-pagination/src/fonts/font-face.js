@@ -1,7 +1,7 @@
 
 var fontFaces=null, loader=null
 export function makeFontFace(font, src){
-    if(!document?.createElement)
+    if(!document?.createElement || !FontFace)
         return 
     if(!fontFaces){
         loader=document.body.appendChild(document.createElement('div'))

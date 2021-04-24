@@ -6,22 +6,22 @@ describe("font manager",()=>{
     })
 
 	it("can load all fonts from a folder",()=>{
-        return FontManager.fromLocal(__dirname)
+        return FontManager.release().fromLocal(__dirname)
             .then(fonts=>{
                 expect(fonts.length>0).toBe(true)
             })
 	})
 
     it("can load system fonts",()=>{
-        return FontManager.fromLocal()
+        return FontManager.release().fromLocal()
             .then(fonts=>{
                 expect(fonts.length>0).toBe(true)
             })
-    },5000)
+    },50000)
 
 
 
-    fdescribe("font",()=>{
+    describe("font",()=>{
         beforeAll(()=>{
             return FontManager.release().fromLocal(__dirname)
         })
@@ -77,6 +77,22 @@ describe("font manager",()=>{
                 subset.includeGlyph(a)
             })
             expect(subset.glyphs.length).toBe(1+4)
+        })
+    })
+
+    xit("create fallback font",()=>{
+        globalThis.fetch=jest.fn(()=>{
+            const data=require('fs').readFileSync(`${__dirname}/verdana.ttf`)
+            return Promise.resolve({
+                arrayBuffer(){
+                    return data
+                }
+            })
+        })
+        return FontManager.createUnifiedFallbackFont().then(font=>{
+            expect(font.postscriptName).toBe("fallback")
+            expect(font.familyName).toBe("fallback")
+            expect(font.stringWidth("A")).toBe(font.stringWidth("测"))
         })
     })
 })
