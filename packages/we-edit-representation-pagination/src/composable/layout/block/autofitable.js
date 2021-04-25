@@ -22,7 +22,7 @@ export default class Autofitable extends Balanceable{
         if(this.autofitable && !this.balanceable){
             this.autofit()
         }
-        return super.onAllChildrenComposed()
+        return super.onAllChildrenComposed(...arguments)
     }
 
     balance(){

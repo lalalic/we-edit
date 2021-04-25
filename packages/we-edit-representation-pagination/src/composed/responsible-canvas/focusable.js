@@ -1,7 +1,7 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
 import {whenSelectionChange,ACTION} from "we-edit"
-import {compose, shouldUpdate} from "recompose"
+import {compose, shouldUpdate, setDisplayName} from "recompose"
 
 import Shape from "../shape"
 import Group from "../group"
@@ -14,6 +14,7 @@ const IgnoreEvents=Group.Layer.IgnoreEvents
 const isSelfOrGrand=t=>!!t.selection?.getComposer(t.selection?.position.id)?.closest(p=>p.props.id==t.id)
 		
 export default compose(
+	setDisplayName("focusable"),
 	whenSelectionChange(),
 	shouldUpdate((a,b)=>{
 		const targetChanged=a.selection?.position.id!=b.selection?.position.id

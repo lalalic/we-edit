@@ -2,7 +2,7 @@ import React from "react"
 import {dom, ReactQuery} from "we-edit"
 import memoize from "memoize-one"
 
-import {Layout, HasParentAndChild, editable} from "../../composable"
+import {Layout, HasParentAndChild, editable,ComposedAllTrigger} from "../../composable"
 import {Group} from "../../composed"
 import Manager from "./manager"
 import AutoFitManager from "./autofit-manager"
@@ -105,15 +105,13 @@ class Frame extends Layout.Block{
  */
 export default class EditableFrame extends editable(Frame,{stoppable:true, continuable:true}){
 	onUseAllCached(){
-		return this.onAllChildrenComposed()
+		return ComposedAllTrigger.createElement(this)
 	}
 
 	_cancelAllLastComposed(){
 		super._cancelAllLastComposed()
 		this.computed.anchors=[]
-		if(this.autofitable){
-			delete this.computed.autofit
-		}
+		delete this.computed.autofit
 	}
 	
 	___createComposed2Parent=memoize((composedUUID,...args)=>super.createComposed2Parent(...args))
@@ -192,13 +190,20 @@ export default class EditableFrame extends editable(Frame,{stoppable:true, conti
 		//lastComposed is the frame or the result of createComposed2Parent, so it always should be removed
 		this.computed.lastComposed=[]
 		if(!this.isAllChildrenComposed()){
+			let iFlow=-1, iAnchor=-1
 			if(this.lastLine){
 				const lastId=this.lastLine.props["data-content"]
-				return this.childrenArray(this.props.children).findIndex(a=>a && a.props.id==lastId)
+				iFlow=this.childrenArray(this.props.children).findIndex(a=>a?.props.id==lastId)
 			}
-			return false
+
+			const lastAnchor=this.anchors[this.anchors.length-1]
+			if(lastAnchor){
+				const lastId=lastAnchor.props["data-content"]
+				iAnchor=this.childrenArray(this.props.children).findIndex(a=>a?.props.id==lastId)
+			}
+
+			return Math.max(iFlow, iAnchor)
 		}
-		//this event should be called to append to parent
 		return true
 	}
 

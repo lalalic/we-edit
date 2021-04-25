@@ -2,7 +2,7 @@ import React from "react"
 
 import define from "./index"
 
-define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Container, Frame,Anchor,Shape},
+define("range", ({dom:{Document,Page, Paragraph, Text, Image, Table, Row, Cell,Container, Frame,Anchor,Shape},
     TESTING, render, mockQuery,size,uuid,Positioning,Responsible})=>{
 
 	const test=(content,state)=>{
@@ -177,5 +177,4 @@ define("range", ({dom:{Document,Paragraph, Text, Image, Table, Row, Cell,Contain
         }
         */
     })
-
 })

@@ -139,10 +139,11 @@ class Flow extends HasParentAndChild(dom.Frame) {
 		const createInclusive=memoize(path=>new Path(inclusive))
 	}
 	
-	onAllChildrenComposed() {
+	onAllChildrenComposed(commit=true) {
 		const {autoCompose2Parent=true, async}=this.props
 		const composed = this.createComposed2Parent()
-		this.context.parent.appendComposed(autoCompose2Parent ? composed : this);
+		//commit && 
+		this.context.parent.appendComposed(autoCompose2Parent ? composed : this)
 		super.onAllChildrenComposed()
 		if(!autoCompose2Parent && async)
 			return composed

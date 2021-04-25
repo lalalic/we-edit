@@ -51,7 +51,7 @@ export default A=>{
             return (
                 <Fragment>
                     {this.childrenArray(this.props.children)/****MUST use toArray(children), since recompose use this way to compose part of children*/}
-                    <ComposedAllTrigger host={this}/>
+                    {ComposedAllTrigger.createElement(this)}
                 </Fragment>
             )
         }

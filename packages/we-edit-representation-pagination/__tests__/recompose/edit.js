@@ -40,7 +40,6 @@ describe("editor",()=>{
     }
 
     fdescribe("anchor",()=>{
-
         it("shape without content",()=>{
             const content=x=>(
                 <Document hash={x}>
@@ -79,24 +78,72 @@ describe("editor",()=>{
             const doc=test(content(50))
             expect(doc.pages[0].anchors[0].props.geometry).toMatchObject({x:50})
             return doc
-                .update(content(150),doc=>{
-                    jest.spyOn(doc,"appendComposed")
-                    jest.spyOn(doc.$anchor,"appendComposed")
-                    jest.spyOn(doc.$page,"appendComposed")
-                    jest.spyOn(doc.$frame,"onAllChildrenComposed")
-                    jest.spyOn(doc.$shape,"onAllChildrenComposed")
-                    jest.spyOn(doc.$shape,"appendComposed")
-                })
+                .update(content(150))
                 .then(doc=>{
-                    expect(doc.$frame.onAllChildrenComposed).toHaveBeenCalledTimes(1)
-                    expect(doc.$shape.appendComposed).toHaveBeenCalledTimes(1)
-                    
-                    expect(doc.$shape.onAllChildrenComposed).toHaveBeenCalledTimes(1)
-                    expect(doc.$anchor.appendComposed).toHaveBeenCalledTimes(1)
-                    expect(doc.appendComposed).toHaveBeenCalledTimes(1)
-                    expect(doc.$page.appendComposed).toHaveBeenCalledTimes(1)
                     expect(doc.pages[0].anchors[0].props.geometry).toMatchObject({x:150})
                 })
         })
+
+        it("text should layout once when update anchor",()=>{
+            const content=x=>(
+                <Document hash={x}>
+                    <Page hash={x} I={0}>
+                        <Anchor x={100} y={200} id="a1">
+                            <Shape geometry={{width:50,height:50}} id="s1">
+                                <Paragraph id="p1">
+                                    <Text id="t1">hello</Text>
+                                </Paragraph>
+                            </Shape>
+                        </Anchor>
+                        <Anchor x={x} y={x} hash={x}>
+                            <Shape geometry={{width:50,height:50}}>
+                                <Paragraph>
+                                    <Text>hello</Text>
+                                </Paragraph>
+                            </Shape>
+                        </Anchor>
+                    </Page>
+                </Document>
+            )
+            const doc=test(content(50))
+            expect(new ReactQuery(doc.$page.createComposed2Parent()).text().replace(/[^\w]/g,"")).toBe("hellohello")
+            return doc
+                .update(content(150))
+                .then(doc=>{
+                    expect(doc.pages.length).toBe(1)
+                    expect(new ReactQuery(doc.$page.createComposed2Parent()).text().replace(/[^\w]/g,"")).toBe("hellohello")
+                })
+        })
+
+        describe("nested",()=>{
+            let doc
+            beforeAll(()=>{
+                const x=50
+                doc=test(
+                    <Document hash={x}>
+                        <Page hash={x} I={0}>
+                            <Anchor x={x} y={x} hash={x}>
+                                <Shape geometry={{width:250,height:250}}>
+                                    <Frame width={250} height={250}>
+                                        <Anchor x={100} y={100} id="a1">
+                                            <Shape geometry={{width:50,height:50}} id="s1"/>
+                                        </Anchor>
+                                    </Frame>
+                                </Shape>
+                            </Anchor>
+                        </Page>
+                    </Document>
+                )
+            })
+            it("nested anchor should be later drawn",()=>{
+                const composed=doc.$page.createComposed2Parent()
+                const $=new ReactQuery(composed)
+                const focusables=$.find("focusable")
+                expect(focusables.length).toBe(2)
+                expect(focusables.eq(0).attr('id')).toBe("shape")
+                expect(focusables.eq(1).attr('id')).toBe("s1")
+            })
+        })
+        
     })
 })

@@ -4,7 +4,6 @@ import {shallowEqual} from "recompose"
 
 import ComposedAllTrigger from "./composed-all-trigger"
 import UseCached from "./use-cached"
-import { object } from "prop-types"
 /**
  * make component always update (by calling .render), so AllComposedTrigger would be triggered to correctly set allComposed
  * but at first clear last composed 
@@ -53,7 +52,8 @@ export default A=>{
              */           
             this.computed.composedUUID=Date.now()
             this.context.mount && this.context.mount(this)
-            if(!this.isAllChildrenComposed()){
+            const changed=next.hash!=this.props.hash
+            if(changed || !this.isAllChildrenComposed()){
                 //clear last allComposed, so it can be reset
                 this.computed.allComposed=undefined
             }
@@ -112,7 +112,7 @@ export default A=>{
                                 ...children.slice(0,appended+1).map(tryUseCached),
                                 ...children.slice(appended+1),
                             ]}
-                            <ComposedAllTrigger host={this}/>
+                            {ComposedAllTrigger.createElement(this)}
                         </Fragment>
                     )
                 }else if(appended===true){

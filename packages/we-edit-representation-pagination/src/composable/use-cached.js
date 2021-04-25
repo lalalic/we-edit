@@ -2,6 +2,9 @@ import React,{Component,Fragment} from "react"
 import PropTypes from "prop-types"
 import {ReactQuery} from "we-edit"
 
+/**
+ * remount composers
+ */
 export default class UseCached extends Component{
     static displayName="UseCached"
     static contextTypes={
@@ -21,7 +24,8 @@ export default class UseCached extends Component{
         }
 
         const {type, props:{id,...props}}=el
-        return <UseCached __type__={typeof(type)=="string" ? type : type.displayName} {...props} {...{id,key:id}}/>
+        const displayName=(typeof(type)=="string" ? type : type.displayName).split("-").pop()
+        return <UseCached {...props} {...{id,key:`${displayName}[${id}]`}}/>
     }
 
     constructor({id}){
