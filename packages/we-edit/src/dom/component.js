@@ -213,10 +213,21 @@ export default class Base extends Component{
 			bounds: PropTypes.func,//()=>{left, right, top, bottom}
 			clone: PropTypes.func,//()=>to clone this geometry
 		}),
-		PropTypes.string// a svg path
+		PropTypes.string,// a svg path
+		PropTypes.shape({
+			width:this.UnitShape.isRequired,
+			height:this.UnitShape.isRequired,
+		})
 	]),{
-		normalize:props=>{
-			return props
+		normalize:value=>{
+			if(typeof(value)=="string"){
+				return value
+			}else if(typeof(value)=="object"){
+				if(value.width && value.height){
+					return `M 0 0 h${value.width} v${value.height} h${-value.width}Z`
+				}
+			}
+			return value
 		}
 	})
 

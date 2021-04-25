@@ -73,7 +73,7 @@ export const render=(A,opt={})=>TestRender.create(A,{
 
 export const defaultProps=({Document,Paragraph,Text,...dom})=>()=>{
     const defaultStyle={fonts:"arial",size:10}
-    Document.defaultProps=Object.assign(Document.defaultProps||{},{id:"root"})
+    Document.defaultProps=Object.assign(Document.defaultProps||{},{id:"root",Measure})
     Paragraph.defaultProps=Object.assign(Paragraph.defaultProps||{},{defaultStyle,id:"paragraph"})
     Text.defaultProps=Object.assign(Text.defaultProps||{},defaultStyle,{id:"text"})
     Object.keys(dom).forEach(k=>{

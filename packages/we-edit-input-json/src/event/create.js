@@ -39,15 +39,19 @@ export default {
         this.cursorAt(id)
     },
 
-    create_anchor({page:{x,y}}){
-        const {id}=this.file.renderChanged(
-            <anchor x={{base:'page',offset:x}} y={{base:'page',offset:y}}/>
-        )
-        this.$target.closest("text, frame, page").append('#'+id)
+    create_anchor({x,y}){
+        const {id}=this.file.renderChanged(<anchor x={x} y={y}/>)
+        this.$target.closest("frame, page").append('#'+id)
         this.cursorAt(id)
     },
 
-    create_anchor_at_frame(){
-        debugger
+    create_anchor_at_shape({anchor:{current:{x,y}}}){
+        const shape=this.target
+        this.create_anchor({x:{base:'current',offset:x},y:{base:'current',offset:y}})
+        this.target.appendTo(shape.findFirst('frame'))
     },
+
+    create_anchor_at_page({anchor:{page:{x,y}}}){
+        this.create_anchor({x:{base:'page',offset:x},y:{base:'page',offset:y}})
+    }
 }

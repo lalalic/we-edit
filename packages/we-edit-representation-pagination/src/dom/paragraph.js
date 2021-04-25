@@ -371,12 +371,6 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 }
 
 export default class EditableParagraph extends editable(Paragraph,{stoppable:true}){
-	onAllChildrenComposed(){
-		if(this.isAllChildrenComposed())
-			return 
-		super.onAllChildrenComposed()
-	}
-
 	_hasAnchor(){
 		return this.atoms.find(a=>a.props.anchor)
 	}

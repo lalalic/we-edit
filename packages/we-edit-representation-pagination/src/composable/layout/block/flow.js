@@ -140,10 +140,12 @@ class Flow extends HasParentAndChild(dom.Frame) {
 	}
 	
 	onAllChildrenComposed() {
-		const {autoCompose2Parent=true,}=this.props
-		const composed = autoCompose2Parent && this.createComposed2Parent()
-		this.context.parent.appendComposed(composed||this);
+		const {autoCompose2Parent=true, async}=this.props
+		const composed = this.createComposed2Parent()
+		this.context.parent.appendComposed(autoCompose2Parent ? composed : this);
 		super.onAllChildrenComposed()
+		if(!autoCompose2Parent && async)
+			return composed
 	}
 
  	/**

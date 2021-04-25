@@ -31,16 +31,17 @@ export default compose(
 )(class DrawShape extends PureComponent{
     static defaultProps={
         anchor({x,y}, positioning){
-            const props={positioning}
+            const props={}
             const {left,top}=positioning.responsible.asViewportPoint({x,y})
             const {id,at,page:i}=positioning.around(left,top)
-            const page=positioning.pageXY(i)
-            props.page={x:x-page.x, y:y-page.y, i}
+            const topFrame=positioning.pages[i]
+            const xy=positioning.pageXY(i)
+            const page={x:x-xy.x, y:y-xy.y}
+            props.page={...page, i, id:topFrame.props.id}
 
             if(id==undefined)
                 return props
 
-            const topFrame=positioning.pages[i]
             const target=positioning.getComposer(id)
             const frame=target.closest(a=>a.isFrame)
             if(frame==topFrame){
@@ -66,7 +67,7 @@ export default compose(
                     props.inline={id,at}
             }
 
-            return props
+            return {anchor:props}
         }
     }
     static contextTypes = {

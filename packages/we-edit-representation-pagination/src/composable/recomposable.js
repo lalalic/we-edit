@@ -120,7 +120,7 @@ export default A=>{
                     return (
                         <Fragment>
                             {children.map(tryUseCached)}
-                            <ComposedAllTrigger host={this}/>
+                            {this.onUseAllCached()}
                         </Fragment>
                     )
                 }
@@ -129,7 +129,9 @@ export default A=>{
             return super.render()
         }
 
+        onUseAllCached(){
 
+        }
 
         childIdOf(composed,id){
             const extract=({props:{"data-content":a,children}})=>(id=a)!=undefined ? 
