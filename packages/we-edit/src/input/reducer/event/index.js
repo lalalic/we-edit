@@ -163,11 +163,18 @@ export default (class Events extends Base{
     }
     
     emit(action,conds, ...payload){
-        const event=conds.find(cond=>`${action}_${cond}` in this)||(-1!=action.indexOf("_")&&this[action]&&action)
-        if(event){
+        /**normalize action_cond to action and conds */
+        let [act,...preConds]=action.split("_")
+        if(preConds.length>0){
+            preConds=preConds.join("_")
+            conds=[...conds.map(a=>`${preConds}_${a}`),preConds]
+            action=act
+        }
+        const cond=conds.find(cond=>`${action}_${cond}` in this)
+        if(cond){
             if(this.debug)
-                console.debug({message:`${action}_${event}`,action,conds,payload})
-            return this[`${action}_${event}`](...payload,conds)
+                console.debug({message:`${action}_${cond}`,action,conds,payload})
+            return this[`${action}_${cond}`](...payload,conds)
         }else if(this.debug){
             console.warn({message:"event without handler",action,conds,payload})
         }

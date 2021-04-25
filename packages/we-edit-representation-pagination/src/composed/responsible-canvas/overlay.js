@@ -12,7 +12,7 @@ export default class Overlay extends Component{
                 <div style={{
                     ...style,
                     position:"fixed", left:0, top:0,
-                    width,height,overflow:"hidden", background:"red", opacity:0.5,
+                    width,height,overflow:"hidden", background:"transparent", opacity:0.5,
                     zIndex:Number.MAX_SAFE_INTEGER
                 }} {...props}/>, 
                 document.body

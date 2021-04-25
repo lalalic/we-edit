@@ -1,6 +1,6 @@
 import React,{Fragment, PureComponent} from "react"
 import PropTypes from "prop-types"
-import {ACTION, whenSelectionChangeDiscardable,dom} from "we-edit"
+import {ACTION, whenSelectionChangeDiscardable,dom, ReactQuery} from "we-edit"
 import {Path, Composed} from "we-edit-representation-pagination"
 import {ToolbarGroup, SvgIcon, MenuItem} from "material-ui"
 import memoize from "memoize-one"
@@ -30,8 +30,43 @@ export default compose(
 	}),
 )(class DrawShape extends PureComponent{
     static defaultProps={
-        anchor(page){
-            return {page}
+        anchor({x,y}, positioning){
+            const props={positioning}
+            const {left,top}=positioning.responsible.asViewportPoint({x,y})
+            const {id,at,page:i}=positioning.around(left,top)
+            const page=positioning.pageXY(i)
+            props.page={x:x-page.x, y:y-page.y, i}
+
+            if(id==undefined)
+                return props
+
+            const topFrame=positioning.pages[i]
+            const target=positioning.getComposer(id)
+            const frame=target.closest(a=>a.isFrame)
+            if(frame==topFrame){
+                props.current=page
+            }else{
+                const current=positioning.getFrameOffsetGrandFrame(topFrame, frame);
+                [current.x,current.y,current.id]=[page.x-current.x, page.y-current.y,frame.props.id]
+                props.current=current
+            }
+
+            const paragraph=target.closest(a=>a.getComposeType()=='paragraph'||a==frame)
+            if(paragraph && paragraph!=frame){
+                props.paragraph={id:paragraph.props.id,...page}
+                const {first, parents}=new ReactQuery(topFrame.createComposed2Parent())
+                    .findFirstAndParents(`[data-content="${paragraph.props.id}"]`);
+                [...parents,first.get(0)].filter(a=>!!a).reduce((p,{props:{y=0,x=0}})=>{
+                    p.x-=x
+                    p.y-=y
+                    return p
+                },props.paragraph)
+                
+                if(target!=paragraph)
+                    props.inline={id,at}
+            }
+
+            return props
         }
     }
     static contextTypes = {
