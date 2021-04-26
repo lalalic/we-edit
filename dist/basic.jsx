@@ -1,6 +1,6 @@
 <document defaultStyles={{text:{fonts:"Arial", size:12}}}>
     <page size="A4" I={0} margin="1in">
-        <anchor x={100} y={100}>
+        <anchor x={"3cm"} y={100}>
             <shape geometry={{width:100,height:300}} rotate={30} outline={{width:1, color:"red"}}>
                 <frame width={100} height={300} margin={10}>
                     <paragraph>

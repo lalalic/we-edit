@@ -1,7 +1,8 @@
 export default class Editor{
-    constructor(reducer){
+    constructor(reducer, node){
         this.reducer=reducer
         this.file=reducer.file
+        this.node=node||this.reducer.target
     }
 
     /**

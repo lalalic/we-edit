@@ -46,6 +46,17 @@ export default class Base extends Component{
 				normalized[key]=this.UnitShape.normalize(value[key])
 				return normalized
 			},{...value})
+		},
+		denormalize: (value, normalized, missUnit='px')=>{
+			switch(typeof(value)){
+				case "number":
+					return normalized
+				case "string":{
+					const unit=value.replace(/[\s\d\.]/g,"")||missUnit
+					return `${unit=='px' ? normalized : this.units[`px2${unit}`](normalized)} ${unit}`
+				}
+			}
+			return normalized
 		}
 	})
 

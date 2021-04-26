@@ -16,7 +16,6 @@ import textbox from "./text-box"
 import flowchart from "!!file-loader?name=[name].[ext]!./flowchart.ttf"
 import shapes from "!!file-loader?name=[name].[ext]!./shapes.ttf"
 
-
 const {Shape}=dom 
 export default compose(
     setDisplayName("DrawShape"),
@@ -30,6 +29,16 @@ export default compose(
 	}),
 )(class DrawShape extends PureComponent{
     static defaultProps={
+        shapeProps:{
+            fill:{color:"blue"},
+            outline:{width:1,color:"black"}
+        },
+        anchorProps:{
+
+        },
+        frameProps:{
+            margin:5
+        },
         anchor({x,y}, positioning){
             const props={}
             const {left,top}=positioning.responsible.asViewportPoint({x,y})
@@ -90,7 +99,7 @@ export default compose(
     }
 
     render(){
-        const {props:{children, shapes=[], defaultShape, defaultProps, style, type="Shape", color="black"},state:{flowcharts,varishapes}}=this
+        const {props:{children, shapes=[], defaultShape, style, type="Shape", color="black"},state:{flowcharts,varishapes}}=this
         return (
             <ContextMenu.Support menus={!style ? null :
                 (
@@ -110,7 +119,7 @@ export default compose(
                         {this.shapes(shapes,flowcharts,varishapes)}
                     </DropDownButton>
                     {[textbox,...React.Children.toArray(children)].map((a,key)=>{
-                        return React.cloneElement(a,{key,onClick:e=>this.send(a.props.create),defaultProps, create:undefined})
+                        return React.cloneElement(a,{key,onClick:e=>this.send(a.props.create),create:undefined})
                     })}
                 </ToolbarGroup>
             </ContextMenu.Support>
@@ -120,7 +129,7 @@ export default compose(
     fontShape=({name,path, bbox:{minX, maxX, minY, maxY}={}},{code,kind,font})=>{
         if(!path.commands.length)
             return 
-        const {color="black", defaultProps}=this.props
+        const {shapeProps, anchorProps, frameProps}=this.props
         const shape=new Path(path.toSVG()), size={width:maxX-minX, height:maxY-minY}
         const d=shape.clone().scale(24/font.unitsPerEm).round(2).toString()
         const fn=({motionRoute:geometry,target}, {positioning, anchor,dispatch,type="shape"}={})=>{
@@ -129,18 +138,22 @@ export default compose(
                      
             if(!positioning){
                 if(!target){
-                    return <Shape {...defaultProps} geometry={d}/>
+                    return <Shape {...shapeProps} geometry={d}/>
                 }
-                return <Shape {...defaultProps} geometry={revised().translate(left,top).round(2).toString()}/>
+                return <Shape {...shapeProps} geometry={revised().translate(left,top).round(2).toString()}/>
             }
             dispatch(ACTION.Entity.CREATE({
                 type,
-                kind:`${kind}-${name}`,
                 shape:{
-                    ...defaultProps,
+                    ...shapeProps,
+                    kind:`${kind}-${name}`,
                     geometry:revised(),
                 },
-                anchor:anchor({x:left,y:top},positioning),
+                frame:frameProps,
+                anchor:{
+                    ...anchorProps,
+                    ...anchor({x:left,y:top},positioning),
+                }
             }))
         }
         return fn
@@ -188,13 +201,13 @@ export default compose(
     })
 
     send(fn){
-        const {props:{selection:{positioning},dispatch,anchor}}=this
+        const {props:{selection:{positioning},dispatch,anchor, anchorProps, shapeProps, frameProps}}=this
         dispatch(ACTION.UI({
             draw:(
                 <Shape.OverlayWhenMouseDown {...fn.props}
                     onMouseUp={e=>{
                         dispatch(ACTION.UI({draw:null}))
-                        fn(e,{positioning,dispatch,anchor})
+                        fn(e,{positioning,dispatch,anchor, anchorProps, shapeProps, frameProps})
                     }}>
                 {(overlay)=>{
                     if(!overlay.state.triggered)

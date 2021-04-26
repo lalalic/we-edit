@@ -29,6 +29,16 @@ export default class Anchor extends Component{
                     return x
                 }
                 return {offset:this.UnitShape.normalize(value)}
+            },
+
+            denormalize:(value,normalized)=>{
+                if(typeof(value)=="object"){
+                    const {offset}=value
+                    if(offset!=undefined)
+                        normalized.offset=this.UnitShape.denormalize(offset, normalized.offset)
+                    return normalized
+                }
+                return this.UnitShape.denormalize(value, normalized.offset)
             }
         }),
 
@@ -40,7 +50,8 @@ export default class Anchor extends Component{
             }),
             this.UnitShape,//base is closest parent frame
         ]),{
-            normalize:value=>this.propTypes.x.normalize(value)
+            normalize:value=>this.propTypes.x.normalize(value),
+            denormalize:(value, normalized)=>this.propTypes.x.denormalize(value,normalized)
         }),
 
         z: PropTypes.number,
@@ -105,7 +116,7 @@ export default class Anchor extends Component{
                     default:
                         return value
                 }
-            }
+            },
         }),
     }
     static WrapModeShape=PropTypes.oneOf(["square", "tight", "clear","no"])

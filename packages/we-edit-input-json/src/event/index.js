@@ -51,9 +51,9 @@ export default (class Events extends Input.Editable.Reducer{
         })
     }
 
-    createEditor(type){
+    createEditor(type, ...args){
         const {Unknown, [type]:Typed=Unknown}=this.constructor.Editors
-        const editor=new Typed(this)
+        const editor=new Typed(this, ...args)
         editor.__type__=type
         return editor
     }
@@ -70,18 +70,8 @@ export default (class Events extends Input.Editable.Reducer{
         return false
     }
 
-    move_at_up_to_anchor({dx,dy}){
-        const $anchor=this.$target.closest('anchor')
-        const change=(k,d)=>{
-            const value=$anchor.attr(k)
-            if(typeof(value)=="number")
-                $anchor.attr(k, value+d)
-            else if(typeof(value)=="object"){
-                this.content.setIn([$anchor.attr('id'),'props',k,'offset'],d+value.get('offset'))
-            }
-        }
-        dx && change('x',dx)
-        dy && change('y',dy)
+    move_at_up_to_anchor(props){
+        this.createEditor('anchor',this.target.closest('anchor')).update(props)
     }
 
     create_first_paragraph(){

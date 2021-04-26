@@ -9,13 +9,15 @@ export default class xQuery extends Query{
 		return this.state.get("_content")
 	}
 
-	attr(k, v){
+	attr(k, v, forceSet=false){
 		if(arguments.length==1){
 			return super.attr(...arguments)
 		}else{
 			this._nodes.forEach(id=>{
 				if(v==null){
 					this._content.deleteIn([id,'props',k])
+				}else if(typeof(v)=="object" && !forceSet){
+					this._content.mergeDeepIn([id,'props',k],v)
 				}else{
 					this._content.setIn([id,'props',k],v)
 				}
