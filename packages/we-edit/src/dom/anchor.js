@@ -36,12 +36,14 @@ export default class Anchor extends Component{
             PropTypes.shape({
                 base: this.BaseShape,
                 offset: this.UnitShape,
-                align: this.AlignShape,
+                align: this.VertAlignShape,
             }),
             this.UnitShape,//base is closest parent frame
         ]),{
             normalize:value=>this.propTypes.x.normalize(value)
         }),
+
+        z: PropTypes.number,
 
         wrap:this.normalizeChecker(PropTypes.oneOfType([
             PropTypes.shape({
@@ -50,16 +52,52 @@ export default class Anchor extends Component{
                 
                 geometry:  this.GeometryShape,//priority: anchor's > content > content rect
 
-                geometryFn: PropTypes.func,//fn(geometry shape, {anchored x,y}): which can enhance a geometry, such as adjust according to border/distance
+                distance: PropTypes.oneOfType([
+                    PropTypes.func,//fn(geometry shape, {anchored x,y}): which can enhance a geometry, such as adjust according to border/distance
+                    this.MarginShape
+                ])
             }),
             PropTypes.func,
         ]),{
             normalize:value=>{
                 switch(typeof(value)){
                     case "object":{
-                        const {geometry,...wrap}=value
+                        const {geometry,distance,...wrap}=value
                         if(geometry!=undefined)
                             wrap.geometry=this.GeometryShape.normalize(geometry)
+                        if(distance!=undefined){
+                            if(typeof(distance)=="function"){
+                                wrap.distance=distance
+                            }else{
+                                const {left:dl=0,right:dr=0,top:dt=0,bottom:db=0}=this.MarginShape.normalize(distance)
+                                wrap.distance=(geometry,{x=0,y=0}={})=>{
+                                    return {
+                                        geometry:geometry.clone().translate(x,y),
+                                        bounds(){
+                                            const {left,right,top,bottom}=this.geometry.bounds()
+                                            return {
+                                                left:left-dl,right:right+dr,top:top-dt,bottom:bottom+db, 
+                                                width:right+dr-left+dl,height:bottom+db-top+dt
+                                            }
+                                        },
+                        
+                                        intersects(...args){
+                                            const segs=this.geometry.intersects(...args)
+                                            segs.length>0 && (segs[0].x-=dl);
+                                            segs.length>1 && (segs[segs.length-1].x+=dr);
+                                            return segs
+                                        },
+                        
+                                        clone(){
+                                            return {
+                                                ...this,
+                                                geometry:this.geometry.clone()
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                         return wrap
                     }
                     case "string":

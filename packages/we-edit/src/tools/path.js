@@ -16,6 +16,24 @@ export default class __$1 extends Path{
 		return new this(`z`)
 	}
 
+	static fromElement({type, props}){
+		switch(type){
+			case "circle":
+				return this.fromCircle(props)
+			case "ellipse":
+				return this.fromEllipse(props)
+			case "rect":
+				return this.fromRect(props)
+			case "polyline":
+			case "polygon":{
+				const [a,...points]=props.points.trim().split(/\s+/g)
+				return new this(`M${a} ${points.map(b=>`L${b}`).join(" ")} ${type=="polygon" ? "Z" : ""}`)
+			}
+			case "path":
+				return new this(props.d)
+		}
+	}
+
     toString(){
         this.__evaluateStack()
         return memoize(d=>super.toString())(this.segments.map(a=>a.join("")).join(""))

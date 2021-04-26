@@ -12,6 +12,7 @@ import backward from "./backward"
 import remove from "./remove"
 import collaborate from "./conflict-collaborate"
 import merge from "./merge"
+import Editor from "./editor"
 /**
  * conditions:
  *  whole|empty|beginning_of|end_of|type
@@ -34,6 +35,8 @@ export default (class Events extends Base{
         Object.assign(this.prototype,...arguments)
         return this
     }
+
+    static Editor=Editor
     
     constructor(){
         super(...arguments)
@@ -178,6 +181,7 @@ export default (class Events extends Base{
         }else if(this.debug){
             console.warn({message:"event without handler",action,conds,payload})
         }
+        return false
     }
 
     /**

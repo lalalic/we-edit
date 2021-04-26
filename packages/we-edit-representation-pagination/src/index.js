@@ -2,7 +2,7 @@ import React,{Component} from "react"
 import PropTypes from "prop-types"
 
 import isNode from "is-node"
-import {Representation} from "we-edit"
+import {Representation, dom} from "we-edit"
 
 import Viewers from "./dom"
 import Editors from "./dom/edit"
@@ -13,7 +13,6 @@ import * as Composed from "./composed"
 import * as Measure from "./measure"
 import Output from "./output"
 import SVG from "./output/svg"
-import Path from "./tool/path"
 
 import Focusable from "./composed/responsible-canvas/focusable"
 import Resizable from "./composed/responsible-canvas/resizable"
@@ -23,6 +22,7 @@ import Overlay from "./composed/responsible-canvas/overlay"
 import * as composable from "./composable"
 import TestEmulator from "./composed/responsible-canvas/test"
 
+const Path=dom.Shape.Path
 const Responsible=Editors.Document.defaultProps.canvas.type
 const Canvas=Responsible.Canvas
 const Positioning=Responsible.Positioning

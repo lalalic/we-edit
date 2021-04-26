@@ -1,5 +1,6 @@
 import React, {Component} from "react"
-import Path from "../tool/path"
+import {dom} from "we-edit"
+const Path=dom.Shape.Path
 
 export default class Shape extends Component{
     static displayName="Shape"

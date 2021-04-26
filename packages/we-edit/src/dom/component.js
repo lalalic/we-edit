@@ -1,11 +1,14 @@
 import React, {Component,Fragment} from "react"
 import PropTypes from "prop-types"
 import units from "../tools/units"
+import Path from "../tools/path"
+
 
 
 export default class Base extends Component{
 	static displayName="unknown"
 	static units=units
+	static Path=Path
 	static normalizeChecker=(checker,extend)=>{
 		const isRequired=checker.isRequired
 		Object.assign(checker,extend)
@@ -217,14 +220,17 @@ export default class Base extends Component{
 		PropTypes.shape({
 			width:this.UnitShape.isRequired,
 			height:this.UnitShape.isRequired,
-		})
+		}),
+		PropTypes.element,
 	]),{
 		normalize:value=>{
 			if(typeof(value)=="string"){
-				return value
+				return new Path(value)
+			}else if(React.isValidElement(value)){
+				return Path.fromElement(value)
 			}else if(typeof(value)=="object"){
 				if(value.width && value.height){
-					return `M 0 0 h${value.width} v${value.height} h${-value.width}Z`
+					return Path.fromRect(value)
 				}
 			}
 			return value

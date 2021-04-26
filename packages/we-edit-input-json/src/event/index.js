@@ -13,9 +13,11 @@ import forward from "./forward"
 import backward from "./backward"
 import extendQuery from "./state-query"
 import memoize from "memoize-one"
+import Editors from "./editors"
 
 export default (class Events extends Input.Editable.Reducer{
     static createExtendedQuery=memoize($=>extendQuery($.constructor))
+    static Editors=Editors
     constructor(){
         super(...arguments)
         Object.defineProperties(this,{
@@ -47,6 +49,13 @@ export default (class Events extends Input.Editable.Reducer{
                 return Reflect.get(...arguments)
             }
         })
+    }
+
+    createEditor(type){
+        const {Unknown, [type]:Typed=Unknown}=this.constructor.Editors
+        const editor=new Typed(this)
+        editor.__type__=type
+        return editor
     }
 
     shouldRemoveSelectionWhenCreate({type}){

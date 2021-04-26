@@ -1,6 +1,6 @@
 import Input from "../src/input/index"
 
-export default function tck(TypedDocument,file, debug=false){
+export default function tck(TypedDocument,file, debug=false, more=a=>a){
     if(!debug)
         console.debug=console.log=a=>a
 
@@ -45,6 +45,8 @@ export default function tck(TypedDocument,file, debug=false){
         afterEach(()=>{
             editor=null
         })
+
+        more(editor)
 
         describe("seperation",()=>{
             describe('text',()=>{

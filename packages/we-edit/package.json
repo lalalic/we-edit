@@ -28,7 +28,11 @@
     "recompose": "^0.26.0",
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0",
-    "shortid": "^2.2.8"
+    "shortid": "^2.2.8",
+    "parse-svg-path": "^0.1.2",
+    "simplify-path": "^1.1.0",
+    "svg-path-contours": "^2.0.0",
+    "svgpath": "^2.2.1"
   },
   "optionalDependencies": {
     "cheerio": "^0.22.0",
@@ -40,10 +44,6 @@
     "linebreak": "^0.3.0",
     "lodash.invoke": "^4.5.2",
     "mouse-event-offset": "^3.0.2",
-    "parse-svg-path": "^0.1.2",
-    "simplify-path": "^1.1.0",
-    "svg-path-contours": "^2.0.0",
-    "svgpath": "^2.2.1",
     "vm-browserify": "^1.1.0",
     "material-ui": "^0.19.4",
     "minimatch": "^3.0.4",

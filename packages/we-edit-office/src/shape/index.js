@@ -67,7 +67,7 @@ export default compose(
                     props.inline={id,at}
             }
 
-            return {anchor:props}
+            return props
         }
     }
     static contextTypes = {
@@ -90,7 +90,7 @@ export default compose(
     }
 
     render(){
-        const {props:{children, shapes=[], defaultShape, style, type="Shape", color="black"},state:{flowcharts,varishapes}}=this
+        const {props:{children, shapes=[], defaultShape, defaultProps, style, type="Shape", color="black"},state:{flowcharts,varishapes}}=this
         return (
             <ContextMenu.Support menus={!style ? null :
                 (
@@ -110,7 +110,7 @@ export default compose(
                         {this.shapes(shapes,flowcharts,varishapes)}
                     </DropDownButton>
                     {[textbox,...React.Children.toArray(children)].map((a,key)=>{
-                        return React.cloneElement(a,{key,onClick:e=>this.send(a.props.create),create:undefined})
+                        return React.cloneElement(a,{key,onClick:e=>this.send(a.props.create),defaultProps, create:undefined})
                     })}
                 </ToolbarGroup>
             </ContextMenu.Support>
@@ -120,24 +120,27 @@ export default compose(
     fontShape=({name,path, bbox:{minX, maxX, minY, maxY}={}},{code,kind,font})=>{
         if(!path.commands.length)
             return 
-        const {color="black"}=this.props
+        const {color="black", defaultProps}=this.props
         const shape=new Path(path.toSVG()), size={width:maxX-minX, height:maxY-minY}
         const d=shape.clone().scale(24/font.unitsPerEm).round(2).toString()
         const fn=({motionRoute:geometry,target}, {positioning, anchor,dispatch,type="shape"}={})=>{
             const {left,top,right,bottom, w=right-left, h=bottom-top}=geometry.bounds()
             const revised=()=>shape.clone().scale(Math.min(w/size.width, h/size.height))
-                                
+                     
             if(!positioning){
                 if(!target){
-                    return <Shape geometry={d} outline={{width:1,color}}/>
+                    return <Shape {...defaultProps} geometry={d}/>
                 }
-                return <Shape geometry={revised().translate(left,top).round(2).toString()} outline={{width:1,color}}/>
+                return <Shape {...defaultProps} geometry={revised().translate(left,top).round(2).toString()}/>
             }
             dispatch(ACTION.Entity.CREATE({
                 type,
                 kind:`${kind}-${name}`,
-                geometry:revised(),
-                ...anchor({x:left,y:top},positioning),
+                shape:{
+                    ...defaultProps,
+                    geometry:revised(),
+                },
+                anchor:anchor({x:left,y:top},positioning),
             }))
         }
         return fn

@@ -25,7 +25,7 @@ define("paragraph compose",
         return Object.assign(appendComposed.mock.calls.map(([line])=>line),{dom:renderer.root})
     }
     const imageSelector="[data-type=image]"
-    it("image(size<=capacitty)", ()=>{debugger
+    it("image(size<=capacitty)", ()=>{
         const [line]=test({width:8,height:50})
         const image=new ReactQuery(line).findFirst(imageSelector)
         expect(image.length).toBe(1)

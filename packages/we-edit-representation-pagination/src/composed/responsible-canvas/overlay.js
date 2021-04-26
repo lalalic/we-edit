@@ -1,7 +1,8 @@
 import React, {Component,Fragment} from "react"
+import {dom} from "we-edit"
 import ReactDOM from "react-dom"
 import simplify from "simplify-path"
-import Path from "../../tool/path"
+const Path=dom.Shape.Path
 
 export default class Overlay extends Component{
     render(){

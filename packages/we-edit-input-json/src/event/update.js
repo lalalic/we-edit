@@ -1,14 +1,9 @@
 import {Editors} from "we-edit-representation-pagination"
 const Path=Editors.Shape.Path
 export default {
-    update_page({id, type, rotate, ...changing}){
-        if(rotate!=undefined){
-            const target=this.$target
-            target.attr('rotate',rotate)
-        }else{
-            const target=this.$(`#${id}`)
-            Object.keys(changing).forEach(k=>target.attr(k,changing[k]))
-        }
+    update_page(props){
+        const editor=this.createEditor('page')
+        editor.update(props)
     },
 
     update_frame(){

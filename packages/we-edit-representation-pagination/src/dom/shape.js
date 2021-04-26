@@ -1,24 +1,20 @@
 import React,{} from "react"
 import {dom} from "we-edit"
-import Path from "../tool/path"
-import {Group,Shape} from "../composed"
+import {Group} from "../composed"
 import Focusable from "../composed/responsible-canvas/focusable"
 
 import {HasParentAndChild,editable} from "../composable"
+const Path=dom.Shape.Path
 
 /**
  * Shape default layouted as inline mode, in which left&top will keep unchanged after transformation
  * anchor mode is different, so anchor should adjust shape according to geometry
  */
 export default class extends editable(HasParentAndChild(dom.Shape)){
-	static Path=Path
 	focusable=true
 	getGeometry(content){
-		const {geometry}=this.props
-		if(geometry){
-			return new Path(geometry)
-		}
-		return Path.fromRect(content.props)
+		const {geometry=Path.fromRect(content.props)}=this.props
+		return geometry
 	}
 
 	onAllChildrenComposed(){

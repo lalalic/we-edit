@@ -3,7 +3,8 @@ import {Group} from "../composed"
 
 import {HasParentAndChild} from "../composable"
 import {dom,ReactQuery} from "we-edit"
-import Path from "../tool/path"
+const Path=dom.Shape.Path
+
 
 /**
 * xy for Positioning
@@ -19,7 +20,7 @@ export default class Anchor extends HasParentAndChild(dom.Anchor){
 
     createComposed2Parent(content){
         const {width, height, geometry: contentGeometry}=content?.props||{}
-        const {x:X, y:Y,wrap:{mode, geometry:anchorGeometry, geometryFn=(a,{x,y})=>a?.clone().translate(x,y)}={}}=this.props
+        const {x:X, y:Y,wrap:{mode, geometry:anchorGeometry, distance=(a,{x,y})=>a?.clone().translate(x,y)}={}}=this.props
         const _geometry=anchorGeometry||contentGeometry||Path.fromRect({width,height})
         const size=_geometry?.size()||{x:0,y:0}
         const anchorX={align:"left", base:"closest", ...(typeof(X)=="object" ? X : {offset:X})}
@@ -29,7 +30,7 @@ export default class Anchor extends HasParentAndChild(dom.Anchor){
                 anchor={space=>{
                     const x=space.anchor(anchorX,size,space)
                     const y=space.anchor(anchorY,size,space)
-                    const geometry=geometryFn(_geometry, {x,y})
+                    const geometry=distance(_geometry, {x,y})
                     
                     const wrapFunc=(fn=>{
                         if(typeof(this.props.wrap)=="function"){

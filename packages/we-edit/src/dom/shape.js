@@ -1,6 +1,4 @@
-import React from "react"
 import PropTypes from "prop-types"
-
 import Component from "./component"
 
 /**
@@ -12,7 +10,7 @@ import Component from "./component"
  */
 export default class Shape extends Component{
 	static displayName="shape"
-
+	
 	static propTypes={
 		geometry:this.GeometryShape,//svg path, priority: shape's > content's rect
 		outline:this.LineShape,

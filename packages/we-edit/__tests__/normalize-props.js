@@ -2,7 +2,7 @@ import React from "react"
 import dom from "../src/dom"
 
 describe("normalize props",()=>{
-    const {UnitShape:{normalize:unit}}=dom.Unknown
+    const {UnitShape:{normalize:unit}, Path}=dom.Unknown
         
     it("props should be normalized",()=>{
         const {props:{width,height}}=<dom.Page size="A4"/>
@@ -114,10 +114,25 @@ describe("normalize props",()=>{
         expect(normalize({picture:{margin:5}})).toMatchObject({picture:{margin:{left:5,right:5}}})
         expect(normalize({picture:{margin:"5cm"}})).toMatchObject({picture:{margin:{left:unit("5cm")}}})
     })
+    
+    it("x/y=5=>{base:'offset',offset:5,align}",()=>{
+        const {Anchor}=dom
+        expect((<Anchor x={5} y={5}/>).props).toMatchObject({x:{offset:5}, y:{offset:5}})
+        expect((<Anchor wrap="square"/>).props).toMatchObject({wrap:{mode:"square"}})
+        const {wrap:{distance, geometry}}=(<Anchor wrap={{distance:5, geometry:{width:10,height:5}}}/>).props
+        expect(typeof(distance)).toBe("function")
+        expect(geometry.bounds()).toBeDefined()
+        expect(distance(geometry).bounds()).toMatchObject({width:20,height:15,left:-5,right:15,top:-5,bottom:10})
+    })
 
-
-
-    describe("anchor",()=>{
-
+    it("geometry",()=>{
+        const {GeometryShape:{normalize}}=dom.Unknown
+        expect(normalize("M0,0 L1,0")).toMatchObject(new Path("M0,0 L1,0"))
+        const size={width:5,height:5}
+        expect(normalize(size)).toMatchObject(Path.fromRect(size))
+        expect(normalize(<polyline points="0,0 3,2 5,2"/>)).toMatchObject(new Path(`M0,0 L3,2 L5,2`))
+        expect(normalize(<polygon points="0,0 3,2 5,2"/>)).toMatchObject(new Path(`M0,0 L3,2 L5,2Z`))
+        expect(normalize(<rect {...size} />)).toMatchObject(Path.fromRect(size))
+        expect(normalize(<rect {...size} x={5} y={6}/>).toString()).toBe(Path.fromRect(size).translate(5,6).toString())
     })
 })

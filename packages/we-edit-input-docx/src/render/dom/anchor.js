@@ -32,13 +32,13 @@ export default ({Anchor})=>class __$1 extends Component{
             wrap:{
                 mode:this.mode,
                 side:this.side,
-                geometryFn:this.geometryFn,
+                distance:this.distance,
                 geometry: Path.fromRect({width,height}),
             }
         }}/>
 	}
 
-    get geometryFn(){
+    get distance(){
         const {
             distance:{left:dl=0,right:dr=0,top:dt=0,bottom:db=0}={}, 
         }=this.props

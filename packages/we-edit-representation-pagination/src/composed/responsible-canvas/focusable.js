@@ -1,6 +1,6 @@
 import React, {Component} from "react"
 import PropTypes from "prop-types"
-import {whenSelectionChange,ACTION} from "we-edit"
+import {whenSelectionChange,ACTION, dom} from "we-edit"
 import {compose, shouldUpdate, setDisplayName} from "recompose"
 
 import Shape from "../shape"
@@ -8,7 +8,8 @@ import Group from "../group"
 import Movable from "./movable"
 import Resizable from "./resizable"
 import Rotatable from "./rotatable"
-import Path from "../../tool/path"
+const Path=dom.Shape.Path
+
 
 const IgnoreEvents=Group.Layer.IgnoreEvents
 const isSelfOrGrand=t=>!!t.selection?.getComposer(t.selection?.position.id)?.closest(p=>p.props.id==t.id)

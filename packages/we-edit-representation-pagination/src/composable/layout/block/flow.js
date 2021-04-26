@@ -7,7 +7,7 @@ import { HasParentAndChild } from "../.."
 import { Group } from "../../../composed"
 import ConstraintSpace from "../constraint-space"
 import {Rect} from "../../../tool/geometry"
-import Path from "../../../tool/path"
+const Path=dom.Shape.Path
 /**
  * Layout engine is how to layout content in a constraint space
  * so it includes: a constraint space + layout algorithm + content

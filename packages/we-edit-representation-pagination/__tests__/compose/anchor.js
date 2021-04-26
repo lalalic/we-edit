@@ -4,11 +4,11 @@ import {ReactQuery} from "we-edit"
 
 import {render,context} from "../context"
 import {define} from "./index"
-import Path from "../../src/tool/path"
 
 define("section compose",
 ({dom, testing, WithTextContext, WithParagraphContext, uuid=0})=>{
     const {Page,Frame, Paragraph, Text, Anchor, Shape, Table, Row, Cell}=dom
+    const Path=Page.Path
     const document={
         get computed(){
 
@@ -209,7 +209,7 @@ define("section compose",
 
         })
         
-        describe("with {geometry, mode, side, geometryFn}",()=>{
+        describe("with {geometry, mode, side, distance}",()=>{
             const geometry=Path.fromRect(size)
             const wrap={mode:"square", geometry}
             const props={wrap,x:{base:"page",offset:16},y:{base:"page",offset:5}}
@@ -225,10 +225,10 @@ define("section compose",
                 expect(doc1.xy(`[children="world"]`).x).toBe(props.x.offset+size.width)
             })
 
-            it("geometryFn to move left",()=>{
+            it("distance to move left",()=>{
                 const doc1=test({},(
                     <Paragraph {...{id:uuid++}}>
-                        <Anchor {...{id:"anchor", ...props, wrap:{...wrap, geometryFn:(g,{x,y})=>g.clone().translate(x,y).translate(-4)}}}/>
+                        <Anchor {...{id:"anchor", ...props, wrap:{...wrap, distance:(g,{x,y})=>g.clone().translate(x,y).translate(-4)}}}/>
                         <Text id={uuid++}>hello world</Text>
                     </Paragraph>
                 ))

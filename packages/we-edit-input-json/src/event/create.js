@@ -1,16 +1,19 @@
 import React from "react"
+import {dom} from "we-edit"
 
 export default {
     create_page(){
         const target=this.$target
-        const page=target.closest('page')
-        const {props:{width,height}}=page.toJS()
-        const {id}=this.file.renderChanged(<page {...{width,height}}/>)
+        const currentPage=target.closest('page')
+        const {props}=currentPage.toJS()
+
+        const {id}=this.file.renderChanged(<page/>)
         this.$('#'+id).appendTo('#root')
         this.cursorAt(id)
+        this.createEditor('page').update(props)
     },
 
-    create_textbox({geometry}){
+    create_textbox({anchor, shape, frame, geometry}){
         this.create_shape(...arguments)
         const {width,height}=geometry.bounds()
         const {id}=this.file.renderChanged(
@@ -39,10 +42,11 @@ export default {
         this.cursorAt(id)
     },
 
-    create_anchor({x,y}){
-        const {id}=this.file.renderChanged(<anchor x={x} y={y}/>)
+    create_anchor(props){//dom.Anchor.propTypes
+        const {id}=this.file.renderChanged(<anchor/>)
         this.$target.closest("frame, page").append('#'+id)
         this.cursorAt(id)
+        this.createEditor('anchor').update(props)
     },
 
     create_anchor_at_shape({anchor:{current:{x,y}}}){
@@ -53,5 +57,5 @@ export default {
 
     create_anchor_at_page({anchor:{page:{x,y}}}){
         this.create_anchor({x:{base:'page',offset:x},y:{base:'page',offset:y}})
-    }
+    },
 }
