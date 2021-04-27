@@ -6,7 +6,7 @@ export default function tck(TypedDocument,file, debug=false, more=a=>a){
 
     const data=require("fs").readFileSync(file)
     describe("event based reducer", ()=>{
-        var editor=null
+        let editor=null
 
         function getBlocks(){
             const tables=editor.$("table")
@@ -45,8 +45,6 @@ export default function tck(TypedDocument,file, debug=false, more=a=>a){
         afterEach(()=>{
             editor=null
         })
-
-        more(editor)
 
         describe("seperation",()=>{
             describe('text',()=>{
@@ -484,6 +482,8 @@ export default function tck(TypedDocument,file, debug=false, more=a=>a){
                 })
             })
         })
+
+        more(()=>editor)
     }) 
 }
 

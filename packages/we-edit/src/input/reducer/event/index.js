@@ -229,11 +229,11 @@ export default (class Events extends Base{
         return true
     }
 
-    create({type}){
+    create({type, ...props}){
         if(this.shouldRemoveSelectionWhenCreate(...arguments)){
             this.remove()
         }
-        this.emit(`create_${type.toLowerCase()}`,this.conds,...arguments)
+        this.emit(`create_${type.toLowerCase()}`,this.conds,props)
     }
 
     remove({type}={}){

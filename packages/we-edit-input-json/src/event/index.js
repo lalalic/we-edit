@@ -1,5 +1,9 @@
 import {Input} from "we-edit"
 
+import extendQuery from "./state-query"
+import Editors from "./editors"
+import memoize from "memoize-one"
+
 import type from "./type"
 import backspace from "./backspace"
 import create from "./create"
@@ -11,9 +15,6 @@ import tab from "./tab"
 import seperate from "./seperate"
 import forward from "./forward"
 import backward from "./backward"
-import extendQuery from "./state-query"
-import memoize from "memoize-one"
-import Editors from "./editors"
 
 export default (class Events extends Input.Editable.Reducer{
     static createExtendedQuery=memoize($=>extendQuery($.constructor))
@@ -76,5 +77,13 @@ export default (class Events extends Input.Editable.Reducer{
 
     create_first_paragraph(){
         
+    }
+
+    update({type,...props}){
+        if(type=="textbox"){
+            this.emit("update_textbox",this.conds, props)
+        }else{
+            super.update(...arguments)
+        }
     }
 }).extends(seperate,create,update,enter,type,backspace,Delete,tab,forward,backward,remove)

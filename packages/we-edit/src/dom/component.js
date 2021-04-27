@@ -64,9 +64,8 @@ export default class Base extends Component{
 	static ColorShape=this.normalizeChecker(PropTypes.oneOfType([
 		PropTypes.string,
 	]),{
-		normalize(value){
-			return value
-		}
+		normalize:value=>value,
+		denormalize:(value,normalized)=>normalized
 	})
 
 	static GradientStopShape=this.normalizeChecker(PropTypes.shape({
@@ -81,6 +80,14 @@ export default class Base extends Component{
 			if(position!=undefined)
 				stop.position=this.UnitShape.normalize(position)
 			return stop
+		},
+		denormalize:(value, normalized)=>{
+			const {color,position}=value
+			if(color!=undefined)
+				normalized.color=this.ColorShape.denormalize(normalized.color)
+			if(position!=undefined)
+				normalized.position=this.UnitShape.denormalize(normalized.position)
+			return normalized
 		}
 	})
 
@@ -95,6 +102,12 @@ export default class Base extends Component{
 			if(stops!=undefined)
 				gradient.stops=stops.map(a=>this.GradientStopShape.normalize(a))
 			return gradient
+		},
+		denormalize:(value, normalized)=>{
+			const {angle}=value
+			if(angle!=undefined)
+				normalized.angle=this.UnitShape.denormalize(angle,normalized.angle)
+			return normalized
 		}
 	})
 
@@ -118,6 +131,16 @@ export default class Base extends Component{
 				props.pattern=pattern
 			}
 			return props
+		},
+		denormalize:(value,normalized)=>{
+			const {pattern}=value
+			if(pattern!=undefined){
+				if(pattern.width!=undefined && normalized.pattern.width!=undefined)
+					normalized.pattern.width=this.UnitShape.denormalize(pattern.width, normalized.pattern.width)
+				if(pattern.height!=undefined && normalized.pattern.height!=undefined)
+					normalized.pattern.height=this.UnitShape.denormalize(pattern.height, normalized.pattern.height)
+			}
+			return normalized
 		}
 	})
 
@@ -174,6 +197,24 @@ export default class Base extends Component{
 					return {width:this.UnitShape.normalize(value)}
 			}
 			
+		},
+		denormalize:(value, normalized)=>{debugger
+			if(typeof(value)=="object"){
+					const {gradient, color, width, ...line}=value
+					if(gradient!=undefined)
+						normalized.gradient=this.GradientShape.denormalize(gradient, normalized.gradient)
+					if(color!=undefined)
+						normalized.color=this.ColorShape.denormalize(color,normalized.color)
+					if(width!=undefined)
+						normalized.width=this.UnitShape.denormalize(width, normalized.width)
+					return line
+			}else if(this.LineShape.canShorten(normalized)){
+				return this.UnitShape.denormalize(value,normalized.width)
+			}
+			return normalized
+		},
+		canShorten:({width,...values})=>{
+			return !Object.keys(values).find(k=>values[k]!=null && values[k]!=undefined)
 		}
 	})
 
@@ -188,8 +229,8 @@ export default class Base extends Component{
 				url: PropTypes.string,
 				transparency: PropTypes.number,
 				tile: PropTypes.shape({
-					x: PropTypes.number,
-					y: PropTypes.number,
+					x: this.UnitShape,
+					y: this.UnitShape,
 					scaleX: PropTypes.number,
 					scaleY: PropTypes.number,
 					align: PropTypes.string,
@@ -204,16 +245,55 @@ export default class Base extends Component{
 	]),{
 		normalize:(value)=>{
 			if(typeof(value)=="object"){
-				const {color, pattern, picture, ...fill}=value
+				const {color, pattern, picture,tile, ...fill}=value
 				if(color!=undefined)
 					fill.color=this.ColorShape.normalize(color)
 				if(pattern!=undefined)
 					fill.pattern=this.PatternShape.normalize(pattern)
-				if(picture!=undefined && picture.margin!=undefined)
-					fill.picture={...picture,margin:this.MarginShape.normalize(picture.margin)}
+				if(picture!=undefined){
+					const {margin, tile, ...nomalizedPicture}=picture
+					if(margin!=undefined)
+						nomalizedPicture.margin=this.MarginShape.normalize(picture.margin)
+					if(tile!=undefined){
+						const {x,y,...nomalizedTile}=tile
+						if(x!=undefined)
+							nomalizedTile.x=this.UnitShape.normalize(x)
+						if(y!=undefined)
+							normalizedTile.y=this.UnitShape.normalize(y)
+						nomalizedPicture.tile=normalizedTile
+					}
+					fill.picture=nomalizedPicture
+				}
+				
 				return fill
 			}
 			return {color:this.ColorShape.normalize(value)}
+		},
+		denormalize:(value, normalized)=>{debugger
+			if(typeof(value)=="object"){
+				const {color, pattern, picture, ...fill}=value
+				if(pattern!=undefined)
+					normalized.pattern=this.PatternShape.denormalize(pattern,normalized)
+				if(picture!=undefined && normalized.picture){
+					const {margin, tile}=picture
+					if(margin!=undefined && normalized.picture.margin)
+						normalized.picture.margin=this.MarginShape.denormalize(margin, normalized.picture.margin)
+					if(tile!=undefined && normalized.picture.tile){
+						const {x,y}=tile
+						if(x!=undefined && normalized.picture.tile.x)
+							normalized.picture.tile.x=this.UnitShape.normalize(x)
+						if(y!=undefined && normalized.picture.tile.y)
+							normalized.picture.tile.y=this.UnitShape.normalize(y)
+					}
+				}
+				return normalized
+			}else if(this.FillShape.canShorten(normalized)){
+				return this.ColorShape.denormalize(value, normalized.color)
+			}
+			return normalized
+		},
+		canShorten:({color,...values})=>{
+			return !Object.keys(values).find(k=>values[k]!=null && values[k]!=undefined)
 		}
 	})
 
@@ -245,6 +325,9 @@ export default class Base extends Component{
 				}
 			}
 			return value
+		},
+		denormalize:(value,normalized)=>{
+			return normalized
 		}
 	})
 
@@ -273,6 +356,21 @@ export default class Base extends Component{
 				value=this.LineShape.normalize(value)
 				return {left:value, right:value, top:value, bottom:value}
 			}
+		},
+		denormalize:(value,normalized)=>{debugger
+			if(typeof(value)=="object"){
+				return Object.keys(value).reduce((normalized,key)=>{
+					normalized[key]=this.LineShape.denormalize(value[key],normalized[key])
+					return normalized
+				},normalized)
+			}else if(this.BorderShape.canShorten(normalized)){
+				return this.LineShape.denormalize(value, normalized.left)
+			}
+			return normalized
+		},
+		canShorten:({left,right,top,bottom})=>{
+			return ![left,right,top,bottom].find(a=>!this.LineShape.canShorten(a))
+				&& new Set([left,right,top,bottom].map(a=>a.width)).size==1
 		}
 	})
 	
@@ -296,6 +394,20 @@ export default class Base extends Component{
 				}
 
 			}
+		},
+		denormalize:(value,normalized)=>{
+			if(typeof(value)=="object"){
+				return Object.keys(value).reduce((normalized,key)=>{
+					normalized[key]=this.UnitShape.denormalize(value[key],normalized[key])
+					return normalized
+				},normalized)
+			}else if(this.MarginShape.canShorten(normalized)){
+				return this.UnitShape.denormalize(value, normalized.left)
+			}
+			return normalized
+		},
+		canShorten:({left,right,top,bottom})=>{
+			return new Set([left,right,top,bottom]).size==1
 		}
 	})
 
@@ -316,6 +428,11 @@ export default class Base extends Component{
 			if(size!=undefined)
 				style.size=this.UnitShape.normalize(size)
 			return style
+		},
+		denormalize:(value,normalized)=>{
+			if(value.size!=undefined)
+				normalized.size=this.UnitShape.denormalize(value.size, normalized.size)
+			return normalized
 		}
 	})
 

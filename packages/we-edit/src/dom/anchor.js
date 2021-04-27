@@ -34,11 +34,22 @@ export default class Anchor extends Component{
             denormalize:(value,normalized)=>{
                 if(typeof(value)=="object"){
                     const {offset}=value
-                    if(offset!=undefined)
+                    if(offset!=undefined && normalized.offset)
                         normalized.offset=this.UnitShape.denormalize(offset, normalized.offset)
                     return normalized
+                }else if(this.propTypes.x.canShorten(normalized)){
+                    return this.UnitShape.denormalize(value, normalized.offset)
+                }else{
+                    normalized.offset=this.UnitShape.denormalize(value, normalized.offset)
                 }
-                return this.UnitShape.denormalize(value, normalized.offset)
+                return normalized
+            },
+            canShorten:value=>{
+                if(typeof(value)=="object"){
+                    const {base,align}=value
+                    return align==undefined && (base==undefined||base=="current")
+                }
+                return true
             }
         }),
 
@@ -117,6 +128,30 @@ export default class Anchor extends Component{
                         return value
                 }
             },
+            denormalize:(value, normalized)=>{
+                switch(typeof(value)){
+                    case "object":{
+                        const {geometry,distance,...wrap}=value
+                        if(geometry!=undefined)
+                            normalized.geometry=this.GeometryShape.denormalize(geometry,normalized.geometry)
+                        if(distance!=undefined){
+                            if(typeof(distance)=="function"){
+                                
+                            }else{
+                                normalized.distance=this.MarginShape.denormalize(distance, normalized.distance)
+                            }
+                        }
+                        return normalized
+                    }
+
+                    case "string":{
+                        if(Object.keys(normalized).length==1){
+                            return normalized.mode
+                        }
+                    }
+                }
+                return normalized
+            }
         }),
     }
     static WrapModeShape=PropTypes.oneOf(["square", "tight", "clear","no"])

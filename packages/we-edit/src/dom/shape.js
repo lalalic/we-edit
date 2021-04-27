@@ -16,7 +16,7 @@ export default class Shape extends Component{
 		outline:this.LineShape,
 		fill: this.FillShape,
 		rotate: this.UnitShape,
-		scale: this.UnitShape,
+		scale: PropTypes.number,
 		editableSpots: PropTypes.oneOfType([
 			PropTypes.func,//func(geometry)=>[{x,y,direction,style,control}]
 			PropTypes.arrayOf(PropTypes.shape({
@@ -29,7 +29,7 @@ export default class Shape extends Component{
 		]),
 
 		autofit: PropTypes.oneOf([true,"larger"]),
-		autofitHeight: PropTypes.number,
+		autofitHeight: this.UnitShape,
 	}
 
 	static OverlayWhenMouseDown="WhenMouseDown"

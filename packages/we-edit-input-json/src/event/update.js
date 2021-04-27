@@ -1,47 +1,24 @@
-import {Editors} from "we-edit-representation-pagination"
-const Path=Editors.Shape.Path
 export default {
     update_page(props){
-        const editor=this.createEditor('page')
-        editor.update(props)
+        this.createEditor('page').update(props)
     },
 
-    update_frame(){
-
+    update_at_page(props){
+        this.update_page(...arguments)
     },
 
-    update_shape(){
-
+    update_at_shape({anchor,shape,frame,...props}){
+        anchor && this.createEditor('anchor',this.target.closest('anchor')).update(anchor)
+        this.createEditor('shape').update(shape||props)
     },
 
-    update_untyped({id, ...changing}){
-        const $target=id ? this.$('#'+id) : this.$target
-        this.content.mergeIn([$target.attr('id'),'props'], changing)
+    update_at_anchor(props){
+        this.createEditor('anchor').update(props)
     },
 
-    update_origin({id,origin}){
-        this.$('#'+id).attr('origin',origin)
-    },
-
-    update_at_shape({id, rotate, size, scale, outline, fill}){
-        if(rotate!==undefined){
-            this.$target.attr('rotate',rotate)
-        }
-        if(size){
-            const geometry=this.$target.attr('geometry')
-            if(!geometry){
-                const target=this.$target.find('frame')
-                const {width,height}=size
-                if(width!==undefined)
-                    target.attr('width',width)
-                if(height!=undefined)
-                    target.attr('height',height)
-            }else{
-                const size0=new Path(geometry).bounds()
-                const {width=size0.width,height=size0.height}=size
-                this.$target.attr("geometry",Path.fromRect({width,height}).toString())
-            }
-        }
+    update_textbox({anchor,shape,frame, ...props}){
+        anchor && this.createEditor('anchor',this.target.closest('anchor')).update(anchor)
+        shape && this.createEditor('shape', this.target.closest('shape')).update(shape)
+        this.createEditor('frame',this.target.closest('shape').findFirst("frame")).update(frame||props)
     }
-    
 }

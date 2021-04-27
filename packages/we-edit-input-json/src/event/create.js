@@ -29,7 +29,7 @@ export default {
         )
         this.$target.append('#'+id)
         this.cursorAt(id)
-        this.createEditor('textbox').update(props)
+        this.createEditor('frame').update(props)
 
         this.cursorAt(this.$('#'+id).find("text").attr('id'),0)
     },
@@ -47,6 +47,7 @@ export default {
     },
 
     create_anchor({current:{x,y},page, paragraph, inline, ...props}){//dom.Anchor.propTypes
+        debugger
         const {id}=this.file.renderChanged(<anchor/>)
         this.$target.closest("frame, page").append('#'+id)
         this.cursorAt(id)
