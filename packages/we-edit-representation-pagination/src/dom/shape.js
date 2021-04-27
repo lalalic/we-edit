@@ -17,6 +17,11 @@ export default class extends editable(HasParentAndChild(dom.Shape)){
 		return geometry
 	}
 
+	clipPath(geometry){
+		const {left:x,top:y,width:w,height:h}=geometry.bounds()
+		return `path("M${x},${y}h${w}v${h}h-${w}Z")`
+	}
+
 	onAllChildrenComposed(){
         if(React.Children.toArray(this.props.children).length==0){
             this.context.parent.appendComposed(this.createComposed2Parent())
@@ -32,10 +37,11 @@ export default class extends editable(HasParentAndChild(dom.Shape)){
 	 */
 	createComposed2Parent(content){
 		const geometry=this.getGeometry(content)
-		const { outline, fill, autofit, autofitHeight=geometry.bounds().height, id, hash,editableSpots}=this.props
+		const { outline, fill, autofit, autofitHeight=geometry.bounds().height, id, hash,editableSpots, clip=true}=this.props
 		if(autofit && content){
 			geometry.verticalExtend(content.props.height-autofitHeight)
 		}
+		content=!clip ? content : <Group clipPath={this.clipPath(geometry)}>{content}</Group>
 		const path=geometry.toString()
 		const {width,height,x,y,transform}=this.transform(geometry)
 		return (

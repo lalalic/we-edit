@@ -17,6 +17,7 @@ export default class Shape extends Component{
 		fill: this.FillShape,
 		rotate: this.UnitShape,
 		scale: PropTypes.number,
+		clip: PropTypes.bool,
 		editableSpots: PropTypes.oneOfType([
 			PropTypes.func,//func(geometry)=>[{x,y,direction,style,control}]
 			PropTypes.arrayOf(PropTypes.shape({

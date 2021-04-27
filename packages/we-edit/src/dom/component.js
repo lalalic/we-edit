@@ -34,10 +34,11 @@ export default class Base extends Component{
 				case "number":
 					return value
 				case "string":{
-					const val=parseFloat(value), unit=value.replace(/[\s\d\.]/g,"")||missUnit
+					const val=parseFloat(value), unit=value.replace(/[\s\d\.\+-]/g,"")||missUnit
 					if(toUnit==unit)
 						return val
-					return this.units[`${unit}2${toUnit}`](val)
+					const fn=`${unit}2${toUnit}`
+					return fn in this.units ? this.units[fn](val) : val
 				}
 			}
 		},
@@ -47,13 +48,14 @@ export default class Base extends Component{
 				return normalized
 			},{...value})
 		},
-		denormalize: (value, normalized, missUnit='px')=>{
+		denormalize: (value, normalized)=>{
 			switch(typeof(value)){
 				case "number":
 					return normalized
 				case "string":{
-					const unit=value.replace(/[\s\d\.]/g,"")||missUnit
-					return `${unit=='px' ? normalized : this.units[`px2${unit}`](normalized)} ${unit}`
+					const unit=value.replace(/[\s\d\.\+-]/g,"").trim()||'px'
+					const fn=`px2${unit}`
+					return fn in this.units ? `${this.units[fn](normalized)} ${unit}` : value
 				}
 			}
 			return normalized
