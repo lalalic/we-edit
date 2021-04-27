@@ -12,6 +12,7 @@ export default class Text extends Component{
 			children, whiteSpace, color:fill="black", highlight,border,underline,strike,
 			descent,minWidth, height, width, blockOffset,tokenizeOpportunity,mergeOpportunity,tabWidth,//ignore
 			y=0,
+			x=0,
 			//["data-mergeid"]:_1,
 			...others}=this.props
 		const {precision=1}=this.context
@@ -32,20 +33,20 @@ export default class Text extends Component{
 		}
 		let decoration=null
 		if(underline){
-			const {pos:y,thick:strokeWidth, ...underlineProps}=underline
-			decoration=(<Shape y1={y} x2={width} y2={y} color={fill} width={strokeWidth*precision} {...{underlineProps}}/>)
+			const {pos:y,thick:strokeWidth, kind}=underline
+			decoration=(<Shape key="underline" d={`M${x},${y}h${width}`} color={fill} width={strokeWidth*precision} style={kind}/>)
 		}
 
 		let strikeline=null
 		if(strike){
 			let y=-descent
-			strikeline=(<Shape y1={y} x2={width} y2={y} color={fill} width={0.5*precision}/>)
+			strikeline=(<Shape key="strike"  d={`M${x},${y}h${width}`} color={fill} width={0.5*precision}/>)
 		}
 
 		return (
-			<Fragment>
+			<g transform="translate(0 0)">
 				{background}
-				<text y={y} 
+				<text y={y} x={x}
 					textLength={width}
 					{...others}
 					fill={fill}>
@@ -53,7 +54,7 @@ export default class Text extends Component{
 				</text>
 				{strikeline}
 				{decoration}
-			</Fragment>
+			</g>
 		)
 	}
 

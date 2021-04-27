@@ -20,5 +20,13 @@ export default {
         anchor && this.createEditor('anchor',this.target.closest('anchor')).update(anchor)
         shape && this.createEditor('shape', this.target.closest('shape')).update(shape)
         this.createEditor('frame',this.target.closest('shape').findFirst("frame")).update(frame||props)
+    },
+
+    update_at_text(props){
+        this.createEditor('text').update(props)
+    },
+
+    update_at_paragraph(props){
+        this.createEditor('paragraph').update(props)
     }
 }

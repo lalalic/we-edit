@@ -1,4 +1,4 @@
-import React, {Component} from "react"
+import React, {Component, Fragment} from "react"
 import Menu from 'material-ui/Menu'
 import Popover from "material-ui/Popover"
 import SizeIconButton from "../components/size-icon-button"
@@ -26,14 +26,14 @@ export default class DropdownButton extends Component{
 			</Popover>
 		)
 		return (
-			<span style={{whiteSpace:"nowrap"}}>
+			<Fragment>
 				<SizeIconButton onClick={onClick||toggle} {...props} status={status}>
 					{icon}
 				</SizeIconButton>
 				{false && (<span style={labelStyle} onClick={onClick}>{label}</span>)}
-				<IconMore style={{height:24,width:6}} viewBox="6 -12 18 36" onClick={toggle}/>
+				<IconMore style={{height:24,width:6}} viewBox="8 0 18 36" onClick={toggle}/>
 				{menus}
-			</span>
+			</Fragment>
 		)
 	}
 	

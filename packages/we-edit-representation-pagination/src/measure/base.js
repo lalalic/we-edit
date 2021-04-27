@@ -62,14 +62,14 @@ export class Measure{
 				fontStyle:italic ? "italic" : "normal",
 				fontFamily:this.fontFamily,
 				['data-postscriptname']: fontId,
-				['data-mergeid']: `${fontId}.${this.size}${bold&&'.bold'||''}${italic&&'.italic'||''}${underline&&'.underline'||''}`,
+				['data-mergeid']: `${fontId}.${this.size}${bold&&'.bold'||''}${italic&&'.italic'||''}${underline&&`.${underline}`||''}`,
 			}
 	
 			const {height, descent, underlinePos=descent/2, underlineThick=50*this.size/2000}=this.lineHeight()
 			defaultStyle.height=this.height=height
 			defaultStyle.descent=this.descent=descent
 			if(underline){
-				defaultStyle.underline={...underline, pos:underlinePos,thick:underlineThick}
+				defaultStyle.underline={kind:underline, pos:underlinePos,thick:underlineThick||1}
 			}
 			if(vertAlign=="superscript"){
 				defaultStyle.y=-this.lineHeight().height*Super_Script_Position
