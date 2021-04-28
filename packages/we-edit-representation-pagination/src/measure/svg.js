@@ -1,27 +1,14 @@
 import memoize from "memoize-one"
-import FontMeasure from "./font"
+import Base from "./base"
 
-/**
- *
- * why it's slower than html
- */
 let tester=null
-export default class SVGMeasure extends FontMeasure{
-    static displayName="SVG Measure"
-    static fallbackFonts={
-        ...super.fallbackFonts,
-        ascii:"Times New Roman",
-        ea:"Songti TC",
-    }
-
-    fontExists(family){
-        return !!Array.from(document.fonts).find(a=>a.family==family && a.status=="loaded")
+export default class BrowserMeasure extends Base{
+    static displayName="Browser Measure"
+    constructor({fonts:{hint,...fonts}, ...style}){
+        super({...style,fonts:fonts[hint]||fonts.ea||fonts.ascii||Object.values(fonts)[0]},true)
     }
 
     lineHeight(size=this.size){
-        if(this.font){
-            return super.lineHeight(...arguments)
-        }
         if(!tester){
 			let container=document.createElement("div")
 			container.style="position:absolute;top:-1000px"
@@ -46,9 +33,6 @@ export default class SVGMeasure extends FontMeasure{
     }
 
     _stringWidth(word){
-        if(this.font){
-            return super._stringWidth(word)
-        }
         tester.setStyle(this.cssStyle(this.size))
         tester.firstChild.data=word
         return tester.getBBox().width
@@ -57,33 +41,11 @@ export default class SVGMeasure extends FontMeasure{
     static WebFonts=["Arial","Courier New","Georia","Times New Roman","Trebuchet MS","Verdana"]
 
     static requireFonts(service, fonts){
-        return super.requireFonts(service, Array.from(new Set([...fonts,...this.WebFonts])))
-            .then(({FontManager,unloaded})=>{
-                const locals=unloaded
-                if(locals && locals.length){
-                    console.warn(`Try browser local fonts: [${locals.join(",")}]`)
-                    locals.forEach(a=>FontManager.makeFontFace({familyName:a},`local("${a}")`))
-                }
-                const names=fonts.map(a=>FontManager.get(a)?.familyName||a)
-                const faces=Array.from(document.fonts).filter(a=>names.includes(a.family))
-                return Promise.all(
-                    faces
-                        .map(a=>new Promise(resolve=>{
-                            return a.loaded
-                            .then(()=>resolve(),()=>resolve(a))
-                        }))
-                ).then(required=>{
-                    let unloaded=required.filter(a=>!!a)
-                    if(unloaded.length){
-                        unloaded.forEach(a=>{
-                            FontManager.removeFontFace(a)
-                        })
-                        unloaded=Array.from(new Set(unloaded.map(a=>[a.family,a.style,a.weight].filter(a=>a!=="normal").join("/"))))
-                    }
-                    const errors=unloaded.filter(a=>locals.includes(a))
-                    return {FontManager,unloaded, errors}
-                })
-            })
+        document.dispatchEvent(new CustomEvent(
+            'fontLoaded',
+            {detail:{fonts:Array.from(new Set([...fonts,...this.WebFonts])).map(family=>({family}))}}
+        ))
+        return Promise.resolve({unloaded:[], error:[]})
     }
 }
 

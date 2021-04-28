@@ -28,7 +28,7 @@ const Canvas=Responsible.Canvas
 const Positioning=Responsible.Positioning
 const SelectionStyle=Responsible.SelectionStyle
 
-const {FontMeasure, SVGMeasure}=Measure
+const {FontMeasure, BrowserMeasure}=Measure
 
 export default class Pagination extends Representation.Base{
 	static displayName="pagination"
@@ -57,7 +57,7 @@ export default class Pagination extends Representation.Base{
 	constructor(){
 		super(...arguments)
 		const {fallbackFonts,measure,fonts:service}=this.props
-		this.Measure=measure||(isNode ? FontMeasure : SVGMeasure)
+		this.Measure=measure||(isNode ? FontMeasure : BrowserMeasure)
 		if(fallbackFonts){
 			this.Measure=this.Measure.createFallbackFontsMeasure(fallbackFonts)
 		}

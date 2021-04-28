@@ -72,9 +72,7 @@ export default class PaginationSelectionStyle extends SelectionStyle{
         const composer=this.getComposer(this.end.id)
         if(composer.getComposeType()=="text"){
             const char=composer.props.children.substr(this.end.at,1)
-            if(char){
-                return {...textProps, fonts:composer.measure.getCharFontFamily(char)}
-            }
+            return {...textProps, fonts:composer.measure.getCharFontFamily(char)}
         }
         
         return textProps

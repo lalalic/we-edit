@@ -54,7 +54,7 @@ export class Measure{
 				 */
 				this.stringWidth("A")
 			}
-			const fontId=this.font?.postscriptName||this.fontFamily
+			const fontId=(this.font?.postscriptName||this.fontFamily).replace(/\s+/g,"-")
 			const defaultStyle={
 				whiteSpace:'pre',
 				fontSize:`${this.size}px`,
@@ -100,7 +100,7 @@ export class Measure{
 			}
 		})
 			
-		const fontFamily=this.getCharFontFamily=(A,nested)=>{
+		const fontFamily=this.getCharFontFamily=(A="A",nested)=>{
 			A=typeof(A)=="string" ? A.charCodeAt(0) : A
 			//1. segmented font
 			let reason=1

@@ -1,4 +1,7 @@
 import Measure from "./base"
+import FontKit from "fontkit"
+import arial from "!!file-loader?name=[name].[ext]!../fonts/Arial.ttf"
+import createFallbackFont from "../fonts/fallback-font"
 import FontManager from "../fonts"
 
 export default class FontMeasure extends Measure{
@@ -23,4 +26,27 @@ export default class FontMeasure extends Measure{
     _stringWidth(input){
 		return this.font.stringWidth(input,this.size)
     }
+
+	static requireFonts(){
+		return super.requireFonts(...arguments)
+			.then(result=>{
+				return globalThis.fetch(arial)
+					.then(res=>res.arrayBuffer())
+					.then(data=>FontManager.load(data))
+					.then(font=>createFallbackFont(font))
+					.then(data=>{
+						const name="Fallback", names=["familyName","postscriptName","fullName"]
+						const font=FontKit.create(Buffer.from(data))
+						return new Proxy(font,{
+							get(font,key){
+								if(names.includes(key))
+									return name
+								return Reflect.get(...arguments)
+							}
+						})
+					})
+				.then(font=>makeFontFace(font),e=>console.warn(e))
+				.then(()=>result)
+			})
+	}
 }

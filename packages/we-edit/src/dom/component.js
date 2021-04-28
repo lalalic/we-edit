@@ -149,7 +149,7 @@ export default class Base extends Component{
 	/**
 	 * Font selection Priority: fonts.segmented>fonts[fonts.hint]>fonts.fallback>systemFallbacks[fonts.hint]>systemFallbacks.segmented>systemFallbacks.fallback
 	 */
-	static FontsShape=PropTypes.oneOfType([
+	static FontsShape=this.normalizeChecker(PropTypes.oneOfType([
 		PropTypes.shape({
 			ascii: PropTypes.string,
 			ea: PropTypes.string,
@@ -163,7 +163,22 @@ export default class Base extends Component{
 		}),
 		/** same as {ascii: fontName}*/
 		PropTypes.string, 
-	])
+	]),{
+		normalize:value=>{
+			switch(typeof(value)){
+				case "string":
+					return {ascii:value}
+				default:
+					return value
+			}
+		},
+		denormalize:(value,normalized)=>{
+			if(typeof(normalized)=="object" && Object.keys(normalized).length==1 && 'ascii' in normalized && typeof(value)=="string"){
+				return normalized.ascii
+			}
+			return normalized
+		}
+	})
 
 	static LineShape=this.normalizeChecker(PropTypes.oneOfType([
 		PropTypes.shape({
