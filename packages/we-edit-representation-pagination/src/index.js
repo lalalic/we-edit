@@ -28,7 +28,7 @@ const Canvas=Responsible.Canvas
 const Positioning=Responsible.Positioning
 const SelectionStyle=Responsible.SelectionStyle
 
-const {FontMeasure, BrowserMeasure}=Measure
+const {FontMeasure, BrowserMeasure, HybridMeasure}=Measure
 
 export default class Pagination extends Representation.Base{
 	static displayName="pagination"

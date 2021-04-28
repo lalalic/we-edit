@@ -60,7 +60,7 @@ module.exports=(env,args)=>{
 				loader:"string-replace-loader",
 				options:{
 					search:/\/\/\s+cmap\:\s+cmap/g,
-					replace:`,cmap:this.cmap,`
+					replace:`,cmap:this.cmap, `
 				}
 			},
 			]

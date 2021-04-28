@@ -321,7 +321,7 @@ class Manager {
 
 	create(postscriptName) {
 		const id = this.createId();
-		const font = FontManager.byFullName(postscriptName);
+		const font = FontManager.byPostscriptName(postscriptName);
 		const fontObj = font
 			? new SubsetFont({ family: postscriptName, font, id })
 			: new Font({ family: postscriptName, id });
