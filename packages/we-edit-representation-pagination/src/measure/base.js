@@ -16,28 +16,37 @@ import FontManager from "../fonts"
  */
 export class Measure{
 	static caches=new Map()
+	static withSameNonMetricStyle(style1,style2){
+		return !["vertAlign","underline"].find(k=>style1[k]!==style2[k])
+	}
 	constructor(style,_dont_decide){
-		const {VertAlign_Size=0.5,Super_Script_Position=0.4}=this.constructor
+		const {VertAlign_Size=0.5,Super_Script_Position=0.4, withSameNonMetricStyle}=this.constructor
 		const {size, vertAlign, bold, italic}=style
 		this.style=style
 		this.size=size * (vertAlign ? VertAlign_Size : 1);
-		this.caches=new Map()
-
+		
 		this.fontFamily=this.__decideFont({...style,Super_Script_Position},_dont_decide)
 		if(this.fontFamily){
 			this.hit=0
 
-			const cacheKey=[this.fontFamily,this.size,bold&&'bold',italic&&'italic'].filter(a=>!!a).join("-")
+			const cacheKey=this.cacheKey=[this.fontFamily,bold&&'bold',italic&&'italic',this.size].filter(a=>!!a).join("-")
+			this.id=this.font?.postscriptName||[this.fontFamily,bold&&'bold',italic&&'italic'].filter(a=>!!a).join("-")
 			const caches=this.constructor.caches
 			if(caches.has(cacheKey)){
 				const cache=caches.get(cacheKey)
 				cache.hit++
 				console.debug(`measure cache[${cacheKey}]: hit ${cache.hit}`)
-				return cache
+				if(withSameNonMetricStyle(this.style,cache.style)){
+					return cache
+				}else{//share caches
+					this.caches=cache.caches
+					return this
+				}
 			}
 
 			caches.set(cacheKey,this)
 		}
+		this.caches=new Map()
 	}
 
 	__decideFont({fonts,bold,italic,vertAlign,underline,Super_Script_Position},_dont_decide){
@@ -47,29 +56,32 @@ export class Measure{
 		
 		const isFallbackFontsMeasure=fonts==this.fallbackFonts
 
-		const getDefaultStyle=()=>{
+		const getDefaultStyle=(A)=>{
 			if(!this.fontFamily){
 				/**
 				 * @TODO: some place never call stringWidth, such as empty paragraph
 				 */
-				this.stringWidth("A")
+				this.stringWidth(A||"A")
 			}
-			const fontId=(this.font?.postscriptName||this.fontFamily).replace(/\s+/g,"-")
 			const defaultStyle={
 				whiteSpace:'pre',
 				fontSize:`${this.size}px`,
 				fontWeight:bold ? "bold" : "normal",
 				fontStyle:italic ? "italic" : "normal",
 				fontFamily:this.fontFamily,
-				['data-postscriptname']: fontId,
-				['data-mergeid']: `${fontId}.${this.size}${bold&&'.bold'||''}${italic&&'.italic'||''}${underline&&`.${underline}`||''}`,
+				['data-postscriptname']: this.id,
+				['data-mergeid']: `${this.cacheKey}${underline&&`.${underline}`||''}`,
 			}
 	
-			const {height, descent, underlinePos=descent/2, underlineThick=50*this.size/2000}=this.lineHeight()
+			const {height, descent, underlinePos, underlineThick}=this.lineHeight()
 			defaultStyle.height=this.height=height
 			defaultStyle.descent=this.descent=descent
 			if(underline){
-				defaultStyle.underline={kind:underline, pos:underlinePos,thick:underlineThick||1}
+				defaultStyle.underline={
+					kind:underline, 
+					pos:underlinePos||descent/2,
+					thick:underlineThick||Math.max(Math.round(this.size/10),1)
+				}
 			}
 			if(vertAlign=="superscript"){
 				defaultStyle.y=-this.lineHeight().height*Super_Script_Position
