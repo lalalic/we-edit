@@ -1,6 +1,6 @@
 import React,{Fragment} from "react"
 
-import {ACTION, whenSelectionChangeDiscardable} from "we-edit"
+import {ACTION, whenSelectionChangeDiscardable, dom} from "we-edit"
 
 import {compose,setDisplayName,withProps, shallowEqual,shouldUpdate,withState} from "recompose"
 
@@ -25,8 +25,9 @@ import IconMore from "material-ui/svg-icons/navigation/more-horiz"
 import FontList from "./fonts"
 import TextSetting from "./setting"
 
+const px2pt=dom.Unknown.units.px2pt.bind(dom.Unknown.units)
+const pt2px=dom.Unknown.units.pt2px.bind(dom.Unknown.units)
 const ToolbarSeparator=props=><ToolbarSeparator0 style={{marginRight:2, marginLeft:2}} {...props}/>
-
 export default compose(
 	setDisplayName("TextStyle"),
 	whenSelectionChangeDiscardable(({selection})=>{
@@ -35,21 +36,27 @@ export default compose(
 		return {}
 	}),
 	withProps(({dispatch, style})=>{
-		let changeSize=size=>dispatch(ACTION.Selection.UPDATE({text:{size}}))
+		const changeSize=size=>dispatch(ACTION.Selection.UPDATE({text:{size}}))
 		return {
 			style,
 			toggleB:b=>style && dispatch(ACTION.Selection.UPDATE({text:{bold:!style.bold}})),
 			toggleI:b=>style && dispatch(ACTION.Selection.UPDATE({text:{italic:!style.italic}})),
 			toggleU:b=>style && dispatch(ACTION.Selection.UPDATE({text:{underline:!style.underline}})),
-			toggleSubscript:b=>style && dispatch(ACTION.Selection.UPDATE({text:{subscript:!(style.vertAlign=="subscript")}})),
-			toggleSuperscript:b=>style && dispatch(ACTION.Selection.UPDATE({text:{superscript:!(style.vertAlign=="superscript")}})),
+			toggleSubscript:b=>style && dispatch(ACTION.Selection.UPDATE({text:{vertAlign:style.vertAlign=="subscript" ? null : "subscript"}})),
+			toggleSuperscript:b=>style && dispatch(ACTION.Selection.UPDATE({text:{vertAlign:style.vertAlign=="superscript" ? null : "superscript"}})),
 			changeFont:fonts=>dispatch(ACTION.Selection.UPDATE({text:{fonts}})),
 			changeSize,
 			smaller(){
-				style && changeSize(Math.max(style.size-Math.ceil(Math.abs((style.size-8)/5)),8))
+				if(style){
+					const pt=Math.round(px2pt(style.size)*10)/10, d=Math.max(pt*0.1,1)
+					changeSize(pt2px(Math.max(Math.round(pt-d),1)))
+				}
 			},
 			bigger(){
-				style && changeSize(style.size+2)
+				if(style){
+					const pt=Math.round(px2pt(style.size)*10)/10, d=Math.max(pt*0.1,1)
+					changeSize(pt2px(Math.round(pt+d)))
+				}
 			},
 			changeHightlight(highlight){
 				dispatch(ACTION.Selection.UPDATE({text:{highlight}}))
@@ -85,13 +92,13 @@ export default compose(
 		}>
 			<ToolbarGroup>
 				<FontList
-					value={style?.font||""}
+					value={style?.fonts||""}
 					changeFont={changeFont}/>
 				<ComboBox
 					style={{width:50}}
 					inputStyle={{border:"1px solid lightgray"}}
-					value={style ? style.size: 11}
-					onChange={value=>changeSize(parseInt(value))}
+					value={style?.size ? px2pt(style.size) : 11}
+					onChange={value=>changeSize(pt2px(parseInt(value)))}
 					dataSource={[8,9,10,11,12,14,16,20,22,24,26,28,36,72].map(a=>a+"")}
 					underlineShow={false}
 					/>
@@ -108,18 +115,18 @@ export default compose(
 				<ToolbarSeparator/>
 
 				<CheckIconButton label="bold"
-					status={style&&style.bold ? "checked" : "unchecked"}
+					status={style?.bold ? "checked" : "unchecked"}
 					onClick={()=>toggleB()}
 					children={<IconBold/>}
 					/>
 				<CheckIconButton label="italic"
-					status={style && style.italic?"checked":"unchecked"}
+					status={style?.italic?"checked":"unchecked"}
 					onClick={()=>toggleI()}
 					children={<IconItalic/>}
 					/>
 				<DropDownButton label="underline"
-					status={style&&style.underline?"checked":"unchecked"}
-					onClick={a=>underline(style&&style.underline ? "" : "single")}
+					status={style?.underline?"checked":"unchecked"}
+					onClick={a=>underline(style?.underline ? "" : "single")}
 					icon={<IconUnderlined/>}
 					>
 					{"single,double,dot,dash".split(",").map(a=>
@@ -132,7 +139,7 @@ export default compose(
 				</DropDownButton>
 
 				<CheckIconButton label="strikethrough"
-					status={style&&style.strike?"checked":"unchecked"}
+					status={style?.strike?"checked":"unchecked"}
 					onClick={()=>toggleStrike()}
 					children={<IconStrike/>}
 					/>
@@ -155,13 +162,13 @@ export default compose(
 					/>
 
 				<ColorButton label="text highlight color"
-					status={style&&style.highlight?"checked":"unchecked"}
+					status={style?.highlight?"checked":"unchecked"}
 					onChange={color=>changeHightlight(color)}>
 					<IconBackground/>
 				</ColorButton>
 
 				<ColorButton label="text color"
-					status={style&&style.color?"checked":"unchecked"}
+					status={style?.color?"checked":"unchecked"}
 					onChange={color=>changeColor(color)}>
 					<IconColor/>
 				</ColorButton>

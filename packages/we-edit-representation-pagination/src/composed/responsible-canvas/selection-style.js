@@ -69,15 +69,15 @@ export default class PaginationSelectionStyle extends SelectionStyle{
         const textProps=this._props(type,getFromContent)
         if(!textProps)
             return textProps
-        let {size=0,fonts, ...props}=textProps
-        if(!getFromContent){
-            fonts=this.positioning.responsible.getComposer(props.id)?.fontFamily?.(this.end.at)||fonts
+        const composer=this.getComposer(this.end.id)
+        if(composer.getComposeType()=="text"){
+            const char=composer.props.children.substr(this.end.at,1)
+            if(char){
+                return {...textProps, fonts:composer.measure.getCharFontFamily(char)}
+            }
         }
-        return {
-            ...props,
-            size:Math.round(size*72/96/this.positioning.precision), 
-            font: fonts?.ascii || fonts  
-        }
+        
+        return textProps
     })
 
     _cellProps=memoize((type,getFromContent)=>{

@@ -136,6 +136,11 @@ describe("normalize props",()=>{
         expect(normalize(<rect {...size} x={5} y={6}/>).toString()).toBe(Path.fromRect(size).translate(5,6).toString())
     })
 
+    it("paragraph",()=>{
+        const {props:{defaultStyle}}=<dom.Paragraph defaultStyle={{size:"12pt",fonts:"A"}}/>
+        expect(defaultStyle.size).toBe(unit("12pt"))
+    })
+
     describe("denormalize",()=>{
         it("UnitShape",()=>{
             expect(deunit(5,10)).toBe(10)

@@ -6,9 +6,6 @@ import Component from "./component"
 export default class Text extends Component{
 	static displayName="text"
 	static propTypes={
-		/**
-		 * "Arial", or {cs,ea,ascii,hansi,[7F-FF,...]}
-		 */
 		fonts: this.FontsShape.isRequired,
 		size: this.UnitShape.isRequired,
 		color: this.ColorShape,
@@ -21,7 +18,10 @@ export default class Text extends Component{
 			PropTypes.bool,
 			this.LineShape,
 		]),
-		strike: PropTypes.bool,
+		strike: PropTypes.oneOfType([
+			PropTypes.bool,
+			this.LineShape,
+		]),
 		vertAlign: PropTypes.oneOf(["subscript","superscript"]),
 	}
 	static LineBreak=String.fromCharCode(13)

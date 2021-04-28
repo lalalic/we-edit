@@ -11,7 +11,7 @@ export default class FontList extends React.Component{
 	}
 
 	componentDidMount(){
-		document.addEventListener("fontLoaded",this.fontListener=()=>{
+		document?.addEventListener("fontLoaded",this.fontListener=()=>{
 			this.setState({fonts:Array.from(document.fonts)})
 		})
 
@@ -19,7 +19,7 @@ export default class FontList extends React.Component{
 	}
 
 	componentWillUnmount(){
-		document.removeEventListener("fontLoaded",this.fontListener)
+		document?.removeEventListener("fontLoaded",this.fontListener)
 	}
 
 	render(){

@@ -83,14 +83,6 @@ export class Measure{
 					return fonts
 				fonts={ascii:fonts}
 			}
-
-			if(fonts.hint){
-				if(this.fontExists(fonts[fonts.hint])){
-					return fonts[fonts.hint]
-				} else if(this.fontExists(this.fallbackFonts[fonts.hint])){
-					return this.fallbackFonts[fonts.hint]
-				}
-			}
 		})();
 
 		if(this.fontFamily){
@@ -101,23 +93,50 @@ export class Measure{
 		const {namedUnicodeScopeChecks,createFromCharCode2FontFunction}=this.constructor
 		const resolveCharFontFunctions=Object.keys(fonts).map(range=>{
 			const font=fonts[range]
-			if(namedUnicodeScopeChecks[range]){ 
+			if(range in namedUnicodeScopeChecks){ 
 				return A=>namedUnicodeScopeChecks[range](A) && font
 			}else{
 				return createFromCharCode2FontFunction(range,namedUnicodeScopeChecks, font)
 			}
 		})
 			
-		const fontFamily=this.getCharFontFamily=(A)=>{
+		const fontFamily=this.getCharFontFamily=(A,nested)=>{
+			A=typeof(A)=="string" ? A.charCodeAt(0) : A
+			//1. segmented font
+			let reason=1
 			let family=resolveCharFontFunctions.reduce((font,resolveCharFont)=>font||resolveCharFont(A), "")
-			if(!family && !namedUnicodeScopeChecks.ascii(A)&&!namedUnicodeScopeChecks.ea(A)){
-				family=fonts.hansi||fonts.fallback
+
+			//2.hint
+			if((!family||!this.fontExists(family)) && fonts.hint){
+				reason=2
+				family=fonts[fonts.hint]
+			}
+
+			//3.fallback
+			if((!family || !this.fontExists(family)) && fonts.fallback){
+				reason=3
+				family=fonts.fallback
 			}
 			
-			if(!(family && this.fontExists(family)) && !isFallbackFontsMeasure){
-				family=this.fallbackFontsMeasure.getCharFontFamily(A)
+			if(!isFallbackFontsMeasure){//system fallbacks
+				//4. hint in system fallbacks
+				if((!family||!this.fontExists(family)) && fonts.hint){
+					reason=4
+					family=this.fallbackFonts[fonts.hint]
+				}
+				
+				//find in system fallbacks
+				if((!family||!this.fontExists(family))){
+					reason=5
+					family=this.fallbackFontsMeasure.getCharFontFamily(A,reason)
+				}
 			}
-			return family
+			if(family){
+				console.debug(`Font: '${String.fromCharCode(A)}'[${family}] ${["by segment","by hint","by fallback","by system fallbacks.hint", ""][reason-1]} ${nested>3 ? "in system fallback" : ""}`)
+				return family
+			}else if(!isFallbackFontsMeasure){
+				throw new Error(`Font: can't select font for '${String.fromCharCode(A)}' in both ${JSON.stringify(fonts)} and ${JSON.stringify(this.fallbackFonts)}`)
+			}
 		}
 
 		this.break=str=>{
@@ -244,8 +263,6 @@ export class Measure{
 					3190 - 319F,3200 - 32FF,3300 - 33FF,3400 - 4DBF,4E00 - 9FAF,A000 - A48F,A490 - A4CF,AC00 - D7AF,
 					D800 - DB7F,DB80 - DBFF,DC00 - DFFF,F900 - FAFF,FE30 - FE4F,FE50 - FE6F,FF00 - FFEF
 				`, {}, true),
-		cs: A=>false, 
-		hansi: A=>false, // fallback of ascii && ea in code
 	}
 
 	static requireFonts=FontManager.requireFonts

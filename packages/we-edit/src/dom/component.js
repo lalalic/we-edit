@@ -146,21 +146,24 @@ export default class Base extends Component{
 		}
 	})
 
+	/**
+	 * Font selection Priority: fonts.segmented>fonts[fonts.hint]>fonts.fallback>systemFallbacks[fonts.hint]>systemFallbacks.segmented>systemFallbacks.fallback
+	 */
 	static FontsShape=PropTypes.oneOfType([
-		/** same as {ascii: fontName}*/
-		PropTypes.string, 
 		PropTypes.shape({
 			ascii: PropTypes.string,
 			ea: PropTypes.string,
-			cs: PropTypes.string,
-			hansi: PropTypes.string,
+			//cs: PropTypes.string,
+			//hansi: PropTypes.string,
 			/**fallback font*/
 			fallback: PropTypes.string,
 			/** value is scope, such as ea, to indicate all text should use font specified by fonts[hint] */
 			hint: PropTypes.string,
 			//"7F-FF,00-3F":"Arial",
-		})]
-	)
+		}),
+		/** same as {ascii: fontName}*/
+		PropTypes.string, 
+	])
 
 	static LineShape=this.normalizeChecker(PropTypes.oneOfType([
 		PropTypes.shape({
@@ -181,6 +184,7 @@ export default class Base extends Component{
 			gradient: this.GradientShape
 		}),
 		this.UnitShape,//width
+		PropTypes.oneOf(["signle","double"])
 	]),{
 		default:{width:1,color:"black"},
 		normalize:(value)=>{
