@@ -1,6 +1,6 @@
 
 var fontFaces=null, loader=null
-export function makeFontFace(font, src){
+export function makeFontFace(font, src , variants){
     if(!document?.createElement || !FontFace)
         return 
     if(!fontFaces){
@@ -10,7 +10,7 @@ export function makeFontFace(font, src){
         fontFaces.id="we_edit_font_face"
     }
     if(!src){//font data
-        const nativeFont=new FontFace(font.familyName, font.stream.buffer, {})
+        const nativeFont=new FontFace(font.familyName, font.stream.buffer, {...variants})
         document.fonts.add(nativeFont)
     }else{//local, url, service
         fontFaces.sheet.addRule('@font-face',`

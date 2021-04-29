@@ -1,4 +1,6 @@
+import FontKit from "fontkit"
 export default function createFallbackFont(font){
+    return Promise.resolve(font)
     return new Promise((resolve,reject)=>{
         const subset=font.createSubset()
         const cmapTable = {
@@ -75,6 +77,17 @@ export default function createFallbackFont(font){
         })
         stream.on('end',()=>{
             resolve(new Blob([data]).arrayBuffer())
+        })
+    })
+    .then(data=>{
+        const name="Fallback", names=["familyName","postscriptName","fullName"]
+        const font=FontKit.create(Buffer.from(data))
+        return new Proxy(font,{
+            get(font,key){
+                if(names.includes(key))
+                    return name
+                return Reflect.get(...arguments)
+            }
         })
     })
 }

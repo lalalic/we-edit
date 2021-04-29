@@ -2,6 +2,7 @@ import FontKit from "fontkit"
 import {default as isNode} from "is-node"
 import {makeFontFace, removeFontFace} from "./font-face"
 import fontservice from "!!file-loader?name=[name].[ext]!./font-service.js"
+import memoize from "memoize-one"
 
 /**
  * families:{[family name]: [different variations, such as plain/regular/bold/italic/oblique/bold-italic/...]}
@@ -10,7 +11,8 @@ const fonts=(()=>{
     const families=Object.create(null)
     const postscriptNames=Object.create(null)
     return {
-        get(name,{bold,italic}={}){
+        hash:0,
+        get:memoize((name,{bold,italic}={},hash)=>{
             const found=this.family(name)
             if(!found)
                 return
@@ -48,7 +50,7 @@ const fonts=(()=>{
             }
 
             return found[0]
-        },
+        }),
 
         put(font,props){
             const put=font=>{
@@ -77,6 +79,7 @@ const fonts=(()=>{
                 family.push(font)
                 console.debug(`font[${fullName}] loaded`)
                 makeFontFace(font)
+                this.hash++
                 return font
             }
 
@@ -111,8 +114,8 @@ const fonts=(()=>{
 var service=null
 
 const FontManager={
-    get(){
-        return fonts.get(...arguments)
+    get(family, style){
+        return fonts.get(family,style,fonts.hash)
     },
 
     byPostscriptName(postscriptName){

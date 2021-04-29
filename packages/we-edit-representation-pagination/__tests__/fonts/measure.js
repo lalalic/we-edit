@@ -45,10 +45,17 @@ describe("measure",()=>{
                 const measure=new FontMeasure({fonts:{ascii:"Arial"},...style},...args)
                 measure.fontExists=jest.fn(()=>true)
                 const defaultStyle=measure.defaultStyle
-                expect(defaultStyle).toMatchObject({fontFamily:"Arial","data-postscriptname":"A",height:10,descent:5})
+                expect(defaultStyle).toMatchObject({fontFamily:"Arial","data-postscriptname":"A",height:10,descent:5,})
                 expect(FontManager.get).toHaveBeenCalled()
                 return measure
             }
+
+            it("mergid, postscriptname are defined in defaultstyle",()=>{
+                const measure=test()
+                expect(measure.defaultStyle["data-postscriptname"]).toBeTruthy()
+                expect(measure.defaultStyle["data-mergeid"]).toBeTruthy()
+            })
+
             it("{bold} select bold font",()=>{
                 test({bold:true})
                 expect(FontManager.get.mock.calls[0]).toMatchObject(["Arial",{bold:true}])

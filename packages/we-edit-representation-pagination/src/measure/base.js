@@ -30,7 +30,6 @@ export class Measure{
 			this.hit=0
 
 			const cacheKey=this.cacheKey=[this.fontFamily,bold&&'bold',italic&&'italic',this.size].filter(a=>!!a).join("-")
-			this.id=this.font?.postscriptName||[this.fontFamily,bold&&'bold',italic&&'italic'].filter(a=>!!a).join("-")
 			const caches=this.constructor.caches
 			if(caches.has(cacheKey)){
 				const cache=caches.get(cacheKey)
@@ -63,14 +62,16 @@ export class Measure{
 				 */
 				this.stringWidth(A||"A")
 			}
+			const fontId=this.font?.postscriptName||[this.fontFamily,bold&&'bold',italic&&'italic'].filter(a=>!!a).join("-")
+		
 			const defaultStyle={
 				whiteSpace:'pre',
 				fontSize:`${this.size}px`,
 				fontWeight:bold ? "bold" : "normal",
 				fontStyle:italic ? "italic" : "normal",
 				fontFamily:this.fontFamily,
-				['data-postscriptname']: this.id,
-				['data-mergeid']: `${this.cacheKey}${underline&&`.${underline}`||''}`,
+				['data-postscriptname']: fontId,
+				['data-mergeid']: `${fontId}${this.size}${underline&&`.${underline}`||''}`,
 			}
 	
 			const {height, descent, underlinePos, underlineThick}=this.lineHeight()
@@ -282,7 +283,7 @@ export class Measure{
 	static fallbackFonts={
 		ascii:"Arial",
 		ea:"ST",
-		fallback:"Arial",
+		fallback:"fallback",
 	}
 
 	get fallbackFonts(){

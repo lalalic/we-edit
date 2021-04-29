@@ -28,7 +28,7 @@ export default class HybridMeasure extends FontMeasure{
         if(this.font){
             return super._stringWidth(word)
         }
-        return BrowserMeasure.prototype._stringWidth(word)
+        return BrowserMeasure.prototype._stringWidth.call(this,word)
     }
 
     static requireFonts(service, fonts){

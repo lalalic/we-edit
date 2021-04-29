@@ -1,13 +1,12 @@
 import Measure from "./base"
-import FontKit from "fontkit"
 import arial from "!!file-loader?name=[name].[ext]!../fonts/Arial.ttf"
 import createFallbackFont from "../fonts/fallback-font"
 import FontManager from "../fonts"
-
+import {makeFontFace} from "../fonts/font-face"
 export default class FontMeasure extends Measure{
 	static displayName="Font Measure"
 	get font(){
-		return this.__font||(this.__font=FontManager.get(this.fontFamily, this.style))
+		return FontManager.get(this.fontFamily, this.style)
 	}
 
 	fontExists(family){
@@ -34,19 +33,11 @@ export default class FontMeasure extends Measure{
 					.then(res=>res.arrayBuffer())
 					.then(data=>FontManager.load(data))
 					.then(font=>createFallbackFont(font))
-					.then(data=>{
-						const name="Fallback", names=["familyName","postscriptName","fullName"]
-						const font=FontKit.create(Buffer.from(data))
-						return new Proxy(font,{
-							get(font,key){
-								if(names.includes(key))
-									return name
-								return Reflect.get(...arguments)
-							}
-						})
-					})
-				.then(font=>makeFontFace(font),e=>console.warn(e))
-				.then(()=>result)
+					.then(font=>makeFontFace(font,null,{
+						family:"fallback",
+						unicodeRange:"U+0000-FFFF",
+					}),e=>console.warn(e))
+					.then(()=>result)
 			})
 	}
 }
