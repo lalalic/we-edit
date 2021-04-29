@@ -3,73 +3,70 @@ export default function createFallbackFont(font){
     return Promise.resolve(font)
     return new Promise((resolve,reject)=>{
         const subset=font.createSubset()
-        const cmapTable = {
-            version: 13, //format0
-            language: 0,
-            nGroups:1,
-            //length:
-            groups: [{
-                startCharCode:1,
-                endCharCode:0xFFFFFFFF,
-                glyphID:0,
-            }]
+        let Directory, tables;
+        subset.extendStructure=(a,b)=>{
+            Directory=a
+            tables=b
         }
-        subset.cmap={
-            version: 0,
-            numSubtables: 3,
-            tables: [
-                {
-                    //unicode
-                    platformID: 0,
-                    encodeingID: 0,
-                    table: cmapTable,
-                },
-                {
-                    //mac
-                    platformID: 1,
-                    encodeingID: 0,
-                    table: cmapTable,
-                },
-                {
-                    //windows
-                    platformID: 3,
-                    encodeingID: 1,
-                    table: cmapTable,
-                },
-            ],
-        }
-        const name="fallback"
-        subset.name={
-            version:0,
-            count:3,
-            stringOffset:0,
-            records:[
-                {
-                    platformID: 0,
-                    encodingID: 4,
-                    languageID: 0,
-                    nameID:     1,
-                    string: name,
-                    length:  name.length,
-                },
-                {
-                    platformID: 0,
-                    encodingID: 4,
-                    languageID: 0,
-                    nameID:     4,
-                    string: name,
-                    length:  name.length,
-                },
-                {
-                    platformID: 0,
-                    encodingID: 4,
-                    languageID: 0,
-                    nameID:     6,
-                    string: name,
-                    length:  name.length,
-                },
-            ]
-        }
+   
+        Object.defineProperties(subset,{
+            cmap:{
+                get(){
+                    return undefined
+                    const subTable={
+                        version: 13,
+                        reserved:0,
+                        length:0,//?
+                        language: 0,
+                        nGroups:1,
+                        groups: [{
+                            startCharCode:0x1,
+                            endCharCode:0x2,
+                            glyphID:0,
+                        }]
+                    }
+                    subTable.length=tables.cmap.fields.tables.type.fields.table.type.size(subTable)
+                    return {
+                        version: 0,
+                        numSubtables:3,
+                        tables: [
+                            {
+                                //unicode
+                                platformID: 0,
+                                encodingID: 0,
+                                table: subTable,
+                            },
+                            {
+                                //mac
+                                platformID: 1,
+                                encodingID: 0,
+                                table: subTable,
+                            },
+                            {
+                                //windows
+                                platformID: 3,
+                                encodingID: 1,
+                                table: subTable,
+                            }
+                        ]
+                    }
+                }
+            },
+            name:{
+                get(){
+                    return undefined
+                    const name={en:"fallback"}
+                    tables.name.records={
+                        fontFamily:name,
+                        fullName:name,
+                        postscriptName:name,
+                    }
+                    tables.name.preEncode()
+                    const {version,records,stringOffset,count}=tables.name
+                    return {version,records,stringOffset,count}
+                }
+            }
+        })
 
         const stream=subset.encodeStream(), data=[]
         stream.on('data',trunk=>{
@@ -80,14 +77,7 @@ export default function createFallbackFont(font){
         })
     })
     .then(data=>{
-        const name="Fallback", names=["familyName","postscriptName","fullName"]
         const font=FontKit.create(Buffer.from(data))
-        return new Proxy(font,{
-            get(font,key){
-                if(names.includes(key))
-                    return name
-                return Reflect.get(...arguments)
-            }
-        })
+        return font
     })
 }

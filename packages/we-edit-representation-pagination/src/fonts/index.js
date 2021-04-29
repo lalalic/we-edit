@@ -13,7 +13,7 @@ const fonts=(()=>{
     return {
         hash:0,
         get:memoize((name,{bold,italic}={},hash)=>{
-            const found=this.family(name)
+            const found=fonts.family(name)
             if(!found)
                 return
             if(found.length==1)

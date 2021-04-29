@@ -52,7 +52,7 @@ describe("text compose", ()=>{
         expect(text.composed[3].props).toMatchObject({tokenizeOpportunity:"gd"})
     })
 
-    fit("page-break should stop page layout immediately",()=>{
+    it("page-break should stop page layout immediately",()=>{
         const text=render(<Text {...{children:`hel${Text.PageBreak}l${Text.Tab}o${Text.LineBreak}e`}}/>)
         expect(text.composed.length).toBe(7)
         expect(text.composed[1].props).toMatchObject({children:Text.PageBreak,tokenizeOpportunity:Text.PageBreak})
