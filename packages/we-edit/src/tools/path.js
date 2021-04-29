@@ -34,6 +34,42 @@ export default class __$1 extends Path{
 		}
 	}
 
+	static toElement(path, source){
+		const {type,props}=source
+		switch(type){
+			case "circle":{
+				const {width:w,height:h}=this.fromCircle(props).bounds()
+				const {W,H}=path.bounds()
+				if(W==H){
+					return {type, props:{...props,r:W/2}}
+				}else{
+					return {type:"ellipse", props:{...props, r:undefined, rx: props.r*W/w, ry: props.r*H/h}}
+				}
+			}
+			case "ellipse":{
+				const {width:w,height:h}=this.fromEllipse(props).bounds()
+				const {W,H}=path.bounds()
+				return {type, props:{...props, rx: props.rx*W/w, ry: props.ry*H/h}}
+			}
+			case "rect":{
+				const {width,height}=path.rounds()
+				return {type, props:{...props,width,height}}
+			}
+			case "polyline":
+			case "polygon":{
+				const data=path.toString().split(/[wlz\s,]/gi).map(a=>a.trim()).filter(a=>!!a)
+				return {type, props:{...props, points:data.reduce((pos,a,i)=>{
+					if(i%2 ===1){
+						pos.push([parseFloat(data[i-1]), parseFloat(data[i])])
+					}
+					return pos
+				},[])}}
+			}
+			case "path":
+				return {type, props:{...props, d:path.toString()}}
+		}
+	}
+
     toString(){
         this.__evaluateStack()
         return memoize(d=>super.toString())(this.segments.map(a=>a.join("")).join(""))

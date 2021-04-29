@@ -18,9 +18,8 @@ export default class xQuery extends Query{
 					this._content.deleteIn([id,'props',k])
 				}else if(typeof(v)=="object" && !forceSet){
 					this._content.mergeDeepIn([id,'props',k],v)
-				}else{
-					this._content.setIn([id,'props',k],v)
 				}
+				this._content.setIn([id,'props',k],v)
 			})
 			return this
 		}

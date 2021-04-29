@@ -59,7 +59,7 @@ export default class Resizable extends Component{
 				style={{cursor}}
 				onStart={e=>{
 					e.stopPropagation()
-					const {clientX:left, clientY:top,target}=e
+					const {clientX:left, clientY:top,nativeEvent:{target}}=e
 					this.setState({
 						resizing:target.dataset.direction||direction,
 						cursor:target.style.cursor||target.getAttribute("cursor")||cursor,
@@ -88,7 +88,7 @@ export default class Resizable extends Component{
 		)
 	}
 
-	resize({clientX:left,clientY:top}){
+	resize({clientX:left,clientY:top}){debugger
 		const {props:{onResize}, state:{resizing,control}}=this
 		let x=left-this.left, y=top-this.top
 		switch(resizing){

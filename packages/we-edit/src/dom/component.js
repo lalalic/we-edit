@@ -348,6 +348,16 @@ export default class Base extends Component{
 			return value
 		},
 		denormalize:(value,normalized)=>{
+			if(typeof(value)=="string"){
+				return normalized.toString()
+			}else if(React.isValidElement(value)){
+				return Path.toElement(normalized,value)
+			}else if(typeof(value)=="object"){
+				if('width' in value && 'height' in value){
+					const {width,height}=normalized.bounds()
+					return {width,height}
+				}
+			}
 			return normalized
 		}
 	})

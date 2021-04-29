@@ -1,7 +1,7 @@
 import Editor from "./base"
 import {dom} from "we-edit"
 export default class Anchor extends Editor{
-    dx(d, props, which='x'){debugger
+    dx(d, props, which='x'){
         const x=this.node.attr(which)
         const raw=x?.toJS?.()||x
         const value=dom.Anchor.propTypes[which].normalize(raw)
