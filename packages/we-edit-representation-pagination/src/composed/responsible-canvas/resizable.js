@@ -92,51 +92,55 @@ export default class Resizable extends Component{
 		const {props:{onResize}, state:{resizing,control}}=this
 		let x=left-this.left, y=top-this.top
 		switch(resizing){
-		case "-ns":
-			y*=-1
-		case "ns":
-			if(y){
-				if(false===onResize({y:-y,control})){
-					return
+			case "-ns":
+				y*=-1
+			case "ns":
+				if(y){
+					if(false===onResize({y:-y,control})){
+						return
+					}
 				}
-			}
-		break
-		case "-ew":
-			x*=-1
-		case "ew":
-			if(x){
-				if(false===onResize({x,control})){
-					return
+			break
+			case "-ew":
+				x*=-1
+			case "ew":
+				if(x){
+					if(false===onResize({x,control})){
+						return
+					}
 				}
-			}
-		break
+			break
 
-		case "-nwse":
-			x*=-1
-		case "nwse":
-			if(x && y){
-				if(false===onResize({x:-x,y,control})){
-					return
+			case "-nwse":
+				x*=-1
+			case "nwse":
+				if(x && y){
+					if(false===onResize({x:-x,y,control})){
+						return
+					}
 				}
-			}
-		break
+			break
 
-		case "-nesw":
-			x*=-1
-		case "nesw":
-			if(x && y){
-				if(false===onResize({x,y,control})){
-					return
+			case "-nesw":
+				x*=-1
+			case "nesw":
+				if(x && y){
+					if(false===onResize({x,y,control})){
+						return
+					}
 				}
-			}
-		break
+			break
+			default:
+				if(false===onResize({x,y,direction:resizing,control})){
+					return 
+				}
 		}
 		this.left=left
 		this.top=top
 	}
 }
 
-const Spot=(({width=5,height=5,x,y,direction,style={},control, ...props},{precision=1})=><rect {...{
+const Spot=(({width=5,height=5,x,y,direction="",style={},control, ...props},{precision=1})=><rect {...{
 		"data-direction":direction,
 		"data-control":control,
 		...props,

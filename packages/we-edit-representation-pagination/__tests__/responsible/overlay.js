@@ -176,6 +176,16 @@ describe("overlay",()=>{
             expect(onResize).toHaveBeenCalledWith(result)
             resizable.mouseMove({clientX:15,clientY:17})
             expect(onResize).toHaveBeenCalledWith(result)
+        })
+
+        it("can extend direction, customize cursor, control",()=>{
+            const onResize=jest.fn()
+            const resizable=render(<Resizable onResize={onResize} spots={[{x:0,y:1,direction:"xx",control:"x",cursor:"my"}]}/>)
+            expect(resizable.root.findByProps({"data-direction":"xx","data-control":"x",cursor:"my"})).toBeDefined()
+
+            resizable.onMouseMove({clientX:0,clientY:1,nativeEvent:{target:{dataset:{direction:"xx",control:"x"},style:{cursor:"my"}}}})
+            resizable.mouseMove({clientX:5,clientY:7})
+            expect(onResize).toHaveBeenCalledWith({x:5,y:6,direction:"xx",control:"x"})
             
         })
     })
