@@ -107,8 +107,8 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 				return tab
 			}
 
-			_createEndAtom(){
-				const atom=super._createEndAtom(...arguments)
+			createParagraphEndAtom(){
+				const atom=super.createParagraphEndAtom(...arguments)
 				if(this.props.sectionType){
 					const text=`====== Section Break (${this.props.sectionType}) ===========`
 					return React.cloneElement(atom, {

@@ -14,6 +14,14 @@
                             </paragraph>
                         </frame>
                     </anchor>
+
+                    <paragraph numbering={{label:">"}} indent={{firstLine:'-0.9cm', left:'1cm'}}>
+                        <text>hello world</text>
+                    </paragraph>
+
+                    <paragraph numbering={{label:()=>">"}} indent={{firstLine:'-0.9cm', left:'1cm'}}>
+                        <text>hello world</text>
+                    </paragraph>
                 </frame>
             </shape>
         </anchor>
