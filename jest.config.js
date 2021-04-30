@@ -1,5 +1,5 @@
 module.exports={
-	modulePathIgnorePatterns:[require.resolve("./package.json"), "src/", "responsible/"],
+	modulePathIgnorePatterns:[require.resolve("./package.json"), "src/", "responsible-canvas/"],
 	
 	/**NOTE: don't change the map, otherwise debug/test doesn't work */
 	moduleNameMapper:{

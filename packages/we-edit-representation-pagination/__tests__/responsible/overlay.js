@@ -6,7 +6,7 @@ import Resizable from "../../src/composed/responsible-canvas/resizable"
 import Movable from "../../src/composed/responsible-canvas/movable"
 import Rotatable from "../../src/composed/responsible-canvas/rotatable"
 import Focusable from "../../src/composed/responsible-canvas/focusable"
-import {withContext} from "recompose"
+import {createEmptyStore, dom} from "we-edit"
 
 ReactDOM.createPortal = jest.fn(node => node)
 
@@ -263,25 +263,162 @@ describe("overlay",()=>{
         })
     })
 
-    describe("Focsuable",()=>{
-        it("should be selected when click on if it's not active",()=>{
+    describe("Focusable",()=>{
+        const render=(props)=>{
+            const activeDocStore=createEmptyStore()
+            const dispatch=activeDocStore.dispatch=jest.fn()
+            const dprops={activeDocStore,path:dom.Shape.Path.fromRect({width:100,height:100}).toString(),children:<span key="content" id="content"/>}
+            const rendered=TestRenderer.create(<Focusable {...dprops} {...props}/>)
+            const root=rendered.root, $root=rendered.getInstance()
+            expect(rendered.root.findByProps({id:"content"})).toBeDefined()
+            return {
+                rendered,
+                root,
+                $root,
+                dispatch,
+                get backend(){
+                    return root.findByProps({__backend4:'focusable'}).instance
+                },
+                get movable(){
+                    return new Proxy(root.findByType(Movable),{
+                        get(target,key){
+                            if(key=="container")
+                                return target.findByType('g')
+                            if(key=="overlay")
+                                return target.findByType(Overlay)
+                            return Reflect.get(...arguments)
+                        }
+                    })
+                },
+                get resizable(){
+                    return root.findByType(Resizable)
+                },
+                get rotatable(){
+                    return root.findByType(Rotatable)
+                },
+                move(e0,e1){
+                    this.movable.container.props.onMouseMove(e0)
+                    this.movable.overlay.props.onMouseMove(e1)
+                },
+                resize(){
 
+                },
+                rotate(){
+
+                }
+            }
+        }
+
+        const hasOverlays=(focusable)=>{
+            expect(focusable.movable).toBeDefined()
+            expect(focusable.resizable).toBeDefined()
+            expect(focusable.rotatable).toBeDefined()
+        }
+
+        const hasNotOverlayers=(focusable)=>{
+            expect(()=>focusable.movable).toThrowError()
+            expect(()=>focusable.resizable).toThrowError()
+            expect(()=>focusable.rotatable).toThrowError()
+        }
+
+        it("should init with backend",()=>{
+            const focusable=render()
+            expect(focusable.backend).toBeDefined()
+            expect(focusable.backend.state).toMatchObject({status:"unactive"})
         })
-    
-        it("should show resizer and rotator when it's selected",()=>{
-    
+
+        it.each([
+            ["unactive"],
+            ["focus"],
+            ["editing"]
+        ], "should not show movable, resizable and rotatabler when editable=false and status=%s",(status)=>{
+            const focusable=render()
+            focusable.backend.getDerivedStateFromProps=jest.fn((props,state)=>state)
+            focusable.backend.context.editable=false 
+
+            focusable.backend.setState({status})
+            hasNotOverlays(focusable)
         })
+
+        describe("editable=true",()=>{
+
+            describe("status control",()=>{
+                let focusable
+                beforeEach(()=>{
+                    focusable=render()
+                    focusable.backend.getDerivedStateFromProps=jest.fn((props,state)=>state)
+                    focusable.backend.context.editable=true         
+                })
+                
+                it("should not show movable, resizable and rotatable when unactive",()=>{
+                    expect(focusable.backend.state).toMatchObject({status:"unactive"})
+                    hasNotOverlayers(focusable)
+                })
+        
+                it("should show movable, resizable and rotatabler when focus",()=>{
+                    focusable.backend.setState({status:"focus"})
+                    hasOverlays(focusable)
+                })
     
-        it("should show resizer and rotator when its child selected",()=>{
+                it("should show movable, resizable and rotatabler when editing",()=>{
+                    focusable.backend.setState({status:"editing"})
+                    hasOverlays(focusable)
+                })
+            })
+            
+            const test=(props, status)=>{
+                const focusable=render(props)
+                focusable.backend.getDerivedStateFromProps=jest.fn((props,state)=>state)
+                focusable.backend.context.editable=true 
+                status && focusable.backend.setState({status})
+                return focusable
+            }
+
+            it.each([["focus"],["editing"]],
+                "should get rotate when rotation transform given and status=%s",(status)=>{
+                const focusable=test({transform:"rotate(30)"}, status)
+                expect(focusable.rotatable.props.degree).toBe(30)
+            })
     
+            it.each([["focus"],["editing"]],
+                "should have no movable when {movable=false} status=%s",(status)=>{
+                const focusable=test({movable:false}, status)
+                expect(()=>focusable.movable).toThrowError()    
+            })
+
+            it.each([["focus"],["editing"]],
+                "should have no movable when {rotatable=false} status=%s",(status)=>{
+                const focusable=test({rotatable:false}, status)
+                expect(()=>focusable.rotatable).toThrowError()    
+            })
+
+            it.each([["focus"],["editing"]],
+                "should have no movable when {resizable=false} status=%s",(status)=>{
+                const focusable=test({resizable:false}, status)
+                expect(()=>focusable.resizable).toThrowError()    
+            })
+
+            it("can extend editable spots",()=>{
+                let focusable=test({}, "focus")
+                const len=focusable.resizable.props.spots.length
+                expect(len).toBe(8)
+                focusable=test({editableSpots:[{direction:"ns",x:1,y:1}]}, "focus")
+                expect(focusable.resizable.props.spots.length-len).toBe(1)
+            })
         })
-    
-        it("shold not show resizer and rotator when selection is out of it",()=>{
-    
-        })
-    
-        it("should dispatch {type:update,payload:} when resize",()=>{
-    
+        
+        describe("status",()=>{
+            it("should be focus when itself is selected",()=>{
+
+            })
+
+            it("should be editing when its descendent is selected",()=>{
+
+            })
+
+            it("should be inactive when selection is out of itself",()=>{
+
+            })
         })
     })
 })

@@ -34,6 +34,10 @@ export default compose(
 		id:PropTypes.string,
 	}
 
+	static defaultProps={
+		__backend4:"focusable"
+	}
+
 	static contextTypes={
 		editable:PropTypes.any,
 		precision: PropTypes.number,
@@ -49,15 +53,11 @@ export default compose(
 			return {status:"unactive"}
 		}
 		//all grand focus shape of cursor/selection should show itself
-		const focus=!!getComposer(cursor)?.closest(a=>a.props.id==id)
-		
-		const editing=(isParagraph=>{
-				const grand=getComposer(cursor)?.closest(a=>isParagraph(a)||a.props.id==id)
-				return grand && isParagraph(grand) && grand.closest(a=>a.props.id==id)
-			})(a=>a.getComposeType()=="paragraph")
+		const cursorIsSelf=cursor==id
+		const cursorIsIn=!cursorIsSelf && getComposer(cursor)?.closest(a=>a.props.id==id)
 		return {
 			type:target.getComposeType(),
-			status: editing ? "editing" : (focus ? "focus" : "unactive" ),
+			status: cursorIsIn ? "editing" : (cursorIsSelf ? "focus" : "unactive" ),
 			isAnchor:target.closest(a=>(a!=target && (a.isFrame||a.isSection))||a.getComposeType()=="anchor").getComposeType()=="anchor",
 		}
 	}
@@ -120,7 +120,6 @@ export default compose(
 							status=="unactive" && <path {...{key:"selector",d:path,fill:"transparent",...IgnoreEvents, onClick:select}}/>,
 							["focus","editing"].includes(status) && movable && <Movable isAnchor={isAnchor} key="movable"
 								onMove={e=>dispatch(ACTION.Selection.MOVE({...e, id,type}))}
-								
 								children={
 									<path d={path} 
 										stroke="transparent" strokeWidth={5}
