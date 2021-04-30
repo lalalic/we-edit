@@ -87,16 +87,16 @@ export default class Paragraph extends Component{
 
 		align:this.AlignShape,
 		
-		numbering: PropTypes.oneOfType([
-			PropTypes.shape({
-				style: this.TextStyleShape.isRequired,
-				label: PropTypes.string.isRequired,//a char, or image url
-			}),
-			PropTypes.shape({
-				id: PropTypes.any.isRequired,
-				level: PropTypes.number,
-			})
-		]),
+		numbering: PropTypes.shape({
+			style: this.TextStyleShape,
+			label: PropTypes.oneOfType([
+				PropTypes.string,
+				PropTypes.func,//dynamic type must use func to support editing
+				PropTypes.shape({
+					url: PropTypes.string.isRequired
+				})
+			]).isRequired,//a char, or image url
+		}),
 		
 		/**[edit]default text style to be used when add text in empty paragraph*/
 		defaultStyle:this.TextStyleShape,

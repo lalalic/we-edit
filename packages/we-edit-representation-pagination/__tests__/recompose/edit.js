@@ -39,7 +39,7 @@ describe("editor",()=>{
         return proxy
     }
 
-    fdescribe("anchor",()=>{
+    describe("anchor",()=>{
         it("shape without content",()=>{
             const content=x=>(
                 <Document hash={x}>
@@ -145,5 +145,13 @@ describe("editor",()=>{
             })
         })
         
+    })
+
+    describe("paragraph",()=>{
+        it("should create numbering label again even use cached",()=>{
+            const createNumberingAtom=jest.spyOn(Paragraph.prototype,"createNumberingAtom")
+            Paragraph.prototype.updateCalculationWhenUseCached()
+            expect(createNumberingAtom).toHaveBeenCalled()
+        })
     })
 })

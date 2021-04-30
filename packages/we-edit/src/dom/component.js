@@ -454,7 +454,7 @@ export default class Base extends Component{
 
 	static TextStyleShape=this.normalizeChecker(PropTypes.shape({
 		fonts:this.FontsShape.isRequired,
-		size:this.UnitShape.isRequired,
+		size:this.UnitShape,
 		bold: PropTypes.bool,
 		italic: PropTypes.bool,
 	}),{
@@ -464,7 +464,7 @@ export default class Base extends Component{
 			return style
 		},
 		denormalize:(value,normalized)=>{
-			if(value.size!=undefined)
+			if(value.size!=undefined && normalized.size)
 				normalized.size=this.UnitShape.denormalize(value.size, normalized.size)
 			return normalized
 		}

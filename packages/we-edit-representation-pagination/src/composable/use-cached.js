@@ -39,7 +39,8 @@ export default class UseCached extends Component{
     }
 
     render(){
-        const {props:{children},context:{debug, mount, getComposer}}=this
+        const {props:{children,id},context:{debug, mount, getComposer}}=this
+        getComposer(id)?.updateCalculationWhenUseCached?.()
         if(typeof(children)!=="object")
             return null
         

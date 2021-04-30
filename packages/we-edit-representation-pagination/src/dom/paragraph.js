@@ -3,8 +3,8 @@ import PropTypes from "prop-types"
 import {dom} from "we-edit"
 
 import breakOpportunities from "../wordwrap/line-break"
-import {Text as ComposedText,  Group} from "../composed"
-import {HasParentAndChild,Layout, editable} from "../composable"
+import {Text as ComposedText, Shape, Group} from "../composed"
+import {HasParentAndChild,Layout,editable} from "../composable"
 import memoize from "memoize-one"
 
 const Tokenizers=[dom.Text.LineBreak, dom.Text.PageBreak,dom.Text.Tab]
@@ -105,13 +105,13 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 
 
 	onAllChildrenComposed(){//need append last non-full-width line to parent ???
-		this.atoms.push(this._createEndAtom())
+		this.atoms.push(this.createParagraphEndAtom())
 		this.commit()
 		super.onAllChildrenComposed()
 	}
 	
-	_createEndAtom(){
-		const {props:{End="", id}}=this
+	createParagraphEndAtom(){
+		const {props:{End=""}}=this
 		const measure=this.getDefaultMeasure()
 		const width=measure.stringWidth(End)
 		return (
@@ -263,19 +263,29 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 	/**
 	 * Story can handle it, so it can be in Line as normal atom
 	 * firstLine is usually minus for numbering
+	 * numberingAtom doesn't change layout, but it need calculation, so make it dynamic
 	 */
-	getNumberingAtom(){
-		const {props:{numbering:{style}, indent:{firstLine=0},id},context:{Measure, numbering}}=this
-		const {defaultStyle}=new Measure(style)
+	createNumberingAtom(){
+		const {props:{numbering, defaultStyle, indent:{firstLine=0}},context:{Measure}}=this
+		let {style,label}=numbering, atom=null
+		if(typeof(label)=="function"){
+			label=label()
+		}
+		style={...defaultStyle,...style}
+		label=label||"."
+		if(typeof(label)=="string"){
+			this.computed.numbering={label,style}
+			const measure=new Measure(style)
+			const width=measure.stringWidth(label)
+			atom=<ComposedText.Dynamic {...measure.defaultStyle} width={width} children={()=>this.computed.numbering.label}/>
+		}else if(typeof(label)=="object"){
+			atom=<Group><Shape fill={{picture:label}}/></Group>
+		}
+		return React.cloneElement(atom,{key:"numbering",className:"numbering",x:firstLine,width:-firstLine})
+	}
 
-		return <ComposedText.Dynamic
-			{...defaultStyle}
-			key="numbering"
-			className="numbering"
-			x={firstLine}
-			width={-firstLine}
-			children={(...args)=>numbering(id, ...args)}
-		/>
+	updateCalculationWhenUseCached(){
+		this.createNumberingAtom()
 	}
 
 	nextAvailableSpace(required){
@@ -306,7 +316,7 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 
 		const line=new this.constructor.Line({
 			space,
-			positioned: bFirstLine&&numbering ? [this.getNumberingAtom()] : [],
+			positioned: bFirstLine&&numbering ? [this.createNumberingAtom()] : [],
 			dy: bFirstLine ? top : undefined, 
 			lineHeight,
 			align,
@@ -383,6 +393,7 @@ export default class EditableParagraph extends editable(Paragraph,{stoppable:tru
 	cancelUnusableLastComposed({hash,changed=hash!=this.props.hash}){
 		if(changed || this._hasAnchor()){
 			this.atoms=[]
+			delete this.computed.numbering
 			super.cancelUnusableLastComposed(...arguments)
 		}
 	}
