@@ -73,7 +73,7 @@ export const whenSelectionChange=((props=a=>a,actionMap,mergeProps,options={},..
 })
 
 export const whenSelectionChangeDiscardable=((props=a=>a,actionMap,mergeProps,options={},...args)=>{
-	return A=>discardable({timeout:400})((
+	return A=>discardable({timeout:200})((
 			connect(state=>{
 				return props({selection:getSelectionStyle(state)},state)||{}
 			},actionMap,mergeProps,options,...args)(A))

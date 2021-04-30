@@ -52,7 +52,7 @@ export default class __$1 extends Path{
 				return {type, props:{...props, rx: props.rx*W/w, ry: props.ry*H/h}}
 			}
 			case "rect":{
-				const {width,height}=path.rounds()
+				const {width,height}=path.bounds()
 				return {type, props:{...props,width,height}}
 			}
 			case "polyline":

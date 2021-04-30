@@ -93,11 +93,11 @@ export default class Inline extends Component{
 	}
 
 	get topOffset(){
-		if(typeof(this.props.lineHeight)=="string"){
-			const topPercent=parseInt(this.props.lineHeight.split(",")[1])||0
+		const {lineHeight:{offset:topPercent=0}={}}=this.props
+		if(typeof(topPercent)=="string"){
 			return this.textHeight*topPercent/100
 		}
-		return 0
+		return topPercent
 	}
 
 	isEmpty(){
@@ -240,7 +240,7 @@ export default class Inline extends Component{
 	}
 	
 	getLineHeight(contentHeight=this.contentHeight){
-		const {lineHeight}=this.props
+		const {lineHeight:{height:lineHeight}={}}=this.props
 		if(typeof(lineHeight)=='string'){
 			return contentHeight+(typeof(lineHeight)=='string' ? this.textHeight*(parseInt(lineHeight)-100)/100.0: 0)
 		}else if(typeof(lineHeight)=="number"){

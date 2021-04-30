@@ -14,12 +14,13 @@ export default class xQuery extends Query{
 			return super.attr(...arguments)
 		}else{
 			this._nodes.forEach(id=>{
-				if(v==null){
+				if(v===null){
 					this._content.deleteIn([id,'props',k])
 				}else if(typeof(v)=="object" && !forceSet){
 					this._content.mergeDeepIn([id,'props',k],v)
+				}else{
+					this._content.setIn([id,'props',k],v)
 				}
-				this._content.setIn([id,'props',k],v)
 			})
 			return this
 		}

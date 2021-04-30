@@ -35,6 +35,8 @@ export default class Base extends Component{
 					return value
 				case "string":{
 					const val=parseFloat(value), unit=value.replace(/[\s\d\.\+-]/g,"")||missUnit
+					if(unit=="%")
+						return value
 					if(toUnit==unit)
 						return val
 					const fn=`${unit}2${toUnit}`
@@ -351,7 +353,8 @@ export default class Base extends Component{
 			if(typeof(value)=="string"){
 				return normalized.toString()
 			}else if(React.isValidElement(value)){
-				return Path.toElement(normalized,value)
+				const {type, props}=Path.toElement(normalized,value)
+				return React.createElement(type,props)
 			}else if(typeof(value)=="object"){
 				if('width' in value && 'height' in value){
 					const {width,height}=normalized.bounds()

@@ -5,6 +5,13 @@ describe("normalize props",()=>{
     const {UnitShape:{normalize:unit, denormalize:deunit}, Path}=dom.Unknown
         
     it("props should be normalized",()=>{
+        jest.spyOn(dom.Page,'normalizePropShape')
+        const {props:{width,height}}=<dom.Page size="A4"/>
+        expect(dom.Page.normalizePropShape).toHaveBeenCalled()
+        expect([width,height]).toMatchObject(dom.Page.Size.A4)
+    })
+
+    it("page size should be normalized to {height,width}",()=>{
         const {props:{width,height}}=<dom.Page size="A4"/>
         expect([width,height]).toMatchObject(dom.Page.Size.A4)
     })
@@ -29,6 +36,9 @@ describe("normalize props",()=>{
         expect([width,height]).toMatchObject(dom.Page.Size[dom.Page.defaultProps.size])
     })
 
+    it("15% unit should not be normalized",()=>{
+        expect(unit("15%")).toBe("15%")
+    })
 
     it("subclass should be normalized",()=>{
         const TypedPage=class extends dom.Page{
@@ -49,6 +59,7 @@ describe("normalize props",()=>{
     it("switched type should be normalized to target and source types",()=>{
         const n1=dom.Section.normalizePropShape=jest.fn()
         const n2=jest.spyOn(dom.Page,"normalizePropShape")
+        n2.mockClear()
         const Type=class extends dom.Page{
             static displayName=this.switchTypeTo(dom.Section)
         }
@@ -139,12 +150,18 @@ describe("normalize props",()=>{
     it("paragraph",()=>{
         const {props:{defaultStyle}}=<dom.Paragraph defaultStyle={{size:"12pt",fonts:"A"}}/>
         expect(defaultStyle.size).toBe(unit("12pt"))
+        const {propTypes:{spacing:{normalize}}}=dom.Paragraph
+        expect(normalize({top:"1cm",bottom:"1mm"})).toMatchObject({top:unit("1cm"),bottom:unit("1mm")})
+        expect(normalize({lineHeight:"1cm"})).toMatchObject({lineHeight:{height:unit("1cm")}})
+        expect(normalize({lineHeight:"15%"})).toMatchObject({lineHeight:{height:"15%"}})
+        expect(normalize({lineHeight:{height:"15%",offset:"1cm"}})).toMatchObject({lineHeight:{height:"15%",offset:unit("1cm")}})
     })
 
     describe("denormalize",()=>{
         it("UnitShape",()=>{
             expect(deunit(5,10)).toBe(10)
             expect(parseFloat(deunit("5mm",100))).toBe(unit("100px","mm"))
+            expect(deunit(5, "15%")).toBe("15%")
         })
 
         it("MarginShape",()=>{
@@ -213,11 +230,10 @@ describe("normalize props",()=>{
         it("GeometryShape",()=>{
             const {GeometryShape:{denormalize}}=dom.Unknown
             let path=new Path("M0,0 L1,10")
-            expect(denormalize(path.toString(),path)).toMatchObject(path)
+            expect(denormalize(path.toString(),path)).toBe(path.toString())
             expect(denormalize(path=Path.fromRect({width:10,height:10}),path.clone())).toMatchObject(path)
 
-            expect(denormalize(<rect width={10} height={10}/>,path=Path.fromRect({width:10,height:10}))).toMatchObject(path)
-            expect(denormalize(<circle r={10}/>,path=Path.fromCircle({r:10}))).toMatchObject(path)
+            expect(denormalize(<rect width={10} height={10}/>,path=Path.fromRect({width:20,height:10}))).toMatchObject(<rect width={20} height={10}/>)
         })
 
         it("Anchor",()=>{

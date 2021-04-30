@@ -190,3 +190,5 @@ export default ({doc, tick,every,describe,it,xdescribe,xit,fit,fdescribe,expect,
         },TIMEOUT)
     })
 }
+
+it("",()=>{})
