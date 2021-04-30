@@ -370,7 +370,7 @@ describe("overlay",()=>{
                 const focusable=render(props)
                 focusable.backend.getDerivedStateFromProps=jest.fn((props,state)=>state)
                 focusable.backend.context.editable=true 
-                status && focusable.backend.setState({status})
+                status && focusable.backend.setState(typeof(status)=="object" ? status : {status})
                 return focusable
             }
 
@@ -405,19 +405,52 @@ describe("overlay",()=>{
                 focusable=test({editableSpots:[{direction:"ns",x:1,y:1}]}, "focus")
                 expect(focusable.resizable.props.spots.length-len).toBe(1)
             })
-        })
-        
-        describe("status",()=>{
-            it("should be focus when itself is selected",()=>{
 
+            it("should dispatch {id,type, rotate} when rotate",()=>{
+                const focusable=test({id:'5'},{status:"focus",type:"shape"})
+                focusable.rotatable.props.onRotate({degree:50})
+                expect(focusable.dispatch.mock.calls[0][0])
+                    .toMatchObject({payload:{rotate:50,id:'5',type:"shape"},type:"we-edit/entity/UPDATE"})
             })
 
-            it("should be editing when its descendent is selected",()=>{
-
+            it("should dispatch {id,type, dest:{x,y}} when move",()=>{
+                const focusable=test({id:'5'},{status:"focus",type:"shape"})
+                const dest={x:0,y:10,dx:5,dy:6,id:"3",sad:4}
+                focusable.movable.props.onMove({dest})
+                expect(focusable.dispatch.mock.calls[0][0])
+                    .toMatchObject({payload:{dest,id:'5',type:"shape"},type:"we-edit/selection/MOVE"})
             })
 
-            it("should be inactive when selection is out of itself",()=>{
+            describe("resize",()=>{
+                let focusable
+                beforeEach(()=>{
+                    focusable=test({id:'5',path:`M0,0h100v100h-100Z`},{status:"focus",type:"shape"})
+                })
+                it("should dispatch {id,type, size} when resize",()=>{
+                    focusable.resizable.props.onResize({x:5,y:10})
+                    expect(focusable.dispatch.mock.calls[0][0])
+                        .toMatchObject({payload:{size:{},id:'5',type:"shape"},type:"we-edit/entity/UPDATE"})
+                })
 
+                it("should keep ratio when both x and y extended",()=>{
+                    focusable.resizable.props.onResize({x:5,y:10})
+                    const {width,height}=focusable.dispatch.mock.calls[0][0].payload.size
+                    expect({width:parseInt(width),height:parseInt(height)}).toMatchObject({width:110,height:110})
+                })
+
+                it("should only extend width when only x extended",()=>{
+                    focusable.resizable.props.onResize({x:5})
+                    const {width,height}=focusable.dispatch.mock.calls[0][0].payload.size
+                    expect(width).toBeDefined()
+                    expect(height).not.toBeDefined()
+                })
+
+                it("should only extend height when only y extended",()=>{
+                    focusable.resizable.props.onResize({y:5})
+                    const {width,height}=focusable.dispatch.mock.calls[0][0].payload.size
+                    expect(width).not.toBeDefined()
+                    expect(height).toBeDefined()
+                })
             })
         })
     })
