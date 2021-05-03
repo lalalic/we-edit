@@ -38,6 +38,6 @@ export default class DropdownButton extends Component{
 	}
 	
 	toggle(e){
-		this.setState({open:!this.state.open, anchor:e.currentTarget.parentNode})
+		this.setState({open:!this.state.open, anchor:e.currentTarget})
 	}
 }

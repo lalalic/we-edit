@@ -1,4 +1,4 @@
-import {Input} from "we-edit"
+import {Input,dom} from "we-edit"
 
 import extendQuery from "./state-query"
 import Editors from "./editors"
@@ -77,6 +77,28 @@ export default (class Events extends Input.Editable.Reducer{
 
     create_first_paragraph(){
         
+    }
+
+    createNumbering(numbering, {id=this.file.makeId()+"",level=0}={}){
+        this.file.getNode('root').attr('numberings',{[id]:[numbering]})
+        return {id,level}
+    }
+
+    updateNumbering({id,level=0,...numbering}){
+        const root=this.file.getNode('root')
+        let numberings=root.attr('numberings')
+        if(!numberings.hasIn([id,level]) && numberings.hasIn([id,level-1])){
+            numberings=numberings.setIn([id,level], numberings.getIn([id,level-1]))
+            const indent=numberings.getIn([id,level-1,'indent'])
+            const UnitShape=dom.Unknown.UnitShape
+            numberings=numberings.setIn([id,level,'indent'],UnitShape.denormalize(indent, UnitShape.normalize(indent)*(level+1)))
+        }
+        numberings=numberings.mergeIn([id,level],numbering)
+        root.attr('numberings',numberings)
+    }
+
+    getNumbering({id,level=0}){
+        return this.file.getNode('root').attr('numberings').getIn([id,level])?.toJS()
     }
 
     update({type,...props}){

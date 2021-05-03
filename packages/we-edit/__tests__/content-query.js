@@ -117,6 +117,19 @@ describe("content query",()=>{
                 }))
                 expect($1.find("paragraph+paragraph").length).toBe(0)
             })
+
+            it("should avoid nested by find(,{nested:false})",()=>{
+                const $=new Query(state({
+                    "1":{type:"paragraph", children:["2"]},
+                    "2":{type:"text",parent:"1",children:["2_1","2_2","2_3"]},
+                    "2_1":{type:"text",parent:"2"},
+                    "2_2":{type:"text1",parent:"2"},
+                    "2_3":{type:"text",parent:"2"}
+                }))
+
+                expect($.find("text").length).toBe(3)
+                expect($.find("text",{nested:false}).length).toBe(1)
+            })
         })
 
         describe("new Query(state,selector)",()=>{
@@ -132,7 +145,6 @@ describe("content query",()=>{
                 expect($.get(0).get("id")).toBe("1")
                 expect($.get(1).get("id")).toBe("3")
             })
-
         })
 
         describe(".attr()",()=>{
@@ -257,6 +269,15 @@ describe("content query",()=>{
         it("set attribute",()=>{
             expect($1.attr('name')).toBe(undefined)
             expect($1.attr('name','tester').attr('name')).toBe('tester')
+        })
+
+        it("should merge object when value is object",()=>{
+            expect($1.attr('name',{firstName:"a"}).attr('name').firstName).toBeUndefined()
+            expect($1.attr('name',{firstName:"a"}).attr('name').toJS()).toMatchObject({firstName:"a"})
+        })
+
+        it("should set by forceset",()=>{
+            expect($1.attr('name',{firstName:"a"},true).attr('name').firstName).toBe("a")
         })
 
         it(".attr(k,null) to remove attribute",()=>{

@@ -281,6 +281,12 @@ describe("react query", ()=>{
                     })
                 expect(is.length).toBe(2)
             })
+
+            fit("can avoid find nested",()=>{
+                const $=new ReactQuery(<div><span className="good"><i className="good">hello</i><span/></span><span/></div>)
+                const span=$.find('span',{nested:false})
+                expect(span.length).toBe(2)
+            })
         })
     })
     describe("replace",()=>{

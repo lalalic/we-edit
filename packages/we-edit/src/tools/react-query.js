@@ -166,13 +166,16 @@ export default class Query{
         return new this.constructor(this._nodes.filter(el=>!!select(el)), null,this.root)
     }
 
-	find(selector){
+	find(selector,{nested=true}={}){
 		const select=this._asSelector(selector)
 		let found=this._nodes.reduce((found,el)=>{
 			traverse(el,function(a){
                 const result=select(...arguments)
 				if(!!result){
 					found.push(a)
+                    if(!nested){
+                        return false
+                    }
 				}
 			})
 			return found

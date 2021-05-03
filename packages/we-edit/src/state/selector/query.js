@@ -379,16 +379,20 @@ export default class Query{
 		return new this.constructor(this.state,found)
 	}
 
-	find(selector){
+	find(selector,{nested=true}={}){
 		if(isIdSelector(selector)){
 			return this.findFirst(selector)
 		}
 		let select=asSelector(selector,this._$)
 		let found=this._nodes.reduce((found,k)=>{
 			traverse(this._content,node=>{
-				if(!!select(node)){
+				const selected=!!select(node)
+				if(selected){
 					console.assert(!!node)
 					found.add(node.get("id"))
+					if(!nested){
+						return false
+					}
 				}
 			},k)
 			return found
