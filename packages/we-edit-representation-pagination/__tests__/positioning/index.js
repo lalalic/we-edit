@@ -34,7 +34,7 @@ export default function define(feature, tests){
                 sectionProps={layout:{...size,...page}}
             }
 
-            const Context=context({dom:Editors,state,contextTypes:{numbering:PropTypes.func}, context:{numbering:()=>'*'}})
+            const Context=context({dom:Editors,state,contextTypes:{numbering:PropTypes.object}, context:{}})
 
             const renderer=testRender(
                 <Context>

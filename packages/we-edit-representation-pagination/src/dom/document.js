@@ -52,11 +52,11 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
     }
 
     get Measure(){
-        return this.props.Measure||this.context.Measure
+        return this.context.Measure||this.props.Measure
     }
 
     get numbering(){
-        return super.getChildContext().numbering||this.props.numbering||this.context.numbering
+        return this.context.numbering||this.props.numbering
     }
 
     getComposed(){
@@ -83,7 +83,7 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
 
     render(){
         const {canvas, canvasProps, children}=this.props
-        this.numbering?.reset()
+        this.numbering?.reset?.()
         if(!canvas)
             return super.render()
         const {props:{__sequentialCompose=true}}=this

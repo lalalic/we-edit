@@ -9,8 +9,6 @@ import Text from "we-edit-representation-text"
 import File from "we-edit-loader-stream-file"
 import iDocx from "we-edit-input-docx/type"
 
-import TestRenderer from 'react-test-renderer'
-
 import Measure from "we-edit-representation-pagination/__tests__/measure"
 
 const {Format}=Emitter
@@ -27,26 +25,6 @@ describe("we-edit integration", function(){
 		File.uninstall()
 		iDocx.uninstall()
 		Pagination.defaultProps.measure=undefined
-	})
-
-	xdescribe("editor",()=>{
-		beforeAll(()=>{
-			global.document={}
-		})
-		const template=(format="pagination", props={})=>(
-			<Loader type="file"
-				path={require.resolve("./basic.docx")}
-				>
-				<Editor representation={format}/>
-			</Loader>
-		)
-
-		it("pagination", ()=>{
-			const render=TestRenderer.create(template("pagination"))
-			console.log(render.toJSON())
-			const representation=render.root.findByType(Editor)
-			expect(representation).toBe(defined)
-		})
 	})
 
 	describe("emitter", ()=>{

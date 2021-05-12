@@ -269,7 +269,7 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 	 */
 	createNumberingAtom(){
 		const {props:{numbering, defaultStyle, indent:{firstLine=0}},context:{Measure}}=this
-		let {style,label,hanging=firstLine,align="left"}=this.context.numbering?.get(numbering)||numbering
+		let {style,label,hanging=firstLine,align="left"}=numbering.label ? numbering : this.context.numbering.get(numbering)
 		let atom=null
 		if(typeof(label)=="function"){
 			label=label()
