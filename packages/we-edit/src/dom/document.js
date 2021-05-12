@@ -22,6 +22,26 @@ export default class Document extends Component{
 		content: PropTypes.object,//document memory content, immutable map
 	}
 
+	static childContextTypes={
+		numbering: PropTypes.shape({
+			reset: PropTypes.func.isRequired,
+			get: PropTypes.func.isRequired,
+		})
+	}
+
+	getChildContext(){
+		return {
+			numbering:{
+				reset(){
+
+				},
+				get(){
+					
+				}
+			}
+		}
+	}
+
 	//emitter call it to output returned
 	getComposed(){
 		return super.render()

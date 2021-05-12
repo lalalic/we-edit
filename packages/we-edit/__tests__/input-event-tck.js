@@ -329,6 +329,14 @@ export default function tck(TypedDocument,file, debug=false, more=a=>a){
                 expect(editor.selection.start.id).not.toBe(image.attr('id'))
                 expect(editor.$target.closest("paragraph").findFirst(image).length).toBe(0)
             })
+
+            it("should create new paragraph when entering at end of paragraph",()=>{
+                const ps=editor.$('paragraph')
+                const p=ps.eq(0)
+                editor.cursorAt(p.attr('id'),1)
+                editor.enter()
+                expect(ps.length+1).toBe(editor.$('paragraph').length)
+            })
         })
 
         describe("cursor move",()=>{

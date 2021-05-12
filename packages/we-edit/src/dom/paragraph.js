@@ -10,6 +10,8 @@ export default class Paragraph extends Component{
 		level: PropTypes.number,
 		indent: this.UnitShape,
 		hanging: this.UnitShape,
+		align: this.AlignShape,
+
 		format: PropTypes.string,
 		start: PropTypes.number,
 
@@ -34,17 +36,17 @@ export default class Paragraph extends Component{
 				values.style=this.TextStyleShape.denormalize(style,normalized.style)
 			return normalized
 		},
-		meet(current,next){
-			currentNormalized=this.NumberingShape.normalize(current)
-			nextNormalized=this.NumberingShape.normalize(next)
+		meet:(current,next)=>{
+			const currentNormalized=this.NumberingShape.normalize(current)
+			const nextNormalized=this.NumberingShape.normalize(next)
 			return (next.indent===undefined || nextNormalized.indent==currentNormalized.indent)
 				&& (next.hanging===undefined || nextNormalized.hanging==currentNormalized.hanging)
 				&& (next.format===undefined || nextNormalized.format==currentNormalized.format)
 				&& (next.start===undefined || nextNormalized.start==currentNormalized.start)
 				&& (next.label===undefined || nextNormalized.label==currentNormalized.label)
 				&& (next.style===undefined || (
-					nextNormalized.style.fonts==currentNormalized.style?.fonts 
-					&& nextNormalized.style.size==currentNormalized.style?.size ))
+					nextNormalized.style?.fonts==currentNormalized.style?.fonts 
+					&& nextNormalized.style?.size==currentNormalized.style?.size ))
 		}
 	})
 

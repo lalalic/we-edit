@@ -2,7 +2,7 @@ import {dom} from "we-edit"
 import tck from "we-edit/__tests__/input-event-tck"
 import JSXDocument from "../src/type/jsx"
 
-tck(JSXDocument, `${__dirname}/doc.wejsx`, undefined, getEditor=>{
+tck(JSXDocument, `${__dirname}/doc.wejsx`, true, getEditor=>{
     const {Shape:{Path}, Unknown:{UnitShape}}=dom
     const shape={geometry:Path.fromRect({width:50,height:50})}
     const anchor={current:{x:5, y:5}}
@@ -163,29 +163,59 @@ tck(JSXDocument, `${__dirname}/doc.wejsx`, undefined, getEditor=>{
                 expect(p.attr('numbering').toJS().id).toBeDefined()
             })
 
-            it("should use immediate prev paragraph sibling's numbering id and level when creating same style numbering",()=>{
+            describe("operation",()=>{
+                it("should use immediate prev paragraph sibling's numbering id and level when creating same style numbering",()=>{
+                    const p=editor.$().findFirst('paragraph[numbering]')
+                    const next=p.next()
+                    expect(next.attr('numbering')).toBeFalsy()
+                    expect(next.prev().attr('id')).toBe(p.attr('id'))
+                    editor.cursorAt(next.attr('id'))
+                    editor.update({type:"paragraph",numbering:editor.getNumbering(p.attr('numbering').toJS())})
+                    expect(next.attr("numbering").toJS()).toMatchObject(p.attr('numbering').toJS())
+                })
 
+                it("should use last non-empty prev paragraph silibing's numbering when creating same style numbering",()=>{
+                    const p=editor.$().findFirst('paragraph[numbering]')
+                    const next=p.nextAll().filter(a=>editor.$(a).text())
+                    expect(next.length).toBe(1)
+                    expect(p.next().attr('id')).not.toBe(next.attr('id'))
+                    editor.cursorAt(next.attr('id'))
+                    editor.update({type:"paragraph",numbering:editor.getNumbering(p.attr('numbering').toJS())})
+                    expect(next.attr("numbering").toJS()).toMatchObject(p.attr('numbering').toJS())
+                })
+
+                it("should increase level when tab at begining of numbering paragraph",()=>{
+                    const p=editor.$().findFirst('paragraph[numbering]')
+                    editor.cursorAt(p.attr("id"))
+                    editor.tab()
+                    expect(p.attr('numbering').toJS().level).toBe(1)
+                })
+
+                it("should decrease level when backspace at beginning of numbering paragraph, and level>1",()=>{
+                    const p=editor.$().findFirst('paragraph[numbering]')
+                    editor.cursorAt(p.attr("id"))
+                    editor.tab()
+                    expect(p.attr('numbering').toJS().level).toBe(1)
+                    editor.backspace()
+                    expect(p.attr('numbering').toJS().level).toBe(0)
+                })
+
+                it("should remove numbering when backspace at 0 level numbering paragraph",()=>{
+                    const p=editor.$().findFirst('paragraph[numbering]')
+                    editor.cursorAt(p.attr("id"))
+                    editor.backspace()
+                    expect(p.attr('numbering')).not.toBeDefined()
+                })
+
+                it("should create numbering paragrahp when enter at end of numbering paragraph",()=>{
+                    const p=editor.$().findFirst('paragraph[numbering]')
+                    editor.cursorAt(p.attr("id"),1)
+                    editor.enter()
+                    expect(editor.target.closest('paragraph').attr('id')).not.toBe(p.attr('id'))
+                    expect(editor.target.closest('paragraph').attr('numbering').toJS()).toMatchObject(p.attr('numbering').toJS())
+                })
             })
 
-            it("should use last non-empty prev paragraph silibing's numbering when creating same style numbering",()=>{
-
-            })
-
-            it("should increase level when tab at begining of numbering paragraph",()=>{
-
-            })
-
-            it("should decrease level when backspace at beginning of numbering paragraph, and level>1",()=>{
-
-            })
-
-            it("should be changed non-numbering when backspace at beginning of first level of numbering paragraph",()=>{
-
-            })
-
-            it("should create numbering paragrahp when enter at end of numbering paragraph",()=>{
-
-            })
         })
     })
 })

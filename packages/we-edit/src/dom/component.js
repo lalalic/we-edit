@@ -256,7 +256,7 @@ export default class Base extends Component{
 					y: this.UnitShape,
 					scaleX: PropTypes.number,
 					scaleY: PropTypes.number,
-					align: PropTypes.string,
+					align: this.AlignShape,
 					mirror: PropTypes.string,
 				}),
 				margin:this.MarginShape,

@@ -5,7 +5,7 @@ import {HasChild, Locatable,editable} from "../composable"
 import {dom,getSelection,ACTION, createEmptyStore} from "we-edit"
 import {Canvas} from "../composed"
 import Responsible from "../composed/responsible-canvas"
-import SVGMeasure from "../measure/svg"
+import Measure from "../measure/font"
 
 class Document extends Locatable.Locatorize(HasChild(dom.Document)){
     static propTypes={
@@ -21,6 +21,7 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
         ...super.contextTypes,
         Measure: PropTypes.func,
         activeDocStore: PropTypes.any,
+        numbering: dom.Document.childContextTypes.numbering,
     }
 
     static childContextTypes={
@@ -30,6 +31,7 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
         editable: PropTypes.any,
         precision: PropTypes.number,
         activeDocStore: PropTypes.any,
+        numbering: dom.Document.childContextTypes.numbering,
     }
 
     constructor(){
@@ -50,7 +52,11 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
     }
 
     get Measure(){
-        return this.context.Measure||this.props.Measure
+        return this.props.Measure||this.context.Measure
+    }
+
+    get numbering(){
+        return super.getChildContext().numbering||this.props.numbering||this.context.numbering
     }
 
     getComposed(){
@@ -59,6 +65,7 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
 
     getChildContext(){
         const self=this
+
         return {
             ...super.getChildContext(),
             prevLayout(ref){
@@ -70,11 +77,13 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
             precision: this.props.precision,
             activeDocStore: this.activeDocStore,
             Measure: this.Measure,
+            numbering: this.numbering,
         }
     }
 
     render(){
         const {canvas, canvasProps, children}=this.props
+        this.numbering?.reset()
         if(!canvas)
             return super.render()
         const {props:{__sequentialCompose=true}}=this
@@ -123,7 +132,7 @@ export default class extends editable(Document,{continuable:true}){
 		...super.defaultProps,
         canvas:<Responsible/>,
         editable: false,
-        Measure: SVGMeasure,
+        Measure,
     }
 
 	static getDerivedStateFromProps({hash,editable},state){

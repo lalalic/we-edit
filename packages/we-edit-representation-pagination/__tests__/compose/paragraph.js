@@ -9,7 +9,7 @@ define("paragraph compose",
 ({dom:{Paragraph, Text,Container}, testing, CONTEXT, Context, WithTextContext, WithParagraphContext,ConstraintSpace})=>{
     const TEXT="hello world"
     const test=(lineWidth=5,spacing={}, indent={},align, text=TEXT, numbering, ctx)=>{
-        const context={...Context,...CONTEXT, numbering:()=>'*', ...ctx}
+        const context={...Context,...CONTEXT, ...ctx}
         const nextAvailableSpace=context.parent.nextAvailableSpace=jest.fn(()=>(ConstraintSpace.create({
             width:lineWidth,height:100
         })))
@@ -195,7 +195,7 @@ define("paragraph compose",
     })
 
     describe("numbering",()=>{
-        const numbering=(numbering,ctx)=>test(TEXT.length+10,undefined,undefined,undefined,undefined,numbering,ctx)
+        const numbering=(numbering,ctx=({numbering:{get:a=>a}}))=>test(TEXT.length+10,undefined,undefined,undefined,undefined,numbering,ctx)
         it("should have function as children, output is *",()=>{
             const lines=numbering({label:'*', style:{fonts:"arial",size:10}})
             expect(lines.length).toBe(1)
@@ -234,16 +234,16 @@ define("paragraph compose",
         })
 
         it("should use paragraph default size if without self'size",()=>{
-            const lines=numbering({numbering:{style:{fonts:"A"}}})
+            const lines=numbering({style:{fonts:"A"},label:"*"})
             const line=new ReactQuery(lines[0]), label=line.findFirst(`.numbering`)
             expect(label.attr('fontSize')).toBe(line.findFirst('.ender').attr('fontSize'))
         })
     })
 
-    describe("align", ()=>{
+    describe("align should work with numbering", ()=>{
         const LineWidth=20
         const align=(align,lineWidth=LineWidth,text,numbering={label:'*', style:{fonts:"arial",size:10}})=>{
-            let lines=test(lineWidth,undefined,{left:2,firstLine:-2},align,text,numbering)
+            let lines=test(lineWidth,undefined,{left:2,firstLine:-2},align,text,numbering,{numbering:{get:a=>a}})
             const dom=lines.dom
             lines=lines.map(line=>line.props.children)
             expect(lines.length>0).toBe(true)

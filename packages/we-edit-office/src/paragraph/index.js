@@ -4,12 +4,14 @@ import PropTypes from "prop-types"
 import {compose,setDisplayName,mapProps, shallowEqual,shouldUpdate, withContext,withState} from "recompose"
 import {ACTION, whenSelectionChangeDiscardable,getUI} from "we-edit"
 
-import {ToolbarGroup,ToolbarSeparator,MenuItem, SvgIcon, Dialog,FlatButton} from "material-ui"
+import {ToolbarGroup,ToolbarSeparator,MenuItem, SvgIcon} from "material-ui"
 import CheckIconButton from "../components/check-icon-button"
 import DropDownButton from "../components/drop-down-button"
 import ContextMenu from "../components/context-menu"
 
 import ParagraphSetting from "./setting"
+import {BulletList, NumberList, MultiLevelList} from "./numbering-setting"
+import ListSetting from "./list-setting"
 
 
 import IconAlignCenter from "material-ui/svg-icons/editor/format-align-center"
@@ -19,7 +21,9 @@ import IconAlignJustify from "material-ui/svg-icons/editor/format-align-justify"
 
 import IconListBullet from "material-ui/svg-icons/editor/format-list-bulleted"
 import IconListNumber from "material-ui/svg-icons/editor/format-list-numbered"
+import IconListOutline from "material-ui/svg-icons/editor/pie-chart-outlined"
 import IconMore from "material-ui/svg-icons/navigation/more-vert"
+
 
 export default compose(
 	setDisplayName("ParagraphStyle"),
@@ -62,13 +66,26 @@ export default compose(
 		}
 	}),
 	shouldUpdate((a,b)=>!(shallowEqual(a.style,b.style) && a.pilcrow==b.pilcrow)),
-	withState("setting", "toggleSetting", false),
+	withState("setting", "toggleSetting", {paragraph:false,bullet:false,numbering:false,multiLevel:false,list:false}),
 )(({style, toggleAlign,numbering, bullet, toggleBullet, toggleNumbering, 
 	pilcrow, togglePilcrow,children, setting, toggleSetting,
+	bullets=[
+		{style:{fonts:"Arial"},label:String.fromCharCode(0x25CF)},
+		{style:{fonts:"Arial"},label:String.fromCharCode(0x25CB)},
+		{style:{fonts:"Arial"},label:String.fromCharCode(0x25A0)},
+		{style:{fonts:"Arial"},label:String.fromCharCode(0x2666)},
+		{style:{fonts:"Arial"},label:String.fromCharCode(0x263A)},
+		{style:{fonts:"Arial"},label:String.fromCharCode(0x263B)},
+	],
+	numbers=[
+		{},
+
+	]
 })=>(
-	<ContextMenu.Support menus={
-		<MenuItem primaryText="Paragraph..." onClick={e=>e.dialog=<ParagraphSetting/>}/>
-	}>
+	<ContextMenu.Support menus={[
+		<MenuItem key="paragraph" primaryText="Paragraph..." onClick={e=>e.dialog=<ParagraphSetting/>}/>,
+		<MenuItem key="list" primaryText="Bullet/Numbering..." onClick={e=>e.dialog=<ListSetting/>}/>
+	]}>
 		<ToolbarGroup>
 			<CheckIconButton
 				status={style &&(!style.align ||style.align=="left")?"checked":"unchecked"}
@@ -97,25 +114,35 @@ export default compose(
 			<ToolbarSeparator style={{marginRight:2, marginLeft:2}}/>
 
 			<DropDownButton
-				status={style&&style.numbering&&style.numbering.format=="bullet" ?"checked":"unchecked"}
-				onClick={()=>toggleBullet({type:"bullet",text:"."})}
+				status={style&&style.numbering&&style.numbering?.format=="bullet" ?"checked":"unchecked"}
+				onClick={()=>toggleBullet(bullets[0])}
 				icon={<IconListBullet/>}
-				hint="bullet"
+				hint="bullet list"
 				>
-				<MenuItem primaryText="." onClick={e=>numbering({type:"bullet",text:"."})}/>
-				<MenuItem primaryText="*" onClick={e=>numbering({type:"bullet",text:"*"})}/>
-
+				{bullets.map(({label,style:{fonts}},i)=>
+					<MenuItem key={label} primaryText={label} style={{fontFamily:fonts}} onClick={e=>numbering(bulltes[i])}/>
+				)}
+				<MenuItem primaryText="Define New Bullet" onClick={e=>toggleSetting({...setting,bullet:true})}/>
 			</DropDownButton>
 			<DropDownButton
 				status={style&&style.numbering&&style.numbering.format!=="bullet" ?"checked":"unchecked"}
 				onClick={()=>toggleNumbering({type:"decimal",text:"%1."})}
 				icon={<IconListNumber/>}
-				hint="numbering"
+				hint="numbered list"
 				>
-				<MenuItem primaryText="1." onClick={e=>numbering({type:"decimal",text:"%1."})}/>
-				<MenuItem primaryText="a." onClick={e=>numbering({type:"lowerLetter",text:"%1."})}/>
-				<MenuItem primaryText="一" onClick={e=>numbering({type:"chinese", text:"%1"})}/>
+				<MenuItem primaryText="1." onClick={e=>numbering({format:"decimal",text:"%1."})}/>
+				<MenuItem primaryText="a." onClick={e=>numbering({format:"lowerLetter",text:"%1."})}/>
+				<MenuItem primaryText="一" onClick={e=>numbering({format:"chinese", text:"%1"})}/>
+				<MenuItem primaryText="Define New Number List" onClick={e=>toggleSetting({...setting,numbering:true})}/>
 			</DropDownButton>
+			<DropDownButton
+				status={"unchecked"}
+				icon={<IconListOutline/>}
+				hint="outline line"
+				>
+				<MenuItem primaryText="Define New Number List" onClick={e=>toggleSetting({...setting,multiLevel:true})}/>
+			</DropDownButton>
+
 			<ToolbarSeparator style={{marginRight:2, marginLeft:2}}/>
 			<CheckIconButton
 				status={pilcrow ? "checked" : "unchecked"}
@@ -131,11 +158,16 @@ export default compose(
 				/>
 			<CheckIconButton
 					label="paragraph settings..."
-					onClick={e=>toggleSetting(true)}
+					onClick={e=>toggleSetting({...setting,paragraph:true})}
 					children={<IconMore/>}
 					/>
-			{setting && <ParagraphSetting  close={e=>toggleSetting(false)}/>}
-				
+
+			{setting.paragraph && <ParagraphSetting  close={e=>toggleSetting({...setting,paragraph:false})}/>}
+			{setting.bullet && <BulletList  close={e=>toggleSetting({...setting,bullet:false})}/>}
+			{setting.numbering && <NumberList  close={e=>toggleSetting({...setting,numbering:false})}/>}
+			{setting.multiLevel && <MultiLevelList  close={e=>toggleSetting({...setting,multiLevel:false})}/>}
+			{setting.list && <ListSetting  close={e=>toggleSetting({...setting,list:false})}/>}
+			
 			{children}
 		</ToolbarGroup>
 	</ContextMenu.Support>

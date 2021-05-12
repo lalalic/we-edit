@@ -12,7 +12,9 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
     static contextTypes={
 		...super.contextTypes,
 		Measure: PropTypes.func,
-		numbering: PropTypes.func,
+		numbering: PropTypes.shape({
+			get: PropTypes.func
+		}),
 		editable: PropTypes.any,
 	}
 	
@@ -267,21 +269,34 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 	 */
 	createNumberingAtom(){
 		const {props:{numbering, defaultStyle, indent:{firstLine=0}},context:{Measure}}=this
-		let {style,label}=numbering, atom=null
+		let {style,label,hanging=firstLine,align="left"}=this.context.numbering?.get(numbering)||numbering
+		let atom=null
 		if(typeof(label)=="function"){
 			label=label()
 		}
 		style={...defaultStyle,...style}
-		label=label||"."
+		const props={key:"numbering",className:"numbering",x:hanging,width:-hanging}
 		if(typeof(label)=="string"){
-			this.computed.numbering={label,style}
+			const {NumberingShape}=dom.Paragraph
+			;({label,style}=NumberingShape.normalize(this.computed.numbering={...numbering,label,style}));
 			const measure=new Measure(style)
 			const width=measure.stringWidth(label)
+			switch(align){
+				case "right":
+					props.x=props.x-width
+				break
+				case "middle":
+					props.x=props.x-width/2
+				break
+				default:
+				break
+			}
 			atom=<ComposedText.Dynamic {...measure.defaultStyle} width={width} children={()=>this.computed.numbering.label}/>
+			
 		}else if(typeof(label)=="object"){
 			atom=<Group><Shape fill={{picture:label}}/></Group>
 		}
-		return React.cloneElement(atom,{key:"numbering",className:"numbering",x:firstLine,width:-firstLine})
+		return React.cloneElement(atom,props)
 	}
 
 	updateCalculationWhenUseCached(){

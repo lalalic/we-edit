@@ -1,4 +1,6 @@
-<document defaultStyles={{text:{fonts:"Arial", size:"12pt"}}}>
+<document 
+    defaultStyles={{text:{fonts:"Arial", size:"12pt"}}} 
+    >
     <page size="A4" I={0} margin="1in">
         <anchor x={"3cm"} y={100}>
             <shape geometry={{width:100,height:300}} outline={{width:1, color:"red"}}>
@@ -14,14 +16,6 @@
                             </paragraph>
                         </frame>
                     </anchor>
-
-                    <paragraph numbering={{label:">"}} indent={{firstLine:'-0.9cm', left:'1cm'}}>
-                        <text>hello world</text>
-                    </paragraph>
-
-                    <paragraph numbering={{label:()=>">"}} indent={{firstLine:'-0.9cm', left:'1cm'}}>
-                        <text>hello world</text>
-                    </paragraph>
                 </frame>
             </shape>
         </anchor>

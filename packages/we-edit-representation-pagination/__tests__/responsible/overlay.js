@@ -180,6 +180,7 @@ describe("overlay",()=>{
 
         it("can extend direction, customize cursor, control",()=>{
             const onResize=jest.fn()
+            console.warning=jest.fn()
             const resizable=render(<Resizable onResize={onResize} spots={[{x:0,y:1,direction:"xx",control:"x",cursor:"my"}]}/>)
             expect(resizable.root.findByProps({"data-direction":"xx","data-control":"x",cursor:"my"})).toBeDefined()
 

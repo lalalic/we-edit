@@ -4,7 +4,8 @@ import PropTypes from "prop-types"
 export default ({Paragraph})=>class __$1 extends Component{
     static displayName="paragraph"
     static contextTypes={
-        defaultStyles: PropTypes.object
+        defaultStyles: PropTypes.object,
+        numbering: PropTypes.object,
     }
 
     static childContextTypes={
