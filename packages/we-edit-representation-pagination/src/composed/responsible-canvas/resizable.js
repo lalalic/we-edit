@@ -88,7 +88,7 @@ export default class Resizable extends Component{
 		)
 	}
 
-	resize({clientX:left,clientY:top}){debugger
+	resize({clientX:left,clientY:top}){
 		const {props:{onResize}, state:{resizing,control}}=this
 		let x=left-this.left, y=top-this.top
 		switch(resizing){

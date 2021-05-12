@@ -27,7 +27,14 @@ export default ({Paragraph})=>class __$1 extends Component{
     }
 
     render(){
-        return <Paragraph {...this.context.defaultStyles.paragraph} {...this.props} defaultStyle={this.getDefaultStyle()} />
+        const {numbering,indent={},...props}=this.props
+        if(numbering){
+            const {indent:left=0,hanging=0}=props.numbering=this.context.numbering.get(numbering)
+            indent.left=left
+            indent.firstLine=-hanging
+        }
+        props.indent=indent
+        return <Paragraph {...this.context.defaultStyles.paragraph} {...props} defaultStyle={this.getDefaultStyle()} />
     }
 }
 

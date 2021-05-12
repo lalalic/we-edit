@@ -10,7 +10,7 @@ export default class Text extends Component{
 	render(){
 		const {
 			children, whiteSpace, color:fill="black", highlight,border,underline,strike,
-			descent,minWidth, height, width, blockOffset,tokenizeOpportunity,mergeOpportunity,tabWidth,//ignore
+			descent,minWidth, height, width, blockOffset,tokenizeOpportunity,mergeOpportunity,tabWidth,textLength=true,//ignore
 			y=0,
 			x=0,
 			//["data-mergeid"]:_1,
@@ -43,11 +43,13 @@ export default class Text extends Component{
 			strikeline=(<Shape key="strike"  d={`M${x},${y}h${width}`} color={fill} width={0.5*precision}/>)
 		}
 
+		if(textLength)
+			others.textLength=width
+
 		return (
 			<g transform="translate(0 0)">
 				{background}
 				<text y={y} x={x}
-					textLength={width}
 					{...others}
 					fill={fill}>
 					{children}

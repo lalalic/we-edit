@@ -49,13 +49,15 @@ export default compose(
 				dispatch(ACTION.Selection.UPDATE({paragraph:{numbering}}))
 			},
 			toggleBullet(numbering){
-				if(style&&style.numbering&&style.numbering.format=="bullet"){
+				if(style?.numbering?.format=="bullet"){
 					numbering=null
+				}else{
+					numbering.format="bullet"
 				}
 				dispatch(ACTION.Selection.UPDATE({paragraph:{numbering}}))
 			},
 			toggleNumbering(numbering){
-				if(style&&style.numbering&&style.numbering.format!=="bullet"){
+				if(style?.numbering?.format &&style.numbering.format!=="bullet"){
 					numbering=null
 				}
 				dispatch(ACTION.Selection.UPDATE({paragraph:{numbering}}))
@@ -114,7 +116,7 @@ export default compose(
 			<ToolbarSeparator style={{marginRight:2, marginLeft:2}}/>
 
 			<DropDownButton
-				status={style&&style.numbering&&style.numbering?.format=="bullet" ?"checked":"unchecked"}
+				status={style?.numbering?.format=="bullet" ?"checked":"unchecked"}
 				onClick={()=>toggleBullet(bullets[0])}
 				icon={<IconListBullet/>}
 				hint="bullet list"
@@ -125,14 +127,18 @@ export default compose(
 				<MenuItem primaryText="Define New Bullet" onClick={e=>toggleSetting({...setting,bullet:true})}/>
 			</DropDownButton>
 			<DropDownButton
-				status={style&&style.numbering&&style.numbering.format!=="bullet" ?"checked":"unchecked"}
-				onClick={()=>toggleNumbering({type:"decimal",text:"%1."})}
+				status={style?.numbering?.format && style.numbering.format!=="bullet" ?"checked":"unchecked"}
+				onClick={()=>toggleNumbering({format:"decimal",label:"%1."})}
 				icon={<IconListNumber/>}
 				hint="numbered list"
 				>
-				<MenuItem primaryText="1." onClick={e=>numbering({format:"decimal",text:"%1."})}/>
-				<MenuItem primaryText="a." onClick={e=>numbering({format:"lowerLetter",text:"%1."})}/>
-				<MenuItem primaryText="一" onClick={e=>numbering({format:"chinese", text:"%1"})}/>
+				<MenuItem primaryText="1." onClick={e=>numbering({format:"decimal",label:"%1."})}/>
+				<MenuItem primaryText="a." onClick={e=>numbering({format:"lowerLetter",label:"%1."})}/>
+				<MenuItem primaryText="A." onClick={e=>numbering({format:"upperLetter",label:"%1."})}/>
+				<MenuItem primaryText="i." onClick={e=>numbering({format:"lowerRoman",label:"%1."})}/>
+				<MenuItem primaryText="I." onClick={e=>numbering({format:"upperRoman",label:"%1."})}/>
+				<MenuItem primaryText="一" onClick={e=>numbering({format:"chinese", label:"%1"})}/>
+
 				<MenuItem primaryText="Define New Number List" onClick={e=>toggleSetting({...setting,numbering:true})}/>
 			</DropDownButton>
 			<DropDownButton

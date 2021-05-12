@@ -269,18 +269,14 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 	 */
 	createNumberingAtom(){
 		const {props:{numbering, defaultStyle, indent:{firstLine=0}},context:{Measure}}=this
-		let {style,label,hanging=firstLine,align="left"}=numbering.label ? numbering : this.context.numbering.get(numbering)
+		const {style,label,hanging=firstLine,align="left"}=numbering.label ? numbering : this.context.numbering.get(numbering)
 		let atom=null
-		if(typeof(label)=="function"){
-			label=label()
-		}
-		style={...defaultStyle,...style}
-		const props={key:"numbering",className:"numbering",x:hanging,width:-hanging}
+		const props={key:"numbering",className:"numbering",x:-hanging}
 		if(typeof(label)=="string"){
-			const {NumberingShape}=dom.Paragraph
-			;({label,style}=NumberingShape.normalize(this.computed.numbering={...numbering,label,style}));
-			const measure=new Measure(style)
+			this.computed.numbering={...numbering,label,style:{...defaultStyle,...style}}
+			const measure=new Measure(this.computed.numbering.style)
 			const width=measure.stringWidth(label)
+			props.textLength=false
 			switch(align){
 				case "right":
 					props.x=props.x-width
@@ -291,16 +287,19 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 				default:
 				break
 			}
-			atom=<ComposedText.Dynamic {...measure.defaultStyle} width={width} children={()=>this.computed.numbering.label}/>
+			atom=<ComposedText.Dynamic {...measure.defaultStyle} children={()=>this.computed.numbering.label}/>
 			
 		}else if(typeof(label)=="object"){
 			atom=<Group><Shape fill={{picture:label}}/></Group>
 		}
+		props.width=-props.x//to make first atom at x=0
 		return React.cloneElement(atom,props)
 	}
 
 	updateCalculationWhenUseCached(){
-		this.createNumberingAtom()
+		if(this.props.numbering){
+			this.createNumberingAtom()
+		}
 	}
 
 	nextAvailableSpace(required){

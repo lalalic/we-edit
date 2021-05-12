@@ -470,6 +470,57 @@ export default class Base extends Component{
 		}
 	})
 
+	static NumberingShape=this.normalizeChecker(PropTypes.shape({
+		id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+		level: PropTypes.number,
+		indent: this.UnitShape,
+		
+		format: PropTypes.string,
+		start: PropTypes.number,
+
+		hanging: this.UnitShape,
+		align: this.AlignShape,
+		
+		style: this.TextStyleShape,
+		label: PropTypes.oneOfType([
+			PropTypes.string,
+			PropTypes.shape({
+				url: PropTypes.string.isRequired
+			})
+		])
+	}),{
+		normalize:({indent, hanging,style,...values})=>{
+			if(indent!=undefined)
+				values.indent=this.UnitShape.normalize(indent)
+			if(hanging!=undefined)
+				values.hanging=this.UnitShape.normalize(hanging)
+			if(style!=null)
+				values.style=this.TextStyleShape.normalize(style)
+			return values
+		},
+		denormalize:(value, normalized)=>{
+			if(indent!=undefined && normalized.indent!=undefined)
+				normalized.indent=this.UnitShape.denormalize(indent, normalized.indent)
+			if(hanging!=undefined && normalized.hanging!=undefined)
+				normalized.hanging=this.UnitShape.denormalize(hanging, normalized.hanging)
+			if(style!=null && normalized.style!=undefined)
+				values.style=this.TextStyleShape.denormalize(style,normalized.style)
+			return normalized
+		},
+		meet:(current,next)=>{
+			const currentNormalized=this.NumberingShape.normalize(current)
+			const nextNormalized=this.NumberingShape.normalize(next)
+			return (next.indent===undefined || nextNormalized.indent==currentNormalized.indent)
+				&& (next.hanging===undefined || nextNormalized.hanging==currentNormalized.hanging)
+				&& (next.format===undefined || nextNormalized.format==currentNormalized.format)
+				&& (next.start===undefined || nextNormalized.start==currentNormalized.start)
+				&& (next.label===undefined || nextNormalized.label==currentNormalized.label)
+				&& (next.style===undefined || (
+					nextNormalized.style?.fonts==currentNormalized.style?.fonts 
+					&& nextNormalized.style?.size==currentNormalized.style?.size ))
+		}
+	})
+
 	static as=function (type,defaultProps={}){
 		const displayName=this.displayName.split("-")
 		displayName.splice(-1,1,type)

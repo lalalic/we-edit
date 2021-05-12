@@ -2,7 +2,7 @@ import Editor from "./base"
 import {dom} from "we-edit"
 
 export default class Paragraph extends Editor{
-    numbering(numbering){debugger
+    numbering(numbering){
         if(!numbering){
             this.node.attr('numbering',null)
             return 
@@ -11,7 +11,7 @@ export default class Paragraph extends Editor{
             this.reducer.updateNumberingStyle(numbering)
         }else{//create
             const prevNonEmptyParagraph=this.getPrevNonEmptyParagraph(this.node)
-            if(prevNonEmptyParagraph.length){
+            if(prevNonEmptyParagraph.length && prevNonEmptyParagraph.attr('numbering')){
                 const prevNumbering=this.reducer.getNumbering(prevNonEmptyParagraph.attr('numbering').toJS())
                 if(dom.Paragraph.NumberingShape.meet(prevNumbering,numbering)){
                     this.node.attr("numbering",prevNonEmptyParagraph.attr('numbering'))
@@ -19,7 +19,7 @@ export default class Paragraph extends Editor{
                 }
             }
 
-            this.node.attr("numbering",this.reducer.createNumbering(numbering))
+            this.node.attr("numbering",this.reducer.createNumbering({...numbering,indent:"1cm",hanging:"7mm"}))
         }
     }
 
