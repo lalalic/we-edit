@@ -268,26 +268,25 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 	 * numberingAtom doesn't change layout, but it need calculation, so make it dynamic
 	 */
 	createNumberingAtom(){
-		const {props:{numbering, defaultStyle, indent:{firstLine=0}},context:{Measure}}=this
-		const {style,label,hanging=firstLine,align="left"}=numbering.label ? numbering : this.context.numbering.get(numbering)
+		const {props:{numbering, defaultStyle, indent:{firstLine=0}, id},context:{Measure}}=this
+		let {style,label,hanging=-firstLine,align="left"}=numbering
 		let atom=null
+		if(!label)
+			label=this.context.numbering.get(numbering, id)
 		const props={key:"numbering",className:"numbering",x:-hanging}
 		if(typeof(label)=="string"){
 			this.computed.numbering={...numbering,label,style:{...defaultStyle,...style}}
 			const measure=new Measure(this.computed.numbering.style)
-			const width=measure.stringWidth(label)
-			props.textLength=false
-			switch(align){
-				case "right":
-					props.x=props.x-width
-				break
-				case "middle":
-					props.x=props.x-width/2
-				break
-				default:
-				break
-			}
-			atom=<ComposedText.Dynamic {...measure.defaultStyle} children={()=>this.computed.numbering.label}/>
+			const {height,descent,x,y,...style}=measure.defaultStyle
+			atom=(
+				<Group {...{height,descent,x,y}}>
+					{()=>{
+						const width=measure.stringWidth(this.computed.numbering.label)
+						const x=align=="right" ? -width : align=="center" ? -width/2 : 0
+						return <ComposedText {...style} textLength={false} x={x} children={this.computed.numbering.label}/>
+					}}
+				</Group>
+			)
 			
 		}else if(typeof(label)=="object"){
 			atom=<Group><Shape fill={{picture:label}}/></Group>
@@ -297,8 +296,9 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 	}
 
 	updateCalculationWhenUseCached(){
-		if(this.props.numbering){
-			this.createNumberingAtom()
+		const {numbering,id}=this.props
+		if(numbering && !numbering.label){
+			this.computed.numbering.label=this.context.numbering.get(numbering,id)
 		}
 	}
 

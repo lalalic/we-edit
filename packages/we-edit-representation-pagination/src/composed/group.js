@@ -59,7 +59,7 @@ export default class Group extends PureComponent{
 
 		const content=[
 			background&&background!="transparent"&& (<rect width={width} height={height} fill={background} key="background"/>),
-			...Children.toArray(children)
+			...Children.toArray(typeof(children)=="function" ? children() : children)
 		].filter(a=>a)
 
 		if(this.context.debug){

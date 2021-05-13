@@ -202,7 +202,28 @@ define("paragraph compose",
             const line=new ReactQuery(lines[0])
             const label=line.find(".numbering")
             expect(label.length).toBe(1)
-            expect(label.attr('children')?.()).toBe('*')
+
+            expect(label.attr('children')().props.children).toBe('*')
+        })
+
+        describe("align",()=>{
+            const align=(align)=>{
+                const lines=numbering({align,label:'*.', style:{fonts:"arial",size:10}})
+                const line=new ReactQuery(lines[0])
+                return line.find(".numbering").attr('children')()
+            }
+            it("can align left",()=>{
+                expect(align().props.x).toBe(0)
+                expect(align("left").props.x).toBe(0)
+            })
+    
+            it("can align right",()=>{
+                expect(align("right").props.x).toBe(-2)
+            })
+
+            it("can align center",()=>{
+                expect(align("center").props.x).toBe(-1)
+            })
         })
 
         it("should have image with picture numbering",()=>{
@@ -226,18 +247,13 @@ define("paragraph compose",
                 .toBe([text.last.get(0),...text.parents].reduce((Y,{props:{y=0}})=>Y+y,0))
         })
 
-        it("should support label function",()=>{
-            const lines=numbering({label:()=>'*', style:{fonts:"arial",size:10}})
-            const line=new ReactQuery(lines[0]), label=line.findFirst(`.numbering`)
-            expect(label.length).toBe(1)
-            expect(label.attr('children')?.()).toBe("*")
-        })
-
         it("should use paragraph default size if without self'size",()=>{
             const lines=numbering({style:{fonts:"A"},label:"*"})
             const line=new ReactQuery(lines[0]), label=line.findFirst(`.numbering`)
             expect(label.attr('fontSize')).toBe(line.findFirst('.ender').attr('fontSize'))
         })
+
+
     })
 
     describe("align should work with numbering", ()=>{
@@ -253,6 +269,7 @@ define("paragraph compose",
             [align(),align("left")].forEach(([line])=>{
                 const story=new ReactQuery(line).find(".story")
                 expect(story.children().length).toBe(2)
+                expect(story.children().eq(0).attr('x')).toBe(-2)
                 expect(story.children().eq(1).attr('x')).toBe(0)
             })
         })

@@ -27,14 +27,24 @@ export default ({Paragraph})=>class __$1 extends Component{
     }
 
     render(){
-        const {numbering,indent={},...props}=this.props
-        if(numbering){
-            const {indent:left=0,hanging=0}=props.numbering=this.context.numbering.get(numbering)
-            indent.left=left
-            indent.firstLine=-hanging
+       return <Paragraph {...this.context.defaultStyles.paragraph} {...this.props} defaultStyle={this.getDefaultStyle()} />
+    }
+
+    static createElement(el,content){
+        const {numbering,hash,indent}=el.props
+        if(!numbering){
+            return el
         }
-        props.indent=indent
-        return <Paragraph {...this.context.defaultStyles.paragraph} {...props} defaultStyle={this.getDefaultStyle()} />
+        const {id,level=0}=numbering
+        const {format,label,indent:left=0,hanging=0,...style}=Paragraph.NumberingShape.normalize({...content.getIn(["root","props","numberings",id,level])?.toJS(),...numbering})
+        if(format==="bullet"){
+            style.label=label
+        }
+        return React.cloneElement(el,{
+            hash:`${hash}-${content.getIn(["root","props","numberings",id]).hashCode()}`,
+            numbering:style,
+            indent:{...indent,left,firstLine:-hanging}
+        })
     }
 }
 

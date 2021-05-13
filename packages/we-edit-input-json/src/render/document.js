@@ -28,18 +28,20 @@ export default ({Document})=>{
                         if(this.props.numbering){
                             Object.values(this.props.numbering).forEach(levels=>levels.forEach(level=>level && (delete level.i)))
                         }
+                        console.log("numbering reset")
                     },
-                    get:({id,level=0,...props})=>{
+                    get:({id,level=0,...props},paragraph)=>{
                         const {numberings={}}=this.props
                         const numbering=numberings[id]
-                        const {i=0, ...style}=Document.NumberingShape.normalize({...numbering[level],...props})
-                        style.label=style.label.replace(/\%(\d+)/g,(a,ith)=>{
+                        let {i=0, label}={...numbering[level],...props}
+                        label=label.replace(/\%(\d+)/g,(a,ith)=>{
                             const {format="decimal",start=1,i=0}=numbering[parseInt(ith)-1]||{}
                             return Numberings[format](i+start-1)
                         })
                         numbering[level].i=i+1
-                        return style
-                    }
+                        console.log(`numbering get for paragraph[${paragraph}]`)
+                        return label
+                    },
                 }
             }
         }
