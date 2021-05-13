@@ -271,34 +271,40 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 		const {props:{numbering, defaultStyle, indent:{firstLine=0}, id},context:{Measure}}=this
 		let {style,label,hanging=-firstLine,align="left"}=numbering
 		let atom=null
-		if(!label)
-			label=this.context.numbering.get(numbering, id)
+		if(!label){
+			label=this.computed.numbering?.label||this.context.numbering.get(numbering, `${id}-create`)
+		}
 		const props={key:"numbering",className:"numbering",x:-hanging}
 		if(typeof(label)=="string"){
 			this.computed.numbering={...numbering,label,style:{...defaultStyle,...style}}
 			const measure=new Measure(this.computed.numbering.style)
-			const {height,descent,x,y,...style}=measure.defaultStyle
+			const {height,descent,x,y,...measureStyle}=measure.defaultStyle
 			atom=(
 				<Group {...{height,descent,x,y}}>
 					{()=>{
 						const width=measure.stringWidth(this.computed.numbering.label)
 						const x=align=="right" ? -width : align=="center" ? -width/2 : 0
-						return <ComposedText {...style} textLength={false} x={x} children={this.computed.numbering.label}/>
+						return <ComposedText {...measureStyle} textLength={false} x={x} children={this.computed.numbering.label}/>
 					}}
 				</Group>
 			)
-			
 		}else if(typeof(label)=="object"){
 			atom=<Group><Shape fill={{picture:label}}/></Group>
 		}
 		props.width=-props.x//to make first atom at x=0
 		return React.cloneElement(atom,props)
 	}
+	/*
+	{
+		type:"we-edit/entity/UPDATE",
+		payload:{id:"19",type:"shape",size:{width:101}}
+	}
+	*/
 
 	updateCalculationWhenUseCached(){
 		const {numbering,id}=this.props
 		if(numbering && !numbering.label){
-			this.computed.numbering.label=this.context.numbering.get(numbering,id)
+			this.computed.numbering.label=this.context.numbering.get(numbering,`${id}-cached`)
 		}
 	}
 

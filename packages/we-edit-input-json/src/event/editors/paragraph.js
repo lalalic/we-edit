@@ -8,7 +8,7 @@ export default class Paragraph extends Editor{
             return 
         }
         if(numbering.id){//change props
-            this.reducer.updateNumberingStyle(numbering)
+            this.reducer.updateNumbering(numbering)
         }else{//create
             const prevNonEmptyParagraph=this.getPrevNonEmptyParagraph(this.node)
             if(prevNonEmptyParagraph.length && prevNonEmptyParagraph.attr('numbering')){

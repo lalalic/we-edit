@@ -34,7 +34,7 @@ export default compose(
 	}),
 	withContext({disabled:PropTypes.bool},({style})=>({disabled:!style})),
 	mapProps(({dispatch,children,style,pilcrow})=>{
-		return {
+		const props={
 			children,
 			style,
 			pilcrow,
@@ -46,6 +46,10 @@ export default compose(
 				dispatch(ACTION.Selection.UPDATE({paragraph:{align}}))
 			},
 			numbering: numbering=>{
+				if(numbering && style?.numbering){
+					const {id,level=0}=style.numbering
+					numbering={...numbering,id,level}
+				}
 				dispatch(ACTION.Selection.UPDATE({paragraph:{numbering}}))
 			},
 			toggleBullet(numbering){
@@ -54,18 +58,19 @@ export default compose(
 				}else{
 					numbering.format="bullet"
 				}
-				dispatch(ACTION.Selection.UPDATE({paragraph:{numbering}}))
+				props.numbering(numbering)
 			},
 			toggleNumbering(numbering){
 				if(style?.numbering?.format &&style.numbering.format!=="bullet"){
 					numbering=null
 				}
-				dispatch(ACTION.Selection.UPDATE({paragraph:{numbering}}))
+				props.numbering(numbering)
 			},
 			togglePilcrow(){
 				dispatch(ACTION.UI({pilcrow:!pilcrow}))
 			}
 		}
+		return props
 	}),
 	shouldUpdate((a,b)=>!(shallowEqual(a.style,b.style) && a.pilcrow==b.pilcrow)),
 	withState("setting", "toggleSetting", {paragraph:false,bullet:false,numbering:false,multiLevel:false,list:false}),
