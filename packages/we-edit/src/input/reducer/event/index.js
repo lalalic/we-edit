@@ -324,7 +324,7 @@ export default (class Events extends Base{
 			type=Object.keys(changing)[0]
 			changing=changing[type]
 		}
-		if(!id){//target id specified, so don't need seperate selection
+		if(!id && !["paragraph","table"].includes(type)){//target id specified, so don't need seperate selection
 			this.seperateSelection(type)
 		}
         
@@ -333,16 +333,17 @@ export default (class Events extends Base{
 		const targets=id ? [id] : (()=>{
 			const from=this.$(`#${start.id}`)
 			const to=this.$(`#${end.id}`)
-			const targets=((from,to)=>start.id==end.id ? from : from
-				.add(from.forwardUntil(to))
-				.add(to.parents())
-				.add(to)
-			)(from,to)
+			const targets=((from,to)=>{
+                const target=from.add(from.parents())//ancestors
+                if(start.id==end.id)
+                    return target
+				
+                return target.add(from.forwardUntil(to)).add(to.parents())
+            })(from,to)
 
 			return targets//self
-				.add(from.parents())//ancestors
 				.filter(type)
-				.add(from.add(to).find(type))//descendents
+				.add(to.find(type))//descendents
 				.toArray()
         })();
         

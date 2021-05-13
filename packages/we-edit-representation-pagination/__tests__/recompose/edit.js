@@ -146,13 +146,4 @@ describe("editor",()=>{
         })
         
     })
-
-    describe("paragraph",()=>{
-        it("should create numbering label again even use cached",()=>{
-            const createNumberingAtom=jest.spyOn(Paragraph.prototype,"createNumberingAtom")
-            createNumberingAtom.mockImplementation(jest.fn())
-            Paragraph.prototype.updateCalculationWhenUseCached()
-            expect(createNumberingAtom).toHaveBeenCalled()
-        })
-    })
 })
