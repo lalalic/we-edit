@@ -25,14 +25,19 @@ import IconMore from "material-ui/svg-icons/navigation/more-horiz"
 import FontList from "./fonts"
 import TextSetting from "./setting"
 
-const px2pt=dom.Unknown.units.px2pt.bind(dom.Unknown.units)
-const pt2px=dom.Unknown.units.pt2px.bind(dom.Unknown.units)
+const UnitShape=dom.Unknown.UnitShape
 const ToolbarSeparator=props=><ToolbarSeparator0 style={{marginRight:2, marginLeft:2}} {...props}/>
 export default compose(
 	setDisplayName("TextStyle"),
 	whenSelectionChangeDiscardable(({selection})=>{
-		if(selection)
-			return {style:selection.props("text",false)}
+		if(selection){
+			const style=selection.props("text",false)
+			if(style?.size){
+				style.size=UnitShape.normalize(style.size,"pt","px")
+			}
+			return {style}
+
+		}
 		return {}
 	}),
 	withProps(({dispatch, style})=>{
@@ -48,14 +53,14 @@ export default compose(
 			changeSize,
 			smaller(){
 				if(style){
-					const pt=Math.round(px2pt(style.size)*10)/10, d=Math.max(pt*0.1,1)
-					changeSize(pt2px(Math.max(Math.round(pt-d),1)))
+					const pt=Math.round(style.size*10)/10, d=Math.max(pt*0.1,1)
+					changeSize(Math.max(Math.round(pt-d),1))
 				}
 			},
 			bigger(){
 				if(style){
-					const pt=Math.round(px2pt(style.size)*10)/10, d=Math.max(pt*0.1,1)
-					changeSize(pt2px(Math.round(pt+d)))
+					const pt=Math.round(style.size*10)/10, d=Math.max(pt*0.1,1)
+					changeSize(Math.round(pt+d))
 				}
 			},
 			changeHightlight(highlight){
@@ -97,8 +102,8 @@ export default compose(
 				<ComboBox
 					style={{width:50}}
 					inputStyle={{border:"1px solid lightgray"}}
-					value={style?.size ? px2pt(style.size) : 11}
-					onChange={value=>changeSize(pt2px(parseInt(value)))}
+					value={style?.size||10}
+					onChange={value=>changeSize(parseInt(value))}
 					dataSource={[8,9,10,11,12,14,16,20,22,24,26,28,36,72].map(a=>a+"")}
 					underlineShow={false}
 					/>

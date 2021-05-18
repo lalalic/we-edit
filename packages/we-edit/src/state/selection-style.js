@@ -37,9 +37,10 @@ export default class SelectionStyle{
         }
         const { id: typed } = this._getFromContent(type);
         if (typed) {
-            const composer = this.getComposer(typed);
+            const composer = this.getComposer(typed)
             if (composer) {
-                return composer.props
+                const {__unnormalized, ...props}=composer.props
+                return __unnormalized ? {...__unnormalized} : props
             }
         }
     }

@@ -24,7 +24,8 @@ export default class Document extends Component{
 
 	static childContextTypes={
 		numbering: PropTypes.shape({
-			reset: PropTypes.func.isRequired
+			reset: PropTypes.func.isRequired,
+			get: PropTypes.func.isRequired,
 		})
 	}
 
@@ -32,6 +33,9 @@ export default class Document extends Component{
 		return {
 			numbering:{
 				reset(){
+
+				},
+				get(){
 
 				}
 			}

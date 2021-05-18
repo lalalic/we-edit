@@ -55,8 +55,6 @@ export default compose(
 			toggleBullet(numbering){
 				if(style?.numbering?.format=="bullet"){
 					numbering=null
-				}else{
-					numbering.format="bullet"
 				}
 				props.numbering(numbering)
 			},
@@ -122,12 +120,12 @@ export default compose(
 
 			<DropDownButton
 				status={style?.numbering?.format=="bullet" ?"checked":"unchecked"}
-				onClick={()=>toggleBullet(bullets[0])}
+				onClick={()=>toggleBullet({format:"bullet",...bullets[0]})}
 				icon={<IconListBullet/>}
 				hint="bullet list"
 				>
 				{bullets.map(({label,style:{fonts}},i)=>
-					<MenuItem key={label} primaryText={label} style={{fontFamily:fonts}} onClick={e=>numbering(bulltes[i])}/>
+					<MenuItem key={label} primaryText={label} style={{fontFamily:fonts}} onClick={e=>numbering({format:"bullet",...bulltes[i]})}/>
 				)}
 				<MenuItem primaryText="Define New Bullet" onClick={e=>toggleSetting({...setting,bullet:true})}/>
 			</DropDownButton>
@@ -174,9 +172,9 @@ export default compose(
 					/>
 
 			{setting.paragraph && <ParagraphSetting  close={e=>toggleSetting({...setting,paragraph:false})}/>}
-			{setting.bullet && <BulletList  close={e=>toggleSetting({...setting,bullet:false})}/>}
-			{setting.numbering && <NumberList  close={e=>toggleSetting({...setting,numbering:false})}/>}
-			{setting.multiLevel && <MultiLevelList  close={e=>toggleSetting({...setting,multiLevel:false})}/>}
+			{setting.bullet && <BulletList  {...style?.numbering} close={e=>toggleSetting({...setting,bullet:false})} />}
+			{setting.numbering && <NumberList {...style?.numbering}  close={e=>toggleSetting({...setting,numbering:false})}/>}
+			{setting.multiLevel && <MultiLevelList {...style?.numbering} close={e=>toggleSetting({...setting,multiLevel:false})}/>}
 			{setting.list && <ListSetting  close={e=>toggleSetting({...setting,list:false})}/>}
 			
 			{children}

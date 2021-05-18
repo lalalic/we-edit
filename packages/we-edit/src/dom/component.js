@@ -555,6 +555,8 @@ export default class Base extends Component{
 
 	static normalizePropShape(props){
 		const checks=this.propTypes
+		const __unnormalized={...props}
+		delete __unnormalized.children
 		return Object.keys(props).reduce((normalized,key)=>{
 			if(props[key]!=null){
 				normalized[key]=checks[key]?.normalize?.(props[key])||props[key]
@@ -562,7 +564,7 @@ export default class Base extends Component{
 				normalized[key]=props[key]
 			}
 			return normalized
-		},{...props})
+		},{...props, __unnormalized})
 	}
 
 	render(){

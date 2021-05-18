@@ -46,10 +46,9 @@ export default {
         this.createEditor('shape').update(props)
     },
 
-    create_anchor({current:{x,y},page, paragraph, inline, ...props}){//dom.Anchor.propTypes
-        debugger
+    create_anchor({current:{x,y, id:host},page, paragraph, inline, ...props}){//dom.Anchor.propTypes
         const {id}=this.file.renderChanged(<anchor/>)
-        this.$target.closest("frame, page").append('#'+id)
+        this.$('#'+host).append('#'+id)
         this.cursorAt(id)
         this.createEditor('anchor').update({x:{base:'current',offset:x},y:{base:'current',offset:y},...props,})
     }
