@@ -43,6 +43,7 @@
     "htmlparser2": "^3.9.2",
     "linebreak": "^0.3.0",
     "lodash.invoke": "^4.5.2",
+    "lodash.defaultsdeep": "^4.6.1",
     "mouse-event-offset": "^3.0.2",
     "vm-browserify": "^1.1.0",
     "material-ui": "^0.19.4",

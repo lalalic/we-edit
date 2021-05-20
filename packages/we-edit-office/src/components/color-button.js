@@ -11,6 +11,7 @@ export default class ColorButton extends Component{
 	constructor({value}){
 		super(...arguments)
 		this.state={open:false,color:value||"black"}
+		this.container=React.createRef()
 	}
 	
 	componentWillReceiveProps({value}){
@@ -20,26 +21,21 @@ export default class ColorButton extends Component{
 	}
 	
 	render(){
-		const {open,color,anchor}=this.state
+		const {open,color}=this.state
 		const {onChange=a=>a,...props}=this.props
-		let colorSelector=null
-		if(open){
-			colorSelector=(
-				<Popover 
-					open={true} 
-					anchorEl={anchor}
-					onRequestClose={e=>this.setState({open:false})}>
-					<ColorSelector onChange={color=>{this.setState({open:false,color});onChange(color)}}/>
-				</Popover>
-			)
-		}
-		const toggle=e=>this.setState({open:!open,anchor:e.currentTarget.parentNode})
-		
+		const toggle=e=>this.setState({open:!open})
 		return (
-			<span style={{whiteSpace:"nowrap"}}>
+			<span style={{whiteSpace:"nowrap"}} ref={this.container}>
 				<SizeIconButton {...props} onClick={e=>props.status=="checked" ? onChange("") : toggle(e)}/>
 				<IconMore style={{height:24,width:6}} viewBox="6 -12 18 36" onClick={toggle}/>
-				{colorSelector}
+				{open && (
+					<Popover 
+						open={true} 
+						anchorEl={this.container.current}
+						onRequestClose={e=>this.setState({open:false})}>
+						<ColorSelector onChange={color=>{this.setState({open:false,color});onChange(color)}}/>
+					</Popover>
+				)}
 			</span>
 		)
 	}

@@ -10,26 +10,30 @@
     "we-edit"
   ],
   "dependencies": {
+    "file-type": "^14.1.4",
+    "lodash.defaultsdeep": "^4.6.1",
     "lodash.invoke": "^4.5.2",
     "material-ui": "^0.19.4",
+    "memoize-one": "^4.0.2",
     "minimatch": "^3.0.4",
     "prop-types": "^15.6.0",
     "react-dom": "^16.1.1",
-    "recompose": "^0.26.0",
-    "react-redux": "^5.0.6",
-    "memoize-one": "^4.0.2",
-    "file-type": "^14.1.4",
     "react-gh-like-diff": "^2.0.0",
+    "react-redux": "^5.0.6",
+    "recompose": "^0.26.0",
     "xml-formatter": "^1.2.0"
   },
   "peerDependencies": {
-	  "react": "^16.2.0",
+    "react": "^16.2.0",
     "we-edit": "^3.0.0"
   },
   "engines": {
     "node": ">=0.10.0"
   },
-
-  "files":["index.js","index.browser.js","README.md"],
+  "files": [
+    "index.js",
+    "index.browser.js",
+    "README.md"
+  ],
   "readme": "README.md"
 }

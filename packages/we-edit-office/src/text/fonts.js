@@ -8,6 +8,7 @@ export default class FontList extends React.Component{
 		this.state={fonts:[]}
 		this.close=this.close.bind(this)
 		this.menu=React.createRef()
+		this.container=React.createRef()
 	}
 
 	componentDidMount(){
@@ -25,13 +26,13 @@ export default class FontList extends React.Component{
 	render(){
 		const {props:{value="", changeFont},state:{open,anchor, filter=value}}=this
 		return (
-			<Fragment>
+			<span ref={this.container}>
 				<input style={{outline:"none",border:"1px solid lightgray",margin:"5px 2px 0 0", padding:"0 2px",lineHeight:"24px",height:24}}
 					name="font" 
 					value={open?filter:value} 
 					autoComplete="off"
 					onFocus={e=>{
-						this.setState({open:true,anchor:e.currentTarget})
+						this.setState({open:true})
 					}}
 					onChange={e=>{
 						this.setState({filter:e.currentTarget.value})
@@ -49,16 +50,17 @@ export default class FontList extends React.Component{
 					/>
 				{open && <Popover open={true} 
 					onRequestClose={this.close}
-					anchorEl={anchor} 
+					anchorEl={this.container.current} 
 					anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
-          			targetOrigin={{horizontal: 'left', vertical: 'top'}}>
+          			targetOrigin={{horizontal: 'left', vertical: 'top'}}
+					>
 					<Menu ref={this.menu}
 						onEscKeyDown={this.close}
 						disableAutoFocus={true}>
 						{this.getMenuItems()}
 					</Menu>
 				</Popover>}
-			</Fragment>
+			</span>
 		)
 	}
 

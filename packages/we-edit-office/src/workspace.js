@@ -34,6 +34,7 @@ export default class Workspace extends PureComponent{
 		channel: PropTypes.string,
 		layout: PropTypes.node,
 		tests: PropTypes.node,
+		theme: PropTypes.object,
 	}
 
 	static defaultProps={
@@ -43,6 +44,7 @@ export default class Workspace extends PureComponent{
 
 	constructor(){
 		super(...arguments)
+		this.store=React.createRef()
 		this.events=new EventEmitter()
 		const panelContainers=[]
 		this.panelManager={
@@ -78,10 +80,15 @@ export default class Workspace extends PureComponent{
 	render(){
 		const {doc, ...props}=this.props
 		return (
-			<doc.Store>
+			<doc.Store ref={this.store}>
 				<Channels {...props}/>
 			</doc.Store>
 		)
+	}
+
+	componentDidMount(){
+		const {store:{current:{store}},props:{theme, doc:{doc}}}=this
+		store.dispatch(ACTION.theme(theme,doc.theme||{}))
 	}
 
 	static Desk=pure(({children, toolBar, ruler, channel, statusBar, icon, layout,...props})=>(

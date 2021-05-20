@@ -51,11 +51,11 @@ export class ComboBox extends PureComponent{
 	}
 
 	render(){
-		let {comboBox}=this.context.muiTheme
-		let {name=`_${Date.now()}`, value, onChange, onException, style, menuProps={},
+		const {comboBox}=this.context.muiTheme
+		let {name=`_${Date.now()}`, value, onChange, onException, style, menuProps={}, autoFilter=true,
 			textFieldStyle, inputStyle, children,icon=children,label,hint=label, ...props}=this.props
-		let text=this.getText()
-		let {searchText}=this.state
+		const text=this.getText()
+		const {searchText}=this.state
 		if(comboBox && comboBox.height){
 			if(!style){
 				style={height:comboBox.height}
@@ -130,6 +130,8 @@ export class ComboBox extends PureComponent{
 
 					filter={
 						(searchText,key)=>{
+							if(!autoFilter)
+								return true
 							if(searchText!=text){
 								return key.indexOf(searchText)!=-1
 							}else{

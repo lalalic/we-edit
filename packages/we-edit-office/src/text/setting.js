@@ -1,74 +1,82 @@
-import React,{Component} from "react"
-import PropTypes from "prop-types"
-
-import {Tabs, Tab,TextField,FlatButton} from "material-ui"
-
-import Dialog from "../components/dialog"
+import React,{Component, Fragment} from "react"
+import SvgIcon from "material-ui/SvgIcon"
 import Fonts from "./fonts"
+import ColorButton from "../components/color-button"
+import ComboBox from "../components/combo-box"
 
 
 export default class TextSettings extends Component{
-    render(){
-        const {close, style}=this.props
-        return (
-            <Dialog open={true} modal={true} titleStyle={{textAlign:"center"}}
-                actions={[
-                    <FlatButton
-                        label="Default..."
-                        style={{float:"left"}}
-                    />,
-                    <FlatButton
-                        label="Cancel"
-                        onClick={close}
-                    />,
-                    <FlatButton
-                        label="Submit"
-                        primary={true}
-                        onClick={close}
-                    />,
-                ]}
-                >
-                <Tabs>
-                   <Tab label="Font">
-                        <div style={{display:"flex"}}>
-                            <Fonts floatingLabelText="Fonts" value={style?.fonts.split(",")}/>
-                            <TextField floatingLabelText="Font Style" value={style?.bold ? "Bold" : (style?.italic ? "Italic" : "Regular")}/>
-                            <TextField floatingLabelText="Size" value={style?.size}/>
-                        </div>
-                        <div style={{display:"flex"}}>
-                            <TextField floatingLabelText="Color" value={style?.color}/>
-                            <TextField floatingLabelText="Underline Style" />
-                            <TextField floatingLabelText="Color"/>
-                        </div>
-                        <div>
-                            <label><input type="checkbox"/><span>Strikethrough</span></label>
-                            <label><input type="checkbox"/><span>Small caps</span></label>
-                        </div>
-                        <div>
-                            <label><input type="checkbox"/><span>Doulbe Strikethrough</span></label>
-                            <label><input type="checkbox"/><span>All caps</span></label>
-                        </div>
-                        <div>
-                            <label><input type="checkbox"/><span>Superscript</span></label>
-                            <label><input type="checkbox"/><span>Hidden</span></label>
-                        </div>
-                        <div>
-                            <label><input type="checkbox"/><span>Subscript</span></label>
-                        </div>
-                   </Tab>
-                   <Tab label="Advanced">
+    static getDerivedStateFromProps({style={}},state){
+        return {...style,...state}
+    }
 
-                   </Tab>
-                   
-                </Tabs>
-                <hr/>
-                <div>
-                    <div><b>Preview</b></div>
-                    <Previewer/>
+    constructor(){
+        super(...arguments)
+        this.state={}
+    }
+
+    get fontStyle(){
+        const {style}=this.props
+        let fontStyle=[]
+        style?.bold && fontStyle.push("Bold")
+        style?.italic && fontStyle.push("Italic")
+        !fontStyle.length && fontStyle.push("Regular")
+        return fontStyle.join(" ")
+    }
+    
+    render(){
+        const {state:style, props}=this
+        return (
+            <Fragment>
+                <div style={{display:"flex"}}>
+                    <Field label="Text Font">
+                        <Fonts value={style?.fonts||""} changeFont={fonts=>this.setState({fonts})}/>
+                    </Field>
+                    <Field label="Font Style">
+                        <ComboBox value={this.fontStyle} autoFilter={false}
+                            dataSource={["Regular","Bold","Italic","Bold Italic"]}
+                            onChange={value=>{
+                                const state={bold:false,italic:false}
+                                value.indexOf("Bold")!=-1 && (state.bold=true);
+                                value.indexOf("Italic")!=-1 && (state.italic=true);
+                                this.setState(state)
+                            }}
+                            />
+                    </Field>
+                    <Field label="Font Size">
+                        <ComboBox value={style?.size||""} autoFilter={false}
+                            dataSource={new Array(10).fill(0).map((a,i)=>2*(i+1))}
+                            onChange={value=>this.setState({size: value.trim() ? parseFloat(value) :""})}
+                            />
+                    </Field>
                 </div>
-            </Dialog>
+                <div style={{display:"flex"}}>
+                    <Field label="Text Color">
+                        <ColorButton value={style?.color} onChange={color=>this.setState({color})}>
+                            <SvgIcon>
+                                <rect {...{width:40,height:20,fill:style?.color}}/>
+                            </SvgIcon>
+                        </ColorButton>
+                    </Field>
+                    <Field label="Highlight Color">
+                        <ColorButton value={style?.highlight} onChange={highlight=>this.setState({highlight})}>
+                            <SvgIcon>
+                                <rect {...{width:40,height:20,fill:style?.highlight}}/>
+                            </SvgIcon>
+                        </ColorButton>
+                    </Field>
+                </div>
+                <div>
+                    <input type="checkbox" checked={!!style?.strike} onChange={e=>this.setState({strike:e.target.checked})}/><span>Strikethrough</span><br/>
+                    <input type="checkbox" checked={!!style?.underline} onChange={e=>this.setState({underline:e.target.checked})}/><span>Underline</span><br/>
+                    <input type="checkbox" checked={style?.vertAlign=="superscript"} onChange={e=>this.setState({vertAlign:e.target.checked ? "superscript" : undefined})}/><span>Superscript</span><br/>
+                    <input type="checkbox" checked={style?.vertAlign=="subscript"} onChange={e=>this.setState({vertAlign:e.target.checked ? "subscript" : undefined})}/><span>Subscript</span><br/>
+                    <input type="checkbox" checked={!!style?.vanish} onChange={e=>this.setState({vanish:e.target.checked})}/><span>Hidden</span><br/>
+                    <input type="checkbox" checked={!!style?.border} onChange={e=>this.setState({border:e.target.checked})}/><span>Border</span><br/>
+                </div>
+            </Fragment>
         )
     }
 }
 
-const Previewer=()=>(<div>Previewer here</div>)
+const Field=({style,label,children})=><div style={{flex:1, ...style}}><span>{label}</span><br/>{children}</div>

@@ -4,7 +4,7 @@ import {ACTION, whenSelectionChangeDiscardable, dom} from "we-edit"
 
 import {compose,setDisplayName,withProps, shallowEqual,shouldUpdate,withState} from "recompose"
 
-import {ToolbarGroup,MenuItem,SvgIcon,ToolbarSeparator as ToolbarSeparator0,} from "material-ui"
+import {ToolbarGroup,MenuItem,SvgIcon,ToolbarSeparator as ToolbarSeparator0,FlatButton} from "material-ui"
 
 import ComboBox from "../components/combo-box"
 import CheckIconButton from "../components/check-icon-button"
@@ -24,6 +24,8 @@ import IconMore from "material-ui/svg-icons/navigation/more-horiz"
 
 import FontList from "./fonts"
 import TextSetting from "./setting"
+import Dialog from "../components/dialog"
+import {getTheme} from "../state/action"
 
 const UnitShape=dom.Unknown.UnitShape
 const ToolbarSeparator=props=><ToolbarSeparator0 style={{marginRight:2, marginLeft:2}} {...props}/>
@@ -81,7 +83,7 @@ export default compose(
 			toggleStrike(){
 				style && dispatch(ACTION.Selection.UPDATE({text:{strike:!style.strike}}))
 			},
-
+			refTextSetting:React.createRef()
 		}
 	}),
 	shouldUpdate((a,b)=>!shallowEqual(a.style,b.style)),
@@ -91,7 +93,9 @@ export default compose(
 	toggleStrike, changeHightlight,changeColor,
 	toggleSubscript, toggleSuperscript, toggleBorder,
 	toggleB, toggleI, underline,
-	changeFont,changeSize, setting, toggleSetting})=>(
+	changeFont,changeSize, setting, toggleSetting,
+	refTextSetting
+})=>(
 		<ContextMenu.Support menus={
 			<MenuItem primaryText="Font..." onClick={e=>e.dialog=<TextSetting style={style}/>}/>
 		}>
@@ -187,7 +191,27 @@ export default compose(
 					onClick={e=>toggleSetting(true)}
 					children={<IconMore/>}
 					/>
-				{setting && <TextSetting style={style} close={e=>toggleSetting(false)}/>}
+				{setting && (
+					<Dialog title="Font" 
+						actions={[
+							<FlatButton
+								label="Default..."
+								style={{float:"left"}}
+							/>,
+							<FlatButton
+								label="Cancel"
+								onClick={e=>toggleSetting(false)}
+							/>,
+							<FlatButton
+								label="Submit"
+								primary={true}
+								onClick={e=>dispatch(ACTION.Selection.UPDATE({text:refTextSetting.current.state}))}
+							/>,
+						]}
+					>
+						<TextSetting style={style} ref={refTextSetting}/>
+					</Dialog>
+				)}
 				{children}
 			</ToolbarGroup>
 		</ContextMenu.Support>

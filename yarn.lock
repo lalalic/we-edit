@@ -4920,6 +4920,10 @@ lodash.defaults@^4.0.1:
   version "4.2.0"
   resolved "https://registry.npm.taobao.org/lodash.defaults/download/lodash.defaults-4.2.0.tgz#d09178716ffea4dde9e5fb7b37f6f0802274580c"
 
+lodash.defaultsdeep@^4.6.1:
+  version "4.6.1"
+  resolved "https://registry.npm.taobao.org/lodash.defaultsdeep/download/lodash.defaultsdeep-4.6.1.tgz#512e9bd721d272d94e3d3a63653fa17516741ca6"
+
 lodash.filter@^4.4.0:
   version "4.6.0"
   resolved "https://registry.npm.taobao.org/lodash.filter/download/lodash.filter-4.6.0.tgz#668b1d4981603ae1cc5a6fa760143e480b4c4ace"
@@ -6478,7 +6482,7 @@ react-codemirror2@^6.0.0:
   version "6.0.0"
   resolved "https://registry.npm.taobao.org/react-codemirror2/download/react-codemirror2-6.0.0.tgz#180065df57a64026026cde569a9708fdf7656525"
 
-react-dom@16.7.0, react-dom@^16.1.1, react-dom@^16.5.1:
+react-dom@^16.1.1, react-dom@^16.5.1:
   version "16.7.0"
   resolved "https://registry.npm.taobao.org/react-dom/download/react-dom-16.7.0.tgz#a17b2a7ca89ee7390bc1ed5eb81783c7461748b8"
   dependencies:
@@ -6567,7 +6571,7 @@ react-waypoint@^7.3.1:
     consolidated-events "^1.1.0"
     prop-types "^15.0.0"
 
-react@16.7.0, react@^16.5.1:
+react@^16.5.1:
   version "16.7.0"
   resolved "https://registry.npm.taobao.org/react/download/react-16.7.0.tgz?cache=0&sync_timestamp=1616782498616&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Freact%2Fdownload%2Freact-16.7.0.tgz#b674ec396b0a5715873b350446f7ea0802ab6381"
   dependencies:
