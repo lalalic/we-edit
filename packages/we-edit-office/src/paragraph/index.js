@@ -4,10 +4,11 @@ import PropTypes from "prop-types"
 import {compose,setDisplayName,mapProps, shallowEqual,shouldUpdate, withContext,withState} from "recompose"
 import {ACTION, whenSelectionChangeDiscardable,getUI} from "we-edit"
 
-import {ToolbarGroup,ToolbarSeparator,MenuItem, SvgIcon} from "material-ui"
+import {ToolbarGroup,ToolbarSeparator,MenuItem, SvgIcon, FlatButton} from "material-ui"
 import CheckIconButton from "../components/check-icon-button"
 import DropDownButton from "../components/drop-down-button"
 import ContextMenu from "../components/context-menu"
+import Dialog from "../components/dialog"
 
 import ParagraphSetting from "./setting"
 import {BulletList, NumberList, MultiLevelList} from "./numbering-setting"
@@ -66,6 +67,9 @@ export default compose(
 			},
 			togglePilcrow(){
 				dispatch(ACTION.UI({pilcrow:!pilcrow}))
+			},
+			applyParagraph(paragraph){
+				dispatch(ACTION.Selection.UPDATE({paragraph}))
 			}
 		}
 		return props
@@ -74,6 +78,7 @@ export default compose(
 	withState("setting", "toggleSetting", {paragraph:false,bullet:false,numbering:false,multiLevel:false,list:false}),
 )(({style, toggleAlign,numbering, bullet, toggleBullet, toggleNumbering, 
 	pilcrow, togglePilcrow,children, setting, toggleSetting,
+	applyParagraph, refParagraph=React.createRef(),
 	bullets=[
 		{style:{fonts:"Arial"},label:String.fromCharCode(0x25CF)},
 		{style:{fonts:"Arial"},label:String.fromCharCode(0x25CB)},
@@ -171,7 +176,27 @@ export default compose(
 					children={<IconMore/>}
 					/>
 
-			{setting.paragraph && <ParagraphSetting  close={e=>toggleSetting({...setting,paragraph:false})}/>}
+			{setting.paragraph && (
+				<Dialog title="Paragraph Settings"
+					actions={[
+						<FlatButton
+                        label="Cancel"
+                        onClick={e=>toggleSetting({...setting,paragraph:false})}
+                    />,
+                    <FlatButton
+                        label="Submit"
+                        primary={true}
+                        onClick={e=>{
+							applyParagraph(refParagraph.current.state)
+							toggleSetting({...setting,paragraph:false})
+						}}
+                    />,
+					]}
+					>
+					<ParagraphSetting style={style} ref={refParagraph}/>
+				</Dialog>
+			)}
+
 			{setting.bullet && <BulletList  {...style?.numbering} close={e=>toggleSetting({...setting,bullet:false})} />}
 			{setting.numbering && <NumberList {...style?.numbering}  close={e=>toggleSetting({...setting,numbering:false})}/>}
 			{setting.multiLevel && <MultiLevelList {...style?.numbering} close={e=>toggleSetting({...setting,multiLevel:false})}/>}

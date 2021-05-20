@@ -3,6 +3,7 @@ import SvgIcon from "material-ui/SvgIcon"
 import Fonts from "./fonts"
 import ColorButton from "../components/color-button"
 import ComboBox from "../components/combo-box"
+import Field from "../components/field"
 
 
 export default class TextSettings extends Component{
@@ -78,5 +79,3 @@ export default class TextSettings extends Component{
         )
     }
 }
-
-const Field=({style,label,children})=><div style={{flex:1, ...style}}><span>{label}</span><br/>{children}</div>

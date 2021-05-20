@@ -25,7 +25,6 @@ import IconMore from "material-ui/svg-icons/navigation/more-horiz"
 import FontList from "./fonts"
 import TextSetting from "./setting"
 import Dialog from "../components/dialog"
-import {getTheme} from "../state/action"
 
 const UnitShape=dom.Unknown.UnitShape
 const ToolbarSeparator=props=><ToolbarSeparator0 style={{marginRight:2, marginLeft:2}} {...props}/>
@@ -83,7 +82,9 @@ export default compose(
 			toggleStrike(){
 				style && dispatch(ACTION.Selection.UPDATE({text:{strike:!style.strike}}))
 			},
-			refTextSetting:React.createRef()
+			apply(text){
+				dispatch(ACTION.Selection.UPDATE({text}))
+			}
 		}
 	}),
 	shouldUpdate((a,b)=>!shallowEqual(a.style,b.style)),
@@ -94,7 +95,7 @@ export default compose(
 	toggleSubscript, toggleSuperscript, toggleBorder,
 	toggleB, toggleI, underline,
 	changeFont,changeSize, setting, toggleSetting,
-	refTextSetting
+	refTextSetting=React.createRef(), apply
 })=>(
 		<ContextMenu.Support menus={
 			<MenuItem primaryText="Font..." onClick={e=>e.dialog=<TextSetting style={style}/>}/>
@@ -192,12 +193,8 @@ export default compose(
 					children={<IconMore/>}
 					/>
 				{setting && (
-					<Dialog title="Font" 
+					<Dialog title="Font Setting" 
 						actions={[
-							<FlatButton
-								label="Default..."
-								style={{float:"left"}}
-							/>,
 							<FlatButton
 								label="Cancel"
 								onClick={e=>toggleSetting(false)}
@@ -205,7 +202,10 @@ export default compose(
 							<FlatButton
 								label="Submit"
 								primary={true}
-								onClick={e=>dispatch(ACTION.Selection.UPDATE({text:refTextSetting.current.state}))}
+								onClick={e=>{
+									apply(refTextSetting.current.state)
+									toggleSetting(false)
+								}}
 							/>,
 						]}
 					>
