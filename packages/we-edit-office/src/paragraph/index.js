@@ -4,7 +4,7 @@ import PropTypes from "prop-types"
 import {compose,setDisplayName,mapProps, shallowEqual,shouldUpdate, withContext,withState} from "recompose"
 import {ACTION, whenSelectionChangeDiscardable,getUI,dom} from "we-edit"
 
-import {ToolbarGroup,ToolbarSeparator,MenuItem, SvgIcon, FlatButton} from "material-ui"
+import {ToolbarSeparator,MenuItem, SvgIcon, FlatButton} from "material-ui"
 import CheckIconButton from "../components/check-icon-button"
 import DropDownButton from "../components/drop-down-button"
 import ContextMenu from "../components/context-menu"
@@ -109,7 +109,7 @@ export default compose(
 				<MenuItem key="list" primaryText="Bullet/Numbering..." 
 					onClick={e=>dispatch(ACTION.UI({dialog:this.listDialog(e=>dispatch(ACTION.UI({dialog:null})))}))}/>,
 			]}>
-				<ToolbarGroup>
+				<Fragment>
 					<CheckIconButton
 						status={style &&(!style.align ||style.align=="left")?"checked":"unchecked"}
 						onClick={()=>toggleAlign("left")}
@@ -134,7 +134,7 @@ export default compose(
 						children={<IconAlignJustify/>}
 						hint="Justify"
 						/>
-					<ToolbarSeparator style={{marginRight:2, marginLeft:2}}/>
+					<ToolbarSeparator/>
 
 					<DropDownButton
 						status={style?.numbering?.format=="bullet" ?"checked":"unchecked"}
@@ -173,7 +173,7 @@ export default compose(
 						<MenuItem primaryText="Define New Number List" onClick={e=>toggleSetting({...setting,multiLevel:true})}/>
 					</DropDownButton>
 
-					<ToolbarSeparator style={{marginRight:2, marginLeft:2}}/>
+					<ToolbarSeparator/>
 					<CheckIconButton
 						status={pilcrow ? "checked" : "unchecked"}
 						onClick={togglePilcrow}
@@ -200,7 +200,7 @@ export default compose(
 					{setting.list && this.listDialog()}
 					
 					{children}
-				</ToolbarGroup>
+				</Fragment>
 			</ContextMenu.Support>
 		)
 	}

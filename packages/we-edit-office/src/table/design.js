@@ -1,9 +1,9 @@
-import React from "react"
+import React, {Fragment} from "react"
 
 import {compose,setDisplayName,mapProps} from "recompose"
 import {ACTION, whenSelectionChangeDiscardable} from "we-edit"
 
-import {MenuItem,SvgIcon,ToolbarGroup} from "material-ui"
+import {MenuItem,SvgIcon} from "material-ui"
 import DropDownButton from "../components/drop-down-button"
 
 import IconSelect from "material-ui/svg-icons/action/open-with"
@@ -46,7 +46,7 @@ export default compose(
     })
 )(({addRowAbove, addRowBelow, addColLeft, addColRight, remove, select})=>{
     return (
-        <ToolbarGroup>
+        <Fragment>
             <DropDownButton title="table conditions" icon={<IconCondition children={<X/>}/>} >
                 <MenuItem primaryText="Header Row" leftIcon={<IconChecked/>}/>
                 <MenuItem primaryText="Total Row" leftIcon={<IconNotChecked/>}/>
@@ -102,7 +102,7 @@ export default compose(
                 <MenuItem primaryText="Insert Column Right" leftIcon={<IconRight/>} onClick={addColRight}/>
             </DropDownButton>
 
-        </ToolbarGroup>
+        </Fragment>
     )
 })
 

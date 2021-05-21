@@ -1,7 +1,7 @@
-import React, {Component} from "react"
+import React, {Component, Fragment} from "react"
 import {compose, mapProps} from "recompose"
 
-import { Popover,Subheader, ToolbarGroup} from "material-ui"
+import { Popover,Subheader} from "material-ui"
 import IconTable from "material-ui/svg-icons/editor/border-all"
 
 import {ACTION, whenSelectionChangeDiscardable} from "we-edit"
@@ -27,7 +27,7 @@ export const Create=whenSelectionChangeDiscardable()(class  extends Component{
 			)
 		}
 		return (
-			<ToolbarGroup>
+			<Fragment>
 				<SizeIconButton
 					label="table"
 					disabled={!selection}
@@ -36,7 +36,7 @@ export const Create=whenSelectionChangeDiscardable()(class  extends Component{
 				</SizeIconButton>
 				{setting}
 				{children}
-			</ToolbarGroup>
+			</Fragment>
 		)
 	}
 })

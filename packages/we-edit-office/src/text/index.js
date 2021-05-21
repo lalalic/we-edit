@@ -1,10 +1,10 @@
-import React,{Component} from "react"
+import React,{Component, Fragment} from "react"
 
 import {ACTION, whenSelectionChangeDiscardable, dom} from "we-edit"
 
 import {compose,setDisplayName,withProps, shallowEqual,shouldUpdate,withState} from "recompose"
 
-import {ToolbarGroup,MenuItem,ToolbarSeparator as ToolbarSeparator0,FlatButton} from "material-ui"
+import {MenuItem,ToolbarSeparator,FlatButton} from "material-ui"
 
 import ComboBox from "../components/combo-box"
 import CheckIconButton from "../components/check-icon-button"
@@ -28,7 +28,6 @@ import TextSetting from "./setting"
 import Dialog from "../components/dialog"
 
 const UnitShape=dom.Unknown.UnitShape
-const ToolbarSeparator=props=><ToolbarSeparator0 style={{marginRight:2, marginLeft:2}} {...props}/>
 export default compose(
 	setDisplayName("TextStyle"),
 	whenSelectionChangeDiscardable(({selection})=>{
@@ -129,7 +128,7 @@ export default compose(
 			<ContextMenu.Support menus={
 				<MenuItem primaryText="Font..." onClick={e=>dispatch(ACTION.UI({dialog:this.dialog(()=>dispatch(ACTION.UI({dialog:null})))}))}/>
 			}>
-				<ToolbarGroup>
+				<Fragment>
 					<FontList
 						value={style?.fonts||""}
 						changeFont={changeFont}/>
@@ -223,7 +222,7 @@ export default compose(
 						/>
 					{setting && this.dialog()}
 					{children}
-				</ToolbarGroup>
+				</Fragment>
 			</ContextMenu.Support>
 			)
 		}

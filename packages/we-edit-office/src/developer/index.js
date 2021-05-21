@@ -3,7 +3,7 @@ import PropTypes from "prop-types"
 import {DocumentTree,Test, getFile} from "we-edit"
 import {createPortal} from "react-dom"
 
-import {ToolbarGroup, ToolbarSeparator} from "material-ui/Toolbar"
+import {ToolbarSeparator} from "material-ui/Toolbar"
 import IconButton from "../components/size-icon-button"
 
 import IconDocTree from "material-ui/svg-icons/action/list"
@@ -22,13 +22,13 @@ export class Ribbon extends PureComponent{
     render(){
         const {diff, tester, docTree, children}=this.props
         return (
-            <ToolbarGroup>
+            <Fragment>
                 <FilterDocumentTree.Button {...docTree}/>
                 <DiffInput.Button {...diff}/>
                 <Tester.Button {...tester}/>
                 {children}
                 <ToolbarSeparator/>
-            </ToolbarGroup>
+            </Fragment>
         )
     }
 }

@@ -1,6 +1,5 @@
-import React, {Component} from "react"
+import React, {Component, Fragment} from "react"
 import PropTypes from "prop-types"
-import {ToolbarGroup} from "material-ui"
 import IconSave from "material-ui/svg-icons/content/save"
 import IconRefresh from "material-ui/svg-icons/navigation/refresh"
 
@@ -20,7 +19,7 @@ export default class File extends Component{
 	render(){
 		const {children}=this.props
 		return (
-			<ToolbarGroup>
+			<Fragment>
 				<CheckIconButton
 					status="unchecked"
 					hint="refresh"
@@ -38,7 +37,7 @@ export default class File extends Component{
 					<IconSave/>
 				</CheckIconButton>
 				{children}
-			</ToolbarGroup>
+			</Fragment>
 		)
 	}
 }

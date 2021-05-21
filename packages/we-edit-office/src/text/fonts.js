@@ -24,9 +24,9 @@ export default class FontList extends React.Component{
 	}
 
 	render(){
-		const {props:{value="", changeFont},state:{open,anchor, filter=value}}=this
+		const {props:{value="", changeFont,},state:{open,anchor, filter=value}}=this
 		return (
-			<span ref={this.container}>
+			<span ref={this.container} style={{marginLeft:2,marginRight:2}}>
 				<input style={{outline:"none",border:"1px solid lightgray",margin:"5px 2px 0 0", padding:"0 2px",lineHeight:"24px",height:24}}
 					name="font" 
 					value={open?filter:value} 

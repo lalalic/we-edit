@@ -1,7 +1,6 @@
-import React from "react"
+import React, {Fragment} from "react"
 import {compose, mapProps} from "recompose"
 
-import {ToolbarGroup} from "material-ui"
 import IconPicture from "material-ui/svg-icons/editor/insert-photo"
 
 import SizeIconButton from "../components/size-icon-button"
@@ -35,14 +34,14 @@ export const Tools=compose(
 	})),
 )(({children, insert})=>{
 	return (
-		<ToolbarGroup>
+		<Fragment>
 			<SizeIconButton label="picture"
 				onClick={e=>selectFile("image/*").then(insert)}>
 				<IconPicture/>
 			</SizeIconButton>
 			
 			{children}
-		</ToolbarGroup>
+		</Fragment>
 	)
 })
 

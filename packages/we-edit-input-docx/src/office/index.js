@@ -19,6 +19,7 @@ export default (
     <Workspace
         debug={true}
         accept="*.docx"
+        name={KEY}
         key={KEY}
         ruler={{
             vertical:true,

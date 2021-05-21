@@ -1,8 +1,7 @@
-import React from "react"
+import React,{Fragment} from "react"
 import {connect} from "react-redux"
 import {compose, setDisplayName, onlyUpdateForKeys} from "recompose"
 
-import {ToolbarGroup} from "material-ui"
 import CheckIconButton from "../components/check-icon-button"
 
 
@@ -33,7 +32,7 @@ export default compose(
 	}),
 	onlyUpdateForKeys(['canRedo','canUndo'])
 )(({undo,redo, canUndo, canRedo,children})=>(
-	<ToolbarGroup>
+	<Fragment>
 		<CheckIconButton
 			hint="undo"
 			status={canUndo ? "uncheck" : "disabled"}
@@ -47,5 +46,5 @@ export default compose(
 			onClick={redo}
 			/>
 		{children}
-	</ToolbarGroup>
+	</Fragment>
 ))

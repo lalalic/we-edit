@@ -2,7 +2,7 @@ import React,{Fragment, PureComponent} from "react"
 import PropTypes from "prop-types"
 import {ACTION, whenSelectionChangeDiscardable,dom, ReactQuery} from "we-edit"
 import {Path, Composed} from "we-edit-representation-pagination"
-import {ToolbarGroup, SvgIcon, MenuItem} from "material-ui"
+import {SvgIcon, MenuItem} from "material-ui"
 import memoize from "memoize-one"
 
 import {compose,setDisplayName} from "recompose"
@@ -109,7 +109,7 @@ export default compose(
                 </Fragment>
                 )
             }>
-                <ToolbarGroup>
+                <Fragment>
                     <DropDownButton 
                         hint="draw shape" 
                         icon={<IconShape/>} 
@@ -121,7 +121,7 @@ export default compose(
                     {[textbox,...React.Children.toArray(children)].map((a,key)=>{
                         return React.cloneElement(a,{key,onClick:e=>this.send(a.props.create),create:undefined})
                     })}
-                </ToolbarGroup>
+                </Fragment>
             </ContextMenu.Support>
         )
     }

@@ -1,7 +1,7 @@
 import React, {Component,Fragment} from "react"
 import PropTypes from "prop-types"
 
-import {MenuItem, Paper, Menu} from "material-ui"
+import {MenuItem, Paper, Menu, ToolbarGroup} from "material-ui"
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
 
@@ -29,7 +29,10 @@ export default class OfficeContextMenu extends Component{
             if(this.props.menus!==undefined)
                 return this.props.menus
 
-            const {children:{props:{children}}}=this.props
+            let {children}=this.props
+            if(children?.type==ToolbarGroup)
+                children=children.props.children
+                
             const items=React.Children.toArray(children)
                 .filter(({props:{onClick, label}})=>onClick && label)
             return (

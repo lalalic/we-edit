@@ -8,7 +8,7 @@ import Workspace from "../workspace"
 import Ribbon,{} from "../ribbon"
 
 
-
+const KEY="default(accept=[supportPagination])"
 export default (
     <Workspace debug={true}
 			accept={
@@ -16,7 +16,8 @@ export default (
 					return supportPagination
 				}
 			}
-			key="default(accept=[supportPagination])"
+			name="Default Pagination"
+			key={KEY}
 			channel="print"
 
 			layout={

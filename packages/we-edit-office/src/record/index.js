@@ -1,4 +1,4 @@
-import React,{Component} from "react"
+import React,{Component, Fragment} from "react"
 import PropTypes from "prop-types"
 
 import {timeout} from "we-edit"
@@ -13,7 +13,7 @@ import IconPrev from "material-ui/svg-icons/av/skip-previous"
 import IconSave from "material-ui/svg-icons/content/save"
 import IconUpload from "material-ui/svg-icons/editor/publish"
 
-import {ToolbarGroup, ToolbarSeparator } from "material-ui/Toolbar"
+import {ToolbarSeparator } from "material-ui/Toolbar"
 
 
 export default class Recorder extends Component{
@@ -35,7 +35,7 @@ export default class Recorder extends Component{
         const {recording, playing, i, records,interval}=this.state
         const store=this.context.activeDocStore, dispatch=store.dispatch
         return (
-            <ToolbarGroup>
+            <Fragment>
                 <CheckIconButton
                     status={recording ? "checked": (playing ? "disabled" : "unchecked")}
                     onClick={e=>{
@@ -132,7 +132,7 @@ export default class Recorder extends Component{
                     style={{width:50}}
                     onChange={e=>this.setState({interval:parseInt(e.target.value)||0})}/>
                 <ToolbarSeparator/>
-            </ToolbarGroup>
+            </Fragment>
         )
     }
 }

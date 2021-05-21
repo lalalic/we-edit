@@ -97,6 +97,7 @@ const PlainEditor=connect(state=>{
 export default (
     <Workspace
         accept="*"
+        name="Default Plaintext"
         key={DOMAIN}
         ruler={false}
         statusBar={false}
