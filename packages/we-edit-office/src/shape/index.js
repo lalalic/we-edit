@@ -16,8 +16,10 @@ import textbox from "./text-box"
 import flowchart from "!!file-loader?name=[name].[ext]!./flowchart.ttf"
 import shapes from "!!file-loader?name=[name].[ext]!./shapes.ttf"
 
+export {default as Active} from "./when-active"
+
 const {Shape}=dom 
-export default compose(
+export const Create=compose(
     setDisplayName("DrawShape"),
     whenSelectionChangeDiscardable(({selection})=>{
 		if(selection){

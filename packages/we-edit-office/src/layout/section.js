@@ -14,7 +14,7 @@ export default compose(
 	setDisplayName("section"),
 	whenSelectionChangeDiscardable(),
 	mapProps(({children,dispatch,selection})=>{
-		const style=selection&&selection.props("page",false)||{}
+		const style=selection?.props('section') && selection?.props("page",false)||null
 		return {
 			children,
 			style,
@@ -63,6 +63,8 @@ export default compose(
 	sizeEqual,marginEqual, cols,
 	style
 })=>{
+	if(!style)
+		return null
 	return (
 		<Fragment>			
 			<DropDownButton 

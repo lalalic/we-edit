@@ -10,7 +10,9 @@ import {ACTION, connect} from "we-edit"
 
 import FileType from "file-type/browser"
 
-export const Tools=compose(
+export {default as Active} from "./when-active"
+
+export const Create=compose(
 	connect(),
 	mapProps(({children,dispatch})=>({
 		children,

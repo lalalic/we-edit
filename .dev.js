@@ -143,6 +143,7 @@ function testOffice(Target, representation="pagination"){
 		<Workspace
 			debug={false}
 			accept="*.docx"
+			name={KEY}
 			key={KEY}
 			ruler={true}
 			toolBar={

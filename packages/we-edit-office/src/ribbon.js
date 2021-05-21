@@ -13,14 +13,15 @@ import File from "./file"
 import History from "./history"
 import Clipboard from "./clipboard"
 import Recorder from "./record"
-import Shape from "./shape"
 
+import * as Shape from "./shape"
 import * as Table from "./table"
 import * as Picture from "./picture"
 import * as Layout from "./layout"
 import * as Developer from "./developer"
 
 import {CheckIconButton,DropDownButton,ContextMenuSupport} from "./components"
+import WhenActive from "./components/when-active"
 
 const Ribbon=compose(
 	setDisplayName("Ribbon"),
@@ -129,7 +130,6 @@ const Ribbon=compose(
 					{developer && <Tab label="Developer" buttonStyle={buttonStyle} style={tabStyle}>
 						<Toolbar>
 							<ToolbarGroup>
-								
 								{developer.information}
 								{developer.recorder}
 								{developer.debug}	
@@ -158,12 +158,16 @@ const Ribbon=compose(
 					if (!selection) {
 						merged[k] = null
 					} else {
-						let when = merged.when
+						const when = merged.when
 						merged.when = Object.keys(when).filter(k=>when[k])
 							.reduce((collected, type) => {
-								let style = selection.props(type)
+								const style = selection.props(type)
 								if (style) {
-									let plugins = when[type].type({ style, selection })
+									const element=when[type]
+									let plugins = element.type({ style, selection })
+									if(plugins.type==WhenActive){
+										plugins=WhenActive(plugins.props)
+									}
 									if (Array.isArray(plugins)) {
 										collected = [...collected, ...plugins]
 									} else if (plugins) {
@@ -197,9 +201,9 @@ const Ribbon=compose(
 				paragraph: <Paragraph><ToolbarSeparator /></Paragraph>
 			},
 			insert: {
-				table: <Table.Create><ToolbarSeparator /></Table.Create>,
-				picture: <Picture.Tools><ToolbarSeparator /></Picture.Tools>,
-				shape: <Shape><ToolbarSeparator /></Shape>
+				table: <Table.Create/>,
+				picture: <Picture.Create/>,
+				shape: <Shape.Create/>,
 			},
 			design: {
 				theme: null,
@@ -219,9 +223,9 @@ const Ribbon=compose(
 				recorder: <Recorder />,
 			},
 			when: {
-				table: <Table.Ribbon />,
+				table: <Table.Active />,
 				picture: null,
-				shape: null,
+				shape: <Shape.Active/>,
 			}
 		})
 	}

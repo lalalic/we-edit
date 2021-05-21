@@ -13,7 +13,7 @@ export default compose(
 	setDisplayName("page"),
 	whenSelectionChangeDiscardable(),
 	mapProps(({children,dispatch,selection})=>{
-		const style=selection&&selection.props("page",false)||{}
+		const style=(!selection?.props('section') && selection?.props("page",false))||null
 		return {
 			children,
 			style,
@@ -46,6 +46,8 @@ export default compose(
 		}
 	}),
 )(({children, margin, size, landscape,protrait, sizeEqual,marginEqual,style})=>{
+	if(!style)
+		return null
 	return (
 		<Fragment>			
 			
@@ -113,9 +115,11 @@ const IconBlank=props=><path {...props} d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1
 
 const IconSize=()=>(
 	<SvgIcon>
-		<IconBlank transform="scale(0.6) translate(10,10)"/>
-    	<path d="M9 3 v3v-1.5 h10v-1.5v3" fill="none" stroke="blue"/>
-		<path d="M9 3 v3v-1.5 h10v-1.5v3" fill="none" stroke="blue" transform="translate(9.5 -1) rotate(90)"/>
+		<g transform="translate(-3,-3)">
+			<IconBlank transform="scale(0.6) translate(10,10)"/>
+			<path d="M8 3 v3v-1.5 h10v-1.5v3" fill="none" stroke="blue"/>
+			<path d="M9 3 v3v-1.5 h10v-1.5v3" fill="none" stroke="blue" transform="translate(9.5 -1) rotate(90)"/>
+		</g>
 	</SvgIcon>
 )
 
