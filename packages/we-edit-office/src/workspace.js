@@ -1,13 +1,15 @@
 import React, {PureComponent, Component, Children, Fragment} from "react"
-import {connect, ContextMenu} from "we-edit"
+import {connect, ACTION as weACTION} from "we-edit"
 import PropTypes from "prop-types"
 import {pure}  from "recompose"
 import EventEmitter from "events"
 import memoize from "memoize-one"
 import {Tabs,Tab} from "material-ui/Tabs"
+import Divider from "material-ui/Divider"
 
 import Status from "./status"
-import Ribbon from "./ribbon"
+import ContextMenu from "./components/context-menu"
+import Ribbon, {Clipboard, Text, Paragraph, Shape} from "./ribbon"
 import Canvas from "./canvas"
 import ACTION,{getOffice} from "./state/action"
 import IconClose from "material-ui/svg-icons/action/highlight-off"
@@ -35,11 +37,20 @@ export default class Workspace extends PureComponent{
 		layout: PropTypes.node,
 		tests: PropTypes.node,
 		theme: PropTypes.object,
+		contextMenu: PropTypes.element,
 	}
 
 	static defaultProps={
 		toolBar: (<Ribbon/>),
-		statusBar:(<Status/>)
+		statusBar:(<Status/>),
+		contextMenu:(
+			<ContextMenu desktop={true}>
+				<Clipboard/>
+				<Divider/>
+				<Text/>
+				<Paragraph/>
+			</ContextMenu>
+		)
 	}
 
 	constructor(){
@@ -66,6 +77,7 @@ export default class Workspace extends PureComponent{
 				return panelContainers.find(a=>a.props.name==name)||panelContainers[0]
 			}
 		}
+		this.state={inited:false}
 	}
 	
 	getChildContext(){
@@ -78,17 +90,23 @@ export default class Workspace extends PureComponent{
 	}
 
 	render(){
-		const {doc, ...props}=this.props
+		const {doc, reducer,contextMenu,theme, ...props}=this.props
 		return (
 			<doc.Store ref={this.store}>
-				<Channels {...props}/>
+				{this.state.inited ? <Channels {...props}/> : null}
 			</doc.Store>
 		)
 	}
 
 	componentDidMount(){
-		const {store:{current:{store}},props:{theme, doc:{doc}}}=this
-		store.dispatch(ACTION.theme(theme,doc.theme||{}))
+		const {store:{current:{store}},props:{theme, contextMenu, reducer, doc:{doc}}}=this
+		contextMenu && store.dispatch(weACTION.UI({contextMenu}));
+		reducer && store.dispatch(ACTION.reducer(reducer))
+
+		const themes=[theme,doc.theme].filter(a=>!!a)
+		themes.length && store.dispatch(ACTION.theme(...themes));
+
+		this.setState({inited:true})
 	}
 
 	static Desk=pure(({children, toolBar, ruler, channel, statusBar, icon, layout,...props})=>(
@@ -195,7 +213,6 @@ export default class Workspace extends PureComponent{
 //extract Channels from Workspace to make channel into redux state
 const Channels=connect((state,props)=>({channel:getOffice(state).channel||props.channel}))(
 	class BaseChannels extends Component{
-		state={}
 		getChannels=memoize(children=>
 			Children.toArray(children).filter(a=>a.props)
 				.map(({props:{channel,icon}})=>channel ? {channel,icon:icon||<span title={{channel}}/>} : null)
@@ -207,22 +224,10 @@ const Channels=connect((state,props)=>({channel:getOffice(state).channel||props.
 			const current=children.filter(a=>a.props).find(({props})=>props.channel==channel)
 			const uncontrolled=children.filter(({props})=>!props || !props.channel).filter(a=>a!=current)
 			return {current, uncontrolled}
-		})	
-
-		componentDidMount(){
-			const {dispatch,reducer}=this.props
-			if(reducer){
-				dispatch(ACTION.reducer(reducer))
-				this.setState({reduced:true})
-			}
-		}
+		})
 
 		render(){
-			if(this.props.reducer && !this.state.reduced){
-				return null
-			}
-
-			let {channel, children, toolBar, statusBar, ruler=true, layout, dispatch, contextMenu}=this.props
+			let {channel, children, toolBar, statusBar, ruler=true, layout, dispatch}=this.props
 			let {current,uncontrolled}=this.getCurrent(children, channel)
 
 			if(current){
@@ -230,7 +235,6 @@ const Channels=connect((state,props)=>({channel:getOffice(state).channel||props.
 				statusBar=typeof(current.props.statusBar)=="undefined"? statusBar : current.props.statusBar
 				ruler=typeof(current.props.ruler)=="undefined"? ruler : current.props.ruler
 				layout=typeof(current.props.layout)=="undefined"? layout : current.props.layout
-				contextMenu=typeof(current.props.contextMenu)=="undefined"? contextMenu : current.props.contextMenu
 			}
 
 			const canvas=(
@@ -260,8 +264,6 @@ const Channels=connect((state,props)=>({channel:getOffice(state).channel||props.
 							onChange: channel=>dispatch(ACTION.office({channel}))
 						}
 					})}
-
-					{contextMenu}
 				</div>
 			)		
 		}

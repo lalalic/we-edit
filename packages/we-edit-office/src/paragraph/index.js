@@ -2,7 +2,7 @@ import React,{Component,Fragment} from "react"
 import PropTypes from "prop-types"
 
 import {compose,setDisplayName,mapProps, shallowEqual,shouldUpdate, withContext,withState} from "recompose"
-import {ACTION, whenSelectionChangeDiscardable,getUI} from "we-edit"
+import {ACTION, whenSelectionChangeDiscardable,getUI,dom} from "we-edit"
 
 import {ToolbarGroup,ToolbarSeparator,MenuItem, SvgIcon, FlatButton} from "material-ui"
 import CheckIconButton from "../components/check-icon-button"
@@ -25,7 +25,6 @@ import IconListNumber from "material-ui/svg-icons/editor/format-list-numbered"
 import IconListOutline from "material-ui/svg-icons/editor/pie-chart-outlined"
 import IconMore from "material-ui/svg-icons/navigation/more-vert"
 
-
 export default compose(
 	setDisplayName("ParagraphStyle"),
 	whenSelectionChangeDiscardable(({selection},state)=>{
@@ -39,6 +38,7 @@ export default compose(
 			children,
 			style,
 			pilcrow,
+			dispatch,
 			toggleAlign(align){
 				const {align:current="left"}=style||{}
 				if(current==align){
@@ -68,7 +68,7 @@ export default compose(
 			togglePilcrow(){
 				dispatch(ACTION.UI({pilcrow:!pilcrow}))
 			},
-			applyParagraph(paragraph){
+			apply(paragraph){
 				dispatch(ACTION.Selection.UPDATE({paragraph}))
 			}
 		}
@@ -76,133 +76,252 @@ export default compose(
 	}),
 	shouldUpdate((a,b)=>!(shallowEqual(a.style,b.style) && a.pilcrow==b.pilcrow)),
 	withState("setting", "toggleSetting", {paragraph:false,bullet:false,numbering:false,multiLevel:false,list:false}),
-)(({style, toggleAlign,numbering, bullet, toggleBullet, toggleNumbering, 
-	pilcrow, togglePilcrow,children, setting, toggleSetting,
-	applyParagraph, refParagraph=React.createRef(),
-	bullets=[
-		{style:{fonts:"Arial"},label:String.fromCharCode(0x25CF)},
-		{style:{fonts:"Arial"},label:String.fromCharCode(0x25CB)},
-		{style:{fonts:"Arial"},label:String.fromCharCode(0x25A0)},
-		{style:{fonts:"Arial"},label:String.fromCharCode(0x2666)},
-		{style:{fonts:"Arial"},label:String.fromCharCode(0x263A)},
-		{style:{fonts:"Arial"},label:String.fromCharCode(0x263B)},
-	],
-	numbers=[
-		{},
+)(class extends Component{
+	static defaultProps={
+		bullets:[
+			{style:{fonts:"Arial"},label:String.fromCharCode(0x25CF)},
+			{style:{fonts:"Arial"},label:String.fromCharCode(0x25CB)},
+			{style:{fonts:"Arial"},label:String.fromCharCode(0x25A0)},
+			{style:{fonts:"Arial"},label:String.fromCharCode(0x2666)},
+			{style:{fonts:"Arial"},label:String.fromCharCode(0x263A)},
+			{style:{fonts:"Arial"},label:String.fromCharCode(0x263B)},
+		],
+		numberings:[
+			{format:"decimal",label:"%1."},
+			{format:"lowerLetter",label:"%1."},
+			{format:"upperLetter",label:"%1."},
+			{format:"lowerRoman",label:"%1."},
+			{format:"upperRoman",label:"%1."},
+			{format:"chinese",label:"%1"},
+		],
+		Numberings:dom.Paragraph.numberings
+	}
+	render(){
+		const {
+			style, toggleAlign,numbering, bullet, toggleBullet, toggleNumbering, 
+			pilcrow, togglePilcrow,children, setting, toggleSetting,
+			bullets,numberings,Numberings, dispatch,
+		}=this.props
+				return (
+			<ContextMenu.Support menus={[
+				<MenuItem key="paragraph" primaryText="Paragraph..." 
+					onClick={e=>dispatch(ACTION.UI({dialog:this.paragraphDialog(e=>dispatch(ACTION.UI({dialog:null})))}))}/>,
+				<MenuItem key="list" primaryText="Bullet/Numbering..." 
+					onClick={e=>dispatch(ACTION.UI({dialog:this.listDialog(e=>dispatch(ACTION.UI({dialog:null})))}))}/>,
+			]}>
+				<ToolbarGroup>
+					<CheckIconButton
+						status={style &&(!style.align ||style.align=="left")?"checked":"unchecked"}
+						onClick={()=>toggleAlign("left")}
+						children={<IconAlignLeft/>}
+						hint="Align Left"
+						/>
+					<CheckIconButton
+						status={style&&style.align=="center"?"checked":"unchecked"}
+						onClick={()=>toggleAlign("center")}
+						children={<IconAlignCenter/>}
+						hint="Align Center"
+						/>
+					<CheckIconButton
+						status={style &&style.align=="right"?"checked":"unchecked"}
+						onClick={()=>toggleAlign("right")}
+						children={<IconAlignRight/>}
+						hint="Align Right"
+						/>
+					<CheckIconButton
+						status={style&&style.align=="justify"?"checked":"unchecked"}
+						onClick={()=>toggleAlign("justify")}
+						children={<IconAlignJustify/>}
+						hint="Justify"
+						/>
+					<ToolbarSeparator style={{marginRight:2, marginLeft:2}}/>
 
-	]
-})=>(
-	<ContextMenu.Support menus={[
-		<MenuItem key="paragraph" primaryText="Paragraph..." onClick={e=>e.dialog=<ParagraphSetting/>}/>,
-		<MenuItem key="list" primaryText="Bullet/Numbering..." onClick={e=>e.dialog=<ListSetting/>}/>
-	]}>
-		<ToolbarGroup>
-			<CheckIconButton
-				status={style &&(!style.align ||style.align=="left")?"checked":"unchecked"}
-				onClick={()=>toggleAlign("left")}
-				children={<IconAlignLeft/>}
-				hint="Align Left"
-				/>
-			<CheckIconButton
-				status={style&&style.align=="center"?"checked":"unchecked"}
-				onClick={()=>toggleAlign("center")}
-				children={<IconAlignCenter/>}
-				hint="Align Center"
-				/>
-			<CheckIconButton
-				status={style &&style.align=="right"?"checked":"unchecked"}
-				onClick={()=>toggleAlign("right")}
-				children={<IconAlignRight/>}
-				hint="Align Right"
-				/>
-			<CheckIconButton
-				status={style&&style.align=="justify"?"checked":"unchecked"}
-				onClick={()=>toggleAlign("justify")}
-				children={<IconAlignJustify/>}
-				hint="Justify"
-				/>
-			<ToolbarSeparator style={{marginRight:2, marginLeft:2}}/>
+					<DropDownButton
+						status={style?.numbering?.format=="bullet" ?"checked":"unchecked"}
+						onClick={()=>toggleBullet({format:"bullet",...bullets[0]})}
+						icon={<IconListBullet/>}
+						hint="bullet list"
+						>
+						{bullets.map(({label,style:{fonts}},i)=>
+							<MenuItem key={label} 
+								primaryText={label} 
+								style={{fontFamily:fonts}} 
+								onClick={e=>numbering({format:"bullet",...bullets[i]})}
+								/>
+						)}
+						<MenuItem primaryText="Define New Bullet" onClick={e=>toggleSetting({...setting,bullet:true})}/>
+					</DropDownButton>
+					<DropDownButton
+						status={style?.numbering?.format && style.numbering.format!=="bullet" ?"checked":"unchecked"}
+						onClick={()=>toggleNumbering(numberings[0])}
+						icon={<IconListNumber/>}
+						hint="numbered list"
+						>
+						{numberings.map(({format, label},i)=>
+							<MenuItem key={format} 
+								primaryText={label.replace("%1",Numberings[format](0))} 
+								onClick={e=>numbering(numberings[i])}
+								/>
+						)}
+						<MenuItem primaryText="Define New Number List" onClick={e=>toggleSetting({...setting,numbering:true})}/>
+					</DropDownButton>
+					<DropDownButton
+						status={"unchecked"}
+						icon={<IconListOutline/>}
+						hint="outline line"
+						>
+						<MenuItem primaryText="Define New Number List" onClick={e=>toggleSetting({...setting,multiLevel:true})}/>
+					</DropDownButton>
 
-			<DropDownButton
-				status={style?.numbering?.format=="bullet" ?"checked":"unchecked"}
-				onClick={()=>toggleBullet({format:"bullet",...bullets[0]})}
-				icon={<IconListBullet/>}
-				hint="bullet list"
+					<ToolbarSeparator style={{marginRight:2, marginLeft:2}}/>
+					<CheckIconButton
+						status={pilcrow ? "checked" : "unchecked"}
+						onClick={togglePilcrow}
+						hint="Show/Hide❡"
+						children={
+							<SvgIcon>
+								<g transform="translate(0 4)">
+									<path d="M9 10v5h2V4h2v11h2V4h2V2H9C6.79 2 5 3.79 5 6s1.79 4 4 4z"/>
+								</g>
+							</SvgIcon>
+						}
+						/>
+					<CheckIconButton
+							label="paragraph settings..."
+							onClick={e=>toggleSetting({...setting,paragraph:true})}
+							children={<IconMore/>}
+							/>
+
+					{setting.paragraph && this.paragraphDialog()}
+
+					{setting.bullet && this.bulletDialog()}
+					{setting.numbering && this.numberingDialog()}
+					{setting.multiLevel && this.multiLevelDialog()}
+					{setting.list && this.listDialog()}
+					
+					{children}
+				</ToolbarGroup>
+			</ContextMenu.Support>
+		)
+	}
+
+	bulletDialog(toggleSetting=this.props.toggleSetting){
+		const {apply, refSetting=React.createRef(), style, bullets, setting}=this.props
+		return (
+			<Dialog title="Paragraph Settings"
+				actions={[
+					<FlatButton
+					label="Cancel"
+					onClick={e=>toggleSetting({...setting,bullet:false})}
+				/>,
+				<FlatButton
+					label="Submit"
+					primary={true}
+					onClick={e=>{
+						apply({numbering:refSetting.current.state})
+						toggleSetting({...setting,bullet:false})
+					}}
+				/>,
+				]}
 				>
-				{bullets.map(({label,style:{fonts}},i)=>
-					<MenuItem key={label} primaryText={label} style={{fontFamily:fonts}} onClick={e=>numbering({format:"bullet",...bulltes[i]})}/>
-				)}
-				<MenuItem primaryText="Define New Bullet" onClick={e=>toggleSetting({...setting,bullet:true})}/>
-			</DropDownButton>
-			<DropDownButton
-				status={style?.numbering?.format && style.numbering.format!=="bullet" ?"checked":"unchecked"}
-				onClick={()=>toggleNumbering({format:"decimal",label:"%1."})}
-				icon={<IconListNumber/>}
-				hint="numbered list"
+				<BulletList style={style?.numbering} bullets={bullets} ref={refSetting}/>
+			</Dialog>
+		)
+	}
+
+	paragraphDialog(toggleSetting=this.props.toggleSetting){
+		const {apply, refSetting=React.createRef(), style,setting}=this.props
+		return (
+			<Dialog title="Paragraph Settings"
+				actions={[
+					<FlatButton
+					label="Cancel"
+					onClick={e=>toggleSetting({...setting,paragraph:false})}
+				/>,
+				<FlatButton
+					label="Submit"
+					primary={true}
+					onClick={e=>{
+						apply(refSetting.current.state)
+						toggleSetting({...setting,paragraph:false})
+					}}
+				/>,
+				]}
 				>
-				<MenuItem primaryText="1." onClick={e=>numbering({format:"decimal",label:"%1."})}/>
-				<MenuItem primaryText="a." onClick={e=>numbering({format:"lowerLetter",label:"%1."})}/>
-				<MenuItem primaryText="A." onClick={e=>numbering({format:"upperLetter",label:"%1."})}/>
-				<MenuItem primaryText="i." onClick={e=>numbering({format:"lowerRoman",label:"%1."})}/>
-				<MenuItem primaryText="I." onClick={e=>numbering({format:"upperRoman",label:"%1."})}/>
-				<MenuItem primaryText="一" onClick={e=>numbering({format:"chinese", label:"%1"})}/>
+				<ParagraphSetting style={style} ref={refSetting}/>
+			</Dialog>
+		)
+	}
 
-				<MenuItem primaryText="Define New Number List" onClick={e=>toggleSetting({...setting,numbering:true})}/>
-			</DropDownButton>
-			<DropDownButton
-				status={"unchecked"}
-				icon={<IconListOutline/>}
-				hint="outline line"
+	numberingDialog(toggleSetting=this.props.toggleSetting){
+		const {apply, refSetting=React.createRef(), style, numberings,setting}=this.props
+		return (
+			<Dialog title="Paragraph Settings"
+				actions={[
+					<FlatButton
+					label="Cancel"
+					onClick={e=>toggleSetting({...setting,numbering:false})}
+				/>,
+				<FlatButton
+					label="Submit"
+					primary={true}
+					onClick={e=>{
+						apply({numbering:refSetting.current.state})
+						toggleSetting({...setting,numbering:false})
+					}}
+				/>,
+				]}
 				>
-				<MenuItem primaryText="Define New Number List" onClick={e=>toggleSetting({...setting,multiLevel:true})}/>
-			</DropDownButton>
+				<NumberList style={style?.numbering} numberings={numberings} ref={refSetting}/>
+			</Dialog>
+		)
+	}
 
-			<ToolbarSeparator style={{marginRight:2, marginLeft:2}}/>
-			<CheckIconButton
-				status={pilcrow ? "checked" : "unchecked"}
-				onClick={togglePilcrow}
-				hint="Show/Hide❡"
-				children={
-					<SvgIcon>
-						<g transform="translate(0 4)">
-							<path d="M9 10v5h2V4h2v11h2V4h2V2H9C6.79 2 5 3.79 5 6s1.79 4 4 4z"/>
-						</g>
-					</SvgIcon>
-				}
-				/>
-			<CheckIconButton
-					label="paragraph settings..."
-					onClick={e=>toggleSetting({...setting,paragraph:true})}
-					children={<IconMore/>}
-					/>
+	multiLevelDialog(toggleSetting=this.props.toggleSetting){
+		const {apply, refSetting=React.createRef(), style, numberings,setting}=this.props
+		return (
+			<Dialog title="Paragraph Settings"
+				actions={[
+					<FlatButton
+					label="Cancel"
+					onClick={e=>toggleSetting({...setting,multiLevel:false})}
+				/>,
+				<FlatButton
+					label="Submit"
+					primary={true}
+					onClick={e=>{
+						apply({numbering:refSetting.current.state})
+						toggleSetting({...setting,multiLevel:false})
+					}}
+				/>,
+				]}
+				>
+				<MultiLevelList style={style?.numbering}  ref={refSetting} numberings={numberings}/>
+			</Dialog>
+		)
+	}
 
-			{setting.paragraph && (
-				<Dialog title="Paragraph Settings"
-					actions={[
-						<FlatButton
-                        label="Cancel"
-                        onClick={e=>toggleSetting({...setting,paragraph:false})}
-                    />,
-                    <FlatButton
-                        label="Submit"
-                        primary={true}
-                        onClick={e=>{
-							applyParagraph(refParagraph.current.state)
-							toggleSetting({...setting,paragraph:false})
-						}}
-                    />,
-					]}
-					>
-					<ParagraphSetting style={style} ref={refParagraph}/>
-				</Dialog>
-			)}
-
-			{setting.bullet && <BulletList  {...style?.numbering} close={e=>toggleSetting({...setting,bullet:false})} />}
-			{setting.numbering && <NumberList {...style?.numbering}  close={e=>toggleSetting({...setting,numbering:false})}/>}
-			{setting.multiLevel && <MultiLevelList {...style?.numbering} close={e=>toggleSetting({...setting,multiLevel:false})}/>}
-			{setting.list && <ListSetting  close={e=>toggleSetting({...setting,list:false})}/>}
-			
-			{children}
-		</ToolbarGroup>
-	</ContextMenu.Support>
-))
+	listDialog(toggleSetting=this.props.toggleSetting){
+		const {apply, refSetting=React.createRef(), style,setting}=this.props
+		return (
+			<Dialog title="Paragraph Settings"
+				actions={[
+					<FlatButton
+					label="Cancel"
+					onClick={e=>toggleSetting({...setting,list:false})}
+				/>,
+				<FlatButton
+					label="Submit"
+					primary={true}
+					onClick={e=>{
+						apply({numbering:refSetting.current.state})
+						toggleSetting({...setting,list:false})
+					}}
+				/>,
+				]}
+				>
+				<ListSetting style={style?.numbering}  ref={refSetting}/>
+			</Dialog>
+		)
+	}
+})

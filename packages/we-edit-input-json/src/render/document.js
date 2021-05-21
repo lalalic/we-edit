@@ -36,7 +36,7 @@ export default ({Document})=>{
                         let {i=0, label}={...numbering[level],...props}
                         label=label.replace(/\%(\d+)/g,(a,ith)=>{
                             const {format="decimal",start=1,i=0}=numbering[parseInt(ith)-1]||{}
-                            return Numberings[format](i+start-1)
+                            return Document.numberings[format](i+start-1)
                         })
                         numbering[level].i=i+1
                         console.log(`numbering get for paragraph[${paragraph}]`)
@@ -52,32 +52,3 @@ export default ({Document})=>{
         }
     }
 }
-
-const Numberings={
-    decimal(n){
-		return n+1
-	},
-
-	lowerLetter(n){
-		return String.fromCharCode("a".charCodeAt(0)+n)
-	},
-	
-	upperLetter(n){
-		return String.fromCharCode("A".charCodeAt(0)+n)
-	},
-	
-	lowerRoman(n){
-		return Roman[n].toLowerCase()
-	},
-	
-	upperRoman(n){
-		return Roman[n]
-	},
-
-    chinese(n){
-        return Chinese[n]
-    },
-}
-
-const Roman=["I","II","III","IV","V","VI","VII","VIII","IX"]
-const Chinese=["一","二","三","四","五","六","七","八","九","十"]

@@ -1,11 +1,13 @@
-import React, {PureComponent, Component} from "react"
+import React, {PureComponent, Component, Fragment} from "react"
 import PropTypes from "prop-types"
 
 import {connect,ACTION} from "../state"
+import {getUI} from "../state/selector"
 import Representation from "./representation"
 import uuid from "../tools/uuid"
 import memoize from "memoize-one"
 import shallowEqual from "../tools/shallow-equal"
+import ContextMenu from "./context-menu"
 
 export class Editor extends PureComponent{
 	static displayName="editor"
@@ -31,7 +33,8 @@ export class Editor extends PureComponent{
 	}
 
 	static contextTypes={
-		events: PropTypes.object
+		events: PropTypes.object,
+		activeDocStore: PropTypes.object,
 	}
 
 	static defaultProps={
@@ -64,15 +67,34 @@ export class Editor extends PureComponent{
 			return <div ref="viewporter" />
 		}
 
-		var {representation, children, canvas=children, editable, ...props}=this.props
+		let {representation, children, canvas=children, editable, contextMenu, ...props}=this.props
 		if(typeof(representation)=="string"){
 			representation=<Representation type={representation}/>
 		}
 
-		return React.cloneElement(
-			representation,
-			{domain:this.constructor.domain},
-			this.createDocument({canvasProps:{...props,id:this.canvasId,viewport}, canvas, editable})
+		return (
+			<Fragment>
+				{React.cloneElement(
+							representation,
+							{domain:this.constructor.domain},
+							this.createDocument({
+								canvasProps:{
+									...props,
+									id:this.canvasId,
+									viewport,
+									onContextMenu:e=>{
+										this.context.activeDocStore.dispatch(ACTION.UI({contextMenuAt:{left:e.clientX+2, top:e.clientY}}))
+										props.onContextMenu?.(e)
+									},
+								}, 
+								canvas, 
+								editable
+							})
+						)
+				}
+				<UIDialog/>
+				<ContextMenu contextMenu={contextMenu}/>
+			</Fragment>
 		)
 	}
 
@@ -123,7 +145,7 @@ export class WeDocumentStub extends Component{
 	}
 	
 	static contextTypes={
-		ModelTypes: PropTypes.object
+		ModelTypes: PropTypes.object,
 	}
 
 	static childContextTypes={
@@ -189,13 +211,7 @@ export class WeDocumentStub extends Component{
 		return React.cloneElement(doc, {
 				editable,
 				canvas,
-				canvasProps:{
-					...canvasProps,
-					onContextMenu:e=>{
-						this.props.dispatch(ACTION.UI({contextMenuAt:{left:e.clientX+2, top:e.clientY}}))
-						canvasProps?.onContextMenu?.(e)
-					},
-				}
+				canvasProps
 			})
 	}
 
@@ -207,6 +223,11 @@ export class WeDocumentStub extends Component{
 		return this.getDoc()
 	}
 }
+
+const UIDialog=connect(state=>{
+	const {dialog}=getUI(state)
+	return {dialog}
+})(({dialog})=>dialog||null)
 
 
 const Root=connect(state=>{

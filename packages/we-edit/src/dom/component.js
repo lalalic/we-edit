@@ -2,12 +2,13 @@ import React, {Component,Fragment} from "react"
 import PropTypes from "prop-types"
 import units from "../tools/units"
 import Path from "../tools/path"
-
+import numberings from "../tools/numbering"
 
 
 export default class Base extends Component{
 	static displayName="unknown"
 	static units=units
+	static numberings=numberings
 	static Path=Path
 	static normalizeChecker=(checker,extend)=>{
 		const isRequired=checker.isRequired

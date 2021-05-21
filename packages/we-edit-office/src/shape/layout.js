@@ -91,7 +91,7 @@ export default class Layout extends PureComponent{
             </Tabs>
         )
     }
-    static panel = <Layout title="Advanced Layout" />
+    static panel = <Layout title="Layout" />
     static Button = class extends PureComponent {
         static contextTypes = {
             panelManager: PropTypes.any,

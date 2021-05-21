@@ -84,7 +84,7 @@ export default class FormatPanel extends PureComponent {
         )
     }
 
-    static panel = <FormatPanel title="FormatPanel" />
+    static panel = <FormatPanel title="Shape" />
     static Button = class extends PureComponent {
         static contextTypes = {
             panelManager: PropTypes.any,

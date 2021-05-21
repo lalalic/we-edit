@@ -1,10 +1,10 @@
-import React,{Fragment} from "react"
+import React,{Component} from "react"
 
 import {ACTION, whenSelectionChangeDiscardable, dom} from "we-edit"
 
 import {compose,setDisplayName,withProps, shallowEqual,shouldUpdate,withState} from "recompose"
 
-import {ToolbarGroup,MenuItem,SvgIcon,ToolbarSeparator as ToolbarSeparator0,FlatButton} from "material-ui"
+import {ToolbarGroup,MenuItem,ToolbarSeparator as ToolbarSeparator0,FlatButton} from "material-ui"
 
 import ComboBox from "../components/combo-box"
 import CheckIconButton from "../components/check-icon-button"
@@ -21,6 +21,7 @@ import IconStrike from "material-ui/svg-icons/editor/strikethrough-s"
 import IconBackground from "material-ui/svg-icons/editor/format-color-fill"
 import IconColor from "material-ui/svg-icons/editor/format-color-text"
 import IconMore from "material-ui/svg-icons/navigation/more-horiz"
+import { IconBigger, IconSmaller, IconSubscript, IconSuperscript, IconTextBorder } from "./icons"
 
 import FontList from "./fonts"
 import TextSetting from "./setting"
@@ -89,179 +90,143 @@ export default compose(
 	}),
 	shouldUpdate((a,b)=>!shallowEqual(a.style,b.style)),
 	withState("setting","toggleSetting",false)
-)(({style, children,
-	bigger, smaller, clear,
-	toggleStrike, changeHightlight,changeColor,
-	toggleSubscript, toggleSuperscript, toggleBorder,
-	toggleB, toggleI, underline,
-	changeFont,changeSize, setting, toggleSetting,
-	refTextSetting=React.createRef(), apply
-})=>(
-		<ContextMenu.Support menus={
-			<MenuItem primaryText="Font..." onClick={e=>e.dialog=<TextSetting style={style}/>}/>
-		}>
-			<ToolbarGroup>
-				<FontList
-					value={style?.fonts||""}
-					changeFont={changeFont}/>
-				<ComboBox
-					style={{width:50}}
-					inputStyle={{border:"1px solid lightgray"}}
-					value={style?.size||10}
-					onChange={value=>changeSize(parseInt(value))}
-					dataSource={[8,9,10,11,12,14,16,20,22,24,26,28,36,72].map(a=>a+"")}
-					underlineShow={false}
-					/>
-				<CheckIconButton label="increase font size"
-					status={"unchecked"}
-					onClick={bigger}
-					children={<IconBigger/>}
-					/>
-				<CheckIconButton label="descrease font size"
-					status={"unchecked"}
-					onClick={smaller}
-					children={<IconSmaller/>}
-					/>
-				<ToolbarSeparator/>
+)(class extends Component{
+	dialog(close){
+		const {toggleSetting, apply, style}=this.props
+		const refTextSetting=React.createRef()
+		close=close||(e=>toggleSetting(false));
+		return (
+			<Dialog title="Font Setting" 
+				actions={[
+					<FlatButton
+						label="Cancel"
+						onClick={close}
+					/>,
+					<FlatButton
+						label="Submit"
+						primary={true}
+						onClick={e=>{
+							apply(refTextSetting.current.state)
+							close()
+						}}
+					/>,
+				]}
+			>
+				<TextSetting style={style} ref={refTextSetting}/>
+			</Dialog>
+		)
+	}
 
-				<CheckIconButton label="bold"
-					status={style?.bold ? "checked" : "unchecked"}
-					onClick={()=>toggleB()}
-					children={<IconBold/>}
-					/>
-				<CheckIconButton label="italic"
-					status={style?.italic?"checked":"unchecked"}
-					onClick={()=>toggleI()}
-					children={<IconItalic/>}
-					/>
-				<DropDownButton label="underline"
-					status={style?.underline?"checked":"unchecked"}
-					onClick={a=>underline(style?.underline ? "" : "single")}
-					icon={<IconUnderlined/>}
-					>
-					{"single,double,dot,dash".split(",").map(a=>
-						<MenuItem
-							key={a}
-							onClick={e=>underline(a)}
-							primaryText={a}
-							/>
-					)}
-				</DropDownButton>
+	render(){
+		const {style, children,dispatch,
+			bigger, smaller, clear,
+			toggleStrike, changeHightlight,changeColor,
+			toggleSubscript, toggleSuperscript, toggleBorder,
+			toggleB, toggleI, underline,
+			changeFont,changeSize, setting, toggleSetting,
+		}=this.props
+		return (
+			<ContextMenu.Support menus={
+				<MenuItem primaryText="Font..." onClick={e=>dispatch(ACTION.UI({dialog:this.dialog(()=>dispatch(ACTION.UI({dialog:null})))}))}/>
+			}>
+				<ToolbarGroup>
+					<FontList
+						value={style?.fonts||""}
+						changeFont={changeFont}/>
+					<ComboBox
+						style={{width:50}}
+						inputStyle={{border:"1px solid lightgray"}}
+						value={style?.size||10}
+						onChange={value=>changeSize(parseInt(value))}
+						dataSource={[8,9,10,11,12,14,16,20,22,24,26,28,36,72].map(a=>a+"")}
+						underlineShow={false}
+						/>
+					<CheckIconButton label="increase font size"
+						status={"unchecked"}
+						onClick={bigger}
+						children={<IconBigger/>}
+						/>
+					<CheckIconButton label="descrease font size"
+						status={"unchecked"}
+						onClick={smaller}
+						children={<IconSmaller/>}
+						/>
+					<ToolbarSeparator/>
 
-				<CheckIconButton label="strikethrough"
-					status={style?.strike?"checked":"unchecked"}
-					onClick={()=>toggleStrike()}
-					children={<IconStrike/>}
-					/>
-				<ToolbarSeparator/>
+					<CheckIconButton label="bold"
+						status={style?.bold ? "checked" : "unchecked"}
+						onClick={()=>toggleB()}
+						children={<IconBold/>}
+						/>
+					<CheckIconButton label="italic"
+						status={style?.italic?"checked":"unchecked"}
+						onClick={()=>toggleI()}
+						children={<IconItalic/>}
+						/>
+					<DropDownButton label="underline"
+						status={style?.underline?"checked":"unchecked"}
+						onClick={a=>underline(style?.underline ? "" : "single")}
+						icon={<IconUnderlined/>}
+						>
+						{"single,double,dot,dash".split(",").map(a=>
+							<MenuItem
+								key={a}
+								onClick={e=>underline(a)}
+								primaryText={a}
+								/>
+						)}
+					</DropDownButton>
 
-				<CheckIconButton label="Subscript"
-					status={style?.vertAlign=="subscript" ? "checked":"unchecked"}
-					onClick={()=>toggleSubscript()}
-					children={<IconSubscript/>}
-					/>
-				<CheckIconButton label="Superscript"
-					status={style?.vertAlign=="superscript"?"checked":"unchecked"}
-					onClick={()=>toggleSuperscript()}
-					children={<IconSuperscript/>}
-					/>
+					<CheckIconButton label="strikethrough"
+						status={style?.strike?"checked":"unchecked"}
+						onClick={()=>toggleStrike()}
+						children={<IconStrike/>}
+						/>
+					<ToolbarSeparator/>
 
-				<CheckIconButton label="text border"
-					onClick={toggleBorder}
-					children={<IconTextBorder/>}
-					/>
+					<CheckIconButton label="Subscript"
+						status={style?.vertAlign=="subscript" ? "checked":"unchecked"}
+						onClick={()=>toggleSubscript()}
+						children={<IconSubscript/>}
+						/>
+					<CheckIconButton label="Superscript"
+						status={style?.vertAlign=="superscript"?"checked":"unchecked"}
+						onClick={()=>toggleSuperscript()}
+						children={<IconSuperscript/>}
+						/>
 
-				<ColorButton label="text highlight color"
-					status={style?.highlight?"checked":"unchecked"}
-					onChange={color=>changeHightlight(color)}>
-					<IconBackground/>
-				</ColorButton>
+					<CheckIconButton label="text border"
+						onClick={toggleBorder}
+						children={<IconTextBorder/>}
+						/>
 
-				<ColorButton label="text color"
-					status={style?.color?"checked":"unchecked"}
-					onChange={color=>changeColor(color)}>
-					<IconColor/>
-				</ColorButton>
+					<ColorButton label="text highlight color"
+						status={style?.highlight?"checked":"unchecked"}
+						onChange={color=>changeHightlight(color)}>
+						<IconBackground/>
+					</ColorButton>
 
-				<ToolbarSeparator/>
-				<CheckIconButton label="clear all text formatting"
-					onClick={clear}
-					children={<IconClear/>}
-					/>
-				<CheckIconButton label="Text setting..."
-					onClick={e=>toggleSetting(true)}
-					children={<IconMore/>}
-					/>
-				{setting && (
-					<Dialog title="Font Setting" 
-						actions={[
-							<FlatButton
-								label="Cancel"
-								onClick={e=>toggleSetting(false)}
-							/>,
-							<FlatButton
-								label="Submit"
-								primary={true}
-								onClick={e=>{
-									apply(refTextSetting.current.state)
-									toggleSetting(false)
-								}}
-							/>,
-						]}
-					>
-						<TextSetting style={style} ref={refTextSetting}/>
-					</Dialog>
-				)}
-				{children}
-			</ToolbarGroup>
-		</ContextMenu.Support>
-))
+					<ColorButton label="text color"
+						status={style?.color?"checked":"unchecked"}
+						onChange={color=>changeColor(color)}>
+						<IconColor/>
+					</ColorButton>
 
-const IconSuperscript=props=>(
-	<SvgIcon {...props}>
-		<g transform="translate(0 3) scale(0.7)">
-			<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-		</g>
-		<text x="15" y="9" style={{fontSize:9}}>2</text>
-	</SvgIcon>
-)
+					<ToolbarSeparator/>
+					<CheckIconButton label="clear all text formatting"
+						onClick={clear}
+						children={<IconClear/>}
+						/>
+					<CheckIconButton label="Text setting..."
+						onClick={e=>toggleSetting(true)}
+						children={<IconMore/>}
+						/>
+					{setting && this.dialog()}
+					{children}
+				</ToolbarGroup>
+			</ContextMenu.Support>
+			)
+		}
+})
 
-const IconSubscript=props=>(
-	<SvgIcon {...props}>
-		<g transform="translate(0 3) scale(0.7)">
-			<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-		</g>
-		<text x="15" y="20" style={{fontSize:9}}>2</text>
-	</SvgIcon>
-)
 
-const IconBigger=props=>(
-	<SvgIcon {...props}>
-		<g transform="translate(0 2)">
-			<path d="M5 17m4.5-4.2h5l.9 2.2h2.1L12.75 4h-1.5L6.5 15h2.1l.9-2.2zM12 5.98L13.87 11h-3.74L12 5.98z"/>
-		</g>
-		<g transform="translate(18 2)">
-			<path d="M0 3H6L3 0z"/>
-		</g>
-	</SvgIcon>
-)
-
-const IconSmaller=props=>(
-	<SvgIcon {...props}>
-		<g transform="translate(0 2)">
-			<path d="M5 17m4.5-4.2h5l.9 2.2h2.1L12.75 4h-1.5L6.5 15h2.1l.9-2.2zM12 5.98L13.87 11h-3.74L12 5.98z"/>
-		</g>
-		<g transform="translate(18 2)">
-			<path d="M0 0 H6L3 3z"/>
-		</g>
-	</SvgIcon>
-)
-
-const IconTextBorder=props=>(
-	<SvgIcon {...props}>
-		<g transform="translate(0 2)">
-			<path d="M5 17m4.5-4.2h5l.9 2.2h2.1L12.75 4h-1.5L6.5 15h2.1l.9-2.2zM12 5.98L13.87 11h-3.74L12 5.98z"/>
-		</g>
-		<path d="M2 2 h20v20h-20z" fill="none" stroke="black"/>
-	</SvgIcon>
-)

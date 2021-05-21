@@ -1,7 +1,6 @@
 import React, {Component,Fragment} from "react"
 import PropTypes from "prop-types"
 
-import {ContextMenu} from "we-edit"
 import {MenuItem, Paper, Menu} from "material-ui"
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
@@ -10,13 +9,11 @@ import getMuiTheme from 'material-ui/styles/getMuiTheme'
 export default class OfficeContextMenu extends Component{
     render(){
         return (
-            <ContextMenu>
-                <MuiThemeProvider muiTheme={getMuiTheme({menuItem:{height:"auto",dataHeight:"auto"}})}>
-                    <Paper style={{display: 'inline-block'}}>
-                        <Menu style={{minWidth:"200px"}} {...this.props}/>
-                    </Paper>
-                </MuiThemeProvider>
-            </ContextMenu>  
+            <MuiThemeProvider muiTheme={getMuiTheme({menuItem:{height:"auto",dataHeight:"auto"}})}>
+                <Paper style={{display: 'inline-block',textAlign:"initial"}}>
+                    <Menu style={{minWidth:"200px"}} {...this.props}/>
+                </Paper>
+            </MuiThemeProvider>
         )  
     }
 
