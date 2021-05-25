@@ -1,15 +1,17 @@
 import React, {Component} from "react"
-import {FlatButton,FontIcon} from "material-ui"
+import {Divider, FlatButton,FontIcon, Menu, MenuItem} from "material-ui"
 
 import IconColor from "material-ui/svg-icons/image/color-lens"
 
 export default class ColorSelector extends Component{
 	render(){
-		const titleStyle={fontWeight:700, marginTop:4}
-		const {onChange}=this.props
+		const titleStyle={fontWeight:700, marginTop:4, paddingLeft:10}
+		const {onChange, children}=this.props
 		return (
-			<div style={{width:150, fontSize:"smaller"}}>
-				<SpecialColor color="currentColor" label="Automatic" onSelect={onChange}/>
+			<div style={{fontSize:"smaller"}}>
+				<center>
+					<SpecialColor color="" label="No Color" onSelect={onChange}/>
+				</center>
 				
 				<div style={titleStyle}>Theme Colors</div>	
 				<ThemeColors onSelect={onChange}/>
@@ -17,14 +19,11 @@ export default class ColorSelector extends Component{
 				<div style={titleStyle}>Standard Colors</div>	
 				<StandardColors onSelect={onChange}/>
 				
-				<SpecialColor color="" label="No Color" onSelect={onChange}/>
-				
-				<div style={{marginTop:4}}>
-					<FlatButton 
-						style={{textAlign:"left"}}
-						label="More Colors..."
-						icon={<IconColor/>}/>
-				</div>
+				<Menu>
+					<Divider/>
+					<MenuItem primaryText="More Colors..." leftIcon={<IconColor/>}/>
+					{children}
+				</Menu>
 			</div>
 		)
 	}
@@ -62,14 +61,14 @@ class ThemeColors extends Component{
 	render(){
 		const {colorThemes=[], onSelect}=this.props
 		return (
-			<div style={{padding:2}}>
+			<center style={{padding:2}}>
 				{[0,1,2,3,4,5].map(opacity=>
 					<StandardColors key={opacity}
 						onSelect={onSelect} 
 						colors={colorThemes.map(theme=>this.getColor(theme,opacity))}
 						/>
 				)}
-			</div>
+			</center>
 		)
 	}
 	
@@ -78,7 +77,7 @@ class ThemeColors extends Component{
 	}
 }
 const StandardColors=({onSelect, colors="black,blue,red,yellow,chocolate,tan,pink,brown,green,orange".split(",")})=>(
-	<div style={{paddingLeft:2, paddingTop:2, paddingBottom:2}}>
+	<center style={{paddingLeft:2, paddingTop:2, paddingBottom:2}}>
 		{colors.map(a=><ColorBlock key={a} color={a} onClick={()=>onSelect(a)}/>)}
-	</div>
+	</center>
 )

@@ -1,8 +1,10 @@
 import React,{Fragment} from "react"
 import {compose, mapProps, setDisplayName} from "recompose"
 
-import {ACTION,whenSelectionChangeDiscardable} from "we-edit"
+import {whenSelectionChangeDiscardable} from "we-edit"
 import UnitInput from "../components/unit-input"
+
+import {Layout} from "../shape/when-active"
 
 export default compose(
 	setDisplayName("page"),
@@ -17,9 +19,7 @@ export default compose(
 )(({children, style})=>{
 	return (
 		<Fragment>			
-			<UnitInput/>
-            <UnitInput/>
-			
+			<Layout style={style}/>
 			{children}
 		</Fragment>
 	)

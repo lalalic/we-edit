@@ -9,8 +9,8 @@ export default class DropdownButton extends Component{
 	render(){
 		const {open,anchor}=this.state
 		const toggle=this.toggle.bind(this)
-		const {icon, menuStyle={},
-			children, labelStyle={fontSize:"xx-small"},
+		const {
+			children, labelStyle={fontSize:"xx-small"},menuStyle={},
 			status, onClick=toggle, ...props}=this.props
 		
 		const menus=open && (
@@ -27,9 +27,7 @@ export default class DropdownButton extends Component{
 		)
 		return (
 			<Fragment>
-				<SizeIconButton onClick={onClick||toggle} {...props} status={status}>
-					{icon}
-				</SizeIconButton>
+				<SizeIconButton onClick={onClick||toggle} {...props} status={status}/>
 				{false && (<span style={labelStyle} onClick={onClick}>{label}</span>)}
 				<IconMore style={{height:24,width:6}} viewBox="8 0 18 36" onClick={toggle}/>
 				{menus}

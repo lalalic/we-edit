@@ -22,7 +22,7 @@ export default class ColorButton extends Component{
 	
 	render(){
 		const {open,color}=this.state
-		const {onChange=a=>a,...props}=this.props
+		const {onChange=a=>a,children, ...props}=this.props
 		const toggle=e=>this.setState({open:!open})
 		return (
 			<span style={{whiteSpace:"nowrap"}} ref={this.container}>
@@ -33,7 +33,9 @@ export default class ColorButton extends Component{
 						open={true} 
 						anchorEl={this.container.current}
 						onRequestClose={e=>this.setState({open:false})}>
-						<ColorSelector onChange={color=>{this.setState({open:false,color});onChange(color)}}/>
+						<ColorSelector onChange={color=>{this.setState({open:false,color});onChange(color)}}>
+							{children}
+						</ColorSelector>
 					</Popover>
 				)}
 			</span>

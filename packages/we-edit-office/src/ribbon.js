@@ -30,15 +30,12 @@ const Ribbon=compose(
 )(class extends PureComponent{
 	render(){
 		const {
-			children, selection,
-			muiTheme,
-			buttonStyle={height:24, fontSize:10, lineHeight:"24px", paddingRight:5,  paddingLeft:5},
+			children, selection,dispatch,muiTheme,style,commands={},
 			tabStyle={width:"auto"},
-			style,
-			commands={}
+			buttonStyle={height:24, fontSize:10, lineHeight:"24px", paddingRight:5,  paddingLeft:5},
 			}=this.props
 		
-		const {home,insert,design,layout,developer,when}=this.normalizeCommands(commands, selection, buttonStyle, tabStyle)
+		const {home,insert,design,layout,developer,when}=this.normalizeCommands(commands, selection, buttonStyle, tabStyle,dispatch)
 	return (
 		<div style={{height:24+30, borderBottom:"0.5px solid lightgray",marginBottom:1,paddingBottom:4, ...style}}>
 			<MuiThemeProvider muiTheme={getMuiTheme(muiTheme,{
@@ -148,7 +145,7 @@ const Ribbon=compose(
 		)
 	}
 
-	normalizeCommands(commands, selection, buttonStyle, tabStyle) {
+	normalizeCommands(commands, selection, buttonStyle, tabStyle, dispatch) {
 		return "home,insert,design,layout,when,developer".split(",").reduce((merged, k) => {
 			if (commands[k] || commands[k] === undefined) {
 				if (typeof (commands[k]) == "object") {
@@ -164,7 +161,7 @@ const Ribbon=compose(
 								const style = selection.props(type)
 								if (style) {
 									const element=when[type]
-									let plugins = element.type({ style, selection })
+									let plugins = element.type({ style, selection, dispatch })
 									if(plugins.type==WhenActive){
 										plugins=WhenActive(plugins.props)
 									}

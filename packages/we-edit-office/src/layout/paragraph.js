@@ -15,24 +15,36 @@ export default compose(
 		return {
 			children,
 			style,
+			setLeftIndet(left){
+				dispatch(ACTION.Selection.UPDATE({paragraph:{indent:{left}}}))
+			}, 
+			setRightIndent(right){
+				dispatch(ACTION.Selection.UPDATE({paragraph:{indent:{right}}}))
+			}, 
+			setTopSpacing(top){
+				dispatch(ACTION.Selection.UPDATE({paragraph:{spacing:{top}}}))
+			}, 
+			setBottomSpacing(bottom){
+				dispatch(ACTION.Selection.UPDATE({paragraph:{spacing:{bottom}}}))
+			}
 		}
 	})
-)(({children,style})=>{
+)(({children,style, setLeftIndet, setRightIndent, setTopSpacing, setBottomSpacing})=>{
 	return (
 		<Fragment>	
 			<ToolbarField label="Indent> Left">
-				<UnitInput style={{width:70}} value={style?.indent?.left}/>
+				<UnitInput style={{width:70}} value={style?.indent?.left} onChange={setLeftIndet}/>
 			</ToolbarField>
 			<ToolbarField label="Right">
-				<UnitInput style={{width:70}} value={style?.indent?.right}/>
+				<UnitInput style={{width:70}} value={style?.indent?.right} onChange={setRightIndent}/>
 			</ToolbarField>
 			<ToolbarSeparator/>
 
 			<ToolbarField label="Spacing> Before">
-				<UnitInput style={{width:70}} value={style?.spacing?.top}/>
+				<UnitInput style={{width:70}} value={style?.spacing?.top} onChange={setTopSpacing}/>
 			</ToolbarField>
 			<ToolbarField label="After">
-				<UnitInput style={{width:70}} value={style?.spacing?.bottom}/>
+				<UnitInput style={{width:70}} value={style?.spacing?.bottom} onChange={setBottomSpacing}/>
 			</ToolbarField>
 			
 			{children}

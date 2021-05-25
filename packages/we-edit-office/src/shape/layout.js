@@ -1,10 +1,11 @@
 import React, {Fragment, PureComponent} from "react"
 import PropTypes from "prop-types";
-import {Tabs, Tab, Checkbox, TextField, SelectField, MenuItem, SvgIcon} from "material-ui"
+import {Tabs, Tab, Checkbox, TextField, SelectField, MenuItem} from "material-ui"
 import CheckIconButton from "../components/check-icon-button"
 import IconLayout from "material-ui/svg-icons/device/wallpaper"
 import IconPosition from "material-ui/svg-icons/action/picture-in-picture"
 import IconSize from "material-ui/svg-icons/image/transform"
+import { IconWrap, IconWrapSquare, IconWrapTight, IconWrapThrough, IconWrapClear, IconWrapBehind, IconWrapFront, IconWrapInline } from "./icons";
 
 const Label=({children})=><span style={{fontSize:9}}>{children}</span>
 export default class Layout extends PureComponent{
@@ -121,40 +122,4 @@ class Wraps extends PureComponent{
             </Fragment>
         )
     }
-}
-const lines=<path d={new Array(21/3).fill(0).map((a,i)=>`M0 ${i*3}h44`).join("")} stroke="lightgray" strokeWidth={2}/>
-const dog=<path d="M20.5 6c-2.61.7-5.67 1-8.5 1s-5.89-.3-8.5-1L3 8c1.86.5 4 .83 6 1v13h4v-6h4v6h4V9c2-.17 4.14-.5 6-1l-.5-2zM12 6c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/>
-const IconWrap=props=>(<SvgIcon {...props}> {lines} {dog} </SvgIcon>)
-
-class IconWrapSquare extends PureComponent{
-    label="Square"
-    render(){
-        return (
-            <div style={{display:"inline-block",width:75,height:75,padding:20,fontSize:10,textAlign:"center"}}>
-                <SvgIcon style={{width:50,height:50}}>
-                    {lines}
-                    {dog}
-                </SvgIcon>
-                <div>{this.label}</div>
-            </div>
-        )
-    }
-}
-class IconWrapTight extends IconWrapSquare{
-    label="Tight"
-}
-class IconWrapThrough extends IconWrapSquare{
-    label="Through"
-}
-class IconWrapClear extends IconWrapSquare{
-    label="Top and bottom"
-}
-class IconWrapBehind extends IconWrapSquare{
-    label="Behind text"
-}
-class IconWrapFront extends IconWrapSquare{
-    label="In front of Text"
-}
-class IconWrapInline extends IconWrapSquare{
-    label="Inline with text"
 }

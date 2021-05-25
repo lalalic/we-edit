@@ -36,12 +36,12 @@ export default class SizableIconButton extends PureComponent{
 	render(){
 		const {status,
 			disabled=this.context.disabled || status=="disabled",
-			size,padding,style,iconStyle, label, hint=label,
+			size,padding,style,iconStyle, label, hint=label,icon, children,
 			...props}=this.props
 
 		return <IconButton {...props} 
 			{...this.getStyle(style,size,padding,iconStyle, status)}
-			disabled={disabled} tooltip={hint}/>
+			disabled={disabled} tooltip={hint} children={children||icon}/>
 	}
 }
 const styles={
