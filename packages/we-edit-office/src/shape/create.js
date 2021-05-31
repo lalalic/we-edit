@@ -50,7 +50,7 @@ export default compose(
             const target = positioning.getComposer(id);
             const frame = target.closest(a => a.isFrame);
             if (frame == topFrame) {
-                props.current = page;
+                props.current = props.page;
             } else {
                 const current = positioning.getFrameOffsetGrandFrame(topFrame, frame);
                 [current.x, current.y, current.id] = [page.x - current.x, page.y - current.y, frame.props.id];

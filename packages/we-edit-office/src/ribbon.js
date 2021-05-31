@@ -123,7 +123,13 @@ const Ribbon=compose(
 							</ToolbarGroup>
 						</Toolbar>
 					</Tab>}
-					{when}
+					{when && when.map(a=><Tab key={a.props.label} label={a.props.label} buttonStyle={{...buttonStyle,backgroundColor: "antiquewhite"}} style={{...tabStyle,marginRight:2}}>
+						<Toolbar>
+							<ToolbarGroup>
+								{React.cloneElement(a,{label:undefined})}
+							</ToolbarGroup>
+						</Toolbar>
+					</Tab>)}
 					{developer && <Tab label="Developer" buttonStyle={buttonStyle} style={tabStyle}>
 						<Toolbar>
 							<ToolbarGroup>
@@ -160,29 +166,18 @@ const Ribbon=compose(
 							.reduce((collected, type) => {
 								const style = selection.props(type)
 								if (style) {
-									const element=when[type]
-									let plugins = element.type({ style, selection, dispatch })
-									if(plugins.type==WhenActive){
-										plugins=WhenActive(plugins.props)
-									}
-									if (Array.isArray(plugins)) {
-										collected = [...collected, ...plugins]
-									} else if (plugins) {
-										collected.push(plugins)
-									}
+									let plugins=when[type]
+									plugins=!Array.isArray(plugins) ? [plugins] : plugins
+									plugins.forEach(plugin=>{
+										if(React.isValidElement(plugin)){
+											collected.push(React.cloneElement(plugin,{
+												label:plugin.props.label||`${type.charAt(0).toUpperCase()+type.substr(1)} Format`
+											}))
+										}
+									})
 								}
 								return collected
 							}, [])
-							.map(a => React.cloneElement(a, {
-								key: a.props.label,
-								buttonStyle: {
-									...(a.props.buttonStyle || {}),
-									...buttonStyle,
-									backgroundColor: "antiquewhite"
-								},
-								style: { ...(a.props.tabStyle || {}), ...tabStyle, marginRight: 2 }
-							})
-							)
 					}
 				}
 			} else {
@@ -220,9 +215,9 @@ const Ribbon=compose(
 				recorder: <Recorder />,
 			},
 			when: {
-				table: <Table.Active />,
+				table: <Table.Active label="Table Format"/>,
+				shape: <Shape.Active label="Shape Format"/>,
 				picture: null,
-				shape: <Shape.Active/>,
 			}
 		})
 	}

@@ -222,16 +222,15 @@ export default class Base extends Component{
 			}
 			
 		},
-		denormalize:(value, normalized)=>{debugger
+		denormalize:(value, normalized)=>{
 			if(typeof(value)=="object"){
-					const {gradient, color, width, ...line}=value
-					if(gradient!=undefined)
-						normalized.gradient=this.GradientShape.denormalize(gradient, normalized.gradient)
-					if(color!=undefined)
-						normalized.color=this.ColorShape.denormalize(color,normalized.color)
-					if(width!=undefined)
-						normalized.width=this.UnitShape.denormalize(width, normalized.width)
-					return line
+				const {gradient, color, width, ...line}=value
+				if(gradient!=undefined)
+					normalized.gradient=this.GradientShape.denormalize(gradient, normalized.gradient)
+				if(color!=undefined)
+					normalized.color=this.ColorShape.denormalize(color,normalized.color)
+				if(width!=undefined)
+					normalized.width=this.UnitShape.denormalize(width, normalized.width)
 			}else if(this.LineShape.canShorten(normalized)){
 				return this.UnitShape.denormalize(value,normalized.width)
 			}
@@ -293,7 +292,7 @@ export default class Base extends Component{
 			}
 			return {color:this.ColorShape.normalize(value)}
 		},
-		denormalize:(value, normalized)=>{debugger
+		denormalize:(value, normalized)=>{
 			if(typeof(value)=="object"){
 				const {color, pattern, picture, ...fill}=value
 				if(pattern!=undefined)
@@ -310,7 +309,6 @@ export default class Base extends Component{
 							normalized.picture.tile.y=this.UnitShape.normalize(y)
 					}
 				}
-				return normalized
 			}else if(this.FillShape.canShorten(normalized)){
 				return this.ColorShape.denormalize(value, normalized.color)
 			}

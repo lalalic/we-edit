@@ -4,36 +4,32 @@ import Popover from "material-ui/Popover"
 
 import SizeIconButton from "../components/size-icon-button"
 import IconMore from 'material-ui/svg-icons/navigation/arrow-drop-down'
+import IconColor from "material-ui/svg-icons/editor/format-color-fill"
 
 import ColorSelector from "./select-color"
 
 export default class ColorButton extends Component{
-	constructor({value}){
+	constructor(){
 		super(...arguments)
-		this.state={open:false,color:value||"black"}
+		this.state={open:false}
 		this.container=React.createRef()
 	}
-	
-	componentWillReceiveProps({value}){
-		if(typeof(value)!="undefined"){
-			this.setState({color:value||this.state.value||"black"})
-		}
-	}
-	
+
 	render(){
-		const {open,color}=this.state
-		const {onChange=a=>a,children, ...props}=this.props
+		const {open}=this.state
+		const {onChange=a=>a,children,value:color, icon, ...props}=this.props
 		const toggle=e=>this.setState({open:!open})
 		return (
 			<span style={{whiteSpace:"nowrap"}} ref={this.container}>
-				<SizeIconButton {...props} onClick={e=>props.status=="checked" ? onChange("") : toggle(e)}/>
+				<SizeIconButton {...props} icon={<ColorIcon {...{icon, color}}/>}
+					onClick={e=>props.status=="checked" ? onChange("") : toggle(e)}/>
 				<IconMore style={{height:24,width:6}} viewBox="6 -12 18 36" onClick={toggle}/>
 				{open && (
 					<Popover 
 						open={true} 
 						anchorEl={this.container.current}
 						onRequestClose={e=>this.setState({open:false})}>
-						<ColorSelector onChange={color=>{this.setState({open:false,color});onChange(color)}}>
+						<ColorSelector onChange={color=>{this.setState({open:false});onChange(color)}}>
 							{children}
 						</ColorSelector>
 					</Popover>
@@ -43,13 +39,12 @@ export default class ColorButton extends Component{
 	}
 }
 
-const ColorableIcon=({children,value,viewBox,...props})=>{
+const ColorIcon=({icon, color, ...props})=>{
+	icon=icon||<IconColor/>
 	return (
-		<SvgIcon {...{viewBox,...props}}>
-			{React.cloneElement(children,{...props,viewBox:"0 0 32 32"})}
-			<g transform="translate(5 20)">
-				<path d="M0 0v2h14v-2h-14z" fill={value}/>
-			</g>
+		<SvgIcon {...{...icon.props, ...props}}>
+			{React.cloneElement(icon,props)}
+			<path d="M0 20h24v4H0z" fill={color||"none"}/>
 		</SvgIcon>
 	)
 }

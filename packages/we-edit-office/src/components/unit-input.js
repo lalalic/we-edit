@@ -17,7 +17,11 @@ export default class UnitInput extends Component{
                 <input {...{...props,value,type:"text"}} 
                     onChange={e=>this.setState({value:e.target.value})}
                     onBlur={a=>onChange(value)}
-                    onKeyPress={e=>e.keyCode==13 && onChange(value)}
+                    onKeyDown={e=>{
+                        if(e.keyCode==13){
+                            onChange(value)
+                        }
+                    }}
                     />
                 <svg style={{width:8,position:"absolute",right:2}} viewBox="0 0 8 24">
                     <path d="M1 8L4 4L7 8Z" stroke="black" onClick={this.stepUp}/>

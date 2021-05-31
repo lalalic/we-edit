@@ -19,7 +19,7 @@ import IconUnderlined from "material-ui/svg-icons/editor/format-underlined"
 import IconClear from "material-ui/svg-icons/editor/format-clear"
 import IconStrike from "material-ui/svg-icons/editor/strikethrough-s"
 import IconBackground from "material-ui/svg-icons/editor/format-color-fill"
-import IconColor from "material-ui/svg-icons/editor/format-color-text"
+import IconTextColor from "material-ui/svg-icons/editor/format-color-text"
 import IconMore from "material-ui/svg-icons/navigation/more-horiz"
 import { IconBigger, IconSmaller, IconSubscript, IconSuperscript, IconTextBorder } from "./icons"
 
@@ -201,15 +201,17 @@ export default compose(
 
 					<ColorButton label="text highlight color"
 						status={style?.highlight?"checked":"unchecked"}
-						onChange={color=>changeHightlight(color)}>
-						<IconBackground/>
-					</ColorButton>
+						onChange={color=>changeHightlight(color)}
+						value={style?.highlight||""}
+						icon={<IconBackground/>}
+						/>
 
 					<ColorButton label="text color"
 						status={style?.color?"checked":"unchecked"}
-						onChange={color=>changeColor(color)}>
-						<IconColor/>
-					</ColorButton>
+						onChange={color=>changeColor(color)}
+						value={style?.color||"black"}
+						icon={<IconTextColor/>}
+						/>
 
 					<ToolbarSeparator/>
 					<CheckIconButton label="clear all text formatting"

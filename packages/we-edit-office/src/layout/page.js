@@ -10,7 +10,7 @@ import IconChecked from "material-ui/svg-icons/action/done"
 import {ACTION,whenSelectionChangeDiscardable} from "we-edit"
 
 export default compose(
-	setDisplayName("page"),
+	setDisplayName("Page Ribbon"),
 	whenSelectionChangeDiscardable(),
 	mapProps(({children,dispatch,selection})=>{
 		const style=(!selection?.props('section') && selection?.props("page",false))||null

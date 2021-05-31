@@ -18,12 +18,15 @@ export default class extends Input.Editable.Reducer.Editor{
     }
 
     attr(k,v){
-        const raw=this.node.attr(k)
+        let raw=this.node.attr(k)
         if(raw!=null && raw!=undefined){
-            const normalizedRaw=(this.Type.propTypes[k].normalize||(a=>a))(raw)
-            const normalizedV=(this.Type.propTypes[k].normalize||(a=>a))(v)
+            raw=raw.toJS?.()||raw
+            const Shape=this.Type.propTypes[k]
+            const normalize=Shape.normalize?.bind(this)||(a=>a)
+            const denormalize=Shape.denormalize?.bind(this)||((a,b)=>b)
+            const normalizedRaw=normalize(raw), normalizedV=normalize(v)
             const normalized=typeof(normalizedV)=="object" && typeof(normalizedRaw)=="object" ? inherit(normalizedV,normalizedRaw) : normalizedV
-            const denormalized=(this.Type.propTypes[k].denormalize||((a,b)=>b))(raw, normalized)
+            const denormalized=denormalize({...raw, ...v}, normalized)
             this.node.attr(k, denormalized)
         }else{
             this.node.attr(k,v)

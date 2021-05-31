@@ -10,7 +10,7 @@ export default class ColorSelector extends Component{
 		return (
 			<div style={{fontSize:"smaller"}}>
 				<center>
-					<SpecialColor color="" label="No Color" onSelect={onChange}/>
+					<SpecialColor color="transparent" label="No Color" onSelect={onChange}/>
 				</center>
 				
 				<div style={titleStyle}>Theme Colors</div>	

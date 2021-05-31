@@ -1,7 +1,8 @@
-import React from "react"
+import React, {Fragment} from "react"
 import {Toolbar, ToolbarGroup, Tab} from "material-ui"
 
-export default ({children, ...props})=>(
+export default ({children, label, ...props})=><Fragment {...props}>{children}</Fragment>
+/*(
     <Tab {...props}>
         <Toolbar>
             <ToolbarGroup>
@@ -9,4 +10,4 @@ export default ({children, ...props})=>(
             </ToolbarGroup>
         </Toolbar>
     </Tab>
-)
+)*/
