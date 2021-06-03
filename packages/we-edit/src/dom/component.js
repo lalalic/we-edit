@@ -70,8 +70,16 @@ export default class Base extends Component{
 		PropTypes.string,
 	]),{
 		normalize:value=>value,
-		denormalize:(value,normalized)=>normalized
+		denormalize:(value,normalized)=>normalized,
+		is:value=>true,
 	})
+
+	static URLShape=this.normalizeChecker(PropTypes.oneOfType([PropTypes.string]),{
+		normalize:value=>value,
+		denormalize:(value,normalized)=>normalized,
+		is:value=>true,
+	})
+
 
 	static GradientStopShape=this.normalizeChecker(PropTypes.shape({
 		color: this.ColorShape,
@@ -113,7 +121,8 @@ export default class Base extends Component{
 			if(angle!=undefined)
 				normalized.angle=this.UnitShape.denormalize(angle,normalized.angle)
 			return normalized
-		}
+		},
+		is:value=>value?.stops?.length>0
 	})
 
 	static PatternShape=this.normalizeChecker(PropTypes.shape({
@@ -126,6 +135,7 @@ export default class Base extends Component{
 		foreground: this.ColorShape,
 		background: this.ColorShape,
 	}),{
+		is:value=>!!value?.pattern,
 		normalize:({pattern,...props})=>{
 			if(pattern!=undefined){
 				pattern={...pattern}
@@ -241,6 +251,31 @@ export default class Base extends Component{
 		}
 	})
 
+	
+	static PictureFillShape=this.normalizeChecker(PropTypes.shape({
+		url: PropTypes.string,
+		transparency: PropTypes.number,
+		tile: PropTypes.shape({
+			x: this.UnitShape,
+			y: this.UnitShape,
+			scaleX: PropTypes.number,
+			scaleY: PropTypes.number,
+			align: this.AlignShape,
+			mirror: PropTypes.string,
+		}),
+		margin:this.MarginShape,
+	}),{
+		is:value=>!!value?.url
+	})
+
+	static ColorFillShape=this.normalizeChecker(PropTypes.shape({
+		color:this.ColorShape,
+		transparency: PropTypes.number
+	}),{
+		is:value=>!!value?.color,
+		normalize:value=>
+	})
+
 	static FillShape=this.normalizeChecker(PropTypes.oneOfType([
 		PropTypes.shape({
 			color:this.ColorShape,
@@ -264,7 +299,12 @@ export default class Base extends Component{
 			
 			pattern: this.PatternShape,
 		}),
+
 		this.ColorShape,
+		this.ColorFillShape,
+		this.GradientShape,
+		this.PatternShape,
+		this.PictureFillShape,
 	]),{
 		normalize:(value)=>{
 			if(typeof(value)=="object"){

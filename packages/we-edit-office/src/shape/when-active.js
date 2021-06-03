@@ -2,7 +2,9 @@ import React,{Fragment} from "react"
 import {ACTION, whenSelectionChange, dom} from "we-edit"
 import {compose, setDisplayName} from "recompose"
 
-import {MenuItem, Divider, SvgIcon, ToolbarSeparator, Toggle} from "material-ui"
+import selectFile from "../components/file-select"
+
+import {MenuItem, Divider, SvgIcon, ToolbarSeparator} from "material-ui"
 
 import Field from "../components/toolbar-field"
 import UnitInput from "../components/unit-input"
@@ -20,8 +22,6 @@ import IconFit from "material-ui/svg-icons/action/aspect-ratio"
 import IconAlign from "material-ui/svg-icons/action/swap-vert"
 import IconArrowDropRight from 'material-ui/svg-icons/navigation-arrow-drop-right'
 
-
-
 import { IconWrap, } from "./icons";
 import CheckIconButton from "../components/check-icon-button"
 import Create from "./create"
@@ -35,7 +35,7 @@ export default compose(
 		const frame=selection?.props('frame')
 		return {shape,anchor,frame}
 	}),
-)(({children, shape, anchor, frame, dispatch, })=>{
+)(({children, shape, anchor, frame, dispatch})=>{
 	return (
 		<Fragment>	
 			<Create/>
@@ -60,7 +60,10 @@ export default compose(
 				onChange={color=>dispatch(ACTION.Entity.UPDATE({shape:{fill:{color}}}))}
 				icon={<IconFillShape/>}>
 				<Divider/>
-				<MenuItem primaryText="Picture..."/>
+				<MenuItem primaryText="Picture..." onClick={e=>{
+					selectFile("image/*")
+						.then(url=>dispatch(ACTION.Entity.UPDATE({shape:{fill:{picture:{url}}}})))
+				}}/>
 				<MenuItem primaryText="Gradient"/>
 				<MenuItem primaryText="Texture"/>
 			</ColorButton>
@@ -73,8 +76,10 @@ export default compose(
 					rightIcon={<IconArrowDropRight/>} 
 					menuItems={[
 						...(["1/4","1/2","3/4","1","2","3","4"].map(a=>
-						<MenuItem key={a} rightIconButton={<span>{a} pt</span>} 
-							primaryText={<svg><line {...{x:0,y:12,stroke:"black", strokeWidth:`${a}pt`}}/></svg>}/>))
+						<MenuItem key={a} 
+							onClick={e=>dispatch(ACTION.Entity.UPDATE({shape:{outline:{width:parseFloat(a)+'pt'}}}))}
+							rightIconButton={<span style={{paddingRight:4}}>{a} pt</span>} 
+							primaryText={<svg style={{height:24}} viewBox="0 0 48 24"><path {...{d:`M0 12 h48`,stroke:"black", strokeWidth:`${a}pt`}}/></svg>}/>))
 						,
 						<MenuItem primaryText="More Lines..."/>
 					]}/>
@@ -91,14 +96,21 @@ export default compose(
 					menuItems={[
 						...(Dashes.map(a=>
 							<MenuItem key={a} 
-								rightIconButton={<svg>{a}</svg>}/>)),
+								onClick={e=>dispatch(ACTION.Entity.UPDATE({shape:{outline:{dashArray:a}}}))}
+								primaryText={<svg style={{height:24, width:48}} viewBox="0 0 48 24"><path {...{d:`M0 12 h48`,stroke:"black", strokeWidth:2, strokeDasharray:a}}/></svg>}
+								/>)),
 						<MenuItem primaryText="More Lines..."/>
 					]}/>
 			</ColorButton>
 			{/*<DropDownButton label="Effect" icon={<IconEffectShape/>}/>*/}
 			<ToolbarSeparator/>
 			
-			<DropDownButton label="Verital Align" icon={<IconAlign/>}>
+			<DropDownButton label="Verital Align" 
+				icon={<IconAlign/>}
+				onMouseOver={e=>{
+					e.currentTarget.click()
+				}}
+				>
 				<MenuItem primaryText="Top"/>
 				<MenuItem primaryText="Middle"/>
 				<MenuItem primaryText="Bottom"/>
@@ -197,4 +209,4 @@ const IconGeometry=props=>(
 )
 
 const Sketcheds=[]
-const Dashes=[]
+const Dashes=[null, "5 5", "5,10", "15,10,5,10"]	

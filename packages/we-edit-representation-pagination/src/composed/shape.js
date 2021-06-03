@@ -9,7 +9,7 @@ export default class Shape extends Component{
             id,
             d, 
             width:strokeWidth=1, color:stroke="black", 
-            style, sketched, compound, dash, join, cap, transparency, 
+            style, sketched, compound, dashArray:strokeDasharray, join, cap, transparency, 
             fill:{color:fill="none", picture, gradient, pattern}={}, size,
             ...props
         }=this.props
@@ -17,11 +17,11 @@ export default class Shape extends Component{
         join && (props.strokeLinejoin=join);
 
         if(!d)
-            return <line {...{...props, stroke,strokeWidth}}/>
+            return <line {...{...props, stroke,strokeWidth, strokeDasharray}}/>
         
         const pid=`${id}-pattern`
             
-        const shape=<path {...{...props, d,stroke,strokeWidth, fill}}/>
+        const shape=<path {...{...props, d,stroke,strokeWidth, fill, strokeDasharray}}/>
         const geometry=new Path(d)
         const {left,right,top,bottom}=geometry.bounds()
         const width=right-left-strokeWidth, height=bottom-top-strokeWidth

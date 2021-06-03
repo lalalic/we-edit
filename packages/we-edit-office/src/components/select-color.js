@@ -1,7 +1,8 @@
 import React, {Component} from "react"
-import {Divider, FlatButton,FontIcon, Menu, MenuItem} from "material-ui"
+import {Divider, FlatButton,FontIcon, MenuItem} from "material-ui"
 
 import IconColor from "material-ui/svg-icons/image/color-lens"
+import Menu from "./menu"
 
 export default class ColorSelector extends Component{
 	render(){
@@ -19,7 +20,7 @@ export default class ColorSelector extends Component{
 				<div style={titleStyle}>Standard Colors</div>	
 				<StandardColors onSelect={onChange}/>
 				
-				<Menu>
+				<Menu openOnHover={true}>
 					<Divider/>
 					<MenuItem primaryText="More Colors..." leftIcon={<IconColor/>}/>
 					{children}
