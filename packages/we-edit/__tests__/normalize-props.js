@@ -248,12 +248,12 @@ describe("normalize props",()=>{
             expect(wrap.denormalize("square",{mode:"tight",side:"larger"})).toMatchObject({mode:"tight",side:"larger"})
             const distance=v=>({left:v,right:v,top:v,bottom:v})
             expect(wrap.denormalize({mode:"square",distance:"5mm"},{mode:"tight", distance:{...distance(100)}}))
-                .toMatchObject({mode:"tight",distance:unit("100px","mm")+" mm"})
+                .toMatchObject({mode:"tight",distance:"5mm"})
 
             expect(wrap.denormalize(
                     {mode:"square",distance:{...distance(100),left:"5mm"}},
                     {mode:"tight", distance:{...distance(100)}})
-                ).toMatchObject({mode:"tight",distance:{...distance(100),left:unit("100px","mm")+" mm"}})
+                ).toMatchObject({mode:"tight",distance:{...distance(100),left:"5mm"}})
         })
     })
 })

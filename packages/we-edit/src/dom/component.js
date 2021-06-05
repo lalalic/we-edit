@@ -273,7 +273,6 @@ export default class Base extends Component{
 		transparency: PropTypes.number
 	}),{
 		is:value=>!!value?.color,
-		normalize:value=>
 	})
 
 	static FillShape=this.normalizeChecker(PropTypes.oneOfType([
@@ -307,6 +306,19 @@ export default class Base extends Component{
 		this.PictureFillShape,
 	]),{
 		normalize:(value)=>{
+			/*
+			if(this.ColorFillShape.is(value)){
+				return this.ColorFillShape.normalize(value)
+			}else if(this.GradientShape.is(value)){
+				return this.GradientShape.normalize(value)
+			}else if(this.PatternShape.is(value)){
+				return this.PatternShape.normalize(value)
+			}else if(this.PictureFillShape.is(value)){
+				return this.PictureFillShape.normalize(value)
+			}else{
+				return {}
+			}
+*/
 			if(typeof(value)=="object"){
 				const {color, pattern, picture,tile, ...fill}=value
 				if(color!=undefined)

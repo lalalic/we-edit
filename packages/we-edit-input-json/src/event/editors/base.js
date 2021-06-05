@@ -11,7 +11,11 @@ export default class extends Input.Editable.Reducer.Editor{
             if(k in this){
                 this[k](v, props)
             }else if(this.Type?.propTypes[k]){
-                this.attr(k,v)
+                if(typeof(v)!="object"){
+                    this.node.attr(k,v)
+                }else{
+                    this.attr(k,v)
+                }
             }
         }
         return this.node
@@ -19,14 +23,14 @@ export default class extends Input.Editable.Reducer.Editor{
 
     attr(k,v){
         let raw=this.node.attr(k)
-        if(raw!=null && raw!=undefined){
+        if(raw!=null && raw!=undefined){debugger
             raw=raw.toJS?.()||raw
             const Shape=this.Type.propTypes[k]
             const normalize=Shape.normalize?.bind(this)||(a=>a)
             const denormalize=Shape.denormalize?.bind(this)||((a,b)=>b)
             const normalizedRaw=normalize(raw), normalizedV=normalize(v)
             const normalized=typeof(normalizedV)=="object" && typeof(normalizedRaw)=="object" ? inherit(normalizedV,normalizedRaw) : normalizedV
-            const denormalized=denormalize({...raw, ...v}, normalized)
+            const denormalized=denormalize({...(typeof(raw)=="object" ? raw : {}), ...v}, normalized)
             this.node.attr(k, denormalized)
         }else{
             this.node.attr(k,v)

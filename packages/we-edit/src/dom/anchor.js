@@ -94,6 +94,7 @@ export default class Anchor extends Component{
                                 const {left:dl=0,right:dr=0,top:dt=0,bottom:db=0}=this.MarginShape.normalize(distance)
                                 wrap.distance=(geometry,{x=0,y=0}={})=>{
                                     return {
+                                        raw: distance,
                                         geometry:geometry.clone().translate(x,y),
                                         bounds(){
                                             const {left,right,top,bottom}=this.geometry.bounds()
@@ -135,10 +136,8 @@ export default class Anchor extends Component{
                         if(geometry!=undefined)
                             normalized.geometry=this.GeometryShape.denormalize(geometry,normalized.geometry)
                         if(distance!=undefined){
-                            if(typeof(distance)=="function"){
-                                
-                            }else{
-                                normalized.distance=this.MarginShape.denormalize(distance, normalized.distance)
+                            if(typeof(distance)!=="function"){
+                                normalized.distance=distance
                             }
                         }
                         return normalized

@@ -5,13 +5,18 @@ import JSXDocument from "../src/type/jsx"
 tck(JSXDocument, `${__dirname}/doc.wejsx`, true, getEditor=>{
     const {Shape:{Path}, Unknown:{UnitShape}}=dom
     const shape={geometry:Path.fromRect({width:50,height:50})}
-    const anchor={current:{x:5, y:5}}
+    const anchor={current:{x:5, y:5, id:null}}
     const frame={margin:5}
     describe("structure",()=>{
         let editor=null
         function create(parent, element){
             const current=editor.$(parent)
             editor.cursorAt(current.attr('id'))
+            if(element.anchor && element.anchor.current && !element.anchor.current.id){
+                element.anchor={...element.anchor, current:{...element.anchor.current, id:current.attr('id')}}
+            }else if(element.type=="anchor" && element.current&& !element.current.id){
+                element={...element,current:{...element.current,id:current.attr('id')}}
+            }
             editor.create(element)
             return editor.$target
         }
@@ -19,7 +24,7 @@ tck(JSXDocument, `${__dirname}/doc.wejsx`, true, getEditor=>{
         beforeEach(()=>editor=getEditor())
 
         describe("create",()=>{
-            it.each([["page"],["frame"]])("anchor in %s", parent=>{debugger
+            it.each([["page"],["frame"]])("anchor in %s", parent=>{
                 const $anchor=create(parent, {type:"anchor", ...anchor})
                 expect($anchor.parent().is(parent)).toBe(true)
                 expect($anchor.toJS()).toMatchObject({type:'anchor', props:{x:{offset:anchor.current.x},y:{offset:anchor.current.y}}})
@@ -28,7 +33,7 @@ tck(JSXDocument, `${__dirname}/doc.wejsx`, true, getEditor=>{
             it.each([["page"],["frame"]])("shape in %s",parent=>{
                 const $shape=create(parent, {type:"shape", anchor, shape, frame}), $anchor=$shape.parent()
                 expect($anchor.parent().is(parent)).toBe(true)
-                expect($shape.toJS()).toMatchObject({type:'shape', props:{geometry:shape.geometry.toString()}})
+                expect($shape.toJS()).toMatchObject({type:'shape', props:{geometry:shape.geometry}})
                 expect($anchor.toJS()).toMatchObject({type:'anchor', props:{x:{offset:anchor.current.x},y:{offset:anchor.current.y}}})
                 expect($shape.children().length).toBe(0)
             })
@@ -37,7 +42,7 @@ tck(JSXDocument, `${__dirname}/doc.wejsx`, true, getEditor=>{
                 const $shape=create(parent, {type:"textbox", anchor, shape, frame}).closest("shape")
                 const $anchor=$shape.parent(),  $frame=$shape.children()
                 expect($anchor.parent().is(parent)).toBe(true)
-                expect($shape.toJS()).toMatchObject({type:'shape', props:{geometry:shape.geometry.toString()}})
+                expect($shape.toJS()).toMatchObject({type:'shape', props:{geometry:shape.geometry}})
                 expect($anchor.toJS()).toMatchObject({type:'anchor', props:{x:{offset:anchor.current.x},y:{offset:anchor.current.y}}})
                 expect($frame.toJS()).toMatchObject({type:'frame', props:{...frame}})
                 expect(editor.$target.toJS()).toMatchObject({type:"text"})
@@ -61,7 +66,7 @@ tck(JSXDocument, `${__dirname}/doc.wejsx`, true, getEditor=>{
             it("x=>2cm, wrap, z",()=>{
                 editor.update({type:"anchor",x:"2cm",wrap:"square",z:1})
                 expect($anchor.toJS()).toMatchObject({props:{
-                    x:{offset:UnitShape.normalize("2cm")},
+                    x:'2cm',
                     y:{offset:anchor.current.y},
                     z:1,
                     wrap:"square"
@@ -70,17 +75,15 @@ tck(JSXDocument, `${__dirname}/doc.wejsx`, true, getEditor=>{
                 editor.update({type:"anchor",wrap:{mode:"tight",side:"larger",distance:"1cm"}})
                 const elAnchor=$anchor.toJS()
                 expect(elAnchor).toMatchObject({props:{
-                    x:{offset:UnitShape.normalize("2cm")},
+                    x:'2cm',
                     y:{offset:anchor.current.y},
                     z:1,
                     wrap:{
                         mode:"tight",
-                        side:"larger"
+                        side:"larger",
+                        distance:"1cm",
                     }
                 }})
-
-                expect(typeof(elAnchor.props.wrap.distance)=="function").toBe(true)
-                editor.update({type:"anchor",wrap:{distance:"2"}})
             })
         })
 
@@ -106,11 +109,11 @@ tck(JSXDocument, `${__dirname}/doc.wejsx`, true, getEditor=>{
 
             let path=Path.fromRect({width:100,height:100})
             editor.update({type:"shape", geometry:path})
-            expect($shape.toJS()).toMatchObject({type:"shape", props:props={...props,geometry:path.toString()}})
+            expect($shape.toJS()).toMatchObject({type:"shape", props:props={...props,geometry:path}})
 
             path=Path.fromCircle({r:10})
             editor.update({type:"shape", geometry:path})
-            expect($shape.toJS()).toMatchObject({type:"shape", props:props={...props,geometry:path.toString()}})
+            expect($shape.toJS()).toMatchObject({type:"shape", props:props={...props,geometry:path}})
 
             editor.update({type:"shape", anchor:{...anchor,wrap:"square"}, shape:{scale:0.5}})
             expect($anchor.toJS()).toMatchObject({type:"anchor",props:{wrap:"square"}})
@@ -120,8 +123,8 @@ tck(JSXDocument, `${__dirname}/doc.wejsx`, true, getEditor=>{
         it("update textbox: {anchor, shape, frame}",()=>{
             const $shape=create("page",{type:"textbox",anchor,shape,frame}).closest("shape")
             const $anchor=$shape.parent(), $frame=$shape.children()
-            let props={}
             jest.spyOn(editor,'update_textbox')
+            debugger
             editor.update({type:"textbox", anchor:{...anchor,wrap:"square"},shape:{outline:5},frame:{margin:5}})
             expect(editor.update_textbox).toHaveBeenCalledTimes(1)
             expect($anchor.toJS()).toMatchObject({type:"anchor",props:{wrap:"square"}})
@@ -133,7 +136,7 @@ tck(JSXDocument, `${__dirname}/doc.wejsx`, true, getEditor=>{
             const $shape=create("page",{type:"textbox",anchor,shape,frame}).closest("shape")
             const $anchor=$shape.parent(), $frame=$shape.findFirst('frame')
             editor.update({type:"shape", size:{width:200,height:200}})
-            expect($shape.attr('geometry')).toBe(Path.fromRect({width:200,height:200}).toString())
+            expect($shape.toJS()).toMatchObject({props:{geometry:Path.fromRect({width:200,height:200})}})
             expect($frame.toJS()).toMatchObject({type:'frame',props:{width:200,height:200}})
         })
 
