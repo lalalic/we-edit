@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "prop-types": "^15.6.0",
-    "codemirror": "^5.49.0",
+    "codemirror": "^5.58.2",
     "react-codemirror2": "^6.0.0"
   },
   "peerDependencies":{
