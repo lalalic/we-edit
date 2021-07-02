@@ -300,32 +300,15 @@ export default class Base extends Component{
 		}),
 
 		this.ColorShape,
-		this.ColorFillShape,
-		this.GradientShape,
-		this.PatternShape,
-		this.PictureFillShape,
 	]),{
 		normalize:(value)=>{
-			/*
-			if(this.ColorFillShape.is(value)){
-				return this.ColorFillShape.normalize(value)
-			}else if(this.GradientShape.is(value)){
-				return this.GradientShape.normalize(value)
-			}else if(this.PatternShape.is(value)){
-				return this.PatternShape.normalize(value)
-			}else if(this.PictureFillShape.is(value)){
-				return this.PictureFillShape.normalize(value)
-			}else{
-				return {}
-			}
-*/
 			if(typeof(value)=="object"){
-				const {color, pattern, picture,tile, ...fill}=value
-				if(color!=undefined)
+				const {color, pattern, picture,gradient, ...fill}=value
+				if(color!=undefined){
 					fill.color=this.ColorShape.normalize(color)
-				if(pattern!=undefined)
+				}else if(pattern!=undefined){
 					fill.pattern=this.PatternShape.normalize(pattern)
-				if(picture!=undefined){
+				}else if(picture!=undefined){
 					const {margin, tile, ...nomalizedPicture}=picture
 					if(margin!=undefined)
 						nomalizedPicture.margin=this.MarginShape.normalize(picture.margin)
@@ -338,6 +321,8 @@ export default class Base extends Component{
 						nomalizedPicture.tile=normalizedTile
 					}
 					fill.picture=nomalizedPicture
+				}else if(gradient!=undefined){
+					fill.gradient=this.GradientShape.normalize(gradient)
 				}
 				
 				return fill
@@ -346,19 +331,24 @@ export default class Base extends Component{
 		},
 		denormalize:(value, normalized)=>{
 			if(typeof(value)=="object"){
-				const {color, pattern, picture, ...fill}=value
-				if(pattern!=undefined)
-					normalized.pattern=this.PatternShape.denormalize(pattern,normalized)
-				if(picture!=undefined && normalized.picture){
-					const {margin, tile}=picture
-					if(margin!=undefined && normalized.picture.margin)
-						normalized.picture.margin=this.MarginShape.denormalize(margin, normalized.picture.margin)
-					if(tile!=undefined && normalized.picture.tile){
-						const {x,y}=tile
-						if(x!=undefined && normalized.picture.tile.x)
-							normalized.picture.tile.x=this.UnitShape.normalize(x)
-						if(y!=undefined && normalized.picture.tile.y)
-							normalized.picture.tile.y=this.UnitShape.normalize(y)
+				const {color, pattern, picture, gradient, ...fill}=value
+				if(pattern!=undefined){
+					return {...fill, pattern:this.PatternShape.denormalize(pattern,normalized.pattern)}
+				}else if(picture!=undefined){
+					if(typeof(picture)=="object"){
+						fill.picture=picture
+						const {margin, tile}=picture
+						if(margin!=undefined && normalized.picture.margin)
+							fill.picture.margin=this.MarginShape.denormalize(margin, normalized.picture.margin)
+						if(tile!=undefined && normalized.picture.tile){
+							const {x,y}=tile
+							if(x!=undefined && normalized.picture.tile.x)
+								fill.picture.tile.x=this.UnitShape.normalize(x)
+							if(y!=undefined && normalized.picture.tile.y)
+								fill.picture.tile.y=this.UnitShape.normalize(y)
+						}
+					}else{
+						return {...fill, picture:{url:picture}}
 					}
 				}
 			}else if(this.FillShape.canShorten(normalized)){
@@ -400,16 +390,34 @@ export default class Base extends Component{
 			}
 			return value
 		},
-		denormalize:(value,normalized)=>{
+		denormalize:(value,normalized,size)=>{
 			if(typeof(value)=="string"){
 				return normalized.toString()
 			}else if(React.isValidElement(value)){
-				const {type, props}=Path.toElement(normalized,value)
+				const {type, props:{...props}}=Path.toElement(normalized,value)
+				if("width" in size){
+					'width,r,rx'.split(",").forEach(a=>{
+						if(a in props){
+							props[a]=this.UnitShape.denormalize(size.width,props[a])
+						}
+					})
+				}
+
+				if("height" in size){
+					'height,ry'.split(",").forEach(a=>{
+						if(a in props){
+							props[a]=this.UnitShape.denormalize(size.height,props[a])
+						}
+					})
+				}
 				return React.createElement(type,props)
 			}else if(typeof(value)=="object"){
 				if('width' in value && 'height' in value){
 					const {width,height}=normalized.bounds()
-					return {width,height}
+					return {
+						width:'width'in size ? this.UnitShape.denormalize(size.width,width) : width,
+						height:'height' in size ? this.UnitShape.denormalize(size.height,height) : height,
+					}
 				}
 			}
 			return normalized
@@ -604,13 +612,17 @@ export default class Base extends Component{
 		return displayName
 	}
 
+	/**
+	 * normalize props
+	 * __unnormalize could be used to keep original format of props when setting from UI, such as resize,move,rotate by dragging mouse
+	 */
 	static normalizePropShape(props){
 		const checks=this.propTypes
-		const __unnormalized={...props}
+		const __unnormalized={}
 		delete __unnormalized.children
 		return Object.keys(props).reduce((normalized,key)=>{
-			if(props[key]!=null){
-				normalized[key]=checks[key]?.normalize?.(props[key])||props[key]
+			if(props[key]!=null && checks[key]?.normalize){
+				normalized[key]=checks[key].normalize(__unnormalized[key]=props[key])
 			}else{
 				normalized[key]=props[key]
 			}

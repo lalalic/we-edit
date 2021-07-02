@@ -8,12 +8,23 @@ export default class Shape extends Editor{
         const {width:w,height:h}=geometry.bounds()
         const [W=w,H=h]=[width!=undefined && UnitShape.normalize(width)||width,height!=undefined && UnitShape.normalize(height) ||height]
         const scaledGeometry=geometry.clone().scale(W/w,H/h)
-        this.node.attr('geometry',dom.Shape.propTypes.geometry.denormalize(raw,scaledGeometry))
+
+        this.node.attr('geometry',dom.Shape.propTypes.geometry.denormalize(raw,scaledGeometry,{width,height}))
 
         const frame=this.node.findFirst('frame')
         if(frame.length==1){
-            const {width,height}=scaledGeometry.bounds()
-            this.reducer.createEditor('frame',frame).update({width,height})
+            const size=scaledGeometry.bounds()
+            if(width!=undefined)
+                size.width=UnitShape.denormalize(width,size.width)
+            else
+                delete size.width
+            
+            if(height!=undefined)
+                size.height=UnitShape.denormalize(height,size.height)
+            else
+                delete size.height       
+            
+            this.reducer.createEditor('frame',frame).update(size)
         }
     }
 

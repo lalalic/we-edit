@@ -100,6 +100,7 @@ export default compose(
 				resizable=this.getResizable(geometry,width,height),
 				rotatable=this.getRotatable(transform||geometry),
 				movable=true,
+				
 			},
 			context:{editable,precision=1},
 			state:{status, type, isAnchor},
@@ -107,6 +108,7 @@ export default compose(
 				e.stopPropagation()
 				dispatch(ACTION.Selection.SELECT(id,0,id,1))
 			},
+			
 		}=this
 		
 		return (
@@ -119,7 +121,7 @@ export default compose(
 						{[
 							status=="unactive" && <path {...{key:"selector",d:path,fill:"transparent",...IgnoreEvents, onClick:select}}/>,
 							["focus","editing"].includes(status) && movable && <Movable isAnchor={isAnchor} key="movable"
-								onMove={e=>dispatch(ACTION.Selection.MOVE({...e, id,type}))}
+								onMove={({dx,dy,...e})=>dispatch(ACTION.Selection.MOVE({...e, dx,dy, id,type}))}
 								children={
 									<path d={path} 
 										stroke="transparent" strokeWidth={5}
