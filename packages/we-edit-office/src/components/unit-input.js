@@ -1,13 +1,14 @@
 import React, {Component} from "react"
 export default class UnitInput extends Component{
-    static getDerivedStateFromProps({value},state){
-        return {value, ...state}
-    }
-    constructor(){
+    constructor({value}){
         super(...arguments)
-        this.state={}
+        this.state={value}
         this.stepDown=this.stepDown.bind(this)
         this.stepUp=this.stepUp.bind(this)
+    }
+
+    UNSAFE_componentWillReceiveProps({value}){
+        this.setState({value})
     }
     
     render(){
