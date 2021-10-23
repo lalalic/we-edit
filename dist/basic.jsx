@@ -19,5 +19,12 @@
                 </frame>
             </shape>
         </anchor>
+        {/*
+        <shape  x={"10cm"} y={100} geometry={{width:100,height:300}} outline={{width:1, color:"blue"}} margin={10}>
+            <paragraph>
+                <text>hello world</text>
+            </paragraph>
+        </shape>
+        */}
     </page>
 </document>

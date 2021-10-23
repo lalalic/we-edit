@@ -1,78 +1,27 @@
 import Path from "svgpath"
 import simplify from "simplify-path"
 import contours from "svg-path-contours"
-import memoize from "memoize-one"
 
-export default class __$1 extends Path{
-    static fromRect({x=0,y=0,width:w,height:h}){
-        return new this(`M${x} ${y} h${w} v${h} h${-w}z`)    
-    }
-
-	static fromCircle({cx=0,cy=0,r}){
-		return this.fromEllipse({cx,cy,rx:r, ry:r})
+class Shape extends Path{
+	static create(props){
+		if(props instanceof Path)
+			return props.clone()
+		const created=(()=>{
+			if(typeof(props)=="string"){
+				return new path(props)
+			}
+			const {type="rect",...props0}=props
+			if(!Shapes[type.toLowerCase()])
+				throw new Error(`Shape doesn't support ${type} type`)
+			return new Shapes[type.toLowerCase()](props0)
+		})();
+		if(created.err)
+			throw new Error(created.err)
+		return created
 	}
 
-	static fromEllipse({cx=0,cy=0,rx,ry}){
-		return new this(`z`)
-	}
-
-	static fromElement({type, props}){
-		switch(type){
-			case "circle":
-				return this.fromCircle(props)
-			case "ellipse":
-				return this.fromEllipse(props)
-			case "rect":
-				return this.fromRect(props)
-			case "polyline":
-			case "polygon":{
-				const [a,...points]=props.points.trim().split(/\s+/g)
-				return new this(`M${a} ${points.map(b=>`L${b}`).join(" ")} ${type=="polygon" ? "Z" : ""}`)
-			}
-			case "path":
-				return new this(props.d)
-		}
-	}
-
-	static toElement(path, source){
-		const {type,props}=source
-		switch(type){
-			case "circle":{
-				const {width:w,height:h}=this.fromCircle(props).bounds()
-				const {W,H}=path.bounds()
-				if(W==H){
-					return {type, props:{...props,r:W/2}}
-				}else{
-					return {type:"ellipse", props:{...props, r:undefined, rx: props.r*W/w, ry: props.r*H/h}}
-				}
-			}
-			case "ellipse":{
-				const {width:w,height:h}=this.fromEllipse(props).bounds()
-				const {W,H}=path.bounds()
-				return {type, props:{...props, rx: props.rx*W/w, ry: props.ry*H/h}}
-			}
-			case "rect":{
-				const {width,height}=path.bounds()
-				return {type, props:{...props,width,height}}
-			}
-			case "polyline":
-			case "polygon":{
-				const data=path.toString().split(/[wlz\s,]/gi).map(a=>a.trim()).filter(a=>!!a)
-				return {type, props:{...props, points:data.reduce((pos,a,i)=>{
-					if(i%2 ===1){
-						pos.push([parseFloat(data[i-1]), parseFloat(data[i])])
-					}
-					return pos
-				},[])}}
-			}
-			case "path":
-				return {type, props:{...props, d:path.toString()}}
-		}
-	}
-
-    toString(){
-        this.__evaluateStack()
-        return memoize(d=>super.toString())(this.segments.map(a=>a.join("")).join(""))
+    static fromRect(){
+		return this.create(...arguments)   
     }
 
 	toJSON(){
@@ -100,12 +49,12 @@ export default class __$1 extends Path{
 		return this.constructor.fromRect({width,height,x:left,y:top})
 	}
 
-    contour(tolerance=1,d=this.toString()){
-        return memoize((tolerance, d)=>contours(this.segments)
+    contour(tolerance){
+		this.__evaluateStack()
+        return contours(this.segments)
             .map(a=>a.map(([x,y])=>[Math.ceil(x), Math.ceil(y)]))
             .map(a=>simplify(a,tolerance))
             .reduce((all,a)=>[...all,...a],[])
-        )();
     }
 
     intersects(line/*{x1,x2,y1,y2}*/, tolerance){
@@ -143,6 +92,79 @@ export default class __$1 extends Path{
 		return this
 	}
 }
+
+export default class path extends Shape{
+	get type(){
+		return "path"
+	}
+
+	get props(){
+		return {d:this.toString()}
+	}
+}
+
+class rect extends Shape{
+	get type(){
+		return "rect"
+	}
+
+	constructor({x=0,y=0,width=0,height=0,rx=0,ry=0}){
+		super(`M${x},${y} h${width} v${height} h${-width}z`)
+		this._rx=rx
+		this._ry=ry
+	}
+
+	get props(){
+		const {left:x, top:y,width,height}=super.bounds()
+		return {x,y,width,height,rx:this._rx,ry:this._ry}
+	}
+
+	clone(){
+		return new this.constructor(this.props)
+	}
+}
+
+class circle extends Shape{
+	get type(){
+		return "circle"
+	}
+
+	constructor({cx=0,cy=0,r}){
+		super(`M${cx},${cy}`)
+		this.props={...arguments[0]}
+	}
+
+	toString(){
+		const {cx,cy,r}=this.props
+		return `circle:${cx||""},${cy||""},${r||""}`
+	}
+
+	clone(){
+		return this.constructor(this.props)
+	}
+}
+
+class ellipse extends Shape{
+	get type(){
+		return "ellipse"
+	}
+
+	constructor({cx=0,cy=0,rx,ry=rx}){
+		super(`M${cx},${cy} `)
+		this.props={...arguments[0]}
+	}
+
+	toString(){
+		const {cx,cy,rx,ry}=this.props
+		return `ellipse:${cx||""},${cy||""},${rx||""},${ry||""}`
+	}
+
+	clone(){
+		return this.constructor(this.props)
+	}
+}
+
+const Shapes={ellipse, rect, circle}
 
 const between=(a,b1,b2)=>((a >= b1) && (a <= b2))||((a >= b2) && (a <= b1))
 function line_line_intersect(line1, line2) {

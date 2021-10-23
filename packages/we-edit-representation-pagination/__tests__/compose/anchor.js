@@ -210,11 +210,17 @@ define("section compose",
         })
         
         describe("with {geometry, mode, side, distance}",()=>{
-            const geometry=Path.fromRect(size)
-            const wrap={mode:"square", geometry}
-            const props={wrap,x:{base:"page",offset:16},y:{base:"page",offset:5}}
+            /**
+             * 10*10 rect at (16,5), line height:10, margin:10
+             */
+            let geometry,wrap,props;
+            beforeEach(()=>{
+                geometry=Path.fromRect(size)
+                wrap={mode:"square", geometry}
+                props={wrap,x:{base:"page",offset:16},y:{base:"page",offset:5}}    
+            })
             
-            it("geometry{bounds,intersects},",()=>{
+            it("should wrap around geometry, hello []world",()=>{debugger
                 const doc1=test({},(
                     <Paragraph {...{id:uuid++}}>
                         <Anchor {...{id:"anchor", ...props}}/>

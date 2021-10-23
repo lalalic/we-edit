@@ -35,4 +35,9 @@ export default class Shape extends Editor{
     height(height){
         this.size({height})
     }
+
+    geometry(geometry){
+        const raw=this.node.attr('geometry')
+        this.node.attr('geometry',dom.Shape.propTypes.geometry.denormalize(raw,geometry))
+    }
 }

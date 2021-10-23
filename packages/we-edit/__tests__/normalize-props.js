@@ -133,7 +133,8 @@ describe("normalize props",()=>{
         const {wrap:{distance, geometry}}=(<Anchor wrap={{distance:5, geometry:{width:10,height:5}}}/>).props
         expect(typeof(distance)).toBe("function")
         expect(geometry.bounds()).toBeDefined()
-        expect(distance(geometry).bounds()).toMatchObject({width:20,height:15,left:-5,right:15,top:-5,bottom:10})
+        expect(distance(geometry).bounds())
+            .toMatchObject({width:20,height:15,left:-5,right:15,top:-5,bottom:10})
     })
 
     it("geometry",()=>{
@@ -141,10 +142,7 @@ describe("normalize props",()=>{
         expect(normalize("M0,0 L1,0")).toMatchObject(new Path("M0,0 L1,0"))
         const size={width:5,height:5}
         expect(normalize(size)).toMatchObject(Path.fromRect(size))
-        expect(normalize(<polyline points="0,0 3,2 5,2"/>)).toMatchObject(new Path(`M0,0 L3,2 L5,2`))
-        expect(normalize(<polygon points="0,0 3,2 5,2"/>)).toMatchObject(new Path(`M0,0 L3,2 L5,2Z`))
-        expect(normalize(<rect {...size} />)).toMatchObject(Path.fromRect(size))
-        expect(normalize(<rect {...size} x={5} y={6}/>).toString()).toBe(Path.fromRect(size).translate(5,6).toString())
+        expect(normalize({type:"RECT",...size})).toMatchObject(Path.fromRect(size))
     })
 
     it("paragraph",()=>{
@@ -225,15 +223,14 @@ describe("normalize props",()=>{
                         margin:{...margin(100), left:unit("100px","mm")+" mm"}
                     }
                 })
+                
         })
 
-        it("GeometryShape",()=>{
+        fit("GeometryShape",()=>{
             const {GeometryShape:{denormalize}}=dom.Unknown
-            let path=new Path("M0,0 L1,10")
+            const path=new Path("M0,0 L1,10")
             expect(denormalize(path.toString(),path)).toBe(path.toString())
-            expect(denormalize(path=Path.fromRect({width:10,height:10}),path.clone())).toMatchObject(path)
-
-            expect(denormalize(<rect width={10} height={10}/>,path=Path.fromRect({width:20,height:10}))).toMatchObject(<rect width={20} height={10}/>)
+            expect(denormalize({width:10,height:10},Path.fromRect({width:20,height:10}))).toMatchObject({width:20,height:10})
         })
 
         it("Anchor",()=>{
