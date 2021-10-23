@@ -4,7 +4,7 @@ import {Group} from "../composed"
 import Focusable from "../composed/responsible-canvas/focusable"
 
 import {HasParentAndChild,editable} from "../composable"
-const Path=dom.Shape.Path
+const Geometry=dom.Shape.Geometry
 
 /**
  * Shape default layouted as inline mode, in which left&top will keep unchanged after transformation
@@ -13,7 +13,7 @@ const Path=dom.Shape.Path
 export default class extends editable(HasParentAndChild(dom.Shape)){
 	focusable=true
 	getGeometry(content){
-		const {geometry=Path.fromRect(content.props)}=this.props
+		const {geometry=Geometry.fromRect(content.props)}=this.props
 		return geometry
 	}
 

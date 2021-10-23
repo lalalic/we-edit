@@ -1,43 +1,43 @@
-import Path from "../src/tools/path"
+import Geometry from "../src/tools/geometry"
 
 describe("geometry",()=>{
     describe("create",()=>{
         it("should create path from string",()=>{
-            expect(Path.create("M1,0 h10 v20z")).toMatchObject({type:"path", props:{d:"M1 0h10v20z"}})
-            expect(Path.create("M1 0 h10 v20z")).toMatchObject({type:"path", props:{d:"M1 0h10v20z"}})
+            expect(Geometry.create("M1,0 h10 v20z")).toMatchObject({type:"path", props:{d:"M1 0h10v20z"}})
+            expect(Geometry.create("M1 0 h10 v20z")).toMatchObject({type:"path", props:{d:"M1 0h10v20z"}})
 
-            expect(()=>Path.create("M1,0 w10 v20z")).toThrow()
+            expect(()=>Geometry.create("M1,0 w10 v20z")).toThrow()
         })
     
         it("should create rect from {x,y,width,height,rx,ry}",()=>{
-            expect(Path.create({width:20,height:10,x:1,y:1,rx:2,ry:4}))
+            expect(Geometry.create({width:20,height:10,x:1,y:1,rx:2,ry:4}))
                 .toMatchObject({type:"rect",props:{width:20,height:10,x:1,y:1,rx:2,ry:4}})
 
-            expect(Path.create({width:20,height:10,x:1,y:1,rx:2,ry:4, type:"rEct"}))
+            expect(Geometry.create({width:20,height:10,x:1,y:1,rx:2,ry:4, type:"rEct"}))
                 .toMatchObject({type:"rect",props:{width:20,height:10,x:1,y:1,rx:2,ry:4}})
         })
     
         it("should create circle from {type:circle,r, cx,cy}",()=>{
-            expect(Path.create({type:"ciRcle",cx:1,cy:1,r:2}))
+            expect(Geometry.create({type:"ciRcle",cx:1,cy:1,r:2}))
                 .toMatchObject({type:"circle",props:{cx:1,cy:1,r:2}})
         })
     
         it("should create ellipse from {type:ellipse, cx,cy, rx, ry}",()=>{
-            expect(Path.create({type:"elLipse",cx:1,cy:1,rx:2, ry:4}))
+            expect(Geometry.create({type:"elLipse",cx:1,cy:1,rx:2, ry:4}))
                 .toMatchObject({type:"ellipse",props:{cx:1,cy:1,rx:2, ry:4}})
         })
 
         it("should create path from a Path",()=>{
-            const a=Path.create({width:10,height:20})
-            expect(Path.create(a)).toMatchObject({props:{width:10,height:20}})
-            expect(Path.create(a)!=a).toBe(true)
+            const a=Geometry.create({width:10,height:20})
+            expect(Geometry.create(a)).toMatchObject({props:{width:10,height:20}})
+            expect(Geometry.create(a)!=a).toBe(true)
         })
     })
     
     describe("interface",()=>{
         describe("path",()=>{
             let path
-            beforeEach(()=>path=Path.create("M1,10h10v10h-10z"))
+            beforeEach(()=>path=Geometry.create("M1,10h10v10h-10z"))
             it("should return bounds",()=>{
                 expect(path.bounds()).toMatchObject({left:1,top:10,bottom:20,right:11,width:10,height:10})
             })

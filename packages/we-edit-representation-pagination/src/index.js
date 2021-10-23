@@ -22,7 +22,7 @@ import Overlay from "./composed/responsible-canvas/overlay"
 import * as composable from "./composable"
 import TestEmulator from "./composed/responsible-canvas/test"
 
-const Path=dom.Shape.Path
+const Geometry=dom.Shape.Geometry
 const Responsible=Editors.Document.defaultProps.canvas.type
 const Canvas=Responsible.Canvas
 const Positioning=Responsible.Positioning
@@ -143,5 +143,5 @@ export {
 	Viewers, Editors, FontManager, Measure, Composed, composable, editable, 
 	Resizable, Movable, Rotatable,Overlay, Focusable,
 	Responsible,Canvas,Positioning,SelectionStyle,
-	TestEmulator,Path,
+	TestEmulator,Geometry
 }

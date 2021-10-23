@@ -2,7 +2,7 @@ import React, {Component,Fragment} from "react"
 import {dom} from "we-edit"
 import ReactDOM from "react-dom"
 import simplify from "simplify-path"
-const Path=dom.Shape.Path
+const Geometry=dom.Shape.Geometry
 
 export default class Overlay extends Component{
     render(){
@@ -104,7 +104,7 @@ export default class Overlay extends Component{
                 })
             )
             const d=simplified.map((a,i)=>`${i ? 'L' : 'M'}${a[0]},${a[1]}`).join("")
-            return new Path(d)
+            return new Geometry(d)
         }
 
         toCanvasPoint(point){

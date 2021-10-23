@@ -131,7 +131,7 @@ define("range", ({dom:{Document,Page, Paragraph, Text, Image, Table, Row, Cell,C
         const doc=test(
 			<Paragraph id={"0"}>
 				<Text id="1">text </Text>
-                <Shape geometry={Shape.Path.fromRect({width:7,height:17}).toString()} id="shape">
+                <Shape geometry={Shape.Geometry.fromRect({width:7,height:17}).toString()} id="shape">
                     <Frame id="f0" width={7} height={17}>
                         <Paragraph id="0.10">
                             <Text id="0.1">text </Text>

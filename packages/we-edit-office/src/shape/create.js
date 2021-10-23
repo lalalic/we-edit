@@ -1,7 +1,7 @@
 import React, { Fragment, PureComponent } from "react";
 import PropTypes from "prop-types";
 import { ACTION, whenSelectionChangeDiscardable, dom, ReactQuery } from "we-edit";
-import { Path, Composed } from "we-edit-representation-pagination";
+import { Geometry, Composed } from "we-edit-representation-pagination";
 import { SvgIcon, MenuItem } from "material-ui";
 import memoize from "memoize-one";
 import { compose, setDisplayName } from "recompose";
@@ -124,7 +124,7 @@ export default compose(
         if (!path.commands.length)
             return;
         const { shapeProps, anchorProps, frameProps } = this.props;
-        const shape = new Path(path.toSVG()), size = { width: maxX - minX, height: maxY - minY };
+        const shape = new Geometry(path.toSVG()), size = { width: maxX - minX, height: maxY - minY };
         const d = shape.clone().scale(24 / font.unitsPerEm).round(2).toString();
         const fn = ({ motionRoute: geometry, target }, { positioning, anchor, dispatch, type = "shape" } = {}) => {
             const { left, top, right, bottom, w = right - left, h = bottom - top } = geometry.bounds();
@@ -168,7 +168,7 @@ export default compose(
                 .filter(a => !!a)
         };
         const { iconSize = 36 } = this.props;
-        const IconGeometry = Object.freeze(Path.fromRect({ width: iconSize, height: iconSize }));
+        const IconGeometry = Object.freeze(Geometry.fromRect({ width: iconSize, height: iconSize }));
         return [...shapes, flowcharts, varishapes].filter(a => !!a).map(({ name, children }) => {
             const icons = children.map((a, i) => {
                 const icon = a({ motionRoute: IconGeometry });
@@ -215,7 +215,7 @@ export default compose(
 });
 function centerAndSize(d, size = 48) {
     const contentSize = parseInt(size * 2 / 3);
-    const geometry = typeof (d) == "string" ? new Path(d) : d;
+    const geometry = typeof (d) == "string" ? new Geometry(d) : d;
     const { right, left, top, bottom, w = right - left, h = bottom - top } = geometry.bounds();
     if (w > contentSize || h > contentSize) {
         geometry.scale(Math.min(contentSize / w, contentSize / h));

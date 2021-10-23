@@ -1,5 +1,5 @@
 import React,{Component} from "react"
-import {Path} from "we-edit-representation-pagination"
+import {Geometry} from "we-edit-representation-pagination"
 export default ({Anchor})=>class __$1 extends Component{
 	static displayName="anchor"
 	render(){
@@ -33,7 +33,7 @@ export default ({Anchor})=>class __$1 extends Component{
                 mode:this.mode,
                 side:this.side,
                 distance:this.distance,
-                geometry: Path.fromRect({width,height}),
+                geometry: Geometry.fromRect({width,height}),
             }
         }}/>
 	}

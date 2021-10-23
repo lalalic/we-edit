@@ -1,6 +1,6 @@
 import {dom} from "we-edit"
 
-const Geometry=dom.Shape.Path
+const Geometry=dom.Shape.Geometry
 describe("geometry",()=>{
     describe("line intersect",()=>{
         const geometry=new Geometry("M5 0 L5 10")

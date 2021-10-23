@@ -1,7 +1,7 @@
 import React, {Component,Fragment} from "react"
 import PropTypes from "prop-types"
 import units from "../tools/units"
-import Path from "../tools/path"
+import Geometry from "../tools/geometry"
 import numberings from "../tools/numbering"
 
 
@@ -9,7 +9,7 @@ export default class Base extends Component{
 	static displayName="unknown"
 	static units=units
 	static numberings=numberings
-	static Path=Path
+	static Geometry=Geometry
 	static normalizeChecker=(checker,extend)=>{
 		const isRequired=checker.isRequired
 		Object.assign(checker,extend)
@@ -422,7 +422,7 @@ export default class Base extends Component{
 			cy: this.UnitShape,
 		})
 	]),{
-		normalize:value=>Path.create(value),
+		normalize:value=>Geometry.create(value),
 		denormalize:(value,normalized)=>{
 			if(normalized.type=="path"){
 				return normalized.toString()

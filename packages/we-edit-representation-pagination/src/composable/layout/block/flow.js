@@ -7,7 +7,7 @@ import { HasParentAndChild } from "../.."
 import { Group } from "../../../composed"
 import ConstraintSpace from "../constraint-space"
 import {Rect} from "../../../tool/geometry"
-const Path=dom.Shape.Path
+const Geometry=dom.Shape.Geometry
 /**
  * Layout engine is how to layout content in a constraint space
  * so it includes: a constraint space + layout algorithm + content
@@ -136,7 +136,7 @@ class Flow extends HasParentAndChild(dom.Frame) {
 			}
 		});
 
-		const createInclusive=memoize(path=>new Path(inclusive))
+		const createInclusive=memoize(path=>new Geometry(inclusive))
 	}
 	
 	onAllChildrenComposed(commit=true) {
@@ -571,7 +571,7 @@ export default class Inclusive extends Flow{
 	defineProperties(){
 		super.defineProperties()
 		
-		const createInclusive=memoize(path=>new Path(path))
+		const createInclusive=memoize(path=>new Geometry(path))
 		
 		Object.defineProperties(this,{
 			inclusiveGeometry: {

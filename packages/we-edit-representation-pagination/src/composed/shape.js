@@ -1,6 +1,6 @@
 import React, {Component} from "react"
 import {dom} from "we-edit"
-const Path=dom.Shape.Path
+const Geometry=dom.Shape.Geometry
 
 export default class Shape extends Component{
     static displayName="Shape"
@@ -22,7 +22,7 @@ export default class Shape extends Component{
         const pid=`${id}-pattern`
             
         const shape=<path {...{...props, d,stroke,strokeWidth, fill, strokeDasharray}}/>
-        const geometry=new Path(d)
+        const geometry=new Geometry(d)
         const {left,right,top,bottom}=geometry.bounds()
         const width=right-left-strokeWidth, height=bottom-top-strokeWidth
         const x=strokeWidth/2,y=strokeWidth/2
@@ -37,7 +37,7 @@ export default class Shape extends Component{
             )
         }else if(pattern){
             const {foreground="black",background, pattern:{path:d, ...patterProps}}=pattern
-            const geometry=new Path(d), {width:w,height:h}=geometry.size()
+            const geometry=new Geometry(d), {width:w,height:h}=geometry.size()
             return (
                 <g>
                     <defs>

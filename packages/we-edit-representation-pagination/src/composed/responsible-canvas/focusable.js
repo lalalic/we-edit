@@ -8,7 +8,7 @@ import Group from "../group"
 import Movable from "./movable"
 import Resizable from "./resizable"
 import Rotatable from "./rotatable"
-const Path=dom.Shape.Path
+const Geometry=dom.Shape.Geometry
 
 
 const IgnoreEvents=Group.Layer.IgnoreEvents
@@ -95,7 +95,7 @@ export default compose(
 				transform,dispatch,id,
 				outline, fill,
 
-				geometry=new Path(path),
+				geometry=new Geometry(path),
 				size:{width,height}=geometry.size(),
 				resizable=this.getResizable(geometry,width,height),
 				rotatable=this.getRotatable(transform||geometry),

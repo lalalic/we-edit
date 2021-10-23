@@ -8,7 +8,7 @@ import {define} from "./index"
 define("section compose",
 ({dom, testing, WithTextContext, WithParagraphContext, uuid=0})=>{
     const {Page,Frame, Paragraph, Text, Anchor, Shape, Table, Row, Cell}=dom
-    const Path=Page.Path
+    const Geometry=Page.Geometry
     const document={
         get computed(){
 
@@ -32,7 +32,7 @@ define("section compose",
             <Paragraph {...{id:uuid++}}>
                 <Text id={uuid++}>hello</Text>
                 <Anchor {...{id:"anchor",wrap:{}, x:{base:"page"}, y:{base:"page"}, ...props}}>
-                    <Shape {...{geometry:Shape.Path.fromRect(size).toString(), id:uuid++}}/>
+                    <Shape {...{geometry:Shape.Geometry.fromRect(size).toString(), id:uuid++}}/>
                 </Anchor>
                 <Text id={uuid++}>world</Text>
             </Paragraph>)
@@ -215,7 +215,7 @@ define("section compose",
              */
             let geometry,wrap,props;
             beforeEach(()=>{
-                geometry=Path.fromRect(size)
+                geometry=Geometry.fromRect(size)
                 wrap={mode:"square", geometry}
                 props={wrap,x:{base:"page",offset:16},y:{base:"page",offset:5}}    
             })
@@ -332,7 +332,7 @@ define("section compose",
                         <Anchor {...{
                             id:"anchor", 
                             x:{base:"page"},y:{base:"page"},
-                            wrap:{mode:"square",geometry:new Shape.Path("M0 0h50v50h-50Z"), }
+                            wrap:{mode:"square",geometry:new Shape.Geometry("M0 0h50v50h-50Z"), }
                         }}/>
                     </Paragraph>
                     <Table {...{id:uuid++,cols:[{x:10,width:40},{x:50,width:90}]}}>
@@ -361,13 +361,13 @@ define("section compose",
                         <Anchor {...{
                             id:"anchor", 
                             x:{base:"page"},y:{base:"page"},
-                            wrap:{mode:"square",geometry:new Shape.Path("M0 0h20v20h-20Z"), }
+                            wrap:{mode:"square",geometry:new Shape.Geometry("M0 0h20v20h-20Z"), }
                         }}/>
 
                         <Anchor {...{
                             id:"anchor1", 
                             x:{base:"page"},y:{base:"page"},
-                            wrap:{mode:"square",geometry:new Shape.Path("M35 35h20v20h-20Z"), }
+                            wrap:{mode:"square",geometry:new Shape.Geometry("M35 35h20v20h-20Z"), }
                         }}/>
                     </Paragraph>
                     <Table {...{id:uuid++, cols:[{x:10,width:40},{x:50,width:90}]}}>
