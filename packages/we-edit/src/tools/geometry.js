@@ -70,6 +70,18 @@ class Shape extends Path{
 		changed && console.error(`path.verticalExtend not implemented yet!`)
 		return this
 	}
+
+	isIntersectedWith(another){
+		const me=this.bounds(), other=another.bounds()
+		if (me.width*me.height*other.width*other.height==0)
+			return false;
+
+		const x1 = Math.max(me.left, other.left);
+		const x2 = Math.min(me.right, other.right);
+		const y1 = Math.max(me.top, other.top);
+		const y2 = Math.min(me.bottom, other.bottom);
+		return x1 < x2 && y1 < y2
+	}
 }
 
 export default class path extends Shape{

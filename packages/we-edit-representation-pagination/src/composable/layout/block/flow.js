@@ -6,7 +6,6 @@ import { HasParentAndChild } from "../.."
 
 import { Group } from "../../../composed"
 import ConstraintSpace from "../constraint-space"
-import {Rect} from "../../../tool/geometry"
 const Geometry=dom.Shape.Geometry
 /**
  * Layout engine is how to layout content in a constraint space
@@ -450,7 +449,7 @@ class Flow extends HasParentAndChild(dom.Frame) {
 	}
 
 	_isIntersect(A,B){
-		return new Rect(A.x, A.y, A.width, A.height).intersects(new Rect(B.x, B.y, B.width, B.height))
+		return Geometry.create(A).isIntersectedWith(Geometry.create(B))
 	}
 
 	clone(props={},withoutComposed){

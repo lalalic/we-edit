@@ -1,6 +1,6 @@
-import { ReactQuery } from "we-edit"
+import { ReactQuery, dom } from "we-edit"
 import Flow from "./flow"
-import {Rect} from "../../../tool/geometry"
+const Geometry=dom.Shape.Geometry
 
 /**
  * anchorable can layout positioned content, and ***MAY change space if supporting wrap***
@@ -166,7 +166,7 @@ export default class Anchorable extends Flow {
 
 
 	__isDirtyIn(rect){
-        const isIntersect=(A,B)=>new Rect(A.x, A.y, A.width, A.height).intersects(new Rect(B.x, B.y, B.width, B.height))
+        const isIntersect=(A,B)=>Geometry.create(A).isIntersectedWith(Geometry.create(B))
 		//wrappee already take up
 		if(this.wrappees.find(({props:{x,y,width,height}})=>isIntersect(rect,{x,y,width,height}))){
 			return true
