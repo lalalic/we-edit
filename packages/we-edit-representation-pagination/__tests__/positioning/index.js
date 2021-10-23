@@ -93,7 +93,7 @@ export default function define(feature, tests){
         ["in shape", (a,...args)=>{
             const {page:{width=size.width,height=size.height}={}}=args[0]||{}
             const shape=(
-                <Shape {...{id:"shape", geometry:Shape.Geometry.fromRect({...size,width,height}).toString()}}>
+                <Shape {...{id:"shape", geometry:Shape.Geometry.create({...size,width,height}).toString()}}>
                     <Frame id="container" {...{width,height}}>
                         {a}
                     </Frame>

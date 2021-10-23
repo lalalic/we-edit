@@ -3,27 +3,6 @@ import simplify from "simplify-path"
 import contours from "svg-path-contours"
 
 class Shape extends Path{
-	static create(props){
-		if(props instanceof Path)
-			return props.clone()
-		const created=(()=>{
-			if(typeof(props)=="string"){
-				return new path(props)
-			}
-			const {type="rect",...props0}=props
-			if(!Shapes[type.toLowerCase()])
-				throw new Error(`Shape doesn't support ${type} type`)
-			return new Shapes[type.toLowerCase()](props0)
-		})();
-		if(created.err)
-			throw new Error(created.err)
-		return created
-	}
-
-    static fromRect(){
-		return this.create(...arguments)   
-    }
-
 	toJSON(){
 		return this.toString()
 	}
@@ -46,7 +25,7 @@ class Shape extends Path{
 
 	boundRect(){
 		const {left,top,width,height}=this.bounds()
-		return this.constructor.fromRect({width,height,x:left,y:top})
+		return this.constructor.create({width,height,x:left,y:top})
 	}
 
     contour(tolerance){
@@ -94,6 +73,23 @@ class Shape extends Path{
 }
 
 export default class path extends Shape{
+	static create(props){
+		if(props instanceof Path)
+			return props.clone()
+		const created=(()=>{
+			if(typeof(props)=="string"){
+				return new path(props)
+			}
+			const {type="rect",...props0}=props
+			if(!Shapes[type.toLowerCase()])
+				throw new Error(`Shape doesn't support ${type} type`)
+			return new Shapes[type.toLowerCase()](props0)
+		})();
+		if(created.err)
+			throw new Error(created.err)
+		return created
+	}
+	
 	get type(){
 		return "path"
 	}

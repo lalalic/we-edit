@@ -141,8 +141,8 @@ describe("normalize props",()=>{
         const {GeometryShape:{normalize}}=dom.Unknown
         expect(normalize("M0,0 L1,0")).toMatchObject(new Geometry("M0,0 L1,0"))
         const size={width:5,height:5}
-        expect(normalize(size)).toMatchObject(Geometry.fromRect(size))
-        expect(normalize({type:"RECT",...size})).toMatchObject(Geometry.fromRect(size))
+        expect(normalize(size)).toMatchObject(Geometry.create(size))
+        expect(normalize({type:"RECT",...size})).toMatchObject(Geometry.create(size))
     })
 
     it("paragraph",()=>{
@@ -230,7 +230,7 @@ describe("normalize props",()=>{
             const {GeometryShape:{denormalize}}=dom.Unknown
             const path=new Geometry("M0,0 L1,10")
             expect(denormalize(path.toString(),path)).toBe(path.toString())
-            expect(denormalize({width:10,height:10},Geometry.fromRect({width:20,height:10}))).toMatchObject({width:20,height:10})
+            expect(denormalize({width:10,height:10},Geometry.create({width:20,height:10}))).toMatchObject({width:20,height:10})
         })
 
         it("Anchor",()=>{

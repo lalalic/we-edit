@@ -76,7 +76,7 @@ export default ({Shape, Frame, Template})=>class __$1 extends Component{
     getGeometry(geometry,size){
         if(-1!=geometry.trim().indexOf(" "))
             return geometry
-        return Shape.Geometry.fromRect(size).toString()
+        return Shape.Geometry.create(size).toString()
     }
 
     shapeLine({cap, miter, bevel, round, }){
@@ -91,7 +91,7 @@ export default ({Shape, Frame, Template})=>class __$1 extends Component{
             background,
             foreground,
             pattern:{
-                path:Shape.Geometry.fromRect({width:5,height:5}).translate(5,5).toString(),
+                path:Shape.Geometry.create({width:5,height:5}).translate(5,5).toString(),
                 viewBox:'0 0 15 15', 
                 width:'10%',
                 height:'10%'

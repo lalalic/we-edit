@@ -33,7 +33,7 @@ export default ({Anchor})=>class __$1 extends Component{
                 mode:this.mode,
                 side:this.side,
                 distance:this.distance,
-                geometry: Geometry.fromRect({width,height}),
+                geometry: Geometry.create({width,height}),
             }
         }}/>
 	}

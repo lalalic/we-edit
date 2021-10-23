@@ -9,7 +9,7 @@ export default class Image extends editable(NoChild(dom.Image)){
 		return new Shape({
 				id,
 				children:null,
-				geometry:Shape.Geometry.fromRect({width,height}),
+				geometry:Shape.Geometry.create({width,height}),
 				fill:{...fill, picture:{...fill?.picture, url:src}},
 				outline,
 			},

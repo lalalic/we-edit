@@ -32,7 +32,7 @@ define("section compose",
             <Paragraph {...{id:uuid++}}>
                 <Text id={uuid++}>hello</Text>
                 <Anchor {...{id:"anchor",wrap:{}, x:{base:"page"}, y:{base:"page"}, ...props}}>
-                    <Shape {...{geometry:Shape.Geometry.fromRect(size).toString(), id:uuid++}}/>
+                    <Shape {...{geometry:Shape.Geometry.create(size).toString(), id:uuid++}}/>
                 </Anchor>
                 <Text id={uuid++}>world</Text>
             </Paragraph>)
@@ -215,7 +215,7 @@ define("section compose",
              */
             let geometry,wrap,props;
             beforeEach(()=>{
-                geometry=Geometry.fromRect(size)
+                geometry=Geometry.create(size)
                 wrap={mode:"square", geometry}
                 props={wrap,x:{base:"page",offset:16},y:{base:"page",offset:5}}    
             })

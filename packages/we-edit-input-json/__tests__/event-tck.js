@@ -4,7 +4,7 @@ import JSXDocument from "../src/type/jsx"
 
 tck(JSXDocument, `${__dirname}/doc.wejsx`, true, getEditor=>{
     const {Shape:{Geometry}, Unknown:{UnitShape}}=dom
-    const shape={geometry:Geometry.fromRect({width:50,height:50})}
+    const shape={geometry:Geometry.create({width:50,height:50})}
     const anchor={current:{x:5, y:5, id:null}}
     const frame={margin:5}
     describe("structure",()=>{
@@ -107,7 +107,7 @@ tck(JSXDocument, `${__dirname}/doc.wejsx`, true, getEditor=>{
             editor.update({type:"shape", outline:{color:"red"}})
             expect($shape.toJS()).toMatchObject({type:"shape", props:props={...props,outline:{width:2,color:"red"}}})
 
-            let path=Geometry.fromRect({width:100,height:100})
+            let path=Geometry.create({width:100,height:100})
             editor.update({type:"shape", geometry:path})
             expect($shape.toJS()).toMatchObject({type:"shape", props:props={...props,geometry:{type:"rect",width:100,height:100}}})
 

@@ -13,7 +13,7 @@ const Geometry=dom.Shape.Geometry
 export default class extends editable(HasParentAndChild(dom.Shape)){
 	focusable=true
 	getGeometry(content){
-		const {geometry=Geometry.fromRect(content.props)}=this.props
+		const {geometry=Geometry.create(content.props)}=this.props
 		return geometry
 	}
 

@@ -8,7 +8,7 @@ import {define} from "./index"
 define("paragraph compose",
 ({dom:{Paragraph, Text,Shape,Frame,Table,Row,Cell}, testing, WithTextContext, WithParagraphContext,ConstraintSpace})=>{
     const parent={}, size={width:100,height:100}
-    const geometry=Shape.Geometry.fromRect(size).toString()
+    const geometry=Shape.Geometry.create(size).toString()
     const Context=context({
         contextTypes:{
             parent:PropTypes.any,

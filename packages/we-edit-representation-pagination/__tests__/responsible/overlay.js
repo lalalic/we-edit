@@ -278,7 +278,7 @@ describe("overlay",()=>{
         const render=(props)=>{
             const activeDocStore=createEmptyStore()
             const dispatch=activeDocStore.dispatch=jest.fn()
-            const dprops={activeDocStore,path:dom.Shape.Geometry.fromRect({width:100,height:100}).toString(),children:<span key="content" id="content"/>}
+            const dprops={activeDocStore,path:dom.Shape.Geometry.create({width:100,height:100}).toString(),children:<span key="content" id="content"/>}
             const rendered=TestRenderer.create(<Focusable {...dprops} {...props}/>)
             const root=rendered.root, $root=rendered.getInstance()
             expect(rendered.root.findByProps({id:"content"})).toBeDefined()

@@ -168,7 +168,7 @@ export default compose(
                 .filter(a => !!a)
         };
         const { iconSize = 36 } = this.props;
-        const IconGeometry = Object.freeze(Geometry.fromRect({ width: iconSize, height: iconSize }));
+        const IconGeometry = Object.freeze(Geometry.create({ width: iconSize, height: iconSize }));
         return [...shapes, flowcharts, varishapes].filter(a => !!a).map(({ name, children }) => {
             const icons = children.map((a, i) => {
                 const icon = a({ motionRoute: IconGeometry });
