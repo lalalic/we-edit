@@ -18,6 +18,7 @@ const { Shape } = dom;
 export default compose(
     setDisplayName("DrawShape"),
     whenSelectionChangeDiscardable(({ selection }) => {
+        console.log("shape updated")
         if (selection) {
             const shape = selection.props("shape", false);
             const image = selection.props("image", false);
@@ -230,3 +231,9 @@ const IconShape = props => (
         <circle {...{ r: 8, cx: 15, cy: 15, stroke: "black", fill: "white" }} />
     </SvgIcon>
 );
+
+class Icons extends PureComponent{
+    render(){
+        const {}=this.props
+    }
+}

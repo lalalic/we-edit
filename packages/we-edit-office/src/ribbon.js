@@ -3,7 +3,8 @@ import PropTypes from "prop-types"
 import {whenSelectionChangeDiscardable} from "we-edit"
 import {compose,setDisplayName,getContext}  from "recompose"
 
-import {Toolbar,ToolbarSeparator, ToolbarGroup, Tabs, Tab} from "material-ui"
+import {Toolbar,ToolbarSeparator, ToolbarGroup, Tabs, Tab,} from "material-ui"
+import tabTemplate from "material-ui/Tabs/TabTemplate"
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
 
@@ -21,7 +22,6 @@ import * as Layout from "./layout"
 import * as Developer from "./developer"
 
 import {CheckIconButton,DropDownButton,ContextMenuSupport} from "./components"
-import WhenActive from "./components/when-active"
 
 const Ribbon=compose(
 	setDisplayName("Ribbon"),
@@ -66,6 +66,7 @@ const Ribbon=compose(
 				<Tabs
 					contentContainerStyle={{height:30}}
 					inkBarStyle={{display:"none"}}
+					tabTemplate={ref=>ref.selected ? tabTemplate(ref) : React.cloneElement(tabTemplate(ref),{children:null})}
 					>
 					{home && <Tab label="Home" buttonStyle={buttonStyle} style={tabStyle}>
 						<Toolbar>
@@ -140,7 +141,7 @@ const Ribbon=compose(
 							</ToolbarGroup>	
 						</Toolbar>
 					</Tab>}
-					{React.Children.toArray(children).map(a=>React.cloneElement(a,{buttonStyle, style:tabStyle,key:a.props.label}))}
+					{React.Children.toArray(children).map(a=>React.cloneElement(a,{key:a.props.label, ...(a.type==Tab ? {buttonStyle, style:tabStyle} : {})}))}
 					<Tab label="beautifier"
 						buttonStyle={buttonStyle}
 						style={{visibility:"hidden", flex:"1 100%",...tabStyle}}
