@@ -18,7 +18,6 @@ const { Shape } = dom;
 export default compose(
     setDisplayName("DrawShape"),
     whenSelectionChangeDiscardable(({ selection }) => {
-        console.log("shape updated")
         if (selection) {
             const shape = selection.props("shape", false);
             const image = selection.props("image", false);
@@ -86,8 +85,7 @@ export default compose(
                 .then(ress => Promise.all(ress.map(a => a.arrayBuffer())))
                 .then(([flowchart, shapes]) => {
                     this.setState({
-                        flowcharts: FontKit.create(Buffer.from(flowchart)),
-                        varishapes: FontKit.create(Buffer.from(shapes))
+                        shapeIcons:this.shapes(this.props.shapes||[],FontKit.create(Buffer.from(flowchart)),FontKit.create(Buffer.from(shapes)))
                     });
                 });
         } catch (e) {
@@ -95,7 +93,7 @@ export default compose(
     }
 
     render() {
-        const { props: { children, shapes = [], defaultShape, style, type = "Shape", color = "black" }, state: { flowcharts, varishapes } } = this;
+        const { props: { children, defaultShape, style, type = "Shape", color = "black" }, state: { shapeIcons } } = this;
         return (
             <ContextMenu.Support menus={!style ? null :
                 (
@@ -111,7 +109,7 @@ export default compose(
                         style={{ width: 200 }}
                         menuStyle={{ width: "30%" }}
                         onClick={defaultShape ? e => this.send(defaultShape) : null}>
-                        {this.shapes(shapes, flowcharts, varishapes)}
+                        {shapeIcons}
                     </DropDownButton>
                     {[textbox, ...React.Children.toArray(children)].map((a, key) => {
                         return React.cloneElement(a, { key, onClick: e => this.send(a.props.create), create: undefined });
@@ -154,7 +152,7 @@ export default compose(
         return fn;
     };
 
-    shapes = memoize((shapes, flowcharts, varishapes) => {
+    shapes(shapes, flowcharts, varishapes){
         flowcharts = flowcharts && {
             name: "flowcharts",
             children: flowcharts.characterSet
@@ -193,7 +191,7 @@ export default compose(
                 </div>
             );
         });
-    });
+    }
 
     send(fn) {
         const { props: { selection: { positioning }, dispatch, anchor, anchorProps, shapeProps, frameProps } } = this;
