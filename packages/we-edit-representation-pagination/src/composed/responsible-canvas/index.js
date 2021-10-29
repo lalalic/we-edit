@@ -58,7 +58,7 @@ class Responsible extends Component{
         responsible: PropTypes.object,
     }
     
-    static getDerivedStateFromProps({viewport, screenBuffer,pageGap,scale, document:{pages, props:{editable,content, precision},state:{y=0}}}){
+    static getDerivedStateFromProps({viewport, screenBuffer,pageGap,scale:scale0, document:{pages, props:{editable,content, precision},state:{y=0}}},{scale=scale0}){
         return {pages, precision, pageGap, scale,editable,content,viewport,screenBuffer,composed4Y:y}
     }
 
@@ -209,6 +209,7 @@ class Responsible extends Component{
                     </Selection>
 				</Fragment>
                 {!noCursor && <DrawLayer/>}
+                <ScaleNotify notify={scale=>this.setState({scale})}/>
             </Canvas>
         )
     }
