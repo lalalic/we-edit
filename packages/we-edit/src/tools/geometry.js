@@ -130,6 +130,35 @@ class rect extends Shape{
 	clone(){
 		return new this.constructor(this.props)
 	}
+
+	bounds(){
+		this.__evaluateStack()
+		const [,left,top]=this.segments[0]
+		const [,width]=this.segments[1]
+		const [,height]=this.segments[2]
+		return {left,top,width,height,right:left+width,bottom:top+height}
+	}
+
+	intersects({x1,x2=x1,y1,y2=y1}){
+		if(y1==y2){
+			const {left,right,top,bottom}=this.bounds(), y=y1
+			if(y>=top && y<=bottom){
+				const pos=[x1,x2,left,right].sort()
+				const i=pos.indexOf(x1), j=pos.lastIndexOf(x2)
+				return pos.slice(i+1,j).map(x=>({x,y}))
+			}
+			return []
+		}else if(x1==x2){
+			const {left,right,top,bottom}=this.bounds(),x=x1
+			if(x>=left && x<=right){
+				const pos=[y1,y2,top,bottom].sort()
+				const i=pos.indexOf(y1), j=pos.lastIndexOf(y2)
+				return pos.slice(i+1,j).map(y=>({y,x}))
+			}
+			return []
+		}
+		return super.intersects(...arguments)
+	}
 }
 
 class circle extends Shape{
@@ -138,8 +167,20 @@ class circle extends Shape{
 	}
 
 	constructor({cx=0,cy=0,r}){
-		super(`M${cx},${cy}`)
-		this.props={...arguments[0]}
+		super(
+			`M ${cx} ${cy}
+			m -${r}, 0
+			a ${r},${r} 0 1,1 ${r * 2},0
+			a ${r},${r} 0 1,1 -${r * 2},0
+			`
+		)
+	}
+
+	get props(){
+		this.__evaluateStack()
+		const [,cx=0,cy=0]=this.segments[0]
+		const [,r]=this.segments[2]
+		return {cx,cy,r}
 	}
 
 	toString(){
@@ -148,7 +189,19 @@ class circle extends Shape{
 	}
 
 	clone(){
-		return this.constructor(this.props)
+		return new this.constructor(this.props)
+	}
+
+	bounds(){
+		const {cx,cy,r}=this.props
+		return {left:cx-r,right:cx+r,top:cy-r,bottom:cy+r}
+	}
+
+	rotate(r,cx=0,cy=0){debugger
+		const a=this.props
+		if(cx==a.cx && cy==a.cy)
+			return this
+		return super.rotate(...arguments)
 	}
 }
 
@@ -158,8 +211,20 @@ class ellipse extends Shape{
 	}
 
 	constructor({cx=0,cy=0,rx,ry=rx}){
-		super(`M${cx},${cy} `)
-		this.props={...arguments[0]}
+		super(
+			`M${cx},${cy} 
+			 m -${rx} 0
+			 a ${rx},${ry} 0 1,1 ${rx * 2},0
+			 a ${rx},${ry} 0 1,1 -${rx * 2},0
+			 z`
+		)
+	}
+
+	get props(){
+		this.__evaluateStack()
+		const [,cx,cy]=this.segments[0]
+		const [,rx,ry,xAxisRotation=0]=this.segments[2]
+		return xAxisRotation==90 ? {cx,cy,rx:ry,ry:rx} : {cx,cy,rx,ry}
 	}
 
 	toString(){
@@ -167,8 +232,13 @@ class ellipse extends Shape{
 		return `ellipse:${cx||""},${cy||""},${rx||""},${ry||""}`
 	}
 
+	bounds(){debugger
+		const {cx,cy,rx,ry}=this.props
+		return {left:cx-rx,right:cx+rx, top:cy-ry, bottom:cy+ry}
+	}
+
 	clone(){
-		return this.constructor(this.props)
+		return new this.constructor(this.props)
 	}
 }
 

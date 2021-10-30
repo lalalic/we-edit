@@ -236,7 +236,7 @@ export class Editable extends Viewable{
 		const reducer=new Reducer(...params)
 		switch(type){
 			case `we-edit/CLOSE`:
-				this.doc.release()
+				this.doc.release?.()
 				return false
 			case `we-edit/init`:
 				reducer.init(payload)

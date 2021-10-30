@@ -35,50 +35,66 @@ describe("geometry",()=>{
     })
     
     describe("interface",()=>{
-        describe("path",()=>{
-            let path
-            beforeEach(()=>path=Geometry.create("M1,10h10v10h-10z"))
+        describe.each([
+            ["path", Geometry.create("M1,10h10v10h-10z")],
+            ["rect", Geometry.create({width:10,height:10,x:1,y:10})],
+        ])("%s", (target, shape)=>{
+            let geometry
+            beforeEach(()=>geometry=shape.clone())
             it("should return bounds",()=>{
-                expect(path.bounds()).toMatchObject({left:1,top:10,bottom:20,right:11,width:10,height:10})
+                expect(geometry.bounds()).toMatchObject({left:1,top:10,bottom:20,right:11,width:10,height:10})
             })
 
             it("should support clone",()=>{
-                expect(path.clone().toString()).toBe(path.toString())
-                expect(path.clone()!=path).toBe(true)
+                expect(geometry.clone().toString()).toBe(geometry.toString())
+                expect(geometry.clone()!=geometry).toBe(true)
             })
 
             it("should support translate(x[,y])",()=>{
-                expect(path.translate(1,2).bounds())
-                    .toMatchObject({left:2,top:12,width:10,height:10})
+                expect(geometry.clone().translate(1,2).bounds()).toMatchObject({left:2,top:12,width:10,height:10})
+                expect(geometry.clone().translate(1,2).translate(-1,-2).bounds()).toMatchObject({left:1,top:10,bottom:20,right:11,width:10,height:10})
             })
 
             it("should support rotate(angle[,cx,cy])",()=>{
-                expect(path.clone().rotate(10).round().toString()).not.toBe(path.toString())
-                expect(path.clone().rotate(10).rotate(-10).round().toString()).toBe(path.toString())
-                expect(path.clone().rotate(10).round().toString()).not.toBe(path.clone().rotate(10,1,1).round().toString())
+                expect(geometry.clone().rotate(10).round().toString()).not.toBe(geometry.toString())
+                expect(geometry.clone().rotate(10).rotate(-10).round().toString()).toBe(geometry.toString())
+                expect(geometry.clone().rotate(10).round().toString()).not.toBe(geometry.clone().rotate(10,1,1).round().toString())
             })
 
             it("should support scale(x[,y])",()=>{
-                expect(path.clone().scale(3,5).bounds()).toMatchObject({left:1*3,top:10*5,width:10*3,height:10*5})
-                expect(path.clone().scale(3).bounds()).toMatchObject({left:1*3,top:10*3,width:10*3,height:10*3})
+                expect(geometry.clone().scale(3,5).bounds()).toMatchObject({left:1*3,top:10*5,width:10*3,height:10*5})
+                expect(geometry.clone().scale(3).bounds()).toMatchObject({left:1*3,top:10*3,width:10*3,height:10*3})
             })
 
-            xit("should return intersects",()=>{
-                expect(path.intersects({x1:0,y1:5,x2:20,y2:5}).length).toBe(0)
-                expect(path.intersects({x1:0,y1:15,x2:20,y2:15})).toMatchObject([{x:1,y:15},{x:11,y:15}])
+            it("should return intersects",()=>{
+                expect(geometry.intersects({x1:0,y1:5,x2:20,y2:5}).length).toBe(0)
+                if(target=="rect")
+                    expect(geometry.intersects({x1:0,y1:15,x2:20,y2:15})).toMatchObject([{x:1,y:15},{x:11,y:15}])
             })
-        })
-
-        describe("rect",()=>{
-
         })
 
         describe("circle",()=>{
-
+            let geometry
+            beforeEach(()=>geometry=Geometry.create({type:"circle",r:10}))
+            
+            it("bounds",()=>{
+                expect(geometry.bounds()).toMatchObject({left:-10,right:10,top:-10,bottom:10})
+                expect(geometry.clone().translate(1,2).bounds()).toMatchObject({left:-9,right:11,top:-8,bottom:12})
+                expect(geometry.clone().translate(1,2).translate(-1,-2).bounds()).toMatchObject({left:-10,right:10,top:-10,bottom:10})
+                expect(geometry.clone().rotate(10).bounds(0)).toMatchObject({left:-10,right:10,top:-10,bottom:10})
+            })
         })
 
         describe("ellipse",()=>{
-
+            let geometry
+            beforeEach(()=>geometry=Geometry.create({type:"ellipse",rx:10,ry:20}))
+            
+            it("bounds",()=>{
+                expect(geometry.bounds()).toMatchObject({left:-10,right:10,top:-20,bottom:20})
+                expect(geometry.clone().translate(1,2).bounds()).toMatchObject({left:-9,right:11,top:-18,bottom:22})
+                expect(geometry.clone().translate(1,2).translate(-1,-2).bounds()).toMatchObject({left:-10,right:10,top:-20,bottom:20})
+                expect(geometry.clone().rotate(90).bounds(0)).toMatchObject({left:-20,right:20,top:-10,bottom:10})
+            })
         })
     })
 })
