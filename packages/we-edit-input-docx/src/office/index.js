@@ -12,6 +12,7 @@ import {parseFile, anchor} from "./util"
 import {shapes,textbox, defaultShape} from "./shape"
 
 import Canvas from "../representation/canvas"
+import Inspector from "./inspector"
 
 const KEY="docx"
 const {Tab}=Ribbon
@@ -69,7 +70,11 @@ export default (
                     )
                 },
                 developer:{
-                    basic: <Ribbon.Developer.Ribbon diff={{parseFile}}/>
+                    information: (
+                        <Ribbon.Developer.Ribbon diff={{parseFile}}>
+                            <Inspector.Button/>
+                        </Ribbon.Developer.Ribbon>
+                    ),
                 }
             }}>
                 <Tab label={<input placeholder="Tell me what you want to do"/>}/>
@@ -88,7 +93,12 @@ export default (
         }
     >
         <Workspace.Desk
-            layout={<Workspace.Layout right={<Workspace.PanelContainer name="right" style={{width:300}}/>}/>}
+            layout={
+                <Workspace.Layout 
+                    right={<Workspace.PanelContainer name="right" style={{width:300}}/>}
+                    left={<Workspace.PanelContainer name="left" style={{width:300}}/>}
+                    />
+            }
         >
             <Editor representation={"pagination"} canvas={<Canvas/>}/>
         </Workspace.Desk>

@@ -19,6 +19,7 @@ import selectFile from "../components/file-select"
 import Diff from "./diff"
 
 export class Ribbon extends PureComponent{
+    static displayName="Developer Tools"
     render(){
         const {diff, tester, docTree, children}=this.props
         return (
