@@ -1,4 +1,5 @@
 import {List} from "immutable"
+import { parseIds } from "../../tools/content-id"
 
 export function getUndos(state){
 	return state.get("undos")
@@ -30,7 +31,7 @@ export function getFile(state){
 }
 
 export function getContent(state,id){
-	return state.getIn(`content.${id}`.split("."))
+	return state.getIn(parseIds(`content.${id}`))
 }
 
 export function getParentId(content,id){

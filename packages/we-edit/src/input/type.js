@@ -88,6 +88,14 @@ export class Viewable{
 
 	//////////////////
 
+	/**
+	 * To make id for each content, so it can be searched and located during layouting
+	 * number|string:[^[],:<>+~*#.!]{.*}, check content-id.validateId
+	 * @param {*} node 
+	 * @param {*} rootId 
+	 * @param {*} nodeId 
+	 * @returns 
+	 */
 	makeId(node, rootId, nodeId){
 		return (this.props?.makeId||uuid)()
 	}

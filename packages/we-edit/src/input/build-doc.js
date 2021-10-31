@@ -11,6 +11,7 @@ import undoable from "../state/undoable"
 import * as reducer from "../state/reducer"
 
 import uuid from "../tools/uuid"
+import {validateId} from "../tools/content-id"
 import ContextProvider from "./context-provider"
 
 export default function buildDoc(doc,inputTypeInstance){
@@ -142,6 +143,11 @@ const createElementFactoryBuilder=inputTypeInstance=>content=>(type, props, chil
 		return props
 	}
 	const id=inputTypeInstance.makeId(raw)
+	if(!id){
+		throw new Error("document must implement makeId to create id for each content")
+	}
+	validateId(id)
+
 	const node={
 		type:type.displayName,
 		id,
@@ -154,11 +160,6 @@ const createElementFactoryBuilder=inputTypeInstance=>content=>(type, props, chil
 	}
 
 	content.set(id, Immutable.fromJS(node))
-
-	if(!id){
-		console.error(node)
-	}
-	
 
 	if(Array.isArray(children)){
 		//set parent make map as a double direction tree structure
