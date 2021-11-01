@@ -1,7 +1,7 @@
 import React, {Component,Children} from "react"
 import PropTypes from "prop-types"
 import memoize from "memoize-one"
-import {ContentQuery} from "we-edit"
+import {ContentQuery,dom} from "we-edit"
 
 export default ({Document})=>class __$1 extends Component{
 	static displayName="document"
@@ -14,7 +14,6 @@ export default ({Document})=>class __$1 extends Component{
 		styles: PropTypes.object,
 		evenAndOddHeaders: PropTypes.bool,
 		style: PropTypes.object,
-		numbering: PropTypes.func,
 		defaultTab: PropTypes.shape({
 			pos:PropTypes.number.isRequired,
 			leader: PropTypes.string,
@@ -39,7 +38,6 @@ export default ({Document})=>class __$1 extends Component{
 			defaultTab:{pos:this.props.defaultTab},
 			evenAndOddHeaders: !!this.props.evenAndOddHeaders,
 			style: this.styles['*'],
-			numbering: id=>this.numberingContext(this.props.content).numbering(id),
 			getField:id=>{
 				const field=this.props.content.getIn([id,"props"])
 				return field.toJS()
@@ -48,18 +46,10 @@ export default ({Document})=>class __$1 extends Component{
 		}
 	}
 
-	resetNumbering(){
-		const styles=this.styles
-		//reset for numbering
-		Object.keys(styles)
-			.forEach((k,t)=>(t=styles[k])&& t.reset && t.reset())
-	}
-
-	numberingContext=memoize(content=>{
+	getNumbering=memoize(content=>{
 		var list=null
 		const styles=this.styles
-		return {
-			numbering(id){
+		return id=>{
 				if(!list){
 					list={}
 					ContentQuery
@@ -85,18 +75,20 @@ export default ({Document})=>class __$1 extends Component{
 
 				return styles[`_num_${numId}`].level(level).label(levelCount)
 			}
-		}
 	},(a,b)=>a.equals(b))
 
 	render(){
-		this.resetNumbering()
-		
+		const numbering={
+			get:id=>this.getNumbering(this.props.content)(id),
+			reset:(styles=this.styles)=>Object.keys(styles).forEach((k,t)=>(t=styles[k])&& t.reset && t.reset())
+		}
+
 		if(Document.support('pageable')){
 			const WordDocument=this.constructor.Document(Document)
 			const {evenAndOddHeaders,pilcrow,...props}=this.props
-			return <WordDocument {...props}/>
+			return <WordDocument numbering={numbering} {...props}/>
 		}
-		return <Document {...this.props}/>
+		return <Document numbering={numbering} {...this.props}/>
 	}
 
 	static Document=memoize(Document=>{

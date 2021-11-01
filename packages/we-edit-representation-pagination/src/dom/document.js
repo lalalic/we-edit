@@ -20,8 +20,7 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
     static contextTypes={
         ...super.contextTypes,
         Measure: PropTypes.func,
-        activeDocStore: PropTypes.any,
-        numbering: dom.Document.childContextTypes.numbering,
+        activeDocStore: PropTypes.any
     }
 
     static childContextTypes={
@@ -31,7 +30,6 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
         editable: PropTypes.any,
         precision: PropTypes.number,
         activeDocStore: PropTypes.any,
-        numbering: dom.Document.childContextTypes.numbering,
     }
 
     constructor(){
@@ -53,10 +51,6 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
 
     get Measure(){
         return this.context.Measure||this.props.Measure
-    }
-
-    get numbering(){
-        return this.context.numbering||this.props.numbering
     }
 
     getComposed(){

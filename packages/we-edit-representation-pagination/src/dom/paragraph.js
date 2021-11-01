@@ -360,17 +360,20 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 		const {height,width, anchor, dyBlock, topOffset}=line
 		const {
 			numbering,
-			indent:{left=0,right=0, firstLine=0},
+			indent:{left=0,right=0, firstLine: firstLineIndent=0},
 			spacing:{bottom=0,top=0},
 			orphan,widow,keepWithNext,keepLines,
 			}=this.props
 		
 		const bFirstLine=this.lines.length==1
+		const nonNumberingFirstLineIndent=(bFirstLine&&!numbering&&firstLineIndent||0);
+		const firstLineTopSpace=(bFirstLine&&top||0);
+		const lastLineBottomSpace=(bLastLine&&bottom||0);
 		return (
 			<Group className="line"
 				{...(dyBlock ? {dy:dyBlock} : {})}
-				height={(bFirstLine&&top||0)+height+(bLastLine&&bottom||0)} 
-				width={left+(bFirstLine&&!numbering&&firstLine||0)+width+right} 
+				height={firstLineTopSpace+height+lastLineBottomSpace} 
+				width={left+nonNumberingFirstLineIndent+width+right} 
 				pagination={{
 					id:this.props.id,
 					orphan,widow,keepWithNext,keepLines, 
@@ -378,10 +381,23 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 					last:bLastLine,
 					break: line.pageBreak
 				}} 
-				anchor={anchor} 
+				anchor={anchor}
+				_layoutReason={{
+					content:{width,height,dx:nonNumberingFirstLineIndent,dy:topOffset},
+					line:{
+						bFirstLine,bLastLine,
+						...line._layoutReason,
+					},
+					paragraph:{
+						indent:{left,right,firstLine:firstLineIndent},
+						spacing:{top,bottom},
+						numbering,
+						orphan,widow,keepWithNext,keepLines,
+					},
+				}}
 				>
 				<Group 
-					x={left+(bFirstLine&&!numbering&&firstLine||0)} 
+					x={left+nonNumberingFirstLineIndent} 
 					y={topOffset} 
 					width={width} 
 					height={height}>

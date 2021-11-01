@@ -4,6 +4,11 @@ import PropTypes from "prop-types"
 
 export default class Document extends Component{
 	static displayName="document"
+	static NumberingContextShape=PropTypes.shape({
+		reset: PropTypes.func.isRequired,
+		get: PropTypes.func.isRequired,
+	})
+
 	static propTypes={
 		//target
 		canvas: PropTypes.node,
@@ -20,27 +25,23 @@ export default class Document extends Component{
 		
 		//state
 		content: PropTypes.object,//document memory content, immutable map
-	}
 
+		numbering: this.NumberingContextShape,
+	}
+	
 	static childContextTypes={
-		numbering: PropTypes.shape({
-			reset: PropTypes.func.isRequired,
-			get: PropTypes.func.isRequired,
-		})
+		numbering: this.NumberingContextShape
 	}
 
 	getChildContext(){
 		return {
-			numbering:{
-				reset(){
-
-				},
-				get(){
-
-				}
-			}
+			numbering:this.numbering
 		}
 	}
+
+	get numbering(){
+        return this.context?.numbering||this.props.numbering
+    }
 
 	//emitter call it to output returned
 	getComposed(){
