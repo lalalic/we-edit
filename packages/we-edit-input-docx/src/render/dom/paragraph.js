@@ -70,7 +70,7 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 						return <DocxParagraph
 							{...style}
 							{...props}
-							{...{widow,orphan,defaultStyle, spacing:{lineHeight:"115%,15%",...spacing}}}
+							{...{widow,orphan,defaultStyle, spacing:{lineHeight:{height:"115%",offset:"15%"},...spacing}}}
 							hash={`${hash}-${scale}`}
 							/>
 					}}

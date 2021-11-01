@@ -35,9 +35,9 @@ export default class Base extends Component{
 				case "number":
 					return value
 				case "string":{
-					const val=parseFloat(value), unit=value.replace(/[\s\d\.\+-]/g,"")||missUnit
-					if(unit=="%")
+					if(value.indexOf('%')!=-1)
 						return value
+					const val=parseFloat(value), unit=value.replace(/[\s\d\.\+-]/g,"")||missUnit
 					if(toUnit==unit)
 						return val
 					const fn=`${unit}2${toUnit}`
@@ -52,6 +52,9 @@ export default class Base extends Component{
 			},{...value})
 		},
 		denormalize: (value, normalized)=>{
+			if(normalized.indexOf("%")!=-1)
+				return normalized
+					
 			switch(typeof(value)){
 				case "number":
 					return normalized

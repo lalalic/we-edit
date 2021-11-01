@@ -9,8 +9,8 @@ export default class Paragraph extends Component{
 		spacing: this.normalizeChecker(PropTypes.shape({
 			lineHeight: PropTypes.oneOfType([
 				PropTypes.shape({
-					height: this.UnitShape,
-					offset: this.UnitShape,
+					height: this.UnitShape,//whole line height
+					offset: this.UnitShape,//text start layout from top offset 
 				}),
 				this.UnitShape,
 			]),
