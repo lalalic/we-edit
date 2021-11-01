@@ -13,6 +13,7 @@ import Pilcrow from "./pilcrow"
 import SelectionStyleNotify from "./selection-style-notify"
 import DrawLayer from "./draw-layer"
 import ScaleNotify from "./scale-notify"
+import Inspector from "../inspector"
 
 /**
  * must provide the following 
@@ -139,6 +140,10 @@ class Responsible extends Component{
 
     get canvas(){
         return document.getElementById(this.id)
+    }
+
+    get inspector(){
+        return <Inspector document={this.props.document}/>
     }
 
     __composedY(){

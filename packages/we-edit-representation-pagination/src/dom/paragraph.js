@@ -382,7 +382,7 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 					break: line.pageBreak
 				}} 
 				anchor={anchor}
-				_layoutReason={{
+				_inspector={{
 					content:{width,height,dx:nonNumberingFirstLineIndent,dy:topOffset},
 					line:{
 						bFirstLine,bLastLine,

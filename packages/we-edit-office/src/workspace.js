@@ -166,6 +166,7 @@ export default class Workspace extends PureComponent{
 					<Tabs {...props} value={active} 
 						style={{flex:1,margin:5,display:"flex",flexDirection:"column",width:"100%",order:0,overflowX:"hidden",...style}}
 						contentContainerStyle={{height:"100%", overflow:"auto", ...contentContainerStyle}}
+						tabTemplateStyle={{height:"100%"}}
 						>
 						{panels.map((a,i)=>{
 							const title=a.props.title

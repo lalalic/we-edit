@@ -32,6 +32,7 @@ export default class Group extends PureComponent{
 			contentWidth,wrap,pagination,anchor,blockOffset,named,descent,tokenizeOpportunity, mergeOpportunity, spaceHeight,editable,dispatch,tabWidth,
 			"data-nocontent":noContent,
 			//className,id,
+			_inspector,
 			I,
 			...others}=this.props
 		if(this.context.media=="file" && noContent){
