@@ -22,12 +22,12 @@ export default class FilterDocumentTree extends PureComponent {
                             this.setState({ filter: e.target.value });
                         }} />
                 </div>
-                <div style={{ flex: "none", overflow: "scroll" }}>
+                <div style={{ flex: "auto", overflow: "scroll" }}>
                     <DocumentTree {...props} filter={({ id, type }) => {
                         return !filter ? true : `${type}(${parseInt(id)})`.indexOf(filter) != -1;
                     }} />
                 </div>
-                <div style={{ flex: 1, height: 200, borderTop: "1px solid lightgray", marginTop: 10, paddingTop: 10, overflow: "scroll" }}>
+                <div style={{ flex: "1 0 30%", borderTop: "1px solid lightgray", marginTop: 10, paddingTop: 10, overflow: "scroll" }}>
                     <ObjectInspector />
                 </div>
             </div>

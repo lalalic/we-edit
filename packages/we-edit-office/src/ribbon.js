@@ -226,6 +226,6 @@ const Ribbon=compose(
 
 export default Ribbon
 
-export {Active as Shape} from "./shape"
+export {Create as Shape} from "./shape"
 
 export {Ribbon, Clipboard, ContextMenuSupport, Text, Paragraph,File,History,Table,Picture,Layout,Developer,Recorder, Toolbar, ToolbarSeparator, Tabs, Tab, CheckIconButton,DropDownButton}

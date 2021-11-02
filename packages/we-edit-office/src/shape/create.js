@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import { ACTION, whenSelectionChangeDiscardable, dom, ReactQuery } from "we-edit";
 import { Geometry, Composed } from "we-edit-representation-pagination";
 import { SvgIcon, MenuItem } from "material-ui";
-import memoize from "memoize-one";
 import { compose, setDisplayName } from "recompose";
 import FontKit from "fontkit";
 import DropDownButton from "../components/drop-down-button";
