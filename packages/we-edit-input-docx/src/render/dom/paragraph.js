@@ -37,7 +37,7 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 		if(style.numbering){
 			let {nextValue, style:props,format}=style.numbering
 			style.numbering={
-				style:{...props, ...defaultStyle},
+				style:{...defaultStyle,...props},
 				label:nextValue(),
 				format
 			}
