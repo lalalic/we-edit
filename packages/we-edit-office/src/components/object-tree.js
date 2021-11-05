@@ -13,7 +13,7 @@ export default class ObjectTree extends Component{
         const {open}=this.state
         const listStyle={listStyle:"none", paddingLeft:15}
         const folderStyle={display:"inline-block",width:15, cursor:"default"}
-        const nameStyle={fontStyle:"italic",fontSize:"smaller",paddingRight:3}
+        const nameStyle={fontStyle:"italic",fontSize:"smaller",paddingRight:3,whiteSpace:"nowrap"}
         const valueStyle={whiteSpace:"nowrap",paddingLeft:4,fontSize:"smaller"}
         const keys=Array.isArray(ob) ? 
             new Array(ob.length).fill(0).map((n,i)=>i) : 
@@ -27,23 +27,31 @@ export default class ObjectTree extends Component{
         })
 
         const lists=keys.map(k=>{
-            const v=ob[k]
+            let v=ob[k]
             if(typeof(v)=="undefined")
                 return null
+            
             switch(typeof(v)){
                 case 'function':
                     return null
                 case "object":
                     return (<ObjectTree value={v} name={k} key={k} order={order} filter={filter}/>)
-                default:
+                default:{
+                    try{
+                        v=v+""
+                    }catch(e){
+                        return null
+                    }
+                    
                     return (
                         <li key={k}>
                             <div style={{display:"flex", flexDirection:"row"}}>
                                 <div style={{paddingLeft:folderStyle.width, cursor:"default",...nameStyle}}>{k}:</div>
-                                <div style={valueStyle}>{v+""}</div>
+                                <div style={valueStyle}>{v}</div>
                             </div>
                         </li>
                     )
+                }
             }
         }).filter(a=>!!a)
 
