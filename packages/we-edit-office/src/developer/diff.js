@@ -1,4 +1,4 @@
-import React,{Component} from "react"
+import React,{Component, Fragment} from "react"
 import format from "xml-formatter"
 import {ReactGhLikeDiff} from "react-gh-like-diff"
 import 'react-gh-like-diff/dist/css/diff2html.min.css'
@@ -109,8 +109,8 @@ export default class Diff extends Component{
                     </ul>
                     <div style={{overflow:"scroll",flex:1,padding:5,position:"relative",...compareStyle}}>
                         <Compare 
-                            a={a && a.parts[path] && a.parts[path].asText()} 
-                            b={b && b.parts[path] && b.parts[path].asText()} 
+                            a={a && a.parts[path]} 
+                            b={b && b.parts[path]} 
                             style={{flex:1,overflow:"scroll"}}
                             options={{
                                 originalFileName:path,
@@ -143,7 +143,8 @@ export default class Diff extends Component{
 
 class Compare extends Component{
     render(){
-        const {a,b, options={}}=this.props
+        const {a:partA,b:partB, options={}}=this.props
+        const a=partA?.asText(), b=partB?.asText()
         const isXml=a=>a && a.substring(0,10).trim().startsWith("<?xml")
         const formattedA=isXml(a) ? format(a) : a
         const formattedB=isXml(b) ? format(b) : b
@@ -155,8 +156,25 @@ class Compare extends Component{
                     ...options
                 }}/>)
         }else{
-            return (<pre>{formattedA||formattedB}</pre>)
+            return (
+                <Fragment>
+                    <pre>{formattedA||formattedB}</pre>
+                    {a&&<center><button onClick={()=>this.download(partA)}>download</button></center>}
+                </Fragment>
+            )
         }
+    }
+
+    download(part){
+        const a=document.createElement('a')
+        a.style.display="none"
+        document.body.appendChild(a)
+        const data=part.asArrayBuffer?.()||part.asText()
+        const url=window.URL.createObjectURL(new Blob([data]))
+        a.href=url
+        a.download=this.props.options.originalFileName
+        a.click()
+        window.URL.revokeObjectURL(url)
     }
 }
 
