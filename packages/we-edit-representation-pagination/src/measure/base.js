@@ -279,6 +279,7 @@ export class Measure{
 	}
 
 	static requireFonts=FontManager.requireFonts
+	static applyFont=data=>FontManager.load(data,false)
 
 	static fallbackFonts={
 		ascii:"Arial",

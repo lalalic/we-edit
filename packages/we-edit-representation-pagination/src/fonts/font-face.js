@@ -9,6 +9,18 @@ export function makeFontFace(font, src , variants){
         fontFaces=loader.appendChild(document.createElement("style"))
         fontFaces.id="we_edit_font_face"
     }
+    const id=toName(font.familyName)
+    const idFontLoader=(()=>{
+        try{
+            return loader.querySelector(`#${id}`)
+        }catch(e){
+            console.warn(`'${font.familyName}' is valid font family name. ${e.message}`)
+            return false
+        }
+    })();
+    if(idFontLoader===false)
+        return 
+
     if(!src){//font data
         const nativeFont=new FontFace(font.familyName, font.stream.buffer, {...variants})
         document.fonts.add(nativeFont)
@@ -21,29 +33,27 @@ export function makeFontFace(font, src , variants){
             ${font.oblique ? 'font-style:oblique;' : ''}
         `)
     }
-    
-    const id=toName(font.familyName)
-    if(!loader.querySelector(`#${id}`)){
-        const span=loader.appendChild(document.createElement('span'))
-        span.id=id
-        span.style.fontFamily=font.familyName
-        //load normal, bold, italic, and boldItalic
-        span.innerHTML=`
+
+    const span=loader.appendChild(document.createElement('span'))
+    span.id=id
+    span.style.fontFamily=font.familyName
+    //load normal, bold, italic, and boldItalic
+    span.innerHTML=`
+        A
+        <b style="font-style:bold">
             A
-            <b style="font-style:bold">
-                A
-                <i style="font-style:italic">A</i>
-            </b>
             <i style="font-style:italic">A</i>
-        `
-    }
+        </b>
+        <i style="font-style:italic">A</i>
+    `
+
     const fontface=Array.from(document.fonts).find(a=>a.family==font.familyName)
     return fontface.loaded.then(font=>{
         document.dispatchEvent(new CustomEvent('fontLoaded',{detail:{font}}))
     })
 }
 
-const toName=a=>a.replace(/\s/g,'_')
+const toName=a=>a.replace(/[\s]/g,'_')
 
 export function removeFontFace(font){
     const names=[font.family,`"${font.family}"`]

@@ -57,7 +57,7 @@ export default class Pagination extends Representation.Base{
 	constructor(){
 		super(...arguments)
 		const {fallbackFonts,measure,fonts:service}=this.props
-		this.Measure=measure||(isNode ? FontMeasure : BrowserMeasure)
+		this.Measure=measure||(isNode ? FontMeasure : HybridMeasure)
 		if(fallbackFonts){
 			this.Measure=this.Measure.createFallbackFontsMeasure(fallbackFonts)
 		}
@@ -91,7 +91,8 @@ export default class Pagination extends Representation.Base{
 		return [
 			<FontLoader {...{
 				key:"fontloader", 
-				service, 
+				service,
+				doc:doc.doc, 
 				Measure:this.Measure,
 				onFinished:this.fontReady,
 				fonts:this.requiredFonts
@@ -114,11 +115,25 @@ class FontLoader extends Component{
 	}
 
 	componentDidMount(){
-		const {props:{service, fonts,Measure, onFinished}}=this
-		Measure.requireFonts(service,fonts)
-			.then(({unloaded, errors})=>{
-				this.setState({errors, unloaded, loaded:true},()=>onFinished({unloaded}))
+		const {props:{service, fonts, Measure, onFinished, doc}}=this
+		
+		Promise.resolve(doc.fonts)
+			.then(fonts=>{
+				if(fonts && Array.isArray(fonts)){
+					return Promise.all(fonts.map(a=>Promise.resolve(a).then(Measure.applyFont)))
+				}
+			})
+			.then(()=>{
+				Measure.requireFonts(service,fonts)
+					.then(({unloaded, errors})=>{
+						this.setState({errors, unloaded, loaded:true},()=>onFinished({unloaded}))
+					})
 			})	
+	}
+
+	componentWillUnmount(){
+		//release doc level fonts
+		
 	}
 }
 

@@ -107,6 +107,7 @@ const fonts=(()=>{
         release(){
             Object.keys(families).forEach(k=>delete families[k])
             Object.keys(postscriptNames).forEach(k=>delete families[k])
+            
         }
     }
 })()

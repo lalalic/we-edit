@@ -4,8 +4,8 @@ import Base from "./base"
 let tester=null
 export default class BrowserMeasure extends Base{
     static displayName="Browser Measure"
-    constructor({fonts:{hint,...fonts}, ...style}){
-        super({...style,fonts:fonts[hint]||fonts.ea||fonts.ascii||Object.values(fonts)[0]},true)
+    constructor({fonts, ...style}){
+        super({...style,fonts},true)
     }
 
     lineHeight(size=this.size){
