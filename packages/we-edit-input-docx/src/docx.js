@@ -68,6 +68,21 @@ export default class Document extends docx4js{
 		return count*super.toPx(`1${unit}`)
 	}
 
+	get fonts(){
+		const fontTableId=this.officeDocument.rels("[Type='http://schemas.openxmlformats.org/officeDocument/2006/relationships/fontTable']").attr('Id')
+		if(!fontTableId)
+			return 
+		
+		const fontTablePart=this.officeDocument.getRelPart(fontTableId)
+		return Array.from(fontTablePart.content('w\\:font>[w\\:fontKey]'))
+		.map(({attribs:{"r:id":rid,"w:fontKey":guid}})=>{
+			guid=guid.replace(/[\\{\\}]/g,"")
+			const odttfData=fontTablePart.getRel(rid).asArrayBuffer()
+			const ttfData=deobfuscate(odttfData,guid);
+			return ttfData
+		})
+	}
+
 	static parseXml=function(){
 		const initialize=docx4js.parseXml(...arguments)
 		initialize.prototype.afterOrPrepend=function(dom,selector){
@@ -131,4 +146,19 @@ export default class Document extends docx4js{
 			})
 		}
 	}
+}
+
+function deobfuscate(odttfData, guid) {
+	const fontData=new Uint8Array(odttfData)
+	guid = guid.replace(/-/g, "");
+
+	const key = [];
+	const keyLength = 16;
+
+	for (let i = 0; i < keyLength; i++)
+		key[keyLength - 1 - i] = parseInt(guid.substr(i * 2, 2), 16);
+
+	for (let i = 0; i < 32; i++)
+		fontData[i] ^= key[i % key.length]
+	return fontData
 }
