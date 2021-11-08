@@ -4,7 +4,7 @@ import FontMeasure from "../../src/measure/font"
 
 describe("measure",()=>{
     describe("font selection",()=>{
-        it("ascii,chinese",()=>{
+        it(`{ascii:"FA",ea:"FB", fallback:"fallbackFont"} make A for FA, 中 for FB, 0xFFFE for fallbakfont`,()=>{
             const measure=new FontMeasure({fonts:{ascii:"FA",ea:"FB", fallback:"fallbackFont"},size:5})
             measure.fontExists=jest.fn(()=>true)
             expect(measure.getCharFontFamily("A")).toBe("FA")
@@ -12,7 +12,7 @@ describe("measure",()=>{
             expect(measure.getCharFontFamily(0xFFFE)).toBe("fallbackFont")
         })
 
-        it("break string",()=>{
+        it('{ascii:"FA",ea:"FB", fallback:"fallbackFont"} should break `AB C中间gre0xFFFE at` to ["AB C","中间","gre",oxFFFE," at"]',()=>{
             const measure=new FontMeasure({fonts:{ascii:"FA",ea:"FB", fallback:"fallbackFont"},size:5})
             measure.fontExists=jest.fn(()=>true)
             const unknown=String.fromCharCode(0xFFFE).repeat(3)
@@ -20,12 +20,13 @@ describe("measure",()=>{
                 .toMatchObject(["AB C","中间","gre",unknown," at"])
         })
 
-        it("hint priority: fonts[..]>fonts[fonts.hint]>fonts.fallback>fallbackMeasure.fonts[fonts.hint]>fallbackMeasure.fonts[...]>fallbackMeasure.fonts.fallback ",()=>{
+        fit("hint priority: fonts[..]>fonts[fonts.hint]>fonts.fallback>fallbackMeasure.fonts[fonts.hint]>fallbackMeasure.fonts[...]>fallbackMeasure.fonts.fallback ",()=>{
             const FontMeasure1=FontMeasure.createFallbackFontsMeasure({ea:"FFB",acsii:"FFA",fallback:"FFF"})
             const measure=new FontMeasure1({fonts:{hint:"ea",ea:"FB",ascii:"FA",fallback:"FF"},size:5})
             measure.fontExists=jest.fn(()=>true)
             expect(measure.getCharFontFamily("A")).toBe("FA")
             expect(measure.getCharFontFamily("中")).toBe("FB")
+            //fonts.hint
             expect(measure.getCharFontFamily(0xFFFE)).toBe("FB")
 
             measure.fontExists=jest.fn(a=>a!="FB")
@@ -33,11 +34,27 @@ describe("measure",()=>{
 
             measure.fontExists=jest.fn(a=>!["FB","FF"].includes(a))
             expect(measure.getCharFontFamily(0xFFFE)).toBe("FFB")
+
+            //measure.fontExists=jest.fn(a=>!["FA","FF"].includes(a))
+            //expect(measure.getCharFontFamily("A")).toBe("FFA")
             
             measure.fontExists=jest.fn(a=>!["FB","FF","FFB"].includes(a))
             expect(measure.getCharFontFamily(0xFFFE)).toBe("FFF")
         })
 
+        it.each([
+            ["{hint:'ea',ea:'FA'}",{hint:'ea',ea:'FA'}],
+            ["fonts:FA","FA"]
+        ])("%s should always select FA for any character", (test, fonts)=>{
+            const measure=new FontMeasure({fonts,size:5})
+            debugger
+            measure.fontExists=jest.fn(()=>true)
+            expect(measure.getCharFontFamily("A")).toBe("FA")
+            expect(measure.getCharFontFamily("中")).toBe("FA")
+            expect(measure.getCharFontFamily(0xFFFE)).toBe("FA")
+        })
+
+        
         describe("style selection",()=>{
             const font={lineHeight:()=>10,lineDescent:()=>5,stringWidth:jest.fn(),postscriptName:"A"}
             function test(style,...args){

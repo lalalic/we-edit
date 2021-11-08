@@ -1,5 +1,8 @@
 import FontManager from "../../src/fonts"
-
+/**
+ * document fonts->global we-edit fonts->fallback fonts->browser 
+ * fonts:{ea,ascii,fallback,hint}
+ */
 describe("font manager",()=>{
     beforeAll(()=>{
         console.log=console.error=console.warn=jest.fn()

@@ -139,3 +139,10 @@ class PDF extends Output{
 	* Template doesn't keep composers of template instance
 		* Template can implement itself special Locatorize to hold its own composers, and
 			* hold template instances, then template composer can give instance  
+
+## Font
+* text font is decided in Measure
+	* fonts[segment]>fonts[fonts.hint]>fonts.fallback>fallbackMeasure.fonts[fonts.hint]>fallbackMeasure.fonts[...]>fallbackMeasure.fonts.fallback
+	* fonts:"Arial" = fonts:{ascii:"Arial",hint:"ascii"}
+* In browser, document fonts -> global we-edit fonts -> browser fonts
+* In browser, if font is missing in document and we-edit fonts, font selection is depended on browser

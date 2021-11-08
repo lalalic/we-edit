@@ -30,6 +30,10 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
         editable: PropTypes.any,
         precision: PropTypes.number,
         activeDocStore: PropTypes.any,
+        hintMeasure: PropTypes.shape({
+			defaultStyle: PropTypes.object.isRequired,
+			stringWidth: PropTypes.func.isRequired
+		})
     }
 
     constructor(){
@@ -59,7 +63,8 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
 
     getChildContext(){
         const self=this
-
+        debugger
+        const hintMeasure=new this.Measure(this.props.hintStyle)
         return {
             ...super.getChildContext(),
             prevLayout(ref){
@@ -72,6 +77,7 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
             activeDocStore: this.activeDocStore,
             Measure: this.Measure,
             numbering: this.numbering,
+            hintMeasure,
         }
     }
 

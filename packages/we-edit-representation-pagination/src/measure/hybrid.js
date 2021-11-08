@@ -1,6 +1,18 @@
 import FontMeasure from "./font"
 import BrowserMeasure from "./svg"
 
+/**
+ * Map all loaded fonts to browser font face, which is a must in browser, because
+ * * browser and we-edit layout engine should use same font for view and layouting
+ * 
+ * then we can use svg measure in browser to get typeface metrics, height, width, baseline
+ * Browser has its own font selection strategy, which may result in different layout between editing and publishing
+ * some metrics can't be given from svg measure, such as kerning, 
+ * some issues:
+ *  TTC must be extracted to single font
+ *  hyphenation, can't be supported
+ *  character spacing can't be supported: css text spacing, and layout engine
+ */
 export default class HybridMeasure extends FontMeasure{
     static displayName="SVG Measure"
     static fallbackFonts={
@@ -17,6 +29,7 @@ export default class HybridMeasure extends FontMeasure{
         if(this.font){
             return super.lineHeight(...arguments)
         }
+        console.warn(`Font: font missing, let browser decide`)
         return BrowserMeasure.prototype.lineHeight.call(this, size)
     }
 
@@ -28,11 +41,13 @@ export default class HybridMeasure extends FontMeasure{
         if(this.font){
             return super._stringWidth(word)
         }
+        console.warn(`Font: font missing, let browser decide`)
         return BrowserMeasure.prototype._stringWidth.call(this,word)
     }
 
     static requireFonts(service, fonts){
-        return super.requireFonts(service, Array.from(new Set([...fonts,...BrowserMeasure.WebFonts])))
+        return BrowserMeasure.requireFonts()
+            .then(()=>super.requireFonts(service, Array.from(new Set([...fonts])))
             .then(({FontManager,unloaded})=>{
                 const locals=unloaded
                 if(locals && locals.length){
@@ -58,7 +73,7 @@ export default class HybridMeasure extends FontMeasure{
                     const errors=unloaded.filter(a=>locals.includes(a))
                     return {FontManager,unloaded, errors}
                 })
-            })
+            }))
     }
 }
 

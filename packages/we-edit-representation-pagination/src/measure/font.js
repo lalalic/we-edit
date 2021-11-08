@@ -9,8 +9,12 @@ export default class FontMeasure extends Measure{
 		return FontManager.get(this.fontFamily, this.style)
 	}
 
-	fontExists(family){
-		return !!FontManager.get(family)
+	fontExists(family, char){
+		const font=FontManager.get(family)
+		if(font && char && !font.hasGlyphForCodePoint(char.charCodeAt(0))){
+			return
+		}
+		return font
 	}
 
 	lineHeight(size=this.size){

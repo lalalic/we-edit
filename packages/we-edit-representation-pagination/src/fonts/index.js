@@ -6,6 +6,12 @@ import memoize from "memoize-one"
 
 /**
  * families:{[family name]: [different variations, such as plain/regular/bold/italic/oblique/bold-italic/...]}
+ * for example:
+ * families:{
+ *  arial: [regularFont, boldFont, italicFont, boldItalicFont,...],
+ *  "arial in france": refer to above array,
+ *  ...
+ * }
  */
 const fonts=(()=>{
     const families=Object.create(null)
@@ -104,10 +110,29 @@ const fonts=(()=>{
             return postscriptNames[postscriptName]
         },
 
-        release(){
+        release(fonts){
+            if(fonts){
+                fonts.forEach(font=>{
+                    const key=font.familyName.toLowerCase()
+                    const fonts=families[key]
+                    if(!fonts)
+                        return
+
+                    const i=fonts?.findIndex(a=>a==font)
+                    if(i==-1)
+                        return 
+
+                    fonts.splice(i,1)
+                    if(fonts.length==0)
+                        delete families[key]
+                    delete postscriptNames[font.postscriptName]
+                    removeFontFace(font)
+                })
+                return 
+            }
+
             Object.keys(families).forEach(k=>delete families[k])
             Object.keys(postscriptNames).forEach(k=>delete families[k])
-            
         }
     }
 })()
@@ -137,7 +162,7 @@ const FontManager={
     },
 
     release(){
-        fonts.release()
+        fonts.release(...arguments)
         return this
     },
 
@@ -258,10 +283,6 @@ const FontManager={
                 })
         )
     },
-    
-    fromCache(fonts){
-        return Promise.resolve({unloaded:fonts})
-    },
 
     asService(sw="/font-service.js",scope="/fonts"){
         if (!(typeof(navigator)!="undefined" && 'serviceWorker' in navigator)){
@@ -276,7 +297,6 @@ const FontManager={
                     return 
                 service=reg
                 console.log(`Font Service[${sw}] at ${scope}`)
-
                 return new Promise((resolve,reject)=>{
                     const errorFonts=[]
                     navigator.serviceWorker.addEventListener('message',function({data:{font:data,name,done}}){
@@ -297,7 +317,6 @@ const FontManager={
                 })
             })
             .catch(error=>console.warn(`Font Service[${sw}] failed: ` + error))
-        FontManager.fromCache=()=>register
         return register
     },
 
@@ -321,7 +340,7 @@ const FontManager={
 				.then(done,done)
 		}
 
-        return FontManager.fromCache()
+        return Promise.resolve()
             .then(()=>{
                 const {unloaded}=done()
 				if(unloaded.length==0)

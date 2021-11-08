@@ -20,16 +20,10 @@ export default ({Document})=>class __$1 extends Component{
 			val: PropTypes.string,
 		}),
 		getField: PropTypes.func,
-		pilcrowMeasure: PropTypes.object,
 	}
 
 	get styles(){
 		return this.props.styles
-	}
-
-	constructor(){
-		super(...arguments)
-		this.pilcrowMeasure=new this.context.Measure(this.props.pilcrow)
 	}
 
 	getChildContext(){
@@ -41,8 +35,7 @@ export default ({Document})=>class __$1 extends Component{
 			getField:id=>{
 				const field=this.props.content.getIn([id,"props"])
 				return field.toJS()
-			},
-			pilcrowMeasure:this.pilcrowMeasure
+			}
 		}
 	}
 
@@ -85,7 +78,7 @@ export default ({Document})=>class __$1 extends Component{
 
 		if(Document.support('pageable')){
 			const WordDocument=this.constructor.Document(Document)
-			const {evenAndOddHeaders,pilcrow,...props}=this.props
+			const {evenAndOddHeaders,...props}=this.props
 			return <WordDocument numbering={numbering} {...props}/>
 		}
 		return <Document numbering={numbering} {...this.props}/>

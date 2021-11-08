@@ -519,9 +519,9 @@ class PositioningHelper extends Positioning{
 	positionInInline(id,at,composedLine){
         const paragraphId=new ReactQuery(composedLine).findFirst(`[data-type="paragraph"]`).attr('data-content')
         const paragraph=this.getComposer(paragraphId)
-        const paragraphDefaultMeasure=paragraph.getDefaultMeasure()
-        paragraphDefaultMeasure.stringWidth(paragraph.props.End)
-		const defaultStyle=paragraphDefaultMeasure.defaultStyle
+        const hintMeasure=paragraph.context.hintMeasure
+        hintMeasure.stringWidth(paragraph.props.End)
+		const defaultStyle=hintMeasure.defaultStyle
 		//could it search from line directly to target
         const {first:story,parents:storyUps}=new ReactQuery(composedLine).findFirstAndParents(".story")
         const pos=storyUps.reduce((xy,{props:{x=0,dy=0,y=dy}})=>(xy.x+=x,xy.y+=y,xy),{x:0,y:0,...defaultStyle})

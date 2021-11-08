@@ -11,7 +11,10 @@ const Tokenizers=[dom.Text.LineBreak, dom.Text.PageBreak,dom.Text.Tab]
 class Paragraph extends HasParentAndChild(dom.Paragraph){
     static contextTypes={
 		...super.contextTypes,
-		Measure: PropTypes.func,
+		hintMeasure: PropTypes.shape({
+			defaultStyle: PropTypes.object.isRequired,
+			stringWidth: PropTypes.func.isRequired
+		}),
 		numbering: PropTypes.shape({
 			get: PropTypes.func
 		}),
@@ -50,12 +53,6 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 			this.lines.push(this.createLine())
 		}
 		return this.lines[this.lines.length-1]
-	}
-
-	__getDefaultMeasure=memoize(style=>new this.context.Measure(style))
-
-	getDefaultMeasure(){
-		return this.__getDefaultMeasure(this.props.defaultStyle)
 	}
 
     /**
@@ -114,11 +111,11 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 	
 	createParagraphEndAtom(){
 		const {props:{End=""}}=this
-		const measure=this.getDefaultMeasure()
-		const width=measure.stringWidth(End)
+		const measure=this.context.hintMeasure;
+		const width=measure?.stringWidth(End)
 		return (
 			<ComposedText
-					{...measure.defaultStyle}
+					{...measure?.defaultStyle}
 					width={width}
 					minWidth={0}
 					children={End}

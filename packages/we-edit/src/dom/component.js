@@ -183,13 +183,15 @@ export default class Base extends Component{
 		normalize:value=>{
 			switch(typeof(value)){
 				case "string":
-					return {ascii:value}
+					return {ascii:value, hint:"ascii"}
 				default:
 					return value
 			}
 		},
 		denormalize:(value,normalized)=>{
-			if(typeof(normalized)=="object" && Object.keys(normalized).length==1 && 'ascii' in normalized && typeof(value)=="string"){
+			if(typeof(value)=="string" && 
+				typeof(normalized)=="object" && 
+				Object.keys(normalized).length==2 && normalized[normalized.hint]==normalized.ascii){
 				return normalized.ascii
 			}
 			return normalized

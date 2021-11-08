@@ -8,7 +8,7 @@ import FontManager from "../fonts"
  * 				> hint also will be resolved in FallbackMeassure
  * 			> fallback will be used if no font scope located in this fonts
  * 
- * 		> string: every char use the same font=>{ascii:fontFamily}
+ * 		> string: every char use the same font=>{hint:fontFamily}
  * 
  * ** fallback fonts: 
  * 		> system must make sure all fallback fonts loaded, which must be object
@@ -94,7 +94,7 @@ export class Measure{
 			if(typeof(fonts)=="string"){//{ascii:fonts}
 				if(_dont_decide)
 					return fonts
-				fonts={ascii:fonts}
+				fonts={ascii:fonts, hint:"ascii"}
 			}
 		})();
 
@@ -120,26 +120,26 @@ export class Measure{
 			let family=resolveCharFontFunctions.reduce((font,resolveCharFont)=>font||resolveCharFont(A), "")
 
 			//2.hint
-			if((!family||!this.fontExists(family)) && fonts.hint){
+			if((!family||!this.fontExists(family,A)) && fonts.hint){
 				reason=2
 				family=fonts[fonts.hint]
 			}
 
 			//3.fallback
-			if((!family || !this.fontExists(family)) && fonts.fallback){
+			if((!family || !this.fontExists(family,A)) && fonts.fallback){
 				reason=3
 				family=fonts.fallback
 			}
 			
 			if(!isFallbackFontsMeasure){//system fallbacks
 				//4. hint in system fallbacks
-				if((!family||!this.fontExists(family)) && fonts.hint){
+				if((!family||!this.fontExists(family,A)) && fonts.hint){
 					reason=4
 					family=this.fallbackFonts[fonts.hint]
 				}
 				
 				//find in system fallbacks
-				if((!family||!this.fontExists(family))){
+				if((!family||!this.fontExists(family,A))){
 					reason=5
 					family=this.fallbackFontsMeasure.getCharFontFamily(A,reason)
 				}
@@ -187,7 +187,7 @@ export class Measure{
 		})
 	}
 	
-	fontExists(font){
+	fontExists(fontFamily, char/*optional, to check if the font support this char*/){
 		return true
 	}
 
@@ -280,6 +280,7 @@ export class Measure{
 
 	static requireFonts=FontManager.requireFonts
 	static applyFont=data=>FontManager.load(data,false)
+	static releaseFonts=fonts=>FontManager.release(fonts)
 
 	static fallbackFonts={
 		ascii:"Arial",
@@ -298,7 +299,7 @@ export class Measure{
 		return this.constructor.fallbackFontsMeasure
 	}
 
-	static createFallbackFontsMeasure=function(fallbackFonts){
+	static createMeasureClassWithFallbackFonts=function(fallbackFonts){
 		const Type=this
 		const fonts=typeof(fallbackFonts)=="string" ? {...this.fallbackFonts, ascii:fallbackFonts} : {...this.fallbackFonts, ...fallbackFonts}
 		return class extends Type{

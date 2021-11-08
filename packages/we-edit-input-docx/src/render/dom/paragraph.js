@@ -17,7 +17,7 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 	static contextTypes={
 		style: PropTypes.object,
 		tabWidth: PropTypes.func,
-		pilcrowMeasure: PropTypes.object,
+		hintMeasure: PropTypes.object,
 	}
 
 	static childContextTypes={
@@ -85,7 +85,7 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 			static contextTypes={
 				...super.contextTypes,
 				defaultTab: PropTypes.object,
-				pilcrowMeasure: PropTypes.object,
+				hintMeasure: PropTypes.object,
 			}
 
 			getTabAt(x){
@@ -112,8 +112,8 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 				if(this.props.sectionType){
 					const text=`====== Section Break (${this.props.sectionType}) ===========`
 					return React.cloneElement(atom, {
-						...this.context.pilcrowMeasure.defaultStyle,
-						width: this.context.pilcrowMeasure.stringWidth(text),
+						...this.context.hintMeasure.defaultStyle,
+						width: this.context.hintMeasure.stringWidth(text),
 						children: text
 					})
 				}
@@ -291,7 +291,7 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 					const $atom=new ReactQuery(atom)
 					const $text=$atom.findFirst('[data-type="text"]')
 					const text=String.fromCharCode(0x21A1)
-					const width=this.context.parent.context.pilcrowMeasure.stringWidth(text)
+					const width=this.context.parent.context.hintMeasure.stringWidth(text)
 					this.inlineSegments.push(
 						React.cloneElement(
 							$atom.replace($text, 
@@ -310,7 +310,7 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 					const $atom=new ReactQuery(atom)
 					const $text=$atom.findFirst('[data-type="text"]')
 					const text="----page break----"
-					const width=this.context.parent.context.pilcrowMeasure.stringWidth(text)
+					const width=this.context.parent.context.hintMeasure.stringWidth(text)
 					this.inlineSegments.push(
 						React.cloneElement(
 							$atom.replace($text, 
@@ -329,7 +329,7 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 				static displayName="LineBreak"
 				static contextTypes={
 					editable: PropTypes.any,
-					pilcrowMeasure: PropTypes.object,
+					hintMeasure: PropTypes.object,
 				}
 				render(){
 					if(this.context.editable && this.props.pilcrow){

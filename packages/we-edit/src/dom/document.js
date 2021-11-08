@@ -27,10 +27,15 @@ export default class Document extends Component{
 		content: PropTypes.object,//document memory content, immutable map
 
 		numbering: this.NumberingContextShape,
+
+		hintStyle: PropTypes.shape({//pilcrow, section information, ... any hint text in canvas
+			fonts: this.FontsShape.isRequired,
+			size: this.UnitShape.isRequired,
+		})
 	}
 	
 	static childContextTypes={
-		numbering: this.NumberingContextShape
+		numbering: this.NumberingContextShape,
 	}
 
 	getChildContext(){

@@ -59,7 +59,7 @@ export default class Pagination extends Representation.Base{
 		const {fallbackFonts,measure,fonts:service}=this.props
 		this.Measure=measure||(isNode ? FontMeasure : HybridMeasure)
 		if(fallbackFonts){
-			this.Measure=this.Measure.createFallbackFontsMeasure(fallbackFonts)
+			this.Measure=this.Measure.createMeasureClassWithFallbackFonts(fallbackFonts)
 		}
 		this.state={fontsLoaded:false}
 		this.fontReady=({unloaded})=>{
@@ -108,22 +108,28 @@ class FontLoader extends Component{
 		this.state={loaded:false}
 	}
 	render(){
-		const {state:{loaded}}=this
+		const {state:{loaded, loading="prepare to load fonts..."}}=this
 		if(loaded)
 			return null
-		return <div>loading fonts ... </div>
+		return <div>{loading} </div>
 	}
 
 	componentDidMount(){
 		const {props:{service, fonts, Measure, onFinished, doc}}=this
-		
+		this.setState({loading:`checking if document has embedded fonts`})
 		Promise.resolve(doc.fonts)
 			.then(fonts=>{
 				if(fonts && Array.isArray(fonts)){
+					this.setState({loading:`document has ${fonts.length} embedded fonts ...`})
 					return Promise.all(fonts.map(a=>Promise.resolve(a).then(Measure.applyFont)))
 				}
 			})
-			.then(()=>{
+			.then((loadedEmbededFonts=[])=>{
+				if(loadedEmbededFonts.length>0){
+					console.log(`Font: load embeded fonts: ${loadedEmbededFonts.map(a=>a.familyName).join(",")}`)
+					this.setState({loading:`loaded ${loadedEmbededFonts.length} embeded fonts`, embeded:loadedEmbededFonts})
+				}
+				this.setState({loading:`loading fonts from ${typeof(service)=="string" ? service : "customized interface"}`})
 				Measure.requireFonts(service,fonts)
 					.then(({unloaded, errors})=>{
 						this.setState({errors, unloaded, loaded:true},()=>onFinished({unloaded}))
@@ -133,7 +139,8 @@ class FontLoader extends Component{
 
 	componentWillUnmount(){
 		//release doc level fonts
-		
+		const {state:{embeded=[]}, props:{Measure}}=this
+		Measure.releaseFonts(embeded)
 	}
 }
 

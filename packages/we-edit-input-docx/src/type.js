@@ -132,7 +132,7 @@ class DocxType extends Input.Editable{
 						evenAndOddHeaders:settings("w\\:evenAndOddHeaders").length>0,
 						precision:docx.precision,
 						styles,
-						pilcrow:{
+						hintStyle:{
 							fonts:"Arial",
 							size:docx.pt2Px(11),
 						}
