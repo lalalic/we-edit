@@ -137,7 +137,7 @@ export class Properties{
 	}
 
 	rFonts(x){
-		const {
+		let {
 			'w:hint':hint,
 			'w:asciiTheme':ascii0,'w:cstheme':cs0, 'w:eastAsiaTheme':ea0, 'w:hAnsiTheme':high0,
 			'w:ascii':ascii=ascii0 && this.theme.font(ascii0),
@@ -145,6 +145,8 @@ export class Properties{
 			'w:eastAsia':ea=ea0 && this.theme.font(ea0), 
 			'w:hAnsi':hansi=high0 && this.theme.font(high0),
 		}=x.attribs;
+
+		([ascii,cs,ea,hansi]=[ascii,cs,ea,hansi].map(a=>a ? a.replace(/(\(.*\))/g,"").trim() : a));
 
 		[ascii,cs,ea,hansi].forEach(a=>this.requireFonts.add(a))
 
