@@ -298,22 +298,22 @@ const FontManager={
                 service=reg
                 console.log(`Font Service[${sw}] at ${scope}`)
                 return new Promise((resolve,reject)=>{
-                    const errorFonts=[]
+                    const errorFonts=[], cacheFonts=[]
                     navigator.serviceWorker.addEventListener('message',function({data:{font:data,name,done}}){
                         if(done){
-                            errorFonts.length && console.warn(`Failed to cache fonts [${errorFonts.join(",")}]`)
+                            cacheFonts.length && console.info(`Loaded cache fonts: ${Array.from(new Set(cacheFonts)).join(",")}`)
+                            errorFonts.length && console.warn(`Failed to cache fonts [${Array.from(new Set(errorFonts)).join(",")}]`)
                             resolve()
                         }else if(data){    
                             try{
                                 FontManager.load(data,false)
+                                cacheFonts.push(name)
                             }catch(e){
                                 errorFonts.push(decodeURIComponent(name))
                             }
                         }
                     })
                     service.active.postMessage({action:"fontCache"})
-                }).finally(()=>{
-                    console.log(`Loaded cache fonts: ${fonts.names().join(",")}`)
                 })
             })
             .catch(error=>console.warn(`Font Service[${sw}] failed: ` + error))

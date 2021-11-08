@@ -126,7 +126,7 @@ class FontLoader extends Component{
 			})
 			.then((loadedEmbededFonts=[])=>{
 				if(loadedEmbededFonts.length>0){
-					console.log(`Font: load embeded fonts: ${loadedEmbededFonts.map(a=>a.familyName).join(",")}`)
+					console.log(`Font: load embeded fonts: ${Array.from(new Set(loadedEmbededFonts.map(a=>a.familyName))).join(",")}`)
 					this.setState({loading:`loaded ${loadedEmbededFonts.length} embeded fonts`, embeded:loadedEmbededFonts})
 				}
 				this.setState({loading:`loading fonts from ${typeof(service)=="string" ? service : "customized interface"}`})

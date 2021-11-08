@@ -32,6 +32,7 @@ export const context=({dom, state=State, measure=Measure, contextTypes={},contex
             contextTypes:{
         		activeDocStore:PropTypes.any,
         		Measure: PropTypes.any,
+                hintMeasure: PropTypes.any,
                 ...contextTypes,
     	   }
        },{
@@ -49,6 +50,7 @@ export const context=({dom, state=State, measure=Measure, contextTypes={},contex
 			}
 		},
 		Measure:measure,
+        hintMeasure: new measure({fonts:{ascii:"arial",hint:"arial"},size:12}),
         ...context
 	})
 }

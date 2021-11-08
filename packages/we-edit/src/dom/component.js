@@ -52,7 +52,7 @@ export default class Base extends Component{
 			},{...value})
 		},
 		denormalize: (value, normalized)=>{
-			if(normalized.indexOf("%")!=-1)
+			if(typeof(normalized)=="string" && normalized.indexOf("%")!=-1)
 				return normalized
 					
 			switch(typeof(value)){

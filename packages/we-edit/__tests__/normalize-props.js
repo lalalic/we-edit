@@ -226,7 +226,7 @@ describe("normalize props",()=>{
                 
         })
 
-        fit("GeometryShape",()=>{
+        it("GeometryShape",()=>{
             const {GeometryShape:{denormalize}}=dom.Unknown
             const path=new Geometry("M0,0 L1,10")
             expect(denormalize(path.toString(),path)).toBe(path.toString())

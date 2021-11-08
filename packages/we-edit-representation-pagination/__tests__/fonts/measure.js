@@ -20,8 +20,8 @@ describe("measure",()=>{
                 .toMatchObject(["AB C","中间","gre",unknown," at"])
         })
 
-        fit("hint priority: fonts[..]>fonts[fonts.hint]>fonts.fallback>fallbackMeasure.fonts[fonts.hint]>fallbackMeasure.fonts[...]>fallbackMeasure.fonts.fallback ",()=>{
-            const FontMeasure1=FontMeasure.createFallbackFontsMeasure({ea:"FFB",acsii:"FFA",fallback:"FFF"})
+        it("hint priority: fonts[..]>fonts[fonts.hint]>fonts.fallback>fallbackMeasure.fonts[fonts.hint]>fallbackMeasure.fonts[...]>fallbackMeasure.fonts.fallback ",()=>{
+            const FontMeasure1=FontMeasure.createMeasureClassWithFallbackFonts({ea:"FFB",acsii:"FFA",fallback:"FFF"})
             const measure=new FontMeasure1({fonts:{hint:"ea",ea:"FB",ascii:"FA",fallback:"FF"},size:5})
             measure.fontExists=jest.fn(()=>true)
             expect(measure.getCharFontFamily("A")).toBe("FA")

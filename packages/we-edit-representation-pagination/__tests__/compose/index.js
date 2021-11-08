@@ -12,7 +12,7 @@ export function define(feature, tests){
 
     	const WithTextContext=provider(Text,{Measure})
     	const WithParagraphContext=provider(Paragraph)
-    	const Context={parent:{context:{}},Measure}
+    	const Context={parent:{context:{}},Measure,}
         defaultProps(dom)()
 
         describe(feature, ()=>{

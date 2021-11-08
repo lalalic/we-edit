@@ -63,8 +63,7 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
 
     getChildContext(){
         const self=this
-        debugger
-        const hintMeasure=new this.Measure(this.props.hintStyle)
+        const {hintStyle={fonts:"Arial",size:12}}=this.props
         return {
             ...super.getChildContext(),
             prevLayout(ref){
@@ -77,7 +76,7 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
             activeDocStore: this.activeDocStore,
             Measure: this.Measure,
             numbering: this.numbering,
-            hintMeasure,
+            hintMeasure:new this.Measure(hintStyle),
         }
     }
 

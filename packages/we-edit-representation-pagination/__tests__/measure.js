@@ -23,6 +23,10 @@ export default class Measure{
     static requireFonts(){
         return Promise.resolve({unloaded:[]})
     }
+
+    static releaseFonts(){
+        
+    }
 }
 
 it("",()=>{})

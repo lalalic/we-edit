@@ -5,7 +5,6 @@ import {dom} from "we-edit"
 import breakOpportunities from "../wordwrap/line-break"
 import {Text as ComposedText, Shape, Group} from "../composed"
 import {HasParentAndChild,Layout,editable} from "../composable"
-import memoize from "memoize-one"
 
 const Tokenizers=[dom.Text.LineBreak, dom.Text.PageBreak,dom.Text.Tab]
 class Paragraph extends HasParentAndChild(dom.Paragraph){
