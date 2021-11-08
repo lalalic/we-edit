@@ -11,7 +11,6 @@ import BrowserMeasure from "./svg"
  * some issues:
  *  TTC must be extracted to single font
  *  hyphenation, can't be supported
- *  character spacing can't be supported: css text spacing, and layout engine
  */
 export default class HybridMeasure extends FontMeasure{
     static displayName="SVG Measure"

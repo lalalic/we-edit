@@ -3,6 +3,7 @@ import {default as isNode} from "is-node"
 import {makeFontFace, removeFontFace} from "./font-face"
 import fontservice from "!!file-loader?name=[name].[ext]!./font-service.js"
 import memoize from "memoize-one"
+import ttc2ttf from "./extract"
 
 /**
  * families:{[family name]: [different variations, such as plain/regular/bold/italic/oblique/bold-italic/...]}
@@ -153,12 +154,25 @@ const FontManager={
 	},
 
     load(data,cache=true){
-        const font=FontKit.create(Buffer.from(data))
-        if(font){//cache data
-            const familyName=(font.fonts||[font])[0].familyName
-            cache && service?.active.postMessage({familyName, data, scope:new URL(service.scope).pathname})
-            return fonts.put(font)
-        }
+        const fontsData=ttc2ttf(data)
+        const loaded=fontsData.map(a=>{
+            const font=FontKit.create(Buffer.from(a))
+            if(!font)
+                return 
+            const familyName=font.familyName
+            if(familyName && familyName[0]!="."){
+                cache && service?.active.postMessage({familyName, data:a, scope:new URL(service.scope).pathname})
+                return fonts.put(font)
+            }
+        }).filter(a=>!!a)
+        switch(loaded.length){
+            case 0:
+                return
+            case 1:
+                return loaded[0]
+            default:
+                return loaded
+        } 
     },
 
     release(){
@@ -300,6 +314,7 @@ const FontManager={
                 return new Promise((resolve,reject)=>{
                     const errorFonts=[], cacheFonts=[]
                     navigator.serviceWorker.addEventListener('message',function({data:{font:data,name,done}}){
+                        name=decodeURI(name)
                         if(done){
                             cacheFonts.length && console.info(`Loaded cache fonts: ${Array.from(new Set(cacheFonts)).join(",")}`)
                             errorFonts.length && console.warn(`Failed to cache fonts [${Array.from(new Set(errorFonts)).join(",")}]`)
