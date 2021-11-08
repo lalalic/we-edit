@@ -50,7 +50,7 @@ export const context=({dom, state=State, measure=Measure, contextTypes={},contex
 			}
 		},
 		Measure:measure,
-        hintMeasure: new measure({fonts:{ascii:"arial",hint:"arial"},size:12}),
+        hintMeasure: new measure({fonts:"arial",size:10}),
         ...context
 	})
 }
@@ -75,7 +75,7 @@ export const render=(A,opt={})=>TestRender.create(A,{
 
 export const defaultProps=({Document,Paragraph,Text,...dom})=>()=>{
     const defaultStyle={fonts:"arial",size:10}
-    Document.defaultProps=Object.assign(Document.defaultProps||{},{id:"root",Measure})
+    Document.defaultProps=Object.assign(Document.defaultProps||{},{id:"root",Measure,hintStyle:defaultStyle})
     Paragraph.defaultProps=Object.assign(Paragraph.defaultProps||{},{defaultStyle,id:"paragraph"})
     Text.defaultProps=Object.assign(Text.defaultProps||{},defaultStyle,{id:"text"})
     Object.keys(dom).forEach(k=>{
