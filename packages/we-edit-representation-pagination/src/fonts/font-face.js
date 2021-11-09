@@ -66,9 +66,13 @@ export function makeFontFace(font, src , variants){
     `
 
     const fontface=Array.from(document.fonts).find(a=>a.family==font.familyName)
-    return fontface.loaded.then(font=>{
-        document.dispatchEvent(new CustomEvent('fontLoaded',{detail:{font}}))
-    })
+    return fontface.loaded
+        .then(font=>{
+            document.dispatchEvent(new CustomEvent('fontLoaded',{detail:{font}}))
+        }).catch(e=>{
+            console.warn(`making font-face[${font.familyName}]:${e.message}`)
+            removeFontFace(font)
+        })
 }
 
 const toName=a=>a.replace(/[\s]/g,'_')

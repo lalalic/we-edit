@@ -14,12 +14,7 @@ import BrowserMeasure from "./svg"
  */
 export default class HybridMeasure extends FontMeasure{
     static displayName="SVG Measure"
-    static fallbackFonts={
-        ...super.fallbackFonts,
-        ascii:"Times New Roman",
-        ea:"Songti TC",
-    }
-
+    
     fontExists(family){
         return !!Array.from(document.fonts).find(a=>a.family==family && a.status=="loaded")
     }

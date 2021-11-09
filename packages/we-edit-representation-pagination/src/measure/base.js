@@ -1,3 +1,4 @@
+import fallback from "!!file-loader?name=[name].[ext]!../fonts/fallback.otf"
 import FontManager from "../fonts"
 
 /**
@@ -278,14 +279,23 @@ export class Measure{
 				`, {}, true),
 	}
 
-	static requireFonts=FontManager.requireFonts
+	static requireFonts=function(){
+		return (()=>{
+			if(FontManager.get('Fallback'))
+				return Promise.resolve()
+			return globalThis.fetch(fallback)
+				.then(res=>res.arrayBuffer())
+				.then(data=>FontManager.load(data))
+				.then(()=>console.info(`Fallback font loaded`))
+		})().then(()=>FontManager.requireFonts(...arguments))
+	}
+
 	static applyFont=data=>FontManager.load(data,false)
 	static releaseFonts=fonts=>FontManager.release(fonts)
 
 	static fallbackFonts={
-		ascii:"Arial",
-		ea:"ST",
-		fallback:"fallback",
+		ascii:"Times New Roman",
+		fallback:"Fallback",
 	}
 
 	get fallbackFonts(){
