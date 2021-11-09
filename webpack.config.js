@@ -59,8 +59,8 @@ module.exports=(env,args)=>{
 				test:/fontkit\/index\.js$/,
 				loader:"string-replace-loader",
 				options:{
-					search:/\/\/\s+cmap\:\s+cmap/g,
-					replace:`,cmap:(this.extendStructure(Directory,tables), this.cmap), name: this.name,`
+					search:/\/\/\smap\s=\s\[\]/g,
+					replace:`this.extendStructure(Directory,CmapSubtable);//`
 				}
 			},
 			]
