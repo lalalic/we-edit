@@ -91,14 +91,17 @@ export const WorkerSelection=whenSelectionChangeDiscardable()(
 	class WorkerSelection extends Component{
 		static contextTypes={
 			precision: PropTypes.number,
+			hintMeasure: PropTypes.object,
 		}
 		render(){
-			const {props:{name,selection,start,end, dispatch, ...props}, context:{precision}}=this
+			const {
+				props:{name,selection,start,end, dispatch, ...props}, 
+				context:{precision, hintMeasure:{style:{fonts, size}}}}=this
 			const rects=(start?.id && end?.id && !(start.id==end.id && start.at==end.at)) && selection?.positioning.getRangeRects(start,end) || []
 			const [{left:x=0,top:y=0}={}]=rects
 			return (
 				<g {...props}>
-					<text {...{x,y:y-2,fontFamily:"Arial",fontSize:10}}>{name}</text>
+					<text {...{x,y:y-2,fontFamily:fonts,fontSize:size}}>{name}</text>
 					<Area rects={rects}/>
 				</g>
 			)

@@ -126,6 +126,7 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 					getComposer: PropTypes.func,
 					Measure: PropTypes.func,
 					editable: PropTypes.any,
+					hintMeasure: PropTypes.object
 				}
 				render(){
 					const {leader, width, id, pilcrow}=this.props
@@ -134,7 +135,7 @@ export default ({Paragraph,Text, Frame})=>class DocxParagraph extends Component{
 						<Fragment>
 							{!leader ? null : leader.repeat(Math.floor(width/textComposer.measure.stringWidth(leader)))}
 							{pilcrow && this.context.editable && (()=>{
-								const measure=new this.context.Measure({fonts:"Arial",size:textComposer.props.size})
+								const measure=new this.context.Measure({fonts:this.hintMeasure.style.fonts,size:textComposer.props.size})
 								const text=String.fromCharCode(0x2192)
 								const tabWidth=measure.stringWidth(text)
 								const props={}

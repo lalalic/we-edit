@@ -63,7 +63,8 @@
   "files": [
     "*.js",
     "*.md",
-    "Arial"
+    "*.otf",
+    "*.ttf"
   ],
   "readme": "README.md"
 }

@@ -1,5 +1,6 @@
 export default class Measure{
     constructor({size}){
+        this.style=arguments[0]
         this.defaultStyle={height:size,descent:1}
         this.height=size
     }

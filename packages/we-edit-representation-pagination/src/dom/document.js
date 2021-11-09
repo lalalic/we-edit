@@ -63,7 +63,7 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
 
     getChildContext(){
         const self=this
-        const {hintStyle={fonts:"Arial",size:12}}=this.props
+        const {hintStyle={fonts:this.Measure.fallbackFonts.ascii,size:12}}=this.props
         return {
             ...super.getChildContext(),
             prevLayout(ref){

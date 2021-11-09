@@ -38,7 +38,7 @@ export default class BrowserMeasure extends Base{
         return tester.getBBox().width
     }
 
-    static WebFonts=["Arial","Times New Roman"]
+    static WebFonts=[]
 
     static requireFonts(service, fonts){
         document.dispatchEvent(new CustomEvent(

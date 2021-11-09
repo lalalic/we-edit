@@ -44,13 +44,14 @@ export const WorkerCursor=whenSelectionChangeDiscardable()(
     class WorkerCursor extends Component{
         static contextTypes={
             precision: PropTypes.number,
+            hintMeasure: PropTypes.object,
         }
         render(){
-            const {props:{name,selection, start,end,dispatch, ...props}, context:{ precision}}=this
+            const {props:{name,selection, start,end,dispatch, ...props}, context:{ precision, hintMeasure:{style:{fonts, size}}}}=this
             const {x=0,y=0,height=0}=(end?.id && start?.id==end.id && start.at==end.at) && selection?.positioning.position(end) || {}
             return (
                 <g {...props}>
-                    <text {...{x,y,fontFamily:"Arial",fontSize:10}}>{name}</text>
+                    <text {...{x,y,fontFamily:fonts,fontSize:size}}>{name}</text>
                     <path d={`M${x} ${y} v${height}`} strokeWidth={1*precision}/>
                 </g>
             )

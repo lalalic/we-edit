@@ -133,7 +133,7 @@ class DocxType extends Input.Editable{
 						precision:docx.precision,
 						styles,
 						hintStyle:{
-							fonts:"Arial",
+							fonts:"Times New Roman",
 							size:docx.pt2Px(11),
 						}
 					},
