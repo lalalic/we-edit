@@ -44,10 +44,11 @@ export default class Character extends Base{
 
 		flat(...args){
 			const props=super.flat(...args)
-			if(this.r.fonts?.hint=="cs"){
-				props.fonts=props.fonts.cs
-			}else if(this.r.fonts?.hint=="eastAsia"){
-				props.fonts=props.fonts.ea
+			if(this.r.fonts?.hint && props.fonts[this.r.fonts.hint]){
+				props.fonts={
+					hint:this.r.fonts.hint,
+					[this.r.fonts.hint]: props.fonts[this.r.fonts.hint]
+				}
 			}
 			return props
 		}

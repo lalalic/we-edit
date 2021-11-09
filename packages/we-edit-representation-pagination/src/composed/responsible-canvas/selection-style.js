@@ -67,12 +67,24 @@ export default class PaginationSelectionStyle extends SelectionStyle{
 
     _textProps=memoize((type,getFromContent)=>{
         const textProps=this._props(type,getFromContent)
-        if(!textProps)
+        if(!textProps){
+            const defaultStyle=this._props('paragraph',getFromContent)?.defaultStyle
+            if(defaultStyle){
+                return {fonts: defaultStyle.fonts.ascii, size: defaultStyle.size}
+            }
             return textProps
+        }
         const composer=this.getComposer(this.end.id)
         if(composer.getComposeType()=="text"){
             const char=composer.props.children.substr(this.end.at,1)
-            return {...textProps, fonts:composer.measure.getCharFontFamily(char)}
+            let font=composer.measure.getCharFontFamily(char)
+    
+            if(font==composer.measure.constructor.fallbackFonts.fallback){
+                const {fonts:{hint, ...fonts}}=textProps
+                font=fonts[hint]||Object.values(fonts)[0]
+            }
+                
+            return {...textProps, fonts:font}
         }
         
         return textProps

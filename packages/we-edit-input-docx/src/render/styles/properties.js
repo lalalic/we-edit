@@ -149,6 +149,8 @@ export class Properties{
 		([ascii,cs,ea,hansi]=[ascii,cs,ea,hansi].map(a=>a ? a.replace(/(\(.*\))/g,"").trim() : a));
 
 		[ascii,cs,ea,hansi].forEach(a=>this.requireFonts.add(a))
+		if(hint=="eastAsia")
+			hint="ea"
 
 		return {ascii,cs,ea,hansi,hint}
 	}
