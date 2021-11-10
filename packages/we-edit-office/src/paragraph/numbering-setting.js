@@ -27,9 +27,9 @@ export class BulletList extends Component{
                     <div style={{flex:1}}>
                         <h3>Bullet Character</h3>
                         <div>
-                            {bullets.map(({text},i)=>{
+                            {bullets.map(({label},i)=>{
                                 NumberingShape.normalize(bullets[i])
-                                return (<SvgIcon key={text}></SvgIcon>)
+                                return (<SvgIcon key={label}></SvgIcon>)
                             })}
                         </div>
                         <div>
@@ -83,7 +83,7 @@ export class NumberList extends BulletList{
     }
 
     render(){
-        const {state:{setFont, start=1,text,type,...style}, props:{numberings}}=this
+        const {state:{setFont, start=1,label,format,...style}, props:{numberings}}=this
         return (
             <Fragment>
                 <div style={{display:"flex"}}>
@@ -91,16 +91,16 @@ export class NumberList extends BulletList{
                         <h3>Number Format</h3>
                         <Field label="Text">
                             <input type="text" 
-                                value={text.replace("%1",Numberings[type](start-1))} 
-                                onChange={e=>this.setState({text:e.target.value.replace(Numberings[type](start-1),"%1")})}
+                                value={label.replace("%1",Numberings[format](start-1))} 
+                                onChange={e=>this.setState({label:e.target.value.replace(Numberings[format](start-1),"%1")})}
                                 />
                             <FlatButton label="Font..." onClick={e=>this.setState({setFont:true})}/>
                         </Field>
                         <div style={{display:"flex"}}>
                             <Field label="Number Style:">
-                                <select value={type} onChange={e=>this.setState({type:e.target.value})}>
-                                    {numberings.map(({text,type})=>
-                                        <option key={type} value={type}>{[0,1,2].map(i=>text.replace("%1",Numberings[type](i))).join(",")}...</option>)
+                                <select value={style.format} onChange={e=>this.setState({format:e.target.value})}>
+                                    {numberings.map(({label,format})=>
+                                        <option key={format} value={format}>{[0,1,2].map(i=>label.replace("%1",Numberings[format](i))).join(",")}...</option>)
                                     }
                                 </select>
                             </Field>
@@ -175,7 +175,7 @@ export class MultiLevelList extends BulletList{
     }
 }
 
-const ListPreview=({style,pStyle={background:"lightgray"}, liStyle={background:"black"}, numbering:{type, label, indent, hanging}})=>{
+const ListPreview=({style,pStyle={background:"lightgray"}, liStyle={background:"black"}, numbering:{format, label, indent, hanging}})=>{
     indent=UnitShape.normalize(indent)
     hanging=UnitShape.normalize(hanging)
                     

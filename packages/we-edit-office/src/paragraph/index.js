@@ -54,13 +54,13 @@ export default compose(
 				dispatch(ACTION.Selection.UPDATE({paragraph:{numbering}}))
 			},
 			toggleBullet(numbering){
-				if(style?.numbering?.type=="bullet"){
+				if(style?.numbering?.format=="bullet"){
 					numbering=null
 				}
 				props.numbering(numbering)
 			},
 			toggleNumbering(numbering){
-				if(style?.numbering?.type &&style.numbering.type!=="bullet"){
+				if(style?.numbering?.format &&style.numbering.format!=="bullet"){
 					numbering=null
 				}
 				props.numbering(numbering)
@@ -79,20 +79,20 @@ export default compose(
 )(class extends Component{
 	static defaultProps={
 		bullets:[
-			{style:{fonts:"Arial"},text:String.fromCharCode(0x25CF)},
-			{style:{fonts:"Arial"},text:String.fromCharCode(0x25CB)},
-			{style:{fonts:"Arial"},text:String.fromCharCode(0x25A0)},
-			{style:{fonts:"Arial"},text:String.fromCharCode(0x2666)},
-			{style:{fonts:"Arial"},text:String.fromCharCode(0x263A)},
-			{style:{fonts:"Arial"},text:String.fromCharCode(0x263B)},
+			{style:{fonts:"Arial"},label:String.fromCharCode(0x25CF)},
+			{style:{fonts:"Arial"},label:String.fromCharCode(0x25CB)},
+			{style:{fonts:"Arial"},label:String.fromCharCode(0x25A0)},
+			{style:{fonts:"Arial"},label:String.fromCharCode(0x2666)},
+			{style:{fonts:"Arial"},label:String.fromCharCode(0x263A)},
+			{style:{fonts:"Arial"},label:String.fromCharCode(0x263B)},
 		],
 		numberings:[
-			{type:"decimal",text:"%1."},
-			{type:"lowerLetter",text:"%1."},
-			{type:"upperLetter",text:"%1."},
-			{type:"lowerRoman",text:"%1."},
-			{type:"upperRoman",text:"%1."},
-			{type:"chinese",text:"%1"},
+			{format:"decimal",label:"%1."},
+			{format:"lowerLetter",label:"%1."},
+			{format:"upperLetter",label:"%1."},
+			{format:"lowerRoman",label:"%1."},
+			{format:"upperRoman",label:"%1."},
+			{format:"chinese",label:"%1"},
 		],
 		Numberings:dom.Paragraph.numberings
 	}
@@ -137,29 +137,29 @@ export default compose(
 					<ToolbarSeparator/>
 
 					<DropDownButton
-						status={style?.numbering?.type=="bullet" ?"checked":"unchecked"}
-						onClick={()=>toggleBullet({type:"bullet",...bullets[0]})}
+						status={style?.numbering?.format=="bullet" ?"checked":"unchecked"}
+						onClick={()=>toggleBullet({format:"bullet",...bullets[0]})}
 						icon={<IconListBullet/>}
 						hint="bullet list"
 						>
-						{bullets.map(({text,style:{fonts}},i)=>
-							<MenuItem key={text} 
-								primaryText={text} 
+						{bullets.map(({label,style:{fonts}},i)=>
+							<MenuItem key={label} 
+								primaryText={label} 
 								style={{fontFamily:fonts}} 
-								onClick={e=>numbering({type:"bullet",...bullets[i]})}
+								onClick={e=>numbering({format:"bullet",...bullets[i]})}
 								/>
 						)}
 						<MenuItem primaryText="Define New Bullet" onClick={e=>toggleSetting({...setting,bullet:true})}/>
 					</DropDownButton>
 					<DropDownButton
-						status={style?.numbering?.type && style.numbering.type!=="bullet" ?"checked":"unchecked"}
+						status={style?.numbering?.format && style.numbering.format!=="bullet" ?"checked":"unchecked"}
 						onClick={()=>toggleNumbering(numberings[0])}
 						icon={<IconListNumber/>}
 						hint="numbered list"
 						>
-						{numberings.map(({type, text},i)=>
-							<MenuItem key={type} 
-								primaryText={text.replace("%1",Numberings[type](0))} 
+						{numberings.map(({format, label},i)=>
+							<MenuItem key={format} 
+								primaryText={label.replace("%1",Numberings[format](0))} 
 								onClick={e=>numbering(numberings[i])}
 								/>
 						)}

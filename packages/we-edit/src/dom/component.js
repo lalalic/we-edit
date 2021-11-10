@@ -552,14 +552,14 @@ export default class Base extends Component{
 		level: PropTypes.number,
 		indent: this.UnitShape,
 		
-		type: PropTypes.string,
+		format: PropTypes.string,
 		start: PropTypes.number,
 
 		hanging: this.UnitShape,
 		align: this.AlignShape,
 		
 		style: this.TextStyleShape,
-		text: PropTypes.oneOfType([
+		label: PropTypes.oneOfType([
 			PropTypes.string,
 			PropTypes.shape({
 				url: PropTypes.string.isRequired
@@ -589,9 +589,9 @@ export default class Base extends Component{
 			const nextNormalized=this.NumberingShape.normalize(next)
 			return (next.indent===undefined || nextNormalized.indent==currentNormalized.indent)
 				&& (next.hanging===undefined || nextNormalized.hanging==currentNormalized.hanging)
-				&& (next.type===undefined || nextNormalized.type==currentNormalized.type)
+				&& (next.format===undefined || nextNormalized.format==currentNormalized.format)
 				&& (next.start===undefined || nextNormalized.start==currentNormalized.start)
-				&& (next.text===undefined || nextNormalized.text==currentNormalized.text)
+				&& (next.label===undefined || nextNormalized.label==currentNormalized.label)
 				&& (next.style===undefined || (
 					nextNormalized.style?.fonts==currentNormalized.style?.fonts 
 					&& nextNormalized.style?.size==currentNormalized.style?.size ))
