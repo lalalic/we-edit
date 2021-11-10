@@ -36,7 +36,7 @@ export default class Paragraph extends Editor{
 				const prevNumbering=this.node.prev(`w\\:p:has(w\\:numPr>w\\:numId)`)
 				if(prevNumbering.length==1){
 					const prev=numIdLevel(prevNumbering.children("w\\:pPr").children("w\\:numPr"))
-					const canFollowPrev=(({type,text},{numId,level})=>{
+					const canFollowPrev=(({format:type,label:text},{numId,level})=>{
 						const nLevel=getLevelNode(numId,level)
 						if(nLevel.is(`:has(w\\:numFmt[w\\:val="${type}"])`)){
 							return text ? nLevel.is(`:has(w\\:lvlText[w\\:val="${text}"])`) : true
@@ -57,7 +57,7 @@ export default class Paragraph extends Editor{
 				{//createNumbering(props)
 					const aNums=$("w\\:abstractNum")
 					const aNumId=Math.max(-1,...(aNums.map((i,a)=>parseInt(a.attribs["w:abstractNumId"])).get()))+1
-					const aNum=$(this.trim(Numbering[props.type=="bullet" ? "Bullet" : "Numeric"](aNumId)))
+					const aNum=$(this.trim(Numbering[props.format=="bullet" ? "Bullet" : "Numeric"](aNumId)))
 					if(aNums.length>0){
 						aNum.insertAfter(aNums.last())
 					}else{
@@ -75,7 +75,7 @@ export default class Paragraph extends Editor{
 			}
 
 			//applyChangeToAbstractNumberingLevel(props, aNumId, level)
-			;(({type,text,start,indent,hanging,font,tabs},{numId,level},nLevel=getLevelNode(numId, level))=>{
+			;(({format:type,label:text,start,indent,hanging,font,tabs},{numId,level},nLevel=getLevelNode(numId, level))=>{
 				if(type!=undefined)
 					nLevel.find("w\\:numFmt").attr("w:val",type)
 				if(text!=undefined)

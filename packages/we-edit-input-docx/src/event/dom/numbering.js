@@ -1,8 +1,7 @@
-import Style from "../../render/styles/numbering"
 export default class{
-    static Template=(id,aid)=>`
+    static Template=(id,abstractId)=>`
         <w:num w:numId="${id}">
-          <w:abstractNumId w:val="${aid}"/>
+          <w:abstractNumId w:val="${abstractId}"/>
         </w:num>
     `
     static Numeric=id=>`

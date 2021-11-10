@@ -43,42 +43,42 @@ describe('edit',()=>{
             }
 
             it.each([
-                ["bullet",{type:"bullet",text:"."}],
-                ["bullet",{type:"bullet",text:"*"}],
-                ["decimal",{type:"decimal",text:"%1."}],
-                ["chinese",{type:"chinese",text:"%1",start:5}],
+                ["bullet",{format:"bullet",label:"."}],
+                ["bullet",{format:"bullet",label:"*"}],
+                ["decimal",{format:"decimal",label:"%1."}],
+                ["chinese",{format:"chinese",label:"%1",start:5}],
             ])("create %s",(name,props)=>{
                 const {numbering,level}=test()
                 const p0=numbering(0,props)
-                expect(level(p0).find("w\\:lvlText").attr("w:val")).toBe(props.text)
-                expect(level(p0).find("w\\:numFmt").attr("w:val")).toBe(props.type)
+                expect(level(p0).find("w\\:lvlText").attr("w:val")).toBe(props.label)
+                expect(level(p0).find("w\\:numFmt").attr("w:val")).toBe(props.format)
                 if(props.start){
                     expect(parseInt(level(p0).find("w\\:start").attr("w:val"))).toBe(props.start)
                 }
             })
 
             it.each([
-                ["bullet(.-->*)",{type:"bullet",text:"."}, {text:"*"}],
-                ["bullet-->decimal",{type:"bullet",text:"*"}, {type:"decimal",text:"%1."}],
-                ["decimal-->bullet",{type:"decimal",text:"%1."},{type:"bullet",text:"*"}],
-                ["chinese-->decimal",{type:"chinese",text:"%1",start:5}, {type:"decimal",text:"%1."}],
+                ["bullet(.-->*)",{format:"bullet",label:"."}, {label:"*"}],
+                ["bullet-->decimal",{format:"bullet",label:"*"}, {format:"decimal",label:"%1."}],
+                ["decimal-->bullet",{format:"decimal",label:"%1."},{format:"bullet",label:"*"}],
+                ["chinese-->decimal",{format:"chinese",label:"%1",start:5}, {format:"decimal",label:"%1."}],
             ])("change %s",(name,origin, props)=>{
                 const {numbering,level}=test()
                 const p0=numbering(0,origin)
                 numbering(0,props)
-                expect(level(p0).find("w\\:lvlText").attr("w:val")).toBe(props.text)
-                expect(level(p0).find("w\\:numFmt").attr("w:val")).toBe(props.type||origin.type)
+                expect(level(p0).find("w\\:lvlText").attr("w:val")).toBe(props.label)
+                expect(level(p0).find("w\\:numFmt").attr("w:val")).toBe(props.format||origin.format)
                 if(props.start||origin.start){
                     expect(parseInt(level(p0).find("w\\:start").attr("w:val"))).toBe(props.start||origin.start)
                 }
             })
 
             it.each([
-                ["bullet(*) with bullet(*)",{type:"bullet",text:"*"},{type:"bullet",text:"*"},true],
-                ["bullet(*) with bullet()",{type:"bullet",text:"*"},{type:"bullet"},true],
-                ["bullet(*) with decimal()",{type:"bullet",text:"*"},{type:"decimal"},false],
-                ["bullet(*) with decimal(%1)",{type:"bullet",text:"*"},{type:"decimal",text:"%1"},false],
-                ["decimal(%1) with decimal(%1.)",{type:"decimal",text:"%1"},{type:"decimal",text:"%1."},false],
+                ["bullet(*) with bullet(*)",{format:"bullet",label:"*"},{format:"bullet",label:"*"},true],
+                ["bullet(*) with bullet()",{format:"bullet",label:"*"},{format:"bullet"},true],
+                ["bullet(*) with decimal()",{format:"bullet",label:"*"},{format:"decimal"},false],
+                ["bullet(*) with decimal(%1)",{format:"bullet",label:"*"},{format:"decimal",label:"%1"},false],
+                ["decimal(%1) with decimal(%1.)",{format:"decimal",label:"%1"},{format:"decimal",label:"%1."},false],
             ])("follow %s",(name,prev, props,same)=>{
                 const {numbering,level}=test(4)
                 const p1=numbering(1,prev)
@@ -91,7 +91,7 @@ describe('edit',()=>{
             describe("demote",()=>{
                 it("first numbering, indent of all level increased",()=>{
                     const {numbering}=test(4)
-                    const p0=numbering(0,{type:"bullet",text:"*"})
+                    const p0=numbering(0,{format:"bullet",label:"*"})
                     p0.node.children("w\\:pPr")
                         .remove()
                         .appendTo(p0.$(`w\\:p`))
@@ -107,7 +107,7 @@ describe('edit',()=>{
 
                 it("second numbering, only second demoted",()=>{
                     const {numbering}=test(4)
-                    const p0=numbering(0,{type:"bullet",text:"*"})
+                    const p0=numbering(0,{format:"bullet",label:"*"})
                     p0.node.children("w\\:pPr")
                         .remove()
                         .appendTo(p0.$(`w\\:p`))
@@ -123,7 +123,7 @@ describe('edit',()=>{
 
                 it("second numbering following next level, only second demote",()=>{
                     const {numbering}=test(4)
-                    const p0=numbering(0,{type:"bullet",text:"*"})
+                    const p0=numbering(0,{format:"bullet",label:"*"})
                     p0.node.children("w\\:pPr")
                         .remove()
                         .appendTo(p0.$(`w\\:p`))
@@ -143,12 +143,12 @@ describe('edit',()=>{
 
                 it("to max level then extend abstractNum to multiple level",()=>{
                     const {numbering}=test(4)
-                    const p0=numbering(0,{type:"bullet",text:"*"})
+                    const p0=numbering(0,{format:"bullet",label:"*"})
                     const $=p0.file.doc.officeDocument.numbering
                     $(`w\\:lvl`).not(`[w\\:ilvl="0"]`).remove()
                     expect($(`w\\:lvl`).length).toBe(1)
 
-                    const p1=numbering(1,{type:"bullet",text:"*"})
+                    const p1=numbering(1,{format:"bullet",label:"*"})
                     debugger
                     p1.numDemote()
                     expect($(`w\\:lvl`).length>1).toBe(true)
@@ -156,8 +156,8 @@ describe('edit',()=>{
 
                 it("level 9 not work",()=>{
                     const {numbering}=test(4)
-                    const p0=numbering(0,{type:"bullet",text:"*"})
-                    const p1=numbering(1,{type:"bullet",text:"*"})
+                    const p0=numbering(0,{format:"bullet",label:"*"})
+                    const p1=numbering(1,{format:"bullet",label:"*"})
                     p1.node.find("w\\:ilvl").attr('w:val',"8")
 
                     p1.numDemote()
@@ -168,7 +168,7 @@ describe('edit',()=>{
             describe("promote",()=>{
                 it("first numbering, indent of all level decreased",()=>{
                     const {numbering}=test(4)
-                    const p0=numbering(0,{type:"bullet",text:"*"})
+                    const p0=numbering(0,{format:"bullet",label:"*"})
                     p0.node.children("w\\:pPr")
                         .remove()
                         .appendTo(p0.$(`w\\:p`))
@@ -185,7 +185,7 @@ describe('edit',()=>{
 
                 it("first numbering, first indent==hanging, nothing changed",()=>{
                     const {numbering}=test(4)
-                    const p0=numbering(0,{type:"bullet",text:"*"})
+                    const p0=numbering(0,{format:"bullet",label:"*"})
                     p0.node.children("w\\:pPr")
                         .remove()
                         .appendTo(p0.$(`w\\:p`))
@@ -203,7 +203,7 @@ describe('edit',()=>{
 
                 it("second numbering, only second promoted",()=>{
                     const {numbering}=test(4)
-                    const p0=numbering(0,{type:"bullet",text:"*"})
+                    const p0=numbering(0,{format:"bullet",label:"*"})
                     p0.node.children("w\\:pPr")
                         .remove()
                         .appendTo(p0.$(`w\\:p`))
@@ -224,8 +224,8 @@ describe('edit',()=>{
 
                 it("level 1 not work",()=>{
                     const {numbering}=test(4)
-                    const p0=numbering(0,{type:"bullet",text:"*"})
-                    const p1=numbering(1,{type:"bullet",text:"*"})
+                    const p0=numbering(0,{format:"bullet",label:"*"})
+                    const p1=numbering(1,{format:"bullet",label:"*"})
 
                     p1.numPromote()
                     expect(p1.node.find("w\\:ilvl").attr('w:val')).toBe("0")
@@ -234,7 +234,7 @@ describe('edit',()=>{
 
             it("tab numbering",()=>{
                 const {numbering}=test(2)
-                const p0=numbering(0,{type:"bullet",text:"*"})
+                const p0=numbering(0,{format:"bullet",label:"*"})
                 p0.numDemote=jest.fn()
                 p0.tab({})
                 expect(p0.numDemote).toHaveBeenCalled()
