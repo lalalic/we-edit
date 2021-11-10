@@ -81,7 +81,7 @@ class Document extends Locatable.Locatorize(HasChild(dom.Document)){
     }
 
     render(){
-        const {canvas, canvasProps, children}=this.props
+        const {canvas, canvasProps}=this.props
         this.numbering?.reset?.()
         if(!canvas)
             return super.render()

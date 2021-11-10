@@ -1,4 +1,4 @@
-import React from "react"
+import React, { Fragment } from "react"
 import {context, $, State, render, defaultProps} from "../context"
 import {Editors} from "../../src"
 import {ReactQuery} from "we-edit"
@@ -145,5 +145,44 @@ describe("editor",()=>{
             })
         })
         
+    })
+
+    describe("numbering",()=>{
+        describe("in same page",()=>{
+            let doc
+            beforeEach(()=>{
+                
+            })
+            it("should give 1,2 after editing list 1",()=>{
+                doc=test(
+                    <Document>
+                        <Page>
+                            <Paragraph numbering={}><Text>hello</Text></Paragraph>
+                            <Paragraph numbering={}><Text>hello</Text></Paragraph>
+                        </Page>
+                    </Document>
+                )
+            })
+    
+            it("should give 1,2 after editing list 3",()=>{
+                
+            })
+    
+            it("should give 1,2 after editing content before list 1",()=>{
+                
+            })
+    
+            it("should give 1,2 after editing content after list 2",()=>{
+                
+            })
+        })
+        
+        it("should give 1,2 after editing content in prev page",()=>{
+
+        })
+
+        it("should give 1,2 after editing content in next page",()=>{
+            
+        })
     })
 })
