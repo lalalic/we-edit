@@ -3,38 +3,6 @@ import ReactQuery from "../src/tools/react-query"
 import {fromJS, isKeyed, Record} from "immutable"
 
 describe("react query", ()=>{
-    xdescribe("immutable implementation",()=>{
-        it("immutable",()=>{
-            
-            const $=<div><span>hello</span><i d="1">good</i></div>
-
-            const Component=Record({key:null,ref:null, type: null, props:{}})
-            const imu=fromJS($, (k, v)=>{
-                debugger
-                switch(k){
-                    case "children":{
-                        if(typeof(v)=="string"){
-                            return v
-                        }
-                        if(isKeyed(v)){
-                            return Component(v)
-                        }
-                        return v.toList()
-                    }
-                    case "props":
-                        return v.toMap()
-                    case "":
-                        return Component(v)
-
-                }
-                return v
-            })
-            debugger
-        })
-
-        
-    })
-
     describe("root",()=>{
         it("can be <div/>",()=>{
             expect(new ReactQuery(<div/>).root).toBeTruthy()
@@ -282,7 +250,7 @@ describe("react query", ()=>{
                 expect(is.length).toBe(2)
             })
 
-            fit("can avoid find nested",()=>{
+            it("can avoid find nested",()=>{
                 const $=new ReactQuery(<div><span className="good"><i className="good">hello</i><span/></span><span/></div>)
                 const span=$.find('span',{nested:false})
                 expect(span.length).toBe(2)
@@ -355,6 +323,12 @@ describe("react query", ()=>{
 
             expect(root.find("i").length).toBe(2)
             expect(replaced.find("i").length).toBe(1)
+        })
+
+        it("should support source from string selector ",()=>{
+            const replaced=new ReactQuery(<div><i/><b/></div>).replace("i",<span/>)
+            expect(replaced.find("i").length).toBe(0)
+            expect(replaced.find("span").length).toBe(1)
         })
     })
 })
