@@ -20,7 +20,7 @@ export default compose(
                 {id && <ObjectTree
                     value={{ type, id, props: { content, layout, computed } }}
                     order={["id", "type", "content", "layout", "computed"]}
-                    filter={["__unnormalized", "hash", "children", "End"]} />}
+                    filter={["hash", "End",a=>a[0]==="_"]} />}
             </div>
         );
     }

@@ -7,7 +7,7 @@ export default class ObjectTree extends Component{
     }
     
     render(){
-        const {value:ob, style, name, isRoot=!name, order=[], filter=[]}=this.props
+        const {value:ob, style, name, isRoot=typeof(name)=='undefined', order=[], filter=[]}=this.props
         if(!ob)
             return null
         const {open}=this.state
@@ -17,7 +17,7 @@ export default class ObjectTree extends Component{
         const valueStyle={whiteSpace:"nowrap",paddingLeft:4,fontSize:"smaller"}
         const keys=Array.isArray(ob) ? 
             new Array(ob.length).fill(0).map((n,i)=>i) : 
-            Object.keys(ob).filter(a=>!filter.includes(a)).sort();
+            Object.keys(ob).filter(a=>!filter.includes(a) && !filter.find(f=>(typeof(f)=="function") && f(a))).sort();
         
         [...order].reverse().forEach((a,_,array,i=keys.indexOf(a))=>{
             if(i!=-1){
@@ -66,8 +66,8 @@ export default class ObjectTree extends Component{
         if(lists.length==0){
             return (
                 <li>
-                    <div style={{display:"flex", flexDirection:"row"}}>
-                        <div style={{paddingLeft:folderStyle.width, cursor:"default",...nameStyle}}>{name}:</div>
+                    <div style={{display:"flex", flexDirection:"row",...nameStyle}}>
+                        <div style={{paddingLeft:folderStyle.width, cursor:"default"}}>{name}:</div>
                         <div style={valueStyle}><i>{Array.isArray(ob) ? "[]" : "{}"}</i></div>
                     </div>
                 </li>
@@ -76,11 +76,11 @@ export default class ObjectTree extends Component{
 
         return (
             <li>
-                <div onClick={()=>this.setState({open:!open})}>
+                <div onClick={()=>this.setState({open:!open})} style={{cursor:"default",...nameStyle}}>
                     <span style={folderStyle}>
                         {open ? "-" : "+"}
                     </span>
-                    <span style={{cursor:"default",...nameStyle}}>{name}</span>
+                    <span>{name}</span>
                 </div>
                 {open && 
                     <div style={{paddingLeft:listStyle.paddingLeft}}>

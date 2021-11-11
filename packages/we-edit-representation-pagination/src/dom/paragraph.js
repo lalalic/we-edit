@@ -1,4 +1,4 @@
-import React from "react"
+import React, {Component} from "react"
 import PropTypes from "prop-types"
 import {dom} from "we-edit"
 
@@ -270,20 +270,19 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 		let {style,label,hanging=-firstLine,align="left"}=numbering
 		let atom=null
 		if(!label){
-			label=this.computed.numbering?.label||this.context.numbering.get(numbering, `${id}-create`)
+			label=this.context.numbering.get(numbering, `${id}-create`)
 		}
 		const props={key:"numbering",className:"numbering",x:-hanging}
 		if(typeof(label)=="string"){
-			this.computed.numbering={...numbering,label,style:{...defaultStyle,...style}}
-			const measure=new Measure(this.computed.numbering.style)
-			const {height,descent,x,y,...measureStyle}=measure.defaultStyle
+			const measure=new Measure({...defaultStyle,...style})
+			const {height,descent,x,y}=measure.defaultStyle
+			if(!this.computed.numbering)
+				this.computed.numbering=this.constructor.NumberingAtom.observable(label)
+			else
+				this.computed.numbering.next(label)
 			atom=(
 				<Group {...{height,descent,x,y}}>
-					{()=>{
-						const width=measure.stringWidth(this.computed.numbering.label)
-						const x=align=="right" ? -width : align=="center" ? -width/2 : 0
-						return <ComposedText {...measureStyle} textLength={false} x={x} children={this.computed.numbering.label}/>
-					}}
+					<this.constructor.NumberingAtom {...{measure, key:label, label:this.computed.numbering, align}}/>
 				</Group>
 			)
 		}else if(typeof(label)=="object"){
@@ -301,8 +300,8 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 
 	updateCalculationWhenUseCached(){
 		const {numbering,id}=this.props
-		if(numbering && !numbering.label){
-			this.computed.numbering.label=this.context.numbering.get(numbering,`${id}-cached`)
+		if(numbering && !numbering.label && this.computed.numbering){
+			this.computed.numbering.next(this.context.numbering.get(numbering,`${id}-cached`))
 		}
 	}
 
@@ -411,6 +410,58 @@ class Paragraph extends HasParentAndChild(dom.Paragraph){
 			return this.inlineSegments.currentX
 		}
 	}
+
+	static NumberingAtom=class NumberingAtom extends Component{
+		static observable(value){
+			let current=value
+			const subscribers=[]
+			return {
+				get current(){
+					return current
+				},
+				next(nextValue){
+					current=nextValue
+					subscribers.forEach(a=>a(current))
+				},
+				subscribe(f){
+					subscribers.push(f)
+					return {
+						unsubscribe(){
+							const i=subscribers.indexOf(f)
+							if(i!=-1)
+								subscribers.splice(i,1)
+						}
+					}
+				}
+			}
+		}
+		state={label:this.props.label.current}
+
+		shouldComponentUpdate({label:nextLabel}){
+			if(this.props.label!=nextLabel){
+				this.labelSubscribed?.unsubscribe()
+				this.labelSubscribed=nextLabel.subscribe(label=>this.setState({label}))
+				this.setState({label:nextLabel.current})
+			}
+			return true
+		}
+
+		componentDidMount(){
+			this.labelSubscribed=this.props.label.subscribe(label=>this.setState({label}))
+		}
+
+		render(){
+			const {state:{label},props:{measure, align}}=this
+			const width=measure.stringWidth(label)
+			const x=align=="right" ? -width : align=="center" ? -width/2 : 0
+			const {height,descent,x:_1,y,...measureStyle}=measure.defaultStyle
+			return <ComposedText {...measureStyle} textLength={false} x={x} children={label}/>
+		}
+
+		componentWillUnmount(){
+			this.labelSubscribed?.unsubscribe()
+		}
+	}
 }
 
 export default class EditableParagraph extends editable(Paragraph,{stoppable:true}){
@@ -425,9 +476,9 @@ export default class EditableParagraph extends editable(Paragraph,{stoppable:tru
 	}
 	
 	cancelUnusableLastComposed({hash,changed=hash!=this.props.hash}){
-		delete this.computed.numbering
 		if(changed || this._hasAnchor()){
 			this.atoms=[]
+			delete this.computed.numbering
 			super.cancelUnusableLastComposed(...arguments)
 		}
 	}
@@ -437,7 +488,7 @@ export default class EditableParagraph extends editable(Paragraph,{stoppable:tru
 		const lines=this.lines
 		this.lines=[]
 		const spaceChangedAt=this.computed.lastComposed.findIndex((a,i)=>{
-			var line=lines[i]
+			let line=lines[i]
 			const newLine=this.createLine({height:a.props.height})
 			if(!newLine)
 				return true

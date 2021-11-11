@@ -51,6 +51,10 @@ describe("editor",()=>{
         return proxy
     }
 
+    describe("cache",()=>{
+
+    })
+
     describe("anchor",()=>{
         it("shape without content",()=>{
             const content=x=>(
@@ -257,6 +261,30 @@ describe("editor",()=>{
                         mockClear()
                     })
             })
+
+            it("should reset and get all after removing numbering only",()=>{
+                return Promise.resolve(doc)
+                    .then(()=>doc.replace("#page",
+                        <Page I={0} hash={1}>
+                            <Paragraph numbering={numbering} id={`p2`}><Text id={`t2`}>hello</Text></Paragraph>
+                            <Paragraph numbering={numbering} id={`p0`}><Text id={`t0`}>hello</Text></Paragraph>
+                            <Paragraph numbering={numbering} id={`p1`}><Text id={`t1`}>hello</Text></Paragraph>
+                        </Page>, {hash:1}))
+                    .then(()=>{
+                        expect(i).toBe(4)
+                        mockClear()
+                    })
+                    .then(()=>doc.replace('#page',
+                        <Page I={0} hash={2}>
+                            <Paragraph numbering={numbering} id={`p2`}><Text id={`t2`}>hello</Text></Paragraph>
+                            <Paragraph id={`p0`} hash={2}><Text id={`t0`}>hello</Text></Paragraph>
+                            <Paragraph numbering={numbering} id={`p1`}><Text id={`t1`}>hello</Text></Paragraph>
+                        </Page>, {hash:2}))
+                    .then(()=>{
+                        expects()
+                    })
+            })
+            
         })
 
         describe("cross pages",()=>{
@@ -308,4 +336,6 @@ describe("editor",()=>{
                 .then(()=>expects())
         })
     })
+
+
 })
