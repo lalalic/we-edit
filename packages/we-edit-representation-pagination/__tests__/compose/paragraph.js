@@ -196,21 +196,23 @@ define("paragraph compose",
 
     describe("numbering",()=>{
         const numbering=(numbering,ctx=({numbering:{get:a=>a}}))=>test(TEXT.length+10,undefined,undefined,undefined,undefined,numbering,ctx)
-        it("should have function as children, output is *",()=>{
+        it("should label as *",()=>{
             const lines=numbering({label:'*', style:{fonts:"arial",size:10}})
             expect(lines.length).toBe(1)
             const line=new ReactQuery(lines[0])
             const label=line.find(".numbering")
             expect(label.length).toBe(1)
-
-            expect(label.attr('children')().props.children).toBe('*')
+            expect(render(label.get(0)).root.findByType('text').props.children).toBe('*')
         })
 
         describe("align",()=>{
             const align=(align)=>{
                 const lines=numbering({align,label:'*.', style:{fonts:"arial",size:10}})
                 const line=new ReactQuery(lines[0])
-                return line.find(".numbering").attr('children')()
+                const el=line.find(".numbering")
+                const rendered=render(el.get(0)).root.findByType('text')
+                expect(rendered.props.children).toBe('*.')
+                return rendered
             }
             it("can align left",()=>{
                 expect(align().props.x).toBe(0)
