@@ -108,6 +108,10 @@ export default class Query{
         if(this.root?.props._root){
             throw new Error("ReactQuery object must have root, instead of [...] when running .replace(element, changed)")
         }
+        if(typeof(element)=="string"){
+            element=this.findFirst(element)
+        }
+        
         if(element instanceof Query){
             element=element.get(0)
         }

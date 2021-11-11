@@ -425,9 +425,9 @@ export default class EditableParagraph extends editable(Paragraph,{stoppable:tru
 	}
 	
 	cancelUnusableLastComposed({hash,changed=hash!=this.props.hash}){
+		delete this.computed.numbering
 		if(changed || this._hasAnchor()){
 			this.atoms=[]
-			delete this.computed.numbering
 			super.cancelUnusableLastComposed(...arguments)
 		}
 	}

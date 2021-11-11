@@ -2,18 +2,18 @@ import React from "react"
 import dom from "../src/dom"
 
 describe("normalize props",()=>{
-    const {UnitShape:{normalize:unit, denormalize:deunit}, Geometry}=dom.Unknown
-        
-    it("props should be normalized",()=>{
-        jest.spyOn(dom.Page,'normalizePropShape')
-        const {props:{width,height}}=<dom.Page size="A4"/>
-        expect(dom.Page.normalizePropShape).toHaveBeenCalled()
-        expect([width,height]).toMatchObject(dom.Page.Size.A4)
+    const {UnitShape:{normalize:unit, denormalize:deunit}, Geometry}=dom.Unknown    
+    it("page size should be normalized to {height,width}",()=>{
+        expect((<dom.Page size="A4"/>).props)
+            .toMatchObject({width:dom.Page.Size.A4[0], height:dom.Page.Size.A4[1]})
+        expect((<dom.Page size="A4" width="1mm"/>).props)
+            .toMatchObject({width:dom.Page.Size.A4[0], height:dom.Page.Size.A4[1]})
     })
 
-    it("page size should be normalized to {height,width}",()=>{
-        const {props:{width,height}}=<dom.Page size="A4"/>
-        expect([width,height]).toMatchObject(dom.Page.Size.A4)
+    it("page size should be ignored when page {width,height} shows",()=>{
+        const cmpx=unit("1cm")
+        expect((<dom.Page width="1cm" height="1cm" margin="1cm" size="A4"/>).props)
+            .toMatchObject({width:cmpx,height:cmpx,margin:{left:cmpx}})
     })
 
     it(".isRequired should also be normalized",()=>{

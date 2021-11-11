@@ -23,6 +23,12 @@ export default class Frame extends Component{
 				normalized[key]=this.UnitShape.normalize(value[key])
 				return normalized
 			},{...value})
+		},
+		unnormalize:(value,normalized)=>{
+			return Object.keys(normalized).reduce((unnormalize,key)=>{
+				unnormalize[key]=this.UnitShape.unnormalize(value[key], normalized[key])
+				return unnormalize
+			},{...normalized})
 		}
 	})
 	static propTypes={
@@ -34,7 +40,8 @@ export default class Frame extends Component{
 		cols:this.normalizeChecker(PropTypes.arrayOf(this.ColShape),{
 			normalize:value=>{
 				return value.map(a=>this.ColShape.normalize(a))
-			}
+			},
+			
 		}),
 		
 		x: this.UnitShape,

@@ -1,5 +1,6 @@
 import PropTypes from "prop-types"
 import Component from "./component"
+import Page from "./page"
 
 /**
  * section 
@@ -11,21 +12,26 @@ import Component from "./component"
  */
 export default class __$1 extends Component{
 	static displayName="section"
+	
 	static propTypes={
         createLayout: PropTypes.func,
-		layout:PropTypes.shape({
-			width:this.UnitShape,
-			height:this.UnitShape,
-			margin:this.MarginShape,
-			cols:PropTypes.arrayOf(PropTypes.shape({
-				x:this.UnitShape,
-				y:this.UnitShape,
-				width:this.UnitShape,
-			}))
-		})
+		layout:PropTypes.shape(Page.propTypes),
 	}
 
+	static defaultProps={
+		layout: Page.defaultProps
+	}
+
+	
 	get isFlow(){
 		return true
 	}
+
+	static normalizePropShape({layout, ...props}){
+		if(layout){
+			props.layout=Page.normalizePropShape(layout)
+			delete props.layout.__unnormalized
+		}
+		return super.normalizePropShape(props)
+    }
 }

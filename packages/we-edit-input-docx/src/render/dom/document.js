@@ -39,40 +39,9 @@ export default ({Document})=>class __$1 extends Component{
 		}
 	}
 
-	getNumbering=memoize(content=>{
-		var list=null
-		const styles=this.styles
-		return id=>{
-				if(!list){
-					list={}
-					ContentQuery
-						.fromContent(content)
-						.findFirst(a=>{
-							if(a.get('type')=="paragraph"){
-								if(a.hasIn(["props","numId"])){
-									const numId=a.getIn(["props","numId"])
-									const level=a.getIn(["props","level"])
-									;(list[numId]=list[numId]||[]).push([a.get("id"),level])
-								}
-								return false
-							}
-						})
-				}
-				const {numId,level}=content.getIn([id,"props"]).toJS()
-				const i=list[numId].findIndex(a=>a[0]==id)
-
-				const levelCount=list[numId].slice(0,i+1).reduce((db,[id,level])=>{
-					db.set(level,(db.get(level)||0)+1)
-					return db
-				},new Map())
-
-				return styles[`_num_${numId}`].level(level).label(levelCount)
-			}
-	},(a,b)=>a.equals(b))
-
 	render(){
 		const numbering={
-			get:id=>this.getNumbering(this.props.content)(id),
+			get:({id,level=0})=>this.styles[`_num_${id}`].level(level).nextValue(),
 			reset:(styles=this.styles)=>Object.keys(styles).forEach((k,t)=>(t=styles[k])&& t.reset && t.reset())
 		}
 

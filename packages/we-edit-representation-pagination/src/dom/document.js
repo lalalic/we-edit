@@ -171,7 +171,7 @@ export default class extends editable(Document,{continuable:true}){
         /**
          * clear all current composer, and save in history
          */
-        this.__delocaterize=()=>{
+        this.__delocaterize=()=>{debugger
             const {content}=this.props
             if(content){
                 for(const [id] of history){
