@@ -2,7 +2,7 @@ import React,{Fragment} from "react"
 import {compose, mapProps, setDisplayName} from "recompose"
 
 import {whenSelectionChangeDiscardable} from "we-edit"
-import UnitInput from "../components/unit-input"
+import UnitShapeInput from "../components/unit-shape-input"
 
 import {Layout} from "../shape/when-active"
 

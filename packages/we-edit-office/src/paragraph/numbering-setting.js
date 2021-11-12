@@ -2,7 +2,7 @@ import React, {Component, Fragment} from "react"
 import {dom} from "we-edit"
 import { RaisedButton, FlatButton,SvgIcon } from "material-ui"
 import Dialog from "../components/dialog"
-import UnitInput from "../components/unit-input"
+import UnitShapeInput from "../components/unit-shape-input"
 import Field from "../components/field"
 import FontSetting from "../text/setting"
 
@@ -42,12 +42,12 @@ export class BulletList extends Component{
                         <h3>Text Position</h3>
                         <div>
                             <span>indent at </span>
-                            <UnitInput min={0} value={style.indent} onChange={e=>this.setState({indent:e.target.value})}/>
+                            <UnitShapeInput min={0} value={style.indent} onChange={e=>this.setState({indent:e.target.value})}/>
                         </div>
 
                         <h3>Bullet Position</h3>
                         <div>
-                            <UnitInput min={0} max={style.indent} value={style.hanging} onChange={e=>this.setState({hanging:e.target.value})}/>
+                            <UnitShapeInput min={0} max={style.indent} value={style.hanging} onChange={e=>this.setState({hanging:e.target.value})}/>
                         </div>
                     </div>
                     <ListPreview style={{width:200,border:"1px solid black",padding:10}} numbering={this.state}/>
@@ -113,13 +113,13 @@ export class NumberList extends BulletList{
                         <h3>Text Position</h3>
                         <div>
                             <span>indent at </span>
-                            <UnitInput min={0} value={style.indent} onChange={e=>this.setState({indent:e.target.value})}/>
+                            <UnitShapeInput min={0} value={style.indent} onChange={e=>this.setState({indent:e.target.value})}/>
                         </div>
 
                         <h3>Numbering Position</h3>
                         <div style={{display:"flex"}}>
                             <div style={{flex:1}}>
-                                <UnitInput min={0} value={style.hanging} onChange={e=>this.setState({hanging:e.target.value})}/>
+                                <UnitShapeInput min={0} value={style.hanging} onChange={e=>this.setState({hanging:e.target.value})}/>
                             </div>
 
                             <div style={{flex:1}}>

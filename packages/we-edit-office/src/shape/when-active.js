@@ -7,7 +7,7 @@ import selectFile from "../components/file-select"
 import {MenuItem, Divider, SvgIcon, ToolbarSeparator} from "material-ui"
 
 import Field from "../components/toolbar-field"
-import UnitInput from "../components/unit-input"
+import UnitShapeInput from "../components/unit-shape-input"
 import DropDownButton from "../components/drop-down-button"
 
 import IconPosition from "material-ui/svg-icons/av/featured-video"
@@ -47,11 +47,11 @@ export default compose(
 			<Layout/>
 			<ToolbarSeparator/>
 			<Field label="Size>Width">
-				<UnitInput style={{width:50}} value={shape?.geometry?.width}
+				<UnitShapeInput style={{width:50}} value={shape?.geometry?.width}
 					onChange={width=>dispatch(ACTION.Entity.UPDATE({shape:{width}}))}/>
 			</Field>
 			<Field label="Height">
-				<UnitInput style={{width:50}} value={shape?.geometry?.height}
+				<UnitShapeInput style={{width:50}} value={shape?.geometry?.height}
 					onChange={height=>dispatch(ACTION.Entity.UPDATE({shape:{height}}))}/>		
 			</Field>
 			<ToolbarSeparator/>

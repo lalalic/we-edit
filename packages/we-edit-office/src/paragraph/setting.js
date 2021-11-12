@@ -1,7 +1,7 @@
 import React,{Component} from "react"
 
 import Field from "../components/field"
-import UnitInput from "../components/unit-input"
+import UnitShapeInput from "../components/unit-shape-input"
 
 export default class ParagraphSetting extends Component{
     static getDerivedStateFromProps({style},state){
@@ -24,26 +24,26 @@ export default class ParagraphSetting extends Component{
                 <FieldSet title="Indentation">
                     <div style={{display:"flex"}}>
                         <Field label="Left">
-                            <UnitInput value={style.indent?.left} onChange={left=>this.setState({indent:{...style.indent,left}})}/>
+                            <UnitShapeInput value={style.indent?.left} onChange={left=>this.setState({indent:{...style.indent,left}})}/>
                         </Field>
                         <Field label="Right">
-                            <UnitInput value={style.indent?.right} onChange={right=>this.setState({indent:{...style.indent,right}})}/>
+                            <UnitShapeInput value={style.indent?.right} onChange={right=>this.setState({indent:{...style.indent,right}})}/>
                         </Field>
                         <Field label="First Line">
-                            <UnitInput value={style.indent?.firstLine} onChange={firstLine=>this.setState({indent:{...style.indent,firstLine}})}/>
+                            <UnitShapeInput value={style.indent?.firstLine} onChange={firstLine=>this.setState({indent:{...style.indent,firstLine}})}/>
                         </Field>
                     </div>
                 </FieldSet>
                 <FieldSet title="Spacing">
                     <div style={{display:"flex"}}>
                         <Field label="Before">
-                            <UnitInput value={style.spacing?.top} onChange={top=>this.setState({spacing:{...style.spacing,top}})}/>
+                            <UnitShapeInput value={style.spacing?.top} onChange={top=>this.setState({spacing:{...style.spacing,top}})}/>
                         </Field>
                         <Field label="After">
-                            <UnitInput value={style.spacing?.bottom} onChange={bottom=>this.setState({spacing:{...style.spacing,bottom}})}/>
+                            <UnitShapeInput value={style.spacing?.bottom} onChange={bottom=>this.setState({spacing:{...style.spacing,bottom}})}/>
                         </Field>
                         <Field label="Line Height">
-                            <UnitInput value={style.spacing?.lineHeight} onChange={lineHeight=>this.setState({spacing:{...style.spacing,lineHeight}})}/>
+                            <UnitShapeInput value={style.spacing?.lineHeight} onChange={lineHeight=>this.setState({spacing:{...style.spacing,lineHeight}})}/>
                         </Field>
                     </div>
                 </FieldSet>

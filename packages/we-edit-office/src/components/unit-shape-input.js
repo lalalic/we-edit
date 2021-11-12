@@ -1,5 +1,5 @@
 import React, {Component} from "react"
-export default class UnitInput extends Component{
+export default class UnitShapeInput extends Component{
     constructor({value}){
         super(...arguments)
         this.state={value}
