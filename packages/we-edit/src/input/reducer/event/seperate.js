@@ -76,6 +76,9 @@ export default {
         }
     },
 
+    /**
+     * <p/> splitted to <clonedP [remove nexts]/><p [remove prevs]/>
+     */
     seperate_up_to_paragraph_at_beginning(){
         const MARKER="_creating"
         const containers=this.InlineContainers
@@ -88,14 +91,14 @@ export default {
         clonedTarget.parents(containers).each((i,el)=>{
             this.file.$(el).nextAll().not(this.PR).remove()
         })
-        clonedTarget.nextAll().add(clonedTarget).remove()
+        clonedTarget.nextAll().add(clonedTarget).not(this.PR).remove()
         
         p.before(clonedP)
         
         target.parents(containers).each((i,el)=>{
             this.file.$(el).prevAll().not(this.PR).remove()
         })
-        target.prevAll().remove()
+        target.prevAll().not(this.PR).remove()
         this.target.removeAttr(MARKER)
 
         //update state.content

@@ -35,10 +35,6 @@ export default{
         this.create(...arguments)
     },
 
-    create_table_at_empty_paragraph(){
-        this.create_table_at_beginning_of_paragraph(...arguments)
-    },
-
     create_row({where}){
         this.emit("create_row",[where],...arguments)    
     },

@@ -68,14 +68,14 @@ export function traverse(content, f, start="root", right=false){
 }
 
 export function traversePrev(content, f, start="root"){
-	let parentId=getParentId(content,start)
+	const parentId=getParentId(content,start)
 	if(parentId){
-		let parent=content.get(parentId)
-		let siblings=parent.get("children")
-		let index=siblings.indexOf(start)
-		let prevs=siblings.slice(0,index)
-		let found=!!prevs.findLast((k)=>{
-			let result=f(content.get(k))
+		const parent=content.get(parentId)
+		const siblings=parent.get("children")
+		const index=siblings.indexOf(start)
+		const prevs=siblings.slice(0,index)
+		const found=!!prevs.findLast((k)=>{
+			const result=f(content.get(k))
 			if(result===true){
 				return true
 			}else if(result===false){
@@ -83,7 +83,6 @@ export function traversePrev(content, f, start="root"){
 			}else{
 				return !!traverse(content,f,k,true)
 			}
-
 		})
 
 		if(!found){
@@ -93,14 +92,14 @@ export function traversePrev(content, f, start="root"){
 }
 
 export function traverseNext(content, f, start="root"){
-	let parentId=getParentId(content,start)
+	const parentId=getParentId(content,start)
 	if(parentId){
-		let parent=content.get(parentId)
-		let siblings=parent.get("children")
-		let index=siblings.indexOf(start)
-		let nexts=siblings.slice(index+1)
-		let found=!!nexts.find((k,i)=>{
-			let result=f(content.get(k))
+		const parent=content.get(parentId)
+		const siblings=parent.get("children")
+		const index=siblings.indexOf(start)
+		const nexts=siblings.slice(index+1)
+		const found=!!nexts.find((k,i)=>{
+			const result=f(content.get(k))
 			if(result===true){
 				return true
 			}else if(result===false){

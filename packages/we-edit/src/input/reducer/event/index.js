@@ -60,58 +60,82 @@ export default (class Events extends Base{
                         (at==0 && "beginning_of")||
                         (type=="text" ? (at>=children.length && "end_of") : (at==1)&&"end_of")||
                         ""
-            
-                    const up2Parents=((current,parent,types=[])=>{
-                            switch(pos){
-                            case "whole":
-                                    current=this.content.get(current.get("parent"))
-                            case "empty":
-                                while(parent=this.content.get(current.get("parent"))){
-                                    let children=parent.get("children")
-                                    if(children.size!=1 || children.first()!=current.get("id")){
-                                        break
-                                    }
-                                    types.unshift(parent.get("type"))
-                                    current=parent
+                    
+                    const getUp2Parents=(current,pos, parent,types=[])=>{
+                        switch(pos){
+                        case "whole":
+                                current=this.content.get(current.get("parent"))
+                        case "empty":
+                            while(parent=this.content.get(current.get("parent"))){
+                                let children=parent.get("children")
+                                if(children.size!=1 || children.first()!=current.get("id")){
+                                    break
                                 }
-                            break
-                            case "beginning_of":
-                                while(parent=this.content.get(current.get("parent"))){
-                                    if(parent.get("children").first()!==current.get("id")){
-                                        break
-                                    }
-                                    types.unshift(parent.get("type"))
-                                    current=parent
-                                }
-                            break
-                            case "end_of":
-                                while(parent=this.content.get(current.get("parent"))){
-                                    if(parent.get("children").last()!==current.get("id")){
-                                        break
-                                    }
-                                    types.unshift(parent.get("type"))
-                                    current=parent
-                                }
-                            break
+                                types.unshift(parent.get("type"))
+                                current=parent
                             }
-                            return types
-                        })(target);
-            
-                    var conds=up2Parents.map(a=>`up_to_${a}`)
-                    if(parentType){
-                        conds=[...conds.map(a=>`${a}_in_${parentType}`),...conds,`in_${parentType}`]
+                        break
+                        case "beginning_of":
+                            while(parent=this.content.get(current.get("parent"))){
+                                if(parent.get("children").first()!==current.get("id")){
+                                    break
+                                }
+                                types.unshift(parent.get("type"))
+                                current=parent
+                            }
+                        break
+                        case "end_of":
+                            while(parent=this.content.get(current.get("parent"))){
+                                if(parent.get("children").last()!==current.get("id")){
+                                    break
+                                }
+                                types.unshift(parent.get("type"))
+                                current=parent
+                            }
+                        break
+                        }
+
+                        let conds=types.map(a=>`up_to_${a}`)
+                        if(parentType){
+                            conds=[...conds.map(a=>`${a}_in_${parentType}`),...conds]
+                        }
+                        //pos+type+parents
+                        conds=conds.map(a=>`${pos}_${type}_${a}`)
+                        //pos+parents
+                        conds=[...conds, ...types.map(a=>`${pos}_up_to_${a}`)]
+
+                        if(pos=="whole" || pos=="empty"){
+                            conds=[...conds, ...getUp2Parents(current, 'beginning_of'), ...getUp2Parents(current, 'end_of')]
+                        }
+                        return conds
                     }
-                    //pos+type+parents
-                    conds=conds.map(a=>`${pos}_${type}_${a}`)
-                    //pos+parents
-                    conds=[...conds, ...up2Parents.map(a=>`${pos}_up_to_${a}`)]
-                    if(parentType)
-                        conds.push(`${pos}_${type}_in_${parentType}`)
-                    conds.push(`${pos}_${type}`)
+                    //pos+upto
+                    let conds=getUp2Parents(target, pos)
+                    
+                    //pos+type
+                    const posTypeFn=pos=>{
+                        if(parentType)
+                            conds.push(`${pos}_${type}_in_${parentType}`)
+                        conds.push(`${pos}_${type}`)
+                    }
+                    posTypeFn(pos);
+                    if(pos=="whole" || pos=="empty"){
+                        posTypeFn("beginning_of")
+                        posTypeFn("end_of")
+                    }
+
+                    //type
                     if(parentType)
                         conds.push(`${type}_in_${parentType}`)
                     conds.push(type)
+                    
+                    //pos
                     conds.push(pos.replace(/_of$/,''))
+                    if(pos=="whole" || pos=="empty"){
+                        conds.push("beginning")
+                        conds.push("end")
+                    }
+                    
                     conds=conds.filter(a=>!!a).map(a=>a.replace(/^_/g,""))
                     return Array.from(new Set(conds)).map(a=>'at_'+a)
                 }

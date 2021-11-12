@@ -20,10 +20,6 @@ export default {
         }
     },
 
-    backward_at_empty(){
-        this.backward_at_beginning()
-    },  
-    
     backward_at_end(){
         this.cursorAt(this.$target.attr('id'),0)
     },
@@ -35,18 +31,6 @@ export default {
 
     backward_at_beginning_of_up_to_document(){
 
-    },
-
-    backward_at_empty_paragraph(){
-        this.backward_at_empty_up_to_paragraph()
-    },
-
-    backward_at_empty_up_to_paragraph(){
-        this.backward_at_beginning_of_up_to_paragraph()
-    },
-
-    backward_at_empty_up_to_document(){
-        
     },
 
     backward_at_end_of_paragraph(){

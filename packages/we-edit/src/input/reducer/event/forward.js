@@ -23,14 +23,6 @@ export default {
         this.forward_at_end()
     },
 
-    forward_at_empty_up_to_paragraph(){
-        this.forward_at_end()
-    },
-
-    forward_at_empty_up_to_document(){
-        
-    },
-
     forward_at_beginning(){
         this.cursorAtEnd(this.selection.start.id)
         this.forward()    

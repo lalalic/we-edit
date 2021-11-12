@@ -28,7 +28,7 @@ export default {
 
     remove_at_beginning_of_up_to_paragraph(){
         const $p=this.$target.closest("paragraph")
-        this.remove_whole()
+        this.remove_at_whole()
         this.cursorAt($p.attr('id'),0)
     },
 

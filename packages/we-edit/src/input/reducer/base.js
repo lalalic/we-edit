@@ -119,7 +119,7 @@ export default class Reducer{
 
 	cursorAtEnd(id){
 		if(this.content.getIn([id,"type"])=="text"){
-			return this.cursorAt(id, this.content.getIn([id,"children"]).length)
+			return this.cursorAt(id, this.content.getIn([id,"children"])?.length||0)
 		}else{
 			return this.cursorAt(id,1)
 		}

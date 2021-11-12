@@ -8,12 +8,8 @@ export default {
         this.cursorAt(id,at-1)
     },
 
-    backspace_at_empty_text(){
-        const $prev=this.$target.backwardFirst(this.cursorable)
-        if($prev.length){
-            this.cursorAtEnd($prev.attr('id'))
-            this.backspace(...arguments)
-        }
+    backspace_at_beginning_of_text(){
+        this.backspace_at_beginning()
     },
 
     backspace_at_beginning_of_paragraph(){debugger
@@ -52,7 +48,7 @@ export default {
     
     backspace_at_beginning(){
         const cursor=this.selection.start
-        const $prev=this.$target.backwardFirst(this.cursorable)
+        const $prev=this.$target.backwardFirst()
         if($prev.length==0){
             return
         }
@@ -78,29 +74,9 @@ export default {
         }
     },
 
-    backspace_at_empty(){
-        this.backspace_at_beginning(...arguments)
-    },
-
-    backspace_at_empty_up_to_paragraph(){
-        this.backspace_at_empty_paragraph(...arguments)
-    },
-
-    backspace_at_empty_paragraph(){
-        this.backspace_at_beginning_of_up_to_document(...arguments)
-    },
-    
-    backspace_at_empty_up_to_document(){
-        this.backspace_at_beginning_of_up_to_document(...arguments)
-    },
-
     backspace_at_beginning_of_up_to_document(){
         this.backspace_at_beginning_of_up_to_paragraph(...arguments)
     }, 
-
-    backspace_at_empty_up_to_cell(){
-        this.backspace_at_beginning_of_up_to_cell(...arguments)
-    },
 
     backspace_at_beginning_of_up_to_cell(){
         if(this.isNumberingParagraph()){

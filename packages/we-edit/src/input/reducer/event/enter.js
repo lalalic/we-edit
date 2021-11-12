@@ -21,14 +21,6 @@ export default {
         }
     },
 
-    enter_at_empty_text(){
-        this.enter_at_beginning()
-    },
-
-    enter_at_empty_up_to_cell(){
-        this.enter_at_beginning_of_up_to_table()
-    },
-
     enter_at_beginning_of_table(){
         this.enter_at_beginning_of_up_to_table()
     },
@@ -45,14 +37,6 @@ export default {
     //clone parent and hold target
     enter_at_beginning(){
         this.seperate_up_to_paragraph_at_beginning()
-    },
-
-    enter_at_empty_paragraph(){
-        this.enter_at_empty_up_to_paragraph()
-    },
-
-    enter_at_empty_up_to_paragraph(){
-        this.enter_at_end_of_up_to_paragraph()
     },
 
     enter_at_beginning_of_paragraph(){
