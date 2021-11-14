@@ -256,23 +256,6 @@ export default class Base extends Component{
 		}
 	})
 
-	
-	static PictureFillShape=this.normalizeChecker(PropTypes.shape({
-		url: PropTypes.string,
-		transparency: PropTypes.number,
-		tile: PropTypes.shape({
-			x: this.UnitShape,
-			y: this.UnitShape,
-			scaleX: PropTypes.number,
-			scaleY: PropTypes.number,
-			align: this.AlignShape,
-			mirror: PropTypes.string,
-		}),
-		margin:this.MarginShape,
-	}),{
-		is:value=>!!value?.url
-	})
-
 	static FillPictureShape=this.normalizeChecker(PropTypes.oneOfType([
 		PropTypes.string,
 		PropTypes.shape({
