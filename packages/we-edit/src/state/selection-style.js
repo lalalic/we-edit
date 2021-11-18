@@ -40,7 +40,7 @@ export default class SelectionStyle{
             const composer = this.getComposer(typed)
             if (composer) {
                 const {__unnormalized, ...props}=composer.props
-                return __unnormalized ? {...__unnormalized} : props
+                return __unnormalized ? {...__unnormalized,...props} : props
             }
         }
     }
