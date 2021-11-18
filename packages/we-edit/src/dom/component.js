@@ -10,26 +10,75 @@ export default class Base extends Component{
 	static units=units
 	static numberings=numberings
 	static Geometry=Geometry
+
+	static recordify=types=>{
+		const {string,bool,number}=types
+		string.Type=<string/>
+		string.isRequired.Type=<string required={true}/>
+		bool.Type=<bool/>
+		bool.isRequired.Type=<bool required={true}/>
+		number.Type=<number/>
+		number.isRequired.Type=<number required={true}/>
+
+		types.oneOf=(fn=>{
+			return function(values,{$type="oneOf",...props}={}){
+				let validator=fn(values)
+				validator.Type=React.createElement($type, {...props,values, })
+				validator.isRequired.Type=React.cloneElement(validator.Type, {required:true})
+				return validator
+			}
+		})(types.oneOf);
+
+		types.shape=(fn=>{
+			return function(model,{$type="shape",...props}={}){
+				let validator=fn(model)
+				validator.Type=React.createElement($type,{...props,schema:model,})
+				validator.isRequired.Type=React.cloneElement(validator.Type, {required:true})
+				return validator
+			}
+		})(types.shape);
+
+		types.oneOfType=(fn=>{
+			return function(types,{$type="oneOfType",...props}={}){
+				let validator=fn(types)
+				validator.Type=React.createElement($type,{...props,types,})
+				validator.isRequired.Type=React.cloneElement(validator.Type, {required:true})
+				return validator
+			}
+		})(types.oneOfType);
+
+		types.arrayOf=(fn=>{
+			return function(type,{$type="arrayOf",...props}={}){
+				let validator=fn(type)
+				validator.Type=React.createElement($type, {...props,type})
+				validator.isRequired.Type=React.cloneElement(validator.Type, {required:true})
+				return validator
+			}
+		})(types.arrayOf);
+		
+	}
+
 	static normalizeChecker=(checker,extend)=>{
 		const isRequired=checker.isRequired
 		Object.assign(checker,extend)
 		Object.assign(isRequired,extend)
 		return checker
 	}
-	static reactCreateElementNormalized=(
-		createElement=>{
+	static reactCreateElementNormalized=((createElement, recordify)=>{
 			React.createElement=function(Type, props, ...args){
 				props=Type.normalizePropShape?.({...Type.defaultProps,...props})||props
 				return createElement(Type, props, ...args)
 			}
+
+			recordify(PropTypes)
 			return true
 		}
-	)(React.createElement)
+	)(React.createElement, this.recordify)
 	
 	static UnitShape=this.normalizeChecker(PropTypes.oneOfType([
 		PropTypes.number,
 		PropTypes.string,
-	]),{
+	],{$type:"UnitShape"}),{
 		normalize:(value,toUnit="px",missUnit=toUnit)=>{
 			switch(typeof(value)){
 				case "number":
@@ -71,7 +120,7 @@ export default class Base extends Component{
 	//CSS valid values, keyword/hsl()/hsla()/rgb()/rgba()/#hex rgb
 	static ColorShape=this.normalizeChecker(PropTypes.oneOfType([
 		PropTypes.string,
-	]),{
+	],{$type:"ColorShape"}),{
 		normalize:value=>value,
 		denormalize:(value,normalized)=>normalized,
 		is:value=>true,
@@ -89,7 +138,7 @@ export default class Base extends Component{
 		position: this.UnitShape,
 		transparency: PropTypes.number,
 		brightness: PropTypes.number,
-	}),{
+	},{$type:"GradientStopShape"}),{
 		normalize:({color,position, ...stop	})=>{
 			if(color!=undefined)
 				stop.color=this.ColorShape.normalize(color)
@@ -111,7 +160,7 @@ export default class Base extends Component{
 		type:PropTypes.string,
 		angle: this.UnitShape,
 		stops:PropTypes.arrayOf(this.GradientStopShape),
-	}),{
+	},{$type:"GradientShape"}),{
 		normalize:({angle,stops,...gradient})=>{
 			if(angle!=undefined)
 				gradient.angle=this.UnitShape.normalize(angle,"deg")
@@ -137,7 +186,7 @@ export default class Base extends Component{
 		}),
 		foreground: this.ColorShape,
 		background: this.ColorShape,
-	}),{
+	},{$type:"PatternShape"}),{
 		is:value=>!!value?.pattern,
 		normalize:({pattern,...props})=>{
 			if(pattern!=undefined){
@@ -166,6 +215,8 @@ export default class Base extends Component{
 	 * Font selection Priority: fonts.segmented>fonts[fonts.hint]>fonts.fallback>systemFallbacks[fonts.hint]>systemFallbacks.segmented>systemFallbacks.fallback
 	 */
 	static FontsShape=this.normalizeChecker(PropTypes.oneOfType([
+		/** same as {ascii: fontName, hint:"ascii"}*/
+		PropTypes.string, 
 		PropTypes.shape({
 			ascii: PropTypes.string,
 			ea: PropTypes.string,
@@ -177,9 +228,7 @@ export default class Base extends Component{
 			hint: PropTypes.string,
 			//"7F-FF,00-3F":"Arial",
 		}),
-		/** same as {ascii: fontName}*/
-		PropTypes.string, 
-	]),{
+	],{$type:"FontsShape"}),{
 		normalize:value=>{
 			switch(typeof(value)){
 				case "string":
@@ -218,7 +267,7 @@ export default class Base extends Component{
 		}),
 		this.UnitShape,//width
 		PropTypes.oneOf(["signle","double"])
-	]),{
+	],{$type:"LineShape"}),{
 		default:{width:1,color:"black"},
 		normalize:(value)=>{
 			switch(typeof(value)){
@@ -271,7 +320,7 @@ export default class Base extends Component{
 			}),
 			margin:this.MarginShape,
 		})
-	]),{
+	],{$type:"FillPictureShape"}),{
 		normalize:(value)=>{
 			if(typeof(value)=="string"){
 				return {url:value}
@@ -326,7 +375,7 @@ export default class Base extends Component{
 		}),
 
 		this.ColorShape,
-	]),{
+	],{$type:"FillShape"}),{
 		normalize:(value)=>{
 			if(typeof(value)=="object"){
 				const {color, pattern, picture,gradient, ...normalized}=value
@@ -376,7 +425,7 @@ export default class Base extends Component{
 
 	static EffectShape=PropTypes.shape({
 		
-	})
+	},{$type:"EffectShape"})
 
 	static GeometryShape=this.normalizeChecker(PropTypes.oneOfType([
 		PropTypes.shape({
@@ -409,7 +458,7 @@ export default class Base extends Component{
 			cx: this.UnitShape,
 			cy: this.UnitShape,
 		})
-	]),{
+	],{$type:"GeometryShape"}),{
 		normalize:value=>Geometry.create(value),
 		denormalize:(value,normalized)=>{
 			if(normalized.type=="path"){
@@ -433,7 +482,7 @@ export default class Base extends Component{
 			bottom:this.LineShape,
 		}),
 		this.LineShape,//4 edges with same shape
-	]),{
+	],{$type:"BorderShape"}),{
 		default:{
 			left:this.LineShape.default,
 			right:this.LineShape.default,
@@ -476,7 +525,7 @@ export default class Base extends Component{
 			bottom: this.UnitShape
 		}),
 		this.UnitShape//all is same
-	]),{
+	],{$type:"MarginShape"}),{
 		default:{left:0,right:0,top:0,bottom:0},
 		normalize:(value)=>{
 			switch(typeof(value)){
@@ -507,17 +556,17 @@ export default class Base extends Component{
 
 	static PaddingShape=this.MarginShape
 
-	static AutofitShape=PropTypes.oneOf(["block","font"])
+	static AutofitShape=PropTypes.oneOf(["block","font"],{$type:"AutofitShape",label:"auto fit %s"})
 
-	static AlignShape=PropTypes.oneOf(["left","right","center","justify"])
-	static VertAlignShape=PropTypes.oneOf(["top","middle","bottom"])
+	static AlignShape=PropTypes.oneOf(["left","right","center","justify"],{$type:"AlignShape",label:"Align %s"})
+	static VertAlignShape=PropTypes.oneOf(["top","middle","bottom"],{$type:"VertAlignShape",label:"Vertical Align %s"})
 
 	static TextStyleShape=this.normalizeChecker(PropTypes.shape({
 		fonts:this.FontsShape.isRequired,
 		size:this.UnitShape,
 		bold: PropTypes.bool,
 		italic: PropTypes.bool,
-	}),{
+	},{$type:"TextStyleShape"}),{
 		normalize:({size,...style})=>{
 			if(size!=undefined)
 				style.size=this.UnitShape.normalize(size)
@@ -548,7 +597,7 @@ export default class Base extends Component{
 				url: PropTypes.string.isRequired
 			})
 		])
-	}),{
+	},{$type:"NumberingShape"}),{
 		normalize:({indent, hanging,style,...values})=>{
 			if(indent!=undefined)
 				values.indent=this.UnitShape.normalize(indent)
@@ -578,6 +627,29 @@ export default class Base extends Component{
 				&& (next.style===undefined || (
 					nextNormalized.style?.fonts==currentNormalized.style?.fonts 
 					&& nextNormalized.style?.size==currentNormalized.style?.size ))
+		}
+	})
+
+	static WrapModeShape=PropTypes.oneOf(["square", "tight", "clear","no"],{$type:"WrapModeShape",label:"%s wrap"})
+    static WrapSideShape=PropTypes.oneOf(["both","left","right","largest"], {$type:"WrapSideShape",label:"% side wrap"})
+    static AnchorBaseShape=PropTypes.oneOf(["character","line","paragraph","page","frame","margin", "closest"],{$type:"PositionBaseShape",label:"position base %s"})
+	static ColumnShape=this.normalizeChecker(PropTypes.shape({
+		x:this.UnitShape,
+		y:this.UnitShape,
+		width:this.UnitShape.isRequired,
+		height:this.UnitShape,
+	},{$type:"ColumnShape"}),{
+		normalize:value=>{
+			return Object.keys(value).reduce((normalized,key)=>{
+				normalized[key]=this.UnitShape.normalize(value[key])
+				return normalized
+			},{...value})
+		},
+		unnormalize:(value,normalized)=>{
+			return Object.keys(normalized).reduce((unnormalize,key)=>{
+				unnormalize[key]=this.UnitShape.unnormalize(value[key], normalized[key])
+				return unnormalize
+			},{...normalized})
 		}
 	})
 

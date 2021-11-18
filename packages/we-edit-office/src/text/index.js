@@ -6,6 +6,7 @@ import {compose,setDisplayName,withProps, shallowEqual,shouldUpdate,withState} f
 
 import {MenuItem,ToolbarSeparator,FlatButton} from "material-ui"
 
+import PropTypesUI from "../components/prop-types-ui"
 import ComboBox from "../components/combo-box"
 import CheckIconButton from "../components/check-icon-button"
 import DropDownButton from "../components/drop-down-button"
@@ -23,7 +24,7 @@ import IconTextColor from "material-ui/svg-icons/editor/format-color-text"
 import IconMore from "material-ui/svg-icons/navigation/more-horiz"
 import { IconBigger, IconSmaller, IconSubscript, IconSuperscript, IconTextBorder } from "./icons"
 
-import FontList from "./fonts"
+import FontList from "../components/fonts"
 import TextSetting from "./setting"
 import Dialog from "../components/dialog"
 
@@ -122,16 +123,17 @@ export default compose(
 			toggleStrike, changeHightlight,changeColor,
 			toggleSubscript, toggleSuperscript, toggleBorder,
 			toggleB, toggleI, underline,
-			changeFont,changeSize, setting, toggleSetting,
+			changeFont,changeSize, setting, toggleSetting,apply,
 		}=this.props
 		return (
 			<ContextMenu.Support menus={
 				<MenuItem primaryText="Font..." onClick={e=>dispatch(ACTION.UI({dialog:this.dialog(()=>dispatch(ACTION.UI({dialog:null})))}))}/>
 			}>
 				<Fragment>
+					<PropTypesUI uiContext="Ribbon" theme="Text" propTypes={dom.Text.propTypes} props={style} onChange={apply}/>
 					<FontList
 						value={style?.fonts||""}
-						changeFont={changeFont}/>
+						onChange={changeFont}/>
 					<ComboBox
 						style={{width:50}}
 						inputStyle={{border:"1px solid lightgray"}}

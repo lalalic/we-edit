@@ -1,6 +1,6 @@
 import React, {PureComponent} from "react"
 import PropTypes from "prop-types"
-import {whenSelectionChangeDiscardable} from "we-edit"
+import {whenSelectionChangeDiscardable, dom} from "we-edit"
 import {compose,setDisplayName,getContext}  from "recompose"
 
 import {Toolbar,ToolbarSeparator, ToolbarGroup, Tabs, Tab,} from "material-ui"
@@ -21,7 +21,7 @@ import * as Picture from "./picture"
 import * as Layout from "./layout"
 import * as Developer from "./developer"
 
-import {CheckIconButton,DropDownButton,ContextMenuSupport} from "./components"
+import {CheckIconButton,DropDownButton,ContextMenuSupport, PropTypesUI} from "./components"
 
 const Ribbon=compose(
 	setDisplayName("Ribbon"),
@@ -106,6 +106,7 @@ const Ribbon=compose(
 								{design.font}
 								{design.effect}
 								{design.more}
+								{<PropTypesUI uiContext="Ribbon" propTypes={dom.Text.propTypes} theme="Text"/>}
 							</ToolbarGroup>
 						</Toolbar>
 					</Tab>}

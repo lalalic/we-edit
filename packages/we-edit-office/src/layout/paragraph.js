@@ -4,7 +4,7 @@ import {compose, mapProps, setDisplayName, branch} from "recompose"
 import {ToolbarSeparator} from "material-ui"
 
 import {ACTION,whenSelectionChangeDiscardable} from "we-edit"
-import UnitShapeInput from "../components/unit-shape-input"
+import UnitShapeInput from "../components/prop-types-ui/unit-shape"
 import ToolbarField from "../components/toolbar-field"
 
 export default compose(

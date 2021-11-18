@@ -6,7 +6,7 @@ import IconWrap from "material-ui/svg-icons/editor/wrap-text"
 import IconNumber from "material-ui/svg-icons/editor/format-list-numbered"
 
 import {getOffice} from "../state/action"
-import FontList from "../text/fonts"
+import FontList from "../components/fonts"
 import Workspace from "../workspace"
 import Ribbon,{ToolbarSeparator} from "../ribbon"
 import ComboBox from "../components/combo-box"

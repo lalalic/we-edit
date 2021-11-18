@@ -14,7 +14,10 @@ export default class Text extends Component{
 		italic: PropTypes.bool,
 		vanish: PropTypes.bool,
 		highlight: this.ColorShape,
-		border: this.BorderShape,
+		border: PropTypes.oneOfType([
+			PropTypes.bool,
+			this.BorderShape,
+		]),
 		underline: PropTypes.oneOfType([
 			PropTypes.bool,
 			this.LineShape,
@@ -23,7 +26,7 @@ export default class Text extends Component{
 			PropTypes.bool,
 			this.LineShape,
 		]),
-		vertAlign: PropTypes.oneOf(["subscript","superscript"]),
+		vertAlign: PropTypes.oneOf(["subscript","superscript"],{label:"%s"}),
 
 		formatText: PropTypes.func,//caps, dynamic, ...
 

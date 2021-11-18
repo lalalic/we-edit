@@ -1,7 +1,7 @@
 import React,{Component} from "react"
 
 import Field from "../components/field"
-import UnitShapeInput from "../components/unit-shape-input"
+import UnitShapeInput from "../components/prop-types-ui/unit-shape"
 
 export default class ParagraphSetting extends Component{
     static getDerivedStateFromProps({style},state){

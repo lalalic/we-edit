@@ -13,7 +13,7 @@ export default class FontList extends React.Component{
 
 	componentDidMount(){
 		document?.addEventListener("fontLoaded",this.fontListener=e=>{
-			this.setState({fonts:Array.from(e?.detail?.fonts||document.fonts)})
+			this.setState({fonts:Array.from(e?.detail?.fonts||document.fonts||[])})
 		})
 
 		this.fontListener()
@@ -24,10 +24,11 @@ export default class FontList extends React.Component{
 	}
 
 	render(){
-		const {props:{value="", changeFont,},state:{open,anchor, filter=value}}=this
+		const {props:{value="", onChange,style,...props},state:{open,anchor, filter=value}}=this
 		return (
 			<span ref={this.container} style={{marginLeft:2,marginRight:2}}>
-				<input style={{outline:"none",border:"1px solid lightgray",margin:"5px 2px 0 0", padding:"0 2px",lineHeight:"24px",height:24}}
+				<input {...props}
+					style={{...style,outline:"none",border:"1px solid lightgray",margin:"5px 2px 0 0", padding:"0 2px",lineHeight:"24px",height:24}}
 					name="font" 
 					value={open?filter:value} 
 					autoComplete="off"
@@ -43,7 +44,7 @@ export default class FontList extends React.Component{
 								this.close()
 							break
 							case 'Enter':
-								filter!=value && changeFont(filter)
+								filter!=value && onChange?.(filter)
 							break
 						}
 					}}
@@ -69,7 +70,7 @@ export default class FontList extends React.Component{
 	}
 
 	getMenuItems(){
-		const {state:{fonts, filter},props:{value, changeFont}}=this
+		const {state:{fonts, filter},props:{value, onChange}}=this
 		return Array.from(new Set(fonts.map(({family})=>family))).sort()
 			.reduce((menus, a)=>{
 				if(filter && !a.startsWith(filter)){
@@ -80,7 +81,7 @@ export default class FontList extends React.Component{
 					checked={value===a} 
 					insetChildren={true} 
 					onClick={e=>{
-						changeFont(a)
+						onChange?.(a)
 						this.close()
 					}}
 				/>

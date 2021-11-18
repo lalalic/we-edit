@@ -12,34 +12,16 @@ import Component from "./component"
  */
 export default class Frame extends Component{
 	static displayName="frame"
-	static ColShape=this.normalizeChecker(PropTypes.shape({
-		x:this.UnitShape,
-		y:this.UnitShape,
-		width:this.UnitShape.isRequired,
-		height:this.UnitShape,
-	}),{
-		normalize:value=>{
-			return Object.keys(value).reduce((normalized,key)=>{
-				normalized[key]=this.UnitShape.normalize(value[key])
-				return normalized
-			},{...value})
-		},
-		unnormalize:(value,normalized)=>{
-			return Object.keys(normalized).reduce((unnormalize,key)=>{
-				unnormalize[key]=this.UnitShape.unnormalize(value[key], normalized[key])
-				return unnormalize
-			},{...normalized})
-		}
-	})
+	
 	static propTypes={
 		width:this.UnitShape.isRequired,
 		height:this.UnitShape,
 		/**margin is in frame box*/
 		margin:this.MarginShape,
 		
-		cols:this.normalizeChecker(PropTypes.arrayOf(this.ColShape),{
+		cols:this.normalizeChecker(PropTypes.arrayOf(this.ColumnShape),{
 			normalize:value=>{
-				return value.map(a=>this.ColShape.normalize(a))
+				return value.map(a=>this.ColumnShape.normalize(a))
 			},
 			
 		}),

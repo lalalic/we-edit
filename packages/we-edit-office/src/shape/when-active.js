@@ -7,7 +7,7 @@ import selectFile from "../components/file-select"
 import {MenuItem, Divider, SvgIcon, ToolbarSeparator} from "material-ui"
 
 import Field from "../components/toolbar-field"
-import UnitShapeInput from "../components/unit-shape-input"
+import UnitShapeInput from "../components/prop-types-ui/unit-shape"
 import DropDownButton from "../components/drop-down-button"
 
 import IconPosition from "material-ui/svg-icons/av/featured-video"

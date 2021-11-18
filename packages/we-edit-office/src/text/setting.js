@@ -1,6 +1,6 @@
 import React,{Component, Fragment} from "react"
 import SvgIcon from "material-ui/SvgIcon"
-import Fonts from "./fonts"
+import Fonts from "../components/fonts"
 import ColorButton from "../components/color-button"
 import ComboBox from "../components/combo-box"
 import Field from "../components/field"
@@ -31,7 +31,7 @@ export default class TextSettings extends Component{
             <Fragment>
                 <div style={{display:"flex"}}>
                     <Field label="Text Font">
-                        <Fonts value={style?.fonts||""} changeFont={fonts=>this.setState({fonts})}/>
+                        <Fonts value={style?.fonts||""} onChange={fonts=>this.setState({fonts})}/>
                     </Field>
                     <Field label="Font Style">
                         <ComboBox value={this.fontStyle} autoFilter={false}

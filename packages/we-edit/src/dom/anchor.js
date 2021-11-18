@@ -14,12 +14,12 @@ export default class Anchor extends Component{
     static displayName="anchor"
     static propTypes={
         x: this.normalizeChecker(PropTypes.oneOfType([
+            this.UnitShape,//base is closest parent frame
             PropTypes.shape({
-                base: this.BaseShape,
+                base: this.AnchorBaseShape,
                 offset: this.UnitShape,
                 align: this.AlignShape,
             }),
-            this.UnitShape,//base is closest parent frame
         ]),{
             normalize:value=>{
                 if(typeof(value)=="object"){
@@ -54,12 +54,12 @@ export default class Anchor extends Component{
         }),
 
         y: this.normalizeChecker(PropTypes.oneOfType([
+            this.UnitShape,//base is closest parent frame
             PropTypes.shape({
-                base: this.BaseShape,
+                base: this.AnchorBaseShape,
                 offset: this.UnitShape,
                 align: this.VertAlignShape,
             }),
-            this.UnitShape,//base is closest parent frame
         ]),{
             normalize:value=>this.propTypes.x.normalize(value),
             denormalize:(value, normalized)=>this.propTypes.x.denormalize(value,normalized)
@@ -153,9 +153,6 @@ export default class Anchor extends Component{
             }
         }),
     }
-    static WrapModeShape=PropTypes.oneOf(["square", "tight", "clear","no"])
-    static WrapSideShape=PropTypes.oneOf(["both","left","right","largest"])
-    static BaseShape=PropTypes.oneOf(["character","line","paragraph","page","frame","margin", "closest"])
 
     static defaultProps={
         x:{base:"character",offset:0,align:"left"},

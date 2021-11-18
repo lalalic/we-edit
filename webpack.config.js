@@ -15,7 +15,20 @@ module.exports=(env,args)=>{
 			path:path.resolve(__dirname, 'dist'),
 		},
 		module:{
-			rules:[{
+			rules:[
+
+			/*{
+				test:/.js$/,
+				exclude: /node_modules/,
+				include: /src/,
+				loader:path.resolve("./domain-console.js"),
+				options:{
+					domain(resourcePath){
+						return resourcePath.replace(/(.*\/packages\/(we-edit(.*?))\/src)/g,(...args)=>args[2]).replace('we-edit-','we-edit/').replace(/\.js$/,"").replace(/index$/,"").split("/").filter(a=>!!a).join(".")
+					}
+				}
+			},*/
+			{
 				test: /.js?$/,
 				use: 'source-map-loader',
 				enforce:"pre",
@@ -63,17 +76,6 @@ module.exports=(env,args)=>{
 					replace:`this.extendStructure(Directory,CmapSubtable);//`
 				}
 			},
-			{
-				test:/.js$/,
-				exclude: /node_modules/,
-				include: /src/,
-				loader:path.resolve("./domain-console.js"),
-				options:{
-					domain(resourcePath){
-						return resourcePath.replace(/(.*\/packages\/(we-edit(.*?))\/src)/g,(...args)=>args[2]).replace('we-edit-','we-edit/').replace(/\.js$/,"").replace(/index$/,"").split("/").filter(a=>!!a).join(".")
-					}
-				}
-			}
 			]
 		},
 		resolve:{

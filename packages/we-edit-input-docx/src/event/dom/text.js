@@ -110,6 +110,14 @@ export class Text extends Base{
 
 	}
 
+	vertAlign(value){
+		if(!value){
+			this.got("w:vertAlign").remove()
+		}else{
+			this.got("w:vertAlign").attr("w:val",value)
+		}
+	}
+
 	subscript(b){
 		const node=this.got("w:vertAlign")
 		if(b){

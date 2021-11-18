@@ -2,7 +2,7 @@ import React, {Component, Fragment} from "react"
 import {dom} from "we-edit"
 import { RaisedButton, FlatButton,SvgIcon } from "material-ui"
 import Dialog from "../components/dialog"
-import UnitShapeInput from "../components/unit-shape-input"
+import UnitShapeInput from "../components/prop-types-ui/unit-shape"
 import Field from "../components/field"
 import FontSetting from "../text/setting"
 

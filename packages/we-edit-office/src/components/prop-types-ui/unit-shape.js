@@ -1,5 +1,6 @@
 import React, {Component} from "react"
-export default class UnitShapeInput extends Component{
+import base from "./base"
+export default class UnitShape extends base{
     constructor({value}){
         super(...arguments)
         this.state={value}
@@ -12,15 +13,15 @@ export default class UnitShapeInput extends Component{
     }
     
     render(){
-        const {props:{min,max,step,onChange=a=>a,...props}, state:{value=""}}=this
+        const {props:{min,max,step,onChange,name,label=name,types,path,required,style=this.theme.style,...props}, state:{value=""}}=this
         return (
             <span style={{position:"relative", display:"inline-block"}}>
-                <input {...{...props,value,type:"text"}} 
+                <input {...{...props,style,placeholder:label,title:label,value,type:"text"}} 
                     onChange={e=>this.setState({value:e.target.value})}
-                    onBlur={a=>onChange(value)}
+                    onBlur={a=>this.set(this.path, value)}
                     onKeyDown={e=>{
                         if(e.keyCode==13){
-                            onChange(value)
+                            this.set(this.path,value)
                         }
                     }}
                     />

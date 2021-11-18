@@ -11,7 +11,7 @@ export default class SizableIconButton extends PureComponent{
 	}
 
 	getStyle=memoize((style,size,padding,iconStyle, status)=>{
-		const sizeIconButton=this.context.muiTheme.sizeIconButton
+		const sizeIconButton=this.context.muiTheme?.sizeIconButton
 		style=style||{}
 		iconStyle=iconStyle||{}
 		
