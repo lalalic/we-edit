@@ -4,7 +4,9 @@ import { RaisedButton, FlatButton,SvgIcon } from "material-ui"
 import Dialog from "../components/dialog"
 import UnitShapeInput from "../components/prop-types-ui/unit-shape"
 import Field from "../components/field"
-import FontSetting from "../text/setting"
+
+
+const FontSetting=props=><div/>
 
 const {NumberingShape, numberings:Numberings, UnitShape}=dom.Paragraph
 export class BulletList extends Component{

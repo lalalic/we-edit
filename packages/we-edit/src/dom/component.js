@@ -558,7 +558,7 @@ export default class Base extends Component{
 
 	static AutofitShape=PropTypes.oneOf(["block","font"],{$type:"AutofitShape",label:"auto fit %s"})
 
-	static AlignShape=PropTypes.oneOf(["left","right","center","justify"],{$type:"AlignShape",label:"Align %s"})
+	static AlignShape=PropTypes.oneOf(["left","right","center","justify"],{$type:"AlignShape",label:"Align %s", defaultValue:"left"})
 	static VertAlignShape=PropTypes.oneOf(["top","middle","bottom"],{$type:"VertAlignShape",label:"Vertical Align %s"})
 
 	static TextStyleShape=this.normalizeChecker(PropTypes.shape({
@@ -578,6 +578,51 @@ export default class Base extends Component{
 			return normalized
 		}
 	})
+
+	static NumberFormatShape=PropTypes.oneOf(["decimal","lowerLetter","upperLetter","lowerRoman","upperRoman","chinese"])
+    static BulletListShape=PropTypes.shape({
+		style: this.TextStyleShape,
+		label: PropTypes.oneOfType([
+			PropTypes.string,
+			PropTypes.shape({
+				url: PropTypes.string.isRequired
+			})
+		]),
+		align: this.AlignShape,
+		indent: this.UnitShape,
+		hanging: this.UnitShape,
+	},{$type:"BulletListShape"})
+
+    static NumberListShape=PropTypes.shape({
+		style: this.TextStyleShape,
+		label: PropTypes.oneOfType([
+			PropTypes.string,
+			PropTypes.shape({
+				url: PropTypes.string.isRequired
+			})
+		]),
+		format: this.NumberFormatShape,
+		align: this.AlignShape,
+		indent: this.UnitShape,
+		hanging: this.UnitShape,
+	},{$type:"NumberListShape"})
+
+    static OutlineListShape=PropTypes.shape({
+		style: this.TextStyleShape,
+		label: PropTypes.oneOfType([
+			PropTypes.string,
+			PropTypes.shape({
+				url: PropTypes.string.isRequired
+			})
+		]),
+		format: PropTypes.oneOfType([PropTypes.oneOf(["bullet"]),this.NumberFormatShape]),
+		align: this.AlignShape,
+		indent: this.UnitShape,
+		hanging: this.UnitShape,
+		level: PropTypes.number,
+	},{$type:"OutlineListShape"})
+
+	static ListShape=PropTypes.oneOfType([this.BulletListShape, this.NumberListShape, this.OutlineListShape],{$type:"ListShape"})
 
 	static NumberingShape=this.normalizeChecker(PropTypes.shape({
 		id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),

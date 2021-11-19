@@ -8,7 +8,7 @@ import IconAlignJustify from "material-ui/svg-icons/editor/format-align-justify"
 
 import base from "./one-of"
 
-export default class AlianShape extends base{
+export default class AlignShape extends base{
     static defaultProps={
         icons: [<IconAlignLeft/>,<IconAlignRight/>,<IconAlignCenter/>,<IconAlignJustify/>]
     }

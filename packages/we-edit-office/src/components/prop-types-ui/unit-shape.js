@@ -11,12 +11,21 @@ export default class UnitShape extends base{
     UNSAFE_componentWillReceiveProps({value}){
         this.setState({value})
     }
+
+    renderDialog(){
+        return this.lineField(this.renderRibbon(false))
+    }
+
+    renderTree(){
+        return this.renderRibbon()
+    }
     
-    render(){
+    renderRibbon(hinting=true){
         const {props:{min,max,step,onChange,name,label=name,types,path,required,style=this.theme.style,...props}, state:{value=""}}=this
+        const hint={placeholder:label,title:label}
         return (
             <span style={{position:"relative", display:"inline-block"}}>
-                <input {...{...props,style,placeholder:label,title:label,value,type:"text"}} 
+                <input {...{...props,...(hinting ? hint : {}),style,value,type:"text"}} 
                     onChange={e=>this.setState({value:e.target.value})}
                     onBlur={a=>this.set(this.path, value)}
                     onKeyDown={e=>{

@@ -1,4 +1,4 @@
-import React, {Component, PureComponent} from "react"
+import React, {Component} from "react"
 import PropTypes from "prop-types"
 import {Map, fromJS} from "immutable"
 
@@ -33,6 +33,7 @@ import WrapModeShape from "./wrap-mode-shape"
 import WrapSideShape from "./wrap-side-shape"
 import ColumnShape from "./column-shape"
 import AnchorBaseShape from "./anchor-base-shape"
+import {ListShape, BulletListShape,NumberListShape,OutlineListShape} from "./list-shape"
 
 import BaseTheme from "./theme"
 
@@ -45,7 +46,9 @@ export default class PropTypesUI extends Component{
         UnitShape,AlignShape,AutoFitShape,BorderShape,ColorShape,
         EffectShape,FillPictureShape,FillShape, FontsShape,
         GeometryShape,GradientShape,GradientStopShape,
-        LineShape,MarginShape,NumberingShape,PaddingShape,
+        LineShape,MarginShape,PaddingShape,
+        NumberingShape, ListShape, BulletListShape,NumberListShape,OutlineListShape,
+
         PatternShape,TextStyleShape,UrlShape,VertialAlignShape,
         WrapModeShape,WrapSideShape,ColumnShape,AnchorBaseShape
     });
@@ -55,26 +58,38 @@ export default class PropTypesUI extends Component{
         set: PropTypes.func,
         PropTypes: PropTypes.object,
         theme: PropTypes.object,
+        onEvent: PropTypes.func,
     }
     static contextTypes={
         uiContext: PropTypes.oneOf(["Ribbon","Dialog","Tree"])
     }
 
     get theme(){
-        const {theme={}}=this.props
-        if(typeof(theme)=="string") {
-            return fromJS(BaseTheme[theme])
+        const {theme}=this.props
+        if(!theme)
+            return fromJS({})
+        switch(typeof(theme)) {
+            case "string":
+                return fromJS(BaseTheme[theme])
+            case "object":
+                const domain=Object.keys(theme)[0]
+                return fromJS(BaseTheme[domain]).mergeDeep(fromJS(theme[domain]))
         }
-        const domain=Object.keys(theme)[0]
-        return fromJS(BaseTheme[domain]).mergeDeep(fromJS(theme[domain]))
+        return fromJS({})
+        
+    }
+
+    get uiContext(){
+        return this.props.uiContext||this.context.uiContext   
     }
 
     getChildContext(){
         return {
-            uiContext: this.props.uiContext||this.context.uiContext,
+            uiContext: this.uiContext,
             set: this.set,
             PropTypes: this.constructor.Types,
-            theme: this.theme
+            theme: this.theme,
+            onEvent:this.onEvent,
         }
     }
 
@@ -82,11 +97,12 @@ export default class PropTypesUI extends Component{
         super(...arguments)
         this.state={props:new Map(props)}
         this.set=this.set.bind(this)
+        this.onEvent=this.onEvent.bind(this)
     }
     
     render(){
         const {props:{propTypes}, state:{props}, constructor:{Types}}=this
-        return <Types.shape schema={propTypes} value={props.toJS()}/>
+        return <Types.shape schema={propTypes.Type?.schema||propTypes} value={props.toJS()}/>
     }
 
     set(path, value){
@@ -106,5 +122,9 @@ export default class PropTypesUI extends Component{
             }
             onChange(patch.toJS(), changed.toJS())
         }
+    }
+
+    onEvent(){
+        this.props.onEvent?.(...arguments)
     }
 }

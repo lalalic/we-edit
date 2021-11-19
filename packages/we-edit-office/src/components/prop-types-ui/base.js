@@ -1,16 +1,13 @@
 import React, {PureComponent} from "react"
 import PropTypes from "prop-types"
 
-export default class extends PureComponent{
+export default class base extends PureComponent{
     static contextTypes={
         uiContext: PropTypes.string,
         PropTypes: PropTypes.object,
         set: PropTypes.func,
         theme: PropTypes.object,
-    }
-
-    constructor(...args){
-        super(...args)
+        onEvent: PropTypes.func,
     }
 
     get Types(){
@@ -50,11 +47,20 @@ export default class extends PureComponent{
         }
     }
 
+    fire(event,data){
+        const {onEvent}=this.props
+        if(onEvent){
+            onEvent(...arguments)
+        }else{
+            this.context.onEvent(...arguments)
+        }
+    }
+
     lineField(input, title){
         const {name, label=name}=this.props
         return (
-            <div>
-                <span>{title||label}</span>
+            <div style={{marginBottom:4}}>
+                <span style={{width:150,display:"inline-block",textAlign:"right",marginRight:5}}>{title||label}</span>
                 <span>
                 {input}
                 </span>
@@ -64,5 +70,13 @@ export default class extends PureComponent{
 
     renderDialog(){
         return this.lineField(this.renderTree())
+    }
+
+    renderTree(){
+        return null
+    }
+
+    renderRibbon(){
+        return null
     }
 }

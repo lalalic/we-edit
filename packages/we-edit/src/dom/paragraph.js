@@ -87,7 +87,7 @@ export default class Paragraph extends Component{
 
 		align:this.AlignShape,
 		
-		numbering: this.NumberingShape,
+		numbering: this.ListShape,
 		
 		/**[edit]default text style to be used when add text in empty paragraph*/
 		defaultStyle:this.TextStyleShape,

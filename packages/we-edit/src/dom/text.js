@@ -8,12 +8,11 @@ export default class Text extends Component{
 	static propTypes={
 		fonts: this.FontsShape.isRequired,
 		size: this.UnitShape.isRequired,
-		color: this.ColorShape,
-
+		
 		bold: PropTypes.bool,
 		italic: PropTypes.bool,
 		vanish: PropTypes.bool,
-		highlight: this.ColorShape,
+
 		border: PropTypes.oneOfType([
 			PropTypes.bool,
 			this.BorderShape,
@@ -26,7 +25,9 @@ export default class Text extends Component{
 			PropTypes.bool,
 			this.LineShape,
 		]),
-		vertAlign: PropTypes.oneOf(["subscript","superscript"],{label:"%s"}),
+		vertAlign: PropTypes.oneOf(["subscript","superscript"],{label:"vertical alignment"}),
+		highlight: this.ColorShape,
+		color: this.ColorShape,
 
 		formatText: PropTypes.func,//caps, dynamic, ...
 
@@ -36,7 +37,7 @@ export default class Text extends Component{
 		}),
 		spacing: this.UnitShape,
 		position: this.UnitShape,
-		kerning: PropTypes.oneOf([
+		kerning: PropTypes.oneOfType([
 			PropTypes.bool,
 			this.UnitShape,
 		]),

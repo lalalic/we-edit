@@ -149,7 +149,7 @@ describe("propTypes UI",()=>{
         expect(testRenderer.toJSON()).toMatchSnapshot()
     })
 
-    fit("should render dom.Text",()=>{
+    it("should render dom.Text",()=>{
         const testRenderer=TestRenderer.create(
             <MuiThemeProvider>
                 <PropTypesUI uiContext="Ribbon" theme="Text"
@@ -160,5 +160,15 @@ describe("propTypes UI",()=>{
         expect(testRenderer.toJSON()).toMatchSnapshot()
     })
 
+    fit("should render dom.Paragraph",()=>{
+        const testRenderer=TestRenderer.create(
+            <MuiThemeProvider>
+                <PropTypesUI uiContext="Ribbon" theme="Paragraph"
+                    propTypes={dom.Paragraph.propTypes}
+                />
+            </MuiThemeProvider>
+        )
+        expect(testRenderer.toJSON()).toMatchSnapshot()
+    })
 
 })
