@@ -7,7 +7,7 @@ import TestRenderer from "react-test-renderer"
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 jest.mock("material-ui/internal/Tooltip",()=>props=><span/>)
 
-describe("propTypes UI",()=>{
+xdescribe("propTypes UI",()=>{
     dom.Unknown.recordify(PropTypes)
     it("recordify",()=>{
         expect(dom.Unknown.reactCreateElementNormalized).toBe(true)
@@ -160,7 +160,7 @@ describe("propTypes UI",()=>{
         expect(testRenderer.toJSON()).toMatchSnapshot()
     })
 
-    fit("should render dom.Paragraph",()=>{
+    it("should render dom.Paragraph",()=>{
         const testRenderer=TestRenderer.create(
             <MuiThemeProvider>
                 <PropTypesUI uiContext="Ribbon" theme="Paragraph"
