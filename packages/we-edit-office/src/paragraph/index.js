@@ -157,7 +157,7 @@ export default compose(
 				]}
 				>
 				<PropTypesUI uiContext="Dialog"
-					propTypes={dom.Paragraph.BulletListShape}
+					propTypes={PropTypesUI.NumberingShape.BulletListShape}
 					props={style.numbering}
 					ref={refSetting}
 					/>
@@ -185,7 +185,7 @@ export default compose(
 				]}
 				>
 				<PropTypesUI uiContext="Dialog"
-					propTypes={dom.Paragraph.NumberListShape} 
+					propTypes={PropTypesUI.NumberingShape.NumberListShape} 
 					props={style.numbering}
 					ref={refSetting}
 					/>
@@ -213,7 +213,7 @@ export default compose(
 				]}
 				>
 				<PropTypesUI uiContext="Dialog" 
-					propTypes={dom.Paragraph.OutlineListShape} 
+					propTypes={PropTypesUI.NumberingShape.OutlineListShape} 
 					props={style.numbering}
 					ref={refSetting}
 					/>
@@ -241,7 +241,7 @@ export default compose(
 				]}
 				>
 				<PropTypesUI uiContext="Dialog"
-					propTypes={{numbering:dom.Paragraph.ListShape}} 
+					propTypes={{numbering:dom.Paragraph.propTypes.numbering}} 
 					props={style}
 					ref={refSetting}
 					/>

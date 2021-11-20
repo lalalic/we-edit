@@ -1,5 +1,127 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`propTypes UI should render {fonts,size, italic} 1`] = `
+Array [
+  <span
+    style={
+      Object {
+        "marginLeft": 2,
+        "marginRight": 2,
+      }
+    }
+  >
+    <input
+      autoComplete="off"
+      name="font"
+      onChange={[Function]}
+      onFocus={[Function]}
+      onKeyDown={[Function]}
+      placeholder="fonts"
+      style={
+        Object {
+          "border": "1px solid lightgray",
+          "height": 24,
+          "lineHeight": "24px",
+          "margin": "5px 2px 0 0",
+          "outline": "none",
+          "padding": "0 2px",
+        }
+      }
+      title="fonts"
+      value=""
+    />
+  </span>,
+  <span
+    style={
+      Object {
+        "display": "inline-block",
+        "position": "relative",
+      }
+    }
+  >
+    <input
+      onBlur={[Function]}
+      onChange={[Function]}
+      onKeyDown={[Function]}
+      placeholder="size"
+      title="size"
+      type="text"
+      value=""
+    />
+    <svg
+      style={
+        Object {
+          "position": "absolute",
+          "right": 2,
+          "width": 8,
+        }
+      }
+      viewBox="0 0 8 24"
+    >
+      <path
+        d="M1 8L4 4L7 8Z"
+        onClick={[Function]}
+        stroke="black"
+      />
+      <path
+        d="M1 12L4 16L7 12Z"
+        onClick={[Function]}
+        stroke="black"
+      />
+    </svg>
+  </span>,
+  <button
+    disabled={false}
+    onBlur={[Function]}
+    onClick={[Function]}
+    onFocus={[Function]}
+    onKeyDown={[Function]}
+    onKeyUp={[Function]}
+    onMouseEnter={[Function]}
+    onMouseLeave={[Function]}
+    onMouseOut={[Function]}
+    onTouchStart={[Function]}
+    path="italic"
+    style={
+      Object {
+        "WebkitTapHighlightColor": "rgba(0, 0, 0, 0)",
+        "background": "none",
+        "border": 10,
+        "boxSizing": "border-box",
+        "cursor": "pointer",
+        "display": "inline-block",
+        "fontFamily": "Roboto, sans-serif",
+        "fontSize": 0,
+        "fontWeight": "inherit",
+        "height": 48,
+        "margin": 0,
+        "muiPrepared": true,
+        "outline": "none",
+        "overflow": "visible",
+        "padding": 12,
+        "position": "relative",
+        "textDecoration": "none",
+        "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
+        "verticalAlign": null,
+        "width": 48,
+      }
+    }
+    tabIndex={0}
+    type="button"
+  >
+    <div
+      onMouseDown={[Function]}
+      onMouseLeave={[Function]}
+      onMouseUp={[Function]}
+      onTouchEnd={[Function]}
+      onTouchStart={[Function]}
+    >
+      <span />
+    </div>
+  </button>,
+]
+`;
+
 exports[`propTypes UI should render dom.Paragraph 1`] = `
 Array [
   <button
@@ -278,6 +400,279 @@ Array [
       </svg>
     </div>
   </button>,
+  <button
+    disabled={false}
+    onBlur={[Function]}
+    onClick={[Function]}
+    onFocus={[Function]}
+    onKeyDown={[Function]}
+    onKeyUp={[Function]}
+    onMouseEnter={[Function]}
+    onMouseLeave={[Function]}
+    onMouseOut={[Function]}
+    onTouchStart={[Function]}
+    style={
+      Object {
+        "WebkitTapHighlightColor": "rgba(0, 0, 0, 0)",
+        "background": "none",
+        "border": 10,
+        "boxSizing": "border-box",
+        "cursor": "pointer",
+        "display": "inline-block",
+        "fontFamily": "Roboto, sans-serif",
+        "fontSize": 0,
+        "fontWeight": "inherit",
+        "height": 48,
+        "margin": 0,
+        "muiPrepared": true,
+        "outline": "none",
+        "overflow": "visible",
+        "padding": 12,
+        "position": "relative",
+        "textDecoration": "none",
+        "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
+        "verticalAlign": null,
+        "width": 48,
+      }
+    }
+    tabIndex={0}
+    type="button"
+  >
+    <div
+      onMouseDown={[Function]}
+      onMouseLeave={[Function]}
+      onMouseUp={[Function]}
+      onTouchEnd={[Function]}
+      onTouchStart={[Function]}
+    >
+      <span />
+      <svg
+        onMouseEnter={[Function]}
+        onMouseLeave={[Function]}
+        style={
+          Object {
+            "color": "rgba(0, 0, 0, 0.87)",
+            "display": "inline-block",
+            "fill": "currentColor",
+            "height": 24,
+            "muiPrepared": true,
+            "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
+            "userSelect": "none",
+            "width": 24,
+          }
+        }
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5zm0 12c-.83 0-1.5.68-1.5 1.5s.68 1.5 1.5 1.5 1.5-.68 1.5-1.5-.67-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z"
+        />
+      </svg>
+    </div>
+  </button>,
+  <svg
+    onClick={[Function]}
+    onMouseEnter={[Function]}
+    onMouseLeave={[Function]}
+    style={
+      Object {
+        "color": "rgba(0, 0, 0, 0.87)",
+        "display": "inline-block",
+        "fill": "currentColor",
+        "height": 24,
+        "muiPrepared": true,
+        "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
+        "userSelect": "none",
+        "width": 6,
+      }
+    }
+    viewBox="8 0 18 36"
+  >
+    <path
+      d="M7 10l5 5 5-5z"
+    />
+  </svg>,
+  <button
+    disabled={false}
+    onBlur={[Function]}
+    onClick={[Function]}
+    onFocus={[Function]}
+    onKeyDown={[Function]}
+    onKeyUp={[Function]}
+    onMouseEnter={[Function]}
+    onMouseLeave={[Function]}
+    onMouseOut={[Function]}
+    onTouchStart={[Function]}
+    style={
+      Object {
+        "WebkitTapHighlightColor": "rgba(0, 0, 0, 0)",
+        "background": "none",
+        "border": 10,
+        "boxSizing": "border-box",
+        "cursor": "pointer",
+        "display": "inline-block",
+        "fontFamily": "Roboto, sans-serif",
+        "fontSize": 0,
+        "fontWeight": "inherit",
+        "height": 48,
+        "margin": 0,
+        "muiPrepared": true,
+        "outline": "none",
+        "overflow": "visible",
+        "padding": 12,
+        "position": "relative",
+        "textDecoration": "none",
+        "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
+        "verticalAlign": null,
+        "width": 48,
+      }
+    }
+    tabIndex={0}
+    type="button"
+  >
+    <div
+      onMouseDown={[Function]}
+      onMouseLeave={[Function]}
+      onMouseUp={[Function]}
+      onTouchEnd={[Function]}
+      onTouchStart={[Function]}
+    >
+      <span />
+      <svg
+        onMouseEnter={[Function]}
+        onMouseLeave={[Function]}
+        style={
+          Object {
+            "color": "rgba(0, 0, 0, 0.87)",
+            "display": "inline-block",
+            "fill": "currentColor",
+            "height": 24,
+            "muiPrepared": true,
+            "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
+            "userSelect": "none",
+            "width": 24,
+          }
+        }
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M2 17h2v.5H3v1h1v.5H2v1h3v-4H2v1zm1-9h1V4H2v1h1v3zm-1 3h1.8L2 13.1v.9h3v-1H3.2L5 10.9V10H2v1zm5-6v2h14V5H7zm0 14h14v-2H7v2zm0-6h14v-2H7v2z"
+        />
+      </svg>
+    </div>
+  </button>,
+  <svg
+    onClick={[Function]}
+    onMouseEnter={[Function]}
+    onMouseLeave={[Function]}
+    style={
+      Object {
+        "color": "rgba(0, 0, 0, 0.87)",
+        "display": "inline-block",
+        "fill": "currentColor",
+        "height": 24,
+        "muiPrepared": true,
+        "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
+        "userSelect": "none",
+        "width": 6,
+      }
+    }
+    viewBox="8 0 18 36"
+  >
+    <path
+      d="M7 10l5 5 5-5z"
+    />
+  </svg>,
+  <button
+    disabled={false}
+    onBlur={[Function]}
+    onClick={[Function]}
+    onFocus={[Function]}
+    onKeyDown={[Function]}
+    onKeyUp={[Function]}
+    onMouseEnter={[Function]}
+    onMouseLeave={[Function]}
+    onMouseOut={[Function]}
+    onTouchStart={[Function]}
+    style={
+      Object {
+        "WebkitTapHighlightColor": "rgba(0, 0, 0, 0)",
+        "background": "none",
+        "border": 10,
+        "boxSizing": "border-box",
+        "cursor": "pointer",
+        "display": "inline-block",
+        "fontFamily": "Roboto, sans-serif",
+        "fontSize": 0,
+        "fontWeight": "inherit",
+        "height": 48,
+        "margin": 0,
+        "muiPrepared": true,
+        "outline": "none",
+        "overflow": "visible",
+        "padding": 12,
+        "position": "relative",
+        "textDecoration": "none",
+        "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
+        "verticalAlign": null,
+        "width": 48,
+      }
+    }
+    tabIndex={0}
+    type="button"
+  >
+    <div
+      onMouseDown={[Function]}
+      onMouseLeave={[Function]}
+      onMouseUp={[Function]}
+      onTouchEnd={[Function]}
+      onTouchStart={[Function]}
+    >
+      <span />
+      <svg
+        onMouseEnter={[Function]}
+        onMouseLeave={[Function]}
+        style={
+          Object {
+            "color": "rgba(0, 0, 0, 0.87)",
+            "display": "inline-block",
+            "fill": "currentColor",
+            "height": 24,
+            "muiPrepared": true,
+            "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
+            "userSelect": "none",
+            "width": 24,
+          }
+        }
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm1 2.07c3.61.45 6.48 3.33 6.93 6.93H13V4.07zM4 12c0-4.06 3.07-7.44 7-7.93v15.87c-3.93-.5-7-3.88-7-7.94zm9 7.93V13h6.93c-.45 3.61-3.32 6.48-6.93 6.93z"
+        />
+      </svg>
+    </div>
+  </button>,
+  <svg
+    onClick={[Function]}
+    onMouseEnter={[Function]}
+    onMouseLeave={[Function]}
+    style={
+      Object {
+        "color": "rgba(0, 0, 0, 0.87)",
+        "display": "inline-block",
+        "fill": "currentColor",
+        "height": 24,
+        "muiPrepared": true,
+        "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
+        "userSelect": "none",
+        "width": 6,
+      }
+    }
+    viewBox="8 0 18 36"
+  >
+    <path
+      d="M7 10l5 5 5-5z"
+    />
+  </svg>,
 ]
 `;
 
@@ -306,6 +701,7 @@ Array [
           "margin": "5px 2px 0 0",
           "outline": "none",
           "padding": "0 2px",
+          "width": 100,
         }
       }
       title="fonts"
@@ -325,6 +721,11 @@ Array [
       onChange={[Function]}
       onKeyDown={[Function]}
       placeholder="size"
+      style={
+        Object {
+          "width": 50,
+        }
+      }
       title="size"
       type="text"
       value=""
@@ -351,134 +752,9 @@ Array [
       />
     </svg>
   </span>,
-  <span
-    style={
-      Object {
-        "whiteSpace": "nowrap",
-      }
-    }
-  >
-    <button
-      disabled={false}
-      onBlur={[Function]}
-      onClick={[Function]}
-      onFocus={[Function]}
-      onKeyDown={[Function]}
-      onKeyUp={[Function]}
-      onMouseEnter={[Function]}
-      onMouseLeave={[Function]}
-      onMouseOut={[Function]}
-      onTouchStart={[Function]}
-      style={
-        Object {
-          "WebkitTapHighlightColor": "rgba(0, 0, 0, 0)",
-          "background": "none",
-          "border": 10,
-          "boxSizing": "border-box",
-          "cursor": "pointer",
-          "display": "inline-block",
-          "fontFamily": "Roboto, sans-serif",
-          "fontSize": 0,
-          "fontWeight": "inherit",
-          "height": 48,
-          "margin": 0,
-          "muiPrepared": true,
-          "outline": "none",
-          "overflow": "visible",
-          "padding": 12,
-          "position": "relative",
-          "textDecoration": "none",
-          "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
-          "verticalAlign": null,
-          "width": 48,
-        }
-      }
-      tabIndex={0}
-      type="button"
-    >
-      <div
-        onMouseDown={[Function]}
-        onMouseLeave={[Function]}
-        onMouseUp={[Function]}
-        onTouchEnd={[Function]}
-        onTouchStart={[Function]}
-      >
-        <svg
-          onMouseEnter={[Function]}
-          onMouseLeave={[Function]}
-          style={
-            Object {
-              "color": "rgba(0, 0, 0, 0.87)",
-              "display": "inline-block",
-              "fill": "currentColor",
-              "height": 24,
-              "muiPrepared": true,
-              "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
-              "userSelect": "none",
-              "width": 24,
-            }
-          }
-          viewBox="0 0 24 24"
-        >
-          <svg
-            onMouseEnter={[Function]}
-            onMouseLeave={[Function]}
-            style={
-              Object {
-                "color": "rgba(0, 0, 0, 0.87)",
-                "display": "inline-block",
-                "fill": "currentColor",
-                "height": 24,
-                "muiPrepared": true,
-                "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
-                "userSelect": "none",
-                "width": 24,
-              }
-            }
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M16.56 8.94L7.62 0 6.21 1.41l2.38 2.38-5.15 5.15c-.59.59-.59 1.54 0 2.12l5.5 5.5c.29.29.68.44 1.06.44s.77-.15 1.06-.44l5.5-5.5c.59-.58.59-1.53 0-2.12zM5.21 10L10 5.21 14.79 10H5.21zM19 11.5s-2 2.17-2 3.5c0 1.1.9 2 2 2s2-.9 2-2c0-1.33-2-3.5-2-3.5z"
-            />
-            <path
-              d="M0 20h24v4H0z"
-              fillOpacity=".36"
-            />
-          </svg>
-          <path
-            d="M0 20h24v4H0z"
-            fill="none"
-          />
-        </svg>
-      </div>
-    </button>
-    <svg
-      onClick={[Function]}
-      onMouseEnter={[Function]}
-      onMouseLeave={[Function]}
-      style={
-        Object {
-          "color": "rgba(0, 0, 0, 0.87)",
-          "display": "inline-block",
-          "fill": "currentColor",
-          "height": 24,
-          "muiPrepared": true,
-          "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
-          "userSelect": "none",
-          "width": 6,
-        }
-      }
-      viewBox="6 -12 18 36"
-    >
-      <path
-        d="M7 10l5 5 5-5z"
-      />
-    </svg>
-  </span>,
   <button
     disabled={false}
     onBlur={[Function]}
-    onChange={[Function]}
     onClick={[Function]}
     onFocus={[Function]}
     onKeyDown={[Function]}
@@ -549,7 +825,6 @@ Array [
   <button
     disabled={false}
     onBlur={[Function]}
-    onChange={[Function]}
     onClick={[Function]}
     onFocus={[Function]}
     onKeyDown={[Function]}
@@ -620,202 +895,6 @@ Array [
   <button
     disabled={false}
     onBlur={[Function]}
-    onChange={[Function]}
-    onClick={[Function]}
-    onFocus={[Function]}
-    onKeyDown={[Function]}
-    onKeyUp={[Function]}
-    onMouseEnter={[Function]}
-    onMouseLeave={[Function]}
-    onMouseOut={[Function]}
-    onTouchStart={[Function]}
-    path="vanish"
-    style={
-      Object {
-        "WebkitTapHighlightColor": "rgba(0, 0, 0, 0)",
-        "background": "none",
-        "border": 10,
-        "boxSizing": "border-box",
-        "cursor": "pointer",
-        "display": "inline-block",
-        "fontFamily": "Roboto, sans-serif",
-        "fontSize": 0,
-        "fontWeight": "inherit",
-        "height": 48,
-        "margin": 0,
-        "muiPrepared": true,
-        "outline": "none",
-        "overflow": "visible",
-        "padding": 12,
-        "position": "relative",
-        "textDecoration": "none",
-        "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
-        "verticalAlign": null,
-        "width": 48,
-      }
-    }
-    tabIndex={0}
-    type="button"
-  >
-    <div
-      onMouseDown={[Function]}
-      onMouseLeave={[Function]}
-      onMouseUp={[Function]}
-      onTouchEnd={[Function]}
-      onTouchStart={[Function]}
-    >
-      <span />
-      <svg
-        onMouseEnter={[Function]}
-        onMouseLeave={[Function]}
-        style={
-          Object {
-            "color": "rgba(0, 0, 0, 0.87)",
-            "display": "inline-block",
-            "fill": "currentColor",
-            "height": 24,
-            "muiPrepared": true,
-            "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
-            "userSelect": "none",
-            "width": 24,
-          }
-        }
-        viewBox="0 0 24 24"
-      >
-        <path
-          d="M3.27 5L2 6.27l6.97 6.97L6.5 19h3l1.57-3.66L16.73 21 18 19.73 3.55 5.27 3.27 5zM6 5v.18L8.82 8h2.4l-.72 1.68 2.1 2.1L14.21 8H20V5H6z"
-        />
-      </svg>
-    </div>
-  </button>,
-  <span
-    style={
-      Object {
-        "whiteSpace": "nowrap",
-      }
-    }
-  >
-    <button
-      disabled={false}
-      onBlur={[Function]}
-      onClick={[Function]}
-      onFocus={[Function]}
-      onKeyDown={[Function]}
-      onKeyUp={[Function]}
-      onMouseEnter={[Function]}
-      onMouseLeave={[Function]}
-      onMouseOut={[Function]}
-      onTouchStart={[Function]}
-      style={
-        Object {
-          "WebkitTapHighlightColor": "rgba(0, 0, 0, 0)",
-          "background": "none",
-          "border": 10,
-          "boxSizing": "border-box",
-          "cursor": "pointer",
-          "display": "inline-block",
-          "fontFamily": "Roboto, sans-serif",
-          "fontSize": 0,
-          "fontWeight": "inherit",
-          "height": 48,
-          "margin": 0,
-          "muiPrepared": true,
-          "outline": "none",
-          "overflow": "visible",
-          "padding": 12,
-          "position": "relative",
-          "textDecoration": "none",
-          "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
-          "verticalAlign": null,
-          "width": 48,
-        }
-      }
-      tabIndex={0}
-      type="button"
-    >
-      <div
-        onMouseDown={[Function]}
-        onMouseLeave={[Function]}
-        onMouseUp={[Function]}
-        onTouchEnd={[Function]}
-        onTouchStart={[Function]}
-      >
-        <svg
-          onMouseEnter={[Function]}
-          onMouseLeave={[Function]}
-          style={
-            Object {
-              "color": "rgba(0, 0, 0, 0.87)",
-              "display": "inline-block",
-              "fill": "currentColor",
-              "height": 24,
-              "muiPrepared": true,
-              "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
-              "userSelect": "none",
-              "width": 24,
-            }
-          }
-          viewBox="0 0 24 24"
-        >
-          <svg
-            onMouseEnter={[Function]}
-            onMouseLeave={[Function]}
-            style={
-              Object {
-                "color": "rgba(0, 0, 0, 0.87)",
-                "display": "inline-block",
-                "fill": "currentColor",
-                "height": 24,
-                "muiPrepared": true,
-                "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
-                "userSelect": "none",
-                "width": 24,
-              }
-            }
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M16.56 8.94L7.62 0 6.21 1.41l2.38 2.38-5.15 5.15c-.59.59-.59 1.54 0 2.12l5.5 5.5c.29.29.68.44 1.06.44s.77-.15 1.06-.44l5.5-5.5c.59-.58.59-1.53 0-2.12zM5.21 10L10 5.21 14.79 10H5.21zM19 11.5s-2 2.17-2 3.5c0 1.1.9 2 2 2s2-.9 2-2c0-1.33-2-3.5-2-3.5z"
-            />
-            <path
-              d="M0 20h24v4H0z"
-              fillOpacity=".36"
-            />
-          </svg>
-          <path
-            d="M0 20h24v4H0z"
-            fill="none"
-          />
-        </svg>
-      </div>
-    </button>
-    <svg
-      onClick={[Function]}
-      onMouseEnter={[Function]}
-      onMouseLeave={[Function]}
-      style={
-        Object {
-          "color": "rgba(0, 0, 0, 0.87)",
-          "display": "inline-block",
-          "fill": "currentColor",
-          "height": 24,
-          "muiPrepared": true,
-          "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
-          "userSelect": "none",
-          "width": 6,
-        }
-      }
-      viewBox="6 -12 18 36"
-    >
-      <path
-        d="M7 10l5 5 5-5z"
-      />
-    </svg>
-  </span>,
-  <button
-    disabled={false}
-    onBlur={[Function]}
-    onChange={[Function]}
     onClick={[Function]}
     onFocus={[Function]}
     onKeyDown={[Function]}
@@ -895,7 +974,6 @@ Array [
   <button
     disabled={false}
     onBlur={[Function]}
-    onChange={[Function]}
     onClick={[Function]}
     onFocus={[Function]}
     onKeyDown={[Function]}
@@ -966,7 +1044,6 @@ Array [
   <button
     disabled={false}
     onBlur={[Function]}
-    onChange={[Function]}
     onClick={[Function]}
     onFocus={[Function]}
     onKeyDown={[Function]}
@@ -1034,159 +1111,421 @@ Array [
       </svg>
     </div>
   </button>,
+  <button
+    disabled={false}
+    onBlur={[Function]}
+    onClick={[Function]}
+    onFocus={[Function]}
+    onKeyDown={[Function]}
+    onKeyUp={[Function]}
+    onMouseEnter={[Function]}
+    onMouseLeave={[Function]}
+    onMouseOut={[Function]}
+    onTouchStart={[Function]}
+    style={
+      Object {
+        "WebkitTapHighlightColor": "rgba(0, 0, 0, 0)",
+        "background": "none",
+        "border": 10,
+        "boxSizing": "border-box",
+        "cursor": "pointer",
+        "display": "inline-block",
+        "fontFamily": "Roboto, sans-serif",
+        "fontSize": 0,
+        "fontWeight": "inherit",
+        "height": 48,
+        "margin": 0,
+        "muiPrepared": true,
+        "outline": "none",
+        "overflow": "visible",
+        "padding": 12,
+        "position": "relative",
+        "textDecoration": "none",
+        "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
+        "verticalAlign": null,
+        "width": 48,
+      }
+    }
+    tabIndex={0}
+    type="button"
+  >
+    <div
+      onMouseDown={[Function]}
+      onMouseLeave={[Function]}
+      onMouseUp={[Function]}
+      onTouchEnd={[Function]}
+      onTouchStart={[Function]}
+    >
+      <span />
+      <svg
+        onMouseEnter={[Function]}
+        onMouseLeave={[Function]}
+        style={
+          Object {
+            "color": "rgba(0, 0, 0, 0.87)",
+            "display": "inline-block",
+            "fill": "currentColor",
+            "height": 24,
+            "muiPrepared": true,
+            "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
+            "userSelect": "none",
+            "width": 24,
+          }
+        }
+        viewBox="0 0 24 24"
+      >
+        <g
+          transform="translate(0 3) scale(0.7)"
+        >
+          <path
+            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+          />
+        </g>
+        <text
+          style={
+            Object {
+              "fontSize": 9,
+            }
+          }
+          x="15"
+          y="20"
+        >
+          2
+        </text>
+      </svg>
+    </div>
+  </button>,
+  <button
+    disabled={false}
+    onBlur={[Function]}
+    onClick={[Function]}
+    onFocus={[Function]}
+    onKeyDown={[Function]}
+    onKeyUp={[Function]}
+    onMouseEnter={[Function]}
+    onMouseLeave={[Function]}
+    onMouseOut={[Function]}
+    onTouchStart={[Function]}
+    style={
+      Object {
+        "WebkitTapHighlightColor": "rgba(0, 0, 0, 0)",
+        "background": "none",
+        "border": 10,
+        "boxSizing": "border-box",
+        "cursor": "pointer",
+        "display": "inline-block",
+        "fontFamily": "Roboto, sans-serif",
+        "fontSize": 0,
+        "fontWeight": "inherit",
+        "height": 48,
+        "margin": 0,
+        "muiPrepared": true,
+        "outline": "none",
+        "overflow": "visible",
+        "padding": 12,
+        "position": "relative",
+        "textDecoration": "none",
+        "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
+        "verticalAlign": null,
+        "width": 48,
+      }
+    }
+    tabIndex={0}
+    type="button"
+  >
+    <div
+      onMouseDown={[Function]}
+      onMouseLeave={[Function]}
+      onMouseUp={[Function]}
+      onTouchEnd={[Function]}
+      onTouchStart={[Function]}
+    >
+      <span />
+      <svg
+        onMouseEnter={[Function]}
+        onMouseLeave={[Function]}
+        style={
+          Object {
+            "color": "rgba(0, 0, 0, 0.87)",
+            "display": "inline-block",
+            "fill": "currentColor",
+            "height": 24,
+            "muiPrepared": true,
+            "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
+            "userSelect": "none",
+            "width": 24,
+          }
+        }
+        viewBox="0 0 24 24"
+      >
+        <g
+          transform="translate(0 3) scale(0.7)"
+        >
+          <path
+            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+          />
+        </g>
+        <text
+          style={
+            Object {
+              "fontSize": 9,
+            }
+          }
+          x="15"
+          y="9"
+        >
+          2
+        </text>
+      </svg>
+    </div>
+  </button>,
   <span
     style={
       Object {
-        "display": "inline-block",
-        "position": "relative",
+        "whiteSpace": "nowrap",
       }
     }
   >
-    <input
+    <button
+      disabled={false}
       onBlur={[Function]}
-      onChange={[Function]}
+      onClick={[Function]}
+      onFocus={[Function]}
       onKeyDown={[Function]}
-      placeholder="horizontal"
-      title="horizontal"
-      type="text"
-      value=""
-    />
-    <svg
+      onKeyUp={[Function]}
+      onMouseEnter={[Function]}
+      onMouseLeave={[Function]}
+      onMouseOut={[Function]}
+      onTouchStart={[Function]}
       style={
         Object {
-          "position": "absolute",
-          "right": 2,
-          "width": 8,
+          "WebkitTapHighlightColor": "rgba(0, 0, 0, 0)",
+          "background": "none",
+          "border": 10,
+          "boxSizing": "border-box",
+          "cursor": "pointer",
+          "display": "inline-block",
+          "fontFamily": "Roboto, sans-serif",
+          "fontSize": 0,
+          "fontWeight": "inherit",
+          "height": 48,
+          "margin": 0,
+          "muiPrepared": true,
+          "outline": "none",
+          "overflow": "visible",
+          "padding": 12,
+          "position": "relative",
+          "textDecoration": "none",
+          "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
+          "verticalAlign": null,
+          "width": 48,
         }
       }
-      viewBox="0 0 8 24"
+      tabIndex={0}
+      type="button"
+    >
+      <div
+        onMouseDown={[Function]}
+        onMouseLeave={[Function]}
+        onMouseUp={[Function]}
+        onTouchEnd={[Function]}
+        onTouchStart={[Function]}
+      >
+        <span />
+        <svg
+          onMouseEnter={[Function]}
+          onMouseLeave={[Function]}
+          style={
+            Object {
+              "color": "rgba(0, 0, 0, 0.87)",
+              "display": "inline-block",
+              "fill": "currentColor",
+              "height": 24,
+              "muiPrepared": true,
+              "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
+              "userSelect": "none",
+              "width": 24,
+            }
+          }
+          viewBox="0 0 24 24"
+        >
+          <svg
+            onMouseEnter={[Function]}
+            onMouseLeave={[Function]}
+            style={
+              Object {
+                "color": "rgba(0, 0, 0, 0.87)",
+                "display": "inline-block",
+                "fill": "currentColor",
+                "height": 24,
+                "muiPrepared": true,
+                "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
+                "userSelect": "none",
+                "width": 24,
+              }
+            }
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M16.56 8.94L7.62 0 6.21 1.41l2.38 2.38-5.15 5.15c-.59.59-.59 1.54 0 2.12l5.5 5.5c.29.29.68.44 1.06.44s.77-.15 1.06-.44l5.5-5.5c.59-.58.59-1.53 0-2.12zM5.21 10L10 5.21 14.79 10H5.21zM19 11.5s-2 2.17-2 3.5c0 1.1.9 2 2 2s2-.9 2-2c0-1.33-2-3.5-2-3.5z"
+            />
+            <path
+              d="M0 20h24v4H0z"
+              fillOpacity=".36"
+            />
+          </svg>
+          <path
+            d="M0 20h24v4H0z"
+            fill="none"
+          />
+        </svg>
+      </div>
+    </button>
+    <svg
+      onClick={[Function]}
+      onMouseEnter={[Function]}
+      onMouseLeave={[Function]}
+      style={
+        Object {
+          "color": "rgba(0, 0, 0, 0.87)",
+          "display": "inline-block",
+          "fill": "currentColor",
+          "height": 24,
+          "muiPrepared": true,
+          "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
+          "userSelect": "none",
+          "width": 6,
+        }
+      }
+      viewBox="6 -12 18 36"
     >
       <path
-        d="M1 8L4 4L7 8Z"
-        onClick={[Function]}
-        stroke="black"
-      />
-      <path
-        d="M1 12L4 16L7 12Z"
-        onClick={[Function]}
-        stroke="black"
+        d="M7 10l5 5 5-5z"
       />
     </svg>
   </span>,
   <span
     style={
       Object {
-        "display": "inline-block",
-        "position": "relative",
+        "whiteSpace": "nowrap",
       }
     }
   >
-    <input
+    <button
+      disabled={false}
       onBlur={[Function]}
-      onChange={[Function]}
+      onClick={[Function]}
+      onFocus={[Function]}
       onKeyDown={[Function]}
-      placeholder="vertical"
-      title="vertical"
-      type="text"
-      value=""
-    />
-    <svg
+      onKeyUp={[Function]}
+      onMouseEnter={[Function]}
+      onMouseLeave={[Function]}
+      onMouseOut={[Function]}
+      onTouchStart={[Function]}
       style={
         Object {
-          "position": "absolute",
-          "right": 2,
-          "width": 8,
+          "WebkitTapHighlightColor": "rgba(0, 0, 0, 0)",
+          "background": "none",
+          "border": 10,
+          "boxSizing": "border-box",
+          "cursor": "pointer",
+          "display": "inline-block",
+          "fontFamily": "Roboto, sans-serif",
+          "fontSize": 0,
+          "fontWeight": "inherit",
+          "height": 48,
+          "margin": 0,
+          "muiPrepared": true,
+          "outline": "none",
+          "overflow": "visible",
+          "padding": 12,
+          "position": "relative",
+          "textDecoration": "none",
+          "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
+          "verticalAlign": null,
+          "width": 48,
         }
       }
-      viewBox="0 0 8 24"
+      tabIndex={0}
+      type="button"
     >
-      <path
-        d="M1 8L4 4L7 8Z"
-        onClick={[Function]}
-        stroke="black"
-      />
-      <path
-        d="M1 12L4 16L7 12Z"
-        onClick={[Function]}
-        stroke="black"
-      />
-    </svg>
-  </span>,
-  <span
-    style={
-      Object {
-        "display": "inline-block",
-        "position": "relative",
-      }
-    }
-  >
-    <input
-      onBlur={[Function]}
-      onChange={[Function]}
-      onKeyDown={[Function]}
-      placeholder="spacing"
-      title="spacing"
-      type="text"
-      value=""
-    />
+      <div
+        onMouseDown={[Function]}
+        onMouseLeave={[Function]}
+        onMouseUp={[Function]}
+        onTouchEnd={[Function]}
+        onTouchStart={[Function]}
+      >
+        <span />
+        <svg
+          onMouseEnter={[Function]}
+          onMouseLeave={[Function]}
+          style={
+            Object {
+              "color": "rgba(0, 0, 0, 0.87)",
+              "display": "inline-block",
+              "fill": "currentColor",
+              "height": 24,
+              "muiPrepared": true,
+              "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
+              "userSelect": "none",
+              "width": 24,
+            }
+          }
+          viewBox="0 0 24 24"
+        >
+          <svg
+            onMouseEnter={[Function]}
+            onMouseLeave={[Function]}
+            style={
+              Object {
+                "color": "rgba(0, 0, 0, 0.87)",
+                "display": "inline-block",
+                "fill": "currentColor",
+                "height": 24,
+                "muiPrepared": true,
+                "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
+                "userSelect": "none",
+                "width": 24,
+              }
+            }
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M16.56 8.94L7.62 0 6.21 1.41l2.38 2.38-5.15 5.15c-.59.59-.59 1.54 0 2.12l5.5 5.5c.29.29.68.44 1.06.44s.77-.15 1.06-.44l5.5-5.5c.59-.58.59-1.53 0-2.12zM5.21 10L10 5.21 14.79 10H5.21zM19 11.5s-2 2.17-2 3.5c0 1.1.9 2 2 2s2-.9 2-2c0-1.33-2-3.5-2-3.5z"
+            />
+            <path
+              d="M0 20h24v4H0z"
+              fillOpacity=".36"
+            />
+          </svg>
+          <path
+            d="M0 20h24v4H0z"
+            fill="none"
+          />
+        </svg>
+      </div>
+    </button>
     <svg
+      onClick={[Function]}
+      onMouseEnter={[Function]}
+      onMouseLeave={[Function]}
       style={
         Object {
-          "position": "absolute",
-          "right": 2,
-          "width": 8,
+          "color": "rgba(0, 0, 0, 0.87)",
+          "display": "inline-block",
+          "fill": "currentColor",
+          "height": 24,
+          "muiPrepared": true,
+          "transition": "all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms",
+          "userSelect": "none",
+          "width": 6,
         }
       }
-      viewBox="0 0 8 24"
+      viewBox="6 -12 18 36"
     >
       <path
-        d="M1 8L4 4L7 8Z"
-        onClick={[Function]}
-        stroke="black"
-      />
-      <path
-        d="M1 12L4 16L7 12Z"
-        onClick={[Function]}
-        stroke="black"
-      />
-    </svg>
-  </span>,
-  <span
-    style={
-      Object {
-        "display": "inline-block",
-        "position": "relative",
-      }
-    }
-  >
-    <input
-      onBlur={[Function]}
-      onChange={[Function]}
-      onKeyDown={[Function]}
-      placeholder="position"
-      title="position"
-      type="text"
-      value=""
-    />
-    <svg
-      style={
-        Object {
-          "position": "absolute",
-          "right": 2,
-          "width": 8,
-        }
-      }
-      viewBox="0 0 8 24"
-    >
-      <path
-        d="M1 8L4 4L7 8Z"
-        onClick={[Function]}
-        stroke="black"
-      />
-      <path
-        d="M1 12L4 16L7 12Z"
-        onClick={[Function]}
-        stroke="black"
+        d="M7 10l5 5 5-5z"
       />
     </svg>
   </span>,

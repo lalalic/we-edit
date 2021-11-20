@@ -7,12 +7,11 @@ import TestRenderer from "react-test-renderer"
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 jest.mock("material-ui/internal/Tooltip",()=>props=><span/>)
 
-xdescribe("propTypes UI",()=>{
-    dom.Unknown.recordify(PropTypes)
+describe("propTypes UI",()=>{
+    beforeAll(()=>dom.Unknown.memorize(PropTypes))
     it("recordify",()=>{
-        expect(dom.Unknown.reactCreateElementNormalized).toBe(true)
-        expect(dom.Text.propTypes.italic.Type).toMatchObject({type:"bool"})
         expect(PropTypes.string.Type).toMatchObject({type:"string"})
+        expect(dom.Text.propTypes.italic.Type).toMatchObject({type:"bool"})
     })
 
     it("should create for {name:string}",()=>{
@@ -94,7 +93,7 @@ xdescribe("propTypes UI",()=>{
         expect(setState).toHaveBeenCalledTimes(1)
     })
 
-    it("should trigger change with all array items",()=>{
+    xit("should trigger change with all array items",()=>{
         const onChange=jest.fn()
         const el=<PropTypesUI propTypes={{
                     accounts: PropTypes.arrayOf(PropTypes.number),
@@ -109,7 +108,7 @@ xdescribe("propTypes UI",()=>{
         const nameInstance=testRenderer.root.findByType(PropTypesUI.string)
         expect(nameInstance.props).toMatchObject({path:"name"})
         nameInstance.findByType("input").props.onChange({target:{value:"A"}})
-        expect(onChange).toHaveBeenCalledWith({name:"A"},{name:"A",age:1})
+        expect(onChange).toHaveBeenCalledWith({name:"A"},{name:"A",accounts:[1,2]})
     })
 
     it("should render oneOfType",()=>{

@@ -26,16 +26,21 @@ export default class base extends PureComponent{
         return this.context.theme.getIn(this.path.split("."))?.toJS()||{}
     }
 
+    get uiContext(){
+        return this.props.uiContext||this.context.uiContext||"Dialog"
+    }
+
+    getUIType(type){
+        return typeof(type)=="string" ? this.Types[type] : type
+    }
+
     makePath(key){
         return `${this.path}${this.path ? "." : ""}${key}`
     }
 
     render(){
-        const {uiContext="Dialog"}=this.context
-        const {[uiContext]:show=true}=this.theme
-        if(!show)
-            return null
-        return (this[`render${uiContext}`]||this.render).call(this)
+        const {uiContext, theme:{[uiContext]:show=true}}=this
+        return !show ? null : (this[`render${uiContext}`]||this.render).call(this)
     }
 
     set(path, value){

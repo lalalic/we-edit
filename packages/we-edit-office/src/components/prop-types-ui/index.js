@@ -33,7 +33,6 @@ import WrapModeShape from "./wrap-mode-shape"
 import WrapSideShape from "./wrap-side-shape"
 import ColumnShape from "./column-shape"
 import AnchorBaseShape from "./anchor-base-shape"
-import {ListShape, BulletListShape,NumberListShape,OutlineListShape} from "./list-shape"
 
 import BaseTheme from "./theme"
 
@@ -47,7 +46,7 @@ export default class PropTypesUI extends Component{
         EffectShape,FillPictureShape,FillShape, FontsShape,
         GeometryShape,GradientShape,GradientStopShape,
         LineShape,MarginShape,PaddingShape,
-        NumberingShape, ListShape, BulletListShape,NumberListShape,OutlineListShape,
+        NumberingShape, 
 
         PatternShape,TextStyleShape,UrlShape,VertialAlignShape,
         WrapModeShape,WrapSideShape,ColumnShape,AnchorBaseShape

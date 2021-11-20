@@ -11,7 +11,7 @@ export default class Base extends Component{
 	static numberings=numberings
 	static Geometry=Geometry
 
-	static recordify=types=>{
+	static memorize=types=>{
 		const {string,bool,number}=types
 		string.Type=<string/>
 		string.isRequired.Type=<string required={true}/>
@@ -64,16 +64,16 @@ export default class Base extends Component{
 		Object.assign(isRequired,extend)
 		return checker
 	}
-	static reactCreateElementNormalized=((createElement, recordify)=>{
+	static reactCreateElementNormalized=((createElement, memorize)=>{
 			React.createElement=function(Type, props, ...args){
 				props=Type.normalizePropShape?.({...Type.defaultProps,...props})||props
 				return createElement(Type, props, ...args)
 			}
 
-			recordify(PropTypes)
+			memorize(PropTypes)
 			return true
 		}
-	)(React.createElement, this.recordify)
+	)(React.createElement, this.memorize)
 	
 	static UnitShape=this.normalizeChecker(PropTypes.oneOfType([
 		PropTypes.number,
@@ -578,51 +578,6 @@ export default class Base extends Component{
 			return normalized
 		}
 	})
-
-	static NumberFormatShape=PropTypes.oneOf(["decimal","lowerLetter","upperLetter","lowerRoman","upperRoman","chinese"])
-    static BulletListShape=PropTypes.shape({
-		style: this.TextStyleShape,
-		label: PropTypes.oneOfType([
-			PropTypes.string,
-			PropTypes.shape({
-				url: PropTypes.string.isRequired
-			})
-		]),
-		align: this.AlignShape,
-		indent: this.UnitShape,
-		hanging: this.UnitShape,
-	},{$type:"BulletListShape"})
-
-    static NumberListShape=PropTypes.shape({
-		style: this.TextStyleShape,
-		label: PropTypes.oneOfType([
-			PropTypes.string,
-			PropTypes.shape({
-				url: PropTypes.string.isRequired
-			})
-		]),
-		format: this.NumberFormatShape,
-		align: this.AlignShape,
-		indent: this.UnitShape,
-		hanging: this.UnitShape,
-	},{$type:"NumberListShape"})
-
-    static OutlineListShape=PropTypes.shape({
-		style: this.TextStyleShape,
-		label: PropTypes.oneOfType([
-			PropTypes.string,
-			PropTypes.shape({
-				url: PropTypes.string.isRequired
-			})
-		]),
-		format: PropTypes.oneOfType([PropTypes.oneOf(["bullet"]),this.NumberFormatShape]),
-		align: this.AlignShape,
-		indent: this.UnitShape,
-		hanging: this.UnitShape,
-		level: PropTypes.number,
-	},{$type:"OutlineListShape"})
-
-	static ListShape=PropTypes.oneOfType([this.BulletListShape, this.NumberListShape, this.OutlineListShape],{$type:"ListShape"})
 
 	static NumberingShape=this.normalizeChecker(PropTypes.shape({
 		id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
